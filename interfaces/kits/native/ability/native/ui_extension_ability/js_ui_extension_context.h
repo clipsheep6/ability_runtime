@@ -18,62 +18,35 @@
 
 #include <memory>
 
-#include "ability_connect_callback.h"
 #include "ui_extension_context.h"
-#include "event_handler.h"
 #include "native_engine/native_engine.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-class JSUIExtensionConnection : public AbilityConnectCallback {
-public:
-    explicit JSUIExtensionConnection(NativeEngine& engine) : engine_(engine) {}
-    ~JSUIExtensionConnection();
-    void OnAbilityConnectDone(
-        const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
-    void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override;
-    void HandleOnAbilityConnectDone(
-        const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode);
-    void HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode);
-    void SetJsConnectionObject(NativeValue* jsConnectionObject);
-    void CallJsFailed(int32_t errorCode);
-    void SetConnectionId(int64_t id);
-    int64_t GetConnectionId();
-private:
-    NativeEngine& engine_;
-    std::unique_ptr<NativeReference> jsConnectionObject_ = nullptr;
-    int64_t connectionId_ = -1;
-};
-
-class JsUIExtensionContext final {
+class JsUIExtensionContext {
 public:
     explicit JsUIExtensionContext(const std::shared_ptr<UIExtensionContext>& context) : context_(context) {}
-    ~JsUIExtensionContext() = default;
+    virtual ~JsUIExtensionContext() = default;
     static void Finalizer(NativeEngine* engine, void* data, void* hint);
     static NativeValue* StartAbility(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* TerminateAbility(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* ConnectExtensionAbility(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* DisconnectExtensionAbility(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StartUIExtensionAbility(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* TerminateSelf(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* TerminateSelfWithResult(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* CreateJsUIExtensionContext(NativeEngine& engine, std::shared_ptr<UIExtensionContext> context);
+
+protected:
+    virtual NativeValue* OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info);
+    virtual NativeValue* OnTerminateSelf(NativeEngine& engine, const NativeCallbackInfo& info);
+    virtual NativeValue* OnTerminateSelfWithResult(NativeEngine& engine, const NativeCallbackInfo& info);
 
 private:
     std::weak_ptr<UIExtensionContext> context_;
-    NativeValue* OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnTerminateAbility(NativeEngine& engine, const NativeCallbackInfo& info);
-    NativeValue* OnConnectExtensionAbility(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnDisconnectExtensionAbility(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnStartUIExtensionAbility(NativeEngine& engine, NativeCallbackInfo& info);
 
     bool CheckStartAbilityInputParam(NativeEngine& engine, NativeCallbackInfo& info, AAFwk::Want& want,
         AAFwk::StartOptions& startOptions, size_t& unwrapArgc) const;
     bool CheckWantParam(NativeEngine& engine, NativeValue* value, AAFwk::Want& want) const;
-    bool CheckConnectionParam(NativeEngine& engine, NativeValue* value, sptr<JSUIExtensionConnection>& connection,
-        AAFwk::Want& want) const;
-    bool CheckOnDisconnectExtensionAbilityParam(NativeEngine& engine, NativeCallbackInfo& info,
-        int64_t& connectId) const;
-    void FindConnection(NativeEngine& engine, NativeCallbackInfo& info, AAFwk::Want& want,
-        sptr<JSUIExtensionConnection>& connection, int64_t& connectId) const;
+
+    static bool UnWrapWant(NativeEngine& engine, NativeValue* argv, AAFwk::Want& want);
+    static bool UnWrapAbilityResult(NativeEngine& engine, NativeValue* argv, int& resultCode, AAFwk::Want& want);
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

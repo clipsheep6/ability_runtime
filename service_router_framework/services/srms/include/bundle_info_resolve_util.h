@@ -63,6 +63,12 @@ public:
         return BusinessType::UNSPECIFIED;
     }
 
+    static BusinessType GetBusinessType(const std::vector<Metadata> &metadata)
+    {
+        std::string businessType = GetExtAbilityMetadataValue(metadata, SrConstants::METADATA_SERVICE_TYPE_KEY);
+        return findBusinessType(businessType);
+    }
+
 private:
     static void ResolveAbilityInfos(const std::vector<AbilityInfo> &abilityInfos,
         std::vector<PurposeInfo> &purposeInfos, const AppInfo appInfo)
@@ -117,7 +123,7 @@ private:
         if (extAbilityInfo.type != ExtensionAbilityType::FORM && extAbilityInfo.type != ExtensionAbilityType::UI) {
             return;
         }
-        std::string supportPurpose = GetExtAbilityMetadataValue(extAbilityInfo,
+        std::string supportPurpose = GetExtAbilityMetadataValue(extAbilityInfo.metadata,
             SrConstants::METADATA_SUPPORT_PURPOSE_KEY);
         if (supportPurpose.empty()) {
             return;
@@ -160,18 +166,16 @@ private:
         if (extAbilityInfo.type != ExtensionAbilityType::UI) {
             return;
         }
-        std::string businessType = GetExtAbilityMetadataValue(extAbilityInfo, SrConstants::METADATA_SERVICE_TYPE_KEY);
-        APP_LOGI("ToService, abilityName: %{public}s, businessType: %{public}s",
-            extAbilityInfo.name.c_str(), businessType.c_str());
-        auto item = BUSINESS_TYPE_MAP.find(LowerStr(businessType));
-        BusinessType type = findBusinessType(businessType);
+        BusinessType type = GetBusinessType(extAbilityInfo.metadata);
+        APP_LOGI("ToService, abilityName: %{public}s, businessType: %{public}d",
+            extAbilityInfo.name.c_str(), static_cast<int>(type));
         if (type != BusinessType::UNSPECIFIED) {
             BusinessAbilityInfo businessAbilityInfo;
             businessAbilityInfo.appInfo = appInfo;
             businessAbilityInfo.abilityName = extAbilityInfo.name;
             businessAbilityInfo.moduleName = extAbilityInfo.moduleName;
             businessAbilityInfo.bundleName = extAbilityInfo.bundleName;
-            businessAbilityInfo.businessType = item->second;
+            businessAbilityInfo.businessType = type;
             businessAbilityInfo.iconId = extAbilityInfo.iconId;
             businessAbilityInfo.labelId = extAbilityInfo.labelId;
             businessAbilityInfo.descriptionId = extAbilityInfo.descriptionId;
@@ -193,12 +197,12 @@ private:
         return Constants::EMPTY_STRING;
     }
 
-    static std::string GetExtAbilityMetadataValue(const ExtensionAbilityInfo &extAbilityInfo, const std::string &name)
+    static std::string GetExtAbilityMetadataValue(const std::vector<Metadata> &metadata, const std::string &name)
     {
-        if (extAbilityInfo.metadata.empty()) {
+        if (metadata.empty()) {
             return Constants::EMPTY_STRING;
         }
-        for (auto &metadata : extAbilityInfo.metadata) {
+        for (auto &metadata : metadata) {
             if (name == metadata.name && !metadata.value.empty()) {
                 return metadata.value;
             }

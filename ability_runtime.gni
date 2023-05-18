@@ -63,6 +63,8 @@ device_usage_statistics_path =
     "//foundation/resourceschedule/device_usage_statistics"
 device_manager_path = "//foundation/distributedhardware/device_manager"
 graphic_2d_path = "//foundation/graphic/graphic_2d"
+srms_inner_api_path =
+    "${ability_runtime_path}/service_router_framework/interfaces/inner_api"
 
 declare_args() {
   background_task_mgr_continuous_task_enable = true

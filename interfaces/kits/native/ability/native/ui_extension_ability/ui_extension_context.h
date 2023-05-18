@@ -18,8 +18,6 @@
 
 #include "extension_context.h"
 
-#include "ability_connect_callback.h"
-#include "connection_manager.h"
 #include "start_options.h"
 #include "want.h"
 
@@ -44,59 +42,18 @@ public:
      *
      * @return errCode ERR_OK on success, others on failure.
      */
-    ErrCode StartAbility(const AAFwk::Want &want) const;
-    ErrCode StartAbility(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions) const;
+    virtual ErrCode StartAbility(const AAFwk::Want &want) const;
+    virtual ErrCode StartAbility(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions) const;
 
     /**
-     * @brief Starts a new ui extension ability.
-     * An ui extension ability uses this method to start a specific ui extension ability.
-     * The system locates the target ui extension ability from installed abilities based on the value of the want
-     * parameter and then starts it. You can specify the ui extension ability to start using the want parameter.
-     *
-     * @param want Indicates the Want containing information about the target ui extension ability to start.
+     * @brief Destroys the current ui extension ability.
      *
      * @return errCode ERR_OK on success, others on failure.
      */
-    ErrCode StartUIExtensionAbility(const AAFwk::Want &want, int32_t accountId = -1) const;
-
-    /**
-     * @brief Connects the current ability to an ability using the AbilityInfo.AbilityType.EXTENSION template.
-     *
-     * @param want Indicates the want containing information about the ability to connect
-     *
-     * @param conn Indicates the callback object when the target ability is connected.
-     *
-     * @return Returns zero on success, others on failure.
-     */
-    ErrCode ConnectExtensionAbility(
-        const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) const;
-
-    /**
-     * @brief Disconnects the current ability from an ability.
-     *
-     * @param conn Indicates the IAbilityConnection callback object passed by connectAbility after the connection
-     * is set up. The IAbilityConnection object uniquely identifies a connection between two abilities.
-     *
-     * @return errCode ERR_OK on success, others on failure.
-     */
-    ErrCode DisconnectExtensionAbility(
-        const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) const;
-
-    /**
-     * @brief Destroys the current ability.
-     *
-     * @return errCode ERR_OK on success, others on failure.
-     */
-    ErrCode TerminateAbility();
+    virtual ErrCode TerminateSelf();
 
     using SelfType = UIExtensionContext;
     static const size_t CONTEXT_TYPE_ID;
-
-protected:
-    bool IsContext(size_t contextTypeId) override
-    {
-        return contextTypeId == CONTEXT_TYPE_ID || ExtensionContext::IsContext(contextTypeId);
-    }
 
 private:
     static int ILLEGAL_REQUEST_CODE;
