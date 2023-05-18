@@ -180,7 +180,6 @@ ohos_unittest("ability_delegator_registry_unittest") {
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_delegator",
-    "${ability_runtime_native_path}/appkit:appkit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",

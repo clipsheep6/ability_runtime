@@ -29,7 +29,6 @@ ohos_unittest("want_agent_info_test") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${ability_runtime_native_path}/appkit:appkit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",

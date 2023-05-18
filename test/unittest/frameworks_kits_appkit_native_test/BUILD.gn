@@ -64,7 +64,6 @@ ohos_unittest("context_deal_interface_test") {
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
-    "${ability_runtime_native_path}/appkit:appkit_native",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//third_party/googletest:gmock_main",
@@ -276,10 +275,7 @@ ohos_unittest("ability_start_setting_test") {
     "ability_start_setting_test.cpp",
   ]
 
-  deps = [
-    "${ability_runtime_native_path}/appkit:appkit_native",
-    "//third_party/googletest:gtest_main",
-  ]
+  deps = [ "//third_party/googletest:gtest_main" ]
 
   external_deps = [
     "c_utils:utils",

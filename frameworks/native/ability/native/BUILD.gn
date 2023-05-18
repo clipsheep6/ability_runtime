@@ -162,7 +162,6 @@ ohos_shared_library("abilitykit_utils") {
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
     "ipc:ipc_napi_common",
     "napi:ace_napi",
     "resource_management:global_resmgr",
@@ -487,7 +486,6 @@ ohos_shared_library("form_extension_module") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
     "napi:ace_napi",
   ]
 
@@ -637,7 +635,6 @@ ohos_shared_library("service_extension_module") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
     "napi:ace_napi",
   ]
 
@@ -755,7 +752,6 @@ ohos_shared_library("ui_extension") {
     "common_event_service:cesfwk_innerkits",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
     "ipc:ipc_napi_common",
     "ipc_js:rpc",
     "relational_store:native_dataability",
@@ -783,7 +779,6 @@ ohos_shared_library("ui_extension_module") {
     "ace_engine:ace_uicontent",
     "bundle_framework:appexecfwk_core",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
     "ipc_js:rpc",
     "napi:ace_napi",
   ]
