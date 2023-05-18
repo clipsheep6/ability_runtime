@@ -1347,7 +1347,7 @@ void AbilityRecord::SendResult(bool isSandboxApp)
     result_.reset();
 }
 
-void AbilityRecord::SendResultToCallers()
+void AbilityRecord::SendResultToCallers(bool schedulerdied)
 {
     for (auto caller : GetCallerRecordList()) {
         if (caller == nullptr) {
@@ -1363,8 +1363,8 @@ void AbilityRecord::SendResultToCallers()
             if (callerSystemAbilityRecord != nullptr) {
                 HILOG_INFO("Send result to system ability.");
                 callerSystemAbilityRecord->SendResultToSystemAbility(caller->GetRequestCode(),
-                    callerSystemAbilityRecord->GetResultCode(), callerSystemAbilityRecord->GetResultWant(),
-                    callerSystemAbilityRecord->GetCallerToken());
+                    callerSystemAbilityRecord, abilityInfo_.applicationInfo.uid,
+                    abilityInfo_.applicationInfo.accessTokenId, schedulerdied);
             }
         }
     }
@@ -1429,12 +1429,22 @@ void SystemAbilityCallerRecord::SetResultToSystemAbility(
     callerSystemAbilityRecord->SetResult(resultWant, resultCode);
 }
 
-void SystemAbilityCallerRecord::SendResultToSystemAbility(int requestCode, int resultCode, Want &resultWant,
-    const sptr<IRemoteObject> &callerToken)
+void SystemAbilityCallerRecord::SendResultToSystemAbility(int requestCode,
+    const std::shared_ptr<SystemAbilityCallerRecord> callerSystemAbilityRecord,
+    int32_t callerUid, uint32_t accessToken, bool schedulerdied)
 {
     HILOG_INFO("call");
-    int32_t callerUid = IPCSkeleton::GetCallingUid();
-    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
+    if (callerSystemAbilityRecord == nullptr) {
+        HILOG_ERROR("callerSystemAbilityRecord is nullptr");
+        return;
+    }
+    int resultCode = callerSystemAbilityRecord->GetResultCode();
+    Want resultWant = callerSystemAbilityRecord->GetResultWant();
+    sptr<IRemoteObject> callerToken = callerSystemAbilityRecord->GetCallerToken();
+    if (!schedulerdied) {
+        callerUid = IPCSkeleton::GetCallingUid();
+        accessToken = IPCSkeleton::GetCallingTokenID();
+    }
     HILOG_INFO("Try to SendResult, callerUid = %{public}d, AccessTokenId = %{public}u",
         callerUid, accessToken);
     if (callerToken == nullptr) {
@@ -1867,7 +1877,7 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
     handler->PostTask(task);
     auto uriTask = [want = want_, ability = shared_from_this()]() {
         ability->SaveResultToCallers(-1, &want);
-        ability->SendResultToCallers();
+        ability->SendResultToCallers(true);
     };
     handler->PostTask(uriTask);
 #ifdef SUPPORT_GRAPHICS
