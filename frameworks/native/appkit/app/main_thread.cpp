@@ -1645,15 +1645,6 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
         runtime->StartDebugMode(want->GetBoolParam("debugApp", false));
     }
 
-    mainThreadState_ = MainThreadState::RUNNING;
-    std::shared_ptr<AbilityRuntime::Context> stageContext = application_->AddAbilityStage(abilityRecord);
-    UpdateProcessExtensionType(abilityRecord);
-#ifdef APP_ABILITY_USE_TWO_RUNNER
-    AbilityThread::AbilityThreadMain(application_, abilityRecord, stageContext);
-#else
-    AbilityThread::AbilityThreadMain(application_, abilityRecord, mainHandler_->GetEventRunner(), stageContext);
-#endif
-
     std::vector<HqfInfo> hqfInfos = appInfo->appQuickFix.deployedAppqfInfo.hqfInfos;
     std::map<std::string, std::string> modulePaths;
     if (runtime && !hqfInfos.empty()) {
@@ -1664,6 +1655,15 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
         }
         runtime->RegisterQuickFixQueryFunc(modulePaths);
     }
+
+    mainThreadState_ = MainThreadState::RUNNING;
+    std::shared_ptr<AbilityRuntime::Context> stageContext = application_->AddAbilityStage(abilityRecord);
+    UpdateProcessExtensionType(abilityRecord);
+#ifdef APP_ABILITY_USE_TWO_RUNNER
+    AbilityThread::AbilityThreadMain(application_, abilityRecord, stageContext);
+#else
+    AbilityThread::AbilityThreadMain(application_, abilityRecord, mainHandler_->GetEventRunner(), stageContext);
+#endif
 }
 
 /**
