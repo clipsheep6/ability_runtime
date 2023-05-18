@@ -1027,7 +1027,7 @@ int AbilityManagerService::StartUIAbilityBySCB(const Want &want, const StartOpti
     EventInfo eventInfo = BuildEventInfo(want, currentUserId);
     EventReport::SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
 
-    if(!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD, U0_USER_ID)) {
+    if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD, U0_USER_ID)) {
         HILOG_ERROR("Not sceneboard called, not allowed.");
         return ERR_WRONG_INTERFACE_CALL;
     }
@@ -4904,7 +4904,7 @@ void AbilityManagerService::UpdateMissionSnapShot(const sptr<IRemoteObject>& tok
     }
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (!isSaCall) {
-        if(!CheckCallingTokenId(BUNDLE_NAME_LAUNCHER, GetUserId())) {
+        if (!CheckCallingTokenId(BUNDLE_NAME_LAUNCHER, GetUserId())) {
             HILOG_ERROR("Not launcher called, not allowed.");
             return;
         }

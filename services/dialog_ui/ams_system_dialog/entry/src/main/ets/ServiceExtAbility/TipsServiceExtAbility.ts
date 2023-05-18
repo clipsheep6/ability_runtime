@@ -41,7 +41,7 @@ export default class TipsServiceExtensionAbility extends extension {
         top: globalThis.position.offsetY,
         width: globalThis.position.width,
         height: globalThis.position.height
-      }
+      };
       if (winNum > 1) {
         win.destroy();
         winNum--;

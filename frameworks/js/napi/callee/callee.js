@@ -132,7 +132,7 @@ class Callee extends rpc.RemoteObject {
 
     if (this.callList == null) {
       console.log('Callee on error, this.callList is nullptr');
-      throw new BusinessError(ERROR_CODE_INNER_ERROR);;
+      throw new BusinessError(ERROR_CODE_INNER_ERROR);
     }
 
     if (this.callList.has(method)) {

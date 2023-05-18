@@ -154,7 +154,7 @@ int MockAbilityDelegatorStub::StartUserTest(const Want& want, const sptr<IRemote
     return OHOS::ERR_OK;
 }
 
-int MockAbilityDelegatorStub::StopServiceAbility(const Want& want, int32_t userId, const sptr<IRemoteObject> &token) 
+int MockAbilityDelegatorStub::StopServiceAbility(const Want& want, int32_t userId, const sptr<IRemoteObject> &token)
 {
     return 0;
 }
