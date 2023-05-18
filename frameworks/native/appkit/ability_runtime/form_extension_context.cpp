@@ -27,22 +27,21 @@ const size_t FormExtensionContext::CONTEXT_TYPE_ID(std::hash<const char*> {} ("F
 
 int FormExtensionContext::UpdateForm(const int64_t formId, const AppExecFwk::FormProviderData &formProviderData)
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
-    // check fms recover status
-    if (AppExecFwk::FormMgr::GetRecoverStatus() == AppExecFwk::Constants::IN_RECOVERING) {
-        HILOG_ERROR("%{public}s error, form is in recover status, can't do action on form.", __func__);
-        return ERR_APPEXECFWK_FORM_IN_RECOVER;
+    HILOG_DEBUG("Update form, formId: %{public}" PRId64 ".", formId);
+    if (formId <= 0) {
+        HILOG_ERROR("FormId can't be negative or zero.");
+        return ERR_APPEXECFWK_FORM_INVALID_PARAM;
     }
 
-    // check formId
-    if (formId <= 0) {
-        HILOG_ERROR("%{public}s error, the passed in formId can't be negative or zero.", __func__);
-        return ERR_APPEXECFWK_FORM_INVALID_PARAM;
+    // check fms recover status
+    if (AppExecFwk::FormMgr::GetRecoverStatus() == AppExecFwk::Constants::IN_RECOVERING) {
+        HILOG_ERROR("Update failed, form is in recover status, can't do action on it.");
+        return ERR_APPEXECFWK_FORM_IN_RECOVER;
     }
 
     // check formProviderData
     if (formProviderData.GetDataString().empty()) {
-        HILOG_ERROR("%{public}s error, the formProviderData is null.", __func__);
+        HILOG_ERROR("Form data is empty.");
         return ERR_APPEXECFWK_FORM_INVALID_PARAM;
     }
 
@@ -52,12 +51,11 @@ int FormExtensionContext::UpdateForm(const int64_t formId, const AppExecFwk::For
 
 ErrCode FormExtensionContext::StartAbility(const AAFwk::Want &want) const
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("Start ability.");
     // route to FMS
     ErrCode err = AppExecFwk::FormMgr::GetInstance().StartAbility(want, token_);
-    HILOG_DEBUG("%{public}s. End calling StartAbility. ret=%{public}d", __func__, err);
     if (err != ERR_OK) {
-        HILOG_ERROR("FormExtensionContext::StartAbility is failed %{public}d", err);
+        HILOG_ERROR("Start ability failed with %{public}d.", err);
     }
     return err;
 }
@@ -66,7 +64,7 @@ AppExecFwk::AbilityType FormExtensionContext::GetAbilityInfoType() const
 {
     std::shared_ptr<AppExecFwk::AbilityInfo> info = GetAbilityInfo();
     if (info == nullptr) {
-        HILOG_ERROR("FormExtensionContext::GetAbilityInfoType info == nullptr");
+        HILOG_ERROR("Ability info is invalid.");
         return AppExecFwk::AbilityType::UNKNOWN;
     }
 
@@ -81,10 +79,10 @@ std::shared_ptr<AppExecFwk::AbilityInfo> FormExtensionContext::GetAbilityInfo() 
 void FormExtensionContext::SetAbilityInfo(const std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> &abilityInfo)
 {
     if (abilityInfo == nullptr) {
-        HILOG_ERROR("FormExtensionContext::SetAbilityInfo Info == nullptr");
+        HILOG_ERROR("Ability info is invalid.");
         return;
     }
     abilityInfo_ = abilityInfo;
 }
-}  // namespace AbilityRuntime
-}  // namespace OHOS
+} // namespace AbilityRuntime
+} // namespace OHOS

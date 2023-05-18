@@ -25,6 +25,6 @@
 namespace OHOS {
 namespace AbilityRuntime {
 NativeValue* CreateJsFormExtensionContext(NativeEngine& engine, std::shared_ptr<FormExtensionContext> context);
-}  // namespace AbilityRuntime
-}  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_JS_FORM_EXTENSION_CONTEXT_H
+} // namespace AbilityRuntime
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_JS_FORM_EXTENSION_CONTEXT_H

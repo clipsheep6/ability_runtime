@@ -89,6 +89,6 @@ private:
 
     std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo_;
 };
-}  // namespace AbilityRuntime
-}  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_FORM_EXTENSION_CONTEXT_H
+} // namespace AbilityRuntime
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_FORM_EXTENSION_CONTEXT_H

@@ -117,7 +117,7 @@ public:
      */
     virtual int AcquireState(const Want &wantArg, const std::string &provider, const Want &want,
                              const sptr<IRemoteObject> &callerToken) override;
-    
+
     /**
      * @brief Acquire form data.
      * @param formId The Id of the from.
@@ -184,6 +184,6 @@ private:
     mutable std::mutex formExtensionMutex_;
     std::weak_ptr<FormExtension> ownerFormExtension_;
 };
-}  // namespace AbilityRuntime
-}  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_FORM_EXTENSION_PROVIDER_CLIENT_H
+} // namespace AbilityRuntime
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_FORM_EXTENSION_PROVIDER_CLIENT_H

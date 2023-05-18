@@ -161,19 +161,19 @@ OHOS::AppExecFwk::FormProviderInfo JsFormExtension::OnCreate(const OHOS::AAFwk::
 
     OHOS::AppExecFwk::FormProviderInfo formProviderInfo;
     if (nativeObject == nullptr) {
-        HILOG_ERROR("%{public}s, nativeObject is nullptr", __func__);
+        HILOG_ERROR("nativeObject is nullptr.");
         return formProviderInfo;
     }
 
     NativeValue* nativeDataValue = nativeObject->GetProperty("data");
     if (nativeDataValue == nullptr) {
-        HILOG_ERROR("%{public}s, nativeObject get data is nullptr", __func__);
+        HILOG_ERROR("nativeObject get data is nullptr.");
         return formProviderInfo;
     }
 
     std::string formDataStr;
     if (!ConvertFromJsValue(*nativeEngine, nativeDataValue, formDataStr)) {
-        HILOG_ERROR("%{public}s, convert formDataStr failed", __func__);
+        HILOG_ERROR("convert formDataStr failed.");
         return formProviderInfo;
     }
 
@@ -185,7 +185,7 @@ OHOS::AppExecFwk::FormProviderInfo JsFormExtension::OnCreate(const OHOS::AAFwk::
 
 void JsFormExtension::OnDestroy(const int64_t formId)
 {
-    HILOG_INFO("call");
+    HILOG_INFO("OnDestroy, formId: %{public}" PRId64 ".", formId);
     FormExtension::OnDestroy(formId);
 
     HandleScope handleScope(jsRuntime_);
@@ -201,7 +201,7 @@ void JsFormExtension::OnDestroy(const int64_t formId)
 
 void JsFormExtension::OnEvent(const int64_t formId, const std::string& message)
 {
-    HILOG_INFO("call");
+    HILOG_INFO("OnEvent, formId: %{public}" PRId64 ".", formId);
     FormExtension::OnEvent(formId, message);
 
     HandleScope handleScope(jsRuntime_);
@@ -221,7 +221,7 @@ void JsFormExtension::OnEvent(const int64_t formId, const std::string& message)
 
 void JsFormExtension::OnUpdate(const int64_t formId)
 {
-    HILOG_INFO("call");
+    HILOG_INFO("OnUpdate, formId: %{public}" PRId64 ".", formId);
     FormExtension::OnUpdate(formId);
 
     HandleScope handleScope(jsRuntime_);
@@ -237,7 +237,7 @@ void JsFormExtension::OnUpdate(const int64_t formId)
 
 void JsFormExtension::OnCastToNormal(const int64_t formId)
 {
-    HILOG_INFO("call");
+    HILOG_INFO("OnCastToNormal, formId: %{public}" PRId64 ".", formId);
     FormExtension::OnCastToNormal(formId);
 
     HandleScope handleScope(jsRuntime_);
@@ -271,7 +271,7 @@ sptr<IRemoteObject> JsFormExtension::OnConnect(const OHOS::AAFwk::Want& want)
     HILOG_INFO("call");
     Extension::OnConnect(want);
     if (providerRemoteObject_ == nullptr) {
-        HILOG_INFO("%{public}s providerRemoteObject_ is nullptr, need init.", __func__);
+        HILOG_INFO("providerRemoteObject_ is nullptr, need init.");
         sptr<FormExtensionProviderClient> providerClient = new (std::nothrow) FormExtensionProviderClient();
         std::shared_ptr<JsFormExtension> formExtension = std::static_pointer_cast<JsFormExtension>(shared_from_this());
         providerClient->SetOwner(formExtension);
@@ -371,12 +371,12 @@ FormState JsFormExtension::OnAcquireFormState(const Want &want)
     NativeValue* argv[] = { nativeWant };
     NativeValue* nativeResult = CallObjectMethod("onAcquireFormState", nullptr, argv, 1);
     if (nativeResult == nullptr) {
-        HILOG_INFO("%{public}s, function onAcquireFormState not found", __func__);
+        HILOG_INFO("function onAcquireFormState not found.");
         return FormState::DEFAULT;
     }
 
     if (!ConvertFromJsValue(*nativeEngine, nativeResult, state)) {
-        HILOG_ERROR("%{public}s, convert form state failed", __func__);
+        HILOG_ERROR("convert form state failed.");
         return FormState::UNKNOWN;
     }
 
@@ -391,11 +391,11 @@ FormState JsFormExtension::OnAcquireFormState(const Want &want)
 
 bool JsFormExtension::OnShare(int64_t formId, AAFwk::WantParams &wantParams)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("OnShare, formId: %{public}" PRId64 ".", formId);
     HandleScope handleScope(jsRuntime_);
     NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
     if (nativeEngine == nullptr) {
-        HILOG_ERROR("%{public}s OnShare get NativeEngine is nullptr", __func__);
+        HILOG_ERROR("NativeEngine is nullptr.");
         return false;
     }
 
@@ -403,33 +403,32 @@ bool JsFormExtension::OnShare(int64_t formId, AAFwk::WantParams &wantParams)
     NativeValue* argv[] = { nativeEngine->CreateString(formIdStr.c_str(), formIdStr.length()) };
     NativeValue* nativeResult = CallObjectMethod("onShareForm", "onShare", argv, 1);
     if (nativeResult == nullptr) {
-        HILOG_ERROR("%{public}s OnShare return value is nullptr", __func__);
+        HILOG_ERROR("OnShare return value is nullptr.");
         return false;
     }
 
     if (nativeResult->TypeOf() != NativeValueType::NATIVE_OBJECT) {
-        HILOG_ERROR("%{public}s OnShare return value`s type is %{public}d", __func__,
-            static_cast<int32_t>(nativeResult->TypeOf()));
+        HILOG_ERROR("OnShare return value`s type is %{public}d.", static_cast<int32_t>(nativeResult->TypeOf()));
         return false;
     }
 
     if (!OHOS::AppExecFwk::UnwrapWantParams(reinterpret_cast<napi_env>(nativeEngine),
         reinterpret_cast<napi_value>(nativeResult), wantParams)) {
-        HILOG_ERROR("%{public}s OnShare UnwrapWantParams failed, return false", __func__);
+        HILOG_ERROR("Unwrap want params failed.");
         return false;
     }
 
-    HILOG_DEBUG("%{public}s called end.", __func__);
+    HILOG_DEBUG("called end.");
     return true;
 }
 
 bool JsFormExtension::OnAcquireData(int64_t formId, AAFwk::WantParams &wantParams)
 {
-    HILOG_DEBUG("called.");
+    HILOG_DEBUG("OnAcquireData, formId: %{public}" PRId64 ".", formId);
     HandleScope handleScope(jsRuntime_);
     NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
     if (nativeEngine == nullptr) {
-        HILOG_ERROR("get NativeEngine is nullptr");
+        HILOG_ERROR("NativeEngine is nullptr.");
         return false;
     }
 
@@ -437,19 +436,18 @@ bool JsFormExtension::OnAcquireData(int64_t formId, AAFwk::WantParams &wantParam
     NativeValue* argv[] = { nativeEngine->CreateString(formIdStr.c_str(), formIdStr.length()) };
     NativeValue* nativeResult = CallObjectMethod("onAcquireFormData", "OnAcquireData", argv, 1);
     if (nativeResult == nullptr) {
-        HILOG_ERROR("return value is nullptr");
+        HILOG_ERROR("return value is nullptr.");
         return false;
     }
 
     if (nativeResult->TypeOf() != NativeValueType::NATIVE_OBJECT) {
-        HILOG_ERROR("return value`s type is %{public}d",
-            static_cast<int32_t>(nativeResult->TypeOf()));
+        HILOG_ERROR("return value`s type is %{public}d.", static_cast<int32_t>(nativeResult->TypeOf()));
         return false;
     }
 
     if (!OHOS::AppExecFwk::UnwrapWantParams(reinterpret_cast<napi_env>(nativeEngine),
         reinterpret_cast<napi_value>(nativeResult), wantParams)) {
-        HILOG_ERROR("UnwrapWantParams failed, return false");
+        HILOG_ERROR("Unwrap want params failed.");
         return false;
     }
 
