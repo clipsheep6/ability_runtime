@@ -1643,6 +1643,15 @@ int MissionListManager::ClearMission(int missionId)
         return ERR_INVALID_VALUE;
     }
 
+    MissionInfo missionInfo;
+    if (DelayedSingleton<MissionInfoMgr>::GetInstance()->GetMissionInfoById(missionId, missionInfo) == 0) {
+        missionInfo.unclearable = true; //todo: removed when BMS is ready
+        if (missionInfo.unclearable) {
+            HILOG_WARN("mission is unclearable.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+
     return ClearMissionLocked(missionId, mission);
 }
 
