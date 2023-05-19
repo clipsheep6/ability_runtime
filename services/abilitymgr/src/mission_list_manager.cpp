@@ -1719,7 +1719,8 @@ void MissionListManager::ClearAllMissionsLocked(std::list<std::shared_ptr<Missio
         }
 
         MissionInfo missionInfo;
-        if (DelayedSingleton<MissionInfoMgr>::GetInstance()->GetMissionInfoById(mission->GetMissionId(), missionInfo) == 0) {
+        if (DelayedSingleton<MissionInfoMgr>::GetInstance()
+            ->GetMissionInfoById(mission->GetMissionId(), missionInfo) == 0) {
             missionInfo.unclearable = true; //todo: removed when BMS is ready
             if (missionInfo.unclearable) {
                 HILOG_WARN("mission is unclearable.");
