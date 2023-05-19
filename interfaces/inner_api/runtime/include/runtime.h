@@ -27,6 +27,8 @@ struct JsFrames {
     uintptr_t *nativePointer = nullptr;
 };
 
+class ModuleCheckerDelegate;
+
 namespace OHOS {
 namespace AppExecFwk {
 class EventRunner;
@@ -55,6 +57,7 @@ public:
         // ArkTsCard start
         bool isUnique = false;
         // ArkTsCard end
+        std::shared_ptr<ModuleCheckerDelegate> moduleCheckerDelegate;
     };
 
     static std::unique_ptr<Runtime> Create(const Options& options);
@@ -76,6 +79,8 @@ public:
     virtual bool NotifyHotReloadPage() = 0;
     virtual bool UnLoadRepairPatch(const std::string& patchFile) = 0;
     virtual void UpdateExtensionType(int32_t extensionType) = 0;
+    virtual void UpdateProcessType(ProcessType type) {}
+    virtual void SetLoadModuleChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate) const {}
 
     Runtime(const Runtime&) = delete;
     Runtime(Runtime&&) = delete;

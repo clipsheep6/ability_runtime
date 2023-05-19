@@ -158,6 +158,7 @@ ohos_shared_library("abilitykit_native") {
     "${ability_runtime_native_path}/ability/native/ability_runtime/js_ability_context.cpp",
     "${ability_runtime_native_path}/ability/native/ability_runtime/js_caller_complex.cpp",
     "${ability_runtime_native_path}/ability/native/ability_thread.cpp",
+    "${ability_runtime_native_path}/ability/native/app_module_checker.cpp",
     "${ability_runtime_native_path}/ability/native/configuration_utils.cpp",
     "${ability_runtime_native_path}/ability/native/continuation/distributed/continuation_handler.cpp",
     "${ability_runtime_native_path}/ability/native/continuation/distributed/continuation_manager.cpp",
@@ -188,7 +189,10 @@ ohos_shared_library("abilitykit_native") {
     "${relational_store_napi_path}/common/src/js_utils.cpp",
     "${relational_store_napi_path}/dataability/src/napi_data_ability_predicates.cpp",
   ]
-  configs = [ ":ability_config" ]
+  configs = [
+    ":ability_config",
+    "//foundation/arkui/napi:module_manager_config",
+  ]
   public_configs = [
     ":ability_public_config",
     "${ability_runtime_native_path}/ability:ability_context_public_config",

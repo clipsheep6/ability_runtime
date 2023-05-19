@@ -77,7 +77,8 @@ public:
 
     void PreloadSystemModule(const std::string& moduleName) override;
     virtual void UpdateModuleNameAndAssetPath(const std::string& moduleName) {}
-    void UpdateExtensionType(int32_t extensionType) override;
+    void UpdateExtensionType(int32_t extensionType) override {}
+    void SetLoadModuleChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate) const override;
 
     void FreeNativeReference(std::unique_ptr<NativeReference> reference);
     void FreeNativeReference(std::shared_ptr<NativeReference>&& reference);
