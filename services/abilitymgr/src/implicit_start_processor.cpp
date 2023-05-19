@@ -163,7 +163,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
 
     if (abilityInfos.size() + extensionInfos.size() > 1) {
         HILOG_INFO("More than one target application, filter by erms");
-        bool ret = FilterAbilityList(request.want, abilityInfos, extensionInfos);
+        bool ret = FilterAbilityList(request.want, abilityInfos, extensionInfos, userId);
         if (!ret) {
             HILOG_ERROR("FilterAbilityList failed");
         }
@@ -337,8 +337,8 @@ sptr<AppExecFwk::IDefaultApp> ImplicitStartProcessor::GetDefaultAppProxy()
     return defaultAppProxy;
 }
 
-bool ImplicitStartProcessor::FilterAbilityList(const Want &want,
-    std::vector<AppExecFwk::AbilityInfo> &abilityInfos, std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos)
+bool ImplicitStartProcessor::FilterAbilityList(const Want &want, std::vector<AppExecFwk::AbilityInfo> &abilityInfos,
+    std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos, int32_t userId)
 {
     auto erms = AbilityUtil::CheckEcologicalRuleMgr();
     if (!erms) {
@@ -347,6 +347,7 @@ bool ImplicitStartProcessor::FilterAbilityList(const Want &want,
     }
 
     ErmsCallerInfo callerInfo;
+    AbilityUtil::GetEcologicalCallerInfo(want, callerInfo, userId);
     int ret = IN_PROCESS_CALL(erms->EvaluateResolveInfos(want, callerInfo, 0, abilityInfos, extensionInfos));
     if (ret != ERR_OK) {
         HILOG_ERROR("Failed to evaluate resolve infos from erms.");

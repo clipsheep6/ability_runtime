@@ -25,6 +25,7 @@
 #include "app_jump_control_rule.h"
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "erms_mgr_interface.h"
+#include "erms_mgr_param.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
@@ -35,6 +36,8 @@
 namespace OHOS {
 namespace AAFwk {
 namespace AbilityUtil {
+using ErmsCallerInfo = OHOS::AppExecFwk::ErmsParams::CallerInfo;
+
 constexpr const char* SYSTEM_BASIC = "system_basic";
 constexpr const char* SYSTEM_CORE = "system_core";
 constexpr const char* DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
@@ -43,6 +46,9 @@ constexpr const char* DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
 constexpr const char* DLP_PARAMS_BUNDLE_NAME = "ohos.dlp.params.bundleName";
 constexpr const char* DLP_PARAMS_MODULE_NAME = "ohos.dlp.params.moduleName";
 constexpr const char* DLP_PARAMS_ABILITY_NAME = "ohos.dlp.params.abilityName";
+constexpr int32_t TYPE_HARMONEY_INVALID = 0;
+constexpr int32_t TYPE_HARMONEY_APP = 1;
+constexpr int32_t TYPE_HARMONEY_SERVICE  = 2;
 const std::string MARKET_BUNDLE_NAME = "com.huawei.hmos.appgallery";
 const std::string BUNDLE_NAME_SELECTOR_DIALOG = "com.ohos.amsdialog";
 const std::string JUMP_INTERCEPTOR_DIALOG_CALLER_PKG = "interceptor_callerPkg";
@@ -273,7 +279,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
         return true;
     }
 
-    int callerUid = IPCSkeleton::GetCallingUid();
+    int callerUid = want.GetIntParam(Want::PARAM_RESV_CALLER_UID, IPCSkeleton::GetCallingUid());
     std::string callerBundleName;
     ErrCode err = IN_PROCESS_CALL(bms->GetNameForUid(callerUid, callerBundleName));
     if (err != ERR_OK) {
@@ -282,7 +288,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     }
     AppExecFwk::ApplicationInfo callerAppInfo;
     bool getCallerResult = IN_PROCESS_CALL(bms->GetApplicationInfo(callerBundleName,
-        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, callerUid, callerAppInfo));
+        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, callerAppInfo));
     if (!getCallerResult) {
         HILOG_ERROR("Get callerAppInfo failed in check atomic service.");
         return false;
@@ -292,6 +298,58 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
         return true;
     }
     return false;
+}
+
+[[maybe_unused]] static void GetEcologicalCallerInfo(const Want &want, ErmsCallerInfo &callerInfo, int32_t userId)
+{
+    callerInfo.packageName = want.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+    callerInfo.uid = want.GetIntParam(Want::PARAM_RESV_CALLER_UID, IPCSkeleton::GetCallingUid());
+    callerInfo.pid = want.GetIntParam(Want::PARAM_RESV_CALLER_PID, -1);
+    callerInfo.targetAppType = TYPE_HARMONEY_INVALID;
+    callerInfo.callerAppType = TYPE_HARMONEY_INVALID;
+
+    auto bms = GetBundleManager();
+    if (!bms) {
+        HILOG_ERROR("GetBundleManager failed");
+        return;
+    }
+
+    std::string targetBundleName = want.GetBundle();
+    AppExecFwk::ApplicationInfo targetAppInfo;
+    bool getTargetResult = IN_PROCESS_CALL(bms->GetApplicationInfo(targetBundleName,
+        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, targetAppInfo));
+    if (!getTargetResult) {
+        HILOG_ERROR("Get targetAppInfo failed.");
+    } else if (targetAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
+        HILOG_DEBUG("the target type is atomic service");
+        callerInfo.targetAppType = TYPE_HARMONEY_SERVICE;
+    } else if (targetAppInfo.bundleType == AppExecFwk::BundleType::APP) {
+        HILOG_DEBUG("the target type is app");
+        callerInfo.targetAppType = TYPE_HARMONEY_APP;
+    } else {
+        HILOG_DEBUG("the target type is invalid type");
+    }
+
+    std::string callerBundleName;
+    ErrCode err = IN_PROCESS_CALL(bms->GetNameForUid(callerInfo.uid, callerBundleName));
+    if (err != ERR_OK) {
+        HILOG_ERROR("Get callerBundleName failed.");
+        return;
+    }
+    AppExecFwk::ApplicationInfo callerAppInfo;
+    bool getCallerResult = IN_PROCESS_CALL(bms->GetApplicationInfo(callerBundleName,
+        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, callerAppInfo));
+    if (!getCallerResult) {
+        HILOG_ERROR("Get callerAppInfo failed.");
+    } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
+        HILOG_DEBUG("the caller type is atomic service");
+        callerInfo.callerAppType = TYPE_HARMONEY_SERVICE;
+    } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::APP) {
+        HILOG_DEBUG("the caller type is app");
+        callerInfo.callerAppType = TYPE_HARMONEY_APP;
+    } else {
+        HILOG_DEBUG("the caller type is invalid type");
+    }
 }
 
 inline int StartAppgallery(const int requestCode, const int32_t userId, const std::string &action)

@@ -54,7 +54,7 @@ private:
         const AppExecFwk::ExtensionAbilityInfo &extensionInfo);
 
     bool FilterAbilityList(const Want &want, std::vector<AppExecFwk::AbilityInfo> &abilityInfos,
-        std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos);
+        std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos, int32_t userId);
     sptr<AppExecFwk::IDefaultApp> GetDefaultAppProxy();
 
 private:
