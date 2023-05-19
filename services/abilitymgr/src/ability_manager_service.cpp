@@ -1998,8 +1998,7 @@ int AbilityManagerService::ConnectAbilityCommon(
 
     int32_t validUserId = GetValidUserId(userId);
 
-    if ((AbilityUtil::IsStartFreeInstall(want) || want.GetElement().GetBundleName() == GetBundleNameFromToken(callerToken))
-        && freeInstallManager_ != nullptr) {
+    if (AbilityUtil::IsStartFreeInstall(want) && freeInstallManager_ != nullptr) {
         std::string localDeviceId;
         if (!GetLocalDeviceId(localDeviceId)) {
             HILOG_ERROR("%{public}s: Get Local DeviceId failed", __func__);
