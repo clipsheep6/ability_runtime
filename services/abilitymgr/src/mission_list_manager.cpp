@@ -1596,7 +1596,6 @@ void MissionListManager::CompleteTerminateAndUpdateMission(const std::shared_ptr
                 break;
             }
             innerMissionInfo.hasRecoverInfo = false;
-            innerMissionInfo.missionInfo.time = GetCurrentTime();
             innerMissionInfo.missionInfo.runningState = -1;
             DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionInfo(innerMissionInfo);
             if (listenerController_) {
