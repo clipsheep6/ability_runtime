@@ -1,26 +1,26 @@
 {
   "name": "@ohos/ability_runtime",
   "description": "Ability管理服务统一调度和管理应用中各Ability和应用管理服务, 用于管理应用运行关系、调度应用进程生命周期及状态的",
-  "version": "3.1",
+  "version": "3.11",
   "license": "Apache License 2.0",
   "publishAs": "code-segment",
   "segment": {
-      "destPath": "foundation/ability/ability_runtime"
+      "destPath": "foundation/ability/ability_runtime2"
   },
   "dirs": {},
   "scripts": {},
   "component": {
       "name": "ability_runtime",
-      "subsystem": "ability",
+      "subsystem": "ability12",
       "syscap": [
-        "SystemCapability.Ability.AbilityRuntime"
+        "SystemCapability.Ability.AbilityRuntim2e"
       ],
       "features": [
         "ability_runtime_graphics",
         "ability_runtime_power"
       ],
       "adapted_system_type": [
-          "standard"
+          "standard2"
       ],
       "rom": "",
       "ram": "",
