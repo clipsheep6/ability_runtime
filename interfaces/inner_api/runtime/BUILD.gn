@@ -64,6 +64,7 @@ ohos_shared_library("runtime") {
   configs = [
     ":runtime_config",
     "//arkcompiler/ets_runtime:ark_jsruntime_public_config",
+    "//foundation/arkui/napi:module_manager_config",
   ]
 
   public_configs = [

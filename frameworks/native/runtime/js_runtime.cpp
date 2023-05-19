@@ -39,6 +39,7 @@
 #include "js_timer.h"
 #include "js_worker.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
+#include "module_checker_delegate.h"
 #include "parameters.h"
 #include "runtime_extractor.h"
 #include "systemcapability.h"
@@ -355,8 +356,8 @@ private:
             if (vm_ == nullptr) {
                 return false;
             }
-
             nativeEngine_ = std::make_unique<ArkNativeEngine>(vm_, static_cast<JsRuntime*>(this));
+            nativeEngine_->SetModuleLoadChecker(options.moduleCheckerDelegate);
         }
 
         if (!options.preload) {
@@ -571,6 +572,7 @@ bool JsRuntime::Initialize(const Options& options)
         if (options.loadAce) {
             // ArkTsCard start
             if (options.isUnique) {
+
                 OHOS::Ace::DeclarativeModulePreloader::PreloadCard(*nativeEngine_);
             } else {
                 OHOS::Ace::DeclarativeModulePreloader::Preload(*nativeEngine_);
@@ -848,18 +850,13 @@ void JsRuntime::PreloadSystemModule(const std::string& moduleName)
     nativeEngine_->CallFunction(nativeEngine_->GetGlobal(), methodRequireNapiRef_->Get(), &className, 1);
 }
 
-void JsRuntime::UpdateExtensionType(int32_t extensionType)
+void JsRuntime::SetLoadModuleChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate) const
 {
     if (nativeEngine_ == nullptr) {
-        HILOG_ERROR("UpdateExtensionType error, nativeEngine_ is nullptr");
+        HILOG_INFO("SetLoadModuleChecker failed, nativeEngine_ is nullptr");
         return;
     }
-    NativeModuleManager* moduleManager = nativeEngine_->GetModuleManager();
-    if (moduleManager == nullptr) {
-        HILOG_ERROR("UpdateExtensionType error, moduleManager is nullptr");
-        return;
-    }
-    moduleManager->SetProcessExtensionType(extensionType);
+    nativeEngine_->SetModuleLoadChecker(moduleCheckerDelegate);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -77,7 +77,8 @@ public:
 
     void PreloadSystemModule(const std::string& moduleName) override;
     virtual void UpdateModuleNameAndAssetPath(const std::string& moduleName) {}
-    void UpdateExtensionType(int32_t extensionType) override;
+    void UpdateExtensionType(int32_t extensionType) override {}
+    void SetLoadModuleChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate) const override;
 
 protected:
     JsRuntime() = default;
