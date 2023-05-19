@@ -609,7 +609,7 @@ void AbilityImpl::AfterFocusedCommon(bool isFocused)
         abilityImplS->HandleAbilityTransaction(want, info);
     };
     handler_->PostTask(task);
-    HILOG_DEBUG("%{public}s end.");
+    HILOG_DEBUG("end.");
 }
 
 void AbilityImpl::WindowLifeCycleImpl::AfterForeground()
