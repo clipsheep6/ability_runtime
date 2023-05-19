@@ -74,6 +74,9 @@ void AmsAppRecentListModuleTest::SetUp()
     serviceInner_->Init();
     mockBundleMgr = new (std::nothrow) BundleMgrService();
     serviceInner_->SetBundleManager(mockBundleMgr);
+    auto runner = EventRunner::Create("AmsAppRecentListModuleTest");
+    auto handler = std::make_shared<AMSEventHandler>(runner, serviceInner_);
+    serviceInner_->SetEventHandler(handler);
 }
 
 void AmsAppRecentListModuleTest::TearDown()
