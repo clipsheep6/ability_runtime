@@ -556,6 +556,24 @@ public:
     ErrCode RegisterMissionListener(const std::string &deviceId, const sptr<IRemoteMissionListener> &listener);
 
     /**
+     * @brief Register mission listener to ability manager service.
+     * @param deviceId The remote device Id.
+     * @param listener The handler of listener.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode RegisterOnListener(const std::string &type, const sptr<IRemoteOnListener> &listener);
+
+    /**
+     * @brief Register mission listener to ability manager service.
+     * @param deviceId The remote device Id.
+     * @param listener The handler of listener.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode RegisterOffListener(const std::string &type, const sptr<IRemoteOnListener> &listener);
+
+    /**
      * @brief UnRegister mission listener from ability manager service.
      * @param deviceId The remote device Id.
      * @param listener The handler of listener.

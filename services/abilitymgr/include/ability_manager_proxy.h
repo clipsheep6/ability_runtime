@@ -572,6 +572,12 @@ public:
     virtual int RegisterMissionListener(const std::string &deviceId,
         const sptr<IRemoteMissionListener> &listener) override;
 
+    virtual int RegisterOnListener(const std::string &type,
+        const sptr<IRemoteOnListener> &listener) override;
+
+    virtual int RegisterOffListener(const std::string &deviceId,
+        const sptr<IRemoteOnListener> &listener) override;
+
     virtual int UnRegisterMissionListener(const std::string &deviceId,
         const sptr<IRemoteMissionListener> &listener) override;
 

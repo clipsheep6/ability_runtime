@@ -129,6 +129,8 @@ private:
     int NotifyCompleteContinuationInner(MessageParcel &data, MessageParcel &reply);
     int NotifyContinuationResultInner(MessageParcel &data, MessageParcel &reply);
     int RegisterRemoteMissionListenerInner(MessageParcel &data, MessageParcel &reply);
+    int RegisterRemoteOnListenerInner(MessageParcel &data, MessageParcel &reply);
+    int RegisterRemoteOffListenerInner(MessageParcel &data, MessageParcel &reply);
     int UnRegisterRemoteMissionListenerInner(MessageParcel &data, MessageParcel &reply);
 
     int LockMissionForCleanupInner(MessageParcel &data, MessageParcel &reply);

@@ -71,6 +71,8 @@ void AbilityManagerStub::FirstStepInit()
     requestFuncMap_[NOTIFY_CONTINUATION_RESULT] = &AbilityManagerStub::NotifyContinuationResultInner;
     requestFuncMap_[SEND_RESULT_TO_ABILITY] = &AbilityManagerStub::SendResultToAbilityInner;
     requestFuncMap_[REGISTER_REMOTE_MISSION_LISTENER] = &AbilityManagerStub::RegisterRemoteMissionListenerInner;
+    requestFuncMap_[REGISTER_REMOTE_ON_LISTENER] = &AbilityManagerStub::RegisterRemoteOnListenerInner;
+    requestFuncMap_[REGISTER_REMOTE_OFF_LISTENER] = &AbilityManagerStub::RegisterRemoteOffListenerInner;
     requestFuncMap_[UNREGISTER_REMOTE_MISSION_LISTENER] = &AbilityManagerStub::UnRegisterRemoteMissionListenerInner;
     requestFuncMap_[START_ABILITY_FOR_OPTIONS] = &AbilityManagerStub::StartAbilityForOptionsInner;
     requestFuncMap_[START_SYNC_MISSIONS] = &AbilityManagerStub::StartSyncRemoteMissionsInner;
@@ -1410,6 +1412,40 @@ int AbilityManagerStub::RegisterRemoteMissionListenerInner(MessageParcel &data, 
     }
     int32_t result = RegisterMissionListener(deviceId, listener);
     HILOG_INFO("AbilityManagerStub: RegisterRemoteMissionListenerInner result = %{public}d", result);
+    return result;
+}
+
+int AbilityManagerStub::RegisterRemoteOnListenerInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::string type = data.ReadString();
+    if (type.empty()) {
+        HILOG_ERROR("AbilityManagerStub: RegisterRemoteOnListenerInner type empty!");
+        return ERR_NULL_OBJECT;
+    }
+    sptr<IRemoteOnListener> listener = iface_cast<IRemoteOnListener>(data.ReadRemoteObject());
+    if (listener == nullptr) {
+        HILOG_ERROR("AbilityManagerStub: RegisterRemoteOnListenerInner listener readParcelable failed!");
+        return ERR_NULL_OBJECT;
+    }
+    int32_t result = RegisterOnListener(type, listener);
+    HILOG_INFO("AbilityManagerStub: RegisterRemoteOnListenerInner result = %{public}d", result);
+    return result;
+}
+
+int AbilityManagerStub::RegisterRemoteOffListenerInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::string type = data.ReadString();
+    if (type.empty()) {
+        HILOG_ERROR("AbilityManagerStub: RegisterRemoteOffListenerInner type empty!");
+        return ERR_NULL_OBJECT;
+    }
+    sptr<IRemoteOnListener> listener = iface_cast<IRemoteOnListener>(data.ReadRemoteObject());
+    if (listener == nullptr) {
+        HILOG_ERROR("AbilityManagerStub: RegisterRemoteOffListenerInner listener readParcelable failed!");
+        return ERR_NULL_OBJECT;
+    }
+    int32_t result = RegisterOffListener(type, listener);
+    HILOG_INFO("AbilityManagerStub: RegisterRemoteOffListenerInner result = %{public}d", result);
     return result;
 }
 
