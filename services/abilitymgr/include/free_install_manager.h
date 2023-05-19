@@ -35,6 +35,7 @@ struct FreeInstallInfo {
     int32_t requestCode = -1;
     std::shared_ptr<std::promise<int32_t>> promise;
     bool isInstalled = false;
+    std::string identity;
     sptr<IRemoteObject> callerToken = nullptr;
     sptr<IRemoteObject> dmsCallback = nullptr;
 };
