@@ -613,5 +613,38 @@ HWTEST_F(JsRuntimeTest, RegisterUncaughtExceptionHandler_0200, TestSize.Level0)
     jsRuntime->RegisterUncaughtExceptionHandler(uncaughtExceptionInfo);
     HILOG_INFO("RegisterUncaughtExceptionHandler end");
 }
+
+/**
+ * @tc.name: StartCPUProfiler_0100
+ * @tc.desc: JsRuntime test for StartCPUProfiler.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, StartCPUProfiler_0100, TestSize.Level0)
+{
+    HILOG_INFO("StartCPUProfiler start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    EXPECT_TRUE(jsRuntime != nullptr);
+    jsRuntime->StartCPUProfiler();
+
+    HILOG_INFO("StartCPUProfiler end");
+}
+
+/**
+ * @tc.name: StartCPUProfiler_0200
+ * @tc.desc: JsRuntime test for StartCPUProfiler.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, StartCPUProfiler_0200, TestSize.Level0)
+{
+    HILOG_INFO("StartCPUProfiler start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    EXPECT_TRUE(jsRuntime != nullptr);
+    jsRuntime->jsEnv_ = nullptr;
+    jsRuntime->StartCPUProfiler();
+
+    HILOG_INFO("StartCPUProfiler end");
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

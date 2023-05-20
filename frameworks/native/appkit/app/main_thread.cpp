@@ -1643,6 +1643,10 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
 
     if (runtime && want && appInfo->debug) {
         runtime->StartDebugMode(want->GetBoolParam("debugApp", false));
+        auto perfCmd = want->GetStringParam("perfCmd");
+        if (!perfCmd.empty()) {
+            runtime->StartCPUProfiler();
+        }
     }
 
     std::vector<HqfInfo> hqfInfos = appInfo->appQuickFix.deployedAppqfInfo.hqfInfos;

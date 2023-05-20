@@ -152,6 +152,17 @@ void JsEnvironment::StopDebugger()
     }
 }
 
+bool JsEnvironment::StartCPUProfiler()
+{
+    if (vm_ == nullptr) {
+        JSENV_LOG_E("Invalid vm.");
+        return false;
+    }
+
+    panda::DFXJSNApi::StartCpuProfilerForInfo(vm_);
+    return true;
+}
+
 void JsEnvironment::InitConsoleModule()
 {
     if (engine_ == nullptr) {

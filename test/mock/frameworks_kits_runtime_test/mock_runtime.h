@@ -92,6 +92,10 @@ public:
     {
         return;
     }
+    void StartCPUProfiler() override
+    {
+        return;
+    }
 public:
     Language language;
 };

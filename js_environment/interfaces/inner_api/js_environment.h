@@ -66,6 +66,7 @@ public:
 
     void InitConsoleModule();
 
+    bool StartCPUProfiler();
     void StopDebugger();
 
     bool LoadScript(const std::string& path, uint8_t *buffer, size_t len, bool isBundle);

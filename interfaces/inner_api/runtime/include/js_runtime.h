@@ -91,6 +91,7 @@ public:
     void PreloadSystemModule(const std::string& moduleName) override;
     void UpdateExtensionType(int32_t extensionType) override;
     void StartDebugMode(bool needBreakPoint) override;
+    void StartCPUProfiler() override;
     void StopDebugMode();
     bool LoadRepairPatch(const std::string& hqfFile, const std::string& hapPath) override;
     bool UnLoadRepairPatch(const std::string& hqfFile) override;
