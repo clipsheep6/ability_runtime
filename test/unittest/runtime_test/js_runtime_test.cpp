@@ -613,5 +613,141 @@ HWTEST_F(JsRuntimeTest, RegisterUncaughtExceptionHandler_0200, TestSize.Level0)
     jsRuntime->RegisterUncaughtExceptionHandler(uncaughtExceptionInfo);
     HILOG_INFO("RegisterUncaughtExceptionHandler end");
 }
+
+/**
+ * @tc.name: ReadSourceMapData_0100
+ * @tc.desc: JsRuntime test for ReadSourceMapData.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, ReadSourceMapData_0100, TestSize.Level0)
+{
+    HILOG_INFO("ReadSourceMapData start");
+
+    AbilityRuntime::Runtime::Options options;
+    options.preload = true;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+
+    ASSERT_NE(jsRuntime, nullptr);
+
+    std::string hapPath = "";
+    std::string sourceMapPath = "";
+    std::string content = "";
+    jsRuntime->ReadSourceMapData(hapPath, sourceMapPath, content);
+    HILOG_INFO("ReadSourceMapData end");
+}
+
+/**
+ * @tc.name: StopDebugger_0100
+ * @tc.desc: JsRuntime test for StopDebugger.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, StopDebugger_0100, TestSize.Level0)
+{
+    HILOG_INFO("StopDebugger start");
+
+    AbilityRuntime::Runtime::Options options;
+    options.preload = true;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+
+    ASSERT_NE(jsRuntime, nullptr);
+    
+    jsRuntime->StopDebugger();
+    HILOG_INFO("StopDebugger end");
+}
+
+/**
+ * @tc.name: GetFileBuffer_0200
+ * @tc.desc: JsRuntime test for GetFileBuffer.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, GetFileBuffer_0200, TestSize.Level0)
+{
+    HILOG_INFO("GetFileBuffer start");
+
+    AbilityRuntime::Runtime::Options options;
+    options.preload = true;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+
+    ASSERT_NE(jsRuntime, nullptr);
+
+    std::string filePath = "";
+    std::string fileFullName = "";
+    std::vector<uint8_t> buffer;
+    jsRuntime->GetFileBuffer(filePath, fileFullName, buffer);
+    HILOG_INFO("GetFileBuffer end");
+}
+
+/**
+ * @tc.name: JsRuntimeRunScriptTest_0100
+ * @tc.desc: JsRuntime test for RunScript.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeRunScriptTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("RunScript start");
+
+    std::unique_ptr<Runtime> jsRuntime = JsRuntime::Create(options_);
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    std::string srcPath = "";
+    std::string hapPath = "";
+    bool useCommonChunk = true;
+    bool ret = (static_cast<AbilityRuntime::JsRuntime&>(*jsRuntime)).RunScript(srcPath, hapPath, useCommonChunk);
+    EXPECT_FALSE(ret);
+
+    HILOG_INFO("RunScript end");
+}
+
+/**
+ * @tc.name: JsRuntimeLoadScriptTest_0100
+ * @tc.desc: JsRuntime test for LoadScript.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeLoadScriptTest_0100, TestSize.Level0)
+{
+    AbilityRuntime::Runtime::Options options;
+    options.preload = false;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+    ASSERT_NE(jsRuntime, nullptr);
+
+    std::string path = "";
+    std::vector<uint8_t>* buffer = nullptr;
+    bool isBundle = true;
+    jsRuntime->LoadScript(path, buffer, isBundle);
+}
+
+/**
+ * @tc.name: JsRuntimeLoadScriptTest_0200
+ * @tc.desc: JsRuntime test for LoadScript.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeLoadScriptTest_0200, TestSize.Level0)
+{
+    AbilityRuntime::Runtime::Options options;
+    options.preload = false;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+    ASSERT_NE(jsRuntime, nullptr);
+
+    std::string path = "";
+    uint8_t *buffer = nullptr;
+    size_t len = 1;
+    bool isBundle = true;
+    jsRuntime->LoadScript(path, buffer, len, isBundle);
+}
+
+/**
+ * @tc.name: JsRuntimeStopDebuggerTest_0100
+ * @tc.desc: JsRuntime test for StopDebugger.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeStopDebuggerTest_0100, TestSize.Level0)
+{
+    AbilityRuntime::Runtime::Options options;
+    options.preload = false;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+    ASSERT_NE(jsRuntime, nullptr);
+
+    jsRuntime->StopDebugger();
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

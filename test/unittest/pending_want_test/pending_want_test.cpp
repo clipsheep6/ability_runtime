@@ -1368,4 +1368,31 @@ HWTEST_F(PendingWantTest, PendingWant_7200, Function | MediumTest | Level1)
     EXPECT_EQ(err, ERR_OK);
     HILOG_INFO("PendingWant_7200 start.");
 }
+
+/*
+ * @tc.number    : PendingWant_7300
+ * @tc.name      : PendingWant PerformReceive
+ * @tc.desc      : 1.PerformReceive
+ */
+HWTEST_F(PendingWantTest, PendingWant_7300, Function | MediumTest | Level1)
+{
+    std::shared_ptr<PendingWant> pendingWant = std::make_shared<PendingWant>(nullptr);
+    std::shared_ptr<CancelListener> cancelListener1 = std::make_shared<CancelListenerSon>();
+    std::shared_ptr<CancelListener> cancelListener2 = std::make_shared<CancelListenerSon>();
+    pendingWant->RegisterCancelListener(cancelListener1, nullptr);
+    pendingWant->RegisterCancelListener(cancelListener2, nullptr);
+    std::weak_ptr<PendingWant> outerInstance(pendingWant);
+    PendingWant::CancelReceiver cancelreceiver(outerInstance);
+    AAFwk::Want want;
+    int resultCode = 1;
+    std::string data = "";
+    AAFwk::WantParams extras;
+    bool serialized = true;
+    bool sticky = true;
+    int sendingUser = 1;
+    cancelreceiver.PerformReceive(want, resultCode, data, extras, serialized, sticky, sendingUser);
+
+    EXPECT_EQ(callBackCancelListenerConnt, 0);
+    callBackCancelListenerConnt = 0;
+}
 }  // namespace OHOS::AbilityRuntime::WantAgent

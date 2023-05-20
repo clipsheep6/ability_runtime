@@ -1241,5 +1241,83 @@ HWTEST_F(AbilityManagerClientBranchTest, CloseUIAbilityBySCB_003, TestSize.Level
     EXPECT_EQ(AbilityManagerClient::GetInstance()->CloseUIAbilityBySCB(sessionInfo), ERR_WRONG_INTERFACE_CALL);
 }
 
+/**
+ * @tc.name: AbilityManagerClient_ConnectAbility_0100
+ * @tc.desc: ConnectAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, ConnectAbility_0100, TestSize.Level1)
+{
+    Want want;
+    sptr<IAbilityConnection> connect = nullptr;
+    int32_t userId = 1;
+    EXPECT_EQ(client_->ConnectAbility(want, connect, userId), ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ConnectUIExtensionAbility_0100
+ * @tc.desc: ConnectUIExtensionAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, ConnectUIExtensionAbility_0100, TestSize.Level1)
+{
+    Want want;
+    sptr<IAbilityConnection> connect = nullptr;
+    sptr<SessionInfo> sessionInfo = nullptr;
+    int32_t userId = 1;
+    EXPECT_EQ(client_->ConnectUIExtensionAbility(want, connect, sessionInfo, userId), ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetMissionInfo_0100
+ * @tc.desc: GetMissionInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, GetMissionInfo_0100, TestSize.Level1)
+{
+    std::string deviceId = "123";
+    int32_t missionId = 1;
+    MissionInfo missionInfo;
+    EXPECT_EQ(client_->GetMissionInfo(deviceId, missionId, missionInfo), ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_AcquireShareData_0100
+ * @tc.desc: AcquireShareData
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AcquireShareData_0100, TestSize.Level1)
+{
+    int32_t missionId = 1;
+    sptr<IAcquireShareDataCallback> shareData = nullptr;
+    EXPECT_EQ(client_->AcquireShareData(missionId, shareData), ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ShareDataDone_0100
+ * @tc.desc: ShareDataDone
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, ShareDataDone_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    int32_t resultCode = 1;
+    int32_t uniqueId = 1;
+    WantParams wantParam;
+    EXPECT_EQ(client_->ShareDataDone(token, resultCode, uniqueId, wantParam), ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetAbilityTokenByCalleeObj_0100
+ * @tc.desc: GetAbilityTokenByCalleeObj
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_GetAbilityTokenByCalleeObj_0100, TestSize.Level1)
+{
+    EXPECT_TRUE(client_ != nullptr);
+    sptr<IRemoteObject> callStub = nullptr;
+    sptr<IRemoteObject> token = nullptr;
+    client_->GetAbilityTokenByCalleeObj(callStub, token);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
