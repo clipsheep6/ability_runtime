@@ -592,7 +592,6 @@ bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObj
         HILOG_INFO("force");
         return UpdateMissionSnapshot(missionId, abilityToken, missionSnapshot, isLowResolution);
     }
-
     {
         std::unique_lock<std::mutex> lock(savingSnapshotLock_);
         auto search = savingSnapshot_.find(missionId);
