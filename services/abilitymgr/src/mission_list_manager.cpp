@@ -1690,7 +1690,7 @@ int MissionListManager::ClearMissionLocked(int missionId, const std::shared_ptr<
 int MissionListManager::ClearAllMissions()
 {
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
-    DelayedSingleton<MissionInfoMgr>::GetInstance()->DeleteAllMissionInfos(listenerController_);
+    //DelayedSingleton<MissionInfoMgr>::GetInstance()->DeleteAllMissionInfos(listenerController_);
     std::list<std::shared_ptr<Mission>> foregroundAbilities;
     ClearAllMissionsLocked(defaultStandardList_->GetAllMissions(), foregroundAbilities, false);
     ClearAllMissionsLocked(defaultSingleList_->GetAllMissions(), foregroundAbilities, false);
@@ -1719,8 +1719,10 @@ void MissionListManager::ClearAllMissionsLocked(std::list<std::shared_ptr<Missio
         }
 
         MissionInfo missionInfo;
+        auto mid = mission->GetMissionId();
+        HILOG_WARN("GetMissionId value: %{public}d.", mid);
         if (DelayedSingleton<MissionInfoMgr>::GetInstance()
-            ->GetMissionInfoById(mission->GetMissionId(), missionInfo) == 0) {
+            ->GetMissionInfoById(mid, missionInfo) == 0) {
             missionInfo.unclearable = true; //todo: removed when BMS is ready
             if (missionInfo.unclearable) {
                 HILOG_WARN("mission is unclearable.");
