@@ -23,10 +23,14 @@
 #include "bundle_info.h"
 #include "extension_ability_info.h"
 #include "native_engine/native_engine.h"
+#include "runtime.h"
 
 namespace OHOS::AbilityRuntime {
 namespace ExtensionConfigItem {
     constexpr char ITEM_NAME_BLOCKLIST[] = "blocklist";
+}
+namespace {
+    constexpr int32_t EXTENSION_TYPE_UNKNOWN = 255;
 }
 
 /**
@@ -45,11 +49,14 @@ public:
     void Init();
 
     /**
-     * @brief Update bundle extension information
+     * @brief Set the Process Extension Type object
      *
-     * @param engine JS NativeEngine
+     * @param extensionType
      */
-    void UpdateBundleExtensionInfo(NativeEngine &engine, AppExecFwk::BundleInfo &bundleInfo);
+    void SetProcessExtensionType(int32_t extensionType)
+    {
+        extensionType_ = extensionType;
+    }
 
     /**
      * @brief Add extension blocklist item
@@ -60,15 +67,16 @@ public:
     void AddBlockListItem(const std::string &name, int32_t type);
 
     /**
-     * @brief Update extension blocklist to native engine
+     * @brief Update runtime module checker
      *
-     * @param engine JS NativeEngine
+     * @param runtime the runtime pointer
      */
-    void UpdateBlockListToEngine(NativeEngine &engine);
+    void UpdateRuntimeModuleChecker(const std::unique_ptr<AbilityRuntime::Runtime> &runtime);
 
 private:
     std::unordered_map<std::string, std::unordered_set<std::string>> blocklistConfig_;
     std::unordered_map<int32_t, std::unordered_set<std::string>> extensionBlocklist_;
+    int32_t extensionType_ = EXTENSION_TYPE_UNKNOWN;
 };
 } // namespace OHOS::AbilityRuntime
 

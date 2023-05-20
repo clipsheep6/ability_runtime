@@ -94,6 +94,7 @@ ohos_shared_library("appkit_native") {
   configs = [
     ":appkit_config",
     ":appkit_exception_config",
+    "//foundation/arkui/napi:module_manager_config",
   ]
 
   public_configs = [ ":appkit_public_config" ]

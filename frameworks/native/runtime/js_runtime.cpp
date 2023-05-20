@@ -45,6 +45,7 @@
 #include "js_utils.h"
 #include "js_worker.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
+#include "module_checker_delegate.h"
 #include "ohos_js_env_logger.h"
 #include "ohos_js_environment_impl.h"
 #include "parameters.h"
@@ -537,6 +538,7 @@ bool JsRuntime::Initialize(const Options& options)
             }
             if (jsEnv_) {
                 jsEnv_->InitWorkerModule(codePath_, options.isDebugVersion, options.isBundle);
+                jsEnv_->SetModuleLoadChecker(options.moduleCheckerDelegate);
             }
         }
     }
@@ -937,18 +939,6 @@ void JsRuntime::PreloadSystemModule(const std::string& moduleName)
     nativeEngine->CallFunction(nativeEngine->GetGlobal(), methodRequireNapiRef_->Get(), &className, 1);
 }
 
-void JsRuntime::UpdateExtensionType(int32_t extensionType)
-{
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER(nativeEngine);
-    NativeModuleManager* moduleManager = nativeEngine->GetModuleManager();
-    if (moduleManager == nullptr) {
-        HILOG_ERROR("UpdateExtensionType error, moduleManager is nullptr");
-        return;
-    }
-    moduleManager->SetProcessExtensionType(extensionType);
-}
-
 NativeEngine& JsRuntime::GetNativeEngine() const
 {
     return *GetNativeEnginePointer();
@@ -1103,6 +1093,12 @@ void JsRuntime::InitTimerModule()
 {
     CHECK_POINTER(jsEnv_);
     jsEnv_->InitTimerModule();
+}
+
+void JsRuntime::SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate) const
+{
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->SetModuleLoadChecker(moduleCheckerDelegate);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

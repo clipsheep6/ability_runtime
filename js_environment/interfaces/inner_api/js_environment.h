@@ -70,6 +70,8 @@ public:
 
     bool LoadScript(const std::string& path, uint8_t *buffer, size_t len, bool isBundle);
 
+    void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate);
+
 private:
     std::unique_ptr<JsEnvironmentImpl> impl_ = nullptr;
     NativeEngine* engine_ = nullptr;

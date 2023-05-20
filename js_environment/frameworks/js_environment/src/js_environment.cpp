@@ -168,5 +168,14 @@ bool JsEnvironment::LoadScript(const std::string& path, uint8_t *buffer, size_t 
 {
     return engine_->RunScriptBuffer(path.c_str(), buffer, len, isBundle);
 }
+
+void JsEnvironment::SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate)
+{
+    if (engine_ == nullptr) {
+        JSENV_LOG_E("SetModuleLoadChecker failed, engine_ is null");
+        return;
+    }
+    engine_->SetModuleLoadChecker(moduleCheckerDelegate);
+}
 } // namespace JsEnv
 } // namespace OHOS

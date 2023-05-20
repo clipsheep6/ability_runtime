@@ -265,7 +265,6 @@ ohos_shared_library("abilitykit_native") {
     "ipc:ipc_core",
     "ipc:ipc_napi_common",
     "ipc_js:rpc",
-    "napi:ace_napi",
     "relational_store:native_rdb",
     "resource_management:global_resmgr",
     "samgr:samgr_proxy",
@@ -357,6 +356,7 @@ ohos_shared_library("extensionkit_native") {
   ]
 
   sources = [
+    "${ability_runtime_native_path}/ability/native/app_module_checker.cpp",
     "${ability_runtime_native_path}/ability/native/extension.cpp",
     "${ability_runtime_native_path}/ability/native/extension_config_mgr.cpp",
     "${ability_runtime_native_path}/ability/native/extension_impl.cpp",
