@@ -63,9 +63,9 @@ void AbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName& e
         mutex_.unlock();
         return;
     }
-    // if resultCode < 0 that means the connectReceiver is died
+    // if resultCode < 0 that means the service is dead
     if (resultCode == DIED) {
-        bool ret = ConnectionManager::GetInstance().DisconnectReceiver(element);
+        bool ret = ConnectionManager::GetInstance().RemoveConnection(this);
         if (ret) {
             ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());
             HILOG_INFO("The service connection is not disconnected.");
