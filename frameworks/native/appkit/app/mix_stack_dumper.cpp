@@ -46,6 +46,7 @@ static constexpr int STATUS_LINE_SIZE = 1024;
 static constexpr int FRAME_BUF_LEN = 1024;
 static constexpr int HEADER_BUF_LEN = 512;
 static constexpr int NAMESPACE_MATCH_NUM = 2;
+static bool hasInstalled = false;
 typedef struct ProcInfo {
     int tid;
     int pid;
@@ -242,18 +243,26 @@ bool MixStackDumper::Dump_SignalHandler(int sig, siginfo_t *si, void *context)
     return ret;
 }
 
+bool MixStackDumper::IsInstalled()
+{
+    return hasInstalled;
+}
+
 void MixStackDumper::InstallDumpHandler(std::shared_ptr<OHOSApplication> application,
     std::shared_ptr<EventHandler> handler)
 {
-    signalHandler_ = handler;
-    application_ = application;
+    if (!hasInstalled) {
+        signalHandler_ = handler;
+        application_ = application;
 
-    struct signal_chain_action sigchain = {
-        .sca_sigaction = MixStackDumper::Dump_SignalHandler,
-        .sca_mask = {},
-        .sca_flags = 0,
-    };
-    add_special_signal_handler(SIGDUMP, &sigchain);
+        struct signal_chain_action sigchain = {
+            .sca_sigaction = MixStackDumper::Dump_SignalHandler,
+            .sca_mask = {},
+            .sca_flags = 0,
+        };
+        add_special_signal_handler(SIGDUMP, &sigchain);
+        hasInstalled = true;
+    }
 }
 
 bool MixStackDumper::IsJsNativePcEqual(uintptr_t *jsNativePointer, uint64_t nativePc, uint64_t nativeOffset)

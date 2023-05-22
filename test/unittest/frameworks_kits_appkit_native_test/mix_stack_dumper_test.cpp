@@ -473,5 +473,20 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest017, Function | MediumTest | Leve
     std::string stack1 = MixStackDumper::GetMixStack(true);
     EXPECT_TRUE(stack1.size() > ZERO);
 }
+
+/**
+ * @tc.number: MixStackDumperTest018
+ * @tc.name: Call InstallDumpHandler
+ * @tc.desc: test InstallDumpHandler Func
+ */
+HWTEST_F(MixStackDumperTest, MixStackDumperTest018, Function | MediumTest | Level1)
+{
+    MixStackDumper mixDumepr;
+    EXPECT_FALSE(mixDumepr.IsInstalled());
+    mixDumepr.InstallDumpHandler(nullptr, nullptr);
+    EXPECT_TRUE(mixDumepr.IsInstalled());
+    mixDumepr.InstallDumpHandler(nullptr, nullptr); // install twice should not trigger abort crash
+    EXPECT_TRUE(mixDumepr.IsInstalled());
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

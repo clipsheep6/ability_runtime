@@ -1120,7 +1120,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
 
     applicationForDump_ = application_;
     mixStackDumper_ = std::make_shared<MixStackDumper>();
-    mixStackDumper_->InstallDumpHandler(application_, signalHandler_);
+    if (!mixStackDumper_->IsInstalled()) {
+        mixStackDumper_->InstallDumpHandler(application_, signalHandler_);
+    }
 
     sptr<IBundleMgr> bundleMgr = contextDeal->GetBundleManager();
     if (bundleMgr == nullptr) {
