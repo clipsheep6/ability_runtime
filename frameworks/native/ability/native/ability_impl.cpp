@@ -560,55 +560,53 @@ void AbilityImpl::AfterFocused()
 
 void AbilityImpl::AfterFocusedCommon(bool isFocused)
 {
-    if (!ability_ || !ability_->GetAbilityInfo() || !handler_) {
-        HILOG_WARN("AbilityImpl::%{public}s failed", isFocused ? "AfterFocused" : "AfterUnFocused");
-        return;
-    }
-    HILOG_INFO("isStageBasedModel: %{public}d", ability_->GetAbilityInfo()->isStageBasedModel);
-    if (ability_->GetAbilityInfo()->isStageBasedModel) {
-        std::shared_ptr<AbilityRuntime::AbilityContext> abilityContext = ability_->GetAbilityContext();
-        if (abilityContext == nullptr) {
+    auto task = [abilityImpl = weak_from_this(), focuseMode = isFocused]() {
+        auto impl = abilityImpl.lock();
+        if (impl == nullptr) {
             return;
         }
 
-        std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
-            abilityContext->GetApplicationContext();
-        if (applicationContext != nullptr && !applicationContext->IsAbilityLifecycleCallbackEmpty()) {
-            AbilityRuntime::JsAbility& jsAbility = static_cast<AbilityRuntime::JsAbility&>(*ability_);
-            if (isFocused) {
-                applicationContext->DispatchWindowStageFocus(jsAbility.GetJsAbility(),
-                    jsAbility.GetJsWindowStage());
-            } else {
-                applicationContext->DispatchWindowStageUnfocus(jsAbility.GetJsAbility(),
-                    jsAbility.GetJsWindowStage());
+        if (!impl->ability_ || !impl->ability_->GetAbilityInfo()) {
+            HILOG_WARN("AbilityImpl::%{public}s failed", focuseMode ? "AfterFocused" : "AfterUnFocused");
+            return;
+        }
+        HILOG_INFO("isStageBasedModel: %{public}d", impl->ability_->GetAbilityInfo()->isStageBasedModel);
+
+        if (impl->ability_->GetAbilityInfo()->isStageBasedModel) {
+            auto abilityContext = impl->ability_->GetAbilityContext();
+            if (abilityContext == nullptr) {
+                return;
             }
+            auto applicationContext = abilityContext->GetApplicationContext();
+            if (applicationContext == nullptr || applicationContext->IsAbilityLifecycleCallbackEmpty()) {
+                return;
+            }
+            auto& jsAbility = static_cast<AbilityRuntime::JsAbility&>(*(impl->ability_));
+            if (focuseMode) {
+                applicationContext->DispatchWindowStageFocus(jsAbility.GetJsAbility(),  jsAbility.GetJsWindowStage());
+            } else {
+                applicationContext->DispatchWindowStageUnfocus(jsAbility.GetJsAbility(), jsAbility.GetJsWindowStage());
+            }
+            return;
         }
-        return;
-    }
-    if (ability_->GetWant() == nullptr) {
-        HILOG_WARN("want is nullptr.");
-        return;
-    }
 
-    auto task = [abilityImpl = weak_from_this(), want = *(ability_->GetWant()), focuseMode = isFocused]() {
-        auto abilityImplS = abilityImpl.lock();
-        if (abilityImplS == nullptr) {
+        if (impl->ability_->GetWant() == nullptr) {
+            HILOG_WARN("want is nullptr.");
             return;
         }
-        auto ability = abilityImplS->ability_;
-        if (ability == nullptr) {
-            return;
-        }
-        AAFwk::LifeCycleStateInfo info = ability->GetLifeCycleStateInfo();
+        auto info = impl->ability_->GetLifeCycleStateInfo();
         if (focuseMode) {
             info.state = AbilityLifeCycleState::ABILITY_STATE_ACTIVE;
         } else {
             info.state = AbilityLifeCycleState::ABILITY_STATE_INACTIVE;
         }
         info.isNewWant = false;
-        abilityImplS->HandleAbilityTransaction(want, info);
+        impl->HandleAbilityTransaction(*(impl->ability_->GetWant()), info);
     };
-    handler_->PostTask(task);
+
+    if (handler_) {
+        handler_->PostTask(task);
+    }
     HILOG_DEBUG("end.");
 }
 
