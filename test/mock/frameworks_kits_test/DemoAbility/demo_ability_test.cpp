@@ -93,7 +93,6 @@ void DemoAbility::OnSaveAbilityState(PacMap& outState)
     EXPECT_STREQ(GetDataDir().c_str(), std::string("dataDir").c_str());
     EXPECT_STREQ(GetBundleCodePath().c_str(), std::string("codePath").c_str());
     EXPECT_STREQ(GetBundleName().c_str(), std::string("bundleName").c_str());
-    EXPECT_STREQ(GetBundleResourcePath().c_str(), std::string("resourcePath").c_str());
     EXPECT_STREQ(GetAppType().c_str(), std::string("system").c_str());
 
     EXPECT_NE(GetBundleManager(), nullptr);

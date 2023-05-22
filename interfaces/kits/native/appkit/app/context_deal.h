@@ -24,7 +24,6 @@ namespace AppExecFwk {
 class ContextDeal : public std::enable_shared_from_this<ContextDeal> {
 public:
     ContextDeal() = default;
-    explicit ContextDeal(bool isCreateBySystemApp);
     virtual ~ContextDeal() = default;
 
     /**
@@ -158,13 +157,6 @@ public:
     std::string GetBundleName() const;
 
     /**
-     * @brief Obtains the path of the OHOS Ability Package (HAP} containing this ability.
-     *
-     * @return Returns the path of the HAP containing this ability.
-     */
-    std::string GetBundleResourcePath();
-
-    /**
      * @brief Obtains an ability manager.
      * The ability manager provides information about running processes and memory usage of an application.
      *
@@ -183,25 +175,11 @@ public:
     std::string GetAppType();
 
     /**
-     * @brief Sets the pattern of this Context based on the specified pattern ID.
-     *
-     * @param patternId Indicates the resource ID of the pattern to set.
-     */
-    void SetPattern(int patternId);
-
-    /**
      * @brief Obtains the HapModuleInfo object of the application.
      *
      * @return Returns the HapModuleInfo object of the application.
      */
     std::shared_ptr<HapModuleInfo> GetHapModuleInfo();
-
-    /**
-     * @brief Obtains the name of the current process.
-     *
-     * @return Returns the current process name.
-     */
-    std::string GetProcessName();
 
     /**
      * @brief init the ResourceManager for ContextDeal.
@@ -210,70 +188,6 @@ public:
      *
      */
     void initResourceManager(const std::shared_ptr<Global::Resource::ResourceManager> &resourceManager);
-
-    /**
-     * @brief Get the string of this Context based on the specified resource ID.
-     *
-     * @param resId Indicates the resource ID of the string to get.
-     *
-     * @return Returns the string of this Context.
-     */
-    std::string GetString(int resId);
-
-    /**
-     * @brief Get the string array of this Context based on the specified resource ID.
-     *
-     * @param resId Indicates the resource ID of the string array to get.
-     *
-     * @return Returns the string array of this Context.
-     */
-    std::vector<std::string> GetStringArray(int resId);
-
-    /**
-     * @brief Get the integer array of this Context based on the specified resource ID.
-     *
-     * @param resId Indicates the resource ID of the integer array to get.
-     *
-     * @return Returns the integer array of this Context.
-     */
-    std::vector<int> GetIntArray(int resId);
-
-    /**
-     * @brief Obtains the theme of this Context.
-     *
-     * @return theme Returns the theme of this Context.
-     */
-    std::map<std::string, std::string> GetTheme();
-
-    /**
-     * @brief Sets the theme of this Context based on the specified theme ID.
-     *
-     * @param themeId Indicates the resource ID of the theme to set.
-     */
-    void SetTheme(int themeId);
-
-    /**
-     * @brief Obtains the pattern of this Context.
-     *
-     * @return getPattern in interface Context
-     */
-    std::map<std::string, std::string> GetPattern();
-
-    /**
-     * @brief Get the color of this Context based on the specified resource ID.
-     *
-     * @param resId Indicates the resource ID of the color to get.
-     *
-     * @return Returns the color value of this Context.
-     */
-    int GetColor(int resId);
-
-    /**
-     * @brief Obtains the theme id of this Context.
-     *
-     * @return int Returns the theme id of this Context.
-     */
-    int GetThemeId();
 
     /**
      * @brief Obtains the current display orientation of this ability.
@@ -291,26 +205,14 @@ public:
     std::string GetPreferencesDir();
 
     /**
-     * @brief Set color mode
-     *
-     * @param the value of color mode.
-     */
-    void SetColorMode(int mode);
-
-    /**
-     * @brief Obtains color mode.
-     *
-     * @return Returns the color mode value.
-     */
-    int GetColorMode();
-
-    /**
      * @brief Obtains the application base directory on the device's internal storage.
      *
      * @return Returns the application base directory.
      */
     std::string GetBaseDir() const;
-public:
+
+    void SetSystemAppFlag(bool isCreateBySystemApp);
+
     static const int64_t CONTEXT_CREATE_BY_SYSTEM_APP;
     static const std::string CONTEXT_DEAL_FILE_SEPARATOR;
     static const std::string CONTEXT_DEAL_Files;
@@ -321,13 +223,9 @@ public:
     static const std::string CONTEXT_DEAL_DATABASE;
     static const std::string CONTEXT_DEAL_PREFERENCES;
     static const std::string CONTEXT_DEAL_DATA;
-    int flags_ = 0x00000000;
-
-protected:
-    bool HapModuleInfoRequestInit();
 
 private:
-    bool IsCreateBySystemApp() const;
+    bool HapModuleInfoRequestInit();
     int GetCurrentAccountId() const;
     void CreateDirIfNotExist(const std::string& dirPath) const;
 
@@ -337,8 +235,6 @@ private:
     std::shared_ptr<Context> abilityContext_ = nullptr;
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager_ = nullptr;
     std::string path_ = "";
-    std::map<std::string, std::string> pattern_;
-    std::map<std::string, std::string> theme_;
     std::shared_ptr<HapModuleInfo> hapModuleInfoLocal_ = nullptr;
     bool isCreateBySystemApp_ = false;
     std::string currArea_ = "el2";

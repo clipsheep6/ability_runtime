@@ -445,17 +445,6 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetBundleName_0100, Function 
 }
 
 /**
- * @tc.number: AaFwk_Ability_Context_GetBundleResourcePath_0100
- * @tc.name: GetBundleResourcePath
- * @tc.desc: Verify that function GetBundleResourcePath.
- */
-HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetBundleResourcePath_0100, Function | MediumTest | Level1)
-{
-    auto result = context_->GetBundleResourcePath();
-    EXPECT_TRUE(result.empty());
-}
-
-/**
  * @tc.number: AaFwk_Ability_Context_GetApplicationContext_0100
  * @tc.name: GetApplicationContext
  * @tc.desc: Verify that function GetApplicationContext.
@@ -573,9 +562,8 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetAbilityInfoType_0200, Func
 HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_CreateBundleContext_0100, Function | MediumTest | Level1)
 {
     std::string bundleName;
-    int32_t flag = 1;
     int32_t accountId = 1;
-    auto result = context_->CreateBundleContext(bundleName, flag, accountId);
+    auto result = context_->CreateBundleContext(bundleName, accountId);
     EXPECT_TRUE(result == nullptr);
 }
 
@@ -784,87 +772,6 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_InitResourceManager_0100, Fun
 }
 
 /**
- * @tc.number: AaFwk_Ability_Context_GetString_0100
- * @tc.name: GetString
- * @tc.desc: Verify that function GetString.
- */
-HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetString_0100, Function | MediumTest | Level1)
-{
-    int32_t resId = 1;
-    auto result = context_->GetString(resId);
-    EXPECT_EQ(result, "");
-}
-
-/**
- * @tc.number: AaFwk_Ability_Context_GetStringArray_0100
- * @tc.name: GetStringArray
- * @tc.desc: Verify that function GetStringArray.
- */
-HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetStringArray_0100, Function | MediumTest | Level1)
-{
-    int32_t resId = 1;
-    auto result = context_->GetStringArray(resId);
-    EXPECT_TRUE(result.empty());
-}
-
-/**
- * @tc.number: AaFwk_Ability_Context_GetIntArray_0100
- * @tc.name: GetIntArray
- * @tc.desc: Verify that function GetIntArray.
- */
-HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetIntArray_0100, Function | MediumTest | Level1)
-{
-    int32_t resId = 1;
-    auto result = context_->GetIntArray(resId);
-    EXPECT_TRUE(result.empty());
-}
-
-/**
- * @tc.number: AaFwk_Ability_Context_GetTheme_0100
- * @tc.name: GetTheme
- * @tc.desc: Verify that function GetTheme.
- */
-HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetTheme_0100, Function | MediumTest | Level1)
-{
-    auto result = context_->GetTheme();
-    EXPECT_TRUE(result.empty());
-}
-
-/**
- * @tc.number: AaFwk_Ability_Context_GetPattern_0100
- * @tc.name: GetPattern
- * @tc.desc: Verify that function GetPattern.
- */
-HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetPattern_0100, Function | MediumTest | Level1)
-{
-    auto result = context_->GetPattern();
-    EXPECT_TRUE(result.empty());
-}
-
-/**
- * @tc.number: AaFwk_Ability_Context_GetColor_0100
- * @tc.name: GetColor
- * @tc.desc: Verify that function GetColor.
- */
-HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetColor_0100, Function | MediumTest | Level1)
-{
-    int32_t resId = 1;
-    auto result = context_->GetColor(resId);
-    EXPECT_EQ(result, INVALID_RESOURCE_VALUE);
-}
-
-/**
- * @tc.number: AaFwk_Ability_Context_GetThemeId_0100
- * @tc.name: GetThemeId
- * @tc.desc: Verify that function GetThemeId.
- */
-HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetThemeId_0100, Function | MediumTest | Level1)
-{
-    auto result = context_->GetThemeId();
-    EXPECT_EQ(result, -1);
-}
-
-/**
  * @tc.number: AaFwk_Ability_Context_TerminateAbilityResult_0100
  * @tc.name: TerminateAbilityResult
  * @tc.desc: Verify that function TerminateAbilityResult.
@@ -896,28 +803,6 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetPreferencesDir_0100, Funct
 {
     auto result = context_->GetPreferencesDir();
     EXPECT_EQ(result, "");
-}
-
-/**
- * @tc.number: AaFwk_Ability_Context_SetColorMode_0100
- * @tc.name: SetColorMode and GetColorMode
- * @tc.desc: Verify that function SetColorMode and GetColorMode.
- */
-HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_SetColorMode_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
-    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
-    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
-    AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
-    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
-    deal->SetAbilityInfo(abilityInfo);
-    context_->AttachBaseContext(deal);
-    int32_t mode = 1;
-    context_->SetColorMode(mode);
-    auto result = context_->GetColorMode();
-    EXPECT_EQ(result, 1);
-    EXPECT_TRUE(context_->baseContext_ != nullptr);
 }
 
 /**
