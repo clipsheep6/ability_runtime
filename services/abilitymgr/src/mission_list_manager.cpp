@@ -1645,6 +1645,7 @@ int MissionListManager::ClearMission(int missionId)
     }
 
     MissionInfo missionInfo;
+    HILOG_WARN("clear missionId : %{public}d.", missionId);
     if (DelayedSingleton<MissionInfoMgr>::GetInstance()->GetMissionInfoById(missionId, missionInfo) == 0) {
         missionInfo.unclearable = true; //todo: removed when BMS is ready
         if (missionInfo.unclearable) {
