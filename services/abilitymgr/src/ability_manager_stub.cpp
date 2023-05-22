@@ -65,6 +65,7 @@ void AbilityManagerStub::FirstStepInit()
     requestFuncMap_[DUMPSYS_STATE] = &AbilityManagerStub::DumpSysStateInner;
     requestFuncMap_[START_ABILITY_FOR_SETTINGS] = &AbilityManagerStub::StartAbilityForSettingsInner;
     requestFuncMap_[CONTINUE_MISSION] = &AbilityManagerStub::ContinueMissionInner;
+    requestFuncMap_[CONTINUE_MISSION_OF_BUNDLENAME] = &AbilityManagerStub::ContinueMissionOfBundleNameInner;
     requestFuncMap_[CONTINUE_ABILITY] = &AbilityManagerStub::ContinueAbilityInner;
     requestFuncMap_[START_CONTINUATION] = &AbilityManagerStub::StartContinuationInner;
     requestFuncMap_[NOTIFY_COMPLETE_CONTINUATION] = &AbilityManagerStub::NotifyCompleteContinuationInner;
@@ -989,6 +990,26 @@ int AbilityManagerStub::ContinueMissionInner(MessageParcel &data, MessageParcel 
         return ERR_NULL_OBJECT;
     }
     int32_t result = ContinueMission(srcDeviceId, dstDeviceId, missionId, callback, *wantParams);
+    HILOG_INFO("ContinueMissionInner result = %{public}d", result);
+    return result;
+}
+
+int AbilityManagerStub::ContinueMissionOfBundleNameInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::string srcDeviceId = data.ReadString();
+    std::string dstDeviceId = data.ReadString();
+    std::string bundleName = data.ReadString();
+    sptr<IRemoteObject> callback = data.ReadRemoteObject();
+    if (callback == nullptr) {
+        HILOG_ERROR("ContinueMissionInner callback readParcelable failed!");
+        return ERR_NULL_OBJECT;
+    }
+    std::unique_ptr<WantParams> wantParams(data.ReadParcelable<WantParams>());
+    if (wantParams == nullptr) {
+        HILOG_ERROR("ContinueMissionInner wantParams readParcelable failed!");
+        return ERR_NULL_OBJECT;
+    }
+    int32_t result = ContinueMission(srcDeviceId, dstDeviceId, bundleName, callback, *wantParams);
     HILOG_INFO("ContinueMissionInner result = %{public}d", result);
     return result;
 }

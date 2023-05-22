@@ -2085,6 +2085,49 @@ int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const s
     return reply.ReadInt32();
 }
 
+int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
+    const std::string &bundleName, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteString(srcDeviceId)) {
+        HILOG_ERROR("srcDeviceId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteString(dstDeviceId)) {
+        HILOG_ERROR("dstDeviceId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteString(bundleName)) {
+        HILOG_ERROR("missionId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteRemoteObject(callBack)) {
+        HILOG_ERROR("callBack write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&wantParams)) {
+        HILOG_ERROR("wantParams write failed.");
+        return INNER_ERR;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::CONTINUE_MISSION_OF_BUNDLENAME, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 int AbilityManagerProxy::ContinueAbility(const std::string &deviceId, int32_t missionId, uint32_t versionCode)
 {
     MessageParcel data;

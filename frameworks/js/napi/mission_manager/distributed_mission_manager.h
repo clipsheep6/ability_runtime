@@ -114,6 +114,8 @@ struct ContinueAbilityCB {
     ErrCode result = 0;
     int resultCode = 0;
     int missionId = 0;
+    std::string bundleName;
+    bool hasArgsWithBundleName = false;
     napi_ref callbackRef;
 };
 
