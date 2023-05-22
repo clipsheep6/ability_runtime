@@ -45,6 +45,7 @@ NativeValue* CreateJsMissionInfo(NativeEngine &engine, const AAFwk::MissionInfo 
     object->SetProperty("label", CreateJsValue(engine, missionInfo.label));
     object->SetProperty("iconPath", CreateJsValue(engine, missionInfo.iconPath));
     object->SetProperty("abilityState", CreateJsValue(engine, missionInfo.abilityState));
+    object->SetProperty("unclearable", CreateJsValue(engine, missionInfo.unclearable));
     return objValue;
 }
 

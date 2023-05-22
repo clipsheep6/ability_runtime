@@ -35,6 +35,7 @@ Mission::Mission(const std::shared_ptr<Mission> &mission)
     missionName_ = mission->missionName_;
     lockedState_ = mission->lockedState_;
     ownerMissionList_ = mission->ownerMissionList_;
+    unclearable_ = mission->unclearable_;
 }
 
 Mission::~Mission()

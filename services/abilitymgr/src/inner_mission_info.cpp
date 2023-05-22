@@ -37,6 +37,7 @@ const std::string KEY_UID = "Uid";
 const std::string KEY_IS_TEMPORARY = "IsTemporary";
 const std::string KEY_SPEC_FLAG = "SpecFlag";
 const std::string KEY_HAS_RECONER_INFO = "hasRecoverInfo";
+const std::string KEY_UNCLEARABLE = "unclearable";
 }
 std::string InnerMissionInfo::ToJsonStr() const
 {
@@ -57,6 +58,7 @@ std::string InnerMissionInfo::ToJsonStr() const
     value[KEY_ICON_PATH] = missionInfo.iconPath;
     value[KEY_WANT] = missionInfo.want.ToUri();
     value[KEY_HAS_RECONER_INFO] = hasRecoverInfo;
+    value[KEY_UNCLEARABLE] = missionInfo.unclearable;
 
     return value.dump();
 }
