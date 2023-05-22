@@ -52,10 +52,6 @@ int ServiceRouterMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Me
             return HandleQueryBusinessAbilityInfos(data, reply);
         case static_cast<uint32_t>(IServiceRouterManager::Message::QUERY_PURPOSE_INFOS):
             return HandleQueryPurposeInfos(data, reply);
-        case static_cast<uint32_t>(IServiceRouterManager::Message::START_UI_EXTENSION):
-            return HandleStartUIExtensionAbility(data, reply);
-        case static_cast<uint32_t>(IServiceRouterManager::Message::CONNECT_UI_EXTENSION):
-            return HandleConnectUIExtensionAbility(data, reply);
         default:
             APP_LOGW("ServiceRouterMgrStub receives unknown code, code = %{public}d", code);
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);

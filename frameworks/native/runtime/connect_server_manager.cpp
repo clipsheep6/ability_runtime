@@ -33,6 +33,10 @@ std::string GetInstanceMapMessage(const std::string& messageType, int32_t instan
     message.append(instanceName);
     message.append("\",\"tid\":");
     message.append(std::to_string(gettid()));
+    message.append(",\"apiType\":\"");
+    message.append("stageMode\"");
+    message.append(",\"language\":\"");
+    message.append("ets\"");
     message.append("}");
     return message;
 }
@@ -49,6 +53,8 @@ using SetSwitchCallBack = void (*)(const std::function<void(bool)> &setStatus,
 using RemoveMessage = void (*)(int32_t);
 using WaitForConnection = bool (*)();
 
+std::mutex ConnectServerManager::instanceMutex_;
+
 ConnectServerManager::~ConnectServerManager()
 {
     StopConnectServer();
@@ -56,6 +62,7 @@ ConnectServerManager::~ConnectServerManager()
 
 ConnectServerManager& ConnectServerManager::Get()
 {
+    std::lock_guard<std::mutex> lock(instanceMutex_);
     static ConnectServerManager connectServerManager;
     return connectServerManager;
 }

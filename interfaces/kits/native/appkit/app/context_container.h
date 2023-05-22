@@ -48,6 +48,13 @@ public:
     std::shared_ptr<ProcessInfo> GetProcessInfo() const override;
 
     /**
+     * Called when setting the ProcessInfo
+     *
+     * @param info ProcessInfo instance
+     */
+    void SetProcessInfo(const std::shared_ptr<ProcessInfo> &info);
+
+    /**
      * @brief Obtains information about the current application. The returned application information includes basic
      * information such as the application name and application permissions.
      *
@@ -101,33 +108,6 @@ public:
     std::shared_ptr<Global::Resource::ResourceManager> GetResourceManager() const override;
 
     /**
-     * @brief Deletes the specified private file associated with the application.
-     *
-     * @param fileName Indicates the name of the file to delete. The file name cannot contain path separators.
-     *
-     * @return Returns true if the file is deleted successfully; returns false otherwise.
-     */
-    bool DeleteFile(const std::string &fileName) override;
-
-    /**
-     * @brief Obtains the application-specific cache directory on the device's internal storage. The system
-     * automatically deletes files from the cache directory if disk space is required elsewhere on the device.
-     * Older files are always deleted first.
-     *
-     * @return Returns the application-specific cache directory.
-     */
-    std::string GetCacheDir() override;
-
-    /**
-     * @brief Obtains the application-specific code-cache directory on the device's internal storage.
-     * The system will delete any files stored in this location both when your specific application is upgraded,
-     * and when the entire platform is upgraded.
-     *
-     * @return Returns the application-specific code-cache directory.
-     */
-    std::string GetCodeCacheDir() override;
-
-    /**
      * @brief Obtains the local database path.
      * If the local database path does not exist, the system creates one and returns the created path.
      *
@@ -163,15 +143,6 @@ public:
     std::string GetFilesDir() override;
 
     /**
-     * @brief Obtains the absolute path which app created and will be excluded from automatic backup to remote storage.
-     * The returned path maybe changed if the application is moved to an adopted storage device.
-     *
-     * @return The path of the directory holding application files that will not be automatically backed up to remote
-     * storage.
-     */
-    std::string GetNoBackupFilesDir() override;
-
-    /**
      * @brief Obtains the bundle name of the current ability.
      *
      * @return Returns the bundle name of the current ability.
@@ -202,15 +173,6 @@ public:
      * returns an empty string if the query fails.
      */
     std::string GetAppType() override;
-
-    /**
-     * @brief Obtains the distributed file path.
-     * If the distributed file path does not exist, the system creates one and returns the created path. This method is
-     * applicable only to the context of an ability rather than that of an application.
-     *
-     * @return Returns the distributed file.
-     */
-    std::string GetDistributedDir() override;
 
     /**
      * @brief Sets the pattern of this Context based on the specified pattern ID.
@@ -253,6 +215,13 @@ public:
      * @return Returns the caller information.
      */
     Uri GetCaller() override;
+
+    /**
+     * @brief SetUriString
+     * 
+     * @param uri the uri to set.
+     */
+    void SetUriString(const std::string &uri);
 
     /**
      * @brief InitResourceManager
@@ -361,8 +330,24 @@ public:
      */
     int GetMissionId() override;
 
+    /**
+     * @brief Obtains the lifecycle state info.
+     *
+     * @return Returns the lifecycle state info.
+     */
+    AAFwk::LifeCycleStateInfo GetLifeCycleStateInfo() const;
+
+    /**
+     * @brief Set the LifeCycleStateInfo to the deal.
+     *
+     * @param info the info to set.
+     */
+    void SetLifeCycleStateInfo(const AAFwk::LifeCycleStateInfo &info);
 private:
-    std::shared_ptr<ContextDeal> baseContext_;
+    std::shared_ptr<ContextDeal> baseContext_ = nullptr;
+    std::shared_ptr<ProcessInfo> processInfo_ = nullptr;
+    AAFwk::LifeCycleStateInfo lifeCycleStateInfo_;
+    std::string uriString_ = "";
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

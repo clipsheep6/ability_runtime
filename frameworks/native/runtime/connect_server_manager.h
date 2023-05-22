@@ -42,6 +42,7 @@ private:
     std::string bundleName_;
 
     std::mutex mutex_;
+    static std::mutex instanceMutex_;
     std::unordered_map<int32_t, std::string> instanceMap_;
     std::function<void(int32_t)> createLayoutInfo_;
     std::function<void(int32_t)> setStatus_;

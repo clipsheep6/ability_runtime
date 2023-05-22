@@ -1443,6 +1443,35 @@ void AbilityManagerProxy::UpdateMissionSnapShot(const sptr<IRemoteObject>& token
     return;
 }
 
+void AbilityManagerProxy::UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
+    const std::shared_ptr<Media::PixelMap> &pixelMap)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+    if (!data.WriteRemoteObject(token)) {
+        HILOG_ERROR("write token failed.");
+        return;
+    }
+    if (!data.WriteParcelable(pixelMap.get())) {
+        HILOG_ERROR("write pixelMap failed.");
+        return;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return;
+    }
+    auto error = remote->SendRequest(IAbilityManager::UPDATE_MISSION_SNAPSHOT_FROM_WMS, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+    }
+}
+
 void AbilityManagerProxy::EnableRecoverAbility(const sptr<IRemoteObject>& token)
 {
     int error;

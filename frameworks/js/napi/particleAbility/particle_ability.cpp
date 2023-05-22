@@ -201,7 +201,7 @@ napi_value ParticleAbilityInit(napi_env env, napi_value exports)
 
 void JsParticleAbility::Finalizer(NativeEngine *engine, void *data, void *hint)
 {
-    HILOG_INFO("JsWantAgent::Finalizer is called");
+    HILOG_INFO("JsParticleAbility::Finalizer is called");
     std::unique_ptr<JsParticleAbility>(static_cast<JsParticleAbility*>(data));
 }
 

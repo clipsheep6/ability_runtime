@@ -19,6 +19,7 @@
 #undef private
 #include "mock_ability_token.h"
 #include "mock_context_impl.h"
+#include "running_process_info.h"
 using namespace testing::ext;
 
 namespace OHOS {
@@ -329,35 +330,6 @@ HWTEST_F(ApplicationContextTest, GetBundleCodeDir_0200, TestSize.Level1)
     auto ret = context_->GetBundleCodeDir();
     EXPECT_EQ(ret, "/code");
     GTEST_LOG_(INFO) << "GetBundleCodeDir_0200 end";
-}
-
-/**
- * @tc.number: GetCacheDir_0100
- * @tc.name: GetCacheDir
- * @tc.desc: Get Cache Dir failed
- */
-HWTEST_F(ApplicationContextTest, GetCacheDir_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "GetCacheDir_0100 start";
-    std::shared_ptr<ContextImpl> contextImpl = nullptr;
-    context_->AttachContextImpl(contextImpl);
-    auto ret = context_->GetCacheDir();
-    EXPECT_EQ(ret, "");
-    GTEST_LOG_(INFO) << "GetCacheDir_0100 end";
-}
-
-/**
- * @tc.number: GetCacheDir_0200
- * @tc.name: GetCacheDir
- * @tc.desc:Get Cache Dir sucess
- */
-HWTEST_F(ApplicationContextTest, GetCacheDir_0200, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "GetCacheDir_0200 start";
-    context_->AttachContextImpl(mock_);
-    auto ret = context_->GetCacheDir();
-    EXPECT_EQ(ret, "/cache");
-    GTEST_LOG_(INFO) << "GetCacheDir_0200 end";
 }
 
 /**
@@ -697,6 +669,209 @@ HWTEST_F(ApplicationContextTest, GetDeviceType_0200, TestSize.Level1)
     auto ret = context_->GetDeviceType();
     EXPECT_EQ(ret, Global::Resource::DeviceType::DEVICE_NOT_SET);
     GTEST_LOG_(INFO) << "GetDeviceType_0200 end";
+}
+
+/**
+ * @tc.number: UnregisterEnvironmentCallback_0100
+ * @tc.name: UnregisterEnvironmentCallback
+ * @tc.desc: unregister Environment Callback
+ */
+HWTEST_F(ApplicationContextTest, UnregisterEnvironmentCallback_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "UnregisterEnvironmentCallback_0100 start";
+    context_->envCallbacks_.clear();
+    std::shared_ptr<EnvironmentCallback> environmentCallback = nullptr;
+    context_->UnregisterEnvironmentCallback(environmentCallback);
+    EXPECT_TRUE(context_->envCallbacks_.empty());
+    GTEST_LOG_(INFO) << "UnregisterEnvironmentCallback_0100 end";
+}
+
+/**
+ * @tc.number: DispatchOnAbilityCreate_0100
+ * @tc.name: DispatchOnAbilityCreate
+ * @tc.desc: DispatchOnAbilityCreate
+ */
+HWTEST_F(ApplicationContextTest, DispatchOnAbilityCreate_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DispatchOnAbilityCreate_0100 start";
+    EXPECT_NE(context_, nullptr);
+    std::shared_ptr<NativeReference> ability = nullptr;
+    context_->DispatchOnAbilityCreate(ability);
+    GTEST_LOG_(INFO) << "DispatchOnAbilityCreate_0100 end";
+}
+
+/**
+ * @tc.number: DispatchOnWindowStageCreate_0100
+ * @tc.name: DispatchOnWindowStageCreate
+ * @tc.desc: DispatchOnWindowStageCreate
+ */
+HWTEST_F(ApplicationContextTest, DispatchOnWindowStageCreate_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DispatchOnWindowStageCreate_0100 start";
+    EXPECT_NE(context_, nullptr);
+    std::shared_ptr<NativeReference> ability = nullptr;
+    std::shared_ptr<NativeReference> windowStage = nullptr;
+    context_->DispatchOnWindowStageCreate(ability, windowStage);
+    GTEST_LOG_(INFO) << "DispatchOnWindowStageCreate_0100 end";
+}
+
+/**
+ * @tc.number: DispatchOnWindowStageDestroy_0100
+ * @tc.name: DispatchOnWindowStageDestroy
+ * @tc.desc: DispatchOnWindowStageDestroy
+ */
+HWTEST_F(ApplicationContextTest, DispatchOnWindowStageDestroy_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DispatchOnWindowStageDestroy_0100 start";
+    EXPECT_NE(context_, nullptr);
+    std::shared_ptr<NativeReference> ability = nullptr;
+    std::shared_ptr<NativeReference> windowStage = nullptr;
+    context_->DispatchOnWindowStageDestroy(ability, windowStage);
+    GTEST_LOG_(INFO) << "DispatchOnWindowStageDestroy_0100 end";
+}
+
+/**
+ * @tc.number: DispatchWindowStageFocus_0100
+ * @tc.name: DispatchWindowStageFocus
+ * @tc.desc: DispatchWindowStageFocus
+ */
+HWTEST_F(ApplicationContextTest, DispatchWindowStageFocus_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DispatchWindowStageFocus_0100 start";
+    EXPECT_NE(context_, nullptr);
+    std::shared_ptr<NativeReference> ability = nullptr;
+    std::shared_ptr<NativeReference> windowStage = nullptr;
+    context_->DispatchWindowStageFocus(ability, windowStage);
+    GTEST_LOG_(INFO) << "DispatchWindowStageFocus_0100 end";
+}
+
+/**
+ * @tc.number: DispatchWindowStageUnfocus_0100
+ * @tc.name: DispatchWindowStageUnfocus
+ * @tc.desc: DispatchWindowStageUnfocus
+ */
+HWTEST_F(ApplicationContextTest, DispatchWindowStageUnfocus_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DispatchWindowStageUnfocus_0100 start";
+    EXPECT_NE(context_, nullptr);
+    std::shared_ptr<NativeReference> ability = nullptr;
+    std::shared_ptr<NativeReference> windowStage = nullptr;
+    context_->DispatchWindowStageUnfocus(ability, windowStage);
+    GTEST_LOG_(INFO) << "DispatchWindowStageUnfocus_0100 end";
+}
+
+/**
+ * @tc.number: DispatchOnAbilityDestroy_0100
+ * @tc.name: DispatchOnAbilityDestroy
+ * @tc.desc: DispatchOnAbilityDestroy
+ */
+HWTEST_F(ApplicationContextTest, DispatchOnAbilityDestroy_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DispatchOnAbilityDestroy_0100 start";
+    EXPECT_NE(context_, nullptr);
+    std::shared_ptr<NativeReference> ability = nullptr;
+    context_->DispatchOnAbilityDestroy(ability);
+    GTEST_LOG_(INFO) << "DispatchOnAbilityDestroy_0100 end";
+}
+
+/**
+ * @tc.number: DispatchOnAbilityForeground_0100
+ * @tc.name: DispatchOnAbilityForeground
+ * @tc.desc: DispatchOnAbilityForeground
+ */
+HWTEST_F(ApplicationContextTest, DispatchOnAbilityForeground_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DispatchOnAbilityForeground_0100 start";
+    EXPECT_NE(context_, nullptr);
+    std::shared_ptr<NativeReference> ability = nullptr;
+    context_->DispatchOnAbilityForeground(ability);
+    GTEST_LOG_(INFO) << "DispatchOnAbilityForeground_0100 end";
+}
+
+/**
+ * @tc.number: DispatchOnAbilityBackground_0100
+ * @tc.name: DispatchOnAbilityBackground
+ * @tc.desc: DispatchOnAbilityBackground
+ */
+HWTEST_F(ApplicationContextTest, DispatchOnAbilityBackground_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DispatchOnAbilityBackground_0100 start";
+    EXPECT_NE(context_, nullptr);
+    std::shared_ptr<NativeReference> ability = nullptr;
+    context_->DispatchOnAbilityBackground(ability);
+    GTEST_LOG_(INFO) << "DispatchOnAbilityBackground_0100 end";
+}
+
+/**
+ * @tc.number: DispatchOnAbilityContinue_0100
+ * @tc.name: DispatchOnAbilityContinue
+ * @tc.desc: DispatchOnAbilityContinue
+ */
+HWTEST_F(ApplicationContextTest, DispatchOnAbilityContinue_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DispatchOnAbilityContinue_0100 start";
+    EXPECT_NE(context_, nullptr);
+    std::shared_ptr<NativeReference> ability = nullptr;
+    context_->DispatchOnAbilityContinue(ability);
+    GTEST_LOG_(INFO) << "DispatchOnAbilityContinue_0100 end";
+}
+
+/**
+ * @tc.number: SetApplicationInfo_0100
+ * @tc.name: SetApplicationInfo
+ * @tc.desc: SetApplicationInfo
+ */
+HWTEST_F(ApplicationContextTest, SetApplicationInfo_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "SetApplicationInfo_0100 start";
+    EXPECT_NE(context_, nullptr);
+    std::shared_ptr<AppExecFwk::ApplicationInfo> info = nullptr;
+    context_->SetApplicationInfo(info);
+    GTEST_LOG_(INFO) << "SetApplicationInfo_0100 end";
+}
+
+/**
+ * @tc.number: KillProcessBySelf_0100
+ * @tc.name: KillProcessBySelf
+ * @tc.desc: KillProcessBySelf
+ */
+HWTEST_F(ApplicationContextTest, KillProcessBySelf_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "KillProcessBySelf_0100 start";
+    EXPECT_NE(context_, nullptr);
+    context_->KillProcessBySelf();
+    GTEST_LOG_(INFO) << "KillProcessBySelf_0100 end";
+}
+
+/**
+ * @tc.number: GetProcessRunningInformation_0100
+ * @tc.name: GetProcessRunningInformation
+ * @tc.desc: GetProcessRunningInformation
+ */
+HWTEST_F(ApplicationContextTest, GetProcessRunningInformation_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetProcessRunningInformation_0100 start";
+    std::shared_ptr<ContextImpl> contextImpl = nullptr;
+    context_->AttachContextImpl(contextImpl);
+    AppExecFwk::RunningProcessInfo info;
+    auto ret = context_->GetProcessRunningInformation(info);
+    EXPECT_EQ(ret, -1);
+    GTEST_LOG_(INFO) << "GetProcessRunningInformation_0100 end";
+}
+
+/**
+ * @tc.number: GetCacheDir_0100
+ * @tc.name: GetCacheDir
+ * @tc.desc: Get Bundle Code Dir failed
+ */
+HWTEST_F(ApplicationContextTest, GetCacheDir_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetCacheDir_0100 start";
+    std::shared_ptr<ContextImpl> contextImpl = nullptr;
+    context_->AttachContextImpl(contextImpl);
+    auto ret = context_->GetCacheDir();
+    EXPECT_EQ(ret, "");
+    GTEST_LOG_(INFO) << "GetCacheDir_0100 end";
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

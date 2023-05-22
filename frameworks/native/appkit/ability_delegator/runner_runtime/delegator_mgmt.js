@@ -35,7 +35,7 @@ globalThis.$app_define$ = function (page, packageName, parseContent) {
   parseContent({}, module.exports, module);
   globalThis.exports.default = module.exports;
   console.info('Delegator Mgmt app_define');
-}
+};
 globalThis.$app_bootstrap$ = function () { };
 
 console.info('Delegator Mgmt init success');

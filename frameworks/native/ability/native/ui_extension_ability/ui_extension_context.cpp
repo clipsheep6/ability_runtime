@@ -15,7 +15,6 @@
 
 #include "ui_extension_context.h"
 
-#include "ability_connection.h"
 #include "ability_manager_client.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
@@ -48,46 +47,14 @@ ErrCode UIExtensionContext::StartAbility(const AAFwk::Want &want, const AAFwk::S
     return err;
 }
 
-ErrCode UIExtensionContext::StartUIExtensionAbility(const AAFwk::Want &want, int32_t accountId) const
+ErrCode UIExtensionContext::TerminateSelf()
 {
-    HILOG_DEBUG("StartUIExtensionAbility begin.");
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartExtensionAbility(
-        want, token_, accountId, AppExecFwk::ExtensionAbilityType::UI);
-    if (err != ERR_OK) {
-        HILOG_ERROR("StartUIExtensionAbility is failed %{public}d", err);
-    }
-    return err;
-}
-
-ErrCode UIExtensionContext::ConnectExtensionAbility(const AAFwk::Want &want,
-    const sptr<AbilityConnectCallback> &connectCallback) const
-{
-    HILOG_DEBUG("Connect ability begin, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
-    ErrCode ret = ConnectionManager::GetInstance().ConnectAbility(token_, want, connectCallback);
-    HILOG_DEBUG("ConnectExtensionAbility ErrorCode = %{public}d", ret);
-    return ret;
-}
-
-ErrCode UIExtensionContext::DisconnectExtensionAbility(const AAFwk::Want &want,
-    const sptr<AbilityConnectCallback> &connectCallback) const
-{
-    HILOG_DEBUG("DisconnectExtensionAbility begin.");
-    ErrCode ret = ConnectionManager::GetInstance().DisconnectAbility(token_, want.GetElement(), connectCallback);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("DisconnectAbility error, ret=%{public}d", ret);
-    }
-    HILOG_DEBUG("DisconnectExtensionAbility end");
-    return ret;
-}
-
-ErrCode UIExtensionContext::TerminateAbility()
-{
-    HILOG_DEBUG("TerminateAbility begin.");
+    HILOG_DEBUG("TerminateSelf begin.");
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, -1, nullptr);
     if (err != ERR_OK) {
-        HILOG_ERROR("TerminateAbility is failed %{public}d", err);
+        HILOG_ERROR("TerminateSelf is failed %{public}d", err);
     }
-    HILOG_DEBUG("TerminateAbility end.");
+    HILOG_DEBUG("TerminateSelf end.");
     return err;
 }
 

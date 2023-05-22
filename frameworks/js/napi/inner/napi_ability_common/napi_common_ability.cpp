@@ -3983,6 +3983,11 @@ napi_value NAPI_CancelBackgroundRunningCommon(napi_env env, napi_callback_info i
 JsNapiCommon::JsNapiCommon() : ability_(nullptr)
 {}
 
+JsNapiCommon::~JsNapiCommon()
+{
+    RemoveAllCallbacksLocked();
+}
+
 NativeValue* JsNapiCommon::JsConnectAbility(
     NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType)
 {

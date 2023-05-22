@@ -440,41 +440,40 @@ HWTEST_F(ConnectionManagerTest, DisconnectCaller_0300, TestSize.Level0)
 }
 
 /**
- * @tc.number: DisconnectReceiver_0100
- * @tc.name: DisconnectReceiver
- * @tc.desc: DisconnectReceiver Test, return true.
+ * @tc.number: RemoveConnection_0100
+ * @tc.name: RemoveConnection
+ * @tc.desc: RemoveConnection Test, return true.
  */
-HWTEST_F(ConnectionManagerTest, DisconnectReceiver_0100, TestSize.Level0)
+HWTEST_F(ConnectionManagerTest, RemoveConnection_0100, TestSize.Level0)
 {
-    GTEST_LOG_(INFO) << "ConnectionManagerTest DisconnectReceiver_0100 start";
+    GTEST_LOG_(INFO) << "ConnectionManagerTest RemoveConnection_0100 start";
     std::shared_ptr<OHOS::AbilityRuntime::ConnectionManager> mgr =
         std::make_shared<OHOS::AbilityRuntime::ConnectionManager>();
     AAFwk::Operation connectReceiver;
-    AppExecFwk::ElementName connectReceiverElement;
     sptr<IRemoteObject> connectCaller = new (std::nothrow) AbilityConnection();
     std::vector<sptr<AbilityConnectCallback>> callbacks;
     sptr<AbilityConnection> abilityConnection = new (std::nothrow) AbilityConnection();
     ConnectionInfo connectionInfo(connectCaller, connectReceiver, abilityConnection);
     mgr->abilityConnections_.emplace(connectionInfo, callbacks);
-    auto result = mgr->DisconnectReceiver(connectReceiverElement);
+    auto result = mgr->RemoveConnection(abilityConnection);
     EXPECT_TRUE(result);
-    GTEST_LOG_(INFO) << "ConnectionManagerTest DisconnectReceiver_0100 end";
+    GTEST_LOG_(INFO) << "ConnectionManagerTest RemoveConnection_0100 end";
 }
 
 /**
- * @tc.number: DisconnectReceiver_0200
- * @tc.name: DisconnectReceiver
- * @tc.desc: DisconnectReceiver Test, connectReceiver is not nullptr, return false.
+ * @tc.number: RemoveConnection_0200
+ * @tc.name: RemoveConnection
+ * @tc.desc: RemoveConnection Test, connectReceiver is not nullptr, return false.
  */
-HWTEST_F(ConnectionManagerTest, DisconnectReceiver_0200, TestSize.Level0)
+HWTEST_F(ConnectionManagerTest, RemoveConnection_0200, TestSize.Level0)
 {
-    GTEST_LOG_(INFO) << "ConnectionManagerTest DisconnectReceiver_0200 start";
+    GTEST_LOG_(INFO) << "ConnectionManagerTest RemoveConnection_0200 start";
     std::shared_ptr<OHOS::AbilityRuntime::ConnectionManager> mgr =
         std::make_shared<OHOS::AbilityRuntime::ConnectionManager>();
-    AppExecFwk::ElementName connectReceiver;
-    auto result = mgr->DisconnectReceiver(connectReceiver);
+    sptr<AbilityConnection> abilityConnection = new (std::nothrow) AbilityConnection();
+    auto result = mgr->RemoveConnection(abilityConnection);
     EXPECT_FALSE(result);
-    GTEST_LOG_(INFO) << "ConnectionManagerTest DisconnectReceiver_0200 end";
+    GTEST_LOG_(INFO) << "ConnectionManagerTest RemoveConnection_0200 end";
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

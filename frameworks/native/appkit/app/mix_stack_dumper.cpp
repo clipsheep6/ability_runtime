@@ -46,6 +46,7 @@ static constexpr int STATUS_LINE_SIZE = 1024;
 static constexpr int FRAME_BUF_LEN = 1024;
 static constexpr int HEADER_BUF_LEN = 512;
 static constexpr int NAMESPACE_MATCH_NUM = 2;
+static bool hasInstalled = false;
 typedef struct ProcInfo {
     int tid;
     int pid;
@@ -222,47 +223,50 @@ static std::string GetCurrentTimeStr(uint64_t current = 0)
     return std::string(formatTimeBuf, strlen(formatTimeBuf));
 }
 
-void MixStackDumper::Dump_SignalHandler(int sig, void/*siginfo_t*/ *si, void *context)
+bool MixStackDumper::Dump_SignalHandler(int sig, void/*siginfo_t*/ *si, void *context)
 {
-    /**
-    switch (si->si_code) {
-        case NATIVE_DUMP: {
-            if (g_dumpSignalHandlerFunc != nullptr) {
-                g_dumpSignalHandlerFunc(sig, si, context);
-            }
-            break;
-        }
-        case MIX_DUMP: {
-            HILOG_INFO("Received mix stack dump request.");
-            auto handler = signalHandler_.lock();
-            if (handler == nullptr) {
-                return;
-            }
-            g_targetDumpTid = si->si_value.sival_int;
-            handler->PostTask(&MixStackDumper::HandleMixDumpRequest);
-            break;
-        }
-        default:
-            break;
+    HILOG_INFO("Dump_SignalHandler.");
+    bool ret = false;
+     /*
+    if (si->si_code != DUMP_TYPE_MIX) {
+        return ret;
     }
-    */
+
+    HILOG_INFO("Received mix stack dump request.");
+    if (signalHandler_.expired()) {
+        HILOG_WARN("signalHandler is expired.");
+        return ret;
+    }
+    auto handler = signalHandler_.lock();
+    if (handler == nullptr) {
+        return ret;
+    }
+    g_targetDumpTid = si->si_value.sival_int;
+    handler->PostTask(&MixStackDumper::HandleMixDumpRequest);
+     */
+    return ret;
+}
+
+bool MixStackDumper::IsInstalled()
+{
+    return hasInstalled;
 }
 
 void MixStackDumper::InstallDumpHandler(std::shared_ptr<OHOSApplication> application,
     std::shared_ptr<EventHandler> handler)
 {
-    /*
-    signalHandler_ = handler;
-    application_ = application;
+    if (!hasInstalled) {
+        signalHandler_ = handler;
+        application_ = application;
 
-    struct signal_chain_action sigchain = {
-        .sca_sigaction = MixStackDumper::Dump_SignalHandler,
-        .sca_mask = {},
-        .sca_flags = 0,
-    };
-
-    add_special_signal_handler(SIGDUMP, &sigchain);
-    */
+        struct signal_chain_action sigchain = {
+            .sca_sigaction = MixStackDumper::Dump_SignalHandler,
+            .sca_mask = {},
+            .sca_flags = 0,
+        };
+        add_special_signal_handler(SIGDUMP, &sigchain);
+        hasInstalled = true;
+    }
 }
 
 bool MixStackDumper::IsJsNativePcEqual(uintptr_t *jsNativePointer, uint64_t nativePc, uint64_t nativeOffset)

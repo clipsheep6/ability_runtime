@@ -177,7 +177,6 @@ ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, 
         return ERR_OK;
     }
 
-
     ErmsCallerInfo callerInfo;
     ExperienceRule rule;
     int ret = CheckRule(want, callerInfo, rule);

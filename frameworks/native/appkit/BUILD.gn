@@ -179,6 +179,7 @@ ohos_shared_library("appkit_native") {
   }
 
   innerapi_tags = [ "platformsdk" ]
+  version_script = "libappkit_native.map"
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

@@ -955,6 +955,15 @@ public:
      * @param token The target ability.
      */
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
+
+    /**
+     * Called to update mission snapshot.
+     * @param token The target ability.
+     * @param pixelMap The snapshot.
+     */
+    virtual void UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
+        const std::shared_ptr<Media::PixelMap> &pixelMap) override;
+
     virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) override;
     virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason,
         const Want *want = nullptr) override;
@@ -1348,6 +1357,7 @@ private:
     bool IsReleaseCallInterception(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element,
         int &result);
 
+    std::string GetBundleNameFromToken(const sptr<IRemoteObject> &callerToken);
     bool CheckCallingTokenId(const std::string &bundleName, int32_t userId);
 
     void ReleaseAbilityTokenMap(const sptr<IRemoteObject> &token);

@@ -788,6 +788,14 @@ public:
      * @param abilityToken Indidate token of ability.
      */
     void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken);
+
+    /**
+     * Called to update mission snapshot.
+     * @param token The target ability.
+     * @param pixelMap The snapshot.
+     */
+    void UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
+        const std::shared_ptr<OHOS::Media::PixelMap> &pixelMap);
 #endif
 
     /**

@@ -108,7 +108,7 @@ ErrCode ConnectionManager::CreateConnection(const sptr<IRemoteObject>& connectCa
     HILOG_INFO("Can not find connection, CreateConnection");
     sptr<AbilityConnection> abilityConnection = new AbilityConnection();
     if (abilityConnection == nullptr) {
-        HILOG_ERROR("create connedction failed.");
+        HILOG_ERROR("create connection failed.");
         return AAFwk::ERR_INVALID_CALLER;
     }
     abilityConnection->AddConnectCallback(connectCallback);
@@ -208,26 +208,23 @@ bool ConnectionManager::DisconnectCaller(const sptr<IRemoteObject>& connectCalle
     return isDisconnect;
 }
 
-bool ConnectionManager::DisconnectReceiver(const AppExecFwk::ElementName& connectReceiver)
+bool ConnectionManager::RemoveConnection(const sptr<AbilityConnection> connection)
 {
     std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
-    HILOG_DEBUG("abilityConnectionsSize:%{public}zu, bundleName:%{public}s, abilityName:%{public}s.",
-        abilityConnections_.size(), connectReceiver.GetBundleName().c_str(),
-        connectReceiver.GetAbilityName().c_str());
+    HILOG_DEBUG("abilityConnectionsSize: %{public}zu", abilityConnections_.size());
 
     bool isDisconnect = false;
     auto iter = abilityConnections_.begin();
     while (iter != abilityConnections_.end()) {
         ConnectionInfo connectionInfo = iter->first;
-        if (IsConnectReceiverEqual(connectionInfo.connectReceiver, connectReceiver)) {
+        if (connectionInfo.abilityConnection == connection) {
+            HILOG_DEBUG("Remove connection.");
             iter = abilityConnections_.erase(iter);
             isDisconnect = true;
         } else {
             ++iter;
         }
     }
-
-    HILOG_DEBUG("abilityConnectionsSize:%{public}zu.", abilityConnections_.size());
     return isDisconnect;
 }
 

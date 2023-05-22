@@ -113,7 +113,7 @@ bool PageAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycl
             if (targetState.isNewWant) {
                 NewWant(want);
             }
-            SerUriString(targetState.caller.deviceId + "/" + targetState.caller.bundleName + "/" +
+            SetUriString(targetState.caller.deviceId + "/" + targetState.caller.bundleName + "/" +
                          targetState.caller.abilityName);
 
             if (lifecycleState_ == AAFwk::ABILITY_STATE_BACKGROUND_NEW ||

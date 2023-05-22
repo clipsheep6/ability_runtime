@@ -427,6 +427,45 @@ void MissionInfoMgr::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handl
     snapshotHandler_ = handler;
 }
 
+void MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const std::shared_ptr<Media::PixelMap> &pixelMap,
+    bool isPrivate)
+{
+    HILOG_INFO("Update mission snapshot, missionId:%{public}d.", missionId);
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    MissionSnapshot savedSnapshot;
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "FindTargetMissionSnapshot");
+        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
+            return missionId == info.missionInfo.id;
+        });
+        if (it == missionInfoList_.end()) {
+            HILOG_ERROR("snapshot: get mission failed, missionId %{public}d not exists", missionId);
+            return;
+        }
+        savedSnapshot.topAbility = it->missionInfo.want.GetElement();
+    }
+    if (!taskDataPersistenceMgr_) {
+        HILOG_ERROR("snapshot: taskDataPersistenceMgr_ is nullptr");
+        return;
+    }
+
+    savedSnapshot.isPrivate = isPrivate;
+    Snapshot snapshot;
+    snapshot.SetPixelMap(pixelMap);
+
+#ifdef SUPPORT_GRAPHICS
+    if (isPrivate) {
+        CreateWhitePixelMap(snapshot);
+    }
+    savedSnapshot.snapshot = snapshot.GetPixelMap();
+#endif
+
+    if (!taskDataPersistenceMgr_->SaveMissionSnapshot(missionId, savedSnapshot)) {
+        HILOG_ERROR("snapshot: save mission snapshot failed");
+    }
+}
+
 bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
     MissionSnapshot& missionSnapshot, bool isLowResolution)
 {
@@ -553,7 +592,6 @@ bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObj
         HILOG_INFO("force");
         return UpdateMissionSnapshot(missionId, abilityToken, missionSnapshot, isLowResolution);
     }
-
     {
         std::unique_lock<std::mutex> lock(savingSnapshotLock_);
         auto search = savingSnapshot_.find(missionId);
@@ -574,7 +612,6 @@ bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObj
     }
 
     if (taskDataPersistenceMgr_->GetMissionSnapshot(missionId, missionSnapshot, isLowResolution)) {
-
         HILOG_ERROR("mission_list_info GetMissionSnapshot, find snapshot OK, missionId:%{public}d", missionId);
         return true;
     }

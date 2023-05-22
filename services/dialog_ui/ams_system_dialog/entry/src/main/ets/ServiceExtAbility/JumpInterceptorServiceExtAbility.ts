@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import deviceInfo from '@ohos.deviceInfo';
 import display from '@ohos.display';
 import extension from '@ohos.app.ability.ServiceExtensionAbility';
 import window from '@ohos.window';
@@ -50,7 +49,7 @@ export default class JumpInterceptorServiceExtAbility extends extension {
         win.destroy();
         winNum--;
       }
-      if (deviceInfo.deviceType === 'phone') {
+      if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
         this.createWindow('JumpInterceptorDialog' + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
       } else {
         this.createWindow('JumpInterceptorDialog' + startId, window.WindowType.TYPE_FLOAT, navigationBarRect);

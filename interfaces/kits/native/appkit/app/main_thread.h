@@ -531,7 +531,6 @@ private:
 
     bool isRunnerStarted_ = false;
     int newThreadId_ = -1;
-    std::shared_ptr<Profile> appProfile_ = nullptr;
     std::shared_ptr<ApplicationInfo> applicationInfo_ = nullptr;
     std::shared_ptr<ProcessInfo> processInfo_ = nullptr;
     std::shared_ptr<OHOSApplication> application_ = nullptr;
@@ -592,8 +591,7 @@ private:
      */
     bool CheckFileType(const std::string &fileName, const std::string &extensionName);
 
-    bool InitCreate(std::shared_ptr<ContextDeal> &contextDeal, ApplicationInfo &appInfo, ProcessInfo &processInfo,
-        Profile &appProfile);
+    bool InitCreate(std::shared_ptr<ContextDeal> &contextDeal, ApplicationInfo &appInfo, ProcessInfo &processInfo);
     bool CheckForHandleLaunchApplication(const AppLaunchData &appLaunchData);
     bool InitResourceManager(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
         const AppExecFwk::HapModuleInfo &entryHapModuleInfo, const std::string &bundleName,

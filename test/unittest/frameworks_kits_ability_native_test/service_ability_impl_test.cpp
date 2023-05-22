@@ -83,7 +83,7 @@ HWTEST_F(ServiceAbilityImplTest, AaFwk_ServiceAbilityImpl_HandleAbilityTransacti
     deal->SetAbilityInfo(abilityInfo);
     ability->AttachBaseContext(deal);
 
-    serviceAbilityImpl_->Init(application, record, ability, handler, token, deal);
+    serviceAbilityImpl_->Init(application, record, ability, handler, token);
     Want want;
     serviceAbilityImpl_->ConnectAbility(want);
 
@@ -123,7 +123,7 @@ HWTEST_F(ServiceAbilityImplTest, AaFwk_ServiceAbilityImpl_HandleAbilityTransacti
     deal->SetAbilityInfo(abilityInfo);
     ability->AttachBaseContext(deal);
 
-    serviceAbilityImpl_->Init(application, record, ability, handler, token, deal);
+    serviceAbilityImpl_->Init(application, record, ability, handler, token);
 
     Want want;
     AAFwk::LifeCycleStateInfo state;
@@ -158,7 +158,7 @@ HWTEST_F(ServiceAbilityImplTest, AaFwk_ServiceAbilityImpl_HandleAbilityTransacti
     deal->SetAbilityInfo(abilityInfo);
     ability->AttachBaseContext(deal);
 
-    serviceAbilityImpl_->Init(application, record, ability, handler, token, deal);
+    serviceAbilityImpl_->Init(application, record, ability, handler, token);
 
     Want want;
     AAFwk::LifeCycleStateInfo state;
@@ -194,7 +194,7 @@ HWTEST_F(ServiceAbilityImplTest, AaFwk_ServiceAbilityImpl_HandleAbilityTransacti
     deal->SetAbilityInfo(abilityInfo);
     ability->AttachBaseContext(deal);
 
-    serviceAbilityImpl_->Init(application, record, ability, handler, token, deal);
+    serviceAbilityImpl_->Init(application, record, ability, handler, token);
 
     Want want;
     AAFwk::LifeCycleStateInfo state;

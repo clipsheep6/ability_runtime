@@ -213,7 +213,7 @@ public:
      *
      * @param abilityRecord the ability to move
      */
-    void MoveToBackgroundTask(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void MoveToBackgroundTask(const std::shared_ptr<AbilityRecord> &abilityRecord, bool isClose = false);
 
     /**
      * @brief handle time out event
@@ -330,6 +330,13 @@ public:
      * @param token The target ability.
      */
     void UpdateSnapShot(const sptr<IRemoteObject>& token);
+
+    /**
+     * Called to update mission snapshot.
+     * @param token The target ability.
+     * @param pixelMap The snapshot.
+     */
+    void UpdateSnapShot(const sptr<IRemoteObject> &token, const std::shared_ptr<Media::PixelMap> &pixelMap);
 
     void EnableRecoverAbility(int32_t missionId);
 

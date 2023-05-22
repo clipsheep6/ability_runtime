@@ -106,10 +106,7 @@ private:
     int DispatchForeground(const std::shared_ptr<AbilityRecord> &abilityRecord, bool success,
         AbilityState state = AbilityState::INITIAL);
     void CompleteForegroundSuccess(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    void CompleteForegroundFailed(const std::shared_ptr<AbilityRecord> &abilityRecord, AbilityState state);
-    void HandleForegroundTimeout(const std::shared_ptr<AbilityRecord> &ability,
-        AbilityState state = AbilityState::INITIAL);
-    void HandleTimeoutAndResumeAbility(const std::shared_ptr<AbilityRecord> &ability,
+    void HandleForegroundTimeoutOrFailed(const std::shared_ptr<AbilityRecord> &ability,
         AbilityState state = AbilityState::INITIAL);
     void MoveToBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);

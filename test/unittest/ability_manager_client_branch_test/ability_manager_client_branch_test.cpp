@@ -24,6 +24,7 @@
 
 #include "hilog_wrapper.h"
 #include "mock_ability_connect_callback.h"
+#include "session/host/include/session.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -1129,6 +1130,194 @@ HWTEST_F(AbilityManagerClientBranchTest, StartAbilityByCall_002, TestSize.Level1
     EXPECT_EQ(client_->StartAbilityByCall(want, nullptr), ERR_OK);
     client_->EnableRecoverAbility(nullptr);
     EXPECT_EQ(client_->AddFreeInstallObserver(nullptr), ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StartUIAbilityBySCB_0100
+ * @tc.desc: StartUIAbilityBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_001, TestSize.Level1)
+{
+    Want want;
+    StartOptions options;
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(want, options, nullptr), ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StartUIAbilityBySCB_0200
+ * @tc.desc: StartUIAbilityBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_002, TestSize.Level1)
+{
+    Want want;
+    StartOptions options;
+    sptr<SessionInfo> sessionInfo(new SessionInfo());
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(want, options, sessionInfo), ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StartUIAbilityBySCB_0300
+ * @tc.desc: StartUIAbilityBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_003, TestSize.Level1)
+{
+    Want want;
+    StartOptions options;
+    Rosen::SessionInfo info;
+    sptr<SessionInfo> sessionInfo(new SessionInfo());
+    sessionInfo->sessionToken = new Rosen::Session(info);
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(want, options, sessionInfo),
+        ERR_WRONG_INTERFACE_CALL);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_MinimizeUIAbilityBySCB_0100
+ * @tc.desc: MinimizeUIAbilityBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, MinimizeUIAbilityBySCB_001, TestSize.Level1)
+{
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->MinimizeUIAbilityBySCB(nullptr), ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_MinimizeUIAbilityBySCB_0200
+ * @tc.desc: MinimizeUIAbilityBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, MinimizeUIAbilityBySCB_002, TestSize.Level1)
+{
+    sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->MinimizeUIAbilityBySCB(sessionInfo), ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_MinimizeUIAbilityBySCB_0300
+ * @tc.desc: MinimizeUIAbilityBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, MinimizeUIAbilityBySCB_003, TestSize.Level1)
+{
+    sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
+    Rosen::SessionInfo info;
+    sessionInfo->sessionToken = new (std::nothrow) Rosen::Session(info);
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->MinimizeUIAbilityBySCB(sessionInfo), ERR_WRONG_INTERFACE_CALL);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_CloseUIAbilityBySCB_0100
+ * @tc.desc: CloseUIAbilityBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, CloseUIAbilityBySCB_001, TestSize.Level1)
+{
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->CloseUIAbilityBySCB(nullptr), ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_CloseUIAbilityBySCB_0200
+ * @tc.desc: CloseUIAbilityBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, CloseUIAbilityBySCB_002, TestSize.Level1)
+{
+    sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->CloseUIAbilityBySCB(sessionInfo), ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_CloseUIAbilityBySCB_0300
+ * @tc.desc: CloseUIAbilityBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, CloseUIAbilityBySCB_003, TestSize.Level1)
+{
+    sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
+    Rosen::SessionInfo info;
+    sessionInfo->sessionToken = new (std::nothrow) Rosen::Session(info);
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->CloseUIAbilityBySCB(sessionInfo), ERR_WRONG_INTERFACE_CALL);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ConnectAbility_0100
+ * @tc.desc: ConnectAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, ConnectAbility_0100, TestSize.Level1)
+{
+    Want want;
+    sptr<IAbilityConnection> connect = nullptr;
+    int32_t userId = 1;
+    EXPECT_EQ(client_->ConnectAbility(want, connect, userId), ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ConnectUIExtensionAbility_0100
+ * @tc.desc: ConnectUIExtensionAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, ConnectUIExtensionAbility_0100, TestSize.Level1)
+{
+    Want want;
+    sptr<IAbilityConnection> connect = nullptr;
+    sptr<SessionInfo> sessionInfo = nullptr;
+    int32_t userId = 1;
+    EXPECT_EQ(client_->ConnectUIExtensionAbility(want, connect, sessionInfo, userId), ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetMissionInfo_0100
+ * @tc.desc: GetMissionInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, GetMissionInfo_0100, TestSize.Level1)
+{
+    std::string deviceId = "123";
+    int32_t missionId = 1;
+    MissionInfo missionInfo;
+    EXPECT_EQ(client_->GetMissionInfo(deviceId, missionId, missionInfo), ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_AcquireShareData_0100
+ * @tc.desc: AcquireShareData
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AcquireShareData_0100, TestSize.Level1)
+{
+    int32_t missionId = 1;
+    sptr<IAcquireShareDataCallback> shareData = nullptr;
+    EXPECT_EQ(client_->AcquireShareData(missionId, shareData), ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ShareDataDone_0100
+ * @tc.desc: ShareDataDone
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, ShareDataDone_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    int32_t resultCode = 1;
+    int32_t uniqueId = 1;
+    WantParams wantParam;
+    EXPECT_EQ(client_->ShareDataDone(token, resultCode, uniqueId, wantParam), ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetAbilityTokenByCalleeObj_0100
+ * @tc.desc: GetAbilityTokenByCalleeObj
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_GetAbilityTokenByCalleeObj_0100, TestSize.Level1)
+{
+    EXPECT_TRUE(client_ != nullptr);
+    sptr<IRemoteObject> callStub = nullptr;
+    sptr<IRemoteObject> token = nullptr;
+    client_->GetAbilityTokenByCalleeObj(callStub, token);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

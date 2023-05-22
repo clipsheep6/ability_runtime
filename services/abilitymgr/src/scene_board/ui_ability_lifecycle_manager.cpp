@@ -68,9 +68,6 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
     if (uiAbilityRecord->GetPendingState() == AbilityState::FOREGROUND) {
         HILOG_DEBUG("pending state is FOREGROUND.");
         uiAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
-        if (iter == sessionAbilityMap_.end()) {
-            sessionAbilityMap_.emplace(sessionInfo->persistentId, uiAbilityRecord);
-        }
         return ERR_OK;
     } else {
         HILOG_DEBUG("pending state is not FOREGROUND.");
@@ -214,7 +211,7 @@ int UIAbilityLifecycleManager::DispatchForeground(const std::shared_ptr<AbilityR
                 }
                 return;
             }
-            selfObj->CompleteForegroundFailed(abilityRecord, state);
+            selfObj->HandleForegroundTimeoutOrFailed(abilityRecord, state);
         };
         handler->PostTask(task);
     }
@@ -281,22 +278,11 @@ void UIAbilityLifecycleManager::CompleteForegroundSuccess(const std::shared_ptr<
     }
 }
 
-void UIAbilityLifecycleManager::CompleteForegroundFailed(const std::shared_ptr<AbilityRecord> &abilityRecord,
+void UIAbilityLifecycleManager::HandleForegroundTimeoutOrFailed(const std::shared_ptr<AbilityRecord> &ability,
     AbilityState state)
 {
-    HILOG_DEBUG("CompleteForegroundFailed come, state: %{public}d.", static_cast<int32_t>(state));
+    HILOG_DEBUG("state: %{public}d.", static_cast<int32_t>(state));
     std::lock_guard<std::recursive_mutex> guard(sessionLock_);
-    if (abilityRecord == nullptr) {
-        HILOG_ERROR("CompleteForegroundFailed, ability is nullptr.");
-        return;
-    }
-
-    HandleForegroundTimeout(abilityRecord, state);
-}
-
-void UIAbilityLifecycleManager::HandleForegroundTimeout(const std::shared_ptr<AbilityRecord> &ability,
-    AbilityState state)
-{
     if (ability == nullptr) {
         HILOG_ERROR("ability record is nullptr.");
         return;
@@ -309,40 +295,9 @@ void UIAbilityLifecycleManager::HandleForegroundTimeout(const std::shared_ptr<Ab
 
     // notify SCB the ability to fail to foreground
 
-    // root launcher load timeout, notify appMs force terminate the ability and restart immediately.
-    if (ability->IsLauncherAbility() && ability->IsLauncherRoot()) {
-        DelayedSingleton<AppScheduler>::GetInstance()->AttachTimeOut(ability->GetToken());
-        HILOG_INFO("Launcher root load timeout, restart.");
-        // notify SCB to delay to start launcher
-        return;
-    }
-
-    // other
-    HandleTimeoutAndResumeAbility(ability, state);
-}
-
-void UIAbilityLifecycleManager::HandleTimeoutAndResumeAbility(const std::shared_ptr<AbilityRecord> &ability,
-    AbilityState state)
-{
-    HILOG_DEBUG("Call");
-    if (ability == nullptr) {
-        HILOG_ERROR("LoadAndForeGroundCommon: ability is nullptr.");
-        return;
-    }
     EraseAbilityRecord(ability);
-
     // load and foreground timeout, notify appMs force terminate the ability.
     DelayedSingleton<AppScheduler>::GetInstance()->AttachTimeOut(ability->GetToken());
-
-    // caller not exist or caller is service or timeout ability is launcher, back to launcher
-    auto callerAbility = ability->GetCallerRecord();
-    if ((callerAbility == nullptr) ||
-        (callerAbility->GetAbilityInfo().type == AppExecFwk::AbilityType::SERVICE) ||
-        (callerAbility->GetAbilityInfo().type == AppExecFwk::AbilityType::EXTENSION)) {
-        HILOG_DEBUG("ability timeout, back to launcher.");
-        // notify SCB to delay to start launcher
-        return;
-    }
 }
 
 std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetAbilityRecordByToken(const sptr<IRemoteObject> &token)

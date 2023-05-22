@@ -42,7 +42,10 @@ JsExtensionCommon::JsExtensionCommon(JsRuntime &jsRuntime, NativeReference &jsOb
     const std::shared_ptr<NativeReference> &shellContextRef)
     : jsRuntime_(jsRuntime), jsObj_(jsObj), shellContextRef_(shellContextRef) {}
 
-JsExtensionCommon::~JsExtensionCommon() = default;
+JsExtensionCommon::~JsExtensionCommon()
+{
+    jsRuntime_.FreeNativeReference(std::move(shellContextRef_));
+}
 
 void JsExtensionCommon::OnConfigurationUpdated(const std::shared_ptr<AppExecFwk::Configuration> &fullConfig)
 {

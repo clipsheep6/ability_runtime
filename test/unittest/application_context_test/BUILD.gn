@@ -34,6 +34,7 @@ ohos_unittest("application_context_test") {
   }
 
   deps = [
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_native_path}/ability/native:service_extension",
     "${ability_runtime_native_path}/appkit:app_context",
     "//third_party/googletest:gmock_main",

@@ -264,5 +264,39 @@ HWTEST_F(JsEnvironmentTest, StartDebugger_0100, TestSize.Level0)
     bool result = jsEnv->StartDebugger(libraryPath, needBreakPoint, instanceId, debuggerPostTask);
     EXPECT_EQ(result, false);
 }
+
+/**
+ * @tc.name: StopDebugger_0100
+ * @tc.desc: StopDebugger
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(JsEnvironmentTest, StopDebugger_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+
+    jsEnv->StopDebugger();
+}
+
+/**
+ * @tc.name: InitConsoleModule_0100
+ * @tc.desc: InitConsoleModule
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(JsEnvironmentTest, InitConsoleModule_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+
+    jsEnv->InitConsoleModule();
+
+    panda::RuntimeOption pandaOption;
+    auto ret = jsEnv->Initialize(pandaOption, static_cast<void*>(this));
+    ASSERT_EQ(ret, true);
+
+    jsEnv->InitConsoleModule();
+}
 }  // namespace JsEnv
 }  // namespace OHOS

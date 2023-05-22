@@ -34,8 +34,8 @@ public:
     void InstallDumpHandler(std::shared_ptr<OHOSApplication> application,
         std::shared_ptr<EventHandler> handler);
     static std::string GetMixStack(bool onlyMainThread);
-
-    static void Dump_SignalHandler(int sig, void/*siginfo_t*/ *si, void *context);
+    static bool IsInstalled();
+    static bool Dump_SignalHandler(int sig, void/*siginfo_t*/ *si, void *context);
 
 private:
     void Init(pid_t pid);

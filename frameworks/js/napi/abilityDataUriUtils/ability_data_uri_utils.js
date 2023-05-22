@@ -26,7 +26,7 @@ errMap.set(ERROR_CODE_INNER_ERROR, ERROR_MSG_INNER_ERROR);
 
 class DataUriError extends Error {
   constructor(code) {
-    let msg = ''
+    let msg = '';
     if (errMap.has(code)) {
       msg = errMap.get(code);
     } else {
