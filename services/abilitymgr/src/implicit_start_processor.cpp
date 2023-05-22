@@ -116,8 +116,10 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         }
         want = sysDialogScheduler->GetPcSelectorDialogWant(dialogAllAppInfos, request.want,
             TYPE_ONLY_MATCH_WILDCARD, userId, request.callerToken);
+        ret = abilityMgr->StartAbility(want, request.callerToken);
+        // reset calling indentity
         IPCSkeleton::SetCallingIdentity(identity);
-        return abilityMgr->StartAbility(want, request.callerToken);
+        return ret;
     }
 
     //There is a default opening method or Only one application supports
@@ -130,17 +132,19 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     if (deviceType != STR_PC) {
         HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose.");
         want = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want, request.callerToken);
+        ret = abilityMgr->StartAbility(want, request.callerToken);
         // reset calling indentity
         IPCSkeleton::SetCallingIdentity(identity);
-        return abilityMgr->StartAbility(want, request.callerToken);
+        return ret;
     }
 
     HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose in pc.");
     auto type = request.want.GetType();
     want = sysDialogScheduler->GetPcSelectorDialogWant(dialogAppInfos, request.want, type, userId, request.callerToken);
+    ret = abilityMgr->StartAbility(want, request.callerToken);
     // reset calling indentity
     IPCSkeleton::SetCallingIdentity(identity);
-    return abilityMgr->StartAbility(want, request.callerToken);
+    return ret;
 }
 
 int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
