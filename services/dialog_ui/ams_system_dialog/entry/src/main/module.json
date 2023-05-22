@@ -21,7 +21,7 @@
         "description": "$string:SelectorServiceExtAbility_desc",
         "icon": "$media:icon",
         "label": "$string:SelectorServiceExtAbility_label",
-        "visible": false,
+        "visible": true,
         "type": "service"
       },
       {
@@ -30,7 +30,7 @@
         "description": "$string:TipsServiceExtAbility_desc",
         "icon": "$media:icon",
         "label":"$string:TipsServiceExtAbility_label",
-        "visible": false,
+        "visible": true,
         "type": "service"
       },
       {
@@ -39,7 +39,7 @@
         "description": "$string:JumpInterceptorServiceExtAbility_desc",
         "icon": "$media:icon",
         "label":"$string:JumpInterceptorServiceExtAbility_label",
-        "visible": false,
+        "visible": true,
         "type": "service"
       }
     ],
