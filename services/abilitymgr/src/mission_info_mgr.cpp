@@ -188,8 +188,7 @@ bool MissionInfoMgr::DeleteAllMissionInfos(const std::shared_ptr<MissionListener
     auto abilityMs_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
 
     for (auto listIter = missionInfoList_.begin(); listIter != missionInfoList_.end();) {
-        if ((!listIter->missionInfo.unclearable)
-            && (!((listIter->missionInfo.lockedState) || (abilityMs_->IsBackgroundTaskUid(listIter->uid))))) {
+        if (!((listIter->missionInfo.lockedState) || (abilityMs_->IsBackgroundTaskUid(listIter->uid)))) {
             missionIdMap_.erase(listIter->missionInfo.id);
             taskDataPersistenceMgr_->DeleteMissionInfo(listIter->missionInfo.id);
             if (listenerController) {

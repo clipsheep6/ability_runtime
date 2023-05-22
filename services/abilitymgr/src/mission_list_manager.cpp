@@ -1645,14 +1645,9 @@ int MissionListManager::ClearMission(int missionId)
         return ERR_INVALID_VALUE;
     }
 
-    MissionInfo missionInfo;
-    HILOG_WARN("clear missionId : %{public}d.", missionId);
-    if (DelayedSingleton<MissionInfoMgr>::GetInstance()->GetMissionInfoById(missionId, missionInfo) == 0) {
-        missionInfo.unclearable = true; //todo: removed when BMS is ready
-        if (missionInfo.unclearable) {
-            HILOG_WARN("mission is unclearable.");
-            return ERR_INVALID_VALUE;
-        }
+    if (mission->IsUnclearable()) {
+        HILOG_ERROR("Mission is unclearbale.");
+        return ERR_INVALID_VALUE;
     }
 
     return ClearMissionLocked(missionId, mission);
@@ -1717,7 +1712,8 @@ void MissionListManager::ClearAllMissionsLocked(std::list<std::shared_ptr<Missio
     for (auto listIter = missionList.begin(); listIter != missionList.end();) {
         auto mission = (*listIter);
         listIter++;
-        if (!mission || mission->IsLockedState()) {
+        if (!mission || mission->IsLockedState() || mission->IsUnclearable()) {
+            HILOG_INFO("the mission is locked or unclearable");
             continue;
         }
 
