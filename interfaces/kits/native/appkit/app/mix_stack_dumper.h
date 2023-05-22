@@ -25,6 +25,8 @@
 #include "ohos_application.h"
 #include "runtime.h"
 
+struct siginfo_t;
+
 namespace OHOS {
 namespace AppExecFwk {
 class MixStackDumper {
@@ -35,7 +37,7 @@ public:
         std::shared_ptr<EventHandler> handler);
     static std::string GetMixStack(bool onlyMainThread);
     static bool IsInstalled();
-    static bool Dump_SignalHandler(int sig, void/*siginfo_t*/ *si, void *context);
+    static bool Dump_SignalHandler(int sig, siginfo_t *si, void *context);
 
 private:
     void Init(pid_t pid);

@@ -55,7 +55,7 @@ typedef struct ProcInfo {
 } ProcInfo;
 }
 
-typedef void (*DumpSignalHandlerFunc) (int sig, void/*siginfo_t*/ *si, void *context);
+typedef void (*DumpSignalHandlerFunc) (int sig, siginfo_t *si, void *context);
 static DumpSignalHandlerFunc g_dumpSignalHandlerFunc = nullptr;
 static pid_t g_targetDumpTid = -1;
 static struct ProcInfo g_procInfo = {0};
@@ -223,11 +223,10 @@ static std::string GetCurrentTimeStr(uint64_t current = 0)
     return std::string(formatTimeBuf, strlen(formatTimeBuf));
 }
 
-bool MixStackDumper::Dump_SignalHandler(int sig, void/*siginfo_t*/ *si, void *context)
+bool MixStackDumper::Dump_SignalHandler(int sig, siginfo_t *si, void *context)
 {
     HILOG_INFO("Dump_SignalHandler.");
     bool ret = false;
-     /*
     if (si->si_code != DUMP_TYPE_MIX) {
         return ret;
     }
@@ -243,7 +242,6 @@ bool MixStackDumper::Dump_SignalHandler(int sig, void/*siginfo_t*/ *si, void *co
     }
     g_targetDumpTid = si->si_value.sival_int;
     handler->PostTask(&MixStackDumper::HandleMixDumpRequest);
-     */
     return ret;
 }
 
@@ -258,7 +256,6 @@ void MixStackDumper::InstallDumpHandler(std::shared_ptr<OHOSApplication> applica
     if (!hasInstalled) {
         signalHandler_ = handler;
         application_ = application;
-
         struct signal_chain_action sigchain = {
             .sca_sigaction = MixStackDumper::Dump_SignalHandler,
             .sca_mask = {},
@@ -508,7 +505,6 @@ void MixStackDumper::Write(int fd, const std::string& outStr)
 
 std::string MixStackDumper::DumpMixStackLocked(int fd, pid_t requestTid)
 {
-    /*
     if (fd < 0) {
         outputStr_.clear();
     }
@@ -537,7 +533,6 @@ std::string MixStackDumper::DumpMixStackLocked(int fd, pid_t requestTid)
         }
     }
     Destroy();
-    */
     return outputStr_;
 }
 
