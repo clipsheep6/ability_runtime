@@ -293,6 +293,11 @@ RState GetStringFormatByName(const char *name, std::string &outValue,
 {
     return SUCCESS;
 }
+
+uint32_t GetResourceLimitKeys()
+{
+    return 0;
+}
 };
 }  // namespace Resource
 }  // namespace Global
