@@ -1303,25 +1303,7 @@ private:
 
     bool IsDelegatorCall(const AppExecFwk::RunningProcessInfo &processInfo, const AbilityRequest &abilityRequest);
 
-    /**
-     *  Temporary, use old rule to check permission.
-     *
-     * @param abilityRequest, abilityRequest.
-     * @param isStartByCall, Indicates whether it is the StartAbilityByCall function call.
-     *                       TRUE: Is StartAbilityByCall function call.
-     *                       FALSE: Is other function call, such as StartAbility, ConnectAbility and so on.
-     * @return Returns ERR_OK on check success, others on check failure.
-     */
-    int CheckCallerPermissionOldRule(const AbilityRequest &abilityRequest, const bool isStartByCall = false);
-
-    /**
-     *  Temporary, judge is use new check-permission rule to start ability.
-     *
-     * @param abilityRequest, abilityRequest.
-     * @return Returns TRUE: Use new rule.
-     *                 FALSE: Use old rule.
-     */
-    bool IsUseNewStartUpRule(const AbilityRequest &abilityRequest);
+    bool IsAbilityVisible(const AbilityRequest &abilityRequest) const;
 
     bool CheckNewRuleSwitchState(const std::string &param);
 

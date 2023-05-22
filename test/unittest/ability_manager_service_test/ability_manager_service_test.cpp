@@ -310,7 +310,7 @@ HWTEST_F(AbilityManagerServiceTest, CheckCallServicePermission_001, TestSize.Lev
     abilityMs_->startUpNewRule_ = false;
     EXPECT_FALSE(abilityMs_->startUpNewRule_);
     request.abilityInfo.visible = true;
-    EXPECT_EQ(abilityMs_->CheckCallServicePermission(request), ERR_OK);
+    EXPECT_EQ(abilityMs_->CheckCallServicePermission(request), ERR_INVALID_VALUE);
 
     abilityMs_->startUpNewRule_ = true;
     request.abilityInfo.isStageBasedModel = false;
@@ -421,7 +421,7 @@ HWTEST_F(AbilityManagerServiceTest, CheckCallAbilityPermission_001, TestSize.Lev
     EXPECT_TRUE(abilityMs_->startUpNewRule_);
     abilityMs_->startUpNewRule_ = false;
     request.abilityInfo.visible = true;
-    EXPECT_EQ(abilityMs_->CheckCallAbilityPermission(abilityRequest_), ERR_OK);
+    EXPECT_EQ(abilityMs_->CheckCallAbilityPermission(abilityRequest_), ERR_INVALID_VALUE);
 
     abilityMs_->startUpNewRule_ = true;
     EXPECT_EQ(abilityMs_->CheckCallAbilityPermission(abilityRequest_), ERR_INVALID_VALUE);
@@ -460,34 +460,6 @@ HWTEST_F(AbilityManagerServiceTest, CheckStartByCallPermission_002, TestSize.Lev
     abilityRequest_.abilityInfo.type = AbilityType::DATA;
     EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), RESOLVE_CALL_ABILITY_TYPE_ERR);
     HILOG_INFO("AbilityManagerServiceTest CheckStartByCallPermission_002 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: CheckCallerPermissionOldRule
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService CheckCallerPermissionOldRule
- */
-HWTEST_F(AbilityManagerServiceTest, CheckCallerPermissionOldRule_001, TestSize.Level1)
-{
-    HILOG_INFO("AbilityManagerServiceTest CheckCallerPermissionOldRule_001 start");
-    EXPECT_EQ(abilityMs_->CheckCallerPermissionOldRule(abilityRequest_, true), RESOLVE_CALL_NO_PERMISSIONS);
-    EXPECT_EQ(abilityMs_->CheckCallerPermissionOldRule(abilityRequest_, false), ERR_OK);
-    HILOG_INFO("AbilityManagerServiceTest CheckCallerPermissionOldRule_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: CheckCallerPermissionOldRule
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService CheckCallerPermissionOldRule
- */
-HWTEST_F(AbilityManagerServiceTest, CheckCallerPermissionOldRule_002, TestSize.Level1)
-{
-    HILOG_INFO("AbilityManagerServiceTest CheckCallerPermissionOldRule_002 start");
-    abilityRequest_.callerUid = USER_ID_U100;
-    EXPECT_EQ(abilityMs_->CheckCallerPermissionOldRule(abilityRequest_, true), RESOLVE_CALL_NO_PERMISSIONS);
-    HILOG_INFO("AbilityManagerServiceTest CheckCallerPermissionOldRule_002 end");
 }
 
 /*
@@ -3082,27 +3054,17 @@ HWTEST_F(AbilityManagerServiceTest, IsCallFromBackground_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
- * Function: IsUseNewStartUpRule
+ * Function: IsAbilityVisible
  * SubFunction: NA
- * FunctionPoints: AbilityManagerService IsUseNewStartUpRule
+ * FunctionPoints: AbilityManagerService IsAbilityVisible
  */
-HWTEST_F(AbilityManagerServiceTest, IsUseNewStartUpRule_001, TestSize.Level1)
+HWTEST_F(AbilityManagerServiceTest, IsAbilityVisible_001, TestSize.Level1)
 {
-    HILOG_INFO("AbilityManagerServiceTest IsUseNewStartUpRule_001 start");
+    HILOG_INFO("AbilityManagerServiceTest IsAbilityVisible_001 start");
     AbilityRequest abilityRequest;
-    EXPECT_FALSE(abilityMs_->startUpNewRule_);
-    abilityMs_->startUpNewRule_ = false;
-    EXPECT_FALSE(abilityMs_->IsUseNewStartUpRule(abilityRequest));
-
-    abilityMs_->startUpNewRule_ = true;
-    MyFlag::flag_ = 1;
-    EXPECT_TRUE(abilityMs_->IsUseNewStartUpRule(abilityRequest));
-    MyFlag::flag_ = 2;
-    EXPECT_TRUE(abilityMs_->IsUseNewStartUpRule(abilityRequest));
-
-    EXPECT_TRUE(abilityMs_->IsUseNewStartUpRule(abilityRequest));
-    abilityMs_->startUpNewRule_ = false;
-    HILOG_INFO("AbilityManagerServiceTest IsUseNewStartUpRule_001 end");
+    abilityRequest.abilityInfo.visible = true;
+    EXPECT_TRUE(abilityMs_->IsAbilityVisible(abilityRequest));
+    HILOG_INFO("AbilityManagerServiceTest IsAbilityVisible_001 end");
 }
 
 /*
