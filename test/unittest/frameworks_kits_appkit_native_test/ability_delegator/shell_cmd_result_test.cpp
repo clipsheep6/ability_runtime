@@ -22,6 +22,8 @@ using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::AppExecFwk;
 
+namespace OHOS {
+namespace AppExecFwk {
 namespace {
 const std::string SHELLCOMMANDDRESULT = "shell cmd result AAAAAAAAAAAAAAAAAAAAA";
 const std::string CHANGESHELLCOMMANDDRESULT = "shell cmd result BBBBBBBBBBBBBBBBBB";
@@ -90,3 +92,21 @@ HWTEST_F(ShellCmdResultTest, Shell_Cmd_Result_Test_0300, Function | MediumTest |
 
     EXPECT_EQ(shellCmd.GetStdResult(), CHANGESHELLCOMMANDDRESULT);
 }
+
+/**
+ * @tc.name: FuncTest_0100
+ * @tc.desc: Shell command reult test.
+ * @tc.type: FUNC
+ * @tc.require: issueI76SHL
+ */
+HWTEST_F(ShellCmdResultTest, Shell_Cmd_Result_Test_0400, TestSize.Level1)
+{
+    HILOG_INFO("test start.");
+    ShellCmdResult shellCmd(EXITCODE, SHELLCOMMANDDRESULT);
+    shellCmd.SetExitCode(EXITCODE);
+    shellCmd.SetStdResult(SHELLCOMMANDDRESULT);
+    auto result = shellCmd.Dump();
+    EXPECT_EQ(result, "ShellCmdResult { exitCode = 15, stdResult = shell cmd result AAAAAAAAAAAAAAAAAAAAA}");
+}
+} // namespace AppExecFwk
+} // namespace OHOS

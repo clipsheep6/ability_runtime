@@ -62,7 +62,8 @@ public:
     /**
      * Default constructor used to create a AbilityDelegatorArgs instance.
      */
-    AbilityDelegatorArgs();
+    AbilityDelegatorArgs() = default;
+    virtual ~AbilityDelegatorArgs() = default;
 
     /**
      * A constructor used to create a AbilityDelegatorArgs instance with the input parameter passed.
@@ -70,11 +71,6 @@ public:
      * @param want Indicates the Want that contains parameters.
      */
     explicit AbilityDelegatorArgs(const AAFwk::Want &want);
-
-    /**
-     * Default deconstructor used to deconstruct.
-     */
-    ~AbilityDelegatorArgs();
 
     /**
      * Obtains the bundle name of the application being tested.

@@ -675,7 +675,7 @@ std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::FindPropertyByToken
 
 std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::FindPropertyByName(const std::string &name)
 {
-    HILOG_INFO("Enter");
+    HILOG_INFO("Find property by %{public}s.", name.c_str());
 
     if (name.empty()) {
         HILOG_WARN("Invalid input parameter");

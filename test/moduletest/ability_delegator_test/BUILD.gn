@@ -13,7 +13,7 @@
 
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
-module_output_path = "ability_delegator/"
+module_output_path = "ability_runtime/ability_delegator"
 
 ability_delegator_mock_sources = [
   "${ability_runtime_path}/tools/aa/src/shell_command_executor.cpp",

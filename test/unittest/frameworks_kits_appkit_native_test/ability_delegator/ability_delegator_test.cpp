@@ -14,6 +14,8 @@
  */
 
 #include <gtest/gtest.h>
+#include <gtest/hwext/gtest-multithread.h>
+
 #include <string>
 #include <map>
 
@@ -38,11 +40,15 @@
 #include "test_runner.h"
 #include "want.h"
 
+using namespace testing;
 using namespace testing::ext;
+using namespace testing::mt;
 using namespace OHOS;
 using namespace OHOS::AppExecFwk;
 using namespace OHOS::AAFwk;
 
+namespace OHOS {
+namespace AppExecFwk {
 namespace {
 const std::string KEY_TEST_BUNDLE_NAME = "-p";
 const std::string VALUE_TEST_BUNDLE_NAME = "com.example.myapplication";
@@ -67,6 +73,10 @@ const int ONE = 1;
 const int TWO = 2;
 const int64_t TIMEOUT = 50;
 const std::string CMD = "ls -l";
+const std::string KEY_TEST_DEBUG {"-D"};
+const std::string VALUE_TEST_DEBUG {"true"};
+const std::string ABILITY_STAGE_MONITOR_MODULE_NAME {"entry"};
+const std::string ABILITY_STAGE_MONITOR_SRC_ENTRANCE {"MainAbility"};
 }  // namespace
 
 class AbilityDelegatorTest : public ::testing::Test {
@@ -76,10 +86,36 @@ public:
     void SetUp() override;
     void TearDown() override;
     void MakeMockObjects() const;
+
+public:
+    static std::shared_ptr<AbilityDelegator> commonDelegator_;
+    static std::shared_ptr<AbilityDelegatorArgs> delegatorArgs_;
 };
 
+std::shared_ptr<AbilityDelegator> AbilityDelegatorTest::commonDelegator_ = nullptr;
+std::shared_ptr<AbilityDelegatorArgs> AbilityDelegatorTest::delegatorArgs_ = nullptr;
+
 void AbilityDelegatorTest::SetUpTestCase()
-{}
+{
+    // Construct a common ability delegator firstly.
+    std::map<std::string, std::string> paras;
+    paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
+    paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
+    paras.emplace(KEY_TEST_CASE, VALUE_TEST_CASE);
+    paras.emplace(KEY_TEST_WAIT_TIMEOUT, VALUE_TEST_WAIT_TIMEOUT);
+    paras.emplace(KEY_TEST_DEBUG, VALUE_TEST_DEBUG);
+
+    Want want;
+    for (auto para : paras) {
+        want.SetParam(para.first, para.second);
+    }
+
+    delegatorArgs_ = std::make_shared<AbilityDelegatorArgs>(want);
+    AbilityRuntime::Runtime::Options options;
+    auto testRunner = TestRunner::Create(AbilityRuntime::Runtime::Create(options), delegatorArgs_, true);
+    commonDelegator_ = std::make_shared<AbilityDelegator>(std::make_shared<AbilityRuntime::ContextImpl>(),
+        std::move(testRunner), sptr<IRemoteObject>(new AAFwk::MockTestObserverStub));
+}
 
 void AbilityDelegatorTest::TearDownTestCase()
 {}
@@ -378,8 +414,26 @@ HWTEST_F(AbilityDelegatorTest2, Ability_Delegator_Test_070, Function | MediumTes
     sptr<IRemoteObject> iRemoteObj = sptr<IRemoteObject>(new MockAbilityDelegatorStub2());
     AbilityDelegator abilityDelegator(context, std::move(testRunner), iRemoteObj);
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new MockAbilityDelegatorStub2);
+    std::shared_ptr<ADelegatorAbilityProperty> ability = std::make_shared<ADelegatorAbilityProperty>();
+    ability->token_ = token;
+    ability->name_ = ABILITY_NAME;
+    ability->fullName_ = ABILITY_NAME;
+    abilityDelegator.abilityProperties_.emplace_back(ability);
 
+    // Empty abilityName.
+    MockAbilityDelegatorStub2::testcaseBranch_ = TESTCASE_BRANCH::BRANCH_1;
     EXPECT_EQ(abilityDelegator.GetCurrentTopAbility(), nullptr);
+
+    // Unkonwn abilityName.
+    MockAbilityDelegatorStub2::testcaseBranch_ = TESTCASE_BRANCH::BRANCH_2;
+    EXPECT_EQ(abilityDelegator.GetCurrentTopAbility(), nullptr);
+
+    // Valid abilityName.
+    MockAbilityDelegatorStub2::testcaseBranch_ = TESTCASE_BRANCH::BRANCH_3;
+    EXPECT_EQ(abilityDelegator.GetCurrentTopAbility(), ability);
+
+    // Set testcase branch to default.
+    MockAbilityDelegatorStub2::testcaseBranch_ = TESTCASE_BRANCH::BRANCH_1;
 }
 
 /**
@@ -1708,3 +1762,292 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_4500, Function | MediumTes
 
     EXPECT_TRUE(MockTestRunner::runFlag_);
 }
+
+/**
+ * @tc.name: RegisterClearFuncTest_0100
+ * @tc.desc: Register clear function test.
+ * @tc.type: FUNC
+ * @tc.require: issueI76SHL
+ */
+HWTEST_F(AbilityDelegatorTest, RegisterClearFuncTest_0100, TestSize.Level1)
+{
+    HILOG_INFO("test start.");
+    ASSERT_NE(commonDelegator_, nullptr);
+
+    // Register clear function.
+    auto clearFunc = [](const std::shared_ptr<ADelegatorAbilityProperty> &property) {
+        HILOG_INFO("Clear function is called");
+    };
+    commonDelegator_->RegisterClearFunc(clearFunc);
+
+    // Add ability monitor, so CallClearFunc can be called by PostPerformStop
+    auto iMonitor = std::make_shared<IAbilityMonitor>(ABILITY_NAME);
+    commonDelegator_->AddAbilityMonitor(iMonitor);
+    auto abilityProperty = std::make_shared<ADelegatorAbilityProperty>();
+    commonDelegator_->PostPerformStop(abilityProperty);
+}
+
+/**
+ * @tc.name: FindPropertyByNameTest_0100
+ * @tc.desc: Find property by name function test.
+ * @tc.type: FUNC
+ * @tc.require: issueI76SHL
+ */
+HWTEST_F(AbilityDelegatorTest, FindPropertyByNameTest_0100, TestSize.Level1)
+{
+    HILOG_INFO("test start.");
+    ASSERT_NE(commonDelegator_, nullptr);
+
+    auto result = commonDelegator_->FindPropertyByName("");
+    EXPECT_EQ(result, nullptr);
+
+    auto token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
+    auto abilityProperty = std::make_shared<ADelegatorAbilityProperty>();
+    abilityProperty->token_ = token;
+    abilityProperty->name_ = ABILITY_NAME;
+    abilityProperty->fullName_ = ABILITY_NAME;
+    commonDelegator_->ProcessAbilityProperties(abilityProperty);
+    EXPECT_EQ(commonDelegator_->abilityProperties_.size(), 1);
+
+    result = commonDelegator_->FindPropertyByName(ABILITY_NAME);
+    EXPECT_EQ(result, abilityProperty);
+}
+
+/**
+ * @tc.name: InputParamTest_0100
+ * @tc.desc: Input param test.
+ * @tc.type: FUNC
+ * @tc.require: issueI76SHL
+ */
+HWTEST_F(AbilityDelegatorTest, InputParamTest_0100, TestSize.Level1)
+{
+    HILOG_INFO("test start.");
+    ASSERT_NE(commonDelegator_, nullptr);
+
+    // Process ability properties when ability is invalid.
+    commonDelegator_->ProcessAbilityProperties(nullptr);
+
+    // Remove ability property when ability is invalid.
+    commonDelegator_->RemoveAbilityProperty(nullptr);
+
+    // Find property by invalid token.
+    commonDelegator_->FindPropertyByToken(nullptr);
+
+    // Finish user test when observer is invalid.
+    AbilityRuntime::Runtime::Options options;
+    AAFwk::Want want;
+    auto testRunner = TestRunner::Create(AbilityRuntime::Runtime::Create(options),
+        std::make_shared<AbilityDelegatorArgs>(want), true);
+    auto delegator = std::make_shared<AbilityDelegator>(std::make_shared<AbilityRuntime::ContextImpl>(),
+        std::move(testRunner), nullptr);
+    std::string msg("");
+    int64_t resultCode = 0;
+    delegator->FinishUserTest(msg, resultCode);
+}
+
+/**
+ * @tc.name: AbilityMonitorEmptyTest_0100
+ * @tc.desc: Perform when ability monitor is empty.
+ * @tc.type: FUNC
+ * @tc.require: issueI76SHL
+ */
+HWTEST_F(AbilityDelegatorTest, AbilityMonitorEmptyTest_0100, TestSize.Level1)
+{
+    HILOG_INFO("test start.");
+    ASSERT_NE(commonDelegator_, nullptr);
+
+    auto token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
+    auto abilityProperty = std::make_shared<ADelegatorAbilityProperty>();
+    abilityProperty->token_ = token;
+    abilityProperty->name_ = ABILITY_NAME;
+    abilityProperty->fullName_ = ABILITY_NAME;
+    commonDelegator_->PostPerformStart(abilityProperty);
+    commonDelegator_->PostPerformScenceCreated(abilityProperty);
+    commonDelegator_->PostPerformScenceRestored(abilityProperty);
+    commonDelegator_->PostPerformScenceDestroyed(abilityProperty);
+    commonDelegator_->PostPerformForeground(abilityProperty);
+    commonDelegator_->PostPerformBackground(abilityProperty);
+    commonDelegator_->PostPerformStop(abilityProperty);
+}
+
+/**
+ * @tc.name: GetThreadNameTest_0100
+ * @tc.desc: Get thread name test.
+ * @tc.type: FUNC
+ * @tc.require: issueI76SHL
+ */
+HWTEST_F(AbilityDelegatorTest, GetThreadNameTest_0100, TestSize.Level1)
+{
+    HILOG_INFO("test start.");
+    ASSERT_NE(commonDelegator_, nullptr);
+    auto result = commonDelegator_->GetThreadName();
+    EXPECT_EQ(result, "");
+}
+
+/**
+ * @tc.name: StartAbilityTest_0100
+ * @tc.desc: Get thread name test.
+ * @tc.type: FUNC
+ * @tc.require: issueI76SHL
+ */
+HWTEST_F(AbilityDelegatorTest, StartAbilityTest_0100, TestSize.Level1)
+{
+    HILOG_INFO("test start.");
+    ASSERT_NE(commonDelegator_, nullptr);
+    AbilityDelegatorRegistry::RegisterInstance(commonDelegator_, delegatorArgs_);
+
+    AAFwk::Want want;
+    want.SetElementName(VALUE_TEST_BUNDLE_NAME, ABILITY_NAME);
+    auto result = commonDelegator_->StartAbility(want);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: WaitAbilityMonitorTest_0100
+ * @tc.desc: Wait ability monitor test.
+ * @tc.type: FUNC
+ * @tc.require: issueI76SHL
+ */
+HWTEST_F(AbilityDelegatorTest, WaitAbilityMonitorTest_0100, TestSize.Level1)
+{
+    HILOG_INFO("test start.");
+    ASSERT_NE(commonDelegator_, nullptr);
+    auto property = commonDelegator_->WaitAbilityMonitor(nullptr);
+    EXPECT_EQ(property, nullptr);
+}
+
+/**
+ * @tc.name: WaitAbilityMonitorTest_0200
+ * @tc.desc: Wait ability monitor test.
+ * @tc.type: FUNC
+ * @tc.require: issueI76SHL
+ */
+std::shared_ptr<IAbilityMonitor> gt_iAbilityMonitor = nullptr;
+
+void IAbilityMonitorWaitTask()
+{
+    ASSERT_NE(gt_iAbilityMonitor, nullptr);
+    HILOG_INFO("Running in thread %{public}d", gettid());
+    auto property = AbilityDelegatorTest::commonDelegator_->WaitAbilityMonitor(gt_iAbilityMonitor);
+    if (property == nullptr) {
+        HILOG_WARN("Wait for ability failed.");
+    }
+}
+
+void IAbilityMonitorMatchTask()
+{
+    ASSERT_NE(gt_iAbilityMonitor, nullptr);
+    HILOG_INFO("Running in thread %{public}d", gettid());
+    auto token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
+    std::shared_ptr<ADelegatorAbilityProperty> proterty = std::make_shared<ADelegatorAbilityProperty>();
+    proterty->token_ = token;
+    proterty->name_ = ABILITY_NAME;
+    EXPECT_TRUE(gt_iAbilityMonitor->Match(proterty, true));
+}
+
+HWTEST_F(AbilityDelegatorTest, WaitAbilityMonitorTest_0200, TestSize.Level1)
+{
+    HILOG_INFO("test start.");
+    ASSERT_NE(commonDelegator_, nullptr);
+
+    gt_iAbilityMonitor = std::make_shared<IAbilityMonitor>(ABILITY_NAME);
+    commonDelegator_->AddAbilityMonitor(gt_iAbilityMonitor);
+    SET_THREAD_NUM(1);
+    GTEST_RUN_TASK(IAbilityMonitorWaitTask);
+    GTEST_RUN_TASK(IAbilityMonitorMatchTask);
+    gt_iAbilityMonitor.reset();
+}
+
+/**
+ * @tc.name: WaitAbilityStageMonitorTest_0100
+ * @tc.desc: Wait ability stage monitor test.
+ * @tc.type: FUNC
+ * @tc.require: issueI76SHL
+ */
+HWTEST_F(AbilityDelegatorTest, WaitAbilityStageMonitorTest_0100, TestSize.Level1)
+{
+    HILOG_INFO("test start.");
+    ASSERT_NE(commonDelegator_, nullptr);
+    auto property = commonDelegator_->WaitAbilityStageMonitor(nullptr);
+    EXPECT_EQ(property, nullptr);
+}
+
+/**
+ * @tc.name: WaitAbilityStageMonitorTest_0200
+ * @tc.desc: Wait ability stage monitor test.
+ * @tc.type: FUNC
+ * @tc.require: issueI76SHL
+ */
+std::shared_ptr<IAbilityStageMonitor> gt_iAbilityStageMonitor = nullptr;
+
+void IAbilityStageMonitorWaitTask()
+{
+    ASSERT_NE(gt_iAbilityStageMonitor, nullptr);
+    HILOG_INFO("Running in thread %{public}d", gettid());
+    auto property = AbilityDelegatorTest::commonDelegator_->WaitAbilityStageMonitor(gt_iAbilityStageMonitor);
+    if (property == nullptr) {
+        HILOG_WARN("Wait for ability failed.");
+    }
+}
+
+void IAbilityStageMonitorMatchTask()
+{
+    ASSERT_NE(gt_iAbilityStageMonitor, nullptr);
+    HILOG_INFO("Running in thread %{public}d", gettid());
+    std::shared_ptr<DelegatorAbilityStageProperty> property = std::make_shared<DelegatorAbilityStageProperty>();
+    property->moduleName_ = ABILITY_STAGE_MONITOR_MODULE_NAME;
+    property->srcEntrance_ = ABILITY_STAGE_MONITOR_SRC_ENTRANCE;
+    EXPECT_TRUE(gt_iAbilityStageMonitor->Match(property, true));
+}
+
+HWTEST_F(AbilityDelegatorTest, WaitAbilityStageMonitorTest_0200, TestSize.Level1)
+{
+    HILOG_INFO("test start.");
+    ASSERT_NE(commonDelegator_, nullptr);
+
+    gt_iAbilityStageMonitor = std::make_shared<IAbilityStageMonitor>(ABILITY_STAGE_MONITOR_MODULE_NAME,
+        ABILITY_STAGE_MONITOR_SRC_ENTRANCE);
+    commonDelegator_->AddAbilityStageMonitor(gt_iAbilityStageMonitor);
+    SET_THREAD_NUM(1);
+    GTEST_RUN_TASK(IAbilityStageMonitorWaitTask);
+    GTEST_RUN_TASK(IAbilityStageMonitorMatchTask);
+    gt_iAbilityStageMonitor.reset();
+}
+
+/**
+ * @tc.name: PostPerformStageStartTest_0100
+ * @tc.desc: Post perform stage start when ability stage monitor is empty.
+ * @tc.type: FUNC
+ * @tc.require: issueI76SHL
+ */
+HWTEST_F(AbilityDelegatorTest, PostPerformStageStartTest_0100, TestSize.Level1)
+{
+    HILOG_INFO("test start.");
+    ASSERT_NE(commonDelegator_, nullptr);
+    auto property = std::make_shared<DelegatorAbilityStageProperty>();
+    property->moduleName_ = ABILITY_STAGE_MONITOR_MODULE_NAME;
+    property->srcEntrance_ = ABILITY_STAGE_MONITOR_SRC_ENTRANCE;
+    commonDelegator_->PostPerformStageStart(property);
+}
+
+/**
+ * @tc.name: PostPerformStageStartTest_0200
+ * @tc.desc: Post perform stage start when ability stage monitor is valid.
+ * @tc.type: FUNC
+ * @tc.require: issueI76SHL
+ */
+HWTEST_F(AbilityDelegatorTest, PostPerformStageStartTest_0200, TestSize.Level1)
+{
+    HILOG_INFO("test start.");
+    ASSERT_NE(commonDelegator_, nullptr);
+
+    auto stageMonitor = std::make_shared<IAbilityStageMonitor>(ABILITY_STAGE_MONITOR_MODULE_NAME,
+        ABILITY_STAGE_MONITOR_SRC_ENTRANCE);
+    commonDelegator_->AddAbilityStageMonitor(stageMonitor);
+    auto property = std::make_shared<DelegatorAbilityStageProperty>();
+    property->moduleName_ = ABILITY_STAGE_MONITOR_MODULE_NAME;
+    property->srcEntrance_ = ABILITY_STAGE_MONITOR_SRC_ENTRANCE;
+    commonDelegator_->PostPerformStageStart(property);
+}
+} // namespace AppExecFwk
+} // namespace OHOS
