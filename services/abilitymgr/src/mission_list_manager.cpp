@@ -1717,18 +1717,6 @@ void MissionListManager::ClearAllMissionsLocked(std::list<std::shared_ptr<Missio
             continue;
         }
 
-        MissionInfo missionInfo;
-        auto mid = mission->GetMissionId();
-        HILOG_WARN("GetMissionId value: %{public}d.", mid);
-        if (DelayedSingleton<MissionInfoMgr>::GetInstance()
-            ->GetMissionInfoById(mid, missionInfo) == 0) {
-            missionInfo.unclearable = true; //todo: removed when BMS is ready
-            if (missionInfo.unclearable) {
-                HILOG_WARN("mission is unclearable.");
-                continue;
-            }
-        }
-
         auto abilityMs_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
         if (abilityMs_->IsBackgroundTaskUid(mission->GetAbilityRecord()->GetUid())) {
             HILOG_INFO("the mission is background task, do not need clear");
