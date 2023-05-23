@@ -72,6 +72,12 @@ enum class AbilityErrorCode {
     // context is invalid.
     ERROR_CODE_INVALID_CONTEXT = 16000011,
 
+    // application is controlled.
+    ERROR_CODE_CONTROLLED = 16000012,
+
+    // edm application is controlled.
+    ERROR_CODE_EDM_CONTROLLED = 16000013,
+
     // ability wait start.
     ERROR_START_ABILITY_WAITTING = 16000017,
 
@@ -110,6 +116,9 @@ enum class AbilityErrorCode {
 
     // no such mission listener.
     ERROR_CODE_NO_MISSION_LISTENER = 16300002,
+
+    // not self application.
+    ERROR_NOT_SELF_APPLICATION = 16300003,
 };
 
 std::string GetErrorMsg(const AbilityErrorCode& errCode);

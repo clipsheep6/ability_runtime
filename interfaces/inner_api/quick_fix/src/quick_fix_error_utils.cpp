@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -42,6 +42,7 @@ const std::map<int32_t, int32_t> INTERNAL_ERR_CODE_MAP = {
     { QUICK_FIX_SET_INFO_FAILED,            ERR_QUICKFIX_INTERNAL_ERROR },
     { QUICK_FIX_PROCESS_TIMEOUT,            ERR_QUICKFIX_INTERNAL_ERROR },
     { QUICK_FIX_NOTIFY_UNLOAD_PATCH_FAILED, ERR_QUICKFIX_UNLOAD_PATCH_FAILED },
+    { QUICK_FIX_DEPLOYING_TASK,             ERR_QUICKFIX_DEPLOYING_TASK },
 };
 
 const std::map<int32_t, std::string> INTERNAL_ERR_MSG_MAP = {
@@ -70,6 +71,7 @@ const std::map<int32_t, std::string> EXTERNAL_ERR_MSG_MAP = {
     { ERR_QUICKFIX_LOAD_PATCH_FAILED,   "Load patch failed." },
     { ERR_QUICKFIX_UNLOAD_PATCH_FAILED, "Unload patch failed." },
     { ERR_QUICKFIX_INTERNAL_ERROR,      "Internal error." },
+    { ERR_QUICKFIX_DEPLOYING_TASK,      "The application has a apply quick fix task that is being processed." },
 };
 } // namespace
 

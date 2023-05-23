@@ -73,7 +73,7 @@ public:
     bool IsContainsAbility(const sptr<IRemoteObject> &token) const;
 
     /**
-     * MinimizeUIAbility, minimize the special ability by board.
+     * MinimizeUIAbility, minimize the special ability by scb.
      *
      * @param abilityRecord, the ability to minimize.
      * @return Returns ERR_OK on success, others on failure.
@@ -87,6 +87,14 @@ public:
      * @return Returns AbilityRecord shared_ptr.
      */
     std::shared_ptr<AbilityRecord> GetUIAbilityRecordBySessionInfo(const sptr<SessionInfo> &sessionInfo);
+
+    /**
+     * CloseUIAbility, close the special ability by scb.
+     *
+     * @param abilityRecord, the ability to close.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int CloseUIAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
 private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
     void UpdateAbilityRecordLaunchReason(const AbilityRequest &abilityRequest,
@@ -98,17 +106,16 @@ private:
     int DispatchForeground(const std::shared_ptr<AbilityRecord> &abilityRecord, bool success,
         AbilityState state = AbilityState::INITIAL);
     void CompleteForegroundSuccess(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    void CompleteForegroundFailed(const std::shared_ptr<AbilityRecord> &abilityRecord, AbilityState state);
-    void HandleForegroundTimeout(const std::shared_ptr<AbilityRecord> &ability,
-        AbilityState state = AbilityState::INITIAL);
-    void HandleTimeoutAndResumeAbility(const std::shared_ptr<AbilityRecord> &ability,
+    void HandleForegroundTimeoutOrFailed(const std::shared_ptr<AbilityRecord> &ability,
         AbilityState state = AbilityState::INITIAL);
     void MoveToBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId);
-
+    void DelayCompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void CompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
     mutable std::recursive_mutex sessionLock_;
     std::map<uint64_t, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;
+    std::list<std::shared_ptr<AbilityRecord>> terminateAbilityList_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

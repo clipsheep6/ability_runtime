@@ -433,8 +433,8 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
                     EventFwk::MatchingSkills matchingSkills;
                     matchingSkills.AddEvent(OVERLAY_STATE_CHANGED);
                     EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
-                    auto callback = [this, resourceManager, bundleName = bundleInfo.name, moduleName = hapModuleInfo.moduleName, loadPath]
-                        (const EventFwk::CommonEventData &data) {
+                    auto callback = [this, resourceManager, bundleName = bundleInfo.name, moduleName =
+                        hapModuleInfo.moduleName, loadPath](const EventFwk::CommonEventData &data) {
                         HILOG_INFO("On overlay changed.");
                         this->OnOverlayChanged(data, resourceManager, bundleName, moduleName, loadPath);
                     };

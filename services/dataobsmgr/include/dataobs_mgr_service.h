@@ -79,7 +79,7 @@ private:
     bool Init();
     void Dump(const std::vector<std::u16string>& args, std::string& result) const;
     void ShowHelp(std::string& result) const;
-
+    Status DeepCopyChangeInfo(const ChangeInfo &src, ChangeInfo &dst) const;
 private:
     static constexpr std::uint32_t TASK_COUNT_MAX = 50;
     std::mutex taskCountMutex_;

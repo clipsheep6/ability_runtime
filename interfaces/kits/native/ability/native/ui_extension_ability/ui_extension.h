@@ -26,7 +26,7 @@ class Runtime;
  * @brief Basic ui extension components.
  */
 class UIExtension : public ExtensionBase<UIExtensionContext>,
-                       public std::enable_shared_from_this<UIExtension> {
+                    public std::enable_shared_from_this<UIExtension> {
 public:
     UIExtension() = default;
     virtual ~UIExtension() = default;

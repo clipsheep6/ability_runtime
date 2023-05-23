@@ -27,7 +27,7 @@ using namespace testing::ext;
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
-    constexpr int32_t DEFAULT_BLOCKLIST_EXTENSION_NUM = 13;
+    constexpr int32_t DEFAULT_BLOCKLIST_EXTENSION_NUM = 14;
     constexpr int32_t EXTENSION_TYPE_FORM = 0;
     constexpr int32_t EXTENSION_TYPE_WORK_SCHEDULER = 1;
     constexpr int32_t EXTENSION_TYPE_INPUTMETHOD = 2;
@@ -49,7 +49,7 @@ namespace {
     constexpr char BLOCK_LIST_ITEM_WALLPAPER_EXTENSION[] = "WallpaperExtension";
     constexpr char BLOCK_LIST_ITEM_STATIC_SUBSCRIBER_EXTENSION[] = "StaticSubscriberExtension";
     constexpr char BLOCK_LIST_ITEM_ACCESSIBILITY_EXTENSION[] = "AccessibilityExtension";
-    constexpr char BLOCK_LIST_ITEM_INPUT_METHOD_EXTENSION[] = "InputMethodExtension";
+    constexpr char BLOCK_LIST_ITEM_INPUT_METHOD_EXTENSION_ABILITY[] = "InputMethodExtensionAbility";
     constexpr char BLOCK_LIST_ITEM_WORK_SCHEDULER_EXTENSION[] = "WorkSchedulerExtension";
     constexpr char BLOCK_LIST_ITEM_DATA_SHARE_EXTENSION[] = "DataShareExtension";
     constexpr char INVAILD_BLOCK_LIST_ITEM[] = "InvaildExtension";
@@ -105,7 +105,7 @@ HWTEST_F(ExtensionConfigMgrTest, Init_0100, TestSize.Level0)
     EXPECT_TRUE(result);
     result = (mgr.blocklistConfig_.find(BLOCK_LIST_ITEM_ACCESSIBILITY_EXTENSION) != mgr.blocklistConfig_.end());
     EXPECT_TRUE(result);
-    result = (mgr.blocklistConfig_.find(BLOCK_LIST_ITEM_INPUT_METHOD_EXTENSION) != mgr.blocklistConfig_.end());
+    result = (mgr.blocklistConfig_.find(BLOCK_LIST_ITEM_INPUT_METHOD_EXTENSION_ABILITY) != mgr.blocklistConfig_.end());
     EXPECT_TRUE(result);
     result = (mgr.blocklistConfig_.find(BLOCK_LIST_ITEM_WORK_SCHEDULER_EXTENSION) != mgr.blocklistConfig_.end());
     EXPECT_TRUE(result);
@@ -130,7 +130,7 @@ HWTEST_F(ExtensionConfigMgrTest, AddBlockListItem_0100, TestSize.Level0)
     mgr.AddBlockListItem(BLOCK_LIST_ITEM_WORK_SCHEDULER_EXTENSION, EXTENSION_TYPE_WORK_SCHEDULER);
     result = (mgr.extensionBlocklist_.find(EXTENSION_TYPE_WORK_SCHEDULER) != mgr.extensionBlocklist_.end());
     EXPECT_TRUE(result);
-    mgr.AddBlockListItem(BLOCK_LIST_ITEM_INPUT_METHOD_EXTENSION, EXTENSION_TYPE_INPUTMETHOD);
+    mgr.AddBlockListItem(BLOCK_LIST_ITEM_INPUT_METHOD_EXTENSION_ABILITY, EXTENSION_TYPE_INPUTMETHOD);
     result = (mgr.extensionBlocklist_.find(EXTENSION_TYPE_INPUTMETHOD) != mgr.extensionBlocklist_.end());
     EXPECT_TRUE(result);
     mgr.AddBlockListItem(BLOCK_LIST_ITEM_SERVICE_EXTENSION, EXTENSION_TYPE_SERVICE);

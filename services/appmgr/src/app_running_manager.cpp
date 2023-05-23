@@ -26,6 +26,7 @@
 #include "os_account_manager_wrapper.h"
 #include "perf_profile.h"
 #include "quick_fix_callback_with_record.h"
+#include "scene_board_judgement.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -435,7 +436,11 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
     }
     auto isLastAbility =
         clearMissionFlag ? appRecord->IsLastPageAbilityRecord(token) : appRecord->IsLastAbilityRecord(token);
-    appRecord->TerminateAbility(token, false);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        appRecord->TerminateAbility(token, true);
+    } else {
+        appRecord->TerminateAbility(token, false);
+    }
 
     auto isKeepAliveApp = appRecord->IsKeepAliveApp();
     auto isLauncherApp = appRecord->GetApplicationInfo()->isLauncherApp;

@@ -99,7 +99,6 @@ void Extension::OnForeground(const AAFwk::Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
-
 }
 
 void Extension::OnBackground()

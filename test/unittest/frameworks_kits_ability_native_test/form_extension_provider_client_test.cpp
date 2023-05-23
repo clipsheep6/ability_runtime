@@ -132,6 +132,40 @@ HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_0200, Func
 }
 
 /**
+ * @tc.number: formExtensionProviderClient_1900
+ * @tc.name: NotifyFormExtensionDelete
+ * @tc.desc: Test NotifyFormExtensionDelete function with hostToken is not nullptr.
+ */
+HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_1900, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_1900 start";
+
+    // callerToken
+    const sptr<IRemoteObject> callerToken = MockFormSupplyCallback::GetInstance();
+
+    Want want;
+    // set Constants::PARAM_FORM_HOST_TOKEN hostToken pointer can be obtained.
+    want.SetParam(Constants::PARAM_FORM_HOST_TOKEN, callerToken);
+
+    int64_t formId = 723L;
+    std::shared_ptr<AbilityRuntime::FormExtensionProviderClient> formExtensionProviderClient =
+        std::make_shared<AbilityRuntime::FormExtensionProviderClient>();
+    ASSERT_NE(formExtensionProviderClient, nullptr);
+
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension(AbilityRuntime::JsFormExtension::Create(runtime));
+    formExtensionProviderClient->SetOwner(formExtension);
+
+    auto extension = formExtensionProviderClient->GetOwner();
+    EXPECT_TRUE(formExtension == extension);
+
+    formExtensionProviderClient->NotifyFormExtensionDelete(formId, want, callerToken);
+
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_1900 end";
+}
+
+/**
  * @tc.number: formExtensionProviderClient_0300
  * @tc.name: NotifyFormExtensionUpdate
  * @tc.desc: Test NotifyFormExtensionUpdate function with HasParameter(Constants::FORM_CONNECT_ID) is true .
@@ -409,8 +443,341 @@ HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_1600, Func
     AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
     auto result = formExtensionProviderClient.AcquireFormData(
         formId, formSupplyCallback, requestCode);
-    EXPECT_EQ(result, ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY);
+    EXPECT_EQ(result, ERR_APPEXECFWK_FORM_INVALID_PARAM);
     GTEST_LOG_(INFO) << "formExtensionProviderClient_1600 end";
+}
+
+/**
+ * @tc.number: formExtensionProviderClient_1700
+ * @tc.name: SetOwner and GetOwner
+ * @tc.desc: test AcquireFormExtensionProviderInfo when GetOwner not null.
+ */
+HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_1700, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_1700 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension(AbilityRuntime::JsFormExtension::Create(runtime));
+    formExtensionProviderClient.SetOwner(formExtension);
+
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(formExtension == extension);
+
+    sptr<FormSupplyCallbackMock> callerToken = new (std::nothrow) FormSupplyCallbackMock;
+    FormJsInfo formJsInfo;
+    Want want;
+    formExtensionProviderClient.AcquireFormExtensionProviderInfo(formJsInfo, want, callerToken->AsObject());
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_1700 end";
+}
+
+/**
+ * @tc.number: formExtensionProviderClient_1800
+ * @tc.name: NotifyFormExtensionsDelete
+ * @tc.desc: test NotifyFormExtensionsDelete.
+ */
+HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_1800, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_1800 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension(AbilityRuntime::JsFormExtension::Create(runtime));
+    formExtensionProviderClient.SetOwner(formExtension);
+
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(formExtension == extension);
+
+    sptr<FormSupplyCallbackMock> callerToken = new (std::nothrow) FormSupplyCallbackMock;
+    int64_t formId = 10;
+    std::vector<int64_t> formIds;
+    formIds.push_back(formId);
+    Want want;
+    formExtensionProviderClient.NotifyFormExtensionsDelete(formIds, want, callerToken);
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_1800 end";
+}
+
+/**
+ * @tc.number: formExtensionProviderClient_2000
+ * @tc.name: NotifyFormExtensionsDelete
+ * @tc.desc: test NotifyFormExtensionsDelete.
+ */
+HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_2000, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_2000 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension = nullptr;
+    formExtensionProviderClient.SetOwner(formExtension);
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(extension == nullptr);
+
+    sptr<FormSupplyCallbackMock> callerToken = new (std::nothrow) FormSupplyCallbackMock;
+    int64_t formId = 10;
+    std::vector<int64_t> formIds;
+    formIds.push_back(formId);
+    Want want;
+    formExtensionProviderClient.NotifyFormExtensionsDelete(formIds, want, callerToken);
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_2000 end";
+}
+
+/**
+ * @tc.number: NotifyFormExtensionUpdate_2100
+ * @tc.name: NotifyFormExtensionUpdate
+ * @tc.desc: test NotifyFormExtensionUpdate.
+ */
+HWTEST_F(FormExtensionProviderClientTest, NotifyFormExtensionUpdate_2100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "NotifyFormExtensionUpdate_2100 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension(AbilityRuntime::JsFormExtension::Create(runtime));
+    formExtensionProviderClient.SetOwner(formExtension);
+
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(formExtension == extension);
+
+    sptr<FormSupplyCallbackMock> callerToken = new (std::nothrow) FormSupplyCallbackMock;
+    int64_t formId = 10;
+    Want want;
+    formExtensionProviderClient.NotifyFormExtensionUpdate(formId, want, callerToken);
+    GTEST_LOG_(INFO) << "NotifyFormExtensionUpdate_2100 end";
+}
+
+/**
+ * @tc.number: EventNotifyExtension_2200
+ * @tc.name: EventNotifyExtension
+ * @tc.desc: test EventNotifyExtension.
+ */
+HWTEST_F(FormExtensionProviderClientTest, EventNotifyExtension_2200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "EventNotifyExtension_2200 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension(AbilityRuntime::JsFormExtension::Create(runtime));
+    formExtensionProviderClient.SetOwner(formExtension);
+
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(formExtension == extension);
+
+    sptr<FormSupplyCallbackMock> callerToken = new (std::nothrow) FormSupplyCallbackMock;
+    int64_t formId = 10;
+    std::vector<int64_t> formIds;
+    formIds.push_back(formId);
+    int32_t formVisibleType = 10;
+    Want want;
+    formExtensionProviderClient.EventNotifyExtension(formIds, formVisibleType, want, callerToken);
+    GTEST_LOG_(INFO) << "EventNotifyExtension_2200 end";
+}
+
+/**
+ * @tc.number: EventNotifyExtension_2300
+ * @tc.name: EventNotifyExtension
+ * @tc.desc: test EventNotifyExtension.
+ */
+HWTEST_F(FormExtensionProviderClientTest, EventNotifyExtension_2300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "EventNotifyExtension_2300 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension = nullptr;
+    formExtensionProviderClient.SetOwner(formExtension);
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(extension == nullptr);
+    
+    sptr<FormSupplyCallbackMock> callerToken = new (std::nothrow) FormSupplyCallbackMock;
+    int64_t formId = 10;
+    std::vector<int64_t> formIds;
+    formIds.push_back(formId);
+    int32_t formVisibleType = 10;
+    Want want;
+    formExtensionProviderClient.EventNotifyExtension(formIds, formVisibleType, want, callerToken);
+    GTEST_LOG_(INFO) << "EventNotifyExtension_2300 end";
+}
+
+/**
+ * @tc.number: NotifyFormExtensionCastTempForm_2400
+ * @tc.name: NotifyFormExtensionCastTempForm
+ * @tc.desc: test NotifyFormExtensionCastTempForm.
+ */
+HWTEST_F(FormExtensionProviderClientTest, NotifyFormExtensionCastTempForm_2400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "NotifyFormExtensionCastTempForm_2400 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension(AbilityRuntime::JsFormExtension::Create(runtime));
+    formExtensionProviderClient.SetOwner(formExtension);
+
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(formExtension == extension);
+
+    sptr<FormSupplyCallbackMock> callerToken = new (std::nothrow) FormSupplyCallbackMock;
+    int64_t formId = 10;
+    Want want;
+    formExtensionProviderClient.NotifyFormExtensionCastTempForm(formId, want, callerToken);
+    GTEST_LOG_(INFO) << "NotifyFormExtensionCastTempForm_2400 end";
+}
+
+/**
+ * @tc.number: NotifyFormExtensionCastTempForm_2500
+ * @tc.name: NotifyFormExtensionCastTempForm
+ * @tc.desc: test NotifyFormExtensionCastTempForm.
+ */
+HWTEST_F(FormExtensionProviderClientTest, NotifyFormExtensionCastTempForm_2500, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "NotifyFormExtensionCastTempForm_2500 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension = nullptr;
+    formExtensionProviderClient.SetOwner(formExtension);
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(extension == nullptr);
+    
+    sptr<FormSupplyCallbackMock> callerToken = new (std::nothrow) FormSupplyCallbackMock;
+    int64_t formId = 10;
+    Want want;
+    formExtensionProviderClient.NotifyFormExtensionCastTempForm(formId, want, callerToken);
+    GTEST_LOG_(INFO) << "NotifyFormExtensionCastTempForm_2500 end";
+}
+
+/**
+ * @tc.number: FireFormExtensionEvent_2600
+ * @tc.name: FireFormExtensionEvent
+ * @tc.desc: test FireFormExtensionEvent.
+ */
+HWTEST_F(FormExtensionProviderClientTest, FireFormExtensionEvent_2600, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "FireFormExtensionEvent_2600 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension(AbilityRuntime::JsFormExtension::Create(runtime));
+    formExtensionProviderClient.SetOwner(formExtension);
+
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(formExtension == extension);
+
+    sptr<FormSupplyCallbackMock> callerToken = new (std::nothrow) FormSupplyCallbackMock;
+    int64_t formId = 723L;
+    std::string message = "event message";
+    Want want;
+    formExtensionProviderClient.FireFormExtensionEvent(formId, message, want, callerToken);
+    GTEST_LOG_(INFO) << "FireFormExtensionEvent_2600 end";
+}
+
+/**
+ * @tc.number: AcquireFormExtensionProviderShareFormInfo_2700
+ * @tc.name: AcquireFormExtensionProviderShareFormInfo
+ * @tc.desc: test AcquireFormExtensionProviderShareFormInfo.
+ */
+HWTEST_F(FormExtensionProviderClientTest, AcquireFormExtensionProviderShareFormInfo_2700,
+    Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AcquireFormExtensionProviderShareFormInfo_2700 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension(AbilityRuntime::JsFormExtension::Create(runtime));
+    formExtensionProviderClient.SetOwner(formExtension);
+
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(formExtension == extension);
+
+    sptr<FormSupplyCallbackMock> callerToken = new (std::nothrow) FormSupplyCallbackMock;
+    int64_t formId = 10;
+    AAFwk::WantParams wantParam;
+    bool result = formExtensionProviderClient.AcquireFormExtensionProviderShareFormInfo(formId, wantParam);
+    EXPECT_EQ(result, false);
+    GTEST_LOG_(INFO) << "AcquireFormExtensionProviderShareFormInfo_2700 end";
+}
+
+/**
+ * @tc.number: AcquireFormExtensionProviderShareFormInfo_2800
+ * @tc.name: AcquireFormExtensionProviderShareFormInfo
+ * @tc.desc: test AcquireFormExtensionProviderShareFormInfo.
+ */
+HWTEST_F(FormExtensionProviderClientTest, AcquireFormExtensionProviderShareFormInfo_2800,
+    Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AcquireFormExtensionProviderShareFormInfo_2800 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension = nullptr;
+    formExtensionProviderClient.SetOwner(formExtension);
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(extension == nullptr);
+    
+    sptr<FormSupplyCallbackMock> callerToken = new (std::nothrow) FormSupplyCallbackMock;
+    int64_t formId = 10;
+    AAFwk::WantParams wantParam;
+    bool result = formExtensionProviderClient.AcquireFormExtensionProviderShareFormInfo(formId, wantParam);
+    EXPECT_EQ(result, false);
+    GTEST_LOG_(INFO) << "AcquireFormExtensionProviderShareFormInfo_2800 end";
+}
+
+/**
+ * @tc.number: FormExtensionProviderAcquireFormData_2900
+ * @tc.name: FormExtensionProviderAcquireFormData
+ * @tc.desc: test FormExtensionProviderAcquireFormData.
+ */
+HWTEST_F(FormExtensionProviderClientTest, FormExtensionProviderAcquireFormData_2900,
+    Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "FormExtensionProviderAcquireFormData_2900 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension = nullptr;
+    formExtensionProviderClient.SetOwner(formExtension);
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(extension == nullptr);
+
+    int64_t formId = 10;
+    AAFwk::WantParams wantParam;
+    int32_t result = formExtensionProviderClient.FormExtensionProviderAcquireFormData(formId, wantParam);
+    EXPECT_EQ(result, false);
+    GTEST_LOG_(INFO) << "FormExtensionProviderAcquireFormData_2900 end";
+}
+
+/**
+ * @tc.number: FormExtensionProviderAcquireFormData_3000
+ * @tc.name: FormExtensionProviderAcquireFormData
+ * @tc.desc: test FormExtensionProviderAcquireFormData.
+ */
+HWTEST_F(FormExtensionProviderClientTest, FormExtensionProviderAcquireFormData_3000, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "FormExtensionProviderAcquireFormData_3000 start";
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::Runtime::Create(options);
+    std::shared_ptr<AbilityRuntime::FormExtension> formExtension(AbilityRuntime::JsFormExtension::Create(runtime));
+    formExtensionProviderClient.SetOwner(formExtension);
+
+    auto extension = formExtensionProviderClient.GetOwner();
+    EXPECT_TRUE(formExtension == extension);
+
+    int64_t formId = 10;
+    AAFwk::WantParams wantParam;
+    int32_t result = formExtensionProviderClient.FormExtensionProviderAcquireFormData(formId, wantParam);
+    EXPECT_EQ(result, false);
+    GTEST_LOG_(INFO) << "FormExtensionProviderAcquireFormData_3000 end";
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

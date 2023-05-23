@@ -154,7 +154,7 @@ int MockAbilityDelegatorStub::StartUserTest(const Want& want, const sptr<IRemote
     return OHOS::ERR_OK;
 }
 
-int MockAbilityDelegatorStub::StopServiceAbility(const Want& want, int32_t userId, const sptr<IRemoteObject> &token) 
+int MockAbilityDelegatorStub::StopServiceAbility(const Want& want, int32_t userId, const sptr<IRemoteObject> &token)
 {
     return 0;
 }
@@ -199,6 +199,12 @@ int MockAbilityDelegatorStub::DoAbilityBackground(const sptr<IRemoteObject>& tok
 int32_t MockAbilityDelegatorStub::GetMissionIdByToken(const sptr<IRemoteObject>& token)
 {
     return 0;
+}
+
+void MockAbilityDelegatorStub::GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub,
+    sptr<IRemoteObject> &token)
+{
+    return;
 }
 
 int MockAbilityDelegatorStub::BlockAmsService()
@@ -393,6 +399,12 @@ int MockAbilityDelegatorStub2::DoAbilityBackground(const sptr<IRemoteObject>& to
 int32_t MockAbilityDelegatorStub2::GetMissionIdByToken(const sptr<IRemoteObject>& token)
 {
     return 0;
+}
+
+void MockAbilityDelegatorStub2::GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub,
+    sptr<IRemoteObject> &token)
+{
+    return;
 }
 
 int MockAbilityDelegatorStub2::BlockAmsService()

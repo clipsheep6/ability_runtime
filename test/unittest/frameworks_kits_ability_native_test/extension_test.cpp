@@ -226,6 +226,7 @@ HWTEST_F(ExtensionTest, AaFwk_Extension_0700, Function | MediumTest | Level1)
 HWTEST_F(ExtensionTest, AaFwk_Extension_0800, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_Extension_0800 start";
+    EXPECT_TRUE(extension_ != nullptr);
     extension_->OnStop();
     GTEST_LOG_(INFO) << "AaFwk_Extension_0800 end";
 }
@@ -253,6 +254,7 @@ HWTEST_F(ExtensionTest, AaFwk_Extension_0900, Function | MediumTest | Level1)
 HWTEST_F(ExtensionTest, AaFwk_Extension_1000, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_Extension_1000 start";
+    EXPECT_TRUE(extension_ != nullptr);
     Want want;
     want.SetElementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
     extension_->OnDisconnect(want);
@@ -324,6 +326,7 @@ HWTEST_F(ExtensionTest, AaFwk_Extension_1300, Function | MediumTest | Level1)
 HWTEST_F(ExtensionTest, AaFwk_Extension_1400, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_Extension_1400 start";
+    EXPECT_TRUE(extension_ != nullptr);
     AppExecFwk::Configuration config;
     extension_->OnConfigurationUpdated(config);
     GTEST_LOG_(INFO) << "AaFwk_Extension_1400 end";
@@ -337,6 +340,7 @@ HWTEST_F(ExtensionTest, AaFwk_Extension_1400, Function | MediumTest | Level1)
 HWTEST_F(ExtensionTest, AaFwk_Extension_1500, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_Extension_1500 start";
+    EXPECT_TRUE(extension_ != nullptr);
     int32_t level = 1;
     extension_->OnMemoryLevel(level);
     GTEST_LOG_(INFO) << "AaFwk_Extension_1500 end";
@@ -350,10 +354,91 @@ HWTEST_F(ExtensionTest, AaFwk_Extension_1500, Function | MediumTest | Level1)
 HWTEST_F(ExtensionTest, AaFwk_Extension_1600, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_Extension_1600 start";
+    EXPECT_TRUE(extension_ != nullptr);
     std::vector<std::string> params;
     std::vector<std::string> info;
     extension_->Dump(params, info);
     GTEST_LOG_(INFO) << "AaFwk_Extension_1600 end";
+}
+
+/**
+ * @tc.number: AaFwk_Extension_1700
+ * @tc.name: GetLaunchWant
+ * @tc.desc: Successfully verified GetLaunchWant.
+ */
+HWTEST_F(ExtensionTest, AaFwk_Extension_1700, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_Extension_1700 start";
+    EXPECT_EQ(extension_->GetLaunchWant(), extension_->launchWant_);
+    GTEST_LOG_(INFO) << "AaFwk_Extension_1700 end";
+}
+
+/**
+ * @tc.number: AaFwk_Extension_1800
+ * @tc.name: OnForeground
+ * @tc.desc: Successfully verified OnForeground.
+ */
+HWTEST_F(ExtensionTest, AaFwk_Extension_1800, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_Extension_1800 start";
+    Want want;
+    want.SetElementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
+    EXPECT_TRUE(extension_ != nullptr);
+    extension_->OnForeground(want);
+    GTEST_LOG_(INFO) << "AaFwk_Extension_1800 end";
+}
+
+/**
+ * @tc.number: AaFwk_Extension_1900
+ * @tc.name: OnBackground
+ * @tc.desc: Successfully verified OnBackground.
+ */
+HWTEST_F(ExtensionTest, AaFwk_Extension_1900, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_Extension_1900 start";
+    EXPECT_TRUE(extension_ != nullptr);
+    extension_->OnBackground();
+    GTEST_LOG_(INFO) << "AaFwk_Extension_1900 end";
+}
+
+/**
+ * @tc.number: AaFwk_Extension_2000
+ * @tc.name: SetSessionInfo
+ * @tc.desc: Successfully verified SetSessionInfo.
+ */
+HWTEST_F(ExtensionTest, AaFwk_Extension_2000, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_Extension_2000 start";
+    EXPECT_TRUE(extension_ != nullptr);
+    sptr<AAFwk::SessionInfo> sessionInfo = nullptr;
+    extension_->SetSessionInfo(sessionInfo);
+    GTEST_LOG_(INFO) << "AaFwk_Extension_2000 end";
+}
+
+/**
+ * @tc.number: AaFwk_Extension_2100
+ * @tc.name: GetSessionInfo
+ * @tc.desc: Successfully verified GetSessionInfo.
+ */
+HWTEST_F(ExtensionTest, AaFwk_Extension_2100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_Extension_2100 start";
+    EXPECT_EQ(extension_->GetSessionInfo(), extension_->sessionInfo_);
+    GTEST_LOG_(INFO) << "AaFwk_Extension_2100 end";
+}
+
+/**
+ * @tc.number: AaFwk_Extension_2200
+ * @tc.name: SetSceneSessionStageListener
+ * @tc.desc: Successfully verified SetSceneSessionStageListener.
+ */
+HWTEST_F(ExtensionTest, AaFwk_Extension_2200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_Extension_2200 start";
+    EXPECT_TRUE(extension_ != nullptr);
+    std::shared_ptr<Rosen::ISessionStageStateListener> listener = nullptr;
+    extension_->SetSceneSessionStageListener(listener);
+    GTEST_LOG_(INFO) << "AaFwk_Extension_2200 end";
 }
 } // namespace AppExecFwk
 } // namespace OHOS

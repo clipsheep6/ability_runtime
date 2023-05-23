@@ -15,6 +15,7 @@
 
 #include "new_ability_impl.h"
 #include "hilog_wrapper.h"
+#include "scene_board_judgement.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -97,9 +98,11 @@ bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycle
     switch (targetState.state) {
         case AAFwk::ABILITY_STATE_INITIAL: {
 #ifdef SUPPORT_GRAPHICS
-            if (lifecycleState_ == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
+            if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() &&
+                lifecycleState_ == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
                 Background();
             }
+
 #endif
             bool isAsyncCallback = false;
             Stop(isAsyncCallback);

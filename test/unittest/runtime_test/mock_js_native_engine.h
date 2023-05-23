@@ -375,7 +375,15 @@ public:
     {
         return true;
     }
-    
+
+    void RegisterTranslateBySourceMap(SourceMapCallback callback) override
+    {}
+
+    std::string ExecuteTranslateBySourceMap(const std::string& rawStack) override
+    {
+        return "";
+    }
+
     void DumpHeapSnapshot(
         bool isVmMode = true, DumpFormat dumpFormat = DumpFormat::JSON, bool isPrivate = false) override
     {

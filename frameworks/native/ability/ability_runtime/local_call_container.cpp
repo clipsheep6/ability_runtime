@@ -155,6 +155,7 @@ void LocalCallContainer::ClearFailedCallConnection(const std::shared_ptr<CallerC
 
 int32_t LocalCallContainer::RemoveSingletonCallLocalRecord(const std::shared_ptr<LocalCallRecord> &record)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     if (record == nullptr) {
         HILOG_ERROR("input params invalid value");
         return ERR_INVALID_VALUE;
@@ -181,6 +182,7 @@ int32_t LocalCallContainer::RemoveMultipleCallLocalRecord(const std::shared_ptr<
         return ERR_INVALID_VALUE;
     }
 
+    std::lock_guard<std::mutex> lock(multipleMutex_);
     auto iterRecord = multipleCallProxyRecords_.find(record->GetElementName().GetURI());
     if (iterRecord == multipleCallProxyRecords_.end()) {
         HILOG_ERROR("release record in multiple not found.");
@@ -207,10 +209,11 @@ bool LocalCallContainer::IsCallBackCalled(const std::vector<std::shared_ptr<Call
     return true;
 }
 
-void LocalCallContainer::DumpCalls(std::vector<std::string>& info) const
+void LocalCallContainer::DumpCalls(std::vector<std::string>& info)
 {
     HILOG_DEBUG("LocalCallContainer::DumpCalls called.");
     info.emplace_back("          caller connections:");
+    std::lock_guard<std::mutex> lock(mutex_);
     for (auto &item : callProxyRecords_) {
         for (auto &itemCall : item.second) {
             std::string tempstr = "            LocalCallRecord";
@@ -234,6 +237,7 @@ void LocalCallContainer::DumpCalls(std::vector<std::string>& info) const
 bool LocalCallContainer::GetCallLocalRecord(
     const AppExecFwk::ElementName& elementName, std::shared_ptr<LocalCallRecord>& localCallRecord, int32_t accountId)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     HILOG_DEBUG("Get call local record by %{public}s and id %{public}d", elementName.GetURI().c_str(), accountId);
     for (auto pair : callProxyRecords_) {
         AppExecFwk::ElementName callElement;
@@ -265,22 +269,26 @@ void LocalCallContainer::OnCallStubDied(const wptr<IRemoteObject>& remote)
         return record->IsSameObject(diedRemote);
     };
 
-    for (auto &item : callProxyRecords_) {
-        auto iter = std::find_if(item.second.begin(), item.second.end(), isExist);
-        if (iter == item.second.end()) {
-            continue;
-        }
-        HILOG_DEBUG("LocalCallContainer::OnCallStubDied singleton key[%{public}s]. notify died event",
-            item.first.c_str());
-        (*iter)->OnCallStubDied(remote);
-        item.second.erase(iter);
-        if (item.second.empty()) {
-            HILOG_DEBUG("LocalCallContainer::OnCallStubDied singleton key[%{public}s] empty.", item.first.c_str());
-            callProxyRecords_.erase(item.first);
-            break;
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        for (auto &item : callProxyRecords_) {
+            auto iter = std::find_if(item.second.begin(), item.second.end(), isExist);
+            if (iter == item.second.end()) {
+                continue;
+            }
+            HILOG_DEBUG("LocalCallContainer::OnCallStubDied singleton key[%{public}s]. notify died event",
+                item.first.c_str());
+            (*iter)->OnCallStubDied(remote);
+            item.second.erase(iter);
+            if (item.second.empty()) {
+                HILOG_DEBUG("LocalCallContainer::OnCallStubDied singleton key[%{public}s] empty.", item.first.c_str());
+                callProxyRecords_.erase(item.first);
+                break;
+            }
         }
     }
 
+    std::lock_guard<std::mutex> lock(multipleMutex_);
     for (auto &item : multipleCallProxyRecords_) {
         HILOG_DEBUG("LocalCallContainer::OnCallStubDied multiple key[%{public}s].", item.first.c_str());
         auto iterMultiple = find_if(item.second.begin(), item.second.end(), isExist);
@@ -305,6 +313,7 @@ void LocalCallContainer::SetCallLocalRecord(
 {
     HILOG_DEBUG("LocalCallContainer::SetCallLocalRecord called uri is %{private}s.", element.GetURI().c_str());
     const std::string strKey = element.GetURI();
+    std::lock_guard<std::mutex> lock(mutex_);
     auto iter = callProxyRecords_.find(strKey);
     if (iter == callProxyRecords_.end()) {
         std::set<std::shared_ptr<LocalCallRecord>> records = { localCallRecord };
@@ -320,6 +329,7 @@ void LocalCallContainer::SetMultipleCallLocalRecord(
 {
     HILOG_DEBUG("LocalCallContainer::SetMultipleCallLocalRecord called uri is %{private}s.", element.GetURI().c_str());
     const std::string strKey = element.GetURI();
+    std::lock_guard<std::mutex> lock(multipleMutex_);
     auto iter = multipleCallProxyRecords_.find(strKey);
     if (iter == multipleCallProxyRecords_.end()) {
         std::set<std::shared_ptr<LocalCallRecord>> records = { localCallRecord };

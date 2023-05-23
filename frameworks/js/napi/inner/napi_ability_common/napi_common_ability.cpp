@@ -3982,6 +3982,11 @@ napi_value NAPI_CancelBackgroundRunningCommon(napi_env env, napi_callback_info i
 JsNapiCommon::JsNapiCommon() : ability_(nullptr)
 {}
 
+JsNapiCommon::~JsNapiCommon()
+{
+    RemoveAllCallbacksLocked();
+}
+
 NativeValue* JsNapiCommon::JsConnectAbility(
     NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType)
 {
@@ -4056,6 +4061,8 @@ NativeValue* JsNapiCommon::JsConnectAbility(
             env, napi_get_reference_value(env, connectionCallback->failedCallbackRef, &callback),
             engine.CreateUndefined());
         NAPI_CALL_BASE(env, napi_call_function(env, undefined, callback, ARGS_ONE, &resultVal, &callResult),
+            engine.CreateUndefined());
+        NAPI_CALL_BASE(env, napi_delete_reference(env, connectionCallback->failedCallbackRef),
             engine.CreateUndefined());
         RemoveConnectionLocked(want);
     }

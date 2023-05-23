@@ -43,8 +43,8 @@ void UIExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
+    HILOG_DEBUG("UIExtension begin init");
     ExtensionBase<UIExtensionContext>::Init(record, application, handler, token);
-    HILOG_DEBUG("UIExtension begin init context");
 }
 
 std::shared_ptr<UIExtensionContext> UIExtension::CreateAndInitContext(

@@ -140,7 +140,10 @@ void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppL
         std::string appLibPathKey = hapInfo.bundleName + "/" + hapInfo.moduleName;
 
         // libraries in patch lib path has a higher priority when loading.
-        std::string patchNativeLibraryPath = hapInfo.hqfInfo.nativeLibraryPath;
+        if (hapInfo.isLibIsolated) {
+            patchNativeLibraryPath = hapInfo.hqfInfo.nativeLibraryPath;
+        }
+
         if (!patchNativeLibraryPath.empty()) {
             std::string patchLibPath = LOCAL_CODE_PATH;
             patchLibPath += (patchLibPath.back() == '/') ? patchNativeLibraryPath : "/" + patchNativeLibraryPath;
@@ -822,9 +825,12 @@ void MainThread::HandleProcessSecurityExit()
 }
 
 bool MainThread::InitCreate(
-    std::shared_ptr<ContextDeal> &contextDeal, ApplicationInfo &appInfo, ProcessInfo &processInfo, Profile &appProfile)
+    std::shared_ptr<ContextDeal> &contextDeal, ApplicationInfo &appInfo, ProcessInfo &processInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    if (application_ == nullptr) {
+        return false;
+    }
     applicationInfo_ = std::make_shared<ApplicationInfo>(appInfo);
     if (applicationInfo_ == nullptr) {
         HILOG_ERROR("MainThread::InitCreate create applicationInfo_ failed");
@@ -834,12 +840,6 @@ bool MainThread::InitCreate(
     processInfo_ = std::make_shared<ProcessInfo>(processInfo);
     if (processInfo_ == nullptr) {
         HILOG_ERROR("MainThread::InitCreate create processInfo_ failed");
-        return false;
-    }
-
-    appProfile_ = std::make_shared<Profile>(appProfile);
-    if (appProfile_ == nullptr) {
-        HILOG_ERROR("MainThread::InitCreate create appProfile_ failed");
         return false;
     }
 
@@ -865,9 +865,8 @@ bool MainThread::InitCreate(
         watchdog_->SetApplicationInfo(applicationInfo_);
     }
 
-    contextDeal->SetProcessInfo(processInfo_);
+    application_->SetProcessInfo(processInfo_);
     contextDeal->SetApplicationInfo(applicationInfo_);
-    contextDeal->SetProfile(appProfile_);
     contextDeal->SetBundleCodePath(applicationInfo_->codePath);  // BMS need to add cpath
 
     return true;
@@ -1104,27 +1103,26 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         LoadAppDetailAbilityLibrary(appInfo.appDetailAbilityLibraryPath);
     }
     LoadAppLibrary();
-
-    ProcessInfo processInfo = appLaunchData.GetProcessInfo();
-    Profile appProfile = appLaunchData.GetProfile();
-
-    HILOG_DEBUG("MainThread handle launch application, InitCreate Start.");
-    std::shared_ptr<ContextDeal> contextDeal = nullptr;
-    if (!InitCreate(contextDeal, appInfo, processInfo, appProfile)) {
-        HILOG_ERROR("MainThread::handleLaunchApplication InitCreate failed");
-        return;
-    }
-    HILOG_DEBUG("MainThread handle launch application, InitCreate End.");
-
     // get application shared point
     application_ = std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName());
     if (application_ == nullptr) {
         HILOG_ERROR("HandleLaunchApplication::application launch failed");
         return;
     }
+    ProcessInfo processInfo = appLaunchData.GetProcessInfo();
+
+    HILOG_DEBUG("MainThread handle launch application, InitCreate Start.");
+    std::shared_ptr<ContextDeal> contextDeal = nullptr;
+    if (!InitCreate(contextDeal, appInfo, processInfo)) {
+        HILOG_ERROR("MainThread::handleLaunchApplication InitCreate failed");
+        return;
+    }
+
     applicationForDump_ = application_;
     mixStackDumper_ = std::make_shared<MixStackDumper>();
-    mixStackDumper_->InstallDumpHandler(application_, signalHandler_);
+    if (!mixStackDumper_->IsInstalled()) {
+        mixStackDumper_->InstallDumpHandler(application_, signalHandler_);
+    }
 
     sptr<IBundleMgr> bundleMgr = contextDeal->GetBundleManager();
     if (bundleMgr == nullptr) {
@@ -1649,15 +1647,6 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
         runtime->StartDebugMode(want->GetBoolParam("debugApp", false));
     }
 
-    mainThreadState_ = MainThreadState::RUNNING;
-    std::shared_ptr<AbilityRuntime::Context> stageContext = application_->AddAbilityStage(abilityRecord);
-    UpdateProcessExtensionType(abilityRecord);
-#ifdef APP_ABILITY_USE_TWO_RUNNER
-    AbilityThread::AbilityThreadMain(application_, abilityRecord, stageContext);
-#else
-    AbilityThread::AbilityThreadMain(application_, abilityRecord, mainHandler_->GetEventRunner(), stageContext);
-#endif
-
     std::vector<HqfInfo> hqfInfos = appInfo->appQuickFix.deployedAppqfInfo.hqfInfos;
     std::map<std::string, std::string> modulePaths;
     if (runtime && !hqfInfos.empty()) {
@@ -1668,6 +1657,15 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
         }
         runtime->RegisterQuickFixQueryFunc(modulePaths);
     }
+
+    mainThreadState_ = MainThreadState::RUNNING;
+    std::shared_ptr<AbilityRuntime::Context> stageContext = application_->AddAbilityStage(abilityRecord);
+    UpdateProcessExtensionType(abilityRecord);
+#ifdef APP_ABILITY_USE_TWO_RUNNER
+    AbilityThread::AbilityThreadMain(application_, abilityRecord, stageContext);
+#else
+    AbilityThread::AbilityThreadMain(application_, abilityRecord, mainHandler_->GetEventRunner(), stageContext);
+#endif
 }
 
 /**

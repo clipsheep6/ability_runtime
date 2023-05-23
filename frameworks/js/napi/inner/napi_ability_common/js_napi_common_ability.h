@@ -28,7 +28,7 @@ namespace AppExecFwk {
 class JsNapiCommon {
 public:
     JsNapiCommon();
-    virtual ~JsNapiCommon() = default;
+    virtual ~JsNapiCommon();
 
     struct JsPermissionOptions {
         bool uidFlag = false;

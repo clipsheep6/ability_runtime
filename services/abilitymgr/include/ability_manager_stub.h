@@ -68,6 +68,7 @@ private:
     void ThirdStepInit();
     int TerminateAbilityInner(MessageParcel &data, MessageParcel &reply);
     int TerminateUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
+    int CloseUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
     int SendResultToAbilityInner(MessageParcel &data, MessageParcel &reply);
     int TerminateAbilityByCallerInner(MessageParcel &data, MessageParcel &reply);
     int MinimizeAbilityInner(MessageParcel &data, MessageParcel &reply);
@@ -175,6 +176,7 @@ private:
     int MoveMissionToFrontByOptionsInner(MessageParcel &data, MessageParcel &reply);
 
     int UpdateMissionSnapShotInner(MessageParcel &data, MessageParcel &reply);
+    int UpdateMissionSnapShotFromWMSInner(MessageParcel &data, MessageParcel &reply);
     int RegisterConnectionObserverInner(MessageParcel &data, MessageParcel &reply);
     int UnregisterConnectionObserverInner(MessageParcel &data, MessageParcel &reply);
     int GetDlpConnectionInfosInner(MessageParcel &data, MessageParcel &reply);
@@ -210,6 +212,7 @@ private:
 
     int AcquireShareDataInner(MessageParcel &data, MessageParcel &reply);
     int ShareDataDoneInner(MessageParcel &data, MessageParcel &reply);
+    int GetAbilityTokenByCalleeObjInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

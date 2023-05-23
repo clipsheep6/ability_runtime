@@ -129,7 +129,10 @@ ErrCode ControlInterceptor::DoProcess(const Want &want, int requestCode, int32_t
             }
         }
 #endif
-        return ERR_DISPOSED_STATUS;
+        if (controlRule.isEdm) {
+            return ERR_EDM_APP_CONTROLLED;
+        }
+        return ERR_APP_CONTROLLED;
     }
     return ERR_OK;
 }
@@ -173,7 +176,6 @@ ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, 
         HILOG_DEBUG("This startup does not contain atomic service, keep going.");
         return ERR_OK;
     }
-
 
     ErmsCallerInfo callerInfo;
     ExperienceRule rule;

@@ -129,12 +129,12 @@ public:
     bool DisconnectCaller(const sptr<IRemoteObject> &connectCaller);
 
     /**
-     * @brief check the ability connection of receiver is disconnect.
+     * @brief When service is dead, remove the connection
      *
-     * @param connectReceiver The connection receiver.
-     * @return Returns whether the ability connection of receiver is disconnect.
+     * @param connection The connection.
+     * @return Returns whether the connection is removed.
      */
-    bool DisconnectReceiver(const AppExecFwk::ElementName &connectReceiver);
+    bool RemoveConnection(const sptr<AbilityConnection> connection);
 
     /**
      * @brief Report the ability connection leak event.

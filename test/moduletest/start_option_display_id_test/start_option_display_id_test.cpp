@@ -126,7 +126,7 @@ void StartOptionDisplayIdTest::OnStartAms()
         EXPECT_TRUE(abilityMgrServ_->userController_);
         abilityMgrServ_->userController_->Init();
         int userId = USER_ID_U100;
-        abilityMgrServ_->userController_->SetCurrentUserId(userId);
+        abilityMgrServ_->userController_->currentUserId_ = userId;
         abilityMgrServ_->InitConnectManager(userId, true);
         abilityMgrServ_->InitDataAbilityManager(userId, true);
         abilityMgrServ_->InitPendWantManager(userId, true);

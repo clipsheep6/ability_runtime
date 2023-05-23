@@ -34,24 +34,14 @@ class UIExtensionContext extends ExtensionContext {
     return this.__context_impl__.startAbility(want, options, callback);
   }
 
-  startUIExtensionAbility(want, callback) {
-    console.log('startUIExtensionAbility');
-    return this.__context_impl__.startUIExtensionAbility(want, callback);
-  }
-
-  connectExtensionAbility(want, options) {
-    console.log('connectExtensionAbility');
-    return this.__context_impl__.connectExtensionAbility(want, options);
-  }
-
-  disconnectExtensionAbility(connection, callback) {
-    console.log('disconnectExtensionAbility');
-    return this.__context_impl__.disconnectExtensionAbility(connection, callback);
-  }
-
   terminateSelf(callback) {
     console.log('terminateSelf');
     return this.__context_impl__.terminateSelf(callback);
+  }
+
+  terminateSelfWithResult(abilityResult, callback) {
+    console.log('terminateSelfWithResult');
+    return this.__context_impl__.terminateSelfWithResult(abilityResult, callback);
   }
 }
 

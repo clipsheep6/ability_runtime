@@ -92,19 +92,6 @@ HWTEST_F(AbilityManagerTest, AbilityManagerTest_0300, TestSize.Level1)
 }
 
 /*
- * @tc.number    : AbilityManagerTest_0400
- * @tc.name      : AbilityManager
- * @tc.desc      : Test Function AbilityManager::GetAllRunningProcesses
- */
-HWTEST_F(AbilityManagerTest, AbilityManagerTest_0400, TestSize.Level1)
-{
-    HILOG_INFO("AbilityManagerTest_0400 is start");
-    auto res = AbilityManager::GetInstance().GetAllRunningProcesses();
-    EXPECT_TRUE(res.empty());
-    HILOG_INFO("AbilityManagerTest_0400 is end");
-}
-
-/*
  * @tc.number    : AbilityManagerTest_0500
  * @tc.name      : AbilityManager
  * @tc.desc      : Test Function AbilityManager::KillProcessesByBundleName

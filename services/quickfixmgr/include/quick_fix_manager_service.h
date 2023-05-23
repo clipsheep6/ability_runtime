@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -64,12 +64,21 @@ public:
     int32_t GetApplyedQuickFixInfo(const std::string &bundleName, ApplicationQuickFixInfo &quickFixInfo) override;
 
     /**
+     * @brief Revoke quick fix by bundle name.
+     *
+     * @param bundleName quick fix files need to revoke.
+     * @return returns QUICK_FIX_OK on success, error code on failure.
+     */
+    int32_t RevokeQuickFix(const std::string &bundleName) override;
+
+    /**
      * @brief Remove quick fix apply task.
      *
      */
     void RemoveApplyTask(std::shared_ptr<QuickFixManagerApplyTask> applyTask);
 
 private:
+    bool CheckTaskRunningState(const std::string &bundleName);
     void AddApplyTask(std::shared_ptr<QuickFixManagerApplyTask> applyTask);
 
     static std::mutex mutex_;

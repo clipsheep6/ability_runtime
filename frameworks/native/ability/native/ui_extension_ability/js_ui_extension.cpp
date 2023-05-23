@@ -97,6 +97,7 @@ void JsUIExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
+    HILOG_DEBUG("JsUIExtension begin init");
     UIExtension::Init(record, application, handler, token);
     if (Extension::abilityInfo_->srcEntrance.empty()) {
         HILOG_ERROR("JsUIExtension Init abilityInfo srcEntrance is empty");
@@ -127,8 +128,6 @@ void JsUIExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
 
     BindContext(engine, obj);
     obj->SetNativePointer(this, JsUIExtension::Finalizer, nullptr);
-    const char *loadName = "JsUIExtension";
-    BindNativeFunction(engine, *obj, "loadContent", loadName, JsUIExtension::LoadContent);
 
     SetExtensionCommon(
         JsExtensionCommon::Create(jsRuntime_, static_cast<NativeReference&>(*jsObj_), shellContextRef_));
@@ -237,18 +236,6 @@ void JsUIExtension::OnStop()
         uiWindow_->Disconnect();
     } else {
         HILOG_ERROR("JsUIExtension::OnStop uiWindow is null.");
-    }
-
-    auto context = GetContext();
-    if (context == nullptr) {
-        HILOG_ERROR("Failed to get context");
-        return;
-    }
-
-    bool ret = ConnectionManager::GetInstance().DisconnectCaller(context->GetToken());
-    if (ret) {
-        ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());
-        HILOG_WARN("The ui extension connection is not disconnected.");
     }
     HILOG_DEBUG("JsUIExtension OnStop end.");
 }
@@ -513,19 +500,6 @@ void JsUIExtension::Dump(const std::vector<std::string> &params, std::vector<std
         info.push_back(dumpInfoStr);
     }
     HILOG_DEBUG("Dump info size: %{public}zu", info.size());
-}
-
-NativeValue* JsUIExtension::LoadContent(NativeEngine* engine, NativeCallbackInfo* info)
-{
-    HILOG_INFO("JsUIExtension::LoadContent is called");
-    JsUIExtension *me = CheckParamsAndGetThis<JsUIExtension>(engine, info);
-
-    if (!ConvertFromJsValue(*engine, info->argv[0], me->contextPath_)) {
-        HILOG_ERROR("JsUIExtension LoadContent failed to convert parameter to context url");
-        return engine->CreateUndefined();
-    }
-
-    return engine->CreateUndefined();
 }
 }
 }

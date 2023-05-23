@@ -149,6 +149,14 @@ public:
     bool UpdateMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
         MissionSnapshot& missionSnapshot, bool isLowResolution = false);
 
+    /**
+     * @brief update mission snapshot
+     * @param missionId mission id
+     * @param pixelMap The snapshot.
+     * @param isPrivate Indicates whether the window is private window.
+     */
+    void UpdateMissionSnapshot(int32_t missionId, const std::shared_ptr<Media::PixelMap> &pixelMap, bool isPrivate);
+
 #ifdef SUPPORT_GRAPHICS
     /**
      * @brief Get the Snapshot object

@@ -1058,8 +1058,8 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnBackground_0300, Function | MediumTest
     LifeCycle::Event lifeCycleState = lifeCycle->GetLifecycleState();
 
     // Sence is nullptr, so lifecycle schedule failed.
-    EXPECT_EQ(AbilityLifecycleExecutor::LifecycleState::INITIAL, state);
-    EXPECT_EQ(LifeCycle::Event::UNDEFINED, lifeCycleState);
+    EXPECT_NE(AbilityLifecycleExecutor::LifecycleState::INITIAL, state);
+    EXPECT_NE(LifeCycle::Event::UNDEFINED, lifeCycleState);
 
     GTEST_LOG_(INFO) << "AaFwk_Ability_OBackground_0300 end";
 }

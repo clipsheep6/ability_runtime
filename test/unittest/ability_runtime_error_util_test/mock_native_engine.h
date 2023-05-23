@@ -375,6 +375,14 @@ public:
         return true;
     }
     
+    void RegisterTranslateBySourceMap(SourceMapCallback callback) override
+    {}
+
+    std::string ExecuteTranslateBySourceMap(const std::string& rawStack) override
+    {
+        return "";
+    }
+
     void DumpHeapSnapshot(bool isVmMode = true, DumpFormat dumpFormat = DumpFormat::JSON,
         bool isPrivate = false) override
     {}
@@ -400,6 +408,11 @@ public:
 
     void AllowCrossThreadExecution() const override
     {}
+
+    bool RunScriptBuffer(const std::string &path, uint8_t *buffer, size_t size, bool isBundle) override
+    {
+        return false;
+    }
 };
 
 #endif /* FOUNDATION_ABILITY_RUNTIME_MOCK_NATIVE_ENGINE_H */

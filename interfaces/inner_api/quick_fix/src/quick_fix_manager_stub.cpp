@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,6 +25,7 @@ QuickFixManagerStub::QuickFixManagerStub()
 {
     requestFuncMap_[ON_APPLY_QUICK_FIX] = &QuickFixManagerStub::ApplyQuickFixInner;
     requestFuncMap_[ON_GET_APPLYED_QUICK_FIX_INFO] = &QuickFixManagerStub::GetApplyedQuickFixInfoInner;
+    requestFuncMap_[ON_REVOKE_QUICK_FIX] = &QuickFixManagerStub::RevokeQuickFixInner;
 }
 
 QuickFixManagerStub::~QuickFixManagerStub()
@@ -79,6 +80,15 @@ int32_t QuickFixManagerStub::GetApplyedQuickFixInfoInner(MessageParcel &data, Me
             return QUICK_FIX_WRITE_PARCEL_FAILED;
         }
     }
+    return QUICK_FIX_OK;
+}
+
+int32_t QuickFixManagerStub::RevokeQuickFixInner(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    std::string bundleName = data.ReadString();
+    auto ret = RevokeQuickFix(bundleName);
+    reply.WriteInt32(ret);
     return QUICK_FIX_OK;
 }
 } // namespace AAFwk

@@ -49,7 +49,7 @@ public:
         : uncaughtTask_(uncaughtTask), sourceMapOperator_(sourceMapOperator)
     {}
 
-    UncaughtExceptionCallback() = default;
+    ~UncaughtExceptionCallback() = default;
 
     void operator()(NativeValue* value);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -123,6 +123,60 @@ HWTEST_F(QuickFixManagerServiceTest, ApplyAndRemoveTask_0100, TestSize.Level1)
     quickFixMs_->RemoveApplyTask(applyTask);
     quickFixMs_->AddApplyTask(applyTask);
     quickFixMs_->AddApplyTask(applyTask);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: RevokeQuickFix_0100
+ * @tc.desc: RevokeQuickFix
+ * @tc.type: FUNC
+ */
+HWTEST_F(QuickFixManagerServiceTest, RevokeQuickFix_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    std::string bundleName = "com.ohos.quickfix";
+    auto ret = quickFixMs_->RevokeQuickFix(bundleName);
+    EXPECT_EQ(ret, QUICK_FIX_OK);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: RevokeQuickFix_0200
+ * @tc.desc: RevokeQuickFix
+ * @tc.type: FUNC
+ */
+HWTEST_F(QuickFixManagerServiceTest, RevokeQuickFix_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    std::string bundleName = "com.ohos.quickfix";
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(nullptr, nullptr, nullptr, nullptr);
+    applyTask->InitRevokeTask(bundleName, true);
+
+    auto ret = quickFixMs_->RevokeQuickFix(bundleName);
+    EXPECT_EQ(ret, QUICK_FIX_DEPLOYING_TASK);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: RevokeQuickFix_0300
+ * @tc.desc: RevokeQuickFix
+ * @tc.type: FUNC
+ */
+HWTEST_F(QuickFixManagerServiceTest, RevokeQuickFix_0300, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    std::string bundleName = "test.bundle.name";
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(nullptr, nullptr, nullptr, nullptr);
+    applyTask->InitRevokeTask(bundleName, true);
+
+    auto ret = quickFixMs_->RevokeQuickFix(bundleName);
+    EXPECT_EQ(ret, QUICK_FIX_GET_BUNDLE_INFO_FAILED);
 
     HILOG_INFO("%{public}s end.", __func__);
 }

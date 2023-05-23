@@ -34,6 +34,8 @@ public:
     void InstallDumpHandler(std::shared_ptr<OHOSApplication> application,
         std::shared_ptr<EventHandler> handler);
     static std::string GetMixStack(bool onlyMainThread);
+    static bool IsInstalled();
+    static bool Dump_SignalHandler(int sig, siginfo_t *si, void *context);
 
 private:
     void Init(pid_t pid);
@@ -49,7 +51,6 @@ private:
     void Write(int fd, const std::string& outStr);
     std::string DumpMixStackLocked(int fd, pid_t tid);
 
-    static void Dump_SignalHandler(int sig, siginfo_t *si, void *context);
     static void HandleMixDumpRequest();
 
 private:

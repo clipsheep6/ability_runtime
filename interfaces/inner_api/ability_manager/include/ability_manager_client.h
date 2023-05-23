@@ -250,6 +250,14 @@ public:
      */
     ErrCode TerminateUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo,
         int resultCode = DEFAULT_INVAL_VALUE, const Want *resultWant = nullptr);
+    
+    /**
+     *  CloseUIAbilityBySCB, close the special ability by scb.
+     *
+     * @param sessionInfo the session info of the ability to terminate.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode CloseUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo);
 
     /**
      * SendResultToAbility with want, return resultWant from ability manager service.
@@ -666,6 +674,14 @@ public:
     void CallRequestDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub);
 
     /**
+     * Get ability token by connect.
+     *
+     * @param token The token of ability.
+     * @param callStub The callee object.
+     */
+    void GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token);
+
+    /**
      * Release the call between Ability, disconnect session with common ability.
      *
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
@@ -772,6 +788,14 @@ public:
      * @param abilityToken Indidate token of ability.
      */
     void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken);
+
+    /**
+     * Called to update mission snapshot.
+     * @param token The target ability.
+     * @param pixelMap The snapshot.
+     */
+    void UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
+        const std::shared_ptr<OHOS::Media::PixelMap> &pixelMap);
 #endif
 
     /**

@@ -13,7 +13,12 @@
       "name": "ability_runtime",
       "subsystem": "ability12",
       "syscap": [
-        "SystemCapability.Ability.AbilityRuntim2e"
+        "SystemCapability.Ability.AbilityRuntime.Core",
+        "SystemCapability.Ability.AbilityRuntime.FAModel",
+        "SystemCapability.Ability.AbilityRuntime.AbilityCore",
+        "SystemCapability.Ability.AbilityRuntime.Mission",
+        "SystemCapability.Ability.AbilityRuntime.QuickFix",
+        "SystemCapability.Ability.AbilityTools.AbilityAssistant"
       ],
       "features": [
         "ability_runtime_graphics",
@@ -77,6 +82,7 @@
           "//foundation/ability/ability_runtime/services:ams_target",
           "//foundation/ability/ability_runtime/services/sa_profile:ams_sa_profile",
           "//foundation/ability/ability_runtime/services/quickfixmgr:quick_fix.cfg",
+          "//foundation/ability/ability_runtime/tools:tools_target",
           "//foundation/ability/ability_runtime/interfaces/inner_api:innerkits_target",
           "//foundation/ability/ability_runtime/frameworks/native/ability/native:ability_thread",
           "//foundation/ability/ability_runtime/frameworks/native/ability/native:extension_module",
@@ -291,6 +297,9 @@
           "//foundation/ability/ability_runtime/test/moduletest:moduletest",
           "//foundation/ability/ability_runtime/test/fuzztest:fuzztest",
           "//foundation/ability/ability_runtime/test/unittest:unittest",
+          "//foundation/ability/ability_runtime/tools/test:moduletest",
+          "//foundation/ability/ability_runtime/tools/test:systemtest",
+          "//foundation/ability/ability_runtime/tools/test:unittest",
           "//foundation/ability/ability_runtime/js_environment/test/unittest:unittest",
           "//foundation/ability/ability_runtime/service_router_framework:test_target"
         ]

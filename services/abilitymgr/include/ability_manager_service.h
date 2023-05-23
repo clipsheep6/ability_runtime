@@ -255,6 +255,14 @@ public:
         int resultCode = DEFAULT_INVAL_VALUE, const Want *resultWant = nullptr) override;
 
     /**
+     *  CloseUIAbilityBySCB, close the special ability by scb.
+     *
+     * @param sessionInfo the session info of the ability to terminate.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int CloseUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo) override;
+
+    /**
      * SendResultToAbility with want, return want from ability manager service.
      *
      * @param requestCode, request code.
@@ -620,6 +628,8 @@ public:
 
     virtual int32_t GetMissionIdByToken(const sptr<IRemoteObject> &token) override;
 
+    void GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token) override;
+
     virtual int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override;
 
     virtual int StopSyncRemoteMissions(const std::string& devId) override;
@@ -945,6 +955,15 @@ public:
      * @param token The target ability.
      */
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
+
+    /**
+     * Called to update mission snapshot.
+     * @param token The target ability.
+     * @param pixelMap The snapshot.
+     */
+    virtual void UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
+        const std::shared_ptr<Media::PixelMap> &pixelMap) override;
+
     virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) override;
     virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason,
         const Want *want = nullptr) override;
@@ -1284,25 +1303,7 @@ private:
 
     bool IsDelegatorCall(const AppExecFwk::RunningProcessInfo &processInfo, const AbilityRequest &abilityRequest);
 
-    /**
-     *  Temporary, use old rule to check permission.
-     *
-     * @param abilityRequest, abilityRequest.
-     * @param isStartByCall, Indicates whether it is the StartAbilityByCall function call.
-     *                       TRUE: Is StartAbilityByCall function call.
-     *                       FALSE: Is other function call, such as StartAbility, ConnectAbility and so on.
-     * @return Returns ERR_OK on check success, others on check failure.
-     */
-    int CheckCallerPermissionOldRule(const AbilityRequest &abilityRequest, const bool isStartByCall = false);
-
-    /**
-     *  Temporary, judge is use new check-permission rule to start ability.
-     *
-     * @param abilityRequest, abilityRequest.
-     * @return Returns TRUE: Use new rule.
-     *                 FALSE: Use old rule.
-     */
-    bool IsUseNewStartUpRule(const AbilityRequest &abilityRequest);
+    bool IsAbilityVisible(const AbilityRequest &abilityRequest) const;
 
     bool CheckNewRuleSwitchState(const std::string &param);
 
@@ -1338,7 +1339,10 @@ private:
     bool IsReleaseCallInterception(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element,
         int &result);
 
+    std::string GetBundleNameFromToken(const sptr<IRemoteObject> &callerToken);
     bool CheckCallingTokenId(const std::string &bundleName, int32_t userId);
+
+    void ReleaseAbilityTokenMap(const sptr<IRemoteObject> &token);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
@@ -1371,6 +1375,7 @@ private:
     std::recursive_mutex globalLock_;
     std::shared_mutex managersMutex_;
     std::shared_mutex bgtaskObserverMutex_;
+    std::mutex abilityTokenLock_;
     sptr<AppExecFwk::IComponentInterception> componentInterception_ = nullptr;
 
     std::multimap<std::string, std::string> timeoutMap_;
@@ -1378,6 +1383,8 @@ private:
     static sptr<AbilityManagerService> instance_;
     int32_t uniqueId_ = 0;
     std::map<int32_t, std::pair<int64_t, const sptr<IAcquireShareDataCallback>>> iAcquireShareDataMap_;
+    // first is callstub, second is ability token
+    std::map<sptr<IRemoteObject>, sptr<IRemoteObject>> callStubTokenMap_;
 
     // Component StartUp rule switch
     bool startUpNewRule_ = true;

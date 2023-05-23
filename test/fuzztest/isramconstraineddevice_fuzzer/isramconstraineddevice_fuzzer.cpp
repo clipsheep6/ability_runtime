@@ -45,7 +45,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     }
 
     auto abilitymgr = iface_cast<AAFwk::IAbilityManager>(abilityObject);
-    if (abilityObject == nullptr) {
+    if (abilitymgr == nullptr) {
         return false;
     }
 

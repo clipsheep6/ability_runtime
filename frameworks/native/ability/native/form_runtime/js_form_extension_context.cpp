@@ -44,7 +44,7 @@ public:
 
     static void Finalizer(NativeEngine* engine, void* data, void* hint)
     {
-        HILOG_INFO("JsAbilityContext::Finalizer is called");
+        HILOG_INFO("called.");
         std::unique_ptr<JsFormExtensionContext>(static_cast<JsFormExtensionContext*>(data));
     }
 
@@ -65,7 +65,7 @@ private:
 
     NativeValue* OnUpdateForm(NativeEngine& engine, NativeCallbackInfo& info)
     {
-        HILOG_INFO("%{public}s called.", __func__);
+        HILOG_INFO("called.");
         if (info.argc < UPDATE_FORM_PARAMS_SIZE) {
             HILOG_ERROR("Not enough params, not enough params");
             return engine.CreateUndefined();
@@ -81,10 +81,10 @@ private:
         if (nativeObject != nullptr) {
             NativeValue* nativeDataValue = nativeObject->GetProperty("data");
             if (nativeDataValue == nullptr || !ConvertFromJsValue(engine, nativeDataValue, formDataStr)) {
-                HILOG_ERROR("%{public}s called. nativeDataValue is nullptr or ConvertFromJsValue failed", __func__);
+                HILOG_ERROR("NativeDataValue is nullptr or ConvertFromJsValue failed.");
             }
         } else {
-            HILOG_ERROR("%{public}s called. nativeObject is nullptr", __func__);
+            HILOG_ERROR("NativeObject is nullptr.");
         }
 
         formProviderData = AppExecFwk::FormProviderData(formDataStr);
@@ -131,8 +131,7 @@ private:
             NapiFormUtil::ThrowParamTypeError(engine, "want", "Want");
             return engine.CreateUndefined();
         }
-        HILOG_INFO("%{public}s bundlename:%{public}s abilityname:%{public}s",
-            __func__,
+        HILOG_INFO("Start ability, bundleName: %{public}s abilityName: %{public}s.",
             want.GetBundle().c_str(),
             want.GetElement().GetAbilityName().c_str());
         unwrapArgc++;
@@ -170,7 +169,7 @@ private:
 
 NativeValue* CreateJsFormExtensionContext(NativeEngine& engine, std::shared_ptr<FormExtensionContext> context)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("Create js form extension context.");
     std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo = nullptr;
     if (context) {
         abilityInfo = context->GetAbilityInfo();
@@ -185,8 +184,8 @@ NativeValue* CreateJsFormExtensionContext(NativeEngine& engine, std::shared_ptr<
     BindNativeFunction(engine, *object, "updateForm", moduleName, JsFormExtensionContext::UpdateForm);
     BindNativeFunction(engine, *object, "startAbility", moduleName, JsFormExtensionContext::StartAbility);
 
-    HILOG_INFO("%{public}s called end.", __func__);
+    HILOG_DEBUG("Create finished.");
     return objValue;
 }
-}  // namespace AbilityRuntime
-}  // namespace OHOS
+} // namespace AbilityRuntime
+} // namespace OHOS

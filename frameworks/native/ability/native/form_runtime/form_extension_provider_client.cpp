@@ -34,10 +34,10 @@ using namespace OHOS::AppExecFwk;
 int FormExtensionProviderClient::AcquireProviderFormInfo(const AppExecFwk::FormJsInfo &formJsInfo, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called.");
     sptr<IFormSupply> formSupplyClient = iface_cast<IFormSupply>(callerToken);
     if (formSupplyClient == nullptr) {
-        HILOG_WARN("%{public}s warn, IFormSupply is nullptr", __func__);
+        HILOG_ERROR("IFormSupply is nullptr.");
         return ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED;
     }
 
@@ -49,7 +49,7 @@ int FormExtensionProviderClient::AcquireProviderFormInfo(const AppExecFwk::FormJ
     connectWant.SetParam(Constants::PARAM_FORM_IDENTITY_KEY, std::to_string(formJsInfo.formId));
 
     if (!FormProviderClient::CheckIsSystemApp()) {
-        HILOG_WARN("%{public}s warn, AcquireProviderFormInfo caller permission denied.", __func__);
+        HILOG_WARN("Permission denied.");
         FormProviderInfo formProviderInfo;
         connectWant.SetParam(Constants::PROVIDER_FLAG, ERR_APPEXECFWK_FORM_PERMISSION_DENY);
         return FormProviderClient::HandleAcquire(formProviderInfo, connectWant, callerToken);
@@ -67,7 +67,7 @@ int FormExtensionProviderClient::AcquireProviderFormInfo(const AppExecFwk::FormJ
 void FormExtensionProviderClient::AcquireFormExtensionProviderInfo(const AppExecFwk::FormJsInfo &formJsInfo,
     const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called.");
     Want connectWant(want);
     connectWant.SetParam(Constants::ACQUIRE_TYPE, want.GetIntParam(Constants::ACQUIRE_TYPE, 0));
     connectWant.SetParam(Constants::FORM_CONNECT_ID, want.GetIntParam(Constants::FORM_CONNECT_ID, 0));
@@ -78,7 +78,7 @@ void FormExtensionProviderClient::AcquireFormExtensionProviderInfo(const AppExec
     FormProviderInfo formProviderInfo;
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
-        HILOG_ERROR("%{public}s error, ownerFormExtension is nullptr.", __func__);
+        HILOG_ERROR("Owner is nullptr.");
         connectWant.SetParam(Constants::PROVIDER_FLAG, ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY);
     } else {
         Want createWant(want);
@@ -101,8 +101,8 @@ void FormExtensionProviderClient::AcquireFormExtensionProviderInfo(const AppExec
         }
 
         formProviderInfo = ownerFormExtension->OnCreate(createWant);
-        HILOG_DEBUG("%{public}s, formJsInfo.formId: %{public}s, data: %{public}s",
-            __func__, createWant.GetStringParam(Constants::PARAM_FORM_IDENTITY_KEY).c_str(),
+        HILOG_DEBUG("FormJsInfo.formId: %{public}s, data: %{public}s",
+            createWant.GetStringParam(Constants::PARAM_FORM_IDENTITY_KEY).c_str(),
             formProviderInfo.GetFormDataString().c_str());
     }
 
@@ -111,26 +111,19 @@ void FormExtensionProviderClient::AcquireFormExtensionProviderInfo(const AppExec
     }
     int error = FormProviderClient::HandleAcquire(formProviderInfo, connectWant, callerToken);
     if (error != ERR_OK) {
-        HILOG_ERROR("%{public}s HandleAcquire failed", __func__);
+        HILOG_ERROR("HandleAcquire failed with %{public}d.", error);
         HandleResultCode(error, connectWant, callerToken);
     }
-    HILOG_INFO("%{public}s called end.", __func__);
+    HILOG_INFO("called end.");
 }
 
-/**
- * @brief Notify provider when the form was deleted.
- * @param formId The Id of the form.
- * @param want Indicates the structure containing form info.
- * @param callerToken Caller form extension token.
- * @return Returns ERR_OK on success, others on failure.
- */
 int FormExtensionProviderClient::NotifyFormDelete(const int64_t formId, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called.");
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
     if (errorCode.first != ERR_OK) {
-        HILOG_ERROR("%{public}s CheckParam failed", __func__);
+        HILOG_ERROR("CheckParam failed with %{public}d.", errorCode.first);
         return errorCode.second;
     }
 
@@ -146,7 +139,7 @@ int FormExtensionProviderClient::NotifyFormDelete(const int64_t formId, const Wa
 void FormExtensionProviderClient::NotifyFormExtensionDelete(const int64_t formId, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called.");
     int errorCode = ERR_OK;
     auto hostToken = want.GetRemoteObject(Constants::PARAM_FORM_HOST_TOKEN);
     if (hostToken != nullptr) {
@@ -157,31 +150,23 @@ void FormExtensionProviderClient::NotifyFormExtensionDelete(const int64_t formId
     }
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
-        HILOG_ERROR("%{public}s error, ownerFormExtension is nullptr.", __func__);
+        HILOG_ERROR("Owner is nullptr.");
         errorCode = ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
     } else {
         ownerFormExtension->OnDestroy(formId);
     }
 
     HandleResultCode(errorCode, want, callerToken);
-    HILOG_INFO("%{public}s called end.", __func__);
+    HILOG_INFO("called end.");
 }
 
-/**
- * @brief Notify provider when the forms was deleted.
- *
- * @param formIds The id list of forms.
- * @param want The want of the request.
- * @param callerToken Caller form extension token.
- * @return Returns ERR_OK on success, others on failure.
- */
 int FormExtensionProviderClient::NotifyFormsDelete(const std::vector<int64_t> &formIds, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called.");
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
     if (errorCode.first != ERR_OK) {
-        HILOG_ERROR("%{public}s CheckParam failed", __func__);
+        HILOG_ERROR("CheckParam failed with %{public}d.", errorCode.first);
         return errorCode.second;
     }
 
@@ -197,11 +182,11 @@ int FormExtensionProviderClient::NotifyFormsDelete(const std::vector<int64_t> &f
 void FormExtensionProviderClient::NotifyFormExtensionsDelete(const std::vector<int64_t> &formIds,
     const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called.");
     int errorCode = ERR_OK;
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
-        HILOG_ERROR("%{public}s error, ownerFormExtension is nullptr.", __func__);
+        HILOG_ERROR("Owner is nullptr.");
         errorCode = ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
     } else {
         for (int64_t formId : formIds) {
@@ -210,24 +195,16 @@ void FormExtensionProviderClient::NotifyFormExtensionsDelete(const std::vector<i
     }
 
     HandleResultCode(errorCode, want, callerToken);
-    HILOG_INFO("%{public}s called end.", __func__);
+    HILOG_INFO("called end.");
 }
 
-/**
- * @brief Notify provider when the form need update.
- *
- * @param formId The Id of the form.
- * @param want Indicates the structure containing form info.
- * @param callerToken Caller form extension token.
- * @return Returns ERR_OK on success, others on failure.
- */
 int FormExtensionProviderClient::NotifyFormUpdate(const int64_t formId, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called.");
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
     if (errorCode.first != ERR_OK) {
-        HILOG_ERROR("%{public}s CheckParam failed", __func__);
+        HILOG_ERROR("CheckParam failed with %{public}d.", errorCode.first);
         return errorCode.second;
     }
 
@@ -243,11 +220,11 @@ int FormExtensionProviderClient::NotifyFormUpdate(const int64_t formId, const Wa
 void FormExtensionProviderClient::NotifyFormExtensionUpdate(const int64_t formId, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called.");
     int errorCode = ERR_OK;
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
-        HILOG_ERROR("%{public}s error, ownerFormExtension is nullptr.", __func__);
+        HILOG_ERROR("Owner is nullptr.");
         errorCode = ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
     } else {
         ownerFormExtension->OnUpdate(formId);
@@ -256,25 +233,16 @@ void FormExtensionProviderClient::NotifyFormExtensionUpdate(const int64_t formId
     if (want.HasParameter(Constants::FORM_CONNECT_ID)) {
         HandleResultCode(errorCode, want, callerToken);
     }
-    HILOG_INFO("%{public}s called end.", __func__);
+    HILOG_INFO("called end.");
 }
 
-/**
- * @brief Event notify when change the form visible.
- *
- * @param formIds The vector of form ids.
- * @param formVisibleType The form visible type, including FORM_VISIBLE and FORM_INVISIBLE.
- * @param want Indicates the structure containing form info.
- * @param callerToken Caller form extension token.
- * @return Returns ERR_OK on success, others on failure.
- */
 int FormExtensionProviderClient::EventNotify(const std::vector<int64_t> &formIds, const int32_t formVisibleType,
     const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called.");
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
     if (errorCode.first != ERR_OK) {
-        HILOG_ERROR("%{public}s CheckParam failed", __func__);
+        HILOG_ERROR("CheckParam failed with %{public}d.", errorCode.first);
         return errorCode.second;
     }
 
@@ -290,11 +258,11 @@ int FormExtensionProviderClient::EventNotify(const std::vector<int64_t> &formIds
 void FormExtensionProviderClient::EventNotifyExtension(const std::vector<int64_t> &formIds,
     const int32_t formVisibleType, const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called.");
     int errorCode = ERR_OK;
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
-        HILOG_ERROR("%{public}s error, ownerFormExtension is nullptr.", __func__);
+        HILOG_ERROR("Owner is nullptr.");
         errorCode = ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
     } else {
         std::map<int64_t, int32_t> formEventsMap;
@@ -305,23 +273,16 @@ void FormExtensionProviderClient::EventNotifyExtension(const std::vector<int64_t
     }
 
     HandleResultCode(errorCode, want, callerToken);
-    HILOG_INFO("%{public}s called end.", __func__);
+    HILOG_INFO("called end.");
 }
 
-/**
- * @brief Notify provider when the temp form was cast to normal form.
- * @param formId The Id of the form to update.
- * @param want Indicates the structure containing form info.
- * @param callerToken Caller form extension token.
- * @return Returns ERR_OK on success, others on failure.
- */
 int FormExtensionProviderClient::NotifyFormCastTempForm(const int64_t formId, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called.");
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
     if (errorCode.first != ERR_OK) {
-        HILOG_ERROR("%{public}s CheckParam failed", __func__);
+        HILOG_ERROR("CheckParam failed with %{public}d.", errorCode.first);
         return errorCode.second;
     }
 
@@ -337,35 +298,27 @@ int FormExtensionProviderClient::NotifyFormCastTempForm(const int64_t formId, co
 void FormExtensionProviderClient::NotifyFormExtensionCastTempForm(const int64_t formId, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called.");
     int errorCode = ERR_OK;
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
-        HILOG_ERROR("%{public}s error, ownerFormExtension is nullptr.", __func__);
+        HILOG_ERROR("Owner is nullptr.");
         errorCode = ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
     } else {
         ownerFormExtension->OnCastToNormal(formId);
     }
 
     HandleResultCode(errorCode, want, callerToken);
-    HILOG_INFO("%{public}s called end.", __func__);
+    HILOG_INFO("called end.");
 }
 
-/**
- * @brief Fire message event to form provider.
- * @param formId The Id of the from.
- * @param message Event message.
- * @param want The want of the request.
- * @param callerToken Form provider proxy object.
- * @return Returns ERR_OK on success, others on failure.
- */
 int FormExtensionProviderClient::FireFormEvent(const int64_t formId, const std::string &message,
     const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called.");
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
     if (errorCode.first != ERR_OK) {
-        HILOG_ERROR("%{public}s CheckParam failed", __func__);
+        HILOG_ERROR("CheckParam failed with %{public}d.", errorCode.first);
         return errorCode.second;
     }
 
@@ -381,11 +334,11 @@ int FormExtensionProviderClient::FireFormEvent(const int64_t formId, const std::
 void FormExtensionProviderClient::FireFormExtensionEvent(const int64_t formId, const std::string &message,
     const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called.");
     int errorCode = ERR_OK;
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
-        HILOG_ERROR("%{public}s error, ownerFormExtension is nullptr.", __func__);
+        HILOG_ERROR("Owner is nullptr.");
         errorCode = ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
     } else {
         ownerFormExtension->OnEvent(formId, message);
@@ -394,24 +347,16 @@ void FormExtensionProviderClient::FireFormExtensionEvent(const int64_t formId, c
     if (want.HasParameter(Constants::FORM_CONNECT_ID)) {
         HandleResultCode(errorCode, want, callerToken);
     }
-    HILOG_INFO("%{public}s called end.", __func__);
+    HILOG_INFO("called end.");
 }
 
-/**
- * @brief Acquire form state to form provider.
- * @param wantArg The want of onAcquireFormState.
- * @param provider The provider info.
- * @param want The want of the request.
- * @param callerToken Form provider proxy object.
- * @return Returns ERR_OK on success, others on failure.
- */
 int FormExtensionProviderClient::AcquireState(const Want &wantArg, const std::string &provider, const Want &want,
                                               const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called.");
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
     if (errorCode.first != ERR_OK) {
-        HILOG_ERROR("%{public}s CheckParam failed", __func__);
+        HILOG_ERROR("CheckParam failed with %{public}d.", errorCode.first);
         return errorCode.second;
     }
 
@@ -428,71 +373,54 @@ void FormExtensionProviderClient::NotifyFormExtensionAcquireState(const Want &wa
                                                                   const Want &want,
                                                                   const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called.");
     FormState state = FormState::UNKNOWN;
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
-        HILOG_ERROR("%{public}s error, ownerFormExtension is nullptr.", __func__);
+        HILOG_ERROR("Owner is nullptr.");
     } else {
         state = ownerFormExtension->OnAcquireFormState(wantArg);
     }
     HandleAcquireStateResult(state, provider, wantArg, want, callerToken);
-    HILOG_INFO("%{public}s called end.", __func__);
+    HILOG_INFO("called end.");
 }
 
-/**
- * @brief Set the owner form extension of the form provider client.
- *
- * @param formExtension The owner form extension of the form provider client.
- */
 void FormExtensionProviderClient::SetOwner(const std::shared_ptr<FormExtension> formExtension)
 {
     if (formExtension == nullptr) {
-        HILOG_ERROR("%{public}s error, SetOwner::formExtension is nullptr.", __func__);
+        HILOG_ERROR("FormExtension is nullptr.");
         return;
     }
 
-    {
-        std::lock_guard<std::mutex> lock(formExtensionMutex_);
-        ownerFormExtension_ = formExtension;
-    }
+    std::lock_guard<std::mutex> lock(formExtensionMutex_);
+    ownerFormExtension_ = formExtension;
 }
 
-/**
- * @brief Clear the owner form extension of the form provider client.
- *
- * @param formExtension The owner form extension of the form provider client.
- */
 void FormExtensionProviderClient::ClearOwner(const std::shared_ptr<FormExtension> formExtension)
 {
     if (formExtension == nullptr) {
-        HILOG_ERROR("%{public}s error, ClearOwner::formExtension is nullptr.", __func__);
+        HILOG_ERROR("FormExtension is nullptr.");
         return;
     }
 
-    {
-        std::lock_guard<std::mutex> lock(formExtensionMutex_);
-        std::shared_ptr<FormExtension> ownerFormExtension = ownerFormExtension_.lock();
-        if (formExtension == ownerFormExtension) {
-            ownerFormExtension_.reset();
-        }
+    std::lock_guard<std::mutex> lock(formExtensionMutex_);
+    std::shared_ptr<FormExtension> ownerFormExtension = ownerFormExtension_.lock();
+    if (formExtension == ownerFormExtension) {
+        ownerFormExtension_.reset();
     }
 }
 
 std::shared_ptr<FormExtension> FormExtensionProviderClient::GetOwner()
 {
     std::shared_ptr<FormExtension> owner = nullptr;
-    {
-        std::lock_guard<std::mutex> lock(formExtensionMutex_);
-        owner = ownerFormExtension_.lock();
-    }
+    std::lock_guard<std::mutex> lock(formExtensionMutex_);
+    owner = ownerFormExtension_.lock();
     return owner;
 }
 
 int FormExtensionProviderClient::HandleResultCode(int errorCode, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    // The error code for disconnect.
     int disconnectErrorCode = FormProviderClient::HandleDisconnect(want, callerToken);
     if (errorCode != ERR_OK) {
         // If errorCode is not ERR_OK return errorCode.
@@ -500,7 +428,7 @@ int FormExtensionProviderClient::HandleResultCode(int errorCode, const Want &wan
     } else {
         // If errorCode is ERR_OK return disconnectErrorCode.
         if (disconnectErrorCode != ERR_OK) {
-            HILOG_ERROR("%{public}s, disconnect error.", __func__);
+            HILOG_ERROR("disconnect error: %{public}d.", disconnectErrorCode);
         }
         return disconnectErrorCode;
     }
@@ -514,12 +442,13 @@ std::pair<ErrCode, ErrCode> FormExtensionProviderClient::CheckParam(const Want &
     }
     sptr<IFormSupply> formSupplyClient = iface_cast<IFormSupply>(callerToken);
     if (formSupplyClient == nullptr) {
-        HILOG_ERROR("%{public}s warn, IFormSupply is nullptr", __func__);
+        HILOG_ERROR("IFormSupply is nullptr.");
         return std::pair<ErrCode, ErrCode>(ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED,
             ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED);
     }
+
     if (!FormProviderClient::CheckIsSystemApp()) {
-        HILOG_ERROR("%{public}s warn, caller permission denied.", __func__);
+        HILOG_ERROR("Permission denied.");
         int errorCode = HandleResultCode(ERR_APPEXECFWK_FORM_PERMISSION_DENY, want, callerToken);
         return std::pair<ErrCode, ErrCode>(ERR_APPEXECFWK_FORM_PERMISSION_DENY, errorCode);
     }
@@ -529,17 +458,17 @@ std::pair<ErrCode, ErrCode> FormExtensionProviderClient::CheckParam(const Want &
 int32_t FormExtensionProviderClient::AcquireShareFormData(int64_t formId, const std::string &remoteDeviceId,
     const sptr<IRemoteObject> &formSupplyCallback, int64_t requestCode)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called.");
 
     if (!FormProviderClient::CheckIsSystemApp()) {
-        HILOG_ERROR("%{public}s warn, AcquireShareFormData caller permission denied.", __func__);
+        HILOG_ERROR("Permission denied.");
         return ERR_APPEXECFWK_FORM_PERMISSION_DENY;
     }
 
     std::shared_ptr<EventHandler> mainHandler = std::make_shared<EventHandler>(EventRunner::GetMainEventRunner());
     auto formCall = iface_cast<IFormSupply>(formSupplyCallback);
     if (formCall == nullptr) {
-        HILOG_ERROR("%{public}s error, callback is nullptr.", __func__);
+        HILOG_ERROR("IFormSupply is nullptr.");
         return ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
     }
 
@@ -557,10 +486,10 @@ int32_t FormExtensionProviderClient::AcquireShareFormData(int64_t formId, const 
 bool FormExtensionProviderClient::AcquireFormExtensionProviderShareFormInfo(
     int64_t formId, AAFwk::WantParams &wantParams)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called.");
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
-        HILOG_ERROR("%{public}s error, ownerFormExtension is nullptr.", __func__);
+        HILOG_ERROR("Owner is nullptr.");
         return false;
     }
 
@@ -573,7 +502,7 @@ int32_t FormExtensionProviderClient::AcquireFormData(int64_t formId, const sptr<
     HILOG_DEBUG("called.");
 
     if (!FormProviderClient::CheckIsSystemApp()) {
-        HILOG_ERROR("error, AcquireFormData caller permission denied.");
+        HILOG_ERROR("Permission denied.");
         return ERR_APPEXECFWK_FORM_PERMISSION_DENY;
     }
 
@@ -601,11 +530,11 @@ bool FormExtensionProviderClient::FormExtensionProviderAcquireFormData(
     HILOG_DEBUG("called.");
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
-        HILOG_ERROR("error, ownerFormExtension is nullptr.");
+        HILOG_ERROR("Owner is nullptr.");
         return false;
     }
 
     return ownerFormExtension->OnAcquireData(formId, wantParams);
 }
-}  // namespace AbilityRuntime
-}  // namespace OHOS
+} // namespace AbilityRuntime
+} // namespace OHOS

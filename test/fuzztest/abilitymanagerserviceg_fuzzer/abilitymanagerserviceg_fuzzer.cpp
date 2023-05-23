@@ -76,8 +76,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->CheckCallAbilityPermission(abilityRequest);
     abilityms->CheckStartByCallPermission(abilityRequest);
     abilityms->IsCallFromBackground(abilityRequest, boolParam);
-    abilityms->CheckCallerPermissionOldRule(abilityRequest, boolParam);
-    abilityms->IsUseNewStartUpRule(abilityRequest);
+    abilityms->IsAbilityVisible(abilityRequest);
     abilityms->CheckNewRuleSwitchState(stringParam);
     abilityms->GetStartUpNewRuleFlag();
     abilityms->AddStartControlParam(*want, token);

@@ -101,6 +101,14 @@ void JsEnvironment::RemoveTask(const std::string& name)
 void JsEnvironment::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorObj)
 {
     sourceMapOperator_ = operatorObj;
+    if (engine_ == nullptr) {
+        JSENV_LOG_E("Invalid Native Engine.");
+        return;
+    }
+    auto translateBySourceMapFunc = [&](const std::string& rawStack) {
+        return sourceMapOperator_->TranslateBySourceMap(rawStack);
+    };
+    engine_->RegisterTranslateBySourceMap(translateBySourceMapFunc);
 }
 
 void JsEnvironment::RegisterUncaughtExceptionHandler(JsEnv::UncaughtExceptionInfo uncaughtExceptionInfo)
@@ -154,6 +162,11 @@ void JsEnvironment::InitConsoleModule()
     if (impl_ != nullptr) {
         impl_->InitConsoleModule(engine_);
     }
+}
+
+bool JsEnvironment::LoadScript(const std::string& path, uint8_t *buffer, size_t len, bool isBundle)
+{
+    return engine_->RunScriptBuffer(path.c_str(), buffer, len, isBundle);
 }
 } // namespace JsEnv
 } // namespace OHOS

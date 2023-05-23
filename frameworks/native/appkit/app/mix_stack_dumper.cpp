@@ -21,6 +21,7 @@
 #include <dirent.h>
 #include <securec.h>
 #include <unistd.h>
+#include <sigchain.h>
 
 #include "dfx_dump_catcher.h"
 #include "dfx_dump_res.h"
@@ -44,9 +45,8 @@ static const std::string PROC_SELF_CMDLINE_PATH = "/proc/self/cmdline";
 static constexpr int STATUS_LINE_SIZE = 1024;
 static constexpr int FRAME_BUF_LEN = 1024;
 static constexpr int HEADER_BUF_LEN = 512;
-static constexpr int NATIVE_DUMP = -1;
-static constexpr int MIX_DUMP = -2;
 static constexpr int NAMESPACE_MATCH_NUM = 2;
+static bool hasInstalled = false;
 typedef struct ProcInfo {
     int tid;
     int pid;
@@ -55,8 +55,6 @@ typedef struct ProcInfo {
 } ProcInfo;
 }
 
-typedef void (*DumpSignalHandlerFunc) (int sig, siginfo_t *si, void *context);
-static DumpSignalHandlerFunc g_dumpSignalHandlerFunc = nullptr;
 static pid_t g_targetDumpTid = -1;
 static struct ProcInfo g_procInfo = {0};
 
@@ -223,45 +221,47 @@ static std::string GetCurrentTimeStr(uint64_t current = 0)
     return std::string(formatTimeBuf, strlen(formatTimeBuf));
 }
 
-void MixStackDumper::Dump_SignalHandler(int sig, siginfo_t *si, void *context)
+bool MixStackDumper::Dump_SignalHandler(int sig, siginfo_t *si, void *context)
 {
-    switch (si->si_code) {
-        case NATIVE_DUMP: {
-            if (g_dumpSignalHandlerFunc != nullptr) {
-                g_dumpSignalHandlerFunc(sig, si, context);
-            }
-            break;
-        }
-        case MIX_DUMP: {
-            HILOG_INFO("Received mix stack dump request.");
-            auto handler = signalHandler_.lock();
-            if (handler == nullptr) {
-                return;
-            }
-            g_targetDumpTid = si->si_value.sival_int;
-            handler->PostTask(&MixStackDumper::HandleMixDumpRequest);
-            break;
-        }
-        default:
-            break;
+    HILOG_INFO("Dump_SignalHandler.");
+    bool ret = false;
+    if (si->si_code != DUMP_TYPE_MIX) {
+        return ret;
     }
+
+    HILOG_INFO("Received mix stack dump request.");
+    if (signalHandler_.expired()) {
+        HILOG_WARN("signalHandler is expired.");
+        return ret;
+    }
+    auto handler = signalHandler_.lock();
+    if (handler == nullptr) {
+        return ret;
+    }
+    g_targetDumpTid = si->si_value.sival_int;
+    handler->PostTask(&MixStackDumper::HandleMixDumpRequest);
+    return ret;
+}
+
+bool MixStackDumper::IsInstalled()
+{
+    return hasInstalled;
 }
 
 void MixStackDumper::InstallDumpHandler(std::shared_ptr<OHOSApplication> application,
     std::shared_ptr<EventHandler> handler)
 {
-    MixStackDumper::signalHandler_ = handler;
-    MixStackDumper::application_ = application;
-    struct sigaction newDumpAction;
-    struct sigaction oldDumpAction;
-    (void)memset_s(&newDumpAction, sizeof(newDumpAction), 0, sizeof(newDumpAction));
-    (void)memset_s(&oldDumpAction, sizeof(oldDumpAction), 0, sizeof(oldDumpAction));
-    sigfillset(&newDumpAction.sa_mask);
-    newDumpAction.sa_sigaction = Dump_SignalHandler;
-    newDumpAction.sa_flags = SA_RESTART | SA_SIGINFO | SA_ONSTACK;
-    sigaction(SIGDUMP, &newDumpAction, &oldDumpAction);
-    if (oldDumpAction.sa_sigaction != nullptr) {
-        g_dumpSignalHandlerFunc = oldDumpAction.sa_sigaction;
+    if (!hasInstalled) {
+        signalHandler_ = handler;
+        application_ = application;
+
+        struct signal_chain_action sigchain = {
+            .sca_sigaction = MixStackDumper::Dump_SignalHandler,
+            .sca_mask = {},
+            .sca_flags = 0,
+        };
+        add_special_signal_handler(SIGDUMP, &sigchain);
+        hasInstalled = true;
     }
 }
 

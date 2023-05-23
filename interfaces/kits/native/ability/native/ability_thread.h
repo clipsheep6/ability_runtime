@@ -437,7 +437,7 @@ private:
      *
      */
     std::shared_ptr<ContextDeal> CreateAndInitContextDeal(std::shared_ptr<OHOSApplication> &application,
-        const std::shared_ptr<AbilityLocalRecord> &abilityRecord, const std::shared_ptr<Context> &abilityObject);
+        const std::shared_ptr<AbilityLocalRecord> &abilityRecord, const std::shared_ptr<AbilityContext> &abilityObject);
 
     /**
      * @description:  Handle the life cycle of Ability.

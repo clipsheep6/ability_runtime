@@ -36,7 +36,6 @@
 #endif
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
-#include "session_info.h"
 #include "scene_board_judgement.h"
 #include "string_wrapper.h"
 #include "context/context.h"
@@ -229,10 +228,6 @@ void JsAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 
     obj->SetProperty("launchWant", jsWant);
     obj->SetProperty("lastRequestWant", jsWant);
-
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        AbilityContinuationOrRecover(want);
-    }
 
     NativeValue *argv[] = {
         jsWant,
@@ -504,7 +499,7 @@ std::unique_ptr<NativeReference> JsAbility::CreateAppWindowStage()
 {
     HandleScope handleScope(jsRuntime_);
     auto &engine = jsRuntime_.GetNativeEngine();
-    NativeValue *jsWindowStage = Rosen::CreateJsWindowStage(engine, GetScene(), uiWindow_);
+    NativeValue *jsWindowStage = Rosen::CreateJsWindowStage(engine, GetScene());
     if (jsWindowStage == nullptr) {
         HILOG_ERROR("Failed to create jsWindowSatge object");
         return nullptr;
@@ -567,13 +562,6 @@ void JsAbility::AbilityContinuationOrRecover(const Want &want)
 
 void JsAbility::DoOnForeground(const Want &want)
 {
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        if (uiWindow_) {
-            HILOG_DEBUG("%{public}s DoForeground.", abilityInfo_->bundleName.c_str());
-            uiWindow_->Foreground();
-        }
-        return;
-    }
     if (scene_ == nullptr) {
         if ((abilityContext_ == nullptr) || (sceneListener_ == nullptr)) {
             HILOG_ERROR("Ability::OnForeground error. abilityContext_ or sceneListener_ is nullptr!");
@@ -596,7 +584,12 @@ void JsAbility::DoOnForeground(const Want &want)
             }
         }
         auto option = GetWindowOption(want);
-        Rosen::WMError ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);
+        Rosen::WMError ret = Rosen::WMError::WM_OK;
+        if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && sessionInfo_ != nullptr) {
+            ret = scene_->Init(displayId, abilityContext_, sceneListener_, option, sessionInfo_->sessionToken);
+        } else {
+            ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);
+        }
         if (ret != Rosen::WMError::WM_OK) {
             HILOG_ERROR("%{public}s error. failed to init window scene!", __func__);
             return;
@@ -632,12 +625,6 @@ void JsAbility::DoOnForeground(const Want &want)
 void JsAbility::RequestFocus(const Want &want)
 {
     HILOG_DEBUG("%{public}s called.", __func__);
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        if (uiWindow_ != nullptr) {
-            HILOG_DEBUG("%{public}s Foreground.", abilityInfo_->bundleName.c_str());
-            uiWindow_->Foreground();
-        }
-    }
     if (scene_ == nullptr) {
         return;
     }
@@ -820,9 +807,6 @@ void JsAbility::OnNewWant(const Want &want)
 #ifdef SUPPORT_GRAPHICS
     if (scene_) {
         scene_->OnNewWant(want);
-    }
-    if (uiWindow_ != nullptr) {
-        // waiting for UIWindow to provide OnNewWant
     }
 #endif
 

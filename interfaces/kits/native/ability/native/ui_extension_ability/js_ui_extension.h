@@ -115,7 +115,7 @@ public:
      *
      * @param configuration Indicates the updated configuration information.
      */
-    void OnConfigurationUpdated(const AppExecFwk::Configuration& configuration) override;
+    virtual void OnConfigurationUpdated(const AppExecFwk::Configuration& configuration) override;
 
     /**
      * @brief Called when this extension enters the <b>STATE_FOREGROUND</b> state.
@@ -124,7 +124,7 @@ public:
      * The extension in the <b>STATE_FOREGROUND</b> state is visible.
      * You can override this function to implement your own processing logic.
      */
-    void OnForeground(const Want &want) override;
+    virtual void OnForeground(const Want &want) override;
 
     /**
      * @brief Called when this extension enters the <b>STATE_BACKGROUND</b> state.
@@ -133,7 +133,7 @@ public:
      * The extension in the <b>STATE_BACKGROUND</b> state is invisible.
      * You can override this function to implement your own processing logic.
      */
-    void OnBackground() override;
+    virtual void OnBackground() override;
 
     /**
      * @brief Called when ui extension need dump info.
@@ -143,12 +143,10 @@ public:
      */
     virtual void Dump(const std::vector<std::string> &params, std::vector<std::string> &info) override;
 
-    static NativeValue* LoadContent(NativeEngine *engine, NativeCallbackInfo *info);
-
 private:
-    NativeValue* CallObjectMethod(const char* name, NativeValue* const *argv = nullptr, size_t argc = 0);
+    virtual void BindContext(NativeEngine& engine, NativeObject* obj);
 
-    void BindContext(NativeEngine& engine, NativeObject* obj);
+    NativeValue* CallObjectMethod(const char* name, NativeValue* const *argv = nullptr, size_t argc = 0);
 
     NativeValue* CallOnConnect(const AAFwk::Want &want);
 

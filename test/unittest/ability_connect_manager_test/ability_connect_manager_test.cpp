@@ -1118,11 +1118,11 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_021, TestSize.Level1)
 
 /*
  * Feature: AbilityConnectManager
- * Function: GetExtensionByTokenFromSeriveMap
+ * Function: GetExtensionByTokenFromServiceMap
  * SubFunction: NA
- * FunctionPoints: GetExtensionByTokenFromSeriveMap
+ * FunctionPoints: GetExtensionByTokenFromServiceMap
  * EnvConditions:NA
- * CaseDescription: Verify the GetExtensionByTokenFromSeriveMap process
+ * CaseDescription: Verify the GetExtensionByTokenFromServiceMap process
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_022, TestSize.Level1)
 {
@@ -1133,11 +1133,11 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_022, TestSize.Level1)
     auto abilityRecord = serviceMap.at(elementNameUri);
     auto token = abilityRecord->GetToken();
 
-    auto ability = ConnectManager()->GetExtensionByTokenFromSeriveMap(token);
+    auto ability = ConnectManager()->GetExtensionByTokenFromServiceMap(token);
     EXPECT_EQ(abilityRecord, ability);
 
     OHOS::sptr<OHOS::IRemoteObject> nullToken = nullptr;
-    auto ability1 = ConnectManager()->GetExtensionByTokenFromSeriveMap(nullToken);
+    auto ability1 = ConnectManager()->GetExtensionByTokenFromServiceMap(nullToken);
     EXPECT_EQ(nullptr, ability1);
 }
 
@@ -1759,19 +1759,19 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_GetServiceRecordByElementNam
 
 /*
  * Feature: AbilityConnectManager
- * Function: GetExtensionByTokenFromSeriveMap
- * SubFunction: GetExtensionByTokenFromSeriveMap
+ * Function: GetExtensionByTokenFromServiceMap
+ * SubFunction: GetExtensionByTokenFromServiceMap
  * FunctionPoints: NA
  * EnvConditions: NA
- * CaseDescription: Verify AbilityConnectManager GetExtensionByTokenFromSeriveMap
+ * CaseDescription: Verify AbilityConnectManager GetExtensionByTokenFromServiceMap
  */
-HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_GetExtensionByTokenFromSeriveMap_001, TestSize.Level1)
+HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_GetExtensionByTokenFromServiceMap_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     sptr<IRemoteObject> token = abilityRecord->GetToken();
     connectManager->serviceMap_.emplace("first", nullptr);
-    auto res = connectManager->GetExtensionByTokenFromSeriveMap(token);
+    auto res = connectManager->GetExtensionByTokenFromServiceMap(token);
     EXPECT_EQ(res, nullptr);
 }
 

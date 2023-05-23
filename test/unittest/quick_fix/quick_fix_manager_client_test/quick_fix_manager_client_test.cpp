@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -128,6 +128,41 @@ HWTEST_F(QuickFixManagerClientTest, LoadSystemAbility_0100, TestSize.Level1)
 
     quickFixClient_->OnLoadSystemAbilitySuccess(mockQuickFixMgrService_);
     quickFixClient_->OnLoadSystemAbilityFail();
+
+    HILOG_INFO("%{public}s end", __func__);
+}
+
+/**
+ * @tc.name: RevokeQuickFix_0100
+ * @tc.desc: RevokeQuickFix
+ * @tc.type: FUNC
+ */
+HWTEST_F(QuickFixManagerClientTest, RevokeQuickFix_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start", __func__);
+
+    std::string bundleName = "test.bundle.name";
+    quickFixClient_->quickFixMgr_ = mockQuickFixMgrService_;
+    EXPECT_CALL(*mockQuickFixMgrService_, RevokeQuickFix(_)).Times(1);
+    auto ret = quickFixClient_->RevokeQuickFix(bundleName);
+    EXPECT_EQ(ret, QUICK_FIX_OK);
+
+    HILOG_INFO("%{public}s end", __func__);
+}
+
+/**
+ * @tc.name: RevokeQuickFix_0200
+ * @tc.desc: RevokeQuickFix
+ * @tc.type: FUNC
+ */
+HWTEST_F(QuickFixManagerClientTest, RevokeQuickFix_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start", __func__);
+
+    std::string bundleName = "test.bundle.name";
+    quickFixClient_->quickFixMgr_ = nullptr;
+    auto ret = quickFixClient_->RevokeQuickFix(bundleName);
+    EXPECT_EQ(ret, QUICK_FIX_CONNECT_FAILED);
 
     HILOG_INFO("%{public}s end", __func__);
 }

@@ -29,6 +29,10 @@ using namespace testing;
 using namespace testing::ext;
 using namespace testing::mt;
 
+namespace {
+bool callbackModuleFlag;
+}
+
 namespace OHOS {
 namespace JsEnv {
 class JsEnvironmentTest : public testing::Test {
@@ -52,6 +56,13 @@ void JsEnvironmentTest::SetUp()
 
 void JsEnvironmentTest::TearDown()
 {}
+
+namespace {
+void CallBackModuleFunc()
+{
+    callbackModuleFlag = true;
+}
+}
 
 /**
  * @tc.name: JsEnvInitialize_0100
@@ -171,6 +182,121 @@ HWTEST_F(JsEnvironmentTest, JsEnvInitTimerModule_0100, TestSize.Level0)
 
     // Init timer module when native engine has created.
     jsEnv->InitTimerModule();
+}
+
+/**
+ * @tc.name: PostTask_0100
+ * @tc.desc: PostTask
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(JsEnvironmentTest, PostTask_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+
+    // Init timer module when native engine is invalid.
+    std::function<void()> task = CallBackModuleFunc;
+    std::string name = "NAME";
+    int64_t delayTime = 10;
+    jsEnv->PostTask(task, name, delayTime);
+}
+
+/**
+ * @tc.name: RemoveTask_0100
+ * @tc.desc: RemoveTask
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(JsEnvironmentTest, RemoveTask_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+
+    std::string name = "NAME";
+    jsEnv->RemoveTask(name);
+}
+
+/**
+ * @tc.name: InitSyscapModule_0100
+ * @tc.desc: InitSyscapModule
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(JsEnvironmentTest, InitSyscapModule_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+
+    jsEnv->InitSyscapModule();
+}
+
+/**
+ * @tc.name: RegisterUncaughtExceptionHandler_0100
+ * @tc.desc: RegisterUncaughtExceptionHandler
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(JsEnvironmentTest, RegisterUncaughtExceptionHandler_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+
+    JsEnv::UncaughtExceptionInfo uncaughtExceptionInfo;
+    jsEnv->RegisterUncaughtExceptionHandler(uncaughtExceptionInfo);
+}
+
+/**
+ * @tc.name: StartDebugger_0100
+ * @tc.desc: StartDebugger
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(JsEnvironmentTest, StartDebugger_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+
+    const char* libraryPath = "LIBRARYPATH";
+    bool needBreakPoint = true;
+    uint32_t instanceId = 10;
+    DebuggerPostTask debuggerPostTask = {};
+    bool result = jsEnv->StartDebugger(libraryPath, needBreakPoint, instanceId, debuggerPostTask);
+    EXPECT_EQ(result, false);
+}
+
+/**
+ * @tc.name: StopDebugger_0100
+ * @tc.desc: StopDebugger
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(JsEnvironmentTest, StopDebugger_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+
+    jsEnv->StopDebugger();
+}
+
+/**
+ * @tc.name: InitConsoleModule_0100
+ * @tc.desc: InitConsoleModule
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(JsEnvironmentTest, InitConsoleModule_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+
+    jsEnv->InitConsoleModule();
+
+    panda::RuntimeOption pandaOption;
+    auto ret = jsEnv->Initialize(pandaOption, static_cast<void*>(this));
+    ASSERT_EQ(ret, true);
+
+    jsEnv->InitConsoleModule();
 }
 }  // namespace JsEnv
 }  // namespace OHOS

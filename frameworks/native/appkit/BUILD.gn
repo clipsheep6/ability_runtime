@@ -179,6 +179,7 @@ ohos_shared_library("appkit_native") {
   }
 
   innerapi_tags = [ "platformsdk" ]
+  version_script = "libappkit_native.map"
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
@@ -297,7 +298,6 @@ ohos_shared_library("appkit_delegator") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/ability_delegator/include",
     "${ability_runtime_services_path}/common/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
-    "${multimodalinput_path}/frameworks/proxy:libmmi-client",
   ]
 
   configs = [ ":appkit_config" ]

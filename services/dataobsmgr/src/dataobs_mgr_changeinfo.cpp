@@ -45,7 +45,7 @@ bool ChangeInfo::Marshalling(const ChangeInfo &input, MessageParcel &data)
 bool ChangeInfo::Unmarshalling(ChangeInfo &output, MessageParcel &parcel)
 {
     uint32_t changeType;
-    if (!parcel.ReadUint32(changeType) || changeType >= INVAILD) {
+    if (!parcel.ReadUint32(changeType)) {
         return false;
     }
 
@@ -77,7 +77,7 @@ bool ChangeInfo::Unmarshalling(ChangeInfo &output, MessageParcel &parcel)
     }
     output.changeType_ = static_cast<ChangeType>(changeType);
     std::swap(output.uris_, uris);
-    output.data_ = static_cast<const void *>(data);
+    output.data_ = const_cast<uint8_t*>(data);
     output.size_ = size;
     return true;
 }

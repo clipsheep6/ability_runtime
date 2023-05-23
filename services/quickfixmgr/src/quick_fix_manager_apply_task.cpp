@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -41,6 +41,8 @@ constexpr const char *QUICK_FIX_MODULE_NAME = "moduleNames";
 // common event key
 constexpr const char *APPLY_RESULT = "applyResult";
 constexpr const char *APPLY_RESULT_INFO = "applyResultInfo";
+constexpr const char *REVOKE_RESULT = "revokeResult";
+constexpr const char *REVOKE_RESULT_INFO = "revokeResultInfo";
 constexpr const char *BUNDLE_NAME = "bundleName";
 constexpr const char *BUNDLE_VERSION = "bundleVersion";
 constexpr const char *PATCH_VERSION = "patchVersion";
@@ -109,7 +111,16 @@ public:
                 break;
             }
 
-            applyTask_->HandlePatchSwitched();
+            if (applyTask_->GetTaskType() == QuickFixManagerApplyTask::TaskType::QUICK_FIX_APPLY) {
+                applyTask_->HandlePatchSwitched();
+                break;
+            } else if (applyTask_->GetTaskType() == QuickFixManagerApplyTask::TaskType::QUICK_FIX_REVOKE) {
+                applyTask_->HandleRevokePatchSwitched();
+                break;
+            }
+
+            ret = QUICK_FIX_SWICH_FAILED;
+            HILOG_ERROR("Switch quick fix invalid task type");
         } while (0);
 
         if (ret != QUICK_FIX_OK) {
@@ -135,7 +146,16 @@ public:
                 break;
             }
 
-            applyTask_->HandlePatchDeleted();
+            if (applyTask_->GetTaskType() == QuickFixManagerApplyTask::TaskType::QUICK_FIX_APPLY) {
+                applyTask_->HandlePatchDeleted();
+                break;
+            } else if (applyTask_->GetTaskType() == QuickFixManagerApplyTask::TaskType::QUICK_FIX_REVOKE) {
+                applyTask_->HandleRevokePatchDeleted();
+                break;
+            }
+
+            ret = QUICK_FIX_DELETE_FAILED;
+            HILOG_ERROR("Delete quick fix invalid task type");
         } while (0);
 
         if (ret != QUICK_FIX_OK) {
@@ -147,6 +167,19 @@ public:
 
 private:
     std::shared_ptr<QuickFixManagerApplyTask> applyTask_;
+};
+
+class RevokeQuickFixTaskCallback : public QuickFixManagerStatusCallback {
+public:
+    explicit RevokeQuickFixTaskCallback(std::shared_ptr<QuickFixManagerApplyTask> applyTask)
+        : QuickFixManagerStatusCallback(applyTask)
+    {}
+    virtual ~RevokeQuickFixTaskCallback() = default;
+
+    void OnPatchDeployed(const std::shared_ptr<AppExecFwk::QuickFixResult> &result) override
+    {
+        HILOG_DEBUG("Function called.");
+    }
 };
 
 class QuickFixMgrAppStateObserver : public AppExecFwk::ApplicationStateObserverStub {
@@ -171,7 +204,13 @@ public:
 
         bool isRunning = applyTask_->GetRunningState();
         if (!isRunning) {
-            applyTask_->HandlePatchDeployed();
+            if (applyTask_->GetTaskType() == QuickFixManagerApplyTask::TaskType::QUICK_FIX_APPLY) {
+                applyTask_->HandlePatchDeployed();
+            } else if (applyTask_->GetTaskType() == QuickFixManagerApplyTask::TaskType::QUICK_FIX_REVOKE) {
+                applyTask_->PostRevokeQuickFixProcessDiedTask();
+            } else {
+                HILOG_WARN("Invalid task type");
+            }
         }
 
         applyTask_->UnregAppStateObserver();
@@ -215,7 +254,15 @@ public:
             return;
         }
 
-        applyTask_->PostSwitchQuickFixTask();
+        if (applyTask_->GetTaskType() == QuickFixManagerApplyTask::TaskType::QUICK_FIX_APPLY) {
+            applyTask_->PostSwitchQuickFixTask();
+            return;
+        } else if (applyTask_->GetTaskType() == QuickFixManagerApplyTask::TaskType::QUICK_FIX_REVOKE) {
+            applyTask_->PostRevokeQuickFixDeleteTask();
+            return;
+        }
+
+        HILOG_WARN("Invalid task type");
     }
 
     void OnReloadPageDone(int32_t resultCode, [[maybe_unused]] int32_t recordId) override
@@ -236,6 +283,25 @@ private:
     std::shared_ptr<QuickFixManagerApplyTask> applyTask_;
 };
 
+class RevokeQuickFixNotifyCallback : public QuickFixNotifyCallback {
+public:
+    explicit RevokeQuickFixNotifyCallback(std::shared_ptr<QuickFixManagerApplyTask> applyTask)
+        : QuickFixNotifyCallback(applyTask)
+    {}
+
+    virtual ~RevokeQuickFixNotifyCallback() = default;
+
+    void OnLoadPatchDone(int32_t resultCode, [[maybe_unused]] int32_t recordId) override
+    {
+        HILOG_DEBUG("Function called.");
+    }
+
+    void OnReloadPageDone(int32_t resultCode, [[maybe_unused]] int32_t recordId) override
+    {
+        HILOG_DEBUG("Function called.");
+    }
+};
+
 QuickFixManagerApplyTask::~QuickFixManagerApplyTask()
 {
     HILOG_DEBUG("destroyed.");
@@ -245,7 +311,24 @@ void QuickFixManagerApplyTask::Run(const std::vector<std::string> &quickFixFiles
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Run apply task.");
+    taskType_ = TaskType::QUICK_FIX_APPLY;
     PostDeployQuickFixTask(quickFixFiles);
+}
+
+void QuickFixManagerApplyTask::RunRevoke()
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_INFO("Run apply revoke task.");
+    taskType_ = TaskType::QUICK_FIX_REVOKE;
+    PostRevokeQuickFixTask();
+}
+
+void QuickFixManagerApplyTask::InitRevokeTask(const std::string &bundleName, bool isSoContained)
+{
+    isSoContained_ = isSoContained;
+    bundleName_ = bundleName;
+    HILOG_INFO("Function called. name:%{public}s and isSoContained:%{public}s", bundleName_.c_str(),
+        isSoContained_ ? "true" : "false");
 }
 
 void QuickFixManagerApplyTask::HandlePatchDeployed()
@@ -474,24 +557,34 @@ bool QuickFixManagerApplyTask::GetRunningState()
     return ret;
 }
 
-void QuickFixManagerApplyTask::NotifyApplyStatus(int32_t applyResult)
+void QuickFixManagerApplyTask::NotifyApplyStatus(int32_t resultCode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
 
     Want want;
-    want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_QUICK_FIX_APPLY_RESULT);
-    want.SetParam(APPLY_RESULT, QuickFixErrorUtil::GetErrorCode(applyResult));
-    want.SetParam(APPLY_RESULT_INFO, QuickFixErrorUtil::GetErrorMessage(applyResult));
-    want.SetParam(BUNDLE_NAME, bundleName_);
-    want.SetParam(BUNDLE_VERSION, bundleVersionCode_);
-    want.SetParam(PATCH_VERSION, patchVersionCode_);
+    if (GetTaskType() == TaskType::QUICK_FIX_APPLY) {
+        want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_QUICK_FIX_APPLY_RESULT);
+        want.SetParam(APPLY_RESULT, QuickFixErrorUtil::GetErrorCode(resultCode));
+        want.SetParam(APPLY_RESULT_INFO, QuickFixErrorUtil::GetErrorMessage(resultCode));
+        want.SetParam(BUNDLE_VERSION, bundleVersionCode_);
+        want.SetParam(PATCH_VERSION, patchVersionCode_);
 
-    std::string moduleName = std::accumulate(moduleNames_.begin(), moduleNames_.end(), std::string(""),
-        [moduleName = moduleNames_](const std::string &name, const std::string &str) {
-            return (str == moduleName.front()) ? (name + str) : (name + "," + str);
-        });
-    want.SetModuleName(moduleName);
+        std::string moduleName = std::accumulate(moduleNames_.begin(), moduleNames_.end(), std::string(""),
+            [moduleName = moduleNames_](const std::string &name, const std::string &str) {
+                return (str == moduleName.front()) ? (name + str) : (name + "," + str);
+            });
+        want.SetModuleName(moduleName);
+    } else if (GetTaskType() == TaskType::QUICK_FIX_REVOKE) {
+        want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_QUICK_FIX_REVOKE_RESULT);
+        want.SetParam(REVOKE_RESULT, QuickFixErrorUtil::GetErrorCode(resultCode));
+        want.SetParam(REVOKE_RESULT_INFO, QuickFixErrorUtil::GetErrorMessage(resultCode));
+    } else {
+        HILOG_WARN("Invalid task type, Can not publish common event");
+        return;
+    }
+
+    want.SetParam(BUNDLE_NAME, bundleName_);
 
     EventFwk::CommonEventData commonData {want};
     EventFwk::CommonEventManager::PublishCommonEvent(commonData);
@@ -639,6 +732,150 @@ void QuickFixManagerApplyTask::RemoveSelf()
     if (service) {
         service->RemoveApplyTask(shared_from_this());
     }
+}
+
+std::string QuickFixManagerApplyTask::GetBundleName()
+{
+    return bundleName_;
+}
+
+QuickFixManagerApplyTask::TaskType QuickFixManagerApplyTask::GetTaskType()
+{
+    return taskType_;
+}
+
+void QuickFixManagerApplyTask::PostRevokeQuickFixTask()
+{
+    std::weak_ptr<QuickFixManagerApplyTask> thisWeakPtr(weak_from_this());
+    auto revokeTask = [thisWeakPtr] () {
+        auto applyTask = thisWeakPtr.lock();
+        if (applyTask == nullptr) {
+            HILOG_ERROR("Revoke task is nullptr.");
+            return;
+        }
+
+        if (applyTask->GetRunningState()) {
+            applyTask->HandleRevokeQuickFixAppRunning();
+            return;
+        }
+
+        applyTask->HandleRevokeQuickFixAppStop();
+    };
+
+    if (eventHandler_ == nullptr || !eventHandler_->PostTask(revokeTask)) {
+        HILOG_ERROR("Post revoke task failed.");
+    }
+    PostTimeOutTask();
+}
+
+void QuickFixManagerApplyTask::HandleRevokeQuickFixAppRunning()
+{
+    // process run
+    // so contained, reg app died
+    if (isSoContained_) {
+        RegAppStateObserver();
+        RemoveTimeoutTask();
+        return;
+    }
+
+    // so not contained, call bms to switch
+    HandleRevokeQuickFixAppStop();
+}
+
+void QuickFixManagerApplyTask::HandleRevokePatchSwitched()
+{
+    HILOG_DEBUG("Function called.");
+    // process is run, notify app unload patch
+    if (GetRunningState()) {
+        PostRevokeQuickFixNotifyUnloadPatchTask();
+        return;
+    }
+
+    // call bms to delete patch
+    PostRevokeQuickFixDeleteTask();
+}
+
+void QuickFixManagerApplyTask::PostRevokeQuickFixNotifyUnloadPatchTask()
+{
+    // notify app process unload patch
+    if (appMgr_ == nullptr) {
+        HILOG_ERROR("App manager is nullptr.");
+        NotifyApplyStatus(QUICK_FIX_APPMGR_INVALID);
+        RemoveSelf();
+        return;
+    }
+
+    // app process run and wait callback
+    sptr<AppExecFwk::IQuickFixCallback> callback =
+        new (std::nothrow) RevokeQuickFixNotifyCallback(shared_from_this());
+    auto ret = appMgr_->NotifyUnLoadRepairPatch(bundleName_, callback);
+    if (ret != 0) {
+        HILOG_ERROR("Notify app unload patch failed.");
+        NotifyApplyStatus(QUICK_FIX_NOTIFY_UNLOAD_PATCH_FAILED);
+        RemoveSelf();
+    }
+
+    HILOG_DEBUG("Function end.");
+}
+
+void QuickFixManagerApplyTask::PostRevokeQuickFixDeleteTask()
+{
+    sptr<AppExecFwk::IQuickFixStatusCallback> callback = new (std::nothrow) RevokeQuickFixTaskCallback(
+        shared_from_this());
+    if (bundleQfMgr_ == nullptr) {
+        HILOG_ERROR("Bundle quick fix manager is nullptr.");
+        NotifyApplyStatus(QUICK_FIX_BUNDLEMGR_INVALID);
+        RemoveSelf();
+        return;
+    }
+
+    // call delete patch to bms
+    auto ret = bundleQfMgr_->DeleteQuickFix(bundleName_, callback);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Delete quick fix failed with %{public}d.", ret);
+        NotifyApplyStatus(QUICK_FIX_DELETE_FAILED);
+        RemoveSelf();
+        return;
+    }
+
+    HILOG_DEBUG("Function end.");
+}
+
+void QuickFixManagerApplyTask::PostRevokeQuickFixProcessDiedTask()
+{
+    HILOG_DEBUG("Function called.");
+    // app process died
+    HandleRevokeQuickFixAppStop();
+    PostTimeOutTask();
+}
+
+void QuickFixManagerApplyTask::HandleRevokeQuickFixAppStop()
+{
+    sptr<AppExecFwk::IQuickFixStatusCallback> callback = new (std::nothrow) RevokeQuickFixTaskCallback(
+        shared_from_this());
+    if (bundleQfMgr_ == nullptr) {
+        HILOG_ERROR("Bundle quick fix manager is nullptr.");
+        NotifyApplyStatus(QUICK_FIX_BUNDLEMGR_INVALID);
+        RemoveSelf();
+        return;
+    }
+
+    auto ret = bundleQfMgr_->SwitchQuickFix(bundleName_, false, callback);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Switch quick fix failed with %{public}d.", ret);
+        NotifyApplyStatus(QUICK_FIX_SWICH_FAILED);
+        RemoveSelf();
+        return;
+    }
+
+    HILOG_DEBUG("Function end.");
+}
+
+void QuickFixManagerApplyTask::HandleRevokePatchDeleted()
+{
+    NotifyApplyStatus(QUICK_FIX_OK);
+    RemoveSelf();
+    HILOG_DEBUG("Function end.");
 }
 } // namespace AAFwk
 } // namespace OHOS

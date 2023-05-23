@@ -30,6 +30,11 @@ constexpr char EVENT_KEY_PID[] = "PID";
 constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
+#ifdef SUPPORT_ASAN
+const int KILL_TIMEOUT_MULTIPLE = 45;
+#else
+const int KILL_TIMEOUT_MULTIPLE = 3;
+#endif
 }
 int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sptr<SessionInfo> sessionInfo)
 {
@@ -63,9 +68,6 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
     if (uiAbilityRecord->GetPendingState() == AbilityState::FOREGROUND) {
         HILOG_DEBUG("pending state is FOREGROUND.");
         uiAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
-        if (iter == sessionAbilityMap_.end()) {
-            sessionAbilityMap_.emplace(sessionInfo->persistentId, uiAbilityRecord);
-        }
         return ERR_OK;
     } else {
         HILOG_DEBUG("pending state is not FOREGROUND.");
@@ -209,7 +211,7 @@ int UIAbilityLifecycleManager::DispatchForeground(const std::shared_ptr<AbilityR
                 }
                 return;
             }
-            selfObj->CompleteForegroundFailed(abilityRecord, state);
+            selfObj->HandleForegroundTimeoutOrFailed(abilityRecord, state);
         };
         handler->PostTask(task);
     }
@@ -238,7 +240,21 @@ int UIAbilityLifecycleManager::DispatchBackground(const std::shared_ptr<AbilityR
 
 int UIAbilityLifecycleManager::DispatchTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
-    return 0;
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    if (abilityRecord->GetAbilityState() != AbilityState::TERMINATING) {
+        HILOG_ERROR("DispatchTerminate error, ability state is %{public}d", abilityRecord->GetAbilityState());
+        return INNER_ERR;
+    }
+
+    // remove terminate timeout task.
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
+    handler->RemoveTask("terminate_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+    auto self(shared_from_this());
+    auto task = [self, abilityRecord]() { self->CompleteTerminate(abilityRecord); };
+    handler->PostTask(task);
+
+    return ERR_OK;
 }
 
 void UIAbilityLifecycleManager::CompleteForegroundSuccess(const std::shared_ptr<AbilityRecord> &abilityRecord)
@@ -262,22 +278,11 @@ void UIAbilityLifecycleManager::CompleteForegroundSuccess(const std::shared_ptr<
     }
 }
 
-void UIAbilityLifecycleManager::CompleteForegroundFailed(const std::shared_ptr<AbilityRecord> &abilityRecord,
+void UIAbilityLifecycleManager::HandleForegroundTimeoutOrFailed(const std::shared_ptr<AbilityRecord> &ability,
     AbilityState state)
 {
-    HILOG_DEBUG("CompleteForegroundFailed come, state: %{public}d.", static_cast<int32_t>(state));
+    HILOG_DEBUG("state: %{public}d.", static_cast<int32_t>(state));
     std::lock_guard<std::recursive_mutex> guard(sessionLock_);
-    if (abilityRecord == nullptr) {
-        HILOG_ERROR("CompleteForegroundFailed, ability is nullptr.");
-        return;
-    }
-
-    HandleForegroundTimeout(abilityRecord, state);
-}
-
-void UIAbilityLifecycleManager::HandleForegroundTimeout(const std::shared_ptr<AbilityRecord> &ability,
-    AbilityState state)
-{
     if (ability == nullptr) {
         HILOG_ERROR("ability record is nullptr.");
         return;
@@ -290,40 +295,9 @@ void UIAbilityLifecycleManager::HandleForegroundTimeout(const std::shared_ptr<Ab
 
     // notify SCB the ability to fail to foreground
 
-    // root launcher load timeout, notify appMs force terminate the ability and restart immediately.
-    if (ability->IsLauncherAbility() && ability->IsLauncherRoot()) {
-        DelayedSingleton<AppScheduler>::GetInstance()->AttachTimeOut(ability->GetToken());
-        HILOG_INFO("Launcher root load timeout, restart.");
-        // notify SCB to delay to start launcher
-        return;
-    }
-
-    // other
-    HandleTimeoutAndResumeAbility(ability, state);
-}
-
-void UIAbilityLifecycleManager::HandleTimeoutAndResumeAbility(const std::shared_ptr<AbilityRecord> &ability,
-    AbilityState state)
-{
-    HILOG_DEBUG("Call");
-    if (ability == nullptr) {
-        HILOG_ERROR("LoadAndForeGroundCommon: ability is nullptr.");
-        return;
-    }
     EraseAbilityRecord(ability);
-
     // load and foreground timeout, notify appMs force terminate the ability.
     DelayedSingleton<AppScheduler>::GetInstance()->AttachTimeOut(ability->GetToken());
-
-    // caller not exist or caller is service or timeout ability is launcher, back to launcher
-    auto callerAbility = ability->GetCallerRecord();
-    if ((callerAbility == nullptr) ||
-        (callerAbility->GetAbilityInfo().type == AppExecFwk::AbilityType::SERVICE) ||
-        (callerAbility->GetAbilityInfo().type == AppExecFwk::AbilityType::EXTENSION)) {
-        HILOG_DEBUG("ability timeout, back to launcher.");
-        // notify SCB to delay to start launcher
-        return;
-    }
 }
 
 std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetAbilityRecordByToken(const sptr<IRemoteObject> &token)
@@ -335,6 +309,12 @@ std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetAbilityRecordByToke
     }
 
     std::lock_guard<std::recursive_mutex> guard(sessionLock_);
+    for (auto ability : terminateAbilityList_) {
+        if (ability && token == ability->GetToken()->AsObject()) {
+            return ability;
+        }
+    }
+
     for (auto iter = sessionAbilityMap_.begin(); iter != sessionAbilityMap_.end(); iter++) {
         if (iter->second != nullptr && iter->second->GetToken()->AsObject() == token) {
             return iter->second;
@@ -520,6 +500,66 @@ void UIAbilityLifecycleManager::CompleteBackground(const std::shared_ptr<Ability
         HILOG_DEBUG("not continuous startup.");
         abilityRecord->SetPendingState(AbilityState::INITIAL);
     }
+}
+
+int UIAbilityLifecycleManager::CloseUIAbility(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    HILOG_DEBUG("call");
+    std::lock_guard<std::recursive_mutex> guard(sessionLock_);
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    std::string element = abilityRecord->GetWant().GetElement().GetURI();
+    HILOG_INFO("call, from ability: %{public}s", element.c_str());
+    if (abilityRecord->IsTerminating() && !abilityRecord->IsForeground()) {
+        HILOG_INFO("ability is on terminating");
+        return ERR_OK;
+    }
+    terminateAbilityList_.push_back(abilityRecord);
+    EraseAbilityRecord(abilityRecord);
+    abilityRecord->SetTerminatingState();
+
+    auto self(shared_from_this());
+    auto task = [abilityRecord, self]() {
+        HILOG_WARN("close ability by scb timeout");
+        self->DelayCompleteTerminate(abilityRecord);
+    };
+    abilityRecord->Terminate(task);
+    return ERR_OK;
+}
+
+void UIAbilityLifecycleManager::DelayCompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    CHECK_POINTER(handler);
+
+    PrintTimeOutLog(abilityRecord, AbilityManagerService::TERMINATE_TIMEOUT_MSG);
+
+    auto timeoutTask = [self = shared_from_this(), abilityRecord]() {
+        HILOG_INFO("emit delay complete terminate task.");
+        self->CompleteTerminate(abilityRecord);
+    };
+    int killTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * KILL_TIMEOUT_MULTIPLE;
+    handler->PostTask(timeoutTask, "DELAY_KILL_PROCESS", killTimeout);
+}
+
+void UIAbilityLifecycleManager::CompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    CHECK_POINTER(abilityRecord);
+    std::lock_guard<std::recursive_mutex> guard(sessionLock_);
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+
+    if (abilityRecord->GetAbilityState() != AbilityState::TERMINATING) {
+        HILOG_ERROR("failed, %{public}s, ability is not terminating.", __func__);
+        return;
+    }
+    abilityRecord->RemoveAbilityDeathRecipient();
+
+    // notify AppMS terminate
+    if (abilityRecord->TerminateAbility() != ERR_OK) {
+        // Don't return here
+        HILOG_ERROR("AppMS fail to terminate ability.");
+    }
+    terminateAbilityList_.remove(abilityRecord);
 }
 
 }  // namespace AAFwk

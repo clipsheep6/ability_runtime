@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -92,6 +92,21 @@ sptr<IQuickFixManager> QuickFixManagerClient::GetQuickFixMgrProxy()
 
     HILOG_DEBUG("function finished.");
     return quickFixMgr;
+}
+
+int32_t QuickFixManagerClient::RevokeQuickFix(const std::string &bundleName)
+{
+    HILOG_DEBUG("Function called.");
+
+    auto quickFixMgr = GetQuickFixMgrProxy();
+    if (quickFixMgr == nullptr) {
+        HILOG_ERROR("Get quick fix manager service failed.");
+        return QUICK_FIX_CONNECT_FAILED;
+    }
+
+    auto retval = quickFixMgr->RevokeQuickFix(bundleName);
+    HILOG_DEBUG("Function call end, retval is %{public}d.", retval);
+    return retval;
 }
 
 void QuickFixManagerClient::ClearProxy()

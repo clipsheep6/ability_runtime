@@ -16,6 +16,8 @@
 #ifndef OHOS_ABILITY_RUNTIME_LOCAL_CALL_CONTAINER_H
 #define OHOS_ABILITY_RUNTIME_LOCAL_CALL_CONTAINER_H
 
+#include <mutex>
+
 #include "ability_context.h"
 #include "ability_connect_callback_stub.h"
 #include "ability_connect_callback_proxy.h"
@@ -39,7 +41,7 @@ public:
 
     void ClearFailedCallConnection(const std::shared_ptr<CallerCallBack> &callback);
 
-    void DumpCalls(std::vector<std::string> &info) const;
+    void DumpCalls(std::vector<std::string> &info);
 
     void SetCallLocalRecord(
         const AppExecFwk::ElementName& element, const std::shared_ptr<LocalCallRecord> &localCallRecord);
@@ -65,6 +67,8 @@ private:
     // used to store multi instance call records
     std::map<std::string, std::set<std::shared_ptr<LocalCallRecord>>> multipleCallProxyRecords_;
     std::set<sptr<CallerConnection>> connections_;
+    std::mutex mutex_;
+    std::mutex multipleMutex_;
 };
 
 class CallerConnection : public AbilityConnectionStub {

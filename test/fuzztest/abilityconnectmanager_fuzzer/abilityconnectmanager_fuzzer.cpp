@@ -113,7 +113,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityConnectManager->CompleteCommandAbility(abilityRecord);
     std::string stringParam(data, size);
     abilityConnectManager->GetServiceRecordByElementName(stringParam);
-    abilityConnectManager->GetExtensionByTokenFromSeriveMap(token);
+    abilityConnectManager->GetExtensionByTokenFromServiceMap(token);
     sptr<IAbilityConnection> callback = new AbilityConnectCallback();
     abilityConnectManager->GetConnectRecordListByCallback(callback);
     int64_t int64Param = static_cast<int64_t>(GetU32Data(data));

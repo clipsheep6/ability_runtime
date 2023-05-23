@@ -128,5 +128,39 @@ HWTEST_F(AbilityServiceExtensionTest, Init_0100, TestSize.Level1)
 
     GTEST_LOG_(INFO) << "service extension Init end";
 }
+
+/*
+ * Feature: ServiceExtension
+ * Function: Init
+ * SubFunction: NA
+ * FunctionPoints: OnConfigurationUpdated
+ * EnvConditions: NA
+ * CaseDescription: Test the function of OnConfigurationUpdated.
+ */
+HWTEST_F(AbilityServiceExtensionTest, OnConfigurationUpdated_0100, TestSize.Level1)
+{
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    sptr<IRemoteObject> token(new (std::nothrow) MockAbilityToken());
+
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    std::shared_ptr<AbilityRuntime::ContextImpl> contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
+        AbilityRuntime::ApplicationContext::GetInstance();
+    applicationContext->AttachContextImpl(contextImpl);
+    application->SetApplicationContext(applicationContext);
+
+    std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr);
+
+    ServiceExtension* serviceExtension = ServiceExtension::Create(nullptr);
+    EXPECT_NE(serviceExtension, nullptr);
+
+    GTEST_LOG_(INFO) << "service extension Init start";
+
+    AppExecFwk::Configuration configuration;
+    serviceExtension->OnConfigurationUpdated(configuration);
+
+    GTEST_LOG_(INFO) << "service extension Init end";
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

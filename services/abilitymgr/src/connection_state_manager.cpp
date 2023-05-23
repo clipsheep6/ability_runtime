@@ -98,7 +98,7 @@ void ConnectionStateManager::AddConnection(const std::shared_ptr<ConnectionRecor
 
     ConnectionData connectionData;
     if (!AddConnectionInner(connectionRecord, connectionData)) {
-        HILOG_WARN("add connection, no need to notify observers");
+        HILOG_DEBUG("add connection, no need to notify observers");
         return;
     }
     controller->NotifyExtensionConnected(connectionData);
@@ -125,7 +125,7 @@ void ConnectionStateManager::RemoveConnection(const std::shared_ptr<ConnectionRe
 
     ConnectionData connectionData;
     if (!RemoveConnectionInner(connectionRecord, connectionData)) {
-        HILOG_WARN("remove connection, no need to notify observers");
+        HILOG_DEBUG("remove connection, no need to notify observers");
         return;
     }
     controller->NotifyExtensionDisconnected(connectionData);
@@ -374,7 +374,7 @@ std::shared_ptr<ConnectionStateItem> ConnectionStateManager::RemoveDiedCaller(in
     std::lock_guard<std::recursive_mutex> guard(stateLock_);
     auto it = connectionStates_.find(callerPid);
     if (it == connectionStates_.end()) {
-        HILOG_WARN("can not find target item, connection caller pid:%{public}d, may already handled.", callerPid);
+        HILOG_WARN("connection caller pid:%{public}d.", callerPid);
         return nullptr;
     }
     auto stateItem = it->second;

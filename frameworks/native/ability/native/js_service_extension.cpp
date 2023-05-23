@@ -75,7 +75,7 @@ using namespace OHOS::AppExecFwk;
 
 NativeValue *AttachServiceExtensionContext(NativeEngine *engine, void *value, void *)
 {
-    HILOG_INFO("AttachServiceExtensionContext");
+    HILOG_INFO("call");
     if (value == nullptr) {
         HILOG_WARN("invalid parameter.");
         return nullptr;
@@ -163,7 +163,7 @@ void JsServiceExtension::BindContext(NativeEngine& engine, NativeObject* obj)
         HILOG_ERROR("Failed to get context");
         return;
     }
-    HILOG_INFO("JsServiceExtension::Init CreateJsServiceExtensionContext.");
+    HILOG_INFO("call");
     NativeValue* contextObj = CreateJsServiceExtensionContext(engine, context);
     shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(&engine, "application.ServiceExtensionContext",
         &contextObj, ARGC_ONE);
@@ -194,27 +194,27 @@ void JsServiceExtension::BindContext(NativeEngine& engine, NativeObject* obj)
 void JsServiceExtension::OnStart(const AAFwk::Want &want)
 {
     Extension::OnStart(want);
-    HILOG_INFO("JsServiceExtension OnStart begin..");
+    HILOG_INFO("call");
     HandleScope handleScope(jsRuntime_);
     NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
     NativeValue* nativeWant = reinterpret_cast<NativeValue*>(napiWant);
     NativeValue* argv[] = {nativeWant};
     CallObjectMethod("onCreate", argv, ARGC_ONE);
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("ok");
 }
 
 void JsServiceExtension::OnStop()
 {
     ServiceExtension::OnStop();
-    HILOG_INFO("JsServiceExtension OnStop begin.");
+    HILOG_INFO("call");
     CallObjectMethod("onDestroy");
     bool ret = ConnectionManager::GetInstance().DisconnectCaller(GetContext()->GetToken());
     if (ret) {
         ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());
         HILOG_INFO("The service extension connection is not disconnected.");
     }
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("ok");
 }
 
 sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want)
@@ -314,8 +314,7 @@ void JsServiceExtension::OnDisconnect(const AAFwk::Want &want,
 void JsServiceExtension::OnCommand(const AAFwk::Want &want, bool restart, int startId)
 {
     Extension::OnCommand(want, restart, startId);
-    HILOG_INFO("%{public}s begin restart=%{public}s,startId=%{public}d.",
-        __func__,
+    HILOG_INFO("restart=%{public}s,startId=%{public}d.",
         restart ? "true" : "false",
         startId);
     // wrap want
@@ -329,12 +328,12 @@ void JsServiceExtension::OnCommand(const AAFwk::Want &want, bool restart, int st
     NativeValue* nativeStartId = reinterpret_cast<NativeValue*>(napiStartId);
     NativeValue* argv[] = {nativeWant, nativeStartId};
     CallObjectMethod("onRequest", argv, ARGC_TWO);
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("ok");
 }
 
 NativeValue* JsServiceExtension::CallObjectMethod(const char* name, NativeValue* const* argv, size_t argc)
 {
-    HILOG_INFO("JsServiceExtension::CallObjectMethod(%{public}s), begin", name);
+    HILOG_INFO("CallObjectMethod(%{public}s)", name);
 
     if (!jsObj_) {
         HILOG_WARN("Not found ServiceExtension.js");
@@ -356,7 +355,7 @@ NativeValue* JsServiceExtension::CallObjectMethod(const char* name, NativeValue*
         HILOG_ERROR("Failed to get '%{public}s' from ServiceExtension object", name);
         return nullptr;
     }
-    HILOG_INFO("JsServiceExtension::CallFunction(%{public}s), success", name);
+    HILOG_INFO("CallFunction(%{public}s) ok", name);
     return nativeEngine.CallFunction(value, method, argv, argc);
 }
 
@@ -385,7 +384,7 @@ NativeValue *JsServiceExtension::CallOnConnect(const AAFwk::Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     Extension::OnConnect(want);
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("call");
     NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
     auto* nativeWant = reinterpret_cast<NativeValue*>(napiWant);
@@ -407,12 +406,11 @@ NativeValue *JsServiceExtension::CallOnConnect(const AAFwk::Want &want)
         HILOG_ERROR("Failed to get onConnect from ServiceExtension object");
         return nullptr;
     }
-    HILOG_INFO("JsServiceExtension::CallFunction onConnect, success");
     NativeValue* remoteNative = nativeEngine->CallFunction(value, method, argv, ARGC_ONE);
     if (remoteNative == nullptr) {
         HILOG_ERROR("remoteNative nullptr.");
     }
-    HILOG_DEBUG("%{public}s end.", __func__);
+    HILOG_INFO("ok");
     return remoteNative;
 }
 
@@ -490,7 +488,7 @@ bool JsServiceExtension::CallPromise(NativeValue *result, AppExecFwk::AbilityTra
 void JsServiceExtension::OnConfigurationUpdated(const AppExecFwk::Configuration& configuration)
 {
     ServiceExtension::OnConfigurationUpdated(configuration);
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("call");
 
     HandleScope handleScope(jsRuntime_);
     auto& nativeEngine = jsRuntime_.GetNativeEngine();
@@ -513,7 +511,7 @@ void JsServiceExtension::OnConfigurationUpdated(const AppExecFwk::Configuration&
 void JsServiceExtension::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
     Extension::Dump(params, info);
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("call");
     HandleScope handleScope(jsRuntime_);
     auto& nativeEngine = jsRuntime_.GetNativeEngine();
     // create js array object of params

@@ -24,7 +24,6 @@
 #include "ability_handler.h"
 #include "ability_manager_client.h"
 #include "ability_manager_interface.h"
-#include "session_info.h"
 #ifdef SUPPORT_GRAPHICS
 #include "foundation/multimodalinput/input/interfaces/native/innerkits/event/include/i_input_event_consumer.h"
 #endif
@@ -41,8 +40,7 @@ public:
     AbilityImpl() = default;
     virtual ~AbilityImpl() = default;
     virtual void Init(std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &record,
-        std::shared_ptr<Ability> &ability, std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token,
-        std::shared_ptr<ContextDeal> &contextDeal);
+        std::shared_ptr<Ability> &ability, std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token);
 
     /**
      * @brief Connect the ability. and Calling information back to Ability.
@@ -435,9 +433,11 @@ protected:
     void Inactive();
 
     /**
-     * @brief SerUriString
+     * @brief SetUriString
+     * 
+     * @param uri the uri to set.
      */
-    void SerUriString(const std::string &uri);
+    void SetUriString(const std::string &uri);
 
     /**
      * @brief Set the LifeCycleStateInfo to the deal.
@@ -512,20 +512,6 @@ public:
     void AfterFocused() override;
     void AfterUnfocused() override;
     void ForegroundFailed(int32_t type) override;
-private:
-    sptr<IRemoteObject> token_ = nullptr;
-    std::weak_ptr<AbilityImpl> owner_;
-};
-
-class SessionStateLifeCycleImpl : public Rosen::ISessionStageStateListener {
-public:
-    SessionStateLifeCycleImpl(const sptr<IRemoteObject>& token, const std::shared_ptr<AbilityImpl>& owner)
-        : token_(token), owner_(owner) {}
-    virtual ~SessionStateLifeCycleImpl() = default;
-    void AfterForeground() override;
-    void AfterBackground() override;
-    void AfterActive() override;
-    void AfterInactive() override;
 private:
     sptr<IRemoteObject> token_ = nullptr;
     std::weak_ptr<AbilityImpl> owner_;
