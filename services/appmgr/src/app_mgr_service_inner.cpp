@@ -53,6 +53,9 @@
 #include "permission_verification.h"
 #include "system_ability_definition.h"
 #include "uri_permission_manager_client.h"
+#ifdef APP_MGR_SERVICE_APPMS
+#include "socket_permission.h"
+#endif
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -1660,6 +1663,13 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         if (result != Security::AccessToken::PERMISSION_GRANTED) {
             setAllowInternet = 1;
             allowInternet = 0;
+#ifdef APP_MGR_SERVICE_APPMS
+            auto ret = SetInternetPermission(bundleInfo.uid, 0);
+            HILOG_DEBUG("SetInternetPermission, ret = %{public}d", ret);
+        } else {
+            auto ret = SetInternetPermission(bundleInfo.uid, 1);
+            HILOG_DEBUG("SetInternetPermission, ret = %{public}d", ret);
+#endif
         }
 
         if (hasAccessBundleDirReq) {
