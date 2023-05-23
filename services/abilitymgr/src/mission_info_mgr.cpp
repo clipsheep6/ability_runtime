@@ -187,20 +187,20 @@ bool MissionInfoMgr::DeleteAllMissionInfos(const std::shared_ptr<MissionListener
 
     auto abilityMs_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
 
-    for (auto listIter = missionInfoList_.begin(); listIter != missionInfoList_.end();) {
+    for (auto listIter = missionInfoList_.begin(); listIter != missionInfoList_.end(); listIter++) {
         HILOG_ERROR("DeleteAllMissionInfos missionInfo.unclearable: %{public}d", listIter->missionInfo.unclearable);
         HILOG_ERROR("DeleteAllMissionInfos missionInfo.lockedState: %{public}d", listIter->missionInfo.lockedState);
         HILOG_ERROR("DeleteAllMissionInfos IsBackgroundTaskUid: %{public}d", abilityMs_->IsBackgroundTaskUid(listIter->uid));
-        if ((!listIter->missionInfo.unclearable)
-            || (!((listIter->missionInfo.lockedState) || (abilityMs_->IsBackgroundTaskUid(listIter->uid))))) {
+        if (listIter->missionInfo.unclearable) {
+            continue;
+        }
+        else if (!((listIter->missionInfo.lockedState) || (abilityMs_->IsBackgroundTaskUid(listIter->uid)))) {
             missionIdMap_.erase(listIter->missionInfo.id);
             taskDataPersistenceMgr_->DeleteMissionInfo(listIter->missionInfo.id);
             if (listenerController) {
                 listenerController->NotifyMissionDestroyed(listIter->missionInfo.id);
             }
             missionInfoList_.erase(listIter++);
-        } else {
-            ++listIter;
         }
     }
     return true;
