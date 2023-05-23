@@ -1646,7 +1646,7 @@ int MissionListManager::ClearMission(int missionId)
     }
 
     if (mission->IsUnclearable()) {
-        HILOG_ERROR("Mission is unclearbale.");
+        HILOG_ERROR("Mission is unclearable.");
         return ERR_INVALID_VALUE;
     }
 
@@ -1709,6 +1709,7 @@ int MissionListManager::ClearAllMissions()
 void MissionListManager::ClearAllMissionsLocked(std::list<std::shared_ptr<Mission>> &missionList,
     std::list<std::shared_ptr<Mission>> &foregroundAbilities, bool searchActive)
 {
+    HILOG_INFO("ClearAllMissionsLocked called.");
     for (auto listIter = missionList.begin(); listIter != missionList.end();) {
         auto mission = (*listIter);
         listIter++;
