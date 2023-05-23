@@ -1066,6 +1066,7 @@ int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> 
             if (state == AbilityState::FOREGROUND_WINDOW_FREEZED) {
                 HILOG_INFO("Window was freezed.");
                 if (abilityRecord != nullptr) {
+                    abilityRecord->SetAbilityState(AbilityState::BACKGROUND);
                     DelayedSingleton<AppScheduler>::GetInstance()->MoveToBackground(abilityRecord->GetToken());
                 }
                 return;
