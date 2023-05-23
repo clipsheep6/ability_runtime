@@ -10,10 +10,10 @@
   "dirs": {},
   "scripts": {},
   "component": {
-      "name": "ability_runtime",
+      "name": "ability_runtime2",
       "subsystem": "ability12",
       "syscap": [
-        "SystemCapability.Ability.AbilityRuntime.Core",
+        "SystemCapability.Ability.AbilityRuntime.Core1",
         "SystemCapability.Ability.AbilityRuntime.FAModel",
         "SystemCapability.Ability.AbilityRuntime.AbilityCore",
         "SystemCapability.Ability.AbilityRuntime.Mission",
