@@ -57,6 +57,7 @@ group("fuzztest") {
     "abilitytransitiondone_fuzzer:fuzztest",
     "acquiredataability_fuzzer:fuzztest",
     "addabilitystagedone_fuzzer:fuzztest",
+    "amsmanager_fuzzer:fuzztest",
     "amsmgrscheduler_fuzzer:fuzztest",
     "applicationanrlistener_fuzzer:fuzztest",
     "applifecycledeal_fuzzer:fuzztest",
