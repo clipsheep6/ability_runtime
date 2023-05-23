@@ -67,7 +67,7 @@ export default class SelectorServiceExtensionAbility extends extension {
     let appIcon = '';
     let type = '';
     let userId = Number('0');
-    if (globalThis.params.deviceType === 'pc') {
+    if (globalThis.params.deviceType !== 'phone' && globalThis.params.deviceType !== 'default') {
       type = hap.type;
       userId = Number(hap.userId);
     }
@@ -99,7 +99,7 @@ export default class SelectorServiceExtensionAbility extends extension {
     globalThis.callerToken = want['parameters']['callerToken'];
     console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
     console.debug(TAG, 'onRequest, position: ' + JSON.stringify(globalThis.position));
-    if (globalThis.params.deviceType === 'pc') {
+    if (globalThis.params.deviceType !== 'phone' && globalThis.params.deviceType !== 'default') {
       globalThis.modelFlag = Boolean(globalThis.params.modelFlag);
       globalThis.action = Boolean(globalThis.params.action);
     }

@@ -71,7 +71,7 @@ const int32_t UI_DEFAULT_WIDTH = 2560;
 const int32_t UI_DEFAULT_HEIGHT = 1600;
 
 const std::string STR_PHONE = "phone";
-const std::string STR_PC = "pc";
+const std::string STR_DEFAULT = "default";
 const std::string DIALOG_NAME_ANR = "dialog_anr_service";
 const std::string DIALOG_NAME_TIPS = "dialog_tips_service";
 const std::string DIALOG_SELECTOR_NAME = "dialog_selector_service";
@@ -276,8 +276,9 @@ const std::string SystemDialogScheduler::GetDialogPositionParams(const DialogPos
 
 void SystemDialogScheduler::InitDialogPosition(DialogType type, DialogPosition &position) const
 {
-    position.wideScreen = (deviceType_ == STR_PC);
-    position.align = (deviceType_ == STR_PHONE) ? DialogAlign::BOTTOM : DialogAlign::CENTER;
+    position.wideScreen = (deviceType_ == STR_PHONE) ? false : (deviceType_ != STR_DEFAULT);
+    position.align = ((deviceType_ == STR_PHONE) ? true : (deviceType_ == STR_DEFAULT)) ?
+        DialogAlign::BOTTOM : DialogAlign::CENTER;
     auto display = Rosen::DisplayManager::GetInstance().GetDefaultDisplay();
 
     switch (type) {
