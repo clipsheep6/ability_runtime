@@ -30,7 +30,7 @@ const ERROR_MSG_FUNC_REGISTERED = 'Method registered. The method has registered.
 const ERROR_MSG_FUNC_NOT_EXIST = 'Method not registered. The method has not registered.';
 const ERROR_MSG_INNER_ERROR = 'Inner Error.';
 
-var errMap = new Map();
+let errMap = new Map();
 errMap.set(ERROR_CODE_INVALID_PARAM, ERROR_MSG_INVALID_PARAM);
 errMap.set(ERROR_CODE_FUNC_REGISTERED, ERROR_MSG_FUNC_REGISTERED);
 errMap.set(ERROR_CODE_FUNC_NOT_EXIST, ERROR_MSG_FUNC_NOT_EXIST);

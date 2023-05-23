@@ -114,7 +114,7 @@ class ServiceExtensionContext extends ExtensionContext {
       }
 
       try {
-        var callee = await this.__context_impl__.startAbilityByCall(want);
+        let callee = await this.__context_impl__.startAbilityByCall(want);
       } catch (error) {
         console.log('ServiceExtensionContext::startAbilityByCall Obtain remoteObject failed');
         reject(error);
@@ -136,7 +136,7 @@ class ServiceExtensionContext extends ExtensionContext {
       }
 
       try {
-        var callee = await this.__context_impl__.startAbilityByCall(want, accountId);
+        let callee = await this.__context_impl__.startAbilityByCall(want, accountId);
       } catch (error) {
         console.log('ServiceExtensionContext::startAbilityByCall With accountId Obtain remoteObject failed');
         reject(error);

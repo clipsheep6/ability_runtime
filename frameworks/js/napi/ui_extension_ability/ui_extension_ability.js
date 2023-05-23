@@ -26,7 +26,7 @@ class UIExtensionAbility extends ExtensionAbility {
 
   onLoadContent() {
     console.log('onLoadContent');
-    return "";
+    return '';
   }
 
   onDestroy() {

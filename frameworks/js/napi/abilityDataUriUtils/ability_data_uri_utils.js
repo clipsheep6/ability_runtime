@@ -20,7 +20,7 @@ const ERROR_CODE_INNER_ERROR = 16000050;
 const ERROR_MSG_INVALID_PARAM = 'Invalid input parameter.';
 const ERROR_MSG_INNER_ERROR = 'Inner Error.';
 
-var errMap = new Map();
+let errMap = new Map();
 errMap.set(ERROR_CODE_INVALID_PARAM, ERROR_MSG_INVALID_PARAM);
 errMap.set(ERROR_CODE_INNER_ERROR, ERROR_MSG_INNER_ERROR);
 
@@ -73,7 +73,7 @@ let dataUriUtils = {
     if (index === -1) {
       throw new DataUriError(ERROR_CODE_INVALID_PARAM);
     }
-    var id = uri.substring(index + 1);
+    let id = uri.substring(index + 1);
     if (id === '' || isNaN(Number(id))) {
       throw new DataUriError(ERROR_CODE_INVALID_PARAM);
     }
