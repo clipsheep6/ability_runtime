@@ -516,12 +516,13 @@ bool JsRuntime::Initialize(const Options& options)
             } else {
                 InitTimerModule();
             }
-            if (jsEnv_) {
-                jsEnv_->InitWorkerModule(codePath_, options.isDebugVersion, options.isBundle);
-            }
         }
     }
 
+    if (jsEnv_ && !options.preload) {
+        jsEnv_->InitWorkerModule(codePath_, options.isDebugVersion, options.isBundle);
+    }
+    
     auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>(options.hapPath, isModular);
     InitSourceMap(operatorObj);
 
