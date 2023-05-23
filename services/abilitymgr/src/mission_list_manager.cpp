@@ -1712,6 +1712,7 @@ void MissionListManager::ClearAllMissionsLocked(std::list<std::shared_ptr<Missio
     HILOG_INFO("ClearAllMissionsLocked called.");
     for (auto listIter = missionList.begin(); listIter != missionList.end();) {
         auto mission = (*listIter);
+        HILOG_INFO("ClearAllMissionsLocked in missionId: %{public}d.", mission->GetMissionId());
         listIter++;
         if (!mission || mission->IsLockedState() || mission->IsUnclearable()) {
             HILOG_INFO("the mission is locked or unclearable");
@@ -1728,6 +1729,7 @@ void MissionListManager::ClearAllMissionsLocked(std::list<std::shared_ptr<Missio
             foregroundAbilities.push_front(mission);
             continue;
         }
+        HILOG_INFO("ClearAllMissionsLocked out missionId: %{public}d.", mission->GetMissionId());
         ClearMissionLocked(-1, mission);
     }
 }
