@@ -24,7 +24,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-class ValuesBucket : public Parcelable {
+class ValuesBucket {
 public:
     ValuesBucket() = default;
     ValuesBucket(const std::string &testInf);
@@ -32,8 +32,8 @@ public:
     ValuesBucket(const Parcel &parcel) {};
 
     bool ReadFromParcel(Parcel &parcel);
-    virtual bool Marshalling(Parcel &parcel) const override;
-    static ValuesBucket *Unmarshalling(Parcel &parcel);
+    bool Marshalling(Parcel &parcel) const;
+    static ValuesBucket Unmarshalling(Parcel &parcel);
 
     bool IsEmpty()
     {
