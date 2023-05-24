@@ -455,7 +455,7 @@ bool JsRuntime::Initialize(const Options& options)
             return false;
         }
     }
-
+    HILOG_INFO("Create js environment start.2");
     bool isModular = false;
     if (IsUseAbilityRuntime(options)) {
         HandleScope handleScope(*this);
@@ -464,7 +464,7 @@ bool JsRuntime::Initialize(const Options& options)
 
         auto vm = GetEcmaVm();
         CHECK_POINTER_AND_RETURN(vm, false);
-
+        HILOG_INFO("Create js environment start.3");
         if (preloaded_) {
             panda::RuntimeOption postOption;
             postOption.SetBundleName(options.bundleName);
@@ -478,36 +478,38 @@ bool JsRuntime::Initialize(const Options& options)
             nativeEngine->ReinitUVLoop();
             panda::JSNApi::SetLoop(vm, nativeEngine->GetUVLoop());
         }
-
+        HILOG_INFO("Create js environment start.4");
         NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine->GetGlobal());
         CHECK_POINTER_AND_RETURN(globalObj, false);
-
+        HILOG_INFO("Create js environment start.5");
         if (!preloaded_) {
             InitConsoleModule();
             InitSyscapModule(*nativeEngine, *globalObj);
-
+            HILOG_INFO("Create js environment start.6");
             // Simple hook function 'isSystemplugin'
             const char* moduleName = "JsRuntime";
             BindNativeFunction(*nativeEngine, *globalObj, "isSystemplugin", moduleName,
                 [](NativeEngine* engine, NativeCallbackInfo* info) -> NativeValue* {
                     return engine->CreateUndefined();
                 });
-
+            HILOG_INFO("Create js environment start.7");
             methodRequireNapiRef_.reset(nativeEngine->CreateReference(globalObj->GetProperty("requireNapi"), 1));
             if (!methodRequireNapiRef_) {
                 HILOG_ERROR("Failed to create reference for global.requireNapi");
                 return false;
             }
-
+            HILOG_INFO("Create js environment start.8");
             PreloadAce(options);
+            HILOG_INFO("Create js environment start.9");
             nativeEngine->RegisterPermissionCheck(PermissionCheckFunc);
+            HILOG_INFO("Create js environment start.10");
         }
 
         if (!options.preload) {
             isBundle_ = options.isBundle;
             bundleName_ = options.bundleName;
             codePath_ = options.codePath;
-
+            HILOG_INFO("Create js environment start.11");
             if (!options.hapPath.empty()) {
                 bool newCreate = false;
                 std::string loadPath = ExtractorUtil::GetLoadFilePath(options.hapPath);
@@ -522,7 +524,7 @@ bool JsRuntime::Initialize(const Options& options)
                     panda::JSNApi::LoadAotFile(vm, options.hapPath);
                 }
             }
-
+            HILOG_INFO("Create js environment start.12");
             panda::JSNApi::SetBundle(vm, options.isBundle);
             panda::JSNApi::SetBundleName(vm, options.bundleName);
             panda::JSNApi::SetHostResolveBufferTracker(vm, JsModuleReader(options.bundleName));
@@ -532,7 +534,7 @@ bool JsRuntime::Initialize(const Options& options)
                 HILOG_ERROR("Initialize loop failed.");
                 return false;
             }
-
+            HILOG_INFO("Create js environment start.13");
             if (options.isUnique) {
                 HILOG_INFO("Not supported TimerModule when form render");
             } else {
@@ -543,10 +545,10 @@ bool JsRuntime::Initialize(const Options& options)
             }
         }
     }
-
+    HILOG_INFO("Create js environment start.14");
     auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>(options.hapPath, isModular);
     InitSourceMap(operatorObj);
-
+    HILOG_INFO("Create js environment start.15");
     preloaded_ = options.preload;
     return true;
 }
@@ -593,14 +595,22 @@ bool JsRuntime::CreateJsEnv(const Options& options)
 
 void JsRuntime::PreloadAce(const Options& options)
 {
+    HILOG_INFO("Create js environment start.20");
     auto nativeEngine = GetNativeEnginePointer();
+    if (nativeEngine == nullptr) {
+        HILOG_INFO("Create js environment start.20 null");
+    } else {
+        HILOG_INFO("Create js environment start.20 has body");
+    }
     CHECK_POINTER(nativeEngine);
 #ifdef SUPPORT_GRAPHICS
     if (options.loadAce) {
         // ArkTsCard start
         if (options.isUnique) {
+            HILOG_INFO("Create js environment start.22");
             OHOS::Ace::DeclarativeModulePreloader::PreloadCard(*nativeEngine);
         } else {
+            HILOG_INFO("Create js environment start.23");
             OHOS::Ace::DeclarativeModulePreloader::Preload(*nativeEngine);
         }
         // ArkTsCard end
