@@ -135,6 +135,9 @@ bool InnerMissionInfo::FromJsonStr(const std::string &jsonStr)
     if (!CheckJsonNode(value, KEY_HAS_RECONER_INFO, JsonType::BOOLEAN)) {
         return false;
     }
+    if (!CheckJsonNode(value, KEY_UNCLEARABLE, JsonType::BOOLEAN)) {
+        return false;
+    }
     hasRecoverInfo = value[KEY_HAS_RECONER_INFO].get<bool>();
     Want* want = Want::ParseUri(value[KEY_WANT].get<std::string>());
     if (want) {
