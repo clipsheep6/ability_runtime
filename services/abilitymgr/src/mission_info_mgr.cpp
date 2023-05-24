@@ -187,7 +187,7 @@ bool MissionInfoMgr::DeleteAllMissionInfos(const std::shared_ptr<MissionListener
 
     auto abilityMs_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
 
-    for (auto listIter = missionInfoList_.begin(); listIter != missionInfoList_.end()) {
+    for (auto listIter = missionInfoList_.begin(); listIter != missionInfoList_.end();) {
         HILOG_ERROR("DeleteAllMissionInfos missionInfo.unclearable: %{public}d", listIter->missionInfo.unclearable);
         HILOG_ERROR("DeleteAllMissionInfos missionInfo.lockedState: %{public}d", listIter->missionInfo.lockedState);
         HILOG_ERROR("DeleteAllMissionInfos IsBackgroundTaskUid: %{public}d", abilityMs_->IsBackgroundTaskUid(listIter->uid));
