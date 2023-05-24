@@ -1645,14 +1645,12 @@ int MissionListManager::ClearMission(int missionId)
         return ERR_INVALID_VALUE;
     }
 
-    if (mission == nullptr) {
-        HILOG_ERROR("Mission is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-
-    if (mission->IsUnclearable()) {
-        HILOG_ERROR("Mission is unclearable.");
-        return ERR_INVALID_VALUE;
+    MissionInfo missionInfo;
+    if (DelayedSingleton<MissionInfoMgr>::GetInstance()->GetMissionInfoById(missionId, missionInfo) == 0) {
+        if (missionInfo.unclearable) {
+            HILOG_WARN("mission is unclearable.");
+            return ERR_INVALID_VALUE;
+        }
     }
 
     return ClearMissionLocked(missionId, mission);
@@ -1719,8 +1717,20 @@ void MissionListManager::ClearAllMissionsLocked(std::list<std::shared_ptr<Missio
         auto mission = (*listIter);
         HILOG_INFO("ClearAllMissionsLocked in missionId: %{public}d.", mission->GetMissionId());
         listIter++;
-        if (!mission || mission->IsLockedState() || mission->IsUnclearable()) {
-            HILOG_INFO("the mission is locked or unclearable");
+
+        MissionInfo missionInfo;
+        auto mid = mission->GetMissionId();
+        HILOG_INFO("GetMissionId value: %{public}d.", mid);
+        if (DelayedSingleton<MissionInfoMgr>::GetInstance()
+            ->GetMissionInfoById(mid, missionInfo) == 0) {
+            if (missionInfo.unclearable) {
+                HILOG_WARN("mission is unclearable.");
+                continue;
+            }
+        }
+
+        if (!mission || mission->IsLockedState()) {
+            HILOG_INFO("the mission is locked");
             continue;
         }
 

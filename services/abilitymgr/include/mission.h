@@ -205,16 +205,6 @@ public:
         return missionTime_;
     }
 
-    inline void SetUnclearable(bool unclearable)
-    {
-        unclearable_ = unclearable;
-    }
-
-    inline bool IsUnclearable()
-    {
-        return unclearable_;
-    }
-
 private:
     int32_t missionId_;
     int32_t startMethod_;
@@ -228,7 +218,6 @@ private:
     bool needNotify_ = true;
     bool needNotifyUpdateLabel_ = false;
     std::string missionTime_ = "0";
-    bool unclearable_ = false;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
