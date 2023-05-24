@@ -527,7 +527,6 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
         }
         targetMission = std::make_shared<Mission>(info.missionInfo.id, targetRecord,
             info.missionName, info.startMethod);
-        targetMission->SetUnclearable(info.missionInfo.unclearable);
         targetRecord->UpdateRecoveryInfo(info.hasRecoverInfo);
         info.hasRecoverInfo = false;
         targetMission->SetLockedState(info.missionInfo.lockedState);
