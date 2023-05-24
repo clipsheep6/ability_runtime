@@ -43,6 +43,8 @@ public:
     int32_t StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag);
     int32_t StopSyncRemoteMissions(const std::string& devId);
     int32_t RegisterMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj);
+    int32_t RegisterOnListener(const std::string& type, const sptr<IRemoteObject>& obj);
+    int32_t RegisterOffListener(const std::string& type, const sptr<IRemoteObject>& obj);
     int32_t UnRegisterMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj);
     int32_t GetMissionInfos(const std::string& deviceId, int32_t numMissions,
         std::vector<AAFwk::MissionInfo>& missionInfos);
@@ -70,7 +72,9 @@ public:
         START_REMOTE_ABILITY_BY_CALL = 150,
         RELEASE_REMOTE_ABILITY = 151,
         START_REMOTE_FREE_INSTALL = 200,
-        STOP_REMOTE_EXTERNSION_ABILITY = 225
+        STOP_REMOTE_EXTERNSION_ABILITY = 225,
+        REGISTER_ON_LISTENER = 260,
+        REGISTER_OFF_LISTENER = 261
     };
 private:
     sptr<IRemoteObject> GetDmsProxy();

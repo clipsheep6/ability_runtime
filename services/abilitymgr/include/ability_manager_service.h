@@ -409,6 +409,26 @@ public:
         const sptr<IRemoteMissionListener> &listener) override;
 
     /**
+     * RegisterOnListener, register on notify mission listener.
+     *
+     * @param type, Indicates the notify type.
+     * @param listener, listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int RegisterOnListener(const std::string &type,
+        const sptr<IRemoteOnListener> &listener) override;
+
+    /**
+     * RegisterOffListener, register on notify mission listener.
+     *
+     * @param type, Indicates the notify type.
+     * @param listener, listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int RegisterOffListener(const std::string &type,
+        const sptr<IRemoteOnListener> &listener) override;
+
+    /**
      * UnRegisterMissionListener, unregister remote device mission listener.
      *
      * @param deviceId, Indicates the remote device Id.

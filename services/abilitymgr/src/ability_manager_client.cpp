@@ -568,6 +568,22 @@ ErrCode AbilityManagerClient::RegisterMissionListener(const std::string &deviceI
     return abms->RegisterMissionListener(deviceId, listener);
 }
 
+ErrCode AbilityManagerClient::RegisterOnListener(const std::string &type,
+    const sptr<IRemoteOnListener> &listener)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->RegisterOnListener(type, listener);
+}
+
+ErrCode AbilityManagerClient::RegisterOffListener(const std::string &type,
+    const sptr<IRemoteOnListener> &listener)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->RegisterOffListener(type, listener);
+}
+
 ErrCode AbilityManagerClient::UnRegisterMissionListener(const std::string &deviceId,
     const sptr<IRemoteMissionListener> &listener)
 {

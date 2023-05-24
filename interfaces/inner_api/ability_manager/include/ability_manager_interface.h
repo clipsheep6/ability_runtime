@@ -34,6 +34,7 @@
 #include "mission_info.h"
 #include "mission_snapshot.h"
 #include "remote_mission_listener_interface.h"
+#include "remote_on_listener_interface.h"
 #include "running_process_info.h"
 #include "sender_info.h"
 #include "snapshot.h"
@@ -696,6 +697,10 @@ public:
 
     virtual int RegisterMissionListener(const std::string &deviceId, const sptr<IRemoteMissionListener> &listener) = 0;
 
+    virtual int RegisterOnListener(const std::string &type, const sptr<IRemoteOnListener> &listener) = 0;
+
+    virtual int RegisterOffListener(const std::string &type, const sptr<IRemoteOnListener> &listener) = 0;
+
     virtual int UnRegisterMissionListener(const std::string &deviceId,
         const sptr<IRemoteMissionListener> &listener) = 0;
 
@@ -1105,6 +1110,8 @@ public:
 
         SEND_ABILITY_RESULT_BY_TOKEN,
 
+        // ipc id for register on listener (41)
+        REGISTER_ON_LISTENER,
         // ipc id 1001-2000 for DMS
         // ipc id for starting ability (1001)
         START_ABILITY = 1001,
@@ -1218,6 +1225,10 @@ public:
         CONTINUE_MISSION = 1105,
 
         SEND_RESULT_TO_ABILITY = 1106,
+
+        REGISTER_REMOTE_ON_LISTENER = 1107,
+
+        REGISTER_REMOTE_OFF_LISTENER = 1108,
 
         // ipc id for mission manager(1110)
         REGISTER_REMOTE_MISSION_LISTENER = 1110,
