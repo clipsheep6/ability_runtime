@@ -116,6 +116,7 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     const std::shared_ptr<OHOSApplication> application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     Ability::Init(abilityInfo, application, handler, token);
 
     if (!abilityInfo) {
@@ -497,6 +498,7 @@ void JsAbility::OnBackground()
 
 std::unique_ptr<NativeReference> JsAbility::CreateAppWindowStage()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HandleScope handleScope(jsRuntime_);
     auto &engine = jsRuntime_.GetNativeEngine();
     NativeValue *jsWindowStage = Rosen::CreateJsWindowStage(engine, GetScene());
@@ -538,6 +540,7 @@ void JsAbility::RestorePageStack(const Want &want)
 
 void JsAbility::AbilityContinuationOrRecover(const Want &want)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     // multi-instance ability continuation
     HILOG_DEBUG("launch reason = %{public}d", launchParam_.launchReason);
     if (IsRestoredInContinuation()) {
@@ -562,6 +565,7 @@ void JsAbility::AbilityContinuationOrRecover(const Want &want)
 
 void JsAbility::DoOnForeground(const Want &want)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (scene_ == nullptr) {
         if ((abilityContext_ == nullptr) || (sceneListener_ == nullptr)) {
             HILOG_ERROR("Ability::OnForeground error. abilityContext_ or sceneListener_ is nullptr!");
@@ -897,6 +901,7 @@ sptr<IRemoteObject> JsAbility::CallRequest()
 
 NativeValue *JsAbility::CallObjectMethod(const char *name, NativeValue *const *argv, size_t argc, bool withResult)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("JsAbility::CallObjectMethod(%{public}s", name);
 
     if (!jsAbilityObj_) {

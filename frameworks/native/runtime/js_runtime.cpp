@@ -33,6 +33,7 @@
 #include "file_path_utils.h"
 #include "hdc_register.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "hot_reloader.h"
 #include "ipc_skeleton.h"
 #include "js_console_log.h"
@@ -212,6 +213,7 @@ JsRuntime::~JsRuntime()
 
 std::unique_ptr<JsRuntime> JsRuntime::Create(const Options& options)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     std::unique_ptr<JsRuntime> instance;
 
     if (!options.preload && options.isStageModel) {
@@ -446,6 +448,7 @@ void JsRuntime::FinishPreload()
 
 bool JsRuntime::Initialize(const Options& options)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (!preloaded_) {
         if (!CreateJsEnv(options)) {
             HILOG_ERROR("Create js environment failed.");
@@ -677,6 +680,7 @@ void JsRuntime::Deinitialize()
 
 NativeValue* JsRuntime::LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     auto nativeEngine = GetNativeEnginePointer();
     CHECK_POINTER_AND_RETURN(nativeEngine, nullptr);
     NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine->GetGlobal());
@@ -705,6 +709,7 @@ NativeValue* JsRuntime::LoadJsBundle(const std::string& path, const std::string&
 
 NativeValue* JsRuntime::LoadJsModule(const std::string& path, const std::string& hapPath)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (!RunScript(path, hapPath, false)) {
         HILOG_ERROR("Failed to run script: %{private}s", path.c_str());
         return nullptr;
@@ -726,6 +731,7 @@ NativeValue* JsRuntime::LoadJsModule(const std::string& path, const std::string&
 std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& moduleName, const std::string& modulePath,
     const std::string& hapPath, bool esmodule, bool useCommonChunk)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("JsRuntime::LoadModule(%{public}s, %{private}s, %{private}s, %{public}s)",
         moduleName.c_str(), modulePath.c_str(), hapPath.c_str(), esmodule ? "true" : "false");
     auto nativeEngine = GetNativeEnginePointer();
@@ -797,6 +803,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModule(
 
 bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath, bool useCommonChunk)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     auto nativeEngine = GetNativeEnginePointer();
     CHECK_POINTER_AND_RETURN(nativeEngine, false);
     auto vm = GetEcmaVm();

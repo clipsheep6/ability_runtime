@@ -62,6 +62,7 @@ void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std:
 
 void AbilityImpl::Start(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
         HILOG_ERROR("AbilityImpl::Start ability_ or abilityLifecycleCallbacks_ is nullptr");
@@ -700,6 +701,7 @@ void AbilityImpl::WindowLifeCycleImpl::ForegroundFailed(int32_t type)
 
 void AbilityImpl::Foreground(const Want &want)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
         HILOG_ERROR("AbilityImpl::Foreground ability_ or abilityLifecycleCallbacks_ is nullptr");

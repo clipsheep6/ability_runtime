@@ -117,6 +117,7 @@ int32_t MissionListManager::GetMissionCount() const
 
 int MissionListManager::StartAbility(AbilityRequest &abilityRequest)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     bool isReachToSingleLimit = CheckSingleLimit(abilityRequest);
     if (isReachToSingleLimit) {
@@ -304,7 +305,9 @@ void MissionListManager::StartWaitingAbility()
 int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> &currentTopAbility,
     const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    std::string connector = "##";
+    std::string traceName = __PRETTY_FUNCTION__ + connector + abilityRequest.want.GetElement().GetAbilityName();
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, traceName);
     HILOG_DEBUG("Start ability locked.");
     // 1. choose target mission list
     auto targetList = GetTargetMissionList(callerAbility, abilityRequest);
@@ -499,6 +502,7 @@ bool MissionListManager::CreateOrReusedMissionInfo(const AbilityRequest &ability
 void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilityRequest,
     std::shared_ptr<Mission> &targetMission, std::shared_ptr<AbilityRecord> &targetRecord, bool &isReachToLimit)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (HandleReusedMissionAndAbility(abilityRequest, targetMission, targetRecord)) {
         return;
     }

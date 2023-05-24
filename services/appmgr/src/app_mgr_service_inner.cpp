@@ -302,6 +302,7 @@ bool AppMgrServiceInner::GetBundleAndHapInfo(const AbilityInfo &abilityInfo,
     const std::shared_ptr<ApplicationInfo> &appInfo, BundleInfo &bundleInfo, HapModuleInfo &hapModuleInfo,
     int32_t appIndex) const
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto bundleMgr_ = remoteClientManager_->GetBundleManager();
     if (bundleMgr_ == nullptr) {
         HILOG_ERROR("GetBundleManager fail");
@@ -370,11 +371,13 @@ void AppMgrServiceInner::AttachApplication(const pid_t pid, const sptr<IAppSched
 
 void AppMgrServiceInner::LaunchApplication(const std::shared_ptr<AppRunningRecord> &appRecord)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (!appRecord) {
         HILOG_ERROR("appRecord is null");
         return;
     }
+    std::string connector = "##";
+    std::string traceName = __PRETTY_FUNCTION__ + connector + appRecord->GetApplicationInfo()->name;
+    HITRACE_METER_NAME(HITRACE_TAG_APP, traceName);
 
     if (!configuration_) {
         HILOG_ERROR("configuration_ is null");
