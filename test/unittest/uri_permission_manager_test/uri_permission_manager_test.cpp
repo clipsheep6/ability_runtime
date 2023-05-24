@@ -46,9 +46,9 @@ void UriPermissionManagerTest::TearDown() {}
  */
 HWTEST_F(UriPermissionManagerTest, ConnectUriPermService_001, TestSize.Level1)
 {
-    auto upmc = std::make_shared<UriPermissionManagerClient>();
-    upmc->saLoadFinished_ = true;
-    auto ret = upmc->ConnectUriPermService();
+    auto& upmc = AAFwk::UriPermissionManagerClient::GetInstance();
+    upmc.saLoadFinished_ = true;
+    auto ret = upmc.ConnectUriPermService();
     EXPECT_TRUE(ret == nullptr);
 }
 
@@ -60,10 +60,10 @@ HWTEST_F(UriPermissionManagerTest, ConnectUriPermService_001, TestSize.Level1)
  */
 HWTEST_F(UriPermissionManagerTest, ConnectUriPermService_002, TestSize.Level1)
 {
-    auto upmc = std::make_shared<UriPermissionManagerClient>();
+    auto& upmc = AAFwk::UriPermissionManagerClient::GetInstance();
     sptr<IRemoteObject> remoteObject = new (std::nothrow) UriPermissionLoadCallback();
-    upmc->SetUriPermMgr(remoteObject);
-    auto ret = upmc->ConnectUriPermService();
+    upmc.SetUriPermMgr(remoteObject);
+    auto ret = upmc.ConnectUriPermService();
     EXPECT_TRUE(ret != nullptr);
 }
 
@@ -75,10 +75,10 @@ HWTEST_F(UriPermissionManagerTest, ConnectUriPermService_002, TestSize.Level1)
  */
 HWTEST_F(UriPermissionManagerTest, ConnectUriPermService_003, TestSize.Level1)
 {
-    auto upmc = std::make_shared<UriPermissionManagerClient>();
+    auto& upmc = AAFwk::UriPermissionManagerClient::GetInstance();
     sptr<IRemoteObject> remoteObject = nullptr;
-    upmc->SetUriPermMgr(remoteObject);
-    auto ret = upmc->ConnectUriPermService();
+    upmc.SetUriPermMgr(remoteObject);
+    auto ret = upmc.ConnectUriPermService();
     EXPECT_TRUE(ret == nullptr);
 }
 
@@ -90,22 +90,9 @@ HWTEST_F(UriPermissionManagerTest, ConnectUriPermService_003, TestSize.Level1)
  */
 HWTEST_F(UriPermissionManagerTest, LoadUriPermService_001, TestSize.Level1)
 {
-    auto upmc = std::make_shared<UriPermissionManagerClient>();
-    auto ret = upmc->LoadUriPermService();
-    EXPECT_FALSE(ret);
-}
-
-/*
- * Feature: UriPermissionManagerClient
- * Function: LoadUriPermService
- * SubFunction: NA
- * FunctionPoints: UriPermissionManagerClient LoadUriPermService
- */
-HWTEST_F(UriPermissionManagerTest, LoadUriPermService_002, TestSize.Level1)
-{
-    auto upmc = std::make_shared<UriPermissionManagerClient>();
-    upmc->saLoadFinished_ = true;
-    auto ret = upmc->LoadUriPermService();
+    auto& upmc = AAFwk::UriPermissionManagerClient::GetInstance();
+    upmc.saLoadFinished_ = true;
+    auto ret = upmc.LoadUriPermService();
     EXPECT_TRUE(ret);
 }
 }  // namespace AAFwk

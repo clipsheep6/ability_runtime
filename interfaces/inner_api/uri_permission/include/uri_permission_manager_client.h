@@ -24,10 +24,9 @@
 namespace OHOS {
 namespace AAFwk {
 using ClearProxyCallback = std::function<void()>;
-class UriPermissionManagerClient : public std::enable_shared_from_this<UriPermissionManagerClient> {
+class UriPermissionManagerClient {
 public:
-    static std::shared_ptr<UriPermissionManagerClient> GetInstance();
-    UriPermissionManagerClient() = default;
+    static UriPermissionManagerClient& GetInstance();
     ~UriPermissionManagerClient() = default;
 
     /**
@@ -59,6 +58,7 @@ public:
     void OnLoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject);
     void OnLoadSystemAbilityFail();
 private:
+    UriPermissionManagerClient() = default;
     sptr<IUriPermissionManager> ConnectUriPermService();
     void ClearProxy();
     bool LoadUriPermService();
@@ -77,8 +77,6 @@ private:
     };
 
 private:
-    static std::recursive_mutex recursiveMutex_;
-    static std::shared_ptr<UriPermissionManagerClient> instance_;
     std::mutex mutex_;
     std::mutex saLoadMutex_;
     std::condition_variable loadSaVariable_;
