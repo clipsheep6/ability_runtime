@@ -1645,6 +1645,11 @@ int MissionListManager::ClearMission(int missionId)
         return ERR_INVALID_VALUE;
     }
 
+    if (mission == nullptr) {
+        HILOG_ERROR("Mission is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
     if (mission->IsUnclearable()) {
         HILOG_ERROR("Mission is unclearable.");
         return ERR_INVALID_VALUE;
