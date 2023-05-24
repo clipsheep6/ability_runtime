@@ -34,6 +34,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 NativeValue* CreateJsMissionInfo(NativeEngine &engine, const AAFwk::MissionInfo &missionInfo)
 {
+    HILOG_INFO("missionInfo unclearable: %{public}d", missionInfo.unclearable);
     NativeValue* objValue = engine.CreateObject();
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
     object->SetProperty("missionId", CreateJsValue(engine, missionInfo.id));
