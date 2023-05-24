@@ -837,14 +837,26 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
     }
 
     auto func = [&](std::string modulePath, const std::string abcPath) {
-        std::unique_ptr<uint8_t[]> dataPtr = nullptr;
-        size_t len = 0;
-        if (!extractor->ExtractToBufByName(modulePath, dataPtr, len, true)) {
-            HILOG_ERROR("Get abc file failed.");
-            return false;
-        }
+        if (!extractor->IsHapCompress(modulePath)) {
+            std::unique_ptr<uint8_t[]> dataPtr = nullptr;
+            size_t len = 0;
+            if (!extractor->ExtractToBufByName(modulePath, dataPtr, len, true)) {
+                HILOG_ERROR("Get abc file failed.");
+                return false;
+            }
+            return LoadScript(abcPath, dataPtr.release(), len, isBundle_);
+        } else {
+            std::ostringstream outStream;
+            if (!extractor->GetFileBuffer(modulePath, outStream)) {
+                HILOG_ERROR("Get abc file failed");
+                return false;
+            }
+            const auto& outStr = outStream.str();
+            std::vector<uint8_t> buffer;
+            buffer.assign(outStr.begin(), outStr.end());
 
-        return LoadScript(abcPath, dataPtr.release(), len, isBundle_);
+            return LoadScript(abcPath, &buffer, isBundle_);
+        }
     };
 
     if (useCommonChunk) {
