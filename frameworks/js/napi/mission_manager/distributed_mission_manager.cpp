@@ -1208,10 +1208,18 @@ void ContinueAbilityExecuteCB(napi_env env, void *data)
         SetContinueAbilityCBRef(continueAbilityCB->abilityContinuationCB.callback[0]);
     HILOG_INFO("set callback success.");
     continueAbilityCB->result = -1;
-    continueAbilityCB->result = AAFwk::AbilityManagerClient::GetInstance()->
+    //
+    if (continueAbilityCB->hasArgsWithBundleName) {
+        continueAbilityCB->result = AAFwk::AbilityManagerClient::GetInstance()->
+        ContinueMission(continueAbilityCB->srcDeviceId, continueAbilityCB->dstDeviceId,
+        continueAbilityCB->bundleName, continueAbilityCB->abilityContinuation,
+        continueAbilityCB->wantParams);
+    } else {
+        continueAbilityCB->result = AAFwk::AbilityManagerClient::GetInstance()->
         ContinueMission(continueAbilityCB->srcDeviceId, continueAbilityCB->dstDeviceId,
         continueAbilityCB->missionId, continueAbilityCB->abilityContinuation,
         continueAbilityCB->wantParams);
+    }
     HILOG_INFO("%{public}s end. error:%{public}d ", __func__, continueAbilityCB->result);
 }
 
@@ -1295,6 +1303,22 @@ bool CheckContinueKeyExist(napi_env &env, const napi_value &value)
     return true;
 }
 
+bool CheckBundleNameExist(napi_env &env, const napi_value &value)
+{
+    bool isSrcDeviceId = false;
+    napi_has_named_property(env, value, "srcDeviceId", &isSrcDeviceId);
+    bool isDstDeviceId = false;
+    napi_has_named_property(env, value, "dstDeviceId", &isDstDeviceId);
+    bool isBundleName = false;
+    napi_has_named_property(env, value, "bundleName", &isBundleName);
+    bool isWantParam = false;
+    napi_has_named_property(env, value, "wantParam", &isWantParam);
+    if (!isSrcDeviceId && !isDstDeviceId && !isBundleName && !isWantParam) {
+        return false;
+    }
+    return true;
+}
+
 bool CheckContinueDeviceInfoSrcDeviceId(napi_env &env, napi_value &napiSrcDeviceId,
     ContinueAbilityCB *continueAbilityCB, std::string &errInfo)
 {
@@ -1337,6 +1361,20 @@ bool CheckContinueDeviceInfoMissionId(napi_env &env, napi_value &napiMissionId,
     return true;
 }
 
+bool CheckContinueDeviceInfoBundleName(napi_env &env, napi_value &napiBundleName,
+    ContinueAbilityCB *continueAbilityCB, std::string &errInfo)
+{
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, napiBundleName, &valueType);
+    if (valueType != napi_string) {
+        HILOG_ERROR("%{public}s, Wrong argument type missionId.", __func__);
+        errInfo = "Parameter error. The type of \"bundleName\" must be string";
+        return false;
+    }
+    continueAbilityCB->bundleName = AppExecFwk::UnwrapStringFromJS(env, napiBundleName, "");
+    return true;
+}
+
 bool CheckContinueDeviceInfoWantParam(napi_env &env, napi_value &napiWantParam,
     ContinueAbilityCB *continueAbilityCB, std::string &errInfo)
 {
@@ -1355,7 +1393,7 @@ bool CheckContinueDeviceInfoWantParam(napi_env &env, napi_value &napiWantParam,
     return true;
 }
 
-bool CheckContinueFirstArgs(napi_env &env, const napi_value &value,
+bool CheckArgsWithMissionId(napi_env &env, const napi_value &value,
     ContinueAbilityCB *continueAbilityCB, std::string &errInfo)
 {
     HILOG_INFO("%{public}s called.", __func__);
@@ -1398,6 +1436,45 @@ bool CheckContinueFirstArgs(napi_env &env, const napi_value &value,
     return true;
 }
 
+bool CheckContinueFirstArgs(napi_env &env, const napi_value &value,
+    ContinueAbilityCB *continueAbilityCB, std::string &errInfo)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    if (!CheckBundleNameExist(env, value)) {
+        HILOG_ERROR("%{public}s, Args without bundleName.", __func__);
+        return false;
+    }
+    napi_value napiSrcDeviceId = nullptr;
+    napi_value napiDstDeviceId = nullptr;
+    napi_value napiBundleName = nullptr;
+    napi_value napiWantParam = nullptr;
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, value, &valueType);
+    if (valueType != napi_object) {
+        HILOG_ERROR("%{public}s, Args without bundleName.", __func__);
+        return false;
+    }
+    napi_get_named_property(env, value, "srcDeviceId", &napiSrcDeviceId);
+    napi_get_named_property(env, value, "dstDeviceId", &napiDstDeviceId);
+    napi_get_named_property(env, value, "bundleName", &napiBundleName);
+    napi_get_named_property(env, value, "wantParam", &napiWantParam);
+    if (napiSrcDeviceId == nullptr || napiDstDeviceId == nullptr ||
+        napiBundleName == nullptr || napiWantParam == nullptr) {
+        HILOG_ERROR("%{public}s, miss required parameters.", __func__);
+        return false;
+    }
+
+    if (!CheckContinueDeviceInfoSrcDeviceId(env, napiSrcDeviceId, continueAbilityCB, errInfo) ||
+        !CheckContinueDeviceInfoDstDeviceId(env, napiDstDeviceId, continueAbilityCB, errInfo) ||
+        !CheckContinueDeviceInfoBundleName(env, napiBundleName, continueAbilityCB, errInfo) ||
+        !CheckContinueDeviceInfoWantParam(env, napiWantParam, continueAbilityCB, errInfo)) {
+        HILOG_ERROR("%{public}s, continueMission check ContinueDeviceInfo value failed.", __func__);
+        return false;
+    }
+    HILOG_INFO("%{public}s called end.", __func__);
+    return true;
+}
+
 bool CheckContinueCallback(napi_env &env, const napi_value &value,
     ContinueAbilityCB *continueAbilityCB, std::string &errInfo)
 {
@@ -1434,6 +1511,18 @@ bool CheckContinueCallback(napi_env &env, const napi_value &value,
     return true;
 }
 
+bool CheckContinueCallbackWithBundleName(napi_env &env, const napi_value &value,
+    ContinueAbilityCB *continueAbilityCB, std::string &errInfo)
+{
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, value, &valueType);
+    if (valueType != napi_function) {
+        return false;
+    }
+    napi_create_reference(env, value, 1, &continueAbilityCB->callbackRef);
+    return true;
+}
+
 napi_value ContinueAbilityWrap(napi_env &env, napi_callback_info info,
     ContinueAbilityCB *continueAbilityCB, std::string &errInfo)
 {
@@ -1444,33 +1533,48 @@ napi_value ContinueAbilityWrap(napi_env &env, napi_callback_info info,
 
     napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr);
     HILOG_INFO("argcAsync is %{public}zu", argcAsync);
-    if (argcAsync != ARGS_TWO && argcAsync != ARGS_THREE) {
+
+    if (argcAsync != ARGS_ONE && argcAsync != ARGS_TWO && argcAsync != ARGS_THREE) {
         HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
-        errInfo = "Parameter error. The type of \"number of parameters\" must be 2 or 3";
+        errInfo = "Parameter error. The type of \"number of parameters\" must be 1 or 2 or 3";
         return nullptr;
     }
 
-    if (!CheckContinueFirstArgs(env, args[0], continueAbilityCB, errInfo)) {
-        HILOG_ERROR("%{public}s, check the first argument failed.", __func__);
-        return nullptr;
-    }
-
-    if (argcAsync > 1) {
-        if (!CheckContinueCallback(env, args[1], continueAbilityCB, errInfo)) {
-            HILOG_ERROR("%{public}s, check callback failed.", __func__);
-            return nullptr;
+    //
+    if (CheckContinueFirstArgs(env, args[0], continueAbilityCB, errInfo)) {
+        continueAbilityCB->hasArgsWithBundleName = true;
+        if (argcAsync == ARGS_TWO &&CheckContinueCallbackWithBundleName(env, args[1], continueAbilityCB, errInfo))
+        {
+            ret = ContinueAbilityAsync(env, continueAbilityCB);
+            HILOG_INFO("%{public}s called end.", __func__);
+            return ret;
         }
     }
+    //
 
-    if (argcAsync == ARGS_THREE) {
-        napi_valuetype valueType = napi_undefined;
-        napi_typeof(env, args[ARGS_TWO], &valueType);
-        if (valueType != napi_function) {
-            HILOG_ERROR("%{public}s, callback error type.", __func__);
-            errInfo = "Parameter error. The type of \"callback\" must be AsynCallback<void>: void";
+    if (!continueAbilityCB->hasArgsWithBundleName) {
+        if (!CheckArgsWithMissionId(env, args[0], continueAbilityCB, errInfo)) {
+            HILOG_ERROR("%{public}s, check the first argument failed.", __func__);
             return nullptr;
         }
-        napi_create_reference(env, args[ARGS_TWO], 1, &continueAbilityCB->callbackRef);
+
+        if (argcAsync > 1) {
+            if (!CheckContinueCallback(env, args[1], continueAbilityCB, errInfo)) {
+                HILOG_ERROR("%{public}s, check callback failed.", __func__);
+                return nullptr;
+            }
+        }
+
+        if (argcAsync == ARGS_THREE) {
+            napi_valuetype valueType = napi_undefined;
+            napi_typeof(env, args[ARGS_TWO], &valueType);
+            if (valueType != napi_function) {
+                HILOG_ERROR("%{public}s, callback error type.", __func__);
+                errInfo = "Parameter error. The type of \"callback\" must be AsynCallback<void>: void";
+                return nullptr;
+            }
+            napi_create_reference(env, args[ARGS_TWO], 1, &continueAbilityCB->callbackRef);
+        }
     }
 
     ret = ContinueAbilityAsync(env, continueAbilityCB);

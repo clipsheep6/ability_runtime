@@ -501,6 +501,20 @@ ErrCode AbilityManagerClient::ContinueMission(const std::string &srcDeviceId, co
     return result;
 }
 
+ErrCode AbilityManagerClient::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
+    const std::string &bundleName, const sptr<IRemoteObject> &callback, AAFwk::WantParams &wantParams)
+{
+    if (srcDeviceId.empty() || dstDeviceId.empty() || callback == nullptr) {
+        HILOG_ERROR("srcDeviceId or dstDeviceId or callback is null!");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    int result = abms->ContinueMission(srcDeviceId, dstDeviceId, bundleName, callback, wantParams);
+    return result;
+}
+
 ErrCode AbilityManagerClient::StartContinuation(const Want &want, const sptr<IRemoteObject> &abilityToken,
     int32_t status)
 {

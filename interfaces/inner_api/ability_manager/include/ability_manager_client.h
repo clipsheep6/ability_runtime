@@ -480,6 +480,19 @@ public:
         const sptr<IRemoteObject> &callback, AAFwk::WantParams &wantParams);
 
     /**
+     * ContinueMission, continue ability from mission center.
+     *
+     * @param srcDeviceId, origin deviceId.
+     * @param dstDeviceId, target deviceId.
+     * @param bundleName, indicates which bundleName to continue.
+     * @param callBack, notify result back.
+     * @param wantParams, extended params.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
+        const std::string &bundleName, const sptr<IRemoteObject> &callback, AAFwk::WantParams &wantParams);
+
+    /**
      * start continuation.
      * @param want, used to start a ability.
      * @param abilityToken, ability token.

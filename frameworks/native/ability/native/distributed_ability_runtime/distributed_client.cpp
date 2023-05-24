@@ -129,6 +129,32 @@ int32_t DistributedClient::ContinueMission(const std::string& srcDeviceId, const
     PARCEL_TRANSACT_SYNC_RET_INT(remote, CONTINUE_MISSION, data, reply);
 }
 
+int32_t DistributedClient::ContinueMission(const std::string& srcDeviceId, const std::string& dstDeviceId,
+    const std::string& bundleName, const sptr<IRemoteObject>& callback, const OHOS::AAFwk::WantParams& wantParams)
+{
+    HILOG_INFO("called");
+    if (callback == nullptr) {
+        HILOG_ERROR("ContinueMission callback null");
+        return ERR_NULL_OBJECT;
+    }
+    sptr<IRemoteObject> remote = GetDmsProxy();
+    if (remote == nullptr) {
+        HILOG_ERROR("ContinueMission remote service null");
+        return INVALID_PARAMETERS_ERR;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, String, srcDeviceId);
+    PARCEL_WRITE_HELPER(data, String, dstDeviceId);
+    PARCEL_WRITE_HELPER(data, String, bundleName);
+    PARCEL_WRITE_HELPER(data, RemoteObject, callback);
+    PARCEL_WRITE_HELPER(data, Parcelable, &wantParams);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, CONTINUE_MISSION_OF_BUNDLENAME, data, reply);
+}
+
 int32_t DistributedClient::StartContinuation(const OHOS::AAFwk::Want& want, int32_t missionId, int32_t callerUid,
     int32_t status, uint32_t accessToken)
 {
