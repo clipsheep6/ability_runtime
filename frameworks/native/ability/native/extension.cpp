@@ -157,9 +157,9 @@ sptr<AAFwk::SessionInfo> Extension::GetSessionInfo()
     return sessionInfo_;
 }
 
-void Extension::SetSceneSessionStageListener(const std::shared_ptr<Rosen::ISessionStageStateListener> &listener)
+void Extension::SetExtensionWindowLifeCycleListener(const sptr<Rosen::IWindowLifeCycle> &listener)
 {
-    sceneSessionStageListener_ = listener;
+    extensionWindowLifeCycleListener_ = listener;
 }
 }
 }

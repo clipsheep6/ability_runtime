@@ -169,10 +169,7 @@ ohos_shared_library("abilitykit_utils") {
 
   if (ability_runtime_graphics) {
     deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
-    external_deps += [
-      "ability_base:session_info",
-      "ace_engine:ace_uicontent",
-    ]
+    external_deps += [ "ability_base:session_info" ]
   }
 
   innerapi_tags = [ "platformsdk" ]
@@ -308,7 +305,6 @@ ohos_shared_library("abilitykit_native") {
 
     public_deps += [
       "${ability_base_path}:session_info",
-      "${ace_engine_path}/interfaces/inner_api/ace:ace_uicontent",
       "${multimedia_path}/interfaces/innerkits:image_native",
       "${windowmanager_path}/dm:libdm",
       "${windowmanager_path}/interfaces/kits/napi/window_runtime:windowstage_kit",
@@ -386,10 +382,7 @@ ohos_shared_library("extensionkit_native") {
   ]
 
   if (ability_runtime_graphics) {
-    public_deps += [
-      "${ability_base_path}:session_info",
-      "${ace_engine_path}/interfaces/inner_api/ace:ace_uicontent",
-    ]
+    public_deps += [ "${ability_base_path}:session_info" ]
   }
 
   innerapi_tags = [ "platformsdk" ]
@@ -480,7 +473,6 @@ ohos_shared_library("form_extension_module") {
   external_deps = [
     "ability_base:configuration",
     "ability_base:session_info",
-    "ace_engine:ace_uicontent",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
@@ -629,7 +621,6 @@ ohos_shared_library("service_extension_module") {
   external_deps = [
     "ability_base:configuration",
     "ability_base:session_info",
-    "ace_engine:ace_uicontent",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
@@ -771,7 +762,6 @@ ohos_shared_library("ui_extension_module") {
     "ability_base:session_info",
     "ability_base:want",
     "ability_runtime:runtime",
-    "ace_engine:ace_uicontent",
     "bundle_framework:appexecfwk_core",
     "hiviewdfx_hilog_native:libhilog",
     "napi:ace_napi",

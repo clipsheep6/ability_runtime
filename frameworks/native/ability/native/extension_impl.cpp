@@ -42,8 +42,8 @@ void ExtensionImpl::Init(std::shared_ptr<AppExecFwk::OHOSApplication> &applicati
     extension_ = extension;
     if (record->GetAbilityInfo() != nullptr &&
         record->GetAbilityInfo()->extensionAbilityType == AppExecFwk::ExtensionAbilityType::UI) {
-        extension_->SetSceneSessionStageListener(
-            std::make_shared<ExtensionSessionStateLifeCycleImpl>(token_, shared_from_this()));
+        extension_->SetExtensionWindowLifeCycleListener(
+            sptr<ExtensionWindowLifeCycleImpl>(new ExtensionWindowLifeCycleImpl(token_, shared_from_this())));
     }
     extension_->Init(record, application, handler, token);
     lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
@@ -343,24 +343,24 @@ void ExtensionImpl::Background()
     lifecycleState_ = AAFwk::ABILITY_STATE_BACKGROUND_NEW;
 }
 
-void ExtensionImpl::ExtensionSessionStateLifeCycleImpl::AfterForeground()
+void ExtensionImpl::ExtensionWindowLifeCycleImpl::AfterForeground()
 {
-    HILOG_DEBUG("ExtensionSessionStateLifeCycleImpl AfterForeground called.");
+    HILOG_DEBUG("called.");
 }
 
-void ExtensionImpl::ExtensionSessionStateLifeCycleImpl::AfterBackground()
+void ExtensionImpl::ExtensionWindowLifeCycleImpl::AfterBackground()
 {
-    HILOG_DEBUG("ExtensionSessionStateLifeCycleImpl AfterBackground called.");
+    HILOG_DEBUG("called.");
 }
 
-void ExtensionImpl::ExtensionSessionStateLifeCycleImpl::AfterActive()
+void ExtensionImpl::ExtensionWindowLifeCycleImpl::AfterActive()
 {
-    HILOG_DEBUG("ExtensionSessionStateLifeCycleImpl AfterActive called.");
+    HILOG_DEBUG("called.");
 }
 
-void ExtensionImpl::ExtensionSessionStateLifeCycleImpl::AfterInactive()
+void ExtensionImpl::ExtensionWindowLifeCycleImpl::AfterInactive()
 {
-    HILOG_DEBUG("ExtensionSessionStateLifeCycleImpl AfterInactive called.");
+    HILOG_DEBUG("called.");
 }
 }
 }
