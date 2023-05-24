@@ -1256,41 +1256,56 @@ void AbilityConnectManager::RestartAbility(const std::shared_ptr<AbilityRecord> 
     }
 }
 
-void AbilityConnectManager::DumpState(std::vector<std::string> &info, bool isClient, const std::string &args) const
+void AbilityConnectManager::DumpState(std::vector<std::string> &info, bool isClient, const std::string &args)
 {
     HILOG_INFO("DumpState args:%{public}s.", args.c_str());
+    ServiceMapType serviceMapBack;
+    {
+        std::lock_guard<std::recursive_mutex> guard(Lock_);
+        serviceMapBack = serviceMap_;
+    }
     if (!args.empty()) {
-        auto it = std::find_if(serviceMap_.begin(), serviceMap_.end(), [&args](const auto &service) {
+        auto it = std::find_if(serviceMapBack.begin(), serviceMapBack.end(), [&args](const auto &service) {
             return service.first.compare(args) == 0;
         });
-        if (it != serviceMap_.end()) {
+        if (it != serviceMapBack.end()) {
             info.emplace_back("uri [ " + it->first + " ]");
-            it->second->DumpService(info, isClient);
+            if (it->second != nullptr) {
+                it->second->DumpService(info, isClient);
+            }
         } else {
             info.emplace_back(args + ": Nothing to dump.");
         }
     } else {
-        auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
         info.emplace_back("  ExtensionRecords:");
-        for (auto &&service : serviceMap_) {
+        for (auto &&service : serviceMapBack) {
             info.emplace_back("    uri [" + service.first + "]");
-            service.second->DumpService(info, isClient);
+            if (service.second != nullptr) {
+                service.second->DumpService(info, isClient);
+            }
         }
     }
 }
 
 void AbilityConnectManager::DumpStateByUri(std::vector<std::string> &info, bool isClient, const std::string &args,
-    std::vector<std::string> &params) const
+    std::vector<std::string> &params)
 {
-    HILOG_INFO("DumpState args:%{public}s, params size: %{public}zu", args.c_str(), params.size());
-    auto it = std::find_if(serviceMap_.begin(), serviceMap_.end(), [&args](const auto &service) {
-        return service.first.compare(args) == 0;
-    });
-    if (it != serviceMap_.end()) {
-        info.emplace_back("uri [ " + it->first + " ]");
-        it->second->DumpService(info, params, isClient);
-    } else {
-        info.emplace_back(args + ": Nothing to dump.");
+    HILOG_INFO("DumpStateByUri args:%{public}s, params size: %{public}zu", args.c_str(), params.size());
+    std::shared_ptr<AbilityRecord> extensionAbilityRecord = nullptr;
+    {
+        std::lock_guard<std::recursive_mutex> guard(Lock_);
+        auto it = std::find_if(serviceMap_.begin(), serviceMap_.end(), [&args](const auto &service) {
+            return service.first.compare(args) == 0;
+        });
+        if (it != serviceMap_.end()) {
+            info.emplace_back("uri [ " + it->first + " ]");
+            extensionAbilityRecord = it->second;
+        } else {
+            info.emplace_back(args + ": Nothing to dump.");
+        }
+    }
+    if (extensionAbilityRecord != nullptr) {
+        extensionAbilityRecord->DumpService(info, params, isClient);
     }
 }
 

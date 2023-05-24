@@ -214,10 +214,10 @@ public:
      */
     void OnAbilityDied(const std::shared_ptr<AbilityRecord> &abilityRecord, int32_t currentUserId);
 
-    void DumpState(std::vector<std::string> &info, bool isClient, const std::string &args = "") const;
+    void DumpState(std::vector<std::string> &info, bool isClient, const std::string &args = "");
 
     void DumpStateByUri(std::vector<std::string> &info, bool isClient, const std::string &args,
-        std::vector<std::string> &params) const;
+        std::vector<std::string> &params);
 
     void StopAllExtensions();
 
