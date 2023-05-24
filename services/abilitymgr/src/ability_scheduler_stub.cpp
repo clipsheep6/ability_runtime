@@ -259,12 +259,7 @@ int AbilitySchedulerStub::InsertInner(MessageParcel &data, MessageParcel &reply)
         HILOG_ERROR("AbilitySchedulerStub uri is nullptr");
         return ERR_INVALID_VALUE;
     }
-    std::shared_ptr<NativeRdb::ValuesBucket> value(data.ReadParcelable<NativeRdb::ValuesBucket>());
-    if (value == nullptr) {
-        HILOG_ERROR("ReadParcelable value is nullptr");
-        return ERR_INVALID_VALUE;
-    }
-    int index = Insert(*uri, *value);
+    int index = Insert(*uri, NativeRdb::ValuesBucket::Unmarshalling(data));
     if (!reply.WriteInt32(index)) {
         HILOG_ERROR("fail to WriteInt32 index");
         return ERR_INVALID_VALUE;
@@ -312,18 +307,14 @@ int AbilitySchedulerStub::UpdatetInner(MessageParcel &data, MessageParcel &reply
         HILOG_ERROR("AbilitySchedulerStub uri is nullptr");
         return ERR_INVALID_VALUE;
     }
-    std::shared_ptr<NativeRdb::ValuesBucket> value(data.ReadParcelable<NativeRdb::ValuesBucket>());
-    if (value == nullptr) {
-        HILOG_ERROR("ReadParcelable value is nullptr");
-        return ERR_INVALID_VALUE;
-    }
+    auto value = NativeRdb::ValuesBucket::Unmarshalling(data);
     std::shared_ptr<NativeRdb::DataAbilityPredicates> predicates(
         data.ReadParcelable<NativeRdb::DataAbilityPredicates>());
     if (predicates == nullptr) {
         HILOG_ERROR("ReadParcelable predicates is nullptr");
         return ERR_INVALID_VALUE;
     }
-    int index = Update(*uri, *value, *predicates);
+    int index = Update(*uri, std::move(value), *predicates);
     if (!reply.WriteInt32(index)) {
         HILOG_ERROR("fail to WriteInt32 index");
         return ERR_INVALID_VALUE;
@@ -440,12 +431,7 @@ int AbilitySchedulerStub::BatchInsertInner(MessageParcel &data, MessageParcel &r
     }
     std::vector<NativeRdb::ValuesBucket> values;
     for (int i = 0; i < count; i++) {
-        std::unique_ptr<NativeRdb::ValuesBucket> value(data.ReadParcelable<NativeRdb::ValuesBucket>());
-        if (value == nullptr) {
-            HILOG_ERROR("AbilitySchedulerStub value is nullptr, index = %{public}d", i);
-            return ERR_INVALID_VALUE;
-        }
-        values.emplace_back(*value);
+        values.emplace_back(NativeRdb::ValuesBucket::Unmarshalling(data));
     }
 
     int ret = BatchInsert(*uri, values);
