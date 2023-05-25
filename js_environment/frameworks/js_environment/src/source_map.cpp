@@ -532,7 +532,6 @@ std::string SourceMap::GetOriginalNames(std::shared_ptr<SourceMapData> targetMap
                 posDiff += static_cast<int32_t>(names[i + 1].length()) - static_cast<int32_t>(names[i].length());
             }
             // In case there are other variable names not replaced.
-            // example:var e = process.a.b + _ohos_process_1.a.b;
             found = jsCode.find(names[i], found + names[i + 1].length());
         }
     }
