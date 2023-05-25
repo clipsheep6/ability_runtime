@@ -250,7 +250,7 @@ public:
      */
     ErrCode TerminateUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo,
         int resultCode = DEFAULT_INVAL_VALUE, const Want *resultWant = nullptr);
-    
+
     /**
      *  CloseUIAbilityBySCB, close the special ability by scb.
      *
@@ -985,6 +985,17 @@ public:
      */
     ErrCode ShareDataDone(
         const sptr<IRemoteObject> &token, const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam);
+
+    /**
+     * Request dialog service with want, send want to ability manager service.
+     *
+     * @param want target component.
+     * @param callerToken caller ability token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode RequestDialogService(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken);
 
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {

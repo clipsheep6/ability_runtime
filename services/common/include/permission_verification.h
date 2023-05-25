@@ -83,6 +83,8 @@ struct VerificationInfo {
 
     bool JudgeCallerIsAllowedToUseSystemAPI() const;
 
+    bool IsSystemAppCall() const;
+
 private:
     DISALLOW_COPY_AND_MOVE(PermissionVerification);
 

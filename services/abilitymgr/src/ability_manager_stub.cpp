@@ -167,6 +167,7 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[TERMINATE_UI_EXTENSION_ABILITY] = &AbilityManagerStub::TerminateUIExtensionAbilityInner;
     requestFuncMap_[CONNECT_UI_EXTENSION_ABILITY] = &AbilityManagerStub::ConnectUIExtensionAbilityInner;
 #endif
+    requestFuncMap_[REQUEST_DIALOG_SERVICE] = &AbilityManagerStub::HandleRequestDialogService;
     requestFuncMap_[SET_COMPONENT_INTERCEPTION] = &AbilityManagerStub::SetComponentInterceptionInner;
     requestFuncMap_[SEND_ABILITY_RESULT_BY_TOKEN] = &AbilityManagerStub::SendResultToAbilityByTokenInner;
     requestFuncMap_[QUERY_MISSION_VAILD] = &AbilityManagerStub::IsValidMissionIdsInner;
@@ -1765,6 +1766,28 @@ int AbilityManagerStub::EnableRecoverAbilityInner(MessageParcel &data, MessagePa
         return ERR_NULL_OBJECT;
     }
     EnableRecoverAbility(token);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::HandleRequestDialogService(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    sptr<IRemoteObject> callerToken = data.ReadRemoteObject();
+    if (!callerToken) {
+        HILOG_ERROR("callerToken is invalid.");
+        return ERR_INVALID_VALUE;
+    }
+
+    int32_t result = RequestDialogService(*want, callerToken);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("reply write failed.");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 
