@@ -379,5 +379,11 @@ bool PermissionVerification::JudgeCallerIsAllowedToUseSystemAPI() const
     auto callerToken = IPCSkeleton::GetCallingFullTokenID();
     return Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(callerToken);
 }
+
+bool PermissionVerification::IsSystemAppCall() const
+{
+    auto callerToken = IPCSkeleton::GetCallingFullTokenID();
+    return Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(callerToken);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

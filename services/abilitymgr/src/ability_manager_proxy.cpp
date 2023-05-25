@@ -3745,6 +3745,45 @@ int AbilityManagerProxy::VerifyPermission(const std::string &permission, int pid
     return reply.ReadInt32();
 }
 
+int32_t AbilityManagerProxy::RequestDialogService(const Want &want, const sptr<IRemoteObject> &callerToken)
+{
+    HILOG_INFO("RequestDialogService Call");
+    if (!callerToken) {
+        HILOG_ERROR("callerToken is invalid.");
+        return ERR_INVALID_CALLER;
+    }
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("want write failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteRemoteObject(callerToken)) {
+        HILOG_ERROR("infos write failed.");
+        return INNER_ERR;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote is nullptr.");
+        return INNER_ERR;
+    }
+
+    auto error = remote->SendRequest(IAbilityManager::REQUEST_DIALOG_SERVICE, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("request dialog service Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 int32_t AbilityManagerProxy::AcquireShareData(
     const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData)
 {
