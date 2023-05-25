@@ -187,37 +187,6 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest003, Function | MediumTest | Leve
 }
 
 /**
- * @tc.number: MixStackDumperTest004
- * @tc.name: Call PrintNativeFrames Func
- * @tc.desc: test PrintNativeFrames Func
- */
-HWTEST_F(MixStackDumperTest, MixStackDumperTest004, Function | MediumTest | Level3)
-{
-    HiviewDFX::NativeFrame nativeFrame1;
-    nativeFrame1.binaryName = "testmapname";
-    HiviewDFX::NativeFrame nativeFrame2;
-    std::vector<HiviewDFX::NativeFrame> nativeFrames;
-    nativeFrames.emplace_back(nativeFrame1);
-    nativeFrames.emplace_back(nativeFrame2);
-    MixStackDumper mixDumper;
-    char testFile[] = "/data/mix_stack_header_test04";
-    int fd = open(testFile, O_RDWR | O_CREAT, 0755); // 0755 : -rwxr-xr-x
-    if (fd == -1) {
-        GTEST_LOG_(ERROR) << "Failed to create test file.";
-        mixDumper.PrintNativeFrames(1, nativeFrames);
-        EXPECT_TRUE(true);
-    } else {
-        mixDumper.PrintNativeFrames(fd, nativeFrames);
-        close(fd);
-        std::string keywords[] = {
-            "#00", "pc", "testmapname", "Unknown",
-        };
-        int length = sizeof(keywords) / sizeof(keywords[0]);
-        EXPECT_TRUE(CheckMixStackKeyWords(testFile, keywords, length));
-    }
-}
-
-/**
  * @tc.number: MixStackDumperTest005
  * @tc.name: Call GetThreadStackTraceLabel Func
  * @tc.desc: test GetThreadStackTraceLabel Func
@@ -318,20 +287,12 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest010, Function | MediumTest | Leve
 
 /**
  * @tc.number: MixStackDumperTest011
- * @tc.name: Call PrintNativeFrames Func
- * @tc.desc: test PrintNativeFrames Func and GetThreadStackTraceLabel Func
+ * @tc.name: Call GetThreadStackTraceLabel Func
+ * @tc.desc: test GetThreadStackTraceLabel Func
  */
 HWTEST_F(MixStackDumperTest, MixStackDumperTest011, Function | MediumTest | Level3)
 {
-    HiviewDFX::NativeFrame nativeFrame1;
-    nativeFrame1.binaryName = "testmapname";
-    HiviewDFX::NativeFrame nativeFrame2;
-    std::vector<HiviewDFX::NativeFrame> nativeFrames;
-    nativeFrames.emplace_back(nativeFrame1);
-    nativeFrames.emplace_back(nativeFrame2);
     MixStackDumper mixDumper;
-    mixDumper.PrintNativeFrames(ONE, nativeFrames);
-    EXPECT_TRUE(true);
     std::string label = mixDumper.GetThreadStackTraceLabel(gettid());
     EXPECT_TRUE(label != "");
 }
@@ -370,8 +331,8 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest013, Function | MediumTest | Leve
     mixDumper->Init(getpid());
     bool ret = mixDumper->DumpMixFrame(ONE, getpid(), getpid());
     EXPECT_TRUE(ret);
-    mixDumper->catcher_->procInfo_.tid = ZERO;
-    EXPECT_EQ(mixDumper->catcher_->procInfo_.tid, ZERO);
+    mixDumper->catcher_->procInfo_.pid = ZERO;
+    EXPECT_EQ(mixDumper->catcher_->procInfo_.pid, ZERO);
     mixDumper->DumpMixFrame(ONE, ZERO, getpid());
     mixDumper->application_.reset();
 }
@@ -384,7 +345,7 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest013, Function | MediumTest | Leve
 HWTEST_F(MixStackDumperTest, MixStackDumperTest014, Function | MediumTest | Level1)
 {
     MixStackDumper mixDumper;
-    std::vector<OHOS::HiviewDFX::NativeFrame> v_nativeFrames;
+    std::vector<OHOS::HiviewDFX::DfxFrame> v_nativeFrames;
     struct JsFrames jsFrames;
     jsFrames.fileName = "fileName";
     jsFrames.functionName = "functionName";
@@ -406,8 +367,8 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest014, Function | MediumTest | Leve
     mixDumper.BuildJsNativeMixStack(ONE, v_jsFrames, v_nativeFrames);
     EXPECT_TRUE(v_nativeFrames.size() == ZERO);
     mixDumper.BuildJsNativeMixStack(ONE, v_jsFrames, v_nativeFrames);
-    HiviewDFX::NativeFrame nativeFrame1;
-    nativeFrame1.binaryName = "testmapname";
+    HiviewDFX::DfxFrame nativeFrame1;
+    nativeFrame1.mapName = "testmapname";
     nativeFrame1.pc = (uint64_t)(v_jsFrames[ZERO].nativePointer);
     v_nativeFrames.push_back(nativeFrame1);
     bool ret1 = mixDumper.IsJsNativePcEqual(v_jsFrames[ZERO].nativePointer, v_nativeFrames[ZERO].pc,

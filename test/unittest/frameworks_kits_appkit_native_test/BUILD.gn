@@ -350,7 +350,7 @@ ohos_unittest("mix_stack_dumper_test") {
     "ability_runtime:abilitykit_native",
     "ability_runtime:runtime",
     "common_event_service:cesfwk_innerkits",
-    "faultloggerd:libdfx_dumpcatcher",
+    "faultloggerd:libbacktrace_local",
   ]
 }
 
