@@ -536,24 +536,10 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     if (CheckProxyComponent(want, result) && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
         return componentRequest.requestResult;
     }
-    // start freeInstall when start self's module and module not exist
-    if (result == RESOLVE_ABILITY_ERR && want.GetElement().GetBundleName() == GetBundleNameFromToken(callerToken)) {
-        if (CheckIfOperateRemote(want) || freeInstallManager_ == nullptr) {
-            HILOG_ERROR("can not start remote free install");
-            return ERR_INVALID_VALUE;
-        }
-        Want localWant = want;
-        UpdateCallerInfo(localWant, callerToken);
-        int freeInstallRet = freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, false);
-        if (freeInstallRet != ERR_OK) {
-            HILOG_ERROR("freeInstall ret: %{public}d", freeInstallRet);
-            return freeInstallRet;
-        }
-    } else {
-        if (result != ERR_OK) {
-            HILOG_ERROR("Generate ability request local error.");
-            return result;
-        }
+
+    if (result != ERR_OK) {
+        HILOG_ERROR("Generate ability request local error.");
+        return result;
     }
 
     if (!isStartAsCaller) {
@@ -713,30 +699,12 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     if (result != ERR_OK && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
         return componentRequest.requestResult;
     }
-    // start freeInstall when start self's module and module not exist
-    if (result == RESOLVE_ABILITY_ERR && want.GetElement().GetBundleName() == GetBundleNameFromToken(callerToken)) {
-        if (CheckIfOperateRemote(want) || freeInstallManager_ == nullptr) {
-            HILOG_ERROR("can not start remote free install");
-            return ERR_INVALID_VALUE;
-        }
-        Want localWant = want;
-        UpdateCallerInfo(localWant, callerToken);
-        int freeInstallRet = freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, false);
-        if (freeInstallRet != ERR_OK) {
-            HILOG_ERROR("freeInstall ret: %{public}d", freeInstallRet);
-            eventInfo.errCode = freeInstallRet;
-            EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
-            return freeInstallRet;
-        }
-    } else {
-        if (result != ERR_OK) {
-            HILOG_ERROR("Generate ability request local error.");
-            eventInfo.errCode = result;
-            EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
-            return result;
-        }
+    if (result != ERR_OK) {
+        HILOG_ERROR("Generate ability request local error.");
+        eventInfo.errCode = result;
+        EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
+        return result;
     }
-    
     auto abilityInfo = abilityRequest.abilityInfo;
     validUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : validUserId;
     HILOG_DEBUG("userId : %{public}d, singleton is : %{public}d",
@@ -907,34 +875,12 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     if (result != ERR_OK && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
         return componentRequest.requestResult;
     }
-    // start freeInstall when start self's module and module not exist
-    if (result == RESOLVE_ABILITY_ERR && want.GetElement().GetBundleName() == GetBundleNameFromToken(callerToken)) {
-        if (CheckIfOperateRemote(want) || freeInstallManager_ == nullptr) {
-            HILOG_ERROR("can not start remote free install");
-            return ERR_INVALID_VALUE;
-        }
-        Want localWant = want;
-        if (!isStartAsCaller) {
-            UpdateCallerInfo(localWant, callerToken);
-        } else {
-            HILOG_INFO("start as caller, skip UpdateCallerInfo!");
-        }
-        int freeInstallRet = freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, false);
-        if (freeInstallRet != ERR_OK) {
-            HILOG_ERROR("freeInstall ret: %{public}d", freeInstallRet);
-            eventInfo.errCode = freeInstallRet;
-            EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
-            return freeInstallRet;
-        }
-    } else {
-        if (result != ERR_OK) {
-            HILOG_ERROR("Generate ability request local error.");
-            eventInfo.errCode = result;
-            EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
-            return result;
-        }
+    if (result != ERR_OK) {
+        HILOG_ERROR("Generate ability request local error.");
+        eventInfo.errCode = result;
+        EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
+        return result;
     }
-    
 
     if (!isStartAsCaller) {
         UpdateCallerInfo(abilityRequest.want, callerToken);
@@ -5603,18 +5549,6 @@ void AbilityManagerService::UpdateCallerInfo(Want& want, const sptr<IRemoteObjec
         std::string callerBundleName = abilityRecord->GetAbilityInfo().bundleName;
         want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerBundleName);
     }
-}
-
-std::string AbilityManagerService::GetBundleNameFromToken(const sptr<IRemoteObject> &callerToken)
-{
-    std::string callerBundleName;
-    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-    if (!abilityRecord) {
-        HILOG_WARN("abilityRecord is null.");
-    } else {
-        callerBundleName = abilityRecord->GetAbilityInfo().bundleName;
-    }
-    return callerBundleName;    
 }
 
 bool AbilityManagerService::JudgeMultiUserConcurrency(const int32_t userId)
