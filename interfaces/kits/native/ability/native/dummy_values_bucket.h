@@ -37,7 +37,7 @@ public:
 
     bool IsEmpty()
     {
-        return false;
+        return testInf_.empty();
     };
 
     void PutValues(std::shared_ptr<ValuesBucket> &other) {};

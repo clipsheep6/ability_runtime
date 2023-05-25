@@ -76,7 +76,7 @@ HWTEST_F(DummyValuesBucketTest, DummyValuesBucketTest_0300, TestSize.Level1)
     ValuesBucket valuesBucket(testInf);
     Parcel parcel;
     auto res = valuesBucket.Unmarshalling(parcel);
-    EXPECT_TRUE(res);
+    EXPECT_FALSE(res.IsEmpty());
     HILOG_INFO("DummyValuesBucketTest_0300 is end");
 }
 
