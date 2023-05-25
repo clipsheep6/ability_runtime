@@ -362,8 +362,8 @@ void UriPermissionManagerStubImpl::ClearSMProxy()
     storageManager_ = nullptr;
 }
 
-void UriPermissionManagerStubImpl::ProxyDeathRecipient::OnRemoteDied([[maybe_unused]]
-    const wptr<IRemoteObject>& remote)
+void UriPermissionManagerStubImpl::ProxyDeathRecipient::OnRemoteDied(
+    [[maybe_unused]] const wptr<IRemoteObject>& remote)
 {
     if (proxy_) {
         HILOG_DEBUG("%{public}s, bms stub died.", __func__);

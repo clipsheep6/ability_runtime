@@ -92,11 +92,11 @@ export default class SelectorServiceExtensionAbility extends extension {
   async onRequest(want, startId) {
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
     globalThis.abilityWant = want;
-    globalThis.params = JSON.parse(want['parameters']['params']);
-    globalThis.position = JSON.parse(want['parameters']['position']);
+    globalThis.params = JSON.parse(want.parameters.params);
+    globalThis.position = JSON.parse(want.parameters.position);
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
     console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
-    globalThis.callerToken = want['parameters']['callerToken'];
+    globalThis.callerToken = want.parameters.callerToken;
     console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
     console.debug(TAG, 'onRequest, position: ' + JSON.stringify(globalThis.position));
     if (globalThis.params.deviceType !== 'phone' && globalThis.params.deviceType !== 'default') {

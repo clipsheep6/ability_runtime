@@ -778,7 +778,6 @@ void QuickFixManagerApplyTask::PostRevokeQuickFixTask()
             applyTask->HandleRevokeQuickFixAppRunning();
             return;
         }
-
         applyTask->HandleRevokeQuickFixAppStop();
     };
 

@@ -932,8 +932,8 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
                 matchingSkills.AddEvent(OVERLAY_STATE_CHANGED);
                 EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
                 wptr<MainThread> weak = this;
-                auto callback = [weak, resourceManager, bundleName, moduleName = entryHapModuleInfo.moduleName, loadPath]
-                    (const EventFwk::CommonEventData &data) {
+                auto callback = [weak, resourceManager, bundleName, moduleName = entryHapModuleInfo.moduleName,
+                    loadPath](const EventFwk::CommonEventData &data) {
                     HILOG_INFO("On overlay changed.");
                     auto appThread = weak.promote();
                     if (appThread == nullptr) {
@@ -1369,11 +1369,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         if (!isFirstStartUpWeb) {
             appmgr->PreStartNWebSpawnProcess();
         }
-
         OHOS::NWeb::NWebHelper::TryPreReadLib(isFirstStartUpWeb, app->GetAppContext()->GetBundleCodeDir());
     }).detach();
 #endif
-
     HILOG_DEBUG("MainThread::handleLaunchApplication called end.");
 }
 

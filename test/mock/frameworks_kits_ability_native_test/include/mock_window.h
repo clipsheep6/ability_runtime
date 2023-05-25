@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+#ifndef MOCK_WINDOW_H
+#define MOCK_WINDOW_H
+
 #include <gtest/gtest.h>
 #include <iremote_object.h>
 #include <parcel.h>
@@ -183,3 +186,4 @@ public:
 };
 }
 }
+#endif  // MOCK_WINDOW_H

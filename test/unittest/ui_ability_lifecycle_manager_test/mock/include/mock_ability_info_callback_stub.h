@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+#ifndef MOCK_ABILITY_INFO_CALLBACK_STUB_H
+#define MOCK_ABILITY_INFO_CALLBACK_STUB_H
+
 #include "ability_info_callback_stub.h"
 
 namespace OHOS::AAFwk {
@@ -25,3 +28,4 @@ public:
     void NotifyStartAbilityResult(const Want &want, int result) override {}
 };
 } // namespace OHOS::AAFwk
+#endif  // MOCK_ABILITY_INFO_CALLBACK_STUB_H

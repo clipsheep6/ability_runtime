@@ -521,7 +521,7 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
         if (CheckLimit()) {
             isReachToLimit = true;
             HILOG_ERROR("already reach to limit, not create new mission and ability.");
-       	    return;
+            return;
         }
         HILOG_DEBUG("Make new mission data.");
         targetRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
