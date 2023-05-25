@@ -140,7 +140,8 @@ bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, 
     const DebuggerPostTask& debuggerPostTask)
 {
     if (vm_ != nullptr) {
-        return panda::JSNApi::StartDebugger(libraryPath, vm_, needBreakPoint, instanceId, debuggerPostTask);
+        panda::JSNApi::DebugOption debugOption = {libraryPath, needBreakPoint};
+        return panda::JSNApi::StartDebugger(vm_, debugOption, instanceId, debuggerPostTask);
     }
     return false;
 }
