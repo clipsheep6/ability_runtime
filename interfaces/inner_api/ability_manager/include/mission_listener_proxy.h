@@ -82,6 +82,8 @@ public:
      */
     virtual void OnMissionLabelUpdated(int32_t missionId) override;
 
+    virtual void OnMissionFocused(int32_t missionId) override;
+
 private:
     void SendRequestCommon(int32_t missionId, IMissionListener::MissionListenerCmd cmd);
 

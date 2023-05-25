@@ -108,6 +108,8 @@ public:
 
     void HandleUnInstallApp(const std::list<int32_t> &missions);
 
+    void NotifyMissionFocused(int32_t missionId);
+
 private:
     void OnListenerDied(const wptr<IRemoteObject> &remote);
 
