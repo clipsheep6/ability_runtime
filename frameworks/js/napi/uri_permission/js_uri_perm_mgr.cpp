@@ -143,11 +143,6 @@ private:
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();
         }
-        auto selfToken = IPCSkeleton::GetSelfTokenID();
-        if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
-            HILOG_ERROR("This application is not system-app, can not use system-api");
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
-            return engine.CreateUndefined();
         }
         AsyncTask::CompleteCallback complete =
         [uriStr, bundleName](NativeEngine& engine, AsyncTask& task, int32_t status) {
