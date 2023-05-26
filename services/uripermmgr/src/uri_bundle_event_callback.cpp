@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 #include "uri_bundle_event_callback.h"
-#include "uri_permission_manager_stub_impl.h"
 namespace OHOS {
 namespace AAFwk {
 UriBundleEventCallback(sptr<UriPermissionManagerStubImpl> impl)
