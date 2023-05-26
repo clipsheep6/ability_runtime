@@ -43,7 +43,7 @@ uint32_t GetU32Data(const char* ptr)
 
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    uint32_t code = GetU32Data(data);
+    uint32_t code = GetU32Data(data) % (static_cast<uint32_t>(IAmsMgr::Message::SET_CURRENT_USER_ID) + 1);
 
     MessageParcel parcel;
     parcel.WriteInterfaceToken(AMSMGR_INTERFACE_TOKEN);
