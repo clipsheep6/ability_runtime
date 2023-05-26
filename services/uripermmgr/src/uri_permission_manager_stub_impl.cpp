@@ -187,16 +187,20 @@ void UriPermissionManagerStubImpl::RevokeAllUriPermissions(const std::string bun
     }
 
     Security::AccessToken::AccessTokenID tokenId = GetTokenIdByBundleName(bundleName);
-    std::vector<std::string> uriList;
+    std::map<unsigned int, std::vector<std::string>> uriLists;
     {
         std::lock_guard<std::mutex> guard(mutex_);
         for (auto iter = uriMap_.begin(); iter != uriMap_.end();) {
             auto& list = iter->second;
-            for (auto it = list.begin(); it != list.end(); it++) {
+            for (auto it = list.begin(); it != list.end();) {
                 if (it->targetTokenId == tokenId || it->fromTokenId == tokenId) {
                     HILOG_INFO("Erase an info form list.");
-                    list.erase(it);
-                    uriList.emplace_back(iter->first);
+                    uriLists[it->fromTokenId].emplace_back(iter->first);
+                    auto currentIter = it;
+                    it++;
+                    list.erase(currentIter);
+                } else {
+                    it++;
                 }
             }
             if (list.size() == 0) {
@@ -213,8 +217,10 @@ void UriPermissionManagerStubImpl::RevokeAllUriPermissions(const std::string bun
         return;
     }
 
-    if (!uriList.empty()) {
-        storageMgrProxy->DeleteShareFile(tokenId, uriList);
+    if (!uriLists.empty()) {
+        for (auto iter = uriMap_.begin(); iter != uriMap_.end();iter++) {
+            storageMgrProxy->DeleteShareFile(iter->first, iter->second);
+        }
     }
 }
 

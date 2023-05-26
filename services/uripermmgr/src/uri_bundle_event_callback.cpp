@@ -12,10 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "uri_bundle_event_callback.h"
 #include "uri_permission_manager_stub_impl.h"
-
 namespace OHOS {
 namespace AAFwk {
 UriBundleEventCallback(sptr<UriPermissionManagerStubImpl> impl)
@@ -34,7 +32,6 @@ void UriBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData even
         return;
     }
     HILOG_DEBUG("OnReceiveEvent, action:%{public}s.", action.c_str());
-
     if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
         HILOG_DEBUG("revoke URI permission when uninstall.");
         if (!upms_) {
@@ -44,6 +41,5 @@ void UriBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData even
         upms_->RevokeAllUriPermissions(bundleName);
     }
 }
-
 } // namespace AAFwk
 } // namespace OHOS

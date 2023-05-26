@@ -13,11 +13,9 @@
  * limitations under the License.
  */
 
-
 #include "bundle_event_callback_host.h"
 #include "common_event_support.h"
 #include "hilog_wrapper.h"
-
 namespace OHOS {
 namespace AAFwk {
 /**
@@ -29,7 +27,6 @@ class UriBundleEventCallback : public AppExecFwk::BundleEventCallbackHost {
 public:
     UriBundleEventCallback(sptr<UriPermissionManagerStubImpl> impl);
     ~UriBundleEventCallback() = default;
-
     /**
      * @brief The main callback function that will be called by BundleManager
      * when install, uninstall, updates of haps happens to notify UriPermissionManger.
@@ -38,7 +35,7 @@ public:
      */
     void OnReceiveEvent(const EventFwk::CommonEventData eventData) override;
 private:
-    sptr<UriPermissionManagerStubImpl> upms;
+    sptr<UriPermissionManagerStubImpl> upms_;
 };
 } // namespace OHOS
 } // namespace AAFwk
