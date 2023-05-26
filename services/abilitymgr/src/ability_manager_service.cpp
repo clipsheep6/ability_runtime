@@ -570,7 +570,8 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         auto isSACall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
         auto isGatewayCall = AAFwk::PermissionVerification::GetInstance()->IsGatewayCall();
         auto isSystemAppCall = AAFwk::PermissionVerification::GetInstance()->IsSystemAppCall();
-        if (!isSACall && !isGatewayCall && !isSystemAppCall) {
+        auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
+        if (!isSACall && !isGatewayCall && !isSystemAppCall && !isShellCall) {
             HILOG_ERROR("Cannot start extension by start ability, use startServiceExtensionAbility.");
             return ERR_WRONG_INTERFACE_CALL;
         }
