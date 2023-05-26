@@ -27,7 +27,7 @@ namespace AAFwk {
  */
 class UriBundleEventCallback : public AppExecFwk::BundleEventCallbackHost {
 public:
-    UriBundleEventCallback() = default;;
+    UriBundleEventCallback(sptr<UriPermissionManagerStubImpl> impl);
     ~UriBundleEventCallback() = default;
 
     /**
@@ -37,6 +37,8 @@ public:
      * etc. More can be found from BundleCommonEventMgr::NotifyBundleStatus()
      */
     void OnReceiveEvent(const EventFwk::CommonEventData eventData) override;
+private:
+    sptr<UriPermissionManagerStubImpl> upms;
 };
 } // namespace OHOS
 } // namespace AAFwk

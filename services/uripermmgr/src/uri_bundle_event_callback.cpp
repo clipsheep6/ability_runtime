@@ -18,6 +18,10 @@
 
 namespace OHOS {
 namespace AAFwk {
+UriBundleEventCallback(sptr<UriPermissionManagerStubImpl> impl)
+{
+    upms_ = impl;
+}
 void UriBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData eventData)
 {
     const Want& want = eventData.GetWant();
@@ -33,8 +37,11 @@ void UriBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData even
 
     if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
         HILOG_DEBUG("revoke URI permission when uninstall.");
-        auto upms = std::make_shared<UriPermissionManagerStubImpl>();
-        upms->RevokeAllUriPermissions(bundleName);
+        if (!upms_) {
+            HILOG_ERROR("Uri permission manager is nullptr");
+            return;
+        }
+        upms_->RevokeAllUriPermissions(bundleName);
     }
 }
 

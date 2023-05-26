@@ -74,7 +74,7 @@ bool UriPermissionManagerService::Init()
     }
 
     if (impl_ == nullptr) {
-        impl_ = new UriPermissionManagerStubImpl();
+        impl_ = new UriPermissionManagerStubImpl(impl_);
     }
     // Register UriBundleEventCallback to receive hap updates
     HILOG_INFO("Register UriBundleEventCallback to receive hap updates.");
