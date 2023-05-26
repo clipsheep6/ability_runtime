@@ -340,7 +340,7 @@ bool AbilityManagerService::Init()
                 HILOG_ERROR("RegisterBundleEventCallback failed!");
             }
         } else {
-            HILOG_ERROR("Get BundleManager or abilieyBundleEventCallback failed!");
+            HILOG_ERROR("Get BundleManager or abilityBundleEventCallback failed!");
         }
     };
     handler_->PostTask(registerBundleEventCallbackTask, "RegisterBundleEventCallback");
