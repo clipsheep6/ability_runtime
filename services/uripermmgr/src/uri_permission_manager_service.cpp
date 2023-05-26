@@ -74,13 +74,13 @@ bool UriPermissionManagerService::Init()
     }
 
     if (impl_ == nullptr) {
-        impl_ = new UriPermissionManagerStubImpl(impl_);
+        impl_ = new UriPermissionManagerStubImpl();
     }
     // Register UriBundleEventCallback to receive hap updates
     HILOG_INFO("Register UriBundleEventCallback to receive hap updates.");
     auto bms = impl_->ConnectBundleManager();
     sptr<UriBundleEventCallback> uriBundleEventCallback =
-        new (std::nothrow) UriBundleEventCallback();
+        new (std::nothrow) UriBundleEventCallback(impl_);
     if (bms && uriBundleEventCallback) {
         bool re = bms->RegisterBundleEventCallback(uriBundleEventCallback);
         if (!re) {
