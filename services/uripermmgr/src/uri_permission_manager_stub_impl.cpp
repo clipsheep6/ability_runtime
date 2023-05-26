@@ -177,15 +177,6 @@ void UriPermissionManagerStubImpl::RevokeUriPermission(const TokenId tokenId)
 void UriPermissionManagerStubImpl::RevokeAllUriPermissions(const std::string bundleName)
 {
     HILOG_DEBUG("Start to remove all uri permission for uninstalled app.");
-    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
-    Security::AccessToken::NativeTokenInfo nativeInfo;
-    Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerTokenId, nativeInfo);
-    HILOG_DEBUG("callerprocessName : %{public}s", nativeInfo.processName.c_str());
-    if (nativeInfo.processName != "foundation") {
-        HILOG_ERROR("RevokeAllUriPermissions can only be called by foundation");
-        return;
-    }
-
     Security::AccessToken::AccessTokenID tokenId = GetTokenIdByBundleName(bundleName);
     std::map<unsigned int, std::vector<std::string>> uriLists;
     {
@@ -195,10 +186,8 @@ void UriPermissionManagerStubImpl::RevokeAllUriPermissions(const std::string bun
             for (auto it = list.begin(); it != list.end();) {
                 if (it->targetTokenId == tokenId || it->fromTokenId == tokenId) {
                     HILOG_INFO("Erase an info form list.");
-                    uriLists[it->fromTokenId].emplace_back(iter->first);
-                    auto currentIter = it;
-                    it++;
-                    list.erase(currentIter);
+                    uriLists[it->targetTokenId].emplace_back(iter->first);
+                    list.erase(it++;);
                 } else {
                     it++;
                 }
