@@ -65,7 +65,8 @@ target("ability_runtime")
     add_includedirs("../ability_form_fwk/interfaces/inner_api/include", "../ability_form_fwk/interfaces/kits/native/include")
     add_includedirs("../arkcompiler_ets_runtime", "../arkcompiler_runtime_core/libpandabase")
     add_includedirs("../hiviewdfx_faultloggerd/interfaces/innerkits/dump_catcher/include", "../hiviewdfx_faultloggerd/common",
-        "../hiviewdfx_faultloggerd/tools/process_dump", "../hiviewdfx_faultloggerd/interfaces/innerkits/faultloggerd_client/include")
+        "../hiviewdfx_faultloggerd/tools/process_dump", "../hiviewdfx_faultloggerd/interfaces/innerkits/faultloggerd_client/include",
+        "../hiviewdfx_faultloggerd/interfaces/innerkits/backtrace/include", "../hiviewdfx_faultloggerd/interfaces/common")
     add_includedirs("../hiviewdfx_hichecker/interfaces/native/innerkits/include")
     add_includedirs("../startup_init_lite/interfaces/innerkits/include")
     add_includedirs("../third_include_dir")

@@ -22,7 +22,7 @@
 #include "napi_remote_object.h"
 #include "iremote_object.h"
 #include "session_info.h"
-#include "foundation/window/window_manager/interfaces/innerkits/wm/window.h"
+#include "window.h"
 #include "want.h"
 
 namespace OHOS {
