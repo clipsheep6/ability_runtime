@@ -46,7 +46,7 @@ public:
         const std::string targetBundleName, int autoremove) override;
 
     void RevokeUriPermission(const Security::AccessToken::AccessTokenID tokenId) override;
-    void RevokeAllUriPermissions(const std::string bundleName);
+    void RevokeAllUriPermissions(int tokenId);
     int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) override;
     sptr<AppExecFwk::IBundleMgr> ConnectBundleManager();
 

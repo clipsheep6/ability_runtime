@@ -174,10 +174,9 @@ void UriPermissionManagerStubImpl::RevokeUriPermission(const TokenId tokenId)
     }
 }
 
-void UriPermissionManagerStubImpl::RevokeAllUriPermissions(const std::string bundleName)
+void UriPermissionManagerStubImpl::RevokeAllUriPermissions(int tokenId)
 {
     HILOG_DEBUG("Start to remove all uri permission for uninstalled app.");
-    Security::AccessToken::AccessTokenID tokenId = GetTokenIdByBundleName(bundleName);
     std::map<unsigned int, std::vector<std::string>> uriLists;
     {
         std::lock_guard<std::mutex> guard(mutex_);

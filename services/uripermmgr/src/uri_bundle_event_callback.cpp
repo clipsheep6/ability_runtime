@@ -15,6 +15,7 @@
 #include "uri_bundle_event_callback.h"
 namespace OHOS {
 namespace AAFwk {
+const std::string KEY_TOKEN = "accessTokenId";
 UriBundleEventCallback::UriBundleEventCallback(sptr<UriPermissionManagerStubImpl> impl)
 {
     upms_ = impl;
@@ -25,6 +26,7 @@ void UriBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData even
     // action contains the change type of haps.
     std::string action = want.GetAction();
     std::string bundleName = want.GetElement().GetBundleName();
+    int token = want.GetIntParam(KEY_TOKEN, 0);
     // verify data
     if (action.empty() || bundleName.empty()) {
         HILOG_ERROR("OnReceiveEvent failed, empty action/bundleName");
@@ -37,7 +39,7 @@ void UriBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData even
             HILOG_ERROR("Uri permission manager is nullptr");
             return;
         }
-        upms_->RevokeAllUriPermissions(bundleName);
+        upms_->RevokeAllUriPermissions(token);
     }
 }
 } // namespace AAFwk
