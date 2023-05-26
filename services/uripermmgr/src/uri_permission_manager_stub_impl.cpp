@@ -187,7 +187,7 @@ void UriPermissionManagerStubImpl::RevokeAllUriPermissions(const std::string bun
                 if (it->targetTokenId == tokenId || it->fromTokenId == tokenId) {
                     HILOG_INFO("Erase an info form list.");
                     uriLists[it->targetTokenId].emplace_back(iter->first);
-                    list.erase(it++;);
+                    list.erase(it++);
                 } else {
                     it++;
                 }
@@ -207,7 +207,7 @@ void UriPermissionManagerStubImpl::RevokeAllUriPermissions(const std::string bun
     }
 
     if (!uriLists.empty()) {
-        for (auto iter = uriMap_.begin(); iter != uriMap_.end();iter++) {
+        for (auto iter = uriLists.begin(); iter != uriLists.end(); iter++) {
             storageMgrProxy->DeleteShareFile(iter->first, iter->second);
         }
     }
