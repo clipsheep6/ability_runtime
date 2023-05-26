@@ -4850,7 +4850,7 @@ void AbilityManagerService::UpdateMissionSnapShot(const sptr<IRemoteObject>& tok
     }
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (!isSaCall) {
-        if(!CheckCallingTokenId(BUNDLE_NAME_LAUNCHER, GetUserId())) {
+        if (!CheckCallingTokenId(BUNDLE_NAME_LAUNCHER, GetUserId())) {
             HILOG_ERROR("Not launcher called, not allowed.");
             return;
         }

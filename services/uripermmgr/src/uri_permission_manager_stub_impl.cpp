@@ -193,11 +193,10 @@ void UriPermissionManagerStubImpl::RevokeAllUriPermissions(const std::string bun
         for (auto iter = uriMap_.begin(); iter != uriMap_.end();) {
             auto& list = iter->second;
             for (auto it = list.begin(); it != list.end(); it++) {
-                if (it->targetTokenId == tokenId) {
+                if (it->targetTokenId == tokenId || it->fromTokenId == tokenId) {
                     HILOG_INFO("Erase an info form list.");
                     list.erase(it);
                     uriList.emplace_back(iter->first);
-                    break;
                 }
             }
             if (list.size() == 0) {
