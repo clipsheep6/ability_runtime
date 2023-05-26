@@ -782,6 +782,8 @@ void UvWorkNotifyMissionChanged(uv_work_t *work, int status)
         return;
     }
     napi_value result = nullptr;
+    napi_handle_scope scope;
+    napi_open_handle_scope(registerMissionCB->cbBase.cbInfo.env, &scope);
     result =
         WrapString(registerMissionCB->cbBase.cbInfo.env, registerMissionCB->deviceId.c_str(), "deviceId");
 
@@ -793,6 +795,7 @@ void UvWorkNotifyMissionChanged(uv_work_t *work, int status)
         registerMissionCB->cbBase.cbInfo.env, registerMissionCB->cbBase.cbInfo.callback, &callback);
 
     napi_call_function(registerMissionCB->cbBase.cbInfo.env, undefined, callback, 1, &result, &callResult);
+    napi_close_handle_scope(registerMissionCB->cbBase.cbInfo.env, scope);
     delete registerMissionCB;
     registerMissionCB = nullptr;
     delete work;
@@ -847,11 +850,14 @@ void UvWorkNotifySnapshot(uv_work_t *work, int status)
         return;
     }
     napi_value result[2] = {nullptr};
+    napi_handle_scope scope;
+    napi_open_handle_scope(registerMissionCB->cbBase.cbInfo.env, &scope);
     result[0] =
         WrapString(registerMissionCB->cbBase.cbInfo.env, registerMissionCB->deviceId.c_str(), "deviceId");
     result[1] =
         WrapInt32(registerMissionCB->cbBase.cbInfo.env, registerMissionCB->missionId, "missionId");
     CallbackReturn(&result[0], registerMissionCB);
+    napi_close_handle_scope(registerMissionCB->cbBase.cbInfo.env, scope);
     delete registerMissionCB;
     registerMissionCB = nullptr;
     delete work;
@@ -862,12 +868,15 @@ void CallbackReturn(napi_value *result, RegisterMissionCB *registerMissionCB)
 {
     napi_value callback = nullptr;
     napi_value undefined = nullptr;
+    napi_handle_scope scope;
+    napi_open_handle_scope(registerMissionCB->cbBase.cbInfo.env, &scope);
     napi_get_undefined(registerMissionCB->cbBase.cbInfo.env, &undefined);
     napi_value callResult = nullptr;
     napi_get_reference_value(
         registerMissionCB->cbBase.cbInfo.env, registerMissionCB->cbBase.cbInfo.callback, &callback);
 
     napi_call_function(registerMissionCB->cbBase.cbInfo.env, undefined, callback, ARGS_TWO, &result[0], &callResult);
+    napi_close_handle_scope(registerMissionCB->cbBase.cbInfo.env, scope);
 }
 
 void NAPIRemoteMissionListener::NotifySnapshot(const std::string &deviceId, int32_t missionId)
@@ -918,6 +927,8 @@ void UvWorkNotifyNetDisconnect(uv_work_t *work, int status)
         return;
     }
     napi_value result[2] = {nullptr};
+    napi_handle_scope scope;
+    napi_open_handle_scope(registerMissionCB->cbBase.cbInfo.env, &scope);
     result[0] =
         WrapString(registerMissionCB->cbBase.cbInfo.env, registerMissionCB->deviceId.c_str(), "deviceId");
     HILOG_INFO("UvWorkNotifyNetDisconnect, state = %{public}d", registerMissionCB->state);
@@ -925,6 +936,7 @@ void UvWorkNotifyNetDisconnect(uv_work_t *work, int status)
         WrapInt32(registerMissionCB->cbBase.cbInfo.env, registerMissionCB->state, "state");
 
     CallbackReturn(&result[0], registerMissionCB);
+    napi_close_handle_scope(registerMissionCB->cbBase.cbInfo.env, scope);
     delete registerMissionCB;
     registerMissionCB = nullptr;
     delete work;
@@ -1515,6 +1527,8 @@ void UvWorkOnContinueDone(uv_work_t *work, int status)
         return;
     }
     napi_value result = nullptr;
+    napi_handle_scope scope;
+    napi_open_handle_scope(continueAbilityCB->cbBase.cbInfo.env, &scope);
     HILOG_INFO("UvWorkOnContinueDone, resultCode = %{public}d", continueAbilityCB->resultCode);
     result =
         WrapInt32(continueAbilityCB->cbBase.cbInfo.env, continueAbilityCB->resultCode, "resultCode");
@@ -1530,6 +1544,7 @@ void UvWorkOnContinueDone(uv_work_t *work, int status)
     if (continueAbilityCB->cbBase.cbInfo.callback != nullptr) {
         napi_delete_reference(continueAbilityCB->cbBase.cbInfo.env, continueAbilityCB->cbBase.cbInfo.callback);
     }
+    napi_close_handle_scope(continueAbilityCB->cbBase.cbInfo.env, scope);
     delete continueAbilityCB;
     continueAbilityCB = nullptr;
     delete work;

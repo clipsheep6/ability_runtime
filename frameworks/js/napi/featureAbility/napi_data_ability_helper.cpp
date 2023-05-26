@@ -1124,6 +1124,8 @@ void NAPIDataAbilityObserver::CallJsMethod()
         isCallingback_ = true;
     }
     napi_value result[ARGS_TWO] = {nullptr};
+    napi_handle_scope scope;
+    napi_open_handle_scope(env_, &scope);
     result[PARAM0] = GetCallbackErrorValue(env_, NO_ERROR);
     napi_value callback = nullptr;
     napi_value undefined = nullptr;
@@ -1131,6 +1133,7 @@ void NAPIDataAbilityObserver::CallJsMethod()
     napi_value callResult = nullptr;
     napi_get_reference_value(env_, ref_, &callback);
     napi_call_function(env_, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    napi_close_handle_scope(env_, scope);
 
     {
         std::lock_guard<std::mutex> lock(mutex_);
