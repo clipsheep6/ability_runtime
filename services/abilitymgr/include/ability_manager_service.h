@@ -968,6 +968,8 @@ public:
     int32_t IsValidMissionIds(
         const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results) override;
 
+    virtual int32_t RequestDialogService(const Want &want, const sptr<IRemoteObject> &callerToken) override;
+
     virtual int32_t AcquireShareData(
         const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData) override;
     virtual int32_t ShareDataDone(const sptr<IRemoteObject>& token,
@@ -1344,6 +1346,9 @@ private:
     }
 
     bool CheckProxyComponent(const Want &want, const int result);
+
+    int32_t RequestDialogServiceInner(const Want &want, const sptr<IRemoteObject> &callerToken,
+        int requestCode, int32_t userId);
 
     bool IsReleaseCallInterception(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element,
         int &result);

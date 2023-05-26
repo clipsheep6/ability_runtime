@@ -893,6 +893,18 @@ public:
     }
 
     /**
+     * Request dialog service with want, send want to ability manager service.
+     *
+     * @param want, the want of the dialog service to start.
+     * @param callerToken, caller ability token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RequestDialogService(const Want &want, const sptr<IRemoteObject> &callerToken)
+    {
+        return 0;
+    }
+
+    /**
      * Acquire the shared data.
      * @param missionId The missionId of Target ability.
      * @param shareData The IAcquireShareData object.
@@ -1197,6 +1209,9 @@ public:
 
         // ipc id for close ui ability by scb
         CLOSE_UI_ABILITY_BY_SCB,
+
+        // ipc id for request dialog service
+        REQUEST_DIALOG_SERVICE,
 
         // ipc id for continue ability(1101)
         START_CONTINUATION = 1101,
