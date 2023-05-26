@@ -27,7 +27,8 @@ namespace AAFwk {
  */
 class UriBundleEventCallback : public AppExecFwk::BundleEventCallbackHost {
 public:
-    UriBundleEventCallback(sptr<UriPermissionManagerStubImpl> impl);
+    UriBundleEventCallback() = default;
+    explicit UriBundleEventCallback(sptr<UriPermissionManagerStubImpl> impl);
     ~UriBundleEventCallback() = default;
     /**
      * @brief The main callback function that will be called by BundleManager

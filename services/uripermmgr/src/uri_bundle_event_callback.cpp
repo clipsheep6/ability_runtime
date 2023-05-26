@@ -15,7 +15,7 @@
 #include "uri_bundle_event_callback.h"
 namespace OHOS {
 namespace AAFwk {
-UriBundleEventCallback(sptr<UriPermissionManagerStubImpl> impl)
+UriBundleEventCallback::UriBundleEventCallback(sptr<UriPermissionManagerStubImpl> impl)
 {
     upms_ = impl;
 }
