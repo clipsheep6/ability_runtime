@@ -23,8 +23,13 @@
 #include "context_impl.h"
 #include "configuration.h"
 #include "local_call_container.h"
+#include "scene_board_judgement.h"
+#include "window_scene.h"
 
 namespace OHOS {
+namespace Rosen {
+class WindowScene;
+}
 namespace AbilityRuntime {
 class AbilityContextImpl : public AbilityContext {
 public:
@@ -173,6 +178,8 @@ public:
     {
         return isTerminating_;
     }
+
+    void SetWeakScene(const std::weak_ptr<Rosen::WindowScene>& scene) override;
 
     void SetTerminating(bool state) override
     {

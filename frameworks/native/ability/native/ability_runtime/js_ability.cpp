@@ -590,6 +590,7 @@ void JsAbility::DoOnForeground(const Want &want)
         auto option = GetWindowOption(want);
         Rosen::WMError ret = Rosen::WMError::WM_OK;
         if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && sessionInfo_ != nullptr) {
+            abilityContext_->SetWeakScene(scene_);
             ret = scene_->Init(displayId, abilityContext_, sceneListener_, option, sessionInfo_->sessionToken);
         } else {
             ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);

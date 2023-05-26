@@ -24,6 +24,7 @@
 #include "hilog_wrapper.h"
 #include "remote_object_wrapper.h"
 #include "request_constants.h"
+#include "scene_board_judgement.h"
 #include "string_wrapper.h"
 #include "want_params_wrapper.h"
 
@@ -249,9 +250,22 @@ ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want& want, 
 {
     HILOG_DEBUG("Start calling TerminateAbilityWithResult.");
     isTerminating_ = true;
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, resultCode, &want);
-    HILOG_INFO("TerminateAbilityWithResult. ret=%{public}d", err);
-    return err;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto scene = scene_.lock();
+        if (scene) {
+            HILOG_INFO("TerminateAbilityWithResult. SCB");
+            // scene->method(); 
+        }
+    } else {
+        ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, resultCode, &want);
+        HILOG_INFO("TerminateAbilityWithResult. ret=%{public}d", err);
+        return err;
+    }
+}
+
+void AbilityContextImpl::SetWeakScene(const std::weak_ptr<Rosen::WindowScene>& scene) {
+    HILOG_DEBUG("Start calling SetWeakScene.");
+    scene_ = scene;
 }
 
 void AbilityContextImpl::OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want& resultData)
@@ -391,10 +405,19 @@ ErrCode AbilityContextImpl::TerminateSelf()
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     isTerminating_ = true;
-    AAFwk::Want resultWant;
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, -1, &resultWant);
-    if (err != ERR_OK) {
-        HILOG_ERROR("AbilityContextImpl::TerminateSelf is failed %{public}d", err);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto scene = scene_.lock();
+        if (scene) {
+            HILOG_INFO("TerminateSelf. SCB");
+            // scene->method(); 
+        }
+    } else {
+        AAFwk::Want resultWant;
+        ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, -1, &resultWant);
+        if (err != ERR_OK) {
+            HILOG_ERROR("AbilityContextImpl::TerminateSelf is failed %{public}d", err);
+        }
+        return err;
     }
     return err;
 }
