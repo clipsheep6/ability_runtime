@@ -464,7 +464,7 @@ HWTEST_F(MainThreadTest, GetHqfFileAndHapPath_0100, TestSize.Level1)
     std::string bundleName = "com.ohos.quickfix";
     std::vector<std::pair<std::string, std::string>> fileMap;
     auto ret = mainThread_->GetHqfFileAndHapPath(bundleName, fileMap);
-    EXPECT_TRUE(ret);
+    EXPECT_FALSE(ret);
     HILOG_INFO("%{public}s end.", __func__);
 }
 

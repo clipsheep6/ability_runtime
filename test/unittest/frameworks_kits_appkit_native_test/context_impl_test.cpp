@@ -1099,5 +1099,80 @@ HWTEST_F(ContextImplTest, ChangeToLocalPath_0200, TestSize.Level1)
     contextImpl->ChangeToLocalPath(bundleName, localPath, localPath);
     EXPECT_TRUE(localPath == "/data/bundles/com.example.demo/");
 }
+
+/**
+ * @tc.name: GetAddOverlayPaths_0100
+ * @tc.desc: Get overlay paths that need add.
+ * @tc.type: FUNC
+ * @tc.require: issueI6SAQC
+ */
+HWTEST_F(ContextImplTest, GetAddOverlayPath_0100, TestSize.Level1)
+{
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+    std::vector<OverlayModuleInfo> overlayModuleInfos;
+    OverlayModuleInfo overlayModuleInfo;
+    overlayModuleInfo.bundleName = "com.ohos.demo";
+    overlayModuleInfo.moduleName = "entry";
+    overlayModuleInfo.hapPath = "test";
+    overlayModuleInfo.state = OverlayState::OVERLAY_ENABLE;
+    overlayModuleInfos.emplace_back(overlayModuleInfo);
+    contextImpl->overlayModuleInfos_ = overlayModuleInfos;
+
+    std::vector<std::string> result = contextImpl->GetAddOverlayPaths(overlayModuleInfos);
+    EXPECT_TRUE(result.size() == 1);
+    EXPECT_TRUE(result[0] == "test");
+}
+
+/**
+ * @tc.name: GetRemoveOverlayPaths_0100
+ * @tc.desc: Get overlay paths that need remove.
+ * @tc.type: FUNC
+ * @tc.require: issueI6SAQC
+ */
+HWTEST_F(ContextImplTest, GetRemoveOverlayPaths_0100, TestSize.Level1)
+{
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+    std::vector<OverlayModuleInfo> overlayModuleInfos;
+    OverlayModuleInfo overlayModuleInfo;
+    overlayModuleInfo.bundleName = "com.ohos.demo";
+    overlayModuleInfo.moduleName = "entry";
+    overlayModuleInfo.hapPath = "test";
+    overlayModuleInfo.state = OverlayState::OVERLAY_ENABLE;
+    overlayModuleInfos.emplace_back(overlayModuleInfo);
+    contextImpl->overlayModuleInfos_ = overlayModuleInfos;
+    overlayModuleInfos[0].state = OverlayState::OVERLAY_DISABLED;
+
+    std::vector<std::string> result = contextImpl->GetRemoveOverlayPaths(overlayModuleInfos);
+    EXPECT_TRUE(result.size() == 1);
+    EXPECT_TRUE(result[0] == "test");
+}
+
+HWTEST_F(ContextImplTest, OnOverlayChanged_0100, TestSize.Level1)
+{
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
+    EXPECT_TRUE(resourceManager != nullptr);
+    std::string bundleName = "com.ohos.demo";
+    std::string moduleName = "entry";
+    std::string loadPath = "test";
+    std::vector<OverlayModuleInfo> overlayModuleInfos;
+    OverlayModuleInfo overlayModuleInfo;
+    overlayModuleInfo.bundleName = "com.ohos.demo";
+    overlayModuleInfo.moduleName = "entry";
+    overlayModuleInfo.hapPath = "test";
+    overlayModuleInfo.state = OverlayState::OVERLAY_ENABLE;
+    overlayModuleInfos.emplace_back(overlayModuleInfo);
+    overlayModuleInfos[0].state = OverlayState::OVERLAY_DISABLED;
+    OHOS::EventFwk::CommonEventData data;
+    AAFwk::Want want;
+    want.SetElementName("com.ohos.demo", "MainAbility", "entry");
+    want.SetAction("usual.event.OVERLAY_STATE_CHANGED");
+    data.SetWant(want);
+
+    contextImpl->OnOverlayChanged(data, resourceManager, bundleName, moduleName, loadPath);
+}
 }  // namespace AppExecFwk
 }

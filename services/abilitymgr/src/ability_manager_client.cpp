@@ -709,6 +709,17 @@ ErrCode AbilityManagerClient::GetProcessRunningInfos(std::vector<AppExecFwk::Run
     return abms->GetProcessRunningInfos(info);
 }
 
+ErrCode AbilityManagerClient::RequestDialogService(
+    const Want &want, const sptr<IRemoteObject> &callerToken)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_INFO("request is:%{public}s.", want.GetElement().GetURI().c_str());
+    HandleDlpApp(const_cast<Want &>(want));
+    return abms->RequestDialogService(want, callerToken);
+}
+
 /**
  * Start synchronizing remote device mission
  * @param devId, deviceId.

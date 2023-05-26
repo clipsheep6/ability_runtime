@@ -27,9 +27,6 @@ const std::string AbilityDelegatorArgs::KEY_TEST_WAIT_TIMEOUT {"-w"};
 const std::string AbilityDelegatorArgs::KEY_TEST_DEBUG {"-D"};
 const std::string AbilityDelegatorArgs::VALUE_TEST_DEBUG {"true"};
 
-AbilityDelegatorArgs::AbilityDelegatorArgs()
-{}
-
 AbilityDelegatorArgs::AbilityDelegatorArgs(const AAFwk::Want &want)
 {
     bundleName_ = want.GetStringParam(AbilityDelegatorArgs::KEY_TEST_BUNDLE_NAME);
@@ -44,9 +41,6 @@ AbilityDelegatorArgs::AbilityDelegatorArgs(const AAFwk::Want &want)
         params_[key] = want.GetStringParam(key);
     }
 }
-
-AbilityDelegatorArgs::~AbilityDelegatorArgs()
-{}
 
 std::string AbilityDelegatorArgs::GetTestBundleName() const
 {

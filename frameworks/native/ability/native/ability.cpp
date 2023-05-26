@@ -93,6 +93,7 @@ Ability* Ability::Create(const std::unique_ptr<AbilityRuntime::Runtime>& runtime
 void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<OHOSApplication> application,
     std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("%{public}s begin.", __func__);
     application_ = application;
     abilityInfo_ = abilityInfo;

@@ -175,6 +175,12 @@ public:
     static bool finishFlag_;
 };
 
+enum TESTCASE_BRANCH {
+    BRANCH_1 = 1,
+    BRANCH_2 = 2,
+    BRANCH_3 = 3,
+};
+
 class MockAbilityDelegatorStub2 : public AbilityManagerStub {
 public:
     MockAbilityDelegatorStub2();
@@ -299,6 +305,7 @@ public:
     int FinishUserTest(
         const std::string& msg, const int64_t& resultCode, const std::string& bundleName) override;
     int GetTopAbility(sptr<IRemoteObject>& token) override;
+    AppExecFwk::ElementName GetTopAbility() override;
     int DelegatorDoAbilityForeground(const sptr<IRemoteObject>& token) override;
     int DelegatorDoAbilityBackground(const sptr<IRemoteObject>& token) override;
     int DoAbilityForeground(const sptr<IRemoteObject>& token, uint32_t flag);
@@ -322,6 +329,7 @@ public:
 public:
     std::string powerState_;
     static bool finishFlag_;
+    static TESTCASE_BRANCH testcaseBranch_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -15,6 +15,7 @@
 
 #include "new_ability_impl.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "scene_board_judgement.h"
 
 namespace OHOS {
@@ -31,6 +32,7 @@ using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
 void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
     sptr<AAFwk::SessionInfo> sessionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("NewAbilityImpl::HandleAbilityTransaction begin sourceState:%{public}d; targetState: %{public}d; "
              "isNewWant: %{public}d, sceneFlag: %{public}d",
         lifecycleState_,
@@ -93,6 +95,7 @@ void NewAbilityImpl::AbilityTransactionCallback(const AbilityLifeCycleState &sta
  */
 bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("NewAbilityImpl::AbilityTransaction begin");
     bool ret = true;
     switch (targetState.state) {

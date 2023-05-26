@@ -1089,8 +1089,7 @@ NativeValue *JSAbilityDelegator::ParseTimeoutCallbackPara(
     if (info.argc >= ARGC_TWO) {
         if (!ConvertFromJsValue(engine, info.argv[INDEX_ONE], timeout)) {
             if (info.argv[INDEX_ONE] == nullptr || info.argv[INDEX_ONE]->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
-                HILOG_ERROR("Parse parameter argv[1] failed");
-                return nullptr;
+                return engine.CreateNull();
             }
             opt.hasCallbackPara = true;
             return engine.CreateNull();
@@ -1099,8 +1098,7 @@ NativeValue *JSAbilityDelegator::ParseTimeoutCallbackPara(
 
         if (info.argc > ARGC_TWO) {
             if (info.argv[INDEX_TWO]->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
-                HILOG_ERROR("Parse parameter argv[2] failed");
-                return nullptr;
+                return engine.CreateNull();
             }
             opt.hasCallbackPara = true;
         }

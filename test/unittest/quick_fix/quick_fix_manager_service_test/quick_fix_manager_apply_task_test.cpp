@@ -211,7 +211,7 @@ HWTEST_F(QuickFixManagerApplyTaskTest, NotifyApplyStatus_0100, TestSize.Level1)
  * @tc.name: RemoveTimeoutTask_0100
  * @tc.desc: remove timeout task
  * @tc.type: FUNC
- * @tc.require: 
+ * @tc.require:
  */
 HWTEST_F(QuickFixManagerApplyTaskTest, RemoveTimeoutTask_0100, TestSize.Level1)
 {
@@ -227,7 +227,7 @@ HWTEST_F(QuickFixManagerApplyTaskTest, RemoveTimeoutTask_0100, TestSize.Level1)
  * @tc.name: RemoveTimeoutTask_0200
  * @tc.desc: remove timeout task
  * @tc.type: FUNC
- * @tc.require: 
+ * @tc.require:
  */
 HWTEST_F(QuickFixManagerApplyTaskTest, RemoveTimeoutTask_0200, TestSize.Level1)
 {
@@ -243,7 +243,7 @@ HWTEST_F(QuickFixManagerApplyTaskTest, RemoveTimeoutTask_0200, TestSize.Level1)
  * @tc.name: SetQuickFixInfo_0100
  * @tc.desc: set quick fix info
  * @tc.type: FUNC
- * @tc.require: 
+ * @tc.require:
  */
 HWTEST_F(QuickFixManagerApplyTaskTest, SetQuickFixInfo_0100, TestSize.Level1)
 {
@@ -251,7 +251,7 @@ HWTEST_F(QuickFixManagerApplyTaskTest, SetQuickFixInfo_0100, TestSize.Level1)
     auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
         quickFixMs_->eventHandler_, quickFixMs_);
     ASSERT_NE(applyTask, nullptr);
-    std::shared_ptr<AppExecFwk::QuickFixResult> quickFixRes = 
+    std::shared_ptr<AppExecFwk::QuickFixResult> quickFixRes =
         std::make_shared<AppExecFwk::DeployQuickFixResult>();
     bool res = applyTask->SetQuickFixInfo(quickFixRes);
     ASSERT_EQ(res, false);
@@ -262,7 +262,7 @@ HWTEST_F(QuickFixManagerApplyTaskTest, SetQuickFixInfo_0100, TestSize.Level1)
  * @tc.name: SetQuickFixInfo_0200
  * @tc.desc: set quick fix info
  * @tc.type: FUNC
- * @tc.require: 
+ * @tc.require:
  */
 HWTEST_F(QuickFixManagerApplyTaskTest, SetQuickFixInfo_0200, TestSize.Level1)
 {
@@ -270,7 +270,7 @@ HWTEST_F(QuickFixManagerApplyTaskTest, SetQuickFixInfo_0200, TestSize.Level1)
     auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
         quickFixMs_->eventHandler_, quickFixMs_);
     ASSERT_NE(applyTask, nullptr);
-    auto quickFixRes = std::make_shared<AppExecFwk::DeployQuickFixResult>(); 
+    auto quickFixRes = std::make_shared<AppExecFwk::DeployQuickFixResult>();
     quickFixRes->bundleName = "bundleName";
     quickFixRes->type = AppExecFwk::QuickFixType::PATCH;
     bool res = applyTask->SetQuickFixInfo(quickFixRes);
@@ -282,7 +282,7 @@ HWTEST_F(QuickFixManagerApplyTaskTest, SetQuickFixInfo_0200, TestSize.Level1)
  * @tc.name: SetQuickFixInfo_0300
  * @tc.desc: set quick fix info
  * @tc.type: FUNC
- * @tc.require: 
+ * @tc.require:
  */
 HWTEST_F(QuickFixManagerApplyTaskTest, SetQuickFixInfo_0300, TestSize.Level1)
 {
@@ -290,7 +290,7 @@ HWTEST_F(QuickFixManagerApplyTaskTest, SetQuickFixInfo_0300, TestSize.Level1)
     auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
         quickFixMs_->eventHandler_, quickFixMs_);
     ASSERT_NE(applyTask, nullptr);
-    auto quickFixRes = std::make_shared<AppExecFwk::DeployQuickFixResult>(); 
+    auto quickFixRes = std::make_shared<AppExecFwk::DeployQuickFixResult>();
     quickFixRes->bundleName = "bundleName";
     bool res = applyTask->SetQuickFixInfo(quickFixRes);
     ASSERT_EQ(res, false);
@@ -298,10 +298,44 @@ HWTEST_F(QuickFixManagerApplyTaskTest, SetQuickFixInfo_0300, TestSize.Level1)
 }
 
 /**
+ * @tc.name: SetQuickFixInfo_0400
+ * @tc.desc: Set quick fix info.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(QuickFixManagerApplyTaskTest, SetQuickFixInfo_0400, TestSize.Level1)
+{
+    HILOG_INFO("testcase start.");
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
+        quickFixMs_->eventHandler_, quickFixMs_);
+    ASSERT_NE(applyTask, nullptr);
+    auto quickFixRes = std::make_shared<AppExecFwk::DeployQuickFixResult>();
+    quickFixRes->resultCode = 0;
+    quickFixRes->bundleName = "com.ohos.quickfix";
+    quickFixRes->bundleVersionCode = 100000;
+    quickFixRes->patchVersionCode = 100001;
+    quickFixRes->isSoContained = true;
+    quickFixRes->type = AppExecFwk::QuickFixType::PATCH;
+    quickFixRes->moduleNames.emplace_back("entry");
+    quickFixRes->moduleNames.emplace_back("feature");
+    bool res = applyTask->SetQuickFixInfo(quickFixRes);
+    ASSERT_EQ(res, true);
+    EXPECT_EQ(applyTask->bundleName_, "com.ohos.quickfix");
+    EXPECT_EQ(applyTask->bundleVersionCode_, 100000);
+    EXPECT_EQ(applyTask->patchVersionCode_, 100001);
+    EXPECT_EQ(applyTask->isSoContained_, true);
+    EXPECT_EQ(applyTask->type_, AppExecFwk::QuickFixType::PATCH);
+    ASSERT_EQ(applyTask->moduleNames_.size(), 2);
+    EXPECT_EQ(applyTask->moduleNames_[0], "entry");
+    EXPECT_EQ(applyTask->moduleNames_[1], "feature");
+    HILOG_INFO("testcase end.");
+}
+
+/**
  * @tc.name: GetRunningState_0100
  * @tc.desc: get running state
  * @tc.type: FUNC
- * @tc.require: 
+ * @tc.require:
  */
 HWTEST_F(QuickFixManagerApplyTaskTest, GetRunningState_0100, TestSize.Level1)
 {
@@ -318,7 +352,7 @@ HWTEST_F(QuickFixManagerApplyTaskTest, GetRunningState_0100, TestSize.Level1)
  * @tc.name: PostNotifyLoadRepairPatchTask_0100
  * @tc.desc: post notify load repair patch task
  * @tc.type: FUNC
- * @tc.require: 
+ * @tc.require:
  */
 HWTEST_F(QuickFixManagerApplyTaskTest, PostNotifyLoadRepairPatchTask_0100, TestSize.Level1)
 {
@@ -334,7 +368,7 @@ HWTEST_F(QuickFixManagerApplyTaskTest, PostNotifyLoadRepairPatchTask_0100, TestS
  * @tc.name: PostNotifyLoadRepairPatchTask_0200
  * @tc.desc: post notify load repair patch task
  * @tc.type: FUNC
- * @tc.require: 
+ * @tc.require:
  */
 HWTEST_F(QuickFixManagerApplyTaskTest, PostNotifyLoadRepairPatchTask_0200, TestSize.Level1)
 {
@@ -350,7 +384,7 @@ HWTEST_F(QuickFixManagerApplyTaskTest, PostNotifyLoadRepairPatchTask_0200, TestS
  * @tc.name: PostNotifyUnloadRepairPatchTask_0100
  * @tc.desc: post notify unload repair patch task
  * @tc.type: FUNC
- * @tc.require: 
+ * @tc.require:
  */
 HWTEST_F(QuickFixManagerApplyTaskTest, PostNotifyUnloadRepairPatchTask_0100, TestSize.Level1)
 {
@@ -366,7 +400,7 @@ HWTEST_F(QuickFixManagerApplyTaskTest, PostNotifyUnloadRepairPatchTask_0100, Tes
  * @tc.name: PostNotifyUnloadRepairPatchTask_0200
  * @tc.desc: post notify unload repair patch task
  * @tc.type: FUNC
- * @tc.require: 
+ * @tc.require:
  */
 HWTEST_F(QuickFixManagerApplyTaskTest, PostNotifyUnloadRepairPatchTask_0200, TestSize.Level1)
 {
@@ -382,7 +416,7 @@ HWTEST_F(QuickFixManagerApplyTaskTest, PostNotifyUnloadRepairPatchTask_0200, Tes
  * @tc.name: PostNotifyHotReloadPageTask_0100
  * @tc.desc: post notify hotreload page task
  * @tc.type: FUNC
- * @tc.require: 
+ * @tc.require:
  */
 HWTEST_F(QuickFixManagerApplyTaskTest, PostNotifyHotReloadPageTask_0100, TestSize.Level1)
 {
@@ -398,7 +432,7 @@ HWTEST_F(QuickFixManagerApplyTaskTest, PostNotifyHotReloadPageTask_0100, TestSiz
  * @tc.name: PostNotifyHotReloadPageTask_0200
  * @tc.desc: post notify hotreload page task
  * @tc.type: FUNC
- * @tc.require: 
+ * @tc.require:
  */
 HWTEST_F(QuickFixManagerApplyTaskTest, PostNotifyHotReloadPageTask_0200, TestSize.Level1)
 {
@@ -414,7 +448,7 @@ HWTEST_F(QuickFixManagerApplyTaskTest, PostNotifyHotReloadPageTask_0200, TestSiz
  * @tc.name: RegAppStateObserver_0100
  * @tc.desc: register app state observer
  * @tc.type: FUNC
- * @tc.require: 
+ * @tc.require:
  */
 HWTEST_F(QuickFixManagerApplyTaskTest, RegAppStateObserver_0100, TestSize.Level1)
 {
@@ -430,7 +464,7 @@ HWTEST_F(QuickFixManagerApplyTaskTest, RegAppStateObserver_0100, TestSize.Level1
  * @tc.name: RegAppStateObserver_0200
  * @tc.desc: register app state observer
  * @tc.type: FUNC
- * @tc.require: 
+ * @tc.require:
  */
 HWTEST_F(QuickFixManagerApplyTaskTest, RegAppStateObserver_0200, TestSize.Level1)
 {

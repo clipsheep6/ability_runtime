@@ -977,6 +977,8 @@ public:
     int32_t IsValidMissionIds(
         const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results) override;
 
+    virtual int32_t RequestDialogService(const Want &want, const sptr<IRemoteObject> &callerToken) override;
+
     virtual int32_t AcquireShareData(
         const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData) override;
     virtual int32_t ShareDataDone(const sptr<IRemoteObject>& token,
@@ -1303,25 +1305,7 @@ private:
 
     bool IsDelegatorCall(const AppExecFwk::RunningProcessInfo &processInfo, const AbilityRequest &abilityRequest);
 
-    /**
-     *  Temporary, use old rule to check permission.
-     *
-     * @param abilityRequest, abilityRequest.
-     * @param isStartByCall, Indicates whether it is the StartAbilityByCall function call.
-     *                       TRUE: Is StartAbilityByCall function call.
-     *                       FALSE: Is other function call, such as StartAbility, ConnectAbility and so on.
-     * @return Returns ERR_OK on check success, others on check failure.
-     */
-    int CheckCallerPermissionOldRule(const AbilityRequest &abilityRequest, const bool isStartByCall = false);
-
-    /**
-     *  Temporary, judge is use new check-permission rule to start ability.
-     *
-     * @param abilityRequest, abilityRequest.
-     * @return Returns TRUE: Use new rule.
-     *                 FALSE: Use old rule.
-     */
-    bool IsUseNewStartUpRule(const AbilityRequest &abilityRequest);
+    bool IsAbilityVisible(const AbilityRequest &abilityRequest) const;
 
     bool CheckNewRuleSwitchState(const std::string &param);
 
@@ -1353,6 +1337,9 @@ private:
     }
 
     bool CheckProxyComponent(const Want &want, const int result);
+
+    int32_t RequestDialogServiceInner(const Want &want, const sptr<IRemoteObject> &callerToken,
+        int requestCode, int32_t userId);
 
     bool IsReleaseCallInterception(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element,
         int &result);

@@ -223,6 +223,7 @@ int MockAbilityDelegatorStub::BlockAppService()
 }
 
 bool MockAbilityDelegatorStub2::finishFlag_ = false;
+TESTCASE_BRANCH MockAbilityDelegatorStub2::testcaseBranch_ = TESTCASE_BRANCH::BRANCH_1;
 
 MockAbilityDelegatorStub2::MockAbilityDelegatorStub2()
 {}
@@ -364,6 +365,23 @@ int MockAbilityDelegatorStub2::GetTopAbility(sptr<IRemoteObject>& token)
 {
     HILOG_INFO("MockAbilityDelegatorStub2::GetTopAbility is called");
     return OHOS::ERR_INVALID_VALUE;
+}
+
+AppExecFwk::ElementName MockAbilityDelegatorStub2::GetTopAbility()
+{
+    HILOG_INFO("GetTopAbility.");
+    AppExecFwk::ElementName elementName = {};
+
+    if (testcaseBranch_ == TESTCASE_BRANCH::BRANCH_2) {
+        elementName = AppExecFwk::ElementName("deviceId", "com.ohos.bundleName", "EntryAbility", "entry");
+    } else if (testcaseBranch_ == TESTCASE_BRANCH::BRANCH_3) {
+        elementName = AppExecFwk::ElementName("deviceId", "com.example.myapplication",
+            "com.example.myapplication.MainAbility", "entry");
+    } else {
+        HILOG_INFO("Empty top ability.");
+    }
+
+    return elementName;
 }
 
 int MockAbilityDelegatorStub2::DelegatorDoAbilityForeground(const sptr<IRemoteObject>& token)

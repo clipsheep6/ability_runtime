@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+#ifndef MOCK_OHOS_ABILITY_FROM_MOCK_ABILITY_RUNTIME_CONTEXT_H
+#define MOCK_OHOS_ABILITY_FROM_MOCK_ABILITY_RUNTIME_CONTEXT_H
+
 #include "gtest/gtest.h"
 
 #define private public
@@ -56,3 +59,4 @@ public:
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
+#endif  // MOCK_OHOS_ABILITY_FROM_MOCK_ABILITY_RUNTIME_CONTEXT_H

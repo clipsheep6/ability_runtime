@@ -22,7 +22,7 @@
 #include "napi_remote_object.h"
 #include "iremote_object.h"
 #include "session_info.h"
-#include "ui_window.h"
+#include "foundation/window/window_manager/interfaces/innerkits/wm/window.h"
 #include "want.h"
 
 namespace OHOS {
@@ -207,15 +207,15 @@ public:
 
     sptr<AAFwk::SessionInfo> GetSessionInfo();
 
-    void SetSceneSessionStageListener(const std::shared_ptr<Rosen::ISessionStageStateListener> &listener);
+    void SetExtensionWindowLifeCycleListener(const sptr<Rosen::IWindowLifeCycle> &listener);
 
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_ = nullptr;
 protected:
     std::shared_ptr<AppExecFwk::AbilityHandler> handler_ = nullptr;
 
     //  window scene
-    std::shared_ptr<Ace::NG::UIWindow> uiWindow_;
-    std::shared_ptr<Rosen::ISessionStageStateListener> sceneSessionStageListener_ = nullptr;
+    sptr<Rosen::Window> uiWindow_;
+    sptr<Rosen::IWindowLifeCycle> extensionWindowLifeCycleListener_ = nullptr;
 private:
     std::shared_ptr<AppExecFwk::OHOSApplication> application_ = nullptr;
     std::shared_ptr<AAFwk::Want> launchWant_ = nullptr;

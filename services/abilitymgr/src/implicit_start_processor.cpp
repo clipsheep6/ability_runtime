@@ -31,7 +31,8 @@ namespace AAFwk {
 using ErmsCallerInfo = OHOS::AppExecFwk::ErmsParams::CallerInfo;
 
 const std::string BLACK_ACTION_SELECT_DATA = "ohos.want.action.select";
-const std::string STR_PC = "pc";
+const std::string STR_PHONE = "phone";
+const std::string STR_DEFAULT = "default";
 const std::string TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard";
 const std::string SHOW_DEFAULT_PICKER_FLAG = "ohos.ability.params.showDefaultPicker";
 
@@ -96,12 +97,12 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
 
     AAFwk::Want want;
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
-    if (dialogAppInfos.size() == 0 && deviceType != STR_PC) {
+    if (dialogAppInfos.size() == 0 && (deviceType == STR_PHONE || deviceType == STR_DEFAULT)) {
         HILOG_ERROR("implicit query ability infos failed, show tips dialog.");
         want = sysDialogScheduler->GetTipsDialogWant(request.callerToken);
         abilityMgr->StartAbility(want);
         return ERR_IMPLICIT_START_ABILITY_FAIL;
-    } else if (dialogAppInfos.size() == 0 && deviceType == STR_PC) {
+    } else if (dialogAppInfos.size() == 0 && deviceType != STR_PHONE && deviceType != STR_DEFAULT) {
         std::vector<DialogAppInfo> dialogAllAppInfos;
         bool isMoreHapList = true;
         ret = GenerateAbilityRequestByAction(userId, request, dialogAllAppInfos, deviceType, isMoreHapList);
@@ -116,8 +117,10 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         }
         want = sysDialogScheduler->GetPcSelectorDialogWant(dialogAllAppInfos, request.want,
             TYPE_ONLY_MATCH_WILDCARD, userId, request.callerToken);
+        ret = abilityMgr->StartAbility(want, request.callerToken);
+        // reset calling indentity
         IPCSkeleton::SetCallingIdentity(identity);
-        return abilityMgr->StartAbility(want, request.callerToken);
+        return ret;
     }
 
     //There is a default opening method or Only one application supports
@@ -127,20 +130,22 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         return IN_PROCESS_CALL(startAbilityTask(info.bundleName, info.abilityName));
     }
 
-    if (deviceType != STR_PC) {
+    if (deviceType == STR_PHONE || deviceType == STR_DEFAULT) {
         HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose.");
         want = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want, request.callerToken);
+        ret = abilityMgr->StartAbility(want, request.callerToken);
         // reset calling indentity
         IPCSkeleton::SetCallingIdentity(identity);
-        return abilityMgr->StartAbility(want, request.callerToken);
+        return ret;
     }
 
     HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose in pc.");
     auto type = request.want.GetType();
     want = sysDialogScheduler->GetPcSelectorDialogWant(dialogAppInfos, request.want, type, userId, request.callerToken);
+    ret = abilityMgr->StartAbility(want, request.callerToken);
     // reset calling indentity
     IPCSkeleton::SetCallingIdentity(identity);
-    return abilityMgr->StartAbility(want, request.callerToken);
+    return ret;
 }
 
 int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
@@ -177,7 +182,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     std::vector<AppExecFwk::AbilityInfo> implicitAbilityInfos;
     std::vector<AppExecFwk::ExtensionAbilityInfo> implicitExtensionInfos;
     std::vector<std::string> infoNames;
-    if (deviceType == STR_PC) {
+    if (deviceType != STR_PHONE && deviceType != STR_DEFAULT) {
         IN_PROCESS_CALL_WITHOUT_RET(bms->ImplicitQueryInfos(implicitwant, abilityInfoFlag, userId,
             withDefault, implicitAbilityInfos, implicitExtensionInfos));
         if (implicitAbilityInfos.size() != 0 && request.want.GetType() != TYPE_ONLY_MATCH_WILDCARD) {
@@ -191,7 +196,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
         if (isExtension && info.type != AbilityType::EXTENSION) {
             continue;
         }
-        if (deviceType == STR_PC) {
+        if (deviceType != STR_PHONE && deviceType != STR_DEFAULT) {
             auto isDefaultFlag = false;
             if (withDefault) {
                 auto defaultMgr = GetDefaultAppProxy();

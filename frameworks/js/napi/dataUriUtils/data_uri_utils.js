@@ -50,7 +50,7 @@ let dataUriUtils = {
     if (index === -1) {
       return uri;
     }
-    var id = uri.substring(index + 1);
+    let id = uri.substring(index + 1);
     if (id === '' || isNaN(Number(id))) {
       return uri;
     }

@@ -59,7 +59,7 @@ ohos_unittest("main_thread_test") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
-    "faultloggerd:libdfx_dumpcatcher",
+    "faultloggerd:libbacktrace_local",
     "faultloggerd:libfaultloggerd",
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",

@@ -20,6 +20,7 @@
 #include "application_impl.h"
 #include "context_impl.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "iservice_registry.h"
 #include "runtime.h"
 #include "system_ability_definition.h"
@@ -513,6 +514,7 @@ void OHOSApplication::OnAbilitySaveState(const PacMap &outState)
 std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
     const std::shared_ptr<AbilityLocalRecord> &abilityRecord)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (abilityRecord == nullptr) {
         HILOG_ERROR("AddAbilityStage:abilityRecord is nullptr");
         return nullptr;

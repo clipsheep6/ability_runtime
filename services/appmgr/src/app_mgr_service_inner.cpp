@@ -53,6 +53,9 @@
 #include "permission_verification.h"
 #include "system_ability_definition.h"
 #include "uri_permission_manager_client.h"
+#ifdef APP_MGR_SERVICE_APPMS
+#include "socket_permission.h"
+#endif
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -299,6 +302,7 @@ bool AppMgrServiceInner::GetBundleAndHapInfo(const AbilityInfo &abilityInfo,
     const std::shared_ptr<ApplicationInfo> &appInfo, BundleInfo &bundleInfo, HapModuleInfo &hapModuleInfo,
     int32_t appIndex) const
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto bundleMgr_ = remoteClientManager_->GetBundleManager();
     if (bundleMgr_ == nullptr) {
         HILOG_ERROR("GetBundleManager fail");
@@ -367,11 +371,13 @@ void AppMgrServiceInner::AttachApplication(const pid_t pid, const sptr<IAppSched
 
 void AppMgrServiceInner::LaunchApplication(const std::shared_ptr<AppRunningRecord> &appRecord)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (!appRecord) {
         HILOG_ERROR("appRecord is null");
         return;
     }
+    std::string connector = "##";
+    std::string traceName = __PRETTY_FUNCTION__ + connector + appRecord->GetApplicationInfo()->name;
+    HITRACE_METER_NAME(HITRACE_TAG_APP, traceName);
 
     if (!configuration_) {
         HILOG_ERROR("configuration_ is null");
@@ -1660,6 +1666,13 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         if (result != Security::AccessToken::PERMISSION_GRANTED) {
             setAllowInternet = 1;
             allowInternet = 0;
+#ifdef APP_MGR_SERVICE_APPMS
+            auto ret = SetInternetPermission(bundleInfo.uid, 0);
+            HILOG_DEBUG("SetInternetPermission, ret = %{public}d", ret);
+        } else {
+            auto ret = SetInternetPermission(bundleInfo.uid, 1);
+            HILOG_DEBUG("SetInternetPermission, ret = %{public}d", ret);
+#endif
         }
 
         if (hasAccessBundleDirReq) {

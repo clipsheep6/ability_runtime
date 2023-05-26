@@ -38,11 +38,13 @@ group("fuzztest") {
     "abilitymanagerserviceninth_fuzzer:fuzztest",
 
     # "abilitymanagerservicesecond_fuzzer:fuzztest",
+    "abilitymanager_fuzzer:fuzztest",
     "abilitymanagerserviceseventh_fuzzer:fuzztest",
     "abilitymanagerservicesixth_fuzzer:fuzztest",
     "abilitymanagerservicetenth_fuzzer:fuzztest",
     "abilitymanagerservicethird_fuzzer:fuzztest",
     "abilitymgrrest_fuzzer:fuzztest",
+    "abilityrunningrecord_fuzzer:fuzztest",
     "appstateobservermanager_fuzzer:fuzztest",
     "missiondatastoragea_fuzzer:fuzztest",
     "missiondatastorageb_fuzzer:fuzztest",
@@ -50,18 +52,15 @@ group("fuzztest") {
     "missioninfomgrb_fuzzer:fuzztest",
     "missioninfomgrc_fuzzer:fuzztest",
 
-    # "abilitymanager_fuzzer:fuzztest",
-    "abilityrunningrecord_fuzzer:fuzztest",
-
     # "abilityschedulerstub_fuzzer:fuzztest",
     "abilitytransitiondone_fuzzer:fuzztest",
     "acquiredataability_fuzzer:fuzztest",
     "addabilitystagedone_fuzzer:fuzztest",
+    "amsmanager_fuzzer:fuzztest",
     "amsmgrscheduler_fuzzer:fuzztest",
     "applicationanrlistener_fuzzer:fuzztest",
     "applifecycledeal_fuzzer:fuzztest",
-
-    # "appmanager_fuzzer:fuzztest",
+    "appmanager_fuzzer:fuzztest",
     "appmgrrest_fuzzer:fuzztest",
 
     # "appmgrservicefirst_fuzzer:fuzztest",

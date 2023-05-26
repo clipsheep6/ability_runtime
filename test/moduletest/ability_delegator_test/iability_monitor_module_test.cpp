@@ -14,6 +14,8 @@
  */
 
 #include <gtest/gtest.h>
+#include <gtest/hwext/gtest-multithread.h>
+
 #include <map>
 #include <string>
 #include <thread>
@@ -30,11 +32,15 @@
 #include "hilog_wrapper.h"
 #include "mock_ability_delegator_stub.h"
 
+using namespace testing;
 using namespace testing::ext;
+using namespace testing::mt;
 using namespace OHOS;
 using namespace OHOS::AppExecFwk;
 using namespace OHOS::AAFwk;
 
+namespace OHOS {
+namespace AppExecFwk {
 namespace {
 const std::string ABILITY_NAME = "com.example.myapplication.MainAbilitymodule";
 const std::string PROPERTY_ABILITY_NAME = "com.example.myapplication.MainAbilitymodule";
@@ -127,3 +133,88 @@ HWTEST_F(IabilityMonitorModuleTest, Iability_Monitor_Test_0200, Function | Mediu
     property->srcEntrance_ = PROPERTY_ABILITY_STAGE_SOURCE_ENTRANCE2;
     EXPECT_FALSE(stageMonitor.Match(property3));
 }
+
+/**
+ * @tc.name: MatchTest_0100
+ * @tc.desc: Match test when ability stage is invalid.
+ * @tc.type: FUNC
+ * @tc.require: issueI76SHL
+ */
+HWTEST_F(IabilityMonitorModuleTest, MatchTest_0100, TestSize.Level1)
+{
+    HILOG_INFO("test start.");
+    IAbilityStageMonitor stageMonitor(ABILITY_STAGE_MODULE_NAME, ABILITY_STAGE_SOURCE_ENTRANCE);
+    EXPECT_FALSE(stageMonitor.Match(nullptr));
+}
+
+/**
+ * @tc.name: MatchTest_0200
+ * @tc.desc: Test notify when matched.
+ * @tc.type: FUNC
+ * @tc.require: issueI76SHL
+ */
+HWTEST_F(IabilityMonitorModuleTest, MatchTest_0200, TestSize.Level1)
+{
+    HILOG_INFO("test start.");
+    IAbilityStageMonitor stageMonitor(ABILITY_STAGE_MODULE_NAME, ABILITY_STAGE_SOURCE_ENTRANCE);
+    std::shared_ptr<DelegatorAbilityStageProperty> property = std::make_shared<DelegatorAbilityStageProperty>();
+    property->moduleName_ = PROPERTY_ABILITY_STAGE_MODULE_NAME;
+    property->srcEntrance_ = PROPERTY_ABILITY_STAGE_SOURCE_ENTRANCE;
+    EXPECT_TRUE(stageMonitor.Match(property, true));
+}
+
+/**
+ * @tc.name: WaitForAbility_0100
+ * @tc.desc: Wait for ability timeout.
+ * @tc.type: FUNC
+ * @tc.require: issueI76SHL
+ */
+HWTEST_F(IabilityMonitorModuleTest, WaitForAbilityTest_0100, TestSize.Level1)
+{
+    HILOG_INFO("test start.");
+    IAbilityStageMonitor stageMonitor(ABILITY_STAGE_MODULE_NAME, ABILITY_STAGE_SOURCE_ENTRANCE);
+
+    // wait for 100ms until timeout
+    EXPECT_EQ(stageMonitor.WaitForAbilityStage(100), nullptr);
+}
+
+/**
+ * @tc.name: WaitForAbilityTest_0200
+ * @tc.desc: Wait for ability in multi-thread test.
+ * @tc.type: FUNC
+ * @tc.require: issueI76SHL
+ */
+std::shared_ptr<IAbilityStageMonitor> gt_iAbilityStageMonitor = nullptr;
+
+void IAbilityStageMonitorWaitTask()
+{
+    ASSERT_NE(gt_iAbilityStageMonitor, nullptr);
+    HILOG_INFO("Running in thread %{public}d", gettid());
+    auto property = gt_iAbilityStageMonitor->WaitForAbilityStage();
+    if (property == nullptr) {
+        HILOG_WARN("Wait for ability stage failed.");
+    }
+}
+
+void IAbilityStageMonitorMatchTask()
+{
+    ASSERT_NE(gt_iAbilityStageMonitor, nullptr);
+    HILOG_INFO("Running in thread %{public}d", gettid());
+    std::shared_ptr<DelegatorAbilityStageProperty> property = std::make_shared<DelegatorAbilityStageProperty>();
+    property->moduleName_ = PROPERTY_ABILITY_STAGE_MODULE_NAME;
+    property->srcEntrance_ = PROPERTY_ABILITY_STAGE_SOURCE_ENTRANCE;
+    EXPECT_TRUE(gt_iAbilityStageMonitor->Match(property, true));
+}
+
+HWTEST_F(IabilityMonitorModuleTest, WaitForAbilityTest_0200, TestSize.Level1)
+{
+    HILOG_INFO("test start.");
+    gt_iAbilityStageMonitor = std::make_shared<IAbilityStageMonitor>(ABILITY_STAGE_MODULE_NAME,
+        ABILITY_STAGE_SOURCE_ENTRANCE);
+    SET_THREAD_NUM(1);
+    GTEST_RUN_TASK(IAbilityStageMonitorWaitTask);
+    GTEST_RUN_TASK(IAbilityStageMonitorMatchTask);
+    gt_iAbilityStageMonitor.reset();
+}
+} // namespace AppExecFwk
+} // namespace OHOS

@@ -29,6 +29,8 @@ using namespace OHOS;
 using namespace OHOS::AppExecFwk;
 using namespace OHOS::AAFwk;
 
+namespace OHOS {
+namespace AppExecFwk {
 namespace {
 const std::string KEY_TEST_BUNDLE_NAME = "-b";
 const std::string VALUE_TEST_BUNDLE_NAME = "com.example.myapplication";
@@ -50,7 +52,9 @@ const std::string CHANGE_VALUE_TEST_WAIT_TIMEOUT = "80";
 const std::string SET_VALUE_TEST_BUNDLE_NAME = "com.example.myapplicationset";
 const std::string KEY_TEST_DEBUG = "-D";
 const std::string VALUE_TEST_DEBUG_DEFAULT = "true";
-}  // namespace
+const std::string KEY_TEST_DEBUG_APP = "debugApp";
+const std::string VALUE_TEST_DEBUG_APP = "false";
+} // namespace
 
 class AbilityDelegatorArgsTest : public ::testing::Test {
 public:
@@ -138,3 +142,29 @@ HWTEST_F(AbilityDelegatorArgsTest, Ability_Delegator_Args_Test_0200, Function | 
     EXPECT_TRUE(delegatorArgs.FindDebugFlag());
     EXPECT_EQ(value_timeout, VALUE_TEST_WAIT_TIMEOUT);
 }
+
+/**
+ * @tc.name: GetTestParamTest_0100
+ * @tc.desc: Ability delegator remove debugApp param and get params test.
+ * @tc.type: FUNC
+ * @tc.require: issueI76SHL
+ */
+HWTEST_F(AbilityDelegatorArgsTest, GetTestParamTest_0100, TestSize.Level1)
+{
+    HILOG_INFO("test start.");
+    std::map<std::string, std::string> paras;
+    paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
+    paras.emplace(KEY_TEST_MODULE_NAME, VALUE_TEST_MODULE_NAME);
+    paras.emplace(KEY_TEST_DEBUG_APP, VALUE_TEST_DEBUG_APP);
+
+    Want want;
+    for (auto para : paras) {
+        want.SetParam(para.first, para.second);
+    }
+
+    AbilityDelegatorArgs delegatorArgs(want);
+    auto result = delegatorArgs.GetTestParam();
+    EXPECT_EQ(result.size(), 2);
+}
+} // namespace AppExecFwk
+} // namespace OHOS

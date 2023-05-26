@@ -27,17 +27,10 @@ namespace AAFwk {
 namespace {
 const int LOAD_SA_TIMEOUT_MS = 4 * 1000;
 } // namespace
-std::shared_ptr<UriPermissionManagerClient> UriPermissionManagerClient::instance_ = nullptr;
-std::recursive_mutex UriPermissionManagerClient::recursiveMutex_;
-std::shared_ptr<UriPermissionManagerClient> UriPermissionManagerClient::GetInstance()
+UriPermissionManagerClient& UriPermissionManagerClient::GetInstance()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::recursive_mutex> lock_l(recursiveMutex_);
-        if (instance_ == nullptr) {
-            instance_ = std::make_shared<UriPermissionManagerClient>();
-        }
-    }
-    return instance_;
+    static UriPermissionManagerClient instance;
+    return instance;
 }
 
 int UriPermissionManagerClient::GrantUriPermission(const Uri &uri, unsigned int flag,
@@ -84,11 +77,8 @@ sptr<IUriPermissionManager> UriPermissionManagerClient::ConnectUriPermService()
             HILOG_ERROR("Failed to get uri permission manager.");
             return nullptr;
         }
-        auto self = shared_from_this();
-        const auto& onClearProxyCallback = [self] {
-            if (self) {
-                self->ClearProxy();
-            }
+        const auto& onClearProxyCallback = [] {
+            UriPermissionManagerClient::GetInstance().ClearProxy();
         };
         sptr<UpmsDeathRecipient> recipient(new UpmsDeathRecipient(onClearProxyCallback));
         uriPermMgr->AsObject()->AddDeathRecipient(recipient);

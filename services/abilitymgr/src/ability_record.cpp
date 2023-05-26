@@ -2352,7 +2352,6 @@ void AbilityRecord::GrantUriPermission(Want &want, int32_t userId, std::string t
     uriVec = want.GetStringArrayParam(AbilityConfig::PARAMS_STREAM);
     uriVec.emplace_back(uriStr);
     HILOG_DEBUG("GrantUriPermission uriVec size: %{public}zu", uriVec.size());
-    auto upmClient = AAFwk::UriPermissionManagerClient::GetInstance();
     auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
     auto fromTokenId = IPCSkeleton::GetCallingTokenID();
     for (auto&& str : uriVec) {
@@ -2377,8 +2376,9 @@ void AbilityRecord::GrantUriPermission(Want &want, int32_t userId, std::string t
             continue;
         }
         int autoremove = 1;
-        auto ret = IN_PROCESS_CALL(upmClient->GrantUriPermission(uri, want.GetFlags(),
-            targetBundleName, autoremove));
+        auto ret = IN_PROCESS_CALL(
+            AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, want.GetFlags(),
+                targetBundleName, autoremove));
         if (ret == 0) {
             isGrantedUriPermission_ = true;
         }
@@ -2407,7 +2407,6 @@ void AbilityRecord::GrantDmsUriPermission(Want &want, std::string targetBundleNa
 {
     std::vector<std::string> uriVec = want.GetStringArrayParam(PARAMS_URI);
     HILOG_DEBUG("GrantDmsUriPermission uriVec size: %{public}zu", uriVec.size());
-    auto upmClient = AAFwk::UriPermissionManagerClient::GetInstance();
     for (auto&& str : uriVec) {
         Uri uri(str);
         auto&& scheme = uri.GetScheme();
@@ -2418,8 +2417,9 @@ void AbilityRecord::GrantDmsUriPermission(Want &want, std::string targetBundleNa
             continue;
         }
         int autoremove = 1;
-        auto ret = IN_PROCESS_CALL(upmClient->GrantUriPermission(uri, want.GetFlags(),
-            targetBundleName, autoremove));
+        auto ret = IN_PROCESS_CALL(
+            AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, want.GetFlags(),
+                targetBundleName, autoremove));
         if (ret) {
             isGrantedUriPermission_ = true;
         }
@@ -2432,8 +2432,7 @@ void AbilityRecord::RevokeUriPermission()
 {
     if (isGrantedUriPermission_) {
         HILOG_DEBUG("To remove uri permission.");
-        auto upmClient = AAFwk::UriPermissionManagerClient::GetInstance();
-        upmClient->RevokeUriPermission(applicationInfo_.accessTokenId);
+        AAFwk::UriPermissionManagerClient::GetInstance().RevokeUriPermission(applicationInfo_.accessTokenId);
         isGrantedUriPermission_ = false;
     }
 }

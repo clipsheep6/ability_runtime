@@ -27,7 +27,7 @@ const ERROR_MSG_CALLER_RELEASED = 'Caller released. The caller has been released
 const ERROR_MSG_CLAAEE_INVALID = 'Callee invalid. The callee does not exist.';
 const ERROR_MSG_INNER_ERROR = 'Inner Error.';
 
-var errMap = new Map();
+let errMap = new Map();
 errMap.set(ERROR_CODE_INVALID_PARAM, ERROR_MSG_INVALID_PARAM);
 errMap.set(ERROR_CODE_CALLER_RELEASED, ERROR_MSG_CALLER_RELEASED);
 errMap.set(ERROR_CODE_CLAAEE_INVALID, ERROR_MSG_CLAAEE_INVALID);

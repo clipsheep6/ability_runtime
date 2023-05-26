@@ -933,8 +933,8 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
                 matchingSkills.AddEvent(OVERLAY_STATE_CHANGED);
                 EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
                 wptr<MainThread> weak = this;
-                auto callback = [weak, resourceManager, bundleName, moduleName = entryHapModuleInfo.moduleName, loadPath]
-                    (const EventFwk::CommonEventData &data) {
+                auto callback = [weak, resourceManager, bundleName, moduleName = entryHapModuleInfo.moduleName,
+                    loadPath](const EventFwk::CommonEventData &data) {
                     HILOG_INFO("On overlay changed.");
                     auto appThread = weak.promote();
                     if (appThread == nullptr) {
@@ -1370,11 +1370,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         if (!isFirstStartUpWeb) {
             appmgr->PreStartNWebSpawnProcess();
         }
-
         OHOS::NWeb::NWebHelper::TryPreReadLib(isFirstStartUpWeb, app->GetAppContext()->GetBundleCodeDir());
     }).detach();
 #endif
-
     HILOG_DEBUG("MainThread::handleLaunchApplication called end.");
 }
 
@@ -1494,6 +1492,7 @@ void MainThread::HandleAbilityStage(const HapModuleInfo &abilityStage)
 void MainThread::LoadAllExtensions(NativeEngine &nativeEngine, const std::string &filePath,
     const BundleInfo &bundleInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_DEBUG("LoadAllExtensions.filePath:%{public}s, extensionInfo size = %{public}d", filePath.c_str(),
         static_cast<int32_t>(bundleInfo.extensionInfos.size()));
     if (!extensionConfigMgr_) {
@@ -1614,11 +1613,18 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
  */
 void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &abilityRecord)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    CHECK_POINTER_LOG(abilityRecord, "MainThread::HandleLaunchAbility parameter(abilityRecord) is null");
+    std::string connector = "##";
+    std::string traceName = __PRETTY_FUNCTION__ + connector;
+    if (abilityRecord->GetWant() != nullptr) {
+        traceName += abilityRecord->GetWant()->GetElement().GetAbilityName();
+    } else {
+        HILOG_ERROR("Want is nullptr, cant not get abilityName.");
+    }
+    HITRACE_METER_NAME(HITRACE_TAG_APP, traceName);
     HILOG_DEBUG("MainThread::handleLaunchAbility called start.");
     CHECK_POINTER_LOG(applicationImpl_, "MainThread::HandleLaunchAbility applicationImpl_ is null");
     CHECK_POINTER_LOG(abilityRecordMgr_, "MainThread::HandleLaunchAbility abilityRecordMgr_ is null");
-    CHECK_POINTER_LOG(abilityRecord, "MainThread::HandleLaunchAbility parameter(abilityRecord) is null");
 
     auto abilityToken = abilityRecord->GetToken();
     CHECK_POINTER_LOG(abilityToken, "MainThread::HandleLaunchAbility failed. abilityRecord->GetToken failed");

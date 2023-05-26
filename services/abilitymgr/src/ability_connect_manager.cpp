@@ -706,7 +706,8 @@ std::shared_ptr<AbilityRecord> AbilityConnectManager::GetServiceRecordByElementN
     return nullptr;
 }
 
-std::shared_ptr<AbilityRecord> AbilityConnectManager::GetExtensionByTokenFromServiceMap(const sptr<IRemoteObject> &token)
+std::shared_ptr<AbilityRecord> AbilityConnectManager::GetExtensionByTokenFromServiceMap(
+    const sptr<IRemoteObject> &token)
 {
     std::lock_guard<std::recursive_mutex> guard(Lock_);
     auto IsMatch = [token](auto service) {
@@ -1227,7 +1228,8 @@ void AbilityConnectManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId)
         HILOG_ERROR("AbilityConnectManager on time out event: ability record is nullptr.");
         return;
     }
-    HILOG_DEBUG("Ability timeout ,msg:%{public}d,name:%{public}s", msgId, abilityRecord->GetAbilityInfo().name.c_str());
+    HILOG_DEBUG("Ability timeout ,msg:%{public}d,name:%{public}s", msgId,
+        abilityRecord->GetAbilityInfo().name.c_str());
 
     switch (msgId) {
         case AbilityManagerService::INACTIVE_TIMEOUT_MSG:
@@ -1507,8 +1509,8 @@ void AbilityConnectManager::GetAbilityRunningInfos(std::vector<AbilityRunningInf
     std::for_each(serviceMap_.begin(), serviceMap_.end(), queryInfo);
 }
 
-void AbilityConnectManager::GetExtensionRunningInfo(std::shared_ptr<AbilityRecord> &abilityRecord, const int32_t userId,
-    std::vector<ExtensionRunningInfo> &info)
+void AbilityConnectManager::GetExtensionRunningInfo(std::shared_ptr<AbilityRecord> &abilityRecord,
+    const int32_t userId, std::vector<ExtensionRunningInfo> &info)
 {
     ExtensionRunningInfo extensionInfo;
     AppExecFwk::RunningProcessInfo processInfo;

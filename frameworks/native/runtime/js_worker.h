@@ -31,7 +31,7 @@ void RestoreContainerScope(int32_t id);
 
 struct AssetHelper final {
     explicit AssetHelper(const std::string& codePath, bool isDebugVersion, bool isBundle)
-            : codePath_(codePath), isDebugVersion_(isDebugVersion), isBundle_(isBundle)
+        : codePath_(codePath), isDebugVersion_(isDebugVersion), isBundle_(isBundle)
     {
         if (!codePath_.empty() && codePath.back() != '/') {
             codePath_.append("/");

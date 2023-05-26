@@ -95,6 +95,10 @@ public:
 #endif
         NativeEngine& engine = jsRuntime_.GetNativeEngine();
         engine.CallFunction(engine.CreateUndefined(), jsFunction_->Get(), args_.data(), args_.size());
+        if (engine.HasPendingException()) {
+            HILOG_ERROR("Pending exception after CallFUnction in JsTimer. Handle uncaught exception here.");
+            engine.HandleUncaughtException();
+        }
     }
 
     void PushArgs(const std::shared_ptr<NativeReference>& ref)

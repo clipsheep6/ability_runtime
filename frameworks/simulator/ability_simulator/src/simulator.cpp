@@ -353,7 +353,8 @@ bool SimulatorImpl::OnInit()
         return false;
     }
 
-    panda::JSNApi::StartDebugger(ARK_DEBUGGER_LIB_PATH, vm_, true, 0,
+    panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, true}
+    panda::JSNApi::StartDebugger(vm_, debugOption, 0,
         std::bind(&DebuggerTask::OnPostTask, &debuggerTask_, std::placeholders::_1));
 
     auto nativeEngine = std::make_unique<ArkNativeEngine>(vm_, nullptr);

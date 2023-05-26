@@ -502,7 +502,7 @@ ErrCode AbilityContextImpl::RequestDialogService(NativeEngine &engine,
     sptr<IRemoteObject> remoteObject = new DialogRequestCallbackImpl(std::move(resultTask));
     want.SetParam(RequestConstants::REQUEST_CALLBACK_KEY, remoteObject);
 
-    auto err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, -1);
+    auto err = AAFwk::AbilityManagerClient::GetInstance()->RequestDialogService(want, token_);
     HILOG_DEBUG("RequestDialogService ret=%{public}d", static_cast<int32_t>(err));
     return err;
 }

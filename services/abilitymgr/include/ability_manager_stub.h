@@ -210,6 +210,8 @@ private:
 
     int VerifyPermissionInner(MessageParcel &data, MessageParcel &reply);
 
+    int HandleRequestDialogService(MessageParcel &data, MessageParcel &reply);
+
     int AcquireShareDataInner(MessageParcel &data, MessageParcel &reply);
     int ShareDataDoneInner(MessageParcel &data, MessageParcel &reply);
     int GetAbilityTokenByCalleeObjInner(MessageParcel &data, MessageParcel &reply);

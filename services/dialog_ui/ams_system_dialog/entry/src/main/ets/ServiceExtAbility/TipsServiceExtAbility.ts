@@ -31,9 +31,9 @@ export default class TipsServiceExtensionAbility extends extension {
   onRequest(want, startId) {
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
     globalThis.abilityWant = want;
-    globalThis.params = JSON.parse(want['parameters']['params']);
-    globalThis.position = JSON.parse(want['parameters']['position']);
-    globalThis.callerToken = want['parameters']['callerToken'];
+    globalThis.params = JSON.parse(want.parameters.params);
+    globalThis.position = JSON.parse(want.parameters.position);
+    globalThis.callerToken = want.parameters.callerToken;
 
     display.getDefaultDisplay().then(dis => {
       let navigationBarRect = {
@@ -52,7 +52,7 @@ export default class TipsServiceExtensionAbility extends extension {
         this.createWindow('TipsDialog' + startId, window.WindowType.TYPE_DIALOG, navigationBarRect);
       }
       winNum++;
-    })
+    });
   }
 
   onDestroy() {

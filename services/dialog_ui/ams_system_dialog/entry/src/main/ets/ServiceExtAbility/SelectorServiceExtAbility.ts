@@ -67,7 +67,7 @@ export default class SelectorServiceExtensionAbility extends extension {
     let appIcon = '';
     let type = '';
     let userId = Number('0');
-    if (globalThis.params.deviceType === 'pc') {
+    if (globalThis.params.deviceType !== 'phone' && globalThis.params.deviceType !== 'default') {
       type = hap.type;
       userId = Number(hap.userId);
     }
@@ -92,14 +92,14 @@ export default class SelectorServiceExtensionAbility extends extension {
   async onRequest(want, startId) {
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
     globalThis.abilityWant = want;
-    globalThis.params = JSON.parse(want['parameters']['params']);
-    globalThis.position = JSON.parse(want['parameters']['position']);
+    globalThis.params = JSON.parse(want.parameters.params);
+    globalThis.position = JSON.parse(want.parameters.position);
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
     console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
-    globalThis.callerToken = want['parameters']['callerToken'];
+    globalThis.callerToken = want.parameters.callerToken;
     console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
     console.debug(TAG, 'onRequest, position: ' + JSON.stringify(globalThis.position));
-    if (globalThis.params.deviceType === 'pc') {
+    if (globalThis.params.deviceType !== 'phone' && globalThis.params.deviceType !== 'default') {
       globalThis.modelFlag = Boolean(globalThis.params.modelFlag);
       globalThis.action = Boolean(globalThis.params.action);
     }
@@ -127,7 +127,7 @@ export default class SelectorServiceExtensionAbility extends extension {
         this.createWindow('SelectorDialog' + startId, window.WindowType.TYPE_DIALOG, navigationBarRect);
       }
       winNum++;
-    })
+    });
   }
 
   onDestroy() {

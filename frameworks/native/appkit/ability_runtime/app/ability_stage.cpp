@@ -17,6 +17,7 @@
 
 #include "ability_runtime/context/context.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "js_ability_stage.h"
 #include "runtime.h"
 
@@ -25,6 +26,7 @@ namespace AbilityRuntime {
 std::shared_ptr<AbilityStage> AbilityStage::Create(
     const std::unique_ptr<Runtime>& runtime, const AppExecFwk::HapModuleInfo& hapModuleInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (!runtime) {
         return std::make_shared<AbilityStage>();
     }

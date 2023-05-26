@@ -35,6 +35,7 @@
 #include "file_path_utils.h"
 #include "hdc_register.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "hot_reloader.h"
 #include "ipc_skeleton.h"
 #include "js_console_log.h"
@@ -215,6 +216,7 @@ JsRuntime::~JsRuntime()
 
 std::unique_ptr<JsRuntime> JsRuntime::Create(const Options& options)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     std::unique_ptr<JsRuntime> instance;
 
     if (!options.preload && options.isStageModel) {
@@ -449,6 +451,7 @@ void JsRuntime::FinishPreload()
 
 bool JsRuntime::Initialize(const Options& options)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (!preloaded_) {
         if (!CreateJsEnv(options)) {
             HILOG_ERROR("Create js environment failed.");
@@ -680,6 +683,7 @@ void JsRuntime::Deinitialize()
 
 NativeValue* JsRuntime::LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     auto nativeEngine = GetNativeEnginePointer();
     CHECK_POINTER_AND_RETURN(nativeEngine, nullptr);
     NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine->GetGlobal());
@@ -708,6 +712,7 @@ NativeValue* JsRuntime::LoadJsBundle(const std::string& path, const std::string&
 
 NativeValue* JsRuntime::LoadJsModule(const std::string& path, const std::string& hapPath)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (!RunScript(path, hapPath, false)) {
         HILOG_ERROR("Failed to run script: %{private}s", path.c_str());
         return nullptr;
@@ -729,6 +734,7 @@ NativeValue* JsRuntime::LoadJsModule(const std::string& path, const std::string&
 std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& moduleName, const std::string& modulePath,
     const std::string& hapPath, bool esmodule, bool useCommonChunk)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("JsRuntime::LoadModule(%{public}s, %{private}s, %{private}s, %{public}s)",
         moduleName.c_str(), modulePath.c_str(), hapPath.c_str(), esmodule ? "true" : "false");
     auto nativeEngine = GetNativeEnginePointer();
@@ -800,6 +806,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModule(
 
 bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath, bool useCommonChunk)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     auto nativeEngine = GetNativeEnginePointer();
     CHECK_POINTER_AND_RETURN(nativeEngine, false);
     auto vm = GetEcmaVm();
@@ -833,14 +840,26 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
     }
 
     auto func = [&](std::string modulePath, const std::string abcPath) {
-        std::unique_ptr<uint8_t[]> dataPtr = nullptr;
-        size_t len = 0;
-        if (!extractor->ExtractToBufByName(modulePath, dataPtr, len, true)) {
-            HILOG_ERROR("Get abc file failed.");
-            return false;
-        }
+        if (!extractor->IsHapCompress(modulePath)) {
+            std::unique_ptr<uint8_t[]> dataPtr = nullptr;
+            size_t len = 0;
+            if (!extractor->ExtractToBufByName(modulePath, dataPtr, len, true)) {
+                HILOG_ERROR("Get abc file failed.");
+                return false;
+            }
+            return LoadScript(abcPath, dataPtr.release(), len, isBundle_);
+        } else {
+            std::ostringstream outStream;
+            if (!extractor->GetFileBuffer(modulePath, outStream)) {
+                HILOG_ERROR("Get abc file failed");
+                return false;
+            }
+            const auto& outStr = outStream.str();
+            std::vector<uint8_t> buffer;
+            buffer.assign(outStr.begin(), outStr.end());
 
-        return LoadScript(abcPath, dataPtr.release(), len, isBundle_);
+            return LoadScript(abcPath, &buffer, isBundle_);
+        }
     };
 
     if (useCommonChunk) {

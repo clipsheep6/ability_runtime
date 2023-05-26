@@ -429,15 +429,15 @@ HWTEST_F(ExtensionTest, AaFwk_Extension_2100, Function | MediumTest | Level1)
 
 /**
  * @tc.number: AaFwk_Extension_2200
- * @tc.name: SetSceneSessionStageListener
- * @tc.desc: Successfully verified SetSceneSessionStageListener.
+ * @tc.name: SetExtensionWindowLifeCycleListener
+ * @tc.desc: Successfully verified SetExtensionWindowLifeCycleListener.
  */
 HWTEST_F(ExtensionTest, AaFwk_Extension_2200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_Extension_2200 start";
     EXPECT_TRUE(extension_ != nullptr);
-    std::shared_ptr<Rosen::ISessionStageStateListener> listener = nullptr;
-    extension_->SetSceneSessionStageListener(listener);
+    sptr<Rosen::IWindowLifeCycle> listener = nullptr;
+    extension_->SetExtensionWindowLifeCycleListener(listener);
     GTEST_LOG_(INFO) << "AaFwk_Extension_2200 end";
 }
 } // namespace AppExecFwk

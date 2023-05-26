@@ -145,7 +145,7 @@ ohos_shared_library("appkit_native") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
-    "faultloggerd:libdfx_dumpcatcher",
+    "faultloggerd:libbacktrace_local",
     "faultloggerd:libfaultloggerd",
     "hicollie_native:libhicollie",
     "hisysevent_native:libhisysevent",

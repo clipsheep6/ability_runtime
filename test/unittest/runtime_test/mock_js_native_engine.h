@@ -163,7 +163,7 @@ public:
     {
         return false;
     }
-    bool InitTaskPoolFunc(NativeEngine* engine, NativeValue* func) override
+    bool InitTaskPoolFunc(NativeEngine* engine, NativeValue* func, void* taskInfo) override
     {
         return false;
     }

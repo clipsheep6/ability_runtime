@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,8 @@
  */
 
 #include <gtest/gtest.h>
+#include <gtest/hwext/gtest-multithread.h>
+
 #include <map>
 #include <string>
 #include <thread>
@@ -28,12 +30,17 @@
 
 #include "hilog_wrapper.h"
 #include "mock_ability_delegator_stub.h"
+#include "native_engine/native_reference.h"
 
+using namespace testing;
 using namespace testing::ext;
+using namespace testing::mt;
 using namespace OHOS;
 using namespace OHOS::AppExecFwk;
 using namespace OHOS::AAFwk;
 
+namespace OHOS {
+namespace AppExecFwk {
 namespace {
 const std::string ABILITY_NAME = "com.example.myapplication.MainAbility";
 const std::string PROPERTY_ABILITY_NAME = "com.example.myapplication.MainAbility";
@@ -122,3 +129,112 @@ HWTEST_F(IabilityMonitorTest, Iability_Monitor_Test_0300, Function | MediumTest 
     proterty->name_ = PROPERTY_ABILITY_NAME;
     EXPECT_TRUE(iabilityMonitor.Match(proterty));
 }
+
+/**
+ * @tc.name: MatchTest_0100
+ * @tc.desc: Match test when ability name is different.
+ * @tc.type: FUNC
+ * @tc.require: issueI76SHL
+ */
+HWTEST_F(IabilityMonitorTest, MatchTest_0100, TestSize.Level1)
+{
+    HILOG_INFO("test start.");
+    IAbilityMonitor iabilityMonitor(ABILITY_NAME);
+    std::shared_ptr<ADelegatorAbilityProperty> proterty = std::make_shared<ADelegatorAbilityProperty>();
+    proterty->token_ = new MockAbilityDelegatorStub;
+    proterty->name_ = PROPERTY_ABILITY_NAME1;
+    EXPECT_FALSE(iabilityMonitor.Match(proterty));
+}
+
+/**
+ * @tc.name: MatchTest_0200
+ * @tc.desc: Test notify when matched.
+ * @tc.type: FUNC
+ * @tc.require: issueI76SHL
+ */
+HWTEST_F(IabilityMonitorTest, MatchTest_0200, TestSize.Level1)
+{
+    HILOG_INFO("test start.");
+    IAbilityMonitor iabilityMonitor(ABILITY_NAME);
+    std::shared_ptr<ADelegatorAbilityProperty> proterty = std::make_shared<ADelegatorAbilityProperty>();
+    proterty->token_ = new MockAbilityDelegatorStub;
+    proterty->name_ = PROPERTY_ABILITY_NAME;
+    EXPECT_TRUE(iabilityMonitor.Match(proterty, true));
+}
+
+/**
+ * @tc.name: WaitForAbility_0100
+ * @tc.desc: Wait for ability timeout.
+ * @tc.type: FUNC
+ * @tc.require: issueI76SHL
+ */
+HWTEST_F(IabilityMonitorTest, WaitForAbilityTest_0100, TestSize.Level1)
+{
+    HILOG_INFO("test start.");
+    IAbilityMonitor iabilityMonitor(ABILITY_NAME);
+
+    // wait for 100ms until timeout
+    EXPECT_EQ(iabilityMonitor.WaitForAbility(100), nullptr);
+}
+
+/**
+ * @tc.name: WaitForAbilityTest_0200
+ * @tc.desc: Wait for ability in multi-thread test.
+ * @tc.type: FUNC
+ * @tc.require: issueI76SHL
+ */
+std::shared_ptr<IAbilityMonitor> gt_iAbilityMonitor = nullptr;
+
+void IAbilityMonitorWaitTask()
+{
+    ASSERT_NE(gt_iAbilityMonitor, nullptr);
+    HILOG_INFO("Running in thread %{public}d", gettid());
+    auto property = gt_iAbilityMonitor->WaitForAbility();
+    if (property == nullptr) {
+        HILOG_WARN("Wait for ability failed.");
+    }
+}
+
+void IAbilityMonitorMatchTask()
+{
+    ASSERT_NE(gt_iAbilityMonitor, nullptr);
+    HILOG_INFO("Running in thread %{public}d", gettid());
+    std::shared_ptr<ADelegatorAbilityProperty> proterty = std::make_shared<ADelegatorAbilityProperty>();
+    proterty->token_ = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
+    proterty->name_ = PROPERTY_ABILITY_NAME;
+    EXPECT_TRUE(gt_iAbilityMonitor->Match(proterty, true));
+}
+
+HWTEST_F(IabilityMonitorTest, WaitForAbilityTest_0200, TestSize.Level1)
+{
+    HILOG_INFO("test start.");
+    gt_iAbilityMonitor = std::make_shared<IAbilityMonitor>(ABILITY_NAME);
+    SET_THREAD_NUM(1);
+    GTEST_RUN_TASK(IAbilityMonitorWaitTask);
+    GTEST_RUN_TASK(IAbilityMonitorMatchTask);
+    gt_iAbilityMonitor.reset();
+}
+
+/**
+ * @tc.name: FuncTest_0100
+ * @tc.desc: IAbilityMonitor function test.
+ * @tc.type: FUNC
+ * @tc.require: issueI76SHL
+ */
+HWTEST_F(IabilityMonitorTest, FuncTest_0100, TestSize.Level1)
+{
+    HILOG_INFO("test start.");
+    auto iabilityMonitor = new IAbilityMonitor(ABILITY_NAME);
+    ASSERT_NE(iabilityMonitor, nullptr);
+    auto nativeRef = std::shared_ptr<NativeReference>();
+    iabilityMonitor->OnAbilityStart(nativeRef);
+    iabilityMonitor->OnAbilityForeground(nativeRef);
+    iabilityMonitor->OnAbilityBackground(nativeRef);
+    iabilityMonitor->OnAbilityStop(nativeRef);
+    iabilityMonitor->OnWindowStageCreate(nativeRef);
+    iabilityMonitor->OnWindowStageRestore(nativeRef);
+    iabilityMonitor->OnWindowStageDestroy(nativeRef);
+    delete iabilityMonitor;
+}
+} // namespace AppExecFwk
+} // namespace OHOS
