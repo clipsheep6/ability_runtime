@@ -20,9 +20,6 @@ ohos_shared_library("particleability") {
     "//third_party/node/src",
     "${ability_runtime_napi_path}/featureAbility",
     "${ability_runtime_services_path}/common/include",
-    "${relational_store_napi_path}/rdb/include",
-    "${relational_store_napi_path}/common/include",
-    "${relational_store_napi_path}/dataability/include",
     "//third_party/jsoncpp",
     "//third_party/jsoncpp/include/json",
   ]
@@ -30,9 +27,6 @@ ohos_shared_library("particleability") {
   sources = [
     "${ability_runtime_napi_path}/featureAbility/napi_data_ability_helper.cpp",
     "${ability_runtime_napi_path}/featureAbility/napi_data_ability_operation.cpp",
-    "${relational_store_napi_path}/common/src/js_utils.cpp",
-    "${relational_store_napi_path}/dataability/src/napi_data_ability_predicates.cpp",
-    "${relational_store_napi_path}/rdb/src/napi_result_set.cpp",
     "native_module.cpp",
     "particle_ability.cpp",
   ]
@@ -65,10 +59,25 @@ ohos_shared_library("particleability") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "relational_store:native_dataability",
-    "relational_store:native_rdb",
-    "relational_store:rdb_data_share_adapter",
   ]
+
+  if (ability_runtime_relational) {
+    include_dirs += [
+      "${relational_store_napi_path}/common/include",
+      "${relational_store_napi_path}/dataability/include",
+      "${relational_store_napi_path}/rdb/include",
+    ]
+    sources += [
+      "${relational_store_napi_path}/common/src/js_utils.cpp",
+      "${relational_store_napi_path}/dataability/src/napi_data_ability_predicates.cpp",
+      "${relational_store_napi_path}/rdb/src/napi_result_set.cpp",
+    ]
+    external_deps += [
+      "relational_store:native_dataability",
+      "relational_store:native_rdb",
+      "relational_store:rdb_data_share_adapter",
+    ]
+  }
 
   relative_install_dir = "module/ability"
 

@@ -16,17 +16,9 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 import("//foundation/distributeddatamgr/relational_store/relational_store.gni")
 
 ohos_shared_library("featureability") {
-  include_dirs = [
-    "./",
-    "${relational_store_napi_path}/rdb/include",
-    "${relational_store_napi_path}/common/include",
-    "${relational_store_napi_path}/dataability/include",
-  ]
+  include_dirs = [ "./" ]
 
   sources = [
-    "${relational_store_napi_path}/common/src/js_utils.cpp",
-    "${relational_store_napi_path}/dataability/src/napi_data_ability_predicates.cpp",
-    "${relational_store_napi_path}/rdb/src/napi_result_set.cpp",
     "feature_ability.cpp",
     "feature_ability_constant.cpp",
     "napi_data_ability_helper.cpp",
@@ -58,9 +50,6 @@ ohos_shared_library("featureability") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "relational_store:native_dataability",
-    "relational_store:native_rdb",
-    "relational_store:rdb_data_share_adapter",
   ]
 
   if (ability_runtime_graphics) {
@@ -69,6 +58,24 @@ ohos_shared_library("featureability") {
     ]
     deps += [ "${windowmanager_path}/interfaces/kits/napi/window_runtime:window_native_kit" ]
     defines = [ "SUPPORT_GRAPHICS" ]
+  }
+
+  if (ability_runtime_relational) {
+    include_dirs += [
+      "${relational_store_napi_path}/common/include",
+      "${relational_store_napi_path}/dataability/include",
+      "${relational_store_napi_path}/rdb/include",
+    ]
+    sources += [
+      "${relational_store_napi_path}/common/src/js_utils.cpp",
+      "${relational_store_napi_path}/dataability/src/napi_data_ability_predicates.cpp",
+      "${relational_store_napi_path}/rdb/src/napi_result_set.cpp",
+    ]
+    external_deps += [
+      "relational_store:native_dataability",
+      "relational_store:native_rdb",
+      "relational_store:rdb_data_share_adapter",
+    ]
   }
 
   relative_install_dir = "module/ability"
