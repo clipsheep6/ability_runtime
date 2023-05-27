@@ -15,6 +15,7 @@
 
 #include "ohos_js_environment_impl.h"
 #include "commonlibrary/ets_utils/js_sys_module/console/console.h"
+#include "commonlibrary/ets_utils/js_sys_module/timer/timer.h"
 #include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
 #include "js_timer.h"
@@ -52,7 +53,7 @@ void OHOSJsEnvironmentImpl::InitTimerModule(NativeEngine* engine)
     NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(engine->GetGlobal());
     CHECK_POINTER(globalObj);
 
-    InitTimer(*engine, *globalObj);
+    JsSysModule::Timer::RegisterTime(reinterpret_cast<napi_env>(engine));
 }
 
 void OHOSJsEnvironmentImpl::InitConsoleModule(NativeEngine *engine)
