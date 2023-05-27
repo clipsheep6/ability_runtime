@@ -34,6 +34,7 @@
 #include "napi_rdb_predicates.h"
 #include "napi_result_set.h"
 #include "securec.h"
+#include "hitrace_meter.h"
 
 #ifndef SUPPORT_GRAPHICS
 #define DBL_MIN ((double)2.22507385850720138309e-308L)
@@ -1910,6 +1911,7 @@ void DenormalizeUriPromiseCompleteCB(napi_env env, napi_status status, void *dat
 
 void UnwrapDataAbilityPredicates(NativeRdb::DataAbilityPredicates &predicates, napi_env env, napi_value value)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     auto tempPredicates = DataAbilityJsKit::DataAbilityPredicatesProxy::GetNativePredicates(env, value);
     if (tempPredicates == nullptr) {
         HILOG_ERROR("%{public}s, GetNativePredicates retval Marshalling failed.", __func__);
@@ -3134,6 +3136,7 @@ void BatchInsertPromiseCompleteCB(napi_env env, napi_status status, void *data)
  */
 napi_value NAPI_Query(napi_env env, napi_callback_info info)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_INFO("%{public}s,called", __func__);
     DAHelperQueryCB *queryCB = new DAHelperQueryCB;
     queryCB->cbBase.cbInfo.env = env;
@@ -3162,6 +3165,7 @@ napi_value NAPI_Query(napi_env env, napi_callback_info info)
  */
 napi_value QueryWrap(napi_env env, napi_callback_info info, DAHelperQueryCB *queryCB)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_INFO("%{public}s,called", __func__);
     size_t argcAsync = ARGS_FOUR;
     const size_t argcPromise = ARGS_THREE;

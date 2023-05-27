@@ -21,6 +21,7 @@
 #include "app_scheduler.h"
 #include "connection_state_manager.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -40,6 +41,7 @@ DataAbilityRecord::~DataAbilityRecord()
 
 int DataAbilityRecord::StartLoading()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_INFO("Start data ability loading...");
 
     if (ability_ || scheduler_) {
@@ -58,12 +60,14 @@ int DataAbilityRecord::StartLoading()
         return ERR_NO_MEMORY;
     }
 
+    {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, "LoadAbility");
     int ret = ability->LoadAbility();
     if (ret != ERR_OK) {
         HILOG_ERROR("Failed to start data ability loading.");
         return ret;
     }
-
+    }
     ability_ = ability;
 
     // Ability state is 'INITIAL' now.
@@ -73,6 +77,7 @@ int DataAbilityRecord::StartLoading()
 
 int DataAbilityRecord::WaitForLoaded(std::mutex &mutex, const std::chrono::system_clock::duration &timeout)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     CHECK_POINTER_AND_RETURN(ability_, ERR_INVALID_STATE);
 
     // Data ability uses 'ACTIVATE' as loaded state.

@@ -22,6 +22,7 @@
 #include "ability_util.h"
 #include "connection_state_manager.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -46,6 +47,7 @@ DataAbilityManager::~DataAbilityManager()
 sptr<IAbilityScheduler> DataAbilityManager::Acquire(
     const AbilityRequest &abilityRequest, bool tryBind, const sptr<IRemoteObject> &client, bool isNotHap)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Call");
 
     if (abilityRequest.abilityInfo.type != AppExecFwk::AbilityType::DATA) {
@@ -448,6 +450,7 @@ void DataAbilityManager::Dump(const char *func, int line)
 DataAbilityManager::DataAbilityRecordPtr DataAbilityManager::LoadLocked(
     const std::string &name, const AbilityRequest &req)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_DEBUG("name '%{public}s'", name.c_str());
 
     DataAbilityRecordPtr dataAbilityRecord;

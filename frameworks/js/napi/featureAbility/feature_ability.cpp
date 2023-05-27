@@ -1127,6 +1127,7 @@ void GetDataAbilityHelperPromiseCompleteCB(napi_env env, napi_status status, voi
  */
 napi_value NAPI_AcquireDataAbilityHelper(napi_env env, napi_callback_info info)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_INFO("%{public}s,called", __func__);
     return NAPI_AcquireDataAbilityHelperCommon(env, info, AbilityType::PAGE);
 }

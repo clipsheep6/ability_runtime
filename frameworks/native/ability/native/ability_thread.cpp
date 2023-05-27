@@ -936,6 +936,7 @@ int AbilityThread::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates
 std::shared_ptr<NativeRdb::AbsSharedResultSet> AbilityThread::Query(
     const Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_DEBUG("AbilityThread::Query begin");
     std::shared_ptr<NativeRdb::AbsSharedResultSet> resultSet = nullptr;
     if (abilityImpl_ == nullptr) {
@@ -943,7 +944,10 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> AbilityThread::Query(
         return resultSet;
     }
 
-    resultSet = abilityImpl_->Query(uri, columns, predicates);
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_APP, "abilityImpl_->Query");
+        resultSet = abilityImpl_->Query(uri, columns, predicates);
+    }
     HILOG_DEBUG("AbilityThread::Query end");
     return resultSet;
 }
