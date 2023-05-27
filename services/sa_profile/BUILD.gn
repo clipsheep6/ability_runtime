@@ -18,7 +18,7 @@ ohos_sa_profile("ams_sa_profile") {
     "180.xml",
     "182.xml",
     "183.xml",
-    "184.xml",
+    "184.json",
     "501.xml",
   ]
 
