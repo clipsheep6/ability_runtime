@@ -29,7 +29,8 @@ int32_t GetContainerId();
 void UpdateContainerScope(int32_t id);
 void RestoreContainerScope(int32_t id);
 
-struct AssetHelper final {
+class AssetHelper final {
+public:    
     explicit AssetHelper(const std::string& codePath, bool isDebugVersion, bool isBundle)
         : codePath_(codePath), isDebugVersion_(isDebugVersion), isBundle_(isBundle)
     {
@@ -40,17 +41,20 @@ struct AssetHelper final {
 
     std::string NormalizedFileName(const std::string& fileName) const;
 
-    void operator()(const std::string& uri, std::vector<uint8_t>& content, std::string &ami) const;
+    void operator()(const std::string& uri, std::vector<uint8_t>& content, std::string &ami);
 
-    sptr<AppExecFwk::BundleMgrProxy> GetBundleMgrProxy() const;
+    sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
 
     bool ReadAmiData(const std::string& ami, std::vector<uint8_t>& content) const;
 
-    bool ReadFilePathData(const std::string& filePath, std::vector<uint8_t>& content) const;
+    bool ReadFilePathData(const std::string& filePath, std::vector<uint8_t>& content);
 
     std::string codePath_;
     bool isDebugVersion_ = false;
     bool isBundle_ = true;
+
+private:
+    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy_ = nullptr;
 };
 
 } // namespace AbilityRuntime
