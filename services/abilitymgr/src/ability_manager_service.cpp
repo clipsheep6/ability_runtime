@@ -5737,8 +5737,11 @@ void AbilityManagerService::UpdateCallerInfo(Want& want, const sptr<IRemoteObjec
         HILOG_WARN("%{public}s caller abilityRecord is null.", __func__);
         want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, std::string(""));
     } else {
-        std::string callerBundleName = abilityRecord->GetAbilityInfo().bundleName;
-        want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerBundleName);
+        auto& abilityInfo = abilityRecord->GetAbilityInfo();
+        want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+        want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, abilityInfo.bundleName);
+        want.RemoveParam(Want::PARAM_MODULE_NAME);
+        want.SetParam(Want::PARAM_MODULE_NAME, abilityInfo.moduleName);
     }
 }
 
