@@ -6321,6 +6321,7 @@ AAFwk::PermissionVerification::VerificationInfo AbilityManagerService::CreateVer
     AAFwk::PermissionVerification::VerificationInfo verificationInfo;
     verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
     verificationInfo.visible = IsAbilityVisible(abilityRequest);
+    verificationInfo.withContinuousTask = IsBackgroundTaskUid(IPCSkeleton::GetCallingUid());
     HILOG_DEBUG("Call ServiceAbility or DataAbility, target bundleName: %{public}s.",
         abilityRequest.appInfo.bundleName.c_str());
     if (whiteListassociatedWakeUpFlag_ &&
@@ -6350,6 +6351,7 @@ int AbilityManagerService::CheckCallServiceExtensionPermission(const AbilityRequ
     AAFwk::PermissionVerification::VerificationInfo verificationInfo;
     verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
     verificationInfo.visible = IsAbilityVisible(abilityRequest);
+    verificationInfo.withContinuousTask = IsBackgroundTaskUid(IPCSkeleton::GetCallingUid());
     if (IsCallFromBackground(abilityRequest, verificationInfo.isBackgroundCall) != ERR_OK) {
         return ERR_INVALID_VALUE;
     }
@@ -6412,6 +6414,7 @@ int AbilityManagerService::CheckCallAbilityPermission(const AbilityRequest &abil
     AAFwk::PermissionVerification::VerificationInfo verificationInfo;
     verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
     verificationInfo.visible = IsAbilityVisible(abilityRequest);
+    verificationInfo.withContinuousTask = IsBackgroundTaskUid(IPCSkeleton::GetCallingUid());
     if (IsCallFromBackground(abilityRequest, verificationInfo.isBackgroundCall) != ERR_OK) {
         return ERR_INVALID_VALUE;
     }
@@ -6436,6 +6439,7 @@ int AbilityManagerService::CheckStartByCallPermission(const AbilityRequest &abil
     AAFwk::PermissionVerification::VerificationInfo verificationInfo;
     verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
     verificationInfo.visible = IsAbilityVisible(abilityRequest);
+    verificationInfo.withContinuousTask = IsBackgroundTaskUid(IPCSkeleton::GetCallingUid());
     if (IsCallFromBackground(abilityRequest, verificationInfo.isBackgroundCall) != ERR_OK) {
         return ERR_INVALID_VALUE;
     }

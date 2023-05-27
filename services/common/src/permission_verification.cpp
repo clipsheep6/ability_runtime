@@ -325,12 +325,19 @@ bool PermissionVerification::JudgeStartInvisibleAbility(const uint32_t accessTok
     return false;
 }
 
-bool PermissionVerification::JudgeStartAbilityFromBackground(const bool isBackgroundCall) const
+bool PermissionVerification::JudgeStartAbilityFromBackground(
+    const bool isBackgroundCall, bool withContinuousTask) const
 {
     if (!isBackgroundCall) {
         HILOG_DEBUG("Caller is not background, PASS.");
         return true;
     }
+
+    if (withContinuousTask) {
+        HILOG_DEBUG("Caller has continuous task, PASS.");
+        return true;
+    }
+
     // Temporarily supports permissions with two different spellings
     // PERMISSION_START_ABILIIES_FROM_BACKGROUND will be removed later due to misspelling
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_START_ABILITIES_FROM_BACKGROUND) ||
