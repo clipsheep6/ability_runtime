@@ -31,16 +31,16 @@ ohos_shared_library("wantagent_napi") {
   ]
 
   deps = [
+    "${ability_runtime_innerkits_path}/error_utils:ability_runtime_error_util",
+    "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${ability_runtime_innerkits_path}/wantagent:wantagent_innerkits",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/appkit:app_context",
   ]
 
   external_deps = [
     "ability_base:want",
-    "ability_runtime:ability_runtime_error_util",
-    "ability_runtime:abilitykit_native",
-    "ability_runtime:runtime",
-    "ability_runtime:wantagent_innerkits",
     "access_token:libtokenid_sdk",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
