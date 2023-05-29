@@ -71,8 +71,6 @@ public:
         // call js function
         ContainerScope containerScope(containerScopeId_);
 #endif
-        HandleScope handleScope(nativeEngine_);
-
         std::vector<NativeValue*> args;
         args.reserve(jsArgs_.size());
         for (auto arg : jsArgs_) {
@@ -172,7 +170,7 @@ NativeValue* StopTimeoutOrInterval(NativeEngine* engine, NativeCallbackInfo* inf
 }
 }
 
-void InitTimerModule(NativeEngine& engine, NativeObject& globalObject)
+void InitTimer(NativeEngine& engine, NativeObject& globalObject)
 {
     const char *moduleName = "AsJsTimer";
     BindNativeFunction(engine, globalObject, "setTimeout", moduleName, StartTimeout);
