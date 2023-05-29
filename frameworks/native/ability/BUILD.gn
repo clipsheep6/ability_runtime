@@ -62,6 +62,7 @@ ohos_shared_library("ability_context_native") {
 
   external_deps = [
     "ability_base:want",
+    "ability_base:session_info",
     "ability_runtime:ability_deps_wrapper",
     "ability_runtime:ability_manager",
     "ability_runtime:runtime",
@@ -75,6 +76,8 @@ ohos_shared_library("ability_context_native") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "window_manager:libwsutils",
+    "window_manager:scene_session",
   ]
 
   innerapi_tags = [ "platformsdk" ]

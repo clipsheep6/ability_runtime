@@ -25,6 +25,8 @@
 #include "remote_object_wrapper.h"
 #include "request_constants.h"
 #include "scene_board_judgement.h"
+#include "session/host/include/zidl/session_interface.h"
+#include "session_info.h"
 #include "string_wrapper.h"
 #include "want_params_wrapper.h"
 
@@ -251,10 +253,17 @@ ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want& want, 
     HILOG_DEBUG("Start calling TerminateAbilityWithResult.");
     isTerminating_ = true;
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto scene = scene_.lock();
-        if (scene) {
+        auto sessionToken = sessionToken_.promote();
+        if (sessionToken) {
             HILOG_INFO("TerminateAbilityWithResult. SCB");
-            // scene->method(); 
+            AAFwk::SessionInfo info;
+            info.want = want;
+            info.code = resultCode;
+            ErrCode err = sessionToken->terminateSession(info);
+            HILOG_INFO("TerminateAbilityWithResult. ret=%{public}d", err);
+            return err;
+        } else {
+            return ERR_OK;
         }
     } else {
         ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, resultCode, &want);
@@ -263,9 +272,9 @@ ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want& want, 
     }
 }
 
-void AbilityContextImpl::SetWeakScene(const std::weak_ptr<Rosen::WindowScene>& scene) {
-    HILOG_DEBUG("Start calling SetWeakScene.");
-    scene_ = scene;
+void AbilityContextImpl::SetWeakSessionToken(const wptr<Rosen::ISession>& sessionToken) {
+    HILOG_DEBUG("Start calling SetWeakSessionToken.");
+    sessionToken_ = sessionToken;
 }
 
 void AbilityContextImpl::OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want& resultData)
@@ -406,10 +415,17 @@ ErrCode AbilityContextImpl::TerminateSelf()
     HILOG_DEBUG("%{public}s begin.", __func__);
     isTerminating_ = true;
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto scene = scene_.lock();
-        if (scene) {
+        auto sessionToken = sessionToken_.promote();
+        if (sessionToken) {
             HILOG_INFO("TerminateSelf. SCB");
-            // scene->method(); 
+            AAFwk::Want resultWant;
+            AAFwk::SessionInfo info;
+            info.want = resultWant;
+            info.code = -1;
+            ErrCode err = sessionToken->terminateSession(info);
+            return err;
+        } else {
+            return ERR_OK;
         }
     } else {
         AAFwk::Want resultWant;
@@ -419,7 +435,6 @@ ErrCode AbilityContextImpl::TerminateSelf()
         }
         return err;
     }
-    return err;
 }
 
 ErrCode AbilityContextImpl::CloseAbility()
