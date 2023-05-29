@@ -132,7 +132,6 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_native_path}/appkit:app_context_utils",
     "${ability_runtime_path}/js_environment/frameworks/js_environment:js_environment",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
-    "${graphic_2d_path}/rosen/modules/render_service_client:librender_service_client",
   ]
 
   external_deps = [
@@ -147,6 +146,7 @@ ohos_shared_library("appkit_native") {
     "eventhandler:libeventhandler",
     "faultloggerd:libbacktrace_local",
     "faultloggerd:libfaultloggerd",
+    "graphic_standard:librender_service_client",
     "hicollie_native:libhicollie",
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",

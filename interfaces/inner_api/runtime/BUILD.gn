@@ -77,7 +77,6 @@ ohos_shared_library("runtime") {
   deps = [
     "${ability_runtime_native_path}/ability/native:ability_business_error",
     "${ability_runtime_path}/js_environment/frameworks/js_environment:js_environment",
-    "${arkui_path}/napi:ace_napi_ark",
     "${third_party_path}/zlib:shared_libz",
   ]
 
@@ -99,6 +98,7 @@ ohos_shared_library("runtime") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "napi:ace_napi_ark",
     "resource_management:global_resmgr",
     "samgr:samgr_proxy",
   ]
