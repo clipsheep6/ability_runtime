@@ -1303,6 +1303,8 @@ private:
      */
     int IsCallFromBackground(const AbilityRequest &abilityRequest, bool &isBackgroundCall);
 
+    bool IsTargetPermission(const Want &want) const;
+
     bool IsDelegatorCall(const AppExecFwk::RunningProcessInfo &processInfo, const AbilityRequest &abilityRequest);
 
     bool IsAbilityVisible(const AbilityRequest &abilityRequest) const;

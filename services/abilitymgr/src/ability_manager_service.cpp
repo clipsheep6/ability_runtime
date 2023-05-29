@@ -149,6 +149,8 @@ const std::string BOOTEVENT_APPFWK_READY = "bootevent.appfwk.ready";
 const std::string BOOTEVENT_BOOT_COMPLETED = "bootevent.boot.completed";
 const std::string BOOTEVENT_BOOT_ANIMATION_STARTED = "bootevent.bootanimation.started";
 const std::string NEED_STARTINGWINDOW = "ohos.ability.NeedStartingWindow";
+const std::string PERMISSIONMGR_BUNDLE_NAME = "com.ohos.permissionmanager";
+const std::string PERMISSIONMGR_ABILITY_NAME = "com.ohos.permissionmanager.GrantAbility";
 const int DEFAULT_DMS_MISSION_ID = -1;
 const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerService::dumpMap = {
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("--all", KEY_DUMP_ALL),
@@ -583,12 +585,13 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         auto isGatewayCall = AAFwk::PermissionVerification::GetInstance()->IsGatewayCall();
         auto isSystemAppCall = AAFwk::PermissionVerification::GetInstance()->IsSystemAppCall();
         auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
-        if (!isSACall && !isGatewayCall && !isSystemAppCall && !isShellCall) {
+        auto isToPermissionMgr = IsTargetPermission(want);
+        if (!isSACall && !isGatewayCall && !isSystemAppCall && !isShellCall && !isToPermissionMgr) {
             HILOG_ERROR("Cannot start extension by start ability, use startServiceExtensionAbility.");
             return ERR_WRONG_INTERFACE_CALL;
         }
 
-        if (isSystemAppCall) {
+        if (isSystemAppCall || isToPermissionMgr) {
             result = CheckCallServicePermission(abilityRequest);
             if (result != ERR_OK) {
                 HILOG_ERROR("Check permission failed");
@@ -6505,6 +6508,16 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
         static_cast<int32_t>(processInfo.state_));
 
     return ERR_OK;
+}
+
+bool AbilityManagerService::IsTargetPermission(const Want &want) const
+{
+    if (want.GetElement().GetBundleName() == PERMISSIONMGR_BUNDLE_NAME &&
+        want.GetElement().GetAbilityName() == PERMISSIONMGR_ABILITY_NAME) {
+        return true;
+    }
+
+    return false;
 }
 
 inline bool AbilityManagerService::IsDelegatorCall(
