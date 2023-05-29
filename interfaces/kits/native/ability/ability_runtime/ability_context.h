@@ -25,10 +25,8 @@
 #include "iability_callback.h"
 #include "native_engine/native_reference.h"
 #include "native_engine/native_value.h"
-#include "scene_board_judgement.h"
 #include "start_options.h"
 #include "want.h"
-#include "window_scene.h"
 
 #ifdef SUPPORT_GRAPHICS
 #include "pixel_map.h"
@@ -36,7 +34,7 @@
 
 namespace OHOS {
 namespace Rosen {
-class WindowScene;
+class ISession;
 }
 namespace AbilityRuntime {
 using RuntimeTask = std::function<void(int, const AAFwk::Want&, bool)>;
@@ -257,7 +255,7 @@ public:
 
     virtual void RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback) = 0;
 
-    virtual void SetWeakScene(const std::weak_ptr<Rosen::WindowScene>& scene) = 0;
+    virtual void SetWeakSessionToken(const wptr<Rosen::ISession>& sessionToken) = 0;
 
     /**
      * @brief Requests dialogService from the system.

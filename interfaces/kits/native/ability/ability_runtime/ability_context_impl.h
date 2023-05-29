@@ -23,13 +23,8 @@
 #include "context_impl.h"
 #include "configuration.h"
 #include "local_call_container.h"
-#include "scene_board_judgement.h"
-#include "window_scene.h"
 
 namespace OHOS {
-namespace Rosen {
-class WindowScene;
-}
 namespace AbilityRuntime {
 class AbilityContextImpl : public AbilityContext {
 public:
@@ -179,7 +174,7 @@ public:
         return isTerminating_;
     }
 
-    void SetWeakScene(const std::weak_ptr<Rosen::WindowScene>& scene) override;
+    void SetWeakSessionToken(const wptr<Rosen::ISession>& sessionToken) override;
 
     void SetTerminating(bool state) override
     {
@@ -226,6 +221,7 @@ private:
     std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback_;
     bool isTerminating_ = false;
     int32_t missionId_ = -1;
+    wptr<Rosen::ISession> sessionToken_;
 
     static void RequestDialogResultJSThreadWorker(uv_work_t* work, int status);
     void OnAbilityResultInner(int requestCode, int resultCode, const AAFwk::Want &resultData);
