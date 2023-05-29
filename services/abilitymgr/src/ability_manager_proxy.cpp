@@ -24,6 +24,7 @@
 #include "ability_scheduler_proxy.h"
 #include "ability_scheduler_stub.h"
 #include "ability_util.h"
+#include "root_scene_session.h"
 #include "session_info.h"
 
 namespace OHOS {
@@ -3897,6 +3898,34 @@ int32_t AbilityManagerProxy::ShareDataDone(
     }
     HILOG_INFO("AbilityManagerProxy::ShareDataDone end.");
     return reply.ReadInt32();
+}
+
+void AbilityManagerProxy::SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("SetRootSceneSession WriteInterfaceToken failed.");
+        return;
+    }
+
+    if (!data.WriteRemoteObject(rootSceneSession)) {
+        HILOG_ERROR("SetRootSceneSession WriteRemoteObject failed.");
+        return;
+    }
+
+    auto remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("SetRootSceneSession failed, remote is nullptr.");
+        return;
+    }
+    error = remote->SendRequest(IAbilityManager::SET_ROOTSSCENESESSION, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("AppRecovery Send request error: %{public}d", error);
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS

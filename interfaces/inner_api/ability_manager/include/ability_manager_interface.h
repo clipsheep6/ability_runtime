@@ -50,6 +50,9 @@
 #endif
 
 namespace OHOS {
+namespace Rosen {
+class RootSceneSession;
+}  // namespace Rosen
 namespace AAFwk {
 constexpr const char* ABILITY_MANAGER_SERVICE_NAME = "AbilityManagerService";
 const int DEFAULT_INVAL_VALUE = -1;
@@ -937,6 +940,12 @@ public:
         return 0;
     }
 
+    /**
+     * Set rootSceneSession from scb.
+     * @param rootSceneSession
+     */
+    virtual void SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession) = 0;
+
     enum {
         // ipc id 1-1000 for kit
         // ipc id for terminating ability (1)
@@ -1220,6 +1229,9 @@ public:
 
         // ipc id for request dialog service
         REQUEST_DIALOG_SERVICE,
+
+        // ipc id for set rootSceneSession
+        SET_ROOTSSCENESESSION,
 
         // ipc id for continue ability(1101)
         START_CONTINUATION = 1101,

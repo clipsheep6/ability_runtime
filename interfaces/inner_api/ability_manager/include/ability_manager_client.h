@@ -29,6 +29,9 @@
 #include "system_memory_attr.h"
 
 namespace OHOS {
+namespace Roson {
+class SceneBoardJudgement;
+}
 namespace AAFwk {
 /**
  * @class AbilityManagerClient
@@ -996,6 +999,13 @@ public:
     ErrCode RequestDialogService(
         const Want &want,
         const sptr<IRemoteObject> &callerToken);
+
+    /**
+     * Set rootSceneSession from scb.
+     *
+     * @param rootSceneSession
+     */
+    void SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession);
 
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {

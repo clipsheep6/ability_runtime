@@ -142,6 +142,8 @@ ohos_shared_library("abilitykit_utils") {
     "${ability_runtime_innerkits_path}/wantagent/include",
     "${ability_runtime_services_path}/abilitymgr/include",
     "${ability_runtime_services_path}/common/include",
+    "${window_scene_path}/window_scene/session/host/include",
+    "${window_scene_path}/window_scene/interfaces/include",
   ]
 
   sources = [
@@ -165,6 +167,7 @@ ohos_shared_library("abilitykit_utils") {
     "ipc:ipc_napi_common",
     "napi:ace_napi",
     "resource_management:global_resmgr",
+    "window_manager:scene_session",
   ]
 
   if (ability_runtime_graphics) {

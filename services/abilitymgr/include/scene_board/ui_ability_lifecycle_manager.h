@@ -20,6 +20,7 @@
 
 #include "ability_record.h"
 #include "session_info.h"
+#include "root_scene_session.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -95,6 +96,13 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int CloseUIAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
+
+    /**
+     * SetRootSceneSession, set rootSceneSession from scb.
+     *
+     * @param rootSceneSession
+     */
+    void SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession);
 private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
     void UpdateAbilityRecordLaunchReason(const AbilityRequest &abilityRequest,
@@ -116,6 +124,7 @@ private:
     mutable std::recursive_mutex sessionLock_;
     std::map<uint64_t, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;
     std::list<std::shared_ptr<AbilityRecord>> terminateAbilityList_;
+    sptr<Rosen::RootSceneSession> rootSceneSession_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
