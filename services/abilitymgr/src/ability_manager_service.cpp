@@ -5685,16 +5685,8 @@ int AbilityManagerService::DoAbilityForeground(const sptr<IRemoteObject> &token,
         return ERR_WOULD_BLOCK;
     }
 
-    if (abilityRecord->GetPendingState() == AbilityState::FOREGROUND) {
-        HILOG_DEBUG("pending state is FOREGROUND.");
-        abilityRecord->SetPendingState(AbilityState::FOREGROUND);
-        return ERR_OK;
-    } else {
-        HILOG_DEBUG("pending state is not FOREGROUND.");
-        abilityRecord->SetPendingState(AbilityState::FOREGROUND);
-    }
-    abilityRecord->ProcessForegroundAbility(flag);
-    return ERR_OK;
+    CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
+    return currentMissionListManager_->DoAbilityForeground(abilityRecord, flag);
 }
 
 int AbilityManagerService::DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag)
