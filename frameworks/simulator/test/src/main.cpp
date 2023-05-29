@@ -26,14 +26,14 @@ int32_t main(int32_t argc, const char* argv[])
         return 1;
     }
 
-    OHOS::AbilityRuntime::Simulator::Options options {argv[1], argv[2], argv[3]};
+    OHOS::AbilityRuntime::Simulator::Options options {argv[1], argv[2], argv[3], argv[4], atoi(argv[5])};
     auto simulator = OHOS::AbilityRuntime::Simulator::Create(options);
     if (!simulator) {
         std::cout << "Create Simulator failed." << std::endl;
         return 1;
     }
 
-    std::string abilitySrcPath {argv[4]};
+    std::string abilitySrcPath {argv[6]};
     int64_t id = simulator->StartAbility(abilitySrcPath, [](int64_t abilityId) {});
     if (id < 0) {
         std::cout << "Start Ability failed." << std::endl;

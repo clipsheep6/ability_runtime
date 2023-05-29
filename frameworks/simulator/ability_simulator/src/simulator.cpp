@@ -74,14 +74,10 @@ public:
 
     int64_t StartAbility(const std::string& abilityName, TerminateCallback callback) override;
     void TerminateAbility(int64_t abilityId) override;
-
-    int64_t CreateForm(const std::string& formName, FormUpdateCallback callback) override;
-    void RequestUpdateForm(int64_t formId) override;
-    void DestroyForm(int64_t formId) override;
-
 private:
     bool OnInit();
     void Run();
+    NativeValue* LoadScript();
 
     Options options_;
     std::string abilityPath_;
@@ -221,7 +217,7 @@ void CallObjectMethod(NativeEngine& engine, NativeValue* value, const char *name
     engine.CallFunction(value, methodOnCreate, argv, argc);
 }
 
-bool SimulatorImpl::RunScript()
+NativeValue* SimulatorImpl::LoadScript()
 {
     panda::JSNApi::SetBundleName(vm_, options_.bundleName);
     panda::JSNApi::SetModuleName(vm_, options_.moduleName);
@@ -231,17 +227,11 @@ bool SimulatorImpl::RunScript()
     panda::Local<panda::ObjectRef> objRef = panda::JSNApi::GetExportObject(vm_, abilityPath_, "default");
     if (objRef->IsNull()) {
         HILOG_ERROR("Get export object failed");
-        return false;
+        return nullptr;
     }
 
     auto obj = ArkNativeEngine::ArkValueToNativeValue(static_cast<ArkNativeEngine*>(nativeEngine_.get()), objRef);
-    NativeValue* instanceValue = nativeEngine_->CreateInstance(obj, nullptr, 0);
-    if (instanceValue == nullptr) {
-        HILOG_ERROR("Failed to create object instance");
-        return false;
-    }
-
-    return true;
+    return nativeEngine_->CreateInstance(obj, nullptr, 0);
 }
 
 int64_t SimulatorImpl::StartAbility(const std::string& abilitySrcPath, TerminateCallback callback)
@@ -269,7 +259,9 @@ int64_t SimulatorImpl::StartAbility(const std::string& abilitySrcPath, Terminate
             return;
         }
 
-        if (!RunScript()) {
+        NativeValue* instanceValue = LoadScript();
+        if (instanceValue == nullptr) {
+            HILOG_ERROR("Failed to create object instance");
             waiter.NotifyResult(-1);
             return;
         }
@@ -348,7 +340,7 @@ bool SimulatorImpl::OnInit()
         return false;
     }
 
-    panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, true}
+    panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, true, options_.debugPort};
     panda::JSNApi::StartDebugger(vm_, debugOption, 0,
         std::bind(&DebuggerTask::OnPostTask, &debuggerTask_, std::placeholders::_1));
 
