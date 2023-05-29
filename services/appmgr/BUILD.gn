@@ -51,10 +51,11 @@ ohos_shared_library("libappms") {
     "src/window_focus_changed_listener.cpp",
   ]
 
-  defines = [
-    "AMS_LOG_TAG = \"AppMgrService\"",
-    "APP_MGR_SERVICE_APPMS",
-  ]
+  defines = [ "AMS_LOG_TAG = \"AppMgrService\"" ]
+
+  if (product_name != "ohcore") {
+    defines += [ "APP_MGR_SERVICE_APPMS" ]
+  }
 
   if (ability_command_for_test) {
     defines += [ "ABILITY_COMMAND_FOR_TEST" ]
@@ -90,11 +91,14 @@ ohos_shared_library("libappms") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "netmanager_base:socket_permission",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "window_manager:libwsutils",
   ]
+
+  if (product_name != "ohcore") {
+    external_deps += [ "netmanager_base:socket_permission" ]
+  }
 
   if (ability_runtime_graphics) {
     defines += [ "SUPPORT_GRAPHICS" ]
