@@ -33,6 +33,10 @@ std::string GetInstanceMapMessage(const std::string& messageType, int32_t instan
     message.append(instanceName);
     message.append("\",\"tid\":");
     message.append(std::to_string(gettid()));
+    message.append(",\"apiType\":\"");
+    message.append("stageMode\"");
+    message.append(",\"language\":\"");
+    message.append("ets\"");
     message.append("}");
     return message;
 }
