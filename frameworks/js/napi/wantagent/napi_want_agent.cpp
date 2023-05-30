@@ -296,7 +296,7 @@ NativeValue* JsWantAgent::OnEqual(NativeEngine &engine, NativeCallbackInfo &info
     int32_t errCode = BUSINESS_ERROR_CODE_OK;
     WantAgent* pWantAgentFirst = nullptr;
     WantAgent* pWantAgentSecond = nullptr;
-    if (info.argc < ARGC_TWO || info.argc > ARGC_THREE) {
+    if (info.argc < ARGC_TWO) {
         HILOG_ERROR("Not enough params");
 #ifdef ENABLE_ERRCODE
         AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
@@ -304,7 +304,9 @@ NativeValue* JsWantAgent::OnEqual(NativeEngine &engine, NativeCallbackInfo &info
         return engine.CreateUndefined();
     }
 
-    NativeValue* lastParam = (info.argc >= ARGC_THREE) ? info.argv[INDEX_TWO] : nullptr;
+    NativeValue* lastParam = (info.argc >= ARGC_THREE 
+        && info.argv[INDEX_TWO]->TypeOf() == NativeValueType::NATIVE_FUNCTION) ? info.argv[INDEX_TWO] : nullptr;
+
     if (info.argv[0]->TypeOf() != NativeValueType::NATIVE_OBJECT) {
         HILOG_ERROR("Wrong argument type. Object expected.");
 #ifdef ENABLE_ERRCODE
@@ -392,12 +394,14 @@ NativeValue* JsWantAgent::OnGetWant(NativeEngine &engine, NativeCallbackInfo &in
 
     int32_t errCode = BUSINESS_ERROR_CODE_OK;
     WantAgent* pWantAgent = nullptr;
-    if (info.argc > ARGC_TWO || info.argc < ARGC_ONE) {
+    if (info.argc < ARGC_ONE) {
         HILOG_ERROR("Not enough params");
         return engine.CreateUndefined();
     }
 
-    NativeValue* lastParam = (info.argc >= ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue* lastParam = (info.argc >= ARGC_TWO 
+        && info.argv[INDEX_ONE]->TypeOf() == NativeValueType::NATIVE_FUNCTION) ? info.argv[INDEX_ONE] : nullptr;
+
     if (info.argv[0]->TypeOf() != NativeValueType::NATIVE_OBJECT) {
         HILOG_ERROR("Wrong argument type. Object expected.");
         errCode = ERR_NOT_OK;
@@ -433,12 +437,14 @@ NativeValue* JsWantAgent::OnGetOperationType(NativeEngine &engine, NativeCallbac
     HILOG_DEBUG("JsWantAgent::OnGetOperationType enter, argc = %{public}d", static_cast<int32_t>(info.argc));
     int32_t errCode = BUSINESS_ERROR_CODE_OK;
     WantAgent* pWantAgent = nullptr;
-    if (info.argc > ARGC_TWO || info.argc < ARGC_ONE) {
+    if (info.argc < ARGC_ONE) {
         HILOG_ERROR("Not enough params");
         return engine.CreateUndefined();
     }
 
-    NativeValue* lastParam = (info.argc >= ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue* lastParam = (info.argc >= ARGC_TWO 
+        && info.argv[INDEX_ONE]->TypeOf() == NativeValueType::NATIVE_FUNCTION) ? info.argv[INDEX_ONE] : nullptr;
+
     if (info.argv[0]->TypeOf() != NativeValueType::NATIVE_OBJECT) {
         HILOG_ERROR("Wrong argument type. Object expected.");
         errCode = ERR_NOT_OK;
@@ -470,7 +476,7 @@ NativeValue* JsWantAgent::OnGetBundleName(NativeEngine &engine, NativeCallbackIn
     HILOG_DEBUG("JsWantAgent::OnGetBundleName enter, argc = %{public}d", static_cast<int32_t>(info.argc));
     int32_t errCode = BUSINESS_ERROR_CODE_OK;
     WantAgent* pWantAgent = nullptr;
-    if (info.argc > ARGC_TWO || info.argc < ARGC_ONE) {
+    if (info.argc < ARGC_ONE) {
         HILOG_ERROR("Not enough params");
 #ifdef ENABLE_ERRCODE
         AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
@@ -478,7 +484,9 @@ NativeValue* JsWantAgent::OnGetBundleName(NativeEngine &engine, NativeCallbackIn
         return engine.CreateUndefined();
     }
 
-    NativeValue* lastParam = (info.argc >= ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue* lastParam = (info.argc >= ARGC_TWO 
+        && info.argv[INDEX_ONE]->TypeOf() == NativeValueType::NATIVE_FUNCTION) ? info.argv[INDEX_ONE] : nullptr;
+
     if (info.argv[0]->TypeOf() != NativeValueType::NATIVE_OBJECT) {
         HILOG_ERROR("Wrong argument type. Object expected.");
 #ifdef ENABLE_ERRCODE
@@ -531,7 +539,7 @@ NativeValue* JsWantAgent::OnGetUid(NativeEngine &engine, NativeCallbackInfo &inf
     HILOG_DEBUG("JsWantAgent::OnGetUid enter, argc = %{public}d", static_cast<int32_t>(info.argc));
     int32_t errCode = BUSINESS_ERROR_CODE_OK;
     WantAgent* pWantAgent = nullptr;
-    if (info.argc > ARGC_TWO || info.argc < ARGC_ONE) {
+    if (info.argc < ARGC_ONE) {
         HILOG_ERROR("Not enough params");
 #ifdef ENABLE_ERRCODE
         errCode = ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
@@ -540,7 +548,9 @@ NativeValue* JsWantAgent::OnGetUid(NativeEngine &engine, NativeCallbackInfo &inf
         return engine.CreateUndefined();
     }
 
-    NativeValue* lastParam = (info.argc >= ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue* lastParam = (info.argc >= ARGC_TWO 
+        && info.argv[INDEX_ONE]->TypeOf() == NativeValueType::NATIVE_FUNCTION) ? info.argv[INDEX_ONE] : nullptr;
+
     if (info.argv[0]->TypeOf() != NativeValueType::NATIVE_OBJECT) {
         HILOG_ERROR("Wrong argument type. Object expected.");
 #ifdef ENABLE_ERRCODE
@@ -592,7 +602,7 @@ NativeValue* JsWantAgent::OnCancel(NativeEngine &engine, NativeCallbackInfo &inf
     HILOG_DEBUG("%{public}s is called", __FUNCTION__);
     int32_t errCode = BUSINESS_ERROR_CODE_OK;
     WantAgent* pWantAgent = nullptr;
-    if (info.argc > ARGC_TWO || info.argc < ARGC_ONE) {
+    if (info.argc < ARGC_ONE) {
         HILOG_ERROR("Not enough params");
 #ifdef ENABLE_ERRCODE
         AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
@@ -600,7 +610,9 @@ NativeValue* JsWantAgent::OnCancel(NativeEngine &engine, NativeCallbackInfo &inf
         return engine.CreateUndefined();
     }
 
-    NativeValue* lastParam = (info.argc >= ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue* lastParam = (info.argc >= ARGC_TWO 
+        && info.argv[INDEX_ONE]->TypeOf() == NativeValueType::NATIVE_FUNCTION) ? info.argv[INDEX_ONE] : nullptr;
+
     if (info.argv[0]->TypeOf() != NativeValueType::NATIVE_OBJECT) {
         HILOG_ERROR("Wrong argument type. Object expected.");
 #ifdef ENABLE_ERRCODE
@@ -873,12 +885,14 @@ void JsWantAgent::UnwrapWantAgent(NativeEngine &engine, NativeValue* jsParam, vo
 NativeValue* JsWantAgent::OnGetWantAgent(NativeEngine &engine, NativeCallbackInfo &info)
 {
     HILOG_DEBUG("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
-    if (info.argc > ARGC_TWO || info.argc < ARGC_ONE) {
+    if (info.argc < ARGC_ONE) {
         HILOG_ERROR("Not enough params");
         return engine.CreateUndefined();
     }
 
-    NativeValue* lastParam = (info.argc >= ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue* lastParam = (info.argc >= ARGC_TWO 
+        && info.argv[INDEX_ONE]->TypeOf() == NativeValueType::NATIVE_FUNCTION) ? info.argv[INDEX_ONE] : nullptr;
+
     std::shared_ptr<WantAgentWantsParas> spParas = std::make_shared<WantAgentWantsParas>();
     int32_t ret = GetWantAgentParam(engine, info, *spParas);
     if (ret != 0) {

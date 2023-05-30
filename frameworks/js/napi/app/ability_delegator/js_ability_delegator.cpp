@@ -267,7 +267,8 @@ NativeValue *JSAbilityDelegator::OnAddAbilityMonitor(NativeEngine &engine, Nativ
         ResolveWithNoError(engine, task);
     };
 
-    NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue *lastParam = (info.argc > ARGC_ONE
+        && info.argv[INDEX_ONE]->TypeOf() == NativeValueType::NATIVE_FUNCTION) ? info.argv[INDEX_ONE] : nullptr;
     NativeValue *result = nullptr;
     AsyncTask::Schedule("JSAbilityDelegator::OnAddAbilityMonitor",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
@@ -296,7 +297,8 @@ NativeValue *JSAbilityDelegator::OnAddAbilityStageMonitor(NativeEngine &engine, 
         ResolveWithNoError(engine, task);
     };
 
-    NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue *lastParam = (info.argc > ARGC_ONE
+        && info.argv[INDEX_ONE]->TypeOf() == NativeValueType::NATIVE_FUNCTION) ? info.argv[INDEX_ONE] : nullptr;
     NativeValue *result = nullptr;
     AsyncTask::Schedule("JSAbilityDelegator::OnAddAbilityStageMonitor",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
@@ -329,7 +331,8 @@ NativeValue *JSAbilityDelegator::OnRemoveAbilityMonitor(NativeEngine &engine, Na
         ResolveWithNoError(engine, task);
     };
 
-    NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue *lastParam = (info.argc > ARGC_ONE
+        && info.argv[INDEX_ONE]->TypeOf() == NativeValueType::NATIVE_FUNCTION) ? info.argv[INDEX_ONE] : nullptr;
     NativeValue *result = nullptr;
     AsyncTask::Schedule("JSAbilityDelegator::OnRemoveAbilityMonitor",
         engine, CreateAsyncTaskWithLastParam(engine,
@@ -371,7 +374,8 @@ NativeValue *JSAbilityDelegator::OnRemoveAbilityStageMonitor(NativeEngine &engin
         ResolveWithNoError(engine, task);
     };
 
-    NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue *lastParam = (info.argc > ARGC_ONE
+        && info.argv[INDEX_ONE]->TypeOf() == NativeValueType::NATIVE_FUNCTION) ? info.argv[INDEX_ONE] : nullptr;
     NativeValue *result = nullptr;
     AsyncTask::Schedule("JSAbilityDelegator::OnRemoveAbilityStageMonitor", engine,
         CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
@@ -431,7 +435,13 @@ NativeValue *JSAbilityDelegator::OnWaitAbilityMonitor(NativeEngine &engine, Nati
 
     NativeValue *lastParam = nullptr;
     if (opt.hasCallbackPara) {
-        lastParam = opt.hasTimeoutPara ? info.argv[INDEX_TWO] : info.argv[INDEX_ONE];
+        if (info.argc == ARGC_TWO) {
+            lastParam = info.argv[INDEX_ONE];
+        }
+
+        if (info.argc > ARGC_TWO) {
+            lastParam = info.argv[INDEX_TWO];
+        }
     }
 
     NativeValue *result = nullptr;
@@ -484,8 +494,15 @@ NativeValue *JSAbilityDelegator::OnWaitAbilityStageMonitor(NativeEngine &engine,
     };
     NativeValue *lastParam = nullptr;
     if (opt.hasCallbackPara) {
-        lastParam = opt.hasTimeoutPara ? info.argv[INDEX_TWO] : info.argv[INDEX_ONE];
+        if (info.argc == ARGC_TWO) {
+            lastParam = info.argv[INDEX_ONE];
+        }
+
+        if (info.argc > ARGC_TWO) {
+            lastParam = info.argv[INDEX_TWO];
+        }
     }
+
     NativeValue *result = nullptr;
     AsyncTask::Schedule("JSAbilityDelegator::OnWaitAbilityStageMonitor",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
@@ -513,7 +530,8 @@ NativeValue *JSAbilityDelegator::OnPrint(NativeEngine &engine, NativeCallbackInf
         ResolveWithNoError(engine, task);
     };
 
-    NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue *lastParam = (info.argc > ARGC_ONE
+         && info.argv[INDEX_ONE]->TypeOf() == NativeValueType::NATIVE_FUNCTION) ? info.argv[INDEX_ONE] : nullptr;
     NativeValue *result = nullptr;
     AsyncTask::Schedule("JSAbilityDelegator::OnPrint",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
@@ -587,7 +605,13 @@ NativeValue *JSAbilityDelegator::OnExecuteShellCommand(NativeEngine &engine, Nat
 
     NativeValue *lastParam = nullptr;
     if (opt.hasCallbackPara) {
-        lastParam = opt.hasTimeoutPara ? info.argv[INDEX_TWO] : info.argv[INDEX_ONE];
+        if (info.argc == ARGC_TWO) {
+            lastParam = info.argv[INDEX_ONE];
+        }
+
+        if (info.argc > ARGC_TWO) {
+            lastParam = info.argv[INDEX_TWO];
+        }
     }
 
     NativeValue *result = nullptr;
@@ -658,11 +682,6 @@ NativeValue *JSAbilityDelegator::OnGetCurrentTopAbility(NativeEngine &engine, Na
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
-    if (info.argc >= ARGC_ONE && info.argv[INDEX_ZERO]->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
-        HILOG_ERROR("Parse getCurrentTopAbility parameter failed");
-        return ThrowJsError(engine, INCORRECT_PARAMETERS);
-    }
-
     AsyncTask::CompleteCallback complete = [this](NativeEngine &engine, AsyncTask &task, int32_t status) {
         HILOG_INFO("OnGetCurrentTopAbility AsyncTask is called");
         auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
@@ -685,7 +704,8 @@ NativeValue *JSAbilityDelegator::OnGetCurrentTopAbility(NativeEngine &engine, Na
         }
     };
 
-    NativeValue *lastParam = (info.argc >= ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
+    NativeValue *lastParam = (info.argc >= ARGC_ONE
+         && info.argv[INDEX_ZERO]->TypeOf() == NativeValueType::NATIVE_FUNCTION) ? info.argv[INDEX_ZERO] : nullptr;
     NativeValue *result = nullptr;
     AsyncTask::Schedule("JSAbilityDelegator::OnGetCurrentTopAbility",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
@@ -717,7 +737,8 @@ NativeValue *JSAbilityDelegator::OnStartAbility(NativeEngine &engine, NativeCall
         }
     };
 
-    NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue *lastParam = (info.argc > ARGC_ONE
+         && info.argv[INDEX_ONE]->TypeOf() == NativeValueType::NATIVE_FUNCTION) ? info.argv[INDEX_ONE] : nullptr;
     NativeValue *result = nullptr;
     AsyncTask::Schedule("JSAbilityDelegator::OnStartAbility",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
@@ -748,7 +769,8 @@ NativeValue *JSAbilityDelegator::OnDoAbilityForeground(NativeEngine &engine, Nat
         }
     };
 
-    NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue *lastParam = (info.argc > ARGC_ONE
+         && info.argv[INDEX_ONE]->TypeOf() == NativeValueType::NATIVE_FUNCTION) ? info.argv[INDEX_ONE] : nullptr;
     NativeValue *result = nullptr;
     AsyncTask::Schedule("JSAbilityDelegator::OnDoAbilityForeground",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
@@ -779,7 +801,8 @@ NativeValue *JSAbilityDelegator::OnDoAbilityBackground(NativeEngine &engine, Nat
         }
     };
 
-    NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue *lastParam = (info.argc > ARGC_ONE
+         && info.argv[INDEX_ONE]->TypeOf() == NativeValueType::NATIVE_FUNCTION) ? info.argv[INDEX_ONE] : nullptr;
     NativeValue *result = nullptr;
     AsyncTask::Schedule("JSAbilityDelegator::OnDoAbilityBackground",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
@@ -807,7 +830,8 @@ NativeValue *JSAbilityDelegator::OnFinishTest(NativeEngine &engine, NativeCallba
         delegator->FinishUserTest(msg, code);
         ResolveWithNoError(engine, task);
     };
-    NativeValue *lastParam = (info.argc > ARGC_TWO) ? info.argv[INDEX_TWO] : nullptr;
+    NativeValue *lastParam = (info.argc > ARGC_TWO
+         && info.argv[INDEX_TWO]->TypeOf() == NativeValueType::NATIVE_FUNCTION) ? info.argv[INDEX_TWO] : nullptr;
     NativeValue *result = nullptr;
     AsyncTask::Schedule("JSAbilityDelegator::OnFinishTest",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
@@ -1001,12 +1025,6 @@ NativeValue *JSAbilityDelegator::ParseAbilityMonitorPara(
         return nullptr;
     }
 
-    if (info.argc > ARGC_ONE) {
-        if (info.argv[INDEX_ONE]->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
-            HILOG_ERROR("ParseAbilityMonitorPara, Parse callback parameters failed");
-            return nullptr;
-        }
-    }
     return engine.CreateNull();
 }
 
@@ -1024,12 +1042,6 @@ NativeValue *JSAbilityDelegator::ParseAbilityStageMonitorPara(
         return nullptr;
     }
 
-    if (info.argc > ARGC_ONE) {
-        if (info.argv[INDEX_ONE]->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
-            HILOG_ERROR("ParseAbilityStageMonitorPara, Parse callback parameters failed");
-            return nullptr;
-        }
-    }
     return engine.CreateNull();
 }
 
@@ -1086,23 +1098,36 @@ NativeValue *JSAbilityDelegator::ParseTimeoutCallbackPara(
     opt.hasCallbackPara = false;
     opt.hasTimeoutPara = false;
 
-    if (info.argc >= ARGC_TWO) {
-        if (!ConvertFromJsValue(engine, info.argv[INDEX_ONE], timeout)) {
-            if (info.argv[INDEX_ONE] == nullptr || info.argv[INDEX_ONE]->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
-                return engine.CreateNull();
-            }
+    if (info.argc == ARGC_TWO) {
+        if (ConvertFromJsValue(engine, info.argv[INDEX_ONE], timeout)) {
+            opt.hasTimeoutPara = true;
+        }
+
+        if (info.argv[INDEX_ONE]->TypeOf() == NativeValueType::NATIVE_FUNCTION) {
             opt.hasCallbackPara = true;
+        }
+
+        return engine.CreateNull();
+    }
+    
+    if (info.argc > ARGC_TWO) {
+        if (ConvertFromJsValue(engine, info.argv[INDEX_ONE], timeout)) {
+            opt.hasTimeoutPara = true;
+
+            if (info.argv[INDEX_TWO]->TypeOf() == NativeValueType::NATIVE_FUNCTION) {
+                opt.hasCallbackPara = true;
+            }
+
             return engine.CreateNull();
         }
-        opt.hasTimeoutPara = true;
 
-        if (info.argc > ARGC_TWO) {
-            if (info.argv[INDEX_TWO]->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
-                return engine.CreateNull();
-            }
+        if (info.argv[INDEX_ONE]->TypeOf() == NativeValueType::NATIVE_FUNCTION) {
             opt.hasCallbackPara = true;
         }
+
+        return engine.CreateNull();
     }
+
     return engine.CreateNull();
 }
 
@@ -1119,12 +1144,6 @@ NativeValue *JSAbilityDelegator::ParsePrintPara(NativeEngine &engine, NativeCall
         return nullptr;
     }
 
-    if (info.argc > ARGC_ONE) {
-        if (info.argv[INDEX_ONE]->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
-            HILOG_ERROR("Parse callback parameter failed");
-            return nullptr;
-        }
-    }
     return engine.CreateNull();
 }
 
@@ -1162,12 +1181,6 @@ NativeValue *JSAbilityDelegator::ParseAbilityCommonPara(
         return nullptr;
     }
 
-    if (info.argc > ARGC_ONE) {
-        if (info.argv[INDEX_ONE]->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
-            HILOG_ERROR("Parse ability callback parameters failed");
-            return nullptr;
-        }
-    }
     return engine.CreateNull();
 }
 
@@ -1186,12 +1199,6 @@ NativeValue *JSAbilityDelegator::ParseStartAbilityPara(
         return nullptr;
     }
 
-    if (info.argc > ARGC_ONE) {
-        if (info.argv[INDEX_ONE]->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
-            HILOG_ERROR("Parse StartAbility callback parameters failed");
-            return nullptr;
-        }
-    }
     return engine.CreateNull();
 }
 

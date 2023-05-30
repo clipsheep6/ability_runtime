@@ -230,7 +230,7 @@ NativeValue* JsFeatureAbility::TerminateAbility(NativeEngine *engine, NativeCall
 NativeValue* JsFeatureAbility::OnHasWindowFocus(NativeEngine &engine, const NativeCallbackInfo &info)
 {
     HILOG_DEBUG("%{public}s is called", __FUNCTION__);
-    if (info.argc > ARGS_ONE || info.argc < ARGS_ZERO) {
+    if (info.argc < ARGS_ZERO) {
         HILOG_ERROR(" wrong number of arguments.");
         return engine.CreateUndefined();
     }
@@ -245,7 +245,8 @@ NativeValue* JsFeatureAbility::OnHasWindowFocus(NativeEngine &engine, const Nati
             task.Resolve(engine, CreateJsValue(engine, ret));
         };
     NativeValue *result = nullptr;
-    NativeValue *lastParam = (info.argc == ARGS_ZERO) ? nullptr : info.argv[PARAM0];
+    NativeValue *lastParam = (info.argc > ARGS_ZERO && 
+        info.argv[PARAM0]->TypeOf() == NATIVE_FUNCTION) ? info.argv[PARAM0] : nullptr;
     AsyncTask::Schedule("JSFeatureAbility::OnHasWindowFocus",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     HILOG_DEBUG("OnHasWindowFocus is called end");
@@ -288,7 +289,7 @@ Ability* JsFeatureAbility::GetAbility(NativeEngine &engine)
 NativeValue* JsFeatureAbility::OnStartAbilityForResult(NativeEngine &engine, NativeCallbackInfo &info)
 {
     HILOG_DEBUG("%{public}s is called", __FUNCTION__);
-    if (info.argc < ARGS_ONE || info.argc > ARGS_TWO) {
+    if (info.argc < ARGS_ONE) {
         HILOG_ERROR("wrong number of arguments.");
         return engine.CreateUndefined();
     }
@@ -310,7 +311,8 @@ NativeValue* JsFeatureAbility::OnStartAbilityForResult(NativeEngine &engine, Nat
     }
 
     NativeValue *result = nullptr;
-    NativeValue *lastParam = (info.argc == ARGS_TWO) ? info.argv[ARGS_ONE] : nullptr;
+    NativeValue *lastParam = (info.argc > ARGS_ONE 
+        && info.argv[PARAM1]->TypeOf() == NATIVE_FUNCTION) ? info.argv[ARGS_ONE] : nullptr;
     startAbilityCallback->asyncTask =
         AbilityRuntime::CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, nullptr, &result).release();
 
@@ -334,7 +336,7 @@ NativeValue* JsFeatureAbility::OnStartAbilityForResult(NativeEngine &engine, Nat
 NativeValue* JsFeatureAbility::OnFinishWithResult(NativeEngine &engine, NativeCallbackInfo &info)
 {
     HILOG_DEBUG("%{public}s is called", __FUNCTION__);
-    if (info.argc > ARGS_TWO || info.argc < ARGS_ONE) {
+    if (info.argc < ARGS_ONE) {
         HILOG_ERROR("wrong number of arguments.");
         return engine.CreateUndefined();
     }
@@ -376,7 +378,8 @@ NativeValue* JsFeatureAbility::OnFinishWithResult(NativeEngine &engine, NativeCa
         task.Resolve(engine, engine.CreateNull());
     };
     NativeValue *result = nullptr;
-    NativeValue *lastParam = (info.argc >= ARGS_TWO) ? info.argv[ARGS_ONE] : nullptr;
+    NativeValue *lastParam = (info.argc >= ARGS_TWO && 
+        info.argv[PARAM1]->TypeOf() == NATIVE_FUNCTION) ? info.argv[ARGS_ONE] : nullptr;
     AsyncTask::Schedule("JSFeatureAbility::OnFinishWithResult",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
@@ -403,10 +406,6 @@ NativeValue* JsFeatureAbility::GetWindow(NativeEngine *engine, NativeCallbackInf
 NativeValue* JsFeatureAbility::OnGetWindow(NativeEngine &engine, NativeCallbackInfo &info)
 {
     HILOG_DEBUG("%{public}s called", __func__);
-    if (info.argc > ARGS_ONE) {
-        HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
-        return engine.CreateUndefined();
-    }
 
     auto complete = [obj = this] (NativeEngine& engine, AsyncTask& task, int32_t status) {
         if (obj->ability_ == nullptr) {
@@ -418,7 +417,8 @@ NativeValue* JsFeatureAbility::OnGetWindow(NativeEngine &engine, NativeCallbackI
         task.Resolve(engine, OHOS::Rosen::CreateJsWindowObject(engine, window));
     };
 
-    auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
+    auto callback = (info.argc > ARGS_ZERO && 
+        info.argv[PARAM0]->TypeOf() == NATIVE_FUNCTION) ? info.argv[PARAM0] : nullptr;
     NativeValue* result = nullptr;
     AsyncTask::Schedule("JsFeatureAbility::OnGetWindow",
         engine, CreateAsyncTaskWithLastParam(engine, callback, nullptr, std::move(complete), &result));
