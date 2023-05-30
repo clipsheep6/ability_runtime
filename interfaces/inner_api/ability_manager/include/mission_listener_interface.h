@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -59,6 +59,20 @@ public:
      */
     virtual void OnMissionMovedToFront(int32_t missionId) = 0;
 
+    /**
+     * @brief When the ability focused, AbilityMs notifies the listener of the mission id
+     *
+     * @param missionId, mission Id.
+     */
+    virtual void OnMissionFocused(int32_t missionId) {};
+
+    /**
+     * @brief hen the ability unfocused, AbilityMs notifies the listener of the mission id
+     *
+     * @param missionId, mission Id.
+     */
+    virtual void OnMissionUnfocused(int32_t missionId) {};
+
 #ifdef SUPPORT_GRAPHICS
     /**
      * @brief Called when a mission has changed it's icon.
@@ -104,6 +118,12 @@ public:
 
         // ipc id for OnMissionLabelUpdated
         ON_MISSION_LABEL_UPDATED,
+
+        // ipc id for OnMissionFocused
+        ON_MISSION_FOCUSED,
+
+        // ipc id for OnMissionUnfocused
+        ON_MISSION_UNFOCUSED,
 
         // maximum of enum
         MISSION_LINSTENER_CMD_MAX

@@ -3508,5 +3508,23 @@ void MissionListManager::NotifyStartAbilityResult(const AbilityRequest &abilityR
         abilityInfoCallback->NotifyStartAbilityResult(abilityRequest.want, result);
     }
 }
+
+void MissionListManager::NotifyMissionFocused(const int32_t missionId)
+{
+    if (listenerController_) {
+        listenerController_->NotifyMissionFocused(missionId);
+    } else {
+        HILOG_ERROR("listener controller is null");
+    }
+}
+
+void MissionListManager::NotifyMissionUnfocused(const int32_t missionId)
+{
+    if (listenerController_) {
+        listenerController_->NotifyMissionUnfocused(missionId);
+    } else {
+        HILOG_ERROR("listener controller is null");
+    }
+}
 }  // namespace AAFwk
 }  // namespace OHOS
