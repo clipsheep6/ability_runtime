@@ -3491,6 +3491,24 @@ bool MissionListManager::UpdateAbilityRecordLaunchReason(
     return true;
 }
 
+void MissionListManager::NotifyMissionFocused(const int32_t missionId)
+{
+    if (listenerController_) {
+        listenerController_->NotifyMissionFocused(missionId);
+    } else {
+        HILOG_ERROR("listener controller is null");
+    }
+}
+
+void MissionListManager::NotifyMissionUnfocused(const int32_t missionId)
+{
+    if (listenerController_) {
+        listenerController_->NotifyMissionUnfocused(missionId);
+    } else {
+        HILOG_ERROR("listener controller is null");
+    }
+}
+
 void MissionListManager::NotifyAbilityToken(const sptr<IRemoteObject> &token, const AbilityRequest &abilityRequest)
 {
     sptr<AppExecFwk::IAbilityInfoCallback> abilityInfoCallback

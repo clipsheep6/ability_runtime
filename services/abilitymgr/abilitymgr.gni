@@ -48,6 +48,7 @@ abilityms_files = [
   "src/ams_configuration_parameter.cpp",
   "src/image_info.cpp",
   "src/mission_snapshot.cpp",
+  "src/window_focus_changed_listener.cpp",
 
   # new ability manager service here
   "src/task_data_persistence_mgr.cpp",

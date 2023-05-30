@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -81,6 +81,20 @@ public:
      * @param missionId target mission id.
      */
     void NotifyMissionMovedToFront(int32_t missionId);
+
+    /**
+     * notify listeners that mission was focused.
+     *
+     * @param missionId target mission id.
+     */
+    void NotifyMissionFocused(int32_t missionId);
+
+    /**
+     * notify listeners that mission was unfocused.
+     *
+     * @param missionId target mission id.
+     */
+    void NotifyMissionUnfocused(int32_t missionId);
 
 #ifdef SUPPORT_GRAPHICS
     /**

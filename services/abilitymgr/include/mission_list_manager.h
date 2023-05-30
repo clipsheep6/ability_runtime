@@ -74,6 +74,10 @@ public:
     int MoveMissionToFront(int32_t missionId, bool isCallerFromLauncher, bool isRecent,
         std::shared_ptr<AbilityRecord> callerAbility, std::shared_ptr<StartOptions> startOptions = nullptr);
 
+    void NotifyMissionFocused(const int32_t missionId);
+
+    void NotifyMissionUnfocused(const int32_t missionId);
+
     /**
      * OnAbilityRequestDone, app manager service call this interface after ability request done.
      *
