@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+#ifndef OHOS_ABILITY_RUNTIME_URI_BUNDLE_EVENT_CALLBACK_H
+#define OHOS_ABILITY_RUNTIME_URI_BUNDLE_EVENT_CALLBACK_H
+
 #include "bundle_event_callback_host.h"
 #include "common_event_support.h"
 #include "hilog_wrapper.h"
@@ -42,3 +45,4 @@ private:
 };
 } // namespace OHOS
 } // namespace AAFwk
+#endif  // OHOS_ABILITY_RUNTIME_URI_BUNDLE_EVENT_CALLBACK_H

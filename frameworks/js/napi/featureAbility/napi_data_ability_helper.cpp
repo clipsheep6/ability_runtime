@@ -153,7 +153,8 @@ napi_value DataAbilityHelperConstructor(napi_env env, napi_callback_info info)
                 HILOG_WARN("DAHelper finalize_cb objectInfo is nullptr.");
                 return;
             }
-            HILOG_DEBUG("DAHelper finalize_cb dataAbilityHelperList.size = %{public}zu, regInstances_.size = %{public}zu",
+            HILOG_DEBUG("DAHelper finalize_cb dataAbilityHelperList.size = %{public}zu, "
+                "regInstances_.size = %{public}zu",
                 g_dataAbilityHelperList.size(), g_registerInstances.size());
             for (auto iter = g_registerInstances.begin(); iter != g_registerInstances.end();) {
                 if (!NeedErase(iter, objectInfo->GetDataAbilityHelper())) {

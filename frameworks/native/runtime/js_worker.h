@@ -30,7 +30,7 @@ void UpdateContainerScope(int32_t id);
 void RestoreContainerScope(int32_t id);
 
 class AssetHelper final {
-public:    
+public:
     explicit AssetHelper(const std::string& codePath, bool isDebugVersion, bool isBundle)
         : codePath_(codePath), isDebugVersion_(isDebugVersion), isBundle_(isBundle)
     {
