@@ -843,7 +843,7 @@ public:
     std::shared_ptr<AbilityRecord> GetOtherMissionStackAbilityRecord() const;
     void SetOtherMissionStackAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void RevokeUriPermission();
-    void RemoveAbilityDeathRecipient() const;
+    void RemoveAbilityDeathRecipient();
     bool IsExistConnection(const sptr<IAbilityConnection> &connect);
 
 protected:
