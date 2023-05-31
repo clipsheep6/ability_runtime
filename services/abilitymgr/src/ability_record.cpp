@@ -1816,7 +1816,7 @@ void AbilityRecord::DumpService(std::vector<std::string> &info, std::vector<std:
     DumpClientInfo(info, params, isClient);
 }
 
-void AbilityRecord::RemoveAbilityDeathRecipient() const
+void AbilityRecord::RemoveAbilityDeathRecipient()
 {
     if (scheduler_ == nullptr) {
         HILOG_WARN("scheduler_ is invalid.");
@@ -1828,6 +1828,7 @@ void AbilityRecord::RemoveAbilityDeathRecipient() const
         return;
     }
 
+    RevokeUriPermission();
     auto schedulerObject = scheduler_->AsObject();
     if (schedulerObject != nullptr) {
         HILOG_INFO("RemoveDeathRecipient");
