@@ -1257,6 +1257,36 @@ bool AbilityManagerService::IsDmsAlive() const
     return g_isDmsAlive.load();
 }
 
+void AbilityManagerService::AppUpgradeCompleted(const std::string &bundleName, int32_t uid)
+{
+    auto bms = GetBundleManager();
+    CHECK_POINTER(bms);
+    auto userId = uid / BASE_USER_RANGE;
+    if (userId != U0_USER_ID) {
+        HILOG_ERROR("Application upgrade for non U0 users.");
+        return;
+    }
+
+    AppExecFwk::BundleInfo bundleInfo;
+    if (!IN_PROCESS_CALL(
+        bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId))) {
+        HILOG_ERROR("Failed to get bundle info when app upgrade.");
+        return;
+    }
+
+    if (!bundleInfo.isKeepAlive) {
+        HILOG_WARN("Not a resident application.");
+        return;
+    }
+
+    std::vector<AppExecFwk::BundleInfo> bundleInfos = { bundleInfo };
+    DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcessWithMainElement(bundleInfos);
+
+    if (!bundleInfos.empty()) {
+        DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcess(bundleInfos);
+    }
+}
+
 int AbilityManagerService::CheckOptExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
     int32_t validUserId, AppExecFwk::ExtensionAbilityType extensionType)
 {
