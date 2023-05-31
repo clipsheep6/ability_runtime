@@ -610,7 +610,10 @@ void AbilityImpl::AfterFocusedCommon(bool isFocused)
         info.isNewWant = false;
         impl->HandleAbilityTransaction(*(impl->ability_->GetWant()), info);
     };
-    handler_->PostTask(task);
+
+    if (handler_) {
+        handler_->PostTask(task);
+    }
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
