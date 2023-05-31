@@ -108,7 +108,7 @@ void OffWorkerFunc(NativeEngine* nativeEngine)
 
 using Extractor = AbilityBase::Extractor;
 using ExtractorUtil = AbilityBase::ExtractorUtil;
-using BundleMgrProxy = AppExecFwk::BundleMgrProxy;
+using IBundleMgr = AppExecFwk::IBundleMgr;
 
 std::string AssetHelper::NormalizedFileName(const std::string& fileName) const
 {
@@ -127,7 +127,7 @@ std::string AssetHelper::NormalizedFileName(const std::string& fileName) const
     return normalizedFilePath;
 }
 
-void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& content, std::string &ami) const
+void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& content, std::string &ami)
 {
     if (uri.empty()) {
         HILOG_ERROR("Uri is empty.");
@@ -198,23 +198,24 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
     }
 }
 
-sptr<BundleMgrProxy> AssetHelper::GetBundleMgrProxy() const
+sptr<IBundleMgr> AssetHelper::GetBundleMgrProxy()
 {
-    auto systemAbilityManager =
-        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (!systemAbilityManager) {
-        HILOG_ERROR("fail to get system ability mgr.");
-        return nullptr;
-    }
-
-    auto remoteObject = systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    if (!remoteObject) {
-        HILOG_ERROR("fail to get bundle manager proxy.");
-        return nullptr;
+    if (bundleMgrProxy_ == nullptr) {
+        auto systemAbilityManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        if (!systemAbilityManager) {
+            HILOG_ERROR("fail to get system ability mgr.");
+            return nullptr;
+        }
+        auto remoteObject = systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+        if (!remoteObject) {
+            HILOG_ERROR("fail to get bundle manager proxy.");
+            return nullptr;
+        }
+        bundleMgrProxy_ = iface_cast<IBundleMgr>(remoteObject);
     }
 
     HILOG_DEBUG("get bundle manager proxy success.");
-    return iface_cast<BundleMgrProxy>(remoteObject);
+    return bundleMgrProxy_;
 }
 
 bool AssetHelper::ReadAmiData(const std::string& ami, std::vector<uint8_t>& content) const
@@ -244,7 +245,7 @@ bool AssetHelper::ReadAmiData(const std::string& ami, std::vector<uint8_t>& cont
     return true;
 }
 
-bool AssetHelper::ReadFilePathData(const std::string& filePath, std::vector<uint8_t>& content) const
+bool AssetHelper::ReadFilePathData(const std::string& filePath, std::vector<uint8_t>& content)
 {
     auto bundleMgrProxy = GetBundleMgrProxy();
     if (!bundleMgrProxy) {

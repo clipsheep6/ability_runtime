@@ -32,8 +32,9 @@ ohos_shared_library("ability_runtime_error_util") {
 
   configs = [ ":error_utils_private_config" ]
 
+  deps = [ "${ability_runtime_innerkits_path}/runtime:runtime" ]
+
   external_deps = [
-    "ability_runtime:runtime",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "napi:ace_napi",

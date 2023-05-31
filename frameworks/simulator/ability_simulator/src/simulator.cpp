@@ -16,9 +16,9 @@
 #include "simulator.h"
 
 #include <condition_variable>
+#include <fstream>
 #include <functional>
 #include <mutex>
-#include <sys/prctl.h>
 #include <thread>
 #include <unordered_map>
 
@@ -39,6 +39,8 @@ constexpr int64_t DEFAULT_GC_POOL_SIZE = 0x10000000; // 256MB
 constexpr int32_t DEFAULT_ARK_PROPERTIES = -1;
 constexpr size_t DEFAULT_GC_THREAD_NUM = 7;
 constexpr size_t DEFAULT_LONG_PAUSE_TIME = 40;
+
+constexpr char BUNDLE_INSTALL_PATH[] = "/data/storage/el1/bundle/";
 
 #if defined(WINDOWS_PLATFORM)
 constexpr char ARK_DEBUGGER_LIB_PATH[] = "libark_debugger.dll";
@@ -72,16 +74,13 @@ public:
 
     int64_t StartAbility(const std::string& abilityName, TerminateCallback callback) override;
     void TerminateAbility(int64_t abilityId) override;
-
-    int64_t CreateForm(const std::string& formName, FormUpdateCallback callback) override;
-    void RequestUpdateForm(int64_t formId) override;
-    void DestroyForm(int64_t formId) override;
-
 private:
     bool OnInit();
     void Run();
+    NativeValue* LoadScript();
 
     Options options_;
+    std::string abilityPath_;
     std::thread thread_;
     panda::ecmascript::EcmaVM* vm_ = nullptr;
     DebuggerTask debuggerTask_;
@@ -167,14 +166,6 @@ bool SimulatorImpl::Initialize(const Options& options)
 
     options_ = options;
     thread_ = std::thread([&] {
-        if (nativeEngine_ == nullptr) {
-            return;
-        }
-
-        if (prctl(PR_SET_NAME, "simulatorInit") < 0) {
-            HILOG_WARN("Set thread name failed with %{public}d", errno);
-        }
-
         bool initResult = OnInit();
         if (!initResult) {
             waiter.NotifyResult(false);
@@ -212,8 +203,6 @@ bool SimulatorImpl::Initialize(const Options& options)
 
 void CallObjectMethod(NativeEngine& engine, NativeValue* value, const char *name, NativeValue *const *argv, size_t argc)
 {
-    HandleScope handleScope(engine);
-
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
         HILOG_ERROR("%{public}s, Failed to get Ability object", __func__);
@@ -228,38 +217,49 @@ void CallObjectMethod(NativeEngine& engine, NativeValue* value, const char *name
     engine.CallFunction(value, methodOnCreate, argv, argc);
 }
 
+NativeValue* SimulatorImpl::LoadScript()
+{
+    panda::JSNApi::SetBundleName(vm_, options_.bundleName);
+    panda::JSNApi::SetModuleName(vm_, options_.moduleName);
+    panda::JSNApi::SetAssetPath(vm_, options_.modulePath);
+    panda::JSNApi::SetBundle(vm_, false);
+
+    panda::Local<panda::ObjectRef> objRef = panda::JSNApi::GetExportObject(vm_, abilityPath_, "default");
+    if (objRef->IsNull()) {
+        HILOG_ERROR("Get export object failed");
+        return nullptr;
+    }
+
+    auto obj = ArkNativeEngine::ArkValueToNativeValue(static_cast<ArkNativeEngine*>(nativeEngine_.get()), objRef);
+    return nativeEngine_->CreateInstance(obj, nullptr, 0);
+}
+
 int64_t SimulatorImpl::StartAbility(const std::string& abilitySrcPath, TerminateCallback callback)
 {
     uv_work_t work;
 
     ResultWaiter<int64_t> waiter;
-
-    work.data = new std::function<void()>([abilitySrcPath, this, &waiter] () {
-        NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine_->GetGlobal());
-        NativeValue* exports = nativeEngine_->CreateObject();
-        globalObj->SetProperty("exports", exports);
-
-        if (nativeEngine_->RunScriptPath(abilitySrcPath.c_str()) == nullptr) {
-            HILOG_ERROR("Failed to run script: %{private}s", abilitySrcPath.c_str());
+    abilityPath_ = BUNDLE_INSTALL_PATH + options_.moduleName + "/" + abilitySrcPath;
+    work.data = new std::function<void()>([this, &waiter] () {
+        std::ifstream stream(options_.modulePath, std::ios::ate | std::ios::binary);
+        if (!stream.is_open()) {
+            HILOG_ERROR("Failed to open: %{public}s", options_.modulePath.c_str());
             waiter.NotifyResult(-1);
             return;
         }
 
-        NativeObject* exportsObj = ConvertNativeValueTo<NativeObject>(globalObj->GetProperty("exports"));
-        if (exportsObj == nullptr) {
-            HILOG_ERROR("Failed to get exports objcect: %{private}s", abilitySrcPath.c_str());
+        size_t len = stream.tellg();
+        std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(len);
+        stream.seekg(0);
+        stream.read(reinterpret_cast<char*>(buffer.get()), len);
+        stream.close();
+        if (!nativeEngine_->RunScriptBuffer(abilityPath_, buffer.release(), len, false)) {
+            HILOG_ERROR("Failed to run script: %{public}s", abilityPath_.c_str());
             waiter.NotifyResult(-1);
             return;
         }
 
-        NativeValue* exportObj = exportsObj->GetProperty("default");
-        if (exportObj == nullptr) {
-            HILOG_ERROR("Failed to get default objcect: %{private}s", abilitySrcPath.c_str());
-            waiter.NotifyResult(-1);
-            return;
-        }
-
-        NativeValue* instanceValue = nativeEngine_->CreateInstance(exportObj, nullptr, 0);
+        NativeValue* instanceValue = LoadScript();
         if (instanceValue == nullptr) {
             HILOG_ERROR("Failed to create object instance");
             waiter.NotifyResult(-1);
@@ -323,19 +323,6 @@ void SimulatorImpl::TerminateAbility(int64_t abilityId)
     waiter.WaitForResult();
 }
 
-int64_t SimulatorImpl::CreateForm(const std::string& formSrcPath, FormUpdateCallback callback)
-{
-    return -1;
-}
-
-void SimulatorImpl::RequestUpdateForm(int64_t formId)
-{
-}
-
-void SimulatorImpl::DestroyForm(int64_t formId)
-{
-}
-
 bool SimulatorImpl::OnInit()
 {
     panda::RuntimeOption pandaOption;
@@ -353,13 +340,11 @@ bool SimulatorImpl::OnInit()
         return false;
     }
 
-    panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, true}
+    panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, true, options_.debugPort};
     panda::JSNApi::StartDebugger(vm_, debugOption, 0,
         std::bind(&DebuggerTask::OnPostTask, &debuggerTask_, std::placeholders::_1));
 
     auto nativeEngine = std::make_unique<ArkNativeEngine>(vm_, nullptr);
-
-    HandleScope handleScope(*nativeEngine);
 
     NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine->GetGlobal());
     if (globalObj == nullptr) {
@@ -368,7 +353,7 @@ bool SimulatorImpl::OnInit()
     }
 
     InitConsoleLogModule(*nativeEngine, *globalObj);
-    InitTimerModule(*nativeEngine, *globalObj);
+    InitTimer(*nativeEngine, *globalObj);
 
     globalObj->SetProperty("group", nativeEngine->CreateObject());
 

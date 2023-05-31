@@ -360,6 +360,8 @@ public:
 
     int32_t IsValidMissionIds(const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results);
 
+    int DoAbilityForeground(std::shared_ptr<AbilityRecord> &abilityRecord, uint32_t flag);
+
 #ifdef SUPPORT_GRAPHICS
 public:
     /**

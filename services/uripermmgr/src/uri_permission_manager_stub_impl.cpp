@@ -174,6 +174,44 @@ void UriPermissionManagerStubImpl::RevokeUriPermission(const TokenId tokenId)
     }
 }
 
+void UriPermissionManagerStubImpl::RevokeAllUriPermissions(int tokenId)
+{
+    HILOG_DEBUG("Start to remove all uri permission for uninstalled app.");
+    std::map<unsigned int, std::vector<std::string>> uriLists;
+    {
+        std::lock_guard<std::mutex> guard(mutex_);
+        for (auto iter = uriMap_.begin(); iter != uriMap_.end();) {
+            auto& list = iter->second;
+            for (auto it = list.begin(); it != list.end();) {
+                if (it->targetTokenId == tokenId || it->fromTokenId == tokenId) {
+                    HILOG_INFO("Erase an info form list.");
+                    uriLists[it->targetTokenId].emplace_back(iter->first);
+                    list.erase(it++);
+                } else {
+                    it++;
+                }
+            }
+            if (list.size() == 0) {
+                uriMap_.erase(iter++);
+            } else {
+                iter++;
+            }
+        }
+    }
+
+    auto storageMgrProxy = ConnectStorageManager();
+    if (storageMgrProxy == nullptr) {
+        HILOG_ERROR("ConnectStorageManager failed");
+        return;
+    }
+
+    if (!uriLists.empty()) {
+        for (auto iter = uriLists.begin(); iter != uriLists.end(); iter++) {
+            storageMgrProxy->DeleteShareFile(iter->first, iter->second);
+        }
+    }
+}
+
 int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, const std::string bundleName)
 {
     HILOG_DEBUG("Start to remove uri permission manually.");

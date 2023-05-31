@@ -55,6 +55,9 @@ ohos_shared_library("ability_context_native") {
   ]
 
   deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
+    "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_native_path}/ability/native:dialog_request_callback",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:app_context_utils",
@@ -62,9 +65,6 @@ ohos_shared_library("ability_context_native") {
 
   external_deps = [
     "ability_base:want",
-    "ability_runtime:ability_deps_wrapper",
-    "ability_runtime:ability_manager",
-    "ability_runtime:runtime",
     "access_token:libaccesstoken_sdk",
     "access_token:libtoken_callback_sdk",
     "c_utils:utils",

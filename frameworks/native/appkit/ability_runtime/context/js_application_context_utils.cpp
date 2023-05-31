@@ -19,7 +19,6 @@
 
 #include "ability_runtime_error_util.h"
 #include "application_context.h"
-#include "application_context_manager.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "js_context_utils.h"
@@ -958,9 +957,6 @@ NativeValue* JsApplicationContextUtils::CreateJsApplicationContext(NativeEngine 
     }
 
     BindNativeApplicationContext(engine, object);
-
-    ApplicationContextManager::GetApplicationContextManager()
-        .AddGlobalObject(std::shared_ptr<NativeReference>(engine.CreateReference(objValue, 1)));
 
     return objValue;
 }

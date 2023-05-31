@@ -43,10 +43,6 @@ namespace {
 static const std::string PROC_SELF_CMDLINE_PATH = "/proc/self/cmdline";
 static constexpr int HEADER_BUF_LEN = 512;
 static bool hasInstalled = false;
-}
-
-typedef void (*DumpSignalHandlerFunc) (int sig, siginfo_t *si, void *context);
-static DumpSignalHandlerFunc g_dumpSignalHandlerFunc = nullptr;
 static pid_t g_targetDumpTid = -1;
 static struct ProcInfo g_procInfo = {0};
 
@@ -54,7 +50,6 @@ static std::string PrintJsFrame(const JsFrames& jsFrame)
 {
     return "  at " + jsFrame.functionName + " (" + jsFrame.fileName + ":" + jsFrame.pos + ")\n";
 }
-
 
 static pid_t GetPid()
 {
@@ -64,6 +59,18 @@ static pid_t GetPid()
 static bool HasNameSpace()
 {
     return g_procInfo.ns;
+}
+
+static std::string LoadThreadWchan(pid_t tid)
+{
+    std::string wchanPath = "/proc/self/task/" + std::to_string(tid) + "/wchan";
+    std::string wchan;
+    if (LoadStringFromFile(wchanPath, wchan)) {
+        return wchan;
+    } else {
+        return "null";
+    }
+}
 }
 
 bool MixStackDumper::Dump_SignalHandler(int sig, siginfo_t *si, void *context)
@@ -230,20 +237,20 @@ bool MixStackDumper::DumpMixFrame(int fd, pid_t nstid, pid_t tid)
         hasJsFrame = false;
     }
 
+    Write(fd, GetThreadStackTraceLabel(tid));
     if (!hasNativeFrame && !hasJsFrame) {
-        std::string result = "Failed to frames for " + std::to_string(nstid) + ".\n";
-        HILOG_ERROR("%{public}s", result.c_str());
+        HILOG_ERROR("Failed to unwind frames for %{public}d.", nstid);
+        std::string wchan = "Thread wchan:" + LoadThreadWchan(tid);
+        Write(fd, wchan);
+        Write(fd, "\n");
         return false;
     }
 
-    std::string threadComm = GetThreadStackTraceLabel(tid);
-    Write(fd, threadComm);
     if (hasNativeFrame && !hasJsFrame) {
         Write(fd, HiviewDFX::DfxFrameFormat::GetFramesStr(nativeFrames));
         Write(fd, "\n");
         return true;
     }
-
     BuildJsNativeMixStack(fd, jsFrames, nativeFrames);
     return true;
 }

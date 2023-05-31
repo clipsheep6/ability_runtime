@@ -29,6 +29,7 @@ ohos_shared_library("businessabilityrouter") {
   configs = [ "${srms_services_path}:srms_config" ]
 
   deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${bundlefwk_common_path}:libappexecfwk_common",
     "${bundlefwk_kits_path}/js/common:bundle_napi_common",
     "${srms_inner_api_path}:srms_fwk",
@@ -36,7 +37,6 @@ ohos_shared_library("businessabilityrouter") {
 
   external_deps = [
     "ability_base:want",
-    "ability_runtime:ability_manager",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",

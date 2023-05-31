@@ -105,12 +105,14 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_services_path}/abilitymgr:abilityms_config",
   ]
 
-  deps = [ "//third_party/jsoncpp:jsoncpp" ]
+  deps = [
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "//third_party/jsoncpp:jsoncpp",
+  ]
 
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
-    "ability_runtime:app_manager",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",

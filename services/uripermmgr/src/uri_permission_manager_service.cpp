@@ -20,6 +20,7 @@
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
+#include "uri_bundle_event_callback.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -74,6 +75,19 @@ bool UriPermissionManagerService::Init()
 
     if (impl_ == nullptr) {
         impl_ = new UriPermissionManagerStubImpl();
+    }
+    // Register UriBundleEventCallback to receive hap updates
+    HILOG_INFO("Register UriBundleEventCallback to receive hap updates.");
+    auto bms = impl_->ConnectBundleManager();
+    sptr<UriBundleEventCallback> uriBundleEventCallback =
+        new (std::nothrow) UriBundleEventCallback(impl_);
+    if (bms && uriBundleEventCallback) {
+        bool re = bms->RegisterBundleEventCallback(uriBundleEventCallback);
+        if (!re) {
+            HILOG_ERROR("RegisterBundleEventCallback failed!");
+        }
+    } else {
+        HILOG_ERROR("Get BundleManager or uriBundleEventCallback failed!");
     }
     ready_ = true;
     return true;

@@ -93,7 +93,6 @@ napi_value DataAbilityHelperInit(napi_env env, napi_value exports)
 
 napi_value DataAbilityHelperConstructor(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("%{public}s,called", __func__);
     size_t argc = ARGS_TWO;
     napi_value argv[ARGS_TWO] = {nullptr};
     napi_value thisVar = nullptr;
@@ -105,7 +104,6 @@ napi_value DataAbilityHelperConstructor(napi_env env, napi_callback_info info)
     bool stageMode = false;
     napi_status status = OHOS::AbilityRuntime::IsStageContext(env, argv[0], stageMode);
     if (status != napi_ok) {
-        HILOG_INFO("argv[0] is not a context");
         auto ability = OHOS::AbilityRuntime::GetCurrentAbility(env);
         if (ability == nullptr) {
             HILOG_ERROR("Failed to get native context instance");
@@ -115,7 +113,6 @@ napi_value DataAbilityHelperConstructor(napi_env env, napi_callback_info info)
         HILOG_INFO("FA Model: strUri = %{public}s", strUri.c_str());
         dataAbilityHelper = DataAbilityHelper::Creator(ability->GetContext(), std::make_shared<Uri>(strUri));
     } else {
-        HILOG_INFO("argv[0] is a context");
         if (stageMode) {
             auto context = OHOS::AbilityRuntime::GetStageModeContext(env, argv[0]);
             if (context == nullptr) {
@@ -138,13 +135,12 @@ napi_value DataAbilityHelperConstructor(napi_env env, napi_callback_info info)
     }
 
     if (dataAbilityHelper == nullptr) {
-        HILOG_INFO("%{public}s, dataAbilityHelper is nullptr", __func__);
+        HILOG_ERROR("dataAbilityHelper is nullptr");
         dataAbilityHelperStatus = false;
         return nullptr;
     }
     dataAbilityHelper->SetCallFromJs();
     g_dataAbilityHelperList.emplace_back(dataAbilityHelper);
-    HILOG_INFO("dataAbilityHelperList.size = %{public}zu", g_dataAbilityHelperList.size());
     auto wrapper = new NAPIDataAbilityHelperWrapper(dataAbilityHelper);
 
     napi_wrap(
@@ -157,18 +153,20 @@ napi_value DataAbilityHelperConstructor(napi_env env, napi_callback_info info)
                 HILOG_WARN("DAHelper finalize_cb objectInfo is nullptr.");
                 return;
             }
-            HILOG_INFO("DAHelper finalize_cb regInstances_.size = %{public}zu", g_registerInstances.size());
+            HILOG_DEBUG("DAHelper finalize_cb dataAbilityHelperList.size = %{public}zu, "
+                "regInstances_.size = %{public}zu",
+                g_dataAbilityHelperList.size(), g_registerInstances.size());
             for (auto iter = g_registerInstances.begin(); iter != g_registerInstances.end();) {
                 if (!NeedErase(iter, objectInfo->GetDataAbilityHelper())) {
                     iter = g_registerInstances.erase(iter);
                 }
             }
-            HILOG_INFO("DAHelper finalize_cb regInstances_.size = %{public}zu", g_registerInstances.size());
             g_dataAbilityHelperList.remove_if(
                 [objectInfo](const std::shared_ptr<DataAbilityHelper> &dataAbilityHelper) {
                     return objectInfo->GetDataAbilityHelper() == dataAbilityHelper;
                 });
-            HILOG_INFO("DAHelper finalize_cb dataAbilityHelperList.size = %{public}zu", g_dataAbilityHelperList.size());
+            HILOG_DEBUG("dataAbilityHelperList.size = %{public}zu, regInstances_.size = %{public}zu",
+                g_dataAbilityHelperList.size(), g_registerInstances.size());
             delete objectInfo;
             objectInfo = nullptr;
         },
@@ -176,7 +174,6 @@ napi_value DataAbilityHelperConstructor(napi_env env, napi_callback_info info)
         nullptr);
 
     dataAbilityHelperStatus = true;
-    HILOG_INFO("%{public}s,called end", __func__);
     return thisVar;
 }
 
@@ -3533,7 +3530,6 @@ void GetDataAbilityHelper(napi_env env, napi_value thisVar, std::shared_ptr<Data
     NAPIDataAbilityHelperWrapper* wrapper = nullptr;
     napi_unwrap(env, thisVar, reinterpret_cast<void **>(&wrapper));
     if (wrapper != nullptr) {
-        HILOG_INFO("%{public}s, wrapper is valid.", __func__);
         dataAbilityHelper = wrapper->GetDataAbilityHelper();
     }
 }

@@ -3542,7 +3542,7 @@ void NAPIAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementNam
  */
 napi_value NAPI_AcquireDataAbilityHelperCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
 {
-    HILOG_INFO("%{public}s,called", __func__);
+    HILOG_INFO("AcquireDataAbilityHelper called");
     DataAbilityHelperCB *dataAbilityHelperCB = new DataAbilityHelperCB;
     dataAbilityHelperCB->cbBase.cbInfo.env = env;
     dataAbilityHelperCB->cbBase.ability = nullptr; // temporary value assignment
@@ -3557,7 +3557,7 @@ napi_value NAPI_AcquireDataAbilityHelperCommon(napi_env env, napi_callback_info 
         }
         ret = WrapVoidToJS(env);
     }
-    HILOG_INFO("%{public}s,end", __func__);
+    HILOG_INFO("AcquireDataAbilityHelper end");
     return ret;
 }
 
@@ -3571,7 +3571,6 @@ napi_value NAPI_AcquireDataAbilityHelperCommon(napi_env env, napi_callback_info 
  */
 napi_value AcquireDataAbilityHelperWrap(napi_env env, napi_callback_info info, DataAbilityHelperCB *dataAbilityHelperCB)
 {
-    HILOG_INFO("%{public}s,called", __func__);
     if (dataAbilityHelperCB == nullptr) {
         HILOG_ERROR("%{public}s,dataAbilityHelperCB == nullptr", __func__);
         return nullptr;
@@ -3589,9 +3588,7 @@ napi_value AcquireDataAbilityHelperWrap(napi_env env, napi_callback_info info, D
     size_t uriIndex = PARAM0;
     bool stageMode = false;
     napi_status status = OHOS::AbilityRuntime::IsStageContext(env, args[0], stageMode);
-    if (status != napi_ok) {
-        HILOG_INFO("argv[0] is not a context, FA Model");
-    } else {
+    if (status == napi_ok) {
         uriIndex = PARAM1;
         HILOG_INFO("argv[0] is a context, Stage Model: %{public}d", stageMode);
     }
@@ -3643,7 +3640,6 @@ napi_value AcquireDataAbilityHelperWrap(napi_env env, napi_callback_info info, D
 
     delete dataAbilityHelperCB;
     dataAbilityHelperCB = nullptr;
-    HILOG_INFO("%{public}s,end", __func__);
     return result;
 }
 
