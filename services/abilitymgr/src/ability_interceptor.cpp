@@ -179,6 +179,7 @@ ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, 
 
     ErmsCallerInfo callerInfo;
     ExperienceRule rule;
+    AbilityUtil::GetEcologicalCallerInfo(want, callerInfo, userId);
     int ret = CheckRule(want, callerInfo, rule);
     if (!ret) {
         HILOG_ERROR("check ecological rule failed, keep going.");

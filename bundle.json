@@ -131,7 +131,9 @@
             "header": {
               "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager/include",
               "header_files": [
-                "ability_manager_client.h"
+                "ability_manager_client.h",
+                "erms_mgr_param.h",
+                "erms_mgr_interface.h"
               ]
             },
             "name": "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager:ability_manager"
