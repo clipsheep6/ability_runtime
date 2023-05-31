@@ -39,6 +39,7 @@ constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
 constexpr size_t INDEX_ZERO = 0;
 constexpr size_t INDEX_ONE = 1;
+constexpr size_t INDEX_TWO = 2;
 constexpr int32_t ERROR_CODE_ONE = 1;
 const char* MD_NAME = "JsApplicationContextUtils";
 }  // namespace
@@ -803,7 +804,7 @@ NativeValue *JsApplicationContextUtils::OnOffAbilityLifecycle(
 
             task.ResolveWithNoError(engine, engine.CreateUndefined());
         };
-    NativeValue *lastParam = (info.argc <= ARGC_TWO) ? nullptr : info.argv[INDEX_ONE];
+    NativeValue *lastParam = (info.argc <= ARGC_TWO) ? nullptr : info.argv[INDEX_TWO];
     NativeValue *result = nullptr;
     AsyncTask::Schedule("JsApplicationContextUtils::OnOffAbilityLifecycle", engine,
         CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
@@ -867,7 +868,7 @@ NativeValue *JsApplicationContextUtils::OnOffEnvironment(
 
             task.ResolveWithNoError(engine, engine.CreateUndefined());
         };
-    NativeValue *lastParam = (info.argc <= ARGC_TWO) ? nullptr : info.argv[INDEX_ONE];
+    NativeValue *lastParam = (info.argc <= ARGC_TWO) ? nullptr : info.argv[INDEX_TWO];
     NativeValue *result = nullptr;
     AsyncTask::Schedule("JsApplicationContextUtils::OnOffEnvironment", engine,
         CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
