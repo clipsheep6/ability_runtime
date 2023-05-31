@@ -528,14 +528,14 @@ bool QuickFixManagerApplyTask::SetQuickFixInfo(const std::shared_ptr<AppExecFwk:
         HILOG_ERROR("Invalid bundle version code.");
         return false;
     }
-    bundleVersionCode_ = resultJson.at(QUICK_FIX_BUNDLE_VERSION_CODE).get<uint32_t>();
+    bundleVersionCode_ = resultJson.at(QUICK_FIX_BUNDLE_VERSION_CODE).get<int32_t>();
 
     if (!resultJson.contains(QUICK_FIX_PATCH_VERSION_CODE) ||
         !resultJson.at(QUICK_FIX_PATCH_VERSION_CODE).is_number()) {
         HILOG_ERROR("Invalid patch version code.");
         return false;
     }
-    patchVersionCode_ = resultJson.at(QUICK_FIX_PATCH_VERSION_CODE).get<uint32_t>();
+    patchVersionCode_ = resultJson.at(QUICK_FIX_PATCH_VERSION_CODE).get<int32_t>();
 
     if (!resultJson.contains(QUICK_FIX_IS_SO_CONTAINED) || !resultJson.at(QUICK_FIX_IS_SO_CONTAINED).is_boolean()) {
         HILOG_ERROR("Invalid so status.");

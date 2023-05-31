@@ -1040,7 +1040,7 @@ int32_t AbilityManagerService::RequestDialogService(const Want &want, const sptr
         return ERR_INVALID_CONTINUATION_FLAG;
     }
 
-    HILOG_INFO("request dialog service, target is %{public}s",want.GetElement().GetURI().c_str());
+    HILOG_INFO("request dialog service, target is %{public}s", want.GetElement().GetURI().c_str());
     return RequestDialogServiceInner(want, callerToken, -1, -1);
 }
 
@@ -6674,7 +6674,7 @@ bool AbilityManagerService::IsComponentInterceptionStart(const Want &want, Compo
         if (callType == AbilityCallType::CALL_REQUEST_TYPE) {
             newWant.SetParam("abilityConnectionObj", request.connect->AsObject());
         }
-        int32_t tokenId = IPCSkeleton::GetCallingTokenID();
+        int32_t tokenId = static_cast<int32_t>(IPCSkeleton::GetCallingTokenID());
         newWant.SetParam("accessTokenId", tokenId);
 
         HILOG_DEBUG("%{public}s", __func__);

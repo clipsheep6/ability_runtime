@@ -31,12 +31,7 @@ bool LifeCycleStateInfo::ReadFromParcel(Parcel &parcel)
         return false;
     }
     caller = *callerInfo;
-    AbilityStartSetting *pSetting = parcel.ReadParcelable<AbilityStartSetting>();
-    if (pSetting != nullptr) {
-        setting = std::shared_ptr<AbilityStartSetting>(pSetting);
-    } else {
-        setting = nullptr;
-    }
+    setting = std::shared_ptr<AbilityStartSetting>(parcel.ReadParcelable<AbilityStartSetting>());
     std::unique_ptr<LaunchParam> launchInfo(parcel.ReadParcelable<LaunchParam>());
     if (launchInfo == nullptr) {
         return false;
