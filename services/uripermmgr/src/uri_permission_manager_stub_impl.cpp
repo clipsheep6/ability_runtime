@@ -53,8 +53,8 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned in
         return INNER_ERR;
     }
     if (isSandbox) {
-        HILOG_ERROR("Sandbox can not grant uri permission.");
-        return CHECK_PERMISSION_FAILED;
+        HILOG_ERROR("Sandbox application can not grant URI permission.");
+        return ERR_CODE_GRANT_URI_PERMISSION;
     }
 
     if ((flag & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
