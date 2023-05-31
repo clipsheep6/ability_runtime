@@ -17,44 +17,45 @@
 #define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_SERVICE_H
 
 #include <future>
+#include <map>
 #include <memory>
 #include <shared_mutex>
 #include <singleton.h>
 #include <thread_ex.h>
 #include <unordered_map>
-#include <map>
 
+#include "ability_config.h"
 #include "ability_connect_manager.h"
 #include "ability_event_handler.h"
 #include "ability_interceptor_executer.h"
 #include "ability_manager_stub.h"
+#include "ams_configuration_parameter.h"
 #include "app_scheduler.h"
-#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
-#include "background_task_observer.h"
-#endif
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "bundle_constants.h"
 #include "data_ability_manager.h"
+#include "event_report.h"
 #include "free_install_manager.h"
 #include "hilog_wrapper.h"
+#include "iacquire_share_data_callback_interface.h"
 #include "iremote_object.h"
 #include "mission_list_manager.h"
-#include "permission_verification.h"
-#include "system_ability.h"
-#include "uri.h"
-#include "ability_config.h"
 #include "parameter.h"
 #include "pending_want_manager.h"
-#include "ams_configuration_parameter.h"
-#include "scene_board/ui_ability_lifecycle_manager.h"
-#include "user_controller.h"
+#include "permission_verification.h"
 #include "resident_process_manager.h"
+#include "root_scene_session.h"
+#include "scene_board/ui_ability_lifecycle_manager.h"
+#include "system_ability.h"
+#include "uri.h"
+#include "user_controller.h"
+#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+#include "background_task_observer.h"
+#endif
 #ifdef SUPPORT_GRAPHICS
 #include "implicit_start_processor.h"
 #include "system_dialog_scheduler.h"
 #endif
-#include "event_report.h"
-#include "iacquire_share_data_callback_interface.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -998,6 +999,8 @@ public:
     virtual int VerifyPermission(const std::string &permission, int pid, int uid) override;
 
     bool IsDmsAlive() const;
+
+    virtual void SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession) override;
 
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;

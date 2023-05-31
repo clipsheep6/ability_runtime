@@ -22,6 +22,7 @@ config("ability_manager_public_config") {
     "${ability_runtime_test_path}/unittest/*",
     "${form_fwk_path}/test/fuzztest/*",
     "${os_account_path}/tools/test/moduletest/acm/*",
+    "${window_scene_path}/window_scene/interfaces/innerkits/include",
   ]
   include_dirs = [
     "include/",
@@ -36,6 +37,9 @@ config("ability_manager_public_config") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_path}/interfaces/kits/native/appkit",
     "${ability_runtime_innerkits_path}/dataobs_manager/include",
+    "${window_scene_path}/window_scene/session/host/include",
+    "${window_scene_path}/window_scene/interfaces/innerkits/include",
+    "${window_scene_path}/window_scene/interfaces/include",
     "//third_party/jsoncpp/include",
   ]
 
@@ -122,6 +126,7 @@ ohos_shared_library("ability_manager") {
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "samgr:samgr_proxy",
+    "window_manager:scene_session",
   ]
 
   if (ability_runtime_graphics) {

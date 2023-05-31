@@ -21,6 +21,7 @@ config("ability_command_config") {
     "${ability_runtime_services_path}/abilitymgr/include",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
+    "${window_scene_path}/window_scene/interfaces/innerkits/include",
     "//third_party/jsoncpp/include",
   ]
 }
@@ -65,6 +66,7 @@ ohos_source_set("tools_aa_source_set") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
+    "window_manager:scene_session",
   ]
 
   subsystem_name = "ability"

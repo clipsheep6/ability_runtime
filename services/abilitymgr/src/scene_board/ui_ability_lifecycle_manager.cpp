@@ -562,5 +562,9 @@ void UIAbilityLifecycleManager::CompleteTerminate(const std::shared_ptr<AbilityR
     terminateAbilityList_.remove(abilityRecord);
 }
 
+void UIAbilityLifecycleManager::SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession)
+{
+    rootSceneSession_ = rootSceneSession;
+}
 }  // namespace AAFwk
 }  // namespace OHOS
