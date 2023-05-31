@@ -1687,6 +1687,8 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     AppSpawnStartMsg startMsg;
     startMsg.uid = bundleInfo.uid;
     startMsg.gid = bundleInfo.gid;
+    startMsg.gids = bundleInfo.gids;
+    HILOG_ERROR("GetBundleGids is %{public}d", bundleInfo.gids[0]);
     startMsg.accessTokenId = bundleInfo.applicationInfo.accessTokenId;
     startMsg.apl = bundleInfo.applicationInfo.appPrivilegeLevel;
     startMsg.bundleName = bundleName;
