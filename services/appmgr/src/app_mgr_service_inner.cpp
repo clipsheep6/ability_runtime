@@ -1602,17 +1602,22 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
                                       const std::shared_ptr<AppRunningRecord> &appRecord, const int uid,
                                       const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag)
 {
+    HILOG_ERROR("before GetBundleInfo 111");
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (!appRecord) {
         HILOG_ERROR("appRecord is null");
         return;
     }
 
+    HILOG_ERROR("before GetBundleInfo 222");
+
     if (!remoteClientManager_->GetSpawnClient()) {
         HILOG_ERROR("appSpawnClient is null");
         appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
         return;
     }
+
+    HILOG_ERROR("before GetBundleInfo 333");
 
     auto bundleMgr_ = remoteClientManager_->GetBundleManager();
     if (bundleMgr_ == nullptr) {
@@ -1621,6 +1626,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         return;
     }
 
+    HILOG_ERROR("before GetBundleInfo");
     auto userId = GetUserIdByUid(uid);
     BundleInfo bundleInfo;
     bool bundleMgrResult;
@@ -1639,6 +1645,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
         return;
     }
+    HILOG_ERROR("after GetBundleInfo");
 
     HspList hspList;
     ErrCode ret = bundleMgr_->GetBaseSharedBundleInfos(bundleName, hspList);
@@ -1648,6 +1655,8 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         return;
     }
 
+    HILOG_ERROR("after GetBundleInfo 111");
+
     bool hasAccessBundleDirReq = std::any_of(bundleInfo.reqPermissions.begin(), bundleInfo.reqPermissions.end(),
         [] (const auto &reqPermission) {
             if (PERMISSION_ACCESS_BUNDLE_DIR == reqPermission) {
@@ -1656,6 +1665,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
 
             return false;
         });
+    HILOG_ERROR("after GetBundleInfo 222");
     uint8_t setAllowInternet = 0;
     uint8_t allowInternet = 1;
     auto token = bundleInfo.applicationInfo.accessTokenId;
@@ -1684,6 +1694,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         }
     }
 
+    HILOG_ERROR("after GetBundleInfo 333");
     AppSpawnStartMsg startMsg;
     startMsg.uid = bundleInfo.uid;
     startMsg.gid = bundleInfo.gid;
