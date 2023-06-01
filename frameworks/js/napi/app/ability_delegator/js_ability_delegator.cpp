@@ -1098,24 +1098,27 @@ NativeValue *JSAbilityDelegator::ParseTimeoutCallbackPara(
     opt.hasCallbackPara = false;
     opt.hasTimeoutPara = false;
 
-    if (info.argc == ARGC_TWO) {
+    if (info.argc >= ARGC_TWO) {
         if (ConvertFromJsValue(engine, info.argv[INDEX_ONE], timeout)) {
             opt.hasTimeoutPara = true;
-        }
-
-        if (info.argv[INDEX_ONE]->TypeOf() == NativeValueType::NATIVE_FUNCTION) {
-            opt.hasCallbackPara = true;
-        }
-
-        return engine.CreateNull();
-    }
-    
-    if (info.argc > ARGC_TWO) {
-        if (ConvertFromJsValue(engine, info.argv[INDEX_ONE], timeout)) {
-            opt.hasTimeoutPara = true;
-
-            if (info.argv[INDEX_TWO]->TypeOf() == NativeValueType::NATIVE_FUNCTION) {
+        } else {
+            if (info.argv[INDEX_ONE] == nullptr) {
+                HILOG_WARN("argv[1] is null");
+            } else if (info.argv[INDEX_ONE]->TypeOf() == NativeValueType::NATIVE_FUNCTION) {
                 opt.hasCallbackPara = true;
+                return engine.CreateNull();
+            } else {
+                return nullptr;
+            }
+        }
+
+        if (info.argc > ARGC_TWO) {
+            if (info.argv[INDEX_TWO]->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
+                if (info.argv[INDEX_TWO] == nullptr) {
+                    HILOG_WARN("argv[2] is null");
+                    return engine.CreateNull();
+                }
+                return nullptr;
             }
 
             return engine.CreateNull();

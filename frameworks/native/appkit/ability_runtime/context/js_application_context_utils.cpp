@@ -19,7 +19,6 @@
 
 #include "ability_runtime_error_util.h"
 #include "application_context.h"
-#include "application_context_manager.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "js_context_utils.h"
@@ -40,6 +39,7 @@ constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
 constexpr size_t INDEX_ZERO = 0;
 constexpr size_t INDEX_ONE = 1;
+constexpr size_t INDEX_TWO = 2;
 constexpr int32_t ERROR_CODE_ONE = 1;
 const char* MD_NAME = "JsApplicationContextUtils";
 }  // namespace
@@ -804,7 +804,7 @@ NativeValue *JsApplicationContextUtils::OnOffAbilityLifecycle(
 
             task.ResolveWithNoError(engine, engine.CreateUndefined());
         };
-    NativeValue *lastParam = (info.argc <= ARGC_TWO) ? nullptr : info.argv[INDEX_ONE];
+    NativeValue *lastParam = (info.argc <= ARGC_TWO) ? nullptr : info.argv[INDEX_TWO];
     NativeValue *result = nullptr;
     AsyncTask::Schedule("JsApplicationContextUtils::OnOffAbilityLifecycle", engine,
         CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
@@ -868,7 +868,7 @@ NativeValue *JsApplicationContextUtils::OnOffEnvironment(
 
             task.ResolveWithNoError(engine, engine.CreateUndefined());
         };
-    NativeValue *lastParam = (info.argc <= ARGC_TWO) ? nullptr : info.argv[INDEX_ONE];
+    NativeValue *lastParam = (info.argc <= ARGC_TWO) ? nullptr : info.argv[INDEX_TWO];
     NativeValue *result = nullptr;
     AsyncTask::Schedule("JsApplicationContextUtils::OnOffEnvironment", engine,
         CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
@@ -958,9 +958,6 @@ NativeValue* JsApplicationContextUtils::CreateJsApplicationContext(NativeEngine 
     }
 
     BindNativeApplicationContext(engine, object);
-
-    ApplicationContextManager::GetApplicationContextManager()
-        .AddGlobalObject(std::shared_ptr<NativeReference>(engine.CreateReference(objValue, 1)));
 
     return objValue;
 }

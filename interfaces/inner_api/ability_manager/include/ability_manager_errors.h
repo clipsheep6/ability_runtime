@@ -338,6 +338,11 @@ enum {
      * Result(2097215) for edm application abnormal.
      */
     ERR_EDM_APP_CONTROLLED,
+
+    /**
+     * Result(2097216) for sandbox application grant URI permission.
+     */
+    ERR_CODE_GRANT_URI_PERMISSION,
 };
 
 enum {

@@ -1166,6 +1166,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                 // 'aa start -N'
                 // wait for debug in appspawn
                 isNativeDebug = true;
+                break;
             }
             case 0: {
                 break;

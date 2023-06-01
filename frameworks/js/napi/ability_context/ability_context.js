@@ -61,8 +61,9 @@ class AbilityContext extends Context {
         return;
       }
 
+      let callee = null;
       try {
-        let callee = await this.__context_impl__.startAbilityByCall(want);
+        callee = await this.__context_impl__.startAbilityByCall(want);
       } catch (error) {
         console.log('AbilityContext::startAbilityByCall Obtain remoteObject failed');
         reject(error);
@@ -83,8 +84,9 @@ class AbilityContext extends Context {
         return;
       }
 
+      let callee = null;
       try {
-        let callee = await this.__context_impl__.startAbilityByCall(want, accountId);
+        callee = await this.__context_impl__.startAbilityByCall(want, accountId);
       } catch (error) {
         console.log('AbilityContext::startAbilityByCall With accountId Obtain remoteObject failed');
         reject(error);

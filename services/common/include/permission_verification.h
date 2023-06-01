@@ -30,6 +30,7 @@ struct VerificationInfo {
     bool associatedWakeUp = false;
     uint32_t accessTokenId = 0;
     int32_t apiTargetVersion = 0;
+    bool withContinuousTask = false;
 };
 
     PermissionVerification() = default;
@@ -94,7 +95,7 @@ private:
 
     bool JudgeStartInvisibleAbility(const uint32_t accessTokenId, const bool visible) const;
 
-    bool JudgeStartAbilityFromBackground(const bool isBackgroundCall) const;
+    bool JudgeStartAbilityFromBackground(const bool isBackgroundCall, bool withContinuousTask = false) const;
 
     bool JudgeAssociatedWakeUp(const uint32_t accessTokenId, const bool associatedWakeUp) const;
 

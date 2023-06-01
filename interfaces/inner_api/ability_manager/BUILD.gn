@@ -75,7 +75,6 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_services_path}/abilitymgr/src/acquire_share_data_callback_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/acquire_share_data_callback_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/caller_info.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/erms_mgr_param.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/extension_running_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/image_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/launch_param.cpp",
@@ -105,12 +104,14 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_services_path}/abilitymgr:abilityms_config",
   ]
 
-  deps = [ "//third_party/jsoncpp:jsoncpp" ]
+  deps = [
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "//third_party/jsoncpp:jsoncpp",
+  ]
 
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
-    "ability_runtime:app_manager",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
