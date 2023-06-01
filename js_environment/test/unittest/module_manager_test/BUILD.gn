@@ -12,31 +12,39 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/js_environment/js_environment.gni")
+import("//foundation/arkui/napi/napi.gni")
+import("../../../js_environment.gni")
 
 module_output_path = "ability_runtime/js_environment"
 
-ohos_unittest("uncaught_exception_callback_test") {
+ohos_unittest("module_manager_test") {
   module_out_path = module_output_path
-  sources = [ "uncaught_exception_callback_test.cpp" ]
-  include_dirs = [ "${base_path}/module_manager/include" ]
+
+  sources = [
+    "${base_path}/test/mock/src/mock_native_module_manager.cpp",
+    "${base_path}/test/unittest/module_manager_test/module_manager_test.cpp",
+  ]
+
+  include_dirs = [
+    "${base_path}/frameworks/utils/include",
+    "${base_path}/module_manager/include",
+    "${base_path}/test/mock/include",
+  ]
+
+  cflags = []
 
   deps = [
+    "$base_path/module_manager:module_manager",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
 
-  external_deps = [
-    "ability_runtime:js_environment",
-    "ability_runtime:runtime",
-    "ets_runtime:libark_jsruntime",
-    "napi:ace_napi",
-  ]
+  configs = []
+
+  external_deps = [ "hilog_native:libhilog" ]
 }
 
 group("unittest") {
   testonly = true
-  deps = []
-
-  deps += [ ":uncaught_exception_callback_test" ]
+  deps = [ ":module_manager_test" ]
 }

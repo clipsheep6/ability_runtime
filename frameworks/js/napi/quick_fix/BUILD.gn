@@ -30,6 +30,7 @@ ohos_shared_library("quickfixmanager_napi") {
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${js_env_path}/module_manager:module_manager",
   ]
 
   external_deps = [

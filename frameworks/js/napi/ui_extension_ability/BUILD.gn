@@ -13,6 +13,7 @@
 
 import("//arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
 import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 es2abc_gen_abc("gen_ui_extension_ability_abc") {
   src_js = rebase_path("ui_extension_ability.js")
@@ -38,6 +39,7 @@ ohos_shared_library("uiextensionability_napi") {
   sources = [ "ui_extension_ability_module.cpp" ]
 
   deps = [
+    "${js_env_path}/module_manager:module_manager",
     ":ui_extension_ability_abc",
     ":ui_extension_ability_js",
   ]

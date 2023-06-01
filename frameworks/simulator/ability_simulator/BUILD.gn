@@ -82,7 +82,9 @@ ohos_shared_library("ability_simulator") {
     ":gen_obj_src_js_mock_abc",
     "${ability_runtime_path}/frameworks/simulator/osal:simulator_osal",
     "${arkui_path}/napi:ace_napi_ark",
+    "${base_path}/module_manager:module_manager",
     "${hilog_path}/interfaces/native/innerkits:libhilog_$platform",
+    "${js_env_path}/module_manager:module_manager",
     "//arkcompiler/toolchain/inspector:ark_debugger",
     "//arkcompiler/toolchain/tooling:libark_ecma_debugger",
   ]

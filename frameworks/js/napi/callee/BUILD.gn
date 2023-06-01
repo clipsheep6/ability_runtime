@@ -13,6 +13,7 @@
 
 import("//arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
 import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 es2abc_gen_abc("gen_callee_abc") {
   src_js = rebase_path("callee.js")
@@ -39,6 +40,7 @@ ohos_shared_library("callee_napi") {
   deps = [
     ":callee_abc",
     ":callee_js",
+    "${js_env_path}/module_manager:module_manager",
   ]
 
   external_deps = [ "napi:ace_napi" ]

@@ -1,0 +1,116 @@
+# Copyright (c) 2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/js_environment/js_environment.gni")
+import("//foundation/arkui/ace_engine/ace_config.gni")
+
+config("module_manager_config") {
+  include_dirs = [ "${base_path}/module_manager/include" ]
+}
+
+if (!defined(ohos_lite)) {
+  ohos_source_set("module_manager_static") {
+    defines = []
+    public_configs = [ ":module_manager_config" ]
+    deps = []
+    external_deps = []
+
+    if (is_ohos) {
+        external_deps += [ "hilog_native:libhilog" ]
+    } else if (is_mingw) {
+        deps += [ "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog_windows" ]
+    } else if (is_mac) {
+        deps += [ "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog_mac" ]
+    } else if (is_linux) {
+        deps += [ "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog_linux" ]
+    } else if (is_android) {
+        deps += [ "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog_android" ]
+    } else if (is_ios) {
+        deps += [ "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog_ios" ]
+    }
+
+    include_dirs = [
+      "${base_path}/module_manager/include",
+      "${base_path}/frameworks/utils/include",
+    ]
+
+    sources = [
+      "src/module_load_checker.cpp",
+      "src/native_module_manager.cpp",
+    ]
+
+    if (current_cpu == "arm64") {
+      defines += [ "_ARM64_" ]
+    }
+    if (current_os == "ohos" && current_cpu == "x86_64") {
+      defines += [ "SIMULATOR" ]
+    }
+    if (use_mingw_win || use_mac || use_linux) {
+      defines += [ "PREVIEW" ]
+    }
+    if (use_mingw_win) {
+      defines += [ "WINDOWS_PLATFORM" ]
+    } else if (use_mac) {
+      defines += [ "MAC_PLATFORM" ]
+    } else if (use_linux) {
+      defines += [ "LINUX_PLATFORM" ]
+    } else if (is_cross_platform_build && target_os == "ios") {
+      defines += [ "IOS_PLATFORM" ]
+    } else if (is_cross_platform_build && target_os == "android") {
+      defines += [ "ANDROID_PLATFORM" ]
+      libs = [ "log" ]
+    } else {
+      if (is_standard_system) {
+        external_deps += [
+          "hitrace_native:hitrace_meter",
+          "hitrace_native:libhitracechain",
+          "init:libbegetutil",
+        ]
+        defines += [ "ENABLE_HITRACE" ]
+      }
+    }
+
+    deps += [
+      "//third_party/bounds_checking_function:libsec_static",
+      "//third_party/libuv:uv",
+    ]
+
+    # Use static libuv for cross build
+    if (is_cross_platform_build) {
+      deps -= [ "//third_party/libuv:uv" ]
+      deps += [ "//third_party/libuv:uv_static" ]
+    }
+
+    cflags_cc = [ "-Wno-missing-braces" ]
+    subsystem_name = "ability"
+    part_name = "ability_runtime"
+  }
+
+  if (is_cross_platform_build) {
+    ohos_source_set("module_manager") {
+      public_deps = [ ":module_manager_static" ]
+      public_configs = [ ":module_manager_config" ]
+      subsystem_name = "ability"
+      part_name = "ability_runtime"
+    }
+  } else {
+    ohos_shared_library("module_manager") {
+      public_deps = [ ":module_manager_static" ]
+      public_configs = [ ":module_manager_config" ]
+
+      subsystem_name = "ability"
+      part_name = "ability_runtime"
+    }
+  }
+}
