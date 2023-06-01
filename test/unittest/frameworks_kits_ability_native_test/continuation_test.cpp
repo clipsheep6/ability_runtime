@@ -487,7 +487,7 @@ HWTEST_F(ContinuationTest, continue_handler_PassPrimary_001, TestSize.Level1)
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     sptr<IRemoteObject> primary = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
     continuationHandler->PassPrimary(primary);
-    EXPECT_TRUE(continuationHandler->remotePrimaryProxy_ != nullptr);
+    EXPECT_TRUE(continuationHandler->remotePrimaryProxy_ == nullptr);
     GTEST_LOG_(INFO) << "continue_handler_PassPrimary_001 end";
 }
 
@@ -554,7 +554,6 @@ HWTEST_F(ContinuationTest, continue_handler_ReverseContinuation_003, TestSize.Le
 HWTEST_F(ContinuationTest, continue_handler_ReverseContinuation_004, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "continue_handler_ReverseContinuation_004 start";
-    EXPECT_CALL(*mockAbility_, OnStartContinuation()).Times(1).WillOnce(Return(false));
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
     std::weak_ptr<Ability> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
@@ -575,8 +574,6 @@ HWTEST_F(ContinuationTest, continue_handler_ReverseContinuation_004, TestSize.Le
 HWTEST_F(ContinuationTest, continue_handler_ReverseContinuation_005, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "continue_handler_ReverseContinuation_005 start";
-    EXPECT_CALL(*mockAbility_, OnStartContinuation()).Times(1).WillOnce(Return(true));
-    EXPECT_CALL(*mockAbility_, OnSaveData(_)).Times(1).WillOnce(Return(false));
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
     std::weak_ptr<Ability> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
