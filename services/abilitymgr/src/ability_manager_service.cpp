@@ -546,7 +546,8 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         }
         Want localWant = want;
         UpdateCallerInfo(localWant, callerToken);
-        int freeInstallRet = freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, false);
+        int freeInstallRet = freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken,
+            false);
         if (freeInstallRet != ERR_OK) {
             HILOG_ERROR("freeInstall ret: %{public}d", freeInstallRet);
             return freeInstallRet;
@@ -741,7 +742,8 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         }
         Want localWant = want;
         UpdateCallerInfo(localWant, callerToken);
-        int freeInstallRet = freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, false);
+        int freeInstallRet = freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken,
+            false);
         if (freeInstallRet != ERR_OK) {
             HILOG_ERROR("freeInstall ret: %{public}d", freeInstallRet);
             eventInfo.errCode = freeInstallRet;
@@ -939,7 +941,8 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         } else {
             HILOG_INFO("start as caller, skip UpdateCallerInfo!");
         }
-        int freeInstallRet = freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, false);
+        int freeInstallRet = freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken,
+            false);
         if (freeInstallRet != ERR_OK) {
             HILOG_ERROR("freeInstall ret: %{public}d", freeInstallRet);
             eventInfo.errCode = freeInstallRet;
