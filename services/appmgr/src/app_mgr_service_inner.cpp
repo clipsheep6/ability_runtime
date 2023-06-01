@@ -1871,6 +1871,7 @@ void AppMgrServiceInner::OnRemoteDied(const wptr<IRemoteObject> &remote, bool is
         return;
     }
 
+    HILOG_INFO("OnRemoteDied: %{public}ld.", appRecord.use_count());
     ClearAppRunningData(appRecord, false);
     if (!GetAppRunningStateByBundleName(appRecord->GetBundleName())) {
         RemoveRunningSharedBundleList(appRecord->GetBundleName());
@@ -1887,6 +1888,7 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
         appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
     }
 
+    HILOG_INFO("ClearAppRunningData: %{public}ld.", appRecord.use_count());
     FinishUserTestLocked("App died", -1, appRecord);
     appRecord->SetProcessChangeReason(ProcessChangeReason::REASON_REMOTE_DIED);
 

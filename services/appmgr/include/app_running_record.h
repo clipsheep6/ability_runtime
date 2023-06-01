@@ -103,7 +103,7 @@ public:
 public:
     AppRunningRecord(
         const std::shared_ptr<ApplicationInfo> &info, const int32_t recordId, const std::string &processName);
-    virtual ~AppRunningRecord() = default;
+    virtual ~AppRunningRecord();
 
     /**
      * @brief Obtains the app record bundleName.
