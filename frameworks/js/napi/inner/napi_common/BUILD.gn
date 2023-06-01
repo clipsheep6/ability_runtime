@@ -40,6 +40,7 @@ ohos_shared_library("napi_common") {
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${js_env_path}/module_manager:module_manager",
     "//third_party/libuv:uv",
   ]
 

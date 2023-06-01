@@ -22,7 +22,10 @@ template("js_environment_test_template") {
     forward_variables_from(invoker, [ "sources" ])
     module_out_path = module_output_path
 
-    include_dirs = [ "${ability_runtime_native_path}/runtime" ]
+    include_dirs = [
+      "${ability_runtime_native_path}/runtime",
+      "${base_path}/module_manager/include",
+    ]
 
     configs = []
 

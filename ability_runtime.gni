@@ -14,6 +14,7 @@
 ability_runtime_path = "//foundation/ability/ability_runtime"
 ability_runtime_napi_path = "${ability_runtime_path}/frameworks/js/napi"
 ability_base_path = "//foundation/ability/ability_base"
+js_env_path = "${ability_runtime_path}/js_environment"
 form_fwk_path = "//foundation/ability/form_fwk"
 ability_runtime_innerkits_path = "${ability_runtime_path}/interfaces/inner_api"
 ability_runtime_native_path = "${ability_runtime_path}/frameworks/native"
