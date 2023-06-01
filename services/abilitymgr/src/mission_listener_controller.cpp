@@ -250,6 +250,24 @@ void MissionListenerController::NotifyMissionLabelUpdated(int32_t missionId)
     handler_->PostTask(task);
 }
 
+void MissionListenerController::NotifyMissionFocused(int32_t missionId)
+{
+    if (!handler_) {
+        HILOG_ERROR("NotifyMissionLabelUpdated, handler not init");
+        return;
+    }
+    auto task = [weak = weak_from_this(), missionId]() {
+        auto self = weak.lock();
+        if (self == nullptr) {
+            HILOG_ERROR("self is nullptr, NotifyMissionLabelUpdated failed.");
+            return;
+        }
+        HILOG_INFO("missionId:%{public}d.", missionId);
+        self->CallListeners(&IMissionListener::OnMissionFocused, missionId);
+    };
+    handler_->PostTask(task);
+}
+
 void MissionListenerController::OnListenerDied(const wptr<IRemoteObject> &remote)
 {
     HILOG_DEBUG("On mission listener died.");

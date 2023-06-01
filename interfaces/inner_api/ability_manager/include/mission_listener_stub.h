@@ -47,6 +47,7 @@ private:
     int OnMissionIconUpdatedInner(MessageParcel &data, MessageParcel &reply);
     int OnMissionClosedInner(MessageParcel &data, MessageParcel &reply);
     int OnMissionLabelUpdatedInner(MessageParcel &data, MessageParcel &reply);
+    int OnMissionFocusedInner(int32_t missionId);
 
     using MissionListenerFunc = int (MissionListenerStub::*)(MessageParcel &data, MessageParcel &reply);
     std::vector<MissionListenerFunc> vecMemberFunc_;

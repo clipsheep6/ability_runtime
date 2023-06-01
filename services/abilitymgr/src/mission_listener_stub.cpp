@@ -86,6 +86,12 @@ int MissionListenerStub::OnMissionLabelUpdatedInner(MessageParcel &data, Message
     return NO_ERROR;
 }
 
+int MissionListenerStub::OnMissionFocusedInner(MessageParcel &data, MessageParcel &reply)
+{
+    OnMissionFocused(data.ReadInt32());
+    return NO_ERROR;
+}
+
 int MissionListenerStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {

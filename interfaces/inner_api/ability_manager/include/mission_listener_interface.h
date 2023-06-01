@@ -83,6 +83,8 @@ public:
      */
     virtual void OnMissionLabelUpdated(int32_t missionId) = 0;
 
+    virtual void OnMissionFocused(int32_t missionId) = 0;
+
     enum MissionListenerCmd {
         // ipc id for OnMissionCreated
         ON_MISSION_CREATED = 0,
@@ -104,6 +106,7 @@ public:
 
         // ipc id for OnMissionLabelUpdated
         ON_MISSION_LABEL_UPDATED,
+        ON_MISSION_FOUCSED,
 
         // maximum of enum
         MISSION_LINSTENER_CMD_MAX
