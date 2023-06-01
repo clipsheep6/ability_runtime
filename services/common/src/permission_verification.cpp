@@ -226,7 +226,7 @@ int PermissionVerification::CheckCallDataAbilityPermission(const VerificationInf
     }
 
     if ((verificationInfo.apiTargetVersion > API8 || IsShellCall()) &&
-        !JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall)) {
+        !JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall, verificationInfo.withContinuousTask)) {
         HILOG_ERROR("Application can not start DataAbility from background after API8.");
         return CHECK_PERMISSION_FAILED;
     }
@@ -249,7 +249,7 @@ int PermissionVerification::CheckCallServiceAbilityPermission(const Verification
     }
 
     if ((verificationInfo.apiTargetVersion > API8 || IsShellCall()) &&
-        !JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall)) {
+        !JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall, verificationInfo.withContinuousTask)) {
         HILOG_ERROR("Application can not start ServiceAbility from background after API8.");
         return CHECK_PERMISSION_FAILED;
     }
@@ -293,7 +293,7 @@ int PermissionVerification::CheckStartByCallPermission(const VerificationInfo &v
     if (!JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible)) {
         return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
     }
-    if (!JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall)) {
+    if (!JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall, verificationInfo.withContinuousTask)) {
         return CHECK_PERMISSION_FAILED;
     }
 
@@ -371,7 +371,7 @@ int PermissionVerification::JudgeInvisibleAndBackground(const VerificationInfo &
     if (!JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible)) {
         return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
     }
-    if (!JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall)) {
+    if (!JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall, verificationInfo.withContinuousTask)) {
         return CHECK_PERMISSION_FAILED;
     }
 

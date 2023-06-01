@@ -378,6 +378,7 @@ int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection
 
     // 2. schedule disconnect to target service
     int result = ERR_OK;
+    ConnectListType list;
     for (auto &connectRecord : connectRecordList) {
         if (connectRecord) {
             auto abilityRecord = connectRecord->GetAbilityRecord();
@@ -393,9 +394,9 @@ int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection
             }
 
             if (force) {
-                DisconnectRecordForce(connectRecord);
+                DisconnectRecordForce(list, connectRecord);
             } else {
-                result = DisconnectRecordNormal(connectRecord);
+                result = DisconnectRecordNormal(list, connectRecord);
             }
 
             if (result != ERR_OK) {
@@ -403,6 +404,9 @@ int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection
                 break;
             }
         }
+    }
+    for (auto&& connectRecord : list) {
+        RemoveConnectionRecordFromMap(connectRecord);
     }
 
     return result;
@@ -419,7 +423,8 @@ void AbilityConnectManager::TerminateRecord(std::shared_ptr<AbilityRecord> abili
     abilityRecord->Terminate(timeoutTask);
 }
 
-int AbilityConnectManager::DisconnectRecordNormal(std::shared_ptr<ConnectionRecord> connectRecord)
+int AbilityConnectManager::DisconnectRecordNormal(ConnectListType &list,
+    std::shared_ptr<ConnectionRecord> connectRecord) const
 {
     auto result = connectRecord->DisconnectAbility();
     if (result != ERR_OK) {
@@ -430,12 +435,13 @@ int AbilityConnectManager::DisconnectRecordNormal(std::shared_ptr<ConnectionReco
     if (connectRecord->GetConnectState() == ConnectionState::DISCONNECTED) {
         HILOG_WARN("This record: %{public}d complete disconnect directly.", connectRecord->GetRecordId());
         connectRecord->CompleteDisconnect(ERR_OK, false);
-        RemoveConnectionRecordFromMap(connectRecord);
+        list.emplace_back(connectRecord);
     }
     return ERR_OK;
 }
 
-void AbilityConnectManager::DisconnectRecordForce(std::shared_ptr<ConnectionRecord> connectRecord)
+void AbilityConnectManager::DisconnectRecordForce(ConnectListType &list,
+    std::shared_ptr<ConnectionRecord> connectRecord)
 {
     auto abilityRecord = connectRecord->GetAbilityRecord();
     if (abilityRecord == nullptr) {
@@ -444,7 +450,7 @@ void AbilityConnectManager::DisconnectRecordForce(std::shared_ptr<ConnectionReco
     }
     abilityRecord->RemoveConnectRecordFromList(connectRecord);
     connectRecord->CompleteDisconnect(ERR_OK, true);
-    RemoveConnectionRecordFromMap(connectRecord);
+    list.emplace_back(connectRecord);
     if (abilityRecord->IsConnectListEmpty() && abilityRecord->GetStartId() == 0) {
         HILOG_WARN("Force terminate ability record state: %{public}d.", abilityRecord->GetAbilityState());
         TerminateRecord(abilityRecord);

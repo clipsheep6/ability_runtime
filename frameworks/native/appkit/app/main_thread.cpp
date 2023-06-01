@@ -211,9 +211,6 @@ MainThread::~MainThread()
         watchdog_->Stop();
         watchdog_ = nullptr;
     }
-#ifdef ABILITY_LIBRARY_LOADER
-    CloseAbilityLibrary();
-#endif  // ABILITY_LIBRARY_LOADER
 }
 
 /**
@@ -787,16 +784,6 @@ void MainThread::HandleTerminateApplicationLocal()
     }
     HILOG_DEBUG("runner is stopped");
     SetRunnerStarted(false);
-
-#ifdef ABILITY_LIBRARY_LOADER
-    CloseAbilityLibrary();
-#endif  // ABILITY_LIBRARY_LOADER
-#ifdef APPLICATION_LIBRARY_LOADER
-    if (handleAppLib_ != nullptr) {
-        dlclose(handleAppLib_);
-        handleAppLib_ = nullptr;
-    }
-#endif  // APPLICATION_LIBRARY_LOADER
     HILOG_DEBUG("MainThread::HandleTerminateApplicationLocal called end.");
 }
 
@@ -2212,25 +2199,6 @@ void MainThread::LoadAppDetailAbilityLibrary(std::string &nativeLibraryPath)
     }
     HILOG_DEBUG("LoadAppDetailAbilityLibrary end.");
 #endif // ABILITY_LIBRARY_LOADER
-}
-
-/**
- *
- * @brief Close the ability library loaded.
- *
- */
-void MainThread::CloseAbilityLibrary()
-{
-    HILOG_DEBUG("start");
-    for (auto iter : handleAbilityLib_) {
-        if (iter != nullptr) {
-            dlclose(iter);
-            iter = nullptr;
-        }
-    }
-    handleAbilityLib_.clear();
-    fileEntries_.clear();
-    nativeFileEntries_.clear();
 }
 
 bool MainThread::ScanDir(const std::string &dirPath, std::vector<std::string> &files)

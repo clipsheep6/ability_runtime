@@ -469,8 +469,8 @@ private:
 
 private:
     void TerminateRecord(std::shared_ptr<AbilityRecord> abilityRecord);
-    int DisconnectRecordNormal(std::shared_ptr<ConnectionRecord> connectRecord);
-    void DisconnectRecordForce(std::shared_ptr<ConnectionRecord> connectRecord);
+    int DisconnectRecordNormal(ConnectListType &list, std::shared_ptr<ConnectionRecord> connectRecord) const;
+    void DisconnectRecordForce(ConnectListType &list, std::shared_ptr<ConnectionRecord> connectRecord);
 
 private:
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
