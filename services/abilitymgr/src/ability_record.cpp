@@ -25,6 +25,7 @@
 #include "ability_util.h"
 #include "accesstoken_kit.h"
 #include "bundle_mgr_client.h"
+#include "configuration_convertor.h"
 #include "connection_state_manager.h"
 #include "hitrace_meter.h"
 #include "image_source.h"
@@ -802,6 +803,15 @@ std::shared_ptr<Global::Resource::ResourceManager> AbilityRecord::CreateResource
     UErrorCode status = U_ZERO_ERROR;
     icu::Locale locale = icu::Locale::forLanguageTag(Global::I18n::LocaleConfig::GetSystemLanguage(), status);
     resConfig->SetLocaleInfo(locale);
+
+    AppExecFwk::Configuration cfg;
+    if (DelayedSingleton<AbilityManagerService>::GetInstance()->GetConfiguration(cfg) == 0) {
+        std::string colormode = cfg.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
+        HILOG_DEBUG("getcolormode is %{public}s.", colormode.c_str());
+        resConfig->SetColorMode(AppExecFwk::ConvertColorMode(colormode));
+    } else {
+        HILOG_WARN("getcolormode failed.");
+    }
 
     std::shared_ptr<Global::Resource::ResourceManager> resourceMgr(Global::Resource::CreateResourceManager());
     resourceMgr->UpdateResConfig(*resConfig);
