@@ -31,6 +31,7 @@ ohos_moduletest("running_infos_module_test") {
   sources += [
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_service.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/scene_board/ui_ability_lifecycle_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/window_focus_changed_listener.cpp",
     "${ability_runtime_test_path}/mock/common/src/mock_native_token.cpp",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/sa_mgr/src/sa_mgr_client_mock.cpp",
     "${ability_runtime_test_path}/moduletest/mock/src/mock_app_mgr_client.cpp",

@@ -30,6 +30,7 @@ ohos_moduletest("on_new_want_module_test") {
   sources += [
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_service.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/scene_board/ui_ability_lifecycle_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/window_focus_changed_listener.cpp",
     "${device_manager_path}/test/unittest/mock/parameter.cpp",
   ]
 

@@ -63,6 +63,7 @@
 #include "connection_state_manager.h"
 
 #ifdef SUPPORT_GRAPHICS
+
 #include "display_manager.h"
 #include "input_manager.h"
 #include "png.h"
@@ -98,6 +99,7 @@ const std::string ILLEGAL_INFOMATION = "The arguments are illegal and you can en
 
 constexpr int32_t NEW_RULE_VALUE_SIZE = 6;
 constexpr int64_t APP_ALIVE_TIME_MS = 1000;  // Allow background startup within 1 second after application startup
+constexpr int32_t REGISTER_FOCUS_DELAY = 5000;
 const std::string IS_DELEGATOR_CALL = "isDelegatorCall";
 // Startup rule switch
 const std::string COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
@@ -303,6 +305,7 @@ bool AbilityManagerService::Init()
 #ifdef SUPPORT_GRAPHICS
     DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(OHOS::system::GetDeviceType());
     implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
+    InitFocusListener();
 #endif
 
     auto initConnectionStateManagerTask = []() {
@@ -6292,6 +6295,60 @@ bool AbilityManagerService::CheckWindowMode(int32_t windowMode,
     }
     return false;
 }
+
+void AbilityManagerService::HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo)
+{
+    HILOG_INFO("handle focused event");
+    if (!currentMissionListManager_) {
+        HILOG_ERROR("current mission manager is null");
+        return;
+    }
+
+    int32_t missionId = GetMissionIdByAbilityToken(focusChangeInfo->abilityToken_);
+    currentMissionListManager_->NotifyMissionFocused(missionId);
+}
+
+void AbilityManagerService::HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo)
+{
+    HILOG_INFO("handle unfocused event");
+    if (!currentMissionListManager_) {
+        HILOG_ERROR("current mission manager is null");
+        return;
+    }
+
+    int32_t missionId = GetMissionIdByAbilityToken(focusChangeInfo->abilityToken_);
+    currentMissionListManager_->NotifyMissionUnfocused(missionId);
+}
+
+void AbilityManagerService::InitFocusListener()
+{
+    HILOG_INFO("Init ability focus listener");
+    if (focusListener_) {
+        return;
+    }
+
+    focusListener_ = new WindowFocusChangedListener(shared_from_this(), handler_);
+    auto registerTask = [innerService = shared_from_this()]() {
+        if (innerService) {
+            HILOG_INFO("RegisterFocusListener task");
+            innerService->RegisterFocusListener();
+        }
+    };
+    if (handler_) {
+        handler_->PostTask(registerTask, "RegisterFocusListenerTask", REGISTER_FOCUS_DELAY);
+    }
+}
+
+void AbilityManagerService::RegisterFocusListener()
+{
+    HILOG_INFO("Register focus listener");
+    if (!focusListener_) {
+        HILOG_ERROR("no listener obj");
+        return;
+    }
+    Rosen::WindowManager::GetInstance().RegisterFocusChangedListener(focusListener_);
+    HILOG_INFO("Register focus listener success");
+}
 #endif
 
 int AbilityManagerService::CheckCallServicePermission(const AbilityRequest &abilityRequest)
@@ -6922,6 +6979,6 @@ int32_t AbilityManagerService::ShareDataDone(
     CHECK_POINTER_AND_RETURN_LOG(handler_, ERR_INVALID_VALUE, "fail to get abilityEventHandler.");
     handler_->RemoveEvent(SHAREDATA_TIMEOUT_MSG, uniqueId);
     return GetShareDataPairAndReturnData(abilityRecord, resultCode, uniqueId, wantParam);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
-}
