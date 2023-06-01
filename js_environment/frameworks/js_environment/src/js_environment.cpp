@@ -70,10 +70,10 @@ void JsEnvironment::InitTimerModule()
     }
 }
 
-void JsEnvironment::InitWorkerModule(const std::string& codePath, bool isDebugVersion, bool isBundle)
+void JsEnvironment::InitWorkerModule(std::shared_ptr<WorkerInfo> workerInfo)
 {
     if (impl_ != nullptr && engine_ != nullptr) {
-        impl_->InitWorkerModule(*engine_, codePath, isDebugVersion, isBundle);
+        impl_->InitWorkerModule(*engine_, workerInfo);
     }
 }
 

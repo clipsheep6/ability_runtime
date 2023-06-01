@@ -23,6 +23,15 @@
 
 namespace OHOS {
 namespace JsEnv {
+struct WorkerInfo {
+    std::string codePath;
+    bool isDebugVersion = false;
+    bool isBundle = true;
+    std::string packagePathStr;
+    std::vector<std::string> assetBasePathStr;
+    std::string hapPath;
+    bool isStageModel = true;
+};
 class JsEnvironmentImpl {
 public:
     JsEnvironmentImpl() {}
@@ -36,8 +45,7 @@ public:
 
     virtual void InitConsoleModule(NativeEngine *engine) = 0;
 
-    virtual void InitWorkerModule(NativeEngine& engine, const std::string& codePath, bool isDebugVersion,
-        bool isBundle) = 0;
+    virtual void InitWorkerModule(NativeEngine& engine, std::shared_ptr<WorkerInfo> workerInfo) = 0;
 
     virtual void InitSyscapModule() = 0;
 };

@@ -62,13 +62,12 @@ void OHOSJsEnvironmentImpl::InitConsoleModule(NativeEngine *engine)
     JsSysModule::Console::InitConsoleModule(reinterpret_cast<napi_env>(engine));
 }
 
-void OHOSJsEnvironmentImpl::InitWorkerModule(NativeEngine& engine, const std::string& codePath,
-    bool isDebugVersion, bool isBundle)
+void OHOSJsEnvironmentImpl::InitWorkerModule(NativeEngine& engine, std::shared_ptr<JsEnv::WorkerInfo> workerInfo)
 {
     HILOG_DEBUG("called");
     engine.SetInitWorkerFunc(InitWorkerFunc);
     engine.SetOffWorkerFunc(OffWorkerFunc);
-    engine.SetGetAssetFunc(AssetHelper(codePath, isDebugVersion, isBundle));
+    engine.SetGetAssetFunc(AssetHelper(workerInfo));
 
     engine.SetGetContainerScopeIdFunc(GetContainerId);
     engine.SetInitContainerScopeFunc(UpdateContainerScope);
