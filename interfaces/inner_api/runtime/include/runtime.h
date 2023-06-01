@@ -45,6 +45,8 @@ public:
         std::string bundleCodeDir;
         std::string hapPath;
         std::string arkNativeFilePath;
+        std::string packagePathStr;
+        std::vector<std::string> assetBasePathStr;
         std::shared_ptr<AppExecFwk::EventRunner> eventRunner;
         bool loadAce = true;
         bool preload = false;

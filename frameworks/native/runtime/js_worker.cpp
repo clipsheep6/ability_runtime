@@ -128,6 +128,11 @@ std::string AssetHelper::NormalizedFileName(const std::string& fileName) const
 
 void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& content, std::string &ami)
 {
+    HILOG_INFO("9 zhuhan AssetHelper::operator()");
+    HILOG_INFO("zhuhan packagePathStr_: %{public}s", workerInfo_->packagePathStr.c_str());
+    for (auto e : workerInfo_->assetBasePathStr) {
+        HILOG_INFO("zhuhan assetBasePathStr_: %{public}s", e.c_str());
+    }
     if (uri.empty()) {
         HILOG_ERROR("Uri is empty.");
         return;
@@ -139,7 +144,7 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
 
     // 1. compilemode is jsbundle
     // 2. compilemode is esmodule
-    if (isBundle_) {
+    if (workerInfo_->isBundle) {
         // 1.1 start with @bundle:bundlename/modulename
         // 1.2 start with /modulename
         // 1.3 start with modulename
@@ -152,13 +157,24 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
         } else if (uri.find_first_of("/") == 0) {
             HILOG_DEBUG("uri start with /modulename");
             realPath = uri.substr(1);
+        } else if (uri.find("../") == 0) {
+            HILOG_DEBUG("uri start with ../");
+            realPath = uri.substr(3);
         } else {
             HILOG_DEBUG("uri start with modulename");
             realPath = uri;
         }
 
+        HILOG_INFO("zhuhan realPath %{public}s", realPath.c_str());
         filePath = NormalizedFileName(realPath);
-        ami = codePath_ + filePath;
+        HILOG_INFO("zhuhan filePath %{public}s", filePath.c_str());
+        if (!workerInfo_->isStageModel) {
+            GetAmi(ami, filePath);
+            HILOG_INFO("zhuhan ami %{public}s", ami.c_str());
+        } else {
+            ami = workerInfo_->codePath + filePath;
+        }
+        HILOG_INFO("zhuhan codePath_ %{public}s", workerInfo_->codePath.c_str());
         HILOG_DEBUG("Get asset, ami: %{private}s", ami.c_str());
         if (ami.find(CACHE_DIRECTORY) != std::string::npos) {
             if (!ReadAmiData(ami, content)) {
@@ -192,7 +208,7 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
         }
 
         filePath = NormalizedFileName(realPath);
-        ami = codePath_ + filePath;
+        ami = workerInfo_->codePath + filePath;
         HILOG_DEBUG("Get asset, ami: %{private}s", ami.c_str());
     }
 }
@@ -232,7 +248,7 @@ bool AssetHelper::ReadAmiData(const std::string& ami, std::vector<uint8_t>& cont
     }
 
     auto fileLen = stream.tellg();
-    if (!isDebugVersion_ && fileLen > ASSET_FILE_MAX_SIZE) {
+    if (!workerInfo_->isDebugVersion && fileLen > ASSET_FILE_MAX_SIZE) {
         HILOG_ERROR("ReadAmiData failed, file is too large");
         return false;
     }
@@ -246,53 +262,134 @@ bool AssetHelper::ReadAmiData(const std::string& ami, std::vector<uint8_t>& cont
 
 bool AssetHelper::ReadFilePathData(const std::string& filePath, std::vector<uint8_t>& content)
 {
-    auto bundleMgrProxy = GetBundleMgrProxy();
-    if (!bundleMgrProxy) {
-        HILOG_ERROR("bundle mgr proxy is nullptr.");
-        return false;
-    }
+    // auto bundleMgrProxy = GetBundleMgrProxy();
+    // if (!bundleMgrProxy) {
+    //     HILOG_ERROR("bundle mgr proxy is nullptr.");
+    //     return false;
+    // }
 
-    AppExecFwk::BundleInfo bundleInfo;
-    auto getInfoResult = bundleMgrProxy->GetBundleInfoForSelf(
-        static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE), bundleInfo);
-    if (getInfoResult != 0) {
-        HILOG_ERROR("GetBundleInfoForSelf failed.");
-        return false;
-    }
-    if (bundleInfo.hapModuleInfos.size() == 0) {
-        HILOG_ERROR("get hapModuleInfo of bundleInfo failed.");
-        return false;
-    }
-    std::string newHapPath;
+    // AppExecFwk::BundleInfo bundleInfo;
+    // auto getInfoResult = bundleMgrProxy->GetBundleInfoForSelf(
+    //     static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE), bundleInfo);
+    // if (getInfoResult != 0) {
+    //     HILOG_ERROR("GetBundleInfoForSelf failed.");
+    //     return false;
+    // }
+    // if (bundleInfo.hapModuleInfos.size() == 0) {
+    //     HILOG_ERROR("get hapModuleInfo of bundleInfo failed.");
+    //     return false;
+    // }
+    // std::string newHapPath;
     size_t pos = filePath.find('/');
-    for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-        if (hapModuleInfo.moduleName == filePath.substr(0, pos)) {
-            newHapPath = hapModuleInfo.hapPath;
-            break;
-        }
-    }
+    // for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
+    //     if (hapModuleInfo.moduleName == filePath.substr(0, pos)) {
+    //         newHapPath = hapModuleInfo.hapPath;
+    //         break;
+    //     }
+    // }
+
+    
 
     bool newCreate = false;
-    std::string loadPath = ExtractorUtil::GetLoadFilePath(newHapPath);
+    // std::string loadPath = ExtractorUtil::GetLoadFilePath(newHapPath);
+    std::string loadPath = ExtractorUtil::GetLoadFilePath(workerInfo_->hapPath);
     std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
     if (extractor == nullptr) {
         HILOG_ERROR("loadPath %{private}s GetExtractor failed", loadPath.c_str());
         return false;
     }
     std::unique_ptr<uint8_t[]> dataPtr = nullptr;
-    std::string realfilePath = filePath.substr(pos + 1);
+    std::string realfilePath;
     size_t fileLen = 0;
-    HILOG_DEBUG("Get asset, realfilePath: %{private}s", realfilePath.c_str());
-    if (!extractor->ExtractToBufByName(realfilePath, dataPtr, fileLen)) {
-        HILOG_ERROR("get mergeAbc fileBuffer failed");
-        return false;
+    if (!workerInfo_->isStageModel) {
+        bool flag = false;
+        for (const auto& basePath : workerInfo_->assetBasePathStr) {
+            realfilePath = basePath + filePath;
+            HILOG_DEBUG("zhuhan realfilePath: %{private}s", realfilePath.c_str());
+            if (extractor->ExtractToBufByName(realfilePath, dataPtr, fileLen)) {
+                HILOG_ERROR("get mergeAbc fileBuffer failed");
+                flag = true;
+                break;
+            }
+        }
+        if (!flag) {
+            HILOG_ERROR("zhuhan ExtractToBufByName error");
+            return flag;
+        }
+    } else {
+        realfilePath = filePath.substr(pos + 1);
+        if (!extractor->ExtractToBufByName(realfilePath, dataPtr, fileLen)) {
+            HILOG_ERROR("get mergeAbc fileBuffer failed");
+            return false;
+        }
     }
-    if (!isDebugVersion_ && fileLen > ASSET_FILE_MAX_SIZE) {
+    
+    HILOG_DEBUG("Get asset, realfilePath: %{private}s", realfilePath.c_str());
+    if (!workerInfo_->isDebugVersion && fileLen > ASSET_FILE_MAX_SIZE) {
         HILOG_ERROR("ReadFilePathData failed, file is too large");
         return false;
     }
     content.assign(dataPtr.get(), dataPtr.get() + fileLen);
     return true;
+}
+
+void AssetHelper::GetAmi(std::string& ami, const std::string& filePath)
+{
+    HILOG_INFO("zhuhan filePath: %{public}s", filePath.c_str());
+    size_t slashPos = filePath.find_last_of("/");
+    std::string fileName = filePath.substr(slashPos + 1);
+    std::string path = filePath.substr(0, slashPos + 1);
+    HILOG_INFO("zhuhan path %{public}s", path.c_str());
+    HILOG_INFO("zhuhan fileName %{public}s", fileName.c_str());
+
+    std::string loadPath = ExtractorUtil::GetLoadFilePath(workerInfo_->hapPath);
+    bool newCreate = false;
+    std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
+    if (extractor == nullptr) {
+        HILOG_ERROR("loadPath %{private}s GetExtractor failed", loadPath.c_str());
+        return;
+    }
+    std::vector<std::string> files;
+    for (const auto& basePath : workerInfo_->assetBasePathStr) {
+        std::string assetPath = basePath + path;
+        HILOG_INFO("zhuhan assetPath: %{public}s", assetPath.c_str());
+        bool res = extractor->IsDirExist(assetPath);
+        if (!res) {
+            continue;
+        }
+        res = extractor->GetFileList(assetPath, files);
+        if (!res) {
+            continue;
+        }
+    }
+
+    std::string targetFilePath;
+    bool flag = false;
+    for (const auto& file : files) {
+        size_t filePos = file.find_last_of("/");
+        if (filePos != std::string::npos) {
+            if (file.substr(filePos + 1) == fileName) {
+                targetFilePath = path + fileName;
+                flag = true;
+                break;
+            }
+        }
+    }
+    if(!flag) {
+        HILOG_ERROR("zhuhan find targetFilePath failed");
+        return;
+    }
+
+    HILOG_INFO("zhuhan targetFilePath %{public}s", targetFilePath.c_str());
+    //lock
+    for (const auto& basePath : workerInfo_->assetBasePathStr) {
+        std::string filePathName = basePath + targetFilePath;
+        bool hasFile = extractor->HasEntry(filePathName);
+        if (hasFile) {
+            ami = workerInfo_->hapPath + "/" + filePathName;
+            break;
+        }
+    }
 }
 
 int32_t GetContainerId()
