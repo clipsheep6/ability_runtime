@@ -127,7 +127,7 @@ constexpr int32_t ROOT_UID = 0;
 constexpr int32_t FOUNDATION_UID = 5523;
 constexpr int32_t DEFAULT_USER_ID = 0;
 
-constexpr int32_t NET_MANAGER_GROUPID = 1099;
+// constexpr int32_t NET_MANAGER_GROUPID = 1099;
 
 int32_t GetUserIdByUid(int32_t uid)
 {
