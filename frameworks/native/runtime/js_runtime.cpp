@@ -599,13 +599,22 @@ void JsRuntime::PreloadAce(const Options& options)
     if (options.loadAce) {
         // ArkTsCard start
         if (options.isUnique) {
-            OHOS::Ace::DeclarativeModulePreloader::PreloadCard(*nativeEngine);
+            OHOS::Ace::DeclarativeModulePreloader::PreloadCard(*nativeEngine, options.bundleName);
         } else {
             OHOS::Ace::DeclarativeModulePreloader::Preload(*nativeEngine);
         }
         // ArkTsCard end
     }
 #endif
+}
+
+void JsRuntime::ReloadFormComponent()
+{
+    HILOG_DEBUG("Call.");
+    auto nativeEngine = GetNativeEnginePointer();
+    CHECK_POINTER(nativeEngine);
+    // ArkTsCard update condition, need to reload new component
+    OHOS::Ace::DeclarativeModulePreloader::ReloadCard(*nativeEngine, bundleName_);
 }
 
 bool JsRuntime::InitLoop(const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner)
