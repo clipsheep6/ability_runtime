@@ -63,6 +63,12 @@ ohos_shared_library("ability_simulator") {
   include_dirs = [
     "${ability_runtime_native_path}/runtime",
     "${ability_runtime_innerkits_path}/runtime/include",
+    "//foundation/window/window_manager/previewer/include",
+    "//foundation/window/window_manager/previewer/mock",
+    "//foundation/window/window_manager/previewer/mock/transaction",
+    "//foundation/window/window_manager/previewer/mock/ui",
+    "//foundation/window/window_manager/interfaces/innerkits/wm",
+    "//foundation/window/window_manager/interfaces/kits/napi/window_runtime/window_stage_napi",
   ]
 
   sources = [
@@ -85,6 +91,17 @@ ohos_shared_library("ability_simulator") {
     "${hilog_path}/interfaces/native/innerkits:libhilog_$platform",
     "//arkcompiler/toolchain/inspector:ark_debugger",
     "//arkcompiler/toolchain/tooling:libark_ecma_debugger",
+  ]
+
+  if (is_mingw) {
+    deps += [ "//base/global/resource_management/frameworks/resmgr:global_resmgr_win" ]
+  } else {
+    deps += [ "//base/global/resource_management/frameworks/resmgr:global_resmgr_mac" ]
+  }
+
+  deps += [
+    "//foundation/window/window_manager/previewer:previewer_window",
+    "//foundation/window/window_manager/previewer:previewer_window_napi",
   ]
 
   external_deps = [

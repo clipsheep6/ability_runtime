@@ -26,13 +26,13 @@
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 
-#ifdef SUPPORT_GRAPHICS
-#include "core/common/container_scope.h"
-#endif
+// #ifdef SUPPORT_GRAPHICS
+// #include "core/common/container_scope.h"
+// #endif
 
-#ifdef SUPPORT_GRAPHICS
-using OHOS::Ace::ContainerScope;
-#endif
+// #ifdef SUPPORT_GRAPHICS
+// using OHOS::Ace::ContainerScope;
+// #endif
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -67,10 +67,10 @@ public:
 
     void OnTimeout()
     {
-#ifdef SUPPORT_GRAPHICS
-        // call js function
-        ContainerScope containerScope(containerScopeId_);
-#endif
+// #ifdef SUPPORT_GRAPHICS
+//         // call js function
+//         ContainerScope containerScope(containerScopeId_);
+// #endif
         std::vector<NativeValue*> args;
         args.reserve(jsArgs_.size());
         for (auto arg : jsArgs_) {
@@ -95,9 +95,9 @@ private:
     std::vector<std::shared_ptr<NativeReference>> jsArgs_;
     uv_timer_t timerReq_;
     uint32_t id_ = 0;
-#ifdef SUPPORT_GRAPHICS
-    int32_t containerScopeId_ = ContainerScope::CurrentId();
-#endif
+// #ifdef SUPPORT_GRAPHICS
+//     int32_t containerScopeId_ = ContainerScope::CurrentId();
+// #endif
 };
 
 NativeValue* StartTimeoutOrInterval(NativeEngine* engine, NativeCallbackInfo* info, bool isInterval)

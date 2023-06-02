@@ -28,6 +28,9 @@
 #include "js_runtime_utils.h"
 #include "js_timer.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
+#include "resource_manager.h"
+#include "window_scene.h"
+#include "js_window_stage.h"
 
 extern const char _binary_jsMockSystemPlugin_abc_start[];
 extern const char _binary_jsMockSystemPlugin_abc_end[];
@@ -56,6 +59,12 @@ int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char* messa
     return 0;
 }
 
+template<typename T, size_t N>
+inline constexpr size_t ArraySize(T (&)[N]) noexcept
+{
+    return N;
+}
+
 struct DebuggerTask {
     void OnPostTask(std::function<void()>&& task);
 
@@ -78,6 +87,12 @@ private:
     bool OnInit();
     void Run();
     NativeValue* LoadScript();
+    void InitResourceMgr();
+    void CreateJsAbilityContext(NativeValue* instanceValue);
+    void DispatchStartLifecycle(NativeValue* instanceValue);
+    std::unique_ptr<NativeReference> LoadSystemModuleByEngine(NativeEngine* engine,
+        const std::string& moduleName, NativeValue* const* argv, size_t argc);
+    std::unique_ptr<NativeReference> CreateJsWindowStage(const std::shared_ptr<Rosen::WindowScene>& windowScene);
 
     Options options_;
     std::string abilityPath_;
@@ -88,6 +103,9 @@ private:
 
     int64_t currentId_ = 0;
     std::unordered_map<int64_t, std::shared_ptr<NativeReference>> abilities_;
+    std::unordered_map<int64_t, std::shared_ptr<Rosen::WindowScene>> windowScenes_;
+    std::unordered_map<int64_t, std::shared_ptr<NativeReference>> jsWindowStages_;
+    std::shared_ptr<Global::Resource::ResourceManager> resourceMgr_;
 };
 
 template <class T>
@@ -219,11 +237,6 @@ void CallObjectMethod(NativeEngine& engine, NativeValue* value, const char *name
 
 NativeValue* SimulatorImpl::LoadScript()
 {
-    panda::JSNApi::SetBundleName(vm_, options_.bundleName);
-    panda::JSNApi::SetModuleName(vm_, options_.moduleName);
-    panda::JSNApi::SetAssetPath(vm_, options_.modulePath);
-    panda::JSNApi::SetBundle(vm_, false);
-
     panda::Local<panda::ObjectRef> objRef = panda::JSNApi::GetExportObject(vm_, abilityPath_, "default");
     if (objRef->IsNull()) {
         HILOG_ERROR("Get export object failed");
@@ -266,14 +279,13 @@ int64_t SimulatorImpl::StartAbility(const std::string& abilitySrcPath, Terminate
             return;
         }
 
-        CallObjectMethod(*nativeEngine_, instanceValue, "onCreate", nullptr, 0);
-        CallObjectMethod(*nativeEngine_, instanceValue, "onWindowStageCreate", nullptr, 0);
-        CallObjectMethod(*nativeEngine_, instanceValue, "onForeground", nullptr, 0);
+        ++currentId_;
+        InitResourceMgr();
+        CreateJsAbilityContext(instanceValue);
+        DispatchStartLifecycle(instanceValue);
+        abilities_.emplace(currentId_, nativeEngine_->CreateReference(instanceValue, 1));
 
-        int64_t id = ++currentId_;
-        abilities_.emplace(id, nativeEngine_->CreateReference(instanceValue, 1));
-
-        waiter.NotifyResult(id);
+        waiter.NotifyResult(currentId_);
     });
 
     uv_queue_work(nativeEngine_->GetUVLoop(), &work, [](uv_work_t*) {}, [](uv_work_t* work, int32_t status) {
@@ -311,6 +323,16 @@ void SimulatorImpl::TerminateAbility(int64_t abilityId)
         CallObjectMethod(*nativeEngine_, instanceValue, "onWindowStageDestroy", nullptr, 0);
         CallObjectMethod(*nativeEngine_, instanceValue, "onDestroy", nullptr, 0);
 
+        auto windowSceneIter = windowScenes_.find(abilityId);
+        if (windowSceneIter != windowScenes_.end()) {
+            windowScenes_.erase(windowSceneIter);
+        }
+
+        auto windowStageIter = jsWindowStages_.find(abilityId);
+        if (windowStageIter != jsWindowStages_.end()) {
+            jsWindowStages_.erase(windowStageIter);
+        }
+
         waiter.NotifyResult(true);
     });
 
@@ -321,6 +343,102 @@ void SimulatorImpl::TerminateAbility(int64_t abilityId)
     });
 
     waiter.WaitForResult();
+}
+
+void SimulatorImpl::InitResourceMgr()
+{
+    std::cout << "InitResourceMgr" << std::endl;
+    resourceMgr_ = std::shared_ptr<Global::Resource::ResourceManager>(Global::Resource::CreateResourceManager());
+    if (resourceMgr_ == nullptr) {
+        HILOG_ERROR("resourceMgr is nullptr");
+        return;
+    }
+
+    if (!resourceMgr_->AddResource(options_.resourcePath.c_str())) {
+        HILOG_ERROR("Add resource failed.");
+    }
+    HILOG_INFO("Add resource success.");
+}
+
+void SimulatorImpl::CreateJsAbilityContext(NativeValue* instanceValue)
+{
+    NativeValue* objValue = nativeEngine_->CreateObject();
+    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+
+    // if (resourceMgr_ != nullptr) {
+    //     napi_env env = reinterpret_cast<napi_env>(nativeEngine_);
+    //     napi_value result = Global::Resource::ResourceManagerAddon::Create(env, "", resourceMgr_, nullptr);
+    //     object->SetProperty("resourceManager", reinterpret_cast<NativeValue*>(result));
+    // }
+
+    NativeObject *obj = ConvertNativeValueTo<NativeObject>(instanceValue);
+    if (obj == nullptr) {
+        HILOG_ERROR("obj is nullptr");
+        return;
+    }
+    obj->SetProperty("context", objValue);
+}
+
+void SimulatorImpl::DispatchStartLifecycle(NativeValue* instanceValue)
+{
+    CallObjectMethod(*nativeEngine_, instanceValue, "onCreate", nullptr, 0);
+
+    auto windowScene = std::make_shared<Rosen::WindowScene>();
+    if (windowScene == nullptr) {
+        return;
+    }
+    sptr<Rosen::IWindowLifeCycle> listener = nullptr;
+    windowScene->Init(-1, nullptr, listener);
+    auto jsWindowStage = CreateJsWindowStage(windowScene);
+    if(jsWindowStage == nullptr) {
+        return;
+    }
+    NativeValue *argv[] = { jsWindowStage->Get() };
+    CallObjectMethod(*nativeEngine_, instanceValue, "onWindowStageCreate", argv, ArraySize(argv));
+
+    CallObjectMethod(*nativeEngine_, instanceValue, "onForeground", nullptr, 0);
+
+    windowScenes_.emplace(currentId_, windowScene);
+    jsWindowStages_.emplace(currentId_, std::shared_ptr<NativeReference>(jsWindowStage.release()));
+}
+
+std::unique_ptr<NativeReference> SimulatorImpl::CreateJsWindowStage(
+    const std::shared_ptr<Rosen::WindowScene>& windowScene)
+{
+    NativeValue *jsWindowStage = Rosen::CreateJsWindowStage(*nativeEngine_, windowScene);
+    if (jsWindowStage == nullptr) {
+        HILOG_ERROR("Failed to create jsWindowSatge object");
+        return nullptr;
+    }
+    return LoadSystemModuleByEngine(nativeEngine_.get(), "application.WindowStage", &jsWindowStage, 1);
+}
+
+std::unique_ptr<NativeReference> SimulatorImpl::LoadSystemModuleByEngine(NativeEngine* engine,
+    const std::string& moduleName, NativeValue* const* argv, size_t argc)
+{
+    HILOG_DEBUG("JsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
+    if (engine == nullptr) {
+        HILOG_INFO("JsRuntime::LoadSystemModule: invalid engine.");
+        return std::unique_ptr<NativeReference>();
+    }
+
+    NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(engine->GetGlobal());
+    std::unique_ptr<NativeReference> methodRequireNapiRef_;
+    methodRequireNapiRef_.reset(engine->CreateReference(globalObj->GetProperty("requireNapi"), 1));
+    if (!methodRequireNapiRef_) {
+        HILOG_ERROR("Failed to create reference for global.requireNapi");
+        return nullptr;
+    }
+    NativeValue* className = engine->CreateString(moduleName.c_str(), moduleName.length());
+    NativeValue* classValue =
+        engine->CallFunction(engine->GetGlobal(), methodRequireNapiRef_->Get(), &className, 1);
+    NativeValue* instanceValue = engine->CreateInstance(classValue, argv, argc);
+    if (instanceValue == nullptr) {
+        HILOG_ERROR("Failed to create object instance");
+        return std::unique_ptr<NativeReference>();
+    }
+
+    return std::unique_ptr<NativeReference>(engine->CreateReference(instanceValue, 1));
 }
 
 bool SimulatorImpl::OnInit()
@@ -381,6 +499,11 @@ bool SimulatorImpl::OnInit()
         NativeValue* mockRequireNapi = globalObj->GetProperty("mockRequireNapi");
         return engine->CallFunction(engine->CreateUndefined(), mockRequireNapi, info->argv, info->argc);
     });
+
+    panda::JSNApi::SetBundle(vm_, false);
+    panda::JSNApi::SetBundleName(vm_, options_.bundleName);
+    panda::JSNApi::SetModuleName(vm_, options_.moduleName);
+    panda::JSNApi::SetAssetPath(vm_, options_.modulePath);
 
     nativeEngine_ = std::move(nativeEngine);
     return true;
