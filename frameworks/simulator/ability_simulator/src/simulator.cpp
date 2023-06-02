@@ -78,7 +78,7 @@ private:
     bool OnInit();
     void Run();
     NativeValue* LoadScript();
-
+    panda::ecmascript::EcmaVM* CreateJSVM();
     Options options_;
     std::string abilityPath_;
     std::thread thread_;
@@ -219,11 +219,6 @@ void CallObjectMethod(NativeEngine& engine, NativeValue* value, const char *name
 
 NativeValue* SimulatorImpl::LoadScript()
 {
-    panda::JSNApi::SetBundleName(vm_, options_.bundleName);
-    panda::JSNApi::SetModuleName(vm_, options_.moduleName);
-    panda::JSNApi::SetAssetPath(vm_, options_.modulePath);
-    panda::JSNApi::SetBundle(vm_, false);
-
     panda::Local<panda::ObjectRef> objRef = panda::JSNApi::GetExportObject(vm_, abilityPath_, "default");
     if (objRef->IsNull()) {
         HILOG_ERROR("Get export object failed");
@@ -323,7 +318,7 @@ void SimulatorImpl::TerminateAbility(int64_t abilityId)
     waiter.WaitForResult();
 }
 
-bool SimulatorImpl::OnInit()
+panda::ecmascript::EcmaVM* SimulatorImpl::CreateJSVM()
 {
     panda::RuntimeOption pandaOption;
     pandaOption.SetArkProperties(DEFAULT_ARK_PROPERTIES);
@@ -335,7 +330,12 @@ bool SimulatorImpl::OnInit()
     pandaOption.SetLogBufPrint(PrintVmLog);
     pandaOption.SetEnableAsmInterpreter(true);
     pandaOption.SetAsmOpcodeDisableRange("");
-    vm_ = panda::JSNApi::CreateJSVM(pandaOption);
+    return panda::JSNApi::CreateJSVM(pandaOption);
+}
+
+bool SimulatorImpl::OnInit()
+{
+    vm_ = CreateJSVM();
     if (vm_ == nullptr) {
         return false;
     }
@@ -382,6 +382,10 @@ bool SimulatorImpl::OnInit()
         return engine->CallFunction(engine->CreateUndefined(), mockRequireNapi, info->argv, info->argc);
     });
 
+    panda::JSNApi::SetBundle(vm_, false);
+    panda::JSNApi::SetBundleName(vm_, options_.bundleName);
+    panda::JSNApi::SetModuleName(vm_, options_.moduleName);
+    panda::JSNApi::SetAssetPath(vm_, options_.modulePath);
     nativeEngine_ = std::move(nativeEngine);
     return true;
 }
