@@ -611,6 +611,16 @@ public:
     ExtensionAbilityType GetExtensionType() const;
     ProcessType GetProcessType() const;
 
+    inline void SetSpawned()
+    {
+        isSpawned_.store(true);
+    }
+
+    inline bool GetSpawned() const
+    {
+        return isSpawned_.load();
+    }
+
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -703,6 +713,7 @@ private:
 
     bool isKilling_ = false;
     bool isContinuousTask_ = false;    // Only continuesTask processes can be set to true, please choose carefully
+    std::atomic_bool isSpawned_ = false;
 
     // render record
     std::shared_ptr<RenderRecord> renderRecord_ = nullptr;
