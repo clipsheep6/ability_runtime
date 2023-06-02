@@ -127,7 +127,7 @@ constexpr int32_t ROOT_UID = 0;
 constexpr int32_t FOUNDATION_UID = 5523;
 constexpr int32_t DEFAULT_USER_ID = 0;
 
-// constexpr int32_t NET_MANAGER_GROUPID = 1099;
+constexpr int32_t NET_MANAGER_GROUPID = 1099;
 
 int32_t GetUserIdByUid(int32_t uid)
 {
@@ -1668,16 +1668,13 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         if (result != Security::AccessToken::PERMISSION_GRANTED) {
             setAllowInternet = 1;
             allowInternet = 0;
-            HILOG_ERROR("not Bundle Gids");
 #ifdef APP_MGR_SERVICE_APPMS
-            HILOG_ERROR("not Bundle Gids in macro");
             auto ret = SetInternetPermission(bundleInfo.uid, 0);
             HILOG_DEBUG("SetInternetPermission, ret = %{public}d", ret);
         } else {
             auto ret = SetInternetPermission(bundleInfo.uid, 1);
             HILOG_DEBUG("SetInternetPermission, ret = %{public}d", ret);
-            // HILOG_ERROR("Bundle Gids to 1099");
-            // bundleInfo.gids.push_back(NET_MANAGER_GROUPID);
+            bundleInfo.gids.push_back(NET_MANAGER_GROUPID);
 #endif
         }
 
@@ -1694,11 +1691,6 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     startMsg.uid = bundleInfo.uid;
     startMsg.gid = bundleInfo.gid;
     startMsg.gids = bundleInfo.gids;
-    if (!bundleInfo.gids.empty()) {
-        HILOG_ERROR("Bundle Gids is %{public}d", bundleInfo.gids[0]);
-    } else {
-        HILOG_ERROR("Bundle Gids is empty");
-    }
     startMsg.accessTokenId = bundleInfo.applicationInfo.accessTokenId;
     startMsg.apl = bundleInfo.applicationInfo.appPrivilegeLevel;
     startMsg.bundleName = bundleName;
