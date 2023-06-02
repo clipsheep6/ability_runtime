@@ -1666,15 +1666,16 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         if (result != Security::AccessToken::PERMISSION_GRANTED) {
             setAllowInternet = 1;
             allowInternet = 0;
-            // HILOG_ERROR("not Set netmanager group");
+            HILOG_ERROR("not Set netmanager group");
 #ifdef APP_MGR_SERVICE_APPMS
+            HILOG_ERROR("not Set netmanager group in macro");
             auto ret = SetInternetPermission(bundleInfo.uid, 0);
             HILOG_DEBUG("SetInternetPermission, ret = %{public}d", ret);
         } else {
             auto ret = SetInternetPermission(bundleInfo.uid, 1);
             HILOG_DEBUG("SetInternetPermission, ret = %{public}d", ret);
-            // HILOG_ERROR("Set netmanager group");
-            // bundleInfo.gids.push_back(1099);
+            HILOG_ERROR("Set netmanager group");
+            bundleInfo.gids.push_back(1099);
 #endif
         }
 
