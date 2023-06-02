@@ -829,6 +829,10 @@ void JsAbility::OnNewWant(const Want &want)
 
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(&nativeEngine), want);
     NativeValue *jsWant = reinterpret_cast<NativeValue *>(napiWant);
+    if (jsWant == nullptr) {
+        HILOG_ERROR("Failed to get want");
+        return;
+    }
 
     obj->SetProperty("lastRequestWant", jsWant);
 
