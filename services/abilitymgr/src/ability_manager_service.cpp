@@ -6916,5 +6916,14 @@ int32_t AbilityManagerService::ShareDataDone(
     handler_->RemoveEvent(SHAREDATA_TIMEOUT_MSG, uniqueId);
     return GetShareDataPairAndReturnData(abilityRecord, resultCode, uniqueId, wantParam);
 }
+
+void AbilityManagerService::SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession)
+{
+    if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD, U0_USER_ID)) {
+        HILOG_ERROR("Not sceneboard called, not allowed.");
+        return;
+    }
+    uiAbilityLifecycleManager_->SetRootSceneSession(rootSceneSession);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

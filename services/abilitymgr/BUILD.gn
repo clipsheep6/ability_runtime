@@ -151,6 +151,7 @@ ohos_shared_library("abilityms") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "window_manager:libwsutils",
+    "window_manager:scene_session",
   ]
 
   if (background_task_mgr_continuous_task_enable) {
