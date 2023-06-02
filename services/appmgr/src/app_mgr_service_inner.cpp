@@ -126,9 +126,9 @@ const std::string PROCESS_EXIT_EVENT_TASK = "Send Process Exit Event Task";
 constexpr int32_t ROOT_UID = 0;
 constexpr int32_t FOUNDATION_UID = 5523;
 constexpr int32_t DEFAULT_USER_ID = 0;
-
+#ifdef APP_MGR_SERVICE_APPMS
 constexpr int32_t NET_MANAGER_GROUPID = 1099;
-
+#endif
 int32_t GetUserIdByUid(int32_t uid)
 {
     return uid / BASE_USER_RANGE;
