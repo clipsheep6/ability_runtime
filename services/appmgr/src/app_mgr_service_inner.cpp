@@ -1668,7 +1668,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         if (result != Security::AccessToken::PERMISSION_GRANTED) {
             setAllowInternet = 1;
             allowInternet = 0;
-            HILOG_ERROR("not Bundle Gidsp");
+            HILOG_ERROR("not Bundle Gids");
 #ifdef APP_MGR_SERVICE_APPMS
             HILOG_ERROR("not Bundle Gids in macro");
             auto ret = SetInternetPermission(bundleInfo.uid, 0);
@@ -1676,8 +1676,8 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         } else {
             auto ret = SetInternetPermission(bundleInfo.uid, 1);
             HILOG_DEBUG("SetInternetPermission, ret = %{public}d", ret);
-            HILOG_ERROR("Bundle Gids to ");
-            bundleInfo.gids.push_back(NET_MANAGER_GROUPID);
+            // HILOG_ERROR("Bundle Gids to 1099");
+            // bundleInfo.gids.push_back(NET_MANAGER_GROUPID);
 #endif
         }
 
