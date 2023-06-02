@@ -178,6 +178,13 @@ AppRunningRecord::AppRunningRecord(
     startTimeMillis_ = static_cast<int64_t>(((t.tv_sec) * NANOSECONDS + t.tv_nsec) / MICROSECONDS);
 }
 
+AppRunningRecord::~AppRunningRecord()
+{
+    HILOG_INFO("~AppRunningRecord");
+    foregroundingAbilityTokens_.clear();
+    hapModules_.clear();
+}
+
 void AppRunningRecord::SetApplicationClient(const sptr<IAppScheduler> &thread)
 {
     if (!appLifeCycleDeal_) {

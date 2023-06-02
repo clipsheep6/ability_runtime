@@ -30,7 +30,20 @@ ModuleRunningRecord::ModuleRunningRecord(
 {}
 
 ModuleRunningRecord::~ModuleRunningRecord()
-{}
+{
+    HILOG_INFO("~ModuleRunningRecord");
+    abilities_.clear();
+    terminateAbilities_.clear();
+    appLifeCycleDeal_.reset();
+    appInfo_.reset();
+    eventHandler_.reset();
+    owenInfo_.name.clear();
+    owenInfo_.package.clear();
+    owenInfo_.moduleName.clear();
+    owenInfo_.description.clear();
+    owenInfo_.extensionInfos.clear();
+    owenInfo_.abilityInfos.clear();
+}
 
 void ModuleRunningRecord::Init(const HapModuleInfo &info)
 {
