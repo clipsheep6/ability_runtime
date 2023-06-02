@@ -46,15 +46,13 @@ public:
 
     void InitTimerModule();
 
-    void InitConsoleLogModule();
-
     void InitWorkerModule(const std::string& codePath, bool isDebugVersion, bool isBundle);
 
     void InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorObj);
 
     void InitSyscapModule();
 
-    void PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime);
+    void PostTask(const std::function<void()>& task, const std::string& name = "", int64_t delayTime = 0);
 
     void RemoveTask(const std::string& name);
 
@@ -65,6 +63,10 @@ public:
         const DebuggerPostTask& debuggerPostTask = {});
 
     void InitConsoleModule();
+
+    bool InitLoop(const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner);
+
+    void DeInitLoop();
 
     void StopDebugger();
 

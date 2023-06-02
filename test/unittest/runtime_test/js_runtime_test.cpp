@@ -323,28 +323,6 @@ HWTEST_F(JsRuntimeTest, JsRuntimeLoadSystemModuleTest_0100, TestSize.Level0)
 }
 
 /**
- * @tc.name: JsRuntimePostTaskTest_0100
- * @tc.desc: JsRuntime test for PostTask.
- * @tc.type: FUNC
- */
-HWTEST_F(JsRuntimeTest, JsRuntimePostTaskTest_0100, TestSize.Level0)
-{
-    HILOG_INFO("PostTask start");
-
-    std::unique_ptr<JsRuntime> jsRuntime = std::make_unique<MockJsRuntime>();
-    EXPECT_TRUE(jsRuntime != nullptr);
-
-    jsRuntime->eventHandler_ = nullptr;
-
-    auto task = []() { GTEST_LOG_(INFO) << "JsRuntimePostTaskTest_0100 task called"; };
-    std::string name = "";
-    int64_t delayTime = 0;
-    jsRuntime->PostTask(task, name, delayTime);
-
-    HILOG_INFO("PostTask end");
-}
-
-/**
  * @tc.name: RuntimeSavePreloadedTest_0100
  * @tc.desc: Runtime test for SavePreloaded.
  * @tc.type: FUNC

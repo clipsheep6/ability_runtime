@@ -31,12 +31,19 @@ public:
 
     void InitTimerModule(NativeEngine* engine) override;
 
-    void InitConsoleModule(NativeEngine *engine) override;
+    void InitConsoleModule(NativeEngine* engine) override;
+
+    bool InitLoop(NativeEngine* engine, const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner) override;
+
+    void DeInitLoop(NativeEngine* engine) override;
 
     void InitWorkerModule(NativeEngine& engine, const std::string& codePath, bool isDebugVersion,
         bool isBundle) override;
 
     void InitSyscapModule() override;
+
+private:
+    std::shared_ptr<AppExecFwk::EventHandler> eventHandler_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

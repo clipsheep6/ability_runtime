@@ -165,6 +165,31 @@ void JsEnvironment::InitConsoleModule()
     }
 }
 
+bool JsEnvironment::InitLoop(const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner)
+{
+    if (engine_ == nullptr) {
+        JSENV_LOG_E("Invalid Native Engine.");
+        return false;
+    }
+
+    if (impl_ != nullptr) {
+        impl_->InitLoop(engine_, eventRunner);
+    }
+    return true;
+}
+
+void JsEnvironment::DeInitLoop()
+{
+    if (engine_ == nullptr) {
+        JSENV_LOG_E("Invalid Native Engine.");
+        return;
+    }
+
+    if (impl_ != nullptr) {
+        impl_->DeInitLoop(engine_);
+    }
+}
+
 bool JsEnvironment::LoadScript(const std::string& path, uint8_t *buffer, size_t len, bool isBundle)
 {
     return engine_->RunScriptBuffer(path.c_str(), buffer, len, isBundle);

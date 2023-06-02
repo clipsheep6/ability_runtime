@@ -14,6 +14,7 @@
  */
 
 #include "ohos_js_environment_impl.h"
+#include "ohos_loop_handler.h"
 #include "commonlibrary/ets_utils/js_sys_module/console/console.h"
 #include "commonlibrary/ets_utils/js_sys_module/timer/timer.h"
 #include "hilog_wrapper.h"
@@ -37,11 +38,17 @@ OHOSJsEnvironmentImpl::~OHOSJsEnvironmentImpl()
 void OHOSJsEnvironmentImpl::PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime)
 {
     HILOG_DEBUG("called");
+    if (eventHandler_ != nullptr) {
+        eventHandler_->PostTask(task, name, delayTime);
+    }
 }
 
 void OHOSJsEnvironmentImpl::RemoveTask(const std::string& name)
 {
     HILOG_DEBUG("called");
+    if (eventHandler_ != nullptr) {
+        eventHandler_->RemoveTask(name);
+    }
 }
 
 void OHOSJsEnvironmentImpl::InitTimerModule(NativeEngine* engine)
@@ -56,10 +63,37 @@ void OHOSJsEnvironmentImpl::InitTimerModule(NativeEngine* engine)
     JsSysModule::Timer::RegisterTime(reinterpret_cast<napi_env>(engine));
 }
 
-void OHOSJsEnvironmentImpl::InitConsoleModule(NativeEngine *engine)
+void OHOSJsEnvironmentImpl::InitConsoleModule(NativeEngine* engine)
 {
     HILOG_DEBUG("called");
     JsSysModule::Console::InitConsoleModule(reinterpret_cast<napi_env>(engine));
+}
+
+bool OHOSJsEnvironmentImpl::InitLoop(NativeEngine* engine, const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner)
+{
+    HILOG_DEBUG("called");
+    eventHandler_ = std::make_shared<AppExecFwk::EventHandler>(eventRunner);
+    auto uvLoop = engine->GetUVLoop();
+    auto fd = uvLoop != nullptr ? uv_backend_fd(uvLoop) : -1;
+    if (fd < 0) {
+        HILOG_ERROR("Failed to get backend fd from uv loop");
+        return false;
+    }
+    uv_run(uvLoop, UV_RUN_NOWAIT);
+
+    uint32_t events = AppExecFwk::FILE_DESCRIPTOR_INPUT_EVENT | AppExecFwk::FILE_DESCRIPTOR_OUTPUT_EVENT;
+    eventHandler_->AddFileDescriptorListener(fd, events, std::make_shared<OHOSLoopHandler>(uvLoop));
+    return true;
+}
+
+void OHOSJsEnvironmentImpl::DeInitLoop(NativeEngine* engine)
+{
+    auto uvLoop = engine->GetUVLoop();
+    auto fd = uvLoop != nullptr ? uv_backend_fd(uvLoop) : -1;
+    if (fd >= 0 && eventHandler_ != nullptr) {
+        eventHandler_->RemoveFileDescriptorListener(fd);
+    }
+    RemoveTask(TIMER_TASK);
 }
 
 void OHOSJsEnvironmentImpl::InitWorkerModule(NativeEngine& engine, const std::string& codePath,

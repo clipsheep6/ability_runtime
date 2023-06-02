@@ -28,7 +28,6 @@
 #include "constants.h"
 #include "connect_server_manager.h"
 #include "ecmascript/napi/include/jsnapi.h"
-#include "event_handler.h"
 #include "extract_resource_manager.h"
 #include "file_path_utils.h"
 #include "hdc_register.h"
@@ -74,7 +73,6 @@ constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/libark_debugger.z.so";
 constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
 #endif
 
-constexpr char TIMER_TASK[] = "uv_timer_task";
 constexpr char MERGE_ABC_PATH[] = "/ets/modules.abc";
 constexpr char BUNDLE_INSTALL_PATH[] = "/data/storage/el1/bundle/";
 constexpr const char* PERMISSION_RUN_ANY_CODE = "ohos.permission.RUN_ANY_CODE";
@@ -122,73 +120,6 @@ void InitSyscapModule(NativeEngine& engine, NativeObject& globalObject)
     const char *moduleName = "JsRuntime";
     BindNativeFunction(engine, globalObject, "canIUse", moduleName, CanIUse);
 }
-
-class UvLoopHandler : public AppExecFwk::FileDescriptorListener, public std::enable_shared_from_this<UvLoopHandler> {
-public:
-    explicit UvLoopHandler(uv_loop_t* uvLoop) : uvLoop_(uvLoop) {}
-
-    void OnReadable(int32_t) override
-    {
-        HILOG_DEBUG("UvLoopHandler::OnReadable is triggered");
-        OnTriggered();
-    }
-
-    void OnWritable(int32_t) override
-    {
-        HILOG_DEBUG("UvLoopHandler::OnWritable is triggered");
-        OnTriggered();
-    }
-
-private:
-    void OnTriggered()
-    {
-        HILOG_DEBUG("UvLoopHandler::OnTriggered is triggered");
-
-        auto fd = uv_backend_fd(uvLoop_);
-        struct epoll_event ev;
-        do {
-            uv_run(uvLoop_, UV_RUN_NOWAIT);
-        } while (epoll_wait(fd, &ev, 1, 0) > 0);
-
-        auto eventHandler = GetOwner();
-        if (!eventHandler) {
-            return;
-        }
-
-        int32_t timeout = uv_backend_timeout(uvLoop_);
-        if (timeout < 0) {
-            if (haveTimerTask_) {
-                eventHandler->RemoveTask(TIMER_TASK);
-            }
-            return;
-        }
-
-        int64_t timeStamp = static_cast<int64_t>(uv_now(uvLoop_)) + timeout;
-        if (timeStamp == lastTimeStamp_) {
-            return;
-        }
-
-        if (haveTimerTask_) {
-            eventHandler->RemoveTask(TIMER_TASK);
-        }
-
-        auto callback = [wp = weak_from_this()] {
-            auto sp = wp.lock();
-            if (sp) {
-                // Timer task is triggered, so there is no timer task now.
-                sp->haveTimerTask_ = false;
-                sp->OnTriggered();
-            }
-        };
-        eventHandler->PostTask(callback, TIMER_TASK, timeout);
-        lastTimeStamp_ = timeStamp;
-        haveTimerTask_ = true;
-    }
-
-    uv_loop_t* uvLoop_ = nullptr;
-    int64_t lastTimeStamp_ = 0;
-    bool haveTimerTask_ = false;
-};
 
 int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char* message)
 {
@@ -239,15 +170,15 @@ void JsRuntime::StartDebugMode(bool needBreakPoint)
         HILOG_INFO("Already in debug mode");
         return;
     }
-
+    CHECK_POINTER(jsEnv_);
     // Set instance id to tid after the first instance.
     if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
         instanceId_ = static_cast<uint32_t>(gettid());
     }
 
     HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
-    auto debuggerPostTask = [eventHandler = eventHandler_](std::function<void()>&& task) {
-        eventHandler->PostTask(task);
+    auto debuggerPostTask = [jsEnv = jsEnv_](std::function<void()>&& task) {
+        jsEnv->PostTask(task);
     };
     StartDebuggerInWorkerModule();
     HdcRegister::Get().StartHdcRegister(bundleName_);
@@ -619,25 +550,8 @@ void JsRuntime::ReloadFormComponent()
 
 bool JsRuntime::InitLoop(const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner)
 {
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER_AND_RETURN(nativeEngine, false);
-
-    // Create event handler for runtime
-    eventHandler_ = std::make_shared<AppExecFwk::EventHandler>(eventRunner);
-
-    auto uvLoop = nativeEngine->GetUVLoop();
-    auto fd = uvLoop != nullptr ? uv_backend_fd(uvLoop) : -1;
-    if (fd < 0) {
-        HILOG_ERROR("Failed to get backend fd from uv loop");
-        return false;
-    }
-
-    // MUST run uv loop once before we listen its backend fd.
-    uv_run(uvLoop, UV_RUN_NOWAIT);
-
-    uint32_t events = AppExecFwk::FILE_DESCRIPTOR_INPUT_EVENT | AppExecFwk::FILE_DESCRIPTOR_OUTPUT_EVENT;
-    eventHandler_->AddFileDescriptorListener(fd, events, std::make_shared<UvLoopHandler>(uvLoop));
-    return true;
+    CHECK_POINTER_AND_RETURN(jsEnv_, false);
+    return jsEnv_->InitLoop(eventRunner);
 }
 
 void JsRuntime::SetAppLibPath(const AppLibPathMap& appLibPaths, const bool& isSystemApp)
@@ -676,15 +590,9 @@ void JsRuntime::Deinitialize()
     }
 
     methodRequireNapiRef_.reset();
-
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER(nativeEngine);
-    auto uvLoop = nativeEngine->GetUVLoop();
-    auto fd = uvLoop != nullptr ? uv_backend_fd(uvLoop) : -1;
-    if (fd >= 0 && eventHandler_ != nullptr) {
-        eventHandler_->RemoveFileDescriptorListener(fd);
-    }
-    RemoveTask(TIMER_TASK);
+    
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->DeInitLoop();
 }
 
 NativeValue* JsRuntime::LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk)
@@ -909,16 +817,14 @@ bool JsRuntime::RunSandboxScript(const std::string& path, const std::string& hap
 
 void JsRuntime::PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime)
 {
-    if (eventHandler_ != nullptr) {
-        eventHandler_->PostTask(task, name, delayTime);
-    }
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->PostTask(task, name, delayTime);
 }
 
 void JsRuntime::RemoveTask(const std::string& name)
 {
-    if (eventHandler_ != nullptr) {
-        eventHandler_->RemoveTask(name);
-    }
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->RemoveTask(name);
 }
 
 void JsRuntime::DumpHeapSnapshot(bool isPrivate)

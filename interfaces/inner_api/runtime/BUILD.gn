@@ -62,6 +62,7 @@ ohos_shared_library("runtime") {
     "${ability_runtime_native_path}/runtime/js_worker.cpp",
     "${ability_runtime_native_path}/runtime/ohos_js_env_logger.cpp",
     "${ability_runtime_native_path}/runtime/ohos_js_environment_impl.cpp",
+    "${ability_runtime_native_path}/runtime/ohos_loop_handler.cpp",
     "${ability_runtime_native_path}/runtime/runtime.cpp",
   ]
 
