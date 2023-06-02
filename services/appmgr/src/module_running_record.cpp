@@ -30,7 +30,9 @@ ModuleRunningRecord::ModuleRunningRecord(
 {}
 
 ModuleRunningRecord::~ModuleRunningRecord()
-{}
+{
+    HILOG_INFO("ModuleRunningRecord");
+}
 
 void ModuleRunningRecord::Init(const HapModuleInfo &info)
 {
