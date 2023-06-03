@@ -33,7 +33,7 @@ namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
 }
-const std::u16string AMSMGR_INTERFACE_TOKEN = u"ohos.aafwk.AmsManager";
+const std::u16string AMSMGR_INTERFACE_TOKEN = u"ohos.appexecfwk.IAmsMgr";
 
 uint32_t GetU32Data(const char* ptr)
 {
@@ -52,8 +52,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
     std::shared_ptr<AppMgrServiceInner> appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    std::shared_ptr<EventRunner> runner = EventRunner::Create(Constants::APP_MGR_SERVICE_NAME);
-    std::shared_ptr<AMSEventHandler> eventHandler = std::make_shared<AMSEventHandler>(runner, appMgrServiceInner);
+    std::shared_ptr<AMSEventHandler> eventHandler = std::make_shared<AMSEventHandler>(nullptr, appMgrServiceInner);
     std::shared_ptr<AmsMgrScheduler> amsMgr = std::make_shared<AmsMgrScheduler>(appMgrServiceInner, eventHandler);
     amsMgr->OnRemoteRequest(code, parcel, reply, option);
 
