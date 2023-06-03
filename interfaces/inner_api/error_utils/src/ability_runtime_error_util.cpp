@@ -132,7 +132,9 @@ const std::map<int32_t, std::string> ERROR_MSG_MAP = {
     { ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_FLAG,
         "Invalid URI flag." },
     { ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_TYPE,
-        "Invalid URI type, only support file uri" }
+        "Invalid URI type, only support file uri" },
+    { ERR_ABILITY_RUNTIME_EXTERNAL_GRANT_URI_PERMISSION,
+        "Sandbox application can not grant URI permission." }
 };
 }
 

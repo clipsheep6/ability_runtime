@@ -997,6 +997,13 @@ public:
         const Want &want,
         const sptr<IRemoteObject> &callerToken);
 
+    /**
+     * Set rootSceneSession by SCB.
+     *
+     * @param rootSceneSession Indicates root scene session of SCB.
+     */
+    void SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession);
+
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:

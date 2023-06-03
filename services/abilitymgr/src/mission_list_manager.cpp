@@ -488,7 +488,7 @@ bool MissionListManager::CreateOrReusedMissionInfo(const AbilityRequest &ability
 
     std::string missionName = GetMissionName(abilityRequest);
     auto mgr = DelayedSingleton<MissionInfoMgr>::GetInstance();
-    if (needFind && !abilityRequest.abilityInfo.applicationInfo.isLauncherApp && mgr &&
+    if (needFind && mgr &&
         mgr->FindReusedMissionInfo(missionName, abilityRequest.specifiedFlag, isFindRecentStandard, info)
         && info.missionInfo.id > 0) {
         reUsedMissionInfo = true;
@@ -549,7 +549,7 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
         info.missionInfo.label = targetRecord->GetLabel();
     }
 
-    if (abilityRequest.abilityInfo.applicationInfo.isLauncherApp || abilityRequest.abilityInfo.excludeFromMissions) {
+    if (abilityRequest.abilityInfo.excludeFromMissions) {
         return;
     }
 
@@ -3487,6 +3487,24 @@ bool MissionListManager::UpdateAbilityRecordLaunchReason(
 
     abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_START_ABILITY);
     return true;
+}
+
+void MissionListManager::NotifyMissionFocused(const int32_t missionId)
+{
+    if (listenerController_) {
+        listenerController_->NotifyMissionFocused(missionId);
+    } else {
+        HILOG_ERROR("listener controller is null");
+    }
+}
+
+void MissionListManager::NotifyMissionUnfocused(const int32_t missionId)
+{
+    if (listenerController_) {
+        listenerController_->NotifyMissionUnfocused(missionId);
+    } else {
+        HILOG_ERROR("listener controller is null");
+    }
 }
 
 void MissionListManager::NotifyAbilityToken(const sptr<IRemoteObject> &token, const AbilityRequest &abilityRequest)

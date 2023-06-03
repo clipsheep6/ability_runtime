@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,6 +31,8 @@ MissionListenerStub::MissionListenerStub()
     vecMemberFunc_[ON_MISSION_ICON_UPDATED] = &MissionListenerStub::OnMissionIconUpdatedInner;
     vecMemberFunc_[ON_MISSION_CLOSED] = &MissionListenerStub::OnMissionClosedInner;
     vecMemberFunc_[ON_MISSION_LABEL_UPDATED] = &MissionListenerStub::OnMissionLabelUpdatedInner;
+    vecMemberFunc_[ON_MISSION_FOCUSED] = &MissionListenerStub::OnMissionFocusedInner;
+    vecMemberFunc_[ON_MISSION_UNFOCUSED] = &MissionListenerStub::OnMissionUnfocusedInner;
 }
 
 int MissionListenerStub::OnMissionCreatedInner(MessageParcel &data, MessageParcel &reply)
@@ -58,6 +60,20 @@ int MissionListenerStub::OnMissionMovedToFrontInner(MessageParcel &data, Message
 {
     auto missionId = data.ReadInt32();
     OnMissionMovedToFront(missionId);
+    return NO_ERROR;
+}
+
+int MissionListenerStub::OnMissionFocusedInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto missionId = data.ReadInt32();
+    OnMissionFocused(missionId);
+    return NO_ERROR;
+}
+
+int MissionListenerStub::OnMissionUnfocusedInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto missionId = data.ReadInt32();
+    OnMissionUnfocused(missionId);
     return NO_ERROR;
 }
 

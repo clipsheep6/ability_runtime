@@ -23,6 +23,7 @@
 #include "ability_manager_errors.h"
 #include "ability_scheduler_proxy.h"
 #include "ability_scheduler_stub.h"
+#include "session/host/include/root_scene_session.h"
 #include "session_info.h"
 
 namespace OHOS {
@@ -2003,6 +2004,18 @@ int AbilityManagerStub::VerifyPermissionInner(MessageParcel &data, MessageParcel
         HILOG_ERROR("VerifyPermission failed.");
         return ERR_INVALID_VALUE;
     }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::SetRootSceneSessionInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Call.");
+    auto rootSceneSession = iface_cast<Rosen::RootSceneSession>(data.ReadRemoteObject());
+    if (rootSceneSession == nullptr) {
+        HILOG_ERROR("Read rootSceneSession failed.");
+        return ERR_INVALID_VALUE;
+    }
+    SetRootSceneSession(rootSceneSession);
     return NO_ERROR;
 }
 }  // namespace AAFwk

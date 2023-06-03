@@ -563,12 +563,13 @@ int AbilitySchedulerStub::ExecuteBatchInner(MessageParcel &data, MessageParcel &
     }
     std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> operations;
     for (int i = 0; i < count; i++) {
-        AppExecFwk::DataAbilityOperation *operation = data.ReadParcelable<AppExecFwk::DataAbilityOperation>();
-        if (operation == nullptr) {
-            HILOG_ERROR("AbilitySchedulerStub::ExecuteBatchInner operation is nullptr, index = %{public}d", i);
+        std::shared_ptr<AppExecFwk::DataAbilityOperation> dataAbilityOperation(
+            data.ReadParcelable<AppExecFwk::DataAbilityOperation>());
+        if (dataAbilityOperation == nullptr) {
+            HILOG_ERROR("AbilitySchedulerStub::ExecuteBatchInner dataAbilityOperation is nullptr, "
+                "index = %{public}d", i);
             return ERR_INVALID_VALUE;
         }
-        std::shared_ptr<AppExecFwk::DataAbilityOperation> dataAbilityOperation(operation);
         operations.push_back(dataAbilityOperation);
     }
 

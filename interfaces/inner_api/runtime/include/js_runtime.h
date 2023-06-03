@@ -116,6 +116,8 @@ public:
     void FreeNativeReference(std::unique_ptr<NativeReference> reference);
     void FreeNativeReference(std::shared_ptr<NativeReference>&& reference);
 
+    void ReloadFormComponent(); // Reload ArkTS-Card component
+
 private:
     void FinishPreload() override;
 

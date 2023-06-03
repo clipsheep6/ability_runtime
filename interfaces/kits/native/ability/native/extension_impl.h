@@ -18,7 +18,6 @@
 
 #include "extension.h"
 #include "lifecycle_state_info.h"
-#include "session/container/include/session_stage.h"
 
 namespace OHOS {
 class IRemoteObject;

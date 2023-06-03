@@ -41,6 +41,16 @@ void MissionListenerProxy::OnMissionMovedToFront(int32_t missionId)
     SendRequestCommon(missionId, IMissionListener::ON_MISSION_MOVED_TO_FRONT);
 }
 
+void MissionListenerProxy::OnMissionFocused(int32_t missionId)
+{
+    SendRequestCommon(missionId, IMissionListener::ON_MISSION_FOCUSED);
+}
+
+void MissionListenerProxy::OnMissionUnfocused(int32_t missionId)
+{
+    SendRequestCommon(missionId, IMissionListener::ON_MISSION_UNFOCUSED);
+}
+
 #ifdef SUPPORT_GRAPHICS
 void MissionListenerProxy::OnMissionIconUpdated(int32_t missionId, const std::shared_ptr<Media::PixelMap> &icon)
 {

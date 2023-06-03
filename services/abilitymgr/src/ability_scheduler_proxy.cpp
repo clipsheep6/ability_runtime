@@ -949,12 +949,12 @@ std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> AbilitySchedulerProx
     }
 
     for (int i = 0; i < total; i++) {
-        AppExecFwk::DataAbilityResult *result = reply.ReadParcelable<AppExecFwk::DataAbilityResult>();
-        if (result == nullptr) {
-            HILOG_ERROR("AbilitySchedulerProxy::ExecuteBatch result is nullptr, index = %{public}d", i);
+        std::shared_ptr<AppExecFwk::DataAbilityResult> dataAbilityResult(
+            reply.ReadParcelable<AppExecFwk::DataAbilityResult>());
+        if (dataAbilityResult == nullptr) {
+            HILOG_ERROR("AbilitySchedulerProxy::ExecuteBatch dataAbilityResult is nullptr, index = %{public}d", i);
             return results;
         }
-        std::shared_ptr<AppExecFwk::DataAbilityResult> dataAbilityResult(result);
         results.push_back(dataAbilityResult);
     }
     HILOG_INFO("AbilitySchedulerProxy::ExecuteBatch end %{public}d", total);

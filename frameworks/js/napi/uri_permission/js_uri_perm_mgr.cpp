@@ -109,6 +109,9 @@ private:
             } else if (errCode == AAFwk::ERR_CODE_INVALID_URI_TYPE) {
                 task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_TYPE,
                 "Only support file URI."));
+            } else if (errCode == AAFwk::ERR_CODE_GRANT_URI_PERMISSION) {
+                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_GRANT_URI_PERMISSION,
+                "Sandbox application can not grant URI permission."));
             } else {
                 task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR,
                 "Internal Error."));

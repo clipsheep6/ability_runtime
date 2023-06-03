@@ -477,7 +477,7 @@ private:
      * @param abilityRecord current running ability record
      */
     void UpdateProcessExtensionType(const std::shared_ptr<AbilityLocalRecord> &abilityRecord);
-    
+
     /**
      * @brief Add Extension block item
      *
@@ -485,7 +485,7 @@ private:
      * @param type extension type
      */
     void AddExtensionBlockItem(const std::string &extensionName, int32_t type);
-    
+
     /**
      * @brief Update extension block list to nativeEngine
      *
@@ -558,7 +558,8 @@ private:
      */
     void LoadAbilityLibrary(const std::vector<std::string> &libraryPaths);
 
-    void LoadNativeLiabrary(std::string &nativeLibraryPath);
+    void CalcNativeLiabraryEntries(const BundleInfo &bundleInfo, std::string &nativeLibraryPath);
+    void LoadNativeLiabrary(const BundleInfo &bundleInfo, std::string &nativeLibraryPath);
 
     void LoadAppDetailAbilityLibrary(std::string &nativeLibraryPath);
 
@@ -569,13 +570,6 @@ private:
 
     void ChangeToLocalPath(const std::string &bundleName,
         const std::string &sourcDir, std::string &localPath);
-
-    /**
-     *
-     * @brief Close the ability library loaded.
-     *
-     */
-    void CloseAbilityLibrary();
 
     bool ScanDir(const std::string &dirPath, std::vector<std::string> &files);
 

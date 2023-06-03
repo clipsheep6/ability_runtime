@@ -859,6 +859,9 @@ int32_t AppMgrServiceInner::GetAllRunningProcesses(std::vector<RunningProcessInf
     // check permission
     for (const auto &item : appRunningManager_->GetAppRunningRecordMap()) {
         const auto &appRecord = item.second;
+        if (!appRecord->GetSpawned()) {
+            continue;
+        }
         if (isPerm) {
             GetRunningProcesses(appRecord, info);
         } else {
@@ -886,6 +889,9 @@ int32_t AppMgrServiceInner::GetProcessRunningInfosByUserId(std::vector<RunningPr
 
     for (const auto &item : appRunningManager_->GetAppRunningRecordMap()) {
         const auto &appRecord = item.second;
+        if (!appRecord->GetSpawned()) {
+            continue;
+        }
         int32_t userIdTemp = static_cast<int32_t>(appRecord->GetUid() / USER_SCALE);
         if (userIdTemp == userId) {
             GetRunningProcesses(appRecord, info);
@@ -1728,6 +1734,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     appRecord->SetUid(startMsg.uid);
     appRecord->SetStartMsg(startMsg);
     appRecord->SetAppMgrServiceInner(weak_from_this());
+    appRecord->SetSpawned();
     OnAppStateChanged(appRecord, ApplicationState::APP_STATE_CREATE, false);
     AddAppToRecentList(appName, appRecord->GetProcessName(), pid, appRecord->GetRecordId());
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessCreated(appRecord);

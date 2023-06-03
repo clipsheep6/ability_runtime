@@ -63,6 +63,7 @@
 #include "connection_state_manager.h"
 
 #ifdef SUPPORT_GRAPHICS
+
 #include "display_manager.h"
 // #include "input_manager.h"
 // #include "png.h"
@@ -98,6 +99,7 @@ const std::string ILLEGAL_INFOMATION = "The arguments are illegal and you can en
 
 constexpr int32_t NEW_RULE_VALUE_SIZE = 6;
 constexpr int64_t APP_ALIVE_TIME_MS = 1000;  // Allow background startup within 1 second after application startup
+constexpr int32_t REGISTER_FOCUS_DELAY = 5000;
 const std::string IS_DELEGATOR_CALL = "isDelegatorCall";
 // Startup rule switch
 const std::string COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
@@ -303,6 +305,7 @@ bool AbilityManagerService::Init()
 #ifdef SUPPORT_GRAPHICS
     DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(OHOS::system::GetDeviceType());
     implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
+    InitFocusListener();
 #endif
 
     auto initConnectionStateManagerTask = []() {
@@ -538,24 +541,10 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     if (CheckProxyComponent(want, result) && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
         return componentRequest.requestResult;
     }
-    // start freeInstall when start self's module and module not exist
-    if (result == RESOLVE_ABILITY_ERR && want.GetElement().GetBundleName() == GetBundleNameFromToken(callerToken)) {
-        if (CheckIfOperateRemote(want) || freeInstallManager_ == nullptr) {
-            HILOG_ERROR("can not start remote free install");
-            return ERR_INVALID_VALUE;
-        }
-        Want localWant = want;
-        UpdateCallerInfo(localWant, callerToken);
-        int freeInstallRet = freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, false);
-        if (freeInstallRet != ERR_OK) {
-            HILOG_ERROR("freeInstall ret: %{public}d", freeInstallRet);
-            return freeInstallRet;
-        }
-    } else {
-        if (result != ERR_OK) {
-            HILOG_ERROR("Generate ability request local error.");
-            return result;
-        }
+
+    if (result != ERR_OK) {
+        HILOG_ERROR("Generate ability request local error.");
+        return result;
     }
 
     if (!isStartAsCaller) {
@@ -733,28 +722,11 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     if (result != ERR_OK && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
         return componentRequest.requestResult;
     }
-    // start freeInstall when start self's module and module not exist
-    if (result == RESOLVE_ABILITY_ERR && want.GetElement().GetBundleName() == GetBundleNameFromToken(callerToken)) {
-        if (CheckIfOperateRemote(want) || freeInstallManager_ == nullptr) {
-            HILOG_ERROR("can not start remote free install");
-            return ERR_INVALID_VALUE;
-        }
-        Want localWant = want;
-        UpdateCallerInfo(localWant, callerToken);
-        int freeInstallRet = freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, false);
-        if (freeInstallRet != ERR_OK) {
-            HILOG_ERROR("freeInstall ret: %{public}d", freeInstallRet);
-            eventInfo.errCode = freeInstallRet;
-            EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
-            return freeInstallRet;
-        }
-    } else {
-        if (result != ERR_OK) {
-            HILOG_ERROR("Generate ability request local error.");
-            eventInfo.errCode = result;
-            EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
-            return result;
-        }
+    if (result != ERR_OK) {
+        HILOG_ERROR("Generate ability request local error.");
+        eventInfo.errCode = result;
+        EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
+        return result;
     }
 
     auto abilityInfo = abilityRequest.abilityInfo;
@@ -927,32 +899,11 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     if (result != ERR_OK && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
         return componentRequest.requestResult;
     }
-    // start freeInstall when start self's module and module not exist
-    if (result == RESOLVE_ABILITY_ERR && want.GetElement().GetBundleName() == GetBundleNameFromToken(callerToken)) {
-        if (CheckIfOperateRemote(want) || freeInstallManager_ == nullptr) {
-            HILOG_ERROR("can not start remote free install");
-            return ERR_INVALID_VALUE;
-        }
-        Want localWant = want;
-        if (!isStartAsCaller) {
-            UpdateCallerInfo(localWant, callerToken);
-        } else {
-            HILOG_INFO("start as caller, skip UpdateCallerInfo!");
-        }
-        int freeInstallRet = freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, false);
-        if (freeInstallRet != ERR_OK) {
-            HILOG_ERROR("freeInstall ret: %{public}d", freeInstallRet);
-            eventInfo.errCode = freeInstallRet;
-            EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
-            return freeInstallRet;
-        }
-    } else {
-        if (result != ERR_OK) {
-            HILOG_ERROR("Generate ability request local error.");
-            eventInfo.errCode = result;
-            EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
-            return result;
-        }
+    if (result != ERR_OK) {
+        HILOG_ERROR("Generate ability request local error.");
+        eventInfo.errCode = result;
+        EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
+        return result;
     }
 
     if (!isStartAsCaller) {
@@ -1040,7 +991,7 @@ int32_t AbilityManagerService::RequestDialogService(const Want &want, const sptr
         return ERR_INVALID_CONTINUATION_FLAG;
     }
 
-    HILOG_INFO("request dialog service, target is %{public}s",want.GetElement().GetURI().c_str());
+    HILOG_INFO("request dialog service, target is %{public}s", want.GetElement().GetURI().c_str());
     return RequestDialogServiceInner(want, callerToken, -1, -1);
 }
 
@@ -1255,6 +1206,33 @@ bool AbilityManagerService::IsBackgroundTaskUid(const int uid)
 bool AbilityManagerService::IsDmsAlive() const
 {
     return g_isDmsAlive.load();
+}
+
+int32_t AbilityManagerService::GetConfiguration(AppExecFwk::Configuration& config)
+{
+    auto appMgr = GetAppMgr();
+    if (appMgr == nullptr) {
+        HILOG_WARN("GetAppMgr failed");
+        return -1;
+    }
+
+    return appMgr->GetConfiguration(config);
+}
+
+OHOS::sptr<OHOS::AppExecFwk::IAppMgr> AbilityManagerService::GetAppMgr()
+{
+    if (appMgr_) {
+        return appMgr_;
+    }
+
+    OHOS::sptr<OHOS::ISystemAbilityManager> systemAbilityManager =
+        OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (!systemAbilityManager) {
+        return nullptr;
+    }
+    OHOS::sptr<OHOS::IRemoteObject> object = systemAbilityManager->GetSystemAbility(OHOS::APP_MGR_SERVICE_ID);
+    appMgr_ = OHOS::iface_cast<OHOS::AppExecFwk::IAppMgr>(object);
+    return appMgr_;
 }
 
 int AbilityManagerService::CheckOptExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
@@ -5735,18 +5713,6 @@ void AbilityManagerService::UpdateCallerInfo(Want& want, const sptr<IRemoteObjec
     }
 }
 
-std::string AbilityManagerService::GetBundleNameFromToken(const sptr<IRemoteObject> &callerToken)
-{
-    std::string callerBundleName;
-    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-    if (!abilityRecord) {
-        HILOG_WARN("abilityRecord is null.");
-    } else {
-        callerBundleName = abilityRecord->GetAbilityInfo().bundleName;
-    }
-    return callerBundleName;
-}
-
 bool AbilityManagerService::JudgeMultiUserConcurrency(const int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -6262,6 +6228,60 @@ bool AbilityManagerService::CheckWindowMode(int32_t windowMode,
     }
     return false;
 }
+
+void AbilityManagerService::HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo)
+{
+    HILOG_INFO("handle focused event");
+    if (!currentMissionListManager_) {
+        HILOG_ERROR("current mission manager is null");
+        return;
+    }
+
+    int32_t missionId = GetMissionIdByAbilityToken(focusChangeInfo->abilityToken_);
+    currentMissionListManager_->NotifyMissionFocused(missionId);
+}
+
+void AbilityManagerService::HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo)
+{
+    HILOG_INFO("handle unfocused event");
+    if (!currentMissionListManager_) {
+        HILOG_ERROR("current mission manager is null");
+        return;
+    }
+
+    int32_t missionId = GetMissionIdByAbilityToken(focusChangeInfo->abilityToken_);
+    currentMissionListManager_->NotifyMissionUnfocused(missionId);
+}
+
+void AbilityManagerService::InitFocusListener()
+{
+    HILOG_INFO("Init ability focus listener");
+    if (focusListener_) {
+        return;
+    }
+
+    focusListener_ = new WindowFocusChangedListener(shared_from_this(), handler_);
+    auto registerTask = [innerService = shared_from_this()]() {
+        if (innerService) {
+            HILOG_INFO("RegisterFocusListener task");
+            innerService->RegisterFocusListener();
+        }
+    };
+    if (handler_) {
+        handler_->PostTask(registerTask, "RegisterFocusListenerTask", REGISTER_FOCUS_DELAY);
+    }
+}
+
+void AbilityManagerService::RegisterFocusListener()
+{
+    HILOG_INFO("Register focus listener");
+    if (!focusListener_) {
+        HILOG_ERROR("no listener obj");
+        return;
+    }
+    Rosen::WindowManager::GetInstance().RegisterFocusChangedListener(focusListener_);
+    HILOG_INFO("Register focus listener success");
+}
 #endif
 
 int AbilityManagerService::CheckCallServicePermission(const AbilityRequest &abilityRequest)
@@ -6671,7 +6691,7 @@ bool AbilityManagerService::IsComponentInterceptionStart(const Want &want, Compo
         if (callType == AbilityCallType::CALL_REQUEST_TYPE) {
             newWant.SetParam("abilityConnectionObj", request.connect->AsObject());
         }
-        int32_t tokenId = IPCSkeleton::GetCallingTokenID();
+        int32_t tokenId = static_cast<int32_t>(IPCSkeleton::GetCallingTokenID());
         newWant.SetParam("accessTokenId", tokenId);
 
         HILOG_DEBUG("%{public}s", __func__);
@@ -6892,6 +6912,15 @@ int32_t AbilityManagerService::ShareDataDone(
     CHECK_POINTER_AND_RETURN_LOG(handler_, ERR_INVALID_VALUE, "fail to get abilityEventHandler.");
     handler_->RemoveEvent(SHAREDATA_TIMEOUT_MSG, uniqueId);
     return GetShareDataPairAndReturnData(abilityRecord, resultCode, uniqueId, wantParam);
+}
+
+void AbilityManagerService::SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession)
+{
+    if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD, U0_USER_ID)) {
+        HILOG_ERROR("Not sceneboard called, not allowed.");
+        return;
+    }
+    uiAbilityLifecycleManager_->SetRootSceneSession(rootSceneSession);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
-}

@@ -48,5 +48,6 @@ ohos_shared_library("js_environment") {
   ]
 
   subsystem_name = "ability"
+  innerapi_tags = [ "platformsdk_indirect" ]
   part_name = "ability_runtime"
 }

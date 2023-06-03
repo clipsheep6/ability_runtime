@@ -53,8 +53,8 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned in
         return INNER_ERR;
     }
     if (isSandbox) {
-        HILOG_ERROR("Sandbox can not grant uri permission.");
-        return CHECK_PERMISSION_FAILED;
+        HILOG_ERROR("Sandbox application can not grant URI permission.");
+        return ERR_CODE_GRANT_URI_PERMISSION;
     }
 
     if ((flag & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
@@ -183,7 +183,7 @@ void UriPermissionManagerStubImpl::RevokeAllUriPermissions(int tokenId)
         for (auto iter = uriMap_.begin(); iter != uriMap_.end();) {
             auto& list = iter->second;
             for (auto it = list.begin(); it != list.end();) {
-                if (it->targetTokenId == tokenId || it->fromTokenId == tokenId) {
+                if (it->targetTokenId == static_cast<int>(tokenId) || it->fromTokenId == static_cast<int>(tokenId)) {
                     HILOG_INFO("Erase an info form list.");
                     uriLists[it->targetTokenId].emplace_back(iter->first);
                     list.erase(it++);
