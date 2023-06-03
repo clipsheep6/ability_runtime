@@ -102,7 +102,8 @@ HWTEST_F(OHOSJsEnvironmentTest, InitWorkerModule_0100, TestSize.Level0)
     AbilityRuntime::Runtime::Options options;
     auto runtime = AbilityRuntime::Runtime::Create(options);
     auto& jsEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEngine();
-    jsEnvImpl->InitWorkerModule(jsEngine, "", false, false);
+    std::shared_ptr<JsEnv::WorkerInfo> workerInfo = std::make_shared<JsEnv::WorkerInfo>();
+    jsEnvImpl->InitWorkerModule(jsEngine, workerInfo);
 }
 
 /**

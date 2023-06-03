@@ -33,8 +33,7 @@ public:
 
     void InitConsoleModule(NativeEngine *engine) override;
 
-    void InitWorkerModule(NativeEngine& engine, const std::string& codePath, bool isDebugVersion,
-        bool isBundle) override;
+    void InitWorkerModule(NativeEngine& engine, std::shared_ptr<JsEnv::WorkerInfo> workerInfo) override;
 
     void InitSyscapModule() override;
 };

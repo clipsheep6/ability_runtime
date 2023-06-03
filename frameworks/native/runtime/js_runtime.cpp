@@ -538,10 +538,18 @@ bool JsRuntime::Initialize(const Options& options)
             } else {
                 InitTimerModule();
             }
-            if (jsEnv_) {
-                jsEnv_->InitWorkerModule(codePath_, options.isDebugVersion, options.isBundle);
-            }
         }
+    }
+    if (jsEnv_ && !options.preload) {
+        std::shared_ptr<JsEnv::WorkerInfo> workerInfo = std::make_shared<JsEnv::WorkerInfo>();
+        workerInfo->codePath = codePath_;
+        workerInfo->isDebugVersion = options.isDebugVersion;
+        workerInfo->isBundle = options.isBundle;
+        workerInfo->packagePathStr = options.packagePathStr;
+        workerInfo->assetBasePathStr = options.assetBasePathStr;
+        workerInfo->hapPath = options.hapPath;
+        workerInfo->isStageModel = options.isStageModel;
+        jsEnv_->InitWorkerModule(workerInfo);
     }
 
     auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>(options.hapPath, isModular);
