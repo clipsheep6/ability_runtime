@@ -41,6 +41,7 @@
 #include "remote_client_manager.h"
 #include "app_running_manager.h"
 #include "record_query_result.h"
+#include "render_process_info.h"
 #include "running_process_info.h"
 #include "bundle_info.h"
 #include "istart_specified_ability_response.h"
@@ -275,6 +276,15 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual int32_t GetProcessRunningInformation(RunningProcessInfo &info);
+
+    /**
+     * GetAllRenderProcesses, Obtains information about render processes that are running on the device.
+     *
+     * @param info, render process record.
+     *
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual int32_t GetAllRenderProcesses(std::vector<RenderProcessInfo> &info);
 
     /**
      * NotifyMemoryLevel, Notify applications background the current memory level.
@@ -802,6 +812,8 @@ private:
 
     void GetRunningProcesses(const std::shared_ptr<AppRunningRecord> &appRecord, std::vector<RunningProcessInfo> &info);
     void GetRunningProcess(const std::shared_ptr<AppRunningRecord> &appRecord, RunningProcessInfo &info);
+
+    void GetRenderProcesses(const std::shared_ptr<AppRunningRecord> &appRecord, std::vector<RenderProcessInfo> &info);
 
     int StartRenderProcessImpl(const std::shared_ptr<RenderRecord> &renderRecord,
         const std::shared_ptr<AppRunningRecord> appRecord, pid_t &renderPid);

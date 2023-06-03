@@ -320,6 +320,14 @@ int32_t AppMgrService::GetAllRunningProcesses(std::vector<RunningProcessInfo> &i
     return appMgrServiceInner_->GetAllRunningProcesses(info);
 }
 
+int32_t AppMgrService::GetAllRenderProcesses(std::vector<RenderProcessInfo> &info)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->GetAllRenderProcesses(info);
+}
+
 int32_t AppMgrService::JudgeSandboxByPid(pid_t pid, bool &isSandbox)
 {
     if (!IsReady()) {

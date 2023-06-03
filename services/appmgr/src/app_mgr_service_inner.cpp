@@ -916,6 +916,29 @@ int32_t AppMgrServiceInner::GetProcessRunningInformation(RunningProcessInfo &inf
     return ERR_OK;
 }
 
+int32_t AppMgrServiceInner::GetAllRenderProcesses(std::vector<RenderProcessInfo> &info)
+{
+    auto isPerm = AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm();
+    // check permission
+    for (const auto &item : appRunningManager_->GetAppRunningRecordMap()) {
+        const auto &appRecord = item.second;
+        if (isPerm) {
+            GetRenderProcesses(appRecord, info);
+        } else {
+            auto applicationInfo = appRecord->GetApplicationInfo();
+            if (!applicationInfo) {
+                continue;
+            }
+            auto callingTokenId = IPCSkeleton::GetCallingTokenID();
+            auto tokenId = applicationInfo->accessTokenId;
+            if (callingTokenId == tokenId) {
+                GetRenderProcesses(appRecord, info);
+            }
+        }
+    }
+    return ERR_OK;
+}
+
 int32_t AppMgrServiceInner::NotifyMemoryLevel(int32_t level)
 {
     HILOG_INFO("AppMgrServiceInner start");
@@ -980,6 +1003,27 @@ void AppMgrServiceInner::GetRunningProcess(const std::shared_ptr<AppRunningRecor
     appRecord->GetBundleNames(info.bundleNames);
     info.processType_ = appRecord->GetProcessType();
     info.extensionType_ = appRecord->GetExtensionType();
+}
+
+void AppMgrServiceInner::GetRenderProcesses(const std::shared_ptr<AppRunningRecord> &appRecord,
+    std::vector<RenderProcessInfo> &info)
+{
+    auto renderRecordMap = appRecord->GetRenderRecordMap();
+    if (renderRecordMap.empty()) {
+        return;
+    }
+    for (auto iter : renderRecordMap) {
+        auto renderRecord = iter.second;
+        if (renderRecord != nullptr) {
+            RenderProcessInfo renderProcessInfo;
+            renderProcessInfo.bundleName_ = renderRecord->GetHostBundleName();
+            renderProcessInfo.processName_ = renderRecord->GetProcessName();
+            renderProcessInfo.pid_ = renderRecord->GetPid();
+            renderProcessInfo.uid_ = renderRecord->GetUid();
+            renderProcessInfo.hostUid_ = renderRecord->GetHostUid();
+            info.emplace_back(renderProcessInfo);
+        }
+    }
 }
 
 int32_t AppMgrServiceInner::KillProcessByPid(const pid_t pid) const
@@ -1558,6 +1602,15 @@ AppProcessData AppMgrServiceInner::WrapAppProcessData(const std::shared_ptr<AppR
     processData.pid = appRecord->GetPriorityObject()->GetPid();
     processData.appState = state;
     processData.isFocused = appRecord->GetFocusFlag();
+    auto renderRecordMap = appRecord->GetRenderRecordMap();
+    if (!renderRecordMap.empty()) {
+        for (auto iter : renderRecordMap) {
+            auto renderRecord = iter.second;
+            if (renderRecord != nullptr) {
+                processData.renderPids.emplace_back(renderRecord->GetPid());
+            }
+        }
+    }
     return processData;
 }
 
@@ -1906,11 +1959,16 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessDied(appRecord);
 
     // kill render if exist.
-    auto renderRecord = appRecord->GetRenderRecord();
-    if (renderRecord && renderRecord->GetPid() > 0) {
-        HILOG_DEBUG("Kill render process when host died.");
-        KillProcessByPid(renderRecord->GetPid());
-        DelayedSingleton<AppStateObserverManager>::GetInstance()->OnRenderProcessDied(renderRecord);
+    auto renderRecordMap = appRecord->GetRenderRecordMap();
+    if (!renderRecordMap.empty()) {
+        for (auto iter : renderRecordMap) {
+            auto renderRecord = iter.second;
+            if (renderRecord && renderRecord->GetPid() > 0) {
+                HILOG_DEBUG("Kill render process when host died.");
+                KillProcessByPid(renderRecord->GetPid());
+                DelayedSingleton<AppStateObserverManager>::GetInstance()->OnRenderProcessDied(renderRecord);
+            }
+        }
     }
 
     if (appRecord->GetPriorityObject() != nullptr) {
@@ -3120,14 +3178,18 @@ int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::strin
         return ERR_INVALID_VALUE;
     }
 
-    auto renderRecord = appRecord->GetRenderRecord();
-    if (renderRecord) {
-        HILOG_WARN("already exist render process,do not request again, renderPid:%{public}d", renderRecord->GetPid());
-        renderPid = renderRecord->GetPid();
-        return ERR_ALREADY_EXIST_RENDER;
+    auto renderRecordMap = appRecord->GetRenderRecordMap();
+    if (!renderRecordMap.empty()) {
+        for (auto iter : renderRecordMap) {
+            if (iter.second != nullptr) {
+                HILOG_WARN("already exist render process, renderPid:%{public}d", iter.second->GetPid());
+                renderPid = iter.second->GetPid();
+                return ERR_ALREADY_EXIST_RENDER;
+            }
+        }
     }
 
-    renderRecord = RenderRecord::CreateRenderRecord(hostPid, renderParam, ipcFd, sharedFd, crashFd, appRecord);
+    auto renderRecord = RenderRecord::CreateRenderRecord(hostPid, renderParam, ipcFd, sharedFd, crashFd, appRecord);
     if (!renderRecord) {
         HILOG_ERROR("create render record failed, hostPid:%{public}d", hostPid);
         return ERR_INVALID_VALUE;
@@ -3160,7 +3222,7 @@ void AppMgrServiceInner::AttachRenderProcess(const pid_t pid, const sptr<IRender
         return;
     }
 
-    auto renderRecord = appRecord->GetRenderRecord();
+    auto renderRecord = appRecord->GetRenderRecordByPid(pid);
     if (!renderRecord) {
         HILOG_ERROR("no such render Record, pid:%{public}d", pid);
         return;
@@ -3204,8 +3266,9 @@ int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecor
         return ERR_INVALID_VALUE;
     }
     renderPid = pid;
-    appRecord->SetRenderRecord(renderRecord);
     renderRecord->SetPid(pid);
+    renderRecord->SetUid(startMsg.uid);
+    appRecord->AddRenderRecord(renderRecord);
     HILOG_INFO("start render process success, hostPid:%{public}d, pid:%{public}d uid:%{public}d",
         renderRecord->GetHostPid(), pid, startMsg.uid);
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnRenderProcessCreated(renderRecord);

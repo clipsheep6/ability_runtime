@@ -624,8 +624,17 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByRender
 {
     std::lock_guard<std::recursive_mutex> guard(lock_);
     auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
-        auto renderRecord = pair.second->GetRenderRecord();
-        return renderRecord && renderRecord->GetPid() == pid;
+        auto renderRecordMap = pair.second->GetRenderRecordMap();
+        if (renderRecordMap.empty()) {
+            return false;
+        }
+        for (auto it : renderRecordMap) {
+            auto renderRecord = it.second;
+            if (renderRecord && renderRecord->GetPid() == pid) {
+                return true;
+            }
+        }
+        return false;
     });
     return ((iter == appRunningRecordMap_.end()) ? nullptr : iter->second);
 }
@@ -643,24 +652,33 @@ std::shared_ptr<RenderRecord> AppRunningManager::OnRemoteRenderDied(const wptr<I
     }
 
     std::lock_guard<std::recursive_mutex> guard(lock_);
+    std::shared_ptr<RenderRecord> renderRecord;
     const auto &it =
-        std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&object](const auto &pair) {
+        std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(),
+            [&object, &renderRecord](const auto &pair) {
             if (!pair.second) {
                 return false;
             }
 
-            auto renderRecord = pair.second->GetRenderRecord();
-            if (!renderRecord) {
+            auto renderRecordMap = pair.second->GetRenderRecordMap();
+            if (renderRecordMap.empty()) {
                 return false;
             }
-
-            auto scheduler = renderRecord->GetScheduler();
-            return scheduler && scheduler->AsObject() == object;
+            for (auto iter : renderRecordMap) {
+                if (iter.second == nullptr) {
+                    continue;
+                }
+                auto scheduler = iter.second->GetScheduler();
+                if (scheduler && scheduler->AsObject() == object) {
+                    renderRecord = iter.second;
+                    return true;
+                }
+            }
+            return false;
         });
     if (it != appRunningRecordMap_.end()) {
         auto appRecord = it->second;
-        auto renderRecord = appRecord->GetRenderRecord();
-        appRecord->SetRenderRecord(nullptr);
+        appRecord->RemoveRenderRecord(renderRecord);
         return renderRecord;
     }
     return nullptr;

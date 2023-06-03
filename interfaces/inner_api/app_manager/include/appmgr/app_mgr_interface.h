@@ -26,6 +26,7 @@
 #include "bundle_info.h"
 #include "iapp_state_callback.h"
 #include "ams_mgr_interface.h"
+#include "render_process_info.h"
 #include "running_process_info.h"
 #include "system_memory_attr.h"
 #include "iapplication_state_observer.h"
@@ -116,6 +117,15 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual int GetAllRunningProcesses(std::vector<RunningProcessInfo> &info) = 0;
+
+    /**
+     * GetAllRenderProcesses, call GetAllRenderProcesses() through proxy project.
+     * Obtains information about render processes that are running on the device.
+     *
+     * @param info, render process info.
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual int GetAllRenderProcesses(std::vector<RenderProcessInfo> &info) = 0;
 
     /**
      * JudgeSandboxByPid, call JudgeSandboxByPid() through proxy project.
@@ -384,6 +394,7 @@ public:
         DUMP_HEAP_MEMORY_PROCESS,
         START_NATIVE_PROCESS_FOR_DEBUGGER,
         JUDGE_SANDBOX_BY_PID,
+        APP_GET_ALL_RENDER_PROCESSES,
     };
 };
 }  // namespace AppExecFwk

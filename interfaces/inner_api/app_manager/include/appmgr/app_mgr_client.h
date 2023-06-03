@@ -26,6 +26,7 @@
 #include "bundle_info.h"
 #include "iapp_state_callback.h"
 #include "irender_scheduler.h"
+#include "render_process_info.h"
 #include "running_process_info.h"
 #include "system_memory_attr.h"
 #include "istart_specified_ability_response.h"
@@ -200,6 +201,15 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual AppMgrResultCode GetProcessRunningInformation(RunningProcessInfo &info);
+
+    /**
+     * GetAllRenderProcesses, call GetAllRenderProcesses() through proxy project.
+     * Obtains information about render processes that are running on the device.
+     *
+     * @param info, render process info.
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual AppMgrResultCode GetAllRenderProcesses(std::vector<RenderProcessInfo> &info);
 
     /**
      * NotifyMemoryLevel, call NotifyMemoryLevel() through proxy project.

@@ -125,6 +125,15 @@ public:
     virtual int32_t GetAllRunningProcesses(std::vector<RunningProcessInfo> &info) override;
 
     /**
+     * GetAllRenderProcesses, call GetAllRenderProcesses() through proxy project.
+     * Obtains information about render processes that are running on the device.
+     *
+     * @param info, render process info.
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual int32_t GetAllRenderProcesses(std::vector<RenderProcessInfo> &info) override;
+
+    /**
      * JudgeSandboxByPid, call JudgeSandboxByPid() through proxy project.
      * Obtains information about application processes that are running on the device.
      *

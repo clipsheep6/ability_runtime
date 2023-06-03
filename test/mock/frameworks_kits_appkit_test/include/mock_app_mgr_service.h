@@ -134,6 +134,11 @@ public:
         return 0;
     };
 
+    virtual int GetAllRenderProcesses(std::vector<RenderProcessInfo>& info) override
+    {
+        return 0;
+    };
+
     virtual int32_t StartNativeProcessForDebugger(const AAFwk::Want &want) override
     {
         return 0;

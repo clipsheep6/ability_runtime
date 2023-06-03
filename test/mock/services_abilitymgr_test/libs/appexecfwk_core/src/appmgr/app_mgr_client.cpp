@@ -91,6 +91,11 @@ AppMgrResultCode AppMgrClient::GetAllRunningProcesses(std::vector<RunningProcess
     return AppMgrResultCode::RESULT_OK;
 }
 
+AppMgrResultCode AppMgrClient::GetAllRenderProcesses(std::vector<RenderProcessInfo>& info)
+{
+    return AppMgrResultCode::RESULT_OK;
+}
+
 AppMgrResultCode AppMgrClient::ConnectAppMgrService()
 {
     return AppMgrResultCode::RESULT_OK;

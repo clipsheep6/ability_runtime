@@ -393,8 +393,9 @@ void AppStateObserverManager::HandleOnAppProcessCreated(const std::shared_ptr<Ap
     }
     ProcessData data = WrapProcessData(appRecord);
     HILOG_INFO("Process Create, bundle:%{public}s, pid:%{public}d, uid:%{public}d, processType:%{public}d, "
-        "extensionType:%{public}d, processName:%{public}s",
-        data.bundleName.c_str(), data.pid, data.uid, data.processType, data.extensionType, data.processName.c_str());
+        "extensionType:%{public}d, processName:%{public}s, renderUid:%{public}d",
+        data.bundleName.c_str(), data.pid, data.uid, data.processType, data.extensionType, data.processName.c_str(),
+        data.renderUid);
     HandleOnProcessCreated(data);
 }
 
@@ -426,8 +427,8 @@ void AppStateObserverManager::HandleOnRenderProcessCreated(const std::shared_ptr
     }
     ProcessData data = WrapRenderProcessData(renderRecord);
     HILOG_DEBUG("RenderProcess Create, bundle:%{public}s, pid:%{public}d, uid:%{public}d, processType:%{public}d, "
-        "processName:%{public}s",
-        data.bundleName.c_str(), data.pid, data.uid, data.processType, data.processName.c_str());
+        "processName:%{public}s, renderUid:%{public}d",
+        data.bundleName.c_str(), data.pid, data.uid, data.processType, data.processName.c_str(), data.renderUid);
     HandleOnProcessCreated(data);
 }
 
@@ -469,8 +470,8 @@ void AppStateObserverManager::HandleOnAppProcessDied(const std::shared_ptr<AppRu
         return;
     }
     ProcessData data = WrapProcessData(appRecord);
-    HILOG_DEBUG("Process died, bundle:%{public}s, pid:%{public}d, uid:%{public}d",
-        data.bundleName.c_str(), data.pid, data.uid);
+    HILOG_DEBUG("Process died, bundle:%{public}s, pid:%{public}d, uid:%{public}d, renderUid:%{public}d",
+        data.bundleName.c_str(), data.pid, data.uid, data.renderUid);
     HandleOnProcessDied(data);
 }
 
@@ -481,8 +482,8 @@ void AppStateObserverManager::HandleOnRenderProcessDied(const std::shared_ptr<Re
         return;
     }
     ProcessData data = WrapRenderProcessData(renderRecord);
-    HILOG_DEBUG("Render Process died, bundle:%{public}s, pid:%{public}d, uid:%{public}d",
-        data.bundleName.c_str(), data.pid, data.uid);
+    HILOG_DEBUG("Render Process died, bundle:%{public}s, pid:%{public}d, uid:%{public}d, renderUid:%{public}d",
+        data.bundleName.c_str(), data.pid, data.uid, data.renderUid);
     HandleOnProcessDied(data);
 }
 
@@ -522,6 +523,7 @@ ProcessData AppStateObserverManager::WrapRenderProcessData(const std::shared_ptr
     processData.bundleName = renderRecord->GetHostBundleName();
     processData.pid = renderRecord->GetPid();
     processData.uid = renderRecord->GetHostUid();
+    processData.renderUid = renderRecord->GetUid();
     processData.processName = renderRecord->GetProcessName();
     processData.processType = renderRecord->GetProcessType();
     return processData;
@@ -608,6 +610,15 @@ AppStateData AppStateObserverManager::WrapAppStateData(const std::shared_ptr<App
         appStateData.accessTokenId = static_cast<int32_t>(appRecord->GetApplicationInfo()->accessTokenId);
     }
     appStateData.isFocused = appRecord->GetFocusFlag();
+    auto renderRecordMap = appRecord->GetRenderRecordMap();
+    if (!renderRecordMap.empty()) {
+        for (auto iter : renderRecordMap) {
+            auto renderRecord = iter.second;
+            if (renderRecord != nullptr) {
+                appStateData.renderPids.emplace_back(renderRecord->GetPid());
+            }
+        }
+    }
     return appStateData;
 }
 }  // namespace AppExecFwk

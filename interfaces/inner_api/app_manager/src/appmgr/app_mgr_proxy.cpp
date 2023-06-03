@@ -241,6 +241,31 @@ int32_t AppMgrProxy::GetAllRunningProcesses(std::vector<RunningProcessInfo> &inf
     return result;
 }
 
+int32_t AppMgrProxy::GetAllRenderProcesses(std::vector<RenderProcessInfo> &info)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return ERR_NULL_OBJECT;
+    }
+    if (!SendTransactCmd(IAppMgr::Message::APP_GET_ALL_RENDER_PROCESSES, data, reply)) {
+        return ERR_NULL_OBJECT;
+    }
+    auto error = GetParcelableInfos<RenderProcessInfo>(reply, info);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("GetParcelableInfos fail, error: %{public}d", error);
+        return error;
+    }
+    int result = reply.ReadInt32();
+    return result;
+}
+
 int32_t AppMgrProxy::JudgeSandboxByPid(pid_t pid, bool &isSandbox)
 {
     MessageParcel data;
