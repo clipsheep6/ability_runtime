@@ -46,7 +46,7 @@ public:
 
     void InitTimerModule();
 
-    void InitWorkerModule(const std::string& codePath, bool isDebugVersion, bool isBundle);
+    void InitWorkerModule(std::shared_ptr<WorkerInfo> workerInfo);
 
     void InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorObj);
 
