@@ -43,7 +43,7 @@
 #include "iservice_registry.h"
 #include "itest_observer.h"
 #ifdef SUPPORT_GRAPHICS
-#include "locale_config.h"
+// #include "locale_config.h"
 #endif
 #include "os_account_manager_wrapper.h"
 #include "parameter.h"
@@ -2764,7 +2764,7 @@ void AppMgrServiceInner::InitGlobalConfiguration()
 
 #ifdef SUPPORT_GRAPHICS
     // Currently only this interface is known
-    auto language = OHOS::Global::I18n::LocaleConfig::GetSystemLanguage();
+    std::string language = "zh_cn" /*OHOS::Global::I18n::LocaleConfig::GetSystemLanguage()*/;
     HILOG_INFO("current global language is : %{public}s", language.c_str());
     configuration_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, language);
 #endif

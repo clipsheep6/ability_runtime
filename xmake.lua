@@ -53,7 +53,8 @@ target("ability_runtime")
         "../arkui_ace_engine/interfaces/inner_api/ui_service_manager/include")
     add_includedirs("../global_resource_management/interfaces/inner_api/include")
     add_includedirs("../security_access_token/interfaces/innerkits/accesstoken/include")
-    add_includedirs("../hiviewdfx_hisysevent/interfaces/native/innerkits/hisysevent/include")
+    add_includedirs("../hiviewdfx_hisysevent/interfaces/native/innerkits/hisysevent/include",
+        "../hiviewdfx_hisysevent/interfaces/native/innerkits/hisysevent/encode/include")
     add_includedirs("../hiviewdfx_hicollie/interfaces/native/innerkits/include")
     add_includedirs("../communication_dsoftbus/interfaces/kits/bus_center", "../communication_dsoftbus/interfaces/kits/common")
     add_includedirs("../startup_syspara_lite/interfaces/kits")
@@ -66,7 +67,8 @@ target("ability_runtime")
     add_includedirs("../arkcompiler_ets_runtime", "../arkcompiler_runtime_core/libpandabase")
     add_includedirs("../hiviewdfx_faultloggerd/interfaces/innerkits/dump_catcher/include", "../hiviewdfx_faultloggerd/common",
         "../hiviewdfx_faultloggerd/tools/process_dump", "../hiviewdfx_faultloggerd/interfaces/innerkits/faultloggerd_client/include",
-        "../hiviewdfx_faultloggerd/interfaces/innerkits/backtrace/include", "../hiviewdfx_faultloggerd/interfaces/common")
+        "../hiviewdfx_faultloggerd/interfaces/innerkits/backtrace/include", "../hiviewdfx_faultloggerd/interfaces/common",
+        "../hiviewdfx_faultloggerd/frameworks/unwinder/include")
     add_includedirs("../hiviewdfx_hichecker/interfaces/native/innerkits/include")
     add_includedirs("../startup_init_lite/interfaces/innerkits/include")
     add_includedirs("../third_include_dir")
