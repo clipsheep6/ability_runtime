@@ -48,6 +48,10 @@ public:
     {}
     void ScheduleCommandAbility(const Want& want, bool restart, int startId) override
     {}
+    bool SchedulePrepareTerminateAbility() override
+    {
+        return true;
+    }
     void ScheduleSaveAbilityState() override
     {}
     void ScheduleRestoreAbilityState(const PacMap& inState) override

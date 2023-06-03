@@ -768,6 +768,9 @@ public:
 
     sptr<IWindowManagerServiceHandler> GetWMSHandler() const;
 
+    virtual int PrepareTerminateAbility(const sptr<IRemoteObject> &token,
+        sptr<IPrepareTerminateCallback> &callback) override;
+        
     void HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
 
     void HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);

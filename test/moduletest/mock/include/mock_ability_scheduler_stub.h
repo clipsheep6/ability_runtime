@@ -28,6 +28,7 @@ public:
     MOCK_METHOD1(ScheduleConnectAbility, void(const Want&));
     MOCK_METHOD1(ScheduleDisconnectAbility, void(const Want&));
     MOCK_METHOD3(ScheduleCommandAbility, void(const Want&, bool, int));
+    MOCK_METHOD0(SchedulePrepareTerminateAbility, bool());
     MOCK_METHOD0(ScheduleSaveAbilityState, void());
     MOCK_METHOD1(ScheduleRestoreAbilityState, void(const PacMap&));
     MOCK_METHOD2(GetFileTypes, std::vector<std::string>(const Uri&, const std::string&));

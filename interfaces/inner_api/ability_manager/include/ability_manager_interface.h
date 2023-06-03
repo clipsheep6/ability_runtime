@@ -30,6 +30,7 @@
 #include "iability_controller.h"
 #include "iacquire_share_data_callback_interface.h"
 #include "icomponent_interception.h"
+#include "iprepare_terminate_callback_interface.h"
 #include "mission_listener_interface.h"
 #include "mission_info.h"
 #include "mission_snapshot.h"
@@ -674,6 +675,18 @@ public:
      * @param abilityToken Indidate token of ability.
      */
     virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) = 0;
+
+    /**
+     * PrepareTerminateAbility, prepare terminate the special ability.
+     *
+     * @param token, the token of the ability to terminate.
+     * @param callback callback.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int PrepareTerminateAbility(const sptr<IRemoteObject> &token, sptr<IPrepareTerminateCallback> &callback)
+    {
+        return 0;
+    }
 #endif
 
     virtual int GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info) = 0;
@@ -1130,6 +1143,9 @@ public:
 
         // ipc id for set rootSceneSession (64)
         SET_ROOTSSCENESESSION,
+
+        // prepare terminate ability (65)
+        PREPARE_TERMINATE_ABILITY,
 
         // ipc id 1001-2000 for DMS
         // ipc id for starting ability (1001)

@@ -167,6 +167,7 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[MINIMIZE_UI_EXTENSION_ABILITY] = &AbilityManagerStub::MinimizeUIExtensionAbilityInner;
     requestFuncMap_[TERMINATE_UI_EXTENSION_ABILITY] = &AbilityManagerStub::TerminateUIExtensionAbilityInner;
     requestFuncMap_[CONNECT_UI_EXTENSION_ABILITY] = &AbilityManagerStub::ConnectUIExtensionAbilityInner;
+    requestFuncMap_[PREPARE_TERMINATE_ABILITY] = &AbilityManagerStub::PrepareTerminateAbilityInner;
 #endif
     requestFuncMap_[REQUEST_DIALOG_SERVICE] = &AbilityManagerStub::HandleRequestDialogService;
     requestFuncMap_[SET_COMPONENT_INTERCEPTION] = &AbilityManagerStub::SetComponentInterceptionInner;
@@ -1964,6 +1965,26 @@ int AbilityManagerStub::CompleteFirstFrameDrawingInner(MessageParcel &data, Mess
     }
     CompleteFirstFrameDrawing(abilityToken);
     return 0;
+}
+
+int AbilityManagerStub::PrepareTerminateAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("call");
+    sptr<IRemoteObject> token = nullptr;
+    if (data.ReadBool()) {
+        token = data.ReadRemoteObject();
+    }
+    sptr<IPrepareTerminateCallback> callback = iface_cast<IPrepareTerminateCallback>(data.ReadRemoteObject());
+    if (callback == nullptr) {
+        HILOG_ERROR("callback is nullptr");
+        return ERR_NULL_OBJECT;
+    }
+    int result = PrepareTerminateAbility(token, callback);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("end faild. err: %{public}d", result);
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
 }
 #endif
 
