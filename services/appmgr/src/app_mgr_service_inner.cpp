@@ -127,7 +127,7 @@ constexpr int32_t ROOT_UID = 0;
 constexpr int32_t FOUNDATION_UID = 5523;
 constexpr int32_t DEFAULT_USER_ID = 0;
 #ifdef APP_MGR_SERVICE_APPMS
-constexpr int32_t NETSYS_SOCKET_GROUPID = 3008;
+constexpr int32_t NETSYS_SOCKET_GROUPID = 1097;
 #endif
 int32_t GetUserIdByUid(int32_t uid)
 {
