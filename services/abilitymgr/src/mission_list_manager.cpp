@@ -584,6 +584,7 @@ void MissionListManager::BuildInnerMissionInfo(InnerMissionInfo &info, const std
     info.missionInfo.time = GetCurrentTime();
     info.missionInfo.iconPath = abilityRequest.appInfo.iconPath;
     info.missionInfo.want = abilityRequest.want;
+    info.missionInfo.unclearable = true; //todo: replace with abilityRequest.abilityInfo.unclearable when BMS is ready
     info.isTemporary = abilityRequest.abilityInfo.removeMissionAfterTerminate;
     if (abilityRequest.want.GetIntParam(DLP_INDEX, 0) != 0) {
         info.isTemporary = true;
@@ -1637,6 +1638,14 @@ int MissionListManager::ClearMission(int missionId)
         return ERR_INVALID_VALUE;
     }
 
+    MissionInfo missionInfo;
+    if (DelayedSingleton<MissionInfoMgr>::GetInstance()->GetMissionInfoById(missionId, missionInfo) == 0) {
+        if (missionInfo.unclearable) {
+            HILOG_WARN("mission is unclearable.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+
     return ClearMissionLocked(missionId, mission);
 }
 
@@ -1696,10 +1705,25 @@ int MissionListManager::ClearAllMissions()
 void MissionListManager::ClearAllMissionsLocked(std::list<std::shared_ptr<Mission>> &missionList,
     std::list<std::shared_ptr<Mission>> &foregroundAbilities, bool searchActive)
 {
+    HILOG_INFO("ClearAllMissionsLocked called.");
     for (auto listIter = missionList.begin(); listIter != missionList.end();) {
         auto mission = (*listIter);
+        HILOG_INFO("ClearAllMissionsLocked in missionId: %{public}d.", mission->GetMissionId());
         listIter++;
+
+        MissionInfo missionInfo;
+        auto mid = mission->GetMissionId();
+        HILOG_INFO("GetMissionId value: %{public}d.", mid);
+        if (DelayedSingleton<MissionInfoMgr>::GetInstance()
+            ->GetMissionInfoById(mid, missionInfo) == 0) {
+            if (missionInfo.unclearable) {
+                HILOG_WARN("mission is unclearable.");
+                continue;
+            }
+        }
+
         if (!mission || mission->IsLockedState()) {
+            HILOG_INFO("the mission is locked");
             continue;
         }
 
@@ -1713,6 +1737,7 @@ void MissionListManager::ClearAllMissionsLocked(std::list<std::shared_ptr<Missio
             foregroundAbilities.push_front(mission);
             continue;
         }
+        HILOG_INFO("ClearAllMissionsLocked out missionId: %{public}d.", mission->GetMissionId());
         ClearMissionLocked(-1, mission);
     }
 }

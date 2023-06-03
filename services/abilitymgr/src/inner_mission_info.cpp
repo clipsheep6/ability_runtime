@@ -37,6 +37,7 @@ const std::string KEY_UID = "Uid";
 const std::string KEY_IS_TEMPORARY = "IsTemporary";
 const std::string KEY_SPEC_FLAG = "SpecFlag";
 const std::string KEY_HAS_RECONER_INFO = "hasRecoverInfo";
+const std::string KEY_UNCLEARABLE = "unclearable";
 }
 std::string InnerMissionInfo::ToJsonStr() const
 {
@@ -57,6 +58,7 @@ std::string InnerMissionInfo::ToJsonStr() const
     value[KEY_ICON_PATH] = missionInfo.iconPath;
     value[KEY_WANT] = missionInfo.want.ToUri();
     value[KEY_HAS_RECONER_INFO] = hasRecoverInfo;
+    value[KEY_UNCLEARABLE] = missionInfo.unclearable;
 
     return value.dump();
 }
@@ -134,6 +136,10 @@ bool InnerMissionInfo::FromJsonStr(const std::string &jsonStr)
         return false;
     }
     hasRecoverInfo = value[KEY_HAS_RECONER_INFO].get<bool>();
+    if (!CheckJsonNode(value, KEY_UNCLEARABLE, JsonType::BOOLEAN)) {
+        return false;
+    }
+    missionInfo.unclearable = value[KEY_UNCLEARABLE].get<bool>();
     Want* want = Want::ParseUri(value[KEY_WANT].get<std::string>());
     if (want) {
         missionInfo.want = *want;
