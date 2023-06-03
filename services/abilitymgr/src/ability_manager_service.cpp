@@ -110,6 +110,9 @@ const std::string WHITE_LIST_ASS_WAKEUP_FLAG = "component.startup.whitelist.asso
 const std::string BUNDLE_NAME_LAUNCHER = "com.ohos.launcher";
 const std::string BUNDLE_NAME_SETTINGSDATA = "com.ohos.settingsdata";
 const std::string BUNDLE_NAME_SCENEBOARD = "com.ohos.sceneboard";
+// Support prepare terminate
+constexpr int32_t PREPARE_TERMINATE_ENABLE_SIZE = 6;
+const char* PREPARE_TERMINATE_ENABLE_PARAMETER = "persist.sys.prepare_terminate";
 
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
 
@@ -6241,6 +6244,11 @@ int AbilityManagerService::PrepareTerminateAbility(const sptr<IRemoteObject> &to
         HILOG_ERROR("callback is nullptr.");
         return ERR_INVALID_VALUE;
     }
+    if (!CheckPrepareTerminateEnable()) {
+        HILOG_ERROR("Only support PC.");
+        callback->DoPrepareTerminate();
+        return ERR_INVALID_VALUE;
+    }
 
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     if (abilityRecord == nullptr) {
@@ -6972,6 +6980,18 @@ void AbilityManagerService::SetRootSceneSession(const sptr<Rosen::RootSceneSessi
         return;
     }
     uiAbilityLifecycleManager_->SetRootSceneSession(rootSceneSession);
+}
+
+bool AbilityManagerService::CheckPrepareTerminateEnable()
+{
+    char value[PREPARE_TERMINATE_ENABLE_SIZE] = "false";
+    int retSysParam = GetParameter(PREPARE_TERMINATE_ENABLE_PARAMETER, "false", value, PREPARE_TERMINATE_ENABLE_SIZE);
+    HILOG_INFO("CheckPrepareTerminateEnable, %{public}s value is %{public}s.", PREPARE_TERMINATE_ENABLE_PARAMETER,
+        value);
+    if (retSysParam > 0 && !std::strcmp(value, "true")) {
+        return true;
+    }
+    return false;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

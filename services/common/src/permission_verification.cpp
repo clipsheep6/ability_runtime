@@ -392,5 +392,18 @@ bool PermissionVerification::IsSystemAppCall() const
     auto callerToken = IPCSkeleton::GetCallingFullTokenID();
     return Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(callerToken);
 }
+
+bool PermissionVerification::VerifyPrepareTerminatePermission() const
+{
+    if (IsSACall()) {
+        return true;
+    }
+    if (VerifyCallingPermission(PermissionConstants::PERMISSION_PREPARE_TERMINATE)) {
+        HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
+        return true;
+    }
+    HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+    return false;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

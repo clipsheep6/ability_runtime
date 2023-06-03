@@ -49,6 +49,9 @@ const int KILL_TIMEOUT_MULTIPLE = 45;
 #else
 const int KILL_TIMEOUT_MULTIPLE = 3;
 #endif
+constexpr int32_t PREPARE_TERMINATE_ENABLE_SIZE = 6;
+const char* PREPARE_TERMINATE_ENABLE_PARAMETER = "persist.sys.prepare_terminate";
+const int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
 std::string GetCurrentTime()
 {
     struct timespec tn;
@@ -1637,6 +1640,10 @@ int MissionListManager::ClearMission(int missionId)
         return ERR_INVALID_VALUE;
     }
 
+    if (CheckPrepareTerminateEnable(mission)) {
+        return PrepareClearMissionLocked(missionId, mission);
+    }
+
     return ClearMissionLocked(missionId, mission);
 }
 
@@ -1713,7 +1720,11 @@ void MissionListManager::ClearAllMissionsLocked(std::list<std::shared_ptr<Missio
             foregroundAbilities.push_front(mission);
             continue;
         }
-        ClearMissionLocked(-1, mission);
+        if (CheckPrepareTerminateEnable(mission)) {
+            PrepareClearMissionLocked(-1, mission);
+        } else {
+            ClearMissionLocked(-1, mission);
+        }
     }
 }
 
@@ -3542,6 +3553,69 @@ int MissionListManager::DoAbilityForeground(std::shared_ptr<AbilityRecord> &abil
     }
     abilityRecord->ProcessForegroundAbility(flag);
     return ERR_OK;
+}
+
+int MissionListManager::PrepareClearMissionLocked(int missionId, const std::shared_ptr<Mission> &mission)
+{
+    if (mission == nullptr) {
+        HILOG_DEBUG("ability has already terminate, just remove mission.");
+        return ERR_OK;
+    }
+    auto abilityRecord = mission->GetAbilityRecord();
+    if (abilityRecord == nullptr || abilityRecord->IsTerminating()) {
+        HILOG_WARN("Ability record is not exist or is on terminating.");
+        return ERR_OK;
+    }
+
+    // terminate on timeout
+    std::weak_ptr<MissionListManager> wpMgr = shared_from_this();
+    auto terminateTask = [wpMgr, missionId, mission]() {
+        HILOG_INFO("Handle terminate task: %{public}d", missionId);
+        auto mgr = wpMgr.lock();
+        if (mgr) {
+            mgr->ClearMissionLocked(missionId, mission);
+        }
+    };
+    std::shared_ptr<AbilityEventHandler> handler =
+        DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    int prepareTerminateTimeout =
+        AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * PREPARE_TERMINATE_TIMEOUT_MULTIPLE;
+    if (handler) {
+        handler->PostTask(terminateTask, "PrepareTermiante_" + std::to_string(abilityRecord->GetAbilityRecordId()),
+            prepareTerminateTimeout);
+    }
+
+    bool res = abilityRecord->PrepareTerminateAbility();
+    if (!res) {
+        HILOG_INFO("stop terminating.");
+        handler->RemoveTask("PrepareTermiante_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+        return ERR_OK;
+    }
+    handler->RemoveTask("PrepareTermiante_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+    return ClearMissionLocked(missionId, mission);
+}
+
+bool MissionListManager::CheckPrepareTerminateEnable(const std::shared_ptr<Mission> &mission)
+{
+    auto abilityRecord = mission->GetAbilityRecord();
+    if (abilityRecord == nullptr || abilityRecord->IsTerminating()) {
+        HILOG_WARN("Ability record is not exist or is on terminating.");
+        return false;
+    }
+    auto type = abilityRecord->GetAbilityInfo().type;
+    bool isStageBasedModel = abilityRecord->GetAbilityInfo().isStageBasedModel;
+    if (!isStageBasedModel || type != AppExecFwk::AbilityType::PAGE) {
+        HILOG_WARN("ability mode not support.");
+        return false;
+    }
+    char value[PREPARE_TERMINATE_ENABLE_SIZE] = "false";
+    int retSysParam = GetParameter(PREPARE_TERMINATE_ENABLE_PARAMETER, "false", value, PREPARE_TERMINATE_ENABLE_SIZE);
+    HILOG_INFO("CheckPrepareTerminateEnable, %{public}s value is %{public}s.", PREPARE_TERMINATE_ENABLE_PARAMETER,
+        value);
+    if (retSysParam > 0 && !std::strcmp(value, "true")) {
+        return true;
+    }
+    return false; 
 }
 }  // namespace AAFwk
 }  // namespace OHOS
