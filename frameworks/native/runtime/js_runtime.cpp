@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -63,8 +63,10 @@ using Extractor = OHOS::AbilityBase::Extractor;
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
+constexpr size_t PARAM_TWO = 2;
 constexpr uint8_t SYSCAP_MAX_SIZE = 64;
 constexpr int64_t DEFAULT_GC_POOL_SIZE = 0x10000000; // 256MB
+constexpr int32_t DEFAULT_INTER_VAL = 500;
 const std::string SANDBOX_ARK_CACHE_PATH = "/data/storage/ark-cache/";
 const std::string SANDBOX_ARK_PROIFILE_PATH = "/data/storage/ark-profile";
 #ifdef APP_USE_ARM
@@ -215,6 +217,86 @@ bool JsRuntime::StartDebugger(bool needBreakPoint, uint32_t instanceId, const De
 void JsRuntime::StopDebugger()
 {
     jsEnv_->StopDebugger();
+}
+
+int32_t JsRuntime::JsperfProfilerCommandParse(const std::string &command, int32_t defaultValue)
+{
+    HILOG_DEBUG("profiler command parse %{public}s", command.c_str());
+    auto findPos = command.find("jsperf");
+    if (findPos == std::string::npos) {
+        // jsperf command not found, so not to do, return zero.
+        HILOG_DEBUG("jsperf command not found");
+        return 0;
+    }
+
+    // match jsperf command
+    auto jsPerfStr = command.substr(findPos, command.length() - findPos);
+    const std::regex regexJsperf(R"(^jsperf($|\s+($|\d*\s*($|nativeperf.*))))");
+    std::match_results<std::string::const_iterator> matchResults;
+    if (!std::regex_match(jsPerfStr, matchResults, regexJsperf)) {
+        HILOG_DEBUG("the order not match");
+        return defaultValue;
+    }
+
+    // get match resuflt
+    std::string jsperfResuflt;
+    constexpr size_t matchResultIndex = 1;
+    if (matchResults.size() < PARAM_TWO) {
+        HILOG_ERROR("no results need to be matched");
+        return defaultValue;
+    }
+
+    jsperfResuflt = matchResults[matchResultIndex].str();
+    // match number result
+    const std::regex regexJsperfNum(R"(^\s*(\d+).*)");
+    std::match_results<std::string::const_iterator> jsperfMatchResults;
+    if (!std::regex_match(jsperfResuflt, jsperfMatchResults, regexJsperfNum)) {
+        HILOG_DEBUG("the jsperf results not match");
+        return defaultValue;
+    }
+
+    // get match result
+    std::string interval;
+    constexpr size_t matchNumResultIndex = 1;
+    if (jsperfMatchResults.size() < PARAM_TWO) {
+        HILOG_ERROR("no results need to be matched");
+        return defaultValue;
+    }
+
+    interval = jsperfMatchResults[matchNumResultIndex].str();
+    if (interval.empty()) {
+        HILOG_DEBUG("match order result error");
+        return defaultValue;
+    }
+
+    return std::stoi(interval);
+}
+
+void JsRuntime::StartProfiler(const std::string &perfCmd)
+{
+    CHECK_POINTER(jsEnv_);
+    if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
+        instanceId_ = static_cast<uint32_t>(gettid());
+    }
+
+    auto debuggerPostTask = [jsEnv = jsEnv_](std::function<void()>&& task) {
+        jsEnv->PostTask(task);
+    };
+
+    StartDebuggerInWorkerModule();
+    HdcRegister::Get().StartHdcRegister(bundleName_);
+    ConnectServerManager::Get().StartConnectServer(bundleName_);
+    ConnectServerManager::Get().AddInstance(instanceId_);
+    JsEnv::JsEnvironment::PROFILERTYPE profiler = JsEnv::JsEnvironment::PROFILERTYPE::PROFILERTYPE_HEAP;
+    int32_t interval = 0;
+    const std::string profilerCommand("profile");
+    if (perfCmd.find(profilerCommand) != std::string::npos) {
+        profiler = JsEnv::JsEnvironment::PROFILERTYPE::PROFILERTYPE_CPU;
+        interval = JsperfProfilerCommandParse(perfCmd, DEFAULT_INTER_VAL);
+    }
+
+    HILOG_DEBUG("profiler:%{public}d interval:%{public}d.", profiler, interval);
+    jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval, debuggerPostTask);
 }
 
 bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer)

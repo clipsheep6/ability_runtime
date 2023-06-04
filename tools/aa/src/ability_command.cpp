@@ -690,6 +690,54 @@ ErrCode AbilityManagerShellCommand::RunAsProcessCommand()
     return result;
 }
 
+bool AbilityManagerShellCommand::MatchOrderString(const std::regex &regexScript, const std::string &orderCmd)
+{
+    HILOG_DEBUG("order string is %{public}s", orderCmd.c_str());
+    if (orderCmd.empty()) {
+        HILOG_ERROR("input param order string is empty");
+        return false;
+    }
+
+    std::match_results<std::string::const_iterator> matchResults;
+    if (!std::regex_match(orderCmd, matchResults, regexScript)) {
+        HILOG_ERROR("the order not match");
+        return false;
+    }
+
+    return true;
+}
+
+bool AbilityManagerShellCommand::CheckPerfCmdString(
+    const char* optarg, const size_t paramLength, std::string &perfCmd)
+{
+    if (optarg == nullptr) {
+        HILOG_ERROR("input param optarg is nullptr");
+        return false;
+    }
+
+    if (strlen(optarg) >= paramLength) {
+        HILOG_ERROR("debuggablePipe aa start -p param length must be less than 1024.");
+        return false;
+    }
+
+    perfCmd = optarg;
+    const std::regex regexType(R"(^\s*(profile|dumpheap|sleep)($|\s+.*))");
+    if (!MatchOrderString(regexType, perfCmd)) {
+        HILOG_ERROR("the command is invalid");
+        return false;
+    }
+
+    auto findPos = perfCmd.find("jsperf");
+    if (findPos != std::string::npos) {
+        const std::regex regexCmd(R"(^jsperf($|\s+($|\d*\s*($|nativeperf.*))))");
+        if (!MatchOrderString(regexCmd, perfCmd.substr(findPos, perfCmd.length() - findPos))) {
+            HILOG_ERROR("the order is invalid");
+            return false;
+        }
+    }
+    return true;
+}
+
 ErrCode AbilityManagerShellCommand::MakeWantForProcess(Want& want)
 {
     int result = OHOS::ERR_OK;
@@ -1141,10 +1189,8 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                 // 'aa stop-service -p xxx'
 
                 // save module name
-                if (strlen(optarg) < paramLength) {
-                    perfCmd = optarg;
-                } else {
-                    HILOG_INFO("debuggablePipe aa start -p param length must be less than 1024.");
+                if (!CheckPerfCmdString(optarg, paramLength, perfCmd)) {
+                    HILOG_ERROR("input perfCmd is invalid %{public}s", perfCmd.c_str());
                     result = OHOS::ERR_INVALID_VALUE;
                 }
                 break;

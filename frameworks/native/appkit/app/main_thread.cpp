@@ -82,6 +82,8 @@ std::weak_ptr<OHOSApplication> MainThread::applicationForDump_;
 std::shared_ptr<EventHandler> MainThread::signalHandler_ = nullptr;
 std::shared_ptr<MainThread::MainHandler> MainThread::mainHandler_ = nullptr;
 static std::shared_ptr<MixStackDumper> mixStackDumper_ = nullptr;
+const std::string PERFCMD_PROFILE = "profile";
+const std::string PERFCMD_DUMPHEAP = "dumpheap";
 namespace {
 #ifdef APP_USE_ARM
 constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib/libformrender.z.so";
@@ -1728,7 +1730,14 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
     }
 
     if (runtime && want && appInfo->debug) {
-        runtime->StartDebugMode(want->GetBoolParam("debugApp", false));
+        auto perfCmd = want->GetStringParam("perfCmd");
+        if (perfCmd.find(PERFCMD_PROFILE) != std::string::npos ||
+            perfCmd.find(PERFCMD_DUMPHEAP) != std::string::npos) {
+            HILOG_DEBUG("perfCmd is %{public}s", perfCmd.c_str());
+            runtime->StartProfiler(perfCmd);
+        } else {
+            runtime->StartDebugMode(want->GetBoolParam("debugApp", false));
+        }
     }
 
     std::vector<HqfInfo> hqfInfos = appInfo->appQuickFix.deployedAppqfInfo.hqfInfos;

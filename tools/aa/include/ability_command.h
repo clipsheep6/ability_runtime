@@ -16,6 +16,8 @@
 #ifndef OHOS_ABILITY_RUNTIME_ABILITY_COMMAND_H
 #define OHOS_ABILITY_RUNTIME_ABILITY_COMMAND_H
 
+#include <regex>
+
 #include "shell_command.h"
 #include "ability_manager_interface.h"
 
@@ -159,6 +161,9 @@ const int NUMBER_ONE = 1;
 
 const std::string DEBUG_VALUE = "true";
 
+const std::string PERFCMD_FIRST_PROFILE = "profile";
+const std::string PERFCMD_FIRST_DUMPHEAP = "dumpheap";
+
 const std::string STRING_TEST_REGEX_INTEGER_NUMBERS = "^(0|[1-9][0-9]*|-[1-9][0-9]*)$";
 }  // namespace
 
@@ -199,6 +204,8 @@ private:
     ErrCode MakeWantForProcess(Want& want);
     ErrCode RunAsTestCommand();
     ErrCode TestCommandError(const std::string& info);
+    bool MatchOrderString(const std::regex &r, const std::string &orderCmd);
+    bool CheckPerfCmdString(const char* optarg, const size_t paramLength, std::string &perfCmd);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

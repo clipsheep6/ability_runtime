@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_JS_ENVIRONMENT_JS_ENVIRONMENT_H
 
 #include <memory>
+#include "ecmascript/napi/include/dfx_jsnapi.h"
 #include "ecmascript/napi/include/jsnapi.h"
 #include "js_environment_impl.h"
 #include "native_engine/native_engine.h"
@@ -31,6 +32,11 @@ public:
     JsEnvironment() {}
     explicit JsEnvironment(std::unique_ptr<JsEnvironmentImpl> impl);
     ~JsEnvironment();
+
+    enum class PROFILERTYPE {
+        PROFILERTYPE_CPU,
+        PROFILERTYPE_HEAP
+    };
 
     bool Initialize(const panda::RuntimeOption& pandaOption, void* jsEngine);
 
@@ -72,6 +78,8 @@ public:
 
     bool LoadScript(const std::string& path, uint8_t *buffer, size_t len, bool isBundle);
 
+    void StartProfiler(const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler, int32_t interval,
+        const DebuggerPostTask &debuggerPostTask = {});
 private:
     std::unique_ptr<JsEnvironmentImpl> impl_ = nullptr;
     NativeEngine* engine_ = nullptr;

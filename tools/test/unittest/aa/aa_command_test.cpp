@@ -15,9 +15,11 @@
 
 #include <gtest/gtest.h>
 
+#define private public
 #define protected public
 #include "ability_command.h"
 #undef protected
+#undef private
 #include "mock_ability_manager_stub.h"
 #define private public
 #include "ability_manager_client.h"
@@ -153,4 +155,216 @@ HWTEST_F(AaCommandTest, Aa_Command_0500, Function | MediumTest | Level1)
 
     AbilityManagerShellCommand cmd(argc, argv);
     EXPECT_EQ(cmd.ExecCommand(), HELP_MSG);
+}
+
+/**
+ * @tc.number: Aa_Command_0600
+ * @tc.name: MatchOrderString
+ * @tc.desc: Verify MatchOrderString Function.
+ */
+HWTEST_F(AaCommandTest, Aa_Command_0600, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Ability_Command_Test_3400 is called");
+    char* argv[] = { (char*)TOOL_NAME.c_str() };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    const std::regex regexFirst(R"(^(profile|dumpheap).*)");
+    std::string command = "";
+    EXPECT_EQ(cmd.MatchOrderString(regexFirst, command), false);
+}
+
+/**
+ * @tc.number: Aa_Command_0700
+ * @tc.name: MatchOrderString
+ * @tc.desc: Verify MatchOrderString Function.
+ */
+HWTEST_F(AaCommandTest, Aa_Command_0700, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Aa_Command_0700 is called");
+    char* argv[] = { (char*)TOOL_NAME.c_str() };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    const std::regex regexFirst(R"(^(profile|dumpheap).*)");
+    std::string command = "test";
+    EXPECT_EQ(cmd.MatchOrderString(regexFirst, command), false);
+}
+
+/**
+ * @tc.number: Aa_Command_0800
+ * @tc.name: MatchOrderString
+ * @tc.desc: Verify MatchOrderString Function.
+ */
+HWTEST_F(AaCommandTest, Aa_Command_0800, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Aa_Command_0800 is called");
+    char* argv[] = { (char*)TOOL_NAME.c_str() };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    const std::regex regexFirst(R"(^(profile|dumpheap).*)");
+    std::string command = "profile";
+    EXPECT_EQ(cmd.MatchOrderString(regexFirst, command), true);
+}
+
+/**
+ * @tc.number: Aa_Command_0900
+ * @tc.name: CheckPerfCmdString
+ * @tc.desc: Verify CheckPerfCmdString Function.
+ */
+HWTEST_F(AaCommandTest, Aa_Command_0900, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Aa_Command_0900 is called");
+    char* argv[] = { (char*)TOOL_NAME.c_str() };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    std::string command = "";
+    constexpr int32_t len = 0;
+    EXPECT_EQ(cmd.CheckPerfCmdString(nullptr, len, command), false);
+}
+
+/**
+ * @tc.number: Aa_Command_1000
+ * @tc.name: CheckPerfCmdString
+ * @tc.desc: Verify CheckPerfCmdString Function.
+ */
+HWTEST_F(AaCommandTest, Aa_Command_1000, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Aa_Command_1000 is called");
+    char* argv[] = { (char*)TOOL_NAME.c_str() };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    std::string command = "";
+    const char* optarg = "test";
+    constexpr int32_t len = 0;
+    EXPECT_EQ(cmd.CheckPerfCmdString(optarg, len, command), false);
+}
+
+/**
+ * @tc.number: Aa_Command_1100
+ * @tc.name: CheckPerfCmdString
+ * @tc.desc: Verify CheckPerfCmdString Function.
+ */
+HWTEST_F(AaCommandTest, Aa_Command_1100, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Aa_Command_1100 is called");
+    char* argv[] = { (char*)TOOL_NAME.c_str() };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    std::string command = "";
+    const char* optarg = "test";
+    constexpr int32_t len = 32;
+    EXPECT_EQ(cmd.CheckPerfCmdString(optarg, len, command), false);
+}
+
+/**
+ * @tc.number: Aa_Command_1200
+ * @tc.name: CheckPerfCmdString
+ * @tc.desc: Verify CheckPerfCmdString Function.
+ */
+HWTEST_F(AaCommandTest, Aa_Command_1200, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Aa_Command_1200 is called");
+    char* argv[] = { (char*)TOOL_NAME.c_str() };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    std::string command = "";
+    const char* optarg = "test";
+    constexpr int32_t len = 32;
+    EXPECT_EQ(cmd.CheckPerfCmdString(optarg, len, command), false);
+}
+
+/**
+ * @tc.number: Aa_Command_1300
+ * @tc.name: CheckPerfCmdString
+ * @tc.desc: Verify CheckPerfCmdString Function.
+ */
+HWTEST_F(AaCommandTest, Aa_Command_1300, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Aa_Command_1300 is called");
+    char* argv[] = { (char*)TOOL_NAME.c_str() };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    std::string command = "";
+    const char* optarg = "profile jsperf";
+    constexpr int32_t len = 32;
+    EXPECT_EQ(cmd.CheckPerfCmdString(optarg, len, command), true);
+}
+
+/**
+ * @tc.number: Aa_Command_1400
+ * @tc.name: CheckPerfCmdString
+ * @tc.desc: Verify CheckPerfCmdString Function.
+ */
+HWTEST_F(AaCommandTest, Aa_Command_1400, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Aa_Command_1400 is called");
+    char* argv[] = { (char*)TOOL_NAME.c_str() };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    std::string command = "";
+    const char* optarg = "profile jsperf abc";
+    constexpr int32_t len = 32;
+    EXPECT_EQ(cmd.CheckPerfCmdString(optarg, len, command), false);
+}
+
+/**
+ * @tc.number: Aa_Command_1500
+ * @tc.name: CheckPerfCmdString
+ * @tc.desc: Verify CheckPerfCmdString Function.
+ */
+HWTEST_F(AaCommandTest, Aa_Command_1500, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Aa_Command_1500 is called");
+    char* argv[] = { (char*)TOOL_NAME.c_str() };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    std::string command = "";
+    const char* optarg = "profile abcd";
+    constexpr int32_t len = 32;
+    EXPECT_EQ(cmd.CheckPerfCmdString(optarg, len, command), true);
+}
+
+/**
+ * @tc.number: Aa_Command_1600
+ * @tc.name: CheckPerfCmdString
+ * @tc.desc: Verify CheckPerfCmdString Function.
+ */
+HWTEST_F(AaCommandTest, Aa_Command_1600, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Aa_Command_1600 is called");
+    char* argv[] = { (char*)TOOL_NAME.c_str() };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    std::string command = "";
+    const char* optarg = " profile abcd";
+    constexpr int32_t len = 32;
+    EXPECT_EQ(cmd.CheckPerfCmdString(optarg, len, command), true);
+}
+
+/**
+ * @tc.number: Aa_Command_1700
+ * @tc.name: CheckPerfCmdString
+ * @tc.desc: Verify CheckPerfCmdString Function.
+ */
+HWTEST_F(AaCommandTest, Aa_Command_1700, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Aa_Command_1700 is called");
+    char* argv[] = { (char*)TOOL_NAME.c_str() };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    std::string command = "";
+    const char* optarg = "sleep 100";
+    constexpr int32_t len = 32;
+    EXPECT_EQ(cmd.CheckPerfCmdString(optarg, len, command), true);
 }

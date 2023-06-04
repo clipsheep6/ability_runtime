@@ -24,6 +24,15 @@
 namespace OHOS {
 namespace JsEnv {
 
+static panda::DFXJSNApi::ProfilerType ConvertProfilerType(JsEnvironment::PROFILERTYPE type)
+{
+    if (type == JsEnvironment::PROFILERTYPE::PROFILERTYPE_CPU) {
+        return panda::DFXJSNApi::ProfilerType::CPU_PROFILER;
+    } else {
+        return panda::DFXJSNApi::ProfilerType::HEAP_PROFILER;
+    }
+}
+
 JsEnvironment::JsEnvironment(std::unique_ptr<JsEnvironmentImpl> impl) : impl_(std::move(impl))
 {
     JSENV_LOG_D("Js environment costructor.");
@@ -193,6 +202,22 @@ void JsEnvironment::DeInitLoop()
 bool JsEnvironment::LoadScript(const std::string& path, uint8_t *buffer, size_t len, bool isBundle)
 {
     return engine_->RunScriptBuffer(path.c_str(), buffer, len, isBundle);
+}
+
+void JsEnvironment::StartProfiler(const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler,
+    int32_t interval, const DebuggerPostTask &debuggerPostTask)
+{
+    if (vm_ == nullptr) {
+        JSENV_LOG_E("Invalid vm.");
+        return;
+    }
+
+    panda::DFXJSNApi::ProfilerOption option;
+    option.libraryPath = libraryPath;
+    option.profilerType = ConvertProfilerType(profiler);
+    option.interval = interval;
+
+    panda::DFXJSNApi::StartProfiler(vm_, option, instanceId, debuggerPostTask);
 }
 } // namespace JsEnv
 } // namespace OHOS

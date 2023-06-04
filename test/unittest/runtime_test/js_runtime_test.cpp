@@ -75,6 +75,30 @@ void JsRuntimeTest::TearDown()
 {}
 
 /**
+ * @tc.name: JsperfProfilerCommandParse_100
+ * @tc.desc: JsRuntime test for JsperfProfilerCommandParse.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsperfProfilerCommandParse_100, TestSize.Level1)
+{
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options_);
+    std::string command = "";
+    constexpr int32_t defaultVal = 500;
+    constexpr int32_t emptyVal = 0;
+    ASSERT_EQ(jsRuntime->JsperfProfilerCommandParse(command, defaultVal), emptyVal);
+    command = "jsperfabc";
+    ASSERT_EQ(jsRuntime->JsperfProfilerCommandParse(command, defaultVal), defaultVal);
+    command = "jsperf";
+    ASSERT_EQ(jsRuntime->JsperfProfilerCommandParse(command, defaultVal), defaultVal);
+    command = "jsperf ";
+    ASSERT_EQ(jsRuntime->JsperfProfilerCommandParse(command, defaultVal), defaultVal);
+    command = "jsperf 1000";
+    ASSERT_NE(jsRuntime->JsperfProfilerCommandParse(command, defaultVal), defaultVal);
+    command = " jsperf 1000";
+    ASSERT_NE(jsRuntime->JsperfProfilerCommandParse(command, defaultVal), defaultVal);
+}
+
+/**
  * @tc.name: JsRuntimeTest_0100
  * @tc.desc: JsRuntime Test
  * @tc.type: FUNC
