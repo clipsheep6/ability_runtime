@@ -392,7 +392,7 @@ int AbilitySchedulerProxy::Insert(const Uri &uri, const NativeRdb::ValuesBucket 
         return index;
     }
 
-    if (!data.WriteParcelable(&value)) {
+    if (!value.Marshalling(data)) {
         HILOG_ERROR("fail to WriteParcelable value");
         return index;
     }
@@ -490,7 +490,7 @@ int AbilitySchedulerProxy::Update(const Uri &uri, const NativeRdb::ValuesBucket 
         return index;
     }
 
-    if (!data.WriteParcelable(&value)) {
+    if (!value.Marshalling(data)) {
         HILOG_ERROR("fail to WriteParcelable value");
         return index;
     }
@@ -720,7 +720,7 @@ int AbilitySchedulerProxy::BatchInsert(const Uri &uri, const std::vector<NativeR
     }
 
     for (int i = 0; i < count; i++) {
-        if (!data.WriteParcelable(&values[i])) {
+        if (!values[i].Marshalling(data)) {
             HILOG_ERROR("fail to WriteParcelable ret, index = %{public}d", i);
             return ret;
         }

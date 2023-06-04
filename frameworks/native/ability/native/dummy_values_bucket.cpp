@@ -39,13 +39,11 @@ bool ValuesBucket::ReadFromParcel(Parcel &parcel)
  *
  * @param inParcel Indicates the Parcel object into which the Sequenceable object has been marshaled.
  */
-ValuesBucket *ValuesBucket::Unmarshalling(Parcel &parcel)
+ValuesBucket ValuesBucket::Unmarshalling(Parcel &parcel)
 {
-    ValuesBucket *valuesBucket = new (std::nothrow) ValuesBucket();
-    if (valuesBucket && !valuesBucket->ReadFromParcel(parcel)) {
+    ValuesBucket valuesBucket;
+    if (!valuesBucket.ReadFromParcel(parcel)) {
         HILOG_ERROR("ValuesBucket::Unmarshalling ReadFromParcel failed");
-        delete valuesBucket;
-        valuesBucket = nullptr;
     }
     return valuesBucket;
 }
