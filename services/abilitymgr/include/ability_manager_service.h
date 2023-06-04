@@ -1008,6 +1008,7 @@ public:
 
     bool IsDmsAlive() const;
 
+    void AppUpgradeCompleted(const std::string &bundleName, int32_t uid);
     int32_t GetConfiguration(AppExecFwk::Configuration& config);
 
     /**
