@@ -137,8 +137,7 @@ ErrCode AppMgrService::Init()
 
     handler_ = std::make_shared<AMSEventHandler>(runner_, appMgrServiceInner_);
     appMgrServiceInner_->SetEventHandler(handler_);
-    std::function<void()> initAppMgrServiceInnerTask =
-        std::bind(&AppMgrServiceInner::Init, appMgrServiceInner_);
+    std::function<void()> initAppMgrServiceInnerTask = std::bind(&AppMgrServiceInner::Init, appMgrServiceInner_);
     handler_->PostTask(initAppMgrServiceInnerTask, TASK_INIT_APPMGRSERVICEINNER);
 
     ErrCode openErr = appMgrServiceInner_->OpenAppSpawnConnection();
@@ -427,6 +426,14 @@ int AppMgrService::StartUserTestProcess(const AAFwk::Want &want, const sptr<IRem
         HILOG_ERROR("%{public}s begin, not ready", __func__);
         return ERR_INVALID_OPERATION;
     }
+
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        if (!AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+            HILOG_ERROR("%{public}s check permission, invalid operation.", __func__);
+            return ERR_INVALID_OPERATION;
+        }
+    }
+
     std::function<void()> startUserTestProcessFunc =
         std::bind(&AppMgrServiceInner::StartUserTestProcess, appMgrServiceInner_, want, observer, bundleInfo, userId);
     handler_->PostTask(startUserTestProcessFunc, TASK_START_USER_TEST_PROCESS);
@@ -438,6 +445,12 @@ int AppMgrService::FinishUserTest(const std::string &msg, const int64_t &resultC
     if (!IsReady()) {
         HILOG_ERROR("%{public}s begin, not ready", __func__);
         return ERR_INVALID_OPERATION;
+    }
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        if (!AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+            HILOG_ERROR("%{public}s check permission, invalid operation.", __func__);
+            return ERR_INVALID_OPERATION;
+        }
     }
     pid_t callingPid = IPCSkeleton::GetCallingPid();
     std::function<void()> finishUserTestProcessFunc =
