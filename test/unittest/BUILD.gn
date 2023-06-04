@@ -45,6 +45,7 @@ ohos_source_set("appmgr_test_source") {
     "${ability_runtime_innerkits_path}/app_manager/src/appmgr/app_state_callback_host.cpp",
     "${ability_runtime_innerkits_path}/app_manager/src/appmgr/app_state_callback_proxy.cpp",
     "${ability_runtime_innerkits_path}/app_manager/src/appmgr/app_task_info.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/fault_data.cpp",
     "${ability_runtime_innerkits_path}/app_manager/src/appmgr/process_info.cpp",
     "${ability_runtime_innerkits_path}/app_manager/src/appmgr/profile.cpp",
     "${ability_runtime_innerkits_path}/app_manager/src/appmgr/render_scheduler_host.cpp",

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -552,6 +552,38 @@ int32_t AppSchedulerProxy::ScheduleNotifyUnLoadRepairPatch(const std::string &bu
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_UNLOAD_REPAIR_PATCH), data, reply, option);
     if (ret != 0) {
         HILOG_ERROR("Schedule notify unload patch, Send request failed with errno %{public}d.", ret);
+        return ret;
+    }
+
+    return reply.ReadInt32();
+}
+
+int32_t AppSchedulerProxy::ScheduleNotifyAppFault(const FaultData &faultData)
+{
+    MessageParcel data;
+
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteParcelable(&faultData)) {
+        HILOG_ERROR("Write FaultData error.");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_FAULT),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed with error code %{public}d.", ret);
         return ret;
     }
 

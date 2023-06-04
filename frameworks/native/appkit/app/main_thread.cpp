@@ -45,6 +45,7 @@
 #ifdef SUPPORT_GRAPHICS
 #include "locale_config.h"
 #endif
+#include "app_mgr_client.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "js_runtime.h"
@@ -1281,6 +1282,10 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
                 .message = errorObj.message,
                 .stack = errorObj.stack
             };
+            FaultData faultData;
+            faultData.faultType = FaultDataType::JS_ERROR;
+            faultData.errorObject = appExecErrorObj;
+            DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFault(faultData);
             if (ApplicationDataManager::GetInstance().NotifyUnhandledException(summary) &&
                 ApplicationDataManager::GetInstance().NotifyExceptionObject(appExecErrorObj)) {
                 return;
@@ -2525,6 +2530,35 @@ int32_t MainThread::ScheduleNotifyUnLoadRepairPatch(const std::string &bundleNam
     }
 
     return NO_ERROR;
+}
+
+int32_t MainThread::ScheduleNotifyAppFault(const FaultData &faultData)
+{
+    if (mainHandler_ == nullptr) {
+        HILOG_ERROR("mainHandler is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    wptr<MainThread> weak = this;
+    auto task = [weak, faultData] {
+        auto appThread = weak.promote();
+        if (appThread == nullptr) {
+            HILOG_ERROR("appThread is nullptr, NotifyAppFault failed.");
+            return;
+        }
+        appThread->NotifyAppFault(faultData);
+    };
+    mainHandler_->PostTask(task);
+    return NO_ERROR;
+}
+
+void MainThread::NotifyAppFault(const FaultData &faultData)
+{
+    ErrorObject faultErrorObj = {
+        .name = faultData.errorObject.name,
+        .message = faultData.errorObject.message,
+        .stack = faultData.errorObject.stack
+    };
+    ApplicationDataManager::GetInstance().NotifyExceptionObject(faultErrorObj);
 }
 
 void MainThread::UpdateProcessExtensionType(const std::shared_ptr<AbilityLocalRecord> &abilityRecord)

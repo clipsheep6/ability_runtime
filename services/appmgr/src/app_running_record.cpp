@@ -1457,6 +1457,16 @@ int32_t AppRunningRecord::NotifyUnLoadRepairPatch(const std::string &bundleName,
     return appLifeCycleDeal_->NotifyUnLoadRepairPatch(bundleName, callback, recordId);
 }
 
+int32_t AppRunningRecord::NotifyAppFault(const FaultData &faultData)
+{
+    HILOG_DEBUG("called.");
+    if (!appLifeCycleDeal_) {
+        HILOG_ERROR("appLifeCycleDeal_ is null");
+        return ERR_INVALID_VALUE;
+    }
+    return appLifeCycleDeal_->NotifyAppFault(faultData);
+}
+
 bool AppRunningRecord::IsContinuousTask()
 {
     return isContinuousTask_;

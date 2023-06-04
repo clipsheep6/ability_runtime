@@ -3550,6 +3550,83 @@ int32_t AppMgrServiceInner::NotifyUnLoadRepairPatch(const std::string &bundleNam
     return appRunningManager_->NotifyUnLoadRepairPatch(bundleName, callback);
 }
 
+int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
+{
+    HILOG_DEBUG("called.");
+    auto bundleMgr = remoteClientManager_->GetBundleManager();
+    int32_t callerUid = IPCSkeleton::GetCallingUid();
+    int32_t pid = IPCSkeleton::GetCallingPid();
+    std::string bundleName;
+    bundleMgr->GetBundleNameForUid(callerUid, bundleName);
+    HILOG_DEBUG("FaultData is: error name: %{public}s, faultType: %{public}s, uid: %{public}d, pid: %{public}d,\
+        bundleName: %{public}s", faultData.errorObject.name.c_str(), FaultTypeToString(faultData.faultType).c_str(),
+        callerUid, pid, bundleName.c_str());
+    return ERR_OK;
+}
+
+int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
+{
+    HILOG_DEBUG("called");
+#ifdef ABILITY_COMMAND_FOR_TEST
+    if ((AAFwk::PermissionVerification::GetInstance()->IsSACall()) ||
+        AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+#else
+    if ((AAFwk::PermissionVerification::GetInstance()->IsSACall())) {
+#endif
+        int32_t pid = faultData.pid;
+        auto appRecord = GetAppRunningRecordByPid(pid);
+        if (!appRecord) {
+            HILOG_ERROR("no such appRecord");
+            return ERR_INVALID_VALUE;
+        }
+        FaultData transformedFaultData = ConvertDataTypes(faultData);
+        int32_t uid = appRecord->GetUid();
+        std::string bundleName = appRecord->GetBundleName();
+        HILOG_DEBUG("FaultDataBySA is: error name: %{public}s, faultType: %{public}s, uid: %{public}d,\
+            pid: %{public}d, bundleName: %{public}s",
+            faultData.errorObject.name.c_str(), FaultTypeToString(faultData.faultType).c_str(),
+            uid, pid, bundleName.c_str());
+        appRecord->NotifyAppFault(transformedFaultData);
+    } else {
+        HILOG_DEBUG("this is not called by SA.");
+        return AAFwk::CHECK_PERMISSION_FAILED;
+    }
+    return ERR_OK;
+}
+
+FaultData AppMgrServiceInner::ConvertDataTypes(const AppFaultDataBySA &faultData)
+{
+    FaultData newfaultData;
+    newfaultData.faultType = faultData.faultType;
+    newfaultData.errorObject = faultData.errorObject;
+    return newfaultData;
+}
+
+std::string AppMgrServiceInner::FaultTypeToString(AppExecFwk::FaultDataType type)
+{
+    std::string typeStr = "UNKNOWN";
+    switch (type) {
+        case AppExecFwk::FaultDataType::CPP_CRASH:
+            typeStr = "CPP_CRASH";
+            break;
+        case AppExecFwk::FaultDataType::JS_ERROR:
+            typeStr = "JS_ERROR";
+            break;
+        case AppExecFwk::FaultDataType::APP_FREEZE:
+            typeStr = "APP_FREEZE";
+            break;
+        case AppExecFwk::FaultDataType::PERFORMANCE_CONTROL:
+            typeStr = "PERFORMANCE_CONTROL";
+            break;
+        case AppExecFwk::FaultDataType::RESOURCE_CONTROL:
+            typeStr = "RESOURCE_CONTROL";
+            break;
+        default:
+            break;
+    }
+    return typeStr;
+}
+
 bool AppMgrServiceInner::IsSharedBundleRunning(const std::string &bundleName, uint32_t versionCode)
 {
     if (!CheckGetRunningInfoPermission()) {

@@ -30,6 +30,7 @@
 #include "app_mgr_constants.h"
 #include "app_scheduler_proxy.h"
 #include "app_record_id.h"
+#include "fault_data.h"
 #include "profile.h"
 #include "priority_object.h"
 #include "app_lifecycle_deal.h"
@@ -615,6 +616,8 @@ public:
 
     ExtensionAbilityType GetExtensionType() const;
     ProcessType GetProcessType() const;
+
+    int32_t NotifyAppFault(const FaultData &faultData);
 
     inline void SetSpawned()
     {

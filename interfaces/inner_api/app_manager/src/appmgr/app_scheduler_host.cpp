@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -62,6 +62,8 @@ AppSchedulerHost::AppSchedulerHost()
         &AppSchedulerHost::HandleScheduleUpdateApplicationInfoInstalled;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_HEAPMEMORY_APPLICATION_TRANSACTION)] =
         &AppSchedulerHost::HandleScheduleHeapMemory;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_FAULT)] =
+        &AppSchedulerHost::HandleNotifyAppFault;
 }
 
 AppSchedulerHost::~AppSchedulerHost()
@@ -284,6 +286,22 @@ int32_t AppSchedulerHost::HandleNotifyUnLoadRepairPatch(MessageParcel &data, Mes
     auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
     auto recordId = data.ReadInt32();
     ScheduleNotifyUnLoadRepairPatch(bundleName, callback, recordId);
+    return NO_ERROR;
+}
+
+int32_t AppSchedulerHost::HandleNotifyAppFault(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<FaultData> faultData(data.ReadParcelable<FaultData>());
+    if (faultData == nullptr) {
+        HILOG_ERROR("ReadParcelable<FaultData> failed");
+        return ERR_INVALID_VALUE;
+    }
+
+    int32_t result = ScheduleNotifyAppFault(*faultData);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("reply write failed.");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

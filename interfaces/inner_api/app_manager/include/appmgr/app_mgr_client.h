@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,6 +33,7 @@
 #include "iconfiguration_observer.h"
 #include "app_mem_info.h"
 #include "app_malloc_info.h"
+#include "fault_data.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -426,6 +427,22 @@ public:
      * @return
      */
     void SetCurrentUserId(const int32_t userId);
+
+    /**
+     * Notify Fault Data
+     *
+     * @param faultData the fault data.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t NotifyAppFault(const FaultData &faultData);
+
+    /**
+     * Notify App Fault Data By SA
+     *
+     * @param faultData the fault data notified by SA.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData);
 
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);

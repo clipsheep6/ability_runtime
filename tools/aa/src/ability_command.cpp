@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -56,6 +56,16 @@ constexpr struct option LONG_OPTIONS_ApplicationNotResponding[] = {
     {"pid", required_argument, nullptr, 'p'},
     {nullptr, 0, nullptr, 0},
 };
+const std::string SHORT_OPTIONS_NOTIFY_APP_FAULT = "hn:m:s:t:p:";
+constexpr struct option LONG_OPTIONS_NOTIFY_APP_FAULT[] = {
+    {"help", no_argument, nullptr, 'h'},
+    {"errorName", required_argument, nullptr, 'n'},
+    {"errorMessage", required_argument, nullptr, 'm'},
+    {"errorStack", required_argument, nullptr, 's'},
+    {"faultType", required_argument, nullptr, 't'},
+    {"pid", required_argument, nullptr, 'p'},
+    {nullptr, 0, nullptr, 0},
+};
 #endif
 const std::string SHORT_OPTIONS_DUMPSYS = "hal::i:e::p::r::d::u:c";
 constexpr struct option LONG_OPTIONS_DUMPSYS[] = {
@@ -107,6 +117,7 @@ ErrCode AbilityManagerShellCommand::CreateCommandMap()
         {"block-ability", std::bind(&AbilityManagerShellCommand::RunAsBlockAbilityCommand, this)},
         {"block-ams-service", std::bind(&AbilityManagerShellCommand::RunAsBlockAmsServiceCommand, this)},
         {"block-app-service", std::bind(&AbilityManagerShellCommand::RunAsBlockAppServiceCommand, this)},
+        {"notifyappfault", std::bind(&AbilityManagerShellCommand::RunAsNotifyAppFaultCommand, this)},
 #endif
     };
 
@@ -1488,6 +1499,128 @@ ErrCode AbilityManagerShellCommand::RunAsBlockAppServiceCommand()
         resultReceiver_ = STRING_BLOCK_APP_SERVICE_NG + "\n";
         resultReceiver_.append(GetMessageFromCode(result));
     }
+    return result;
+}
+
+FaultDataType CovertFaultType(std::string &cmd)
+{
+    if (cmd.empty()) {
+        return FaultDataType::UNKNOWN;
+    }
+
+    if (cmd.compare("UNKNOWN") == 0) {
+        return FaultDataType::UNKNOWN;
+    } else if (cmd.compare("CPP_CRASH") == 0) {
+        return FaultDataType::CPP_CRASH;
+    } else if (cmd.compare("JS_ERROR") == 0) {
+        return FaultDataType::JS_ERROR;
+    } else if (cmd.compare("APP_FREEZE") == 0) {
+        return FaultDataType::APP_FREEZE;
+    } else if (cmd.compare("PERFORMANCE_CONTROL") == 0) {
+        return FaultDataType::PERFORMANCE_CONTROL;
+    } else if (cmd.compare("RESOURCE_CONTROL") == 0) {
+        return FaultDataType::RESOURCE_CONTROL;
+    }
+
+    return FaultDataType::UNKNOWN;
+}
+
+ErrCode AbilityManagerShellCommand::RunAsNotifyAppFaultCommand()
+{
+    HILOG_DEBUG("called");
+    int result = OHOS::ERR_OK;
+    int option = -1;
+    int counter = 0;
+    std::string errorName = "";
+    std::string errorMessage = "";
+    std::string errorStack = "";
+    std::string faultType = "";
+    std::string pid = "";
+    while (true) {
+        counter++;
+        option = getopt_long(
+            argc_, argv_, SHORT_OPTIONS_NOTIFY_APP_FAULT.c_str(), LONG_OPTIONS_NOTIFY_APP_FAULT, nullptr);
+        HILOG_INFO("option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
+        if (optind < 0 || optind > argc_) {
+            return OHOS::ERR_INVALID_VALUE;
+        }
+
+        if (option == -1) {
+            if (counter == 1 && strcmp(argv_[optind], cmd_.c_str()) == 0) {
+                HILOG_INFO("'aa %{public}s' %{public}s", HELP_MSG_NO_OPTION.c_str(), cmd_.c_str());
+                resultReceiver_.append(HELP_MSG_NO_OPTION + "\n");
+                result = OHOS::ERR_INVALID_VALUE;
+            }
+            break;
+        }
+
+        switch (option) {
+            case 'h': {
+                HILOG_INFO("'aa %{public}s -h' with no argument.", cmd_.c_str());
+                // 'aa notifyappfault -h'
+                // 'aa notifyappfault --help'
+                result = OHOS::ERR_INVALID_VALUE;
+                break;
+            }
+            case 'n': {
+                HILOG_INFO("'aa %{public}s -n' errorName.", cmd_.c_str());
+                // 'aa notifyappfault -n errorName'
+                errorName = optarg;
+                break;
+            }
+            case 'm': {
+                HILOG_INFO("'aa %{public}s -m' errorMessage.", cmd_.c_str());
+                // 'aa notifyappfault -m errorMessage'
+                errorMessage = optarg;
+                break;
+            }
+            case 's': {
+                HILOG_INFO("'aa %{public}s -s' errorStack.", cmd_.c_str());
+                // 'aa notifyappfault -s errorStack'
+                errorStack = optarg;
+                break;
+            }
+            case 't': {
+                HILOG_INFO("'aa %{public}s -t' faultType.", cmd_.c_str());
+                // 'aa notifyappfault -t faultType'
+                faultType = optarg;
+                break;
+            }
+            case 'p': {
+                HILOG_INFO("'aa %{public}s -p' pid.", cmd_.c_str());
+                // 'aa notifyappfault -p pid'
+                pid = optarg;
+                break;
+            }
+            case '?': {
+                std::string unknownOption = "";
+                std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
+                HILOG_INFO("'aa notifyappfault' with an unknown option.");
+                resultReceiver_.append(unknownOptionMsg);
+                result = OHOS::ERR_INVALID_VALUE;
+                break;
+            }
+            default: {
+                break;
+            }
+        }
+    }
+
+    if (result != OHOS::ERR_OK) {
+        resultReceiver_.append(HELP_MSG_SCREEN);
+        result = OHOS::ERR_INVALID_VALUE;
+    }
+
+    HILOG_INFO("name: %{public}s, message: %{public}s, stack: %{public}s, type: %{public}s, pid: %{public}s",
+        errorName.c_str(), errorMessage.c_str(), errorStack.c_str(), faultType.c_str(), pid.c_str());
+
+    AppFaultDataBySA faultData;
+    faultData.errorObject.name = errorName;
+    faultData.errorObject.message = errorMessage;
+    faultData.errorObject.stack = errorStack;
+    faultData.faultType = CovertFaultType(faultType);
+    faultData.pid = std::stoi(pid);
+    DelayedSingleton<AppMgrClient>::GetInstance()->NotifyAppFaultBySA(faultData);
     return result;
 }
 #endif

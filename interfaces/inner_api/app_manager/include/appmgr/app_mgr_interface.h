@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,6 +24,7 @@
 #include "application_info.h"
 #include "app_record_id.h"
 #include "bundle_info.h"
+#include "fault_data.h"
 #include "iapp_state_callback.h"
 #include "ams_mgr_interface.h"
 #include "render_process_info.h"
@@ -328,6 +329,22 @@ public:
      */
     virtual int32_t NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback) = 0;
 
+    /**
+     * Notify App Fault Data
+     *
+     * @param faultData the fault data.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyAppFault(const FaultData &faultData) = 0;
+
+    /**
+     * Notify App Fault Data By SA
+     *
+     * @param faultData the fault data notified by SA.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData) = 0;
+
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     /**
      * @brief Set whether the process is continuousTask.
@@ -393,6 +410,8 @@ public:
         IS_SHARED_BUNDLE_RUNNING,
         DUMP_HEAP_MEMORY_PROCESS,
         START_NATIVE_PROCESS_FOR_DEBUGGER,
+        NOTIFY_APP_FAULT,
+        NOTIFY_APP_FAULT_BY_SA,
         JUDGE_SANDBOX_BY_PID,
         APP_GET_ALL_RENDER_PROCESSES,
     };

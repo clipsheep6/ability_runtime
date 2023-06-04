@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +20,7 @@
 #include "ability_info.h"
 #include "app_launch_data.h"
 #include "configuration.h"
+#include "fault_data.h"
 #include "hap_module_info.h"
 #include "iquick_fix_callback.h"
 #include "want.h"
@@ -190,6 +191,14 @@ public:
     virtual int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName,
         const sptr<IQuickFixCallback> &callback, const int32_t recordId) = 0;
 
+    /**
+     * @brief Schedule Notify App Fault Data.
+     *
+     * @param faultData fault data
+     * @return Returns ERR_OK on success, error code on failure.
+     */
+    virtual int32_t ScheduleNotifyAppFault(const FaultData &faultData) = 0;
+
     enum class Message {
         SCHEDULE_FOREGROUND_APPLICATION_TRANSACTION = 0,
         SCHEDULE_BACKGROUND_APPLICATION_TRANSACTION,
@@ -210,6 +219,7 @@ public:
         SCHEDULE_NOTIFY_UNLOAD_REPAIR_PATCH,
         SCHEDULE_UPDATE_APPLICATION_INFO_INSTALLED,
         SCHEDULE_HEAPMEMORY_APPLICATION_TRANSACTION,
+        SCHEDULE_NOTIFY_FAULT
     };
 };
 }  // namespace AppExecFwk

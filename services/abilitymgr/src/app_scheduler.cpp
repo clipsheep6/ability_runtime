@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -419,6 +419,18 @@ void AppScheduler::SetCurrentUserId(const int32_t userId)
 {
     CHECK_POINTER(appMgrClient_);
     IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->SetCurrentUserId(userId));
+}
+
+int32_t AppScheduler::NotifyFault(const AppExecFwk::FaultData &faultData)
+{
+    CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
+    auto ret = static_cast<int>(appMgrClient_->NotifyAppFault(faultData));
+    if (ret != ERR_OK) {
+        HILOG_ERROR("NotifyAppFault failed.");
+        return INNER_ERR;
+    }
+
+    return ERR_OK;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

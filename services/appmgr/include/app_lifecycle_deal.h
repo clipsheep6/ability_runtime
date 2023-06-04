@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +19,7 @@
 #include "app_scheduler_proxy.h"
 #include "app_launch_data.h"
 #include "ability_running_record.h"
+#include "fault_data.h"
 #include "hap_module_info.h"
 #include "want.h"
 #include "app_malloc_info.h"
@@ -179,6 +180,8 @@ public:
 
     int32_t NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback,
         const int32_t recordId);
+
+    int32_t NotifyAppFault(const FaultData &faultData);
 
 private:
     sptr<IAppScheduler> appThread_ = nullptr;

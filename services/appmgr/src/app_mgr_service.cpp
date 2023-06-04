@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -718,6 +718,34 @@ int32_t AppMgrService::StartNativeProcessForDebugger(const AAFwk::Want &want)
     auto ret = appMgrServiceInner_->StartNativeProcessForDebugger(want);
     if (ret != ERR_OK) {
         HILOG_ERROR("debuggablePipe fail to start native process.");
+    }
+    return ret;
+}
+
+int32_t AppMgrService::NotifyAppFault(const FaultData &faultData)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AppMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    auto ret = appMgrServiceInner_->NotifyAppFault(faultData);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Notify fault data fail.");
+    }
+    return ret;
+}
+
+int32_t AppMgrService::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AppMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    auto ret = appMgrServiceInner_->NotifyAppFaultBySA(faultData);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Notify fault data fail.");
     }
     return ret;
 }
