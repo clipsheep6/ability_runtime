@@ -370,6 +370,16 @@ public:
 
     virtual int32_t StartNativeProcessForDebugger(const AAFwk::Want &want) = 0;
 
+    /**
+     * Get bundleName by pid.
+     *
+     * @param pid process id.
+     * @param bundleName Output parameters, return bundleName.
+     * @param uid Output parameters, return userId.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetBundleNameByPid(const int pid, std::string &bundleName, int32_t &uid) = 0;
+
     // please add new message item to the bottom in order to prevent some unexpected BUG
     enum class Message {
         APP_ATTACH_APPLICATION = 0,
@@ -413,6 +423,7 @@ public:
         NOTIFY_APP_FAULT,
         NOTIFY_APP_FAULT_BY_SA,
         JUDGE_SANDBOX_BY_PID,
+        GET_BUNDLE_NAME_BY_PID,
         APP_GET_ALL_RENDER_PROCESSES,
     };
 };

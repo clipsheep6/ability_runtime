@@ -689,6 +689,20 @@ void AppMgrClient::SetCurrentUserId(const int32_t userId)
     amsService->SetCurrentUserId(userId);
 }
 
+int32_t AppMgrClient::GetBundleNameByPid(const int pid, std::string &bundleName, int32_t &uid)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+
+    sptr<IAmsMgr> amsService = service->GetAmsMgr();
+    if (amsService != nullptr) {
+        return amsService->GetBundleNameByPid(pid, bundleName, uid);
+    }
+    return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+}
+
 int32_t AppMgrClient::NotifyAppFault(const FaultData &faultData)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());

@@ -415,6 +415,17 @@ int AppScheduler::BlockAppService()
 }
 #endif
 
+int32_t AppScheduler::GetBundleNameByPid(const int pid, std::string &bundleName, int32_t &uid)
+{
+    CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
+    int32_t ret = static_cast<int32_t>(IN_PROCESS_CALL(appMgrClient_->GetBundleNameByPid(pid, bundleName, uid)));
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Get bundle name failed.");
+        return INNER_ERR;
+    }
+    return ERR_OK;
+}
+
 void AppScheduler::SetCurrentUserId(const int32_t userId)
 {
     CHECK_POINTER(appMgrClient_);

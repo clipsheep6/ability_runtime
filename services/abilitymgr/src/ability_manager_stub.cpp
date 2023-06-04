@@ -132,6 +132,8 @@ void AbilityManagerStub::SecondStepInit()
     requestFuncMap_[ACQUIRE_SHARE_DATA] = &AbilityManagerStub::AcquireShareDataInner;
     requestFuncMap_[SHARE_DATA_DONE] = &AbilityManagerStub::ShareDataDoneInner;
     requestFuncMap_[GET_ABILITY_TOKEN] = &AbilityManagerStub::GetAbilityTokenByCalleeObjInner;
+    requestFuncMap_[FORCE_EXIT_APP] = &AbilityManagerStub::ForceExitAppInner;
+    requestFuncMap_[RECORD_APP_EXIT_REASON] = &AbilityManagerStub::RecordAppExitReasonInner;
 #ifdef ABILITY_COMMAND_FOR_TEST
     requestFuncMap_[BLOCK_ABILITY] = &AbilityManagerStub::BlockAbilityInner;
     requestFuncMap_[BLOCK_AMS_SERVICE] = &AbilityManagerStub::BlockAmsServiceInner;
@@ -2023,6 +2025,29 @@ int AbilityManagerStub::VerifyPermissionInner(MessageParcel &data, MessageParcel
     auto result = VerifyPermission(permission, pid, uid);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("VerifyPermission failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::ForceExitAppInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t pid = data.ReadInt32();
+    Reason reason = static_cast<Reason>(data.ReadInt32());
+    int32_t result = ForceExitApp(pid, reason);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("write result failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::RecordAppExitReasonInner(MessageParcel &data, MessageParcel &reply)
+{
+    Reason reason = static_cast<Reason>(data.ReadInt32());
+    int32_t result = RecordAppExitReason(reason);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("write result failed.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

@@ -1051,6 +1051,22 @@ ErrCode AbilityManagerClient::ShareDataDone(
     return abms->ShareDataDone(token, resultCode, uniqueId, wantParam);
 }
 
+ErrCode AbilityManagerClient::ForceExitApp(const int32_t pid, Reason exitReason)
+{
+    HILOG_DEBUG("begin.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->ForceExitApp(pid, exitReason);
+}
+
+ErrCode AbilityManagerClient::RecordAppExitReason(Reason exitReason)
+{
+    HILOG_DEBUG("begin.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->RecordAppExitReason(exitReason);
+}
+
 void AbilityManagerClient::SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession)
 {
     HILOG_INFO("call");

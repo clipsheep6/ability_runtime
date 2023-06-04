@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -460,6 +460,26 @@ void MissionList::FindEarliestMission(std::shared_ptr<Mission>& targetMission) c
 int32_t MissionList::GetMissionCount() const
 {
     return static_cast<int32_t>(missions_.size());
+}
+
+void MissionList::GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList)
+{
+    for (auto mission : missions_) {
+        if (!mission) {
+            continue;
+        }
+
+        auto abilityRecord = mission->GetAbilityRecord();
+        if (!abilityRecord) {
+            continue;
+        }
+
+        const AppExecFwk::AbilityInfo &abilityInfo = abilityRecord->GetAbilityInfo();
+        if (abilityInfo.bundleName == bundleName && !abilityInfo.name.empty()) {
+            HILOG_DEBUG("find ability name is %{public}s", abilityInfo.name.c_str());
+            abilityList.push_back(abilityInfo.name);
+        }
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS

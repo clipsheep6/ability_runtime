@@ -14,10 +14,11 @@
  */
 
 #include "ability_manager_service.h"
-#include "accesstoken_kit.h"
 
 #include <atomic>
 #include <chrono>
+#include <csignal>
+#include <cstdlib>
 #include <fstream>
 #include <functional>
 #include <getopt.h>
@@ -27,20 +28,23 @@
 #include <thread>
 #include <unistd.h>
 #include <unordered_set>
-#include <csignal>
-#include <cstdlib>
 
+#include "ability_bundle_event_callback.h"
 #include "ability_info.h"
 #include "ability_interceptor.h"
 #include "ability_manager_errors.h"
 #include "ability_util.h"
+#include "accesstoken_kit.h"
+#include "app_exit_reason_data_manager.h"
 #include "application_util.h"
-#include "errors.h"
-#include "hitrace_meter.h"
 #include "bundle_mgr_client.h"
+#include "connection_state_manager.h"
 #include "distributed_client.h"
 #include "dlp_utils.h"
+#include "errors.h"
 #include "hilog_wrapper.h"
+#include "hisysevent.h"
+#include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
@@ -48,19 +52,18 @@
 #include "iservice_registry.h"
 #include "itest_observer.h"
 #include "mission_info_mgr.h"
-#include "sa_mgr_client.h"
-#include "scene_board_judgement.h"
-#include "system_ability_token_callback.h"
-#include "softbus_bus_center.h"
-#include "string_ex.h"
-#include "system_ability_definition.h"
 #include "os_account_manager_wrapper.h"
 #include "parameters.h"
 #include "permission_constants.h"
+#include "recovery_param.h"
+#include "sa_mgr_client.h"
+#include "scene_board_judgement.h"
+#include "softbus_bus_center.h"
+#include "string_ex.h"
+#include "system_ability_definition.h"
+#include "system_ability_token_callback.h"
 #include "uri_permission_manager_client.h"
 #include "xcollie/watchdog.h"
-#include "hisysevent.h"
-#include "connection_state_manager.h"
 
 #ifdef SUPPORT_GRAPHICS
 
@@ -78,8 +81,6 @@
 #include "res_sched_client.h"
 #include "res_type.h"
 #endif // RESOURCE_SCHEDULE_SERVICE_ENABLE
-
-#include "ability_bundle_event_callback.h"
 
 using OHOS::AppExecFwk::ElementName;
 using OHOS::Security::AccessToken::AccessTokenKit;
@@ -1210,6 +1211,118 @@ bool AbilityManagerService::IsBackgroundTaskUid(const int uid)
 bool AbilityManagerService::IsDmsAlive() const
 {
     return g_isDmsAlive.load();
+}
+
+void AbilityManagerService::AppUpgradeCompleted(const std::string &bundleName, int32_t uid)
+{
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall() &&
+        !AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+        HILOG_ERROR("Not sa or shell call");
+        return;
+    }
+
+    auto bms = GetBundleManager();
+    CHECK_POINTER(bms);
+    auto userId = uid / BASE_USER_RANGE;
+
+    AppExecFwk::BundleInfo bundleInfo;
+    if (!IN_PROCESS_CALL(
+        bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, userId))) {
+        HILOG_ERROR("Failed to get bundle info.");
+        return;
+    }
+
+    RecordAppExitReasonAtUpgrade(bundleInfo);
+
+    if (userId != U0_USER_ID) {
+        HILOG_ERROR("Application upgrade for non U0 users.");
+        return;
+    }
+
+    if (!bundleInfo.isKeepAlive) {
+        HILOG_WARN("Not a resident application.");
+        return;
+    }
+
+    std::vector<AppExecFwk::BundleInfo> bundleInfos = { bundleInfo };
+    DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcessWithMainElement(bundleInfos);
+
+    if (!bundleInfos.empty()) {
+        DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcess(bundleInfos);
+    }
+}
+
+int32_t AbilityManagerService::RecordAppExitReason(Reason exitReason)
+{
+    if (!currentMissionListManager_) {
+        HILOG_ERROR("currentMissionListManager_ is null.");
+        return ERR_NULL_OBJECT;
+    }
+
+    auto bms = GetBundleManager();
+    CHECK_POINTER_AND_RETURN(bms, ERR_NULL_OBJECT);
+
+    std::string bundleName;
+    int32_t callerUid = IPCSkeleton::GetCallingUid();
+    if (IN_PROCESS_CALL(bms->GetNameForUid(callerUid, bundleName)) != ERR_OK) {
+        HILOG_ERROR("Get Bundle Name failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    std::vector<std::string> abilityList;
+    currentMissionListManager_->GetActiveAbilityList(bundleName, abilityList);
+
+    return DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->SetAppExitReason(
+        bundleName, abilityList, exitReason);
+}
+
+int32_t AbilityManagerService::ForceExitApp(const int32_t pid, Reason exitReason)
+{
+    if (exitReason < REASON_UNKNOWN || exitReason > REASON_UPGRADE) {
+        HILOG_ERROR("Force exit reason invalid.");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall() &&
+        !AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+        HILOG_ERROR("Not sa or shell call");
+        return ERR_PERMISSION_DENIED;
+    }
+
+    std::string bundleName;
+    int32_t uid;
+    DelayedSingleton<AppScheduler>::GetInstance()->GetBundleNameByPid(pid, bundleName, uid);
+    if (bundleName.empty()) {
+        HILOG_ERROR("Get bundle name by pid failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    int32_t targetUserId = uid / BASE_USER_RANGE;
+    std::vector<std::string> abilityLists;
+    if (targetUserId == U0_USER_ID) {
+        std::shared_lock<std::shared_mutex> lock(managersMutex_);
+        for (auto item: missionListManagers_) {
+            if (item.second) {
+                std::vector<std::string> abilityList;
+                item.second->GetActiveAbilityList(bundleName, abilityList);
+                if (!abilityList.empty()) {
+                    abilityLists.insert(abilityLists.end(), abilityList.begin(), abilityList.end());
+                }
+            }
+        }
+    } else {
+        auto listManager = GetListManagerByUserId(targetUserId);
+        if (listManager) {
+            listManager->GetActiveAbilityList(bundleName, abilityLists);
+        }
+    }
+
+    int32_t result = DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->SetAppExitReason(
+        bundleName, abilityLists, exitReason);
+    
+    DelayedSingleton<AppScheduler>::GetInstance()->KillApplication(bundleName);
+
+    return result;
 }
 
 int32_t AbilityManagerService::GetConfiguration(AppExecFwk::Configuration& config)
@@ -4174,6 +4287,8 @@ int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t u
     if (ret != ERR_OK) {
         return UNINSTALL_APP_FAILED;
     }
+
+    DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->DeleteAppExitReason(bundleName);
     return ERR_OK;
 }
 
@@ -5115,6 +5230,10 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
     if (callingTokenId != tokenID) {
         HILOG_ERROR("AppRecovery ScheduleRecoverAbility not self, not enabled");
         return;
+    }
+
+    if (reason == AppExecFwk::StateReason::APP_FREEZE) {
+        RecordAppExitReason(REASON_APP_FREEZE);
     }
 
     AAFwk::Want curWant;
@@ -6971,6 +7090,26 @@ int32_t AbilityManagerService::ShareDataDone(
     CHECK_POINTER_AND_RETURN_LOG(handler_, ERR_INVALID_VALUE, "fail to get abilityEventHandler.");
     handler_->RemoveEvent(SHAREDATA_TIMEOUT_MSG, uniqueId);
     return GetShareDataPairAndReturnData(abilityRecord, resultCode, uniqueId, wantParam);
+}
+
+void AbilityManagerService::RecordAppExitReasonAtUpgrade(const AppExecFwk::BundleInfo &bundleInfo)
+{
+    if (bundleInfo.abilityInfos.empty()) {
+        HILOG_ERROR("abilityInfos is empty.");
+        return;
+    }
+
+    std::vector<std::string> abilityList;
+    for (auto abilityInfo : bundleInfo.abilityInfos) {
+        if (!abilityInfo.name.empty()) {
+            abilityList.push_back(abilityInfo.name);
+        }
+    }
+
+    if (!abilityList.empty()) {
+        DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->SetAppExitReason(
+            bundleInfo.name, abilityList, REASON_UPGRADE);
+    }
 }
 
 void AbilityManagerService::SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession)

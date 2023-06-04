@@ -120,6 +120,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleNotifyFaultBySA;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::JUDGE_SANDBOX_BY_PID)] =
         &AppMgrStub::HandleJudgeSandboxByPid;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::GET_BUNDLE_NAME_BY_PID)] =
+        &AppMgrStub::HandleGetBundleNameByPid;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_ALL_RENDER_PROCESSES)] =
         &AppMgrStub::HandleGetAllRenderProcesses;
 }
@@ -678,6 +680,26 @@ int32_t AppMgrStub::HandleStartNativeProcessForDebugger(MessageParcel &data, Mes
     auto result = StartNativeProcessForDebugger(*want);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleGetBundleNameByPid(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t pid = data.ReadInt32();
+    std::string bundleName;
+    int32_t uid;
+    auto result = GetBundleNameByPid(pid, bundleName, uid);
+    if (result != ERR_OK) {
+        return result;
+    }
+
+    if (!reply.WriteString(bundleName)) {
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!reply.WriteInt32(uid)) {
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

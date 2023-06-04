@@ -45,6 +45,9 @@ public:
     void OnReceiveEvent(const EventFwk::CommonEventData eventData) override;
 
 private:
+    void HandleUpdatedModuleInfo(const std::string &bundleName, int32_t uid);
+    void HandleAppUpgradeCompleted(const std::string &bundleName, int32_t uid);
+
     DISALLOW_COPY_AND_MOVE(AbilityBundleEventCallback);
     AbilityEventUtil abilityEventHelper_;
     std::shared_ptr<AbilityEventHandler> eventHandler_ = nullptr;

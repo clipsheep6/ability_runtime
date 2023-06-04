@@ -709,5 +709,33 @@ void AmsMgrProxy::SetCurrentUserId(const int32_t userId)
     }
     HILOG_DEBUG("end");
 }
+
+int32_t AmsMgrProxy::GetBundleNameByPid(const int pid, std::string &bundleName, int32_t &uid)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        return ERR_INVALID_DATA;
+    }
+    if (!data.WriteInt32(pid)) {
+        HILOG_ERROR("Failed to write pid");
+        return ERR_INVALID_DATA;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return ERR_NULL_OBJECT;
+    }
+    int32_t ret =
+        remote->SendRequest(static_cast<uint32_t>(IAmsMgr::Message::Get_BUNDLE_NAME_BY_PID),
+            data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+    }
+    bundleName = reply.ReadString();
+    uid = reply.ReadInt32();
+    return NO_ERROR;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

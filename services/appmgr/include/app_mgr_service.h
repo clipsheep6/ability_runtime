@@ -305,6 +305,16 @@ public:
     virtual int32_t StartNativeProcessForDebugger(const AAFwk::Want &want) override;
 
     /**
+     * Get bundleName by pid.
+     *
+     * @param pid process id.
+     * @param bundleName Output parameters, return bundleName.
+     * @param uid Output parameters, return userId.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetBundleNameByPid(const int32_t pid, std::string &bundleName, int32_t &uid) override;
+
+    /**
      * Notify Fault Data
      *
      * @param faultData the fault data.

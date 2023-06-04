@@ -429,6 +429,16 @@ public:
     void SetCurrentUserId(const int32_t userId);
 
     /**
+     * Get bundleName by pid.
+     *
+     * @param pid process id.
+     * @param bundleName Output parameters, return bundleName.
+     * @param uid Output parameters, return userId.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t GetBundleNameByPid(const int pid, std::string &bundleName, int32_t &uid);
+
+    /**
      * Notify Fault Data
      *
      * @param faultData the fault data.

@@ -722,6 +722,15 @@ int32_t AppMgrService::StartNativeProcessForDebugger(const AAFwk::Want &want)
     return ret;
 }
 
+int32_t AppMgrService::GetBundleNameByPid(const int32_t pid, std::string &bundleName, int32_t &uid)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AppMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->GetBundleNameByPid(pid, bundleName, uid);
+}
+
 int32_t AppMgrService::NotifyAppFault(const FaultData &faultData)
 {
     if (!IsReady()) {

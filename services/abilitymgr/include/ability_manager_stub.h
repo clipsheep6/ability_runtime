@@ -216,6 +216,10 @@ private:
     int AcquireShareDataInner(MessageParcel &data, MessageParcel &reply);
     int ShareDataDoneInner(MessageParcel &data, MessageParcel &reply);
     int GetAbilityTokenByCalleeObjInner(MessageParcel &data, MessageParcel &reply);
+
+    int32_t ForceExitAppInner(MessageParcel &data, MessageParcel &reply);
+    int32_t RecordAppExitReasonInner(MessageParcel &data, MessageParcel &reply);
+
     int SetRootSceneSessionInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
