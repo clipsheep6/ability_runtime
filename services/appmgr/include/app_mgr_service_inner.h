@@ -21,6 +21,7 @@
 #include <vector>
 #include <regex>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "iremote_object.h"
 #include "refbase.h"
@@ -682,6 +683,8 @@ private:
 
     bool GetBundleInfo(const std::string &bundleName, BundleInfo &bundleInfo);
 
+    bool GenerateRenderUid(int32_t &renderUid);
+
     void MakeProcessName(const std::shared_ptr<AbilityInfo> &abilityInfo,
         const std::shared_ptr<ApplicationInfo> &appInfo,
         const HapModuleInfo &hapModuleInfo, int32_t appIndex, std::string &processName) const;
@@ -922,14 +925,18 @@ private:
     std::shared_ptr<AMSEventHandler> eventHandler_;
     std::shared_ptr<Configuration> configuration_;
     std::mutex userTestLock_;
+    std::mutex renderUidSetLock_;
     sptr<IStartSpecifiedAbilityResponse> startSpecifiedAbilityResponse_;
     std::recursive_mutex configurationObserverLock_;
     std::vector<sptr<IConfigurationObserver>> configurationObservers_;
     sptr<WindowFocusChangedListener> focusListener_;
     std::vector<std::shared_ptr<AppRunningRecord>> restartResedentTaskList_;
     std::map<std::string, std::vector<BaseSharedBundleInfo>> runningSharedBundleList_;
+    std::unordered_set<int32_t> renderUidSet_;
     std::string supportIsolationMode_ {"false"};
+    std::string deviceType_ {"default"};
     int32_t currentUserId_ = 0;
+    int32_t lastRenderUid_ = Constants::START_UID_FOR_RENDER_PROCESS;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
