@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("//commonlibrary/memory_utils/purgeable_mem_config.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 import("//foundation/distributeddatamgr/relational_store/relational_store.gni")
 
@@ -274,6 +275,11 @@ ohos_shared_library("abilitykit_native") {
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
     defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
+  }
+
+  if (purgeable_ashmem_enable) {
+    external_deps += [ "memory_utils:libpurgeablemem" ]
+    defines += [ "IMAGE_PURGEABLE_PIXELMAP" ]
   }
 
   if (efficiency_manager) {

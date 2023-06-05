@@ -70,6 +70,10 @@
 #include "nweb_helper.h"
 #endif
 
+#ifdef IMAGE_PURGEABLE_PIXELMAP
+#include "purgeable_resource_manager.h"
+#endif
+
 #if defined(ABILITY_LIBRARY_LOADER) || defined(APPLICATION_LIBRARY_LOADER)
 #include <dirent.h>
 #include <dlfcn.h>
@@ -1883,6 +1887,11 @@ void MainThread::HandleForegroundApplication()
         HILOG_ERROR("MainThread::handleForegroundApplication error!");
         return;
     }
+
+#ifdef IMAGE_PURGEABLE_PIXELMAP
+    HILOG_DEBUG("[PurgeableResourceManager] Ability OnForeground ExecBeginVisitPurgeableMem.");
+    PurgeableMem::PurgeableResourceManager::GetInstance().ExecBeginVisitPurgeableMem();
+#endif
 
     if (!applicationImpl_->PerformForeground()) {
         HILOG_ERROR("MainThread::handleForegroundApplication error!, applicationImpl_->PerformForeground() failed");
