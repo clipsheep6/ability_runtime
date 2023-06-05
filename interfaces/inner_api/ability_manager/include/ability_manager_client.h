@@ -754,6 +754,14 @@ public:
      */
     ErrCode RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler);
 
+    /**
+     * PrepareTerminateAbility with want, if terminate, return want from ability manager service.
+     *
+     * @param token Ability token.
+     * @param callback callback.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode PrepareTerminateAbility(const sptr<IRemoteObject> &token, sptr<IPrepareTerminateCallback> &callback);
 #ifdef SUPPORT_GRAPHICS
     /**
      * Set mission label of this ability.
@@ -996,6 +1004,28 @@ public:
     ErrCode RequestDialogService(
         const Want &want,
         const sptr<IRemoteObject> &callerToken);
+
+    /**
+     * Force app exit and record exit reason.
+     * @param pid Process id .
+     * @param exitReason The reason of app exit.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode ForceExitApp(const int32_t pid, Reason exitReason);
+
+    /**
+     * Record app exit reason.
+     * @param exitReason The reason of app exit.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode RecordAppExitReason(Reason exitReason);
+
+    /**
+     * Set rootSceneSession by SCB.
+     *
+     * @param rootSceneSession Indicates root scene session of SCB.
+     */
+    void SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession);
 
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {

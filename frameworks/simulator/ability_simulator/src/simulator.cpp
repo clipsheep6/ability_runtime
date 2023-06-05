@@ -94,6 +94,7 @@ private:
         const std::string& moduleName, NativeValue* const* argv, size_t argc);
     std::unique_ptr<NativeReference> CreateJsWindowStage(const std::shared_ptr<Rosen::WindowScene>& windowScene);
 
+    panda::ecmascript::EcmaVM* CreateJSVM();
     Options options_;
     std::string abilityPath_;
     std::thread thread_;
@@ -441,7 +442,7 @@ std::unique_ptr<NativeReference> SimulatorImpl::LoadSystemModuleByEngine(NativeE
     return std::unique_ptr<NativeReference>(engine->CreateReference(instanceValue, 1));
 }
 
-bool SimulatorImpl::OnInit()
+panda::ecmascript::EcmaVM* SimulatorImpl::CreateJSVM()
 {
     panda::RuntimeOption pandaOption;
     pandaOption.SetArkProperties(DEFAULT_ARK_PROPERTIES);
@@ -453,7 +454,12 @@ bool SimulatorImpl::OnInit()
     pandaOption.SetLogBufPrint(PrintVmLog);
     pandaOption.SetEnableAsmInterpreter(true);
     pandaOption.SetAsmOpcodeDisableRange("");
-    vm_ = panda::JSNApi::CreateJSVM(pandaOption);
+    return panda::JSNApi::CreateJSVM(pandaOption);
+}
+
+bool SimulatorImpl::OnInit()
+{
+    vm_ = CreateJSVM();
     if (vm_ == nullptr) {
         return false;
     }
@@ -504,7 +510,6 @@ bool SimulatorImpl::OnInit()
     panda::JSNApi::SetBundleName(vm_, options_.bundleName);
     panda::JSNApi::SetModuleName(vm_, options_.moduleName);
     panda::JSNApi::SetAssetPath(vm_, options_.modulePath);
-
     nativeEngine_ = std::move(nativeEngine);
     return true;
 }

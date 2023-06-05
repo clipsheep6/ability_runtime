@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -37,13 +37,41 @@ public:
 
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr)
     {
-        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        std::lock_guard<std::mutex> lock(mutex_);
         serviceManager_ = std::move(serviceMgr);
     }
 
     AppMgrResultCode ConnectAppMgrService()
     {
-        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        std::lock_guard<std::mutex> lock(mutex_);
+        return ConnectAppMgrServiceInner();
+    }
+
+    sptr<IRemoteObject> GetRemoteObject()
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (!remote_) {
+            (void) ConnectAppMgrServiceInner();
+        }
+        return remote_;
+    }
+
+private:
+    void HandleRemoteDied(const wptr<IRemoteObject>& remote)
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (!remote_) {
+            return;
+        }
+
+        if (remote_ == remote.promote()) {
+            remote_->RemoveDeathRecipient(deathRecipient_);
+            remote_ = nullptr;
+        }
+    }
+
+    AppMgrResultCode ConnectAppMgrServiceInner()
+    {
         if (!serviceManager_) {
             return AppMgrResultCode::ERROR_SERVICE_NOT_READY;
         }
@@ -64,29 +92,6 @@ public:
         }
 
         return AppMgrResultCode::RESULT_OK;
-    }
-
-    sptr<IRemoteObject> GetRemoteObject()
-    {
-        std::lock_guard<std::recursive_mutex> lock(mutex_);
-        if (!remote_) {
-            (void) ConnectAppMgrService();
-        }
-        return remote_;
-    }
-
-private:
-    void HandleRemoteDied(const wptr<IRemoteObject>& remote)
-    {
-        std::lock_guard<std::recursive_mutex> lock(mutex_);
-        if (!remote_) {
-            return;
-        }
-
-        if (remote_ == remote.promote()) {
-            remote_->RemoveDeathRecipient(deathRecipient_);
-            remote_ = nullptr;
-        }
     }
 
     class AppMgrDeathRecipient : public IRemoteObject::DeathRecipient {
@@ -110,7 +115,7 @@ private:
 private:
     std::unique_ptr<AppServiceManager> serviceManager_;
     sptr<IRemoteObject> remote_;
-    std::recursive_mutex mutex_;
+    std::mutex mutex_;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_;
 };
 
@@ -341,6 +346,19 @@ AppMgrResultCode AppMgrClient::GetProcessRunningInformation(AppExecFwk::RunningP
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service != nullptr) {
         int32_t result = service->GetProcessRunningInformation(info);
+        if (result == ERR_OK) {
+            return AppMgrResultCode::RESULT_OK;
+        }
+        return AppMgrResultCode::ERROR_SERVICE_NOT_READY;
+    }
+    return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+}
+
+AppMgrResultCode AppMgrClient::GetAllRenderProcesses(std::vector<RenderProcessInfo> &info)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service != nullptr) {
+        int32_t result = service->GetAllRenderProcesses(info);
         if (result == ERR_OK) {
             return AppMgrResultCode::RESULT_OK;
         }
@@ -674,6 +692,38 @@ void AppMgrClient::SetCurrentUserId(const int32_t userId)
         return;
     }
     amsService->SetCurrentUserId(userId);
+}
+
+int32_t AppMgrClient::GetBundleNameByPid(const int pid, std::string &bundleName, int32_t &uid)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+
+    sptr<IAmsMgr> amsService = service->GetAmsMgr();
+    if (amsService != nullptr) {
+        return amsService->GetBundleNameByPid(pid, bundleName, uid);
+    }
+    return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+}
+
+int32_t AppMgrClient::NotifyAppFault(const FaultData &faultData)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return service->NotifyAppFault(faultData);
+}
+
+int32_t AppMgrClient::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return service->NotifyAppFaultBySA(faultData);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

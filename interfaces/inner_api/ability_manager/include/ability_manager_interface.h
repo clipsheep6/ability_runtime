@@ -25,11 +25,13 @@
 #include "ability_running_info.h"
 #include "ability_scheduler_interface.h"
 #include "ability_start_setting.h"
+#include "ability_state.h"
 #include "extension_running_info.h"
 #include "free_install_observer_interface.h"
 #include "iability_controller.h"
 #include "iacquire_share_data_callback_interface.h"
 #include "icomponent_interception.h"
+#include "iprepare_terminate_callback_interface.h"
 #include "mission_listener_interface.h"
 #include "mission_info.h"
 #include "mission_snapshot.h"
@@ -50,6 +52,10 @@
 #endif
 
 namespace OHOS {
+namespace Rosen {
+class RootSceneSession;
+}  // namespace Rosen
+
 namespace AAFwk {
 constexpr const char* ABILITY_MANAGER_SERVICE_NAME = "AbilityManagerService";
 const int DEFAULT_INVAL_VALUE = -1;
@@ -670,6 +676,18 @@ public:
      * @param abilityToken Indidate token of ability.
      */
     virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) = 0;
+
+    /**
+     * PrepareTerminateAbility, prepare terminate the special ability.
+     *
+     * @param token, the token of the ability to terminate.
+     * @param callback callback.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int PrepareTerminateAbility(const sptr<IRemoteObject> &token, sptr<IPrepareTerminateCallback> &callback)
+    {
+        return 0;
+    }
 #endif
 
     virtual int GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info) = 0;
@@ -937,6 +955,34 @@ public:
         return 0;
     }
 
+    /**
+     * Force app exit and record exit reason.
+     * @param pid Process id .
+     * @param exitReason The reason of app exit.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t ForceExitApp(const int32_t pid, Reason exitReason)
+    {
+        return 0;
+    }
+
+    /**
+     * Record app exit reason.
+     * @param exitReason The reason of app exit.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RecordAppExitReason(Reason exitReason)
+    {
+        return 0;
+    }
+
+    /**
+     * Set rootSceneSession by SCB.
+     *
+     * @param rootSceneSession Indicates root scene session of SCB.
+     */
+    virtual void SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession) {}
+
     enum {
         // ipc id 1-1000 for kit
         // ipc id for terminating ability (1)
@@ -1117,6 +1163,12 @@ public:
 
         SEND_ABILITY_RESULT_BY_TOKEN,
 
+        // ipc id for set rootSceneSession (64)
+        SET_ROOTSSCENESESSION,
+
+        // prepare terminate ability (65)
+        PREPARE_TERMINATE_ABILITY,
+
         // ipc id 1001-2000 for DMS
         // ipc id for starting ability (1001)
         START_ABILITY = 1001,
@@ -1281,6 +1333,9 @@ public:
         SHARE_DATA_DONE = 4002,
 
         GET_ABILITY_TOKEN = 5001,
+
+        FORCE_EXIT_APP = 6001,
+        RECORD_APP_EXIT_REASON = 6002
     };
 };
 }  // namespace AAFwk

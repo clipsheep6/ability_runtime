@@ -62,7 +62,7 @@ void PendingWantRecord::UnregisterCancelListener(const sptr<IWantReceiver> &rece
 int32_t PendingWantRecord::SenderInner(SenderInfo &senderInfo)
 {
     HILOG_INFO("%{public}s:begin.", __func__);
-    std::lock_guard<std::recursive_mutex> locker(lock_);
+    std::lock_guard<std::mutex> locker(lock_);
     if (canceled_) {
         return START_CANCELED;
     }

@@ -13,6 +13,7 @@
 
 import("//arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
 import("//build/ohos.gni")
+import("//commonlibrary/memory_utils/purgeable_mem_config.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 es2abc_gen_abc("gen_delegator_mgmt_abc") {
@@ -176,6 +177,11 @@ ohos_shared_library("appkit_native") {
     external_deps += [ "webview:libnweb" ]
 
     defines += [ "NWEB" ]
+  }
+
+  if (purgeable_ashmem_enable) {
+    defines += [ "IMAGE_PURGEABLE_PIXELMAP" ]
+    external_deps += [ "memory_utils:libpurgeablemem" ]
   }
 
   innerapi_tags = [ "platformsdk" ]

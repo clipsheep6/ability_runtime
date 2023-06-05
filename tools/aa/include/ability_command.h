@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,8 @@
 
 #ifndef OHOS_ABILITY_RUNTIME_ABILITY_COMMAND_H
 #define OHOS_ABILITY_RUNTIME_ABILITY_COMMAND_H
+
+#include <regex>
 
 #include "shell_command.h"
 #include "ability_manager_interface.h"
@@ -159,6 +161,9 @@ const int NUMBER_ONE = 1;
 
 const std::string DEBUG_VALUE = "true";
 
+const std::string PERFCMD_FIRST_PROFILE = "profile";
+const std::string PERFCMD_FIRST_DUMPHEAP = "dumpheap";
+
 const std::string STRING_TEST_REGEX_INTEGER_NUMBERS = "^(0|[1-9][0-9]*|-[1-9][0-9]*)$";
 }  // namespace
 
@@ -191,6 +196,8 @@ private:
     ErrCode RunAsBlockAppServiceCommand();
     ErrCode RunAsSendAppNotRespondingWithUnknownOption();
     ErrCode RunAsSendAppNotRespondingWithOption(int32_t option, std::string& pid);
+    ErrCode RunAsForceExitAppCommand();
+    ErrCode RunAsNotifyAppFaultCommand();
 #endif
     sptr<IAbilityManager> GetAbilityManagerService();
 
@@ -198,6 +205,8 @@ private:
     ErrCode MakeWantForProcess(Want& want);
     ErrCode RunAsTestCommand();
     ErrCode TestCommandError(const std::string& info);
+    bool MatchOrderString(const std::regex &r, const std::string &orderCmd);
+    bool CheckPerfCmdString(const char* optarg, const size_t paramLength, std::string &perfCmd);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

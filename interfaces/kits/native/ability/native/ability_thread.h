@@ -155,6 +155,11 @@ public:
     void ScheduleCommandAbility(const Want &want, bool restart, int startId);
 
     /**
+     * @description: Provide operating system PrepareTerminateAbility information to the observer
+     */
+    bool SchedulePrepareTerminateAbility();
+
+    /**
      * @description: Provide operating system SaveabilityState information to the observer
      */
     void ScheduleSaveAbilityState();

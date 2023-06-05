@@ -24,6 +24,15 @@
 namespace OHOS {
 namespace JsEnv {
 
+static panda::DFXJSNApi::ProfilerType ConvertProfilerType(JsEnvironment::PROFILERTYPE type)
+{
+    if (type == JsEnvironment::PROFILERTYPE::PROFILERTYPE_CPU) {
+        return panda::DFXJSNApi::ProfilerType::CPU_PROFILER;
+    } else {
+        return panda::DFXJSNApi::ProfilerType::HEAP_PROFILER;
+    }
+}
+
 JsEnvironment::JsEnvironment(std::unique_ptr<JsEnvironmentImpl> impl) : impl_(std::move(impl))
 {
     JSENV_LOG_D("Js environment costructor.");
@@ -70,10 +79,10 @@ void JsEnvironment::InitTimerModule()
     }
 }
 
-void JsEnvironment::InitWorkerModule(const std::string& codePath, bool isDebugVersion, bool isBundle)
+void JsEnvironment::InitWorkerModule(std::shared_ptr<WorkerInfo> workerInfo)
 {
     if (impl_ != nullptr && engine_ != nullptr) {
-        impl_->InitWorkerModule(*engine_, codePath, isDebugVersion, isBundle);
+        impl_->InitWorkerModule(*engine_, workerInfo);
     }
 }
 
@@ -165,9 +174,50 @@ void JsEnvironment::InitConsoleModule()
     }
 }
 
+bool JsEnvironment::InitLoop(const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner)
+{
+    if (engine_ == nullptr) {
+        JSENV_LOG_E("Invalid Native Engine.");
+        return false;
+    }
+
+    if (impl_ != nullptr) {
+        impl_->InitLoop(engine_, eventRunner);
+    }
+    return true;
+}
+
+void JsEnvironment::DeInitLoop()
+{
+    if (engine_ == nullptr) {
+        JSENV_LOG_E("Invalid Native Engine.");
+        return;
+    }
+
+    if (impl_ != nullptr) {
+        impl_->DeInitLoop(engine_);
+    }
+}
+
 bool JsEnvironment::LoadScript(const std::string& path, uint8_t *buffer, size_t len, bool isBundle)
 {
     return engine_->RunScriptBuffer(path.c_str(), buffer, len, isBundle);
+}
+
+void JsEnvironment::StartProfiler(const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler,
+    int32_t interval, const DebuggerPostTask &debuggerPostTask)
+{
+    if (vm_ == nullptr) {
+        JSENV_LOG_E("Invalid vm.");
+        return;
+    }
+
+    panda::DFXJSNApi::ProfilerOption option;
+    option.libraryPath = libraryPath;
+    option.profilerType = ConvertProfilerType(profiler);
+    option.interval = interval;
+
+    panda::DFXJSNApi::StartProfiler(vm_, option, instanceId, debuggerPostTask);
 }
 } // namespace JsEnv
 } // namespace OHOS

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -42,7 +42,13 @@ enum LaunchReason {
 enum LastExitReason {
     LASTEXITREASON_UNKNOWN = 0,
     LASTEXITREASON_ABILITY_NOT_RESPONDING,
-    LASTEXITREASON_NORMAL
+    LASTEXITREASON_NORMAL,
+    LASTEXITREASON_CPP_CRASH,
+    LASTEXITREASON_JS_ERROR,
+    LASTEXITREASON_APP_FREEZE,
+    LASTEXITREASON_PERFORMANCE_CONTROL,
+    LASTEXITREASON_RESOURCE_CONTROL,
+    LASTEXITREASON_UPGRADE
 };
 
 /**

@@ -16,3 +16,4 @@ component.startup.newRules=true
 component.startup.newRules.except.LauncherSystemUI=true
 component.startup.backgroundJudge.flag=true
 component.startup.whitelist.associatedWakeUp=true
+persist.sys.prepare_terminate=false

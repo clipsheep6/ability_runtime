@@ -496,6 +496,23 @@ void JsAbility::OnBackground()
     HILOG_DEBUG("OnBackground end, ability is %{public}s.", GetAbilityName().c_str());
 }
 
+bool JsAbility::OnPrepareTerminate()
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("call, ability: %{public}s.", GetAbilityName().c_str());
+    Ability::OnPrepareTerminate();
+
+    NativeValue *jsValue = CallObjectMethod("onPrepareToTerminate", nullptr, 0, true);
+    auto numberValue = ConvertNativeValueTo<NativeBoolean>(jsValue);
+    if (numberValue == nullptr) {
+        HILOG_ERROR("numberValue is nullptr.");
+        return false;
+    }
+    bool ret = (bool)(*numberValue);
+    HILOG_DEBUG("end, ret = %{public}d", ret);
+    return ret;
+}
+
 std::unique_ptr<NativeReference> JsAbility::CreateAppWindowStage()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -829,6 +846,10 @@ void JsAbility::OnNewWant(const Want &want)
 
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(&nativeEngine), want);
     NativeValue *jsWant = reinterpret_cast<NativeValue *>(napiWant);
+    if (jsWant == nullptr) {
+        HILOG_ERROR("Failed to get want");
+        return;
+    }
 
     obj->SetProperty("lastRequestWant", jsWant);
 

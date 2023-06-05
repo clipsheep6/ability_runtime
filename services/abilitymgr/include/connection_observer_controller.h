@@ -102,7 +102,7 @@ private:
     };
 
 private:
-    std::recursive_mutex observerLock_;
+    std::mutex observerLock_;
     std::vector<sptr<AbilityRuntime::IConnectionObserver>> observers_;
     sptr<IRemoteObject::DeathRecipient> observerDeathRecipient_;
 };

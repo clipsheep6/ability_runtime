@@ -64,6 +64,7 @@ private:
     int32_t HandleGetApplicationInfoByProcessID(MessageParcel &data, MessageParcel &reply);
     int32_t HandleUpdateApplicationInfoInstalled(MessageParcel &data, MessageParcel &reply);
     int32_t HandleSetCurrentUserId(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleGetBundleNameByPid(MessageParcel &data, MessageParcel &reply);
 
     using AmsMgrFunc = int32_t (AmsMgrStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, AmsMgrFunc> memberFuncMap_;

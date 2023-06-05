@@ -24,6 +24,7 @@
 #include "app_record_id.h"
 #include "iapp_state_callback.h"
 #include "ams_mgr_interface.h"
+#include "render_process_info.h"
 #include "running_process_info.h"
 
 namespace OHOS {
@@ -118,6 +119,15 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual int GetAllRunningProcesses(std::vector<RunningProcessInfo>& info) = 0;
+
+    /**
+     * GetAllRenderProcesses, call GetAllRenderProcesses() through proxy project.
+     * Obtains information about render processes that are running on the device.
+     *
+     * @param info, render process info.
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual int GetAllRenderProcesses(std::vector<RenderProcessInfo> &info) = 0;
 
     /**
      * SetAppSuspendTimes, Setting the Freezing Time of APP Background.

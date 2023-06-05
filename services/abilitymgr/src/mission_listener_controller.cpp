@@ -46,7 +46,7 @@ int MissionListenerController::AddMissionListener(const sptr<IMissionListener> &
         return -1;
     }
 
-    std::lock_guard<std::recursive_mutex> guard(listenerLock_);
+    std::lock_guard<std::mutex> guard(listenerLock_);
     auto it = std::find_if(missionListeners_.begin(), missionListeners_.end(),
         [&listener](const sptr<IMissionListener> &item) {
             return (item && item->AsObject() == listener->AsObject());
@@ -83,7 +83,7 @@ void MissionListenerController::DelMissionListener(const sptr<IMissionListener> 
         return;
     }
 
-    std::lock_guard<std::recursive_mutex> guard(listenerLock_);
+    std::lock_guard<std::mutex> guard(listenerLock_);
     auto it = std::find_if(missionListeners_.begin(), missionListeners_.end(),
         [&listener](const sptr<IMissionListener> item) {
             return (item && item->AsObject() == listener->AsObject());
@@ -298,7 +298,7 @@ void MissionListenerController::OnListenerDied(const wptr<IRemoteObject> &remote
     }
     remoteObj->RemoveDeathRecipient(listenerDeathRecipient_);
 
-    std::lock_guard<std::recursive_mutex> guard(listenerLock_);
+    std::lock_guard<std::mutex> guard(listenerLock_);
     auto it = std::find_if(missionListeners_.begin(), missionListeners_.end(),
         [&remoteObj](const sptr<IMissionListener> item) {
             return (item && item->AsObject() == remoteObj);

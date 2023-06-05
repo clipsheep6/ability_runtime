@@ -21,6 +21,7 @@
 #include <vector>
 #include <regex>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "iremote_object.h"
 #include "refbase.h"
@@ -34,6 +35,7 @@
 #include "app_scheduler_interface.h"
 #include "app_spawn_client.h"
 #include "app_task_info.h"
+#include "fault_data.h"
 #include "iapp_state_callback.h"
 #include "iapplication_state_observer.h"
 #include "iconfiguration_observer.h"
@@ -41,6 +43,7 @@
 #include "remote_client_manager.h"
 #include "app_running_manager.h"
 #include "record_query_result.h"
+#include "render_process_info.h"
 #include "running_process_info.h"
 #include "bundle_info.h"
 #include "istart_specified_ability_response.h"
@@ -275,6 +278,15 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual int32_t GetProcessRunningInformation(RunningProcessInfo &info);
+
+    /**
+     * GetAllRenderProcesses, Obtains information about render processes that are running on the device.
+     *
+     * @param info, render process record.
+     *
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual int32_t GetAllRenderProcesses(std::vector<RenderProcessInfo> &info);
 
     /**
      * NotifyMemoryLevel, Notify applications background the current memory level.
@@ -629,7 +641,37 @@ public:
     int32_t SetContinuousTaskProcess(int32_t pid, bool isContinuousTask);
 #endif
 
+    /**
+     * Get bundleName by pid.
+     *
+     * @param pid process id.
+     * @param bundleName Output parameters, return bundleName.
+     * @param uid Output parameters, return userId.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t GetBundleNameByPid(const int32_t pid, std::string &bundleName, int32_t &uid);
+
+    /**
+     * Notify Fault Data
+     *
+     * @param faultData the fault data.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t NotifyAppFault(const FaultData &faultData);
+
+    /**
+     * Notify Fault Data By SA
+     *
+     * @param faultData the fault data notified by SA.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData);
+
 private:
+
+    std::string FaultTypeToString(FaultDataType type);
+
+    FaultData ConvertDataTypes(const AppFaultDataBySA &faultData);
 
     void StartEmptyResidentProcess(const BundleInfo &info, const std::string &processName, int restartCount,
         bool isEmptyKeepAliveApp);
@@ -640,6 +682,8 @@ private:
         const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo);
 
     bool GetBundleInfo(const std::string &bundleName, BundleInfo &bundleInfo);
+
+    bool GenerateRenderUid(int32_t &renderUid);
 
     void MakeProcessName(const std::shared_ptr<AbilityInfo> &abilityInfo,
         const std::shared_ptr<ApplicationInfo> &appInfo,
@@ -803,6 +847,8 @@ private:
     void GetRunningProcesses(const std::shared_ptr<AppRunningRecord> &appRecord, std::vector<RunningProcessInfo> &info);
     void GetRunningProcess(const std::shared_ptr<AppRunningRecord> &appRecord, RunningProcessInfo &info);
 
+    void GetRenderProcesses(const std::shared_ptr<AppRunningRecord> &appRecord, std::vector<RenderProcessInfo> &info);
+
     int StartRenderProcessImpl(const std::shared_ptr<RenderRecord> &renderRecord,
         const std::shared_ptr<AppRunningRecord> appRecord, pid_t &renderPid);
 
@@ -879,14 +925,18 @@ private:
     std::shared_ptr<AMSEventHandler> eventHandler_;
     std::shared_ptr<Configuration> configuration_;
     std::mutex userTestLock_;
+    std::mutex renderUidSetLock_;
     sptr<IStartSpecifiedAbilityResponse> startSpecifiedAbilityResponse_;
-    std::recursive_mutex configurationObserverLock_;
+    std::mutex configurationObserverLock_;
     std::vector<sptr<IConfigurationObserver>> configurationObservers_;
     sptr<WindowFocusChangedListener> focusListener_;
     std::vector<std::shared_ptr<AppRunningRecord>> restartResedentTaskList_;
     std::map<std::string, std::vector<BaseSharedBundleInfo>> runningSharedBundleList_;
+    std::unordered_set<int32_t> renderUidSet_;
     std::string supportIsolationMode_ {"false"};
+    std::string deviceType_ {"default"};
     int32_t currentUserId_ = 0;
+    int32_t lastRenderUid_ = Constants::START_UID_FOR_RENDER_PROCESS;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

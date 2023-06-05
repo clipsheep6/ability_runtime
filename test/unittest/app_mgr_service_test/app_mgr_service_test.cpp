@@ -359,6 +359,41 @@ HWTEST_F(AppMgrServiceTest, GetProcessRunningInfosByUserId_001, TestSize.Level0)
 
 /*
  * Feature: AppMgrService
+ * Function: GetAllRenderProcesses
+ * SubFunction: NA
+ * FunctionPoints: AppMgrService GetAllRenderProcesses
+ * EnvConditions: NA
+ * CaseDescription: Verify GetAllRenderProcesses
+ */
+HWTEST_F(AppMgrServiceTest, GetAllRenderProcesses_001, TestSize.Level0)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    std::vector<RenderProcessInfo> info;
+    appMgrService->SetInnerService(nullptr);
+    int32_t res = appMgrService->GetAllRenderProcesses(info);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
+}
+
+/*
+ * Feature: AppMgrService
+ * Function: GetAllRenderProcesses
+ * SubFunction: NA
+ * FunctionPoints: AppMgrService GetAllRenderProcesses
+ * EnvConditions: NA
+ * CaseDescription: Verify GetAllRenderProcesses
+ */
+HWTEST_F(AppMgrServiceTest, GetAllRenderProcesses_002, TestSize.Level0)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    std::vector<RenderProcessInfo> info;
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->handler_ = std::make_shared<AMSEventHandler>(runner_, appMgrService->appMgrServiceInner_);
+    int32_t res = appMgrService->GetAllRenderProcesses(info);
+    EXPECT_NE(res, ERR_INVALID_OPERATION);
+}
+
+/*
+ * Feature: AppMgrService
  * Function: NotifyMemoryLevel
  * SubFunction: NA
  * FunctionPoints: AppMgrService NotifyMemoryLevel

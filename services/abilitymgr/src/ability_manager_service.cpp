@@ -14,10 +14,11 @@
  */
 
 #include "ability_manager_service.h"
-#include "accesstoken_kit.h"
 
 #include <atomic>
 #include <chrono>
+#include <csignal>
+#include <cstdlib>
 #include <fstream>
 #include <functional>
 #include <getopt.h>
@@ -27,20 +28,23 @@
 #include <thread>
 #include <unistd.h>
 #include <unordered_set>
-#include <csignal>
-#include <cstdlib>
 
+#include "ability_bundle_event_callback.h"
 #include "ability_info.h"
 #include "ability_interceptor.h"
 #include "ability_manager_errors.h"
 #include "ability_util.h"
+#include "accesstoken_kit.h"
+#include "app_exit_reason_data_manager.h"
 #include "application_util.h"
-#include "errors.h"
-#include "hitrace_meter.h"
 #include "bundle_mgr_client.h"
+#include "connection_state_manager.h"
 #include "distributed_client.h"
 #include "dlp_utils.h"
+#include "errors.h"
 #include "hilog_wrapper.h"
+#include "hisysevent.h"
+#include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
@@ -48,19 +52,18 @@
 #include "iservice_registry.h"
 #include "itest_observer.h"
 #include "mission_info_mgr.h"
-#include "sa_mgr_client.h"
-#include "scene_board_judgement.h"
-#include "system_ability_token_callback.h"
-#include "softbus_bus_center.h"
-#include "string_ex.h"
-#include "system_ability_definition.h"
 #include "os_account_manager_wrapper.h"
 #include "parameters.h"
 #include "permission_constants.h"
+#include "recovery_param.h"
+#include "sa_mgr_client.h"
+#include "scene_board_judgement.h"
+#include "softbus_bus_center.h"
+#include "string_ex.h"
+#include "system_ability_definition.h"
+#include "system_ability_token_callback.h"
 #include "uri_permission_manager_client.h"
 #include "xcollie/watchdog.h"
-#include "hisysevent.h"
-#include "connection_state_manager.h"
 
 #ifdef SUPPORT_GRAPHICS
 
@@ -78,8 +81,6 @@
 #include "res_sched_client.h"
 #include "res_type.h"
 #endif // RESOURCE_SCHEDULE_SERVICE_ENABLE
-
-#include "ability_bundle_event_callback.h"
 
 using OHOS::AppExecFwk::ElementName;
 using OHOS::Security::AccessToken::AccessTokenKit;
@@ -110,6 +111,9 @@ const std::string WHITE_LIST_ASS_WAKEUP_FLAG = "component.startup.whitelist.asso
 const std::string BUNDLE_NAME_LAUNCHER = "com.ohos.launcher";
 const std::string BUNDLE_NAME_SETTINGSDATA = "com.ohos.settingsdata";
 const std::string BUNDLE_NAME_SCENEBOARD = "com.ohos.sceneboard";
+// Support prepare terminate
+constexpr int32_t PREPARE_TERMINATE_ENABLE_SIZE = 6;
+const char* PREPARE_TERMINATE_ENABLE_PARAMETER = "persist.sys.prepare_terminate";
 
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
 
@@ -138,6 +142,7 @@ const int32_t GET_PARAMETER_OTHER = -1;
 const int32_t SIZE_10 = 10;
 const int32_t ACCOUNT_MGR_SERVICE_UID = 3058;
 const int32_t DMS_UID = 5522;
+const int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
 const std::string BUNDLE_NAME_KEY = "bundleName";
 const std::string DM_PKG_NAME = "ohos.distributedhardware.devicemanager";
 const std::string ACTION_CHOOSE = "ohos.want.action.select";
@@ -1206,6 +1211,118 @@ bool AbilityManagerService::IsBackgroundTaskUid(const int uid)
 bool AbilityManagerService::IsDmsAlive() const
 {
     return g_isDmsAlive.load();
+}
+
+void AbilityManagerService::AppUpgradeCompleted(const std::string &bundleName, int32_t uid)
+{
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall() &&
+        !AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+        HILOG_ERROR("Not sa or shell call");
+        return;
+    }
+
+    auto bms = GetBundleManager();
+    CHECK_POINTER(bms);
+    auto userId = uid / BASE_USER_RANGE;
+
+    AppExecFwk::BundleInfo bundleInfo;
+    if (!IN_PROCESS_CALL(
+        bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, userId))) {
+        HILOG_ERROR("Failed to get bundle info.");
+        return;
+    }
+
+    RecordAppExitReasonAtUpgrade(bundleInfo);
+
+    if (userId != U0_USER_ID) {
+        HILOG_ERROR("Application upgrade for non U0 users.");
+        return;
+    }
+
+    if (!bundleInfo.isKeepAlive) {
+        HILOG_WARN("Not a resident application.");
+        return;
+    }
+
+    std::vector<AppExecFwk::BundleInfo> bundleInfos = { bundleInfo };
+    DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcessWithMainElement(bundleInfos);
+
+    if (!bundleInfos.empty()) {
+        DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcess(bundleInfos);
+    }
+}
+
+int32_t AbilityManagerService::RecordAppExitReason(Reason exitReason)
+{
+    if (!currentMissionListManager_) {
+        HILOG_ERROR("currentMissionListManager_ is null.");
+        return ERR_NULL_OBJECT;
+    }
+
+    auto bms = GetBundleManager();
+    CHECK_POINTER_AND_RETURN(bms, ERR_NULL_OBJECT);
+
+    std::string bundleName;
+    int32_t callerUid = IPCSkeleton::GetCallingUid();
+    if (IN_PROCESS_CALL(bms->GetNameForUid(callerUid, bundleName)) != ERR_OK) {
+        HILOG_ERROR("Get Bundle Name failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    std::vector<std::string> abilityList;
+    currentMissionListManager_->GetActiveAbilityList(bundleName, abilityList);
+
+    return DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->SetAppExitReason(
+        bundleName, abilityList, exitReason);
+}
+
+int32_t AbilityManagerService::ForceExitApp(const int32_t pid, Reason exitReason)
+{
+    if (exitReason < REASON_UNKNOWN || exitReason > REASON_UPGRADE) {
+        HILOG_ERROR("Force exit reason invalid.");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall() &&
+        !AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+        HILOG_ERROR("Not sa or shell call");
+        return ERR_PERMISSION_DENIED;
+    }
+
+    std::string bundleName;
+    int32_t uid;
+    DelayedSingleton<AppScheduler>::GetInstance()->GetBundleNameByPid(pid, bundleName, uid);
+    if (bundleName.empty()) {
+        HILOG_ERROR("Get bundle name by pid failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    int32_t targetUserId = uid / BASE_USER_RANGE;
+    std::vector<std::string> abilityLists;
+    if (targetUserId == U0_USER_ID) {
+        std::shared_lock<std::shared_mutex> lock(managersMutex_);
+        for (auto item: missionListManagers_) {
+            if (item.second) {
+                std::vector<std::string> abilityList;
+                item.second->GetActiveAbilityList(bundleName, abilityList);
+                if (!abilityList.empty()) {
+                    abilityLists.insert(abilityLists.end(), abilityList.begin(), abilityList.end());
+                }
+            }
+        }
+    } else {
+        auto listManager = GetListManagerByUserId(targetUserId);
+        if (listManager) {
+            listManager->GetActiveAbilityList(bundleName, abilityLists);
+        }
+    }
+
+    int32_t result = DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->SetAppExitReason(
+        bundleName, abilityLists, exitReason);
+    
+    DelayedSingleton<AppScheduler>::GetInstance()->KillApplication(bundleName);
+
+    return result;
 }
 
 int32_t AbilityManagerService::GetConfiguration(AppExecFwk::Configuration& config)
@@ -4170,6 +4287,8 @@ int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t u
     if (ret != ERR_OK) {
         return UNINSTALL_APP_FAILED;
     }
+
+    DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->DeleteAppExitReason(bundleName);
     return ERR_OK;
 }
 
@@ -5056,7 +5175,7 @@ void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& toke
     }
 
     {
-        std::lock_guard<std::recursive_mutex> guard(globalLock_);
+        std::lock_guard<std::mutex> guard(globalLock_);
         auto it = appRecoveryHistory_.find(record->GetUid());
         if (it == appRecoveryHistory_.end()) {
             appRecoveryHistory_.emplace(record->GetUid(), 0);
@@ -5113,9 +5232,13 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
         return;
     }
 
+    if (reason == AppExecFwk::StateReason::APP_FREEZE) {
+        RecordAppExitReason(REASON_APP_FREEZE);
+    }
+
     AAFwk::Want curWant;
     {
-        std::lock_guard<std::recursive_mutex> guard(globalLock_);
+        std::lock_guard<std::mutex> guard(globalLock_);
         auto type = record->GetAbilityInfo().type;
         if (type != AppExecFwk::AbilityType::PAGE) {
             HILOG_ERROR("%{public}s AppRecovery::only do recover for page ability.", __func__);
@@ -5418,7 +5541,7 @@ int AbilityManagerService::SetAbilityController(const sptr<IAbilityController> &
         return CHECK_PERMISSION_FAILED;
     }
 
-    std::lock_guard<std::recursive_mutex> guard(globalLock_);
+    std::lock_guard<std::mutex> guard(globalLock_);
     abilityController_ = abilityController;
     controllerIsAStabilityTest_ = imAStabilityTest;
     HILOG_DEBUG("%{public}s, end", __func__);
@@ -5439,7 +5562,7 @@ int AbilityManagerService::SendANRProcessID(int pid)
     bool debug;
     auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
     if (appScheduler->GetApplicationInfoByProcessID(pid, appInfo, debug) == ERR_OK) {
-        std::lock_guard<std::recursive_mutex> guard(globalLock_);
+        std::lock_guard<std::mutex> guard(globalLock_);
         auto it = appRecoveryHistory_.find(appInfo.uid);
         if (it != appRecoveryHistory_.end()) {
             return ERR_OK;
@@ -5467,7 +5590,7 @@ int AbilityManagerService::SendANRProcessID(int pid)
 
 bool AbilityManagerService::IsRunningInStabilityTest()
 {
-    std::lock_guard<std::recursive_mutex> guard(globalLock_);
+    std::lock_guard<std::mutex> guard(globalLock_);
     bool ret = abilityController_ != nullptr && controllerIsAStabilityTest_;
     HILOG_DEBUG("%{public}s, IsRunningInStabilityTest: %{public}d", __func__, ret);
     return ret;
@@ -5643,7 +5766,7 @@ int AbilityManagerService::DoAbilityForeground(const sptr<IRemoteObject> &token,
         return ERR_INVALID_VALUE;
     }
 
-    std::lock_guard<std::recursive_mutex> guard(globalLock_);
+    std::lock_guard<std::mutex> guard(globalLock_);
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     if (!JudgeSelfCalled(abilityRecord)) {
@@ -6232,6 +6355,58 @@ bool AbilityManagerService::CheckWindowMode(int32_t windowMode,
     return false;
 }
 
+int AbilityManagerService::PrepareTerminateAbility(const sptr<IRemoteObject> &token,
+    sptr<IPrepareTerminateCallback> &callback)
+{
+    HILOG_DEBUG("call");
+    if (callback == nullptr) {
+        HILOG_ERROR("callback is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!CheckPrepareTerminateEnable()) {
+        HILOG_ERROR("Only support PC.");
+        callback->DoPrepareTerminate();
+        return ERR_INVALID_VALUE;
+    }
+
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("record is nullptr.");
+        callback->DoPrepareTerminate();
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!JudgeSelfCalled(abilityRecord)) {
+        HILOG_ERROR("Not self call.");
+        callback->DoPrepareTerminate();
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    auto type = abilityRecord->GetAbilityInfo().type;
+    if (type != AppExecFwk::AbilityType::PAGE) {
+        HILOG_ERROR("Only support PAGE.");
+        callback->DoPrepareTerminate();
+        return RESOLVE_CALL_ABILITY_TYPE_ERR;
+    }
+
+    auto timeoutTask = [&callback]() {
+        callback->DoPrepareTerminate();
+    };
+    int prepareTerminateTimeout =
+        AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * PREPARE_TERMINATE_TIMEOUT_MULTIPLE;
+    if (handler_) {
+        handler_->PostTask(timeoutTask, "PrepareTermiante_" + std::to_string(abilityRecord->GetAbilityRecordId()),
+            prepareTerminateTimeout);
+    }
+
+    bool res = abilityRecord->PrepareTerminateAbility();
+    if (!res) {
+        callback->DoPrepareTerminate();
+    }
+    handler_->RemoveTask("PrepareTermiante_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+    return ERR_OK;
+}
+
 void AbilityManagerService::HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo)
 {
     HILOG_INFO("handle focused event");
@@ -6674,7 +6849,7 @@ int AbilityManagerService::SetComponentInterception(
         return CHECK_PERMISSION_FAILED;
     }
 
-    std::lock_guard<std::recursive_mutex> guard(globalLock_);
+    std::lock_guard<std::mutex> guard(globalLock_);
     componentInterception_ = componentInterception;
     HILOG_DEBUG("%{public}s, end", __func__);
     return ERR_OK;
@@ -6915,6 +7090,47 @@ int32_t AbilityManagerService::ShareDataDone(
     CHECK_POINTER_AND_RETURN_LOG(handler_, ERR_INVALID_VALUE, "fail to get abilityEventHandler.");
     handler_->RemoveEvent(SHAREDATA_TIMEOUT_MSG, uniqueId);
     return GetShareDataPairAndReturnData(abilityRecord, resultCode, uniqueId, wantParam);
+}
+
+void AbilityManagerService::RecordAppExitReasonAtUpgrade(const AppExecFwk::BundleInfo &bundleInfo)
+{
+    if (bundleInfo.abilityInfos.empty()) {
+        HILOG_ERROR("abilityInfos is empty.");
+        return;
+    }
+
+    std::vector<std::string> abilityList;
+    for (auto abilityInfo : bundleInfo.abilityInfos) {
+        if (!abilityInfo.name.empty()) {
+            abilityList.push_back(abilityInfo.name);
+        }
+    }
+
+    if (!abilityList.empty()) {
+        DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->SetAppExitReason(
+            bundleInfo.name, abilityList, REASON_UPGRADE);
+    }
+}
+
+void AbilityManagerService::SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession)
+{
+    if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD, U0_USER_ID)) {
+        HILOG_ERROR("Not sceneboard called, not allowed.");
+        return;
+    }
+    uiAbilityLifecycleManager_->SetRootSceneSession(rootSceneSession);
+}
+
+bool AbilityManagerService::CheckPrepareTerminateEnable()
+{
+    char value[PREPARE_TERMINATE_ENABLE_SIZE] = "false";
+    int retSysParam = GetParameter(PREPARE_TERMINATE_ENABLE_PARAMETER, "false", value, PREPARE_TERMINATE_ENABLE_SIZE);
+    HILOG_INFO("CheckPrepareTerminateEnable, %{public}s value is %{public}s.", PREPARE_TERMINATE_ENABLE_PARAMETER,
+        value);
+    if (retSysParam > 0 && !std::strcmp(value, "true")) {
+        return true;
+    }
+    return false;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

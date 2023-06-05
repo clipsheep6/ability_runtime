@@ -38,6 +38,7 @@ AbilitySchedulerStub::AbilitySchedulerStub()
     requestFuncMap_[SCHEDULE_ABILITY_CONNECT] = &AbilitySchedulerStub::ConnectAbilityInner;
     requestFuncMap_[SCHEDULE_ABILITY_DISCONNECT] = &AbilitySchedulerStub::DisconnectAbilityInner;
     requestFuncMap_[SCHEDULE_ABILITY_COMMAND] = &AbilitySchedulerStub::CommandAbilityInner;
+    requestFuncMap_[SCHEDULE_ABILITY_PREPARE_TERMINATE] = &AbilitySchedulerStub::PrepareTerminateAbilityInner;
     requestFuncMap_[SCHEDULE_SAVE_ABILITY_STATE] = &AbilitySchedulerStub::SaveAbilityStateInner;
     requestFuncMap_[SCHEDULE_RESTORE_ABILITY_STATE] = &AbilitySchedulerStub::RestoreAbilityStateInner;
     requestFuncMap_[SCHEDULE_GETFILETYPES] = &AbilitySchedulerStub::GetFileTypesInner;
@@ -168,6 +169,16 @@ int AbilitySchedulerStub::CommandAbilityInner(MessageParcel &data, MessageParcel
     int startId = data.ReadInt32();
     HILOG_INFO("ReadInt32, startId:%{public}d", startId);
     ScheduleCommandAbility(*want, reStart, startId);
+    return NO_ERROR;
+}
+
+int AbilitySchedulerStub::PrepareTerminateAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    bool ret = SchedulePrepareTerminateAbility();
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("fail to write ret");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 

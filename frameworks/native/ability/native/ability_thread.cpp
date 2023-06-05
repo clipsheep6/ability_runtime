@@ -63,6 +63,7 @@ constexpr static char WALLPAPER_EXTENSION[] = "WallpaperExtension";
 constexpr static char FILEACCESS_EXT_ABILITY[] = "FileAccessExtension";
 constexpr static char ENTERPRISE_ADMIN_EXTENSION[] = "EnterpriseAdminExtension";
 constexpr static char INPUTMETHOD_EXTENSION[] = "InputMethodExtensionAbility";
+constexpr static char APP_ACCOUNT_AUTHORIZATION_EXTENSION[] = "AppAccountAuthorizationExtension";
 
 AbilityThread::AbilityThread()
     : abilityImpl_(nullptr), token_(nullptr), currentAbility_(nullptr), abilityHandler_(nullptr), runner_(nullptr)
@@ -166,6 +167,9 @@ std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalR
         }
         if (abilityInfo->extensionAbilityType == ExtensionAbilityType::UI) {
             abilityName = UI_EXTENSION;
+        }
+        if (abilityInfo->extensionAbilityType == ExtensionAbilityType::APP_ACCOUNT_AUTHORIZATION) {
+            abilityName = APP_ACCOUNT_AUTHORIZATION_EXTENSION;
         }
         HILOG_DEBUG("CreateAbilityName extension type, abilityName:%{public}s", abilityName.c_str());
     } else {
@@ -802,6 +806,18 @@ void AbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int s
         HILOG_ERROR("AbilityThread::ScheduleCommandAbility PostTask error");
     }
     HILOG_DEBUG("AbilityThread::ScheduleCommandAbility end");
+}
+
+bool AbilityThread::SchedulePrepareTerminateAbility()
+{
+    HILOG_DEBUG("call");
+    if (abilityImpl_ == nullptr) {
+        HILOG_ERROR("abilityImpl_ is nullptr.");
+        return true;
+    }
+    bool ret = abilityImpl_->PrepareTerminateAbility();
+    HILOG_DEBUG("end, ret = %{public}d", ret);
+    return ret;
 }
 
 void AbilityThread::SendResult(int requestCode, int resultCode, const Want &want)

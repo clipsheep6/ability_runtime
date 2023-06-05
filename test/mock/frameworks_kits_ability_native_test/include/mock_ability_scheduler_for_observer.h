@@ -35,6 +35,7 @@ public:
     MOCK_METHOD3(SendResult, void(int, int, const AAFwk::Want&));
     MOCK_METHOD1(ScheduleConnectAbility, void(const AAFwk::Want&));
     MOCK_METHOD1(ScheduleDisconnectAbility, void(const AAFwk::Want&));
+    MOCK_METHOD0(SchedulePrepareTerminateAbility, bool());
     MOCK_METHOD3(ScheduleCommandAbility, void(const AAFwk::Want&, bool, int));
     MOCK_METHOD0(ScheduleSaveAbilityState, void());
     MOCK_METHOD1(ScheduleRestoreAbilityState, void(const PacMap&));

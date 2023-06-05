@@ -128,7 +128,7 @@ private:
     template<typename F, typename... Args>
     void CallListeners(F func, Args&&... args)
     {
-        std::lock_guard<std::recursive_mutex> guard(listenerLock_);
+        std::lock_guard<std::mutex> guard(listenerLock_);
         for (auto listener : missionListeners_) {
             if (listener) {
                 (listener->*func)(std::forward<Args>(args)...);
@@ -148,7 +148,7 @@ private:
     };
 
 private:
-    std::recursive_mutex listenerLock_;
+    std::mutex listenerLock_;
     std::shared_ptr<AppExecFwk::EventHandler> handler_;
     std::vector<sptr<IMissionListener>> missionListeners_;
     sptr<IRemoteObject::DeathRecipient> listenerDeathRecipient_;

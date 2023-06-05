@@ -30,6 +30,7 @@ ohos_moduletest("running_infos_module_test") {
   sources = [ "running_infos_module_test.cpp" ]
   sources += [
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_service.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/app_exit_reason_data_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/scene_board/ui_ability_lifecycle_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/window_focus_changed_listener.cpp",
     "${ability_runtime_test_path}/mock/common/src/mock_native_token.cpp",
@@ -94,9 +95,11 @@ ohos_moduletest("running_infos_module_test") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "kv_store:distributeddata_inner",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
+    "window_manager:libwsutils",
   ]
 
   if (efficiency_manager) {

@@ -174,7 +174,7 @@ private:
 
 private:
     std::map<std::shared_ptr<PendingWantKey>, sptr<PendingWantRecord>> wantRecords_;
-    std::recursive_mutex mutex_;
+    std::mutex mutex_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

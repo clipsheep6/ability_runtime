@@ -52,6 +52,7 @@ namespace AAFwk {
 using namespace OHOS::Security;
 const std::string DEBUG_APP = "debugApp";
 const std::string NATIVE_DEBUG = "nativeDebug";
+const std::string PERF_CMD = "perfCmd";
 const std::string DMS_PROCESS_NAME = "distributedsched";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
@@ -680,7 +681,9 @@ void AbilityRecord::StartingWindowTask(bool isRecent, bool isCold, const Ability
 
 void AbilityRecord::PostCancelStartingWindowHotTask()
 {
-    if (want_.GetBoolParam(DEBUG_APP, false) || want_.GetBoolParam(NATIVE_DEBUG, false)) {
+    if (want_.GetBoolParam(DEBUG_APP, false) ||
+        want_.GetBoolParam(NATIVE_DEBUG, false) ||
+        !want_.GetStringParam(PERF_CMD).empty()) {
         HILOG_INFO("PostCancelStartingWindowHotTask was called, debug mode, just return.");
         return;
     }
@@ -708,7 +711,9 @@ void AbilityRecord::PostCancelStartingWindowHotTask()
 
 void AbilityRecord::PostCancelStartingWindowColdTask()
 {
-    if (want_.GetBoolParam(DEBUG_APP, false) || want_.GetBoolParam(NATIVE_DEBUG, false)) {
+    if (want_.GetBoolParam(DEBUG_APP, false) ||
+        want_.GetBoolParam(NATIVE_DEBUG, false) ||
+        !want_.GetStringParam(PERF_CMD).empty()) {
         HILOG_INFO("PostCancelStartingWindowColdTask was called, debug mode, just return.");
         return;
     }
@@ -1011,7 +1016,9 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
     }
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     if (handler && task) {
-        if (!want_.GetBoolParam(DEBUG_APP, false) && !want_.GetBoolParam(NATIVE_DEBUG, false)) {
+        if (!want_.GetBoolParam(DEBUG_APP, false) &&
+            !want_.GetBoolParam(NATIVE_DEBUG, false) &&
+            want_.GetStringParam(PERF_CMD).empty()) {
             int backgroundTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * BACKGROUND_TIMEOUT_MULTIPLE;
             handler->PostTask(task, "background_" + std::to_string(recordId_), backgroundTimeout);
@@ -1029,6 +1036,16 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
     // earlier than above actions.
     SetAbilityStateInner(AbilityState::BACKGROUNDING);
     lifecycleDeal_->BackgroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
+}
+
+bool AbilityRecord::PrepareTerminateAbility()
+{
+    HILOG_DEBUG("call");
+    if (lifecycleDeal_ == nullptr) {
+        HILOG_ERROR("lifecycleDeal_ is nullptr.");
+        return false;
+    }
+    return lifecycleDeal_->PrepareTerminateAbility();
 }
 
 int AbilityRecord::TerminateAbility()
@@ -1248,7 +1265,9 @@ void AbilityRecord::Terminate(const Closure &task)
     CHECK_POINTER(lifecycleDeal_);
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     if (handler && task) {
-        if (!want_.GetBoolParam(DEBUG_APP, false) && !want_.GetBoolParam(NATIVE_DEBUG, false)) {
+        if (!want_.GetBoolParam(DEBUG_APP, false) &&
+            !want_.GetBoolParam(NATIVE_DEBUG, false) &&
+            want_.GetStringParam(PERF_CMD).empty()) {
             int terminateTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * TERMINATE_TIMEOUT_MULTIPLE;
             handler->PostTask(task, "terminate_" + std::to_string(recordId_), terminateTimeout);
@@ -1957,7 +1976,9 @@ bool AbilityRecord::IsActiveState() const
 
 void AbilityRecord::SendEvent(uint32_t msg, uint32_t timeOut, int32_t param)
 {
-    if (want_.GetBoolParam(DEBUG_APP, false) || want_.GetBoolParam(NATIVE_DEBUG, false)) {
+    if (want_.GetBoolParam(DEBUG_APP, false) ||
+        want_.GetBoolParam(NATIVE_DEBUG, false) ||
+        !want_.GetStringParam(PERF_CMD).empty()) {
         HILOG_INFO("Is debug mode, no need to handle time out.");
         return;
     }

@@ -71,6 +71,8 @@ AmsMgrStub::AmsMgrStub()
         &AmsMgrStub::HandleUpdateApplicationInfoInstalled;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::SET_CURRENT_USER_ID)] =
         &AmsMgrStub::HandleSetCurrentUserId;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::Get_BUNDLE_NAME_BY_PID)] =
+        &AmsMgrStub::HandleGetBundleNameByPid;
 }
 
 AmsMgrStub::~AmsMgrStub()
@@ -358,6 +360,18 @@ int32_t AmsMgrStub::HandleSetCurrentUserId(MessageParcel &data, MessageParcel &r
 {
     int32_t userId = data.ReadInt32();
     SetCurrentUserId(userId);
+    return NO_ERROR;
+}
+
+int32_t AmsMgrStub::HandleGetBundleNameByPid(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t pid = data.ReadInt32();
+    std::string bundleName;
+    int32_t uid;
+    GetBundleNameByPid(pid, bundleName, uid);
+
+    reply.WriteString(bundleName);
+    reply.WriteInt32(uid);
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

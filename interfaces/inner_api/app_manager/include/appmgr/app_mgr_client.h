@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,12 +26,14 @@
 #include "bundle_info.h"
 #include "iapp_state_callback.h"
 #include "irender_scheduler.h"
+#include "render_process_info.h"
 #include "running_process_info.h"
 #include "system_memory_attr.h"
 #include "istart_specified_ability_response.h"
 #include "iconfiguration_observer.h"
 #include "app_mem_info.h"
 #include "app_malloc_info.h"
+#include "fault_data.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -200,6 +202,15 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual AppMgrResultCode GetProcessRunningInformation(RunningProcessInfo &info);
+
+    /**
+     * GetAllRenderProcesses, call GetAllRenderProcesses() through proxy project.
+     * Obtains information about render processes that are running on the device.
+     *
+     * @param info, render process info.
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual AppMgrResultCode GetAllRenderProcesses(std::vector<RenderProcessInfo> &info);
 
     /**
      * NotifyMemoryLevel, call NotifyMemoryLevel() through proxy project.
@@ -416,6 +427,32 @@ public:
      * @return
      */
     void SetCurrentUserId(const int32_t userId);
+
+    /**
+     * Get bundleName by pid.
+     *
+     * @param pid process id.
+     * @param bundleName Output parameters, return bundleName.
+     * @param uid Output parameters, return userId.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t GetBundleNameByPid(const int pid, std::string &bundleName, int32_t &uid);
+
+    /**
+     * Notify Fault Data
+     *
+     * @param faultData the fault data.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t NotifyAppFault(const FaultData &faultData);
+
+    /**
+     * Notify App Fault Data By SA
+     *
+     * @param faultData the fault data notified by SA.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData);
 
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);

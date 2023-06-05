@@ -3348,5 +3348,32 @@ HWTEST_F(AbilityManagerServiceTest, StopExtensionAbility_006, TestSize.Level1)
     MyFlag::flag_ = 0;
     HILOG_INFO("AbilityManagerServiceTest StopExtensionAbility_006 end");
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: RecordAppExitReason
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService RecordAppExitReason
+ */
+HWTEST_F(AbilityManagerServiceTest, RecordAppExitReason_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest RecordAppExitReason_001 start");
+    EXPECT_EQ(abilityMs_->RecordAppExitReason(REASON_JS_ERROR), ERR_INVALID_VALUE);
+    HILOG_INFO("AbilityManagerServiceTest RecordAppExitReason_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: ForceExitApp
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService ForceExitApp
+ */
+HWTEST_F(AbilityManagerServiceTest, ForceExitApp_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest ForceExitApp_001 start");
+    int32_t pid = 0;
+    EXPECT_EQ(abilityMs_->ForceExitApp(pid, REASON_JS_ERROR), ERR_INVALID_VALUE);
+    HILOG_INFO("AbilityManagerServiceTest ForceExitApp_001 end");
+}
 }  // namespace AAFwk
 }  // namespace OHOS

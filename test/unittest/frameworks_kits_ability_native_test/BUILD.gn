@@ -1504,6 +1504,7 @@ ohos_unittest("new_ability_impl_test") {
       "hiviewdfx_hilog_native:libhilog",
       "input:libmmi-client",
       "ipc:ipc_core",
+      "window_manager:libwsutils",
     ]
   }
 }
@@ -1572,6 +1573,7 @@ ohos_unittest("reserse_continuation_scheduler_primary_proxy_test") {
       "hiviewdfx_hilog_native:libhilog",
       "input:libmmi-client",
       "ipc:ipc_core",
+      "window_manager:libwsutils",
     ]
   }
 }

@@ -17,12 +17,22 @@
 #define OHOS_ABILITY_JS_ENVIRONMENT_JS_ENVIRONMENT_IMPL_H
 
 #include <string>
+#include "event_handler.h"
 #include "native_engine/native_engine.h"
 
 #include "native_engine/native_engine.h"
 
 namespace OHOS {
 namespace JsEnv {
+struct WorkerInfo {
+    std::string codePath;
+    bool isDebugVersion = false;
+    bool isBundle = true;
+    std::string packagePathStr;
+    std::vector<std::string> assetBasePathStr;
+    std::string hapPath;
+    bool isStageModel = true;
+};
 class JsEnvironmentImpl {
 public:
     JsEnvironmentImpl() {}
@@ -36,8 +46,11 @@ public:
 
     virtual void InitConsoleModule(NativeEngine *engine) = 0;
 
-    virtual void InitWorkerModule(NativeEngine& engine, const std::string& codePath, bool isDebugVersion,
-        bool isBundle) = 0;
+    virtual bool InitLoop(NativeEngine *engine, const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner) = 0;
+
+    virtual void DeInitLoop(NativeEngine *engine) = 0;
+
+    virtual void InitWorkerModule(NativeEngine& engine, std::shared_ptr<WorkerInfo> workerInfo) = 0;
 
     virtual void InitSyscapModule() = 0;
 };

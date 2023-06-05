@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -233,6 +233,31 @@ int32_t AppMgrProxy::GetAllRunningProcesses(std::vector<RunningProcessInfo> &inf
         return ERR_NULL_OBJECT;
     }
     auto error = GetParcelableInfos<RunningProcessInfo>(reply, info);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("GetParcelableInfos fail, error: %{public}d", error);
+        return error;
+    }
+    int result = reply.ReadInt32();
+    return result;
+}
+
+int32_t AppMgrProxy::GetAllRenderProcesses(std::vector<RenderProcessInfo> &info)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return ERR_NULL_OBJECT;
+    }
+    if (!SendTransactCmd(IAppMgr::Message::APP_GET_ALL_RENDER_PROCESSES, data, reply)) {
+        return ERR_NULL_OBJECT;
+    }
+    auto error = GetParcelableInfos<RenderProcessInfo>(reply, info);
     if (error != NO_ERROR) {
         HILOG_ERROR("GetParcelableInfos fail, error: %{public}d", error);
         return error;
@@ -1164,6 +1189,105 @@ int32_t AppMgrProxy::StartNativeProcessForDebugger(const AAFwk::Want &want)
         data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        return ret;
+    }
+
+    return reply.ReadInt32();
+}
+
+int32_t AppMgrProxy::GetBundleNameByPid(const int pid, std::string &bundleName, int32_t &uid)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteInt32(pid)) {
+        HILOG_ERROR("pid write failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    auto ret =
+        remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::GET_BUNDLE_NAME_BY_PID), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("Send request failed with error code %{public}d.", ret);
+        return ret;
+    }
+    bundleName = reply.ReadString();
+    uid = reply.ReadInt32();
+    return ERR_NONE;
+}
+
+int32_t AppMgrProxy::NotifyAppFault(const FaultData &faultData)
+{
+    HILOG_DEBUG("called.");
+    MessageParcel data;
+
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    if (!data.WriteParcelable(&faultData)) {
+        HILOG_ERROR("Write FaultData error.");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::NOTIFY_APP_FAULT),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed with error code %{public}d.", ret);
+        return ret;
+    }
+
+    return reply.ReadInt32();
+}
+
+int32_t AppMgrProxy::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
+{
+    HILOG_DEBUG("called.");
+    MessageParcel data;
+
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    if (!data.WriteParcelable(&faultData)) {
+        HILOG_ERROR("Write FaultDataBySA error.");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::NOTIFY_APP_FAULT_BY_SA),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed with error code %{public}d.", ret);
         return ret;
     }
 

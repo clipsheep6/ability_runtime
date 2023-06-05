@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -257,6 +257,8 @@ public:
     int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName,
         const sptr<IQuickFixCallback> &callback, const int32_t recordId) override;
 
+    int32_t ScheduleNotifyAppFault(const FaultData &faultData) override;
+
 private:
     /**
      *
@@ -496,6 +498,8 @@ private:
     static void HandleDumpHeap(bool isPrivate);
     static void HandleSignal(int signal);
 
+    void NotifyAppFault(const FaultData &faultData);
+
     void OnOverlayChanged(const EventFwk::CommonEventData &data,
         const std::shared_ptr<Global::Resource::ResourceManager> &resourceManager, const std::string &bundleName,
         const std::string &moduleName, const std::string &loadPath);
@@ -558,7 +562,8 @@ private:
      */
     void LoadAbilityLibrary(const std::vector<std::string> &libraryPaths);
 
-    void LoadNativeLiabrary(std::string &nativeLibraryPath);
+    void CalcNativeLiabraryEntries(const BundleInfo &bundleInfo, std::string &nativeLibraryPath);
+    void LoadNativeLiabrary(const BundleInfo &bundleInfo, std::string &nativeLibraryPath);
 
     void LoadAppDetailAbilityLibrary(std::string &nativeLibraryPath);
 

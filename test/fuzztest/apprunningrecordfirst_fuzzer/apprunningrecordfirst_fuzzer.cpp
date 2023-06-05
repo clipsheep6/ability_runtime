@@ -116,7 +116,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     std::shared_ptr<UserTestRecord> testRecord;
     appRecord->SetUserTestInfo(testRecord);
     std::shared_ptr<RenderRecord> record;
-    appRecord->SetRenderRecord(record);
+    appRecord->AddRenderRecord(record);
     AppSpawnStartMsg appMsg;
     appRecord->SetStartMsg(appMsg);
     bool isDebugApp = *data % ENABLE;
@@ -137,7 +137,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     appRecord->IsEmptyKeepAliveApp();
     appRecord->GetRestartResidentProcCount();
     appRecord->GetUserTestInfo();
-    appRecord->GetRenderRecord();
+    appRecord->GetRenderRecordMap();
     appRecord->GetStartMsg();
     appRecord->GetAppIndex();
     appRecord->GetSecurityFlag();
