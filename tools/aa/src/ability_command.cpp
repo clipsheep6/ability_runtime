@@ -33,7 +33,7 @@ using namespace OHOS::AppExecFwk;
 namespace OHOS {
 namespace AAFwk {
 namespace {
-size_t PARAM_LENGTH = 1024;
+constexpr size_t PARAM_LENGTH = 1024;
 
 const std::string SHORT_OPTIONS = "ch:d:a:b:p:s:m:CDSN";
 constexpr struct option LONG_OPTIONS[] = {
