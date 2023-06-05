@@ -99,6 +99,7 @@ ohos_moduletest("running_infos_module_test") {
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
+    "window_manager:libwsutils",
   ]
 
   if (efficiency_manager) {
