@@ -500,21 +500,6 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_INFO("%{public}s: try to StartRemoteAbility", __func__);
         return StartRemoteAbility(want, requestCode, validUserId, callerToken);
     }
-    if (AbilityUtil::IsStartFreeInstall(want)) {
-        if (freeInstallManager_ == nullptr) {
-            return ERR_INVALID_VALUE;
-        }
-        Want localWant = want;
-        if (!localWant.GetDeviceId().empty()) {
-            localWant.SetDeviceId("");
-        }
-        if (!isStartAsCaller) {
-            UpdateCallerInfo(localWant, callerToken);
-        } else {
-            HILOG_INFO("start as caller, skip UpdateCallerInfo!");
-        }
-        return freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, true);
-    }
 
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
@@ -537,6 +522,22 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     ComponentRequest componentRequest = initComponentRequest(callerToken, requestCode, result);
     if (CheckProxyComponent(want, result) && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
         return componentRequest.requestResult;
+    }
+
+    if (AbilityUtil::IsStartFreeInstall(want)) {
+        if (freeInstallManager_ == nullptr) {
+            return ERR_INVALID_VALUE;
+        }
+        Want localWant = want;
+        if (!localWant.GetDeviceId().empty()) {
+            localWant.SetDeviceId("");
+        }
+        if (!isStartAsCaller) {
+            UpdateCallerInfo(localWant, callerToken);
+        } else {
+            HILOG_INFO("start as caller, skip UpdateCallerInfo!");
+        }
+        return freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, true);
     }
 
     if (result != ERR_OK) {
@@ -1791,11 +1792,14 @@ int AbilityManagerService::SendResultToAbility(int32_t requestCode, int32_t resu
     Security::AccessToken::NativeTokenInfo nativeTokenInfo;
     uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(accessToken);
+    auto isGatewayCall = AAFwk::PermissionVerification::GetInstance()->IsGatewayCall();
     int32_t result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(accessToken, nativeTokenInfo);
     if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE ||
         result != ERR_OK || nativeTokenInfo.processName != DMS_PROCESS_NAME) {
-        HILOG_ERROR("Check processName failed");
-        return ERR_INVALID_VALUE;
+        if (!isGatewayCall) {
+            HILOG_ERROR("Check processName failed");
+            return ERR_INVALID_VALUE;
+        }
     }
     int missionId = resultWant.GetIntParam(DMS_MISSION_ID, DEFAULT_DMS_MISSION_ID);
     resultWant.RemoveParam(DMS_MISSION_ID);
@@ -6636,6 +6640,10 @@ bool AbilityManagerService::IsComponentInterceptionStart(const Want &want, Compo
         newWant.SetParam("callType", callType);
         if (callType == AbilityCallType::CALL_REQUEST_TYPE) {
             newWant.SetParam("abilityConnectionObj", request.connect->AsObject());
+        }
+        if (want.GetBoolParam(Want::PARAM_RESV_FOR_RESULT, false)) {
+            int32_t missionId = GetMissionIdByAbilityToken(componentRequest.callerToken);
+            newWant.SetParam(DMS_MISSION_ID, missionId);
         }
         int32_t tokenId = static_cast<int32_t>(IPCSkeleton::GetCallingTokenID());
         newWant.SetParam("accessTokenId", tokenId);

@@ -1547,6 +1547,11 @@ bool AbilityRecord::IsSystemAbilityCall(const sptr<IRemoteObject> &callerToken)
     if (abilityRecord != nullptr) {
         return false;
     }
+    auto isGatewayCall = AAFwk::PermissionVerification::GetInstance()->IsGatewayCall();
+    if (isGatewayCall) {
+        HILOG_INFO("Is gateway call.");
+        return true;
+    }
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(IPCSkeleton::GetCallingTokenID());
     bool isNativeCall = tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE;
     if (!isNativeCall) {
