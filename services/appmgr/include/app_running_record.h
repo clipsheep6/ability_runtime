@@ -30,6 +30,7 @@
 #include "app_mgr_constants.h"
 #include "app_scheduler_proxy.h"
 #include "app_record_id.h"
+#include "fault_data.h"
 #include "profile.h"
 #include "priority_object.h"
 #include "app_lifecycle_deal.h"
@@ -63,6 +64,8 @@ public:
     void SetPid(pid_t pid);
     pid_t GetPid() const ;
     pid_t GetHostPid() const;
+    void SetUid(int32_t uid);
+    int32_t GetUid() const;
     int32_t GetHostUid() const;
     std::string GetHostBundleName() const;
     std::string GetRenderParam() const;
@@ -84,6 +87,7 @@ private:
 
     pid_t pid_ = 0;
     pid_t hostPid_ = 0;
+    int32_t uid_ = 0;
     int32_t hostUid_ = 0;
     std::string hostBundleName_;
     std::string renderParam_;
@@ -551,8 +555,10 @@ public:
     void SetDebugApp(bool isDebugApp);
     bool IsDebugApp();
     void SetNativeDebug(bool isNativeDebug);
-    void SetRenderRecord(const std::shared_ptr<RenderRecord> &record);
-    std::shared_ptr<RenderRecord> GetRenderRecord();
+    void AddRenderRecord(const std::shared_ptr<RenderRecord> &record);
+    void RemoveRenderRecord(const std::shared_ptr<RenderRecord> &record);
+    std::shared_ptr<RenderRecord> GetRenderRecordByPid(const pid_t pid);
+    std::map<int32_t, std::shared_ptr<RenderRecord>> GetRenderRecordMap();
     void SetStartMsg(const AppSpawnStartMsg &msg);
     AppSpawnStartMsg GetStartMsg();
 
@@ -610,6 +616,8 @@ public:
 
     ExtensionAbilityType GetExtensionType() const;
     ProcessType GetProcessType() const;
+
+    int32_t NotifyAppFault(const FaultData &faultData);
 
     inline void SetSpawned()
     {
@@ -716,7 +724,8 @@ private:
     std::atomic_bool isSpawned_ = false;
 
     // render record
-    std::shared_ptr<RenderRecord> renderRecord_ = nullptr;
+    std::map<int32_t, std::shared_ptr<RenderRecord>> renderRecordMap_;
+    std::mutex renderRecordMapLock_;
     AppSpawnStartMsg startMsg_;
     int32_t appIndex_ = 0;
     bool securityFlag_ = false;

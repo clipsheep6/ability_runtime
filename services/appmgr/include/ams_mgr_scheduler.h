@@ -175,6 +175,8 @@ public:
 
     virtual void SetCurrentUserId(const int32_t userId) override;
 
+    virtual int32_t GetBundleNameByPid(const int pid, std::string &bundleName, int32_t &uid) override;
+
 private:
     /**
      * @brief Judge whether the application service is ready.

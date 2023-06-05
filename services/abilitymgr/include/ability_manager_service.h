@@ -768,6 +768,9 @@ public:
 
     sptr<IWindowManagerServiceHandler> GetWMSHandler() const;
 
+    virtual int PrepareTerminateAbility(const sptr<IRemoteObject> &token,
+        sptr<IPrepareTerminateCallback> &callback) override;
+        
     void HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
 
     void HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
@@ -1004,6 +1007,28 @@ public:
     virtual int VerifyPermission(const std::string &permission, int pid, int uid) override;
 
     bool IsDmsAlive() const;
+
+    /**
+     * Upgrade app completed event.
+     * @param bundleName.
+     * @param uid.
+     */
+    void AppUpgradeCompleted(const std::string &bundleName, int32_t uid);
+
+    /**
+     * Record app exit reason.
+     * @param exitReason The reason of app exit.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RecordAppExitReason(Reason exitReason) override;
+
+    /**
+     * Force app exit and record exit reason.
+     * @param pid Process id .
+     * @param exitReason The reason of app exit.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t ForceExitApp(const int32_t pid, Reason exitReason) override;
 
     int32_t GetConfiguration(AppExecFwk::Configuration& config);
 
@@ -1368,6 +1393,10 @@ private:
 
     void ReleaseAbilityTokenMap(const sptr<IRemoteObject> &token);
 
+    void RecordAppExitReasonAtUpgrade(const AppExecFwk::BundleInfo &bundleInfo);
+
+    bool CheckPrepareTerminateEnable();
+
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 
@@ -1397,7 +1426,7 @@ private:
     std::shared_ptr<UserController> userController_;
     sptr<AppExecFwk::IAbilityController> abilityController_ = nullptr;
     bool controllerIsAStabilityTest_ = false;
-    std::recursive_mutex globalLock_;
+    std::mutex globalLock_;
     std::shared_mutex managersMutex_;
     std::shared_mutex bgtaskObserverMutex_;
     std::mutex abilityTokenLock_;

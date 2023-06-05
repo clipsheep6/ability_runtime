@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,6 +25,7 @@
 #include "appmgr/start_specified_ability_response_stub.h"
 #include "application_info.h"
 #include "bundle_info.h"
+#include "fault_data.h"
 #include "iremote_object.h"
 #include "refbase.h"
 #include "singleton.h"
@@ -319,6 +320,24 @@ public:
     int BlockAppService();
     #endif
 
+    /**
+     * Get bundleName by pid.
+     *
+     * @param pid process id.
+     * @param bundleName Output parameters, return bundleName.
+     * @param uid Output parameters, return userId.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t GetBundleNameByPid(const int pid, std::string &bundleName, int32_t &uid);
+
+    /**
+     * Notify Fault Data
+     *
+     * @param faultData the fault data.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t NotifyFault(const AppExecFwk::FaultData &faultData);
+
 protected:
     /**
      * OnAbilityRequestDone, app manager service call this interface after ability request done.
@@ -336,7 +355,7 @@ protected:
     virtual void OnAppStateChanged(const AppExecFwk::AppProcessData &appData) override;
 
 private:
-    std::recursive_mutex lock_;
+    std::mutex lock_;
     bool isInit_  {false};
     std::weak_ptr<AppStateCallback> callback_;
     std::unique_ptr<AppExecFwk::AppMgrClient> appMgrClient_;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -47,7 +47,7 @@ bool AppScheduler::Init(const std::weak_ptr<AppStateCallback> &callback)
     CHECK_POINTER_RETURN_BOOL(callback.lock());
     CHECK_POINTER_RETURN_BOOL(appMgrClient_);
 
-    std::lock_guard<std::recursive_mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     if (isInit_) {
         return true;
     }
@@ -415,10 +415,33 @@ int AppScheduler::BlockAppService()
 }
 #endif
 
+int32_t AppScheduler::GetBundleNameByPid(const int pid, std::string &bundleName, int32_t &uid)
+{
+    CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
+    int32_t ret = static_cast<int32_t>(IN_PROCESS_CALL(appMgrClient_->GetBundleNameByPid(pid, bundleName, uid)));
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Get bundle name failed.");
+        return INNER_ERR;
+    }
+    return ERR_OK;
+}
+
 void AppScheduler::SetCurrentUserId(const int32_t userId)
 {
     CHECK_POINTER(appMgrClient_);
     IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->SetCurrentUserId(userId));
+}
+
+int32_t AppScheduler::NotifyFault(const AppExecFwk::FaultData &faultData)
+{
+    CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
+    auto ret = static_cast<int>(appMgrClient_->NotifyAppFault(faultData));
+    if (ret != ERR_OK) {
+        HILOG_ERROR("NotifyAppFault failed.");
+        return INNER_ERR;
+    }
+
+    return ERR_OK;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

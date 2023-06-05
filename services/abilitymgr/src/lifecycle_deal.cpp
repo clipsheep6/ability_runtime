@@ -168,5 +168,15 @@ void LifecycleDeal::ShareData(const int32_t &uniqueId)
     abilityScheduler->ScheduleShareData(uniqueId);
 }
 
+bool LifecycleDeal::PrepareTerminateAbility()
+{
+    HILOG_DEBUG("call");
+    auto abilityScheduler = GetScheduler();
+    if (abilityScheduler == nullptr) {
+        HILOG_ERROR("abilityScheduler is nullptr.");
+        return false;
+    }
+    return abilityScheduler->SchedulePrepareTerminateAbility();
+}
 }  // namespace AAFwk
 }  // namespace OHOS

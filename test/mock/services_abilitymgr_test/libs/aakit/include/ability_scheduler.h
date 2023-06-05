@@ -43,6 +43,8 @@ public:
 
     void ScheduleDisconnectAbility(const Want& want) override;
 
+    bool SchedulePrepareTerminateAbility() override;
+
     void ScheduleCommandAbility(const Want& want, bool restart, int startId) override;
 
     void ScheduleSaveAbilityState() override;

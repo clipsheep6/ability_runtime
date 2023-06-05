@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -45,6 +45,7 @@ public:
     MOCK_METHOD1(IsBackgroundRunningRestricted, int(const std::string& bundleName));
     MOCK_METHOD1(GetAllRunningProcesses, int(std::vector<RunningProcessInfo>& info));
     MOCK_METHOD2(GetProcessRunningInfosByUserId, int(std::vector<RunningProcessInfo>& info, int32_t userId));
+    MOCK_METHOD1(GetAllRenderProcesses, int(std::vector<RenderProcessInfo>& info));
     MOCK_METHOD0(GetAmsMgr, sptr<IAmsMgr>());
     MOCK_METHOD1(GetAppFreezingTime, void(int& time));
     MOCK_METHOD1(SetAppFreezingTime, void(int time));
@@ -75,7 +76,10 @@ public:
     MOCK_METHOD2(NotifyUnLoadRepairPatch, int32_t(const std::string& bundleName,
         const sptr<IQuickFixCallback>& callback));
     MOCK_METHOD2(IsSharedBundleRunning, bool(const std::string &bundleName, uint32_t versionCode));
+    MOCK_METHOD3(GetBundleNameByPid, int32_t(const int pid, std::string &bundleName, int32_t &uid));
 
+    MOCK_METHOD1(NotifyAppFault, int32_t(const FaultData &faultData));
+    MOCK_METHOD1(NotifyAppFaultBySA, int32_t(const AppFaultDataBySA &faultData));
     virtual int StartUserTestProcess(
         const AAFwk::Want& want, const sptr<IRemoteObject>& observer, const BundleInfo& bundleInfo, int32_t userId)
     {

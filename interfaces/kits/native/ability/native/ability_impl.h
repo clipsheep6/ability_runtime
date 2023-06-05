@@ -72,6 +72,13 @@ public:
     void CommandAbility(const Want &want, bool restart, int startId);
 
     /**
+     * @brief Prepare terminate the ability.
+     *
+     * @return Return true if ability need be terminated; return false if ability need stop terminating.
+     */
+    bool PrepareTerminateAbility();
+
+    /**
      * @brief Gets the current Ability status.
      *
      */

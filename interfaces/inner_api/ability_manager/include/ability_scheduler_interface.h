@@ -87,6 +87,11 @@ public:
      */
     virtual void ScheduleCommandAbility(const Want &want, bool restart, int startId) = 0;
 
+    /**
+     * SchedulePrepareTerminateAbility, schedule ability to prepare terminate.
+     */
+    virtual bool SchedulePrepareTerminateAbility() = 0;
+
     /*
      * ScheduleSaveAbilityState, scheduling save ability state.
      */
@@ -377,7 +382,10 @@ public:
 
         SCHEDULE_CALL,
         
-        SCHEDULE_SHARE_DATA
+        SCHEDULE_SHARE_DATA,
+
+        // ipc id for scheduling service ability to prepare terminate (30)
+        SCHEDULE_ABILITY_PREPARE_TERMINATE
     };
 };
 }  // namespace AAFwk

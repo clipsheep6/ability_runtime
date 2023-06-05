@@ -126,6 +126,7 @@ ohos_unittest("hdc_register_test") {
   ]
 
   external_deps = [
+    "ability_runtime:js_environment",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",

@@ -148,6 +148,7 @@ void AppMgrServiceInner::Init()
     InitGlobalConfiguration();
     AddWatchParameter();
     supportIsolationMode_ = OHOS::system::GetParameter(SUPPORT_ISOLATION_MODE, "false");
+    deviceType_ = OHOS::system::GetDeviceType();
     DelayedSingleton<AppStateObserverManager>::GetInstance()->Init();
     InitFocusListener();
 }
@@ -916,6 +917,29 @@ int32_t AppMgrServiceInner::GetProcessRunningInformation(RunningProcessInfo &inf
     return ERR_OK;
 }
 
+int32_t AppMgrServiceInner::GetAllRenderProcesses(std::vector<RenderProcessInfo> &info)
+{
+    auto isPerm = AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm();
+    // check permission
+    for (const auto &item : appRunningManager_->GetAppRunningRecordMap()) {
+        const auto &appRecord = item.second;
+        if (isPerm) {
+            GetRenderProcesses(appRecord, info);
+        } else {
+            auto applicationInfo = appRecord->GetApplicationInfo();
+            if (!applicationInfo) {
+                continue;
+            }
+            auto callingTokenId = IPCSkeleton::GetCallingTokenID();
+            auto tokenId = applicationInfo->accessTokenId;
+            if (callingTokenId == tokenId) {
+                GetRenderProcesses(appRecord, info);
+            }
+        }
+    }
+    return ERR_OK;
+}
+
 int32_t AppMgrServiceInner::NotifyMemoryLevel(int32_t level)
 {
     HILOG_INFO("AppMgrServiceInner start");
@@ -980,6 +1004,27 @@ void AppMgrServiceInner::GetRunningProcess(const std::shared_ptr<AppRunningRecor
     appRecord->GetBundleNames(info.bundleNames);
     info.processType_ = appRecord->GetProcessType();
     info.extensionType_ = appRecord->GetExtensionType();
+}
+
+void AppMgrServiceInner::GetRenderProcesses(const std::shared_ptr<AppRunningRecord> &appRecord,
+    std::vector<RenderProcessInfo> &info)
+{
+    auto renderRecordMap = appRecord->GetRenderRecordMap();
+    if (renderRecordMap.empty()) {
+        return;
+    }
+    for (auto iter : renderRecordMap) {
+        auto renderRecord = iter.second;
+        if (renderRecord != nullptr) {
+            RenderProcessInfo renderProcessInfo;
+            renderProcessInfo.bundleName_ = renderRecord->GetHostBundleName();
+            renderProcessInfo.processName_ = renderRecord->GetProcessName();
+            renderProcessInfo.pid_ = renderRecord->GetPid();
+            renderProcessInfo.uid_ = renderRecord->GetUid();
+            renderProcessInfo.hostUid_ = renderRecord->GetHostUid();
+            info.emplace_back(renderProcessInfo);
+        }
+    }
 }
 
 int32_t AppMgrServiceInner::KillProcessByPid(const pid_t pid) const
@@ -1558,6 +1603,15 @@ AppProcessData AppMgrServiceInner::WrapAppProcessData(const std::shared_ptr<AppR
     processData.pid = appRecord->GetPriorityObject()->GetPid();
     processData.appState = state;
     processData.isFocused = appRecord->GetFocusFlag();
+    auto renderRecordMap = appRecord->GetRenderRecordMap();
+    if (!renderRecordMap.empty()) {
+        for (auto iter : renderRecordMap) {
+            auto renderRecord = iter.second;
+            if (renderRecord != nullptr) {
+                processData.renderPids.emplace_back(renderRecord->GetPid());
+            }
+        }
+    }
     return processData;
 }
 
@@ -1906,11 +1960,20 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessDied(appRecord);
 
     // kill render if exist.
-    auto renderRecord = appRecord->GetRenderRecord();
-    if (renderRecord && renderRecord->GetPid() > 0) {
-        HILOG_DEBUG("Kill render process when host died.");
-        KillProcessByPid(renderRecord->GetPid());
-        DelayedSingleton<AppStateObserverManager>::GetInstance()->OnRenderProcessDied(renderRecord);
+    auto renderRecordMap = appRecord->GetRenderRecordMap();
+    if (!renderRecordMap.empty()) {
+        for (auto iter : renderRecordMap) {
+            auto renderRecord = iter.second;
+            if (renderRecord && renderRecord->GetPid() > 0) {
+                HILOG_DEBUG("Kill render process when host died.");
+                KillProcessByPid(renderRecord->GetPid());
+                {
+                    std::lock_guard<std::mutex> lock(renderUidSetLock_);
+                    renderUidSet_.erase(renderRecord->GetUid());
+                }
+                DelayedSingleton<AppStateObserverManager>::GetInstance()->OnRenderProcessDied(renderRecord);
+            }
+        }
     }
 
     if (appRecord->GetPriorityObject() != nullptr) {
@@ -2703,7 +2766,7 @@ int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
         return result;
     }
     // notify
-    std::lock_guard<std::recursive_mutex> notifyLock(configurationObserverLock_);
+    std::lock_guard<std::mutex> notifyLock(configurationObserverLock_);
     for (auto &observer : configurationObservers_) {
         if (observer != nullptr) {
             observer->OnConfigurationUpdated(config);
@@ -2720,7 +2783,7 @@ int32_t AppMgrServiceInner::RegisterConfigurationObserver(const sptr<IConfigurat
         HILOG_ERROR("AppMgrServiceInner::Register error: observer is null");
         return ERR_INVALID_VALUE;
     }
-    std::lock_guard<std::recursive_mutex> registerLock(configurationObserverLock_);
+    std::lock_guard<std::mutex> registerLock(configurationObserverLock_);
     auto it = std::find_if(configurationObservers_.begin(), configurationObservers_.end(),
         [&observer](const sptr<IConfigurationObserver> &item) {
             return (item && item->AsObject() == observer->AsObject());
@@ -2741,7 +2804,7 @@ int32_t AppMgrServiceInner::UnregisterConfigurationObserver(const sptr<IConfigur
         HILOG_ERROR("AppMgrServiceInner::Register error: observer is null");
         return ERR_INVALID_VALUE;
     }
-    std::lock_guard<std::recursive_mutex> unregisterLock(configurationObserverLock_);
+    std::lock_guard<std::mutex> unregisterLock(configurationObserverLock_);
     auto it = std::find_if(configurationObservers_.begin(), configurationObservers_.end(),
         [&observer](const sptr<IConfigurationObserver> &item) {
             return (item && item->AsObject() == observer->AsObject());
@@ -3120,14 +3183,18 @@ int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::strin
         return ERR_INVALID_VALUE;
     }
 
-    auto renderRecord = appRecord->GetRenderRecord();
-    if (renderRecord) {
-        HILOG_WARN("already exist render process,do not request again, renderPid:%{public}d", renderRecord->GetPid());
-        renderPid = renderRecord->GetPid();
-        return ERR_ALREADY_EXIST_RENDER;
+    auto renderRecordMap = appRecord->GetRenderRecordMap();
+    if (!renderRecordMap.empty() && deviceType_.compare("tablet") != 0 && deviceType_.compare("pc") != 0) {
+        for (auto iter : renderRecordMap) {
+            if (iter.second != nullptr) {
+                HILOG_WARN("already exist render process, renderPid:%{public}d", iter.second->GetPid());
+                renderPid = iter.second->GetPid();
+                return ERR_ALREADY_EXIST_RENDER;
+            }
+        }
     }
 
-    renderRecord = RenderRecord::CreateRenderRecord(hostPid, renderParam, ipcFd, sharedFd, crashFd, appRecord);
+    auto renderRecord = RenderRecord::CreateRenderRecord(hostPid, renderParam, ipcFd, sharedFd, crashFd, appRecord);
     if (!renderRecord) {
         HILOG_ERROR("create render record failed, hostPid:%{public}d", hostPid);
         return ERR_INVALID_VALUE;
@@ -3160,7 +3227,7 @@ void AppMgrServiceInner::AttachRenderProcess(const pid_t pid, const sptr<IRender
         return;
     }
 
-    auto renderRecord = appRecord->GetRenderRecord();
+    auto renderRecord = appRecord->GetRenderRecordByPid(pid);
     if (!renderRecord) {
         HILOG_ERROR("no such render Record, pid:%{public}d", pid);
         return;
@@ -3180,6 +3247,46 @@ void AppMgrServiceInner::AttachRenderProcess(const pid_t pid, const sptr<IRender
                                renderRecord->GetCrashFd());
 }
 
+bool AppMgrServiceInner::GenerateRenderUid(int32_t &renderUid)
+{
+    std::lock_guard<std::mutex> lock(renderUidSetLock_);
+    int32_t uid = lastRenderUid_ + 1;
+    bool needSecondScan = true;
+    if (uid > Constants::END_UID_FOR_RENDER_PROCESS) {
+        uid = Constants::START_UID_FOR_RENDER_PROCESS;
+        needSecondScan = false;
+    }
+
+    if (renderUidSet_.empty()) {
+        renderUid = uid;
+        renderUidSet_.insert(renderUid);
+        lastRenderUid_ = renderUid;
+        return true;
+    }
+
+    for (int32_t i = uid; i <= Constants::END_UID_FOR_RENDER_PROCESS; i++) {
+        if (renderUidSet_.find(i) == renderUidSet_.end()) {
+            renderUid = i;
+            renderUidSet_.insert(renderUid);
+            lastRenderUid_ = renderUid;
+            return true;
+        }
+    }
+
+    if (needSecondScan) {
+        for (int32_t i = Constants::START_UID_FOR_RENDER_PROCESS; i <= lastRenderUid_; i++) {
+            if (renderUidSet_.find(i) == renderUidSet_.end()) {
+                renderUid = i;
+                renderUidSet_.insert(renderUid);
+                lastRenderUid_ = renderUid;
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecord> &renderRecord,
     const std::shared_ptr<AppRunningRecord> appRecord, pid_t &renderPid)
 {
@@ -3194,20 +3301,30 @@ int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecor
         return ERR_INVALID_VALUE;
     }
 
+    int32_t renderUid = Constants::INVALID_UID;
+    if (!GenerateRenderUid(renderUid)) {
+        HILOG_ERROR("Generate renderUid failed");
+        return ERR_INVALID_OPERATION;
+    }
+
     AppSpawnStartMsg startMsg = appRecord->GetStartMsg();
     startMsg.renderParam = renderRecord->GetRenderParam();
+    startMsg.uid = renderUid;
     startMsg.code = 0; // 0: DEFAULT
     pid_t pid = 0;
     ErrCode errCode = nwebSpawnClient->StartProcess(startMsg, pid);
     if (FAILED(errCode)) {
         HILOG_ERROR("failed to spawn new render process, errCode %{public}08x", errCode);
+        std::lock_guard<std::mutex> lock(renderUidSetLock_);
+        renderUidSet_.erase(renderUid);
         return ERR_INVALID_VALUE;
     }
     renderPid = pid;
-    appRecord->SetRenderRecord(renderRecord);
     renderRecord->SetPid(pid);
-    HILOG_INFO("start render process success, hostPid:%{public}d, pid:%{public}d uid:%{public}d",
-        renderRecord->GetHostPid(), pid, startMsg.uid);
+    renderRecord->SetUid(renderUid);
+    appRecord->AddRenderRecord(renderRecord);
+    HILOG_INFO("start render process success, hostPid:%{public}d, hostUid:%{public}d, pid:%{public}d, uid:%{public}d",
+        renderRecord->GetHostPid(), renderRecord->GetHostUid(), pid, renderUid);
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnRenderProcessCreated(renderRecord);
     return 0;
 }
@@ -3243,6 +3360,10 @@ void AppMgrServiceInner::OnRenderRemoteDied(const wptr<IRemoteObject> &remote)
     if (appRunningManager_) {
         auto renderRecord = appRunningManager_->OnRemoteRenderDied(remote);
         if (renderRecord) {
+            {
+                std::lock_guard<std::mutex> lock(renderUidSetLock_);
+                renderUidSet_.erase(renderRecord->GetUid());
+            }
             DelayedSingleton<AppStateObserverManager>::GetInstance()->OnRenderProcessDied(renderRecord);
         }
     }
@@ -3487,6 +3608,83 @@ int32_t AppMgrServiceInner::NotifyUnLoadRepairPatch(const std::string &bundleNam
     return appRunningManager_->NotifyUnLoadRepairPatch(bundleName, callback);
 }
 
+int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
+{
+    HILOG_DEBUG("called.");
+    auto bundleMgr = remoteClientManager_->GetBundleManager();
+    int32_t callerUid = IPCSkeleton::GetCallingUid();
+    int32_t pid = IPCSkeleton::GetCallingPid();
+    std::string bundleName;
+    bundleMgr->GetBundleNameForUid(callerUid, bundleName);
+    HILOG_DEBUG("FaultData is: error name: %{public}s, faultType: %{public}s, uid: %{public}d, pid: %{public}d,\
+        bundleName: %{public}s", faultData.errorObject.name.c_str(), FaultTypeToString(faultData.faultType).c_str(),
+        callerUid, pid, bundleName.c_str());
+    return ERR_OK;
+}
+
+int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
+{
+    HILOG_DEBUG("called");
+#ifdef ABILITY_COMMAND_FOR_TEST
+    if ((AAFwk::PermissionVerification::GetInstance()->IsSACall()) ||
+        AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+#else
+    if ((AAFwk::PermissionVerification::GetInstance()->IsSACall())) {
+#endif
+        int32_t pid = faultData.pid;
+        auto appRecord = GetAppRunningRecordByPid(pid);
+        if (!appRecord) {
+            HILOG_ERROR("no such appRecord");
+            return ERR_INVALID_VALUE;
+        }
+        FaultData transformedFaultData = ConvertDataTypes(faultData);
+        int32_t uid = appRecord->GetUid();
+        std::string bundleName = appRecord->GetBundleName();
+        HILOG_DEBUG("FaultDataBySA is: error name: %{public}s, faultType: %{public}s, uid: %{public}d,\
+            pid: %{public}d, bundleName: %{public}s",
+            faultData.errorObject.name.c_str(), FaultTypeToString(faultData.faultType).c_str(),
+            uid, pid, bundleName.c_str());
+        appRecord->NotifyAppFault(transformedFaultData);
+    } else {
+        HILOG_DEBUG("this is not called by SA.");
+        return AAFwk::CHECK_PERMISSION_FAILED;
+    }
+    return ERR_OK;
+}
+
+FaultData AppMgrServiceInner::ConvertDataTypes(const AppFaultDataBySA &faultData)
+{
+    FaultData newfaultData;
+    newfaultData.faultType = faultData.faultType;
+    newfaultData.errorObject = faultData.errorObject;
+    return newfaultData;
+}
+
+std::string AppMgrServiceInner::FaultTypeToString(AppExecFwk::FaultDataType type)
+{
+    std::string typeStr = "UNKNOWN";
+    switch (type) {
+        case AppExecFwk::FaultDataType::CPP_CRASH:
+            typeStr = "CPP_CRASH";
+            break;
+        case AppExecFwk::FaultDataType::JS_ERROR:
+            typeStr = "JS_ERROR";
+            break;
+        case AppExecFwk::FaultDataType::APP_FREEZE:
+            typeStr = "APP_FREEZE";
+            break;
+        case AppExecFwk::FaultDataType::PERFORMANCE_CONTROL:
+            typeStr = "PERFORMANCE_CONTROL";
+            break;
+        case AppExecFwk::FaultDataType::RESOURCE_CONTROL:
+            typeStr = "RESOURCE_CONTROL";
+            break;
+        default:
+            break;
+    }
+    return typeStr;
+}
+
 bool AppMgrServiceInner::IsSharedBundleRunning(const std::string &bundleName, uint32_t versionCode)
 {
     if (!CheckGetRunningInfoPermission()) {
@@ -3593,6 +3791,18 @@ void AppMgrServiceInner::SetCurrentUserId(const int32_t userId)
     }
     HILOG_DEBUG("set current userId: %{public}d", userId);
     currentUserId_ = userId;
+}
+
+int32_t AppMgrServiceInner::GetBundleNameByPid(const int32_t pid, std::string &bundleName, int32_t &uid)
+{
+    auto callerRecord = GetAppRunningRecordByPid(pid);
+    if (callerRecord == nullptr) {
+        HILOG_ERROR("callerRecord is nullptr, can not get callerBundleName.");
+        return ERR_INVALID_OPERATION;
+    }
+    bundleName = callerRecord->GetBundleName();
+    uid = callerRecord->GetUid();
+    return ERR_OK;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

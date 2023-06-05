@@ -174,6 +174,29 @@ void AbilitySchedulerProxy::ScheduleCommandAbility(const Want &want, bool restar
     }
 }
 
+bool AbilitySchedulerProxy::SchedulePrepareTerminateAbility()
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("fail to write interface.");
+        return false;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return false;
+    }
+    int32_t err = remote->SendRequest(IAbilityScheduler::SCHEDULE_ABILITY_PREPARE_TERMINATE, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("end failed. err: %{public}d", err);
+        return false;
+    }
+    return reply.ReadBool();
+}
+
 void AbilitySchedulerProxy::ScheduleSaveAbilityState()
 {
     MessageParcel data;

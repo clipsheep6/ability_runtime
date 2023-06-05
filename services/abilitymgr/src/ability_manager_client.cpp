@@ -839,6 +839,21 @@ void AbilityManagerClient::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &
     CHECK_POINTER_RETURN(abms);
     abms->CompleteFirstFrameDrawing(abilityToken);
 }
+
+ErrCode AbilityManagerClient::PrepareTerminateAbility(const sptr<IRemoteObject> &token,
+    sptr<IPrepareTerminateCallback> &callback)
+{
+    if (callback == nullptr) {
+        HILOG_ERROR("callback is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    auto abms = GetAbilityManager();
+    if (abms == nullptr) {
+        HILOG_ERROR("abms is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    return abms->PrepareTerminateAbility(token, callback);
+}
 #endif
 
 ErrCode AbilityManagerClient::DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag)
@@ -1034,6 +1049,22 @@ ErrCode AbilityManagerClient::ShareDataDone(
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->ShareDataDone(token, resultCode, uniqueId, wantParam);
+}
+
+ErrCode AbilityManagerClient::ForceExitApp(const int32_t pid, Reason exitReason)
+{
+    HILOG_DEBUG("begin.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->ForceExitApp(pid, exitReason);
+}
+
+ErrCode AbilityManagerClient::RecordAppExitReason(Reason exitReason)
+{
+    HILOG_DEBUG("begin.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->RecordAppExitReason(exitReason);
 }
 
 void AbilityManagerClient::SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession)

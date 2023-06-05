@@ -204,11 +204,13 @@ private:
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId);
     void AssignRunningProcessInfoByAppRecord(
         std::shared_ptr<AppRunningRecord> appRecord, AppExecFwk::RunningProcessInfo &info) const;
+    std::shared_ptr<AppRunningRecord> GetAppRunningRecordByPidInner(const pid_t pid);
+    std::shared_ptr<AppRunningRecord> GetAppRunningRecordByTokenInner(const sptr<IRemoteObject> &abilityToken);
 
 private:
     std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> appRunningRecordMap_;
     std::map<const std::string, int> processRestartRecord_;
-    std::recursive_mutex lock_;
+    std::mutex lock_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

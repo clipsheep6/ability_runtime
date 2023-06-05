@@ -39,7 +39,7 @@ const int KILL_TIMEOUT_MULTIPLE = 3;
 int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sptr<SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::lock_guard<std::recursive_mutex> guard(sessionLock_);
+    std::lock_guard<std::mutex> guard(sessionLock_);
     HILOG_DEBUG("Call.");
     if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
         HILOG_ERROR("sessionInfo is invalid.");
@@ -92,8 +92,8 @@ int UIAbilityLifecycleManager::AttachAbilityThread(const sptr<IAbilityScheduler>
     const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::lock_guard<std::recursive_mutex> guard(sessionLock_);
-    if (!IsContainsAbility(token)) {
+    std::lock_guard<std::mutex> guard(sessionLock_);
+    if (!IsContainsAbilityInner(token)) {
         return ERR_INVALID_VALUE;
     }
     auto&& abilityRecord = Token::GetAbilityRecordByToken(token);
@@ -112,7 +112,7 @@ int UIAbilityLifecycleManager::AttachAbilityThread(const sptr<IAbilityScheduler>
 void UIAbilityLifecycleManager::OnAbilityRequestDone(const sptr<IRemoteObject> &token, int32_t state) const
 {
     HILOG_DEBUG("Ability request state %{public}d done.", state);
-    std::lock_guard<std::recursive_mutex> guard(sessionLock_);
+    std::lock_guard<std::mutex> guard(sessionLock_);
     AppAbilityState abilityState = DelayedSingleton<AppScheduler>::GetInstance()->ConvertToAppAbilityState(state);
     if (abilityState == AppAbilityState::ABILITY_STATE_FOREGROUND) {
         auto&& abilityRecord = Token::GetAbilityRecordByToken(token);
@@ -131,7 +131,7 @@ int UIAbilityLifecycleManager::AbilityTransactionDone(const sptr<IRemoteObject> 
     std::string abilityState = AbilityRecord::ConvertAbilityState(static_cast<AbilityState>(targetState));
     HILOG_INFO("AbilityTransactionDone, state: %{public}s.", abilityState.c_str());
 
-    std::lock_guard<std::recursive_mutex> guard(sessionLock_);
+    std::lock_guard<std::mutex> guard(sessionLock_);
     auto abilityRecord = GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
@@ -260,7 +260,7 @@ int UIAbilityLifecycleManager::DispatchTerminate(const std::shared_ptr<AbilityRe
 void UIAbilityLifecycleManager::CompleteForegroundSuccess(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::lock_guard<std::recursive_mutex> guard(sessionLock_);
+    std::lock_guard<std::mutex> guard(sessionLock_);
 
     CHECK_POINTER(abilityRecord);
     // ability do not save window mode
@@ -282,7 +282,7 @@ void UIAbilityLifecycleManager::HandleForegroundTimeoutOrFailed(const std::share
     AbilityState state)
 {
     HILOG_DEBUG("state: %{public}d.", static_cast<int32_t>(state));
-    std::lock_guard<std::recursive_mutex> guard(sessionLock_);
+    std::lock_guard<std::mutex> guard(sessionLock_);
     if (ability == nullptr) {
         HILOG_ERROR("ability record is nullptr.");
         return;
@@ -308,7 +308,6 @@ std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetAbilityRecordByToke
         return nullptr;
     }
 
-    std::lock_guard<std::recursive_mutex> guard(sessionLock_);
     for (auto ability : terminateAbilityList_) {
         if (ability && token == ability->GetToken()->AsObject()) {
             return ability;
@@ -325,7 +324,12 @@ std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetAbilityRecordByToke
 
 bool UIAbilityLifecycleManager::IsContainsAbility(const sptr<IRemoteObject> &token) const
 {
-    std::lock_guard<std::recursive_mutex> guard(sessionLock_);
+    std::lock_guard<std::mutex> guard(sessionLock_);
+    return IsContainsAbilityInner(token);
+}
+
+bool UIAbilityLifecycleManager::IsContainsAbilityInner(const sptr<IRemoteObject> &token) const
+{
     for (auto iter = sessionAbilityMap_.begin(); iter != sessionAbilityMap_.end(); iter++) {
         if (iter->second != nullptr && iter->second->GetToken()->AsObject() == token) {
             return true;
@@ -339,7 +343,7 @@ void UIAbilityLifecycleManager::EraseAbilityRecord(const std::shared_ptr<Ability
     if (abilityRecord == nullptr) {
         return;
     }
-    std::lock_guard<std::recursive_mutex> guard(sessionLock_);
+
     for (auto iter = sessionAbilityMap_.begin(); iter != sessionAbilityMap_.end(); iter++) {
         if (iter->second != nullptr && iter->second->GetToken()->AsObject() == abilityRecord->GetToken()->AsObject()) {
             sessionAbilityMap_.erase(iter);
@@ -373,7 +377,7 @@ void UIAbilityLifecycleManager::UpdateAbilityRecordLaunchReason(
 std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetUIAbilityRecordBySessionInfo(
     const sptr<SessionInfo> &sessionInfo)
 {
-    std::lock_guard<std::recursive_mutex> guard(sessionLock_);
+    std::lock_guard<std::mutex> guard(sessionLock_);
     CHECK_POINTER_AND_RETURN(sessionInfo, nullptr);
     sptr<Rosen::ISession> sessionToken = sessionInfo->sessionToken;
     CHECK_POINTER_AND_RETURN(sessionToken, nullptr);
@@ -394,7 +398,7 @@ std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetUIAbilityRecordBySe
 int UIAbilityLifecycleManager::MinimizeUIAbility(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     HILOG_DEBUG("call");
-    std::lock_guard<std::recursive_mutex> guard(sessionLock_);
+    std::lock_guard<std::mutex> guard(sessionLock_);
     if (abilityRecord == nullptr) {
         HILOG_ERROR("ability record is null");
         return ERR_INVALID_VALUE;
@@ -484,7 +488,7 @@ void UIAbilityLifecycleManager::PrintTimeOutLog(const std::shared_ptr<AbilityRec
 
 void UIAbilityLifecycleManager::CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
-    std::lock_guard<std::recursive_mutex> guard(sessionLock_);
+    std::lock_guard<std::mutex> guard(sessionLock_);
     if (abilityRecord->GetAbilityState() != AbilityState::BACKGROUNDING) {
         HILOG_ERROR("failed, ability state is %{public}d, it can't complete background.",
             abilityRecord->GetAbilityState());
@@ -505,7 +509,7 @@ void UIAbilityLifecycleManager::CompleteBackground(const std::shared_ptr<Ability
 int UIAbilityLifecycleManager::CloseUIAbility(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     HILOG_DEBUG("call");
-    std::lock_guard<std::recursive_mutex> guard(sessionLock_);
+    std::lock_guard<std::mutex> guard(sessionLock_);
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     std::string element = abilityRecord->GetWant().GetElement().GetURI();
@@ -545,7 +549,7 @@ void UIAbilityLifecycleManager::DelayCompleteTerminate(const std::shared_ptr<Abi
 void UIAbilityLifecycleManager::CompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     CHECK_POINTER(abilityRecord);
-    std::lock_guard<std::recursive_mutex> guard(sessionLock_);
+    std::lock_guard<std::mutex> guard(sessionLock_);
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
 
     if (abilityRecord->GetAbilityState() != AbilityState::TERMINATING) {

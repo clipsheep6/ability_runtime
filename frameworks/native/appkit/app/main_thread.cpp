@@ -44,6 +44,7 @@
 #ifdef SUPPORT_GRAPHICS
 // #include "locale_config.h"
 #endif
+#include "app_mgr_client.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "js_runtime.h"
@@ -68,6 +69,10 @@
 #include "nweb_helper.h"
 #endif
 
+#ifdef IMAGE_PURGEABLE_PIXELMAP
+#include "purgeable_resource_manager.h"
+#endif
+
 #if defined(ABILITY_LIBRARY_LOADER) || defined(APPLICATION_LIBRARY_LOADER)
 #include <dirent.h>
 #include <dlfcn.h>
@@ -80,6 +85,8 @@ std::weak_ptr<OHOSApplication> MainThread::applicationForDump_;
 std::shared_ptr<EventHandler> MainThread::signalHandler_ = nullptr;
 std::shared_ptr<MainThread::MainHandler> MainThread::mainHandler_ = nullptr;
 static std::shared_ptr<MixStackDumper> mixStackDumper_ = nullptr;
+const std::string PERFCMD_PROFILE = "profile";
+const std::string PERFCMD_DUMPHEAP = "dumpheap";
 namespace {
 #ifdef APP_USE_ARM
 constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib/libformrender.z.so";
@@ -1282,6 +1289,10 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
                 .message = errorObj.message,
                 .stack = errorObj.stack
             };
+            FaultData faultData;
+            faultData.faultType = FaultDataType::JS_ERROR;
+            faultData.errorObject = appExecErrorObj;
+            DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFault(faultData);
             if (ApplicationDataManager::GetInstance().NotifyUnhandledException(summary) &&
                 ApplicationDataManager::GetInstance().NotifyExceptionObject(appExecErrorObj)) {
                 return;
@@ -1289,6 +1300,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             // if app's callback has been registered, let app decide whether exit or not.
             HILOG_ERROR("\n%{public}s is about to exit due to RuntimeError\nError type:%{public}s\n%{public}s",
                 bundleName.c_str(), errorObj.name.c_str(), summary.c_str());
+            DelayedSingleton<AbilityManagerClient>::GetInstance()->RecordAppExitReason(REASON_JS_ERROR);
             appThread->ScheduleProcessSecurityExit();
         };
         (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).RegisterUncaughtExceptionHandler(uncaughtExceptionInfo);
@@ -1724,7 +1736,14 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
     }
 
     if (runtime && want && appInfo->debug) {
-        runtime->StartDebugMode(want->GetBoolParam("debugApp", false));
+        auto perfCmd = want->GetStringParam("perfCmd");
+        if (perfCmd.find(PERFCMD_PROFILE) != std::string::npos ||
+            perfCmd.find(PERFCMD_DUMPHEAP) != std::string::npos) {
+            HILOG_DEBUG("perfCmd is %{public}s", perfCmd.c_str());
+            runtime->StartProfiler(perfCmd);
+        } else {
+            runtime->StartDebugMode(want->GetBoolParam("debugApp", false));
+        }
     }
 
     std::vector<HqfInfo> hqfInfos = appInfo->appQuickFix.deployedAppqfInfo.hqfInfos;
@@ -1869,7 +1888,9 @@ void MainThread::HandleForegroundApplication()
         HILOG_ERROR("MainThread::handleForegroundApplication error!");
         return;
     }
-
+#ifdef IMAGE_PURGEABLE_PIXELMAP
+    PurgeableMem::PurgeableResourceManager::GetInstance().BeginAccessPurgeableMem();
+#endif
     if (!applicationImpl_->PerformForeground()) {
         HILOG_ERROR("MainThread::handleForegroundApplication error!, applicationImpl_->PerformForeground() failed");
         return;
@@ -2526,6 +2547,35 @@ int32_t MainThread::ScheduleNotifyUnLoadRepairPatch(const std::string &bundleNam
     }
 
     return NO_ERROR;
+}
+
+int32_t MainThread::ScheduleNotifyAppFault(const FaultData &faultData)
+{
+    if (mainHandler_ == nullptr) {
+        HILOG_ERROR("mainHandler is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    wptr<MainThread> weak = this;
+    auto task = [weak, faultData] {
+        auto appThread = weak.promote();
+        if (appThread == nullptr) {
+            HILOG_ERROR("appThread is nullptr, NotifyAppFault failed.");
+            return;
+        }
+        appThread->NotifyAppFault(faultData);
+    };
+    mainHandler_->PostTask(task);
+    return NO_ERROR;
+}
+
+void MainThread::NotifyAppFault(const FaultData &faultData)
+{
+    ErrorObject faultErrorObj = {
+        .name = faultData.errorObject.name,
+        .message = faultData.errorObject.message,
+        .stack = faultData.errorObject.stack
+    };
+    ApplicationDataManager::GetInstance().NotifyExceptionObject(faultErrorObj);
 }
 
 void MainThread::UpdateProcessExtensionType(const std::shared_ptr<AbilityLocalRecord> &abilityRecord)

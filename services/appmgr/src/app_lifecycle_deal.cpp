@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -216,6 +216,16 @@ int32_t AppLifeCycleDeal::NotifyUnLoadRepairPatch(const std::string &bundleName,
         return ERR_INVALID_VALUE;
     }
     return appThread_->ScheduleNotifyUnLoadRepairPatch(bundleName, callback, recordId);
+}
+
+int32_t AppLifeCycleDeal::NotifyAppFault(const FaultData &faultData)
+{
+    HILOG_DEBUG("called.");
+    if (appThread_ == nullptr) {
+        HILOG_ERROR("appThread_ is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    return appThread_->ScheduleNotifyAppFault(faultData);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

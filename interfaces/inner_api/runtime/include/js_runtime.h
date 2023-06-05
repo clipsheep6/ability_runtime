@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -115,6 +115,7 @@ public:
     void InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorImpl);
     void FreeNativeReference(std::unique_ptr<NativeReference> reference);
     void FreeNativeReference(std::shared_ptr<NativeReference>&& reference);
+    void StartProfiler(const std::string &perfCmd) override;
 
     void ReloadFormComponent(); // Reload ArkTS-Card component
 
@@ -126,6 +127,7 @@ private:
 
     NativeValue* LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk = false);
     NativeValue* LoadJsModule(const std::string& path, const std::string& hapPath);
+    int32_t JsperfProfilerCommandParse(const std::string &command, int32_t defaultValue);
 
     bool debugMode_ = false;
     bool preloaded_ = false;
@@ -133,7 +135,6 @@ private:
     std::string codePath_;
     std::string moduleName_;
     std::unique_ptr<NativeReference> methodRequireNapiRef_;
-    std::shared_ptr<AppExecFwk::EventHandler> eventHandler_;
     std::unordered_map<std::string, NativeReference*> modules_;
     std::shared_ptr<JsEnv::JsEnvironment> jsEnv_ = nullptr;
     uint32_t instanceId_ = 0;

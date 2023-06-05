@@ -75,6 +75,30 @@ void JsRuntimeTest::TearDown()
 {}
 
 /**
+ * @tc.name: JsperfProfilerCommandParse_100
+ * @tc.desc: JsRuntime test for JsperfProfilerCommandParse.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsperfProfilerCommandParse_100, TestSize.Level1)
+{
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options_);
+    std::string command = "";
+    constexpr int32_t defaultVal = 500;
+    constexpr int32_t emptyVal = 0;
+    ASSERT_EQ(jsRuntime->JsperfProfilerCommandParse(command, defaultVal), emptyVal);
+    command = "jsperfabc";
+    ASSERT_EQ(jsRuntime->JsperfProfilerCommandParse(command, defaultVal), defaultVal);
+    command = "jsperf";
+    ASSERT_EQ(jsRuntime->JsperfProfilerCommandParse(command, defaultVal), defaultVal);
+    command = "jsperf ";
+    ASSERT_EQ(jsRuntime->JsperfProfilerCommandParse(command, defaultVal), defaultVal);
+    command = "jsperf 1000";
+    ASSERT_NE(jsRuntime->JsperfProfilerCommandParse(command, defaultVal), defaultVal);
+    command = " jsperf 1000";
+    ASSERT_NE(jsRuntime->JsperfProfilerCommandParse(command, defaultVal), defaultVal);
+}
+
+/**
  * @tc.name: JsRuntimeTest_0100
  * @tc.desc: JsRuntime Test
  * @tc.type: FUNC
@@ -320,28 +344,6 @@ HWTEST_F(JsRuntimeTest, JsRuntimeLoadSystemModuleTest_0100, TestSize.Level0)
     EXPECT_EQ(ref, nullptr);
 
     HILOG_INFO("LoadSystemModule end");
-}
-
-/**
- * @tc.name: JsRuntimePostTaskTest_0100
- * @tc.desc: JsRuntime test for PostTask.
- * @tc.type: FUNC
- */
-HWTEST_F(JsRuntimeTest, JsRuntimePostTaskTest_0100, TestSize.Level0)
-{
-    HILOG_INFO("PostTask start");
-
-    std::unique_ptr<JsRuntime> jsRuntime = std::make_unique<MockJsRuntime>();
-    EXPECT_TRUE(jsRuntime != nullptr);
-
-    jsRuntime->eventHandler_ = nullptr;
-
-    auto task = []() { GTEST_LOG_(INFO) << "JsRuntimePostTaskTest_0100 task called"; };
-    std::string name = "";
-    int64_t delayTime = 0;
-    jsRuntime->PostTask(task, name, delayTime);
-
-    HILOG_INFO("PostTask end");
 }
 
 /**

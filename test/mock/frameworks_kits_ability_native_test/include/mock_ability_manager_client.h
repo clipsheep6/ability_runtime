@@ -143,6 +143,10 @@ public:
         return;
     };
     virtual void ScheduleShareData(const int32_t &uniqueId) {};
+    virtual bool SchedulePrepareTerminateAbility()
+    {
+        return false;
+    }
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

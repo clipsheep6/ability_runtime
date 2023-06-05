@@ -331,6 +331,13 @@ public:
     void BackgroundAbility(const Closure &task);
 
     /**
+     * prepare terminate ability.
+     *
+     * @return Returns true on stop terminating; returns false on terminate.
+     */
+    bool PrepareTerminateAbility();
+
+    /**
      * terminate ability.
      *
      * @return Returns ERR_OK on success, others on failure.

@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_JS_ENVIRONMENT_JS_ENVIRONMENT_H
 
 #include <memory>
+#include "ecmascript/napi/include/dfx_jsnapi.h"
 #include "ecmascript/napi/include/jsnapi.h"
 #include "js_environment_impl.h"
 #include "native_engine/native_engine.h"
@@ -32,6 +33,11 @@ public:
     explicit JsEnvironment(std::unique_ptr<JsEnvironmentImpl> impl);
     ~JsEnvironment();
 
+    enum class PROFILERTYPE {
+        PROFILERTYPE_CPU,
+        PROFILERTYPE_HEAP
+    };
+
     bool Initialize(const panda::RuntimeOption& pandaOption, void* jsEngine);
 
     NativeEngine* GetNativeEngine() const
@@ -46,15 +52,13 @@ public:
 
     void InitTimerModule();
 
-    void InitConsoleLogModule();
-
-    void InitWorkerModule(const std::string& codePath, bool isDebugVersion, bool isBundle);
+    void InitWorkerModule(std::shared_ptr<WorkerInfo> workerInfo);
 
     void InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorObj);
 
     void InitSyscapModule();
 
-    void PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime);
+    void PostTask(const std::function<void()>& task, const std::string& name = "", int64_t delayTime = 0);
 
     void RemoveTask(const std::string& name);
 
@@ -66,10 +70,16 @@ public:
 
     void InitConsoleModule();
 
+    bool InitLoop(const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner);
+
+    void DeInitLoop();
+
     void StopDebugger();
 
     bool LoadScript(const std::string& path, uint8_t *buffer, size_t len, bool isBundle);
 
+    void StartProfiler(const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler, int32_t interval,
+        const DebuggerPostTask &debuggerPostTask = {});
 private:
     std::unique_ptr<JsEnvironmentImpl> impl_ = nullptr;
     NativeEngine* engine_ = nullptr;

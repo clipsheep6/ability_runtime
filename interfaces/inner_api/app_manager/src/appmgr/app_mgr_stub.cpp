@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -114,8 +114,16 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleIsSharedBundleRunning;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::START_NATIVE_PROCESS_FOR_DEBUGGER)] =
         &AppMgrStub::HandleStartNativeProcessForDebugger;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::NOTIFY_APP_FAULT)] =
+        &AppMgrStub::HandleNotifyFault;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::NOTIFY_APP_FAULT_BY_SA)] =
+        &AppMgrStub::HandleNotifyFaultBySA;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::JUDGE_SANDBOX_BY_PID)] =
         &AppMgrStub::HandleJudgeSandboxByPid;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::GET_BUNDLE_NAME_BY_PID)] =
+        &AppMgrStub::HandleGetBundleNameByPid;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_ALL_RENDER_PROCESSES)] =
+        &AppMgrStub::HandleGetAllRenderProcesses;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -240,6 +248,23 @@ int32_t AppMgrStub::HandleGetProcessRunningInfosByUserId(MessageParcel &data, Me
     int32_t userId = data.ReadInt32();
     std::vector<RunningProcessInfo> info;
     auto result = GetProcessRunningInfosByUserId(info, userId);
+    reply.WriteInt32(info.size());
+    for (auto &it : info) {
+        if (!reply.WriteParcelable(&it)) {
+            return ERR_INVALID_VALUE;
+        }
+    }
+    if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleGetAllRenderProcesses(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    std::vector<RenderProcessInfo> info;
+    auto result = GetAllRenderProcesses(info);
     reply.WriteInt32(info.size());
     for (auto &it : info) {
         if (!reply.WriteParcelable(&it)) {
@@ -655,6 +680,58 @@ int32_t AppMgrStub::HandleStartNativeProcessForDebugger(MessageParcel &data, Mes
     auto result = StartNativeProcessForDebugger(*want);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleGetBundleNameByPid(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t pid = data.ReadInt32();
+    std::string bundleName;
+    int32_t uid;
+    auto result = GetBundleNameByPid(pid, bundleName, uid);
+    if (result != ERR_OK) {
+        return result;
+    }
+
+    if (!reply.WriteString(bundleName)) {
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!reply.WriteInt32(uid)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleNotifyFault(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<FaultData> faultData(data.ReadParcelable<FaultData>());
+    if (faultData == nullptr) {
+        HILOG_ERROR("ReadParcelable<FaultData> failed");
+        return ERR_INVALID_VALUE;
+    }
+
+    int32_t result = NotifyAppFault(*faultData);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("reply write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleNotifyFaultBySA(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<AppFaultDataBySA> faultData(data.ReadParcelable<AppFaultDataBySA>());
+    if (faultData == nullptr) {
+        HILOG_ERROR("ReadParcelable<AppFaultDataBySA> failed");
+        return ERR_INVALID_VALUE;
+    }
+
+    int32_t result = NotifyAppFaultBySA(*faultData);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("reply write failed.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
