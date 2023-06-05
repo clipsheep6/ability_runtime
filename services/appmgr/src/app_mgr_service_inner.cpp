@@ -2766,7 +2766,7 @@ int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
         return result;
     }
     // notify
-    std::lock_guard<std::recursive_mutex> notifyLock(configurationObserverLock_);
+    std::lock_guard<std::mutex> notifyLock(configurationObserverLock_);
     for (auto &observer : configurationObservers_) {
         if (observer != nullptr) {
             observer->OnConfigurationUpdated(config);
@@ -2783,7 +2783,7 @@ int32_t AppMgrServiceInner::RegisterConfigurationObserver(const sptr<IConfigurat
         HILOG_ERROR("AppMgrServiceInner::Register error: observer is null");
         return ERR_INVALID_VALUE;
     }
-    std::lock_guard<std::recursive_mutex> registerLock(configurationObserverLock_);
+    std::lock_guard<std::mutex> registerLock(configurationObserverLock_);
     auto it = std::find_if(configurationObservers_.begin(), configurationObservers_.end(),
         [&observer](const sptr<IConfigurationObserver> &item) {
             return (item && item->AsObject() == observer->AsObject());
@@ -2804,7 +2804,7 @@ int32_t AppMgrServiceInner::UnregisterConfigurationObserver(const sptr<IConfigur
         HILOG_ERROR("AppMgrServiceInner::Register error: observer is null");
         return ERR_INVALID_VALUE;
     }
-    std::lock_guard<std::recursive_mutex> unregisterLock(configurationObserverLock_);
+    std::lock_guard<std::mutex> unregisterLock(configurationObserverLock_);
     auto it = std::find_if(configurationObservers_.begin(), configurationObservers_.end(),
         [&observer](const sptr<IConfigurationObserver> &item) {
             return (item && item->AsObject() == observer->AsObject());

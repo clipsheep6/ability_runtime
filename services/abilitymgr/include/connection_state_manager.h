@@ -199,10 +199,10 @@ private:
 private:
     std::shared_ptr<ConnectionObserverController> observerController_;
 
-    std::recursive_mutex stateLock_;
+    std::mutex stateLock_;
     std::unordered_map<int32_t, std::shared_ptr<ConnectionStateItem>> connectionStates_;
 
-    std::recursive_mutex dlpLock_;
+    std::mutex dlpLock_;
     std::unordered_map<int32_t, std::shared_ptr<DlpStateItem>> dlpItems_;
 
     sptr<InnerAppStateObserver> appStateObserver_;

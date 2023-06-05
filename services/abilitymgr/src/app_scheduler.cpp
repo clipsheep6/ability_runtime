@@ -47,7 +47,7 @@ bool AppScheduler::Init(const std::weak_ptr<AppStateCallback> &callback)
     CHECK_POINTER_RETURN_BOOL(callback.lock());
     CHECK_POINTER_RETURN_BOOL(appMgrClient_);
 
-    std::lock_guard<std::recursive_mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     if (isInit_) {
         return true;
     }

@@ -46,8 +46,6 @@ sptr<IWantSender> PendingWantManager::GetWantSender(int32_t callingUid, int32_t 
     const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken)
 {
     HILOG_INFO("PendingWantManager::GetWantSender begin.");
-
-    std::lock_guard<std::recursive_mutex> locker(mutex_);
     if (wantSenderInfo.type != static_cast<int32_t>(OperationType::SEND_COMMON_EVENT)) {
         auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
         if (!isSaCall && apl != AbilityUtil::SYSTEM_BASIC && apl != AbilityUtil::SYSTEM_CORE) {
@@ -74,7 +72,6 @@ sptr<IWantSender> PendingWantManager::GetWantSenderLocked(const int32_t callingU
     bool needUpdate = (static_cast<uint32_t>(wantSenderInfo.flags) &
         static_cast<uint32_t>(Flags::UPDATE_PRESENT_FLAG)) != 0;
 
-    std::lock_guard<std::recursive_mutex> locker(mutex_);
     std::shared_ptr<PendingWantKey> pendingKey = std::make_shared<PendingWantKey>();
     pendingKey->SetBundleName(wantSenderInfo.bundleName);
     pendingKey->SetRequestWho(wantSenderInfo.resultWho);
@@ -87,6 +84,7 @@ sptr<IWantSender> PendingWantManager::GetWantSenderLocked(const int32_t callingU
         pendingKey->SetRequestResolvedType(wantSenderInfo.allWants.back().resolvedTypes);
         pendingKey->SetAllWantsInfos(wantSenderInfo.allWants);
     }
+    std::lock_guard<std::mutex> locker(mutex_);
     auto ref = GetPendingWantRecordByKey(pendingKey);
     if (ref != nullptr) {
         if (!needCancel) {
@@ -134,8 +132,6 @@ void PendingWantManager::MakeWantSenderCanceledLocked(PendingWantRecord &record)
 sptr<PendingWantRecord> PendingWantManager::GetPendingWantRecordByKey(const std::shared_ptr<PendingWantKey> &key)
 {
     HILOG_DEBUG("begin");
-
-    std::lock_guard<std::recursive_mutex> locker(mutex_);
     for (const auto &item : wantRecords_) {
         const auto &pendingKey = item.first;
         const auto &pendingRecord = item.second;
@@ -198,7 +194,7 @@ void PendingWantManager::CancelWantSender(std::string &apl, const sptr<IWantSend
         return;
     }
 
-    std::lock_guard<std::recursive_mutex> locker(mutex_);
+    std::lock_guard<std::mutex> locker(mutex_);
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (!isSaCall && apl != AbilityUtil::SYSTEM_BASIC && apl != AbilityUtil::SYSTEM_CORE) {
         HILOG_ERROR("is not allowed to send");
@@ -321,7 +317,7 @@ sptr<PendingWantRecord> PendingWantManager::GetPendingWantRecordByCode(int32_t c
 {
     HILOG_INFO("begin. wantRecords_ size = %{public}zu", wantRecords_.size());
 
-    std::lock_guard<std::recursive_mutex> locker(mutex_);
+    std::lock_guard<std::mutex> locker(mutex_);
     auto iter = std::find_if(wantRecords_.begin(), wantRecords_.end(), [&code](const auto &pair) {
         return pair.second->GetKey()->GetCode() == code;
     });
@@ -417,7 +413,7 @@ void PendingWantManager::RegisterCancelListener(const sptr<IWantSender> &sender,
         return;
     }
     bool cancel = record->GetCanceled();
-    std::lock_guard<std::recursive_mutex> locker(mutex_);
+    std::lock_guard<std::mutex> locker(mutex_);
     if (!cancel) {
         record->RegisterCancelListener(recevier);
     }
@@ -438,7 +434,7 @@ void PendingWantManager::UnregisterCancelListener(const sptr<IWantSender> &sende
         HILOG_ERROR("%{public}s:record is nullptr.", __func__);
         return;
     }
-    std::lock_guard<std::recursive_mutex> locker(mutex_);
+    std::lock_guard<std::mutex> locker(mutex_);
     record->UnregisterCancelListener(recevier);
 }
 
@@ -505,7 +501,7 @@ void PendingWantManager::ClearPendingWantRecord(const std::string &bundleName, i
 void PendingWantManager::ClearPendingWantRecordTask(const std::string &bundleName, int32_t uid)
 {
     HILOG_INFO("bundleName: %{public}s", bundleName.c_str());
-    std::lock_guard<std::recursive_mutex> locker(mutex_);
+    std::lock_guard<std::mutex> locker(mutex_);
     auto iter = wantRecords_.begin();
     while (iter != wantRecords_.end()) {
         bool hasBundle = false;

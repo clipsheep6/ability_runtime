@@ -1426,7 +1426,7 @@ private:
     std::shared_ptr<UserController> userController_;
     sptr<AppExecFwk::IAbilityController> abilityController_ = nullptr;
     bool controllerIsAStabilityTest_ = false;
-    std::recursive_mutex globalLock_;
+    std::mutex globalLock_;
     std::shared_mutex managersMutex_;
     std::shared_mutex bgtaskObserverMutex_;
     std::mutex abilityTokenLock_;

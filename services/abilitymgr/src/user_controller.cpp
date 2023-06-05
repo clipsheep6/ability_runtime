@@ -185,13 +185,13 @@ int32_t UserController::StopUser(int32_t userId)
 
 int32_t UserController::GetCurrentUserId()
 {
-    std::lock_guard<std::recursive_mutex> guard(userLock_);
+    std::lock_guard<std::mutex> guard(userLock_);
     return currentUserId_;
 }
 
 std::shared_ptr<UserItem> UserController::GetUserItem(int32_t userId)
 {
-    std::lock_guard<std::recursive_mutex> guard(userLock_);
+    std::lock_guard<std::mutex> guard(userLock_);
     auto it = userItems_.find(userId);
     if (it != userItems_.end()) {
         return it->second;
@@ -222,7 +222,7 @@ bool UserController::IsExistOsAccount(int32_t userId)
 
 std::shared_ptr<UserItem> UserController::GetOrCreateUserItem(int32_t userId)
 {
-    std::lock_guard<std::recursive_mutex> guard(userLock_);
+    std::lock_guard<std::mutex> guard(userLock_);
     auto it = userItems_.find(userId);
     if (it != userItems_.end()) {
         return it->second;
@@ -235,7 +235,7 @@ std::shared_ptr<UserItem> UserController::GetOrCreateUserItem(int32_t userId)
 
 void UserController::SetCurrentUserId(int32_t userId)
 {
-    std::lock_guard<std::recursive_mutex> guard(userLock_);
+    std::lock_guard<std::mutex> guard(userLock_);
     currentUserId_ = userId;
     HILOG_DEBUG("set current userId: %{public}d", userId);
     DelayedSingleton<AppScheduler>::GetInstance()->SetCurrentUserId(userId);
@@ -259,7 +259,7 @@ void UserController::UserBootDone(std::shared_ptr<UserItem> &item)
     }
     int32_t userId = item->GetUserId();
 
-    std::lock_guard<std::recursive_mutex> guard(userLock_);
+    std::lock_guard<std::mutex> guard(userLock_);
     auto it = userItems_.find(userId);
     if (it != userItems_.end()) {
         return;

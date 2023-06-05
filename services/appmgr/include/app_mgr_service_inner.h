@@ -927,7 +927,7 @@ private:
     std::mutex userTestLock_;
     std::mutex renderUidSetLock_;
     sptr<IStartSpecifiedAbilityResponse> startSpecifiedAbilityResponse_;
-    std::recursive_mutex configurationObserverLock_;
+    std::mutex configurationObserverLock_;
     std::vector<sptr<IConfigurationObserver>> configurationObservers_;
     sptr<WindowFocusChangedListener> focusListener_;
     std::vector<std::shared_ptr<AppRunningRecord>> restartResedentTaskList_;

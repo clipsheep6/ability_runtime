@@ -37,13 +37,41 @@ public:
 
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr)
     {
-        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        std::lock_guard<std::mutex> lock(mutex_);
         serviceManager_ = std::move(serviceMgr);
     }
 
     AppMgrResultCode ConnectAppMgrService()
     {
-        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        std::lock_guard<std::mutex> lock(mutex_);
+        return ConnectAppMgrServiceInner();
+    }
+
+    sptr<IRemoteObject> GetRemoteObject()
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (!remote_) {
+            (void) ConnectAppMgrServiceInner();
+        }
+        return remote_;
+    }
+
+private:
+    void HandleRemoteDied(const wptr<IRemoteObject>& remote)
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (!remote_) {
+            return;
+        }
+
+        if (remote_ == remote.promote()) {
+            remote_->RemoveDeathRecipient(deathRecipient_);
+            remote_ = nullptr;
+        }
+    }
+
+    AppMgrResultCode ConnectAppMgrServiceInner()
+    {
         if (!serviceManager_) {
             return AppMgrResultCode::ERROR_SERVICE_NOT_READY;
         }
@@ -64,29 +92,6 @@ public:
         }
 
         return AppMgrResultCode::RESULT_OK;
-    }
-
-    sptr<IRemoteObject> GetRemoteObject()
-    {
-        std::lock_guard<std::recursive_mutex> lock(mutex_);
-        if (!remote_) {
-            (void) ConnectAppMgrService();
-        }
-        return remote_;
-    }
-
-private:
-    void HandleRemoteDied(const wptr<IRemoteObject>& remote)
-    {
-        std::lock_guard<std::recursive_mutex> lock(mutex_);
-        if (!remote_) {
-            return;
-        }
-
-        if (remote_ == remote.promote()) {
-            remote_->RemoveDeathRecipient(deathRecipient_);
-            remote_ = nullptr;
-        }
     }
 
     class AppMgrDeathRecipient : public IRemoteObject::DeathRecipient {
@@ -110,7 +115,7 @@ private:
 private:
     std::unique_ptr<AppServiceManager> serviceManager_;
     sptr<IRemoteObject> remote_;
-    std::recursive_mutex mutex_;
+    std::mutex mutex_;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_;
 };
 

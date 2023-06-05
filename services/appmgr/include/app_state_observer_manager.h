@@ -75,7 +75,7 @@ private:
 
 private:
     std::shared_ptr<AppExecFwk::EventHandler> handler_;
-    std::recursive_mutex observerLock_;
+    std::mutex observerLock_;
     std::map<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>> recipientMap_;
     std::map<sptr<IApplicationStateObserver>, std::vector<std::string>> appStateObserverMap_;
 };

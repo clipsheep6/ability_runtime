@@ -38,7 +38,7 @@ MissionInfoMgr::~MissionInfoMgr()
 
 bool MissionInfoMgr::GenerateMissionId(int32_t &missionId)
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     if (currentMissionId_ == MAX_MISSION_ID) {
         currentMissionId_ = MIN_MISSION_ID;
     }
@@ -58,7 +58,7 @@ bool MissionInfoMgr::GenerateMissionId(int32_t &missionId)
 
 bool MissionInfoMgr::Init(int userId)
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     if (!taskDataPersistenceMgr_) {
         taskDataPersistenceMgr_ = DelayedSingleton<TaskDataPersistenceMgr>::GetInstance();
         if (!taskDataPersistenceMgr_) {
@@ -82,7 +82,12 @@ bool MissionInfoMgr::Init(int userId)
 
 bool MissionInfoMgr::AddMissionInfo(const InnerMissionInfo &missionInfo)
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
+    return AddMissionInfoInner(missionInfo);
+}
+
+bool MissionInfoMgr::AddMissionInfoInner(const InnerMissionInfo &missionInfo)
+{
     auto id = missionInfo.missionInfo.id;
     if (missionIdMap_.find(id) != missionIdMap_.end() && missionIdMap_[id]) {
         HILOG_ERROR("add mission info failed, missionId %{public}d already exists", id);
@@ -108,7 +113,7 @@ bool MissionInfoMgr::AddMissionInfo(const InnerMissionInfo &missionInfo)
 
 bool MissionInfoMgr::UpdateMissionInfo(const InnerMissionInfo &missionInfo)
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     auto id = missionInfo.missionInfo.id;
     if (missionIdMap_.find(id) == missionIdMap_.end() || !missionIdMap_[id]) {
         HILOG_ERROR("update mission info failed, missionId %{public}d not exists", id);
@@ -139,12 +144,12 @@ bool MissionInfoMgr::UpdateMissionInfo(const InnerMissionInfo &missionInfo)
 
     missionInfoList_.erase(listIter);
     missionIdMap_.erase(id);
-    return AddMissionInfo(missionInfo);
+    return AddMissionInfoInner(missionInfo);
 }
 
 bool MissionInfoMgr::DeleteMissionInfo(int missionId)
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     if (missionIdMap_.find(missionId) == missionIdMap_.end()) {
         HILOG_WARN("missionId %{public}d not exists, no need delete", missionId);
         return true;
@@ -179,7 +184,7 @@ bool MissionInfoMgr::DeleteMissionInfo(int missionId)
 
 bool MissionInfoMgr::DeleteAllMissionInfos(const std::shared_ptr<MissionListenerController> &listenerController)
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     if (!taskDataPersistenceMgr_) {
         HILOG_ERROR("taskDataPersistenceMgr_ is nullptr");
         return false;
@@ -222,7 +227,7 @@ int MissionInfoMgr::GetMissionInfos(int32_t numMax, std::vector<MissionInfo> &mi
         return -1;
     }
 
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     for (auto &mission : missionInfoList_) {
         if (static_cast<int>(missionInfos.size()) >= numMax) {
             break;
@@ -242,7 +247,7 @@ int MissionInfoMgr::GetMissionInfos(int32_t numMax, std::vector<MissionInfo> &mi
 int MissionInfoMgr::GetMissionInfoById(int32_t missionId, MissionInfo &missionInfo)
 {
     HILOG_INFO("missionId:%{public}d", missionId);
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     if (missionIdMap_.find(missionId) == missionIdMap_.end()) {
         HILOG_ERROR("missionId %{public}d not exists, get mission info failed", missionId);
         return -1;
@@ -270,7 +275,7 @@ int MissionInfoMgr::GetMissionInfoById(int32_t missionId, MissionInfo &missionIn
 
 int MissionInfoMgr::GetInnerMissionInfoById(int32_t missionId, InnerMissionInfo &innerMissionInfo)
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     if (missionIdMap_.find(missionId) == missionIdMap_.end()) {
         HILOG_ERROR("missionId %{public}d not exists, get inner mission info failed", missionId);
         return MISSION_NOT_FOUND;
@@ -296,7 +301,7 @@ bool MissionInfoMgr::FindReusedMissionInfo(const std::string &missionName,
         return false;
     }
 
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     auto it = std::find_if(missionInfoList_.begin(), missionInfoList_.end(),
         [&missionName, &flag, &isFindRecentStandard](const InnerMissionInfo item) {
             if (missionName != item.missionName) {
@@ -328,7 +333,7 @@ bool MissionInfoMgr::FindReusedMissionInfo(const std::string &missionName,
 
 int MissionInfoMgr::UpdateMissionLabel(int32_t missionId, const std::string& label)
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     if (!taskDataPersistenceMgr_) {
         HILOG_ERROR("task data persist not init.");
         return -1;
@@ -354,7 +359,7 @@ void MissionInfoMgr::SetMissionAbilityState(int32_t missionId, AbilityState stat
     if (missionId <= 0) {
         return;
     }
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
         return missionId == info.missionInfo.id;
     });
@@ -367,7 +372,6 @@ void MissionInfoMgr::SetMissionAbilityState(int32_t missionId, AbilityState stat
 
 bool MissionInfoMgr::LoadAllMissionInfo()
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (!taskDataPersistenceMgr_) {
         HILOG_ERROR("taskDataPersistenceMgr_ is nullptr");
         return false;
@@ -405,7 +409,7 @@ void MissionInfoMgr::HandleUnInstallApp(const std::string &bundleName, int32_t u
 
 void MissionInfoMgr::GetMatchedMission(const std::string &bundleName, int32_t uid, std::list<int32_t> &missions)
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     for (const auto& innerMissionInfo : missionInfoList_) {
         if (innerMissionInfo.bundleName == bundleName && innerMissionInfo.uid == uid) {
             missions.push_back(innerMissionInfo.missionInfo.id);
@@ -415,7 +419,7 @@ void MissionInfoMgr::GetMatchedMission(const std::string &bundleName, int32_t ui
 
 void MissionInfoMgr::Dump(std::vector<std::string> &info)
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     for (const auto& innerMissionInfo : missionInfoList_) {
         innerMissionInfo.Dump(info);
     }
@@ -423,7 +427,7 @@ void MissionInfoMgr::Dump(std::vector<std::string> &info)
 
 void MissionInfoMgr::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     snapshotHandler_ = handler;
 }
 
@@ -435,7 +439,7 @@ void MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const std::shared_
     MissionSnapshot savedSnapshot;
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "FindTargetMissionSnapshot");
-        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        std::lock_guard<std::mutex> lock(mutex_);
         auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
             return missionId == info.missionInfo.id;
         });
@@ -473,7 +477,7 @@ bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemote
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "FindTargetMissionSnapshot");
-        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        std::lock_guard<std::mutex> lock(mutex_);
         auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
             return missionId == info.missionInfo.id;
         });
@@ -549,7 +553,7 @@ std::shared_ptr<Media::PixelMap> MissionInfoMgr::GetSnapshot(int32_t missionId) 
 {
     HILOG_INFO("missionId:%{public}d", missionId);
     {
-        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        std::lock_guard<std::mutex> lock(mutex_);
         auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
             return missionId == info.missionInfo.id;
         });
@@ -573,7 +577,7 @@ bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObj
     HILOG_INFO("missionId:%{public}d, force:%{public}d", missionId, force);
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     {
-        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        std::lock_guard<std::mutex> lock(mutex_);
         auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
             return missionId == info.missionInfo.id;
         });
