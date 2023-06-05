@@ -102,7 +102,6 @@ public:
     bool StartDebugger(bool needBreakPoint, const DebuggerPostTask& debuggerPostTask = {});
     bool StartDebugger(bool needBreakPoint, uint32_t instanceId, const DebuggerPostTask& debuggerPostTask = {});
     void StopDebugger();
-    void InitConsoleModule();
     bool LoadScript(const std::string& path, uint8_t *buffer, size_t len, bool isBundle);
 
     NativeEngine* GetNativeEnginePointer() const;
@@ -141,6 +140,7 @@ private:
     std::string bundleName_;
 
     static std::atomic<bool> hasInstance;
+
 private:
     bool CreateJsEnv(const Options& options);
     void PreloadAce(const Options& options);
@@ -148,7 +148,9 @@ private:
     inline bool IsUseAbilityRuntime(const Options& options) const;
     void FreeNativeReference(std::unique_ptr<NativeReference> uniqueNativeRef,
         std::shared_ptr<NativeReference>&& sharedNativeRef);
+    void InitConsoleModule();
     void InitTimerModule();
+    void InitWorkerModule(const Options& options);
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

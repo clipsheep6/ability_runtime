@@ -14,15 +14,14 @@
  */
 
 #include "ohos_js_environment_impl.h"
-#include "ohos_loop_handler.h"
+
 #include "commonlibrary/ets_utils/js_sys_module/console/console.h"
 #include "commonlibrary/ets_utils/js_sys_module/timer/timer.h"
 #include "hilog_wrapper.h"
-#include "js_runtime_utils.h"
-#include "js_timer.h"
 #include "js_utils.h"
-
 #include "js_worker.h"
+#include "ohos_loop_handler.h"
+
 namespace OHOS {
 namespace AbilityRuntime {
 OHOSJsEnvironmentImpl::OHOSJsEnvironmentImpl()
@@ -55,12 +54,10 @@ void OHOSJsEnvironmentImpl::InitTimerModule(NativeEngine* engine)
 {
     HILOG_DEBUG("Init timer.");
     CHECK_POINTER(engine);
-
-    HandleScope handleScope(*engine);
-    NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(engine->GetGlobal());
-    CHECK_POINTER(globalObj);
-
-    JsSysModule::Timer::RegisterTime(reinterpret_cast<napi_env>(engine));
+    auto ret = JsSysModule::Timer::RegisterTime(reinterpret_cast<napi_env>(engine));
+    if (!ret) {
+        HILOG_ERROR("Register timer failed");
+    }
 }
 
 void OHOSJsEnvironmentImpl::InitConsoleModule(NativeEngine* engine)

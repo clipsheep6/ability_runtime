@@ -66,8 +66,8 @@ ohos_shared_library("ability_simulator") {
   ]
 
   sources = [
-    "${ability_runtime_native_path}/runtime/js_console_log.cpp",
     "${ability_runtime_native_path}/runtime/js_module_searcher.cpp",
+    "src/js_console_log.cpp",
     "src/js_runtime_utils.cpp",
     "src/js_timer.cpp",
     "src/simulator.cpp",
