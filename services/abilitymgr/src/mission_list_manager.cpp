@@ -1108,7 +1108,8 @@ int MissionListManager::DispatchState(const std::shared_ptr<AbilityRecord> &abil
         }
         case AbilityState::FOREGROUND_FAILED:
         case AbilityState::FOREGROUND_INVALID_MODE:
-        case AbilityState::FOREGROUND_WINDOW_FREEZED: {
+        case AbilityState::FOREGROUND_WINDOW_FREEZED:
+        case AbilityState::FOREGROUND_DO_NOTHING: {
             return DispatchForeground(abilityRecord, false, static_cast<AbilityState>(state));
         }
         default: {
@@ -2017,6 +2018,16 @@ void MissionListManager::CompleteForegroundFailed(const std::shared_ptr<AbilityR
         abilityRecord->SetAbilityState(AbilityState::BACKGROUND);
         DelayedSingleton<AppScheduler>::GetInstance()->MoveToBackground(abilityRecord->GetToken());
         TerminatePreviousAbility(abilityRecord);
+        return;
+    }
+    if (state == AbilityState::FOREGROUND_DO_NOTHING) {
+        HILOG_INFO("ForegroundFailed. WMS return do_nothing");
+        auto pendingState = abilityRecord->GetPendingState();
+        if (pendingState == AbilityState::BACKGROUND) {
+            MoveToBackgroundTask(abilityRecord);
+        } else if (pendingState == AbilityState::FOREGROUND) {
+            DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(abilityRecord->GetToken());
+        }
         return;
     }
 #ifdef SUPPORT_GRAPHICS

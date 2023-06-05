@@ -106,6 +106,7 @@ const std::map<AbilityState, std::string> AbilityRecord::stateToStrMap = {
     std::map<AbilityState, std::string>::value_type(FOREGROUND_FAILED, "FOREGROUND_FAILED"),
     std::map<AbilityState, std::string>::value_type(FOREGROUND_INVALID_MODE, "FOREGROUND_INVALID_MODE"),
     std::map<AbilityState, std::string>::value_type(FOREGROUND_WINDOW_FREEZED, "FOREGROUND_WINDOW_FREEZED"),
+    std::map<AbilityState, std::string>::value_type(FOREGROUND_DO_NOTHING, "FOREGROUND_DO_NOTHING"),
 };
 const std::map<AppState, std::string> AbilityRecord::appStateToStrMap_ = {
     std::map<AppState, std::string>::value_type(AppState::BEGIN, "BEGIN"),
@@ -128,6 +129,7 @@ const std::map<AbilityLifeCycleState, AbilityState> AbilityRecord::convertStateM
         FOREGROUND_INVALID_MODE),
     std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_WINDOW_FREEZED,
         FOREGROUND_WINDOW_FREEZED),
+    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_DO_NOTHING, FOREGROUND_DO_NOTHING),
 };
 
 Token::Token(std::weak_ptr<AbilityRecord> abilityRecord) : abilityRecord_(abilityRecord)
