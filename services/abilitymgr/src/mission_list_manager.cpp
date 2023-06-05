@@ -3597,6 +3597,10 @@ int MissionListManager::PrepareClearMissionLocked(int missionId, const std::shar
 
 bool MissionListManager::CheckPrepareTerminateEnable(const std::shared_ptr<Mission> &mission)
 {
+    if (mission == nullptr) {
+        HILOG_DEBUG("ability has already terminate, just remove mission.");
+        return false;
+    }
     auto abilityRecord = mission->GetAbilityRecord();
     if (abilityRecord == nullptr || abilityRecord->IsTerminating()) {
         HILOG_WARN("Ability record is not exist or is on terminating.");
