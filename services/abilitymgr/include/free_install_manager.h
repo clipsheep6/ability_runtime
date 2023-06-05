@@ -136,7 +136,6 @@ private:
     std::map<std::string, std::time_t> timeStampMap_;
     std::mutex distributedFreeInstallLock_;
     std::mutex freeInstallListLock_;
-    std::mutex freeInstallObserverLock_;
     /**
      * Start remote free install.
      *

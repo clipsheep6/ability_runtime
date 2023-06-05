@@ -435,8 +435,6 @@ private:
     void DelayCompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteTerminateAndUpdateMission(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    bool RemoveMissionList(const std::list<std::shared_ptr<MissionList>> lists,
-        const std::shared_ptr<MissionList> &list);
     int ClearMissionLocked(int missionId, const std::shared_ptr<Mission> &mission);
     int TerminateAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord, bool flag);
     std::shared_ptr<AbilityRecord> GetAbilityRecordById(int64_t abilityRecordId) const;

@@ -207,7 +207,6 @@ private:
 
 private:
     std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> appRunningRecordMap_;
-    std::map<const std::string, int> processRestartRecord_;
     std::recursive_mutex lock_;
 };
 }  // namespace AppExecFwk
