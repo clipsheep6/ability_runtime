@@ -529,7 +529,7 @@ bool JsRuntime::Initialize(const Options& options)
                 if (newCreate) {
                     ExtractorUtil::AddExtractor(loadPath, extractor);
                     extractor->SetRuntimeFlag(true);
-                    panda::JSNApi::LoadAotFile(vm, options.hapPath);
+                    panda::JSNApi::LoadAotFile(vm, options.moduleName);
                 }
             }
 
@@ -830,7 +830,7 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
     if (newCreate) {
         ExtractorUtil::AddExtractor(loadPath, extractor);
         extractor->SetRuntimeFlag(true);
-        panda::JSNApi::LoadAotFile(vm, hapPath);
+        panda::JSNApi::LoadAotFile(vm, moduleName_);
         auto resourceManager = AbilityBase::ExtractResourceManager::GetExtractResourceManager().GetGlobalObject();
         if (resourceManager) {
             resourceManager->AddResource(loadPath.c_str());

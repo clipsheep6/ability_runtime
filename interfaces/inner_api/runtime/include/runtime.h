@@ -41,6 +41,7 @@ public:
     struct Options {
         Language lang = Language::JS;
         std::string bundleName;
+        std::string moduleName;
         std::string codePath;
         std::string bundleCodeDir;
         std::string hapPath;
