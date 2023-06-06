@@ -27,10 +27,10 @@
 #include "js_module_searcher.h"
 #include "js_runtime_utils.h"
 #include "js_timer.h"
+#include "js_window_stage.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
 #include "resource_manager.h"
 #include "window_scene.h"
-#include "js_window_stage.h"
 
 extern const char _binary_jsMockSystemPlugin_abc_start[];
 extern const char _binary_jsMockSystemPlugin_abc_end[];
@@ -348,7 +348,7 @@ void SimulatorImpl::TerminateAbility(int64_t abilityId)
 
 void SimulatorImpl::InitResourceMgr()
 {
-    std::cout << "InitResourceMgr" << std::endl;
+    HILOG_INFO("called.");
     resourceMgr_ = std::shared_ptr<Global::Resource::ResourceManager>(Global::Resource::CreateResourceManager());
     if (resourceMgr_ == nullptr) {
         HILOG_ERROR("resourceMgr is nullptr");
@@ -366,11 +366,10 @@ void SimulatorImpl::CreateJsAbilityContext(NativeValue* instanceValue)
     NativeValue* objValue = nativeEngine_->CreateObject();
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
 
-    // if (resourceMgr_ != nullptr) {
-    //     napi_env env = reinterpret_cast<napi_env>(nativeEngine_);
-    //     napi_value result = Global::Resource::ResourceManagerAddon::Create(env, "", resourceMgr_, nullptr);
-    //     object->SetProperty("resourceManager", reinterpret_cast<NativeValue*>(result));
-    // }
+    if (resourceMgr_ != nullptr) {
+        NativeValue* mockResourceMgrObjValue = nativeEngine_->CreateObject();
+        object->SetProperty("resourceManager", mockResourceMgrObjValue);
+    }
 
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(instanceValue);
     if (obj == nullptr) {
@@ -510,6 +509,7 @@ bool SimulatorImpl::OnInit()
     panda::JSNApi::SetBundleName(vm_, options_.bundleName);
     panda::JSNApi::SetModuleName(vm_, options_.moduleName);
     panda::JSNApi::SetAssetPath(vm_, options_.modulePath);
+
     nativeEngine_ = std::move(nativeEngine);
     return true;
 }

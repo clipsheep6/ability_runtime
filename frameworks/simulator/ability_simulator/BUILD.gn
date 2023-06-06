@@ -63,12 +63,12 @@ ohos_shared_library("ability_simulator") {
   include_dirs = [
     "${ability_runtime_native_path}/runtime",
     "${ability_runtime_innerkits_path}/runtime/include",
-    "//foundation/window/window_manager/previewer/include",
-    "//foundation/window/window_manager/previewer/mock",
-    "//foundation/window/window_manager/previewer/mock/transaction",
-    "//foundation/window/window_manager/previewer/mock/ui",
-    "//foundation/window/window_manager/interfaces/innerkits/wm",
-    "//foundation/window/window_manager/interfaces/kits/napi/window_runtime/window_stage_napi",
+    "${windowmanager_path}/previewer/include",
+    "${windowmanager_path}/previewer/mock",
+    "${windowmanager_path}/previewer/mock/transaction",
+    "${windowmanager_path}/previewer/mock/ui",
+    "${windowmanager_path}/interfaces/innerkits/wm",
+    "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_stage_napi",
   ]
 
   sources = [
@@ -100,8 +100,8 @@ ohos_shared_library("ability_simulator") {
   }
 
   deps += [
-    "//foundation/window/window_manager/previewer:previewer_window",
-    "//foundation/window/window_manager/previewer:previewer_window_napi",
+    "${windowmanager_path}/previewer:previewer_window",
+    "${windowmanager_path}/previewer:previewer_window_napi",
   ]
 
   external_deps = [
