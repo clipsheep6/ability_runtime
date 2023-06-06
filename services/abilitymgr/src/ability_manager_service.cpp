@@ -1319,7 +1319,7 @@ int32_t AbilityManagerService::ForceExitApp(const int32_t pid, Reason exitReason
 
     int32_t result = DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->SetAppExitReason(
         bundleName, abilityLists, exitReason);
-    
+
     DelayedSingleton<AppScheduler>::GetInstance()->KillApplication(bundleName);
 
     return result;

@@ -754,7 +754,7 @@ std::shared_ptr<AbilityRecord> AbilityConnectManager::GetServiceRecordBySessionI
     };
     auto serviceRecord = std::find_if(serviceMap_.begin(), serviceMap_.end(), IsMatch);
     if (serviceRecord != serviceMap_.end()) {
-        return serviceRecord->second;    
+        return serviceRecord->second;
     }
     return nullptr;
 }

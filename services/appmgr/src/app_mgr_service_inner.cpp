@@ -3036,7 +3036,7 @@ int AppMgrServiceInner::VerifyProcessPermission(const std::string &bundleName) c
         HILOG_ERROR("Permission verification failed.");
         return ERR_PERMISSION_DENIED;
     }
-    
+
     return ERR_OK;
 }
 
@@ -3068,7 +3068,7 @@ int AppMgrServiceInner::VerifyProcessPermission(const sptr<IRemoteObject> &token
         HILOG_ERROR("Permission verification failed.");
         return ERR_PERMISSION_DENIED;
     }
-    
+
     return ERR_OK;
 }
 

@@ -205,7 +205,7 @@ void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppL
         if (GetHapSoPath(hapInfo, appLibPaths, bundleInfo.isPreInstallApp)) {
             continue;
         }
-        
+
         std::string libPath = LOCAL_CODE_PATH;
         const auto &tmpNativePath = hapInfo.isLibIsolated ? hapInfo.nativeLibraryPath : nativeLibraryPath;
         libPath += (libPath.back() == '/') ? tmpNativePath : "/" + tmpNativePath;
@@ -1190,7 +1190,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         LoadAppDetailAbilityLibrary(appInfo.appDetailAbilityLibraryPath);
     }
     LoadAppLibrary();
-     
+
     applicationForDump_ = application_;
     mixStackDumper_ = std::make_shared<MixStackDumper>();
     if (!mixStackDumper_->IsInstalled()) {
@@ -1452,7 +1452,7 @@ void MainThread::CalcNativeLiabraryEntries(const BundleInfo &bundleInfo, std::st
             loadSoFromDir = true;
         }
     }
-    
+
     if (loadSoFromDir) {
         if (nativeLibraryPath.empty()) {
             HILOG_WARN("Native library path is empty.");
