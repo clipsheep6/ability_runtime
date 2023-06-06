@@ -21,6 +21,7 @@
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "iability_info_callback.h"
+#include "session/host/include/zidl/session_interface.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -45,7 +46,8 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
         HILOG_ERROR("sessionInfo is invalid.");
         return ERR_INVALID_VALUE;
     }
-    auto descriptor = Str16ToStr8(sessionInfo->sessionToken->GetDescriptor());
+    auto sessionToken = iface_cast<Rosen::ISession>(sessionInfo->sessionToken);
+    auto descriptor = Str16ToStr8(sessionToken->GetDescriptor());
     if (descriptor != "OHOS.ISession") {
         HILOG_ERROR("token's Descriptor: %{public}s", descriptor.c_str());
         return ERR_INVALID_VALUE;
@@ -379,8 +381,8 @@ std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetUIAbilityRecordBySe
 {
     std::lock_guard<std::mutex> guard(sessionLock_);
     CHECK_POINTER_AND_RETURN(sessionInfo, nullptr);
-    sptr<Rosen::ISession> sessionToken = sessionInfo->sessionToken;
-    CHECK_POINTER_AND_RETURN(sessionToken, nullptr);
+    CHECK_POINTER_AND_RETURN(sessionInfo->sessionToken, nullptr);
+    auto sessionToken = iface_cast<Rosen::ISession>(sessionInfo->sessionToken);
     std::string descriptor = Str16ToStr8(sessionToken->GetDescriptor());
     if (descriptor != "OHOS.ISession") {
         HILOG_ERROR("failed, input token is not a sessionToken, token->GetDescriptor(): %{public}s",

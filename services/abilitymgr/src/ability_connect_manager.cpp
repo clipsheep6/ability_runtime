@@ -26,6 +26,7 @@
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "parameter.h"
+#include "session/host/include/zidl/session_interface.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -735,7 +736,7 @@ std::shared_ptr<AbilityRecord> AbilityConnectManager::GetServiceRecordBySessionI
 {
     std::lock_guard<std::recursive_mutex> guard(Lock_);
     CHECK_POINTER_AND_RETURN(sessionInfo, nullptr);
-    sptr<Rosen::ISession> sessionToken = sessionInfo->sessionToken;
+    auto sessionToken = iface_cast<Rosen::ISession>(sessionInfo->sessionToken);
     CHECK_POINTER_AND_RETURN(sessionToken, nullptr);
     std::string descriptor = Str16ToStr8(sessionToken->GetDescriptor());
     if (descriptor != "OHOS.ISession") {

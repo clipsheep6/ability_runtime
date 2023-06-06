@@ -89,6 +89,7 @@ ohos_unittest("ability_manager_service_test") {
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "window_manager:scene_session",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

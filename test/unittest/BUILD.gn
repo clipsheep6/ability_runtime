@@ -211,6 +211,7 @@ ohos_source_set("abilityms_test_source") {
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "resource_management:global_resmgr",
+    "window_manager:libwsutils",
   ]
 
   if (efficiency_manager) {

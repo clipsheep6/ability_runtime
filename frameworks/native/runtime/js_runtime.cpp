@@ -37,13 +37,11 @@
 #include "hitrace_meter.h"
 #include "hot_reloader.h"
 #include "ipc_skeleton.h"
-#include "js_console_log.h"
 #include "js_environment.h"
 #include "js_module_reader.h"
 #include "js_module_searcher.h"
 #include "js_quickfix_callback.h"
 #include "js_runtime_utils.h"
-#include "js_timer.h"
 #include "js_utils.h"
 #include "js_worker.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
@@ -498,7 +496,6 @@ bool JsRuntime::Initialize(const Options& options)
         CHECK_POINTER_AND_RETURN(globalObj, false);
 
         if (!preloaded_) {
-            InitConsoleModule();
             InitSyscapModule(*nativeEngine, *globalObj);
 
             // Simple hook function 'isSystemplugin'
@@ -547,28 +544,25 @@ bool JsRuntime::Initialize(const Options& options)
                 HILOG_ERROR("Initialize loop failed.");
                 return false;
             }
-
-            if (options.isUnique) {
-                HILOG_INFO("Not supported TimerModule when form render");
-            } else {
-                InitTimerModule();
-            }
         }
     }
-    if (jsEnv_ && !options.preload) {
-        std::shared_ptr<JsEnv::WorkerInfo> workerInfo = std::make_shared<JsEnv::WorkerInfo>();
-        workerInfo->codePath = codePath_;
-        workerInfo->isDebugVersion = options.isDebugVersion;
-        workerInfo->isBundle = options.isBundle;
-        workerInfo->packagePathStr = options.packagePathStr;
-        workerInfo->assetBasePathStr = options.assetBasePathStr;
-        workerInfo->hapPath = options.hapPath;
-        workerInfo->isStageModel = options.isStageModel;
-        jsEnv_->InitWorkerModule(workerInfo);
+
+    if (!preloaded_) {
+        InitConsoleModule();
     }
 
-    auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>(options.hapPath, isModular);
-    InitSourceMap(operatorObj);
+    if (!options.preload) {
+        auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>(options.hapPath, isModular);
+        InitSourceMap(operatorObj);
+
+        if (options.isUnique) {
+            HILOG_INFO("Not supported TimerModule when form render");
+        } else {
+            InitTimerModule();
+        }
+
+        InitWorkerModule(options);
+    }
 
     preloaded_ = options.preload;
     return true;
@@ -682,7 +676,7 @@ void JsRuntime::Deinitialize()
     }
 
     methodRequireNapiRef_.reset();
-    
+
     CHECK_POINTER(jsEnv_);
     jsEnv_->DeInitLoop();
 }
@@ -1129,6 +1123,20 @@ void JsRuntime::InitTimerModule()
 {
     CHECK_POINTER(jsEnv_);
     jsEnv_->InitTimerModule();
+}
+
+void JsRuntime::InitWorkerModule(const Options& options)
+{
+    CHECK_POINTER(jsEnv_);
+    std::shared_ptr<JsEnv::WorkerInfo> workerInfo = std::make_shared<JsEnv::WorkerInfo>();
+    workerInfo->codePath = options.codePath;
+    workerInfo->isDebugVersion = options.isDebugVersion;
+    workerInfo->isBundle = options.isBundle;
+    workerInfo->packagePathStr = options.packagePathStr;
+    workerInfo->assetBasePathStr = options.assetBasePathStr;
+    workerInfo->hapPath = options.hapPath;
+    workerInfo->isStageModel = options.isStageModel;
+    jsEnv_->InitWorkerModule(workerInfo);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -50,7 +50,6 @@ ohos_shared_library("runtime") {
   sources = [
     "${ability_runtime_native_path}/runtime/connect_server_manager.cpp",
     "${ability_runtime_native_path}/runtime/hdc_register.cpp",
-    "${ability_runtime_native_path}/runtime/js_console_log.cpp",
     "${ability_runtime_native_path}/runtime/js_data_struct_converter.cpp",
     "${ability_runtime_native_path}/runtime/js_error_utils.cpp",
     "${ability_runtime_native_path}/runtime/js_module_reader.cpp",
@@ -58,7 +57,6 @@ ohos_shared_library("runtime") {
     "${ability_runtime_native_path}/runtime/js_quickfix_callback.cpp",
     "${ability_runtime_native_path}/runtime/js_runtime.cpp",
     "${ability_runtime_native_path}/runtime/js_runtime_utils.cpp",
-    "${ability_runtime_native_path}/runtime/js_timer.cpp",
     "${ability_runtime_native_path}/runtime/js_worker.cpp",
     "${ability_runtime_native_path}/runtime/ohos_js_env_logger.cpp",
     "${ability_runtime_native_path}/runtime/ohos_js_environment_impl.cpp",
