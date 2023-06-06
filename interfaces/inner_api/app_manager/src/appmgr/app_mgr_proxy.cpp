@@ -730,8 +730,8 @@ int AppMgrProxy::StartRenderProcess(const std::string &renderParam,
     auto result = reply.ReadInt32();
     renderPid = reply.ReadInt32();
     if (result != 0) {
-        HILOG_WARN("StartRenderProcess failed, result: %{public}d", ret);
-        return ret;
+        HILOG_WARN("StartRenderProcess failed, result: %{public}d", result);
+        return result;
     }
     return 0;
 }

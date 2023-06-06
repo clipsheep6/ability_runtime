@@ -2953,7 +2953,7 @@ int AppMgrServiceInner::VerifyProcessPermission(const std::string &bundleName) c
         HILOG_ERROR("Permission verification failed.");
         return ERR_PERMISSION_DENIED;
     }
-    
+
     return ERR_OK;
 }
 
@@ -2985,7 +2985,7 @@ int AppMgrServiceInner::VerifyProcessPermission(const sptr<IRemoteObject> &token
         HILOG_ERROR("Permission verification failed.");
         return ERR_PERMISSION_DENIED;
     }
-    
+
     return ERR_OK;
 }
 
@@ -3102,9 +3102,15 @@ int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::strin
 
     auto renderRecord = appRecord->GetRenderRecord();
     if (renderRecord) {
-        HILOG_WARN("already exist render process,do not request again, renderPid:%{public}d", renderRecord->GetPid());
         renderPid = renderRecord->GetPid();
-        return ERR_ALREADY_EXIST_RENDER;
+        if (ProcessExist(renderPid)) {
+            HILOG_WARN("already exist render process,do not request again, renderPid:%{public}d", renderPid);
+            return ERR_ALREADY_EXIST_RENDER;
+        }
+        auto scheduler = renderRecord->GetScheduler();
+        if (scheduler) {
+            OnRenderRemoteDied(scheduler->AsObject());
+        }
     }
 
     renderRecord = RenderRecord::CreateRenderRecord(hostPid, renderParam, ipcFd, sharedFd, crashFd, appRecord);
