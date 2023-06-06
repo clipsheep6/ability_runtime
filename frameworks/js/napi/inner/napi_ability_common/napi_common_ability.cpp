@@ -1016,7 +1016,12 @@ void GetAppTypeAsyncCompleteCB(napi_env env, napi_status, void *data)
         result[PARAM1] = WrapUndefinedToJS(env);
     }
     NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, appTypeCB->cbBase.cbInfo.callback, &callback));
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return;
+    }
 
     if (appTypeCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, appTypeCB->cbBase.cbInfo.callback));
@@ -1531,7 +1536,12 @@ void GetAbilityInfoAsyncCompleteCB(napi_env env, napi_status, void *data)
         result[PARAM1] = WrapUndefinedToJS(env);
     }
     NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, abilityInfoCB->cbBase.cbInfo.callback, &callback));
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return;
+    }
 
     if (abilityInfoCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, abilityInfoCB->cbBase.cbInfo.callback));
@@ -1874,7 +1884,12 @@ void GetHapModuleInfoAsyncCompleteCB(napi_env env, napi_status, void *data)
         result[PARAM1] = WrapUndefinedToJS(env);
     }
     NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, hapModuleInfoCB->cbBase.cbInfo.callback, &callback));
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return;
+    }
 
     if (hapModuleInfoCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, hapModuleInfoCB->cbBase.cbInfo.callback));
@@ -2152,7 +2167,12 @@ void GetAppVersionInfoAsyncCompleteCB(napi_env env, napi_status, void *data)
         result[PARAM1] = WrapUndefinedToJS(env);
     }
     NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, appVersionInfoCB->cbBase.cbInfo.callback, &callback));
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return;
+    }
 
     if (appVersionInfoCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, appVersionInfoCB->cbBase.cbInfo.callback));
@@ -2425,6 +2445,7 @@ napi_value GetContextAsync(
             }
             napi_get_reference_value(env, asyncCallbackInfo->cbInfo.callback, &callback);
             napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+            napi_handle_uncaught_exception_if_pending(env);
 
             if (asyncCallbackInfo->cbInfo.callback != nullptr) {
                 napi_delete_reference(env, asyncCallbackInfo->cbInfo.callback);
@@ -2614,6 +2635,7 @@ napi_value GetWantAsync(napi_env env, napi_value *args, const size_t argCallback
             }
             napi_get_reference_value(env, asyncCallbackInfo->cbInfo.callback, &callback);
             napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+            napi_handle_uncaught_exception_if_pending(env);
 
             if (asyncCallbackInfo->cbInfo.callback != nullptr) {
                 napi_delete_reference(env, asyncCallbackInfo->cbInfo.callback);
@@ -2841,7 +2863,12 @@ void GetAbilityNameAsyncCompleteCB(napi_env env, napi_status, void *data)
         result[PARAM1] = WrapUndefinedToJS(env);
     }
     NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, abilityNameCB->cbBase.cbInfo.callback, &callback));
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return;
+    }
     if (abilityNameCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, abilityNameCB->cbBase.cbInfo.callback));
     }
@@ -3327,6 +3354,7 @@ void UvWorkOnAbilityConnectDone(uv_work_t *work, int status)
     napi_value funcArgv[1] = { rpcInfo };
     napi_value returnValue;
     napi_call_function(cbInfo.env, globalValue, func, 1, funcArgv, &returnValue);
+    napi_handle_uncaught_exception_if_pending(cbInfo.env);
 
     napi_value result[ARGS_TWO] = {nullptr};
     result[PARAM0] =
@@ -3343,6 +3371,7 @@ void UvWorkOnAbilityConnectDone(uv_work_t *work, int status)
 
     napi_call_function(
         cbInfo.env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    napi_handle_uncaught_exception_if_pending(cbInfo.env);
     if (cbInfo.callback != nullptr) {
         napi_delete_reference(cbInfo.env, cbInfo.callback);
     }
@@ -3445,6 +3474,7 @@ void UvWorkOnAbilityDisconnectDone(uv_work_t *work, int status)
         napi_get_undefined(cbInfo.env, &undefined);
         napi_get_reference_value(cbInfo.env, cbInfo.callback, &callback);
         napi_call_function(cbInfo.env, undefined, callback, ARGS_ONE, &result, &callResult);
+        napi_handle_uncaught_exception_if_pending(cbInfo.env);
         napi_delete_reference(cbInfo.env, cbInfo.callback);
         cbInfo.callback = nullptr;
     }
@@ -3718,6 +3748,7 @@ void BackgroundRunningCallbackCompletedCB(napi_env env, napi_status status, void
 
     napi_get_reference_value(env, asyncCallbackInfo->cbInfo.callback, &callback);
     napi_call_function(env, undefined, callback, ARGS_TWO, result, &callResult);
+    napi_handle_uncaught_exception_if_pending(env);
 
     if (asyncCallbackInfo->cbInfo.callback != nullptr) {
         napi_delete_reference(env, asyncCallbackInfo->cbInfo.callback);
@@ -4056,8 +4087,12 @@ NativeValue* JsNapiCommon::JsConnectAbility(
         NAPI_CALL_BASE(
             env, napi_get_reference_value(env, connectionCallback->failedCallbackRef, &callback),
             engine.CreateUndefined());
-        NAPI_CALL_BASE(env, napi_call_function(env, undefined, callback, ARGS_ONE, &resultVal, &callResult),
-            engine.CreateUndefined());
+        napi_status status = napi_call_function(env, undefined, callback, ARGS_ONE, &resultVal, &callResult);
+        if (status != napi_ok) {
+            napi_handle_uncaught_exception_if_pending(env);
+            GET_AND_THROW_LAST_ERROR(env);
+            return ngine.CreateUndefined();
+        }
         RemoveConnectionLocked(want);
     }
     return CreateJsValue(engine, id);

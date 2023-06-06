@@ -93,6 +93,7 @@ static void SetShowOnLockScreenAsyncCompleteCB(napi_env env, napi_status status,
     napi_get_null(env, &result[PARAM1]);
     napi_get_reference_value(env, showOnLockScreenCB->cbBase.cbInfo.callback, &callback);
     napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    napi_handle_uncaught_exception_if_pending(env);
 
     if (showOnLockScreenCB->cbBase.cbInfo.callback != nullptr) {
         napi_delete_reference(env, showOnLockScreenCB->cbBase.cbInfo.callback);
@@ -302,6 +303,7 @@ static void SetWakeUpScreenAsyncCompleteCB(napi_env env, napi_status status, voi
     napi_get_null(env, &result[PARAM1]);
     napi_get_reference_value(env, setWakeUpScreenCB->cbBase.cbInfo.callback, &callback);
     napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    napi_handle_uncaught_exception_if_pending(env);
 
     if (setWakeUpScreenCB->cbBase.cbInfo.callback != nullptr) {
         napi_delete_reference(env, setWakeUpScreenCB->cbBase.cbInfo.callback);
@@ -682,6 +684,7 @@ void RequestPermissionsFromUserCompleteAsyncCallbackWork(napi_env env, napi_stat
         if (asyncCallbackInfo->cbInfo.callback != nullptr) {
             napi_get_reference_value(env, asyncCallbackInfo->cbInfo.callback, &callback);
             napi_call_function(env, undefined, callback, ARGS_TWO, revParam, &callResult);
+            napi_handle_uncaught_exception_if_pending(env);
             napi_delete_reference(env, asyncCallbackInfo->cbInfo.callback);
         } else if (asyncCallbackInfo->cbInfo.deferred != nullptr) {
             napi_reject_deferred(env, asyncCallbackInfo->cbInfo.deferred, revParam[PARAM0]);
@@ -1098,7 +1101,12 @@ void GetAppInfoAsyncCompleteCB(napi_env env, napi_status status, void *data)
         result[PARAM1] = WrapUndefinedToJS(env);
     }
     NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, appInfoCB->cbBase.cbInfo.callback, &callback));
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return;
+    }
 
     if (appInfoCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, appInfoCB->cbBase.cbInfo.callback));
@@ -1371,7 +1379,12 @@ void GetProcessInfoAsyncCompleteCB(napi_env env, napi_status status, void *data)
     }
 
     NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, processInfoCB->cbBase.cbInfo.callback, &callback));
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return;
+    }
 
     if (processInfoCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, processInfoCB->cbBase.cbInfo.callback));
@@ -1616,7 +1629,12 @@ void GetElementNameAsyncCompleteCB(napi_env env, napi_status status, void *data)
         result[PARAM1] = WrapUndefinedToJS(env);
     }
     NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, elementNameCB->cbBase.cbInfo.callback, &callback));
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return;
+    }
 
     if (elementNameCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, elementNameCB->cbBase.cbInfo.callback));
@@ -1807,7 +1825,12 @@ void GetProcessNameAsyncCompleteCB(napi_env env, napi_status status, void *data)
         result[PARAM1] = WrapUndefinedToJS(env);
     }
     NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, processNameCB->cbBase.cbInfo.callback, &callback));
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return;
+    }
 
     if (processNameCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, processNameCB->cbBase.cbInfo.callback));
@@ -1998,7 +2021,12 @@ void GetCallingBundleAsyncCompleteCB(napi_env env, napi_status status, void *dat
         result[PARAM1] = WrapUndefinedToJS(env);
     }
     NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, callingBundleCB->cbBase.cbInfo.callback, &callback));
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return;
+    }
 
     if (callingBundleCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, callingBundleCB->cbBase.cbInfo.callback));
@@ -2197,7 +2225,12 @@ void GetOrCreateLocalDirAsyncCompleteCB(napi_env env, napi_status status, void *
         result[PARAM1] = WrapUndefinedToJS(env);
     }
     NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, getOrCreateLocalDirCB->cbBase.cbInfo.callback, &callback));
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return;
+    }
 
     if (getOrCreateLocalDirCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, getOrCreateLocalDirCB->cbBase.cbInfo.callback));

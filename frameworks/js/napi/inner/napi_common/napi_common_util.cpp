@@ -1066,6 +1066,7 @@ void CompleteAsyncCallbackWork(napi_env env, napi_status status, void *data)
     if (asyncCallbackInfo->cbInfo.callback != nullptr) {
         napi_get_reference_value(env, asyncCallbackInfo->cbInfo.callback, &callback);
         napi_call_function(env, undefined, callback, ARGS_TWO, revParam, &callResult);
+        napi_handle_uncaught_exception_if_pending(env);
         napi_delete_reference(env, asyncCallbackInfo->cbInfo.callback);
     }
 
@@ -1100,6 +1101,7 @@ void CompleteAsyncVoidCallbackWork(napi_env env, napi_status status, void *data)
     if (asyncCallbackInfo->cbInfo.callback != nullptr) {
         napi_get_reference_value(env, asyncCallbackInfo->cbInfo.callback, &callback);
         napi_call_function(env, undefined, callback, ARGS_TWO, result, &callResult);
+        napi_handle_uncaught_exception_if_pending(env);
         napi_delete_reference(env, asyncCallbackInfo->cbInfo.callback);
     }
 

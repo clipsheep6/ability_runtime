@@ -220,6 +220,7 @@ NativeValue *JsFeatureAbility::OnFinishWithResult(NativeEngine &engine, NativeCa
     napi_get_named_property(env, jsonValue, "stringify", &stringifyValue);
     napi_value transValue = nullptr;
     napi_call_function(env, jsonValue, stringifyValue, 1, &jsResultObj, &transValue);
+    napi_handle_uncaught_exception_if_pending(env);
     std::string resultStr {};
     resultStr = UnwrapStringFromJS(env, transValue, "");
 

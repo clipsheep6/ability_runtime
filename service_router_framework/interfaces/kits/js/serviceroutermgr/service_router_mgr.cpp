@@ -217,8 +217,13 @@ void QueryBusinessAbilityInfosComplete(napi_env env, napi_status status, void *d
         napi_value callback = nullptr;
         napi_value placeHolder = nullptr;
         NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, asyncCallbackInfo->callback, &callback));
-        NAPI_CALL_RETURN_VOID(env, napi_call_function(env, nullptr, callback,
-            sizeof(result) / sizeof(result[0]), result, &placeHolder));
+        napi_status status = napi_call_function(env, nullptr, callback,
+            sizeof(result) / sizeof(result[0]), result, &placeHolder);
+        if (status != napi_ok) {
+            napi_handle_uncaught_exception_if_pending(env);
+            GET_AND_THROW_LAST_ERROR(env);
+            return;
+        }
     }
 }
 
