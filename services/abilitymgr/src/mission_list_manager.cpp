@@ -3726,7 +3726,7 @@ bool MissionListManager::CheckPrepareTerminateEnable(const std::shared_ptr<Missi
     if (retSysParam > 0 && !std::strcmp(value, "true")) {
         return true;
     }
-    return false; 
+    return false;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
