@@ -169,7 +169,8 @@ public:
     }
 
     NativeValue* CallFunction(
-        NativeValue* thisVar, NativeValue* function, NativeValue* const* argv, size_t argc) override
+        NativeValue* thisVar, NativeValue* function, NativeValue* const* argv,
+        size_t argc, bool handleUncaughtException) override
     {
         GTEST_LOG_(INFO) << "MockJsNativeEngine::CallFunction called";
         return nullptr;

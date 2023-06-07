@@ -171,7 +171,8 @@ public:
     NativeValue* CallFunction(NativeValue* thisVar,
         NativeValue* function,
         NativeValue* const* argv,
-        size_t argc) override
+        size_t argc,
+        bool handleUncaughtException) override
     {
         return nullptr;
     }

@@ -299,6 +299,7 @@ void StartSyncRemoteMissionsAsyncWork(napi_env &env, const napi_value resourceNa
                 napi_get_reference_value(env, syncContext->callbackRef, &callback);
                 napi_value callResult;
                 napi_call_function(env, nullptr, callback, ARGS_TWO, &result[0], &callResult);
+                napi_handle_uncaught_exception_if_pending(env);
                 napi_delete_reference(env, syncContext->callbackRef);
             }
             napi_delete_async_work(env, syncContext->work);
@@ -371,6 +372,7 @@ void StopSyncRemoteMissionsAsyncWork(napi_env &env, napi_value resourceName,
                 napi_get_reference_value(env, syncContext->callbackRef, &callback);
                 napi_value callResult;
                 napi_call_function(env, nullptr, callback, ARGS_TWO, &result[0], &callResult);
+                napi_handle_uncaught_exception_if_pending(env);
                 napi_delete_reference(env, syncContext->callbackRef);
             }
             napi_delete_async_work(env, syncContext->work);
@@ -501,6 +503,7 @@ void ReturnValueToApplication(napi_env &env, napi_value *result, RegisterMission
         napi_get_reference_value(env, registerMissionCB->callbackRef, &callback);
         napi_value callResult;
         napi_call_function(env, nullptr, callback, ARGS_TWO, &result[0], &callResult);
+        napi_handle_uncaught_exception_if_pending(env);
         napi_delete_reference(env, registerMissionCB->callbackRef);
     }
     NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, registerMissionCB->cbBase.asyncWork));
@@ -802,6 +805,7 @@ void UvWorkNotifyMissionChanged(uv_work_t *work, int status)
         registerMissionCB->cbBase.cbInfo.env, registerMissionCB->cbBase.cbInfo.callback, &callback);
 
     napi_call_function(registerMissionCB->cbBase.cbInfo.env, undefined, callback, 1, &result, &callResult);
+    napi_handle_uncaught_exception_if_pending(registerMissionCB->cbBase.cbInfo.env);
 
     napi_close_handle_scope(registerMissionCB->cbBase.cbInfo.env, scope);
     delete registerMissionCB;
@@ -890,6 +894,7 @@ void CallbackReturn(napi_value *result, RegisterMissionCB *registerMissionCB)
         registerMissionCB->cbBase.cbInfo.env, registerMissionCB->cbBase.cbInfo.callback, &callback);
 
     napi_call_function(registerMissionCB->cbBase.cbInfo.env, undefined, callback, ARGS_TWO, &result[0], &callResult);
+    napi_handle_uncaught_exception_if_pending(registerMissionCB->cbBase.cbInfo.env);
 }
 
 void NAPIRemoteMissionListener::NotifySnapshot(const std::string &deviceId, int32_t missionId)
@@ -1273,6 +1278,7 @@ void ContinueAbilityCallbackCompletedCB(napi_env env, napi_status status, void *
         napi_get_reference_value(env, continueAbilityCB->callbackRef, &callback);
         napi_value callResult;
         napi_call_function(env, nullptr, callback, ARGS_TWO, &result[0], &callResult);
+        napi_handle_uncaught_exception_if_pending(env);
         napi_delete_reference(env, continueAbilityCB->callbackRef);
     }
     napi_delete_async_work(env, continueAbilityCB->cbBase.asyncWork);
@@ -1569,6 +1575,7 @@ void UvWorkOnContinueDone(uv_work_t *work, int status)
         continueAbilityCB->cbBase.cbInfo.callback, &callback);
 
     napi_call_function(continueAbilityCB->cbBase.cbInfo.env, undefined, callback, 1, &result, &callResult);
+    napi_handle_uncaught_exception_if_pending(continueAbilityCB->cbBase.cbInfo.env);
     if (continueAbilityCB->cbBase.cbInfo.callback != nullptr) {
         napi_delete_reference(continueAbilityCB->cbBase.cbInfo.env, continueAbilityCB->cbBase.cbInfo.callback);
     }

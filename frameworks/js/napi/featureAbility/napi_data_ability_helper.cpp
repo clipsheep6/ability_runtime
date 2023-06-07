@@ -404,7 +404,12 @@ void InsertAsyncCompleteCB(napi_env env, napi_status status, void *data)
 
     result[PARAM0] = GetCallbackErrorValue(env, insertCB->execResult);
     napi_create_int32(env, insertCB->result, &result[PARAM1]);
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return;
+    }
 
     if (insertCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, insertCB->cbBase.cbInfo.callback));
@@ -624,7 +629,12 @@ void NotifyChangeAsyncCompleteCB(napi_env env, napi_status status, void *data)
 
     result[PARAM0] = GetCallbackErrorValue(env, notifyChangeCB->execResult);
     result[PARAM1] = WrapVoidToJS(env);
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return;
+    }
 
     if (notifyChangeCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, notifyChangeCB->cbBase.cbInfo.callback));
@@ -1128,6 +1138,7 @@ void NAPIDataAbilityObserver::CallJsMethod()
     napi_value callResult = nullptr;
     napi_get_reference_value(env_, ref_, &callback);
     napi_call_function(env_, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    napi_handle_uncaught_exception_if_pending(env_);
 
     {
         std::lock_guard<std::mutex> lock(mutex_);
@@ -1327,7 +1338,12 @@ void GetTypeAsyncCompleteCB(napi_env env, napi_status status, void *data)
     result[PARAM0] = GetCallbackErrorValue(env, gettypeCB->execResult);
     napi_create_string_utf8(env, gettypeCB->result.c_str(), NAPI_AUTO_LENGTH, &result[PARAM1]);
 
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return;
+    }
 
     if (gettypeCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, gettypeCB->cbBase.cbInfo.callback));
@@ -1509,7 +1525,12 @@ void GetFileTypesAsyncCompleteCB(napi_env env, napi_status status, void *data)
     result[PARAM0] = GetCallbackErrorValue(env, getfiletypesCB->execResult);
     result[PARAM1] = WrapGetFileTypesCB(env, *getfiletypesCB);
 
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return;
+    }
 
     if (getfiletypesCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, getfiletypesCB->cbBase.cbInfo.callback));
@@ -1704,7 +1725,12 @@ void NormalizeUriAsyncCompleteCB(napi_env env, napi_status status, void *data)
     NAPI_CALL_RETURN_VOID(
         env, napi_create_string_utf8(env, normalizeuriCB->result.c_str(), NAPI_AUTO_LENGTH, &result[PARAM1]));
 
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return;
+    }
 
     if (normalizeuriCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, normalizeuriCB->cbBase.cbInfo.callback));
@@ -1880,7 +1906,12 @@ void DenormalizeUriAsyncCompleteCB(napi_env env, napi_status status, void *data)
     NAPI_CALL_RETURN_VOID(
         env, napi_create_string_utf8(env, denormalizeuriCB->result.c_str(), NAPI_AUTO_LENGTH, &result[PARAM1]));
 
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return;
+    }
 
     if (denormalizeuriCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, denormalizeuriCB->cbBase.cbInfo.callback));
@@ -2077,7 +2108,12 @@ void DeleteAsyncCompleteCB(napi_env env, napi_status status, void *data)
 
     result[PARAM0] = GetCallbackErrorValue(env, DeleteCB->execResult);
     napi_create_int32(env, DeleteCB->result, &result[PARAM1]);
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return;
+    }
 
     if (DeleteCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, DeleteCB->cbBase.cbInfo.callback));
@@ -2265,7 +2301,12 @@ void UpdateAsyncCompleteCB(napi_env env, napi_status status, void *data)
 
     result[PARAM0] = GetCallbackErrorValue(env, updateCB->execResult);
     napi_create_int32(env, updateCB->result, &result[PARAM1]);
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return;
+    }
 
     if (updateCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, updateCB->cbBase.cbInfo.callback));
@@ -2302,7 +2343,12 @@ void CallErrorAsyncCompleteCB(napi_env env, napi_status status, void *data)
         NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, errorCB->cbBase.cbInfo.callback, &callback));
 
         napi_create_int32(env, errorCB->execResult, &result[PARAM0]);
-        NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[0], &callResult));
+        napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[0], &callResult);
+        if (status != napi_ok) {
+            napi_handle_uncaught_exception_if_pending(env);
+            GET_AND_THROW_LAST_ERROR(env);
+            return;
+        }
 
         if (errorCB->cbBase.cbInfo.callback != nullptr) {
             NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, errorCB->cbBase.cbInfo.callback));
@@ -2483,7 +2529,12 @@ void CallAsyncCompleteCB(napi_env env, napi_status status, void *data)
 
     result[PARAM0] = GetCallbackErrorValue(env, callCB->execResult);
     result[PARAM1] = CallPacMapValue(env, callCB->result);
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return;
+    }
 
     if (callCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, callCB->cbBase.cbInfo.callback));
@@ -2868,7 +2919,12 @@ void OpenFileAsyncCompleteCB(napi_env env, napi_status status, void *data)
 
     result[PARAM0] = GetCallbackErrorValue(env, OpenFileCB->execResult);
     napi_create_int32(env, OpenFileCB->result, &result[PARAM1]);
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return;
+    }
 
     if (OpenFileCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, OpenFileCB->cbBase.cbInfo.callback));
@@ -3097,7 +3153,12 @@ void BatchInsertAsyncCompleteCB(napi_env env, napi_status status, void *data)
 
     result[PARAM0] = GetCallbackErrorValue(env, BatchInsertCB->execResult);
     napi_create_int32(env, BatchInsertCB->result, &result[PARAM1]);
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return;
+    }
 
     if (BatchInsertCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, BatchInsertCB->cbBase.cbInfo.callback));
@@ -3237,7 +3298,12 @@ napi_value QuerySync(napi_env env, napi_value *args, const size_t argCallback, D
     napi_value undefined = nullptr;
     NAPI_CALL(env, napi_get_undefined(env, &undefined));
     napi_value callResult = nullptr;
-    NAPI_CALL(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return nullptr;
+    }
 
     if (queryCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL(env, napi_delete_reference(env, queryCB->cbBase.cbInfo.callback));
@@ -3472,7 +3538,12 @@ void ExecuteBatchAsyncCompleteCB(napi_env env, napi_status status, void *data)
     result[PARAM0] = GetCallbackErrorValue(env, NO_ERROR);
     napi_create_array(env, &result[PARAM1]);
     GetDataAbilityResultForResult(env, executeBatchCB->result, result[PARAM1]);
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult));
+    napi_status status = napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    if (status != napi_ok) {
+        napi_handle_uncaught_exception_if_pending(env);
+        GET_AND_THROW_LAST_ERROR(env);
+        return;
+    }
 
     if (executeBatchCB->cbBase.cbInfo.callback != nullptr) {
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, executeBatchCB->cbBase.cbInfo.callback));

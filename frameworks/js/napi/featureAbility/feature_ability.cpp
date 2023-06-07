@@ -549,6 +549,7 @@ napi_value SetResultAsync(
             napi_get_null(env, &result[PARAM1]);
             napi_get_reference_value(env, asyncCallbackInfo->cbInfo.callback, &callback);
             napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+            napi_handle_uncaught_exception_if_pending(env);
 
             if (asyncCallbackInfo->cbInfo.callback != nullptr) {
                 napi_delete_reference(env, asyncCallbackInfo->cbInfo.callback);
@@ -1083,6 +1084,7 @@ void GetDataAbilityHelperAsyncCompleteCB(napi_env env, napi_status status, void 
     }
     result[PARAM0] = GetCallbackErrorValue(env, NO_ERROR);
     napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    napi_handle_uncaught_exception_if_pending(env);
     if (dataAbilityHelperCB->cbBase.cbInfo.callback != nullptr) {
         napi_delete_reference(env, dataAbilityHelperCB->cbBase.cbInfo.callback);
     }
@@ -1265,6 +1267,7 @@ napi_value ContinueAbilityAsync(napi_env env, napi_value *args, AsyncCallbackInf
             napi_get_null(env, &result[PARAM1]);
             napi_get_reference_value(env, asyncCallbackInfo->cbInfo.callback, &callback);
             napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+            napi_handle_uncaught_exception_if_pending(env);
 
             if (asyncCallbackInfo->cbInfo.callback != nullptr) {
                 napi_delete_reference(env, asyncCallbackInfo->cbInfo.callback);
