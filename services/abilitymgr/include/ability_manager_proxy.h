@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -480,6 +480,9 @@ public:
     virtual int ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
         int32_t missionId, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams) override;
 
+    virtual int ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
+        const std::string &bundleName, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams) override;
+
     virtual int ContinueAbility(const std::string &deviceId, int32_t missionId, uint32_t versionCode) override;
 
     virtual int StartContinuation(const Want &want, const sptr<IRemoteObject> &abilityToken, int32_t status) override;
@@ -574,6 +577,12 @@ public:
 
     virtual int RegisterMissionListener(const std::string &deviceId,
         const sptr<IRemoteMissionListener> &listener) override;
+
+    virtual int RegisterOnListener(const std::string &type,
+        const sptr<IRemoteOnListener> &listener) override;
+
+    virtual int RegisterOffListener(const std::string &deviceId,
+        const sptr<IRemoteOnListener> &listener) override;
 
     virtual int UnRegisterMissionListener(const std::string &deviceId,
         const sptr<IRemoteMissionListener> &listener) override;

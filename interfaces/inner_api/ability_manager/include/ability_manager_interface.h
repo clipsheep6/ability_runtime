@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,6 +36,7 @@
 #include "mission_info.h"
 #include "mission_snapshot.h"
 #include "remote_mission_listener_interface.h"
+#include "remote_on_listener_interface.h"
 #include "running_process_info.h"
 #include "sender_info.h"
 #include "snapshot.h"
@@ -575,6 +576,12 @@ public:
     virtual int ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId, int32_t missionId,
         const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams) = 0;
 
+    virtual int ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
+        const std::string &bundleName, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams)
+    {
+        return 0;
+    }
+
     virtual int ContinueAbility(const std::string &deviceId, int32_t missionId, uint32_t versionCode) = 0;
 
     virtual int StartContinuation(const Want &want, const sptr<IRemoteObject> &abilityToken, int32_t status) = 0;
@@ -713,6 +720,16 @@ public:
     virtual int StopSyncRemoteMissions(const std::string &devId) = 0;
 
     virtual int RegisterMissionListener(const std::string &deviceId, const sptr<IRemoteMissionListener> &listener) = 0;
+
+    virtual int RegisterOnListener(const std::string &type, const sptr<IRemoteOnListener> &listener)
+    {
+        return 0;
+    }
+
+    virtual int RegisterOffListener(const std::string &type, const sptr<IRemoteOnListener> &listener)
+    {
+        return 0;
+    }
 
     virtual int UnRegisterMissionListener(const std::string &deviceId,
         const sptr<IRemoteMissionListener> &listener) = 0;
@@ -1285,6 +1302,12 @@ public:
         CONTINUE_MISSION = 1105,
 
         SEND_RESULT_TO_ABILITY = 1106,
+
+        REGISTER_REMOTE_ON_LISTENER = 1107,
+
+        REGISTER_REMOTE_OFF_LISTENER = 1108,
+
+        CONTINUE_MISSION_OF_BUNDLENAME = 1109,
 
         // ipc id for mission manager(1110)
         REGISTER_REMOTE_MISSION_LISTENER = 1110,

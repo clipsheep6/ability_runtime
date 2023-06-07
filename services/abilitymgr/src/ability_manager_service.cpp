@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -2527,6 +2527,7 @@ int AbilityManagerService::DisconnectRemoteAbility(const sptr<IRemoteObject> &co
 int AbilityManagerService::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
     int32_t missionId, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams)
 {
+    HILOG_INFO("amsServ %{public}s called.", __func__);
     HILOG_INFO("ContinueMission missionId: %{public}d", missionId);
     if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
@@ -2535,6 +2536,19 @@ int AbilityManagerService::ContinueMission(const std::string &srcDeviceId, const
 
     DistributedClient dmsClient;
     return dmsClient.ContinueMission(srcDeviceId, dstDeviceId, missionId, callBack, wantParams);
+}
+
+int AbilityManagerService::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
+    const std::string &bundleName, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams)
+{
+    HILOG_INFO("amsServ %{public}s called.", __func__);
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    DistributedClient dmsClient;
+    return dmsClient.ContinueMission(srcDeviceId, dstDeviceId, bundleName, callBack, wantParams);
 }
 
 int AbilityManagerService::ContinueAbility(const std::string &deviceId, int32_t missionId, uint32_t versionCode)
@@ -2656,6 +2670,32 @@ int AbilityManagerService::RegisterMissionListener(const std::string &deviceId,
     }
     DistributedClient dmsClient;
     return dmsClient.RegisterMissionListener(Str8ToStr16(deviceId), listener->AsObject());
+}
+
+int AbilityManagerService::RegisterOnListener(const std::string &type,
+    const sptr<IRemoteOnListener> &listener)
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
+    CHECK_POINTER_AND_RETURN(listener, ERR_INVALID_VALUE);
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+    DistributedClient dmsClient;
+    return dmsClient.RegisterOnListener(type, listener->AsObject());
+}
+
+int AbilityManagerService::RegisterOffListener(const std::string &type,
+    const sptr<IRemoteOnListener> &listener)
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
+    CHECK_POINTER_AND_RETURN(listener, ERR_INVALID_VALUE);
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+    DistributedClient dmsClient;
+    return dmsClient.RegisterOffListener(type, listener->AsObject());
 }
 
 int AbilityManagerService::UnRegisterMissionListener(const std::string &deviceId,

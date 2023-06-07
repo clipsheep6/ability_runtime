@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -2046,6 +2046,7 @@ bool AbilityManagerProxy::IsRamConstrainedDevice()
 int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
     int32_t missionId, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams)
 {
+    HILOG_INFO("amsProxy %{public}s called.", __func__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -2079,6 +2080,49 @@ int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const s
         return INNER_ERR;
     }
     auto error = remote->SendRequest(IAbilityManager::CONTINUE_MISSION, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
+    const std::string &bundleName, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteString(srcDeviceId)) {
+        HILOG_ERROR("srcDeviceId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteString(dstDeviceId)) {
+        HILOG_ERROR("dstDeviceId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteString(bundleName)) {
+        HILOG_ERROR("missionId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteRemoteObject(callBack)) {
+        HILOG_ERROR("callBack write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&wantParams)) {
+        HILOG_ERROR("wantParams write failed.");
+        return INNER_ERR;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::CONTINUE_MISSION_OF_BUNDLENAME, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -2316,6 +2360,68 @@ int AbilityManagerProxy::RegisterMissionListener(const std::string &deviceId,
         return INNER_ERR;
     }
     auto error = remote->SendRequest(IAbilityManager::REGISTER_REMOTE_MISSION_LISTENER, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::RegisterOnListener(const std::string &type,
+    const sptr<IRemoteOnListener> &listener)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteString(type)) {
+        HILOG_ERROR("type write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteRemoteObject(listener->AsObject())) {
+        HILOG_ERROR("listener write failed.");
+        return INNER_ERR;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::REGISTER_REMOTE_ON_LISTENER, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::RegisterOffListener(const std::string &type,
+    const sptr<IRemoteOnListener> &listener)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteString(type)) {
+        HILOG_ERROR("type write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteRemoteObject(listener->AsObject())) {
+        HILOG_ERROR("listener write failed.");
+        return INNER_ERR;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::REGISTER_REMOTE_OFF_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;

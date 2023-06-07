@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -480,6 +480,19 @@ public:
         const sptr<IRemoteObject> &callback, AAFwk::WantParams &wantParams);
 
     /**
+     * ContinueMission, continue ability from mission center.
+     *
+     * @param srcDeviceId, origin deviceId.
+     * @param dstDeviceId, target deviceId.
+     * @param bundleName, indicates which bundleName to continue.
+     * @param callBack, notify result back.
+     * @param wantParams, extended params.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
+        const std::string &bundleName, const sptr<IRemoteObject> &callback, AAFwk::WantParams &wantParams);
+
+    /**
      * start continuation.
      * @param want, used to start a ability.
      * @param abilityToken, ability token.
@@ -554,6 +567,24 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode RegisterMissionListener(const std::string &deviceId, const sptr<IRemoteMissionListener> &listener);
+
+    /**
+     * @brief Register mission listener to ability manager service.
+     * @param deviceId The remote device Id.
+     * @param listener The handler of listener.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode RegisterOnListener(const std::string &type, const sptr<IRemoteOnListener> &listener);
+
+    /**
+     * @brief Register mission listener to ability manager service.
+     * @param deviceId The remote device Id.
+     * @param listener The handler of listener.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode RegisterOffListener(const std::string &type, const sptr<IRemoteOnListener> &listener);
 
     /**
      * @brief UnRegister mission listener from ability manager service.

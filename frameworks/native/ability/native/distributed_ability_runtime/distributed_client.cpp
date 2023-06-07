@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -129,6 +129,32 @@ int32_t DistributedClient::ContinueMission(const std::string& srcDeviceId, const
     PARCEL_TRANSACT_SYNC_RET_INT(remote, CONTINUE_MISSION, data, reply);
 }
 
+int32_t DistributedClient::ContinueMission(const std::string& srcDeviceId, const std::string& dstDeviceId,
+    const std::string& bundleName, const sptr<IRemoteObject>& callback, const OHOS::AAFwk::WantParams& wantParams)
+{
+    HILOG_INFO("dmsClient %{public}s called.", __func__);
+    if (callback == nullptr) {
+        HILOG_ERROR("ContinueMission callback null");
+        return ERR_NULL_OBJECT;
+    }
+    sptr<IRemoteObject> remote = GetDmsProxy();
+    if (remote == nullptr) {
+        HILOG_ERROR("ContinueMission remote service null");
+        return INVALID_PARAMETERS_ERR;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, String, srcDeviceId);
+    PARCEL_WRITE_HELPER(data, String, dstDeviceId);
+    PARCEL_WRITE_HELPER(data, String, bundleName);
+    PARCEL_WRITE_HELPER(data, RemoteObject, callback);
+    PARCEL_WRITE_HELPER(data, Parcelable, &wantParams);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, CONTINUE_MISSION_OF_BUNDLENAME, data, reply);
+}
+
 int32_t DistributedClient::StartContinuation(const OHOS::AAFwk::Want& want, int32_t missionId, int32_t callerUid,
     int32_t status, uint32_t accessToken)
 {
@@ -241,6 +267,44 @@ int32_t DistributedClient::RegisterMissionListener(const std::u16string& devId,
     PARCEL_WRITE_HELPER(data, String16, devId);
     PARCEL_WRITE_HELPER(data, RemoteObject, obj);
     PARCEL_TRANSACT_SYNC_RET_INT(remote, REGISTER_MISSION_LISTENER, data, reply);
+}
+
+int32_t DistributedClient::RegisterOnListener(const std::string& type,
+    const sptr<IRemoteObject>& obj)
+{
+    HILOG_INFO("called");
+    sptr<IRemoteObject> remote = GetDmsProxy();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote system ablity is null");
+        return INVALID_PARAMETERS_ERR;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, String, type);
+    PARCEL_WRITE_HELPER(data, RemoteObject, obj);
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, REGISTER_ON_LISTENER, data, reply);
+}
+
+int32_t DistributedClient::RegisterOffListener(const std::string& type,
+    const sptr<IRemoteObject>& obj)
+{
+    HILOG_INFO("called");
+    sptr<IRemoteObject> remote = GetDmsProxy();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote system ablity is null");
+        return INVALID_PARAMETERS_ERR;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, String, type);
+    PARCEL_WRITE_HELPER(data, RemoteObject, obj);
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, REGISTER_OFF_LISTENER, data, reply);
 }
 
 int32_t DistributedClient::UnRegisterMissionListener(const std::u16string& devId,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -66,12 +66,15 @@ void AbilityManagerStub::FirstStepInit()
     requestFuncMap_[DUMPSYS_STATE] = &AbilityManagerStub::DumpSysStateInner;
     requestFuncMap_[START_ABILITY_FOR_SETTINGS] = &AbilityManagerStub::StartAbilityForSettingsInner;
     requestFuncMap_[CONTINUE_MISSION] = &AbilityManagerStub::ContinueMissionInner;
+    requestFuncMap_[CONTINUE_MISSION_OF_BUNDLENAME] = &AbilityManagerStub::ContinueMissionOfBundleNameInner;
     requestFuncMap_[CONTINUE_ABILITY] = &AbilityManagerStub::ContinueAbilityInner;
     requestFuncMap_[START_CONTINUATION] = &AbilityManagerStub::StartContinuationInner;
     requestFuncMap_[NOTIFY_COMPLETE_CONTINUATION] = &AbilityManagerStub::NotifyCompleteContinuationInner;
     requestFuncMap_[NOTIFY_CONTINUATION_RESULT] = &AbilityManagerStub::NotifyContinuationResultInner;
     requestFuncMap_[SEND_RESULT_TO_ABILITY] = &AbilityManagerStub::SendResultToAbilityInner;
     requestFuncMap_[REGISTER_REMOTE_MISSION_LISTENER] = &AbilityManagerStub::RegisterRemoteMissionListenerInner;
+    requestFuncMap_[REGISTER_REMOTE_ON_LISTENER] = &AbilityManagerStub::RegisterRemoteOnListenerInner;
+    requestFuncMap_[REGISTER_REMOTE_OFF_LISTENER] = &AbilityManagerStub::RegisterRemoteOffListenerInner;
     requestFuncMap_[UNREGISTER_REMOTE_MISSION_LISTENER] = &AbilityManagerStub::UnRegisterRemoteMissionListenerInner;
     requestFuncMap_[START_ABILITY_FOR_OPTIONS] = &AbilityManagerStub::StartAbilityForOptionsInner;
     requestFuncMap_[START_SYNC_MISSIONS] = &AbilityManagerStub::StartSyncRemoteMissionsInner;
@@ -980,6 +983,7 @@ int AbilityManagerStub::IsRamConstrainedDeviceInner(MessageParcel &data, Message
 
 int AbilityManagerStub::ContinueMissionInner(MessageParcel &data, MessageParcel &reply)
 {
+    HILOG_INFO("amsStub %{public}s called.", __func__);
     std::string srcDeviceId = data.ReadString();
     std::string dstDeviceId = data.ReadString();
     int32_t missionId = data.ReadInt32();
@@ -994,6 +998,27 @@ int AbilityManagerStub::ContinueMissionInner(MessageParcel &data, MessageParcel 
         return ERR_NULL_OBJECT;
     }
     int32_t result = ContinueMission(srcDeviceId, dstDeviceId, missionId, callback, *wantParams);
+    HILOG_INFO("ContinueMissionInner result = %{public}d", result);
+    return result;
+}
+
+int AbilityManagerStub::ContinueMissionOfBundleNameInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_INFO("amsStub %{public}s called.", __func__);
+    std::string srcDeviceId = data.ReadString();
+    std::string dstDeviceId = data.ReadString();
+    std::string bundleName = data.ReadString();
+    sptr<IRemoteObject> callback = data.ReadRemoteObject();
+    if (callback == nullptr) {
+        HILOG_ERROR("ContinueMissionInner callback readParcelable failed!");
+        return ERR_NULL_OBJECT;
+    }
+    std::unique_ptr<WantParams> wantParams(data.ReadParcelable<WantParams>());
+    if (wantParams == nullptr) {
+        HILOG_ERROR("ContinueMissionInner wantParams readParcelable failed!");
+        return ERR_NULL_OBJECT;
+    }
+    int32_t result = ContinueMission(srcDeviceId, dstDeviceId, bundleName, callback, *wantParams);
     HILOG_INFO("ContinueMissionInner result = %{public}d", result);
     return result;
 }
@@ -1415,6 +1440,40 @@ int AbilityManagerStub::RegisterRemoteMissionListenerInner(MessageParcel &data, 
     }
     int32_t result = RegisterMissionListener(deviceId, listener);
     HILOG_INFO("AbilityManagerStub: RegisterRemoteMissionListenerInner result = %{public}d", result);
+    return result;
+}
+
+int AbilityManagerStub::RegisterRemoteOnListenerInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::string type = data.ReadString();
+    if (type.empty()) {
+        HILOG_ERROR("AbilityManagerStub: RegisterRemoteOnListenerInner type empty!");
+        return ERR_NULL_OBJECT;
+    }
+    sptr<IRemoteOnListener> listener = iface_cast<IRemoteOnListener>(data.ReadRemoteObject());
+    if (listener == nullptr) {
+        HILOG_ERROR("AbilityManagerStub: RegisterRemoteOnListenerInner listener readParcelable failed!");
+        return ERR_NULL_OBJECT;
+    }
+    int32_t result = RegisterOnListener(type, listener);
+    HILOG_INFO("AbilityManagerStub: RegisterRemoteOnListenerInner result = %{public}d", result);
+    return result;
+}
+
+int AbilityManagerStub::RegisterRemoteOffListenerInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::string type = data.ReadString();
+    if (type.empty()) {
+        HILOG_ERROR("AbilityManagerStub: RegisterRemoteOffListenerInner type empty!");
+        return ERR_NULL_OBJECT;
+    }
+    sptr<IRemoteOnListener> listener = iface_cast<IRemoteOnListener>(data.ReadRemoteObject());
+    if (listener == nullptr) {
+        HILOG_ERROR("AbilityManagerStub: RegisterRemoteOffListenerInner listener readParcelable failed!");
+        return ERR_NULL_OBJECT;
+    }
+    int32_t result = RegisterOffListener(type, listener);
+    HILOG_INFO("AbilityManagerStub: RegisterRemoteOffListenerInner result = %{public}d", result);
     return result;
 }
 
