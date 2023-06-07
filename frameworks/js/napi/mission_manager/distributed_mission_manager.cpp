@@ -784,6 +784,8 @@ void UvWorkNotifyMissionChanged(uv_work_t *work, int status)
     napi_handle_scope scope = nullptr;
     napi_open_handle_scope(registerMissionCB->cbBase.cbInfo.env, &scope);
     if (scope == nullptr) {
+        delete registerMissionCB;
+        registerMissionCB = nullptr;
         delete work;
         return;
     }
@@ -858,6 +860,8 @@ void UvWorkNotifySnapshot(uv_work_t *work, int status)
     napi_handle_scope scope = nullptr;
     napi_open_handle_scope(registerMissionCB->cbBase.cbInfo.env, &scope);
     if (scope == nullptr) {
+        delete registerMissionCB;
+        registerMissionCB = nullptr;
         delete work;
         return;
     }
@@ -938,6 +942,8 @@ void UvWorkNotifyNetDisconnect(uv_work_t *work, int status)
     napi_handle_scope scope = nullptr;
     napi_open_handle_scope(registerMissionCB->cbBase.cbInfo.env, &scope);
     if (scope == nullptr) {
+        delete registerMissionCB;
+        registerMissionCB = nullptr;
         delete work;
         return;
     }
@@ -1544,6 +1550,8 @@ void UvWorkOnContinueDone(uv_work_t *work, int status)
     napi_handle_scope scope = nullptr;
     napi_open_handle_scope(continueAbilityCB->cbBase.cbInfo.env, &scope);
     if (scope == nullptr) {
+        delete continueAbilityCB;
+        continueAbilityCB = nullptr;
         delete work;
         return;
     }
