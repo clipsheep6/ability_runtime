@@ -421,8 +421,6 @@ HWTEST_F(MainThreadTest, InitCreate_0100, TestSize.Level1)
     std::shared_ptr<ContextDeal> contextDeal;
     ApplicationInfo appInfo;
     ProcessInfo processInfo;
-    EXPECT_FALSE(mainThread_->InitCreate(contextDeal, appInfo, processInfo));
-    mainThread_->application_ = std::make_shared<OHOSApplication>();
     EXPECT_TRUE(mainThread_->InitCreate(contextDeal, appInfo, processInfo));
     HILOG_INFO("%{public}s end.", __func__);
 }

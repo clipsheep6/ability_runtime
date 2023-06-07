@@ -471,12 +471,15 @@ private:
     void TerminateRecord(std::shared_ptr<AbilityRecord> abilityRecord);
     int DisconnectRecordNormal(ConnectListType &list, std::shared_ptr<ConnectionRecord> connectRecord) const;
     void DisconnectRecordForce(ConnectListType &list, std::shared_ptr<ConnectionRecord> connectRecord);
+    std::shared_ptr<AbilityRecord> GetServiceRecordByElementNameInner(const std::string &element);
+    std::shared_ptr<AbilityRecord> GetExtensionFromServiceMapInner(const sptr<IRemoteObject> &token);
+    std::shared_ptr<AbilityRecord> GetExtensionFromTerminatingMapInner(const sptr<IRemoteObject> &token);
 
 private:
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
     const std::string TASK_ON_ABILITY_DIED = "OnAbilityDiedTask";
 
-    std::recursive_mutex Lock_;
+    std::mutex Lock_;
     ConnectMapType connectMap_;
     ServiceMapType serviceMap_;
     ServiceMapType terminatingExtensionMap_;

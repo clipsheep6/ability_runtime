@@ -28,6 +28,8 @@
 #include "napi_common_configuration.h"
 #include "napi_common_util.h"
 #include "napi_common_want.h"
+#include <type_traits>
+#include <vector>
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -170,15 +172,21 @@ OHOS::AppExecFwk::FormProviderInfo JsFormExtension::OnCreate(const OHOS::AAFwk::
         HILOG_ERROR("nativeObject get data is nullptr.");
         return formProviderInfo;
     }
-
     std::string formDataStr;
     if (!ConvertFromJsValue(*nativeEngine, nativeDataValue, formDataStr)) {
         HILOG_ERROR("convert formDataStr failed.");
         return formProviderInfo;
     }
-
     AppExecFwk::FormProviderData formData = AppExecFwk::FormProviderData(formDataStr);
     formProviderInfo.SetFormData(formData);
+
+    NativeValue* nativeProxies = nativeObject->GetProperty("proxies");
+    std::vector<FormDataProxy> formDataProxies;
+    if (nativeProxies != nullptr && !ConvertFromDataProxies(*nativeEngine, nativeProxies, formDataProxies)) {
+        HILOG_WARN("convert formDataProxies failed.");
+        return formProviderInfo;
+    }
+    formProviderInfo.SetFormDataProxies(formDataProxies);
     HILOG_INFO("ok");
     return formProviderInfo;
 }
@@ -452,6 +460,59 @@ bool JsFormExtension::OnAcquireData(int64_t formId, AAFwk::WantParams &wantParam
     }
 
     HILOG_DEBUG("called end.");
+    return true;
+}
+
+bool JsFormExtension::ConvertFromDataProxies(NativeEngine& engine, NativeValue* jsValue,
+    std::vector<FormDataProxy> &formDataProxies)
+{
+    if (jsValue == nullptr || !jsValue->IsArray()) {
+        HILOG_ERROR("%{public}s, jsValue is nullptr not array", __func__);
+        return false;
+    }
+
+    auto array = ConvertNativeValueTo<NativeArray>(jsValue);
+    if (array == nullptr) {
+        HILOG_ERROR("%{public}s, convert array failed", __func__);
+        return false;
+    }
+
+    for (uint32_t i = 0; i < array->GetLength(); i++) {
+        FormDataProxy formDataProxy("", "");
+        if (!ConvertFormDataProxy(engine, array->GetElement(i), formDataProxy)) {
+            HILOG_ERROR("GetElement from array [%{public}u] error", i);
+            return false;
+        }
+        formDataProxies.push_back(formDataProxy);
+    }
+    return true;
+}
+
+bool JsFormExtension::ConvertFormDataProxy(NativeEngine& engine, NativeValue* jsValue, FormDataProxy &formDataProxy)
+{
+    if (jsValue == nullptr || jsValue->TypeOf() != NATIVE_OBJECT) {
+        HILOG_ERROR("%{public}s, jsValue is nullptr not object", __func__);
+        return false;
+    }
+
+    NativeObject *jsObject = ConvertNativeValueTo<NativeObject>(jsValue);
+    if (jsObject == nullptr) {
+        HILOG_ERROR("%{public}s called, jsObject is nullptr.", __func__);
+        return false;
+    }
+
+    NativeValue* key = jsObject->GetProperty("key");
+    if (!ConvertFromJsValue(engine, key, formDataProxy.key)) {
+        HILOG_ERROR("Parse key failed");
+        return false;
+    }
+    NativeValue* subscribeId = jsObject->GetProperty("subscribeId");
+    if (subscribeId != nullptr && !ConvertFromJsValue(engine, subscribeId, formDataProxy.subscribeId)) {
+        HILOG_WARN("Parse subscribeId failed, use empty as default value.");
+        formDataProxy.subscribeId = "";
+    }
+    HILOG_INFO("key is %{public}s, subscribeId is %{public}s", formDataProxy.key.c_str(),
+        formDataProxy.subscribeId.c_str());
     return true;
 }
 } // namespace AbilityRuntime

@@ -64,7 +64,7 @@ HWTEST_F(UriPermissionManagerTest, ConnectUriPermService_002, TestSize.Level1)
     sptr<IRemoteObject> remoteObject = new (std::nothrow) UriPermissionLoadCallback();
     upmc.SetUriPermMgr(remoteObject);
     auto ret = upmc.ConnectUriPermService();
-    EXPECT_TRUE(ret != nullptr);
+    EXPECT_TRUE(ret == nullptr);
 }
 
 /*

@@ -101,9 +101,10 @@ void FormExtensionProviderClient::AcquireFormExtensionProviderInfo(const AppExec
         }
 
         formProviderInfo = ownerFormExtension->OnCreate(createWant);
-        HILOG_DEBUG("FormJsInfo.formId: %{public}s, data: %{public}s",
+        HILOG_DEBUG("FormJsInfo.formId: %{public}s, data: %{public}s, proxies size: %{public}zu.",
             createWant.GetStringParam(Constants::PARAM_FORM_IDENTITY_KEY).c_str(),
-            formProviderInfo.GetFormDataString().c_str());
+            formProviderInfo.GetFormDataString().c_str(),
+            formProviderInfo.GetFormProxies().size());
     }
 
     if (connectWant.HasParameter(Constants::PARAM_FORM_HOST_TOKEN)) {

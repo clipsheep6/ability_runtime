@@ -72,6 +72,11 @@ private:
 
     void GetSrcPath(std::string &srcPath);
 
+    bool ConvertFromDataProxies(NativeEngine& engine, NativeValue* jsValue,
+        std::vector<FormDataProxy> &formDataProxies);
+
+    bool ConvertFormDataProxy(NativeEngine& engine, NativeValue* jsValue, FormDataProxy &formDataProxy);
+
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;
     sptr<IRemoteObject> providerRemoteObject_ = nullptr;
