@@ -3610,11 +3610,27 @@ void MissionListManager::GetActiveAbilityList(const std::string &bundleName, std
 {
     for (auto missionList : currentMissionLists_) {
         if (missionList != nullptr) {
-            std::vector<std::string> abilityNameList;
-            missionList->GetActiveAbilityList(bundleName, abilityNameList);
-            if (!abilityNameList.empty()) {
-                abilityList.insert(abilityList.end(), abilityNameList.begin(), abilityNameList.end());
+            std::vector<std::string> currentActiveAbilities;
+            missionList->GetActiveAbilityList(bundleName, currentActiveAbilities);
+            if (!currentActiveAbilities.empty()) {
+                abilityList.insert(abilityList.end(), currentActiveAbilities.begin(), currentActiveAbilities.end());
             }
+        }
+    }
+
+    if (defaultStandardList_ != nullptr) {
+        std::vector<std::string> defaultActiveStandardList;
+        defaultStandardList_->GetActiveAbilityList(bundleName, defaultActiveStandardList);
+        if (!defaultActiveStandardList.empty()) {
+            abilityList.insert(abilityList.end(), defaultActiveStandardList.begin(), defaultActiveStandardList.end());
+        }
+    }
+
+    if (defaultSingleList_ != nullptr) {
+        std::vector<std::string> defaultActiveSingleList;
+        defaultSingleList_->GetActiveAbilityList(bundleName, defaultActiveSingleList);
+        if (!defaultActiveSingleList.empty()) {
+            abilityList.insert(abilityList.end(), defaultActiveSingleList.begin(), defaultActiveSingleList.end());
         }
     }
 
