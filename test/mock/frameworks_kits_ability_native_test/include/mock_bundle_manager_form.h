@@ -50,10 +50,10 @@ public:
         return 0;
     }
 
-    bool GetBundleNameForUid(const int uid, std::string& bundleName) override
+    ErrCode GetNameForUid(const int uid, std::string &name) override
     {
         bundleName = "com.form.provider.service";
-        return true;
+        return ERR_OK;
     }
 
     bool CheckIsSystemAppByUid(const int uid) override
@@ -94,11 +94,13 @@ public:
     int GetUidByBundleName(const std::string& bundleName, const int userId) override;
     bool GetBundleInfo(
         const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override;
-    bool GetBundleNameForUid(const int uid, std::string& bundleName) override
+
+    ErrCode GetNameForUid(const int uid, std::string &name) override
     {
         bundleName = "com.form.provider.service";
-        return true;
+        return ERR_OK;
     }
+
     bool CheckIsSystemAppByUid(const int uid) override
     {
         if (uid == USER_ID_U600) {
