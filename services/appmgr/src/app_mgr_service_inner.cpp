@@ -3187,9 +3187,16 @@ int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::strin
     if (!renderRecordMap.empty() && deviceType_.compare("tablet") != 0 && deviceType_.compare("pc") != 0) {
         for (auto iter : renderRecordMap) {
             if (iter.second != nullptr) {
-                HILOG_WARN("already exist render process, renderPid:%{public}d", iter.second->GetPid());
                 renderPid = iter.second->GetPid();
-                return ERR_ALREADY_EXIST_RENDER;
+                if (ProcessExist(renderPid)) {
+                    HILOG_WARN("already exist render process,do not request again, renderPid:%{public}d", renderPid);
+                    return ERR_ALREADY_EXIST_RENDER;
+                }
+                auto scheduler = iter.second->GetScheduler();
+                if (scheduler) {
+                    HILOG_WARN("render process not realy exist, renderPid:%{public}d", renderPid);
+                    OnRenderRemoteDied(scheduler->AsObject());
+                }
             }
         }
     }
