@@ -879,6 +879,13 @@ public:
     virtual void OnBackground();
 
     /**
+     * @brief Called when ability prepare terminate.
+     *
+     * @return Return true if ability need to stop terminating; return false if ability need to terminate.
+     */
+    virtual bool OnPrepareTerminate();
+
+    /**
      * @brief Called when a key is pressed. When any component in the Ability gains focus, the key-down event for
      * the component will be handled first. This callback will not be invoked if the callback triggered for the
      * key-down event of the component returns true. The default implementation of this callback does nothing

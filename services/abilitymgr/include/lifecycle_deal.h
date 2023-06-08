@@ -46,12 +46,13 @@ public:
      *
      */
     void Activate(const Want &want, LifeCycleStateInfo &stateInfo);
-    void Inactivate(const Want &want, LifeCycleStateInfo &stateInfo, sptr<SessionInfo> sessionInfo = nullptr);
+    void Inactivate(const Want &want, LifeCycleStateInfo &stateInfo);
     void MoveToBackground(const Want &want, LifeCycleStateInfo &stateInfo);
     void ConnectAbility(const Want &want);
     void DisconnectAbility(const Want &want);
     void Terminate(const Want &want, LifeCycleStateInfo &stateInfo);
     void CommandAbility(const Want &want, bool reStart, int startId);
+    void CommandAbilityWindow(const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd);
     void SaveAbilityState();
     void RestoreAbilityState(const PacMap &inState);
     void ForegroundNew(const Want &want, LifeCycleStateInfo &stateInfo,
@@ -61,6 +62,7 @@ public:
     void ContinueAbility(const std::string& deviceId, uint32_t versionCode);
     void NotifyContinuationResult(int32_t result);
     void ShareData(const int32_t &uniqueId);
+    bool PrepareTerminateAbility();
 
 private:
     sptr<IAbilityScheduler> GetScheduler();

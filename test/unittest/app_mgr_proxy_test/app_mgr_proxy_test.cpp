@@ -102,6 +102,28 @@ HWTEST_F(AppMgrProxyTest, AppMgrProxy_GetProcessRunningInfosByUserId_0100, TestS
 }
 
 /**
+ * @tc.name: AppMgrProxy_GetAllRenderProcesses_0100
+ * @tc.desc: GetAllRenderProcesses
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, AppMgrProxy_GetAllRenderProcesses_0100, TestSize.Level0)
+{
+    GTEST_LOG_(INFO) << "AppMgrProxy_GetAllRenderProcesses_0100 start";
+
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+
+    std::vector<RenderProcessInfo> info;
+    appMgrProxy_->GetAllRenderProcesses(info);
+
+    EXPECT_EQ(
+        mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::APP_GET_ALL_RENDER_PROCESSES));
+
+    GTEST_LOG_(INFO) << "AppMgrProxy_GetAllRenderProcesses_0100 end";
+}
+
+/**
  * @tc.name: GetAppRunningStateByBundleName_0100
  * @tc.desc: Get app running state by bundle name.
  * @tc.type: FUNC

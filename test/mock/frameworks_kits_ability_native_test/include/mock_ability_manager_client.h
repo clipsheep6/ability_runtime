@@ -55,6 +55,8 @@ public:
     virtual void ScheduleConnectAbility(const Want& want) {};
     virtual void ScheduleDisconnectAbility(const Want& want) {};
     virtual void ScheduleCommandAbility(const Want& want, bool restart, int startId) {};
+    virtual void ScheduleCommandAbilityWindow(const sptr<AAFwk::SessionInfo> &sessionInfo,
+        AAFwk::WindowCommand winCmd) {};
     virtual void ScheduleSaveAbilityState() {};
     virtual void ScheduleRestoreAbilityState(const PacMap& inState) {};
     virtual std::vector<std::string> GetFileTypes(const Uri& uri, const std::string& mimeTypeFilter)
@@ -143,6 +145,10 @@ public:
         return;
     };
     virtual void ScheduleShareData(const int32_t &uniqueId) {};
+    virtual bool SchedulePrepareTerminateAbility()
+    {
+        return false;
+    }
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

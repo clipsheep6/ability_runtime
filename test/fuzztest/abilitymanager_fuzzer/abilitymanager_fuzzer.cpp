@@ -39,7 +39,28 @@ uint32_t GetU32Data(const char* ptr)
 
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    uint32_t code = GetU32Data(data) % (IAbilityManager::GET_ABILITY_TOKEN + 1);
+    uint32_t code = GetU32Data(data) % (IAbilityManager::GET_ABILITY_TOKEN + IAbilityManager::SET_ROOTSSCENESESSION);
+    if (code >IAbilityManager::GET_ABILITY_TOKEN) {
+        code = IAbilityManager::GET_ABILITY_TOKEN;
+    } else if (code > IAbilityManager::SHARE_DATA_DONE && code != IAbilityManager::GET_ABILITY_TOKEN) {
+        code = IAbilityManager::ACQUIRE_SHARE_DATA +
+            (code % (IAbilityManager::SHARE_DATA_DONE - IAbilityManager::ACQUIRE_SHARE_DATA + 1));
+    } else if (code > IAbilityManager::VERIFY_PERMISSION) {
+        code = IAbilityManager::GET_TOP_ABILITY +
+            (code % (IAbilityManager::VERIFY_PERMISSION - IAbilityManager::GET_TOP_ABILITY + 1));
+    } else if (code > IAbilityManager::GET_DLP_CONNECTION_INFOS) {
+        code = IAbilityManager::REGISTER_WMS_HANDLER +
+            (code % (IAbilityManager::GET_DLP_CONNECTION_INFOS - IAbilityManager::REGISTER_WMS_HANDLER + 1));
+    } else if (code > IAbilityManager::FORCE_TIMEOUT) {
+        code = IAbilityManager::DUMP_STATE +
+            (code % (IAbilityManager::FORCE_TIMEOUT - IAbilityManager::DUMP_STATE + 1));
+    } else if (code > IAbilityManager::GET_TOP_ABILITY_TOKEN) {
+        code = IAbilityManager::START_ABILITY +
+            (code % (IAbilityManager::GET_TOP_ABILITY_TOKEN - IAbilityManager::START_ABILITY + 1));
+    } else if (code > IAbilityManager::SET_ROOTSSCENESESSION) {
+        code = IAbilityManager::TERMINATE_ABILITY +
+            (code % (IAbilityManager::SET_ROOTSSCENESESSION - IAbilityManager::TERMINATE_ABILITY + 1));
+    }
 
     MessageParcel parcel;
     parcel.WriteInterfaceToken(ABILITYMGR_INTERFACE_TOKEN);

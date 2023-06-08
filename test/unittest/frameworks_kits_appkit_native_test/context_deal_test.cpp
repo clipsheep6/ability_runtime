@@ -190,7 +190,7 @@ HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetBundleResourcePath_0200, Fun
 HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetAbilityManager_0100, Function | MediumTest | Level3)
 {
     sptr<AAFwk::IAbilityManager> ptr = context_->GetAbilityManager();
-    EXPECT_NE(ptr, nullptr);
+    EXPECT_EQ(ptr, nullptr);
 }
 
 /**

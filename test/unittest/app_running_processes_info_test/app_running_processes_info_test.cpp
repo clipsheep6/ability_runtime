@@ -254,6 +254,7 @@ HWTEST_F(AppRunningProcessesInfoTest, UpdateAppRunningRecord_002, TestSize.Level
 
     std::vector<RunningProcessInfo> info;
     size_t infoCount{ 1 };
+    record->SetSpawned();
     auto res = service_->GetAllRunningProcesses(info);
     EXPECT_TRUE(res == ERR_OK);
     EXPECT_TRUE(info.size() == infoCount);
@@ -331,6 +332,8 @@ HWTEST_F(AppRunningProcessesInfoTest, UpdateAppRunningRecord_003, TestSize.Level
 
     std::vector<RunningProcessInfo> info;
     size_t infoCount{ 2 };
+    record->SetSpawned();
+    record2->SetSpawned();
     auto res = service_->GetAllRunningProcesses(info);
     EXPECT_TRUE(res == ERR_OK);
     EXPECT_TRUE(info.size() == infoCount);

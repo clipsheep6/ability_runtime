@@ -35,16 +35,16 @@ template("abilitymanager") {
     ]
 
     deps = [
+      "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+      "${ability_runtime_innerkits_path}/runtime:runtime",
       "${ability_runtime_napi_path}/inner/napi_common:napi_common",
       "${ability_runtime_native_path}/ability/native:ability_business_error",
+      "${ability_runtime_native_path}/ability/native:abilitykit_native",
     ]
 
     external_deps = [
       "ability_base:configuration",
       "ability_base:want",
-      "ability_runtime:ability_manager",
-      "ability_runtime:abilitykit_native",
-      "ability_runtime:runtime",
       "access_token:libtokenid_sdk",
       "c_utils:utils",
       "common_event_service:cesfwk_innerkits",

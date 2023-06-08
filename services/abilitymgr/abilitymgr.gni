@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -48,6 +48,7 @@ abilityms_files = [
   "src/ams_configuration_parameter.cpp",
   "src/image_info.cpp",
   "src/mission_snapshot.cpp",
+  "src/window_focus_changed_listener.cpp",
 
   # new ability manager service here
   "src/task_data_persistence_mgr.cpp",
@@ -92,6 +93,8 @@ abilityms_files = [
 
   "src/ability_bundle_event_callback.cpp",
   "src/ability_event_util.cpp",
+
+  "src/app_exit_reason_data_manager.cpp",
 ]
 
 if (ability_runtime_graphics) {

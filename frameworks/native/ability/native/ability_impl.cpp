@@ -299,6 +299,18 @@ void AbilityImpl::CommandAbility(const Want &want, bool restart, int startId)
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
+bool AbilityImpl::PrepareTerminateAbility()
+{
+    HILOG_DEBUG("call");
+    if (ability_ == nullptr) {
+        HILOG_ERROR("ability_ is nullptr.");
+        return false;
+    }
+    bool ret = ability_->OnPrepareTerminate();
+    HILOG_DEBUG("end, ret = %{public}d", ret);
+    return ret;
+}
+
 int AbilityImpl::GetCurrentState()
 {
     return lifecycleState_;
@@ -679,23 +691,34 @@ void AbilityImpl::WindowLifeCycleImpl::ForegroundFailed(int32_t type)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     PacMap restoreData;
-    if (type == static_cast<int32_t>(OHOS::Rosen::WMError::WM_ERROR_INVALID_OPERATION)) {
-        HILOG_DEBUG("window was freezed.");
-        AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
-            AbilityLifeCycleState::ABILITY_STATE_WINDOW_FREEZED, restoreData);
-    } else if (type == static_cast<int32_t>(OHOS::Rosen::WMError::WM_ERROR_INVALID_WINDOW_MODE_OR_SIZE)) {
-        auto owner = owner_.lock();
-        if (owner == nullptr || !owner->IsStageBasedModel()) {
-            HILOG_ERROR("Not stage mode ability or abilityImpl is nullptr.");
-            return;
+    switch (type) {
+        case static_cast<int32_t>(OHOS::Rosen::WMError::WM_ERROR_INVALID_OPERATION): {
+            HILOG_DEBUG("window was freezed.");
+            AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
+                AbilityLifeCycleState::ABILITY_STATE_WINDOW_FREEZED, restoreData);
+            break;
         }
+        case static_cast<int32_t>(OHOS::Rosen::WMError::WM_ERROR_INVALID_WINDOW_MODE_OR_SIZE): {
+            auto owner = owner_.lock();
+            if (owner == nullptr || !owner->IsStageBasedModel()) {
+                HILOG_ERROR("Not stage mode ability or abilityImpl is nullptr.");
+                return;
+            }
 
-        HILOG_DEBUG("The ability is stage mode, schedule foreground invalid mode.");
-        AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
-            AbilityLifeCycleState::ABILITY_STATE_INVALID_WINDOW_MODE, restoreData);
-    } else {
-        AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
-            AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_FAILED, restoreData);
+            HILOG_DEBUG("The ability is stage mode, schedule foreground invalid mode.");
+            AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
+                AbilityLifeCycleState::ABILITY_STATE_INVALID_WINDOW_MODE, restoreData);
+            break;
+        }
+        case static_cast<int32_t>(OHOS::Rosen::WMError::WM_DO_NOTHING): {
+            AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
+                AbilityLifeCycleState::ABILITY_STATE_DO_NOTHING, restoreData);
+            break;
+        }
+        default: {
+            AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
+                AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_FAILED, restoreData);
+        }
     }
 }
 

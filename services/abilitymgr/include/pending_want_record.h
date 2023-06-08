@@ -60,7 +60,7 @@ private:
     bool canceled_ = false;
     std::shared_ptr<PendingWantKey> key_ = {};
     std::list<sptr<IWantReceiver>> mCancelCallbacks_ = {};
-    std::recursive_mutex lock_ = {};
+    std::mutex lock_ = {};
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -154,6 +154,13 @@ public:
      */
     void ScheduleCommandAbility(const Want &want, bool restart, int startId);
 
+    void ScheduleCommandAbilityWindow(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd);
+
+    /**
+     * @description: Provide operating system PrepareTerminateAbility information to the observer
+     */
+    bool SchedulePrepareTerminateAbility();
+
     /**
      * @description: Provide operating system SaveabilityState information to the observer
      */
@@ -452,10 +459,8 @@ private:
      * @description:  Handle the life cycle of Extension.
      * @param want  Indicates the structure containing lifecycle information about the extension.
      * @param lifeCycleStateInfo  Indicates the lifeCycleStateInfo.
-     * @param sessionInfo  Indicates the sessionInfo.
      */
-    void HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
-        sptr<SessionInfo> sessionInfo = nullptr);
+    void HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo);
 
     /**
      * @description:  Handle the current connection of Ability.
@@ -506,6 +511,8 @@ private:
      * value of startId is 6.
      */
     void HandleCommandExtension(const Want &want, bool restart, int startId);
+
+    void HandleCommandExtensionWindow(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd);
 
     /**
      * @description: Handle the restoreAbility state.

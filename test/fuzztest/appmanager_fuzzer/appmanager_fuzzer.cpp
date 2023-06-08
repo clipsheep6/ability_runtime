@@ -25,7 +25,6 @@
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
-#define DISABLE_FUZZ
 namespace OHOS {
 namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
@@ -49,7 +48,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     parcel.RewindRead(0);
     MessageParcel reply;
     MessageOption option;
-    sptr<AppMgrService> appMgr = new AppMgrService();
+    std::shared_ptr<AppMgrService> appMgr = std::make_shared<AppMgrService>();
     appMgr->OnRemoteRequest(code, parcel, reply, option);
 
     return true;
@@ -83,9 +82,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         ch = nullptr;
         return 0;
     }
-#ifndef DISABLE_FUZZ
     OHOS::DoSomethingInterestingWithMyAPI(ch, size);
-#endif
     free(ch);
     ch = nullptr;
     return 0;

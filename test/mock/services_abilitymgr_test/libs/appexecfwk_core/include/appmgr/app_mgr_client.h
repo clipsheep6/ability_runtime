@@ -22,6 +22,7 @@
 #include "ability_info.h"
 #include "application_info.h"
 #include "iapp_state_callback.h"
+#include "render_process_info.h"
 #include "running_process_info.h"
 #include "want.h"
 
@@ -141,6 +142,15 @@ public:
      * @return ERR_OK ,return back success��others fail.
      */
     virtual AppMgrResultCode GetAllRunningProcesses(std::vector<RunningProcessInfo>& info);
+
+    /**
+     * GetAllRenderProcesses, call GetAllRenderProcesses() through proxy project.
+     * Obtains information about render processes that are running on the device.
+     *
+     * @param info, render process info.
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual AppMgrResultCode GetAllRenderProcesses(std::vector<RenderProcessInfo> &info);
 
     /**
      * SetAppSuspendTimes, Setting the Freezing Time of APP Background.

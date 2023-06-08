@@ -69,6 +69,15 @@ ErrCode AbilityManagerClient::ScheduleCommandAbilityDone(const sptr<IRemoteObjec
     return -1;
 }
 
+ErrCode AbilityManagerClient::ScheduleCommandAbilityWindowDone(
+    const sptr<IRemoteObject> &token,
+    const sptr<SessionInfo> &sessionInfo,
+    WindowCommand winCmd,
+    AbilityCommand abilityCmd)
+{
+    return -1;
+}
+
 ErrCode AbilityManagerClient::StartAbility(const Want& want, int requestCode, int32_t userId)
 {
     return -1;

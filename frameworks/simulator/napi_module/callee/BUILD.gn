@@ -20,7 +20,7 @@ gen_js_src_binary("callee") {
   js_source = "${ability_runtime_napi_path}/callee/callee.js"
 }
 
-ohos_shared_library("callee_napi") {
+ohos_shared_library("callee") {
   if (is_mingw) {
     defines = [ "WINDOWS_PLATFORM" ]
   } else {

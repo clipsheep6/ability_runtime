@@ -42,6 +42,7 @@ public:
     MOCK_METHOD1(StartupResidentProcess, void(const std::vector<AppExecFwk::BundleInfo> &bundleInfos));
     MOCK_METHOD2(StartSpecifiedAbility, void(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo));
     MOCK_METHOD1(GetAllRunningProcesses, AppMgrResultCode(std::vector<RunningProcessInfo> &info));
+    MOCK_METHOD1(GetAllRenderProcesses, AppMgrResultCode(std::vector<RenderProcessInfo> &info));
     MOCK_METHOD2(GetProcessRunningInfosByUserId, AppMgrResultCode(
         std::vector<RunningProcessInfo> &info, int32_t userId));
     MOCK_METHOD4(StartUserTestProcess, int(

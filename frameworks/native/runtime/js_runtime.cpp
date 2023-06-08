@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,7 +28,6 @@
 #include "constants.h"
 #include "connect_server_manager.h"
 #include "ecmascript/napi/include/jsnapi.h"
-#include "event_handler.h"
 #include "extract_resource_manager.h"
 #include "file_path_utils.h"
 #include "hdc_register.h"
@@ -36,13 +35,11 @@
 #include "hitrace_meter.h"
 #include "hot_reloader.h"
 #include "ipc_skeleton.h"
-#include "js_console_log.h"
 #include "js_environment.h"
 #include "js_module_reader.h"
 #include "js_module_searcher.h"
 #include "js_quickfix_callback.h"
 #include "js_runtime_utils.h"
-#include "js_timer.h"
 #include "js_utils.h"
 #include "js_worker.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
@@ -64,8 +61,10 @@ using Extractor = OHOS::AbilityBase::Extractor;
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
+constexpr size_t PARAM_TWO = 2;
 constexpr uint8_t SYSCAP_MAX_SIZE = 64;
 constexpr int64_t DEFAULT_GC_POOL_SIZE = 0x10000000; // 256MB
+constexpr int32_t DEFAULT_INTER_VAL = 500;
 const std::string SANDBOX_ARK_CACHE_PATH = "/data/storage/ark-cache/";
 const std::string SANDBOX_ARK_PROIFILE_PATH = "/data/storage/ark-profile";
 #ifdef APP_USE_ARM
@@ -74,7 +73,6 @@ constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/libark_debugger.z.so";
 constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
 #endif
 
-constexpr char TIMER_TASK[] = "uv_timer_task";
 constexpr char MERGE_ABC_PATH[] = "/ets/modules.abc";
 constexpr char BUNDLE_INSTALL_PATH[] = "/data/storage/el1/bundle/";
 constexpr const char* PERMISSION_RUN_ANY_CODE = "ohos.permission.RUN_ANY_CODE";
@@ -122,73 +120,6 @@ void InitSyscapModule(NativeEngine& engine, NativeObject& globalObject)
     const char *moduleName = "JsRuntime";
     BindNativeFunction(engine, globalObject, "canIUse", moduleName, CanIUse);
 }
-
-class UvLoopHandler : public AppExecFwk::FileDescriptorListener, public std::enable_shared_from_this<UvLoopHandler> {
-public:
-    explicit UvLoopHandler(uv_loop_t* uvLoop) : uvLoop_(uvLoop) {}
-
-    void OnReadable(int32_t) override
-    {
-        HILOG_DEBUG("UvLoopHandler::OnReadable is triggered");
-        OnTriggered();
-    }
-
-    void OnWritable(int32_t) override
-    {
-        HILOG_DEBUG("UvLoopHandler::OnWritable is triggered");
-        OnTriggered();
-    }
-
-private:
-    void OnTriggered()
-    {
-        HILOG_DEBUG("UvLoopHandler::OnTriggered is triggered");
-
-        auto fd = uv_backend_fd(uvLoop_);
-        struct epoll_event ev;
-        do {
-            uv_run(uvLoop_, UV_RUN_NOWAIT);
-        } while (epoll_wait(fd, &ev, 1, 0) > 0);
-
-        auto eventHandler = GetOwner();
-        if (!eventHandler) {
-            return;
-        }
-
-        int32_t timeout = uv_backend_timeout(uvLoop_);
-        if (timeout < 0) {
-            if (haveTimerTask_) {
-                eventHandler->RemoveTask(TIMER_TASK);
-            }
-            return;
-        }
-
-        int64_t timeStamp = static_cast<int64_t>(uv_now(uvLoop_)) + timeout;
-        if (timeStamp == lastTimeStamp_) {
-            return;
-        }
-
-        if (haveTimerTask_) {
-            eventHandler->RemoveTask(TIMER_TASK);
-        }
-
-        auto callback = [wp = weak_from_this()] {
-            auto sp = wp.lock();
-            if (sp) {
-                // Timer task is triggered, so there is no timer task now.
-                sp->haveTimerTask_ = false;
-                sp->OnTriggered();
-            }
-        };
-        eventHandler->PostTask(callback, TIMER_TASK, timeout);
-        lastTimeStamp_ = timeStamp;
-        haveTimerTask_ = true;
-    }
-
-    uv_loop_t* uvLoop_ = nullptr;
-    int64_t lastTimeStamp_ = 0;
-    bool haveTimerTask_ = false;
-};
 
 int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char* message)
 {
@@ -239,15 +170,15 @@ void JsRuntime::StartDebugMode(bool needBreakPoint)
         HILOG_INFO("Already in debug mode");
         return;
     }
-
+    CHECK_POINTER(jsEnv_);
     // Set instance id to tid after the first instance.
     if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
         instanceId_ = static_cast<uint32_t>(gettid());
     }
 
     HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
-    auto debuggerPostTask = [eventHandler = eventHandler_](std::function<void()>&& task) {
-        eventHandler->PostTask(task);
+    auto debuggerPostTask = [jsEnv = jsEnv_](std::function<void()>&& task) {
+        jsEnv->PostTask(task);
     };
     StartDebuggerInWorkerModule();
     HdcRegister::Get().StartHdcRegister(bundleName_);
@@ -284,6 +215,86 @@ bool JsRuntime::StartDebugger(bool needBreakPoint, uint32_t instanceId, const De
 void JsRuntime::StopDebugger()
 {
     jsEnv_->StopDebugger();
+}
+
+int32_t JsRuntime::JsperfProfilerCommandParse(const std::string &command, int32_t defaultValue)
+{
+    HILOG_DEBUG("profiler command parse %{public}s", command.c_str());
+    auto findPos = command.find("jsperf");
+    if (findPos == std::string::npos) {
+        // jsperf command not found, so not to do, return zero.
+        HILOG_DEBUG("jsperf command not found");
+        return 0;
+    }
+
+    // match jsperf command
+    auto jsPerfStr = command.substr(findPos, command.length() - findPos);
+    const std::regex regexJsperf(R"(^jsperf($|\s+($|\d*\s*($|nativeperf.*))))");
+    std::match_results<std::string::const_iterator> matchResults;
+    if (!std::regex_match(jsPerfStr, matchResults, regexJsperf)) {
+        HILOG_DEBUG("the order not match");
+        return defaultValue;
+    }
+
+    // get match resuflt
+    std::string jsperfResuflt;
+    constexpr size_t matchResultIndex = 1;
+    if (matchResults.size() < PARAM_TWO) {
+        HILOG_ERROR("no results need to be matched");
+        return defaultValue;
+    }
+
+    jsperfResuflt = matchResults[matchResultIndex].str();
+    // match number result
+    const std::regex regexJsperfNum(R"(^\s*(\d+).*)");
+    std::match_results<std::string::const_iterator> jsperfMatchResults;
+    if (!std::regex_match(jsperfResuflt, jsperfMatchResults, regexJsperfNum)) {
+        HILOG_DEBUG("the jsperf results not match");
+        return defaultValue;
+    }
+
+    // get match result
+    std::string interval;
+    constexpr size_t matchNumResultIndex = 1;
+    if (jsperfMatchResults.size() < PARAM_TWO) {
+        HILOG_ERROR("no results need to be matched");
+        return defaultValue;
+    }
+
+    interval = jsperfMatchResults[matchNumResultIndex].str();
+    if (interval.empty()) {
+        HILOG_DEBUG("match order result error");
+        return defaultValue;
+    }
+
+    return std::stoi(interval);
+}
+
+void JsRuntime::StartProfiler(const std::string &perfCmd)
+{
+    CHECK_POINTER(jsEnv_);
+    if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
+        instanceId_ = static_cast<uint32_t>(gettid());
+    }
+
+    auto debuggerPostTask = [jsEnv = jsEnv_](std::function<void()>&& task) {
+        jsEnv->PostTask(task);
+    };
+
+    StartDebuggerInWorkerModule();
+    HdcRegister::Get().StartHdcRegister(bundleName_);
+    ConnectServerManager::Get().StartConnectServer(bundleName_);
+    ConnectServerManager::Get().AddInstance(instanceId_);
+    JsEnv::JsEnvironment::PROFILERTYPE profiler = JsEnv::JsEnvironment::PROFILERTYPE::PROFILERTYPE_HEAP;
+    int32_t interval = 0;
+    const std::string profilerCommand("profile");
+    if (perfCmd.find(profilerCommand) != std::string::npos) {
+        profiler = JsEnv::JsEnvironment::PROFILERTYPE::PROFILERTYPE_CPU;
+        interval = JsperfProfilerCommandParse(perfCmd, DEFAULT_INTER_VAL);
+    }
+
+    HILOG_DEBUG("profiler:%{public}d interval:%{public}d.", profiler, interval);
+    jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval, debuggerPostTask);
 }
 
 bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer)
@@ -483,7 +494,6 @@ bool JsRuntime::Initialize(const Options& options)
         CHECK_POINTER_AND_RETURN(globalObj, false);
 
         if (!preloaded_) {
-            InitConsoleModule();
             InitSyscapModule(*nativeEngine, *globalObj);
 
             // Simple hook function 'isSystemplugin'
@@ -519,7 +529,7 @@ bool JsRuntime::Initialize(const Options& options)
                 if (newCreate) {
                     ExtractorUtil::AddExtractor(loadPath, extractor);
                     extractor->SetRuntimeFlag(true);
-                    panda::JSNApi::LoadAotFile(vm, options.hapPath);
+                    panda::JSNApi::LoadAotFile(vm, options.moduleName);
                 }
             }
 
@@ -532,20 +542,25 @@ bool JsRuntime::Initialize(const Options& options)
                 HILOG_ERROR("Initialize loop failed.");
                 return false;
             }
-
-            if (options.isUnique) {
-                HILOG_INFO("Not supported TimerModule when form render");
-            } else {
-                InitTimerModule();
-            }
-            if (jsEnv_) {
-                jsEnv_->InitWorkerModule(codePath_, options.isDebugVersion, options.isBundle);
-            }
         }
     }
 
-    auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>(options.hapPath, isModular);
-    InitSourceMap(operatorObj);
+    if (!preloaded_) {
+        InitConsoleModule();
+    }
+
+    if (!options.preload) {
+        auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>(options.hapPath, isModular);
+        InitSourceMap(operatorObj);
+
+        if (options.isUnique) {
+            HILOG_INFO("Not supported TimerModule when form render");
+        } else {
+            InitTimerModule();
+        }
+
+        InitWorkerModule(options);
+    }
 
     preloaded_ = options.preload;
     return true;
@@ -599,7 +614,7 @@ void JsRuntime::PreloadAce(const Options& options)
     if (options.loadAce) {
         // ArkTsCard start
         if (options.isUnique) {
-            OHOS::Ace::DeclarativeModulePreloader::PreloadCard(*nativeEngine);
+            OHOS::Ace::DeclarativeModulePreloader::PreloadCard(*nativeEngine, options.bundleName);
         } else {
             OHOS::Ace::DeclarativeModulePreloader::Preload(*nativeEngine);
         }
@@ -608,27 +623,19 @@ void JsRuntime::PreloadAce(const Options& options)
 #endif
 }
 
+void JsRuntime::ReloadFormComponent()
+{
+    HILOG_DEBUG("Call.");
+    auto nativeEngine = GetNativeEnginePointer();
+    CHECK_POINTER(nativeEngine);
+    // ArkTsCard update condition, need to reload new component
+    OHOS::Ace::DeclarativeModulePreloader::ReloadCard(*nativeEngine, bundleName_);
+}
+
 bool JsRuntime::InitLoop(const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner)
 {
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER_AND_RETURN(nativeEngine, false);
-
-    // Create event handler for runtime
-    eventHandler_ = std::make_shared<AppExecFwk::EventHandler>(eventRunner);
-
-    auto uvLoop = nativeEngine->GetUVLoop();
-    auto fd = uvLoop != nullptr ? uv_backend_fd(uvLoop) : -1;
-    if (fd < 0) {
-        HILOG_ERROR("Failed to get backend fd from uv loop");
-        return false;
-    }
-
-    // MUST run uv loop once before we listen its backend fd.
-    uv_run(uvLoop, UV_RUN_NOWAIT);
-
-    uint32_t events = AppExecFwk::FILE_DESCRIPTOR_INPUT_EVENT | AppExecFwk::FILE_DESCRIPTOR_OUTPUT_EVENT;
-    eventHandler_->AddFileDescriptorListener(fd, events, std::make_shared<UvLoopHandler>(uvLoop));
-    return true;
+    CHECK_POINTER_AND_RETURN(jsEnv_, false);
+    return jsEnv_->InitLoop(eventRunner);
 }
 
 void JsRuntime::SetAppLibPath(const AppLibPathMap& appLibPaths, const bool& isSystemApp)
@@ -668,14 +675,8 @@ void JsRuntime::Deinitialize()
 
     methodRequireNapiRef_.reset();
 
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER(nativeEngine);
-    auto uvLoop = nativeEngine->GetUVLoop();
-    auto fd = uvLoop != nullptr ? uv_backend_fd(uvLoop) : -1;
-    if (fd >= 0 && eventHandler_ != nullptr) {
-        eventHandler_->RemoveFileDescriptorListener(fd);
-    }
-    RemoveTask(TIMER_TASK);
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->DeInitLoop();
 }
 
 NativeValue* JsRuntime::LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk)
@@ -829,7 +830,7 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
     if (newCreate) {
         ExtractorUtil::AddExtractor(loadPath, extractor);
         extractor->SetRuntimeFlag(true);
-        panda::JSNApi::LoadAotFile(vm, hapPath);
+        panda::JSNApi::LoadAotFile(vm, moduleName_);
         auto resourceManager = AbilityBase::ExtractResourceManager::GetExtractResourceManager().GetGlobalObject();
         if (resourceManager) {
             resourceManager->AddResource(loadPath.c_str());
@@ -900,16 +901,14 @@ bool JsRuntime::RunSandboxScript(const std::string& path, const std::string& hap
 
 void JsRuntime::PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime)
 {
-    if (eventHandler_ != nullptr) {
-        eventHandler_->PostTask(task, name, delayTime);
-    }
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->PostTask(task, name, delayTime);
 }
 
 void JsRuntime::RemoveTask(const std::string& name)
 {
-    if (eventHandler_ != nullptr) {
-        eventHandler_->RemoveTask(name);
-    }
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->RemoveTask(name);
 }
 
 void JsRuntime::DumpHeapSnapshot(bool isPrivate)
@@ -1122,6 +1121,20 @@ void JsRuntime::InitTimerModule()
 {
     CHECK_POINTER(jsEnv_);
     jsEnv_->InitTimerModule();
+}
+
+void JsRuntime::InitWorkerModule(const Options& options)
+{
+    CHECK_POINTER(jsEnv_);
+    std::shared_ptr<JsEnv::WorkerInfo> workerInfo = std::make_shared<JsEnv::WorkerInfo>();
+    workerInfo->codePath = options.codePath;
+    workerInfo->isDebugVersion = options.isDebugVersion;
+    workerInfo->isBundle = options.isBundle;
+    workerInfo->packagePathStr = options.packagePathStr;
+    workerInfo->assetBasePathStr = options.assetBasePathStr;
+    workerInfo->hapPath = options.hapPath;
+    workerInfo->isStageModel = options.isStageModel;
+    jsEnv_->InitWorkerModule(workerInfo);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

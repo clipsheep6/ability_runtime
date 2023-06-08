@@ -18,7 +18,6 @@
 
 #include "extension.h"
 #include "lifecycle_state_info.h"
-#include "session/container/include/session_stage.h"
 
 namespace OHOS {
 class IRemoteObject;
@@ -59,11 +58,9 @@ public:
      *
      * @param want The Want object to connect to.
      * @param targetState The terget state.
-     * @param sessionInfo  Indicates the sessionInfo.
      *
      */
-    virtual void HandleExtensionTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
-        sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
+    virtual void HandleExtensionTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState);
 
     /**
      * @brief scheduling update configuration of extension.
@@ -134,15 +131,16 @@ public:
      */
     void CommandExtension(const Want &want, bool restart, int startId);
 
+    void CommandExtensionWindow(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd);
+
 protected:
     /**
      * @brief Toggles the lifecycle status of Extension to AAFwk::ABILITY_STATE_INACTIVE. And notifies the application
      * that it belongs to of the lifecycle status.
      *
      * @param want  The Want object to switch the life cycle.
-     * @param sessionInfo  Indicates the sessionInfo.
      */
-    void Start(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
+    void Start(const Want &want);
 
     /**
      * @brief Toggles the lifecycle status of Extension to AAFwk::ABILITY_STATE_INITIAL. And notifies the application

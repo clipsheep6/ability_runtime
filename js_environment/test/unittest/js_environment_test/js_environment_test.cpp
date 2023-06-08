@@ -298,5 +298,43 @@ HWTEST_F(JsEnvironmentTest, InitConsoleModule_0100, TestSize.Level0)
 
     jsEnv->InitConsoleModule();
 }
+
+/**
+ * @tc.name: StartProfiler_0100
+ * @tc.desc: StartProfiler
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsEnvironmentTest, StartProfiler_0100, TestSize.Level1)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+
+    auto debuggerPostTask = [](std::function<void()>&& task) {};
+
+    const char* libraryPath = "LIBRARYPATH";
+    jsEnv->StartProfiler(libraryPath, 0, JsEnvironment::PROFILERTYPE::PROFILERTYPE_CPU, 0, debuggerPostTask);
+    ASSERT_EQ(jsEnv->GetVM(), nullptr);
+}
+
+/**
+ * @tc.name: StartProfiler_0200
+ * @tc.desc: StartProfiler
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsEnvironmentTest, StartProfiler_0200, TestSize.Level1)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+
+    auto debuggerPostTask = [](std::function<void()>&& task) {};
+
+    panda::RuntimeOption pandaOption;
+    auto ret = jsEnv->Initialize(pandaOption, static_cast<void*>(this));
+    ASSERT_EQ(ret, true);
+
+    const char* libraryPath = "LIBRARYPATH";
+    jsEnv->StartProfiler(libraryPath, 0, JsEnvironment::PROFILERTYPE::PROFILERTYPE_HEAP, 0, debuggerPostTask);
+    ASSERT_NE(jsEnv->GetVM(), nullptr);
+}
 }  // namespace JsEnv
 }  // namespace OHOS

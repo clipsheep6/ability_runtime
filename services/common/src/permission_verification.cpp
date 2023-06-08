@@ -226,7 +226,7 @@ int PermissionVerification::CheckCallDataAbilityPermission(const VerificationInf
     }
 
     if ((verificationInfo.apiTargetVersion > API8 || IsShellCall()) &&
-        !JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall)) {
+        !JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall, verificationInfo.withContinuousTask)) {
         HILOG_ERROR("Application can not start DataAbility from background after API8.");
         return CHECK_PERMISSION_FAILED;
     }
@@ -249,7 +249,7 @@ int PermissionVerification::CheckCallServiceAbilityPermission(const Verification
     }
 
     if ((verificationInfo.apiTargetVersion > API8 || IsShellCall()) &&
-        !JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall)) {
+        !JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall, verificationInfo.withContinuousTask)) {
         HILOG_ERROR("Application can not start ServiceAbility from background after API8.");
         return CHECK_PERMISSION_FAILED;
     }
@@ -293,7 +293,7 @@ int PermissionVerification::CheckStartByCallPermission(const VerificationInfo &v
     if (!JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible)) {
         return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
     }
-    if (!JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall)) {
+    if (!JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall, verificationInfo.withContinuousTask)) {
         return CHECK_PERMISSION_FAILED;
     }
 
@@ -325,12 +325,19 @@ bool PermissionVerification::JudgeStartInvisibleAbility(const uint32_t accessTok
     return false;
 }
 
-bool PermissionVerification::JudgeStartAbilityFromBackground(const bool isBackgroundCall) const
+bool PermissionVerification::JudgeStartAbilityFromBackground(
+    const bool isBackgroundCall, bool withContinuousTask) const
 {
     if (!isBackgroundCall) {
         HILOG_DEBUG("Caller is not background, PASS.");
         return true;
     }
+
+    if (withContinuousTask) {
+        HILOG_DEBUG("Caller has continuous task, PASS.");
+        return true;
+    }
+
     // Temporarily supports permissions with two different spellings
     // PERMISSION_START_ABILIIES_FROM_BACKGROUND will be removed later due to misspelling
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_START_ABILITIES_FROM_BACKGROUND) ||
@@ -364,7 +371,7 @@ int PermissionVerification::JudgeInvisibleAndBackground(const VerificationInfo &
     if (!JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible)) {
         return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
     }
-    if (!JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall)) {
+    if (!JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall, verificationInfo.withContinuousTask)) {
         return CHECK_PERMISSION_FAILED;
     }
 
@@ -384,6 +391,19 @@ bool PermissionVerification::IsSystemAppCall() const
 {
     auto callerToken = IPCSkeleton::GetCallingFullTokenID();
     return Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(callerToken);
+}
+
+bool PermissionVerification::VerifyPrepareTerminatePermission() const
+{
+    if (IsSACall()) {
+        return true;
+    }
+    if (VerifyCallingPermission(PermissionConstants::PERMISSION_PREPARE_TERMINATE)) {
+        HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
+        return true;
+    }
+    HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+    return false;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

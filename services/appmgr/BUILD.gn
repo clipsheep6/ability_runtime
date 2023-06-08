@@ -51,10 +51,11 @@ ohos_shared_library("libappms") {
     "src/window_focus_changed_listener.cpp",
   ]
 
-  defines = [
-    "AMS_LOG_TAG = \"AppMgrService\"",
-    "APP_MGR_SERVICE_APPMS",
-  ]
+  defines = [ "AMS_LOG_TAG = \"AppMgrService\"" ]
+
+  if (product_name != "ohcore") {
+    defines += [ "APP_MGR_SERVICE_APPMS" ]
+  }
 
   if (ability_command_for_test) {
     defines += [ "ABILITY_COMMAND_FOR_TEST" ]
@@ -66,6 +67,8 @@ ohos_shared_library("libappms") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/common:perm_verification",
@@ -75,8 +78,6 @@ ohos_shared_library("libappms") {
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
-    "ability_runtime:ability_deps_wrapper",
-    "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_base",
@@ -90,11 +91,14 @@ ohos_shared_library("libappms") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "netmanager_base:socket_permission",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "window_manager:libwsutils",
   ]
+
+  if (product_name != "ohcore") {
+    external_deps += [ "netmanager_base:socket_permission" ]
+  }
 
   if (ability_runtime_graphics) {
     defines += [ "SUPPORT_GRAPHICS" ]

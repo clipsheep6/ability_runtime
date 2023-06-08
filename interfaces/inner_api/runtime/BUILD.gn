@@ -50,7 +50,6 @@ ohos_shared_library("runtime") {
   sources = [
     "${ability_runtime_native_path}/runtime/connect_server_manager.cpp",
     "${ability_runtime_native_path}/runtime/hdc_register.cpp",
-    "${ability_runtime_native_path}/runtime/js_console_log.cpp",
     "${ability_runtime_native_path}/runtime/js_data_struct_converter.cpp",
     "${ability_runtime_native_path}/runtime/js_error_utils.cpp",
     "${ability_runtime_native_path}/runtime/js_module_reader.cpp",
@@ -58,10 +57,10 @@ ohos_shared_library("runtime") {
     "${ability_runtime_native_path}/runtime/js_quickfix_callback.cpp",
     "${ability_runtime_native_path}/runtime/js_runtime.cpp",
     "${ability_runtime_native_path}/runtime/js_runtime_utils.cpp",
-    "${ability_runtime_native_path}/runtime/js_timer.cpp",
     "${ability_runtime_native_path}/runtime/js_worker.cpp",
     "${ability_runtime_native_path}/runtime/ohos_js_env_logger.cpp",
     "${ability_runtime_native_path}/runtime/ohos_js_environment_impl.cpp",
+    "${ability_runtime_native_path}/runtime/ohos_loop_handler.cpp",
     "${ability_runtime_native_path}/runtime/runtime.cpp",
   ]
 
@@ -76,7 +75,7 @@ ohos_shared_library("runtime") {
 
   deps = [
     "${ability_runtime_native_path}/ability/native:ability_business_error",
-    "${arkui_path}/napi:ace_napi_ark",
+    "${ability_runtime_path}/js_environment/frameworks/js_environment:js_environment",
     "${third_party_path}/zlib:shared_libz",
   ]
 
@@ -86,7 +85,6 @@ ohos_shared_library("runtime") {
     "ability_base:extractresourcemanager",
     "ability_base:string_utils",
     "ability_base:want",
-    "ability_runtime:js_environment",
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -99,6 +97,7 @@ ohos_shared_library("runtime") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "napi:ace_napi_ark",
     "resource_management:global_resmgr",
     "samgr:samgr_proxy",
   ]

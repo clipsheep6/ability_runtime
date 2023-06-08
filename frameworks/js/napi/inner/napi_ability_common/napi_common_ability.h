@@ -372,7 +372,7 @@ struct key_compare {
     }
 };
 static std::map<ConnectionKey, sptr<NAPIAbilityConnection>, key_compare> connects_;
-static std::recursive_mutex g_connectionsLock_;
+static std::mutex g_connectionsLock_;
 static int64_t serialNumber_ = 0;
 enum ErrorCode {
     NO_ERROR = 0,

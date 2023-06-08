@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+/*
  * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,14 +11,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- -->
-<info>
-    <process>service_router</process>
-    <systemability>
-        <name>404</name>
-        <libpath>/system/lib64/libsrms.z.so</libpath>
-        <run-on-create>false</run-on-create>
-        <distributed>false</distributed>
-        <dump-level>1</dump-level>
-    </systemability>
-</info>
+ */
+
+#ifndef OHOS_ABILITY_RUNTIME_UI_EXTENSION_WINDOW_COMMAND_H
+#define OHOS_ABILITY_RUNTIME_UI_EXTENSION_WINDOW_COMMAND_H
+
+namespace OHOS {
+namespace AAFwk {
+enum WindowCommand {
+    WIN_CMD_FOREGROUND,
+    WIN_CMD_BACKGROUND,
+    WIN_CMD_DESTROY
+};
+
+enum AbilityCommand {
+    ABILITY_CMD_FOREGROUND,
+    ABILITY_CMD_BACKGROUND,
+    ABILITY_CMD_DESTROY
+};
+}  // namespace AAFwk
+}  // namespace OHOS
+#endif  // OHOS_ABILITY_RUNTIME_UI_EXTENSION_WINDOW_COMMAND_H

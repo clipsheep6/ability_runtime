@@ -18,13 +18,13 @@ import("//foundation/arkui/ace_engine/build/ace_gen_obj.gni")
 
 ts2abc_gen_abc("gen_abc_js_mock") {
   js_mock_path =
-      get_label_info("//third_party/jsframework:gen_snapshot",
+      get_label_info("${previewer_path}/automock:gen_snapshot_jsmock",
                      "target_out_dir") + "/dist/jsMockSystemPlugin.js"
   src_js = rebase_path(js_mock_path)
   dst_file = rebase_path(target_out_dir + "/jsMockSystemPlugin.abc")
   in_puts = [ js_mock_path ]
   out_puts = [ target_out_dir + "/jsMockSystemPlugin.abc" ]
-  extra_dependencies = [ "//third_party/jsframework:gen_snapshot" ]
+  extra_dependencies = [ "${previewer_path}/automock:gen_snapshot_jsmock" ]
 }
 
 gen_obj("js_mock_abc") {
@@ -66,9 +66,9 @@ ohos_shared_library("ability_simulator") {
   ]
 
   sources = [
-    "${ability_runtime_native_path}/runtime/js_console_log.cpp",
     "${ability_runtime_native_path}/runtime/js_module_searcher.cpp",
-    "${ability_runtime_native_path}/runtime/js_runtime_utils.cpp",
+    "src/js_console_log.cpp",
+    "src/js_runtime_utils.cpp",
     "src/js_timer.cpp",
     "src/simulator.cpp",
   ]
@@ -80,7 +80,6 @@ ohos_shared_library("ability_simulator") {
 
   deps = [
     ":gen_obj_src_js_mock_abc",
-    "${ability_runtime_native_path}/runtime:string_utils",
     "${ability_runtime_path}/frameworks/simulator/osal:simulator_osal",
     "${arkui_path}/napi:ace_napi_ark",
     "${hilog_path}/interfaces/native/innerkits:libhilog_$platform",
@@ -89,6 +88,7 @@ ohos_shared_library("ability_simulator") {
   ]
 
   external_deps = [
+    "ability_base:string_utils",
     "ets_runtime:libark_jsruntime",
     "napi:ace_napi",
   ]

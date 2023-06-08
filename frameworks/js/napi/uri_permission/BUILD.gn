@@ -25,15 +25,15 @@ ohos_shared_library("uripermissionmanager_napi") {
   include_dirs = []
 
   deps = [
+    "${ability_runtime_innerkits_path}/error_utils:ability_runtime_error_util",
+    "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
   ]
 
   external_deps = [
     "ability_base:zuri",
-    "ability_runtime:ability_runtime_error_util",
-    "ability_runtime:abilitykit_native",
-    "ability_runtime:runtime",
     "access_token:libtokenid_sdk",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",

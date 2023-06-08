@@ -163,7 +163,7 @@ private:
     ModuleRecordState GetState() const;
 
 private:
-    mutable std::recursive_mutex abilitiesMutex_;
+    mutable std::mutex abilitiesMutex_;
     std::map<const sptr<IRemoteObject>, std::shared_ptr<AbilityRunningRecord>> abilities_;
     std::map<const sptr<IRemoteObject>, std::shared_ptr<AbilityRunningRecord>> terminateAbilities_;
     std::weak_ptr<AppMgrServiceInner> appMgrServiceInner_;

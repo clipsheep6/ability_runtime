@@ -78,7 +78,7 @@ private:
     bool SendRequest(int32_t operation, const sptr<IRemoteObject> &abms,
         const sptr<IRemoteObject> &remoteObject, MessageParcel &reply, ErrCode &error);
 
-    std::recursive_mutex mutex_;
+    std::mutex mutex_;
     sptr<IRemoteObject> proxy_;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_;
 };

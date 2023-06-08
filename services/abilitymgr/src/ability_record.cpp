@@ -25,6 +25,7 @@
 #include "ability_util.h"
 #include "accesstoken_kit.h"
 #include "bundle_mgr_client.h"
+#include "configuration_convertor.h"
 #include "connection_state_manager.h"
 #include "hitrace_meter.h"
 #include "image_source.h"
@@ -51,6 +52,7 @@ namespace AAFwk {
 using namespace OHOS::Security;
 const std::string DEBUG_APP = "debugApp";
 const std::string NATIVE_DEBUG = "nativeDebug";
+const std::string PERF_CMD = "perfCmd";
 const std::string DMS_PROCESS_NAME = "distributedsched";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
@@ -104,6 +106,7 @@ const std::map<AbilityState, std::string> AbilityRecord::stateToStrMap = {
     std::map<AbilityState, std::string>::value_type(FOREGROUND_FAILED, "FOREGROUND_FAILED"),
     std::map<AbilityState, std::string>::value_type(FOREGROUND_INVALID_MODE, "FOREGROUND_INVALID_MODE"),
     std::map<AbilityState, std::string>::value_type(FOREGROUND_WINDOW_FREEZED, "FOREGROUND_WINDOW_FREEZED"),
+    std::map<AbilityState, std::string>::value_type(FOREGROUND_DO_NOTHING, "FOREGROUND_DO_NOTHING"),
 };
 const std::map<AppState, std::string> AbilityRecord::appStateToStrMap_ = {
     std::map<AppState, std::string>::value_type(AppState::BEGIN, "BEGIN"),
@@ -126,6 +129,7 @@ const std::map<AbilityLifeCycleState, AbilityState> AbilityRecord::convertStateM
         FOREGROUND_INVALID_MODE),
     std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_WINDOW_FREEZED,
         FOREGROUND_WINDOW_FREEZED),
+    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_DO_NOTHING, FOREGROUND_DO_NOTHING),
 };
 
 Token::Token(std::weak_ptr<AbilityRecord> abilityRecord) : abilityRecord_(abilityRecord)
@@ -191,8 +195,7 @@ AbilityRecord::~AbilityRecord()
     }
 }
 
-std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityRequest &abilityRequest,
-    sptr<SessionInfo> sessionInfo)
+std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityRequest &abilityRequest)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(
         abilityRequest.want, abilityRequest.abilityInfo, abilityRequest.appInfo, abilityRequest.requestCode);
@@ -200,7 +203,7 @@ std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityR
     abilityRecord->SetUid(abilityRequest.uid);
     abilityRecord->SetAppIndex(abilityRequest.want.GetIntParam(DLP_INDEX, 0));
     abilityRecord->SetCallerAccessTokenId(abilityRequest.callerAccessTokenId);
-    abilityRecord->sessionInfo_ = sessionInfo;
+    abilityRecord->sessionInfo_ = abilityRequest.sessionInfo;
     if (!abilityRecord->Init()) {
         HILOG_ERROR("failed to init new ability record");
         return nullptr;
@@ -332,6 +335,41 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
     int foregroundTimeout =
         AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
     SendEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, foregroundTimeout);
+
+    // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
+    // earlier than above actions.
+    SetAbilityStateInner(AbilityState::FOREGROUNDING);
+    lifeCycleStateInfo_.sceneFlag = sceneFlag;
+    lifecycleDeal_->ForegroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
+    lifeCycleStateInfo_.sceneFlag = 0;
+    lifeCycleStateInfo_.sceneFlagBak = 0;
+
+    // update ability state to appMgr service when restart
+    if (IsNewWant()) {
+        sptr<Token> preToken = nullptr;
+        if (GetPreAbilityRecord()) {
+            preToken = GetPreAbilityRecord()->GetToken();
+        }
+        DelayedSingleton<AppScheduler>::GetInstance()->AbilityBehaviorAnalysis(token_, preToken, 1, 1, 1);
+    }
+}
+
+void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_INFO("name:%{public}s.", abilityInfo_.name.c_str());
+    CHECK_POINTER(lifecycleDeal_);
+
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    if (handler && task) {
+        if (!want_.GetBoolParam(DEBUG_APP, false) && !want_.GetBoolParam(NATIVE_DEBUG, false)) {
+            int foregroundTimeout =
+                AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
+            handler->PostTask(task, "foreground_" + std::to_string(recordId_), foregroundTimeout);
+        } else {
+            HILOG_INFO("Is debug mode, no need to handle time out.");
+        }
+    }
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
@@ -679,7 +717,9 @@ void AbilityRecord::StartingWindowTask(bool isRecent, bool isCold, const Ability
 
 void AbilityRecord::PostCancelStartingWindowHotTask()
 {
-    if (want_.GetBoolParam(DEBUG_APP, false) || want_.GetBoolParam(NATIVE_DEBUG, false)) {
+    if (want_.GetBoolParam(DEBUG_APP, false) ||
+        want_.GetBoolParam(NATIVE_DEBUG, false) ||
+        !want_.GetStringParam(PERF_CMD).empty()) {
         HILOG_INFO("PostCancelStartingWindowHotTask was called, debug mode, just return.");
         return;
     }
@@ -707,7 +747,9 @@ void AbilityRecord::PostCancelStartingWindowHotTask()
 
 void AbilityRecord::PostCancelStartingWindowColdTask()
 {
-    if (want_.GetBoolParam(DEBUG_APP, false) || want_.GetBoolParam(NATIVE_DEBUG, false)) {
+    if (want_.GetBoolParam(DEBUG_APP, false) ||
+        want_.GetBoolParam(NATIVE_DEBUG, false) ||
+        !want_.GetStringParam(PERF_CMD).empty()) {
         HILOG_INFO("PostCancelStartingWindowColdTask was called, debug mode, just return.");
         return;
     }
@@ -802,6 +844,15 @@ std::shared_ptr<Global::Resource::ResourceManager> AbilityRecord::CreateResource
     UErrorCode status = U_ZERO_ERROR;
     icu::Locale locale = icu::Locale::forLanguageTag(Global::I18n::LocaleConfig::GetSystemLanguage(), status);
     resConfig->SetLocaleInfo(locale);
+
+    AppExecFwk::Configuration cfg;
+    if (DelayedSingleton<AbilityManagerService>::GetInstance()->GetConfiguration(cfg) == 0) {
+        std::string colormode = cfg.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
+        HILOG_DEBUG("getcolormode is %{public}s.", colormode.c_str());
+        resConfig->SetColorMode(AppExecFwk::ConvertColorMode(colormode));
+    } else {
+        HILOG_WARN("getcolormode failed.");
+    }
 
     std::shared_ptr<Global::Resource::ResourceManager> resourceMgr(Global::Resource::CreateResourceManager());
     resourceMgr->UpdateResConfig(*resConfig);
@@ -1001,7 +1052,9 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
     }
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     if (handler && task) {
-        if (!want_.GetBoolParam(DEBUG_APP, false) && !want_.GetBoolParam(NATIVE_DEBUG, false)) {
+        if (!want_.GetBoolParam(DEBUG_APP, false) &&
+            !want_.GetBoolParam(NATIVE_DEBUG, false) &&
+            want_.GetStringParam(PERF_CMD).empty()) {
             int backgroundTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * BACKGROUND_TIMEOUT_MULTIPLE;
             handler->PostTask(task, "background_" + std::to_string(recordId_), backgroundTimeout);
@@ -1019,6 +1072,16 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
     // earlier than above actions.
     SetAbilityStateInner(AbilityState::BACKGROUNDING);
     lifecycleDeal_->BackgroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
+}
+
+bool AbilityRecord::PrepareTerminateAbility()
+{
+    HILOG_DEBUG("call");
+    if (lifecycleDeal_ == nullptr) {
+        HILOG_ERROR("lifecycleDeal_ is nullptr.");
+        return false;
+    }
+    return lifecycleDeal_->PrepareTerminateAbility();
 }
 
 int AbilityRecord::TerminateAbility()
@@ -1187,6 +1250,11 @@ bool AbilityRecord::IsCreateByConnect() const
     return isCreateByConnect_;
 }
 
+bool AbilityRecord::IsUIExtension() const
+{
+    return abilityInfo_.extensionAbilityType == AppExecFwk::ExtensionAbilityType::UI;
+}
+
 void AbilityRecord::SetCreateByConnectMode()
 {
     isCreateByConnect_ = true;
@@ -1228,7 +1296,7 @@ void AbilityRecord::Inactivate()
     // schedule inactive after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
     SetAbilityStateInner(AbilityState::INACTIVATING);
-    lifecycleDeal_->Inactivate(want_, lifeCycleStateInfo_, sessionInfo_);
+    lifecycleDeal_->Inactivate(want_, lifeCycleStateInfo_);
 }
 
 void AbilityRecord::Terminate(const Closure &task)
@@ -1238,7 +1306,9 @@ void AbilityRecord::Terminate(const Closure &task)
     CHECK_POINTER(lifecycleDeal_);
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     if (handler && task) {
-        if (!want_.GetBoolParam(DEBUG_APP, false) && !want_.GetBoolParam(NATIVE_DEBUG, false)) {
+        if (!want_.GetBoolParam(DEBUG_APP, false) &&
+            !want_.GetBoolParam(NATIVE_DEBUG, false) &&
+            want_.GetStringParam(PERF_CMD).empty()) {
             int terminateTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * TERMINATE_TIMEOUT_MULTIPLE;
             handler->PostTask(task, "terminate_" + std::to_string(recordId_), terminateTimeout);
@@ -1286,6 +1356,12 @@ void AbilityRecord::CommandAbility()
     HILOG_INFO("startId_:%{public}d.", startId_);
     CHECK_POINTER(lifecycleDeal_);
     lifecycleDeal_->CommandAbility(want_, false, startId_);
+}
+
+void AbilityRecord::CommandAbilityWindow(const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd)
+{
+    CHECK_POINTER(lifecycleDeal_);
+    lifecycleDeal_->CommandAbilityWindow(sessionInfo, winCmd);
 }
 
 void AbilityRecord::SaveAbilityState()
@@ -1947,7 +2023,9 @@ bool AbilityRecord::IsActiveState() const
 
 void AbilityRecord::SendEvent(uint32_t msg, uint32_t timeOut, int32_t param)
 {
-    if (want_.GetBoolParam(DEBUG_APP, false) || want_.GetBoolParam(NATIVE_DEBUG, false)) {
+    if (want_.GetBoolParam(DEBUG_APP, false) ||
+        want_.GetBoolParam(NATIVE_DEBUG, false) ||
+        !want_.GetStringParam(PERF_CMD).empty()) {
         HILOG_INFO("Is debug mode, no need to handle time out.");
         return;
     }

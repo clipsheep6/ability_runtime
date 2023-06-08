@@ -66,6 +66,12 @@ static napi_value InitLastExitReasonObject(napi_env env)
     NAPI_CALL(env, SetEnumItem(env, object, "UNKNOWN", LASTEXITREASON_UNKNOWN));
     NAPI_CALL(env, SetEnumItem(env, object, "ABILITY_NOT_RESPONDING", LASTEXITREASON_ABILITY_NOT_RESPONDING));
     NAPI_CALL(env, SetEnumItem(env, object, "NORMAL", LASTEXITREASON_NORMAL));
+    NAPI_CALL(env, SetEnumItem(env, object, "CPP_CRASH", LASTEXITREASON_CPP_CRASH));
+    NAPI_CALL(env, SetEnumItem(env, object, "JS_ERROR", LASTEXITREASON_JS_ERROR));
+    NAPI_CALL(env, SetEnumItem(env, object, "APP_FREEZE", LASTEXITREASON_APP_FREEZE));
+    NAPI_CALL(env, SetEnumItem(env, object, "PERFORMANCE_CONTROL", LASTEXITREASON_PERFORMANCE_CONTROL));
+    NAPI_CALL(env, SetEnumItem(env, object, "RESOURCE_CONTROL", LASTEXITREASON_RESOURCE_CONTROL));
+    NAPI_CALL(env, SetEnumItem(env, object, "UPGRADE", LASTEXITREASON_UPGRADE));
 
     return object;
 }

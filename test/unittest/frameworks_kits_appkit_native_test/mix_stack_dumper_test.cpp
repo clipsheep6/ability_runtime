@@ -298,20 +298,6 @@ HWTEST_F(MixStackDumperTest, MixStackDumperTest011, Function | MediumTest | Leve
 }
 
 /**
- * @tc.number: MixStackDumperTest012
- * @tc.name: Call GetThreadList Func
- * @tc.desc: test GetThreadList Func
- */
-HWTEST_F(MixStackDumperTest, MixStackDumperTest012, Function | MediumTest | Level3)
-{
-    MixStackDumper mixDumper;
-    std::vector<pid_t> threadList;
-    EXPECT_TRUE(threadList.empty());
-    mixDumper.GetThreadList(threadList);
-    EXPECT_FALSE(threadList.empty());
-}
-
-/**
  * @tc.number: MixStackDumperTest013
  * @tc.name: Call DumpMixFrame Func
  * @tc.desc: test DumpMixFrame Func

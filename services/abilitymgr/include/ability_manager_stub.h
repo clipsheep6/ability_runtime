@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -80,6 +80,7 @@ private:
     int ScheduleDisconnectAbilityDoneInner(MessageParcel &data, MessageParcel &reply);
     int TerminateAbilityResultInner(MessageParcel &data, MessageParcel &reply);
     int ScheduleCommandAbilityDoneInner(MessageParcel &data, MessageParcel &reply);
+    int ScheduleCommandAbilityWindowDoneInner(MessageParcel &data, MessageParcel &reply);
     int GetMissionSnapshotInner(MessageParcel &data, MessageParcel &reply);
     int AcquireDataAbilityInner(MessageParcel &data, MessageParcel &reply);
     int ReleaseDataAbilityInner(MessageParcel &data, MessageParcel &reply);
@@ -124,11 +125,14 @@ private:
     int ClearUpApplicationDataInner(MessageParcel &data, MessageParcel &reply);
 
     int ContinueMissionInner(MessageParcel &data, MessageParcel &reply);
+    int ContinueMissionOfBundleNameInner(MessageParcel &data, MessageParcel &reply);
     int ContinueAbilityInner(MessageParcel &data, MessageParcel &reply);
     int StartContinuationInner(MessageParcel &data, MessageParcel &reply);
     int NotifyCompleteContinuationInner(MessageParcel &data, MessageParcel &reply);
     int NotifyContinuationResultInner(MessageParcel &data, MessageParcel &reply);
     int RegisterRemoteMissionListenerInner(MessageParcel &data, MessageParcel &reply);
+    int RegisterRemoteOnListenerInner(MessageParcel &data, MessageParcel &reply);
+    int RegisterRemoteOffListenerInner(MessageParcel &data, MessageParcel &reply);
     int UnRegisterRemoteMissionListenerInner(MessageParcel &data, MessageParcel &reply);
 
     int LockMissionForCleanupInner(MessageParcel &data, MessageParcel &reply);
@@ -185,6 +189,7 @@ private:
     int SetMissionIconInner(MessageParcel &data, MessageParcel &reply);
     int RegisterWindowManagerServiceHandlerInner(MessageParcel &data, MessageParcel &reply);
     int CompleteFirstFrameDrawingInner(MessageParcel &data, MessageParcel &reply);
+    int PrepareTerminateAbilityInner(MessageParcel &data, MessageParcel &reply);
 #endif
 
     #ifdef ABILITY_COMMAND_FOR_TEST
@@ -215,6 +220,11 @@ private:
     int AcquireShareDataInner(MessageParcel &data, MessageParcel &reply);
     int ShareDataDoneInner(MessageParcel &data, MessageParcel &reply);
     int GetAbilityTokenByCalleeObjInner(MessageParcel &data, MessageParcel &reply);
+
+    int32_t ForceExitAppInner(MessageParcel &data, MessageParcel &reply);
+    int32_t RecordAppExitReasonInner(MessageParcel &data, MessageParcel &reply);
+
+    int SetRootSceneSessionInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

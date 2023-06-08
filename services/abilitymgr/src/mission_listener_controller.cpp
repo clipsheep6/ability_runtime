@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -46,7 +46,7 @@ int MissionListenerController::AddMissionListener(const sptr<IMissionListener> &
         return -1;
     }
 
-    std::lock_guard<std::recursive_mutex> guard(listenerLock_);
+    std::lock_guard<std::mutex> guard(listenerLock_);
     auto it = std::find_if(missionListeners_.begin(), missionListeners_.end(),
         [&listener](const sptr<IMissionListener> &item) {
             return (item && item->AsObject() == listener->AsObject());
@@ -83,7 +83,7 @@ void MissionListenerController::DelMissionListener(const sptr<IMissionListener> 
         return;
     }
 
-    std::lock_guard<std::recursive_mutex> guard(listenerLock_);
+    std::lock_guard<std::mutex> guard(listenerLock_);
     auto it = std::find_if(missionListeners_.begin(), missionListeners_.end(),
         [&listener](const sptr<IMissionListener> item) {
             return (item && item->AsObject() == listener->AsObject());
@@ -192,6 +192,44 @@ void MissionListenerController::NotifyMissionMovedToFront(int32_t missionId)
     handler_->PostTask(task);
 }
 
+void MissionListenerController::NotifyMissionFocused(int32_t missionId)
+{
+    HILOG_INFO("Notify mission focused, missionId:%{public}d", missionId);
+    if (!handler_) {
+        HILOG_ERROR("handler is null");
+        return;
+    }
+    auto task = [weak = weak_from_this(), missionId]() {
+        auto self = weak.lock();
+        if (self == nullptr) {
+            HILOG_ERROR("self is nullptr, NotifyMissionFocused failed");
+            return;
+        }
+        HILOG_INFO("notify listeners mission is focused, missionId:%{public}d.", missionId);
+        self->CallListeners(&IMissionListener::OnMissionFocused, missionId);
+    };
+    handler_->PostTask(task);
+}
+
+void MissionListenerController::NotifyMissionUnfocused(int32_t missionId)
+{
+    HILOG_INFO("Notify mission unfocused, missionId:%{public}d", missionId);
+    if (!handler_) {
+        HILOG_ERROR("handler is null");
+        return;
+    }
+    auto task = [weak = weak_from_this(), missionId]() {
+        auto self = weak.lock();
+        if (self == nullptr) {
+            HILOG_ERROR("self is nullptr, NotifyMissionUnfocused failed");
+            return;
+        }
+        HILOG_INFO("notify listeners mission is unfocused, missionId:%{public}d.", missionId);
+        self->CallListeners(&IMissionListener::OnMissionUnfocused, missionId);
+    };
+    handler_->PostTask(task);
+}
+
 #ifdef SUPPORT_GRAPHICS
 void MissionListenerController::NotifyMissionIconChanged(int32_t missionId,
     const std::shared_ptr<OHOS::Media::PixelMap> &icon)
@@ -260,7 +298,7 @@ void MissionListenerController::OnListenerDied(const wptr<IRemoteObject> &remote
     }
     remoteObj->RemoveDeathRecipient(listenerDeathRecipient_);
 
-    std::lock_guard<std::recursive_mutex> guard(listenerLock_);
+    std::lock_guard<std::mutex> guard(listenerLock_);
     auto it = std::find_if(missionListeners_.begin(), missionListeners_.end(),
         [&remoteObj](const sptr<IMissionListener> item) {
             return (item && item->AsObject() == remoteObj);

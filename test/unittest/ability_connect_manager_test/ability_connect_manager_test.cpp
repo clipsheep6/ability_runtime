@@ -2504,11 +2504,13 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Start_Service_With_SessionInfo_001, Te
     ConnectManager()->SetEventHandler(handler);
 
     auto sessionInfo = MockSessionInfo(0);
-    auto result = ConnectManager()->StartAbility(abilityRequest_, sessionInfo);
+    abilityRequest_.sessionInfo = sessionInfo;
+    auto result = ConnectManager()->StartAbility(abilityRequest_);
     EXPECT_EQ(OHOS::ERR_OK, result);
+    abilityRequest_.sessionInfo = nullptr;
     WaitUntilTaskDone(handler);
 
-    auto service = ConnectManager()->GetServiceRecordBySessionInfo(sessionInfo);
+    auto service = ConnectManager()->GetUIExtensioBySessionInfo(sessionInfo);
     EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 1);
 }
 
@@ -2536,82 +2538,9 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_StartAbilityLocked_With_Sess
     abilityRecord->currentState_ = AbilityState::ACTIVE;
     abilityRecord->SetPreAbilityRecord(serviceRecord1_);
     connectManager->serviceMap_.emplace(stringUri, abilityRecord);
-    int res = connectManager->StartAbilityLocked(abilityRequest, MockSessionInfo(0));
+    abilityRequest.sessionInfo = MockSessionInfo(0);
+    int res = connectManager->StartAbilityLocked(abilityRequest);
     EXPECT_EQ(res, ERR_OK);
-}
-
-/*
- * Feature: MissionListManager
- * Function: MinimizeUIExtensionAbility
- * SubFunction: NA
- * FunctionPoints: MissionListManager MinimizeUIExtensionAbility
- * EnvConditions: NA
- * CaseDescription: Verify MinimizeUIExtensionAbility
- */
-HWTEST_F(AbilityConnectManagerTest, MinimizeUIExtensionAbility_001, TestSize.Level1)
-{
-    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
-    sptr<IRemoteObject> token = nullptr;
-    bool fromUser = true;
-    int res = connectManager->MinimizeUIExtensionAbility(token, fromUser);
-    EXPECT_EQ(res, INNER_ERR);
-    connectManager.reset();
-}
-
-/*
- * Feature: MissionListManager
- * Function: MinimizeUIExtensionAbilityLocked
- * SubFunction: NA
- * FunctionPoints: MissionListManager MinimizeUIExtensionAbilityLocked
- * EnvConditions: NA
- * CaseDescription: Verify MinimizeUIExtensionAbilityLocked
- */
-HWTEST_F(AbilityConnectManagerTest, MinimizeUIExtensionAbilityLocked_001, TestSize.Level1)
-{
-    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
-    std::shared_ptr<AbilityRecord> abilityRecord = nullptr;
-    bool fromUser = true;
-    int res = connectManager->MinimizeUIExtensionAbilityLocked(abilityRecord, fromUser);
-    EXPECT_EQ(res, ERR_INVALID_VALUE);
-    connectManager.reset();
-}
-
-/*
- * Feature: MissionListManager
- * Function: MinimizeUIExtensionAbilityLocked
- * SubFunction: NA
- * FunctionPoints: MissionListManager MinimizeUIExtensionAbilityLocked
- * EnvConditions: NA
- * CaseDescription: Verify MinimizeUIExtensionAbilityLocked
- */
-HWTEST_F(AbilityConnectManagerTest, MinimizeUIExtensionAbilityLocked_002, TestSize.Level1)
-{
-    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
-    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
-    abilityRecord->SetAbilityState(AbilityState::FOREGROUND);
-    bool fromUser = true;
-    int res = connectManager->MinimizeUIExtensionAbilityLocked(abilityRecord, fromUser);
-    EXPECT_EQ(res, ERR_OK);
-    connectManager.reset();
-}
-
-/*
- * Feature: MissionListManager
- * Function: MinimizeUIExtensionAbilityLocked
- * SubFunction: NA
- * FunctionPoints: MissionListManager MinimizeUIExtensionAbilityLocked
- * EnvConditions: NA
- * CaseDescription: Verify MinimizeUIExtensionAbilityLocked
- */
-HWTEST_F(AbilityConnectManagerTest, MinimizeUIExtensionAbilityLocked_003, TestSize.Level1)
-{
-    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
-    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
-    abilityRecord->SetAbilityState(AbilityState::BACKGROUND);
-    bool fromUser = true;
-    int res = connectManager->MinimizeUIExtensionAbilityLocked(abilityRecord, fromUser);
-    EXPECT_EQ(res, ERR_OK);
-    connectManager.reset();
 }
 
 /*

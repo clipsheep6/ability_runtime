@@ -320,7 +320,7 @@ ErrCode WantAgentClient::GetWantSenderInfo(const sptr<IWantSender> &target, std:
 
 sptr<IRemoteObject> WantAgentClient::GetAbilityManager()
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     if (proxy_ == nullptr) {
         auto systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         if (systemManager == nullptr) {
@@ -355,7 +355,7 @@ void WantAgentClient::WantAgentDeathRecipient::OnRemoteDied(const wptr<IRemoteOb
 
 void WantAgentClient::ResetProxy(const wptr<IRemoteObject>& remote)
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     if (!proxy_) {
         return;
     }

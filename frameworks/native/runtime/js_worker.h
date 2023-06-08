@@ -18,6 +18,7 @@
 
 #include <string>
 #include "bundle_mgr_proxy.h"
+#include "js_environment_impl.h"
 #include "native_engine/native_engine.h"
 
 namespace OHOS {
@@ -29,28 +30,29 @@ int32_t GetContainerId();
 void UpdateContainerScope(int32_t id);
 void RestoreContainerScope(int32_t id);
 
-struct AssetHelper final {
-    explicit AssetHelper(const std::string& codePath, bool isDebugVersion, bool isBundle)
-        : codePath_(codePath), isDebugVersion_(isDebugVersion), isBundle_(isBundle)
+class AssetHelper final {
+public:    
+    explicit AssetHelper(std::shared_ptr<JsEnv::WorkerInfo> workerInfo) : workerInfo_(workerInfo)
     {
-        if (!codePath_.empty() && codePath.back() != '/') {
-            codePath_.append("/");
+        if (!(workerInfo_->codePath).empty() && (workerInfo->codePath).back() != '/') {
+            (workerInfo_->codePath).append("/");
         }
     }
 
     std::string NormalizedFileName(const std::string& fileName) const;
 
-    void operator()(const std::string& uri, std::vector<uint8_t>& content, std::string &ami) const;
+    void operator()(const std::string& uri, std::vector<uint8_t>& content, std::string &ami);
 
-    sptr<AppExecFwk::BundleMgrProxy> GetBundleMgrProxy() const;
+    sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
 
     bool ReadAmiData(const std::string& ami, std::vector<uint8_t>& content) const;
 
-    bool ReadFilePathData(const std::string& filePath, std::vector<uint8_t>& content) const;
+    bool ReadFilePathData(const std::string& filePath, std::vector<uint8_t>& content);
 
-    std::string codePath_;
-    bool isDebugVersion_ = false;
-    bool isBundle_ = true;
+    void GetAmi(std::string& ami, const std::string& filePath);
+private:
+    std::shared_ptr<JsEnv::WorkerInfo> workerInfo_;
+    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy_ = nullptr;
 };
 
 } // namespace AbilityRuntime

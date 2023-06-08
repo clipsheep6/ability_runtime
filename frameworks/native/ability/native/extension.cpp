@@ -46,15 +46,6 @@ void Extension::OnStart(const AAFwk::Want &want)
     SetLastRequestWant(want);
 }
 
-void Extension::OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("extension:%{public}s.", abilityInfo_->name.c_str());
-    SetLaunchWant(want);
-    SetLastRequestWant(want);
-    SetSessionInfo(sessionInfo);
-}
-
 void Extension::OnStop()
 {
     HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
@@ -93,6 +84,11 @@ void Extension::OnCommand(const AAFwk::Want &want, bool restart, int startId)
         restart ? "true" : "false",
         startId);
     SetLastRequestWant(want);
+}
+
+void Extension::OnCommandWindow(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
+{
+    HILOG_DEBUG("call");
 }
 
 void Extension::OnForeground(const AAFwk::Want &want)
@@ -145,16 +141,6 @@ void Extension::OnMemoryLevel(int level)
 void Extension::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
     HILOG_DEBUG("call");
-}
-
-void Extension::SetSessionInfo(sptr<AAFwk::SessionInfo> sessionInfo)
-{
-    sessionInfo_ = sessionInfo;
-}
-
-sptr<AAFwk::SessionInfo> Extension::GetSessionInfo()
-{
-    return sessionInfo_;
 }
 
 void Extension::SetExtensionWindowLifeCycleListener(const sptr<Rosen::IWindowLifeCycle> &listener)

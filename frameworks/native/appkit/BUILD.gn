@@ -13,6 +13,7 @@
 
 import("//arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
 import("//build/ohos.gni")
+import("//commonlibrary/memory_utils/purgeable_mem_config.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 es2abc_gen_abc("gen_delegator_mgmt_abc") {
@@ -121,12 +122,17 @@ ohos_shared_library("appkit_native") {
   }
   deps = [
     ":appkit_delegator",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
+    "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_native_path}/ability/native:ability_thread",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:app_context_utils",
+    "${ability_runtime_path}/js_environment/frameworks/js_environment:js_environment",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
-    "${graphic_2d_path}/rosen/modules/render_service_client:librender_service_client",
   ]
 
   external_deps = [
@@ -134,19 +140,15 @@ ohos_shared_library("appkit_native") {
     "ability_base:extractresourcemanager",
     "ability_base:string_utils",
     "ability_base:want",
-    "ability_runtime:ability_deps_wrapper",
-    "ability_runtime:ability_manager",
-    "ability_runtime:abilitykit_native",
-    "ability_runtime:app_manager",
-    "ability_runtime:js_environment",
-    "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "faultloggerd:libbacktrace_local",
+    "faultloggerd:libdfx_procinfo",
     "faultloggerd:libfaultloggerd",
+    "graphic_standard:librender_service_client",
     "hicollie_native:libhicollie",
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
@@ -176,6 +178,11 @@ ohos_shared_library("appkit_native") {
     external_deps += [ "webview:libnweb" ]
 
     defines += [ "NWEB" ]
+  }
+
+  if (purgeable_ashmem_enable) {
+    defines += [ "IMAGE_PURGEABLE_PIXELMAP" ]
+    external_deps += [ "memory_utils:libpurgeablemem" ]
   }
 
   innerapi_tags = [ "platformsdk" ]
@@ -208,14 +215,15 @@ ohos_shared_library("app_context") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  deps = []
+  deps = [
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
+    "${ability_runtime_innerkits_path}/runtime:runtime",
+  ]
 
   external_deps = [
     "ability_base:configuration",
     "ability_base:want",
-    "ability_runtime:ability_deps_wrapper",
-    "ability_runtime:app_manager",
-    "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
@@ -259,12 +267,14 @@ ohos_shared_library("app_context_utils") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  deps = [ "${ability_runtime_native_path}/appkit:app_context" ]
+  deps = [
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/error_utils:ability_runtime_error_util",
+    "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${ability_runtime_native_path}/appkit:app_context",
+  ]
 
   external_deps = [
-    "ability_runtime:ability_runtime_error_util",
-    "ability_runtime:app_manager",
-    "ability_runtime:runtime",
     "access_token:libtokenid_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -323,13 +333,13 @@ ohos_shared_library("appkit_delegator") {
   deps = [
     ":delegator_mgmt_abc",
     ":delegator_mgmt_js",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_native_path}/appkit:app_context",
   ]
 
   external_deps = [
     "ability_base:want",
-    "ability_runtime:ability_manager",
-    "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",

@@ -51,14 +51,13 @@ void LifecycleDeal::Activate(const Want &want, LifeCycleStateInfo &stateInfo)
     abilityScheduler->ScheduleAbilityTransaction(want, stateInfo);
 }
 
-void LifecycleDeal::Inactivate(const Want &want, LifeCycleStateInfo &stateInfo,
-    sptr<SessionInfo> sessionInfo)
+void LifecycleDeal::Inactivate(const Want &want, LifeCycleStateInfo &stateInfo)
 {
     HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_INACTIVE;
-    abilityScheduler->ScheduleAbilityTransaction(want, stateInfo, sessionInfo);
+    abilityScheduler->ScheduleAbilityTransaction(want, stateInfo);
 }
 
 void LifecycleDeal::MoveToBackground(const Want &want, LifeCycleStateInfo &stateInfo)
@@ -101,6 +100,14 @@ void LifecycleDeal::CommandAbility(const Want &want, bool reStart, int startId)
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->ScheduleCommandAbility(want, reStart, startId);
+}
+
+void LifecycleDeal::CommandAbilityWindow(const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd)
+{
+    HILOG_INFO("call");
+    auto abilityScheduler = GetScheduler();
+    CHECK_POINTER(abilityScheduler);
+    abilityScheduler->ScheduleCommandAbilityWindow(sessionInfo, winCmd);
 }
 
 void LifecycleDeal::SaveAbilityState()
@@ -168,5 +175,15 @@ void LifecycleDeal::ShareData(const int32_t &uniqueId)
     abilityScheduler->ScheduleShareData(uniqueId);
 }
 
+bool LifecycleDeal::PrepareTerminateAbility()
+{
+    HILOG_DEBUG("call");
+    auto abilityScheduler = GetScheduler();
+    if (abilityScheduler == nullptr) {
+        HILOG_ERROR("abilityScheduler is nullptr.");
+        return false;
+    }
+    return abilityScheduler->SchedulePrepareTerminateAbility();
+}
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -75,6 +75,16 @@ pid_t RenderRecord::GetHostPid() const
     return hostPid_;
 }
 
+void RenderRecord::SetUid(int32_t uid)
+{
+    uid_ = uid;
+}
+
+int32_t RenderRecord::GetUid() const
+{
+    return uid_;
+}
+
 void RenderRecord::SetHostUid(const int32_t hostUid)
 {
     hostUid_ = hostUid;
@@ -843,7 +853,8 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
             const auto &abilityRecord = item.second;
             if (abilityRecord && abilityRecord->GetState() == AbilityState::ABILITY_STATE_FOREGROUND &&
                 abilityRecord->GetAbilityInfo() &&
-                abilityRecord->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE) {
+                (abilityRecord->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE
+                || abilityRecord->GetAbilityInfo()->extensionAbilityType == ExtensionAbilityType::UI)) {
                 foregroundSize++;
                 break;
             }
@@ -1304,14 +1315,45 @@ int32_t AppRunningRecord::UpdateConfiguration(const Configuration &config)
     return appLifeCycleDeal_->UpdateConfiguration(config);
 }
 
-void AppRunningRecord::SetRenderRecord(const std::shared_ptr<RenderRecord> &record)
+void AppRunningRecord::AddRenderRecord(const std::shared_ptr<RenderRecord> &record)
 {
-    renderRecord_ = record;
+    if (!record) {
+        HILOG_DEBUG("AddRenderRecord: record is null");
+        return;
+    }
+    std::lock_guard<std::mutex> renderRecordMapLock(renderRecordMapLock_);
+    renderRecordMap_.emplace(record->GetUid(), record);
 }
 
-std::shared_ptr<RenderRecord> AppRunningRecord::GetRenderRecord()
+void AppRunningRecord::RemoveRenderRecord(const std::shared_ptr<RenderRecord> &record)
 {
-    return renderRecord_;
+    if (!record) {
+        HILOG_DEBUG("RemoveRenderRecord: record is null");
+        return;
+    }
+    std::lock_guard<std::mutex> renderRecordMapLock(renderRecordMapLock_);
+    renderRecordMap_.erase(record->GetUid());
+}
+
+std::shared_ptr<RenderRecord> AppRunningRecord::GetRenderRecordByPid(const pid_t pid)
+{
+    std::lock_guard<std::mutex> renderRecordMapLock(renderRecordMapLock_);
+    if (renderRecordMap_.empty()) {
+        return nullptr;
+    }
+    for (auto iter : renderRecordMap_) {
+        auto renderRecord = iter.second;
+        if (renderRecord && renderRecord->GetPid() == pid) {
+            return renderRecord;
+        }
+    }
+    return nullptr;
+}
+
+std::map<int32_t, std::shared_ptr<RenderRecord>> AppRunningRecord::GetRenderRecordMap()
+{
+    std::lock_guard<std::mutex> renderRecordMapLock(renderRecordMapLock_);
+    return renderRecordMap_;
 }
 
 void AppRunningRecord::SetStartMsg(const AppSpawnStartMsg &msg)
@@ -1414,6 +1456,16 @@ int32_t AppRunningRecord::NotifyUnLoadRepairPatch(const std::string &bundleName,
         return ERR_INVALID_VALUE;
     }
     return appLifeCycleDeal_->NotifyUnLoadRepairPatch(bundleName, callback, recordId);
+}
+
+int32_t AppRunningRecord::NotifyAppFault(const FaultData &faultData)
+{
+    HILOG_DEBUG("called.");
+    if (!appLifeCycleDeal_) {
+        HILOG_ERROR("appLifeCycleDeal_ is null");
+        return ERR_INVALID_VALUE;
+    }
+    return appLifeCycleDeal_->NotifyAppFault(faultData);
 }
 
 bool AppRunningRecord::IsContinuousTask()

@@ -36,7 +36,16 @@ public:
     void ScheduleDisconnectAbility(const Want& want) override
     {}
 
+    bool SchedulePrepareTerminateAbility() override
+    {
+        return false;
+    }
+
     void ScheduleCommandAbility(const Want& want, bool restart, int startId) override
+    {}
+
+    void ScheduleCommandAbilityWindow(const sptr<SessionInfo> &sessionInfo,
+        WindowCommand winCmd) override
     {}
 
     void ScheduleSaveAbilityState() override

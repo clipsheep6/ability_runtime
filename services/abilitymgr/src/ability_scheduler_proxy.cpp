@@ -174,6 +174,52 @@ void AbilitySchedulerProxy::ScheduleCommandAbility(const Want &want, bool restar
     }
 }
 
+bool AbilitySchedulerProxy::SchedulePrepareTerminateAbility()
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("fail to write interface.");
+        return false;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return false;
+    }
+    int32_t err = remote->SendRequest(IAbilityScheduler::SCHEDULE_ABILITY_PREPARE_TERMINATE, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("end failed. err: %{public}d", err);
+        return false;
+    }
+    return reply.ReadBool();
+}
+
+void AbilitySchedulerProxy::ScheduleCommandAbilityWindow(const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+    if (!data.WriteParcelable(sessionInfo)) {
+        HILOG_ERROR("fail to WriteParcelable");
+        return;
+    }
+    if (!data.WriteInt32(winCmd)) {
+        HILOG_ERROR("fail to WriteInt32");
+        return;
+    }
+
+    int32_t err = Remote()->SendRequest(IAbilityScheduler::SCHEDULE_ABILITY_COMMAND_WINDOW, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
+    }
+}
+
 void AbilitySchedulerProxy::ScheduleSaveAbilityState()
 {
     MessageParcel data;
@@ -949,12 +995,12 @@ std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> AbilitySchedulerProx
     }
 
     for (int i = 0; i < total; i++) {
-        AppExecFwk::DataAbilityResult *result = reply.ReadParcelable<AppExecFwk::DataAbilityResult>();
-        if (result == nullptr) {
-            HILOG_ERROR("AbilitySchedulerProxy::ExecuteBatch result is nullptr, index = %{public}d", i);
+        std::shared_ptr<AppExecFwk::DataAbilityResult> dataAbilityResult(
+            reply.ReadParcelable<AppExecFwk::DataAbilityResult>());
+        if (dataAbilityResult == nullptr) {
+            HILOG_ERROR("AbilitySchedulerProxy::ExecuteBatch dataAbilityResult is nullptr, index = %{public}d", i);
             return results;
         }
-        std::shared_ptr<AppExecFwk::DataAbilityResult> dataAbilityResult(result);
         results.push_back(dataAbilityResult);
     }
     HILOG_INFO("AbilitySchedulerProxy::ExecuteBatch end %{public}d", total);

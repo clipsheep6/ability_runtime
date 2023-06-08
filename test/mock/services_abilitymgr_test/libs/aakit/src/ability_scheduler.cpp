@@ -54,7 +54,16 @@ void AbilityScheduler::ScheduleConnectAbility(const Want& want)
 void AbilityScheduler::ScheduleDisconnectAbility(const Want& want)
 {}
 
+bool AbilityScheduler::SchedulePrepareTerminateAbility()
+{
+    return false;
+}
+
 void AbilityScheduler::ScheduleCommandAbility(const Want& want, bool restart, int startId)
+{}
+
+void AbilityScheduler::ScheduleCommandAbilityWindow(const sptr<SessionInfo> &sessionInfo,
+    WindowCommand winCmd)
 {}
 
 void AbilityScheduler::ScheduleSaveAbilityState()

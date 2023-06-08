@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -102,7 +102,6 @@ public:
     bool StartDebugger(bool needBreakPoint, const DebuggerPostTask& debuggerPostTask = {});
     bool StartDebugger(bool needBreakPoint, uint32_t instanceId, const DebuggerPostTask& debuggerPostTask = {});
     void StopDebugger();
-    void InitConsoleModule();
     bool LoadScript(const std::string& path, uint8_t *buffer, size_t len, bool isBundle);
 
     NativeEngine* GetNativeEnginePointer() const;
@@ -115,6 +114,9 @@ public:
     void InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorImpl);
     void FreeNativeReference(std::unique_ptr<NativeReference> reference);
     void FreeNativeReference(std::shared_ptr<NativeReference>&& reference);
+    void StartProfiler(const std::string &perfCmd) override;
+
+    void ReloadFormComponent(); // Reload ArkTS-Card component
 
 private:
     void FinishPreload() override;
@@ -124,6 +126,7 @@ private:
 
     NativeValue* LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk = false);
     NativeValue* LoadJsModule(const std::string& path, const std::string& hapPath);
+    int32_t JsperfProfilerCommandParse(const std::string &command, int32_t defaultValue);
 
     bool debugMode_ = false;
     bool preloaded_ = false;
@@ -131,13 +134,13 @@ private:
     std::string codePath_;
     std::string moduleName_;
     std::unique_ptr<NativeReference> methodRequireNapiRef_;
-    std::shared_ptr<AppExecFwk::EventHandler> eventHandler_;
     std::unordered_map<std::string, NativeReference*> modules_;
     std::shared_ptr<JsEnv::JsEnvironment> jsEnv_ = nullptr;
     uint32_t instanceId_ = 0;
     std::string bundleName_;
 
     static std::atomic<bool> hasInstance;
+
 private:
     bool CreateJsEnv(const Options& options);
     void PreloadAce(const Options& options);
@@ -145,7 +148,9 @@ private:
     inline bool IsUseAbilityRuntime(const Options& options) const;
     void FreeNativeReference(std::unique_ptr<NativeReference> uniqueNativeRef,
         std::shared_ptr<NativeReference>&& sharedNativeRef);
+    void InitConsoleModule();
     void InitTimerModule();
+    void InitWorkerModule(const Options& options);
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

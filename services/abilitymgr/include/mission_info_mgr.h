@@ -193,7 +193,7 @@ private:
      * @return Returns true if this function is successfully called; returns false otherwise.
      */
     bool LoadAllMissionInfo();
-
+    bool AddMissionInfoInner(const InnerMissionInfo &missionInfo);
     void GetMatchedMission(const std::string &bundleName, int32_t uid, std::list<int32_t> &missions);
 #ifdef SUPPORT_GRAPHICS
     void CreateWhitePixelMap(Snapshot &snapshot) const;
@@ -205,7 +205,7 @@ private:
     std::list<InnerMissionInfo> missionInfoList_;
     std::shared_ptr<TaskDataPersistenceMgr> taskDataPersistenceMgr_;
     sptr<ISnapshotHandler> snapshotHandler_;
-    mutable std::recursive_mutex mutex_;
+    mutable std::mutex mutex_;
     std::unordered_map<int32_t, uint32_t> savingSnapshot_;
     std::mutex savingSnapshotLock_;
     std::condition_variable waitSavingCondition_;

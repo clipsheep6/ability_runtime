@@ -45,6 +45,7 @@
 #ifdef SUPPORT_GRAPHICS
 #include "locale_config.h"
 #endif
+#include "app_mgr_client.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "js_runtime.h"
@@ -69,6 +70,10 @@
 #include "nweb_helper.h"
 #endif
 
+#ifdef IMAGE_PURGEABLE_PIXELMAP
+#include "purgeable_resource_manager.h"
+#endif
+
 #if defined(ABILITY_LIBRARY_LOADER) || defined(APPLICATION_LIBRARY_LOADER)
 #include <dirent.h>
 #include <dlfcn.h>
@@ -81,6 +86,8 @@ std::weak_ptr<OHOSApplication> MainThread::applicationForDump_;
 std::shared_ptr<EventHandler> MainThread::signalHandler_ = nullptr;
 std::shared_ptr<MainThread::MainHandler> MainThread::mainHandler_ = nullptr;
 static std::shared_ptr<MixStackDumper> mixStackDumper_ = nullptr;
+const std::string PERFCMD_PROFILE = "profile";
+const std::string PERFCMD_DUMPHEAP = "dumpheap";
 namespace {
 #ifdef APP_USE_ARM
 constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib/libformrender.z.so";
@@ -111,6 +118,51 @@ constexpr char EXTENSION_PARAMS_NAME[] = "name";
 constexpr uint32_t CHECK_MAIN_THREAD_IS_ALIVE = 1;
 
 const std::string OVERLAY_STATE_CHANGED = "usual.event.OVERLAY_STATE_CHANGED";
+
+std::string GetLibPath(const std::string &hapPath, bool isPreInstallApp)
+{
+    std::string libPath = LOCAL_CODE_PATH;
+    if (isPreInstallApp) {
+        auto pos = hapPath.rfind("/");
+        libPath = hapPath.substr(0, pos);
+    }
+    return libPath;
+}
+
+bool GetHapSoPath(const HapModuleInfo &hapInfo, AppLibPathMap &appLibPaths, bool isPreInstallApp)
+{
+    if (hapInfo.compressNativeLibs) {
+        return false;
+    }
+
+    if (hapInfo.nativeLibraryPath.empty()) {
+        return true;
+    }
+
+    std::string libPath = GetLibPath(hapInfo.hapPath, isPreInstallApp);
+    libPath += (libPath.back() == '/') ? hapInfo.nativeLibraryPath : "/" + hapInfo.nativeLibraryPath;
+    HILOG_INFO("module lib path = %{public}s", libPath.c_str());
+    appLibPaths["default"].emplace_back(libPath);
+    return true;
+}
+
+void GetHspNativeLibPath(const BaseSharedBundleInfo &hspInfo, AppLibPathMap &appLibPaths, bool isPreInstallApp)
+{
+    if (hspInfo.nativeLibraryPath.empty()) {
+        return;
+    }
+
+    std::string appLibPathKey = hspInfo.bundleName + "/" + hspInfo.moduleName;
+    std::string libPath = LOCAL_CODE_PATH;
+    if (!hspInfo.compressNativeLibs) {
+        libPath = GetLibPath(hspInfo.hapPath, isPreInstallApp);
+        appLibPathKey = "default";
+    }
+    libPath = libPath.back() == '/' ? libPath : libPath + "/";
+    libPath += hspInfo.bundleName + "/" + hspInfo.nativeLibraryPath;
+    HILOG_DEBUG("appLibPathKey: %{private}s, libPath: %{private}s", appLibPathKey.c_str(), libPath.c_str());
+    appLibPaths[appLibPathKey].emplace_back(libPath);
+}
 
 void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppLibPathMap &appLibPaths)
 {
@@ -150,13 +202,13 @@ void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppL
             HILOG_INFO("name: %{public}s, patch lib path = %{private}s", hapInfo.name.c_str(), patchLibPath.c_str());
             appLibPaths[appLibPathKey].emplace_back(patchLibPath);
         }
+        if (GetHapSoPath(hapInfo, appLibPaths, bundleInfo.isPreInstallApp)) {
+            continue;
+        }
 
         std::string libPath = LOCAL_CODE_PATH;
-        if (hapInfo.isLibIsolated) {
-            libPath += (libPath.back() == '/') ? hapInfo.nativeLibraryPath : "/" + hapInfo.nativeLibraryPath;
-        } else {
-            libPath += (libPath.back() == '/') ? nativeLibraryPath : "/" + nativeLibraryPath;
-        }
+        const auto &tmpNativePath = hapInfo.isLibIsolated ? hapInfo.nativeLibraryPath : nativeLibraryPath;
+        libPath += (libPath.back() == '/') ? tmpNativePath : "/" + tmpNativePath;
         HILOG_DEBUG("appLibPathKey: %{private}s, libPath: %{private}s", appLibPathKey.c_str(), libPath.c_str());
         appLibPaths[appLibPathKey].emplace_back(libPath);
     }
@@ -164,16 +216,7 @@ void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppL
     for (auto &hspInfo : hspList) {
         HILOG_DEBUG("bundle:%s, module:%s, nativeLibraryPath:%s", hspInfo.bundleName.c_str(),
             hspInfo.moduleName.c_str(), hspInfo.nativeLibraryPath.c_str());
-        if (hspInfo.nativeLibraryPath.empty()) {
-            continue;
-        }
-
-        std::string appLibPathKey = hspInfo.bundleName + "/" + hspInfo.moduleName;
-        std::string libPath = LOCAL_CODE_PATH;
-        libPath = libPath.back() == '/' ? libPath : libPath + "/";
-        libPath += hspInfo.bundleName + "/" + hspInfo.nativeLibraryPath;
-        HILOG_DEBUG("appLibPathKey: %{private}s, libPath: %{private}s", appLibPathKey.c_str(), libPath.c_str());
-        appLibPaths[appLibPathKey].emplace_back(libPath);
+        GetHspNativeLibPath(hspInfo, appLibPaths, bundleInfo.isPreInstallApp);
     }
 }
 } // namespace
@@ -211,9 +254,6 @@ MainThread::~MainThread()
         watchdog_->Stop();
         watchdog_ = nullptr;
     }
-#ifdef ABILITY_LIBRARY_LOADER
-    CloseAbilityLibrary();
-#endif  // ABILITY_LIBRARY_LOADER
 }
 
 /**
@@ -787,16 +827,6 @@ void MainThread::HandleTerminateApplicationLocal()
     }
     HILOG_DEBUG("runner is stopped");
     SetRunnerStarted(false);
-
-#ifdef ABILITY_LIBRARY_LOADER
-    CloseAbilityLibrary();
-#endif  // ABILITY_LIBRARY_LOADER
-#ifdef APPLICATION_LIBRARY_LOADER
-    if (handleAppLib_ != nullptr) {
-        dlclose(handleAppLib_);
-        handleAppLib_ = nullptr;
-    }
-#endif  // APPLICATION_LIBRARY_LOADER
     HILOG_DEBUG("MainThread::HandleTerminateApplicationLocal called end.");
 }
 
@@ -828,9 +858,13 @@ bool MainThread::InitCreate(
     std::shared_ptr<ContextDeal> &contextDeal, ApplicationInfo &appInfo, ProcessInfo &processInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    // get application shared point
+    application_ = std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName());
     if (application_ == nullptr) {
+        HILOG_ERROR("InitCreate application create failed");
         return false;
     }
+
     applicationInfo_ = std::make_shared<ApplicationInfo>(appInfo);
     if (applicationInfo_ == nullptr) {
         HILOG_ERROR("MainThread::InitCreate create applicationInfo_ failed");
@@ -1067,6 +1101,46 @@ void MainThread::HandleOnOverlayChanged(const EventFwk::CommonEventData &data,
     return ret;
 }
 
+bool IsNeedLoadLibrary(const std::string &bundleName)
+{
+    std::vector<std::string> needLoadLibraryBundleNames{
+        "com.ohos.contactsdataability",
+        "com.ohos.medialibrary.medialibrarydata",
+        "com.ohos.telephonydataability",
+        "com.ohos.FusionSearch",
+        "com.ohos.formrenderservice"
+    };
+
+    for (const auto &item : needLoadLibraryBundleNames) {
+        if (item == bundleName) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool GetBundleForLaunchApplication(sptr<IBundleMgr> bundleMgr, const std::string &bundleName,
+    int32_t appIndex, BundleInfo &bundleInfo)
+{
+    bool queryResult;
+    if (appIndex != 0) {
+        HILOG_INFO("GetSandboxBundleInfo, bundleName = %{public}s", bundleName.c_str());
+        queryResult = (bundleMgr->GetSandboxBundleInfo(bundleName,
+            appIndex, UNSPECIFIED_USERID, bundleInfo) == 0);
+    } else {
+        HILOG_INFO("GetBundleInfo, bundleName = %{public}s", bundleName.c_str());
+        queryResult = (bundleMgr->GetBundleInfoForSelf(
+            (static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY) +
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) +
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_DISABLE) +
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) +
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_SIGNATURE_INFO) +
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY) +
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_METADATA)), bundleInfo) == ERR_OK);
+    }
+    return queryResult;
+}
+
 /**
  *
  * @brief Launch the application.
@@ -1083,19 +1157,32 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         return;
     }
 
-    std::string contactsDataAbility("com.ohos.contactsdataability");
-    std::string mediaDataAbility("com.ohos.medialibrary.medialibrarydata");
-    std::string telephonyDataAbility("com.ohos.telephonydataability");
-    std::string fusionSearchAbility("com.ohos.FusionSearch");
-    std::string formRenderExtensionAbility("com.ohos.formrenderservice");
     auto appInfo = appLaunchData.GetApplicationInfo();
+    ProcessInfo processInfo = appLaunchData.GetProcessInfo();
+    HILOG_DEBUG("MainThread handle launch application, InitCreate Start.");
+    std::shared_ptr<ContextDeal> contextDeal;
+    if (!InitCreate(contextDeal, appInfo, processInfo)) {
+        HILOG_ERROR("MainThread::handleLaunchApplication InitCreate failed");
+        return;
+    }
+    sptr<IBundleMgr> bundleMgr = contextDeal->GetBundleManager();
+    if (bundleMgr == nullptr) {
+        HILOG_ERROR("MainThread::handleLaunchApplication GetBundleManager is nullptr");
+        return;
+    }
+
     auto bundleName = appInfo.bundleName;
-    if (bundleName == contactsDataAbility || bundleName == mediaDataAbility || bundleName == telephonyDataAbility
-        || bundleName == fusionSearchAbility || bundleName == formRenderExtensionAbility) {
+    BundleInfo bundleInfo;
+    if (!GetBundleForLaunchApplication(bundleMgr, bundleName, appLaunchData.GetAppIndex(), bundleInfo)) {
+        HILOG_ERROR("HandleLaunchApplication GetBundleInfo failed!");
+        return;
+    }
+
+    if (IsNeedLoadLibrary(bundleName)) {
         std::vector<std::string> localPaths;
         ChangeToLocalPath(bundleName, appInfo.moduleSourceDirs, localPaths);
         LoadAbilityLibrary(localPaths);
-        LoadNativeLiabrary(appInfo.nativeLibraryPath);
+        LoadNativeLiabrary(bundleInfo, appInfo.nativeLibraryPath);
     }
     if (appInfo.needAppDetail) {
         HILOG_DEBUG("MainThread::handleLaunchApplication %{public}s need add app detail ability library path",
@@ -1103,54 +1190,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         LoadAppDetailAbilityLibrary(appInfo.appDetailAbilityLibraryPath);
     }
     LoadAppLibrary();
-    // get application shared point
-    application_ = std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName());
-    if (application_ == nullptr) {
-        HILOG_ERROR("HandleLaunchApplication::application launch failed");
-        return;
-    }
-    ProcessInfo processInfo = appLaunchData.GetProcessInfo();
-
-    HILOG_DEBUG("MainThread handle launch application, InitCreate Start.");
-    std::shared_ptr<ContextDeal> contextDeal = nullptr;
-    if (!InitCreate(contextDeal, appInfo, processInfo)) {
-        HILOG_ERROR("MainThread::handleLaunchApplication InitCreate failed");
-        return;
-    }
 
     applicationForDump_ = application_;
     mixStackDumper_ = std::make_shared<MixStackDumper>();
     if (!mixStackDumper_->IsInstalled()) {
         mixStackDumper_->InstallDumpHandler(application_, signalHandler_);
-    }
-
-    sptr<IBundleMgr> bundleMgr = contextDeal->GetBundleManager();
-    if (bundleMgr == nullptr) {
-        HILOG_ERROR("MainThread::handleLaunchApplication GetBundleManager is nullptr");
-        return;
-    }
-
-    BundleInfo bundleInfo;
-    bool queryResult;
-    if (appLaunchData.GetAppIndex() != 0) {
-        HILOG_INFO("GetSandboxBundleInfo, bundleName = %{public}s", appInfo.bundleName.c_str());
-        queryResult = (bundleMgr->GetSandboxBundleInfo(appInfo.bundleName,
-            appLaunchData.GetAppIndex(), UNSPECIFIED_USERID, bundleInfo) == 0);
-    } else {
-        HILOG_INFO("GetBundleInfo, bundleName = %{public}s", appInfo.bundleName.c_str());
-        queryResult = (bundleMgr->GetBundleInfoForSelf(
-            (static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY) +
-            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) +
-            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_DISABLE) +
-            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) +
-            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_SIGNATURE_INFO) +
-            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY) +
-            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_METADATA)), bundleInfo) == ERR_OK);
-    }
-
-    if (!queryResult) {
-        HILOG_ERROR("HandleLaunchApplication GetBundleInfo failed!");
-        return;
     }
 
     bool moduelJson = false;
@@ -1200,10 +1244,12 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     if (isStageBased) {
         // Create runtime
         auto hapPath = entryHapModuleInfo.hapPath;
+        auto moduleName = entryHapModuleInfo.moduleName;
         AbilityRuntime::Runtime::Options options;
         options.bundleName = appInfo.bundleName;
         options.codePath = LOCAL_CODE_PATH;
         options.hapPath = hapPath;
+        options.moduleName = moduleName;
         options.eventRunner = mainHandler_->GetEventRunner();
         options.loadAce = true;
         options.isBundle = (entryHapModuleInfo.compileMode != AppExecFwk::CompileMode::ES_MODULE);
@@ -1244,6 +1290,10 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
                 .message = errorObj.message,
                 .stack = errorObj.stack
             };
+            FaultData faultData;
+            faultData.faultType = FaultDataType::JS_ERROR;
+            faultData.errorObject = appExecErrorObj;
+            DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFault(faultData);
             if (ApplicationDataManager::GetInstance().NotifyUnhandledException(summary) &&
                 ApplicationDataManager::GetInstance().NotifyExceptionObject(appExecErrorObj)) {
                 return;
@@ -1251,6 +1301,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             // if app's callback has been registered, let app decide whether exit or not.
             HILOG_ERROR("\n%{public}s is about to exit due to RuntimeError\nError type:%{public}s\n%{public}s",
                 bundleName.c_str(), errorObj.name.c_str(), summary.c_str());
+            DelayedSingleton<AbilityManagerClient>::GetInstance()->RecordAppExitReason(REASON_JS_ERROR);
             appThread->ScheduleProcessSecurityExit();
         };
         (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).RegisterUncaughtExceptionHandler(uncaughtExceptionInfo);
@@ -1375,25 +1426,61 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     HILOG_DEBUG("MainThread::handleLaunchApplication called end.");
 }
 
-void MainThread::LoadNativeLiabrary(std::string &nativeLibraryPath)
-{
 #ifdef ABILITY_LIBRARY_LOADER
-    if (nativeLibraryPath.empty()) {
-        HILOG_WARN("Native library path is empty.");
-        return;
+void MainThread::CalcNativeLiabraryEntries(const BundleInfo &bundleInfo, std::string &nativeLibraryPath)
+{
+    bool loadSoFromDir = bundleInfo.hapModuleInfos.empty();
+    std::vector<std::string> nativeFileEntries;
+    for (const auto &item: bundleInfo.hapModuleInfos) {
+        if (!item.compressNativeLibs) {
+            HILOG_DEBUG("handle entries for: %{public}s, with path: %{public}s", item.moduleName.c_str(),
+                item.nativeLibraryPath.c_str());
+            if (item.nativeLibraryPath.empty()) {
+                HILOG_DEBUG("nativeLibraryPath empty: %{public}s", item.moduleName.c_str());
+                continue;
+            }
+            std::string libPath = GetLibPath(item.hapPath, bundleInfo.isPreInstallApp);
+            libPath += (libPath.back() == '/') ? item.nativeLibraryPath : "/" + item.nativeLibraryPath;
+            HILOG_INFO("module lib path: %{public}s", libPath.c_str());
+            if (libPath.back() != '/') {
+                libPath.push_back('/');
+            }
+            for (const auto &entryName : item.nativeLibraryFileNames) {
+                HILOG_DEBUG("add entry: %{public}s.", entryName.c_str());
+                nativeFileEntries.emplace_back(libPath + entryName);
+            }
+        } else {
+            HILOG_DEBUG("compressNativeLibs flag true for: %{public}s.", item.moduleName.c_str());
+            loadSoFromDir = true;
+        }
     }
 
-    if (nativeLibraryPath.back() == '/') {
-        nativeLibraryPath.pop_back();
-    }
-    std::string libPath = LOCAL_CODE_PATH;
-    libPath += (libPath.back() == '/') ? nativeLibraryPath : "/" + nativeLibraryPath;
-    HILOG_DEBUG("native library path = %{public}s", libPath.c_str());
+    if (loadSoFromDir) {
+        if (nativeLibraryPath.empty()) {
+            HILOG_WARN("Native library path is empty.");
+            return;
+        }
 
-    if (!ScanDir(libPath, nativeFileEntries_)) {
-        HILOG_WARN("%{public}s scanDir %{public}s not exits", __func__, libPath.c_str());
+        if (nativeLibraryPath.back() == '/') {
+            nativeLibraryPath.pop_back();
+        }
+        std::string libPath = LOCAL_CODE_PATH;
+        libPath += (libPath.back() == '/') ? nativeLibraryPath : "/" + nativeLibraryPath;
+        HILOG_DEBUG("native library path = %{public}s", libPath.c_str());
+
+        if (!ScanDir(libPath, nativeFileEntries_)) {
+            HILOG_WARN("%{public}s scanDir %{public}s not exits", __func__, libPath.c_str());
+        }
     }
 
+    if (!nativeFileEntries.empty()) {
+        nativeFileEntries_.insert(nativeFileEntries_.end(), nativeFileEntries.begin(), nativeFileEntries.end());
+    }
+}
+
+void MainThread::LoadNativeLiabrary(const BundleInfo &bundleInfo, std::string &nativeLibraryPath)
+{
+    CalcNativeLiabraryEntries(bundleInfo, nativeLibraryPath);
     if (nativeFileEntries_.empty()) {
         HILOG_WARN("No native library");
         return;
@@ -1424,8 +1511,8 @@ void MainThread::LoadNativeLiabrary(std::string &nativeLibraryPath)
         HILOG_DEBUG("%{public}s Success to dlopen %{public}s", __func__, fileEntry.c_str());
         handleAbilityLib_.emplace_back(handleAbilityLib);
     }
-#endif
 }
+#endif
 
 void MainThread::ChangeToLocalPath(const std::string &bundleName,
     const std::vector<std::string> &sourceDirs, std::vector<std::string> &localPath)
@@ -1650,7 +1737,14 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
     }
 
     if (runtime && want && appInfo->debug) {
-        runtime->StartDebugMode(want->GetBoolParam("debugApp", false));
+        auto perfCmd = want->GetStringParam("perfCmd");
+        if (perfCmd.find(PERFCMD_PROFILE) != std::string::npos ||
+            perfCmd.find(PERFCMD_DUMPHEAP) != std::string::npos) {
+            HILOG_DEBUG("perfCmd is %{public}s", perfCmd.c_str());
+            runtime->StartProfiler(perfCmd);
+        } else {
+            runtime->StartDebugMode(want->GetBoolParam("debugApp", false));
+        }
     }
 
     std::vector<HqfInfo> hqfInfos = appInfo->appQuickFix.deployedAppqfInfo.hqfInfos;
@@ -1795,7 +1889,9 @@ void MainThread::HandleForegroundApplication()
         HILOG_ERROR("MainThread::handleForegroundApplication error!");
         return;
     }
-
+#ifdef IMAGE_PURGEABLE_PIXELMAP
+    PurgeableMem::PurgeableResourceManager::GetInstance().BeginAccessPurgeableMem();
+#endif
     if (!applicationImpl_->PerformForeground()) {
         HILOG_ERROR("MainThread::handleForegroundApplication error!, applicationImpl_->PerformForeground() failed");
         return;
@@ -2214,25 +2310,6 @@ void MainThread::LoadAppDetailAbilityLibrary(std::string &nativeLibraryPath)
 #endif // ABILITY_LIBRARY_LOADER
 }
 
-/**
- *
- * @brief Close the ability library loaded.
- *
- */
-void MainThread::CloseAbilityLibrary()
-{
-    HILOG_DEBUG("start");
-    for (auto iter : handleAbilityLib_) {
-        if (iter != nullptr) {
-            dlclose(iter);
-            iter = nullptr;
-        }
-    }
-    handleAbilityLib_.clear();
-    fileEntries_.clear();
-    nativeFileEntries_.clear();
-}
-
 bool MainThread::ScanDir(const std::string &dirPath, std::vector<std::string> &files)
 {
     DIR *dirp = opendir(dirPath.c_str());
@@ -2471,6 +2548,35 @@ int32_t MainThread::ScheduleNotifyUnLoadRepairPatch(const std::string &bundleNam
     }
 
     return NO_ERROR;
+}
+
+int32_t MainThread::ScheduleNotifyAppFault(const FaultData &faultData)
+{
+    if (mainHandler_ == nullptr) {
+        HILOG_ERROR("mainHandler is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    wptr<MainThread> weak = this;
+    auto task = [weak, faultData] {
+        auto appThread = weak.promote();
+        if (appThread == nullptr) {
+            HILOG_ERROR("appThread is nullptr, NotifyAppFault failed.");
+            return;
+        }
+        appThread->NotifyAppFault(faultData);
+    };
+    mainHandler_->PostTask(task);
+    return NO_ERROR;
+}
+
+void MainThread::NotifyAppFault(const FaultData &faultData)
+{
+    ErrorObject faultErrorObj = {
+        .name = faultData.errorObject.name,
+        .message = faultData.errorObject.message,
+        .stack = faultData.errorObject.stack
+    };
+    ApplicationDataManager::GetInstance().NotifyExceptionObject(faultErrorObj);
 }
 
 void MainThread::UpdateProcessExtensionType(const std::shared_ptr<AbilityLocalRecord> &abilityRecord)

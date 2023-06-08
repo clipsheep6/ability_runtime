@@ -32,7 +32,7 @@ int32_t ConnectionObserverClientImpl::RegisterObserver(const std::shared_ptr<Con
 
     auto proxy = GetServiceProxy();
 
-    std::lock_guard<std::recursive_mutex> guard(observerLock_);
+    std::lock_guard<std::mutex> guard(observerLock_);
     if (!RegisterObserverToServiceLocked(proxy)) {
         HILOG_ERROR("register to service failed.");
         return ERR_REGISTER_FAILED;
@@ -50,7 +50,7 @@ int32_t ConnectionObserverClientImpl::UnregisterObserver(const std::shared_ptr<C
 
     auto proxy = GetServiceProxy();
 
-    std::lock_guard<std::recursive_mutex> guard(observerLock_);
+    std::lock_guard<std::mutex> guard(observerLock_);
     auto ret = RemoveObserversLocked(observer);
     if (userObservers_.empty()) {
         UnregisterFromServiceLocked(proxy);
@@ -176,7 +176,7 @@ int32_t ConnectionObserverClientImpl::RemoveObserversLocked(const std::shared_pt
 
 std::shared_ptr<ServiceProxyAdapter> ConnectionObserverClientImpl::GetServiceProxy()
 {
-    std::lock_guard<std::recursive_mutex> guard(proxyLock_);
+    std::lock_guard<std::mutex> guard(proxyLock_);
     if (!serviceAdapter_) {
         ConnectLocked();
     }
@@ -224,7 +224,7 @@ void ConnectionObserverClientImpl::HandleRemoteDied(const wptr<IRemoteObject> &r
 
 bool ConnectionObserverClientImpl::ResetProxy(const wptr<IRemoteObject> &remote)
 {
-    std::lock_guard<std::recursive_mutex> guard(proxyLock_);
+    std::lock_guard<std::mutex> guard(proxyLock_);
     if (serviceAdapter_ == nullptr) {
         return false;
     }
@@ -241,7 +241,7 @@ bool ConnectionObserverClientImpl::ResetProxy(const wptr<IRemoteObject> &remote)
 
 void ConnectionObserverClientImpl::ResetStatus()
 {
-    std::lock_guard<std::recursive_mutex> guard(observerLock_);
+    std::lock_guard<std::mutex> guard(observerLock_);
     isRegistered_ = false;
     userObservers_.clear();
 }
@@ -260,7 +260,7 @@ void ConnectionObserverClientImpl::NotifyServiceDiedToObservers()
 
 std::unordered_set<std::shared_ptr<ConnectionObserver>> ConnectionObserverClientImpl::GetObservers()
 {
-    std::lock_guard<std::recursive_mutex> guard(observerLock_);
+    std::lock_guard<std::mutex> guard(observerLock_);
     return userObservers_;
 }
 

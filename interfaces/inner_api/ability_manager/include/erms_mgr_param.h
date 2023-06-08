@@ -19,7 +19,6 @@
 #include <string>
 #include <vector>
 
-#include "parcel.h"
 #include "want.h"
 
 namespace OHOS {
@@ -27,29 +26,17 @@ namespace AppExecFwk {
 namespace ErmsParams {
 using Want = OHOS::AAFwk::Want;
 
-struct ExperienceRule : public Parcelable {
+struct ExperienceRule {
     bool isAllow = false;
     std::shared_ptr<Want> replaceWant = nullptr;
     int64_t sceneCode = 0L;
     int64_t allowTypes;
-
-    bool ReadFromParcel(Parcel &parcel);
-
-    bool Marshalling(Parcel &parcel) const override;
-
-    static ExperienceRule *Unmarshalling(Parcel &parcel);
 };
 
-struct CallerInfo : public Parcelable {
+struct CallerInfo {
     std::string packageName;
     int64_t uid = 0L;
     int64_t pid = 0L;
-
-    bool ReadFromParcel(Parcel &parcel);
-
-    bool Marshalling(Parcel &parcel) const override;
-
-    static CallerInfo *Unmarshalling(Parcel &parcel);
 };
 }  // namespace ErmsParams
 }  // namespace AppExecFwk
