@@ -93,9 +93,12 @@ public:
      * CloseUIAbility, close the special ability by scb.
      *
      * @param abilityRecord, the ability to close.
+     * @param resultCode, the resultCode of the ability to terminate.
+     * @param resultWant, the Want of the ability to return.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int CloseUIAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    int CloseUIAbility(const std::shared_ptr<AbilityRecord> &abilityRecord,
+        int resultCode, const Want *resultWant);
 
     /**
      * Set rootSceneSession by SCB.

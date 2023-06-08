@@ -509,7 +509,8 @@ void UIAbilityLifecycleManager::CompleteBackground(const std::shared_ptr<Ability
     }
 }
 
-int UIAbilityLifecycleManager::CloseUIAbility(const std::shared_ptr<AbilityRecord> &abilityRecord)
+int UIAbilityLifecycleManager::CloseUIAbility(const std::shared_ptr<AbilityRecord> &abilityRecord,
+    int resultCode, const Want *resultWant)
 {
     HILOG_DEBUG("call");
     std::lock_guard<std::mutex> guard(sessionLock_);
@@ -524,6 +525,16 @@ int UIAbilityLifecycleManager::CloseUIAbility(const std::shared_ptr<AbilityRecor
     terminateAbilityList_.push_back(abilityRecord);
     EraseAbilityRecord(abilityRecord);
     abilityRecord->SetTerminatingState();
+
+    // save result to caller AbilityRecord
+    if (resultWant != nullptr) {
+        abilityRecord->SaveResultToCallers(resultCode, resultWant);
+    } else {
+        Want want;
+        abilityRecord->SaveResultToCallers(-1, &want);
+    }
+
+    abilityRecord->SendResultToCallers();
 
     auto self(shared_from_this());
     auto task = [abilityRecord, self]() {

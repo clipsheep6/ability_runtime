@@ -33,6 +33,9 @@
 #endif
 
 namespace OHOS {
+namespace Rosen {
+class ISession;
+}
 namespace AbilityRuntime {
 using RuntimeTask = std::function<void(int, const AAFwk::Want&, bool)>;
 using PermissionRequestTask = std::function<void(const std::vector<std::string>&, const std::vector<int>&)>;
@@ -251,6 +254,8 @@ public:
     virtual void SetConfiguration(const std::shared_ptr<AppExecFwk::Configuration> &config) = 0;
 
     virtual void RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback) = 0;
+
+    virtual void SetWeakSessionToken(const wptr<Rosen::ISession>& sessionToken) = 0;
 
     /**
      * @brief Requests dialogService from the system.
