@@ -1661,6 +1661,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     uint8_t setAllowInternet = 0;
     uint8_t allowInternet = 1;
     auto token = bundleInfo.applicationInfo.accessTokenId;
+    std::vector<int32_t> gids;
     {
         // Add TRACE
         HITRACE_METER_NAME(HITRACE_TAG_APP, "AccessTokenKit::VerifyAccessToken");
@@ -1674,7 +1675,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         } else {
             auto ret = SetInternetPermission(bundleInfo.uid, 1);
             HILOG_DEBUG("SetInternetPermission, ret = %{public}d", ret);
-            bundleInfo.gids.push_back(NETSYS_SOCKET_GROUPID);
+            gids.push_back(NETSYS_SOCKET_GROUPID);
 #endif
         }
 
@@ -1690,7 +1691,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     AppSpawnStartMsg startMsg;
     startMsg.uid = bundleInfo.uid;
     startMsg.gid = bundleInfo.gid;
-    startMsg.gids = bundleInfo.gids;
+    startMsg.gids = gids;
     startMsg.accessTokenId = bundleInfo.applicationInfo.accessTokenId;
     startMsg.apl = bundleInfo.applicationInfo.appPrivilegeLevel;
     startMsg.bundleName = bundleName;
