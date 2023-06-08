@@ -646,6 +646,15 @@ void OHOSApplication::CleanAbilityStage(const sptr<IRemoteObject> &token,
             abilityStage->OnDestroy();
             abilityStages_.erase(moduleName);
         }
+        DoCleanWorkAfterStageCleaned(*abilityInfo);
+    }
+}
+
+void OHOSApplication::DoCleanWorkAfterStageCleaned(const AbilityInfo &abilityInfo)
+{
+    HILOG_INFO("DoCleanWorkAfterStageCleaned language: %{public}s.", abilityInfo.srcLanguage.c_str());
+    if (runtime_) {
+        runtime_->DoCleanWorkAfterStageCleaned();
     }
 }
 

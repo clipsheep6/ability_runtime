@@ -94,6 +94,7 @@ public:
     }
 
     void StartProfiler(const std::string &perfCmd) override {}
+    void DoCleanWorkAfterStageCleaned() override {}
 public:
     Language language;
 };

@@ -294,7 +294,8 @@ public:
     bool NotifyHotReloadPage();
 
     bool NotifyUnLoadRepairPatch(const std::string &hqfFile);
-
+private:
+    void DoCleanWorkAfterStageCleaned(const AbilityInfo &abilityInfo);
 private:
     std::list<std::shared_ptr<AbilityLifecycleCallbacks>> abilityLifecycleCallbacks_;
     std::list<std::shared_ptr<ElementsCallback>> elementsCallbacks_;
