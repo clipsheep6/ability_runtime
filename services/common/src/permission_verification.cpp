@@ -402,7 +402,7 @@ bool PermissionVerification::VerifyPrepareTerminatePermission() const
         HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
         return true;
     }
-    HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+    HILOG_DEBUG("%{public}s: Permission verification failed", __func__);
     return false;
 }
 }  // namespace AAFwk

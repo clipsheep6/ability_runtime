@@ -311,6 +311,7 @@ bool AbilityManagerService::Init()
     DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(OHOS::system::GetDeviceType());
     implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
     InitFocusListener();
+    InitPrepareTerminateConfig();
 #endif
 
     auto initConnectionStateManagerTask = []() {
@@ -6452,7 +6453,6 @@ int AbilityManagerService::PrepareTerminateAbility(const sptr<IRemoteObject> &to
         return ERR_INVALID_VALUE;
     }
     if (!CheckPrepareTerminateEnable()) {
-        HILOG_ERROR("Only support PC.");
         callback->DoPrepareTerminate();
         return ERR_INVALID_VALUE;
     }
@@ -6547,6 +6547,17 @@ void AbilityManagerService::RegisterFocusListener()
     }
     Rosen::WindowManager::GetInstance().RegisterFocusChangedListener(focusListener_);
     HILOG_INFO("Register focus listener success");
+}
+
+void AbilityManagerService::InitPrepareTerminateConfig()
+{
+    char value[PREPARE_TERMINATE_ENABLE_SIZE] = "false";
+    int retSysParam = GetParameter(PREPARE_TERMINATE_ENABLE_PARAMETER, "false", value, PREPARE_TERMINATE_ENABLE_SIZE);
+    HILOG_INFO("CheckPrepareTerminateEnable, %{public}s value is %{public}s.", PREPARE_TERMINATE_ENABLE_PARAMETER,
+        value);
+    if (retSysParam > 0 && !std::strcmp(value, "true")) {
+        isPrepareTerminateEnable_ = true;
+    }
 }
 #endif
 
@@ -7211,14 +7222,15 @@ void AbilityManagerService::SetRootSceneSession(const sptr<Rosen::RootSceneSessi
 
 bool AbilityManagerService::CheckPrepareTerminateEnable()
 {
-    char value[PREPARE_TERMINATE_ENABLE_SIZE] = "false";
-    int retSysParam = GetParameter(PREPARE_TERMINATE_ENABLE_PARAMETER, "false", value, PREPARE_TERMINATE_ENABLE_SIZE);
-    HILOG_INFO("CheckPrepareTerminateEnable, %{public}s value is %{public}s.", PREPARE_TERMINATE_ENABLE_PARAMETER,
-        value);
-    if (retSysParam > 0 && !std::strcmp(value, "true")) {
-        return true;
+    if (!isPrepareTerminateEnable_) {
+        HILOG_DEBUG("Only support PC.");
+        return false;
     }
-    return false;
+    if (!AAFwk::PermissionVerification::GetInstance()->VerifyPrepareTerminatePermission()) {
+        HILOG_DEBUG("failed, please apply permission ohos.permission.PREPARE_APP_TERMINATE");
+        return false;
+    }
+    return true;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
