@@ -1666,6 +1666,11 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         if (targetRet == ERR_OK && overlayModuleInfo.size() != 0) {
             HILOG_DEBUG("Start an overlay app process.");
             startMsg.flags = startMsg.flags | OVERLAY_FLAG;
+            std::string overlayInfoPaths;
+            for (auto it : overlayModuleInfo) {
+                overlayInfoPaths += (it.hapPath + "|");
+            }
+            startMsg.overlayInfo = overlayInfoPaths;
         }
     }
 
