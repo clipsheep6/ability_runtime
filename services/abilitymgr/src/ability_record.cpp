@@ -195,8 +195,7 @@ AbilityRecord::~AbilityRecord()
     }
 }
 
-std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityRequest &abilityRequest,
-    sptr<SessionInfo> sessionInfo)
+std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityRequest &abilityRequest)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(
         abilityRequest.want, abilityRequest.abilityInfo, abilityRequest.appInfo, abilityRequest.requestCode);
@@ -204,7 +203,7 @@ std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityR
     abilityRecord->SetUid(abilityRequest.uid);
     abilityRecord->SetAppIndex(abilityRequest.want.GetIntParam(DLP_INDEX, 0));
     abilityRecord->SetCallerAccessTokenId(abilityRequest.callerAccessTokenId);
-    abilityRecord->sessionInfo_ = sessionInfo;
+    abilityRecord->sessionInfo_ = abilityRequest.sessionInfo;
     if (!abilityRecord->Init()) {
         HILOG_ERROR("failed to init new ability record");
         return nullptr;
@@ -336,6 +335,41 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
     int foregroundTimeout =
         AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
     SendEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, foregroundTimeout);
+
+    // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
+    // earlier than above actions.
+    SetAbilityStateInner(AbilityState::FOREGROUNDING);
+    lifeCycleStateInfo_.sceneFlag = sceneFlag;
+    lifecycleDeal_->ForegroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
+    lifeCycleStateInfo_.sceneFlag = 0;
+    lifeCycleStateInfo_.sceneFlagBak = 0;
+
+    // update ability state to appMgr service when restart
+    if (IsNewWant()) {
+        sptr<Token> preToken = nullptr;
+        if (GetPreAbilityRecord()) {
+            preToken = GetPreAbilityRecord()->GetToken();
+        }
+        DelayedSingleton<AppScheduler>::GetInstance()->AbilityBehaviorAnalysis(token_, preToken, 1, 1, 1);
+    }
+}
+
+void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_INFO("name:%{public}s.", abilityInfo_.name.c_str());
+    CHECK_POINTER(lifecycleDeal_);
+
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    if (handler && task) {
+        if (!want_.GetBoolParam(DEBUG_APP, false) && !want_.GetBoolParam(NATIVE_DEBUG, false)) {
+            int foregroundTimeout =
+                AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
+            handler->PostTask(task, "foreground_" + std::to_string(recordId_), foregroundTimeout);
+        } else {
+            HILOG_INFO("Is debug mode, no need to handle time out.");
+        }
+    }
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
@@ -1216,6 +1250,11 @@ bool AbilityRecord::IsCreateByConnect() const
     return isCreateByConnect_;
 }
 
+bool AbilityRecord::IsUIExtension() const
+{
+    return abilityInfo_.extensionAbilityType == AppExecFwk::ExtensionAbilityType::UI;
+}
+
 void AbilityRecord::SetCreateByConnectMode()
 {
     isCreateByConnect_ = true;
@@ -1257,7 +1296,7 @@ void AbilityRecord::Inactivate()
     // schedule inactive after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
     SetAbilityStateInner(AbilityState::INACTIVATING);
-    lifecycleDeal_->Inactivate(want_, lifeCycleStateInfo_, sessionInfo_);
+    lifecycleDeal_->Inactivate(want_, lifeCycleStateInfo_);
 }
 
 void AbilityRecord::Terminate(const Closure &task)
@@ -1317,6 +1356,12 @@ void AbilityRecord::CommandAbility()
     HILOG_INFO("startId_:%{public}d.", startId_);
     CHECK_POINTER(lifecycleDeal_);
     lifecycleDeal_->CommandAbility(want_, false, startId_);
+}
+
+void AbilityRecord::CommandAbilityWindow(const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd)
+{
+    CHECK_POINTER(lifecycleDeal_);
+    lifecycleDeal_->CommandAbilityWindow(sessionInfo, winCmd);
 }
 
 void AbilityRecord::SaveAbilityState()

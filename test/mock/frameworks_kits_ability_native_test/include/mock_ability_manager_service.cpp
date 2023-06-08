@@ -135,6 +135,15 @@ int MockAbilityManagerService::ScheduleCommandAbilityDone(const sptr<IRemoteObje
     return 0;
 }
 
+int MockAbilityManagerService::ScheduleCommandAbilityWindowDone(
+    const sptr<IRemoteObject> &token,
+    const sptr<SessionInfo> &sessionInfo,
+    WindowCommand winCmd,
+    AbilityCommand abilityCmd)
+{
+    return 0;
+}
+
 int MockAbilityManagerService::TerminateAbilityResult(const sptr<IRemoteObject>& token, int startId)
 {
     GTEST_LOG_(INFO) << "MockAbilityManagerService::TerminateAbilityResult";

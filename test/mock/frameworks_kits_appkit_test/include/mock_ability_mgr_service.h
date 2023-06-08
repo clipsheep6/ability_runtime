@@ -46,6 +46,8 @@ public:
         ScheduleConnectAbilityDone, int(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& remoteObject));
     MOCK_METHOD1(ScheduleDisconnectAbilityDone, int(const sptr<IRemoteObject>& token));
     MOCK_METHOD1(ScheduleCommandAbilityDone, int(const sptr<IRemoteObject>& token));
+    MOCK_METHOD4(ScheduleCommandAbilityWindowDone, int(const sptr<IRemoteObject> &token,
+        const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd, AbilityCommand abilityCmd));
     void DumpState(const std::string& args, std::vector<std::string>& state)
     {
         GTEST_LOG_(INFO) << "MockAbilityMgrService::DumpState called";

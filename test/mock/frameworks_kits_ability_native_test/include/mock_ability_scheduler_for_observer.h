@@ -37,6 +37,7 @@ public:
     MOCK_METHOD1(ScheduleDisconnectAbility, void(const AAFwk::Want&));
     MOCK_METHOD0(SchedulePrepareTerminateAbility, bool());
     MOCK_METHOD3(ScheduleCommandAbility, void(const AAFwk::Want&, bool, int));
+    MOCK_METHOD2(ScheduleCommandAbilityWindow, void(const sptr<AAFwk::SessionInfo> &, AAFwk::WindowCommand));
     MOCK_METHOD0(ScheduleSaveAbilityState, void());
     MOCK_METHOD1(ScheduleRestoreAbilityState, void(const PacMap&));
     MOCK_METHOD1(ScheduleUpdateConfiguration, void(const AppExecFwk::Configuration&));

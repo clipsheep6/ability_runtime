@@ -16,6 +16,8 @@
 #ifndef OHOS_ABILITY_RUNTIME_JS_UI_EXTENSION_H
 #define OHOS_ABILITY_RUNTIME_JS_UI_EXTENSION_H
 
+#include <unordered_set>
+
 #include "configuration.h"
 #include "ui_extension.h"
 
@@ -66,7 +68,6 @@ public:
      * @param Want Indicates the {@link Want} structure containing startup information about the ui extension.
      */
     virtual void OnStart(const AAFwk::Want &want) override;
-    virtual void OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo) override;
 
     /**
      * @brief Called when this ui extension is connected for the first time.
@@ -101,6 +102,8 @@ public:
      * value of startId is 6.
      */
     virtual void OnCommand(const AAFwk::Want &want, bool restart, int startId) override;
+
+    virtual void OnCommandWindow(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd) override;
 
     /**
      * @brief Called when this ui extension enters the <b>STATE_STOP</b> state.
@@ -152,10 +155,15 @@ private:
 
     NativeValue* CallOnDisconnect(const AAFwk::Want &want, bool withResult = false);
 
+    void ForegroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo);
+    void BackgroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo);
+    void DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo);
+
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;
     std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
-    std::string contextPath_;
+    std::unordered_map<uint64_t, sptr<Rosen::Window>> uiWindowMap_;
+    std::unordered_set<uint64_t> foregroundWindows_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

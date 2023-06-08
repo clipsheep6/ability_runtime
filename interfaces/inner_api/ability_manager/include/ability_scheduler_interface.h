@@ -19,6 +19,7 @@
 #include <iremote_broker.h>
 #include "lifecycle_state_info.h"
 #include "pac_map.h"
+#include "ui_extension_window_command.h"
 #include "want.h"
 
 namespace OHOS {
@@ -86,6 +87,9 @@ public:
      * ScheduleCommandAbility, schedule service ability to command.
      */
     virtual void ScheduleCommandAbility(const Want &want, bool restart, int startId) = 0;
+
+    virtual void ScheduleCommandAbilityWindow(const sptr<SessionInfo> &sessionInfo,
+        WindowCommand winCmd) = 0;
 
     /**
      * SchedulePrepareTerminateAbility, schedule ability to prepare terminate.
@@ -310,6 +314,8 @@ public:
 
         // ipc id for scheduling service ability to command
         SCHEDULE_ABILITY_COMMAND,
+
+        SCHEDULE_ABILITY_COMMAND_WINDOW,
 
         // ipc id for scheduling save ability state
         SCHEDULE_SAVE_ABILITY_STATE,

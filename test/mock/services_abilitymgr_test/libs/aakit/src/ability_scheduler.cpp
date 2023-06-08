@@ -62,6 +62,10 @@ bool AbilityScheduler::SchedulePrepareTerminateAbility()
 void AbilityScheduler::ScheduleCommandAbility(const Want& want, bool restart, int startId)
 {}
 
+void AbilityScheduler::ScheduleCommandAbilityWindow(const sptr<SessionInfo> &sessionInfo,
+    WindowCommand winCmd)
+{}
+
 void AbilityScheduler::ScheduleSaveAbilityState()
 {}
 

@@ -93,7 +93,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_003, TestSize.Level1)
     sptr<SessionInfo> sessionInfo(new SessionInfo());
     sessionInfo->sessionToken = new Rosen::Session(info);
     sessionInfo->persistentId = 1;
-    auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest, sessionInfo);
+    abilityRequest.sessionInfo = sessionInfo;
+    auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     mgr->sessionAbilityMap_.emplace(sessionInfo->persistentId, abilityRecord);
     EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo), ERR_OK);
 }
@@ -111,7 +112,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_004, TestSize.Level1)
     sptr<SessionInfo> sessionInfo(new SessionInfo());
     sessionInfo->sessionToken = new Rosen::Session(info);
     sessionInfo->persistentId = 1;
-    auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest, sessionInfo);
+    abilityRequest.sessionInfo = sessionInfo;
+    auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     abilityRecord->SetTerminatingState();
     mgr->sessionAbilityMap_.emplace(sessionInfo->persistentId, abilityRecord);
     EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo), ERR_INVALID_VALUE);
@@ -130,7 +132,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_005, TestSize.Level1)
     sptr<SessionInfo> sessionInfo(new SessionInfo());
     sessionInfo->sessionToken = new Rosen::Session(info);
     sessionInfo->persistentId = 1;
-    auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest, sessionInfo);
+    abilityRequest.sessionInfo = sessionInfo;
+    auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     abilityRecord->SetPendingState(AbilityState::FOREGROUND);
     mgr->sessionAbilityMap_.emplace(sessionInfo->persistentId, abilityRecord);
     EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo), ERR_OK);

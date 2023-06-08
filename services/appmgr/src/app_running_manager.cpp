@@ -794,9 +794,13 @@ bool AppRunningManager::IsApplicationFirstForeground(const AppRunningRecord &for
 {
     HILOG_DEBUG("function called.");
     std::lock_guard<std::mutex> guard(lock_);
+    if (foregroundingRecord.IsUIExtension()) {
+        return false;
+    }
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
-        if (appRecord == nullptr || appRecord->GetBundleName() != foregroundingRecord.GetBundleName()) {
+        if (appRecord == nullptr || appRecord->GetBundleName() != foregroundingRecord.GetBundleName()
+            || appRecord->IsUIExtension()) {
             continue;
         }
         auto state = appRecord->GetState();
@@ -817,6 +821,9 @@ bool AppRunningManager::IsApplicationBackground(const std::string &bundleName)
         if (appRecord == nullptr) {
             HILOG_ERROR("appRecord is nullptr");
             return false;
+        }
+        if (appRecord->IsUIExtension()) {
+            continue;
         }
         auto state = appRecord->GetState();
         if (appRecord && appRecord->GetBundleName() == bundleName &&

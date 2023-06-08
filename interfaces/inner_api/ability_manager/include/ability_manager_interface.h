@@ -43,11 +43,12 @@
 #include "start_options.h"
 #include "stop_user_callback.h"
 #include "system_memory_attr.h"
+#include "ui_extension_window_command.h"
+#include "uri.h"
 #include "want.h"
 #include "want_receiver_interface.h"
 #include "want_sender_info.h"
 #include "want_sender_interface.h"
-#include "uri.h"
 #ifdef SUPPORT_GRAPHICS
 #include "window_manager_service_handler.h"
 #endif
@@ -477,6 +478,12 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int ScheduleCommandAbilityDone(const sptr<IRemoteObject> &token) = 0;
+
+    virtual int ScheduleCommandAbilityWindowDone(
+        const sptr<IRemoteObject> &token,
+        const sptr<AAFwk::SessionInfo> &sessionInfo,
+        AAFwk::WindowCommand winCmd,
+        AAFwk::AbilityCommand abilityCmd) = 0;
 
     /**
      * dump ability stack info, about userID, mission stack info,
@@ -1185,6 +1192,8 @@ public:
 
         // prepare terminate ability (65)
         PREPARE_TERMINATE_ABILITY,
+
+        COMMAND_ABILITY_WINDOW_DONE,
 
         // ipc id 1001-2000 for DMS
         // ipc id for starting ability (1001)

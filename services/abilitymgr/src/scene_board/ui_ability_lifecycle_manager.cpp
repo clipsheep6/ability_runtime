@@ -52,13 +52,14 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
         HILOG_ERROR("token's Descriptor: %{public}s", descriptor.c_str());
         return ERR_INVALID_VALUE;
     }
+    abilityRequest.sessionInfo = sessionInfo;
 
     std::shared_ptr<AbilityRecord> uiAbilityRecord = nullptr;
     auto iter = sessionAbilityMap_.find(sessionInfo->persistentId);
     if (iter != sessionAbilityMap_.end()) {
         uiAbilityRecord = iter->second;
     } else {
-        uiAbilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest, sessionInfo);
+        uiAbilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     }
     CHECK_POINTER_AND_RETURN(uiAbilityRecord, ERR_INVALID_VALUE);
 

@@ -54,11 +54,9 @@ void ExtensionImpl::Init(std::shared_ptr<AppExecFwk::OHOSApplication> &applicati
  *
  * @param want Indicates the structure containing information about the extension.
  * @param targetState The life cycle state to switch to.
- * @param sessionInfo  Indicates the sessionInfo.
  *
  */
-void ExtensionImpl::HandleExtensionTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
-    sptr<AAFwk::SessionInfo> sessionInfo)
+void ExtensionImpl::HandleExtensionTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
 {
     HILOG_INFO("sourceState:%{public}d;targetState:%{public}d;isNewWant:%{public}d",
         lifecycleState_,
@@ -73,15 +71,23 @@ void ExtensionImpl::HandleExtensionTransaction(const Want &want, const AAFwk::Li
 
     switch (targetState.state) {
         case AAFwk::ABILITY_STATE_INITIAL: {
-            if (lifecycleState_ == AAFwk::ABILITY_STATE_ACTIVE) {
+            if (lifecycleState_ != AAFwk::ABILITY_STATE_INITIAL) {
                 Stop();
             }
             break;
         }
         case AAFwk::ABILITY_STATE_INACTIVE: {
             if (lifecycleState_ == AAFwk::ABILITY_STATE_INITIAL) {
-                Start(want, sessionInfo);
+                Start(want);
             }
+            break;
+        }
+        case AAFwk::ABILITY_STATE_FOREGROUND_NEW: {
+            Foreground(want);
+            break;
+        }
+        case AAFwk::ABILITY_STATE_BACKGROUND_NEW: {
+            Background();
             break;
         }
         default: {
@@ -129,9 +135,8 @@ void ExtensionImpl::NotifyMemoryLevel(int level)
  * that it belongs to of the lifecycle status.
  *
  * @param want  The Want object to switch the life cycle.
- * @param sessionInfo  Indicates the sessionInfo.
  */
-void ExtensionImpl::Start(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
+void ExtensionImpl::Start(const Want &want)
 {
     HILOG_INFO("call");
     if (extension_ == nullptr) {
@@ -140,11 +145,7 @@ void ExtensionImpl::Start(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo
     }
 
     HILOG_INFO("ExtensionImpl::Start");
-    if (extension_->abilityInfo_->extensionAbilityType == AppExecFwk::ExtensionAbilityType::UI) {
-        extension_->OnStart(want, sessionInfo);
-    } else {
-        extension_->OnStart(want);
-    }
+    extension_->OnStart(want);
     lifecycleState_ = AAFwk::ABILITY_STATE_INACTIVE;
     HILOG_INFO("ok");
 }
@@ -317,6 +318,18 @@ void ExtensionImpl::CommandExtension(const Want &want, bool restart, int startId
 
     extension_->OnCommand(want, restart, startId);
     lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
+    HILOG_INFO("ok");
+}
+
+void ExtensionImpl::CommandExtensionWindow(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
+{
+    HILOG_INFO("call");
+    if (extension_ == nullptr) {
+        HILOG_ERROR("extension_ is nullptr");
+        return;
+    }
+
+    extension_->OnCommandWindow(sessionInfo, winCmd);
     HILOG_INFO("ok");
 }
 

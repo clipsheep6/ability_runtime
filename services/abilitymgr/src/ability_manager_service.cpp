@@ -1619,6 +1619,14 @@ int AbilityManagerService::StartUIExtensionAbility(const Want &want, const sptr<
         return ERR_INVALID_CALLER;
     }
 
+    auto callerRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (callerRecord == nullptr || !JudgeSelfCalled(callerRecord)) {
+        HILOG_ERROR("invalid callerToken.");
+        eventInfo.errCode = ERR_INVALID_VALUE;
+        EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        return ERR_INVALID_CALLER;
+    }
+
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
         interceptorExecuter_->DoProcess(want, 0, GetUserId(), false);
     if (result != ERR_OK) {
@@ -1647,6 +1655,7 @@ int AbilityManagerService::StartUIExtensionAbility(const Want &want, const sptr<
     abilityRequest.Voluation(want, DEFAULT_INVAL_VALUE, callerToken);
     abilityRequest.callType = AbilityCallType::START_EXTENSION_TYPE;
     abilityRequest.extensionType = extensionType;
+    abilityRequest.sessionInfo = extensionSessionInfo;
     result = GenerateExtensionAbilityRequest(want, abilityRequest, callerToken, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
@@ -1668,6 +1677,14 @@ int AbilityManagerService::StartUIExtensionAbility(const Want &want, const sptr<
         return result;
     }
 
+    result = JudgeAbilityVisibleControl(abilityInfo);
+    if (result != ERR_OK) {
+        HILOG_ERROR("JudgeAbilityVisibleControl error.");
+        eventInfo.errCode = result;
+        EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        return result;
+    }
+
     auto connectManager = GetConnectManagerByUserId(validUserId);
     if (!connectManager) {
         HILOG_ERROR("connectManager is nullptr. userId=%{public}d", validUserId);
@@ -1676,7 +1693,7 @@ int AbilityManagerService::StartUIExtensionAbility(const Want &want, const sptr<
         return ERR_INVALID_VALUE;
     }
     HILOG_INFO("Start extension begin, name is %{public}s.", abilityInfo.name.c_str());
-    eventInfo.errCode = connectManager->StartAbility(abilityRequest, extensionSessionInfo);
+    eventInfo.errCode = connectManager->StartAbility(abilityRequest);
     if (eventInfo.errCode != ERR_OK) {
         EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
     }
@@ -1842,33 +1859,33 @@ int AbilityManagerService::TerminateUIExtensionAbility(const sptr<SessionInfo> &
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Terminate ui extension ability begin.");
     CHECK_POINTER_AND_RETURN(extensionSessionInfo, ERR_INVALID_VALUE);
-    auto connectManager = GetConnectManagerBySessionInfo(extensionSessionInfo);
+    auto abilityRecord = Token::GetAbilityRecordByToken(extensionSessionInfo->callerToken);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    if (!JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
+    auto userId = abilityRecord->GetApplicationInfo().uid / BASE_USER_RANGE;
+    auto connectManager = GetConnectManagerByUserId(userId);
     if (!connectManager) {
         HILOG_ERROR("connectManager is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    auto abilityRecord = connectManager->GetServiceRecordBySessionInfo(extensionSessionInfo);
-    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    int result = JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
+
+    auto targetRecord = connectManager->GetUIExtensioBySessionInfo(extensionSessionInfo);
+    CHECK_POINTER_AND_RETURN(targetRecord, ERR_INVALID_VALUE);
+
+    auto result = JudgeAbilityVisibleControl(targetRecord->GetAbilityInfo());
     if (result != ERR_OK) {
-        HILOG_ERROR("TerminateUIExtensionAbility JudgeAbilityVisibleControl error.");
+        HILOG_ERROR("JudgeAbilityVisibleControl error.");
         return result;
     }
 
-    if (IsSystemUiApp(abilityRecord->GetAbilityInfo())) {
-        HILOG_ERROR("System ui not allow terminate.");
-        return ERR_INVALID_VALUE;
+    if (!targetRecord->IsUIExtension()) {
+        HILOG_ERROR("Cannot terminate except ui extension ability.");
+        return ERR_WRONG_INTERFACE_CALL;
     }
-
-    EventInfo eventInfo;
-    eventInfo.bundleName = abilityRecord->GetAbilityInfo().bundleName;
-    eventInfo.abilityName = abilityRecord->GetAbilityInfo().name;
-    EventReport::SendAbilityEvent(EventName::TERMINATE_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
-    eventInfo.errCode = connectManager->TerminateAbility(abilityRecord->GetToken());
-    if (eventInfo.errCode != ERR_OK) {
-        EventReport::SendAbilityEvent(EventName::TERMINATE_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
-    }
-    return eventInfo.errCode;
+    connectManager->CommandAbilityWindow(targetRecord, extensionSessionInfo, WIN_CMD_DESTROY);
+    return ERR_OK;
 }
 
 int AbilityManagerService::CloseUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
@@ -2138,30 +2155,33 @@ int AbilityManagerService::MinimizeUIExtensionAbility(const sptr<SessionInfo> &e
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Minimize ui extension ability, fromUser:%{public}d.", fromUser);
     CHECK_POINTER_AND_RETURN(extensionSessionInfo, ERR_INVALID_VALUE);
-    auto connectManager = GetConnectManagerBySessionInfo(extensionSessionInfo);
+    auto abilityRecord = Token::GetAbilityRecordByToken(extensionSessionInfo->callerToken);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    if (!JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
+    auto userId = abilityRecord->GetApplicationInfo().uid / BASE_USER_RANGE;
+    auto connectManager = GetConnectManagerByUserId(userId);
     if (!connectManager) {
         HILOG_ERROR("connectManager is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    auto abilityRecord = connectManager->GetServiceRecordBySessionInfo(extensionSessionInfo);
-    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    int result = JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
+
+    auto targetRecord = connectManager->GetUIExtensioBySessionInfo(extensionSessionInfo);
+    CHECK_POINTER_AND_RETURN(targetRecord, ERR_INVALID_VALUE);
+
+    auto result = JudgeAbilityVisibleControl(targetRecord->GetAbilityInfo());
     if (result != ERR_OK) {
-        HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
+        HILOG_ERROR("JudgeAbilityVisibleControl error.");
         return result;
     }
 
-    auto extensionAbilityType = abilityRecord->GetAbilityInfo().extensionAbilityType;
-    if (extensionAbilityType != AppExecFwk::ExtensionAbilityType::UI) {
+    if (!targetRecord->IsUIExtension()) {
         HILOG_ERROR("Cannot minimize except ui extension ability.");
         return ERR_WRONG_INTERFACE_CALL;
     }
-
-    if (!IsAbilityControllerForeground(abilityRecord->GetAbilityInfo().bundleName)) {
-        return ERR_WOULD_BLOCK;
-    }
-
-    return connectManager->MinimizeUIExtensionAbility(abilityRecord->GetToken(), fromUser);
+    connectManager->CommandAbilityWindow(targetRecord, extensionSessionInfo, WIN_CMD_BACKGROUND);
+    return ERR_OK;
 }
 
 int AbilityManagerService::MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
@@ -3833,6 +3853,37 @@ int AbilityManagerService::ScheduleCommandAbilityDone(const sptr<IRemoteObject> 
     return connectManager->ScheduleCommandAbilityDoneLocked(token);
 }
 
+int AbilityManagerService::ScheduleCommandAbilityWindowDone(
+    const sptr<IRemoteObject> &token,
+    const sptr<SessionInfo> &sessionInfo,
+    WindowCommand winCmd,
+    AbilityCommand abilityCmd)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_INFO("enter.");
+    if (!VerificationAllToken(token)) {
+        return ERR_INVALID_VALUE;
+    }
+
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    if (!JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    if (!abilityRecord->IsUIExtension()) {
+        HILOG_ERROR("target ability is not ui extension.");
+        return ERR_INVALID_VALUE;
+    }
+    auto userId = abilityRecord->GetApplicationInfo().uid / BASE_USER_RANGE;
+    auto connectManager = GetConnectManagerByUserId(userId);
+    if (!connectManager) {
+        HILOG_ERROR("connectManager is nullptr. userId=%{public}d", userId);
+        return ERR_INVALID_VALUE;
+    }
+    return connectManager->ScheduleCommandAbilityWindowDone(token, sessionInfo, winCmd, abilityCmd);
+}
+
 void AbilityManagerService::OnAbilityRequestDone(const sptr<IRemoteObject> &token, const int32_t state)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -3850,6 +3901,16 @@ void AbilityManagerService::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
                 return;
             }
             dataAbilityManager->OnAbilityRequestDone(token, state);
+            break;
+        }
+        case AppExecFwk::AbilityType::SERVICE:
+        case AppExecFwk::AbilityType::EXTENSION: {
+            auto connectManager = GetConnectManagerByUserId(userId);
+            if (!connectManager) {
+                HILOG_ERROR("connectManager is nullptr. userId=%{public}d", userId);
+                return;
+            }
+            connectManager->OnAbilityRequestDone(token, state);
             break;
         }
         default: {
@@ -4634,19 +4695,6 @@ std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerB
             return item.second;
         }
         if (item.second && item.second->GetExtensionByTokenFromTerminatingMap(token)) {
-            return item.second;
-        }
-    }
-
-    return nullptr;
-}
-
-std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerBySessionInfo(
-    const sptr<SessionInfo> &sessionInfo)
-{
-    std::shared_lock<std::shared_mutex> lock(managersMutex_);
-    for (auto item: connectManagers_) {
-        if (item.second && item.second->GetServiceRecordBySessionInfo(sessionInfo)) {
             return item.second;
         }
     }

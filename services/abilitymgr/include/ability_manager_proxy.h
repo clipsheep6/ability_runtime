@@ -372,6 +372,12 @@ public:
      */
     virtual int ScheduleCommandAbilityDone(const sptr<IRemoteObject> &token) override;
 
+    virtual int ScheduleCommandAbilityWindowDone(
+        const sptr<IRemoteObject> &token,
+        const sptr<SessionInfo> &sessionInfo,
+        WindowCommand winCmd,
+        AbilityCommand abilityCmd) override;
+
     /**
      * dump ability stack info, about userID, mission stack info,
      * mission record info and ability info.

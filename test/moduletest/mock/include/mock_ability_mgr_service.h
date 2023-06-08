@@ -54,6 +54,8 @@ public:
         ScheduleConnectAbilityDone, int(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& remoteObject));
     MOCK_METHOD1(ScheduleDisconnectAbilityDone, int(const sptr<IRemoteObject>& token));
     MOCK_METHOD1(ScheduleCommandAbilityDone, int(const sptr<IRemoteObject>&));
+    MOCK_METHOD4(ScheduleCommandAbilityWindowDone, int(const sptr<IRemoteObject> &token,
+        const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd, AbilityCommand abilityCmd));
     MOCK_METHOD2(DumpState, void(const std::string& args, std::vector<std::string>& state));
     MOCK_METHOD5(
         DumpSysState,

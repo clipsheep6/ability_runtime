@@ -51,6 +51,7 @@ void AbilityManagerStub::FirstStepInit()
     requestFuncMap_[DISCONNECT_ABILITY_DONE] = &AbilityManagerStub::ScheduleDisconnectAbilityDoneInner;
     requestFuncMap_[TERMINATE_ABILITY_RESULT] = &AbilityManagerStub::TerminateAbilityResultInner;
     requestFuncMap_[COMMAND_ABILITY_DONE] = &AbilityManagerStub::ScheduleCommandAbilityDoneInner;
+    requestFuncMap_[COMMAND_ABILITY_WINDOW_DONE] = &AbilityManagerStub::ScheduleCommandAbilityWindowDoneInner;
     requestFuncMap_[ACQUIRE_DATA_ABILITY] = &AbilityManagerStub::AcquireDataAbilityInner;
     requestFuncMap_[RELEASE_DATA_ABILITY] = &AbilityManagerStub::ReleaseDataAbilityInner;
     requestFuncMap_[KILL_PROCESS] = &AbilityManagerStub::KillProcessInner;
@@ -370,6 +371,18 @@ int AbilityManagerStub::ScheduleCommandAbilityDoneInner(MessageParcel &data, Mes
 {
     auto token = data.ReadRemoteObject();
     int32_t result = ScheduleCommandAbilityDone(token);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::ScheduleCommandAbilityWindowDoneInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    sptr<SessionInfo> sessionInfo = data.ReadParcelable<SessionInfo>();
+    int32_t winCmd = data.ReadInt32();
+    int32_t abilityCmd = data.ReadInt32();
+    int32_t result = ScheduleCommandAbilityWindowDone(token, sessionInfo,
+        static_cast<WindowCommand>(winCmd), static_cast<AbilityCommand>(abilityCmd));
     reply.WriteInt32(result);
     return NO_ERROR;
 }

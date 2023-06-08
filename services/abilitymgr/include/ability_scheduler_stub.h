@@ -43,6 +43,7 @@ private:
     int DisconnectAbilityInner(MessageParcel &data, MessageParcel &reply);
     int CommandAbilityInner(MessageParcel &data, MessageParcel &reply);
     int PrepareTerminateAbilityInner(MessageParcel &data, MessageParcel &reply);
+    int CommandAbilityWindowInner(MessageParcel &data, MessageParcel &reply);
     int SaveAbilityStateInner(MessageParcel &data, MessageParcel &reply);
     int RestoreAbilityStateInner(MessageParcel &data, MessageParcel &reply);
     int GetFileTypesInner(MessageParcel &data, MessageParcel &reply);

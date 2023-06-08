@@ -27,6 +27,7 @@
 
 #include "iremote_object.h"
 #include "system_memory_attr.h"
+#include "ui_extension_window_command.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -82,6 +83,12 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode ScheduleCommandAbilityDone(const sptr<IRemoteObject> &token);
+
+    ErrCode ScheduleCommandAbilityWindowDone(
+        const sptr<IRemoteObject> &token,
+        const sptr<SessionInfo> &sessionInfo,
+        WindowCommand winCmd,
+        AbilityCommand abilityCmd);
 
     /**
      * Get top ability.

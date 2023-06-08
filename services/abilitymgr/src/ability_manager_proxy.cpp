@@ -1105,6 +1105,49 @@ int AbilityManagerProxy::ScheduleCommandAbilityDone(const sptr<IRemoteObject> &t
     return reply.ReadInt32();
 }
 
+int AbilityManagerProxy::ScheduleCommandAbilityWindowDone(
+    const sptr<IRemoteObject> &token,
+    const sptr<SessionInfo> &sessionInfo,
+    WindowCommand winCmd,
+    AbilityCommand abilityCmd)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteRemoteObject(token)) {
+        HILOG_ERROR("token write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteParcelable(sessionInfo)) {
+        HILOG_ERROR("sessionInfo write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteInt32(winCmd)) {
+        HILOG_ERROR("winCmd write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteInt32(abilityCmd)) {
+        HILOG_ERROR("abilityCmd write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    error = remote->SendRequest(IAbilityManager::COMMAND_ABILITY_WINDOW_DONE, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 void AbilityManagerProxy::DumpSysState(
     const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserId, int UserId)
 {
