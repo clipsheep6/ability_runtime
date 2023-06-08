@@ -402,32 +402,6 @@ HWTEST_F(ExtensionTest, AaFwk_Extension_1900, Function | MediumTest | Level1)
 }
 
 /**
- * @tc.number: AaFwk_Extension_2000
- * @tc.name: SetSessionInfo
- * @tc.desc: Successfully verified SetSessionInfo.
- */
-HWTEST_F(ExtensionTest, AaFwk_Extension_2000, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AaFwk_Extension_2000 start";
-    EXPECT_TRUE(extension_ != nullptr);
-    sptr<AAFwk::SessionInfo> sessionInfo = nullptr;
-    extension_->SetSessionInfo(sessionInfo);
-    GTEST_LOG_(INFO) << "AaFwk_Extension_2000 end";
-}
-
-/**
- * @tc.number: AaFwk_Extension_2100
- * @tc.name: GetSessionInfo
- * @tc.desc: Successfully verified GetSessionInfo.
- */
-HWTEST_F(ExtensionTest, AaFwk_Extension_2100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AaFwk_Extension_2100 start";
-    EXPECT_EQ(extension_->GetSessionInfo(), extension_->sessionInfo_);
-    GTEST_LOG_(INFO) << "AaFwk_Extension_2100 end";
-}
-
-/**
  * @tc.number: AaFwk_Extension_2200
  * @tc.name: SetExtensionWindowLifeCycleListener
  * @tc.desc: Successfully verified SetExtensionWindowLifeCycleListener.

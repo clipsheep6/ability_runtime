@@ -1245,10 +1245,12 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     if (isStageBased) {
         // Create runtime
         auto hapPath = entryHapModuleInfo.hapPath;
+        auto moduleName = entryHapModuleInfo.moduleName;
         AbilityRuntime::Runtime::Options options;
         options.bundleName = appInfo.bundleName;
         options.codePath = LOCAL_CODE_PATH;
         options.hapPath = hapPath;
+        options.moduleName = moduleName;
         options.eventRunner = mainHandler_->GetEventRunner();
         options.loadAce = true;
         options.isBundle = (entryHapModuleInfo.compileMode != AppExecFwk::CompileMode::ES_MODULE);

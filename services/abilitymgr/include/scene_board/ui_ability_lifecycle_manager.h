@@ -82,7 +82,7 @@ public:
     int MinimizeUIAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
     /**
-     * GetServiceRecordBySessionInfo.
+     * GetUIAbilityRecordBySessionInfo.
      *
      * @param sessionToken, service ability's session token.
      * @return Returns AbilityRecord shared_ptr.

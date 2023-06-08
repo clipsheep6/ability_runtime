@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+# Copyright (c) 2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -88,6 +88,8 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_services_path}/abilitymgr/src/prepare_terminate_callback_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/remote_mission_listener_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/remote_mission_listener_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/remote_on_listener_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/remote_on_listener_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/sender_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/start_options.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/stop_user_callback_proxy.cpp",

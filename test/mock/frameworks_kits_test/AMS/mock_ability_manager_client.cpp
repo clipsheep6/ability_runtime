@@ -97,6 +97,19 @@ ErrCode AbilityManagerClient::ScheduleCommandAbilityDone(const sptr<IRemoteObjec
     return abms->ScheduleCommandAbilityDone(token);
 }
 
+ErrCode AbilityManagerClient::ScheduleCommandAbilityWindowDone(
+    const sptr<IRemoteObject> &token,
+    const sptr<SessionInfo> &sessionInfo,
+    WindowCommand winCmd,
+    AbilityCommand abilityCmd)
+{
+    if (remoteObject_ == nullptr) {
+        return ABILITY_SERVICE_NOT_CONNECTED;
+    }
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->ScheduleCommandAbilityWindowDone(token, sessionInfo, winCmd, abilityCmd);
+}
+
 ErrCode AbilityManagerClient::StartAbility(const Want& want, int requestCode, int32_t userId)
 {
     if (remoteObject_ == nullptr) {

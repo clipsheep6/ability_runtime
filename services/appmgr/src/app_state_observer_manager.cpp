@@ -451,8 +451,8 @@ void AppStateObserverManager::HandleOnProcessStateChanged(const std::shared_ptr<
         return;
     }
     ProcessData data = WrapProcessData(appRecord);
-    HILOG_DEBUG("Process State Change, bundle:%{public}s pid:%{public}d uid:%{public}d isContinuousTask:%{public}d",
-        data.bundleName.c_str(), data.pid, data.uid, data.isContinuousTask);
+    HILOG_DEBUG("bundle:%{public}s pid:%{public}d uid:%{public}d state:%{public}d isContinuousTask:%{public}d",
+        data.bundleName.c_str(), data.pid, data.uid, data.state, data.isContinuousTask);
     std::lock_guard<std::mutex> lockNotify(observerLock_);
     for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
         std::vector<std::string>::iterator iter = std::find(it->second.begin(),

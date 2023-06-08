@@ -853,7 +853,8 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
             const auto &abilityRecord = item.second;
             if (abilityRecord && abilityRecord->GetState() == AbilityState::ABILITY_STATE_FOREGROUND &&
                 abilityRecord->GetAbilityInfo() &&
-                abilityRecord->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE) {
+                (abilityRecord->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE
+                || abilityRecord->GetAbilityInfo()->extensionAbilityType == ExtensionAbilityType::UI)) {
                 foregroundSize++;
                 break;
             }

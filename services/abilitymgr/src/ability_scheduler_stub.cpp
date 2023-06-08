@@ -39,6 +39,7 @@ AbilitySchedulerStub::AbilitySchedulerStub()
     requestFuncMap_[SCHEDULE_ABILITY_DISCONNECT] = &AbilitySchedulerStub::DisconnectAbilityInner;
     requestFuncMap_[SCHEDULE_ABILITY_COMMAND] = &AbilitySchedulerStub::CommandAbilityInner;
     requestFuncMap_[SCHEDULE_ABILITY_PREPARE_TERMINATE] = &AbilitySchedulerStub::PrepareTerminateAbilityInner;
+    requestFuncMap_[SCHEDULE_ABILITY_COMMAND_WINDOW] = &AbilitySchedulerStub::CommandAbilityWindowInner;
     requestFuncMap_[SCHEDULE_SAVE_ABILITY_STATE] = &AbilitySchedulerStub::SaveAbilityStateInner;
     requestFuncMap_[SCHEDULE_RESTORE_ABILITY_STATE] = &AbilitySchedulerStub::RestoreAbilityStateInner;
     requestFuncMap_[SCHEDULE_GETFILETYPES] = &AbilitySchedulerStub::GetFileTypesInner;
@@ -179,6 +180,14 @@ int AbilitySchedulerStub::PrepareTerminateAbilityInner(MessageParcel &data, Mess
         HILOG_ERROR("fail to write ret");
         return ERR_INVALID_VALUE;
     }
+    return NO_ERROR;
+}
+
+int AbilitySchedulerStub::CommandAbilityWindowInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<SessionInfo> sessionInfo(data.ReadParcelable<SessionInfo>());
+    int32_t winCmd = data.ReadInt32();
+    ScheduleCommandAbilityWindow(sessionInfo, static_cast<WindowCommand>(winCmd));
     return NO_ERROR;
 }
 

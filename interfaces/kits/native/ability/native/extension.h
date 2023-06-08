@@ -23,6 +23,7 @@
 #include "iremote_object.h"
 #include "session_info.h"
 #include "window.h"
+#include "ui_extension_window_command.h"
 #include "want.h"
 
 namespace OHOS {
@@ -97,7 +98,6 @@ public:
      * @param Want Indicates the {@link Want} structure containing startup information about the extension.
      */
     virtual void OnStart(const AAFwk::Want &want);
-    virtual void OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo);
 
     /**
      * @brief Called when this Service extension is connected for the first time.
@@ -155,6 +155,7 @@ public:
      */
     virtual void OnCommand(const AAFwk::Want &want, bool restart, int startId);
 
+    virtual void OnCommandWindow(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd);
     /**
      * @brief Called when this extension enters the <b>STATE_STOP</b> state.
      *
@@ -203,10 +204,6 @@ public:
      */
     virtual void Dump(const std::vector<std::string> &params, std::vector<std::string> &info);
 
-    void SetSessionInfo(sptr<AAFwk::SessionInfo> sessionInfo);
-
-    sptr<AAFwk::SessionInfo> GetSessionInfo();
-
     void SetExtensionWindowLifeCycleListener(const sptr<Rosen::IWindowLifeCycle> &listener);
 
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_ = nullptr;
@@ -214,14 +211,12 @@ protected:
     std::shared_ptr<AppExecFwk::AbilityHandler> handler_ = nullptr;
 
     //  window scene
-    sptr<Rosen::Window> uiWindow_;
     sptr<Rosen::IWindowLifeCycle> extensionWindowLifeCycleListener_ = nullptr;
 private:
     std::shared_ptr<AppExecFwk::OHOSApplication> application_ = nullptr;
     std::shared_ptr<AAFwk::Want> launchWant_ = nullptr;
     std::shared_ptr<AAFwk::Want> lastRequestWant_ = nullptr;
     std::shared_ptr<CallingInfo> callingInfo_ = nullptr;
-    sptr<AAFwk::SessionInfo> sessionInfo_ = nullptr;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

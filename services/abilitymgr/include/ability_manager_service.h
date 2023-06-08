@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -363,6 +363,19 @@ public:
         int32_t missionId, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams) override;
 
     /**
+     * ContinueMission, continue ability from mission center.
+     *
+     * @param srcDeviceId, origin deviceId.
+     * @param dstDeviceId, target deviceId.
+     * @param bundleName, indicates which ability to continue.
+     * @param callBack, notify result back.
+     * @param wantParams, extended params.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
+        const std::string &bundleName, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams) override;
+
+    /**
      * ContinueAbility, continue ability to ability.
      *
      * @param deviceId, target deviceId.
@@ -409,6 +422,26 @@ public:
      */
     virtual int RegisterMissionListener(const std::string &deviceId,
         const sptr<IRemoteMissionListener> &listener) override;
+
+    /**
+     * RegisterOnListener, register on notify mission listener.
+     *
+     * @param type, Indicates the notify type.
+     * @param listener, listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int RegisterOnListener(const std::string &type,
+        const sptr<IRemoteOnListener> &listener) override;
+
+    /**
+     * RegisterOffListener, register on notify mission listener.
+     *
+     * @param type, Indicates the notify type.
+     * @param listener, listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int RegisterOffListener(const std::string &type,
+        const sptr<IRemoteOnListener> &listener) override;
 
     /**
      * UnRegisterMissionListener, unregister remote device mission listener.
@@ -488,6 +521,12 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int ScheduleCommandAbilityDone(const sptr<IRemoteObject> &token) override;
+
+    virtual int ScheduleCommandAbilityWindowDone(
+        const sptr<IRemoteObject> &token,
+        const sptr<SessionInfo> &sessionInfo,
+        WindowCommand winCmd,
+        AbilityCommand abilityCmd) override;
 
     /**
      * GetEventHandler, get the ability manager service's handler.
@@ -1235,7 +1274,6 @@ private:
     std::shared_ptr<DataAbilityManager> GetDataAbilityManagerByUserId(int32_t userId);
     std::shared_ptr<MissionListManager> GetListManagerByToken(const sptr<IRemoteObject> &token);
     std::shared_ptr<AbilityConnectManager> GetConnectManagerByToken(const sptr<IRemoteObject> &token);
-    std::shared_ptr<AbilityConnectManager> GetConnectManagerBySessionInfo(const sptr<SessionInfo> &sessionInfo);
     std::shared_ptr<DataAbilityManager> GetDataAbilityManagerByToken(const sptr<IRemoteObject> &token);
     bool JudgeSelfCalled(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
