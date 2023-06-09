@@ -840,6 +840,10 @@ NativeValue* JsWantAgent::WrapWantAgent(NativeEngine &engine, WantAgent* wantAge
 
     NativeValue* wantAgentClass = engine.DefineClass("WantAgentClass", callback, nullptr, nullptr, 0);
     NativeValue* result = engine.CreateInstance(wantAgentClass, nullptr, 0);
+    if (result == nullptr) {
+        HILOG_ERROR("create instance failed.");
+        return nullptr;
+    }
 
     NativeObject* nativeObject = reinterpret_cast<NativeObject*>(result->GetInterface(NativeObject::INTERFACE_ID));
     NativeFinalize nativeFinalize = [](NativeEngine* engine, void* data, void* hint) {
