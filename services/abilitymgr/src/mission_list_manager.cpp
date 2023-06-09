@@ -54,6 +54,8 @@ const int KILL_TIMEOUT_MULTIPLE = 3;
 constexpr int32_t PREPARE_TERMINATE_ENABLE_SIZE = 6;
 const char* PREPARE_TERMINATE_ENABLE_PARAMETER = "persist.sys.prepare_terminate";
 const int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
+constexpr int32_t TRACE_ATOMIC_SERVICE_ID = 201;
+const std::string TRACE_ATOMIC_SERVICE = "StartAtomicService";
 std::string GetCurrentTime()
 {
     struct timespec tn;
@@ -2576,6 +2578,8 @@ int MissionListManager::SetMissionIcon(const sptr<IRemoteObject> &token, const s
 
 void MissionListManager::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) const
 {
+    StartAsyncTrace(HITRACE_TAG_ABILITY_MANAGER, TRACE_ATOMIC_SERVICE, TRACE_ATOMIC_SERVICE_ID);
+    HILOG_DEBUG("CompleteFirstFrameDrawing called.");
     if (!abilityToken) {
         HILOG_WARN("%{public}s ability token is nullptr.", __func__);
         return;
@@ -3773,7 +3777,7 @@ bool MissionListManager::CheckPrepareTerminateEnable(const std::shared_ptr<Missi
         HILOG_DEBUG("failed, please apply permission ohos.permission.PREPARE_APP_TERMINATE");
         return false;
     }
-    return true; 
+    return true;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
