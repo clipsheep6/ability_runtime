@@ -1,0 +1,76 @@
+# Copyright (c) 2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+
+config("ability_simulator_common_config") {
+  include_dirs = [
+    "${simulator_path}/common/include",
+    "${ability_runtime_services_path}/common/include",
+  ]
+}
+
+ohos_shared_library("ability_simulator_common") {
+  if (is_mingw) {
+    defines = [
+      "WINDOWS_PLATFORM",
+      "NOGDI",
+    ]
+  }
+
+  if (is_mingw) {
+    platform = "windows"
+  } else {
+    platform = "mac"
+  }
+
+  cflags = [ "-std=c++17" ]
+
+  include_dirs = [
+    # "${ability_runtime_native_path}/runtime",
+    "${ability_runtime_innerkits_path}/runtime/include",
+  ]
+
+  sources = [
+    # "${ability_runtime_native_path}/runtime/js_module_searcher.cpp",
+    # "src/js_console_log.cpp",
+    # "src/js_runtime_utils.cpp",
+    "src/configuration.cpp",
+    # "src/js_timer.cpp",
+    # "src/simulator.cpp",
+  ]
+
+  public_configs = [
+    ":ability_simulator_common_config",
+    # "${ability_runtime_services_path}/common:common_config",
+  ]
+
+  deps = [
+    # ":gen_obj_src_js_mock_abc",
+    # "${ability_runtime_path}/frameworks/simulator/osal:simulator_osal",
+    # "${arkui_path}/napi:ace_napi_ark",
+    "${hilog_path}/interfaces/native/innerkits:libhilog_$platform",
+    # "//arkcompiler/toolchain/inspector:ark_debugger",
+    # "//arkcompiler/toolchain/tooling:libark_ecma_debugger",
+  ]
+
+  external_deps = [
+    "ability_base:string_utils",
+    # "ets_runtime:libark_jsruntime",
+    "napi:ace_napi",
+  ]
+
+  part_name = "simulator"
+  subsystem_name = "ability"
+}

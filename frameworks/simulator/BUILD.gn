@@ -56,10 +56,10 @@ ohos_copy("ability_simulator_copy_application_modules") {
   napi_modules = [
     "napi_module/ability:ability_napi",
     "napi_module/ability_constant:abilityconstant_napi",
-    "napi_module/ability_context:ability_context_napi",
+    "napi_module/ability_context:abilitycontext_napi",
     "napi_module/ability_stage:ability_stage_napi",
     "napi_module/ability_stage_context:ability_stage_context_napi",
-    "napi_module/application_context:application_context_napi",
+    "napi_module/application_context:applicationcontext_napi",
     "napi_module/caller:caller_napi",
     "napi_module/callee:callee",
     "napi_module/context:context_napi",
@@ -117,6 +117,12 @@ ohos_copy("copy_ability_simulator") {
       get_label_info("ability_simulator:ability_simulator", "root_out_dir")
   sources +=
       [ out_path + "/ability/simulator/libability_simulator" + dylib_suffix ]
+
+  deps += [ "common:ability_simulator_common" ]
+  out_path =
+      get_label_info("common:ability_simulator_common", "root_out_dir")
+  sources +=
+      [ out_path + "/ability/simulator/libability_simulator_common" + dylib_suffix ]
 
   deps += [ "${ability_base_path}:string_utils" ]
   out_path = get_label_info("${ability_base_path}:string_utils", "root_out_dir")

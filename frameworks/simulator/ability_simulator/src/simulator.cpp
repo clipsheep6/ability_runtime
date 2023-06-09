@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,6 +31,8 @@
 #include "native_engine/impl/ark/ark_native_engine.h"
 #include "resource_manager.h"
 #include "window_scene.h"
+#include "js_ability_context.h"
+#include "js_runtime.h"
 
 extern const char _binary_jsMockSystemPlugin_abc_start[];
 extern const char _binary_jsMockSystemPlugin_abc_end[];
@@ -88,11 +90,10 @@ private:
     void Run();
     NativeValue* LoadScript();
     void InitResourceMgr();
-    void CreateJsAbilityContext(NativeValue* instanceValue);
+    void InitJsAbilityContext(NativeValue* instanceValue);
     void DispatchStartLifecycle(NativeValue* instanceValue);
-    std::unique_ptr<NativeReference> LoadSystemModuleByEngine(NativeEngine* engine,
-        const std::string& moduleName, NativeValue* const* argv, size_t argc);
     std::unique_ptr<NativeReference> CreateJsWindowStage(const std::shared_ptr<Rosen::WindowScene>& windowScene);
+    NativeValue* CreateJsWant(NativeEngine &engine);
 
     panda::ecmascript::EcmaVM* CreateJSVM();
     Options options_;
@@ -106,6 +107,7 @@ private:
     std::unordered_map<int64_t, std::shared_ptr<NativeReference>> abilities_;
     std::unordered_map<int64_t, std::shared_ptr<Rosen::WindowScene>> windowScenes_;
     std::unordered_map<int64_t, std::shared_ptr<NativeReference>> jsWindowStages_;
+    std::unordered_map<int64_t, std::shared_ptr<NativeReference>> jsContexts_;
     std::shared_ptr<Global::Resource::ResourceManager> resourceMgr_;
 };
 
@@ -282,7 +284,7 @@ int64_t SimulatorImpl::StartAbility(const std::string& abilitySrcPath, Terminate
 
         ++currentId_;
         InitResourceMgr();
-        CreateJsAbilityContext(instanceValue);
+        InitJsAbilityContext(instanceValue);
         DispatchStartLifecycle(instanceValue);
         abilities_.emplace(currentId_, nativeEngine_->CreateReference(instanceValue, 1));
 
@@ -334,6 +336,11 @@ void SimulatorImpl::TerminateAbility(int64_t abilityId)
             jsWindowStages_.erase(windowStageIter);
         }
 
+        auto jsContextIter = jsContexts_.find(abilityId);
+        if (jsContextIter != jsContexts_.end()) {
+            jsContexts_.erase(jsContextIter);
+        }
+
         waiter.NotifyResult(true);
     });
 
@@ -361,14 +368,20 @@ void SimulatorImpl::InitResourceMgr()
     HILOG_INFO("Add resource success.");
 }
 
-void SimulatorImpl::CreateJsAbilityContext(NativeValue* instanceValue)
+void SimulatorImpl::InitJsAbilityContext(NativeValue* instanceValue)
 {
-    NativeValue* objValue = nativeEngine_->CreateObject();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+    NativeValue *contextObj = CreateJsAbilityContext(*nativeEngine_);
+    auto systemModule = std::shared_ptr<NativeReference>(
+        JsRuntime::LoadSystemModuleByEngine(nativeEngine_.get(), "application.AbilityContext", &contextObj, 1));
+    if (systemModule == nullptr) {
+        HILOG_ERROR("systemModule is nullptr.");
+        return;
+    }
 
-    if (resourceMgr_ != nullptr) {
-        NativeValue* mockResourceMgrObjValue = nativeEngine_->CreateObject();
-        object->SetProperty("resourceManager", mockResourceMgrObjValue);
+    contextObj = systemModule->Get();
+    if (contextObj == nullptr) {
+        HILOG_ERROR("contextObj is nullptr.");
+        return;
     }
 
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(instanceValue);
@@ -376,12 +389,34 @@ void SimulatorImpl::CreateJsAbilityContext(NativeValue* instanceValue)
         HILOG_ERROR("obj is nullptr");
         return;
     }
-    obj->SetProperty("context", objValue);
+    obj->SetProperty("context", contextObj);
+    jsContexts_.emplace(currentId_, systemModule);
+}
+
+NativeValue* SimulatorImpl::CreateJsWant(NativeEngine &engine)
+{
+    NativeValue* objValue = engine.CreateObject();
+    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+
+    object->SetProperty("deviceId", engine.CreateUndefined());
+    object->SetProperty("bundleName", engine.CreateUndefined());
+    object->SetProperty("abilityName", engine.CreateUndefined());
+    object->SetProperty("moduleName", engine.CreateUndefined());
+    object->SetProperty("uri", engine.CreateUndefined());
+    object->SetProperty("type", engine.CreateUndefined());
+    object->SetProperty("flags", engine.CreateUndefined());
+    object->SetProperty("action", engine.CreateUndefined());
+    object->SetProperty("parameters", engine.CreateUndefined());
+    object->SetProperty("entities", engine.CreateUndefined());
+    return objValue;
 }
 
 void SimulatorImpl::DispatchStartLifecycle(NativeValue* instanceValue)
 {
-    CallObjectMethod(*nativeEngine_, instanceValue, "onCreate", nullptr, 0);
+    NativeValue *wantArgv[] = {
+        CreateJsWant(*nativeEngine_)
+    };
+    CallObjectMethod(*nativeEngine_, instanceValue, "onCreate", wantArgv, ArraySize(wantArgv));
 
     auto windowScene = std::make_shared<Rosen::WindowScene>();
     if (windowScene == nullptr) {
@@ -395,7 +430,6 @@ void SimulatorImpl::DispatchStartLifecycle(NativeValue* instanceValue)
     }
     NativeValue *argv[] = { jsWindowStage->Get() };
     CallObjectMethod(*nativeEngine_, instanceValue, "onWindowStageCreate", argv, ArraySize(argv));
-
     CallObjectMethod(*nativeEngine_, instanceValue, "onForeground", nullptr, 0);
 
     windowScenes_.emplace(currentId_, windowScene);
@@ -410,35 +444,7 @@ std::unique_ptr<NativeReference> SimulatorImpl::CreateJsWindowStage(
         HILOG_ERROR("Failed to create jsWindowSatge object");
         return nullptr;
     }
-    return LoadSystemModuleByEngine(nativeEngine_.get(), "application.WindowStage", &jsWindowStage, 1);
-}
-
-std::unique_ptr<NativeReference> SimulatorImpl::LoadSystemModuleByEngine(NativeEngine* engine,
-    const std::string& moduleName, NativeValue* const* argv, size_t argc)
-{
-    HILOG_DEBUG("JsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
-    if (engine == nullptr) {
-        HILOG_INFO("JsRuntime::LoadSystemModule: invalid engine.");
-        return std::unique_ptr<NativeReference>();
-    }
-
-    NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(engine->GetGlobal());
-    std::unique_ptr<NativeReference> methodRequireNapiRef_;
-    methodRequireNapiRef_.reset(engine->CreateReference(globalObj->GetProperty("requireNapi"), 1));
-    if (!methodRequireNapiRef_) {
-        HILOG_ERROR("Failed to create reference for global.requireNapi");
-        return nullptr;
-    }
-    NativeValue* className = engine->CreateString(moduleName.c_str(), moduleName.length());
-    NativeValue* classValue =
-        engine->CallFunction(engine->GetGlobal(), methodRequireNapiRef_->Get(), &className, 1);
-    NativeValue* instanceValue = engine->CreateInstance(classValue, argv, argc);
-    if (instanceValue == nullptr) {
-        HILOG_ERROR("Failed to create object instance");
-        return std::unique_ptr<NativeReference>();
-    }
-
-    return std::unique_ptr<NativeReference>(engine->CreateReference(instanceValue, 1));
+    return JsRuntime::LoadSystemModuleByEngine(nativeEngine_.get(), "application.WindowStage", &jsWindowStage, 1);
 }
 
 panda::ecmascript::EcmaVM* SimulatorImpl::CreateJSVM()

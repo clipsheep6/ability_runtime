@@ -259,5 +259,33 @@ std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, Na
     return CreateAsyncTaskWithLastParam(engine, lastParam, std::unique_ptr<AsyncTask::ExecuteCallback>(),
         std::unique_ptr<AsyncTask::CompleteCallback>(), result);
 }
+
+std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(NativeEngine* engine,
+    const std::string& moduleName, NativeValue* const* argv, size_t argc)
+{
+    HILOG_DEBUG("JsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
+    if (engine == nullptr) {
+        HILOG_INFO("JsRuntime::LoadSystemModule: invalid engine.");
+        return std::unique_ptr<NativeReference>();
+    }
+
+    NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(engine->GetGlobal());
+    std::unique_ptr<NativeReference> methodRequireNapiRef_;
+    methodRequireNapiRef_.reset(engine->CreateReference(globalObj->GetProperty("requireNapi"), 1));
+    if (!methodRequireNapiRef_) {
+        HILOG_ERROR("Failed to create reference for global.requireNapi");
+        return nullptr;
+    }
+    NativeValue* className = engine->CreateString(moduleName.c_str(), moduleName.length());
+    NativeValue* classValue =
+        engine->CallFunction(engine->GetGlobal(), methodRequireNapiRef_->Get(), &className, 1);
+    NativeValue* instanceValue = engine->CreateInstance(classValue, argv, argc);
+    if (instanceValue == nullptr) {
+        HILOG_ERROR("Failed to create object instance");
+        return std::unique_ptr<NativeReference>();
+    }
+
+    return std::unique_ptr<NativeReference>(engine->CreateReference(instanceValue, 1));
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

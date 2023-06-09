@@ -17,10 +17,10 @@ import(
     "//foundation/ability/ability_runtime/frameworks/simulator/build/ability_simulator.gni")
 
 gen_js_src_binary("ability_context") {
-  js_source = "${ability_runtime_napi_path}/ability_context/ability_context.js"
+  js_source = "ability_context.js"
 }
 
-ohos_shared_library("ability_context_napi") {
+ohos_shared_library("abilitycontext_napi") {
   if (is_mingw) {
     defines = [ "WINDOWS_PLATFORM" ]
   } else {

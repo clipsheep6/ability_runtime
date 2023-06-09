@@ -77,11 +77,15 @@ ohos_shared_library("ability_simulator") {
     "src/js_runtime_utils.cpp",
     "src/js_timer.cpp",
     "src/simulator.cpp",
+    "src/js_ability_context.cpp",
+    "src/js_context_utils.cpp",
+    "src/js_application_context_utils.cpp",
   ]
 
   public_configs = [
     ":ability_simulator_public_config",
     "${ability_runtime_services_path}/common:common_config",
+    "${simulator_path}/common:ability_simulator_common_config",
   ]
 
   deps = [
@@ -91,6 +95,7 @@ ohos_shared_library("ability_simulator") {
     "${hilog_path}/interfaces/native/innerkits:libhilog_$platform",
     "//arkcompiler/toolchain/inspector:ark_debugger",
     "//arkcompiler/toolchain/tooling:libark_ecma_debugger",
+    "${simulator_path}/common:ability_simulator_common",
   ]
 
   if (is_mingw) {
