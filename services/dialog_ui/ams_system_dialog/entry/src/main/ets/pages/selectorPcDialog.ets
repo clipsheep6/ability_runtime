@@ -215,7 +215,7 @@ struct SelectorPcDialog {
     }
     if(globalThis.modelFlag == false) {
         heightTotalVp = this.hapList.length * heightVal + recommendAppAreaHigh + openModeHigh;
-        if (this.hapList.length == 2) {
+        if (this.hapList.length == 1 || this.hapList.length == 2) {
             this.totalHigh = 415;
         } else if (this.hapList.length == 3) {
             this.totalHigh = 479;
