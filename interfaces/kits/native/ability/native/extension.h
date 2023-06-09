@@ -98,6 +98,7 @@ public:
      * @param Want Indicates the {@link Want} structure containing startup information about the extension.
      */
     virtual void OnStart(const AAFwk::Want &want);
+    virtual void OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo);
 
     /**
      * @brief Called when this Service extension is connected for the first time.
