@@ -206,6 +206,20 @@ void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppL
             continue;
         }
 
+        if (!hapInfo.compressNativeLibs) {
+            if (!hapInfo.nativeLibraryPath.empty()) {
+                std::string libPath = LOCAL_CODE_PATH;
+                if (hapInfo.hapPath.find("system/app") != std::string::npos) {
+                    auto pos = hapInfo.hapPath.rfind("/");
+                    libPath = hapInfo.hapPath.substr(0, pos);
+                }
+                libPath += (libPath.back() == '/') ? hapInfo.nativeLibraryPath : "/" + hapInfo.nativeLibraryPath;
+                HILOG_INFO("wtt module lib path = %{public}s", libPath.c_str());
+                appLibPaths["default"].emplace_back(libPath);
+            }
+            continue;
+        }
+
         std::string libPath = LOCAL_CODE_PATH;
         const auto &tmpNativePath = hapInfo.isLibIsolated ? hapInfo.nativeLibraryPath : nativeLibraryPath;
         libPath += (libPath.back() == '/') ? tmpNativePath : "/" + tmpNativePath;
