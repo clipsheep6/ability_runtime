@@ -19,6 +19,7 @@
 #include <mutex>
 #include <unordered_map>
 
+#include "ability_event_handler.h"
 #include "application_state_observer_stub.h"
 #include "connection_state_item.h"
 #include "connection_observer_controller.h"
@@ -46,7 +47,7 @@ public:
      * init manager.
      *
      */
-    void Init();
+    void Init(const std::shared_ptr<AppExecFwk::EventHandler> &handler = nullptr);
 
     /**
      * register connection state observer.
@@ -206,6 +207,9 @@ private:
     std::unordered_map<int32_t, std::shared_ptr<DlpStateItem>> dlpItems_;
 
     sptr<InnerAppStateObserver> appStateObserver_;
+    std::shared_ptr<AppExecFwk::EventHandler> handler_;
+
+    int32_t retry_ = 0;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
