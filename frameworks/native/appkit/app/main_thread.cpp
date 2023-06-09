@@ -1735,7 +1735,12 @@ void MainThread::HandleCleanAbilityLocal(const sptr<IRemoteObject> &token)
 void MainThread::HandleCleanAbility(const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    if (applicationInfo_ == nullptr) {
+        HILOG_ERROR("applicationInfo is null");
+        return;
+    }
     HILOG_DEBUG("Handle clean ability start, app is %{public}s.", applicationInfo_->name.c_str());
+    
     if (!IsApplicationReady()) {
         HILOG_ERROR("not init OHOSApplication, should launch application first");
         return;
