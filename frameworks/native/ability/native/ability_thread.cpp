@@ -454,7 +454,8 @@ void AbilityThread::HandleShareData(const int32_t &uniqueId)
     HILOG_DEBUG("Handle share data success.");
 }
 
-void AbilityThread::HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo)
+void AbilityThread::HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
+    sptr<SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("AbilityThread::HandleExtensionTransaction begin");
@@ -462,7 +463,7 @@ void AbilityThread::HandleExtensionTransaction(const Want &want, const LifeCycle
         HILOG_ERROR("AbilityThread::HandleExtensionTransaction extensionImpl_ == nullptr");
         return;
     }
-    extensionImpl_->HandleExtensionTransaction(want, lifeCycleStateInfo);
+    extensionImpl_->HandleExtensionTransaction(want, lifeCycleStateInfo, sessionInfo);
     HILOG_DEBUG("AbilityThread::HandleAbilityTransaction end");
 }
 
@@ -688,7 +689,7 @@ void AbilityThread::ScheduleAbilityTransaction(const Want &want, const LifeCycle
             return;
         }
         if (abilityThread->isExtension_) {
-            abilityThread->HandleExtensionTransaction(want, lifeCycleStateInfo);
+            abilityThread->HandleExtensionTransaction(want, lifeCycleStateInfo, sessionInfo);
         } else {
             abilityThread->HandleAbilityTransaction(want, lifeCycleStateInfo, sessionInfo);
         }
