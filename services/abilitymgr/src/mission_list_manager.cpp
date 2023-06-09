@@ -548,6 +548,7 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
         targetRecord->UpdateRecoveryInfo(info.hasRecoverInfo);
         info.hasRecoverInfo = false;
         targetMission->SetLockedState(info.missionInfo.lockedState);
+        targetMission->SetUnclearable(info.missionInfo.unclearable);
         targetMission->UpdateMissionTime(info.missionInfo.time);
         targetRecord->SetMission(targetMission);
         targetRecord->SetOwnerMissionUserId(userId_);
@@ -599,6 +600,7 @@ void MissionListManager::BuildInnerMissionInfo(InnerMissionInfo &info, const std
     info.missionInfo.time = GetCurrentTime();
     info.missionInfo.iconPath = abilityRequest.appInfo.iconPath;
     info.missionInfo.want = abilityRequest.want;
+    info.missionInfo.unclearable = abilityRequest.abilityInfo.unclearableMission;
     info.isTemporary = abilityRequest.abilityInfo.removeMissionAfterTerminate;
     if (abilityRequest.want.GetIntParam(DLP_INDEX, 0) != 0) {
         info.isTemporary = true;
@@ -1669,6 +1671,11 @@ int MissionListManager::ClearMission(int missionId)
         return ERR_INVALID_VALUE;
     }
 
+    if (mission && mission->IsUnclearable()) {
+        HILOG_WARN("mission is unclearable.");
+        return ERR_INVALID_VALUE;
+    }
+
     if (CheckPrepareTerminateEnable(mission)) {
         return PrepareClearMissionLocked(missionId, mission);
     }
@@ -1742,6 +1749,11 @@ void MissionListManager::ClearAllMissionsLocked(std::list<std::shared_ptr<Missio
         auto mission = (*listIter);
         listIter++;
         if (!mission || mission->IsLockedState()) {
+            continue;
+        }
+
+        if (mission && mission->IsUnclearable()) {
+            HILOG_WARN("mission is unclearable.");
             continue;
         }
 
@@ -2321,6 +2333,7 @@ std::shared_ptr<MissionList> MissionListManager::GetTargetMissionList(int missio
     abilityRecord->UpdateRecoveryInfo(innerMissionInfo.hasRecoverInfo);
     innerMissionInfo.hasRecoverInfo = false;
     mission->SetLockedState(innerMissionInfo.missionInfo.lockedState);
+    mission->SetUnclearable(innerMissionInfo.missionInfo.unclearable);
     abilityRecord->SetMission(mission);
     abilityRecord->SetOwnerMissionUserId(userId_);
     std::shared_ptr<MissionList> newMissionList = std::make_shared<MissionList>();
