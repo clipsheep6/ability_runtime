@@ -405,5 +405,17 @@ bool PermissionVerification::VerifyPrepareTerminatePermission() const
     HILOG_DEBUG("%{public}s: Permission verification failed", __func__);
     return false;
 }
+
+bool PermissionVerification::VerifyPrepareTerminatePermission(const int &tokenId) const
+{
+    int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenId,
+        PermissionConstants::PERMISSION_PREPARE_TERMINATE);
+    if (ret == Security::AccessToken::PermissionState::PERMISSION_DENIED) {
+        HILOG_DEBUG("permission denied.");
+        return false;
+    }
+    HILOG_DEBUG("verify AccessToken success");
+    return true;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

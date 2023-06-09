@@ -3786,7 +3786,8 @@ bool MissionListManager::CheckPrepareTerminateEnable(const std::shared_ptr<Missi
         HILOG_DEBUG("ability mode not support.");
         return false;
     }
-    if (!AAFwk::PermissionVerification::GetInstance()->VerifyPrepareTerminatePermission()) {
+    auto tokenId = abilityRecord->GetApplicationInfo().accessTokenId;
+    if (!AAFwk::PermissionVerification::GetInstance()->VerifyPrepareTerminatePermission(tokenId)) {
         HILOG_DEBUG("failed, please apply permission ohos.permission.PREPARE_APP_TERMINATE");
         return false;
     }
