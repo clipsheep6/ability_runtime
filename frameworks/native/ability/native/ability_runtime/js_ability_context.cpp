@@ -49,6 +49,8 @@ constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
+constexpr int32_t TRACE_ATOMIC_SERVICE_ID = 201;
+const std::string TRACE_ATOMIC_SERVICE = "StartAtomicService";
 
 class StartAbilityByCallParameters {
 public:
@@ -198,6 +200,7 @@ void JsAbilityContext::ClearFailedCallConnection(
 
 NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info, bool isStartRecent)
 {
+    StartAsyncTrace(HITRACE_TAG_ABILITY_MANAGER, TRACE_ATOMIC_SERVICE, TRACE_ATOMIC_SERVICE_ID);
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("OnStartAbility is called.");
 

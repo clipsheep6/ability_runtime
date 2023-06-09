@@ -117,6 +117,7 @@ public:
     void StartProfiler(const std::string &perfCmd) override;
 
     void ReloadFormComponent(); // Reload ArkTS-Card component
+    void DoCleanWorkAfterStageCleaned() override;
 
 private:
     void FinishPreload() override;

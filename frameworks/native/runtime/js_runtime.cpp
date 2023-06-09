@@ -67,6 +67,7 @@ constexpr size_t PARAM_TWO = 2;
 constexpr uint8_t SYSCAP_MAX_SIZE = 64;
 constexpr int64_t DEFAULT_GC_POOL_SIZE = 0x10000000; // 256MB
 constexpr int32_t DEFAULT_INTER_VAL = 500;
+constexpr int32_t TRIGGER_GC_AFTER_CLEAR_STAGE_MS = 3000;
 const std::string SANDBOX_ARK_CACHE_PATH = "/data/storage/ark-cache/";
 const std::string SANDBOX_ARK_PROIFILE_PATH = "/data/storage/ark-profile";
 #ifdef APP_USE_ARM
@@ -632,6 +633,17 @@ void JsRuntime::ReloadFormComponent()
     CHECK_POINTER(nativeEngine);
     // ArkTsCard update condition, need to reload new component
     OHOS::Ace::DeclarativeModulePreloader::ReloadCard(*nativeEngine, bundleName_);
+}
+
+void JsRuntime::DoCleanWorkAfterStageCleaned()
+{
+    // Force gc. If the jsRuntime is destroyed, this task should not be executed.
+    HILOG_DEBUG("DoCleanWorkAfterStageCleaned begin");
+    RemoveTask("ability_destruct_gc");
+    auto gcTask = [this]() {
+        panda::JSNApi::TriggerGC(GetEcmaVm(), panda::JSNApi::TRIGGER_GC_TYPE::FULL_GC);
+    };
+    PostTask(gcTask, "ability_destruct_gc", TRIGGER_GC_AFTER_CLEAR_STAGE_MS);
 }
 
 bool JsRuntime::InitLoop(const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner)

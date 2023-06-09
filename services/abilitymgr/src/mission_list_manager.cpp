@@ -54,6 +54,8 @@ const int KILL_TIMEOUT_MULTIPLE = 3;
 constexpr int32_t PREPARE_TERMINATE_ENABLE_SIZE = 6;
 const char* PREPARE_TERMINATE_ENABLE_PARAMETER = "persist.sys.prepare_terminate";
 const int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
+constexpr int32_t TRACE_ATOMIC_SERVICE_ID = 201;
+const std::string TRACE_ATOMIC_SERVICE = "StartAtomicService";
 std::string GetCurrentTime()
 {
     struct timespec tn;
@@ -79,7 +81,9 @@ void MissionListManager::Init()
         listenerController_ = std::make_shared<MissionListenerController>();
         listenerController_->Init();
     }
-
+#ifdef SUPPORT_GRAPHICS
+    InitPrepareTerminateConfig();
+#endif
     DelayedSingleton<MissionInfoMgr>::GetInstance()->Init(userId_);
 }
 
@@ -2574,6 +2578,8 @@ int MissionListManager::SetMissionIcon(const sptr<IRemoteObject> &token, const s
 
 void MissionListManager::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) const
 {
+    StartAsyncTrace(HITRACE_TAG_ABILITY_MANAGER, TRACE_ATOMIC_SERVICE, TRACE_ATOMIC_SERVICE_ID);
+    HILOG_DEBUG("CompleteFirstFrameDrawing called.");
     if (!abilityToken) {
         HILOG_WARN("%{public}s ability token is nullptr.", __func__);
         return;
@@ -2664,6 +2670,17 @@ void MissionListManager::PostCancelStartingWindowTask(const std::shared_ptr<Abil
         return;
     }
     handler->PostTask(task, AppExecFwk::EventQueue::Priority::IMMEDIATE);
+}
+
+void MissionListManager::InitPrepareTerminateConfig()
+{
+    char value[PREPARE_TERMINATE_ENABLE_SIZE] = "false";
+    int retSysParam = GetParameter(PREPARE_TERMINATE_ENABLE_PARAMETER, "false", value, PREPARE_TERMINATE_ENABLE_SIZE);
+    HILOG_INFO("CheckPrepareTerminateEnable, %{public}s value is %{public}s.", PREPARE_TERMINATE_ENABLE_PARAMETER,
+        value);
+    if (retSysParam > 0 && !std::strcmp(value, "true")) {
+        isPrepareTerminateEnable_ = true;
+    }
 }
 #endif
 
@@ -3726,7 +3743,7 @@ int MissionListManager::PrepareClearMissionLocked(int missionId, const std::shar
     }
 
     bool res = abilityRecord->PrepareTerminateAbility();
-    if (!res) {
+    if (res) {
         HILOG_INFO("stop terminating.");
         handler->RemoveTask("PrepareTermiante_" + std::to_string(abilityRecord->GetAbilityRecordId()));
         return ERR_OK;
@@ -3737,29 +3754,30 @@ int MissionListManager::PrepareClearMissionLocked(int missionId, const std::shar
 
 bool MissionListManager::CheckPrepareTerminateEnable(const std::shared_ptr<Mission> &mission)
 {
+    if (!isPrepareTerminateEnable_) {
+        HILOG_DEBUG("Only support PC.");
+        return false;
+    }
     if (mission == nullptr) {
         HILOG_DEBUG("ability has already terminate, just remove mission.");
         return false;
     }
     auto abilityRecord = mission->GetAbilityRecord();
     if (abilityRecord == nullptr || abilityRecord->IsTerminating()) {
-        HILOG_WARN("Ability record is not exist or is on terminating.");
+        HILOG_DEBUG("Ability record is not exist or is on terminating.");
         return false;
     }
     auto type = abilityRecord->GetAbilityInfo().type;
     bool isStageBasedModel = abilityRecord->GetAbilityInfo().isStageBasedModel;
     if (!isStageBasedModel || type != AppExecFwk::AbilityType::PAGE) {
-        HILOG_WARN("ability mode not support.");
+        HILOG_DEBUG("ability mode not support.");
         return false;
     }
-    char value[PREPARE_TERMINATE_ENABLE_SIZE] = "false";
-    int retSysParam = GetParameter(PREPARE_TERMINATE_ENABLE_PARAMETER, "false", value, PREPARE_TERMINATE_ENABLE_SIZE);
-    HILOG_INFO("CheckPrepareTerminateEnable, %{public}s value is %{public}s.", PREPARE_TERMINATE_ENABLE_PARAMETER,
-        value);
-    if (retSysParam > 0 && !std::strcmp(value, "true")) {
-        return true;
+    if (!AAFwk::PermissionVerification::GetInstance()->VerifyPrepareTerminatePermission()) {
+        HILOG_DEBUG("failed, please apply permission ohos.permission.PREPARE_APP_TERMINATE");
+        return false;
     }
-    return false;
+    return true;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
