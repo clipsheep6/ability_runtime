@@ -107,8 +107,13 @@ public:
         rootSceneSession_ = rootSceneSession;
     }
 
+    int NotifySCBToStartUIAbility(const AbilityRequest &abilityRequest);
+
 private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
+    uint64_t GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest) const;
+    uint64_t GetReusedSpecifiedPersistentId(const AbilityRequest &abilityRequest) const;
+    uint64_t GetReusedStandardPersistentId(const AbilityRequest &abilityRequest) const;
     void UpdateAbilityRecordLaunchReason(const AbilityRequest &abilityRequest,
         std::shared_ptr<AbilityRecord> &abilityRecord) const;
     void EraseAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
@@ -126,6 +131,10 @@ private:
     void DelayCompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
     bool IsContainsAbilityInner(const sptr<IRemoteObject> &token) const;
+    void ReportEventToSuspendManager(const AppExecFwk::AbilityInfo &abilityInfo) const;
+    bool CheckProperties(const std::shared_ptr<AbilityRecord> &abilityRecord, const AbilityRequest &abilityRequest,
+        AppExecFwk::LaunchMode launchMode) const;
+
     mutable std::mutex sessionLock_;
     std::map<uint64_t, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;
     std::list<std::shared_ptr<AbilityRecord>> terminateAbilityList_;

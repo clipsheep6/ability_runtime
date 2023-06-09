@@ -181,6 +181,7 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[QUERY_MISSION_VAILD] = &AbilityManagerStub::IsValidMissionIdsInner;
     requestFuncMap_[VERIFY_PERMISSION] = &AbilityManagerStub::VerifyPermissionInner;
     requestFuncMap_[START_UI_ABILITY_BY_SCB] = &AbilityManagerStub::StartUIAbilityBySCBInner;
+    requestFuncMap_[SET_ROOTSSCENESESSION] = &AbilityManagerStub::SetRootSceneSessionInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
