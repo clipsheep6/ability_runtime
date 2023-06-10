@@ -152,37 +152,6 @@ HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetApplicationInfo_0100, Functi
 }
 
 /**
- * @tc.number: AppExecFwk_ContextDeal_GetBundleResourcePath_0100
- * @tc.name: GetBundleResourcePath
- * @tc.desc: Verify that the GetBundleResourcePath return value is correct.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetBundleResourcePath_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<AbilityInfo> info = std::make_shared<AbilityInfo>();
-    std::string resourcePath = "ResourcePath";
-    info->resourcePath = resourcePath;
-    context_->SetAbilityInfo(info);
-
-    EXPECT_STREQ(context_->GetBundleResourcePath().c_str(), resourcePath.c_str());
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_GetBundleResourcePath_0200
- * @tc.name: GetBundleResourcePath
- * @tc.desc: Verify that the GetBundleResourcePath return value is correct.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetBundleResourcePath_0200, Function | MediumTest | Level1)
-{
-    std::shared_ptr<AbilityInfo> info = std::make_shared<AbilityInfo>();
-    std::string resourcePath = "/data/app/el1/bundle/public";
-    info->resourcePath = resourcePath;
-    context_->isCreateBySystemApp_ = true;
-    context_->SetAbilityInfo(info);
-
-    EXPECT_STREQ(context_->GetBundleResourcePath().c_str(), Constants::LOCAL_BUNDLES);
-}
-
-/**
  * @tc.number: AppExecFwk_ContextDeal_GetAbilityManager_0100
  * @tc.name: GetAbilityManager
  * @tc.desc: Verify that the GetAbilityManager return value is correct.
@@ -218,7 +187,7 @@ HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetDatabaseDir_0200, Function |
     std::shared_ptr<ApplicationInfo> info = std::make_shared<ApplicationInfo>();
     std::string dir = "dataBaseDir";
     info->dataBaseDir = dir;
-    context_->flags_ = ContextDeal::CONTEXT_CREATE_BY_SYSTEM_APP;
+    context_->SetSystemAppFlag(true);
     context_->SetApplicationInfo(info);
 
     EXPECT_STREQ(context_->GetDatabaseDir().c_str(), "/data/app/el2/0/database/");
@@ -440,8 +409,8 @@ HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetHapModuleInfo_0200, Function
  */
 HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_IsCreateBySystemApp_0100, Function | MediumTest | Level1)
 {
-    context_->flags_ = 0;
-    EXPECT_FALSE(context_->IsCreateBySystemApp());
+    context_->SetSystemAppFlag(false);
+    EXPECT_FALSE(context_->isCreateBySystemApp_);
 }
 
 /**
@@ -451,8 +420,8 @@ HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_IsCreateBySystemApp_0100, Funct
  */
 HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_IsCreateBySystemApp_0200, Function | MediumTest | Level1)
 {
-    context_->flags_ = ContextDeal::CONTEXT_CREATE_BY_SYSTEM_APP;
-    EXPECT_TRUE(context_->IsCreateBySystemApp());
+    context_->SetSystemAppFlag(true);
+    EXPECT_TRUE(context_->isCreateBySystemApp_);
 }
 
 /**
@@ -472,57 +441,8 @@ HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetBaseDir_0100, Function | Med
  */
 HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetBaseDir_0200, Function | MediumTest | Level1)
 {
-    context_->flags_ = ContextDeal::CONTEXT_CREATE_BY_SYSTEM_APP;
+    context_->SetSystemAppFlag(true);
     EXPECT_FALSE(context_->GetBaseDir().empty());
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_GetColorMode_0100
- * @tc.name: GetColorMode
- * @tc.desc: Verify that the GetColorMode return value is AUTO.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetColorMode_0100, Function | MediumTest | Level1)
-{
-    EXPECT_EQ(context_->GetColorMode(), static_cast<int32_t>(AppExecFwk::ModuleColorMode::AUTO));
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_GetColorMode_0200
- * @tc.name: GetColorMode
- * @tc.desc: Verify that the GetColorMode return value is not DARK.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetColorMode_0200, Function | MediumTest | Level1)
-{
-    context_->hapModuleInfoLocal_ = std::make_shared<HapModuleInfo>();
-    context_->hapModuleInfoLocal_->colorMode = AppExecFwk::ModuleColorMode::DARK;
-    EXPECT_EQ(context_->GetColorMode(), static_cast<int32_t>(AppExecFwk::ModuleColorMode::DARK));
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_SetColorMode_0100
- * @tc.name: SetColorMode
- * @tc.desc: Verify that the SetColorMode return value is not DARK.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_SetColorMode_0100, Function | MediumTest | Level1)
-{
-    context_->SetColorMode(static_cast<int32_t>(AppExecFwk::ModuleColorMode::DARK));
-    EXPECT_NE(context_->GetColorMode(), static_cast<int32_t>(AppExecFwk::ModuleColorMode::DARK));
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_SetColorMode_0200
- * @tc.name: SetColorMode
- * @tc.desc: Verify that the SetColorMode return value is correct.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_SetColorMode_0200, Function | MediumTest | Level1)
-{
-    context_->hapModuleInfoLocal_ = std::make_shared<HapModuleInfo>();
-    context_->SetColorMode(static_cast<int32_t>(AppExecFwk::ModuleColorMode::DARK));
-    EXPECT_EQ(context_->GetColorMode(), static_cast<int32_t>(AppExecFwk::ModuleColorMode::DARK));
-    context_->SetColorMode(static_cast<int32_t>(AppExecFwk::ModuleColorMode::LIGHT));
-    EXPECT_EQ(context_->GetColorMode(), static_cast<int32_t>(AppExecFwk::ModuleColorMode::LIGHT));
-    context_->SetColorMode(static_cast<int32_t>(AppExecFwk::ModuleColorMode::AUTO));
-    EXPECT_EQ(context_->GetColorMode(), static_cast<int32_t>(AppExecFwk::ModuleColorMode::AUTO));
 }
 
 /**
@@ -536,50 +456,6 @@ HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetDisplayOrientation_0100, Fun
     info->orientation = DisplayOrientation::LANDSCAPE;
     context_->SetAbilityInfo(info);
     EXPECT_EQ(context_->GetDisplayOrientation(), static_cast<int32_t>(DisplayOrientation::LANDSCAPE));
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_GetDisplayOrientation_0200
- * @tc.name: GetDisplayOrientation
- * @tc.desc: Verify that the GetDisplayOrientation return value is -1.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetDisplayOrientation_0200, Function | MediumTest | Level1)
-{
-    context_->hapModuleInfoLocal_ = std::make_shared<HapModuleInfo>();
-    EXPECT_EQ(context_->GetThemeId(), -1);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_GetThemeId_0200
- * @tc.name: GetThemeId
- * @tc.desc: Verify that the GetThemeId return value is -1.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetThemeId_0200, Function | MediumTest | Level1)
-{
-    EXPECT_EQ(context_->GetThemeId(), -1);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_GetTheme_0100
- * @tc.name: GetTheme
- * @tc.desc: Verify that the GetTheme return value is empty.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetTheme_0100, Function | MediumTest | Level1)
-{
-    auto resulft = context_->GetTheme();
-    EXPECT_TRUE(resulft.empty());
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_GetTheme_0200
- * @tc.name: GetTheme
- * @tc.desc: Verify that the GetTheme return value is not empty.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetTheme_0200, Function | MediumTest | Level1)
-{
-    context_->theme_.emplace("TestKey", "TestValue");
-    auto resulft = context_->GetTheme();
-    EXPECT_FALSE(resulft.empty());
 }
 
 /**
@@ -616,121 +492,6 @@ HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_initResourceManager_0100, Funct
     EXPECT_TRUE(context_ != nullptr);
     const std::shared_ptr<Global::Resource::ResourceManager> resMgr(Global::Resource::CreateResourceManager());
     context_->initResourceManager(resMgr);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_SetPattern_0100
- * @tc.name: SetPattern
- * @tc.desc: Verify that the SetPattern execute normally.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_SetPattern_0100, Function | MediumTest | Level1)
-{
-    EXPECT_TRUE(context_ != nullptr);
-    constexpr int32_t patternId = 0;
-    context_->SetPattern(patternId);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_SetPattern_0200
- * @tc.name: SetPattern
- * @tc.desc: Verify that the SetPattern execute normally.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_SetPattern_0200, Function | MediumTest | Level1)
-{
-    EXPECT_TRUE(context_ != nullptr);
-    const std::shared_ptr<Global::Resource::ResourceManager> resMgr(Global::Resource::CreateResourceManager());
-    context_->initResourceManager(resMgr);
-    constexpr int32_t patternId = 0;
-    context_->SetPattern(patternId);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_GetString_0100
- * @tc.name: GetString
- * @tc.desc: Verify that the GetString execute normally.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetString_0100, Function | MediumTest | Level1)
-{
-    EXPECT_TRUE(context_ != nullptr);
-    constexpr int32_t resId = 0;
-
-    EXPECT_TRUE(context_->GetString(resId) == std::string(""));
-
-    const std::shared_ptr<Global::Resource::ResourceManager> resMgr(Global::Resource::CreateResourceManager());
-    context_->initResourceManager(resMgr);
-    EXPECT_TRUE(context_->GetString(resId) == std::string(""));
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_GetStringArray_0100
- * @tc.name: GetStringArray
- * @tc.desc: Verify that the GetStringArray execute normally.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetStringArray_0100, Function | MediumTest | Level1)
-{
-    EXPECT_TRUE(context_ != nullptr);
-    constexpr int32_t resId = 0;
-
-    auto resArray1 = context_->GetStringArray(resId);
-    EXPECT_TRUE(resArray1.empty());
-
-    const std::shared_ptr<Global::Resource::ResourceManager> resMgr(Global::Resource::CreateResourceManager());
-    context_->initResourceManager(resMgr);
-    auto resArray2 = context_->GetStringArray(resId);
-    EXPECT_TRUE(resArray2.empty());
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_GetIntArray_0100
- * @tc.name: GetIntArray
- * @tc.desc: Verify that the GetIntArray execute normally.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetIntArray_0100, Function | MediumTest | Level1)
-{
-    EXPECT_TRUE(context_ != nullptr);
-    constexpr int32_t resId = 0;
-
-    auto resArray1 = context_->GetIntArray(resId);
-    EXPECT_TRUE(resArray1.empty());
-
-    const std::shared_ptr<Global::Resource::ResourceManager> resMgr(Global::Resource::CreateResourceManager());
-    context_->initResourceManager(resMgr);
-    auto resArray2 = context_->GetIntArray(resId);
-    EXPECT_TRUE(resArray2.empty());
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_SetTheme_0100
- * @tc.name: SetTheme
- * @tc.desc: Verify that the SetTheme execute normally.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_SetTheme_0100, Function | MediumTest | Level1)
-{
-    EXPECT_TRUE(context_ != nullptr);
-    constexpr int32_t themeId = 0;
-
-    context_->SetTheme(themeId);
-
-    const std::shared_ptr<Global::Resource::ResourceManager> resMgr(Global::Resource::CreateResourceManager());
-    context_->initResourceManager(resMgr);
-    context_->SetTheme(themeId);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextDeal_GetPattern_0100
- * @tc.name: GetPattern
- * @tc.desc: Verify that the GetPattern execute normally.
- */
-HWTEST_F(ContextDealTest, AppExecFwk_ContextDeal_GetPattern_0100, Function | MediumTest | Level1)
-{
-    EXPECT_TRUE(context_ != nullptr);
-
-    auto resMap1 = context_->GetPattern();
-    EXPECT_TRUE(resMap1.empty());
-
-    context_->pattern_.emplace("abc", "ABC");
-    auto resMap2 = context_->GetPattern();
-    EXPECT_FALSE(resMap2.empty());
 }
 
 /**

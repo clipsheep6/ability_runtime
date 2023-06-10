@@ -91,7 +91,6 @@ void MockApplication::OnStart()
         EXPECT_STREQ("MockTestApplication", GetApplicationInfo()->name.c_str());
 
         EXPECT_STREQ("", GetBundleCodePath().c_str());
-        EXPECT_STREQ("", GetBundleResourcePath().c_str());
         EXPECT_EQ(nullptr, GetContext());
         EXPECT_EQ(nullptr, GetAbilityInfo());
         EXPECT_STREQ("/hos/lib/dataDir", GetApplicationContext()->GetDir("test", 1).c_str());

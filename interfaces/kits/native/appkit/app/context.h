@@ -52,7 +52,7 @@ using PermissionRequestTask = std::function<void(const std::vector<std::string>&
 
 #define OHOS_REQUEST_PERMISSION_VALUE 1
 
-constexpr int INVALID_RESOURCE_VALUE = -1;  // GetColor() Failed return Value
+constexpr int INVALID_RESOURCE_VALUE = -1;
 constexpr int DEFAULT_ACCOUNT_ID = -1;
 
 class DataAbilityHelperImpl;
@@ -219,13 +219,6 @@ public:
     virtual std::string GetBundleName() const = 0;
 
     /**
-     * @brief Obtains the path of the OHOS Ability Package (HAP} containing this ability.
-     *
-     * @return Returns the path of the HAP containing this ability.
-     */
-    virtual std::string GetBundleResourcePath() = 0;
-
-    /**
      * @brief Starts a new ability.
      * An ability using the AbilityInfo.AbilityType.SERVICE or AbilityInfo.AbilityType.PAGE template uses this method
      * to start a specific ability. The system locates the target ability from installed abilities based on the value
@@ -302,13 +295,6 @@ public:
     {
         return 0;
     }
-
-    /**
-     * @brief Sets the pattern of this Context based on the specified pattern ID.
-     *
-     * @param patternId Indicates the resource ID of the pattern to set.
-     */
-    virtual void SetPattern(int patternId) = 0;
 
     /**
      * @brief Obtains the Context object of this ability.
@@ -398,70 +384,6 @@ public:
     virtual Uri GetCaller() = 0;
 
     /**
-     * @brief Get the string of this Context based on the specified resource ID.
-     *
-     * @param resId Indicates the resource ID of the string to get.
-     *
-     * @return Returns the string of this Context.
-     */
-    virtual std::string GetString(int resId) = 0;
-
-    /**
-     * @brief Get the string array of this Context based on the specified resource ID.
-     *
-     * @param resId Indicates the resource ID of the string array to get.
-     *
-     * @return Returns the string array of this Context.
-     */
-    virtual std::vector<std::string> GetStringArray(int resId) = 0;
-
-    /**
-     * @brief Get the integer array of this Context based on the specified resource ID.
-     *
-     * @param resId Indicates the resource ID of the integer array to get.
-     *
-     * @return Returns the integer array of this Context.
-     */
-    virtual std::vector<int> GetIntArray(int resId) = 0;
-
-    /**
-     * @brief Obtains the theme of this Context.
-     *
-     * @return theme Returns the theme of this Context.
-     */
-    virtual std::map<std::string, std::string> GetTheme() = 0;
-
-    /**
-     * @brief Sets the theme of this Context based on the specified theme ID.
-     *
-     * @param themeId Indicates the resource ID of the theme to set.
-     */
-    virtual void SetTheme(int themeId) = 0;
-
-    /**
-     * @brief Obtains the pattern of this Context.
-     *
-     * @return getPattern in interface Context
-     */
-    virtual std::map<std::string, std::string> GetPattern() = 0;
-
-    /**
-     * @brief Get the color of this Context based on the specified resource ID.
-     *
-     * @param resId Indicates the resource ID of the color to get.
-     *
-     * @return Returns the color value of this Context.
-     */
-    virtual int GetColor(int resId) = 0;
-
-    /**
-     * @brief Obtains the theme id of this Context.
-     *
-     * @return int Returns the theme id of this Context.
-     */
-    virtual int GetThemeId() = 0;
-
-    /**
      * @brief
      * Destroys this Service ability if the number of times it has been started equals the number represented by the
      * given {@code startId}. This method is the same as calling {@link #terminateAbility} to destroy this Service
@@ -492,20 +414,6 @@ public:
      * @return Returns the preference file path .
      */
     virtual std::string GetPreferencesDir() = 0;
-
-    /**
-     * @brief Set color mode
-     *
-     * @param the value of color mode.
-     */
-    virtual void SetColorMode(int mode) = 0;
-
-    /**
-     * @brief Obtains color mode.
-     *
-     * @return Returns the color mode value.
-     */
-    virtual int GetColorMode() = 0;
 
     /**
      * @brief Obtains the unique ID of the mission containing this ability.

@@ -45,7 +45,6 @@ public:
     virtual int VerifyCallingPermission(const std::string& permission) = 0;
     virtual int VerifySelfPermission(const std::string& permission) = 0;
     virtual std::string GetBundleName() = 0;
-    virtual std::string GetBundleResourcePath() = 0;
     virtual void StartAbility(const AAFwk::Want& want, int requestCode) = 0;
     virtual void UnauthUriPermission(const std::string& permission, const Uri& uri, int uid) = 0;
     virtual sptr<AAFwk::IAbilityManager> GetAbilityManager() = 0;
@@ -55,7 +54,6 @@ public:
     virtual bool CanRequestPermission(const std::string& permission) = 0;
     virtual int VerifyCallingOrSelfPermission(const std::string& permission) = 0;
     virtual int VerifyPermission(const std::string& permission, int pid, int uid) = 0;
-    virtual void SetPattern(int patternId) = 0;
     virtual std::shared_ptr<Context> GetAbilityPackageContext() = 0;
     virtual std::shared_ptr<HapModuleInfo> GetHapModuleInfo() = 0;
     virtual std::string GetProcessName() = 0;
@@ -66,19 +64,9 @@ public:
     virtual bool ConnectAbility(const Want& want, const sptr<AAFwk::IAbilityConnection>& conn) = 0;
     virtual void DisconnectAbility(const sptr<AAFwk::IAbilityConnection>& conn) = 0;
     virtual Uri GetCaller() = 0;
-    virtual std::string GetString(int resId) = 0;
-    virtual std::vector<std::string> GetStringArray(int resId) = 0;
-    virtual std::vector<int> GetIntArray(int resId) = 0;
-    virtual std::map<std::string, std::string> GetTheme() = 0;
-    virtual void SetTheme(int themeId) = 0;
-    virtual std::map<std::string, std::string> GetPattern() = 0;
-    virtual int GetColor(int resId) = 0;
-    virtual int GetThemeId() = 0;
     virtual bool TerminateAbilityResult(int startId) = 0;
     virtual int GetDisplayOrientation() = 0;
     virtual std::string GetPreferencesDir() = 0;
-    virtual void SetColorMode(int mode) = 0;
-    virtual int GetColorMode() = 0;
     virtual int GetMissionId() = 0;
     virtual void StartAbilities(const std::vector<AAFwk::Want>& wants) = 0;
     friend DataAbilityHelper;

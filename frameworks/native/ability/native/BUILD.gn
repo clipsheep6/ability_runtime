@@ -544,14 +544,6 @@ ohos_shared_library("continuation_ipc") {
     "${ability_runtime_native_path}/ability/native/continuation/distributed/reverse_continuation_scheduler_replica.cpp",
     "${ability_runtime_native_path}/ability/native/continuation/distributed/reverse_continuation_scheduler_replica_proxy.cpp",
     "${ability_runtime_native_path}/ability/native/continuation/distributed/reverse_continuation_scheduler_replica_stub.cpp",
-    "${ability_runtime_native_path}/ability/native/continuation/remote_register_service/connect_callback_proxy.cpp",
-    "${ability_runtime_native_path}/ability/native/continuation/remote_register_service/connect_callback_stub.cpp",
-    "${ability_runtime_native_path}/ability/native/continuation/remote_register_service/continuation_connector.cpp",
-    "${ability_runtime_native_path}/ability/native/continuation/remote_register_service/continuation_device_callback_proxy.cpp",
-    "${ability_runtime_native_path}/ability/native/continuation/remote_register_service/continuation_register_manager.cpp",
-    "${ability_runtime_native_path}/ability/native/continuation/remote_register_service/continuation_register_manager_proxy.cpp",
-    "${ability_runtime_native_path}/ability/native/continuation/remote_register_service/remote_register_service_proxy.cpp",
-    "${ability_runtime_native_path}/ability/native/continuation/remote_register_service/remote_register_service_stub.cpp",
   ]
 
   configs = [ ":ability_config" ]

@@ -180,16 +180,6 @@ std::string ContextContainer::GetBundleName() const
     }
 }
 
-std::string ContextContainer::GetBundleResourcePath()
-{
-    if (baseContext_ != nullptr) {
-        return baseContext_->GetBundleResourcePath();
-    } else {
-        HILOG_ERROR("ContextContainer::GetBundleResourcePath baseContext_ is nullptr");
-        return "";
-    }
-}
-
 sptr<AAFwk::IAbilityManager> ContextContainer::GetAbilityManager()
 {
     if (baseContext_ != nullptr) {
@@ -210,15 +200,6 @@ std::string ContextContainer::GetAppType()
     }
 }
 
-void ContextContainer::SetPattern(int patternId)
-{
-    if (baseContext_ != nullptr) {
-        baseContext_->SetPattern(patternId);
-    } else {
-        HILOG_ERROR("ContextContainer::SetPattern baseContext_ is nullptr");
-    }
-}
-
 std::shared_ptr<HapModuleInfo> ContextContainer::GetHapModuleInfo()
 {
     if (baseContext_ != nullptr) {
@@ -234,7 +215,7 @@ std::string ContextContainer::GetProcessName()
     return (processInfo_ != nullptr) ? processInfo_->GetProcessName() : "";
 }
 
-std::shared_ptr<Context> ContextContainer::CreateBundleContext(std::string bundleName, int flag, int accountId)
+std::shared_ptr<Context> ContextContainer::CreateBundleContext(std::string bundleName, int accountId)
 {
     if (bundleName.empty()) {
         HILOG_ERROR("ContextContainer::CreateBundleContext bundleName is empty");
@@ -268,7 +249,8 @@ std::shared_ptr<Context> ContextContainer::CreateBundleContext(std::string bundl
     }
 
     std::shared_ptr<AppContext> appContext = std::make_shared<AppContext>();
-    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>(true);
+    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
+    deal->SetSystemAppFlag(true);
 
     // init resourceManager.
     InitResourceManager(bundleInfo, deal);
@@ -334,86 +316,6 @@ void ContextContainer::SetUriString(const std::string &uri)
     uriString_ = uri;
 }
 
-std::string ContextContainer::GetString(int resId)
-{
-    if (baseContext_ != nullptr) {
-        std::string ret = baseContext_->GetString(resId);
-        return ret;
-    } else {
-        HILOG_ERROR("ContextContainer::GetString baseContext_ is nullptr");
-        return "";
-    }
-}
-
-std::vector<std::string> ContextContainer::GetStringArray(int resId)
-{
-    if (baseContext_ != nullptr) {
-        return baseContext_->GetStringArray(resId);
-    } else {
-        HILOG_ERROR("ContextContainer::GetStringArray baseContext_ is nullptr");
-        return std::vector<std::string>();
-    }
-}
-
-std::vector<int> ContextContainer::GetIntArray(int resId)
-{
-    if (baseContext_ != nullptr) {
-        return baseContext_->GetIntArray(resId);
-    } else {
-        HILOG_ERROR("ContextContainer::GetIntArray baseContext_ is nullptr");
-        return std::vector<int>();
-    }
-}
-
-std::map<std::string, std::string> ContextContainer::GetTheme()
-{
-    if (baseContext_ != nullptr) {
-        return baseContext_->GetTheme();
-    } else {
-        HILOG_ERROR("ContextContainer::GetTheme baseContext_ is nullptr");
-        return std::map<std::string, std::string>();
-    }
-}
-
-void ContextContainer::SetTheme(int themeId)
-{
-    if (baseContext_ != nullptr) {
-        baseContext_->SetTheme(themeId);
-    } else {
-        HILOG_ERROR("ContextContainer::SetTheme baseContext_ is nullptr");
-    }
-}
-
-std::map<std::string, std::string> ContextContainer::GetPattern()
-{
-    if (baseContext_ != nullptr) {
-        return baseContext_->GetPattern();
-    } else {
-        HILOG_ERROR("ContextContainer::GetPattern baseContext_ is nullptr");
-        return std::map<std::string, std::string>();
-    }
-}
-
-int ContextContainer::GetColor(int resId)
-{
-    if (baseContext_ != nullptr) {
-        return baseContext_->GetColor(resId);
-    } else {
-        HILOG_ERROR("ContextContainer::GetColor baseContext_ is nullptr");
-        return INVALID_RESOURCE_VALUE;
-    }
-}
-
-int ContextContainer::GetThemeId()
-{
-    if (baseContext_ != nullptr) {
-        return baseContext_->GetThemeId();
-    } else {
-        HILOG_ERROR("ContextContainer::GetThemeId baseContext_ is nullptr");
-        return -1;
-    }
-}
-
 int ContextContainer::GetDisplayOrientation()
 {
     if (baseContext_ != nullptr) {
@@ -432,26 +334,6 @@ std::string ContextContainer::GetPreferencesDir()
         HILOG_ERROR("ContextContainer::GetPreferencesDir baseContext_ is nullptr");
         return "";
     }
-}
-
-void ContextContainer::SetColorMode(int mode)
-{
-    if (baseContext_ == nullptr) {
-        HILOG_ERROR("ContextContainer::SetColorMode baseContext_ is nullptr");
-        return;
-    }
-
-    baseContext_->SetColorMode(mode);
-}
-
-int ContextContainer::GetColorMode()
-{
-    if (baseContext_ == nullptr) {
-        HILOG_ERROR("ContextContainer::GetColorMode baseContext_ is nullptr");
-        return -1;
-    }
-
-    return baseContext_->GetColorMode();
 }
 
 int ContextContainer::GetMissionId()
