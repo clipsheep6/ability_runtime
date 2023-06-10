@@ -19,11 +19,36 @@
 #include "ability_command.h"
 #include "ability_tool_command.h"
 #include "hilog_wrapper.h"
+#include "nativetoken_kit.h"
+#include "token_setproc.h"
 #ifdef A11Y_ENABLE
 #include "accessibility_ability_command.h"
 #endif // A11Y_ENABLE
 int main(int argc, char* argv[])
 {
+    uint64_t tokenId;
+    const char** perms = new const char* [6];
+    perms[0] = "ohos.permission.DISTRIBUTED_DATASYNC";
+    perms[1] = "ohos.permission.INTERACT_ACROSS_LOCAL_ACCOUNTS";
+    perms[2] = "ohos.permission.UPDATE_CONFIGURATION";
+    perms[3] = "ohos.permission.GET_RUNNING_INFO";
+    perms[4] = "ohos.permission.MANAGE_MISSIONS";
+    perms[5] = "ohos.permission.CLEAN_BACKGROUND_PROCESSES";
+    NativeTokenInfoParams infoInstance = {
+        .dcapsNum = 0,
+        .permsNum = 6,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = perms,
+        .acls = nullptr,
+        .aplStr = "system_core",
+    };
+
+    infoInstance.processName = "SetUpTestCase";
+    tokenId = GetAccessTokenId(&infoInstance);
+    SetSelfTokenID(tokenId);
+    delete[] perms;
+
     if (strstr(argv[0], "aa") != nullptr) {
         OHOS::AAFwk::AbilityManagerShellCommand cmd(argc, argv);
         std::cout << cmd.ExecCommand();

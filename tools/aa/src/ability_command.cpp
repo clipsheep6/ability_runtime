@@ -18,6 +18,7 @@
 #include <cstdlib>
 #include <getopt.h>
 #include <regex>
+#include <unistd.h>
 #include "ability_manager_client.h"
 #include "app_mgr_client.h"
 #include "hilog_wrapper.h"
@@ -1423,6 +1424,9 @@ ErrCode AbilityManagerShellCommand::RegisterMissionListener()
 {
     sptr<IMissionListener> listener = new MyMissionListener();
     AbilityManagerClient::GetInstance()->RegisterMissionListener(listener);
+    while (true) {
+        sleep(10);
+    }
     return 0;
 }
 
