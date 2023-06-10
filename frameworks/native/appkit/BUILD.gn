@@ -122,6 +122,7 @@ ohos_shared_library("appkit_native") {
   }
   deps = [
     ":appkit_delegator",
+    "${ability_runtime_abilitymgr_path}/:abilityms",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
@@ -132,7 +133,6 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:app_context_utils",
     "${ability_runtime_path}/js_environment/frameworks/js_environment:js_environment",
-    "${ability_runtime_services_path}/abilitymgr:abilityms",
   ]
 
   external_deps = [
