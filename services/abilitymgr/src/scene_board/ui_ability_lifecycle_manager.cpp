@@ -727,15 +727,15 @@ void UIAbilityLifecycleManager::NotifySCBToHandleException(const std::shared_ptr
     int32_t errorCode, std::string errorReason)
 {
     HILOG_DEBUG("call");
-    sptr<SessionInfo> info = abilityRecord->GetSessionInfo();
-    info->errorCode = errorCode;
-    info->errorReason = errorReason;
-    auto callerSessionInfo = abilityRecord->GetSessionInfo();
-    CHECK_POINTER(callerSessionInfo);
-    CHECK_POINTER(callerSessionInfo->sessionToken);
-    auto callerSession = iface_cast<Rosen::ISession>(callerSessionInfo->sessionToken);
+    CHECK_POINTER(abilityRecord);
+    auto sessionInfo = abilityRecord->GetSessionInfo();
+    CHECK_POINTER(sessionInfo);
+    CHECK_POINTER(sessionInfo->sessionToken);
+    sessionInfo->errorCode = errorCode;
+    sessionInfo->errorReason = errorReason;
+    auto callerSession = iface_cast<Rosen::ISession>(sessionInfo->sessionToken);
     HILOG_INFO("call notifySessionException");
-    callerSession->NotifySessionException(info);
+    callerSession->NotifySessionException(sessionInfo);
     EraseAbilityRecord(abilityRecord);
 }
 

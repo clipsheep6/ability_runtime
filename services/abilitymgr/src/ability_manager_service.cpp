@@ -4286,7 +4286,8 @@ int AbilityManagerService::StopServiceAbility(const Want &want, int32_t userId, 
 void AbilityManagerService::OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord)
 {
     CHECK_POINTER(abilityRecord);
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() &&
+        abilityRecord->GetAbilityInfo().type == AbilityType::PAGE) {
         uiAbilityLifecycleManager_->OnAbilityDied(abilityRecord);
         return;
     }
