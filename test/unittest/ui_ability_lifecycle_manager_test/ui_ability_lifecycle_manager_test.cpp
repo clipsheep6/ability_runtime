@@ -771,7 +771,7 @@ HWTEST_F(UIAbilityLifecycleManagerTest, CloseUIAbility_001, TestSize.Level1)
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
     abilityRecord->SetTerminatingState();
     abilityRecord->SetAbilityState(AbilityState::BACKGROUND);
-    EXPECT_EQ(uiAbilityLifecycleManager->CloseUIAbility(abilityRecord), ERR_OK);
+    EXPECT_EQ(uiAbilityLifecycleManager->CloseUIAbility(abilityRecord, -1, nullptr), ERR_OK);
     uiAbilityLifecycleManager.reset();
 }
 
@@ -784,7 +784,21 @@ HWTEST_F(UIAbilityLifecycleManagerTest, CloseUIAbility_002, TestSize.Level1)
 {
     auto uiAbilityLifecycleManager = std::make_shared<UIAbilityLifecycleManager>();
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
-    EXPECT_EQ(uiAbilityLifecycleManager->CloseUIAbility(abilityRecord), ERR_OK);
+    EXPECT_EQ(uiAbilityLifecycleManager->CloseUIAbility(abilityRecord, -1, nullptr), ERR_OK);
+    uiAbilityLifecycleManager.reset();
+}
+
+/**
+ * @tc.name: UIAbilityLifecycleManager_CloseUIAbility_0300
+ * @tc.desc: CloseUIAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIAbilityLifecycleManagerTest, CloseUIAbility_003, TestSize.Level1)
+{
+    auto uiAbilityLifecycleManager = std::make_shared<UIAbilityLifecycleManager>();
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    Want want;
+    EXPECT_EQ(uiAbilityLifecycleManager->CloseUIAbility(abilityRecord, -1, &want), ERR_OK);
     uiAbilityLifecycleManager.reset();
 }
 
