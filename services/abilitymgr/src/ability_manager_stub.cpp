@@ -2129,12 +2129,6 @@ int32_t AbilityManagerStub::RecordAppExitReasonInner(MessageParcel &data, Messag
 int AbilityManagerStub::SetRootSceneSessionInner(MessageParcel &data, MessageParcel &reply)
 {
     HILOG_DEBUG("Call.");
-    auto rootSceneSession = iface_cast<Rosen::RootSceneSession>(data.ReadRemoteObject());
-    if (rootSceneSession == nullptr) {
-        HILOG_ERROR("Read rootSceneSession failed.");
-        return ERR_INVALID_VALUE;
-    }
-    SetRootSceneSession(rootSceneSession);
     return NO_ERROR;
 }
 }  // namespace AAFwk
