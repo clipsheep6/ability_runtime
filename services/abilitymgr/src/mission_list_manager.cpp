@@ -3793,5 +3793,20 @@ bool MissionListManager::CheckPrepareTerminateEnable(const std::shared_ptr<Missi
     }
     return true;
 }
+
+void MissionListManager::CallRequestDone(const std::shared_ptr<AbilityRecord> &abilityRecord,
+    const sptr<IRemoteObject> &callStub)
+{
+    std::lock_guard guard(managerLock_);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("ability record is null.");
+        return;
+    }
+    if (callStub == nullptr) {
+        HILOG_ERROR("call stub is null.");
+        return;
+    }
+    abilityRecord->CallRequestDone(callStub);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
