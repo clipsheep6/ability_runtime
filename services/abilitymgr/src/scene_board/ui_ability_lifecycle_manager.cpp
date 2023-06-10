@@ -31,6 +31,7 @@ constexpr char EVENT_KEY_PID[] = "PID";
 constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
+const std::string DLP_INDEX = "ohos.dlp.params.index";
 #ifdef SUPPORT_ASAN
 const int KILL_TIMEOUT_MULTIPLE = 45;
 #else
@@ -77,6 +78,7 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
         uiAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
     }
 
+    ReportEventToSuspendManager(abilityRequest.abilityInfo);
     UpdateAbilityRecordLaunchReason(abilityRequest, uiAbilityRecord);
     sptr<AppExecFwk::IAbilityInfoCallback> abilityInfoCallback
         = iface_cast<AppExecFwk::IAbilityInfoCallback>(abilityRequest.abilityInfoCallback);
@@ -146,6 +148,35 @@ int UIAbilityLifecycleManager::AbilityTransactionDone(const sptr<IRemoteObject> 
     }
 
     return DispatchState(abilityRecord, targetState);
+}
+
+int UIAbilityLifecycleManager::NotifySCBToStartUIAbility(const AbilityRequest &abilityRequest)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("Call.");
+    std::lock_guard<std::mutex> guard(sessionLock_);
+    sptr<SessionInfo> sessionInfo = new SessionInfo();
+    sessionInfo->callerToken = abilityRequest.callerToken;
+    sessionInfo->want = abilityRequest.want;
+    sessionInfo->requestCode = abilityRequest.requestCode;
+    if (abilityRequest.startRecent) {
+        sessionInfo->persistentId = GetPersistentIdByAbilityRequest(abilityRequest);
+    }
+
+    auto abilityRecord = GetAbilityRecordByToken(abilityRequest.callerToken);
+    if (abilityRecord == nullptr) {
+        CHECK_POINTER_AND_RETURN(rootSceneSession_, ERR_INVALID_VALUE);
+        HILOG_INFO("Call PendingSessionActivation.");
+        rootSceneSession_->PendingSessionActivation(sessionInfo);
+    } else {
+        auto callerSessionInfo = abilityRecord->GetSessionInfo();
+        CHECK_POINTER_AND_RETURN(callerSessionInfo, ERR_INVALID_VALUE);
+        CHECK_POINTER_AND_RETURN(callerSessionInfo->sessionToken, ERR_INVALID_VALUE);
+        HILOG_INFO("Call PendingSessionActivation.");
+        auto callerSession = iface_cast<Rosen::ISession>(callerSessionInfo->sessionToken);
+        callerSession->PendingSessionActivation(sessionInfo);
+    }
+    return ERR_OK;
 }
 
 int UIAbilityLifecycleManager::DispatchState(const std::shared_ptr<AbilityRecord> &abilityRecord, int state)
@@ -569,5 +600,88 @@ void UIAbilityLifecycleManager::CompleteTerminate(const std::shared_ptr<AbilityR
     terminateAbilityList_.remove(abilityRecord);
 }
 
+uint64_t UIAbilityLifecycleManager::GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest) const
+{
+    if (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED) {
+        return GetReusedSpecifiedPersistentId(abilityRequest);
+    }
+
+    if (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::STANDARD) {
+        return GetReusedStandardPersistentId(abilityRequest);
+    }
+
+    if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::SINGLETON) {
+        HILOG_WARN("Launch mode is not singleton.");
+        return 0;
+    }
+
+    for (const auto& [first, second] : sessionAbilityMap_) {
+        if (CheckProperties(second, abilityRequest, AppExecFwk::LaunchMode::SINGLETON)) {
+            HILOG_DEBUG("SINGLETON: find.");
+            return first;
+        }
+    }
+
+    HILOG_DEBUG("Not find existed ui ability.");
+    return 0;
+}
+
+uint64_t UIAbilityLifecycleManager::GetReusedSpecifiedPersistentId(const AbilityRequest &abilityRequest) const
+{
+    if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::SPECIFIED) {
+        HILOG_WARN("Not SPECIFIED.");
+        return 0;
+    }
+
+    // specified ability name and bundle name and module name and appIndex format is same as singleton.
+    for (const auto& [first, second] : sessionAbilityMap_) {
+        if (second->GetSpecifiedFlag() == abilityRequest.specifiedFlag &&
+            CheckProperties(second, abilityRequest, AppExecFwk::LaunchMode::SPECIFIED)) {
+            HILOG_DEBUG("SPECIFIED: find.");
+            return first;
+        }
+    }
+    return 0;
+}
+
+uint64_t UIAbilityLifecycleManager::GetReusedStandardPersistentId(const AbilityRequest &abilityRequest) const
+{
+    if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::STANDARD) {
+        HILOG_WARN("Not STANDARD.");
+        return 0;
+    }
+
+    if (!abilityRequest.startRecent) {
+        HILOG_WARN("startRecent is false.");
+        return 0;
+    }
+
+    int64_t sessionTime = 0;
+    uint64_t persistantId = 0;
+    for (const auto& [first, second] : sessionAbilityMap_) {
+        if (CheckProperties(second, abilityRequest, AppExecFwk::LaunchMode::STANDARD) &&
+            second->GetRestartTime() >= sessionTime) {
+            persistantId = first;
+            sessionTime = second->GetRestartTime();
+        }
+    }
+    return persistantId;
+}
+
+bool UIAbilityLifecycleManager::CheckProperties(const std::shared_ptr<AbilityRecord> &abilityRecord,
+    const AbilityRequest &abilityRequest, AppExecFwk::LaunchMode launchMode) const
+{
+    const auto& abilityInfo = abilityRecord->GetAbilityInfo();
+    return abilityInfo.launchMode == launchMode && abilityRequest.abilityInfo.name == abilityInfo.name &&
+        abilityRequest.abilityInfo.bundleName == abilityInfo.bundleName &&
+        abilityRequest.abilityInfo.moduleName == abilityInfo.moduleName &&
+        abilityRequest.want.GetIntParam(DLP_INDEX, 0) == abilityRecord->GetAppIndex();
+}
+
+void UIAbilityLifecycleManager::ReportEventToSuspendManager(const AppExecFwk::AbilityInfo &abilityInfo) const
+{
+#ifdef EFFICIENCY_MANAGER_ENABLE
+#endif // EFFICIENCY_MANAGER_ENABLE
+}
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -25,6 +25,7 @@
 #include <sys/epoll.h>
 #endif
 #include <unistd.h>
+#include <dlfcn.h>
 
 #include "accesstoken_kit.h"
 #include "constants.h"
@@ -669,6 +670,10 @@ void JsRuntime::SetAppLibPath(const AppLibPathMap& appLibPaths, const bool& isSy
 
     for (const auto &appLibPath : appLibPaths) {
         moduleManager->SetAppLibPath(appLibPath.first, appLibPath.second, isSystemApp);
+    }
+
+    if (!isSystemApp) {
+        dlns_disable();
     }
 }
 

@@ -32,6 +32,7 @@ bool MissionInfo::ReadFromParcel(Parcel &parcel)
     }
     want = *parcelWant;
     abilityState = parcel.ReadInt32();
+    unclearable = parcel.ReadBool();
     return true;
 }
 
@@ -80,6 +81,10 @@ bool MissionInfo::Marshalling(Parcel &parcel) const
     }
 
     if (!parcel.WriteInt32(abilityState)) {
+        return false;
+    }
+
+    if (!parcel.WriteBool(unclearable)) {
         return false;
     }
     return true;

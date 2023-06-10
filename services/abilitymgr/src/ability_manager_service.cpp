@@ -314,10 +314,7 @@ bool AbilityManagerService::Init()
     InitPrepareTerminateConfig();
 #endif
 
-    auto initConnectionStateManagerTask = []() {
-        DelayedSingleton<ConnectionStateManager>::GetInstance()->Init();
-    };
-    handler_->PostTask(initConnectionStateManagerTask, "InitConnectionStateManager");
+    DelayedSingleton<ConnectionStateManager>::GetInstance()->Init(handler_);
 
     interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
     interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
@@ -637,6 +634,9 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_ERROR("IsAbilityControllerStart failed: %{public}s.", abilityInfo.bundleName.c_str());
         return ERR_WOULD_BLOCK;
     }
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        return uiAbilityLifecycleManager_->NotifySCBToStartUIAbility(abilityRequest);
+    }
     auto missionListManager = GetListManagerByUserId(oriValidUserId);
     if (missionListManager == nullptr) {
         HILOG_ERROR("missionListManager is nullptr. userId=%{public}d", validUserId);
@@ -790,6 +790,10 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         eventInfo.errCode = ERR_WOULD_BLOCK;
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_WOULD_BLOCK;
+    }
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        UpdateCallerInfo(abilityRequest.want, callerToken);
+        return uiAbilityLifecycleManager_->NotifySCBToStartUIAbility(abilityRequest);
     }
     auto missionListManager = GetListManagerByUserId(oriValidUserId);
     if (missionListManager == nullptr) {
@@ -1135,8 +1139,9 @@ int AbilityManagerService::StartUIAbilityBySCB(const Want &want, const StartOpti
         return ERR_INVALID_CALLER;
     }
 
+    auto requestCode = sessionInfo->requestCode;
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        interceptorExecuter_->DoProcess(want, -1, currentUserId, true);
+        interceptorExecuter_->DoProcess(want, requestCode, currentUserId, true);
     if (result != ERR_OK) {
         HILOG_ERROR("interceptorExecuter_ is nullptr or DoProcess return error.");
         eventInfo.errCode = result;
@@ -1145,7 +1150,7 @@ int AbilityManagerService::StartUIAbilityBySCB(const Want &want, const StartOpti
     }
 
     AbilityRequest abilityRequest;
-    result = GenerateAbilityRequest(want, -1, abilityRequest, sessionInfo->callerToken, currentUserId);
+    result = GenerateAbilityRequest(want, requestCode, abilityRequest, sessionInfo->callerToken, currentUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         return result;

@@ -64,7 +64,7 @@ public:
 
     static void Finalizer(NativeEngine* engine, void* data, void* hint)
     {
-        HILOG_INFO("JsAbilityContext::Finalizer is called");
+        HILOG_DEBUG("JsAbilityContext::Finalizer is called");
         std::unique_ptr<JsServiceExtensionContext>(static_cast<JsServiceExtensionContext*>(data));
     }
 
@@ -174,7 +174,6 @@ private:
         if (ret != ERR_OK) {
             HILOG_ERROR("AddFreeInstallObserver failed.");
         } else {
-            HILOG_INFO("AddJsObserverObject");
             // build a callback observer with last param
             std::string bundleName = want.GetElement().GetBundleName();
             std::string abilityName = want.GetElement().GetAbilityName();
@@ -186,7 +185,7 @@ private:
     NativeValue* OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info, bool isStartRecent = false)
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-        HILOG_INFO("OnStartAbility is called");
+        HILOG_INFO("StartAbility");
         if (info.argc < ARGC_ONE) {
             HILOG_ERROR("Start ability failed, not enough params.");
             ThrowTooFewParametersError(engine);
@@ -202,7 +201,7 @@ private:
         }
 
         if (isStartRecent) {
-            HILOG_INFO("OnStartRecentAbility is called");
+            HILOG_DEBUG("OnStartRecentAbility is called");
             want.SetParam(Want::PARAM_RESV_START_RECENT, true);
         }
 
@@ -215,7 +214,7 @@ private:
         auto innerErrorCode = std::make_shared<int>(ERR_OK);
         AsyncTask::ExecuteCallback execute = [weak = context_, want, startOptions, unwrapArgc, innerErrorCode,
             &observer = freeInstallObserver_]() {
-            HILOG_INFO("startAbility begin");
+            HILOG_DEBUG("startAbility begin");
             auto context = weak.lock();
             if (!context) {
                 HILOG_WARN("context is released");
@@ -259,7 +258,7 @@ private:
     NativeValue* OnStartAbilityAsCaller(NativeEngine& engine, NativeCallbackInfo& info)
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-        HILOG_INFO("OnStartAbilityAsCaller is called");
+        HILOG_INFO("StartAbilityAsCaller");
         if (info.argc < ARGC_ONE) {
             HILOG_ERROR("Start ability as caller failed, not enough params.");
             ThrowTooFewParametersError(engine);
@@ -276,7 +275,7 @@ private:
 
         AsyncTask::CompleteCallback complete =
             [weak = context_, want, startOptions, unwrapArgc](NativeEngine& engine, AsyncTask& task, int32_t status) {
-                HILOG_INFO("startAbility begin");
+                HILOG_DEBUG("startAbility begin");
                 auto context = weak.lock();
                 if (!context) {
                     HILOG_WARN("context is released");
@@ -315,7 +314,7 @@ private:
         }
         ++unwrapArgc;
         if (info.argc > ARGC_ONE && info.argv[1]->TypeOf() == NATIVE_OBJECT) {
-            HILOG_INFO("OnStartAbility start options is used.");
+            HILOG_DEBUG("OnStartAbility start options is used.");
             AppExecFwk::UnwrapStartOptions(reinterpret_cast<napi_env>(&engine),
                 reinterpret_cast<napi_value>(info.argv[1]), startOptions);
             unwrapArgc++;
@@ -325,7 +324,7 @@ private:
 
     NativeValue* OnStartAbilityByCall(NativeEngine& engine, const NativeCallbackInfo& info)
     {
-        HILOG_INFO("OnStartAbilityByCall is called.");
+        HILOG_INFO("StartAbilityByCall");
         if (info.argc < ARGC_ONE) {
             HILOG_ERROR("Start ability by call failed, not enough params.");
             ThrowTooFewParametersError(engine);
@@ -359,12 +358,11 @@ private:
         }
 
         if (calls->remoteCallee == nullptr) {
-            HILOG_INFO("OnStartAbilityByCall async wait execute");
+            HILOG_DEBUG("OnStartAbilityByCall async wait execute");
             AsyncTask::Schedule("JsAbilityContext::OnStartAbilityByCall", engine,
                 CreateAsyncTaskWithLastParam(
                     engine, nullptr, GetCallExecute(calls), GetCallComplete(calls), &retsult));
         } else {
-            HILOG_INFO("OnStartAbilityByCall promiss return result execute");
             AsyncTask::Schedule("JSServiceExtensionContext::OnStartAbilityByCall", engine,
                 CreateAsyncTaskWithLastParam(engine, nullptr, nullptr, GetCallComplete(calls), &retsult));
         }
@@ -390,7 +388,7 @@ private:
             }
         }
 
-        HILOG_INFO("Connect ability called, callee:%{public}s.%{public}s.",
+        HILOG_INFO("CheckStartAbilityByCallInputParam, callee:%{public}s.%{public}s.",
             want.GetBundle().c_str(),
             want.GetElement().GetAbilityName().c_str());
         return true;
@@ -468,14 +466,14 @@ private:
     CallerCallBack::OnReleaseClosure GetReleaseListen()
     {
         auto releaseListen = [](const std::string &str) {
-            HILOG_INFO("OnStartAbilityByCall releaseListen is called %{public}s", str.c_str());
+            HILOG_DEBUG("OnStartAbilityByCall releaseListen is called %{public}s", str.c_str());
         };
         return releaseListen;
     }
 
     NativeValue* OnStartAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info)
     {
-        HILOG_INFO("OnStartAbilityWithAccount is called");
+        HILOG_INFO("StartAbilityWithAccount");
         if (info.argc < ARGC_TWO) {
             HILOG_ERROR("Start ability with account failed, not enough params.");
             ThrowTooFewParametersError(engine);
@@ -492,7 +490,7 @@ private:
 
         AAFwk::StartOptions startOptions;
         if (info.argc > ARGC_TWO && info.argv[INDEX_TWO]->TypeOf() == NATIVE_OBJECT) {
-            HILOG_INFO("OnStartAbilityWithAccount start options is used.");
+            HILOG_DEBUG("OnStartAbilityWithAccount start options is used.");
             AppExecFwk::UnwrapStartOptions(reinterpret_cast<napi_env>(&engine),
                 reinterpret_cast<napi_value>(info.argv[INDEX_TWO]), startOptions);
             unwrapArgc++;
@@ -506,7 +504,6 @@ private:
         auto innerErrorCode = std::make_shared<int>(ERR_OK);
         AsyncTask::ExecuteCallback execute = [weak = context_, want, accountId, startOptions, unwrapArgc,
             innerErrorCode, &observer = freeInstallObserver_]() {
-            HILOG_INFO("startAbility begin");
             auto context = weak.lock();
             if (!context) {
                 HILOG_WARN("context is released");
@@ -574,17 +571,16 @@ private:
             HILOG_ERROR("The input accountId is invalid.");
             return false;
         }
-        HILOG_INFO("%{public}d accountId:", accountId);
+        HILOG_DEBUG("%{public}d accountId:", accountId);
         return true;
     }
 
     NativeValue* OnTerminateAbility(NativeEngine& engine, const NativeCallbackInfo& info)
     {
-        HILOG_INFO("OnTerminateAbility is called");
+        HILOG_INFO("TerminateAbility");
 
         AsyncTask::CompleteCallback complete =
             [weak = context_](NativeEngine& engine, AsyncTask& task, int32_t status) {
-                HILOG_INFO("TerminateAbility begin");
                 auto context = weak.lock();
                 if (!context) {
                     HILOG_WARN("context is released");
@@ -609,7 +605,7 @@ private:
 
     NativeValue* OnConnectAbility(NativeEngine& engine, NativeCallbackInfo& info)
     {
-        HILOG_INFO("Connect ability called.");
+        HILOG_DEBUG("ConnectAbility called.");
         // Check params count
         if (info.argc < ARGC_TWO) {
             HILOG_ERROR("Connect ability failed, not enough params.");
@@ -633,7 +629,7 @@ private:
                     task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "Context is released"));
                     return;
                 }
-                HILOG_INFO("ConnectAbility connection:%{public}d", static_cast<int32_t>(connectId));
+                HILOG_DEBUG("ConnectAbility connection:%{public}d", static_cast<int32_t>(connectId));
                 auto innerErrorCode = context->ConnectAbility(want, connection);
                 int32_t errcode = static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(innerErrorCode));
                 if (errcode) {
@@ -649,7 +645,7 @@ private:
 
     NativeValue* OnConnectAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info)
     {
-        HILOG_INFO("OnConnectAbilityWithAccount is called");
+        HILOG_INFO("ConnectAbilityWithAccount");
         // Check params count
         if (info.argc < ARGC_THREE) {
             HILOG_ERROR("Connect ability failed, not enough params.");
@@ -676,7 +672,7 @@ private:
                         task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "Context is released"));
                         return;
                     }
-                    HILOG_INFO("ConnectAbilityWithAccount connection:%{public}d", static_cast<int32_t>(connectId));
+                    HILOG_DEBUG("ConnectAbilityWithAccount connection:%{public}d", static_cast<int32_t>(connectId));
                     auto innerErrorCode = context->ConnectAbilityWithAccount(want, accountId, connection);
                     int32_t errcode = static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(innerErrorCode));
                     if (errcode) {
@@ -722,13 +718,13 @@ private:
         } else {
             serialNumber_ = 0;
         }
-        HILOG_INFO("%{public}s not find connection, make new one", __func__);
+        HILOG_DEBUG("not find connection, make new one");
         return true;
     }
 
     NativeValue* OnDisconnectAbility(NativeEngine& engine, NativeCallbackInfo& info)
     {
-        HILOG_INFO("OnDisconnectAbility is called");
+        HILOG_INFO("DisconnectAbility");
         if (info.argc < ARGC_ONE) {
             HILOG_ERROR("Disconnect ability failed, not enough params.");
             ThrowTooFewParametersError(engine);
@@ -747,7 +743,6 @@ private:
         AsyncTask::CompleteCallback complete =
             [weak = context_, want, connection](
                 NativeEngine& engine, AsyncTask& task, int32_t status) {
-                HILOG_INFO("OnDisconnectAbility begin");
                 auto context = weak.lock();
                 if (!context) {
                     HILOG_WARN("context is released");
@@ -759,7 +754,7 @@ private:
                     task.Reject(engine, CreateJsError(engine, ERROR_CODE_TWO, "not found connection"));
                     return;
                 }
-                HILOG_INFO("context->DisconnectAbility");
+                HILOG_DEBUG("context->DisconnectAbility");
                 auto innerErrorCode = context->DisconnectAbility(want, connection);
                 if (innerErrorCode == 0) {
                     task.Resolve(engine, engine.CreateUndefined());
@@ -800,16 +795,14 @@ private:
             // match id
             want = item->first.want;
             connection = item->second;
-            HILOG_INFO("%{public}s find conn ability exist", __func__);
-        } else {
-            HILOG_INFO("%{public}s can not find conn.", __func__);
+            HILOG_DEBUG("find conn ability exist");
         }
         return;
     }
 
     NativeValue* OnStartExtensionAbility(NativeEngine& engine, NativeCallbackInfo& info)
     {
-        HILOG_INFO("OnStartExtensionAbility is called.");
+        HILOG_INFO("StartExtensionAbility");
         if (info.argc < ARGC_ONE) {
             HILOG_ERROR("Start extension failed, not enough params.");
             ThrowTooFewParametersError(engine);
@@ -846,7 +839,7 @@ private:
 
     NativeValue* OnStartExtensionAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info)
     {
-        HILOG_INFO("OnStartExtensionAbilityWithAccount is called.");
+        HILOG_INFO("StartExtensionAbilityWithAccount");
         if (info.argc < ARGC_TWO) {
             HILOG_ERROR("Stop extension failed, not enough params.");
             ThrowTooFewParametersError(engine);
@@ -885,7 +878,7 @@ private:
 
     NativeValue* OnStopExtensionAbility(NativeEngine& engine, NativeCallbackInfo& info)
     {
-        HILOG_INFO("OnStopExtensionAbility is called.");
+        HILOG_INFO("StopExtensionAbility");
         if (info.argc < ARGC_ONE) {
             HILOG_ERROR("Start extension failed, not enough params.");
             ThrowTooFewParametersError(engine);
@@ -922,7 +915,7 @@ private:
 
     NativeValue* OnStopExtensionAbilityWithAccount(NativeEngine& engine, const NativeCallbackInfo& info)
     {
-        HILOG_INFO("OnStopExtensionAbilityWithAccount is called.");
+        HILOG_INFO("StopExtensionAbilityWithAccount");
         if (info.argc < ARGC_TWO) {
             HILOG_ERROR("Stop extension failed, not enough params.");
             ThrowTooFewParametersError(engine);
@@ -963,7 +956,7 @@ private:
 
 NativeValue* CreateJsMetadata(NativeEngine& engine, const AppExecFwk::Metadata &info)
 {
-    HILOG_INFO("CreateJsMetadata");
+    HILOG_DEBUG("CreateJsMetadata");
     NativeValue* objValue = engine.CreateObject();
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
 
@@ -975,7 +968,7 @@ NativeValue* CreateJsMetadata(NativeEngine& engine, const AppExecFwk::Metadata &
 
 NativeValue* CreateJsMetadataArray(NativeEngine& engine, const std::vector<AppExecFwk::Metadata> &info)
 {
-    HILOG_INFO("CreateJsMetadataArray");
+    HILOG_DEBUG("CreateJsMetadataArray");
     NativeValue* arrayValue = engine.CreateArray(info.size());
     NativeArray* array = ConvertNativeValueTo<NativeArray>(arrayValue);
     uint32_t index = 0;
@@ -987,7 +980,7 @@ NativeValue* CreateJsMetadataArray(NativeEngine& engine, const std::vector<AppEx
 
 NativeValue* CreateJsServiceExtensionContext(NativeEngine& engine, std::shared_ptr<ServiceExtensionContext> context)
 {
-    HILOG_INFO("CreateJsServiceExtensionContext begin");
+    HILOG_DEBUG("CreateJsServiceExtensionContext");
     std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo = nullptr;
     if (context) {
         abilityInfo = context->GetAbilityInfo();
@@ -1090,7 +1083,7 @@ int64_t JSServiceExtensionConnection::GetConnectionId()
 void JSServiceExtensionConnection::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
     const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
-    HILOG_INFO("OnAbilityConnectDone begin, resultCode:%{public}d", resultCode);
+    HILOG_DEBUG("OnAbilityConnectDone, resultCode:%{public}d", resultCode);
     if (handler_ == nullptr) {
         HILOG_INFO("handler_ nullptr");
         return;
@@ -1110,13 +1103,12 @@ void JSServiceExtensionConnection::OnAbilityConnectDone(const AppExecFwk::Elemen
 void JSServiceExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::ElementName &element,
     const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
-    HILOG_INFO("HandleOnAbilityConnectDone begin, resultCode:%{public}d", resultCode);
+    HILOG_INFO("HandleOnAbilityConnectDone, resultCode:%{public}d", resultCode);
     // wrap ElementName
     napi_value napiElementName = OHOS::AppExecFwk::WrapElementName(reinterpret_cast<napi_env>(&engine_), element);
     NativeValue* nativeElementName = reinterpret_cast<NativeValue*>(napiElementName);
 
     // wrap RemoteObject
-    HILOG_INFO("OnAbilityConnectDone begin NAPI_ohos_rpc_CreateJsRemoteObject");
     napi_value napiRemoteObject = NAPI_ohos_rpc_CreateJsRemoteObject(
         reinterpret_cast<napi_env>(&engine_), remoteObject);
     NativeValue* nativeRemoteObject = reinterpret_cast<NativeValue*>(napiRemoteObject);
@@ -1136,14 +1128,12 @@ void JSServiceExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::
         HILOG_ERROR("Failed to get onConnect from object");
         return;
     }
-    HILOG_INFO("JSServiceExtensionConnection::CallFunction onConnect, success");
     engine_.CallFunction(value, methodOnConnect, argv, ARGC_TWO);
-    HILOG_INFO("OnAbilityConnectDone end");
 }
 
 void JSServiceExtensionConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
 {
-    HILOG_INFO("OnAbilityDisconnectDone begin, resultCode:%{public}d", resultCode);
+    HILOG_DEBUG("OnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
     if (handler_ == nullptr) {
         HILOG_INFO("handler_ nullptr");
         return;
@@ -1163,7 +1153,7 @@ void JSServiceExtensionConnection::OnAbilityDisconnectDone(const AppExecFwk::Ele
 void JSServiceExtensionConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
     int resultCode)
 {
-    HILOG_INFO("HandleOnAbilityDisconnectDone begin, resultCode:%{public}d", resultCode);
+    HILOG_INFO("HandleOnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
     napi_value napiElementName = OHOS::AppExecFwk::WrapElementName(reinterpret_cast<napi_env>(&engine_), element);
     NativeValue* nativeElementName = reinterpret_cast<NativeValue*>(napiElementName);
     NativeValue* argv[] = {nativeElementName};
@@ -1185,7 +1175,7 @@ void JSServiceExtensionConnection::HandleOnAbilityDisconnectDone(const AppExecFw
     }
 
     // release connect
-    HILOG_INFO("OnAbilityDisconnectDone connects_.size:%{public}zu", connects_.size());
+    HILOG_DEBUG("OnAbilityDisconnectDone connects_.size:%{public}zu", connects_.size());
     std::string bundleName = element.GetBundleName();
     std::string abilityName = element.GetAbilityName();
     auto item = std::find_if(connects_.begin(),
@@ -1199,9 +1189,8 @@ void JSServiceExtensionConnection::HandleOnAbilityDisconnectDone(const AppExecFw
     if (item != connects_.end()) {
         // match bundlename && abilityname
         connects_.erase(item);
-        HILOG_INFO("OnAbilityDisconnectDone erase connects_.size:%{public}zu", connects_.size());
+        HILOG_DEBUG("OnAbilityDisconnectDone erase connects_.size:%{public}zu", connects_.size());
     }
-    HILOG_INFO("OnAbilityDisconnectDone CallFunction success");
     engine_.CallFunction(value, method, argv, ARGC_ONE);
 }
 
@@ -1212,7 +1201,7 @@ void JSServiceExtensionConnection::SetJsConnectionObject(NativeValue* jsConnecti
 
 void JSServiceExtensionConnection::CallJsFailed(int32_t errorCode)
 {
-    HILOG_INFO("CallJsFailed begin");
+    HILOG_DEBUG("CallJsFailed begin");
     if (jsConnectionObject_ == nullptr) {
         HILOG_ERROR("jsConnectionObject_ nullptr");
         return;
@@ -1230,9 +1219,8 @@ void JSServiceExtensionConnection::CallJsFailed(int32_t errorCode)
         return;
     }
     NativeValue* argv[] = {engine_.CreateNumber(errorCode)};
-    HILOG_INFO("CallJsFailed CallFunction success");
     engine_.CallFunction(value, method, argv, ARGC_ONE);
-    HILOG_INFO("CallJsFailed end");
+    HILOG_DEBUG("CallJsFailed end");
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

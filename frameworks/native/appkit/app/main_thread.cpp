@@ -140,7 +140,7 @@ bool GetHapSoPath(const HapModuleInfo &hapInfo, AppLibPathMap &appLibPaths, bool
 
     std::string libPath = GetLibPath(hapInfo.hapPath, isPreInstallApp);
     libPath += (libPath.back() == '/') ? hapInfo.nativeLibraryPath : "/" + hapInfo.nativeLibraryPath;
-    HILOG_INFO("module lib path = %{public}s", libPath.c_str());
+    HILOG_DEBUG("module lib path = %{public}s", libPath.c_str());
     appLibPaths["default"].emplace_back(libPath);
     return true;
 }
@@ -170,7 +170,7 @@ void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppL
         // libraries in patch lib path has a higher priority when loading.
         std::string patchLibPath = LOCAL_CODE_PATH;
         patchLibPath += (patchLibPath.back() == '/') ? patchNativeLibraryPath : "/" + patchNativeLibraryPath;
-        HILOG_INFO("napi patch lib path = %{private}s", patchLibPath.c_str());
+        HILOG_DEBUG("napi patch lib path = %{private}s", patchLibPath.c_str());
         appLibPaths["default"].emplace_back(patchLibPath);
     }
 
@@ -181,7 +181,7 @@ void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppL
         }
         std::string libPath = LOCAL_CODE_PATH;
         libPath += (libPath.back() == '/') ? nativeLibraryPath : "/" + nativeLibraryPath;
-        HILOG_INFO("napi lib path = %{private}s", libPath.c_str());
+        HILOG_DEBUG("napi lib path = %{private}s", libPath.c_str());
         appLibPaths["default"].emplace_back(libPath);
     }
 
@@ -198,7 +198,7 @@ void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppL
         if (!patchNativeLibraryPath.empty()) {
             std::string patchLibPath = LOCAL_CODE_PATH;
             patchLibPath += (patchLibPath.back() == '/') ? patchNativeLibraryPath : "/" + patchNativeLibraryPath;
-            HILOG_INFO("name: %{public}s, patch lib path = %{private}s", hapInfo.name.c_str(), patchLibPath.c_str());
+            HILOG_DEBUG("name: %{public}s, patch lib path = %{private}s", hapInfo.name.c_str(), patchLibPath.c_str());
             appLibPaths[appLibPathKey].emplace_back(patchLibPath);
         }
         if (GetHapSoPath(hapInfo, appLibPaths, bundleInfo.isPreInstallApp)) {
@@ -238,7 +238,7 @@ void AppMgrDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 
 MainThread::MainThread()
 {
-    HILOG_INFO("MainThread::MainThread call constructor.");
+    HILOG_INFO("MainThread");
 #ifdef ABILITY_LIBRARY_LOADER
     fileEntries_.clear();
     nativeFileEntries_.clear();
@@ -248,7 +248,7 @@ MainThread::MainThread()
 
 MainThread::~MainThread()
 {
-    HILOG_INFO("MainThread::MainThread call destructor.");
+    HILOG_INFO("~MainThread");
     if (watchdog_ != nullptr && !watchdog_->IsStopWatchdog()) {
         watchdog_->Stop();
         watchdog_ = nullptr;
@@ -375,13 +375,12 @@ bool MainThread::ConnectToAppMgr()
 void MainThread::Attach()
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("MainThread attach called.");
+    HILOG_DEBUG("Attach");
     if (!ConnectToAppMgr()) {
         HILOG_ERROR("attachApplication failed");
         return;
     }
     mainThreadState_ = MainThreadState::ATTACH;
-    HILOG_DEBUG("MainThread::attach end");
 }
 
 /**
@@ -391,7 +390,7 @@ void MainThread::Attach()
  */
 void MainThread::RemoveAppMgrDeathRecipient()
 {
-    HILOG_DEBUG("MainThread::RemoveAppMgrDeathRecipient called begin");
+    HILOG_DEBUG("RemoveAppMgrDeathRecipient");
     if (appMgr_ == nullptr) {
         HILOG_ERROR("MainThread::RemoveAppMgrDeathRecipient failed");
         return;
@@ -403,7 +402,6 @@ void MainThread::RemoveAppMgrDeathRecipient()
     } else {
         HILOG_ERROR("appMgr_->AsObject() failed");
     }
-    HILOG_DEBUG("end");
 }
 
 /**
@@ -425,7 +423,7 @@ std::shared_ptr<EventHandler> MainThread::GetMainHandler() const
 void MainThread::ScheduleForegroundApplication()
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("Schedule the application to foreground begin.");
+    HILOG_DEBUG("ScheduleForegroundApplication");
     wptr<MainThread> weak = this;
     auto task = [weak]() {
         auto appThread = weak.promote();
@@ -439,7 +437,6 @@ void MainThread::ScheduleForegroundApplication()
         HILOG_ERROR("PostTask task failed");
     }
     watchdog_->SetBackgroundStatus(false);
-    HILOG_DEBUG("Schedule the application to foreground end.");
 }
 
 /**
@@ -449,7 +446,7 @@ void MainThread::ScheduleForegroundApplication()
  */
 void MainThread::ScheduleBackgroundApplication()
 {
-    HILOG_DEBUG("MainThread::scheduleBackgroundApplication called begin");
+    HILOG_DEBUG("ScheduleBackgroundApplication");
     wptr<MainThread> weak = this;
     auto task = [weak]() {
         auto appThread = weak.promote();
@@ -463,7 +460,6 @@ void MainThread::ScheduleBackgroundApplication()
         HILOG_ERROR("MainThread::ScheduleBackgroundApplication PostTask task failed");
     }
     watchdog_->SetBackgroundStatus(true);
-    HILOG_DEBUG("MainThread::scheduleBackgroundApplication called end.");
 }
 
 /**
@@ -473,7 +469,7 @@ void MainThread::ScheduleBackgroundApplication()
  */
 void MainThread::ScheduleTerminateApplication()
 {
-    HILOG_DEBUG("MainThread::scheduleTerminateApplication called begin");
+    HILOG_DEBUG("ScheduleTerminateApplication");
     wptr<MainThread> weak = this;
     auto task = [weak]() {
         auto appThread = weak.promote();
@@ -486,7 +482,6 @@ void MainThread::ScheduleTerminateApplication()
     if (!mainHandler_->PostTask(task)) {
         HILOG_ERROR("MainThread::ScheduleTerminateApplication PostTask task failed");
     }
-    HILOG_DEBUG("MainThread::scheduleTerminateApplication called.");
 }
 
 /**
@@ -510,7 +505,6 @@ void MainThread::ScheduleShrinkMemory(const int level)
     if (!mainHandler_->PostTask(task)) {
         HILOG_ERROR("MainThread::ScheduleShrinkMemory PostTask task failed");
     }
-    HILOG_DEBUG("scheduleShrinkMemory level: %{public}d end.", level);
 }
 
 /**
@@ -534,7 +528,6 @@ void MainThread::ScheduleMemoryLevel(const int level)
     if (!mainHandler_->PostTask(task)) {
         HILOG_ERROR("MainThread::ScheduleMemoryLevel PostTask task failed");
     }
-    HILOG_DEBUG("MainThread::ScheduleMemoryLevel level: %{public}d end.", level);
 }
 
 /**
@@ -626,7 +619,7 @@ void MainThread::ScheduleLaunchApplication(const AppLaunchData &data, const Conf
  */
 void MainThread::ScheduleUpdateApplicationInfoInstalled(const ApplicationInfo &appInfo)
 {
-    HILOG_DEBUG("MainThread::ScheduleUpdateApplicationInfoInstalled start");
+    HILOG_DEBUG("ScheduleUpdateApplicationInfoInstalled");
     wptr<MainThread> weak = this;
     auto task = [weak, appInfo]() {
         auto appThread = weak.promote();
@@ -639,12 +632,11 @@ void MainThread::ScheduleUpdateApplicationInfoInstalled(const ApplicationInfo &a
     if (!mainHandler_->PostTask(task)) {
         HILOG_ERROR("MainThread::ScheduleUpdateApplicationInfoInstalled PostTask task failed");
     }
-    HILOG_DEBUG("MainThread::ScheduleUpdateApplicationInfoInstalled end.");
 }
 
 void MainThread::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
 {
-    HILOG_DEBUG("MainThread::ScheduleAbilityStageInfo start");
+    HILOG_DEBUG("ScheduleAbilityStage");
     wptr<MainThread> weak = this;
     auto task = [weak, abilityStage]() {
         auto appThread = weak.promote();
@@ -657,7 +649,6 @@ void MainThread::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
     if (!mainHandler_->PostTask(task)) {
         HILOG_ERROR("MainThread::ScheduleAbilityStageInfo PostTask task failed");
     }
-    HILOG_DEBUG("MainThread::ScheduleAbilityStageInfo end.");
 }
 
 void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemoteObject> &token,
@@ -729,7 +720,7 @@ void MainThread::ScheduleProfileChanged(const Profile &profile)
  */
 void MainThread::ScheduleConfigurationUpdated(const Configuration &config)
 {
-    HILOG_DEBUG("MainThread::ScheduleConfigurationUpdated called start.");
+    HILOG_DEBUG("ScheduleConfigurationUpdated");
     wptr<MainThread> weak = this;
     auto task = [weak, config]() {
         auto appThread = weak.promote();
@@ -742,7 +733,6 @@ void MainThread::ScheduleConfigurationUpdated(const Configuration &config)
     if (!mainHandler_->PostTask(task)) {
         HILOG_ERROR("MainThread::ScheduleConfigurationUpdated PostTask task failed");
     }
-    HILOG_DEBUG("MainThread::ScheduleConfigurationUpdated called end.");
 }
 
 bool MainThread::CheckLaunchApplicationParam(const AppLaunchData &appLaunchData) const
@@ -799,7 +789,7 @@ bool MainThread::CheckAbilityItem(const std::shared_ptr<AbilityLocalRecord> &rec
  */
 void MainThread::HandleTerminateApplicationLocal()
 {
-    HILOG_DEBUG("MainThread::HandleTerminateApplicationLocal called start.");
+    HILOG_DEBUG("HandleTerminateApplicationLocal");
     if (application_ == nullptr) {
         HILOG_ERROR("MainThread::HandleTerminateApplicationLocal error!");
         return;
@@ -828,7 +818,6 @@ void MainThread::HandleTerminateApplicationLocal()
     }
     HILOG_DEBUG("runner is stopped");
     SetRunnerStarted(false);
-    HILOG_DEBUG("MainThread::HandleTerminateApplicationLocal called end.");
 }
 
 /**
@@ -839,7 +828,7 @@ void MainThread::HandleTerminateApplicationLocal()
 void MainThread::HandleProcessSecurityExit()
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("MainThread::HandleProcessSecurityExit called start.");
+    HILOG_DEBUG("HandleProcessSecurityExit");
     if (abilityRecordMgr_ == nullptr) {
         HILOG_ERROR("MainThread::HandleProcessSecurityExit abilityRecordMgr_ is null");
         return;
@@ -852,7 +841,6 @@ void MainThread::HandleProcessSecurityExit()
     }
 
     HandleTerminateApplicationLocal();
-    HILOG_DEBUG("MainThread::HandleProcessSecurityExit called end.");
 }
 
 bool MainThread::InitCreate(
@@ -969,7 +957,7 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
                 wptr<MainThread> weak = this;
                 auto callback = [weak, resourceManager, bundleName, moduleName = entryHapModuleInfo.moduleName,
                     loadPath](const EventFwk::CommonEventData &data) {
-                    HILOG_INFO("On overlay changed.");
+                    HILOG_DEBUG("On overlay changed.");
                     auto appThread = weak.promote();
                     if (appThread == nullptr) {
                         HILOG_ERROR("abilityThread is nullptr, SetRunnerStarted failed.");
@@ -979,7 +967,7 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
                 };
                 auto subscriber = std::make_shared<OverlayEventSubscriber>(subscribeInfo, callback);
                 bool subResult = EventFwk::CommonEventManager::SubscribeCommonEvent(subscriber);
-                HILOG_INFO("Overlay event subscriber register result is %{public}d", subResult);
+                HILOG_DEBUG("Overlay event subscriber register result is %{public}d", subResult);
             }
         }
     }
@@ -993,8 +981,6 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     if (localeInfo != nullptr) {
         HILOG_INFO("Language: %{public}s, script: %{public}s, region: %{public}s",
             localeInfo->getLanguage(), localeInfo->getScript(), localeInfo->getCountry());
-    } else {
-        HILOG_INFO("LocaleInfo is nullptr.");
     }
 #endif
     std::string colormode = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
@@ -1362,15 +1348,12 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         HILOG_ERROR("MainThread::handleLaunchApplication create resourceManager failed");
         return;
     }
-    HILOG_DEBUG("MainThread handle launch application, CreateResourceManager End.");
 
-    HILOG_DEBUG("MainThread handle launch application, InitResourceManager Start.");
     if (!InitResourceManager(resourceManager, entryHapModuleInfo, bundleInfo.name,
         bundleInfo.applicationInfo.multiProjects, config)) {
         HILOG_ERROR("MainThread::handleLaunchApplication InitResourceManager failed");
         return;
     }
-    HILOG_DEBUG("MainThread handle launch application, InitResourceManager End.");
     contextImpl->SetResourceManager(resourceManager);
     AbilityBase::ExtractResourceManager::GetExtractResourceManager().SetGlobalObject(resourceManager);
 
@@ -1424,7 +1407,6 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         OHOS::NWeb::NWebHelper::TryPreReadLib(isFirstStartUpWeb, app->GetAppContext()->GetBundleCodeDir());
     }).detach();
 #endif
-    HILOG_DEBUG("MainThread::handleLaunchApplication called end.");
 }
 
 #ifdef ABILITY_LIBRARY_LOADER
@@ -1709,7 +1691,7 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
         HILOG_ERROR("Want is nullptr, cant not get abilityName.");
     }
     HITRACE_METER_NAME(HITRACE_TAG_APP, traceName);
-    HILOG_DEBUG("MainThread::handleLaunchAbility called start.");
+    HILOG_DEBUG("HandleLaunchAbility called start.");
     CHECK_POINTER_LOG(applicationImpl_, "MainThread::HandleLaunchAbility applicationImpl_ is null");
     CHECK_POINTER_LOG(abilityRecordMgr_, "MainThread::HandleLaunchAbility abilityRecordMgr_ is null");
 
@@ -1816,7 +1798,6 @@ void MainThread::HandleCleanAbilityLocal(const sptr<IRemoteObject> &token)
         HILOG_WARN("runner not found");
     }
 #endif
-    HILOG_DEBUG("end.");
 }
 
 /**
@@ -1829,7 +1810,12 @@ void MainThread::HandleCleanAbilityLocal(const sptr<IRemoteObject> &token)
 void MainThread::HandleCleanAbility(const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    if (applicationInfo_ == nullptr) {
+        HILOG_ERROR("applicationInfo is null");
+        return;
+    }
     HILOG_DEBUG("Handle clean ability start, app is %{public}s.", applicationInfo_->name.c_str());
+    
     if (!IsApplicationReady()) {
         HILOG_ERROR("not init OHOSApplication, should launch application first");
         return;
@@ -1922,8 +1908,6 @@ void MainThread::HandleBackgroundApplication()
         return;
     }
     appMgr_->ApplicationBackgrounded(applicationImpl_->GetRecordId());
-
-    HILOG_DEBUG("MainThread::handleBackgroundApplication called end");
 }
 
 /**
@@ -1966,7 +1950,6 @@ void MainThread::HandleTerminateApplication()
     }
     SetRunnerStarted(false);
     appMgr_->ApplicationTerminated(applicationImpl_->GetRecordId());
-    HILOG_DEBUG("MainThread::handleTerminateApplication called end.");
 }
 
 /**
@@ -1987,7 +1970,6 @@ void MainThread::HandleShrinkMemory(const int level)
     }
 
     applicationImpl_->PerformMemoryLevel(level);
-    HILOG_DEBUG("MainThread::HandleShrinkMemory called end.");
 }
 
 /**
@@ -2008,7 +1990,6 @@ void MainThread::HandleMemoryLevel(int level)
     }
 
     application_->OnMemoryLevel(level);
-    HILOG_DEBUG("MainThread::HandleMemoryLevel called end.");
 }
 
 /**
@@ -2029,7 +2010,6 @@ void MainThread::HandleConfigurationUpdated(const Configuration &config)
     }
 
     applicationImpl_->PerformConfigurationUpdated(config);
-    HILOG_DEBUG("MainThread::HandleConfigurationUpdated called end.");
 }
 
 void MainThread::TaskTimeoutDetected(const std::shared_ptr<EventRunner> &runner)
@@ -2051,7 +2031,6 @@ void MainThread::TaskTimeoutDetected(const std::shared_ptr<EventRunner> &runner)
         runner->SetDistributeTimeout(DISTRIBUTE_TIME);
         mainHandler_->SetDistributeTimeoutCallback(distributeTimeoutCallback);
     }
-    HILOG_DEBUG("MainThread::TaskTimeoutDetected called end.");
 }
 
 void MainThread::Init(const std::shared_ptr<EventRunner> &runner)
@@ -2078,7 +2057,6 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner)
 
     watchdog_->Init(mainHandler_);
     extensionConfigMgr_->Init();
-    HILOG_DEBUG("MainThread:Init end.");
 }
 
 void MainThread::HandleSignal(int signal)
@@ -2151,7 +2129,6 @@ void MainThread::Start()
     }
 
     thread->RemoveAppMgrDeathRecipient();
-    HILOG_DEBUG("MainThread::main runner stopped");
 }
 
 MainThread::MainHandler::MainHandler(const std::shared_ptr<EventRunner> &runner, const sptr<MainThread> &thread)
@@ -2255,7 +2232,6 @@ void MainThread::LoadAbilityLibrary(const std::vector<std::string> &libraryPaths
         HILOG_INFO("Success to dlopen %{public}s", fileEntry.c_str());
         handleAbilityLib_.emplace_back(handleAbilityLib);
     }
-    HILOG_DEBUG("end.");
 #endif  // ABILITY_LIBRARY_LOADER
 }
 
@@ -2270,7 +2246,6 @@ void MainThread::LoadAppLibrary()
         HILOG_ERROR("Fail to dlopen %{public}s, [%{public}s]", appPath.c_str(), dlerror());
         exit(-1);
     }
-    HILOG_DEBUG("end.");
 #endif  // APPLICATION_LIBRARY_LOADER
 }
 
@@ -2307,7 +2282,6 @@ void MainThread::LoadAppDetailAbilityLibrary(std::string &nativeLibraryPath)
         HILOG_INFO("Success to dlopen %{public}s", fileEntry.c_str());
         handleAbilityLib_.emplace_back(handleAbilityLib);
     }
-    HILOG_DEBUG("LoadAppDetailAbilityLibrary end.");
 #endif // ABILITY_LIBRARY_LOADER
 }
 
@@ -2406,7 +2380,6 @@ void MainThread::ScheduleAcceptWant(const AAFwk::Want &want, const std::string &
     if (!mainHandler_->PostTask(task)) {
         HILOG_ERROR("PostTask task failed");
     }
-    HILOG_DEBUG("end.");
 }
 
 void MainThread::CheckMainThreadIsAlive()
@@ -2597,7 +2570,7 @@ void MainThread::UpdateProcessExtensionType(const std::shared_ptr<AbilityLocalRe
         return;
     }
     runtime->UpdateExtensionType(static_cast<int32_t>(abilityInfo->extensionAbilityType));
-    HILOG_INFO("UpdateExtensionType, type = %{public}d", static_cast<int32_t>(abilityInfo->extensionAbilityType));
+    HILOG_DEBUG("UpdateExtensionType, type = %{public}d", static_cast<int32_t>(abilityInfo->extensionAbilityType));
 }
 
 void MainThread::AddExtensionBlockItem(const std::string &extensionName, int32_t type)

@@ -3372,7 +3372,7 @@ HWTEST_F(AbilityManagerServiceTest, ForceExitApp_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest ForceExitApp_001 start");
     int32_t pid = 0;
-    EXPECT_EQ(abilityMs_->ForceExitApp(pid, REASON_JS_ERROR), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->ForceExitApp(pid, REASON_JS_ERROR), ERR_PERMISSION_DENIED);
     HILOG_INFO("AbilityManagerServiceTest ForceExitApp_001 end");
 }
 }  // namespace AAFwk
