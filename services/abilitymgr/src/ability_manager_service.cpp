@@ -5930,16 +5930,21 @@ void AbilityManagerService::UpdateCallerInfo(Want& want, const sptr<IRemoteObjec
     int32_t tokenId = (int32_t)IPCSkeleton::GetCallingTokenID();
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     int32_t callerPid = IPCSkeleton::GetCallingPid();
+    want.RemoveParam(Want::PARAM_RESV_CALLER_TOKEN);
     want.SetParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId);
+    want.RemoveParam(Want::PARAM_RESV_CALLER_UID);
     want.SetParam(Want::PARAM_RESV_CALLER_UID, callerUid);
+    want.RemoveParam(Want::PARAM_RESV_CALLER_PID);
     want.SetParam(Want::PARAM_RESV_CALLER_PID, callerPid);
 
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     if (!abilityRecord) {
         HILOG_WARN("%{public}s caller abilityRecord is null.", __func__);
+        want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
         want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, std::string(""));
     } else {
         std::string callerBundleName = abilityRecord->GetAbilityInfo().bundleName;
+        want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
         want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerBundleName);
     }
 }
