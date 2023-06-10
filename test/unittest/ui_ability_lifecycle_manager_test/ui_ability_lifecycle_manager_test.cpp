@@ -482,32 +482,32 @@ HWTEST_F(UIAbilityLifecycleManagerTest, CompleteForegroundSuccess_002, TestSize.
 }
 
 /**
- * @tc.name: UIAbilityLifecycleManager_HandleForegroundTimeoutOrFailed_0100
- * @tc.desc: HandleForegroundTimeoutOrFailed
+ * @tc.name: UIAbilityLifecycleManager_HandleForegroundFailed_0100
+ * @tc.desc: HandleForegroundOrFailed
  * @tc.type: FUNC
  */
-HWTEST_F(UIAbilityLifecycleManagerTest, HandleForegroundTimeoutOrFailed_001, TestSize.Level1)
+HWTEST_F(UIAbilityLifecycleManagerTest, HandleForegroundFailed_001, TestSize.Level1)
 {
     auto mgr = std::make_unique<UIAbilityLifecycleManager>();
     EXPECT_NE(mgr, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = nullptr;
-    mgr->HandleForegroundTimeoutOrFailed(abilityRecord, AbilityState::FOREGROUND_FAILED);
+    mgr->HandleForegroundFailed(abilityRecord, AbilityState::FOREGROUND_FAILED);
     EXPECT_NE(mgr, nullptr);
 }
 
 /**
- * @tc.name: UIAbilityLifecycleManager_HandleForegroundTimeoutOrFailed_0200
- * @tc.desc: HandleForegroundTimeoutOrFailed
+ * @tc.name: UIAbilityLifecycleManager_HandleForegroundFailed_0200
+ * @tc.desc: HandleForegroundFailed
  * @tc.type: FUNC
  */
-HWTEST_F(UIAbilityLifecycleManagerTest, HandleForegroundTimeoutOrFailed_002, TestSize.Level1)
+HWTEST_F(UIAbilityLifecycleManagerTest, HandleForegroundFailed_002, TestSize.Level1)
 {
     auto mgr = std::make_unique<UIAbilityLifecycleManager>();
     EXPECT_NE(mgr, nullptr);
     AbilityRequest abilityRequest;
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     abilityRecord->SetAbilityState(AbilityState::FOREGROUNDING);
-    mgr->HandleForegroundTimeoutOrFailed(abilityRecord, AbilityState::FOREGROUND_FAILED);
+    mgr->HandleForegroundFailed(abilityRecord, AbilityState::FOREGROUND_FAILED);
     EXPECT_NE(mgr, nullptr);
 }
 

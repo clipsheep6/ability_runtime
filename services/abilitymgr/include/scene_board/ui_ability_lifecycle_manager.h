@@ -109,6 +109,20 @@ public:
 
     int NotifySCBToStartUIAbility(const AbilityRequest &abilityRequest);
 
+    /**
+     * @brief handle time out event
+     *
+     * @param msgId the msg id in ability record
+     * @param abilityRecordId the id of ability record
+     */
+    void OnTimeOut(uint32_t msgId, int64_t abilityRecordId);
+
+    /**
+     * @brief handle when ability died
+     *
+     * @param abilityRecord the died ability
+     */
+    void OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord);
 private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
     uint64_t GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest) const;
@@ -123,8 +137,12 @@ private:
     int DispatchForeground(const std::shared_ptr<AbilityRecord> &abilityRecord, bool success,
         AbilityState state = AbilityState::INITIAL);
     void CompleteForegroundSuccess(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    void HandleForegroundTimeoutOrFailed(const std::shared_ptr<AbilityRecord> &ability,
+    void HandleLoadTimeout(const std::shared_ptr<AbilityRecord> &ability);
+    void HandleForegroundFailed(const std::shared_ptr<AbilityRecord> &ability,
         AbilityState state = AbilityState::INITIAL);
+    void HandleForegroundTimeout(const std::shared_ptr<AbilityRecord> &ability);
+    void NotifySCBToHandleException(const std::shared_ptr<AbilityRecord> &ability, int32_t errorCode,
+        std::string errorReason);
     void MoveToBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId);

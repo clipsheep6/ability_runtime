@@ -245,7 +245,7 @@ int UIAbilityLifecycleManager::DispatchForeground(const std::shared_ptr<AbilityR
                 }
                 return;
             }
-            selfObj->HandleForegroundTimeoutOrFailed(abilityRecord, state);
+            selfObj->HandleForegroundFailed(abilityRecord, state);
         };
         handler->PostTask(task);
     }
@@ -312,7 +312,7 @@ void UIAbilityLifecycleManager::CompleteForegroundSuccess(const std::shared_ptr<
     }
 }
 
-void UIAbilityLifecycleManager::HandleForegroundTimeoutOrFailed(const std::shared_ptr<AbilityRecord> &ability,
+void UIAbilityLifecycleManager::HandleForegroundFailed(const std::shared_ptr<AbilityRecord> &ability,
     AbilityState state)
 {
     HILOG_DEBUG("state: %{public}d.", static_cast<int32_t>(state));
@@ -327,10 +327,8 @@ void UIAbilityLifecycleManager::HandleForegroundTimeoutOrFailed(const std::share
         return;
     }
 
-    // notify SCB the ability to fail to foreground
-
     EraseAbilityRecord(ability);
-    // load and foreground timeout, notify appMs force terminate the ability.
+    // foreground failed, notify appMs force terminate the ability
     DelayedSingleton<AppScheduler>::GetInstance()->AttachTimeOut(ability->GetToken());
 }
 
@@ -682,6 +680,98 @@ void UIAbilityLifecycleManager::ReportEventToSuspendManager(const AppExecFwk::Ab
 {
 #ifdef EFFICIENCY_MANAGER_ENABLE
 #endif // EFFICIENCY_MANAGER_ENABLE
+}
+
+void UIAbilityLifecycleManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId)
+{
+    HILOG_DEBUG("call, msgId is %{public}d", msgId);
+    std::lock_guard<std::mutex> guard(sessionLock_);
+    std::shared_ptr<AbilityRecord> abilityRecord;
+    for (auto iter = sessionAbilityMap_.begin(); iter != sessionAbilityMap_.end(); iter++) {
+        if (iter->second != nullptr && iter->second->GetAbilityRecordId() == abilityRecordId) {
+            abilityRecord = iter->second;
+            break;
+        }
+    }
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("failed, ability record is nullptr");
+        return;
+    }
+    HILOG_DEBUG("call, msgId:%{public}d, name:%{public}s", msgId, abilityRecord->GetAbilityInfo().name.c_str());
+
+    PrintTimeOutLog(abilityRecord, msgId);
+    switch (msgId) {
+        case AbilityManagerService::LOAD_TIMEOUT_MSG:
+            HandleLoadTimeout(abilityRecord);
+            break;
+        case AbilityManagerService::FOREGROUND_TIMEOUT_MSG:
+            HandleForegroundTimeout(abilityRecord);
+            break;
+        default:
+            break;
+    }
+}
+
+void UIAbilityLifecycleManager::NotifySCBToHandleException(const std::shared_ptr<AbilityRecord> &abilityRecord,
+    int32_t errorCode, std::string errorReason)
+{
+    HILOG_DEBUG("call");
+    sptr<SessionInfo> info = abilityRecord->GetSessionInfo();
+    info->errorCode = errorCode;
+    info->errorReason = errorReason;
+    auto callerSessionInfo = abilityRecord->GetSessionInfo();
+    CHECK_POINTER(callerSessionInfo);
+    CHECK_POINTER(callerSessionInfo->sessionToken);
+    auto callerSession = iface_cast<Rosen::ISession>(callerSessionInfo->sessionToken);
+    HILOG_INFO("call notifySessionException");
+    callerSession->NotifySessionException(info);
+    EraseAbilityRecord(abilityRecord);
+}
+
+void UIAbilityLifecycleManager::HandleLoadTimeout(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    HILOG_DEBUG("call");
+    std::lock_guard<std::mutex> guard(sessionLock_);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("failed, ability record is nullptr");
+        return;
+    }
+    NotifySCBToHandleException(abilityRecord,
+        static_cast<int32_t>(ErrorLifecycleState::ABILITY_STATE_LOAD_TIMEOUT), "handleLoadTimeout");
+    DelayedSingleton<AppScheduler>::GetInstance()->AttachTimeOut(abilityRecord->GetToken());
+}
+
+void UIAbilityLifecycleManager::HandleForegroundTimeout(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    HILOG_DEBUG("call");
+    std::lock_guard<std::mutex> guard(sessionLock_);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("ability record is nullptr.");
+        return;
+    }
+    if (!abilityRecord->IsAbilityState(AbilityState::FOREGROUNDING)) {
+        HILOG_ERROR("this ability is not foregrounding state.");
+        return;
+    }
+    NotifySCBToHandleException(abilityRecord,
+        static_cast<int32_t>(ErrorLifecycleState::ABILITY_STATE_FOREGROUND_TIMEOUT), "handleForegroundTimeout");
+    DelayedSingleton<AppScheduler>::GetInstance()->AttachTimeOut(abilityRecord->GetToken());
+}
+
+void UIAbilityLifecycleManager::OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord)
+{
+    HILOG_DEBUG("call");
+    std::lock_guard<std::mutex> guard(sessionLock_);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("failed, ability record is nullptr");
+        return;
+    }
+    terminateAbilityList_.push_back(abilityRecord);
+    abilityRecord->SetAbilityState(AbilityState::TERMINATING);
+    NotifySCBToHandleException(abilityRecord, static_cast<int32_t>(ErrorLifecycleState::ABILITY_STATE_DIED),
+        "onAbilityDied");
+    DelayedSingleton<AppScheduler>::GetInstance()->AttachTimeOut(abilityRecord->GetToken());
+    DispatchTerminate(abilityRecord);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

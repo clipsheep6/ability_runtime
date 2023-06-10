@@ -44,6 +44,12 @@ enum AbilityLifeCycleState {
     ABILITY_STATE_DO_NOTHING,
 };
 
+enum class ErrorLifecycleState {
+    ABILITY_STATE_LOAD_TIMEOUT = 0,
+    ABILITY_STATE_FOREGROUND_TIMEOUT,
+    ABILITY_STATE_DIED,
+};
+
 /**
  * @struct LifeCycleStateInfo
  * LifeCycleStateInfo is used to save information about ability life cycle state.
