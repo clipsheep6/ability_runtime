@@ -23,7 +23,6 @@
 #include "ability_manager_errors.h"
 #include "ability_scheduler_proxy.h"
 #include "ability_scheduler_stub.h"
-#include "session/host/include/root_scene_session.h"
 #include "session_info.h"
 
 namespace OHOS {
@@ -181,7 +180,7 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[QUERY_MISSION_VAILD] = &AbilityManagerStub::IsValidMissionIdsInner;
     requestFuncMap_[VERIFY_PERMISSION] = &AbilityManagerStub::VerifyPermissionInner;
     requestFuncMap_[START_UI_ABILITY_BY_SCB] = &AbilityManagerStub::StartUIAbilityBySCBInner;
-    requestFuncMap_[SET_ROOTSSCENESESSION] = &AbilityManagerStub::SetRootSceneSessionInner;
+    requestFuncMap_[SET_ROOT_SCENE_SESSION] = &AbilityManagerStub::SetRootSceneSessionInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -2129,6 +2128,12 @@ int32_t AbilityManagerStub::RecordAppExitReasonInner(MessageParcel &data, Messag
 int AbilityManagerStub::SetRootSceneSessionInner(MessageParcel &data, MessageParcel &reply)
 {
     HILOG_DEBUG("Call.");
+    auto rootSceneSession = data.ReadRemoteObject();
+    if (rootSceneSession == nullptr) {
+        HILOG_ERROR("Read rootSceneSession failed.");
+        return ERR_INVALID_VALUE;
+    }
+    SetRootSceneSession(rootSceneSession);
     return NO_ERROR;
 }
 }  // namespace AAFwk

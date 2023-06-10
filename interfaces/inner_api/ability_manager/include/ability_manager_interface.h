@@ -54,10 +54,6 @@
 #endif
 
 namespace OHOS {
-namespace Rosen {
-class RootSceneSession;
-}  // namespace Rosen
-
 namespace AAFwk {
 constexpr const char* ABILITY_MANAGER_SERVICE_NAME = "AbilityManagerService";
 const int DEFAULT_INVAL_VALUE = -1;
@@ -1005,7 +1001,7 @@ public:
      *
      * @param rootSceneSession Indicates root scene session of SCB.
      */
-    virtual void SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession) {}
+    virtual void SetRootSceneSession(const sptr<IRemoteObject> &rootSceneSession) {}
 
     enum {
         // ipc id 1-1000 for kit
@@ -1188,7 +1184,7 @@ public:
         SEND_ABILITY_RESULT_BY_TOKEN,
 
         // ipc id for set rootSceneSession (64)
-        SET_ROOTSSCENESESSION,
+        SET_ROOT_SCENE_SESSION,
 
         // prepare terminate ability (65)
         PREPARE_TERMINATE_ABILITY,

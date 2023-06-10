@@ -813,7 +813,7 @@ public:
      *
      * @param rootSceneSession Indicates root scene session of SCB.
      */
-    virtual void SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession) override;
+    virtual void SetRootSceneSession(const sptr<IRemoteObject> &rootSceneSession) override;
 
 private:
     template <typename T>

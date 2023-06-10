@@ -24,7 +24,6 @@
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
-#include "session/host/include/root_scene_session.h"
 #include "session_info.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
@@ -1108,7 +1107,7 @@ ErrCode AbilityManagerClient::RecordAppExitReason(Reason exitReason)
     return abms->RecordAppExitReason(exitReason);
 }
 
-void AbilityManagerClient::SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession)
+void AbilityManagerClient::SetRootSceneSession(const sptr<IRemoteObject> &rootSceneSession)
 {
     HILOG_INFO("call");
     auto abms = GetAbilityManager();

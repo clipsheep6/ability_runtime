@@ -19,7 +19,7 @@
 #include <queue>
 
 #include "ability_record.h"
-#include "session/host/include/root_scene_session.h"
+#include "session/host/include/zidl/session_interface.h"
 #include "session_info.h"
 
 namespace OHOS {
@@ -105,10 +105,7 @@ public:
      *
      * @param rootSceneSession Indicates root scene session of SCB.
      */
-    inline void SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession)
-    {
-        rootSceneSession_ = rootSceneSession;
-    }
+    void SetRootSceneSession(const sptr<IRemoteObject> &rootSceneSession);
 
     int NotifySCBToStartUIAbility(const AbilityRequest &abilityRequest);
 
@@ -159,7 +156,7 @@ private:
     mutable std::mutex sessionLock_;
     std::map<uint64_t, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;
     std::list<std::shared_ptr<AbilityRecord>> terminateAbilityList_;
-    sptr<Rosen::RootSceneSession> rootSceneSession_;
+    sptr<Rosen::ISession> rootSceneSession_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

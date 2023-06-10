@@ -39,7 +39,7 @@ uint32_t GetU32Data(const char* ptr)
 
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    uint32_t code = GetU32Data(data) % (IAbilityManager::GET_ABILITY_TOKEN + IAbilityManager::SET_ROOTSSCENESESSION);
+    uint32_t code = GetU32Data(data) % (IAbilityManager::GET_ABILITY_TOKEN + IAbilityManager::SET_ROOT_SCENE_SESSION);
     if (code >IAbilityManager::GET_ABILITY_TOKEN) {
         code = IAbilityManager::GET_ABILITY_TOKEN;
     } else if (code > IAbilityManager::SHARE_DATA_DONE && code != IAbilityManager::GET_ABILITY_TOKEN) {
@@ -57,9 +57,9 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     } else if (code > IAbilityManager::GET_TOP_ABILITY_TOKEN) {
         code = IAbilityManager::START_ABILITY +
             (code % (IAbilityManager::GET_TOP_ABILITY_TOKEN - IAbilityManager::START_ABILITY + 1));
-    } else if (code > IAbilityManager::SET_ROOTSSCENESESSION) {
+    } else if (code > IAbilityManager::SET_ROOT_SCENE_SESSION) {
         code = IAbilityManager::TERMINATE_ABILITY +
-            (code % (IAbilityManager::SET_ROOTSSCENESESSION - IAbilityManager::TERMINATE_ABILITY + 1));
+            (code % (IAbilityManager::SET_ROOT_SCENE_SESSION - IAbilityManager::TERMINATE_ABILITY + 1));
     }
 
     MessageParcel parcel;

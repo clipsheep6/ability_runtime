@@ -723,6 +723,22 @@ void UIAbilityLifecycleManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordI
     }
 }
 
+void UIAbilityLifecycleManager::SetRootSceneSession(const sptr<IRemoteObject> &rootSceneSession)
+{
+    HILOG_DEBUG("call");
+    if (rootSceneSession == nullptr) {
+        HILOG_ERROR("rootSceneSession is invalid.");
+        return;
+    }
+    auto tmpSceneSession = iface_cast<Rosen::ISession>(rootSceneSession);
+    auto descriptor = Str16ToStr8(tmpSceneSession->GetDescriptor());
+    if (descriptor != "OHOS.ISession") {
+        HILOG_ERROR("token's Descriptor: %{public}s", descriptor.c_str());
+        return;
+    }
+    rootSceneSession_ = tmpSceneSession;
+}
+
 void UIAbilityLifecycleManager::NotifySCBToHandleException(const std::shared_ptr<AbilityRecord> &abilityRecord,
     int32_t errorCode, std::string errorReason)
 {
