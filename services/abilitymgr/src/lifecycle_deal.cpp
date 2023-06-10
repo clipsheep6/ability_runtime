@@ -51,13 +51,14 @@ void LifecycleDeal::Activate(const Want &want, LifeCycleStateInfo &stateInfo)
     abilityScheduler->ScheduleAbilityTransaction(want, stateInfo);
 }
 
-void LifecycleDeal::Inactivate(const Want &want, LifeCycleStateInfo &stateInfo)
+void LifecycleDeal::Inactivate(const Want &want, LifeCycleStateInfo &stateInfo,
+    , sptr<SessionInfo> sessionInfo = nullptr)
 {
     HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_INACTIVE;
-    abilityScheduler->ScheduleAbilityTransaction(want, stateInfo);
+    abilityScheduler->ScheduleAbilityTransaction(want, stateInfo, sessionInfo);
 }
 
 void LifecycleDeal::MoveToBackground(const Want &want, LifeCycleStateInfo &stateInfo)

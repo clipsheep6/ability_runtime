@@ -46,7 +46,7 @@ public:
      *
      */
     void Activate(const Want &want, LifeCycleStateInfo &stateInfo);
-    void Inactivate(const Want &want, LifeCycleStateInfo &stateInfo);
+    void Inactivate(const Want &want, LifeCycleStateInfo &stateInfo, sptr<SessionInfo> sessionInfo = nullptr);
     void MoveToBackground(const Want &want, LifeCycleStateInfo &stateInfo);
     void ConnectAbility(const Want &want);
     void DisconnectAbility(const Want &want);

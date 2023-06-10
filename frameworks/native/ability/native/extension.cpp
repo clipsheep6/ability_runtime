@@ -46,6 +46,14 @@ void Extension::OnStart(const AAFwk::Want &want)
     SetLastRequestWant(want);
 }
 
+void Extension::OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_INFO("extension:%{public}s.", abilityInfo_->name.c_str());
+    SetLaunchWant(want);
+    SetLastRequestWant(want);
+}
+
 void Extension::OnStop()
 {
     HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
