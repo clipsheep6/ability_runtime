@@ -194,7 +194,10 @@ void MissionListenerController::NotifyMissionMovedToFront(int32_t missionId)
 
 void MissionListenerController::NotifyMissionFocused(int32_t missionId)
 {
-    HILOG_INFO("Notify mission focused, missionId:%{public}d", missionId);
+    if (missionId == -1) {
+        return;
+    }
+
     if (!handler_) {
         HILOG_ERROR("handler is null");
         return;
@@ -205,7 +208,7 @@ void MissionListenerController::NotifyMissionFocused(int32_t missionId)
             HILOG_ERROR("self is nullptr, NotifyMissionFocused failed");
             return;
         }
-        HILOG_INFO("notify listeners mission is focused, missionId:%{public}d.", missionId);
+        HILOG_INFO("NotifyMissionFocused, missionId:%{public}d.", missionId);
         self->CallListeners(&IMissionListener::OnMissionFocused, missionId);
     };
     handler_->PostTask(task);
@@ -213,7 +216,10 @@ void MissionListenerController::NotifyMissionFocused(int32_t missionId)
 
 void MissionListenerController::NotifyMissionUnfocused(int32_t missionId)
 {
-    HILOG_INFO("Notify mission unfocused, missionId:%{public}d", missionId);
+    if (missionId == -1) {
+        return;
+    }
+
     if (!handler_) {
         HILOG_ERROR("handler is null");
         return;
@@ -224,7 +230,7 @@ void MissionListenerController::NotifyMissionUnfocused(int32_t missionId)
             HILOG_ERROR("self is nullptr, NotifyMissionUnfocused failed");
             return;
         }
-        HILOG_INFO("notify listeners mission is unfocused, missionId:%{public}d.", missionId);
+        HILOG_INFO("NotifyMissionUnfocused, missionId:%{public}d.", missionId);
         self->CallListeners(&IMissionListener::OnMissionUnfocused, missionId);
     };
     handler_->PostTask(task);
@@ -264,7 +270,7 @@ void MissionListenerController::NotifyMissionClosed(int32_t missionId)
             HILOG_ERROR("self is nullptr, NotifyMissionClosed failed.");
             return;
         }
-        HILOG_INFO("notify listeners mission is closed, missionId:%{public}d.", missionId);
+        HILOG_INFO("NotifyMissionClosed, missionId:%{public}d.", missionId);
         self->CallListeners(&IMissionListener::OnMissionClosed, missionId);
     };
     handler_->PostTask(task);
