@@ -23,6 +23,7 @@
 #include "hilog_wrapper.h"
 #include "iservice_registry.h"
 #include "mission_snapshot.h"
+#include "my_mission_listener.h"
 #include "bool_wrapper.h"
 #include "sa_mgr_client.h"
 #include "system_ability_definition.h"
@@ -118,6 +119,7 @@ ErrCode AbilityManagerShellCommand::CreateCommandMap()
         {"force-stop", std::bind(&AbilityManagerShellCommand::RunAsForceStop, this)},
         {"test", std::bind(&AbilityManagerShellCommand::RunAsTestCommand, this)},
         {"process", std::bind(&AbilityManagerShellCommand::RunAsProcessCommand, this)},
+        {"registerMissionListener", std::bind(&AbilityManagerShellCommand::RegisterMissionListener, this)},
 #ifdef ABILITY_COMMAND_FOR_TEST
         {"force-timeout", std::bind(&AbilityManagerShellCommand::RunForceTimeoutForTest, this)},
         {"ApplicationNotResponding", std::bind(&AbilityManagerShellCommand::RunAsSendAppNotRespondingProcessID, this)},
@@ -1415,6 +1417,13 @@ sptr<IAbilityManager> AbilityManagerShellCommand::GetAbilityManagerService()
     }
     sptr<IRemoteObject> remoteObject = systemManager->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
     return iface_cast<IAbilityManager>(remoteObject);
+}
+
+ErrCode AbilityManagerShellCommand::RegisterMissionListener()
+{
+    sptr<IMissionListener> listener = new MyMissionListener();
+    AbilityManagerClient::GetInstance()->RegisterMissionListener(listener);
+    return 0;
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST
