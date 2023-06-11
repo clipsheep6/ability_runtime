@@ -506,12 +506,12 @@ bool JsFormExtension::ConvertFormDataProxy(NativeEngine& engine, NativeValue* js
         HILOG_ERROR("Parse key failed");
         return false;
     }
-    NativeValue* subscribeId = jsObject->GetProperty("subscribeId");
+    NativeValue* subscribeId = jsObject->GetProperty("subscriberId");
     if (subscribeId != nullptr && !ConvertFromJsValue(engine, subscribeId, formDataProxy.subscribeId)) {
-        HILOG_WARN("Parse subscribeId failed, use empty as default value.");
+        HILOG_WARN("Parse subscriberId failed, use empty as default value.");
         formDataProxy.subscribeId = "";
     }
-    HILOG_INFO("key is %{public}s, subscribeId is %{public}s", formDataProxy.key.c_str(),
+    HILOG_INFO("key is %{public}s, subscriberId is %{public}s", formDataProxy.key.c_str(),
         formDataProxy.subscribeId.c_str());
     return true;
 }
