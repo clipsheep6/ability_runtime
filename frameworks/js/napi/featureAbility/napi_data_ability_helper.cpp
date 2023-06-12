@@ -1124,6 +1124,8 @@ void NAPIDataAbilityObserver::CallJsMethod()
         isCallingback_ = true;
     }
     napi_value result[ARGS_TWO] = {nullptr};
+    napi_handle_scope scope;
+    napi_open_handle_scope(env_, &scope);
     result[PARAM0] = GetCallbackErrorValue(env_, NO_ERROR);
     napi_value callback = nullptr;
     napi_value undefined = nullptr;
@@ -1142,6 +1144,7 @@ void NAPIDataAbilityObserver::CallJsMethod()
         }
         isCallingback_ = false;
     }
+    napi_close_handle_scope(env_, scope);
 }
 
 void NAPIDataAbilityObserver::OnChange()
