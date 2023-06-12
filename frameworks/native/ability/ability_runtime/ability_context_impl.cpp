@@ -24,6 +24,9 @@
 #include "hilog_wrapper.h"
 #include "remote_object_wrapper.h"
 #include "request_constants.h"
+#include "scene_board_judgement.h"
+#include "session/host/include/zidl/session_interface.h"
+#include "session_info.h"
 #include "string_wrapper.h"
 #include "want_params_wrapper.h"
 
@@ -261,11 +264,29 @@ ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want& want, 
 {
     HILOG_DEBUG("TerminateAbilityWithResult");
     isTerminating_ = true;
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, resultCode, &want);
-    if (err != ERR_OK) {
-        HILOG_ERROR("TerminateAbilityWithResult. ret=%{public}d", err);
+
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto sessionToken = sessionToken_.promote();
+        if (sessionToken == nullptr) {
+            return ERR_INVALID_VALUE;
+        }
+        sptr<AAFwk::SessionInfo> info = new AAFwk::SessionInfo();
+        info->want = want;
+        info->resultCode = resultCode;
+        auto ifaceSessionToken = iface_cast<Rosen::ISession>(sessionToken);
+        auto err = ifaceSessionToken->TerminateSession(info);
+        HILOG_INFO("TerminateAbilityWithResult. ret=%{public}d", err);
+        return static_cast<int32_t>(err);
+    } else {
+        ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, resultCode, &want);
+        HILOG_INFO("TerminateAbilityWithResult. ret=%{public}d", err);
+        return err;
     }
-    return err;
+}
+
+void AbilityContextImpl::SetWeakSessionToken(const wptr<IRemoteObject>& sessionToken) {
+    HILOG_DEBUG("Start calling SetWeakSessionToken.");
+    sessionToken_ = sessionToken;
 }
 
 void AbilityContextImpl::OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want& resultData)
@@ -409,12 +430,28 @@ ErrCode AbilityContextImpl::TerminateSelf()
 {
     HILOG_DEBUG("TerminateSelf");
     isTerminating_ = true;
-    AAFwk::Want resultWant;
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, -1, &resultWant);
-    if (err != ERR_OK) {
-        HILOG_ERROR("TerminateSelf failed %{public}d", err);
+
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto sessionToken = sessionToken_.promote();
+        if (sessionToken == nullptr) {
+            return ERR_INVALID_VALUE;
+        }
+        HILOG_INFO("TerminateSelf. SCB");
+        AAFwk::Want resultWant;
+        sptr<AAFwk::SessionInfo> info = new AAFwk::SessionInfo();
+        info->want = resultWant;
+        info->resultCode = -1;
+        auto ifaceSessionToken = iface_cast<Rosen::ISession>(sessionToken);
+        auto err = ifaceSessionToken->TerminateSession(info);
+        return static_cast<int32_t>(err);
+    } else {
+        AAFwk::Want resultWant;
+        ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, -1, &resultWant);
+        if (err != ERR_OK) {
+            HILOG_ERROR("AbilityContextImpl::TerminateSelf is failed %{public}d", err);
+        }
+        return err;
     }
-    return err;
 }
 
 ErrCode AbilityContextImpl::CloseAbility()

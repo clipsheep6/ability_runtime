@@ -2591,7 +2591,7 @@ int MissionListManager::SetMissionIcon(const sptr<IRemoteObject> &token, const s
 
 void MissionListManager::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) const
 {
-    StartAsyncTrace(HITRACE_TAG_ABILITY_MANAGER, TRACE_ATOMIC_SERVICE, TRACE_ATOMIC_SERVICE_ID);
+    FinishAsyncTrace(HITRACE_TAG_ABILITY_MANAGER, TRACE_ATOMIC_SERVICE, TRACE_ATOMIC_SERVICE_ID);
     HILOG_DEBUG("CompleteFirstFrameDrawing called.");
     if (!abilityToken) {
         HILOG_WARN("%{public}s ability token is nullptr.", __func__);
@@ -3792,6 +3792,21 @@ bool MissionListManager::CheckPrepareTerminateEnable(const std::shared_ptr<Missi
         return false;
     }
     return true;
+}
+
+void MissionListManager::CallRequestDone(const std::shared_ptr<AbilityRecord> &abilityRecord,
+    const sptr<IRemoteObject> &callStub)
+{
+    std::lock_guard guard(managerLock_);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("ability record is null.");
+        return;
+    }
+    if (callStub == nullptr) {
+        HILOG_ERROR("call stub is null.");
+        return;
+    }
+    abilityRecord->CallRequestDone(callStub);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

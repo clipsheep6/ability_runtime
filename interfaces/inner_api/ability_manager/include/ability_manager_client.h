@@ -1063,7 +1063,7 @@ public:
      *
      * @param rootSceneSession Indicates root scene session of SCB.
      */
-    void SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession);
+    void SetRootSceneSession(const sptr<IRemoteObject> &rootSceneSession);
 
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {

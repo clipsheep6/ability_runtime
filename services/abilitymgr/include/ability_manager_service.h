@@ -1076,7 +1076,7 @@ public:
      *
      * @param rootSceneSession Indicates root scene session of SCB.
      */
-    virtual void SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession) override;
+    virtual void SetRootSceneSession(const sptr<IRemoteObject> &rootSceneSession) override;
 
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;

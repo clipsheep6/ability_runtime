@@ -1919,7 +1919,7 @@ int AbilityManagerService::CloseUIAbilityBySCB(const sptr<SessionInfo> &sessionI
     eventInfo.bundleName = abilityRecord->GetAbilityInfo().bundleName;
     eventInfo.abilityName = abilityRecord->GetAbilityInfo().name;
     EventReport::SendAbilityEvent(EventName::CLOSE_UI_ABILITY_BY_SCB, HiSysEventType::BEHAVIOR, eventInfo);
-    eventInfo.errCode = uiAbilityLifecycleManager_->CloseUIAbility(abilityRecord);
+    eventInfo.errCode = uiAbilityLifecycleManager_->CloseUIAbility(abilityRecord, sessionInfo->resultCode, &(sessionInfo->want));
     if (eventInfo.errCode != ERR_OK) {
         EventReport::SendAbilityEvent(EventName::CLOSE_UI_ABILITY_BY_SCB_ERROR, HiSysEventType::FAULT, eventInfo);
     }
@@ -4284,7 +4284,11 @@ int AbilityManagerService::StopServiceAbility(const Want &want, int32_t userId, 
 void AbilityManagerService::OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord)
 {
     CHECK_POINTER(abilityRecord);
-
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() &&
+        abilityRecord->GetAbilityInfo().type == AbilityType::PAGE) {
+        uiAbilityLifecycleManager_->OnAbilityDied(abilityRecord);
+        return;
+    }
     auto manager = GetListManagerByUserId(abilityRecord->GetOwnerMissionUserId());
     if (manager && abilityRecord->GetAbilityInfo().type == AbilityType::PAGE) {
         ReleaseAbilityTokenMap(abilityRecord->GetToken());
@@ -4480,6 +4484,10 @@ void AbilityManagerService::HandleLoadTimeOut(int64_t abilityRecordId)
 {
     HILOG_DEBUG("Handle load timeout.");
     std::shared_lock<std::shared_mutex> lock(managersMutex_);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        uiAbilityLifecycleManager_->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecordId);
+        return;
+    }
     for (auto& item : missionListManagers_) {
         if (item.second) {
             item.second->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecordId);
@@ -4519,6 +4527,10 @@ void AbilityManagerService::HandleForegroundTimeOut(int64_t abilityRecordId)
 {
     HILOG_DEBUG("Handle foreground timeout.");
     std::shared_lock<std::shared_mutex> lock(managersMutex_);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        uiAbilityLifecycleManager_->OnTimeOut(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecordId);
+        return;
+    }
     for (auto& item : missionListManagers_) {
         if (item.second) {
             item.second->OnTimeOut(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecordId);
@@ -5916,16 +5928,21 @@ void AbilityManagerService::UpdateCallerInfo(Want& want, const sptr<IRemoteObjec
     int32_t tokenId = (int32_t)IPCSkeleton::GetCallingTokenID();
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     int32_t callerPid = IPCSkeleton::GetCallingPid();
+    want.RemoveParam(Want::PARAM_RESV_CALLER_TOKEN);
     want.SetParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId);
+    want.RemoveParam(Want::PARAM_RESV_CALLER_UID);
     want.SetParam(Want::PARAM_RESV_CALLER_UID, callerUid);
+    want.RemoveParam(Want::PARAM_RESV_CALLER_PID);
     want.SetParam(Want::PARAM_RESV_CALLER_PID, callerPid);
 
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     if (!abilityRecord) {
         HILOG_WARN("%{public}s caller abilityRecord is null.", __func__);
+        want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
         want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, std::string(""));
     } else {
         std::string callerBundleName = abilityRecord->GetAbilityInfo().bundleName;
+        want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
         want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerBundleName);
     }
 }
@@ -6871,7 +6888,11 @@ void AbilityManagerService::CallRequestDone(const sptr<IRemoteObject> &token, co
     if (!JudgeSelfCalled(abilityRecord)) {
         return;
     }
-    abilityRecord->CallRequestDone(callStub);
+    if (!currentMissionListManager_) {
+        HILOG_ERROR("currentMissionListManager_ is null.");
+        return;
+    }
+    currentMissionListManager_->CallRequestDone(abilityRecord, callStub);
 }
 
 void AbilityManagerService::GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token)
@@ -7213,7 +7234,7 @@ void AbilityManagerService::RecordAppExitReasonAtUpgrade(const AppExecFwk::Bundl
     }
 }
 
-void AbilityManagerService::SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession)
+void AbilityManagerService::SetRootSceneSession(const sptr<IRemoteObject> &rootSceneSession)
 {
     if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD, U0_USER_ID)) {
         HILOG_ERROR("Not sceneboard called, not allowed.");

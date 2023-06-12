@@ -252,6 +252,8 @@ public:
 
     virtual void RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback) = 0;
 
+    virtual void SetWeakSessionToken(const wptr<IRemoteObject>& sessionToken) = 0;
+
     /**
      * @brief Requests dialogService from the system.
      * This method is called for dialog request. This is an asynchronous method. When it is executed,
