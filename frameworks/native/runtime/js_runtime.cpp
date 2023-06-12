@@ -671,7 +671,10 @@ void JsRuntime::SetAppLibPath(const AppLibPathMap& appLibPaths, const bool& isSy
     }
 
     if (!isSystemApp) {
+        HILOG_ERROR("------------------into disable\r\n");
         dlns_disable();
+    } else {
+        HILOG_ERROR("------------------into un disable\r\n");
     }
 }
 
