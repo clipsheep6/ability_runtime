@@ -758,7 +758,6 @@ void UIAbilityLifecycleManager::NotifySCBToHandleException(const std::shared_ptr
 void UIAbilityLifecycleManager::HandleLoadTimeout(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     HILOG_DEBUG("call");
-    std::lock_guard<std::mutex> guard(sessionLock_);
     if (abilityRecord == nullptr) {
         HILOG_ERROR("failed, ability record is nullptr");
         return;
@@ -771,7 +770,6 @@ void UIAbilityLifecycleManager::HandleLoadTimeout(const std::shared_ptr<AbilityR
 void UIAbilityLifecycleManager::HandleForegroundTimeout(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     HILOG_DEBUG("call");
-    std::lock_guard<std::mutex> guard(sessionLock_);
     if (abilityRecord == nullptr) {
         HILOG_ERROR("ability record is nullptr.");
         return;
