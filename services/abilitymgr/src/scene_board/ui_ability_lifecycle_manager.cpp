@@ -388,7 +388,7 @@ void UIAbilityLifecycleManager::UpdateAbilityRecordLaunchReason(
     const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &abilityRecord) const
 {
     if (abilityRecord == nullptr) {
-        HILOG_ERROR("input record is nullptr.");
+        HILOG_WARN("input record is nullptr.");
         return;
     }
 
