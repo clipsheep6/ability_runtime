@@ -1065,6 +1065,13 @@ public:
      */
     void SetRootSceneSession(const sptr<IRemoteObject> &rootSceneSession);
 
+    /**
+     * Call UIAbility by SCB.
+     *
+     * @param sessionInfo the session info of the ability to be called.
+     */
+    void CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo);
+
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:

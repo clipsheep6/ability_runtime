@@ -1078,6 +1078,13 @@ public:
      */
     virtual void SetRootSceneSession(const sptr<IRemoteObject> &rootSceneSession) override;
 
+    /**
+     * Call UIAbility by SCB.
+     *
+     * @param sessionInfo the session info of the ability to be called.
+     */
+    virtual void CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo) override;
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;

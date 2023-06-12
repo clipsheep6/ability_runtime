@@ -4969,13 +4969,16 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
 
     HILOG_DEBUG("abilityInfo.applicationInfo.singleton is %{public}s",
         abilityRequest.abilityInfo.applicationInfo.singleton ? "true" : "false");
+    UpdateCallerInfo(abilityRequest.want, callerToken);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        return uiAbilityLifecycleManager_->ResolveLocked(abilityRequest);
+    }
 
     auto missionListMgr = GetListManagerByUserId(oriValidUserId);
     if (missionListMgr == nullptr) {
         HILOG_ERROR("missionListMgr is Null. Designated User Id=%{public}d", oriValidUserId);
         return ERR_INVALID_VALUE;
     }
-    UpdateCallerInfo(abilityRequest.want, callerToken);
     ReportEventToSuspendManager(abilityRequest.abilityInfo);
     if (!IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
         return componentRequest.requestResult;
@@ -7253,6 +7256,15 @@ void AbilityManagerService::SetRootSceneSession(const sptr<IRemoteObject> &rootS
         return;
     }
     uiAbilityLifecycleManager_->SetRootSceneSession(rootSceneSession);
+}
+
+void AbilityManagerService::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
+{
+    if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD, U0_USER_ID)) {
+        HILOG_ERROR("Not sceneboard called, not allowed.");
+        return;
+    }
+    uiAbilityLifecycleManager_->CallUIAbilityBySCB(sessionInfo);
 }
 
 bool AbilityManagerService::CheckPrepareTerminateEnable()

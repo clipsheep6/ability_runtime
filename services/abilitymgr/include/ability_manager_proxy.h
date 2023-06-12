@@ -815,6 +815,13 @@ public:
      */
     virtual void SetRootSceneSession(const sptr<IRemoteObject> &rootSceneSession) override;
 
+    /**
+     * Call UIAbility by SCB.
+     *
+     * @param sessionInfo the session info of the ability to be called.
+     */
+    virtual void CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo) override;
+
 private:
     template <typename T>
     int GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos);

@@ -4189,5 +4189,38 @@ void AbilityManagerProxy::SetRootSceneSession(const sptr<IRemoteObject> &rootSce
         HILOG_ERROR("Send request error: %{public}d", error);
     }
 }
+
+void AbilityManagerProxy::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("WriteInterfaceToken failed.");
+        return;
+    }
+    if (sessionInfo) {
+        if (!data.WriteBool(true) || !data.WriteParcelable(sessionInfo)) {
+            HILOG_ERROR("flag and sessionInfo write failed.");
+            return;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return;
+        }
+    }
+
+    auto remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote is nullptr.");
+        return;
+    }
+
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    auto error = remote->SendRequest(IAbilityManager::CALL_ABILITY_BY_SCB, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+    }
+}
 }  // namespace AAFwk
 }  // namespace OHOS

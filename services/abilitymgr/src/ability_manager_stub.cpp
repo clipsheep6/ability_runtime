@@ -181,6 +181,7 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[VERIFY_PERMISSION] = &AbilityManagerStub::VerifyPermissionInner;
     requestFuncMap_[START_UI_ABILITY_BY_SCB] = &AbilityManagerStub::StartUIAbilityBySCBInner;
     requestFuncMap_[SET_ROOT_SCENE_SESSION] = &AbilityManagerStub::SetRootSceneSessionInner;
+    requestFuncMap_[CALL_ABILITY_BY_SCB] = &AbilityManagerStub::CallUIAbilityBySCBInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -2134,6 +2135,17 @@ int AbilityManagerStub::SetRootSceneSessionInner(MessageParcel &data, MessagePar
         return ERR_INVALID_VALUE;
     }
     SetRootSceneSession(rootSceneSession);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::CallUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Call.");
+    sptr<SessionInfo> sessionInfo = nullptr;
+    if (data.ReadBool()) {
+        sessionInfo = data.ReadParcelable<SessionInfo>();
+    }
+    CallUIAbilityBySCB(sessionInfo);
     return NO_ERROR;
 }
 }  // namespace AAFwk

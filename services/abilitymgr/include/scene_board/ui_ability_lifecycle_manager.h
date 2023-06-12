@@ -123,6 +123,21 @@ public:
      * @param abilityRecord the died ability
      */
     void OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord);
+
+    /**
+     * resolve the call ipc of ability for scheduling oncall.
+     *
+     * @param abilityRequest target ability request.
+     */
+    int ResolveLocked(const AbilityRequest &abilityRequest);
+
+    /**
+     * Call UIAbility by SCB.
+     *
+     * @param sessionInfo the session info of the ability to be called.
+     */
+    void CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo);
+
 private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
     uint64_t GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest) const;
@@ -152,9 +167,17 @@ private:
     void ReportEventToSuspendManager(const AppExecFwk::AbilityInfo &abilityInfo) const;
     bool CheckProperties(const std::shared_ptr<AbilityRecord> &abilityRecord, const AbilityRequest &abilityRequest,
         AppExecFwk::LaunchMode launchMode) const;
+    void NotifyAbilityToken(const sptr<IRemoteObject> &token, const AbilityRequest &abilityRequest) const;
+
+    // byCall
+    int CallAbilityLocked(const AbilityRequest &abilityRequest);
+    sptr<SessionInfo> CreateSessionInfo(const AbilityRequest &abilityRequest) const;
+    int NotifySCBPendingActivation(sptr<SessionInfo> &sessionInfo, const sptr<IRemoteObject> &token) const;
+    int ResolveAbility(const std::shared_ptr<AbilityRecord> &targetAbility, const AbilityRequest &abilityRequest) const;
 
     mutable std::mutex sessionLock_;
     std::map<uint64_t, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;
+    std::map<int64_t, std::shared_ptr<AbilityRecord>> tmpAbilityMap_;
     std::list<std::shared_ptr<AbilityRecord>> terminateAbilityList_;
     sptr<Rosen::ISession> rootSceneSession_;
 };

@@ -1114,5 +1114,13 @@ void AbilityManagerClient::SetRootSceneSession(const sptr<IRemoteObject> &rootSc
     CHECK_POINTER_RETURN(abms);
     return abms->SetRootSceneSession(rootSceneSession);
 }
+
+void AbilityManagerClient::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
+{
+    HILOG_INFO("call");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN(abms);
+    return abms->CallUIAbilityBySCB(sessionInfo);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
