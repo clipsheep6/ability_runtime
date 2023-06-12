@@ -168,6 +168,11 @@ public:
         return false;
     }
 
+    void* GetCurrentTaskInfo() const override
+    {
+        return nullptr;
+    }
+
     NativeValue* CallFunction(NativeValue* thisVar,
         NativeValue* function,
         NativeValue* const* argv,
