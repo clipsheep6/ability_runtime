@@ -1072,6 +1072,13 @@ public:
      */
     void CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo);
 
+    /**
+     * Start specified ability by SCB.
+     *
+     * @param want Want information.
+     */
+    void StartSpecifiedAbilityBySCB(const Want &want);
+
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:

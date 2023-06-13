@@ -122,6 +122,14 @@ int UIAbilityLifecycleManager::AttachAbilityThread(const sptr<IAbilityScheduler>
     }
 
     DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token);
+    std::string specifiedFlag = abilityRecord->GetSpecifiedFlag();
+    if (!specifiedFlag.empty()) {
+        SpecifiedInfo specifiedInfo;
+        specifiedInfo.abilityName = abilityRecord->GetAbilityInfo().name;
+        specifiedInfo.abilityName = abilityRecord->GetAbilityInfo().bundleName;
+        specifiedInfo.flag = specifiedFlag;
+        specifiedAbilityMap_.emplace(specifiedInfo, abilityRecord);
+    }
     return ERR_OK;
 }
 
@@ -166,6 +174,13 @@ int UIAbilityLifecycleManager::NotifySCBToStartUIAbility(const AbilityRequest &a
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Call.");
     std::lock_guard<std::mutex> guard(sessionLock_);
+    auto isSpecified = (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED);
+    if (isSpecified) {
+        EnqueueAbilityToFront(abilityRequest);
+        DelayedSingleton<AppScheduler>::GetInstance()->StartSpecifiedAbility(
+            abilityRequest.want, abilityRequest.abilityInfo);
+        return ERR_OK;
+    }
     auto sessionInfo = CreateSessionInfo(abilityRequest);
     sessionInfo->requestCode = abilityRequest.requestCode;
     if (abilityRequest.startRecent) {
@@ -374,6 +389,19 @@ void UIAbilityLifecycleManager::EraseAbilityRecord(const std::shared_ptr<Ability
     for (auto iter = sessionAbilityMap_.begin(); iter != sessionAbilityMap_.end(); iter++) {
         if (iter->second != nullptr && iter->second->GetToken()->AsObject() == abilityRecord->GetToken()->AsObject()) {
             sessionAbilityMap_.erase(iter);
+            break;
+        }
+    }
+}
+
+void UIAbilityLifecycleManager::EraseSpecifiedAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    for (auto iter = specifiedAbilityMap_.begin(); iter != specifiedAbilityMap_.end(); iter++) {
+        auto abilityInfo = abilityRecord->GetAbilityInfo();
+        if (iter->second != nullptr && iter->second->GetToken()->AsObject() == abilityRecord->GetToken()->AsObject() &&
+            iter->first.abilityName == abilityInfo.name && iter->first.bundleName == abilityInfo.bundleName &&
+            iter->first.flag == abilityRecord->GetSpecifiedFlag()) {
+            specifiedAbilityMap_.erase(iter);
             break;
         }
     }
@@ -760,6 +788,7 @@ void UIAbilityLifecycleManager::CompleteTerminate(const std::shared_ptr<AbilityR
         // Don't return here
         HILOG_ERROR("AppMS fail to terminate ability.");
     }
+    EraseSpecifiedAbilityRecord(abilityRecord);
     terminateAbilityList_.remove(abilityRecord);
 }
 
@@ -935,6 +964,7 @@ void UIAbilityLifecycleManager::HandleForegroundTimeout(const std::shared_ptr<Ab
     NotifySCBToHandleException(abilityRecord,
         static_cast<int32_t>(ErrorLifecycleState::ABILITY_STATE_FOREGROUND_TIMEOUT), "handleForegroundTimeout");
     DelayedSingleton<AppScheduler>::GetInstance()->AttachTimeOut(abilityRecord->GetToken());
+    EraseSpecifiedAbilityRecord(abilityRecord);
 }
 
 void UIAbilityLifecycleManager::OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord)
@@ -951,6 +981,168 @@ void UIAbilityLifecycleManager::OnAbilityDied(std::shared_ptr<AbilityRecord> abi
         "onAbilityDied");
     DelayedSingleton<AppScheduler>::GetInstance()->AttachTimeOut(abilityRecord->GetToken());
     DispatchTerminate(abilityRecord);
+    EraseSpecifiedAbilityRecord(abilityRecord);
+}
+
+void UIAbilityLifecycleManager::OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag)
+{
+    std::lock_guard<std::mutex> guard(sessionLock_);
+    if (abilityQueue_.empty()) {
+        return;
+    }
+
+    AbilityRequest abilityRequest = abilityQueue_.front();
+    if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::SPECIFIED) {
+        return;
+    }
+    abilityQueue_.pop();
+    auto callerAbility = GetAbilityRecordByToken(abilityRequest.callerToken);
+    if (!flag.empty()) {
+        auto persistentId = GetReusedSpecifiedPersistentId(abilityRequest);
+        if (persistentId != 0) {
+            auto abilityRecord = GetReusedSpecifiedAbility(want, flag);
+            if (!abilityRecord) {
+                return;
+            }
+            abilityRecord->SetWant(abilityRequest.want);
+            abilityRecord->SetIsNewWant(true);
+            abilityRecord->SetSpecifiedFlag(flag);
+            UpdateAbilityRecordLaunchReason(abilityRequest, abilityRecord);
+            if (callerAbility == nullptr) {
+                callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
+            }
+            MoveAbilityToFront(abilityRequest, abilityRecord, callerAbility);
+            NotifyRestartSpecifiedAbility(abilityRequest, abilityRecord->GetToken());
+            return;
+        }
+    }
+    abilityRequest.specifiedFlag = flag;
+    NotifyStartSpecifiedAbility(abilityRequest, want);
+    StartAbilityBySpecifed(abilityRequest, callerAbility);
+}
+
+void UIAbilityLifecycleManager::StartSpecifiedAbilityBySCB(const Want &want, int32_t userId)
+{
+    AbilityRequest abilityRequest;
+    int result = DelayedSingleton<AbilityManagerService>::GetInstance()->GenerateAbilityRequest(
+        want, DEFAULT_INVAL_VALUE, abilityRequest, nullptr, userId);
+    if (result != ERR_OK) {
+        HILOG_ERROR("cannot find generate ability request");
+        return;
+    }
+    {
+        std::lock_guard<std::mutex> guard(sessionLock_);
+        EnqueueAbilityToFront(abilityRequest);
+    }
+    DelayedSingleton<AppScheduler>::GetInstance()->StartSpecifiedAbility(
+        abilityRequest.want, abilityRequest.abilityInfo);
+}
+
+std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetReusedSpecifiedAbility(const AAFwk::Want &want,
+    const std::string &flag)
+{
+    auto element = want.GetElement();
+    for (const auto& [first, second] : specifiedAbilityMap_) {
+        if (flag == first.flag && element.GetAbilityName() == first.abilityName &&
+            element.GetBundleName() == first.bundleName) {
+            return second;
+        }
+    }
+    return nullptr;
+}
+
+void UIAbilityLifecycleManager::EnqueueAbilityToFront(const AbilityRequest &abilityRequest)
+{
+    abilityQueue_.push(abilityRequest);
+}
+
+void UIAbilityLifecycleManager::NotifyRestartSpecifiedAbility(AbilityRequest &request,
+    const sptr<IRemoteObject> &token)
+{
+    if (request.abilityInfoCallback == nullptr) {
+        return;
+    }
+    sptr<AppExecFwk::IAbilityInfoCallback> abilityInfoCallback
+        = iface_cast<AppExecFwk::IAbilityInfoCallback> (request.abilityInfoCallback);
+    if (abilityInfoCallback != nullptr) {
+        HILOG_DEBUG("%{public}s called.", __func__);
+        abilityInfoCallback->NotifyRestartSpecifiedAbility(token);
+    }
+}
+
+void UIAbilityLifecycleManager::NotifyStartSpecifiedAbility(AbilityRequest &abilityRequest, const AAFwk::Want &want)
+{
+    if (abilityRequest.abilityInfoCallback == nullptr) {
+        return;
+    }
+
+    sptr<AppExecFwk::IAbilityInfoCallback> abilityInfoCallback
+        = iface_cast<AppExecFwk::IAbilityInfoCallback> (abilityRequest.abilityInfoCallback);
+    if (abilityInfoCallback != nullptr) {
+        Want newWant = want;
+        int32_t type = static_cast<int32_t>(abilityRequest.abilityInfo.type);
+        newWant.SetParam("abilityType", type);
+        sptr<Want> extraParam = new (std::nothrow) Want();
+        abilityInfoCallback->NotifyStartSpecifiedAbility(abilityRequest.callerToken, newWant,
+            abilityRequest.requestCode, extraParam);
+        int32_t procCode = extraParam->GetIntParam(Want::PARAM_RESV_REQUEST_PROC_CODE, 0);
+        if (procCode != 0) {
+            abilityRequest.want.SetParam(Want::PARAM_RESV_REQUEST_PROC_CODE, procCode);
+        }
+        int32_t tokenCode = extraParam->GetIntParam(Want::PARAM_RESV_REQUEST_TOKEN_CODE, 0);
+        if (tokenCode != 0) {
+            abilityRequest.want.SetParam(Want::PARAM_RESV_REQUEST_TOKEN_CODE, tokenCode);
+        }
+    }
+}
+
+int UIAbilityLifecycleManager::MoveAbilityToFront(const AbilityRequest &abilityRequest,
+    const std::shared_ptr<AbilityRecord> &abilityRecord, std::shared_ptr<AbilityRecord> callerAbility,
+    std::shared_ptr<StartOptions> startOptions)
+{
+    if (!abilityRecord) {
+        HILOG_ERROR("get target ability record failed");
+        return ERR_INVALID_VALUE;
+    }
+    sptr<SessionInfo> sessionInfo = abilityRecord->GetSessionInfo();
+    sessionInfo->want = abilityRequest.want;
+    SendSessionInfoToSCB(callerAbility, sessionInfo);
+    abilityRecord->RemoveWindowMode();
+    if (startOptions != nullptr) {
+        abilityRecord->SetWindowMode(startOptions->GetWindowMode());
+    }
+    return ERR_OK;
+}
+
+int UIAbilityLifecycleManager::SendSessionInfoToSCB(std::shared_ptr<AbilityRecord> &callerAbility,
+    sptr<SessionInfo> &sessionInfo)
+{
+    if (callerAbility != nullptr) {
+        auto callerSessionInfo = callerAbility->GetSessionInfo();
+        if (callerSessionInfo != nullptr && callerSessionInfo->sessionToken != nullptr) {
+            auto callerSession = iface_cast<Rosen::ISession>(callerSessionInfo->sessionToken);
+            callerSession->PendingSessionActivation(sessionInfo);
+        } else {
+            CHECK_POINTER_AND_RETURN(rootSceneSession_, ERR_INVALID_VALUE);
+            rootSceneSession_->PendingSessionActivation(sessionInfo);
+        }
+    } else {
+        CHECK_POINTER_AND_RETURN(rootSceneSession_, ERR_INVALID_VALUE);
+        rootSceneSession_->PendingSessionActivation(sessionInfo);
+    }
+    return ERR_OK;
+}
+
+int UIAbilityLifecycleManager::StartAbilityBySpecifed(const AbilityRequest &abilityRequest,
+    std::shared_ptr<AbilityRecord> &callerAbility)
+{
+    sptr<SessionInfo> sessionInfo = new SessionInfo();
+    sessionInfo->callerToken = abilityRequest.callerToken;
+    sessionInfo->want = abilityRequest.want;
+    sessionInfo->requestCode = abilityRequest.requestCode;
+
+    SendSessionInfoToSCB(callerAbility, sessionInfo);
+    return ERR_OK;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

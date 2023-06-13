@@ -1122,5 +1122,13 @@ void AbilityManagerClient::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionIn
     CHECK_POINTER_RETURN(abms);
     return abms->CallUIAbilityBySCB(sessionInfo);
 }
+
+void AbilityManagerClient::StartSpecifiedAbilityBySCB(const Want &want)
+{
+    HILOG_INFO("call");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN(abms);
+    abms->StartSpecifiedAbilityBySCB(want);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
