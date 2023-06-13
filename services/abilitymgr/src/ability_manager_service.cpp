@@ -70,7 +70,6 @@
 #include "display_manager.h"
 #include "input_manager.h"
 #include "png.h"
-#include "ui_service_mgr_client.h"
 #endif
 
 #ifdef EFFICIENCY_MANAGER_ENABLE
