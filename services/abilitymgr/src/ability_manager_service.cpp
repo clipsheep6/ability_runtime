@@ -2497,6 +2497,15 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
         return ERR_STATIC_CFG_PERMISSION;
     }
 
+    if (extensionType == AppExecFwk::ExtensionAbilityType::UI) {
+        AppExecFwk::ExtensionAbilityType targetExtensionType = abilityInfo.extensionAbilityType;
+        if (targetExtensionType != AppExecFwk::ExtensionAbilityType::UI
+            && targetExtensionType != AppExecFwk::ExtensionAbilityType::WINDOW) {
+            HILOG_ERROR("Try to connect UI extension, but target ability is not UI extension.");
+            return ERR_WRONG_INTERFACE_CALL;
+        }
+    }
+
     auto type = abilityInfo.type;
     if (type != AppExecFwk::AbilityType::SERVICE && type != AppExecFwk::AbilityType::EXTENSION) {
         HILOG_ERROR("Connect ability failed, target ability is not Service.");

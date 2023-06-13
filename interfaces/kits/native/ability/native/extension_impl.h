@@ -58,9 +58,11 @@ public:
      *
      * @param want The Want object to connect to.
      * @param targetState The terget state.
+     *  @param sessionInfo  Indicates the sessionInfo.
      *
      */
-    virtual void HandleExtensionTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState);
+    virtual void HandleExtensionTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
+        sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
 
     /**
      * @brief scheduling update configuration of extension.
@@ -139,8 +141,9 @@ protected:
      * that it belongs to of the lifecycle status.
      *
      * @param want  The Want object to switch the life cycle.
+     * @param sessionInfo  Indicates the sessionInfo.
      */
-    void Start(const Want &want);
+    void Start(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
 
     /**
      * @brief Toggles the lifecycle status of Extension to AAFwk::ABILITY_STATE_INITIAL. And notifies the application
