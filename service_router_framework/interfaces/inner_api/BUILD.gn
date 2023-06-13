@@ -34,15 +34,13 @@ ohos_shared_library("srms_fwk") {
 
   public_configs = [ ":srms_fwk_config" ]
 
-  deps = [
-    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
-    "${bundlefwk_common_path}:libappexecfwk_common",
-  ]
+  deps = [ "${ability_runtime_innerkits_path}/ability_manager:ability_manager" ]
 
   external_deps = [
     "ability_base:session_info",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
+    "bundle_framework:libappexecfwk_common",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",

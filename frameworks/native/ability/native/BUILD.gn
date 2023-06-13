@@ -451,7 +451,6 @@ ohos_shared_library("form_extension") {
       "${ability_runtime_napi_path}/inner/napi_common:napi_common",
       "${ability_runtime_native_path}/ability:ability_context_native",
       "${ability_runtime_native_path}/appkit:app_context",
-      "${form_fwk_napi_path}:formutil_napi",
     ]
 
     external_deps = [
@@ -460,6 +459,7 @@ ohos_shared_library("form_extension") {
       "common_event_service:cesfwk_innerkits",
       "form_fwk:fmskit_native",
       "form_fwk:form_manager",
+      "form_fwk:formutil_napi",
       "hiviewdfx_hilog_native:libhilog",
       "ipc:ipc_core",
     ]
