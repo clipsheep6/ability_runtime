@@ -6794,6 +6794,12 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
     AppExecFwk::RunningProcessInfo processInfo;
     std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
     if (callerAbility) {
+        auto userId = callerAbility->GetOwnerMissionUserId();
+        auto missionListManager = GetListManagerByUserId(userId);
+        if (missionListManager && missionListManager->IsTopAbility(callerAbility)) {
+            isBackgroundCall = false;
+            return ERR_OK;
+        }
         DelayedSingleton<AppScheduler>::GetInstance()->
             GetRunningProcessInfoByToken(callerAbility->GetToken(), processInfo);
     } else {

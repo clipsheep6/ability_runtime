@@ -3808,5 +3808,14 @@ void MissionListManager::CallRequestDone(const std::shared_ptr<AbilityRecord> &a
     }
     abilityRecord->CallRequestDone(callStub);
 }
+
+bool MissionListManager::IsTopAbility(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    if (abilityRecord == nullptr) {
+        return false;
+    }
+    std::lock_guard guard(managerLock_);
+    return GetCurrentTopAbilityLocked() == abilityRecord;
+}
 }  // namespace AAFwk
 }  // namespace OHOS
