@@ -537,7 +537,7 @@ bool JsRuntime::Initialize(const Options& options)
 
             panda::JSNApi::SetBundle(vm, options.isBundle);
             panda::JSNApi::SetBundleName(vm, options.bundleName);
-            panda::JSNApi::SetHostResolveBufferTracker(vm, JsModuleReader(options.bundleName));
+            panda::JSNApi::SetHostResolveBufferTracker(vm, JsModuleReader(options.bundleName, options.hapPath));
             isModular = !panda::JSNApi::IsBundle(vm);
 
             if (!InitLoop(options.eventRunner)) {
