@@ -29,6 +29,7 @@ void OffWorkerFunc(NativeEngine* nativeEngine);
 int32_t GetContainerId();
 void UpdateContainerScope(int32_t id);
 void RestoreContainerScope(int32_t id);
+void SetJsFramework();
 
 class AssetHelper final {
 public:    
