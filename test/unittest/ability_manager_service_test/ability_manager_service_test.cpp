@@ -3375,5 +3375,21 @@ HWTEST_F(AbilityManagerServiceTest, ForceExitApp_001, TestSize.Level1)
     EXPECT_EQ(abilityMs_->ForceExitApp(pid, REASON_JS_ERROR), ERR_PERMISSION_DENIED);
     HILOG_INFO("AbilityManagerServiceTest ForceExitApp_001 end");
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: ScheduleCommandAbilityDone
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService ScheduleCommandAbilityDone
+ * @tc.require: AR000I7F9D
+ */
+HWTEST_F(AbilityManagerServiceTest, ScheduleCommandAbilityWindowDone_001, TestSize.Level1)
+{
+    sptr<SessionInfo> session = new (std::nothrow) SessionInfo();
+    EXPECT_EQ(abilityMs_->ScheduleCommandAbilityWindowDone(
+        nullptr, session, WIN_CMD_FOREGROUND, ABILITY_CMD_FOREGROUND), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->ScheduleCommandAbilityWindowDone(
+        MockToken(AbilityType::EXTENSION), session, WIN_CMD_FOREGROUND, ABILITY_CMD_FOREGROUND), ERR_INVALID_VALUE);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

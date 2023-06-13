@@ -414,5 +414,19 @@ HWTEST_F(ExtensionTest, AaFwk_Extension_2200, Function | MediumTest | Level1)
     extension_->SetExtensionWindowLifeCycleListener(listener);
     GTEST_LOG_(INFO) << "AaFwk_Extension_2200 end";
 }
+
+/**
+ * @tc.number: AaFwk_Extension_2300
+ * @tc.name: OnCommandWindow
+ * @tc.desc: Incoming want verified OnCommandWindow successfully.
+ */
+HWTEST_F(ExtensionTest, AaFwk_Extension_2300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_Extension_2300 start";
+    sptr<AAFwk::SessionInfo> session = new (std::nothrow) AAFwk::SessionInfo();
+    EXPECT_NE(session, nullptr);
+    extension_->OnCommandWindow(session, AAFwk::WIN_CMD_FOREGROUND);
+    GTEST_LOG_(INFO) << "AaFwk_Extension_2300 end";
+}
 } // namespace AppExecFwk
 } // namespace OHOS

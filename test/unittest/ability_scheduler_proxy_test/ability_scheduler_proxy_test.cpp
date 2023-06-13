@@ -480,5 +480,24 @@ HWTEST_F(AbilitySchedulerProxyTest, ability_scheduler_proxy_operating_023, TestS
     EXPECT_EQ(IAbilityScheduler::BLOCK_ABILITY_INNER, mock_->code_);
 }
 #endif
+
+/*
+ * Feature: AbilitySchedulerProxy
+ * Function: ScheduleCommandAbilityWindow
+ * SubFunction: NA
+ * FunctionPoints: AbilitySchedulerProxy ScheduleCommandAbilityWindow
+ * EnvConditions: NA
+ * CaseDescription: verify ScheduleCommandAbilityWindow Normal case
+ */
+HWTEST_F(AbilitySchedulerProxyTest, ability_scheduler_proxy_operating_024, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilitySchedulerMock::InvokeSendRequest));
+    sptr<SessionInfo> session = new (std::nothrow) SessionInfo();
+    abilitySchedulerProxy_->ScheduleCommandAbilityWindow(session, WIN_CMD_FOREGROUND);
+
+    EXPECT_EQ(IAbilityScheduler::SCHEDULE_ABILITY_COMMAND_WINDOW, mock_->code_);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

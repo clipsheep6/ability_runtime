@@ -633,5 +633,29 @@ HWTEST_F(ExtensionImplTest, AaFwk_ExtensionImpl_2800, Function | MediumTest | Le
     EXPECT_EQ(impl->lifecycleState_, AAFwk::ABILITY_STATE_ACTIVE);
     GTEST_LOG_(INFO) << "AaFwk_ExtensionImpl_2800 end";
 }
+
+/**
+ * @tc.number: AaFwk_ExtensionImpl_2900
+ * @tc.name: CommandExtensionWindow
+ * @tc.desc: extension is nullptr, Validation CommandExtensionWindow failed.
+ */
+HWTEST_F(ExtensionImplTest, AaFwk_ExtensionImpl_2900, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_ExtensionImpl_2900 start";
+    auto application = std::make_shared<AppExecFwk::OHOSApplication>();
+    std::shared_ptr<AppExecFwk::AbilityInfo> info = std::make_shared<AppExecFwk::AbilityInfo>();
+    sptr<IRemoteObject> token = new AppExecFwk::MockAbilityToken();
+    auto record = std::make_shared<AppExecFwk::AbilityLocalRecord>(info, token);
+    auto extension = std::make_shared<AbilityRuntime::Extension>();
+    std::shared_ptr<EventRunner> runner;
+    auto handler = std::make_shared<AppExecFwk::AbilityHandler>(runner);
+
+    auto impl = std::make_shared<AbilityRuntime::ExtensionImpl>();
+    impl->Init(application, record, extension, handler, token);
+    sptr<AAFwk::SessionInfo> session = new (std::nothrow) AAFwk::SessionInfo();
+    EXPECT_NE(session, nullptr);
+    impl->CommandExtensionWindow(session, AAFwk::WIN_CMD_FOREGROUND);
+    GTEST_LOG_(INFO) << "AaFwk_ExtensionImpl_2900 end";
+}
 } // namespace AppExecFwk
 } // namespace OHOS
