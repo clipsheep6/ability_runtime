@@ -28,6 +28,7 @@
 #include "app_process_data.h"
 #include "app_state_observer_manager.h"
 #include "application_state_observer_stub.h"
+#include "appspawn_mount_permission.h"
 #include "bundle_constants.h"
 #include "common_event.h"
 #include "common_event_manager.h"
@@ -1763,6 +1764,16 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     startMsg.allowInternet = allowInternet;
     startMsg.hspList = hspList;
     startMsg.hapFlags = bundleInfo.isPreInstallApp ? 1 : 0;
+    int permissionLength = sizeof(AppSpawn::mountPermissionList) / sizeof(AppSpawn::Permission);
+    AppSpawn::Permission permissions[permissionLength];
+    size_t permissionIndex = 0;
+    for (AppSpawn::Permission permission : AppSpawn::mountPermissionList) {
+        if (Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, permission.name) ==
+            Security::AccessToken::PERMISSION_GRANTED) {
+            permissions[permissionIndex++] = permission;
+        }
+    }
+    startMsg.mountPermissionFlags = AppSpawn::GenPermissionCode(permissions, permissionIndex);
     if (hasAccessBundleDirReq) {
         startMsg.flags = startMsg.flags | APP_ACCESS_BUNDLE_DIR;
     }
