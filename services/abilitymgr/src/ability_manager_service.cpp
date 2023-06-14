@@ -29,7 +29,6 @@
 #include <unistd.h>
 #include <unordered_set>
 
-#include "ability_bundle_event_callback.h"
 #include "ability_info.h"
 #include "ability_interceptor.h"
 #include "ability_manager_errors.h"
@@ -261,6 +260,7 @@ void AbilityManagerService::OnStart()
     WatchParameter(BOOTEVENT_BOOT_COMPLETED.c_str(), AAFwk::ApplicationUtil::AppFwkBootEventCallback, nullptr);
     AddSystemAbilityListener(BACKGROUND_TASK_MANAGER_SERVICE_ID);
     AddSystemAbilityListener(DISTRIBUTED_SCHED_SA_ID);
+    AddSystemAbilityListener(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     HILOG_INFO("AMS start success.");
 }
 
@@ -334,23 +334,6 @@ bool AbilityManagerService::Init()
 
     auto initStartupFlagTask = [aams = shared_from_this()]() { aams->InitStartupFlag(); };
     handler_->PostTask(initStartupFlagTask, "InitStartupFlag");
-
-    // Register abilityBundleEventCallback to receive hap updates
-    HILOG_INFO("Register abilityBundleEventCallback to receive hap updates.");
-    auto registerBundleEventCallbackTask = [aams = shared_from_this()]() {
-        sptr<AbilityBundleEventCallback> abilityBundleEventCallback_ =
-            new (std::nothrow) AbilityBundleEventCallback(aams->handler_);
-        auto bms = aams->GetBundleManager();
-        if (bms && abilityBundleEventCallback_) {
-            bool re = bms->RegisterBundleEventCallback(abilityBundleEventCallback_);
-            if (!re) {
-                HILOG_ERROR("RegisterBundleEventCallback failed!");
-            }
-        } else {
-            HILOG_ERROR("Get BundleManager or abilityBundleEventCallback failed!");
-        }
-    };
-    handler_->PostTask(registerBundleEventCallbackTask, "RegisterBundleEventCallback");
     HILOG_INFO("Init success.");
     return true;
 }
@@ -376,6 +359,15 @@ void AbilityManagerService::OnStop()
     }
     bgtaskObserver_.reset();
 #endif
+    if (abilityBundleEventCallback_) {
+        auto bms = GetBundleManager();
+        if (bms) {
+            bool ret = IN_PROCESS_CALL(bms->UnregisterBundleEventCallback(abilityBundleEventCallback_));
+            if (ret != ERR_OK) {
+                HILOG_ERROR("unsubscribe bundle event callback failed, err:%{public}d.", ret);
+            }
+        }
+    }
     eventLoop_.reset();
     handler_.reset();
     state_ = ServiceRunningState::STATE_NOT_START;
@@ -1417,6 +1409,10 @@ void AbilityManagerService::OnAddSystemAbility(int32_t systemAbilityId, const st
             g_isDmsAlive.store(true);
             break;
         }
+        case BUNDLE_MGR_SERVICE_SYS_ABILITY_ID: {
+            SubscribeBundleEventCallback();
+            break;
+        }
         default:
             break;
     }
@@ -1432,6 +1428,10 @@ void AbilityManagerService::OnRemoveSystemAbility(int32_t systemAbilityId, const
         }
         case DISTRIBUTED_SCHED_SA_ID: {
             g_isDmsAlive.store(false);
+            break;
+        }
+        case BUNDLE_MGR_SERVICE_SYS_ABILITY_ID: {
+            UnsubscribeBundleEventCallback();
             break;
         }
         default:
@@ -1468,6 +1468,36 @@ void AbilityManagerService::UnSubscribeBackgroundTask()
     bgtaskObserver_ = nullptr;
     HILOG_INFO("%{public}s success.", __func__);
 #endif
+}
+
+void AbilityManagerService::SubscribeBundleEventCallback()
+{
+    HILOG_DEBUG("SubscribeBundleEventCallback to receive hap updates.");
+    if (abilityBundleEventCallback_) {
+        return;
+    }
+
+    // Register abilityBundleEventCallback to receive hap updates
+    abilityBundleEventCallback_ = new (std::nothrow) AbilityBundleEventCallback(handler_);
+    auto bms = GetBundleManager();
+    if (bms) {
+        bool ret = IN_PROCESS_CALL(bms->RegisterBundleEventCallback(abilityBundleEventCallback_));
+        if (!ret) {
+            HILOG_ERROR("RegisterBundleEventCallback failed!");
+        }
+    } else {
+        HILOG_ERROR("Get BundleManager failed!");
+    }
+    HILOG_DEBUG("SubscribeBundleEventCallback success.");
+}
+
+void AbilityManagerService::UnsubscribeBundleEventCallback()
+{
+    if (!abilityBundleEventCallback_) {
+        return;
+    }
+    abilityBundleEventCallback_ = nullptr;
+    HILOG_DEBUG("UnsubscribeBundleEventCallback success.");
 }
 
 void AbilityManagerService::ReportAbilitStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo)
