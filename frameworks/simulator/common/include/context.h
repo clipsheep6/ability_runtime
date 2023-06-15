@@ -22,6 +22,7 @@
 #include "application_info.h"
 #include "configuration.h"
 #include "hap_module_info.h"
+#include "options.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -184,6 +185,8 @@ public:
      * @return Returns the application base directory.
      */
     virtual std::string GetBaseDir() const = 0;
+
+    virtual Options GetOptions() const = 0;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

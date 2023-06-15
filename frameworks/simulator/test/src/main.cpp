@@ -15,6 +15,8 @@
 
 #include <cstdint>
 #include <iostream>
+
+#include "options.h"
 #include "simulator.h"
 
 constexpr int32_t MIN_PARAMS = 5;
@@ -26,7 +28,7 @@ int32_t main(int32_t argc, const char* argv[])
         return 1;
     }
 
-    OHOS::AbilityRuntime::Simulator::Options options {argv[1], argv[2], argv[3], argv[4], atoi(argv[5])};
+    OHOS::AbilityRuntime::Options options {argv[1], argv[2], argv[3], argv[4], atoi(argv[5])};
     auto simulator = OHOS::AbilityRuntime::Simulator::Create(options);
     if (!simulator) {
         std::cout << "Create Simulator failed." << std::endl;

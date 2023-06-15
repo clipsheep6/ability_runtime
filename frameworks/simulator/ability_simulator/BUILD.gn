@@ -89,6 +89,8 @@ ohos_shared_library("ability_simulator") {
   ]
 
   deps = [
+    "${windowmanager_path}/previewer:previewer_window",
+    "${windowmanager_path}/previewer:previewer_window_napi",
     ":gen_obj_src_js_mock_abc",
     "${ability_runtime_path}/frameworks/simulator/osal:simulator_osal",
     "${arkui_path}/napi:ace_napi_ark",
@@ -103,11 +105,6 @@ ohos_shared_library("ability_simulator") {
   } else {
     deps += [ "//base/global/resource_management/frameworks/resmgr:global_resmgr_mac" ]
   }
-
-  deps += [
-    "${windowmanager_path}/previewer:previewer_window",
-    "${windowmanager_path}/previewer:previewer_window_napi",
-  ]
 
   external_deps = [
     "ability_base:string_utils",

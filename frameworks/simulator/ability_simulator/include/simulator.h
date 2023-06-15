@@ -20,18 +20,12 @@
 #include <memory>
 #include <string>
 
+#include "options.h"
+
 namespace OHOS {
 namespace AbilityRuntime {
 class Simulator {
 public:
-    struct Options {
-        std::string bundleName = "";
-        std::string moduleName = "";
-        std::string modulePath = "";
-        std::string resourcePath = "";
-        int debugPort = -1;
-    };
-
     using TerminateCallback = std::function<void(int64_t)>;
     using FormUpdateCallback = std::function<void(int64_t, const std::string&)>;
 
