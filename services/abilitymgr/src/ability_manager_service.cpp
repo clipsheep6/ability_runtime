@@ -1856,12 +1856,6 @@ int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &t
         return CHECK_PERMISSION_FAILED;
     }
 
-    int result = JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
-    if (result != ERR_OK) {
-        HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
-        return result;
-    }
-
     if (IsSystemUiApp(abilityRecord->GetAbilityInfo())) {
         HILOG_ERROR("System ui not allow terminate.");
         return ERR_INVALID_VALUE;
@@ -2168,12 +2162,6 @@ int AbilityManagerService::MinimizeAbility(const sptr<IRemoteObject> &token, boo
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     if (!JudgeSelfCalled(abilityRecord)) {
         return CHECK_PERMISSION_FAILED;
-    }
-
-    int result = JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
-    if (result != ERR_OK) {
-        HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
-        return result;
     }
 
     auto type = abilityRecord->GetAbilityInfo().type;
@@ -4258,11 +4246,6 @@ int AbilityManagerService::TerminateAbilityResult(const sptr<IRemoteObject> &tok
     if (!JudgeSelfCalled(abilityRecord)) {
         return CHECK_PERMISSION_FAILED;
     }
-    int result = JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
-    if (result != ERR_OK) {
-        HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
-        return result;
-    }
 
     auto userId = abilityRecord->GetApplicationInfo().uid / BASE_USER_RANGE;
     auto type = abilityRecord->GetAbilityInfo().type;
@@ -5098,15 +5081,22 @@ bool AbilityManagerService::CheckCallerEligibility(const AppExecFwk::AbilityInfo
         }
 
         auto apl = callerAppInfo.appPrivilegeLevel;
+        auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+        auto targetTokenId = abilityInfo.applicationInfo.accessTokenId;
+        if (callerTokenId == targetTokenId) {
+            return true;
+        }
+
         if (apl != AbilityUtil::SYSTEM_BASIC && apl != AbilityUtil::SYSTEM_CORE) {
             HILOG_DEBUG("caller is normal app.");
-            auto callerTokenId = IPCSkeleton::GetCallingTokenID();
-            auto targetTokenId = abilityInfo.applicationInfo.accessTokenId;
-            if (callerTokenId != targetTokenId) {
-                HILOG_ERROR("the bundle name of caller is different from target one, caller: %{public}s "
-                            "target: %{public}s",
-                    bundleName.c_str(),
-                    abilityInfo.bundleName.c_str());
+            HILOG_ERROR("the bundle name of caller is different from target one, caller: %{public}s "
+                "target: %{public}s", bundleName.c_str(), abilityInfo.bundleName.c_str());
+            return false;
+        } else {
+            auto result = AccessTokenKit::VerifyAccessToken(callerTokenId,
+                PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY);
+            if (result != AppExecFwk::Constants::PERMISSION_GRANTED) {
+                HILOG_ERROR("verify access token fail, don't have permission");
                 return false;
             }
         }
@@ -5932,11 +5922,6 @@ int AbilityManagerService::DoAbilityForeground(const sptr<IRemoteObject> &token,
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     if (!JudgeSelfCalled(abilityRecord)) {
         return CHECK_PERMISSION_FAILED;
-    }
-    int result = JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
-    if (result != ERR_OK) {
-        HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
-        return result;
     }
 
     auto type = abilityRecord->GetAbilityInfo().type;
