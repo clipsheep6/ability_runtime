@@ -98,6 +98,7 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
         msg_->flags = startMsg.flags;
         msg_->accessTokenIdEx = startMsg.accessTokenIdEx;
         msg_->hapFlags = startMsg.hapFlags;
+        msg_->mountPermissionFlags = startMsg.mountPermissionFlags;
 
         if (!startMsg.hspList.empty()) {
             this->hspListStr = DumpToJson(startMsg.hspList);
