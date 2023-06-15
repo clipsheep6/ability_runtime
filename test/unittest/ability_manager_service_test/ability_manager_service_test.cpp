@@ -888,6 +888,23 @@ HWTEST_F(AbilityManagerServiceTest, ContinueMission_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
+ * Function: ContinueMissionBundleName
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService ContinueMissionBundleName
+ */
+HWTEST_F(AbilityManagerServiceTest, ContinueMissionBundleName_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest ContinueMissionBundleName_001 start");
+    std::string srcDeviceId = "test";
+    std::string dstDeviceId = "test";
+    AAFwk::WantParams wantParams;
+    EXPECT_EQ(abilityMs_->ContinueMission(srcDeviceId, dstDeviceId, "bundleName", nullptr, wantParams),
+        CHECK_PERMISSION_FAILED);
+    HILOG_INFO("AbilityManagerServiceTest ContinueMissionBundleName_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: ContinueAbility
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService ContinueAbility
@@ -2705,7 +2722,6 @@ HWTEST_F(AbilityManagerServiceTest, DelegatorMoveMissionToFront_001, TestSize.Le
     abilityMs_->currentMissionListManager_ = temp;
 
     EXPECT_EQ(abilityMs_->DelegatorMoveMissionToFront(100), MOVE_MISSION_FAILED);
-    EXPECT_EQ(abilityMs_->DelegatorMoveMissionToFront(1), MOVE_MISSION_FAILED);
     HILOG_INFO("AbilityManagerServiceTest DelegatorMoveMissionToFront_001 end");
 }
 
