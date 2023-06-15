@@ -689,6 +689,22 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_ScheduleCommandAbilityDoneIn
 
 /*
  * Feature: AbilityManagerService
+ * Function: ScheduleCommandAbilityWindowDoneInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService ScheduleCommandAbilityWindowDoneInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function ScheduleCommandAbilityWindowDoneInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_ScheduleCommandAbilityWindowDoneInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->ScheduleCommandAbilityWindowDoneInner(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: AcquireDataAbilityInner
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService AcquireDataAbilityInner

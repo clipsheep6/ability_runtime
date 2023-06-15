@@ -54,6 +54,7 @@ public:
         bool preload = false;
         bool isBundle = true;
         bool isDebugVersion = false;
+        bool isJsFramework = false;
         bool isStageModel = true;
         bool isTestFramework = false;
         int32_t uid = -1;

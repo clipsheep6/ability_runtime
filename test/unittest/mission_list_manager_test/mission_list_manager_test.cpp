@@ -5906,5 +5906,66 @@ HWTEST_F(MissionListManagerTest, IsValidMissionIds_003, TestSize.Level1)
     EXPECT_EQ(missionListManager->IsValidMissionIds(missionIds, results), ERR_OK);
     EXPECT_EQ(results.size(), size);
 }
+
+/*
+ * Feature: MissionListManager
+ * Function: IsTopAbility
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager IsTopAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify IsTopAbility
+ */
+HWTEST_F(MissionListManagerTest, IsTopAbility_001, TestSize.Level1)
+{
+    constexpr int32_t userId = 3;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    std::shared_ptr<AbilityRecord> abilityRecord = nullptr;
+    EXPECT_FALSE(missionListManager->IsTopAbility(abilityRecord));
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: IsTopAbility
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager IsTopAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify IsTopAbility
+ */
+HWTEST_F(MissionListManagerTest, IsTopAbility_002, TestSize.Level1)
+{
+    constexpr int32_t userId = 3;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    AppExecFwk::AbilityInfo abilityInfo;
+    Want want;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    auto abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
+    EXPECT_FALSE(missionListManager->IsTopAbility(abilityRecord));
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: IsTopAbility
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager IsTopAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify IsTopAbility
+ */
+HWTEST_F(MissionListManagerTest, IsTopAbility_003, TestSize.Level1)
+{
+    constexpr int32_t userId = 3;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    AppExecFwk::AbilityInfo abilityInfo;
+    Want want;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    auto abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
+
+    // Move ability to top
+    std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord, "missionName");
+    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+    missionList->missions_.push_front(mission);
+    missionListManager->currentMissionLists_.push_front(missionList);
+
+    EXPECT_TRUE(missionListManager->IsTopAbility(abilityRecord));
+}
 }  // namespace AAFwk
 }  // namespace OHOS

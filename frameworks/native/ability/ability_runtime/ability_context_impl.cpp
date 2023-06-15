@@ -284,7 +284,8 @@ ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want& want, 
     }
 }
 
-void AbilityContextImpl::SetWeakSessionToken(const wptr<IRemoteObject>& sessionToken) {
+void AbilityContextImpl::SetWeakSessionToken(const wptr<IRemoteObject>& sessionToken)
+{
     HILOG_DEBUG("Start calling SetWeakSessionToken.");
     sessionToken_ = sessionToken;
 }

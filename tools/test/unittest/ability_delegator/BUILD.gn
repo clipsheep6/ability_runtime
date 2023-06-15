@@ -169,6 +169,7 @@ if (accessibility_enable) {
       "${ability_runtime_path}/tools/aa/src/accessibility_ability_command.cpp",
       "${ability_runtime_path}/tools/aa/src/accessibility_ability_utils.cpp",
       "accessibility_ability_command_test.cpp",
+      "mock_accessibility_config.cpp",
     ]
 
     deps = [

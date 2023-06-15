@@ -24,6 +24,7 @@
 #include <unordered_map>
 #include <map>
 
+#include "ability_bundle_event_callback.h"
 #include "ability_connect_manager.h"
 #include "ability_event_handler.h"
 #include "ability_interceptor_executer.h"
@@ -1078,6 +1079,20 @@ public:
      */
     virtual void SetRootSceneSession(const sptr<IRemoteObject> &rootSceneSession) override;
 
+    /**
+     * Call UIAbility by SCB.
+     *
+     * @param sessionInfo the session info of the ability to be called.
+     */
+    virtual void CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo) override;
+
+    /**
+     * Start specified ability by SCB.
+     *
+     * @param want Want information.
+     */
+    virtual void StartSpecifiedAbilityBySCB(const Want &want) override;
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -1310,6 +1325,10 @@ private:
 
     void UnSubscribeBackgroundTask();
 
+    void SubscribeBundleEventCallback();
+
+    void UnsubscribeBundleEventCallback();
+
     void ReportAbilitStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo);
 
     void ReportEventToSuspendManager(const AppExecFwk::AbilityInfo &abilityInfo);
@@ -1499,6 +1518,8 @@ private:
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     std::shared_ptr<BackgroundTaskObserver> bgtaskObserver_;
 #endif
+
+    sptr<AbilityBundleEventCallback> abilityBundleEventCallback_;
 
 #ifdef SUPPORT_GRAPHICS
     int32_t ShowPickerDialog(const Want& want, int32_t userId, const sptr<IRemoteObject> &token);

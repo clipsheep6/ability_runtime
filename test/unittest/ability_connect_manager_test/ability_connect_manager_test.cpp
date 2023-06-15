@@ -2876,5 +2876,292 @@ HWTEST_F(AbilityConnectManagerTest, PrintTimeOutLog_008, TestSize.Level1)
     connectManager->PrintTimeOutLog(abilityRecord, msgId);
     connectManager.reset();
 }
+
+/*
+ * Feature: AbilityConnectManager
+ * Function: OnAbilityRequestDone
+ * SubFunction: NA
+ * FunctionPoints: AbilityConnectManager OnAbilityRequestDone
+ * EnvConditions: NA
+ * CaseDescription: Verify OnAbilityRequestDone
+ * @tc.require: AR000I8B26
+ */
+HWTEST_F(AbilityConnectManagerTest, OnAbilityRequestDone_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
+    sptr<IRemoteObject> token = abilityRecord->GetToken();
+    abilityRecord->abilityInfo_.extensionAbilityType = ExtensionAbilityType::UI;
+    abilityRecord->SetAbilityState(AbilityState::INACTIVE);
+    connectManager->serviceMap_.emplace("first", abilityRecord);
+    connectManager->OnAbilityRequestDone(token, 2);
+    EXPECT_EQ(abilityRecord->GetAbilityState(), AbilityState::FOREGROUNDING);
+    connectManager->serviceMap_.erase("first");
+    abilityRecord->abilityInfo_.extensionAbilityType = ExtensionAbilityType::UNSPECIFIED;
+    abilityRecord->SetAbilityState(AbilityState::INITIAL);
+}
+
+/*
+ * Feature: AbilityConnectManager
+ * Function: ScheduleCommandAbilityWindowDone
+ * SubFunction: NA
+ * FunctionPoints: AbilityConnectManager ScheduleCommandAbilityWindowDone
+ * EnvConditions: NA
+ * CaseDescription: Verify ScheduleCommandAbilityWindowDone
+ * @tc.require: AR000I8B26
+ */
+HWTEST_F(AbilityConnectManagerTest, ScheduleCommandAbilityWindowDone_001, TestSize.Level1)
+{
+    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
+    ConnectManager()->SetEventHandler(handler);
+    auto sessionInfo = MockSessionInfo(0);
+
+    sptr<IRemoteObject> nullToken = nullptr;
+    auto result = ConnectManager()->ScheduleCommandAbilityWindowDone(
+        nullToken, sessionInfo, WIN_CMD_FOREGROUND, ABILITY_CMD_FOREGROUND);
+    EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
+
+    std::shared_ptr<AbilityRecord> ability = nullptr;
+    OHOS::sptr<OHOS::IRemoteObject> token1 = new OHOS::AAFwk::Token(ability);
+    auto result1 = ConnectManager()->ScheduleCommandAbilityWindowDone(
+        token1, sessionInfo, WIN_CMD_FOREGROUND, ABILITY_CMD_FOREGROUND);
+    EXPECT_EQ(result1, OHOS::ERR_INVALID_VALUE);
+
+    sptr<SessionInfo> nullSession = nullptr;
+    auto result2 = ConnectManager()->ScheduleCommandAbilityWindowDone(
+        serviceToken_, nullSession, WIN_CMD_FOREGROUND, ABILITY_CMD_FOREGROUND);
+    EXPECT_EQ(result2, OHOS::ERR_INVALID_VALUE);
+
+    auto result3 = ConnectManager()->ScheduleCommandAbilityWindowDone(
+        serviceToken_, sessionInfo, WIN_CMD_FOREGROUND, ABILITY_CMD_FOREGROUND);
+    EXPECT_EQ(result3, OHOS::ERR_OK);
+}
+
+/*
+ * Feature: AbilityConnectManager
+ * Function: MoveToForeground
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager MoveToForeground
+ * EnvConditions: NA
+ * CaseDescription: Verify MoveToForeground
+ * @tc.require: AR000I8B26
+ */
+HWTEST_F(AbilityConnectManagerTest, MoveToForeground_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
+    connectManager->MoveToForeground(serviceRecord_);
+    EXPECT_EQ(serviceRecord_->GetAbilityState(), AbilityState::FOREGROUNDING);
+    serviceRecord_->SetAbilityState(AbilityState::INITIAL);
+}
+
+/*
+ * Feature: AbilityConnectManager
+ * Function: DispatchForeground
+ * SubFunction:
+ * FunctionPoints: DispatchForeground
+ * EnvConditions:NA
+ * CaseDescription: Verify the DispatchForeground process
+ * @tc.require: AR000I8B26
+ */
+HWTEST_F(AbilityConnectManagerTest, DispatchForeground_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
+    std::shared_ptr<AbilityRecord> ability = nullptr;
+    auto result = connectManager->DispatchForeground(ability);
+    EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
+
+    result = connectManager->DispatchForeground(serviceRecord_);
+    EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
+
+    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
+    connectManager->SetEventHandler(handler);
+    result = connectManager->DispatchForeground(serviceRecord_);
+    EXPECT_EQ(result, OHOS::ERR_OK);
+}
+
+/*
+ * Feature: AbilityConnectManager
+ * Function: DispatchBackground
+ * SubFunction:
+ * FunctionPoints: DispatchBackground
+ * EnvConditions:NA
+ * CaseDescription: Verify the DispatchBackground process
+ * @tc.require: AR000I8B26
+ */
+HWTEST_F(AbilityConnectManagerTest, DispatchBackground_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
+    std::shared_ptr<AbilityRecord> ability = nullptr;
+    auto result = connectManager->DispatchBackground(ability);
+    EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
+
+    result = connectManager->DispatchBackground(serviceRecord_);
+    EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
+
+    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
+    connectManager->SetEventHandler(handler);
+    result = connectManager->DispatchBackground(serviceRecord_);
+    EXPECT_EQ(result, OHOS::ERR_OK);
+}
+
+/*
+ * Feature: AbilityConnectManager
+ * Function: HandleCommandWindowTimeoutTask
+ * SubFunction: HandleCommandWindowTimeoutTask
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityConnectManager HandleCommandWindowTimeoutTask
+ * @tc.require: AR000I8B26
+ */
+HWTEST_F(AbilityConnectManagerTest, HandleCommandWindowTimeoutTask_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
+    connectManager->HandleCommandWindowTimeoutTask(serviceRecord_, MockSessionInfo(0), WIN_CMD_FOREGROUND);
+}
+
+/*
+ * Feature: AbilityConnectManager
+ * Function: CommandAbilityWindow
+ * SubFunction: CommandAbilityWindow
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityConnectManager CommandAbilityWindow
+ * @tc.require: AR000I8B26
+ */
+HWTEST_F(AbilityConnectManagerTest, CommandAbilityWindow_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
+    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
+    connectManager->SetEventHandler(handler);
+    connectManager->CommandAbilityWindow(serviceRecord_, MockSessionInfo(0), WIN_CMD_FOREGROUND);
+}
+
+/*
+ * Feature: AbilityConnectManager
+ * Function: CompleteForeground
+ * SubFunction: CompleteForeground
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityConnectManager CompleteForeground
+ * @tc.require: AR000I8B26
+ */
+HWTEST_F(AbilityConnectManagerTest, CompleteForeground_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    abilityRecord->currentState_ = AbilityState::BACKGROUND;
+    connectManager->CompleteForeground(abilityRecord);
+    EXPECT_EQ(abilityRecord->GetAbilityState(), AbilityState::BACKGROUND);
+
+    abilityRecord->currentState_ = AbilityState::FOREGROUNDING;
+    connectManager->CompleteForeground(abilityRecord);
+    EXPECT_EQ(abilityRecord->GetAbilityState(), AbilityState::FOREGROUND);
+    connectManager.reset();
+}
+
+/*
+ * Feature: AbilityConnectManager
+ * Function: AddUIExtWindowDeathRecipient
+ * SubFunction: AddUIExtWindowDeathRecipient
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityConnectManager AddUIExtWindowDeathRecipient
+ * @tc.require: AR000I8B26
+ */
+HWTEST_F(AbilityConnectManagerTest, AddUIExtWindowDeathRecipient_001, TestSize.Level1)
+{
+    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
+    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->uiExtRecipientMap_.clear();
+
+    ConnectManager()->AddUIExtWindowDeathRecipient(nullptr);
+    EXPECT_TRUE(ConnectManager()->uiExtRecipientMap_.empty());
+
+    ConnectManager()->AddUIExtWindowDeathRecipient(callbackA_->AsObject());
+    EXPECT_EQ(static_cast<int>(ConnectManager()->uiExtRecipientMap_.size()), 1);
+
+    // Add twice, do not add repeatedly
+    ConnectManager()->AddUIExtWindowDeathRecipient(callbackA_->AsObject());
+    EXPECT_EQ(static_cast<int>(ConnectManager()->uiExtRecipientMap_.size()), 1);
+    ConnectManager()->uiExtRecipientMap_.clear();
+}
+
+/*
+ * Feature: AbilityConnectManager
+ * Function: RemoveUIExtWindowDeathRecipient
+ * SubFunction:
+ * FunctionPoints: RemoveUIExtWindowDeathRecipient
+ * EnvConditions:NA
+ * CaseDescription: Verify the RemoveUIExtWindowDeathRecipient process
+ * @tc.require: AR000I8B26
+ */
+HWTEST_F(AbilityConnectManagerTest, RemoveUIExtWindowDeathRecipient_001, TestSize.Level1)
+{
+    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
+    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->uiExtRecipientMap_.clear();
+
+    ConnectManager()->AddUIExtWindowDeathRecipient(callbackA_->AsObject());
+    EXPECT_EQ(static_cast<int>(ConnectManager()->uiExtRecipientMap_.size()), 1);
+
+    ConnectManager()->RemoveUIExtWindowDeathRecipient(nullptr);
+    EXPECT_FALSE(ConnectManager()->uiExtRecipientMap_.empty());
+
+    ConnectManager()->RemoveUIExtWindowDeathRecipient(callbackA_->AsObject());
+    EXPECT_TRUE(ConnectManager()->uiExtRecipientMap_.empty());
+}
+
+/*
+ * Feature: AbilityConnectManager
+ * Function: OnUIExtWindowDied
+ * SubFunction:
+ * FunctionPoints: OnUIExtWindowDied
+ * EnvConditions:NA
+ * CaseDescription: Verify the OnUIExtWindowDied process
+ * @tc.require: AR000I8B26
+ */
+HWTEST_F(AbilityConnectManagerTest, OnUIExtWindowDied_001, TestSize.Level1)
+{
+    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
+    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->uiExtRecipientMap_.clear();
+
+    ConnectManager()->AddUIExtWindowDeathRecipient(callbackA_->AsObject());
+    ConnectManager()->OnUIExtWindowDied(nullptr);
+    WaitUntilTaskDone(handler);
+    EXPECT_EQ(static_cast<int>(ConnectManager()->uiExtRecipientMap_.size()), 1);
+
+    ConnectManager()->OnUIExtWindowDied(callbackA_->AsObject());
+    WaitUntilTaskDone(handler);
+    EXPECT_TRUE(ConnectManager()->uiExtRecipientMap_.empty());
+}
+
+/*
+ * Feature: AbilityConnectManager
+ * Function: HandleUIExtWindowDiedTask
+ * SubFunction: HandleUIExtWindowDiedTask
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityConnectManager HandleUIExtWindowDiedTask
+ * @tc.require: AR000I8B26
+ */
+HWTEST_F(AbilityConnectManagerTest, HandleUIExtWindowDiedTask_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
+    connectManager->uiExtRecipientMap_.clear();
+    connectManager->AddUIExtWindowDeathRecipient(callbackA_->AsObject());
+    connectManager->HandleUIExtWindowDiedTask(nullptr);
+    EXPECT_EQ(static_cast<int>(connectManager->uiExtRecipientMap_.size()), 1);
+
+    connectManager->HandleUIExtWindowDiedTask(callbackA_->AsObject());
+    EXPECT_TRUE(connectManager->uiExtRecipientMap_.empty());
+}
 }  // namespace AAFwk
 }  // namespace OHOS

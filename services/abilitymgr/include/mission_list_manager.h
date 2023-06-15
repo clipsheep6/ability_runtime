@@ -349,6 +349,8 @@ public:
 
     void CallRequestDone(const std::shared_ptr<AbilityRecord> &abilityRecord, const sptr<IRemoteObject> &callStub);
 
+    bool IsTopAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
+
 #ifdef SUPPORT_GRAPHICS
 public:
     /**

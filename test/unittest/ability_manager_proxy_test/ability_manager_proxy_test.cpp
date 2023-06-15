@@ -615,6 +615,27 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_031, TestSize.Level0)
 
 /*
  * Feature: AbilityManagerService
+ * Function: ScheduleCommandAbilityWindowDone
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService ScheduleCommandAbilityWindowDone
+ * EnvConditions: NA
+ * CaseDescription: Verify the abnormal conditions of ScheduleCommandAbilityWindowDone
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_032, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeErrorSendRequest));
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    sptr<SessionInfo> session = new (std::nothrow) SessionInfo();
+    auto res = proxy_->ScheduleCommandAbilityWindowDone(token, session, WIN_CMD_FOREGROUND, ABILITY_CMD_FOREGROUND);
+
+    EXPECT_EQ(IAbilityManager::COMMAND_ABILITY_WINDOW_DONE, mock_->code_);
+    EXPECT_NE(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: AcquireDataAbility
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService AcquireDataAbility

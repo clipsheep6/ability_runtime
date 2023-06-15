@@ -1335,6 +1335,7 @@ void AppMgrServiceInner::RegisterAppStateCallback(const sptr<IAppStateCallback> 
     }
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (callback != nullptr) {
+        std::lock_guard<std::mutex> lock(appStateCallbacksLock_);
         appStateCallbacks_.push_back(callback);
     }
 }
@@ -1541,9 +1542,12 @@ void AppMgrServiceInner::OnAppStateChanged(
 
     HILOG_DEBUG("OnAppStateChanged begin, bundleName is %{public}s, state:%{public}d",
         appRecord->GetBundleName().c_str(), static_cast<int32_t>(state));
-    for (const auto &callback : appStateCallbacks_) {
-        if (callback != nullptr) {
-            callback->OnAppStateChanged(WrapAppProcessData(appRecord, state));
+    {
+        std::lock_guard<std::mutex> lock(appStateCallbacksLock_);
+        for (const auto &callback : appStateCallbacks_) {
+            if (callback != nullptr) {
+                callback->OnAppStateChanged(WrapAppProcessData(appRecord, state));
+            }
         }
     }
 
@@ -1623,6 +1627,7 @@ void AppMgrServiceInner::OnAbilityStateChanged(
         HILOG_ERROR("ability is null");
         return;
     }
+    std::lock_guard<std::mutex> lock(appStateCallbacksLock_);
     for (const auto &callback : appStateCallbacks_) {
         if (callback != nullptr) {
             callback->OnAbilityRequestDone(ability->GetToken(), state);

@@ -29,7 +29,6 @@
 #include <unistd.h>
 #include <unordered_set>
 
-#include "ability_bundle_event_callback.h"
 #include "ability_info.h"
 #include "ability_interceptor.h"
 #include "ability_manager_errors.h"
@@ -70,7 +69,6 @@
 #include "display_manager.h"
 // #include "input_manager.h"
 // #include "png.h"
-#include "ui_service_mgr_client.h"
 #endif
 
 #ifdef EFFICIENCY_MANAGER_ENABLE
@@ -262,6 +260,7 @@ void AbilityManagerService::OnStart()
     WatchParameter(BOOTEVENT_BOOT_COMPLETED.c_str(), AAFwk::ApplicationUtil::AppFwkBootEventCallback, nullptr);
     AddSystemAbilityListener(BACKGROUND_TASK_MANAGER_SERVICE_ID);
     AddSystemAbilityListener(DISTRIBUTED_SCHED_SA_ID);
+    AddSystemAbilityListener(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     HILOG_INFO("AMS start success.");
 }
 
@@ -335,23 +334,6 @@ bool AbilityManagerService::Init()
 
     auto initStartupFlagTask = [aams = shared_from_this()]() { aams->InitStartupFlag(); };
     handler_->PostTask(initStartupFlagTask, "InitStartupFlag");
-
-    // Register abilityBundleEventCallback to receive hap updates
-    HILOG_INFO("Register abilityBundleEventCallback to receive hap updates.");
-    auto registerBundleEventCallbackTask = [aams = shared_from_this()]() {
-        sptr<AbilityBundleEventCallback> abilityBundleEventCallback_ =
-            new (std::nothrow) AbilityBundleEventCallback(aams->handler_);
-        auto bms = aams->GetBundleManager();
-        if (bms && abilityBundleEventCallback_) {
-            bool re = bms->RegisterBundleEventCallback(abilityBundleEventCallback_);
-            if (!re) {
-                HILOG_ERROR("RegisterBundleEventCallback failed!");
-            }
-        } else {
-            HILOG_ERROR("Get BundleManager or abilityBundleEventCallback failed!");
-        }
-    };
-    handler_->PostTask(registerBundleEventCallbackTask, "RegisterBundleEventCallback");
     HILOG_INFO("Init success.");
     return true;
 }
@@ -377,6 +359,15 @@ void AbilityManagerService::OnStop()
     }
     bgtaskObserver_.reset();
 #endif
+    if (abilityBundleEventCallback_) {
+        auto bms = GetBundleManager();
+        if (bms) {
+            bool ret = IN_PROCESS_CALL(bms->UnregisterBundleEventCallback(abilityBundleEventCallback_));
+            if (ret != ERR_OK) {
+                HILOG_ERROR("unsubscribe bundle event callback failed, err:%{public}d.", ret);
+            }
+        }
+    }
     eventLoop_.reset();
     handler_.reset();
     state_ = ServiceRunningState::STATE_NOT_START;
@@ -599,10 +590,12 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         }
     } else {
         HILOG_DEBUG("Check call ability permission, name is %{public}s.", abilityInfo.name.c_str());
-        result = CheckCallAbilityPermission(abilityRequest);
-        if (result != ERR_OK) {
-            HILOG_ERROR("Check permission failed");
-            return result;
+        if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+            result = CheckCallAbilityPermission(abilityRequest);
+            if (result != ERR_OK) {
+                HILOG_ERROR("Check permission failed");
+                return result;
+            }
         }
     }
 
@@ -747,12 +740,14 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_STATIC_CFG_PERMISSION;
     }
-    result = CheckCallAbilityPermission(abilityRequest);
-    if (result != ERR_OK) {
-        HILOG_ERROR("%{public}s CheckCallAbilityPermission error.", __func__);
-        eventInfo.errCode = result;
-        EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
-        return result;
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        result = CheckCallAbilityPermission(abilityRequest);
+        if (result != ERR_OK) {
+            HILOG_ERROR("%{public}s CheckCallAbilityPermission error.", __func__);
+            eventInfo.errCode = result;
+            EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
+            return result;
+        }
     }
 
     abilityRequest.startSetting = std::make_shared<AbilityStartSetting>(abilityStartSetting);
@@ -934,12 +929,14 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_STATIC_CFG_PERMISSION;
     }
-    result = CheckCallAbilityPermission(abilityRequest);
-    if (result != ERR_OK) {
-        HILOG_ERROR("%{public}s CheckCallAbilityPermission error.", __func__);
-        eventInfo.errCode = result;
-        EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
-        return result;
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        result = CheckCallAbilityPermission(abilityRequest);
+        if (result != ERR_OK) {
+            HILOG_ERROR("%{public}s CheckCallAbilityPermission error.", __func__);
+            eventInfo.errCode = result;
+            EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
+            return result;
+        }
     }
 
     if (abilityInfo.type != AppExecFwk::AbilityType::PAGE) {
@@ -971,6 +968,9 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     }
     abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
     abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        return uiAbilityLifecycleManager_->NotifySCBToStartUIAbility(abilityRequest);
+    }
     auto missionListManager = GetListManagerByUserId(oriValidUserId);
     if (missionListManager == nullptr) {
         HILOG_ERROR("missionListManager is Null. userId=%{public}d", oriValidUserId);
@@ -1409,6 +1409,10 @@ void AbilityManagerService::OnAddSystemAbility(int32_t systemAbilityId, const st
             g_isDmsAlive.store(true);
             break;
         }
+        case BUNDLE_MGR_SERVICE_SYS_ABILITY_ID: {
+            SubscribeBundleEventCallback();
+            break;
+        }
         default:
             break;
     }
@@ -1424,6 +1428,10 @@ void AbilityManagerService::OnRemoveSystemAbility(int32_t systemAbilityId, const
         }
         case DISTRIBUTED_SCHED_SA_ID: {
             g_isDmsAlive.store(false);
+            break;
+        }
+        case BUNDLE_MGR_SERVICE_SYS_ABILITY_ID: {
+            UnsubscribeBundleEventCallback();
             break;
         }
         default:
@@ -1460,6 +1468,36 @@ void AbilityManagerService::UnSubscribeBackgroundTask()
     bgtaskObserver_ = nullptr;
     HILOG_INFO("%{public}s success.", __func__);
 #endif
+}
+
+void AbilityManagerService::SubscribeBundleEventCallback()
+{
+    HILOG_DEBUG("SubscribeBundleEventCallback to receive hap updates.");
+    if (abilityBundleEventCallback_) {
+        return;
+    }
+
+    // Register abilityBundleEventCallback to receive hap updates
+    abilityBundleEventCallback_ = new (std::nothrow) AbilityBundleEventCallback(handler_);
+    auto bms = GetBundleManager();
+    if (bms) {
+        bool ret = IN_PROCESS_CALL(bms->RegisterBundleEventCallback(abilityBundleEventCallback_));
+        if (!ret) {
+            HILOG_ERROR("RegisterBundleEventCallback failed!");
+        }
+    } else {
+        HILOG_ERROR("Get BundleManager failed!");
+    }
+    HILOG_DEBUG("SubscribeBundleEventCallback success.");
+}
+
+void AbilityManagerService::UnsubscribeBundleEventCallback()
+{
+    if (!abilityBundleEventCallback_) {
+        return;
+    }
+    abilityBundleEventCallback_ = nullptr;
+    HILOG_DEBUG("UnsubscribeBundleEventCallback success.");
 }
 
 void AbilityManagerService::ReportAbilitStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo)
@@ -1919,7 +1957,8 @@ int AbilityManagerService::CloseUIAbilityBySCB(const sptr<SessionInfo> &sessionI
     eventInfo.bundleName = abilityRecord->GetAbilityInfo().bundleName;
     eventInfo.abilityName = abilityRecord->GetAbilityInfo().name;
     EventReport::SendAbilityEvent(EventName::CLOSE_UI_ABILITY_BY_SCB, HiSysEventType::BEHAVIOR, eventInfo);
-    eventInfo.errCode = uiAbilityLifecycleManager_->CloseUIAbility(abilityRecord, sessionInfo->resultCode, &(sessionInfo->want));
+    eventInfo.errCode = uiAbilityLifecycleManager_->CloseUIAbility(abilityRecord, sessionInfo->resultCode,
+        &(sessionInfo->want));
     if (eventInfo.errCode != ERR_OK) {
         EventReport::SendAbilityEvent(EventName::CLOSE_UI_ABILITY_BY_SCB_ERROR, HiSysEventType::FAULT, eventInfo);
     }
@@ -2484,6 +2523,15 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
     if (result != AppExecFwk::Constants::PERMISSION_GRANTED) {
         HILOG_ERROR("CheckStaticCfgPermission error, result is %{public}d.", result);
         return ERR_STATIC_CFG_PERMISSION;
+    }
+
+    if (extensionType == AppExecFwk::ExtensionAbilityType::UI) {
+        AppExecFwk::ExtensionAbilityType targetExtensionType = abilityInfo.extensionAbilityType;
+        if (targetExtensionType != AppExecFwk::ExtensionAbilityType::UI
+            && targetExtensionType != AppExecFwk::ExtensionAbilityType::WINDOW) {
+            HILOG_ERROR("Try to connect UI extension, but target ability is not UI extension.");
+            return ERR_WRONG_INTERFACE_CALL;
+        }
     }
 
     auto type = abilityInfo.type;
@@ -4958,13 +5006,16 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
 
     HILOG_DEBUG("abilityInfo.applicationInfo.singleton is %{public}s",
         abilityRequest.abilityInfo.applicationInfo.singleton ? "true" : "false");
+    UpdateCallerInfo(abilityRequest.want, callerToken);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        return uiAbilityLifecycleManager_->ResolveLocked(abilityRequest);
+    }
 
     auto missionListMgr = GetListManagerByUserId(oriValidUserId);
     if (missionListMgr == nullptr) {
         HILOG_ERROR("missionListMgr is Null. Designated User Id=%{public}d", oriValidUserId);
         return ERR_INVALID_VALUE;
     }
-    UpdateCallerInfo(abilityRequest.want, callerToken);
     ReportEventToSuspendManager(abilityRequest.abilityInfo);
     if (!IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
         return componentRequest.requestResult;
@@ -5099,6 +5150,10 @@ void AbilityManagerService::OnAcceptWantResponse(
     const AAFwk::Want &want, const std::string &flag)
 {
     HILOG_DEBUG("On accept want response");
+    if (uiAbilityLifecycleManager_ && Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        uiAbilityLifecycleManager_->OnAcceptWantResponse(want, flag);
+        return;
+    }
     if (!currentMissionListManager_) {
         return;
     }
@@ -6778,6 +6833,12 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
     AppExecFwk::RunningProcessInfo processInfo;
     std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
     if (callerAbility) {
+        auto userId = callerAbility->GetOwnerMissionUserId();
+        auto missionListManager = GetListManagerByUserId(userId);
+        if (missionListManager && missionListManager->IsTopAbility(callerAbility)) {
+            isBackgroundCall = false;
+            return ERR_OK;
+        }
         DelayedSingleton<AppScheduler>::GetInstance()->
             GetRunningProcessInfoByToken(callerAbility->GetToken(), processInfo);
     } else {
@@ -7243,6 +7304,15 @@ void AbilityManagerService::SetRootSceneSession(const sptr<IRemoteObject> &rootS
     uiAbilityLifecycleManager_->SetRootSceneSession(rootSceneSession);
 }
 
+void AbilityManagerService::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
+{
+    if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD, U0_USER_ID)) {
+        HILOG_ERROR("Not sceneboard called, not allowed.");
+        return;
+    }
+    uiAbilityLifecycleManager_->CallUIAbilityBySCB(sessionInfo);
+}
+
 bool AbilityManagerService::CheckPrepareTerminateEnable()
 {
     if (!isPrepareTerminateEnable_) {
@@ -7254,6 +7324,16 @@ bool AbilityManagerService::CheckPrepareTerminateEnable()
         return false;
     }
     return true;
+}
+
+void AbilityManagerService::StartSpecifiedAbilityBySCB(const Want &want)
+{
+    if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD, U0_USER_ID)) {
+        HILOG_ERROR("Not sceneboard called, not allowed.");
+        return;
+    }
+    int32_t userId = GetUserId();
+    uiAbilityLifecycleManager_->StartSpecifiedAbilityBySCB(want, userId);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

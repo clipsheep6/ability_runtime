@@ -1003,6 +1003,20 @@ public:
      */
     virtual void SetRootSceneSession(const sptr<IRemoteObject> &rootSceneSession) {}
 
+    /**
+     * Call UIAbility by SCB.
+     *
+     * @param sessionInfo the session info of the ability to be called.
+     */
+    virtual void CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo) {}
+
+    /**
+     * Start specified ability by SCB.
+     *
+     * @param want Want information.
+     */
+    virtual void StartSpecifiedAbilityBySCB(const Want &want) {};
+
     enum {
         // ipc id 1-1000 for kit
         // ipc id for terminating ability (1)
@@ -1191,6 +1205,9 @@ public:
 
         COMMAND_ABILITY_WINDOW_DONE,
 
+        // prepare terminate ability (67)
+        CALL_ABILITY_BY_SCB,
+
         // ipc id 1001-2000 for DMS
         // ipc id for starting ability (1001)
         START_ABILITY = 1001,
@@ -1294,6 +1311,9 @@ public:
 
         // ipc id for request dialog service
         REQUEST_DIALOG_SERVICE,
+
+        // ipc id for start specified ability by scb
+        START_SPECIFIED_ABILITY_BY_SCB,
 
         // ipc id for continue ability(1101)
         START_CONTINUATION = 1101,

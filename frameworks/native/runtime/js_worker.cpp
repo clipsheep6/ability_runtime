@@ -55,6 +55,7 @@ constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
 #endif
 
 bool g_debugMode = false;
+bool g_jsFramework = false;
 }
 
 void InitWorkerFunc(NativeEngine* nativeEngine)
@@ -75,7 +76,7 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
 
     auto arkNativeEngine = static_cast<ArkNativeEngine*>(nativeEngine);
     // load jsfwk
-    if (!arkNativeEngine->ExecuteJsBin("/system/etc/strip.native.min.abc")) {
+    if (g_jsFramework && !arkNativeEngine->ExecuteJsBin("/system/etc/strip.native.min.abc")) {
         HILOG_ERROR("Failed to load js framework!");
     }
 
@@ -417,6 +418,11 @@ ContainerScope::UpdateCurrent(-1);
 void StartDebuggerInWorkerModule()
 {
     g_debugMode = true;
+}
+
+void SetJsFramework()
+{
+    g_jsFramework = true;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
