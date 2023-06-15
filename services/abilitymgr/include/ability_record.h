@@ -621,6 +621,12 @@ public:
      *
      */
     void SendResult(bool isSandboxApp = false);
+
+    /**
+     * send result object to caller ability thread for sandbox app file saving.
+     */
+    void SendSandboxSavefileResult(const Want &want, int resultCode, int requestCode);
+
     /**
      * send result object to caller ability.
      *

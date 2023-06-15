@@ -150,6 +150,8 @@ ohos_source_set("abilityms_test_source") {
     "${ability_runtime_services_path}/abilitymgr/src/want_sender_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/wants_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/window_focus_changed_listener.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/start_ability_handler.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/start_ability_handler/start_ability_sandbox_savefile.cpp",
     "${ability_runtime_services_path}/common/src/event_report.cpp",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/src/appmgr/app_mgr_client.cpp",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/src/appmgr/app_state_callback_host.cpp",

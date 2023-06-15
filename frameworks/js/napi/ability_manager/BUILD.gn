@@ -26,6 +26,7 @@ template("abilitymanager") {
       "ability_manager_module.cpp",
       "js_ability_manager.cpp",
       "js_ability_manager_utils.cpp",
+      "js_api_utils.cpp",
     ]
 
     include_dirs = [
@@ -43,6 +44,7 @@ template("abilitymanager") {
     ]
 
     external_deps = [
+      "ability_base:base",
       "ability_base:configuration",
       "ability_base:want",
       "access_token:libtokenid_sdk",
@@ -51,6 +53,7 @@ template("abilitymanager") {
       "eventhandler:libeventhandler",
       "hilog:libhilog",
       "ipc:ipc_core",
+      "ipc:ipc_napi_common",
       "napi:ace_napi",
       "samgr:samgr_proxy",
     ]

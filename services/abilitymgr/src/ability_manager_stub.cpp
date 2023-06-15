@@ -183,6 +183,7 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[SET_ROOT_SCENE_SESSION] = &AbilityManagerStub::SetRootSceneSessionInner;
     requestFuncMap_[CALL_ABILITY_BY_SCB] = &AbilityManagerStub::CallUIAbilityBySCBInner;
     requestFuncMap_[START_SPECIFIED_ABILITY_BY_SCB] = &AbilityManagerStub::StartSpecifiedAbilityBySCBInner;
+    requestFuncMap_[NOTIFY_SAVE_AS_RESULT] = &AbilityManagerStub::NotifySaveAsResultInner;
     requestFuncMap_[SET_SESSIONMANAGERSERVICE] = &AbilityManagerStub::SetSessionManagerServiceInner;
     requestFuncMap_[GET_SESSIONMANAGERSERVICE] = &AbilityManagerStub::GetSessionManagerServiceInner;
 }
@@ -2151,6 +2152,20 @@ int32_t AbilityManagerStub::StartSpecifiedAbilityBySCBInner(MessageParcel &data,
         return ERR_INVALID_VALUE;
     }
     StartSpecifiedAbilityBySCB(*want);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::NotifySaveAsResultInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<Want> want(data.ReadParcelable<Want>());
+    if (!want) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    int resultCode = data.ReadInt32();
+    int requestCode = data.ReadInt32();
+    int32_t result = NotifySaveAsResult(*want, resultCode, requestCode);
+    reply.WriteInt32(result);
     return NO_ERROR;
 }
 

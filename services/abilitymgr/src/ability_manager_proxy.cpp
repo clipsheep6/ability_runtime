@@ -4241,6 +4241,44 @@ void AbilityManagerProxy::StartSpecifiedAbilityBySCB(const Want &want)
     }
 }
 
+int32_t AbilityManagerProxy::NotifySaveAsResult(const Want &want, int resultCode, int requestCode)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("WriteInterfaceToken failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("WriteWantObject failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteInt32(resultCode)) {
+        HILOG_ERROR("resultCode write failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteInt32(requestCode)) {
+        HILOG_ERROR("requestCode write failed.");
+        return INNER_ERR;
+    }
+
+    auto remote = Remote();
+    if (!remote) {
+        HILOG_ERROR("remote object is nullptr.");
+        return INNER_ERR;
+    }
+
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    auto error = remote->SendRequest(IAbilityManager::NOTIFY_SAVE_AS_RESULT, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+    }
+
+    return reply.ReadInt32();
+}
+
 int32_t AbilityManagerProxy::SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService)
 {
     HILOG_INFO("AbilityManagerProxy::SetSessionManagerService start.");
