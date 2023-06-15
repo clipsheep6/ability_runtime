@@ -3131,15 +3131,20 @@ HWTEST_F(AbilityConnectManagerTest, OnUIExtWindowDied_001, TestSize.Level1)
     auto handler = std::make_shared<EventHandler>(EventRunner::Create());
     ConnectManager()->SetEventHandler(handler);
     ConnectManager()->uiExtRecipientMap_.clear();
+    ConnectManager()->uiExtensionMap_.clear();
 
+    ConnectManager()->uiExtensionMap_.emplace(
+        callbackA_->AsObject(), AbilityConnectManager::UIExtWindowMapValType(serviceRecord_, MockSessionInfo(0)));
     ConnectManager()->AddUIExtWindowDeathRecipient(callbackA_->AsObject());
     ConnectManager()->OnUIExtWindowDied(nullptr);
     WaitUntilTaskDone(handler);
     EXPECT_EQ(static_cast<int>(ConnectManager()->uiExtRecipientMap_.size()), 1);
+    EXPECT_EQ(static_cast<int>(ConnectManager()->uiExtensionMap_.size()), 1);
 
     ConnectManager()->OnUIExtWindowDied(callbackA_->AsObject());
     WaitUntilTaskDone(handler);
     EXPECT_TRUE(ConnectManager()->uiExtRecipientMap_.empty());
+    EXPECT_TRUE(ConnectManager()->uiExtensionMap_.empty());
 }
 
 /*
@@ -3156,12 +3161,18 @@ HWTEST_F(AbilityConnectManagerTest, HandleUIExtWindowDiedTask_001, TestSize.Leve
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
     ASSERT_NE(connectManager, nullptr);
     connectManager->uiExtRecipientMap_.clear();
+    connectManager->uiExtensionMap_.clear();
+
+    connectManager->uiExtensionMap_.emplace(
+        callbackA_->AsObject(), AbilityConnectManager::UIExtWindowMapValType(serviceRecord_, MockSessionInfo(0)));
     connectManager->AddUIExtWindowDeathRecipient(callbackA_->AsObject());
     connectManager->HandleUIExtWindowDiedTask(nullptr);
     EXPECT_EQ(static_cast<int>(connectManager->uiExtRecipientMap_.size()), 1);
+    EXPECT_EQ(static_cast<int>(connectManager->uiExtensionMap_.size()), 1);
 
     connectManager->HandleUIExtWindowDiedTask(callbackA_->AsObject());
     EXPECT_TRUE(connectManager->uiExtRecipientMap_.empty());
+    EXPECT_TRUE(connectManager->uiExtensionMap_.empty());
 }
 }  // namespace AAFwk
 }  // namespace OHOS
