@@ -183,9 +183,7 @@ int UIAbilityLifecycleManager::NotifySCBToStartUIAbility(const AbilityRequest &a
     }
     auto sessionInfo = CreateSessionInfo(abilityRequest);
     sessionInfo->requestCode = abilityRequest.requestCode;
-    if (abilityRequest.startRecent) {
-        sessionInfo->persistentId = GetPersistentIdByAbilityRequest(abilityRequest);
-    }
+    sessionInfo->persistentId = GetPersistentIdByAbilityRequest(abilityRequest);
     return NotifySCBPendingActivation(sessionInfo, abilityRequest.callerToken);
 }
 
@@ -825,6 +823,11 @@ uint64_t UIAbilityLifecycleManager::GetReusedSpecifiedPersistentId(const Ability
         return 0;
     }
 
+    if (!abilityRequest.startRecent) {
+        HILOG_WARN("startRecent is false.");
+        return 0;
+    }
+
     // specified ability name and bundle name and module name and appIndex format is same as singleton.
     for (const auto& [first, second] : sessionAbilityMap_) {
         if (second->GetSpecifiedFlag() == abilityRequest.specifiedFlag &&
@@ -849,15 +852,15 @@ uint64_t UIAbilityLifecycleManager::GetReusedStandardPersistentId(const AbilityR
     }
 
     int64_t sessionTime = 0;
-    uint64_t persistantId = 0;
+    uint64_t persistentId = 0;
     for (const auto& [first, second] : sessionAbilityMap_) {
         if (CheckProperties(second, abilityRequest, AppExecFwk::LaunchMode::STANDARD) &&
             second->GetRestartTime() >= sessionTime) {
-            persistantId = first;
+            persistentId = first;
             sessionTime = second->GetRestartTime();
         }
     }
-    return persistantId;
+    return persistentId;
 }
 
 bool UIAbilityLifecycleManager::CheckProperties(const std::shared_ptr<AbilityRecord> &abilityRecord,
