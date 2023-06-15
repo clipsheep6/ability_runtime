@@ -368,29 +368,31 @@ std::shared_ptr<WantAgent> WantAgentHelper::FromString(const std::string &jsonSt
     nlohmann::json jsonObject = nlohmann::json::parse(jsonString);
 
     int requestCode = -1;
-    if (jsonObject.contains("requestCode")) {
+    if (jsonObject.contains("requestCode") && jsonObject["requestCode"].is_number_integer()) {
         requestCode = jsonObject.at("requestCode").get<int>();
     }
 
     WantAgentConstant::OperationType operationType = WantAgentConstant::OperationType::UNKNOWN_TYPE;
-    if (jsonObject.contains("operationType")) {
+    if (jsonObject.contains("operationType") && jsonObject["operationType"].is_number_integer()) {
         operationType = static_cast<WantAgentConstant::OperationType>(jsonObject.at("operationType").get<int>());
     }
 
     std::vector<WantAgentConstant::Flags> flagsVec = ParseFlags(jsonObject);
 
     std::vector<std::shared_ptr<AAFwk::Want>> wants = {};
-    if (jsonObject.contains("wants")) {
+    if (jsonObject.contains("wants") && jsonObject["wants"].is_array()) {
         for (auto &wantObj : jsonObject.at("wants")) {
-            auto wantString = wantObj.get<std::string>();
-            wants.emplace_back(std::make_shared<AAFwk::Want>(*Want::FromString(wantString)));
+            if (wantObj.is_string()) {
+                auto wantString = wantObj.get<std::string>();
+                wants.emplace_back(std::make_shared<AAFwk::Want>(*Want::FromString(wantString)));
+            }
         }
     }
 
     std::shared_ptr<AAFwk::WantParams> extraInfo = nullptr;
-    if (jsonObject.contains("extraInfo")) {
+    if (jsonObject.contains("extraInfo") && jsonObject["extraInfo"].is_object()) {
         auto extraInfoObj = jsonObject.at("extraInfo");
-        if (extraInfoObj.contains("extraInfoValue")) {
+        if (extraInfoObj.contains("extraInfoValue") && extraInfoObj["extraInfoValue"].is_string()) {
             auto pwWrapper = AAFwk::WantParamWrapper::Parse(extraInfoObj.at("extraInfoValue").get<std::string>());
             AAFwk::WantParams params;
             if (pwWrapper->GetValue(params) == ERR_OK) {
