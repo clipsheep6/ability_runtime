@@ -41,4 +41,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_REMOTE_MISSION_LISTENER_PROXY_H
+#endif  // OHOS_ABILITY_RUNTIME_REMOTE_ON_LISTENER_PROXY_H
