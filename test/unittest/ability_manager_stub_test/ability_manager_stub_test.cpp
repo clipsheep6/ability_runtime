@@ -1249,6 +1249,22 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_ContinueMissionInner_001, Te
 
 /*
  * Feature: AbilityManagerService
+ * Function: ContinueMissionOfBundleNameInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService ContinueMissionOfBundleNameInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function ContinueMissionOfBundleNameInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_ContinueMissionOfBundleNameInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->ContinueMissionOfBundleNameInner(data, reply);
+    EXPECT_EQ(res, ERR_NULL_OBJECT);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: ContinueAbilityInner
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService ContinueAbilityInner
@@ -1694,6 +1710,38 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_UnRegisterRemoteMissionListe
     MessageParcel data;
     MessageParcel reply;
     auto res = stub_->UnRegisterRemoteMissionListenerInner(data, reply);
+    EXPECT_EQ(res, ERR_NULL_OBJECT);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: RegisterRemoteOnListenerInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService RegisterRemoteOnListenerInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function RegisterRemoteOnListenerInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_RegisterRemoteOnListenerInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->RegisterRemoteOnListenerInner(data, reply);
+    EXPECT_EQ(res, ERR_NULL_OBJECT);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: RegisterRemoteOffListenerInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService RegisterRemoteOffListenerInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function RegisterRemoteOffListenerInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_RegisterRemoteOffListenerInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->RegisterRemoteOffListenerInner(data, reply);
     EXPECT_EQ(res, ERR_NULL_OBJECT);
 }
 

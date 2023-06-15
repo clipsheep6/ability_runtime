@@ -1309,6 +1309,24 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ContinueMission_001, TestS
 
 /*
  * Feature: AbilityManagerService
+ * Function: ContinueMissionBundleName
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService ContinueMissionBundleName
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of ContinueMissionBundleName
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ContinueMissionBundleName_001, TestSize.Level1)
+{
+    std::string srcDeviceId = "";
+    std::string dstDeviceId = "";
+    const sptr<IRemoteObject>& callBack = nullptr;
+    AAFwk::WantParams wantParams;
+    auto res = proxy_->ContinueMission(srcDeviceId, dstDeviceId, "bundleName", callBack, wantParams);
+    EXPECT_EQ(res, INNER_ERR);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: ContinueAbility
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService ContinueAbility

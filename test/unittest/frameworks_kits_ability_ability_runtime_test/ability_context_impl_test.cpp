@@ -1019,5 +1019,16 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ClearFailedCallConnection_
     context_->ClearFailedCallConnection(nullptr);
     EXPECT_NE(context_->localCallContainer_, nullptr);
 }
+
+/**
+ * @tc.number: Ability_Context_Impl_SetWeakSessionToken_0100
+ * @tc.name: SetWeakSessionToken
+ * @tc.desc: Set weak sessionToken
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_SetWeakSessionToken_0100, Function | MediumTest | Level1)
+{
+    context_->SetWeakSessionToken(nullptr);
+    EXPECT_EQ(context_->sessionToken_, nullptr);
+}
 } // namespace AppExecFwk
 } // namespace OHOS
