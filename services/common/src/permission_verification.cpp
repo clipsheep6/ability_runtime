@@ -30,7 +30,7 @@ bool PermissionVerification::VerifyPermissionByTokenId(const int &tokenId, const
 {
     HILOG_DEBUG("VerifyPermissionByTokenId permission %{public}s", permissionName.c_str());
     int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenId, permissionName);
-    if (ret == Security::AccessToken::PermissionState::PERMISSION_DENIED) {
+    if (ret != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
         HILOG_ERROR("permission %{public}s: PERMISSION_DENIED", permissionName.c_str());
         return false;
     }
@@ -43,7 +43,7 @@ bool PermissionVerification::VerifyCallingPermission(const std::string &permissi
     HILOG_DEBUG("VerifyCallingPermission permission %{public}s", permissionName.c_str());
     auto callerToken = GetCallingTokenID();
     int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permissionName);
-    if (ret == Security::AccessToken::PermissionState::PERMISSION_DENIED) {
+    if (ret != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
         HILOG_ERROR("permission %{public}s: PERMISSION_DENIED", permissionName.c_str());
         return false;
     }
@@ -410,7 +410,7 @@ bool PermissionVerification::VerifyPrepareTerminatePermission(const int &tokenId
 {
     int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenId,
         PermissionConstants::PERMISSION_PREPARE_TERMINATE);
-    if (ret == Security::AccessToken::PermissionState::PERMISSION_DENIED) {
+    if (ret != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
         HILOG_DEBUG("permission denied.");
         return false;
     }
