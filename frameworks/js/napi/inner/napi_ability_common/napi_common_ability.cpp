@@ -4058,6 +4058,7 @@ NativeValue* JsNapiCommon::JsConnectAbility(
             engine.CreateUndefined());
         NAPI_CALL_BASE(env, napi_call_function(env, undefined, callback, ARGS_ONE, &resultVal, &callResult),
             engine.CreateUndefined());
+        connectionCallback->Reset();
         RemoveConnectionLocked(want);
     }
     return CreateJsValue(engine, id);
