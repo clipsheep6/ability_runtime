@@ -7208,7 +7208,7 @@ int AbilityManagerService::VerifyPermission(const std::string &permission, int p
     }
 
     int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(appInfo.accessTokenId, permission);
-    if (ret == Security::AccessToken::PermissionState::PERMISSION_DENIED) {
+    if (ret != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
         HILOG_ERROR("VerifyPermission %{public}d: PERMISSION_DENIED", appInfo.accessTokenId);
         return CHECK_PERMISSION_FAILED;
     }

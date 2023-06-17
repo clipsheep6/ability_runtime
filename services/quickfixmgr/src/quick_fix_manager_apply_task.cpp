@@ -516,7 +516,11 @@ void QuickFixManagerApplyTask::RemoveTimeoutTask()
 
 bool QuickFixManagerApplyTask::SetQuickFixInfo(const std::shared_ptr<AppExecFwk::QuickFixResult> &result)
 {
-    auto resultJson = nlohmann::json::parse(result->ToString());
+    auto resultJson = nlohmann::json::parse(result->ToString(), nullptr, false);
+    if (resultJson.is_discarded()) {
+        HILOG_ERROR("failed to parse json sting.");
+        return false;
+    }
     if (!resultJson.contains(QUICK_FIX_BUNDLE_NAME) || !resultJson.at(QUICK_FIX_BUNDLE_NAME).is_string()) {
         HILOG_ERROR("Invalid bundleName.");
         return false;
@@ -557,7 +561,13 @@ bool QuickFixManagerApplyTask::SetQuickFixInfo(const std::shared_ptr<AppExecFwk:
         HILOG_ERROR("Invalid moduleName.");
         return false;
     }
-    moduleNames_ = resultJson.at(QUICK_FIX_MODULE_NAME).get<std::vector<std::string>>();
+    moduleNames_.clear();
+    auto size = resultJson[QUICK_FIX_MODULE_NAME].size();
+    for (size_t i = 0; i < size; i++) {
+        if (resultJson[QUICK_FIX_MODULE_NAME][i].is_string()) {
+            moduleNames_.emplace_back(resultJson[QUICK_FIX_MODULE_NAME][i]);
+        }
+    }
 
     HILOG_INFO("bundleName: %{public}s, bundleVersion: %{public}d, patchVersion: %{public}d, soContained: %{public}d, "
                "type: %{public}d.", bundleName_.c_str(), bundleVersionCode_, patchVersionCode_, isSoContained_,

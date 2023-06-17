@@ -575,14 +575,14 @@ void OnCallbackCompletedCB(napi_env env, napi_status status, void *data)
     // set result
     napi_value result[2] = { nullptr };
     napi_get_undefined(env, &result[1]);
-    if (onCB->result == 0) {
-        napi_get_undefined(env, &result[0]);
-    } else {
+    if (onCB->result != 0) {
         int32_t errCode = ErrorCodeReturn(onCB->result);
-        result[0] = GenerateBusinessError(env, errCode, ErrorMessageReturn(errCode));
+        napi_throw(env, GenerateBusinessError(env, errCode, ErrorMessageReturn(errCode)));
     }
-
-    ReturnValueToApplication(env, &result[0], onCB);
+    if (onCB->callbackRef != nullptr) {
+        napi_delete_reference(env, onCB->callbackRef);
+    }
+    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, onCB->cbBase.asyncWork));
     delete onCB;
     onCB = nullptr;
     HILOG_INFO("%{public}s end.", __func__);
@@ -933,9 +933,9 @@ napi_value OffWrap(napi_env &env, napi_callback_info info,
     size_t argcAsync = 2;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr);
-    if (argcAsync != ARGS_TWO) {
+    if (argcAsync != ARGS_ONE && argcAsync != ARGS_TWO) {
         HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
-        errInfo = "Parameter error. The type of \"number of parameters\" must be 2";
+        errInfo = "Parameter error. The type of \"number of parameters\" must be 1 or 2";
         return nullptr;
     }
 
@@ -943,7 +943,7 @@ napi_value OffWrap(napi_env &env, napi_callback_info info,
         HILOG_INFO("%{public}s, OffWrapType failed.", __func__);
         return nullptr;
     }
-    if (!CreateOnCallbackReference(env, args[1], onCB, errInfo)) {
+    if (argcAsync == ARGS_TWO && !CreateOnCallbackReference(env, args[1], onCB, errInfo)) {
         return nullptr;
     }
 
@@ -1142,19 +1142,24 @@ void UvWorkOnCallback(uv_work_t *work, int status)
         return;
     }
 
-    napi_value result[2] = {nullptr};
+    napi_value result[3] = {nullptr};
     napi_create_int32(onCB->cbBase.cbInfo.env, onCB->continueState, &result[0]);
     napi_create_object(onCB->cbBase.cbInfo.env, &result[1]);
+    napi_create_object(onCB->cbBase.cbInfo.env, &result[ARGS_TWO]);
     std::string napiValue1 = onCB->srcDeviceId;
     std::string napiValue2 = onCB->bundleName;
     napi_value jsValue1 = nullptr;
     napi_value jsValue2 = nullptr;
     napi_create_string_utf8(onCB->cbBase.cbInfo.env, napiValue1.c_str(), NAPI_AUTO_LENGTH, &jsValue1);
     napi_create_string_utf8(onCB->cbBase.cbInfo.env, napiValue2.c_str(), NAPI_AUTO_LENGTH, &jsValue2);
+    std::string napiState = "state";
     std::string paramName1 = "srcDeviceId";
     std::string paramName2 = "bundleName";
+    std::string napiInfo = "info";
     napi_set_named_property(onCB->cbBase.cbInfo.env, result[1], paramName1.c_str(), jsValue1);
     napi_set_named_property(onCB->cbBase.cbInfo.env, result[1], paramName2.c_str(), jsValue2);
+    napi_set_named_property(onCB->cbBase.cbInfo.env, result[ARGS_TWO], napiState.c_str(), result[0]);
+    napi_set_named_property(onCB->cbBase.cbInfo.env, result[ARGS_TWO], napiInfo.c_str(), result[1]);
 
     napi_value callback = nullptr;
     napi_value undefined = nullptr;
@@ -1162,7 +1167,7 @@ void UvWorkOnCallback(uv_work_t *work, int status)
     napi_value callResult = nullptr;
     napi_get_reference_value(onCB->cbBase.cbInfo.env, onCB->cbBase.cbInfo.callback, &callback);
 
-    napi_call_function(onCB->cbBase.cbInfo.env, undefined, callback, ARGS_TWO, &result[0], &callResult);
+    napi_call_function(onCB->cbBase.cbInfo.env, undefined, callback, ARGS_ONE, &result[ARGS_TWO], &callResult);
     delete onCB;
     onCB = nullptr;
     delete work;
@@ -1669,21 +1674,25 @@ void ContinueAbilityCallbackCompletedCB(napi_env env, napi_status status, void *
         napi_get_undefined(env, &result[0]);
     } else {
         int32_t errCode = ErrorCodeReturn(continueAbilityCB->result);
+        if (continueAbilityCB->hasArgsWithBundleName) {
+            napi_throw(env, GenerateBusinessError(env, errCode, ErrorMessageReturn(errCode)));
+        }
         result[0] = GenerateBusinessError(env, errCode, ErrorMessageReturn(errCode));
     }
-
-    if (continueAbilityCB->callbackRef == nullptr) { // promise
-        if (continueAbilityCB->result == 0) {
-            napi_resolve_deferred(env, continueAbilityCB->cbBase.deferred, result[1]);
-        } else {
-            napi_reject_deferred(env, continueAbilityCB->cbBase.deferred, result[0]);
+    if (!continueAbilityCB->hasArgsWithBundleName) {
+        if (continueAbilityCB->callbackRef == nullptr) { // promise
+            if (continueAbilityCB->result == 0) {
+                napi_resolve_deferred(env, continueAbilityCB->cbBase.deferred, result[1]);
+            } else {
+                napi_reject_deferred(env, continueAbilityCB->cbBase.deferred, result[0]);
+            }
+        } else { // AsyncCallback
+            napi_value callback = nullptr;
+            napi_get_reference_value(env, continueAbilityCB->callbackRef, &callback);
+            napi_value callResult;
+            napi_call_function(env, nullptr, callback, ARGS_TWO, &result[0], &callResult);
+            napi_delete_reference(env, continueAbilityCB->callbackRef);
         }
-    } else { // AsyncCallback
-        napi_value callback = nullptr;
-        napi_get_reference_value(env, continueAbilityCB->callbackRef, &callback);
-        napi_value callResult;
-        napi_call_function(env, nullptr, callback, ARGS_TWO, &result[0], &callResult);
-        napi_delete_reference(env, continueAbilityCB->callbackRef);
     }
     napi_delete_async_work(env, continueAbilityCB->cbBase.asyncWork);
     delete continueAbilityCB;

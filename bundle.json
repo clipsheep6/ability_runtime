@@ -39,10 +39,8 @@
             "access_token",
             "ace_engine",
             "appspawn",
-            "ark_js_runtime",
             "background_task_mgr",
             "bundle_framework",
-            "common",
             "common_event_service",
             "c_utils",
             "data_share",
@@ -78,7 +76,6 @@
             "resource_schedule_service",
             "safwk",
             "samgr",
-            "startup_l2",
             "storage_service",
             "webview",
             "window_manager"

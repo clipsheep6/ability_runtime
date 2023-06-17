@@ -257,6 +257,7 @@ ohos_shared_library("abilitykit_native") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
@@ -291,7 +292,6 @@ ohos_shared_library("abilitykit_native") {
     ":abilitykit_utils",
     ":extensionkit_native",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
-    "${eventhandler_path}/frameworks/eventhandler:libeventhandler",
     "${init_path}/interfaces/innerkits:libbegetutil",
   ]
 
