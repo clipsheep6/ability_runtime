@@ -1627,7 +1627,7 @@ int AbilityManagerProxy::ForceTimeoutForTest(const std::string &abilityName, con
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         HILOG_ERROR("Remote() is NULL");
-        return;
+        return INNER_ERR;
     }
     int error = remote->SendRequest(IAbilityManager::FORCE_TIMEOUT, data, reply, option);
     if (error != NO_ERROR) {
@@ -3714,7 +3714,7 @@ int AbilityManagerProxy::BlockAmsService()
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         HILOG_ERROR("Remote() is NULL");
-        return;
+        return INNER_ERR;
     }
     auto error = remote->SendRequest(IAbilityManager::BLOCK_AMS_SERVICE, data, reply, option);
     if (error != NO_ERROR) {
@@ -3739,7 +3739,7 @@ int AbilityManagerProxy::BlockAbility(int32_t abilityRecordId)
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         HILOG_ERROR("Remote() is NULL");
-        return;
+        return INNER_ERR;
     }
     auto error = remote->SendRequest(IAbilityManager::BLOCK_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
@@ -3760,7 +3760,7 @@ int AbilityManagerProxy::BlockAppService()
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         HILOG_ERROR("Remote() is NULL");
-        return;
+        return INNER_ERR;
     }
     auto error = remote->SendRequest(IAbilityManager::BLOCK_APP_SERVICE, data, reply, option);
     if (error != NO_ERROR) {

@@ -1221,9 +1221,8 @@ bool AbilityManagerService::IsDmsAlive() const
 
 void AbilityManagerService::AppUpgradeCompleted(const std::string &bundleName, int32_t uid)
 {
-    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall() &&
-        !AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
-        HILOG_ERROR("Not sa or shell call");
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("Not sa call");
         return;
     }
 

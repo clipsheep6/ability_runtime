@@ -45,8 +45,8 @@ private:
     bool CheckKvStore();
     DistributedKv::Value ConvertAppExitReasonInfoToValue(
         const std::vector<std::string> &abilityList, const AAFwk::Reason &reason);
-    void ConvertAppExitReasonInfoFromValue(
-        const DistributedKv::Value &value, AAFwk::Reason &reason, int64_t &time_stamp, std::vector<std::string> &abilityList);
+    void ConvertAppExitReasonInfoFromValue(const DistributedKv::Value &value, AAFwk::Reason &reason,
+        int64_t &time_stamp, std::vector<std::string> &abilityList);
     void UpdateAppExitReason(
         const std::string &bundleName, const std::vector<std::string> &abilityList, const AAFwk::Reason &reason);
     void InnerDeleteAppExitReason(const std::string &bundleName);

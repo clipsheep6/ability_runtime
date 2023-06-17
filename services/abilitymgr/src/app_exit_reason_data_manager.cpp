@@ -234,8 +234,8 @@ DistributedKv::Value AppExitReasonDataManager::ConvertAppExitReasonInfoToValue(
     return value;
 }
 
-void AppExitReasonDataManager::ConvertAppExitReasonInfoFromValue(
-    const DistributedKv::Value &value, AAFwk::Reason &reason, int64_t &time_stamp, std::vector<std::string> &abilityList)
+void AppExitReasonDataManager::ConvertAppExitReasonInfoFromValue(const DistributedKv::Value &value,
+    AAFwk::Reason &reason, int64_t &time_stamp, std::vector<std::string> &abilityList)
 {
     nlohmann::json jsonObject = nlohmann::json::parse(value.ToString(), nullptr, false);
     if (jsonObject.is_discarded()) {
