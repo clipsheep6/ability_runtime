@@ -207,13 +207,13 @@ void Watchdog::ReportEvent()
     if (eventType == "THREAD_BLOCK_6S") {
         AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::APP_FREEZE);
         AppRecovery::GetInstance().ScheduleRecoverApp(StateReason::APP_FREEZE);
+        FaultData faultData;
+        faultData.faultType = FaultDataType::APP_FREEZE;
+        faultData.errorObject.message = msgContent;
+        faultData.errorObject.stack = stack;
+        faultData.errorObject.name = eventType;
+        DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFault(faultData);
     }
-    FaultData faultData;
-    faultData.faultType = FaultDataType::APP_FREEZE;
-    faultData.errorObject.message = msgContent;
-    faultData.errorObject.stack = stack;
-    faultData.errorObject.name = eventType;
-    DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFault(faultData);
 }
 
 void MainHandlerDumper::Dump(const std::string &message)
