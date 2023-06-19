@@ -3624,11 +3624,14 @@ int32_t AppMgrServiceInner::NotifyUnLoadRepairPatch(const std::string &bundleNam
 int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
 {
     HILOG_DEBUG("called.");
-    auto bundleMgr = remoteClientManager_->GetBundleManager();
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     int32_t pid = IPCSkeleton::GetCallingPid();
-    std::string bundleName;
-    bundleMgr->GetBundleNameForUid(callerUid, bundleName);
+    auto appRecord = GetAppRunningRecordByPid(pid);
+    if (appRecord == nullptr) {
+        HILOG_ERROR("no such appRecord");
+        return ERR_INVALID_VALUE;
+    }
+    std::string bundleName = appRecord->GetBundleName();
     HILOG_DEBUG("FaultData is: error name: %{public}s, faultType: %{public}s, uid: %{public}d, pid: %{public}d,\
         bundleName: %{public}s", faultData.errorObject.name.c_str(), FaultTypeToString(faultData.faultType).c_str(),
         callerUid, pid, bundleName.c_str());
@@ -3646,7 +3649,7 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
 #endif
         int32_t pid = faultData.pid;
         auto appRecord = GetAppRunningRecordByPid(pid);
-        if (!appRecord) {
+        if (appRecord == nullptr) {
             HILOG_ERROR("no such appRecord");
             return ERR_INVALID_VALUE;
         }

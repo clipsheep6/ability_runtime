@@ -41,15 +41,15 @@ public:
     int32_t DeleteAppExitReason(const std::string &bundleName);
 
 private:
-    // DistributedKv::Status GetKvStore();
-    // bool CheckKvStore();
-    // DistributedKv::Value ConvertAppExitReasonInfoToValue(
-    //     const std::vector<std::string> &abilityList, const AAFwk::Reason &reason);
-    // void ConvertAppExitReasonInfoFromValue(
-    //     const DistributedKv::Value &value, AAFwk::Reason &reason, int64_t &time_stamp, std::vector<std::string> &abilityList);
-    // void UpdateAppExitReason(
-    //     const std::string &bundleName, const std::vector<std::string> &abilityList, const AAFwk::Reason &reason);
-    // void InnerDeleteAppExitReason(const std::string &bundleName);
+    DistributedKv::Status GetKvStore();
+    bool CheckKvStore();
+    DistributedKv::Value ConvertAppExitReasonInfoToValue(
+        const std::vector<std::string> &abilityList, const AAFwk::Reason &reason);
+    void ConvertAppExitReasonInfoFromValue(const DistributedKv::Value &value, AAFwk::Reason &reason,
+        int64_t &time_stamp, std::vector<std::string> &abilityList);
+    void UpdateAppExitReason(
+        const std::string &bundleName, const std::vector<std::string> &abilityList, const AAFwk::Reason &reason);
+    void InnerDeleteAppExitReason(const std::string &bundleName);
 
     // const DistributedKv::AppId appId_ { "app_exit_reason_storage" };
     // const DistributedKv::StoreId storeId_ { "app_exit_reason_infos" };
