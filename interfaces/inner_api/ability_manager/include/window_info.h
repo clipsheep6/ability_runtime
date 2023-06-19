@@ -36,7 +36,8 @@ enum class TransitionReason : uint32_t {
     BACK_TRANSITION,
 };
 
-struct AbilityTransitionInfo : public Parcelable {
+class AbilityTransitionInfo : public Parcelable {
+public:
     std::string bundleName_;
     std::string abilityName_;
     uint32_t mode_ = 0;
