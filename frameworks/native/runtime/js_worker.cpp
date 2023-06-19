@@ -377,7 +377,7 @@ void AssetHelper::GetAmi(std::string& ami, const std::string& filePath)
 
     HILOG_INFO("targetFilePath %{public}s", targetFilePath.c_str());
 
-    if(!flag) {
+    if (!flag) {
         HILOG_ERROR("get targetFilePath failed!");
         return;
     }

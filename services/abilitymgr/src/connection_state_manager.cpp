@@ -29,6 +29,7 @@ namespace AAFwk {
 namespace {
 static const int MAX_PROCESS_LEN = 256;
 static const int MAX_RETRY = 10;
+static const int DELAY_TIME = 1000;
 OHOS::sptr<OHOS::AppExecFwk::IAppMgr> GetAppMgr()
 {
     OHOS::sptr<OHOS::ISystemAbilityManager> systemAbilityManager =
@@ -519,7 +520,7 @@ void ConnectionStateManager::InitAppStateObserver()
                 }
                 self->InitAppStateObserver();
             };
-            handler_->PostTask(initConnectionStateManagerTask, "InitConnectionStateManager", 1000);
+            handler_->PostTask(initConnectionStateManagerTask, "InitConnectionStateManager", DELAY_TIME);
             retry_++;
         }
         return;
