@@ -929,15 +929,19 @@ void UIAbilityLifecycleManager::NotifySCBToHandleException(const std::shared_ptr
     int32_t errorCode, std::string errorReason)
 {
     HILOG_DEBUG("call");
-    CHECK_POINTER(abilityRecord);
-    auto sessionInfo = abilityRecord->GetSessionInfo();
-    CHECK_POINTER(sessionInfo);
-    CHECK_POINTER(sessionInfo->sessionToken);
-    sessionInfo->errorCode = errorCode;
-    sessionInfo->errorReason = errorReason;
-    auto callerSession = iface_cast<Rosen::ISession>(sessionInfo->sessionToken);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("ability record is nullptr");
+        return;
+    }
+    auto callerSessionInfo = abilityRecord->GetSessionInfo();
+    CHECK_POINTER(callerSessionInfo);
+    CHECK_POINTER(callerSessionInfo->sessionToken);
+    auto callerSession = iface_cast<Rosen::ISession>(callerSessionInfo->sessionToken);
     HILOG_INFO("call notifySessionException");
-    callerSession->NotifySessionException(sessionInfo);
+    sptr<SessionInfo> info = abilityRecord->GetSessionInfo();
+    info->errorCode = errorCode;
+    info->errorReason = errorReason;
+    callerSession->NotifySessionException(info);
     EraseAbilityRecord(abilityRecord);
 }
 
@@ -957,11 +961,11 @@ void UIAbilityLifecycleManager::HandleForegroundTimeout(const std::shared_ptr<Ab
 {
     HILOG_DEBUG("call");
     if (abilityRecord == nullptr) {
-        HILOG_ERROR("ability record is nullptr.");
+        HILOG_ERROR("ability record is nullptr");
         return;
     }
     if (!abilityRecord->IsAbilityState(AbilityState::FOREGROUNDING)) {
-        HILOG_ERROR("this ability is not foregrounding state.");
+        HILOG_ERROR("this ability is not foregrounding state");
         return;
     }
     NotifySCBToHandleException(abilityRecord,
