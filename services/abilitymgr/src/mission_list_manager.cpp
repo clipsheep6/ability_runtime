@@ -320,7 +320,9 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
     const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest)
 {
     std::string connector = "##";
-    std::string traceName = __PRETTY_FUNCTION__ + connector + abilityRequest.want.GetElement().GetAbilityName();
+    auto element = abilityRequest.want.GetElement();
+    std::string traceName = __PRETTY_FUNCTION__ + connector + element.GetBundleName() + connector +
+        element.GetAbilityName();
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, traceName);
     HILOG_DEBUG("Start ability locked.");
     // 1. choose target mission list
