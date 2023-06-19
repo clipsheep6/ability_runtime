@@ -22,9 +22,14 @@
 
 #include "options.h"
 
+#ifdef _WIN32
+#define ABILITY_EXPORT __attribute__((dllexport))
+#else
+#define ABILITY_EXPORT __attribute__((visibility("default")))
+#endif
 namespace OHOS {
 namespace AbilityRuntime {
-class Simulator {
+class ABILITY_EXPORT Simulator {
 public:
     using TerminateCallback = std::function<void(int64_t)>;
     using FormUpdateCallback = std::function<void(int64_t, const std::string&)>;
