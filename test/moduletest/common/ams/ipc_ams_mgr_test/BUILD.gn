@@ -41,7 +41,7 @@ ohos_moduletest("AmsIpcAmsmgrModuleTest") {
     "bundle_framework:appexecfwk_base",
     "eventhandler:libeventhandler",
     "hicollie_native:libhicollie",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "window_manager:libwm",
   ]

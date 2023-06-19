@@ -183,10 +183,11 @@ void UriPermissionManagerStubImpl::RevokeAllUriPermissions(int tokenId)
         for (auto iter = uriMap_.begin(); iter != uriMap_.end();) {
             auto& list = iter->second;
             for (auto it = list.begin(); it != list.end();) {
-                if (it->targetTokenId == static_cast<int>(tokenId) || it->fromTokenId == static_cast<int>(tokenId)) {
-                    HILOG_INFO("Erase an info form list.");
-                    uriLists[it->targetTokenId].emplace_back(iter->first);
-                    list.erase(it++);
+                if (it->targetTokenId == static_cast<uint32_t>(tokenId) ||
+                    it->fromTokenId == static_cast<uint32_t>(tokenId)) {
+                        HILOG_INFO("Erase an info form list.");
+                        uriLists[it->targetTokenId].emplace_back(iter->first);
+                        list.erase(it++);
                 } else {
                     it++;
                 }

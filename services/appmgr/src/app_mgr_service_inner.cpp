@@ -1857,7 +1857,7 @@ bool AppMgrServiceInner::SendProcessStartEvent(const std::shared_ptr<AppRunningR
         eventInfo.callerProcessName = callerAppRecord->GetProcessName();
     }
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::PROCESS_START, HiSysEventType::BEHAVIOR, eventInfo);
-    HILOG_INFO("%{public}s. time : %{public}" PRId64 ", abilityType : %{public}d, bundle : %{public}s,\
+    HILOG_DEBUG("%{public}s. time : %{public}" PRId64 ", abilityType : %{public}d, bundle : %{public}s,\
         uid : %{public}d, process : %{public}s",
         __func__, eventInfo.time, eventInfo.abilityType, eventInfo.callerBundleName.c_str(), eventInfo.callerUid,
         eventInfo.callerProcessName.c_str());

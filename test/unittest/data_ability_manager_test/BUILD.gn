@@ -60,8 +60,8 @@ ohos_unittest("data_ability_manager_test") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
-    "hitrace_native:hitrace_meter",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "init:libbeget_proxy",
     "ipc:ipc_core",
   ]

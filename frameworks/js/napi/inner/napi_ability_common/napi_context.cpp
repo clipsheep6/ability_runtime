@@ -71,16 +71,16 @@ static Ability* GetJSAbilityObject(napi_env env)
 
 static void SetShowOnLockScreenAsyncCompleteCB(napi_env env, napi_status status, void *data)
 {
-    HILOG_INFO("%{public}s,called", __func__);
+    HILOG_DEBUG("called");
     ShowOnLockScreenCB *showOnLockScreenCB = static_cast<ShowOnLockScreenCB *>(data);
     if (showOnLockScreenCB == nullptr) {
-        HILOG_ERROR("%{public}s, input param is nullptr", __func__);
+        HILOG_ERROR("input param is nullptr");
         return;
     }
 
     showOnLockScreenCB->cbBase.errCode = NAPI_ERR_NO_ERROR;
     if (showOnLockScreenCB->cbBase.ability == nullptr) {
-        HILOG_ERROR("%{public}s, input param is nullptr", __func__);
+        HILOG_ERROR("input param is nullptr");
         showOnLockScreenCB->cbBase.errCode = NAPI_ERR_ACE_ABILITY;
     } else {
         showOnLockScreenCB->cbBase.ability->SetShowOnLockScreen(showOnLockScreenCB->isShow);
@@ -101,21 +101,21 @@ static void SetShowOnLockScreenAsyncCompleteCB(napi_env env, napi_status status,
     delete showOnLockScreenCB;
     showOnLockScreenCB = nullptr;
 
-    HILOG_INFO("%{public}s,called end", __func__);
+    HILOG_DEBUG("called end");
 }
 
 static napi_value SetShowOnLockScreenAsync(napi_env env, napi_value *args, ShowOnLockScreenCB *showOnLockScreenCB)
 {
-    HILOG_INFO("%{public}s,called", __func__);
+    HILOG_DEBUG("called");
     if (showOnLockScreenCB == nullptr) {
-        HILOG_ERROR("%{public}s, input param is nullptr", __func__);
+        HILOG_ERROR("input param is nullptr");
         return nullptr;
     }
 
     napi_valuetype valuetypeParam1 = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, args[PARAM1], &valuetypeParam1));
     if (valuetypeParam1 != napi_function) {
-        HILOG_ERROR("%{public}s error, params is error type", __func__);
+        HILOG_ERROR("error, params is error type");
         return nullptr;
     }
 
@@ -133,15 +133,15 @@ static napi_value SetShowOnLockScreenAsync(napi_env env, napi_value *args, ShowO
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
 
-    HILOG_INFO("%{public}s,called end", __func__);
+    HILOG_INFO("called end");
     return result;
 }
 
 napi_value SetShowOnLockScreenPromise(napi_env env, ShowOnLockScreenCB *cbData)
 {
-    HILOG_INFO("%{public}s, promise.", __func__);
+    HILOG_INFO("promise.");
     if (cbData == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("param == nullptr.");
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -161,7 +161,7 @@ napi_value SetShowOnLockScreenPromise(napi_env env, ShowOnLockScreenCB *cbData)
             ShowOnLockScreenCB *showOnLockScreenCB = static_cast<ShowOnLockScreenCB *>(data);
             showOnLockScreenCB->cbBase.errCode = NO_ERROR;
             if (showOnLockScreenCB->cbBase.ability == nullptr) {
-                HILOG_ERROR("%{public}s, input param is nullptr", __func__);
+                HILOG_ERROR("input param is nullptr");
                 showOnLockScreenCB->cbBase.errCode = NAPI_ERR_ACE_ABILITY;
             } else {
                 showOnLockScreenCB->cbBase.ability->SetShowOnLockScreen(showOnLockScreenCB->isShow);
@@ -182,13 +182,13 @@ napi_value SetShowOnLockScreenPromise(napi_env env, ShowOnLockScreenCB *cbData)
         static_cast<void *>(cbData),
         &cbData->cbBase.asyncWork);
     napi_queue_async_work(env, cbData->cbBase.asyncWork);
-    HILOG_INFO("%{public}s, promise end.", __func__);
+    HILOG_INFO("promise end.");
     return promise;
 }
 
 napi_value NAPI_SetDisplayOrientationWrap(napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called.");
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value jsthis = nullptr;
@@ -197,20 +197,18 @@ napi_value NAPI_SetDisplayOrientationWrap(napi_env env, napi_callback_info info,
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
 
     if (!UnwrapSetDisplayOrientation(env, argc, args, asyncCallbackInfo)) {
-        HILOG_INFO("%{public}s called. Invoke UnwrapSetDisplayOrientation fail", __func__);
+        HILOG_INFO("called. Invoke UnwrapSetDisplayOrientation fail");
         return nullptr;
     }
 
     AsyncParamEx asyncParamEx;
     if (asyncCallbackInfo->cbInfo.callback != nullptr) {
-        HILOG_INFO("%{public}s called. asyncCallback.", __func__);
         asyncParamEx.resource = "NAPI_SetDisplayOrientationCallback";
         asyncParamEx.execute = SetDisplayOrientationExecuteCallbackWork;
         asyncParamEx.complete = CompleteAsyncCallbackWork;
 
         return ExecuteAsyncCallbackWork(env, asyncCallbackInfo, &asyncParamEx);
     } else {
-        HILOG_INFO("%{public}s called. promise.", __func__);
         asyncParamEx.resource = "NAPI_SetDisplayOrientationPromise";
         asyncParamEx.execute = SetDisplayOrientationExecuteCallbackWork;
         asyncParamEx.complete = CompletePromiseCallbackWork;
@@ -221,10 +219,10 @@ napi_value NAPI_SetDisplayOrientationWrap(napi_env env, napi_callback_info info,
 
 void SetDisplayOrientationExecuteCallbackWork(napi_env env, void *data)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called.");
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_INFO("%{public}s called. asyncCallbackInfo is null", __func__);
+        HILOG_INFO("called. asyncCallbackInfo is null");
         return;
     }
 
@@ -242,30 +240,30 @@ void SetDisplayOrientationExecuteCallbackWork(napi_env env, void *data)
 
 bool UnwrapSetDisplayOrientation(napi_env env, size_t argc, napi_value *argv, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_DEBUG("%{public}s called, argc=%{public}zu", __func__, argc);
+    HILOG_DEBUG("called, argc=%{public}zu", argc);
 
     const size_t argcMax = 2;
     if (argc > argcMax || argc < argcMax - 1) {
-        HILOG_ERROR("%{public}s called, Params is invalid.", __func__);
+        HILOG_ERROR("called, Params is invalid.");
         return false;
     }
 
     if (argc == argcMax) {
         if (!CreateAsyncCallback(env, argv[PARAM1], asyncCallbackInfo)) {
-            HILOG_DEBUG("%{public}s called, the second parameter is invalid.", __func__);
+            HILOG_DEBUG("called, the second parameter is invalid.");
             return false;
         }
     }
 
     int orientation = 0;
     if (!UnwrapInt32FromJS2(env, argv[PARAM0], orientation)) {
-        HILOG_ERROR("%{public}s called, the parameter is invalid.", __func__);
+        HILOG_ERROR("called, the parameter is invalid.");
         return false;
     }
 
     int maxRange = 3;
     if (orientation < 0 || orientation > maxRange) {
-        HILOG_ERROR("%{public}s called, wrong parameter range.", __func__);
+        HILOG_ERROR("called, wrong parameter range.");
         return false;
     }
 
@@ -275,7 +273,7 @@ bool UnwrapSetDisplayOrientation(napi_env env, size_t argc, napi_value *argv, As
 
 static void SetWakeUpScreenAsyncCompleteCB(napi_env env, napi_status status, void *data)
 {
-    HILOG_INFO("%{public}s,called", __func__);
+    HILOG_INFO("called");
     SetWakeUpScreenCB *setWakeUpScreenCB = static_cast<SetWakeUpScreenCB *>(data);
     if (setWakeUpScreenCB == nullptr) {
         HILOG_ERROR("%{public}s, input param is nullptr", __func__);
@@ -309,15 +307,13 @@ static void SetWakeUpScreenAsyncCompleteCB(napi_env env, napi_status status, voi
     napi_delete_async_work(env, setWakeUpScreenCB->cbBase.asyncWork);
     delete setWakeUpScreenCB;
     setWakeUpScreenCB = nullptr;
-
-    HILOG_INFO("%{public}s,called end", __func__);
 }
 
 static napi_value SetWakeUpScreenAsync(napi_env env, napi_value *args, SetWakeUpScreenCB *cbData)
 {
-    HILOG_INFO("%{public}s,called", __func__);
+    HILOG_INFO("called");
     if (cbData == nullptr || args == nullptr) {
-        HILOG_ERROR("%{public}s, input param is nullptr", __func__);
+        HILOG_ERROR("input param is nullptr");
         return nullptr;
     }
 
@@ -326,7 +322,7 @@ static napi_value SetWakeUpScreenAsync(napi_env env, napi_value *args, SetWakeUp
     NAPI_CALL(env, napi_typeof(env, args[PARAM0], &valuetypeParam0));
     NAPI_CALL(env, napi_typeof(env, args[PARAM1], &valuetypeParam1));
     if (valuetypeParam0 != napi_boolean || valuetypeParam1 != napi_function) {
-        HILOG_ERROR("%{public}s, Params is error type", __func__);
+        HILOG_ERROR("Params is error type");
         return nullptr;
     }
     NAPI_CALL(env, napi_create_reference(env, args[PARAM1], 1, &cbData->cbBase.cbInfo.callback));
@@ -346,16 +342,14 @@ static napi_value SetWakeUpScreenAsync(napi_env env, napi_value *args, SetWakeUp
     NAPI_CALL(env, napi_queue_async_work(env, cbData->cbBase.asyncWork));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
-
-    HILOG_INFO("%{public}s,called end", __func__);
     return result;
 }
 
 napi_value SetWakeUpScreenPromise(napi_env env, SetWakeUpScreenCB *cbData)
 {
-    HILOG_INFO("%{public}s, promise.", __func__);
+    HILOG_INFO("promise.");
     if (cbData == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("param == nullptr.");
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -375,7 +369,7 @@ napi_value SetWakeUpScreenPromise(napi_env env, SetWakeUpScreenCB *cbData)
             SetWakeUpScreenCB *setWakeUpScreenCB = static_cast<SetWakeUpScreenCB *>(data);
             setWakeUpScreenCB->cbBase.errCode = NO_ERROR;
             if (setWakeUpScreenCB->cbBase.ability == nullptr) {
-                HILOG_ERROR("%{public}s, input param is nullptr", __func__);
+                HILOG_ERROR("input param is nullptr");
                 setWakeUpScreenCB->cbBase.errCode = NAPI_ERR_ACE_ABILITY;
             } else {
                 setWakeUpScreenCB->cbBase.ability->SetWakeUpScreen(setWakeUpScreenCB->wakeUp);
@@ -395,15 +389,14 @@ napi_value SetWakeUpScreenPromise(napi_env env, SetWakeUpScreenCB *cbData)
         static_cast<void *>(cbData),
         &cbData->cbBase.asyncWork);
     napi_queue_async_work(env, cbData->cbBase.asyncWork);
-    HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }
 
 static napi_value SetWakeUpScreenWrap(napi_env env, napi_callback_info info, SetWakeUpScreenCB *cbData)
 {
-    HILOG_INFO("%{public}s,called", __func__);
+    HILOG_INFO("called");
     if (cbData == nullptr) {
-        HILOG_ERROR("%{public}s, input param cbData is nullptr", __func__);
+        HILOG_ERROR("input param cbData is nullptr");
         return nullptr;
     }
 
@@ -414,12 +407,12 @@ static napi_value SetWakeUpScreenWrap(napi_env env, napi_callback_info info, Set
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync != argStdValue && argcAsync != argPromise) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("Wrong argument count.");
         return nullptr;
     }
 
     if (!UnwrapBoolFromJS2(env, args[PARAM0], cbData->wakeUp)) {
-        HILOG_ERROR("%{public}s, UnwrapBoolFromJS2(wakeUp) run error", __func__);
+        HILOG_ERROR("UnwrapBoolFromJS2(wakeUp) run error");
         return nullptr;
     }
 
@@ -439,7 +432,6 @@ static napi_value SetWakeUpScreenWrap(napi_env env, napi_callback_info info, Set
     } else {
         ret = SetWakeUpScreenPromise(env, cbData);
     }
-    HILOG_INFO("%{public}s,called end", __func__);
     return ret;
 }
 #endif
@@ -447,7 +439,7 @@ static napi_value SetWakeUpScreenWrap(napi_env env, napi_callback_info info, Set
 napi_value NAPI_SetShowOnLockScreen(napi_env env, napi_callback_info info)
 {
 #ifdef SUPPORT_GRAPHICS
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_INFO("called");
 
     size_t argc = 2;
     const size_t argcAsync = 2, argcPromise = 1;
@@ -455,14 +447,14 @@ napi_value NAPI_SetShowOnLockScreen(napi_env env, napi_callback_info info)
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
     if (argc != argcAsync && argc != argcPromise) {
-        HILOG_ERROR("%{public}s error, wrong argument count.", __func__);
+        HILOG_ERROR("error, wrong argument count.");
         return nullptr;
     }
 
     napi_valuetype valuetypeParam0 = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, args[PARAM0], &valuetypeParam0));
     if (valuetypeParam0 != napi_boolean) {
-        HILOG_ERROR("%{public}s error, params is error type", __func__);
+        HILOG_ERROR("error, params is error type");
         return nullptr;
     }
 
@@ -470,7 +462,7 @@ napi_value NAPI_SetShowOnLockScreen(napi_env env, napi_callback_info info)
     showOnLockScreenCB->cbBase.cbInfo.env = env;
     showOnLockScreenCB->cbBase.abilityType = AbilityType::PAGE;
     if (!UnwrapBoolFromJS2(env, args[PARAM0], showOnLockScreenCB->isShow)) {
-        HILOG_ERROR("%{public}s error, unwrapBoolFromJS2 error", __func__);
+        HILOG_ERROR("error, unwrapBoolFromJS2 error");
         delete showOnLockScreenCB;
         showOnLockScreenCB = nullptr;
         return nullptr;
@@ -485,7 +477,7 @@ napi_value NAPI_SetShowOnLockScreen(napi_env env, napi_callback_info info)
     }
 
     if (ret == nullptr) {
-        HILOG_ERROR("%{public}s, SetShowOnLockScreenWrap failed.", __func__);
+        HILOG_ERROR("SetShowOnLockScreenWrap failed.");
         delete showOnLockScreenCB;
         showOnLockScreenCB = nullptr;
         ret = WrapVoidToJS(env);
@@ -499,24 +491,24 @@ napi_value NAPI_SetShowOnLockScreen(napi_env env, napi_callback_info info)
 bool UnwrapParamVerifySelfPermission(
     napi_env env, size_t argc, napi_value *argv, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s called, argc=%{public}zu", __func__, argc);
+    HILOG_INFO("called, argc=%{public}zu", argc);
 
     const size_t argcMax = 2;
     if (argc > argcMax || argc < argcMax - 1) {
-        HILOG_INFO("%{public}s called, Params is invalid.", __func__);
+        HILOG_INFO("called, Params is invalid.");
         return false;
     }
 
     if (argc == argcMax) {
         if (!CreateAsyncCallback(env, argv[PARAM1], asyncCallbackInfo)) {
-            HILOG_INFO("%{public}s called, the second parameter is invalid.", __func__);
+            HILOG_INFO("called, the second parameter is invalid.");
             return false;
         }
     }
 
     std::string permission("");
     if (!UnwrapStringFromJS2(env, argv[PARAM0], permission)) {
-        HILOG_INFO("%{public}s called, the first parameter is invalid.", __func__);
+        HILOG_INFO("called, the first parameter is invalid.");
         return false;
     }
 
@@ -526,11 +518,11 @@ bool UnwrapParamVerifySelfPermission(
 
 void VerifySelfPermissionExecuteCallbackWork(napi_env env, void *data)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called.");
 
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_INFO("%{public}s called. asyncCallbackInfo is null", __func__);
+        HILOG_INFO("called. asyncCallbackInfo is null");
         return;
     }
 
@@ -549,7 +541,7 @@ void VerifySelfPermissionExecuteCallbackWork(napi_env env, void *data)
 
 napi_value NAPI_VerifySelfPermissionWrap(napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called.");
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value jsthis = nullptr;
@@ -558,20 +550,18 @@ napi_value NAPI_VerifySelfPermissionWrap(napi_env env, napi_callback_info info, 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
 
     if (!UnwrapParamVerifySelfPermission(env, argc, args, asyncCallbackInfo)) {
-        HILOG_INFO("%{public}s called. Invoke UnwrapParamVerifySelfPermission fail", __func__);
+        HILOG_INFO("called. Invoke UnwrapParamVerifySelfPermission fail");
         return nullptr;
     }
 
     AsyncParamEx asyncParamEx;
     if (asyncCallbackInfo->cbInfo.callback != nullptr) {
-        HILOG_INFO("%{public}s called. asyncCallback.", __func__);
         asyncParamEx.resource = "NAPI_VerifySelfPermissionCallback";
         asyncParamEx.execute = VerifySelfPermissionExecuteCallbackWork;
         asyncParamEx.complete = CompleteAsyncCallbackWork;
 
         return ExecuteAsyncCallbackWork(env, asyncCallbackInfo, &asyncParamEx);
     } else {
-        HILOG_INFO("%{public}s called. promise.", __func__);
         asyncParamEx.resource = "NAPI_VerifySelfPermissionPromise";
         asyncParamEx.execute = VerifySelfPermissionExecuteCallbackWork;
         asyncParamEx.complete = CompletePromiseCallbackWork;
@@ -582,7 +572,7 @@ napi_value NAPI_VerifySelfPermissionWrap(napi_env env, napi_callback_info info, 
 
 napi_value NAPI_VerifySelfPermission(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called.");
 
     AsyncJSCallbackInfo *asyncCallbackInfo = CreateAsyncJSCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
@@ -600,30 +590,30 @@ napi_value NAPI_VerifySelfPermission(napi_env env, napi_callback_info info)
 bool UnwrapRequestPermissionsFromUser(
     napi_env env, size_t argc, napi_value *argv, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s called, argc=%{public}zu", __func__, argc);
+    HILOG_INFO("called, argc=%{public}zu", argc);
 
     const size_t argcMax = 3;
     if (argc > argcMax || argc < argcMax - 1) {
-        HILOG_INFO("%{public}s called, parameters is invalid", __func__);
+        HILOG_INFO("called, parameters is invalid");
         return false;
     }
 
     if (argc == argcMax) {
         if (!CreateAsyncCallback(env, argv[PARAM2], asyncCallbackInfo)) {
-            HILOG_DEBUG("%{public}s called, the third parameter is invalid.", __func__);
+            HILOG_DEBUG("called, the third parameter is invalid.");
             return false;
         }
     }
 
     std::vector<std::string> permissionList;
     if (!UnwrapArrayStringFromJS(env, argv[PARAM0], permissionList)) {
-        HILOG_INFO("%{public}s called, the first parameter is invalid.", __func__);
+        HILOG_INFO("called, the first parameter is invalid.");
         return false;
     }
 
     int requestCode = 0;
     if (!UnwrapInt32FromJS2(env, argv[PARAM1], requestCode)) {
-        HILOG_INFO("%{public}s called, the second parameter is invalid.", __func__);
+        HILOG_INFO("called, the second parameter is invalid.");
         return false;
     }
 
@@ -634,10 +624,10 @@ bool UnwrapRequestPermissionsFromUser(
 
 void RequestPermissionsFromUserExecuteCallbackWork(napi_env env, void *data)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called.");
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_INFO("%{public}s called. asyncCallbackInfo is null", __func__);
+        HILOG_INFO("called. asyncCallbackInfo is null");
         return;
     }
 
@@ -661,11 +651,11 @@ void RequestPermissionsFromUserExecuteCallbackWork(napi_env env, void *data)
 
 void RequestPermissionsFromUserCompleteAsyncCallbackWork(napi_env env, napi_status status, void *data)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called.");
 
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_INFO("%{public}s called, asyncCallbackInfo is null", __func__);
+        HILOG_INFO("called, asyncCallbackInfo is null");
         return;
     }
 
@@ -696,7 +686,7 @@ void RequestPermissionsFromUserCompleteAsyncCallbackWork(napi_env env, napi_stat
 napi_value NAPI_RequestPermissionsFromUserWrap(
     napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called.");
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value jsthis = nullptr;
@@ -705,20 +695,18 @@ napi_value NAPI_RequestPermissionsFromUserWrap(
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
 
     if (!UnwrapRequestPermissionsFromUser(env, argc, args, asyncCallbackInfo)) {
-        HILOG_ERROR("%{public}s called. Invoke UnwrapRequestPermissionsFromUser failed.", __func__);
+        HILOG_ERROR("called. Invoke UnwrapRequestPermissionsFromUser failed.");
         return nullptr;
     }
 
     AsyncParamEx asyncParamEx;
     if (asyncCallbackInfo->cbInfo.callback != nullptr) {
-        HILOG_DEBUG("%{public}s called. asyncCallback.", __func__);
         asyncParamEx.resource = "NAPI_RequestPermissionsFromUserCallback";
         asyncParamEx.execute = RequestPermissionsFromUserExecuteCallbackWork;
         asyncParamEx.complete = RequestPermissionsFromUserCompleteAsyncCallbackWork;
 
         return ExecuteAsyncCallbackWork(env, asyncCallbackInfo, &asyncParamEx);
     } else {
-        HILOG_DEBUG("%{public}s called. promise.", __func__);
         napi_deferred deferred = nullptr;
         napi_value promise = nullptr;
         NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
@@ -744,11 +732,11 @@ napi_value NAPI_RequestPermissionsFromUserWrap(
 
 napi_value NAPI_RequestPermissionsFromUser(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called.");
 
     AsyncJSCallbackInfo *asyncCallbackInfo = CreateAsyncJSCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_INFO("%{public}s called. Invoke CreateAsyncJSCallbackInfo failed.", __func__);
+        HILOG_INFO("called. Invoke CreateAsyncJSCallbackInfo failed.");
         return WrapVoidToJS(env);
     }
 
@@ -773,12 +761,11 @@ struct OnRequestPermissionsData {
         if (asyncTask) {
             delete asyncTask;
         }
-        HILOG_INFO("%{public}s, called env", __func__);
     }
 
     static void WorkCallback(uv_work_t* work)
     {
-        HILOG_INFO("%{public}s, called env", __func__);
+        HILOG_INFO("called env");
     }
 
     static void AfterWorkCallback(uv_work_t* work, int status)
@@ -813,7 +800,6 @@ struct OnRequestPermissionsData {
         data->asyncTask->Resolve(engine, objValue);
 
         scopeManager->Close(scope);
-        HILOG_INFO("%{public}s, called env", __func__);
     }
 };
 

@@ -26,7 +26,7 @@ ohos_shared_library("abilityconstant_napi") {
 
   external_deps = [
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "napi:ace_napi",
   ]
 
@@ -47,7 +47,7 @@ ohos_shared_library("abilityconstant") {
 
   external_deps = [
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "napi:ace_napi",
   ]
 

@@ -32,7 +32,7 @@ ohos_shared_library("module_test_dump_util_lib") {
 
   external_deps = [
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
   ]
 
   subsystem_name = "ability"

@@ -31,7 +31,7 @@ ohos_shared_library("dialog_request_info") {
     "ability_base:base",
     "ability_base:want",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "napi:ace_napi",
   ]
 

@@ -107,8 +107,8 @@ ohos_shared_library("app_manager") {
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
-    "hitrace_native:hitrace_meter",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]

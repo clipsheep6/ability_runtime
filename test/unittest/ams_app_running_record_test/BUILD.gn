@@ -50,7 +50,7 @@ ohos_unittest("AmsAppRunningRecordTest") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "eventhandler:libeventhandler",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "window_manager:libwm",
   ]

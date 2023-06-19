@@ -47,7 +47,7 @@ ohos_source_set("appexecfwk_appmgr_mock") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "eventhandler:libeventhandler",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 
@@ -82,8 +82,8 @@ ohos_source_set("appexecfwk_bundlemgr_mock") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "eventhandler:libeventhandler",
-    "hisysevent_native:libhisysevent",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
     "ipc:ipc_core",
   ]
 

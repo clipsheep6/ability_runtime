@@ -2907,7 +2907,7 @@ HWTEST_F(AppMgrServiceInnerTest, StartRenderProcess_002, TestSize.Level0)
         RenderRecord::CreateRenderRecord(hostPid1, renderParam, 1, 1, 1, appRecord);
     appRecord->AddRenderRecord(renderRecord);
     ret = appMgrServiceInner->StartRenderProcess(hostPid1, renderParam, 1, 1, 1, renderPid);
-    EXPECT_EQ(ret, 8454244);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
 
     appMgrServiceInner->appRunningManager_ = nullptr;
     ret = appMgrServiceInner->StartRenderProcess(hostPid1, renderParam, 1, 1, 1, renderPid);

@@ -1255,6 +1255,11 @@ bool AbilityRecord::IsUIExtension() const
     return abilityInfo_.extensionAbilityType == AppExecFwk::ExtensionAbilityType::UI;
 }
 
+bool AbilityRecord::IsWindowExtension() const
+{
+    return abilityInfo_.extensionAbilityType == AppExecFwk::ExtensionAbilityType::WINDOW;
+}
+
 void AbilityRecord::SetCreateByConnectMode()
 {
     isCreateByConnect_ = true;

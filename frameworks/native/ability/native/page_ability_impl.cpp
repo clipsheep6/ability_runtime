@@ -78,7 +78,6 @@ void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
         HILOG_INFO("Handle ability transaction done, notify ability manager service.");
         AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, GetRestoreData());
     }
-    HILOG_INFO("PageAbilityImpl::HandleAbilityTransaction end");
 }
 
 /**
@@ -92,7 +91,7 @@ void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
  */
 bool PageAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
 {
-    HILOG_INFO("PageAbilityImpl::AbilityTransaction begin");
+    HILOG_DEBUG("PageAbilityImpl::AbilityTransaction begin");
     bool ret = true;
     switch (targetState.state) {
         case AAFwk::ABILITY_STATE_INITIAL: {
@@ -147,7 +146,7 @@ bool PageAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycl
             break;
         }
     }
-    HILOG_INFO("PageAbilityImpl::AbilityTransaction end: retVal = %{public}d", static_cast<int>(ret));
+    HILOG_DEBUG("PageAbilityImpl::AbilityTransaction end: retVal = %{public}d", static_cast<int>(ret));
     return ret;
 }
 

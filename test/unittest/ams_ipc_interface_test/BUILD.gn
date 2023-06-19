@@ -34,7 +34,7 @@ ohos_unittest("AmsIpcAppSchedulerInterfaceTest") {
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:zuri",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 }
@@ -55,7 +55,7 @@ ohos_unittest("AmsIpcAppMgrInterfaceTest") {
   external_deps = [
     "ability_base:want",
     "bundle_framework:appexecfwk_core",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 }
