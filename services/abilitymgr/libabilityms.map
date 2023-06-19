@@ -79,6 +79,9 @@
       *WantSenderProxy*;
       *WantSenderStub*;
     };
+    extern "C" {
+      RecordAppExitReason*;
+    };
   local:
     *;
 };

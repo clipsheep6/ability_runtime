@@ -1132,3 +1132,13 @@ void AbilityManagerClient::StartSpecifiedAbilityBySCB(const Want &want)
 }
 }  // namespace AAFwk
 }  // namespace OHOS
+void RecordAppExitReason(int32_t reason)
+{
+    if (reason < static_cast<int32_t>(OHOS::AAFwk::Reason::REASON_MIN) ||
+        reason > static_cast<int32_t>(OHOS::AAFwk::Reason::REASON_MAX)) {
+        HILOG_INFO("Invalid AppExitReason(%d)", reason);
+        return;
+    }
+
+    OHOS::AAFwk::AbilityManagerClient::GetInstance()->RecordAppExitReason(static_cast<OHOS::AAFwk::Reason>(reason));
+}
