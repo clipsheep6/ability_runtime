@@ -82,10 +82,11 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
     UpdateAbilityRecordLaunchReason(abilityRequest, uiAbilityRecord);
     NotifyAbilityToken(uiAbilityRecord->GetToken(), abilityRequest);
 
-    uiAbilityRecord->ProcessForegroundAbility();
+    uiAbilityRecord->AddCallerRecord(sessionInfo->callerToken, sessionInfo->requestCode);
     if (iter == sessionAbilityMap_.end()) {
         sessionAbilityMap_.emplace(sessionInfo->persistentId, uiAbilityRecord);
     }
+    uiAbilityRecord->ProcessForegroundAbility();
     return ERR_OK;
 }
 

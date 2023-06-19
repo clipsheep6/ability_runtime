@@ -1112,7 +1112,7 @@ void AbilityManagerClient::SetRootSceneSession(const sptr<IRemoteObject> &rootSc
     HILOG_INFO("call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN(abms);
-    return abms->SetRootSceneSession(rootSceneSession);
+    abms->SetRootSceneSession(rootSceneSession);
 }
 
 void AbilityManagerClient::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
@@ -1120,7 +1120,7 @@ void AbilityManagerClient::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionIn
     HILOG_INFO("call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN(abms);
-    return abms->CallUIAbilityBySCB(sessionInfo);
+    abms->CallUIAbilityBySCB(sessionInfo);
 }
 
 void AbilityManagerClient::StartSpecifiedAbilityBySCB(const Want &want)
