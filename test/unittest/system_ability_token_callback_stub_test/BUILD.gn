@@ -48,7 +48,7 @@ ohos_unittest("system_ability_token_callback_stub_test") {
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "eventhandler:libeventhandler",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 

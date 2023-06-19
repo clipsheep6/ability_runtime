@@ -41,7 +41,7 @@ ohos_shared_library("uri_permission_mgr") {
   external_deps = [
     "ability_base:zuri",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
     "storage_service:storage_manager_sa_proxy",

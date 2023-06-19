@@ -59,8 +59,8 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_first") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "eventhandler:libeventhandler",
-    "hitrace_native:hitrace_meter",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "ipc:ipc_core",
   ]
 }
@@ -95,8 +95,8 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_second") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "eventhandler:libeventhandler",
-    "hitrace_native:hitrace_meter",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "ipc:ipc_core",
   ]
 }
@@ -131,8 +131,8 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_third") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "eventhandler:libeventhandler",
-    "hitrace_native:hitrace_meter",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "ipc:ipc_core",
   ]
 }
@@ -167,8 +167,8 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_fourth") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "eventhandler:libeventhandler",
-    "hitrace_native:hitrace_meter",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "ipc:ipc_core",
   ]
 }

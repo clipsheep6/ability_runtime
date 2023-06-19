@@ -50,7 +50,7 @@ ohos_moduletest("ability_caller_fw_module_test") {
     "ability_base:want",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 }

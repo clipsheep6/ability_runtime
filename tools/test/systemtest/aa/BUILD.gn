@@ -50,7 +50,7 @@ ohos_systemtest("aa_command_start_system_test") {
     "ability_base:base",
     "ability_base:configuration",
     "bundle_framework:appexecfwk_base",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 }
@@ -82,7 +82,7 @@ ohos_systemtest("aa_command_stop_service_system_test") {
     "ability_base:base",
     "ability_base:configuration",
     "bundle_framework:appexecfwk_base",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 }
@@ -118,7 +118,7 @@ ohos_systemtest("aa_command_dump_system_test") {
     "ability_base:base",
     "ability_base:configuration",
     "bundle_framework:appexecfwk_base",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 }

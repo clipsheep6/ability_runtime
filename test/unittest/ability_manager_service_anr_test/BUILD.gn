@@ -63,7 +63,7 @@ ohos_unittest("ability_manager_service_anr_test") {
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "dsoftbus:softbus_client",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "init:libbeget_proxy",
     "ipc:ipc_core",
   ]

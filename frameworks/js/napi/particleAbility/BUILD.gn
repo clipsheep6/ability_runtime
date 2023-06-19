@@ -55,8 +55,8 @@ ohos_shared_library("particleability") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "hitrace_native:hitrace_meter",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "napi:ace_napi",
   ]

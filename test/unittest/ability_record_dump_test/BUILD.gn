@@ -35,7 +35,7 @@ ohos_unittest("ability_record_dump_test") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "init:libbeget_proxy",
     "ipc:ipc_core",
   ]

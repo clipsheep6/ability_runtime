@@ -37,7 +37,7 @@ ohos_shared_library("quickfixmanager_napi") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "napi:ace_napi",
   ]
 

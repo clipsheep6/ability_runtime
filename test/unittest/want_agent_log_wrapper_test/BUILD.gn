@@ -35,7 +35,7 @@ ohos_unittest("want_agent_log_wrapper_test") {
 
   external_deps = [
     "ability_runtime:wantagent_innerkits",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
   ]
 }
 

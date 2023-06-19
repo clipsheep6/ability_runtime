@@ -36,7 +36,7 @@ ohos_unittest("AmsServiceAppSpawnSocketTest") {
 
   external_deps = [
     "appspawn:appspawn_socket_client",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 }

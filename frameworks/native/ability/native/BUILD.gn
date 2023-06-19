@@ -162,7 +162,7 @@ ohos_shared_library("abilitykit_utils") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "eventhandler:libeventhandler",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_napi_common",
     "napi:ace_napi",
     "resource_management:global_resmgr",
@@ -258,9 +258,9 @@ ohos_shared_library("abilitykit_native") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
-    "hisysevent_native:libhisysevent",
-    "hitrace_native:hitrace_meter",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
+    "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "ipc:ipc_napi_common",
     "ipc_js:rpc",
@@ -380,8 +380,8 @@ ohos_shared_library("extensionkit_native") {
     "ability_base:want",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "hitrace_native:hitrace_meter",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
   ]
 
   public_deps = [
@@ -420,8 +420,8 @@ ohos_shared_library("ability_thread") {
     "ability_base:zuri",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "hitrace_native:hitrace_meter",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "ipc:ipc_core",
   ]
 
@@ -460,7 +460,7 @@ ohos_shared_library("form_extension") {
       "form_fwk:fmskit_native",
       "form_fwk:form_manager",
       "form_fwk:formutil_napi",
-      "hiviewdfx_hilog_native:libhilog",
+      "hilog:libhilog",
       "ipc:ipc_core",
     ]
   }
@@ -485,7 +485,7 @@ ohos_shared_library("form_extension_module") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "napi:ace_napi",
   ]
 
@@ -522,8 +522,8 @@ ohos_shared_library("service_extension") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
-    "hitrace_native:hitrace_meter",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "ipc:ipc_napi_common",
     "napi:ace_napi",
@@ -568,7 +568,7 @@ ohos_shared_library("continuation_ipc") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "resource_management:global_resmgr",
   ]
@@ -606,8 +606,8 @@ ohos_shared_library("data_ability_helper") {
     "common_event_service:cesfwk_innerkits",
     "data_share:datashare_common",
     "data_share:datashare_consumer",
-    "hitrace_native:hitrace_meter",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "relational_store:rdb_data_ability_adapter",
@@ -635,7 +635,7 @@ ohos_shared_library("service_extension_module") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "napi:ace_napi",
   ]
 
@@ -697,7 +697,7 @@ ohos_shared_library("dialog_request_callback") {
   external_deps = [
     "ability_base:want",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 
@@ -750,8 +750,8 @@ ohos_shared_library("ui_extension") {
   external_deps = [
     "ability_base:want",
     "c_utils:utils",
-    "hitrace_native:hitrace_meter",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "ipc:ipc_napi_common",
   ]
 
@@ -776,7 +776,7 @@ ohos_shared_library("ui_extension_module") {
     "ability_base:session_info",
     "ability_base:want",
     "bundle_framework:appexecfwk_core",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "napi:ace_napi",
   ]
 

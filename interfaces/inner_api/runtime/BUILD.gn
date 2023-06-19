@@ -93,8 +93,8 @@ ohos_shared_library("runtime") {
     "ets_utils:console",
     "ets_utils:timer",
     "eventhandler:libeventhandler",
-    "hitrace_native:hitrace_meter",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "napi:ace_napi",
     "napi:ace_napi_ark",
@@ -105,7 +105,7 @@ ohos_shared_library("runtime") {
   if (is_standard_system) {
     defines = [ "ENABLE_HITRACE" ]
     external_deps += [
-      "hitrace_native:libhitracechain",
+      "hitrace:libhitracechain",
       "init:libbegetutil",
     ]
   }

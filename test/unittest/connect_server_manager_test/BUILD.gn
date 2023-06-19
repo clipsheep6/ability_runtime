@@ -48,7 +48,7 @@ ohos_unittest("connect_server_manager_test") {
     "ability_runtime:abilitykit_native",
     "ability_runtime:runtime",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 
