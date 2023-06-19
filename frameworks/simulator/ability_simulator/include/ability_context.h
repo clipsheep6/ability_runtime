@@ -13,30 +13,26 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_ABILITY_RUNTIME_SIMULATOR_COMMON_CONTEXT_H
-#define FOUNDATION_ABILITY_RUNTIME_SIMULATOR_COMMON_CONTEXT_H
+#ifndef OHOS_ABILITY_RUNTIME_SIMULAOTR_ABILITY_CONTEXT_H
+#define OHOS_ABILITY_RUNTIME_SIMULAOTR_ABILITY_CONTEXT_H
 
-#include <memory>
-#include <mutex>
-
-#include "application_info.h"
-#include "configuration.h"
-#include "hap_module_info.h"
-#include "options.h"
+#include "context.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-class Context {
+class AbilityContext : public Context {
 public:
-    Context() = default;
-    ~Context() = default;
+    AbilityContext() = default;
+    virtual ~AbilityContext() = default;
 
-    virtual std::shared_ptr<AppExecFwk::Configuration> GetConfiguration() = 0;
+    std::shared_ptr<AppExecFwk::Configuration> GetConfiguration() override;
 
-    virtual Options GetOptions() = 0;
+    Options GetOptions() override;
+    void SetOptions(const Options& options) override;
 
-    virtual void SetOptions(const Options& options) = 0;
+private:
+    Options options_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // FOUNDATION_ABILITY_RUNTIME_SIMULATOR_COMMON_CONTEXT_H
+#endif // OHOS_ABILITY_RUNTIME_SIMULAOTR_ABILITY_CONTEXT_H

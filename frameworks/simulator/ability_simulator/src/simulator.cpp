@@ -33,6 +33,7 @@
 #include "window_scene.h"
 #include "js_ability_context.h"
 #include "js_runtime.h"
+#include "ability_context.h"
 
 extern const char _binary_jsMockSystemPlugin_abc_start[];
 extern const char _binary_jsMockSystemPlugin_abc_end[];
@@ -109,6 +110,7 @@ private:
     std::unordered_map<int64_t, std::shared_ptr<NativeReference>> jsWindowStages_;
     std::unordered_map<int64_t, std::shared_ptr<NativeReference>> jsContexts_;
     std::shared_ptr<Global::Resource::ResourceManager> resourceMgr_;
+    std::shared_ptr<Context> context_;
 };
 
 template <class T>
@@ -423,6 +425,10 @@ void SimulatorImpl::DispatchStartLifecycle(NativeValue* instanceValue)
         return;
     }
     sptr<Rosen::IWindowLifeCycle> listener = nullptr;
+    if (context_ == nullptr) {
+        context_ = std::make_shared<AbilityContext>();
+        context_->SetOptions(options_);
+    }
     windowScene->Init(-1, nullptr, listener);
     auto jsWindowStage = CreateJsWindowStage(windowScene);
     if(jsWindowStage == nullptr) {

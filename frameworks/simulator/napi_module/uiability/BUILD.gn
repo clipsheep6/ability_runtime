@@ -17,7 +17,7 @@ import(
     "${ability_runtime_path}/frameworks/simulator/build/ability_simulator.gni")
 
 gen_js_src_binary("ability") {
-  js_source = "${ability_runtime_napi_path}/ability/ability.js"
+  js_source = "${simulator_path}/napi_module/ability/ability.js"
 }
 
 ohos_shared_library("uiability") {

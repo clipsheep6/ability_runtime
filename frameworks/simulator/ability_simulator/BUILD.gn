@@ -80,6 +80,7 @@ ohos_shared_library("ability_simulator") {
     "src/js_ability_context.cpp",
     "src/js_context_utils.cpp",
     "src/js_application_context_utils.cpp",
+    "src/ability_context.cpp",
   ]
 
   public_configs = [

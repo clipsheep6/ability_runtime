@@ -38,36 +38,23 @@ ohos_shared_library("ability_simulator_common") {
   cflags = [ "-std=c++17" ]
 
   include_dirs = [
-    # "${ability_runtime_native_path}/runtime",
     "${ability_runtime_innerkits_path}/runtime/include",
   ]
 
   sources = [
-    # "${ability_runtime_native_path}/runtime/js_module_searcher.cpp",
-    # "src/js_console_log.cpp",
-    # "src/js_runtime_utils.cpp",
     "src/configuration.cpp",
-    # "src/js_timer.cpp",
-    # "src/simulator.cpp",
   ]
 
   public_configs = [
     ":ability_simulator_common_config",
-    # "${ability_runtime_services_path}/common:common_config",
   ]
 
   deps = [
-    # ":gen_obj_src_js_mock_abc",
-    # "${ability_runtime_path}/frameworks/simulator/osal:simulator_osal",
-    # "${arkui_path}/napi:ace_napi_ark",
     "${hilog_path}/interfaces/native/innerkits:libhilog_$platform",
-    # "//arkcompiler/toolchain/inspector:ark_debugger",
-    # "//arkcompiler/toolchain/tooling:libark_ecma_debugger",
   ]
 
   external_deps = [
     "ability_base:string_utils",
-    # "ets_runtime:libark_jsruntime",
     "napi:ace_napi",
   ]
 
