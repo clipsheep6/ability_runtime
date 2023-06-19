@@ -1115,8 +1115,7 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
     return missionListManager->StartAbility(abilityRequest);
 }
 
-int AbilityManagerService::StartUIAbilityBySCB(const Want &want, const StartOptions &startOptions,
-    sptr<SessionInfo> sessionInfo)
+int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Call.");
@@ -1126,7 +1125,7 @@ int AbilityManagerService::StartUIAbilityBySCB(const Want &want, const StartOpti
     }
 
     auto currentUserId = GetUserId();
-    EventInfo eventInfo = BuildEventInfo(want, currentUserId);
+    EventInfo eventInfo = BuildEventInfo(sessionInfo->want, currentUserId);
     EventReport::SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
 
     if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD, U0_USER_ID)) {
@@ -1142,7 +1141,7 @@ int AbilityManagerService::StartUIAbilityBySCB(const Want &want, const StartOpti
 
     auto requestCode = sessionInfo->requestCode;
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        interceptorExecuter_->DoProcess(want, requestCode, currentUserId, true);
+        interceptorExecuter_->DoProcess(sessionInfo->want, requestCode, currentUserId, true);
     if (result != ERR_OK) {
         HILOG_ERROR("interceptorExecuter_ is nullptr or DoProcess return error.");
         eventInfo.errCode = result;
@@ -1151,7 +1150,8 @@ int AbilityManagerService::StartUIAbilityBySCB(const Want &want, const StartOpti
     }
 
     AbilityRequest abilityRequest;
-    result = GenerateAbilityRequest(want, requestCode, abilityRequest, sessionInfo->callerToken, currentUserId);
+    result = GenerateAbilityRequest(sessionInfo->want, requestCode, abilityRequest,
+        sessionInfo->callerToken, currentUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         return result;
