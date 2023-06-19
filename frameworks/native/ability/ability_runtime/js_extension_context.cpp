@@ -26,7 +26,6 @@ namespace AbilityRuntime {
 void JsExtensionContext::ConfigurationUpdated(NativeEngine* engine, const std::shared_ptr<NativeReference>& jsContext,
     const std::shared_ptr<AppExecFwk::Configuration>& config)
 {
-    HILOG_INFO("%{public}s called.", __func__);
     if (engine == nullptr || jsContext == nullptr || config == nullptr) {
         HILOG_ERROR("engine or jsContext or config is nullptr.");
         return;
@@ -53,7 +52,6 @@ void JsExtensionContext::ConfigurationUpdated(NativeEngine* engine, const std::s
 NativeValue* CreateJsExtensionContext(NativeEngine& engine, const std::shared_ptr<ExtensionContext>& context,
     std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo)
 {
-    HILOG_INFO("CreateJsExtensionContext begin");
     NativeValue* objValue = CreateJsBaseContext(engine, context);
     if (context == nullptr) {
         HILOG_ERROR("Failed to CreateJsExtensionContext, context is nullptr.");
@@ -72,7 +70,7 @@ NativeValue* CreateJsExtensionContext(NativeEngine& engine, const std::shared_pt
     auto hapModuleInfo = context->GetHapModuleInfo();
     if (abilityInfo && hapModuleInfo) {
         auto isExist = [&abilityInfo](const AppExecFwk::ExtensionAbilityInfo& info) {
-            HILOG_INFO("%{public}s, %{public}s", info.bundleName.c_str(), info.name.c_str());
+            HILOG_DEBUG("%{public}s, %{public}s", info.bundleName.c_str(), info.name.c_str());
             return info.bundleName == abilityInfo->bundleName && info.name == abilityInfo->name;
         };
         auto infoIter = std::find_if(

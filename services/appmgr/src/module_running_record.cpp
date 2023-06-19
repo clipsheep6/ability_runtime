@@ -258,7 +258,7 @@ void ModuleRunningRecord::TerminateAbility(const std::shared_ptr<AppRunningRecor
 void ModuleRunningRecord::SendEvent(
     uint32_t msg, int64_t timeOut, const std::shared_ptr<AbilityRunningRecord> &abilityRecord)
 {
-    HILOG_INFO("Send event");
+    HILOG_DEBUG("Send event");
     if (!eventHandler_) {
         HILOG_ERROR("eventHandler_ is nullptr");
         return;
