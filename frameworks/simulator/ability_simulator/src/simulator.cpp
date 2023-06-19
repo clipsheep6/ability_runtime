@@ -429,7 +429,7 @@ void SimulatorImpl::DispatchStartLifecycle(NativeValue* instanceValue)
         context_ = std::make_shared<AbilityContext>();
         context_->SetOptions(options_);
     }
-    windowScene->Init(-1, nullptr, listener);
+    windowScene->Init(-1, context_, listener);
     auto jsWindowStage = CreateJsWindowStage(windowScene);
     if(jsWindowStage == nullptr) {
         return;

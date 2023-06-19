@@ -20,10 +20,6 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-namespace {
-constexpr int CYCLE_LIMIT = 1000;
-}
-
 Configuration::Configuration()
 {}
 

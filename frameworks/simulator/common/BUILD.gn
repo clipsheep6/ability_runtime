@@ -31,8 +31,10 @@ ohos_shared_library("ability_simulator_common") {
 
   if (is_mingw) {
     platform = "windows"
-  } else {
+  } else if (is_mac) {
     platform = "mac"
+  } else {
+    platform = "linux"
   }
 
   cflags = [ "-std=c++17" ]
