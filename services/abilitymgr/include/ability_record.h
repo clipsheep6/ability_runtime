@@ -518,6 +518,12 @@ public:
     bool IsUIExtension() const;
 
     /**
+     * check whether the extension is WINDOW extension
+     *
+     */
+    bool IsWindowExtension() const;
+
+    /**
      * set the ability is created by connect ability mode.
      *
      */
