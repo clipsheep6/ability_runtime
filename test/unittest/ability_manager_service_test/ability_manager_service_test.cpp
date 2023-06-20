@@ -2197,11 +2197,14 @@ HWTEST_F(AbilityManagerServiceTest, JudgeAbilityVisibleControl_001, TestSize.Lev
     HILOG_INFO("AbilityManagerServiceTest JudgeAbilityVisibleControl_001 start");
     AppExecFwk::AbilityInfo abilityInfo;
     abilityInfo.visible = true;
-    EXPECT_EQ(abilityMs_->JudgeAbilityVisibleControl(abilityInfo, 100), ERR_OK);
+    EXPECT_EQ(abilityMs_->JudgeAbilityVisibleControl(abilityInfo), ERR_OK);
 
     abilityInfo.visible = false;
-    EXPECT_EQ(abilityMs_->JudgeAbilityVisibleControl(abilityInfo, -1), ABILITY_VISIBLE_FALSE_DENY_REQUEST);
-    EXPECT_EQ(abilityMs_->JudgeAbilityVisibleControl(abilityInfo, 100), ABILITY_VISIBLE_FALSE_DENY_REQUEST);
+    EXPECT_EQ(abilityMs_->JudgeAbilityVisibleControl(abilityInfo), ERR_OK);
+
+    abilityInfo.applicationInfo.accessTokenId = IPCSkeleton::GetCallingTokenID();
+    EXPECT_EQ(abilityMs_->JudgeAbilityVisibleControl(abilityInfo), ERR_OK);
+
     HILOG_INFO("AbilityManagerServiceTest JudgeAbilityVisibleControl_001 end");
 }
 
@@ -2981,24 +2984,6 @@ HWTEST_F(AbilityManagerServiceTest, CreateVerificationInfo_001, TestSize.Level1)
     abilityRequest.appInfo.associatedWakeUp = false;
     EXPECT_FALSE(abilityMs_->CreateVerificationInfo(abilityRequest).associatedWakeUp);
     HILOG_INFO("AbilityManagerServiceTest CreateVerificationInfo_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: CheckCallerEligibility
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService CheckCallerEligibility
- */
-HWTEST_F(AbilityManagerServiceTest, CheckCallerEligibility_001, TestSize.Level1)
-{
-    HILOG_INFO("AbilityManagerServiceTest CheckCallerEligibility_001 start");
-    AppExecFwk::AbilityInfo abilityInfo;
-    EXPECT_FALSE(abilityMs_->CheckCallerEligibility(abilityInfo, 100));
-
-    MyFlag::flag_ = 1;
-    EXPECT_TRUE(abilityMs_->CheckCallerEligibility(abilityInfo, 100));
-    MyFlag::flag_ = 0;
-    HILOG_INFO("AbilityManagerServiceTest CheckCallerEligibility_001 end");
 }
 
 /*

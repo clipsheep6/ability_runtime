@@ -400,12 +400,10 @@ int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection
             CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
             HILOG_INFO("abilityName: %{public}s, bundleName: %{public}s",
                 abilityRecord->GetAbilityInfo().name.c_str(), abilityRecord->GetAbilityInfo().bundleName.c_str());
-            auto abilityMs = DelayedSingleton<AbilityManagerService>::GetInstance();
-            CHECK_POINTER_AND_RETURN(abilityMs, GET_ABILITY_SERVICE_FAILED);
-            result = abilityMs->JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
-            if (result != ERR_OK) {
-                HILOG_ERROR("Judge ability visible error.");
-                break;
+            if (connectRecord->GetCallerTokenId() != IPCSkeleton::GetCallingTokenID() &&
+                static_cast<uint32_t>(IPCSkeleton::GetSelfTokenID() != IPCSkeleton::GetCallingTokenID())) {
+                HILOG_WARN("The caller is inconsistent with the caller stored in the connectRecord.");
+                continue;
             }
 
             if (force) {

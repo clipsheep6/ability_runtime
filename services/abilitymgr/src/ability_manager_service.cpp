@@ -4295,7 +4295,7 @@ int AbilityManagerService::StopServiceAbility(const Want &want, int32_t userId, 
         return TARGET_ABILITY_NOT_SERVICE;
     }
 
-    auto res = JudgeAbilityVisibleControl(abilityInfo, validUserId);
+    auto res = JudgeAbilityVisibleControl(abilityInfo);
     if (res != ERR_OK) {
         HILOG_ERROR("Target ability is invisible");
         return res;
@@ -5029,75 +5029,27 @@ int AbilityManagerService::ReleaseCall(
     return currentMissionListManager_->ReleaseCallLocked(connect, element);
 }
 
-int AbilityManagerService::JudgeAbilityVisibleControl(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid)
+int AbilityManagerService::JudgeAbilityVisibleControl(const AppExecFwk::AbilityInfo &abilityInfo)
 {
-    HILOG_DEBUG("Judge ability visible begin.");
-    if (!abilityInfo.visible) {
-        HILOG_INFO("Ability visible is false.");
-        if (callerUid == -1) {
-            callerUid = IPCSkeleton::GetCallingUid();
-        }
-        if (!CheckCallerEligibility(abilityInfo, callerUid)) {
-            HILOG_ERROR("called ability has no permission.");
-            return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
-        }
+    HILOG_DEBUG("Call.");
+    if (abilityInfo.visible) {
+        return ERR_OK;
     }
-    HILOG_DEBUG("Judge ability visible success.");
-    return ERR_OK;
-}
-
-bool AbilityManagerService::CheckCallerEligibility(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid)
-{
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
-        auto bms = GetBundleManager();
-        if (!bms) {
-            HILOG_ERROR("fail to get bundle manager.");
-            return false;
-        }
-
-        if (AAFwk::PermissionVerification::GetInstance()->IsGatewayCall()) {
-            return true;
-        }
-
-        std::string bundleName;
-        auto result = IN_PROCESS_CALL(bms->GetNameForUid(callerUid, bundleName));
-        if (result != ERR_OK) {
-            HILOG_ERROR("GetBundleNameForUid from bms fail.");
-            return false;
-        }
-        AppExecFwk::ApplicationInfo callerAppInfo;
-        result = IN_PROCESS_CALL(bms->GetApplicationInfo(bundleName,
-            AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO,
-            GetUserId(), callerAppInfo));
-        if (!result) {
-            HILOG_ERROR("GetApplicationInfo from bms fail.");
-            return false;
-        }
-
-        auto apl = callerAppInfo.appPrivilegeLevel;
-        auto callerTokenId = IPCSkeleton::GetCallingTokenID();
-        auto targetTokenId = abilityInfo.applicationInfo.accessTokenId;
-        if (callerTokenId == targetTokenId) {
-            return true;
-        }
-
-        if (apl != AbilityUtil::SYSTEM_BASIC && apl != AbilityUtil::SYSTEM_CORE) {
-            HILOG_DEBUG("caller is normal app.");
-            HILOG_ERROR("the bundle name of caller is different from target one, caller: %{public}s "
-                "target: %{public}s", bundleName.c_str(), abilityInfo.bundleName.c_str());
-            return false;
-        } else {
-            auto result = AccessTokenKit::VerifyAccessToken(callerTokenId,
-                PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY);
-            if (result != AppExecFwk::Constants::PERMISSION_GRANTED) {
-                HILOG_ERROR("verify access token fail, don't have permission");
-                return false;
-            }
-        }
+    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+    if (callerTokenId == abilityInfo.applicationInfo.accessTokenId ||
+        callerTokenId == static_cast<uint32_t>(IPCSkeleton::GetSelfTokenID())) {  // foundation call is allowed
+        return ERR_OK;
     }
-    HILOG_DEBUG("Success to check caller permission.");
-    return true;
+    if (AccessTokenKit::VerifyAccessToken(callerTokenId,
+        PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY) == AppExecFwk::Constants::PERMISSION_GRANTED) {
+        return ERR_OK;
+    }
+    if (AAFwk::PermissionVerification::GetInstance()->IsGatewayCall()) {
+        return ERR_OK;
+    }
+    HILOG_ERROR("callerToken: %{private}u, targetToken: %{private}u, caller doesn's have permission",
+        callerTokenId, abilityInfo.applicationInfo.accessTokenId);
+    return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
 }
 
 int AbilityManagerService::StartUser(int userId)
