@@ -481,7 +481,7 @@ bool JsFormExtension::ConvertFromDataProxies(NativeEngine& engine, NativeValue* 
         FormDataProxy formDataProxy("", "");
         if (!ConvertFormDataProxy(engine, array->GetElement(i), formDataProxy)) {
             HILOG_ERROR("GetElement from array [%{public}u] error", i);
-            return false;
+            continue;
         }
         formDataProxies.push_back(formDataProxy);
     }
