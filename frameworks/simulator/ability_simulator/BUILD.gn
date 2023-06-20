@@ -95,7 +95,7 @@ ohos_shared_library("ability_simulator") {
     "${ability_runtime_path}/frameworks/simulator/osal:simulator_osal",
     "${arkui_path}/napi:ace_napi_ark",
     "${hilog_path}/interfaces/native/innerkits:libhilog_$platform",
-    "${previewer_path}/jsapp/rich/external:ide_external",
+    "${previewer_path}/jsapp/rich/external:ide_extension",
     "${simulator_path}/common:ability_simulator_common",
     "${windowmanager_path}/previewer:previewer_window",
     "${windowmanager_path}/previewer:previewer_window_napi",
