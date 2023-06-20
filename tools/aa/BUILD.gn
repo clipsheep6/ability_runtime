@@ -29,6 +29,7 @@ ohos_source_set("tools_aa_source_set") {
   sources = [
     "src/ability_command.cpp",
     "src/ability_tool_command.cpp",
+    "src/my_mission_listener.cpp",
     "src/shell_command.cpp",
     "src/shell_command_config_loader.cpp",
     "src/shell_command_executor.cpp",

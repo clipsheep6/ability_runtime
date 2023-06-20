@@ -188,6 +188,7 @@ private:
     ErrCode RunAsDumpsysCommand();
     ErrCode RunAsForceStop();
     ErrCode RunAsProcessCommand();
+    ErrCode RegisterMissionListener();
 #ifdef ABILITY_COMMAND_FOR_TEST
     ErrCode RunForceTimeoutForTest();
     ErrCode RunAsSendAppNotRespondingProcessID();
