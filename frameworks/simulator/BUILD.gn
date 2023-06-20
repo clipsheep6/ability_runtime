@@ -119,10 +119,9 @@ ohos_copy("copy_ability_simulator") {
       [ out_path + "/ability/simulator/libability_simulator" + dylib_suffix ]
 
   deps += [ "common:ability_simulator_common" ]
-  out_path =
-      get_label_info("common:ability_simulator_common", "root_out_dir")
-  sources +=
-      [ out_path + "/ability/simulator/libability_simulator_common" + dylib_suffix ]
+  out_path = get_label_info("common:ability_simulator_common", "root_out_dir")
+  sources += [ out_path + "/ability/simulator/libability_simulator_common" +
+               dylib_suffix ]
 
   deps += [ "${ability_base_path}:string_utils" ]
   out_path = get_label_info("${ability_base_path}:string_utils", "root_out_dir")

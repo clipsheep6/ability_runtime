@@ -69,18 +69,19 @@ ohos_shared_library("ability_simulator") {
     "${windowmanager_path}/previewer/mock/ui",
     "${windowmanager_path}/interfaces/innerkits/wm",
     "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_stage_napi",
+    "${previewer_path}/jsapp/rich/external",
   ]
 
   sources = [
     "${ability_runtime_native_path}/runtime/js_module_searcher.cpp",
+    "src/ability_context.cpp",
+    "src/js_ability_context.cpp",
+    "src/js_application_context_utils.cpp",
     "src/js_console_log.cpp",
+    "src/js_context_utils.cpp",
     "src/js_runtime_utils.cpp",
     "src/js_timer.cpp",
     "src/simulator.cpp",
-    "src/js_ability_context.cpp",
-    "src/js_context_utils.cpp",
-    "src/js_application_context_utils.cpp",
-    "src/ability_context.cpp",
   ]
 
   public_configs = [
@@ -90,21 +91,26 @@ ohos_shared_library("ability_simulator") {
   ]
 
   deps = [
-    "${windowmanager_path}/previewer:previewer_window",
-    "${windowmanager_path}/previewer:previewer_window_napi",
     ":gen_obj_src_js_mock_abc",
     "${ability_runtime_path}/frameworks/simulator/osal:simulator_osal",
     "${arkui_path}/napi:ace_napi_ark",
     "${hilog_path}/interfaces/native/innerkits:libhilog_$platform",
+    "${previewer_path}/jsapp/rich/external:ide_external",
+    "${simulator_path}/common:ability_simulator_common",
+    "${windowmanager_path}/previewer:previewer_window",
+    "${windowmanager_path}/previewer:previewer_window_napi",
     "//arkcompiler/toolchain/inspector:ark_debugger",
     "//arkcompiler/toolchain/tooling:libark_ecma_debugger",
-    "${simulator_path}/common:ability_simulator_common",
   ]
 
   if (is_mingw) {
-    deps += [ "//base/global/resource_management/frameworks/resmgr:global_resmgr_win" ]
+    deps += [
+      "//base/global/resource_management/frameworks/resmgr:global_resmgr_win",
+    ]
   } else {
-    deps += [ "//base/global/resource_management/frameworks/resmgr:global_resmgr_mac" ]
+    deps += [
+      "//base/global/resource_management/frameworks/resmgr:global_resmgr_mac",
+    ]
   }
 
   external_deps = [

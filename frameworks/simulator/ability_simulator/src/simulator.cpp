@@ -22,18 +22,19 @@
 #include <thread>
 #include <unordered_map>
 
+#include "ability_context.h"
+#include "EventHandler.h"
 #include "hilog_wrapper.h"
+#include "js_ability_context.h"
 #include "js_console_log.h"
 #include "js_module_searcher.h"
+#include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "js_timer.h"
 #include "js_window_stage.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
 #include "resource_manager.h"
 #include "window_scene.h"
-#include "js_ability_context.h"
-#include "js_runtime.h"
-#include "ability_context.h"
 
 extern const char _binary_jsMockSystemPlugin_abc_start[];
 extern const char _binary_jsMockSystemPlugin_abc_end[];
@@ -99,7 +100,6 @@ private:
     panda::ecmascript::EcmaVM* CreateJSVM();
     Options options_;
     std::string abilityPath_;
-    std::thread thread_;
     panda::ecmascript::EcmaVM* vm_ = nullptr;
     DebuggerTask debuggerTask_;
     std::unique_ptr<NativeEngine> nativeEngine_;
@@ -111,31 +111,6 @@ private:
     std::unordered_map<int64_t, std::shared_ptr<NativeReference>> jsContexts_;
     std::shared_ptr<Global::Resource::ResourceManager> resourceMgr_;
     std::shared_ptr<Context> context_;
-};
-
-template <class T>
-class ResultWaiter final {
-public:
-    T WaitForResult()
-    {
-        std::unique_lock<std::mutex> lock(mutex_);
-        cv_.wait(lock, [&] { return !waiting_; });
-        return result_;
-    }
-
-    void NotifyResult(T result)
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        waiting_ = false;
-        result_ = result;
-        cv_.notify_all();
-    }
-
-private:
-    std::mutex mutex_;
-    std::condition_variable cv_;
-    bool waiting_ = true;
-    T result_ = false;
 };
 
 void DebuggerTask::HandleTask(const uv_async_t* req)
@@ -171,11 +146,12 @@ SimulatorImpl::~SimulatorImpl()
         }
     }
 
-    if (thread_.joinable()) {
-        HILOG_INFO("Simulator Waiting for thread stopped");
-        thread_.join();
-        HILOG_INFO("Simulator thread stopped");
-    }
+    panda::JSNApi::StopDebugger(vm_);
+
+    abilities_.clear();
+    nativeEngine_.reset();
+    panda::JSNApi::DestroyJSVM(vm_);
+    vm_ = nullptr;
 }
 
 bool SimulatorImpl::Initialize(const Options& options)
@@ -185,43 +161,22 @@ bool SimulatorImpl::Initialize(const Options& options)
         return true;
     }
 
-    ResultWaiter<bool> waiter;
-
     options_ = options;
-    thread_ = std::thread([&] {
-        bool initResult = OnInit();
-        if (!initResult) {
-            waiter.NotifyResult(false);
-            return;
-        }
-
-        uv_loop_t* uvLoop = nativeEngine_->GetUVLoop();
-        if (uvLoop == nullptr) {
-            waiter.NotifyResult(false);
-            return;
-        }
-
-        uv_async_init(uvLoop, &debuggerTask_.onPostTaskSignal,
-            reinterpret_cast<uv_async_cb>(DebuggerTask::HandleTask));
-
-        uv_timer_t timerReq;
-        uv_timer_init(uvLoop, &timerReq);
-        timerReq.data = &waiter;
-        uv_timer_start(&timerReq, [](uv_timer_t* timerReq) {
-            auto watier = static_cast<ResultWaiter<bool>*>(timerReq->data);
-            watier->NotifyResult(true);
-            timerReq->data = nullptr;
-        }, 0, 0);
-
-        Run();
-    });
-
-    bool result = waiter.WaitForResult();
-    if (!result && thread_.joinable()) {
-        thread_.join();
+    bool initResult = OnInit();
+    if (!initResult) {
+        return false;
     }
 
-    return result;
+    uv_loop_t* uvLoop = nativeEngine_->GetUVLoop();
+    if (uvLoop == nullptr) {
+        return false;
+    }
+
+    uv_async_init(uvLoop, &debuggerTask_.onPostTaskSignal,
+        reinterpret_cast<uv_async_cb>(DebuggerTask::HandleTask));
+
+    Run();
+    return true;
 }
 
 void CallObjectMethod(NativeEngine& engine, NativeValue* value, const char *name, NativeValue *const *argv, size_t argc)
@@ -254,105 +209,72 @@ NativeValue* SimulatorImpl::LoadScript()
 
 int64_t SimulatorImpl::StartAbility(const std::string& abilitySrcPath, TerminateCallback callback)
 {
-    uv_work_t work;
-
-    ResultWaiter<int64_t> waiter;
     abilityPath_ = BUNDLE_INSTALL_PATH + options_.moduleName + "/" + abilitySrcPath;
-    work.data = new std::function<void()>([this, &waiter] () {
-        std::ifstream stream(options_.modulePath, std::ios::ate | std::ios::binary);
-        if (!stream.is_open()) {
-            HILOG_ERROR("Failed to open: %{public}s", options_.modulePath.c_str());
-            waiter.NotifyResult(-1);
-            return;
-        }
 
-        size_t len = stream.tellg();
-        std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(len);
-        stream.seekg(0);
-        stream.read(reinterpret_cast<char*>(buffer.get()), len);
-        stream.close();
-        if (!nativeEngine_->RunScriptBuffer(abilityPath_, buffer.release(), len, false)) {
-            HILOG_ERROR("Failed to run script: %{public}s", abilityPath_.c_str());
-            waiter.NotifyResult(-1);
-            return;
-        }
+    std::ifstream stream(options_.modulePath, std::ios::ate | std::ios::binary);
+    if (!stream.is_open()) {
+        HILOG_ERROR("Failed to open: %{public}s", options_.modulePath.c_str());
+        return -1;
+    }
 
-        NativeValue* instanceValue = LoadScript();
-        if (instanceValue == nullptr) {
-            HILOG_ERROR("Failed to create object instance");
-            waiter.NotifyResult(-1);
-            return;
-        }
+    size_t len = stream.tellg();
+    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(len);
+    stream.seekg(0);
+    stream.read(reinterpret_cast<char*>(buffer.get()), len);
+    stream.close();
+    if (!nativeEngine_->RunScriptBuffer(abilityPath_, buffer.release(), len, false)) {
+        HILOG_ERROR("Failed to run script: %{public}s", abilityPath_.c_str());
+        return -1;
+    }
 
-        ++currentId_;
-        InitResourceMgr();
-        InitJsAbilityContext(instanceValue);
-        DispatchStartLifecycle(instanceValue);
-        abilities_.emplace(currentId_, nativeEngine_->CreateReference(instanceValue, 1));
+    NativeValue* instanceValue = LoadScript();
+    if (instanceValue == nullptr) {
+        HILOG_ERROR("Failed to create object instance");
+        return -1;
+    }
 
-        waiter.NotifyResult(currentId_);
-    });
+    ++currentId_;
+    InitResourceMgr();
+    InitJsAbilityContext(instanceValue);
+    DispatchStartLifecycle(instanceValue);
+    abilities_.emplace(currentId_, nativeEngine_->CreateReference(instanceValue, 1));
 
-    uv_queue_work(nativeEngine_->GetUVLoop(), &work, [](uv_work_t*) {}, [](uv_work_t* work, int32_t status) {
-        auto func = static_cast<std::function<void()>*>(work->data);
-        (*func)();
-        delete func;
-    });
-
-    return waiter.WaitForResult();
+    return currentId_;
 }
 
 void SimulatorImpl::TerminateAbility(int64_t abilityId)
 {
-    uv_work_t work;
+    auto it = abilities_.find(abilityId);
+    if (it == abilities_.end()) {
+        return;
+    }
 
-    ResultWaiter<bool> waiter;
+    std::shared_ptr<NativeReference> ref = it->second;
+    abilities_.erase(it);
 
-    work.data = new std::function<void()>([abilityId, this, &waiter] () {
-        auto it = abilities_.find(abilityId);
-        if (it == abilities_.end()) {
-            waiter.NotifyResult(false);
-            return;
-        }
+    auto instanceValue = ref->Get();
+    if (instanceValue == nullptr) {
+        return;
+    }
 
-        std::shared_ptr<NativeReference> ref = it->second;
-        abilities_.erase(it);
+    CallObjectMethod(*nativeEngine_, instanceValue, "onBackground", nullptr, 0);
+    CallObjectMethod(*nativeEngine_, instanceValue, "onWindowStageDestroy", nullptr, 0);
+    CallObjectMethod(*nativeEngine_, instanceValue, "onDestroy", nullptr, 0);
 
-        auto instanceValue = ref->Get();
-        if (instanceValue == nullptr) {
-            waiter.NotifyResult(false);
-            return;
-        }
+    auto windowSceneIter = windowScenes_.find(abilityId);
+    if (windowSceneIter != windowScenes_.end()) {
+        windowScenes_.erase(windowSceneIter);
+    }
 
-        CallObjectMethod(*nativeEngine_, instanceValue, "onBackground", nullptr, 0);
-        CallObjectMethod(*nativeEngine_, instanceValue, "onWindowStageDestroy", nullptr, 0);
-        CallObjectMethod(*nativeEngine_, instanceValue, "onDestroy", nullptr, 0);
+    auto windowStageIter = jsWindowStages_.find(abilityId);
+    if (windowStageIter != jsWindowStages_.end()) {
+        jsWindowStages_.erase(windowStageIter);
+    }
 
-        auto windowSceneIter = windowScenes_.find(abilityId);
-        if (windowSceneIter != windowScenes_.end()) {
-            windowScenes_.erase(windowSceneIter);
-        }
-
-        auto windowStageIter = jsWindowStages_.find(abilityId);
-        if (windowStageIter != jsWindowStages_.end()) {
-            jsWindowStages_.erase(windowStageIter);
-        }
-
-        auto jsContextIter = jsContexts_.find(abilityId);
-        if (jsContextIter != jsContexts_.end()) {
-            jsContexts_.erase(jsContextIter);
-        }
-
-        waiter.NotifyResult(true);
-    });
-
-    uv_queue_work(nativeEngine_->GetUVLoop(), &work, [](uv_work_t*) {}, [](uv_work_t* work, int32_t status) {
-        auto func = static_cast<std::function<void()>*>(work->data);
-        (*func)();
-        delete func;
-    });
-
-    waiter.WaitForResult();
+    auto jsContextIter = jsContexts_.find(abilityId);
+    if (jsContextIter != jsContexts_.end()) {
+        jsContexts_.erase(jsContextIter);
+    }
 }
 
 void SimulatorImpl::InitResourceMgr()
@@ -436,6 +358,7 @@ void SimulatorImpl::DispatchStartLifecycle(NativeValue* instanceValue)
     }
     NativeValue *argv[] = { jsWindowStage->Get() };
     CallObjectMethod(*nativeEngine_, instanceValue, "onWindowStageCreate", argv, ArraySize(argv));
+
     CallObjectMethod(*nativeEngine_, instanceValue, "onForeground", nullptr, 0);
 
     windowScenes_.emplace(currentId_, windowScene);
@@ -530,17 +453,12 @@ void SimulatorImpl::Run()
 {
     uv_loop_t* uvLoop = nativeEngine_->GetUVLoop();
     if (uvLoop != nullptr) {
-        HILOG_INFO("Simulator start uv loop");
-        uv_run(uvLoop, UV_RUN_DEFAULT);
-        HILOG_INFO("Simulator uv loop stopped");
+        uv_run(uvLoop, UV_RUN_NOWAIT);
     }
 
-    panda::JSNApi::StopDebugger(vm_);
-
-    abilities_.clear();
-    nativeEngine_.reset();
-    panda::JSNApi::DestroyJSVM(vm_);
-    vm_ = nullptr;
+    AppExecFwk::EventHandler::Current()->PostTask([this]() {
+        Run();
+    });
 }
 }
 

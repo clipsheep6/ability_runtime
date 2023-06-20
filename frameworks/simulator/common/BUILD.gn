@@ -39,26 +39,13 @@ ohos_shared_library("ability_simulator_common") {
 
   cflags = [ "-std=c++17" ]
 
-  include_dirs = [
-    "${ability_runtime_innerkits_path}/runtime/include",
-  ]
+  include_dirs = [ "${ability_runtime_innerkits_path}/runtime/include" ]
 
-  sources = [
-    "src/configuration.cpp",
-  ]
+  sources = [ "src/configuration.cpp" ]
 
-  public_configs = [
-    ":ability_simulator_common_config",
-  ]
+  public_configs = [ ":ability_simulator_common_config" ]
 
-  deps = [
-    "${hilog_path}/interfaces/native/innerkits:libhilog_$platform",
-  ]
-
-  external_deps = [
-    "ability_base:string_utils",
-    "napi:ace_napi",
-  ]
+  deps = [ "${hilog_path}/interfaces/native/innerkits:libhilog_$platform" ]
 
   part_name = "simulator"
   subsystem_name = "ability"
