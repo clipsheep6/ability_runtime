@@ -8,7 +8,7 @@ target("ability_runtime")
         "services/dataobsmgr/include")
     add_includedirs("frameworks/js/napi/inner/napi_common", "frameworks/js/napi/inner/napi_ability_common")
     add_includedirs("d:/repo", "interfaces")
-    add_includedirs("interfaces/inner_api/app_manager/include", "interfaces/inner_api/app_manager/include/appmgr", 
+    add_includedirs("interfaces/inner_api/app_manager/include", "interfaces/inner_api/app_manager/include/appmgr",
         "interfaces/inner_api/ability_manager/include", "interfaces/inner_api/connectionobs_manager/include",
         "interfaces/inner_api/error_utils/include", "interfaces/inner_api/napi_base_context/include",
         "interfaces/inner_api/runtime/include", "interfaces/inner_api/deps_wrapper/include",
@@ -37,7 +37,7 @@ target("ability_runtime")
         "../bundlemanager_bundle_framework/interfaces/inner_api/appexecfwk_base/include/overlay",
         "../bundlemanager_bundle_framework/interfaces/inner_api/appexecfwk_core/include",
         "../bundlemanager_bundle_framework/interfaces/inner_api/appexecfwk_core/include/bundlemgr")
-    add_includedirs("../ability_ability_base/interfaces/kits/native/want/include", "../ability_ability_base/interfaces/inner_api/base/include", 
+    add_includedirs("../ability_ability_base/interfaces/kits/native/want/include", "../ability_ability_base/interfaces/inner_api/base/include",
         "../ability_ability_base/interfaces/kits/native/uri/include", "../ability_ability_base/interfaces/kits/native/configuration/include",
         "../ability_ability_base/interfaces/kits/native/extractortool/include", "../ability_ability_base/interfaces/kits/native/session_info/include")
     add_includedirs("../third_party_json/single_include", "../third_party_json/include", "../third_party_jsoncpp/include")
@@ -68,7 +68,7 @@ target("ability_runtime")
     add_includedirs("../hiviewdfx_faultloggerd/interfaces/innerkits/dump_catcher/include", "../hiviewdfx_faultloggerd/common",
         "../hiviewdfx_faultloggerd/tools/process_dump", "../hiviewdfx_faultloggerd/interfaces/innerkits/faultloggerd_client/include",
         "../hiviewdfx_faultloggerd/interfaces/innerkits/backtrace/include", "../hiviewdfx_faultloggerd/interfaces/common",
-        "../hiviewdfx_faultloggerd/frameworks/unwinder/include")
+        "../hiviewdfx_faultloggerd/frameworks/unwinder/include", "../hiviewdfx_faultloggerd/interfaces/innerkits/procinfo/include")
     add_includedirs("../hiviewdfx_hichecker/interfaces/native/innerkits/include")
     add_includedirs("../startup_init_lite/interfaces/innerkits/include")
     add_includedirs("../third_include_dir")
