@@ -1100,4 +1100,11 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
+
+/**
+ * Record app exit reason. c interface.
+ *
+ * @param exitReason The reason of app exit.
+ */
+extern "C" void RecordAppExitReason(int32_t reason);
 #endif  // OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_CLIENT_H
