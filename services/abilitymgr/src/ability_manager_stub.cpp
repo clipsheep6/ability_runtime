@@ -1294,21 +1294,11 @@ int AbilityManagerStub::StartAbilityByCallInner(MessageParcel &data, MessageParc
 
 int AbilityManagerStub::StartUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply)
 {
-    std::unique_ptr<Want> want(data.ReadParcelable<Want>());
-    if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
-        return ERR_INVALID_VALUE;
-    }
-    std::unique_ptr<StartOptions> startOptions(data.ReadParcelable<StartOptions>());
-    if (startOptions == nullptr) {
-        HILOG_ERROR("startOptions is nullptr");
-        return ERR_INVALID_VALUE;
-    }
     sptr<SessionInfo> sessionInfo = nullptr;
     if (data.ReadBool()) {
         sessionInfo = data.ReadParcelable<SessionInfo>();
     }
-    int32_t result = StartUIAbilityBySCB(*want, *startOptions, sessionInfo);
+    int32_t result = StartUIAbilityBySCB(sessionInfo);
     reply.WriteInt32(result);
     return NO_ERROR;
 }

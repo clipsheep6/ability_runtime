@@ -451,21 +451,12 @@ int AbilityManagerProxy::StartUIExtensionAbility(const Want &want, const sptr<Se
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::StartUIAbilityBySCB(const Want &want, const StartOptions &startOptions,
-    sptr<SessionInfo> sessionInfo)
+int AbilityManagerProxy::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        return INNER_ERR;
-    }
-    if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
-        return INNER_ERR;
-    }
-    if (!data.WriteParcelable(&startOptions)) {
-        HILOG_ERROR("startOptions write failed.");
         return INNER_ERR;
     }
     if (sessionInfo) {
