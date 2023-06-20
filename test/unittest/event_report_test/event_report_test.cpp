@@ -117,6 +117,51 @@ HWTEST_F(EventReportTest, SendAppEvent_0500, TestSize.Level0)
 }
 
 /**
+ * @tc.name: SendAppEvent_0500
+ * @tc.desc: Check SendAppEvent Test
+ * @tc.type: FUNC
+ * @tc.require: issueI6UDXQ
+ */
+HWTEST_F(EventReportTest, SendAppEvent_0600, TestSize.Level0)
+{
+    EventName eventName = EventName::APP_FOREGROUND;
+    EXPECT_EQ(EventReport::ConvertEventName(eventName), "APP_FOREGROUND");
+    HiSysEventType type = HiSysEventType::BEHAVIOR;
+    EventInfo eventInfo;
+    EventReport::SendAppEvent(eventName, type, eventInfo);
+}
+
+/**
+ * @tc.name: SendAppEvent_0500
+ * @tc.desc: Check SendAppEvent Test
+ * @tc.type: FUNC
+ * @tc.require: issueI6UDXQ
+ */
+HWTEST_F(EventReportTest, SendAppEvent_0700, TestSize.Level0)
+{
+    EventName eventName = EventName::APP_BACKGROUND;
+    EXPECT_EQ(EventReport::ConvertEventName(eventName), "APP_BACKGROUND");
+    HiSysEventType type = HiSysEventType::BEHAVIOR;
+    EventInfo eventInfo;
+    EventReport::SendAppEvent(eventName, type, eventInfo);
+}
+
+/**
+ * @tc.name: SendAppEvent_0500
+ * @tc.desc: Check SendAppEvent Test
+ * @tc.type: FUNC
+ * @tc.require: issueI7G3EP
+ */
+HWTEST_F(EventReportTest, SendAppEvent_0800, TestSize.Level0)
+{
+    EventName eventName = EventName::APP_LAUNCH;
+    EXPECT_EQ(EventReport::ConvertEventName(eventName), "APP_LAUNCH");
+    HiSysEventType type = HiSysEventType::BEHAVIOR;
+    EventInfo eventInfo;
+    EventReport::SendAppEvent(eventName, type, eventInfo);
+}
+
+/**
  * @tc.name: SendAbilityEvent_0100
  * @tc.desc: Check SendAbilityEvent Test
  * @tc.type: FUNC

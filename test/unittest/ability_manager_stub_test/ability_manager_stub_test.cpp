@@ -2359,5 +2359,38 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_IsValidMissionIdsInner_002, 
     EXPECT_CALL(*stub_, IsValidMissionIds(_, _)).Times(1).WillOnce(testing::Invoke(isValidMissionIdsTask));
     EXPECT_EQ(stub_->IsValidMissionIdsInner(data, reply), NO_ERROR);
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartSpecifiedAbilityBySCBInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartSpecifiedAbilityBySCBInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function StartSpecifiedAbilityBySCBInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartSpecifiedAbilityBySCBInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->StartSpecifiedAbilityBySCBInner(data, reply);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartSpecifiedAbilityBySCBInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartSpecifiedAbilityBySCBInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function StartSpecifiedAbilityBySCBInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartSpecifiedAbilityBySCBInner_002, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    Want want;
+    data.WriteParcelable(&want);
+    EXPECT_EQ(stub_->StartSpecifiedAbilityBySCBInner(data, reply), NO_ERROR);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

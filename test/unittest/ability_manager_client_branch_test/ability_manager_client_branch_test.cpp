@@ -1421,5 +1421,17 @@ HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_SetSessionManagerS
     auto result = client_->SetSessionManagerService(sessionManagerService);
     EXPECT_TRUE(result = ERR_WRONG_INTERFACE_CALL);
 }
+
+/**
+ * @tc.name: AbilityManagerClient_StartSpecifiedAbilityBySCB_0100
+ * @tc.desc: StartSpecifiedAbilityBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_StartSpecifiedAbilityBySCB_0100, TestSize.Level1)
+{
+    ASSERT_NE(client_, nullptr);
+    Want want;
+    client_->StartSpecifiedAbilityBySCB(want);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
