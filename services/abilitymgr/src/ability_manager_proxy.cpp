@@ -4154,7 +4154,7 @@ int32_t AbilityManagerProxy::RecordAppExitReason(Reason exitReason)
         return INNER_ERR;
     }
 
-    int32_t error = remote->SendRequest(IAbilityManager::FORCE_EXIT_APP, data, reply, option);
+    int32_t error = remote->SendRequest(IAbilityManager::RECORD_APP_EXIT_REASON, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("fail to SendRequest, err: %{public}d.", error);
         return error;

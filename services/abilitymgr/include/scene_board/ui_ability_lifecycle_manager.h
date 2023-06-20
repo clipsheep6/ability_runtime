@@ -37,7 +37,8 @@ public:
     struct key_compare {
         bool operator()(const SpecifiedInfo &info1, const SpecifiedInfo &info2) const
         {
-            if (info1.flag < info2.flag) {
+            if (info1.abilityName < info2.abilityName || info1.bundleName < info2.bundleName ||
+                info1.flag < info2.flag) {
                 return true;
             }
             return false;
@@ -224,6 +225,7 @@ private:
     sptr<Rosen::ISession> rootSceneSession_;
     std::map<SpecifiedInfo, std::shared_ptr<AbilityRecord>, key_compare> specifiedAbilityMap_;
     std::queue<AbilityRequest> abilityQueue_;
+    std::queue<SpecifiedInfo> specifiedInfoQueue_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

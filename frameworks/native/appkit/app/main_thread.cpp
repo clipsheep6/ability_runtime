@@ -1686,7 +1686,7 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
     std::string connector = "##";
     std::string traceName = __PRETTY_FUNCTION__ + connector;
     if (abilityRecord->GetWant() != nullptr) {
-        traceName += abilityRecord->GetWant()->GetElement().GetAbilityName();
+        traceName += abilityRecord->GetWant()->GetElement().GetBundleName();
     } else {
         HILOG_ERROR("Want is nullptr, cant not get abilityName.");
     }

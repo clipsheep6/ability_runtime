@@ -87,6 +87,12 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
         sessionAbilityMap_.emplace(sessionInfo->persistentId, uiAbilityRecord);
     }
     uiAbilityRecord->ProcessForegroundAbility();
+    if (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED && !specifiedInfoQueue_.empty()) {
+        SpecifiedInfo specifiedInfo = specifiedInfoQueue_.front();
+        specifiedInfoQueue_.pop();
+        uiAbilityRecord->SetSpecifiedFlag(specifiedInfo.flag);
+        specifiedAbilityMap_.emplace(specifiedInfo, uiAbilityRecord);
+    }
     return ERR_OK;
 }
 
@@ -123,14 +129,6 @@ int UIAbilityLifecycleManager::AttachAbilityThread(const sptr<IAbilityScheduler>
     }
 
     DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token);
-    std::string specifiedFlag = abilityRecord->GetSpecifiedFlag();
-    if (!specifiedFlag.empty()) {
-        SpecifiedInfo specifiedInfo;
-        specifiedInfo.abilityName = abilityRecord->GetAbilityInfo().name;
-        specifiedInfo.abilityName = abilityRecord->GetAbilityInfo().bundleName;
-        specifiedInfo.flag = specifiedFlag;
-        specifiedAbilityMap_.emplace(specifiedInfo, abilityRecord);
-    }
     return ERR_OK;
 }
 
@@ -824,11 +822,6 @@ uint64_t UIAbilityLifecycleManager::GetReusedSpecifiedPersistentId(const Ability
         return 0;
     }
 
-    if (!abilityRequest.startRecent) {
-        HILOG_WARN("startRecent is false.");
-        return 0;
-    }
-
     // specified ability name and bundle name and module name and appIndex format is same as singleton.
     for (const auto& [first, second] : sessionAbilityMap_) {
         if (second->GetSpecifiedFlag() == abilityRequest.specifiedFlag &&
@@ -994,18 +987,20 @@ void UIAbilityLifecycleManager::OnAbilityDied(std::shared_ptr<AbilityRecord> abi
 
 void UIAbilityLifecycleManager::OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag)
 {
+    HILOG_DEBUG("call");
     std::lock_guard<std::mutex> guard(sessionLock_);
     if (abilityQueue_.empty()) {
         return;
     }
 
     AbilityRequest abilityRequest = abilityQueue_.front();
+    abilityQueue_.pop();
     if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::SPECIFIED) {
         return;
     }
-    abilityQueue_.pop();
     auto callerAbility = GetAbilityRecordByToken(abilityRequest.callerToken);
     if (!flag.empty()) {
+        abilityRequest.specifiedFlag = flag;
         auto persistentId = GetReusedSpecifiedPersistentId(abilityRequest);
         if (persistentId != 0) {
             auto abilityRecord = GetReusedSpecifiedAbility(want, flag);
@@ -1014,7 +1009,6 @@ void UIAbilityLifecycleManager::OnAcceptWantResponse(const AAFwk::Want &want, co
             }
             abilityRecord->SetWant(abilityRequest.want);
             abilityRecord->SetIsNewWant(true);
-            abilityRecord->SetSpecifiedFlag(flag);
             UpdateAbilityRecordLaunchReason(abilityRequest, abilityRecord);
             if (callerAbility == nullptr) {
                 callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
@@ -1024,13 +1018,13 @@ void UIAbilityLifecycleManager::OnAcceptWantResponse(const AAFwk::Want &want, co
             return;
         }
     }
-    abilityRequest.specifiedFlag = flag;
     NotifyStartSpecifiedAbility(abilityRequest, want);
     StartAbilityBySpecifed(abilityRequest, callerAbility);
 }
 
 void UIAbilityLifecycleManager::StartSpecifiedAbilityBySCB(const Want &want, int32_t userId)
 {
+    HILOG_DEBUG("call");
     AbilityRequest abilityRequest;
     int result = DelayedSingleton<AbilityManagerService>::GetInstance()->GenerateAbilityRequest(
         want, DEFAULT_INVAL_VALUE, abilityRequest, nullptr, userId);
@@ -1108,6 +1102,7 @@ int UIAbilityLifecycleManager::MoveAbilityToFront(const AbilityRequest &abilityR
     const std::shared_ptr<AbilityRecord> &abilityRecord, std::shared_ptr<AbilityRecord> callerAbility,
     std::shared_ptr<StartOptions> startOptions)
 {
+    HILOG_DEBUG("call");
     if (!abilityRecord) {
         HILOG_ERROR("get target ability record failed");
         return ERR_INVALID_VALUE;
@@ -1125,6 +1120,7 @@ int UIAbilityLifecycleManager::MoveAbilityToFront(const AbilityRequest &abilityR
 int UIAbilityLifecycleManager::SendSessionInfoToSCB(std::shared_ptr<AbilityRecord> &callerAbility,
     sptr<SessionInfo> &sessionInfo)
 {
+    HILOG_DEBUG("call");
     if (callerAbility != nullptr) {
         auto callerSessionInfo = callerAbility->GetSessionInfo();
         if (callerSessionInfo != nullptr && callerSessionInfo->sessionToken != nullptr) {
@@ -1144,10 +1140,16 @@ int UIAbilityLifecycleManager::SendSessionInfoToSCB(std::shared_ptr<AbilityRecor
 int UIAbilityLifecycleManager::StartAbilityBySpecifed(const AbilityRequest &abilityRequest,
     std::shared_ptr<AbilityRecord> &callerAbility)
 {
+    HILOG_DEBUG("call");
     sptr<SessionInfo> sessionInfo = new SessionInfo();
     sessionInfo->callerToken = abilityRequest.callerToken;
     sessionInfo->want = abilityRequest.want;
     sessionInfo->requestCode = abilityRequest.requestCode;
+    SpecifiedInfo specifiedInfo;
+    specifiedInfo.abilityName = abilityRequest.abilityInfo.name;
+    specifiedInfo.abilityName = abilityRequest.abilityInfo.bundleName;
+    specifiedInfo.flag = abilityRequest.specifiedFlag;
+    specifiedInfoQueue_.push(specifiedInfo);
 
     SendSessionInfoToSCB(callerAbility, sessionInfo);
     return ERR_OK;

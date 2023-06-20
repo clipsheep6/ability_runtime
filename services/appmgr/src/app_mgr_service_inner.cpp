@@ -340,32 +340,38 @@ bool AppMgrServiceInner::GetBundleAndHapInfo(const AbilityInfo &abilityInfo,
 
 void AppMgrServiceInner::AttachApplication(const pid_t pid, const sptr<IAppScheduler> &appScheduler)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (pid <= 0) {
         HILOG_ERROR("invalid pid:%{public}d", pid);
         return;
     }
-    if (!appScheduler) {
-        HILOG_ERROR("app client is null");
-        return;
-    }
-    HILOG_INFO("attach, pid:%{public}d.", pid);
     auto appRecord = GetAppRunningRecordByPid(pid);
     if (!appRecord) {
         HILOG_ERROR("no such appRecord");
         return;
     }
+    auto applicationInfo = appRecord->GetApplicationInfo();
+    AAFwk::EventInfo eventInfo;
+    if (!applicationInfo) {
+        HILOG_ERROR("applicationInfo is nullptr, can not get app informations");
+    } else {
+        eventInfo.bundleName = applicationInfo->name;
+        eventInfo.versionName = applicationInfo->versionName;
+        eventInfo.versionCode = applicationInfo->versionCode;
+    }
+    std::string connector = "##";
+    std::string traceName = __PRETTY_FUNCTION__ + connector + eventInfo.bundleName;
+    HITRACE_METER_NAME(HITRACE_TAG_APP, traceName);
+    if (!appScheduler) {
+        HILOG_ERROR("app client is null");
+        return;
+    }
+    HILOG_INFO("attach, pid:%{public}d.", pid);
     appRecord->SetApplicationClient(appScheduler);
     appRecord->RegisterAppDeathRecipient();
     if (appRecord->GetState() == ApplicationState::APP_STATE_CREATE) {
         LaunchApplication(appRecord);
     }
-    AAFwk::EventInfo eventInfo;
-    auto applicationInfo = appRecord->GetApplicationInfo();
     eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
-    eventInfo.bundleName = applicationInfo->name;
-    eventInfo.versionName = applicationInfo->versionName;
-    eventInfo.versionCode = applicationInfo->versionCode;
     eventInfo.processName = appRecord->GetProcessName();
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_ATTACH, HiSysEventType::BEHAVIOR, eventInfo);
 }
@@ -376,8 +382,17 @@ void AppMgrServiceInner::LaunchApplication(const std::shared_ptr<AppRunningRecor
         HILOG_ERROR("appRecord is null");
         return;
     }
+    AAFwk::EventInfo eventInfo;
+    auto applicationInfo = appRecord->GetApplicationInfo();
+    if (!applicationInfo) {
+        HILOG_ERROR("applicationInfo is nullptr, can not get app informations");
+    } else {
+        eventInfo.bundleName = applicationInfo->name;
+        eventInfo.versionName = applicationInfo->versionName;
+        eventInfo.versionCode = applicationInfo->versionCode;
+    }
     std::string connector = "##";
-    std::string traceName = __PRETTY_FUNCTION__ + connector + appRecord->GetApplicationInfo()->name;
+    std::string traceName = __PRETTY_FUNCTION__ + connector + eventInfo.bundleName;
     HITRACE_METER_NAME(HITRACE_TAG_APP, traceName);
 
     if (!configuration_) {
@@ -408,12 +423,7 @@ void AppMgrServiceInner::LaunchApplication(const std::shared_ptr<AppRunningRecor
         return;
     }
     appRecord->LaunchPendingAbilities();
-    AAFwk::EventInfo eventInfo;
-    auto applicationInfo = appRecord->GetApplicationInfo();
     eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
-    eventInfo.bundleName = applicationInfo->name;
-    eventInfo.versionName = applicationInfo->versionName;
-    eventInfo.versionCode = applicationInfo->versionCode;
     eventInfo.processName = appRecord->GetProcessName();
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_LAUNCH, HiSysEventType::BEHAVIOR, eventInfo);
 }
@@ -454,12 +464,16 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
     HILOG_INFO("application is foregrounded");
     AAFwk::EventInfo eventInfo;
     auto applicationInfo = appRecord->GetApplicationInfo();
+    if (!applicationInfo) {
+        HILOG_ERROR("applicationInfo is nullptr, can not get app informations");
+    } else {
+        eventInfo.bundleName = applicationInfo->name;
+        eventInfo.versionName = applicationInfo->versionName;
+        eventInfo.versionCode = applicationInfo->versionCode;
+        eventInfo.bundleType = static_cast<int32_t>(applicationInfo->bundleType);
+    }
     eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
-    eventInfo.bundleName = applicationInfo->name;
-    eventInfo.versionName = applicationInfo->versionName;
-    eventInfo.versionCode = applicationInfo->versionCode;
     eventInfo.processName = appRecord->GetProcessName();
-    eventInfo.bundleType = static_cast<int32_t>(applicationInfo->bundleType);
     int32_t callerPid = appRecord->GetCallerPid() == -1 ? IPCSkeleton::GetCallingPid() : appRecord->GetCallerPid();
     auto callerRecord = GetAppRunningRecordByPid(callerPid);
     if (callerRecord != nullptr) {
@@ -493,12 +507,16 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
     HILOG_INFO("application is backgrounded");
     AAFwk::EventInfo eventInfo;
     auto applicationInfo = appRecord->GetApplicationInfo();
+    if (!applicationInfo) {
+        HILOG_ERROR("applicationInfo is nullptr, can not get app informations");
+    } else {
+        eventInfo.bundleName = applicationInfo->name;
+        eventInfo.versionName = applicationInfo->versionName;
+        eventInfo.versionCode = applicationInfo->versionCode;
+        eventInfo.bundleType = static_cast<int32_t>(applicationInfo->bundleType);
+    }
     eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
-    eventInfo.bundleName = applicationInfo->name;
-    eventInfo.versionName = applicationInfo->versionName;
-    eventInfo.versionCode = applicationInfo->versionCode;
     eventInfo.processName = appRecord->GetProcessName();
-    eventInfo.bundleType = static_cast<int32_t>(applicationInfo->bundleType);
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_BACKGROUND, HiSysEventType::BEHAVIOR, eventInfo);
 }
 
@@ -532,10 +550,14 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
     RemoveAppFromRecentListById(recordId);
     AAFwk::EventInfo eventInfo;
     auto applicationInfo = appRecord->GetApplicationInfo();
+    if (!applicationInfo) {
+        HILOG_ERROR("applicationInfo is nullptr, can not get app informations");
+    } else {
+        eventInfo.bundleName = applicationInfo->name;
+        eventInfo.versionName = applicationInfo->versionName;
+        eventInfo.versionCode = applicationInfo->versionCode;
+    }
     eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
-    eventInfo.bundleName = applicationInfo->name;
-    eventInfo.versionName = applicationInfo->versionName;
-    eventInfo.versionCode = applicationInfo->versionCode;
     eventInfo.processName = appRecord->GetProcessName();
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_TERMINATE, HiSysEventType::BEHAVIOR, eventInfo);
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessDied(appRecord);
@@ -1041,10 +1063,14 @@ int32_t AppMgrServiceInner::KillProcessByPid(const pid_t pid) const
         return ret;
     }
     auto applicationInfo = appRecord->GetApplicationInfo();
+    if (!applicationInfo) {
+        HILOG_ERROR("applicationInfo is nullptr, can not get app informations");
+    } else {
+        eventInfo.bundleName = applicationInfo->name;
+        eventInfo.versionName = applicationInfo->versionName;
+        eventInfo.versionCode = applicationInfo->versionCode;
+    }
     eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
-    eventInfo.bundleName = applicationInfo->name;
-    eventInfo.versionName = applicationInfo->versionName;
-    eventInfo.versionCode = applicationInfo->versionCode;
     eventInfo.processName = appRecord->GetProcessName();
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_TERMINATE, HiSysEventType::BEHAVIOR, eventInfo);
     return ret;
