@@ -40,7 +40,7 @@ ohos_moduletest("AmsIpcAmsmgrModuleTest") {
     "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "eventhandler:libeventhandler",
-    "hicollie_native:libhicollie",
+    "hicollie:libhicollie",
     "hilog:libhilog",
     "ipc:ipc_core",
     "window_manager:libwm",

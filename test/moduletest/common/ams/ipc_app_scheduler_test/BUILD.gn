@@ -32,7 +32,7 @@ ohos_moduletest("AmsIpcAppSchedulerModuleTest") {
   external_deps = [
     "ability_base:configuration",
     "bundle_framework:appexecfwk_base",
-    "hicollie_native:libhicollie",
+    "hicollie:libhicollie",
     "ipc:ipc_core",
   ]
 
