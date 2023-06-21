@@ -25,7 +25,10 @@ ohos_shared_library("dialog_request_info") {
 
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
 
-  deps = [ "${ability_runtime_innerkits_path}/runtime:runtime" ]
+  deps = [
+    "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${js_env_path}/module_manager:module_manager",
+  ]
 
   external_deps = [
     "ability_base:base",

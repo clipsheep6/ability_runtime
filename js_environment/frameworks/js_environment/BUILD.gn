@@ -20,6 +20,7 @@ config("js_environment_config") {
 
 config("public_js_environment_config") {
   include_dirs = [
+    "${base_path}/module_manager/include",
     "${inner_api_path}",
     "${utils_path}/include",
   ]

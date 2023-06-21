@@ -74,6 +74,7 @@ ohos_shared_library("wantagent_innerkits") {
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/error_utils:ability_runtime_error_util",
+    "${js_env_path}/module_manager:module_manager",
   ]
 
   external_deps = [

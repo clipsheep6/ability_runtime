@@ -32,7 +32,10 @@ ohos_shared_library("ability_runtime_error_util") {
 
   configs = [ ":error_utils_private_config" ]
 
-  deps = [ "${ability_runtime_innerkits_path}/runtime:runtime" ]
+  deps = [
+    "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${js_env_path}/module_manager:module_manager",
+  ]
 
   external_deps = [
     "c_utils:utils",

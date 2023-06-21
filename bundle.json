@@ -101,6 +101,7 @@
           "//foundation/ability/ability_runtime/frameworks/native/ability/native:extension_module",
           "//foundation/ability/ability_runtime/frameworks/js/napi:napi_packages",
           "//foundation/ability/ability_runtime/js_environment/frameworks/js_environment:js_environment",
+          "//foundation/ability/ability_runtime/js_environment/module_manager:module_manager",
           "//foundation/ability/ability_runtime/services/abilitymgr/etc:appfwk_etc",
           "//foundation/ability/ability_runtime/service_router_framework:srms_target",
           "//foundation/ability/ability_runtime/service_router_framework:jsapi_target"
@@ -165,6 +166,15 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/js_environment/frameworks/js_environment:js_environment"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/js_environment/module_manager/include",
+              "header_files": [
+                "module_manager/native_module_manager.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/js_environment/module_manager:module_manager"
           },
           {
             "header": {
