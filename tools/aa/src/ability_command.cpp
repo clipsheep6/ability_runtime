@@ -729,15 +729,22 @@ bool AbilityManagerShellCommand::CheckPerfCmdString(
     }
 
     perfCmd = optarg;
-    const std::regex regexType(R"(^\s*(profile|dumpheap|sleep)($|\s+.*))");
-    if (!MatchOrderString(regexType, perfCmd)) {
+    const std::regex regexDumpHeapType(R"(^\s*(dumpheap)\s*$)");
+    const std::regex regexSleepType(R"(^\s*(sleep)((\s+\d*)|)\s*$)");
+    if (MatchOrderString(regexDumpHeapType, perfCmd) || MatchOrderString(regexSleepType, perfCmd)) {
+        return true;
+    }
+
+    HILOG_DEBUG("the command not match");
+    const std::regex regexProfileType(R"(^\s*(profile)\s+(nativeperf|jsperf)(\s+.*|$))");
+    if (!MatchOrderString(regexProfileType, perfCmd)) {
         HILOG_ERROR("the command is invalid");
         return false;
     }
 
     auto findPos = perfCmd.find("jsperf");
     if (findPos != std::string::npos) {
-        const std::regex regexCmd(R"(^jsperf($|\s+($|\d*\s*($|nativeperf.*))))");
+        const std::regex regexCmd(R"(^jsperf($|\s+($|((5000|([1-9]|[1-4]\d)\d\d)|)\s*($|nativeperf.*))))");
         if (!MatchOrderString(regexCmd, perfCmd.substr(findPos, perfCmd.length() - findPos))) {
             HILOG_ERROR("the order is invalid");
             return false;
