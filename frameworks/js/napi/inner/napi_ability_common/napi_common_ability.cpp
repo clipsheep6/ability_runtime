@@ -3278,7 +3278,7 @@ size_t NAPIAbilityConnection::GetCallbackSize()
     return callbacks_.size();
 }
 
-size_t NAPIAbilityConnection::ReomveAllCallbacks(ConnectRemoveKeyType key)
+size_t NAPIAbilityConnection::RemoveAllCallbacks(ConnectRemoveKeyType key)
 {
     size_t result = 0;
     std::lock_guard<std::mutex> guard(lock_);
@@ -3291,7 +3291,7 @@ size_t NAPIAbilityConnection::ReomveAllCallbacks(ConnectRemoveKeyType key)
             ++it;
         }
     }
-    HILOG_INFO("ReomveAllCallbacks removed size:%{public}zu, left size:%{public}zu", result, callbacks_.size());
+    HILOG_INFO("RemoveAllCallbacks removed size:%{public}zu, left size:%{public}zu", result, callbacks_.size());
     return result;
 }
 
@@ -4061,6 +4061,9 @@ NativeValue* JsNapiCommon::JsConnectAbility(
         connectionCallback->Reset();
         RemoveConnectionLocked(want);
     }
+    // free failedcallback here, avoid possible multi-threading problems when disconnect success
+    napi_delete_reference(env, connectionCallback->failedCallbackRef);
+    connectionCallback->failedCallbackRef = nullptr;
     return CreateJsValue(engine, id);
 }
 
@@ -4184,7 +4187,7 @@ void JsNapiCommon::RemoveAllCallbacksLocked()
             it = connects_.erase(it);
             continue;
         }
-        connection->ReomveAllCallbacks(this);
+        connection->RemoveAllCallbacks(this);
         if (connection->GetCallbackSize() == 0) {
             it = connects_.erase(it);
         } else {
