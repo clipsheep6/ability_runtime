@@ -80,6 +80,7 @@ public:
     std::unique_ptr<NativeReference> LoadSystemModule(
         const std::string& moduleName, NativeValue* const* argv = nullptr, size_t argc = 0);
     void PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime);
+    void PostSyncTask(const std::function<void()>& task, const std::string& name);
     void RemoveTask(const std::string& name);
     void DumpHeapSnapshot(bool isPrivate) override;
     bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) override;
@@ -97,10 +98,7 @@ public:
     bool NotifyHotReloadPage() override;
     void RegisterUncaughtExceptionHandler(JsEnv::UncaughtExceptionInfo uncaughtExceptionInfo);
     bool LoadScript(const std::string& path, std::vector<uint8_t>* buffer = nullptr, bool isBundle = false);
-    bool StartDebugMode(const std::string& bundleName, bool needBreakPoint, uint32_t instanceId,
-        const DebuggerPostTask& debuggerPostTask = {});
-    bool StartDebugger(bool needBreakPoint, const DebuggerPostTask& debuggerPostTask = {});
-    bool StartDebugger(bool needBreakPoint, uint32_t instanceId, const DebuggerPostTask& debuggerPostTask = {});
+    bool StartDebugger(bool needBreakPoint, uint32_t instanceId);
     void StopDebugger();
     bool LoadScript(const std::string& path, uint8_t *buffer, size_t len, bool isBundle);
 
@@ -145,13 +143,14 @@ private:
 private:
     bool CreateJsEnv(const Options& options);
     void PreloadAce(const Options& options);
-    bool InitLoop(const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner);
+    bool InitLoop();
     inline bool IsUseAbilityRuntime(const Options& options) const;
     void FreeNativeReference(std::unique_ptr<NativeReference> uniqueNativeRef,
         std::shared_ptr<NativeReference>&& sharedNativeRef);
     void InitConsoleModule();
     void InitTimerModule();
     void InitWorkerModule(const Options& options);
+    void ReInitJsEnvImpl(const Options& options);
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

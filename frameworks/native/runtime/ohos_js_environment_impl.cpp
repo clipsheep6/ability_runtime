@@ -29,6 +29,15 @@ OHOSJsEnvironmentImpl::OHOSJsEnvironmentImpl()
     HILOG_DEBUG("called");
 }
 
+OHOSJsEnvironmentImpl::OHOSJsEnvironmentImpl(const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner)
+{
+    HILOG_INFO("called");
+    if (eventRunner != nullptr) {
+        HILOG_DEBUG("Create event handler.");
+        eventHandler_ = std::make_shared<AppExecFwk::EventHandler>(eventRunner);
+    }
+}
+
 OHOSJsEnvironmentImpl::~OHOSJsEnvironmentImpl()
 {
     HILOG_DEBUG("called");
@@ -39,6 +48,14 @@ void OHOSJsEnvironmentImpl::PostTask(const std::function<void()>& task, const st
     HILOG_DEBUG("called");
     if (eventHandler_ != nullptr) {
         eventHandler_->PostTask(task, name, delayTime);
+    }
+}
+
+void OHOSJsEnvironmentImpl::PostSyncTask(const std::function<void()>& task, const std::string& name)
+{
+    HILOG_DEBUG("Post sync task");
+    if (eventHandler_ != nullptr) {
+        eventHandler_->PostSyncTask(task, name);
     }
 }
 
@@ -66,10 +83,9 @@ void OHOSJsEnvironmentImpl::InitConsoleModule(NativeEngine* engine)
     JsSysModule::Console::InitConsoleModule(reinterpret_cast<napi_env>(engine));
 }
 
-bool OHOSJsEnvironmentImpl::InitLoop(NativeEngine* engine, const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner)
+bool OHOSJsEnvironmentImpl::InitLoop(NativeEngine* engine)
 {
     HILOG_DEBUG("called");
-    eventHandler_ = std::make_shared<AppExecFwk::EventHandler>(eventRunner);
     auto uvLoop = engine->GetUVLoop();
     auto fd = uvLoop != nullptr ? uv_backend_fd(uvLoop) : -1;
     if (fd < 0) {
@@ -78,8 +94,11 @@ bool OHOSJsEnvironmentImpl::InitLoop(NativeEngine* engine, const std::shared_ptr
     }
     uv_run(uvLoop, UV_RUN_NOWAIT);
 
-    uint32_t events = AppExecFwk::FILE_DESCRIPTOR_INPUT_EVENT | AppExecFwk::FILE_DESCRIPTOR_OUTPUT_EVENT;
-    eventHandler_->AddFileDescriptorListener(fd, events, std::make_shared<OHOSLoopHandler>(uvLoop));
+    if (eventHandler_ != nullptr) {
+        uint32_t events = AppExecFwk::FILE_DESCRIPTOR_INPUT_EVENT | AppExecFwk::FILE_DESCRIPTOR_OUTPUT_EVENT;
+        eventHandler_->AddFileDescriptorListener(fd, events, std::make_shared<OHOSLoopHandler>(uvLoop));
+    }
+
     return true;
 }
 

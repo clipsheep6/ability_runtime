@@ -27,7 +27,7 @@
 namespace OHOS {
 namespace JsEnv {
 class JsEnvironmentImpl;
-class JsEnvironment final {
+class JsEnvironment final : public std::enable_shared_from_this<JsEnvironment> {
 public:
     JsEnvironment() {}
     explicit JsEnvironment(std::unique_ptr<JsEnvironmentImpl> impl);
@@ -60,26 +60,30 @@ public:
 
     void PostTask(const std::function<void()>& task, const std::string& name = "", int64_t delayTime = 0);
 
+    void PostSyncTask(const std::function<void()>& task, const std::string& name = "");
+
     void RemoveTask(const std::string& name);
 
     void RegisterUncaughtExceptionHandler(const JsEnv::UncaughtExceptionInfo uncaughtExceptionInfo);
     bool LoadScript(const std::string& path, std::vector<uint8_t>* buffer = nullptr, bool isBundle = false);
 
-    bool StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId,
-        const DebuggerPostTask& debuggerPostTask = {});
+    bool StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId);
+
+    void StopDebugger();
 
     void InitConsoleModule();
 
-    bool InitLoop(const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner);
+    bool InitLoop();
 
     void DeInitLoop();
-
-    void StopDebugger();
 
     bool LoadScript(const std::string& path, uint8_t *buffer, size_t len, bool isBundle);
 
     void StartProfiler(const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler, int32_t interval,
         const DebuggerPostTask &debuggerPostTask = {});
+
+    void ReInitJsEnvImpl(std::unique_ptr<JsEnvironmentImpl> impl);
+
 private:
     std::unique_ptr<JsEnvironmentImpl> impl_ = nullptr;
     NativeEngine* engine_ = nullptr;
