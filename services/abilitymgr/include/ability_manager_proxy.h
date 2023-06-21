@@ -826,6 +826,21 @@ public:
      */
     void StartSpecifiedAbilityBySCB(const Want &want) override;
 
+    /**
+     * Set sessionManagerService
+     * @param sessionManagerService the point of sessionManagerService.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService) override;
+
+    /**
+     * Get sessionManagerService
+     *
+     * @return returns the SessionManagerService object, or nullptr for failed.
+     */
+    virtual sptr<IRemoteObject> GetSessionManagerService() override;
+
 private:
     template <typename T>
     int GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos);

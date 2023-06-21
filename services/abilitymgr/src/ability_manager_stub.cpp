@@ -183,6 +183,8 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[SET_ROOT_SCENE_SESSION] = &AbilityManagerStub::SetRootSceneSessionInner;
     requestFuncMap_[CALL_ABILITY_BY_SCB] = &AbilityManagerStub::CallUIAbilityBySCBInner;
     requestFuncMap_[START_SPECIFIED_ABILITY_BY_SCB] = &AbilityManagerStub::StartSpecifiedAbilityBySCBInner;
+    requestFuncMap_[SET_SESSIONMANAGERSERVICE] = &AbilityManagerStub::SetSessionManagerServiceInner;
+    requestFuncMap_[GET_SESSIONMANAGERSERVICE] = &AbilityManagerStub::GetSessionManagerServiceInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -2149,6 +2151,27 @@ int32_t AbilityManagerStub::StartSpecifiedAbilityBySCBInner(MessageParcel &data,
         return ERR_INVALID_VALUE;
     }
     StartSpecifiedAbilityBySCB(*want);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::SetSessionManagerServiceInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> sessionManagerService = data.ReadRemoteObject();
+    if (!sessionManagerService) {
+        HILOG_ERROR("SetSessionManagerServiceInner read ability token failed.");
+        return ERR_NULL_OBJECT;
+    }
+    SetSessionManagerService(sessionManagerService);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::GetSessionManagerServiceInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto token = GetSessionManagerService();
+    if (!reply.WriteRemoteObject(token)) {
+        HILOG_ERROR("GetSessionManagerServiceInner reply write failed.");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 }  // namespace AAFwk

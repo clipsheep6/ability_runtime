@@ -1129,5 +1129,23 @@ void AbilityManagerClient::StartSpecifiedAbilityBySCB(const Want &want)
     CHECK_POINTER_RETURN(abms);
     abms->StartSpecifiedAbilityBySCB(want);
 }
+
+ErrCode AbilityManagerClient::SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService)
+{
+    HILOG_INFO("AbilityManagerClient::SetSessionManagerService call");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->SetSessionManagerService(sessionManagerService);
+}
+
+sptr<IRemoteObject> AbilityManagerClient::GetSessionManagerService()
+{
+    HILOG_INFO("AbilityManagerClient::GetSessionManagerService call");
+    auto abms = GetAbilityManager();
+    if (!abms) {
+        return nullptr;
+    }
+    return abms->GetSessionManagerService();
+}
 }  // namespace AAFwk
 }  // namespace OHOS

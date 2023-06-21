@@ -1077,6 +1077,21 @@ public:
      */
     void StartSpecifiedAbilityBySCB(const Want &want);
 
+    /**
+     * Set sessionManagerService
+     * @param sessionManagerService the point of sessionManagerService.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService);
+
+    /**
+     * Get sessionManagerService
+     *
+     * @return returns the SessionManagerService object, or nullptr for failed.
+     */
+    sptr<IRemoteObject> GetSessionManagerService();
+
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:

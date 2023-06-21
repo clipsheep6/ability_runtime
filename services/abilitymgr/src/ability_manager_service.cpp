@@ -7248,6 +7248,29 @@ void AbilityManagerService::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionI
     uiAbilityLifecycleManager_->CallUIAbilityBySCB(sessionInfo);
 }
 
+int32_t AbilityManagerService::SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService)
+{
+    if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD, U0_USER_ID)) {
+        HILOG_ERROR("Not sceneboard called, not allowed.");
+        return ERR_WRONG_INTERFACE_CALL;
+    }
+    if (!sessionManagerService) {
+        HILOG_ERROR("SetSessionManagerService: callerToken is nullptr");
+    }
+    sessionManagerService_ = sessionManagerService;
+    HILOG_ERROR("SetSessionManagerService: set sessionManagerService_ OK");
+    return ERR_OK;
+}
+
+sptr<IRemoteObject> AbilityManagerService::GetSessionManagerService()
+{
+    if (sessionManagerService_) {
+        return sessionManagerService_;
+    }
+    HILOG_ERROR("AbilityManagerService:: sessionManagerService_ is nullptr");
+    return nullptr;
+}
+
 bool AbilityManagerService::CheckPrepareTerminateEnable()
 {
     if (!isPrepareTerminateEnable_) {

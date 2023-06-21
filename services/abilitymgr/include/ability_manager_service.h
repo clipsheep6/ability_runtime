@@ -1090,6 +1090,21 @@ public:
      */
     virtual void StartSpecifiedAbilityBySCB(const Want &want) override;
 
+    /**
+     * Set sessionManagerService
+     * @param sessionManagerService the point of sessionManagerService.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService) override;
+
+    /**
+     * Get sessionManagerService
+     *
+     * @return returns the SessionManagerService object, or nullptr for failed.
+     */
+    virtual sptr<IRemoteObject> GetSessionManagerService() override;
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -1528,6 +1543,7 @@ private:
     std::shared_ptr<AbilityInterceptorExecuter> interceptorExecuter_;
     std::unordered_map<int32_t, int64_t> appRecoveryHistory_; // uid:time
     bool isPrepareTerminateEnable_ = false;
+    sptr<IRemoteObject> sessionManagerService_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
