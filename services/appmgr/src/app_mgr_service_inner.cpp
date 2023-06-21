@@ -549,6 +549,8 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
         HILOG_ERROR("current state is not background");
         return;
     }
+
+    KillRenderProcess(appRecord);
     appRecord->SetState(ApplicationState::APP_STATE_TERMINATED);
     appRecord->RemoveAppDeathRecipient();
     appRecord->SetProcessChangeReason(ProcessChangeReason::REASON_APP_TERMINATED);
@@ -1999,21 +2001,7 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessDied(appRecord);
 
     // kill render if exist.
-    auto renderRecordMap = appRecord->GetRenderRecordMap();
-    if (!renderRecordMap.empty()) {
-        for (auto iter : renderRecordMap) {
-            auto renderRecord = iter.second;
-            if (renderRecord && renderRecord->GetPid() > 0) {
-                HILOG_DEBUG("Kill render process when host died.");
-                KillProcessByPid(renderRecord->GetPid());
-                {
-                    std::lock_guard<std::mutex> lock(renderUidSetLock_);
-                    renderUidSet_.erase(renderRecord->GetUid());
-                }
-                DelayedSingleton<AppStateObserverManager>::GetInstance()->OnRenderProcessDied(renderRecord);
-            }
-        }
-    }
+    KillRenderProcess(appRecord);
 
     if (appRecord->GetPriorityObject() != nullptr) {
         SendProcessExitEvent(appRecord->GetPriorityObject()->GetPid());
@@ -3852,6 +3840,27 @@ int32_t AppMgrServiceInner::GetBundleNameByPid(const int32_t pid, std::string &b
     bundleName = callerRecord->GetBundleName();
     uid = callerRecord->GetUid();
     return ERR_OK;
+}
+void AppMgrServiceInner::KillRenderProcess(const std::shared_ptr<AppRunningRecord> &appRecord) {
+    if (appRecord == nullptr) {
+        HILOG_ERROR("appRecord is nullptr.");
+        return;
+    }
+    auto renderRecordMap = appRecord->GetRenderRecordMap();
+    if (!renderRecordMap.empty()) {
+        for (auto iter : renderRecordMap) {
+            auto renderRecord = iter.second;
+            if (renderRecord && renderRecord->GetPid() > 0) {
+                HILOG_DEBUG("Kill render process when host died.");
+                KillProcessByPid(renderRecord->GetPid());
+                {
+                    std::lock_guard<std::mutex> lock(renderUidSetLock_);
+                    renderUidSet_.erase(renderRecord->GetUid());
+                }
+                DelayedSingleton<AppStateObserverManager>::GetInstance()->OnRenderProcessDied(renderRecord);
+            }
+        }
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

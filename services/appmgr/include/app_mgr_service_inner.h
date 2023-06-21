@@ -900,6 +900,8 @@ private:
 
     void RemoveRunningSharedBundleList(const std::string &bundleName);
 
+    void KillRenderProcess(const std::shared_ptr<AppRunningRecord> &appRecord);
+
 private:
     /**
      * Notify application status.
