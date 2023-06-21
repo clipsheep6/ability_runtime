@@ -16,8 +16,6 @@
 #ifndef OHOS_ABILITY_RUNTIME_JS_UI_EXTENSION_H
 #define OHOS_ABILITY_RUNTIME_JS_UI_EXTENSION_H
 
-#include <unordered_set>
-
 #include "configuration.h"
 #include "ui_extension.h"
 
@@ -162,8 +160,8 @@ private:
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;
     std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
-    std::unordered_map<uint64_t, sptr<Rosen::Window>> uiWindowMap_;
-    std::unordered_set<uint64_t> foregroundWindows_;
+    std::map<sptr<IRemoteObject>, sptr<Rosen::Window>> uiWindowMap_;
+    std::set<sptr<IRemoteObject>> foregroundWindows_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
