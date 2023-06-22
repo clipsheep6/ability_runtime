@@ -129,7 +129,6 @@ void JsUIExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     }
 
     BindContext(engine, obj);
-    obj->SetNativePointer(this, JsUIExtension::Finalizer, nullptr);
 
     SetExtensionCommon(
         JsExtensionCommon::Create(jsRuntime_, static_cast<NativeReference&>(*jsObj_), shellContextRef_));
