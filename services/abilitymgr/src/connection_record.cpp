@@ -241,6 +241,7 @@ void ConnectionRecord::Dump(std::vector<std::string> &info) const
 
 void ConnectionRecord::AttachCallerInfo()
 {
+    callerTokenId_ = IPCSkeleton::GetCallingTokenID(); // tokenId identifies the real caller
     auto targetRecord = Token::GetAbilityRecordByToken(callerToken_);
     if (targetRecord) {
         callerUid_ = targetRecord->GetUid();
@@ -262,6 +263,11 @@ int32_t ConnectionRecord::GetCallerUid() const
 int32_t ConnectionRecord::GetCallerPid() const
 {
     return callerPid_;
+}
+
+uint32_t ConnectionRecord::GetCallerTokenId() const
+{
+    return callerTokenId_;
 }
 
 std::string ConnectionRecord::GetCallerName() const

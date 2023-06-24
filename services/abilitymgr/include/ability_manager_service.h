@@ -212,13 +212,10 @@ public:
     /**
      * Start ui ability with want, send want to ability manager service.
      *
-     * @param want the want of the ability to start.
-     * @param startOptions Indicates the options used to start.
      * @param sessionInfo the session info of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartUIAbilityBySCB(const Want &want, const StartOptions &startOptions,
-        sptr<SessionInfo> sessionInfo) override;
+    virtual int StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo) override;
 
     /**
      * Stop extension ability with want, send want to ability manager service.
@@ -997,7 +994,7 @@ public:
 
     bool GetLocalDeviceId(std::string& localDeviceId);
 
-    int JudgeAbilityVisibleControl(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid = -1);
+    int JudgeAbilityVisibleControl(const AppExecFwk::AbilityInfo &abilityInfo);
 
     /**
      * Called to update mission snapshot.
@@ -1092,6 +1089,21 @@ public:
      * @param want Want information.
      */
     virtual void StartSpecifiedAbilityBySCB(const Want &want) override;
+
+    /**
+     * Set sessionManagerService
+     * @param sessionManagerService the point of sessionManagerService.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService) override;
+
+    /**
+     * Get sessionManagerService
+     *
+     * @return returns the SessionManagerService object, or nullptr for failed.
+     */
+    virtual sptr<IRemoteObject> GetSessionManagerService() override;
 
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
@@ -1301,8 +1313,6 @@ private:
     void StartResidentApps();
 
     int VerifyAccountPermission(int32_t userId);
-
-    bool CheckCallerEligibility(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid);
 
     using DumpFuncType = void (AbilityManagerService::*)(const std::string &args, std::vector<std::string> &info);
     std::map<uint32_t, DumpFuncType> dumpFuncMap_;
@@ -1533,6 +1543,7 @@ private:
     std::shared_ptr<AbilityInterceptorExecuter> interceptorExecuter_;
     std::unordered_map<int32_t, int64_t> appRecoveryHistory_; // uid:time
     bool isPrepareTerminateEnable_ = false;
+    sptr<IRemoteObject> sessionManagerService_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

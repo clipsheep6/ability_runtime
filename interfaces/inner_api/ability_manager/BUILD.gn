@@ -144,3 +144,14 @@ ohos_shared_library("ability_manager") {
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
+
+ohos_shared_library("ability_manager_c") {
+  include_dirs = [ "include" ]
+  sources = [ "src/ability_manager_client_c.cpp" ]
+  libs = []
+  ldflags = [ "-Wl,--exclude-libs=ALL" ]
+  deps = [ ":ability_manager" ]
+  innerapi_tags = [ "platformsdk" ]
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}

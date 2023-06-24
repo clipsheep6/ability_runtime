@@ -1139,9 +1139,7 @@ HWTEST_F(AbilityManagerClientBranchTest, StartAbilityByCall_002, TestSize.Level1
  */
 HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_001, TestSize.Level1)
 {
-    Want want;
-    StartOptions options;
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(want, options, nullptr), ERR_INVALID_VALUE);
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(nullptr), ERR_INVALID_VALUE);
 }
 
 /**
@@ -1151,10 +1149,8 @@ HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_001, TestSize.Level
  */
 HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_002, TestSize.Level1)
 {
-    Want want;
-    StartOptions options;
     sptr<SessionInfo> sessionInfo(new SessionInfo());
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(want, options, sessionInfo), ERR_INVALID_VALUE);
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(sessionInfo), ERR_INVALID_VALUE);
 }
 
 /**
@@ -1164,12 +1160,10 @@ HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_002, TestSize.Level
  */
 HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_003, TestSize.Level1)
 {
-    Want want;
-    StartOptions options;
     Rosen::SessionInfo info;
     sptr<SessionInfo> sessionInfo(new SessionInfo());
     sessionInfo->sessionToken = new Rosen::Session(info);
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(want, options, sessionInfo),
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(sessionInfo),
         ERR_WRONG_INTERFACE_CALL);
 }
 

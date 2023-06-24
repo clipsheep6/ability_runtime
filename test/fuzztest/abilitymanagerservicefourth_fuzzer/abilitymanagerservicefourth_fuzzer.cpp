@@ -57,8 +57,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     // fuzz for AbilityManagerService
     auto abilityms = std::make_shared<AbilityManagerService>();
     AppExecFwk::AbilityInfo abilityInfo;
-    abilityms->JudgeAbilityVisibleControl(abilityInfo, intParam);
-    abilityms->CheckCallerEligibility(abilityInfo, intParam);
+    abilityms->JudgeAbilityVisibleControl(abilityInfo);
     abilityms->StartUser(intParam);
     sptr<IStopUserCallback> callback;
     abilityms->StopUser(intParam, callback);

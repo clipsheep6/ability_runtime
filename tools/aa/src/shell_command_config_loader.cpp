@@ -80,6 +80,7 @@ bool ShellCommandConfigLoder::ReadConfig(const std::string &filePath)
             continue;
         }
         std::string cmd = aaJson[AA_TOOL_COMMAND_LIST][i].get<std::string>();
+        HILOG_DEBUG("add cmd: %{public}s", cmd.c_str());
         commands_.emplace(cmd);
     }
 

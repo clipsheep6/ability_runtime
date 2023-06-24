@@ -1115,8 +1115,7 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
     return missionListManager->StartAbility(abilityRequest);
 }
 
-int AbilityManagerService::StartUIAbilityBySCB(const Want &want, const StartOptions &startOptions,
-    sptr<SessionInfo> sessionInfo)
+int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Call.");
@@ -1126,7 +1125,7 @@ int AbilityManagerService::StartUIAbilityBySCB(const Want &want, const StartOpti
     }
 
     auto currentUserId = GetUserId();
-    EventInfo eventInfo = BuildEventInfo(want, currentUserId);
+    EventInfo eventInfo = BuildEventInfo(sessionInfo->want, currentUserId);
     EventReport::SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
 
     if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD, U0_USER_ID)) {
@@ -1142,7 +1141,7 @@ int AbilityManagerService::StartUIAbilityBySCB(const Want &want, const StartOpti
 
     auto requestCode = sessionInfo->requestCode;
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        interceptorExecuter_->DoProcess(want, requestCode, currentUserId, true);
+        interceptorExecuter_->DoProcess(sessionInfo->want, requestCode, currentUserId, true);
     if (result != ERR_OK) {
         HILOG_ERROR("interceptorExecuter_ is nullptr or DoProcess return error.");
         eventInfo.errCode = result;
@@ -1151,7 +1150,8 @@ int AbilityManagerService::StartUIAbilityBySCB(const Want &want, const StartOpti
     }
 
     AbilityRequest abilityRequest;
-    result = GenerateAbilityRequest(want, requestCode, abilityRequest, sessionInfo->callerToken, currentUserId);
+    result = GenerateAbilityRequest(sessionInfo->want, requestCode, abilityRequest,
+        sessionInfo->callerToken, currentUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         return result;
@@ -4293,7 +4293,7 @@ int AbilityManagerService::StopServiceAbility(const Want &want, int32_t userId, 
         return TARGET_ABILITY_NOT_SERVICE;
     }
 
-    auto res = JudgeAbilityVisibleControl(abilityInfo, validUserId);
+    auto res = JudgeAbilityVisibleControl(abilityInfo);
     if (res != ERR_OK) {
         HILOG_ERROR("Target ability is invisible");
         return res;
@@ -5027,75 +5027,27 @@ int AbilityManagerService::ReleaseCall(
     return currentMissionListManager_->ReleaseCallLocked(connect, element);
 }
 
-int AbilityManagerService::JudgeAbilityVisibleControl(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid)
+int AbilityManagerService::JudgeAbilityVisibleControl(const AppExecFwk::AbilityInfo &abilityInfo)
 {
-    HILOG_DEBUG("Judge ability visible begin.");
-    if (!abilityInfo.visible) {
-        HILOG_INFO("Ability visible is false.");
-        if (callerUid == -1) {
-            callerUid = IPCSkeleton::GetCallingUid();
-        }
-        if (!CheckCallerEligibility(abilityInfo, callerUid)) {
-            HILOG_ERROR("called ability has no permission.");
-            return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
-        }
+    HILOG_DEBUG("Call.");
+    if (abilityInfo.visible) {
+        return ERR_OK;
     }
-    HILOG_DEBUG("Judge ability visible success.");
-    return ERR_OK;
-}
-
-bool AbilityManagerService::CheckCallerEligibility(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid)
-{
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
-        auto bms = GetBundleManager();
-        if (!bms) {
-            HILOG_ERROR("fail to get bundle manager.");
-            return false;
-        }
-
-        if (AAFwk::PermissionVerification::GetInstance()->IsGatewayCall()) {
-            return true;
-        }
-
-        std::string bundleName;
-        auto result = IN_PROCESS_CALL(bms->GetNameForUid(callerUid, bundleName));
-        if (result != ERR_OK) {
-            HILOG_ERROR("GetBundleNameForUid from bms fail.");
-            return false;
-        }
-        AppExecFwk::ApplicationInfo callerAppInfo;
-        result = IN_PROCESS_CALL(bms->GetApplicationInfo(bundleName,
-            AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO,
-            GetUserId(), callerAppInfo));
-        if (!result) {
-            HILOG_ERROR("GetApplicationInfo from bms fail.");
-            return false;
-        }
-
-        auto apl = callerAppInfo.appPrivilegeLevel;
-        auto callerTokenId = IPCSkeleton::GetCallingTokenID();
-        auto targetTokenId = abilityInfo.applicationInfo.accessTokenId;
-        if (callerTokenId == targetTokenId) {
-            return true;
-        }
-
-        if (apl != AbilityUtil::SYSTEM_BASIC && apl != AbilityUtil::SYSTEM_CORE) {
-            HILOG_DEBUG("caller is normal app.");
-            HILOG_ERROR("the bundle name of caller is different from target one, caller: %{public}s "
-                "target: %{public}s", bundleName.c_str(), abilityInfo.bundleName.c_str());
-            return false;
-        } else {
-            auto result = AccessTokenKit::VerifyAccessToken(callerTokenId,
-                PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY);
-            if (result != AppExecFwk::Constants::PERMISSION_GRANTED) {
-                HILOG_ERROR("verify access token fail, don't have permission");
-                return false;
-            }
-        }
+    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+    if (callerTokenId == abilityInfo.applicationInfo.accessTokenId ||
+        callerTokenId == static_cast<uint32_t>(IPCSkeleton::GetSelfTokenID())) {  // foundation call is allowed
+        return ERR_OK;
     }
-    HILOG_DEBUG("Success to check caller permission.");
-    return true;
+    if (AccessTokenKit::VerifyAccessToken(callerTokenId,
+        PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY) == AppExecFwk::Constants::PERMISSION_GRANTED) {
+        return ERR_OK;
+    }
+    if (AAFwk::PermissionVerification::GetInstance()->IsGatewayCall()) {
+        return ERR_OK;
+    }
+    HILOG_ERROR("callerToken: %{private}u, targetToken: %{private}u, caller doesn's have permission",
+        callerTokenId, abilityInfo.applicationInfo.accessTokenId);
+    return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
 }
 
 int AbilityManagerService::StartUser(int userId)
@@ -7291,6 +7243,29 @@ void AbilityManagerService::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionI
         return;
     }
     uiAbilityLifecycleManager_->CallUIAbilityBySCB(sessionInfo);
+}
+
+int32_t AbilityManagerService::SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService)
+{
+    if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD, U0_USER_ID)) {
+        HILOG_ERROR("Not sceneboard called, not allowed.");
+        return ERR_WRONG_INTERFACE_CALL;
+    }
+    if (!sessionManagerService) {
+        HILOG_ERROR("SetSessionManagerService: callerToken is nullptr");
+    }
+    sessionManagerService_ = sessionManagerService;
+    HILOG_ERROR("SetSessionManagerService: set sessionManagerService_ OK");
+    return ERR_OK;
+}
+
+sptr<IRemoteObject> AbilityManagerService::GetSessionManagerService()
+{
+    if (sessionManagerService_) {
+        return sessionManagerService_;
+    }
+    HILOG_ERROR("AbilityManagerService:: sessionManagerService_ is nullptr");
+    return nullptr;
 }
 
 bool AbilityManagerService::CheckPrepareTerminateEnable()

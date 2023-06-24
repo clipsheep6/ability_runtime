@@ -652,7 +652,7 @@ HWTEST_F(JsRuntimeTest, StopDebugger_0100, TestSize.Level0)
     auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
 
     ASSERT_NE(jsRuntime, nullptr);
-    
+
     jsRuntime->StopDebugger();
     HILOG_INFO("StopDebugger end");
 }
@@ -750,6 +750,27 @@ HWTEST_F(JsRuntimeTest, JsRuntimeStopDebuggerTest_0100, TestSize.Level0)
     ASSERT_NE(jsRuntime, nullptr);
 
     jsRuntime->StopDebugger();
+}
+
+/**
+ * @tc.name: PostSyncTask_0100
+ * @tc.desc: Js runtime post sync task.
+ * @tc.type: FUNC
+ * @tc.require: issueI7C87T
+ */
+HWTEST_F(JsRuntimeTest, PostSyncTask_0100, TestSize.Level0)
+{
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options_);
+    ASSERT_NE(jsRuntime, nullptr);
+
+    std::string taskName = "syncTask001";
+    bool taskExecuted = false;
+    auto task = [taskName, &taskExecuted]() {
+        HILOG_INFO("%{public}s called.", taskName.c_str());
+        taskExecuted = true;
+    };
+    jsRuntime->PostSyncTask(task, taskName);
+    EXPECT_EQ(taskExecuted, true);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

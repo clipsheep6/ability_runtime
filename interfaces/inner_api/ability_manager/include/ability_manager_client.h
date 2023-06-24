@@ -215,12 +215,10 @@ public:
     /**
      * Start ui ability with want, send want to ability manager service.
      *
-     * @param want the want of the ability to start.
-     * @param startOptions Indicates the options used to start.
      * @param sessionInfo the session info of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode StartUIAbilityBySCB(const Want &want, const StartOptions &startOptions, sptr<SessionInfo> sessionInfo);
+    ErrCode StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo);
 
     /**
      * Stop extension ability with want, send want to ability manager service.
@@ -1078,6 +1076,21 @@ public:
      * @param want Want information.
      */
     void StartSpecifiedAbilityBySCB(const Want &want);
+
+    /**
+     * Set sessionManagerService
+     * @param sessionManagerService the point of sessionManagerService.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService);
+
+    /**
+     * Get sessionManagerService
+     *
+     * @return returns the SessionManagerService object, or nullptr for failed.
+     */
+    sptr<IRemoteObject> GetSessionManagerService();
 
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {

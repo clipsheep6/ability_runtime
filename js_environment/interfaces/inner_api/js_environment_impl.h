@@ -40,13 +40,15 @@ public:
 
     virtual void PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime) = 0;
 
+    virtual void PostSyncTask(const std::function<void()>& task, const std::string& name) = 0;
+
     virtual void RemoveTask(const std::string& name) = 0;
 
     virtual void InitTimerModule(NativeEngine* engine) = 0;
 
     virtual void InitConsoleModule(NativeEngine *engine) = 0;
 
-    virtual bool InitLoop(NativeEngine *engine, const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner) = 0;
+    virtual bool InitLoop(NativeEngine *engine) = 0;
 
     virtual void DeInitLoop(NativeEngine *engine) = 0;
 

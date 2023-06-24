@@ -1376,7 +1376,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_TerminateAbility_001, TestSi
     abilityRecord->abilityInfo_.visible = false;
     connectManager->serviceMap_.emplace("first", abilityRecord);
     int res = connectManager->TerminateAbility(abilityRecord, requestCode);
-    EXPECT_EQ(res, ABILITY_VISIBLE_FALSE_DENY_REQUEST);
+    EXPECT_EQ(res, ERR_OK);
 }
 
 /*

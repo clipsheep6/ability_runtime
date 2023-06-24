@@ -206,12 +206,10 @@ public:
     /**
      * Start ui ability with want, send want to ability manager service.
      *
-     * @param want the want of the ability to start.
-     * @param startOptions Indicates the options used to start.
      * @param sessionInfo the session info of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartUIAbilityBySCB(const Want &want, const StartOptions &startOptions, sptr<SessionInfo> sessionInfo)
+    virtual int StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
     {
         return 0;
     }
@@ -1017,6 +1015,22 @@ public:
      */
     virtual void StartSpecifiedAbilityBySCB(const Want &want) {};
 
+    /**
+     * Set sessionManagerService
+     * @param sessionManagerService the point of sessionManagerService.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService)
+    {
+        return 0;
+    }
+
+    virtual sptr<IRemoteObject> GetSessionManagerService()
+    {
+        return nullptr;
+    }
+
     enum {
         // ipc id 1-1000 for kit
         // ipc id for terminating ability (1)
@@ -1314,6 +1328,11 @@ public:
 
         // ipc id for start specified ability by scb
         START_SPECIFIED_ABILITY_BY_SCB,
+
+        // ipc id for set sessionManagerService
+        SET_SESSIONMANAGERSERVICE,
+
+        GET_SESSIONMANAGERSERVICE,
 
         // ipc id for continue ability(1101)
         START_CONTINUATION = 1101,

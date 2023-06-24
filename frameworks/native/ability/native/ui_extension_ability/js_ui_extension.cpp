@@ -304,12 +304,12 @@ void JsUIExtension::OnBackground()
 void JsUIExtension::ForegroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
 {
     HILOG_DEBUG("begin.");
-    if (sessionInfo == nullptr) {
-        HILOG_ERROR("SessionInfo is nullptr.");
+    if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
+        HILOG_ERROR("Invalid sessionInfo.");
         return;
     }
-    auto persistentId = sessionInfo->persistentId;
-    if (uiWindowMap_.find(persistentId) == uiWindowMap_.end()) {
+    auto obj = sessionInfo->sessionToken;
+    if (uiWindowMap_.find(obj) == uiWindowMap_.end()) {
         sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
         auto context = GetContext();
         if (context == nullptr || context->GetAbilityInfo() == nullptr) {
@@ -334,12 +334,12 @@ void JsUIExtension::ForegroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo
         }
         HILOG_DEBUG("contextPath is %{private}s", contextPath.c_str());
         uiWindow->SetUIContent(contextPath, nativeEngine, nullptr);
-        uiWindowMap_[persistentId] = uiWindow;
+        uiWindowMap_[obj] = uiWindow;
     }
-    auto& uiWindow = uiWindowMap_[persistentId];
+    auto& uiWindow = uiWindowMap_[obj];
     if (uiWindow) {
         uiWindow->Show();
-        foregroundWindows_.emplace(persistentId);
+        foregroundWindows_.emplace(obj);
     }
     HILOG_DEBUG("end.");
 }
@@ -347,19 +347,19 @@ void JsUIExtension::ForegroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo
 void JsUIExtension::BackgroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
 {
     HILOG_DEBUG("begin.");
-    if (sessionInfo == nullptr) {
-        HILOG_ERROR("SessionInfo is nullptr.");
+    if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
+        HILOG_ERROR("Invalid sessionInfo.");
         return;
     }
-    auto persistentId = sessionInfo->persistentId;
-    if (uiWindowMap_.find(persistentId) == uiWindowMap_.end()) {
-        HILOG_ERROR("Fail to find uiWindow, persistentId=%{private}" PRIu64"", persistentId);
+    auto obj = sessionInfo->sessionToken;
+    if (uiWindowMap_.find(obj) == uiWindowMap_.end()) {
+        HILOG_ERROR("Fail to find uiWindow");
         return;
     }
-    auto& uiWindow = uiWindowMap_[persistentId];
+    auto& uiWindow = uiWindowMap_[obj];
     if (uiWindow) {
         uiWindow->Hide();
-        foregroundWindows_.erase(persistentId);
+        foregroundWindows_.erase(obj);
     }
     HILOG_DEBUG("end.");
 }
@@ -367,21 +367,20 @@ void JsUIExtension::BackgroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo
 void JsUIExtension::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
 {
     HILOG_DEBUG("begin.");
-
-    if (sessionInfo == nullptr) {
-        HILOG_ERROR("SessionInfo is nullptr.");
+    if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
+        HILOG_ERROR("Invalid sessionInfo.");
         return;
     }
-    auto persistentId = sessionInfo->persistentId;
-    if (uiWindowMap_.find(persistentId) == uiWindowMap_.end()) {
-        HILOG_ERROR("Fail to find uiWindow, persistentId=%{private}" PRIu64"", persistentId);
+    auto obj = sessionInfo->sessionToken;
+    if (uiWindowMap_.find(obj) == uiWindowMap_.end()) {
+        HILOG_ERROR("Fail to find uiWindow");
         return;
     }
-    auto& uiWindow = uiWindowMap_[persistentId];
+    auto& uiWindow = uiWindowMap_[obj];
     if (uiWindow) {
         uiWindow->Destroy();
-        uiWindowMap_.erase(persistentId);
-        foregroundWindows_.erase(persistentId);
+        uiWindowMap_.erase(obj);
+        foregroundWindows_.erase(obj);
     }
     HILOG_DEBUG("end.");
 }

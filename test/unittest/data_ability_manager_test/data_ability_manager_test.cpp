@@ -491,7 +491,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_Release_004, TestSize.
     dataAbilityRecord->scheduler_ = abilitySchedulerMock_;
     dataAbilityManager->dataAbilityRecordsLoaded_["bundleName.name"] = dataAbilityRecord;
     int res = dataAbilityManager->Release(abilitySchedulerMock_, dataAbilityRecord->GetToken(), false);
-    EXPECT_EQ(res, ABILITY_VISIBLE_FALSE_DENY_REQUEST);
+    EXPECT_EQ(res, ERR_UNKNOWN_OBJECT);
 }
 
 /*

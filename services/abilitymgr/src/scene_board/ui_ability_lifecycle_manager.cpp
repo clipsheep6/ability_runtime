@@ -59,15 +59,12 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
     auto iter = sessionAbilityMap_.find(sessionInfo->persistentId);
     if (iter != sessionAbilityMap_.end()) {
         uiAbilityRecord = iter->second;
+        uiAbilityRecord->SetWant(abilityRequest.want);
+        uiAbilityRecord->SetIsNewWant(true);
     } else {
         uiAbilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     }
     CHECK_POINTER_AND_RETURN(uiAbilityRecord, ERR_INVALID_VALUE);
-
-    if (uiAbilityRecord->IsTerminating()) {
-        HILOG_ERROR("%{public}s is terminating.", uiAbilityRecord->GetAbilityInfo().name.c_str());
-        return ERR_INVALID_VALUE;
-    }
 
     if (uiAbilityRecord->GetPendingState() == AbilityState::FOREGROUND) {
         HILOG_DEBUG("pending state is FOREGROUND.");
@@ -600,14 +597,14 @@ int UIAbilityLifecycleManager::NotifySCBPendingActivation(sptr<SessionInfo> &ses
     auto abilityRecord = GetAbilityRecordByToken(token);
     if (abilityRecord == nullptr) {
         CHECK_POINTER_AND_RETURN(rootSceneSession_, ERR_INVALID_VALUE);
-        HILOG_INFO("Call PendingSessionActivation.");
+        HILOG_INFO("Call PendingSessionActivation by callerSession.");
         return static_cast<int>(rootSceneSession_->PendingSessionActivation(sessionInfo));
     } else {
         auto callerSessionInfo = abilityRecord->GetSessionInfo();
         CHECK_POINTER_AND_RETURN(callerSessionInfo, ERR_INVALID_VALUE);
         CHECK_POINTER_AND_RETURN(callerSessionInfo->sessionToken, ERR_INVALID_VALUE);
         auto callerSession = iface_cast<Rosen::ISession>(callerSessionInfo->sessionToken);
-        HILOG_INFO("Call PendingSessionActivation.");
+        HILOG_INFO("Call PendingSessionActivation by rootSceneSession.");
         return static_cast<int>(callerSession->PendingSessionActivation(sessionInfo));
     }
 }
