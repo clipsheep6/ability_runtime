@@ -359,6 +359,7 @@ ohos_shared_library("extensionkit_native") {
   ]
 
   sources = [
+    "${ability_runtime_native_path}/ability/native/app_module_checker.cpp",
     "${ability_runtime_native_path}/ability/native/extension.cpp",
     "${ability_runtime_native_path}/ability/native/extension_config_mgr.cpp",
     "${ability_runtime_native_path}/ability/native/extension_impl.cpp",
@@ -382,6 +383,7 @@ ohos_shared_library("extensionkit_native") {
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
+    "napi:ace_napi",
   ]
 
   public_deps = [

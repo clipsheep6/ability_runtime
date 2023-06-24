@@ -399,24 +399,6 @@ HWTEST_F(JsRuntimeTest, JsRuntimeLoadSystemModulesTest_0100, TestSize.Level0)
 }
 
 /**
- * @tc.name: JsRuntimeUpdateExtensionTypeTest_0100
- * @tc.desc: JsRuntime test for UpdateExtensionType.
- * @tc.type: FUNC
- */
-HWTEST_F(JsRuntimeTest, JsRuntimeUpdateExtensionTypeTest_0100, TestSize.Level0)
-{
-    HILOG_INFO("UpdateExtensionType start");
-
-    auto jsRuntime = std::make_unique<JsRuntime>();
-    EXPECT_TRUE(jsRuntime != nullptr);
-
-    int32_t extensionType = 1;
-    jsRuntime->UpdateExtensionType(extensionType);
-
-    HILOG_INFO("UpdateExtensionType end");
-}
-
-/**
  * @tc.name: JsRuntimeStartDebugModeTest_0100
  * @tc.desc: JsRuntime test for StartDebugMode.
  * @tc.type: FUNC
