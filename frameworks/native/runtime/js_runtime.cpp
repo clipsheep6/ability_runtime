@@ -133,12 +133,12 @@ std::atomic<bool> JsRuntime::hasInstance(false);
 
 JsRuntime::JsRuntime()
 {
-    HILOG_INFO("JsRuntime costructor.");
+    HILOG_DEBUG("JsRuntime costructor.");
 }
 
 JsRuntime::~JsRuntime()
 {
-    HILOG_INFO("JsRuntime destructor.");
+    HILOG_DEBUG("JsRuntime destructor.");
     Deinitialize();
     StopDebugMode();
 }

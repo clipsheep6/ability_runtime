@@ -76,7 +76,7 @@ bool JsMissionListener::IsEmpty()
 
 void JsMissionListener::CallJsMethod(const std::string &methodName, int32_t missionId)
 {
-    HILOG_INFO("methodName = %{public}s", methodName.c_str());
+    HILOG_DEBUG("methodName = %{public}s", methodName.c_str());
     if (engine_ == nullptr) {
         HILOG_ERROR("engine_ nullptr");
         return;
@@ -119,7 +119,7 @@ void JsMissionListener::CallJsMethodInner(const std::string &methodName, int32_t
 #ifdef SUPPORT_GRAPHICS
 void JsMissionListener::OnMissionIconUpdated(int32_t missionId, const std::shared_ptr<Media::PixelMap> &icon)
 {
-    HILOG_INFO("OnMissionIconUpdated, missionId = %{public}d", missionId);
+    HILOG_DEBUG("OnMissionIconUpdated, missionId = %{public}d", missionId);
     if (engine_ == nullptr) {
         HILOG_ERROR("engine_ is nullptr");
         return;

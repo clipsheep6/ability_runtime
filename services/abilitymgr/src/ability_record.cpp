@@ -251,7 +251,7 @@ int32_t AbilityRecord::GetPid()
 int AbilityRecord::LoadAbility()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("name:%{public}s.", abilityInfo_.name.c_str());
+    HILOG_DEBUG("name:%{public}s.", abilityInfo_.name.c_str());
     int coldStartTimeout =
         AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * COLDSTART_TIMEOUT_MULTIPLE;
     int loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_MULTIPLE;
@@ -615,7 +615,7 @@ std::shared_ptr<Want> AbilityRecord::GetWantFromMission() const
 void AbilityRecord::AnimationTask(bool isRecent, const AbilityRequest &abilityRequest,
     const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<AbilityRecord> &callerAbility)
 {
-    HILOG_INFO("%{public}s was called.", __func__);
+    HILOG_DEBUG("called.");
     if (isRecent) {
         auto want = GetWantFromMission();
         NotifyAnimationFromRecentTask(startOptions, want);
@@ -753,7 +753,7 @@ void AbilityRecord::PostCancelStartingWindowColdTask()
         HILOG_INFO("PostCancelStartingWindowColdTask was called, debug mode, just return.");
         return;
     }
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     CHECK_POINTER_LOG(handler, "Fail to get AbilityEventHandler.");
 
@@ -938,10 +938,10 @@ void AbilityRecord::StartingWindowHot(const std::shared_ptr<StartOptions> &start
     const std::shared_ptr<Want> &want, const AbilityRequest &abilityRequest)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
     auto windowHandler = GetWMSHandler();
     if (!windowHandler) {
-        HILOG_WARN("%{public}s, Get WMS handler failed.", __func__);
+        HILOG_WARN("Get WMS handler failed.");
         return;
     }
 
@@ -958,7 +958,7 @@ void AbilityRecord::StartingWindowCold(const std::shared_ptr<StartOptions> &star
     const std::shared_ptr<Want> &want, const AbilityRequest &abilityRequest)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
     auto windowHandler = GetWMSHandler();
     if (!windowHandler) {
         HILOG_WARN("%{public}s, Get WMS handler failed.", __func__);
@@ -986,7 +986,7 @@ void AbilityRecord::GetColdStartingWindowResource(std::shared_ptr<Media::PixelMa
 
     auto resourceMgr = CreateResourceManager();
     if (!resourceMgr) {
-        HILOG_WARN("%{public}s, Get resourceMgr failed.", __func__);
+        HILOG_WARN("Get resourceMgr failed.");
         return;
     }
 
@@ -996,7 +996,7 @@ void AbilityRecord::GetColdStartingWindowResource(std::shared_ptr<Media::PixelMa
     auto colorId = static_cast<uint32_t>(abilityInfo_.startWindowBackgroundId);
     auto colorErrval = resourceMgr->GetColorById(colorId, bgColor);
     if (colorErrval != OHOS::Global::Resource::RState::SUCCESS) {
-        HILOG_WARN("%{public}s. Failed to GetColorById.", __func__);
+        HILOG_WARN("Failed to GetColorById.");
         bgColor = 0xdfffffff;
     }
     HILOG_DEBUG("colorId is %{public}u, bgColor is %{public}u.", colorId, bgColor);
@@ -1014,7 +1014,7 @@ void AbilityRecord::InitColdStartingWindowResource(
     startingWindowBg_ = GetPixelMap(static_cast<uint32_t>(abilityInfo_.startWindowIconId), resourceMgr);
     if (resourceMgr->GetColorById(static_cast<uint32_t>(abilityInfo_.startWindowBackgroundId), bgColor_) !=
         OHOS::Global::Resource::RState::SUCCESS) {
-        HILOG_WARN("%{public}s. Failed to GetColorById.", __func__);
+        HILOG_WARN("Failed to GetColorById.");
         bgColor_ = 0xdfffffff;
     }
 
@@ -1581,7 +1581,7 @@ void AbilityRecord::RemoveConnectRecordFromList(const std::shared_ptr<Connection
 void AbilityRecord::AddCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode, std::string srcAbilityId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Add caller record.");
+    HILOG_DEBUG("Add caller record.");
     if (!srcAbilityId.empty() && IsSystemAbilityCall(callerToken)) {
         AddSystemAbilityCallerRecord(callerToken, requestCode, srcAbilityId);
         return;
@@ -2143,7 +2143,7 @@ void AbilityRecord::SetMission(const std::shared_ptr<Mission> &mission)
 {
     if (mission) {
         missionId_ = mission->GetMissionId();
-        HILOG_INFO("SetMission come, missionId is %{public}d.", missionId_);
+        HILOG_DEBUG("SetMission come, missionId is %{public}d.", missionId_);
     }
     mission_ = mission;
 }
@@ -2236,7 +2236,6 @@ void AbilityRecord::SetStartToForeground(const bool flag)
 
 void AbilityRecord::CallRequest()
 {
-    HILOG_INFO("Call Request.");
     CHECK_POINTER(scheduler_);
 
     GrantUriPermission(want_, GetCurrentAccountId(), applicationInfo_.bundleName);

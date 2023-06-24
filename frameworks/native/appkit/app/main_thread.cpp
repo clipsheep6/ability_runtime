@@ -1110,11 +1110,11 @@ bool GetBundleForLaunchApplication(sptr<IBundleMgr> bundleMgr, const std::string
 {
     bool queryResult;
     if (appIndex != 0) {
-        HILOG_INFO("GetSandboxBundleInfo, bundleName = %{public}s", bundleName.c_str());
+        HILOG_INFO("bundleName = %{public}s", bundleName.c_str());
         queryResult = (bundleMgr->GetSandboxBundleInfo(bundleName,
             appIndex, UNSPECIFIED_USERID, bundleInfo) == 0);
     } else {
-        HILOG_INFO("GetBundleInfo, bundleName = %{public}s", bundleName.c_str());
+        HILOG_INFO("bundleName = %{public}s", bundleName.c_str());
         queryResult = (bundleMgr->GetBundleInfoForSelf(
             (static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY) +
             static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) +
@@ -1205,7 +1205,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     if (isStageBased) {
         AppRecovery::GetInstance().InitApplicationInfo(GetMainHandler(), GetApplicationInfo());
     }
-    HILOG_INFO("stageBased:%{public}d moduleJson:%{public}d size:%{public}zu",
+    HILOG_DEBUG("stageBased:%{public}d moduleJson:%{public}d size:%{public}zu",
         isStageBased, moduelJson, bundleInfo.hapModuleInfos.size());
 
     // create contextImpl
