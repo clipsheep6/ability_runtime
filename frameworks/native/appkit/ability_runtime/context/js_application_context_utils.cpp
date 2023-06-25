@@ -354,6 +354,14 @@ NativeValue *JsApplicationContextUtils::GetPreferencesDir(NativeEngine *engine, 
     return me != nullptr ? me->OnGetPreferencesDir(*engine, *info) : nullptr;
 }
 
+NativeValue *JsApplicationContextUtils::GetGroupDir(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    HILOG_INFO("called");
+    JsApplicationContextUtils *me =
+        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
+    return me != nullptr ? me->OnGetGroupDir(*engine, *info) : nullptr;
+}
+
 NativeValue *JsApplicationContextUtils::OnGetPreferencesDir(NativeEngine &engine, NativeCallbackInfo &info)
 {
     auto applicationContext = applicationContext_.lock();
@@ -363,6 +371,41 @@ NativeValue *JsApplicationContextUtils::OnGetPreferencesDir(NativeEngine &engine
     }
     std::string path = applicationContext->GetPreferencesDir();
     return engine.CreateString(path.c_str(), path.length());
+}
+
+NativeValue *JsApplicationContextUtils::OnGetGroupDir(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
+        HILOG_ERROR("Not enough params");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return engine.CreateUndefined();
+    }
+
+    std::string groupId;
+    if (!ConvertFromJsValue(engine, info.argv[0], groupId)) {
+        HILOG_ERROR("Parse groupId failed");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return engine.CreateUndefined();
+    }
+
+    HILOG_DEBUG("Get Group Dir");
+    auto complete = [applicationContext = applicationContext_, groupId]
+        (NativeEngine& engine, AsyncTask& task, int32_t status) {
+        auto context = applicationContext.lock();
+        if (!context) {
+            task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_CONTEXT_NOT_EXIST,
+                "applicationContext if already released."));
+            return;
+        }
+        std::string path = context->GetGroupDir(groupId);
+        task.ResolveWithNoError(engine, CreateJsValue(engine, path));
+    };
+
+    NativeValue* lastParam = (info.argc == ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue* result = nullptr;
+    AsyncTask::Schedule("JsApplicationContextUtils::OnGetGroupDir",
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    return result;
 }
 
 NativeValue *JsApplicationContextUtils::GetBundleCodeDir(NativeEngine *engine, NativeCallbackInfo *info)
@@ -992,6 +1035,8 @@ void JsApplicationContextUtils::BindNativeApplicationContext(NativeEngine &engin
         JsApplicationContextUtils::GetRunningProcessInformation);
     BindNativeFunction(engine, *object, "getRunningProcessInformation", MD_NAME,
         JsApplicationContextUtils::GetRunningProcessInformation);
+    BindNativeFunction(engine, *object, "getGroupDir", MD_NAME,
+        JsApplicationContextUtils::GetGroupDir);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

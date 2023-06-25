@@ -115,6 +115,10 @@ class ApplicationContext {
     return this.__context_impl__.createModuleContext(bundleName, moduleName);
   }
 
+  getGroupDir(groupId, callback) {
+    return this.__context_impl__.getGroupDir(groupId, callback);
+  }
+
   getApplicationContext() {
     return this.__context_impl__.getApplicationContext();
   }

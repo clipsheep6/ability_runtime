@@ -31,6 +31,10 @@ namespace AbilityRuntime {
 namespace {
 constexpr char BASE_CONTEXT_NAME[] = "__base_context_ptr__";
 
+constexpr size_t ARGC_ONE = 1;
+constexpr size_t ARGC_TWO = 2;
+constexpr size_t INDEX_ONE = 1;
+
 class JsBaseContext {
 public:
     explicit JsBaseContext(std::weak_ptr<Context>&& context) : context_(std::move(context)) {}
@@ -49,6 +53,7 @@ public:
     NativeValue* OnGetDistributedFilesDir(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnGetDatabaseDir(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnGetPreferencesDir(NativeEngine& engine, NativeCallbackInfo& info);
+    NativeValue* OnGetGroupDir(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnGetBundleCodeDir(NativeEngine& engine, NativeCallbackInfo& info);
 
     static NativeValue* GetCacheDir(NativeEngine* engine, NativeCallbackInfo* info);
@@ -57,6 +62,7 @@ public:
     static NativeValue* GetDistributedFilesDir(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* GetDatabaseDir(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* GetPreferencesDir(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* GetGroupDir(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* GetBundleCodeDir(NativeEngine* engine, NativeCallbackInfo* info);
 
 protected:
@@ -334,6 +340,48 @@ NativeValue* JsBaseContext::OnGetPreferencesDir(NativeEngine& engine, NativeCall
     return engine.CreateString(path.c_str(), path.length());
 }
 
+NativeValue* JsBaseContext::GetGroupDir(NativeEngine* engine, NativeCallbackInfo* info)
+{
+    HILOG_DEBUG("called");
+    JsBaseContext* me = CheckParamsAndGetThis<JsBaseContext>(engine, info, BASE_CONTEXT_NAME);
+    return me != nullptr ? me->OnGetGroupDir(*engine, *info) : nullptr;
+}
+
+NativeValue* JsBaseContext::OnGetGroupDir(NativeEngine& engine, NativeCallbackInfo& info)
+{
+    if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
+        HILOG_ERROR("Not enough params");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return engine.CreateUndefined();
+    }
+
+    std::string groupId;
+    if (!ConvertFromJsValue(engine, info.argv[0], groupId)) {
+        HILOG_ERROR("Parse groupId failed");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return engine.CreateUndefined();
+    }
+
+    HILOG_DEBUG("Get Group Dir");
+    auto complete = [context = context_, groupId]
+        (NativeEngine& engine, AsyncTask& task, int32_t status) {
+        auto completeContext = context.lock();
+        if (!completeContext) {
+            task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_CONTEXT_NOT_EXIST,
+                "completeContext if already released."));
+            return;
+        }
+        std::string path = completeContext->GetGroupDir(groupId);
+        task.ResolveWithNoError(engine, CreateJsValue(engine, path));
+    };
+
+    NativeValue* lastParam = (info.argc == ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue* result = nullptr;
+    AsyncTask::Schedule("JsBaseContext::OnGetGroupDir",
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
 NativeValue* JsBaseContext::GetBundleCodeDir(NativeEngine* engine, NativeCallbackInfo* info)
 {
     HILOG_DEBUG("JsBaseContext::GetBundleCodeDir is called");
@@ -573,7 +621,7 @@ NativeValue* CreateJsBaseContext(NativeEngine& engine, std::shared_ptr<Context> 
     BindNativeFunction(engine, *object, "switchArea", moduleName, JsBaseContext::SwitchArea);
     BindNativeFunction(engine, *object, "getArea", moduleName, JsBaseContext::GetArea);
     BindNativeFunction(engine, *object, "createModuleContext", moduleName, JsBaseContext::CreateModuleContext);
-
+    BindNativeFunction(engine, *object, "getGroupDir", moduleName, JsBaseContext::GetGroupDir);
     return objValue;
 }
 }  // namespace AbilityRuntime

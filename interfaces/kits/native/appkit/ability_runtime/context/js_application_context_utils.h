@@ -62,6 +62,7 @@ public:
     NativeValue* OnGetDistributedFilesDir(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnGetDatabaseDir(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnGetPreferencesDir(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnGetGroupDir(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnGetBundleCodeDir(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnKillProcessBySelf(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnGetRunningProcessInformation(NativeEngine &engine, NativeCallbackInfo &info);
@@ -72,6 +73,7 @@ public:
     static NativeValue* GetDistributedFilesDir(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* GetDatabaseDir(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* GetPreferencesDir(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* GetGroupDir(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* GetBundleCodeDir(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* GetApplicationContext(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* KillProcessBySelf(NativeEngine *engine, NativeCallbackInfo *info);
