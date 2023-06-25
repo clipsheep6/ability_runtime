@@ -199,6 +199,14 @@
           },
           {
             "header": {
+              "header_base": "//foundation/ability/ability_runtime/frameworks/js/napi/inner/napi_ability_common",
+              "header_files": [
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/frameworks/js/napi/inner/napi_ability_common:napi_ability_common"
+          },
+          {
+            "header": {
               "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/app_manager/include",
               "header_files": [
                 "appmgr/app_mgr_client.h"

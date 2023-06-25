@@ -307,6 +307,13 @@ void UIAbilityLifecycleManager::CompleteForegroundSuccess(const std::shared_ptr<
     HILOG_DEBUG("ability: %{public}s", element.c_str());
     abilityRecord->SetAbilityState(AbilityState::FOREGROUND);
 
+    // new version. started by caller, scheduler call request
+    if (abilityRecord->IsStartedByCall() && abilityRecord->IsStartToForeground() && abilityRecord->IsReady()) {
+        HILOG_DEBUG("call request after completing foreground state");
+        abilityRecord->CallRequest();
+        abilityRecord->SetStartToForeground(false);
+    }
+
     if (abilityRecord->GetPendingState() == AbilityState::BACKGROUND) {
         abilityRecord->SetMinimizeReason(true);
         MoveToBackground(abilityRecord);
@@ -662,12 +669,6 @@ void UIAbilityLifecycleManager::PrintTimeOutLog(const std::shared_ptr<AbilityRec
         case AbilityManagerService::LOAD_TIMEOUT_MSG:
             msgContent += "load timeout";
             break;
-        case AbilityManagerService::ACTIVE_TIMEOUT_MSG:
-            msgContent += "active timeout";
-            break;
-        case AbilityManagerService::INACTIVE_TIMEOUT_MSG:
-            msgContent += "inactive timeout";
-            break;
         case AbilityManagerService::FOREGROUND_TIMEOUT_MSG:
             msgContent += "foreground timeout";
             break;
@@ -703,14 +704,33 @@ void UIAbilityLifecycleManager::CompleteBackground(const std::shared_ptr<Ability
         return;
     }
     abilityRecord->SetAbilityState(AbilityState::BACKGROUND);
-    // send application state to AppMS.
     // notify AppMS to update application state.
     DelayedSingleton<AppScheduler>::GetInstance()->MoveToBackground(abilityRecord->GetToken());
+
     if (abilityRecord->GetPendingState() == AbilityState::FOREGROUND) {
         DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(abilityRecord->GetToken());
     } else if (abilityRecord->GetPendingState() == AbilityState::BACKGROUND) {
         HILOG_DEBUG("not continuous startup.");
         abilityRecord->SetPendingState(AbilityState::INITIAL);
+    }
+
+    // new version. started by caller, scheduler call request
+    if (abilityRecord->IsStartedByCall() && abilityRecord->IsStartToBackground() && abilityRecord->IsReady()) {
+        HILOG_DEBUG("call request after completing background state");
+        abilityRecord->CallRequest();
+        abilityRecord->SetStartToBackground(false);
+    }
+
+    // Abilities ahead of the one started were put in terminate list, we need to terminate them.
+    auto self(shared_from_this());
+    for (auto terminateAbility : terminateAbilityList_) {
+        if (terminateAbility->GetAbilityState() == AbilityState::BACKGROUND) {
+            auto timeoutTask = [terminateAbility, self]() {
+                HILOG_WARN("Terminate ability timeout after background.");
+                self->DelayCompleteTerminate(terminateAbility);
+            };
+            terminateAbility->Terminate(timeoutTask);
+        }
     }
 }
 
@@ -727,10 +747,8 @@ int UIAbilityLifecycleManager::CloseUIAbility(const std::shared_ptr<AbilityRecor
         HILOG_INFO("ability is on terminating");
         return ERR_OK;
     }
-    terminateAbilityList_.push_back(abilityRecord);
-    EraseAbilityRecord(abilityRecord);
-    abilityRecord->SetTerminatingState();
 
+    abilityRecord->SetTerminatingState();
     // save result to caller AbilityRecord
     if (resultWant != nullptr) {
         abilityRecord->SaveResultToCallers(resultCode, resultWant);
@@ -739,14 +757,26 @@ int UIAbilityLifecycleManager::CloseUIAbility(const std::shared_ptr<AbilityRecor
         abilityRecord->SaveResultToCallers(-1, &want);
     }
 
+    terminateAbilityList_.push_back(abilityRecord);
+    EraseAbilityRecord(abilityRecord);
     abilityRecord->SendResultToCallers();
 
-    auto self(shared_from_this());
-    auto task = [abilityRecord, self]() {
-        HILOG_WARN("close ability by scb timeout");
-        self->DelayCompleteTerminate(abilityRecord);
-    };
-    abilityRecord->Terminate(task);
+    if (abilityRecord->IsAbilityState(FOREGROUND) || abilityRecord->IsAbilityState(FOREGROUNDING)) {
+        HILOG_DEBUG("current ability is active");
+        abilityRecord->SetPendingState(AbilityState::BACKGROUND);
+        MoveToBackground(abilityRecord);
+        return ERR_OK;
+    }
+
+    // ability on background, schedule to terminate.
+    if (abilityRecord->GetAbilityState() == AbilityState::BACKGROUND) {
+        auto self(shared_from_this());
+        auto task = [abilityRecord, self]() {
+            HILOG_WARN("close ability by scb timeout");
+            self->DelayCompleteTerminate(abilityRecord);
+        };
+        abilityRecord->Terminate(task);
+    }
     return ERR_OK;
 }
 
@@ -1150,6 +1180,68 @@ int UIAbilityLifecycleManager::StartAbilityBySpecifed(const AbilityRequest &abil
 
     SendSessionInfoToSCB(callerAbility, sessionInfo);
     return ERR_OK;
+}
+
+void UIAbilityLifecycleManager::CallRequestDone(const std::shared_ptr<AbilityRecord> &abilityRecord,
+    const sptr<IRemoteObject> &callStub)
+{
+    std::lock_guard<std::mutex> guard(sessionLock_);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("ability record is null.");
+        return;
+    }
+    if (callStub == nullptr) {
+        HILOG_ERROR("call stub is null.");
+        return;
+    }
+    abilityRecord->CallRequestDone(callStub);
+}
+
+int UIAbilityLifecycleManager::ReleaseCallLocked(
+    const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element)
+{
+    HILOG_DEBUG("release call ability.");
+
+    CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
+    CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
+
+    std::lock_guard<std::mutex> guard(sessionLock_);
+
+    auto abilityRecords = GetAbilityRecordsByName(element);
+    auto isExist = [connect] (const std::shared_ptr<AbilityRecord> &abilityRecord) {
+        return abilityRecord->IsExistConnection(connect);
+    };
+    auto findRecord = std::find_if(abilityRecords.begin(), abilityRecords.end(), isExist);
+    if (findRecord == abilityRecords.end()) {
+        HILOG_ERROR("not found ability record by callback");
+        return RELEASE_CALL_ABILITY_INNER_ERR;
+    }
+    auto abilityRecord = *findRecord;
+    CHECK_POINTER_AND_RETURN(abilityRecord, RELEASE_CALL_ABILITY_INNER_ERR);
+
+    if (!abilityRecord->ReleaseCall(connect)) {
+        HILOG_ERROR("ability release call record failed.");
+        return RELEASE_CALL_ABILITY_INNER_ERR;
+    }
+    return ERR_OK;
+}
+
+std::vector<std::shared_ptr<AbilityRecord>> UIAbilityLifecycleManager::GetAbilityRecordsByName(
+    const AppExecFwk::ElementName &element)
+{
+    std::vector<std::shared_ptr<AbilityRecord>> records;
+    for (const auto& [first, second] : sessionAbilityMap_) {
+        auto &abilityInfo = second->GetAbilityInfo();
+        AppExecFwk::ElementName localElement(abilityInfo.deviceId, abilityInfo.bundleName,
+            abilityInfo.name, abilityInfo.moduleName);
+        AppExecFwk::ElementName localElementNoModuleName(abilityInfo.deviceId,
+            abilityInfo.bundleName, abilityInfo.name);
+        if (localElement == element || localElementNoModuleName == element) {
+            HILOG_DEBUG("find element %{public}s", localElement.GetURI().c_str());
+            records.push_back(second);
+        }
+    }
+    return records;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
