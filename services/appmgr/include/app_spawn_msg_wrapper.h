@@ -50,6 +50,7 @@ struct AppSpawnStartMsg {
     uint64_t accessTokenIdEx;
     uint32_t hapFlags = 0; // whether is pre installed hap
     HspList hspList; // list of harmony shared package
+    uint32_t mountPermissionFlags;
 };
 
 constexpr auto LEN_PID = sizeof(pid_t);
