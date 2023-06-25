@@ -3354,6 +3354,7 @@ int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecor
     AppSpawnStartMsg startMsg = appRecord->GetStartMsg();
     startMsg.renderParam = renderRecord->GetRenderParam();
     startMsg.uid = renderUid;
+    startMsg.gid = renderUid;
     startMsg.code = 0; // 0: DEFAULT
     pid_t pid = 0;
     ErrCode errCode = nwebSpawnClient->StartProcess(startMsg, pid);
