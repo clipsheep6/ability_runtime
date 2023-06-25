@@ -409,7 +409,7 @@ std::vector<WantAgentConstant::Flags> WantAgentHelper::ParseFlags(nlohmann::json
 {
     int flags = -1;
     std::vector<WantAgentConstant::Flags> flagsVec = {};
-    if (jsonObject.contains("flags")) {
+    if (jsonObject.contains("flags") && jsonObject.at("flags").is_number_integer()) {
         flags = jsonObject.at("flags").get<int>();
     }
 
