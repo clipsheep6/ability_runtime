@@ -298,6 +298,16 @@ uint32_t GetResourceLimitKeys()
 {
     return 0;
 }
+
+bool AddAppOverlay(const std::string &path)
+{
+    return true;
+}
+
+bool RemoveAppOverlay(const std::string &path)
+{
+    return true;
+}
 };
 }  // namespace Resource
 }  // namespace Global
