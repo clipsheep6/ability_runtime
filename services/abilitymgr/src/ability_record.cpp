@@ -226,6 +226,7 @@ bool AbilityRecord::Init()
 
     token_ = new (std::nothrow) Token(weak_from_this());
     CHECK_POINTER_RETURN_BOOL(token_);
+    sessionInfo_->token = token_;
 
     if (applicationInfo_.isLauncherApp) {
         isLauncherAbility_ = true;

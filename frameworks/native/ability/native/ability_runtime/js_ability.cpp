@@ -608,7 +608,7 @@ void JsAbility::DoOnForeground(const Want &want)
         Rosen::WMError ret = Rosen::WMError::WM_OK;
         if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && sessionInfo_ != nullptr) {
             abilityContext_->SetWeakSessionToken(sessionInfo_->sessionToken);
-            ret = scene_->Init(displayId, abilityContext_, sceneListener_, option, sessionInfo_->sessionToken);
+            ret = scene_->Init(displayId, abilityContext_, sceneListener_, option, sessionInfo_);
         } else {
             ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);
         }
