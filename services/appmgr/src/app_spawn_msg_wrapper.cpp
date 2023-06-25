@@ -70,6 +70,7 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
         msg_->bundleIndex = startMsg.bundleIndex;
         msg_->setAllowInternet = startMsg.setAllowInternet;
         msg_->allowInternet = startMsg.allowInternet;
+        msg_->mountPermissionFlags = startMsg.mountPermissionFlags;
         for (uint32_t i = 0; i < msg_->gidCount; ++i) {
             msg_->gidTable[i] = startMsg.gids[i];
         }

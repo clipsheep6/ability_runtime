@@ -44,6 +44,7 @@
 #include "js_runtime_utils.h"
 #include "js_utils.h"
 #include "js_worker.h"
+#include "module_checker_delegate.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
 #include "ohos_js_env_logger.h"
 #include "ohos_js_environment_impl.h"
@@ -135,12 +136,12 @@ std::atomic<bool> JsRuntime::hasInstance(false);
 
 JsRuntime::JsRuntime()
 {
-    HILOG_INFO("JsRuntime costructor.");
+    HILOG_DEBUG("JsRuntime costructor.");
 }
 
 JsRuntime::~JsRuntime()
 {
-    HILOG_INFO("JsRuntime destructor.");
+    HILOG_DEBUG("JsRuntime destructor.");
     Deinitialize();
     StopDebugMode();
 }
@@ -552,6 +553,7 @@ bool JsRuntime::Initialize(const Options& options)
         }
 
         InitWorkerModule(options);
+        SetModuleLoadChecker(options.moduleCheckerDelegate);
 
         if (!InitLoop()) {
             HILOG_ERROR("Initialize loop failed.");
@@ -969,18 +971,6 @@ void JsRuntime::PreloadSystemModule(const std::string& moduleName)
     nativeEngine->CallFunction(nativeEngine->GetGlobal(), methodRequireNapiRef_->Get(), &className, 1);
 }
 
-void JsRuntime::UpdateExtensionType(int32_t extensionType)
-{
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER(nativeEngine);
-    NativeModuleManager* moduleManager = nativeEngine->GetModuleManager();
-    if (moduleManager == nullptr) {
-        HILOG_ERROR("UpdateExtensionType error, moduleManager is nullptr");
-        return;
-    }
-    moduleManager->SetProcessExtensionType(extensionType);
-}
-
 NativeEngine& JsRuntime::GetNativeEngine() const
 {
     return *GetNativeEnginePointer();
@@ -1158,6 +1148,12 @@ void JsRuntime::ReInitJsEnvImpl(const Options& options)
 {
     CHECK_POINTER(jsEnv_);
     jsEnv_->ReInitJsEnvImpl(std::make_unique<OHOSJsEnvironmentImpl>(options.eventRunner));
+}
+
+void JsRuntime::SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate) const
+{
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->SetModuleLoadChecker(moduleCheckerDelegate);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

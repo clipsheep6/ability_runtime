@@ -90,7 +90,6 @@ public:
     bool RunScript(const std::string& path, const std::string& hapPath, bool useCommonChunk = false);
 
     void PreloadSystemModule(const std::string& moduleName) override;
-    void UpdateExtensionType(int32_t extensionType) override;
     void StartDebugMode(bool needBreakPoint) override;
     void StopDebugMode();
     bool LoadRepairPatch(const std::string& hqfFile, const std::string& hapPath) override;
@@ -116,6 +115,7 @@ public:
 
     void ReloadFormComponent(); // Reload ArkTS-Card component
     void DoCleanWorkAfterStageCleaned() override;
+    void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate) const override;
 
 private:
     void FinishPreload() override;

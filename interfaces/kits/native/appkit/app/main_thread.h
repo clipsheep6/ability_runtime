@@ -474,11 +474,11 @@ private:
         const AppExecFwk::HapModuleInfo &entryHapModuleInfo);
 
     /**
-     * @brief Update current process extension type
+     * @brief Set current process extension type
      *
      * @param abilityRecord current running ability record
      */
-    void UpdateProcessExtensionType(const std::shared_ptr<AbilityLocalRecord> &abilityRecord);
+    void SetProcessExtensionType(const std::shared_ptr<AbilityLocalRecord> &abilityRecord);
 
     /**
      * @brief Add Extension block item
@@ -489,11 +489,11 @@ private:
     void AddExtensionBlockItem(const std::string &extensionName, int32_t type);
 
     /**
-     * @brief Update extension block list to nativeEngine
+     * @brief Update runtime module checker
      *
-     * @param nativeEngine nativeEngine instance
+     * @param runtime runtime the ability runtime
      */
-    void UpdateEngineExtensionBlockList(NativeEngine &nativeEngine);
+    void UpdateRuntimeModuleChecker(const std::unique_ptr<AbilityRuntime::Runtime> &runtime);
 
     static void HandleDumpHeap(bool isPrivate);
     static void HandleSignal(int signal);

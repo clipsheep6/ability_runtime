@@ -240,5 +240,14 @@ void JsEnvironment::ReInitJsEnvImpl(std::unique_ptr<JsEnvironmentImpl> impl)
     JSENV_LOG_I("ReInit jsenv impl.");
     impl_ = std::move(impl);
 }
+
+void JsEnvironment::SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate)
+{
+    if (engine_ == nullptr) {
+        JSENV_LOG_E("SetModuleLoadChecker failed, engine_ is null");
+        return;
+    }
+    engine_->SetModuleLoadChecker(moduleCheckerDelegate);
+}
 } // namespace JsEnv
 } // namespace OHOS

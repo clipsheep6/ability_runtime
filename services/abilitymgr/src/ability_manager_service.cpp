@@ -494,7 +494,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     int32_t validUserId = oriValidUserId;
 
     if (callerToken != nullptr && CheckIfOperateRemote(want)) {
-        HILOG_INFO("%{public}s: try to StartRemoteAbility", __func__);
+        HILOG_INFO("try to StartRemoteAbility");
         return StartRemoteAbility(want, requestCode, validUserId, callerToken);
     }
     if (AbilityUtil::IsStartFreeInstall(want)) {
@@ -508,7 +508,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         if (!isStartAsCaller) {
             UpdateCallerInfo(localWant, callerToken);
         } else {
-            HILOG_INFO("start as caller, skip UpdateCallerInfo!");
+            HILOG_DEBUG("start as caller, skip UpdateCallerInfo!");
         }
         return freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, true);
     }
@@ -4010,7 +4010,7 @@ int AbilityManagerService::GetUserId()
 {
     if (userController_) {
         auto userId = userController_->GetCurrentUserId();
-        HILOG_INFO("%{public}s, userId is %{public}d", __func__, userId);
+        HILOG_DEBUG("userId is %{public}d", userId);
         return userId;
     }
     return U0_USER_ID;
@@ -4152,10 +4152,9 @@ int AbilityManagerService::GenerateAbilityRequest(
     }
     request.appInfo = request.abilityInfo.applicationInfo;
     request.uid = request.appInfo.uid;
-    HILOG_DEBUG("GenerateAbilityRequest end, app name: %{public}s, bundle name: %{public}s, uid: %{public}d.",
-        request.appInfo.name.c_str(), request.appInfo.bundleName.c_str(), request.uid);
+    HILOG_DEBUG("GenerateAbilityRequest end, app name: %{public}s, moduleName name: %{public}s, uid: %{public}d.",
+        request.appInfo.name.c_str(), request.abilityInfo.moduleName.c_str(), request.uid);
 
-    HILOG_INFO("GenerateAbilityRequest, moduleName: %{public}s.", request.abilityInfo.moduleName.c_str());
     request.want.SetModuleName(request.abilityInfo.moduleName);
 
     if (want.GetBoolParam(Want::PARAM_RESV_START_RECENT, false) &&
@@ -4459,7 +4458,7 @@ int AbilityManagerService::PreLoadAppDataAbilities(const std::string &bundleName
         return RESOLVE_APP_ERR;
     }
 
-    HILOG_INFO("App data abilities preloading for bundle '%{public}s'...", bundleName.data());
+    HILOG_DEBUG("App data abilities preloading for bundle '%{public}s'...", bundleName.data());
 
     auto begin = system_clock::now();
     AbilityRequest dataAbilityRequest;
@@ -4634,7 +4633,7 @@ bool AbilityManagerService::VerificationToken(const sptr<IRemoteObject> &token)
 bool AbilityManagerService::VerificationAllToken(const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("VerificationAllToken.");
+    HILOG_DEBUG("VerificationAllToken.");
     std::shared_lock<std::shared_mutex> lock(managersMutex_);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         if (uiAbilityLifecycleManager_ != nullptr && uiAbilityLifecycleManager_->IsContainsAbility(token)) {
@@ -5613,12 +5612,12 @@ void AbilityManagerService::InitPendWantManager(int32_t userId, bool switchUser)
 
 int32_t AbilityManagerService::GetValidUserId(const int32_t userId)
 {
-    HILOG_DEBUG("%{public}s, userId = %{public}d.", __func__, userId);
+    HILOG_DEBUG("userId = %{public}d.", userId);
     int32_t validUserId = userId;
 
     if (DEFAULT_INVAL_VALUE == userId) {
         validUserId = IPCSkeleton::GetCallingUid() / BASE_USER_RANGE;
-        HILOG_INFO("%{public}s, validUserId = %{public}d, CallingUid = %{public}d.", __func__, validUserId,
+        HILOG_INFO("validUserId = %{public}d, CallingUid = %{public}d.", validUserId,
             IPCSkeleton::GetCallingUid());
         if (validUserId == U0_USER_ID) {
             validUserId = GetUserId();
@@ -6704,7 +6703,7 @@ int AbilityManagerService::CheckCallServiceAbilityPermission(const AbilityReques
 int AbilityManagerService::CheckCallAbilityPermission(const AbilityRequest &abilityRequest)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Call");
+    HILOG_DEBUG("Call");
 
     AAFwk::PermissionVerification::VerificationInfo verificationInfo;
     verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
