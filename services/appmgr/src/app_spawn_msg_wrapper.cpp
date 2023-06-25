@@ -103,6 +103,11 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
             this->hspListStr = DumpToJson(startMsg.hspList);
             msg_->hspList.totalLength = this->hspListStr.size() + 1; // including termination char '\0'
         }
+
+        if (!startMsg.overlayInfo.empty()) {
+            msg_->overlayInfo.totalLength = startMsg.overlayInfo.size() + 1; // including termination char '\0'
+            msg_->overlayInfo.data = const_cast<char*>(startMsg.overlayInfo.c_str());
+        }
     } else if (msg_->code == AppSpawn::ClientSocket::AppOperateCode::GET_RENDER_TERMINATION_STATUS) {
         msg_->pid = startMsg.pid;
     } else {

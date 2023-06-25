@@ -95,6 +95,7 @@ const int32_t SIGNAL_KILL = 9;
 constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
 #define APP_ACCESS_BUNDLE_DIR 0x20
+#define OVERLAY_FLAG 0x100
 
 constexpr int32_t BASE_USER_RANGE = 200000;
 
@@ -1800,6 +1801,23 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     startMsg.hapFlags = bundleInfo.isPreInstallApp ? 1 : 0;
     if (hasAccessBundleDirReq) {
         startMsg.flags = startMsg.flags | APP_ACCESS_BUNDLE_DIR;
+    }
+
+    auto overlayMgrProxy = bundleMgr_->GetOverlayManagerProxy();
+    if (overlayMgrProxy !=  nullptr) {
+        std::vector<OverlayModuleInfo> overlayModuleInfo;
+        HILOG_DEBUG("Check overlay app begin.");
+        HITRACE_METER_NAME(HITRACE_TAG_APP, "BMS->GetOverlayModuleInfoForTarget");
+        auto targetRet = IN_PROCESS_CALL(overlayMgrProxy->GetOverlayModuleInfoForTarget(bundleName, "", overlayModuleInfo, userId));
+        if (targetRet == ERR_OK && overlayModuleInfo.size() != 0) {
+            HILOG_DEBUG("Start an overlay app process.");
+            startMsg.flags = startMsg.flags | OVERLAY_FLAG;
+            std::string overlayInfoPaths;
+            for (auto it : overlayModuleInfo) {
+                overlayInfoPaths += (it.hapPath + "|");
+            }
+            startMsg.overlayInfo = overlayInfoPaths;
+        }
     }
 
     HILOG_DEBUG("Start process, apl is %{public}s, bundleName is %{public}s, startFlags is %{public}d.",
