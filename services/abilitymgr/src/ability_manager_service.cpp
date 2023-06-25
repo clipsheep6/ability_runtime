@@ -5010,7 +5010,9 @@ int AbilityManagerService::ReleaseCall(
 
     CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
-    CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
+    }
 
     std::string elementName = element.GetURI();
     HILOG_DEBUG("try to release called ability, name: %{public}s.", elementName.c_str());
@@ -5023,6 +5025,10 @@ int AbilityManagerService::ReleaseCall(
     int result = ERR_OK;
     if (IsReleaseCallInterception(connect, element, result)) {
         return result;
+    }
+
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        return uiAbilityLifecycleManager_->ReleaseCallLocked(connect, element);
     }
 
     return currentMissionListManager_->ReleaseCallLocked(connect, element);
@@ -6883,6 +6889,12 @@ void AbilityManagerService::CallRequestDone(const sptr<IRemoteObject> &token, co
     if (!JudgeSelfCalled(abilityRecord)) {
         return;
     }
+
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        uiAbilityLifecycleManager_->CallRequestDone(abilityRecord, callStub);
+        return;
+    }
+
     if (!currentMissionListManager_) {
         HILOG_ERROR("currentMissionListManager_ is null.");
         return;
