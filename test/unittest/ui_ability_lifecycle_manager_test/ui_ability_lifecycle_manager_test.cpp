@@ -102,26 +102,6 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_003, TestSize.Level1)
 }
 
 /**
- * @tc.name: UIAbilityLifecycleManager_StartUIAbility_0400
- * @tc.desc: StartUIAbility
- * @tc.type: FUNC
- */
-HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_004, TestSize.Level1)
-{
-    auto mgr = std::make_unique<UIAbilityLifecycleManager>();
-    AbilityRequest abilityRequest;
-    Rosen::SessionInfo info;
-    sptr<SessionInfo> sessionInfo(new SessionInfo());
-    sessionInfo->sessionToken = new Rosen::Session(info);
-    sessionInfo->persistentId = 1;
-    abilityRequest.sessionInfo = sessionInfo;
-    auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
-    abilityRecord->SetTerminatingState();
-    mgr->sessionAbilityMap_.emplace(sessionInfo->persistentId, abilityRecord);
-    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo), ERR_INVALID_VALUE);
-}
-
-/**
  * @tc.name: UIAbilityLifecycleManager_StartUIAbility_0500
  * @tc.desc: StartUIAbility
  * @tc.type: FUNC

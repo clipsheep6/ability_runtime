@@ -669,12 +669,6 @@ void UIAbilityLifecycleManager::PrintTimeOutLog(const std::shared_ptr<AbilityRec
         case AbilityManagerService::LOAD_TIMEOUT_MSG:
             msgContent += "load timeout";
             break;
-        case AbilityManagerService::ACTIVE_TIMEOUT_MSG:
-            msgContent += "active timeout";
-            break;
-        case AbilityManagerService::INACTIVE_TIMEOUT_MSG:
-            msgContent += "inactive timeout";
-            break;
         case AbilityManagerService::FOREGROUND_TIMEOUT_MSG:
             msgContent += "foreground timeout";
             break;
@@ -710,9 +704,9 @@ void UIAbilityLifecycleManager::CompleteBackground(const std::shared_ptr<Ability
         return;
     }
     abilityRecord->SetAbilityState(AbilityState::BACKGROUND);
-    // send application state to AppMS.
     // notify AppMS to update application state.
     DelayedSingleton<AppScheduler>::GetInstance()->MoveToBackground(abilityRecord->GetToken());
+
     if (abilityRecord->GetPendingState() == AbilityState::FOREGROUND) {
         DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(abilityRecord->GetToken());
     } else if (abilityRecord->GetPendingState() == AbilityState::BACKGROUND) {
@@ -725,6 +719,18 @@ void UIAbilityLifecycleManager::CompleteBackground(const std::shared_ptr<Ability
         HILOG_DEBUG("call request after completing background state");
         abilityRecord->CallRequest();
         abilityRecord->SetStartToBackground(false);
+    }
+
+    // Abilities ahead of the one started were put in terminate list, we need to terminate them.
+    auto self(shared_from_this());
+    for (auto terminateAbility : terminateAbilityList_) {
+        if (terminateAbility->GetAbilityState() == AbilityState::BACKGROUND) {
+            auto timeoutTask = [terminateAbility, self]() {
+                HILOG_WARN("Terminate ability timeout after background.");
+                self->DelayCompleteTerminate(terminateAbility);
+            };
+            terminateAbility->Terminate(timeoutTask);
+        }
     }
 }
 
@@ -741,10 +747,8 @@ int UIAbilityLifecycleManager::CloseUIAbility(const std::shared_ptr<AbilityRecor
         HILOG_INFO("ability is on terminating");
         return ERR_OK;
     }
-    terminateAbilityList_.push_back(abilityRecord);
-    EraseAbilityRecord(abilityRecord);
-    abilityRecord->SetTerminatingState();
 
+    abilityRecord->SetTerminatingState();
     // save result to caller AbilityRecord
     if (resultWant != nullptr) {
         abilityRecord->SaveResultToCallers(resultCode, resultWant);
@@ -753,14 +757,26 @@ int UIAbilityLifecycleManager::CloseUIAbility(const std::shared_ptr<AbilityRecor
         abilityRecord->SaveResultToCallers(-1, &want);
     }
 
+    terminateAbilityList_.push_back(abilityRecord);
+    EraseAbilityRecord(abilityRecord);
     abilityRecord->SendResultToCallers();
 
-    auto self(shared_from_this());
-    auto task = [abilityRecord, self]() {
-        HILOG_WARN("close ability by scb timeout");
-        self->DelayCompleteTerminate(abilityRecord);
-    };
-    abilityRecord->Terminate(task);
+    if (abilityRecord->IsAbilityState(FOREGROUND) || abilityRecord->IsAbilityState(FOREGROUNDING)) {
+        HILOG_DEBUG("current ability is active");
+        abilityRecord->SetPendingState(AbilityState::BACKGROUND);
+        MoveToBackground(abilityRecord);
+        return ERR_OK;
+    }
+
+    // ability on background, schedule to terminate.
+    if (abilityRecord->GetAbilityState() == AbilityState::BACKGROUND) {
+        auto self(shared_from_this());
+        auto task = [abilityRecord, self]() {
+            HILOG_WARN("close ability by scb timeout");
+            self->DelayCompleteTerminate(abilityRecord);
+        };
+        abilityRecord->Terminate(task);
+    }
     return ERR_OK;
 }
 
