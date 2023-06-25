@@ -29,7 +29,7 @@ AppLifeCycleDeal::~AppLifeCycleDeal()
 void AppLifeCycleDeal::LaunchApplication(const AppLaunchData &launchData, const Configuration &config)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    HILOG_INFO("AppLifeCycleDeal ScheduleLaunchApplication");
+    HILOG_DEBUG("AppLifeCycleDeal ScheduleLaunchApplication");
     if (appThread_) {
         appThread_->ScheduleLaunchApplication(launchData, config);
     }
@@ -174,7 +174,7 @@ void AppLifeCycleDeal::ScheduleAcceptWant(const AAFwk::Want &want, const std::st
 
 int32_t AppLifeCycleDeal::UpdateConfiguration(const Configuration &config)
 {
-    HILOG_INFO("call %{public}s", __func__);
+    HILOG_DEBUG("call");
     if (!appThread_) {
         HILOG_ERROR("appThread_ is nullptr");
         return ERR_INVALID_VALUE;
@@ -187,7 +187,7 @@ int32_t AppLifeCycleDeal::NotifyLoadRepairPatch(const std::string &bundleName, c
     const int32_t recordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("call %{public}s", __func__);
+    HILOG_DEBUG("call");
     if (appThread_ == nullptr) {
         HILOG_ERROR("appThread_ is nullptr.");
         return ERR_INVALID_VALUE;
@@ -198,7 +198,7 @@ int32_t AppLifeCycleDeal::NotifyLoadRepairPatch(const std::string &bundleName, c
 int32_t AppLifeCycleDeal::NotifyHotReloadPage(const sptr<IQuickFixCallback> &callback, const int32_t recordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("call %{public}s", __func__);
+    HILOG_DEBUG("call");
     if (appThread_ == nullptr) {
         HILOG_ERROR("appThread_ is nullptr.");
         return ERR_INVALID_VALUE;

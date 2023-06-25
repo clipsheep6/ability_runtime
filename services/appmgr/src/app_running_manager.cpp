@@ -79,7 +79,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
     std::regex rule("[a-zA-Z.]+[-_#]{1}");
     std::string signCode;
     auto jointUserId = bundleInfo.jointUserId;
-    HILOG_INFO("jointUserId : %{public}s", jointUserId.c_str());
+    HILOG_DEBUG("jointUserId : %{public}s", jointUserId.c_str());
     ClipStringContent(rule, bundleInfo.appId, signCode);
 
     auto FindSameProcess = [signCode, processName, jointUserId](const auto &pair) {
