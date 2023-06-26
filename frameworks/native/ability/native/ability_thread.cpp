@@ -52,6 +52,7 @@ constexpr static char ACE_ABILITY_NAME[] = "AceAbility";
 constexpr static char ACE_FORM_ABILITY_NAME[] = "AceFormAbility";
 constexpr static char FORM_EXTENSION[] = "FormExtension";
 constexpr static char UI_EXTENSION[] = "UIExtensionAbility";
+constexpr static char MEDIA_CONTROL_EXTENSION[] = "MediaControlExtensionAbility";
 #endif
 constexpr static char BASE_SERVICE_EXTENSION[] = "ServiceExtension";
 constexpr static char BASE_DRIVER_EXTENSION[] = "DriverExtension";
@@ -167,6 +168,9 @@ std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalR
         }
         if (abilityInfo->extensionAbilityType == ExtensionAbilityType::UI) {
             abilityName = UI_EXTENSION;
+        }
+        if (abilityInfo->extensionAbilityType == ExtensionAbilityType::SYSPICKER_MEDIACONTROL) {
+            abilityName = MEDIA_CONTROL_EXTENSION;
         }
         if (abilityInfo->extensionAbilityType == ExtensionAbilityType::APP_ACCOUNT_AUTHORIZATION) {
             abilityName = APP_ACCOUNT_AUTHORIZATION_EXTENSION;
