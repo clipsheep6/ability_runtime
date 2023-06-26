@@ -70,6 +70,8 @@ public:
     MOCK_METHOD2(IsSharedBundleRunning, bool(const std::string &bundleName, uint32_t versionCode));
     MOCK_METHOD1(NotifyAppFault, int32_t(const FaultData &faultData));
     MOCK_METHOD1(NotifyAppFaultBySA, int32_t(const AppFaultDataBySA &faultData));
+    MOCK_METHOD2(GetProcessMemoryByPid, int32_t(const int32_t pid, int32_t & memorySize));
+    MOCK_METHOD3(GetRunningProcessInformation, int32_t(const std::string & bundleName, int32_t userId, std::vector<RunningProcessInfo> &info));
     void AttachApplication(const sptr<IRemoteObject>& app)
     {
         GTEST_LOG_(INFO) << "MockAppMgrService::AttachApplication called";

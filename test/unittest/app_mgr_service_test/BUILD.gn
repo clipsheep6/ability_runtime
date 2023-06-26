@@ -51,6 +51,15 @@ ohos_unittest("app_mgr_service_test") {
     "samgr:samgr_proxy",
     "window_manager:libwm",
   ]
+
+  defines = []
+  if (background_task_mgr_continuous_task_enable) {
+    defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
+  }
+
+  if (ability_command_for_test) {
+    defines += [ "ABILITY_COMMAND_FOR_TEST" ]
+  }
 }
 
 group("unittest") {
