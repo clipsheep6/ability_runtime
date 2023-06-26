@@ -922,6 +922,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode)
 {
     HILOG_DEBUG("Start ability with startOptions.");
+    HILOG_ERROR("[DongLin] userId1: %{public}d", userId);
     return StartAbilityForOptionWrap(want, startOptions, callerToken, userId, requestCode, false);
 }
 
@@ -948,12 +949,14 @@ int AbilityManagerService::StartAbilityForOptionWrap(const Want &want, const Sta
         return result;
     }
 
+    HILOG_ERROR("[DongLin] userId2: %{public}d", userId);
     return StartAbilityForOptionInner(want, startOptions, callerToken, userId, requestCode, isStartAsCaller);
 }
 
 int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const StartOptions &startOptions,
     const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode, bool isStartAsCaller)
 {
+    HILOG_ERROR("[DongLin] userId3: %{public}d", userId);
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (IsCrossUserCall(userId)) {
         CHECK_CALLER_IS_SYSTEM_APP;
@@ -961,6 +964,7 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     EventInfo eventInfo = BuildEventInfo(want, userId);
     EventReport::SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
 
+    HILOG_ERROR("[DongLin] userId4: %{public}d", userId);
     if (!DlpUtils::OtherAppsAccessDlpCheck(callerToken, want) ||
         VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED ||
         !DlpUtils::DlpAccessOtherAppsCheck(callerToken, want)) {
