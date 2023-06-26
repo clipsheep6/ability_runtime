@@ -107,9 +107,9 @@ ohos_shared_library("ability_simulator") {
   ]
 
   if (is_mingw) {
-    external_deps += [ "resource_management:global_resmgr_win" ]
+    external_deps += [ "resource_management:win_resmgr" ]
   } else {
-    external_deps += [ "resource_management:global_resmgr_mac" ]
+    external_deps += [ "resource_management:mac_resmgr" ]
   }
 
   part_name = "ability_runtime"

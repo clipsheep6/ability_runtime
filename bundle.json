@@ -323,6 +323,16 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/service_router_framework/interfaces/inner_api:srms_fwk"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/frameworks/simulator",
+              "header_files": [
+                "ability_simulator/include/simulator.h",
+                "common/include/options.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/frameworks/simulator/ability_simulator:ability_simulator"
           }
         ],
         "test": [
