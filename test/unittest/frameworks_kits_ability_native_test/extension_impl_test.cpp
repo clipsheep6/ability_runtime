@@ -654,7 +654,8 @@ HWTEST_F(ExtensionImplTest, AaFwk_ExtensionImpl_2900, Function | MediumTest | Le
     impl->Init(application, record, extension, handler, token);
     sptr<AAFwk::SessionInfo> session = new (std::nothrow) AAFwk::SessionInfo();
     EXPECT_NE(session, nullptr);
-    impl->CommandExtensionWindow(session, AAFwk::WIN_CMD_FOREGROUND);
+    Want want;
+    impl->CommandExtensionWindow(want, session, AAFwk::WIN_CMD_FOREGROUND);
     GTEST_LOG_(INFO) << "AaFwk_ExtensionImpl_2900 end";
 }
 } // namespace AppExecFwk

@@ -566,7 +566,7 @@ void AbilityThread::HandleCommandExtension(const Want &want, bool restart, int s
     HILOG_DEBUG("AbilityThread::HandleCommandExtension end");
 }
 
-void AbilityThread::HandleCommandExtensionWindow(const sptr<AAFwk::SessionInfo> &sessionInfo,
+void AbilityThread::HandleCommandExtensionWindow(const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
     AAFwk::WindowCommand winCmd)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -575,7 +575,7 @@ void AbilityThread::HandleCommandExtensionWindow(const sptr<AAFwk::SessionInfo> 
         HILOG_ERROR("extensionImpl_ == nullptr");
         return;
     }
-    extensionImpl_->CommandExtensionWindow(sessionInfo, winCmd);
+    extensionImpl_->CommandExtensionWindow(want, sessionInfo, winCmd);
     HILOG_DEBUG("end");
 }
 
@@ -833,18 +833,18 @@ bool AbilityThread::SchedulePrepareTerminateAbility()
     return ret;
 }
 
-void AbilityThread::ScheduleCommandAbilityWindow(const sptr<AAFwk::SessionInfo> &sessionInfo,
+void AbilityThread::ScheduleCommandAbilityWindow(const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
     AAFwk::WindowCommand winCmd)
 {
     HILOG_DEBUG("begin.");
     wptr<AbilityThread> weak = this;
-    auto task = [weak, sessionInfo, winCmd]() {
+    auto task = [weak, want, sessionInfo, winCmd]() {
         auto abilityThread = weak.promote();
         if (abilityThread == nullptr) {
             HILOG_ERROR("abilityThread is nullptr");
             return;
         }
-        abilityThread->HandleCommandExtensionWindow(sessionInfo, winCmd);
+        abilityThread->HandleCommandExtensionWindow(want, sessionInfo, winCmd);
     };
 
     if (abilityHandler_ == nullptr) {

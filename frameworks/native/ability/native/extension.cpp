@@ -94,7 +94,8 @@ void Extension::OnCommand(const AAFwk::Want &want, bool restart, int startId)
     SetLastRequestWant(want);
 }
 
-void Extension::OnCommandWindow(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
+void Extension::OnCommandWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
+    AAFwk::WindowCommand winCmd)
 {
     HILOG_DEBUG("call");
 }

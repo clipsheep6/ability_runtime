@@ -1920,9 +1920,6 @@ int AbilityManagerService::TerminateUIExtensionAbility(const sptr<SessionInfo> &
     CHECK_POINTER_AND_RETURN(extensionSessionInfo, ERR_INVALID_VALUE);
     auto abilityRecord = Token::GetAbilityRecordByToken(extensionSessionInfo->callerToken);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    if (!JudgeSelfCalled(abilityRecord)) {
-        return CHECK_PERMISSION_FAILED;
-    }
     auto userId = abilityRecord->GetApplicationInfo().uid / BASE_USER_RANGE;
     auto connectManager = GetConnectManagerByUserId(userId);
     if (!connectManager) {
@@ -1932,6 +1929,10 @@ int AbilityManagerService::TerminateUIExtensionAbility(const sptr<SessionInfo> &
 
     auto targetRecord = connectManager->GetUIExtensioBySessionInfo(extensionSessionInfo);
     CHECK_POINTER_AND_RETURN(targetRecord, ERR_INVALID_VALUE);
+
+    if (!JudgeSelfCalled(targetRecord) && !JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
 
     auto result = JudgeAbilityVisibleControl(targetRecord->GetAbilityInfo());
     if (result != ERR_OK) {

@@ -1366,7 +1366,7 @@ void AbilityRecord::CommandAbility()
 void AbilityRecord::CommandAbilityWindow(const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd)
 {
     CHECK_POINTER(lifecycleDeal_);
-    lifecycleDeal_->CommandAbilityWindow(sessionInfo, winCmd);
+    lifecycleDeal_->CommandAbilityWindow(want_, sessionInfo, winCmd);
 }
 
 void AbilityRecord::SaveAbilityState()
