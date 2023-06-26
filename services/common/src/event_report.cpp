@@ -138,6 +138,17 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, 
                 EVENT_KEY_PROCESS_NAME, eventInfo.processName,
                 EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType);
             break;
+        case EventName::APP_LAUNCH:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK,
+                name,
+                type,
+                EVENT_KEY_APP_PID, eventInfo.pid,
+                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+                EVENT_KEY_VERSION_NAME, eventInfo.versionName,
+                EVENT_KEY_VERSION_CODE, eventInfo.versionCode,
+                EVENT_KEY_PROCESS_NAME, eventInfo.processName,
+                EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName);
         default:
             HiSysEventWrite(
                 HiSysEvent::Domain::AAFWK,
