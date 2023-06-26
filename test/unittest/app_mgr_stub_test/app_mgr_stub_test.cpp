@@ -223,7 +223,7 @@ HWTEST_F(AppMgrStubTest, PreStartNWebSpawnProcess_001, TestSize.Level0)
  * @tc.name: GetProcessMemoryByPid_001
  * @tc.desc: Get memorySize by pid.
  * @tc.type: FUNC
- * @tc.require: unkown
+ * @tc.require: issueI76JBF
  */
 HWTEST_F(AppMgrStubTest, GetProcessMemoryByPid_001, TestSize.Level0)
 {
@@ -249,7 +249,7 @@ HWTEST_F(AppMgrStubTest, GetProcessMemoryByPid_001, TestSize.Level0)
  * @tc.name: GetRunningProcessInformation_001
  * @tc.desc: Get pid list by bundleName.
  * @tc.type: FUNC
- * @tc.require: unkown
+ * @tc.require: issueI76JBF
  */
 HWTEST_F(AppMgrStubTest, GetRunningProcessInformation_001, TestSize.Level0)
 {
