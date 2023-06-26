@@ -66,6 +66,8 @@ constexpr static char ENTERPRISE_ADMIN_EXTENSION[] = "EnterpriseAdminExtension";
 constexpr static char INPUTMETHOD_EXTENSION[] = "InputMethodExtensionAbility";
 constexpr static char APP_ACCOUNT_AUTHORIZATION_EXTENSION[] = "AppAccountAuthorizationExtension";
 
+const int32_t PREPARE_TO_TERMINATE_TIMEOUT_MILLISECONDS = 3000;
+
 AbilityThread::AbilityThread()
     : abilityImpl_(nullptr), token_(nullptr), currentAbility_(nullptr), abilityHandler_(nullptr), runner_(nullptr)
 {}
@@ -832,9 +834,49 @@ bool AbilityThread::SchedulePrepareTerminateAbility()
         HILOG_ERROR("abilityImpl_ is nullptr.");
         return true;
     }
-    bool ret = abilityImpl_->PrepareTerminateAbility();
-    HILOG_DEBUG("end, ret = %{public}d", ret);
-    return ret;
+    if (getpid() == gettid()) {
+        bool ret = abilityImpl_->PrepareTerminateAbility();
+        HILOG_DEBUG("end, ret = %{public}d", ret);
+        return ret;
+    } else {
+        wptr<AbilityThread> weak = this;
+        auto task = [weak]() {
+            auto abilityThread = weak.promote();
+            if (abilityThread == nullptr) {
+                HILOG_ERROR("abilityThread is nullptr, ScheduleCommandAbility failed.");
+                return;
+            }
+            abilityThread->HandlePrepareTermianteAbility();
+        };
+
+        if (abilityHandler_ == nullptr) {
+            HILOG_ERROR("abilityHandler_ is nullptr");
+            return false;
+        }
+
+        bool ret = abilityHandler_->PostTask(task);
+        if (!ret) {
+            HILOG_ERROR("PostTask error");
+            return false;
+        }
+
+        std::unique_lock<std::mutex> lock(mutex_);
+        HILOG_ERROR("[DongLin] begin to wait");
+        auto condition = [this] {
+            if (this->isPrepareTerminateAbilityDone_) {
+                HILOG_ERROR("[DongLin]isPrepareTerminateAbilityDone_ is true");
+                return true;
+            } else {
+                HILOG_ERROR("[DongLin]isPrepareTerminateAbilityDone_ is false");
+                return false;
+            }
+        };
+        if(!cv_.wait_for(lock, std::chrono::milliseconds(PREPARE_TO_TERMINATE_TIMEOUT_MILLISECONDS), condition)) {
+            HILOG_WARN("[DongLin]Wait timeout.");
+        }
+        HILOG_DEBUG("end, ret = %{public}d", isPrepareTerminate_);
+        return isPrepareTerminate_;
+    }
 }
 
 void AbilityThread::ScheduleCommandAbilityWindow(const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
@@ -1505,5 +1547,19 @@ int AbilityThread::BlockAbility()
     return ERR_NO_INIT;
 }
 #endif
+
+void AbilityThread::HandlePrepareTermianteAbility()
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    if (abilityImpl_ == nullptr) {
+        HILOG_ERROR("share data error, abilityImpl_ == nullptr.");
+        return;
+    }
+    isPrepareTerminate_ = abilityImpl_->PrepareTerminateAbility();
+    HILOG_DEBUG("end, ret = %{public}d", isPrepareTerminate_);
+    isPrepareTerminateAbilityDone_.store(true); 
+    cv_.notify_all();
+    HILOG_ERROR("[DongLin] notify");
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
