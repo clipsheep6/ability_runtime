@@ -1139,9 +1139,7 @@ HWTEST_F(AbilityManagerClientBranchTest, StartAbilityByCall_002, TestSize.Level1
  */
 HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_001, TestSize.Level1)
 {
-    Want want;
-    StartOptions options;
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(want, options, nullptr), ERR_INVALID_VALUE);
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(nullptr), ERR_INVALID_VALUE);
 }
 
 /**
@@ -1151,10 +1149,8 @@ HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_001, TestSize.Level
  */
 HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_002, TestSize.Level1)
 {
-    Want want;
-    StartOptions options;
     sptr<SessionInfo> sessionInfo(new SessionInfo());
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(want, options, sessionInfo), ERR_INVALID_VALUE);
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(sessionInfo), ERR_INVALID_VALUE);
 }
 
 /**
@@ -1164,12 +1160,10 @@ HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_002, TestSize.Level
  */
 HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_003, TestSize.Level1)
 {
-    Want want;
-    StartOptions options;
     Rosen::SessionInfo info;
     sptr<SessionInfo> sessionInfo(new SessionInfo());
     sessionInfo->sessionToken = new Rosen::Session(info);
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(want, options, sessionInfo),
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(sessionInfo),
         ERR_WRONG_INTERFACE_CALL);
 }
 
@@ -1239,6 +1233,46 @@ HWTEST_F(AbilityManagerClientBranchTest, CloseUIAbilityBySCB_003, TestSize.Level
     Rosen::SessionInfo info;
     sessionInfo->sessionToken = new (std::nothrow) Rosen::Session(info);
     EXPECT_EQ(AbilityManagerClient::GetInstance()->CloseUIAbilityBySCB(sessionInfo), ERR_WRONG_INTERFACE_CALL);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_SetRootSceneSession_0100
+ * @tc.desc: SetRootSceneSession
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, SetRootSceneSession_001, TestSize.Level1)
+{
+    Rosen::SessionInfo info;
+    sptr<Rosen::ISession> session = new Rosen::Session(info);
+    EXPECT_NE(session, nullptr);
+    sptr<IRemoteObject> rootSceneSession = session->AsObject();
+    AbilityManagerClient::GetInstance()->SetRootSceneSession(rootSceneSession);
+    EXPECT_NE(session, nullptr);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_CallUIAbilityBySCB_0100
+ * @tc.desc: CallUIAbilityBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, CallUIAbilityBySCB_001, TestSize.Level1)
+{
+    sptr<SessionInfo> sessionInfo = new SessionInfo();
+    AbilityManagerClient::GetInstance()->CallUIAbilityBySCB(sessionInfo);
+    EXPECT_NE(sessionInfo, nullptr);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_CallUIAbilityBySCB_0200
+ * @tc.desc: CallUIAbilityBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, CallUIAbilityBySCB_002, TestSize.Level1)
+{
+    sptr<SessionInfo> sessionInfo = new SessionInfo();
+    EXPECT_NE(sessionInfo, nullptr);
+    AbilityManagerClient::GetInstance()->CallUIAbilityBySCB(sessionInfo);
+    EXPECT_NE(sessionInfo, nullptr);
 }
 
 /**

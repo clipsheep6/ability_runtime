@@ -63,10 +63,6 @@ public:
     {
         return;
     }
-    void UpdateExtensionType(int32_t extensionType) override
-    {
-        return;
-    }
     bool RunScript(const std::string& path, const std::string& hapPath, bool useCommonChunk = false)
     {
         return true;
@@ -94,6 +90,7 @@ public:
     }
 
     void StartProfiler(const std::string &perfCmd) override {}
+    void DoCleanWorkAfterStageCleaned() override {}
 public:
     Language language;
 };

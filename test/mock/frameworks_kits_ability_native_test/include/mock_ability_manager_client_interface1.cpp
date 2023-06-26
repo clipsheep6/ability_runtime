@@ -98,6 +98,15 @@ ErrCode AbilityManagerClient::ScheduleCommandAbilityDone(const sptr<IRemoteObjec
     return ERR_OK;
 }
 
+ErrCode AbilityManagerClient::ScheduleCommandAbilityWindowDone(
+    const sptr<IRemoteObject> &token,
+    const sptr<SessionInfo> &sessionInfo,
+    WindowCommand winCmd,
+    AbilityCommand abilityCmd)
+{
+    return ERR_OK;
+}
+
 ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject>& token, int resultCode, const Want* resultWant)
 {
     return ERR_OK;

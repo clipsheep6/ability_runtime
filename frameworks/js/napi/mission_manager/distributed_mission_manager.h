@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,6 +25,7 @@
 #include "securec.h"
 #include "want.h"
 #include "remote_mission_listener_stub.h"
+#include "remote_on_listener_stub.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -33,6 +34,8 @@ napi_value NAPI_StartSyncRemoteMissions(napi_env env, napi_callback_info info);
 napi_value NAPI_StopSyncRemoteMissions(napi_env env, napi_callback_info info);
 napi_value NAPI_RegisterMissionListener(napi_env env, napi_callback_info info);
 napi_value NAPI_UnRegisterMissionListener(napi_env env, napi_callback_info info);
+napi_value NAPI_NotifyToOn(napi_env env, napi_callback_info info);
+napi_value NAPI_NotifyToOff(napi_env env, napi_callback_info info);
 napi_value NAPI_ContinueAbility(napi_env env, napi_callback_info info);
 napi_value WrapString(napi_env &env, const std::string &deviceId, const std::string &paramName);
 napi_value WrapInt32(napi_env &env, int32_t num, const std::string &paramName);
@@ -44,10 +47,12 @@ public:
     void SetEnv(const napi_env &env);
     void SetContinueAbilityEnv(const napi_env &env);
     void SetContinueAbilityCBRef(const napi_ref &ref);
+    void SetContinueAbilityPromiseRef(const napi_deferred &promiseDeferred);
 
 private:
     napi_env env_ = nullptr;
     napi_ref onContinueDoneRef_ = nullptr;
+    napi_deferred promiseDeferred_;
 };
 
 class NAPIRemoteMissionListener : public AAFwk::RemoteMissionListenerStub {
@@ -67,6 +72,20 @@ private:
     napi_ref notifyMissionsChangedRef_ = nullptr;
     napi_ref notifySnapshotRef_ = nullptr;
     napi_ref notifyNetDisconnectRef_ = nullptr;
+};
+
+class NAPIRemoteOnListener : public AAFwk::RemoteOnListenerStub {
+public:
+    virtual ~NAPIRemoteOnListener();
+
+    void OnCallback(const uint32_t continueState, const std::string &srcDeviceId,
+        const std::string &bundleName) override;
+    void SetEnv(const napi_env &env);
+    void SetOnCallbackCBRef(const napi_ref &ref);
+
+private:
+    napi_env env_ = nullptr;
+    napi_ref onCallbackRef_ = nullptr;
 };
 
 struct CallbackInfo {
@@ -99,6 +118,24 @@ struct RegisterMissionCB {
     napi_ref callbackRef;
 };
 
+struct OnCallbackCB {
+    napi_env env = nullptr;
+    napi_ref callback = nullptr;
+    int resultCode = 0;
+};
+
+struct OnCB {
+    CBBase cbBase;
+    std::string type;
+    sptr<NAPIRemoteOnListener> onRegistration;
+    int continueState = 0;
+    std::string srcDeviceId;
+    std::string bundleName;
+    OnCallbackCB onCallbackCB;
+    int result = 0;
+    napi_ref callbackRef;
+};
+
 struct AbilityContinuationCB {
     napi_env env;
     napi_ref callback[1] = {nullptr};
@@ -114,6 +151,8 @@ struct ContinueAbilityCB {
     ErrCode result = 0;
     int resultCode = 0;
     int missionId = 0;
+    std::string bundleName;
+    bool hasArgsWithBundleName = false;
     napi_ref callbackRef;
 };
 
@@ -136,10 +175,13 @@ bool SetSyncRemoteMissionsContext(const napi_env &env, const napi_value &value,
 bool ProcessSyncInput(napi_env &env, napi_callback_info info, bool isStart,
     SyncRemoteMissionsContext* syncContext, std::string &errInfo);
 void ReturnValueToApplication(napi_env &env, napi_value *result, RegisterMissionCB *registerMissionCB);
+void ReturnValueToApplication(napi_env &env, napi_value *result, OnCB *onCB);
 void CallbackReturn(napi_value *result, RegisterMissionCB *registerMissionCB);
 napi_value GetUndefined();
 mutex registrationLock_;
+mutex onLock_;
 map<std::string, sptr<NAPIRemoteMissionListener>> registration_;
+map<std::string, sptr<NAPIRemoteOnListener>> registrationOfOn_;
 
 enum ErrorCode {
     NO_ERROR = 0,

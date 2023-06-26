@@ -65,7 +65,7 @@ ohos_unittest("shell_cmd_result_unittest") {
 
   external_deps = [
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
   ]
 }
 
@@ -84,7 +84,7 @@ ohos_unittest("ability_delegator_args_unittest") {
 
   external_deps = [
     "ability_base:want",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
   ]
 }
 
@@ -108,7 +108,7 @@ ohos_unittest("iability_monitor_unittest") {
     "ability_base:want",
     "ability_runtime:ability_manager",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 }
@@ -140,8 +140,9 @@ ohos_unittest("ability_delegator_unittest") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 
@@ -161,7 +162,7 @@ ohos_unittest("delegator_thread_unittest") {
 
   external_deps = [
     "eventhandler:libeventhandler",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 }
@@ -191,7 +192,7 @@ ohos_unittest("ability_delegator_registry_unittest") {
     "ability_runtime:runtime",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 }
@@ -225,7 +226,7 @@ ohos_unittest("js_test_runner_unittest") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "ets_runtime:libark_jsruntime",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
   ]

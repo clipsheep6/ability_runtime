@@ -110,7 +110,7 @@ HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_0100, TestSize.Level1)
     EXPECT_NE(runner, nullptr);
     appMgrService->handler_ = std::make_shared<AMSEventHandler>(runner, appMgrService->appMgrServiceInner_);
 
-    constexpr int fd(0);
+    constexpr int fd(1);
     std::vector<std::u16string> args;
     auto arg = Str8ToStr16("-h");
     args.emplace_back(arg);
@@ -157,7 +157,7 @@ HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_0300, TestSize.Level1)
     EXPECT_NE(runner, nullptr);
     appMgrService->handler_ = std::make_shared<AMSEventHandler>(runner, appMgrService->appMgrServiceInner_);
 
-    constexpr int fd(0);
+    constexpr int fd(1);
     std::vector<std::u16string> args;
     auto result = appMgrService->Dump(fd, args);
     EXPECT_EQ(result, ERR_OK);
@@ -180,7 +180,7 @@ HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_0400, TestSize.Level1)
     EXPECT_NE(runner, nullptr);
     appMgrService->handler_ = std::make_shared<AMSEventHandler>(runner, appMgrService->appMgrServiceInner_);
 
-    constexpr int fd(0);
+    constexpr int fd(1);
     std::vector<std::u16string> args;
     auto arg = Str8ToStr16("-i");
     args.emplace_back(arg);

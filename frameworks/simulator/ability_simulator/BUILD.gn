@@ -11,12 +11,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//arkcompiler/ets_frontend/ts2panda/ts2abc_config.gni")
+import("//arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
 import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 import("//foundation/arkui/ace_engine/build/ace_gen_obj.gni")
 
-ts2abc_gen_abc("gen_abc_js_mock") {
+es2abc_gen_abc("gen_abc_js_mock") {
   js_mock_path =
       get_label_info("${previewer_path}/automock:gen_snapshot_jsmock",
                      "target_out_dir") + "/dist/jsMockSystemPlugin.js"

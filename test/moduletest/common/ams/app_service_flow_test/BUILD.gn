@@ -32,8 +32,8 @@ ohos_moduletest("AmsAppServiceFlowModuleTest") {
 
   external_deps = [
     "bundle_framework:appexecfwk_base",
-    "hicollie_native:libhicollie",
-    "hiviewdfx_hilog_native:libhilog",
+    "hicollie:libhicollie",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 

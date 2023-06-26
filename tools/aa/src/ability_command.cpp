@@ -33,7 +33,7 @@ using namespace OHOS::AppExecFwk;
 namespace OHOS {
 namespace AAFwk {
 namespace {
-size_t paramLength = 1024;
+constexpr size_t PARAM_LENGTH = 1024;
 
 const std::string SHORT_OPTIONS = "ch:d:a:b:p:s:m:CDSN";
 constexpr struct option LONG_OPTIONS[] = {
@@ -124,7 +124,7 @@ ErrCode AbilityManagerShellCommand::CreateCommandMap()
         {"block-ability", std::bind(&AbilityManagerShellCommand::RunAsBlockAbilityCommand, this)},
         {"block-ams-service", std::bind(&AbilityManagerShellCommand::RunAsBlockAmsServiceCommand, this)},
         {"block-app-service", std::bind(&AbilityManagerShellCommand::RunAsBlockAppServiceCommand, this)},
-        {"forceexitapp", std::bind(&AbilityManagerShellCommand::RunAsForceExitAppCommand, this)}
+        {"forceexitapp", std::bind(&AbilityManagerShellCommand::RunAsForceExitAppCommand, this)},
         {"notifyappfault", std::bind(&AbilityManagerShellCommand::RunAsNotifyAppFaultCommand, this)},
 #endif
     };
@@ -729,15 +729,22 @@ bool AbilityManagerShellCommand::CheckPerfCmdString(
     }
 
     perfCmd = optarg;
-    const std::regex regexType(R"(^\s*(profile|dumpheap|sleep)($|\s+.*))");
-    if (!MatchOrderString(regexType, perfCmd)) {
+    const std::regex regexDumpHeapType(R"(^\s*(dumpheap)\s*$)");
+    const std::regex regexSleepType(R"(^\s*(sleep)((\s+\d*)|)\s*$)");
+    if (MatchOrderString(regexDumpHeapType, perfCmd) || MatchOrderString(regexSleepType, perfCmd)) {
+        return true;
+    }
+
+    HILOG_DEBUG("the command not match");
+    const std::regex regexProfileType(R"(^\s*(profile)\s+(nativeperf|jsperf)(\s+.*|$))");
+    if (!MatchOrderString(regexProfileType, perfCmd)) {
         HILOG_ERROR("the command is invalid");
         return false;
     }
 
     auto findPos = perfCmd.find("jsperf");
     if (findPos != std::string::npos) {
-        const std::regex regexCmd(R"(^jsperf($|\s+($|\d*\s*($|nativeperf.*))))");
+        const std::regex regexCmd(R"(^jsperf($|\s+($|((5000|([1-9]|[1-4]\d)\d\d)|)\s*($|nativeperf.*))))");
         if (!MatchOrderString(regexCmd, perfCmd.substr(findPos, perfCmd.length() - findPos))) {
             HILOG_ERROR("the order is invalid");
             return false;
@@ -892,7 +899,7 @@ ErrCode AbilityManagerShellCommand::MakeWantForProcess(Want& want)
             case 'p': {
                 // 'aa process -p xxx'
                 // save perf cmd
-                if (strlen(optarg) < paramLength) {
+                if (strlen(optarg) < PARAM_LENGTH) {
                     perfCmd = optarg;
                     isPerf = true;
                 }
@@ -901,7 +908,7 @@ ErrCode AbilityManagerShellCommand::MakeWantForProcess(Want& want)
             case 'D': {
                 // 'aa process -D xxx'
                 // save debug cmd
-                if (!isPerf && strlen(optarg) < paramLength) {
+                if (!isPerf && strlen(optarg) < PARAM_LENGTH) {
                     HILOG_INFO("debug cmd.");
                     debugCmd = optarg;
                 }
@@ -1197,7 +1204,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                 // 'aa stop-service -p xxx'
 
                 // save module name
-                if (!CheckPerfCmdString(optarg, paramLength, perfCmd)) {
+                if (!CheckPerfCmdString(optarg, PARAM_LENGTH, perfCmd)) {
                     HILOG_ERROR("input perfCmd is invalid %{public}s", perfCmd.c_str());
                     result = OHOS::ERR_INVALID_VALUE;
                 }

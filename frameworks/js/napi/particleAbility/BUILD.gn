@@ -55,8 +55,8 @@ ohos_shared_library("particleability") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "hitrace_native:hitrace_meter",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "napi:ace_napi",
   ]
@@ -66,6 +66,7 @@ ohos_shared_library("particleability") {
       "${relational_store_napi_path}/common/include",
       "${relational_store_napi_path}/dataability/include",
       "${relational_store_napi_path}/rdb/include",
+      "${relational_store_common_path}/include",
     ]
     sources += [
       "${relational_store_napi_path}/common/src/js_utils.cpp",

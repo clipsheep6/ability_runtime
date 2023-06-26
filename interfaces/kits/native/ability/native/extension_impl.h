@@ -58,7 +58,7 @@ public:
      *
      * @param want The Want object to connect to.
      * @param targetState The terget state.
-     * @param sessionInfo  Indicates the sessionInfo.
+     *  @param sessionInfo  Indicates the sessionInfo.
      *
      */
     virtual void HandleExtensionTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
@@ -132,6 +132,8 @@ public:
      * of startId is 6.
      */
     void CommandExtension(const Want &want, bool restart, int startId);
+
+    void CommandExtensionWindow(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd);
 
 protected:
     /**

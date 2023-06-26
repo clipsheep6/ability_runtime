@@ -55,6 +55,7 @@ constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
 #endif
 
 bool g_debugMode = false;
+bool g_jsFramework = false;
 }
 
 void InitWorkerFunc(NativeEngine* nativeEngine)
@@ -75,7 +76,7 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
 
     auto arkNativeEngine = static_cast<ArkNativeEngine*>(nativeEngine);
     // load jsfwk
-    if (!arkNativeEngine->ExecuteJsBin("/system/etc/strip.native.min.abc")) {
+    if (g_jsFramework && !arkNativeEngine->ExecuteJsBin("/system/etc/strip.native.min.abc")) {
         HILOG_ERROR("Failed to load js framework!");
     }
 
@@ -158,7 +159,7 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
         } else if (uri.find_first_of("/") == 0) {
             HILOG_DEBUG("uri start with /modulename");
             realPath = uri.substr(1);
-        } else if (uri.find("../") == 0) {
+        } else if (uri.find("../") == 0 && !workerInfo_->isStageModel) {
             HILOG_DEBUG("uri start with ../");
             realPath = uri.substr(3);
         } else {
@@ -376,7 +377,7 @@ void AssetHelper::GetAmi(std::string& ami, const std::string& filePath)
 
     HILOG_INFO("targetFilePath %{public}s", targetFilePath.c_str());
 
-    if(!flag) {
+    if (!flag) {
         HILOG_ERROR("get targetFilePath failed!");
         return;
     }
@@ -417,6 +418,11 @@ ContainerScope::UpdateCurrent(-1);
 void StartDebuggerInWorkerModule()
 {
     g_debugMode = true;
+}
+
+void SetJsFramework()
+{
+    g_jsFramework = true;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

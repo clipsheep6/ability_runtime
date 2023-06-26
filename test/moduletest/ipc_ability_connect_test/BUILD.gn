@@ -38,7 +38,7 @@ ohos_moduletest("IpcAbilityConnectModuleTest") {
     "ability_base:want",
     "ability_runtime:ability_manager",
     "c_utils:utilsbase",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 

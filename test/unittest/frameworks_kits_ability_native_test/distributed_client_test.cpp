@@ -204,6 +204,45 @@ HWTEST_F(DistributedClientTest, ContinueMission_0200, TestSize.Level3)
 }
 
 /**
+ * @tc.number: ContinueMissionBundleName_0100
+ * @tc.name: ContinueMissionBundleName
+ * @tc.desc: ContinueMissionBundleName Test, when callback is nullptr, return ERR_NULL_OBJECT.
+ */
+HWTEST_F(DistributedClientTest, ContinueMissionBundleName_0100, TestSize.Level3)
+{
+    GTEST_LOG_(INFO) << "DistributedClientTest ContinueMissionBundleName_0100 start";
+    auto client = std::make_shared<OHOS::AAFwk::DistributedClient>();
+    std::string srcDeviceId = "deviceId";
+    std::string dstDeviceId = "deviceId";
+    OHOS::AAFwk::WantParams wantParams;
+    int32_t result = client->ContinueMission(srcDeviceId, dstDeviceId, "bundleName", nullptr, wantParams);
+    EXPECT_EQ(result, ERR_NULL_OBJECT);
+    GTEST_LOG_(INFO) << "DistributedClientTest ContinueMissionBundleName_0100 end";
+}
+
+/**
+ * @tc.number: ContinueMissionBundleName_0200
+ * @tc.name: ContinueMissionBundleName
+ * @tc.desc: ContinueMissionBundleName Test, return DMS_PERMISSION_DENIED.
+ */
+HWTEST_F(DistributedClientTest, ContinueMissionBundleName_0200, TestSize.Level3)
+{
+    GTEST_LOG_(INFO) << "DistributedClientTest ContinueMissionBundleName_0200 start";
+    auto client = std::make_shared<OHOS::AAFwk::DistributedClient>();
+    std::string srcDeviceId = "deviceId";
+    std::string dstDeviceId = "deviceId";
+    OHOS::AAFwk::WantParams wantParams;
+    sptr<IRemoteObject> callback = new (std::nothrow) OHOS::AAFwk::AbilityConnectCallback();
+    int32_t result = client->ContinueMission(srcDeviceId, dstDeviceId, "bundleName", callback, wantParams);
+    if (client->GetDmsProxy() != nullptr) {
+        EXPECT_EQ(result, OHOS::AAFwk::DMS_PERMISSION_DENIED);
+    } else {
+        EXPECT_EQ(result, OHOS::AAFwk::INVALID_PARAMETERS_ERR);
+    }
+    GTEST_LOG_(INFO) << "DistributedClientTest ContinueMissionBundleName_0200 end";
+}
+
+/**
  * @tc.number: NotifyCompleteContinuation_0100
  * @tc.name: NotifyCompleteContinuation
  * @tc.desc: NotifyCompleteContinuation Test, return DMS_PERMISSION_DENIED.
@@ -282,6 +321,45 @@ HWTEST_F(DistributedClientTest, RegisterMissionListener_0100, TestSize.Level3)
         EXPECT_EQ(result, OHOS::AAFwk::INVALID_PARAMETERS_ERR);
     }
     GTEST_LOG_(INFO) << "DistributedClientTest RegisterMissionListener_0100 end";
+}
+
+/**
+ * @tc.number: RegisterOnListener_0100
+ * @tc.name: RegisterOnListener
+ * @tc.desc: RegisterOnListener Test, return DMS_PERMISSION_DENIED.
+ */
+HWTEST_F(DistributedClientTest, RegisterOnListener_0100, TestSize.Level3)
+{
+    GTEST_LOG_(INFO) << "DistributedClientTest RegisterOnListener_0100 start";
+    auto client = std::make_shared<OHOS::AAFwk::DistributedClient>();
+    sptr<IRemoteObject> obj = new (std::nothrow) OHOS::AAFwk::AbilityConnectCallback();
+    int32_t result = client->RegisterOnListener("type", obj);
+    if (client->GetDmsProxy() != nullptr) {
+        EXPECT_EQ(result, OHOS::AAFwk::DMS_PERMISSION_DENIED);
+    } else {
+        EXPECT_EQ(result, OHOS::AAFwk::INVALID_PARAMETERS_ERR);
+    }
+    GTEST_LOG_(INFO) << "DistributedClientTest RegisterOnListener_0100 end";
+}
+
+/**
+ * @tc.number: RegisterOffListener_0100
+ * @tc.name: RegisterOffListener
+ * @tc.desc: RegisterOffListener Test, return DMS_PERMISSION_DENIED.
+ */
+HWTEST_F(DistributedClientTest, RegisterOffListener_0100, TestSize.Level3)
+{
+    GTEST_LOG_(INFO) << "DistributedClientTest RegisterOffListener_0100 start";
+    auto client = std::make_shared<OHOS::AAFwk::DistributedClient>();
+    sptr<IRemoteObject> obj = new (std::nothrow) OHOS::AAFwk::AbilityConnectCallback();
+    client->RegisterOnListener("type", obj);
+    int32_t result = client->RegisterOffListener("type", obj);
+    if (client->GetDmsProxy() != nullptr) {
+        EXPECT_EQ(result, OHOS::AAFwk::DMS_PERMISSION_DENIED);
+    } else {
+        EXPECT_EQ(result, OHOS::AAFwk::INVALID_PARAMETERS_ERR);
+    }
+    GTEST_LOG_(INFO) << "DistributedClientTest RegisterOffListener_0100 end";
 }
 
 /**

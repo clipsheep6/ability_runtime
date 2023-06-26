@@ -30,8 +30,6 @@ ohos_shared_library("businessabilityrouter") {
 
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
-    "${bundlefwk_common_path}:libappexecfwk_common",
-    "${bundlefwk_kits_path}/js/common:bundle_napi_common",
     "${srms_inner_api_path}:srms_fwk",
   ]
 
@@ -39,8 +37,10 @@ ohos_shared_library("businessabilityrouter") {
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "bundle_framework:bundle_napi_common",
+    "bundle_framework:libappexecfwk_common",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
     "samgr:samgr_proxy",

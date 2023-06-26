@@ -303,7 +303,7 @@ public:
     int GetConnectionState() const;
     void SetConnectionState(int connectionState);
     size_t GetCallbackSize();
-    size_t ReomveAllCallbacks(ConnectRemoveKeyType key);
+    size_t RemoveAllCallbacks(ConnectRemoveKeyType key);
 
 private:
     std::list<std::shared_ptr<ConnectionCallback>> callbacks_;

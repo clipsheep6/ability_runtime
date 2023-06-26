@@ -30,7 +30,7 @@ bool PermissionVerification::VerifyPermissionByTokenId(const int &tokenId, const
 {
     HILOG_DEBUG("VerifyPermissionByTokenId permission %{public}s", permissionName.c_str());
     int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenId, permissionName);
-    if (ret == Security::AccessToken::PermissionState::PERMISSION_DENIED) {
+    if (ret != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
         HILOG_ERROR("permission %{public}s: PERMISSION_DENIED", permissionName.c_str());
         return false;
     }
@@ -43,7 +43,7 @@ bool PermissionVerification::VerifyCallingPermission(const std::string &permissi
     HILOG_DEBUG("VerifyCallingPermission permission %{public}s", permissionName.c_str());
     auto callerToken = GetCallingTokenID();
     int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permissionName);
-    if (ret == Security::AccessToken::PermissionState::PERMISSION_DENIED) {
+    if (ret != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
         HILOG_ERROR("permission %{public}s: PERMISSION_DENIED", permissionName.c_str());
         return false;
     }
@@ -402,8 +402,20 @@ bool PermissionVerification::VerifyPrepareTerminatePermission() const
         HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
         return true;
     }
-    HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+    HILOG_DEBUG("%{public}s: Permission verification failed", __func__);
     return false;
+}
+
+bool PermissionVerification::VerifyPrepareTerminatePermission(const int &tokenId) const
+{
+    int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenId,
+        PermissionConstants::PERMISSION_PREPARE_TERMINATE);
+    if (ret != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
+        HILOG_DEBUG("permission denied.");
+        return false;
+    }
+    HILOG_DEBUG("verify AccessToken success");
+    return true;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

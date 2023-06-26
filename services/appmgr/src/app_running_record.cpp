@@ -525,7 +525,7 @@ void AppRunningRecord::ScheduleTerminate()
 
 void AppRunningRecord::LaunchPendingAbilities()
 {
-    HILOG_INFO("Launch pending abilities.");
+    HILOG_DEBUG("Launch pending abilities.");
 
     auto moduleRecordList = GetAllModuleRecord();
     if (moduleRecordList.empty()) {
@@ -589,7 +589,7 @@ void AppRunningRecord::LowMemoryWarning()
 void AppRunningRecord::AddModules(
     const std::shared_ptr<ApplicationInfo> &appInfo, const std::vector<HapModuleInfo> &moduleInfos)
 {
-    HILOG_INFO("Add modules");
+    HILOG_DEBUG("Add modules");
 
     if (moduleInfos.empty()) {
         HILOG_INFO("moduleInfos is empty.");
@@ -853,7 +853,8 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
             const auto &abilityRecord = item.second;
             if (abilityRecord && abilityRecord->GetState() == AbilityState::ABILITY_STATE_FOREGROUND &&
                 abilityRecord->GetAbilityInfo() &&
-                abilityRecord->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE) {
+                (abilityRecord->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE
+                || abilityRecord->GetAbilityInfo()->extensionAbilityType == ExtensionAbilityType::UI)) {
                 foregroundSize++;
                 break;
             }
@@ -1378,7 +1379,7 @@ bool AppRunningRecord::IsDebugApp()
 
 void AppRunningRecord::SetNativeDebug(bool isNativeDebug)
 {
-    HILOG_INFO("SetNativeDebug, value is %{public}d", isNativeDebug);
+    HILOG_DEBUG("SetNativeDebug, value is %{public}d", isNativeDebug);
     isNativeDebug_ = isNativeDebug;
 }
 

@@ -63,6 +63,17 @@ void AbilityBaseTest::SetUpTestCase(void)
 void AbilityBaseTest::TearDownTestCase(void)
 {}
 
+class TestIEcologicalRuleManager : public AppExecFwk::IEcologicalRuleManager {
+public:
+    TestIEcologicalRuleManager() = default;
+    virtual ~TestIEcologicalRuleManager()
+    {};
+    sptr<IRemoteObject> AsObject() override
+    {
+        return nullptr;
+    }
+};
+
 void AbilityBaseTest::SetUp(void)
 {
     abilityObject_ = new MockAbilityManagerService();
@@ -1254,9 +1265,7 @@ HWTEST_F(AbilityTerminateTest,
     AppExecFwk_IEcologicalRuleManager_QueryFreeInstallExperience_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryFreeInstallExperience_0100";
-    sptr<IRemoteObject> remoteObject_ =
-        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
-    sptr<AppExecFwk::IEcologicalRuleManager> erms = iface_cast<AppExecFwk::IEcologicalRuleManager>(remoteObject_);
+    sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();
     EXPECT_NE(erms, nullptr);
     Want want;
     ErmsParams::CallerInfo callerInfo;
@@ -1274,9 +1283,7 @@ HWTEST_F(AbilityTerminateTest,
     AppExecFwk_IEcologicalRuleManager_EvaluateResolveInfos_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_EvaluateResolveInfos_0100";
-    sptr<IRemoteObject> remoteObject_ =
-        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
-    sptr<AppExecFwk::IEcologicalRuleManager> erms = iface_cast<AppExecFwk::IEcologicalRuleManager>(remoteObject_);
+    sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();
     EXPECT_NE(erms, nullptr);
     Want want;
     ErmsParams::CallerInfo callerInfo;
@@ -1296,9 +1303,7 @@ HWTEST_F(AbilityTerminateTest,
     AppExecFwk_IEcologicalRuleManager_QueryStartExperience_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryStartExperience_0100";
-    sptr<IRemoteObject> remoteObject_ =
-        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
-    sptr<AppExecFwk::IEcologicalRuleManager> erms = iface_cast<AppExecFwk::IEcologicalRuleManager>(remoteObject_);
+    sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();
     EXPECT_NE(erms, nullptr);
     Want want;
     ErmsParams::CallerInfo callerInfo;
@@ -1316,9 +1321,7 @@ HWTEST_F(AbilityTerminateTest,
     AppExecFwk_IEcologicalRuleManager_QueryPublishFormExperience_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryPublishFormExperience_0100";
-    sptr<IRemoteObject> remoteObject_ =
-        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
-    sptr<AppExecFwk::IEcologicalRuleManager> erms = iface_cast<AppExecFwk::IEcologicalRuleManager>(remoteObject_);
+    sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();
     EXPECT_NE(erms, nullptr);
     Want want;
     ErmsParams::ExperienceRule rule;
@@ -1335,9 +1338,7 @@ HWTEST_F(AbilityTerminateTest,
     AppExecFwk_IEcologicalRuleManager_IsSupportPublishForm_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_IsSupportPublishForm_0100";
-    sptr<IRemoteObject> remoteObject_ =
-        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
-    sptr<AppExecFwk::IEcologicalRuleManager> erms = iface_cast<AppExecFwk::IEcologicalRuleManager>(remoteObject_);
+    sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();
     EXPECT_NE(erms, nullptr);
     Want want;
     ErmsParams::CallerInfo callerInfo;
@@ -1355,9 +1356,7 @@ HWTEST_F(AbilityTerminateTest,
     AppExecFwk_IEcologicalRuleManager_QueryLastSyncTime_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryLastSyncTime_0100";
-    sptr<IRemoteObject> remoteObject_ =
-        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
-    sptr<AppExecFwk::IEcologicalRuleManager> erms = iface_cast<AppExecFwk::IEcologicalRuleManager>(remoteObject_);
+    sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();
     EXPECT_NE(erms, nullptr);
     EXPECT_EQ(0, erms->QueryLastSyncTime());
     GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryLastSyncTime_0100";

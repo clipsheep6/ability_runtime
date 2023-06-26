@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,6 +24,7 @@
 #include <unordered_map>
 #include <map>
 
+#include "ability_bundle_event_callback.h"
 #include "ability_connect_manager.h"
 #include "ability_event_handler.h"
 #include "ability_interceptor_executer.h"
@@ -211,13 +212,10 @@ public:
     /**
      * Start ui ability with want, send want to ability manager service.
      *
-     * @param want the want of the ability to start.
-     * @param startOptions Indicates the options used to start.
      * @param sessionInfo the session info of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartUIAbilityBySCB(const Want &want, const StartOptions &startOptions,
-        sptr<SessionInfo> sessionInfo) override;
+    virtual int StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo) override;
 
     /**
      * Stop extension ability with want, send want to ability manager service.
@@ -363,6 +361,19 @@ public:
         int32_t missionId, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams) override;
 
     /**
+     * ContinueMission, continue ability from mission center.
+     *
+     * @param srcDeviceId, origin deviceId.
+     * @param dstDeviceId, target deviceId.
+     * @param bundleName, indicates which ability to continue.
+     * @param callBack, notify result back.
+     * @param wantParams, extended params.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
+        const std::string &bundleName, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams) override;
+
+    /**
      * ContinueAbility, continue ability to ability.
      *
      * @param deviceId, target deviceId.
@@ -409,6 +420,26 @@ public:
      */
     virtual int RegisterMissionListener(const std::string &deviceId,
         const sptr<IRemoteMissionListener> &listener) override;
+
+    /**
+     * RegisterOnListener, register on notify mission listener.
+     *
+     * @param type, Indicates the notify type.
+     * @param listener, listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int RegisterOnListener(const std::string &type,
+        const sptr<IRemoteOnListener> &listener) override;
+
+    /**
+     * RegisterOffListener, register on notify mission listener.
+     *
+     * @param type, Indicates the notify type.
+     * @param listener, listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int RegisterOffListener(const std::string &type,
+        const sptr<IRemoteOnListener> &listener) override;
 
     /**
      * UnRegisterMissionListener, unregister remote device mission listener.
@@ -488,6 +519,12 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int ScheduleCommandAbilityDone(const sptr<IRemoteObject> &token) override;
+
+    virtual int ScheduleCommandAbilityWindowDone(
+        const sptr<IRemoteObject> &token,
+        const sptr<SessionInfo> &sessionInfo,
+        WindowCommand winCmd,
+        AbilityCommand abilityCmd) override;
 
     /**
      * GetEventHandler, get the ability manager service's handler.
@@ -957,7 +994,7 @@ public:
 
     bool GetLocalDeviceId(std::string& localDeviceId);
 
-    int JudgeAbilityVisibleControl(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid = -1);
+    int JudgeAbilityVisibleControl(const AppExecFwk::AbilityInfo &abilityInfo);
 
     /**
      * Called to update mission snapshot.
@@ -1037,7 +1074,36 @@ public:
      *
      * @param rootSceneSession Indicates root scene session of SCB.
      */
-    virtual void SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession) override;
+    virtual void SetRootSceneSession(const sptr<IRemoteObject> &rootSceneSession) override;
+
+    /**
+     * Call UIAbility by SCB.
+     *
+     * @param sessionInfo the session info of the ability to be called.
+     */
+    virtual void CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo) override;
+
+    /**
+     * Start specified ability by SCB.
+     *
+     * @param want Want information.
+     */
+    virtual void StartSpecifiedAbilityBySCB(const Want &want) override;
+
+    /**
+     * Set sessionManagerService
+     * @param sessionManagerService the point of sessionManagerService.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService) override;
+
+    /**
+     * Get sessionManagerService
+     *
+     * @return returns the SessionManagerService object, or nullptr for failed.
+     */
+    virtual sptr<IRemoteObject> GetSessionManagerService() override;
 
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
@@ -1235,7 +1301,6 @@ private:
     std::shared_ptr<DataAbilityManager> GetDataAbilityManagerByUserId(int32_t userId);
     std::shared_ptr<MissionListManager> GetListManagerByToken(const sptr<IRemoteObject> &token);
     std::shared_ptr<AbilityConnectManager> GetConnectManagerByToken(const sptr<IRemoteObject> &token);
-    std::shared_ptr<AbilityConnectManager> GetConnectManagerBySessionInfo(const sptr<SessionInfo> &sessionInfo);
     std::shared_ptr<DataAbilityManager> GetDataAbilityManagerByToken(const sptr<IRemoteObject> &token);
     bool JudgeSelfCalled(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
@@ -1248,8 +1313,6 @@ private:
     void StartResidentApps();
 
     int VerifyAccountPermission(int32_t userId);
-
-    bool CheckCallerEligibility(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid);
 
     using DumpFuncType = void (AbilityManagerService::*)(const std::string &args, std::vector<std::string> &info);
     std::map<uint32_t, DumpFuncType> dumpFuncMap_;
@@ -1271,6 +1334,10 @@ private:
     void SubscribeBackgroundTask();
 
     void UnSubscribeBackgroundTask();
+
+    void SubscribeBundleEventCallback();
+
+    void UnsubscribeBundleEventCallback();
 
     void ReportAbilitStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo);
 
@@ -1462,16 +1529,21 @@ private:
     std::shared_ptr<BackgroundTaskObserver> bgtaskObserver_;
 #endif
 
+    sptr<AbilityBundleEventCallback> abilityBundleEventCallback_;
+
 #ifdef SUPPORT_GRAPHICS
     int32_t ShowPickerDialog(const Want& want, int32_t userId, const sptr<IRemoteObject> &token);
     bool CheckWindowMode(int32_t windowMode, const std::vector<AppExecFwk::SupportWindowMode>& windowModes) const;
     void InitFocusListener();
     void RegisterFocusListener();
+    void InitPrepareTerminateConfig();
     std::shared_ptr<ImplicitStartProcessor> implicitStartProcessor_;
     sptr<IWindowManagerServiceHandler> wmsHandler_;
 #endif
     std::shared_ptr<AbilityInterceptorExecuter> interceptorExecuter_;
     std::unordered_map<int32_t, int64_t> appRecoveryHistory_; // uid:time
+    bool isPrepareTerminateEnable_ = false;
+    sptr<IRemoteObject> sessionManagerService_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

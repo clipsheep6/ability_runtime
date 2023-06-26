@@ -197,6 +197,29 @@ bool AbilitySchedulerProxy::SchedulePrepareTerminateAbility()
     return reply.ReadBool();
 }
 
+void AbilitySchedulerProxy::ScheduleCommandAbilityWindow(const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+    if (!data.WriteParcelable(sessionInfo)) {
+        HILOG_ERROR("fail to WriteParcelable");
+        return;
+    }
+    if (!data.WriteInt32(winCmd)) {
+        HILOG_ERROR("fail to WriteInt32");
+        return;
+    }
+
+    int32_t err = Remote()->SendRequest(IAbilityScheduler::SCHEDULE_ABILITY_COMMAND_WINDOW, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
+    }
+}
+
 void AbilitySchedulerProxy::ScheduleSaveAbilityState()
 {
     MessageParcel data;
@@ -392,7 +415,7 @@ int AbilitySchedulerProxy::Insert(const Uri &uri, const NativeRdb::ValuesBucket 
         return index;
     }
 
-    if (!data.WriteParcelable(&value)) {
+    if (!value.Marshalling(data)) {
         HILOG_ERROR("fail to WriteParcelable value");
         return index;
     }
@@ -490,7 +513,7 @@ int AbilitySchedulerProxy::Update(const Uri &uri, const NativeRdb::ValuesBucket 
         return index;
     }
 
-    if (!data.WriteParcelable(&value)) {
+    if (!value.Marshalling(data)) {
         HILOG_ERROR("fail to WriteParcelable value");
         return index;
     }
@@ -720,7 +743,7 @@ int AbilitySchedulerProxy::BatchInsert(const Uri &uri, const std::vector<NativeR
     }
 
     for (int i = 0; i < count; i++) {
-        if (!data.WriteParcelable(&values[i])) {
+        if (!values[i].Marshalling(data)) {
             HILOG_ERROR("fail to WriteParcelable ret, index = %{public}d", i);
             return ret;
         }

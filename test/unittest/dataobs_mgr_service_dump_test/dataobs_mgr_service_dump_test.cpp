@@ -54,7 +54,7 @@ HWTEST_F(DataobsMgrServiceDumpTest, DataobsMgrServiceDump_0100, TestSize.Level1)
     auto dataobsMgrService = std::make_shared<DataObsMgrService>();
     EXPECT_NE(dataobsMgrService, nullptr);
 
-    constexpr int fd(0);
+    constexpr int fd(1);
     std::vector<std::u16string> args;
     auto arg = Str8ToStr16("-h");
     args.emplace_back(arg);
@@ -76,7 +76,7 @@ HWTEST_F(DataobsMgrServiceDumpTest, DataobsMgrServiceDump_0200, TestSize.Level1)
     auto dataobsMgrService = std::make_shared<DataObsMgrService>();
     EXPECT_NE(dataobsMgrService, nullptr);
 
-    constexpr int fd(0);
+    constexpr int fd(1);
     std::vector<std::u16string> args;
     auto result = dataobsMgrService->Dump(fd, args);
     EXPECT_EQ(result, ERR_OK);
@@ -96,7 +96,7 @@ HWTEST_F(DataobsMgrServiceDumpTest, DataobsMgrServiceDump_0300, TestSize.Level1)
     auto dataobsMgrService = std::make_shared<DataObsMgrService>();
     EXPECT_NE(dataobsMgrService, nullptr);
 
-    constexpr int fd(0);
+    constexpr int fd(1);
     std::vector<std::u16string> args;
     auto arg = Str8ToStr16("-i");
     args.emplace_back(arg);

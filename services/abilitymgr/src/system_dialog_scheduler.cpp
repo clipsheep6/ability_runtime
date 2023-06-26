@@ -26,7 +26,6 @@
 #include "locale_config.h"
 #include "parameters.h"
 #include "resource_manager.h"
-#include "ui_service_mgr_client.h"
 
 namespace OHOS {
 namespace AAFwk {

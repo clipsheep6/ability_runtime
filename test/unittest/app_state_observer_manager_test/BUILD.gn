@@ -47,7 +47,7 @@ ohos_unittest("app_state_observer_manager_test") {
     "ability_runtime:ability_manager",
     "bundle_framework:appexecfwk_core",
     "eventhandler:libeventhandler",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 

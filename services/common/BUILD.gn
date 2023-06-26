@@ -60,7 +60,7 @@ ohos_shared_library("perm_verification") {
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 
@@ -75,8 +75,8 @@ ohos_shared_library("event_report") {
   sources = [ "src/event_report.cpp" ]
 
   external_deps = [
-    "hisysevent_native:libhisysevent",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
   ]
 
   innerapi_tags = [ "platformsdk_indirect" ]

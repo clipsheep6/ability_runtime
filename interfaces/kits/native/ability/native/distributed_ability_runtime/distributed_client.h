@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -35,6 +35,8 @@ public:
         uint32_t accessToken);
     int32_t ContinueMission(const std::string& srcDeviceId, const std::string& dstDeviceId,
         int32_t missionId, const sptr<IRemoteObject>& callback, const OHOS::AAFwk::WantParams& wantParams);
+    int32_t ContinueMission(const std::string& srcDeviceId, const std::string& dstDeviceId,
+        const std::string&  bundleName, const sptr<IRemoteObject>& callback, const OHOS::AAFwk::WantParams& wantParams);
     int32_t StartContinuation(const OHOS::AAFwk::Want& want, int32_t missionId, int32_t callerUid,
         int32_t status, uint32_t accessToken);
     int32_t NotifyCompleteContinuation(const std::u16string &devId, int32_t sessionId, bool isSuccess);
@@ -43,6 +45,8 @@ public:
     int32_t StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag);
     int32_t StopSyncRemoteMissions(const std::string& devId);
     int32_t RegisterMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj);
+    int32_t RegisterOnListener(const std::string& type, const sptr<IRemoteObject>& obj);
+    int32_t RegisterOffListener(const std::string& type, const sptr<IRemoteObject>& obj);
     int32_t UnRegisterMissionListener(const std::u16string& devId, const sptr<IRemoteObject>& obj);
     int32_t GetMissionInfos(const std::string& deviceId, int32_t numMissions,
         std::vector<AAFwk::MissionInfo>& missionInfos);
@@ -61,6 +65,7 @@ public:
         START_CONTINUATION = 11,
         NOTIFY_COMPLETE_CONTINUATION = 12,
         CONTINUE_MISSION = 36,
+        CONTINUE_MISSION_OF_BUNDLENAME = 37,
         GET_MISSION_INFOS = 80,
         REGISTER_MISSION_LISTENER = 84,
         UNREGISTER_MISSION_LISTENER = 85,
@@ -70,7 +75,9 @@ public:
         START_REMOTE_ABILITY_BY_CALL = 150,
         RELEASE_REMOTE_ABILITY = 151,
         START_REMOTE_FREE_INSTALL = 200,
-        STOP_REMOTE_EXTERNSION_ABILITY = 225
+        STOP_REMOTE_EXTERNSION_ABILITY = 225,
+        REGISTER_ON_LISTENER = 260,
+        REGISTER_OFF_LISTENER = 261
     };
 private:
     sptr<IRemoteObject> GetDmsProxy();

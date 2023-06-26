@@ -63,7 +63,7 @@ void MissionListenerProxy::OnMissionIconUpdated(int32_t missionId, const std::sh
     MessageParcel reply;
     MessageOption option;
 
-    HILOG_INFO("mission_listener_proxy, OnMissionIconUpdated,missionId:%{public}d", missionId);
+    HILOG_DEBUG("mission_listener_proxy, OnMissionIconUpdated,missionId:%{public}d", missionId);
     if (!data.WriteInterfaceToken(IMissionListener::GetDescriptor())) {
         HILOG_ERROR("Write interface token failed when proxy call OnMissionIconUpdated.");
         return;
@@ -103,7 +103,7 @@ void MissionListenerProxy::SendRequestCommon(int32_t missionId, IMissionListener
     MessageParcel reply;
     MessageOption option;
 
-    HILOG_INFO("mission_listener_proxy, sendrequest, cmd:%{public}d, missionId:%{public}d", cmd, missionId);
+    HILOG_DEBUG("mission_listener_proxy, sendrequest, cmd:%{public}d, missionId:%{public}d", cmd, missionId);
     if (!data.WriteInterfaceToken(IMissionListener::GetDescriptor())) {
         HILOG_ERROR("Write interface token failed.");
         return;

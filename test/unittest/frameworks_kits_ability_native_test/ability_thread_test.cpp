@@ -578,6 +578,39 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleCommandAbility_0200, Fun
 }
 
 /**
+ * @tc.number: AaFwk_AbilityThread_ScheduleCommandAbilityWindow_0100
+ * @tc.name: ScheduleCommandAbilityWindow
+ * @tc.desc: Simulate successful test cases
+ */
+HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleCommandAbilityWindow_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleCommandAbilityWindow_0100 start";
+
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+    if (abilitythread != nullptr) {
+        std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+        abilityInfo->name = "MockServiceAbility";
+        abilityInfo->type = AbilityType::EXTENSION;
+        sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+        EXPECT_NE(token, nullptr);
+        if (token != nullptr) {
+            std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+            std::shared_ptr<AbilityLocalRecord> abilityRecord =
+                std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+            std::shared_ptr<EventRunner> mainRunner = EventRunner::Create(abilityInfo->name);
+            abilitythread->Attach(application, abilityRecord, mainRunner, nullptr);
+
+            sptr<AAFwk::SessionInfo> session = new (std::nothrow) AAFwk::SessionInfo();
+            abilitythread->ScheduleCommandAbilityWindow(session, AAFwk::WIN_CMD_FOREGROUND);
+
+            sleep(1);
+        }
+    }
+    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleCommandAbilityWindow_0100 end";
+}
+
+/**
  * @tc.number: AaFwk_AbilityThread_SendResult_0100
  * @tc.name: SendResult
  * @tc.desc: Simulate successful test cases
@@ -991,6 +1024,24 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleCommandExtension_0200, Fun
     EXPECT_NE(abilitythread->extensionImpl_, nullptr);
     abilitythread->HandleCommandExtension(want, false, STARTID);
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_HandleCommandExtension_0200 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityThread_HandleCommandExtensionWindow_0100
+ * @tc.name: HandleCommandExtensionWindow
+ * @tc.desc: Test HandleCommandExtensionWindow function when extensionImpl_ is nullptr
+ */
+HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleCommandExtensionWindow_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_HandleCommandExtensionWindow_0100 start";
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+
+    abilitythread->extensionImpl_ = std::make_shared<AbilityRuntime::ExtensionImpl>();
+    EXPECT_NE(abilitythread->extensionImpl_, nullptr);
+    sptr<AAFwk::SessionInfo> session = new (std::nothrow) AAFwk::SessionInfo();
+    abilitythread->HandleCommandExtensionWindow(session, AAFwk::WIN_CMD_FOREGROUND);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_HandleCommandExtensionWindow_0100 end";
 }
 
 /**

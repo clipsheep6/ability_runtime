@@ -103,6 +103,14 @@ void LifecycleDeal::CommandAbility(const Want &want, bool reStart, int startId)
     abilityScheduler->ScheduleCommandAbility(want, reStart, startId);
 }
 
+void LifecycleDeal::CommandAbilityWindow(const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd)
+{
+    HILOG_INFO("call");
+    auto abilityScheduler = GetScheduler();
+    CHECK_POINTER(abilityScheduler);
+    abilityScheduler->ScheduleCommandAbilityWindow(sessionInfo, winCmd);
+}
+
 void LifecycleDeal::SaveAbilityState()
 {
     HILOG_INFO("call");

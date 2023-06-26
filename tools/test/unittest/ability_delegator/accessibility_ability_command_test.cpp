@@ -152,6 +152,8 @@ const std::string ACCESSIBILITY_HELP_MSG_DISABLE_ABILITY =
     "disable the auxiliary application with bundle-name and ability-name\n";
 }  // namespace
 
+extern void MockSetBrightnessDiscount(bool mockRet);
+
 namespace OHOS {
 namespace AAFwk {
 class AccessibilityAbilityShellCommandTest : public ::testing::Test {
@@ -2182,7 +2184,8 @@ AccessibilityAbilityShellCommand_RunAsSetAnimationOffState_0400, TestSize.Level1
 /**
  * @tc.number: AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0100
  * @tc.name: RunAsSetBrightnessDiscount
- * @tc.desc: Test whether RunAsSetBrightnessDiscount is called normally.(OHOS::ERR_OK)
+ * @tc.desc: 1.Test whether RunAsSetBrightnessDiscount is called normally.(OHOS::ERR_OK)
+ *           2.ret is not Accessibility::RET_OK
  */
 HWTEST_F(AccessibilityAbilityShellCommandTest, 
 AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0100, TestSize.Level1)
@@ -2199,15 +2202,17 @@ AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0100, TestSize.Level
 
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetBrightnessDiscount();
+    MockSetBrightnessDiscount(false);
     EXPECT_EQ(result, OHOS::ERR_OK);
-    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_BRIGHTNESS_DISCOUNT_NG);
+    EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_BRIGHTNESS_DISCOUNT_OK + "\n");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0100 end";
 }
 
 /**
  * @tc.number: AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0200
  * @tc.name: RunAsSetBrightnessDiscount
- * @tc.desc: Test whether RunAsSetBrightnessDiscount is called normally.(OHOS::ERR_OK)
+ * @tc.desc: 1.Test whether RunAsSetBrightnessDiscount is called normally.(OHOS::ERR_OK)
+ *           2.ret is Accessibility::RET_OK
  */
 HWTEST_F(AccessibilityAbilityShellCommandTest, 
 AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0200, TestSize.Level1)
@@ -2223,6 +2228,7 @@ AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0200, TestSize.Level
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.RunAsSetBrightnessDiscount();
+    MockSetBrightnessDiscount(true);
     EXPECT_EQ(result, OHOS::ERR_OK);
     EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_SET_BRIGHTNESS_DISCOUNT_NG);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsSetBrightnessDiscount_0200 end";

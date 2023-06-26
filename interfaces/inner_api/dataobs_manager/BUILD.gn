@@ -48,7 +48,7 @@ ohos_shared_library("dataobs_manager") {
   external_deps = [
     "ability_base:zuri",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]

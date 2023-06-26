@@ -53,7 +53,7 @@ void JsModuleReaderTest::TearDown()
  */
 HWTEST_F(JsModuleReaderTest, JsModuleReaderTest_0100, TestSize.Level0)
 {
-    JsModuleReader jsModuleReader("JsModuleReader");
+    JsModuleReader jsModuleReader("JsModuleReader", "");
     std::vector<uint8_t> result = jsModuleReader("");
     EXPECT_EQ(result.size(), 0);
 }
@@ -66,9 +66,33 @@ HWTEST_F(JsModuleReaderTest, JsModuleReaderTest_0100, TestSize.Level0)
  */
 HWTEST_F(JsModuleReaderTest, JsModuleReaderTest_0200, TestSize.Level0)
 {
-    JsModuleReader jsModuleReader("JsModuleReader");
+    JsModuleReader jsModuleReader("JsModuleReader", "");
     std::vector<uint8_t> result = jsModuleReader("bundleName/moduleName");
     EXPECT_EQ(result.size(), 0);
+}
+
+/**
+ * @tc.name: GetPresetAppHapPathTest_0100
+ * @tc.desc: GetPresetAppHapPath Test
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsModuleReaderTest, GetPresetAppHapPathTest_0100, TestSize.Level0)
+{
+JsModuleReader jsModuleReader("JsModuleReader", "");
+std::string hapPath = jsModuleReader.GetPresetAppHapPath("");
+EXPECT_TRUE(hapPath.empty());
+}
+
+/**
+ * @tc.name: GetPresetAppHapPathTest_0200
+ * @tc.desc: GetPresetAppHapPath Test
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsModuleReaderTest, GetPresetAppHapPathTest_0200, TestSize.Level0)
+{
+JsModuleReader jsModuleReader("JsModuleReader", "/data/storage/el1/test.hsp");
+std::string hapPath = jsModuleReader.GetPresetAppHapPath("");
+EXPECT_TRUE(hapPath.empty());
 }
 }  // namespace AAFwk
 }  // namespace OHOS

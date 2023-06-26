@@ -32,6 +32,7 @@ public:
     MOCK_METHOD1(ScheduleConnectAbility, void(const Want& want));
     MOCK_METHOD1(ScheduleDisconnectAbility, void(const Want& want));
     MOCK_METHOD3(ScheduleCommandAbility, void(const Want& want, bool restart, int startid));
+    MOCK_METHOD2(ScheduleCommandAbilityWindow, void(const sptr<SessionInfo> &, WindowCommand));
     MOCK_METHOD0(AsObject, sptr<IRemoteObject>());
     MOCK_METHOD0(ScheduleSaveAbilityState, void());
     MOCK_METHOD1(ScheduleRestoreAbilityState, void(const PacMap& inState));

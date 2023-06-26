@@ -339,6 +339,7 @@ private:
     std::string path_ = "";
     std::map<std::string, std::string> pattern_;
     std::map<std::string, std::string> theme_;
+    AAFwk::LifeCycleStateInfo lifeCycleStateInfo_;
     std::shared_ptr<HapModuleInfo> hapModuleInfoLocal_ = nullptr;
     bool isCreateBySystemApp_ = false;
     std::string currArea_ = "el2";

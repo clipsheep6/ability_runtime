@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -35,6 +35,7 @@ Mission::Mission(const std::shared_ptr<Mission> &mission)
     missionName_ = mission->missionName_;
     lockedState_ = mission->lockedState_;
     ownerMissionList_ = mission->ownerMissionList_;
+    unclearable_ = mission->unclearable_;
 }
 
 Mission::~Mission()

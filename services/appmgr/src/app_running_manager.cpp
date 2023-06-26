@@ -79,7 +79,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
     std::regex rule("[a-zA-Z.]+[-_#]{1}");
     std::string signCode;
     auto jointUserId = bundleInfo.jointUserId;
-    HILOG_INFO("jointUserId : %{public}s", jointUserId.c_str());
+    HILOG_DEBUG("jointUserId : %{public}s", jointUserId.c_str());
     ClipStringContent(rule, bundleInfo.appId, signCode);
 
     auto FindSameProcess = [signCode, processName, jointUserId](const auto &pair) {
@@ -529,7 +529,7 @@ void AppRunningManager::GetForegroundApplications(std::vector<AppStateData> &lis
             return;
         }
         auto state = appRecord->GetState();
-        if (state == ApplicationState::APP_STATE_FOREGROUND) {
+        if (state == ApplicationState::APP_STATE_FOREGROUND && !appRecord->IsUIExtension()) {
             AppStateData appData;
             appData.bundleName = appRecord->GetBundleName();
             appData.uid = appRecord->GetUid();
@@ -794,9 +794,13 @@ bool AppRunningManager::IsApplicationFirstForeground(const AppRunningRecord &for
 {
     HILOG_DEBUG("function called.");
     std::lock_guard<std::mutex> guard(lock_);
+    if (foregroundingRecord.IsUIExtension()) {
+        return false;
+    }
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
-        if (appRecord == nullptr || appRecord->GetBundleName() != foregroundingRecord.GetBundleName()) {
+        if (appRecord == nullptr || appRecord->GetBundleName() != foregroundingRecord.GetBundleName()
+            || appRecord->IsUIExtension()) {
             continue;
         }
         auto state = appRecord->GetState();
@@ -817,6 +821,9 @@ bool AppRunningManager::IsApplicationBackground(const std::string &bundleName)
         if (appRecord == nullptr) {
             HILOG_ERROR("appRecord is nullptr");
             return false;
+        }
+        if (appRecord->IsUIExtension()) {
+            continue;
         }
         auto state = appRecord->GetState();
         if (appRecord && appRecord->GetBundleName() == bundleName &&

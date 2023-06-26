@@ -41,6 +41,7 @@ struct MissionInfo : public Parcelable {
     std::string iconPath;
     Want want;
     int32_t abilityState = -1;
+    bool unclearable = false;
 };
 
 /**

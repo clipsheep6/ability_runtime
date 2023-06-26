@@ -450,6 +450,12 @@ int32_t PendingWantManager::GetPendingRequestWant(const sptr<IWantSender> &targe
         return ERR_INVALID_VALUE;
     }
     sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(target->AsObject());
+
+    if (targetRecord == nullptr) {
+        HILOG_ERROR("%{public}s:targetRecord is nullptr.", __func__);
+        return ERR_INVALID_VALUE;
+    }
+
     auto record = GetPendingWantRecordByCode(targetRecord->GetKey()->GetCode());
     if (record == nullptr) {
         HILOG_ERROR("%{public}s:record is nullptr.", __func__);

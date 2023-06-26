@@ -21,7 +21,10 @@ ohos_unittest("remote_mission_listener_stub_test") {
 
   include_dirs = []
 
-  sources = [ "remote_mission_listener_stub_test.cpp" ]
+  sources = [
+    "remote_mission_listener_stub_test.cpp",
+    "remote_on_listener_stub_test.cpp",
+  ]
 
   configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
   cflags = []
@@ -29,6 +32,7 @@ ohos_unittest("remote_mission_listener_stub_test") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
@@ -36,7 +40,7 @@ ohos_unittest("remote_mission_listener_stub_test") {
 
   external_deps = [
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 }

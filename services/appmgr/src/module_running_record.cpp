@@ -68,7 +68,7 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityRunningReco
 std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::AddAbility(const sptr<IRemoteObject> &token,
     const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<AAFwk::Want> &want)
 {
-    HILOG_INFO("Add ability.");
+    HILOG_DEBUG("Add ability.");
     if (!token || !abilityInfo) {
         HILOG_ERROR("Param abilityInfo or token is null");
         return nullptr;
@@ -195,7 +195,7 @@ void ModuleRunningRecord::LaunchAbility(const std::shared_ptr<AbilityRunningReco
 
 void ModuleRunningRecord::LaunchPendingAbilities()
 {
-    HILOG_INFO("Launch pending abilities.");
+    HILOG_DEBUG("Launch pending abilities.");
     std::lock_guard<std::mutex> lock(abilitiesMutex_);
     if (abilities_.empty()) {
         HILOG_ERROR("abilities_ is empty");
@@ -204,10 +204,10 @@ void ModuleRunningRecord::LaunchPendingAbilities()
 
     for (const auto &item : abilities_) {
         const auto &ability = item.second;
-        HILOG_INFO("state : %{public}d", ability->GetState());
+        HILOG_DEBUG("state : %{public}d", ability->GetState());
         if (ability->GetState() == AbilityState::ABILITY_STATE_CREATE && ability->GetToken() &&
             appLifeCycleDeal_->GetApplicationClient()) {
-            HILOG_INFO("Schedule launch ability, name is %{public}s.", ability->GetName().c_str());
+            HILOG_INFO("name is %{public}s.", ability->GetName().c_str());
             appLifeCycleDeal_->LaunchAbility(ability);
             ability->SetState(AbilityState::ABILITY_STATE_READY);
         }
@@ -258,7 +258,7 @@ void ModuleRunningRecord::TerminateAbility(const std::shared_ptr<AppRunningRecor
 void ModuleRunningRecord::SendEvent(
     uint32_t msg, int64_t timeOut, const std::shared_ptr<AbilityRunningRecord> &abilityRecord)
 {
-    HILOG_INFO("Send event");
+    HILOG_DEBUG("Send event");
     if (!eventHandler_) {
         HILOG_ERROR("eventHandler_ is nullptr");
         return;

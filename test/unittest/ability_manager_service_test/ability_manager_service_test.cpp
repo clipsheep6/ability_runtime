@@ -888,6 +888,23 @@ HWTEST_F(AbilityManagerServiceTest, ContinueMission_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
+ * Function: ContinueMissionBundleName
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService ContinueMissionBundleName
+ */
+HWTEST_F(AbilityManagerServiceTest, ContinueMissionBundleName_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest ContinueMissionBundleName_001 start");
+    std::string srcDeviceId = "test";
+    std::string dstDeviceId = "test";
+    AAFwk::WantParams wantParams;
+    EXPECT_EQ(abilityMs_->ContinueMission(srcDeviceId, dstDeviceId, "bundleName", nullptr, wantParams),
+        CHECK_PERMISSION_FAILED);
+    HILOG_INFO("AbilityManagerServiceTest ContinueMissionBundleName_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: ContinueAbility
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService ContinueAbility
@@ -2180,11 +2197,14 @@ HWTEST_F(AbilityManagerServiceTest, JudgeAbilityVisibleControl_001, TestSize.Lev
     HILOG_INFO("AbilityManagerServiceTest JudgeAbilityVisibleControl_001 start");
     AppExecFwk::AbilityInfo abilityInfo;
     abilityInfo.visible = true;
-    EXPECT_EQ(abilityMs_->JudgeAbilityVisibleControl(abilityInfo, 100), ERR_OK);
+    EXPECT_EQ(abilityMs_->JudgeAbilityVisibleControl(abilityInfo), ERR_OK);
 
     abilityInfo.visible = false;
-    EXPECT_EQ(abilityMs_->JudgeAbilityVisibleControl(abilityInfo, -1), ABILITY_VISIBLE_FALSE_DENY_REQUEST);
-    EXPECT_EQ(abilityMs_->JudgeAbilityVisibleControl(abilityInfo, 100), ABILITY_VISIBLE_FALSE_DENY_REQUEST);
+    EXPECT_EQ(abilityMs_->JudgeAbilityVisibleControl(abilityInfo), ERR_OK);
+
+    abilityInfo.applicationInfo.accessTokenId = IPCSkeleton::GetCallingTokenID();
+    EXPECT_EQ(abilityMs_->JudgeAbilityVisibleControl(abilityInfo), ERR_OK);
+
     HILOG_INFO("AbilityManagerServiceTest JudgeAbilityVisibleControl_001 end");
 }
 
@@ -2705,7 +2725,6 @@ HWTEST_F(AbilityManagerServiceTest, DelegatorMoveMissionToFront_001, TestSize.Le
     abilityMs_->currentMissionListManager_ = temp;
 
     EXPECT_EQ(abilityMs_->DelegatorMoveMissionToFront(100), MOVE_MISSION_FAILED);
-    EXPECT_EQ(abilityMs_->DelegatorMoveMissionToFront(1), MOVE_MISSION_FAILED);
     HILOG_INFO("AbilityManagerServiceTest DelegatorMoveMissionToFront_001 end");
 }
 
@@ -2965,24 +2984,6 @@ HWTEST_F(AbilityManagerServiceTest, CreateVerificationInfo_001, TestSize.Level1)
     abilityRequest.appInfo.associatedWakeUp = false;
     EXPECT_FALSE(abilityMs_->CreateVerificationInfo(abilityRequest).associatedWakeUp);
     HILOG_INFO("AbilityManagerServiceTest CreateVerificationInfo_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: CheckCallerEligibility
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService CheckCallerEligibility
- */
-HWTEST_F(AbilityManagerServiceTest, CheckCallerEligibility_001, TestSize.Level1)
-{
-    HILOG_INFO("AbilityManagerServiceTest CheckCallerEligibility_001 start");
-    AppExecFwk::AbilityInfo abilityInfo;
-    EXPECT_FALSE(abilityMs_->CheckCallerEligibility(abilityInfo, 100));
-
-    MyFlag::flag_ = 1;
-    EXPECT_TRUE(abilityMs_->CheckCallerEligibility(abilityInfo, 100));
-    MyFlag::flag_ = 0;
-    HILOG_INFO("AbilityManagerServiceTest CheckCallerEligibility_001 end");
 }
 
 /*
@@ -3372,8 +3373,24 @@ HWTEST_F(AbilityManagerServiceTest, ForceExitApp_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest ForceExitApp_001 start");
     int32_t pid = 0;
-    EXPECT_EQ(abilityMs_->ForceExitApp(pid, REASON_JS_ERROR), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->ForceExitApp(pid, REASON_JS_ERROR), ERR_PERMISSION_DENIED);
     HILOG_INFO("AbilityManagerServiceTest ForceExitApp_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: ScheduleCommandAbilityDone
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService ScheduleCommandAbilityDone
+ * @tc.require: AR000I7F9D
+ */
+HWTEST_F(AbilityManagerServiceTest, ScheduleCommandAbilityWindowDone_001, TestSize.Level1)
+{
+    sptr<SessionInfo> session = new (std::nothrow) SessionInfo();
+    EXPECT_EQ(abilityMs_->ScheduleCommandAbilityWindowDone(
+        nullptr, session, WIN_CMD_FOREGROUND, ABILITY_CMD_FOREGROUND), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->ScheduleCommandAbilityWindowDone(
+        MockToken(AbilityType::EXTENSION), session, WIN_CMD_FOREGROUND, ABILITY_CMD_FOREGROUND), ERR_INVALID_VALUE);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

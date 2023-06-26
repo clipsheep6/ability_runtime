@@ -11,12 +11,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//arkcompiler/ets_frontend/ts2panda/ts2abc_config.gni")
+import("//arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
 import("//build/ohos.gni")
 import("//foundation/arkui/ace_engine/build/ace_gen_obj.gni")
 
 template("gen_js_src_binary") {
-  ts2abc_gen_abc("gen_abc_" + target_name) {
+  es2abc_gen_abc("gen_abc_" + target_name) {
     src_js = rebase_path(invoker.js_source)
     dst_file = rebase_path(target_out_dir + "/" +
                            get_path_info(invoker.js_source, "name") + ".abc")

@@ -133,6 +133,7 @@ public:
     void AttachCallerInfo();
     int32_t GetCallerUid() const;
     int32_t GetCallerPid() const;
+    uint32_t GetCallerTokenId() const;
     std::string GetCallerName() const;
     sptr<IRemoteObject> GetTargetToken() const;
     sptr<IRemoteObject> GetConnection() const;
@@ -146,6 +147,7 @@ private:
     sptr<IAbilityConnection> connCallback_ = nullptr;         // service connect callback
     int32_t callerUid_ = 0;                             // caller uid
     int32_t callerPid_ = 0;                             // caller pid
+    uint32_t callerTokenId_ = 0;                        // caller pid
     std::string callerName_;                        // caller bundleName or processName
 
     DISALLOW_COPY_AND_MOVE(ConnectionRecord);

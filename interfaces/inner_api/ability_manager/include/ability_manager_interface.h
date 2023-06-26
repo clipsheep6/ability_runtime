@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,26 +36,24 @@
 #include "mission_info.h"
 #include "mission_snapshot.h"
 #include "remote_mission_listener_interface.h"
+#include "remote_on_listener_interface.h"
 #include "running_process_info.h"
 #include "sender_info.h"
 #include "snapshot.h"
 #include "start_options.h"
 #include "stop_user_callback.h"
 #include "system_memory_attr.h"
+#include "ui_extension_window_command.h"
+#include "uri.h"
 #include "want.h"
 #include "want_receiver_interface.h"
 #include "want_sender_info.h"
 #include "want_sender_interface.h"
-#include "uri.h"
 #ifdef SUPPORT_GRAPHICS
 #include "window_manager_service_handler.h"
 #endif
 
 namespace OHOS {
-namespace Rosen {
-class RootSceneSession;
-}  // namespace Rosen
-
 namespace AAFwk {
 constexpr const char* ABILITY_MANAGER_SERVICE_NAME = "AbilityManagerService";
 const int DEFAULT_INVAL_VALUE = -1;
@@ -208,12 +206,10 @@ public:
     /**
      * Start ui ability with want, send want to ability manager service.
      *
-     * @param want the want of the ability to start.
-     * @param startOptions Indicates the options used to start.
      * @param sessionInfo the session info of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartUIAbilityBySCB(const Want &want, const StartOptions &startOptions, sptr<SessionInfo> sessionInfo)
+    virtual int StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
     {
         return 0;
     }
@@ -477,6 +473,12 @@ public:
      */
     virtual int ScheduleCommandAbilityDone(const sptr<IRemoteObject> &token) = 0;
 
+    virtual int ScheduleCommandAbilityWindowDone(
+        const sptr<IRemoteObject> &token,
+        const sptr<AAFwk::SessionInfo> &sessionInfo,
+        AAFwk::WindowCommand winCmd,
+        AAFwk::AbilityCommand abilityCmd) = 0;
+
     /**
      * dump ability stack info, about userID, mission stack info,
      * mission record info and ability info.
@@ -574,6 +576,12 @@ public:
 
     virtual int ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId, int32_t missionId,
         const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams) = 0;
+
+    virtual int ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
+        const std::string &bundleName, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams)
+    {
+        return 0;
+    }
 
     virtual int ContinueAbility(const std::string &deviceId, int32_t missionId, uint32_t versionCode) = 0;
 
@@ -713,6 +721,16 @@ public:
     virtual int StopSyncRemoteMissions(const std::string &devId) = 0;
 
     virtual int RegisterMissionListener(const std::string &deviceId, const sptr<IRemoteMissionListener> &listener) = 0;
+
+    virtual int RegisterOnListener(const std::string &type, const sptr<IRemoteOnListener> &listener)
+    {
+        return 0;
+    }
+
+    virtual int RegisterOffListener(const std::string &type, const sptr<IRemoteOnListener> &listener)
+    {
+        return 0;
+    }
 
     virtual int UnRegisterMissionListener(const std::string &deviceId,
         const sptr<IRemoteMissionListener> &listener) = 0;
@@ -981,7 +999,37 @@ public:
      *
      * @param rootSceneSession Indicates root scene session of SCB.
      */
-    virtual void SetRootSceneSession(const sptr<Rosen::RootSceneSession> &rootSceneSession) {}
+    virtual void SetRootSceneSession(const sptr<IRemoteObject> &rootSceneSession) {}
+
+    /**
+     * Call UIAbility by SCB.
+     *
+     * @param sessionInfo the session info of the ability to be called.
+     */
+    virtual void CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo) {}
+
+    /**
+     * Start specified ability by SCB.
+     *
+     * @param want Want information.
+     */
+    virtual void StartSpecifiedAbilityBySCB(const Want &want) {};
+
+    /**
+     * Set sessionManagerService
+     * @param sessionManagerService the point of sessionManagerService.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService)
+    {
+        return 0;
+    }
+
+    virtual sptr<IRemoteObject> GetSessionManagerService()
+    {
+        return nullptr;
+    }
 
     enum {
         // ipc id 1-1000 for kit
@@ -1164,10 +1212,15 @@ public:
         SEND_ABILITY_RESULT_BY_TOKEN,
 
         // ipc id for set rootSceneSession (64)
-        SET_ROOTSSCENESESSION,
+        SET_ROOT_SCENE_SESSION,
 
         // prepare terminate ability (65)
         PREPARE_TERMINATE_ABILITY,
+
+        COMMAND_ABILITY_WINDOW_DONE,
+
+        // prepare terminate ability (67)
+        CALL_ABILITY_BY_SCB,
 
         // ipc id 1001-2000 for DMS
         // ipc id for starting ability (1001)
@@ -1273,6 +1326,14 @@ public:
         // ipc id for request dialog service
         REQUEST_DIALOG_SERVICE,
 
+        // ipc id for start specified ability by scb
+        START_SPECIFIED_ABILITY_BY_SCB,
+
+        // ipc id for set sessionManagerService
+        SET_SESSIONMANAGERSERVICE,
+
+        GET_SESSIONMANAGERSERVICE,
+
         // ipc id for continue ability(1101)
         START_CONTINUATION = 1101,
 
@@ -1285,6 +1346,12 @@ public:
         CONTINUE_MISSION = 1105,
 
         SEND_RESULT_TO_ABILITY = 1106,
+
+        REGISTER_REMOTE_ON_LISTENER = 1107,
+
+        REGISTER_REMOTE_OFF_LISTENER = 1108,
+
+        CONTINUE_MISSION_OF_BUNDLENAME = 1109,
 
         // ipc id for mission manager(1110)
         REGISTER_REMOTE_MISSION_LISTENER = 1110,

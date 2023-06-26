@@ -106,6 +106,7 @@ const std::map<AbilityState, std::string> AbilityRecord::stateToStrMap = {
     std::map<AbilityState, std::string>::value_type(FOREGROUND_FAILED, "FOREGROUND_FAILED"),
     std::map<AbilityState, std::string>::value_type(FOREGROUND_INVALID_MODE, "FOREGROUND_INVALID_MODE"),
     std::map<AbilityState, std::string>::value_type(FOREGROUND_WINDOW_FREEZED, "FOREGROUND_WINDOW_FREEZED"),
+    std::map<AbilityState, std::string>::value_type(FOREGROUND_DO_NOTHING, "FOREGROUND_DO_NOTHING"),
 };
 const std::map<AppState, std::string> AbilityRecord::appStateToStrMap_ = {
     std::map<AppState, std::string>::value_type(AppState::BEGIN, "BEGIN"),
@@ -128,6 +129,7 @@ const std::map<AbilityLifeCycleState, AbilityState> AbilityRecord::convertStateM
         FOREGROUND_INVALID_MODE),
     std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_WINDOW_FREEZED,
         FOREGROUND_WINDOW_FREEZED),
+    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_DO_NOTHING, FOREGROUND_DO_NOTHING),
 };
 
 Token::Token(std::weak_ptr<AbilityRecord> abilityRecord) : abilityRecord_(abilityRecord)
@@ -193,8 +195,7 @@ AbilityRecord::~AbilityRecord()
     }
 }
 
-std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityRequest &abilityRequest,
-    sptr<SessionInfo> sessionInfo)
+std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityRequest &abilityRequest)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(
         abilityRequest.want, abilityRequest.abilityInfo, abilityRequest.appInfo, abilityRequest.requestCode);
@@ -202,7 +203,7 @@ std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityR
     abilityRecord->SetUid(abilityRequest.uid);
     abilityRecord->SetAppIndex(abilityRequest.want.GetIntParam(DLP_INDEX, 0));
     abilityRecord->SetCallerAccessTokenId(abilityRequest.callerAccessTokenId);
-    abilityRecord->sessionInfo_ = sessionInfo;
+    abilityRecord->sessionInfo_ = abilityRequest.sessionInfo;
     if (!abilityRecord->Init()) {
         HILOG_ERROR("failed to init new ability record");
         return nullptr;
@@ -250,7 +251,7 @@ int32_t AbilityRecord::GetPid()
 int AbilityRecord::LoadAbility()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("name:%{public}s.", abilityInfo_.name.c_str());
+    HILOG_DEBUG("name:%{public}s.", abilityInfo_.name.c_str());
     int coldStartTimeout =
         AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * COLDSTART_TIMEOUT_MULTIPLE;
     int loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_MULTIPLE;
@@ -334,6 +335,41 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
     int foregroundTimeout =
         AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
     SendEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, foregroundTimeout);
+
+    // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
+    // earlier than above actions.
+    SetAbilityStateInner(AbilityState::FOREGROUNDING);
+    lifeCycleStateInfo_.sceneFlag = sceneFlag;
+    lifecycleDeal_->ForegroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
+    lifeCycleStateInfo_.sceneFlag = 0;
+    lifeCycleStateInfo_.sceneFlagBak = 0;
+
+    // update ability state to appMgr service when restart
+    if (IsNewWant()) {
+        sptr<Token> preToken = nullptr;
+        if (GetPreAbilityRecord()) {
+            preToken = GetPreAbilityRecord()->GetToken();
+        }
+        DelayedSingleton<AppScheduler>::GetInstance()->AbilityBehaviorAnalysis(token_, preToken, 1, 1, 1);
+    }
+}
+
+void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_INFO("name:%{public}s.", abilityInfo_.name.c_str());
+    CHECK_POINTER(lifecycleDeal_);
+
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    if (handler && task) {
+        if (!want_.GetBoolParam(DEBUG_APP, false) && !want_.GetBoolParam(NATIVE_DEBUG, false)) {
+            int foregroundTimeout =
+                AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
+            handler->PostTask(task, "foreground_" + std::to_string(recordId_), foregroundTimeout);
+        } else {
+            HILOG_INFO("Is debug mode, no need to handle time out.");
+        }
+    }
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
@@ -579,7 +615,7 @@ std::shared_ptr<Want> AbilityRecord::GetWantFromMission() const
 void AbilityRecord::AnimationTask(bool isRecent, const AbilityRequest &abilityRequest,
     const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<AbilityRecord> &callerAbility)
 {
-    HILOG_INFO("%{public}s was called.", __func__);
+    HILOG_DEBUG("called.");
     if (isRecent) {
         auto want = GetWantFromMission();
         NotifyAnimationFromRecentTask(startOptions, want);
@@ -717,7 +753,7 @@ void AbilityRecord::PostCancelStartingWindowColdTask()
         HILOG_INFO("PostCancelStartingWindowColdTask was called, debug mode, just return.");
         return;
     }
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     CHECK_POINTER_LOG(handler, "Fail to get AbilityEventHandler.");
 
@@ -902,10 +938,10 @@ void AbilityRecord::StartingWindowHot(const std::shared_ptr<StartOptions> &start
     const std::shared_ptr<Want> &want, const AbilityRequest &abilityRequest)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
     auto windowHandler = GetWMSHandler();
     if (!windowHandler) {
-        HILOG_WARN("%{public}s, Get WMS handler failed.", __func__);
+        HILOG_WARN("Get WMS handler failed.");
         return;
     }
 
@@ -922,7 +958,7 @@ void AbilityRecord::StartingWindowCold(const std::shared_ptr<StartOptions> &star
     const std::shared_ptr<Want> &want, const AbilityRequest &abilityRequest)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
     auto windowHandler = GetWMSHandler();
     if (!windowHandler) {
         HILOG_WARN("%{public}s, Get WMS handler failed.", __func__);
@@ -950,7 +986,7 @@ void AbilityRecord::GetColdStartingWindowResource(std::shared_ptr<Media::PixelMa
 
     auto resourceMgr = CreateResourceManager();
     if (!resourceMgr) {
-        HILOG_WARN("%{public}s, Get resourceMgr failed.", __func__);
+        HILOG_WARN("Get resourceMgr failed.");
         return;
     }
 
@@ -960,7 +996,7 @@ void AbilityRecord::GetColdStartingWindowResource(std::shared_ptr<Media::PixelMa
     auto colorId = static_cast<uint32_t>(abilityInfo_.startWindowBackgroundId);
     auto colorErrval = resourceMgr->GetColorById(colorId, bgColor);
     if (colorErrval != OHOS::Global::Resource::RState::SUCCESS) {
-        HILOG_WARN("%{public}s. Failed to GetColorById.", __func__);
+        HILOG_WARN("Failed to GetColorById.");
         bgColor = 0xdfffffff;
     }
     HILOG_DEBUG("colorId is %{public}u, bgColor is %{public}u.", colorId, bgColor);
@@ -978,7 +1014,7 @@ void AbilityRecord::InitColdStartingWindowResource(
     startingWindowBg_ = GetPixelMap(static_cast<uint32_t>(abilityInfo_.startWindowIconId), resourceMgr);
     if (resourceMgr->GetColorById(static_cast<uint32_t>(abilityInfo_.startWindowBackgroundId), bgColor_) !=
         OHOS::Global::Resource::RState::SUCCESS) {
-        HILOG_WARN("%{public}s. Failed to GetColorById.", __func__);
+        HILOG_WARN("Failed to GetColorById.");
         bgColor_ = 0xdfffffff;
     }
 
@@ -1214,6 +1250,16 @@ bool AbilityRecord::IsCreateByConnect() const
     return isCreateByConnect_;
 }
 
+bool AbilityRecord::IsUIExtension() const
+{
+    return abilityInfo_.extensionAbilityType == AppExecFwk::ExtensionAbilityType::UI;
+}
+
+bool AbilityRecord::IsWindowExtension() const
+{
+    return abilityInfo_.extensionAbilityType == AppExecFwk::ExtensionAbilityType::WINDOW;
+}
+
 void AbilityRecord::SetCreateByConnectMode()
 {
     isCreateByConnect_ = true;
@@ -1315,6 +1361,12 @@ void AbilityRecord::CommandAbility()
     HILOG_INFO("startId_:%{public}d.", startId_);
     CHECK_POINTER(lifecycleDeal_);
     lifecycleDeal_->CommandAbility(want_, false, startId_);
+}
+
+void AbilityRecord::CommandAbilityWindow(const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd)
+{
+    CHECK_POINTER(lifecycleDeal_);
+    lifecycleDeal_->CommandAbilityWindow(sessionInfo, winCmd);
 }
 
 void AbilityRecord::SaveAbilityState()
@@ -1529,7 +1581,7 @@ void AbilityRecord::RemoveConnectRecordFromList(const std::shared_ptr<Connection
 void AbilityRecord::AddCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode, std::string srcAbilityId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Add caller record.");
+    HILOG_DEBUG("Add caller record.");
     if (!srcAbilityId.empty() && IsSystemAbilityCall(callerToken)) {
         AddSystemAbilityCallerRecord(callerToken, requestCode, srcAbilityId);
         return;
@@ -2091,7 +2143,7 @@ void AbilityRecord::SetMission(const std::shared_ptr<Mission> &mission)
 {
     if (mission) {
         missionId_ = mission->GetMissionId();
-        HILOG_INFO("SetMission come, missionId is %{public}d.", missionId_);
+        HILOG_DEBUG("SetMission come, missionId is %{public}d.", missionId_);
     }
     mission_ = mission;
 }
@@ -2184,7 +2236,6 @@ void AbilityRecord::SetStartToForeground(const bool flag)
 
 void AbilityRecord::CallRequest()
 {
-    HILOG_INFO("Call Request.");
     CHECK_POINTER(scheduler_);
 
     GrantUriPermission(want_, GetCurrentAccountId(), applicationInfo_.bundleName);
@@ -2451,7 +2502,7 @@ void AbilityRecord::GrantDmsUriPermission(Want &want, std::string targetBundleNa
         auto ret = IN_PROCESS_CALL(
             AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, want.GetFlags(),
                 targetBundleName, autoremove));
-        if (ret) {
+        if (ret == 0) {
             isGrantedUriPermission_ = true;
         }
     }

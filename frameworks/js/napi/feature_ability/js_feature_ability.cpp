@@ -500,9 +500,9 @@ NativeValue* JsFeatureAbility::CreateJsFeatureAbility(NativeEngine &engine)
 
 NativeValue* JsFeatureAbilityInit(NativeEngine* engine, NativeValue* exports)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("called");
     if (engine == nullptr) {
-        HILOG_ERROR("%{public}s engine nullptr.", __func__);
+        HILOG_ERROR("engine nullptr.");
         return nullptr;
     }
 
@@ -514,13 +514,11 @@ NativeValue* JsFeatureAbilityInit(NativeEngine* engine, NativeValue* exports)
 
     NativeObject* object = ConvertNativeValueTo<NativeObject>(global);
     if (object == nullptr) {
-        HILOG_ERROR("%{public}s convertNativeValueTo result is nullptr.", __func__);
+        HILOG_ERROR("convertNativeValueTo result is nullptr.");
         return nullptr;
     }
 
     object->SetProperty("FeatureAbility", JsFeatureAbility::CreateJsFeatureAbility(*engine));
-
-    HILOG_INFO("%{public}s called end.", __func__);
     return global;
 }
 }  // namespace AbilityRuntime

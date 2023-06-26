@@ -900,6 +900,8 @@ private:
 
     void RemoveRunningSharedBundleList(const std::string &bundleName);
 
+    void KillRenderProcess(const std::shared_ptr<AppRunningRecord> &appRecord);
+
 private:
     /**
      * Notify application status.
@@ -925,6 +927,7 @@ private:
     std::shared_ptr<AMSEventHandler> eventHandler_;
     std::shared_ptr<Configuration> configuration_;
     std::mutex userTestLock_;
+    std::mutex appStateCallbacksLock_;
     std::mutex renderUidSetLock_;
     sptr<IStartSpecifiedAbilityResponse> startSpecifiedAbilityResponse_;
     std::mutex configurationObserverLock_;

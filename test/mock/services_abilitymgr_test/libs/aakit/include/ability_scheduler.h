@@ -47,6 +47,9 @@ public:
 
     void ScheduleCommandAbility(const Want& want, bool restart, int startId) override;
 
+    void ScheduleCommandAbilityWindow(const sptr<SessionInfo> &sessionInfo,
+        WindowCommand winCmd) override;
+
     void ScheduleSaveAbilityState() override;
 
     void ScheduleRestoreAbilityState(const PacMap& inState) override;

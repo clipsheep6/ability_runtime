@@ -30,6 +30,7 @@
 #include "file_ex.h"
 #include "hilog_wrapper.h"
 #include "js_runtime.h"
+#include "procinfo.h"
 
 using namespace OHOS::HiviewDFX;
 
@@ -59,17 +60,6 @@ static pid_t GetPid()
 static bool HasNameSpace()
 {
     return g_procInfo.ns;
-}
-
-static std::string LoadThreadWchan(pid_t tid)
-{
-    std::string wchanPath = "/proc/self/task/" + std::to_string(tid) + "/wchan";
-    std::string wchan;
-    if (LoadStringFromFile(wchanPath, wchan)) {
-        return wchan;
-    } else {
-        return "null";
-    }
 }
 }
 
@@ -179,16 +169,11 @@ void MixStackDumper::BuildJsNativeMixStack(int fd, std::vector<JsFrames>& jsFram
 
 std::string MixStackDumper::GetThreadStackTraceLabel(pid_t tid)
 {
-    std::ostringstream result;
-    result << "Tid:" << tid;
-    std::string path = "/proc/self/task/" + std::to_string(tid) + "/comm";
-    std::string threadComm;
-    if (LoadStringFromFile(path, threadComm)) {
-        result << " Name:" << threadComm;
-    } else {
-        result << std::endl;
-    }
-    return result.str();
+    std::ostringstream ss;
+    std::string threadName = "";
+    ReadThreadName(tid, threadName);
+    ss << "Tid:" << tid << ", Name:" << threadName << std::endl;
+    return ss.str();
 }
 
 void MixStackDumper::PrintProcessHeader(int fd, pid_t pid, uid_t uid)
@@ -196,7 +181,8 @@ void MixStackDumper::PrintProcessHeader(int fd, pid_t pid, uid_t uid)
     char headerBuf[HEADER_BUF_LEN] = { 0 };
     std::string processName = "";
     int ret = 1;
-    if (LoadStringFromFile(PROC_SELF_CMDLINE_PATH, processName)) {
+    ReadProcessName(getpid(), processName);
+    if (!processName.empty()) {
         ret = snprintf_s(headerBuf, HEADER_BUF_LEN, HEADER_BUF_LEN - 1,
                          "Timestamp:%sPid:%d\nUid:%d\nProcess name:%s\n",
                          GetCurrentTimeStr().c_str(), pid, uid, processName.c_str());
@@ -241,7 +227,8 @@ bool MixStackDumper::DumpMixFrame(int fd, pid_t nstid, pid_t tid)
     Write(fd, GetThreadStackTraceLabel(tid));
     if (!hasNativeFrame && !hasJsFrame) {
         HILOG_ERROR("Failed to unwind frames for %{public}d.", nstid);
-        std::string wchan = "Thread wchan:" + LoadThreadWchan(tid);
+        std::string wchan;
+        ReadThreadWchan(wchan, tid, true);
         Write(fd, wchan);
         Write(fd, "\n");
         return false;
@@ -254,34 +241,6 @@ bool MixStackDumper::DumpMixFrame(int fd, pid_t nstid, pid_t tid)
     }
     BuildJsNativeMixStack(fd, jsFrames, nativeFrames);
     return true;
-}
-
-void MixStackDumper::GetThreadList(std::vector<pid_t>& threadList)
-{
-    char realPath[PATH_MAX] = {'\0'};
-    if (realpath("/proc/self/task", realPath) == nullptr) {
-        HILOG_ERROR("DfxMixStackDumper::GetThreadList return false as realpath failed.");
-        return;
-    }
-    DIR *dir = opendir(realPath);
-    if (dir == nullptr) {
-        HILOG_ERROR("DfxMixStackDumper::GetThreadList return false as opendir failed.");
-        return;
-    }
-    struct dirent *ent;
-    while ((ent = readdir(dir)) != nullptr) {
-        if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0) {
-            continue;
-        }
-        pid_t tid = atoi(ent->d_name);
-        if (tid == 0) {
-            continue;
-        }
-        threadList.emplace_back(tid);
-    }
-    if (closedir(dir) == -1) {
-        HILOG_ERROR("MixStackDumper::GetThreadList closedir failed.");
-    }
 }
 
 void MixStackDumper::Init(pid_t pid)
@@ -356,18 +315,18 @@ std::string MixStackDumper::DumpMixStackLocked(int fd, pid_t requestTid)
         }
         DumpMixFrame(fd, targetNsTid, targetTid);
     } else {
-        std::vector<pid_t> threads;
-        GetThreadList(threads);
-        for (auto& tid : threads) {
+        std::vector<pid_t> tids;
+        std::function<bool(int)> func = [&](int tid) {
             pid_t nstid = tid;
             if (HasNameSpace()) {
                 TidToNstid(GetPid(), tid, nstid);
             }
-            if (nstid == gettid()) {
-                continue;
+            if (nstid != gettid()) {
+                DumpMixFrame(fd, nstid, tid);
             }
-            DumpMixFrame(fd, nstid, tid);
-        }
+            return true;
+        };
+        GetTidsByPidWithFunc(GetPid(), tids, func);
     }
     Destroy();
     return outputStr_;

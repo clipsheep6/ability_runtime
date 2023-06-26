@@ -35,6 +35,7 @@
 #include "lifecycle_deal.h"
 #include "lifecycle_state_info.h"
 #include "session_info.h"
+#include "ui_extension_window_command.h"
 #include "uri.h"
 #include "want.h"
 #ifdef SUPPORT_GRAPHICS
@@ -222,6 +223,8 @@ struct AbilityRequest {
 
     AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
 
+    sptr<SessionInfo> sessionInfo;
+
     bool IsContinuation() const
     {
         auto flags = want.GetFlags();
@@ -293,8 +296,7 @@ public:
      * @param abilityRequest,create ability record.
      * @return Returns ability record ptr.
      */
-    static std::shared_ptr<AbilityRecord> CreateAbilityRecord(const AbilityRequest &abilityRequest,
-        sptr<SessionInfo> sessionInfo = nullptr);
+    static std::shared_ptr<AbilityRecord> CreateAbilityRecord(const AbilityRequest &abilityRequest);
 
     /**
      * Init ability record.
@@ -315,6 +317,7 @@ public:
      *
      */
     void ForegroundAbility(uint32_t sceneFlag = 0);
+    void ForegroundAbility(const Closure &task, uint32_t sceneFlag = 0);
 
     /**
      * process request of foregrounding the ability.
@@ -512,6 +515,14 @@ public:
      */
     bool IsCreateByConnect() const;
 
+    bool IsUIExtension() const;
+
+    /**
+     * check whether the extension is WINDOW extension
+     *
+     */
+    bool IsWindowExtension() const;
+
     /**
      * set the ability is created by connect ability mode.
      *
@@ -553,6 +564,8 @@ public:
      *
      */
     void CommandAbility();
+
+    void CommandAbilityWindow(const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd);
 
     /**
      * save ability state.
@@ -1008,6 +1021,7 @@ private:
 
     // scene session
     sptr<SessionInfo> sessionInfo_ = nullptr;
+    std::unordered_set<uint64_t> sessionIds_;
 
 #ifdef SUPPORT_GRAPHICS
     bool isStartingWindow_ = false;

@@ -35,14 +35,13 @@ REGISTER_APPLICATION(OHOSApplication, OHOSApplication)
 
 OHOSApplication::OHOSApplication()
 {
-    HILOG_INFO("OHOSApplication::OHOSApplication call constructor.");
+    HILOG_DEBUG("OHOSApplication::OHOSApplication call constructor.");
     abilityLifecycleCallbacks_.clear();
     elementsCallbacks_.clear();
 }
 
 OHOSApplication::~OHOSApplication()
 {
-    HILOG_INFO("OHOSApplication::OHOSApplication call destructor.");
 }
 
 /**
@@ -646,6 +645,15 @@ void OHOSApplication::CleanAbilityStage(const sptr<IRemoteObject> &token,
             abilityStage->OnDestroy();
             abilityStages_.erase(moduleName);
         }
+        DoCleanWorkAfterStageCleaned(*abilityInfo);
+    }
+}
+
+void OHOSApplication::DoCleanWorkAfterStageCleaned(const AbilityInfo &abilityInfo)
+{
+    HILOG_INFO("DoCleanWorkAfterStageCleaned language: %{public}s.", abilityInfo.srcLanguage.c_str());
+    if (runtime_) {
+        runtime_->DoCleanWorkAfterStageCleaned();
     }
 }
 

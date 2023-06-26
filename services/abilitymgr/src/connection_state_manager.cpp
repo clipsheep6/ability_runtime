@@ -28,6 +28,8 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 static const int MAX_PROCESS_LEN = 256;
+static const int MAX_RETRY = 10;
+static const int DELAY_TIME = 1000;
 OHOS::sptr<OHOS::AppExecFwk::IAppMgr> GetAppMgr()
 {
     OHOS::sptr<OHOS::ISystemAbilityManager> systemAbilityManager =
@@ -57,12 +59,26 @@ std::string ConnectionStateManager::GetProcessNameByPid(int32_t pid)
     return name;
 }
 
-void ConnectionStateManager::Init()
+void ConnectionStateManager::Init(const std::shared_ptr<AppExecFwk::EventHandler> &handler)
 {
     if (!observerController_) {
         observerController_ = std::make_shared<ConnectionObserverController>();
     }
-    InitAppStateObserver();
+    handler_ = handler;
+    if (!handler) {
+        HILOG_WARN("eventhandler is invalid");
+        InitAppStateObserver();
+        return;
+    }
+    auto initConnectionStateManagerTask = [weak = weak_from_this()]() {
+        auto self = weak.lock();
+        if (!self) {
+            HILOG_WARN("invalid self pointer");
+            return;
+        }
+        self->InitAppStateObserver();
+    };
+    handler->PostTask(initConnectionStateManagerTask, "InitConnectionStateManager");
 }
 
 int ConnectionStateManager::RegisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer)
@@ -494,7 +510,19 @@ void ConnectionStateManager::InitAppStateObserver()
 
     sptr<OHOS::AppExecFwk::IAppMgr> appManager = GetAppMgr();
     if (!appManager) {
-        HILOG_WARN("%{public}s app manager nullptr!", __func__);
+        HILOG_WARN("%{public}s app manager nullptr! retry:%{public}d", __func__, retry_);
+        if (retry_ < MAX_RETRY && handler_) {
+            auto initConnectionStateManagerTask = [weak = weak_from_this()]() {
+                auto self = weak.lock();
+                if (!self) {
+                    HILOG_WARN("invalid self pointer");
+                    return;
+                }
+                self->InitAppStateObserver();
+            };
+            handler_->PostTask(initConnectionStateManagerTask, "InitConnectionStateManager", DELAY_TIME);
+            retry_++;
+        }
         return;
     }
 

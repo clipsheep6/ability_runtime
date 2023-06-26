@@ -441,7 +441,7 @@ protected:
 
     /**
      * @brief SetUriString
-     * 
+     *
      * @param uri the uri to set.
      */
     void SetUriString(const std::string &uri);

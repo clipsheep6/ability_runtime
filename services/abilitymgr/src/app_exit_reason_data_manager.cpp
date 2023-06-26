@@ -234,18 +234,28 @@ DistributedKv::Value AppExitReasonDataManager::ConvertAppExitReasonInfoToValue(
     return value;
 }
 
-void AppExitReasonDataManager::ConvertAppExitReasonInfoFromValue(
-    const DistributedKv::Value &value, AAFwk::Reason &reason, int64_t &time_stamp, std::vector<std::string> &abilityList)
+void AppExitReasonDataManager::ConvertAppExitReasonInfoFromValue(const DistributedKv::Value &value,
+    AAFwk::Reason &reason, int64_t &time_stamp, std::vector<std::string> &abilityList)
 {
-    nlohmann::json jsonObject = nlohmann::json::parse(value.ToString());
-    if (!jsonObject.at(JSON_KEY_REASON).is_null()) {
+    nlohmann::json jsonObject = nlohmann::json::parse(value.ToString(), nullptr, false);
+    if (jsonObject.is_discarded()) {
+        HILOG_ERROR("failed to parse json sting.");
+        return;
+    }
+    if (jsonObject.contains(JSON_KEY_REASON) && jsonObject[JSON_KEY_REASON].is_number_integer()) {
         reason = jsonObject.at(JSON_KEY_REASON).get<AAFwk::Reason>();
     }
-    if (!jsonObject.at(JSON_KEY_TIME_STAMP).is_null()) {
+    if (jsonObject.contains(JSON_KEY_TIME_STAMP) && jsonObject[JSON_KEY_TIME_STAMP].is_number_integer()) {
         time_stamp = jsonObject.at(JSON_KEY_TIME_STAMP).get<int64_t>();
     }
-    if (!jsonObject.at(JSON_KEY_ABILITY_LIST).is_null()) {
-        abilityList = jsonObject.at(JSON_KEY_ABILITY_LIST).get<std::vector<std::string>>();
+    if (jsonObject.contains(JSON_KEY_ABILITY_LIST) && jsonObject[JSON_KEY_ABILITY_LIST].is_array()) {
+        abilityList.clear();
+        auto size = jsonObject[JSON_KEY_ABILITY_LIST].size();
+        for (size_t i = 0; i < size; i++) {
+            if (jsonObject[JSON_KEY_ABILITY_LIST][i].is_string()) {
+                abilityList.emplace_back(jsonObject[JSON_KEY_ABILITY_LIST][i]);
+            }
+        }
     }
 }
 

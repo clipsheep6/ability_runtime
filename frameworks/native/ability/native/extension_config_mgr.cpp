@@ -18,12 +18,12 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 
+#include "app_module_checker.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS::AbilityRuntime {
 namespace {
     constexpr char EXTENSION_BLOCKLIST_FILE_PATH[] = "/system/etc/extension_blocklist_config.json";
-    constexpr char BACK_SLASH[] = "/";
 }
 
 void ExtensionConfigMgr::Init()
@@ -66,29 +66,25 @@ void ExtensionConfigMgr::Init()
     inFile.close();
 }
 
-void ExtensionConfigMgr::UpdateBundleExtensionInfo(NativeEngine& engine, AppExecFwk::BundleInfo& bundleInfo)
-{
-    std::unordered_map<std::string, int32_t> extensionInfo;
-    for (const auto &info : bundleInfo.extensionInfos) {
-        std::string path = info.moduleName + BACK_SLASH + info.srcEntrance;
-        extensionInfo.emplace(path, static_cast<int32_t>(info.type));
-    }
-    engine.SetExtensionInfos(std::move(extensionInfo));
-}
-
 void ExtensionConfigMgr::AddBlockListItem(const std::string& name, int32_t type)
 {
     HILOG_DEBUG("AddBlockListItem name = %{public}s, type = %{public}d", name.c_str(), type);
     auto iter = blocklistConfig_.find(name);
     if (iter == blocklistConfig_.end()) {
-        HILOG_ERROR("Extension name = %{public}s, not exist in blocklist config", name.c_str());
+        HILOG_DEBUG("Extension name = %{public}s, not exist in blocklist config", name.c_str());
         return;
     }
     extensionBlocklist_.emplace(type, iter->second);
 }
 
-void ExtensionConfigMgr::UpdateBlockListToEngine(NativeEngine& engine)
+void ExtensionConfigMgr::UpdateRuntimeModuleChecker(const std::unique_ptr<AbilityRuntime::Runtime> &runtime)
 {
-    engine.SetModuleBlocklist(std::forward<decltype(extensionBlocklist_)>(extensionBlocklist_));
+    if (!runtime) {
+        HILOG_ERROR("UpdateRuntimeModuleChecker faild, runtime is null");
+        return;
+    }
+    HILOG_INFO("UpdateRuntimeModuleChecker extensionType_ = %{public}d", extensionType_);
+    auto moduleChecker = std::make_shared<AppModuleChecker>(extensionType_, std::move(extensionBlocklist_));
+    runtime->SetModuleLoadChecker(moduleChecker);
 }
 }

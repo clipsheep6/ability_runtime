@@ -43,7 +43,7 @@ ohos_unittest("dataobs_mgr_client_test") {
     "ability_base:zuri",
     "c_utils:utils",
     "eventhandler:libeventhandler",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 }

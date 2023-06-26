@@ -566,6 +566,19 @@ void AbilityThread::HandleCommandExtension(const Want &want, bool restart, int s
     HILOG_DEBUG("AbilityThread::HandleCommandExtension end");
 }
 
+void AbilityThread::HandleCommandExtensionWindow(const sptr<AAFwk::SessionInfo> &sessionInfo,
+    AAFwk::WindowCommand winCmd)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("begin");
+    if (extensionImpl_ == nullptr) {
+        HILOG_ERROR("extensionImpl_ == nullptr");
+        return;
+    }
+    extensionImpl_->CommandExtensionWindow(sessionInfo, winCmd);
+    HILOG_DEBUG("end");
+}
+
 void AbilityThread::HandleRestoreAbilityState(const PacMap &state)
 {
     HILOG_DEBUG("AbilityThread::HandleRestoreAbilityState begin");
@@ -818,6 +831,32 @@ bool AbilityThread::SchedulePrepareTerminateAbility()
     bool ret = abilityImpl_->PrepareTerminateAbility();
     HILOG_DEBUG("end, ret = %{public}d", ret);
     return ret;
+}
+
+void AbilityThread::ScheduleCommandAbilityWindow(const sptr<AAFwk::SessionInfo> &sessionInfo,
+    AAFwk::WindowCommand winCmd)
+{
+    HILOG_DEBUG("begin.");
+    wptr<AbilityThread> weak = this;
+    auto task = [weak, sessionInfo, winCmd]() {
+        auto abilityThread = weak.promote();
+        if (abilityThread == nullptr) {
+            HILOG_ERROR("abilityThread is nullptr");
+            return;
+        }
+        abilityThread->HandleCommandExtensionWindow(sessionInfo, winCmd);
+    };
+
+    if (abilityHandler_ == nullptr) {
+        HILOG_ERROR("abilityHandler_ == nullptr");
+        return;
+    }
+
+    bool ret = abilityHandler_->PostTask(task);
+    if (!ret) {
+        HILOG_ERROR("PostTask error");
+    }
+    HILOG_DEBUG("end");
 }
 
 void AbilityThread::SendResult(int requestCode, int resultCode, const Want &want)

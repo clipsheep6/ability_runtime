@@ -73,7 +73,7 @@ void ExtensionImpl::HandleExtensionTransaction(const Want &want, const AAFwk::Li
 
     switch (targetState.state) {
         case AAFwk::ABILITY_STATE_INITIAL: {
-            if (lifecycleState_ == AAFwk::ABILITY_STATE_ACTIVE) {
+            if (lifecycleState_ != AAFwk::ABILITY_STATE_INITIAL) {
                 Stop();
             }
             break;
@@ -82,6 +82,14 @@ void ExtensionImpl::HandleExtensionTransaction(const Want &want, const AAFwk::Li
             if (lifecycleState_ == AAFwk::ABILITY_STATE_INITIAL) {
                 Start(want, sessionInfo);
             }
+            break;
+        }
+        case AAFwk::ABILITY_STATE_FOREGROUND_NEW: {
+            Foreground(want);
+            break;
+        }
+        case AAFwk::ABILITY_STATE_BACKGROUND_NEW: {
+            Background();
             break;
         }
         default: {
@@ -140,7 +148,7 @@ void ExtensionImpl::Start(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo
     }
 
     HILOG_INFO("ExtensionImpl::Start");
-    if (extension_->abilityInfo_->extensionAbilityType == AppExecFwk::ExtensionAbilityType::UI) {
+    if (extension_->abilityInfo_->extensionAbilityType == AppExecFwk::ExtensionAbilityType::WINDOW) {
         extension_->OnStart(want, sessionInfo);
     } else {
         extension_->OnStart(want);
@@ -317,6 +325,18 @@ void ExtensionImpl::CommandExtension(const Want &want, bool restart, int startId
 
     extension_->OnCommand(want, restart, startId);
     lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
+    HILOG_INFO("ok");
+}
+
+void ExtensionImpl::CommandExtensionWindow(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
+{
+    HILOG_INFO("call");
+    if (extension_ == nullptr) {
+        HILOG_ERROR("extension_ is nullptr");
+        return;
+    }
+
+    extension_->OnCommandWindow(sessionInfo, winCmd);
     HILOG_INFO("ok");
 }
 

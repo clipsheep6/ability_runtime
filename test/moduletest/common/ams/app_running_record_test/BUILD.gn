@@ -30,8 +30,8 @@ ohos_moduletest("AmsAppRunningRecordModuleTest") {
   ]
 
   external_deps = [
-    "hicollie_native:libhicollie",
-    "hiviewdfx_hilog_native:libhilog",
+    "hicollie:libhicollie",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 

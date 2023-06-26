@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -205,6 +205,16 @@ public:
         return missionTime_;
     }
 
+    inline void SetUnclearable(const bool &unclearable)
+    {
+        unclearable_ = unclearable;
+    }
+
+    bool IsUnclearable()
+    {
+        return unclearable_;
+    }
+
 private:
     int32_t missionId_;
     int32_t startMethod_;
@@ -218,6 +228,7 @@ private:
     bool needNotify_ = true;
     bool needNotifyUpdateLabel_ = false;
     std::string missionTime_ = "0";
+    bool unclearable_ = false;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

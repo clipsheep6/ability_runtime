@@ -15,6 +15,7 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 group("innerkits_target") {
   deps = [
     "ability_manager:ability_manager",
+    "ability_manager:ability_manager_c",
     "app_manager:app_manager",
     "connectionobs_manager:connection_obs_manager",
     "dataobs_manager:dataobs_manager",

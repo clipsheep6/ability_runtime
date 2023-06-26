@@ -221,5 +221,24 @@ HWTEST_F(LifecycleDealTest, LifecycleDeal_oprator_007, TestSize.Level1)
     lifecycleDeal_->SetScheduler(abilityScheduler_);
     lifecycleDeal_->CommandAbility(want, false, 1);
 }
+
+/*
+ * Feature: LifecycleDeal
+ * Function: CommandAbilityWindow
+ * SubFunction: NA
+ * FunctionPoints: LifecycleDeal CommandAbilityWindow
+ * EnvConditions:NA
+ * CaseDescription: Verify CommandAbilityWindow operation and call mock once
+ * @tc.require: AR000I8B26
+ */
+HWTEST_F(LifecycleDealTest, LifecycleDeal_oprator_008, TestSize.Level1)
+{
+    EXPECT_CALL(*abilityScheduler_, ScheduleCommandAbilityWindow(::testing::_, ::testing::_)).Times(1);
+    sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
+    EXPECT_NE(sessionInfo, nullptr);
+    lifecycleDeal_->CommandAbilityWindow(sessionInfo, AAFwk::WIN_CMD_FOREGROUND);
+    lifecycleDeal_->SetScheduler(abilityScheduler_);
+    lifecycleDeal_->CommandAbilityWindow(sessionInfo, AAFwk::WIN_CMD_FOREGROUND);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

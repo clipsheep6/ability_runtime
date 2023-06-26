@@ -70,6 +70,7 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
         msg_->bundleIndex = startMsg.bundleIndex;
         msg_->setAllowInternet = startMsg.setAllowInternet;
         msg_->allowInternet = startMsg.allowInternet;
+        msg_->mountPermissionFlags = startMsg.mountPermissionFlags;
         for (uint32_t i = 0; i < msg_->gidCount; ++i) {
             msg_->gidTable[i] = startMsg.gids[i];
         }
@@ -163,7 +164,7 @@ void AppSpawnMsgWrapper::DumpMsg() const
         return;
     }
     std::string accessTokenIdExString = std::to_string(msg_->accessTokenIdEx);
-    HILOG_INFO("uid: %{public}d, gid: %{public}d, procName: %{public}s, accessTokenIdEx :%{public}s",
+    HILOG_DEBUG("uid: %{public}d, gid: %{public}d, procName: %{public}s, accessTokenIdEx :%{public}s",
         msg_->uid, msg_->gid, msg_->processName, accessTokenIdExString.c_str());
 }
 

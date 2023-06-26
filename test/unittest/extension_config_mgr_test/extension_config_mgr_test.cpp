@@ -159,7 +159,7 @@ HWTEST_F(ExtensionConfigMgrTest, AddBlockListItem_0100, TestSize.Level0)
     EXPECT_TRUE(result);
     mgr.AddBlockListItem(BLOCK_LIST_ITEM_FILE_ACCESS_EXTENSION, EXTENSION_TYPE_FILE_ACCESS);
     result = (mgr.extensionBlocklist_.find(EXTENSION_TYPE_FILE_ACCESS) != mgr.extensionBlocklist_.end());
-    EXPECT_TRUE(result);   
+    EXPECT_TRUE(result);
 }
 
 /**

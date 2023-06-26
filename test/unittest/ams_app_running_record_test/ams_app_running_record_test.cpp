@@ -2619,5 +2619,76 @@ HWTEST_F(AmsAppRunningRecordTest, CanRestartResidentProc_003, TestSize.Level1)
 
     HILOG_INFO("AmsAppRunningRecordTest CanRestartResidentProc_003 end");
 }
+
+/*
+ * Feature: AMS
+ * Function: AppRunningRecord::IsUIExtension
+ * SubFunction: AppRunningRecord::IsUIExtension
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Verify the function IsUIExtension can check the extensionType_ of AppRunningRecord.
+ * @tc.require: AR000I7F9D
+ */
+
+HWTEST_F(AmsAppRunningRecordTest, IsUIExtension_001, TestSize.Level1)
+{
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = GetTestAbilityName();
+    auto appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->name = GetTestAppName();
+
+    BundleInfo bundleInfo;
+    bundleInfo.appId = "com.ohos.test.helloworld_code123";
+    bundleInfo.jointUserId = "joint456";
+    HapModuleInfo hapModuleInfo;
+    hapModuleInfo.moduleName = "module789";
+    EXPECT_TRUE(service_ != nullptr);
+    auto record = service_->CreateAppRunningRecord(
+        GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
+
+    EXPECT_TRUE(record != nullptr);
+    EXPECT_EQ(record->IsUIExtension(), false);
+
+    auto otherRecord = service_->GetAppRunningRecordByAppRecordId(record->GetRecordId());
+    EXPECT_TRUE(otherRecord != nullptr);
+
+    EXPECT_EQ(otherRecord->IsUIExtension(), false);
+}
+
+/*
+ * Feature: AMS
+ * Function: AppRunningRecord::IsUIExtension
+ * SubFunction: AppRunningRecord::IsUIExtension
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Verify the function IsUIExtension can check the extensionType_ of AppRunningRecord.
+ * @tc.require: AR000I7F9D
+ */
+
+HWTEST_F(AmsAppRunningRecordTest, IsUIExtension_002, TestSize.Level1)
+{
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = GetTestAbilityName();
+    abilityInfo->extensionAbilityType = ExtensionAbilityType::UI;
+    auto appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->name = GetTestAppName();
+
+    BundleInfo bundleInfo;
+    bundleInfo.appId = "com.ohos.test.helloworld_code123";
+    bundleInfo.jointUserId = "joint456";
+    HapModuleInfo hapModuleInfo;
+    hapModuleInfo.moduleName = "module789";
+    EXPECT_TRUE(service_ != nullptr);
+    auto record = service_->CreateAppRunningRecord(
+        GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
+
+    EXPECT_TRUE(record != nullptr);
+    EXPECT_EQ(record->IsUIExtension(), true);
+
+    auto otherRecord = service_->GetAppRunningRecordByAppRecordId(record->GetRecordId());
+    EXPECT_TRUE(otherRecord != nullptr);
+
+    EXPECT_EQ(otherRecord->IsUIExtension(), true);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
