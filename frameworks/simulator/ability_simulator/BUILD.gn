@@ -92,33 +92,26 @@ ohos_shared_library("ability_simulator") {
 
   deps = [
     ":gen_obj_src_js_mock_abc",
-    "${ability_runtime_path}/frameworks/simulator/osal:simulator_osal",
-    "${arkui_path}/napi:ace_napi_ark",
-    "${hilog_path}/interfaces/native/innerkits:libhilog_$platform",
-    "${previewer_path}/jsapp/rich/external:ide_extension",
     "${simulator_path}/common:ability_simulator_common",
-    "${windowmanager_path}/previewer:previewer_window",
-    "${windowmanager_path}/previewer:previewer_window_napi",
-    "//arkcompiler/toolchain/inspector:ark_debugger",
-    "//arkcompiler/toolchain/tooling:libark_ecma_debugger",
   ]
-
-  if (is_mingw) {
-    deps += [
-      "//base/global/resource_management/frameworks/resmgr:global_resmgr_win",
-    ]
-  } else {
-    deps += [
-      "//base/global/resource_management/frameworks/resmgr:global_resmgr_mac",
-    ]
-  }
 
   external_deps = [
     "ability_base:string_utils",
     "ets_runtime:libark_jsruntime",
+    "hilog_native:libhilog_$platform",
+    "tools_previewer:ide_extension",
+    "window_manager:previewer_window",
+    "window_manager:previewer_window_napi",
     "napi:ace_napi",
+    "napi:ace_napi_ark",
   ]
 
-  part_name = "simulator"
+  if (is_mingw) {
+    external_deps += [ "resource_management:global_resmgr_win" ]
+  } else {
+    external_deps += [ "resource_management:global_resmgr_mac" ]
+  }
+
+  part_name = "ability_runtime"
   subsystem_name = "ability"
 }

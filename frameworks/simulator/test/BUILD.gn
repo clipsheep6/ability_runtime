@@ -19,6 +19,6 @@ ohos_executable("ability_simulator_test") {
 
   deps = [ "${ability_runtime_path}/frameworks/simulator/ability_simulator:ability_simulator" ]
 
-  part_name = "simulator"
+  part_name = "ability_runtime"
   subsystem_name = "ability"
 }

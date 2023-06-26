@@ -26,11 +26,12 @@ ohos_shared_library("wantconstant_napi") {
     "${ability_runtime_napi_path}/wantConstant/want_constant.cpp",
   ]
 
-  deps = [
-    "${ability_runtime_path}/frameworks/simulator/osal:simulator_osal",
-    "${hilog_path}/interfaces/native/innerkits:libhilog_$platform",
+  deps = [ "${ability_runtime_path}/frameworks/simulator/osal:simulator_osal" ]
+
+  external_deps = [
+    "hilog_native:libhilog_$platform",
+    "napi:ace_napi"
   ]
-  external_deps = [ "napi:ace_napi" ]
-  part_name = "simulator"
+  part_name = "ability_runtime"
   subsystem_name = "ability"
 }

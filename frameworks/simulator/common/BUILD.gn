@@ -45,8 +45,10 @@ ohos_shared_library("ability_simulator_common") {
 
   public_configs = [ ":ability_simulator_common_config" ]
 
-  deps = [ "${hilog_path}/interfaces/native/innerkits:libhilog_$platform" ]
+  deps = []
 
-  part_name = "simulator"
+  external_deps = [ "hilog_native:libhilog_$platform" ]
+
+  part_name = "ability_runtime"
   subsystem_name = "ability"
 }

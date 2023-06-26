@@ -35,6 +35,6 @@ ohos_shared_library("uiability") {
   ]
   external_deps = [ "napi:ace_napi" ]
 
-  part_name = "simulator"
+  part_name = "ability_runtime"
   subsystem_name = "ability"
 }

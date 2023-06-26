@@ -16,7 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_SIMULAOTR_ABILITY_CONTEXT_H
 #define OHOS_ABILITY_RUNTIME_SIMULAOTR_ABILITY_CONTEXT_H
 
-#include "context.h"
+#include "foundation/ability/ability_runtime/frameworks/simulator/common/include/context.h"
 
 namespace OHOS {
 namespace AbilityRuntime {

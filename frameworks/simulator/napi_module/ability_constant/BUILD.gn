@@ -30,12 +30,13 @@ ohos_shared_library("abilityconstant_napi") {
     "${ability_runtime_napi_path}/ability_constant/ability_constant_module.cpp",
   ]
 
-  deps = [
-    "${ability_runtime_path}/frameworks/simulator/osal:simulator_osal",
-    "${hilog_path}/interfaces/native/innerkits:libhilog_$platform",
-  ]
-  external_deps = [ "napi:ace_napi" ]
+  deps = [ "${ability_runtime_path}/frameworks/simulator/osal:simulator_osal" ]
 
-  part_name = "simulator"
+  external_deps = [
+    "hilog_native:libhilog_$platform",
+    "napi:ace_napi"
+  ]
+
+  part_name = "ability_runtime"
   subsystem_name = "ability"
 }

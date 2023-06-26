@@ -77,7 +77,10 @@
             "safwk",
             "samgr",
             "storage_service",
+            "toolchain",
+            "native_hilog",
             "webview",
+            "hilog_native",
             "window_manager"
   ],
           "third_party": [
