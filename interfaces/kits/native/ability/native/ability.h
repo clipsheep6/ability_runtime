@@ -879,6 +879,13 @@ public:
     virtual void OnBackground();
 
     /**
+     * @brief Called when back press is dispatched.
+     *
+     * @return Return true if ability will be moved to background; return false if will be terminated.
+     */
+    virtual bool OnBackPress() override;
+
+    /**
      * @brief Called when ability prepare terminate.
      *
      * @return Return true if ability need to stop terminating; return false if ability need to terminate.

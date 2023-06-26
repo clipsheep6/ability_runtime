@@ -274,6 +274,14 @@ public:
      */
     ErrCode SendResultToAbility(int requestCode, int resultCode, Want& resultWant);
 
+/**
+     * MoveAbilityToBackground.
+     *
+     * @param token Ability token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode MoveAbilityToBackground(const sptr<IRemoteObject> &token);
+
     /**
      * CloseAbility with want, return want from ability manager service.
      *

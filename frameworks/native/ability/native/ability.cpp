@@ -1603,6 +1603,12 @@ void Ability::OnBackground()
         HiSysEventType::BEHAVIOR, eventInfo);
 }
 
+bool Ability::OnBackPress()
+{
+    HILOG_DEBUG("call");
+    return false;
+}
+
 bool Ability::OnPrepareTerminate()
 {
     HILOG_DEBUG("call");
