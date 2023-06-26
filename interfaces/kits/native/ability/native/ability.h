@@ -1251,7 +1251,6 @@ protected:
     LaunchParam launchParam_;
     int32_t appIndex_ = 0;
     bool securityFlag_ = false;
-    sptr<AAFwk::SessionInfo> sessionInfo_ = nullptr;
 
 private:
     std::shared_ptr<NativeRdb::DataAbilityPredicates> ParsePredictionArgsReference(
