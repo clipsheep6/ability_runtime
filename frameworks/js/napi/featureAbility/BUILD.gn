@@ -56,7 +56,7 @@ ohos_shared_library("featureability") {
     include_dirs += [
       "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_napi",
     ]
-    deps += [ "${windowmanager_path}/interfaces/kits/napi/window_runtime:window_native_kit" ]
+    external_deps += [ "window_manager:window_native_kit" ]
     defines = [ "SUPPORT_GRAPHICS" ]
   }
 
