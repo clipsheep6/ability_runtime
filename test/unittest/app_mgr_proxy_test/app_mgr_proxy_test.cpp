@@ -233,5 +233,50 @@ HWTEST_F(AppMgrProxyTest, PreStartNWebSpawnProcess_001, TestSize.Level0)
 
     HILOG_INFO("%{public}s end.", __func__);
 }
+
+/**
+ * @tc.name: GetProcessMemoryByPid_001
+ * @tc.desc: Get memorySize by pid.
+ * @tc.type: FUNC
+ * @tc.require: issueI76JBF
+ */
+HWTEST_F(AppMgrProxyTest, GetProcessMemoryByPid_001, TestSize.Level0)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+
+    int32_t pid = 0;
+    int32_t memorySize = 0;
+    appMgrProxy_->GetProcessMemoryByPid(pid, memorySize);
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::GET_PROCESS_MEMORY_BY_PID));
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: GetRunningProcessInformation_001
+ * @tc.desc: Get application processes information list by bundleName.
+ * @tc.type: FUNC
+ * @tc.require: issueI76JBF
+ */
+HWTEST_F(AppMgrProxyTest, GetRunningProcessInformation_001, TestSize.Level0)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+
+    std::string bundleName = "testBundleName";
+    int32_t userId = USER_ID;
+    std::vector<RunningProcessInfo> info;
+    appMgrProxy_->GetRunningProcessInformation(bundleName, userId, info);
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::GET_PIDS_BY_BUNDLENAME));
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

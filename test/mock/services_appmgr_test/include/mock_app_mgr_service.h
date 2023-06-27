@@ -80,6 +80,8 @@ public:
 
     MOCK_METHOD1(NotifyAppFault, int32_t(const FaultData &faultData));
     MOCK_METHOD1(NotifyAppFaultBySA, int32_t(const AppFaultDataBySA &faultData));
+    MOCK_METHOD2(GetProcessMemoryByPid, int32_t(const int32_t pid, int32_t & memorySize));
+    MOCK_METHOD3(GetRunningProcessInformation, int32_t(const std::string & bundleName, int32_t userId, std::vector<RunningProcessInfo> &info));
     virtual int StartUserTestProcess(
         const AAFwk::Want& want, const sptr<IRemoteObject>& observer, const BundleInfo& bundleInfo, int32_t userId)
     {
