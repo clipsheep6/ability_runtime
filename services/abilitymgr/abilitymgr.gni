@@ -99,7 +99,6 @@ abilityms_files = [
 
 if (ability_runtime_graphics) {
   abilityms_files += [
-    "src/application_anr_listener.cpp",
     "src/implicit_start_processor.cpp",
     "src/system_dialog_scheduler.cpp",
   ]

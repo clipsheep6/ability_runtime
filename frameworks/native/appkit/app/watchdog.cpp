@@ -20,6 +20,7 @@
 
 #include "app_mgr_client.h"
 #include "app_recovery.h"
+#include "appfreeze_inner.h"
 #include "hisysevent.h"
 #include "hilog_wrapper.h"
 #include "mix_stack_dumper.h"
@@ -28,12 +29,6 @@
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
-constexpr char EVENT_KEY_UID[] = "UID";
-constexpr char EVENT_KEY_PID[] = "PID";
-constexpr char EVENT_KEY_MESSAGE[] = "MSG";
-constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
-constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
-constexpr char EVENT_KEY_STACK[] = "STACK";
 constexpr uint32_t CHECK_MAIN_THREAD_IS_ALIVE = 1;
 constexpr int RESET_RATIO = 2;
 
@@ -85,11 +80,6 @@ void Watchdog::Stop()
         appMainHandler_.reset();
         appMainHandler_ = nullptr;
     }
-}
-
-void Watchdog::SetApplicationInfo(const std::shared_ptr<ApplicationInfo> &applicationInfo)
-{
-    applicationInfo_ = applicationInfo;
 }
 
 void Watchdog::SetAppMainThreadState(const bool appMainThreadState)
@@ -170,65 +160,14 @@ void Watchdog::ReportEvent()
         return;
     }
 
-    if (applicationInfo_ == nullptr) {
-        HILOG_ERROR("reportEvent fail, applicationInfo_ is nullptr.");
-        return;
-    }
-
     if (!needReport_) {
         return;
     }
 
-    std::string eventType;
-    std::string stack = "";
     if (isSixSecondEvent_) {
-        eventType = "THREAD_BLOCK_6S";
         needReport_.store(false);
-        stack = MixStackDumper::GetMixStack(true);
-    } else {
-        eventType = "THREAD_BLOCK_3S";
-        isSixSecondEvent_.store(true);
-        stack = MixStackDumper::GetMixStack(false);
-    }
-
-    HILOG_DEBUG("Start dump message.");
-    std::string msgContent = "App main thread is not response!";
-    MainHandlerDumper handlerDumper;
-    appMainHandler_->Dump(handlerDumper);
-    msgContent += handlerDumper.GetDumpInfo();
-    HILOG_DEBUG("msgContent is %{public}s", msgContent.c_str());
-    HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
-        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_KEY_UID, applicationInfo_->uid,
-        EVENT_KEY_PID, static_cast<int32_t>(getpid()), EVENT_KEY_PACKAGE_NAME, applicationInfo_->bundleName,
-        EVENT_KEY_PROCESS_NAME, applicationInfo_->process, EVENT_KEY_MESSAGE, msgContent, EVENT_KEY_STACK, stack);
-    HILOG_INFO("reportEvent success");
-    HILOG_DEBUG("reportEvent info, %{public}zu %{public}s", msgContent.size(), msgContent.c_str());
-    // should call error manager-> appRecovery
-    if (eventType == "THREAD_BLOCK_6S") {
-        AppRecovery::GetInstance().ScheduleSaveAppState(StateReason::APP_FREEZE);
-        AppRecovery::GetInstance().ScheduleRecoverApp(StateReason::APP_FREEZE);
-        FaultData faultData;
-        faultData.faultType = FaultDataType::APP_FREEZE;
-        faultData.errorObject.message = msgContent;
-        faultData.errorObject.stack = stack;
-        faultData.errorObject.name = eventType;
-        DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFault(faultData);
-    }
-}
-
-void MainHandlerDumper::Dump(const std::string &message)
-{
-    dumpInfo += message;
-}
-
-std::string MainHandlerDumper::GetTag()
-{
-    return "";
-}
-
-std::string MainHandlerDumper::GetDumpInfo()
-{
-    return dumpInfo;
+    } 
+    AppfreezeInner::GetInstance().ThreadBlock(isSixSecondEvent_);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

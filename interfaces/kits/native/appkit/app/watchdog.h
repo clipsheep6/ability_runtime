@@ -49,14 +49,6 @@ public:
 
     /**
      *
-     * @brief Set the info of application.
-     *
-     * @param applicationInfo The info of application
-     */
-    void SetApplicationInfo(const std::shared_ptr<ApplicationInfo> &applicationInfo);
-
-    /**
-     *
      * @brief Set the state of main thread.
      *
      * @param appMainThreadState The state of main thread.
@@ -99,21 +91,11 @@ private:
     std::atomic_bool stopWatchdog_ = false;
     std::atomic_bool needReport_ = true;
     std::atomic_bool isSixSecondEvent_ = false;
-    std::atomic_bool isInBackground_ = false;
-    std::shared_ptr<ApplicationInfo> applicationInfo_ = nullptr;
+    std::atomic_bool isInBackground_ = true;
     std::mutex cvMutex_;
     std::condition_variable cvWatchdog_;
     static std::shared_ptr<EventHandler> appMainHandler_;
     int64_t lastWatchTime_ = 0;
-};
-
-class MainHandlerDumper : public Dumper {
-public:
-    virtual void Dump(const std::string &message) override;
-    virtual std::string GetTag() override;
-    std::string GetDumpInfo();
-private:
-    std::string dumpInfo;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

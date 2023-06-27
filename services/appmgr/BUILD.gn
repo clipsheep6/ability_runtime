@@ -102,9 +102,11 @@ ohos_shared_library("libappms") {
 
   if (ability_runtime_graphics) {
     defines += [ "SUPPORT_GRAPHICS" ]
+    sources += [ "src/application_anr_listener.cpp" ]
     deps += []
     external_deps += [
       "i18n:intl_util",
+      "input:libmmi-client",
       "window_manager:libwm",
     ]
   }

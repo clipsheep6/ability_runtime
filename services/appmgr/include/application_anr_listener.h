@@ -13,19 +13,27 @@
  * limitations under the License.
  */
 
-#include "application_anr_listener.h"
+#ifndef OHOS_ABILITY_RUNTIME_APPLICATION_ANR_LISTENER_H
+#define OHOS_ABILITY_RUNTIME_APPLICATION_ANR_LISTENER_H
 
-#include "ability_manager_service.h"
+#include <sys/types.h>
+
+#include "i_anr_observer.h"
 
 namespace OHOS {
-namespace AAFwk {
-ApplicationAnrListener::ApplicationAnrListener() {}
-
-ApplicationAnrListener::~ApplicationAnrListener() {}
-
-void ApplicationAnrListener::OnAnr(int32_t pid) const
-{
-    DelayedSingleton<AbilityManagerService>::GetInstance()->SendANRProcessID(pid);
-}
+namespace AppExecFwk {
+/**
+ * @class ApplicationAnrListener
+ * ApplicationAnrListener.
+ */
+class ApplicationAnrListener : public MMI::IAnrObserver {
+public:
+    ApplicationAnrListener();
+    virtual ~ApplicationAnrListener();
+    void OnAnr(int32_t pid) const override;
+private:
+    static uint64_t lastTime_;
+};
 }  // namespace AAFwk
 }  // namespace OHOS
+#endif  // OHOS_ABILITY_RUNTIME_APPLICATION_ANR_LISTENER_H
