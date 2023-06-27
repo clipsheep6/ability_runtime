@@ -99,7 +99,7 @@ private:
     std::atomic_bool stopWatchdog_ = false;
     std::atomic_bool needReport_ = true;
     std::atomic_bool isSixSecondEvent_ = false;
-    std::atomic_bool isInBackground_ = false;
+    std::atomic_bool isInBackground_ = true;
     std::shared_ptr<ApplicationInfo> applicationInfo_ = nullptr;
     std::mutex cvMutex_;
     std::condition_variable cvWatchdog_;

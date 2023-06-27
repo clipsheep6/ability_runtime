@@ -164,7 +164,7 @@ void AppSpawnMsgWrapper::DumpMsg() const
         return;
     }
     std::string accessTokenIdExString = std::to_string(msg_->accessTokenIdEx);
-    HILOG_INFO("uid: %{public}d, gid: %{public}d, procName: %{public}s, accessTokenIdEx :%{public}s",
+    HILOG_DEBUG("uid: %{public}d, gid: %{public}d, procName: %{public}s, accessTokenIdEx :%{public}s",
         msg_->uid, msg_->gid, msg_->processName, accessTokenIdExString.c_str());
 }
 

@@ -35,7 +35,6 @@ class JsUIExtension : public UIExtension, public std::enable_shared_from_this<Js
 public:
     explicit JsUIExtension(JsRuntime& jsRuntime);
     virtual ~JsUIExtension() override;
-    static void Finalizer(NativeEngine* engine, void* data, void* hint);
 
     /**
      * @brief Create JsUIExtension.
@@ -102,7 +101,8 @@ public:
      */
     virtual void OnCommand(const AAFwk::Want &want, bool restart, int startId) override;
 
-    virtual void OnCommandWindow(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd) override;
+    virtual void OnCommandWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
+        AAFwk::WindowCommand winCmd) override;
 
     /**
      * @brief Called when this ui extension enters the <b>STATE_STOP</b> state.
@@ -154,7 +154,7 @@ private:
 
     NativeValue* CallOnDisconnect(const AAFwk::Want &want, bool withResult = false);
 
-    void ForegroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo);
+    void ForegroundWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo);
     void BackgroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo);
     void DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo);
 
@@ -163,6 +163,7 @@ private:
     std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
     std::map<sptr<IRemoteObject>, sptr<Rosen::Window>> uiWindowMap_;
     std::set<sptr<IRemoteObject>> foregroundWindows_;
+    std::map<sptr<IRemoteObject>, std::shared_ptr<NativeReference>> contentSessions_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

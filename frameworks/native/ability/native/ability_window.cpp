@@ -17,6 +17,7 @@
 #include "ability.h"
 #include "ability_handler.h"
 #include "hilog_wrapper.h"
+#include "scene_board_judgement.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -46,7 +47,12 @@ bool AbilityWindow::InitWindow(std::shared_ptr<AbilityRuntime::AbilityContext> &
     if (windowScene_ == nullptr) {
         windowScene_ = std::make_shared<Rosen::WindowScene>();
     }
-    auto ret = windowScene_->Init(displayId, abilityContext, listener, option);
+    Rosen::WMError ret = Rosen::WMError::WM_OK;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && sessionInfo_ != nullptr) {
+        ret = windowScene_->Init(displayId, abilityContext, listener, option, sessionInfo_->sessionToken);
+    } else {
+        ret = windowScene_->Init(displayId, abilityContext, listener, option);
+    }
     if (ret != OHOS::Rosen::WMError::WM_OK) {
         HILOG_ERROR("%{public}s error. failed to init window scene!", __func__);
         return false;
@@ -179,5 +185,10 @@ ErrCode AbilityWindow::SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMa
     return ERR_OK;
 }
 #endif
+
+void AbilityWindow::SetSessionInfo(sptr<AAFwk::SessionInfo> &sessionInfo)
+{
+    sessionInfo_ = sessionInfo;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -197,7 +197,7 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
         auto callRecord = GetAppRunningRecordByAbilityToken(preToken);
         if (callRecord != nullptr) {
             auto launchReson = (want == nullptr) ? 0 : want->GetIntParam("ohos.ability.launch.reason", 0);
-            HILOG_INFO("req: %{public}d, proc: %{public}s, call:%{public}d,%{public}s", launchReson,
+            HILOG_DEBUG("req: %{public}d, proc: %{public}s, call:%{public}d,%{public}s", launchReson,
                 appInfo->name.c_str(), appRecord->GetCallerPid(), callRecord->GetBundleName().c_str());
         }
         uint32_t startFlags = (want == nullptr) ? 0 : BuildStartFlags(*want, *abilityInfo);
@@ -312,7 +312,7 @@ bool AppMgrServiceInner::GetBundleAndHapInfo(const AbilityInfo &abilityInfo,
     }
 
     auto userId = GetUserIdByUid(appInfo->uid);
-    HILOG_INFO("call,userId:%{public}d", userId);
+    HILOG_INFO("userId:%{public}d", userId);
     bool bundleMgrResult;
     if (appIndex == 0) {
         bundleMgrResult = IN_PROCESS_CALL(bundleMgr_->GetBundleInfo(appInfo->bundleName,
@@ -1684,18 +1684,18 @@ int32_t AppMgrServiceInner::StartPerfProcess(const std::shared_ptr<AppRunningRec
         return ERR_INVALID_OPERATION;
     }
     if (perfCmd.empty() && debugCmd.empty()) {
-        HILOG_ERROR("perfCmd is empty");
+        HILOG_DEBUG("perfCmd is empty");
         return ERR_INVALID_OPERATION;
     }
 
     AppSpawnStartMsg startMsg = appRecord->GetStartMsg();
     if (!perfCmd.empty()) {
-        HILOG_INFO("debuggablePipe perfCmd:%{public}s", perfCmd.c_str());
+        HILOG_DEBUG("debuggablePipe perfCmd:%{public}s", perfCmd.c_str());
     } else {
-        HILOG_INFO("debuggablePipe debugCmd:%{public}s", debugCmd.c_str());
+        HILOG_DEBUG("debuggablePipe debugCmd:%{public}s", debugCmd.c_str());
     }
     if (isSanboxApp) {
-        HILOG_INFO("debuggablePipe sandbox: true");
+        HILOG_DEBUG("debuggablePipe sandbox: true");
     }
     return ERR_OK;
 }

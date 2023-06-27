@@ -339,22 +339,22 @@ HWTEST_F(AbilityManagerServiceTest, CheckCallDataAbilityPermission_001, TestSize
 {
     HILOG_INFO("AbilityManagerServiceTest CheckCallDataAbilityPermission_001 start");
     AbilityRequest abilityRequest;
-    EXPECT_EQ(abilityMs_->CheckCallDataAbilityPermission(abilityRequest), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->CheckCallDataAbilityPermission(abilityRequest, false), ERR_INVALID_VALUE);
     abilityRequest.abilityInfo.applicationInfo.name = "test";
-    EXPECT_EQ(abilityMs_->CheckCallDataAbilityPermission(abilityRequest), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->CheckCallDataAbilityPermission(abilityRequest, false), ERR_INVALID_VALUE);
 
     abilityRequest.abilityInfo.applicationInfo.name = "test";
     abilityRequest.abilityInfo.applicationInfo.bundleName = "test";
     abilityRequest.abilityInfo.type = AbilityType::SERVICE;
-    EXPECT_EQ(abilityMs_->CheckCallDataAbilityPermission(abilityRequest), ERR_WRONG_INTERFACE_CALL);
+    EXPECT_EQ(abilityMs_->CheckCallDataAbilityPermission(abilityRequest, false), ERR_WRONG_INTERFACE_CALL);
 
     abilityRequest_.abilityInfo.type = AbilityType::DATA;
     abilityMs_->startUpNewRule_ = false;
-    EXPECT_EQ(abilityMs_->CheckCallDataAbilityPermission(abilityRequest), ERR_WRONG_INTERFACE_CALL);
+    EXPECT_EQ(abilityMs_->CheckCallDataAbilityPermission(abilityRequest, false), ERR_WRONG_INTERFACE_CALL);
     abilityMs_->startUpNewRule_ = true;
 
     abilityRequest_.abilityInfo.type = AbilityType::DATA;
-    EXPECT_EQ(abilityMs_->CheckCallDataAbilityPermission(abilityRequest_), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->CheckCallDataAbilityPermission(abilityRequest_, false), ERR_INVALID_VALUE);
     HILOG_INFO("AbilityManagerServiceTest CheckCallDataAbilityPermission_001 end");
 }
 
@@ -370,7 +370,7 @@ HWTEST_F(AbilityManagerServiceTest, CheckCallDataAbilityPermission_002, TestSize
     SetParameter(COMPONENT_STARTUP_NEW_RULES.c_str(), "true");
     abilityRequest_.abilityInfo.type = AbilityType::DATA;
     abilityMs_->Init();
-    EXPECT_EQ(abilityMs_->CheckCallDataAbilityPermission(abilityRequest_), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->CheckCallDataAbilityPermission(abilityRequest_, false), ERR_INVALID_VALUE);
     SetParameter(COMPONENT_STARTUP_NEW_RULES.c_str(), "false");
     HILOG_INFO("AbilityManagerServiceTest CheckCallDataAbilityPermission_002 end");
 }

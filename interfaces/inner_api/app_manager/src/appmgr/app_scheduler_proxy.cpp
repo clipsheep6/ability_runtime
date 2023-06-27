@@ -247,7 +247,7 @@ void AppSchedulerProxy::ScheduleCleanAbility(const sptr<IRemoteObject> &token)
 
 void AppSchedulerProxy::ScheduleLaunchApplication(const AppLaunchData &launchData, const Configuration &config)
 {
-    HILOG_INFO("AppSchedulerProxy ScheduleLaunchApplication start");
+    HILOG_DEBUG("AppSchedulerProxy ScheduleLaunchApplication start");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
@@ -275,8 +275,6 @@ void AppSchedulerProxy::ScheduleLaunchApplication(const AppLaunchData &launchDat
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
-
-    HILOG_INFO("AppSchedulerProxy ScheduleLaunchApplication end");
 }
 
 void AppSchedulerProxy::ScheduleUpdateApplicationInfoInstalled(const ApplicationInfo &appInfo)

@@ -427,6 +427,10 @@ int AppMgrService::StartUserTestProcess(const AAFwk::Want &want, const sptr<IRem
         HILOG_ERROR("%{public}s begin, not ready", __func__);
         return ERR_INVALID_OPERATION;
     }
+    if (!AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+        HILOG_ERROR("StartUserTestProcess is not shell call.");
+        return ERR_INVALID_OPERATION;
+    }
     std::function<void()> startUserTestProcessFunc =
         std::bind(&AppMgrServiceInner::StartUserTestProcess, appMgrServiceInner_, want, observer, bundleInfo, userId);
     handler_->PostTask(startUserTestProcessFunc, TASK_START_USER_TEST_PROCESS);
@@ -437,6 +441,25 @@ int AppMgrService::FinishUserTest(const std::string &msg, const int64_t &resultC
 {
     if (!IsReady()) {
         HILOG_ERROR("%{public}s begin, not ready", __func__);
+        return ERR_INVALID_OPERATION;
+    }
+    std::shared_ptr<RemoteClientManager> remoteClientManager = std::make_shared<RemoteClientManager>();
+    auto bundleMgr = remoteClientManager->GetBundleManager();
+    if (bundleMgr == nullptr) {
+        HILOG_ERROR("AppMgrService::FinishUserTest GetBundleManager is nullptr");
+        return ERR_INVALID_OPERATION;
+    }
+    int32_t callingUid = IPCSkeleton::GetCallingUid();
+    std::string callerBundleName;
+    bool result = bundleMgr->GetBundleNameForUid(callingUid, callerBundleName);
+    if (result) {
+        HILOG_INFO("FinishUserTest callingPid_ is %{public}s", callerBundleName.c_str());
+        if (bundleName != callerBundleName) {
+            HILOG_ERROR("AppMgrService::FinishUserTest Not this process call.");
+            return ERR_INVALID_OPERATION;
+        }
+    } else {
+        HILOG_ERROR("AppMgrService::FinishUserTest GetBundleNameForUid is nullptr");
         return ERR_INVALID_OPERATION;
     }
     pid_t callingPid = IPCSkeleton::GetCallingPid();

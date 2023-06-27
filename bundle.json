@@ -320,6 +320,15 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/service_router_framework/interfaces/inner_api:srms_fwk"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/tools/aa/include",
+              "header_files": [
+                "shell_command.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/tools/aa:tools_aa_source_set"
           }
         ],
         "test": [

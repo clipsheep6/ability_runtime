@@ -1604,6 +1604,12 @@ void Ability::OnBackground()
         HiSysEventType::BEHAVIOR, eventInfo);
 }
 
+bool Ability::OnBackPress()
+{
+    HILOG_DEBUG("call");
+    return false;
+}
+
 bool Ability::OnPrepareTerminate()
 {
     HILOG_DEBUG("call");
@@ -1636,6 +1642,7 @@ void Ability::InitWindow(int32_t displayId, sptr<Rosen::WindowOption> option)
         HILOG_ERROR("Ability::InitWindow abilityWindow_ is nullptr");
         return;
     }
+    abilityWindow_->SetSessionInfo(sessionInfo_);
     abilityWindow_->InitWindow(abilityContext_, sceneListener_, displayId, option, securityFlag_);
 }
 

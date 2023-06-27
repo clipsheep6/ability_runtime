@@ -152,7 +152,9 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
         // It may have been started through connect
         targetService->SetWant(abilityRequest.want);
         CommandAbility(targetService);
-    } else if (targetService->IsUIExtension() && targetService->IsReady()) {
+    } else if (targetService->IsUIExtension() && targetService->IsReady()
+        && !targetService->IsAbilityState(AbilityState::INACTIVATING)) {
+        targetService->SetWant(abilityRequest.want);
         CommandAbilityWindow(targetService, abilityRequest.sessionInfo, WIN_CMD_FOREGROUND);
     } else {
         HILOG_INFO("Target service is already activating.");
@@ -869,6 +871,11 @@ std::shared_ptr<AbilityRecord> AbilityConnectManager::GetUIExtensioBySessionInfo
             HILOG_WARN("abilityRecord is nullptr.");
             RemoveUIExtWindowDeathRecipient(sessionToken->AsObject());
             uiExtensionMap_.erase(it);
+        }
+        auto savedSessionInfo = it->second.second;
+        if (!savedSessionInfo || savedSessionInfo->sessionToken != sessionInfo->sessionToken) {
+            HILOG_WARN("Inconsistent sessionInfo.");
+            return nullptr;
         }
         return abilityRecord;
     } else {

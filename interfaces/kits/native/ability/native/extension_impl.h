@@ -133,7 +133,8 @@ public:
      */
     void CommandExtension(const Want &want, bool restart, int startId);
 
-    void CommandExtensionWindow(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd);
+    void CommandExtensionWindow(const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
+        AAFwk::WindowCommand winCmd);
 
 protected:
     /**
