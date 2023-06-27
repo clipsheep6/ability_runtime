@@ -90,6 +90,8 @@ ohos_shared_library("ability_simulator") {
     "${simulator_path}/common:ability_simulator_common_config",
   ]
 
+  configs = [ "${windowmanager_path}/previewer:previewer_window_config" ]
+
   deps = [
     ":gen_obj_src_js_mock_abc",
     "${simulator_path}/common:ability_simulator_common",

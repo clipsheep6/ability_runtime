@@ -78,6 +78,7 @@
             "samgr",
             "storage_service",
             "toolchain",
+            "tools_previewer",
             "webview",
             "hilog_native",
             "window_manager"
