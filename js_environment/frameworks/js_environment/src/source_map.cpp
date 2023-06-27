@@ -109,7 +109,6 @@ std::string SourceMap::TranslateBySourceMap(const std::string& stackStr)
     ExtractStackInfo(stackStr, res);
 
     // collect error info first
-    bool needGetErrorPos = false;
     uint32_t i = 0;
     std::string codeStart = "SourceCode (";
     std::string sourceCode = "";
@@ -119,7 +118,6 @@ std::string SourceMap::TranslateBySourceMap(const std::string& stackStr)
         if (fristLine.substr(0, codeStartLen).compare(codeStart) == 0) {
             sourceCode = fristLine.substr(codeStartLen, fristLine.length() - codeStartLen - 1);
             i = 1;  // 1 means Convert from the second line
-            needGetErrorPos = true;
         }
     }
 
