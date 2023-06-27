@@ -306,6 +306,16 @@ public:
     virtual int TerminateAbilityByCaller(const sptr<IRemoteObject> &callerToken, int requestCode) = 0;
 
     /**
+     * MoveAbilityToBackground.
+     *
+     * @param token, the token of the ability to move.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int MoveAbilityToBackground(const sptr<IRemoteObject> &token)
+    {
+        return 0;
+    };
+    /**
      * CloseAbility, close the special ability.
      *
      * @param token, the token of the ability to terminate.
@@ -1221,6 +1231,8 @@ public:
 
         // prepare terminate ability (67)
         CALL_ABILITY_BY_SCB,
+
+        MOVE_ABILITY_TO_BACKGROUND,
 
         // ipc id 1001-2000 for DMS
         // ipc id for starting ability (1001)

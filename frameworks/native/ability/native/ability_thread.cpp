@@ -52,6 +52,7 @@ constexpr static char ACE_ABILITY_NAME[] = "AceAbility";
 constexpr static char ACE_FORM_ABILITY_NAME[] = "AceFormAbility";
 constexpr static char FORM_EXTENSION[] = "FormExtension";
 constexpr static char UI_EXTENSION[] = "UIExtensionAbility";
+constexpr static char MEDIA_CONTROL_EXTENSION[] = "MediaControlExtensionAbility";
 #endif
 constexpr static char BASE_SERVICE_EXTENSION[] = "ServiceExtension";
 constexpr static char BASE_DRIVER_EXTENSION[] = "DriverExtension";
@@ -64,6 +65,8 @@ constexpr static char FILEACCESS_EXT_ABILITY[] = "FileAccessExtension";
 constexpr static char ENTERPRISE_ADMIN_EXTENSION[] = "EnterpriseAdminExtension";
 constexpr static char INPUTMETHOD_EXTENSION[] = "InputMethodExtensionAbility";
 constexpr static char APP_ACCOUNT_AUTHORIZATION_EXTENSION[] = "AppAccountAuthorizationExtension";
+
+const int32_t PREPARE_TO_TERMINATE_TIMEOUT_MILLISECONDS = 3000;
 
 AbilityThread::AbilityThread()
     : abilityImpl_(nullptr), token_(nullptr), currentAbility_(nullptr), abilityHandler_(nullptr), runner_(nullptr)
@@ -167,6 +170,9 @@ std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalR
         }
         if (abilityInfo->extensionAbilityType == ExtensionAbilityType::UI) {
             abilityName = UI_EXTENSION;
+        }
+        if (abilityInfo->extensionAbilityType == ExtensionAbilityType::SYSPICKER_MEDIACONTROL) {
+            abilityName = MEDIA_CONTROL_EXTENSION;
         }
         if (abilityInfo->extensionAbilityType == ExtensionAbilityType::APP_ACCOUNT_AUTHORIZATION) {
             abilityName = APP_ACCOUNT_AUTHORIZATION_EXTENSION;
@@ -566,7 +572,7 @@ void AbilityThread::HandleCommandExtension(const Want &want, bool restart, int s
     HILOG_DEBUG("AbilityThread::HandleCommandExtension end");
 }
 
-void AbilityThread::HandleCommandExtensionWindow(const sptr<AAFwk::SessionInfo> &sessionInfo,
+void AbilityThread::HandleCommandExtensionWindow(const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
     AAFwk::WindowCommand winCmd)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -575,7 +581,7 @@ void AbilityThread::HandleCommandExtensionWindow(const sptr<AAFwk::SessionInfo> 
         HILOG_ERROR("extensionImpl_ == nullptr");
         return;
     }
-    extensionImpl_->CommandExtensionWindow(sessionInfo, winCmd);
+    extensionImpl_->CommandExtensionWindow(want, sessionInfo, winCmd);
     HILOG_DEBUG("end");
 }
 
@@ -828,23 +834,60 @@ bool AbilityThread::SchedulePrepareTerminateAbility()
         HILOG_ERROR("abilityImpl_ is nullptr.");
         return true;
     }
-    bool ret = abilityImpl_->PrepareTerminateAbility();
-    HILOG_DEBUG("end, ret = %{public}d", ret);
-    return ret;
+    if (getpid() == gettid()) {
+        bool ret = abilityImpl_->PrepareTerminateAbility();
+        HILOG_DEBUG("end, ret = %{public}d", ret);
+        return ret;
+    } else {
+        wptr<AbilityThread> weak = this;
+        auto task = [weak]() {
+            auto abilityThread = weak.promote();
+            if (abilityThread == nullptr) {
+                HILOG_ERROR("abilityThread is nullptr, ScheduleCommandAbility failed.");
+                return;
+            }
+            abilityThread->HandlePrepareTermianteAbility();
+        };
+
+        if (abilityHandler_ == nullptr) {
+            HILOG_ERROR("abilityHandler_ is nullptr");
+            return false;
+        }
+
+        bool ret = abilityHandler_->PostTask(task);
+        if (!ret) {
+            HILOG_ERROR("PostTask error");
+            return false;
+        }
+
+        std::unique_lock<std::mutex> lock(mutex_);
+        auto condition = [this] {
+            if (this->isPrepareTerminateAbilityDone_) {
+                return true;
+            } else {
+                return false;
+            }
+        };
+        if(!cv_.wait_for(lock, std::chrono::milliseconds(PREPARE_TO_TERMINATE_TIMEOUT_MILLISECONDS), condition)) {
+            HILOG_WARN("Wait timeout.");
+        }
+        HILOG_DEBUG("end, ret = %{public}d", isPrepareTerminate_);
+        return isPrepareTerminate_;
+    }
 }
 
-void AbilityThread::ScheduleCommandAbilityWindow(const sptr<AAFwk::SessionInfo> &sessionInfo,
+void AbilityThread::ScheduleCommandAbilityWindow(const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
     AAFwk::WindowCommand winCmd)
 {
     HILOG_DEBUG("begin.");
     wptr<AbilityThread> weak = this;
-    auto task = [weak, sessionInfo, winCmd]() {
+    auto task = [weak, want, sessionInfo, winCmd]() {
         auto abilityThread = weak.promote();
         if (abilityThread == nullptr) {
             HILOG_ERROR("abilityThread is nullptr");
             return;
         }
-        abilityThread->HandleCommandExtensionWindow(sessionInfo, winCmd);
+        abilityThread->HandleCommandExtensionWindow(want, sessionInfo, winCmd);
     };
 
     if (abilityHandler_ == nullptr) {
@@ -1501,5 +1544,18 @@ int AbilityThread::BlockAbility()
     return ERR_NO_INIT;
 }
 #endif
+
+void AbilityThread::HandlePrepareTermianteAbility()
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    if (abilityImpl_ == nullptr) {
+        HILOG_ERROR("share data error, abilityImpl_ == nullptr.");
+        return;
+    }
+    isPrepareTerminate_ = abilityImpl_->PrepareTerminateAbility();
+    HILOG_DEBUG("end, ret = %{public}d", isPrepareTerminate_);
+    isPrepareTerminateAbilityDone_.store(true); 
+    cv_.notify_all();
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

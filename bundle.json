@@ -333,6 +333,15 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/frameworks/simulator/ability_simulator:ability_simulator"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/tools/aa/include",
+              "header_files": [
+                "shell_command.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/tools/aa:tools_aa_source_set"
           }
         ],
         "test": [

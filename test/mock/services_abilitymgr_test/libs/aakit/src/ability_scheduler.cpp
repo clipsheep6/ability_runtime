@@ -62,7 +62,7 @@ bool AbilityScheduler::SchedulePrepareTerminateAbility()
 void AbilityScheduler::ScheduleCommandAbility(const Want& want, bool restart, int startId)
 {}
 
-void AbilityScheduler::ScheduleCommandAbilityWindow(const sptr<SessionInfo> &sessionInfo,
+void AbilityScheduler::ScheduleCommandAbilityWindow(const Want &want, const sptr<SessionInfo> &sessionInfo,
     WindowCommand winCmd)
 {}
 

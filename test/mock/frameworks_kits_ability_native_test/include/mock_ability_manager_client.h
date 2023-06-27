@@ -55,7 +55,7 @@ public:
     virtual void ScheduleConnectAbility(const Want& want) {};
     virtual void ScheduleDisconnectAbility(const Want& want) {};
     virtual void ScheduleCommandAbility(const Want& want, bool restart, int startId) {};
-    virtual void ScheduleCommandAbilityWindow(const sptr<AAFwk::SessionInfo> &sessionInfo,
+    virtual void ScheduleCommandAbilityWindow(const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
         AAFwk::WindowCommand winCmd) {};
     virtual void ScheduleSaveAbilityState() {};
     virtual void ScheduleRestoreAbilityState(const PacMap& inState) {};

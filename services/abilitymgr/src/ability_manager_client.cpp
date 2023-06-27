@@ -262,6 +262,15 @@ ErrCode AbilityManagerClient::TerminateAbilityResult(const sptr<IRemoteObject> &
     return abms->TerminateAbilityResult(token, startId);
 }
 
+ErrCode AbilityManagerClient::MoveAbilityToBackground(const sptr<IRemoteObject> &token)
+{
+    HILOG_INFO("call");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->MoveAbilityToBackground(token);
+}
+
+
 ErrCode AbilityManagerClient::CloseAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
 {
     auto abms = GetAbilityManager();

@@ -200,6 +200,7 @@ APP_LAUNCH:
   VERSION_NAME: {type: STRING, desc: version name}
   PROCESS_NAME: {type: STRING, desc: process name}
   BUNDLE_NAME: {type: STRING, desc: bundle name}
+  CALLER_BUNDLE_NAME: {type: STRING, desc: bundle name}
 
 APP_FOREGROUND:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: PowerStats, desc: foreground app}
