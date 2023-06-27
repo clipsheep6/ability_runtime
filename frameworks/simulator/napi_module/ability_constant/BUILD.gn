@@ -34,7 +34,7 @@ ohos_shared_library("abilityconstant_napi") {
 
   external_deps = [
     "hilog_native:libhilog_$platform",
-    "napi:ace_napi"
+    "napi:ace_napi",
   ]
 
   part_name = "ability_runtime"

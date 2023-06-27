@@ -41,7 +41,8 @@ ohos_copy("ability_simulator_copy_ability_modules") {
     deps += [ module ]
     out_path = get_label_info(module, "root_out_dir")
     out_name = get_label_info(module, "name")
-    sources += [ out_path + "/ability/ability_runtime/lib" + out_name + dylib_suffix ]
+    sources +=
+        [ out_path + "/ability/ability_runtime/lib" + out_name + dylib_suffix ]
   }
 
   target_path = get_label_info(":copy_ability_simulator", "target_out_dir")
@@ -70,7 +71,8 @@ ohos_copy("ability_simulator_copy_application_modules") {
     deps += [ module ]
     out_path = get_label_info(module, "root_out_dir")
     out_name = get_label_info(module, "name")
-    sources += [ out_path + "/ability/ability_runtime/lib" + out_name + dylib_suffix ]
+    sources +=
+        [ out_path + "/ability/ability_runtime/lib" + out_name + dylib_suffix ]
   }
 
   target_path = get_label_info(":copy_ability_simulator", "target_out_dir")
@@ -88,7 +90,8 @@ ohos_copy("ability_simulator_copy_app_ability_modules") {
     deps += [ module ]
     out_path = get_label_info(module, "root_out_dir")
     out_name = get_label_info(module, "name")
-    sources += [ out_path + "/ability/ability_runtime/lib" + out_name + dylib_suffix ]
+    sources +=
+        [ out_path + "/ability/ability_runtime/lib" + out_name + dylib_suffix ]
   }
 
   target_path = get_label_info(":copy_ability_simulator", "target_out_dir")
@@ -109,19 +112,20 @@ ohos_copy("copy_ability_simulator") {
 
   deps += [ "test:ability_simulator_test" ]
   out_path = get_label_info("test:ability_simulator_test", "root_out_dir")
-  sources +=
-      [ out_path + "/ability/ability_runtime/ability_simulator_test" + exec_suffix ]
+  sources += [ out_path + "/ability/ability_runtime/ability_simulator_test" +
+               exec_suffix ]
 
   deps += [ "ability_simulator:ability_simulator" ]
   out_path =
       get_label_info("ability_simulator:ability_simulator", "root_out_dir")
-  sources +=
-      [ out_path + "/ability/ability_runtime/libability_simulator" + dylib_suffix ]
+  sources += [ out_path + "/ability/ability_runtime/libability_simulator" +
+               dylib_suffix ]
 
   deps += [ "common:ability_simulator_common" ]
   out_path = get_label_info("common:ability_simulator_common", "root_out_dir")
-  sources += [ out_path + "/ability/ability_runtime/libability_simulator_common" +
-               dylib_suffix ]
+  sources +=
+      [ out_path + "/ability/ability_runtime/libability_simulator_common" +
+        dylib_suffix ]
 
   deps += [ "${ability_base_path}:string_utils" ]
   out_path = get_label_info("${ability_base_path}:string_utils", "root_out_dir")

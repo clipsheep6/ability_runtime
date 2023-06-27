@@ -99,11 +99,11 @@ ohos_shared_library("ability_simulator") {
     "ability_base:string_utils",
     "ets_runtime:libark_jsruntime",
     "hilog_native:libhilog_$platform",
+    "napi:ace_napi",
+    "napi:ace_napi_ark",
     "tools_previewer:ide_extension",
     "window_manager:previewer_window",
     "window_manager:previewer_window_napi",
-    "napi:ace_napi",
-    "napi:ace_napi_ark",
   ]
 
   if (is_mingw) {
