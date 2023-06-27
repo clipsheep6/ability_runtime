@@ -307,7 +307,7 @@ ohos_shared_library("abilitykit_native") {
       "ability_base:session_info",
       "form_fwk:form_manager",
       "input:libmmi-client",
-      "multimedia_image_framework:image",
+      "image_framework:image",
     ]
 
     public_deps += [

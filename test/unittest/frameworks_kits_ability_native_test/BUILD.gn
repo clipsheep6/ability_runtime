@@ -1647,7 +1647,7 @@ ohos_unittest("ability_window_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
-    "multimedia_image_framework:image",
+    "image_framework:image",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",

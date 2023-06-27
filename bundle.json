@@ -67,7 +67,7 @@
             "ipc_js",
             "kv_store",
             "memory_utils",
-            "multimedia_image_framework",
+            "image_framework",
             "napi",
             "netmanager_base",
             "os_account",
