@@ -234,7 +234,6 @@ const std::string SystemDialogScheduler::GetPcSelectorParams(const std::vector<D
     HILOG_DEBUG("GetPcSelectorParams start");
     if (infos.empty()) {
         HILOG_WARN("Invalid abilityInfos.");
-        return {};
     }
 
     nlohmann::json jsonObject;
