@@ -75,7 +75,7 @@ bool PermissionVerification::VerifyGetBundleInfoPrivilegedPermission() const
 {
     return !!(MyFlag::flag_);
 }
-int PermissionVerification::CheckCallDataAbilityPermission(const VerificationInfo &verificationInfo) const
+int PermissionVerification::CheckCallDataAbilityPermission(const VerificationInfo &verificationInfo, bool isShell) const
 {
     return MyFlag::flag_;
 }

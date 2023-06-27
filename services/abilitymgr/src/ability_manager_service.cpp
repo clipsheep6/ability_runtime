@@ -3295,7 +3295,9 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
     }
 
     abilityRequest.callerToken = callerToken;
-    if (CheckCallDataAbilityPermission(abilityRequest) != ERR_OK) {
+    auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall && CheckCallDataAbilityPermission(abilityRequest, isShellCall) != ERR_OK) {
         HILOG_ERROR("Invalid ability request info for data ability acquiring.");
         return nullptr;
     }
@@ -3318,8 +3320,6 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
     std::shared_ptr<DataAbilityManager> dataAbilityManager = GetDataAbilityManagerByUserId(userId);
     CHECK_POINTER_AND_RETURN(dataAbilityManager, nullptr);
     ReportEventToSuspendManager(abilityRequest.abilityInfo);
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
     bool isNotHap = isSaCall || isShellCall;
     UpdateCallerInfo(abilityRequest.want, callerToken);
     return dataAbilityManager->Acquire(abilityRequest, tryBind, callerToken, isNotHap);
@@ -6618,9 +6618,8 @@ int AbilityManagerService::CheckCallServicePermission(const AbilityRequest &abil
     }
 }
 
-int AbilityManagerService::CheckCallDataAbilityPermission(AbilityRequest &abilityRequest)
+int AbilityManagerService::CheckCallDataAbilityPermission(AbilityRequest &abilityRequest, bool isShell)
 {
-    HILOG_INFO("%{public}s begin", __func__);
     abilityRequest.appInfo = abilityRequest.abilityInfo.applicationInfo;
     abilityRequest.uid = abilityRequest.appInfo.uid;
     if (abilityRequest.appInfo.name.empty() || abilityRequest.appInfo.bundleName.empty()) {
@@ -6633,10 +6632,14 @@ int AbilityManagerService::CheckCallDataAbilityPermission(AbilityRequest &abilit
     }
 
     AAFwk::PermissionVerification::VerificationInfo verificationInfo = CreateVerificationInfo(abilityRequest);
-    if (IsCallFromBackground(abilityRequest, verificationInfo.isBackgroundCall) != ERR_OK) {
+    if (isShell) {
+        verificationInfo.isBackgroundCall = true;
+    }
+    if (!isShell && IsCallFromBackground(abilityRequest, verificationInfo.isBackgroundCall, true) != ERR_OK) {
         return ERR_INVALID_VALUE;
     }
-    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallDataAbilityPermission(verificationInfo);
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallDataAbilityPermission(verificationInfo,
+        isShell);
     if (result != ERR_OK) {
         HILOG_ERROR("Do not have permission to start DataAbility");
         return result;
@@ -6783,16 +6786,17 @@ int AbilityManagerService::CheckStartByCallPermission(const AbilityRequest &abil
     return ERR_OK;
 }
 
-int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityRequest, bool &isBackgroundCall)
+int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityRequest, bool &isBackgroundCall,
+    bool isData)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    if (AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+    if (!isData && AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
         isBackgroundCall = true;
         return ERR_OK;
     }
 
-    if (AAFwk::PermissionVerification::GetInstance()->IsSACall() ||
-        AbilityUtil::IsStartFreeInstall(abilityRequest.want)) {
+    if (!isData && (AAFwk::PermissionVerification::GetInstance()->IsSACall() ||
+        AbilityUtil::IsStartFreeInstall(abilityRequest.want))) {
         isBackgroundCall = false;
         return ERR_OK;
     }

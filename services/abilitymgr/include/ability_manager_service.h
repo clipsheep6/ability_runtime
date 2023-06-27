@@ -1368,7 +1368,7 @@ private:
      * @param abilityRequest, abilityRequest.
      * @return Returns whether the caller is allowed to start DataAbility.
      */
-    int CheckCallDataAbilityPermission(AbilityRequest &abilityRequest);
+    int CheckCallDataAbilityPermission(AbilityRequest &abilityRequest, bool isShell);
 
     /**
      * Check if Caller is allowed to start ServiceExtension(Stage) or DataShareExtension(Stage).
@@ -1419,7 +1419,7 @@ private:
      *                          FALSE: The Caller-Application is in focus or in foreground state.
      * @return Returns ERR_OK on check success, others on check failure.
      */
-    int IsCallFromBackground(const AbilityRequest &abilityRequest, bool &isBackgroundCall);
+    int IsCallFromBackground(const AbilityRequest &abilityRequest, bool &isBackgroundCall, bool isData = false);
 
     bool IsTargetPermission(const Want &want) const;
 
