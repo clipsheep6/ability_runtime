@@ -28,6 +28,7 @@
 #include "iremote_object.h"
 #include "system_memory_attr.h"
 #include "ui_extension_window_command.h"
+#include "mission_info.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -806,6 +807,16 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode PrepareTerminateAbility(const sptr<IRemoteObject> &token, sptr<IPrepareTerminateCallback> &callback);
+
+    /**
+     * Set mission continue state of this ability.
+     *
+     * @param token Indidate token of ability.
+     * @param state the mission continuation state of this ability.
+     * @return Returns ERR_OK if success.
+     */
+    ErrCode SetMissionContinueState(const sptr<IRemoteObject> &token, const AAFwk::ContinueState &state);
+
 #ifdef SUPPORT_GRAPHICS
     /**
      * Set mission label of this ability.

@@ -19,6 +19,7 @@
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "recovery_param.h"
+#include "mission_info.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -84,6 +85,17 @@ static napi_value InitOnContinueResultObject(napi_env env)
     NAPI_CALL(env, SetEnumItem(env, object, "AGREE", ONCONTINUE_AGREE));
     NAPI_CALL(env, SetEnumItem(env, object, "REJECT", ONCONTINUE_REJECT));
     NAPI_CALL(env, SetEnumItem(env, object, "MISMATCH", ONCONTINUE_MISMATCH));
+
+    return object;
+}
+
+static napi_value InitContinueStateObject(napi_env env)
+{
+    napi_value object;
+    NAPI_CALL(env, napi_create_object(env, &object));
+
+    NAPI_CALL(env, SetEnumItem(env, object, "ACTIVE", AAFwk::ContinueState::CONTINUESTATE_ACTIVE));
+    NAPI_CALL(env, SetEnumItem(env, object, "INACTIVE", AAFwk::ContinueState::CONTINUESTATE_INACTIVE));
 
     return object;
 }
@@ -164,6 +176,12 @@ static napi_value AbilityConstantInit(napi_env env, napi_value exports)
         return nullptr;
     }
 
+    napi_value continueState = InitContinueStateObject(env);
+    if (continueState == nullptr) {
+        HILOG_ERROR("failed to create continue state object");
+        return nullptr;
+    }
+
     napi_value windowMode = InitWindowModeObject(env);
     if (windowMode == nullptr) {
         HILOG_ERROR("failed to create window mode object");
@@ -192,6 +210,7 @@ static napi_value AbilityConstantInit(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("LaunchReason", launchReason),
         DECLARE_NAPI_PROPERTY("LastExitReason", lastExitReason),
         DECLARE_NAPI_PROPERTY("OnContinueResult", onContinueResult),
+        DECLARE_NAPI_PROPERTY("ContinueState", continueState),
         DECLARE_NAPI_PROPERTY("WindowMode", windowMode),
         DECLARE_NAPI_PROPERTY("MemoryLevel", memoryLevel),
         DECLARE_NAPI_PROPERTY("OnSaveResult", saveResult),
