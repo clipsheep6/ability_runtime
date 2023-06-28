@@ -1174,7 +1174,7 @@ int UIAbilityLifecycleManager::StartAbilityBySpecifed(const AbilityRequest &abil
     sessionInfo->requestCode = abilityRequest.requestCode;
     SpecifiedInfo specifiedInfo;
     specifiedInfo.abilityName = abilityRequest.abilityInfo.name;
-    specifiedInfo.abilityName = abilityRequest.abilityInfo.bundleName;
+    specifiedInfo.bundleName = abilityRequest.abilityInfo.bundleName;
     specifiedInfo.flag = abilityRequest.specifiedFlag;
     specifiedInfoQueue_.push(specifiedInfo);
 

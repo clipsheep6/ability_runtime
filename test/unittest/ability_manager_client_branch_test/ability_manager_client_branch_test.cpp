@@ -1353,5 +1353,47 @@ HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_GetAbilityTokenByC
     sptr<IRemoteObject> token = nullptr;
     client_->GetAbilityTokenByCalleeObj(callStub, token);
 }
+
+/**
+ * @tc.name: AbilityManagerClient_RegisterOnListener_0100
+ * @tc.desc: RegisterOnListener
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientBranchTest, RegisterOnListener_0100, TestSize.Level1)
+{
+    std::string type = "";
+    sptr<IRemoteOnListener> listener = nullptr;
+    auto result = client_->RegisterOnListener(type, listener);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_RegisterOffListener_0100
+ * @tc.desc: RegisterOffListener
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientBranchTest, RegisterOffListener_0100, TestSize.Level1)
+{
+    std::string type = "";
+    sptr<IRemoteOnListener> listener = nullptr;
+    auto result = client_->RegisterOffListener(type, listener);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_RequestDialogService_0100
+ * @tc.desc: RequestDialogService
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientBranchTest, RequestDialogService_0100, TestSize.Level1)
+{
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    auto result = client_->RequestDialogService(want, callerToken);
+    EXPECT_EQ(result, ERR_OK);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
