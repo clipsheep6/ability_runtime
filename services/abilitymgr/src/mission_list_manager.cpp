@@ -2644,6 +2644,19 @@ void MissionListManager::BackToLauncher()
     launcherRootAbility->ProcessForegroundAbility();
 }
 
+int MissionListManager::SetMissionContinueState(const sptr<IRemoteObject> &token, const int32_t missionId,
+    const AAFwk::ContinueState &state)
+{
+    HILOG_INFO("MissionListManager SetMissionContinueState start.");
+    if (!token) {
+        HILOG_INFO("SetMissionContinueState token is nullptr.");
+        return -1;
+    }
+
+    HILOG_INFO("MissionListManager SetMissionContinueState check token success!");
+    return DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionContinueState(missionId, state);
+}
+
 #ifdef SUPPORT_GRAPHICS
 int MissionListManager::SetMissionLabel(const sptr<IRemoteObject> &token, const std::string &label)
 {

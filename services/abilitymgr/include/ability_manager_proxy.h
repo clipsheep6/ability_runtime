@@ -19,6 +19,7 @@
 #include "ability_manager_interface.h"
 #include "hilog_wrapper.h"
 #include "iremote_proxy.h"
+#include "mission_info.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -565,6 +566,8 @@ public:
     virtual int StartUser(int userId) override;
 
     virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override;
+
+    virtual int SetMissionContinueState(const sptr<IRemoteObject> &token, const AAFwk::ContinueState &state) override;
 
 #ifdef SUPPORT_GRAPHICS
     virtual int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label) override;
