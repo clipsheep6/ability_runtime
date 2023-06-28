@@ -1026,6 +1026,18 @@ public:
     virtual void StartSpecifiedAbilityBySCB(const Want &want) {};
 
     /**
+     * Notify sandbox app the result of saving file.
+     * @param want Result of saving file, which contains the file's uri if success.
+     * @param resultCode Indicates the action's result.
+     * @param requestCode Pass the requestCode to match request.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifySaveAsResult(const Want &want, int resultCode, int requestCode)
+    {
+        return 0;
+    }
+
+    /**
      * Set sessionManagerService
      * @param sessionManagerService the point of sessionManagerService.
      *
@@ -1340,6 +1352,9 @@ public:
 
         // ipc id for start specified ability by scb
         START_SPECIFIED_ABILITY_BY_SCB,
+
+        // ipc id for notify as result (notify to snadbox app)
+        NOTIFY_SAVE_AS_RESULT,
 
         // ipc id for set sessionManagerService
         SET_SESSIONMANAGERSERVICE,

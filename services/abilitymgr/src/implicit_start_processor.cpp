@@ -292,8 +292,8 @@ int32_t ImplicitStartProcessor::ImplicitStartAbilityInner(const Want &targetWant
                 targetWant, request.callerToken, userId, request.extensionType);
             break;
         default:
-            result = abilityMgr->StartAbilityInner(
-                targetWant, request.callerToken, request.requestCode, request.callerUid, userId);
+            result = abilityMgr->StartAbilityWrap(
+                targetWant, request.callerToken, request.requestCode, userId);
             break;
     }
 

@@ -835,6 +835,15 @@ public:
     void StartSpecifiedAbilityBySCB(const Want &want) override;
 
     /**
+     * Notify sandbox app the result of saving file.
+     * @param want Result of saving file, which contains the file's uri if success.
+     * @param resultCode Indicates the action's result.
+     * @param requestCode Pass the requestCode to match request.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifySaveAsResult(const Want &want, int resultCode, int requestCode) override;
+
+    /**
      * Set sessionManagerService
      * @param sessionManagerService the point of sessionManagerService.
      *

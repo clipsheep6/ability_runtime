@@ -64,6 +64,7 @@ const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
 const std::string COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
 const std::string NEED_STARTINGWINDOW = "ohos.ability.NeedStartingWindow";
 const std::string PARAMS_URI = "ability.verify.uri";
+const std::string PARAMS_FILE_SAVING_URL_KEY = "pick_path_return";
 const uint32_t RELEASE_STARTING_BG_TIMEOUT = 15000; // release starting window resource timeout.
 int64_t AbilityRecord::abilityRecordId = 0;
 const int32_t DEFAULT_USER_ID = 0;
@@ -1426,6 +1427,25 @@ void AbilityRecord::SendResult(bool isSandboxApp)
     scheduler_->SendResult(result_->requestCode_, result_->resultCode_, result_->resultWant_);
     // reset result to avoid send result next time
     result_.reset();
+}
+
+void AbilityRecord::SendSandboxSavefileResult(const Want &want, int resultCode, int requestCode)
+{
+    HILOG_INFO("ability:%{public}s.", abilityInfo_.name.c_str());
+    auto uriStr = want.GetParams().GetStringParam(PARAMS_FILE_SAVING_URL_KEY);
+    if (uriStr.empty()) {
+        HILOG_WARN("uri empty for request: %{public}d.", requestCode);
+    } else {
+        Uri uri(uriStr);
+        auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(uri,
+            Want::FLAG_AUTH_WRITE_URI_PERMISSION, abilityInfo_.bundleName, 0));
+        if (ret != ERR_OK) {
+            HILOG_WARN("GrantUriPermission failed for request: %{public}d.", requestCode);
+        }
+    }
+
+    CHECK_POINTER(scheduler_);
+    scheduler_->SendResult(requestCode, resultCode, want);
 }
 
 void AbilityRecord::SendResultToCallers(bool schedulerdied)
