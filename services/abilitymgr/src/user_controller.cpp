@@ -20,6 +20,7 @@
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "os_account_manager_wrapper.h"
+#include "scene_board_judgement.h"
 #include "task_data_persistence_mgr.h"
 
 namespace OHOS {
@@ -96,7 +97,7 @@ int32_t UserController::StartUser(int32_t userId, bool isForeground)
         return -1;
     }
 
-    if (isForeground && GetCurrentUserId() != USER_ID_NO_HEAD) {
+    if (isForeground && GetCurrentUserId() != USER_ID_NO_HEAD && !Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         // start freezing screen
         DelayedSingleton<AbilityManagerService>::GetInstance()->StartFreezingScreen();
     }
@@ -464,7 +465,7 @@ void UserController::HandleContinueUserSwitch(int32_t oldUserId, int32_t newUser
     std::shared_ptr<UserItem> &usrItem)
 {
     auto manager = DelayedSingleton<AbilityManagerService>::GetInstance();
-    if (manager) {
+    if (manager && !Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         manager->StopFreezingScreen();
     }
     SendUserSwitchDone(newUserId);

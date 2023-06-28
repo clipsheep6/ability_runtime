@@ -5487,7 +5487,9 @@ void AbilityManagerService::UserStarted(int32_t userId)
 {
     HILOG_INFO("%{public}s", __func__);
     InitConnectManager(userId, false);
-    InitMissionListManager(userId, false);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        InitMissionListManager(userId, false);
+    }
     InitDataAbilityManager(userId, false);
     InitPendWantManager(userId, false);
 }
@@ -5496,13 +5498,15 @@ void AbilityManagerService::SwitchToUser(int32_t oldUserId, int32_t userId)
 {
     HILOG_INFO("%{public}s, oldUserId:%{public}d, newUserId:%{public}d", __func__, oldUserId, userId);
     SwitchManagers(userId);
-    PauseOldUser(oldUserId);
-    bool isBoot = false;
-    if (oldUserId == U0_USER_ID) {
-        isBoot = true;
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        PauseOldUser(oldUserId);
+        bool isBoot = false;
+        if (oldUserId == U0_USER_ID) {
+            isBoot = true;
+        }
+        ConnectBmsService();
+        StartUserApps(userId, isBoot);
     }
-    ConnectBmsService();
-    StartUserApps(userId, isBoot);
     PauseOldConnectManager(oldUserId);
 }
 
@@ -5510,7 +5514,7 @@ void AbilityManagerService::SwitchManagers(int32_t userId, bool switchUser)
 {
     HILOG_INFO("%{public}s, SwitchManagers:%{public}d-----begin", __func__, userId);
     InitConnectManager(userId, switchUser);
-    if (userId != U0_USER_ID) {
+    if (userId != U0_USER_ID && !Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         InitMissionListManager(userId, switchUser);
     }
     InitDataAbilityManager(userId, switchUser);
