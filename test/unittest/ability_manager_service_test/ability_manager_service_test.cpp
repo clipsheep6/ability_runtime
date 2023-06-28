@@ -68,10 +68,10 @@ static void WaitUntilTaskFinished()
     const uint32_t maxRetryCount = 1000;
     const uint32_t sleepTime = 1000;
     uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     std::atomic<bool> taskCalled(false);
     auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->PostTask(f)) {
+    if (handler->SubmitTask(f)) {
         while (!taskCalled.load()) {
             ++count;
             if (count >= maxRetryCount) {
@@ -1720,6 +1720,20 @@ HWTEST_F(AbilityManagerServiceTest, OnAppStateChanged_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
+ * Function: GetTaskHandler
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService GetTaskHandler
+ */
+HWTEST_F(AbilityManagerServiceTest, GetTaskHandler_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest GetTaskHandler_001 start");
+    ASSERT_NE(abilityMs_, nullptr);
+    EXPECT_NE(abilityMs_->GetTaskHandler(), nullptr);
+    HILOG_INFO("AbilityManagerServiceTest GetTaskHandler_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: GetEventHandler
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService GetEventHandler
@@ -2922,11 +2936,11 @@ HWTEST_F(AbilityManagerServiceTest, VerifyAccountPermission_001, TestSize.Level1
 HWTEST_F(AbilityManagerServiceTest, BlockAmsService_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest BlockAmsService_001 start");
-    auto temp = abilityMs_->handler_;
-    abilityMs_->handler_ = nullptr;
+    auto temp = abilityMs_->taskHandler_;
+    abilityMs_->taskHandler_ = nullptr;
     EXPECT_EQ(abilityMs_->BlockAmsService(), ERR_NO_INIT);
 
-    abilityMs_->handler_ = temp;
+    abilityMs_->taskHandler_ = temp;
     EXPECT_EQ(abilityMs_->BlockAmsService(), ERR_OK);
     HILOG_INFO("AbilityManagerServiceTest BlockAmsService_001 end");
 }

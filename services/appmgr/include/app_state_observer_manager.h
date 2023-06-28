@@ -20,6 +20,7 @@
 #include <mutex>
 #include <string>
 #include <vector>
+#include "cpp/mutex.h"
 
 #include "app_running_record.h"
 #include "app_state_data.h"
@@ -29,6 +30,7 @@
 #include "permission_verification.h"
 #include "singleton.h"
 #include "uri_permission_manager_client.h"
+#include "task_handler_wrap.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -74,8 +76,8 @@ private:
     void HandleOnProcessResued(const std::shared_ptr<AppRunningRecord> &appRecord);
 
 private:
-    std::shared_ptr<AppExecFwk::EventHandler> handler_;
-    std::mutex observerLock_;
+    std::shared_ptr<AAFwk::TaskHandlerWrap> handler_;
+    ffrt::mutex observerLock_;
     std::map<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>> recipientMap_;
     std::map<sptr<IApplicationStateObserver>, std::vector<std::string>> appStateObserverMap_;
 };

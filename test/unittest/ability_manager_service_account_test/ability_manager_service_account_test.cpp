@@ -44,10 +44,10 @@ static void WaitUntilTaskFinished()
     const uint32_t maxRetryCount = 1000;
     const uint32_t sleepTime = 1000;
     uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     std::atomic<bool> taskCalled(false);
     auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->PostTask(f)) {
+    if (handler->SubmitTask(f)) {
         while (!taskCalled.load()) {
             ++count;
             if (count >= maxRetryCount) {

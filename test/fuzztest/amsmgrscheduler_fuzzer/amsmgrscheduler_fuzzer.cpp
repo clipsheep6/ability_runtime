@@ -60,7 +60,7 @@ sptr<Token> GetFuzzAbilityToken()
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     std::shared_ptr<AppMgrServiceInner> mgrServiceInner;
-    std::shared_ptr<AMSEventHandler> handler;
+    std::shared_ptr<AAFwk::TaskHandlerWrap> handler;
     AmsMgrScheduler amsMgrScheduler(mgrServiceInner, handler);
     sptr<IStartSpecifiedAbilityResponse> response;
     amsMgrScheduler.RegisterStartSpecifiedAbilityResponse(response);

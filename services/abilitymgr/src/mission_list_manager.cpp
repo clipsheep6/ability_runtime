@@ -920,10 +920,9 @@ int MissionListManager::AttachAbilityThread(const sptr<IAbilityScheduler> &sched
 
     HILOG_DEBUG("AbilityMS attach abilityThread, name is %{public}s.", abilityRecord->GetAbilityInfo().name.c_str());
 
-    std::shared_ptr<AbilityEventHandler> handler =
-        DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
-    handler->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
+    auto eventHandler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    CHECK_POINTER_AND_RETURN_LOG(eventHandler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
+    eventHandler->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
 
     abilityRecord->SetScheduler(scheduler);
 
@@ -942,8 +941,10 @@ int MissionListManager::AttachAbilityThread(const sptr<IAbilityScheduler> &sched
         abilityRecord->CallRequest();
     }
 
+    auto taskHandler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    CHECK_POINTER_AND_RETURN_LOG(taskHandler, ERR_INVALID_VALUE, "Fail to get AbilityTaskHandler.");
     auto taskName = std::to_string(abilityRecord->GetMissionId()) + "_cold";
-    handler->RemoveTask(taskName);
+    taskHandler->CancelTask(taskName);
 #ifdef SUPPORT_GRAPHICS
     abilityRecord->PostCancelStartingWindowHotTask();
 #endif
@@ -1139,8 +1140,6 @@ int MissionListManager::DispatchState(const std::shared_ptr<AbilityRecord> &abil
 int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> &abilityRecord, bool success,
     AbilityState state)
 {
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
     if (!abilityRecord->IsAbilityState(AbilityState::FOREGROUNDING)) {
@@ -1150,15 +1149,18 @@ int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> 
             abilityRecord->GetAbilityState());
         return ERR_INVALID_VALUE;
     }
-
-    handler->RemoveEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
+    auto eventHandler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    CHECK_POINTER_AND_RETURN_LOG(eventHandler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
+    eventHandler->RemoveEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
     auto self(weak_from_this());
+    auto taskHandler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    CHECK_POINTER_AND_RETURN_LOG(taskHandler, ERR_INVALID_VALUE, "Fail to get AbilityTaskHandler.");
     if (success) {
 #ifdef SUPPORT_GRAPHICS
         HILOG_INFO("ok");
         abilityRecord->SetStartingWindow(false);
         auto taskName = std::to_string(abilityRecord->GetMissionId()) + "_hot";
-        handler->RemoveTask(taskName);
+        taskHandler->CancelTask(taskName);
 #endif
         auto task = [self, abilityRecord]() {
             auto selfObj = self.lock();
@@ -1168,7 +1170,7 @@ int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> 
             }
             selfObj->CompleteForegroundSuccess(abilityRecord);
         };
-        handler->PostTask(task);
+        taskHandler->SubmitTask(task);
     } else {
         auto task = [self, abilityRecord, state]() {
             auto selfObj = self.lock();
@@ -1178,7 +1180,7 @@ int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> 
             }
             selfObj->CompleteForegroundFailed(abilityRecord, state);
         };
-        handler->PostTask(task);
+        taskHandler->SubmitTask(task);
     }
     return ERR_OK;
 }
@@ -1269,8 +1271,8 @@ void MissionListManager::TerminatePreviousAbility(const std::shared_ptr<AbilityR
 
 int MissionListManager::DispatchBackground(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityTasktHandler.");
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
     if (!abilityRecord->IsAbilityState(AbilityState::BACKGROUNDING)) {
@@ -1279,10 +1281,10 @@ int MissionListManager::DispatchBackground(const std::shared_ptr<AbilityRecord> 
     }
 
     // remove background timeout task.
-    handler->RemoveTask("background_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+    handler->CancelTask("background_" + std::to_string(abilityRecord->GetAbilityRecordId()));
     auto self(shared_from_this());
     auto task = [self, abilityRecord]() { self->CompleteBackground(abilityRecord); };
-    handler->PostTask(task);
+    handler->SubmitTask(task);
 
     return ERR_OK;
 }
@@ -1650,19 +1652,19 @@ int MissionListManager::DispatchTerminate(const std::shared_ptr<AbilityRecord> &
     }
 
     // remove terminate timeout task.
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
-    handler->RemoveTask("terminate_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityTasktHandler.");
+    handler->CancelTask("terminate_" + std::to_string(abilityRecord->GetAbilityRecordId()));
     auto self(shared_from_this());
     auto task = [self, abilityRecord]() { self->CompleteTerminate(abilityRecord); };
-    handler->PostTask(task);
+    handler->SubmitTask(task);
 
     return ERR_OK;
 }
 
 void MissionListManager::DelayCompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     CHECK_POINTER(handler);
 
     PrintTimeOutLog(abilityRecord, AbilityManagerService::TERMINATE_TIMEOUT_MSG);
@@ -1672,7 +1674,7 @@ void MissionListManager::DelayCompleteTerminate(const std::shared_ptr<AbilityRec
         self->CompleteTerminate(abilityRecord);
     };
     int killTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * KILL_TIMEOUT_MULTIPLE;
-    handler->PostTask(timeoutTask, "DELAY_KILL_PROCESS", killTimeout);
+    handler->SubmitTask(timeoutTask, "DELAY_KILL_PROCESS", killTimeout);
 }
 
 void MissionListManager::CompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord)
@@ -1981,7 +1983,7 @@ void  MissionListManager::NotifyMissionCreated(const std::shared_ptr<AbilityReco
 
 void MissionListManager::PostMissionLabelUpdateTask(int missionId) const
 {
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (handler == nullptr) {
         HILOG_ERROR("Fail to get EventHandler, do not post mission label update message.");
         return;
@@ -1996,7 +1998,7 @@ void MissionListManager::PostMissionLabelUpdateTask(int missionId) const
         }
         controller->NotifyMissionLabelUpdated(missionId);
     };
-    handler->PostTask(task, "NotifyMissionLabelUpdated.", DELAY_NOTIFY_LABEL_TIME);
+    handler->SubmitTask(task, "NotifyMissionLabelUpdated.", DELAY_NOTIFY_LABEL_TIME);
 }
 
 void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId)
@@ -2227,7 +2229,7 @@ void MissionListManager::DelayedResumeTimeout(const std::shared_ptr<AbilityRecor
 {
     auto abilityManagerService = DelayedSingleton<AbilityManagerService>::GetInstance();
     CHECK_POINTER(abilityManagerService);
-    auto handler = abilityManagerService->GetEventHandler();
+    auto handler = abilityManagerService->GetTaskHandler();
     CHECK_POINTER(handler);
     std::weak_ptr<MissionListManager> wpListMgr = shared_from_this();
     auto timeoutTask = [wpListMgr, callerAbility]() {
@@ -2237,7 +2239,7 @@ void MissionListManager::DelayedResumeTimeout(const std::shared_ptr<AbilityRecor
             listMgr->BackToCaller(callerAbility);
         }
     };
-    handler->PostTask(timeoutTask, "Caller_Restart");
+    handler->SubmitTask(timeoutTask, "Caller_Restart");
 }
 
 void MissionListManager::BackToCaller(const std::shared_ptr<AbilityRecord> &callerAbility)
@@ -2484,11 +2486,11 @@ void MissionListManager::PostStartWaitingAbility()
     auto self(shared_from_this());
     auto startWaitingAbilityTask = [self]() { self->StartWaitingAbility(); };
 
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    CHECK_POINTER_LOG(handler, "Fail to get AbilityEventHandler.");
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    CHECK_POINTER_LOG(handler, "Fail to get AbilityTaskHandler.");
 
     /* PostTask to trigger start Ability from waiting queue */
-    handler->PostTask(startWaitingAbilityTask, "startWaitingAbility");
+    handler->SubmitTask(startWaitingAbilityTask, "startWaitingAbility");
 }
 
 void MissionListManager::HandleAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord)
@@ -2591,7 +2593,7 @@ void MissionListManager::DelayedStartLauncher()
 {
     auto abilityManagerService = DelayedSingleton<AbilityManagerService>::GetInstance();
     CHECK_POINTER(abilityManagerService);
-    auto handler = abilityManagerService->GetEventHandler();
+    auto handler = abilityManagerService->GetTaskHandler();
     CHECK_POINTER(handler);
     std::weak_ptr<MissionListManager> wpListMgr = shared_from_this();
     auto timeoutTask = [wpListMgr]() {
@@ -2601,7 +2603,7 @@ void MissionListManager::DelayedStartLauncher()
             listMgr->BackToLauncher();
         }
     };
-    handler->PostTask(timeoutTask, "Launcher_Restart");
+    handler->SubmitTask(timeoutTask, "Launcher_Restart");
 }
 
 void MissionListManager::BackToLauncher()
@@ -2713,9 +2715,9 @@ void MissionListManager::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &ab
     }
     abilityRecord->SetCompleteFirstFrameDrawing(true);
 
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (handler == nullptr) {
-        HILOG_ERROR("Fail to get AbilityEventHandler.");
+        HILOG_ERROR("Fail to get Ability task handler.");
         return;
     }
 
@@ -2730,7 +2732,7 @@ void MissionListManager::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &ab
             mgr->UpdateMissionSnapshot(abilityRecord);
         }
     };
-    handler->PostTask(task, "FirstFrameDrawing");
+    handler->SubmitTask(task, "FirstFrameDrawing");
     auto preloadTask = [owner = weak_from_this(), abilityRecord] {
         auto mgr = owner.lock();
         if (mgr == nullptr) {
@@ -2739,7 +2741,7 @@ void MissionListManager::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &ab
         }
         mgr->ProcessPreload(abilityRecord);
     };
-    handler->PostTask(preloadTask);
+    handler->SubmitTask(preloadTask);
 }
 
 void MissionListManager::ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const
@@ -2774,9 +2776,9 @@ Closure MissionListManager::GetCancelStartingWindowTask(const std::shared_ptr<Ab
 void MissionListManager::PostCancelStartingWindowTask(const std::shared_ptr<AbilityRecord> &abilityRecord) const
 {
     HILOG_INFO("call");
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (!handler) {
-        HILOG_ERROR("Fail to get AbilityEventHandler.");
+        HILOG_ERROR("Fail to get AbilityTaskHandler.");
         return;
     }
 
@@ -2785,7 +2787,7 @@ void MissionListManager::PostCancelStartingWindowTask(const std::shared_ptr<Abil
         HILOG_ERROR("Fail to get CancelStartingWindow task.");
         return;
     }
-    handler->PostTask(task, AppExecFwk::EventQueue::Priority::IMMEDIATE);
+    handler->SubmitTask(task, TaskQoS::USER_INTERACTIVE);
 }
 
 void MissionListManager::InitPrepareTerminateConfig()
@@ -3429,7 +3431,7 @@ void MissionListManager::UninstallApp(const std::string &bundleName, int32_t uid
     HILOG_INFO("Uninstall app, bundleName: %{public}s, uid:%{public}d", bundleName.c_str(), uid);
     auto abilityManagerService = DelayedSingleton<AbilityManagerService>::GetInstance();
     CHECK_POINTER(abilityManagerService);
-    auto handler = abilityManagerService->GetEventHandler();
+    auto handler = abilityManagerService->GetTaskHandler();
     CHECK_POINTER(handler);
     std::weak_ptr<MissionListManager> wpMgr = shared_from_this();
     auto task = [wpMgr, bundleName, uid]() {
@@ -3439,7 +3441,7 @@ void MissionListManager::UninstallApp(const std::string &bundleName, int32_t uid
             mgr->AddUninstallTags(bundleName, uid);
         }
     };
-    handler->PostTask(task);
+    handler->SubmitTask(task);
 }
 
 void MissionListManager::AddUninstallTags(const std::string &bundleName, int32_t uid)
@@ -3866,22 +3868,21 @@ int MissionListManager::PrepareClearMissionLocked(int missionId, const std::shar
             mgr->ClearMissionLocking(missionId, mission);
         }
     };
-    std::shared_ptr<AbilityEventHandler> handler =
-        DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     int prepareTerminateTimeout =
         AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * PREPARE_TERMINATE_TIMEOUT_MULTIPLE;
     if (handler) {
-        handler->PostTask(terminateTask, "PrepareTermiante_" + std::to_string(abilityRecord->GetAbilityRecordId()),
+        handler->SubmitTask(terminateTask, "PrepareTermiante_" + std::to_string(abilityRecord->GetAbilityRecordId()),
             prepareTerminateTimeout);
     }
 
     bool res = abilityRecord->PrepareTerminateAbility();
     if (res) {
         HILOG_INFO("stop terminating.");
-        handler->RemoveTask("PrepareTermiante_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+        handler->CancelTask("PrepareTermiante_" + std::to_string(abilityRecord->GetAbilityRecordId()));
         return ERR_OK;
     }
-    handler->RemoveTask("PrepareTermiante_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+    handler->CancelTask("PrepareTermiante_" + std::to_string(abilityRecord->GetAbilityRecordId()));
     return ClearMissionLocked(missionId, mission);
 }
 

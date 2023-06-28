@@ -23,6 +23,7 @@
 #include <functional>
 #include <getopt.h>
 #include <memory>
+#include <mutex>
 #include <nlohmann/json.hpp>
 #include <string>
 #include <thread>
@@ -62,7 +63,6 @@
 #include "system_ability_definition.h"
 #include "system_ability_token_callback.h"
 #include "uri_permission_manager_client.h"
-#include "xcollie/watchdog.h"
 
 #ifdef SUPPORT_GRAPHICS
 
@@ -218,8 +218,6 @@ sptr<AbilityManagerService> AbilityManagerService::instance_;
 
 AbilityManagerService::AbilityManagerService()
     : SystemAbility(ABILITY_MGR_SERVICE_ID, true),
-      eventLoop_(nullptr),
-      handler_(nullptr),
       state_(ServiceRunningState::STATE_NOT_START),
       iBundleManager_(nullptr)
 {
@@ -242,7 +240,6 @@ void AbilityManagerService::OnStart()
         return;
     }
     state_ = ServiceRunningState::STATE_RUNNING;
-    eventLoop_->Run();
     /* Publish service maybe failed, so we need call this function at the last,
      * so it can't affect the TDD test program */
     instance_ = DelayedSingleton<AbilityManagerService>::GetInstance().get();
@@ -266,12 +263,8 @@ void AbilityManagerService::OnStart()
 
 bool AbilityManagerService::Init()
 {
-    eventLoop_ = AppExecFwk::EventRunner::Create(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
-    CHECK_POINTER_RETURN_BOOL(eventLoop_);
-
-    handler_ = std::make_shared<AbilityEventHandler>(eventLoop_, weak_from_this());
-    CHECK_POINTER_RETURN_BOOL(handler_);
-
+    taskHandler_ = TaskHandlerWrap::CreateQueueHandler(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
+    eventHandler_ = std::make_shared<AbilityEventHandler>(taskHandler_, weak_from_this());
     freeInstallManager_ = std::make_shared<FreeInstallManager>(weak_from_this());
     CHECK_POINTER_RETURN_BOOL(freeInstallManager_);
 
@@ -294,18 +287,6 @@ bool AbilityManagerService::Init()
     SwitchManagers(U0_USER_ID, false);
     int amsTimeOut = AmsConfigurationParameter::GetInstance().GetAMSTimeOutTime();
     HILOG_INFO("amsTimeOut is %{public}d", amsTimeOut);
-    std::string threadName = std::string(AbilityConfig::NAME_ABILITY_MGR_SERVICE) + "(" +
-        std::to_string(eventLoop_->GetThreadId()) + ")";
-#ifdef SUPPORT_ASAN
-    constexpr int32_t timeout = 5 * 60 * 1000; // 5 min
-    if (HiviewDFX::Watchdog::GetInstance().AddThread(threadName, handler_, timeout) != 0) {
-        HILOG_ERROR("HiviewDFX::Watchdog::GetInstance AddThread Fail");
-    }
-#else
-    if (HiviewDFX::Watchdog::GetInstance().AddThread(threadName, handler_) != 0) {
-        HILOG_ERROR("HiviewDFX::Watchdog::GetInstance AddThread Fail");
-    }
-#endif
 #ifdef SUPPORT_GRAPHICS
     DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(OHOS::system::GetDeviceType());
     implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
@@ -313,7 +294,7 @@ bool AbilityManagerService::Init()
     InitPrepareTerminateConfig();
 #endif
 
-    DelayedSingleton<ConnectionStateManager>::GetInstance()->Init(handler_);
+    DelayedSingleton<ConnectionStateManager>::GetInstance()->Init(taskHandler_);
 
     interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
     interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
@@ -330,10 +311,10 @@ bool AbilityManagerService::Init()
     }
 
     auto startResidentAppsTask = [aams = shared_from_this()]() { aams->StartResidentApps(); };
-    handler_->PostTask(startResidentAppsTask, "StartResidentApps");
+    taskHandler_->SubmitTask(startResidentAppsTask, "StartResidentApps");
 
     auto initStartupFlagTask = [aams = shared_from_this()]() { aams->InitStartupFlag(); };
-    handler_->PostTask(initStartupFlagTask, "InitStartupFlag");
+    taskHandler_->SubmitTask(initStartupFlagTask, "InitStartupFlag");
     HILOG_INFO("Init success.");
     return true;
 }
@@ -350,7 +331,7 @@ void AbilityManagerService::OnStop()
 {
     HILOG_INFO("Stop AMS.");
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
-    std::unique_lock<std::shared_mutex> lock(bgtaskObserverMutex_);
+    std::unique_lock<ffrt::mutex> lock(bgtaskObserverMutex_);
     if (bgtaskObserver_) {
         int ret = BackgroundTaskMgrHelper::UnsubscribeBackgroundTask(*bgtaskObserver_);
         if (ret != ERR_OK) {
@@ -368,8 +349,8 @@ void AbilityManagerService::OnStop()
             }
         }
     }
-    eventLoop_.reset();
-    handler_.reset();
+    eventHandler_.reset();
+    taskHandler_.reset();
     state_ = ServiceRunningState::STATE_NOT_START;
 }
 
@@ -1200,7 +1181,7 @@ bool AbilityManagerService::CheckCallingTokenId(const std::string &bundleName, i
 bool AbilityManagerService::IsBackgroundTaskUid(const int uid)
 {
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
-    std::shared_lock<std::shared_mutex> lock(bgtaskObserverMutex_);
+    std::lock_guard<ffrt::mutex> lock(bgtaskObserverMutex_);
     if (bgtaskObserver_) {
         return bgtaskObserver_->IsBackgroundTaskUid(uid);
     }
@@ -1301,7 +1282,7 @@ int32_t AbilityManagerService::ForceExitApp(const int32_t pid, Reason exitReason
     int32_t targetUserId = uid / BASE_USER_RANGE;
     std::vector<std::string> abilityLists;
     if (targetUserId == U0_USER_ID) {
-        std::shared_lock<std::shared_mutex> lock(managersMutex_);
+        std::lock_guard lock(managersMutex_);
         for (auto item: missionListManagers_) {
             if (item.second) {
                 std::vector<std::string> abilityList;
@@ -1437,7 +1418,7 @@ void AbilityManagerService::OnRemoveSystemAbility(int32_t systemAbilityId, const
 void AbilityManagerService::SubscribeBackgroundTask()
 {
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
-    std::unique_lock<std::shared_mutex> lock(bgtaskObserverMutex_);
+    std::unique_lock<ffrt::mutex> lock(bgtaskObserverMutex_);
     if (bgtaskObserver_) {
         return;
     }
@@ -1456,7 +1437,7 @@ void AbilityManagerService::SubscribeBackgroundTask()
 void AbilityManagerService::UnSubscribeBackgroundTask()
 {
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
-    std::unique_lock<std::shared_mutex> lock(bgtaskObserverMutex_);
+    std::unique_lock<ffrt::mutex> lock(bgtaskObserverMutex_);
     if (!bgtaskObserver_) {
         return;
     }
@@ -1473,7 +1454,7 @@ void AbilityManagerService::SubscribeBundleEventCallback()
     }
 
     // Register abilityBundleEventCallback to receive hap updates
-    abilityBundleEventCallback_ = new (std::nothrow) AbilityBundleEventCallback(handler_);
+    abilityBundleEventCallback_ = new (std::nothrow) AbilityBundleEventCallback(taskHandler_);
     auto bms = GetBundleManager();
     if (bms) {
         bool ret = IN_PROCESS_CALL(bms->RegisterBundleEventCallback(abilityBundleEventCallback_));
@@ -3442,7 +3423,7 @@ void AbilityManagerService::DumpSysMissionListInner(
 {
     std::shared_ptr<MissionListManager> targetManager;
     if (isUserID) {
-        std::shared_lock<std::shared_mutex> lock(managersMutex_);
+        std::lock_guard<ffrt::mutex> lock(managersMutex_);
         auto it = missionListManagers_.find(userId);
         if (it == missionListManagers_.end()) {
             info.push_back("error: No user found.");
@@ -3474,7 +3455,7 @@ void AbilityManagerService::DumpSysAbilityInner(
 {
     std::shared_ptr<MissionListManager> targetManager;
     if (isUserID) {
-        std::shared_lock<std::shared_mutex> lock(managersMutex_);
+        std::lock_guard<ffrt::mutex> lock(managersMutex_);
         auto it = missionListManagers_.find(userId);
         if (it == missionListManagers_.end()) {
             info.push_back("error: No user found.");
@@ -3514,7 +3495,7 @@ void AbilityManagerService::DumpSysStateInner(
     std::shared_ptr<AbilityConnectManager> targetManager;
 
     if (isUserID) {
-        std::shared_lock<std::shared_mutex> lock(managersMutex_);
+        std::lock_guard<ffrt::mutex> lock(managersMutex_);
         auto it = connectManagers_.find(userId);
         if (it == connectManagers_.end()) {
             info.push_back("error: No user found.");
@@ -3549,7 +3530,7 @@ void AbilityManagerService::DumpSysPendingInner(
 {
     std::shared_ptr<PendingWantManager> targetManager;
     if (isUserID) {
-        std::shared_lock<std::shared_mutex> lock(managersMutex_);
+        std::lock_guard<ffrt::mutex> lock(managersMutex_);
         auto it = pendingWantManagers_.find(userId);
         if (it == pendingWantManagers_.end()) {
             info.push_back("error: No user found.");
@@ -3625,7 +3606,7 @@ void AbilityManagerService::DataDumpSysStateInner(
 {
     std::shared_ptr<DataAbilityManager> targetManager;
     if (isUserID) {
-        std::shared_lock<std::shared_mutex> lock(managersMutex_);
+        std::lock_guard<ffrt::mutex> lock(managersMutex_);
         auto it = dataAbilityManagers_.find(userId);
         if (it == dataAbilityManagers_.end()) {
             info.push_back("error: No user found.");
@@ -4007,14 +3988,14 @@ void AbilityManagerService::OnAppStateChanged(const AppInfo &info)
 
 std::shared_ptr<AbilityEventHandler> AbilityManagerService::GetEventHandler()
 {
-    return handler_;
+    return eventHandler_;
 }
 
 void AbilityManagerService::InitMissionListManager(int userId, bool switchUser)
 {
     bool find = false;
     {
-        std::shared_lock<std::shared_mutex> lock(managersMutex_);
+        std::lock_guard<ffrt::mutex> lock(managersMutex_);
         auto iterator = missionListManagers_.find(userId);
         find = (iterator != missionListManagers_.end());
         if (find) {
@@ -4027,7 +4008,7 @@ void AbilityManagerService::InitMissionListManager(int userId, bool switchUser)
     if (!find) {
         auto manager = std::make_shared<MissionListManager>(userId);
         manager->Init();
-        std::unique_lock<std::shared_mutex> lock(managersMutex_);
+        std::unique_lock<ffrt::mutex> lock(managersMutex_);
         missionListManagers_.emplace(userId, manager);
         if (switchUser) {
             currentMissionListManager_ = manager;
@@ -4373,7 +4354,7 @@ void AbilityManagerService::OnCallConnectDied(std::shared_ptr<CallRecord> callRe
 
 void AbilityManagerService::ReleaseAbilityTokenMap(const sptr<IRemoteObject> &token)
 {
-    std::lock_guard<std::mutex> autoLock(abilityTokenLock_);
+    std::lock_guard<ffrt::mutex> autoLock(abilityTokenLock_);
     for (auto iter = callStubTokenMap_.begin(); iter != callStubTokenMap_.end(); iter++) {
         if (iter->second == token) {
             callStubTokenMap_.erase(iter);
@@ -4431,7 +4412,7 @@ int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t u
 
     int32_t targetUserId = uid / BASE_USER_RANGE;
     if (targetUserId == U0_USER_ID) {
-        std::shared_lock<std::shared_mutex> lock(managersMutex_);
+        std::lock_guard<ffrt::mutex> lock(managersMutex_);
         for (auto item: missionListManagers_) {
             if (item.second) {
                 item.second->UninstallApp(bundleName, uid);
@@ -4538,7 +4519,7 @@ bool AbilityManagerService::IsSystemUI(const std::string &bundleName) const
 void AbilityManagerService::HandleLoadTimeOut(int64_t abilityRecordId)
 {
     HILOG_DEBUG("Handle load timeout.");
-    std::shared_lock<std::shared_mutex> lock(managersMutex_);
+    std::lock_guard<ffrt::mutex> lock(managersMutex_);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         uiAbilityLifecycleManager_->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecordId);
         return;
@@ -4553,7 +4534,7 @@ void AbilityManagerService::HandleLoadTimeOut(int64_t abilityRecordId)
 void AbilityManagerService::HandleActiveTimeOut(int64_t abilityRecordId)
 {
     HILOG_DEBUG("Handle active timeout.");
-    std::shared_lock<std::shared_mutex> lock(managersMutex_);
+    std::lock_guard<ffrt::mutex> lock(managersMutex_);
     for (auto& item : missionListManagers_) {
         if (item.second) {
             item.second->OnTimeOut(AbilityManagerService::ACTIVE_TIMEOUT_MSG, abilityRecordId);
@@ -4564,7 +4545,7 @@ void AbilityManagerService::HandleActiveTimeOut(int64_t abilityRecordId)
 void AbilityManagerService::HandleInactiveTimeOut(int64_t abilityRecordId)
 {
     HILOG_DEBUG("Handle inactive timeout.");
-    std::shared_lock<std::shared_mutex> lock(managersMutex_);
+    std::lock_guard<ffrt::mutex> lock(managersMutex_);
     for (auto& item : missionListManagers_) {
         if (item.second) {
             item.second->OnTimeOut(AbilityManagerService::INACTIVE_TIMEOUT_MSG, abilityRecordId);
@@ -4581,7 +4562,7 @@ void AbilityManagerService::HandleInactiveTimeOut(int64_t abilityRecordId)
 void AbilityManagerService::HandleForegroundTimeOut(int64_t abilityRecordId)
 {
     HILOG_DEBUG("Handle foreground timeout.");
-    std::shared_lock<std::shared_mutex> lock(managersMutex_);
+    std::lock_guard<ffrt::mutex> lock(managersMutex_);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         uiAbilityLifecycleManager_->OnTimeOut(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecordId);
         return;
@@ -4664,7 +4645,7 @@ bool AbilityManagerService::VerificationAllToken(const sptr<IRemoteObject> &toke
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("VerificationAllToken.");
-    std::shared_lock<std::shared_mutex> lock(managersMutex_);
+    std::lock_guard<ffrt::mutex> lock(managersMutex_);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         if (uiAbilityLifecycleManager_ != nullptr && uiAbilityLifecycleManager_->IsContainsAbility(token)) {
             return true;
@@ -4714,7 +4695,7 @@ std::shared_ptr<DataAbilityManager> AbilityManagerService::GetDataAbilityManager
         return nullptr;
     }
 
-    std::shared_lock<std::shared_mutex> lock(managersMutex_);
+    std::lock_guard<ffrt::mutex> lock(managersMutex_);
     for (auto& item: dataAbilityManagers_) {
         if (item.second && item.second->ContainsDataAbility(scheduler)) {
             return item.second;
@@ -4726,7 +4707,7 @@ std::shared_ptr<DataAbilityManager> AbilityManagerService::GetDataAbilityManager
 
 std::shared_ptr<MissionListManager> AbilityManagerService::GetListManagerByUserId(int32_t userId)
 {
-    std::shared_lock<std::shared_mutex> lock(managersMutex_);
+    std::lock_guard<ffrt::mutex> lock(managersMutex_);
     auto it = missionListManagers_.find(userId);
     if (it != missionListManagers_.end()) {
         return it->second;
@@ -4737,7 +4718,7 @@ std::shared_ptr<MissionListManager> AbilityManagerService::GetListManagerByUserI
 
 std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerByUserId(int32_t userId)
 {
-    std::shared_lock<std::shared_mutex> lock(managersMutex_);
+    std::lock_guard<ffrt::mutex> lock(managersMutex_);
     auto it = connectManagers_.find(userId);
     if (it != connectManagers_.end()) {
         return it->second;
@@ -4748,7 +4729,7 @@ std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerB
 
 std::shared_ptr<DataAbilityManager> AbilityManagerService::GetDataAbilityManagerByUserId(int32_t userId)
 {
-    std::shared_lock<std::shared_mutex> lock(managersMutex_);
+    std::lock_guard<ffrt::mutex> lock(managersMutex_);
     auto it = dataAbilityManagers_.find(userId);
     if (it != dataAbilityManagers_.end()) {
         return it->second;
@@ -4760,7 +4741,7 @@ std::shared_ptr<DataAbilityManager> AbilityManagerService::GetDataAbilityManager
 std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerByToken(
     const sptr<IRemoteObject> &token)
 {
-    std::shared_lock<std::shared_mutex> lock(managersMutex_);
+    std::lock_guard<ffrt::mutex> lock(managersMutex_);
     for (auto item: connectManagers_) {
         if (item.second && item.second->GetExtensionByTokenFromServiceMap(token)) {
             return item.second;
@@ -4776,7 +4757,7 @@ std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerB
 std::shared_ptr<DataAbilityManager> AbilityManagerService::GetDataAbilityManagerByToken(
     const sptr<IRemoteObject> &token)
 {
-    std::shared_lock<std::shared_mutex> lock(managersMutex_);
+    std::lock_guard<ffrt::mutex> lock(managersMutex_);
     for (auto item: dataAbilityManagers_) {
         if (item.second && item.second->GetAbilityRecordByToken(token)) {
             return item.second;
@@ -5212,7 +5193,7 @@ int AbilityManagerService::GetProcessRunningInfosByUserId(
 void AbilityManagerService::ClearUserData(int32_t userId)
 {
     HILOG_DEBUG("%{public}s", __func__);
-    std::unique_lock<std::shared_mutex> lock(managersMutex_);
+    std::unique_lock<ffrt::mutex> lock(managersMutex_);
     missionListManagers_.erase(userId);
     connectManagers_.erase(userId);
     dataAbilityManagers_.erase(userId);
@@ -5306,7 +5287,7 @@ void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& toke
     }
 
     {
-        std::lock_guard<std::mutex> guard(globalLock_);
+        std::lock_guard<ffrt::mutex> guard(globalLock_);
         auto it = appRecoveryHistory_.find(record->GetUid());
         if (it == appRecoveryHistory_.end()) {
             appRecoveryHistory_.emplace(record->GetUid(), 0);
@@ -5369,7 +5350,7 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
 
     AAFwk::Want curWant;
     {
-        std::lock_guard<std::mutex> guard(globalLock_);
+        std::lock_guard<ffrt::mutex> guard(globalLock_);
         auto type = record->GetAbilityInfo().type;
         if (type != AppExecFwk::AbilityType::PAGE) {
             HILOG_ERROR("%{public}s AppRecovery::only do recover for page ability.", __func__);
@@ -5447,7 +5428,7 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
     std::string taskName = "AppRecovery_kill:" + std::to_string(record->GetPid());
     auto task = std::bind(&AbilityManagerService::RecoverAbilityRestart, this, curWant);
     HILOG_INFO("AppRecovery RecoverAbilityRestart task begin");
-    handler_->PostTask(task, taskName, delaytime);
+    taskHandler_->SubmitTask(task, taskName, delaytime);
 }
 
 int32_t AbilityManagerService::GetRemoteMissionSnapshotInfo(const std::string& deviceId, int32_t missionId,
@@ -5532,7 +5513,7 @@ void AbilityManagerService::PauseOldUser(int32_t userId)
 void AbilityManagerService::PauseOldMissionListManager(int32_t userId)
 {
     HILOG_INFO("%{public}s, PauseOldMissionListManager:%{public}d-----begin", __func__, userId);
-    std::shared_lock<std::shared_mutex> lock(managersMutex_);
+    std::lock_guard<ffrt::mutex> lock(managersMutex_);
     auto it = missionListManagers_.find(userId);
     if (it == missionListManagers_.end()) {
         HILOG_INFO("%{public}s, PauseOldMissionListManager:%{public}d-----end1", __func__, userId);
@@ -5555,7 +5536,7 @@ void AbilityManagerService::PauseOldConnectManager(int32_t userId)
         return;
     }
 
-    std::shared_lock<std::shared_mutex> lock(managersMutex_);
+    std::lock_guard<ffrt::mutex> lock(managersMutex_);
     auto it = connectManagers_.find(userId);
     if (it == connectManagers_.end()) {
         HILOG_INFO("%{public}s, PauseOldConnectManager:%{public}d-----no user", __func__, userId);
@@ -5584,7 +5565,7 @@ void AbilityManagerService::InitConnectManager(int32_t userId, bool switchUser)
 {
     bool find = false;
     {
-        std::shared_lock<std::shared_mutex> lock(managersMutex_);
+        std::lock_guard<ffrt::mutex> lock(managersMutex_);
         auto it = connectManagers_.find(userId);
         find = (it != connectManagers_.end());
         if (find) {
@@ -5595,8 +5576,9 @@ void AbilityManagerService::InitConnectManager(int32_t userId, bool switchUser)
     }
     if (!find) {
         auto manager = std::make_shared<AbilityConnectManager>(userId);
-        manager->SetEventHandler(handler_);
-        std::unique_lock<std::shared_mutex> lock(managersMutex_);
+        manager->SetTaskHandler(taskHandler_);
+        manager->SetEventHandler(eventHandler_);
+        std::unique_lock<ffrt::mutex> lock(managersMutex_);
         connectManagers_.emplace(userId, manager);
         if (switchUser) {
             connectManager_ = manager;
@@ -5608,7 +5590,7 @@ void AbilityManagerService::InitDataAbilityManager(int32_t userId, bool switchUs
 {
     bool find = false;
     {
-        std::shared_lock<std::shared_mutex> lock(managersMutex_);
+        std::lock_guard<ffrt::mutex> lock(managersMutex_);
         auto it = dataAbilityManagers_.find(userId);
         find = (it != dataAbilityManagers_.end());
         if (find) {
@@ -5619,7 +5601,7 @@ void AbilityManagerService::InitDataAbilityManager(int32_t userId, bool switchUs
     }
     if (!find) {
         auto manager = std::make_shared<DataAbilityManager>();
-        std::unique_lock<std::shared_mutex> lock(managersMutex_);
+        std::unique_lock<ffrt::mutex> lock(managersMutex_);
         dataAbilityManagers_.emplace(userId, manager);
         if (switchUser) {
             dataAbilityManager_ = manager;
@@ -5631,7 +5613,7 @@ void AbilityManagerService::InitPendWantManager(int32_t userId, bool switchUser)
 {
     bool find = false;
     {
-        std::shared_lock<std::shared_mutex> lock(managersMutex_);
+        std::lock_guard<ffrt::mutex> lock(managersMutex_);
         auto it = pendingWantManagers_.find(userId);
         find = (it != pendingWantManagers_.end());
         if (find) {
@@ -5642,7 +5624,7 @@ void AbilityManagerService::InitPendWantManager(int32_t userId, bool switchUser)
     }
     if (!find) {
         auto manager = std::make_shared<PendingWantManager>();
-        std::unique_lock<std::shared_mutex> lock(managersMutex_);
+        std::unique_lock<ffrt::mutex> lock(managersMutex_);
         pendingWantManagers_.emplace(userId, manager);
         if (switchUser) {
             pendingWantManager_ = manager;
@@ -5676,7 +5658,7 @@ int AbilityManagerService::SetAbilityController(const sptr<IAbilityController> &
         return CHECK_PERMISSION_FAILED;
     }
 
-    std::lock_guard<std::mutex> guard(globalLock_);
+    std::lock_guard<ffrt::mutex> guard(globalLock_);
     abilityController_ = abilityController;
     controllerIsAStabilityTest_ = imAStabilityTest;
     HILOG_DEBUG("%{public}s, end", __func__);
@@ -5697,7 +5679,7 @@ int AbilityManagerService::SendANRProcessID(int pid)
     bool debug;
     auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
     if (appScheduler->GetApplicationInfoByProcessID(pid, appInfo, debug) == ERR_OK) {
-        std::lock_guard<std::mutex> guard(globalLock_);
+        std::lock_guard<ffrt::mutex> guard(globalLock_);
         auto it = appRecoveryHistory_.find(appInfo.uid);
         if (it != appRecoveryHistory_.end()) {
             return ERR_OK;
@@ -5725,7 +5707,7 @@ int AbilityManagerService::SendANRProcessID(int pid)
 
 bool AbilityManagerService::IsRunningInStabilityTest()
 {
-    std::lock_guard<std::mutex> guard(globalLock_);
+    std::lock_guard<ffrt::mutex> guard(globalLock_);
     bool ret = abilityController_ != nullptr && controllerIsAStabilityTest_;
     HILOG_DEBUG("%{public}s, IsRunningInStabilityTest: %{public}d", __func__, ret);
     return ret;
@@ -5901,7 +5883,7 @@ int AbilityManagerService::DoAbilityForeground(const sptr<IRemoteObject> &token,
         return ERR_INVALID_VALUE;
     }
 
-    std::lock_guard<std::mutex> guard(globalLock_);
+    std::lock_guard<ffrt::mutex> guard(globalLock_);
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     if (!JudgeSelfCalled(abilityRecord)) {
@@ -6165,7 +6147,7 @@ int AbilityManagerService::BlockAmsService()
         HILOG_ERROR("Not shell call");
         return ERR_PERMISSION_DENIED;
     }
-    if (handler_) {
+    if (taskHandler_) {
         HILOG_DEBUG("%{public}s begin post block ams service task", __func__);
         auto BlockAmsServiceTask = [aams = shared_from_this()]() {
             while (1) {
@@ -6173,7 +6155,7 @@ int AbilityManagerService::BlockAmsService()
                 std::this_thread::sleep_for(BLOCK_AMS_SERVICE_TIME*1s);
             }
         };
-        handler_->PostTask(BlockAmsServiceTask, "blockamsservice");
+        taskHandler_->SubmitTask(BlockAmsServiceTask, "blockamsservice");
         return ERR_OK;
     }
     return ERR_NO_INIT;
@@ -6451,7 +6433,7 @@ sptr<IWindowManagerServiceHandler> AbilityManagerService::GetWMSHandler() const
 void AbilityManagerService::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken)
 {
     HILOG_DEBUG("%{public}s is called.", __func__);
-    std::shared_lock<std::shared_mutex> lock(managersMutex_);
+    std::lock_guard<ffrt::mutex> lock(managersMutex_);
     for (auto& item : missionListManagers_) {
         if (item.second) {
             item.second->CompleteFirstFrameDrawing(abilityToken);
@@ -6530,8 +6512,8 @@ int AbilityManagerService::PrepareTerminateAbility(const sptr<IRemoteObject> &to
     };
     int prepareTerminateTimeout =
         AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * PREPARE_TERMINATE_TIMEOUT_MULTIPLE;
-    if (handler_) {
-        handler_->PostTask(timeoutTask, "PrepareTermiante_" + std::to_string(abilityRecord->GetAbilityRecordId()),
+    if (taskHandler_) {
+        taskHandler_->SubmitTask(timeoutTask, "PrepareTermiante_" + std::to_string(abilityRecord->GetAbilityRecordId()),
             prepareTerminateTimeout);
     }
 
@@ -6539,7 +6521,7 @@ int AbilityManagerService::PrepareTerminateAbility(const sptr<IRemoteObject> &to
     if (!res) {
         callback->DoPrepareTerminate();
     }
-    handler_->RemoveTask("PrepareTermiante_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+    taskHandler_->CancelTask("PrepareTermiante_" + std::to_string(abilityRecord->GetAbilityRecordId()));
     return ERR_OK;
 }
 
@@ -6574,15 +6556,15 @@ void AbilityManagerService::InitFocusListener()
         return;
     }
 
-    focusListener_ = new WindowFocusChangedListener(shared_from_this(), handler_);
+    focusListener_ = new WindowFocusChangedListener(shared_from_this(), taskHandler_);
     auto registerTask = [innerService = shared_from_this()]() {
         if (innerService) {
             HILOG_INFO("RegisterFocusListener task");
             innerService->RegisterFocusListener();
         }
     };
-    if (handler_) {
-        handler_->PostTask(registerTask, "RegisterFocusListenerTask", REGISTER_FOCUS_DELAY);
+    if (taskHandler_) {
+        taskHandler_->SubmitTask(registerTask, "RegisterFocusListenerTask", REGISTER_FOCUS_DELAY);
     }
 }
 
@@ -6922,7 +6904,7 @@ bool AbilityManagerService::GetStartUpNewRuleFlag() const
 void AbilityManagerService::CallRequestDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub)
 {
     {
-        std::lock_guard<std::mutex> autoLock(abilityTokenLock_);
+        std::lock_guard<ffrt::mutex> autoLock(abilityTokenLock_);
         callStubTokenMap_[callStub] = token;
     }
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
@@ -6945,7 +6927,7 @@ void AbilityManagerService::CallRequestDone(const sptr<IRemoteObject> &token, co
 
 void AbilityManagerService::GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token)
 {
-    std::lock_guard<std::mutex> autoLock(abilityTokenLock_);
+    std::lock_guard<ffrt::mutex> autoLock(abilityTokenLock_);
     auto it = callStubTokenMap_.find(callStub);
     if (it == callStubTokenMap_.end()) {
         token = nullptr;
@@ -7019,7 +7001,7 @@ int AbilityManagerService::SetComponentInterception(
         return CHECK_PERMISSION_FAILED;
     }
 
-    std::lock_guard<std::mutex> guard(globalLock_);
+    std::lock_guard<ffrt::mutex> guard(globalLock_);
     componentInterception_ = componentInterception;
     HILOG_DEBUG("%{public}s, end", __func__);
     return ERR_OK;
@@ -7257,8 +7239,8 @@ int32_t AbilityManagerService::ShareDataDone(
     if (!JudgeSelfCalled(abilityRecord)) {
         return CHECK_PERMISSION_FAILED;
     }
-    CHECK_POINTER_AND_RETURN_LOG(handler_, ERR_INVALID_VALUE, "fail to get abilityEventHandler.");
-    handler_->RemoveEvent(SHAREDATA_TIMEOUT_MSG, uniqueId);
+    CHECK_POINTER_AND_RETURN_LOG(eventHandler_, ERR_INVALID_VALUE, "fail to get abilityEventHandler.");
+    eventHandler_->RemoveEvent(SHAREDATA_TIMEOUT_MSG, uniqueId);
     return GetShareDataPairAndReturnData(abilityRecord, resultCode, uniqueId, wantParam);
 }
 

@@ -31,7 +31,7 @@ Status DataObsMgrInnerExt::HandleRegisterObserver(Uri &uri, sptr<IDataAbilityObs
     if (dataObserver->AsObject() == nullptr) {
         return DATA_OBSERVER_IS_NULL;
     }
-    std::lock_guard<std::mutex> lock(nodeMutex_);
+    std::lock_guard<ffrt::mutex> lock(nodeMutex_);
     auto deathRecipientRef = AddObsDeathRecipient(dataObserver->AsObject());
     if (deathRecipientRef == nullptr) {
         return DATAOBS_SERVICE_OBS_LIMMIT;
@@ -55,7 +55,7 @@ Status DataObsMgrInnerExt::HandleUnregisterObserver(Uri &uri, sptr<IDataAbilityO
             CommonUtils::Anonymous(uri.ToString()).c_str());
         return DATA_OBSERVER_IS_NULL;
     }
-    std::lock_guard<std::mutex> lock(nodeMutex_);
+    std::lock_guard<ffrt::mutex> lock(nodeMutex_);
     std::vector<std::string> path = { uri.GetScheme(), uri.GetAuthority() };
     uri.GetPathSegments(path);
     if (root_ != nullptr) {
@@ -71,7 +71,7 @@ Status DataObsMgrInnerExt::HandleUnregisterObserver(sptr<IDataAbilityObserver> d
         HILOG_ERROR("dataObserver is null");
         return DATA_OBSERVER_IS_NULL;
     }
-    std::lock_guard<std::mutex> lock(nodeMutex_);
+    std::lock_guard<ffrt::mutex> lock(nodeMutex_);
     if (root_ != nullptr) {
         root_->RemoveObserver(dataObserver);
     }
@@ -84,7 +84,7 @@ Status DataObsMgrInnerExt::HandleNotifyChange(const ChangeInfo &changeInfo)
     ObsMap changeRes;
     std::vector<std::string> path;
     {
-        std::lock_guard<std::mutex> lock(nodeMutex_);
+        std::lock_guard<ffrt::mutex> lock(nodeMutex_);
         for (auto &uri : changeInfo.uris_) {
             path.clear();
             path.emplace_back(uri.GetScheme());
@@ -156,7 +156,7 @@ void DataObsMgrInnerExt::OnCallBackDied(const wptr<IRemoteObject> &remote)
     if (dataObserver == nullptr) {
         return;
     }
-    std::lock_guard<std::mutex> lock(nodeMutex_);
+    std::lock_guard<ffrt::mutex> lock(nodeMutex_);
     if (root_ != nullptr) {
         root_->RemoveObserver(dataObserver);
     }

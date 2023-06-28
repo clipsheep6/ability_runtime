@@ -19,7 +19,6 @@
 #undef private
 
 using namespace testing::ext;
-using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace AAFwk {
@@ -50,28 +49,10 @@ void UserEventHandlerTest::TearDown(void)
  */
 HWTEST_F(UserEventHandlerTest, ProcessEvent_001, TestSize.Level1)
 {
-    std::shared_ptr<EventRunner> runner;
+    std::shared_ptr<TaskHandlerWrap> runner;
     std::weak_ptr<UserController> owner;
     std::shared_ptr<UserEventHandler> handler = std::make_shared<UserEventHandler>(runner, owner);
-    InnerEvent::Pointer event = InnerEvent::Get();
-    event.reset();
-    handler->ProcessEvent(event);
-}
-
-/*
- * Feature: UserEventHandler
- * Function: ProcessEvent
- * SubFunction: NA
- * FunctionPoints: UserEventHandler ProcessEvent
- * EnvConditions: NA
- * CaseDescription: Verify ProcessEvent
- */
-HWTEST_F(UserEventHandlerTest, ProcessEvent_002, TestSize.Level1)
-{
-    std::shared_ptr<EventRunner> runner;
-    std::weak_ptr<UserController> owner;
-    std::shared_ptr<UserEventHandler> handler = std::make_shared<UserEventHandler>(runner, owner);
-    InnerEvent::Pointer event = InnerEvent::Get();
+    EventWrap event(0);
     handler->ProcessEvent(event);
 }
 }  // namespace AAFwk

@@ -22,7 +22,7 @@
 #include "appexecfwk_errors.h"
 #include "application_info.h"
 #include "app_mgr_constants.h"
-#include "app_mgr_service_event_handler.h"
+#include "task_handler_wrap.h"
 #include "app_mgr_service_inner.h"
 #include "app_record_id.h"
 #include "app_running_record.h"
@@ -36,7 +36,8 @@ namespace AppExecFwk {
 class AmsMgrScheduler : public AmsMgrStub {
 public:
     AmsMgrScheduler(
-        const std::shared_ptr<AppMgrServiceInner> &MgrServiceInner_, const std::shared_ptr<AMSEventHandler> &Handler_);
+        const std::shared_ptr<AppMgrServiceInner> &MgrServiceInner_,
+        const std::shared_ptr<AAFwk::TaskHandlerWrap> &Handler_);
     virtual ~AmsMgrScheduler() override;
 
     /**
@@ -187,7 +188,7 @@ private:
 
 private:
     std::shared_ptr<AppMgrServiceInner> amsMgrServiceInner_;
-    std::shared_ptr<AMSEventHandler> amsHandler_;
+    std::shared_ptr<AAFwk::TaskHandlerWrap> amsHandler_;
     sptr<ISystemAbilityManager> systemAbilityMgr_;
 
     DISALLOW_COPY_AND_MOVE(AmsMgrScheduler);

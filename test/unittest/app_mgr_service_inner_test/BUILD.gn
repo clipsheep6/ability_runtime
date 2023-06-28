@@ -36,6 +36,7 @@ ohos_unittest("AppMgrServiceInnerTest") {
 
   deps = [
     "${ability_runtime_services_path}/appmgr:libappms",
+    "${ability_runtime_services_path}/common:task_handler_wrap",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -49,7 +50,7 @@ ohos_unittest("AppMgrServiceInnerTest") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
-    "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "init:libbeget_proxy",
     "init:libbegetutil",

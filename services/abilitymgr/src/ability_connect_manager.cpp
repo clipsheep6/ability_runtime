@@ -183,6 +183,7 @@ void AbilityConnectManager::EnqueueStartServiceReq(const AbilityRequest &ability
         reqList->push_back(abilityRequest);
         startServiceReqList_.emplace(abilityUri, reqList);
 
+        CHECK_POINTER(taskHandler_);
         auto callback = [abilityUri, connectManager = shared_from_this()]() {
             std::lock_guard guard{connectManager->startServiceReqListLock_};
             auto exist = connectManager->startServiceReqList_.erase(abilityUri);
@@ -193,7 +194,8 @@ void AbilityConnectManager::EnqueueStartServiceReq(const AbilityRequest &ability
 
         int connectTimeout =
             AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * CONNECT_TIMEOUT_MULTIPLE;
-        eventHandler_->PostTask(callback, std::string("start_service_timeout:") + abilityUri, connectTimeout);
+        taskHandler_->SubmitTask(callback, std::string("start_service_timeout:") + abilityUri,
+            connectTimeout);
     }
 }
 
@@ -355,9 +357,9 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
         // this service ability has connected already
         targetService->SetWant(abilityRequest.want);
         if (targetService->GetConnectRecordList().size() > 1) {
-            if (eventHandler_ != nullptr && targetService->GetConnRemoteObject()) {
+            if (taskHandler_ != nullptr && targetService->GetConnRemoteObject()) {
                 auto task = [connectRecord]() { connectRecord->CompleteConnect(ERR_OK); };
-                eventHandler_->PostTask(task);
+                taskHandler_->SubmitTask(task);
             } else {
                 HILOG_INFO("Target service is connecting, wait for callback");
             }
@@ -480,11 +482,14 @@ int AbilityConnectManager::AttachAbilityThreadLocked(
     std::lock_guard guard(Lock_);
     auto abilityRecord = GetExtensionFromServiceMapInner(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    if (eventHandler_ != nullptr) {
+    if (taskHandler_ != nullptr) {
         int recordId = abilityRecord->GetRecordId();
         std::string taskName = std::string("LoadTimeout_") + std::to_string(recordId);
-        eventHandler_->RemoveTask(taskName);
-        eventHandler_->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
+        taskHandler_->CancelTask(taskName);
+    }
+    if (eventHandler_) {
+        eventHandler_->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG,
+            abilityRecord->GetAbilityRecordId());
     }
     std::string element = abilityRecord->GetWant().GetElement().GetURI();
     HILOG_DEBUG("Ability: %{public}s", element.c_str());
@@ -566,8 +571,8 @@ int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &toke
                     }
                     acm->ProcessPreload(abilityRecord);
                 };
-                if (eventHandler_ != nullptr) {
-                    eventHandler_->PostTask(preloadTask);
+                if (taskHandler_ != nullptr) {
+                    taskHandler_->SubmitTask(preloadTask);
                 }
             }
             return DispatchInactive(abilityRecord, state);
@@ -719,11 +724,11 @@ int AbilityConnectManager::ScheduleCommandAbilityWindowDone(
     HILOG_DEBUG("Ability: %{public}s, persistentId: %{private}" PRIu64", winCmd: %{public}d, abilityCmd: %{public}d",
         element.c_str(), sessionInfo->persistentId, winCmd, abilityCmd);
 
-    if (eventHandler_) {
+    if (taskHandler_) {
         int recordId = abilityRecord->GetRecordId();
         std::string taskName = std::string("CommandWindowTimeout_") + std::to_string(recordId) + std::string("_") +
                                std::to_string(sessionInfo->persistentId) + std::string("_") + std::to_string(winCmd);
-        eventHandler_->RemoveTask(taskName);
+        taskHandler_->CancelTask(taskName);
     }
 
     if (winCmd == WIN_CMD_DESTROY) {
@@ -774,12 +779,11 @@ int AbilityConnectManager::ScheduleCommandAbilityWindowDone(
 void AbilityConnectManager::CompleteCommandAbility(std::shared_ptr<AbilityRecord> abilityRecord)
 {
     CHECK_POINTER(abilityRecord);
-
-    if (eventHandler_) {
+    if (taskHandler_) {
         int recordId = abilityRecord->GetRecordId();
         std::string taskName = std::string("CommandTimeout_") + std::to_string(recordId) + std::string("_") +
                                std::to_string(abilityRecord->GetStartId());
-        eventHandler_->RemoveTask(taskName);
+        taskHandler_->CancelTask(taskName);
     }
 
     abilityRecord->SetAbilityState(AbilityState::ACTIVE);
@@ -975,7 +979,7 @@ void AbilityConnectManager::LoadAbility(const std::shared_ptr<AbilityRecord> &ab
 void AbilityConnectManager::PostRestartResidentTask(const AbilityRequest &abilityRequest)
 {
     HILOG_INFO("PostRestartResidentTask start.");
-    CHECK_POINTER(eventHandler_);
+    CHECK_POINTER(taskHandler_);
     std::string taskName = std::string("RestartResident_") + std::string(abilityRequest.abilityInfo.name);
     auto task = [abilityRequest, connectManager = shared_from_this()]() {
         CHECK_POINTER(connectManager);
@@ -987,7 +991,8 @@ void AbilityConnectManager::PostRestartResidentTask(const AbilityRequest &abilit
         restartIntervalTime = AmsConfigurationParameter::GetInstance().GetRestartIntervalTime();
     }
     HILOG_DEBUG("PostRestartResidentTask, time:%{public}d", restartIntervalTime);
-    eventHandler_->PostTask(task, taskName, restartIntervalTime);
+    taskHandler_->SubmitTask(task, taskName, restartIntervalTime);
+    HILOG_INFO("PostRestartResidentTask end.");
 }
 
 void AbilityConnectManager::HandleRestartResidentTask(const AbilityRequest &abilityRequest)
@@ -1008,7 +1013,7 @@ void AbilityConnectManager::HandleRestartResidentTask(const AbilityRequest &abil
 void AbilityConnectManager::PostTimeOutTask(const std::shared_ptr<AbilityRecord> &abilityRecord, uint32_t messageId)
 {
     CHECK_POINTER(abilityRecord);
-    CHECK_POINTER(eventHandler_);
+    CHECK_POINTER(taskHandler_);
     if (messageId != AbilityConnectManager::LOAD_TIMEOUT_MSG &&
         messageId != AbilityConnectManager::CONNECT_TIMEOUT_MSG) {
         HILOG_ERROR("Timeout task messageId is error.");
@@ -1048,8 +1053,7 @@ void AbilityConnectManager::PostTimeOutTask(const std::shared_ptr<AbilityRecord>
         HILOG_WARN("Connect or load ability timeout.");
         connectManager->HandleStartTimeoutTask(abilityRecord, resultCode);
     };
-
-    eventHandler_->PostTask(timeoutTask, taskName, delayTime);
+    taskHandler_->SubmitTask(timeoutTask, taskName, delayTime);
 }
 
 void AbilityConnectManager::HandleStartTimeoutTask(const std::shared_ptr<AbilityRecord> &abilityRecord, int resultCode)
@@ -1195,13 +1199,13 @@ int AbilityConnectManager::DispatchInactive(const std::shared_ptr<AbilityRecord>
 int AbilityConnectManager::DispatchForeground(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    CHECK_POINTER_AND_RETURN(eventHandler_, ERR_INVALID_VALUE);
+    CHECK_POINTER_AND_RETURN(taskHandler_, ERR_INVALID_VALUE);
     // remove foreground timeout task.
-    eventHandler_->RemoveTask("foreground_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+    taskHandler_->CancelTask("foreground_" + std::to_string(abilityRecord->GetAbilityRecordId()));
 
     auto self(shared_from_this());
     auto task = [self, abilityRecord]() { self->CompleteForeground(abilityRecord); };
-    eventHandler_->PostTask(task);
+    taskHandler_->SubmitTask(task);
 
     return ERR_OK;
 }
@@ -1209,13 +1213,13 @@ int AbilityConnectManager::DispatchForeground(const std::shared_ptr<AbilityRecor
 int AbilityConnectManager::DispatchBackground(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    CHECK_POINTER_AND_RETURN(eventHandler_, ERR_INVALID_VALUE);
+    CHECK_POINTER_AND_RETURN(taskHandler_, ERR_INVALID_VALUE);
     // remove background timeout task.
-    eventHandler_->RemoveTask("background_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+    taskHandler_->CancelTask("background_" + std::to_string(abilityRecord->GetAbilityRecordId()));
 
     auto self(shared_from_this());
     auto task = [self, abilityRecord]() { self->CompleteBackground(abilityRecord); };
-    eventHandler_->PostTask(task);
+    taskHandler_->SubmitTask(task);
 
     return ERR_OK;
 }
@@ -1224,8 +1228,8 @@ int AbilityConnectManager::DispatchTerminate(const std::shared_ptr<AbilityRecord
 {
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     // remove terminate timeout task
-    if (eventHandler_ != nullptr) {
-        eventHandler_->RemoveTask("terminate_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+    if (taskHandler_ != nullptr) {
+        taskHandler_->CancelTask("terminate_" + std::to_string(abilityRecord->GetAbilityRecordId()));
     }
     // complete terminate
     TerminateDone(abilityRecord);
@@ -1243,7 +1247,7 @@ void AbilityConnectManager::ConnectAbility(const std::shared_ptr<AbilityRecord> 
 void AbilityConnectManager::CommandAbility(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    if (eventHandler_ != nullptr) {
+    if (taskHandler_ != nullptr) {
         // first connect ability, There is at most one connect record.
         int recordId = abilityRecord->GetRecordId();
         abilityRecord->AddStartId();
@@ -1255,7 +1259,7 @@ void AbilityConnectManager::CommandAbility(const std::shared_ptr<AbilityRecord> 
         };
         int commandTimeout =
             AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * COMMAND_TIMEOUT_MULTIPLE;
-        eventHandler_->PostTask(timeoutTask, taskName, commandTimeout);
+        taskHandler_->SubmitTask(timeoutTask, taskName, commandTimeout);
         // scheduling command ability
         abilityRecord->CommandAbility();
     }
@@ -1269,7 +1273,7 @@ void AbilityConnectManager::CommandAbilityWindow(const std::shared_ptr<AbilityRe
     CHECK_POINTER(sessionInfo);
     HILOG_DEBUG("ability: %{public}s, persistentId: %{private}" PRIu64", wincmd: %{public}d",
         abilityRecord->GetAbilityInfo().name.c_str(), sessionInfo->persistentId, winCmd);
-    if (eventHandler_ != nullptr) {
+    if (taskHandler_ != nullptr) {
         int recordId = abilityRecord->GetRecordId();
         std::string taskName = std::string("CommandWindowTimeout_") + std::to_string(recordId) + std::string("_") +
             std::to_string(sessionInfo->persistentId) + std::string("_") + std::to_string(winCmd);
@@ -1279,7 +1283,7 @@ void AbilityConnectManager::CommandAbilityWindow(const std::shared_ptr<AbilityRe
         };
         int commandWindowTimeout =
             AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * COMMAND_WINDOW_TIMEOUT_MULTIPLE;
-        eventHandler_->PostTask(timeoutTask, taskName, commandWindowTimeout);
+        taskHandler_->SubmitTask(timeoutTask, taskName, commandWindowTimeout);
         // scheduling command ability
         abilityRecord->CommandAbilityWindow(sessionInfo, winCmd);
     }
@@ -1384,9 +1388,9 @@ void AbilityConnectManager::OnCallBackDied(const wptr<IRemoteObject> &remote)
 {
     auto object = remote.promote();
     CHECK_POINTER(object);
-    if (eventHandler_) {
+    if (taskHandler_) {
         auto task = [object, connectManager = shared_from_this()]() { connectManager->HandleCallBackDiedTask(object); };
-        eventHandler_->PostTask(task, TASK_ON_CALLBACK_DIED);
+        taskHandler_->SubmitTask(task, TASK_ON_CALLBACK_DIED);
     }
 }
 
@@ -1418,11 +1422,11 @@ void AbilityConnectManager::OnAbilityDied(const std::shared_ptr<AbilityRecord> &
         HILOG_DEBUG("Ability type is not service.");
         return;
     }
-    if (eventHandler_) {
+    if (taskHandler_) {
         auto task = [abilityRecord, connectManager = shared_from_this(), currentUserId]() {
             connectManager->HandleAbilityDiedTask(abilityRecord, currentUserId);
         };
-        eventHandler_->PostTask(task, TASK_ON_ABILITY_DIED);
+        taskHandler_->SubmitTask(task, TASK_ON_ABILITY_DIED);
     }
 }
 
@@ -1949,11 +1953,11 @@ void AbilityConnectManager::OnUIExtWindowDied(const wptr<IRemoteObject> &remote)
 {
     auto object = remote.promote();
     CHECK_POINTER(object);
-    if (eventHandler_) {
+    if (taskHandler_) {
         auto task = [object, connectManager = shared_from_this()]() {
             connectManager->HandleUIExtWindowDiedTask(object);
         };
-        eventHandler_->PostTask(task);
+        taskHandler_->SubmitTask(task);
     }
 }
 

@@ -77,11 +77,6 @@ MissionDataStorage::MissionDataStorage(int userId)
 MissionDataStorage::~MissionDataStorage()
 {}
 
-void MissionDataStorage::SetEventHandler(const std::shared_ptr<AppExecFwk::EventHandler> &handler)
-{
-    handler_ = handler;
-}
-
 bool MissionDataStorage::LoadAllMissionInfo(std::list<InnerMissionInfo> &missionInfoList)
 {
     std::vector<std::string> fileNameVec;
@@ -308,7 +303,7 @@ std::shared_ptr<OHOS::Media::PixelMap> MissionDataStorage::GetReducedPixelMap(
 
 bool MissionDataStorage::GetCachedSnapshot(int32_t missionId, MissionSnapshot& missionSnapshot)
 {
-    std::lock_guard<std::mutex> lock(cachedPixelMapMutex_);
+    std::lock_guard<ffrt::mutex> lock(cachedPixelMapMutex_);
     auto pixelMap = cachedPixelMap_.find(missionId);
     if (pixelMap != cachedPixelMap_.end()) {
         missionSnapshot.snapshot = pixelMap->second;
@@ -319,7 +314,7 @@ bool MissionDataStorage::GetCachedSnapshot(int32_t missionId, MissionSnapshot& m
 
 bool MissionDataStorage::SaveCachedSnapshot(int32_t missionId, const MissionSnapshot& missionSnapshot)
 {
-    std::lock_guard<std::mutex> lock(cachedPixelMapMutex_);
+    std::lock_guard<ffrt::mutex> lock(cachedPixelMapMutex_);
     auto result = cachedPixelMap_.insert_or_assign(missionId, missionSnapshot.snapshot);
     if (!result.second) {
         HILOG_ERROR("snapshot: save snapshot cache failed, missionId = %{public}d", missionId);
@@ -330,7 +325,7 @@ bool MissionDataStorage::SaveCachedSnapshot(int32_t missionId, const MissionSnap
 
 bool MissionDataStorage::DeleteCachedSnapshot(int32_t missionId)
 {
-    std::lock_guard<std::mutex> lock(cachedPixelMapMutex_);
+    std::lock_guard<ffrt::mutex> lock(cachedPixelMapMutex_);
     auto result = cachedPixelMap_.erase(missionId);
     if (result != 1) {
         HILOG_ERROR("snapshot: delete snapshot cache failed, missionId = %{public}d", missionId);

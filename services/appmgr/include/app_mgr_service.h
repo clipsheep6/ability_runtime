@@ -23,7 +23,7 @@
 #include "if_system_ability_manager.h"
 #include "nocopyable.h"
 #include "system_ability.h"
-
+#include "task_handler_wrap.h"
 #include "ability_info.h"
 #include "ability_running_record.h"
 #include "appexecfwk_errors.h"
@@ -407,8 +407,8 @@ private:
 private:
     std::shared_ptr<AppMgrServiceInner> appMgrServiceInner_;
     AppMgrServiceState appMgrServiceState_;
-    std::shared_ptr<EventRunner> runner_;
-    std::shared_ptr<AMSEventHandler> handler_;
+    std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;
+    std::shared_ptr<AMSEventHandler> eventHandler_;
     sptr<ISystemAbilityManager> systemAbilityMgr_;
     sptr<IAmsMgr> amsMgrScheduler_;
 

@@ -61,7 +61,7 @@ public:
     }
 
     std::shared_ptr<MockAppMgrServiceInner> GetMockAppMgrServiceInner();
-    std::shared_ptr<AMSEventHandler> GetAmsEventHandler();
+    std::shared_ptr<AAFwk::TaskHandlerWrap> GetAmsTaskHandler();
 
 protected:
     sptr<MockAbilityToken> mockToken_ = nullptr;
@@ -69,7 +69,7 @@ protected:
     std::unique_ptr<AppMgrClient> client_{ nullptr };
 
     std::shared_ptr<MockAppMgrServiceInner> mockAppMgrServiceInner_{ nullptr };
-    std::shared_ptr<AMSEventHandler> amsEventHandler_{ nullptr };
+    std::shared_ptr<AAFwk::TaskHandlerWrap> amsTaskHandler_;
 };
 
 class MockMockAppMgrService : public MockAppMgrService {
@@ -95,7 +95,7 @@ void AmsIpcAmsmgrModuleTest::SetUp()
 
 void AmsIpcAmsmgrModuleTest::TearDown()
 {
-    amsEventHandler_.reset();
+    amsTaskHandler_.reset();
     mockAppMgrServiceInner_.reset();
 }
 
@@ -123,14 +123,12 @@ std::shared_ptr<MockAppMgrServiceInner> AmsIpcAmsmgrModuleTest::GetMockAppMgrSer
     return mockAppMgrServiceInner_;
 }
 
-std::shared_ptr<AMSEventHandler> AmsIpcAmsmgrModuleTest::GetAmsEventHandler()
+std::shared_ptr<AAFwk::TaskHandlerWrap> AmsIpcAmsmgrModuleTest::GetAmsTaskHandler()
 {
-    if (!amsEventHandler_) {
-        auto mockAppMgrServiceInner = GetMockAppMgrServiceInner();
-        amsEventHandler_ =
-            std::make_shared<AMSEventHandler>(EventRunner::Create("AmsMgrSchedulerTest"), mockAppMgrServiceInner);
+    if (!amsTaskHandler_) {
+        amsTaskHandler_ = AAFwk::TaskHandlerWrap::CreateQueueHandler("AmsMgrSchedulerTest");
     }
-    return amsEventHandler_;
+    return amsTaskHandler_;
 }
 
 /*
@@ -144,9 +142,8 @@ std::shared_ptr<AMSEventHandler> AmsIpcAmsmgrModuleTest::GetAmsEventHandler()
 HWTEST_F(AmsIpcAmsmgrModuleTest, ExcuteAmsmgrIPCInterface_002, TestSize.Level3)
 {
     auto mockAppMgrServiceInner = GetMockAppMgrServiceInner();
-    auto amsEventHandler = GetAmsEventHandler();
     std::unique_ptr<AmsMgrScheduler> amsMgrScheduler =
-        std::make_unique<AmsMgrScheduler>(mockAppMgrServiceInner, amsEventHandler);
+        std::make_unique<AmsMgrScheduler>(mockAppMgrServiceInner, GetAmsTaskHandler());
 
     sptr<MockMockAppMgrService> mockMockAppMgr(new MockMockAppMgrService());
     sptr<IAppMgr> appMgrClient = iface_cast<IAppMgr>(mockMockAppMgr);
@@ -184,9 +181,8 @@ HWTEST_F(AmsIpcAmsmgrModuleTest, ExcuteAmsmgrIPCInterface_002, TestSize.Level3)
 HWTEST_F(AmsIpcAmsmgrModuleTest, ExcuteAmsmgrIPCInterface_003, TestSize.Level3)
 {
     auto mockAppMgrServiceInner = GetMockAppMgrServiceInner();
-    auto amsEventHandler = GetAmsEventHandler();
     std::unique_ptr<AmsMgrScheduler> amsMgrScheduler =
-        std::make_unique<AmsMgrScheduler>(mockAppMgrServiceInner, amsEventHandler);
+        std::make_unique<AmsMgrScheduler>(mockAppMgrServiceInner, GetAmsTaskHandler());
 
     sptr<MockMockAppMgrService> mockMockAppMgr(new MockMockAppMgrService());
     sptr<IAppMgr> appMgrClient = iface_cast<IAppMgr>(mockMockAppMgr);
@@ -226,9 +222,8 @@ HWTEST_F(AmsIpcAmsmgrModuleTest, ExcuteAmsmgrIPCInterface_003, TestSize.Level3)
 HWTEST_F(AmsIpcAmsmgrModuleTest, ExcuteAmsmgrIPCInterface_004, TestSize.Level3)
 {
     auto mockAppMgrServiceInner = GetMockAppMgrServiceInner();
-    auto amsEventHandler = GetAmsEventHandler();
     std::unique_ptr<AmsMgrScheduler> amsMgrScheduler =
-        std::make_unique<AmsMgrScheduler>(mockAppMgrServiceInner, amsEventHandler);
+        std::make_unique<AmsMgrScheduler>(mockAppMgrServiceInner, GetAmsTaskHandler());
     sptr<MockAppStateCallback> callback = new MockAppStateCallback();
 
     sptr<MockMockAppMgrService> mockMockAppMgr(new MockMockAppMgrService());
@@ -270,9 +265,8 @@ HWTEST_F(AmsIpcAmsmgrModuleTest, ExcuteAmsmgrIPCInterface_005, TestSize.Level3)
     const int32_t connectionState = 1;
 
     auto mockAppMgrServiceInner = GetMockAppMgrServiceInner();
-    auto amsEventHandler = GetAmsEventHandler();
     std::unique_ptr<AmsMgrScheduler> amsMgrScheduler =
-        std::make_unique<AmsMgrScheduler>(mockAppMgrServiceInner, amsEventHandler);
+        std::make_unique<AmsMgrScheduler>(mockAppMgrServiceInner, GetAmsTaskHandler());
 
     sptr<MockMockAppMgrService> mockMockAppMgr(new MockMockAppMgrService());
     sptr<IAppMgr> appMgrClient = iface_cast<IAppMgr>(mockMockAppMgr);
@@ -311,9 +305,8 @@ HWTEST_F(AmsIpcAmsmgrModuleTest, ExcuteAmsmgrIPCInterface_006, TestSize.Level3)
 {
     const std::string bundleName = "p1";
     auto mockAppMgrServiceInner = GetMockAppMgrServiceInner();
-    auto amsEventHandler = GetAmsEventHandler();
     std::unique_ptr<AmsMgrScheduler> amsMgrScheduler =
-        std::make_unique<AmsMgrScheduler>(mockAppMgrServiceInner, amsEventHandler);
+        std::make_unique<AmsMgrScheduler>(mockAppMgrServiceInner, GetAmsTaskHandler());
 
     sptr<MockMockAppMgrService> mockMockAppMgr(new MockMockAppMgrService());
     sptr<IAppMgr> appMgrClient = iface_cast<IAppMgr>(mockMockAppMgr);
@@ -350,9 +343,8 @@ HWTEST_F(AmsIpcAmsmgrModuleTest, ExcuteAmsmgrIPCInterface_006, TestSize.Level3)
 HWTEST_F(AmsIpcAmsmgrModuleTest, ExcuteAmsmgrIPCInterface_007, TestSize.Level3)
 {
     auto mockAppMgrServiceInner = GetMockAppMgrServiceInner();
-    auto amsEventHandler = GetAmsEventHandler();
     std::unique_ptr<AmsMgrScheduler> amsMgrScheduler =
-        std::make_unique<AmsMgrScheduler>(mockAppMgrServiceInner, amsEventHandler);
+        std::make_unique<AmsMgrScheduler>(mockAppMgrServiceInner, GetAmsTaskHandler());
 
     sptr<MockMockAppMgrService> mockMockAppMgr(new MockMockAppMgrService());
     sptr<IAppMgr> appMgrClient = iface_cast<IAppMgr>(mockMockAppMgr);

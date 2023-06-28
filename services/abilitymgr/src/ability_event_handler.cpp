@@ -23,16 +23,15 @@
 namespace OHOS {
 namespace AAFwk {
 AbilityEventHandler::AbilityEventHandler(
-    const std::shared_ptr<AppExecFwk::EventRunner> &runner, const std::weak_ptr<AbilityManagerService> &server)
-    : AppExecFwk::EventHandler(runner), server_(server)
+    const std::shared_ptr<TaskHandlerWrap> &taskHandler, const std::weak_ptr<AbilityManagerService> &server)
+    : EventHandlerWrap(taskHandler), server_(server)
 {
     HILOG_INFO("Constructors.");
 }
 
-void AbilityEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event)
+void AbilityEventHandler::ProcessEvent(const EventWrap &event)
 {
-    CHECK_POINTER(event);
-    HILOG_DEBUG("Event id obtained: %{public}u.", event->GetInnerEventId());
+    HILOG_DEBUG("Event id obtained: %{public}u.", event.GetEventId());
     // check libc.hook_mode
     const int bufferLen = 128;
     char paramOutBuf[bufferLen] = {0};
@@ -42,27 +41,27 @@ void AbilityEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &ev
         HILOG_DEBUG("Hook_mode: no process time out");
         return;
     }
-    switch (event->GetInnerEventId()) {
+    switch (event.GetEventId()) {
         case AbilityManagerService::LOAD_TIMEOUT_MSG: {
-            ProcessLoadTimeOut(event->GetParam());
+            ProcessLoadTimeOut(event.GetParam());
             break;
         }
         case AbilityManagerService::ACTIVE_TIMEOUT_MSG: {
-            ProcessActiveTimeOut(event->GetParam());
+            ProcessActiveTimeOut(event.GetParam());
             break;
         }
         case AbilityManagerService::INACTIVE_TIMEOUT_MSG: {
             HILOG_INFO("Inactive timeout.");
             // inactivate pre ability immediately in case blocking next ability start
-            ProcessInactiveTimeOut(event->GetParam());
+            ProcessInactiveTimeOut(event.GetParam());
             break;
         }
         case AbilityManagerService::FOREGROUND_TIMEOUT_MSG: {
-            ProcessForegroundTimeOut(event->GetParam());
+            ProcessForegroundTimeOut(event.GetParam());
             break;
         }
         case AbilityManagerService::SHAREDATA_TIMEOUT_MSG: {
-            ProcessShareDataTimeOut(event->GetParam());
+            ProcessShareDataTimeOut(event.GetParam());
             break;
         }
         default: {

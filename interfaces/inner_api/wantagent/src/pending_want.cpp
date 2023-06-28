@@ -17,7 +17,6 @@
 
 #include "ability_runtime_error_util.h"
 #include "hilog_wrapper.h"
-#include "pending_want_record.h"
 #include "want_agent_client.h"
 #include "want_agent_log_wrapper.h"
 #include "want_sender_info.h"

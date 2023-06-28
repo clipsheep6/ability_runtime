@@ -52,6 +52,7 @@ ohos_fuzztest("StartContinuationFuzzTest") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
+    "ffrt:libffrt",
   ]
 }
 

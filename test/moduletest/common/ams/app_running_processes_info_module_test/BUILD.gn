@@ -36,6 +36,7 @@ ohos_moduletest("AppRunningProcessesInfoModuleTest") {
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
     "window_manager:libwm",

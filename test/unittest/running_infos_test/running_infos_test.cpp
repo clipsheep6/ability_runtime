@@ -48,10 +48,10 @@ static void WaitUntilTaskFinished()
     const uint32_t maxRetryCount = 1000;
     const uint32_t sleepTime = 1000;
     uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     std::atomic<bool> taskCalled(false);
     auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->PostTask(f)) {
+    if (handler->SubmitTask(f)) {
         while (!taskCalled.load()) {
             ++count;
             if (count >= maxRetryCount) {
@@ -84,11 +84,10 @@ void RunningInfosTest::OnStartAms()
 
         abilityMs_->state_ = ServiceRunningState::STATE_RUNNING;
 
-        abilityMs_->eventLoop_ = AppExecFwk::EventRunner::Create(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
-        EXPECT_TRUE(abilityMs_->eventLoop_);
-
-        abilityMs_->handler_ = std::make_shared<AbilityEventHandler>(abilityMs_->eventLoop_, abilityMs_);
-        EXPECT_TRUE(abilityMs_->handler_);
+        abilityMs_->taskHandler_ = TaskHandlerWrap::CreateQueueHandler(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
+        EXPECT_TRUE(abilityMs_->taskHandler_);
+        abilityMs_->eventHandler_ = std::make_shared<AbilityEventHandler>(abilityMs_->taskHandler_, abilityMs_);
+        EXPECT_TRUE(abilityMs_->eventHandler_);
 
         // init user controller.
         abilityMs_->userController_ = std::make_shared<UserController>();
@@ -104,8 +103,8 @@ void RunningInfosTest::OnStartAms()
 
         AmsConfigurationParameter::GetInstance().Parse();
         abilityMs_->InitMissionListManager(userId, true);
-        abilityMs_->connectManager_->SetEventHandler(abilityMs_->handler_);
-        abilityMs_->eventLoop_->Run();
+        abilityMs_->connectManager_->SetTaskHandler(abilityMs_->taskHandler_);
+        abilityMs_->connectManager_->SetEventHandler(abilityMs_->eventHandler_);
         WaitUntilTaskFinished();
         auto topAbility = abilityMs_->GetListManagerByUserId(MOCK_MAIN_USER_ID)->GetCurrentTopAbilityLocked();
         if (topAbility) {
@@ -119,8 +118,8 @@ void RunningInfosTest::OnStartAms()
 
 void RunningInfosTest::OnStopAms()
 {
-    abilityMs_->eventLoop_.reset();
-    abilityMs_->handler_.reset();
+    abilityMs_->eventHandler_.reset();
+    abilityMs_->taskHandler_.reset();
     abilityMs_->state_ = ServiceRunningState::STATE_NOT_START;
 }
 
