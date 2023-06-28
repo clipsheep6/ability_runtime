@@ -24,7 +24,8 @@ namespace OHOS {
 namespace AbilityRuntime {
 class JsUIExtensionContentSession {
 public:
-    JsUIExtensionContentSession(sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow);
+    JsUIExtensionContentSession(NativeEngine& engine, sptr<AAFwk::SessionInfo> sessionInfo,
+        sptr<Rosen::Window> uiWindow);
     virtual ~JsUIExtensionContentSession() = default;
     static void Finalizer(NativeEngine* engine, void* data, void* hint);
     static NativeValue* CreateJsUIExtensionContentSession(NativeEngine& engine,
@@ -43,10 +44,15 @@ protected:
     NativeValue* OnSetReceiveDataCallback(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnLoadContent(NativeEngine& engine, NativeCallbackInfo& info);
 
+    static void CallReceiveDataCallBack(NativeEngine& engine, std::weak_ptr<NativeReference> weakCallback,
+        const AAFwk::WantParams& wantParams);
     static bool UnWrapAbilityResult(NativeEngine& engine, NativeValue* argv, int& resultCode, AAFwk::Want& want);
 private:
+    NativeEngine& engine_;
     sptr<AAFwk::SessionInfo> sessionInfo_;
     sptr<Rosen::Window> uiWindow_;
+    std::shared_ptr<NativeReference> receiveDataCallback_;
+    bool isRegistered = false;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
