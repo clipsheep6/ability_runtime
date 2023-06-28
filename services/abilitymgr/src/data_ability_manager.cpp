@@ -685,7 +685,17 @@ void DataAbilityManager::ReportDataAbilityAcquired(const sptr<IRemoteObject> &cl
         caller.callerName = ConnectionStateManager::GetProcessNameByPid(caller.callerPid);
     }
 
-    DelayedSingleton<ConnectionStateManager>::GetInstance()->AddDataAbilityConnection(caller, record);
+    auto taskHandler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    if (!taskHandler) {
+        DelayedSingleton<ConnectionStateManager>::GetInstance()->AddDataAbilityConnection(caller, record);
+        return;
+    }
+
+    // try report connection in async task.
+    auto theTask = [auto daCaller = caller, auto daRecord = record]() {
+        DelayedSingleton<ConnectionStateManager>::GetInstance()->AddDataAbilityConnection(daCaller, daRecord);
+    };
+    taskHandler->SubmitTask(theTask);
 }
 
 void DataAbilityManager::ReportDataAbilityReleased(const sptr<IRemoteObject> &client, bool isNotHap,
