@@ -3287,7 +3287,7 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
     auto userId = GetValidUserId(INVALID_USER_ID);
     AbilityRequest abilityRequest;
     std::string dataAbilityUri = localUri.ToString();
-    HILOG_INFO("%{public}s, called. userId %{public}d", __func__, userId);
+    HILOG_INFO("called. userId %{public}d", userId);
     bool queryResult = IN_PROCESS_CALL(bms->QueryAbilityInfoByUri(dataAbilityUri, userId, abilityRequest.abilityInfo));
     if (!queryResult || abilityRequest.abilityInfo.name.empty() || abilityRequest.abilityInfo.bundleName.empty()) {
         HILOG_ERROR("Invalid ability info for data ability acquiring.");
@@ -3297,7 +3297,7 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
     abilityRequest.callerToken = callerToken;
     auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall && CheckCallDataAbilityPermission(abilityRequest, isShellCall) != ERR_OK) {
+    if (!isSaCall && CheckCallDataAbilityPermission(abilityRequest, isShellCall, isSaCall) != ERR_OK) {
         HILOG_ERROR("Invalid ability request info for data ability acquiring.");
         return nullptr;
     }
@@ -3306,7 +3306,8 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
         abilityRequest.appInfo.name.c_str(), abilityRequest.appInfo.bundleName.c_str(),
         abilityRequest.abilityInfo.name.c_str());
 
-    if (CheckStaticCfgPermission(abilityRequest.abilityInfo, false, -1) != AppExecFwk::Constants::PERMISSION_GRANTED) {
+    if (CheckStaticCfgPermission(abilityRequest.abilityInfo, false, -1, true, isSaCall) !=
+        AppExecFwk::Constants::PERMISSION_GRANTED) {
         if (!VerificationAllToken(callerToken)) {
             HILOG_INFO("VerificationAllToken fail");
             return nullptr;
@@ -6015,10 +6016,12 @@ int AbilityManagerService::ForceTimeoutForTest(const std::string &abilityName, c
 #endif
 
 int AbilityManagerService::CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abilityInfo, bool isStartAsCaller,
-    uint32_t callerTokenId)
+    uint32_t callerTokenId, bool isData, bool isSaCall)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isData) {
+        isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    }
     if (isSaCall) {
         // do not need check static config permission when start ability by SA
         return AppExecFwk::Constants::PERMISSION_GRANTED;
@@ -6618,7 +6621,7 @@ int AbilityManagerService::CheckCallServicePermission(const AbilityRequest &abil
     }
 }
 
-int AbilityManagerService::CheckCallDataAbilityPermission(AbilityRequest &abilityRequest, bool isShell)
+int AbilityManagerService::CheckCallDataAbilityPermission(AbilityRequest &abilityRequest, bool isShell, bool isSACall)
 {
     abilityRequest.appInfo = abilityRequest.abilityInfo.applicationInfo;
     abilityRequest.uid = abilityRequest.appInfo.uid;
@@ -6631,7 +6634,8 @@ int AbilityManagerService::CheckCallDataAbilityPermission(AbilityRequest &abilit
         return ERR_WRONG_INTERFACE_CALL;
     }
 
-    AAFwk::PermissionVerification::VerificationInfo verificationInfo = CreateVerificationInfo(abilityRequest);
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo = CreateVerificationInfo(abilityRequest,
+        true, isShell, isSACall);
     if (isShell) {
         verificationInfo.isBackgroundCall = true;
     }
@@ -6649,7 +6653,7 @@ int AbilityManagerService::CheckCallDataAbilityPermission(AbilityRequest &abilit
 }
 
 AAFwk::PermissionVerification::VerificationInfo AbilityManagerService::CreateVerificationInfo(
-    const AbilityRequest &abilityRequest)
+    const AbilityRequest &abilityRequest, bool isData, bool isShell, bool isSA)
 {
     AAFwk::PermissionVerification::VerificationInfo verificationInfo;
     verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
@@ -6664,9 +6668,11 @@ AAFwk::PermissionVerification::VerificationInfo AbilityManagerService::CreateVer
     } else {
         verificationInfo.associatedWakeUp = abilityRequest.appInfo.associatedWakeUp;
     }
-    if (AAFwk::PermissionVerification::GetInstance()->IsSACall() ||
-        AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
-        HILOG_INFO("Caller is not an application.");
+    if (!isData) {
+        isSA = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+        isShell = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
+    } 
+    if (isSA || isShell) {
         return verificationInfo;
     }
     std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
