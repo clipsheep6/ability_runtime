@@ -102,6 +102,7 @@ public:
     std::shared_ptr<Media::PixelMap> GetSnapshot(int missionId, bool isLowResolution = false) const;
 
     std::unique_ptr<Media::PixelMap> GetPixelMap(int missionId, bool isLowResolution) const;
+    std::unique_ptr<uint8_t[]> ReadFileToBuffer(const std::string &filePath, size_t &bufferSize) const;
 #endif
 
 private:
