@@ -110,7 +110,7 @@ private:
     std::unordered_map<int64_t, std::shared_ptr<NativeReference>> jsWindowStages_;
     std::unordered_map<int64_t, std::shared_ptr<NativeReference>> jsContexts_;
     std::shared_ptr<Global::Resource::ResourceManager> resourceMgr_;
-    std::shared_ptr<Context> context_;
+    std::shared_ptr<AbilityContext> context_;
 };
 
 void DebuggerTask::HandleTask(const uv_async_t* req)
@@ -294,7 +294,11 @@ void SimulatorImpl::InitResourceMgr()
 
 void SimulatorImpl::InitJsAbilityContext(NativeValue* instanceValue)
 {
-    NativeValue *contextObj = CreateJsAbilityContext(*nativeEngine_);
+    if (context_ == nullptr) {
+        context_ = std::make_shared<AbilityContext>();
+        context_->SetOptions(options_);
+    }
+    NativeValue *contextObj = CreateJsAbilityContext(*nativeEngine_, context_);
     auto systemModule = std::shared_ptr<NativeReference>(
         JsRuntime::LoadSystemModuleByEngine(nativeEngine_.get(), "application.AbilityContext", &contextObj, 1));
     if (systemModule == nullptr) {
@@ -347,10 +351,6 @@ void SimulatorImpl::DispatchStartLifecycle(NativeValue* instanceValue)
         return;
     }
     sptr<Rosen::IWindowLifeCycle> listener = nullptr;
-    if (context_ == nullptr) {
-        context_ = std::make_shared<AbilityContext>();
-        context_->SetOptions(options_);
-    }
     windowScene->Init(-1, context_, listener);
     auto jsWindowStage = CreateJsWindowStage(windowScene);
     if(jsWindowStage == nullptr) {

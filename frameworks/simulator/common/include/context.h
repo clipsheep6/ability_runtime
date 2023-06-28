@@ -31,6 +31,30 @@ public:
     Context() = default;
     ~Context() = default;
 
+    virtual std::string GetBundleName() = 0;
+
+    virtual std::string GetBundleCodePath() = 0;
+
+    virtual std::string GetBundleCodeDir() = 0;
+
+    virtual std::string GetCacheDir() = 0;
+
+    virtual std::string GetTempDir() = 0;
+
+    virtual std::string GetFilesDir() = 0;
+
+    virtual std::string GetDatabaseDir() = 0;
+
+    virtual std::string GetPreferencesDir() = 0;
+
+    virtual std::string GetDistributedFilesDir() = 0;
+
+    virtual void SwitchArea(int mode) = 0;
+
+    virtual int GetArea() = 0;
+
+    virtual std::string GetBaseDir() = 0;
+
     virtual std::shared_ptr<AppExecFwk::Configuration> GetConfiguration() = 0;
 
     virtual Options GetOptions() = 0;

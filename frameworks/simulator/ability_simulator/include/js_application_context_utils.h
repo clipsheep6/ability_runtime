@@ -19,12 +19,13 @@
 #include <memory>
 
 #include "native_engine/native_engine.h"
+#include "context.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 class JsApplicationContextUtils {
 public:
-    JsApplicationContextUtils() {}
+    JsApplicationContextUtils(std::weak_ptr<Context>&& context) : context_(std::move(context)) {}
     virtual ~JsApplicationContextUtils() = default;
     static void Finalizer(NativeEngine *engine, void *data, void *hint);
     static NativeValue* RegisterAbilityLifecycleCallback(NativeEngine *engine, NativeCallbackInfo *info);
@@ -47,12 +48,24 @@ public:
     static NativeValue* GetApplicationContext(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* KillProcessBySelf(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* GetRunningProcessInformation(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* CreateJsApplicationContext(NativeEngine &engine);
+    static NativeValue* CreateJsApplicationContext(NativeEngine &engine, const std::shared_ptr<Context>& context);
+
+    NativeValue* OnGetCacheDir(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnGetTempDir(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnGetFilesDir(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnGetDistributedFilesDir(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnGetDatabaseDir(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnGetPreferencesDir(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnGetBundleCodeDir(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnGetArea(NativeEngine& engine, NativeCallbackInfo& info);
 
 private:
     NativeValue* OnSwitchArea(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnGetApplicationContext(NativeEngine& engine, NativeCallbackInfo& info);
     static void BindNativeApplicationContext(NativeEngine &engine, NativeObject* object);
+
+private:
+    std::weak_ptr<Context> context_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

@@ -29,6 +29,18 @@ public:
 
     Options GetOptions() override;
     void SetOptions(const Options& options) override;
+    std::string GetBundleName() override;
+    std::string GetBundleCodePath() override;
+    std::string GetBundleCodeDir() override;
+    std::string GetCacheDir() override;
+    std::string GetTempDir() override;
+    std::string GetFilesDir() override;
+    std::string GetDatabaseDir() override;
+    std::string GetPreferencesDir() override;
+    std::string GetDistributedFilesDir() override;
+    void SwitchArea(int mode) override;
+    int GetArea() override;
+    std::string GetBaseDir() override;
 
 private:
     Options options_;

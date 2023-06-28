@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <memory>
 #include <native_engine/native_value.h>
+#include "ability_context.h"
 
 class NativeObject;
 class NativeReference;
@@ -53,7 +54,7 @@ public:
     static NativeValue* RequestDialogService(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* IsTerminating(NativeEngine* engine, NativeCallbackInfo* info);
 };
-NativeValue* CreateJsAbilityContext(NativeEngine& engine);
+NativeValue* CreateJsAbilityContext(NativeEngine& engine, const std::shared_ptr<AbilityContext>& context);
 } // namespace AbilityRuntime
 } // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_SIMULAOTR_JS_ABILITY_CONTEXT_H

@@ -122,9 +122,9 @@ NativeValue* JsAbilityContext::IsTerminating(NativeEngine* engine, NativeCallbac
     return nullptr;
 }
 
-NativeValue* CreateJsAbilityContext(NativeEngine& engine)
+NativeValue* CreateJsAbilityContext(NativeEngine& engine, const std::shared_ptr<AbilityContext>& context)
 {
-    NativeValue* objValue = CreateJsBaseContext(engine, nullptr);
+    NativeValue* objValue = CreateJsBaseContext(engine, context);
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
 
     std::unique_ptr<JsAbilityContext> jsContext = std::make_unique<JsAbilityContext>();

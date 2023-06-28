@@ -74,42 +74,154 @@ NativeValue* JsApplicationContextUtils::CreateModuleContext(NativeEngine* engine
 
 NativeValue *JsApplicationContextUtils::GetTempDir(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    return nullptr;
+    HILOG_INFO("JsApplicationContextUtils::GetTempDir is called");
+    JsApplicationContextUtils *me =
+        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
+    return me != nullptr ? me->OnGetTempDir(*engine, *info) : nullptr;
+}
+
+NativeValue *JsApplicationContextUtils::OnGetTempDir(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    auto context = context_.lock();
+    if (!context) {
+        HILOG_WARN("context is already released");
+        return engine.CreateUndefined();
+    }
+    std::string path = context->GetTempDir();
+    return engine.CreateString(path.c_str(), path.length());
 }
 
 NativeValue* JsApplicationContextUtils::GetArea(NativeEngine* engine, NativeCallbackInfo* info)
 {
-    return nullptr;
+    HILOG_INFO("JsApplicationContextUtils::GetArea is called");
+    JsApplicationContextUtils *me =
+        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
+    return me != nullptr ? me->OnGetArea(*engine, *info) : nullptr;
+}
+
+NativeValue* JsApplicationContextUtils::OnGetArea(NativeEngine& engine, NativeCallbackInfo& info)
+{
+    auto context = context_.lock();
+    if (!context) {
+        HILOG_WARN("context is already released");
+        return engine.CreateUndefined();
+    }
+    int area = context->GetArea();
+    return engine.CreateNumber(area);
 }
 
 NativeValue *JsApplicationContextUtils::GetCacheDir(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    return nullptr;
+    HILOG_INFO("JsApplicationContextUtils::GetCacheDir is called");
+    JsApplicationContextUtils *me =
+        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
+    return me != nullptr ? me->OnGetCacheDir(*engine, *info) : nullptr;
+}
+
+NativeValue *JsApplicationContextUtils::OnGetCacheDir(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    auto context = context_.lock();
+    if (!context) {
+        HILOG_WARN("context is already released");
+        return engine.CreateUndefined();
+    }
+    std::string path = context->GetCacheDir();
+    return engine.CreateString(path.c_str(), path.length());
 }
 
 NativeValue *JsApplicationContextUtils::GetFilesDir(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    return nullptr;
+    HILOG_INFO("JsApplicationContextUtils::GetFilesDir is called");
+    JsApplicationContextUtils *me =
+        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
+    return me != nullptr ? me->OnGetFilesDir(*engine, *info) : nullptr;
+}
+
+NativeValue *JsApplicationContextUtils::OnGetFilesDir(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    auto context = context_.lock();
+    if (!context) {
+        HILOG_WARN("context is already released");
+        return engine.CreateUndefined();
+    }
+    std::string path = context->GetFilesDir();
+    return engine.CreateString(path.c_str(), path.length());
 }
 
 NativeValue *JsApplicationContextUtils::GetDistributedFilesDir(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    return nullptr;
+    HILOG_INFO("JsApplicationContextUtils::GetDistributedFilesDir is called");
+    JsApplicationContextUtils *me =
+        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
+    return me != nullptr ? me->OnGetDistributedFilesDir(*engine, *info) : nullptr;
+}
+
+NativeValue *JsApplicationContextUtils::OnGetDistributedFilesDir(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    auto context = context_.lock();
+    if (!context) {
+        HILOG_WARN("context is already released");
+        return engine.CreateUndefined();
+    }
+    std::string path = context->GetDistributedFilesDir();
+    return engine.CreateString(path.c_str(), path.length());
 }
 
 NativeValue *JsApplicationContextUtils::GetDatabaseDir(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    return nullptr;
+    HILOG_INFO("JsApplicationContextUtils::GetDatabaseDir is called");
+    JsApplicationContextUtils *me =
+        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
+    return me != nullptr ? me->OnGetDatabaseDir(*engine, *info) : nullptr;
+}
+
+NativeValue *JsApplicationContextUtils::OnGetDatabaseDir(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    auto context = context_.lock();
+    if (!context) {
+        HILOG_WARN("context is already released");
+        return engine.CreateUndefined();
+    }
+    std::string path = context->GetDatabaseDir();
+    return engine.CreateString(path.c_str(), path.length());
 }
 
 NativeValue *JsApplicationContextUtils::GetPreferencesDir(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    return nullptr;
+    HILOG_INFO("JsApplicationContextUtils::GetPreferencesDir is called");
+    JsApplicationContextUtils *me =
+        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
+    return me != nullptr ? me->OnGetPreferencesDir(*engine, *info) : nullptr;
+}
+
+NativeValue *JsApplicationContextUtils::OnGetPreferencesDir(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    auto context = context_.lock();
+    if (!context) {
+        HILOG_WARN("context is already released");
+        return engine.CreateUndefined();
+    }
+    std::string path = context->GetPreferencesDir();
+    return engine.CreateString(path.c_str(), path.length());
 }
 
 NativeValue *JsApplicationContextUtils::GetBundleCodeDir(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    return nullptr;
+    HILOG_INFO("JsApplicationContextUtils::GetBundleCodeDir is called");
+    JsApplicationContextUtils *me =
+        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
+    return me != nullptr ? me->OnGetBundleCodeDir(*engine, *info) : nullptr;
+}
+
+NativeValue *JsApplicationContextUtils::OnGetBundleCodeDir(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    auto context = context_.lock();
+    if (!context) {
+        HILOG_WARN("context is already released");
+        return engine.CreateUndefined();
+    }
+    std::string path = context->GetBundleCodeDir();
+    return engine.CreateString(path.c_str(), path.length());
 }
 
 NativeValue *JsApplicationContextUtils::KillProcessBySelf(NativeEngine *engine, NativeCallbackInfo *info)
@@ -166,7 +278,7 @@ NativeValue* JsApplicationContextUtils::GetApplicationContext(NativeEngine* engi
 
 NativeValue* JsApplicationContextUtils::OnGetApplicationContext(NativeEngine& engine, NativeCallbackInfo& info)
 {
-    NativeValue* value = CreateJsApplicationContext(engine);
+    NativeValue* value = CreateJsApplicationContext(engine, context_.lock());
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(&engine, "application.ApplicationContext", &value, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("OnGetApplicationContext, invalid systemModule.");
@@ -176,7 +288,8 @@ NativeValue* JsApplicationContextUtils::OnGetApplicationContext(NativeEngine& en
     return contextObj;
 }
 
-NativeValue* JsApplicationContextUtils::CreateJsApplicationContext(NativeEngine &engine)
+NativeValue* JsApplicationContextUtils::CreateJsApplicationContext(
+    NativeEngine &engine, const std::shared_ptr<Context>& context)
 {
     HILOG_DEBUG("CreateJsApplicationContext start");
 
@@ -186,7 +299,7 @@ NativeValue* JsApplicationContextUtils::CreateJsApplicationContext(NativeEngine 
         return objValue;
     }
 
-    auto jsApplicationContextUtils = std::make_unique<JsApplicationContextUtils>();
+    auto jsApplicationContextUtils = std::make_unique<JsApplicationContextUtils>(context);
     SetNamedNativePointer(engine, *object, APPLICATION_CONTEXT_NAME, jsApplicationContextUtils.release(),
         JsApplicationContextUtils::Finalizer);
 
