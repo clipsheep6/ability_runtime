@@ -628,6 +628,16 @@ ErrCode AbilityContextImpl::GetMissionId(int32_t &missionId)
     return err;
 }
 
+ErrCode AbilityContextImpl::SetMissionContinueState(const AAFwk::ContinueState &state)
+{
+    HILOG_DEBUG("SetMissionContinueState: %{public}d", state);
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->SetMissionContinueState(token_, state);
+    if (err != ERR_OK) {
+        HILOG_ERROR("SetMissionContinueState failed: %{public}d", err);
+    }
+    return err;
+}
+
 #ifdef SUPPORT_GRAPHICS
 ErrCode AbilityContextImpl::SetMissionLabel(const std::string& label)
 {
