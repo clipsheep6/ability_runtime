@@ -56,6 +56,8 @@ constexpr struct option LONG_OPTIONS_ApplicationNotResponding[] = {
     {"pid", required_argument, nullptr, 'p'},
     {nullptr, 0, nullptr, 0},
 };
+#endif
+#ifdef ABILITY_FAULT_AND_EXIT_TEST
 const std::string SHORT_OPTIONS_FORCE_EXIT_APP = "hp:r:";
 constexpr struct option LONG_OPTIONS_FORCE_EXIT_APP[] = {
     { "help", no_argument, nullptr, 'h' },
@@ -124,6 +126,8 @@ ErrCode AbilityManagerShellCommand::CreateCommandMap()
         {"block-ability", std::bind(&AbilityManagerShellCommand::RunAsBlockAbilityCommand, this)},
         {"block-ams-service", std::bind(&AbilityManagerShellCommand::RunAsBlockAmsServiceCommand, this)},
         {"block-app-service", std::bind(&AbilityManagerShellCommand::RunAsBlockAppServiceCommand, this)},
+#endif
+#ifdef ABILITY_FAULT_AND_EXIT_TEST
         {"forceexitapp", std::bind(&AbilityManagerShellCommand::RunAsForceExitAppCommand, this)},
         {"notifyappfault", std::bind(&AbilityManagerShellCommand::RunAsNotifyAppFaultCommand, this)},
 #endif
@@ -1562,7 +1566,8 @@ ErrCode AbilityManagerShellCommand::RunAsBlockAppServiceCommand()
     }
     return result;
 }
-
+#endif
+#ifdef ABILITY_FAULT_AND_EXIT_TEST
 Reason CovertExitReason(std::string &cmd)
 {
     if (cmd.empty()) {

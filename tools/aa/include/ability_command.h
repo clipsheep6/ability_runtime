@@ -196,6 +196,8 @@ private:
     ErrCode RunAsBlockAppServiceCommand();
     ErrCode RunAsSendAppNotRespondingWithUnknownOption();
     ErrCode RunAsSendAppNotRespondingWithOption(int32_t option, std::string& pid);
+#endif
+#ifdef ABILITY_FAULT_AND_EXIT_TEST
     ErrCode RunAsForceExitAppCommand();
     ErrCode RunAsNotifyAppFaultCommand();
 #endif
