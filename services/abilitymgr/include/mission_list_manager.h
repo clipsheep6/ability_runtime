@@ -359,6 +359,8 @@ public:
     void CallRequestDone(const std::shared_ptr<AbilityRecord> &abilityRecord, const sptr<IRemoteObject> &callStub);
 
     bool IsTopAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
+  
+    int SetMissionContinueState(const sptr<IRemoteObject> &token, const int32_t missionId, const AAFwk::ContinueState &state);
 
 #ifdef SUPPORT_GRAPHICS
 public:

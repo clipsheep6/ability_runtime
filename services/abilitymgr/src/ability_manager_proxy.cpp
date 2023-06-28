@@ -2764,6 +2764,35 @@ int AbilityManagerProxy::StartUser(int userId)
     return reply.ReadInt32();
 }
 
+int AbilityManagerProxy::SetMissionContinueState(const sptr<IRemoteObject> &token, const AAFwk::ContinueState &state)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteRemoteObject(token)) {
+        HILOG_ERROR("SetMissionContinueState write token failed.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteInt32(static_cast<int32_t>(state))) {
+        HILOG_ERROR("SetMissionContinueState write state failed.");
+        return ERR_INVALID_VALUE;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::SET_MISSION_CONTINUE_STATE, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("SetMissionContinueState Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 int AbilityManagerProxy::StopUser(int userId, const sptr<IStopUserCallback> &callback)
 {
     int error;
