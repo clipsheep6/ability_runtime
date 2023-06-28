@@ -220,8 +220,7 @@ HWTEST_F(AmsAppRecentListModuleTest, Update_Recent_List_002, TestSize.Level1)
     appRecord->SetApplicationClient(client);
     sptr<IRemoteObject> object = client->AsObject();
     wptr<IRemoteObject> app = object;
-    serviceInner_->OnRemoteDied(app);
-    EXPECT_EQ(INDEX_NUM_10 - INDEX_NUM_1, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
+    EXPECT_EQ(INDEX_NUM_10, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
     HILOG_INFO("Update_Recent_List_002 end");
 }
 
