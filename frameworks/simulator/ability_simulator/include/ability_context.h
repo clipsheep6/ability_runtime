@@ -41,9 +41,13 @@ public:
     void SwitchArea(int mode) override;
     int GetArea() override;
     std::string GetBaseDir() override;
+    std::string GetPreviewPath();
 
 private:
+    static const int EL_DEFAULT = 1;
     Options options_;
+    std::string currArea_ = "el2";
+    std::string fileSeparator_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

@@ -25,14 +25,6 @@ namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr char APPLICATION_CONTEXT_NAME[] = "__application_context_ptr__";
-constexpr size_t ARGC_ZERO = 0;
-constexpr size_t ARGC_ONE = 1;
-constexpr size_t ARGC_TWO = 2;
-constexpr size_t ARGC_THREE = 3;
-constexpr size_t INDEX_ZERO = 0;
-constexpr size_t INDEX_ONE = 1;
-constexpr size_t INDEX_TWO = 2;
-constexpr int32_t ERROR_CODE_ONE = 1;
 const char* MD_NAME = "JsApplicationContextUtils";
 }  // namespace
 
