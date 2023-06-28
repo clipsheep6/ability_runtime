@@ -71,6 +71,7 @@ const int32_t SEND_RESULT_CANCELED = -1;
 const int VECTOR_SIZE = 2;
 const int LOAD_TIMEOUT_ASANENABLED = 150;
 const int TERMINATE_TIMEOUT_ASANENABLED = 150;
+const int DUMP_TIMEOUT_ASANENABLED = 150;
 #ifdef SUPPORT_ASAN
 const int COLDSTART_TIMEOUT_MULTIPLE = 150;
 const int LOAD_TIMEOUT_MULTIPLE = 150;
@@ -2363,7 +2364,12 @@ void AbilityRecord::DumpClientInfo(std::vector<std::string> &info, const std::ve
 
     HILOG_INFO("Dump begin wait.");
     isDumpTimeout_ = false;
-    int dumpTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * DUMP_TIMEOUT_MULTIPLE;
+    int dumpTimeout = 0;
+    if (applicationInfo_.asanEnabled) {
+        dumpTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * DUMP_TIMEOUT_ASANENABLED;
+    } else {
+        dumpTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * DUMP_TIMEOUT_MULTIPLE;
+    }
     std::chrono::milliseconds timeout { dumpTimeout };
     if (dumpCondition_.wait_for(lock, timeout) == std::cv_status::timeout) {
         isDumpTimeout_ = true;
