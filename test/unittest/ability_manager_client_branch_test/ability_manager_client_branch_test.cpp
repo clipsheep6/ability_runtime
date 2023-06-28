@@ -543,6 +543,20 @@ HWTEST_F(AbilityManagerClientBranchTest, ScheduleCommandAbilityDone_0100, TestSi
 }
 
 /**
+ * @tc.name: AbilityManagerClient_ScheduleCommandAbilityWindowDone_0100
+ * @tc.desc: ScheduleCommandAbilityWindowDone
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, ScheduleCommandAbilityWindowDone_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    sptr<SessionInfo> sessionInfo(new SessionInfo());
+    auto result = client_->ScheduleCommandAbilityWindowDone(
+        token, sessionInfo, WIN_CMD_FOREGROUND, ABILITY_CMD_FOREGROUND);
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
  * @tc.name: AbilityManagerClient_CloseAbility_0100
  * @tc.desc: CloseAbility
  * @tc.type: FUNC
