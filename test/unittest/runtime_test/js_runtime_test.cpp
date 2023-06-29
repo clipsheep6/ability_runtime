@@ -754,5 +754,96 @@ HWTEST_F(JsRuntimeTest, PostSyncTask_0100, TestSize.Level0)
     jsRuntime->PostSyncTask(task, taskName);
     EXPECT_EQ(taskExecuted, true);
 }
+
+/**
+ * @tc.name: PostTask_0100
+ * @tc.desc: Js runtime post task.
+ * @tc.type: FUNC
+ * @tc.require: issueI7C87T
+ */
+HWTEST_F(JsRuntimeTest, PostTask_0100, TestSize.Level0)
+{
+    HILOG_INFO("PostTask_0100 start");
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options_);
+    ASSERT_NE(jsRuntime, nullptr);
+
+    std::string taskName = "postTask001";
+    bool taskExecuted = false;
+    auto task = [taskName, &taskExecuted]() {
+        HILOG_INFO("%{public}s called.", taskName.c_str());
+        taskExecuted = true;
+    };
+    int64_t delayTime = 10;
+    jsRuntime->PostTask(task, taskName, delayTime);
+    EXPECT_NE(taskExecuted, true);
+    HILOG_INFO("PostTask_0100 end");
+}
+
+/**
+ * @tc.name: RemoveTask_0100
+ * @tc.desc: Js runtime remove task.
+ * @tc.type: FUNC
+ * @tc.require: issueI7C87T
+ */
+HWTEST_F(JsRuntimeTest, RemoveTask_0100, TestSize.Level0)
+{
+    HILOG_INFO("RemoveTask_0100 start");
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options_);
+    ASSERT_NE(jsRuntime, nullptr);
+
+    std::string taskName = "removeTask001";
+    bool taskExecuted = false;
+    auto task = [taskName, &taskExecuted]() {
+        HILOG_INFO("%{public}s called.", taskName.c_str());
+        taskExecuted = true;
+    };
+    int64_t delayTime = 10;
+    jsRuntime->PostTask(task, taskName, delayTime);
+    jsRuntime->RemoveTask(taskName);
+    EXPECT_NE(taskExecuted, true);
+    HILOG_INFO("RemoveTask_0100 end");
+}
+
+/**
+ * @tc.name: StartDebugger_0100
+ * @tc.desc: JsRuntime test for StartDebugger.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, StartDebugger_0100, TestSize.Level0)
+{
+    HILOG_INFO("StartDebugger_0100 start");
+
+    AbilityRuntime::Runtime::Options options;
+    options.preload = true;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+
+    ASSERT_NE(jsRuntime, nullptr);
+
+    bool needBreakPoint = false;
+    uint32_t instanceId = 1;
+
+    auto result = jsRuntime->StartDebugger(needBreakPoint, instanceId);
+    EXPECT_NE(result, false);
+    HILOG_INFO("StartDebugger_0100 end");
+}
+
+/**
+ * @tc.name: DoCleanWorkAfterStageCleaned_0100
+ * @tc.desc: JsRuntime test for DoCleanWorkAfterStageCleaned.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, DoCleanWorkAfterStageCleaned_0100, TestSize.Level0)
+{
+    HILOG_INFO("DoCleanWorkAfterStageCleaned_0100 start");
+
+    AbilityRuntime::Runtime::Options options;
+    options.preload = true;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+
+    ASSERT_NE(jsRuntime, nullptr);
+
+    jsRuntime->DoCleanWorkAfterStageCleaned();
+    HILOG_INFO("DoCleanWorkAfterStageCleaned_0100 end");
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS
