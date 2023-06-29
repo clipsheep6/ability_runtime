@@ -154,7 +154,8 @@ public:
      */
     void ScheduleCommandAbility(const Want &want, bool restart, int startId);
 
-    void ScheduleCommandAbilityWindow(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd);
+    void ScheduleCommandAbilityWindow(const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
+        AAFwk::WindowCommand winCmd);
 
     /**
      * @description: Provide operating system PrepareTerminateAbility information to the observer
@@ -514,7 +515,8 @@ private:
      */
     void HandleCommandExtension(const Want &want, bool restart, int startId);
 
-    void HandleCommandExtensionWindow(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd);
+    void HandleCommandExtensionWindow(const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
+        AAFwk::WindowCommand winCmd);
 
     /**
      * @description: Handle the restoreAbility state.

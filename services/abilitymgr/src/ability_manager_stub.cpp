@@ -163,6 +163,7 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[REGISTER_CONNECTION_OBSERVER] = &AbilityManagerStub::RegisterConnectionObserverInner;
     requestFuncMap_[UNREGISTER_CONNECTION_OBSERVER] = &AbilityManagerStub::UnregisterConnectionObserverInner;
     requestFuncMap_[GET_DLP_CONNECTION_INFOS] = &AbilityManagerStub::GetDlpConnectionInfosInner;
+    requestFuncMap_[MOVE_ABILITY_TO_BACKGROUND] = &AbilityManagerStub::MoveAbilityToBackgroundInner;
 #ifdef SUPPORT_GRAPHICS
     requestFuncMap_[SET_MISSION_LABEL] = &AbilityManagerStub::SetMissionLabelInner;
     requestFuncMap_[SET_MISSION_ICON] = &AbilityManagerStub::SetMissionIconInner;
@@ -183,6 +184,8 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[SET_ROOT_SCENE_SESSION] = &AbilityManagerStub::SetRootSceneSessionInner;
     requestFuncMap_[CALL_ABILITY_BY_SCB] = &AbilityManagerStub::CallUIAbilityBySCBInner;
     requestFuncMap_[START_SPECIFIED_ABILITY_BY_SCB] = &AbilityManagerStub::StartSpecifiedAbilityBySCBInner;
+    requestFuncMap_[SET_SESSIONMANAGERSERVICE] = &AbilityManagerStub::SetSessionManagerServiceInner;
+    requestFuncMap_[GET_SESSIONMANAGERSERVICE] = &AbilityManagerStub::GetSessionManagerServiceInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -212,6 +215,20 @@ int AbilityManagerStub::GetTopAbilityInner(MessageParcel &data, MessageParcel &r
         HILOG_DEBUG("GetTopAbilityInner is nullptr");
     }
     reply.WriteParcelable(&result);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::MoveAbilityToBackgroundInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = nullptr;
+    if (data.ReadBool()) {
+        token = data.ReadRemoteObject();
+    }
+    int32_t result = MoveAbilityToBackground(token);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("write result failed");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 
@@ -1294,21 +1311,11 @@ int AbilityManagerStub::StartAbilityByCallInner(MessageParcel &data, MessageParc
 
 int AbilityManagerStub::StartUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply)
 {
-    std::unique_ptr<Want> want(data.ReadParcelable<Want>());
-    if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
-        return ERR_INVALID_VALUE;
-    }
-    std::unique_ptr<StartOptions> startOptions(data.ReadParcelable<StartOptions>());
-    if (startOptions == nullptr) {
-        HILOG_ERROR("startOptions is nullptr");
-        return ERR_INVALID_VALUE;
-    }
     sptr<SessionInfo> sessionInfo = nullptr;
     if (data.ReadBool()) {
         sessionInfo = data.ReadParcelable<SessionInfo>();
     }
-    int32_t result = StartUIAbilityBySCB(*want, *startOptions, sessionInfo);
+    int32_t result = StartUIAbilityBySCB(sessionInfo);
     reply.WriteInt32(result);
     return NO_ERROR;
 }
@@ -2159,6 +2166,27 @@ int32_t AbilityManagerStub::StartSpecifiedAbilityBySCBInner(MessageParcel &data,
         return ERR_INVALID_VALUE;
     }
     StartSpecifiedAbilityBySCB(*want);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::SetSessionManagerServiceInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> sessionManagerService = data.ReadRemoteObject();
+    if (!sessionManagerService) {
+        HILOG_ERROR("SetSessionManagerServiceInner read ability token failed.");
+        return ERR_NULL_OBJECT;
+    }
+    SetSessionManagerService(sessionManagerService);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::GetSessionManagerServiceInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto token = GetSessionManagerService();
+    if (!reply.WriteRemoteObject(token)) {
+        HILOG_ERROR("GetSessionManagerServiceInner reply write failed.");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 }  // namespace AAFwk

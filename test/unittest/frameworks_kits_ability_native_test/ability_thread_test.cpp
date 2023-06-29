@@ -601,8 +601,9 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleCommandAbilityWindow_010
             std::shared_ptr<EventRunner> mainRunner = EventRunner::Create(abilityInfo->name);
             abilitythread->Attach(application, abilityRecord, mainRunner, nullptr);
 
+            Want want;
             sptr<AAFwk::SessionInfo> session = new (std::nothrow) AAFwk::SessionInfo();
-            abilitythread->ScheduleCommandAbilityWindow(session, AAFwk::WIN_CMD_FOREGROUND);
+            abilitythread->ScheduleCommandAbilityWindow(want, session, AAFwk::WIN_CMD_FOREGROUND);
 
             sleep(1);
         }
@@ -1039,8 +1040,9 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleCommandExtensionWindow_010
 
     abilitythread->extensionImpl_ = std::make_shared<AbilityRuntime::ExtensionImpl>();
     EXPECT_NE(abilitythread->extensionImpl_, nullptr);
+    Want want;
     sptr<AAFwk::SessionInfo> session = new (std::nothrow) AAFwk::SessionInfo();
-    abilitythread->HandleCommandExtensionWindow(session, AAFwk::WIN_CMD_FOREGROUND);
+    abilitythread->HandleCommandExtensionWindow(want, session, AAFwk::WIN_CMD_FOREGROUND);
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_HandleCommandExtensionWindow_0100 end";
 }
 

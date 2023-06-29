@@ -251,7 +251,7 @@ int32_t AbilityRecord::GetPid()
 int AbilityRecord::LoadAbility()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("name:%{public}s.", abilityInfo_.name.c_str());
+    HILOG_DEBUG("name:%{public}s.", abilityInfo_.name.c_str());
     int coldStartTimeout =
         AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * COLDSTART_TIMEOUT_MULTIPLE;
     int loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_MULTIPLE;
@@ -360,12 +360,12 @@ void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
     HILOG_INFO("name:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
 
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (handler && task) {
         if (!want_.GetBoolParam(DEBUG_APP, false) && !want_.GetBoolParam(NATIVE_DEBUG, false)) {
             int foregroundTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
-            handler->PostTask(task, "foreground_" + std::to_string(recordId_), foregroundTimeout);
+            handler->SubmitTask(task, "foreground_" + std::to_string(recordId_), foregroundTimeout);
         } else {
             HILOG_INFO("Is debug mode, no need to handle time out.");
         }
@@ -565,13 +565,13 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
     GrantUriPermission(want_, GetCurrentAccountId(), applicationInfo_.bundleName);
 
     if (isReady_) {
-        auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+        auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
         if (!handler) {
             HILOG_ERROR("Fail to get AbilityEventHandler.");
             return;
         }
         auto taskName = std::to_string(missionId_) + "_hot";
-        handler->RemoveTask(taskName);
+        handler->CancelTask(taskName);
         StartingWindowTask(isRecent, false, abilityRequest, startOptions);
         AnimationTask(isRecent, abilityRequest, startOptions, callerAbility);
         PostCancelStartingWindowHotTask();
@@ -615,7 +615,7 @@ std::shared_ptr<Want> AbilityRecord::GetWantFromMission() const
 void AbilityRecord::AnimationTask(bool isRecent, const AbilityRequest &abilityRequest,
     const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<AbilityRecord> &callerAbility)
 {
-    HILOG_INFO("%{public}s was called.", __func__);
+    HILOG_DEBUG("called.");
     if (isRecent) {
         auto want = GetWantFromMission();
         NotifyAnimationFromRecentTask(startOptions, want);
@@ -723,9 +723,9 @@ void AbilityRecord::PostCancelStartingWindowHotTask()
         HILOG_INFO("PostCancelStartingWindowHotTask was called, debug mode, just return.");
         return;
     }
-    HILOG_INFO("call");
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    CHECK_POINTER_LOG(handler, "Fail to get AbilityEventHandler.");
+    HILOG_INFO("PostCancelStartingWindowHotTask was called.");
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    CHECK_POINTER_LOG(handler, "Fail to get TaskHandler.");
 
     auto windowHandler = GetWMSHandler();
     CHECK_POINTER_LOG(windowHandler, "PostCancelStartingWindowColdTask, Get WMS handler failed.");
@@ -742,7 +742,7 @@ void AbilityRecord::PostCancelStartingWindowHotTask()
     auto taskName = std::to_string(missionId_) + "_hot";
     int foregroundTimeout =
         AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
-    handler->PostTask(delayTask, taskName, foregroundTimeout);
+    handler->SubmitTask(delayTask, taskName, foregroundTimeout);
 }
 
 void AbilityRecord::PostCancelStartingWindowColdTask()
@@ -753,9 +753,9 @@ void AbilityRecord::PostCancelStartingWindowColdTask()
         HILOG_INFO("PostCancelStartingWindowColdTask was called, debug mode, just return.");
         return;
     }
-    HILOG_INFO("call");
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    CHECK_POINTER_LOG(handler, "Fail to get AbilityEventHandler.");
+    HILOG_DEBUG("PostCancelStartingWindowColdTask was called.");
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    CHECK_POINTER_LOG(handler, "Fail to get TaskHandler.");
 
     auto windowHandler = GetWMSHandler();
     CHECK_POINTER_LOG(windowHandler, "PostCancelStartingWindowColdTask, Get WMS handler failed.");
@@ -772,7 +772,7 @@ void AbilityRecord::PostCancelStartingWindowColdTask()
     };
     auto taskName = std::to_string(missionId_) + "_cold";
     int loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_MULTIPLE;
-    handler->PostTask(delayTask, taskName, loadTimeout);
+    handler->SubmitTask(delayTask, taskName, loadTimeout);
 }
 
 sptr<IWindowManagerServiceHandler> AbilityRecord::GetWMSHandler() const
@@ -938,10 +938,10 @@ void AbilityRecord::StartingWindowHot(const std::shared_ptr<StartOptions> &start
     const std::shared_ptr<Want> &want, const AbilityRequest &abilityRequest)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
     auto windowHandler = GetWMSHandler();
     if (!windowHandler) {
-        HILOG_WARN("%{public}s, Get WMS handler failed.", __func__);
+        HILOG_WARN("Get WMS handler failed.");
         return;
     }
 
@@ -958,7 +958,7 @@ void AbilityRecord::StartingWindowCold(const std::shared_ptr<StartOptions> &star
     const std::shared_ptr<Want> &want, const AbilityRequest &abilityRequest)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
     auto windowHandler = GetWMSHandler();
     if (!windowHandler) {
         HILOG_WARN("%{public}s, Get WMS handler failed.", __func__);
@@ -986,7 +986,7 @@ void AbilityRecord::GetColdStartingWindowResource(std::shared_ptr<Media::PixelMa
 
     auto resourceMgr = CreateResourceManager();
     if (!resourceMgr) {
-        HILOG_WARN("%{public}s, Get resourceMgr failed.", __func__);
+        HILOG_WARN("Get resourceMgr failed.");
         return;
     }
 
@@ -996,7 +996,7 @@ void AbilityRecord::GetColdStartingWindowResource(std::shared_ptr<Media::PixelMa
     auto colorId = static_cast<uint32_t>(abilityInfo_.startWindowBackgroundId);
     auto colorErrval = resourceMgr->GetColorById(colorId, bgColor);
     if (colorErrval != OHOS::Global::Resource::RState::SUCCESS) {
-        HILOG_WARN("%{public}s. Failed to GetColorById.", __func__);
+        HILOG_WARN("Failed to GetColorById.");
         bgColor = 0xdfffffff;
     }
     HILOG_DEBUG("colorId is %{public}u, bgColor is %{public}u.", colorId, bgColor);
@@ -1014,11 +1014,11 @@ void AbilityRecord::InitColdStartingWindowResource(
     startingWindowBg_ = GetPixelMap(static_cast<uint32_t>(abilityInfo_.startWindowIconId), resourceMgr);
     if (resourceMgr->GetColorById(static_cast<uint32_t>(abilityInfo_.startWindowBackgroundId), bgColor_) !=
         OHOS::Global::Resource::RState::SUCCESS) {
-        HILOG_WARN("%{public}s. Failed to GetColorById.", __func__);
+        HILOG_WARN("Failed to GetColorById.");
         bgColor_ = 0xdfffffff;
     }
 
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (startingWindowBg_ && handler) {
         auto delayTask = [me = weak_from_this()] {
             auto self = me.lock();
@@ -1027,7 +1027,7 @@ void AbilityRecord::InitColdStartingWindowResource(
             }
             self->startingWindowBg_.reset();
         };
-        handler->PostTask(delayTask, "release_bg", RELEASE_STARTING_BG_TIMEOUT);
+        handler->SubmitTask(delayTask, "release_bg", RELEASE_STARTING_BG_TIMEOUT);
     }
 }
 
@@ -1050,14 +1050,14 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
         HILOG_ERROR("Move the ability to background fail, lifecycleDeal_ is null.");
         return;
     }
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (handler && task) {
         if (!want_.GetBoolParam(DEBUG_APP, false) &&
             !want_.GetBoolParam(NATIVE_DEBUG, false) &&
             want_.GetStringParam(PERF_CMD).empty()) {
             int backgroundTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * BACKGROUND_TIMEOUT_MULTIPLE;
-            handler->PostTask(task, "background_" + std::to_string(recordId_), backgroundTimeout);
+            handler->SubmitTask(task, "background_" + std::to_string(recordId_), backgroundTimeout);
         } else {
             HILOG_INFO("Is debug mode, no need to handle time out.");
         }
@@ -1309,18 +1309,18 @@ void AbilityRecord::Terminate(const Closure &task)
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("ability:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (handler && task) {
         if (!want_.GetBoolParam(DEBUG_APP, false) &&
             !want_.GetBoolParam(NATIVE_DEBUG, false) &&
             want_.GetStringParam(PERF_CMD).empty()) {
             int terminateTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * TERMINATE_TIMEOUT_MULTIPLE;
-            handler->PostTask(task, "terminate_" + std::to_string(recordId_), terminateTimeout);
+            handler->SubmitTask(task, "terminate_" + std::to_string(recordId_), terminateTimeout);
         } else if (applicationInfo_.asanEnabled) {
             int terminateTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * TERMINATE_TIMEOUT_ASANENABLED;
-            handler->PostTask(task, "terminate_" + std::to_string(recordId_), terminateTimeout);
+            handler->SubmitTask(task, "terminate_" + std::to_string(recordId_), terminateTimeout);
         } else {
             HILOG_INFO("Is debug mode, no need to handle time out.");
         }
@@ -1366,7 +1366,7 @@ void AbilityRecord::CommandAbility()
 void AbilityRecord::CommandAbilityWindow(const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd)
 {
     CHECK_POINTER(lifecycleDeal_);
-    lifecycleDeal_->CommandAbilityWindow(sessionInfo, winCmd);
+    lifecycleDeal_->CommandAbilityWindow(want_, sessionInfo, winCmd);
 }
 
 void AbilityRecord::SaveAbilityState()
@@ -1419,7 +1419,7 @@ std::shared_ptr<AbilityResult> AbilityRecord::GetResult() const
 void AbilityRecord::SendResult(bool isSandboxApp)
 {
     HILOG_INFO("ability:%{public}s.", abilityInfo_.name.c_str());
-    std::lock_guard<std::mutex> guard(lock_);
+    std::lock_guard<ffrt::mutex> guard(lock_);
     CHECK_POINTER(scheduler_);
     CHECK_POINTER(result_);
     GrantUriPermission(result_->resultWant_, GetCurrentAccountId(), applicationInfo_.bundleName, isSandboxApp);
@@ -1581,7 +1581,7 @@ void AbilityRecord::RemoveConnectRecordFromList(const std::shared_ptr<Connection
 void AbilityRecord::AddCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode, std::string srcAbilityId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Add caller record.");
+    HILOG_DEBUG("Add caller record.");
     if (!srcAbilityId.empty() && IsSystemAbilityCall(callerToken)) {
         AddSystemAbilityCallerRecord(callerToken, requestCode, srcAbilityId);
         return;
@@ -1923,7 +1923,7 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
     if (mission) {
         HILOG_WARN("On scheduler died. Is app not response Reason:%{public}d", mission->IsANRState());
     }
-    std::lock_guard<std::mutex> guard(lock_);
+    std::lock_guard<ffrt::mutex> guard(lock_);
     CHECK_POINTER(scheduler_);
 
     auto object = remote.promote();
@@ -1948,19 +1948,19 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
     auto abilityManagerService = DelayedSingleton<AbilityManagerService>::GetInstance();
     CHECK_POINTER(abilityManagerService);
 
-    auto handler = abilityManagerService->GetEventHandler();
+    auto handler = abilityManagerService->GetTaskHandler();
     CHECK_POINTER(handler);
 
     HILOG_INFO("Ability on scheduler died: '%{public}s'", abilityInfo_.name.c_str());
     auto task = [abilityManagerService, ability = shared_from_this()]() {
         abilityManagerService->OnAbilityDied(ability);
     };
-    handler->PostTask(task);
+    handler->SubmitTask(task);
     auto uriTask = [want = want_, ability = shared_from_this()]() {
         ability->SaveResultToCallers(-1, &want);
         ability->SendResultToCallers(true);
     };
-    handler->PostTask(uriTask);
+    handler->SubmitTask(uriTask);
 #ifdef SUPPORT_GRAPHICS
     // notify winddow manager service the ability died
     if (missionId_ != -1) {
@@ -2037,7 +2037,7 @@ void AbilityRecord::SendEvent(uint32_t msg, uint32_t timeOut, int32_t param)
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     CHECK_POINTER(handler);
     param = (param == -1) ? recordId_ : param;
-    handler->SendEvent(msg, param, timeOut);
+    handler->SendEvent(EventWrap(msg, param), timeOut);
 }
 
 void AbilityRecord::SetStartSetting(const std::shared_ptr<AbilityStartSetting> &setting)
@@ -2143,7 +2143,7 @@ void AbilityRecord::SetMission(const std::shared_ptr<Mission> &mission)
 {
     if (mission) {
         missionId_ = mission->GetMissionId();
-        HILOG_INFO("SetMission come, missionId is %{public}d.", missionId_);
+        HILOG_DEBUG("SetMission come, missionId is %{public}d.", missionId_);
     }
     mission_ = mission;
 }
@@ -2236,7 +2236,6 @@ void AbilityRecord::SetStartToForeground(const bool flag)
 
 void AbilityRecord::CallRequest()
 {
-    HILOG_INFO("Call Request.");
     CHECK_POINTER(scheduler_);
 
     GrantUriPermission(want_, GetCurrentAccountId(), applicationInfo_.bundleName);
@@ -2359,19 +2358,19 @@ void AbilityRecord::DumpClientInfo(std::vector<std::string> &info, const std::ve
         HILOG_ERROR("something nullptr.");
         return;
     }
-    std::unique_lock<std::mutex> lock(dumpLock_);
+    std::unique_lock<ffrt::mutex> lock(dumpLock_);
     scheduler_->DumpAbilityInfo(params, info);
 
     HILOG_INFO("Dump begin wait.");
     isDumpTimeout_ = false;
     int dumpTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * DUMP_TIMEOUT_MULTIPLE;
     std::chrono::milliseconds timeout { dumpTimeout };
-    if (dumpCondition_.wait_for(lock, timeout) == std::cv_status::timeout) {
+    if (dumpCondition_.wait_for(lock, timeout) == ffrt::cv_status::timeout) {
         isDumpTimeout_ = true;
     }
     HILOG_INFO("Dump done and begin parse.");
     if (!isDumpTimeout_) {
-        std::lock_guard<std::mutex> infoLock(dumpInfoLock_);
+        std::lock_guard<ffrt::mutex> infoLock(dumpInfoLock_);
         for (auto one : dumpInfos_) {
             info.emplace_back(one);
         }
@@ -2395,7 +2394,7 @@ void AbilityRecord::DumpAbilityInfoDone(std::vector<std::string> &infos)
         return;
     }
     {
-        std::lock_guard<std::mutex> infoLock(dumpInfoLock_);
+        std::lock_guard<ffrt::mutex> infoLock(dumpInfoLock_);
         dumpInfos_.clear();
         for (auto info : infos) {
             dumpInfos_.emplace_back(info);

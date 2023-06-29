@@ -160,13 +160,10 @@ public:
     /**
      * Start ui ability with want, send want to ability manager service.
      *
-     * @param want the want of the ability to start.
-     * @param startOptions Indicates the options used to start.
      * @param sessionInfo the session info of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartUIAbilityBySCB(const Want &want, const StartOptions &startOptions,
-        sptr<SessionInfo> sessionInfo) override;
+    virtual int StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo) override;
 
     /**
      * Stop extension ability with want, send want to ability manager service.
@@ -230,6 +227,14 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int TerminateAbilityByCaller(const sptr<IRemoteObject> &callerToken, int requestCode) override;
+
+    /**
+     * MoveAbilityToBackground.
+     *
+     * @param token, the token of the ability to move.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int MoveAbilityToBackground(const sptr<IRemoteObject> &token) override;
 
     /**
      * CloseAbility, close the special ability.
@@ -828,6 +833,21 @@ public:
      * @param want Want information.
      */
     void StartSpecifiedAbilityBySCB(const Want &want) override;
+
+    /**
+     * Set sessionManagerService
+     * @param sessionManagerService the point of sessionManagerService.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService) override;
+
+    /**
+     * Get sessionManagerService
+     *
+     * @return returns the SessionManagerService object, or nullptr for failed.
+     */
+    virtual sptr<IRemoteObject> GetSessionManagerService() override;
 
 private:
     template <typename T>

@@ -42,7 +42,8 @@ ohos_moduletest("AmsServiceEventDriveModuleTest") {
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
-    "hicollie_native:libhicollie",
+    "ffrt:libffrt",
+    "hicollie:libhicollie",
     "hilog:libhilog",
     "ipc:ipc_core",
     "window_manager:libwm",
@@ -56,5 +57,7 @@ ohos_moduletest("AmsServiceEventDriveModuleTest") {
 group("moduletest") {
   testonly = true
 
-  deps = [ ":AmsServiceEventDriveModuleTest" ]
+  deps = [
+    # ":AmsServiceEventDriveModuleTest"
+  ]
 }

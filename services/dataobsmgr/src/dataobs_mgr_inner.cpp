@@ -28,7 +28,7 @@ DataObsMgrInner::~DataObsMgrInner() {}
 
 int DataObsMgrInner::HandleRegisterObserver(const Uri &uri, sptr<IDataAbilityObserver> dataObserver)
 {
-    std::lock_guard<std::mutex> lock(innerMutex_);
+    std::lock_guard<ffrt::mutex> lock(innerMutex_);
 
     auto [obsPair, flag] = observers_.try_emplace(uri.ToString(), std::list<sptr<IDataAbilityObserver>>());
     if (!flag && obsPair->second.size() > OBS_NUM_MAX) {
@@ -54,7 +54,7 @@ int DataObsMgrInner::HandleRegisterObserver(const Uri &uri, sptr<IDataAbilityObs
 
 int DataObsMgrInner::HandleUnregisterObserver(const Uri &uri, sptr<IDataAbilityObserver> dataObserver)
 {
-    std::lock_guard<std::mutex> lock(innerMutex_);
+    std::lock_guard<ffrt::mutex> lock(innerMutex_);
 
     auto obsPair = observers_.find(uri.ToString());
     if (obsPair == observers_.end()) {
@@ -89,7 +89,7 @@ int DataObsMgrInner::HandleUnregisterObserver(const Uri &uri, sptr<IDataAbilityO
 int DataObsMgrInner::HandleNotifyChange(const Uri &uri)
 {
     std::list<sptr<IDataAbilityObserver>> obsList;
-    std::lock_guard<std::mutex> lock(innerMutex_);
+    std::lock_guard<ffrt::mutex> lock(innerMutex_);
     {
         auto obsPair = observers_.find(uri.ToString());
         if (obsPair == observers_.end()) {
@@ -156,7 +156,7 @@ void DataObsMgrInner::OnCallBackDied(const wptr<IRemoteObject> &remote)
     if (dataObserver == nullptr) {
         return;
     }
-    std::lock_guard<std::mutex> lock(innerMutex_);
+    std::lock_guard<ffrt::mutex> lock(innerMutex_);
 
     if (dataObserver == nullptr) {
         HILOG_ERROR("dataObserver is nullptr.");

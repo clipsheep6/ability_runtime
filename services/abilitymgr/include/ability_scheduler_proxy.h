@@ -85,7 +85,8 @@ public:
      */
     void ScheduleCommandAbility(const Want &want, bool restart, int startId) override;
 
-    void ScheduleCommandAbilityWindow(const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd) override;
+    void ScheduleCommandAbilityWindow(const Want &want, const sptr<SessionInfo> &sessionInfo,
+        WindowCommand winCmd) override;
 
     /*
      * SchedulePrepareTerminateAbility, schedule service ability to prepare terminate.

@@ -27,6 +27,9 @@
 #include "system_ability_definition.h"
 #include "hitrace_meter.h"
 #include "remote_object_wrapper.h"
+#include "scene_board_judgement.h"
+#include "session/host/include/zidl/session_interface.h"
+#include "session_info.h"
 #include "string_wrapper.h"
 #include "want_params_wrapper.h"
 
@@ -91,7 +94,23 @@ ErrCode AbilityContext::TerminateAbility()
     switch (info->type) {
         case AppExecFwk::AbilityType::PAGE:
             HILOG_DEBUG("Terminate ability begin, type is page, ability is %{public}s.", info->name.c_str());
-            err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, resultCode_, &resultWant_);
+            if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+                auto sessionToken = sessionInfo_->sessionToken;
+                if (sessionToken == nullptr) {
+                    HILOG_ERROR("sessionToken is nullptr.");
+                    return ERR_INVALID_VALUE;
+                }
+                sptr<AAFwk::SessionInfo> sessionInfo = new AAFwk::SessionInfo();
+                sessionInfo->want = resultWant_;
+                sessionInfo->resultCode = resultCode_;
+                HILOG_INFO("FA TerminateAbility resultCode is %{public}d", sessionInfo->resultCode);
+                auto ifaceSessionToken = iface_cast<Rosen::ISession>(sessionToken);
+                auto err = ifaceSessionToken->TerminateSession(sessionInfo);
+                HILOG_INFO("FA TerminateAbility. ret=%{public}d", err);
+                return static_cast<int32_t>(err);
+            } else {
+                err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, resultCode_, &resultWant_);
+            }
             break;
         case AppExecFwk::AbilityType::SERVICE:
             HILOG_DEBUG("Terminate ability begin, type is service, ability is %{public}s.", info->name.c_str());

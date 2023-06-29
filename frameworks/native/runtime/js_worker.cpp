@@ -48,6 +48,7 @@ namespace {
 constexpr int64_t ASSET_FILE_MAX_SIZE = 32 * 1024 * 1024;
 const std::string BUNDLE_NAME_FLAG = "@bundle:";
 const std::string CACHE_DIRECTORY = "el2";
+const int PATH_THREE = 3;
 #ifdef APP_USE_ARM
 constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/libark_debugger.z.so";
 #else
@@ -161,7 +162,7 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
             realPath = uri.substr(1);
         } else if (uri.find("../") == 0 && !workerInfo_->isStageModel) {
             HILOG_DEBUG("uri start with ../");
-            realPath = uri.substr(3);
+            realPath = uri.substr(PATH_THREE);
         } else {
             HILOG_DEBUG("uri start with modulename");
             realPath = uri;

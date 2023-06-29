@@ -77,7 +77,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->CheckWindowMode(int32Param, windowModes);
     AbilityRequest abilityRequest;
     abilityms->CheckCallServicePermission(abilityRequest);
-    abilityms->CheckCallDataAbilityPermission(abilityRequest);
+    abilityms->CheckCallDataAbilityPermission(abilityRequest, false);
     abilityms->CreateVerificationInfo(abilityRequest);
     abilityms->CheckCallServiceExtensionPermission(abilityRequest);
     abilityms->CheckCallOtherExtensionPermission(abilityRequest);

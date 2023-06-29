@@ -53,6 +53,7 @@ ohos_fuzztest("StartAbilityFuzzTest") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "ffrt:libffrt",
   ]
 }
 

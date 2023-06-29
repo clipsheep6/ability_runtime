@@ -18,6 +18,7 @@
 
 #include <unordered_map>
 #include <memory>
+#include "cpp/mutex.h"
 
 #include "user_event_handler.h"
 
@@ -48,7 +49,9 @@ private:
     UserState lastState_ = STATE_BOOTING;
 };
 
-struct UserEvent {
+class UserEvent : public EventDataBase {
+public:
+    virtual ~UserEvent() = default;
     int32_t oldUserId;
     int32_t newUserId;
     std::shared_ptr<UserItem> userItem;
@@ -82,7 +85,7 @@ public:
 
     std::shared_ptr<UserItem> GetUserItem(int32_t userId);
 
-    void ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event);
+    void ProcessEvent(const EventWrap &event);
 
 private:
     bool IsCurrentUser(int32_t userId);
@@ -118,7 +121,7 @@ private:
     void HandleUserSwitchDone(int32_t userId);
 
 private:
-    std::mutex userLock_;
+    ffrt::mutex userLock_;
     int32_t currentUserId_ = USER_ID_NO_HEAD;
     std::unordered_map<int32_t, std::shared_ptr<UserItem>> userItems_;
     std::shared_ptr<UserEventHandler> eventHandler_;

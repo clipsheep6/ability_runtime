@@ -197,12 +197,17 @@ bool AbilitySchedulerProxy::SchedulePrepareTerminateAbility()
     return reply.ReadBool();
 }
 
-void AbilitySchedulerProxy::ScheduleCommandAbilityWindow(const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd)
+void AbilitySchedulerProxy::ScheduleCommandAbilityWindow(const Want &want, const sptr<SessionInfo> &sessionInfo,
+    WindowCommand winCmd)
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     if (!WriteInterfaceToken(data)) {
+        return;
+    }
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("fail to WriteParcelable");
         return;
     }
     if (!data.WriteParcelable(sessionInfo)) {

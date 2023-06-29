@@ -21,6 +21,8 @@
 #include <list>
 #include <memory>
 #include <vector>
+#include "cpp/mutex.h"
+#include "cpp/condition_variable.h"
 
 #include "ability_connect_callback_interface.h"
 #include "ability_info.h"
@@ -1011,10 +1013,10 @@ private:
     int32_t restartCount_ = -1;
     int32_t restartMax_ = -1;
     std::string specifiedFlag_;
-    std::mutex lock_;
-    mutable std::mutex dumpInfoLock_;
-    mutable std::mutex dumpLock_;
-    mutable std::condition_variable dumpCondition_;
+    ffrt::mutex lock_;
+    mutable ffrt::mutex dumpInfoLock_;
+    mutable ffrt::mutex dumpLock_;
+    mutable ffrt::condition_variable dumpCondition_;
     mutable bool isDumpTimeout_ = false;
     std::vector<std::string> dumpInfos_;
     std::atomic<AbilityState> pendingState_ = AbilityState::INITIAL;    // pending life state

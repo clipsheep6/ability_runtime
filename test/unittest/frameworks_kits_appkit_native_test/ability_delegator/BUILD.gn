@@ -142,6 +142,7 @@ ohos_unittest("ability_delegator_unittest") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 

@@ -66,7 +66,7 @@ struct VerificationInfo {
 
     bool VerifyGetBundleInfoPrivilegedPermission() const;
 
-    int CheckCallDataAbilityPermission(const VerificationInfo &verificationInfo) const;
+    int CheckCallDataAbilityPermission(const VerificationInfo &verificationInfo, bool isShell) const;
 
     int CheckCallServiceAbilityPermission(const VerificationInfo &verificationInfo) const;
 

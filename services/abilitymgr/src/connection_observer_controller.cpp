@@ -28,7 +28,7 @@ int ConnectionObserverController::AddObserver(const sptr<AbilityRuntime::IConnec
         return AbilityRuntime::ERR_INVALID_OBSERVER;
     }
 
-    std::lock_guard<std::mutex> guard(observerLock_);
+    std::lock_guard<ffrt::mutex> guard(observerLock_);
     auto it = std::find_if(observers_.begin(), observers_.end(), [&observer](const sptr<IConnectionObserver> &item) {
         return (item && item->AsObject() == observer->AsObject());
     });
@@ -63,7 +63,7 @@ void ConnectionObserverController::RemoveObserver(const sptr<AbilityRuntime::ICo
         return;
     }
 
-    std::lock_guard<std::mutex> guard(observerLock_);
+    std::lock_guard<ffrt::mutex> guard(observerLock_);
     auto it = std::find_if(observers_.begin(), observers_.end(), [&observer](const sptr<IConnectionObserver> item) {
         return (item && item->AsObject() == observer->AsObject());
     });
@@ -94,7 +94,7 @@ void ConnectionObserverController::NotifyDlpAbilityClosed(const AbilityRuntime::
 
 std::vector<sptr<AbilityRuntime::IConnectionObserver>> ConnectionObserverController::GetObservers()
 {
-    std::lock_guard<std::mutex> guard(observerLock_);
+    std::lock_guard<ffrt::mutex> guard(observerLock_);
     return observers_;
 }
 
@@ -108,7 +108,7 @@ void ConnectionObserverController::HandleRemoteDied(const wptr<IRemoteObject> &r
     }
     remoteObj->RemoveDeathRecipient(observerDeathRecipient_);
 
-    std::lock_guard<std::mutex> guard(observerLock_);
+    std::lock_guard<ffrt::mutex> guard(observerLock_);
     auto it = std::find_if(observers_.begin(), observers_.end(), [&remoteObj](const sptr<IConnectionObserver> item) {
         return (item && item->AsObject() == remoteObj);
     });

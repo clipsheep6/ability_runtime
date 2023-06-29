@@ -33,10 +33,10 @@ static void WaitUntilTaskFinished()
     const uint32_t maxRetryCount = 1000;
     const uint32_t sleepTime = 1000;
     uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<OHOS::AAFwk::AbilityManagerService>::GetInstance()->GetEventHandler();
+    auto handler = OHOS::DelayedSingleton<OHOS::AAFwk::AbilityManagerService>::GetInstance()->GetTaskHandler();
     std::atomic<bool> taskCalled(false);
     auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->PostTask(f)) {
+    if (handler->SubmitTask(f)) {
         while (!taskCalled.load()) {
             ++count;
             if (count >= maxRetryCount) {
@@ -97,11 +97,11 @@ void CallContainerTest::OnStartAms()
 
         abilityMgrServ_->state_ = ServiceRunningState::STATE_RUNNING;
 
-        abilityMgrServ_->eventLoop_ = AppExecFwk::EventRunner::Create(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
-        EXPECT_TRUE(abilityMgrServ_->eventLoop_);
-
-        abilityMgrServ_->handler_ = std::make_shared<AbilityEventHandler>(abilityMgrServ_->eventLoop_, abilityMgrServ_);
-        EXPECT_TRUE(abilityMgrServ_->handler_);
+        abilityMgrServ_->taskHandler_ = TaskHandlerWrap::CreateQueueHandler(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
+        EXPECT_TRUE(abilityMgrServ_->taskHandler_);
+        abilityMgrServ_->eventHandler_ = std::make_shared<AbilityEventHandler>(
+            abilityMgrServ_->taskHandler_, abilityMgrServ_);
+        EXPECT_TRUE(abilityMgrServ_->eventHandler_);
 
         // init user controller.
         abilityMgrServ_->userController_ = std::make_shared<UserController>();
@@ -118,8 +118,9 @@ void CallContainerTest::OnStartAms()
         AmsConfigurationParameter::GetInstance().Parse();
 
         abilityMgrServ_->InitMissionListManager(userId, true);
-        abilityMgrServ_->connectManager_->SetEventHandler(abilityMgrServ_->handler_);
-        abilityMgrServ_->eventLoop_->Run();
+        abilityMgrServ_->connectManager_->SetTaskHandler(abilityMgrServ_->taskHandler_);
+        abilityMgrServ_->connectManager_->SetEventHandler(abilityMgrServ_->eventHandler_);
+
         auto topAbility = abilityMgrServ_->GetListManagerByUserId(MOCK_MAIN_USER_ID)->GetCurrentTopAbilityLocked();
         if (topAbility) {
             topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);

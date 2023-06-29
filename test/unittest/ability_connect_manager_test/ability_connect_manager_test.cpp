@@ -14,6 +14,7 @@
  */
 
 #include <gtest/gtest.h>
+#include <memory>
 
 #define private public
 #define protected public
@@ -26,7 +27,6 @@
 #include "ability_scheduler.h"
 #include "ability_util.h"
 #include "bundlemgr/mock_bundle_manager.h"
-#include "event_handler.h"
 #include "mock_ability_connect_callback.h"
 #include "sa_mgr_client.h"
 #include "system_ability_definition.h"
@@ -37,12 +37,13 @@ using namespace OHOS::AppExecFwk;
 namespace OHOS {
 namespace AAFwk {
 template<typename F>
-static void WaitUntilTaskCalled(const F& f, const std::shared_ptr<EventHandler>& handler, std::atomic<bool>& taskCalled)
+static void WaitUntilTaskCalled(const F& f, const std::shared_ptr<TaskHandlerWrap>& handler,
+    std::atomic<bool>& taskCalled)
 {
     const uint32_t maxRetryCount = 1000;
     const uint32_t sleepTime = 1000;
     uint32_t count = 0;
-    if (handler->PostTask(f)) {
+    if (handler->SubmitTask(f)) {
         while (!taskCalled.load()) {
             ++count;
             // if delay more than 1 second, break
@@ -54,7 +55,7 @@ static void WaitUntilTaskCalled(const F& f, const std::shared_ptr<EventHandler>&
     }
 }
 
-static void WaitUntilTaskDone(const std::shared_ptr<EventHandler>& handler)
+static void WaitUntilTaskDone(const std::shared_ptr<TaskHandlerWrap>& handler)
 {
     std::atomic<bool> taskCalled(false);
     auto f = [&taskCalled]() { taskCalled.store(true); };
@@ -69,6 +70,8 @@ public:
     void TearDown();
 
     AbilityConnectManager* ConnectManager() const;
+    std::shared_ptr<TaskHandlerWrap> TaskHandler() const;
+    std::shared_ptr<EventHandlerWrap> EventHandler() const;
 
     AbilityRequest GenerateAbilityRequest(const std::string& deviceName, const std::string& abilityName,
         const std::string& appName, const std::string& bundleName, const std::string& moduleName);
@@ -93,6 +96,8 @@ protected:
 
 private:
     std::shared_ptr<AbilityConnectManager> connectManager_;
+    std::shared_ptr<TaskHandlerWrap> taskHandler_;
+    std::shared_ptr<EventHandlerWrap> eventHandler_;
 };
 
 AbilityRequest AbilityConnectManagerTest::GenerateAbilityRequest(const std::string& deviceName,
@@ -152,6 +157,8 @@ void AbilityConnectManagerTest::TearDownTestCase(void)
 void AbilityConnectManagerTest::SetUp(void)
 {
     connectManager_ = std::make_unique<AbilityConnectManager>(0);
+    taskHandler_ = TaskHandlerWrap::CreateQueueHandler("AbilityConnectManagerTest");
+    eventHandler_ = std::make_shared<EventHandlerWrap>(taskHandler_);
     // generate ability request
     std::string deviceName = "device";
     std::string abilityName = "ServiceAbility";
@@ -197,6 +204,16 @@ AbilityConnectManager* AbilityConnectManagerTest::ConnectManager() const
     return connectManager_.get();
 }
 
+std::shared_ptr<TaskHandlerWrap> AbilityConnectManagerTest::TaskHandler() const
+{
+    return taskHandler_;
+}
+
+std::shared_ptr<EventHandlerWrap> AbilityConnectManagerTest::EventHandler() const
+{
+    return eventHandler_;
+}
+
 /*
  * Feature: AbilityConnectManager
  * Function: StartAbility
@@ -207,12 +224,12 @@ AbilityConnectManager* AbilityConnectManagerTest::ConnectManager() const
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_001, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     auto result = ConnectManager()->StartAbility(abilityRequest_);
     EXPECT_EQ(OHOS::ERR_OK, result);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
 
     auto elementName = abilityRequest_.want.GetElement().GetURI();
     auto service = ConnectManager()->GetServiceRecordByElementName(elementName);
@@ -222,13 +239,13 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_001, TestSize.Level1)
     service->SetAbilityState(OHOS::AAFwk::AbilityState::ACTIVE);
 
     auto result1 = ConnectManager()->StartAbility(abilityRequest_);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
     EXPECT_EQ(OHOS::ERR_OK, result1);
     EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 1);
 
     service->SetAbilityState(OHOS::AAFwk::AbilityState::ACTIVATING);
     auto result2 = ConnectManager()->StartAbility(abilityRequest_);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
     EXPECT_EQ(OHOS::ERR_OK, result2);
     EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 1);
 }
@@ -245,12 +262,12 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_001, TestSize.Level1)
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_002, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     auto result = ConnectManager()->StartAbility(abilityRequest_);
     EXPECT_EQ(OHOS::ERR_OK, result);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
 
     OHOS::sptr<OHOS::IRemoteObject> nullToken = nullptr;
     auto result1 = ConnectManager()->TerminateAbility(nullToken);
@@ -261,7 +278,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_002, TestSize.Level1)
     EXPECT_NE(service, nullptr);
 
     auto result2 = ConnectManager()->TerminateAbility(service->GetToken());
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
     EXPECT_EQ(OHOS::ERR_OK, result2);
     EXPECT_EQ(service->GetAbilityState(), TERMINATING);
 }
@@ -276,12 +293,12 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_002, TestSize.Level1)
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_003, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     auto result = ConnectManager()->StartAbility(abilityRequest_);
     EXPECT_EQ(OHOS::ERR_OK, result);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
 
     auto elementName = abilityRequest_.want.GetElement().GetURI();
     auto service = ConnectManager()->GetServiceRecordByElementName(elementName);
@@ -289,7 +306,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_003, TestSize.Level1)
 
     service->SetTerminatingState();
     auto result1 = ConnectManager()->TerminateAbility(service->GetToken());
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
     EXPECT_EQ(OHOS::ERR_OK, result1);
     EXPECT_NE(service->GetAbilityState(), TERMINATING);
 }
@@ -304,12 +321,12 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_003, TestSize.Level1)
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_004, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     auto result = ConnectManager()->StartAbility(abilityRequest_);
     EXPECT_EQ(OHOS::ERR_OK, result);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
 
     auto result1 = ConnectManager()->ConnectAbilityLocked(abilityRequest_, callbackA_, nullptr);
     EXPECT_EQ(0, result1);
@@ -319,7 +336,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_004, TestSize.Level1)
     EXPECT_NE(service, nullptr);
 
     auto result2 = ConnectManager()->TerminateAbility(service->GetToken());
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
     EXPECT_EQ(0, result2);
     EXPECT_EQ(service->GetAbilityState(), TERMINATING);
 }
@@ -336,12 +353,12 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_004, TestSize.Level1)
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_005, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     auto result = ConnectManager()->StartAbility(abilityRequest_);
     EXPECT_EQ(OHOS::ERR_OK, result);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
 
     auto elementName = abilityRequest_.want.GetElement().GetURI();
     auto service = ConnectManager()->GetServiceRecordByElementName(elementName);
@@ -349,11 +366,11 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_005, TestSize.Level1)
 
     AbilityRequest otherRequest;
     auto result1 = ConnectManager()->StopServiceAbility(otherRequest);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
     EXPECT_EQ(OHOS::ERR_INVALID_VALUE, result1);
 
     auto result2 = ConnectManager()->StopServiceAbility(abilityRequest_);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
     EXPECT_EQ(OHOS::ERR_OK, result2);
     EXPECT_EQ(service->GetAbilityState(), TERMINATING);
 }
@@ -368,12 +385,12 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_005, TestSize.Level1)
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_006, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     auto result = ConnectManager()->StartAbility(abilityRequest_);
     EXPECT_EQ(OHOS::ERR_OK, result);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
 
     auto elementName = abilityRequest_.want.GetElement().GetURI();
     auto service = ConnectManager()->GetServiceRecordByElementName(elementName);
@@ -381,7 +398,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_006, TestSize.Level1)
 
     service->SetTerminatingState();
     auto result1 = ConnectManager()->StopServiceAbility(abilityRequest_);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
     EXPECT_EQ(OHOS::ERR_OK, result1);
     EXPECT_NE(service->GetAbilityState(), TERMINATING);
 }
@@ -396,12 +413,12 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_006, TestSize.Level1)
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_007, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     auto result = ConnectManager()->StartAbility(abilityRequest_);
     EXPECT_EQ(OHOS::ERR_OK, result);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
 
     auto result1 = ConnectManager()->ConnectAbilityLocked(abilityRequest_, callbackA_, nullptr);
     EXPECT_EQ(0, result1);
@@ -411,7 +428,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_007, TestSize.Level1)
     EXPECT_NE(service, nullptr);
 
     auto result2 = ConnectManager()->StopServiceAbility(abilityRequest_);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
     EXPECT_EQ(0, result2);
     EXPECT_EQ(service->GetAbilityState(), TERMINATING);
 }
@@ -451,14 +468,14 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_008, TestSize.Level1)
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_009, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
     int result = ConnectManager()->ConnectAbilityLocked(abilityRequest_, callbackA_, nullptr);
     EXPECT_EQ(0, result);
 
     auto connectMap = ConnectManager()->GetConnectMap();
     EXPECT_EQ(1, static_cast<int>(connectMap.size()));
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
     usleep(TEST_WAIT_TIME);
 
     connectMap = ConnectManager()->GetConnectMap();
@@ -506,8 +523,8 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_010, TestSize.Level1)
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_011, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     int result = ConnectManager()->ConnectAbilityLocked(abilityRequest_, callbackA_, nullptr);
     auto elementName = abilityRequest_.want.GetElement();
@@ -523,7 +540,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_011, TestSize.Level1)
     ConnectManager()->AttachAbilityThreadLocked(scheduler, token->AsObject());
     ConnectManager()->AbilityTransitionDone(token->AsObject(), OHOS::AAFwk::AbilityState::INACTIVE);
 
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
     usleep(TEST_WAIT_TIME);
     connectMap = ConnectManager()->GetConnectMap();
     EXPECT_EQ(0, result);
@@ -924,8 +941,8 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Kit_Connect_008, TestSize.Level1)
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_Kit_Disconnect_001, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     auto callback = new AbilityConnectCallback();
     auto result = ConnectManager()->DisconnectAbilityLocked(callback);
@@ -958,8 +975,8 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Kit_Disconnect_001, TestSize.Level1)
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_Kit_Disconnect_002, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     auto result = ConnectManager()->ConnectAbilityLocked(abilityRequest_, callbackA_, nullptr);
     EXPECT_EQ(0, result);
@@ -988,7 +1005,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Kit_Disconnect_002, TestSize.Level1)
     }
 
     auto result5 = ConnectManager()->DisconnectAbilityLocked(callbackA_);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
     EXPECT_EQ(result5, OHOS::ERR_OK);
     auto serviceMap = ConnectManager()->GetServiceMap();
     EXPECT_EQ(static_cast<int>(serviceMap.size()), 2);
@@ -1042,8 +1059,8 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_019, TestSize.Level1)
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_020, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     OHOS::sptr<OHOS::IRemoteObject> nullToken = nullptr;
     auto result = ConnectManager()->ScheduleDisconnectAbilityDoneLocked(nullToken);
@@ -1067,7 +1084,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_020, TestSize.Level1)
     }
 
     auto result2 = ConnectManager()->DisconnectAbilityLocked(callbackA_);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
     EXPECT_EQ(result2, OHOS::ERR_OK);
 
     auto result3 = ConnectManager()->ScheduleDisconnectAbilityDoneLocked(token);
@@ -1089,8 +1106,8 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_020, TestSize.Level1)
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_021, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     OHOS::sptr<OHOS::IRemoteObject> nullToken = nullptr;
     auto result = ConnectManager()->ScheduleCommandAbilityDoneLocked(nullToken);
@@ -1151,8 +1168,8 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_022, TestSize.Level1)
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_024, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     auto result = ConnectManager()->ConnectAbilityLocked(abilityRequest_, callbackA_, nullptr);
     EXPECT_EQ(0, result);
@@ -1187,7 +1204,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_024, TestSize.Level1)
     auto token = abilityRecord->GetToken();
 
     ConnectManager()->OnAbilityDied(abilityRecord, 0);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
     auto list = abilityRecord->GetConnectRecordList();
     EXPECT_EQ(static_cast<int>(list.size()), 0);
 
@@ -1198,7 +1215,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_024, TestSize.Level1)
     auto token1 = abilityRecord1->GetToken();
 
     ConnectManager()->OnAbilityDied(abilityRecord1, 0);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
     auto list1 = abilityRecord1->GetConnectRecordList();
     EXPECT_EQ(static_cast<int>(list1.size()), 0);
 }
@@ -1217,8 +1234,8 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_025, TestSize.Level1)
     auto result = ConnectManager()->DispatchInactive(ability, OHOS::AAFwk::AbilityState::INACTIVATING);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
 
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     auto result3 = ConnectManager()->ConnectAbilityLocked(abilityRequest_, callbackA_, nullptr);
     EXPECT_EQ(0, result3);
@@ -1253,8 +1270,8 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_026, TestSize.Level1)
     auto result = ConnectManager()->DispatchInactive(ability, OHOS::AAFwk::AbilityState::INACTIVATING);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
 
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     auto result3 = ConnectManager()->ConnectAbilityLocked(abilityRequest_, callbackA_, nullptr);
     EXPECT_EQ(0, result3);
@@ -1285,8 +1302,8 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_026, TestSize.Level1)
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_027, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     ConnectManager()->AddConnectDeathRecipient(nullptr);
     EXPECT_TRUE(ConnectManager()->recipientMap_.empty());
@@ -1309,8 +1326,8 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_027, TestSize.Level1)
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_028, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     ConnectManager()->AddConnectDeathRecipient(callbackA_);
     EXPECT_EQ(static_cast<int>(ConnectManager()->recipientMap_.size()), 1);
@@ -1332,15 +1349,15 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_028, TestSize.Level1)
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_029, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     auto result = ConnectManager()->ConnectAbilityLocked(abilityRequest_, callbackA_, nullptr);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
     EXPECT_EQ(0, result);
 
     ConnectManager()->OnCallBackDied(nullptr);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
     auto connectMap = ConnectManager()->GetConnectMap();
     auto connectRecordList = connectMap.at(callbackA_->AsObject());
     EXPECT_EQ(1, static_cast<int>(connectRecordList.size()));
@@ -1349,7 +1366,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_029, TestSize.Level1)
     }
 
     ConnectManager()->OnCallBackDied(callbackA_->AsObject());
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
     auto cMap = ConnectManager()->GetConnectMap();
     connectRecordList = connectMap.at(callbackA_->AsObject());
     EXPECT_EQ(1, static_cast<int>(connectMap.size()));
@@ -1376,7 +1393,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_TerminateAbility_001, TestSi
     abilityRecord->abilityInfo_.visible = false;
     connectManager->serviceMap_.emplace("first", abilityRecord);
     int res = connectManager->TerminateAbility(abilityRecord, requestCode);
-    EXPECT_EQ(res, ABILITY_VISIBLE_FALSE_DENY_REQUEST);
+    EXPECT_EQ(res, ERR_OK);
 }
 
 /*
@@ -1524,8 +1541,8 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_ConnectAbilityLocked_001, Te
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
     ASSERT_NE(connectManager, nullptr);
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    connectManager->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
     AbilityRequest abilityRequest;
     sptr<IRemoteObject> callerToken = abilityRecord->GetToken();
@@ -1568,6 +1585,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_AttachAbilityThreadLocked_00
     sptr<IRemoteObject> token = abilityRecord->GetToken();
     connectManager->serviceMap_.emplace("first", abilityRecord);
     connectManager->eventHandler_ = nullptr;
+    connectManager->taskHandler_ = nullptr;
     int res = connectManager->AttachAbilityThreadLocked(scheduler, token);
     EXPECT_EQ(res, ERR_OK);
 }
@@ -1734,7 +1752,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_CompleteCommandAbility_001, 
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
-    connectManager->eventHandler_ = nullptr;
+    connectManager->taskHandler_ = nullptr;
     connectManager->CompleteCommandAbility(abilityRecord);
     EXPECT_TRUE(abilityRecord->IsAbilityState(AbilityState::ACTIVE));
 }
@@ -1790,7 +1808,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_GetConnectRecordListByCallba
     sptr<IAbilityConnection> callback = new AbilityConnectCallback();
     connectManager->connectMap_.clear();
     auto res = connectManager->GetConnectRecordListByCallback(callback);
-    EXPECT_EQ(res.size(), 0);
+    EXPECT_EQ(res.size(), 0u);
 }
 
 /*
@@ -1983,8 +2001,8 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_DispatchInactive_001, TestSi
     int state = 0;
     abilityRecord->SetAbilityState(AbilityState::INACTIVATING);
     abilityRecord->isCreateByConnect_ = false;
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    connectManager->SetEventHandler(handler);
+    connectManager->SetTaskHandler(TaskHandler());
+    connectManager->SetEventHandler(EventHandler());
     int res = connectManager->DispatchInactive(abilityRecord, state);
     EXPECT_EQ(res, ERR_OK);
 }
@@ -2001,8 +2019,8 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_DispatchTerminate_001, TestS
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    connectManager->SetEventHandler(handler);
+    connectManager->SetTaskHandler(TaskHandler());
+    connectManager->SetEventHandler(EventHandler());
     int res = connectManager->DispatchTerminate(abilityRecord);
     EXPECT_EQ(res, ERR_OK);
 }
@@ -2370,8 +2388,8 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_StopAllExtensions_001, TestS
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_IsAbilityNeedKeepAlive_001, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     // mock bms return
     EXPECT_TRUE(ConnectManager()->IsAbilityNeedKeepAlive(serviceRecord2_));
@@ -2388,23 +2406,23 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_IsAbilityNeedKeepAlive_001, TestSize.L
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_RestartAbility_001, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     int userId = 0;
 
     auto result = ConnectManager()->StartAbility(abilityRequest_);
     EXPECT_EQ(OHOS::ERR_OK, result);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
 
     auto elementName = abilityRequest_.want.GetElement().GetURI();
     std::shared_ptr<AbilityRecord> service = ConnectManager()->GetServiceRecordByElementName(elementName);
     EXPECT_NE(service, nullptr);
     EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 1);
-    
+
     // HandleTerminate
     ConnectManager()->OnAbilityDied(service, userId);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
     EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 0);
 }
 
@@ -2419,20 +2437,20 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_RestartAbility_001, TestSize.Level1)
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_RestartAbility_002, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     int userId = 0;
 
     auto result = ConnectManager()->StartAbility(abilityRequest2_);
     EXPECT_EQ(OHOS::ERR_OK, result);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
 
     auto elementName = abilityRequest2_.want.GetElement().GetURI();
     auto service = ConnectManager()->GetServiceRecordByElementName(elementName);
     EXPECT_NE(service, nullptr);
     EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 1);
-    
+
     // HandleTerminate
     ConnectManager()->HandleAbilityDiedTask(service, userId);
     EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 1);
@@ -2449,15 +2467,15 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_RestartAbility_002, TestSize.Level1)
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_RestartAbility_003, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     int userId = 0;
 
     auto result = ConnectManager()->StartAbility(abilityRequest2_);
     EXPECT_EQ(OHOS::ERR_OK, result);
-    WaitUntilTaskDone(handler);
- 
+    WaitUntilTaskDone(TaskHandler());
+
     auto elementName = abilityRequest2_.want.GetElement().GetURI();
     std::shared_ptr<AbilityRecord> service = ConnectManager()->GetServiceRecordByElementName(elementName);
     EXPECT_NE(service, nullptr);
@@ -2465,7 +2483,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_RestartAbility_003, TestSize.Level1)
     // set the over interval time according the config; without init config, the interval time is 0.
     // ensure now - restartTime < intervalTime
     service->SetRestartTime(AbilityUtil::SystemTimeMillis() + 1000);
-    
+
     // HandleTerminate
     ConnectManager()->HandleAbilityDiedTask(service, userId);
     EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 0);
@@ -2482,11 +2500,11 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_RestartAbility_003, TestSize.Level1)
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_PostRestartResidentTask_001, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     ConnectManager()->PostRestartResidentTask(abilityRequest2_);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
     EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 0);
 }
 
@@ -2500,15 +2518,15 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_PostRestartResidentTask_001, TestSize.
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_Start_Service_With_SessionInfo_001, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
 
     auto sessionInfo = MockSessionInfo(0);
     abilityRequest_.sessionInfo = sessionInfo;
     auto result = ConnectManager()->StartAbility(abilityRequest_);
     EXPECT_EQ(OHOS::ERR_OK, result);
     abilityRequest_.sessionInfo = nullptr;
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
 
     auto service = ConnectManager()->GetUIExtensioBySessionInfo(sessionInfo);
     EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 1);
@@ -2912,8 +2930,8 @@ HWTEST_F(AbilityConnectManagerTest, OnAbilityRequestDone_001, TestSize.Level1)
  */
 HWTEST_F(AbilityConnectManagerTest, ScheduleCommandAbilityWindowDone_001, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
     auto sessionInfo = MockSessionInfo(0);
 
     sptr<IRemoteObject> nullToken = nullptr;
@@ -2975,8 +2993,8 @@ HWTEST_F(AbilityConnectManagerTest, DispatchForeground_001, TestSize.Level1)
     result = connectManager->DispatchForeground(serviceRecord_);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
 
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    connectManager->SetEventHandler(handler);
+    connectManager->SetTaskHandler(TaskHandler());
+    connectManager->SetEventHandler(EventHandler());
     result = connectManager->DispatchForeground(serviceRecord_);
     EXPECT_EQ(result, OHOS::ERR_OK);
 }
@@ -3001,8 +3019,8 @@ HWTEST_F(AbilityConnectManagerTest, DispatchBackground_001, TestSize.Level1)
     result = connectManager->DispatchBackground(serviceRecord_);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
 
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    connectManager->SetEventHandler(handler);
+    connectManager->SetTaskHandler(TaskHandler());
+    connectManager->SetEventHandler(EventHandler());
     result = connectManager->DispatchBackground(serviceRecord_);
     EXPECT_EQ(result, OHOS::ERR_OK);
 }
@@ -3036,8 +3054,8 @@ HWTEST_F(AbilityConnectManagerTest, CommandAbilityWindow_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
     ASSERT_NE(connectManager, nullptr);
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    connectManager->SetEventHandler(handler);
+    connectManager->SetTaskHandler(TaskHandler());
+    connectManager->SetEventHandler(EventHandler());
     connectManager->CommandAbilityWindow(serviceRecord_, MockSessionInfo(0), WIN_CMD_FOREGROUND);
 }
 
@@ -3076,8 +3094,8 @@ HWTEST_F(AbilityConnectManagerTest, CompleteForeground_001, TestSize.Level1)
  */
 HWTEST_F(AbilityConnectManagerTest, AddUIExtWindowDeathRecipient_001, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
     ConnectManager()->uiExtRecipientMap_.clear();
 
     ConnectManager()->AddUIExtWindowDeathRecipient(nullptr);
@@ -3103,8 +3121,8 @@ HWTEST_F(AbilityConnectManagerTest, AddUIExtWindowDeathRecipient_001, TestSize.L
  */
 HWTEST_F(AbilityConnectManagerTest, RemoveUIExtWindowDeathRecipient_001, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
     ConnectManager()->uiExtRecipientMap_.clear();
 
     ConnectManager()->AddUIExtWindowDeathRecipient(callbackA_->AsObject());
@@ -3128,8 +3146,8 @@ HWTEST_F(AbilityConnectManagerTest, RemoveUIExtWindowDeathRecipient_001, TestSiz
  */
 HWTEST_F(AbilityConnectManagerTest, OnUIExtWindowDied_001, TestSize.Level1)
 {
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    ConnectManager()->SetEventHandler(handler);
+    ConnectManager()->SetTaskHandler(TaskHandler());
+    ConnectManager()->SetEventHandler(EventHandler());
     ConnectManager()->uiExtRecipientMap_.clear();
     ConnectManager()->uiExtensionMap_.clear();
 
@@ -3137,12 +3155,12 @@ HWTEST_F(AbilityConnectManagerTest, OnUIExtWindowDied_001, TestSize.Level1)
         callbackA_->AsObject(), AbilityConnectManager::UIExtWindowMapValType(serviceRecord_, MockSessionInfo(0)));
     ConnectManager()->AddUIExtWindowDeathRecipient(callbackA_->AsObject());
     ConnectManager()->OnUIExtWindowDied(nullptr);
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
     EXPECT_EQ(static_cast<int>(ConnectManager()->uiExtRecipientMap_.size()), 1);
     EXPECT_EQ(static_cast<int>(ConnectManager()->uiExtensionMap_.size()), 1);
 
     ConnectManager()->OnUIExtWindowDied(callbackA_->AsObject());
-    WaitUntilTaskDone(handler);
+    WaitUntilTaskDone(TaskHandler());
     EXPECT_TRUE(ConnectManager()->uiExtRecipientMap_.empty());
     EXPECT_TRUE(ConnectManager()->uiExtensionMap_.empty());
 }

@@ -56,6 +56,8 @@ constexpr struct option LONG_OPTIONS_ApplicationNotResponding[] = {
     {"pid", required_argument, nullptr, 'p'},
     {nullptr, 0, nullptr, 0},
 };
+#endif
+#ifdef ABILITY_FAULT_AND_EXIT_TEST
 const std::string SHORT_OPTIONS_FORCE_EXIT_APP = "hp:r:";
 constexpr struct option LONG_OPTIONS_FORCE_EXIT_APP[] = {
     { "help", no_argument, nullptr, 'h' },
@@ -124,6 +126,8 @@ ErrCode AbilityManagerShellCommand::CreateCommandMap()
         {"block-ability", std::bind(&AbilityManagerShellCommand::RunAsBlockAbilityCommand, this)},
         {"block-ams-service", std::bind(&AbilityManagerShellCommand::RunAsBlockAmsServiceCommand, this)},
         {"block-app-service", std::bind(&AbilityManagerShellCommand::RunAsBlockAppServiceCommand, this)},
+#endif
+#ifdef ABILITY_FAULT_AND_EXIT_TEST
         {"forceexitapp", std::bind(&AbilityManagerShellCommand::RunAsForceExitAppCommand, this)},
         {"notifyappfault", std::bind(&AbilityManagerShellCommand::RunAsNotifyAppFaultCommand, this)},
 #endif
@@ -729,15 +733,22 @@ bool AbilityManagerShellCommand::CheckPerfCmdString(
     }
 
     perfCmd = optarg;
-    const std::regex regexType(R"(^\s*(profile|dumpheap|sleep)($|\s+.*))");
-    if (!MatchOrderString(regexType, perfCmd)) {
+    const std::regex regexDumpHeapType(R"(^\s*(dumpheap)\s*$)");
+    const std::regex regexSleepType(R"(^\s*(sleep)((\s+\d*)|)\s*$)");
+    if (MatchOrderString(regexDumpHeapType, perfCmd) || MatchOrderString(regexSleepType, perfCmd)) {
+        return true;
+    }
+
+    HILOG_DEBUG("the command not match");
+    const std::regex regexProfileType(R"(^\s*(profile)\s+(nativeperf|jsperf)(\s+.*|$))");
+    if (!MatchOrderString(regexProfileType, perfCmd)) {
         HILOG_ERROR("the command is invalid");
         return false;
     }
 
     auto findPos = perfCmd.find("jsperf");
     if (findPos != std::string::npos) {
-        const std::regex regexCmd(R"(^jsperf($|\s+($|\d*\s*($|nativeperf.*))))");
+        const std::regex regexCmd(R"(^jsperf($|\s+($|((5000|([1-9]|[1-4]\d)\d\d)|)\s*($|nativeperf.*))))");
         if (!MatchOrderString(regexCmd, perfCmd.substr(findPos, perfCmd.length() - findPos))) {
             HILOG_ERROR("the order is invalid");
             return false;
@@ -1555,7 +1566,8 @@ ErrCode AbilityManagerShellCommand::RunAsBlockAppServiceCommand()
     }
     return result;
 }
-
+#endif
+#ifdef ABILITY_FAULT_AND_EXIT_TEST
 Reason CovertExitReason(std::string &cmd)
 {
     if (cmd.empty()) {

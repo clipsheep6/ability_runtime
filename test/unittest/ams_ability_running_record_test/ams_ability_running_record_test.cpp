@@ -58,8 +58,9 @@ protected:
     sptr<IAppScheduler> client_;
     sptr<MockApplication> mockedAppClient_;
     std::shared_ptr<AppRunningRecord> testAppRecord_;
-    std::shared_ptr<AppMgrServiceInner> serviceInner_ = nullptr;
-    std::shared_ptr<AMSEventHandler> handler_ = nullptr;
+    std::shared_ptr<AppMgrServiceInner> serviceInner_;
+    std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;
+    std::shared_ptr<AMSEventHandler> eventHandler_;
 };
 
 void AmsAbilityRunningRecordTest::SetUpTestCase()
@@ -71,9 +72,9 @@ void AmsAbilityRunningRecordTest::TearDownTestCase()
 void AmsAbilityRunningRecordTest::SetUp()
 {
     mockedAppClient_ = new MockApplication();
-    auto runner = EventRunner::Create("AmsAppLifeCycleModuleTest");
-    serviceInner_ = std::make_shared<OHOS::AppExecFwk::AppMgrServiceInner>();
-    handler_ = std::make_shared<AMSEventHandler>(runner, serviceInner_);
+    taskHandler_ = AAFwk::TaskHandlerWrap::CreateQueueHandler("AmsAbilityRunningRecordTest");
+    serviceInner_ = std::make_shared<AppMgrServiceInner>();
+    eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, serviceInner_);
 }
 
 void AmsAbilityRunningRecordTest::TearDown()
@@ -96,7 +97,8 @@ std::shared_ptr<AppRunningRecord> AmsAbilityRunningRecordTest::GetTestAppRunning
         appInfo->name = GetTestAppName();
         testAppRecord_ = std::make_shared<AppRunningRecord>(appInfo, AppRecordId::Create(), GetProcessName());
         testAppRecord_->SetApplicationClient(GetMockedAppSchedulerClient());
-        testAppRecord_->SetEventHandler(handler_);
+        testAppRecord_->SetTaskHandler(taskHandler_);
+        testAppRecord_->SetEventHandler(eventHandler_);
     }
     return testAppRecord_;
 }

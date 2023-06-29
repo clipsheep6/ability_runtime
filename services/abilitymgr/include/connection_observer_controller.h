@@ -18,6 +18,7 @@
 
 #include <mutex>
 #include <vector>
+#include "cpp/mutex.h"
 
 #include "iconnection_observer.h"
 
@@ -102,7 +103,7 @@ private:
     };
 
 private:
-    std::mutex observerLock_;
+    ffrt::mutex observerLock_;
     std::vector<sptr<AbilityRuntime::IConnectionObserver>> observers_;
     sptr<IRemoteObject::DeathRecipient> observerDeathRecipient_;
 };

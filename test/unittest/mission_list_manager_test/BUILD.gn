@@ -54,7 +54,7 @@ ohos_unittest("mission_list_manager_test") {
     "ability_base:zuri",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]

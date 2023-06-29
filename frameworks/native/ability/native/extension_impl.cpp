@@ -328,7 +328,8 @@ void ExtensionImpl::CommandExtension(const Want &want, bool restart, int startId
     HILOG_INFO("ok");
 }
 
-void ExtensionImpl::CommandExtensionWindow(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
+void ExtensionImpl::CommandExtensionWindow(const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
+    AAFwk::WindowCommand winCmd)
 {
     HILOG_INFO("call");
     if (extension_ == nullptr) {
@@ -336,7 +337,7 @@ void ExtensionImpl::CommandExtensionWindow(const sptr<AAFwk::SessionInfo> &sessi
         return;
     }
 
-    extension_->OnCommandWindow(sessionInfo, winCmd);
+    extension_->OnCommandWindow(want, sessionInfo, winCmd);
     HILOG_INFO("ok");
 }
 

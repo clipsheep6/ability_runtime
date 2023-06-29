@@ -92,7 +92,7 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
     }
     FreeInstallInfo info = BuildFreeInstallInfo(want, userId, requestCode, callerToken, isAsync);
     {
-        std::lock_guard<std::mutex> lock(freeInstallListLock_);
+        std::lock_guard<ffrt::mutex> lock(freeInstallListLock_);
         freeInstallList_.push_back(info);
     }
     sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this(), isAsync);
@@ -142,7 +142,7 @@ int FreeInstallManager::RemoteFreeInstall(const Want &want, int32_t userId, int 
     }
     FreeInstallInfo info = BuildFreeInstallInfo(want, userId, requestCode, callerToken, false);
     {
-        std::lock_guard<std::mutex> lock(freeInstallListLock_);
+        std::lock_guard<ffrt::mutex> lock(freeInstallListLock_);
         freeInstallList_.push_back(info);
     }
     sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this(), false);
@@ -203,7 +203,7 @@ int FreeInstallManager::StartRemoteFreeInstall(const Want &want, int requestCode
 int FreeInstallManager::NotifyDmsCallback(const Want &want, int resultCode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::lock_guard<std::mutex> autoLock(distributedFreeInstallLock_);
+    std::lock_guard<ffrt::mutex> autoLock(distributedFreeInstallLock_);
     if (dmsFreeInstallCbs_.empty()) {
         HILOG_ERROR("Has no dms callback.");
         return ERR_INVALID_VALUE;
@@ -250,7 +250,7 @@ int FreeInstallManager::NotifyDmsCallback(const Want &want, int resultCode)
 void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCode, bool isAsync)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::lock_guard<std::mutex> lock(freeInstallListLock_);
+    std::lock_guard<ffrt::mutex> lock(freeInstallListLock_);
     if (freeInstallList_.empty()) {
         HILOG_INFO("Has no app callback.");
         return;
@@ -321,7 +321,7 @@ int FreeInstallManager::FreeInstallAbilityFromRemote(const Want &want, const spt
     };
 
     {
-        std::lock_guard<std::mutex> autoLock(distributedFreeInstallLock_);
+        std::lock_guard<ffrt::mutex> autoLock(distributedFreeInstallLock_);
         dmsFreeInstallCbs_.push_back(info);
     }
 
@@ -421,10 +421,9 @@ void FreeInstallManager::PostUpgradeAtomicServiceTask(int resultCode, const Want
             }
         };
 
-        std::shared_ptr<AbilityEventHandler> handler =
-            DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-        CHECK_POINTER_LOG(handler, "Fail to get AbilityEventHandler.");
-        handler->PostTask(updateAtmoicServiceTask, "UpdateAtmoicServiceTask");
+        auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+        CHECK_POINTER_LOG(handler, "Fail to get Ability task handler.");
+        handler->SubmitTask(updateAtmoicServiceTask, "UpdateAtmoicServiceTask");
     }
 }
 
@@ -458,10 +457,9 @@ void FreeInstallManager::PostTimeoutTask(const Want &want)
     };
     std::string taskName = std::string("FreeInstallTimeout_") + bundleName + std::string("_") +
         abilityName + std::string("_") + startTime;
-    std::shared_ptr<AbilityEventHandler> handler =
-        DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    CHECK_POINTER_LOG(handler, "Fail to get AbilityEventHandler.");
-    handler->PostTask(task, taskName, DELAY_LOCAL_FREE_INSTALL_TIMEOUT);
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    CHECK_POINTER_LOG(handler, "Fail to get AbilityTaskHandler.");
+    handler->SubmitTask(task, taskName, DELAY_LOCAL_FREE_INSTALL_TIMEOUT);
 }
 
 void FreeInstallManager::RemoveTimeoutTask(const std::string &bundleName, const std::string &abilityName,
@@ -471,10 +469,9 @@ void FreeInstallManager::RemoveTimeoutTask(const std::string &bundleName, const 
     std::string taskName = std::string("FreeInstallTimeout_") + bundleName + std::string("_") +
         abilityName + std::string("_") + startTime;
     HILOG_INFO("RemoveTimeoutTask task name:%{public}s", taskName.c_str());
-    std::shared_ptr<AbilityEventHandler> handler =
-        DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    CHECK_POINTER_LOG(handler, "Fail to get AbilityEventHandler.");
-    handler->RemoveTask(taskName);
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    CHECK_POINTER_LOG(handler, "Fail to get AbilityTaskHandler.");
+    handler->CancelTask(taskName);
 }
 
 void FreeInstallManager::OnRemoveTimeoutTask(const Want &want)
@@ -499,7 +496,7 @@ void FreeInstallManager::OnRemoveTimeoutTask(const Want &want)
 void FreeInstallManager::RemoveFreeInstallInfo(const std::string &bundleName, const std::string &abilityName,
     const std::string &startTime)
 {
-    std::lock_guard<std::mutex> lock(freeInstallListLock_);
+    std::lock_guard<ffrt::mutex> lock(freeInstallListLock_);
     for (auto it = freeInstallList_.begin(); it != freeInstallList_.end();) {
         if ((*it).want.GetElement().GetBundleName() == bundleName &&
             (*it).want.GetElement().GetAbilityName() == abilityName &&

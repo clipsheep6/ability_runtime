@@ -19,6 +19,7 @@
 #include <map>
 
 #include "nocopyable.h"
+#include "session_info.h"
 #include "window.h"
 #include "window_option.h"
 #include "window_scene.h"
@@ -91,6 +92,7 @@ public:
      * @return Returns ERR_OK if success.
      */
     virtual ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon);
+    void SetSessionInfo(sptr<AAFwk::SessionInfo> &sessionInfo);
 #endif
 
 private:
@@ -98,6 +100,7 @@ private:
     std::weak_ptr<IAbilityEvent> ability_;
     std::shared_ptr<Rosen::WindowScene> windowScene_;
     bool isWindowAttached = false;
+    sptr<AAFwk::SessionInfo> sessionInfo_ = nullptr;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

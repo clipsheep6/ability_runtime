@@ -51,10 +51,10 @@ static void WaitUntilTaskFinished()
     const uint32_t maxRetryCount = 1000;
     const uint32_t sleepTime = 1000;
     uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     std::atomic<bool> taskCalled(false);
     auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->PostTask(f)) {
+    if (handler->SubmitTask(f)) {
         while (!taskCalled.load()) {
             ++count;
             if (count >= maxRetryCount) {
@@ -127,13 +127,11 @@ void AbilityManagerServiceTest::OnStartAms()
 
         abilityMs_->state_ = ServiceRunningState::STATE_RUNNING;
 
-        abilityMs_->eventLoop_ = AppExecFwk::EventRunner::Create(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
-        EXPECT_TRUE(abilityMs_->eventLoop_);
-
-        abilityMs_->handler_ = std::make_shared<AbilityEventHandler>(abilityMs_->eventLoop_, abilityMs_);
+        abilityMs_->taskHandler_ = TaskHandlerWrap::CreateQueueHandler("AbilityManagerServiceTest");
+        abilityMs_->eventHandler_ = std::make_shared<AbilityEventHandler>(abilityMs_->taskHandler_, abilityMs_);
         abilityMs_->connectManager_ = std::make_shared<AbilityConnectManager>(0);
         abilityMs_->connectManagers_.emplace(0, abilityMs_->connectManager_);
-        EXPECT_TRUE(abilityMs_->handler_);
+        EXPECT_TRUE(abilityMs_->taskHandler_);
         EXPECT_TRUE(abilityMs_->connectManager_);
 
         abilityMs_->dataAbilityManager_ = std::make_shared<DataAbilityManager>();
@@ -147,7 +145,6 @@ void AbilityManagerServiceTest::OnStartAms()
 
         abilityMs_->currentMissionListManager_ = std::make_shared<MissionListManager>(0);
         abilityMs_->currentMissionListManager_->Init();
-        abilityMs_->eventLoop_->Run();
         return;
     }
 

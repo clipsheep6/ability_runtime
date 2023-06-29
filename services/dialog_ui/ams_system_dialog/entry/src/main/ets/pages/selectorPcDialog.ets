@@ -42,7 +42,6 @@ struct SelectorPcDialog {
   @State private moreHapListVisibility:number = 2;
   @State private totalHigh: number = 0;
   @State private isCheckSelected: boolean = false;
-  @State private scrollbarCtrl: number = 0;
   @State private action: string = "";
   @State public hapListBackGround: number[] = [0xffffff];
   @State public hapListPngVisibility: number[] = [];
@@ -157,7 +156,6 @@ struct SelectorPcDialog {
       let recommendAppAreaHigh = 48;
       let openModeHigh = 54;
       let morelist = 0;
-      this.scrollbarCtrl = 2;
       morelist ++;
         if (this.hapList.length == 2) {
           if(morelist == 1) {
@@ -177,12 +175,9 @@ struct SelectorPcDialog {
           }
       } else if (this.hapList.length == 4) {
           this.totalHigh = 543;
-          this.scrollbarCtrl = 0;
           heightTotalVp = this.hapList.length * heightVal + recommendAppAreaHigh + openModeHigh;
           if(morelist != 0) {
-              this.scrollbarCtrl = 2;
           } else {
-              this.scrollbarCtrl = 0; 
           }
       } else if (this.hapList.length > 4) {
           this.totalHigh = 543;
@@ -210,7 +205,6 @@ struct SelectorPcDialog {
         if(this.hapList.length > 6) {
             heightTotalVp = 6 * heightVal;
             this.totalHigh = 6 * heightVal + titleAreaHigh + buttonAreaHigh;
-            this.scrollbarCtrl = 2;
         }
     }
     if(globalThis.modelFlag == false) {
@@ -224,7 +218,6 @@ struct SelectorPcDialog {
         } else if (this.hapList.length > 4) {
             this.totalHigh = 543;
             heightTotalVp = 4 * heightVal + recommendAppAreaHigh + openModeHigh - 32;
-            this.scrollbarCtrl = 2;
         }
     }
     this.pcSelectorlist = {
@@ -306,7 +299,7 @@ struct SelectorPcDialog {
               .backgroundColor(this.hapListBackGround[current])
               .borderRadius(12)
               .height(64)
-              .width(346)
+              .width(328)
             }, item => item)
             ListItem() {
               Button($r("app.string.message_moreOpenMode_selector"),{ type: ButtonType.Capsule })
@@ -392,14 +385,14 @@ struct SelectorPcDialog {
               .backgroundColor(this.moreHapListBackGround[current])
               .borderRadius(12)
               .height(64)
-              .width(346)
+              .width(328)
               .visibility(this.moreHapListVisibility)
             }, item => item)
           }
           .edgeEffect(EdgeEffect.None)
           .height(this.pcSelectorlist.height)
           .backgroundColor("#ffffff")
-          .scrollBar(this.scrollbarCtrl)
+          .scrollBar(2)
           .width(346)
           Flex({ direction: FlexDirection.Row }) {
             Checkbox({name: 'checkbox'})

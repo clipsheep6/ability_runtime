@@ -18,15 +18,15 @@
 
 
 #include "window_manager.h"
+#include "task_handler_wrap.h"
 
 namespace OHOS {
 namespace AAFwk {
 class AbilityManagerService;
-class AbilityEventHandler;
 class WindowFocusChangedListener : public OHOS::Rosen::IFocusChangedListener {
 public:
     WindowFocusChangedListener(const std::shared_ptr<AbilityManagerService>& owner,
-        const std::shared_ptr<AbilityEventHandler>& handler) : owner_(owner), eventHandler_(handler) {}
+        const std::shared_ptr<TaskHandlerWrap>& handler) : owner_(owner), taskHandler_(handler) {}
     virtual ~WindowFocusChangedListener() = default;
 
     void OnFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo) override;
@@ -34,7 +34,7 @@ public:
 
 private:
     std::weak_ptr<AbilityManagerService> owner_;
-    std::shared_ptr<AbilityEventHandler> eventHandler_;
+    std::shared_ptr<TaskHandlerWrap> taskHandler_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

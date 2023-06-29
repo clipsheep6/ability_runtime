@@ -1733,7 +1733,7 @@ HWTEST_F(AppMgrServiceInnerTest, ClearAppRunningData_001, TestSize.Level0)
     appRecord->SetKeepAliveAppState(true, true);
     appMgrServiceInner->ClearAppRunningData(appRecord, false);
 
-    appMgrServiceInner->eventHandler_ = nullptr;
+    appMgrServiceInner->taskHandler_ = nullptr;
     appMgrServiceInner->ClearAppRunningData(appRecord, false);
 
     appRecord->restartResidentProcCount_ = 0;
@@ -1787,7 +1787,7 @@ HWTEST_F(AppMgrServiceInnerTest, HandleTimeOut_001, TestSize.Level0)
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
-    InnerEvent::Pointer innerEvent = InnerEvent::Pointer(nullptr, nullptr);
+    AAFwk::EventWrap innerEvent(0);
     appMgrServiceInner->HandleTimeOut(innerEvent);
 
     appMgrServiceInner->appRunningManager_ = nullptr;
@@ -1865,7 +1865,7 @@ HWTEST_F(AppMgrServiceInnerTest, HandleTerminateApplicationTimeOut_001, TestSize
     appRecord->GetPriorityObject()->SetPid(pid);
     appMgrServiceInner->HandleTerminateApplicationTimeOut(0);
 
-    appMgrServiceInner->eventHandler_ = nullptr;
+    appMgrServiceInner->taskHandler_ = nullptr;
     appMgrServiceInner->HandleTerminateApplicationTimeOut(0);
 
     appMgrServiceInner->appRunningManager_ = nullptr;
@@ -2657,7 +2657,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillApplicationByRecord_001, TestSize.Level0)
     appMgrServiceInner->KillApplicationByRecord(appRecord);
     appMgrServiceInner->KillApplicationByRecord(appRecord1);
 
-    appMgrServiceInner->eventHandler_ = nullptr;
+    appMgrServiceInner->taskHandler_ = nullptr;
     appMgrServiceInner->KillApplicationByRecord(appRecord);
     appMgrServiceInner->KillApplicationByRecord(appRecord1);
 

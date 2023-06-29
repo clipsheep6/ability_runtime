@@ -315,7 +315,7 @@ void AppRunningRecord::SetRestartTimeMillis(const int64_t restartTimeMillis)
 const std::list<std::shared_ptr<ApplicationInfo>> AppRunningRecord::GetAppInfoList()
 {
     std::list<std::shared_ptr<ApplicationInfo>> appInfoList;
-    std::lock_guard<std::mutex> appInfosLock(appInfosLock_);
+    std::lock_guard<ffrt::mutex> appInfosLock(appInfosLock_);
     for (const auto &item : appInfos_) {
         appInfoList.push_back(item.second);
     }
@@ -356,7 +356,7 @@ void AppRunningRecord::RemoveModuleRecord(const std::shared_ptr<ModuleRunningRec
 {
     HILOG_INFO("Remove module record.");
 
-    std::lock_guard<std::mutex> hapModulesLock(hapModulesLock_);
+    std::lock_guard<ffrt::mutex> hapModulesLock(hapModulesLock_);
     for (auto &item : hapModules_) {
         auto iter = std::find_if(item.second.begin(),
             item.second.end(),
@@ -365,7 +365,7 @@ void AppRunningRecord::RemoveModuleRecord(const std::shared_ptr<ModuleRunningRec
             iter = item.second.erase(iter);
             if (item.second.empty()) {
                 {
-                    std::lock_guard<std::mutex> appInfosLock(appInfosLock_);
+                    std::lock_guard<ffrt::mutex> appInfosLock(appInfosLock_);
                     appInfos_.erase(item.first);
                 }
                 hapModules_.erase(item.first);
@@ -394,7 +394,7 @@ void AppRunningRecord::LaunchApplication(const Configuration &config)
     }
     AppLaunchData launchData;
     {
-        std::lock_guard<std::mutex> appInfosLock(appInfosLock_);
+        std::lock_guard<ffrt::mutex> appInfosLock(appInfosLock_);
         auto moduleRecords = appInfos_.find(mainBundleName_);
         if (moduleRecords != appInfos_.end()) {
             launchData.SetApplicationInfo(*(moduleRecords->second));
@@ -452,7 +452,7 @@ void AppRunningRecord::AddAbilityStageBySpecifiedAbility(const std::string &bund
 
     HapModuleInfo hapModuleInfo;
     if (GetTheModuleInfoNeedToUpdated(bundleName, hapModuleInfo)) {
-        if (!eventHandler_->HasInnerEvent(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG)) {
+        if (startProcessSpecifiedAbilityEventId_ == 0) {
             HILOG_INFO("%{public}s START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG is not exist.", __func__);
             SendEvent(AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG,
                 AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT);
@@ -475,12 +475,15 @@ void AppRunningRecord::AddAbilityStageDone()
         return;
     }
 
-    if (eventHandler_->HasInnerEvent(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG)) {
-        eventHandler_->RemoveEvent(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG);
+    if (startProcessSpecifiedAbilityEventId_ != 0) {
+        eventHandler_->RemoveEvent(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG,
+            startProcessSpecifiedAbilityEventId_);
+        startProcessSpecifiedAbilityEventId_ = 0;
     }
-
-    if (eventHandler_->HasInnerEvent(AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG)) {
-        eventHandler_->RemoveEvent(AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG);
+    if (addAbilityStageInfoEventId_ != 0) {
+        eventHandler_->RemoveEvent(AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG,
+            addAbilityStageInfoEventId_);
+        addAbilityStageInfoEventId_ = 0;
     }
     // Should proceed to the next notification
 
@@ -525,7 +528,7 @@ void AppRunningRecord::ScheduleTerminate()
 
 void AppRunningRecord::LaunchPendingAbilities()
 {
-    HILOG_INFO("Launch pending abilities.");
+    HILOG_DEBUG("Launch pending abilities.");
 
     auto moduleRecordList = GetAllModuleRecord();
     if (moduleRecordList.empty()) {
@@ -589,7 +592,7 @@ void AppRunningRecord::LowMemoryWarning()
 void AppRunningRecord::AddModules(
     const std::shared_ptr<ApplicationInfo> &appInfo, const std::vector<HapModuleInfo> &moduleInfos)
 {
-    HILOG_INFO("Add modules");
+    HILOG_DEBUG("Add modules");
 
     if (moduleInfos.empty()) {
         HILOG_INFO("moduleInfos is empty.");
@@ -620,7 +623,7 @@ void AppRunningRecord::AddModule(const std::shared_ptr<ApplicationInfo> &appInfo
         moduleRecord->SetApplicationClient(appLifeCycleDeal_);
     };
 
-    std::lock_guard<std::mutex> hapModulesLock(hapModulesLock_);
+    std::lock_guard<ffrt::mutex> hapModulesLock(hapModulesLock_);
     const auto &iter = hapModules_.find(appInfo->bundleName);
     if (iter != hapModules_.end()) {
         moduleRecord = GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
@@ -635,7 +638,7 @@ void AppRunningRecord::AddModule(const std::shared_ptr<ApplicationInfo> &appInfo
         moduleList.push_back(moduleRecord);
         hapModules_.emplace(appInfo->bundleName, moduleList);
         {
-            std::lock_guard<std::mutex> appInfosLock(appInfosLock_);
+            std::lock_guard<ffrt::mutex> appInfosLock(appInfosLock_);
             appInfos_.emplace(appInfo->bundleName, appInfo);
         }
         initModuleRecord(moduleRecord);
@@ -983,7 +986,7 @@ void AppRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
 std::list<std::shared_ptr<ModuleRunningRecord>> AppRunningRecord::GetAllModuleRecord() const
 {
     std::list<std::shared_ptr<ModuleRunningRecord>> moduleRecordList;
-    std::lock_guard<std::mutex> hapModulesLock(hapModulesLock_);
+    std::lock_guard<ffrt::mutex> hapModulesLock(hapModulesLock_);
     for (const auto &item : hapModules_) {
         for (const auto &list : item.second) {
             moduleRecordList.push_back(list);
@@ -1072,22 +1075,55 @@ void AppRunningRecord::SendEvent(uint32_t msg, int64_t timeOut)
 
     appEventId_++;
     eventId_ = appEventId_;
+    if (msg == AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG) {
+        startProcessSpecifiedAbilityEventId_ = eventId_;
+    }
+
     HILOG_INFO("eventId %{public}d", static_cast<int>(eventId_));
-    eventHandler_->SendEvent(msg, appEventId_, timeOut);
+    eventHandler_->SendEvent(AAFwk::EventWrap(msg, eventId_), timeOut, false);
+    SendClearTask(msg, timeOut);
+}
+
+void AppRunningRecord::SendClearTask(uint32_t msg, int64_t timeOut)
+{
+    if (!taskHandler_) {
+        HILOG_ERROR("taskHandler_ is nullptr");
+        return;
+    }
+    int64_t* eventId = nullptr;
+    if (msg == AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG) {
+        eventId = &startProcessSpecifiedAbilityEventId_;
+    } else if (msg == AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG) {
+        eventId = &addAbilityStageInfoEventId_;
+    } else {
+        HILOG_INFO("Other msg: %{public}d", msg);
+        return;
+    }
+    taskHandler_->SubmitTask([wthis = weak_from_this(), eventId]() {
+        auto pthis = wthis.lock();
+        if (pthis) {
+            *eventId = 0;
+        }
+        }, timeOut);
 }
 
 void AppRunningRecord::PostTask(std::string msg, int64_t timeOut, const Closure &task)
 {
-    if (!eventHandler_) {
-        HILOG_ERROR("eventHandler_ is nullptr");
+    if (!taskHandler_) {
+        HILOG_ERROR("taskHandler_ is nullptr");
         return;
     }
-    eventHandler_->PostTask(task, msg, timeOut);
+    taskHandler_->SubmitTask(task, msg, timeOut);
 }
 
 int64_t AppRunningRecord::GetEventId() const
 {
     return eventId_;
+}
+
+void AppRunningRecord::SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler)
+{
+    taskHandler_ = taskHandler;
 }
 
 void AppRunningRecord::SetEventHandler(const std::shared_ptr<AMSEventHandler> &handler)
@@ -1165,7 +1201,7 @@ void AppRunningRecord::SetStageModelState(bool isStageBasedModel)
 bool AppRunningRecord::GetTheModuleInfoNeedToUpdated(const std::string bundleName, HapModuleInfo &info)
 {
     bool result = false;
-    std::lock_guard<std::mutex> hapModulesLock(hapModulesLock_);
+    std::lock_guard<ffrt::mutex> hapModulesLock(hapModulesLock_);
     auto moduleInfoVectorIter = hapModules_.find(bundleName);
     if (moduleInfoVectorIter == hapModules_.end() || moduleInfoVectorIter->second.empty()) {
         return result;
@@ -1219,7 +1255,7 @@ bool AppRunningRecord::CanRestartResidentProc()
 
 void AppRunningRecord::GetBundleNames(std::vector<std::string> &bundleNames)
 {
-    std::lock_guard<std::mutex> appInfosLock(appInfosLock_);
+    std::lock_guard<ffrt::mutex> appInfosLock(appInfosLock_);
     for (auto &app : appInfos_) {
         bundleNames.emplace_back(app.first);
     }
@@ -1321,7 +1357,7 @@ void AppRunningRecord::AddRenderRecord(const std::shared_ptr<RenderRecord> &reco
         HILOG_DEBUG("AddRenderRecord: record is null");
         return;
     }
-    std::lock_guard<std::mutex> renderRecordMapLock(renderRecordMapLock_);
+    std::lock_guard renderRecordMapLock(renderRecordMapLock_);
     renderRecordMap_.emplace(record->GetUid(), record);
 }
 
@@ -1331,13 +1367,13 @@ void AppRunningRecord::RemoveRenderRecord(const std::shared_ptr<RenderRecord> &r
         HILOG_DEBUG("RemoveRenderRecord: record is null");
         return;
     }
-    std::lock_guard<std::mutex> renderRecordMapLock(renderRecordMapLock_);
+    std::lock_guard renderRecordMapLock(renderRecordMapLock_);
     renderRecordMap_.erase(record->GetUid());
 }
 
 std::shared_ptr<RenderRecord> AppRunningRecord::GetRenderRecordByPid(const pid_t pid)
 {
-    std::lock_guard<std::mutex> renderRecordMapLock(renderRecordMapLock_);
+    std::lock_guard renderRecordMapLock(renderRecordMapLock_);
     if (renderRecordMap_.empty()) {
         return nullptr;
     }
@@ -1352,7 +1388,7 @@ std::shared_ptr<RenderRecord> AppRunningRecord::GetRenderRecordByPid(const pid_t
 
 std::map<int32_t, std::shared_ptr<RenderRecord>> AppRunningRecord::GetRenderRecordMap()
 {
-    std::lock_guard<std::mutex> renderRecordMapLock(renderRecordMapLock_);
+    std::lock_guard renderRecordMapLock(renderRecordMapLock_);
     return renderRecordMap_;
 }
 
@@ -1379,7 +1415,7 @@ bool AppRunningRecord::IsDebugApp()
 
 void AppRunningRecord::SetNativeDebug(bool isNativeDebug)
 {
-    HILOG_INFO("SetNativeDebug, value is %{public}d", isNativeDebug);
+    HILOG_DEBUG("SetNativeDebug, value is %{public}d", isNativeDebug);
     isNativeDebug_ = isNativeDebug;
 }
 

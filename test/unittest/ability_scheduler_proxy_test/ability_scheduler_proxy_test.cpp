@@ -494,8 +494,9 @@ HWTEST_F(AbilitySchedulerProxyTest, ability_scheduler_proxy_operating_024, TestS
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilitySchedulerMock::InvokeSendRequest));
+    Want want;
     sptr<SessionInfo> session = new (std::nothrow) SessionInfo();
-    abilitySchedulerProxy_->ScheduleCommandAbilityWindow(session, WIN_CMD_FOREGROUND);
+    abilitySchedulerProxy_->ScheduleCommandAbilityWindow(want, session, WIN_CMD_FOREGROUND);
 
     EXPECT_EQ(IAbilityScheduler::SCHEDULE_ABILITY_COMMAND_WINDOW, mock_->code_);
 }

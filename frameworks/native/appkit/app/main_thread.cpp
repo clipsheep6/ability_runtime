@@ -156,10 +156,17 @@ void GetHspNativeLibPath(const BaseSharedBundleInfo &hspInfo, AppLibPathMap &app
     std::string libPath = LOCAL_CODE_PATH;
     if (!hspInfo.compressNativeLibs) {
         libPath = GetLibPath(hspInfo.hapPath, isPreInstallApp);
-        appLibPathKey = "default";
+        libPath = libPath.back() == '/' ? libPath : libPath + "/";
+        if (isPreInstallApp) {
+            libPath += hspInfo.nativeLibraryPath;
+        } else {
+            libPath += hspInfo.bundleName + "/" + hspInfo.moduleName + "/" + hspInfo.nativeLibraryPath;
+        }
+    } else {
+        libPath = libPath.back() == '/' ? libPath : libPath + "/";
+        libPath += hspInfo.bundleName + "/" + hspInfo.nativeLibraryPath;
     }
-    libPath = libPath.back() == '/' ? libPath : libPath + "/";
-    libPath += hspInfo.bundleName + "/" + hspInfo.nativeLibraryPath;
+
     HILOG_DEBUG("appLibPathKey: %{private}s, libPath: %{private}s", appLibPathKey.c_str(), libPath.c_str());
     appLibPaths[appLibPathKey].emplace_back(libPath);
 }
@@ -216,7 +223,7 @@ void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppL
     for (auto &hspInfo : hspList) {
         HILOG_DEBUG("bundle:%s, module:%s, nativeLibraryPath:%s", hspInfo.bundleName.c_str(),
             hspInfo.moduleName.c_str(), hspInfo.nativeLibraryPath.c_str());
-        GetHspNativeLibPath(hspInfo, appLibPaths, bundleInfo.isPreInstallApp);
+        GetHspNativeLibPath(hspInfo, appLibPaths, hspInfo.hapPath.find("/system/app/") == 0u);
     }
 }
 } // namespace
@@ -953,6 +960,7 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
                 EventFwk::MatchingSkills matchingSkills;
                 matchingSkills.AddEvent(OVERLAY_STATE_CHANGED);
                 EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
+                subscribeInfo.SetThreadMode(EventFwk::CommonEventSubscribeInfo::COMMON);
                 wptr<MainThread> weak = this;
                 auto callback = [weak, resourceManager, bundleName, moduleName = entryHapModuleInfo.moduleName,
                     loadPath](const EventFwk::CommonEventData &data) {
@@ -1110,11 +1118,11 @@ bool GetBundleForLaunchApplication(sptr<IBundleMgr> bundleMgr, const std::string
 {
     bool queryResult;
     if (appIndex != 0) {
-        HILOG_INFO("GetSandboxBundleInfo, bundleName = %{public}s", bundleName.c_str());
+        HILOG_INFO("bundleName = %{public}s", bundleName.c_str());
         queryResult = (bundleMgr->GetSandboxBundleInfo(bundleName,
             appIndex, UNSPECIFIED_USERID, bundleInfo) == 0);
     } else {
-        HILOG_INFO("GetBundleInfo, bundleName = %{public}s", bundleName.c_str());
+        HILOG_INFO("bundleName = %{public}s", bundleName.c_str());
         queryResult = (bundleMgr->GetBundleInfoForSelf(
             (static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY) +
             static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) +
@@ -1205,7 +1213,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     if (isStageBased) {
         AppRecovery::GetInstance().InitApplicationInfo(GetMainHandler(), GetApplicationInfo());
     }
-    HILOG_INFO("stageBased:%{public}d moduleJson:%{public}d size:%{public}zu",
+    HILOG_DEBUG("stageBased:%{public}d moduleJson:%{public}d size:%{public}zu",
         isStageBased, moduelJson, bundleInfo.hapModuleInfos.size());
 
     // create contextImpl
@@ -1621,7 +1629,6 @@ void MainThread::LoadAllExtensions(NativeEngine &nativeEngine, const std::string
         });
     }
     application_->SetExtensionTypeMap(extensionTypeMap);
-    UpdateEngineExtensionBlockList(nativeEngine);
 }
 
 bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &record, bool isStageBased,
@@ -1742,7 +1749,8 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
 
     mainThreadState_ = MainThreadState::RUNNING;
     std::shared_ptr<AbilityRuntime::Context> stageContext = application_->AddAbilityStage(abilityRecord);
-    UpdateProcessExtensionType(abilityRecord);
+    SetProcessExtensionType(abilityRecord);
+    UpdateRuntimeModuleChecker(runtime);
 #ifdef APP_ABILITY_USE_TWO_RUNNER
     AbilityThread::AbilityThreadMain(application_, abilityRecord, stageContext);
 #else
@@ -1814,7 +1822,7 @@ void MainThread::HandleCleanAbility(const sptr<IRemoteObject> &token)
         return;
     }
     HILOG_DEBUG("Handle clean ability start, app is %{public}s.", applicationInfo_->name.c_str());
-    
+
     if (!IsApplicationReady()) {
         HILOG_ERROR("not init OHOSApplication, should launch application first");
         return;
@@ -2552,40 +2560,42 @@ void MainThread::NotifyAppFault(const FaultData &faultData)
     ApplicationDataManager::GetInstance().NotifyExceptionObject(faultErrorObj);
 }
 
-void MainThread::UpdateProcessExtensionType(const std::shared_ptr<AbilityLocalRecord> &abilityRecord)
+void MainThread::SetProcessExtensionType(const std::shared_ptr<AbilityLocalRecord> &abilityRecord)
 {
-    auto &runtime = application_->GetRuntime();
-    if (!runtime) {
-        HILOG_ERROR("Get runtime failed");
+    if (!extensionConfigMgr_) {
+        HILOG_ERROR("AddExtensionBlockItem failed, extensionConfigMgr_ is null");
         return;
     }
     if (!abilityRecord) {
-        HILOG_ERROR("abilityRecord is nullptr");
+        HILOG_ERROR("AddExtensionBlockItem failed, abilityRecord is null");
         return;
     }
-    auto &abilityInfo = abilityRecord->GetAbilityInfo();
-    if (!abilityInfo) {
-        HILOG_ERROR("Get abilityInfo failed");
+    if (!abilityRecord->GetAbilityInfo()) {
+        HILOG_ERROR("AddExtensionBlockItem failed, abilityInfo is null");
         return;
     }
-    runtime->UpdateExtensionType(static_cast<int32_t>(abilityInfo->extensionAbilityType));
-    HILOG_DEBUG("UpdateExtensionType, type = %{public}d", static_cast<int32_t>(abilityInfo->extensionAbilityType));
+    HILOG_INFO("SetProcessExtensionType, type = %{public}d",
+        static_cast<int32_t>(abilityRecord->GetAbilityInfo()->extensionAbilityType));
+    extensionConfigMgr_->SetProcessExtensionType(
+        static_cast<int32_t>(abilityRecord->GetAbilityInfo()->extensionAbilityType));
 }
 
 void MainThread::AddExtensionBlockItem(const std::string &extensionName, int32_t type)
 {
     if (!extensionConfigMgr_) {
+        HILOG_ERROR("AddExtensionBlockItem failed, extensionConfigMgr_ is null");
         return;
     }
     extensionConfigMgr_->AddBlockListItem(extensionName, type);
 }
 
-void MainThread::UpdateEngineExtensionBlockList(NativeEngine &nativeEngine)
+void MainThread::UpdateRuntimeModuleChecker(const std::unique_ptr<AbilityRuntime::Runtime> &runtime)
 {
     if (!extensionConfigMgr_) {
+        HILOG_ERROR("UpdateRuntimeModuleChecker failed, extensionConfigMgr_ is null");
         return;
     }
-    extensionConfigMgr_->UpdateBlockListToEngine(nativeEngine);
+    extensionConfigMgr_->UpdateRuntimeModuleChecker(runtime);
 }
 
 int MainThread::GetOverlayModuleInfos(const std::string &bundleName, const std::string &moduleName,

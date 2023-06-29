@@ -304,16 +304,16 @@ ohos_shared_library("abilitykit_native") {
     deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
 
     external_deps += [
+      "ability_base:session_info",
       "form_fwk:form_manager",
       "input:libmmi-client",
       "multimedia_image_framework:image",
+      "window_manager:windowstage_kit",
     ]
 
     public_deps += [
-      "${ability_base_path}:session_info",
       "${multimedia_path}/interfaces/innerkits:image_native",
       "${windowmanager_path}/dm:libdm",
-      "${windowmanager_path}/interfaces/kits/napi/window_runtime:windowstage_kit",
       "${windowmanager_path}/wm:libwm",
     ]
   }
@@ -359,6 +359,7 @@ ohos_shared_library("extensionkit_native") {
   ]
 
   sources = [
+    "${ability_runtime_native_path}/ability/native/app_module_checker.cpp",
     "${ability_runtime_native_path}/ability/native/extension.cpp",
     "${ability_runtime_native_path}/ability/native/extension_config_mgr.cpp",
     "${ability_runtime_native_path}/ability/native/extension_impl.cpp",
@@ -382,6 +383,7 @@ ohos_shared_library("extensionkit_native") {
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
+    "napi:ace_napi",
   ]
 
   public_deps = [
@@ -391,7 +393,7 @@ ohos_shared_library("extensionkit_native") {
   ]
 
   if (ability_runtime_graphics) {
-    public_deps += [ "${ability_base_path}:session_info" ]
+    external_deps += [ "ability_base:session_info" ]
   }
 
   innerapi_tags = [ "platformsdk" ]
@@ -732,6 +734,7 @@ ohos_shared_library("ui_extension") {
 
   sources = [
     "${ability_runtime_native_path}/ability/native/ui_extension_ability/js_ui_extension.cpp",
+    "${ability_runtime_native_path}/ability/native/ui_extension_ability/js_ui_extension_content_session.cpp",
     "${ability_runtime_native_path}/ability/native/ui_extension_ability/js_ui_extension_context.cpp",
     "${ability_runtime_native_path}/ability/native/ui_extension_ability/ui_extension.cpp",
     "${ability_runtime_native_path}/ability/native/ui_extension_ability/ui_extension_context.cpp",

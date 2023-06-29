@@ -188,7 +188,7 @@ ErrCode AbilityContextImpl::StartAbilityForResult(const AAFwk::Want& want, int r
     HILOG_DEBUG("StartAbilityForResult");
     resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode);
-    if (err != ERR_OK) {
+    if (err != ERR_OK && err != AAFwk::START_ABILITY_WAITING) {
         HILOG_ERROR("StartAbilityForResult. ret=%{public}d", err);
         OnAbilityResultInner(requestCode, err, want);
     }
@@ -201,7 +201,7 @@ ErrCode AbilityContextImpl::StartAbilityForResultWithAccount(
     HILOG_DEBUG("accountId:%{private}d", accountId);
     resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode, accountId);
-    if (err != ERR_OK) {
+    if (err != ERR_OK && err != AAFwk::START_ABILITY_WAITING) {
         HILOG_ERROR("StartAbilityForResultWithAccount. ret=%{public}d", err);
         OnAbilityResultInner(requestCode, err, want);
     }
@@ -214,7 +214,7 @@ ErrCode AbilityContextImpl::StartAbilityForResult(const AAFwk::Want& want, const
     HILOG_DEBUG("StartAbilityForResult");
     resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, startOptions, token_, requestCode);
-    if (err != ERR_OK) {
+    if (err != ERR_OK && err != AAFwk::START_ABILITY_WAITING) {
         HILOG_ERROR("StartAbilityForResult. ret=%{public}d", err);
         OnAbilityResultInner(requestCode, err, want);
     }
@@ -229,7 +229,7 @@ ErrCode AbilityContextImpl::StartAbilityForResultWithAccount(
     resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(
         want, startOptions, token_, requestCode, accountId);
-    if (err != ERR_OK) {
+    if (err != ERR_OK && err != AAFwk::START_ABILITY_WAITING) {
         HILOG_ERROR("StartAbilityForResultWithAccount. ret=%{public}d", err);
         OnAbilityResultInner(requestCode, err, want);
     }
@@ -425,6 +425,28 @@ void AbilityContextImpl::MinimizeAbility(bool fromUser)
     if (err != ERR_OK) {
         HILOG_ERROR("MinimizeAbility is failed %{public}d", err);
     }
+}
+
+ErrCode AbilityContextImpl::OnBackPressedCallBack(bool &needMoveToBackground)
+{
+    HILOG_DEBUG("call");
+    auto abilityCallback = abilityCallback_.lock();
+    if (abilityCallback == nullptr) {
+        HILOG_ERROR("abilityCallback is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    needMoveToBackground = abilityCallback->OnBackPress();
+    return ERR_OK;
+}
+
+ErrCode AbilityContextImpl::MoveAbilityToBackground()
+{
+    HILOG_DEBUG("call");
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->MoveAbilityToBackground(token_);
+    if (err != ERR_OK) {
+        HILOG_ERROR("MoveAbilityToBackground failed: %{public}d", err);
+    }
+    return err;
 }
 
 ErrCode AbilityContextImpl::TerminateSelf()

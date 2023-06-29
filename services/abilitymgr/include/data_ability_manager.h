@@ -20,6 +20,7 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include "cpp/mutex.h"
 
 #include "ability_record.h"
 #include "ability_running_info.h"
@@ -65,7 +66,7 @@ private:
         std::shared_ptr<DataAbilityRecord> &record);
 
 private:
-    std::mutex mutex_;
+    ffrt::mutex mutex_;
     DataAbilityRecordPtrMap dataAbilityRecordsLoaded_;
     DataAbilityRecordPtrMap dataAbilityRecordsLoading_;
 };

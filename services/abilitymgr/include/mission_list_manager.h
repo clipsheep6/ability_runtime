@@ -20,6 +20,7 @@
 #include <mutex>
 #include <queue>
 #include <memory>
+#include "cpp/mutex.h"
 
 #include "ability_running_info.h"
 #include "foundation/distributedhardware/device_manager/interfaces/inner_kits/native_cpp/include/device_manager.h"
@@ -118,6 +119,14 @@ public:
      * @return the mission of the given id
      */
     std::shared_ptr<Mission> GetMissionById(int missionId) const;
+
+    /**
+     * @brief Move ability to background with the given abilityRecord
+     *
+     * @param abilityRecord the ability to move
+     * @return int error code
+     */
+    int MoveAbilityToBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
     /**
      * @brief Terminate ability with the given abilityRecord
@@ -423,6 +432,8 @@ private:
         const std::shared_ptr<MissionList> &list);
     int ClearMissionLocked(int missionId, const std::shared_ptr<Mission> &mission);
     int ClearMissionLocking(int missionId, const std::shared_ptr<Mission> &mission);
+    int MoveAbilityToBackgroundLocked(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void RemoveBackgroundingAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
     int TerminateAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord, bool flag);
     /**
      * @brief remove the mission from the mission list
@@ -515,7 +526,7 @@ private:
     bool CheckPrepareTerminateEnable(const std::shared_ptr<Mission> &mission);
 
     int userId_;
-    mutable std::mutex managerLock_;
+    mutable ffrt::mutex managerLock_;
     // launcher list is also in currentMissionLists_
     std::list<std::shared_ptr<MissionList>> currentMissionLists_;
     // only manager the ability of standard in the default list

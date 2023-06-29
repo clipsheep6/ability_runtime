@@ -97,10 +97,10 @@ int ConnectionRecord::DisconnectAbility()
     CHECK_POINTER_AND_RETURN(targetService_, ERR_INVALID_VALUE);
     std::size_t connectNums = targetService_->GetConnectRecordList().size();
     if (connectNums == 1) {
-        /* post timeout task to eventhandler */
-        auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+        /* post timeout task to taskhandler */
+        auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
         if (handler == nullptr) {
-            HILOG_ERROR("fail to get AbilityEventHandler");
+            HILOG_ERROR("fail to get TaskHandler");
         } else {
             std::string taskName("DisconnectTimeout_");
             taskName += std::to_string(recordId_);
@@ -110,7 +110,7 @@ int ConnectionRecord::DisconnectAbility()
             };
             int disconnectTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * DISCONNECT_TIMEOUT_MULTIPLE;
-            handler->PostTask(disconnectTask, taskName, disconnectTimeout);
+            handler->SubmitTask(disconnectTask, taskName, disconnectTimeout);
         }
         /* schedule disconnect to target ability */
         targetService_->DisconnectAbility();
@@ -161,12 +161,12 @@ void ConnectionRecord::CompleteDisconnect(int resultCode, bool isDied)
         }
         connCallback->OnAbilityDisconnectDone(element, code);
     };
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (handler == nullptr) {
         HILOG_ERROR("handler is nullptr.");
         return;
     }
-    handler->PostTask(onDisconnectDoneTask);
+    handler->SubmitTask(onDisconnectDoneTask);
     DelayedSingleton<ConnectionStateManager>::GetInstance()->RemoveConnection(shared_from_this(), isDied);
     HILOG_INFO("result: %{public}d. connectState:%{public}d.", resultCode, state_);
 }
@@ -178,12 +178,12 @@ void ConnectionRecord::ScheduleDisconnectAbilityDone()
         return;
     }
 
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (handler == nullptr) {
-        HILOG_ERROR("fail to get AbilityEventHandler");
+        HILOG_ERROR("fail to get AbilityTaskHandler");
     } else {
         std::string taskName = std::string("DisconnectTimeout_") + std::to_string(recordId_);
-        handler->RemoveTask(taskName);
+        handler->CancelTask(taskName);
     }
 
     CompleteDisconnect(ERR_OK, false);
@@ -195,12 +195,12 @@ void ConnectionRecord::ScheduleConnectAbilityDone()
         HILOG_ERROR("fail to schedule connect ability done, current state is not connecting.");
         return;
     }
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (handler == nullptr) {
-        HILOG_ERROR("fail to get AbilityEventHandler");
+        HILOG_ERROR("fail to get AbilityTaskHandler");
     } else {
         std::string taskName = std::string("ConnectTimeout_") + std::to_string(recordId_);
-        handler->RemoveTask(taskName);
+        handler->CancelTask(taskName);
     }
 
     CompleteConnect(ERR_OK);
@@ -241,6 +241,7 @@ void ConnectionRecord::Dump(std::vector<std::string> &info) const
 
 void ConnectionRecord::AttachCallerInfo()
 {
+    callerTokenId_ = IPCSkeleton::GetCallingTokenID(); // tokenId identifies the real caller
     auto targetRecord = Token::GetAbilityRecordByToken(callerToken_);
     if (targetRecord) {
         callerUid_ = targetRecord->GetUid();
@@ -262,6 +263,11 @@ int32_t ConnectionRecord::GetCallerUid() const
 int32_t ConnectionRecord::GetCallerPid() const
 {
     return callerPid_;
+}
+
+uint32_t ConnectionRecord::GetCallerTokenId() const
+{
+    return callerTokenId_;
 }
 
 std::string ConnectionRecord::GetCallerName() const

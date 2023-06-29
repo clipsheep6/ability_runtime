@@ -1139,9 +1139,7 @@ HWTEST_F(AbilityManagerClientBranchTest, StartAbilityByCall_002, TestSize.Level1
  */
 HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_001, TestSize.Level1)
 {
-    Want want;
-    StartOptions options;
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(want, options, nullptr), ERR_INVALID_VALUE);
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(nullptr), ERR_INVALID_VALUE);
 }
 
 /**
@@ -1151,10 +1149,8 @@ HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_001, TestSize.Level
  */
 HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_002, TestSize.Level1)
 {
-    Want want;
-    StartOptions options;
     sptr<SessionInfo> sessionInfo(new SessionInfo());
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(want, options, sessionInfo), ERR_INVALID_VALUE);
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(sessionInfo), ERR_INVALID_VALUE);
 }
 
 /**
@@ -1164,12 +1160,10 @@ HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_002, TestSize.Level
  */
 HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_003, TestSize.Level1)
 {
-    Want want;
-    StartOptions options;
     Rosen::SessionInfo info;
     sptr<SessionInfo> sessionInfo(new SessionInfo());
     sessionInfo->sessionToken = new Rosen::Session(info);
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(want, options, sessionInfo),
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(sessionInfo),
         ERR_WRONG_INTERFACE_CALL);
 }
 
@@ -1358,6 +1352,48 @@ HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_GetAbilityTokenByC
     sptr<IRemoteObject> callStub = nullptr;
     sptr<IRemoteObject> token = nullptr;
     client_->GetAbilityTokenByCalleeObj(callStub, token);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_RegisterOnListener_0100
+ * @tc.desc: RegisterOnListener
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientBranchTest, RegisterOnListener_0100, TestSize.Level1)
+{
+    std::string type = "";
+    sptr<IRemoteOnListener> listener = nullptr;
+    auto result = client_->RegisterOnListener(type, listener);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_RegisterOffListener_0100
+ * @tc.desc: RegisterOffListener
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientBranchTest, RegisterOffListener_0100, TestSize.Level1)
+{
+    std::string type = "";
+    sptr<IRemoteOnListener> listener = nullptr;
+    auto result = client_->RegisterOffListener(type, listener);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_RequestDialogService_0100
+ * @tc.desc: RequestDialogService
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientBranchTest, RequestDialogService_0100, TestSize.Level1)
+{
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    auto result = client_->RequestDialogService(want, callerToken);
+    EXPECT_EQ(result, ERR_OK);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

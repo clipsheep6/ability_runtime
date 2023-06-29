@@ -18,7 +18,7 @@
 
 #include "bundle_event_callback_host.h"
 #include "common_event_support.h"
-#include "ability_event_handler.h"
+#include "task_handler_wrap.h"
 #include "ability_event_util.h"
 #include "hilog_wrapper.h"
 
@@ -31,8 +31,7 @@ namespace AAFwk {
  */
 class AbilityBundleEventCallback : public AppExecFwk::BundleEventCallbackHost {
 public:
-    AbilityBundleEventCallback();
-    explicit AbilityBundleEventCallback(std::shared_ptr<AbilityEventHandler> eventHandler);
+    explicit AbilityBundleEventCallback(std::shared_ptr<TaskHandlerWrap> taskHandler);
 
     ~AbilityBundleEventCallback() = default;
 
@@ -50,7 +49,7 @@ private:
 
     DISALLOW_COPY_AND_MOVE(AbilityBundleEventCallback);
     AbilityEventUtil abilityEventHelper_;
-    std::shared_ptr<AbilityEventHandler> eventHandler_ = nullptr;
+    std::shared_ptr<TaskHandlerWrap> taskHandler_;
 };
 } // namespace OHOS
 } // namespace AAFwk

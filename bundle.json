@@ -51,16 +51,16 @@
             "ets_runtime",
             "ets_utils",
             "faultloggerd",
+            "ffrt",
             "form_fwk",
             "graphic_standard",
             "hichecker",
-            "hicollie_native",
+            "hicollie",
             "hilog",
             "hisysevent",
             "hitrace",
             "hiview",
             "i18n",
-            "icu",
             "init",
             "input",
             "ipc",
@@ -199,6 +199,14 @@
           },
           {
             "header": {
+              "header_base": "//foundation/ability/ability_runtime/frameworks/js/napi/inner/napi_ability_common",
+              "header_files": [
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/frameworks/js/napi/inner/napi_ability_common:napi_ability_common"
+          },
+          {
+            "header": {
               "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/app_manager/include",
               "header_files": [
                 "appmgr/app_mgr_client.h"
@@ -312,6 +320,15 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/service_router_framework/interfaces/inner_api:srms_fwk"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/tools/aa/include",
+              "header_files": [
+                "shell_command.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/tools/aa:tools_aa_source_set"
           }
         ],
         "test": [

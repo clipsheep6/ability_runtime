@@ -42,6 +42,7 @@
 #include "js_runtime_utils.h"
 #include "js_utils.h"
 #include "js_worker.h"
+#include "module_checker_delegate.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
 #include "ohos_js_env_logger.h"
 #include "ohos_js_environment_impl.h"
@@ -178,14 +179,11 @@ void JsRuntime::StartDebugMode(bool needBreakPoint)
     }
 
     HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
-    auto debuggerPostTask = [jsEnv = jsEnv_](std::function<void()>&& task) {
-        jsEnv->PostTask(task);
-    };
     StartDebuggerInWorkerModule();
     HdcRegister::Get().StartHdcRegister(bundleName_);
     ConnectServerManager::Get().StartConnectServer(bundleName_);
     ConnectServerManager::Get().AddInstance(instanceId_);
-    debugMode_ = StartDebugger(needBreakPoint, instanceId_, debuggerPostTask);
+    debugMode_ = StartDebugger(needBreakPoint, instanceId_);
 }
 
 void JsRuntime::StopDebugMode()
@@ -202,19 +200,15 @@ void JsRuntime::InitConsoleModule()
     jsEnv_->InitConsoleModule();
 }
 
-bool JsRuntime::StartDebugger(bool needBreakPoint, const DebuggerPostTask& debuggerPostTask)
-{
-    return StartDebugger(needBreakPoint, gettid(), debuggerPostTask);
-}
-
-bool JsRuntime::StartDebugger(bool needBreakPoint, uint32_t instanceId, const DebuggerPostTask& debuggerPostTask)
+bool JsRuntime::StartDebugger(bool needBreakPoint, uint32_t instanceId)
 {
     CHECK_POINTER_AND_RETURN(jsEnv_, false);
-    return jsEnv_->StartDebugger(ARK_DEBUGGER_LIB_PATH, needBreakPoint, instanceId, debuggerPostTask);
+    return jsEnv_->StartDebugger(ARK_DEBUGGER_LIB_PATH, needBreakPoint, instanceId);
 }
 
 void JsRuntime::StopDebugger()
 {
+    CHECK_POINTER(jsEnv_);
     jsEnv_->StopDebugger();
 }
 
@@ -518,6 +512,7 @@ bool JsRuntime::Initialize(const Options& options)
             isBundle_ = options.isBundle;
             bundleName_ = options.bundleName;
             codePath_ = options.codePath;
+            ReInitJsEnvImpl(options);
 
             if (!options.hapPath.empty()) {
                 bool newCreate = false;
@@ -538,11 +533,6 @@ bool JsRuntime::Initialize(const Options& options)
             panda::JSNApi::SetBundleName(vm, options.bundleName);
             panda::JSNApi::SetHostResolveBufferTracker(vm, JsModuleReader(options.bundleName, options.hapPath));
             isModular = !panda::JSNApi::IsBundle(vm);
-
-            if (!InitLoop(options.eventRunner)) {
-                HILOG_ERROR("Initialize loop failed.");
-                return false;
-            }
         }
     }
 
@@ -561,6 +551,12 @@ bool JsRuntime::Initialize(const Options& options)
         }
 
         InitWorkerModule(options);
+        SetModuleLoadChecker(options.moduleCheckerDelegate);
+
+        if (!InitLoop()) {
+            HILOG_ERROR("Initialize loop failed.");
+            return false;
+        }
     }
 
     preloaded_ = options.preload;
@@ -598,7 +594,7 @@ bool JsRuntime::CreateJsEnv(const Options& options)
     }
 
     OHOSJsEnvLogger::RegisterJsEnvLogger();
-    jsEnv_ = std::make_shared<JsEnv::JsEnvironment>(std::make_unique<OHOSJsEnvironmentImpl>());
+    jsEnv_ = std::make_shared<JsEnv::JsEnvironment>(std::make_unique<OHOSJsEnvironmentImpl>(options.eventRunner));
     if (jsEnv_ == nullptr || !jsEnv_->Initialize(pandaOption, static_cast<void*>(this))) {
         HILOG_ERROR("Initialize js environment failed.");
         return false;
@@ -644,10 +640,10 @@ void JsRuntime::DoCleanWorkAfterStageCleaned()
     PostTask(gcTask, "ability_destruct_gc", TRIGGER_GC_AFTER_CLEAR_STAGE_MS);
 }
 
-bool JsRuntime::InitLoop(const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner)
+bool JsRuntime::InitLoop()
 {
     CHECK_POINTER_AND_RETURN(jsEnv_, false);
-    return jsEnv_->InitLoop(eventRunner);
+    return jsEnv_->InitLoop();
 }
 
 void JsRuntime::SetAppLibPath(const AppLibPathMap& appLibPaths, const bool& isSystemApp)
@@ -917,6 +913,12 @@ void JsRuntime::PostTask(const std::function<void()>& task, const std::string& n
     jsEnv_->PostTask(task, name, delayTime);
 }
 
+void JsRuntime::PostSyncTask(const std::function<void()>& task, const std::string& name)
+{
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->PostSyncTask(task, name);
+}
+
 void JsRuntime::RemoveTask(const std::string& name)
 {
     CHECK_POINTER(jsEnv_);
@@ -965,18 +967,6 @@ void JsRuntime::PreloadSystemModule(const std::string& moduleName)
     CHECK_POINTER(nativeEngine);
     NativeValue* className = nativeEngine->CreateString(moduleName.c_str(), moduleName.length());
     nativeEngine->CallFunction(nativeEngine->GetGlobal(), methodRequireNapiRef_->Get(), &className, 1);
-}
-
-void JsRuntime::UpdateExtensionType(int32_t extensionType)
-{
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER(nativeEngine);
-    NativeModuleManager* moduleManager = nativeEngine->GetModuleManager();
-    if (moduleManager == nullptr) {
-        HILOG_ERROR("UpdateExtensionType error, moduleManager is nullptr");
-        return;
-    }
-    moduleManager->SetProcessExtensionType(extensionType);
 }
 
 NativeEngine& JsRuntime::GetNativeEngine() const
@@ -1150,6 +1140,18 @@ void JsRuntime::InitWorkerModule(const Options& options)
         SetJsFramework();
     }
     jsEnv_->InitWorkerModule(workerInfo);
+}
+
+void JsRuntime::ReInitJsEnvImpl(const Options& options)
+{
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->ReInitJsEnvImpl(std::make_unique<OHOSJsEnvironmentImpl>(options.eventRunner));
+}
+
+void JsRuntime::SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate) const
+{
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->SetModuleLoadChecker(moduleCheckerDelegate);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

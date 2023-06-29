@@ -23,9 +23,12 @@ namespace AbilityRuntime {
 class OHOSJsEnvironmentImpl : public JsEnv::JsEnvironmentImpl {
 public:
     OHOSJsEnvironmentImpl();
+    explicit OHOSJsEnvironmentImpl(const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner);
     ~OHOSJsEnvironmentImpl() override;
 
     void PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime) override;
+
+    void PostSyncTask(const std::function<void()>& task, const std::string& name) override;
 
     void RemoveTask(const std::string& name) override;
 
@@ -33,7 +36,7 @@ public:
 
     void InitConsoleModule(NativeEngine* engine) override;
 
-    bool InitLoop(NativeEngine* engine, const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner) override;
+    bool InitLoop(NativeEngine* engine) override;
 
     void DeInitLoop(NativeEngine* engine) override;
 

@@ -61,7 +61,6 @@ public:
     std::shared_ptr<AbilityResult> abilityResult_{ nullptr };
     std::shared_ptr<AbilityRequest> abilityRequest_{ nullptr };
     static constexpr unsigned int CHANGE_CONFIG_LOCALE = 0x00000001;
-    inline static std::shared_ptr<AbilityEventHandler> handler_{ nullptr };
 };
 
 void AbilityRecordTest::SetUpTestCase(void)

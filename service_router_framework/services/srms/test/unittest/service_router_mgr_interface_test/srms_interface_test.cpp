@@ -235,4 +235,156 @@ HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0009, Func
     auto result = PurposeInfo::Unmarshalling(parcel);
     EXPECT_EQ(result->bundleName, BUNDLE_NAME);
 }
+
+/**
+ * @tc.number: ServiceRouterMgrInterfaceTest_0010
+ * Function: BusinessAbilityFilter
+ * @tc.name: test BusinessAbilityFilter
+ * @tc.desc: BusinessAbilityFilter
+ */
+HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0010, Function | SmallTest | Level0)
+{
+    BusinessAbilityFilter filter;
+    filter.mimeType = MIME_TYPE;
+    Parcel parcel;
+    auto ret = filter.Marshalling(parcel);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.number: ServiceRouterMgrInterfaceTest_0011
+ * Function: BusinessAbilityFilter
+ * @tc.name: test BusinessAbilityFilter
+ * @tc.desc: BusinessAbilityFilter
+ */
+HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0011, Function | SmallTest | Level0)
+{
+    BusinessAbilityFilter filter;
+    filter.mimeType = MIME_TYPE;
+    Parcel parcel;
+    auto ret = filter.ReadFromParcel(parcel);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.number: ServiceRouterMgrInterfaceTest_0012
+ * Function: AppInfo
+ * @tc.name: test AppInfo
+ * @tc.desc: AppInfo
+ */
+HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0012, Function | SmallTest | Level0)
+{
+    AppInfo info;
+    info.bundleName = BUNDLE_NAME;
+    Parcel parcel;
+    auto ret = info.Marshalling(parcel);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.number: ServiceRouterMgrInterfaceTest_0013
+ * Function: AppInfo
+ * @tc.name: test AppInfo
+ * @tc.desc: AppInfo
+ */
+HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0013, Function | SmallTest | Level0)
+{
+    AppInfo info;
+    info.bundleName = BUNDLE_NAME;
+    Parcel parcel;
+    auto ret = info.ReadFromParcel(parcel);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.number: ServiceRouterMgrInterfaceTest_0014
+ * Function: PurposeInfo
+ * @tc.name: test PurposeInfo
+ * @tc.desc: PurposeInfo
+ */
+HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0014, Function | SmallTest | Level0)
+{
+    PurposeInfo info;
+    info.bundleName = BUNDLE_NAME;
+    Parcel parcel;
+    auto ret = info.Marshalling(parcel);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.number: ServiceRouterMgrInterfaceTest_0015
+ * Function: PurposeInfo
+ * @tc.name: test PurposeInfo
+ * @tc.desc: PurposeInfo
+ */
+HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0015, Function | SmallTest | Level0)
+{
+    PurposeInfo info;
+    info.bundleName = BUNDLE_NAME;
+    Parcel parcel;
+    auto ret = info.ReadFromParcel(parcel);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.number: ServiceRouterMgrInterfaceTest_0016
+ * Function: PurposeInfo
+ * @tc.name: test PurposeInfo
+ * @tc.desc: PurposeInfo
+ */
+HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0016, Function | SmallTest | Level0)
+{
+    PurposeInfo info;
+    info.bundleName = BUNDLE_NAME;
+    Parcel parcel;
+    parcel.WriteParcelable(&info);
+    auto ret = info.ReadFromParcel(parcel);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.number: ServiceRouterMgrInterfaceTest_0017
+ * Function: BusinessAbilityInfo
+ * @tc.name: test BusinessAbilityInfo
+ * @tc.desc: BusinessAbilityInfo
+ */
+HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0017, Function | SmallTest | Level0)
+{
+    BusinessAbilityInfo info;
+    info.bundleName = BUNDLE_NAME;
+    Parcel parcel;
+    auto ret = info.Marshalling(parcel);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.number: ServiceRouterMgrInterfaceTest_0018
+ * Function: BusinessAbilityInfo
+ * @tc.name: test BusinessAbilityInfo
+ * @tc.desc: BusinessAbilityInfo
+ */
+HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0018, Function | SmallTest | Level0)
+{
+    BusinessAbilityInfo info;
+    info.bundleName = BUNDLE_NAME;
+    Parcel parcel;
+    auto ret = info.ReadFromParcel(parcel);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.number: ServiceRouterMgrInterfaceTest_0019
+ * Function: BusinessAbilityInfo
+ * @tc.name: test BusinessAbilityInfo
+ * @tc.desc: BusinessAbilityInfo
+ */
+HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0019, Function | SmallTest | Level0)
+{
+    BusinessAbilityInfo info;
+    info.businessType = BusinessType::SHARE;
+    Parcel parcel;
+    parcel.WriteParcelable(&info);
+    auto ret = info.ReadFromParcel(parcel);
+    EXPECT_TRUE(ret);
+}
 } // OHOS
