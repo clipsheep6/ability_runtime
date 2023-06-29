@@ -1602,6 +1602,13 @@ void ContinueAbilityCallbackCompletedCB(napi_env env, napi_status status, void *
     napi_value result[2] = { nullptr };
     napi_get_undefined(env, &result[1]);
     if (continueAbilityCB->result == 0) {
+        if (continueAbilityCB->hasArgsWithBundleName) {
+            napi_delete_async_work(env, continueAbilityCB->cbBase.asyncWork);
+            delete continueAbilityCB;
+            continueAbilityCB = nullptr;
+            HILOG_INFO("%{public}s end.", __func__);
+            return;
+        }
         napi_get_undefined(env, &result[0]);
     } else {
         int32_t errCode = ErrorCodeReturn(continueAbilityCB->result);
@@ -1822,10 +1829,6 @@ bool CheckArgsWithBundleName(napi_env &env, const napi_value &value,
     ContinueAbilityCB *continueAbilityCB, std::string &errInfo)
 {
     HILOG_INFO("%{public}s called.", __func__);
-    if (!CheckBundleNameExist(env, value)) {
-        HILOG_ERROR("%{public}s, Args without bundleName.", __func__);
-        return false;
-    }
     napi_value napiSrcDeviceId = nullptr;
     napi_value napiDstDeviceId = nullptr;
     napi_value napiBundleName = nullptr;
@@ -1926,16 +1929,20 @@ napi_value ContinueAbilityWrap(napi_env &env, napi_callback_info info,
         return nullptr;
     }
 
-    if (CheckArgsWithBundleName(env, args[0], continueAbilityCB, errInfo)) {
-        continueAbilityCB->hasArgsWithBundleName = true;
-        if (argcAsync == ARGS_TWO && CheckContinueCallbackWithBundleName(env, args[1], continueAbilityCB, errInfo)) {
-            ret = ContinueAbilityAsync(env, continueAbilityCB);
-            HILOG_INFO("%{public}s called end.", __func__);
-            return ret;
+    continueAbilityCB->hasArgsWithBundleName = CheckBundleNameExist(env, args[0]);
+    if (continueAbilityCB->hasArgsWithBundleName) {
+        if (CheckArgsWithBundleName(env, args[0], continueAbilityCB, errInfo)) {
+            continueAbilityCB->hasArgsWithBundleName = true;
+            if (argcAsync == ARGS_TWO &&
+                CheckContinueCallbackWithBundleName(env, args[1], continueAbilityCB, errInfo)) {
+                ret = ContinueAbilityAsync(env, continueAbilityCB);
+                HILOG_INFO("%{public}s called end.", __func__);
+                return ret;
+            }
+        } else {
+            return nullptr;
         }
-    }
-
-    if (!continueAbilityCB->hasArgsWithBundleName) {
+    } else {
         if (!CheckContinueFirstArgs(env, args[0], continueAbilityCB, errInfo)) {
             HILOG_ERROR("%{public}s, check the first argument failed.", __func__);
             return nullptr;
