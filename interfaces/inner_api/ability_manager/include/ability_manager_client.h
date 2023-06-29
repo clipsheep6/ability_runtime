@@ -1100,6 +1100,8 @@ public:
      */
     sptr<IRemoteObject> GetSessionManagerService();
 
+    ErrCode ReportDrawnCompleted(const sptr<IRemoteObject> &token);
+
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:

@@ -987,6 +987,31 @@ int32_t AbilityManagerService::RequestDialogService(const Want &want, const sptr
     return RequestDialogServiceInner(want, callerToken, -1, -1);
 }
 
+int32_t AbilityManagerService::ReportDrawnCompleted(const sptr<IRemoteObject> &callerToken)
+{
+    HILOG_DEBUG("called.");
+    if (callerToken == nullptr) {
+        HILOG_ERROR("callerToken is nullptr");
+        return INNER_ERR;
+    }
+
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("abilityRecord is nullptr");
+        return INNER_ERR;
+    }
+    auto abilityInfo = abilityRecord->GetAbilityInfo();
+
+    EventInfo eventInfo;
+    eventInfo.userId = IPCSkeleton::GetCallingUid() / BASE_USER_RANGE;
+    eventInfo.pid = IPCSkeleton::GetCallingPid();
+    eventInfo.bundleName = abilityInfo.bundleName;
+    eventInfo.moduleName = abilityInfo.moduleName;
+    eventInfo.abilityName = abilityInfo.name;
+    EventReport::SendAppEvent(EventName::DRAWN_COMPLETED, HiSysEventType::BEHAVIOR, eventInfo);
+    return ERR_OK;
+}
+
 int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const sptr<IRemoteObject> &callerToken,
     int requestCode, int32_t userId)
 {

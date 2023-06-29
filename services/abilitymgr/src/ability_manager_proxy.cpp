@@ -4032,6 +4032,39 @@ int32_t AbilityManagerProxy::RequestDialogService(const Want &want, const sptr<I
     return reply.ReadInt32();
 }
 
+int32_t AbilityManagerProxy::ReportDrawnCompleted(const sptr<IRemoteObject> &callerToken)
+{
+    HILOG_DEBUG("called.");
+    if (callerToken == nullptr) {
+        HILOG_ERROR("callerToken is nullptr");
+        return INNER_ERR;
+    }
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+
+    if (!data.WriteRemoteObject(callerToken)) {
+        HILOG_ERROR("callerToken write failed.");
+        return INNER_ERR;
+    }
+
+    auto remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote is nullptr.");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::REPORT_DRAWN_COMPLETED, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 int32_t AbilityManagerProxy::AcquireShareData(
     const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData)
 {

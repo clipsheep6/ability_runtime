@@ -187,6 +187,8 @@ public:
 
     ErrCode RequestDialogService(NativeEngine &engine, AAFwk::Want &want, RequestDialogResultTask &&task) override;
 
+    ErrCode ReportDrawnCompleted() override;
+
     ErrCode GetMissionId(int32_t &missionId) override;
 
 #ifdef SUPPORT_GRAPHICS

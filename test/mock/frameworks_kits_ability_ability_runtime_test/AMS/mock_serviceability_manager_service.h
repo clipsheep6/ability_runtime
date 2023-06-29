@@ -76,6 +76,10 @@ public:
     {
         return 0;
     }
+    int32_t ReportDrawnCompleted(const sptr<IRemoteObject>& callerToken) override
+    {
+        return 0;
+    }
     int ConnectAbility(
         const Want& want,
         const sptr<IAbilityConnection>& connect,

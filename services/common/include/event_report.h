@@ -79,6 +79,7 @@ enum class EventName {
     APP_TERMINATE,
     PROCESS_START,
     PROCESS_EXIT,
+    DRAWN_COMPLETED,
 };
 
 class EventReport {
