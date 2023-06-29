@@ -219,7 +219,6 @@ ohos_shared_library("abilitykit_native") {
     "${ability_runtime_native_path}/appkit/app/context_container.cpp",
     "${ability_runtime_native_path}/appkit/app/context_deal.cpp",
     "${ability_runtime_native_path}/appkit/app/sys_mgr_client.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_start_setting.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/launch_param.cpp",
   ]
   configs = [ ":ability_config" ]
@@ -233,6 +232,7 @@ ohos_shared_library("abilitykit_native") {
     ":continuation_ipc",
     ":extension_blocklist_config",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_innerkits_path}/napi_base_context:napi_base_context",

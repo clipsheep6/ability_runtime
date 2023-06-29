@@ -62,6 +62,10 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
         uiAbilityRecord->SetWant(abilityRequest.want);
         uiAbilityRecord->SetIsNewWant(true);
     } else {
+        if (sessionInfo->startSetting != nullptr) {
+            HILOG_DEBUG("startSetting is valid.");
+            abilityRequest.startSetting = sessionInfo->startSetting;
+        }
         uiAbilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     }
     CHECK_POINTER_AND_RETURN(uiAbilityRecord, ERR_INVALID_VALUE);
@@ -597,6 +601,9 @@ sptr<SessionInfo> UIAbilityLifecycleManager::CreateSessionInfo(const AbilityRequ
     sptr<SessionInfo> sessionInfo = new SessionInfo();
     sessionInfo->callerToken = abilityRequest.callerToken;
     sessionInfo->want = abilityRequest.want;
+    if (abilityRequest.startSetting != nullptr) {
+        sessionInfo->startSetting = abilityRequest.startSetting;
+    }
     return sessionInfo;
 }
 
