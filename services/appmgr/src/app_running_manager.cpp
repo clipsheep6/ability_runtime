@@ -529,7 +529,7 @@ void AppRunningManager::GetForegroundApplications(std::vector<AppStateData> &lis
             return;
         }
         auto state = appRecord->GetState();
-        if (state == ApplicationState::APP_STATE_FOREGROUND && !appRecord->IsUIExtension()) {
+        if (state == ApplicationState::APP_STATE_FOREGROUND && !appRecord->IsUIExtension() && !appRecord->IsWindowExtension()) {
             AppStateData appData;
             appData.bundleName = appRecord->GetBundleName();
             appData.uid = appRecord->GetUid();
