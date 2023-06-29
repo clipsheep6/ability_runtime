@@ -21,8 +21,8 @@
 
 #include "app_mgr_interface.h"
 #include "bundlemgr/bundle_mgr_interface.h"
-#include "storage_manager_proxy.h"
-#include "istorage_manager.h"
+// #include "storage_manager_proxy.h"
+// #include "istorage_manager.h"
 #include "uri.h"
 #include "uri_permission_manager_stub.h"
 
@@ -52,7 +52,7 @@ public:
 
 private:
     sptr<AppExecFwk::IAppMgr> ConnectAppMgr();
-    sptr<StorageManager::IStorageManager> ConnectStorageManager();
+    // sptr<StorageManager::IStorageManager> ConnectStorageManager();
     int GetCurrentAccountId();
     void ClearAppMgrProxy();
     void ClearBMSProxy();
@@ -80,7 +80,7 @@ private:
     std::mutex storageMutex_;
     sptr<AppExecFwk::IAppMgr> appMgr_ = nullptr;
     sptr<AppExecFwk::IBundleMgr> bundleManager_ = nullptr;
-    sptr<StorageManager::IStorageManager> storageManager_ = nullptr;
+    // sptr<StorageManager::IStorageManager> storageManager_ = nullptr;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

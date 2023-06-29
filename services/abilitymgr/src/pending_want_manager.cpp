@@ -300,9 +300,10 @@ int32_t PendingWantManager::PendingWantPublishCommonEvent(
         WantParams wantParams = {};
         pendingWantCommonEvent->SetWantParams(wantParams);
     }
-    bool result = IN_PROCESS_CALL(DelayedSingleton<EventFwk::CommonEvent>::GetInstance()->PublishCommonEvent(
+    /*bool result = IN_PROCESS_CALL(DelayedSingleton<EventFwk::CommonEvent>::GetInstance()->PublishCommonEvent(
         eventData, eventPublishData, pendingWantCommonEvent, callerUid, callerTokenId));
-    return ((result == true) ? ERR_OK : (-1));
+    return ((result == true) ? ERR_OK : (-1));*/
+    return ERR_OK;
 }
 
 int32_t PendingWantManager::PendingRecordIdCreate()

@@ -5,7 +5,7 @@ target("ability_runtime")
     add_files("services/**/*.cpp", "frameworks/native/**.cpp")
     add_defines("DEBUG_REFBASE", "INCLUDE_SELF_DEFINE", "SUPPORT_GRAPHICS")
     add_includedirs("services/abilitymgr/include", "services/common/include", "services/appmgr/include",
-        "services/dataobsmgr/include")
+        "services/dataobsmgr/include", "services/uripermmgr/include")
     add_includedirs("frameworks/js/napi/inner/napi_common", "frameworks/js/napi/inner/napi_ability_common")
     add_includedirs("d:/repo", "interfaces")
     add_includedirs("interfaces/inner_api/app_manager/include", "interfaces/inner_api/app_manager/include/appmgr",
@@ -36,7 +36,8 @@ target("ability_runtime")
     add_includedirs("../bundlemanager_bundle_framework/interfaces/inner_api/appexecfwk_base/include",
         "../bundlemanager_bundle_framework/interfaces/inner_api/appexecfwk_base/include/overlay",
         "../bundlemanager_bundle_framework/interfaces/inner_api/appexecfwk_core/include",
-        "../bundlemanager_bundle_framework/interfaces/inner_api/appexecfwk_core/include/bundlemgr")
+        "../bundlemanager_bundle_framework/interfaces/inner_api/appexecfwk_core/include/bundlemgr",
+        "../bundlemanager_bundle_framework/interfaces/inner_api/appexecfwk_core/include/default_app")
     add_includedirs("../ability_ability_base/interfaces/kits/native/want/include", "../ability_ability_base/interfaces/inner_api/base/include",
         "../ability_ability_base/interfaces/kits/native/uri/include", "../ability_ability_base/interfaces/kits/native/configuration/include",
         "../ability_ability_base/interfaces/kits/native/extractortool/include", "../ability_ability_base/interfaces/kits/native/session_info/include")

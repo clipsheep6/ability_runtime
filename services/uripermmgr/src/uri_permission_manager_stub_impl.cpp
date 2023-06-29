@@ -97,7 +97,7 @@ int UriPermissionManagerStubImpl::GrantUriPermissionImpl(const Uri &uri, unsigne
     Security::AccessToken::AccessTokenID fromTokenId,
     Security::AccessToken::AccessTokenID targetTokenId, int autoremove)
 {
-    auto storageMgrProxy = ConnectStorageManager();
+    /*auto storageMgrProxy = ConnectStorageManager();
     if (storageMgrProxy == nullptr) {
         HILOG_ERROR("ConnectStorageManager failed");
         return INNER_ERR;
@@ -127,7 +127,7 @@ int UriPermissionManagerStubImpl::GrantUriPermissionImpl(const Uri &uri, unsigne
             return ERR_OK;
         }
     }
-    infoList.emplace_back(info);
+    infoList.emplace_back(info);*/
     return ERR_OK;
 }
 
@@ -163,7 +163,7 @@ void UriPermissionManagerStubImpl::RevokeUriPermission(const TokenId tokenId)
         }
     }
 
-    auto storageMgrProxy = ConnectStorageManager();
+    /*auto storageMgrProxy = ConnectStorageManager();
     if (storageMgrProxy == nullptr) {
         HILOG_ERROR("ConnectStorageManager failed");
         return;
@@ -171,7 +171,7 @@ void UriPermissionManagerStubImpl::RevokeUriPermission(const TokenId tokenId)
 
     if (!uriList.empty()) {
         storageMgrProxy->DeleteShareFile(tokenId, uriList);
-    }
+    }*/
 }
 
 void UriPermissionManagerStubImpl::RevokeAllUriPermissions(int tokenId)
@@ -200,7 +200,7 @@ void UriPermissionManagerStubImpl::RevokeAllUriPermissions(int tokenId)
         }
     }
 
-    auto storageMgrProxy = ConnectStorageManager();
+    /*auto storageMgrProxy = ConnectStorageManager();
     if (storageMgrProxy == nullptr) {
         HILOG_ERROR("ConnectStorageManager failed");
         return;
@@ -210,7 +210,7 @@ void UriPermissionManagerStubImpl::RevokeAllUriPermissions(int tokenId)
         for (auto iter = uriLists.begin(); iter != uriLists.end(); iter++) {
             storageMgrProxy->DeleteShareFile(iter->first, iter->second);
         }
-    }
+    }*/
 }
 
 int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, const std::string bundleName)
@@ -247,7 +247,7 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
         for (auto it = list.begin(); it != list.end(); it++) {
             if (it->targetTokenId == tokenId) {
                 HILOG_INFO("Erase an info form list.");
-                auto storageMgrProxy = ConnectStorageManager();
+                /*auto storageMgrProxy = ConnectStorageManager();
                 if (storageMgrProxy == nullptr) {
                     HILOG_ERROR("ConnectStorageManager failed");
                     return INNER_ERR;
@@ -259,7 +259,7 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
                 } else {
                     HILOG_ERROR("DeleteShareFile failed");
                     return INNER_ERR;
-                }
+                }*/
             }
         }
         if (list.size() == 0) {
@@ -348,7 +348,7 @@ Security::AccessToken::AccessTokenID UriPermissionManagerStubImpl::GetTokenIdByB
     }
     return bundleInfo.applicationInfo.accessTokenId;
 }
-
+/*
 sptr<StorageManager::IStorageManager> UriPermissionManagerStubImpl::ConnectStorageManager()
 {
     std::lock_guard<std::mutex> lock(storageMutex_);
@@ -379,7 +379,7 @@ sptr<StorageManager::IStorageManager> UriPermissionManagerStubImpl::ConnectStora
     HILOG_DEBUG("%{public}s end.", __func__);
     return storageManager_;
 }
-
+*/
 void UriPermissionManagerStubImpl::ClearAppMgrProxy()
 {
     HILOG_DEBUG("%{public}s is called.", __func__);
@@ -398,7 +398,7 @@ void UriPermissionManagerStubImpl::ClearSMProxy()
 {
     HILOG_DEBUG("%{public}s is called.", __func__);
     std::lock_guard<std::mutex> lock(bmsMutex_);
-    storageManager_ = nullptr;
+    // storageManager_ = nullptr;
 }
 
 void UriPermissionManagerStubImpl::ProxyDeathRecipient::OnRemoteDied(

@@ -80,7 +80,6 @@
 #include "res_type.h"
 #endif // RESOURCE_SCHEDULE_SERVICE_ENABLE
 
-using OHOS::AppExecFwk::ElementName;
 using OHOS::Security::AccessToken::AccessTokenKit;
 
 namespace OHOS {
@@ -6654,7 +6653,7 @@ AAFwk::PermissionVerification::VerificationInfo AbilityManagerService::CreateVer
     if (!isData) {
         isSA = AAFwk::PermissionVerification::GetInstance()->IsSACall();
         isShell = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
-    } 
+    }
     if (isSA || isShell) {
         return verificationInfo;
     }
