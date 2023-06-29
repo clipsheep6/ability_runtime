@@ -274,6 +274,14 @@ public:
      */
     ErrCode SendResultToAbility(int requestCode, int resultCode, Want& resultWant);
 
+/**
+     * MoveAbilityToBackground.
+     *
+     * @param token Ability token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode MoveAbilityToBackground(const sptr<IRemoteObject> &token);
+
     /**
      * CloseAbility with want, return want from ability manager service.
      *
@@ -1091,6 +1099,8 @@ public:
      * @return returns the SessionManagerService object, or nullptr for failed.
      */
     sptr<IRemoteObject> GetSessionManagerService();
+
+    ErrCode ReportDrawnCompleted(const sptr<IRemoteObject> &token);
 
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {

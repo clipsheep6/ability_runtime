@@ -163,6 +163,7 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[REGISTER_CONNECTION_OBSERVER] = &AbilityManagerStub::RegisterConnectionObserverInner;
     requestFuncMap_[UNREGISTER_CONNECTION_OBSERVER] = &AbilityManagerStub::UnregisterConnectionObserverInner;
     requestFuncMap_[GET_DLP_CONNECTION_INFOS] = &AbilityManagerStub::GetDlpConnectionInfosInner;
+    requestFuncMap_[MOVE_ABILITY_TO_BACKGROUND] = &AbilityManagerStub::MoveAbilityToBackgroundInner;
 #ifdef SUPPORT_GRAPHICS
     requestFuncMap_[SET_MISSION_LABEL] = &AbilityManagerStub::SetMissionLabelInner;
     requestFuncMap_[SET_MISSION_ICON] = &AbilityManagerStub::SetMissionIconInner;
@@ -175,6 +176,7 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[PREPARE_TERMINATE_ABILITY] = &AbilityManagerStub::PrepareTerminateAbilityInner;
 #endif
     requestFuncMap_[REQUEST_DIALOG_SERVICE] = &AbilityManagerStub::HandleRequestDialogService;
+    requestFuncMap_[REPORT_DRAWN_COMPLETED] = &AbilityManagerStub::HandleReportDrawnCompleted;
     requestFuncMap_[SET_COMPONENT_INTERCEPTION] = &AbilityManagerStub::SetComponentInterceptionInner;
     requestFuncMap_[SEND_ABILITY_RESULT_BY_TOKEN] = &AbilityManagerStub::SendResultToAbilityByTokenInner;
     requestFuncMap_[QUERY_MISSION_VAILD] = &AbilityManagerStub::IsValidMissionIdsInner;
@@ -214,6 +216,20 @@ int AbilityManagerStub::GetTopAbilityInner(MessageParcel &data, MessageParcel &r
         HILOG_DEBUG("GetTopAbilityInner is nullptr");
     }
     reply.WriteParcelable(&result);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::MoveAbilityToBackgroundInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = nullptr;
+    if (data.ReadBool()) {
+        token = data.ReadRemoteObject();
+    }
+    int32_t result = MoveAbilityToBackground(token);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("write result failed");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 
@@ -1854,6 +1870,23 @@ int AbilityManagerStub::HandleRequestDialogService(MessageParcel &data, MessageP
     }
 
     int32_t result = RequestDialogService(*want, callerToken);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("reply write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::HandleReportDrawnCompleted(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("called.");
+    sptr<IRemoteObject> callerToken = data.ReadRemoteObject();
+    if (callerToken == nullptr) {
+        HILOG_ERROR("callerToken is invalid.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto result = ReportDrawnCompleted(callerToken);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("reply write failed.");
         return ERR_INVALID_VALUE;

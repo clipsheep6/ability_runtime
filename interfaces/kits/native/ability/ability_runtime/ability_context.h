@@ -200,6 +200,16 @@ public:
      */
     virtual void MinimizeAbility(bool fromUser = false) = 0;
 
+    /**
+     * @brief Get OnBackPressedCallBack.
+     * @param needMoveToBackground true if ability will be moved to background; false if ability will be terminated.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual ErrCode OnBackPressedCallBack(bool &needMoveToBackground) = 0;
+
+    virtual ErrCode MoveAbilityToBackground() = 0;
+
     virtual ErrCode TerminateSelf() = 0;
 
     virtual ErrCode CloseAbility() = 0;
@@ -265,6 +275,13 @@ public:
      * @return Returns ERR_OK if success.
      */
     virtual ErrCode RequestDialogService(NativeEngine &engine, AAFwk::Want &want, RequestDialogResultTask &&task) = 0;
+
+    /**
+     * @brief Report drawn completed.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual ErrCode ReportDrawnCompleted() = 0;
 
     virtual ErrCode GetMissionId(int32_t &missionId) = 0;
 

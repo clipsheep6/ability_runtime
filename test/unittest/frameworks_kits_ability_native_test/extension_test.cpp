@@ -425,7 +425,8 @@ HWTEST_F(ExtensionTest, AaFwk_Extension_2300, Function | MediumTest | Level1)
     GTEST_LOG_(INFO) << "AaFwk_Extension_2300 start";
     sptr<AAFwk::SessionInfo> session = new (std::nothrow) AAFwk::SessionInfo();
     EXPECT_NE(session, nullptr);
-    extension_->OnCommandWindow(session, AAFwk::WIN_CMD_FOREGROUND);
+    Want want;
+    extension_->OnCommandWindow(want, session, AAFwk::WIN_CMD_FOREGROUND);
     GTEST_LOG_(INFO) << "AaFwk_Extension_2300 end";
 }
 } // namespace AppExecFwk

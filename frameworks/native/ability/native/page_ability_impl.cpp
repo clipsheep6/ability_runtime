@@ -60,7 +60,7 @@ void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
 
     if (lifecycleState_ == AAFwk::ABILITY_STATE_INITIAL) {
         ability_->SetStartAbilitySetting(targetState.setting);
-        Start(want);
+        Start(want, sessionInfo);
         CheckAndRestore();
     }
 

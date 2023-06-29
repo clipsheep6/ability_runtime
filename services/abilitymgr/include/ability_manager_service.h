@@ -26,6 +26,7 @@
 
 #include "ability_bundle_event_callback.h"
 #include "ability_connect_manager.h"
+#include "task_handler_wrap.h"
 #include "ability_event_handler.h"
 #include "ability_interceptor_executer.h"
 #include "ability_manager_stub.h"
@@ -282,6 +283,14 @@ public:
     virtual int TerminateAbilityByCaller(const sptr<IRemoteObject> &callerToken, int requestCode) override;
 
     /**
+     * MoveAbilityToBackground.
+     *
+     * @param token, the token of the ability to move background.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int MoveAbilityToBackground(const sptr<IRemoteObject> &token) override;
+
+    /**
      * CloseAbility, close the special ability.
      *
      * @param token, the token of the ability to terminate.
@@ -525,6 +534,11 @@ public:
         const sptr<SessionInfo> &sessionInfo,
         WindowCommand winCmd,
         AbilityCommand abilityCmd) override;
+
+    std::shared_ptr<TaskHandlerWrap> GetTaskHandler() const
+    {
+        return taskHandler_;
+    }
 
     /**
      * GetEventHandler, get the ability manager service's handler.
@@ -807,7 +821,7 @@ public:
 
     virtual int PrepareTerminateAbility(const sptr<IRemoteObject> &token,
         sptr<IPrepareTerminateCallback> &callback) override;
-        
+
     void HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
 
     void HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
@@ -1024,6 +1038,8 @@ public:
         const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results) override;
 
     virtual int32_t RequestDialogService(const Want &want, const sptr<IRemoteObject> &callerToken) override;
+
+    int32_t ReportDrawnCompleted(const sptr<IRemoteObject> &callerToken) override;
 
     virtual int32_t AcquireShareData(
         const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData) override;
@@ -1322,7 +1338,7 @@ private:
     std::map<uint32_t, DumpSysFuncType> dumpsysFuncMap_;
 
     int CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abilityInfo, bool isStartAsCaller,
-        uint32_t callerTokenId);
+        uint32_t callerTokenId, bool isData = false, bool isSaCall = false);
 
     bool GetValidDataAbilityUri(const std::string &abilityInfoUri, std::string &adjustUri);
 
@@ -1360,7 +1376,7 @@ private:
      * @param abilityRequest, abilityRequest.
      * @return Returns whether the caller is allowed to start DataAbility.
      */
-    int CheckCallDataAbilityPermission(AbilityRequest &abilityRequest);
+    int CheckCallDataAbilityPermission(AbilityRequest &abilityRequest, bool isShell, bool IsSACall = false);
 
     /**
      * Check if Caller is allowed to start ServiceExtension(Stage) or DataShareExtension(Stage).
@@ -1411,7 +1427,7 @@ private:
      *                          FALSE: The Caller-Application is in focus or in foreground state.
      * @return Returns ERR_OK on check success, others on check failure.
      */
-    int IsCallFromBackground(const AbilityRequest &abilityRequest, bool &isBackgroundCall);
+    int IsCallFromBackground(const AbilityRequest &abilityRequest, bool &isBackgroundCall, bool isData = false);
 
     bool IsTargetPermission(const Want &want) const;
 
@@ -1424,7 +1440,7 @@ private:
     void UpdateFocusState(std::vector<AbilityRunningInfo> &info);
 
     AAFwk::PermissionVerification::VerificationInfo CreateVerificationInfo(
-        const AbilityRequest &abilityRequest);
+        const AbilityRequest &abilityRequest, bool isData = false, bool isShell = false, bool isSA = false);
 
     int AddStartControlParam(Want &want, const sptr<IRemoteObject> &callerToken);
 
@@ -1467,8 +1483,8 @@ private:
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 
-    std::shared_ptr<AppExecFwk::EventRunner> eventLoop_;
-    std::shared_ptr<AbilityEventHandler> handler_;
+    std::shared_ptr<TaskHandlerWrap> taskHandler_;
+    std::shared_ptr<AbilityEventHandler> eventHandler_;
     ServiceRunningState state_;
     std::unordered_map<int, std::shared_ptr<AbilityConnectManager>> connectManagers_;
     std::shared_ptr<AbilityConnectManager> connectManager_;
@@ -1493,10 +1509,10 @@ private:
     std::shared_ptr<UserController> userController_;
     sptr<AppExecFwk::IAbilityController> abilityController_ = nullptr;
     bool controllerIsAStabilityTest_ = false;
-    std::mutex globalLock_;
-    std::shared_mutex managersMutex_;
-    std::shared_mutex bgtaskObserverMutex_;
-    std::mutex abilityTokenLock_;
+    ffrt::mutex globalLock_;
+    ffrt::mutex managersMutex_;
+    ffrt::mutex bgtaskObserverMutex_;
+    ffrt::mutex abilityTokenLock_;
     sptr<AppExecFwk::IComponentInterception> componentInterception_ = nullptr;
 
     std::multimap<std::string, std::string> timeoutMap_;

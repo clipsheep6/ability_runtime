@@ -185,9 +185,14 @@ int AbilitySchedulerStub::PrepareTerminateAbilityInner(MessageParcel &data, Mess
 
 int AbilitySchedulerStub::CommandAbilityWindowInner(MessageParcel &data, MessageParcel &reply)
 {
+    std::shared_ptr<Want> want(data.ReadParcelable<Want>());
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
     sptr<SessionInfo> sessionInfo(data.ReadParcelable<SessionInfo>());
     int32_t winCmd = data.ReadInt32();
-    ScheduleCommandAbilityWindow(sessionInfo, static_cast<WindowCommand>(winCmd));
+    ScheduleCommandAbilityWindow(*want, sessionInfo, static_cast<WindowCommand>(winCmd));
     return NO_ERROR;
 }
 

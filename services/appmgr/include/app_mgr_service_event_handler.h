@@ -16,18 +16,19 @@
 #ifndef OHOS_ABILITY_RUNTIME_APP_MGR_SERVICE_EVENT_HANDLER_H
 #define OHOS_ABILITY_RUNTIME_APP_MGR_SERVICE_EVENT_HANDLER_H
 
-#include "event_handler.h"
+#include "event_handler_wrap.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 class AppMgrServiceInner;
 
-class AMSEventHandler : public EventHandler {
+class AMSEventHandler : public AAFwk::EventHandlerWrap {
 public:
-    AMSEventHandler(const std::shared_ptr<EventRunner> &runner, const std::weak_ptr<AppMgrServiceInner> &appMgr);
+    AMSEventHandler(const std::shared_ptr<AAFwk::TaskHandlerWrap> &taskHandler,
+        const std::weak_ptr<AppMgrServiceInner> &appMgr);
     virtual ~AMSEventHandler() override;
 
-    virtual void ProcessEvent(const InnerEvent::Pointer &event) override;
+    virtual void ProcessEvent(const AAFwk::EventWrap &event) override;
 
     static constexpr uint32_t TERMINATE_ABILITY_TIMEOUT_MSG = 0;
     static constexpr uint32_t TERMINATE_APPLICATION_TIMEOUT_MSG = 1;

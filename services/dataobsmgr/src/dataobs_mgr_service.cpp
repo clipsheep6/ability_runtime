@@ -36,8 +36,6 @@ const bool REGISTER_RESULT =
 
 DataObsMgrService::DataObsMgrService()
     : SystemAbility(DATAOBS_MGR_SERVICE_SA_ID, true),
-      eventLoop_(nullptr),
-      handler_(nullptr),
       state_(DataObsServiceRunningState::STATE_NOT_START)
 {
     dataObsMgrInner_ = std::make_shared<DataObsMgrInner>();
@@ -58,7 +56,6 @@ void DataObsMgrService::OnStart()
         return;
     }
     state_ = DataObsServiceRunningState::STATE_RUNNING;
-    eventLoop_->Run();
     /* Publish service maybe failed, so we need call this function at the last,
      * so it can't affect the TDD test program */
     if (!Publish(DelayedSingleton<DataObsMgrService>::GetInstance().get())) {
@@ -71,20 +68,13 @@ void DataObsMgrService::OnStart()
 
 bool DataObsMgrService::Init()
 {
-    eventLoop_ = AppExecFwk::EventRunner::Create("DataObsMgrService");
-    if (eventLoop_ == nullptr) {
-        return false;
-    }
-
-    handler_ = std::make_shared<AppExecFwk::EventHandler>(eventLoop_);
-
+    handler_ = TaskHandlerWrap::GetFfrtHandler();
     return true;
 }
 
 void DataObsMgrService::OnStop()
 {
     HILOG_INFO("stop service");
-    eventLoop_.reset();
     handler_.reset();
     state_ = DataObsServiceRunningState::STATE_NOT_START;
 }
@@ -149,7 +139,7 @@ int DataObsMgrService::NotifyChange(const Uri &uri)
     }
 
     {
-        std::lock_guard<std::mutex> lck(taskCountMutex_);
+        std::lock_guard<ffrt::mutex> lck(taskCountMutex_);
         if (taskCount_ >= TASK_COUNT_MAX) {
             HILOG_ERROR("The number of task has reached the upper limit, uri:%{public}s",
                 CommonUtils::Anonymous(uri.ToString()).c_str());
@@ -159,16 +149,12 @@ int DataObsMgrService::NotifyChange(const Uri &uri)
     }
 
     ChangeInfo changeInfo = { ChangeInfo::ChangeType::OTHER, { uri } };
-    bool ret = handler_->PostTask([this, uri, changeInfo]() {
+    handler_->SubmitTask([this, uri, changeInfo]() {
         dataObsMgrInner_->HandleNotifyChange(uri);
         dataObsMgrInnerExt_->HandleNotifyChange(changeInfo);
-        std::lock_guard<std::mutex> lck(taskCountMutex_);
+        std::lock_guard<ffrt::mutex> lck(taskCountMutex_);
         --taskCount_;
     });
-    if (!ret) {
-        HILOG_ERROR("Post NotifyChange fail, uri:%{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
-        return DATAOBS_SERVICE_POST_TASK_FAILED;
-    }
 
     return NO_ERROR;
 }
@@ -264,7 +250,7 @@ Status DataObsMgrService::NotifyChangeExt(const ChangeInfo &changeInfo)
     }
 
     {
-        std::lock_guard<std::mutex> lck(taskCountMutex_);
+        std::lock_guard<ffrt::mutex> lck(taskCountMutex_);
         if (taskCount_ >= TASK_COUNT_MAX) {
             HILOG_ERROR("The number of task has reached the upper limit, changeType:%{public}ud, num of "
                         "uris:%{public}zu, data is nullptr:%{public}d, size:%{public}ud",
@@ -274,22 +260,15 @@ Status DataObsMgrService::NotifyChangeExt(const ChangeInfo &changeInfo)
         ++taskCount_;
     }
 
-    bool ret = handler_->PostTask([this, changes]() {
+    handler_->SubmitTask([this, changes]() {
         dataObsMgrInnerExt_->HandleNotifyChange(changes);
         for (auto &uri : changes.uris_) {
             dataObsMgrInner_->HandleNotifyChange(uri);
         }
         delete [] static_cast<uint8_t *>(changes.data_);
-        std::lock_guard<std::mutex> lck(taskCountMutex_);
+        std::lock_guard<ffrt::mutex> lck(taskCountMutex_);
         --taskCount_;
     });
-    if (!ret) {
-        delete [] static_cast<uint8_t *>(changes.data_);
-        HILOG_ERROR("Post NotifyChangeExt fail, changeType:%{public}ud, num of uris:%{public}zu, data is "
-                    "nullptr:%{public}d, size:%{public}ud",
-            changeInfo.changeType_, changeInfo.uris_.size(), changeInfo.data_ == nullptr, changeInfo.size_);
-        return DATAOBS_SERVICE_POST_TASK_FAILED;
-    }
     return SUCCESS;
 }
 
@@ -325,11 +304,6 @@ void DataObsMgrService::ShowHelp(std::string& result) const
     result.append("Usage:\n")
         .append("-h                          ")
         .append("help text for the tool\n");
-}
-
-std::shared_ptr<EventHandler> DataObsMgrService::GetEventHandler()
-{
-    return handler_;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

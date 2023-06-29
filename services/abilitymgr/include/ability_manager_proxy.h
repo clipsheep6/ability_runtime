@@ -229,6 +229,14 @@ public:
     virtual int TerminateAbilityByCaller(const sptr<IRemoteObject> &callerToken, int requestCode) override;
 
     /**
+     * MoveAbilityToBackground.
+     *
+     * @param token, the token of the ability to move.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int MoveAbilityToBackground(const sptr<IRemoteObject> &token) override;
+
+    /**
      * CloseAbility, close the special ability.
      *
      * @param token, the token of the ability to terminate.
@@ -784,6 +792,8 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t RequestDialogService(const Want &want, const sptr<IRemoteObject> &callerToken) override;
+
+    int32_t ReportDrawnCompleted(const sptr<IRemoteObject> &callerToken) override;
 
     virtual int32_t AcquireShareData(
         const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData) override;

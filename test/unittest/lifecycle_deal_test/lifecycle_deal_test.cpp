@@ -233,12 +233,13 @@ HWTEST_F(LifecycleDealTest, LifecycleDeal_oprator_007, TestSize.Level1)
  */
 HWTEST_F(LifecycleDealTest, LifecycleDeal_oprator_008, TestSize.Level1)
 {
-    EXPECT_CALL(*abilityScheduler_, ScheduleCommandAbilityWindow(::testing::_, ::testing::_)).Times(1);
+    EXPECT_CALL(*abilityScheduler_, ScheduleCommandAbilityWindow(::testing::_, ::testing::_, ::testing::_)).Times(1);
     sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
     EXPECT_NE(sessionInfo, nullptr);
-    lifecycleDeal_->CommandAbilityWindow(sessionInfo, AAFwk::WIN_CMD_FOREGROUND);
+    const Want want;
+    lifecycleDeal_->CommandAbilityWindow(want, sessionInfo, AAFwk::WIN_CMD_FOREGROUND);
     lifecycleDeal_->SetScheduler(abilityScheduler_);
-    lifecycleDeal_->CommandAbilityWindow(sessionInfo, AAFwk::WIN_CMD_FOREGROUND);
+    lifecycleDeal_->CommandAbilityWindow(want, sessionInfo, AAFwk::WIN_CMD_FOREGROUND);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

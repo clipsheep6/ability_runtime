@@ -496,6 +496,23 @@ void JsAbility::OnBackground()
     HILOG_DEBUG("OnBackground end, ability is %{public}s.", GetAbilityName().c_str());
 }
 
+bool JsAbility::OnBackPress()
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("call, ability: %{public}s.", GetAbilityName().c_str());
+    Ability::OnBackPress();
+
+    NativeValue *jsValue = CallObjectMethod("onBackPressed", nullptr, 0, true);
+    auto numberValue = ConvertNativeValueTo<NativeBoolean>(jsValue);
+    if (numberValue == nullptr) {
+        HILOG_ERROR("numberValue is nullptr.");
+        return false;
+    }
+    bool ret = (bool)(*numberValue);
+    HILOG_DEBUG("end, ret = %{public}d", ret);
+    return ret;
+}
+
 bool JsAbility::OnPrepareTerminate()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);

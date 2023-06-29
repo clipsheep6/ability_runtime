@@ -497,7 +497,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_FinishUserTest_001, TestSize.Level0)
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
     int ret = appMgrClient->FinishUserTest(msg, resultCode, bundleName);
-    EXPECT_EQ(ret, AppMgrResultCode::RESULT_OK);
+    EXPECT_NE(ret, AppMgrResultCode::RESULT_OK);
 }
 
 /**

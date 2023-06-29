@@ -427,6 +427,28 @@ void AbilityContextImpl::MinimizeAbility(bool fromUser)
     }
 }
 
+ErrCode AbilityContextImpl::OnBackPressedCallBack(bool &needMoveToBackground)
+{
+    HILOG_DEBUG("call");
+    auto abilityCallback = abilityCallback_.lock();
+    if (abilityCallback == nullptr) {
+        HILOG_ERROR("abilityCallback is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    needMoveToBackground = abilityCallback->OnBackPress();
+    return ERR_OK;
+}
+
+ErrCode AbilityContextImpl::MoveAbilityToBackground()
+{
+    HILOG_DEBUG("call");
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->MoveAbilityToBackground(token_);
+    if (err != ERR_OK) {
+        HILOG_ERROR("MoveAbilityToBackground failed: %{public}d", err);
+    }
+    return err;
+}
+
 ErrCode AbilityContextImpl::TerminateSelf()
 {
     HILOG_DEBUG("TerminateSelf");
@@ -561,6 +583,12 @@ ErrCode AbilityContextImpl::RequestDialogService(NativeEngine &engine,
     auto err = AAFwk::AbilityManagerClient::GetInstance()->RequestDialogService(want, token_);
     HILOG_DEBUG("RequestDialogService ret=%{public}d", static_cast<int32_t>(err));
     return err;
+}
+
+ErrCode AbilityContextImpl::ReportDrawnCompleted()
+{
+    HILOG_DEBUG("called.");
+    return AAFwk::AbilityManagerClient::GetInstance()->ReportDrawnCompleted(token_);
 }
 
 void AbilityContextImpl::RequestDialogResultJSThreadWorker(uv_work_t* work, int status)

@@ -208,6 +208,7 @@ APP_LAUNCH:
   VERSION_NAME: {type: STRING, desc: version name}
   PROCESS_NAME: {type: STRING, desc: process name}
   BUNDLE_NAME: {type: STRING, desc: bundle name}
+  CALLER_BUNDLE_NAME: {type: STRING, desc: bundle name}
 
 APP_FOREGROUND:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: PowerStats, desc: foreground app}
@@ -259,3 +260,11 @@ PROCESS_EXIT:
   EXIT_TIME: {type: INT64, desc: process exit time}
   EXIT_RESULT: {type: INT32, desc: process exit result}
   EXIT_PID: {type: INT32, desc: pid}
+
+DRAWN_COMPLETED:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: drawn completed event reporting}
+  APP_UID: {type: INT32, desc: app uid}
+  APP_PID: {type: INT32, desc: app pid}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}

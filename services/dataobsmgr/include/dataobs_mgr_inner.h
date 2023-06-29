@@ -22,13 +22,12 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include "cpp/mutex.h"
 
 #include "data_ability_observer_interface.h"
-#include "event_handler.h"
 
 namespace OHOS {
 namespace AAFwk {
-using EventHandler = OHOS::AppExecFwk::EventHandler;
 class DataObsMgrInner : public std::enable_shared_from_this<DataObsMgrInner> {
 public:
     using ObsMapType = std::map<std::string, std::list<sptr<IDataAbilityObserver>>>;
@@ -49,7 +48,7 @@ private:
     bool HaveRegistered(sptr<IDataAbilityObserver> dataObserver);
 
     static constexpr uint32_t OBS_NUM_MAX = 50;
-    std::mutex innerMutex_;
+    ffrt::mutex innerMutex_;
     ObsMapType observers_;
     ObsRecipientMapType obsRecipient_;
 };

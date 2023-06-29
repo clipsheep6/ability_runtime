@@ -49,6 +49,16 @@ public:
      * @return Returns ERR_OK if success.
      */
     virtual ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon) = 0;
+
+    /**
+     * @brief Called when back press is dispatched.
+     *
+     * @return Return true if ability will be moved to background; return false if will be terminated.
+     */
+    virtual bool OnBackPress()
+    {
+        return false;
+    }
 #endif
 };
 }  // namespace AppExecFwk

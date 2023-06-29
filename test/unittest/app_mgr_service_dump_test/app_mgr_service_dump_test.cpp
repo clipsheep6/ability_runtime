@@ -85,8 +85,9 @@ HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_GetProcessRunningInfosByUserId
     auto appMgrService = std::make_shared<AppMgrService>();
     EXPECT_NE(appMgrService, nullptr);
 
-    appMgrService->handler_ = std::make_shared<AMSEventHandler>(
-        EventRunner::Create("AppMgrServiceDumpTest"), appMgrService->appMgrServiceInner_);
+    appMgrService->taskHandler_ = AAFwk::TaskHandlerWrap::CreateQueueHandler(Constants::APP_MGR_SERVICE_NAME);
+    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(
+        appMgrService->taskHandler_, appMgrService->appMgrServiceInner_);
 
     std::vector<RunningProcessInfo> info;
     auto result = appMgrService->GetProcessRunningInfosByUserId(info, USER_ID);
@@ -106,9 +107,10 @@ HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_0100, TestSize.Level1)
 
     auto appMgrService = std::make_shared<AppMgrService>();
     EXPECT_NE(appMgrService, nullptr);
-    auto runner = EventRunner::Create(Constants::APP_MGR_SERVICE_NAME);
-    EXPECT_NE(runner, nullptr);
-    appMgrService->handler_ = std::make_shared<AMSEventHandler>(runner, appMgrService->appMgrServiceInner_);
+    appMgrService->taskHandler_ = AAFwk::TaskHandlerWrap::CreateQueueHandler(Constants::APP_MGR_SERVICE_NAME);
+    EXPECT_NE(appMgrService->taskHandler_, nullptr);
+    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(
+        appMgrService->taskHandler_, appMgrService->appMgrServiceInner_);
 
     constexpr int fd(1);
     std::vector<std::u16string> args;
@@ -153,9 +155,10 @@ HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_0300, TestSize.Level1)
 
     auto appMgrService = std::make_shared<AppMgrService>();
     EXPECT_NE(appMgrService, nullptr);
-    auto runner = EventRunner::Create(Constants::APP_MGR_SERVICE_NAME);
-    EXPECT_NE(runner, nullptr);
-    appMgrService->handler_ = std::make_shared<AMSEventHandler>(runner, appMgrService->appMgrServiceInner_);
+    appMgrService->taskHandler_ = AAFwk::TaskHandlerWrap::CreateQueueHandler(Constants::APP_MGR_SERVICE_NAME);
+    EXPECT_NE(appMgrService->taskHandler_, nullptr);
+    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(
+        appMgrService->taskHandler_, appMgrService->appMgrServiceInner_);
 
     constexpr int fd(1);
     std::vector<std::u16string> args;
@@ -176,9 +179,10 @@ HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_0400, TestSize.Level1)
 
     auto appMgrService = std::make_shared<AppMgrService>();
     EXPECT_NE(appMgrService, nullptr);
-    auto runner = EventRunner::Create(Constants::APP_MGR_SERVICE_NAME);
-    EXPECT_NE(runner, nullptr);
-    appMgrService->handler_ = std::make_shared<AMSEventHandler>(runner, appMgrService->appMgrServiceInner_);
+    appMgrService->taskHandler_ = AAFwk::TaskHandlerWrap::CreateQueueHandler(Constants::APP_MGR_SERVICE_NAME);
+    EXPECT_NE(appMgrService->taskHandler_, nullptr);
+    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(
+        appMgrService->taskHandler_, appMgrService->appMgrServiceInner_);
 
     constexpr int fd(1);
     std::vector<std::u16string> args;

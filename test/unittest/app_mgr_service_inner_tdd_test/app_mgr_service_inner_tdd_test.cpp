@@ -338,39 +338,6 @@ HWTEST_F(AppMgrServiceInnerTest, SendProcessStartEvent_008, TestSize.Level1)
 }
 
 /**
- * @tc.name: SendProcessExitEventTask_001
- * @tc.desc: Verify that the SendProcessExitEventTask interface calls normally
- * @tc.type: FUNC
- */
-HWTEST_F(AppMgrServiceInnerTest, SendProcessExitEventTask_001, TestSize.Level1)
-{
-    HILOG_INFO("SendProcessExitEventTask_001 start");
-    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    EXPECT_NE(appMgrServiceInner, nullptr);
-    auto runner = EventRunner::Create(Constants::APP_MGR_SERVICE_NAME);
-    appMgrServiceInner->eventHandler_ = std::make_shared<AMSEventHandler>(runner, appMgrServiceInner);
-
-    pid_t pid = -1;
-    time_t exitTime = 0;
-    int32_t count = 2;
-    appMgrServiceInner->SendProcessExitEventTask(pid, exitTime, count);
-
-    auto eventTask = [eventRunner = runner] () {
-        eventRunner->Run();
-    };
-    std::thread testThread(eventTask);
-    pid_t pid1 = IPCSkeleton::GetCallingPid();
-    appMgrServiceInner->SendProcessExitEventTask(pid1, exitTime, count);
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    auto stopEventTask = [eventRunner = runner] () {
-        eventRunner->Stop();
-    };
-    appMgrServiceInner->eventHandler_->PostTask(stopEventTask, "stopEventTask");
-    testThread.join();
-    HILOG_INFO("SendProcessExitEventTask_001 end");
-}
-
-/**
  * @tc.name: SendProcessExitEvent_001
  * @tc.desc: Verify that the SendProcessExitEvent interface calls normally
  * @tc.type: FUNC

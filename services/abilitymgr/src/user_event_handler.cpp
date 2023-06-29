@@ -21,18 +21,13 @@
 namespace OHOS {
 namespace AAFwk {
 UserEventHandler::UserEventHandler(
-    const std::shared_ptr<AppExecFwk::EventRunner> &runner, const std::weak_ptr<UserController> &owner)
-    : AppExecFwk::EventHandler(runner), controller_(owner)
+    const std::shared_ptr<TaskHandlerWrap> &taskHandler, const std::weak_ptr<UserController> &owner)
+    : EventHandlerWrap(taskHandler), controller_(owner)
 {
 }
 
-void UserEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event)
+void UserEventHandler::ProcessEvent(const EventWrap &event)
 {
-    if (!event) {
-        HILOG_ERROR("invalid event");
-        return;
-    }
-
     auto owner = controller_.lock();
     if (owner) {
         owner->ProcessEvent(event);

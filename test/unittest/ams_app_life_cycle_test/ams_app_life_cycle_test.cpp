@@ -88,8 +88,8 @@ protected:
     std::shared_ptr<AppMgrServiceInner> serviceInner_;
     sptr<MockAbilityToken> mock_token_ = nullptr;
     sptr<BundleMgrService> mockBundleMgr = nullptr;
-    std::shared_ptr<EventRunner> runner_ = nullptr;
-    std::shared_ptr<AMSEventHandler> handler_ = nullptr;
+    std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;
+    std::shared_ptr<AMSEventHandler> eventHandler_;
     sptr<MockAppStateCallback> mockAppStateCallbackStub_ = nullptr;
 };
 
@@ -106,16 +106,17 @@ void AmsAppLifeCycleTest::SetUp()
     mockBundleMgr = new (std::nothrow) BundleMgrService();
     serviceInner_->SetBundleManager(mockBundleMgr);
 
-    runner_ = EventRunner::Create("AmsAppLifeCycleTest");
-    handler_ = std::make_shared<AMSEventHandler>(runner_, serviceInner_);
-    serviceInner_->SetEventHandler(handler_);
+    taskHandler_ = AAFwk::TaskHandlerWrap::CreateQueueHandler("AmsAppLifeCycleTest");
+    eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, serviceInner_);
+    serviceInner_->SetTaskHandler(taskHandler_);
+    serviceInner_->SetEventHandler(eventHandler_);
 }
 
 void AmsAppLifeCycleTest::TearDown()
 {
     serviceInner_ = nullptr;
-    handler_ = nullptr;
-    runner_.reset();
+    eventHandler_ = nullptr;
+    taskhandler_.reset();
 }
 
 std::shared_ptr<AppRunningRecord> AmsAppLifeCycleTest::StartProcessAndLoadAbility(const sptr<IRemoteObject>& token,
@@ -195,7 +196,8 @@ TestApplicationPreRecord AmsAppLifeCycleTest::CreateTestApplicationRecord(
     std::shared_ptr<AppRunningRecord> appRecord = serviceInner_->CreateAppRunningRecord(
         token, nullptr, appInfo, abilityInfo, "com.ohos.test.helloworld", bundleInfo, hapModuleInfo, nullptr);
 
-    appRecord->SetEventHandler(handler_);
+    appRecord->SetTaskHandler(taskHandler_);
+    appRecord->SetEventHandler(eventHandler_);
     EXPECT_NE(appRecord, nullptr);
     auto abilityRecord = appRecord->GetAbilityRunningRecordByToken(GetMockToken());
     EXPECT_NE(abilityRecord, nullptr);
@@ -223,7 +225,8 @@ std::shared_ptr<AppRunningRecord> AmsAppLifeCycleTest::CreateTestApplicationAndS
         token, nullptr, appInfo, abilityInfo, "AmsAppLifeCycleTest", bundleInfo, hapModuleInfo, nullptr);
 
     EXPECT_NE(appRecord, nullptr);
-    appRecord->SetEventHandler(handler_);
+    appRecord->SetTaskHandler(taskHandler_);
+    appRecord->SetEventHandler(eventHandler_);
     appRecord->SetState(appState);
     return appRecord;
 }

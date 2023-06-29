@@ -154,7 +154,8 @@ public:
      */
     void ScheduleCommandAbility(const Want &want, bool restart, int startId);
 
-    void ScheduleCommandAbilityWindow(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd);
+    void ScheduleCommandAbilityWindow(const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
+        AAFwk::WindowCommand winCmd);
 
     /**
      * @description: Provide operating system PrepareTerminateAbility information to the observer
@@ -514,7 +515,8 @@ private:
      */
     void HandleCommandExtension(const Want &want, bool restart, int startId);
 
-    void HandleCommandExtensionWindow(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd);
+    void HandleCommandExtensionWindow(const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
+        AAFwk::WindowCommand winCmd);
 
     /**
      * @description: Handle the restoreAbility state.
@@ -542,6 +544,11 @@ private:
      */
     void HandleExtensionUpdateConfiguration(const Configuration &config);
 
+    /**
+     * @brief Handle the scheduling prepare terminate ability.
+     */
+    void HandlePrepareTermianteAbility();
+
     std::shared_ptr<AbilityRuntime::AbilityContext> BuildAbilityContext(
         const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<OHOSApplication> &application,
         const sptr<IRemoteObject> &token, const std::shared_ptr<AbilityRuntime::Context> &stageContext);
@@ -554,6 +561,10 @@ private:
     std::shared_ptr<AbilityHandler> abilityHandler_ = nullptr;
     std::shared_ptr<EventRunner> runner_ = nullptr;
     bool isExtension_ = false;
+    bool isPrepareTerminate_ = false;
+    std::atomic_bool isPrepareTerminateAbilityDone_ = false;
+    std::mutex mutex_;
+    std::condition_variable cv_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

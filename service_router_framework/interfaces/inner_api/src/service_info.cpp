@@ -20,6 +20,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+constexpr int32_t CYCLE_LIMIT = 1000;
 bool AppInfo::ReadFromParcel(Parcel &parcel)
 {
     bundleName = Str16ToStr8(parcel.ReadString16());
@@ -146,6 +147,10 @@ bool PurposeInfo::ReadFromParcel(Parcel &parcel)
     int32_t supportDimensionSize;
     READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, supportDimensionSize);
     CONTAINER_SECURITY_VERIFY(parcel, supportDimensionSize, &supportDimensions);
+    if (supportDimensionSize > CYCLE_LIMIT) {
+        APP_LOGE("supportDimensionSize is too large.");
+        return false;
+    }
     for (int32_t i = 0; i < supportDimensionSize; i++) {
         supportDimensions.emplace_back(parcel.ReadInt32());
     }

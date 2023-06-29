@@ -81,6 +81,10 @@ public:
     std::shared_ptr<AppExecFwk::AbilityInfo> GetAbilityInfo() const override;
     void MinimizeAbility(bool fromUser = false) override;
 
+    ErrCode OnBackPressedCallBack(bool &needMoveToBackground) override;
+
+    ErrCode MoveAbilityToBackground() override;
+
     ErrCode TerminateSelf() override;
 
     ErrCode CloseAbility() override;
@@ -182,6 +186,8 @@ public:
     }
 
     ErrCode RequestDialogService(NativeEngine &engine, AAFwk::Want &want, RequestDialogResultTask &&task) override;
+
+    ErrCode ReportDrawnCompleted() override;
 
     ErrCode GetMissionId(int32_t &missionId) override;
 

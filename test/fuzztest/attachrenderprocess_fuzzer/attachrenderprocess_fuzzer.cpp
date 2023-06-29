@@ -18,7 +18,6 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "ability_record.h"
 #include "app_mgr_client.h"
 #include "configuration.h"
 #include "parcel.h"

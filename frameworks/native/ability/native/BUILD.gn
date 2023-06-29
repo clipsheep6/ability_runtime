@@ -308,12 +308,12 @@ ohos_shared_library("abilitykit_native") {
       "form_fwk:form_manager",
       "input:libmmi-client",
       "multimedia_image_framework:image",
+      "window_manager:windowstage_kit",
     ]
 
     public_deps += [
       "${multimedia_path}/interfaces/innerkits:image_native",
       "${windowmanager_path}/dm:libdm",
-      "${windowmanager_path}/interfaces/kits/napi/window_runtime:windowstage_kit",
       "${windowmanager_path}/wm:libwm",
     ]
   }
@@ -734,6 +734,7 @@ ohos_shared_library("ui_extension") {
 
   sources = [
     "${ability_runtime_native_path}/ability/native/ui_extension_ability/js_ui_extension.cpp",
+    "${ability_runtime_native_path}/ability/native/ui_extension_ability/js_ui_extension_content_session.cpp",
     "${ability_runtime_native_path}/ability/native/ui_extension_ability/js_ui_extension_context.cpp",
     "${ability_runtime_native_path}/ability/native/ui_extension_ability/ui_extension.cpp",
     "${ability_runtime_native_path}/ability/native/ui_extension_ability/ui_extension_context.cpp",

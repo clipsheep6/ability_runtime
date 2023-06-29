@@ -14,7 +14,7 @@
  */
 
 #include "mission_data_storage.h"
-
+#include <cstdio>
 #include "directory_ex.h"
 #include "file_ex.h"
 #include "hilog_wrapper.h"
@@ -76,11 +76,6 @@ MissionDataStorage::MissionDataStorage(int userId)
 
 MissionDataStorage::~MissionDataStorage()
 {}
-
-void MissionDataStorage::SetEventHandler(const std::shared_ptr<AppExecFwk::EventHandler> &handler)
-{
-    handler_ = handler;
-}
 
 bool MissionDataStorage::LoadAllMissionInfo(std::list<InnerMissionInfo> &missionInfoList)
 {
@@ -308,7 +303,7 @@ std::shared_ptr<OHOS::Media::PixelMap> MissionDataStorage::GetReducedPixelMap(
 
 bool MissionDataStorage::GetCachedSnapshot(int32_t missionId, MissionSnapshot& missionSnapshot)
 {
-    std::lock_guard<std::mutex> lock(cachedPixelMapMutex_);
+    std::lock_guard<ffrt::mutex> lock(cachedPixelMapMutex_);
     auto pixelMap = cachedPixelMap_.find(missionId);
     if (pixelMap != cachedPixelMap_.end()) {
         missionSnapshot.snapshot = pixelMap->second;
@@ -319,7 +314,7 @@ bool MissionDataStorage::GetCachedSnapshot(int32_t missionId, MissionSnapshot& m
 
 bool MissionDataStorage::SaveCachedSnapshot(int32_t missionId, const MissionSnapshot& missionSnapshot)
 {
-    std::lock_guard<std::mutex> lock(cachedPixelMapMutex_);
+    std::lock_guard<ffrt::mutex> lock(cachedPixelMapMutex_);
     auto result = cachedPixelMap_.insert_or_assign(missionId, missionSnapshot.snapshot);
     if (!result.second) {
         HILOG_ERROR("snapshot: save snapshot cache failed, missionId = %{public}d", missionId);
@@ -330,7 +325,7 @@ bool MissionDataStorage::SaveCachedSnapshot(int32_t missionId, const MissionSnap
 
 bool MissionDataStorage::DeleteCachedSnapshot(int32_t missionId)
 {
-    std::lock_guard<std::mutex> lock(cachedPixelMapMutex_);
+    std::lock_guard<ffrt::mutex> lock(cachedPixelMapMutex_);
     auto result = cachedPixelMap_.erase(missionId);
     if (result != 1) {
         HILOG_ERROR("snapshot: delete snapshot cache failed, missionId = %{public}d", missionId);
@@ -363,6 +358,51 @@ std::shared_ptr<Media::PixelMap> MissionDataStorage::GetSnapshot(int missionId, 
     return std::shared_ptr<Media::PixelMap>(pixelMapPtr.release());
 }
 
+std::unique_ptr<uint8_t[]> MissionDataStorage::ReadFileToBuffer(const std::string &filePath, size_t &bufferSize) const
+{
+    struct stat statbuf;
+    int ret = stat(filePath.c_str(), &statbuf);
+    if (ret != 0) {
+        HILOG_ERROR("GetPixelMap: get the file size failed, ret:%{public}d.", ret);
+        return nullptr;
+    }
+    bufferSize = statbuf.st_size;
+    std::string realPath;
+    if (!OHOS::PathToRealPath(filePath, realPath)) {
+        HILOG_ERROR("ReadFileToBuffer:file path to real path failed, file path=%{public}s.", filePath.c_str());
+        return nullptr;
+    }
+
+    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(bufferSize);
+    if (buffer == nullptr) {
+        HILOG_ERROR("ReadFileToBuffer:buffer is nullptr");
+        return nullptr;
+    }
+
+    FILE *fp = fopen(realPath.c_str(), "rb");
+    if (fp == nullptr) {
+        HILOG_ERROR("ReadFileToBuffer:open file failed, real path=%{public}s.", realPath.c_str());
+        return nullptr;
+    }
+    fseek(fp, 0, SEEK_END);
+    size_t fileSize = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+    if (bufferSize < fileSize) {
+        HILOG_ERROR("ReadFileToBuffer:buffer size:(%{public}zu) is smaller than file size:(%{public}zu).", bufferSize,
+            fileSize);
+        fclose(fp);
+        return nullptr;
+    }
+    size_t retSize = std::fread(buffer.get(), 1, fileSize, fp);
+    if (retSize != fileSize) {
+        HILOG_ERROR("ReadFileToBuffer:read file result size = %{public}zu, size = %{public}zu.", retSize, fileSize);
+        fclose(fp);
+        return nullptr;
+    }
+    fclose(fp);
+    return buffer;
+}
+
 std::unique_ptr<Media::PixelMap> MissionDataStorage::GetPixelMap(int missionId, bool isLowResolution) const
 {
     std::string filePath = GetMissionSnapshotPath(missionId, isLowResolution);
@@ -371,8 +411,16 @@ std::unique_ptr<Media::PixelMap> MissionDataStorage::GetPixelMap(int missionId, 
         return nullptr;
     }
     uint32_t errCode = 0;
+    
+    size_t bufferSize = 0;
+    const std::string fileName = filePath;
+    std::unique_ptr<uint8_t[]> buffer = MissionDataStorage::ReadFileToBuffer(fileName, bufferSize);
+    if (buffer == nullptr) {
+        HILOG_ERROR("GetPixelMap: get buffer error buffer == nullptr");
+        return nullptr;
+    }
     Media::SourceOptions sourceOptions;
-    auto imageSource = Media::ImageSource::CreateImageSource(filePath, sourceOptions, errCode);
+    auto imageSource = Media::ImageSource::CreateImageSource(buffer.get(), bufferSize, sourceOptions, errCode);
     if (errCode != OHOS::Media::SUCCESS) {
         HILOG_ERROR("snapshot: CreateImageSource failed, errCode = %{public}d", errCode);
         return nullptr;

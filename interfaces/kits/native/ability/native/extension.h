@@ -156,7 +156,8 @@ public:
      */
     virtual void OnCommand(const AAFwk::Want &want, bool restart, int startId);
 
-    virtual void OnCommandWindow(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd);
+    virtual void OnCommandWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
+        AAFwk::WindowCommand winCmd);
     /**
      * @brief Called when this extension enters the <b>STATE_STOP</b> state.
      *

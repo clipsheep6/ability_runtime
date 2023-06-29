@@ -879,6 +879,13 @@ public:
     virtual void OnBackground();
 
     /**
+     * @brief Called when back press is dispatched.
+     *
+     * @return Return true if ability will be moved to background; return false if will be terminated.
+     */
+    virtual bool OnBackPress() override;
+
+    /**
      * @brief Called when ability prepare terminate.
      *
      * @return Return true if ability need to stop terminating; return false if ability need to terminate.
@@ -1244,7 +1251,6 @@ protected:
     LaunchParam launchParam_;
     int32_t appIndex_ = 0;
     bool securityFlag_ = false;
-    sptr<AAFwk::SessionInfo> sessionInfo_ = nullptr;
 
 private:
     std::shared_ptr<NativeRdb::DataAbilityPredicates> ParsePredictionArgsReference(

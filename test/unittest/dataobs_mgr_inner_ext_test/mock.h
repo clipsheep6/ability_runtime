@@ -19,7 +19,6 @@
 #include "gmock/gmock.h"
 #include "semaphore_ex.h"
 #include "data_ability_observer_stub.h"
-#include "event_handler.h"
 #include "dataobs_mgr_inner_ext.h"
 
 namespace OHOS {

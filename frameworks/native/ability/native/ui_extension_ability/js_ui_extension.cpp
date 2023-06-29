@@ -23,6 +23,7 @@
 #include "js_extension_context.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
+#include "js_ui_extension_content_session.h"
 #include "js_ui_extension_context.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
@@ -87,12 +88,6 @@ JsUIExtension::~JsUIExtension()
 
     jsRuntime_.FreeNativeReference(std::move(jsObj_));
     jsRuntime_.FreeNativeReference(std::move(shellContextRef_));
-}
-
-void JsUIExtension::Finalizer(NativeEngine* engine, void* data, void* hint)
-{
-    HILOG_INFO("JsUIExtension Finalizer");
-    std::unique_ptr<JsUIExtension>(static_cast<JsUIExtension*>(data));
 }
 
 void JsUIExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
@@ -216,17 +211,18 @@ void JsUIExtension::OnDisconnect(const AAFwk::Want &want)
     HILOG_DEBUG("JsUIExtension OnDisconnect end.");
 }
 
-void JsUIExtension::OnCommandWindow(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
+void JsUIExtension::OnCommandWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
+    AAFwk::WindowCommand winCmd)
 {
     if (sessionInfo == nullptr) {
         HILOG_ERROR("sessionInfo is nullptr.");
         return;
     }
     HILOG_DEBUG("begin. persistentId: %{private}" PRIu64", winCmd: %{public}d", sessionInfo->persistentId, winCmd);
-    Extension::OnCommandWindow(sessionInfo, winCmd);
+    Extension::OnCommandWindow(want, sessionInfo, winCmd);
     switch (winCmd) {
         case AAFwk::WIN_CMD_FOREGROUND:
-            ForegroundWindow(sessionInfo);
+            ForegroundWindow(want, sessionInfo);
             break;
         case AAFwk::WIN_CMD_BACKGROUND:
             BackgroundWindow(sessionInfo);
@@ -282,11 +278,7 @@ void JsUIExtension::OnForeground(const Want &want)
     Extension::OnForeground(want);
 
     HandleScope handleScope(jsRuntime_);
-    NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
-    napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
-    NativeValue* nativeWant = reinterpret_cast<NativeValue*>(napiWant);
-    NativeValue* argv[] = {nativeWant};
-    CallObjectMethod("onForeground", argv, ARGC_ONE);
+    CallObjectMethod("onForeground");
     HILOG_DEBUG("JsUIExtension OnForeground end.");
 }
 
@@ -300,7 +292,7 @@ void JsUIExtension::OnBackground()
     HILOG_DEBUG("JsUIExtension OnBackground end.");
 }
 
-void JsUIExtension::ForegroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
+void JsUIExtension::ForegroundWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo)
 {
     HILOG_DEBUG("begin.");
     if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
@@ -325,14 +317,14 @@ void JsUIExtension::ForegroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo
         }
         HandleScope handleScope(jsRuntime_);
         NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
-        NativeValue* pathNative = CallObjectMethod("onLoadContent");
-        std::string contextPath;
-        if (!ConvertFromJsValue(*nativeEngine, pathNative, contextPath)) {
-            HILOG_ERROR("Failed to convert parameter to context path");
-            return;
-        }
-        HILOG_DEBUG("contextPath is %{private}s", contextPath.c_str());
-        uiWindow->SetUIContent(contextPath, nativeEngine, nullptr);
+        napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
+        NativeValue* nativeWant = reinterpret_cast<NativeValue*>(napiWant);
+        NativeValue* nativeContentSession =
+            JsUIExtensionContentSession::CreateJsUIExtensionContentSession(*nativeEngine, sessionInfo, uiWindow);
+        contentSessions_.emplace(
+            obj, std::shared_ptr<NativeReference>(nativeEngine->CreateReference(nativeContentSession, 1)));
+        NativeValue* argv[] = {nativeWant, nativeContentSession};
+        CallObjectMethod("onSessionCreate", argv, ARGC_TWO);
         uiWindowMap_[obj] = uiWindow;
     }
     auto& uiWindow = uiWindowMap_[obj];
@@ -375,12 +367,18 @@ void JsUIExtension::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
         HILOG_ERROR("Fail to find uiWindow");
         return;
     }
+    if (contentSessions_.find(obj) != contentSessions_.end() && contentSessions_[obj] != nullptr) {
+        HandleScope handleScope(jsRuntime_);
+        NativeValue* argv[] = {contentSessions_[obj]->Get()};
+        CallObjectMethod("onSessionDestroy", argv, ARGC_ONE);
+    }
     auto& uiWindow = uiWindowMap_[obj];
     if (uiWindow) {
         uiWindow->Destroy();
-        uiWindowMap_.erase(obj);
-        foregroundWindows_.erase(obj);
     }
+    uiWindowMap_.erase(obj);
+    foregroundWindows_.erase(obj);
+    contentSessions_.erase(obj);
     HILOG_DEBUG("end.");
 }
 

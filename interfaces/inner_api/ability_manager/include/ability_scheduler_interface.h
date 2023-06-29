@@ -88,7 +88,7 @@ public:
      */
     virtual void ScheduleCommandAbility(const Want &want, bool restart, int startId) = 0;
 
-    virtual void ScheduleCommandAbilityWindow(const sptr<SessionInfo> &sessionInfo,
+    virtual void ScheduleCommandAbilityWindow(const Want &want, const sptr<SessionInfo> &sessionInfo,
         WindowCommand winCmd) = 0;
 
     /**

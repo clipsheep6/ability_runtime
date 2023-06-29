@@ -306,6 +306,16 @@ public:
     virtual int TerminateAbilityByCaller(const sptr<IRemoteObject> &callerToken, int requestCode) = 0;
 
     /**
+     * MoveAbilityToBackground.
+     *
+     * @param token, the token of the ability to move.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int MoveAbilityToBackground(const sptr<IRemoteObject> &token)
+    {
+        return 0;
+    };
+    /**
      * CloseAbility, close the special ability.
      *
      * @param token, the token of the ability to terminate.
@@ -949,6 +959,13 @@ public:
     }
 
     /**
+     * Report drawn completed.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t ReportDrawnCompleted(const sptr<IRemoteObject> &callerToken) = 0;
+
+    /**
      * Acquire the shared data.
      * @param missionId The missionId of Target ability.
      * @param shareData The IAcquireShareData object.
@@ -1222,6 +1239,8 @@ public:
         // prepare terminate ability (67)
         CALL_ABILITY_BY_SCB,
 
+        MOVE_ABILITY_TO_BACKGROUND,
+
         // ipc id 1001-2000 for DMS
         // ipc id for starting ability (1001)
         START_ABILITY = 1001,
@@ -1331,6 +1350,9 @@ public:
 
         // ipc id for set sessionManagerService
         SET_SESSIONMANAGERSERVICE,
+
+        // ipc id for report drawn completed
+        REPORT_DRAWN_COMPLETED,
 
         GET_SESSIONMANAGERSERVICE,
 

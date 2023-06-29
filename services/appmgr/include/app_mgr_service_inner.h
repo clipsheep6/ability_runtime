@@ -22,10 +22,11 @@
 #include <regex>
 #include <unordered_map>
 #include <unordered_set>
+#include "cpp/mutex.h"
 
 #include "iremote_object.h"
 #include "refbase.h"
-
+#include "task_handler_wrap.h"
 #include "ability_info.h"
 #include "appexecfwk_errors.h"
 #include "app_death_recipient.h"
@@ -474,9 +475,17 @@ public:
 
     virtual void AddAppDeathRecipient(const pid_t pid, const sptr<AppDeathRecipient> &appDeathRecipient) const;
 
-    void HandleTimeOut(const InnerEvent::Pointer &event);
+    void HandleTimeOut(const AAFwk::EventWrap &event);
 
-    void SetEventHandler(const std::shared_ptr<AMSEventHandler> &handler);
+    void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler)
+    {
+        taskHandler_ = taskHandler;
+    }
+
+    void SetEventHandler(const std::shared_ptr<AMSEventHandler> &eventHandler)
+    {
+        eventHandler_ = eventHandler;
+    }
 
     void HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &token);
 
@@ -924,13 +933,14 @@ private:
     std::shared_ptr<AppProcessManager> appProcessManager_;
     std::shared_ptr<RemoteClientManager> remoteClientManager_;
     std::shared_ptr<AppRunningManager> appRunningManager_;
+    std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;
     std::shared_ptr<AMSEventHandler> eventHandler_;
     std::shared_ptr<Configuration> configuration_;
-    std::mutex userTestLock_;
-    std::mutex appStateCallbacksLock_;
-    std::mutex renderUidSetLock_;
+    ffrt::mutex userTestLock_;
+    ffrt::mutex appStateCallbacksLock_;
+    ffrt::mutex renderUidSetLock_;
     sptr<IStartSpecifiedAbilityResponse> startSpecifiedAbilityResponse_;
-    std::mutex configurationObserverLock_;
+    ffrt::mutex configurationObserverLock_;
     std::vector<sptr<IConfigurationObserver>> configurationObservers_;
     sptr<WindowFocusChangedListener> focusListener_;
     std::vector<std::shared_ptr<AppRunningRecord>> restartResedentTaskList_;

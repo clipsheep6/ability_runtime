@@ -157,10 +157,17 @@ void GetHspNativeLibPath(const BaseSharedBundleInfo &hspInfo, AppLibPathMap &app
     std::string libPath = LOCAL_CODE_PATH;
     if (!hspInfo.compressNativeLibs) {
         libPath = GetLibPath(hspInfo.hapPath, isPreInstallApp);
-        appLibPathKey = "default";
+        libPath = libPath.back() == '/' ? libPath : libPath + "/";
+        if (isPreInstallApp) {
+            libPath += hspInfo.nativeLibraryPath;
+        } else {
+            libPath += hspInfo.bundleName + "/" + hspInfo.moduleName + "/" + hspInfo.nativeLibraryPath;
+        }
+    } else {
+        libPath = libPath.back() == '/' ? libPath : libPath + "/";
+        libPath += hspInfo.bundleName + "/" + hspInfo.nativeLibraryPath;
     }
-    libPath = libPath.back() == '/' ? libPath : libPath + "/";
-    libPath += hspInfo.bundleName + "/" + hspInfo.nativeLibraryPath;
+
     HILOG_DEBUG("appLibPathKey: %{private}s, libPath: %{private}s", appLibPathKey.c_str(), libPath.c_str());
     appLibPaths[appLibPathKey].emplace_back(libPath);
 }
@@ -217,7 +224,7 @@ void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppL
     for (auto &hspInfo : hspList) {
         HILOG_DEBUG("bundle:%s, module:%s, nativeLibraryPath:%s", hspInfo.bundleName.c_str(),
             hspInfo.moduleName.c_str(), hspInfo.nativeLibraryPath.c_str());
-        GetHspNativeLibPath(hspInfo, appLibPaths, bundleInfo.isPreInstallApp);
+        GetHspNativeLibPath(hspInfo, appLibPaths, hspInfo.hapPath.find("/system/app/") == 0u);
     }
 }
 } // namespace
@@ -952,6 +959,7 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
                 EventFwk::MatchingSkills matchingSkills;
                 matchingSkills.AddEvent(OVERLAY_STATE_CHANGED);
                 EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
+                subscribeInfo.SetThreadMode(EventFwk::CommonEventSubscribeInfo::COMMON);
                 wptr<MainThread> weak = this;
                 auto callback = [weak, resourceManager, bundleName, moduleName = entryHapModuleInfo.moduleName,
                     loadPath](const EventFwk::CommonEventData &data) {
@@ -1813,7 +1821,7 @@ void MainThread::HandleCleanAbility(const sptr<IRemoteObject> &token)
         return;
     }
     HILOG_DEBUG("Handle clean ability start, app is %{public}s.", applicationInfo_->name.c_str());
-    
+
     if (!IsApplicationReady()) {
         HILOG_ERROR("not init OHOSApplication, should launch application first");
         return;

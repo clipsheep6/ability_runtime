@@ -89,7 +89,8 @@ bool g_cancelStartingWindowCalled = false;
 
 class MockWMSHandler : public IWindowManagerServiceHandler {
 public:
-    virtual void NotifyWindowTransition(sptr<AbilityTransitionInfo> fromInfo, sptr<AbilityTransitionInfo> toInfo)
+    virtual void NotifyWindowTransition(sptr<AbilityTransitionInfo> fromInfo, sptr<AbilityTransitionInfo> toInfo,
+        bool& animaEnabled)
     {
         g_notifyWindowTransitionCalled = true;
     }

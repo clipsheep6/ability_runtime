@@ -262,6 +262,15 @@ ErrCode AbilityManagerClient::TerminateAbilityResult(const sptr<IRemoteObject> &
     return abms->TerminateAbilityResult(token, startId);
 }
 
+ErrCode AbilityManagerClient::MoveAbilityToBackground(const sptr<IRemoteObject> &token)
+{
+    HILOG_INFO("call");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->MoveAbilityToBackground(token);
+}
+
+
 ErrCode AbilityManagerClient::CloseAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
 {
     auto abms = GetAbilityManager();
@@ -758,6 +767,14 @@ ErrCode AbilityManagerClient::RequestDialogService(
     HILOG_INFO("request is:%{public}s.", want.GetElement().GetURI().c_str());
     HandleDlpApp(const_cast<Want &>(want));
     return abms->RequestDialogService(want, callerToken);
+}
+
+ErrCode AbilityManagerClient::ReportDrawnCompleted(const sptr<IRemoteObject> &callerToken)
+{
+    HILOG_DEBUG("called.");
+    auto abilityMgr = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abilityMgr);
+    return abilityMgr->ReportDrawnCompleted(callerToken);
 }
 
 /**

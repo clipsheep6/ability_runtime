@@ -179,6 +179,12 @@ NativeValue* JsAbilityContext::RequestDialogService(NativeEngine* engine, Native
     return (me != nullptr) ? me->OnRequestDialogService(*engine, *info) : nullptr;
 }
 
+NativeValue* JsAbilityContext::ReportDrawnCompleted(NativeEngine* engine, NativeCallbackInfo* info)
+{
+    JsAbilityContext* me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
+    return (me != nullptr) ? me->OnReportDrawnCompleted(*engine, *info) : nullptr;
+}
+
 NativeValue* JsAbilityContext::IsTerminating(NativeEngine* engine, NativeCallbackInfo* info)
 {
     JsAbilityContext* me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
@@ -1179,6 +1185,36 @@ NativeValue* JsAbilityContext::OnIsTerminating(NativeEngine& engine, NativeCallb
     return engine.CreateBoolean(context->IsTerminating());
 }
 
+NativeValue* JsAbilityContext::OnReportDrawnCompleted(NativeEngine& engine, NativeCallbackInfo& info)
+{
+    HILOG_DEBUG("called.");
+    auto innerErrorCode = std::make_shared<int32_t>(ERR_OK);
+    AsyncTask::ExecuteCallback execute = [weak = context_, innerErrorCode]() {
+        auto context = weak.lock();
+        if (!context) {
+            HILOG_WARN("context is released");
+            *innerErrorCode = static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+            return;
+        }
+
+        *innerErrorCode = context->ReportDrawnCompleted();
+    };
+
+    AsyncTask::CompleteCallback complete = [innerErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
+        if (*innerErrorCode == ERR_OK) {
+            task.Resolve(engine, engine.CreateUndefined());
+        } else {
+            task.Reject(engine, CreateJsErrorByNativeErr(engine, *innerErrorCode));
+        }
+    };
+
+    NativeValue* lastParam = info.argv[ARGC_ZERO];
+    NativeValue* result = nullptr;
+    AsyncTask::Schedule("JsAbilityContext::OnReportDrawnCompleted",
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
+    return result;
+}
+
 bool JsAbilityContext::UnWrapWant(NativeEngine& engine, NativeValue* argv, AAFwk::Want& want)
 {
     if (argv == nullptr) {
@@ -1376,6 +1412,8 @@ NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<Abilit
         JsAbilityContext::StartRecentAbility);
     BindNativeFunction(engine, *object, "requestDialogService", moduleName,
         JsAbilityContext::RequestDialogService);
+    BindNativeFunction(engine, *object, "reportDrawnCompleted", moduleName,
+        JsAbilityContext::ReportDrawnCompleted);
 
 #ifdef SUPPORT_GRAPHICS
     BindNativeFunction(engine, *object, "setMissionLabel", moduleName, JsAbilityContext::SetMissionLabel);

@@ -31,12 +31,13 @@ namespace AppExecFwk {
 static bool eventHandlerFlag_ = false;
 class MockAMSEventHandler : public AMSEventHandler {
 public:
-    MockAMSEventHandler(const std::shared_ptr<EventRunner>& runner, const std::shared_ptr<AppMgrServiceInner>& ams);
+    MockAMSEventHandler(const std::shared_ptr<AAFwk::TaskHandlerWrap>& runner,
+        const std::shared_ptr<AppMgrServiceInner>& appMgrService);
     virtual ~MockAMSEventHandler();
 
-    void ProcessEvent(const InnerEvent::Pointer& event) override
+    void ProcessEvent(const AAFwk::EventWrap& event) override
     {
-        if (event->GetInnerEventId() == 10) {
+        if (event.GetEventId() == 10) {
             eventHandlerFlag_ = true;
         }
     }
@@ -52,10 +53,10 @@ public:
 public:
     std::shared_ptr<AppMgrServiceInner> testAms;
     std::shared_ptr<MockAMSEventHandler> eventHandler_;
-    std::shared_ptr<EventRunner> runner_;
+    std::shared_ptr<AAFwk::TaskHandlerWrap> runner_;
 };
 
-static void WaitUntilTaskFinished(std::shared_ptr<AMSEventHandler> handler)
+static void WaitUntilTaskFinished(std::shared_ptr<AAFwk::TaskHandlerWrap> handler)
 {
     if (!handler) {
         return;
@@ -66,7 +67,7 @@ static void WaitUntilTaskFinished(std::shared_ptr<AMSEventHandler> handler)
     uint32_t count = 0;
     std::atomic<bool> taskCalled(false);
     auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->PostTask(f)) {
+    if (handler->SubmitTask(f)) {
         while (!taskCalled.load()) {
             ++count;
             // if delay more than 1 second, break
@@ -87,7 +88,7 @@ void AMSEventHandlerTest::TearDownTestCase()
 
 void AMSEventHandlerTest::SetUp()
 {
-    runner_ = EventRunner::Create("AMSEventHandlerTest");
+    runner_ = AAFwk::TaskHandlerWrap::CreateQueueHandler("AMSEventHandlerTest");
     testAms = std::make_shared<AppMgrServiceInner>();
 }
 
@@ -95,8 +96,8 @@ void AMSEventHandlerTest::TearDown()
 {}
 
 MockAMSEventHandler::MockAMSEventHandler(
-    const std::shared_ptr<EventRunner>& runner, const std::shared_ptr<AppMgrServiceInner>& ams)
-    : AMSEventHandler(runner, ams)
+    const std::shared_ptr<AAFwk::TaskHandlerWrap>& runner, const std::shared_ptr<AppMgrServiceInner>& appMgrService)
+    : AMSEventHandler(runner, appMgrService)
 {}
 
 MockAMSEventHandler::~MockAMSEventHandler()
@@ -150,14 +151,14 @@ HWTEST_F(AMSEventHandlerTest, app_mgr_service_event_handler_test_002, TestSize.L
     eventHandler_->SendEvent(20);
 
     // waiting callback
-    WaitUntilTaskFinished(eventHandler_);
+    WaitUntilTaskFinished(runner_);
     EXPECT_FALSE(eventHandlerFlag_);
 
     // test num == 10
     eventHandler_->SendEvent(10);
 
     // waiting callback
-    WaitUntilTaskFinished(eventHandler_);
+    WaitUntilTaskFinished(runner_);
     EXPECT_TRUE(eventHandlerFlag_);
 
     HILOG_INFO("app_mgr_service_event_handler_test end");
