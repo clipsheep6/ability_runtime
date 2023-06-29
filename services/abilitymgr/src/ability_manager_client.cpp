@@ -310,7 +310,7 @@ ErrCode AbilityManagerClient::MinimizeUIExtensionAbility(const sptr<SessionInfo>
     return abms->MinimizeUIExtensionAbility(extensionSessionInfo, fromUser);
 }
 
-ErrCode AbilityManagerClient::MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
+ErrCode AbilityManagerClient::MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool fromUser)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (sessionInfo == nullptr) {
@@ -320,7 +320,7 @@ ErrCode AbilityManagerClient::MinimizeUIAbilityBySCB(const sptr<SessionInfo> &se
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     HILOG_DEBUG("call");
-    return abms->MinimizeUIAbilityBySCB(sessionInfo);
+    return abms->MinimizeUIAbilityBySCB(sessionInfo, fromUser);
 }
 
 ErrCode AbilityManagerClient::ConnectAbility(const Want &want, const sptr<IAbilityConnection> &connect, int32_t userId)
@@ -839,6 +839,12 @@ ErrCode AbilityManagerClient::FinishUserTest(
 
 ErrCode AbilityManagerClient::GetTopAbility(sptr<IRemoteObject> &token)
 {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
+        HILOG_DEBUG("call");
+        return sceneSessionManager->GetTopAbility(token);
+    }
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->GetTopAbility(token);
@@ -846,6 +852,12 @@ ErrCode AbilityManagerClient::GetTopAbility(sptr<IRemoteObject> &token)
 
 ErrCode AbilityManagerClient::DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token)
 {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
+        HILOG_DEBUG("call");
+        sceneSessionManager->MoveSessionToForeground(token);
+    }
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->DelegatorDoAbilityForeground(token);
@@ -853,6 +865,12 @@ ErrCode AbilityManagerClient::DelegatorDoAbilityForeground(const sptr<IRemoteObj
 
 ErrCode AbilityManagerClient::DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token)
 {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
+        HILOG_DEBUG("call");
+        sceneSessionManager->MoveSessionToBackground(token);
+    }
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->DelegatorDoAbilityBackground(token);

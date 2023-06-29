@@ -94,9 +94,10 @@ public:
      * MinimizeUIAbility, minimize the special ability by scb.
      *
      * @param abilityRecord, the ability to minimize.
+     * @param fromUser, Whether form user.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int MinimizeUIAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    int MinimizeUIAbility(const std::shared_ptr<AbilityRecord> &abilityRecord, bool fromUser = false);
 
     /**
      * GetUIAbilityRecordBySessionInfo.
@@ -187,6 +188,14 @@ public:
      * @param element target ability name.
      */
     int ReleaseCallLocked(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element);
+
+    /**
+     * Get sessionId by ability token.
+     *
+     * @param token the ability token.
+     * @return Returns sessionId on success, zero on failure.
+     */
+    uint64_t GetSessionIdByAbilityToken(const sptr<IRemoteObject> &token);
 
 private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;

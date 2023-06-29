@@ -1343,7 +1343,7 @@ int AbilityManagerProxy::MinimizeUIExtensionAbility(const sptr<SessionInfo> &ext
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
+int AbilityManagerProxy::MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool fromUser)
 {
     int error;
     MessageParcel data;
@@ -1363,6 +1363,10 @@ int AbilityManagerProxy::MinimizeUIAbilityBySCB(const sptr<SessionInfo> &session
             HILOG_ERROR("flag write failed.");
             return INNER_ERR;
         }
+    }
+    if (!data.WriteBool(fromUser)) {
+        HILOG_ERROR("fromUser write failed.");
+        return INNER_ERR;
     }
 
     sptr<IRemoteObject> remote = Remote();

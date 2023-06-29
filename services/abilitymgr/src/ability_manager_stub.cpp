@@ -326,7 +326,8 @@ int AbilityManagerStub::MinimizeUIAbilityBySCBInner(MessageParcel &data, Message
     if (data.ReadBool()) {
         sessionInfo = data.ReadParcelable<SessionInfo>();
     }
-    int32_t result = MinimizeUIAbilityBySCB(sessionInfo);
+    bool fromUser = data.ReadBool();
+    int32_t result = MinimizeUIAbilityBySCB(sessionInfo, fromUser);
     reply.WriteInt32(result);
     return NO_ERROR;
 }

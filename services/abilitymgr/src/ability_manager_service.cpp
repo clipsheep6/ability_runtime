@@ -2220,7 +2220,7 @@ int AbilityManagerService::MinimizeUIExtensionAbility(const sptr<SessionInfo> &e
     return ERR_OK;
 }
 
-int AbilityManagerService::MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
+int AbilityManagerService::MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool fromUser)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("call");
@@ -2247,7 +2247,7 @@ int AbilityManagerService::MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessi
         return ERR_WOULD_BLOCK;
     }
 
-    return uiAbilityLifecycleManager_->MinimizeUIAbility(abilityRecord);
+    return uiAbilityLifecycleManager_->MinimizeUIAbility(abilityRecord, fromUser);
 }
 
 int AbilityManagerService::ConnectAbility(
@@ -5857,13 +5857,27 @@ int AbilityManagerService::DelegatorDoAbilityForeground(const sptr<IRemoteObject
 {
     HILOG_DEBUG("enter");
     CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
-
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto sessionId = uiAbilityLifeCycleManager_->GetSessionIdByAbilityToken(token);
+        if (!sessionId) {
+            HILOG_ERROR("Invalid session id.");
+            return ERR_INVALID_VALUE;
+        }
+        NotifyHandleAbilityStateChange(token, ABILITY_MOVE_TO_FOREGROUND_CODE);
+        auto&& abilityRecord = Token::GetAbilityRecordByToken(token);
+        CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+        auto&& want = abilityRecord->GetWant();
+        if (!IsAbilityControllerStart(want, want.GetBundle())) {
+            HILOG_ERROR("SecneBoard IsAbilityControllerStart failed: %{public}s", want.GetBundle().c_str());
+            return ERR_WOULD_BLOCK;
+        }
+        return ERR_OK;
+    }
     auto missionId = GetMissionIdByAbilityToken(token);
     if (missionId < 0) {
         HILOG_ERROR("Invalid mission id.");
         return ERR_INVALID_VALUE;
     }
-
     NotifyHandleAbilityStateChange(token, ABILITY_MOVE_TO_FOREGROUND_CODE);
     return DelegatorMoveMissionToFront(missionId);
 }
@@ -5872,6 +5886,9 @@ int AbilityManagerService::DelegatorDoAbilityBackground(const sptr<IRemoteObject
 {
     HILOG_DEBUG("enter");
     NotifyHandleAbilityStateChange(token, ABILITY_MOVE_TO_BACKGROUND_CODE);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        return ERR_OK;
+    }
     return MinimizeAbility(token, true);
 }
 
