@@ -102,7 +102,8 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0400, TestSize.Level
     ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
     auto createTest = [] (int32_t val) {};
     auto setTest = [] (bool flag) {};
-    connectServerManager.SetLayoutInspectorCallback(createTest, setTest);
+    int32_t containerId = 0;
+    connectServerManager.SetLayoutInspectorCallback(createTest, setTest, containerId);
     const std::string instanceName = "test";
     connectServerManager.handlerConnectServerSo_ = nullptr;
     EXPECT_FALSE(connectServerManager.AddInstance(ONE, instanceName));
@@ -166,7 +167,8 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0700, TestSize.Level
     ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
     auto createTest = [] (int32_t val) {};
     auto setTest = [] (bool flag) {};
-    connectServerManager.SetLayoutInspectorCallback(createTest, setTest);
+    int32_t containerId = 0;
+    connectServerManager.SetLayoutInspectorCallback(createTest, setTest, containerId);
     const std::string instanceName = "test02";
     connectServerManager.handlerConnectServerSo_ = nullptr;
     const std::string bundleName = "StartServer";
@@ -222,13 +224,14 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_1000, TestSize.Level
 {
     HILOG_INFO("ConnectServerManagerTest_1000 is start");
     ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
-    connectServerManager.SetLayoutInspectorCallback(nullptr, nullptr);
+    int32_t containerId = 0;
+    connectServerManager.SetLayoutInspectorCallback(nullptr, nullptr, containerId);
     auto resulftSetTest = connectServerManager.GetLayoutInspectorCallback();
     EXPECT_TRUE(resulftSetTest == nullptr);
     
     auto createTest = [] (int32_t val) {};
     auto setTest = [] (bool flag) {};
-    connectServerManager.SetLayoutInspectorCallback(createTest, setTest);
+    connectServerManager.SetLayoutInspectorCallback(createTest, setTest, containerId);
     resulftSetTest = connectServerManager.GetLayoutInspectorCallback();
     EXPECT_TRUE(resulftSetTest != nullptr);
     HILOG_INFO("ConnectServerManagerTest_1000 is end");
