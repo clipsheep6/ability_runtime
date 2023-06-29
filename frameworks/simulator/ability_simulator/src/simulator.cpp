@@ -353,7 +353,7 @@ void SimulatorImpl::DispatchStartLifecycle(NativeValue* instanceValue)
     sptr<Rosen::IWindowLifeCycle> listener = nullptr;
     windowScene->Init(-1, context_, listener);
     auto jsWindowStage = CreateJsWindowStage(windowScene);
-    if(jsWindowStage == nullptr) {
+    if (jsWindowStage == nullptr) {
         return;
     }
     NativeValue *argv[] = { jsWindowStage->Get() };

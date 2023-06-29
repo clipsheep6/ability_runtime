@@ -206,8 +206,6 @@ int Configuration::RemoveItem(const std::string &key)
 const std::string& Configuration::GetName() const
 {
     std::lock_guard<std::recursive_mutex> lock(configParameterMutex_);
-    // json configArray(configParameter_);
-    // toStrintg_ = configArray.dump();
     return toStrintg_;
 }
 }  // namespace AppExecFwk

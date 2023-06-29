@@ -20,9 +20,6 @@
 #include <string>
 #include <vector>
 
-// #include "bundle_constants.h"
-// #include "module_info.h"
-
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
@@ -157,7 +154,6 @@ struct ApplicationInfo {
     // assign when calling the get interface
     std::vector<std::string> permissions;
     std::vector<std::string> moduleSourceDirs;
-    // std::vector<ModuleInfo> moduleInfos;
     std::map<std::string, std::vector<CustomizeData>> metaData;
     std::map<std::string, std::vector<Metadata>> metadata;
     // Installation-free

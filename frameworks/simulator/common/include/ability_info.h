@@ -99,7 +99,6 @@ struct AbilityInfo {
     std::vector<std::string> deviceCapabilities;
     std::string uri;
     std::string targetAbility;
-    // ApplicationInfo applicationInfo;
     bool isLauncherAbility = false;
     bool isNativeAbility = false;
     bool enabled = false;
@@ -114,7 +113,6 @@ struct AbilityInfo {
     int32_t defaultFormHeight = 0;
     int32_t minFormWidth = 0;
     int32_t defaultFormWidth = 0;
-    // MetaData metaData;
     uint32_t backgroundModes = 0;
 
     // set when install
@@ -128,7 +126,6 @@ struct AbilityInfo {
     std::string hapPath;
 
     std::string srcEntrance;
-    // std::vector<Metadata> metadata;
     bool isModuleJson = false;
     bool isStageBasedModel = false;
     bool continuable = false;
@@ -154,7 +151,6 @@ struct AbilityInfo {
     uint32_t minWindowHeight = 0;
     // for NAPI, save self query cache
     int32_t uid = -1;
-    // CompileMode compileMode = CompileMode::JS_BUNDLE;
 
     // unused
     std::string originalBundleName;

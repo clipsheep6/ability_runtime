@@ -34,6 +34,7 @@ const std::string CONTEXT_HAPS("haps");
 const std::string CONTEXT_PREVIEW(".preview");
 const std::string CONTEXT_ASSET("asset");
 const std::string CONTEXT_ELS[] = {"el1", "el2"};
+constexpr int DIR_DEFAULT_PERM = 0770;
 }
 std::shared_ptr<AppExecFwk::Configuration> AbilityContext::GetConfiguration()
 {
@@ -77,33 +78,71 @@ std::string AbilityContext::GetBundleCodeDir()
 
 std::string AbilityContext::GetCacheDir()
 {
-    return GetBaseDir() + fileSeparator_ + CONTEXT_CACHE;
+    if (GetPreviewPath().empty()) {
+        return "";
+    }
+
+    auto dir = GetBaseDir() + fileSeparator_ + CONTEXT_CACHE;
+    CreateMutiDir(dir);
+    return dir;
 }
 
 std::string AbilityContext::GetTempDir()
 {
-    return GetBaseDir() + fileSeparator_ + CONTEXT_TEMP;
+    if (GetPreviewPath().empty()) {
+        return "";
+    }
+
+    auto dir = GetBaseDir() + fileSeparator_ + CONTEXT_TEMP;
+    CreateMutiDir(dir);
+    return dir;
 }
 
 std::string AbilityContext::GetFilesDir()
 {
-    return GetBaseDir() + fileSeparator_ + CONTEXT_FILES;
+    if (GetPreviewPath().empty()) {
+        return "";
+    }
+
+    auto dir = GetBaseDir() + fileSeparator_ + CONTEXT_FILES;
+    CreateMutiDir(dir);
+    return dir;
 }
 
 std::string AbilityContext::GetDatabaseDir()
 {
-    return GetPreviewPath() + currArea_ + fileSeparator_ + CONTEXT_DATABASE +
+    auto preivewDir = GetPreviewPath();
+    if (preivewDir.empty()) {
+        return "";
+    }
+
+    auto dir = preivewDir + fileSeparator_ + currArea_ + fileSeparator_ + CONTEXT_DATABASE +
         fileSeparator_ + options_.moduleName;
+    CreateMutiDir(dir);
+    return dir;
 }
 
 std::string AbilityContext::GetPreferencesDir()
 {
-    return GetBaseDir() + fileSeparator_ + CONTEXT_PREFERENCES;
+    if (GetPreviewPath().empty()) {
+        return "";
+    }
+
+    auto dir = GetBaseDir() + fileSeparator_ + CONTEXT_PREFERENCES;
+    CreateMutiDir(dir);
+    return dir;
 }
 
 std::string AbilityContext::GetDistributedFilesDir()
 {
-    return GetPreviewPath() + currArea_ + fileSeparator_ + CONTEXT_DISTRIBUTEDFILES;
+    auto preivewDir = GetPreviewPath();
+    if (preivewDir.empty()) {
+        return "";
+    }
+
+    auto dir = preivewDir + fileSeparator_ + currArea_ + fileSeparator_ + CONTEXT_DISTRIBUTEDFILES;
+    CreateMutiDir(dir);
+    return dir;
 }
 
 void AbilityContext::SwitchArea(int mode)
@@ -137,7 +176,7 @@ int AbilityContext::GetArea()
 
 std::string AbilityContext::GetBaseDir()
 {
-    return GetPreviewPath() + currArea_ + fileSeparator_ + CONTEXT_BASE + fileSeparator_ +
+    return GetPreviewPath() + fileSeparator_ + currArea_ + fileSeparator_ + CONTEXT_BASE + fileSeparator_ +
         CONTEXT_HAPS + fileSeparator_ + options_.moduleName;
 }
 
@@ -149,6 +188,76 @@ std::string AbilityContext::GetPreviewPath()
         previewPath = options_.modulePath.substr(0, pos + strlen(CONTEXT_PREVIEW.c_str()));
     }
     return previewPath;
+}
+
+bool AbilityContext::Access(const std::string& path)
+{
+    HILOG_DEBUG("Access: dir: %{public}s", path.c_str());
+    std::unique_ptr<uv_fs_t, decltype(AbilityContext::fs_req_cleanup)*> access_req = {
+        new uv_fs_t, AbilityContext::fs_req_cleanup };
+    if (!access_req) {
+        HILOG_ERROR("Failed to request heap memory.");
+        return false;
+    }
+
+    int ret = uv_fs_access(nullptr, access_req.get(), path.c_str(), 0, nullptr);
+    return ret == 0;
+}
+
+void AbilityContext::Mkdir(const std::string& path)
+{
+    HILOG_DEBUG("Mkdir: dir: %{public}s", path.c_str());
+    std::unique_ptr<uv_fs_t, decltype(AbilityContext::fs_req_cleanup)*> mkdir_req = {
+        new uv_fs_t, AbilityContext::fs_req_cleanup };
+    if (!mkdir_req) {
+        HILOG_ERROR("Failed to request heap memory.");
+        return;
+    }
+
+    int ret = uv_fs_mkdir(nullptr, mkdir_req.get(), path.c_str(), DIR_DEFAULT_PERM, nullptr);
+    if (ret < 0) {
+        HILOG_ERROR("Failed to create directory");
+    }
+}
+
+bool AbilityContext::CreateMutiDir(const std::string &path)
+{
+    if (path.empty()) {
+        HILOG_DEBUG("path is empty");
+        return false;
+    }
+
+    std::string tempStr = path;
+    tempStr += fileSeparator_;
+
+    std::string::size_type pos = 0;
+    std::string::size_type prePos = 0;
+    std::string strFolderPath;
+    std::string stdFolderPath;
+
+    while ((pos = tempStr.find(fileSeparator_, pos)) != std::string::npos) {
+        strFolderPath = tempStr.substr(0, pos);
+        if (Access(strFolderPath)) {
+            pos = pos + 1;
+            prePos = pos;
+            continue;
+        }
+
+        Mkdir(strFolderPath);
+        pos = pos + 1;
+        prePos = pos;
+    }
+
+    return Access(tempStr);
+}
+
+void AbilityContext::fs_req_cleanup(uv_fs_t* req)
+{
+    uv_fs_req_cleanup(req);
+    if (req) {
+        delete req;
+        req = nullptr;
+    }
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

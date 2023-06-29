@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_SIMULAOTR_ABILITY_CONTEXT_H
 
 #include "foundation/ability/ability_runtime/frameworks/simulator/common/include/context.h"
+#include "uv.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -42,12 +43,16 @@ public:
     int GetArea() override;
     std::string GetBaseDir() override;
     std::string GetPreviewPath();
+    bool Access(const std::string& path);
+    void Mkdir(const std::string& path);
+    static void fs_req_cleanup(uv_fs_t* req);
+    bool CreateMutiDir(const std::string &path);
 
 private:
     static const int EL_DEFAULT = 1;
     Options options_;
     std::string currArea_ = "el2";
-    std::string fileSeparator_;
+    std::string fileSeparator_ = "/";
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
