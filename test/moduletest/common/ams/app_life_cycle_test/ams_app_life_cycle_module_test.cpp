@@ -136,8 +136,9 @@ void AmsAppLifeCycleModuleTest::SetUp()
     mockBundleMgr = new (std::nothrow) BundleMgrService();
     serviceInner_->SetBundleManager(mockBundleMgr);
 
-    auto runner = EventRunner::Create("AmsAppLifeCycleModuleTest");
-    handler_ = std::make_shared<AMSEventHandler>(runner, serviceInner_);
+    auto taskHandler = AAFwk::TaskHandlerWrap::CreateQueueHandler("AmsAppLifeCycleModuleTest");
+    handler_ = std::make_shared<AMSEventHandler>(taskHandler, serviceInner_);
+    serviceInner_->SetTaskHandler(taskHandler);
     serviceInner_->SetEventHandler(handler_);
 }
 

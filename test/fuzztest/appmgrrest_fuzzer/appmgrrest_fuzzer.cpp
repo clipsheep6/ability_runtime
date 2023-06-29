@@ -69,8 +69,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     sptr<AppDeathRecipient> appDeathRecipient = new AppDeathRecipient();
     wptr<IRemoteObject> remote;
     appDeathRecipient->OnRemoteDied(remote);
-    std::shared_ptr<AMSEventHandler> handler;
-    appDeathRecipient->SetEventHandler(handler);
+    std::shared_ptr<AAFwk::TaskHandlerWrap> handler;
+    appDeathRecipient->SetTaskHandler(handler);
     std::shared_ptr<AppMgrServiceInner> serviceInner;
     appDeathRecipient->SetAppMgrServiceInner(serviceInner);
     bool isRenderProcess = *data % ENABLE;

@@ -35,6 +35,7 @@ ohos_moduletest("AmsServiceStartModuleTest") {
 
   external_deps = [
     "bundle_framework:appexecfwk_base",
+    "ffrt:libffrt",
     "hicollie:libhicollie",
     "hilog:libhilog",
     "ipc:ipc_core",

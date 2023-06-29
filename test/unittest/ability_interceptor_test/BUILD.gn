@@ -62,7 +62,7 @@ ohos_unittest("ability_interceptor_test") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "dsoftbus:softbus_client",
-    "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]

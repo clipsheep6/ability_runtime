@@ -28,7 +28,7 @@ void WindowFocusChangedListener::OnFocused(const sptr<FocusChangeInfo> &focusCha
         return;
     }
 
-    if (eventHandler_) {
+    if (taskHandler_) {
         auto task = [inner = owner_, focusChangeInfo] {
             auto owner = inner.lock();
             if (!owner) {
@@ -37,7 +37,7 @@ void WindowFocusChangedListener::OnFocused(const sptr<FocusChangeInfo> &focusCha
             }
             owner->HandleFocused(focusChangeInfo);
         };
-        eventHandler_->PostTask(task);
+        taskHandler_->SubmitTask(task);
     }
 }
 
@@ -48,7 +48,7 @@ void WindowFocusChangedListener::OnUnfocused(const sptr<FocusChangeInfo> &focusC
         return;
     }
 
-    if (eventHandler_) {
+    if (taskHandler_) {
         auto task = [inner = owner_, focusChangeInfo] {
             auto owner = inner.lock();
             if (!owner) {
@@ -57,7 +57,7 @@ void WindowFocusChangedListener::OnUnfocused(const sptr<FocusChangeInfo> &focusC
             }
             owner->HandleUnfocused(focusChangeInfo);
         };
-        eventHandler_->PostTask(task);
+        taskHandler_->SubmitTask(task);
     }
 }
 }  // namespace AAFwk

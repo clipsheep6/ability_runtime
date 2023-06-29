@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_FREE_INSTALL_MANAGER_H
 
 #include <future>
+#include "cpp/mutex.h"
 
 #include <iremote_object.h>
 #include <iremote_stub.h>
@@ -134,9 +135,9 @@ private:
     std::vector<FreeInstallInfo> freeInstallList_;
     std::vector<FreeInstallInfo> dmsFreeInstallCbs_;
     std::map<std::string, std::time_t> timeStampMap_;
-    std::mutex distributedFreeInstallLock_;
-    std::mutex freeInstallListLock_;
-    std::mutex freeInstallObserverLock_;
+    ffrt::mutex distributedFreeInstallLock_;
+    ffrt::mutex freeInstallListLock_;
+    ffrt::mutex freeInstallObserverLock_;
     /**
      * Start remote free install.
      *

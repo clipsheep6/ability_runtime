@@ -42,10 +42,10 @@ void AppDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
     }
 
     auto onRemoteDiedFunc = std::bind(&AppMgrServiceInner::OnRemoteDied, serviceInner, remote, isRenderProcess_);
-    handler->PostTask(onRemoteDiedFunc, TASK_ON_REMOTE_DIED);
+    handler->SubmitTask(onRemoteDiedFunc, TASK_ON_REMOTE_DIED);
 }
 
-void AppDeathRecipient::SetEventHandler(const std::shared_ptr<AMSEventHandler> &handler)
+void AppDeathRecipient::SetTaskHandler(const std::shared_ptr<AAFwk::TaskHandlerWrap> &handler)
 {
     handler_ = handler;
 }

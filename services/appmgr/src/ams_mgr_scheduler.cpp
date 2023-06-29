@@ -43,7 +43,8 @@ const std::string TASK_KILL_APPLICATION = "KillApplicationTask";
 };  // namespace
 
 AmsMgrScheduler::AmsMgrScheduler(
-    const std::shared_ptr<AppMgrServiceInner> &mgrServiceInner_, const std::shared_ptr<AMSEventHandler> &handler_)
+    const std::shared_ptr<AppMgrServiceInner> &mgrServiceInner_,
+    const std::shared_ptr<AAFwk::TaskHandlerWrap> &handler_)
     : amsMgrServiceInner_(mgrServiceInner_), amsHandler_(handler_)
 {}
 
@@ -73,7 +74,7 @@ void AmsMgrScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<I
     std::function<void()> loadAbilityFunc =
         std::bind(&AppMgrServiceInner::LoadAbility, amsMgrServiceInner_, token, preToken, abilityInfo, appInfo, want);
 
-    amsHandler_->PostTask(loadAbilityFunc, TASK_LOAD_ABILITY);
+    amsHandler_->SubmitTask(loadAbilityFunc, TASK_LOAD_ABILITY);
 }
 
 void AmsMgrScheduler::UpdateAbilityState(const sptr<IRemoteObject> &token, const AbilityState state)
@@ -88,7 +89,7 @@ void AmsMgrScheduler::UpdateAbilityState(const sptr<IRemoteObject> &token, const
     }
     std::function<void()> updateAbilityStateFunc =
         std::bind(&AppMgrServiceInner::UpdateAbilityState, amsMgrServiceInner_, token, state);
-    amsHandler_->PostTask(updateAbilityStateFunc, TASK_UPDATE_ABILITY_STATE);
+    amsHandler_->SubmitTask(updateAbilityStateFunc, TASK_UPDATE_ABILITY_STATE);
 }
 
 void AmsMgrScheduler::UpdateExtensionState(const sptr<IRemoteObject> &token, const ExtensionState state)
@@ -103,7 +104,7 @@ void AmsMgrScheduler::UpdateExtensionState(const sptr<IRemoteObject> &token, con
     }
     std::function<void()> updateExtensionStateFunc =
         std::bind(&AppMgrServiceInner::UpdateExtensionState, amsMgrServiceInner_, token, state);
-    amsHandler_->PostTask(updateExtensionStateFunc, TASK_UPDATE_EXTENSION_STATE);
+    amsHandler_->SubmitTask(updateExtensionStateFunc, TASK_UPDATE_EXTENSION_STATE);
 }
 
 void AmsMgrScheduler::TerminateAbility(const sptr<IRemoteObject> &token, bool clearMissionFlag)
@@ -118,7 +119,7 @@ void AmsMgrScheduler::TerminateAbility(const sptr<IRemoteObject> &token, bool cl
     }
     std::function<void()> terminateAbilityFunc =
         std::bind(&AppMgrServiceInner::TerminateAbility, amsMgrServiceInner_, token, clearMissionFlag);
-    amsHandler_->PostTask(terminateAbilityFunc, TASK_TERMINATE_ABILITY);
+    amsHandler_->SubmitTask(terminateAbilityFunc, TASK_TERMINATE_ABILITY);
 }
 
 void AmsMgrScheduler::RegisterAppStateCallback(const sptr<IAppStateCallback> &callback)
@@ -128,7 +129,7 @@ void AmsMgrScheduler::RegisterAppStateCallback(const sptr<IAppStateCallback> &ca
     }
     std::function<void()> registerAppStateCallbackFunc =
         std::bind(&AppMgrServiceInner::RegisterAppStateCallback, amsMgrServiceInner_, callback);
-    amsHandler_->PostTask(registerAppStateCallbackFunc, TASK_REGISTER_APP_STATE_CALLBACK);
+    amsHandler_->SubmitTask(registerAppStateCallbackFunc, TASK_REGISTER_APP_STATE_CALLBACK);
 }
 
 void AmsMgrScheduler::AbilityBehaviorAnalysis(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
@@ -144,7 +145,7 @@ void AmsMgrScheduler::AbilityBehaviorAnalysis(const sptr<IRemoteObject> &token, 
     }
     std::function<void()> abilityBehaviorAnalysisFunc = std::bind(&AppMgrServiceInner::AbilityBehaviorAnalysis,
         amsMgrServiceInner_, token, preToken, visibility, perceptibility, connectionState);
-    amsHandler_->PostTask(abilityBehaviorAnalysisFunc, TASK_ABILITY_BEHAVIOR_ANALYSIS);
+    amsHandler_->SubmitTask(abilityBehaviorAnalysisFunc, TASK_ABILITY_BEHAVIOR_ANALYSIS);
 }
 
 void AmsMgrScheduler::KillProcessByAbilityToken(const sptr<IRemoteObject> &token)
@@ -160,7 +161,7 @@ void AmsMgrScheduler::KillProcessByAbilityToken(const sptr<IRemoteObject> &token
 
     std::function<void()> killProcessByAbilityTokenFunc =
         std::bind(&AppMgrServiceInner::KillProcessByAbilityToken, amsMgrServiceInner_, token);
-    amsHandler_->PostTask(killProcessByAbilityTokenFunc, TASK_KILL_PROCESS_BY_ABILITY_TOKEN);
+    amsHandler_->SubmitTask(killProcessByAbilityTokenFunc, TASK_KILL_PROCESS_BY_ABILITY_TOKEN);
 }
 
 void AmsMgrScheduler::KillProcessesByUserId(int32_t userId)
@@ -182,7 +183,7 @@ void AmsMgrScheduler::KillProcessesByUserId(int32_t userId)
     
     std::function<void()> killProcessesByUserIdFunc =
         std::bind(&AppMgrServiceInner::KillProcessesByUserId, amsMgrServiceInner_, userId);
-    amsHandler_->PostTask(killProcessesByUserIdFunc, TASK_KILL_PROCESSES_BY_USERID);
+    amsHandler_->SubmitTask(killProcessesByUserIdFunc, TASK_KILL_PROCESSES_BY_USERID);
 }
 
 int32_t AmsMgrScheduler::KillProcessWithAccount(const std::string &bundleName, const int accountId)
@@ -206,7 +207,7 @@ void AmsMgrScheduler::AbilityAttachTimeOut(const sptr<IRemoteObject> &token)
         return;
     }
     auto task = [=]() { amsMgrServiceInner_->HandleAbilityAttachTimeOut(token); };
-    amsHandler_->PostTask(task);
+    amsHandler_->SubmitTask(task);
 }
 
 void AmsMgrScheduler::PrepareTerminate(const sptr<IRemoteObject> &token)
@@ -221,7 +222,7 @@ void AmsMgrScheduler::PrepareTerminate(const sptr<IRemoteObject> &token)
         return;
     }
     auto task = [=]() { amsMgrServiceInner_->PrepareTerminate(token); };
-    amsHandler_->PostTask(task);
+    amsHandler_->SubmitTask(task);
 }
 
 int32_t AmsMgrScheduler::UpdateApplicationInfoInstalled(const std::string &bundleName, const int uid)
@@ -307,7 +308,7 @@ void AmsMgrScheduler::StartSpecifiedAbility(const AAFwk::Want &want, const AppEx
         return;
     }
     auto task = [=]() { amsMgrServiceInner_->StartSpecifiedAbility(want, abilityInfo); };
-    amsHandler_->PostTask(task);
+    amsHandler_->SubmitTask(task);
 }
 
 void AmsMgrScheduler::RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response)
@@ -316,7 +317,7 @@ void AmsMgrScheduler::RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpe
         return;
     }
     auto task = [=]() { amsMgrServiceInner_->RegisterStartSpecifiedAbilityResponse(response); };
-    amsHandler_->PostTask(task);
+    amsHandler_->SubmitTask(task);
 }
 
 int AmsMgrScheduler::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug)

@@ -80,8 +80,9 @@ void AmsWorkFlowTest::SetUp()
 {
     serviceInner_ = std::make_unique<AppMgrServiceInner>();
     serviceInner_->Init();
-    auto runner = EventRunner::Create("AmsWorkFlowTest");
-    handler_ = std::make_shared<AMSEventHandler>(runner, serviceInner_);
+    auto taskhandler = AAFwk::TaskHandlerWrap::CreateQueueHandler("AmsWorkFlowTest");
+    handler_ = std::make_shared<AMSEventHandler>(taskhandler, serviceInner_);
+    serviceInner_->SetTaskHandler(taskhandler);
     serviceInner_->SetEventHandler(handler_);
 }
 

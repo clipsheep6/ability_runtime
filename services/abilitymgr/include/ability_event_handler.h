@@ -18,8 +18,7 @@
 
 #include <memory>
 
-#include "event_handler.h"
-#include "event_runner.h"
+#include "event_handler_wrap.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -28,10 +27,10 @@ class AbilityManagerService;
  * @class AbilityEventHandler
  * AbilityEventHandler handling the ability event.
  */
-class AbilityEventHandler : public AppExecFwk::EventHandler {
+class AbilityEventHandler : public EventHandlerWrap {
 public:
     AbilityEventHandler(
-        const std::shared_ptr<AppExecFwk::EventRunner> &runner, const std::weak_ptr<AbilityManagerService> &server);
+        const std::shared_ptr<TaskHandlerWrap> &taskHandler, const std::weak_ptr<AbilityManagerService> &server);
     virtual ~AbilityEventHandler() = default;
 
     /**
@@ -39,7 +38,7 @@ public:
      *
      * @param event, inner event loop.
      */
-    void ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event) override;
+    void ProcessEvent(const EventWrap &event) override;
 
 private:
     void ProcessLoadTimeOut(int64_t abilityRecordId);

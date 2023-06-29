@@ -22,7 +22,6 @@
 #include "app_mgr_service_inner.h"
 #undef private
 
-#include "ability_record.h"
 #include "parcel.h"
 #include "securec.h"
 

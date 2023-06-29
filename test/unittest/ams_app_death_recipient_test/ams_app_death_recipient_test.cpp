@@ -18,7 +18,6 @@
 #include "app_mgr_service_inner.h"
 #undef private
 #include <gtest/gtest.h>
-#include "app_mgr_service_inner.h"
 #include "hilog_wrapper.h"
 #include "mock_ability_token.h"
 #include "mock_app_scheduler.h"
@@ -48,14 +47,14 @@ public:
     sptr<IRemoteObject> GetApp(int32_t pid, int size);
 
 public:
-    std::shared_ptr<AMSEventHandler> handler_;
+    std::shared_ptr<AAFwk::TaskHandlerWrap> handler_;
     std::shared_ptr<AppMgrServiceInner> appMgrServiceInner_;
     sptr<AppDeathRecipient> appDeathRecipientObject_;
     OHOS::sptr<MockAbilityToken> mockToken_;
     OHOS::sptr<BundleMgrService> mockBundleMgr;
 };
 
-static void WaitUntilTaskFinished(std::shared_ptr<AMSEventHandler> handler)
+static void WaitUntilTaskFinished(std::shared_ptr<AAFwk::TaskHandlerWrap> handler)
 {
     if (!handler) {
         return;
@@ -66,7 +65,7 @@ static void WaitUntilTaskFinished(std::shared_ptr<AMSEventHandler> handler)
     uint32_t count = 0;
     std::atomic<bool> taskCalled(false);
     auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->PostTask(f)) {
+    if (handler->SubmitTask(f)) {
         while (!taskCalled.load()) {
             ++count;
             // if delay more than 1 second, break
@@ -87,11 +86,10 @@ void AppDeathRecipientTest::TearDownTestCase()
 
 void AppDeathRecipientTest::SetUp()
 {
-    auto runner = EventRunner::Create("AppDeathRecipientTest");
     appMgrServiceInner_ = std::make_shared<AppMgrServiceInner>();
     appMgrServiceInner_->Init();
 
-    handler_ = std::make_shared<AMSEventHandler>(runner, appMgrServiceInner_);
+    handler_ = AAFwk::TaskHandlerWrap::CreateQueueHandler("AppDeathRecipientTest");
 
     appDeathRecipientObject_ = new (std::nothrow) AppDeathRecipient();
 
@@ -158,7 +156,7 @@ sptr<IRemoteObject> AppDeathRecipientTest::GetApp(int32_t pid, int size)
 
 /*
  * Feature: Ams
- * Function: SetEventHandler ande SetAppMgrServiceInner.
+ * Function: SetTaskHandler ande SetAppMgrServiceInner.
  * SubFunction: AppDeathRecipient
  * FunctionPoints: initialization
  * EnvConditions: have to an application
@@ -168,7 +166,7 @@ sptr<IRemoteObject> AppDeathRecipientTest::GetApp(int32_t pid, int size)
 HWTEST_F(AppDeathRecipientTest, AppDeathRecipient_001, TestSize.Level1)
 {
     HILOG_INFO("AppDeathRecipient_001 start");
-    appDeathRecipientObject_->SetEventHandler(handler_);
+    appDeathRecipientObject_->SetTaskHandler(handler_);
     EXPECT_TRUE(appDeathRecipientObject_->handler_.lock() != nullptr);
 
     appDeathRecipientObject_->SetAppMgrServiceInner(appMgrServiceInner_);
@@ -192,7 +190,7 @@ HWTEST_F(AppDeathRecipientTest, AppDeathRecipient_002, TestSize.Level1)
     sptr<IRemoteObject> appOne = GetApp(pid1, 1);
     sptr<IRemoteObject> appTwo = GetApp(pid2, 2);
 
-    appDeathRecipientObject_->SetEventHandler(handler_);
+    appDeathRecipientObject_->SetTaskHandler(handler_);
     appDeathRecipientObject_->SetAppMgrServiceInner(appMgrServiceInner_);
     appDeathRecipientObject_->OnRemoteDied(appOne);
 

@@ -44,22 +44,6 @@ void MissionDataStorageTest::TearDown(void)
 
 /*
  * Feature: MissionDataStorage
- * Function: SetEventHandler
- * SubFunction: NA
- * FunctionPoints: MissionDataStorage SetEventHandler
- * EnvConditions: NA
- * CaseDescription: Verify SetEventHandler
- */
-HWTEST_F(MissionDataStorageTest, SetEventHandler_001, TestSize.Level1)
-{
-    auto missionDataStorage = std::make_shared<MissionDataStorage>();
-    EXPECT_NE(missionDataStorage, nullptr);
-    auto handler = std::make_shared<EventHandler>(EventRunner::Create());
-    missionDataStorage->SetEventHandler(handler);
-}
-
-/*
- * Feature: MissionDataStorage
  * Function: SaveMissionInfo
  * SubFunction: NA
  * FunctionPoints: MissionDataStorage SaveMissionInfo

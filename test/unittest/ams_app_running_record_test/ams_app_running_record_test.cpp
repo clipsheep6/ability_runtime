@@ -2241,14 +2241,16 @@ HWTEST_F(AmsAppRunningRecordTest, AddAbilityStageBySpecifiedAbility_001, TestSiz
 
     record->AddAbilityStageBySpecifiedAbility(bundleName1);
 
-    auto runner = EventRunner::Create("AmsAppLifeCycleModuleTest");
+    auto runner = AAFwk::TaskHandlerWrap::CreateQueueHandler("AmsAppRunningRecordTest");
     std::shared_ptr<AppMgrServiceInner> serviceInner = std::make_shared<AppMgrServiceInner>();
     std::shared_ptr<AMSEventHandler> handler = std::make_shared<AMSEventHandler>(runner, serviceInner);
+    record->taskHandler_ = runner;
     record->eventHandler_ = handler;
     record->AddAbilityStageBySpecifiedAbility(bundleName1);
     record->AddAbilityStageBySpecifiedAbility(bundleName);
 
-    record->eventHandler_->SendEvent(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG, 1, 0);
+    record->eventHandler_->SendEvent(
+        AAFwk::EventWrap(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG, 1), 0);
     record->AddAbilityStageBySpecifiedAbility(bundleName);
 
     auto abilityInfo2 = std::make_shared<AbilityInfo>();
@@ -2292,14 +2294,17 @@ HWTEST_F(AmsAppRunningRecordTest, AddAbilityStageDone_001, TestSize.Level1)
     EXPECT_TRUE(record != nullptr);
     record->AddAbilityStageDone();
 
-    auto runner = EventRunner::Create("AmsAppLifeCycleModuleTest");
+    auto runner = AAFwk::TaskHandlerWrap::CreateQueueHandler("AmsAppRunningRecordTest");
     std::shared_ptr<AppMgrServiceInner> serviceInner = std::make_shared<AppMgrServiceInner>();
     std::shared_ptr<AMSEventHandler> handler = std::make_shared<AMSEventHandler>(runner, serviceInner);
+    record->taskHandler_ = runner;
     record->eventHandler_ = handler;
     record->AddAbilityStageDone();
 
-    record->eventHandler_->SendEvent(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG, 1, 0);
-    record->eventHandler_->SendEvent(AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG, 1, 0);
+    record->eventHandler_->SendEvent(
+        AAFwk::EventWrap(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG, 1), 0);
+    record->eventHandler_->SendEvent(
+        AAFwk::EventWrap(AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG, 1), 0);
     record->AddAbilityStageDone();
 
     record->isSpecifiedAbility_ = true;
