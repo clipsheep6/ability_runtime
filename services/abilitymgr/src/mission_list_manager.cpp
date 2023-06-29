@@ -1359,8 +1359,15 @@ int MissionListManager::MoveAbilityToBackgroundLocked(const std::shared_ptr<Abil
             nextAbilityRecord->SetPreAbilityRecord(abilityRecord);
 #ifdef SUPPORT_GRAPHICS
             nextAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
-            nextAbilityRecord->ProcessForegroundAbility(abilityRecord);
+            nextAbilityRecord->ProcessForegroundAbility(abilityRecord, false);
         } else {
+            bool animaEnabled = false;
+            if (!abilityRecord->IsClearMissionFlag()) {
+                abilityRecord->NotifyAnimationFromMinimizeAbility(animaEnabled);
+            }
+            if (animaEnabled) {
+                return ERR_OK;
+            }
 #else
             nextAbilityRecord->ProcessForegroundAbility();
         } else {
@@ -1388,7 +1395,7 @@ void MissionListManager::RemoveBackgroundingAbility(const std::shared_ptr<Abilit
     }
 
     if (missionList->IsEmpty()) {
-        HILOG_DEBUG("Remove terminating ability, missionList is empty, remove.");
+        HILOG_DEBUG("Remove backgrounding ability, missionList is empty, remove.");
         RemoveMissionList(missionList);
     }
 

@@ -446,7 +446,8 @@ std::string AbilityRecord::GetLabel()
 }
 
 #ifdef SUPPORT_GRAPHICS
-void AbilityRecord::ProcessForegroundAbility(const std::shared_ptr<AbilityRecord> &callerAbility, uint32_t sceneFlag)
+void AbilityRecord::ProcessForegroundAbility(const std::shared_ptr<AbilityRecord> &callerAbility, bool needExit,
+    uint32_t sceneFlag)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::string element = GetWant().GetElement().GetURI();
@@ -454,7 +455,7 @@ void AbilityRecord::ProcessForegroundAbility(const std::shared_ptr<AbilityRecord
 
     StartingWindowHot();
     auto flag = !IsForeground();
-    NotifyAnimationFromTerminatingAbility(callerAbility, flag);
+    NotifyAnimationFromTerminatingAbility(callerAbility, needExit, flag);
     PostCancelStartingWindowHotTask();
 
     if (IsAbilityState(AbilityState::FOREGROUND)) {
@@ -469,7 +470,7 @@ void AbilityRecord::ProcessForegroundAbility(const std::shared_ptr<AbilityRecord
 }
 
 void AbilityRecord::NotifyAnimationFromTerminatingAbility(const std::shared_ptr<AbilityRecord>& callerAbility,
-    bool flag)
+    bool needExit, bool flag)
 {
     auto windowHandler = GetWMSHandler();
     if (!windowHandler) {
@@ -484,16 +485,18 @@ void AbilityRecord::NotifyAnimationFromTerminatingAbility(const std::shared_ptr<
         fromInfo->abilityToken_ = callerAbility->GetToken();
     }
 
-    if (flag) {
+    if (flag && needExit) {
         fromInfo->reason_ = TransitionReason::BACK_TRANSITION;
+    } else if (flag && !needExit) {
+        fromInfo->reason_ = TransitionReason::BACKGROUND_TRANSITION;
     } else {
         fromInfo->reason_ = TransitionReason::CLOSE;
     }
 
     auto toInfo = CreateAbilityTransitionInfo();
     SetAbilityTransitionInfo(abilityInfo_, toInfo);
-
-    windowHandler->NotifyWindowTransition(fromInfo, toInfo);
+    bool animaEnabled = false;
+    windowHandler->NotifyWindowTransition(fromInfo, toInfo, animaEnabled);
 }
 
 void AbilityRecord::NotifyAnimationFromTerminatingAbility() const
@@ -507,7 +510,22 @@ void AbilityRecord::NotifyAnimationFromTerminatingAbility() const
     sptr<AbilityTransitionInfo> fromInfo = new AbilityTransitionInfo();
     SetAbilityTransitionInfo(fromInfo);
     fromInfo->reason_ = TransitionReason::CLOSE;
-    windowHandler->NotifyWindowTransition(fromInfo, nullptr);
+    bool animaEnabled = false;
+    windowHandler->NotifyWindowTransition(fromInfo, nullptr, animaEnabled);
+}
+
+void AbilityRecord::NotifyAnimationFromMinimizeAbility(bool& animaEnabled)
+{
+    auto windowHandler = GetWMSHandler();
+    if (!windowHandler) {
+        HILOG_WARN("Get WMS handler failed.");
+        return;
+    }
+    HILOG_INFO("Notify Animation From MinimizeAbility");
+    sptr<AbilityTransitionInfo> fromInfo = new AbilityTransitionInfo();
+    SetAbilityTransitionInfo(fromInfo);
+    fromInfo->reason_ = TransitionReason::MINIMIZE;
+    windowHandler->NotifyWindowTransition(fromInfo, nullptr, animaEnabled);
 }
 
 void AbilityRecord::SetAbilityTransitionInfo(sptr<AbilityTransitionInfo>& info) const
@@ -664,7 +682,8 @@ void AbilityRecord::NotifyAnimationFromRecentTask(const std::shared_ptr<StartOpt
     SetAbilityTransitionInfo(abilityInfo_, toInfo);
     sptr<AbilityTransitionInfo> fromInfo = new AbilityTransitionInfo();
     fromInfo->isRecent_ = true;
-    windowHandler->NotifyWindowTransition(fromInfo, toInfo);
+    bool animaEnabled = false;
+    windowHandler->NotifyWindowTransition(fromInfo, toInfo, animaEnabled);
 }
 
 void AbilityRecord::NotifyAnimationFromStartingAbility(const std::shared_ptr<AbilityRecord> &callerAbility,
@@ -689,8 +708,8 @@ void AbilityRecord::NotifyAnimationFromStartingAbility(const std::shared_ptr<Abi
     toInfo->abilityToken_ = token_;
     toInfo->missionId_ = missionId_;
     SetAbilityTransitionInfo(abilityInfo_, toInfo);
-
-    windowHandler->NotifyWindowTransition(fromInfo, toInfo);
+    bool animaEnabled = false;
+    windowHandler->NotifyWindowTransition(fromInfo, toInfo, animaEnabled);
 }
 
 void AbilityRecord::StartingWindowTask(bool isRecent, bool isCold, const AbilityRequest &abilityRequest,

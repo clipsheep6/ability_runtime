@@ -114,7 +114,8 @@ bool IsTestAbilityExist2(const std::string& data)
 
 class MockWMSHandler : public IWindowManagerServiceHandler {
 public:
-    virtual void NotifyWindowTransition(sptr<AbilityTransitionInfo> fromInfo, sptr<AbilityTransitionInfo> toInfo)
+    virtual void NotifyWindowTransition(sptr<AbilityTransitionInfo> fromInfo, sptr<AbilityTransitionInfo> toInfo,
+        bool& animaEnabled)
     {}
 
     virtual int32_t GetFocusWindow(sptr<IRemoteObject>& abilityToken)

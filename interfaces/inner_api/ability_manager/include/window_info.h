@@ -34,6 +34,8 @@ enum class TransitionReason : uint32_t {
     CLOSE,
     ABILITY_TRANSITION,
     BACK_TRANSITION,
+    CLOSE_BUTTON,
+    BACKGROUND_TRANSITION,
 };
 
 struct AbilityTransitionInfo : public Parcelable {
