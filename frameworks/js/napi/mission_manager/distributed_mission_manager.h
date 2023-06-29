@@ -47,12 +47,14 @@ public:
     void SetEnv(const napi_env &env);
     void SetContinueAbilityEnv(const napi_env &env);
     void SetContinueAbilityCBRef(const napi_ref &ref);
+    void SetContinueAbilityHasBundleName(bool hasBundleName);
     void SetContinueAbilityPromiseRef(const napi_deferred &promiseDeferred);
 
 private:
+    bool onContinueDoneHasBundleName_ = false;
     napi_env env_ = nullptr;
     napi_ref onContinueDoneRef_ = nullptr;
-    napi_deferred promiseDeferred_;
+    napi_deferred promiseDeferred_ = nullptr;
 };
 
 class NAPIRemoteMissionListener : public AAFwk::RemoteMissionListenerStub {
@@ -96,8 +98,8 @@ struct CallbackInfo {
 
 struct CBBase {
     CallbackInfo cbInfo;
-    napi_async_work asyncWork;
-    napi_deferred deferred;
+    napi_async_work asyncWork = nullptr;
+    napi_deferred deferred = nullptr;
     int errCode = 0;
 };
 
@@ -153,7 +155,7 @@ struct ContinueAbilityCB {
     int missionId = 0;
     std::string bundleName;
     bool hasArgsWithBundleName = false;
-    napi_ref callbackRef;
+    napi_ref callbackRef = nullptr;
 };
 
 struct SyncRemoteMissionsContext {
