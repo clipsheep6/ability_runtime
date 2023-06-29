@@ -4271,7 +4271,8 @@ int AbilityManagerService::StopServiceAbility(const Want &want, int32_t userId, 
     HILOG_DEBUG("call.");
 
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
+    auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
+    if (!isSaCall && !isShellCall) {
         auto abilityRecord = Token::GetAbilityRecordByToken(token);
         if (abilityRecord == nullptr) {
             HILOG_ERROR("callerRecord is nullptr");
