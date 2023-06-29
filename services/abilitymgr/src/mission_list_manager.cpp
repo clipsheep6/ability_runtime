@@ -3868,8 +3868,7 @@ int MissionListManager::PrepareClearMissionLocked(int missionId, const std::shar
             mgr->ClearMissionLocking(missionId, mission);
         }
     };
-    std::shared_ptr<AbilityEventHandler> handler =
-        DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (!handler) {
         HILOG_ERROR("handler is nullptr");
         return ClearMissionLocked(missionId, mission);
