@@ -326,9 +326,12 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_SetAbilityInfo_0100, Funct
  */
 HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_SetConfiguration_0100, Function | MediumTest | Level1)
 {
+    context_->SetConfiguration(nullptr);
+    EXPECT_EQ(context_->GetConfiguration(), nullptr);
     auto config = std::make_shared<AppExecFwk::Configuration>();
     context_->SetConfiguration(config);
-    EXPECT_EQ(context_->GetConfiguration(), config);
+    // AbilityContextImpl will create a new configuration.
+    EXPECT_NE(context_->GetConfiguration(), config);
 }
 
 /**

@@ -193,10 +193,17 @@ void JsServiceExtension::BindContext(NativeEngine& engine, NativeObject* obj)
 
 void JsServiceExtension::OnStart(const AAFwk::Want &want)
 {
-    Extension::OnStart(want);
+    ServiceExtension::OnStart(want);
     HILOG_INFO("call");
     HandleScope handleScope(jsRuntime_);
     NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
+
+    // display config has changed, need update context.config
+    auto context = GetContext();
+    if (context != nullptr) {
+        JsExtensionContext::ConfigurationUpdated(nativeEngine, shellContextRef_, context->GetConfiguration());
+    }
+
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
     NativeValue* nativeWant = reinterpret_cast<NativeValue*>(napiWant);
     NativeValue* argv[] = {nativeWant};
@@ -489,7 +496,12 @@ void JsServiceExtension::OnConfigurationUpdated(const AppExecFwk::Configuration&
 {
     ServiceExtension::OnConfigurationUpdated(configuration);
     HILOG_INFO("call");
+    ConfigurationUpdated();
+}
 
+void JsServiceExtension::ConfigurationUpdated()
+{
+    HILOG_DEBUG("called.");
     HandleScope handleScope(jsRuntime_);
     auto& nativeEngine = jsRuntime_.GetNativeEngine();
 
@@ -499,13 +511,13 @@ void JsServiceExtension::OnConfigurationUpdated(const AppExecFwk::Configuration&
         HILOG_ERROR("configuration is nullptr.");
         return;
     }
-    JsExtensionContext::ConfigurationUpdated(&nativeEngine, shellContextRef_, fullConfig);
 
     napi_value napiConfiguration = OHOS::AppExecFwk::WrapConfiguration(
         reinterpret_cast<napi_env>(&nativeEngine), *fullConfig);
     NativeValue* jsConfiguration = reinterpret_cast<NativeValue*>(napiConfiguration);
     CallObjectMethod("onConfigurationUpdated", &jsConfiguration, ARGC_ONE);
     CallObjectMethod("onConfigurationUpdate", &jsConfiguration, ARGC_ONE);
+    JsExtensionContext::ConfigurationUpdated(&nativeEngine, shellContextRef_, fullConfig);
 }
 
 void JsServiceExtension::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
@@ -564,5 +576,5 @@ void JsServiceExtension::Dump(const std::vector<std::string> &params, std::vecto
     }
     HILOG_DEBUG("Dump info size: %{public}zu", info.size());
 }
-}
-}
+} // AbilityRuntime
+} // OHOS

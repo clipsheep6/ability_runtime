@@ -23,6 +23,7 @@
 #include "ability_runtime/js_ability.h"
 #include "abs_shared_result_set.h"
 #include "configuration_convertor.h"
+#include "configuration_utils.h"
 #include "connection_manager.h"
 #include "continuation_manager.h"
 #include "continuation_register_manager.h"
@@ -197,38 +198,19 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
         }
 
         // Update resMgr, Configuration
-        HILOG_DEBUG("%{public}s get display by displayId %{public}d.", __func__, displayId);
-        auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
-        if (display) {
-            float density = display->GetVirtualPixelRatio();
-            int32_t width = display->GetWidth();
-            int32_t height = display->GetHeight();
-            std::shared_ptr<Configuration> configuration = nullptr;
-            if (application_) {
-                configuration = application_->GetConfiguration();
-            }
-            if (configuration) {
-                std::string direction = GetDirectionStr(height, width);
-                configuration->AddItem(displayId, ConfigurationInner::APPLICATION_DIRECTION, direction);
-                configuration->AddItem(displayId, ConfigurationInner::APPLICATION_DENSITYDPI, GetDensityStr(density));
-                configuration->AddItem(ConfigurationInner::APPLICATION_DISPLAYID, std::to_string(displayId));
-                UpdateContextConfiguration();
-            }
+        std::shared_ptr<AppExecFwk::Configuration> contextConfig;
+        if (abilityContext_ != nullptr) {
+            contextConfig = abilityContext_->GetConfiguration();
+        } else if (application_ != nullptr) {
+            contextConfig = application_->GetConfiguration();
+        }
 
-            std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
-            if (resConfig == nullptr) {
-                HILOG_ERROR("%{public}s error, resConfig is nullptr.", __func__);
-                return;
-            }
-            auto resourceManager = GetResourceManager();
-            if (resourceManager != nullptr) {
-                resourceManager->GetResConfig(*resConfig);
-                resConfig->SetScreenDensity(density);
-                resConfig->SetDirection(ConvertDirection(height, width));
-                resourceManager->UpdateResConfig(*resConfig);
-                HILOG_DEBUG("%{public}s Notify ResourceManager, Density: %{public}f, Direction: %{public}d.", __func__,
-                    resConfig->GetScreenDensity(), resConfig->GetDirection());
-            }
+        if (contextConfig != nullptr) {
+            HILOG_DEBUG("Config dump: %{public}s", contextConfig->GetName().c_str());
+            auto configUtils = std::make_shared<AbilityRuntime::ConfigurationUtils>();
+            configUtils->InitDisplayConfig(displayId, contextConfig, GetResourceManager());
+            HILOG_DEBUG("Config dump after init: %{public}s", contextConfig->GetName().c_str());
+            UpdateContextConfiguration();
         }
     }
 #endif
@@ -568,9 +550,19 @@ void Ability::OnConfigurationUpdatedNotify(const Configuration &configuration)
             resConfig->GetColorMode(), resConfig->GetInputDevice());
     }
 
-    if (abilityContext_ != nullptr && application_ != nullptr) {
-        abilityContext_->SetConfiguration(application_->GetConfiguration());
+    if (abilityContext_ != nullptr) {
+        auto contextConfig = abilityContext_->GetConfiguration();
+        if (contextConfig != nullptr) {
+            HILOG_DEBUG("Config dump: %{public}s", contextConfig->GetName().c_str());
+            std::vector<std::string> changeKeyV;
+            contextConfig->CompareDifferent(changeKeyV, configuration);
+            if (!changeKeyV.empty()) {
+                contextConfig->Merge(changeKeyV, configuration);
+            }
+            HILOG_DEBUG("Config dump after merge: %{public}s", contextConfig->GetName().c_str());
+        }
     }
+
     // Notify Ability Subclass
     OnConfigurationUpdated(configuration);
     HILOG_DEBUG("%{public}s Notify Ability Subclass.", __func__);
@@ -1895,61 +1887,33 @@ void Ability::OnDestroy(Rosen::DisplayId displayId)
 
 void Ability::OnChange(Rosen::DisplayId displayId)
 {
-    HILOG_DEBUG("%{public}s start, displayId: %{public}" PRIu64"", __func__,
-        displayId);
+    HILOG_DEBUG("OnChange, displayId: %{public}" PRIu64"", displayId);
 
-    // Get display
-    auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
-    if (!display) {
-        HILOG_ERROR("Get display by displayId %{public}" PRIu64" failed.", displayId);
+    std::shared_ptr<AppExecFwk::Configuration> configuration;
+    if (abilityContext_ != nullptr) {
+        configuration = abilityContext_->GetConfiguration();
+    } else if (application_ != nullptr) {
+        configuration = application_->GetConfiguration();
+    }
+    if (configuration == nullptr) {
+        HILOG_ERROR("Configuration is invalid.");
         return;
     }
 
-    // Notify ResourceManager
-    float density = display->GetVirtualPixelRatio();
-    int32_t width = display->GetWidth();
-    int32_t height = display->GetHeight();
-    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
-    if (resConfig != nullptr) {
-        auto resourceManager = GetResourceManager();
-        if (resourceManager != nullptr) {
-            resourceManager->GetResConfig(*resConfig);
-            resConfig->SetScreenDensity(density);
-            resConfig->SetDirection(ConvertDirection(height, width));
-            resourceManager->UpdateResConfig(*resConfig);
-            HILOG_INFO("%{public}s Notify ResourceManager, Density: %{public}f, Direction: %{public}d.", __func__,
-                resConfig->GetScreenDensity(), resConfig->GetDirection());
-        }
-    }
+    HILOG_DEBUG("Config dump: %{public}s", configuration->GetName().c_str());
+    bool configChanged = false;
+    auto configUtils = std::make_shared<AbilityRuntime::ConfigurationUtils>();
+    configUtils->UpdateDisplayConfig(displayId, configuration, GetResourceManager(), configChanged);
+    HILOG_DEBUG("Config dump after update: %{public}s", configuration->GetName().c_str());
 
-    // Notify ability
-    Configuration newConfig;
-    newConfig.AddItem(displayId, ConfigurationInner::APPLICATION_DIRECTION, GetDirectionStr(height, width));
-    newConfig.AddItem(displayId, ConfigurationInner::APPLICATION_DENSITYDPI, GetDensityStr(density));
-
-    if (application_ == nullptr) {
-        HILOG_ERROR("application_ is nullptr.");
-        return;
-    }
-
-    auto configuration = application_->GetConfiguration();
-    if (!configuration) {
-        HILOG_ERROR("configuration is nullptr.");
-        return;
-    }
-
-    std::vector<std::string> changeKeyV;
-    configuration->CompareDifferent(changeKeyV, newConfig);
-    HILOG_DEBUG("changeKeyV size :%{public}zu", changeKeyV.size());
-    if (!changeKeyV.empty()) {
-        configuration->Merge(changeKeyV, newConfig);
+    if (configChanged) {
         auto task = [ability = shared_from_this(), configuration = *configuration]() {
             ability->OnConfigurationUpdated(configuration);
         };
         handler_->PostTask(task);
     }
 
-    HILOG_DEBUG("%{public}s end", __func__);
+    HILOG_DEBUG("OnChange finished.");
 }
 
 void Ability::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)

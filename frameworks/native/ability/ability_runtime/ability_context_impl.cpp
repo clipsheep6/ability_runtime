@@ -410,7 +410,11 @@ void AbilityContextImpl::SetStageContext(const std::shared_ptr<AbilityRuntime::C
 
 void AbilityContextImpl::SetConfiguration(const std::shared_ptr<AppExecFwk::Configuration>& config)
 {
-    config_ = config;
+    if (config == nullptr) {
+        HILOG_ERROR("Config is invalid.");
+        return;
+    }
+    config_ = std::make_shared<AppExecFwk::Configuration>(*config);
 }
 
 std::shared_ptr<AppExecFwk::Configuration> AbilityContextImpl::GetConfiguration() const

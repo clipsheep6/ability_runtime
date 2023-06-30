@@ -64,6 +64,7 @@ ohos_shared_library("ability_context_native") {
   ]
 
   external_deps = [
+    "ability_base:configuration",
     "ability_base:session_info",
     "ability_base:want",
     "access_token:libaccesstoken_sdk",

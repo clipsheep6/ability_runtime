@@ -16,6 +16,9 @@
 #ifndef OHOS_ABILITY_RUNTIME_SERVICE_EXTENSION_H
 #define OHOS_ABILITY_RUNTIME_SERVICE_EXTENSION_H
 
+#ifdef SUPPORT_GRAPHICS
+#include "display_manager.h"
+#endif
 #include "extension_base.h"
 
 namespace OHOS {
@@ -27,8 +30,7 @@ using CreatorFunc = std::function<ServiceExtension* (const std::unique_ptr<Runti
 /**
  * @brief Basic service components.
  */
-class ServiceExtension : public ExtensionBase<ServiceExtensionContext>,
-                         public std::enable_shared_from_this<ServiceExtension> {
+class ServiceExtension : public ExtensionBase<ServiceExtensionContext> {
 public:
     ServiceExtension() = default;
     virtual ~ServiceExtension() = default;
@@ -83,8 +85,67 @@ public:
      */
     void OnConfigurationUpdated(const AppExecFwk::Configuration &configuration) override;
 
+    /**
+     * @brief Called when start current service extension.
+     *
+     * @param want Indicates parameters carried with start.
+     */
+    void OnStart(const AAFwk::Want &want) override;
+
+    /**
+     * @brief Called when configuration changed, including system configuration and window configuration.
+     *
+     */
+    virtual void ConfigurationUpdated();
+
+#ifdef SUPPORT_GRAPHICS
+protected:
+    class ServiceExtensionDisplayListener : public Rosen::DisplayManager::IDisplayListener {
+    public:
+        explicit ServiceExtensionDisplayListener(const std::weak_ptr<ServiceExtension>& serviceExtension)
+        {
+            serviceExtension_ = serviceExtension;
+        }
+
+        void OnCreate(Rosen::DisplayId displayId) override
+        {
+            auto sptr = serviceExtension_.lock();
+            if (sptr != nullptr) {
+                sptr->OnCreate(displayId);
+            }
+        }
+
+        void OnDestroy(Rosen::DisplayId displayId) override
+        {
+            auto sptr = serviceExtension_.lock();
+            if (sptr != nullptr) {
+                sptr->OnDestroy(displayId);
+            }
+        }
+
+        void OnChange(Rosen::DisplayId displayId) override
+        {
+            auto sptr = serviceExtension_.lock();
+            if (sptr != nullptr) {
+                sptr->OnChange(displayId);
+            }
+        }
+
+    private:
+        std::weak_ptr<ServiceExtension> serviceExtension_;
+    };
+
+    void OnCreate(Rosen::DisplayId displayId);
+    void OnDestroy(Rosen::DisplayId displayId);
+    void OnChange(Rosen::DisplayId displayId);
+
+private:
+    sptr<ServiceExtensionDisplayListener> displayListener_ = nullptr;
+#endif
+
 private:
     static CreatorFunc creator_;
+    std::shared_ptr<AbilityHandler> handler_ = nullptr;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

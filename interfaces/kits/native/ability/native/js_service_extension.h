@@ -138,6 +138,12 @@ public:
     void OnConfigurationUpdated(const AppExecFwk::Configuration& configuration) override;
 
     /**
+     * @brief Called when configuration changed, including system configuration and window configuration.
+     *
+     */
+    void ConfigurationUpdated() override;
+
+    /**
      * @brief Called when extension need dump info.
      *
      * @param params The params from service.
