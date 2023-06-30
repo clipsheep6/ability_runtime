@@ -24,8 +24,6 @@
 #include "iremote_object.h"
 #include "bundle_info.h"
 #include "app_launch_data.h"
-#include "app_running_record.h"
-#include "app_running_manager.h"
 #include "test_observer.h"
 
 using namespace OHOS::AAFwk;

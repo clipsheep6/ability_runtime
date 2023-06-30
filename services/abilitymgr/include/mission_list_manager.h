@@ -20,6 +20,7 @@
 #include <mutex>
 #include <queue>
 #include <memory>
+#include "cpp/mutex.h"
 
 #include "ability_running_info.h"
 #include "foundation/distributedhardware/device_manager/interfaces/inner_kits/native_cpp/include/device_manager.h"
@@ -527,7 +528,7 @@ private:
     bool CheckPrepareTerminateEnable(const std::shared_ptr<Mission> &mission);
 
     int userId_;
-    mutable std::mutex managerLock_;
+    mutable ffrt::mutex managerLock_;
     // launcher list is also in currentMissionLists_
     std::list<std::shared_ptr<MissionList>> currentMissionLists_;
     // only manager the ability of standard in the default list

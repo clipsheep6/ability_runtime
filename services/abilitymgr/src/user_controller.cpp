@@ -64,20 +64,15 @@ UserController::~UserController()
 
 void UserController::Init()
 {
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (!handler) {
-        return;
-    }
-
-    auto runner = handler->GetEventRunner();
-    if (!runner) {
         return;
     }
 
     if (eventHandler_) {
         return;
     }
-    eventHandler_ = std::make_shared<UserEventHandler>(runner, shared_from_this());
+    eventHandler_ = std::make_shared<UserEventHandler>(handler, shared_from_this());
 }
 
 int32_t UserController::StartUser(int32_t userId, bool isForeground)
@@ -186,13 +181,13 @@ int32_t UserController::StopUser(int32_t userId)
 
 int32_t UserController::GetCurrentUserId()
 {
-    std::lock_guard<std::mutex> guard(userLock_);
+    std::lock_guard<ffrt::mutex> guard(userLock_);
     return currentUserId_;
 }
 
 std::shared_ptr<UserItem> UserController::GetUserItem(int32_t userId)
 {
-    std::lock_guard<std::mutex> guard(userLock_);
+    std::lock_guard<ffrt::mutex> guard(userLock_);
     auto it = userItems_.find(userId);
     if (it != userItems_.end()) {
         return it->second;
@@ -223,7 +218,7 @@ bool UserController::IsExistOsAccount(int32_t userId)
 
 std::shared_ptr<UserItem> UserController::GetOrCreateUserItem(int32_t userId)
 {
-    std::lock_guard<std::mutex> guard(userLock_);
+    std::lock_guard<ffrt::mutex> guard(userLock_);
     auto it = userItems_.find(userId);
     if (it != userItems_.end()) {
         return it->second;
@@ -236,7 +231,7 @@ std::shared_ptr<UserItem> UserController::GetOrCreateUserItem(int32_t userId)
 
 void UserController::SetCurrentUserId(int32_t userId)
 {
-    std::lock_guard<std::mutex> guard(userLock_);
+    std::lock_guard<ffrt::mutex> guard(userLock_);
     currentUserId_ = userId;
     HILOG_DEBUG("set current userId: %{public}d", userId);
     DelayedSingleton<AppScheduler>::GetInstance()->SetCurrentUserId(userId);
@@ -260,7 +255,7 @@ void UserController::UserBootDone(std::shared_ptr<UserItem> &item)
     }
     int32_t userId = item->GetUserId();
 
-    std::lock_guard<std::mutex> guard(userLock_);
+    std::lock_guard<ffrt::mutex> guard(userLock_);
     auto it = userItems_.find(userId);
     if (it != userItems_.end()) {
         return;
@@ -307,20 +302,15 @@ void UserController::SendSystemUserStart(int32_t userId)
         return;
     }
 
-    std::shared_ptr<UserEvent> eventData = std::make_shared<UserEvent>();
+    auto eventData = std::make_shared<UserEvent>();
     eventData->newUserId = userId;
-    auto event = InnerEvent::Get(UserEventHandler::EVENT_SYSTEM_USER_START, eventData);
-    handler->SendEvent(event);
+    handler->SendEvent(EventWrap(UserEventHandler::EVENT_SYSTEM_USER_START, eventData));
 }
 
-void UserController::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event)
+void UserController::ProcessEvent(const EventWrap &event)
 {
-    if (!event) {
-        return;
-    }
-
-    auto eventId = event->GetInnerEventId();
-    auto eventData = event->GetSharedObject<UserEvent>();
+    auto eventId = event.GetEventId();
+    auto eventData = static_cast<UserEvent*>(event.GetEventData().get());
     if (!eventData) {
         HILOG_DEBUG("no event data, event id: %{public}u.", eventId);
         return;
@@ -366,11 +356,10 @@ void UserController::SendSystemUserCurrent(int32_t oldUserId, int32_t newUserId)
         return;
     }
 
-    std::shared_ptr<UserEvent> eventData = std::make_shared<UserEvent>();
+    auto eventData = std::make_shared<UserEvent>();
     eventData->oldUserId = oldUserId;
     eventData->newUserId = newUserId;
-    auto event = InnerEvent::Get(UserEventHandler::EVENT_SYSTEM_USER_CURRENT, eventData);
-    handler->SendEvent(event);
+    handler->SendEvent(EventWrap(UserEventHandler::EVENT_SYSTEM_USER_CURRENT, eventData));
 }
 
 void UserController::SendReportUserSwitch(int32_t oldUserId, int32_t newUserId,
@@ -381,13 +370,11 @@ void UserController::SendReportUserSwitch(int32_t oldUserId, int32_t newUserId,
         return;
     }
 
-    handler->RemoveEvent(UserEventHandler::EVENT_REPORT_USER_SWITCH);
-    std::shared_ptr<UserEvent> eventData = std::make_shared<UserEvent>();
+    auto eventData = std::make_shared<UserEvent>();
     eventData->oldUserId = oldUserId;
     eventData->newUserId = newUserId;
     eventData->userItem = usrItem;
-    auto event = InnerEvent::Get(UserEventHandler::EVENT_REPORT_USER_SWITCH, eventData);
-    handler->SendEvent(event);
+    handler->SendEvent(EventWrap(UserEventHandler::EVENT_REPORT_USER_SWITCH, eventData));
 }
 
 void UserController::SendUserSwitchTimeout(int32_t oldUserId, int32_t newUserId,
@@ -398,13 +385,12 @@ void UserController::SendUserSwitchTimeout(int32_t oldUserId, int32_t newUserId,
         return;
     }
 
-    handler->RemoveEvent(UserEventHandler::EVENT_USER_SWITCH_TIMEOUT);
-    std::shared_ptr<UserEvent> eventData = std::make_shared<UserEvent>();
+    auto eventData = std::make_shared<UserEvent>();
     eventData->oldUserId = oldUserId;
     eventData->newUserId = newUserId;
     eventData->userItem = usrItem;
-    auto event = InnerEvent::Get(UserEventHandler::EVENT_USER_SWITCH_TIMEOUT, eventData);
-    handler->SendEvent(event, USER_SWITCH_TIMEOUT);
+    handler->SendEvent(EventWrap(UserEventHandler::EVENT_USER_SWITCH_TIMEOUT,
+        eventData), USER_SWITCH_TIMEOUT);
 }
 
 void UserController::SendContinueUserSwitch(int32_t oldUserId, int32_t newUserId,
@@ -415,13 +401,11 @@ void UserController::SendContinueUserSwitch(int32_t oldUserId, int32_t newUserId
         return;
     }
 
-    handler->RemoveEvent(UserEventHandler::EVENT_USER_SWITCH_TIMEOUT);
-    std::shared_ptr<UserEvent> eventData = std::make_shared<UserEvent>();
+    auto eventData = std::make_shared<UserEvent>();
     eventData->oldUserId = oldUserId;
     eventData->newUserId = newUserId;
     eventData->userItem = usrItem;
-    auto event = InnerEvent::Get(UserEventHandler::EVENT_CONTINUE_USER_SWITCH, eventData);
-    handler->SendEvent(event);
+    handler->SendEvent(EventWrap(UserEventHandler::EVENT_CONTINUE_USER_SWITCH, eventData));
 }
 
 void UserController::SendUserSwitchDone(int32_t userId)
@@ -431,11 +415,10 @@ void UserController::SendUserSwitchDone(int32_t userId)
         return;
     }
 
-    handler->RemoveEvent(UserEventHandler::EVENT_REPORT_USER_SWITCH_DONE);
-    std::shared_ptr<UserEvent> eventData = std::make_shared<UserEvent>();
+    auto eventData = std::make_shared<UserEvent>();
     eventData->newUserId = userId;
-    auto event = InnerEvent::Get(UserEventHandler::EVENT_REPORT_USER_SWITCH_DONE, eventData);
-    handler->SendEvent(event);
+    handler->SendEvent(EventWrap(UserEventHandler::EVENT_REPORT_USER_SWITCH_DONE,
+        eventData));
 }
 
 void UserController::HandleSystemUserStart(int32_t userId)

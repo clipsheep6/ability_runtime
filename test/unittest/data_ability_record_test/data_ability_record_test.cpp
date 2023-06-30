@@ -155,7 +155,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_WaitForLoaded_001, TestS
     HILOG_INFO("AaFwk_DataAbilityRecord_WaitForLoaded_001 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
-    std::mutex mutex;
+    ffrt::mutex mutex;
     system_clock::duration timeout = 800ms;
 
     EXPECT_EQ(dataAbilityRecord->WaitForLoaded(mutex, timeout), ERR_INVALID_STATE);
@@ -176,7 +176,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_WaitForLoaded_002, TestS
     HILOG_INFO("AaFwk_DataAbilityRecord_WaitForLoaded_002 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
-    std::mutex mutex;
+    ffrt::mutex mutex;
     system_clock::duration timeout = 800ms;
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
@@ -198,7 +198,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_WaitForLoaded_003, TestS
     HILOG_INFO("AaFwk_DataAbilityRecord_WaitForLoaded_003 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
-    std::mutex mutex;
+    ffrt::mutex mutex;
     system_clock::duration timeout = 800ms;
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);

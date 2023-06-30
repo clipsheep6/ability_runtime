@@ -961,6 +961,13 @@ public:
     }
 
     /**
+     * Report drawn completed.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t ReportDrawnCompleted(const sptr<IRemoteObject> &callerToken) = 0;
+
+    /**
      * Acquire the shared data.
      * @param missionId The missionId of Target ability.
      * @param shareData The IAcquireShareData object.
@@ -1348,6 +1355,9 @@ public:
 
         // ipc id for set sessionManagerService
         SET_SESSIONMANAGERSERVICE,
+
+        // ipc id for report drawn completed
+        REPORT_DRAWN_COMPLETED,
 
         GET_SESSIONMANAGERSERVICE,
 

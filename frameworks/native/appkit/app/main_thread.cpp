@@ -960,6 +960,7 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
                 EventFwk::MatchingSkills matchingSkills;
                 matchingSkills.AddEvent(OVERLAY_STATE_CHANGED);
                 EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
+                subscribeInfo.SetThreadMode(EventFwk::CommonEventSubscribeInfo::COMMON);
                 wptr<MainThread> weak = this;
                 auto callback = [weak, resourceManager, bundleName, moduleName = entryHapModuleInfo.moduleName,
                     loadPath](const EventFwk::CommonEventData &data) {

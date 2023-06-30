@@ -769,6 +769,14 @@ ErrCode AbilityManagerClient::RequestDialogService(
     return abms->RequestDialogService(want, callerToken);
 }
 
+ErrCode AbilityManagerClient::ReportDrawnCompleted(const sptr<IRemoteObject> &callerToken)
+{
+    HILOG_DEBUG("called.");
+    auto abilityMgr = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abilityMgr);
+    return abilityMgr->ReportDrawnCompleted(callerToken);
+}
+
 /**
  * Start synchronizing remote device mission
  * @param devId, deviceId.

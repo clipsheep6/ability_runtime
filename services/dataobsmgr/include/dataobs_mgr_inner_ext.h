@@ -22,16 +22,15 @@
 #include <memory>
 #include <map>
 #include <mutex>
+#include "cpp/mutex.h"
 
 #include "data_ability_observer_interface.h"
 #include "dataobs_mgr_errors.h"
-#include "event_handler.h"
 #include "iremote_object.h"
 #include "refbase.h"
 
 namespace OHOS {
 namespace AAFwk {
-using EventHandler = OHOS::AppExecFwk::EventHandler;
 class DataObsMgrInnerExt : public std::enable_shared_from_this<DataObsMgrInnerExt> {
 public:
 
@@ -85,7 +84,7 @@ private:
 
     static constexpr uint32_t OBS_NUM_MAX = 50;
 
-    std::mutex nodeMutex_;
+    ffrt::mutex nodeMutex_;
     std::shared_ptr<Node> root_;
     std::map<sptr<IRemoteObject>, std::shared_ptr<DeathRecipientRef>> obsRecipientRefs;
 };

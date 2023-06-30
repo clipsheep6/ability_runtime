@@ -19,6 +19,7 @@
 #define private public
 #define protected public
 #include "ability_record.h"
+#include "ability_start_setting.h"
 #include "scene_board/ui_ability_lifecycle_manager.h"
 #undef protected
 #undef private
@@ -127,6 +128,24 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_003, TestSize.Level1)
 }
 
 /**
+ * @tc.name: UIAbilityLifecycleManager_StartUIAbility_0400
+ * @tc.desc: StartUIAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_004, TestSize.Level1)
+{
+    auto mgr = std::make_unique<UIAbilityLifecycleManager>();
+    AbilityRequest abilityRequest;
+    Rosen::SessionInfo info;
+    sptr<SessionInfo> sessionInfo(new SessionInfo());
+    sessionInfo->sessionToken = new Rosen::Session(info);
+    sessionInfo->startSetting = std::make_shared<AbilityStartSetting>();
+    sessionInfo->persistentId = 1;
+    abilityRequest.sessionInfo = sessionInfo;
+    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo), ERR_OK);
+}
+
+/**
  * @tc.name: UIAbilityLifecycleManager_StartUIAbility_0500
  * @tc.desc: StartUIAbility
  * @tc.type: FUNC
@@ -160,6 +179,20 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_006, TestSize.Level1)
     sptr<SessionInfo> sessionInfo(new SessionInfo());
     sessionInfo->sessionToken = new Rosen::Session(info);
     EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo), ERR_OK);
+}
+
+/**
+ * @tc.name: UIAbilityLifecycleManager_CreateSessionInfo_0100
+ * @tc.desc: CreateSessionInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIAbilityLifecycleManagerTest, CreateSessionInfo_001, TestSize.Level1)
+{
+    auto mgr = std::make_unique<UIAbilityLifecycleManager>();
+    EXPECT_NE(mgr, nullptr);
+    AbilityRequest abilityRequest;
+    abilityRequest.startSetting = std::make_shared<AbilityStartSetting>();
+    EXPECT_NE(mgr->CreateSessionInfo(abilityRequest), nullptr);
 }
 
 /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -624,6 +624,56 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_StartNativeProcessForDebugger_001, TestS
 
     AAFwk::Want want;
     appMgrClient->StartNativeProcessForDebugger(want);
+}
+
+/**
+ * @tc.name: AppMgrClient_GetBundleNameByPid_001
+ * @tc.desc: GetBundleNameByPid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_GetBundleNameByPid_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+    int32_t pid = 0;
+    std::string name = "test";
+    int32_t uid = 0;
+    auto ret = appMgrClient->GetBundleNameByPid(pid, name, uid);
+    EXPECT_EQ(ret, NO_ERROR);
+}
+
+/**
+ * @tc.name: AppMgrClient_NotifyAppFault_001
+ * @tc.desc: NotifyAppFault.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_NotifyAppFault_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+    FaultData faultData;
+    auto resultCode = appMgrClient->NotifyAppFault(faultData);
+    EXPECT_EQ(resultCode, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AppMgrClient_NotifyAppFaultBySA_001
+ * @tc.desc: NotifyAppFaultBySA.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_NotifyAppFaultBySA_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+    AppFaultDataBySA faultData;
+    auto resultCode = appMgrClient->NotifyAppFaultBySA(faultData);
+    EXPECT_EQ(resultCode, ERR_INVALID_VALUE);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

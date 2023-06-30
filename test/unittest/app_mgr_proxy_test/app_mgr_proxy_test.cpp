@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -232,6 +232,38 @@ HWTEST_F(AppMgrProxyTest, PreStartNWebSpawnProcess_001, TestSize.Level0)
     EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::PRE_START_NWEBSPAWN_PROCESS));
 
     HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: NotifyAppFault_001
+ * @tc.desc: Notify app fault.
+ * @tc.type: FUNC
+ * @tc.require: issueI79RY8
+ */
+HWTEST_F(AppMgrProxyTest, NotifyAppFault_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+    FaultData faultData;
+    appMgrProxy_->NotifyAppFault(faultData);
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::NOTIFY_APP_FAULT));
+}
+
+/**
+ * @tc.name: NotifyAppFaultBySA_001
+ * @tc.desc: Notify app fault by SA.
+ * @tc.type: FUNC
+ * @tc.require: issueI79RY8
+ */
+HWTEST_F(AppMgrProxyTest, NotifyAppFaultBySA_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+    AppFaultDataBySA faultData;
+    appMgrProxy_->NotifyAppFaultBySA(faultData);
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::NOTIFY_APP_FAULT_BY_SA));
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

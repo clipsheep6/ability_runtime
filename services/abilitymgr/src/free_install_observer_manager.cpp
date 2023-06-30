@@ -12,14 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "free_install_observer_manager.h"
 
 #include <chrono>
 
 #include "ability_event_handler.h"
 #include "ability_manager_service.h"
 #include "ability_manager_errors.h"
-#include "free_install_observer_manager.h"
-#include "free_install_observer_interface.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -37,7 +36,7 @@ int32_t FreeInstallObserverManager::AddObserver(const sptr<IFreeInstallObserver>
         HILOG_ERROR("the observer is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    std::lock_guard<std::mutex> lock(observerLock_);
+    std::lock_guard<ffrt::mutex> lock(observerLock_);
     if (ObserverExistLocked(observer)) {
         HILOG_ERROR("Observer exist.");
         return ERR_INVALID_VALUE;
@@ -72,7 +71,7 @@ int32_t FreeInstallObserverManager::RemoveObserver(const sptr<IFreeInstallObserv
         HILOG_ERROR("the observer is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    std::lock_guard<std::mutex> lock(observerLock_);
+    std::lock_guard<ffrt::mutex> lock(observerLock_);
     auto it = std::find_if(observerList_.begin(), observerList_.end(),
         [&observer](const sptr<IFreeInstallObserver> &item) {
         return (item && item->AsObject() == observer->AsObject());
@@ -99,10 +98,9 @@ void FreeInstallObserverManager::OnInstallFinished(const std::string &bundleName
         self->HandleOnInstallFinished(bundleName, abilityName, startTime, resultCode);
     };
 
-    std::shared_ptr<AbilityEventHandler> handler =
-        DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    CHECK_POINTER_LOG(handler, "Fail to get AbilityEventHandler.");
-    handler->PostTask(task);
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    CHECK_POINTER_LOG(handler, "Fail to get Ability task handler.");
+    handler->SubmitTask(task);
 }
 
 void FreeInstallObserverManager::HandleOnInstallFinished(const std::string &bundleName, const std::string &abilityName,
@@ -141,7 +139,7 @@ void FreeInstallObserverManager::OnObserverDied(const wptr<IRemoteObject> &remot
     }
     remoteObj->RemoveDeathRecipient(deathRecipient_);
 
-    std::lock_guard<std::mutex> lock(observerLock_);
+    std::lock_guard<ffrt::mutex> lock(observerLock_);
     auto it = std::find_if(observerList_.begin(), observerList_.end(), [&remoteObj]
         (const sptr<IFreeInstallObserver> item) {
         return (item && item->AsObject() == remoteObj);

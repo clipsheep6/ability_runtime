@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -2241,14 +2241,16 @@ HWTEST_F(AmsAppRunningRecordTest, AddAbilityStageBySpecifiedAbility_001, TestSiz
 
     record->AddAbilityStageBySpecifiedAbility(bundleName1);
 
-    auto runner = EventRunner::Create("AmsAppLifeCycleModuleTest");
+    auto runner = AAFwk::TaskHandlerWrap::CreateQueueHandler("AmsAppRunningRecordTest");
     std::shared_ptr<AppMgrServiceInner> serviceInner = std::make_shared<AppMgrServiceInner>();
     std::shared_ptr<AMSEventHandler> handler = std::make_shared<AMSEventHandler>(runner, serviceInner);
+    record->taskHandler_ = runner;
     record->eventHandler_ = handler;
     record->AddAbilityStageBySpecifiedAbility(bundleName1);
     record->AddAbilityStageBySpecifiedAbility(bundleName);
 
-    record->eventHandler_->SendEvent(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG, 1, 0);
+    record->eventHandler_->SendEvent(
+        AAFwk::EventWrap(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG, 1), 0);
     record->AddAbilityStageBySpecifiedAbility(bundleName);
 
     auto abilityInfo2 = std::make_shared<AbilityInfo>();
@@ -2292,14 +2294,17 @@ HWTEST_F(AmsAppRunningRecordTest, AddAbilityStageDone_001, TestSize.Level1)
     EXPECT_TRUE(record != nullptr);
     record->AddAbilityStageDone();
 
-    auto runner = EventRunner::Create("AmsAppLifeCycleModuleTest");
+    auto runner = AAFwk::TaskHandlerWrap::CreateQueueHandler("AmsAppRunningRecordTest");
     std::shared_ptr<AppMgrServiceInner> serviceInner = std::make_shared<AppMgrServiceInner>();
     std::shared_ptr<AMSEventHandler> handler = std::make_shared<AMSEventHandler>(runner, serviceInner);
+    record->taskHandler_ = runner;
     record->eventHandler_ = handler;
     record->AddAbilityStageDone();
 
-    record->eventHandler_->SendEvent(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG, 1, 0);
-    record->eventHandler_->SendEvent(AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG, 1, 0);
+    record->eventHandler_->SendEvent(
+        AAFwk::EventWrap(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG, 1), 0);
+    record->eventHandler_->SendEvent(
+        AAFwk::EventWrap(AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG, 1), 0);
     record->AddAbilityStageDone();
 
     record->isSpecifiedAbility_ = true;
@@ -2689,6 +2694,42 @@ HWTEST_F(AmsAppRunningRecordTest, IsUIExtension_002, TestSize.Level1)
     EXPECT_TRUE(otherRecord != nullptr);
 
     EXPECT_EQ(otherRecord->IsUIExtension(), true);
+}
+
+/*
+ * Feature: AMS
+ * Function: NotifyAppFault
+ * SubFunction: NotifyAppFault
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Ability Unfocused
+ */
+HWTEST_F(AmsAppRunningRecordTest, NotifyAppFault_001, TestSize.Level1)
+{
+    HILOG_DEBUG("NotifyAppFault_001 start.");
+    auto record = GetTestAppRunningRecord();
+    FaultData faultData;
+    record->appLifeCycleDeal_ = nullptr;
+    EXPECT_EQ(ERR_INVALID_VALUE, record->NotifyAppFault(faultData));
+    HILOG_DEBUG("NotifyAppFault_001 end.");
+}
+
+/*
+ * Feature: AMS
+ * Function: NotifyAppFault
+ * SubFunction: NotifyAppFault
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Ability Unfocused
+ */
+HWTEST_F(AmsAppRunningRecordTest, NotifyAppFault_002, TestSize.Level1)
+{
+    HILOG_DEBUG("NotifyAppFault_002 start.");
+    auto record = GetTestAppRunningRecord();
+    FaultData faultData;
+    record->appLifeCycleDeal_ = std::make_shared<AppLifeCycleDeal>();
+    EXPECT_EQ(ERR_INVALID_VALUE, record->NotifyAppFault(faultData));
+    HILOG_DEBUG("NotifyAppFault_002 end.");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

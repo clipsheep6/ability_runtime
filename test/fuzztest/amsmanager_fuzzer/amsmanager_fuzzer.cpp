@@ -20,7 +20,6 @@
 
 #include "ams_mgr_scheduler.h"
 #include "app_mgr_constants.h"
-#include "app_mgr_service_event_handler.h"
 #include "app_mgr_service_inner.h"
 #include "message_parcel.h"
 #include "securec.h"
@@ -52,8 +51,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
     std::shared_ptr<AppMgrServiceInner> appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    std::shared_ptr<AMSEventHandler> eventHandler = std::make_shared<AMSEventHandler>(nullptr, appMgrServiceInner);
-    std::shared_ptr<AmsMgrScheduler> amsMgr = std::make_shared<AmsMgrScheduler>(appMgrServiceInner, eventHandler);
+    std::shared_ptr<AmsMgrScheduler> amsMgr = std::make_shared<AmsMgrScheduler>(appMgrServiceInner, nullptr);
     amsMgr->OnRemoteRequest(code, parcel, reply, option);
 
     return true;

@@ -277,6 +277,13 @@ public:
      */
     virtual ErrCode RequestDialogService(NativeEngine &engine, AAFwk::Want &want, RequestDialogResultTask &&task) = 0;
 
+    /**
+     * @brief Report drawn completed.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual ErrCode ReportDrawnCompleted() = 0;
+
     virtual ErrCode GetMissionId(int32_t &missionId) = 0;
 
     /**

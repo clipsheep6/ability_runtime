@@ -47,7 +47,10 @@ ohos_unittest("call_record_test") {
     "//third_party/googletest:gmock_main",
   ]
 
-  external_deps = [ "ability_base:want" ]
+  external_deps = [
+    "ability_base:want",
+    "ffrt:libffrt",
+  ]
 
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]

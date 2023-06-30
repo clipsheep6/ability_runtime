@@ -18,8 +18,9 @@
 
 #include <mutex>
 #include <unordered_map>
+#include "cpp/mutex.h"
 
-#include "ability_event_handler.h"
+#include "task_handler_wrap.h"
 #include "application_state_observer_stub.h"
 #include "connection_state_item.h"
 #include "connection_observer_controller.h"
@@ -47,7 +48,7 @@ public:
      * init manager.
      *
      */
-    void Init(const std::shared_ptr<AppExecFwk::EventHandler> &handler = nullptr);
+    void Init(const std::shared_ptr<TaskHandlerWrap> &handler = nullptr);
 
     /**
      * register connection state observer.
@@ -200,14 +201,14 @@ private:
 private:
     std::shared_ptr<ConnectionObserverController> observerController_;
 
-    std::mutex stateLock_;
+    ffrt::mutex stateLock_;
     std::unordered_map<int32_t, std::shared_ptr<ConnectionStateItem>> connectionStates_;
 
-    std::mutex dlpLock_;
+    ffrt::mutex dlpLock_;
     std::unordered_map<int32_t, std::shared_ptr<DlpStateItem>> dlpItems_;
 
     sptr<InnerAppStateObserver> appStateObserver_;
-    std::shared_ptr<AppExecFwk::EventHandler> handler_;
+    std::shared_ptr<TaskHandlerWrap> handler_;
 
     int32_t retry_ = 0;
 };

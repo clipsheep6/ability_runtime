@@ -18,9 +18,10 @@
 
 #include <memory>
 #include <unordered_map>
+#include "cpp/mutex.h"
 
 #include "singleton.h"
-#include "ability_event_handler.h"
+#include "task_handler_wrap.h"
 #include "mission_data_storage.h"
 
 namespace OHOS {
@@ -97,10 +98,9 @@ public:
 private:
     std::unordered_map<int, std::shared_ptr<MissionDataStorage>> missionDataStorageMgr_;
     std::shared_ptr<MissionDataStorage> currentMissionDataStorage_;
-    std::shared_ptr<AppExecFwk::EventRunner> eventLoop_;
-    std::shared_ptr<AppExecFwk::EventHandler> handler_;
+    std::shared_ptr<TaskHandlerWrap> handler_;
     int32_t currentUserId_ = -1;
-    std::mutex mutex_;
+    ffrt::mutex mutex_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -50,6 +50,7 @@ ohos_fuzztest("GetTopAbilityFuzzTest") {
     "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_base",
     "common_event_service:cesfwk_innerkits",
+    "ffrt:libffrt",
     "ipc:ipc_core",
     "relational_store:native_dataability",
   ]

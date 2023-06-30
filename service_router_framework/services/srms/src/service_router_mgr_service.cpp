@@ -143,6 +143,7 @@ bool ServiceRouterMgrService::ServiceRouterMgrService::SubscribeCommonEvent()
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED);
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED);
     EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
+    subscribeInfo.SetThreadMode(EventFwk::CommonEventSubscribeInfo::COMMON);
 
     eventSubscriber_ = std::make_shared<SrCommonEventSubscriber>(subscribeInfo);
     eventSubscriber_->SetEventHandler(handler_);

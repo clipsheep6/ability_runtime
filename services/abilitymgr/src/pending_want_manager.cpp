@@ -84,7 +84,7 @@ sptr<IWantSender> PendingWantManager::GetWantSenderLocked(const int32_t callingU
         pendingKey->SetRequestResolvedType(wantSenderInfo.allWants.back().resolvedTypes);
         pendingKey->SetAllWantsInfos(wantSenderInfo.allWants);
     }
-    std::lock_guard<std::mutex> locker(mutex_);
+    std::lock_guard<ffrt::mutex> locker(mutex_);
     auto ref = GetPendingWantRecordByKey(pendingKey);
     if (ref != nullptr) {
         if (!needCancel) {
@@ -194,7 +194,7 @@ void PendingWantManager::CancelWantSender(std::string &apl, const sptr<IWantSend
         return;
     }
 
-    std::lock_guard<std::mutex> locker(mutex_);
+    std::lock_guard<ffrt::mutex> locker(mutex_);
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (!isSaCall && apl != AbilityUtil::SYSTEM_BASIC && apl != AbilityUtil::SYSTEM_CORE) {
         HILOG_ERROR("is not allowed to send");
@@ -317,7 +317,7 @@ sptr<PendingWantRecord> PendingWantManager::GetPendingWantRecordByCode(int32_t c
 {
     HILOG_INFO("begin. wantRecords_ size = %{public}zu", wantRecords_.size());
 
-    std::lock_guard<std::mutex> locker(mutex_);
+    std::lock_guard<ffrt::mutex> locker(mutex_);
     auto iter = std::find_if(wantRecords_.begin(), wantRecords_.end(), [&code](const auto &pair) {
         return pair.second->GetKey()->GetCode() == code;
     });
@@ -413,7 +413,7 @@ void PendingWantManager::RegisterCancelListener(const sptr<IWantSender> &sender,
         return;
     }
     bool cancel = record->GetCanceled();
-    std::lock_guard<std::mutex> locker(mutex_);
+    std::lock_guard<ffrt::mutex> locker(mutex_);
     if (!cancel) {
         record->RegisterCancelListener(recevier);
     }
@@ -434,7 +434,7 @@ void PendingWantManager::UnregisterCancelListener(const sptr<IWantSender> &sende
         HILOG_ERROR("%{public}s:record is nullptr.", __func__);
         return;
     }
-    std::lock_guard<std::mutex> locker(mutex_);
+    std::lock_guard<ffrt::mutex> locker(mutex_);
     record->UnregisterCancelListener(recevier);
 }
 
@@ -498,16 +498,16 @@ void PendingWantManager::ClearPendingWantRecord(const std::string &bundleName, i
     HILOG_INFO("bundleName: %{public}s", bundleName.c_str());
     auto abilityManagerService = DelayedSingleton<AbilityManagerService>::GetInstance();
     CHECK_POINTER(abilityManagerService);
-    auto handler = abilityManagerService->GetEventHandler();
+    auto handler = abilityManagerService->GetTaskHandler();
     CHECK_POINTER(handler);
     auto task = [bundleName, uid, self = shared_from_this()]() { self->ClearPendingWantRecordTask(bundleName, uid); };
-    handler->PostTask(task);
+    handler->SubmitTask(task);
 }
 
 void PendingWantManager::ClearPendingWantRecordTask(const std::string &bundleName, int32_t uid)
 {
     HILOG_INFO("bundleName: %{public}s", bundleName.c_str());
-    std::lock_guard<std::mutex> locker(mutex_);
+    std::lock_guard<ffrt::mutex> locker(mutex_);
     auto iter = wantRecords_.begin();
     while (iter != wantRecords_.end()) {
         bool hasBundle = false;

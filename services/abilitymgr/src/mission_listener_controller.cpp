@@ -19,7 +19,6 @@
 
 namespace OHOS {
 namespace AAFwk {
-using namespace OHOS::AppExecFwk;
 namespace {
 const std::string THREAD_NAME = "MissionListener";
 }
@@ -35,7 +34,7 @@ MissionListenerController::~MissionListenerController()
 void MissionListenerController::Init()
 {
     if (!handler_) {
-        handler_ = std::make_shared<EventHandler>(EventRunner::Create(THREAD_NAME));
+        handler_ = TaskHandlerWrap::CreateQueueHandler("mission_listener_task_queue");
     }
 }
 
@@ -46,7 +45,7 @@ int MissionListenerController::AddMissionListener(const sptr<IMissionListener> &
         return -1;
     }
 
-    std::lock_guard<std::mutex> guard(listenerLock_);
+    std::lock_guard<ffrt::mutex> guard(listenerLock_);
     auto it = std::find_if(missionListeners_.begin(), missionListeners_.end(),
         [&listener](const sptr<IMissionListener> &item) {
             return (item && item->AsObject() == listener->AsObject());
@@ -83,7 +82,7 @@ void MissionListenerController::DelMissionListener(const sptr<IMissionListener> 
         return;
     }
 
-    std::lock_guard<std::mutex> guard(listenerLock_);
+    std::lock_guard<ffrt::mutex> guard(listenerLock_);
     auto it = std::find_if(missionListeners_.begin(), missionListeners_.end(),
         [&listener](const sptr<IMissionListener> item) {
             return (item && item->AsObject() == listener->AsObject());
@@ -109,7 +108,7 @@ void MissionListenerController::NotifyMissionCreated(int32_t missionId)
         HILOG_INFO("notify listeners mission is created, missionId:%{public}d.", missionId);
         self->CallListeners(&IMissionListener::OnMissionCreated, missionId);
     };
-    handler_->PostTask(task);
+    handler_->SubmitTask(task);
 }
 
 void MissionListenerController::NotifyMissionDestroyed(int32_t missionId)
@@ -127,7 +126,7 @@ void MissionListenerController::NotifyMissionDestroyed(int32_t missionId)
         HILOG_INFO("notify listeners mission is destroyed, missionId:%{public}d.", missionId);
         self->CallListeners(&IMissionListener::OnMissionDestroyed, missionId);
     };
-    handler_->PostTask(task);
+    handler_->SubmitTask(task);
 }
 
 void MissionListenerController::HandleUnInstallApp(const std::list<int32_t> &missions)
@@ -151,7 +150,7 @@ void MissionListenerController::HandleUnInstallApp(const std::list<int32_t> &mis
             self->CallListeners(&IMissionListener::OnMissionDestroyed, id);
         }
     };
-    handler_->PostTask(task);
+    handler_->SubmitTask(task);
 }
 
 void MissionListenerController::NotifyMissionSnapshotChanged(int32_t missionId)
@@ -170,7 +169,7 @@ void MissionListenerController::NotifyMissionSnapshotChanged(int32_t missionId)
         HILOG_INFO("notify listeners mission snapshot changed, missionId:%{public}d.", missionId);
         self->CallListeners(&IMissionListener::OnMissionSnapshotChanged, missionId);
     };
-    handler_->PostTask(task);
+    handler_->SubmitTask(task);
 }
 
 void MissionListenerController::NotifyMissionMovedToFront(int32_t missionId)
@@ -189,7 +188,7 @@ void MissionListenerController::NotifyMissionMovedToFront(int32_t missionId)
         HILOG_INFO("notify listeners mission is moved to front, missionId:%{public}d.", missionId);
         self->CallListeners(&IMissionListener::OnMissionMovedToFront, missionId);
     };
-    handler_->PostTask(task);
+    handler_->SubmitTask(task);
 }
 
 void MissionListenerController::NotifyMissionFocused(int32_t missionId)
@@ -211,7 +210,7 @@ void MissionListenerController::NotifyMissionFocused(int32_t missionId)
         HILOG_INFO("NotifyMissionFocused, missionId:%{public}d.", missionId);
         self->CallListeners(&IMissionListener::OnMissionFocused, missionId);
     };
-    handler_->PostTask(task);
+    handler_->SubmitTask(task);
 }
 
 void MissionListenerController::NotifyMissionUnfocused(int32_t missionId)
@@ -233,7 +232,7 @@ void MissionListenerController::NotifyMissionUnfocused(int32_t missionId)
         HILOG_INFO("NotifyMissionUnfocused, missionId:%{public}d.", missionId);
         self->CallListeners(&IMissionListener::OnMissionUnfocused, missionId);
     };
-    handler_->PostTask(task);
+    handler_->SubmitTask(task);
 }
 
 #ifdef SUPPORT_GRAPHICS
@@ -254,7 +253,7 @@ void MissionListenerController::NotifyMissionIconChanged(int32_t missionId,
         HILOG_INFO("notify listeners mission icon has changed, missionId:%{public}d.", missionId);
         self->CallListeners(&IMissionListener::OnMissionIconUpdated, missionId, icon);
     };
-    handler_->PostTask(task);
+    handler_->SubmitTask(task);
 }
 #endif
 
@@ -273,7 +272,7 @@ void MissionListenerController::NotifyMissionClosed(int32_t missionId)
         HILOG_INFO("NotifyMissionClosed, missionId:%{public}d.", missionId);
         self->CallListeners(&IMissionListener::OnMissionClosed, missionId);
     };
-    handler_->PostTask(task);
+    handler_->SubmitTask(task);
 }
 
 void MissionListenerController::NotifyMissionLabelUpdated(int32_t missionId)
@@ -291,7 +290,7 @@ void MissionListenerController::NotifyMissionLabelUpdated(int32_t missionId)
         HILOG_INFO("notify listeners mission label has updated, missionId:%{public}d.", missionId);
         self->CallListeners(&IMissionListener::OnMissionLabelUpdated, missionId);
     };
-    handler_->PostTask(task);
+    handler_->SubmitTask(task);
 }
 
 void MissionListenerController::OnListenerDied(const wptr<IRemoteObject> &remote)
@@ -304,7 +303,7 @@ void MissionListenerController::OnListenerDied(const wptr<IRemoteObject> &remote
     }
     remoteObj->RemoveDeathRecipient(listenerDeathRecipient_);
 
-    std::lock_guard<std::mutex> guard(listenerLock_);
+    std::lock_guard<ffrt::mutex> guard(listenerLock_);
     auto it = std::find_if(missionListeners_.begin(), missionListeners_.end(),
         [&remoteObj](const sptr<IMissionListener> item) {
             return (item && item->AsObject() == remoteObj);

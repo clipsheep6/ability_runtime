@@ -54,25 +54,25 @@ void AbilityEventHandlerTest::TearDown()
  */
 HWTEST_F(AbilityEventHandlerTest, ability_event_handler_001, TestSize.Level1)
 {
-    std::shared_ptr<AppExecFwk::EventRunner> runner;
+    std::shared_ptr<TaskHandlerWrap> runner;
     std::weak_ptr<AbilityManagerService> server;
     std::shared_ptr<UserEvent> eventData = std::make_shared<UserEvent>();
-    auto event = AppExecFwk::InnerEvent::Get(UserEventHandler::EVENT_SYSTEM_USER_START, eventData);
+    auto event = EventWrap(UserEventHandler::EVENT_SYSTEM_USER_START, eventData);
     auto handler = std::make_shared<AbilityEventHandler>(runner, server);
     SetParameter("libc.hook_mode", "startup:");
     handler->ProcessEvent(event);
     SetParameter("libc.hook_mode", "test_parameter");
     handler->ProcessEvent(event);
-    auto event2 = event->Get(AbilityManagerService::LOAD_TIMEOUT_MSG, event->GetParam());
-    std::string str = std::to_string(event->GetInnerEventId());
+    auto event2 = EventWrap(AbilityManagerService::LOAD_TIMEOUT_MSG, event.GetParam());
+    std::string str = std::to_string(event.GetEventId());
     handler->ProcessEvent(event2);
-    event2 = event->Get(AbilityManagerService::ACTIVE_TIMEOUT_MSG, event->GetParam());
+    event2 = EventWrap(AbilityManagerService::ACTIVE_TIMEOUT_MSG, event.GetParam());
     handler->ProcessEvent(event2);
-    event2 = event->Get(AbilityManagerService::INACTIVE_TIMEOUT_MSG, event->GetParam());
+    event2 = EventWrap(AbilityManagerService::INACTIVE_TIMEOUT_MSG, event.GetParam());
     handler->ProcessEvent(event2);
-    event2 = event->Get(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, event->GetParam());
+    event2 = EventWrap(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, event.GetParam());
     handler->ProcessEvent(event2);
-    event2 = event->Get(AbilityManagerService::BACKGROUND_TIMEOUT_MSG, event->GetParam());
+    event2 = EventWrap(AbilityManagerService::BACKGROUND_TIMEOUT_MSG, event.GetParam());
     handler->ProcessEvent(event2);
 }  // namespace AppExecFwk
 }  // namespace OHOS

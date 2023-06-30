@@ -91,4 +91,44 @@ HWTEST_F(WantAgentTest, WantAgent_0200, Function | MediumTest | Level1)
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
     EXPECT_EQ(wantAgent->GetPendingWant(), pendingWant);
 }
+
+/*
+ * @tc.number    : WantAgent_0300
+ * @tc.name      : WantAgentInfo Constructors
+ * @tc.desc      : 1.Constructors and SetPendingWant
+ */
+HWTEST_F(WantAgentTest, WantAgent_0300, Function | MediumTest | Level1)
+{
+    sptr<IWantSender> target(new (std::nothrow) PendingWantRecord());
+    std::shared_ptr<PendingWant> pendingWant = std::make_shared<PendingWant>(target);
+    std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
+    EXPECT_NE(wantAgent, nullptr);
+    wantAgent->SetPendingWant(pendingWant);
+}
+
+/*
+ * @tc.number    : WantAgent_0400
+ * @tc.name      : WantAgentInfo Constructors
+ * @tc.desc      : 1.Constructors and Marshalling
+ */
+HWTEST_F(WantAgentTest, WantAgent_0400, Function | MediumTest | Level1)
+{
+    std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(nullptr);
+    Parcel parcel;
+    bool ret = wantAgent->Marshalling(parcel);
+    EXPECT_EQ(ret, true);
+}
+
+/*
+ * @tc.number    : WantAgent_0500
+ * @tc.name      : WantAgentInfo Constructors
+ * @tc.desc      : 1.Constructors and Unmarshalling
+ */
+HWTEST_F(WantAgentTest, WantAgent_0500, Function | MediumTest | Level1)
+{
+    std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(nullptr);
+    Parcel parcel;
+    bool ret = wantAgent->Unmarshalling(parcel);
+    EXPECT_EQ(ret, true);
+}
 }  // namespace OHOS::AbilityRuntime::WantAgent

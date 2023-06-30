@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -479,6 +479,23 @@ HWTEST_F(WatchdogTest, WatchdogTest_GetTag_001, TestSize.Level1)
     GTEST_LOG_(INFO) << "WatchdogTest_GetTag_001 start";
     EXPECT_EQ(mainHandlerDumper_->GetTag(), "");
     GTEST_LOG_(INFO) << "WatchdogTest_GetTag_001 end";
+}
+
+/**
+ * @tc.number: WatchdogTest_ReportEvent_008
+ * @tc.name: ReportEvent
+ * @tc.desc: Verify that function ReportEvent.
+ */
+HWTEST_F(WatchdogTest, WatchdogTest_ReportEvent_008, TestSize.Level1)
+{
+    watchdog_->lastWatchTime_ = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
+        system_clock::now().time_since_epoch()).count() - TEST_INTERVAL_TIME;
+    std::shared_ptr<EventHandler> eventHandler = std::make_shared<EventHandler>();
+    watchdog_->applicationInfo_ = std::make_shared<ApplicationInfo>();
+    watchdog_->needReport_ = true;
+    watchdog_->isSixSecondEvent_.store(true);
+    EXPECT_TRUE(watchdog_->needReport_);
+    watchdog_->ReportEvent();
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
