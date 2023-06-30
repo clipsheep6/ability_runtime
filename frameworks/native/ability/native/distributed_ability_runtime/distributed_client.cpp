@@ -529,7 +529,8 @@ int32_t DistributedClient::StopRemoteExtensionAbility(const Want &want, int32_t 
     PARCEL_TRANSACT_SYNC_RET_INT(remote, STOP_REMOTE_EXTERNSION_ABILITY, data, reply);
 }
 
-int32_t DistributedClient::SetMissionContinueState(int32_t missionId, const AAFwk::ContinueState &state){
+int32_t DistributedClient::SetMissionContinueState(int32_t missionId, const AAFwk::ContinueState &state)
+{
     HILOG_INFO("SetMissionContinueState called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
