@@ -599,7 +599,7 @@ HWTEST_F(AppMgrServiceTest, FinishUserTest_002, TestSize.Level0)
     appMgrService->taskHandler_ = taskHandler_;
     appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
     int res = appMgrService->FinishUserTest(msg, resultCode, bundleName);
-    EXPECT_NE(res, ERR_INVALID_OPERATION);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
 }
 
 /*
