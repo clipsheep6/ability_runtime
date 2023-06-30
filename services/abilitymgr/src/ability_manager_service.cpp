@@ -52,6 +52,7 @@
 #include "iservice_registry.h"
 #include "itest_observer.h"
 #include "mission_info_mgr.h"
+#include "mock_session_manager_service.h"
 #include "os_account_manager_wrapper.h"
 #include "parameters.h"
 #include "permission_constants.h"
@@ -7312,6 +7313,7 @@ int32_t AbilityManagerService::SetSessionManagerService(const sptr<IRemoteObject
         HILOG_ERROR("SetSessionManagerService: callerToken is nullptr");
     }
     sessionManagerService_ = sessionManagerService;
+    Rosen::MockSessionManagerService::GetInstance().RegisterMockSessionManagerService();
     HILOG_ERROR("SetSessionManagerService: set sessionManagerService_ OK");
     return ERR_OK;
 }
