@@ -27,8 +27,7 @@ using CreatorFunc = std::function<ServiceExtension* (const std::unique_ptr<Runti
 /**
  * @brief Basic service components.
  */
-class ServiceExtension : public ExtensionBase<ServiceExtensionContext>,
-                         public std::enable_shared_from_this<ServiceExtension> {
+class ServiceExtension : public ExtensionBase<ServiceExtensionContext> {
 public:
     ServiceExtension() = default;
     virtual ~ServiceExtension() = default;

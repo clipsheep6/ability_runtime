@@ -17,6 +17,9 @@
 #define OHOS_ABILITY_RUNTIME_JS_SERVICE_EXTENSION_H
 
 #include "configuration.h"
+#ifdef SUPPORT_GRAPHICS
+#include "display_manager.h"
+#endif
 #include "service_extension.h"
 
 class NativeReference;
@@ -30,8 +33,7 @@ class JsRuntime;
 /**
  * @brief Basic service components.
  */
-class JsServiceExtension : public ServiceExtension,
-                           public std::enable_shared_from_this<JsServiceExtension> {
+class JsServiceExtension : public ServiceExtension {
 public:
     explicit JsServiceExtension(JsRuntime& jsRuntime);
     virtual ~JsServiceExtension() override;
@@ -138,6 +140,12 @@ public:
     void OnConfigurationUpdated(const AppExecFwk::Configuration& configuration) override;
 
     /**
+     * @brief Called when configuration changed, including system configuration and window configuration.
+     *
+     */
+    void ConfigurationUpdated();
+
+    /**
      * @brief Called when extension need dump info.
      *
      * @param params The params from service.
@@ -163,6 +171,52 @@ private:
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;
     std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
+    std::shared_ptr<AbilityHandler> handler_ = nullptr;
+
+#ifdef SUPPORT_GRAPHICS
+protected:
+    class JsServiceExtensionDisplayListener : public Rosen::DisplayManager::IDisplayListener {
+    public:
+        explicit JsServiceExtensionDisplayListener(const std::weak_ptr<JsServiceExtension>& jsServiceExtension)
+        {
+            jsServiceExtension_ = jsServiceExtension;
+        }
+
+        void OnCreate(Rosen::DisplayId displayId) override
+        {
+            auto sptr = jsServiceExtension_.lock();
+            if (sptr != nullptr) {
+                sptr->OnCreate(displayId);
+            }
+        }
+
+        void OnDestroy(Rosen::DisplayId displayId) override
+        {
+            auto sptr = jsServiceExtension_.lock();
+            if (sptr != nullptr) {
+                sptr->OnDestroy(displayId);
+            }
+        }
+
+        void OnChange(Rosen::DisplayId displayId) override
+        {
+            auto sptr = jsServiceExtension_.lock();
+            if (sptr != nullptr) {
+                sptr->OnChange(displayId);
+            }
+        }
+
+    private:
+        std::weak_ptr<JsServiceExtension> jsServiceExtension_;
+    };
+
+    void OnCreate(Rosen::DisplayId displayId);
+    void OnDestroy(Rosen::DisplayId displayId);
+    void OnChange(Rosen::DisplayId displayId);
+
+private:
+    sptr<JsServiceExtensionDisplayListener> displayListener_ = nullptr;
+#endif
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
