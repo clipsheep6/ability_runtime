@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,29 +25,55 @@
 #include "os_account_manager_wrapper.h"
 #include "permission_constants.h"
 #include "permission_verification.h"
-#include "singleton.h"
 #include "system_ability_definition.h"
 #include "want.h"
 
 namespace OHOS {
 namespace AAFwk {
-const int32_t DEFAULT_USER_ID = 0;
-const int32_t ERR_OK = 0;
-using TokenId = Security::AccessToken::AccessTokenID;
+namespace {
+constexpr int32_t DEFAULT_USER_ID = 0;
+constexpr int32_t ERR_OK = 0;
+}
+
+void UriPermissionManagerStubImpl::Init()
+{
+    // Register UriBundleEventCallback to receive hap updates
+    HILOG_INFO("Register UriBundleEventCallback to receive hap updates.");
+    ConnectManager(bundleManager_, BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (bundleManager_ ==  nullptr) {
+        HILOG_ERROR("Get BundleManager failed!");
+        return;
+    }
+    uriBundleEventCallback_ = new UriBundleEventCallback(this);
+    auto ret = bundleManager_->RegisterBundleEventCallback(uriBundleEventCallback_);
+    if (!ret) {
+        HILOG_ERROR("RegisterBundleEventCallback failed!");
+    }
+}
+
+void UriPermissionManagerStubImpl::Stop() const
+{
+    if (uriBundleEventCallback_ != nullptr) {
+        auto ret = bundleManager_->UnregisterBundleEventCallback(uriBundleEventCallback_);
+        if (!ret) {
+            HILOG_ERROR("UnregisterBundleEventCallback failed!");
+        }
+    }
+}
 
 int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned int flag,
-    const std::string targetBundleName, int autoremove)
+    const std::string targetBundleName, int autoremove, int32_t appIndex)
 {
-    HILOG_DEBUG("UriPermissionManagerStubImpl::GrantUriPermission is called.");
+    HILOG_DEBUG("CALL: appIndex is %{public}d.", appIndex);
     // reject sandbox to grant uri permission
-    auto appMgrProxy = ConnectAppMgr();
-    if (appMgrProxy == nullptr) {
-        HILOG_ERROR("ConnectAppMgr failed");
+    ConnectManager(appMgr_, APP_MGR_SERVICE_ID);
+    if (appMgr_ == nullptr) {
+        HILOG_ERROR("Get BundleManager failed!");
         return INNER_ERR;
     }
     auto callerPid = IPCSkeleton::GetCallingPid();
     bool isSandbox = false;
-    auto ret = appMgrProxy->JudgeSandboxByPid(callerPid, isSandbox);
+    auto ret = appMgr_->JudgeSandboxByPid(callerPid, isSandbox);
     if (ret != ERR_OK) {
         HILOG_ERROR("JudgeSandboxByPid failed.");
         return INNER_ERR;
@@ -63,8 +89,8 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned in
     }
     Uri uri_inner = uri;
     auto&& authority = uri_inner.GetAuthority();
-    Security::AccessToken::AccessTokenID fromTokenId = GetTokenIdByBundleName(authority);
-    Security::AccessToken::AccessTokenID targetTokenId = GetTokenIdByBundleName(targetBundleName);
+    auto fromTokenId = GetTokenIdByBundleName(authority, 0);
+    auto targetTokenId = GetTokenIdByBundleName(targetBundleName, appIndex);
     auto callerTokenId = IPCSkeleton::GetCallingTokenID();
     auto permission = PermissionVerification::GetInstance()->VerifyCallingPermission(
         AAFwk::PermissionConstants::PERMISSION_PROXY_AUTHORIZATION_URI);
@@ -94,18 +120,17 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned in
 }
 
 int UriPermissionManagerStubImpl::GrantUriPermissionImpl(const Uri &uri, unsigned int flag,
-    Security::AccessToken::AccessTokenID fromTokenId,
-    Security::AccessToken::AccessTokenID targetTokenId, int autoremove)
+    TokenId fromTokenId, TokenId targetTokenId, int autoremove)
 {
-    auto storageMgrProxy = ConnectStorageManager();
-    if (storageMgrProxy == nullptr) {
-        HILOG_ERROR("ConnectStorageManager failed");
+    ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
+    if (storageManager_ == nullptr) {
+        HILOG_ERROR("ConnectManager failed");
         return INNER_ERR;
     }
     auto uriStr = uri.ToString();
-    auto ret = storageMgrProxy->CreateShareFile(uriStr, targetTokenId, flag);
+    auto ret = storageManager_->CreateShareFile(uriStr, targetTokenId, flag);
     if (ret != 0 && ret != -EEXIST) {
-        HILOG_ERROR("storageMgrProxy failed to CreateShareFile.");
+        HILOG_ERROR("failed to CreateShareFile.");
         return INNER_ERR;
     }
     std::lock_guard<std::mutex> guard(mutex_);
@@ -163,18 +188,18 @@ void UriPermissionManagerStubImpl::RevokeUriPermission(const TokenId tokenId)
         }
     }
 
-    auto storageMgrProxy = ConnectStorageManager();
-    if (storageMgrProxy == nullptr) {
-        HILOG_ERROR("ConnectStorageManager failed");
+    ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
+    if (storageManager_ == nullptr) {
+        HILOG_ERROR("ConnectManager failed");
         return;
     }
 
     if (!uriList.empty()) {
-        storageMgrProxy->DeleteShareFile(tokenId, uriList);
+        storageManager_->DeleteShareFile(tokenId, uriList);
     }
 }
 
-void UriPermissionManagerStubImpl::RevokeAllUriPermissions(int tokenId)
+void UriPermissionManagerStubImpl::RevokeAllUriPermissions(uint32_t tokenId)
 {
     HILOG_DEBUG("Start to remove all uri permission for uninstalled app.");
     std::map<unsigned int, std::vector<std::string>> uriLists;
@@ -200,15 +225,15 @@ void UriPermissionManagerStubImpl::RevokeAllUriPermissions(int tokenId)
         }
     }
 
-    auto storageMgrProxy = ConnectStorageManager();
-    if (storageMgrProxy == nullptr) {
+    ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
+    if (storageManager_ == nullptr) {
         HILOG_ERROR("ConnectStorageManager failed");
         return;
     }
 
     if (!uriLists.empty()) {
         for (auto iter = uriLists.begin(); iter != uriLists.end(); iter++) {
-            storageMgrProxy->DeleteShareFile(iter->first, iter->second);
+            storageManager_->DeleteShareFile(iter->first, iter->second);
         }
     }
 }
@@ -223,8 +248,8 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
         HILOG_WARN("only support file uri.");
         return ERR_CODE_INVALID_URI_TYPE;
     }
-    Security::AccessToken::AccessTokenID uriTokenId = GetTokenIdByBundleName(authority);
-    Security::AccessToken::AccessTokenID tokenId = GetTokenIdByBundleName(bundleName);
+    auto uriTokenId = GetTokenIdByBundleName(authority, 0);
+    auto tokenId = GetTokenIdByBundleName(bundleName, 0);
     auto callerTokenId = IPCSkeleton::GetCallingTokenID();
     auto permission = PermissionVerification::GetInstance()->VerifyCallingPermission(
         AAFwk::PermissionConstants::PERMISSION_PROXY_AUTHORIZATION_URI);
@@ -234,186 +259,117 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
     }
 
     std::vector<std::string> uriList;
-    {
-        std::lock_guard<std::mutex> guard(mutex_);
+    auto uriStr = uri.ToString();
+    std::lock_guard<std::mutex> guard(mutex_);
 
-        auto uriStr = uri.ToString();
-        auto search = uriMap_.find(uriStr);
-        if (search == uriMap_.end()) {
-            HILOG_INFO("URI does not exist on uri map.");
-            return ERR_OK;
-        }
-        auto& list = search->second;
-        for (auto it = list.begin(); it != list.end(); it++) {
-            if (it->targetTokenId == tokenId) {
-                HILOG_INFO("Erase an info form list.");
-                auto storageMgrProxy = ConnectStorageManager();
-                if (storageMgrProxy == nullptr) {
-                    HILOG_ERROR("ConnectStorageManager failed");
-                    return INNER_ERR;
-                }
-                uriList.emplace_back(search->first);
-                if (storageMgrProxy->DeleteShareFile(tokenId, uriList) == ERR_OK) {
-                    list.erase(it);
-                    break;
-                } else {
-                    HILOG_ERROR("DeleteShareFile failed");
-                    return INNER_ERR;
-                }
+    auto search = uriMap_.find(uriStr);
+    if (search == uriMap_.end()) {
+        HILOG_INFO("URI does not exist on uri map.");
+        return ERR_OK;
+    }
+    auto& list = search->second;
+    for (auto it = list.begin(); it != list.end(); it++) {
+        if (it->targetTokenId == tokenId) {
+            HILOG_INFO("Erase an info form list.");
+            ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
+            if (storageManager_ == nullptr) {
+                HILOG_ERROR("ConnectStorageManager failed");
+                return INNER_ERR;
+            }
+            uriList.emplace_back(search->first);
+            if (storageManager_->DeleteShareFile(tokenId, uriList) == ERR_OK) {
+                list.erase(it);
+                break;
+            } else {
+                HILOG_ERROR("DeleteShareFile failed");
+                return INNER_ERR;
             }
         }
-        if (list.size() == 0) {
-            uriMap_.erase(search);
-        }
+    }
+    if (list.size() == 0) {
+        uriMap_.erase(search);
     }
     return ERR_OK;
 }
 
-sptr<AppExecFwk::IAppMgr> UriPermissionManagerStubImpl::ConnectAppMgr()
+template<typename T>
+void UriPermissionManagerStubImpl::ConnectManager(sptr<T> &mgr, int32_t serviceId)
 {
-    HILOG_DEBUG("%{public}s is called.", __func__);
-    std::lock_guard<std::mutex> lock(appMgrMutex_);
-    if (appMgr_ == nullptr) {
+    HILOG_DEBUG("Call.");
+    std::lock_guard<std::mutex> lock(mgrMutex_);
+    if (mgr == nullptr) {
+        HILOG_ERROR("mgr is nullptr.");
         auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        if (!systemAbilityMgr) {
+        if (systemAbilityMgr == nullptr) {
             HILOG_ERROR("Failed to get SystemAbilityManager.");
-            return nullptr;
+            return;
         }
 
-        auto remoteObj = systemAbilityMgr->GetSystemAbility(APP_MGR_SERVICE_ID);
-        if (!remoteObj || (appMgr_ = iface_cast<AppExecFwk::IAppMgr>(remoteObj)) == nullptr) {
-            HILOG_ERROR("Failed to get AppMgrService.");
-            return nullptr;
+        auto remoteObj = systemAbilityMgr->GetSystemAbility(serviceId);
+        if (remoteObj == nullptr) {
+            HILOG_ERROR("Failed to get mgr.");
+            return;
         }
+        HILOG_ERROR("to cast.");
+        mgr = iface_cast<T>(remoteObj);
+        if (mgr == nullptr) {
+            HILOG_ERROR("Failed to cast.");
+            return;
+        }
+        wptr<T> manager = mgr;
         auto self = weak_from_this();
-        const auto& onClearProxyCallback = [self](const wptr<IRemoteObject>& remote) {
+        auto onClearProxyCallback = [manager, self](const auto& remote) {
+            auto mgrSptr = manager.promote();
             auto impl = self.lock();
-            if (impl && impl->appMgr_ == remote) {
-                impl->ClearAppMgrProxy();
+            if (impl && mgrSptr && mgrSptr->AsObject() == remote.promote()) {
+                std::lock_guard<std::mutex> lock(impl->mgrMutex_);
+                mgrSptr.clear();
             }
         };
-        sptr<ProxyDeathRecipient> recipient(new ProxyDeathRecipient(onClearProxyCallback));
-        if (!appMgr_->AsObject()->AddDeathRecipient(recipient)) {
+        sptr<ProxyDeathRecipient> recipient(new ProxyDeathRecipient(std::move(onClearProxyCallback)));
+        if (!mgr->AsObject()->AddDeathRecipient(recipient)) {
             HILOG_ERROR("AddDeathRecipient failed.");
         }
     }
-    HILOG_DEBUG("%{public}s end.", __func__);
-    return appMgr_;
 }
 
-sptr<AppExecFwk::IBundleMgr> UriPermissionManagerStubImpl::ConnectBundleManager()
+uint32_t UriPermissionManagerStubImpl::GetTokenIdByBundleName(const std::string bundleName, int32_t appIndex)
 {
-    HILOG_DEBUG("%{public}s is called.", __func__);
-    std::lock_guard<std::mutex> lock(bmsMutex_);
+    ConnectManager(bundleManager_, BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     if (bundleManager_ == nullptr) {
-        auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        if (!systemAbilityMgr) {
-            HILOG_ERROR("Failed to get SystemAbilityManager.");
-            return nullptr;
-        }
-
-        auto remoteObj = systemAbilityMgr->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-        if (!remoteObj || (bundleManager_ = iface_cast<AppExecFwk::IBundleMgr>(remoteObj)) == nullptr) {
-            HILOG_ERROR("Failed to get bms.");
-            return nullptr;
-        }
-        auto self = weak_from_this();
-        const auto& onClearProxyCallback = [self](const wptr<IRemoteObject>& remote) {
-            auto impl = self.lock();
-            if (impl && impl->bundleManager_ == remote) {
-                impl->ClearBMSProxy();
-            }
-        };
-        sptr<ProxyDeathRecipient> recipient(new ProxyDeathRecipient(onClearProxyCallback));
-        if (!bundleManager_->AsObject()->AddDeathRecipient(recipient)) {
-            HILOG_ERROR("AddDeathRecipient failed.");
-        }
-    }
-    HILOG_DEBUG("%{public}s end.", __func__);
-    return bundleManager_;
-}
-
-Security::AccessToken::AccessTokenID UriPermissionManagerStubImpl::GetTokenIdByBundleName(const std::string bundleName)
-{
-    auto bms = ConnectBundleManager();
-    if (bms == nullptr) {
         HILOG_WARN("Failed to get bms.");
         return GET_BUNDLE_MANAGER_SERVICE_FAILED;
     }
     auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
     AppExecFwk::BundleInfo bundleInfo;
-    if (!IN_PROCESS_CALL(bms->GetBundleInfo(bundleName, bundleFlag, bundleInfo, GetCurrentAccountId()))) {
-        HILOG_WARN("To fail to get bundle info according to uri.");
-        return GET_BUNDLE_INFO_FAILED;
+    auto userId = GetCurrentAccountId();
+    if (appIndex == 0) {
+        if (!IN_PROCESS_CALL(bundleManager_->GetBundleInfo(bundleName, bundleFlag, bundleInfo, userId))) {
+            HILOG_WARN("Failed to get bundle info according to uri.");
+            return GET_BUNDLE_INFO_FAILED;
+        }
+    } else {
+        if (IN_PROCESS_CALL(bundleManager_->GetSandboxBundleInfo(bundleName, appIndex, userId, bundleInfo) != ERR_OK)) {
+            HILOG_WARN("Failed to get bundle info according to appIndex.");
+            return GET_BUNDLE_INFO_FAILED;
+        }
     }
     return bundleInfo.applicationInfo.accessTokenId;
-}
-
-sptr<StorageManager::IStorageManager> UriPermissionManagerStubImpl::ConnectStorageManager()
-{
-    std::lock_guard<std::mutex> lock(storageMutex_);
-    if (storageManager_ == nullptr) {
-        auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        if (!systemAbilityMgr) {
-            HILOG_ERROR("Failed to get SystemAbilityManager.");
-            return nullptr;
-        }
-
-        auto remoteObj = systemAbilityMgr->GetSystemAbility(STORAGE_MANAGER_MANAGER_ID);
-        if (!remoteObj || (storageManager_ = iface_cast<StorageManager::IStorageManager>(remoteObj)) == nullptr) {
-            HILOG_ERROR("Failed to get storage manager.");
-            return nullptr;
-        }
-        auto self = weak_from_this();
-        const auto& onClearProxyCallback = [self](const wptr<IRemoteObject>& remote) {
-            auto impl = self.lock();
-            if (impl && impl->storageManager_ == remote) {
-                impl->ClearSMProxy();
-            }
-        };
-        sptr<ProxyDeathRecipient> recipient(new ProxyDeathRecipient(onClearProxyCallback));
-        if (!storageManager_->AsObject()->AddDeathRecipient(recipient)) {
-            HILOG_ERROR("AddDeathRecipient failed.");
-        }
-    }
-    HILOG_DEBUG("%{public}s end.", __func__);
-    return storageManager_;
-}
-
-void UriPermissionManagerStubImpl::ClearAppMgrProxy()
-{
-    HILOG_DEBUG("%{public}s is called.", __func__);
-    std::lock_guard<std::mutex> lock(appMgrMutex_);
-    appMgr_ = nullptr;
-}
-
-void UriPermissionManagerStubImpl::ClearBMSProxy()
-{
-    HILOG_DEBUG("%{public}s is called.", __func__);
-    std::lock_guard<std::mutex> lock(bmsMutex_);
-    bundleManager_ = nullptr;
-}
-
-void UriPermissionManagerStubImpl::ClearSMProxy()
-{
-    HILOG_DEBUG("%{public}s is called.", __func__);
-    std::lock_guard<std::mutex> lock(bmsMutex_);
-    storageManager_ = nullptr;
 }
 
 void UriPermissionManagerStubImpl::ProxyDeathRecipient::OnRemoteDied(
     [[maybe_unused]] const wptr<IRemoteObject>& remote)
 {
     if (proxy_) {
-        HILOG_DEBUG("%{public}s, bms stub died.", __func__);
+        HILOG_DEBUG("mgr stub died.");
         proxy_(remote);
     }
 }
 
-int UriPermissionManagerStubImpl::GetCurrentAccountId()
+int32_t UriPermissionManagerStubImpl::GetCurrentAccountId() const
 {
     std::vector<int32_t> osActiveAccountIds;
-    ErrCode ret = DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->
+    auto ret = DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->
         QueryActiveOsAccountIds(osActiveAccountIds);
     if (ret != ERR_OK) {
         HILOG_ERROR("QueryActiveOsAccountIds failed.");

@@ -27,7 +27,7 @@ public:
     virtual ~UriPermissionManagerProxy() = default;
 
     virtual int GrantUriPermission(const Uri &uri, unsigned int flag,
-        const std::string targetBundleName, int autoremove) override;
+        const std::string targetBundleName, int autoremove, int32_t appIndex = 0) override;
 
     virtual void RevokeUriPermission(const Security::AccessToken::AccessTokenID tokenId) override;
     virtual int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) override;

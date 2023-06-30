@@ -15,9 +15,13 @@
 
 #include <gtest/gtest.h>
 
+#include "istorage_manager.h"
+#include "storage_manager_proxy.h"
+#include "system_ability_definition.h"
 #define private public
 #include "uri_permission_manager_stub_impl.h"
 #undef private
+
 using namespace testing;
 using namespace testing::ext;
 
@@ -59,28 +63,17 @@ HWTEST_F(UriPermissionTest, Upms_GrantUriPermission_001, TestSize.Level1)
 
 /*
  * Feature: URIPermissionManagerService
- * Function: ConnectBundleManager
+ * Function: ConnectManager
  * SubFunction: NA
- * FunctionPoints: URIPermissionManagerService ConnectBundleManager
+ * FunctionPoints: URIPermissionManagerService ConnectManager
  */
-HWTEST_F(UriPermissionTest, Upms_ConnectBundleManager_001, TestSize.Level1)
+HWTEST_F(UriPermissionTest, Upms_ConnectManager_001, TestSize.Level1)
 {
-    auto upms = std::make_shared<UriPermissionManagerStubImpl>();
-    EXPECT_NE(upms, nullptr);
-    (void)upms->ConnectBundleManager();
-}
-
-/*
- * Feature: URIPermissionManagerService
- * Function: ConnectStorageManager
- * SubFunction: NA
- * FunctionPoints: URIPermissionManagerService ConnectStorageManager
- */
-HWTEST_F(UriPermissionTest, Upms_ConnectStorageManager_001, TestSize.Level1)
-{
-    auto upms = std::make_shared<UriPermissionManagerStubImpl>();
-    EXPECT_NE(upms, nullptr);
-    (void)upms->ConnectStorageManager();
+    auto upms = std::make_unique<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
+    sptr<StorageManager::IStorageManager> storageManager = nullptr;
+    upms->ConnectManager(storageManager, STORAGE_MANAGER_MANAGER_ID);
+    ASSERT_NE(storageManager, nullptr);
 }
 
 /*
@@ -102,32 +95,6 @@ HWTEST_F(UriPermissionTest, Upms_RevokeUriPermission_001, TestSize.Level1)
     auto uriStr = "file://com.example.test/data/storage/el2/base/haps/entry/files/test_A.txt";
     upms->uriMap_.emplace(uriStr, infoList);
     upms->RevokeUriPermission(targetTokenId);
-}
-
-/*
- * Feature: URIPermissionManagerService
- * Function: ClearBMSProxy
- * SubFunction: NA
- * FunctionPoints: URIPermissionManagerService ClearBMSProxy
- */
-HWTEST_F(UriPermissionTest, Upms_ClearBMSProxy_001, TestSize.Level1)
-{
-    auto upms = std::make_shared<UriPermissionManagerStubImpl>();
-    EXPECT_NE(upms, nullptr);
-    upms->ClearBMSProxy();
-}
-
-/*
- * Feature: URIPermissionManagerService
- * Function: ClearSMProxy
- * SubFunction: NA
- * FunctionPoints: URIPermissionManagerService ClearSMProxy
- */
-HWTEST_F(UriPermissionTest, Upms_ClearBMSProxy_002, TestSize.Level1)
-{
-    auto upms = std::make_shared<UriPermissionManagerStubImpl>();
-    EXPECT_NE(upms, nullptr);
-    upms->ClearSMProxy();
 }
 
 /*

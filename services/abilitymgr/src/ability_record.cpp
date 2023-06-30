@@ -2479,7 +2479,7 @@ void AbilityRecord::GrantUriPermission(Want &want, int32_t userId, std::string t
         int autoremove = 1;
         auto ret = IN_PROCESS_CALL(
             AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, want.GetFlags(),
-                targetBundleName, autoremove));
+                targetBundleName, autoremove, appIndex_));
         if (ret == 0) {
             isGrantedUriPermission_ = true;
         }

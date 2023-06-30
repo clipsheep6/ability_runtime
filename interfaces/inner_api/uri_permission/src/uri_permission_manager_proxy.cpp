@@ -25,7 +25,7 @@ UriPermissionManagerProxy::UriPermissionManagerProxy(const sptr<IRemoteObject> &
     : IRemoteProxy<IUriPermissionManager>(impl) {}
 
 int UriPermissionManagerProxy::GrantUriPermission(const Uri &uri, unsigned int flag,
-    const std::string targetBundleName, int autoremove)
+    const std::string targetBundleName, int autoremove, int32_t appIndex)
 {
     HILOG_DEBUG("UriPermissionManagerProxy::GrantUriPermission is called.");
     MessageParcel data;
@@ -47,6 +47,10 @@ int UriPermissionManagerProxy::GrantUriPermission(const Uri &uri, unsigned int f
     }
     if (!data.WriteInt32(autoremove)) {
         HILOG_ERROR("Write autoremove failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(appIndex)) {
+        HILOG_ERROR("Write appIndex failed.");
         return INNER_ERR;
     }
     MessageParcel reply;

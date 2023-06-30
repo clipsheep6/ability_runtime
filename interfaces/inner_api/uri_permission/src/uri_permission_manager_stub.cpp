@@ -38,7 +38,8 @@ int UriPermissionManagerStub::OnRemoteRequest(
             auto flag = data.ReadInt32();
             auto targetBundleName = data.ReadString();
             auto autoremove = data.ReadInt32();
-            int result = GrantUriPermission(*uri, flag, targetBundleName, autoremove);
+            auto appIndex = data.ReadInt32();
+            int result = GrantUriPermission(*uri, flag, targetBundleName, autoremove, appIndex);
             reply.WriteInt32(result);
             break;
         }
