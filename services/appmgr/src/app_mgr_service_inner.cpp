@@ -503,8 +503,8 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
     }
     if (appRecord->GetState() == ApplicationState::APP_STATE_FOREGROUND) {
         appRecord->SetState(ApplicationState::APP_STATE_BACKGROUND);
-        bool needNotifyApp =
-            !appRecord->IsUIExtension() && appRunningManager_->IsApplicationBackground(appRecord->GetBundleName());
+        bool needNotifyApp = !appRecord->IsUIExtension() && !appRecord->IsWindowExtension()
+            && appRunningManager_->IsApplicationBackground(appRecord->GetBundleName());
         OnAppStateChanged(appRecord, ApplicationState::APP_STATE_BACKGROUND, needNotifyApp);
         DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
     } else {
