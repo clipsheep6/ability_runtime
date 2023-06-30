@@ -866,7 +866,8 @@ ErrCode AbilityManagerClient::DelegatorDoAbilityBackground(const sptr<IRemoteObj
     return abms->DelegatorDoAbilityBackground(token);
 }
 
-ErrCode AbilityManagerClient::SetMissionContinueState(const sptr<IRemoteObject> &token, const AAFwk::ContinueState &state)
+ErrCode AbilityManagerClient::SetMissionContinueState(const sptr<IRemoteObject> &token,
+    const AAFwk::ContinueState &state)
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
