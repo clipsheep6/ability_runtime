@@ -3198,7 +3198,7 @@ HWTEST_F(AbilityManagerServiceTest, IsValidMissionIds_002, TestSize.Level1)
 HWTEST_F(AbilityManagerServiceTest, StartUIExtensionAbility_001, TestSize.Level1)
 {
     Want want;
-    EXPECT_EQ(abilityMs_->StartUIExtensionAbility(want, nullptr, 100, AppExecFwk::ExtensionAbilityType::UI),
+    EXPECT_EQ(abilityMs_->StartUIExtensionAbility(nullptr, 100),
         ERR_INVALID_VALUE);
 }
 
@@ -3211,8 +3211,7 @@ HWTEST_F(AbilityManagerServiceTest, StartUIExtensionAbility_001, TestSize.Level1
 HWTEST_F(AbilityManagerServiceTest, StartUIExtensionAbility_002, TestSize.Level1)
 {
     Want want;
-    EXPECT_EQ(abilityMs_->StartUIExtensionAbility(want, MockSessionInfo(0), USER_ID_U100,
-        AppExecFwk::ExtensionAbilityType::UI), CHECK_PERMISSION_FAILED);
+    EXPECT_EQ(abilityMs_->StartUIExtensionAbility(MockSessionInfo(0), USER_ID_U100), CHECK_PERMISSION_FAILED);
 }
 
 /*

@@ -1091,7 +1091,7 @@ HWTEST_F(AbilityManagerClientBranchTest, StartUIExtensionAbility_0100, TestSize.
 {
     GTEST_LOG_(INFO) << "StartUIExtensionAbility_0100 start";
     Want want;
-    EXPECT_EQ(client_->StartUIExtensionAbility(want, nullptr, 100, AppExecFwk::ExtensionAbilityType::UI),
+    EXPECT_EQ(client_->StartUIExtensionAbility(nullptr, 100),
         ERR_OK);
     GTEST_LOG_(INFO) << "StartUIExtensionAbility_0100 end";
 }

@@ -503,24 +503,15 @@ int AbilityManagerStub::StartExtensionAbilityInner(MessageParcel &data, MessageP
 
 int AbilityManagerStub::StartUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
-    Want *want = data.ReadParcelable<Want>();
-    if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
-        return ERR_INVALID_VALUE;
-    }
-
     sptr<SessionInfo> extensionSessionInfo = nullptr;
     if (data.ReadBool()) {
         extensionSessionInfo = data.ReadParcelable<SessionInfo>();
     }
 
     int32_t userId = data.ReadInt32();
-    int32_t extensionType = data.ReadInt32();
 
-    int32_t result = StartUIExtensionAbility(*want, extensionSessionInfo, userId,
-        static_cast<AppExecFwk::ExtensionAbilityType>(extensionType));
+    int32_t result = StartUIExtensionAbility(extensionSessionInfo, userId);
     reply.WriteInt32(result);
-    delete want;
     return NO_ERROR;
 }
 

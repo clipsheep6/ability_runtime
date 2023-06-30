@@ -395,18 +395,13 @@ int AbilityManagerProxy::StartExtensionAbility(const Want &want, const sptr<IRem
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::StartUIExtensionAbility(const Want &want, const sptr<SessionInfo> &extensionSessionInfo,
-    int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
+int AbilityManagerProxy::StartUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo, int32_t userId)
 {
     int error;
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        return INNER_ERR;
-    }
-    if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
         return INNER_ERR;
     }
 
@@ -426,10 +421,6 @@ int AbilityManagerProxy::StartUIExtensionAbility(const Want &want, const sptr<Se
 
     if (!data.WriteInt32(userId)) {
         HILOG_ERROR("StartExtensionAbility, userId write failed.");
-        return INNER_ERR;
-    }
-    if (!data.WriteInt32(static_cast<int32_t>(extensionType))) {
-        HILOG_ERROR("StartExtensionAbility, extensionType write failed.");
         return INNER_ERR;
     }
     if (!Remote()) {

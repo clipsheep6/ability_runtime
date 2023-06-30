@@ -197,14 +197,14 @@ ErrCode AbilityManagerClient::StartExtensionAbility(const Want &want, const sptr
     return abms->StartExtensionAbility(want, callerToken, userId, extensionType);
 }
 
-ErrCode AbilityManagerClient::StartUIExtensionAbility(const Want &want, const sptr<SessionInfo> &extensionSessionInfo,
-    int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
+ErrCode AbilityManagerClient::StartUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo, int32_t userId)
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     HILOG_INFO("name:%{public}s %{public}s, userId:%{public}d.",
-        want.GetElement().GetAbilityName().c_str(), want.GetElement().GetBundleName().c_str(), userId);
-    return abms->StartUIExtensionAbility(want, extensionSessionInfo, userId, extensionType);
+        extensionSessionInfo->want.GetElement().GetAbilityName().c_str(),
+        extensionSessionInfo->want.GetElement().GetBundleName().c_str(), userId);
+    return abms->StartUIExtensionAbility(extensionSessionInfo, userId);
 }
 
 ErrCode AbilityManagerClient::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)

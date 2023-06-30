@@ -729,9 +729,12 @@ group("extension_module") {
   }
 }
 
-ohos_shared_library("ui_extension") {
+config("ui_extension_public_config") {
+  visibility = [ ":*" ]
   include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_extension_ability" ]
+}
 
+ohos_shared_library("ui_extension") {
   sources = [
     "${ability_runtime_native_path}/ability/native/ui_extension_ability/js_ui_extension.cpp",
     "${ability_runtime_native_path}/ability/native/ui_extension_ability/js_ui_extension_content_session.cpp",
@@ -739,6 +742,8 @@ ohos_shared_library("ui_extension") {
     "${ability_runtime_native_path}/ability/native/ui_extension_ability/ui_extension.cpp",
     "${ability_runtime_native_path}/ability/native/ui_extension_ability/ui_extension_context.cpp",
   ]
+
+  public_configs = [ ":ui_extension_public_config" ]
 
   deps = [
     ":abilitykit_native",
