@@ -25,7 +25,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr char APPLICATION_CONTEXT_NAME[] = "__application_context_ptr__";
-const char* MD_NAME = "JsApplicationContextUtils";
+const char *MD_NAME = "JsApplicationContextUtils";
 }  // namespace
 
 NativeValue *JsApplicationContextUtils::CreateBundleContext(NativeEngine *engine, NativeCallbackInfo *info)
@@ -59,14 +59,14 @@ NativeValue *JsApplicationContextUtils::OnSwitchArea(NativeEngine &engine, Nativ
 }
 
 
-NativeValue* JsApplicationContextUtils::CreateModuleContext(NativeEngine* engine, NativeCallbackInfo* info)
+NativeValue *JsApplicationContextUtils::CreateModuleContext(NativeEngine *engine, NativeCallbackInfo *info)
 {
     return nullptr;
 }
 
 NativeValue *JsApplicationContextUtils::GetTempDir(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    HILOG_INFO("JsApplicationContextUtils::GetTempDir is called");
+    HILOG_DEBUG("called");
     JsApplicationContextUtils *me =
         CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
     return me != nullptr ? me->OnGetTempDir(*engine, *info) : nullptr;
@@ -83,15 +83,15 @@ NativeValue *JsApplicationContextUtils::OnGetTempDir(NativeEngine &engine, Nativ
     return engine.CreateString(path.c_str(), path.length());
 }
 
-NativeValue* JsApplicationContextUtils::GetArea(NativeEngine* engine, NativeCallbackInfo* info)
+NativeValue *JsApplicationContextUtils::GetArea(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    HILOG_INFO("JsApplicationContextUtils::GetArea is called");
+    HILOG_DEBUG("called");
     JsApplicationContextUtils *me =
         CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
     return me != nullptr ? me->OnGetArea(*engine, *info) : nullptr;
 }
 
-NativeValue* JsApplicationContextUtils::OnGetArea(NativeEngine& engine, NativeCallbackInfo& info)
+NativeValue *JsApplicationContextUtils::OnGetArea(NativeEngine &engine, NativeCallbackInfo &info)
 {
     auto context = context_.lock();
     if (!context) {
@@ -104,7 +104,7 @@ NativeValue* JsApplicationContextUtils::OnGetArea(NativeEngine& engine, NativeCa
 
 NativeValue *JsApplicationContextUtils::GetCacheDir(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    HILOG_INFO("JsApplicationContextUtils::GetCacheDir is called");
+    HILOG_DEBUG("called");
     JsApplicationContextUtils *me =
         CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
     return me != nullptr ? me->OnGetCacheDir(*engine, *info) : nullptr;
@@ -123,7 +123,7 @@ NativeValue *JsApplicationContextUtils::OnGetCacheDir(NativeEngine &engine, Nati
 
 NativeValue *JsApplicationContextUtils::GetFilesDir(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    HILOG_INFO("JsApplicationContextUtils::GetFilesDir is called");
+    HILOG_DEBUG("called");
     JsApplicationContextUtils *me =
         CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
     return me != nullptr ? me->OnGetFilesDir(*engine, *info) : nullptr;
@@ -142,7 +142,7 @@ NativeValue *JsApplicationContextUtils::OnGetFilesDir(NativeEngine &engine, Nati
 
 NativeValue *JsApplicationContextUtils::GetDistributedFilesDir(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    HILOG_INFO("JsApplicationContextUtils::GetDistributedFilesDir is called");
+    HILOG_DEBUG("called");
     JsApplicationContextUtils *me =
         CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
     return me != nullptr ? me->OnGetDistributedFilesDir(*engine, *info) : nullptr;
@@ -161,7 +161,7 @@ NativeValue *JsApplicationContextUtils::OnGetDistributedFilesDir(NativeEngine &e
 
 NativeValue *JsApplicationContextUtils::GetDatabaseDir(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    HILOG_INFO("JsApplicationContextUtils::GetDatabaseDir is called");
+    HILOG_DEBUG("called");
     JsApplicationContextUtils *me =
         CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
     return me != nullptr ? me->OnGetDatabaseDir(*engine, *info) : nullptr;
@@ -180,7 +180,7 @@ NativeValue *JsApplicationContextUtils::OnGetDatabaseDir(NativeEngine &engine, N
 
 NativeValue *JsApplicationContextUtils::GetPreferencesDir(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    HILOG_INFO("JsApplicationContextUtils::GetPreferencesDir is called");
+    HILOG_DEBUG("called");
     JsApplicationContextUtils *me =
         CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
     return me != nullptr ? me->OnGetPreferencesDir(*engine, *info) : nullptr;
@@ -199,7 +199,7 @@ NativeValue *JsApplicationContextUtils::OnGetPreferencesDir(NativeEngine &engine
 
 NativeValue *JsApplicationContextUtils::GetBundleCodeDir(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    HILOG_INFO("JsApplicationContextUtils::GetBundleCodeDir is called");
+    HILOG_DEBUG("called");
     JsApplicationContextUtils *me =
         CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
     return me != nullptr ? me->OnGetBundleCodeDir(*engine, *info) : nullptr;
@@ -263,14 +263,14 @@ NativeValue *JsApplicationContextUtils::Off(NativeEngine *engine, NativeCallback
     return nullptr;
 }
 
-NativeValue* JsApplicationContextUtils::GetApplicationContext(NativeEngine* engine, NativeCallbackInfo* info)
+NativeValue *JsApplicationContextUtils::GetApplicationContext(NativeEngine *engine, NativeCallbackInfo *info)
 {
     return nullptr;
 }
 
-NativeValue* JsApplicationContextUtils::OnGetApplicationContext(NativeEngine& engine, NativeCallbackInfo& info)
+NativeValue *JsApplicationContextUtils::OnGetApplicationContext(NativeEngine &engine, NativeCallbackInfo &info)
 {
-    NativeValue* value = CreateJsApplicationContext(engine, context_.lock());
+    NativeValue *value = CreateJsApplicationContext(engine, context_.lock());
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(&engine, "application.ApplicationContext", &value, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("OnGetApplicationContext, invalid systemModule.");
@@ -280,13 +280,12 @@ NativeValue* JsApplicationContextUtils::OnGetApplicationContext(NativeEngine& en
     return contextObj;
 }
 
-NativeValue* JsApplicationContextUtils::CreateJsApplicationContext(
-    NativeEngine &engine, const std::shared_ptr<Context>& context)
+NativeValue *JsApplicationContextUtils::CreateJsApplicationContext(
+    NativeEngine &engine, const std::shared_ptr<Context> &context)
 {
-    HILOG_DEBUG("CreateJsApplicationContext start");
-
-    NativeValue* objValue = engine.CreateObject();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+    HILOG_DEBUG("called");
+    NativeValue *objValue = engine.CreateObject();
+    NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
     if (object == nullptr) {
         return objValue;
     }
@@ -300,7 +299,7 @@ NativeValue* JsApplicationContextUtils::CreateJsApplicationContext(
     return objValue;
 }
 
-void JsApplicationContextUtils::BindNativeApplicationContext(NativeEngine &engine, NativeObject* object)
+void JsApplicationContextUtils::BindNativeApplicationContext(NativeEngine &engine, NativeObject *object)
 {
     BindNativeProperty(*object, "cacheDir", JsApplicationContextUtils::GetCacheDir);
     BindNativeProperty(*object, "tempDir", JsApplicationContextUtils::GetTempDir);

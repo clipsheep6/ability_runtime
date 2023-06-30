@@ -46,7 +46,7 @@ Options AbilityContext::GetOptions()
     return options_;
 }
 
-void AbilityContext::SetOptions(const Options& options)
+void AbilityContext::SetOptions(const Options &options)
 {
     options_ = options;
 
@@ -147,30 +147,28 @@ std::string AbilityContext::GetDistributedFilesDir()
 
 void AbilityContext::SwitchArea(int mode)
 {
-    HILOG_DEBUG("ContextImpl::SwitchArea, mode:%{public}d.", mode);
+    HILOG_DEBUG("called, mode:%{public}d.", mode);
     if (mode < 0 || mode >= (int)(sizeof(CONTEXT_ELS) / sizeof(CONTEXT_ELS[0]))) {
-        HILOG_ERROR("ContextImpl::SwitchArea, mode is invalid.");
+        HILOG_ERROR("mode is invalid.");
         return;
     }
     currArea_ = CONTEXT_ELS[mode];
-    HILOG_DEBUG("ContextImpl::SwitchArea end, currArea:%{public}s.", currArea_.c_str());
 }
 
 int AbilityContext::GetArea()
 {
-    HILOG_DEBUG("ContextImpl::GetArea begin");
+    HILOG_DEBUG("called");
     int mode = -1;
-    for (int i = 0; i < (int)(sizeof(CONTEXT_ELS) / sizeof(CONTEXT_ELS[0])); i++) {
+    for (int i = 0; i < static_cast<int32_t>(sizeof(CONTEXT_ELS) / sizeof(CONTEXT_ELS[0])); i++) {
         if (currArea_ == CONTEXT_ELS[i]) {
             mode = i;
             break;
         }
     }
     if (mode == -1) {
-        HILOG_ERROR("ContextImpl::GetArea not find mode.");
+        HILOG_ERROR("Not find mode.");
         return EL_DEFAULT;
     }
-    HILOG_DEBUG("ContextImpl::GetArea end");
     return mode;
 }
 
@@ -190,7 +188,7 @@ std::string AbilityContext::GetPreviewPath()
     return previewPath;
 }
 
-bool AbilityContext::Access(const std::string& path)
+bool AbilityContext::Access(const std::string &path)
 {
     HILOG_DEBUG("Access: dir: %{public}s", path.c_str());
     std::unique_ptr<uv_fs_t, decltype(AbilityContext::fs_req_cleanup)*> access_req = {
@@ -204,7 +202,7 @@ bool AbilityContext::Access(const std::string& path)
     return ret == 0;
 }
 
-void AbilityContext::Mkdir(const std::string& path)
+void AbilityContext::Mkdir(const std::string &path)
 {
     HILOG_DEBUG("Mkdir: dir: %{public}s", path.c_str());
     std::unique_ptr<uv_fs_t, decltype(AbilityContext::fs_req_cleanup)*> mkdir_req = {
@@ -251,13 +249,23 @@ bool AbilityContext::CreateMutiDir(const std::string &path)
     return Access(tempStr);
 }
 
-void AbilityContext::fs_req_cleanup(uv_fs_t* req)
+void AbilityContext::fs_req_cleanup(uv_fs_t *req)
 {
     uv_fs_req_cleanup(req);
     if (req) {
         delete req;
         req = nullptr;
     }
+}
+
+std::shared_ptr<Global::Resource::ResourceManager> AbilityContext::GetResourceManager() const
+{
+    return resourceMgr_;
+}
+
+void AbilityContext::SetResourceManager(const std::shared_ptr<Global::Resource::ResourceManager> &resMgr)
+{
+    resourceMgr_ = resMgr;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

@@ -21,7 +21,7 @@
 
 constexpr int32_t MIN_PARAMS = 5;
 
-int32_t main(int32_t argc, const char* argv[])
+int32_t main(int32_t argc, const char *argv[])
 {
     if (argc < MIN_PARAMS) {
         std::cout << "Insufficient parameters." << std::endl;

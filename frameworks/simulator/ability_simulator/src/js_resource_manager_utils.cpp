@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,17 +13,19 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_SIMULAOTR_JS_CONTEXT_UTILS_H
-#define OHOS_ABILITY_RUNTIME_SIMULAOTR_JS_CONTEXT_UTILS_H
+#include "js_resource_manager_utils.h"
 
-#include <memory>
-
-#include "context.h"
-#include "native_engine/native_engine.h"
+#include "js_runtime_utils.h"
+#include "resource_manager_addon.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue* CreateJsBaseContext(NativeEngine &engine, std::shared_ptr<Context> context, bool keepContext = false);
-} // namespace AbilityRuntime
-} // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_SIMULAOTR_JS_CONTEXT_UTILS_H
+NativeValue *CreateJsResourceManager(NativeEngine &engine,
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager, std::shared_ptr<Context> context)
+{
+    napi_env env = reinterpret_cast<napi_env>(&engine);
+    napi_value result = Global::Resource::ResourceManagerAddon::Create(env, "", resourceManager, context);
+    return reinterpret_cast<NativeValue*>(result);
+}
+}  // namespace AbilityRuntime
+}  // namespace OHOS

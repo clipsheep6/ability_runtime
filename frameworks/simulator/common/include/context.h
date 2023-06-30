@@ -59,7 +59,7 @@ public:
 
     virtual Options GetOptions() = 0;
 
-    virtual void SetOptions(const Options& options) = 0;
+    virtual void SetOptions(const Options &options) = 0;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

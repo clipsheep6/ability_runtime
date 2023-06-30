@@ -34,11 +34,11 @@ public:
     using TerminateCallback = std::function<void(int64_t)>;
     using FormUpdateCallback = std::function<void(int64_t, const std::string&)>;
 
-    static std::unique_ptr<Simulator> Create(const Options& options);
+    static std::unique_ptr<Simulator> Create(const Options &options);
 
     virtual ~Simulator() = default;
 
-    virtual int64_t StartAbility(const std::string& abilitySrcPath, TerminateCallback callback) = 0;
+    virtual int64_t StartAbility(const std::string &abilitySrcPath, TerminateCallback callback) = 0;
     virtual void TerminateAbility(int64_t abilityId) = 0;
 };
 } // namespace AbilityRuntime

@@ -16,7 +16,8 @@
 #ifndef OHOS_ABILITY_RUNTIME_SIMULAOTR_ABILITY_CONTEXT_H
 #define OHOS_ABILITY_RUNTIME_SIMULAOTR_ABILITY_CONTEXT_H
 
-#include "foundation/ability/ability_runtime/frameworks/simulator/common/include/context.h"
+#include "context.h"
+#include "resource_manager.h"
 #include "uv.h"
 
 namespace OHOS {
@@ -29,7 +30,7 @@ public:
     std::shared_ptr<AppExecFwk::Configuration> GetConfiguration() override;
 
     Options GetOptions() override;
-    void SetOptions(const Options& options) override;
+    void SetOptions(const Options &options) override;
     std::string GetBundleName() override;
     std::string GetBundleCodePath() override;
     std::string GetBundleCodeDir() override;
@@ -43,16 +44,19 @@ public:
     int GetArea() override;
     std::string GetBaseDir() override;
     std::string GetPreviewPath();
-    bool Access(const std::string& path);
-    void Mkdir(const std::string& path);
+    bool Access(const std::string &path);
+    void Mkdir(const std::string &path);
     static void fs_req_cleanup(uv_fs_t* req);
     bool CreateMutiDir(const std::string &path);
+    std::shared_ptr<Global::Resource::ResourceManager> GetResourceManager() const;
+    void SetResourceManager(const std::shared_ptr<Global::Resource::ResourceManager> &resMgr);
 
 private:
     static const int EL_DEFAULT = 1;
     Options options_;
     std::string currArea_ = "el2";
     std::string fileSeparator_ = "/";
+    std::shared_ptr<Global::Resource::ResourceManager> resourceMgr_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

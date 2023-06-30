@@ -32,29 +32,29 @@ public:
     JsAbilityContext() {}
     ~JsAbilityContext() = default;
 
-    static void Finalizer(NativeEngine* engine, void* data, void* hint);
+    static void Finalizer(NativeEngine *engine, void *data, void *hint);
 
-    static NativeValue* StartAbility(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StartAbilityAsCaller(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StartRecentAbility(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StartAbilityWithAccount(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StartAbilityByCall(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StartAbilityForResult(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StartAbilityForResultWithAccount(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StartServiceExtensionAbility(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StartServiceExtensionAbilityWithAccount(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StopServiceExtensionAbility(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StopServiceExtensionAbilityWithAccount(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* ConnectAbility(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* ConnectAbilityWithAccount(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* DisconnectAbility(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* TerminateSelf(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* TerminateSelfWithResult(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* RestoreWindowStage(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* RequestDialogService(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* IsTerminating(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue *StartAbility(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *StartAbilityAsCaller(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *StartRecentAbility(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *StartAbilityWithAccount(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *StartAbilityByCall(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *StartAbilityForResult(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *StartAbilityForResultWithAccount(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *StartServiceExtensionAbility(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *StartServiceExtensionAbilityWithAccount(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *StopServiceExtensionAbility(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *StopServiceExtensionAbilityWithAccount(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *ConnectAbility(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *ConnectAbilityWithAccount(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *DisconnectAbility(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *TerminateSelf(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *TerminateSelfWithResult(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *RestoreWindowStage(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *RequestDialogService(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *IsTerminating(NativeEngine *engine, NativeCallbackInfo *info);
 };
-NativeValue* CreateJsAbilityContext(NativeEngine& engine, const std::shared_ptr<AbilityContext>& context);
+NativeValue *CreateJsAbilityContext(NativeEngine &engine, const std::shared_ptr<AbilityContext> &context);
 } // namespace AbilityRuntime
 } // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_SIMULAOTR_JS_ABILITY_CONTEXT_H

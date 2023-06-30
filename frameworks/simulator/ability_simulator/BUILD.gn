@@ -79,8 +79,10 @@ ohos_shared_library("ability_simulator") {
     "src/js_application_context_utils.cpp",
     "src/js_console_log.cpp",
     "src/js_context_utils.cpp",
+    "src/js_resource_manager_utils.cpp",
     "src/js_runtime_utils.cpp",
     "src/js_timer.cpp",
+    "src/resource_manager_addon.cpp",
     "src/simulator.cpp",
   ]
 

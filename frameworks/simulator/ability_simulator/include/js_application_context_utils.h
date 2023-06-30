@@ -25,44 +25,44 @@ namespace OHOS {
 namespace AbilityRuntime {
 class JsApplicationContextUtils {
 public:
-    JsApplicationContextUtils(std::weak_ptr<Context>&& context) : context_(std::move(context)) {}
+    JsApplicationContextUtils(std::weak_ptr<Context> &&context) : context_(std::move(context)) {}
     virtual ~JsApplicationContextUtils() = default;
     static void Finalizer(NativeEngine *engine, void *data, void *hint);
-    static NativeValue* RegisterAbilityLifecycleCallback(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* UnregisterAbilityLifecycleCallback(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* RegisterEnvironmentCallback(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* UnregisterEnvironmentCallback(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* On(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* Off(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* CreateBundleContext(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* SwitchArea(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* GetArea(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* CreateModuleContext(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* GetCacheDir(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* GetTempDir(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* GetFilesDir(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* GetDistributedFilesDir(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* GetDatabaseDir(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* GetPreferencesDir(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* GetBundleCodeDir(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* GetApplicationContext(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* KillProcessBySelf(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* GetRunningProcessInformation(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* CreateJsApplicationContext(NativeEngine &engine, const std::shared_ptr<Context>& context);
+    static NativeValue *RegisterAbilityLifecycleCallback(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *UnregisterAbilityLifecycleCallback(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *RegisterEnvironmentCallback(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *UnregisterEnvironmentCallback(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *On(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *Off(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *CreateBundleContext(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *SwitchArea(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *GetArea(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *CreateModuleContext(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *GetCacheDir(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *GetTempDir(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *GetFilesDir(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *GetDistributedFilesDir(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *GetDatabaseDir(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *GetPreferencesDir(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *GetBundleCodeDir(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *GetApplicationContext(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *KillProcessBySelf(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *GetRunningProcessInformation(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *CreateJsApplicationContext(NativeEngine &engine, const std::shared_ptr<Context> &context);
 
-    NativeValue* OnGetCacheDir(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetTempDir(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetFilesDir(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetDistributedFilesDir(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetDatabaseDir(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetPreferencesDir(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetBundleCodeDir(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetArea(NativeEngine& engine, NativeCallbackInfo& info);
+    NativeValue *OnGetCacheDir(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue *OnGetTempDir(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue *OnGetFilesDir(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue *OnGetDistributedFilesDir(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue *OnGetDatabaseDir(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue *OnGetPreferencesDir(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue *OnGetBundleCodeDir(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue *OnGetArea(NativeEngine &engine, NativeCallbackInfo &info);
 
 private:
-    NativeValue* OnSwitchArea(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetApplicationContext(NativeEngine& engine, NativeCallbackInfo& info);
-    static void BindNativeApplicationContext(NativeEngine &engine, NativeObject* object);
+    NativeValue *OnSwitchArea(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue *OnGetApplicationContext(NativeEngine &engine, NativeCallbackInfo &info);
+    static void BindNativeApplicationContext(NativeEngine &engine, NativeObject *object);
 
 private:
     std::weak_ptr<Context> context_;

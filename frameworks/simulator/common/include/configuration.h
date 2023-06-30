@@ -26,43 +26,43 @@
 namespace OHOS {
 namespace AAFwk {
 namespace GlobalConfigurationKey {
-    /* For the time being, there is no uniform standard */
-    /* Must be synchronized with the keystore(SystemConfigurationKeyStore)in the configuration */
-    constexpr const char* SYSTEM_LANGUAGE = "ohos.system.language";
-    constexpr const char* SYSTEM_HOUR = "ohos.system.hour";
-    constexpr const char* SYSTEM_COLORMODE = "ohos.system.colorMode";
-    constexpr const char* INPUT_POINTER_DEVICE = "input.pointer.device";
-    constexpr const char* DEVICE_TYPE = "const.build.characteristics";
+/* For the time being, there is no uniform standard */
+/* Must be synchronized with the keystore(SystemConfigurationKeyStore)in the configuration */
+constexpr const char* SYSTEM_LANGUAGE = "ohos.system.language";
+constexpr const char* SYSTEM_HOUR = "ohos.system.hour";
+constexpr const char* SYSTEM_COLORMODE = "ohos.system.colorMode";
+constexpr const char* INPUT_POINTER_DEVICE = "input.pointer.device";
+constexpr const char* DEVICE_TYPE = "const.build.characteristics";
 } // namespace GlobalConfigurationKey
 } // namespace AAFwk
 
 namespace AppExecFwk {
 namespace ConfigurationInner {
-    constexpr const char* CONNECTION_SYMBOL = "#";
-    constexpr const char* EMPTY_STRING = "";
-    constexpr const char* APPLICATION_DIRECTION = "ohos.application.direction";
-    constexpr const char* APPLICATION_DENSITYDPI = "ohos.application.densitydpi";
-    constexpr const char* APPLICATION_DISPLAYID = "ohos.application.displayid";
+constexpr const char* CONNECTION_SYMBOL = "#";
+constexpr const char* EMPTY_STRING = "";
+constexpr const char* APPLICATION_DIRECTION = "ohos.application.direction";
+constexpr const char* APPLICATION_DENSITYDPI = "ohos.application.densitydpi";
+constexpr const char* APPLICATION_DISPLAYID = "ohos.application.displayid";
 
-    /*
-     * This must be synchronized with the value in GlobalConfigurationKey
-     */
-    const std::vector<std::string> SystemConfigurationKeyStore {
-        OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE,
-        OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_HOUR,
-        OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE,
-        OHOS::AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE,
-        OHOS::AAFwk::GlobalConfigurationKey::DEVICE_TYPE,
-        OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DIRECTION,
-        OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DENSITYDPI,
-        OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DISPLAYID,
-    };
+/*
+ * This must be synchronized with the value in GlobalConfigurationKey
+ */
+const std::vector<std::string> SystemConfigurationKeyStore {
+    OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE,
+    OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_HOUR,
+    OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE,
+    OHOS::AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE,
+    OHOS::AAFwk::GlobalConfigurationKey::DEVICE_TYPE,
+    OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DIRECTION,
+    OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DENSITYDPI,
+    OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DISPLAYID,
+};
 
-    constexpr const char* COLOR_MODE_LIGHT = "light";
-    constexpr const char* COLOR_MODE_DARK = "dark";
-    constexpr const char* DEVICE_TYPE_DEFAULT = "default";
-    constexpr const char* DIRECTION_VERTICAL = "vertical";
-    constexpr const char* DIRECTION_HORIZONTAL = "horizontal";
+constexpr const char* COLOR_MODE_LIGHT = "light";
+constexpr const char* COLOR_MODE_DARK = "dark";
+constexpr const char* DEVICE_TYPE_DEFAULT = "default";
+constexpr const char* DIRECTION_VERTICAL = "vertical";
+constexpr const char* DIRECTION_HORIZONTAL = "horizontal";
 };
 
 class Configuration {

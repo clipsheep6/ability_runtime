@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-void InitTimer(NativeEngine& engine, NativeObject& globalObject);
+void InitTimer(NativeEngine &engine, NativeObject &globalObject);
 } // namespace AbilityRuntime
 } // namespace OHOS
 
