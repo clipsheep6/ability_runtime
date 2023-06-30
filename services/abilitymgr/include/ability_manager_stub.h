@@ -185,6 +185,7 @@ private:
     int UnregisterConnectionObserverInner(MessageParcel &data, MessageParcel &reply);
     int GetDlpConnectionInfosInner(MessageParcel &data, MessageParcel &reply);
     int MoveAbilityToBackgroundInner(MessageParcel &data, MessageParcel &reply);
+    int SetMissionContinueStateInner(MessageParcel &data, MessageParcel &reply);
 #ifdef SUPPORT_GRAPHICS
     int SetMissionLabelInner(MessageParcel &data, MessageParcel &reply);
     int SetMissionIconInner(MessageParcel &data, MessageParcel &reply);

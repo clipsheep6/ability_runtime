@@ -528,5 +528,23 @@ int32_t DistributedClient::StopRemoteExtensionAbility(const Want &want, int32_t 
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, STOP_REMOTE_EXTERNSION_ABILITY, data, reply);
 }
+
+int32_t DistributedClient::SetMissionContinueState(int32_t missionId, const AAFwk::ContinueState &state)
+{
+    HILOG_INFO("SetMissionContinueState called");
+    sptr<IRemoteObject> remote = GetDmsProxy();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote system ablity is null");
+        return INVALID_PARAMETERS_ERR;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, Int32, missionId);
+    PARCEL_WRITE_HELPER(data, Int32, static_cast<int32_t>(state));
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, SET_MISSION_CONTINUE_STATE, data, reply);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
