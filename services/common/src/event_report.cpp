@@ -68,6 +68,7 @@ const std::map<EventName, std::string> eventNameToStrMap_ = {
     std::map<EventName, std::string>::value_type(EventName::APP_TERMINATE, "APP_TERMINATE"),
     std::map<EventName, std::string>::value_type(EventName::PROCESS_START, "PROCESS_START"),
     std::map<EventName, std::string>::value_type(EventName::PROCESS_EXIT, "PROCESS_EXIT"),
+    std::map<EventName, std::string>::value_type(EventName::DRAWN_COMPLETED, "DRAWN_COMPLETED"),
 };
 }
 
@@ -137,6 +138,17 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, 
                 EVENT_KEY_VERSION_CODE, eventInfo.versionCode,
                 EVENT_KEY_PROCESS_NAME, eventInfo.processName,
                 EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType);
+            break;
+        case EventName::DRAWN_COMPLETED:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK,
+                name,
+                type,
+                EVENT_KEY_USERID, eventInfo.userId,
+                EVENT_KEY_APP_PID, eventInfo.pid,
+                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
+                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
             break;
         case EventName::APP_LAUNCH:
             HiSysEventWrite(

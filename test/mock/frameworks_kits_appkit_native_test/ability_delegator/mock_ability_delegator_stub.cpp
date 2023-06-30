@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -125,6 +125,11 @@ int MockAbilityDelegatorStub::RegisterSnapshotHandler(const sptr<ISnapshotHandle
 }
 
 int MockAbilityDelegatorStub::SendANRProcessID(int pid)
+{
+    return 0;
+}
+
+int32_t MockAbilityDelegatorStub::ReportDrawnCompleted(const sptr<IRemoteObject>& callerToken)
 {
     return 0;
 }
@@ -431,6 +436,11 @@ int MockAbilityDelegatorStub2::BlockAmsService()
 }
 
 int MockAbilityDelegatorStub2::BlockAbility(int32_t abilityRecordId)
+{
+    return 0;
+}
+
+int32_t MockAbilityDelegatorStub2::ReportDrawnCompleted(const sptr<IRemoteObject>& callerToken)
 {
     return 0;
 }

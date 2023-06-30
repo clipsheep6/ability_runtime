@@ -23,7 +23,7 @@ namespace AppExecFwk {
 using namespace OHOS::Rosen;
 
 WindowFocusChangedListener::WindowFocusChangedListener(const std::shared_ptr<AppMgrServiceInner> &owner,
-    const std::shared_ptr<AMSEventHandler>& handler) : owner_(owner), eventHandler_(handler) {}
+    const std::shared_ptr<AAFwk::TaskHandlerWrap>& handler) : owner_(owner), taskHandler_(handler) {}
 
 WindowFocusChangedListener::~WindowFocusChangedListener() {}
 
@@ -34,7 +34,7 @@ void WindowFocusChangedListener::OnFocused(const sptr<FocusChangeInfo> &focusCha
         return;
     }
 
-    if (eventHandler_) {
+    if (taskHandler_) {
         auto task = [inner = owner_, focusChangeInfo] {
             auto owner = inner.lock();
             if (!owner) {
@@ -43,7 +43,7 @@ void WindowFocusChangedListener::OnFocused(const sptr<FocusChangeInfo> &focusCha
             }
             owner->HandleFocused(focusChangeInfo);
         };
-        eventHandler_->PostTask(task);
+        taskHandler_->SubmitTask(task);
     }
 }
 
@@ -54,7 +54,7 @@ void WindowFocusChangedListener::OnUnfocused(const sptr<FocusChangeInfo> &focusC
         return;
     }
 
-    if (eventHandler_) {
+    if (taskHandler_) {
         auto task = [inner = owner_, focusChangeInfo] {
             auto owner = inner.lock();
             if (!owner) {
@@ -63,7 +63,7 @@ void WindowFocusChangedListener::OnUnfocused(const sptr<FocusChangeInfo> &focusC
             }
             owner->HandleUnfocused(focusChangeInfo);
         };
-        eventHandler_->PostTask(task);
+        taskHandler_->SubmitTask(task);
     }
 }
 }  // namespace AppExecFwk

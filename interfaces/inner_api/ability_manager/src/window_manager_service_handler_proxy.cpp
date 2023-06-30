@@ -26,7 +26,7 @@ WindowManagerServiceHandlerProxy::WindowManagerServiceHandlerProxy(const sptr<IR
     : IRemoteProxy<IWindowManagerServiceHandler>(impl) {}
 
 void WindowManagerServiceHandlerProxy::NotifyWindowTransition(sptr<AbilityTransitionInfo> fromInfo,
-    sptr<AbilityTransitionInfo> toInfo)
+    sptr<AbilityTransitionInfo> toInfo, bool& animaEnabled)
 {
     HILOG_DEBUG("%{public}s is called.", __func__);
     MessageParcel data;
@@ -42,12 +42,17 @@ void WindowManagerServiceHandlerProxy::NotifyWindowTransition(sptr<AbilityTransi
         HILOG_ERROR("Write toInfo failed.");
         return;
     }
+    if (!data.WriteBool(animaEnabled)) {
+        HILOG_ERROR("Write animaEnabled failed.");
+        return;
+    }
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     int error = Remote()->SendRequest(WMSCmd::ON_NOTIFY_WINDOW_TRANSITION, data, reply, option);
     if (error != ERR_OK) {
         HILOG_ERROR("SendRequest fail, error: %{public}d", error);
     }
+    animaEnabled = reply.ReadBool();
 }
 
 int32_t WindowManagerServiceHandlerProxy::GetFocusWindow(sptr<IRemoteObject>& abilityToken)

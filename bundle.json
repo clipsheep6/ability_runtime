@@ -51,6 +51,7 @@
             "ets_runtime",
             "ets_utils",
             "faultloggerd",
+            "ffrt",
             "form_fwk",
             "graphic_standard",
             "hichecker",
@@ -60,7 +61,6 @@
             "hitrace",
             "hiview",
             "i18n",
-            "icu",
             "init",
             "input",
             "ipc",
@@ -329,6 +329,15 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/tools/aa:tools_aa_source_set"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager/include",
+              "header_files": [
+                "ability_start_setting.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager:ability_start_setting"
           }
         ],
         "test": [

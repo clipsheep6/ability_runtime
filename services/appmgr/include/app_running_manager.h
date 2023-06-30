@@ -19,6 +19,7 @@
 #include <map>
 #include <mutex>
 #include <regex>
+#include "cpp/mutex.h"
 
 #include "iremote_object.h"
 #include "refbase.h"
@@ -210,7 +211,7 @@ private:
 private:
     std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> appRunningRecordMap_;
     std::map<const std::string, int> processRestartRecord_;
-    std::mutex lock_;
+    ffrt::mutex lock_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

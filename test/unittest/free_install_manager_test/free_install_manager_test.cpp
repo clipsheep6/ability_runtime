@@ -64,8 +64,8 @@ void FreeInstallTest::TearDownTestCase(void)
 void FreeInstallTest::SetUp(void)
 {
     freeInstallManager_ = std::make_shared<FreeInstallManager>(abilityMs_);
-    abilityMs_->eventLoop_ = AppExecFwk::EventRunner::Create(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
-    abilityMs_->handler_ = std::make_shared<AbilityEventHandler>(abilityMs_->eventLoop_, abilityMs_);
+    abilityMs_->taskHandler_ = TaskHandlerWrap::CreateQueueHandler(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
+    abilityMs_->eventHandler_ = std::make_shared<AbilityEventHandler>(abilityMs_->taskHandler_, abilityMs_);
 }
 
 void FreeInstallTest::TearDown(void)
@@ -90,10 +90,10 @@ void FreeInstallTest::WaitUntilTaskFinished()
     const uint32_t maxRetryCount = 1000;
     const uint32_t sleepTime = 1000;
     uint32_t count = 0;
-    auto handler = abilityMs_->handler_;
+    auto handler = abilityMs_->taskHandler_;
     std::atomic<bool> taskCalled(false);
     auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->PostTask(f)) {
+    if (handler->SubmitTask(f)) {
         while (!taskCalled.load()) {
             ++count;
             if (count >= maxRetryCount) {
@@ -123,7 +123,7 @@ HWTEST_F(FreeInstallTest, FreeInstall_StartFreeInstall_001, TestSize.Level1)
     auto task = [manager = freeInstallManager_, want, userId, requestCode, callerToken, &res]() {
         res = manager->StartFreeInstall(want, userId, requestCode, callerToken);
     };
-    abilityMs_->handler_->PostTask(task);
+    abilityMs_->taskHandler_->SubmitTask(task);
 
     usleep(100000);
     // from freeInstallManager_->freeInstallList_ find startInstallTime
@@ -179,7 +179,7 @@ HWTEST_F(FreeInstallTest, FreeInstall_StartFreeInstall_003, TestSize.Level1)
     auto task = [manager = freeInstallManager_, want, userId, requestCode, callerToken, &res]() {
         res = manager->StartFreeInstall(want, userId, requestCode, callerToken);
     };
-    abilityMs_->handler_->PostTask(task);
+    abilityMs_->taskHandler_->SubmitTask(task);
 
     usleep(100000);
     // from freeInstallManager_->freeInstallList_ find startInstallTime

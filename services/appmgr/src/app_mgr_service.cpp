@@ -29,7 +29,6 @@
 #include "app_mgr_constants.h"
 #include "hilog_wrapper.h"
 #include "perf_profile.h"
-#include "xcollie/watchdog.h"
 
 #include "permission_constants.h"
 #include "permission_verification.h"
@@ -100,8 +99,8 @@ void AppMgrService::OnStop()
 {
     HILOG_INFO("ready to stop service");
     appMgrServiceState_.serviceRunningState = ServiceRunningState::STATE_NOT_START;
-    handler_.reset();
-    runner_.reset();
+    eventHandler_.reset();
+    taskHandler_.reset();
     if (appMgrServiceInner_) {
         appMgrServiceInner_->OnStop();
     }
@@ -124,22 +123,18 @@ AppMgrServiceState AppMgrService::QueryServiceState()
 ErrCode AppMgrService::Init()
 {
     HILOG_INFO("ready to init");
-    // start main thread message loop.
-    runner_ = EventRunner::Create(Constants::APP_MGR_SERVICE_NAME);
-    if (!runner_) {
-        HILOG_ERROR("init failed due to create runner error");
-        return ERR_INVALID_OPERATION;
-    }
     if (!appMgrServiceInner_) {
         HILOG_ERROR("init failed without inner service");
         return ERR_INVALID_OPERATION;
     }
 
-    handler_ = std::make_shared<AMSEventHandler>(runner_, appMgrServiceInner_);
-    appMgrServiceInner_->SetEventHandler(handler_);
+    taskHandler_ = AAFwk::TaskHandlerWrap::CreateQueueHandler("app_mgr_task_queue");
+    eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrServiceInner_);
+    appMgrServiceInner_->SetTaskHandler(taskHandler_);
+    appMgrServiceInner_->SetEventHandler(eventHandler_);
     std::function<void()> initAppMgrServiceInnerTask =
         std::bind(&AppMgrServiceInner::Init, appMgrServiceInner_);
-    handler_->PostTask(initAppMgrServiceInnerTask, TASK_INIT_APPMGRSERVICEINNER);
+    taskHandler_->SubmitTask(initAppMgrServiceInnerTask, TASK_INIT_APPMGRSERVICEINNER);
 
     ErrCode openErr = appMgrServiceInner_->OpenAppSpawnConnection();
     if (FAILED(openErr)) {
@@ -149,14 +144,10 @@ ErrCode AppMgrService::Init()
         HILOG_ERROR("failed to publish app mgr service to systemAbilityMgr");
         return ERR_APPEXECFWK_SERVICE_NOT_CONNECTED;
     }
-    amsMgrScheduler_ = new (std::nothrow) AmsMgrScheduler(appMgrServiceInner_, handler_);
+    amsMgrScheduler_ = new (std::nothrow) AmsMgrScheduler(appMgrServiceInner_, taskHandler_);
     if (!amsMgrScheduler_) {
         HILOG_ERROR("init failed without ams scheduler");
         return ERR_INVALID_OPERATION;
-    }
-    std::string threadName = Constants::APP_MGR_SERVICE_NAME + "(" + std::to_string(runner_->GetThreadId()) + ")";
-    if (HiviewDFX::Watchdog::GetInstance().AddThread(threadName, handler_) != 0) {
-        HILOG_ERROR("HiviewDFX::Watchdog::GetInstance AddThread Fail");
     }
     HILOG_INFO("init success");
     return ERR_OK;
@@ -181,7 +172,7 @@ void AppMgrService::AttachApplication(const sptr<IRemoteObject> &app)
     AddAppDeathRecipient(pid);
     std::function<void()> attachApplicationFunc =
         std::bind(&AppMgrServiceInner::AttachApplication, appMgrServiceInner_, pid, iface_cast<IAppScheduler>(app));
-    handler_->PostTask(attachApplicationFunc, TASK_ATTACH_APPLICATION);
+    taskHandler_->SubmitTask(attachApplicationFunc, TASK_ATTACH_APPLICATION);
 }
 
 void AppMgrService::ApplicationForegrounded(const int32_t recordId)
@@ -194,7 +185,7 @@ void AppMgrService::ApplicationForegrounded(const int32_t recordId)
     }
     std::function<void()> applicationForegroundedFunc =
         std::bind(&AppMgrServiceInner::ApplicationForegrounded, appMgrServiceInner_, recordId);
-    handler_->PostTask(applicationForegroundedFunc, TASK_APPLICATION_FOREGROUNDED);
+    taskHandler_->SubmitTask(applicationForegroundedFunc, TASK_APPLICATION_FOREGROUNDED);
 }
 
 void AppMgrService::ApplicationBackgrounded(const int32_t recordId)
@@ -207,7 +198,7 @@ void AppMgrService::ApplicationBackgrounded(const int32_t recordId)
     }
     std::function<void()> applicationBackgroundedFunc =
         std::bind(&AppMgrServiceInner::ApplicationBackgrounded, appMgrServiceInner_, recordId);
-    handler_->PostTask(applicationBackgroundedFunc, TASK_APPLICATION_BACKGROUNDED);
+    taskHandler_->SubmitTask(applicationBackgroundedFunc, TASK_APPLICATION_BACKGROUNDED);
 }
 
 void AppMgrService::ApplicationTerminated(const int32_t recordId)
@@ -220,7 +211,7 @@ void AppMgrService::ApplicationTerminated(const int32_t recordId)
     }
     std::function<void()> applicationTerminatedFunc =
         std::bind(&AppMgrServiceInner::ApplicationTerminated, appMgrServiceInner_, recordId);
-    handler_->PostTask(applicationTerminatedFunc, TASK_APPLICATION_TERMINATED);
+    taskHandler_->SubmitTask(applicationTerminatedFunc, TASK_APPLICATION_TERMINATED);
 }
 
 void AppMgrService::AbilityCleaned(const sptr<IRemoteObject> &token)
@@ -228,7 +219,7 @@ void AppMgrService::AbilityCleaned(const sptr<IRemoteObject> &token)
     if (!IsReady()) {
         return;
     }
-    
+
     auto callerUid = IPCSkeleton::GetCallingUid();
     auto appRecord = appMgrServiceInner_->GetTerminatingAppRunningRecord(token);
     if (!appRecord || appRecord->GetUid() != callerUid) {
@@ -238,20 +229,17 @@ void AppMgrService::AbilityCleaned(const sptr<IRemoteObject> &token)
 
     std::function<void()> abilityCleanedFunc =
         std::bind(&AppMgrServiceInner::AbilityTerminated, appMgrServiceInner_, token);
-    handler_->PostTask(abilityCleanedFunc, TASK_ABILITY_CLEANED);
+    taskHandler_->SubmitTask(abilityCleanedFunc, TASK_ABILITY_CLEANED);
 }
 
 bool AppMgrService::IsReady() const
 {
-    if (!appMgrServiceInner_) {
-        HILOG_ERROR("appMgrServiceInner is null");
-        return false;
+    if (appMgrServiceInner_ && taskHandler_ && eventHandler_) {
+        return true;
     }
-    if (!handler_) {
-        HILOG_ERROR("handler is null");
-        return false;
-    }
-    return true;
+
+    HILOG_WARN("Not ready");
+    return false;
 }
 
 void AppMgrService::AddAppDeathRecipient(const pid_t pid) const
@@ -260,11 +248,11 @@ void AppMgrService::AddAppDeathRecipient(const pid_t pid) const
         return;
     }
     sptr<AppDeathRecipient> appDeathRecipient = new AppDeathRecipient();
-    appDeathRecipient->SetEventHandler(handler_);
+    appDeathRecipient->SetTaskHandler(taskHandler_);
     appDeathRecipient->SetAppMgrServiceInner(appMgrServiceInner_);
     std::function<void()> addAppRecipientFunc =
         std::bind(&AppMgrServiceInner::AddAppDeathRecipient, appMgrServiceInner_, pid, appDeathRecipient);
-    handler_->PostTask(addAppRecipientFunc, TASK_ADD_APP_DEATH_RECIPIENT);
+    taskHandler_->SubmitTask(addAppRecipientFunc, TASK_ADD_APP_DEATH_RECIPIENT);
 }
 
 void AppMgrService::StartupResidentProcess(const std::vector<AppExecFwk::BundleInfo> &bundleInfos)
@@ -281,7 +269,7 @@ void AppMgrService::StartupResidentProcess(const std::vector<AppExecFwk::BundleI
     HILOG_INFO("Notify start resident process");
     std::function <void()> startupResidentProcess =
         std::bind(&AppMgrServiceInner::LoadResidentProcess, appMgrServiceInner_, bundleInfos);
-    handler_->PostTask(startupResidentProcess, TASK_STARTUP_RESIDENT_PROCESS);
+    taskHandler_->SubmitTask(startupResidentProcess, TASK_STARTUP_RESIDENT_PROCESS);
 }
 
 sptr<IAmsMgr> AppMgrService::GetAmsMgr()
@@ -308,7 +296,7 @@ int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName)
     pid_t pid = IPCSkeleton::GetCallingPid();
     std::function<void()> clearUpApplicationDataFunc =
         std::bind(&AppMgrServiceInner::ClearUpApplicationData, appMgrServiceInner_, bundleName, uid, pid);
-    handler_->PostTask(clearUpApplicationDataFunc, TASK_CLEAR_UP_APPLICATION_DATA);
+    taskHandler_->SubmitTask(clearUpApplicationDataFunc, TASK_CLEAR_UP_APPLICATION_DATA);
     return ERR_OK;
 }
 
@@ -386,7 +374,7 @@ void AppMgrService::AddAbilityStageDone(const int32_t recordId)
     }
     std::function <void()> addAbilityStageDone =
         std::bind(&AppMgrServiceInner::AddAbilityStageDone, appMgrServiceInner_, recordId);
-    handler_->PostTask(addAbilityStageDone, TASK_ADD_ABILITY_STAGE_DONE);
+    taskHandler_->SubmitTask(addAbilityStageDone, TASK_ADD_ABILITY_STAGE_DONE);
 }
 
 int32_t AppMgrService::RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
@@ -433,7 +421,7 @@ int AppMgrService::StartUserTestProcess(const AAFwk::Want &want, const sptr<IRem
     }
     std::function<void()> startUserTestProcessFunc =
         std::bind(&AppMgrServiceInner::StartUserTestProcess, appMgrServiceInner_, want, observer, bundleInfo, userId);
-    handler_->PostTask(startUserTestProcessFunc, TASK_START_USER_TEST_PROCESS);
+    taskHandler_->SubmitTask(startUserTestProcessFunc, TASK_START_USER_TEST_PROCESS);
     return ERR_OK;
 }
 
@@ -465,7 +453,7 @@ int AppMgrService::FinishUserTest(const std::string &msg, const int64_t &resultC
     pid_t callingPid = IPCSkeleton::GetCallingPid();
     std::function<void()> finishUserTestProcessFunc =
         std::bind(&AppMgrServiceInner::FinishUserTest, appMgrServiceInner_, msg, resultCode, bundleName, callingPid);
-    handler_->PostTask(finishUserTestProcessFunc, TASK_FINISH_USER_TEST);
+    taskHandler_->SubmitTask(finishUserTestProcessFunc, TASK_FINISH_USER_TEST);
     return ERR_OK;
 }
 
@@ -518,7 +506,7 @@ void AppMgrService::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::
         return;
     }
     auto task = [=]() { appMgrServiceInner_->ScheduleAcceptWantDone(recordId, want, flag); };
-    handler_->PostTask(task);
+    taskHandler_->SubmitTask(task);
 }
 
 int AppMgrService::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens)
@@ -569,7 +557,7 @@ void AppMgrService::AttachRenderProcess(const sptr<IRemoteObject> &scheduler)
     auto pid = IPCSkeleton::GetCallingPid();
     auto fun = std::bind(&AppMgrServiceInner::AttachRenderProcess,
         appMgrServiceInner_, pid, iface_cast<IRenderScheduler>(scheduler));
-    handler_->PostTask(fun, TASK_ATTACH_RENDER_PROCESS);
+    taskHandler_->SubmitTask(fun, TASK_ATTACH_RENDER_PROCESS);
 }
 
 int32_t AppMgrService::GetRenderProcessTerminationStatus(pid_t renderPid, int &status)
@@ -632,7 +620,7 @@ int AppMgrService::BlockAppService()
             std::this_thread::sleep_for(APP_MS_BLOCK*1s);
         }
     };
-    handler_->PostTask(task);
+    taskHandler_->SubmitTask(task);
     return ERR_OK;
 }
 #endif

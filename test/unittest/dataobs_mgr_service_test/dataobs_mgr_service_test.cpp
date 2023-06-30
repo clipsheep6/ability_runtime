@@ -64,26 +64,6 @@ HWTEST_F(DataObsMgrServiceTest, AaFwk_DataObsMgrServiceTest_QueryServiceState_01
 
 /*
  * Feature: DataObsMgrService
- * Function: GetEventHandler
- * SubFunction: NA
- * FunctionPoints: DataObsMgrService GetEventHandler
- * EnvConditions: NA
- * CaseDescription: Verify that the DataObsMgrService could get eventHandler.
- */
-HWTEST_F(DataObsMgrServiceTest, AaFwk_DataObsMgrServiceTest_GetEventHandler_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "AaFwk_DataObsMgrServiceTest_GetEventHandler_0100 start";
-    auto dataObsMgrServer = DelayedSingleton<DataObsMgrService>::GetInstance();
-
-    const std::shared_ptr<EventHandler> retVal = dataObsMgrServer->GetEventHandler();
-
-    EXPECT_EQ(nullptr, retVal.get());
-
-    GTEST_LOG_(INFO) << "AaFwk_DataObsMgrServiceTest_GetEventHandler_0100 end";
-}
-
-/*
- * Feature: DataObsMgrService
  * Function: OnStart
  * SubFunction: NA
  * FunctionPoints: DataObsMgrService OnStart
@@ -98,7 +78,6 @@ HWTEST_F(DataObsMgrServiceTest, AaFwk_DataObsMgrServiceTest_OnStart_0100, TestSi
 
     dataObsMgrServer->OnStart();
     EXPECT_EQ(testValue, dataObsMgrServer->QueryServiceState());
-    EXPECT_NE(nullptr, dataObsMgrServer->GetEventHandler().get());
 
     GTEST_LOG_(INFO) << "AaFwk_DataObsMgrServiceTest_OnStart_0100 end";
 }
@@ -272,7 +251,6 @@ HWTEST_F(DataObsMgrServiceTest, AaFwk_DataObsMgrServiceTest_OnStop_0100, TestSiz
 
     dataObsMgrServer->OnStop();
     EXPECT_EQ(testValue, dataObsMgrServer->QueryServiceState());
-    EXPECT_EQ(nullptr, dataObsMgrServer->GetEventHandler().get());
 
     GTEST_LOG_(INFO) << "AaFwk_DataObsMgrServiceTest_OnStop_0100 end";
 }

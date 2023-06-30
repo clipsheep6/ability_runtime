@@ -31,7 +31,8 @@ class IWindowManagerServiceHandler : public OHOS::IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.aafwk.WindowManagerServiceHandler");
 
-    virtual void NotifyWindowTransition(sptr<AbilityTransitionInfo> fromInfo, sptr<AbilityTransitionInfo> toInfo) = 0;
+    virtual void NotifyWindowTransition(sptr<AbilityTransitionInfo> fromInfo, sptr<AbilityTransitionInfo> toInfo,
+        bool& animaEnabled) = 0;
 
     virtual int32_t GetFocusWindow(sptr<IRemoteObject>& abilityToken) = 0;
 

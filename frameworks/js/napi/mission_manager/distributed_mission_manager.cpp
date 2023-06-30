@@ -694,7 +694,7 @@ bool RegisterMissionWrapDeviceId(napi_env &env, napi_value &argc,
             std::to_string(VALUE_BUFFER_SIZE);
         return false;
     }
-    registerMissionCB->deviceId = deviceId;
+    registerMissionCB->deviceId = std::string(deviceId);
     return true;
 }
 
@@ -1445,7 +1445,7 @@ bool GetUnRegisterMissionDeviceId(napi_env &env, const napi_value &value,
             std::to_string(VALUE_BUFFER_SIZE);
         return false;
     }
-    registerMissionCB->deviceId = deviceId;
+    registerMissionCB->deviceId = std::string(deviceId);
     HILOG_INFO("%{public}s called end.", __func__);
     return true;
 }
@@ -1579,6 +1579,7 @@ void ContinueAbilityExecuteCB(napi_env env, void *data)
     }
     
     continueAbilityCB->result = -1;
+    continueAbilityCB->abilityContinuation->SetContinueAbilityHasBundleName(continueAbilityCB->hasArgsWithBundleName);
     if (continueAbilityCB->hasArgsWithBundleName) {
         continueAbilityCB->result = AAFwk::AbilityManagerClient::GetInstance()->
         ContinueMission(continueAbilityCB->srcDeviceId, continueAbilityCB->dstDeviceId,
@@ -1606,19 +1607,30 @@ void ContinueAbilityCallbackCompletedCB(napi_env env, napi_status status, void *
         int32_t errCode = ErrorCodeReturn(continueAbilityCB->result);
         result[0] = GenerateBusinessError(env, errCode, ErrorMessageReturn(errCode));
     }
-
-    if (continueAbilityCB->callbackRef == nullptr) { // promise
-        if (continueAbilityCB->result == 0) {
-            napi_resolve_deferred(env, continueAbilityCB->cbBase.deferred, result[1]);
-        } else {
-            napi_reject_deferred(env, continueAbilityCB->cbBase.deferred, result[0]);
+    if (!continueAbilityCB->hasArgsWithBundleName) {
+        if (continueAbilityCB->callbackRef == nullptr) { // promise
+            if (continueAbilityCB->result == 0) {
+                napi_resolve_deferred(env, continueAbilityCB->cbBase.deferred, result[1]);
+            } else {
+                napi_reject_deferred(env, continueAbilityCB->cbBase.deferred, result[0]);
+            }
+        } else { // AsyncCallback
+            napi_value callback = nullptr;
+            napi_get_reference_value(env, continueAbilityCB->callbackRef, &callback);
+            napi_value callResult;
+            napi_call_function(env, nullptr, callback, ARGS_TWO, &result[0], &callResult);
+            napi_delete_reference(env, continueAbilityCB->callbackRef);
         }
-    } else { // AsyncCallback
-        napi_value callback = nullptr;
-        napi_get_reference_value(env, continueAbilityCB->callbackRef, &callback);
-        napi_value callResult;
-        napi_call_function(env, nullptr, callback, ARGS_TWO, &result[0], &callResult);
-        napi_delete_reference(env, continueAbilityCB->callbackRef);
+    } else {
+        if (continueAbilityCB->callbackRef == nullptr && continueAbilityCB->result != 0) { // promise
+            napi_reject_deferred(env, continueAbilityCB->cbBase.deferred, result[0]);
+        } else if (continueAbilityCB->callbackRef != nullptr && continueAbilityCB->result != 0) { // AsyncCallback
+            napi_value callback = nullptr;
+            napi_get_reference_value(env, continueAbilityCB->callbackRef, &callback);
+            napi_value callResult;
+            napi_call_function(env, nullptr, callback, ARGS_TWO, &result[0], &callResult);
+            napi_delete_reference(env, continueAbilityCB->callbackRef);
+        }
     }
     napi_delete_async_work(env, continueAbilityCB->cbBase.asyncWork);
     delete continueAbilityCB;
@@ -1997,13 +2009,12 @@ void UvWorkOnContinueDone(uv_work_t *work, int status)
         delete work;
         return;
     }
-
-    napi_value result = nullptr;
     HILOG_INFO("UvWorkOnContinueDone, resultCode = %{public}d", continueAbilityCB->resultCode);
-    result =
-        WrapInt32(continueAbilityCB->cbBase.cbInfo.env, continueAbilityCB->resultCode, "resultCode");
-
-    if (continueAbilityCB->cbBase.cbInfo.callback != nullptr) {
+    napi_value result = WrapInt32(continueAbilityCB->cbBase.cbInfo.env, continueAbilityCB->resultCode, "resultCode");
+    if (continueAbilityCB->hasArgsWithBundleName) {
+        result = WrapInt32(continueAbilityCB->cbBase.cbInfo.env, continueAbilityCB->resultCode, "code");
+    }
+    if (continueAbilityCB->cbBase.deferred == nullptr) {
         napi_value callback = nullptr;
         napi_value undefined = nullptr;
         napi_get_undefined(continueAbilityCB->cbBase.cbInfo.env, &undefined);
@@ -2025,7 +2036,6 @@ void UvWorkOnContinueDone(uv_work_t *work, int status)
             napi_reject_deferred(continueAbilityCB->cbBase.cbInfo.env, continueAbilityCB->cbBase.deferred, result[0]);
         }
     }
-
     napi_close_handle_scope(continueAbilityCB->cbBase.cbInfo.env, scope);
     delete continueAbilityCB;
     continueAbilityCB = nullptr;
@@ -2053,6 +2063,7 @@ void NAPIMissionContinue::OnContinueDone(int32_t result)
         return;
     }
     continueAbilityCB->cbBase.cbInfo.env = env_;
+    continueAbilityCB->hasArgsWithBundleName = onContinueDoneHasBundleName_;
     if (onContinueDoneRef_ != nullptr) {
         continueAbilityCB->cbBase.cbInfo.callback = onContinueDoneRef_;
     } else {
@@ -2081,10 +2092,16 @@ void NAPIMissionContinue::SetContinueAbilityCBRef(const napi_ref &ref)
     onContinueDoneRef_ = ref;
 }
 
+void NAPIMissionContinue::SetContinueAbilityHasBundleName(bool hasBundleName)
+{
+    onContinueDoneHasBundleName_ = hasBundleName;
+}
+
 void NAPIMissionContinue::SetContinueAbilityPromiseRef(const napi_deferred &promiseDeferred)
 {
     promiseDeferred_ = promiseDeferred;
 }
+
 napi_value DistributedMissionManagerExport(napi_env env, napi_value exports)
 {
     HILOG_INFO("%{public}s,called", __func__);

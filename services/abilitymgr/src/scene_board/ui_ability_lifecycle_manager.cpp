@@ -41,7 +41,7 @@ const int KILL_TIMEOUT_MULTIPLE = 3;
 int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sptr<SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::lock_guard<std::mutex> guard(sessionLock_);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
     HILOG_DEBUG("Call.");
     if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
         HILOG_ERROR("sessionInfo is invalid.");
@@ -62,6 +62,10 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
         uiAbilityRecord->SetWant(abilityRequest.want);
         uiAbilityRecord->SetIsNewWant(true);
     } else {
+        if (sessionInfo->startSetting != nullptr) {
+            HILOG_DEBUG("startSetting is valid.");
+            abilityRequest.startSetting = sessionInfo->startSetting;
+        }
         uiAbilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     }
     CHECK_POINTER_AND_RETURN(uiAbilityRecord, ERR_INVALID_VALUE);
@@ -97,7 +101,7 @@ int UIAbilityLifecycleManager::AttachAbilityThread(const sptr<IAbilityScheduler>
     const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::lock_guard<std::mutex> guard(sessionLock_);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
     if (!IsContainsAbilityInner(token)) {
         return ERR_INVALID_VALUE;
     }
@@ -132,7 +136,7 @@ int UIAbilityLifecycleManager::AttachAbilityThread(const sptr<IAbilityScheduler>
 void UIAbilityLifecycleManager::OnAbilityRequestDone(const sptr<IRemoteObject> &token, int32_t state) const
 {
     HILOG_DEBUG("Ability request state %{public}d done.", state);
-    std::lock_guard<std::mutex> guard(sessionLock_);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
     AppAbilityState abilityState = DelayedSingleton<AppScheduler>::GetInstance()->ConvertToAppAbilityState(state);
     if (abilityState == AppAbilityState::ABILITY_STATE_FOREGROUND) {
         auto&& abilityRecord = Token::GetAbilityRecordByToken(token);
@@ -151,7 +155,7 @@ int UIAbilityLifecycleManager::AbilityTransactionDone(const sptr<IRemoteObject> 
     std::string abilityState = AbilityRecord::ConvertAbilityState(static_cast<AbilityState>(targetState));
     HILOG_INFO("AbilityTransactionDone, state: %{public}s.", abilityState.c_str());
 
-    std::lock_guard<std::mutex> guard(sessionLock_);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
     auto abilityRecord = GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
@@ -169,7 +173,7 @@ int UIAbilityLifecycleManager::NotifySCBToStartUIAbility(const AbilityRequest &a
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Call.");
-    std::lock_guard<std::mutex> guard(sessionLock_);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
     auto isSpecified = (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED);
     if (isSpecified) {
         EnqueueAbilityToFront(abilityRequest);
@@ -212,6 +216,8 @@ int UIAbilityLifecycleManager::DispatchForeground(const std::shared_ptr<AbilityR
 {
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
+    auto taskHandler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    CHECK_POINTER_AND_RETURN_LOG(taskHandler, ERR_INVALID_VALUE, "Fail to get AbilityTaskHandler.");
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
     if (!abilityRecord->IsAbilityState(AbilityState::FOREGROUNDING)) {
@@ -233,7 +239,7 @@ int UIAbilityLifecycleManager::DispatchForeground(const std::shared_ptr<AbilityR
             }
             selfObj->CompleteForegroundSuccess(abilityRecord);
         };
-        handler->PostTask(task);
+        taskHandler->SubmitTask(task);
     } else {
         auto task = [self, abilityRecord, state]() {
             auto selfObj = self.lock();
@@ -251,15 +257,15 @@ int UIAbilityLifecycleManager::DispatchForeground(const std::shared_ptr<AbilityR
             }
             selfObj->HandleForegroundFailed(abilityRecord, state);
         };
-        handler->PostTask(task);
+        taskHandler->SubmitTask(task);
     }
     return ERR_OK;
 }
 
 int UIAbilityLifecycleManager::DispatchBackground(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityTaskHandler.");
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
     if (!abilityRecord->IsAbilityState(AbilityState::BACKGROUNDING)) {
@@ -268,10 +274,10 @@ int UIAbilityLifecycleManager::DispatchBackground(const std::shared_ptr<AbilityR
     }
 
     // remove background timeout task.
-    handler->RemoveTask("background_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+    handler->CancelTask("background_" + std::to_string(abilityRecord->GetAbilityRecordId()));
     auto self(shared_from_this());
     auto task = [self, abilityRecord]() { self->CompleteBackground(abilityRecord); };
-    handler->PostTask(task);
+    handler->SubmitTask(task);
 
     return ERR_OK;
 }
@@ -285,12 +291,12 @@ int UIAbilityLifecycleManager::DispatchTerminate(const std::shared_ptr<AbilityRe
     }
 
     // remove terminate timeout task.
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
-    handler->RemoveTask("terminate_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityTaskHandler.");
+    handler->CancelTask("terminate_" + std::to_string(abilityRecord->GetAbilityRecordId()));
     auto self(shared_from_this());
     auto task = [self, abilityRecord]() { self->CompleteTerminate(abilityRecord); };
-    handler->PostTask(task);
+    handler->SubmitTask(task);
 
     return ERR_OK;
 }
@@ -298,7 +304,7 @@ int UIAbilityLifecycleManager::DispatchTerminate(const std::shared_ptr<AbilityRe
 void UIAbilityLifecycleManager::CompleteForegroundSuccess(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::lock_guard<std::mutex> guard(sessionLock_);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
 
     CHECK_POINTER(abilityRecord);
     // ability do not save window mode
@@ -327,7 +333,7 @@ void UIAbilityLifecycleManager::HandleForegroundFailed(const std::shared_ptr<Abi
     AbilityState state)
 {
     HILOG_DEBUG("state: %{public}d.", static_cast<int32_t>(state));
-    std::lock_guard<std::mutex> guard(sessionLock_);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
     if (ability == nullptr) {
         HILOG_ERROR("ability record is nullptr.");
         return;
@@ -367,7 +373,7 @@ std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetAbilityRecordByToke
 
 bool UIAbilityLifecycleManager::IsContainsAbility(const sptr<IRemoteObject> &token) const
 {
-    std::lock_guard<std::mutex> guard(sessionLock_);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
     return IsContainsAbilityInner(token);
 }
 
@@ -433,7 +439,7 @@ void UIAbilityLifecycleManager::UpdateAbilityRecordLaunchReason(
 std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetUIAbilityRecordBySessionInfo(
     const sptr<SessionInfo> &sessionInfo)
 {
-    std::lock_guard<std::mutex> guard(sessionLock_);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
     CHECK_POINTER_AND_RETURN(sessionInfo, nullptr);
     CHECK_POINTER_AND_RETURN(sessionInfo->sessionToken, nullptr);
     auto sessionToken = iface_cast<Rosen::ISession>(sessionInfo->sessionToken);
@@ -454,7 +460,7 @@ std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetUIAbilityRecordBySe
 int UIAbilityLifecycleManager::MinimizeUIAbility(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     HILOG_DEBUG("call");
-    std::lock_guard<std::mutex> guard(sessionLock_);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
     if (abilityRecord == nullptr) {
         HILOG_ERROR("ability record is null");
         return ERR_INVALID_VALUE;
@@ -506,7 +512,7 @@ int UIAbilityLifecycleManager::ResolveLocked(const AbilityRequest &abilityReques
 int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRequest)
 {
     HILOG_DEBUG("Call.");
-    std::lock_guard<std::mutex> guard(sessionLock_);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
 
     // Get target uiAbility record.
     std::shared_ptr<AbilityRecord> uiAbilityRecord;
@@ -554,7 +560,7 @@ int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRe
 void UIAbilityLifecycleManager::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
 {
     HILOG_DEBUG("Call.");
-    std::lock_guard<std::mutex> guard(sessionLock_);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
     if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
         HILOG_ERROR("sessionInfo is invalid.");
         return;
@@ -595,6 +601,9 @@ sptr<SessionInfo> UIAbilityLifecycleManager::CreateSessionInfo(const AbilityRequ
     sptr<SessionInfo> sessionInfo = new SessionInfo();
     sessionInfo->callerToken = abilityRequest.callerToken;
     sessionInfo->want = abilityRequest.want;
+    if (abilityRequest.startSetting != nullptr) {
+        sessionInfo->startSetting = abilityRequest.startSetting;
+    }
     return sessionInfo;
 }
 
@@ -697,7 +706,7 @@ void UIAbilityLifecycleManager::PrintTimeOutLog(const std::shared_ptr<AbilityRec
 
 void UIAbilityLifecycleManager::CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
-    std::lock_guard<std::mutex> guard(sessionLock_);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
     if (abilityRecord->GetAbilityState() != AbilityState::BACKGROUNDING) {
         HILOG_ERROR("failed, ability state is %{public}d, it can't complete background.",
             abilityRecord->GetAbilityState());
@@ -738,7 +747,7 @@ int UIAbilityLifecycleManager::CloseUIAbility(const std::shared_ptr<AbilityRecor
     int resultCode, const Want *resultWant)
 {
     HILOG_DEBUG("call");
-    std::lock_guard<std::mutex> guard(sessionLock_);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     std::string element = abilityRecord->GetWant().GetElement().GetURI();
@@ -782,7 +791,7 @@ int UIAbilityLifecycleManager::CloseUIAbility(const std::shared_ptr<AbilityRecor
 
 void UIAbilityLifecycleManager::DelayCompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     CHECK_POINTER(handler);
 
     PrintTimeOutLog(abilityRecord, AbilityManagerService::TERMINATE_TIMEOUT_MSG);
@@ -792,13 +801,13 @@ void UIAbilityLifecycleManager::DelayCompleteTerminate(const std::shared_ptr<Abi
         self->CompleteTerminate(abilityRecord);
     };
     int killTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * KILL_TIMEOUT_MULTIPLE;
-    handler->PostTask(timeoutTask, "DELAY_KILL_PROCESS", killTimeout);
+    handler->SubmitTask(timeoutTask, "DELAY_KILL_PROCESS", killTimeout);
 }
 
 void UIAbilityLifecycleManager::CompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     CHECK_POINTER(abilityRecord);
-    std::lock_guard<std::mutex> guard(sessionLock_);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
 
     if (abilityRecord->GetAbilityState() != AbilityState::TERMINATING) {
@@ -903,7 +912,7 @@ void UIAbilityLifecycleManager::ReportEventToSuspendManager(const AppExecFwk::Ab
 void UIAbilityLifecycleManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId)
 {
     HILOG_DEBUG("call, msgId is %{public}d", msgId);
-    std::lock_guard<std::mutex> guard(sessionLock_);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
     std::shared_ptr<AbilityRecord> abilityRecord;
     for (auto iter = sessionAbilityMap_.begin(); iter != sessionAbilityMap_.end(); iter++) {
         if (iter->second != nullptr && iter->second->GetAbilityRecordId() == abilityRecordId) {
@@ -998,7 +1007,7 @@ void UIAbilityLifecycleManager::HandleForegroundTimeout(const std::shared_ptr<Ab
 void UIAbilityLifecycleManager::OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord)
 {
     HILOG_DEBUG("call");
-    std::lock_guard<std::mutex> guard(sessionLock_);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
     if (abilityRecord == nullptr) {
         HILOG_ERROR("failed, ability record is nullptr");
         return;
@@ -1015,7 +1024,7 @@ void UIAbilityLifecycleManager::OnAbilityDied(std::shared_ptr<AbilityRecord> abi
 void UIAbilityLifecycleManager::OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag)
 {
     HILOG_DEBUG("call");
-    std::lock_guard<std::mutex> guard(sessionLock_);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
     if (abilityQueue_.empty()) {
         return;
     }
@@ -1060,7 +1069,7 @@ void UIAbilityLifecycleManager::StartSpecifiedAbilityBySCB(const Want &want, int
         return;
     }
     {
-        std::lock_guard<std::mutex> guard(sessionLock_);
+        std::lock_guard<ffrt::mutex> guard(sessionLock_);
         EnqueueAbilityToFront(abilityRequest);
     }
     DelayedSingleton<AppScheduler>::GetInstance()->StartSpecifiedAbility(
@@ -1185,7 +1194,7 @@ int UIAbilityLifecycleManager::StartAbilityBySpecifed(const AbilityRequest &abil
 void UIAbilityLifecycleManager::CallRequestDone(const std::shared_ptr<AbilityRecord> &abilityRecord,
     const sptr<IRemoteObject> &callStub)
 {
-    std::lock_guard<std::mutex> guard(sessionLock_);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
     if (abilityRecord == nullptr) {
         HILOG_ERROR("ability record is null.");
         return;
@@ -1205,7 +1214,7 @@ int UIAbilityLifecycleManager::ReleaseCallLocked(
     CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
 
-    std::lock_guard<std::mutex> guard(sessionLock_);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
 
     auto abilityRecords = GetAbilityRecordsByName(element);
     auto isExist = [connect] (const std::shared_ptr<AbilityRecord> &abilityRecord) {

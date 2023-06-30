@@ -178,6 +178,10 @@ class AbilityContext extends Context {
   requestDialogService(want, resultCallback) {
     return this.__context_impl__.requestDialogService(want, resultCallback);
   }
+
+  reportDrawnCompleted(callback) {
+    return this.__context_impl__.reportDrawnCompleted(callback);
+  }
 }
 
 export default AbilityContext;

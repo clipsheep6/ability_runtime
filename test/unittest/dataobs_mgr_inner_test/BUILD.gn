@@ -39,7 +39,7 @@ ohos_unittest("dataobs_mgr_inner_test") {
     "ability_base:want",
     "ability_base:zuri",
     "c_utils:utils",
-    "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]

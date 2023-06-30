@@ -27,24 +27,17 @@ TaskDataPersistenceMgr::TaskDataPersistenceMgr()
 
 TaskDataPersistenceMgr::~TaskDataPersistenceMgr()
 {
-    eventLoop_.reset();
-    handler_.reset();
     HILOG_INFO("TaskDataPersistenceMgr instance is destroyed");
 }
 
 bool TaskDataPersistenceMgr::Init(int userId)
 {
-    if (!eventLoop_) {
-        eventLoop_ = AppExecFwk::EventRunner::Create(THREAD_NAME);
-        CHECK_POINTER_RETURN_BOOL(eventLoop_);
-    }
-
     if (!handler_) {
-        handler_ = std::make_shared<AppExecFwk::EventHandler>(eventLoop_);
+        handler_ = TaskHandlerWrap::GetFfrtHandler();
         CHECK_POINTER_RETURN_BOOL(handler_);
     }
 
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<ffrt::mutex> lock(mutex_);
     if (missionDataStorageMgr_.find(userId) == missionDataStorageMgr_.end()) {
         currentMissionDataStorage_ = std::make_shared<MissionDataStorage>(userId);
         missionDataStorageMgr_.insert(std::make_pair(userId, currentMissionDataStorage_));
@@ -60,7 +53,7 @@ bool TaskDataPersistenceMgr::Init(int userId)
 
 bool TaskDataPersistenceMgr::LoadAllMissionInfo(std::list<InnerMissionInfo> &missionInfoList)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<ffrt::mutex> lock(mutex_);
     if (!currentMissionDataStorage_) {
         HILOG_ERROR("currentMissionDataStorage_ is nullptr");
         return false;
@@ -71,7 +64,7 @@ bool TaskDataPersistenceMgr::LoadAllMissionInfo(std::list<InnerMissionInfo> &mis
 
 bool TaskDataPersistenceMgr::SaveMissionInfo(const InnerMissionInfo &missionInfo)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<ffrt::mutex> lock(mutex_);
     if (!handler_ || !currentMissionDataStorage_) {
         HILOG_ERROR("handler_ or currentMissionDataStorage_ is nullptr");
         return false;
@@ -84,12 +77,13 @@ bool TaskDataPersistenceMgr::SaveMissionInfo(const InnerMissionInfo &missionInfo
             missionDataStorage->SaveMissionInfo(missionInfo);
         }
     };
-    return handler_->PostTask(SaveMissionInfoFunc, SAVE_MISSION_INFO);
+    handler_->SubmitTask(SaveMissionInfoFunc, SAVE_MISSION_INFO);
+    return true;
 }
 
 bool TaskDataPersistenceMgr::DeleteMissionInfo(int missionId)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<ffrt::mutex> lock(mutex_);
     if (!handler_ || !currentMissionDataStorage_) {
         HILOG_ERROR("handler_ or currentMissionDataStorage_ is nullptr");
         return false;
@@ -102,12 +96,13 @@ bool TaskDataPersistenceMgr::DeleteMissionInfo(int missionId)
             missionDataStorage->DeleteMissionInfo(missionId);
         }
     };
-    return handler_->PostTask(DeleteMissionInfoFunc, DELETE_MISSION_INFO);
+    handler_->SubmitTask(DeleteMissionInfoFunc, DELETE_MISSION_INFO);
+    return true;
 }
 
 bool TaskDataPersistenceMgr::RemoveUserDir(int32_t userId)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<ffrt::mutex> lock(mutex_);
     if (currentUserId_ == userId) {
         HILOG_ERROR("can not removed current user dir");
         return false;
@@ -123,7 +118,7 @@ bool TaskDataPersistenceMgr::RemoveUserDir(int32_t userId)
 
 bool TaskDataPersistenceMgr::SaveMissionSnapshot(int missionId, const MissionSnapshot& snapshot)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<ffrt::mutex> lock(mutex_);
     if (!handler_ || !currentMissionDataStorage_) {
         HILOG_ERROR("snapshot: handler_ or currentMissionDataStorage_ is nullptr");
         return false;
@@ -136,7 +131,8 @@ bool TaskDataPersistenceMgr::SaveMissionSnapshot(int missionId, const MissionSna
             missionDataStorage->SaveMissionSnapshot(missionId, snapshot);
         }
     };
-    return handler_->PostTask(SaveMissionSnapshotFunc, SAVE_MISSION_SNAPSHOT);
+    handler_->SubmitTask(SaveMissionSnapshotFunc, SAVE_MISSION_SNAPSHOT);
+    return true;
 }
 
 #ifdef SUPPORT_GRAPHICS
@@ -152,7 +148,7 @@ std::shared_ptr<Media::PixelMap> TaskDataPersistenceMgr::GetSnapshot(int mission
 
 bool TaskDataPersistenceMgr::GetMissionSnapshot(int missionId, MissionSnapshot& snapshot, bool isLowResolution)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<ffrt::mutex> lock(mutex_);
     if (!currentMissionDataStorage_) {
         HILOG_ERROR("snapshot: currentMissionDataStorage_ is nullptr");
         return false;

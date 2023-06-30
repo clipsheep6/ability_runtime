@@ -20,6 +20,7 @@ group("ams_common_target") {
   deps = [
     ":event_report",
     ":perm_verification",
+    ":task_handler_wrap",
   ]
 }
 
@@ -80,6 +81,26 @@ ohos_shared_library("event_report") {
   ]
 
   innerapi_tags = [ "platformsdk_indirect" ]
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_shared_library("task_handler_wrap") {
+  public_configs = [ ":common_config" ]
+  include_dirs = [ "include" ]
+
+  sources = [
+    "src/event_handler_wrap.cpp",
+    "src/ffrt_task_handler_wrap.cpp",
+    "src/queue_task_handler_wrap.cpp",
+    "src/task_handler_wrap.cpp",
+  ]
+
+  external_deps = [
+    "ffrt:libffrt",
+    "hilog:libhilog",
+  ]
+
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

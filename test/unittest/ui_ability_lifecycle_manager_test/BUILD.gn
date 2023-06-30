@@ -31,6 +31,7 @@ ohos_unittest("ui_ability_lifecycle_manager_test") {
   sources = [ "ui_ability_lifecycle_manager_test.cpp" ]
 
   deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
@@ -48,6 +49,7 @@ ohos_unittest("ui_ability_lifecycle_manager_test") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "dsoftbus:softbus_client",
+    "ffrt:libffrt",
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",

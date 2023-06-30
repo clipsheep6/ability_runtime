@@ -76,7 +76,9 @@ int WindowManagerServiceHandlerStub::NotifyWindowTransitionInner(MessageParcel &
         HILOG_ERROR("To read toInfo failed.");
         return ERR_AAFWK_PARCEL_FAIL;
     }
-    NotifyWindowTransition(fromInfo, toInfo);
+    bool animaEnabled = data.ReadBool();
+    NotifyWindowTransition(fromInfo, toInfo, animaEnabled);
+    reply.WriteBool(animaEnabled);
     return ERR_OK;
 }
 

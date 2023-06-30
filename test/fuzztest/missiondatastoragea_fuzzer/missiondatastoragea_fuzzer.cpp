@@ -51,8 +51,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 
     // fuzz for MissionDataStorage
     auto missionDataStorage = std::make_shared<MissionDataStorage>(intParam);
-    std::shared_ptr<AppExecFwk::EventHandler> handler;
-    missionDataStorage->SetEventHandler(handler);
     std::list<InnerMissionInfo> missionInfoList;
     missionDataStorage->LoadAllMissionInfo(missionInfoList);
     missionDataStorage->SaveMissionInfo(innerMissionInfo);

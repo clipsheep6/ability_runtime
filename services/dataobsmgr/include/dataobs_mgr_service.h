@@ -20,6 +20,7 @@
 #include <singleton.h>
 #include <thread_ex.h>
 #include <unordered_map>
+#include "cpp/mutex.h"
 
 #include "dataobs_mgr_inner.h"
 #include "dataobs_mgr_inner_ext.h"
@@ -27,14 +28,11 @@
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "system_ability.h"
+#include "task_handler_wrap.h"
 #include "uri.h"
-#include "event_runner.h"
-#include "event_handler.h"
 
 namespace OHOS {
 namespace AAFwk {
-using EventRunner = OHOS::AppExecFwk::EventRunner;
-using EventHandler = OHOS::AppExecFwk::EventHandler;
 enum class DataObsServiceRunningState { STATE_NOT_START, STATE_RUNNING };
 
 /**
@@ -68,13 +66,6 @@ public:
      */
     int Dump(int fd, const std::vector<std::u16string>& args) override;
 
-    /**
-     * GetEventHandler, get the dataobs manager service's handler.
-     *
-     * @return Returns EventHandler ptr.
-     */
-    std::shared_ptr<EventHandler> GetEventHandler();
-
 private:
     bool Init();
     void Dump(const std::vector<std::u16string>& args, std::string& result) const;
@@ -82,11 +73,9 @@ private:
     Status DeepCopyChangeInfo(const ChangeInfo &src, ChangeInfo &dst) const;
 private:
     static constexpr std::uint32_t TASK_COUNT_MAX = 50;
-    std::mutex taskCountMutex_;
+    ffrt::mutex taskCountMutex_;
     std::uint32_t taskCount_ = 0;
-
-    std::shared_ptr<EventRunner> eventLoop_;
-    std::shared_ptr<EventHandler> handler_;
+    std::shared_ptr<TaskHandlerWrap> handler_;
 
     DataObsServiceRunningState state_;
 

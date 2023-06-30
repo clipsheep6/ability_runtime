@@ -585,6 +585,12 @@ ErrCode AbilityContextImpl::RequestDialogService(NativeEngine &engine,
     return err;
 }
 
+ErrCode AbilityContextImpl::ReportDrawnCompleted()
+{
+    HILOG_DEBUG("called.");
+    return AAFwk::AbilityManagerClient::GetInstance()->ReportDrawnCompleted(token_);
+}
+
 void AbilityContextImpl::RequestDialogResultJSThreadWorker(uv_work_t* work, int status)
 {
     HILOG_DEBUG("RequestDialogResultJSThreadWorker");

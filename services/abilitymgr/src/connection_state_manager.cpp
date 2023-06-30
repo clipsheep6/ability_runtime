@@ -59,7 +59,7 @@ std::string ConnectionStateManager::GetProcessNameByPid(int32_t pid)
     return name;
 }
 
-void ConnectionStateManager::Init(const std::shared_ptr<AppExecFwk::EventHandler> &handler)
+void ConnectionStateManager::Init(const std::shared_ptr<TaskHandlerWrap> &handler)
 {
     if (!observerController_) {
         observerController_ = std::make_shared<ConnectionObserverController>();
@@ -78,7 +78,7 @@ void ConnectionStateManager::Init(const std::shared_ptr<AppExecFwk::EventHandler
         }
         self->InitAppStateObserver();
     };
-    handler->PostTask(initConnectionStateManagerTask, "InitConnectionStateManager");
+    handler->SubmitTask(initConnectionStateManagerTask, "InitConnectionStateManager");
 }
 
 int ConnectionStateManager::RegisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer)
@@ -244,7 +244,7 @@ void ConnectionStateManager::AddDlpManager(const std::shared_ptr<AbilityRecord> 
     }
 
     auto userId = dlpManger->GetOwnerMissionUserId();
-    std::lock_guard<std::mutex> guard(dlpLock_);
+    std::lock_guard<ffrt::mutex> guard(dlpLock_);
     auto it = dlpItems_.find(userId);
     if (it == dlpItems_.end()) {
         dlpItems_[userId] = std::make_shared<DlpStateItem>(dlpManger->GetUid(), dlpManger->GetPid());
@@ -257,7 +257,7 @@ void ConnectionStateManager::RemoveDlpManager(const std::shared_ptr<AbilityRecor
         return;
     }
 
-    std::lock_guard<std::mutex> guard(dlpLock_);
+    std::lock_guard<ffrt::mutex> guard(dlpLock_);
     dlpItems_.erase(dlpManger->GetOwnerMissionUserId());
 }
 
@@ -298,7 +298,7 @@ void ConnectionStateManager::HandleAppDied(int32_t pid)
 
 void ConnectionStateManager::GetDlpConnectionInfos(std::vector<AbilityRuntime::DlpConnectionInfo> &infos)
 {
-    std::lock_guard<std::mutex> guard(dlpLock_);
+    std::lock_guard<ffrt::mutex> guard(dlpLock_);
     for (auto it = dlpItems_.begin(); it != dlpItems_.end(); it++) {
         auto item = it->second;
         if (!item) {
@@ -317,7 +317,7 @@ bool ConnectionStateManager::AddConnectionInner(const std::shared_ptr<Connection
 {
     std::shared_ptr<ConnectionStateItem> targetItem = nullptr;
     auto callerPid = connectionRecord->GetCallerPid();
-    std::lock_guard<std::mutex> guard(stateLock_);
+    std::lock_guard<ffrt::mutex> guard(stateLock_);
     auto it = connectionStates_.find(callerPid);
     if (it == connectionStates_.end()) {
         targetItem = ConnectionStateItem::CreateConnectionStateItem(connectionRecord);
@@ -340,7 +340,7 @@ bool ConnectionStateManager::RemoveConnectionInner(const std::shared_ptr<Connect
     AbilityRuntime::ConnectionData &data)
 {
     auto callerPid = connectionRecord->GetCallerPid();
-    std::lock_guard<std::mutex> guard(stateLock_);
+    std::lock_guard<ffrt::mutex> guard(stateLock_);
     auto it = connectionStates_.find(callerPid);
     if (it == connectionStates_.end()) {
         HILOG_WARN("can not find target item, connection caller pid:%{public}d.", callerPid);
@@ -387,7 +387,7 @@ void ConnectionStateManager::HandleCallerDied(int32_t callerPid)
 
 std::shared_ptr<ConnectionStateItem> ConnectionStateManager::RemoveDiedCaller(int32_t callerPid)
 {
-    std::lock_guard<std::mutex> guard(stateLock_);
+    std::lock_guard<ffrt::mutex> guard(stateLock_);
     auto it = connectionStates_.find(callerPid);
     if (it == connectionStates_.end()) {
         HILOG_WARN("connection caller pid:%{public}d.", callerPid);
@@ -403,7 +403,7 @@ bool ConnectionStateManager::AddDataAbilityConnectionInner(const DataAbilityCall
     const std::shared_ptr<DataAbilityRecord> &record, ConnectionData &data)
 {
     std::shared_ptr<ConnectionStateItem> targetItem = nullptr;
-    std::lock_guard<std::mutex> guard(stateLock_);
+    std::lock_guard<ffrt::mutex> guard(stateLock_);
     auto it = connectionStates_.find(caller.callerPid);
     if (it == connectionStates_.end()) {
         targetItem = ConnectionStateItem::CreateConnectionStateItem(caller);
@@ -425,7 +425,7 @@ bool ConnectionStateManager::AddDataAbilityConnectionInner(const DataAbilityCall
 bool ConnectionStateManager::RemoveDataAbilityConnectionInner(const DataAbilityCaller &caller,
     const std::shared_ptr<DataAbilityRecord> &record, AbilityRuntime::ConnectionData &data)
 {
-    std::lock_guard<std::mutex> guard(stateLock_);
+    std::lock_guard<ffrt::mutex> guard(stateLock_);
     auto it = connectionStates_.find(caller.callerPid);
     if (it == connectionStates_.end()) {
         HILOG_WARN("can not find target item, connection caller pid:%{public}d.", caller.callerPid);
@@ -448,7 +448,7 @@ bool ConnectionStateManager::RemoveDataAbilityConnectionInner(const DataAbilityC
 void ConnectionStateManager::HandleDataAbilityDiedInner(const sptr<IRemoteObject> &abilityToken,
     std::vector<AbilityRuntime::ConnectionData> &allData)
 {
-    std::lock_guard<std::mutex> guard(stateLock_);
+    std::lock_guard<ffrt::mutex> guard(stateLock_);
     for (auto it = connectionStates_.begin(); it != connectionStates_.end();) {
         auto item = it->second;
         if (!item) {
@@ -482,7 +482,7 @@ bool ConnectionStateManager::HandleDlpAbilityInner(const std::shared_ptr<Ability
         return false;
     }
 
-    std::lock_guard<std::mutex> guard(dlpLock_);
+    std::lock_guard<ffrt::mutex> guard(dlpLock_);
     auto it = dlpItems_.find(dlpAbility->GetOwnerMissionUserId());
     if (it == dlpItems_.end()) {
         HILOG_WARN("no dlp manager, invalid state.");
@@ -520,7 +520,7 @@ void ConnectionStateManager::InitAppStateObserver()
                 }
                 self->InitAppStateObserver();
             };
-            handler_->PostTask(initConnectionStateManagerTask, "InitConnectionStateManager", DELAY_TIME);
+            handler_->SubmitTask(initConnectionStateManagerTask, "InitConnectionStateManager", DELAY_TIME);
             retry_++;
         }
         return;

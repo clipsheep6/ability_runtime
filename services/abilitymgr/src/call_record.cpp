@@ -17,7 +17,6 @@
 
 #include "hilog_wrapper.h"
 #include "ability_util.h"
-#include "ability_event_handler.h"
 #include "ability_manager_service.h"
 #include "ability_record.h"
 #include "element_name.h"
@@ -161,12 +160,12 @@ void CallRecord::OnCallStubDied(const wptr<IRemoteObject> &remote)
 
     auto abilityManagerService = DelayedSingleton<AbilityManagerService>::GetInstance();
     CHECK_POINTER(abilityManagerService);
-    auto handler = abilityManagerService->GetEventHandler();
+    auto handler = abilityManagerService->GetTaskHandler();
     CHECK_POINTER(handler);
     auto task = [abilityManagerService, callRecord = shared_from_this()]() {
         abilityManagerService->OnCallConnectDied(callRecord);
     };
-    handler->PostTask(task);
+    handler->SubmitTask(task);
     HILOG_DEBUG("callstub is died. id:%{public}d, end", recordId_);
 }
 

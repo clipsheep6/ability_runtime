@@ -49,10 +49,10 @@ static void WaitUntilTaskFinished()
     const uint32_t maxRetryCount = 1000;
     const uint32_t sleepTime = 1000;
     uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     std::atomic<bool> taskCalled(false);
     auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->PostTask(f)) {
+    if (handler->SubmitTask(f)) {
         while (!taskCalled.load()) {
             ++count;
             if (count >= maxRetryCount) {
@@ -68,11 +68,11 @@ static void WaitUntilTaskFinishedByTimer()
     const uint32_t maxRetryCount = 1000;
     const uint32_t sleepTime = 1000;
     uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     std::atomic<bool> taskCalled(false);
     auto f = [&taskCalled]() { taskCalled.store(true); };
     int sleepingTime = 5000;
-    if (handler->PostTask(f, "AbilityManagerServiceTest", sleepingTime)) {
+    if (handler->SubmitTask(f, "AbilityManagerServiceTest", sleepingTime)) {
         while (!taskCalled.load()) {
             ++count;
             if (count >= maxRetryCount) {
@@ -116,7 +116,6 @@ void AbilityTimeoutTest::SetUp()
 void AbilityTimeoutTest::TearDown()
 {
     WaitUntilTaskFinishedByTimer();
-    abilityMs_->handler_->RemoveAllEvents();
     abilityMs_->currentMissionListManager_->terminateAbilityList_.clear();
     abilityMs_->currentMissionListManager_->launcherList_->missions_.clear();
     abilityMs_->currentMissionListManager_->defaultStandardList_->missions_.clear();
@@ -135,10 +134,10 @@ void AbilityTimeoutTest::MockOnStart()
     if (abilityMs_->state_ == ServiceRunningState::STATE_RUNNING) {
         return;
     }
-    abilityMs_->eventLoop_ = AppExecFwk::EventRunner::Create(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
-    abilityMs_->handler_ = std::make_shared<AbilityEventHandler>(abilityMs_->eventLoop_, abilityMs_);
-    EXPECT_TRUE(abilityMs_->handler_);
-    EXPECT_TRUE(abilityMs_->eventLoop_);
+    abilityMs_->taskHandler_ = TaskHandlerWrap::CreateQueueHandler(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
+    abilityMs_->eventHandler_ = std::make_shared<AbilityEventHandler>(abilityMs_->taskHandler_, abilityMs_);
+    EXPECT_TRUE(abilityMs_->taskHandler_);
+    EXPECT_TRUE(abilityMs_->eventHandler_);
 
     // init user controller.
     abilityMs_->userController_ = std::make_shared<UserController>();
@@ -159,7 +158,6 @@ void AbilityTimeoutTest::MockOnStart()
 
     abilityMs_->state_ = ServiceRunningState::STATE_RUNNING;
     abilityMs_->iBundleManager_ = new BundleMgrService();
-    abilityMs_->eventLoop_->Run();
 
     WaitUntilTaskFinished();
 }
@@ -173,7 +171,6 @@ void AbilityTimeoutTest::MockOnStop()
         return;
     }
 
-    abilityMs_->handler_->RemoveAllEvents();
     abilityMs_->connectManagers_.clear();
     abilityMs_->connectManager_.reset();
     abilityMs_->iBundleManager_.clear();
