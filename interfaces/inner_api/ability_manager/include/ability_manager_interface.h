@@ -666,6 +666,8 @@ public:
 
     virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) = 0;
 
+    virtual int SetMissionContinueState(const sptr<IRemoteObject> &token, const AAFwk::ContinueState &state) = 0;
+
 #ifdef SUPPORT_GRAPHICS
     virtual int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label) = 0;
 
@@ -1240,6 +1242,9 @@ public:
         CALL_ABILITY_BY_SCB,
 
         MOVE_ABILITY_TO_BACKGROUND,
+
+        // ipc id for set mission continue state (69)
+        SET_MISSION_CONTINUE_STATE,
 
         // ipc id 1001-2000 for DMS
         // ipc id for starting ability (1001)

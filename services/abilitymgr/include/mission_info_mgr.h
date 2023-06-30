@@ -115,6 +115,15 @@ public:
     bool DeleteAllMissionInfos(const std::shared_ptr<MissionListenerController> &listenerController);
 
     /**
+     * @brief Update mission continue state.
+     *
+     * @param missionId indicates this mission id.
+     * @param state indicates this mission label.
+     * @return 0 if success.
+     */
+    int UpdateMissionContinueState(int32_t missionId, const AAFwk::ContinueState &state);
+
+    /**
      * @brief Update mission label.
      *
      * @param missionId indicates this mission id.
