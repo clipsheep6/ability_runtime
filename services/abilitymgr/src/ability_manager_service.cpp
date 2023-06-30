@@ -3320,7 +3320,16 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
 
     std::shared_ptr<DataAbilityManager> dataAbilityManager = GetDataAbilityManagerByUserId(userId);
     CHECK_POINTER_AND_RETURN(dataAbilityManager, nullptr);
-    ReportEventToSuspendManager(abilityRequest.abilityInfo);
+
+    auto reportTask = [aams = shared_from_this(), auto info = abilityRequest.abilityInfo]() {
+        if (aams) {
+            aams->ReportEventToSuspendManager(info);
+        }
+    };
+    if (taskHandler_) {
+        taskHandler_->SubmitTask(reportTask);
+    }
+
     bool isNotHap = isSaCall || isShellCall;
     UpdateCallerInfo(abilityRequest.want, callerToken);
     return dataAbilityManager->Acquire(abilityRequest, tryBind, callerToken, isNotHap);
@@ -6677,7 +6686,7 @@ AAFwk::PermissionVerification::VerificationInfo AbilityManagerService::CreateVer
     if (!isData) {
         isSA = AAFwk::PermissionVerification::GetInstance()->IsSACall();
         isShell = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
-    } 
+    }
     if (isSA || isShell) {
         return verificationInfo;
     }
