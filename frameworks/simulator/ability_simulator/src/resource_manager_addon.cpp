@@ -160,7 +160,7 @@ napi_value ResourceManagerAddon::Release(napi_env env, napi_callback_info info)
 }
 
 napi_value ResourceManagerAddon::GetString(napi_env env, napi_callback_info info)
-{   
+{
     return nullptr;
 }
 
