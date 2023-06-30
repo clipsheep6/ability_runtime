@@ -4071,7 +4071,7 @@ NativeValue* JsNapiCommon::JsDisConnectAbility(
     NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType)
 {
     HILOG_DEBUG("%{public}s is called", __func__);
-    if (info.argc == ARGS_ZERO || info.argc > ARGS_TWO) {
+    if (info.argc == ARGS_ZERO) {
         HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
         return engine.CreateUndefined();
     }
@@ -4114,7 +4114,8 @@ NativeValue* JsNapiCommon::JsDisConnectAbility(
         }
         task.Resolve(engine, CreateJsValue(engine, *value));
     };
-    NativeValue *lastParam = (info.argc == ARGS_ONE) ? nullptr : info.argv[PARAM1];
+    NativeValue *lastParam = (info.argc > ARGS_ONE 
+        && info.argv[PARAM1]->TypeOf() == NATIVE_FUNCTION) ? info.argv[PARAM1] : nullptr;
     NativeValue *result = nullptr;
     AsyncTask::Schedule("JsNapiCommon::JsDisConnectAbility",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
@@ -5009,10 +5010,6 @@ NativeValue* JsNapiCommon::JsGetWant(
     NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType)
 {
     HILOG_DEBUG("%{public}s called", __func__);
-    if (info.argc > ARGS_ONE) {
-        HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
-        return engine.CreateUndefined();
-    }
 
     std::shared_ptr<JsWant> pwant = std::make_shared<JsWant>();
     auto errorVal = std::make_shared<int32_t>(static_cast<int32_t>(NAPI_ERR_NO_ERROR));
@@ -5047,7 +5044,8 @@ NativeValue* JsNapiCommon::JsGetWant(
         }
     };
 
-    auto callback = (info.argc == ARGS_ZERO) ? nullptr : info.argv[PARAM0];
+    auto callback = (info.argc > ARGS_ZERO 
+        && info.argv[PARAM0]->TypeOf() == NATIVE_FUNCTION) ? info.argv[PARAM0] : nullptr;
     NativeValue *result = nullptr;
     AsyncTask::Schedule("JsNapiCommon::JsGetWant",
         engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
@@ -5068,10 +5066,6 @@ NativeValue* JsNapiCommon::CreateWant(NativeEngine& engine, const std::shared_pt
 NativeValue* JsNapiCommon::JsTerminateAbility(NativeEngine &engine, NativeCallbackInfo &info)
 {
     HILOG_DEBUG("%{public}s called", __func__);
-    if (info.argc > ARGS_ONE) {
-        HILOG_ERROR("%{public}s input params count error, argc=%{public}zu", __func__, info.argc);
-        return engine.CreateUndefined();
-    }
 
     auto complete = [obj = this](NativeEngine &engine, AsyncTask &task, int32_t status) {
         if (obj->ability_ != nullptr) {
@@ -5082,7 +5076,8 @@ NativeValue* JsNapiCommon::JsTerminateAbility(NativeEngine &engine, NativeCallba
         task.Resolve(engine, engine.CreateNull());
     };
 
-    auto callback = (info.argc == ARGS_ZERO) ? nullptr : info.argv[PARAM0];
+    auto callback = (info.argc > ARGS_ZERO && 
+        info.argv[PARAM0]->TypeOf() == NATIVE_FUNCTION) ? info.argv[PARAM0] : nullptr;
     NativeValue* result = nullptr;
     AsyncTask::Schedule("JsNapiCommon::JsTerminateAbility",
         engine, CreateAsyncTaskWithLastParam(engine, callback, nullptr, std::move(complete), &result));
@@ -5095,10 +5090,8 @@ NativeValue* JsNapiCommon::JsStartAbility(NativeEngine &engine, NativeCallbackIn
     auto errorVal = std::make_shared<int32_t>(static_cast<int32_t>(NAPI_ERR_NO_ERROR));
     auto env = reinterpret_cast<napi_env>(&engine);
     auto param = std::make_shared<CallAbilityParam>();
-    if (info.argc == 0 || info.argc > ARGS_TWO) {
-        HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
-        *errorVal = NAPI_ERR_PARAM_INVALID;
-    } else {
+
+    if (info.argc > 0) {
         auto arg0 = reinterpret_cast<napi_value>(info.argv[PARAM0]);
         if (!UnwrapParamForWant(env, arg0, abilityType, *param)) {
             HILOG_ERROR("call UnwrapParamForWant failed.");
@@ -5172,7 +5165,8 @@ NativeValue* JsNapiCommon::JsStartAbility(NativeEngine &engine, NativeCallbackIn
         task.Resolve(engine, CreateJsValue(engine, *value));
     };
 
-    auto callback = (info.argc == ARGS_ONE) ? nullptr : info.argv[PARAM1];
+    auto callback = (info.argc > ARGS_ONE 
+        && info.argv[PARAM1]->TypeOf() == NATIVE_FUNCTION) ? info.argv[PARAM1] : nullptr;
     NativeValue* result = nullptr;
     if ((param->want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
         AddFreeInstallObserver(engine, param->want, callback);
