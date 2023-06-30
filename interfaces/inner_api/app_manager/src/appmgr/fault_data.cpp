@@ -43,6 +43,15 @@ bool FaultData::ReadFromParcel(Parcel &parcel)
         return false;
     }
     faultType = static_cast<FaultDataType>(type);
+
+    if (!parcel.ReadString(strValue)) {
+        return false;
+    }
+    timeoutMarkers = strValue;
+
+    waitSaveState = parcel.ReadBool();
+    notifyApp = parcel.ReadBool();
+    forceExit = parcel.ReadBool();
     return true;
 }
 
@@ -71,6 +80,22 @@ bool FaultData::Marshalling(Parcel &parcel) const
     }
 
     if (!parcel.WriteInt32(static_cast<int32_t>(faultType))) {
+        return false;
+    }
+
+    if (!parcel.WriteString(timeoutMarkers)) {
+        return false;
+    }
+
+    if (!parcel.WriteBool(waitSaveState)) {
+        return false;
+    }
+
+    if (!parcel.WriteBool(notifyApp)) {
+        return false;
+    }
+
+    if (!parcel.WriteBool(forceExit)) {
         return false;
     }
     return true;
@@ -103,6 +128,15 @@ bool AppFaultDataBySA::ReadFromParcel(Parcel &parcel)
     if (!parcel.ReadInt32(pid)) {
         return false;
     }
+
+    if (!parcel.ReadString(strValue)) {
+        return false;
+    }
+    timeoutMarkers = strValue;
+
+    waitSaveState = parcel.ReadBool();
+    notifyApp = parcel.ReadBool();
+    forceExit = parcel.ReadBool();
     return true;
 }
 
@@ -135,6 +169,22 @@ bool AppFaultDataBySA::Marshalling(Parcel &parcel) const
     }
 
     if (!parcel.WriteInt32(pid)) {
+        return false;
+    }
+
+    if (!parcel.WriteString(timeoutMarkers)) {
+        return false;
+    }
+
+    if (!parcel.WriteBool(waitSaveState)) {
+        return false;
+    }
+
+    if (!parcel.WriteBool(notifyApp)) {
+        return false;
+    }
+
+    if (!parcel.WriteBool(forceExit)) {
         return false;
     }
     return true;

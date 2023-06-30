@@ -57,6 +57,14 @@ THREAD_BLOCK_6S:
   MSG: {type: STRING, desc: application event message}
   STACK: {type: STRING, desc: main thread stacktrace}
 
+APP_INPUT_BLOCK:
+  __BASE: {type: FAULT, level: CRITICAL, tag: STABILITY, desc: application freeze}
+  PID: {type: INT32, desc: process id}
+  UID: {type: INT32, desc: app uid}
+  PACKAGE_NAME: {type: STRING, desc: package name}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  MSG: {type: STRING, desc: application event message}
+  STACK: {type: STRING, desc: main thread stacktrace}
 # fault event
 
 START_ABILITY_ERROR:

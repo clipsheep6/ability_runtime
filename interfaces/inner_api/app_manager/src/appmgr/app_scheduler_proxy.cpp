@@ -577,7 +577,7 @@ int32_t AppSchedulerProxy::ScheduleNotifyAppFault(const FaultData &faultData)
     }
 
     MessageParcel reply;
-    MessageOption option;
+    MessageOption option(MessageOption::TF_ASYNC);
     auto ret = remote->SendRequest(static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_FAULT),
         data, reply, option);
     if (ret != NO_ERROR) {

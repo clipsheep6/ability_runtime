@@ -13,6 +13,7 @@
       "name": "ability_runtime",
       "subsystem": "ability",
       "syscap": [
+        "SystemCapability.Ability.AbilityRuntime",
         "SystemCapability.Ability.AbilityRuntime.Core",
         "SystemCapability.Ability.AbilityRuntime.FAModel",
         "SystemCapability.Ability.AbilityRuntime.AbilityCore",
@@ -56,6 +57,7 @@
             "graphic_standard",
             "hichecker",
             "hicollie",
+            "hiperf",
             "hilog",
             "hisysevent",
             "hitrace",
