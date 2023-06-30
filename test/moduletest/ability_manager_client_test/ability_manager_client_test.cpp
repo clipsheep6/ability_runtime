@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -72,6 +72,35 @@ HWTEST_F(AbilityManagerClientTest, AbilityManagerClient_DumpSysState_0100, TestS
     }
 
     HILOG_INFO("AbilityManagerClient_DumpSysState_0100 end");
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ForceExitApp_0100
+ * @tc.desc: ForceExitApp
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, AbilityManagerClient_ForceExitApp_0100, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerClient_ForceExitApp_0100 start");
+    int32_t pid = 0;
+    Reason exitReason = REASON_JS_ERROR;
+    auto result = AbilityManagerClient::GetInstance()->ForceExitApp(pid, exitReason);
+    EXPECT_EQ(result, ERR_OK);
+    HILOG_INFO("AbilityManagerClient_ForceExitApp_0100 end");
+}
+
+/**
+ * @tc.name: AbilityManagerClient_RecordAppExitReason_0100
+ * @tc.desc: RecordAppExitReason
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, AbilityManagerClient_RecordAppExitReason_0100, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerClient_RecordAppExitReason_0100 start");
+    Reason exitReason = REASON_JS_ERROR;
+    auto result = AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
+    EXPECT_EQ(result, ERR_OK);
+    HILOG_INFO("AbilityManagerClient_RecordAppExitReason_0100 end");
 }
 }  // namespace AAFwk
 }  // namespace OHOS

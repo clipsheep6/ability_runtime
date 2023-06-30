@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1202,6 +1202,53 @@ HWTEST_F(AppMgrServiceTest, NotifyUnLoadRepairPatch_002, TestSize.Level0)
     OHOS::AppExecFwk::MockNativeToken::SetNativeToken();
     int32_t res = appMgrService->NotifyUnLoadRepairPatch(bundleName, callback);
     EXPECT_NE(res, ERR_INVALID_OPERATION);
+}
+
+/**
+ * @tc.name: NotifyAppFault_001
+ * @tc.desc: Verify that the NotifyAppFault interface calls normally
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, NotifyAppFault_001, TestSize.Level1)
+{
+    sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
+    appMgrService->SetInnerService(nullptr);
+    FaultData faultData;
+    int32_t res = appMgrService->NotifyAppFault(faultData);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
+}
+
+/**
+ * @tc.name: NotifyAppFault_002
+ * @tc.desc: Verify that the NotifyAppFault interface calls normally
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, NotifyAppFault_002, TestSize.Level1)
+{
+    sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
+    appMgrService->SetInnerService(nullptr);
+    AppFaultDataBySA faultData;
+    int32_t res = appMgrService->NotifyAppFaultBySA(faultData);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
+}
+
+/**
+ * @tc.name: NotifyAppFault_003
+ * @tc.desc: Verify that the NotifyAppFault interface calls normally
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, NotifyAppFault_003, TestSize.Level1)
+{
+    sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
+    AppFaultDataBySA faultData;
+    int32_t res = appMgrService->NotifyAppFaultBySA(faultData);
+    EXPECT_EQ(ERR_INVALID_VALUE, res);
+    appMgrService->appMgrServiceInner_ = nullptr;
+    res = appMgrService->NotifyAppFaultBySA(faultData);
+    EXPECT_EQ(ERR_INVALID_OPERATION, res);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

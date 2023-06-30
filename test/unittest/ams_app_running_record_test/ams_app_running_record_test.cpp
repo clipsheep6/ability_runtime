@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -2694,6 +2694,42 @@ HWTEST_F(AmsAppRunningRecordTest, IsUIExtension_002, TestSize.Level1)
     EXPECT_TRUE(otherRecord != nullptr);
 
     EXPECT_EQ(otherRecord->IsUIExtension(), true);
+}
+
+/*
+ * Feature: AMS
+ * Function: NotifyAppFault
+ * SubFunction: NotifyAppFault
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Ability Unfocused
+ */
+HWTEST_F(AmsAppRunningRecordTest, NotifyAppFault_001, TestSize.Level1)
+{
+    HILOG_DEBUG("NotifyAppFault_001 start.");
+    auto record = GetTestAppRunningRecord();
+    FaultData faultData;
+    record->appLifeCycleDeal_ = nullptr;
+    EXPECT_EQ(ERR_INVALID_VALUE, record->NotifyAppFault(faultData));
+    HILOG_DEBUG("NotifyAppFault_001 end.");
+}
+
+/*
+ * Feature: AMS
+ * Function: NotifyAppFault
+ * SubFunction: NotifyAppFault
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Ability Unfocused
+ */
+HWTEST_F(AmsAppRunningRecordTest, NotifyAppFault_002, TestSize.Level1)
+{
+    HILOG_DEBUG("NotifyAppFault_002 start.");
+    auto record = GetTestAppRunningRecord();
+    FaultData faultData;
+    record->appLifeCycleDeal_ = std::make_shared<AppLifeCycleDeal>();
+    EXPECT_EQ(ERR_INVALID_VALUE, record->NotifyAppFault(faultData));
+    HILOG_DEBUG("NotifyAppFault_002 end.");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

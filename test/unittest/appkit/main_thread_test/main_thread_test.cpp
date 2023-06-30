@@ -2183,5 +2183,22 @@ HWTEST_F(MainThreadTest, HandleOnOverlayChanged_0100, TestSize.Level1)
 
     mainThread_->HandleOnOverlayChanged(data, resourceManager, bundleName, moduleName, loadPath);
 }
+
+/**
+ * @tc.name: ScheduleNotifyAppFault_0100
+ * @tc.desc: Schedule notify app Fault.
+ * @tc.type: FUNC
+ * @tc.require: issueI79RY8
+ */
+HWTEST_F(MainThreadTest, ScheduleNotifyAppFault_0100, TestSize.Level1)
+{
+    FaultData faultData;
+    faultData.faultType = FaultDataType::APP_FREEZE;
+    faultData.errorObject.message = "msgContent";
+    faultData.errorObject.stack = "stack";
+    faultData.errorObject.name = "eventType";
+    auto ret = mainThread_->ScheduleNotifyAppFault(faultData);
+    EXPECT_EQ(ret, NO_ERROR);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -3259,6 +3259,49 @@ HWTEST_F(AppMgrServiceInnerTest, SetCurrentUserId_001, TestSize.Level0)
     EXPECT_EQ(appMgrServiceInner->currentUserId_, userId);
 
     HILOG_INFO("SetCurrentUserId_001 end");
+}
+
+/**
+ * @tc.name: GetBundleNameByPid_001
+ * @tc.desc: get bundle name by Pid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, GetBundleNameByPid_001, TestSize.Level1)
+{
+    HILOG_INFO("GetBundleNameByPid_001 start");
+
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    int32_t pid = 0;
+    std::string name = "test_name";
+    int32_t uid = 0;
+    auto ret  = appMgrServiceInner->GetBundleNameByPid(pid, name, uid);
+    EXPECT_EQ(ret, ERR_INVALID_OPERATION);
+
+    HILOG_INFO("GetBundleNameByPid_001 end");
+}
+
+/**
+ * @tc.name: GetBundleNameByPid_002
+ * @tc.desc: get bundle name by Pid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, GetBundleNameByPid_002, TestSize.Level1)
+{
+    HILOG_INFO("GetBundleNameByPid_002 start");
+
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    BundleInfo info;
+    std::string processName = "test_processName";
+    appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
+    int32_t pid = 0;
+    std::string name = "test_name";
+    int32_t uid = 0;
+    auto ret  = appMgrServiceInner->GetBundleNameByPid(pid, name, uid);
+    EXPECT_EQ(ret, ERR_OK);
+
+    HILOG_INFO("GetBundleNameByPid_002 end");
 }
 } // namespace AppExecFwk
 } // namespace OHOS
