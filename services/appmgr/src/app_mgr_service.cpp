@@ -769,5 +769,26 @@ int32_t AppMgrService::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
     }
     return ret;
 }
+
+int32_t AppMgrService::GetProcessMemoryByPid(const int32_t pid, int32_t &memorySize)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AppMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    return appMgrServiceInner_->GetProcessMemoryByPid(pid, memorySize);
+}
+
+int32_t AppMgrService::GetRunningProcessInformation(const std::string &bundleName, int32_t userId,
+    std::vector<RunningProcessInfo> &info)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AppMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    return appMgrServiceInner_->GetRunningProcessInformation(bundleName, userId, info);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

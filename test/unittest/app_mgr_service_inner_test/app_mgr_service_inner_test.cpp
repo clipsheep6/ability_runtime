@@ -3262,6 +3262,55 @@ HWTEST_F(AppMgrServiceInnerTest, SetCurrentUserId_001, TestSize.Level0)
 }
 
 /**
+ * @tc.name: GetProcessMemoryByPid_001
+ * @tc.desc: Get memorySize by pid.
+ * @tc.type: FUNC
+ * @tc.require: issueI76JBF
+ */
+HWTEST_F(AppMgrServiceInnerTest, GetProcessMemoryByPid_001, TestSize.Level0)
+{
+    HILOG_INFO("GetProcessMemoryByPid_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    int32_t pid = 0;
+    int32_t memorySize = 0;
+    int32_t ret = appMgrServiceInner->GetProcessMemoryByPid(pid, memorySize);
+    EXPECT_EQ(ret, ERR_OK);
+
+    HILOG_INFO("GetProcessMemoryByPid_001 end");
+}
+
+/**
+ * @tc.name: GetRunningProcessInformation_001
+ * @tc.desc: Get application processes information list by bundleName.
+ * @tc.type: FUNC
+ * @tc.require: issueI76JBF
+ */
+HWTEST_F(AppMgrServiceInnerTest, GetRunningProcessInformation_001, TestSize.Level0)
+{
+    HILOG_INFO("GetRunningProcessInformation_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    std::string bundleName = "testBundleName";
+    int32_t userId = 100;
+    std::vector<RunningProcessInfo> info;
+    int32_t ret = appMgrServiceInner->GetRunningProcessInformation(bundleName, userId, info);
+    EXPECT_EQ(ret, ERR_OK);
+
+    appMgrServiceInner->remoteClientManager_ = nullptr;
+    ret = appMgrServiceInner->GetRunningProcessInformation(bundleName, userId, info);
+    EXPECT_EQ(ret, ERR_NO_INIT);
+
+    appMgrServiceInner->appRunningManager_ = nullptr;
+    ret = appMgrServiceInner->GetRunningProcessInformation(bundleName, userId, info);
+    EXPECT_EQ(ret, ERR_NO_INIT);
+
+    HILOG_INFO("GetRunningProcessInformation_001 end");
+}
+
+/**
  * @tc.name: GetBundleNameByPid_001
  * @tc.desc: get bundle name by Pid.
  * @tc.type: FUNC

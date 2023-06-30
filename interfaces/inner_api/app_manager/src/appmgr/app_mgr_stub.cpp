@@ -124,6 +124,10 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleGetBundleNameByPid;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_ALL_RENDER_PROCESSES)] =
         &AppMgrStub::HandleGetAllRenderProcesses;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::GET_PROCESS_MEMORY_BY_PID)] =
+        &AppMgrStub::HandleGetProcessMemoryByPid;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::GET_PIDS_BY_BUNDLENAME)] =
+        &AppMgrStub::HandleGetRunningProcessInformation;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -732,6 +736,43 @@ int32_t AppMgrStub::HandleNotifyFaultBySA(MessageParcel &data, MessageParcel &re
     int32_t result = NotifyAppFaultBySA(*faultData);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("reply write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleGetProcessMemoryByPid(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    int32_t pid = data.ReadInt32();
+    int32_t memorySize = 0;
+    auto result = GetProcessMemoryByPid(pid, memorySize);
+    if (!reply.WriteInt32(memorySize)) {
+        HILOG_ERROR("Memory size write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleGetRunningProcessInformation(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    std::string bundleName = data.ReadString();
+    int32_t userId = data.ReadInt32();
+    std::vector<RunningProcessInfo> info;
+    auto result = GetRunningProcessInformation(bundleName, userId, info);
+    reply.WriteInt32(info.size());
+    for (auto &it : info) {
+        if (!reply.WriteParcelable(&it)) {
+            return ERR_INVALID_VALUE;
+        }
+    }
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("fail to write result.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

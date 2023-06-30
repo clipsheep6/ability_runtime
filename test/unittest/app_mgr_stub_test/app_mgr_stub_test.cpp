@@ -220,6 +220,60 @@ HWTEST_F(AppMgrStubTest, PreStartNWebSpawnProcess_001, TestSize.Level0)
 }
 
 /**
+ * @tc.name: GetProcessMemoryByPid_001
+ * @tc.desc: Get memorySize by pid.
+ * @tc.type: FUNC
+ * @tc.require: issueI76JBF
+ */
+HWTEST_F(AppMgrStubTest, GetProcessMemoryByPid_001, TestSize.Level0)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    WriteInterfaceToken(data);
+    int32_t pid = 0;
+    data.WriteInt32(pid);
+    
+    EXPECT_CALL(*mockAppMgrService_, GetProcessMemoryByPid(_, _)).Times(1);
+
+    auto result = mockAppMgrService_->OnRemoteRequest(
+        static_cast<uint32_t>(IAppMgr::Message::GET_PROCESS_MEMORY_BY_PID), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: GetRunningProcessInformation_001
+ * @tc.desc: Get pid list by bundleName.
+ * @tc.type: FUNC
+ * @tc.require: issueI76JBF
+ */
+HWTEST_F(AppMgrStubTest, GetRunningProcessInformation_001, TestSize.Level0)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    WriteInterfaceToken(data);
+    std::string bundleName = "testBundleName";
+    int32_t userId = 0;
+    data.WriteString(bundleName);
+    data.WriteInt32(userId);
+    
+    EXPECT_CALL(*mockAppMgrService_, GetRunningProcessInformation(_, _, _)).Times(1);
+
+    auto result = mockAppMgrService_->OnRemoteRequest(
+        static_cast<uint32_t>(IAppMgr::Message::GET_PIDS_BY_BUNDLENAME), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
  * @tc.name: HandleNotifyFault_001
  * @tc.desc: Handle notify fault.
  * @tc.type: FUNC
