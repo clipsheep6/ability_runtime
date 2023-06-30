@@ -37,6 +37,7 @@
 #include "event_handler.h"
 #include "hitrace_meter.h"
 #include "tokenid_kit.h"
+#include "mission_info.h"
 
 #ifdef SUPPORT_GRAPHICS
 #include "pixel_map_napi.h"
@@ -1412,6 +1413,8 @@ NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<Abilit
         JsAbilityContext::StartRecentAbility);
     BindNativeFunction(engine, *object, "requestDialogService", moduleName,
         JsAbilityContext::RequestDialogService);
+    BindNativeFunction(engine, *object, "setMissionContinueState", moduleName,
+        JsAbilityContext::SetMissionContinueState);
     BindNativeFunction(engine, *object, "reportDrawnCompleted", moduleName,
         JsAbilityContext::ReportDrawnCompleted);
 
@@ -1629,6 +1632,52 @@ NativeValue* JSAbilityConnection::ConvertElement(const AppExecFwk::ElementName &
 void JSAbilityConnection::SetJsConnectionObject(NativeValue* jsConnectionObject)
 {
     jsConnectionObject_ = std::unique_ptr<NativeReference>(engine_.CreateReference(jsConnectionObject, 1));
+}
+
+NativeValue* JsAbilityContext::SetMissionContinueState(NativeEngine* engine, NativeCallbackInfo* info)
+{
+    JsAbilityContext* me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
+    return (me != nullptr) ? me->OnSetMissionContinueState(*engine, *info) : nullptr;
+}
+
+NativeValue* JsAbilityContext::OnSetMissionContinueState(NativeEngine& engine, NativeCallbackInfo& info)
+{
+    HILOG_INFO("OnSetMissionContinueState, argc = %{public}d", static_cast<int>(info.argc));
+    if (info.argc < ARGC_ONE) {
+        HILOG_ERROR("OnSetMissionContinueState, Not enough params");
+        ThrowTooFewParametersError(engine);
+        return engine.CreateUndefined();
+    }
+
+    AAFwk::ContinueState state;
+    if (!ConvertFromJsValue(engine, info.argv[0], state)) {
+        HILOG_ERROR("OnSetMissionContinueState, parse state failed.");
+        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return engine.CreateUndefined();
+    }
+
+    AsyncTask::CompleteCallback complete =
+        [weak = context_, state](NativeEngine& engine, AsyncTask& task, int32_t status) {
+            auto context = weak.lock();
+            if (!context) {
+                HILOG_WARN("context is released");
+                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                return;
+            }
+
+            auto errcode = context->SetMissionContinueState(state);
+            if (errcode == 0) {
+                task.Resolve(engine, engine.CreateUndefined());
+            } else {
+                task.Reject(engine, CreateJsErrorByNativeErr(engine, errcode));
+            }
+        };
+
+    NativeValue* lastParam = (info.argc > ARGC_ONE) ? info.argv[ARGC_ONE] : nullptr;
+    NativeValue* result = nullptr;
+    AsyncTask::Schedule("JsAbilityContext::SetMissionContinueState",
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    return result;
 }
 
 #ifdef SUPPORT_GRAPHICS

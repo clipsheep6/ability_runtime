@@ -807,6 +807,8 @@ public:
      */
     virtual int DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken) override;
 
+    virtual int SetMissionContinueState(const sptr<IRemoteObject> &abilityToken, const AAFwk::ContinueState &state) override;
+
 #ifdef SUPPORT_GRAPHICS
     virtual int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label) override;
 
