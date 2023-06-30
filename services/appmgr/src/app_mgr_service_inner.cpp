@@ -1691,7 +1691,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     AppSpawnStartMsg startMsg;
     startMsg.uid = bundleInfo.uid;
     startMsg.gid = bundleInfo.gid;
-    startMsg.gids = gids;
+    //startMsg.gids = gids;
     startMsg.accessTokenId = bundleInfo.applicationInfo.accessTokenId;
     startMsg.apl = bundleInfo.applicationInfo.appPrivilegeLevel;
     startMsg.bundleName = bundleName;
