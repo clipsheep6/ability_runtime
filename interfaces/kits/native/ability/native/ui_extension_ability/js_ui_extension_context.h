@@ -32,14 +32,17 @@ public:
     static NativeValue* TerminateSelf(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* TerminateSelfWithResult(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* CreateJsUIExtensionContext(NativeEngine& engine, std::shared_ptr<UIExtensionContext> context);
+    static NativeValue* StartAbilityForResult(NativeEngine* engine, NativeCallbackInfo* info);
 
 protected:
     virtual NativeValue* OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info);
     virtual NativeValue* OnTerminateSelf(NativeEngine& engine, const NativeCallbackInfo& info);
     virtual NativeValue* OnTerminateSelfWithResult(NativeEngine& engine, const NativeCallbackInfo& info);
+    virtual NativeValue* OnStartAbilityForResult(NativeEngine& engine, NativeCallbackInfo& info);
 
 private:
     std::weak_ptr<UIExtensionContext> context_;
+    int curRequestCode_ = 0;
 
     bool CheckStartAbilityInputParam(NativeEngine& engine, NativeCallbackInfo& info, AAFwk::Want& want,
         AAFwk::StartOptions& startOptions, size_t& unwrapArgc) const;
@@ -47,6 +50,8 @@ private:
 
     static bool UnWrapWant(NativeEngine& engine, NativeValue* argv, AAFwk::Want& want);
     static bool UnWrapAbilityResult(NativeEngine& engine, NativeValue* argv, int& resultCode, AAFwk::Want& want);
+    static NativeValue* WrapAbilityResult(NativeEngine& engine, const int& resultCode, const AAFwk::Want& want);
+    static NativeValue* WrapWant(NativeEngine& engine, const AAFwk::Want& want);
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

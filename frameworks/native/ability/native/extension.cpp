@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -155,6 +155,11 @@ void Extension::Dump(const std::vector<std::string> &params, std::vector<std::st
 void Extension::SetExtensionWindowLifeCycleListener(const sptr<Rosen::IWindowLifeCycle> &listener)
 {
     extensionWindowLifeCycleListener_ = listener;
+}
+
+void Extension::OnAbilityResult(int requestCode, int resultCode, const Want &want)
+{
+    HILOG_DEBUG("call.");
 }
 }
 }

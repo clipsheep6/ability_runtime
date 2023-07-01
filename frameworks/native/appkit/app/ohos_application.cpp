@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -70,6 +70,10 @@ void OHOSApplication::DispatchAbilitySavedState(const PacMap &outState)
 void OHOSApplication::OnForeground()
 {
     HILOG_DEBUG("NotifyApplicationState::OnForeground begin");
+    if (abilityRuntimeContext_) {
+        abilityRuntimeContext_->NotifyApplicationForeground();
+    }
+
     if (runtime_ == nullptr) {
         HILOG_DEBUG("NotifyApplicationState, runtime_ is nullptr");
         return;
@@ -86,6 +90,10 @@ void OHOSApplication::OnForeground()
 void OHOSApplication::OnBackground()
 {
     HILOG_DEBUG("NotifyApplicationState::OnBackground begin");
+    if (abilityRuntimeContext_) {
+        abilityRuntimeContext_->NotifyApplicationBackground();
+    }
+
     if (runtime_ == nullptr) {
         HILOG_DEBUG("NotifyApplicationState, runtime_ is nullptr");
         return;

@@ -553,5 +553,18 @@ void JsUIExtension::Dump(const std::vector<std::string> &params, std::vector<std
     }
     HILOG_DEBUG("Dump info size: %{public}zu", info.size());
 }
+
+void JsUIExtension::OnAbilityResult(int requestCode, int resultCode, const Want &resultData)
+{
+    HILOG_DEBUG("begin.");
+    Extension::OnAbilityResult(requestCode, resultCode, resultData);
+    auto context = GetContext();
+    if (context == nullptr) {
+        HILOG_WARN("not attached to any runtime context!");
+        return;
+    }
+    context->OnAbilityResult(requestCode, resultCode, resultData);
+    HILOG_DEBUG("end.");
+}
 }
 }

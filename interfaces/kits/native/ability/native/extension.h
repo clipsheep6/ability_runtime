@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -207,6 +207,18 @@ public:
     virtual void Dump(const std::vector<std::string> &params, std::vector<std::string> &info);
 
     void SetExtensionWindowLifeCycleListener(const sptr<Rosen::IWindowLifeCycle> &listener);
+
+    /**
+     * @brief Called when startAbilityForResult(ohos.aafwk.content.Want,int) is called to start an extension ability
+     * and the result is returned.
+     * @param requestCode Indicates the request code returned after the ability is started. You can define the request
+     * code to identify the results returned by abilities. The value ranges from 0 to 65535.
+     * @param resultCode Indicates the result code returned after the ability is started. You can define the result
+     * code to identify an error.
+     * @param want Indicates the data returned after the ability is started. You can define the data returned. The
+     * value can be null.
+     */
+    virtual void OnAbilityResult(int requestCode, int resultCode, const Want &want);
 
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_ = nullptr;
 protected:

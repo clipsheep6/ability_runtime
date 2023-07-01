@@ -51,17 +51,14 @@ public:
         std::vector<PurposeInfo> &purposeInfos) override;
 
     /**
-     * Start ui extension ability with want, send want to ability manager service.
+     * Start ui extension ability with extension session info, send extension session info to ability manager service.
      *
-     * @param want, the want of the ability to start.
      * @param sessionInfo the extension session info of the ability to start.
      * @param userId, Designation User ID.
-     * @param extensionType If an ExtensionAbilityType is set, only extension of that type can be started.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t StartUIExtensionAbility(const Want &want, const sptr<SessionInfo> &sessionInfo,
-        int32_t userId = DEFAULT_INVAL_VALUE,
-        ExtensionAbilityType extensionType = ExtensionAbilityType::UNSPECIFIED) override;
+    int32_t StartUIExtensionAbility(const sptr<SessionInfo> &sessionInfo,
+        int32_t userId = DEFAULT_INVAL_VALUE) override;
 
     /**
      * Connect ui extension ability with want, connect session with service ability.

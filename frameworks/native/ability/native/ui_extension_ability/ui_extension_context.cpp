@@ -58,6 +58,46 @@ ErrCode UIExtensionContext::TerminateSelf()
     return err;
 }
 
+ErrCode UIExtensionContext::StartAbilityForResult(const AAFwk::Want &want, int requestCode, RuntimeTask &&task)
+{
+    HILOG_DEBUG("begin.");
+    resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode);
+    if (err != ERR_OK) {
+        HILOG_ERROR("ret=%{public}d", err);
+        OnAbilityResultInner(requestCode, err, want);
+    }
+    HILOG_DEBUG("end.");
+    return err;
+}
+
+ErrCode UIExtensionContext::StartAbilityForResult(
+    const AAFwk::Want &want, const AAFwk::StartOptions &startOptions, int requestCode, RuntimeTask &&task)
+{
+    HILOG_DEBUG("begin.");
+    resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, startOptions, token_, requestCode);
+    if (err != ERR_OK) {
+        HILOG_ERROR("ret=%{public}d", err);
+        OnAbilityResultInner(requestCode, err, want);
+    }
+    HILOG_DEBUG("end.");
+    return err;
+}
+
+void UIExtensionContext::OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData)
+{
+    HILOG_DEBUG("begin.");
+    auto callback = resultCallbacks_.find(requestCode);
+    if (callback != resultCallbacks_.end()) {
+        if (callback->second) {
+            callback->second(resultCode, resultData, false);
+        }
+        resultCallbacks_.erase(requestCode);
+    }
+    HILOG_DEBUG("end.");
+}
+
 AppExecFwk::AbilityType UIExtensionContext::GetAbilityInfoType() const
 {
     std::shared_ptr<AppExecFwk::AbilityInfo> info = GetAbilityInfo();
@@ -67,6 +107,19 @@ AppExecFwk::AbilityType UIExtensionContext::GetAbilityInfoType() const
     }
 
     return info->type;
+}
+
+void UIExtensionContext::OnAbilityResultInner(int requestCode, int resultCode, const AAFwk::Want &resultData)
+{
+    HILOG_DEBUG("begin.");
+    auto callback = resultCallbacks_.find(requestCode);
+    if (callback != resultCallbacks_.end()) {
+        if (callback->second) {
+            callback->second(resultCode, resultData, true);
+        }
+        resultCallbacks_.erase(requestCode);
+    }
+    HILOG_DEBUG("end.");
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

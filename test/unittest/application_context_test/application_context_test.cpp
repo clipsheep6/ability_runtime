@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include "application_context.h"
 #undef private
 #include "mock_ability_token.h"
+#include "mock_application_state_change_callback.h"
 #include "mock_context_impl.h"
 #include "running_process_info.h"
 using namespace testing::ext;
@@ -872,6 +873,64 @@ HWTEST_F(ApplicationContextTest, GetCacheDir_0100, TestSize.Level1)
     auto ret = context_->GetCacheDir();
     EXPECT_EQ(ret, "");
     GTEST_LOG_(INFO) << "GetCacheDir_0100 end";
+}
+
+/**
+ * @tc.number: RegisterApplicationStateChangeCallback_0100
+ * @tc.name: RegisterApplicationStateChangeCallback
+ * @tc.desc: Pass in nullptr parameters, and the callback saved in the ApplicationContext is also nullptr
+ */
+HWTEST_F(ApplicationContextTest, RegisterApplicationStateChangeCallback_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "RegisterApplicationStateChangeCallback_0100 start";
+    context_->applicationStateCallback_.reset();
+    std::shared_ptr<MockApplicationStateChangeCallback> applicationStateCallback = nullptr;
+    context_->RegisterApplicationStateChangeCallback(applicationStateCallback);
+    auto callback = context_->applicationStateCallback_.lock();
+    EXPECT_EQ(callback, nullptr);
+    GTEST_LOG_(INFO) << "RegisterApplicationStateChangeCallback_0100 end";
+}
+
+/**
+ * @tc.number: NotifyApplicationForeground_0100
+ * @tc.name: NotifyApplicationForeground and RegisterApplicationStateChangeCallback
+ * @tc.desc: Pass 1 register a valid callback, NotifyApplicationForeground is called
+ *                2 the callback saved in the ApplicationContext is valid
+ */
+HWTEST_F(ApplicationContextTest, NotifyApplicationForeground_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "NotifyApplicationForeground_0100 start";
+    auto callback = context_->applicationStateCallback_.lock();
+    EXPECT_EQ(callback, nullptr);
+
+    auto applicationStateCallback = std::make_shared<MockApplicationStateChangeCallback>();
+    context_->RegisterApplicationStateChangeCallback(applicationStateCallback);
+    EXPECT_CALL(*applicationStateCallback, NotifyApplicationForeground()).Times(1);
+    context_->NotifyApplicationForeground();
+    callback = context_->applicationStateCallback_.lock();
+    EXPECT_NE(callback, nullptr);
+    GTEST_LOG_(INFO) << "NotifyApplicationForeground_0100 end";
+}
+
+/**
+ * @tc.number: NotifyApplicationBackground_0100
+ * @tc.name: NotifyApplicationBackground and RegisterApplicationStateChangeCallback
+ * @tc.desc: Pass 1 register a valid callback, NotifyApplicationBackground is called
+ *                2 the callback saved in the ApplicationContext is valid
+ */
+HWTEST_F(ApplicationContextTest, NotifyApplicationBackground_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "NotifyApplicationBackground_0100 start";
+    auto callback = context_->applicationStateCallback_.lock();
+    EXPECT_EQ(callback, nullptr);
+
+    auto applicationStateCallback = std::make_shared<MockApplicationStateChangeCallback>();
+    context_->RegisterApplicationStateChangeCallback(applicationStateCallback);
+    EXPECT_CALL(*applicationStateCallback, NotifyApplicationBackground()).Times(1);
+    context_->NotifyApplicationBackground();
+    callback = context_->applicationStateCallback_.lock();
+    EXPECT_NE(callback, nullptr);
+    GTEST_LOG_(INFO) << "NotifyApplicationBackground_0100 end";
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

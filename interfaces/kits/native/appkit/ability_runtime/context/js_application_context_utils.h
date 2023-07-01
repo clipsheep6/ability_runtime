@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,13 +17,25 @@
 #define OHOS_ABILITY_RUNTIME_JS_APPLICATION_CONTEXT_UTILS_H
 
 #include <memory>
+#include <mutex>
 
 #include "ability_lifecycle_callback.h"
 #include "application_context.h"
+#include "application_state_change_callback.h"
 #include "native_engine/native_engine.h"
+#include "running_process_info.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
+namespace {
+enum JsAppProcessState {
+    STATE_CREATE,
+    STATE_FOREGROUND,
+    STATE_ACTIVE,
+    STATE_BACKGROUND,
+    STATE_DESTROY
+};
+}
 class JsApplicationContextUtils {
 public:
     explicit JsApplicationContextUtils(std::weak_ptr<ApplicationContext> &&applicationContext)
@@ -55,6 +67,8 @@ public:
     NativeValue* OnOffAbilityLifecycle(NativeEngine &engine, const NativeCallbackInfo &info, int32_t callbackId);
     NativeValue* OnOnEnvironment(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnOffEnvironment(NativeEngine &engine, const NativeCallbackInfo &info, int32_t callbackId);
+    NativeValue* OnOnApplicationStateChange(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnOffApplicationStateChange(NativeEngine &engine, const NativeCallbackInfo &info);
 
     NativeValue* OnGetCacheDir(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnGetTempDir(NativeEngine &engine, NativeCallbackInfo &info);
@@ -89,9 +103,12 @@ private:
     NativeValue* OnGetApplicationContext(NativeEngine& engine, NativeCallbackInfo& info);
     bool CheckCallerIsSystemApp();
     static void BindNativeApplicationContext(NativeEngine &engine, NativeObject* object);
-
+    static JsAppProcessState ConvertToJsAppProcessState(
+        const AppExecFwk::AppProcessState &appProcessState, const bool &isFocused);
     std::shared_ptr<JsAbilityLifecycleCallback> callback_;
     std::shared_ptr<JsEnvironmentCallback> envCallback_;
+    std::shared_ptr<JsApplicationStateChangeCallback> applicationStateCallback_;
+    std::mutex applicationStateCallbackLock_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

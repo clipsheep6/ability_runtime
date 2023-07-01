@@ -16,13 +16,15 @@
 #ifndef OHOS_ABILITY_RUNTIME_UI_EXTENSION_CONTEXT_H
 #define OHOS_ABILITY_RUNTIME_UI_EXTENSION_CONTEXT_H
 
-#include "extension_context.h"
+#include <map>
 
+#include "extension_context.h"
 #include "start_options.h"
 #include "want.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
+using RuntimeTask = std::function<void(int, const AAFwk::Want &, bool)>;
 /**
  * @brief context supply for UIExtension
  *
@@ -52,11 +54,39 @@ public:
      */
     virtual ErrCode TerminateSelf();
 
+    /**
+     * Start other ability for result.
+     *
+     * @param want Information of other ability.
+     * @param startOptions Indicates the StartOptions containing service side information about the target ability to
+     * start.
+     * @param requestCode Request code for abilityMS to return result.
+     * @param task Represent std::function<void(int, const AAFwk::Want &, bool)>.
+     *
+     * @return errCode ERR_OK on success, others on failure.
+     */
+    virtual ErrCode StartAbilityForResult(const AAFwk::Want &want, int requestCode, RuntimeTask &&task);
+    virtual ErrCode StartAbilityForResult(
+        const AAFwk::Want &want, const AAFwk::StartOptions &startOptions, int requestCode, RuntimeTask &&task);
+
+    /**
+     * @brief Called when startAbilityForResult(ohos.aafwk.content.Want,int) is called to start an extension ability
+     * and the result is returned.
+     * @param requestCode Indicates the request code returned after the ability is started. You can define the request
+     * code to identify the results returned by abilities. The value ranges from 0 to 65535.
+     * @param resultCode Indicates the result code returned after the ability is started. You can define the result
+     * code to identify an error.
+     * @param resultData Indicates the data returned after the ability is started. You can define the data returned. The
+     * value can be null.
+     */
+    virtual void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData);
+
     using SelfType = UIExtensionContext;
     static const size_t CONTEXT_TYPE_ID;
 
 private:
     static int ILLEGAL_REQUEST_CODE;
+    std::map<int, RuntimeTask> resultCallbacks_;
 
     /**
      * @brief Get Current Ability Type
@@ -64,6 +94,8 @@ private:
      * @return Current Ability Type
      */
     OHOS::AppExecFwk::AbilityType GetAbilityInfoType() const;
+
+    void OnAbilityResultInner(int requestCode, int resultCode, const AAFwk::Want &resultData);
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

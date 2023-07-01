@@ -79,18 +79,13 @@ int32_t ServiceRouterMgrProxy::QueryPurposeInfos(const Want &want, const std::st
     return res;
 }
 
-int32_t ServiceRouterMgrProxy::StartUIExtensionAbility(const Want &want, const sptr<SessionInfo> &sessionInfo,
-    int32_t userId, ExtensionAbilityType extensionType)
+int32_t ServiceRouterMgrProxy::StartUIExtensionAbility(const sptr<SessionInfo> &sessionInfo, int32_t userId)
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         APP_LOGE("write interfaceToken failed");
-        return ERR_APPEXECFWK_PARCEL_ERROR;
-    }
-    if (!data.WriteParcelable(&want)) {
-        APP_LOGE("want write failed.");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -108,10 +103,6 @@ int32_t ServiceRouterMgrProxy::StartUIExtensionAbility(const Want &want, const s
 
     if (!data.WriteInt32(userId)) {
         APP_LOGE("StartExtensionAbility, userId write failed.");
-        return ERR_APPEXECFWK_PARCEL_ERROR;
-    }
-    if (!data.WriteInt32(static_cast<int32_t>(extensionType))) {
-        APP_LOGE("StartExtensionAbility, extensionType write failed.");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
     if (!Remote()) {

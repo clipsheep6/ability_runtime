@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,7 +26,6 @@
 #include "js_hap_module_info_utils.h"
 #include "js_resource_manager_utils.h"
 #include "js_runtime_utils.h"
-#include "running_process_info.h"
 #include "tokenid_kit.h"
 
 namespace OHOS {
@@ -450,7 +449,8 @@ NativeValue *JsApplicationContextUtils::OnGetRunningProcessInformation(NativeEng
             object->SetProperty("pid", CreateJsValue(engine, processInfo.pid_));
             object->SetProperty("uid", CreateJsValue(engine, processInfo.uid_));
             object->SetProperty("bundleNames", CreateNativeArray(engine, processInfo.bundleNames));
-            object->SetProperty("state", CreateJsValue(engine, processInfo.state_));
+            object->SetProperty(
+                "state", CreateJsValue(engine, ConvertToJsAppProcessState(processInfo.state_, processInfo.isFocused)));
             object->SetProperty("isContinuousTask", CreateJsValue(engine, processInfo.isContinuousTask));
             object->SetProperty("isKeepAlive", CreateJsValue(engine, processInfo.isKeepAlive));
             object->SetProperty("isFocused", CreateJsValue(engine, processInfo.isFocused));
@@ -705,6 +705,9 @@ NativeValue *JsApplicationContextUtils::OnOn(NativeEngine &engine, NativeCallbac
     if (type == "environment") {
         return OnOnEnvironment(engine, info);
     }
+    if (type == "applicationStateChange") {
+        return OnOnApplicationStateChange(engine, info);
+    }
     HILOG_ERROR("on function type not match.");
     AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
     return engine.CreateUndefined();
@@ -713,16 +716,10 @@ NativeValue *JsApplicationContextUtils::OnOn(NativeEngine &engine, NativeCallbac
 NativeValue *JsApplicationContextUtils::OnOff(NativeEngine &engine, const NativeCallbackInfo &info)
 {
     HILOG_INFO("OnOff is called");
-
-    int32_t callbackId = -1;
-    if (info.argc != ARGC_TWO && info.argc != ARGC_THREE) {
+    if (info.argc < ARGC_ONE) {
         HILOG_ERROR("Not enough params");
         AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return engine.CreateUndefined();
-    } else {
-        napi_get_value_int32(
-            reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(info.argv[1]), &callbackId);
-        HILOG_DEBUG("callbackId is %{public}d.", callbackId);
     }
 
     if (info.argv[0]->TypeOf() != NATIVE_STRING) {
@@ -735,6 +732,23 @@ NativeValue *JsApplicationContextUtils::OnOff(NativeEngine &engine, const Native
         HILOG_ERROR("convert type failed!");
         AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return engine.CreateUndefined();
+    }
+
+    if (type == "applicationStateChange") {
+        return OnOffApplicationStateChange(engine, info);
+    }
+
+    if (info.argc != ARGC_TWO && info.argc != ARGC_THREE) {
+        HILOG_ERROR("Not enough params");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return engine.CreateUndefined();
+    }
+
+    int32_t callbackId = -1;
+    if (info.argv[1]->TypeOf() == NATIVE_NUMBER) {
+        napi_get_value_int32(
+            reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(info.argv[1]), &callbackId);
+        HILOG_DEBUG("callbackId is %{public}d.", callbackId);
     }
 
     if (type == "abilityLifecycle") {
@@ -875,6 +889,61 @@ NativeValue *JsApplicationContextUtils::OnOffEnvironment(
     return result;
 }
 
+NativeValue *JsApplicationContextUtils::OnOnApplicationStateChange(
+    NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_DEBUG("called.");
+    auto applicationContext = applicationContext_.lock();
+    if (applicationContext == nullptr) {
+        HILOG_ERROR("ApplicationContext is nullptr.");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return engine.CreateUndefined();
+    }
+
+    std::lock_guard<std::mutex> lock(applicationStateCallbackLock_);
+    if (applicationStateCallback_ != nullptr) {
+        applicationStateCallback_->Register(info.argv[INDEX_ONE]);
+        return engine.CreateUndefined();
+    }
+
+    applicationStateCallback_ = std::make_shared<JsApplicationStateChangeCallback>(&engine);
+    applicationStateCallback_->Register(info.argv[INDEX_ONE]);
+    applicationContext->RegisterApplicationStateChangeCallback(applicationStateCallback_);
+    return engine.CreateUndefined();
+}
+
+NativeValue *JsApplicationContextUtils::OnOffApplicationStateChange(
+    NativeEngine &engine, const NativeCallbackInfo &info)
+{
+    HILOG_DEBUG("called.");
+    auto applicationContext = applicationContext_.lock();
+    if (applicationContext == nullptr) {
+        HILOG_ERROR("ApplicationContext is nullptr.");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return engine.CreateUndefined();
+    }
+
+    std::lock_guard<std::mutex> lock(applicationStateCallbackLock_);
+    if (applicationStateCallback_ == nullptr) {
+        HILOG_ERROR("ApplicationStateCallback_ is nullptr.");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return engine.CreateUndefined();
+    }
+
+    if (info.argc == ARGC_ONE || info.argv[INDEX_ONE]->TypeOf() != NATIVE_OBJECT) {
+        applicationStateCallback_->UnRegister();
+    } else if (!applicationStateCallback_->UnRegister(info.argv[INDEX_ONE])) {
+        HILOG_ERROR("call UnRegister failed!");
+        AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return engine.CreateUndefined();
+    }
+
+    if (applicationStateCallback_->IsEmpty()) {
+        applicationStateCallback_.reset();
+    }
+    return engine.CreateUndefined();
+}
+
 NativeValue* JsApplicationContextUtils::GetApplicationContext(NativeEngine* engine, NativeCallbackInfo* info)
 {
     JsApplicationContextUtils *me =
@@ -992,6 +1061,33 @@ void JsApplicationContextUtils::BindNativeApplicationContext(NativeEngine &engin
         JsApplicationContextUtils::GetRunningProcessInformation);
     BindNativeFunction(engine, *object, "getRunningProcessInformation", MD_NAME,
         JsApplicationContextUtils::GetRunningProcessInformation);
+}
+
+JsAppProcessState JsApplicationContextUtils::ConvertToJsAppProcessState(
+    const AppExecFwk::AppProcessState &appProcessState, const bool &isFocused)
+{
+    JsAppProcessState processState;
+    switch (appProcessState) {
+        case AppExecFwk::AppProcessState::APP_STATE_CREATE:
+        case AppExecFwk::AppProcessState::APP_STATE_READY:
+            processState = STATE_CREATE;
+            break;
+        case AppExecFwk::AppProcessState::APP_STATE_FOREGROUND:
+            processState = isFocused ? STATE_ACTIVE : STATE_FOREGROUND;
+            break;
+        case AppExecFwk::AppProcessState::APP_STATE_BACKGROUND:
+            processState = STATE_BACKGROUND;
+            break;
+        case AppExecFwk::AppProcessState::APP_STATE_TERMINATED:
+        case AppExecFwk::AppProcessState::APP_STATE_END:
+            processState = STATE_DESTROY;
+            break;
+        default:
+            HILOG_ERROR("Process state is invalid.");
+            processState = STATE_DESTROY;
+            break;
+    }
+    return processState;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

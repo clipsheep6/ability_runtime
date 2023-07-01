@@ -355,7 +355,7 @@ public:
         const std::string &bundleName, int32_t userId, std::vector<RunningProcessInfo> &info) override;
 
 private:
-    bool SendTransactCmd(IAppMgr::Message code, MessageParcel &data, MessageParcel &reply);
+    bool SendTransactCmd(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply);
     bool WriteInterfaceToken(MessageParcel &data);
     template<typename T>
     int GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos);
