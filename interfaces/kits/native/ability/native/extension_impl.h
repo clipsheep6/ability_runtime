@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -135,6 +135,15 @@ public:
 
     void CommandExtensionWindow(const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
         AAFwk::WindowCommand winCmd);
+
+    /*
+     * SendResult, Send result to app when extension ability is terminated with result want.
+     *
+     * @param requestCode, the requestCode of the extension ability to start.
+     * @param resultCode, the resultCode of the extension ability to terminate.
+     * @param resultData, the want of the extension  ability to terminate.
+     */
+    void SendResult(int requestCode, int resultCode, const Want &resultData);
 
 protected:
     /**

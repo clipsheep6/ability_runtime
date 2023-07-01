@@ -39,6 +39,11 @@ class UIExtensionContext extends ExtensionContext {
     return this.__context_impl__.terminateSelf(callback);
   }
 
+  startAbilityForResult(want, options, callback) {
+    console.log('startAbilityForResult');
+    return this.__context_impl__.startAbilityForResult(want, options, callback);
+  }
+
   terminateSelfWithResult(abilityResult, callback) {
     console.log('terminateSelfWithResult');
     return this.__context_impl__.terminateSelfWithResult(abilityResult, callback);

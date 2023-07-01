@@ -908,33 +908,39 @@ void AbilityThread::ScheduleCommandAbilityWindow(const Want &want, const sptr<AA
 
 void AbilityThread::SendResult(int requestCode, int resultCode, const Want &want)
 {
-    HILOG_DEBUG("AbilityThread::SendResult begin");
-    if (abilityImpl_ == nullptr) {
-        HILOG_ERROR("AbilityThread::SendResult abilityImpl_ == nullptr");
-        return;
-    }
+    HILOG_DEBUG("begin");
     wptr<AbilityThread> weak = this;
     auto task = [weak, requestCode, resultCode, want]() {
         auto abilityThread = weak.promote();
-        if (abilityThread == nullptr || abilityThread->abilityImpl_ == nullptr) {
-            HILOG_ERROR("abilityThread or abilityImpl is nullptr, SendResult failed.");
+        if (abilityThread == nullptr) {
+            HILOG_ERROR("abilityThread is nullptr, SendResult failed.");
             return;
         }
-        if (requestCode != -1) {
-            abilityThread->abilityImpl_->SendResult(requestCode, resultCode, want);
+        if (requestCode == -1) {
+            HILOG_ERROR("requestCode is -1, SendResult failed.");
+            return;
         }
+        if (abilityThread->isExtension_ && abilityThread->extensionImpl_ != nullptr) {
+            abilityThread->extensionImpl_->SendResult(requestCode, resultCode, want);
+            return;
+        } else if (!abilityThread->isExtension_ && abilityThread->abilityImpl_ != nullptr) {
+            abilityThread->abilityImpl_->SendResult(requestCode, resultCode, want);
+            return;
+        }
+        HILOG_ERROR(
+            "%{public}simpl is nullptr, SendResult failed.", abilityThread->isExtension_ ? "extension" : "ability");
     };
 
     if (abilityHandler_ == nullptr) {
-        HILOG_ERROR("AbilityThread::SendResult abilityHandler_ == nullptr");
+        HILOG_ERROR("abilityHandler_ == nullptr");
         return;
     }
 
     bool ret = abilityHandler_->PostTask(task);
     if (!ret) {
-        HILOG_ERROR("AbilityThread::SendResult PostTask error");
+        HILOG_ERROR("PostTask error");
     }
-    HILOG_DEBUG("AbilityThread::SendResult end");
+    HILOG_DEBUG("end");
 }
 
 std::vector<std::string> AbilityThread::GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)

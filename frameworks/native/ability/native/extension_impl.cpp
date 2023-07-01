@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -339,6 +339,18 @@ void ExtensionImpl::CommandExtensionWindow(const Want &want, const sptr<AAFwk::S
 
     extension_->OnCommandWindow(want, sessionInfo, winCmd);
     HILOG_INFO("ok");
+}
+
+void ExtensionImpl::SendResult(int requestCode, int resultCode, const Want &resultData)
+{
+    HILOG_DEBUG("begin.");
+    if (extension_ == nullptr) {
+        HILOG_ERROR("extension_ is nullptr");
+        return;
+    }
+
+    extension_->OnAbilityResult(requestCode, resultCode, resultData);
+    HILOG_DEBUG("end.");
 }
 
 void ExtensionImpl::Foreground(const Want &want)

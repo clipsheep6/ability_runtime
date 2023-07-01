@@ -36,6 +36,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr int32_t INDEX_ZERO = 0;
+constexpr int32_t INDEX_ONE = 1;
 constexpr int32_t ERROR_CODE_ONE = 1;
 constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
@@ -59,6 +60,12 @@ NativeValue *JsUIExtensionContext::TerminateSelf(NativeEngine* engine, NativeCal
 {
     JsUIExtensionContext* me = CheckParamsAndGetThis<JsUIExtensionContext>(engine, info);
     return (me != nullptr) ? me->OnTerminateSelf(*engine, *info) : nullptr;
+}
+
+NativeValue *JsUIExtensionContext::StartAbilityForResult(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JsUIExtensionContext *me = CheckParamsAndGetThis<JsUIExtensionContext>(engine, info);
+    return (me != nullptr) ? me->OnStartAbilityForResult(*engine, *info) : nullptr;
 }
 
 NativeValue* JsUIExtensionContext::TerminateSelfWithResult(NativeEngine* engine, NativeCallbackInfo* info)
@@ -139,6 +146,59 @@ NativeValue *JsUIExtensionContext::OnTerminateSelf(NativeEngine& engine, const N
     return result;
 }
 
+NativeValue *JsUIExtensionContext::OnStartAbilityForResult(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_DEBUG("called.");
+    if (info.argc == ARGC_ZERO) {
+        ThrowTooFewParametersError(engine);
+        return engine.CreateUndefined();
+    }
+    AAFwk::Want want;
+    if (!UnWrapWant(engine, info.argv[INDEX_ZERO], want)) {
+        HILOG_ERROR("failed to parse want!");
+        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return engine.CreateUndefined();
+    }
+    decltype(info.argc) unwrapArgc = 1;
+    AAFwk::StartOptions startOptions;
+    if (info.argc > ARGC_ONE && info.argv[INDEX_ONE]->TypeOf() == NATIVE_OBJECT) {
+        HILOG_INFO("start options is used.");
+        AppExecFwk::UnwrapStartOptions(
+            reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(info.argv[INDEX_ONE]), startOptions);
+        unwrapArgc++;
+    }
+    NativeValue *lastParam = info.argc > unwrapArgc ? info.argv[unwrapArgc] : nullptr;
+    NativeValue *result = nullptr;
+    std::unique_ptr<AsyncTask> uasyncTask = CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, nullptr, &result);
+    std::shared_ptr<AsyncTask> asyncTask = std::move(uasyncTask);
+    RuntimeTask task = [&engine, asyncTask](int resultCode, const AAFwk::Want &want, bool isInner) {
+        HILOG_INFO("async callback is called.");
+        NativeValue *abilityResult = WrapAbilityResult(engine, resultCode, want);
+        if (abilityResult == nullptr) {
+            HILOG_WARN("wrap abilityResult failed.");
+            asyncTask->Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+            return;
+        }
+        if (isInner) {
+            asyncTask->Reject(engine, CreateJsErrorByNativeErr(engine, resultCode));
+            return;
+        }
+        asyncTask->Resolve(engine, abilityResult);
+    };
+    auto context = context_.lock();
+    if (context == nullptr) {
+        HILOG_WARN("context is released.");
+        asyncTask->Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+        return result;
+    }
+    want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
+    curRequestCode_ = (curRequestCode_ == INT_MAX) ? 0 : (curRequestCode_ + 1);
+    (unwrapArgc == INDEX_ONE) ? context->StartAbilityForResult(want, curRequestCode_, std::move(task))
+                              : context->StartAbilityForResult(want, startOptions, curRequestCode_, std::move(task));
+    HILOG_DEBUG("end.");
+    return result;
+}
+
 NativeValue* JsUIExtensionContext::OnTerminateSelfWithResult(NativeEngine& engine, const NativeCallbackInfo& info)
 {
     HILOG_INFO("OnTerminateSelfWithResult is called");
@@ -202,6 +262,7 @@ NativeValue *JsUIExtensionContext::CreateJsUIExtensionContext(NativeEngine& engi
     const char *moduleName = "JsUIExtensionContext";
     BindNativeFunction(engine, *object, "startAbility", moduleName, StartAbility);
     BindNativeFunction(engine, *object, "terminateSelf", moduleName, TerminateSelf);
+    BindNativeFunction(engine, *object, "startAbilityForResult", moduleName, StartAbilityForResult);
     BindNativeFunction(engine, *object, "terminateSelfWithResult", moduleName, TerminateSelfWithResult);
 
     return objValue;
@@ -280,6 +341,21 @@ bool JsUIExtensionContext::UnWrapAbilityResult(NativeEngine& engine, NativeValue
         return false;
     }
     return JsUIExtensionContext::UnWrapWant(engine, jWant, want);
+}
+
+NativeValue *JsUIExtensionContext::WrapAbilityResult(
+    NativeEngine &engine, const int &resultCode, const AAFwk::Want &want)
+{
+    NativeValue *jAbilityResult = engine.CreateObject();
+    NativeObject *abilityResult = ConvertNativeValueTo<NativeObject>(jAbilityResult);
+    abilityResult->SetProperty("resultCode", engine.CreateNumber(resultCode));
+    abilityResult->SetProperty("want", JsUIExtensionContext::WrapWant(engine, want));
+    return jAbilityResult;
+}
+
+NativeValue *JsUIExtensionContext::WrapWant(NativeEngine &engine, const AAFwk::Want &want)
+{
+    return reinterpret_cast<NativeValue *>(AppExecFwk::WrapWant(reinterpret_cast<napi_env>(&engine), want));
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

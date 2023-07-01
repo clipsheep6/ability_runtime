@@ -144,6 +144,18 @@ public:
      */
     virtual void Dump(const std::vector<std::string> &params, std::vector<std::string> &info) override;
 
+    /**
+     * @brief Called when startAbilityForResult(ohos.aafwk.content.Want,int) is called to start an extension ability
+     * and the result is returned.
+     * @param requestCode Indicates the request code returned after the ability is started. You can define the request
+     * code to identify the results returned by abilities. The value ranges from 0 to 65535.
+     * @param resultCode Indicates the result code returned after the ability is started. You can define the result
+     * code to identify an error.
+     * @param resultData Indicates the data returned after the ability is started. You can define the data returned. The
+     * value can be null.
+     */
+    void OnAbilityResult(int requestCode, int resultCode, const Want &resultData) override;
+
 private:
     virtual void BindContext(NativeEngine& engine, NativeObject* obj);
 

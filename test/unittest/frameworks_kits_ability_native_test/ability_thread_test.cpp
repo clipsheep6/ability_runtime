@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1302,6 +1302,30 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_SendResult_0500, Function | Medi
     EXPECT_NE(abilitythread->abilityHandler_, nullptr);
     abilitythread->SendResult(requestCode, resultCode, want);
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_SendResult_0500 end";
+}
+
+/**
+ * @tc.number: AaFwk_AbilityThread_SendResult_0600
+ * @tc.name: SendResult
+ * @tc.desc: Test SendResult function when abilityHandler_ is not nullptr
+ */
+HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_SendResult_0600, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_SendResult_0600 start";
+    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    EXPECT_NE(abilitythread, nullptr);
+
+    abilitythread->extensionImpl_ = std::make_shared<AbilityRuntime::ExtensionImpl>();
+    EXPECT_NE(abilitythread->extensionImpl_, nullptr);
+    abilitythread->isExtension_ = true;
+
+    int requestCode = STARTID;
+    int resultCode = STARTID;
+    Want want;
+    abilitythread->abilityHandler_ = std::make_shared<AbilityHandler>(nullptr);
+    EXPECT_NE(abilitythread->abilityHandler_, nullptr);
+    abilitythread->SendResult(requestCode, resultCode, want);
+    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_SendResult_0600 end";
 }
 
 /**
