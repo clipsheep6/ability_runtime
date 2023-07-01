@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +20,7 @@
 #include <shared_mutex>
 
 #include "ability_lifecycle_callback.h"
+#include "application_state_change_callback.h"
 #include "context.h"
 #include "context_impl.h"
 #include "environment_callback.h"
@@ -35,6 +36,8 @@ public:
     bool IsAbilityLifecycleCallbackEmpty();
     void RegisterEnvironmentCallback(const std::shared_ptr<EnvironmentCallback> &environmentCallback);
     void UnregisterEnvironmentCallback(const std::shared_ptr<EnvironmentCallback> &environmentCallback);
+    void RegisterApplicationStateChangeCallback(
+        const std::weak_ptr<ApplicationStateChangeCallback> &applicationStateChangeCallback);
     void DispatchOnAbilityCreate(const std::shared_ptr<NativeReference> &ability);
     void DispatchOnWindowStageCreate(const std::shared_ptr<NativeReference> &ability,
         const std::shared_ptr<NativeReference> &windowStage);
@@ -50,6 +53,8 @@ public:
     void DispatchOnAbilityContinue(const std::shared_ptr<NativeReference> &ability);
     void DispatchConfigurationUpdated(const AppExecFwk::Configuration &config);
     void DispatchMemoryLevel(const int level);
+    void NotifyApplicationForeground();
+    void NotifyApplicationBackground();
 
     std::string GetBundleName() const override;
     std::shared_ptr<Context> CreateBundleContext(const std::string &bundleName) override;
@@ -89,6 +94,7 @@ private:
     std::shared_ptr<ContextImpl> contextImpl_;
     static std::vector<std::shared_ptr<AbilityLifecycleCallback>> callbacks_;
     static std::vector<std::shared_ptr<EnvironmentCallback>> envCallbacks_;
+    static std::weak_ptr<ApplicationStateChangeCallback> applicationStateCallback_;
     std::mutex callbackLock_;
 };
 }  // namespace AbilityRuntime
