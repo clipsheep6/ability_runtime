@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -53,6 +53,7 @@ constexpr static char ACE_FORM_ABILITY_NAME[] = "AceFormAbility";
 constexpr static char FORM_EXTENSION[] = "FormExtension";
 constexpr static char UI_EXTENSION[] = "UIExtensionAbility";
 constexpr static char MEDIA_CONTROL_EXTENSION[] = "MediaControlExtensionAbility";
+constexpr static char USER_AUTH_EXTENSION[] = "UserAuthExtensionAbility";
 #endif
 constexpr static char BASE_SERVICE_EXTENSION[] = "ServiceExtension";
 constexpr static char BASE_DRIVER_EXTENSION[] = "DriverExtension";
@@ -176,6 +177,9 @@ std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalR
         }
         if (abilityInfo->extensionAbilityType == ExtensionAbilityType::APP_ACCOUNT_AUTHORIZATION) {
             abilityName = APP_ACCOUNT_AUTHORIZATION_EXTENSION;
+        }
+        if (abilityInfo->extensionAbilityType == ExtensionAbilityType::SYSDIALOG_USERAUTH) {
+            abilityName = USER_AUTH_EXTENSION;
         }
         HILOG_DEBUG("CreateAbilityName extension type, abilityName:%{public}s", abilityName.c_str());
     } else {

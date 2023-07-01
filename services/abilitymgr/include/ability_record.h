@@ -469,8 +469,10 @@ public:
         std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<AbilityRecord> &callerAbility,
         uint32_t sceneFlag = 0);
 
-    void ProcessForegroundAbility(const std::shared_ptr<AbilityRecord> &callerAbility, uint32_t sceneFlag = 0);
+    void ProcessForegroundAbility(const std::shared_ptr<AbilityRecord> &callerAbility, bool needExit = true,
+        uint32_t sceneFlag = 0);
     void NotifyAnimationFromTerminatingAbility() const;
+    void NotifyAnimationFromMinimizeAbility(bool& animaEnabled);
 
     void SetCompleteFirstFrameDrawing(const bool flag);
     bool IsCompleteFirstFrameDrawing() const;
@@ -928,7 +930,8 @@ private:
         const AbilityRequest &abilityRequest) const;
     void NotifyAnimationFromRecentTask(const std::shared_ptr<StartOptions> &startOptions,
         const std::shared_ptr<Want> &want) const;
-    void NotifyAnimationFromTerminatingAbility(const std::shared_ptr<AbilityRecord> &callerAbility, bool flag);
+    void NotifyAnimationFromTerminatingAbility(const std::shared_ptr<AbilityRecord> &callerAbility, bool needExit,
+        bool flag);
 
     void StartingWindowTask(bool isRecent, bool isCold, const AbilityRequest &abilityRequest,
         std::shared_ptr<StartOptions> &startOptions);

@@ -33,6 +33,7 @@
 #include "event_runner.h"
 #include "napi_common_util.h"
 #include "js_app_state_observer.h"
+#include "ipc_skeleton.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -131,6 +132,18 @@ public:
     {
         JsAppManager* me = CheckParamsAndGetThis<JsAppManager>(engine, info);
         return (me != nullptr) ? me->OnIsRamConstrainedDevice(*engine, *info) : nullptr;
+    }
+
+    static NativeValue* GetProcessMemoryByPid(NativeEngine* engine, NativeCallbackInfo* info)
+    {
+        JsAppManager* me = CheckParamsAndGetThis<JsAppManager>(engine, info);
+        return (me != nullptr) ? me->OnGetProcessMemoryByPid(*engine, *info) : nullptr;
+    }
+
+    static NativeValue* GetRunningProcessInfoByBundleName(NativeEngine* engine, NativeCallbackInfo* info)
+    {
+        JsAppManager* me = CheckParamsAndGetThis<JsAppManager>(engine, info);
+        return (me != nullptr) ? me->OnGetRunningProcessInfoByBundleName(*engine, *info) : nullptr;
     }
 private:
     sptr<OHOS::AppExecFwk::IAppMgr> appManager_ = nullptr;
@@ -523,6 +536,98 @@ private:
         return result;
     }
 
+    NativeValue* OnGetProcessMemoryByPid(NativeEngine& engine, const NativeCallbackInfo& info)
+    {
+        HILOG_DEBUG("is called");
+        if (info.argc < ARGC_ONE) {
+            HILOG_ERROR("Params not match");
+            ThrowTooFewParametersError(engine);
+            return engine.CreateUndefined();
+        }
+
+        int32_t pid;
+        if (!ConvertFromJsValue(engine, info.argv[0], pid)) {
+            HILOG_ERROR("get pid failed");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
+        }
+
+        AsyncTask::CompleteCallback complete =
+            [pid, appManager = appManager_](NativeEngine &engine, AsyncTask &task, int32_t status) {
+                if (appManager == nullptr) {
+                    HILOG_WARN("appManager is nullptr");
+                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+                    return;
+                }
+                int32_t memSize = 0;
+                int32_t ret = appManager->GetProcessMemoryByPid(pid, memSize);
+                if (ret == 0) {
+                    task.ResolveWithNoError(engine, CreateJsValue(engine, memSize));
+                } else {
+                    task.Reject(engine, CreateJsErrorByNativeErr(engine, ret));
+                }
+            };
+
+        NativeValue* lastParam = (info.argc == ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
+        NativeValue* result = nullptr;
+        AsyncTask::Schedule("JSAppManager::OnGetProcessMemoryByPid",
+            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        return result;
+    }
+
+    NativeValue* OnGetRunningProcessInfoByBundleName(NativeEngine& engine, const NativeCallbackInfo& info)
+    {
+        if (info.argc < ARGC_ONE) {
+            ThrowTooFewParametersError(engine);
+            return engine.CreateUndefined();
+        }
+
+        std::string bundleName;
+        int userId = IPCSkeleton::GetCallingUid() / AppExecFwk::Constants::BASE_USER_RANGE;
+        bool isPromiseType = false;
+        if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
+            HILOG_ERROR("First parameter must be string");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
+        }
+        if (info.argc == ARGC_ONE) {
+            isPromiseType = true;
+        } else if (info.argc == ARGC_TWO) {
+            if (ConvertFromJsValue(engine, info.argv[1], userId)) {
+                isPromiseType = true;
+            }
+        } else if (info.argc == ARGC_THREE) {
+            if (!ConvertFromJsValue(engine, info.argv[1], userId)) {
+                HILOG_WARN("Must input userid and use callback when argc is three.");
+                ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+                return engine.CreateUndefined();
+            }
+        } else {
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
+        }
+
+        AsyncTask::CompleteCallback complete =
+            [bundleName, userId, appManager = appManager_](NativeEngine &engine, AsyncTask &task, int32_t status) {
+            if (appManager == nullptr) {
+                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            std::vector<AppExecFwk::RunningProcessInfo> infos;
+            int32_t ret = appManager->GetRunningProcessInformation(bundleName, userId, infos);
+            if (ret == 0) {
+                task.ResolveWithNoError(engine, CreateJsRunningProcessInfoArray(engine, infos));
+            } else {
+                task.Reject(engine, CreateJsErrorByNativeErr(engine, ret));
+            }
+        };
+        NativeValue* lastParam = isPromiseType ? nullptr : info.argv[info.argc - 1];
+        NativeValue* result = nullptr;
+        AsyncTask::Schedule("JSAppManager::OnGetRunningProcessInfoByBundleName",
+            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        return result;
+    }
+
     bool CheckOnOffType(NativeEngine& engine, const NativeCallbackInfo& info)
     {
         if (info.argc < ARGC_ONE) {
@@ -610,6 +715,10 @@ NativeValue* JsAppManagerInit(NativeEngine* engine, NativeValue* exportObj)
         JsAppManager::IsRamConstrainedDevice);
     BindNativeFunction(*engine, *object, "isSharedBundleRunning", moduleName,
         JsAppManager::IsSharedBundleRunning);
+    BindNativeFunction(*engine, *object, "getProcessMemoryByPid", moduleName,
+        JsAppManager::GetProcessMemoryByPid);
+    BindNativeFunction(*engine, *object, "getRunningProcessInfoByBundleName", moduleName,
+        JsAppManager::GetRunningProcessInfoByBundleName);
     HILOG_INFO("JsAppManagerInit end");
     return engine->CreateUndefined();
 }

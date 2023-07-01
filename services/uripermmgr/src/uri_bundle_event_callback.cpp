@@ -12,21 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "uri_bundle_event_callback.h"
-namespace OHOS {
-namespace AAFwk {
+
+#include "hilog_wrapper.h"
+
+namespace OHOS::AAFwk {
+namespace {
 const std::string KEY_TOKEN = "accessTokenId";
-UriBundleEventCallback::UriBundleEventCallback(sptr<UriPermissionManagerStubImpl> impl)
-{
-    upms_ = impl;
 }
+
 void UriBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData eventData)
 {
     const Want& want = eventData.GetWant();
     // action contains the change type of haps.
     std::string action = want.GetAction();
     std::string bundleName = want.GetElement().GetBundleName();
-    int token = want.GetIntParam(KEY_TOKEN, 0);
+    auto token = static_cast<uint32_t>(want.GetIntParam(KEY_TOKEN, 0));
     // verify data
     if (action.empty() || bundleName.empty()) {
         HILOG_ERROR("OnReceiveEvent failed, empty action/bundleName");
@@ -42,5 +44,4 @@ void UriBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData even
         upms_->RevokeAllUriPermissions(token);
     }
 }
-} // namespace AAFwk
-} // namespace OHOS
+} // namespace OHOS::AAFwk

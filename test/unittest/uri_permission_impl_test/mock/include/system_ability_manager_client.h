@@ -39,6 +39,27 @@ private:
     sptr<MockSystemAbilityManager> systemAbilityManager_;
     std::mutex systemAbilityManagerLock_;
 };
+
+bool SystemAbilityManagerClient::nullptrFlag = false;
+
+SystemAbilityManagerClient& SystemAbilityManagerClient::GetInstance()
+{
+    static auto instance = new SystemAbilityManagerClient();
+    return *instance;
+}
+
+sptr<MockSystemAbilityManager> SystemAbilityManagerClient::GetSystemAbilityManager()
+{
+    std::lock_guard<std::mutex> lock(systemAbilityManagerLock_);
+    if (nullptrFlag) {
+        return nullptr;
+    }
+    if (systemAbilityManager_ != nullptr) {
+        return systemAbilityManager_;
+    }
+    systemAbilityManager_ = new MockSystemAbilityManager();
+    return systemAbilityManager_;
+}
 }  // namespace AAFwk
 }  // namespace OHOS
 #endif // SERVICE_REGISTRY_INCLUDE_H

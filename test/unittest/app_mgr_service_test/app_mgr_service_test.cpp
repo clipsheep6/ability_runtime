@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -599,7 +599,7 @@ HWTEST_F(AppMgrServiceTest, FinishUserTest_002, TestSize.Level0)
     appMgrService->taskHandler_ = taskHandler_;
     appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
     int res = appMgrService->FinishUserTest(msg, resultCode, bundleName);
-    EXPECT_NE(res, ERR_INVALID_OPERATION);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
 }
 
 /*
@@ -1202,6 +1202,141 @@ HWTEST_F(AppMgrServiceTest, NotifyUnLoadRepairPatch_002, TestSize.Level0)
     OHOS::AppExecFwk::MockNativeToken::SetNativeToken();
     int32_t res = appMgrService->NotifyUnLoadRepairPatch(bundleName, callback);
     EXPECT_NE(res, ERR_INVALID_OPERATION);
+}
+
+/*
+ * Feature: AppMgrService
+ * Function: GetProcessMemoryByPid
+ * SubFunction: NA
+ * FunctionPoints: AppMgrService GetProcessMemoryByPid
+ * EnvConditions: NA
+ * CaseDescription: Verify GetProcessMemoryByPid
+ */
+HWTEST_F(AppMgrServiceTest, GetProcessMemoryByPid_001, TestSize.Level0)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
+    appMgrService->SetInnerService(nullptr);
+
+    int32_t pid = 0;
+    int32_t memorySize = 0;
+    int32_t res = appMgrService->GetProcessMemoryByPid(pid, memorySize);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
+}
+
+/*
+ * Feature: AppMgrService
+ * Function: GetProcessMemoryByPid
+ * SubFunction: NA
+ * FunctionPoints: AppMgrService GetProcessMemoryByPid
+ * EnvConditions: NA
+ * CaseDescription: Verify GetProcessMemoryByPid
+ */
+HWTEST_F(AppMgrServiceTest, GetProcessMemoryByPid_002, TestSize.Level0)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
+    
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
+
+    int32_t pid = 0;
+    int32_t memorySize = 0;
+    int32_t res = appMgrService->GetProcessMemoryByPid(pid, memorySize);
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/*
+ * Feature: AppMgrService
+ * Function: GetRunningProcessInformation
+ * SubFunction: NA
+ * FunctionPoints: AppMgrService GetRunningProcessInformation
+ * EnvConditions: NA
+ * CaseDescription: Verify GetRunningProcessInformation
+ */
+HWTEST_F(AppMgrServiceTest, GetRunningProcessInformation_001, TestSize.Level0)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
+    appMgrService->SetInnerService(nullptr);
+
+    std::string bundleName = "testBundleName";
+    int32_t userId = 100;
+    std::vector<RunningProcessInfo> info;
+    int32_t res = appMgrService->GetRunningProcessInformation(bundleName, userId, info);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
+}
+
+/*
+ * Feature: AppMgrService
+ * Function: GetRunningProcessInformation
+ * SubFunction: NA
+ * FunctionPoints: AppMgrService GetRunningProcessInformation
+ * EnvConditions: NA
+ * CaseDescription: Verify GetRunningProcessInformation
+ */
+HWTEST_F(AppMgrServiceTest, GetRunningProcessInformation_002, TestSize.Level0)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
+    
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
+
+    std::string bundleName = "testBundleName";
+    int32_t userId = 100;
+    std::vector<RunningProcessInfo> info;
+    int32_t res = appMgrService->GetRunningProcessInformation(bundleName, userId, info);
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: NotifyAppFault_001
+ * @tc.desc: Verify that the NotifyAppFault interface calls normally
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, NotifyAppFault_001, TestSize.Level1)
+{
+    sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
+    appMgrService->SetInnerService(nullptr);
+    FaultData faultData;
+    int32_t res = appMgrService->NotifyAppFault(faultData);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
+}
+
+/**
+ * @tc.name: NotifyAppFault_002
+ * @tc.desc: Verify that the NotifyAppFault interface calls normally
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, NotifyAppFault_002, TestSize.Level1)
+{
+    sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
+    appMgrService->SetInnerService(nullptr);
+    AppFaultDataBySA faultData;
+    int32_t res = appMgrService->NotifyAppFaultBySA(faultData);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
+}
+
+/**
+ * @tc.name: NotifyAppFault_003
+ * @tc.desc: Verify that the NotifyAppFault interface calls normally
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, NotifyAppFault_003, TestSize.Level1)
+{
+    sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
+    AppFaultDataBySA faultData;
+    int32_t res = appMgrService->NotifyAppFaultBySA(faultData);
+    EXPECT_EQ(ERR_INVALID_VALUE, res);
+    appMgrService->appMgrServiceInner_ = nullptr;
+    res = appMgrService->NotifyAppFaultBySA(faultData);
+    EXPECT_EQ(ERR_INVALID_OPERATION, res);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

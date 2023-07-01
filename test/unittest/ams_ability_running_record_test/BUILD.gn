@@ -66,6 +66,7 @@ ohos_unittest("AmsAbilityRunningRecordTest") {
     "hitrace:hitrace_meter",
     "init:libbeget_proxy",
     "ipc:ipc_core",
+    "memory_utils:libmeminfo",
     "window_manager:libwm",
   ]
 }

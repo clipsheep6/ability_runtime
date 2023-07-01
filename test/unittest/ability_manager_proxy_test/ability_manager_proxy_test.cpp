@@ -2220,5 +2220,44 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_006, Tes
     proxy_ = std::make_shared<AbilityManagerProxy>(nullptr);
     EXPECT_EQ(proxy_->IsValidMissionIds(missionIds, results), INNER_ERR);
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: ForceExitApp
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService ForceExitApp
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of ForceExitApp
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ForceExitApp_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    int32_t pid = 0;
+    Reason exitReason = REASON_JS_ERROR;
+    auto res = proxy_->ForceExitApp(pid, exitReason);
+    EXPECT_EQ(IAbilityManager::FORCE_EXIT_APP, mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: RecordAppExitReason
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService RecordAppExitReason
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of RecordAppExitReason
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RecordAppExitReason_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    Reason exitReason = REASON_JS_ERROR;
+    auto res = proxy_->RecordAppExitReason(exitReason);
+    EXPECT_EQ(IAbilityManager::RECORD_APP_EXIT_REASON, mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

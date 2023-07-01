@@ -58,6 +58,8 @@
 #ifdef APP_MGR_SERVICE_APPMS
 #include "socket_permission.h"
 #endif
+#include "application_info.h"
+#include "meminfo.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -503,8 +505,8 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
     }
     if (appRecord->GetState() == ApplicationState::APP_STATE_FOREGROUND) {
         appRecord->SetState(ApplicationState::APP_STATE_BACKGROUND);
-        bool needNotifyApp =
-            !appRecord->IsUIExtension() && appRunningManager_->IsApplicationBackground(appRecord->GetBundleName());
+        bool needNotifyApp = !appRecord->IsUIExtension() && !appRecord->IsWindowExtension()
+            && appRunningManager_->IsApplicationBackground(appRecord->GetBundleName());
         OnAppStateChanged(appRecord, ApplicationState::APP_STATE_BACKGROUND, needNotifyApp);
         DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
     } else {
@@ -3673,7 +3675,7 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
 int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
 {
     HILOG_DEBUG("called");
-#ifdef ABILITY_COMMAND_FOR_TEST
+#ifdef ABILITY_FAULT_AND_EXIT_TEST
     if ((AAFwk::PermissionVerification::GetInstance()->IsSACall()) ||
         AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
 #else
@@ -3872,6 +3874,55 @@ void AppMgrServiceInner::KillRenderProcess(const std::shared_ptr<AppRunningRecor
             }
         }
     }
+}
+
+int32_t AppMgrServiceInner::GetProcessMemoryByPid(const int32_t pid, int32_t &memorySize)
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
+    uint64_t memSize = OHOS::MemInfo::GetPssByPid(pid);
+    memorySize = memSize;
+    return ERR_OK;
+}
+
+int32_t AppMgrServiceInner::GetRunningProcessInformation(
+    const std::string &bundleName, int32_t userId, std::vector<RunningProcessInfo> &info)
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager nullptr!");
+        return ERR_NO_INIT;
+    }
+
+    if (remoteClientManager_ == nullptr) {
+        HILOG_ERROR("remoteClientManager_ nullptr!");
+        return ERR_NO_INIT;
+    }
+    auto bundleMgr = remoteClientManager_->GetBundleManager();
+    if (bundleMgr == nullptr) {
+        HILOG_ERROR("bundleMgr nullptr!");
+        return ERR_NO_INIT;
+    }
+    HILOG_INFO("userid value is %{public}d", userId);
+    int uid = IN_PROCESS_CALL(bundleMgr->GetUidByBundleName(bundleName, userId));
+    HILOG_INFO("uid value is %{public}d", uid);
+    const auto &appRunningRecordMap = appRunningManager_->GetAppRunningRecordMap();
+    for (const auto &item : appRunningRecordMap) {
+        const auto &appRecord = item.second;
+        if (appRecord == nullptr) {
+            continue;
+        }
+        auto appInfoList = appRecord->GetAppInfoList();
+        for (const auto &appInfo : appInfoList) {
+            if (appInfo == nullptr) {
+                continue;
+            }
+            if (appInfo->bundleName == bundleName && appInfo->uid == uid) {
+                GetRunningProcesses(appRecord, info);
+                break;
+            }
+        }
+    }
+    return ERR_OK;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

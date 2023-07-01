@@ -36,6 +36,8 @@ ohos_unittest("uri_permission_test") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+
+    # "ipc:ipc_core",
     "storage_service:storage_manager_sa_proxy",
   ]
 }

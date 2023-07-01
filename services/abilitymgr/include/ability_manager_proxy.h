@@ -793,6 +793,8 @@ public:
      */
     virtual int32_t RequestDialogService(const Want &want, const sptr<IRemoteObject> &callerToken) override;
 
+    int32_t ReportDrawnCompleted(const sptr<IRemoteObject> &callerToken) override;
+
     virtual int32_t AcquireShareData(
         const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData) override;
     virtual int32_t ShareDataDone(const sptr<IRemoteObject> &token,

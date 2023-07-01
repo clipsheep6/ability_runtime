@@ -15,12 +15,12 @@
 
 #include <gtest/gtest.h>
 
+#include "mock_native_token.h"
+#include "system_ability_definition.h"
 #include "system_ability_manager_client.h"
-
 #define private public
 #include "uri_permission_manager_stub_impl.h"
 #undef private
-#include "mock_native_token.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -244,58 +244,36 @@ HWTEST_F(UriPermissionImplTest, Upms_RevokeUriPermission_002, TestSize.Level1)
 
 /*
  * Feature: URIPermissionManagerService
- * Function: ConnectBundleManager
+ * Function: ConnectManager
  * SubFunction: NA
- * FunctionPoints: URIPermissionManagerService ConnectBundleManager
+ * FunctionPoints: URIPermissionManagerService ConnectManager
  */
-HWTEST_F(UriPermissionImplTest, Upms_ConnectBundleManager_001, TestSize.Level1)
+HWTEST_F(UriPermissionImplTest, Upms_ConnectManager_001, TestSize.Level1)
 {
-    auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    auto upms = std::make_unique<UriPermissionManagerStubImpl>();
     ASSERT_NE(upms, nullptr);
     SystemAbilityManagerClient::nullptrFlag = true;
-    (void)upms->ConnectBundleManager();
+    sptr<StorageManager::IStorageManager> storageManager = nullptr;
+    upms->ConnectManager(storageManager, STORAGE_MANAGER_MANAGER_ID);
     SystemAbilityManagerClient::nullptrFlag = false;
+    ASSERT_EQ(storageManager, nullptr);
 }
 
 /*
  * Feature: URIPermissionManagerService
- * Function: ConnectBundleManager
+ * Function: ConnectManager
  * SubFunction: NA
- * FunctionPoints: URIPermissionManagerService ConnectBundleManager
+ * FunctionPoints: URIPermissionManagerService ConnectManager
  */
-HWTEST_F(UriPermissionImplTest, Upms_ConnectBundleManager_002, TestSize.Level1)
+HWTEST_F(UriPermissionImplTest, Upms_ConnectManager_002, TestSize.Level1)
 {
-    auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    auto upms = std::make_unique<UriPermissionManagerStubImpl>();
     ASSERT_NE(upms, nullptr);
-    (void)upms->ConnectBundleManager();
-}
-
-/*
- * Feature: URIPermissionManagerService
- * Function: ConnectStorageManager
- * SubFunction: NA
- * FunctionPoints: URIPermissionManagerService ConnectStorageManager
- */
-HWTEST_F(UriPermissionImplTest, Upms_ConnectStorageManager_001, TestSize.Level1)
-{
-    auto upms = std::make_shared<UriPermissionManagerStubImpl>();
-    ASSERT_NE(upms, nullptr);
-    SystemAbilityManagerClient::nullptrFlag = true;
-    (void)upms->ConnectStorageManager();
-    SystemAbilityManagerClient::nullptrFlag = false;
-}
-
-/*
- * Feature: URIPermissionManagerService
- * Function: ConnectStorageManager
- * SubFunction: NA
- * FunctionPoints: URIPermissionManagerService ConnectStorageManager
- */
-HWTEST_F(UriPermissionImplTest, Upms_ConnectStorageManager_002, TestSize.Level1)
-{
-    auto upms = std::make_shared<UriPermissionManagerStubImpl>();
-    ASSERT_NE(upms, nullptr);
-    (void)upms->ConnectStorageManager();
+    MockSystemAbilityManager::isNullptr = true;
+    sptr<StorageManager::IStorageManager> storageManager = nullptr;
+    upms->ConnectManager(storageManager, STORAGE_MANAGER_MANAGER_ID);
+    MockSystemAbilityManager::isNullptr = false;
+    ASSERT_EQ(storageManager, nullptr);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

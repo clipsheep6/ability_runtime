@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1147,6 +1147,18 @@ HWTEST_F(AppSchedulerTest, AppScheduler_SetCurrentUserId_001, TestSize.Level1)
     DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = std::make_unique<AppExecFwk::AppMgrClient>();
     ASSERT_NE(DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_, nullptr);
     DelayedSingleton<AppScheduler>::GetInstance()->SetCurrentUserId(userId);
+}
+
+/**
+ * @tc.name: AppScheduler_NotifyFault_001
+ * @tc.desc: Verify that the NotifyFault interface calls normally
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerTest, AppScheduler_NotifyFault_001, TestSize.Level1)
+{
+    AppExecFwk::FaultData faultData;
+    int res = DelayedSingleton<AppScheduler>::GetInstance()->NotifyFault(faultData);
+    EXPECT_EQ(res, INNER_ERR);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

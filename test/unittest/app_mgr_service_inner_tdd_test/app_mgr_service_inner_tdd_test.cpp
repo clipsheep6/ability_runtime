@@ -409,5 +409,55 @@ HWTEST_F(AppMgrServiceInnerTest, UpDateStartupType_003, TestSize.Level1)
     EXPECT_EQ(expectedVal, extensionType);
     HILOG_INFO("UpDateStartupType_003 end");
 }
+
+/**
+ * @tc.name: NotifyAppFault_001
+ * @tc.desc: Verify that the NotifyAppFault interface calls normally
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, NotifyAppFault_001, TestSize.Level1)
+{
+    HILOG_INFO("NotifyAppFault_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    FaultData faultData;
+    EXPECT_EQ(ERR_INVALID_VALUE, appMgrServiceInner->NotifyAppFault(faultData));
+    HILOG_INFO("NotifyAppFault_001 end");
+}
+
+/**
+ * @tc.name: NotifyAppFaultBySA_001
+ * @tc.desc: Verify that the NotifyAppFaultBySA interface calls normally
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, NotifyAppFaultBySA_001, TestSize.Level1)
+{
+    HILOG_INFO("NotifyAppFaultBySA_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    AppFaultDataBySA faultData;
+    appMgrServiceInner->appRunningManager_ = nullptr;
+    EXPECT_EQ(ERR_INVALID_VALUE, appMgrServiceInner->NotifyAppFaultBySA(faultData));
+    HILOG_INFO("NotifyAppFaultBySA_001 end");
+}
+
+/**
+ * @tc.name: FaultTypeToString_001
+ * @tc.desc: Verify that the FaultTypeToString interface calls normally
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, FaultTypeToString_001, TestSize.Level1)
+{
+    HILOG_INFO("FaultTypeToString_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    EXPECT_EQ("CPP_CRASH", appMgrServiceInner->FaultTypeToString(AppExecFwk::FaultDataType::CPP_CRASH));
+    EXPECT_EQ("JS_ERROR", appMgrServiceInner->FaultTypeToString(AppExecFwk::FaultDataType::JS_ERROR));
+    EXPECT_EQ("APP_FREEZE", appMgrServiceInner->FaultTypeToString(AppExecFwk::FaultDataType::APP_FREEZE));
+    EXPECT_EQ("PERFORMANCE_CONTROL",
+        appMgrServiceInner->FaultTypeToString(AppExecFwk::FaultDataType::PERFORMANCE_CONTROL));
+    EXPECT_EQ("RESOURCE_CONTROL", appMgrServiceInner->FaultTypeToString(AppExecFwk::FaultDataType::RESOURCE_CONTROL));
+    HILOG_INFO("FaultTypeToString_001 end");
+}
 } // namespace AppExecFwk
 } // namespace OHOS

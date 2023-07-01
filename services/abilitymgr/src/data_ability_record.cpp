@@ -228,16 +228,6 @@ int DataAbilityRecord::AddClient(const sptr<IRemoteObject> &client, bool tryBind
     clientInfo.tryBind = tryBind;
     clientInfo.isNotHap = isNotHap;
     clientInfo.clientPid = IPCSkeleton::GetCallingPid();
-    if (!isNotHap) {
-        auto clientAbilityRecord = Token::GetAbilityRecordByToken(client);
-        CHECK_POINTER_AND_RETURN(clientAbilityRecord, ERR_UNKNOWN_OBJECT);
-        appScheduler->AbilityBehaviorAnalysis(ability_->GetToken(), clientAbilityRecord->GetToken(), 0, 0, 1);
-        HILOG_INFO("Ability '%{public}s|%{public}s'.", clientAbilityRecord->GetApplicationInfo().bundleName.c_str(),
-            clientAbilityRecord->GetAbilityInfo().name.c_str());
-    }
-
-    HILOG_INFO("Data ability '%{public}s|%{public}s'.", ability_->GetApplicationInfo().bundleName.c_str(),
-        ability_->GetAbilityInfo().name.c_str());
 
     return ERR_OK;
 }

@@ -36,7 +36,7 @@ public:
      * @return Returns true if the authorization is successful, otherwise returns false.
      */
     virtual int GrantUriPermission(const Uri &uri, unsigned int flag,
-        const std::string targetBundleName, int autoremove) = 0;
+        const std::string targetBundleName, int autoremove, int32_t appIndex = 0) = 0;
 
     /**
      * @brief Clear user's uri authorization record with autoremove flag.

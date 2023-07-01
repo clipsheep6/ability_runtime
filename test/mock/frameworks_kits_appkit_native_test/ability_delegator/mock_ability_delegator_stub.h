@@ -154,6 +154,7 @@ public:
     int GetTopAbility(sptr<IRemoteObject>& token) override;
     int DelegatorDoAbilityForeground(const sptr<IRemoteObject>& token) override;
     int DelegatorDoAbilityBackground(const sptr<IRemoteObject>& token) override;
+    int32_t ReportDrawnCompleted(const sptr<IRemoteObject>& callerToken) override;
     int DoAbilityForeground(const sptr<IRemoteObject>& token, uint32_t flag);
     int DoAbilityBackground(const sptr<IRemoteObject>& token, uint32_t flag);
     int32_t GetMissionIdByToken(const sptr<IRemoteObject>& token);
@@ -312,6 +313,7 @@ public:
     AppExecFwk::ElementName GetTopAbility() override;
     int DelegatorDoAbilityForeground(const sptr<IRemoteObject>& token) override;
     int DelegatorDoAbilityBackground(const sptr<IRemoteObject>& token) override;
+    int32_t ReportDrawnCompleted(const sptr<IRemoteObject>& callerToken) override;
     int DoAbilityForeground(const sptr<IRemoteObject>& token, uint32_t flag);
     int DoAbilityBackground(const sptr<IRemoteObject>& token, uint32_t flag);
     int32_t GetMissionIdByToken(const sptr<IRemoteObject>& token);
