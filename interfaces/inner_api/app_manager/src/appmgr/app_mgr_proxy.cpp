@@ -54,7 +54,7 @@ void AppMgrProxy::AttachApplication(const sptr<IRemoteObject> &obj)
         return;
     }
     int32_t ret =
-        remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::APP_ATTACH_APPLICATION), data, reply, option);
+        remote->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::APP_ATTACH_APPLICATION), data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
@@ -75,7 +75,7 @@ void AppMgrProxy::ApplicationForegrounded(const int32_t recordId)
         return;
     }
     int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IAppMgr::Message::APP_APPLICATION_FOREGROUNDED), data, reply, option);
+        static_cast<uint32_t>(AppMgrInterfaceCode::APP_APPLICATION_FOREGROUNDED), data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
@@ -96,7 +96,7 @@ void AppMgrProxy::ApplicationBackgrounded(const int32_t recordId)
         return;
     }
     int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IAppMgr::Message::APP_APPLICATION_BACKGROUNDED), data, reply, option);
+        static_cast<uint32_t>(AppMgrInterfaceCode::APP_APPLICATION_BACKGROUNDED), data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
@@ -117,7 +117,7 @@ void AppMgrProxy::ApplicationTerminated(const int32_t recordId)
         return;
     }
     int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IAppMgr::Message::APP_APPLICATION_TERMINATED), data, reply, option);
+        static_cast<uint32_t>(AppMgrInterfaceCode::APP_APPLICATION_TERMINATED), data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
@@ -139,7 +139,7 @@ int32_t AppMgrProxy::CheckPermission(const int32_t recordId, const std::string &
         return ERR_PERMISSION_DENIED;
     }
     int32_t ret =
-        remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::APP_CHECK_PERMISSION), data, reply, option);
+        remote->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::APP_CHECK_PERMISSION), data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("SendRequest is failed, error code: %{public}d", ret);
         return ERR_PERMISSION_DENIED;
@@ -165,7 +165,7 @@ void AppMgrProxy::AbilityCleaned(const sptr<IRemoteObject> &token)
         return;
     }
     int32_t ret =
-        remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::APP_ABILITY_CLEANED), data, reply, option);
+        remote->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::APP_ABILITY_CLEANED), data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
@@ -178,7 +178,7 @@ sptr<IAmsMgr> AppMgrProxy::GetAmsMgr()
     if (!WriteInterfaceToken(data)) {
         return nullptr;
     }
-    if (!SendTransactCmd(IAppMgr::Message::APP_GET_MGR_INSTANCE, data, reply)) {
+    if (!SendTransactCmd(AppMgrInterfaceCode::APP_GET_MGR_INSTANCE, data, reply)) {
         return nullptr;
     }
     sptr<IRemoteObject> object = reply.ReadRemoteObject();
@@ -208,7 +208,7 @@ int32_t AppMgrProxy::ClearUpApplicationData(const std::string &bundleName)
         return ERR_FLATTEN_OBJECT;
     }
     int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IAppMgr::Message::APP_CLEAR_UP_APPLICATION_DATA), data, reply, option);
+        static_cast<uint32_t>(AppMgrInterfaceCode::APP_CLEAR_UP_APPLICATION_DATA), data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
         return ret;
@@ -229,7 +229,7 @@ int32_t AppMgrProxy::GetAllRunningProcesses(std::vector<RunningProcessInfo> &inf
         HILOG_ERROR("Remote() is NULL");
         return ERR_NULL_OBJECT;
     }
-    if (!SendTransactCmd(IAppMgr::Message::APP_GET_ALL_RUNNING_PROCESSES, data, reply)) {
+    if (!SendTransactCmd(AppMgrInterfaceCode::APP_GET_ALL_RUNNING_PROCESSES, data, reply)) {
         return ERR_NULL_OBJECT;
     }
     auto error = GetParcelableInfos<RunningProcessInfo>(reply, info);
@@ -254,7 +254,7 @@ int32_t AppMgrProxy::GetAllRenderProcesses(std::vector<RenderProcessInfo> &info)
         HILOG_ERROR("Remote() is NULL");
         return ERR_NULL_OBJECT;
     }
-    if (!SendTransactCmd(IAppMgr::Message::APP_GET_ALL_RENDER_PROCESSES, data, reply)) {
+    if (!SendTransactCmd(AppMgrInterfaceCode::APP_GET_ALL_RENDER_PROCESSES, data, reply)) {
         return ERR_NULL_OBJECT;
     }
     auto error = GetParcelableInfos<RenderProcessInfo>(reply, info);
@@ -283,7 +283,7 @@ int32_t AppMgrProxy::JudgeSandboxByPid(pid_t pid, bool &isSandbox)
         HILOG_ERROR("Remote() is NULL");
         return ERR_NULL_OBJECT;
     }
-    int32_t ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::JUDGE_SANDBOX_BY_PID),
+    int32_t ret = remote->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::JUDGE_SANDBOX_BY_PID),
         data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("SendRequest is failed, error code: %{public}d", ret);
@@ -308,7 +308,7 @@ int32_t AppMgrProxy::GetProcessRunningInfosByUserId(std::vector<RunningProcessIn
         HILOG_ERROR("Remote() is NULL");
         return ERR_NULL_OBJECT;
     }
-    if (!SendTransactCmd(IAppMgr::Message::APP_GET_RUNNING_PROCESSES_BY_USER_ID, data, reply)) {
+    if (!SendTransactCmd(AppMgrInterfaceCode::APP_GET_RUNNING_PROCESSES_BY_USER_ID, data, reply)) {
         return ERR_NULL_OBJECT;
     }
     auto error = GetParcelableInfos<RunningProcessInfo>(reply, info);
@@ -328,7 +328,7 @@ int32_t AppMgrProxy::GetProcessRunningInformation(RunningProcessInfo &info)
     if (!WriteInterfaceToken(data)) {
         return ERR_FLATTEN_OBJECT;
     }
-    if (!SendTransactCmd(IAppMgr::Message::APP_GET_PROCESS_RUNNING_INFORMATION, data, reply)) {
+    if (!SendTransactCmd(AppMgrInterfaceCode::APP_GET_PROCESS_RUNNING_INFORMATION, data, reply)) {
         return ERR_NULL_OBJECT;
     }
     std::unique_ptr<RunningProcessInfo> infoReply(reply.ReadParcelable<RunningProcessInfo>());
@@ -353,7 +353,7 @@ int32_t AppMgrProxy::NotifyMemoryLevel(int32_t level)
     }
     int32_t ret =
         remote->SendRequest(
-            static_cast<uint32_t>(IAppMgr::Message::APP_NOTIFY_MEMORY_LEVEL), data, reply, option);
+            static_cast<uint32_t>(AppMgrInterfaceCode::APP_NOTIFY_MEMORY_LEVEL), data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
@@ -379,7 +379,7 @@ int32_t AppMgrProxy::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocI
     MessageOption option(MessageOption::TF_SYNC);
     int32_t ret =
         remote->SendRequest(
-            static_cast<uint32_t>(IAppMgr::Message::DUMP_HEAP_MEMORY_PROCESS), data, reply, option);
+            static_cast<uint32_t>(AppMgrInterfaceCode::DUMP_HEAP_MEMORY_PROCESS), data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("AppMgrProxy SendRequest is failed, error code: %{public}d", ret);
         return ret;
@@ -394,7 +394,7 @@ int32_t AppMgrProxy::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocI
     return ret;
 }
 
-bool AppMgrProxy::SendTransactCmd(IAppMgr::Message code, MessageParcel &data, MessageParcel &reply)
+bool AppMgrProxy::SendTransactCmd(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply)
 {
     MessageOption option(MessageOption::TF_SYNC);
     sptr<IRemoteObject> remote = Remote();
@@ -424,7 +424,7 @@ void AppMgrProxy::AddAbilityStageDone(const int32_t recordId)
         return;
     }
 
-    if (!SendTransactCmd(IAppMgr::Message::APP_ADD_ABILITY_STAGE_INFO_DONE, data, reply)) {
+    if (!SendTransactCmd(AppMgrInterfaceCode::APP_ADD_ABILITY_STAGE_INFO_DONE, data, reply)) {
         HILOG_ERROR("SendTransactCmd failed");
         return;
     }
@@ -452,7 +452,7 @@ void AppMgrProxy::StartupResidentProcess(const std::vector<AppExecFwk::BundleInf
         }
     }
 
-    if (!SendTransactCmd(IAppMgr::Message::STARTUP_RESIDENT_PROCESS, data, reply)) {
+    if (!SendTransactCmd(AppMgrInterfaceCode::STARTUP_RESIDENT_PROCESS, data, reply)) {
         HILOG_ERROR("SendTransactCmd failed");
         return;
     }
@@ -502,7 +502,7 @@ int AppMgrProxy::RegisterApplicationStateObserver(
         return ERR_FLATTEN_OBJECT;
     }
 
-    auto error = Remote()->SendRequest(static_cast<uint32_t>(IAppMgr::Message::REGISTER_APPLICATION_STATE_OBSERVER),
+    auto error = Remote()->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_APPLICATION_STATE_OBSERVER),
         data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
@@ -530,7 +530,8 @@ int AppMgrProxy::UnregisterApplicationStateObserver(
         return ERR_FLATTEN_OBJECT;
     }
 
-    auto error = Remote()->SendRequest(static_cast<uint32_t>(IAppMgr::Message::UNREGISTER_APPLICATION_STATE_OBSERVER),
+    auto error = Remote()->SendRequest(
+        static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_APPLICATION_STATE_OBSERVER),
         data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
@@ -547,7 +548,7 @@ int AppMgrProxy::GetForegroundApplications(std::vector<AppStateData> &list)
     if (!WriteInterfaceToken(data)) {
         return ERR_FLATTEN_OBJECT;
     }
-    auto error = Remote()->SendRequest(static_cast<uint32_t>(IAppMgr::Message::GET_FOREGROUND_APPLICATIONS),
+    auto error = Remote()->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::GET_FOREGROUND_APPLICATIONS),
         data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("GetForegroundApplications fail, error: %{public}d", error);
@@ -596,7 +597,8 @@ int AppMgrProxy::StartUserTestProcess(
         return ERR_FLATTEN_OBJECT;
     }
     int32_t ret =
-        Remote()->SendRequest(static_cast<uint32_t>(IAppMgr::Message::START_USER_TEST_PROCESS), data, reply, option);
+        Remote()->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::START_USER_TEST_PROCESS),
+            data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
         return ret;
@@ -626,7 +628,7 @@ int AppMgrProxy::FinishUserTest(const std::string &msg, const int64_t &resultCod
         return ERR_FLATTEN_OBJECT;
     }
     int32_t ret =
-        Remote()->SendRequest(static_cast<uint32_t>(IAppMgr::Message::FINISH_USER_TEST), data, reply, option);
+        Remote()->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::FINISH_USER_TEST), data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
         return ret;
@@ -648,7 +650,7 @@ void AppMgrProxy::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Wa
         return;
     }
 
-    if (!SendTransactCmd(IAppMgr::Message::SCHEDULE_ACCEPT_WANT_DONE, data, reply)) {
+    if (!SendTransactCmd(AppMgrInterfaceCode::SCHEDULE_ACCEPT_WANT_DONE, data, reply)) {
         HILOG_ERROR("SendTransactCmd failed");
         return;
     }
@@ -664,7 +666,7 @@ int AppMgrProxy::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IR
         return ERR_FLATTEN_OBJECT;
     }
     data.WriteInt32(pid);
-    if (!SendTransactCmd(IAppMgr::Message::APP_GET_ABILITY_RECORDS_BY_PROCESS_ID, data, reply)) {
+    if (!SendTransactCmd(AppMgrInterfaceCode::APP_GET_ABILITY_RECORDS_BY_PROCESS_ID, data, reply)) {
         return ERR_NULL_OBJECT;
     }
     int32_t infoSize = reply.ReadInt32();
@@ -695,7 +697,7 @@ int AppMgrProxy::PreStartNWebSpawnProcess()
         HILOG_ERROR("Remote() is NULL");
         return ERR_FLATTEN_OBJECT;
     }
-    int32_t ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::PRE_START_NWEBSPAWN_PROCESS),
+    int32_t ret = remote->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::PRE_START_NWEBSPAWN_PROCESS),
         data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("PreStartNWebSpawnProcess failed, result: %{public}d", ret);
@@ -743,7 +745,7 @@ int AppMgrProxy::StartRenderProcess(const std::string &renderParam,
     }
 
     int32_t ret = Remote()->SendRequest(
-        static_cast<uint32_t>(IAppMgr::Message::START_RENDER_PROCESS), data,
+        static_cast<uint32_t>(AppMgrInterfaceCode::START_RENDER_PROCESS), data,
         reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN(
@@ -780,7 +782,7 @@ void AppMgrProxy::AttachRenderProcess(const sptr<IRemoteObject> &renderScheduler
         return;
     }
 
-    if (!SendTransactCmd(IAppMgr::Message::ATTACH_RENDER_PROCESS, data, reply)) {
+    if (!SendTransactCmd(AppMgrInterfaceCode::ATTACH_RENDER_PROCESS, data, reply)) {
         HILOG_ERROR("SendTransactCmd ATTACH_RENDER_PROCESS failed");
         return;
     }
@@ -802,7 +804,7 @@ int AppMgrProxy::GetRenderProcessTerminationStatus(pid_t renderPid, int &status)
     }
 
     int32_t ret = Remote()->SendRequest(
-        static_cast<uint32_t>(IAppMgr::Message::GET_RENDER_PROCESS_TERMINATION_STATUS), data, reply, option);
+        static_cast<uint32_t>(AppMgrInterfaceCode::GET_RENDER_PROCESS_TERMINATION_STATUS), data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("GetRenderProcessTerminationStatus SendRequest is failed, error code: %{public}d", ret);
         return ret;
@@ -836,7 +838,7 @@ int32_t AppMgrProxy::UpdateConfiguration(const Configuration &config)
         return ERR_INVALID_DATA;
     }
     int32_t ret =
-        remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::UPDATE_CONFIGURATION), data, reply, option);
+        remote->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::UPDATE_CONFIGURATION), data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
         return ret;
@@ -860,7 +862,7 @@ int32_t AppMgrProxy::GetConfiguration(Configuration &config)
         return ERR_INVALID_DATA;
     }
     int32_t ret =
-        remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::GET_CONFIGURATION), data, reply, option);
+        remote->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::GET_CONFIGURATION), data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
         return ret;
@@ -894,7 +896,7 @@ int32_t AppMgrProxy::RegisterConfigurationObserver(const sptr<IConfigurationObse
         return ERR_FLATTEN_OBJECT;
     }
 
-    auto error = Remote()->SendRequest(static_cast<uint32_t>(IAppMgr::Message::REGISTER_CONFIGURATION_OBSERVER),
+    auto error = Remote()->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_CONFIGURATION_OBSERVER),
         data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
@@ -918,7 +920,7 @@ int32_t AppMgrProxy::UnregisterConfigurationObserver(const sptr<IConfigurationOb
         return ERR_FLATTEN_OBJECT;
     }
 
-    auto error = Remote()->SendRequest(static_cast<uint32_t>(IAppMgr::Message::UNREGISTER_CONFIGURATION_OBSERVER),
+    auto error = Remote()->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_CONFIGURATION_OBSERVER),
         data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
@@ -939,7 +941,7 @@ int AppMgrProxy::BlockAppService()
     }
 
     int32_t ret =
-        Remote()->SendRequest(static_cast<uint32_t>(IAppMgr::Message::BLOCK_APP_SERVICE), data, reply, option);
+        Remote()->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::BLOCK_APP_SERVICE), data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
         return ret;
@@ -971,7 +973,7 @@ bool AppMgrProxy::GetAppRunningStateByBundleName(const std::string &bundleName)
 
     MessageParcel reply;
     MessageOption option;
-    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::GET_APP_RUNNING_STATE),
+    auto ret = remote->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::GET_APP_RUNNING_STATE),
         data, reply, option);
     if (ret != 0) {
         HILOG_WARN("Send request failed with error code %{public}d.", ret);
@@ -1009,7 +1011,7 @@ int32_t AppMgrProxy::NotifyLoadRepairPatch(const std::string &bundleName, const 
 
     MessageParcel reply;
     MessageOption option;
-    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::NOTIFY_LOAD_REPAIR_PATCH),
+    auto ret = remote->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_LOAD_REPAIR_PATCH),
         data, reply, option);
     if (ret != 0) {
         HILOG_WARN("NotifyLoadRepairPatch, Send request failed with error code %{public}d.", ret);
@@ -1047,7 +1049,7 @@ int32_t AppMgrProxy::NotifyHotReloadPage(const std::string &bundleName, const sp
 
     MessageParcel reply;
     MessageOption option;
-    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::NOTIFY_HOT_RELOAD_PAGE),
+    auto ret = remote->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_HOT_RELOAD_PAGE),
         data, reply, option);
     if (ret != 0) {
         HILOG_WARN("Send request failed with error code %{public}d.", ret);
@@ -1086,7 +1088,7 @@ int32_t AppMgrProxy::SetContinuousTaskProcess(int32_t pid, bool isContinuousTask
         return ERR_NULL_OBJECT;
     }
 
-    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::SET_CONTINUOUSTASK_PROCESS),
+    auto ret = remote->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::SET_CONTINUOUSTASK_PROCESS),
         data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("Send request failed with error code %{public}d.", ret);
@@ -1125,7 +1127,7 @@ int32_t AppMgrProxy::NotifyUnLoadRepairPatch(const std::string &bundleName, cons
 
     MessageParcel reply;
     MessageOption option;
-    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::NOTIFY_UNLOAD_REPAIR_PATCH),
+    auto ret = remote->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_UNLOAD_REPAIR_PATCH),
         data, reply, option);
     if (ret != 0) {
         HILOG_WARN("Notify unload patch, Send request failed with error code %{public}d.", ret);
@@ -1156,7 +1158,7 @@ bool AppMgrProxy::IsSharedBundleRunning(const std::string &bundleName, uint32_t 
 
     MessageParcel reply;
     MessageOption option;
-    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::IS_SHARED_BUNDLE_RUNNING),
+    auto ret = remote->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::IS_SHARED_BUNDLE_RUNNING),
         data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
@@ -1185,7 +1187,7 @@ int32_t AppMgrProxy::StartNativeProcessForDebugger(const AAFwk::Want &want)
 
     MessageParcel reply;
     MessageOption option;
-    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::START_NATIVE_PROCESS_FOR_DEBUGGER),
+    auto ret = remote->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::START_NATIVE_PROCESS_FOR_DEBUGGER),
         data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
@@ -1218,7 +1220,7 @@ int32_t AppMgrProxy::GetBundleNameByPid(const int pid, std::string &bundleName, 
     }
 
     auto ret =
-        remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::GET_BUNDLE_NAME_BY_PID), data, reply, option);
+        remote->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::GET_BUNDLE_NAME_BY_PID), data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("Send request failed with error code %{public}d.", ret);
         return ret;
@@ -1251,7 +1253,7 @@ int32_t AppMgrProxy::NotifyAppFault(const FaultData &faultData)
 
     MessageParcel reply;
     MessageOption option;
-    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::NOTIFY_APP_FAULT),
+    auto ret = remote->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_APP_FAULT),
         data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("Send request failed with error code %{public}d.", ret);
@@ -1284,7 +1286,7 @@ int32_t AppMgrProxy::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
 
     MessageParcel reply;
     MessageOption option;
-    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::NOTIFY_APP_FAULT_BY_SA),
+    auto ret = remote->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_APP_FAULT_BY_SA),
         data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("Send request failed with error code %{public}d.", ret);

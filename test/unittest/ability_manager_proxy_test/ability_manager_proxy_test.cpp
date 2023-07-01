@@ -83,7 +83,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_DumpSysState_0100, TestSiz
     bool isUserID = true;
 
     proxy_->DumpSysState(args, info, isClient, isUserID, USER_ID);
-    EXPECT_EQ(IAbilityManager::DUMPSYS_STATE, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::DUMPSYS_STATE, mock_->code_);
 
     HILOG_INFO("AbilityManagerProxy_DumpSysState_0100 end");
 }
@@ -104,7 +104,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_001, TestSize.Level1)
     const Want want;
     auto res = proxy_->StartAbility(want, 9);
 
-    EXPECT_EQ(IAbilityManager::START_ABILITY, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::START_ABILITY, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -124,7 +124,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_002, TestSize.Level1)
     const Want want;
     auto res = proxy_->StartAbility(want, 9);
 
-    EXPECT_EQ(IAbilityManager::START_ABILITY, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::START_ABILITY, mock_->code_);
     EXPECT_NE(res, NO_ERROR);
 }
 
@@ -145,7 +145,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_003, TestSize.Level1)
     OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     auto res = proxy_->TerminateAbility(token, -1, &want);
 
-    EXPECT_EQ(IAbilityManager::TERMINATE_ABILITY, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::TERMINATE_ABILITY, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -166,7 +166,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_004, TestSize.Level1)
     OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     auto res = proxy_->TerminateAbility(token, -1, &want);
 
-    EXPECT_EQ(IAbilityManager::TERMINATE_ABILITY, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::TERMINATE_ABILITY, mock_->code_);
     EXPECT_NE(res, NO_ERROR);
 }
 
@@ -186,7 +186,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_SendResultToAbility_001, T
     Want want;
     int res1 = proxy_->SendResultToAbility(-1, -1, want);
     EXPECT_EQ(res1, NO_ERROR);
-    EXPECT_EQ(IAbilityManager::SEND_RESULT_TO_ABILITY, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::SEND_RESULT_TO_ABILITY, mock_->code_);
 }
 
 /*
@@ -205,7 +205,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_SendResult_002, TestSize.L
     Want want;
     int res = proxy_->SendResultToAbility(-1, -1, want);
 
-    EXPECT_EQ(IAbilityManager::SEND_RESULT_TO_ABILITY, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::SEND_RESULT_TO_ABILITY, mock_->code_);
     EXPECT_NE(res, NO_ERROR);
 }
 
@@ -231,7 +231,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_005, TestSize.Level1)
     sptr<IAbilityConnection> connect = new AbilityConnectCallback();
     int res1 = proxy_->ConnectAbility(want, connect, callerToken);
     EXPECT_EQ(res1, NO_ERROR);
-    EXPECT_EQ(IAbilityManager::CONNECT_ABILITY_WITH_TYPE, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::CONNECT_ABILITY_WITH_TYPE, mock_->code_);
 }
 
 /*
@@ -252,7 +252,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_006, TestSize.Level1)
     sptr<IAbilityConnection> connect = new AbilityConnectCallback();
     int res = proxy_->ConnectAbility(want, connect, callerToken);
 
-    EXPECT_EQ(IAbilityManager::CONNECT_ABILITY_WITH_TYPE, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::CONNECT_ABILITY_WITH_TYPE, mock_->code_);
     EXPECT_NE(res, NO_ERROR);
 }
 
@@ -272,7 +272,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_007, TestSize.Level1)
     sptr<IAbilityConnection> connect = new AbilityConnectCallback();
     int res = proxy_->DisconnectAbility(connect);
 
-    EXPECT_EQ(IAbilityManager::DISCONNECT_ABILITY, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::DISCONNECT_ABILITY, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -292,7 +292,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_008, TestSize.Level1)
     sptr<IAbilityConnection> connect = new AbilityConnectCallback();
     int res = proxy_->DisconnectAbility(connect);
 
-    EXPECT_EQ(IAbilityManager::DISCONNECT_ABILITY, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::DISCONNECT_ABILITY, mock_->code_);
     EXPECT_NE(res, NO_ERROR);
 }
 
@@ -313,7 +313,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_009, TestSize.Level1)
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     auto res = proxy_->AttachAbilityThread(scheduler, token);
 
-    EXPECT_EQ(IAbilityManager::ATTACH_ABILITY_THREAD, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::ATTACH_ABILITY_THREAD, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -334,7 +334,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_010, TestSize.Level1)
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     auto res = proxy_->AttachAbilityThread(scheduler, token);
 
-    EXPECT_EQ(IAbilityManager::ATTACH_ABILITY_THREAD, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::ATTACH_ABILITY_THREAD, mock_->code_);
     EXPECT_NE(res, NO_ERROR);
 
     sptr<IAbilityScheduler> nullScheduler = nullptr;
@@ -359,7 +359,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_0011, TestSize.Level1)
     PacMap saveData;
     auto res = proxy_->AbilityTransitionDone(token, 1, saveData);
 
-    EXPECT_EQ(IAbilityManager::ABILITY_TRANSITION_DONE, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::ABILITY_TRANSITION_DONE, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -380,7 +380,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_012, TestSize.Level1)
     PacMap saveData;
     auto res = proxy_->AbilityTransitionDone(token, 1, saveData);
 
-    EXPECT_EQ(IAbilityManager::ABILITY_TRANSITION_DONE, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::ABILITY_TRANSITION_DONE, mock_->code_);
     EXPECT_NE(res, NO_ERROR);
 }
 
@@ -401,7 +401,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_0013, TestSize.Level1)
     sptr<IRemoteObject> remoteObject = nullptr;
     auto res = proxy_->ScheduleConnectAbilityDone(token, remoteObject);
 
-    EXPECT_EQ(IAbilityManager::CONNECT_ABILITY_DONE, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::CONNECT_ABILITY_DONE, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -422,7 +422,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_014, TestSize.Level1)
     sptr<IRemoteObject> remoteObject = nullptr;
     auto res = proxy_->ScheduleConnectAbilityDone(token, remoteObject);
 
-    EXPECT_EQ(IAbilityManager::CONNECT_ABILITY_DONE, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::CONNECT_ABILITY_DONE, mock_->code_);
     EXPECT_NE(res, NO_ERROR);
 }
 
@@ -458,7 +458,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_0017, TestSize.Level1)
     std::vector<std::string> info;
     proxy_->DumpState(args, info);
 
-    EXPECT_EQ(IAbilityManager::DUMP_STATE, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::DUMP_STATE, mock_->code_);
 }
 
 /*
@@ -477,7 +477,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_0018, TestSize.Level1)
     OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     auto res = proxy_->TerminateAbilityResult(token, 1);
 
-    EXPECT_EQ(IAbilityManager::TERMINATE_ABILITY_RESULT, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::TERMINATE_ABILITY_RESULT, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -497,7 +497,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_019, TestSize.Level1)
     OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     auto res = proxy_->TerminateAbilityResult(token, 1);
 
-    EXPECT_EQ(IAbilityManager::TERMINATE_ABILITY_RESULT, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::TERMINATE_ABILITY_RESULT, mock_->code_);
     EXPECT_NE(res, NO_ERROR);
 }
 
@@ -517,7 +517,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_026, TestSize.Level1)
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     auto res = proxy_->ScheduleCommandAbilityDone(token);
 
-    EXPECT_EQ(IAbilityManager::COMMAND_ABILITY_DONE, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::COMMAND_ABILITY_DONE, mock_->code_);
     EXPECT_NE(res, NO_ERROR);
 }
 
@@ -537,7 +537,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_027, TestSize.Level1)
     const Want want;
     auto res = proxy_->StopServiceAbility(want, -1, nullptr);
 
-    EXPECT_EQ(IAbilityManager::STOP_SERVICE_ABILITY, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::STOP_SERVICE_ABILITY, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -556,7 +556,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_028, TestSize.Level0)
     sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     int res = proxy_->StartContinuation(want, abilityToken, 0);
     EXPECT_EQ(res, NO_ERROR);
-    EXPECT_EQ(IAbilityManager::START_CONTINUATION, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::START_CONTINUATION, mock_->code_);
 }
 
 /**
@@ -574,7 +574,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_029, TestSize.Level0)
     sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     int res = proxy_->StartContinuation(want, abilityToken, 0);
 
-    EXPECT_EQ(IAbilityManager::START_CONTINUATION, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::START_CONTINUATION, mock_->code_);
     EXPECT_NE(res, NO_ERROR);
 }
 
@@ -592,7 +592,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_030, TestSize.Level0)
     int32_t result = 0;
     int res = proxy_->NotifyContinuationResult(0, result);
     EXPECT_EQ(res, NO_ERROR);
-    EXPECT_EQ(IAbilityManager::NOTIFY_CONTINUATION_RESULT, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::NOTIFY_CONTINUATION_RESULT, mock_->code_);
 }
 
 /**
@@ -609,7 +609,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_031, TestSize.Level0)
     int32_t result = 0;
     int res = proxy_->NotifyContinuationResult(0, result);
 
-    EXPECT_EQ(IAbilityManager::NOTIFY_CONTINUATION_RESULT, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::NOTIFY_CONTINUATION_RESULT, mock_->code_);
     EXPECT_NE(res, NO_ERROR);
 }
 
@@ -630,7 +630,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_032, TestSize.Level1)
     sptr<SessionInfo> session = new (std::nothrow) SessionInfo();
     auto res = proxy_->ScheduleCommandAbilityWindowDone(token, session, WIN_CMD_FOREGROUND, ABILITY_CMD_FOREGROUND);
 
-    EXPECT_EQ(IAbilityManager::COMMAND_ABILITY_WINDOW_DONE, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::COMMAND_ABILITY_WINDOW_DONE, mock_->code_);
     EXPECT_NE(res, NO_ERROR);
 }
 
@@ -803,7 +803,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbilityByCall_002, Te
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     EXPECT_EQ(proxy_->StartAbilityByCall(want, connect, callerToken), ERR_OK);
-    EXPECT_EQ(IAbilityManager::START_CALL_ABILITY, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::START_CALL_ABILITY, mock_->code_);
 }
 
 /*
@@ -837,7 +837,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ReleaseCall_002, TestSize.
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     EXPECT_EQ(proxy_->ReleaseCall(connect, element), ERR_OK);
-    EXPECT_EQ(IAbilityManager::RELEASE_CALL_ABILITY, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::RELEASE_CALL_ABILITY, mock_->code_);
 }
 
 /*
@@ -854,7 +854,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetTopAbility_001, TestSiz
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     proxy_->GetTopAbility();
-    EXPECT_EQ(IAbilityManager::GET_TOP_ABILITY, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::GET_TOP_ABILITY, mock_->code_);
 }
 
 /*
@@ -872,7 +872,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetTopAbility_002, TestSiz
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     sptr<IRemoteObject> token = nullptr;
     proxy_->GetTopAbility(token);
-    EXPECT_EQ(IAbilityManager::GET_TOP_ABILITY_TOKEN, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::GET_TOP_ABILITY_TOKEN, mock_->code_);
 }
 
 /*
@@ -891,7 +891,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartExtensionAbility_001,
     Want want;
     sptr<IRemoteObject> callerToken = nullptr;
     auto res = proxy_->StartExtensionAbility(want, callerToken);
-    EXPECT_EQ(IAbilityManager::START_EXTENSION_ABILITY, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::START_EXTENSION_ABILITY, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -911,7 +911,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StopExtensionAbility_001, 
     Want want;
     sptr<IRemoteObject> callerToken = nullptr;
     auto res = proxy_->StopExtensionAbility(want, callerToken);
-    EXPECT_EQ(IAbilityManager::STOP_EXTENSION_ABILITY, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::STOP_EXTENSION_ABILITY, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -930,7 +930,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_TerminateAbilityByCaller_0
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     sptr<IRemoteObject> callerToken = nullptr;
     auto res = proxy_->TerminateAbilityByCaller(callerToken, -1);
-    EXPECT_EQ(IAbilityManager::TERMINATE_ABILITY_BY_CALLER, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::TERMINATE_ABILITY_BY_CALLER, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -949,7 +949,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_MinimizeAbility_001, TestS
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     auto res = proxy_->MinimizeAbility(token);
-    EXPECT_EQ(IAbilityManager::MINIMIZE_ABILITY, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::MINIMIZE_ABILITY, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -971,7 +971,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetMissionSnapshot_001, Te
     MissionSnapshot snapshot;
     bool isLowResolution = true;
     proxy_->GetMissionSnapshot(deviceId, missionId, snapshot, isLowResolution);
-    EXPECT_EQ(IAbilityManager::GET_MISSION_SNAPSHOT_INFO, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::GET_MISSION_SNAPSHOT_INFO, mock_->code_);
 }
 
 /*
@@ -989,7 +989,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_UpdateMissionSnapShot_001,
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     proxy_->UpdateMissionSnapShot(token);
-    EXPECT_EQ(IAbilityManager::UPDATE_MISSION_SNAPSHOT, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::UPDATE_MISSION_SNAPSHOT, mock_->code_);
 }
 
 /*
@@ -1007,7 +1007,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_EnableRecoverAbility_001, 
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     proxy_->EnableRecoverAbility(token);
-    EXPECT_EQ(IAbilityManager::ABILITY_RECOVERY_ENABLE, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::ABILITY_RECOVERY_ENABLE, mock_->code_);
 }
 
 /*
@@ -1026,7 +1026,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ScheduleRecoverAbility_001
     OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     int32_t reason = 0;
     proxy_->ScheduleRecoverAbility(token, reason);
-    EXPECT_EQ(IAbilityManager::ABILITY_RECOVERY, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::ABILITY_RECOVERY, mock_->code_);
 }
 
 /*
@@ -1044,7 +1044,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_KillProcess_001, TestSize.
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     std::string bundleName = "";
     auto res = proxy_->KillProcess(bundleName);
-    EXPECT_EQ(IAbilityManager::KILL_PROCESS, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::KILL_PROCESS, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1065,7 +1065,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ForceTimeoutForTest_001, T
     std::string abilityName = "";
     std::string state = "";
     auto res = proxy_->ForceTimeoutForTest(abilityName, state);
-    EXPECT_EQ(IAbilityManager::FORCE_TIMEOUT, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::FORCE_TIMEOUT, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 #endif
@@ -1085,7 +1085,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ClearUpApplicationData_001
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     std::string bundleName = "";
     auto res = proxy_->ClearUpApplicationData(bundleName);
-    EXPECT_EQ(IAbilityManager::CLEAR_UP_APPLICATION_DATA, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::CLEAR_UP_APPLICATION_DATA, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1105,7 +1105,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_UninstallApp_001, TestSize
     std::string bundleName = "";
     int32_t uid = 1;
     auto res = proxy_->UninstallApp(bundleName, uid);
-    EXPECT_EQ(IAbilityManager::UNINSTALL_APP, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::UNINSTALL_APP, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1125,7 +1125,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetWantSender_001, TestSiz
     WantSenderInfo wantSenderInfo;
     sptr<IRemoteObject> callerToken = nullptr;
     auto res = proxy_->GetWantSender(wantSenderInfo, callerToken);
-    EXPECT_EQ(IAbilityManager::GET_PENDING_WANT_SENDER, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::GET_PENDING_WANT_SENDER, mock_->code_);
     EXPECT_TRUE(res == nullptr);
 }
 
@@ -1266,7 +1266,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetAppMemorySize_001, Test
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     auto res = proxy_->GetAppMemorySize();
-    EXPECT_EQ(IAbilityManager::GET_APP_MEMORY_SIZE, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::GET_APP_MEMORY_SIZE, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1284,7 +1284,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsRamConstrainedDevice_001
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     auto res = proxy_->IsRamConstrainedDevice();
-    EXPECT_EQ(IAbilityManager::IS_RAM_CONSTRAINED_DEVICE, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::IS_RAM_CONSTRAINED_DEVICE, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1342,7 +1342,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ContinueAbility_001, TestS
     int32_t missionId = 1;
     uint32_t versionCode = 1;
     auto res = proxy_->ContinueAbility(deviceId, missionId, versionCode);
-    EXPECT_EQ(IAbilityManager::CONTINUE_ABILITY, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::CONTINUE_ABILITY, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1363,7 +1363,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_NotifyCompleteContinuation
     int32_t sessionId = 1;
     bool isSuccess = true;
     proxy_->NotifyCompleteContinuation(deviceId, sessionId, isSuccess);
-    EXPECT_EQ(IAbilityManager::NOTIFY_COMPLETE_CONTINUATION, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::NOTIFY_COMPLETE_CONTINUATION, mock_->code_);
 }
 
 /*
@@ -1382,7 +1382,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_NotifyContinuationResult_0
     int32_t missionId = 1;
     int32_t result = 1;
     auto res = proxy_->NotifyContinuationResult(missionId, result);
-    EXPECT_EQ(IAbilityManager::NOTIFY_CONTINUATION_RESULT, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::NOTIFY_CONTINUATION_RESULT, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1401,7 +1401,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_LockMissionForCleanup_001,
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     int32_t missionId = 1;
     auto res = proxy_->LockMissionForCleanup(missionId);
-    EXPECT_EQ(IAbilityManager::LOCK_MISSION_FOR_CLEANUP, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::LOCK_MISSION_FOR_CLEANUP, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1420,7 +1420,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_UnlockMissionForCleanup_00
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     int32_t missionId = 1;
     auto res = proxy_->UnlockMissionForCleanup(missionId);
-    EXPECT_EQ(IAbilityManager::UNLOCK_MISSION_FOR_CLEANUP, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::UNLOCK_MISSION_FOR_CLEANUP, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1469,7 +1469,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_CleanMission_001, TestSize
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     int32_t missionId = 1;
     auto res = proxy_->CleanMission(missionId);
-    EXPECT_EQ(IAbilityManager::CLEAN_MISSION, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::CLEAN_MISSION, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1487,7 +1487,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_CleanAllMissions_001, Test
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     auto res = proxy_->CleanAllMissions();
-    EXPECT_EQ(IAbilityManager::CLEAN_ALL_MISSIONS, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::CLEAN_ALL_MISSIONS, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1506,7 +1506,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_MoveMissionToFront_001, Te
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     int32_t missionId = 1;
     auto res = proxy_->MoveMissionToFront(missionId);
-    EXPECT_EQ(IAbilityManager::MOVE_MISSION_TO_FRONT, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::MOVE_MISSION_TO_FRONT, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1524,7 +1524,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_MoveMissionsToForeground_0
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     auto res = proxy_->MoveMissionsToForeground({1, 2, 3}, 1);
-    EXPECT_EQ(IAbilityManager::MOVE_MISSIONS_TO_FOREGROUND, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::MOVE_MISSIONS_TO_FOREGROUND, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1543,7 +1543,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_MoveMissionsToBackground_0
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     std::vector<int32_t> rs;
     auto res = proxy_->MoveMissionsToBackground({1, 2, 3}, rs);
-    EXPECT_EQ(IAbilityManager::MOVE_MISSIONS_TO_BACKGROUND, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::MOVE_MISSIONS_TO_BACKGROUND, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1562,7 +1562,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartUser_001, TestSize.Le
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     int userId = 1;
     auto res = proxy_->StartUser(userId);
-    EXPECT_EQ(IAbilityManager::START_USER, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::START_USER, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1582,7 +1582,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StopUser_001, TestSize.Lev
     int userId = 1;
     sptr<IStopUserCallback> callback = nullptr;
     auto res = proxy_->StopUser(userId, callback);
-    EXPECT_EQ(IAbilityManager::STOP_USER, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::STOP_USER, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1602,7 +1602,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_SetMissionLabel_001, TestS
     OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     std::string label = "";
     auto res = proxy_->SetMissionLabel(token, label);
-    EXPECT_EQ(IAbilityManager::SET_MISSION_LABEL, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::SET_MISSION_LABEL, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1636,7 +1636,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_CompleteFirstFrameDrawing_
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     proxy_->CompleteFirstFrameDrawing(abilityToken);
-    EXPECT_EQ(IAbilityManager::COMPLETEFIRSTFRAMEDRAWING, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::COMPLETEFIRSTFRAMEDRAWING, mock_->code_);
 }
 
 /*
@@ -1654,7 +1654,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetAbilityRunningInfos_001
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     std::vector<AbilityRunningInfo> info;
     auto res = proxy_->GetAbilityRunningInfos(info);
-    EXPECT_EQ(IAbilityManager::GET_ABILITY_RUNNING_INFO, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::GET_ABILITY_RUNNING_INFO, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1674,7 +1674,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetExtensionRunningInfos_0
     int upperLimit = 0;
     std::vector<ExtensionRunningInfo> info;
     auto res = proxy_->GetExtensionRunningInfos(upperLimit, info);
-    EXPECT_EQ(IAbilityManager::GET_EXTENSION_RUNNING_INFO, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::GET_EXTENSION_RUNNING_INFO, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1693,7 +1693,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetProcessRunningInfos_001
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     std::vector<AppExecFwk::RunningProcessInfo> info;
     auto res = proxy_->GetProcessRunningInfos(info);
-    EXPECT_EQ(IAbilityManager::GET_PROCESS_RUNNING_INFO, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::GET_PROCESS_RUNNING_INFO, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1714,7 +1714,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartSyncRemoteMissions_00
     bool fixConflict = true;
     int64_t tag = 0;
     auto res = proxy_->StartSyncRemoteMissions(devId, fixConflict, tag);
-    EXPECT_EQ(IAbilityManager::START_SYNC_MISSIONS, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::START_SYNC_MISSIONS, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1733,7 +1733,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StopSyncRemoteMissions_001
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     std::string devId = "";
     auto res = proxy_->StopSyncRemoteMissions(devId);
-    EXPECT_EQ(IAbilityManager::STOP_SYNC_MISSIONS, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::STOP_SYNC_MISSIONS, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1767,7 +1767,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsRunningInStabilityTest_0
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     auto res = proxy_->IsRunningInStabilityTest();
-    EXPECT_EQ(IAbilityManager::IS_USER_A_STABILITY_TEST, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::IS_USER_A_STABILITY_TEST, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1804,7 +1804,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_FinishUserTest_001, TestSi
     int64_t resultCode = 0;
     std::string bundleName = "";
     auto res = proxy_->FinishUserTest(msg, resultCode, bundleName);
-    EXPECT_EQ(IAbilityManager::FINISH_USER_TEST, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::FINISH_USER_TEST, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1885,7 +1885,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_SendANRProcessID_001, Test
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     int pid = 0;
     auto res = proxy_->SendANRProcessID(pid);
-    EXPECT_EQ(IAbilityManager::SEND_APP_NOT_RESPONSE_PROCESS_ID, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::SEND_APP_NOT_RESPONSE_PROCESS_ID, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1904,7 +1904,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetMissionIdByToken_001, T
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     auto res = proxy_->GetMissionIdByToken(token);
-    EXPECT_EQ(IAbilityManager::GET_MISSION_ID_BY_ABILITY_TOKEN, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::GET_MISSION_ID_BY_ABILITY_TOKEN, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -1923,7 +1923,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_BlockAmsService_001, TestS
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     auto res = proxy_->BlockAmsService();
-    EXPECT_EQ(IAbilityManager::BLOCK_AMS_SERVICE, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::BLOCK_AMS_SERVICE, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 #endif
@@ -1944,7 +1944,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_BlockAbility_001, TestSize
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     int32_t abilityRecordId = 0;
     auto res = proxy_->BlockAbility(abilityRecordId);
-    EXPECT_EQ(IAbilityManager::BLOCK_ABILITY, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::BLOCK_ABILITY, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 #endif
@@ -1964,7 +1964,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_BlockAppService_001, TestS
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     auto res = proxy_->BlockAppService();
-    EXPECT_EQ(IAbilityManager::BLOCK_APP_SERVICE, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::BLOCK_APP_SERVICE, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 #endif
@@ -2019,7 +2019,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbility_001, TestSize
     const Want want;
     sptr<IRemoteObject> callerToken = nullptr;
     auto res = proxy_->StartAbility(want, callerToken);
-    EXPECT_EQ(IAbilityManager::START_ABILITY_ADD_CALLER, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::START_ABILITY_ADD_CALLER, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -2039,7 +2039,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbilityAsCaller_001, 
     const Want want;
     sptr<IRemoteObject> callerToken = nullptr;
     auto res = proxy_->StartAbilityAsCaller(want, callerToken);
-    EXPECT_EQ(IAbilityManager::START_ABILITY_AS_CALLER_BY_TOKEN, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_BY_TOKEN, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -2060,7 +2060,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbilityAsCaller_002, 
     sptr<IRemoteObject> callerToken = nullptr;
     StartOptions startOptions;
     auto res = proxy_->StartAbilityAsCaller(want, startOptions, callerToken);
-    EXPECT_EQ(IAbilityManager::START_ABILITY_AS_CALLER_FOR_OPTIONS, mock_->code_);
+    EXPECT_EQ(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_FOR_OPTIONS, mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 

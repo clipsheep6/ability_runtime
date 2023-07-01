@@ -41,152 +41,284 @@ AbilityManagerStub::~AbilityManagerStub()
 
 void AbilityManagerStub::FirstStepInit()
 {
-    requestFuncMap_[TERMINATE_ABILITY] = &AbilityManagerStub::TerminateAbilityInner;
-    requestFuncMap_[TERMINATE_ABILITY_BY_CALLER] = &AbilityManagerStub::TerminateAbilityByCallerInner;
-    requestFuncMap_[MINIMIZE_ABILITY] = &AbilityManagerStub::MinimizeAbilityInner;
-    requestFuncMap_[ATTACH_ABILITY_THREAD] = &AbilityManagerStub::AttachAbilityThreadInner;
-    requestFuncMap_[ABILITY_TRANSITION_DONE] = &AbilityManagerStub::AbilityTransitionDoneInner;
-    requestFuncMap_[CONNECT_ABILITY_DONE] = &AbilityManagerStub::ScheduleConnectAbilityDoneInner;
-    requestFuncMap_[DISCONNECT_ABILITY_DONE] = &AbilityManagerStub::ScheduleDisconnectAbilityDoneInner;
-    requestFuncMap_[TERMINATE_ABILITY_RESULT] = &AbilityManagerStub::TerminateAbilityResultInner;
-    requestFuncMap_[COMMAND_ABILITY_DONE] = &AbilityManagerStub::ScheduleCommandAbilityDoneInner;
-    requestFuncMap_[COMMAND_ABILITY_WINDOW_DONE] = &AbilityManagerStub::ScheduleCommandAbilityWindowDoneInner;
-    requestFuncMap_[ACQUIRE_DATA_ABILITY] = &AbilityManagerStub::AcquireDataAbilityInner;
-    requestFuncMap_[RELEASE_DATA_ABILITY] = &AbilityManagerStub::ReleaseDataAbilityInner;
-    requestFuncMap_[KILL_PROCESS] = &AbilityManagerStub::KillProcessInner;
-    requestFuncMap_[UNINSTALL_APP] = &AbilityManagerStub::UninstallAppInner;
-    requestFuncMap_[START_ABILITY] = &AbilityManagerStub::StartAbilityInner;
-    requestFuncMap_[START_ABILITY_ADD_CALLER] = &AbilityManagerStub::StartAbilityAddCallerInner;
-    requestFuncMap_[START_ABILITY_AS_CALLER_BY_TOKEN] = &AbilityManagerStub::StartAbilityAsCallerByTokenInner;
-    requestFuncMap_[START_ABILITY_AS_CALLER_FOR_OPTIONS] = &AbilityManagerStub::StartAbilityAsCallerForOptionInner;
-    requestFuncMap_[CONNECT_ABILITY] = &AbilityManagerStub::ConnectAbilityInner;
-    requestFuncMap_[DISCONNECT_ABILITY] = &AbilityManagerStub::DisconnectAbilityInner;
-    requestFuncMap_[STOP_SERVICE_ABILITY] = &AbilityManagerStub::StopServiceAbilityInner;
-    requestFuncMap_[DUMP_STATE] = &AbilityManagerStub::DumpStateInner;
-    requestFuncMap_[DUMPSYS_STATE] = &AbilityManagerStub::DumpSysStateInner;
-    requestFuncMap_[START_ABILITY_FOR_SETTINGS] = &AbilityManagerStub::StartAbilityForSettingsInner;
-    requestFuncMap_[CONTINUE_MISSION] = &AbilityManagerStub::ContinueMissionInner;
-    requestFuncMap_[CONTINUE_MISSION_OF_BUNDLENAME] = &AbilityManagerStub::ContinueMissionOfBundleNameInner;
-    requestFuncMap_[CONTINUE_ABILITY] = &AbilityManagerStub::ContinueAbilityInner;
-    requestFuncMap_[START_CONTINUATION] = &AbilityManagerStub::StartContinuationInner;
-    requestFuncMap_[NOTIFY_COMPLETE_CONTINUATION] = &AbilityManagerStub::NotifyCompleteContinuationInner;
-    requestFuncMap_[NOTIFY_CONTINUATION_RESULT] = &AbilityManagerStub::NotifyContinuationResultInner;
-    requestFuncMap_[SEND_RESULT_TO_ABILITY] = &AbilityManagerStub::SendResultToAbilityInner;
-    requestFuncMap_[REGISTER_REMOTE_MISSION_LISTENER] = &AbilityManagerStub::RegisterRemoteMissionListenerInner;
-    requestFuncMap_[REGISTER_REMOTE_ON_LISTENER] = &AbilityManagerStub::RegisterRemoteOnListenerInner;
-    requestFuncMap_[REGISTER_REMOTE_OFF_LISTENER] = &AbilityManagerStub::RegisterRemoteOffListenerInner;
-    requestFuncMap_[UNREGISTER_REMOTE_MISSION_LISTENER] = &AbilityManagerStub::UnRegisterRemoteMissionListenerInner;
-    requestFuncMap_[START_ABILITY_FOR_OPTIONS] = &AbilityManagerStub::StartAbilityForOptionsInner;
-    requestFuncMap_[START_SYNC_MISSIONS] = &AbilityManagerStub::StartSyncRemoteMissionsInner;
-    requestFuncMap_[STOP_SYNC_MISSIONS] = &AbilityManagerStub::StopSyncRemoteMissionsInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_ABILITY)] =
+        &AbilityManagerStub::TerminateAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_ABILITY_BY_CALLER)] =
+        &AbilityManagerStub::TerminateAbilityByCallerInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MINIMIZE_ABILITY)] =
+        &AbilityManagerStub::MinimizeAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ATTACH_ABILITY_THREAD)] =
+        &AbilityManagerStub::AttachAbilityThreadInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ABILITY_TRANSITION_DONE)] =
+        &AbilityManagerStub::AbilityTransitionDoneInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CONNECT_ABILITY_DONE)] =
+        &AbilityManagerStub::ScheduleConnectAbilityDoneInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DISCONNECT_ABILITY_DONE)] =
+        &AbilityManagerStub::ScheduleDisconnectAbilityDoneInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_ABILITY_RESULT)] =
+        &AbilityManagerStub::TerminateAbilityResultInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::COMMAND_ABILITY_DONE)] =
+        &AbilityManagerStub::ScheduleCommandAbilityDoneInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::COMMAND_ABILITY_WINDOW_DONE)] =
+        &AbilityManagerStub::ScheduleCommandAbilityWindowDoneInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ACQUIRE_DATA_ABILITY)] =
+        &AbilityManagerStub::AcquireDataAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RELEASE_DATA_ABILITY)] =
+        &AbilityManagerStub::ReleaseDataAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::KILL_PROCESS)] =
+        &AbilityManagerStub::KillProcessInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNINSTALL_APP)] =
+        &AbilityManagerStub::UninstallAppInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY)] =
+        &AbilityManagerStub::StartAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_ADD_CALLER)] =
+        &AbilityManagerStub::StartAbilityAddCallerInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_BY_TOKEN)] =
+        &AbilityManagerStub::StartAbilityAsCallerByTokenInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_FOR_OPTIONS)] =
+        &AbilityManagerStub::StartAbilityAsCallerForOptionInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CONNECT_ABILITY)] =
+        &AbilityManagerStub::ConnectAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DISCONNECT_ABILITY)] =
+        &AbilityManagerStub::DisconnectAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::STOP_SERVICE_ABILITY)] =
+        &AbilityManagerStub::StopServiceAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DUMP_STATE)] =
+        &AbilityManagerStub::DumpStateInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DUMPSYS_STATE)] =
+        &AbilityManagerStub::DumpSysStateInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_FOR_SETTINGS)] =
+        &AbilityManagerStub::StartAbilityForSettingsInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CONTINUE_MISSION)] =
+        &AbilityManagerStub::ContinueMissionInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CONTINUE_MISSION_OF_BUNDLENAME)] =
+        &AbilityManagerStub::ContinueMissionOfBundleNameInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CONTINUE_ABILITY)] =
+        &AbilityManagerStub::ContinueAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_CONTINUATION)] =
+        &AbilityManagerStub::StartContinuationInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::NOTIFY_COMPLETE_CONTINUATION)] =
+        &AbilityManagerStub::NotifyCompleteContinuationInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::NOTIFY_CONTINUATION_RESULT)] =
+        &AbilityManagerStub::NotifyContinuationResultInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_RESULT_TO_ABILITY)] =
+        &AbilityManagerStub::SendResultToAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_REMOTE_MISSION_LISTENER)] =
+        &AbilityManagerStub::RegisterRemoteMissionListenerInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_REMOTE_ON_LISTENER)] =
+        &AbilityManagerStub::RegisterRemoteOnListenerInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_REMOTE_OFF_LISTENER)] =
+        &AbilityManagerStub::RegisterRemoteOffListenerInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_REMOTE_MISSION_LISTENER)] =
+        &AbilityManagerStub::UnRegisterRemoteMissionListenerInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_FOR_OPTIONS)] =
+        &AbilityManagerStub::StartAbilityForOptionsInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_SYNC_MISSIONS)] =
+        &AbilityManagerStub::StartSyncRemoteMissionsInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::STOP_SYNC_MISSIONS)] =
+        &AbilityManagerStub::StopSyncRemoteMissionsInner;
 #ifdef ABILITY_COMMAND_FOR_TEST
-    requestFuncMap_[FORCE_TIMEOUT] = &AbilityManagerStub::ForceTimeoutForTestInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::FORCE_TIMEOUT)] =
+        &AbilityManagerStub::ForceTimeoutForTestInner;
 #endif
-    requestFuncMap_[FREE_INSTALL_ABILITY_FROM_REMOTE] = &AbilityManagerStub::FreeInstallAbilityFromRemoteInner;
-    requestFuncMap_[ADD_FREE_INSTALL_OBSERVER] = &AbilityManagerStub::AddFreeInstallObserverInner;
-    requestFuncMap_[CONNECT_ABILITY_WITH_TYPE] = &AbilityManagerStub::ConnectAbilityWithTypeInner;
-    requestFuncMap_[ABILITY_RECOVERY] = &AbilityManagerStub::ScheduleRecoverAbilityInner;
-    requestFuncMap_[ABILITY_RECOVERY_ENABLE] = &AbilityManagerStub::EnableRecoverAbilityInner;
-    requestFuncMap_[MINIMIZE_UI_ABILITY_BY_SCB] = &AbilityManagerStub::MinimizeUIAbilityBySCBInner;
-    requestFuncMap_[CLOSE_UI_ABILITY_BY_SCB] = &AbilityManagerStub::CloseUIAbilityBySCBInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::FREE_INSTALL_ABILITY_FROM_REMOTE)] =
+        &AbilityManagerStub::FreeInstallAbilityFromRemoteInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ADD_FREE_INSTALL_OBSERVER)] =
+        &AbilityManagerStub::AddFreeInstallObserverInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CONNECT_ABILITY_WITH_TYPE)] =
+        &AbilityManagerStub::ConnectAbilityWithTypeInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ABILITY_RECOVERY)] =
+        &AbilityManagerStub::ScheduleRecoverAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ABILITY_RECOVERY_ENABLE)] =
+        &AbilityManagerStub::EnableRecoverAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MINIMIZE_UI_ABILITY_BY_SCB)] =
+        &AbilityManagerStub::MinimizeUIAbilityBySCBInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CLOSE_UI_ABILITY_BY_SCB)] =
+        &AbilityManagerStub::CloseUIAbilityBySCBInner;
 }
 
 void AbilityManagerStub::SecondStepInit()
 {
-    requestFuncMap_[GET_PENDING_WANT_SENDER] = &AbilityManagerStub::GetWantSenderInner;
-    requestFuncMap_[SEND_PENDING_WANT_SENDER] = &AbilityManagerStub::SendWantSenderInner;
-    requestFuncMap_[CANCEL_PENDING_WANT_SENDER] = &AbilityManagerStub::CancelWantSenderInner;
-    requestFuncMap_[GET_PENDING_WANT_UID] = &AbilityManagerStub::GetPendingWantUidInner;
-    requestFuncMap_[GET_PENDING_WANT_USERID] = &AbilityManagerStub::GetPendingWantUserIdInner;
-    requestFuncMap_[GET_PENDING_WANT_BUNDLENAME] = &AbilityManagerStub::GetPendingWantBundleNameInner;
-    requestFuncMap_[GET_PENDING_WANT_CODE] = &AbilityManagerStub::GetPendingWantCodeInner;
-    requestFuncMap_[GET_PENDING_WANT_TYPE] = &AbilityManagerStub::GetPendingWantTypeInner;
-    requestFuncMap_[REGISTER_CANCEL_LISTENER] = &AbilityManagerStub::RegisterCancelListenerInner;
-    requestFuncMap_[UNREGISTER_CANCEL_LISTENER] = &AbilityManagerStub::UnregisterCancelListenerInner;
-    requestFuncMap_[GET_PENDING_REQUEST_WANT] = &AbilityManagerStub::GetPendingRequestWantInner;
-    requestFuncMap_[GET_PENDING_WANT_SENDER_INFO] = &AbilityManagerStub::GetPendingRequestWantInner;
-    requestFuncMap_[GET_APP_MEMORY_SIZE] = &AbilityManagerStub::GetAppMemorySizeInner;
-    requestFuncMap_[IS_RAM_CONSTRAINED_DEVICE] = &AbilityManagerStub::IsRamConstrainedDeviceInner;
-    requestFuncMap_[CLEAR_UP_APPLICATION_DATA] = &AbilityManagerStub::ClearUpApplicationDataInner;
-    requestFuncMap_[LOCK_MISSION_FOR_CLEANUP] = &AbilityManagerStub::LockMissionForCleanupInner;
-    requestFuncMap_[UNLOCK_MISSION_FOR_CLEANUP] = &AbilityManagerStub::UnlockMissionForCleanupInner;
-    requestFuncMap_[REGISTER_MISSION_LISTENER] = &AbilityManagerStub::RegisterMissionListenerInner;
-    requestFuncMap_[UNREGISTER_MISSION_LISTENER] = &AbilityManagerStub::UnRegisterMissionListenerInner;
-    requestFuncMap_[GET_MISSION_INFOS] = &AbilityManagerStub::GetMissionInfosInner;
-    requestFuncMap_[GET_MISSION_INFO_BY_ID] = &AbilityManagerStub::GetMissionInfoInner;
-    requestFuncMap_[CLEAN_MISSION] = &AbilityManagerStub::CleanMissionInner;
-    requestFuncMap_[CLEAN_ALL_MISSIONS] = &AbilityManagerStub::CleanAllMissionsInner;
-    requestFuncMap_[MOVE_MISSION_TO_FRONT] = &AbilityManagerStub::MoveMissionToFrontInner;
-    requestFuncMap_[MOVE_MISSION_TO_FRONT_BY_OPTIONS] = &AbilityManagerStub::MoveMissionToFrontByOptionsInner;
-    requestFuncMap_[MOVE_MISSIONS_TO_FOREGROUND] = &AbilityManagerStub::MoveMissionsToForegroundInner;
-    requestFuncMap_[MOVE_MISSIONS_TO_BACKGROUND] = &AbilityManagerStub::MoveMissionsToBackgroundInner;
-    requestFuncMap_[START_CALL_ABILITY] = &AbilityManagerStub::StartAbilityByCallInner;
-    requestFuncMap_[CALL_REQUEST_DONE] = &AbilityManagerStub::CallRequestDoneInner;
-    requestFuncMap_[RELEASE_CALL_ABILITY] = &AbilityManagerStub::ReleaseCallInner;
-    requestFuncMap_[START_USER] = &AbilityManagerStub::StartUserInner;
-    requestFuncMap_[STOP_USER] = &AbilityManagerStub::StopUserInner;
-    requestFuncMap_[GET_ABILITY_RUNNING_INFO] = &AbilityManagerStub::GetAbilityRunningInfosInner;
-    requestFuncMap_[GET_EXTENSION_RUNNING_INFO] = &AbilityManagerStub::GetExtensionRunningInfosInner;
-    requestFuncMap_[GET_PROCESS_RUNNING_INFO] = &AbilityManagerStub::GetProcessRunningInfosInner;
-    requestFuncMap_[SET_ABILITY_CONTROLLER] = &AbilityManagerStub::SetAbilityControllerInner;
-    requestFuncMap_[GET_MISSION_SNAPSHOT_INFO] = &AbilityManagerStub::GetMissionSnapshotInfoInner;
-    requestFuncMap_[IS_USER_A_STABILITY_TEST] = &AbilityManagerStub::IsRunningInStabilityTestInner;
-    requestFuncMap_[SEND_APP_NOT_RESPONSE_PROCESS_ID] = &AbilityManagerStub::SendANRProcessIDInner;
-    requestFuncMap_[ACQUIRE_SHARE_DATA] = &AbilityManagerStub::AcquireShareDataInner;
-    requestFuncMap_[SHARE_DATA_DONE] = &AbilityManagerStub::ShareDataDoneInner;
-    requestFuncMap_[GET_ABILITY_TOKEN] = &AbilityManagerStub::GetAbilityTokenByCalleeObjInner;
-    requestFuncMap_[FORCE_EXIT_APP] = &AbilityManagerStub::ForceExitAppInner;
-    requestFuncMap_[RECORD_APP_EXIT_REASON] = &AbilityManagerStub::RecordAppExitReasonInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_SENDER)] =
+        &AbilityManagerStub::GetWantSenderInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_PENDING_WANT_SENDER)] =
+        &AbilityManagerStub::SendWantSenderInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CANCEL_PENDING_WANT_SENDER)] =
+        &AbilityManagerStub::CancelWantSenderInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_UID)] =
+        &AbilityManagerStub::GetPendingWantUidInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_USERID)] =
+        &AbilityManagerStub::GetPendingWantUserIdInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_BUNDLENAME)] =
+        &AbilityManagerStub::GetPendingWantBundleNameInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_CODE)] =
+        &AbilityManagerStub::GetPendingWantCodeInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_TYPE)] =
+        &AbilityManagerStub::GetPendingWantTypeInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_CANCEL_LISTENER)] =
+        &AbilityManagerStub::RegisterCancelListenerInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_CANCEL_LISTENER)] =
+        &AbilityManagerStub::UnregisterCancelListenerInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_REQUEST_WANT)] =
+        &AbilityManagerStub::GetPendingRequestWantInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_SENDER_INFO)] =
+        &AbilityManagerStub::GetPendingRequestWantInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_APP_MEMORY_SIZE)] =
+        &AbilityManagerStub::GetAppMemorySizeInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_RAM_CONSTRAINED_DEVICE)] =
+        &AbilityManagerStub::IsRamConstrainedDeviceInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CLEAR_UP_APPLICATION_DATA)] =
+        &AbilityManagerStub::ClearUpApplicationDataInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::LOCK_MISSION_FOR_CLEANUP)] =
+        &AbilityManagerStub::LockMissionForCleanupInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNLOCK_MISSION_FOR_CLEANUP)] =
+        &AbilityManagerStub::UnlockMissionForCleanupInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_MISSION_LISTENER)] =
+        &AbilityManagerStub::RegisterMissionListenerInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_MISSION_LISTENER)] =
+        &AbilityManagerStub::UnRegisterMissionListenerInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_MISSION_INFOS)] =
+        &AbilityManagerStub::GetMissionInfosInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_MISSION_INFO_BY_ID)] =
+        &AbilityManagerStub::GetMissionInfoInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CLEAN_MISSION)] =
+        &AbilityManagerStub::CleanMissionInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CLEAN_ALL_MISSIONS)] =
+        &AbilityManagerStub::CleanAllMissionsInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_MISSION_TO_FRONT)] =
+        &AbilityManagerStub::MoveMissionToFrontInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_MISSION_TO_FRONT_BY_OPTIONS)] =
+        &AbilityManagerStub::MoveMissionToFrontByOptionsInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_MISSIONS_TO_FOREGROUND)] =
+        &AbilityManagerStub::MoveMissionsToForegroundInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_MISSIONS_TO_BACKGROUND)] =
+        &AbilityManagerStub::MoveMissionsToBackgroundInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_CALL_ABILITY)] =
+        &AbilityManagerStub::StartAbilityByCallInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CALL_REQUEST_DONE)] =
+        &AbilityManagerStub::CallRequestDoneInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RELEASE_CALL_ABILITY)] =
+        &AbilityManagerStub::ReleaseCallInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_USER)] =
+        &AbilityManagerStub::StartUserInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::STOP_USER)] =
+        &AbilityManagerStub::StopUserInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ABILITY_RUNNING_INFO)] =
+        &AbilityManagerStub::GetAbilityRunningInfosInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_EXTENSION_RUNNING_INFO)] =
+        &AbilityManagerStub::GetExtensionRunningInfosInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PROCESS_RUNNING_INFO)] =
+        &AbilityManagerStub::GetProcessRunningInfosInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_ABILITY_CONTROLLER)] =
+        &AbilityManagerStub::SetAbilityControllerInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_MISSION_SNAPSHOT_INFO)] =
+        &AbilityManagerStub::GetMissionSnapshotInfoInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_USER_A_STABILITY_TEST)] =
+        &AbilityManagerStub::IsRunningInStabilityTestInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_APP_NOT_RESPONSE_PROCESS_ID)] =
+        &AbilityManagerStub::SendANRProcessIDInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ACQUIRE_SHARE_DATA)] =
+        &AbilityManagerStub::AcquireShareDataInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SHARE_DATA_DONE)] =
+        &AbilityManagerStub::ShareDataDoneInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ABILITY_TOKEN)] =
+        &AbilityManagerStub::GetAbilityTokenByCalleeObjInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::FORCE_EXIT_APP)] =
+        &AbilityManagerStub::ForceExitAppInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RECORD_APP_EXIT_REASON)] =
+        &AbilityManagerStub::RecordAppExitReasonInner;
 #ifdef ABILITY_COMMAND_FOR_TEST
-    requestFuncMap_[BLOCK_ABILITY] = &AbilityManagerStub::BlockAbilityInner;
-    requestFuncMap_[BLOCK_AMS_SERVICE] = &AbilityManagerStub::BlockAmsServiceInner;
-    requestFuncMap_[BLOCK_APP_SERVICE] = &AbilityManagerStub::BlockAppServiceInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::BLOCK_ABILITY)] =
+        &AbilityManagerStub::BlockAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::BLOCK_AMS_SERVICE)] =
+        &AbilityManagerStub::BlockAmsServiceInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::BLOCK_APP_SERVICE)] =
+        &AbilityManagerStub::BlockAppServiceInner;
 #endif
 }
 
 void AbilityManagerStub::ThirdStepInit()
 {
-    requestFuncMap_[START_USER_TEST] = &AbilityManagerStub::StartUserTestInner;
-    requestFuncMap_[FINISH_USER_TEST] = &AbilityManagerStub::FinishUserTestInner;
-    requestFuncMap_[GET_TOP_ABILITY_TOKEN] = &AbilityManagerStub::GetTopAbilityTokenInner;
-    requestFuncMap_[DELEGATOR_DO_ABILITY_FOREGROUND] = &AbilityManagerStub::DelegatorDoAbilityForegroundInner;
-    requestFuncMap_[DELEGATOR_DO_ABILITY_BACKGROUND] = &AbilityManagerStub::DelegatorDoAbilityBackgroundInner;
-    requestFuncMap_[DO_ABILITY_FOREGROUND] = &AbilityManagerStub::DoAbilityForegroundInner;
-    requestFuncMap_[DO_ABILITY_BACKGROUND] = &AbilityManagerStub::DoAbilityBackgroundInner;
-    requestFuncMap_[GET_MISSION_ID_BY_ABILITY_TOKEN] = &AbilityManagerStub::GetMissionIdByTokenInner;
-    requestFuncMap_[GET_TOP_ABILITY] = &AbilityManagerStub::GetTopAbilityInner;
-    requestFuncMap_[DUMP_ABILITY_INFO_DONE] = &AbilityManagerStub::DumpAbilityInfoDoneInner;
-    requestFuncMap_[START_EXTENSION_ABILITY] = &AbilityManagerStub::StartExtensionAbilityInner;
-    requestFuncMap_[STOP_EXTENSION_ABILITY] = &AbilityManagerStub::StopExtensionAbilityInner;
-    requestFuncMap_[UPDATE_MISSION_SNAPSHOT] = &AbilityManagerStub::UpdateMissionSnapShotInner;
-    requestFuncMap_[UPDATE_MISSION_SNAPSHOT_FROM_WMS] = &AbilityManagerStub::UpdateMissionSnapShotFromWMSInner;
-    requestFuncMap_[REGISTER_CONNECTION_OBSERVER] = &AbilityManagerStub::RegisterConnectionObserverInner;
-    requestFuncMap_[UNREGISTER_CONNECTION_OBSERVER] = &AbilityManagerStub::UnregisterConnectionObserverInner;
-    requestFuncMap_[GET_DLP_CONNECTION_INFOS] = &AbilityManagerStub::GetDlpConnectionInfosInner;
-    requestFuncMap_[MOVE_ABILITY_TO_BACKGROUND] = &AbilityManagerStub::MoveAbilityToBackgroundInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_USER_TEST)] =
+        &AbilityManagerStub::StartUserTestInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::FINISH_USER_TEST)] =
+        &AbilityManagerStub::FinishUserTestInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_TOP_ABILITY_TOKEN)] =
+        &AbilityManagerStub::GetTopAbilityTokenInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DELEGATOR_DO_ABILITY_FOREGROUND)] =
+        &AbilityManagerStub::DelegatorDoAbilityForegroundInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DELEGATOR_DO_ABILITY_BACKGROUND)] =
+        &AbilityManagerStub::DelegatorDoAbilityBackgroundInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DO_ABILITY_FOREGROUND)] =
+        &AbilityManagerStub::DoAbilityForegroundInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DO_ABILITY_BACKGROUND)] =
+        &AbilityManagerStub::DoAbilityBackgroundInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_MISSION_ID_BY_ABILITY_TOKEN)] =
+        &AbilityManagerStub::GetMissionIdByTokenInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_TOP_ABILITY)] =
+        &AbilityManagerStub::GetTopAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DUMP_ABILITY_INFO_DONE)] =
+        &AbilityManagerStub::DumpAbilityInfoDoneInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_EXTENSION_ABILITY)] =
+        &AbilityManagerStub::StartExtensionAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::STOP_EXTENSION_ABILITY)] =
+        &AbilityManagerStub::StopExtensionAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UPDATE_MISSION_SNAPSHOT)] =
+        &AbilityManagerStub::UpdateMissionSnapShotInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UPDATE_MISSION_SNAPSHOT_FROM_WMS)] =
+        &AbilityManagerStub::UpdateMissionSnapShotFromWMSInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_CONNECTION_OBSERVER)] =
+        &AbilityManagerStub::RegisterConnectionObserverInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_CONNECTION_OBSERVER)] =
+        &AbilityManagerStub::UnregisterConnectionObserverInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_DLP_CONNECTION_INFOS)] =
+        &AbilityManagerStub::GetDlpConnectionInfosInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_ABILITY_TO_BACKGROUND)] =
+        &AbilityManagerStub::MoveAbilityToBackgroundInner;
 #ifdef SUPPORT_GRAPHICS
-    requestFuncMap_[SET_MISSION_LABEL] = &AbilityManagerStub::SetMissionLabelInner;
-    requestFuncMap_[SET_MISSION_ICON] = &AbilityManagerStub::SetMissionIconInner;
-    requestFuncMap_[REGISTER_WMS_HANDLER] = &AbilityManagerStub::RegisterWindowManagerServiceHandlerInner;
-    requestFuncMap_[COMPLETEFIRSTFRAMEDRAWING] = &AbilityManagerStub::CompleteFirstFrameDrawingInner;
-    requestFuncMap_[START_UI_EXTENSION_ABILITY] = &AbilityManagerStub::StartUIExtensionAbilityInner;
-    requestFuncMap_[MINIMIZE_UI_EXTENSION_ABILITY] = &AbilityManagerStub::MinimizeUIExtensionAbilityInner;
-    requestFuncMap_[TERMINATE_UI_EXTENSION_ABILITY] = &AbilityManagerStub::TerminateUIExtensionAbilityInner;
-    requestFuncMap_[CONNECT_UI_EXTENSION_ABILITY] = &AbilityManagerStub::ConnectUIExtensionAbilityInner;
-    requestFuncMap_[PREPARE_TERMINATE_ABILITY] = &AbilityManagerStub::PrepareTerminateAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_LABEL)] =
+        &AbilityManagerStub::SetMissionLabelInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_ICON)] =
+        &AbilityManagerStub::SetMissionIconInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_WMS_HANDLER)] =
+        &AbilityManagerStub::RegisterWindowManagerServiceHandlerInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::COMPLETEFIRSTFRAMEDRAWING)] =
+        &AbilityManagerStub::CompleteFirstFrameDrawingInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY)] =
+        &AbilityManagerStub::StartUIExtensionAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MINIMIZE_UI_EXTENSION_ABILITY)] =
+        &AbilityManagerStub::MinimizeUIExtensionAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_UI_EXTENSION_ABILITY)] =
+        &AbilityManagerStub::TerminateUIExtensionAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CONNECT_UI_EXTENSION_ABILITY)] =
+        &AbilityManagerStub::ConnectUIExtensionAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::PREPARE_TERMINATE_ABILITY)] =
+        &AbilityManagerStub::PrepareTerminateAbilityInner;
 #endif
-    requestFuncMap_[REQUEST_DIALOG_SERVICE] = &AbilityManagerStub::HandleRequestDialogService;
-    requestFuncMap_[REPORT_DRAWN_COMPLETED] = &AbilityManagerStub::HandleReportDrawnCompleted;
-    requestFuncMap_[SET_COMPONENT_INTERCEPTION] = &AbilityManagerStub::SetComponentInterceptionInner;
-    requestFuncMap_[SEND_ABILITY_RESULT_BY_TOKEN] = &AbilityManagerStub::SendResultToAbilityByTokenInner;
-    requestFuncMap_[QUERY_MISSION_VAILD] = &AbilityManagerStub::IsValidMissionIdsInner;
-    requestFuncMap_[VERIFY_PERMISSION] = &AbilityManagerStub::VerifyPermissionInner;
-    requestFuncMap_[START_UI_ABILITY_BY_SCB] = &AbilityManagerStub::StartUIAbilityBySCBInner;
-    requestFuncMap_[SET_ROOT_SCENE_SESSION] = &AbilityManagerStub::SetRootSceneSessionInner;
-    requestFuncMap_[CALL_ABILITY_BY_SCB] = &AbilityManagerStub::CallUIAbilityBySCBInner;
-    requestFuncMap_[START_SPECIFIED_ABILITY_BY_SCB] = &AbilityManagerStub::StartSpecifiedAbilityBySCBInner;
-    requestFuncMap_[SET_SESSIONMANAGERSERVICE] = &AbilityManagerStub::SetSessionManagerServiceInner;
-    requestFuncMap_[GET_SESSIONMANAGERSERVICE] = &AbilityManagerStub::GetSessionManagerServiceInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REQUEST_DIALOG_SERVICE)] =
+        &AbilityManagerStub::HandleRequestDialogService;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REPORT_DRAWN_COMPLETED)] =
+        &AbilityManagerStub::HandleReportDrawnCompleted;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_COMPONENT_INTERCEPTION)] =
+        &AbilityManagerStub::SetComponentInterceptionInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_ABILITY_RESULT_BY_TOKEN)] =
+        &AbilityManagerStub::SendResultToAbilityByTokenInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::QUERY_MISSION_VAILD)] =
+        &AbilityManagerStub::IsValidMissionIdsInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::VERIFY_PERMISSION)] =
+        &AbilityManagerStub::VerifyPermissionInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_UI_ABILITY_BY_SCB)] =
+        &AbilityManagerStub::StartUIAbilityBySCBInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_ROOT_SCENE_SESSION)] =
+        &AbilityManagerStub::SetRootSceneSessionInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CALL_ABILITY_BY_SCB)] =
+        &AbilityManagerStub::CallUIAbilityBySCBInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_SPECIFIED_ABILITY_BY_SCB)] =
+        &AbilityManagerStub::StartSpecifiedAbilityBySCBInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_SESSIONMANAGERSERVICE)] =
+        &AbilityManagerStub::SetSessionManagerServiceInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_SESSIONMANAGERSERVICE)] =
+        &AbilityManagerStub::GetSessionManagerServiceInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)

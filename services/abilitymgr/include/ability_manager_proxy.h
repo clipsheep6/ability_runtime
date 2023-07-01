@@ -853,6 +853,8 @@ private:
     bool WriteInterfaceToken(MessageParcel &data);
     // flag = true : terminate; flag = false : close
     int TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant, bool flag);
+    ErrCode SendRequest(AbilityManagerInterfaceCode code, MessageParcel &data, MessageParcel &reply,
+        MessageOption& option);
 
 private:
     static inline BrokerDelegator<AbilityManagerProxy> delegator_;

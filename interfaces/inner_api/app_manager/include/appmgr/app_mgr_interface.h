@@ -22,6 +22,7 @@
 
 #include "ability_info.h"
 #include "application_info.h"
+#include "app_mgr_ipc_interface_code.h"
 #include "app_record_id.h"
 #include "bundle_info.h"
 #include "fault_data.h"

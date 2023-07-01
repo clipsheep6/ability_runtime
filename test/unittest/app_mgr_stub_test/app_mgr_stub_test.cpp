@@ -83,7 +83,7 @@ HWTEST_F(AppMgrStubTest, AppMgrStub_GetProcessRunningInfosByUserId_0100, TestSiz
     EXPECT_CALL(*mockAppMgrService_, GetProcessRunningInfosByUserId(_, _)).Times(1);
 
     auto result = mockAppMgrService_->OnRemoteRequest(
-        static_cast<uint32_t>(IAppMgr::Message::APP_GET_RUNNING_PROCESSES_BY_USER_ID), data, reply, option);
+        static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_RUNNING_PROCESSES_BY_USER_ID), data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
 
     GTEST_LOG_(INFO) << "AppMgrStub_GetProcessRunningInfosByUserId_0100 end";
@@ -110,7 +110,7 @@ HWTEST_F(AppMgrStubTest, HandleGetAppRunningStateByBundleName_0100, TestSize.Lev
     EXPECT_CALL(*mockAppMgrService_, GetAppRunningStateByBundleName(_)).Times(1);
 
     auto result = mockAppMgrService_->OnRemoteRequest(
-        static_cast<uint32_t>(IAppMgr::Message::GET_APP_RUNNING_STATE), data, reply, option);
+        static_cast<uint32_t>(AppMgrInterfaceCode::GET_APP_RUNNING_STATE), data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
 
     HILOG_INFO("%{public}s end.", __func__);
@@ -137,7 +137,7 @@ HWTEST_F(AppMgrStubTest, HandleNotifyLoadRepairPatch_0100, TestSize.Level0)
     EXPECT_CALL(*mockAppMgrService_, NotifyLoadRepairPatch(_, _)).Times(1);
 
     auto result = mockAppMgrService_->OnRemoteRequest(
-        static_cast<uint32_t>(IAppMgr::Message::NOTIFY_LOAD_REPAIR_PATCH), data, reply, option);
+        static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_LOAD_REPAIR_PATCH), data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
 
     HILOG_INFO("%{public}s end.", __func__);
@@ -164,7 +164,7 @@ HWTEST_F(AppMgrStubTest, HandleNotifyHotReloadPage_0100, TestSize.Level0)
     EXPECT_CALL(*mockAppMgrService_, NotifyHotReloadPage(_, _)).Times(1);
 
     auto result = mockAppMgrService_->OnRemoteRequest(
-        static_cast<uint32_t>(IAppMgr::Message::NOTIFY_HOT_RELOAD_PAGE), data, reply, option);
+        static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_HOT_RELOAD_PAGE), data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
 
     HILOG_INFO("%{public}s end.", __func__);
@@ -191,7 +191,7 @@ HWTEST_F(AppMgrStubTest, HandleNotifyUnLoadRepairPatch_0100, TestSize.Level0)
     EXPECT_CALL(*mockAppMgrService_, NotifyUnLoadRepairPatch(_, _)).Times(1);
 
     auto result = mockAppMgrService_->OnRemoteRequest(
-        static_cast<uint32_t>(IAppMgr::Message::NOTIFY_UNLOAD_REPAIR_PATCH), data, reply, option);
+        static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_UNLOAD_REPAIR_PATCH), data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
 
     HILOG_INFO("%{public}s end.", __func__);
@@ -213,7 +213,7 @@ HWTEST_F(AppMgrStubTest, PreStartNWebSpawnProcess_001, TestSize.Level0)
     EXPECT_CALL(*mockAppMgrService_, PreStartNWebSpawnProcess()).Times(1);
 
     auto result = mockAppMgrService_->OnRemoteRequest(
-        static_cast<uint32_t>(IAppMgr::Message::PRE_START_NWEBSPAWN_PROCESS), data, reply, option);
+        static_cast<uint32_t>(AppMgrInterfaceCode::PRE_START_NWEBSPAWN_PROCESS), data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
 
     HILOG_INFO("%{public}s end.", __func__);

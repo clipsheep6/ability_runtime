@@ -35,94 +35,94 @@ namespace AppExecFwk {
 constexpr int32_t CYCLE_LIMIT = 1000;
 AppMgrStub::AppMgrStub()
 {
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_ATTACH_APPLICATION)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_ATTACH_APPLICATION)] =
         &AppMgrStub::HandleAttachApplication;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_APPLICATION_FOREGROUNDED)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_APPLICATION_FOREGROUNDED)] =
         &AppMgrStub::HandleApplicationForegrounded;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_APPLICATION_BACKGROUNDED)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_APPLICATION_BACKGROUNDED)] =
         &AppMgrStub::HandleApplicationBackgrounded;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_APPLICATION_TERMINATED)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_APPLICATION_TERMINATED)] =
         &AppMgrStub::HandleApplicationTerminated;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_CHECK_PERMISSION)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_CHECK_PERMISSION)] =
         &AppMgrStub::HandleCheckPermission;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_ABILITY_CLEANED)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_ABILITY_CLEANED)] =
         &AppMgrStub::HandleAbilityCleaned;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_MGR_INSTANCE)] = &AppMgrStub::HandleGetAmsMgr;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_CLEAR_UP_APPLICATION_DATA)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_MGR_INSTANCE)] = &AppMgrStub::HandleGetAmsMgr;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_CLEAR_UP_APPLICATION_DATA)] =
         &AppMgrStub::HandleClearUpApplicationData;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_ALL_RUNNING_PROCESSES)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_ALL_RUNNING_PROCESSES)] =
         &AppMgrStub::HandleGetAllRunningProcesses;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_NOTIFY_MEMORY_LEVEL)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_NOTIFY_MEMORY_LEVEL)] =
         &AppMgrStub::HandleNotifyMemoryLevel;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_RUNNING_PROCESSES_BY_USER_ID)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_RUNNING_PROCESSES_BY_USER_ID)] =
         &AppMgrStub::HandleGetProcessRunningInfosByUserId;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_ADD_ABILITY_STAGE_INFO_DONE)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_ADD_ABILITY_STAGE_INFO_DONE)] =
         &AppMgrStub::HandleAddAbilityStageDone;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::STARTUP_RESIDENT_PROCESS)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::STARTUP_RESIDENT_PROCESS)] =
         &AppMgrStub::HandleStartupResidentProcess;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::REGISTER_APPLICATION_STATE_OBSERVER)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_APPLICATION_STATE_OBSERVER)] =
         &AppMgrStub::HandleRegisterApplicationStateObserver;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::UNREGISTER_APPLICATION_STATE_OBSERVER)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_APPLICATION_STATE_OBSERVER)] =
         &AppMgrStub::HandleUnregisterApplicationStateObserver;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::GET_FOREGROUND_APPLICATIONS)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_FOREGROUND_APPLICATIONS)] =
         &AppMgrStub::HandleGetForegroundApplications;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::START_USER_TEST_PROCESS)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::START_USER_TEST_PROCESS)] =
         &AppMgrStub::HandleStartUserTestProcess;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::FINISH_USER_TEST)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::FINISH_USER_TEST)] =
         &AppMgrStub::HandleFinishUserTest;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::SCHEDULE_ACCEPT_WANT_DONE)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SCHEDULE_ACCEPT_WANT_DONE)] =
         &AppMgrStub::HandleScheduleAcceptWantDone;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_ABILITY_RECORDS_BY_PROCESS_ID)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_ABILITY_RECORDS_BY_PROCESS_ID)] =
         &AppMgrStub::HandleGetAbilityRecordsByProcessID;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::PRE_START_NWEBSPAWN_PROCESS)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::PRE_START_NWEBSPAWN_PROCESS)] =
         &AppMgrStub::HandlePreStartNWebSpawnProcess;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::START_RENDER_PROCESS)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::START_RENDER_PROCESS)] =
         &AppMgrStub::HandleStartRenderProcess;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::ATTACH_RENDER_PROCESS)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::ATTACH_RENDER_PROCESS)] =
         &AppMgrStub::HandleAttachRenderProcess;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::GET_RENDER_PROCESS_TERMINATION_STATUS)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_RENDER_PROCESS_TERMINATION_STATUS)] =
         &AppMgrStub::HandleGetRenderProcessTerminationStatus;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::GET_CONFIGURATION)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_CONFIGURATION)] =
         &AppMgrStub::HandleGetConfiguration;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::UPDATE_CONFIGURATION)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UPDATE_CONFIGURATION)] =
         &AppMgrStub::HandleUpdateConfiguration;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::REGISTER_CONFIGURATION_OBSERVER)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_CONFIGURATION_OBSERVER)] =
         &AppMgrStub::HandleRegisterConfigurationObserver;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::UNREGISTER_CONFIGURATION_OBSERVER)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_CONFIGURATION_OBSERVER)] =
         &AppMgrStub::HandleUnregisterConfigurationObserver;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_PROCESS_RUNNING_INFORMATION)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_PROCESS_RUNNING_INFORMATION)] =
         &AppMgrStub::HandleGetProcessRunningInformation;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::DUMP_HEAP_MEMORY_PROCESS)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::DUMP_HEAP_MEMORY_PROCESS)] =
         &AppMgrStub::HandleDumpHeapMemory;
 #ifdef ABILITY_COMMAND_FOR_TEST
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::BLOCK_APP_SERVICE)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::BLOCK_APP_SERVICE)] =
         &AppMgrStub::HandleBlockAppServiceDone;
 #endif
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::GET_APP_RUNNING_STATE)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_APP_RUNNING_STATE)] =
         &AppMgrStub::HandleGetAppRunningStateByBundleName;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::NOTIFY_LOAD_REPAIR_PATCH)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_LOAD_REPAIR_PATCH)] =
         &AppMgrStub::HandleNotifyLoadRepairPatch;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::NOTIFY_HOT_RELOAD_PAGE)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_HOT_RELOAD_PAGE)] =
         &AppMgrStub::HandleNotifyHotReloadPage;
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::SET_CONTINUOUSTASK_PROCESS)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SET_CONTINUOUSTASK_PROCESS)] =
         &AppMgrStub::HandleSetContinuousTaskProcess;
 #endif
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::NOTIFY_UNLOAD_REPAIR_PATCH)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_UNLOAD_REPAIR_PATCH)] =
         &AppMgrStub::HandleNotifyUnLoadRepairPatch;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::IS_SHARED_BUNDLE_RUNNING)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::IS_SHARED_BUNDLE_RUNNING)] =
         &AppMgrStub::HandleIsSharedBundleRunning;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::START_NATIVE_PROCESS_FOR_DEBUGGER)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::START_NATIVE_PROCESS_FOR_DEBUGGER)] =
         &AppMgrStub::HandleStartNativeProcessForDebugger;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::NOTIFY_APP_FAULT)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_APP_FAULT)] =
         &AppMgrStub::HandleNotifyFault;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::NOTIFY_APP_FAULT_BY_SA)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_APP_FAULT_BY_SA)] =
         &AppMgrStub::HandleNotifyFaultBySA;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::JUDGE_SANDBOX_BY_PID)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::JUDGE_SANDBOX_BY_PID)] =
         &AppMgrStub::HandleJudgeSandboxByPid;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::GET_BUNDLE_NAME_BY_PID)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_BUNDLE_NAME_BY_PID)] =
         &AppMgrStub::HandleGetBundleNameByPid;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_ALL_RENDER_PROCESSES)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_ALL_RENDER_PROCESSES)] =
         &AppMgrStub::HandleGetAllRenderProcesses;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::GET_PROCESS_MEMORY_BY_PID)] =
         &AppMgrStub::HandleGetProcessMemoryByPid;
