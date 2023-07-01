@@ -71,6 +71,7 @@
             "napi",
             "netmanager_base",
             "os_account",
+            "previewer",
             "relational_store",
             "resource_management",
             "resource_schedule_service",
@@ -78,7 +79,6 @@
             "samgr",
             "storage_service",
             "toolchain",
-            "tools_previewer",
             "webview",
             "hilog_native",
             "window_manager"

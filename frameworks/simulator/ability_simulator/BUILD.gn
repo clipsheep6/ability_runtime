@@ -88,7 +88,6 @@ ohos_shared_library("ability_simulator") {
 
   public_configs = [
     ":ability_simulator_public_config",
-    "${ability_runtime_services_path}/common:common_config",
     "${simulator_path}/common:ability_simulator_common_config",
   ]
 
@@ -105,7 +104,7 @@ ohos_shared_library("ability_simulator") {
     "hilog_native:libhilog_$platform",
     "napi:ace_napi",
     "napi:ace_napi_ark",
-    "tools_previewer:ide_extension",
+    "previewer:ide_extension",
     "window_manager:previewer_window",
     "window_manager:previewer_window_napi",
   ]
