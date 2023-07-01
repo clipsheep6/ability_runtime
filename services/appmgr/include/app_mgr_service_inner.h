@@ -22,10 +22,11 @@
 #include <regex>
 #include <unordered_map>
 #include <unordered_set>
+#include "cpp/mutex.h"
 
 #include "iremote_object.h"
 #include "refbase.h"
-
+#include "task_handler_wrap.h"
 #include "ability_info.h"
 #include "appexecfwk_errors.h"
 #include "app_death_recipient.h"
@@ -474,9 +475,17 @@ public:
 
     virtual void AddAppDeathRecipient(const pid_t pid, const sptr<AppDeathRecipient> &appDeathRecipient) const;
 
-    void HandleTimeOut(const InnerEvent::Pointer &event);
+    void HandleTimeOut(const AAFwk::EventWrap &event);
 
-    void SetEventHandler(const std::shared_ptr<AMSEventHandler> &handler);
+    void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler)
+    {
+        taskHandler_ = taskHandler;
+    }
+
+    void SetEventHandler(const std::shared_ptr<AMSEventHandler> &eventHandler)
+    {
+        eventHandler_ = eventHandler;
+    }
 
     void HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &token);
 
@@ -666,6 +675,26 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData);
+
+    /**
+     * get memorySize by pid.
+     *
+     * @param pid process id.
+     * @param memorySize Output parameters, return memorySize in KB.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetProcessMemoryByPid(const int32_t pid, int32_t &memorySize);
+
+    /**
+     * get application processes information list by bundleName.
+     *
+     * @param bundleName Bundle name.
+     * @param userId user Id in Application record.
+     * @param info Output parameters, return running process info list.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetRunningProcessInformation(
+        const std::string &bundleName, int32_t userId, std::vector<RunningProcessInfo> &info) ;
 
 private:
 
@@ -924,13 +953,14 @@ private:
     std::shared_ptr<AppProcessManager> appProcessManager_;
     std::shared_ptr<RemoteClientManager> remoteClientManager_;
     std::shared_ptr<AppRunningManager> appRunningManager_;
+    std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;
     std::shared_ptr<AMSEventHandler> eventHandler_;
     std::shared_ptr<Configuration> configuration_;
-    std::mutex userTestLock_;
-    std::mutex appStateCallbacksLock_;
-    std::mutex renderUidSetLock_;
+    ffrt::mutex userTestLock_;
+    ffrt::mutex appStateCallbacksLock_;
+    ffrt::mutex renderUidSetLock_;
     sptr<IStartSpecifiedAbilityResponse> startSpecifiedAbilityResponse_;
-    std::mutex configurationObserverLock_;
+    ffrt::mutex configurationObserverLock_;
     std::vector<sptr<IConfigurationObserver>> configurationObservers_;
     sptr<WindowFocusChangedListener> focusListener_;
     std::vector<std::shared_ptr<AppRunningRecord>> restartResedentTaskList_;

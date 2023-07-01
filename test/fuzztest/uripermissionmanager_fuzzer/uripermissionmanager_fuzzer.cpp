@@ -38,7 +38,7 @@ public:
     virtual ~UriPermissionManagerStubFuzzTest()
     {}
     int GrantUriPermission(const Uri &uri, unsigned int flag, const std::string targetBundleName,
-        int autoremove) override
+        int autoremove, int32_t appIndex = 0) override
     {
         return 0;
     }

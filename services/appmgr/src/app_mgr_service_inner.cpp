@@ -17,6 +17,7 @@
 
 #include <cinttypes>
 #include <csignal>
+#include <mutex>
 #include <securec.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -57,6 +58,8 @@
 #ifdef APP_MGR_SERVICE_APPMS
 #include "socket_permission.h"
 #endif
+#include "application_info.h"
+#include "meminfo.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -502,8 +505,8 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
     }
     if (appRecord->GetState() == ApplicationState::APP_STATE_FOREGROUND) {
         appRecord->SetState(ApplicationState::APP_STATE_BACKGROUND);
-        bool needNotifyApp =
-            !appRecord->IsUIExtension() && appRunningManager_->IsApplicationBackground(appRecord->GetBundleName());
+        bool needNotifyApp = !appRecord->IsUIExtension() && !appRecord->IsWindowExtension()
+            && appRunningManager_->IsApplicationBackground(appRecord->GetBundleName());
         OnAppStateChanged(appRecord, ApplicationState::APP_STATE_BACKGROUND, needNotifyApp);
         DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
     } else {
@@ -715,7 +718,7 @@ void AppMgrServiceInner::SendProcessExitEventTask(pid_t pid, time_t exitTime, in
     auto sendEventTask = [inner = shared_from_this(), pid, exitTime, count] () {
         inner->SendProcessExitEventTask(pid, exitTime, count);
     };
-    eventHandler_->PostTask(sendEventTask, PROCESS_EXIT_EVENT_TASK, KILL_PROCESS_DELAYTIME_MICRO_SECONDS);
+    taskHandler_->SubmitTask(sendEventTask, PROCESS_EXIT_EVENT_TASK, KILL_PROCESS_DELAYTIME_MICRO_SECONDS);
 }
 
 void AppMgrServiceInner::SendProcessExitEvent(pid_t pid)
@@ -1181,6 +1184,7 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(con
     appRecord->SetProcessAndExtensionType(abilityInfo);
     bool isKeepAlive = bundleInfo.isKeepAlive && bundleInfo.singleton;
     appRecord->SetKeepAliveAppState(isKeepAlive, false);
+    appRecord->SetTaskHandler(taskHandler_);
     appRecord->SetEventHandler(eventHandler_);
     appRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, want);
     if (want) {
@@ -1371,7 +1375,7 @@ void AppMgrServiceInner::RegisterAppStateCallback(const sptr<IAppStateCallback> 
     }
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (callback != nullptr) {
-        std::lock_guard<std::mutex> lock(appStateCallbacksLock_);
+        std::lock_guard lock(appStateCallbacksLock_);
         appStateCallbacks_.push_back(callback);
     }
 }
@@ -1579,7 +1583,7 @@ void AppMgrServiceInner::OnAppStateChanged(
     HILOG_DEBUG("OnAppStateChanged begin, bundleName is %{public}s, state:%{public}d",
         appRecord->GetBundleName().c_str(), static_cast<int32_t>(state));
     {
-        std::lock_guard<std::mutex> lock(appStateCallbacksLock_);
+        std::lock_guard lock(appStateCallbacksLock_);
         for (const auto &callback : appStateCallbacks_) {
             if (callback != nullptr) {
                 callback->OnAppStateChanged(WrapAppProcessData(appRecord, state));
@@ -1663,7 +1667,7 @@ void AppMgrServiceInner::OnAbilityStateChanged(
         HILOG_ERROR("ability is null");
         return;
     }
-    std::lock_guard<std::mutex> lock(appStateCallbacksLock_);
+    std::lock_guard lock(appStateCallbacksLock_);
     for (const auto &callback : appStateCallbacks_) {
         if (callback != nullptr) {
             callback->OnAbilityRequestDone(ability->GetToken(), state);
@@ -2025,12 +2029,12 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
         auto restartProcess = [appRecord, innerService = shared_from_this()]() {
             innerService->RestartResidentProcess(appRecord);
         };
+        if (!taskHandler_) {
+            HILOG_ERROR("taskHandler_ is nullptr");
+            return;
+        }
         if (appRecord->CanRestartResidentProc()) {
-            if (!eventHandler_) {
-                HILOG_ERROR("eventHandler_ is nullptr");
-                return;
-            }
-            eventHandler_->PostTask(restartProcess, "RestartResidentProcess");
+            taskHandler_->SubmitTask(restartProcess, "RestartResidentProcess");
         } else {
             auto findRestartResidentTask = [appRecord](const std::shared_ptr<AppRunningRecord> &appRunningRecord) {
                 return (appRecord != nullptr && appRecord->GetBundleName() == appRunningRecord->GetBundleName());
@@ -2043,7 +2047,7 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
             }
             restartResedentTaskList_.emplace_back(appRecord);
             HILOG_INFO("PostRestartResidentProcessDelayTask.");
-            eventHandler_->PostTask(restartProcess, "RestartResidentProcessDelayTask", RESTART_INTERVAL_TIME);
+            taskHandler_->SubmitTask(restartProcess, "RestartResidentProcessDelayTask", RESTART_INTERVAL_TIME);
         }
     }
 }
@@ -2079,11 +2083,11 @@ void AppMgrServiceInner::AddAppDeathRecipient(const pid_t pid, const sptr<AppDea
     }
 }
 
-void AppMgrServiceInner::HandleTimeOut(const InnerEvent::Pointer &event)
+void AppMgrServiceInner::HandleTimeOut(const AAFwk::EventWrap &event)
 {
     HILOG_INFO("handle time out");
-    if (!appRunningManager_ || event == nullptr) {
-        HILOG_ERROR("appRunningManager or event is nullptr");
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager is nullptr");
         return;
     }
 
@@ -2097,33 +2101,27 @@ void AppMgrServiceInner::HandleTimeOut(const InnerEvent::Pointer &event)
         return;
     }
 
-    switch (event->GetInnerEventId()) {
+    switch (event.GetEventId()) {
         case AMSEventHandler::TERMINATE_ABILITY_TIMEOUT_MSG:
-            appRunningManager_->HandleTerminateTimeOut(event->GetParam());
+            appRunningManager_->HandleTerminateTimeOut(event.GetParam());
             break;
         case AMSEventHandler::TERMINATE_APPLICATION_TIMEOUT_MSG:
-            SendHiSysEvent(event->GetInnerEventId(), event->GetParam());
-            HandleTerminateApplicationTimeOut(event->GetParam());
+            SendHiSysEvent(event.GetEventId(), event.GetParam());
+            HandleTerminateApplicationTimeOut(event.GetParam());
             break;
         case AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG:
         case AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG:
-            SendHiSysEvent(event->GetInnerEventId(), event->GetParam());
-            HandleAddAbilityStageTimeOut(event->GetParam());
+            SendHiSysEvent(event.GetEventId(), event.GetParam());
+            HandleAddAbilityStageTimeOut(event.GetParam());
             break;
         case AMSEventHandler::START_SPECIFIED_ABILITY_TIMEOUT_MSG:
-            SendHiSysEvent(event->GetInnerEventId(), event->GetParam());
-            HandleStartSpecifiedAbilityTimeOut(event->GetParam());
+            SendHiSysEvent(event.GetEventId(), event.GetParam());
+            HandleStartSpecifiedAbilityTimeOut(event.GetParam());
             break;
         default:
             break;
     }
 }
-
-void AppMgrServiceInner::SetEventHandler(const std::shared_ptr<AMSEventHandler> &handler)
-{
-    eventHandler_ = handler;
-}
-
 void AppMgrServiceInner::HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
@@ -2177,11 +2175,11 @@ void AppMgrServiceInner::TerminateApplication(const std::shared_ptr<AppRunningRe
                 return;
             }
         };
-        if (!eventHandler_) {
-            HILOG_ERROR("eventHandler_ is nullptr");
+        if (!taskHandler_) {
+            HILOG_ERROR("taskHandler_ is nullptr");
             return;
         }
-        eventHandler_->PostTask(timeoutTask, "DelayKillProcess", AMSEventHandler::KILL_PROCESS_TIMEOUT);
+        taskHandler_->SubmitTask(timeoutTask, "DelayKillProcess", AMSEventHandler::KILL_PROCESS_TIMEOUT);
     }
     appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
     RemoveAppFromRecentListById(appRecord->GetRecordId());
@@ -2323,6 +2321,7 @@ void AppMgrServiceInner::StartEmptyResidentProcess(
         appRecord->SetRestartResidentProcCount(restartCount);
     }
 
+    appRecord->SetTaskHandler(taskHandler_);
     appRecord->SetEventHandler(eventHandler_);
     appRecord->AddModules(appInfo, info.hapModuleInfos);
     HILOG_INFO("StartEmptyResidentProcess of pid : [%{public}d], ", appRecord->GetPriorityObject()->GetPid());
@@ -2588,6 +2587,7 @@ int AppMgrServiceInner::StartEmptyProcess(const AAFwk::Want &want, const sptr<IR
         return ERR_INVALID_VALUE;
     }
 
+    appRecord->SetTaskHandler(taskHandler_);
     appRecord->SetEventHandler(eventHandler_);
     appRecord->AddModules(appInfo, info.hapModuleInfos);
     HILOG_INFO("StartEmptyProcess OK pid : [%{public}d]", appRecord->GetPriorityObject()->GetPid());
@@ -2635,7 +2635,7 @@ int AppMgrServiceInner::FinishUserTestLocked(
         return ERR_INVALID_VALUE;
     }
 
-    std::unique_lock<std::mutex> lock(userTestLock_);
+    std::lock_guard<ffrt::mutex> lock(userTestLock_);
     auto userTestRecord = appRecord->GetUserTestInfo();
     if (!userTestRecord) {
         HILOG_WARN("not start user test");
@@ -2695,6 +2695,7 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
             appRecord->SetCallerTokenId(wantPtr->GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, -1));
         }
         appRecord->SetProcessAndExtensionType(abilityInfoPtr);
+        appRecord->SetTaskHandler(taskHandler_);
         appRecord->SetEventHandler(eventHandler_);
         appRecord->SendEventForSpecifiedAbility(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG,
             AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT);
@@ -2803,7 +2804,7 @@ int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
         return result;
     }
     // notify
-    std::lock_guard<std::mutex> notifyLock(configurationObserverLock_);
+    std::lock_guard<ffrt::mutex> notifyLock(configurationObserverLock_);
     for (auto &observer : configurationObservers_) {
         if (observer != nullptr) {
             observer->OnConfigurationUpdated(config);
@@ -2820,7 +2821,7 @@ int32_t AppMgrServiceInner::RegisterConfigurationObserver(const sptr<IConfigurat
         HILOG_ERROR("AppMgrServiceInner::Register error: observer is null");
         return ERR_INVALID_VALUE;
     }
-    std::lock_guard<std::mutex> registerLock(configurationObserverLock_);
+    std::lock_guard<ffrt::mutex> registerLock(configurationObserverLock_);
     auto it = std::find_if(configurationObservers_.begin(), configurationObservers_.end(),
         [&observer](const sptr<IConfigurationObserver> &item) {
             return (item && item->AsObject() == observer->AsObject());
@@ -2841,7 +2842,7 @@ int32_t AppMgrServiceInner::UnregisterConfigurationObserver(const sptr<IConfigur
         HILOG_ERROR("AppMgrServiceInner::Register error: observer is null");
         return ERR_INVALID_VALUE;
     }
-    std::lock_guard<std::mutex> unregisterLock(configurationObserverLock_);
+    std::lock_guard<ffrt::mutex> unregisterLock(configurationObserverLock_);
     auto it = std::find_if(configurationObservers_.begin(), configurationObservers_.end(),
         [&observer](const sptr<IConfigurationObserver> &item) {
             return (item && item->AsObject() == observer->AsObject());
@@ -2892,8 +2893,8 @@ std::shared_ptr<AppExecFwk::Configuration> AppMgrServiceInner::GetConfiguration(
 void AppMgrServiceInner::KillApplicationByRecord(const std::shared_ptr<AppRunningRecord> &appRecord)
 {
     HILOG_DEBUG("Kill application by appRecord.");
-    if (!appRecord || !eventHandler_) {
-        HILOG_WARN("appRecord or eventHandler_ is nullptr.");
+    if (!appRecord || !taskHandler_) {
+        HILOG_WARN("appRecord or taskHandler_ is nullptr.");
         return;
     }
 
@@ -2916,7 +2917,7 @@ void AppMgrServiceInner::KillApplicationByRecord(const std::shared_ptr<AppRunnin
             return;
         }
     };
-    eventHandler_->PostTask(timeoutTask, "DelayKillProcess", AMSEventHandler::KILL_PROCESS_TIMEOUT);
+    taskHandler_->SubmitTask(timeoutTask, "DelayKillProcess", AMSEventHandler::KILL_PROCESS_TIMEOUT);
 }
 
 void AppMgrServiceInner::SendHiSysEvent(const int32_t innerEventId, const int64_t eventId)
@@ -3278,7 +3279,7 @@ void AppMgrServiceInner::AttachRenderProcess(const pid_t pid, const sptr<IRender
     }
 
     sptr<AppDeathRecipient> appDeathRecipient = new AppDeathRecipient();
-    appDeathRecipient->SetEventHandler(eventHandler_);
+    appDeathRecipient->SetTaskHandler(taskHandler_);
     appDeathRecipient->SetAppMgrServiceInner(shared_from_this());
     appDeathRecipient->SetIsRenderProcess(true);
     renderRecord->SetScheduler(scheduler);
@@ -3293,7 +3294,7 @@ void AppMgrServiceInner::AttachRenderProcess(const pid_t pid, const sptr<IRender
 
 bool AppMgrServiceInner::GenerateRenderUid(int32_t &renderUid)
 {
-    std::lock_guard<std::mutex> lock(renderUidSetLock_);
+    std::lock_guard<ffrt::mutex> lock(renderUidSetLock_);
     int32_t uid = lastRenderUid_ + 1;
     bool needSecondScan = true;
     if (uid > Constants::END_UID_FOR_RENDER_PROCESS) {
@@ -3360,7 +3361,7 @@ int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecor
     ErrCode errCode = nwebSpawnClient->StartProcess(startMsg, pid);
     if (FAILED(errCode)) {
         HILOG_ERROR("failed to spawn new render process, errCode %{public}08x", errCode);
-        std::lock_guard<std::mutex> lock(renderUidSetLock_);
+        std::lock_guard<ffrt::mutex> lock(renderUidSetLock_);
         renderUidSet_.erase(renderUid);
         return ERR_INVALID_VALUE;
     }
@@ -3406,7 +3407,7 @@ void AppMgrServiceInner::OnRenderRemoteDied(const wptr<IRemoteObject> &remote)
         auto renderRecord = appRunningManager_->OnRemoteRenderDied(remote);
         if (renderRecord) {
             {
-                std::lock_guard<std::mutex> lock(renderUidSetLock_);
+                std::lock_guard<ffrt::mutex> lock(renderUidSetLock_);
                 renderUidSet_.erase(renderRecord->GetUid());
             }
             DelayedSingleton<AppStateObserverManager>::GetInstance()->OnRenderProcessDied(renderRecord);
@@ -3461,15 +3462,16 @@ void AppMgrServiceInner::InitFocusListener()
         return;
     }
 
-    focusListener_ = new WindowFocusChangedListener(shared_from_this(), eventHandler_);
+    focusListener_ = new WindowFocusChangedListener(shared_from_this(), taskHandler_);
     auto registerTask = [innerService = shared_from_this()]() {
         if (innerService) {
             HILOG_INFO("RegisterFocusListener task");
             innerService->RegisterFocusListener();
         }
     };
-    if (eventHandler_) {
-        eventHandler_->PostTask(registerTask, "RegisterFocusListenerTask", REGISTER_FOCUS_DELAY);
+    if (taskHandler_) {
+        taskHandler_->SubmitTask(registerTask, "RegisterFocusListenerTask", REGISTER_FOCUS_DELAY);
+        HILOG_INFO("Submit RegisterFocusListenerTask");
     }
 }
 
@@ -3673,7 +3675,7 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
 int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
 {
     HILOG_DEBUG("called");
-#ifdef ABILITY_COMMAND_FOR_TEST
+#ifdef ABILITY_FAULT_AND_EXIT_TEST
     if ((AAFwk::PermissionVerification::GetInstance()->IsSACall()) ||
         AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
 #else
@@ -3865,13 +3867,62 @@ void AppMgrServiceInner::KillRenderProcess(const std::shared_ptr<AppRunningRecor
                 HILOG_DEBUG("Kill render process when host died.");
                 KillProcessByPid(renderRecord->GetPid());
                 {
-                    std::lock_guard<std::mutex> lock(renderUidSetLock_);
+                    std::lock_guard lock(renderUidSetLock_);
                     renderUidSet_.erase(renderRecord->GetUid());
                 }
                 DelayedSingleton<AppStateObserverManager>::GetInstance()->OnRenderProcessDied(renderRecord);
             }
         }
     }
+}
+
+int32_t AppMgrServiceInner::GetProcessMemoryByPid(const int32_t pid, int32_t &memorySize)
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
+    uint64_t memSize = OHOS::MemInfo::GetPssByPid(pid);
+    memorySize = memSize;
+    return ERR_OK;
+}
+
+int32_t AppMgrServiceInner::GetRunningProcessInformation(
+    const std::string &bundleName, int32_t userId, std::vector<RunningProcessInfo> &info)
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager nullptr!");
+        return ERR_NO_INIT;
+    }
+
+    if (remoteClientManager_ == nullptr) {
+        HILOG_ERROR("remoteClientManager_ nullptr!");
+        return ERR_NO_INIT;
+    }
+    auto bundleMgr = remoteClientManager_->GetBundleManager();
+    if (bundleMgr == nullptr) {
+        HILOG_ERROR("bundleMgr nullptr!");
+        return ERR_NO_INIT;
+    }
+    HILOG_INFO("userid value is %{public}d", userId);
+    int uid = IN_PROCESS_CALL(bundleMgr->GetUidByBundleName(bundleName, userId));
+    HILOG_INFO("uid value is %{public}d", uid);
+    const auto &appRunningRecordMap = appRunningManager_->GetAppRunningRecordMap();
+    for (const auto &item : appRunningRecordMap) {
+        const auto &appRecord = item.second;
+        if (appRecord == nullptr) {
+            continue;
+        }
+        auto appInfoList = appRecord->GetAppInfoList();
+        for (const auto &appInfo : appInfoList) {
+            if (appInfo == nullptr) {
+                continue;
+            }
+            if (appInfo->bundleName == bundleName && appInfo->uid == uid) {
+                GetRunningProcesses(appRecord, info);
+                break;
+            }
+        }
+    }
+    return ERR_OK;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

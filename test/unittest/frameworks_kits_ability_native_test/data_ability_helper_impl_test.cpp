@@ -206,7 +206,7 @@ HWTEST_F(DataAbilityHelperImplForObserverTest,
     AppExecFwk_DataAbilityHelperImpl_Creator_0700, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_DataAbilityHelperImpl_Creator_0700 start";
-    std::shared_ptr<OHOS::AbilityRuntime::Context> context = 
+    std::shared_ptr<OHOS::AbilityRuntime::Context> context =
         std::make_shared<AbilityRuntime::MockAbilityRuntimeContext>();
     std::shared_ptr<Uri> uri = nullptr;
     bool tryBind = false;
@@ -224,7 +224,7 @@ HWTEST_F(DataAbilityHelperImplForObserverTest,
     AppExecFwk_DataAbilityHelperImpl_Creator_0800, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_DataAbilityHelperImpl_Creator_0800 start";
-    std::shared_ptr<OHOS::AbilityRuntime::Context> context = 
+    std::shared_ptr<OHOS::AbilityRuntime::Context> context =
         std::make_shared<AbilityRuntime::MockAbilityRuntimeContext>();
     std::shared_ptr<Uri> uri =
         std::make_shared<Uri>("dataability://device_id/com.domainname.dataability.persondata/person/10");
@@ -379,7 +379,7 @@ HWTEST_F(DataAbilityHelperImplForObserverTest,
 {
     GTEST_LOG_(INFO) << "AppExecFwk_DataAbilityHelperImpl_Creator_1600 start";
     std::weak_ptr<AbilityRecord> abilityRecord;
-    std::shared_ptr<OHOS::AbilityRuntime::Context> context = 
+    std::shared_ptr<OHOS::AbilityRuntime::Context> context =
         std::make_shared<AbilityRuntime::MockAbilityRuntimeContext>();
     std::shared_ptr<Uri> uri =
         std::make_shared<Uri>("dataability://device_id/com.domainname.dataability.persondata/person/10");

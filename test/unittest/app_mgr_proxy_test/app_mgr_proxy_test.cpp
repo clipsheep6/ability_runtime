@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -232,6 +232,83 @@ HWTEST_F(AppMgrProxyTest, PreStartNWebSpawnProcess_001, TestSize.Level0)
     EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::PRE_START_NWEBSPAWN_PROCESS));
 
     HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: GetProcessMemoryByPid_001
+ * @tc.desc: Get memorySize by pid.
+ * @tc.type: FUNC
+ * @tc.require: issueI76JBF
+ */
+HWTEST_F(AppMgrProxyTest, GetProcessMemoryByPid_001, TestSize.Level0)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+
+    int32_t pid = 0;
+    int32_t memorySize = 0;
+    appMgrProxy_->GetProcessMemoryByPid(pid, memorySize);
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::GET_PROCESS_MEMORY_BY_PID));
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: GetRunningProcessInformation_001
+ * @tc.desc: Get application processes information list by bundleName.
+ * @tc.type: FUNC
+ * @tc.require: issueI76JBF
+ */
+HWTEST_F(AppMgrProxyTest, GetRunningProcessInformation_001, TestSize.Level0)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+
+    std::string bundleName = "testBundleName";
+    int32_t userId = USER_ID;
+    std::vector<RunningProcessInfo> info;
+    appMgrProxy_->GetRunningProcessInformation(bundleName, userId, info);
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::GET_PIDS_BY_BUNDLENAME));
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: NotifyAppFault_001
+ * @tc.desc: Notify app fault.
+ * @tc.type: FUNC
+ * @tc.require: issueI79RY8
+ */
+HWTEST_F(AppMgrProxyTest, NotifyAppFault_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+    FaultData faultData;
+    appMgrProxy_->NotifyAppFault(faultData);
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::NOTIFY_APP_FAULT));
+}
+
+/**
+ * @tc.name: NotifyAppFaultBySA_001
+ * @tc.desc: Notify app fault by SA.
+ * @tc.type: FUNC
+ * @tc.require: issueI79RY8
+ */
+HWTEST_F(AppMgrProxyTest, NotifyAppFaultBySA_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+    AppFaultDataBySA faultData;
+    appMgrProxy_->NotifyAppFaultBySA(faultData);
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::NOTIFY_APP_FAULT_BY_SA));
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

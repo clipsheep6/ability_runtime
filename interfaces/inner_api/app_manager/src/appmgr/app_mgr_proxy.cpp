@@ -1295,5 +1295,81 @@ int32_t AppMgrProxy::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
 
     return reply.ReadInt32();
 }
+
+int32_t AppMgrProxy::GetProcessMemoryByPid(const int32_t pid, int32_t &memorySize)
+{
+    HILOG_DEBUG("GetProcessMemoryByPid start");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    if (!data.WriteInt32(pid)) {
+        HILOG_ERROR("write pid failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::GET_PROCESS_MEMORY_BY_PID),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed with error code %{public}d.", ret);
+        return ret;
+    }
+    memorySize = reply.ReadInt32();
+    auto result = reply.ReadInt32();
+    return result;
+}
+
+int32_t AppMgrProxy::GetRunningProcessInformation(
+    const std::string &bundleName, int32_t userId, std::vector<RunningProcessInfo> &info)
+{
+    HILOG_DEBUG("GetRunningProcessInformation start");
+    MessageParcel data;
+    MessageParcel reply;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    if (!data.WriteString(bundleName)) {
+        HILOG_ERROR("write bundleName failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteInt32(userId)) {
+        HILOG_ERROR("write userId failed.");
+        return ERR_INVALID_DATA;
+    }
+    MessageOption option(MessageOption::TF_SYNC);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::GET_PIDS_BY_BUNDLENAME),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed with error code %{public}d.", ret);
+        return ret;
+    }
+
+    auto error = GetParcelableInfos<RunningProcessInfo>(reply, info);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("GetParcelableInfos fail, error: %{public}d", error);
+        return error;
+    }
+    int result = reply.ReadInt32();
+    return result;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

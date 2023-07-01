@@ -19,8 +19,8 @@
 #include <list>
 #include <mutex>
 #include <queue>
+#include "cpp/mutex.h"
 
-#include "event_handler.h"
 #include "inner_mission_info.h"
 #include "mission_snapshot.h"
 
@@ -41,8 +41,6 @@ public:
     MissionDataStorage() = default;
     explicit MissionDataStorage(int userId);
     virtual ~MissionDataStorage();
-
-    void SetEventHandler(const std::shared_ptr<AppExecFwk::EventHandler> &handler);
 
     /**
      * @brief GeT all mission info.
@@ -102,6 +100,7 @@ public:
     std::shared_ptr<Media::PixelMap> GetSnapshot(int missionId, bool isLowResolution = false) const;
 
     std::unique_ptr<Media::PixelMap> GetPixelMap(int missionId, bool isLowResolution) const;
+    std::unique_ptr<uint8_t[]> ReadFileToBuffer(const std::string &filePath, size_t &bufferSize) const;
 #endif
 
 private:
@@ -137,8 +136,7 @@ private:
 #endif
 
     int userId_ = 0;
-    std::shared_ptr<AppExecFwk::EventHandler> handler_;
-    std::mutex cachedPixelMapMutex_;
+    ffrt::mutex cachedPixelMapMutex_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

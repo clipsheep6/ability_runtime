@@ -38,7 +38,7 @@ public:
      * @param autoremove the uri is temperarily or not
      */
     int GrantUriPermission(const Uri &uri, unsigned int flag,
-        const std::string targetBundleName, int autoremove);
+        const std::string targetBundleName, int autoremove, int32_t appIndex = 0);
 
     /**
      * @brief Clear user's uri authorization record with auto remove flag.

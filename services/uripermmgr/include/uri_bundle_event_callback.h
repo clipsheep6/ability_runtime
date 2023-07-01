@@ -18,11 +18,12 @@
 
 #include "bundle_event_callback_host.h"
 #include "common_event_support.h"
-#include "hilog_wrapper.h"
 #include "uri_permission_manager_stub_impl.h"
 
 namespace OHOS {
 namespace AAFwk {
+class UriPermissionManagerStubImpl;
+
 /**
  * @brief This class is a callback class that will be registered to BundleManager.
  * This class will be called by BundleManager when install, uninstall, updates of haps happens,
@@ -30,9 +31,8 @@ namespace AAFwk {
  */
 class UriBundleEventCallback : public AppExecFwk::BundleEventCallbackHost {
 public:
-    UriBundleEventCallback() = default;
-    explicit UriBundleEventCallback(sptr<UriPermissionManagerStubImpl> impl);
-    ~UriBundleEventCallback() = default;
+    UriBundleEventCallback(sptr<UriPermissionManagerStubImpl> impl) : upms_(impl) {}
+    virtual ~UriBundleEventCallback() = default;
     /**
      * @brief The main callback function that will be called by BundleManager
      * when install, uninstall, updates of haps happens to notify UriPermissionManger.

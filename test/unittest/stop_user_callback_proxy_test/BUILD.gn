@@ -54,7 +54,7 @@ ohos_unittest("stop_user_callback_proxy_test") {
     "ability_runtime:ability_manager",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]

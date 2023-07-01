@@ -143,6 +143,7 @@ bool ServiceRouterMgrService::ServiceRouterMgrService::SubscribeCommonEvent()
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED);
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED);
     EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
+    subscribeInfo.SetThreadMode(EventFwk::CommonEventSubscribeInfo::COMMON);
 
     eventSubscriber_ = std::make_shared<SrCommonEventSubscriber>(subscribeInfo);
     eventSubscriber_->SetEventHandler(handler_);
@@ -170,13 +171,11 @@ int32_t ServiceRouterMgrService::QueryPurposeInfos(const Want &want, const std::
     return ServiceRouterDataMgr::GetInstance().QueryPurposeInfos(want, purposeName, purposeInfos);
 }
 
-int32_t ServiceRouterMgrService::StartUIExtensionAbility(const Want &want, const sptr<SessionInfo> &sessionInfo,
-    int32_t userId, ExtensionAbilityType extensionType)
+int32_t ServiceRouterMgrService::StartUIExtensionAbility(const sptr<SessionInfo> &sessionInfo, int32_t userId)
 {
     APP_LOGD("StartUIExtensionAbility start:");
     DelayUnloadTask();
-    return IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->
-        StartUIExtensionAbility(want, sessionInfo, userId, extensionType));
+    return IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartUIExtensionAbility(sessionInfo, userId));
 }
 
 int32_t ServiceRouterMgrService::ConnectUIExtensionAbility(const Want &want, const sptr<IAbilityConnection> &connect,

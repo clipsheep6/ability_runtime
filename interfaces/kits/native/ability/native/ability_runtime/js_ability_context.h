@@ -58,6 +58,7 @@ public:
     static NativeValue* RestoreWindowStage(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* RequestDialogService(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* IsTerminating(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* ReportDrawnCompleted(NativeEngine* engine, NativeCallbackInfo* info);
 
     static void ConfigurationUpdated(NativeEngine* engine, std::shared_ptr<NativeReference> &jsContext,
         const std::shared_ptr<AppExecFwk::Configuration> &config);
@@ -98,6 +99,7 @@ private:
     NativeValue* OnRestoreWindowStage(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnRequestDialogService(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnIsTerminating(NativeEngine& engine, NativeCallbackInfo& info);
+    NativeValue* OnReportDrawnCompleted(NativeEngine& engine, NativeCallbackInfo& info);
 
     static bool UnWrapWant(NativeEngine& engine, NativeValue* argv, AAFwk::Want& want);
     static NativeValue* WrapWant(NativeEngine& engine, const AAFwk::Want& want);

@@ -26,9 +26,6 @@ ohos_unittest("uri_permission_impl_test") {
 
   sources = [
     "${ability_runtime_test_path}/mock/common/src/mock_native_token.cpp",
-    "mock/src/mock_system_ability_manager.cpp",
-    "mock/src/storage_manager_service_mock.cpp",
-    "mock/src/system_ability_manager_client.cpp",
     "uri_permission_impl_test.cpp",
   ]
 
@@ -52,8 +49,6 @@ ohos_unittest("uri_permission_impl_test") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
-
-    # "hilog:libhilog",
     "storage_service:storage_manager_sa_proxy",
   ]
 }

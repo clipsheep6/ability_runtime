@@ -219,7 +219,6 @@ ohos_shared_library("abilitykit_native") {
     "${ability_runtime_native_path}/appkit/app/context_container.cpp",
     "${ability_runtime_native_path}/appkit/app/context_deal.cpp",
     "${ability_runtime_native_path}/appkit/app/sys_mgr_client.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_start_setting.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/launch_param.cpp",
   ]
   configs = [ ":ability_config" ]
@@ -233,6 +232,7 @@ ohos_shared_library("abilitykit_native") {
     ":continuation_ipc",
     ":extension_blocklist_config",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_innerkits_path}/napi_base_context:napi_base_context",
@@ -308,12 +308,12 @@ ohos_shared_library("abilitykit_native") {
       "form_fwk:form_manager",
       "input:libmmi-client",
       "multimedia_image_framework:image",
+      "window_manager:windowstage_kit",
     ]
 
     public_deps += [
       "${multimedia_path}/interfaces/innerkits:image_native",
       "${windowmanager_path}/dm:libdm",
-      "${windowmanager_path}/interfaces/kits/napi/window_runtime:windowstage_kit",
       "${windowmanager_path}/wm:libwm",
     ]
   }
@@ -729,9 +729,12 @@ group("extension_module") {
   }
 }
 
-ohos_shared_library("ui_extension") {
+config("ui_extension_public_config") {
+  visibility = [ ":*" ]
   include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_extension_ability" ]
+}
 
+ohos_shared_library("ui_extension") {
   sources = [
     "${ability_runtime_native_path}/ability/native/ui_extension_ability/js_ui_extension.cpp",
     "${ability_runtime_native_path}/ability/native/ui_extension_ability/js_ui_extension_content_session.cpp",
@@ -739,6 +742,8 @@ ohos_shared_library("ui_extension") {
     "${ability_runtime_native_path}/ability/native/ui_extension_ability/ui_extension.cpp",
     "${ability_runtime_native_path}/ability/native/ui_extension_ability/ui_extension_context.cpp",
   ]
+
+  public_configs = [ ":ui_extension_public_config" ]
 
   deps = [
     ":abilitykit_native",

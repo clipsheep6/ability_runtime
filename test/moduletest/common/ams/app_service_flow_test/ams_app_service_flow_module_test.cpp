@@ -88,8 +88,9 @@ void AmsAppServiceFlowModuleTest::SetUp()
     serviceInner_.reset(new (std::nothrow) AppMgrServiceInner());
     serviceInner_->Init();
 
-    auto runner = EventRunner::Create("AmsAppServiceFlowModuleTest");
-    handler_ = std::make_shared<AMSEventHandler>(runner, serviceInner_);
+    auto taskHandler = AAFwk::TaskHandlerWrap::CreateQueueHandler("AmsAppServiceFlowModuleTest");
+    handler_ = std::make_shared<AMSEventHandler>(taskHandler, serviceInner_);
+    serviceInner_->SetTaskHandler(taskHandler);
     serviceInner_->SetEventHandler(handler_);
     mockBundleMgr_ = new (std::nothrow) BundleMgrService();
     serviceInner_->SetBundleManager(mockBundleMgr_);

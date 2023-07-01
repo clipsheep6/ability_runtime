@@ -172,6 +172,11 @@ public:
         return 0;
     }
 
+    int32_t ReportDrawnCompleted(const sptr<IRemoteObject>& callerToken) override
+    {
+        return 0;
+    }
+
     virtual int StartAbilityByCall(const Want& want, const sptr<IAbilityConnection>& connect,
         const sptr<IRemoteObject>& callerToken, int32_t userId = DEFAULT_INVAL_VALUE)
     {

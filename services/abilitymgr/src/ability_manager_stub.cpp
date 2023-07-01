@@ -297,6 +297,8 @@ void AbilityManagerStub::ThirdStepInit()
 #endif
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REQUEST_DIALOG_SERVICE)] =
         &AbilityManagerStub::HandleRequestDialogService;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REPORT_DRAWN_COMPLETED)] =
+        &AbilityManagerStub::HandleReportDrawnCompleted;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_COMPONENT_INTERCEPTION)] =
         &AbilityManagerStub::SetComponentInterceptionInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_ABILITY_RESULT_BY_TOKEN)] =
@@ -633,24 +635,15 @@ int AbilityManagerStub::StartExtensionAbilityInner(MessageParcel &data, MessageP
 
 int AbilityManagerStub::StartUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
-    Want *want = data.ReadParcelable<Want>();
-    if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
-        return ERR_INVALID_VALUE;
-    }
-
     sptr<SessionInfo> extensionSessionInfo = nullptr;
     if (data.ReadBool()) {
         extensionSessionInfo = data.ReadParcelable<SessionInfo>();
     }
 
     int32_t userId = data.ReadInt32();
-    int32_t extensionType = data.ReadInt32();
 
-    int32_t result = StartUIExtensionAbility(*want, extensionSessionInfo, userId,
-        static_cast<AppExecFwk::ExtensionAbilityType>(extensionType));
+    int32_t result = StartUIExtensionAbility(extensionSessionInfo, userId);
     reply.WriteInt32(result);
-    delete want;
     return NO_ERROR;
 }
 
@@ -2000,6 +1993,23 @@ int AbilityManagerStub::HandleRequestDialogService(MessageParcel &data, MessageP
     }
 
     int32_t result = RequestDialogService(*want, callerToken);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("reply write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::HandleReportDrawnCompleted(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("called.");
+    sptr<IRemoteObject> callerToken = data.ReadRemoteObject();
+    if (callerToken == nullptr) {
+        HILOG_ERROR("callerToken is invalid.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto result = ReportDrawnCompleted(callerToken);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("reply write failed.");
         return ERR_INVALID_VALUE;

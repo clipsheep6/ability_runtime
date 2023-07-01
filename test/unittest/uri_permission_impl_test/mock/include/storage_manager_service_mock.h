@@ -225,6 +225,8 @@ public:
         return E_OK;
     }
 };
+
+bool StorageManagerServiceMock::isZero = true;
 } // namespace StorageManager
 } // namespace OHOS
 #endif // MOCK_STORAGE_MANAGER_SERVICE_H

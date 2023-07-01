@@ -30,6 +30,15 @@ public:
 
     sptr<IRemoteObject> GetSystemAbility(int serviceId);
 };
+
+bool MockSystemAbilityManager::isNullptr = false;
+sptr<IRemoteObject> MockSystemAbilityManager::GetSystemAbility(int serviceId)
+{
+    if (isNullptr) {
+        return nullptr;
+    }
+    return new StorageManager::StorageManagerServiceMock();
+}
 }  // namespace AAFwk
 }  // namespace OHOS
 #endif // MOCK_SYSTEM_ABILITY_MANAGER_H

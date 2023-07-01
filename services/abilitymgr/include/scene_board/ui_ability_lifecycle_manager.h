@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_UI_ABILITY_LIFECYCLE_MANAGER_H
 
 #include <queue>
+#include "cpp/mutex.h"
 
 #include "ability_record.h"
 #include "session/host/include/zidl/session_interface.h"
@@ -235,7 +236,7 @@ private:
     std::shared_ptr<AbilityRecord> GetReusedSpecifiedAbility(const AAFwk::Want &want, const std::string &flag);
     void EraseSpecifiedAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
-    mutable std::mutex sessionLock_;
+    mutable ffrt::mutex sessionLock_;
     std::map<uint64_t, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;
     std::map<int64_t, std::shared_ptr<AbilityRecord>> tmpAbilityMap_;
     std::list<std::shared_ptr<AbilityRecord>> terminateAbilityList_;

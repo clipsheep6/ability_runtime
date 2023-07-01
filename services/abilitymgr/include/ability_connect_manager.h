@@ -20,9 +20,11 @@
 #include <map>
 #include <string>
 #include <unordered_map>
+#include "cpp/mutex.h"
 
 #include "ability_connect_callback_interface.h"
-#include "ability_event_handler.h"
+#include "task_handler_wrap.h"
+#include "event_handler_wrap.h"
 #include "ability_record.h"
 #include "ability_running_info.h"
 #include "extension_running_info.h"
@@ -198,11 +200,18 @@ public:
         std::vector<ExtensionRunningInfo> &info);
 
     /**
+     * set from ability manager service for sequenced task
+     */
+    inline void SetTaskHandler(const std::shared_ptr<TaskHandlerWrap> &taskHandler)
+    {
+        taskHandler_ = taskHandler;
+    }
+    /**
      * SetEventHandler.
      *
      * @param handler,EventHandler
      */
-    inline void SetEventHandler(const std::shared_ptr<AppExecFwk::EventHandler> &handler)
+    inline void SetEventHandler(const std::shared_ptr<EventHandlerWrap> &handler)
     {
         eventHandler_ = handler;
     }
@@ -494,19 +503,20 @@ private:
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
     const std::string TASK_ON_ABILITY_DIED = "OnAbilityDiedTask";
 
-    std::mutex Lock_;
+    ffrt::mutex Lock_;
     ConnectMapType connectMap_;
     ServiceMapType serviceMap_;
     ServiceMapType terminatingExtensionMap_;
     RecipientMapType recipientMap_;
     RecipientMapType uiExtRecipientMap_;
-    std::shared_ptr<AppExecFwk::EventHandler> eventHandler_;
+    std::shared_ptr<TaskHandlerWrap> taskHandler_;
+    std::shared_ptr<EventHandlerWrap> eventHandler_;
     int userId_;
     std::vector<AbilityRequest> restartResidentTaskList_;
     std::unordered_map<std::string, std::shared_ptr<std::list<AbilityRequest>>> startServiceReqList_;
-    std::mutex startServiceReqListLock_;
+    ffrt::mutex startServiceReqListLock_;
     UIExtensionMapType uiExtensionMap_;
-    
+
     DISALLOW_COPY_AND_MOVE(AbilityConnectManager);
 };
 }  // namespace AAFwk

@@ -231,6 +231,11 @@ public:
         return 0;
     }
 
+    int32_t ReportDrawnCompleted(const sptr<IRemoteObject>& callerToken) override
+    {
+        return 0;
+    }
+
     void Wait()
     {
         sem_.Wait();

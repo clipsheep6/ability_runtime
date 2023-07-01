@@ -28,6 +28,7 @@ ohos_unittest("AmsMgrStubTest") {
 
   deps = [
     "${ability_runtime_services_path}/appmgr:libappms",
+    "${ability_runtime_services_path}/common:task_handler_wrap",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -38,7 +39,7 @@ ohos_unittest("AmsMgrStubTest") {
     "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
-    "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",

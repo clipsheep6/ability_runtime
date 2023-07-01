@@ -816,7 +816,7 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_Query_0400, F
     NativeRdb::DataAbilityPredicates predicates("predicatestest");
     std::weak_ptr<AbilityRecord> abilityRecord;
     sptr<IRemoteObject> remote = new OHOS::AAFwk::Token(abilityRecord);
-    
+
     dataAbilityHelper->dataShareHelper_ = DataShare::DataShareHelper::Creator(remote, DATA_SHARE_URI);
     // Test to AbilityThread interface
     auto returnQuery =

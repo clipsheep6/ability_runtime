@@ -38,6 +38,7 @@ ohos_unittest("specified_mission_list_test") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${ability_runtime_services_path}/common:perm_verification",
@@ -54,7 +55,7 @@ ohos_unittest("specified_mission_list_test") {
     "ability_base:zuri",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "init:libbeget_proxy",
     "ipc:ipc_core",

@@ -330,7 +330,7 @@ HWTEST_F(AaCommandTest, Aa_Command_1500, Function | MediumTest | Level1)
     std::string command = "";
     const char* optarg = "profile abcd";
     constexpr int32_t len = 32;
-    EXPECT_EQ(cmd.CheckPerfCmdString(optarg, len, command), true);
+    EXPECT_EQ(cmd.CheckPerfCmdString(optarg, len, command), false);
 }
 
 /**
@@ -348,7 +348,7 @@ HWTEST_F(AaCommandTest, Aa_Command_1600, Function | MediumTest | Level1)
     std::string command = "";
     const char* optarg = " profile abcd";
     constexpr int32_t len = 32;
-    EXPECT_EQ(cmd.CheckPerfCmdString(optarg, len, command), true);
+    EXPECT_EQ(cmd.CheckPerfCmdString(optarg, len, command), false);
 }
 
 /**

@@ -355,18 +355,13 @@ int AbilityManagerProxy::StartExtensionAbility(const Want &want, const sptr<IRem
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::StartUIExtensionAbility(const Want &want, const sptr<SessionInfo> &extensionSessionInfo,
-    int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
+int AbilityManagerProxy::StartUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo, int32_t userId)
 {
     int error;
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        return INNER_ERR;
-    }
-    if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
         return INNER_ERR;
     }
 
@@ -386,10 +381,6 @@ int AbilityManagerProxy::StartUIExtensionAbility(const Want &want, const sptr<Se
 
     if (!data.WriteInt32(userId)) {
         HILOG_ERROR("StartExtensionAbility, userId write failed.");
-        return INNER_ERR;
-    }
-    if (!data.WriteInt32(static_cast<int32_t>(extensionType))) {
-        HILOG_ERROR("StartExtensionAbility, extensionType write failed.");
         return INNER_ERR;
     }
 
@@ -3527,6 +3518,39 @@ int32_t AbilityManagerProxy::RequestDialogService(const Want &want, const sptr<I
     auto error = SendRequest(AbilityManagerInterfaceCode::REQUEST_DIALOG_SERVICE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("request dialog service Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t AbilityManagerProxy::ReportDrawnCompleted(const sptr<IRemoteObject> &callerToken)
+{
+    HILOG_DEBUG("called.");
+    if (callerToken == nullptr) {
+        HILOG_ERROR("callerToken is nullptr");
+        return INNER_ERR;
+    }
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+
+    if (!data.WriteRemoteObject(callerToken)) {
+        HILOG_ERROR("callerToken write failed.");
+        return INNER_ERR;
+    }
+
+    auto remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote is nullptr.");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::REPORT_DRAWN_COMPLETED, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();

@@ -18,7 +18,7 @@
 
 #include "iremote_object.h"
 
-#include "app_mgr_service_event_handler.h"
+#include "task_handler_wrap.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -33,7 +33,7 @@ public:
      *
      * @param handler, event handler instance.
      */
-    void SetEventHandler(const std::shared_ptr<AMSEventHandler> &handler);
+    void SetTaskHandler(const std::shared_ptr<AAFwk::TaskHandlerWrap> &handler);
 
     /**
      * @brief Setting application service internal handler instance.
@@ -46,7 +46,7 @@ public:
 
 private:
     bool isRenderProcess_ = false;
-    std::weak_ptr<AMSEventHandler> handler_;
+    std::weak_ptr<AAFwk::TaskHandlerWrap> handler_;
     std::weak_ptr<AppMgrServiceInner> appMgrServiceInner_;
 };
 }  // namespace AppExecFwk

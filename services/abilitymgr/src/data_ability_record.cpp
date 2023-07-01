@@ -16,6 +16,7 @@
 #include "data_ability_record.h"
 
 #include <algorithm>
+#include <mutex>
 
 #include "ability_util.h"
 #include "app_scheduler.h"
@@ -71,7 +72,7 @@ int DataAbilityRecord::StartLoading()
     return ERR_OK;
 }
 
-int DataAbilityRecord::WaitForLoaded(std::mutex &mutex, const std::chrono::system_clock::duration &timeout)
+int DataAbilityRecord::WaitForLoaded(ffrt::mutex &mutex, const std::chrono::system_clock::duration &timeout)
 {
     CHECK_POINTER_AND_RETURN(ability_, ERR_INVALID_STATE);
 
@@ -80,7 +81,8 @@ int DataAbilityRecord::WaitForLoaded(std::mutex &mutex, const std::chrono::syste
         return ERR_OK;
     }
 
-    auto ret = loadedCond_.wait_for(mutex, timeout, [this] { return ability_->GetAbilityState() == ACTIVE; });
+    std::unique_lock<ffrt::mutex> lock(mutex, std::adopt_lock);
+    auto ret = loadedCond_.wait_for(lock, timeout, [this] { return ability_->GetAbilityState() == ACTIVE; });
     if (!ret) {
         return ERR_TIMED_OUT;
     }
@@ -226,16 +228,6 @@ int DataAbilityRecord::AddClient(const sptr<IRemoteObject> &client, bool tryBind
     clientInfo.tryBind = tryBind;
     clientInfo.isNotHap = isNotHap;
     clientInfo.clientPid = IPCSkeleton::GetCallingPid();
-    if (!isNotHap) {
-        auto clientAbilityRecord = Token::GetAbilityRecordByToken(client);
-        CHECK_POINTER_AND_RETURN(clientAbilityRecord, ERR_UNKNOWN_OBJECT);
-        appScheduler->AbilityBehaviorAnalysis(ability_->GetToken(), clientAbilityRecord->GetToken(), 0, 0, 1);
-        HILOG_INFO("Ability '%{public}s|%{public}s'.", clientAbilityRecord->GetApplicationInfo().bundleName.c_str(),
-            clientAbilityRecord->GetAbilityInfo().name.c_str());
-    }
-
-    HILOG_INFO("Data ability '%{public}s|%{public}s'.", ability_->GetApplicationInfo().bundleName.c_str(),
-        ability_->GetAbilityInfo().name.c_str());
 
     return ERR_OK;
 }

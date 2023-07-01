@@ -23,7 +23,7 @@
 #include "if_system_ability_manager.h"
 #include "nocopyable.h"
 #include "system_ability.h"
-
+#include "task_handler_wrap.h"
 #include "ability_info.h"
 #include "ability_running_record.h"
 #include "appexecfwk_errors.h"
@@ -330,6 +330,26 @@ public:
      */
     int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData) override;
 
+    /**
+     * get memorySize by pid.
+     *
+     * @param pid process id.
+     * @param memorySize Output parameters, return memorySize in KB.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetProcessMemoryByPid(const int32_t pid, int32_t &memorySize) override;
+
+    /**
+     * get application processes information list by bundleName.
+     *
+     * @param bundleName Bundle name.
+     * @param userId user Id in Application record.
+     * @param info Output parameters, return running process info list.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetRunningProcessInformation(
+        const std::string &bundleName, int32_t userId, std::vector<RunningProcessInfo> &info) override;
+
 private:
     /**
      * Init, Initialize application services.
@@ -407,8 +427,8 @@ private:
 private:
     std::shared_ptr<AppMgrServiceInner> appMgrServiceInner_;
     AppMgrServiceState appMgrServiceState_;
-    std::shared_ptr<EventRunner> runner_;
-    std::shared_ptr<AMSEventHandler> handler_;
+    std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;
+    std::shared_ptr<AMSEventHandler> eventHandler_;
     sptr<ISystemAbilityManager> systemAbilityMgr_;
     sptr<IAmsMgr> amsMgrScheduler_;
 

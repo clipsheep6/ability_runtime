@@ -219,13 +219,10 @@ bool PermissionVerification::VerifyGetBundleInfoPrivilegedPermission() const
     return false;
 }
 
-int PermissionVerification::CheckCallDataAbilityPermission(const VerificationInfo &verificationInfo) const
+int PermissionVerification::CheckCallDataAbilityPermission(const VerificationInfo &verificationInfo, bool isShell) const
 {
-    if (IsSACall()) {
-        return ERR_OK;
-    }
 
-    if ((verificationInfo.apiTargetVersion > API8 || IsShellCall()) &&
+    if ((verificationInfo.apiTargetVersion > API8 || isShell) &&
         !JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall, verificationInfo.withContinuousTask)) {
         HILOG_ERROR("Application can not start DataAbility from background after API8.");
         return CHECK_PERMISSION_FAILED;

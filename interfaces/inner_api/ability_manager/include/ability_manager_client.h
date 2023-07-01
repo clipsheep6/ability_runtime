@@ -198,19 +198,15 @@ public:
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED);
 
     /**
-     * Start ui extension ability with want, send want to ability manager service.
+     * Start ui extension ability with extension session info, send extension session info to ability manager service.
      *
-     * @param want, the want of the ability to start.
      * @param extensionSessionInfo the extension session info of the ability to start.
      * @param userId, Designation User ID.
-     * @param extensionType If an ExtensionAbilityType is set, only extension of that type can be started.
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode StartUIExtensionAbility(
-        const Want &want,
         const sptr<SessionInfo> &extensionSessionInfo,
-        int32_t userId = DEFAULT_INVAL_VALUE,
-        AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED);
+        int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**
      * Start ui ability with want, send want to ability manager service.
@@ -1099,6 +1095,8 @@ public:
      * @return returns the SessionManagerService object, or nullptr for failed.
      */
     sptr<IRemoteObject> GetSessionManagerService();
+
+    ErrCode ReportDrawnCompleted(const sptr<IRemoteObject> &token);
 
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {

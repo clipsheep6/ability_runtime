@@ -18,16 +18,15 @@
 
 #include <memory>
 
-#include "event_handler.h"
-#include "event_runner.h"
+#include "event_handler_wrap.h"
 
 namespace OHOS {
 namespace AAFwk {
 class UserController;
-class UserEventHandler : public AppExecFwk::EventHandler {
+class UserEventHandler : public EventHandlerWrap {
 public:
     UserEventHandler(
-        const std::shared_ptr<AppExecFwk::EventRunner> &runner, const std::weak_ptr<UserController> &owner);
+        const std::shared_ptr<TaskHandlerWrap> &taskHandler, const std::weak_ptr<UserController> &owner);
     virtual ~UserEventHandler() = default;
 
     static constexpr uint32_t EVENT_SYSTEM_USER_START = 10;
@@ -42,7 +41,7 @@ public:
      *
      * @param event, inner event loop.
      */
-    void ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event) override;
+    void ProcessEvent(const EventWrap &event) override;
 
 private:
     std::weak_ptr<UserController> controller_;

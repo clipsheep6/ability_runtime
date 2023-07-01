@@ -61,7 +61,6 @@ public:
     std::shared_ptr<AbilityResult> abilityResult_{ nullptr };
     std::shared_ptr<AbilityRequest> abilityRequest_{ nullptr };
     static constexpr unsigned int CHANGE_CONFIG_LOCALE = 0x00000001;
-    inline static std::shared_ptr<AbilityEventHandler> handler_{ nullptr };
 };
 
 void AbilityRecordTest::SetUpTestCase(void)
@@ -115,7 +114,8 @@ bool IsTestAbilityExist2(const std::string& data)
 
 class MockWMSHandler : public IWindowManagerServiceHandler {
 public:
-    virtual void NotifyWindowTransition(sptr<AbilityTransitionInfo> fromInfo, sptr<AbilityTransitionInfo> toInfo)
+    virtual void NotifyWindowTransition(sptr<AbilityTransitionInfo> fromInfo, sptr<AbilityTransitionInfo> toInfo,
+        bool& animaEnabled)
     {}
 
     virtual int32_t GetFocusWindow(sptr<IRemoteObject>& abilityToken)

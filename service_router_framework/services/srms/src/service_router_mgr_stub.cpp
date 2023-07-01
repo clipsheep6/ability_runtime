@@ -126,23 +126,16 @@ int ServiceRouterMgrStub::HandleQueryPurposeInfos(MessageParcel &data, MessagePa
 int ServiceRouterMgrStub::HandleStartUIExtensionAbility(MessageParcel &data, MessageParcel &reply)
 {
     APP_LOGD("ServiceRouterMgrStub handle start ui extension ability");
-    Want *want = data.ReadParcelable<Want>();
-    if (want == nullptr) {
-        APP_LOGE("ReadParcelable<want> failed");
-        return ERR_APPEXECFWK_PARCEL_ERROR;
-    }
     sptr<SessionInfo> sessionInfo = nullptr;
     if (data.ReadBool()) {
         sessionInfo = data.ReadParcelable<SessionInfo>();
     }
     int32_t userId = data.ReadInt32();
-    ExtensionAbilityType type = static_cast<ExtensionAbilityType>(data.ReadInt32());
-    int32_t result = StartUIExtensionAbility(*want, sessionInfo, userId, type);
+    int32_t result = StartUIExtensionAbility(sessionInfo, userId);
     if (!reply.WriteInt32(result)) {
         APP_LOGE("write result failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
-    delete want;
     return ERR_OK;
 }
 

@@ -19,19 +19,14 @@
 
 namespace OHOS {
 namespace AAFwk {
-AbilityBundleEventCallback::AbilityBundleEventCallback() : eventHandler_(nullptr) {}
-
-AbilityBundleEventCallback::AbilityBundleEventCallback(std::shared_ptr<AbilityEventHandler> eventHandler)
-{
-    eventHandler_ = eventHandler;
-}
-
+AbilityBundleEventCallback::AbilityBundleEventCallback(std::shared_ptr<TaskHandlerWrap> taskHandler)
+    : taskHandler_(taskHandler) {}
 
 void AbilityBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData eventData)
 {
     // env check
-    if (eventHandler_ == nullptr) {
-        HILOG_ERROR("OnReceiveEvent failed, eventHandler_ is nullptr");
+    if (taskHandler_ == nullptr) {
+        HILOG_ERROR("OnReceiveEvent failed, taskHandler is nullptr");
         return;
     }
     const Want& want = eventData.GetWant();
@@ -67,7 +62,7 @@ void AbilityBundleEventCallback::HandleUpdatedModuleInfo(const std::string &bund
         }
         sharedThis->abilityEventHelper_.HandleModuleInfoUpdated(bundleName, uid);
     };
-    eventHandler_->PostTask(task);
+    taskHandler_->SubmitTask(task);
 }
 
 void AbilityBundleEventCallback::HandleAppUpgradeCompleted(const std::string &bundleName, int32_t uid)
@@ -87,7 +82,7 @@ void AbilityBundleEventCallback::HandleAppUpgradeCompleted(const std::string &bu
         }
         abilityMgr->AppUpgradeCompleted(bundleName, uid);
     };
-    eventHandler_->PostTask(task);
+    taskHandler_->SubmitTask(task);
 }
 } // namespace AAFwk
 } // namespace OHOS

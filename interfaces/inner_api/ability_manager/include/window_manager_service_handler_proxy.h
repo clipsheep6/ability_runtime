@@ -28,7 +28,7 @@ public:
     virtual ~WindowManagerServiceHandlerProxy() = default;
 
     virtual void NotifyWindowTransition(sptr<AbilityTransitionInfo> fromInfo,
-        sptr<AbilityTransitionInfo> toInfo) override;
+        sptr<AbilityTransitionInfo> toInfo, bool& animaEnabled) override;
 
     virtual int32_t GetFocusWindow(sptr<IRemoteObject>& abilityToken) override;
 

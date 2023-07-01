@@ -37,12 +37,15 @@ ohos_shared_library("dataobsms") {
 
   configs = [ ":dataobsms_config" ]
 
-  deps = [ "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager" ]
+  deps = [
+    "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
+    "${ability_runtime_services_path}/common:task_handler_wrap",
+  ]
 
   external_deps = [
     "ability_base:zuri",
     "c_utils:utils",
-    "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
@@ -64,7 +67,7 @@ ohos_static_library("dataobsms_static") {
   external_deps = [
     "ability_base:zuri",
     "c_utils:utils",
-    "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
