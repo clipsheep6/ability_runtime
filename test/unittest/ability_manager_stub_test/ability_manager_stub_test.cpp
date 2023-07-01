@@ -83,7 +83,8 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_DumpSysStateInner_0100, Test
 
     data.WriteInt32(USER_ID);
 
-    int res = stub_->OnRemoteRequest(IAbilityManager::DUMPSYS_STATE, data, reply, option);
+    int res = stub_->OnRemoteRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::DUMPSYS_STATE),
+        data, reply, option);
     EXPECT_EQ(res, NO_ERROR);
 
     HILOG_INFO("AbilityManagerStub_DumpSysStateInner_0100 end");
@@ -108,13 +109,15 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_001, TestSize.Level1)
     want.SetFlags(10);
     data.WriteParcelable(&want);
     data.WriteInt32(1);
-    int res = stub_->OnRemoteRequest(IAbilityManager::START_ABILITY, data, reply, option);
+    int res = stub_->OnRemoteRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY),
+        data, reply, option);
 
     EXPECT_EQ(res, NO_ERROR);
 
     data.WriteParcelable(nullptr);
     data.WriteInt32(1);
-    int res1 = stub_->OnRemoteRequest(IAbilityManager::START_ABILITY, data, reply, option);
+    int res1 = stub_->OnRemoteRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY),
+        data, reply, option);
     EXPECT_NE(res1, NO_ERROR);
 }
 
@@ -138,7 +141,8 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_002, TestSize.Level1)
     WriteInterfaceToken(data);
     data.WriteParcelable(token);
     data.WriteParcelable(&want);
-    int res = stub_->OnRemoteRequest(IAbilityManager::TERMINATE_ABILITY, data, reply, option);
+    int res = stub_->OnRemoteRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_ABILITY),
+        data, reply, option);
 
     EXPECT_EQ(res, NO_ERROR);
 }
@@ -165,7 +169,8 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_004, TestSize.Level1)
     data.WriteParcelable(&want);
     data.WriteParcelable(connect->AsObject());
     data.WriteParcelable(callerToken);
-    int res = stub_->OnRemoteRequest(IAbilityManager::CONNECT_ABILITY, data, reply, option);
+    int res = stub_->OnRemoteRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::CONNECT_ABILITY),
+        data, reply, option);
 
     EXPECT_EQ(res, NO_ERROR);
 }
@@ -176,7 +181,7 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_004, TestSize.Level1)
  * SubFunction: NA
  * FunctionPoints: NA
  * EnvConditions: NA
- * CaseDescription: OnRemoteRequest IAbilityManager::CONNECT_ABILITY
+ * CaseDescription: OnRemoteRequest static_cast<uint32_t>(AbilityManagerInterfaceCode::CONNECT_ABILITY
  */
 HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_005, TestSize.Level1)
 {
@@ -192,7 +197,8 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_005, TestSize.Level1)
     data.WriteParcelable(&want);
     data.WriteParcelable(connect->AsObject());
     data.WriteParcelable(callerToken);
-    int res = stub_->OnRemoteRequest(IAbilityManager::CONNECT_ABILITY, data, reply, option);
+    int res = stub_->OnRemoteRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::CONNECT_ABILITY),
+        data, reply, option);
 
     EXPECT_EQ(res, NO_ERROR);
 }
@@ -203,7 +209,7 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_005, TestSize.Level1)
  * SubFunction: NA
  * FunctionPoints: NA
  * EnvConditions: NA
- * CaseDescription: OnRemoteRequest IAbilityManager::CONNECT_ABILITY
+ * CaseDescription: OnRemoteRequest static_cast<uint32_t>(AbilityManagerInterfaceCode::CONNECT_ABILITY
  */
 HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_006, TestSize.Level1)
 {
@@ -217,7 +223,8 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_006, TestSize.Level1)
     data.WriteParcelable(nullptr);
     data.WriteParcelable(connect->AsObject());
     data.WriteParcelable(callerToken);
-    int res = stub_->OnRemoteRequest(IAbilityManager::CONNECT_ABILITY, data, reply, option);
+    int res = stub_->OnRemoteRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::CONNECT_ABILITY),
+        data, reply, option);
 
     EXPECT_NE(res, NO_ERROR);
 }
@@ -239,7 +246,8 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_007, TestSize.Level1)
     sptr<IAbilityConnection> connect = new AbilityConnectCallback();
     WriteInterfaceToken(data);
     data.WriteParcelable(connect->AsObject());
-    int res = stub_->OnRemoteRequest(IAbilityManager::DISCONNECT_ABILITY, data, reply, option);
+    int res = stub_->OnRemoteRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::DISCONNECT_ABILITY),
+        data, reply, option);
 
     EXPECT_EQ(res, NO_ERROR);
 }
@@ -263,7 +271,8 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_008, TestSize.Level1)
     WriteInterfaceToken(data);
     data.WriteParcelable(scheduler->AsObject());
     data.WriteParcelable(token);
-    int res = stub_->OnRemoteRequest(IAbilityManager::ATTACH_ABILITY_THREAD, data, reply, option);
+    int res = stub_->OnRemoteRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::ATTACH_ABILITY_THREAD),
+        data, reply, option);
 
     EXPECT_EQ(res, NO_ERROR);
 }
@@ -290,7 +299,8 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_009, TestSize.Level1)
     pMap.PutIntValue(std::string("1"), 1);
     ret |= data.WriteParcelable(&pMap);
     if (ret) {
-        int res = stub_->OnRemoteRequest(IAbilityManager::ABILITY_TRANSITION_DONE, data, reply, option);
+        int res = stub_->OnRemoteRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::ABILITY_TRANSITION_DONE),
+        data, reply, option);
         EXPECT_EQ(res, NO_ERROR);
     }
 }
@@ -314,7 +324,8 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_010, TestSize.Level1)
     WriteInterfaceToken(data);
     data.WriteParcelable(token);
     data.WriteParcelable(remoteObject);
-    int res = stub_->OnRemoteRequest(IAbilityManager::CONNECT_ABILITY_DONE, data, reply, option);
+    int res = stub_->OnRemoteRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::CONNECT_ABILITY_DONE),
+        data, reply, option);
 
     EXPECT_EQ(res, NO_ERROR);
 }
@@ -336,7 +347,8 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_011, TestSize.Level1)
     sptr<IRemoteObject> token = nullptr;
     WriteInterfaceToken(data);
     data.WriteParcelable(token);
-    int res = stub_->OnRemoteRequest(IAbilityManager::DISCONNECT_ABILITY_DONE, data, reply, option);
+    int res = stub_->OnRemoteRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::DISCONNECT_ABILITY_DONE),
+        data, reply, option);
 
     EXPECT_EQ(res, NO_ERROR);
 }
@@ -362,7 +374,8 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_012, TestSize.Level1)
     data.WriteInt32(requestCode);
     data.WriteInt32(resultCode);
     data.WriteParcelable(&want);
-    int res = stub_->OnRemoteRequest(IAbilityManager::SEND_RESULT_TO_ABILITY, data, reply, option);
+    int res = stub_->OnRemoteRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_RESULT_TO_ABILITY),
+        data, reply, option);
 
     EXPECT_EQ(res, NO_ERROR);
 }
@@ -385,7 +398,8 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_013, TestSize.Level1)
     std::vector<std::string> info;
     WriteInterfaceToken(data);
     data.WriteString16(Str8ToStr16(args));
-    int res = stub_->OnRemoteRequest(IAbilityManager::DUMP_STATE, data, reply, option);
+    int res = stub_->OnRemoteRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::DUMP_STATE),
+        data, reply, option);
 
     EXPECT_EQ(res, NO_ERROR);
 }
@@ -404,7 +418,8 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_015, TestSize.Level1)
     MessageParcel reply;
     MessageOption option;
     WriteInterfaceToken(data);
-    int res = stub_->OnRemoteRequest(IAbilityManager::TERMINATE_ABILITY_RESULT, data, reply, option);
+    int res = stub_->OnRemoteRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_ABILITY_RESULT),
+        data, reply, option);
 
     EXPECT_EQ(res, NO_ERROR);
 }
@@ -445,7 +460,8 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_018, TestSize.Level1)
     WriteInterfaceToken(data);
     want.SetFlags(10);
     data.WriteParcelable(&want);
-    int res = stub_->OnRemoteRequest(IAbilityManager::START_CALL_ABILITY, data, reply, option);
+    int res = stub_->OnRemoteRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::START_CALL_ABILITY),
+        data, reply, option);
 
     EXPECT_EQ(res, NO_ERROR);
 }
@@ -464,7 +480,8 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_019, TestSize.Level1)
     MessageParcel reply;
     MessageOption option;
     WriteInterfaceToken(data);
-    int res = stub_->OnRemoteRequest(IAbilityManager::START_CALL_ABILITY, data, reply, option);
+    int res = stub_->OnRemoteRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::START_CALL_ABILITY),
+        data, reply, option);
 
     EXPECT_EQ(res, ERR_INVALID_VALUE);
 }
@@ -487,7 +504,8 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_020, TestSize.Level1)
     sptr<IAbilityConnection> connect = new AbilityConnectCallback();
     data.WriteParcelable(connect->AsObject());
     data.WriteParcelable(&element);
-    int res = stub_->OnRemoteRequest(IAbilityManager::RELEASE_CALL_ABILITY, data, reply, option);
+    int res = stub_->OnRemoteRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::RELEASE_CALL_ABILITY),
+        data, reply, option);
 
     EXPECT_EQ(res, ERR_INVALID_VALUE);
 }
@@ -506,7 +524,8 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_021, TestSize.Level1)
     MessageParcel reply;
     MessageOption option;
     WriteInterfaceToken(data);
-    int res = stub_->OnRemoteRequest(IAbilityManager::RELEASE_CALL_ABILITY, data, reply, option);
+    int res = stub_->OnRemoteRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::RELEASE_CALL_ABILITY),
+        data, reply, option);
 
     EXPECT_EQ(res, ERR_INVALID_VALUE);
 }

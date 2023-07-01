@@ -64,7 +64,8 @@ ErrCode WantAgentClient::GetWantSender(
         }
     }
 
-    auto error = abms->SendRequest(IAbilityManager::GET_PENDING_WANT_SENDER, data, reply, option);
+    auto error = abms->SendRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_SENDER),
+        data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_TIMEOUT;
@@ -93,7 +94,8 @@ ErrCode WantAgentClient::SendWantSender(const sptr<IWantSender> &target, const S
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
-    auto error = abms->SendRequest(IAbilityManager::SEND_PENDING_WANT_SENDER, data, reply, option);
+    auto error = abms->SendRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_PENDING_WANT_SENDER),
+        data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("SendWantSender, Send request error: %{public}d", error);
         return ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_TIMEOUT;
@@ -108,7 +110,8 @@ ErrCode WantAgentClient::CancelWantSender(const sptr<IWantSender> &sender)
     CHECK_POINTER_AND_RETURN(abms, ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_BUSY);
     ErrCode error;
     MessageParcel reply;
-    if (!SendRequest(IAbilityManager::CANCEL_PENDING_WANT_SENDER, abms, sender->AsObject(), reply, error)) {
+    if (!SendRequest(static_cast<int32_t>(AbilityManagerInterfaceCode::CANCEL_PENDING_WANT_SENDER),
+        abms, sender->AsObject(), reply, error)) {
         return error;
     }
     return ERR_OK;
@@ -121,7 +124,8 @@ ErrCode WantAgentClient::GetPendingWantUid(const sptr<IWantSender> &target, int3
     CHECK_POINTER_AND_RETURN(abms, ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_BUSY);
     ErrCode error;
     MessageParcel reply;
-    if (!SendRequest(IAbilityManager::GET_PENDING_WANT_UID, abms, target->AsObject(), reply, error)) {
+    if (!SendRequest(static_cast<int32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_UID),
+        abms, target->AsObject(), reply, error)) {
         return error;
     }
     uid = reply.ReadInt32();
@@ -135,7 +139,8 @@ ErrCode WantAgentClient::GetPendingWantUserId(const sptr<IWantSender> &target, i
     CHECK_POINTER_AND_RETURN(abms, ABILITY_SERVICE_NOT_CONNECTED);
     ErrCode error;
     MessageParcel reply;
-    if (!SendRequest(IAbilityManager::GET_PENDING_WANT_USERID, abms, target->AsObject(), reply, error)) {
+    if (!SendRequest(static_cast<int32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_USERID),
+        abms, target->AsObject(), reply, error)) {
         return error;
     }
     userId = reply.ReadInt32();
@@ -149,7 +154,8 @@ ErrCode WantAgentClient::GetPendingWantBundleName(const sptr<IWantSender> &targe
     CHECK_POINTER_AND_RETURN(abms, ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_BUSY);
     ErrCode error;
     MessageParcel reply;
-    if (!SendRequest(IAbilityManager::GET_PENDING_WANT_BUNDLENAME, abms, target->AsObject(), reply, error)) {
+    if (!SendRequest(static_cast<int32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_BUNDLENAME),
+        abms, target->AsObject(), reply, error)) {
         return error;
     }
     bundleName = Str16ToStr8(reply.ReadString16());
@@ -163,7 +169,8 @@ ErrCode WantAgentClient::GetPendingWantCode(const sptr<IWantSender> &target, int
     CHECK_POINTER_AND_RETURN(abms, ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_BUSY);
     ErrCode error;
     MessageParcel reply;
-    if (!SendRequest(IAbilityManager::GET_PENDING_WANT_CODE, abms, target->AsObject(), reply, error)) {
+    if (!SendRequest(static_cast<int32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_CODE),
+        abms, target->AsObject(), reply, error)) {
         return ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_TIMEOUT;
     }
     code = reply.ReadInt32();
@@ -177,7 +184,8 @@ ErrCode WantAgentClient::GetPendingWantType(const sptr<IWantSender> &target, int
     CHECK_POINTER_AND_RETURN(abms, ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_BUSY);
     ErrCode error;
     MessageParcel reply;
-    if (!SendRequest(IAbilityManager::GET_PENDING_WANT_TYPE, abms, target->AsObject(), reply, error)) {
+    if (!SendRequest(static_cast<int32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_TYPE),
+        abms, target->AsObject(), reply, error)) {
         return ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_TIMEOUT;
     }
     type = reply.ReadInt32();
@@ -209,7 +217,8 @@ void WantAgentClient::RegisterCancelListener(const sptr<IWantSender> &sender, co
         HILOG_ERROR("RegisterCancelListener, receiver write failed.");
         return;
     }
-    auto error = abms->SendRequest(IAbilityManager::REGISTER_CANCEL_LISTENER, data, reply, option);
+    auto error = abms->SendRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_CANCEL_LISTENER),
+        data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("RegisterCancelListener, Send request error: %{public}d", error);
         return;
@@ -241,7 +250,8 @@ void WantAgentClient::UnregisterCancelListener(
         HILOG_ERROR("UnregisterCancelListener, receiver write failed.");
         return;
     }
-    auto error = abms->SendRequest(IAbilityManager::UNREGISTER_CANCEL_LISTENER, data, reply, option);
+    auto error = abms->SendRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_CANCEL_LISTENER),
+        data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("UnregisterCancelListener, Send request error: %{public}d", error);
         return;
@@ -268,7 +278,8 @@ ErrCode WantAgentClient::GetPendingRequestWant(const sptr<IWantSender> &target, 
         HILOG_ERROR("GetPendingRequestWant, want write failed.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
-    auto error = abms->SendRequest(IAbilityManager::GET_PENDING_REQUEST_WANT, data, reply, option);
+    auto error = abms->SendRequest(static_cast<int32_t>(AbilityManagerInterfaceCode::GET_PENDING_REQUEST_WANT),
+        data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("GetPendingRequestWant, Send request error: %{public}d", error);
         return ERR_ABILITY_RUNTIME_EXTERNAL_SERVICE_TIMEOUT;
@@ -303,7 +314,8 @@ ErrCode WantAgentClient::GetWantSenderInfo(const sptr<IWantSender> &target, std:
         HILOG_ERROR("GetWantSenderInfo, info write failed.");
         return INNER_ERR;
     }
-    auto error = abms->SendRequest(IAbilityManager::GET_PENDING_WANT_SENDER_INFO, data, reply, option);
+    auto error = abms->SendRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_SENDER_INFO),
+        data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("GetWantSenderInfo, Send request error: %{public}d", error);
         return error;

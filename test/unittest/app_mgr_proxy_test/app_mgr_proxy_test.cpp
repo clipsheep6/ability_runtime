@@ -96,7 +96,7 @@ HWTEST_F(AppMgrProxyTest, AppMgrProxy_GetProcessRunningInfosByUserId_0100, TestS
     appMgrProxy_->GetProcessRunningInfosByUserId(info, USER_ID);
 
     EXPECT_EQ(
-        mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::APP_GET_RUNNING_PROCESSES_BY_USER_ID));
+        mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_RUNNING_PROCESSES_BY_USER_ID));
 
     GTEST_LOG_(INFO) << "AppMgrProxy_GetProcessRunningInfosByUserId_0100 end";
 }
@@ -118,7 +118,7 @@ HWTEST_F(AppMgrProxyTest, AppMgrProxy_GetAllRenderProcesses_0100, TestSize.Level
     appMgrProxy_->GetAllRenderProcesses(info);
 
     EXPECT_EQ(
-        mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::APP_GET_ALL_RENDER_PROCESSES));
+        mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_ALL_RENDER_PROCESSES));
 
     GTEST_LOG_(INFO) << "AppMgrProxy_GetAllRenderProcesses_0100 end";
 }
@@ -140,7 +140,7 @@ HWTEST_F(AppMgrProxyTest, GetAppRunningStateByBundleName_0100, TestSize.Level0)
     std::string bundleName = "testBundleName";
     appMgrProxy_->GetAppRunningStateByBundleName(bundleName);
 
-    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::GET_APP_RUNNING_STATE));
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::GET_APP_RUNNING_STATE));
 
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -163,7 +163,7 @@ HWTEST_F(AppMgrProxyTest, NotifyLoadRepairPatch_0100, TestSize.Level0)
     sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
     appMgrProxy_->NotifyLoadRepairPatch(bundleName, callback);
 
-    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::NOTIFY_LOAD_REPAIR_PATCH));
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_LOAD_REPAIR_PATCH));
 
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -186,7 +186,7 @@ HWTEST_F(AppMgrProxyTest, NotifyHotReloadPage_0100, TestSize.Level0)
     sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
     appMgrProxy_->NotifyHotReloadPage(bundleName, callback);
 
-    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::NOTIFY_HOT_RELOAD_PAGE));
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_HOT_RELOAD_PAGE));
 
     HILOG_INFO("%{public}s end", __func__);
 }
@@ -209,7 +209,7 @@ HWTEST_F(AppMgrProxyTest, NotifyUnLoadRepairPatch_0100, TestSize.Level0)
     sptr<IQuickFixCallback> callback = new QuickFixCallbackImpl();
     appMgrProxy_->NotifyUnLoadRepairPatch(bundleName, callback);
 
-    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::NOTIFY_UNLOAD_REPAIR_PATCH));
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_UNLOAD_REPAIR_PATCH));
 
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -229,7 +229,7 @@ HWTEST_F(AppMgrProxyTest, PreStartNWebSpawnProcess_001, TestSize.Level0)
         .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
 
     appMgrProxy_->PreStartNWebSpawnProcess();
-    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::PRE_START_NWEBSPAWN_PROCESS));
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::PRE_START_NWEBSPAWN_PROCESS));
 
     HILOG_INFO("%{public}s end.", __func__);
 }
