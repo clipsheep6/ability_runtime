@@ -39,6 +39,7 @@
 #include "context_impl.h"
 #include "extension_ability_info.h"
 #include "extension_module_loader.h"
+#include "extension_plugin_info.h"
 #include "extract_resource_manager.h"
 #include "file_path_utils.h"
 #include "hilog_wrapper.h"
@@ -112,8 +113,6 @@ constexpr char EVENT_KEY_SUMMARY[] = "SUMMARY";
 const int32_t JSCRASH_TYPE = 3;
 const std::string JSVM_TYPE = "ARK";
 const std::string SIGNAL_HANDLER = "SignalHandler";
-constexpr char EXTENSION_PARAMS_TYPE[] = "type";
-constexpr char EXTENSION_PARAMS_NAME[] = "name";
 
 constexpr uint32_t CHECK_MAIN_THREAD_IS_ALIVE = 1;
 
@@ -1312,11 +1311,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             return nullptr;
         });
         if (application_ != nullptr) {
-#ifdef APP_USE_ARM
-            LoadAllExtensions(jsEngine, "system/lib/extensionability", bundleInfo);
-#else
-            LoadAllExtensions(jsEngine, "system/lib64/extensionability", bundleInfo);
-#endif
+            LoadAllExtensions(jsEngine);
         }
 
         IdleTimeCallback callback = [wpApplication](int32_t idleTime) {
@@ -1565,60 +1560,29 @@ void MainThread::HandleAbilityStage(const HapModuleInfo &abilityStage)
     appMgr_->AddAbilityStageDone(applicationImpl_->GetRecordId());
 }
 
-void MainThread::LoadAllExtensions(NativeEngine &nativeEngine, const std::string &filePath,
-    const BundleInfo &bundleInfo)
+void MainThread::LoadAllExtensions(NativeEngine &nativeEngine)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("LoadAllExtensions.filePath:%{public}s, extensionInfo size = %{public}d", filePath.c_str(),
-        static_cast<int32_t>(bundleInfo.extensionInfos.size()));
+    HILOG_DEBUG("LoadAllExtensions.");
     if (!extensionConfigMgr_) {
+        HILOG_ERROR("ExtensionConfigMgr is invalid");
         return;
     }
 
-    // scan all extensions in path
-    std::vector<std::string> extensionFiles;
-    ScanDir(filePath, extensionFiles);
-    if (extensionFiles.empty()) {
-        HILOG_ERROR("no extension files.");
+    auto extensionPlugins = AbilityRuntime::ExtensionPluginInfo::GetInstance().GetExtensionPlugins();
+    if (extensionPlugins.empty()) {
+        HILOG_ERROR("no extension type map.");
         return;
     }
 
-    std::map<OHOS::AppExecFwk::ExtensionAbilityType, std::set<std::string>> extensionBlacklist;
     std::map<int32_t, std::string> extensionTypeMap;
-    for (auto file : extensionFiles) {
-        HILOG_DEBUG("Begin load extension file:%{public}s", file.c_str());
-        std::map<std::string, std::string> params =
-            AbilityRuntime::ExtensionModuleLoader::GetLoader(file.c_str()).GetParams();
-        if (params.empty()) {
-            HILOG_ERROR("no extension params.");
-            continue;
-        }
-        // get extension name and type
-        std::map<std::string, std::string>::iterator it = params.find(EXTENSION_PARAMS_TYPE);
-        if (it == params.end()) {
-            HILOG_ERROR("no extension type.");
-            continue;
-        }
-        int32_t type = -1;
-        try {
-            type = static_cast<int32_t>(std::stoi(it->second));
-        } catch (...) {
-            HILOG_WARN("stoi(%{public}s) failed", it->second.c_str());
-            continue;
-        }
+    for (auto& item : extensionPlugins) {
+        extensionTypeMap.insert(std::pair<int32_t, std::string>(item.extensionType, item.extensionName));
+        AddExtensionBlockItem(item.extensionName, item.extensionType);
 
-        it = params.find(EXTENSION_PARAMS_NAME);
-        if (it == params.end()) {
-            HILOG_ERROR("no extension name.");
-            continue;
-        }
-        std::string extensionName = it->second;
-
-        extensionTypeMap.insert(std::pair<int32_t, std::string>(type, extensionName));
-        AddExtensionBlockItem(extensionName, type);
-        HILOG_DEBUG("Success load extension type: %{public}d, name:%{public}s", type, extensionName.c_str());
+        std::string file = item.extensionLibFile;
         std::weak_ptr<OHOSApplication> wApp = application_;
-        AbilityLoader::GetInstance().RegisterExtension(extensionName,
+        AbilityLoader::GetInstance().RegisterExtension(item.extensionName,
             [wApp, file]() -> AbilityRuntime::Extension* {
             auto app = wApp.lock();
             if (app != nullptr) {
@@ -2136,6 +2100,11 @@ void MainThread::Start()
     }
 
     thread->RemoveAppMgrDeathRecipient();
+}
+
+void MainThread::PreloadExtensionPlugin()
+{
+    AbilityRuntime::ExtensionPluginInfo::GetInstance().Preload();
 }
 
 MainThread::MainHandler::MainHandler(const std::shared_ptr<EventRunner> &runner, const sptr<MainThread> &thread)
