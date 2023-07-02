@@ -95,6 +95,7 @@ const std::string PERMISSION_INTERNET = "ohos.permission.INTERNET";
 const std::string PERMISSION_ACCESS_BUNDLE_DIR = "ohos.permission.ACCESS_BUNDLE_DIR";
 const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
 const std::string SUPPORT_ISOLATION_MODE = "supportIsolationMode";
+const std::string SCENE_BOARD_BUNDLE_NAME = "com.ohos.sceneboard";
 const int32_t SIGNAL_KILL = 9;
 constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
@@ -3675,11 +3676,16 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
 int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
 {
     HILOG_DEBUG("called");
+    std::string callerBundleName;
+    if (auto bundleMgr = remoteClientManager_->GetBundleManager(); bundleMgr != nullptr) {
+        bundleMgr->GetBundleNameForUid(IPCSkeleton::GetCallingUid(), callerBundleName);
+    }
 #ifdef ABILITY_FAULT_AND_EXIT_TEST
     if ((AAFwk::PermissionVerification::GetInstance()->IsSACall()) ||
         AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
 #else
-    if ((AAFwk::PermissionVerification::GetInstance()->IsSACall())) {
+    if ((AAFwk::PermissionVerification::GetInstance()->IsSACall()) ||
+        callerBundleName == SCENE_BOARD_BUNDLE_NAME) {
 #endif
         int32_t pid = faultData.pid;
         auto appRecord = GetAppRunningRecordByPid(pid);
