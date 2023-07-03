@@ -931,6 +931,8 @@ private:
 
     void KillRenderProcess(const std::shared_ptr<AppRunningRecord> &appRecord);
 
+    void SetOverlayInfo(const std::string& bundleName, const int32_t userId, AppSpawnStartMsg& startMsg);
+
 private:
     /**
      * Notify application status.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -103,6 +103,10 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
         if (!startMsg.hspList.empty()) {
             this->hspListStr = DumpToJson(startMsg.hspList);
             msg_->hspList.totalLength = this->hspListStr.size() + 1; // including termination char '\0'
+        }
+
+        if (!startMsg.overlayInfo.empty()) {
+            msg_->overlayInfo.totalLength = startMsg.overlayInfo.size() + 1; // including termination char '\0'
         }
     } else if (msg_->code == AppSpawn::ClientSocket::AppOperateCode::GET_RENDER_TERMINATION_STATUS) {
         msg_->pid = startMsg.pid;

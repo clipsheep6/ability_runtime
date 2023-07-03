@@ -100,6 +100,7 @@ const int32_t SIGNAL_KILL = 9;
 constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
 #define APP_ACCESS_BUNDLE_DIR 0x20
+#define APP_OVERLAY_FLAG 0x100
 
 constexpr int32_t BASE_USER_RANGE = 200000;
 
@@ -1705,6 +1706,34 @@ int32_t AppMgrServiceInner::StartPerfProcess(const std::shared_ptr<AppRunningRec
     return ERR_OK;
 }
 
+void AppMgrServiceInner::SetOverlayInfo(const std::string &bundleName,
+                                        const int32_t userId,
+                                        AppSpawnStartMsg &startMsg)
+{
+    auto bundleMgr = remoteClientManager_->GetBundleManager();
+    if (bundleMgr == nullptr) {
+        HILOG_ERROR("GetBundleManager fail");
+        return;
+    }
+    auto overlayMgrProxy = bundleMgr->GetOverlayManagerProxy();
+    if (overlayMgrProxy !=  nullptr) {
+        std::vector<OverlayModuleInfo> overlayModuleInfo;
+        HILOG_DEBUG("Check overlay app begin.");
+        HITRACE_METER_NAME(HITRACE_TAG_APP, "BMS->GetOverlayModuleInfoForTarget");
+        auto targetRet = IN_PROCESS_CALL(overlayMgrProxy->GetOverlayModuleInfoForTarget(
+            bundleName, "", overlayModuleInfo, userId));
+        if (targetRet == ERR_OK && overlayModuleInfo.size() != 0) {
+            HILOG_DEBUG("Start an overlay app process.");
+            startMsg.flags = startMsg.flags | APP_OVERLAY_FLAG;
+            std::string overlayInfoPaths;
+            for (auto it : overlayModuleInfo) {
+                overlayInfoPaths += (it.hapPath + "|");
+            }
+            startMsg.overlayInfo = overlayInfoPaths;
+        }
+    }
+}
+
 void AppMgrServiceInner::StartProcess(const std::string &appName, const std::string &processName, uint32_t startFlags,
                                       const std::shared_ptr<AppRunningRecord> &appRecord, const int uid,
                                       const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag)
@@ -1816,6 +1845,8 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     if (hasAccessBundleDirReq) {
         startMsg.flags = startMsg.flags | APP_ACCESS_BUNDLE_DIR;
     }
+
+    SetOverlayInfo(bundleName, userId, startMsg);
 
     HILOG_DEBUG("Start process, apl is %{public}s, bundleName is %{public}s, startFlags is %{public}d.",
         startMsg.apl.c_str(), bundleName.c_str(), startFlags);

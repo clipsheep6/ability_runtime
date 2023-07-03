@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -99,11 +99,19 @@ private:
     ErrCode PreStartNWebSpawnProcessImpl();
 
     /**
-     * write hsp list to appspawn
+     * write string info to appSpawn.
      *
-     * @param msgWrapper, request message wrapper.
+     * @param strInfo, request message wrapper.
      */
-    ErrCode WriteHspList(AppSpawnMsgWrapper &msgWrapper);
+    ErrCode WriteStrInfoMessage(const std::string &strInfo);
+
+    /**
+     * @brief write message to appSpawn.
+     *
+     * @param msgWrapper, request message.
+     * @param startMsg, request message.
+     */
+    ErrCode StartProcessForWriteMsg(const AppSpawnMsgWrapper &msgWrapper, const AppSpawnStartMsg &startMsg);
 
 private:
     std::shared_ptr<AppSpawnSocket> socket_;

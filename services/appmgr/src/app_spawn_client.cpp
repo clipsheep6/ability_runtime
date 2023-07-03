@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -141,9 +141,9 @@ ErrCode AppSpawnClient::StartProcessImpl(const AppSpawnStartMsg &startMsg, pid_t
             HILOG_ERROR("WriteMessage failed!");
             return result;
         }
-        result = WriteHspList(msgWrapper);
+        result = StartProcessForWriteMsg(msgWrapper, startMsg);
         if (FAILED(result)) {
-            HILOG_ERROR("WriteHspList failed!");
+            HILOG_ERROR("StartProcessForWriteMsg failed!");
             return result;
         }
         result = socket_->ReadMessage(reinterpret_cast<void *>(pidMsg.pidBuf), LEN_PID);
@@ -161,18 +161,33 @@ ErrCode AppSpawnClient::StartProcessImpl(const AppSpawnStartMsg &startMsg, pid_t
     return result;
 }
 
-ErrCode AppSpawnClient::WriteHspList(AppSpawnMsgWrapper &msgWrapper)
+ErrCode AppSpawnClient::StartProcessForWriteMsg(const AppSpawnMsgWrapper &msgWrapper, const AppSpawnStartMsg &startMsg)
 {
     ErrCode result = ERR_OK;
-    const std::string& hspListStr = msgWrapper.GetHspListStr();
-    if (hspListStr.empty()) {
+    result = WriteStrInfoMessage(msgWrapper.GetHspListStr());
+    if (FAILED(result)) {
+        HILOG_ERROR("Write HspList failed!");
+        return result;
+    }
+    result = WriteStrInfoMessage(startMsg.overlayInfo);
+    if (FAILED(result)) {
+        HILOG_ERROR("Write OverlayInfo failed!");
+        return result;
+    }
+    return result;
+}
+
+ErrCode AppSpawnClient::WriteStrInfoMessage(const std::string &strInfo)
+{
+    ErrCode result = ERR_OK;
+    if (strInfo.empty()) {
         return result;
     }
 
     // split msg
-    const char *buff = hspListStr.c_str();
-    size_t leftLen = hspListStr.size() + 1;
-    HILOG_DEBUG("hspList length is %zu", leftLen);
+    const char *buff = strInfo.c_str();
+    size_t leftLen = strInfo.size() + 1;
+    HILOG_DEBUG("strInfo length is %zu", leftLen);
     while (leftLen >= SOCK_MAX_SEND_BUFFER) {
         result = socket_->WriteMessage(buff, SOCK_MAX_SEND_BUFFER);
         if (FAILED(result)) {
@@ -182,7 +197,7 @@ ErrCode AppSpawnClient::WriteHspList(AppSpawnMsgWrapper &msgWrapper)
         leftLen -= SOCK_MAX_SEND_BUFFER;
     }
 
-    HILOG_DEBUG("WriteHspList: leftLen = %zu", leftLen);
+    HILOG_DEBUG("strInfo: leftLen = %zu", leftLen);
     if (leftLen > 0) {
         result = socket_->WriteMessage(buff, leftLen);
     }
