@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,15 +13,17 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_JS_CONSOLE_LOG_H
-#define OHOS_ABILITY_RUNTIME_JS_CONSOLE_LOG_H
+#ifndef OHOS_ABILITY_RUNTIME_SIMULAOTR_JS_CONTEXT_UTILS_H
+#define OHOS_ABILITY_RUNTIME_SIMULAOTR_JS_CONTEXT_UTILS_H
 
+#include <memory>
+
+#include "context.h"
 #include "native_engine/native_engine.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-void InitConsoleLogModule(NativeEngine &engine, NativeObject &globalObject);
+NativeValue* CreateJsBaseContext(NativeEngine &engine, std::shared_ptr<Context> context, bool keepContext = false);
 } // namespace AbilityRuntime
 } // namespace OHOS
-
-#endif // OHOS_ABILITY_RUNTIME_JS_CONSOLE_LOG_H
+#endif // OHOS_ABILITY_RUNTIME_SIMULAOTR_JS_CONTEXT_UTILS_H

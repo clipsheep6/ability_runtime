@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,12 +22,19 @@
 #include <thread>
 #include <unordered_map>
 
+#include "ability_context.h"
+#include "EventHandler.h"
 #include "hilog_wrapper.h"
+#include "js_ability_context.h"
 #include "js_console_log.h"
 #include "js_module_searcher.h"
+#include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "js_timer.h"
+#include "js_window_stage.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
+#include "resource_manager.h"
+#include "window_scene.h"
 
 extern const char _binary_jsMockSystemPlugin_abc_start[];
 extern const char _binary_jsMockSystemPlugin_abc_end[];
@@ -50,16 +57,22 @@ constexpr char ARK_DEBUGGER_LIB_PATH[] = "libark_debugger.dylib";
 #error "Unsupported platform"
 #endif
 
-int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char* message)
+int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char *message)
 {
-    HILOG_INFO("ArkLog: %{public}s", message);
+    HILOG_DEBUG("ArkLog: %{public}s", message);
     return 0;
 }
 
-struct DebuggerTask {
-    void OnPostTask(std::function<void()>&& task);
+template<typename T, size_t N>
+inline constexpr size_t ArraySize(T (&)[N]) noexcept
+{
+    return N;
+}
 
-    static void HandleTask(const uv_async_t* req);
+struct DebuggerTask {
+    void OnPostTask(std::function<void()> &&task);
+
+    static void HandleTask(const uv_async_t *req);
 
     uv_async_t onPostTaskSignal {};
     std::function<void()> func;
@@ -70,54 +83,39 @@ public:
     SimulatorImpl() = default;
     ~SimulatorImpl();
 
-    bool Initialize(const Options& options);
+    bool Initialize(const Options &options);
 
-    int64_t StartAbility(const std::string& abilityName, TerminateCallback callback) override;
+    int64_t StartAbility(const std::string &abilityName, TerminateCallback callback) override;
     void TerminateAbility(int64_t abilityId) override;
 private:
     bool OnInit();
     void Run();
-    NativeValue* LoadScript();
-    panda::ecmascript::EcmaVM* CreateJSVM();
+    NativeValue *LoadScript();
+    void InitResourceMgr();
+    void InitJsAbilityContext(NativeValue *instanceValue);
+    void DispatchStartLifecycle(NativeValue *instanceValue);
+    std::unique_ptr<NativeReference> CreateJsWindowStage(const std::shared_ptr<Rosen::WindowScene> &windowScene);
+    NativeValue *CreateJsWant(NativeEngine &engine);
+
+    panda::ecmascript::EcmaVM *CreateJSVM();
     Options options_;
     std::string abilityPath_;
-    std::thread thread_;
-    panda::ecmascript::EcmaVM* vm_ = nullptr;
+    panda::ecmascript::EcmaVM *vm_ = nullptr;
     DebuggerTask debuggerTask_;
     std::unique_ptr<NativeEngine> nativeEngine_;
 
     int64_t currentId_ = 0;
     std::unordered_map<int64_t, std::shared_ptr<NativeReference>> abilities_;
+    std::unordered_map<int64_t, std::shared_ptr<Rosen::WindowScene>> windowScenes_;
+    std::unordered_map<int64_t, std::shared_ptr<NativeReference>> jsWindowStages_;
+    std::unordered_map<int64_t, std::shared_ptr<NativeReference>> jsContexts_;
+    std::shared_ptr<Global::Resource::ResourceManager> resourceMgr_;
+    std::shared_ptr<AbilityContext> context_;
 };
 
-template <class T>
-class ResultWaiter final {
-public:
-    T WaitForResult()
-    {
-        std::unique_lock<std::mutex> lock(mutex_);
-        cv_.wait(lock, [&] { return !waiting_; });
-        return result_;
-    }
-
-    void NotifyResult(T result)
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        waiting_ = false;
-        result_ = result;
-        cv_.notify_all();
-    }
-
-private:
-    std::mutex mutex_;
-    std::condition_variable cv_;
-    bool waiting_ = true;
-    T result_ = false;
-};
-
-void DebuggerTask::HandleTask(const uv_async_t* req)
+void DebuggerTask::HandleTask(const uv_async_t *req)
 {
-    auto* debuggerTask = reinterpret_cast<DebuggerTask*>(req->data);
+    auto *debuggerTask = reinterpret_cast<DebuggerTask*>(req->data);
     if (debuggerTask == nullptr) {
         HILOG_ERROR("HandleTask debuggerTask is null");
         return;
@@ -125,7 +123,7 @@ void DebuggerTask::HandleTask(const uv_async_t* req)
     debuggerTask->func();
 }
 
-void DebuggerTask::OnPostTask(std::function<void()>&& task)
+void DebuggerTask::OnPostTask(std::function<void()> &&task)
 {
     if (uv_is_active((uv_handle_t*)&onPostTaskSignal)) {
         func = std::move(task);
@@ -138,70 +136,49 @@ SimulatorImpl::~SimulatorImpl()
 {
     if (nativeEngine_) {
         uv_close(reinterpret_cast<uv_handle_t*>(&debuggerTask_.onPostTaskSignal), nullptr);
-        uv_loop_t* uvLoop = nativeEngine_->GetUVLoop();
+        uv_loop_t *uvLoop = nativeEngine_->GetUVLoop();
         if (uvLoop != nullptr) {
             uv_work_t work;
-            uv_queue_work(uvLoop, &work, [](uv_work_t*) {}, [](uv_work_t* work, int32_t status) {
-                HILOG_INFO("Simulator stop uv loop");
+            uv_queue_work(uvLoop, &work, [](uv_work_t*) {}, [](uv_work_t *work, int32_t status) {
+                HILOG_DEBUG("Simulator stop uv loop");
                 uv_stop(work->loop);
             });
         }
     }
 
-    if (thread_.joinable()) {
-        HILOG_INFO("Simulator Waiting for thread stopped");
-        thread_.join();
-        HILOG_INFO("Simulator thread stopped");
-    }
+    panda::JSNApi::StopDebugger(vm_);
+
+    abilities_.clear();
+    nativeEngine_.reset();
+    panda::JSNApi::DestroyJSVM(vm_);
+    vm_ = nullptr;
 }
 
-bool SimulatorImpl::Initialize(const Options& options)
+bool SimulatorImpl::Initialize(const Options &options)
 {
     if (nativeEngine_) {
-        HILOG_INFO("Simulator is already initialized");
+        HILOG_DEBUG("Simulator is already initialized");
         return true;
     }
 
-    ResultWaiter<bool> waiter;
-
     options_ = options;
-    thread_ = std::thread([&] {
-        bool initResult = OnInit();
-        if (!initResult) {
-            waiter.NotifyResult(false);
-            return;
-        }
-
-        uv_loop_t* uvLoop = nativeEngine_->GetUVLoop();
-        if (uvLoop == nullptr) {
-            waiter.NotifyResult(false);
-            return;
-        }
-
-        uv_async_init(uvLoop, &debuggerTask_.onPostTaskSignal,
-            reinterpret_cast<uv_async_cb>(DebuggerTask::HandleTask));
-
-        uv_timer_t timerReq;
-        uv_timer_init(uvLoop, &timerReq);
-        timerReq.data = &waiter;
-        uv_timer_start(&timerReq, [](uv_timer_t* timerReq) {
-            auto watier = static_cast<ResultWaiter<bool>*>(timerReq->data);
-            watier->NotifyResult(true);
-            timerReq->data = nullptr;
-        }, 0, 0);
-
-        Run();
-    });
-
-    bool result = waiter.WaitForResult();
-    if (!result && thread_.joinable()) {
-        thread_.join();
+    if (!OnInit()) {
+        return false;
     }
 
-    return result;
+    uv_loop_t *uvLoop = nativeEngine_->GetUVLoop();
+    if (uvLoop == nullptr) {
+        return false;
+    }
+
+    uv_async_init(uvLoop, &debuggerTask_.onPostTaskSignal,
+        reinterpret_cast<uv_async_cb>(DebuggerTask::HandleTask));
+
+    Run();
+    return true;
 }
 
-void CallObjectMethod(NativeEngine& engine, NativeValue* value, const char *name, NativeValue *const *argv, size_t argc)
+void CallObjectMethod(NativeEngine &engine, NativeValue *value, const char *name, NativeValue *const *argv, size_t argc)
 {
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
@@ -217,7 +194,7 @@ void CallObjectMethod(NativeEngine& engine, NativeValue* value, const char *name
     engine.CallFunction(value, methodOnCreate, argv, argc);
 }
 
-NativeValue* SimulatorImpl::LoadScript()
+NativeValue *SimulatorImpl::LoadScript()
 {
     panda::Local<panda::ObjectRef> objRef = panda::JSNApi::GetExportObject(vm_, abilityPath_, "default");
     if (objRef->IsNull()) {
@@ -229,96 +206,177 @@ NativeValue* SimulatorImpl::LoadScript()
     return nativeEngine_->CreateInstance(obj, nullptr, 0);
 }
 
-int64_t SimulatorImpl::StartAbility(const std::string& abilitySrcPath, TerminateCallback callback)
+int64_t SimulatorImpl::StartAbility(const std::string &abilitySrcPath, TerminateCallback callback)
 {
-    uv_work_t work;
-
-    ResultWaiter<int64_t> waiter;
     abilityPath_ = BUNDLE_INSTALL_PATH + options_.moduleName + "/" + abilitySrcPath;
-    work.data = new std::function<void()>([this, &waiter] () {
-        std::ifstream stream(options_.modulePath, std::ios::ate | std::ios::binary);
-        if (!stream.is_open()) {
-            HILOG_ERROR("Failed to open: %{public}s", options_.modulePath.c_str());
-            waiter.NotifyResult(-1);
-            return;
-        }
 
-        size_t len = stream.tellg();
-        std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(len);
-        stream.seekg(0);
-        stream.read(reinterpret_cast<char*>(buffer.get()), len);
-        stream.close();
-        if (!nativeEngine_->RunScriptBuffer(abilityPath_, buffer.release(), len, false)) {
-            HILOG_ERROR("Failed to run script: %{public}s", abilityPath_.c_str());
-            waiter.NotifyResult(-1);
-            return;
-        }
+    std::ifstream stream(options_.modulePath, std::ios::ate | std::ios::binary);
+    if (!stream.is_open()) {
+        HILOG_ERROR("Failed to open: %{public}s", options_.modulePath.c_str());
+        return -1;
+    }
 
-        NativeValue* instanceValue = LoadScript();
-        if (instanceValue == nullptr) {
-            HILOG_ERROR("Failed to create object instance");
-            waiter.NotifyResult(-1);
-            return;
-        }
+    size_t len = stream.tellg();
+    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(len);
+    stream.seekg(0);
+    stream.read(reinterpret_cast<char*>(buffer.get()), len);
+    stream.close();
+    if (!nativeEngine_->RunScriptBuffer(abilityPath_, buffer.release(), len, false)) {
+        HILOG_ERROR("Failed to run script: %{public}s", abilityPath_.c_str());
+        return -1;
+    }
 
-        CallObjectMethod(*nativeEngine_, instanceValue, "onCreate", nullptr, 0);
-        CallObjectMethod(*nativeEngine_, instanceValue, "onWindowStageCreate", nullptr, 0);
-        CallObjectMethod(*nativeEngine_, instanceValue, "onForeground", nullptr, 0);
+    NativeValue *instanceValue = LoadScript();
+    if (instanceValue == nullptr) {
+        HILOG_ERROR("Failed to create object instance");
+        return -1;
+    }
 
-        int64_t id = ++currentId_;
-        abilities_.emplace(id, nativeEngine_->CreateReference(instanceValue, 1));
+    ++currentId_;
+    InitResourceMgr();
+    InitJsAbilityContext(instanceValue);
+    DispatchStartLifecycle(instanceValue);
+    abilities_.emplace(currentId_, nativeEngine_->CreateReference(instanceValue, 1));
 
-        waiter.NotifyResult(id);
-    });
-
-    uv_queue_work(nativeEngine_->GetUVLoop(), &work, [](uv_work_t*) {}, [](uv_work_t* work, int32_t status) {
-        auto func = static_cast<std::function<void()>*>(work->data);
-        (*func)();
-        delete func;
-    });
-
-    return waiter.WaitForResult();
+    return currentId_;
 }
 
 void SimulatorImpl::TerminateAbility(int64_t abilityId)
 {
-    uv_work_t work;
+    auto it = abilities_.find(abilityId);
+    if (it == abilities_.end()) {
+        return;
+    }
 
-    ResultWaiter<bool> waiter;
+    std::shared_ptr<NativeReference> ref = it->second;
+    abilities_.erase(it);
 
-    work.data = new std::function<void()>([abilityId, this, &waiter] () {
-        auto it = abilities_.find(abilityId);
-        if (it == abilities_.end()) {
-            waiter.NotifyResult(false);
-            return;
-        }
+    auto instanceValue = ref->Get();
+    if (instanceValue == nullptr) {
+        return;
+    }
 
-        std::shared_ptr<NativeReference> ref = it->second;
-        abilities_.erase(it);
+    CallObjectMethod(*nativeEngine_, instanceValue, "onBackground", nullptr, 0);
+    CallObjectMethod(*nativeEngine_, instanceValue, "onWindowStageDestroy", nullptr, 0);
+    CallObjectMethod(*nativeEngine_, instanceValue, "onDestroy", nullptr, 0);
 
-        auto instanceValue = ref->Get();
-        if (instanceValue == nullptr) {
-            waiter.NotifyResult(false);
-            return;
-        }
+    auto windowSceneIter = windowScenes_.find(abilityId);
+    if (windowSceneIter != windowScenes_.end()) {
+        windowScenes_.erase(windowSceneIter);
+    }
 
-        CallObjectMethod(*nativeEngine_, instanceValue, "onBackground", nullptr, 0);
-        CallObjectMethod(*nativeEngine_, instanceValue, "onWindowStageDestroy", nullptr, 0);
-        CallObjectMethod(*nativeEngine_, instanceValue, "onDestroy", nullptr, 0);
+    auto windowStageIter = jsWindowStages_.find(abilityId);
+    if (windowStageIter != jsWindowStages_.end()) {
+        jsWindowStages_.erase(windowStageIter);
+    }
 
-        waiter.NotifyResult(true);
-    });
-
-    uv_queue_work(nativeEngine_->GetUVLoop(), &work, [](uv_work_t*) {}, [](uv_work_t* work, int32_t status) {
-        auto func = static_cast<std::function<void()>*>(work->data);
-        (*func)();
-        delete func;
-    });
-
-    waiter.WaitForResult();
+    auto jsContextIter = jsContexts_.find(abilityId);
+    if (jsContextIter != jsContexts_.end()) {
+        jsContexts_.erase(jsContextIter);
+    }
 }
 
-panda::ecmascript::EcmaVM* SimulatorImpl::CreateJSVM()
+void SimulatorImpl::InitResourceMgr()
+{
+    HILOG_DEBUG("called.");
+    resourceMgr_ = std::shared_ptr<Global::Resource::ResourceManager>(Global::Resource::CreateResourceManager());
+    if (resourceMgr_ == nullptr) {
+        HILOG_ERROR("resourceMgr is nullptr");
+        return;
+    }
+
+    if (!resourceMgr_->AddResource(options_.resourcePath.c_str())) {
+        HILOG_ERROR("Add resource failed.");
+    }
+    HILOG_DEBUG("Add resource success.");
+}
+
+void SimulatorImpl::InitJsAbilityContext(NativeValue *instanceValue)
+{
+    if (context_ == nullptr) {
+        context_ = std::make_shared<AbilityContext>();
+        context_->SetOptions(options_);
+        context_->SetResourceManager(resourceMgr_);
+    }
+    NativeValue *contextObj = CreateJsAbilityContext(*nativeEngine_, context_);
+    auto systemModule = std::shared_ptr<NativeReference>(
+        JsRuntime::LoadSystemModuleByEngine(nativeEngine_.get(), "application.AbilityContext", &contextObj, 1));
+    if (systemModule == nullptr) {
+        HILOG_ERROR("systemModule is nullptr.");
+        return;
+    }
+
+    contextObj = systemModule->Get();
+    if (contextObj == nullptr) {
+        HILOG_ERROR("contextObj is nullptr.");
+        return;
+    }
+
+    NativeObject *obj = ConvertNativeValueTo<NativeObject>(instanceValue);
+    if (obj == nullptr) {
+        HILOG_ERROR("obj is nullptr");
+        return;
+    }
+    obj->SetProperty("context", contextObj);
+    jsContexts_.emplace(currentId_, systemModule);
+}
+
+NativeValue *SimulatorImpl::CreateJsWant(NativeEngine &engine)
+{
+    NativeValue *objValue = engine.CreateObject();
+    NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
+
+    object->SetProperty("deviceId", engine.CreateUndefined());
+    object->SetProperty("bundleName", engine.CreateUndefined());
+    object->SetProperty("abilityName", engine.CreateUndefined());
+    object->SetProperty("moduleName", engine.CreateUndefined());
+    object->SetProperty("uri", engine.CreateUndefined());
+    object->SetProperty("type", engine.CreateUndefined());
+    object->SetProperty("flags", engine.CreateUndefined());
+    object->SetProperty("action", engine.CreateUndefined());
+    object->SetProperty("parameters", engine.CreateUndefined());
+    object->SetProperty("entities", engine.CreateUndefined());
+    return objValue;
+}
+
+void SimulatorImpl::DispatchStartLifecycle(NativeValue *instanceValue)
+{
+    NativeValue *wantArgv[] = {
+        CreateJsWant(*nativeEngine_)
+    };
+    CallObjectMethod(*nativeEngine_, instanceValue, "onCreate", wantArgv, ArraySize(wantArgv));
+
+    auto windowScene = std::make_shared<Rosen::WindowScene>();
+    if (windowScene == nullptr) {
+        return;
+    }
+    sptr<Rosen::IWindowLifeCycle> listener = nullptr;
+    windowScene->Init(-1, context_, listener);
+    auto jsWindowStage = CreateJsWindowStage(windowScene);
+    if (jsWindowStage == nullptr) {
+        return;
+    }
+    NativeValue *argv[] = { jsWindowStage->Get() };
+    CallObjectMethod(*nativeEngine_, instanceValue, "onWindowStageCreate", argv, ArraySize(argv));
+
+    CallObjectMethod(*nativeEngine_, instanceValue, "onForeground", nullptr, 0);
+
+    windowScenes_.emplace(currentId_, windowScene);
+    jsWindowStages_.emplace(currentId_, std::shared_ptr<NativeReference>(jsWindowStage.release()));
+}
+
+std::unique_ptr<NativeReference> SimulatorImpl::CreateJsWindowStage(
+    const std::shared_ptr<Rosen::WindowScene> &windowScene)
+{
+    NativeValue *jsWindowStage = Rosen::CreateJsWindowStage(*nativeEngine_, windowScene);
+    if (jsWindowStage == nullptr) {
+        HILOG_ERROR("Failed to create jsWindowSatge object");
+        return nullptr;
+    }
+    return JsRuntime::LoadSystemModuleByEngine(nativeEngine_.get(), "application.WindowStage", &jsWindowStage, 1);
+}
+
+panda::ecmascript::EcmaVM *SimulatorImpl::CreateJSVM()
 {
     panda::RuntimeOption pandaOption;
     pandaOption.SetArkProperties(DEFAULT_ARK_PROPERTIES);
@@ -346,7 +404,7 @@ bool SimulatorImpl::OnInit()
 
     auto nativeEngine = std::make_unique<ArkNativeEngine>(vm_, nullptr);
 
-    NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine->GetGlobal());
+    NativeObject *globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine->GetGlobal());
     if (globalObj == nullptr) {
         HILOG_ERROR("Failed to get global object");
         return false;
@@ -359,26 +417,26 @@ bool SimulatorImpl::OnInit()
 
     uintptr_t bufferStart = reinterpret_cast<uintptr_t>(_binary_jsMockSystemPlugin_abc_start);
     uintptr_t bufferEnd = reinterpret_cast<uintptr_t>(_binary_jsMockSystemPlugin_abc_end);
-    const uint8_t* buffer = reinterpret_cast<const uint8_t*>(bufferStart);
+    const uint8_t *buffer = reinterpret_cast<const uint8_t*>(bufferStart);
     size_t size = bufferEnd - bufferStart;
 
     panda::JSNApi::Execute(vm_, buffer, size, "_GLOBAL::func_main_0");
 
-    NativeValue* mockRequireNapi = globalObj->GetProperty("requireNapi");
+    NativeValue *mockRequireNapi = globalObj->GetProperty("requireNapi");
     globalObj->SetProperty("mockRequireNapi", mockRequireNapi);
 
     const char *moduleName = "SimulatorImpl";
     BindNativeFunction(*nativeEngine, *globalObj, "requireNapi", moduleName,
-        [](NativeEngine* engine, NativeCallbackInfo* info) {
-        NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(engine->GetGlobal());
-        NativeValue* requireNapi = globalObj->GetProperty("requireNapiPreview");
+        [](NativeEngine *engine, NativeCallbackInfo *info) {
+        NativeObject *globalObj = ConvertNativeValueTo<NativeObject>(engine->GetGlobal());
+        NativeValue *requireNapi = globalObj->GetProperty("requireNapiPreview");
 
-        NativeValue* result = engine->CallFunction(engine->CreateUndefined(), requireNapi, info->argv, info->argc);
+        NativeValue *result = engine->CallFunction(engine->CreateUndefined(), requireNapi, info->argv, info->argc);
         if (result->TypeOf() != NATIVE_UNDEFINED) {
             return result;
         }
 
-        NativeValue* mockRequireNapi = globalObj->GetProperty("mockRequireNapi");
+        NativeValue *mockRequireNapi = globalObj->GetProperty("mockRequireNapi");
         return engine->CallFunction(engine->CreateUndefined(), mockRequireNapi, info->argv, info->argc);
     });
 
@@ -386,29 +444,25 @@ bool SimulatorImpl::OnInit()
     panda::JSNApi::SetBundleName(vm_, options_.bundleName);
     panda::JSNApi::SetModuleName(vm_, options_.moduleName);
     panda::JSNApi::SetAssetPath(vm_, options_.modulePath);
+
     nativeEngine_ = std::move(nativeEngine);
     return true;
 }
 
 void SimulatorImpl::Run()
 {
-    uv_loop_t* uvLoop = nativeEngine_->GetUVLoop();
+    uv_loop_t *uvLoop = nativeEngine_->GetUVLoop();
     if (uvLoop != nullptr) {
-        HILOG_INFO("Simulator start uv loop");
-        uv_run(uvLoop, UV_RUN_DEFAULT);
-        HILOG_INFO("Simulator uv loop stopped");
+        uv_run(uvLoop, UV_RUN_NOWAIT);
     }
 
-    panda::JSNApi::StopDebugger(vm_);
-
-    abilities_.clear();
-    nativeEngine_.reset();
-    panda::JSNApi::DestroyJSVM(vm_);
-    vm_ = nullptr;
+    AppExecFwk::EventHandler::Current()->PostTask([this]() {
+        Run();
+    });
 }
 }
 
-std::unique_ptr<Simulator> Simulator::Create(const Options& options)
+std::unique_ptr<Simulator> Simulator::Create(const Options &options)
 {
     auto simulator = std::make_unique<SimulatorImpl>();
     if (simulator->Initialize(options)) {
