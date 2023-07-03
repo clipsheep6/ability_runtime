@@ -40,6 +40,7 @@ public:
     bool IsUpdatingConfigurations() override;
     bool PrintDrawnCompleted() override;
     std::string GetDatabaseDir() override;
+    std::string GetGroupDir(std::string groupId) override;
     std::string GetPreferencesDir() override;
     std::string GetDistributedFilesDir() override;
     void SwitchArea(int mode) override;

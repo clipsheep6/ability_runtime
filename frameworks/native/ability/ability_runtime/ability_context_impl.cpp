@@ -70,6 +70,11 @@ std::string AbilityContextImpl::GetPreferencesDir()
     return stageContext_ ? stageContext_->GetPreferencesDir() : "";
 }
 
+std::string AbilityContextImpl::GetGroupDir(std::string groupId)
+{
+    return stageContext_ ? stageContext_->GetGroupDir(groupId) : "";
+}
+
 std::string AbilityContextImpl::GetTempDir()
 {
     return stageContext_ ? stageContext_->GetTempDir() : "";

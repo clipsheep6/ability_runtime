@@ -91,6 +91,8 @@ public:
 
     Global::Resource::DeviceType GetDeviceType() const override;
 
+    std::string GetGroupDir(std::string groupId) override;
+
     int32_t mode_ = 0;
 };
 }  // namespace AbilityRuntime

@@ -363,6 +363,35 @@ HWTEST_F(ApplicationContextTest, GetTempDir_0200, TestSize.Level1)
 }
 
 /**
+ * @tc.number: GetGroupDir_0100
+ * @tc.name: GetGroupDir
+ * @tc.desc: Get Group Dir failed
+ */
+HWTEST_F(ApplicationContextTest, GetGroupDir_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetGroupDir_0100 start";
+    std::shared_ptr<ContextImpl> contextImpl = nullptr;
+    context_->AttachContextImpl(contextImpl);
+    auto ret = context_->GetGroupDir("1");
+    EXPECT_EQ(ret, "");
+    GTEST_LOG_(INFO) << "GetGroupDir_0100 end";
+}
+
+/**
+ * @tc.number: GetGroupDir_0200
+ * @tc.name: GetGroupDir
+ * @tc.desc:Get Group Dir sucess
+ */
+HWTEST_F(ApplicationContextTest, GetGroupDir_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetGroupDir_0200 start";
+    context_->AttachContextImpl(mock_);
+    auto ret = context_->GetGroupDir("1");
+    EXPECT_EQ(ret, "/group");
+    GTEST_LOG_(INFO) << "GetGroupDir_0200 end";
+}
+
+/**
  * @tc.number: GetFilesDir_0100
  * @tc.name: GetFilesDir
  * @tc.desc: Get Files Dir failed

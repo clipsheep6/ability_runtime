@@ -1755,6 +1755,12 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         return;
     }
 
+    DataGroupInfoList dataGroupInfoList;
+    bool result = bundleMgr_->QueryDataGroupInfos(bundleName, userId, dataGroupInfoList);
+    if (!result || dataGroupInfoList.empty()) {
+        HILOG_DEBUG("the bundle has no groupInfos");
+    }
+
     bool hasAccessBundleDirReq = std::any_of(bundleInfo.reqPermissions.begin(), bundleInfo.reqPermissions.end(),
         [] (const auto &reqPermission) {
             if (PERMISSION_ACCESS_BUNDLE_DIR == reqPermission) {
@@ -1803,6 +1809,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     startMsg.setAllowInternet = setAllowInternet;
     startMsg.allowInternet = allowInternet;
     startMsg.hspList = hspList;
+    startMsg.dataGroupInfoList = dataGroupInfoList;
     startMsg.hapFlags = bundleInfo.isPreInstallApp ? 1 : 0;
     std::set<std::string> mountPermissionList = AppSpawn::AppspawnMountPermission::GetMountPermissionList();
     std::set<std::string> permissions;

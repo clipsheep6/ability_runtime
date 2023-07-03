@@ -105,6 +105,13 @@ private:
      */
     ErrCode WriteHspList(AppSpawnMsgWrapper &msgWrapper);
 
+    /**
+     * write hsp data group info list to appspawn
+     *
+     * @param msgWrapper, request message wrapper.
+     */
+    ErrCode WriteDataGroupInfoList(AppSpawnMsgWrapper &msgWrapper);
+
 private:
     std::shared_ptr<AppSpawnSocket> socket_;
     SpawnConnectionState state_ = SpawnConnectionState::STATE_NOT_CONNECT;

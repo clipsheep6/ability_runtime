@@ -146,6 +146,11 @@ ErrCode AppSpawnClient::StartProcessImpl(const AppSpawnStartMsg &startMsg, pid_t
             HILOG_ERROR("WriteHspList failed!");
             return result;
         }
+        result = WriteDataGroupInfoList(msgWrapper);
+        if (FAILED(result)) {
+            HILOG_ERROR("WriteDataGroupInfoList failed!");
+            return result;
+        }
         result = socket_->ReadMessage(reinterpret_cast<void *>(pidMsg.pidBuf), LEN_PID);
         if (FAILED(result)) {
             HILOG_ERROR("ReadMessage failed!");
@@ -186,6 +191,22 @@ ErrCode AppSpawnClient::WriteHspList(AppSpawnMsgWrapper &msgWrapper)
     if (leftLen > 0) {
         result = socket_->WriteMessage(buff, leftLen);
     }
+    return result;
+}
+
+ErrCode AppSpawnClient::WriteDataGroupInfoList(AppSpawnMsgWrapper &msgWrapper)
+{
+    ErrCode result = ERR_OK;
+    const std::string& dataGroupInfoListStr = msgWrapper.GetDataGroupInfoListStr();
+    if (dataGroupInfoListStr.empty()) {
+        return result;
+    }
+
+    // split msg
+    const char *buff = dataGroupInfoListStr.c_str();
+    size_t leftLen = dataGroupInfoListStr.size() + 1;
+    HILOG_DEBUG("dataGroupInfoListStr length is %zu", leftLen);
+    result = socket_->WriteMessage(buff, leftLen);
     return result;
 }
 

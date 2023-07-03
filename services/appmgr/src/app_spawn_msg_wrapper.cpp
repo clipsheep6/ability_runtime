@@ -26,6 +26,11 @@ namespace {
     const std::string HSPLIST_BUNDLES = "bundles";
     const std::string HSPLIST_MODULES = "modules";
     const std::string HSPLIST_VERSIONS = "versions";
+    const std::string DATAGROUPINFOLIST_DATAGROUPID = "dataGroupId";
+    const std::string DATAGROUPINFOLIST_GID = "gid";
+    const std::string DATAGROUPINFOLIST_DIR = "dir";
+    const std::string JSON_DATA_APP = "/data/app/el2/";
+    const std::string JSON_GROUP = "/group/";
     const std::string VERSION_PREFIX = "v";
 }
 
@@ -43,6 +48,19 @@ static std::string DumpToJson(const HspList &hspList)
         hspListJson[HSPLIST_VERSIONS].emplace_back(VERSION_PREFIX + std::to_string(hsp.versionCode));
     }
     return hspListJson.dump();
+}
+
+static std::string DumpToJson(const DataGroupInfoList &dataGroupInfoList)
+{
+    nlohmann::json dataGroupInfoListJson;
+    for (auto& dataGroupInfo : dataGroupInfoList) {
+        dataGroupInfoListJson[DATAGROUPINFOLIST_DATAGROUPID].emplace_back(dataGroupInfo.dataGroupId);
+        dataGroupInfoListJson[DATAGROUPINFOLIST_GID].emplace_back(std::to_string(dataGroupInfo.gid));
+        std::string dir = JSON_DATA_APP + std::to_string(dataGroupInfo.userId)
+            + JSON_GROUP + dataGroupInfo.uuid;
+        dataGroupInfoListJson[DATAGROUPINFOLIST_DIR].emplace_back(dir);
+    }
+    return dataGroupInfoListJson.dump();
 }
 
 bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
@@ -66,13 +84,16 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
         // || msg_->code == AppSpawn::ClientSocket::AppOperateCode::SPAWN_NATIVE_PROCESS) {
         msg_->uid = startMsg.uid;
         msg_->gid = startMsg.gid;
-        msg_->gidCount = startMsg.gids.size();
+        msg_->gidCount = startMsg.gids.size() + startMsg.dataGroupInfoList.size();
         msg_->bundleIndex = startMsg.bundleIndex;
         msg_->setAllowInternet = startMsg.setAllowInternet;
         msg_->allowInternet = startMsg.allowInternet;
         msg_->mountPermissionFlags = startMsg.mountPermissionFlags;
-        for (uint32_t i = 0; i < msg_->gidCount; ++i) {
+        for (uint32_t i = 0; i < startMsg.gids.size(); ++i) {
             msg_->gidTable[i] = startMsg.gids[i];
+        }
+        for (uint32_t i = startMsg.gids.size(); i < msg_->gidCount; ++i) {
+            msg_->gidTable[i] = startMsg.dataGroupInfoList[i - startMsg.gids.size()].gid;
         }
         if (strcpy_s(msg_->processName, sizeof(msg_->processName), startMsg.procName.c_str()) != EOK) {
             HILOG_ERROR("failed to transform procName!");
@@ -103,6 +124,11 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
         if (!startMsg.hspList.empty()) {
             this->hspListStr = DumpToJson(startMsg.hspList);
             msg_->hspList.totalLength = this->hspListStr.size() + 1; // including termination char '\0'
+        }
+
+        if (!startMsg.dataGroupInfoList.empty()) {
+            this->dataGroupInfoListStr = DumpToJson(startMsg.dataGroupInfoList);
+            msg_->dataGroupInfoList.totalLength = this->dataGroupInfoListStr.size() + 1;
         }
     } else if (msg_->code == AppSpawn::ClientSocket::AppOperateCode::GET_RENDER_TERMINATION_STATUS) {
         msg_->pid = startMsg.pid;

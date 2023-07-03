@@ -685,6 +685,30 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetTempDir_0200, Function 
 }
 
 /**
+ * @tc.number: Ability_Context_Impl_GetGroupDir_0100
+ * @tc.name: GetGroupDir
+ * @tc.desc: Get Group Dir sucess
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetGroupDir_0100, Function | MediumTest | Level1)
+{
+    context_->SetStageContext(mock_);
+    auto ret = context_->GetGroupDir("1");
+    EXPECT_EQ(ret, "/group");
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_GetGroupDir_0200
+ * @tc.name: GetGroupDir
+ * @tc.desc: Get Group Dir failed
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetGroupDir_0200, Function | MediumTest | Level1)
+{
+    context_->SetStageContext(nullptr);
+    auto ret = context_->GetGroupDir("1");
+    EXPECT_EQ(ret, "");
+}
+
+/**
  * @tc.number: Ability_Context_Impl_GetFilesDir_0100
  * @tc.name: GetFilesDir
  * @tc.desc: Get Files Dir sucess
