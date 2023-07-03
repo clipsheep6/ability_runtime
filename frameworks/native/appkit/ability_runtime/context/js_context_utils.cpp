@@ -31,6 +31,46 @@ namespace AbilityRuntime {
 namespace {
 constexpr char BASE_CONTEXT_NAME[] = "__base_context_ptr__";
 
+/**
+ * This is a small caching tool to cache js-native-context reference.
+ * It's important to know that it's assumed there is only one engine in the process, and all
+ * cached object won't be accessed after the engine is destroyed.
+ * Also, this should be accessed only in one thread (means js thread or main thread).
+ */
+struct NativeCacheItem {
+    explicit NativeCacheItem(NativeReference *cacheValue) : cacheValue_(cacheValue)
+    {
+        createTime_ = std::chrono::time_point_cast<std::chrono::microseconds>(std::chrono::system_clock::now());
+    }
+    std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds> createTime_;
+    std::unique_ptr<NativeReference> cacheValue_;
+};
+std::unordered_map<std::string, std::unique_ptr<NativeCacheItem>> g_nativeContextCache;
+NativeValue* GetCachedContext(const std::string &key)
+{
+    auto it = g_nativeContextCache.find(key);
+    if (it != g_nativeContextCache.end()) {
+        return it->second->cacheValue_->Get();
+    }
+    return nullptr;
+}
+void PutCachedContext(const std::string &key, NativeValue* value, NativeEngine& engine)
+{
+    if (value == nullptr) {
+        return;
+    }
+    auto cacheRef = engine.CreateReference(value, 1);
+    if (cacheRef == nullptr) {
+        return;
+    }
+    auto it = g_nativeContextCache.find(key);
+    if (it != g_nativeContextCache.end()) {
+        it->second = std::make_unique<NativeCacheItem>(cacheRef);
+    } else {
+        g_nativeContextCache.emplace(key, std::make_unique<NativeCacheItem>(cacheRef));
+    }
+}
+
 class JsBaseContext {
 public:
     explicit JsBaseContext(std::weak_ptr<Context>&& context) : context_(std::move(context)) {}
@@ -149,9 +189,7 @@ NativeValue* JsBaseContext::OnCreateModuleContext(NativeEngine& engine, NativeCa
         return engine.CreateUndefined();
     }
 
-    std::shared_ptr<Context> moduleContext = nullptr;
-    std::string moduleName;
-
+    std::string moduleName, bundleName;
     if (!ConvertFromJsValue(engine, info.argv[1], moduleName)) {
         HILOG_INFO("Parse inner module name.");
         if (!ConvertFromJsValue(engine, info.argv[0], moduleName)) {
@@ -159,9 +197,7 @@ NativeValue* JsBaseContext::OnCreateModuleContext(NativeEngine& engine, NativeCa
             AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
             return engine.CreateUndefined();
         }
-        moduleContext = context->CreateModuleContext(moduleName);
     } else {
-        std::string bundleName;
         if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
             HILOG_ERROR("Parse bundleName failed");
             AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
@@ -173,9 +209,15 @@ NativeValue* JsBaseContext::OnCreateModuleContext(NativeEngine& engine, NativeCa
             return engine.CreateUndefined();
         }
         HILOG_DEBUG("Parse outer module name.");
-        moduleContext = context->CreateModuleContext(bundleName, moduleName);
+    }
+    auto cacheKey =  (bundleName.empty()? context->GetBundleName() : bundleName) + moduleName;
+    auto cachedContext = GetCachedContext(cacheKey);
+    if (cachedContext) {
+        return cachedContext;
     }
 
+    auto moduleContext = bundleName.empty()? context->CreateModuleContext(moduleName) :
+        context->CreateModuleContext(bundleName, moduleName);
     if (!moduleContext) {
         HILOG_ERROR("failed to create module context.");
         AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
@@ -205,6 +247,7 @@ NativeValue* JsBaseContext::OnCreateModuleContext(NativeEngine& engine, NativeCa
             delete static_cast<std::weak_ptr<Context> *>(data);
         },
         nullptr);
+    PutCachedContext(cacheKey, contextObj, engine);
     return contextObj;
 }
 
