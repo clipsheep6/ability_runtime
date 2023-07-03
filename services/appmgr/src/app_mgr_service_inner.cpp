@@ -1710,6 +1710,10 @@ void AppMgrServiceInner::SetOverlayInfo(const std::string &bundleName,
                                         const int32_t userId,
                                         AppSpawnStartMsg &startMsg)
 {
+    if (remoteClientManager_ == nullptr) {
+        HILOG_ERROR("remoteClientManager_ fail");
+        return;
+    }
     auto bundleMgr = remoteClientManager_->GetBundleManager();
     if (bundleMgr == nullptr) {
         HILOG_ERROR("GetBundleManager fail");
