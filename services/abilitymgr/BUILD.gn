@@ -133,6 +133,7 @@ ohos_shared_library("abilityms") {
   ]
 
   external_deps = [
+    "ability_base:base",
     "ability_base:configuration",
     "ability_base:session_info",
     "ability_base:want",

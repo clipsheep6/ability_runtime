@@ -1147,6 +1147,14 @@ void AbilityManagerClient::StartSpecifiedAbilityBySCB(const Want &want)
     abms->StartSpecifiedAbilityBySCB(want);
 }
 
+ErrCode AbilityManagerClient::NotifySaveAsResult(const Want &want, int resultCode, int requestCode)
+{
+    HILOG_DEBUG("call.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->NotifySaveAsResult(want, resultCode, requestCode);
+}
+
 ErrCode AbilityManagerClient::SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService)
 {
     HILOG_INFO("AbilityManagerClient::SetSessionManagerService call");

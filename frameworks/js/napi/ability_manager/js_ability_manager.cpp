@@ -16,6 +16,7 @@
 #include "js_ability_manager.h"
 
 #include <cstdint>
+#include <memory>
 
 #include "ability_business_error.h"
 #include "ability_manager_client.h"
@@ -37,6 +38,7 @@
 #include "napi_common_util.h"
 #include "napi_common_want.h"
 #include "tokenid_kit.h"
+#include "js_api_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -52,6 +54,7 @@ OHOS::sptr<OHOS::AppExecFwk::IAppMgr> GetAppManagerInstance()
 
 
 constexpr size_t ARGC_ONE = 1;
+constexpr size_t ARGC_TWO = 2;
 constexpr size_t INDEX_ZERO = 0;
 constexpr size_t INDEX_ONE = 1;
 static std::shared_ptr<AppExecFwk::EventHandler> mainHandler_ = nullptr;
@@ -95,6 +98,12 @@ public:
     {
         JsAbilityManager* me = CheckParamsAndGetThis<JsAbilityManager>(engine, info);
         return (me != nullptr) ? me->OnAcquireShareData(*engine, *info) : nullptr;
+    }
+
+    static NativeValue* NotifySaveAsResult(NativeEngine* engine, NativeCallbackInfo* info)
+    {
+        JsAbilityManager* me = CheckParamsAndGetThis<JsAbilityManager>(engine, info);
+        return (me != nullptr) ? me->OnNotifySaveAsResult(*engine, *info) : nullptr;
     }
 
 private:
@@ -293,6 +302,56 @@ private:
         }
         return result;
     }
+
+    NativeValue* OnNotifySaveAsResult(NativeEngine &engine, NativeCallbackInfo &info)
+    {
+        HILOG_INFO("called");
+        AsyncTask::CompleteCallback complete;
+        AsyncTask::ExecuteCallback execute;
+
+        do {
+            if (info.argc < ARGC_TWO) {
+                HILOG_ERROR("Not enough params");
+                ThrowTooFewParametersError(engine);
+                break;
+            }
+
+            int reqCode = 0;
+            if (!JsApiUtils::UnwrapNumberValue(info.argv[1], reqCode)) {
+                HILOG_ERROR("Get requestCode param error");
+                ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+                break;
+            }
+
+            AppExecFwk::Want want;
+            int resultCode = ERR_OK;
+            if (!JsApiUtils::UnWrapAbilityResult(engine, info.argv[0], resultCode, want)) {
+                HILOG_ERROR("Unrwrap abilityResult param error");
+                ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+                break;
+            }
+
+            auto sharedCode = std::make_shared<ErrCode>(ERR_OK);
+            execute = [sharedCode, want, resultCode, reqCode]() {
+                *sharedCode = AbilityManagerClient::GetInstance()->NotifySaveAsResult(want, resultCode, reqCode);
+            };
+            complete = [sharedCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
+                auto errCode = *sharedCode;
+                if (errCode == ERR_OK) {
+                    task.ResolveWithNoError(engine, engine.CreateUndefined());
+                } else {
+                    task.Reject(engine, CreateJsError(engine, GetJsErrorCodeByNativeError(errCode)));
+                }
+            };
+        } while (0);
+
+        NativeValue* lastParam = (info.argc == ARGC_TWO) ? nullptr : info.argv[ARGC_TWO];
+        NativeValue* result = nullptr;
+        AsyncTask::Schedule("JsAbilityManager::OnNotifySaveAsResult",
+            engine, CreateAsyncTaskWithLastParam(engine,
+            lastParam, std::move(execute), std::move(complete), &result));
+        return result;
+    }
 };
 } // namespace
 
@@ -325,6 +384,7 @@ NativeValue* JsAbilityManagerInit(NativeEngine* engine, NativeValue* exportObj)
     BindNativeFunction(*engine, *object, "updateConfiguration", moduleName, JsAbilityManager::UpdateConfiguration);
     BindNativeFunction(*engine, *object, "getTopAbility", moduleName, JsAbilityManager::GetTopAbility);
     BindNativeFunction(*engine, *object, "acquireShareData", moduleName, JsAbilityManager::AcquireShareData);
+    BindNativeFunction(*engine, *object, "notifySaveAsResult", moduleName, JsAbilityManager::NotifySaveAsResult);
     HILOG_INFO("JsAbilityManagerInit end");
     return engine->CreateUndefined();
 }

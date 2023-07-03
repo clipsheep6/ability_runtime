@@ -23,6 +23,7 @@
 #include "ability_manager_service.h"
 #include "ability_scheduler_stub.h"
 #include "ability_util.h"
+#include "array_wrapper.h"
 #include "accesstoken_kit.h"
 #include "bundle_mgr_client.h"
 #include "configuration_convertor.h"
@@ -64,6 +65,7 @@ const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
 const std::string COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
 const std::string NEED_STARTINGWINDOW = "ohos.ability.NeedStartingWindow";
 const std::string PARAMS_URI = "ability.verify.uri";
+const std::string PARAMS_FILE_SAVING_URL_KEY = "pick_path_return";
 const uint32_t RELEASE_STARTING_BG_TIMEOUT = 15000; // release starting window resource timeout.
 int64_t AbilityRecord::abilityRecordId = 0;
 const int32_t DEFAULT_USER_ID = 0;
@@ -1445,6 +1447,45 @@ void AbilityRecord::SendResult(bool isSandboxApp)
     scheduler_->SendResult(result_->requestCode_, result_->resultCode_, result_->resultWant_);
     // reset result to avoid send result next time
     result_.reset();
+}
+
+void AbilityRecord::SendSandboxSavefileResult(const Want &want, int resultCode, int requestCode)
+{
+    HILOG_INFO("ability:%{public}s.", abilityInfo_.name.c_str());
+
+    auto uriParam = want.GetParams().GetParam(PARAMS_FILE_SAVING_URL_KEY);
+    auto uriArray = AAFwk::IArray::Query(uriParam);
+    long arraySize = 0;
+    if (uriArray && uriArray->GetLength(arraySize) == ERR_OK &&
+        arraySize > 0 && AAFwk::Array::IsStringArray(uriArray)) {
+        for (long i = 0; i < arraySize; i++) {
+            sptr<AAFwk::IInterface> iface = nullptr;
+            if (uriArray->Get(i, iface) == ERR_OK) {
+                continue;
+            }
+            AAFwk::IString* iuri = AAFwk::IString::Query(iface);
+            if (!iuri) {
+                continue;
+            }
+            std::string uriStr;
+            if (iuri->GetString(uriStr) != ERR_OK) {
+                continue;
+            }
+            Uri uri(uriStr);
+            auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(uri,
+            Want::FLAG_AUTH_WRITE_URI_PERMISSION, abilityInfo_.bundleName, 0, appIndex_));
+            if (ret != ERR_OK) {
+                HILOG_WARN("GrantUriPermission failed");
+            }
+        }
+    } else {
+        HILOG_WARN("Uri illigal for request: %{public}d.", requestCode);
+    }
+
+    auto scheduler = scheduler_;
+    if (scheduler) {
+        scheduler->SendResult(requestCode, resultCode, want);
+    }
 }
 
 void AbilityRecord::SendResultToCallers(bool schedulerdied)

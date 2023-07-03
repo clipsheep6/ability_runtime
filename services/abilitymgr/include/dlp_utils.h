@@ -30,7 +30,7 @@ namespace DlpUtils {
 #ifdef WITH_DLP
 using Dlp = Security::DlpPermission::DlpPermissionKit;
 #endif // WITH_DLP
-static bool DlpAccessOtherAppsCheck(const sptr<IRemoteObject> &callerToken, const Want &want)
+[[maybe_unused]]static bool DlpAccessOtherAppsCheck(const sptr<IRemoteObject> &callerToken, const Want &want)
 {
 #ifdef WITH_DLP
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
@@ -66,7 +66,7 @@ static bool DlpAccessOtherAppsCheck(const sptr<IRemoteObject> &callerToken, cons
     return true;
 }
 
-static bool OtherAppsAccessDlpCheck(const sptr<IRemoteObject> &callerToken, const Want &want)
+[[maybe_unused]]static bool OtherAppsAccessDlpCheck(const sptr<IRemoteObject> &callerToken, const Want &want)
 {
     if (callerToken != nullptr) {
         auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
@@ -76,6 +76,24 @@ static bool OtherAppsAccessDlpCheck(const sptr<IRemoteObject> &callerToken, cons
     }
 
     return PermissionVerification::GetInstance()->VerifyDlpPermission(const_cast<Want &>(want));
+}
+
+[[maybe_unused]]static bool SandboxAuthCheck(const AbilityRecord &callerRecord, const Want &want)
+{
+#ifdef WITH_DLP
+    int32_t uid = callerRecord.GetApplicationInfo().uid;
+    Security::DlpPermission::SandBoxExternalAuthorType authResult;
+    int result = Dlp::GetSandboxExternalAuthorization(uid, want, authResult);
+    if (result != ERR_OK) {
+        HILOG_ERROR("GetSandboxExternalAuthorization failed %{public}d.", result);
+        return false;
+    }
+    if (authResult != Security::DlpPermission::SandBoxExternalAuthorType::ALLOW_START_ABILITY) {
+        HILOG_ERROR("Auth failed, not allow start %{public}d.", uid);
+        return false;
+    }
+#endif // WITH_DLP
+    return true;
 }
 }  // namespace DlpUtils
 }  // namespace AAFwk

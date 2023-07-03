@@ -295,30 +295,20 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::PREPARE_TERMINATE_ABILITY)] =
         &AbilityManagerStub::PrepareTerminateAbilityInner;
 #endif
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REQUEST_DIALOG_SERVICE)] =
-        &AbilityManagerStub::HandleRequestDialogService;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REPORT_DRAWN_COMPLETED)] =
-        &AbilityManagerStub::HandleReportDrawnCompleted;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_COMPONENT_INTERCEPTION)] =
-        &AbilityManagerStub::SetComponentInterceptionInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_ABILITY_RESULT_BY_TOKEN)] =
-        &AbilityManagerStub::SendResultToAbilityByTokenInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::QUERY_MISSION_VAILD)] =
-        &AbilityManagerStub::IsValidMissionIdsInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::VERIFY_PERMISSION)] =
-        &AbilityManagerStub::VerifyPermissionInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_UI_ABILITY_BY_SCB)] =
-        &AbilityManagerStub::StartUIAbilityBySCBInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_ROOT_SCENE_SESSION)] =
-        &AbilityManagerStub::SetRootSceneSessionInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CALL_ABILITY_BY_SCB)] =
-        &AbilityManagerStub::CallUIAbilityBySCBInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_SPECIFIED_ABILITY_BY_SCB)] =
-        &AbilityManagerStub::StartSpecifiedAbilityBySCBInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_SESSIONMANAGERSERVICE)] =
-        &AbilityManagerStub::SetSessionManagerServiceInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_SESSIONMANAGERSERVICE)] =
-        &AbilityManagerStub::GetSessionManagerServiceInner;
+    requestFuncMap_[REQUEST_DIALOG_SERVICE] = &AbilityManagerStub::HandleRequestDialogService;
+    requestFuncMap_[REPORT_DRAWN_COMPLETED] = &AbilityManagerStub::HandleReportDrawnCompleted;
+    requestFuncMap_[SET_COMPONENT_INTERCEPTION] = &AbilityManagerStub::SetComponentInterceptionInner;
+    requestFuncMap_[SEND_ABILITY_RESULT_BY_TOKEN] = &AbilityManagerStub::SendResultToAbilityByTokenInner;
+    requestFuncMap_[QUERY_MISSION_VAILD] = &AbilityManagerStub::IsValidMissionIdsInner;
+    requestFuncMap_[VERIFY_PERMISSION] = &AbilityManagerStub::VerifyPermissionInner;
+    requestFuncMap_[START_UI_ABILITY_BY_SCB] = &AbilityManagerStub::StartUIAbilityBySCBInner;
+    requestFuncMap_[SET_ROOT_SCENE_SESSION] = &AbilityManagerStub::SetRootSceneSessionInner;
+    requestFuncMap_[CALL_ABILITY_BY_SCB] = &AbilityManagerStub::CallUIAbilityBySCBInner;
+    requestFuncMap_[START_SPECIFIED_ABILITY_BY_SCB] = &AbilityManagerStub::StartSpecifiedAbilityBySCBInner;
+    requestFuncMap_[NOTIFY_SAVE_AS_RESULT] = &AbilityManagerStub::NotifySaveAsResultInner;
+    requestFuncMap_[SET_SESSIONMANAGERSERVICE] = &AbilityManagerStub::SetSessionManagerServiceInner;
+    requestFuncMap_[GET_SESSIONMANAGERSERVICE] = &AbilityManagerStub::GetSessionManagerServiceInner;
+    requestFuncMap_[NOTIFY_SAVE_AS_RESULT] = &AbilityManagerStub::NotifySaveAsResultInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -2307,6 +2297,20 @@ int32_t AbilityManagerStub::StartSpecifiedAbilityBySCBInner(MessageParcel &data,
         return ERR_INVALID_VALUE;
     }
     StartSpecifiedAbilityBySCB(*want);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::NotifySaveAsResultInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<Want> want(data.ReadParcelable<Want>());
+    if (!want) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    int resultCode = data.ReadInt32();
+    int requestCode = data.ReadInt32();
+    int32_t result = NotifySaveAsResult(*want, resultCode, requestCode);
+    reply.WriteInt32(result);
     return NO_ERROR;
 }
 
