@@ -45,76 +45,79 @@ config("ability_simulator_public_config") {
 }
 
 ohos_shared_library("ability_simulator") {
-  if (is_mingw) {
-    defines = [
-      "WINDOWS_PLATFORM",
-      "NOGDI",
+  if (is_mingw || is_mac) {
+    if (is_mingw) {
+      defines = [
+        "WINDOWS_PLATFORM",
+        "NOGDI",
+      ]
+    }
+
+    if (is_mingw) {
+      platform = "windows"
+    } else {
+      platform = "mac"
+    }
+
+    cflags = [ "-std=c++17" ]
+
+    include_dirs = [
+      "${ability_runtime_native_path}/runtime",
+      "${ability_runtime_innerkits_path}/runtime/include",
+      "${windowmanager_path}/previewer/include",
+      "${windowmanager_path}/previewer/mock",
+      "${windowmanager_path}/previewer/mock/transaction",
+      "${windowmanager_path}/previewer/mock/ui",
+      "${windowmanager_path}/interfaces/innerkits/wm",
+      "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_stage_napi",
+      "${previewer_path}/jsapp/rich/external",
     ]
-  }
 
-  if (is_mingw) {
-    platform = "windows"
+    sources = [
+      "${ability_runtime_native_path}/runtime/js_module_searcher.cpp",
+      "src/ability_context.cpp",
+      "src/js_ability_context.cpp",
+      "src/js_application_context_utils.cpp",
+      "src/js_console_log.cpp",
+      "src/js_context_utils.cpp",
+      "src/js_resource_manager_utils.cpp",
+      "src/js_runtime_utils.cpp",
+      "src/js_timer.cpp",
+      "src/resource_manager_addon.cpp",
+      "src/simulator.cpp",
+    ]
+
+    public_configs = [
+      ":ability_simulator_public_config",
+      "${simulator_path}/common:ability_simulator_common_config",
+    ]
+
+    configs = [ "${windowmanager_path}/previewer:previewer_window_config" ]
+
+    deps = [
+      ":gen_obj_src_js_mock_abc",
+      "${simulator_path}/common:ability_simulator_common",
+    ]
+
+    external_deps = [
+      "ability_base:string_utils",
+      "ets_runtime:libark_jsruntime",
+      "hilog_native:libhilog_$platform",
+      "napi:ace_napi",
+      "napi:ace_napi_ark",
+      "previewer:ide_extension",
+      "window_manager:previewer_window",
+      "window_manager:previewer_window_napi",
+    ]
+
+    if (is_mingw) {
+      external_deps += [ "resource_management:win_resmgr" ]
+    } else {
+      external_deps += [ "resource_management:mac_resmgr" ]
+    }
+
+    part_name = "ability_runtime"
+    subsystem_name = "ability"
   } else {
-    platform = "mac"
   }
-
-  cflags = [ "-std=c++17" ]
-
-  include_dirs = [
-    "${ability_runtime_native_path}/runtime",
-    "${ability_runtime_innerkits_path}/runtime/include",
-    "${windowmanager_path}/previewer/include",
-    "${windowmanager_path}/previewer/mock",
-    "${windowmanager_path}/previewer/mock/transaction",
-    "${windowmanager_path}/previewer/mock/ui",
-    "${windowmanager_path}/interfaces/innerkits/wm",
-    "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_stage_napi",
-    "${previewer_path}/jsapp/rich/external",
-  ]
-
-  sources = [
-    "${ability_runtime_native_path}/runtime/js_module_searcher.cpp",
-    "src/ability_context.cpp",
-    "src/js_ability_context.cpp",
-    "src/js_application_context_utils.cpp",
-    "src/js_console_log.cpp",
-    "src/js_context_utils.cpp",
-    "src/js_resource_manager_utils.cpp",
-    "src/js_runtime_utils.cpp",
-    "src/js_timer.cpp",
-    "src/resource_manager_addon.cpp",
-    "src/simulator.cpp",
-  ]
-
-  public_configs = [
-    ":ability_simulator_public_config",
-    "${simulator_path}/common:ability_simulator_common_config",
-  ]
-
-  configs = [ "${windowmanager_path}/previewer:previewer_window_config" ]
-
-  deps = [
-    ":gen_obj_src_js_mock_abc",
-    "${simulator_path}/common:ability_simulator_common",
-  ]
-
-  external_deps = [
-    "ability_base:string_utils",
-    "ets_runtime:libark_jsruntime",
-    "hilog_native:libhilog_$platform",
-    "napi:ace_napi",
-    "napi:ace_napi_ark",
-    "previewer:ide_extension",
-    "window_manager:previewer_window",
-    "window_manager:previewer_window_napi",
-  ]
-
-  if (is_mingw) {
-    external_deps += [ "resource_management:win_resmgr" ]
-  } else {
-    external_deps += [ "resource_management:mac_resmgr" ]
-  }
-
-  part_name = "ability_runtime"
-  subsystem_name = "ability"
 }
