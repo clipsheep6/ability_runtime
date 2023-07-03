@@ -1052,11 +1052,6 @@ public:
         return 0;
     }
 
-    virtual sptr<IRemoteObject> GetSessionManagerService()
-    {
-        return nullptr;
-    }
-
     enum {
         // ipc id 1-1000 for kit
         // ipc id for terminating ability (1)
@@ -1362,8 +1357,6 @@ public:
 
         // ipc id for report drawn completed
         REPORT_DRAWN_COMPLETED,
-
-        GET_SESSIONMANAGERSERVICE,
 
         // ipc id for continue ability(1101)
         START_CONTINUATION = 1101,

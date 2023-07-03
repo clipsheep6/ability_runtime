@@ -24,6 +24,7 @@ ohos_moduletest("ability_timeout_module_test") {
     "//third_party/jsoncpp/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/distributed_ability_runtime",
     "${ability_runtime_innerkits_path}/dataobs_manager/include",
+    "${distributedschedule_path}/safwk/interfaces/innerkits/safwk",
   ]
 
   sources = [ "ability_timeout_module_test.cpp" ]
@@ -101,7 +102,9 @@ ohos_moduletest("ability_timeout_module_test") {
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
+    "safwk:system_ability_fwk",
     "window_manager:libwsutils",
+    "window_manager:sms",
   ]
 
   if (efficiency_manager) {

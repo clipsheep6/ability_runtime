@@ -307,7 +307,6 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[START_SPECIFIED_ABILITY_BY_SCB] = &AbilityManagerStub::StartSpecifiedAbilityBySCBInner;
     requestFuncMap_[NOTIFY_SAVE_AS_RESULT] = &AbilityManagerStub::NotifySaveAsResultInner;
     requestFuncMap_[SET_SESSIONMANAGERSERVICE] = &AbilityManagerStub::SetSessionManagerServiceInner;
-    requestFuncMap_[GET_SESSIONMANAGERSERVICE] = &AbilityManagerStub::GetSessionManagerServiceInner;
     requestFuncMap_[NOTIFY_SAVE_AS_RESULT] = &AbilityManagerStub::NotifySaveAsResultInner;
 }
 
@@ -2322,16 +2321,6 @@ int AbilityManagerStub::SetSessionManagerServiceInner(MessageParcel &data, Messa
         return ERR_NULL_OBJECT;
     }
     SetSessionManagerService(sessionManagerService);
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::GetSessionManagerServiceInner(MessageParcel &data, MessageParcel &reply)
-{
-    auto token = GetSessionManagerService();
-    if (!reply.WriteRemoteObject(token)) {
-        HILOG_ERROR("GetSessionManagerServiceInner reply write failed.");
-        return ERR_INVALID_VALUE;
-    }
     return NO_ERROR;
 }
 }  // namespace AAFwk

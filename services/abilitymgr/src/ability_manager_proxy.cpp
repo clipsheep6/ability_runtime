@@ -3820,24 +3820,6 @@ int32_t AbilityManagerProxy::SetSessionManagerService(const sptr<IRemoteObject> 
     HILOG_INFO("AbilityManagerProxy::SetSessionManagerService end.");
     return reply.ReadInt32();
 }
-sptr<IRemoteObject> AbilityManagerProxy::GetSessionManagerService()
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    if (!WriteInterfaceToken(data)) {
-        return nullptr;
-    }
-
-    auto error = SendRequest(AbilityManagerInterfaceCode::GET_SESSIONMANAGERSERVICE, data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
-        return nullptr;
-    }
-
-    return reply.ReadRemoteObject();
-}
 
 ErrCode AbilityManagerProxy::SendRequest(AbilityManagerInterfaceCode code, MessageParcel &data, MessageParcel &reply,
     MessageOption& option)

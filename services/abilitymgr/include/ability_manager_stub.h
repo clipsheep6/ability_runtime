@@ -232,7 +232,6 @@ private:
     int NotifySaveAsResultInner(MessageParcel &data, MessageParcel &reply);
 
     int SetSessionManagerServiceInner(MessageParcel &data, MessageParcel &reply);
-    int GetSessionManagerServiceInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

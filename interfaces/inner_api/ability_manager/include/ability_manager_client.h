@@ -1098,13 +1098,6 @@ public:
      */
     ErrCode SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService);
 
-    /**
-     * Get sessionManagerService
-     *
-     * @return returns the SessionManagerService object, or nullptr for failed.
-     */
-    sptr<IRemoteObject> GetSessionManagerService();
-
     ErrCode ReportDrawnCompleted(const sptr<IRemoteObject> &token);
 
 private:

@@ -23,7 +23,6 @@
 
 #define private public
 #define protected public
-#include "sa_mgr_client.h"
 #include "mock_ability_connect_callback_stub.h"
 #include "mock_ability_scheduler.h"
 #include "mock_app_mgr_client.h"

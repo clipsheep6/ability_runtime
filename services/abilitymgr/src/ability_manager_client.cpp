@@ -1162,15 +1162,5 @@ ErrCode AbilityManagerClient::SetSessionManagerService(const sptr<IRemoteObject>
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->SetSessionManagerService(sessionManagerService);
 }
-
-sptr<IRemoteObject> AbilityManagerClient::GetSessionManagerService()
-{
-    HILOG_INFO("AbilityManagerClient::GetSessionManagerService call");
-    auto abms = GetAbilityManager();
-    if (!abms) {
-        return nullptr;
-    }
-    return abms->GetSessionManagerService();
-}
 }  // namespace AAFwk
 }  // namespace OHOS

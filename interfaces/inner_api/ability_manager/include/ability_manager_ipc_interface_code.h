@@ -325,8 +325,6 @@ enum class AbilityManagerInterfaceCode {
     // ipc id for report drawn completed
     REPORT_DRAWN_COMPLETED,
 
-    GET_SESSIONMANAGERSERVICE,
-
     // ipc id for continue ability(1101)
     START_CONTINUATION = 1101,
 

@@ -52,6 +52,7 @@
 #include "iservice_registry.h"
 #include "itest_observer.h"
 #include "mission_info_mgr.h"
+#include "mock_session_manager_service.h"
 #include "os_account_manager_wrapper.h"
 #include "parameters.h"
 #include "permission_constants.h"
@@ -7474,21 +7475,15 @@ int32_t AbilityManagerService::SetSessionManagerService(const sptr<IRemoteObject
         HILOG_ERROR("Not sceneboard called, not allowed.");
         return ERR_WRONG_INTERFACE_CALL;
     }
-    if (!sessionManagerService) {
-        HILOG_ERROR("SetSessionManagerService: callerToken is nullptr");
-    }
-    sessionManagerService_ = sessionManagerService;
-    HILOG_ERROR("SetSessionManagerService: set sessionManagerService_ OK");
-    return ERR_OK;
-}
 
-sptr<IRemoteObject> AbilityManagerService::GetSessionManagerService()
-{
-    if (sessionManagerService_) {
-        return sessionManagerService_;
+    HILOG_INFO("Call SetSessionManagerService of WMS.");
+    auto ret = Rosen::MockSessionManagerService::GetInstance().SetSessionManagerService(sessionManagerService);
+    if (ret) {
+        HILOG_DEBUG("Call SetSessionManagerService of WMS.");
+        return ERR_OK;
     }
-    HILOG_ERROR("AbilityManagerService:: sessionManagerService_ is nullptr");
-    return nullptr;
+    HILOG_ERROR("SMS SetSessionManagerService return false.");
+    return ERR_OK;
 }
 
 bool AbilityManagerService::CheckPrepareTerminateEnable()
