@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_JS_CONSOLE_LOG_H
-#define OHOS_ABILITY_RUNTIME_JS_CONSOLE_LOG_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_TIMER_H
+#define OHOS_ABILITY_RUNTIME_JS_TIMER_H
 
 #include "native_engine/native_engine.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-void InitConsoleLogModule(NativeEngine &engine, NativeObject &globalObject);
+void InitTimer(NativeEngine &engine, NativeObject &globalObject);
 } // namespace AbilityRuntime
 } // namespace OHOS
 
-#endif // OHOS_ABILITY_RUNTIME_JS_CONSOLE_LOG_H
+#endif // OHOS_ABILITY_RUNTIME_JS_TIMER_H
