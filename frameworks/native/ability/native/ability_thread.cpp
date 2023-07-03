@@ -872,7 +872,7 @@ bool AbilityThread::SchedulePrepareTerminateAbility()
                 return false;
             }
         };
-        if(!cv_.wait_for(lock, std::chrono::milliseconds(PREPARE_TO_TERMINATE_TIMEOUT_MILLISECONDS), condition)) {
+        if (!cv_.wait_for(lock, std::chrono::milliseconds(PREPARE_TO_TERMINATE_TIMEOUT_MILLISECONDS), condition)) {
             HILOG_WARN("Wait timeout.");
         }
         HILOG_DEBUG("end, ret = %{public}d", isPrepareTerminate_);
