@@ -80,6 +80,10 @@ class Context {
     return this.__context_impl__.getApplicationContext();
   }
 
+  getGroupDir(groupId, callback) {
+    return this.__context_impl__.getGroupDir(groupId, callback);
+  }
+
   set area(mode) {
     return this.__context_impl__.switchArea(mode);
   }

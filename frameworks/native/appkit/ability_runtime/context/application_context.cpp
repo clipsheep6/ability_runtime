@@ -368,6 +368,11 @@ std::string ApplicationContext::GetPreferencesDir()
     return (contextImpl_ != nullptr) ? contextImpl_->GetPreferencesDir() : "";
 }
 
+std::string ApplicationContext::GetGroupDir(std::string groupId)
+{
+    return (contextImpl_ != nullptr) ? contextImpl_->GetGroupDir(groupId) : "";
+}
+
 std::string ApplicationContext::GetDistributedFilesDir()
 {
     return (contextImpl_ != nullptr) ? contextImpl_->GetDistributedFilesDir() : "";

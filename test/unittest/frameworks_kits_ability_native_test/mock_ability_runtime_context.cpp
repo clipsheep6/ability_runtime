@@ -143,5 +143,10 @@ Global::Resource::DeviceType MockAbilityRuntimeContext::GetDeviceType() const
 {
     return {};
 };
+
+std::string MockAbilityRuntimeContext::GetGroupDir(std::string groupId)
+{
+    return {};
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

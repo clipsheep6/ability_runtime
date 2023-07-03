@@ -22,12 +22,14 @@
 
 #include "nocopyable.h"
 #include "client_socket.h"
+#include "data_group_info.h"
 #include "shared/base_shared_bundle_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 using AppSpawnMsg = AppSpawn::ClientSocket::AppProperty;
 using HspList = std::vector<BaseSharedBundleInfo>;
+using DataGroupInfoList = std::vector<DataGroupInfo>;
 
 struct AppSpawnStartMsg {
     int32_t uid;
@@ -51,6 +53,7 @@ struct AppSpawnStartMsg {
     uint32_t hapFlags = 0; // whether is pre installed hap
     HspList hspList; // list of harmony shared package
     std::string overlayInfo;
+    DataGroupInfoList dataGroupInfoList; // list of harmony shared package
     uint32_t mountPermissionFlags;
 };
 
@@ -125,6 +128,14 @@ public:
         return hspListStr;
     }
 
+    /**
+     * Get function, return data group info list string
+    */
+    const std::string& GetDataGroupInfoListStr() const
+    {
+        return dataGroupInfoListStr;
+    }
+
 private:
     /**
      * Verify message.
@@ -150,6 +161,7 @@ private:
     // because AppSpawnMsg's size is uncertain, so should use raw pointer.
     AppSpawnMsg *msg_ = nullptr;
     std::string hspListStr;
+    std::string dataGroupInfoListStr;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -99,6 +99,13 @@ public:
     std::string GetPreferencesDir() override;
 
     /**
+     * @brief Obtains the path storing the storage file of the application by the groupId.
+     *
+     * @return Returns the local storage file.
+     */
+    std::string GetGroupDir(std::string groupId) override;
+
+    /**
      * @brief Obtains the path distributed file of the application
      *
      * @return Returns the distributed file.
@@ -296,6 +303,7 @@ private:
     static const std::string CONTEXT_PRIVATE;
     static const std::string CONTEXT_CACHE;
     static const std::string CONTEXT_PREFERENCES;
+    static const std::string CONTEXT_GROUP;
     static const std::string CONTEXT_DATABASE;
     static const std::string CONTEXT_TEMP;
     static const std::string CONTEXT_FILES;

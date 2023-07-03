@@ -151,6 +151,13 @@ public:
     virtual std::string GetPreferencesDir() = 0;
 
     /**
+     * @brief Obtains the path storing the storage file of the application by the groupId.
+     *
+     * @return Returns the local storage file.
+     */
+    virtual std::string GetGroupDir(std::string groupId) = 0;
+
+    /**
      * @brief Obtains the path distributed file of the application
      *
      * @return Returns the distributed file.

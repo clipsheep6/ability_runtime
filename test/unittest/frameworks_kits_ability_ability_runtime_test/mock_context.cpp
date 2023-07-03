@@ -159,5 +159,10 @@ void MockContext::SwitchArea(int mode)
 {
     mode_ = mode;
 }
+
+std::string MockContext::GetGroupDir(std::string groupId)
+{
+    return "/group";
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS
