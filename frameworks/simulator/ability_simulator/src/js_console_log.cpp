@@ -27,17 +27,17 @@ constexpr uint32_t JS_CONSOLE_LOG_MAX_LOG_LEN = 1024;
 constexpr uint32_t JS_CONSOLE_LOG_DOMAIN = 0xFEFE;
 constexpr char JS_CONSOLE_LOG_TAG[] = "JsApp";
 
-std::string MakeLogContent(NativeCallbackInfo& info)
+std::string MakeLogContent(NativeCallbackInfo &info)
 {
     std::string content;
 
     for (size_t i = 0; i < info.argc; i++) {
-        NativeValue* value = info.argv[i];
+        NativeValue *value = info.argv[i];
         if (value->TypeOf() != NATIVE_STRING) {
             value = value->ToString();
         }
 
-        NativeString* str = ConvertNativeValueTo<NativeString>(value);
+        NativeString *str = ConvertNativeValueTo<NativeString>(value);
         if (str == nullptr) {
             HILOG_ERROR("Failed to convert to string object");
             continue;
@@ -68,7 +68,7 @@ std::string MakeLogContent(NativeCallbackInfo& info)
 }
 
 template<LogLevel LEVEL>
-NativeValue* ConsoleLog(NativeEngine* engine, NativeCallbackInfo* info)
+NativeValue *ConsoleLog(NativeEngine *engine, NativeCallbackInfo *info)
 {
     if (engine == nullptr || info == nullptr) {
         HILOG_ERROR("engine or callback info is nullptr");
@@ -82,10 +82,10 @@ NativeValue* ConsoleLog(NativeEngine* engine, NativeCallbackInfo* info)
 }
 }
 
-void InitConsoleLogModule(NativeEngine& engine, NativeObject& globalObject)
+void InitConsoleLogModule(NativeEngine &engine, NativeObject &globalObject)
 {
-    NativeValue* consoleValue = engine.CreateObject();
-    NativeObject* consoleObj = ConvertNativeValueTo<NativeObject>(consoleValue);
+    NativeValue *consoleValue = engine.CreateObject();
+    NativeObject *consoleObj = ConvertNativeValueTo<NativeObject>(consoleValue);
     if (consoleObj == nullptr) {
         HILOG_ERROR("Failed to create console object");
         return;
