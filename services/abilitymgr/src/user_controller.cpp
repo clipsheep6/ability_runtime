@@ -161,12 +161,14 @@ int32_t UserController::StopUser(int32_t userId)
     }
     appScheduler->KillProcessesByUserId(userId);
 
-    auto taskDataPersistenceMgr = DelayedSingleton<TaskDataPersistenceMgr>::GetInstance();
-    if (!taskDataPersistenceMgr) {
-        HILOG_ERROR("taskDataPersistenceMgr is null");
-        return -1;
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto taskDataPersistenceMgr = DelayedSingleton<TaskDataPersistenceMgr>::GetInstance();
+        if (!taskDataPersistenceMgr) {
+            HILOG_ERROR("taskDataPersistenceMgr is null");
+            return -1;
+        }
+        taskDataPersistenceMgr->RemoveUserDir(userId);
     }
-    taskDataPersistenceMgr->RemoveUserDir(userId);
 
     auto abilityManagerService = DelayedSingleton<AbilityManagerService>::GetInstance();
     if (!abilityManagerService) {

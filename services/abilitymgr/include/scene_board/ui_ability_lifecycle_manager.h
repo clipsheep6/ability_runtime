@@ -124,7 +124,7 @@ public:
      */
     void SetRootSceneSession(const sptr<IRemoteObject> &rootSceneSession);
 
-    int NotifySCBToStartUIAbility(const AbilityRequest &abilityRequest);
+    int NotifySCBToStartUIAbility(const AbilityRequest &abilityRequest, int32_t userId);
 
     /**
      * @brief handle time out event

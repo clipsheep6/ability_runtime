@@ -1554,7 +1554,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, NotifySCBToStartUIAbility_001, TestSize.
     auto uiAbilityLifecycleManager = std::make_unique<UIAbilityLifecycleManager>();
     EXPECT_NE(uiAbilityLifecycleManager, nullptr);
     AbilityRequest abilityRequest;
-    uiAbilityLifecycleManager->NotifySCBToStartUIAbility(abilityRequest);
+    int32_t userId = 100;
+    uiAbilityLifecycleManager->NotifySCBToStartUIAbility(abilityRequest, userId);
     EXPECT_NE(uiAbilityLifecycleManager, nullptr);
 }
 
