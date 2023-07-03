@@ -486,8 +486,8 @@ HWTEST_F(ConfigurationTest, UpdateConfigToResMgr_001, TestSize.Level1)
     // update configuration to resource manager
     auto configUtils = std::make_shared<AbilityRuntime::ConfigurationUtils>();
     ASSERT_NE(configUtils, nullptr);
-    configUtils->UpdateConfigToResourceManager(configuration, nullptr);
-    configUtils->UpdateConfigToResourceManager(configuration, resourceManager);
+    configUtils->UpdateGlobalConfig(configuration, nullptr);
+    configUtils->UpdateGlobalConfig(configuration, resourceManager);
 
     // check resource manager has updated to "en", "dark", "false"
     std::unique_ptr<Global::Resource::ResConfig> updatedResConfig(Global::Resource::CreateResConfig());
