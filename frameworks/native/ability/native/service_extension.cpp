@@ -87,7 +87,7 @@ void ServiceExtension::OnConfigurationUpdated(const AppExecFwk::Configuration &c
     }
 
     auto configUtils = std::make_shared<ConfigurationUtils>();
-    configUtils->UpdateConfigToResourceManager(configuration, context->GetResourceManager());
+    configUtils->UpdateGlobalConfig(configuration, context->GetResourceManager());
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

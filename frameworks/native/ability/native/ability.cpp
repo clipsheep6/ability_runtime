@@ -1954,6 +1954,10 @@ void Ability::OnChange(Rosen::DisplayId displayId)
             ability->OnConfigurationUpdated(configuration);
         };
         handler_->PostTask(task);
+
+        auto diffConfiguration = std::make_shared<AppExecFwk::Configuration>(newConfig);
+        HILOG_INFO("Update display config %{public}s for all window.", diffConfiguration->GetName().c_str());
+        Rosen::Window::UpdateConfigurationForAll(diffConfiguration);
     }
 
     HILOG_DEBUG("%{public}s end", __func__);

@@ -15,7 +15,9 @@
 
 #include "js_service_extension.h"
 
+#include "ability_handler.h"
 #include "ability_info.h"
+#include "configuration_utils.h"
 #include "hitrace_meter.h"
 #include "hilog_wrapper.h"
 #include "js_extension_common.h"
@@ -28,6 +30,9 @@
 #include "napi_common_configuration.h"
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
+#ifdef SUPPORT_GRAPHICS
+#include "window_scene.h"
+#endif
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -154,6 +159,25 @@ void JsServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     BindContext(engine, obj);
 
     SetExtensionCommon(JsExtensionCommon::Create(jsRuntime_, static_cast<NativeReference&>(*jsObj_), shellContextRef_));
+
+    handler_ = handler;
+    auto context = GetContext();
+    auto appContext = Context::GetApplicationContext();
+    if (context != nullptr && appContext != nullptr) {
+        auto appConfig = appContext->GetConfiguration();
+        if (appConfig != nullptr) {
+            HILOG_DEBUG("Original config dump: %{public}s", appConfig->GetName().c_str());
+            context->SetConfiguration(std::make_shared<Configuration>(*appConfig));
+        }
+    }
+
+#ifdef SUPPORT_GRAPHICS
+    HILOG_INFO("RegisterDisplayListener");
+    std::shared_ptr<JsServiceExtension> jsServiceExtension = std::static_pointer_cast<JsServiceExtension>(
+        shared_from_this());
+    displayListener_ = new (std::nothrow) JsServiceExtensionDisplayListener(jsServiceExtension);
+    Rosen::DisplayManager::GetInstance().RegisterDisplayListener(displayListener_);
+#endif
 }
 
 void JsServiceExtension::BindContext(NativeEngine& engine, NativeObject* obj)
@@ -195,8 +219,20 @@ void JsServiceExtension::OnStart(const AAFwk::Want &want)
 {
     Extension::OnStart(want);
     HILOG_INFO("call");
+
+    auto context = GetContext();
+    if (context != nullptr) {
+        int displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, Rosen::WindowScene::DEFAULT_DISPLAY_ID);
+        auto configUtils = std::make_shared<ConfigurationUtils>();
+        configUtils->InitDisplayConfig(displayId, context->GetConfiguration(), context->GetResourceManager());
+    }
+
     HandleScope handleScope(jsRuntime_);
     NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
+
+    // display config has changed, need update context.config
+    JsExtensionContext::ConfigurationUpdated(nativeEngine, shellContextRef_, context->GetConfiguration());
+
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
     NativeValue* nativeWant = reinterpret_cast<NativeValue*>(napiWant);
     NativeValue* argv[] = {nativeWant};
@@ -489,7 +525,22 @@ void JsServiceExtension::OnConfigurationUpdated(const AppExecFwk::Configuration&
 {
     ServiceExtension::OnConfigurationUpdated(configuration);
     HILOG_INFO("call");
+    auto contextConfig = GetContext()->GetConfiguration();
+    if (contextConfig != nullptr) {
+        HILOG_DEBUG("Config dump: %{public}s", contextConfig->GetName().c_str());
+        std::vector<std::string> changeKeyV;
+        contextConfig->CompareDifferent(changeKeyV, configuration);
+        if (!changeKeyV.empty()) {
+            contextConfig->Merge(changeKeyV, configuration);
+        }
+        HILOG_DEBUG("Config dump after merge: %{public}s", contextConfig->GetName().c_str());
+    }
+    ConfigurationUpdated();
+}
 
+void JsServiceExtension::ConfigurationUpdated()
+{
+    HILOG_DEBUG("called.");
     HandleScope handleScope(jsRuntime_);
     auto& nativeEngine = jsRuntime_.GetNativeEngine();
 
@@ -499,13 +550,13 @@ void JsServiceExtension::OnConfigurationUpdated(const AppExecFwk::Configuration&
         HILOG_ERROR("configuration is nullptr.");
         return;
     }
-    JsExtensionContext::ConfigurationUpdated(&nativeEngine, shellContextRef_, fullConfig);
 
     napi_value napiConfiguration = OHOS::AppExecFwk::WrapConfiguration(
         reinterpret_cast<napi_env>(&nativeEngine), *fullConfig);
     NativeValue* jsConfiguration = reinterpret_cast<NativeValue*>(napiConfiguration);
     CallObjectMethod("onConfigurationUpdated", &jsConfiguration, ARGC_ONE);
     CallObjectMethod("onConfigurationUpdate", &jsConfiguration, ARGC_ONE);
+    JsExtensionContext::ConfigurationUpdated(&nativeEngine, shellContextRef_, fullConfig);
 }
 
 void JsServiceExtension::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
@@ -564,5 +615,53 @@ void JsServiceExtension::Dump(const std::vector<std::string> &params, std::vecto
     }
     HILOG_DEBUG("Dump info size: %{public}zu", info.size());
 }
+
+#ifdef SUPPORT_GRAPHICS
+void JsServiceExtension::OnCreate(Rosen::DisplayId displayId)
+{
+    HILOG_DEBUG("OnCreate.");
 }
+
+void JsServiceExtension::OnDestroy(Rosen::DisplayId displayId)
+{
+    HILOG_DEBUG("OnDestroy.");
 }
+
+void JsServiceExtension::OnChange(Rosen::DisplayId displayId)
+{
+    HILOG_DEBUG("displayId: %{public}" PRIu64"", displayId);
+    auto context = GetContext();
+    if (context == nullptr) {
+        HILOG_ERROR("Context is invalid.");
+        return;
+    }
+
+    auto contextConfig = context->GetConfiguration();
+    if (contextConfig == nullptr) {
+        HILOG_ERROR("Configuration is invalid.");
+        return;
+    }
+
+    HILOG_DEBUG("Config dump: %{public}s", contextConfig->GetName().c_str());
+    bool configChanged = false;
+    auto configUtils = std::make_shared<ConfigurationUtils>();
+    configUtils->UpdateDisplayConfig(displayId, contextConfig, context->GetResourceManager(), configChanged);
+    HILOG_DEBUG("Config dump after update: %{public}s", contextConfig->GetName().c_str());
+
+    if (configChanged) {
+        auto jsServiceExtension = std::static_pointer_cast<JsServiceExtension>(shared_from_this());
+        auto task = [jsServiceExtension]() {
+            if (jsServiceExtension) {
+                jsServiceExtension->ConfigurationUpdated();
+            }
+        };
+        if (handler_ != nullptr) {
+            handler_->PostTask(task);
+        }
+    }
+
+    HILOG_DEBUG("finished.");
+}
+#endif
+} // AbilityRuntime
+} // OHOS
