@@ -80,7 +80,6 @@
             "storage_service",
             "toolchain",
             "webview",
-            "hilog_native",
             "window_manager"
   ],
           "third_party": [
