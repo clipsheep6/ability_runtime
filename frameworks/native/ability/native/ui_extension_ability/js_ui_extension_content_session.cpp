@@ -159,15 +159,18 @@ NativeValue *JsUIExtensionContentSession::OnSendData(NativeEngine& engine, Nativ
 
     if (uiWindow_ == nullptr) {
         HILOG_ERROR("uiWindow_ is nullptr");
-        return engine.CreateNumber(static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER));
+        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
+        return engine.CreateUndefined();
     }
 
     Rosen::WMError ret = uiWindow_->TransferExtensionData(params);
     if (ret == Rosen::WMError::WM_OK) {
-        return engine.CreateNumber(static_cast<int32_t>(AbilityErrorCode::ERROR_OK));
+        HILOG_DEBUG("TransferExtensionData success");
     } else {
-        return engine.CreateNumber(static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER));
+        HILOG_ERROR("TransferExtensionData failed, ret=%{public}d", ret);
+        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
     }
+    return engine.CreateUndefined();
 }
 
 NativeValue *JsUIExtensionContentSession::OnSetReceiveDataCallback(NativeEngine& engine, NativeCallbackInfo& info)
@@ -184,7 +187,8 @@ NativeValue *JsUIExtensionContentSession::OnSetReceiveDataCallback(NativeEngine&
     if (!isRegistered) {
         if (uiWindow_ == nullptr) {
             HILOG_ERROR("uiWindow_ is nullptr");
-            return engine.CreateNumber(static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER));
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
+            return engine.CreateUndefined();
         }
         std::weak_ptr<NativeReference> weakCallback(receiveDataCallback_);
         auto handler = std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
@@ -198,7 +202,7 @@ NativeValue *JsUIExtensionContentSession::OnSetReceiveDataCallback(NativeEngine&
         });
         isRegistered = true;
     }
-    return engine.CreateNumber(static_cast<int32_t>(AbilityErrorCode::ERROR_OK));
+    return engine.CreateUndefined();
 }
 
 NativeValue *JsUIExtensionContentSession::OnLoadContent(NativeEngine& engine, NativeCallbackInfo& info)
@@ -217,14 +221,17 @@ NativeValue *JsUIExtensionContentSession::OnLoadContent(NativeEngine& engine, Na
     }
     if (uiWindow_ == nullptr) {
         HILOG_ERROR("uiWindow_ is nullptr");
-        return engine.CreateNumber(static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER));
+        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
+        return engine.CreateUndefined();
     }
     Rosen::WMError ret = uiWindow_->SetUIContent(contextPath, &engine, storage);
     if (ret == Rosen::WMError::WM_OK) {
-        return engine.CreateNumber(static_cast<int32_t>(AbilityErrorCode::ERROR_OK));
+        HILOG_DEBUG("SetUIContent success");
     } else {
-        return engine.CreateNumber(static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER));
+        HILOG_ERROR("SetUIContent failed, ret=%{public}d", ret);
+        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
     }
+    return engine.CreateUndefined();
 }
 
 NativeValue *JsUIExtensionContentSession::CreateJsUIExtensionContentSession(NativeEngine& engine,
