@@ -29,14 +29,6 @@ ohos_shared_library("ability_simulator_common") {
     ]
   }
 
-  if (is_mingw) {
-    platform = "windows"
-  } else if (is_mac) {
-    platform = "mac"
-  } else {
-    platform = "linux"
-  }
-
   cflags = [ "-std=c++17" ]
 
   include_dirs = [ "${ability_runtime_innerkits_path}/runtime/include" ]
@@ -47,7 +39,7 @@ ohos_shared_library("ability_simulator_common") {
 
   deps = []
 
-  external_deps = [ "hilog_native:libhilog_$platform" ]
+  external_deps = [ "hilog:libhilog" ]
 
   part_name = "ability_runtime"
   subsystem_name = "ability"

@@ -53,12 +53,6 @@ ohos_shared_library("ability_simulator") {
       ]
     }
 
-    if (is_mingw) {
-      platform = "windows"
-    } else {
-      platform = "mac"
-    }
-
     cflags = [ "-std=c++17" ]
 
     include_dirs = [
@@ -102,7 +96,7 @@ ohos_shared_library("ability_simulator") {
     external_deps = [
       "ability_base:string_utils",
       "ets_runtime:libark_jsruntime",
-      "hilog_native:libhilog_$platform",
+      "hilog:libhilog",
       "napi:ace_napi",
       "napi:ace_napi_ark",
       "previewer:ide_extension",
@@ -115,9 +109,8 @@ ohos_shared_library("ability_simulator") {
     } else {
       external_deps += [ "resource_management:mac_resmgr" ]
     }
-
-    part_name = "ability_runtime"
-    subsystem_name = "ability"
-  } else {
   }
+
+  part_name = "ability_runtime"
+  subsystem_name = "ability"
 }

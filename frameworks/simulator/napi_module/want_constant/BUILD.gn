@@ -15,12 +15,6 @@ import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 ohos_shared_library("wantconstant_napi") {
-  if (is_mingw) {
-    platform = "windows"
-  } else {
-    platform = "mac"
-  }
-
   sources = [
     "${ability_runtime_napi_path}/wantConstant/native_module.cpp",
     "${ability_runtime_napi_path}/wantConstant/want_constant.cpp",
@@ -29,7 +23,7 @@ ohos_shared_library("wantconstant_napi") {
   deps = [ "${ability_runtime_path}/frameworks/simulator/osal:simulator_osal" ]
 
   external_deps = [
-    "hilog_native:libhilog_$platform",
+    "hilog:libhilog",
     "napi:ace_napi",
   ]
   part_name = "ability_runtime"

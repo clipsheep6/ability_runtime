@@ -49,6 +49,31 @@ Options AbilityContext::GetOptions()
 void AbilityContext::SetOptions(const Options &options)
 {
     options_ = options;
+    HILOG_DEBUG("Options.bundleName: %{public}s", options.bundleName.c_str());
+    HILOG_DEBUG("Options.moduleName: %{public}s", options.moduleName.c_str());
+    HILOG_DEBUG("Options.modulePath: %{public}s", options.modulePath.c_str());
+    HILOG_DEBUG("Options.resourcePath: %{public}s", options.resourcePath.c_str());
+    HILOG_DEBUG("Options.debugPort: %{public}d", options.debugPort);
+    HILOG_DEBUG("Options.assetPath: %{public}s", options.assetPath.c_str());
+    HILOG_DEBUG("Options.systemResourcePath: %{public}s", options.systemResourcePath.c_str());
+    HILOG_DEBUG("Options.appResourcePath: %{public}s", options.appResourcePath.c_str());
+    HILOG_DEBUG("Options.containerSdkPath: %{public}s", options.containerSdkPath.c_str());
+    HILOG_DEBUG("Options.url: %{public}s", options.url.c_str());
+    HILOG_DEBUG("Options.language: %{public}s", options.language.c_str());
+    HILOG_DEBUG("Options.region: %{public}s", options.region.c_str());
+    HILOG_DEBUG("Options.script: %{public}s", options.script.c_str());
+    HILOG_DEBUG("Options.themeId: %{public}d", options.themeId);
+    HILOG_DEBUG("Options.deviceWidth: %{public}d", options.deviceWidth);
+    HILOG_DEBUG("Options.deviceHeight: %{public}d", options.deviceHeight);
+    HILOG_DEBUG("Options.isRound: %{public}d", options.themeId);
+    HILOG_DEBUG("Options.compatibleVersion: %{public}d", options.compatibleVersion);
+    HILOG_DEBUG("Options.installationFree: %{public}d", options.installationFree);
+    HILOG_DEBUG("Options.labelId: %{public}d", options.labelId);
+    HILOG_DEBUG("Options.compileMode: %{public}s", options.compileMode.c_str());
+    HILOG_DEBUG("Options.pageProfile: %{public}s", options.pageProfile.c_str());
+    HILOG_DEBUG("Options.targetVersion: %{public}d", options.targetVersion);
+    HILOG_DEBUG("Options.releaseType: %{public}s", options.releaseType.c_str());
+    HILOG_DEBUG("Options.enablePartialUpdate: %{public}d", options.enablePartialUpdate);
 
     auto pos = options_.modulePath.find(CONTEXT_FILE_SEPARATOR);
     if (pos == std::string::npos) {
