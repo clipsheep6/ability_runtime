@@ -5281,7 +5281,9 @@ void AbilityManagerService::OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::
     if (!currentMissionListManager_) {
         return;
     }
-    currentMissionListManager_->OnStartSpecifiedAbilityTimeoutResponse(want);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        currentMissionListManager_->OnStartSpecifiedAbilityTimeoutResponse(want);
+    }
 }
 
 int AbilityManagerService::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info)
