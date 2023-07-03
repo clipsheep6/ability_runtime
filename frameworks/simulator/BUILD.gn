@@ -16,17 +16,11 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 if (is_mac) {
   dylib_suffix = ".dylib"
-  exec_suffix = ""
 } else {
   dylib_suffix = ".dll"
-  exec_suffix = ".exe"
 }
 
-not_needed("*",
-           [
-             "dylib_suffix",
-             "exec_suffix",
-           ])
+not_needed("*", [ "dylib_suffix" ])
 
 ohos_copy("ability_simulator_copy_ability_modules") {
   deps = []
@@ -109,8 +103,6 @@ ohos_copy("copy_ability_simulator") {
 
   deps += [ "test:ability_simulator_test" ]
   out_path = get_label_info("test:ability_simulator_test", "root_out_dir")
-  sources += [ out_path + "/ability/ability_runtime/ability_simulator_test" +
-               exec_suffix ]
 
   deps += [ "ability_simulator:ability_simulator" ]
   out_path =
