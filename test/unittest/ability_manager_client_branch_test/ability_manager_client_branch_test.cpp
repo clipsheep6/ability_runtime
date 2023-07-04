@@ -1090,9 +1090,7 @@ HWTEST_F(AbilityManagerClientBranchTest, StartAbilityAsCaller_0200, TestSize.Lev
 HWTEST_F(AbilityManagerClientBranchTest, StartUIExtensionAbility_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "StartUIExtensionAbility_0100 start";
-    Want want;
-    EXPECT_EQ(client_->StartUIExtensionAbility(nullptr, 100),
-        ERR_OK);
+    EXPECT_EQ(client_->StartUIExtensionAbility(nullptr, 100), ERR_OK);
     GTEST_LOG_(INFO) << "StartUIExtensionAbility_0100 end";
 }
 
