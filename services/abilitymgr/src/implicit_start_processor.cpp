@@ -157,7 +157,8 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     // get abilityinfos from bms
     auto bms = GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
-    auto abilityInfoFlag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT;
+    auto abilityInfoFlag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
+        | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL_URI;
     std::vector<AppExecFwk::AbilityInfo> abilityInfos;
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
     bool withDefault = false;
@@ -292,8 +293,8 @@ int32_t ImplicitStartProcessor::ImplicitStartAbilityInner(const Want &targetWant
                 targetWant, request.callerToken, userId, request.extensionType);
             break;
         default:
-            result = abilityMgr->StartAbilityInner(
-                targetWant, request.callerToken, request.requestCode, request.callerUid, userId);
+            result = abilityMgr->StartAbilityWrap(
+                targetWant, request.callerToken, request.requestCode, userId);
             break;
     }
 

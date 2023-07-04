@@ -160,7 +160,6 @@ void EmplaceCodeMap3()
     codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::REQUEST_DIALOG_SERVICE));
     codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::START_SPECIFIED_ABILITY_BY_SCB));
     codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::SET_SESSIONMANAGERSERVICE));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_SESSIONMANAGERSERVICE));
     codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::START_CONTINUATION));
     codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::NOTIFY_CONTINUATION_RESULT));
     codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::NOTIFY_COMPLETE_CONTINUATION));

@@ -19,6 +19,7 @@
 #include "ability_manager_interface.h"
 #include "hilog_wrapper.h"
 #include "iremote_proxy.h"
+#include "mission_info.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -562,6 +563,8 @@ public:
 
     virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override;
 
+    virtual int SetMissionContinueState(const sptr<IRemoteObject> &token, const AAFwk::ContinueState &state) override;
+
 #ifdef SUPPORT_GRAPHICS
     virtual int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label) override;
 
@@ -833,19 +836,21 @@ public:
     void StartSpecifiedAbilityBySCB(const Want &want) override;
 
     /**
+     * Notify sandbox app the result of saving file.
+     * @param want Result of saving file, which contains the file's uri if success.
+     * @param resultCode Indicates the action's result.
+     * @param requestCode Pass the requestCode to match request.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifySaveAsResult(const Want &want, int resultCode, int requestCode) override;
+
+    /**
      * Set sessionManagerService
      * @param sessionManagerService the point of sessionManagerService.
      *
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService) override;
-
-    /**
-     * Get sessionManagerService
-     *
-     * @return returns the SessionManagerService object, or nullptr for failed.
-     */
-    virtual sptr<IRemoteObject> GetSessionManagerService() override;
 
 private:
     template <typename T>

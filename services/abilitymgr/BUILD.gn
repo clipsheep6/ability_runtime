@@ -133,6 +133,7 @@ ohos_shared_library("abilityms") {
   ]
 
   external_deps = [
+    "ability_base:base",
     "ability_base:configuration",
     "ability_base:session_info",
     "ability_base:want",
@@ -159,6 +160,7 @@ ohos_shared_library("abilityms") {
     "samgr:samgr_proxy",
     "window_manager:libwsutils",
     "window_manager:scene_session",
+    "window_manager:sms",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

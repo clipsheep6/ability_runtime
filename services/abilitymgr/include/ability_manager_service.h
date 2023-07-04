@@ -52,6 +52,7 @@
 #include "scene_board/ui_ability_lifecycle_manager.h"
 #include "user_controller.h"
 #include "resident_process_manager.h"
+#include "start_ability_handler.h"
 #ifdef SUPPORT_GRAPHICS
 #include "implicit_start_processor.h"
 #include "system_dialog_scheduler.h"
@@ -732,20 +733,34 @@ public:
     int32_t GetShareDataPairAndReturnData(std::shared_ptr<AbilityRecord> abilityRecord,
         const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam);
 
+    int StartAbilityWrap(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        int requestCode,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        bool isStartAsCaller = false);
+
     int StartAbilityInner(
         const Want &want,
         const sptr<IRemoteObject> &callerToken,
         int requestCode,
-        int callerUid = DEFAULT_INVAL_VALUE,
         int32_t userId = DEFAULT_INVAL_VALUE,
+        bool isStartAsCaller = false);
+
+    int StartAbilityForOptionWrap(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false);
 
     int StartAbilityForOptionInner(
         const Want &want,
         const StartOptions &startOptions,
         const sptr<IRemoteObject> &callerToken,
-        int requestCode = DEFAULT_INVAL_VALUE,
         int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false);
 
     int CheckPermission(const std::string &bundleName, const std::string &permission);
@@ -802,6 +817,9 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken) override;
+
+    virtual int SetMissionContinueState(const sptr<IRemoteObject> &abilityToken,
+        const AAFwk::ContinueState &state) override;
 
 #ifdef SUPPORT_GRAPHICS
     virtual int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label) override;
@@ -1103,19 +1121,21 @@ public:
     virtual void StartSpecifiedAbilityBySCB(const Want &want) override;
 
     /**
+     * Notify sandbox app the result of saving file.
+     * @param want Result of saving file, which contains the file's uri if success.
+     * @param resultCode Indicates the action's result.
+     * @param requestCode Pass the requestCode to match request.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifySaveAsResult(const Want &want, int resultCode, int requestCode) override;
+
+    /**
      * Set sessionManagerService
      * @param sessionManagerService the point of sessionManagerService.
      *
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService) override;
-
-    /**
-     * Get sessionManagerService
-     *
-     * @return returns the SessionManagerService object, or nullptr for failed.
-     */
-    virtual sptr<IRemoteObject> GetSessionManagerService() override;
 
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
@@ -1192,6 +1212,7 @@ private:
      *
      */
     void InitU0User();
+    void InitStartAbilityChain();
     /**
      * start highest priority ability.
      *
@@ -1236,6 +1257,9 @@ private:
     int DisconnectRemoteAbility(const sptr<IRemoteObject> &connect);
     int PreLoadAppDataAbilities(const std::string &bundleName, const int32_t userId);
     void UpdateCallerInfo(Want& want, const sptr<IRemoteObject> &callerToken);
+    int StartAbilityPublicPrechainCheck(StartAbilityParams &params);
+    int StartAbilityPrechainInterceptor(StartAbilityParams &params);
+    bool StartAbilityInChain(StartAbilityParams &params, int &result);
 
     bool CheckIfOperateRemote(const Want &want);
     std::string AnonymizeDeviceId(const std::string& deviceId);
@@ -1555,7 +1579,7 @@ private:
     std::shared_ptr<AbilityInterceptorExecuter> interceptorExecuter_;
     std::unordered_map<int32_t, int64_t> appRecoveryHistory_; // uid:time
     bool isPrepareTerminateEnable_ = false;
-    sptr<IRemoteObject> sessionManagerService_;
+    std::multimap<int, std::shared_ptr<StartAbilityHandler>, std::greater<int>> startAbilityChain_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

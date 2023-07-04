@@ -866,6 +866,14 @@ ErrCode AbilityManagerClient::DelegatorDoAbilityBackground(const sptr<IRemoteObj
     return abms->DelegatorDoAbilityBackground(token);
 }
 
+ErrCode AbilityManagerClient::SetMissionContinueState(const sptr<IRemoteObject> &token,
+    const AAFwk::ContinueState &state)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->SetMissionContinueState(token, state);
+}
+
 #ifdef SUPPORT_GRAPHICS
 ErrCode AbilityManagerClient::SetMissionLabel(const sptr<IRemoteObject> &token, const std::string& label)
 {
@@ -1147,22 +1155,20 @@ void AbilityManagerClient::StartSpecifiedAbilityBySCB(const Want &want)
     abms->StartSpecifiedAbilityBySCB(want);
 }
 
+ErrCode AbilityManagerClient::NotifySaveAsResult(const Want &want, int resultCode, int requestCode)
+{
+    HILOG_DEBUG("call.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->NotifySaveAsResult(want, resultCode, requestCode);
+}
+
 ErrCode AbilityManagerClient::SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService)
 {
     HILOG_INFO("AbilityManagerClient::SetSessionManagerService call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->SetSessionManagerService(sessionManagerService);
-}
-
-sptr<IRemoteObject> AbilityManagerClient::GetSessionManagerService()
-{
-    HILOG_INFO("AbilityManagerClient::GetSessionManagerService call");
-    auto abms = GetAbilityManager();
-    if (!abms) {
-        return nullptr;
-    }
-    return abms->GetSessionManagerService();
 }
 }  // namespace AAFwk
 }  // namespace OHOS

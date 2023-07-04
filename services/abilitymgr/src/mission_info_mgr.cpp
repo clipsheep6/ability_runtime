@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "mission_info.h"
 #include "mission_info_mgr.h"
 
 #include "ability_manager_service.h"
@@ -330,6 +331,33 @@ bool MissionInfoMgr::FindReusedMissionInfo(const std::string &missionName,
     }
     info = *it;
     return true;
+}
+
+int MissionInfoMgr::UpdateMissionContinueState(int32_t missionId, const AAFwk::ContinueState &state)
+{
+    HILOG_INFO("UpdateMissionContinueState Start. Mission id: %{public}d, state: %{public}d",
+        missionId, state);
+
+    if (missionId <= 0) {
+        HILOG_ERROR("UpdateMissionContinueState failed, missionId %{public}d invalid", missionId);
+        return -1;
+    }
+   
+    std::lock_guard<ffrt::mutex> lock(mutex_);
+    auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
+        return missionId == info.missionInfo.id;
+    });
+    if (it == missionInfoList_.end()) {
+        HILOG_ERROR("UpdateMissionContinueState to %{public}d failed, missionId %{public}d not exists.",
+            state, missionId);
+        return -1;
+    }
+
+    it->missionInfo.continueState = state;
+    
+    HILOG_INFO("UpdateMissionContinueState success. Mission id: %{public}d, ContinueState set to: %{public}d",
+        missionId, state);
+    return 0;
 }
 
 int MissionInfoMgr::UpdateMissionLabel(int32_t missionId, const std::string& label)

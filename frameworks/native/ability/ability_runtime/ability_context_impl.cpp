@@ -70,6 +70,11 @@ std::string AbilityContextImpl::GetPreferencesDir()
     return stageContext_ ? stageContext_->GetPreferencesDir() : "";
 }
 
+std::string AbilityContextImpl::GetGroupDir(std::string groupId)
+{
+    return stageContext_ ? stageContext_->GetGroupDir(groupId) : "";
+}
+
 std::string AbilityContextImpl::GetTempDir()
 {
     return stageContext_ ? stageContext_->GetTempDir() : "";
@@ -630,6 +635,16 @@ ErrCode AbilityContextImpl::GetMissionId(int32_t &missionId)
     } else {
         missionId_ = missionId;
         HILOG_DEBUG("missionId is %{public}d.", missionId_);
+    }
+    return err;
+}
+
+ErrCode AbilityContextImpl::SetMissionContinueState(const AAFwk::ContinueState &state)
+{
+    HILOG_DEBUG("SetMissionContinueState: %{public}d", state);
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->SetMissionContinueState(token_, state);
+    if (err != ERR_OK) {
+        HILOG_ERROR("SetMissionContinueState failed: %{public}d", err);
     }
     return err;
 }

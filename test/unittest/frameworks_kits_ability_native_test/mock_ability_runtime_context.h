@@ -56,6 +56,7 @@ public:
     std::shared_ptr<AppExecFwk::Configuration> GetConfiguration() const override;
     std::string GetBaseDir() const override;
     Global::Resource::DeviceType GetDeviceType() const override;
+    std::string GetGroupDir(std::string groupId) override;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

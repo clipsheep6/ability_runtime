@@ -22,6 +22,7 @@
 #include "ability_manager_errors.h"
 #include "ability_scheduler_interface.h"
 #include "ability_manager_interface.h"
+#include "mission_info.h"
 #include "snapshot.h"
 #include "want.h"
 
@@ -802,6 +803,16 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode PrepareTerminateAbility(const sptr<IRemoteObject> &token, sptr<IPrepareTerminateCallback> &callback);
+
+    /**
+     * Set mission continue state of this ability.
+     *
+     * @param token Indidate token of ability.
+     * @param state the mission continuation state of this ability.
+     * @return Returns ERR_OK if success.
+     */
+    ErrCode SetMissionContinueState(const sptr<IRemoteObject> &token, const AAFwk::ContinueState &state);
+
 #ifdef SUPPORT_GRAPHICS
     /**
      * Set mission label of this ability.
@@ -1082,19 +1093,21 @@ public:
     void StartSpecifiedAbilityBySCB(const Want &want);
 
     /**
+     * Notify sandbox app the result of saving file.
+     * @param want Result of saving file, which contains the file's uri if success.
+     * @param resultCode Indicates the action's result.
+     * @param requestCode Pass the requestCode to match request.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode NotifySaveAsResult(const Want &want, int resultCode, int requestCode);
+
+    /**
      * Set sessionManagerService
      * @param sessionManagerService the point of sessionManagerService.
      *
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService);
-
-    /**
-     * Get sessionManagerService
-     *
-     * @return returns the SessionManagerService object, or nullptr for failed.
-     */
-    sptr<IRemoteObject> GetSessionManagerService();
 
     ErrCode ReportDrawnCompleted(const sptr<IRemoteObject> &token);
 

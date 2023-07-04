@@ -40,6 +40,7 @@ public:
     bool IsUpdatingConfigurations() override;
     bool PrintDrawnCompleted() override;
     std::string GetDatabaseDir() override;
+    std::string GetGroupDir(std::string groupId) override;
     std::string GetPreferencesDir() override;
     std::string GetDistributedFilesDir() override;
     void SwitchArea(int mode) override;
@@ -190,6 +191,14 @@ public:
     ErrCode ReportDrawnCompleted() override;
 
     ErrCode GetMissionId(int32_t &missionId) override;
+    
+    /**
+     * @brief Set mission continue state of this ability.
+     *
+     * @param state the mission continuation state of this ability.
+     * @return Returns ERR_OK if success.
+     */
+    ErrCode SetMissionContinueState(const AAFwk::ContinueState &state) override;
 
 #ifdef SUPPORT_GRAPHICS
     /**

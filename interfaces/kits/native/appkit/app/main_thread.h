@@ -235,6 +235,13 @@ public:
 
     /**
      *
+     * @brief Preload extensions in appspawn.
+     *
+     */
+    static void PreloadExtensionPlugin();
+
+    /**
+     *
      * @brief Schedule the application process exit safely.
      *
      */
@@ -458,10 +465,8 @@ private:
      * @brief Load all extension so
      *
      * @param nativeEngine nativeEngine instance
-     * @param filePath extension so file path
-     * @param bundleInfo application bundle information
      */
-    void LoadAllExtensions(NativeEngine &nativeEngine, const std::string &filePath, const BundleInfo &bundleInfo);
+    void LoadAllExtensions(NativeEngine &nativeEngine);
 
     /**
      *

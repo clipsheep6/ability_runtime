@@ -38,6 +38,7 @@ using namespace OHOS::AppExecFwk;
 namespace {
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
+constexpr static char DEFAULT_BACKGROUND_COLOR[] = "#40ffffff";
 }
 
 NativeValue *AttachUIExtensionContext(NativeEngine *engine, void *value, void *)
@@ -329,6 +330,7 @@ void JsUIExtension::ForegroundWindow(const AAFwk::Want &want, const sptr<AAFwk::
     }
     auto& uiWindow = uiWindowMap_[obj];
     if (uiWindow) {
+        uiWindow->SetBackgroundColor(DEFAULT_BACKGROUND_COLOR);
         uiWindow->Show();
         foregroundWindows_.emplace(obj);
     }

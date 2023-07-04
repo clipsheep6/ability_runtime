@@ -163,6 +163,10 @@ class AbilityContext extends Context {
     return this.__context_impl__.restoreWindowStage(contentStorage);
   }
 
+  setMissionContinueState(state, callback) {
+    return this.__context_impl__.setMissionContinueState(state, callback);
+  }
+
   setMissionLabel(label, callback) {
     return this.__context_impl__.setMissionLabel(label, callback);
   }

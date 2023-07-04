@@ -663,6 +663,11 @@ public:
 
     virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) = 0;
 
+    virtual int SetMissionContinueState(const sptr<IRemoteObject> &token, const AAFwk::ContinueState &state)
+    {
+        return 0;
+    };
+
 #ifdef SUPPORT_GRAPHICS
     virtual int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label) = 0;
 
@@ -1030,6 +1035,18 @@ public:
     virtual void StartSpecifiedAbilityBySCB(const Want &want) {};
 
     /**
+     * Notify sandbox app the result of saving file.
+     * @param want Result of saving file, which contains the file's uri if success.
+     * @param resultCode Indicates the action's result.
+     * @param requestCode Pass the requestCode to match request.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifySaveAsResult(const Want &want, int resultCode, int requestCode)
+    {
+        return 0;
+    }
+
+    /**
      * Set sessionManagerService
      * @param sessionManagerService the point of sessionManagerService.
      *
@@ -1038,11 +1055,6 @@ public:
     virtual int32_t SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService)
     {
         return 0;
-    }
-
-    virtual sptr<IRemoteObject> GetSessionManagerService()
-    {
-        return nullptr;
     }
 
     enum {
@@ -1238,6 +1250,9 @@ public:
 
         MOVE_ABILITY_TO_BACKGROUND,
 
+        // ipc id for set mission continue state (69)
+        SET_MISSION_CONTINUE_STATE,
+
         // ipc id 1001-2000 for DMS
         // ipc id for starting ability (1001)
         START_ABILITY = 1001,
@@ -1351,8 +1366,6 @@ public:
         // ipc id for report drawn completed
         REPORT_DRAWN_COMPLETED,
 
-        GET_SESSIONMANAGERSERVICE,
-
         // ipc id for continue ability(1101)
         START_CONTINUATION = 1101,
 
@@ -1417,6 +1430,9 @@ public:
 
         ACQUIRE_SHARE_DATA = 4001,
         SHARE_DATA_DONE = 4002,
+
+        // ipc id for notify as result (notify to snadbox app)
+        NOTIFY_SAVE_AS_RESULT = 4201,
 
         GET_ABILITY_TOKEN = 5001,
 

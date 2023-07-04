@@ -185,6 +185,7 @@ private:
     int UnregisterConnectionObserverInner(MessageParcel &data, MessageParcel &reply);
     int GetDlpConnectionInfosInner(MessageParcel &data, MessageParcel &reply);
     int MoveAbilityToBackgroundInner(MessageParcel &data, MessageParcel &reply);
+    int SetMissionContinueStateInner(MessageParcel &data, MessageParcel &reply);
 #ifdef SUPPORT_GRAPHICS
     int SetMissionLabelInner(MessageParcel &data, MessageParcel &reply);
     int SetMissionIconInner(MessageParcel &data, MessageParcel &reply);
@@ -229,9 +230,9 @@ private:
     int SetRootSceneSessionInner(MessageParcel &data, MessageParcel &reply);
     int CallUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
     int StartSpecifiedAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
+    int NotifySaveAsResultInner(MessageParcel &data, MessageParcel &reply);
 
     int SetSessionManagerServiceInner(MessageParcel &data, MessageParcel &reply);
-    int GetSessionManagerServiceInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

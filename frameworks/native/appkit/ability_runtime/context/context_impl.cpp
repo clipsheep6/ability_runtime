@@ -59,6 +59,7 @@ const std::string ContextImpl::CONTEXT_DATA_STORAGE("/data/storage/");
 const std::string ContextImpl::CONTEXT_BASE("base");
 const std::string ContextImpl::CONTEXT_CACHE("cache");
 const std::string ContextImpl::CONTEXT_PREFERENCES("preferences");
+const std::string ContextImpl::CONTEXT_GROUP("group");
 const std::string ContextImpl::CONTEXT_DATABASE("database");
 const std::string ContextImpl::CONTEXT_TEMP("/temp");
 const std::string ContextImpl::CONTEXT_FILES("/files");
@@ -133,6 +134,28 @@ std::string ContextImpl::GetPreferencesDir()
     std::string dir = GetBaseDir() + CONTEXT_FILE_SEPARATOR + CONTEXT_PREFERENCES;
     CreateDirIfNotExist(dir, MODE);
     HILOG_DEBUG("ContextImpl::GetPreferencesDir:%{public}s", dir.c_str());
+    return dir;
+}
+
+std::string ContextImpl::GetGroupDir(std::string groupId)
+{
+    std::string dir = "";
+    sptr<AppExecFwk::IBundleMgr> bundleMgr = GetBundleManager();
+    if (bundleMgr == nullptr) {
+        HILOG_ERROR("GetBundleManager is nullptr");
+        return dir;
+    }
+
+    std::string groupDir;
+    bool ret = bundleMgr->GetGroupDir(groupId, groupDir);
+    if (!ret || groupDir.empty()) {
+        HILOG_ERROR("GetGroupDir failed or groupDir is empty");
+        return dir;
+    }
+    std::string uuid = groupDir.substr(groupDir.rfind("/"));
+    dir = CONTEXT_DATA_STORAGE + currArea_ + CONTEXT_FILE_SEPARATOR + CONTEXT_GROUP + uuid;
+    CreateDirIfNotExist(dir, MODE);
+    HILOG_DEBUG("GroupDir:%{public}s", dir.c_str());
     return dir;
 }
 

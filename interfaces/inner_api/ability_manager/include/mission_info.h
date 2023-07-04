@@ -23,6 +23,12 @@
 
 namespace OHOS {
 namespace AAFwk {
+
+enum ContinueState {
+    CONTINUESTATE_ACTIVE = 0,
+    CONTINUESTATE_INACTIVE
+};
+
 /**
  * @struct MissionInfo
  * MissionInfo is used to save information about mission information.
@@ -42,6 +48,7 @@ struct MissionInfo : public Parcelable {
     Want want;
     int32_t abilityState = -1;
     bool unclearable = false;
+    ContinueState continueState = ContinueState::CONTINUESTATE_ACTIVE;
 };
 
 /**

@@ -25,6 +25,7 @@ ohos_moduletest("running_infos_module_test") {
     "//third_party/jsoncpp/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/distributed_ability_runtime",
     "${ability_runtime_innerkits_path}/dataobs_manager/include",
+    "${distributedschedule_path}/safwk/interfaces/innerkits/safwk",
   ]
 
   sources = [ "running_infos_module_test.cpp" ]
@@ -34,6 +35,8 @@ ohos_moduletest("running_infos_module_test") {
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_service.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/app_exit_reason_data_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/scene_board/ui_ability_lifecycle_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/start_ability_handler.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/start_ability_handler/start_ability_sandbox_savefile.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/window_focus_changed_listener.cpp",
     "${ability_runtime_test_path}/mock/common/src/mock_native_token.cpp",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/sa_mgr/src/sa_mgr_client_mock.cpp",
@@ -104,7 +107,9 @@ ohos_moduletest("running_infos_module_test") {
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
+    "safwk:system_ability_fwk",
     "window_manager:libwsutils",
+    "window_manager:sms",
   ]
 
   if (efficiency_manager) {

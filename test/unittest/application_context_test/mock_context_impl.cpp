@@ -69,6 +69,11 @@ std::string MockContextImpl::GetDistributedFilesDir()
     return "/mnt/hmdfs/device_view/local/data/bundleName";
 }
 
+std::string MockContextImpl::GetGroupDir(std::string groupId)
+{
+    return "/group";
+}
+
 std::shared_ptr<Context> MockContextImpl::CreateModuleContext(const std::string &moduleName)
 {
     std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();

@@ -212,6 +212,9 @@ enum class AbilityManagerInterfaceCode {
 
     MOVE_ABILITY_TO_BACKGROUND,
 
+    // ipc id for set mission continue state (69)
+    SET_MISSION_CONTINUE_STATE,
+
     // ipc id 1001-2000 for DMS
     // ipc id for starting ability (1001)
     START_ABILITY = 1001,
@@ -324,8 +327,6 @@ enum class AbilityManagerInterfaceCode {
 
     // ipc id for report drawn completed
     REPORT_DRAWN_COMPLETED,
-
-    GET_SESSIONMANAGERSERVICE,
 
     // ipc id for continue ability(1101)
     START_CONTINUATION = 1101,
