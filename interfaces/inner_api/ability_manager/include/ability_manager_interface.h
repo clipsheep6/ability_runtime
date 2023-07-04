@@ -349,9 +349,10 @@ public:
      * MinimizeUIAbilityBySCB, minimize the special ui ability by scb.
      *
      * @param sessionInfo the session info of the ability to minimize.
+     * @param fromUser, Whether form user.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
+    virtual int MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool fromUser = false)
     {
         return 0;
     };
