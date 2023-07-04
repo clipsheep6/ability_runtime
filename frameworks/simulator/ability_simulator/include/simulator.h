@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,26 +20,25 @@
 #include <memory>
 #include <string>
 
+#include "options.h"
+
+#ifdef _WIN32
+#define ABILITY_EXPORT __attribute__((dllexport))
+#else
+#define ABILITY_EXPORT __attribute__((visibility("default")))
+#endif
 namespace OHOS {
 namespace AbilityRuntime {
-class Simulator {
+class ABILITY_EXPORT Simulator {
 public:
-    struct Options {
-        std::string bundleName = "";
-        std::string moduleName = "";
-        std::string modulePath = "";
-        std::string resourcePath = "";
-        int debugPort = -1;
-    };
-
     using TerminateCallback = std::function<void(int64_t)>;
     using FormUpdateCallback = std::function<void(int64_t, const std::string&)>;
 
-    static std::unique_ptr<Simulator> Create(const Options& options);
+    static std::unique_ptr<Simulator> Create(const Options &options);
 
     virtual ~Simulator() = default;
 
-    virtual int64_t StartAbility(const std::string& abilitySrcPath, TerminateCallback callback) = 0;
+    virtual int64_t StartAbility(const std::string &abilitySrcPath, TerminateCallback callback) = 0;
     virtual void TerminateAbility(int64_t abilityId) = 0;
 };
 } // namespace AbilityRuntime

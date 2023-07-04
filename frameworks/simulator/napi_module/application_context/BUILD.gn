@@ -20,7 +20,7 @@ gen_js_src_binary("application_context") {
   js_source = "${ability_runtime_napi_path}/app/application_context/application_context.js"
 }
 
-ohos_shared_library("application_context_napi") {
+ohos_shared_library("applicationcontext_napi") {
   if (is_mingw) {
     defines = [ "WINDOWS_PLATFORM" ]
   } else {
@@ -34,6 +34,6 @@ ohos_shared_library("application_context_napi") {
     ":gen_obj_src_application_context_js",
   ]
   external_deps = [ "napi:ace_napi" ]
-  part_name = "simulator"
+  part_name = "ability_runtime"
   subsystem_name = "ability"
 }

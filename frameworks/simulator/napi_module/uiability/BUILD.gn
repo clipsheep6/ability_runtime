@@ -17,7 +17,7 @@ import(
     "${ability_runtime_path}/frameworks/simulator/build/ability_simulator.gni")
 
 gen_js_src_binary("ability") {
-  js_source = "${ability_runtime_napi_path}/ability/ability.js"
+  js_source = "ability.js"
 }
 
 ohos_shared_library("uiability") {
@@ -35,6 +35,6 @@ ohos_shared_library("uiability") {
   ]
   external_deps = [ "napi:ace_napi" ]
 
-  part_name = "simulator"
+  part_name = "ability_runtime"
   subsystem_name = "ability"
 }
