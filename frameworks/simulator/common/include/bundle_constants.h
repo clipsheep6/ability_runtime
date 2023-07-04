@@ -13,15 +13,18 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_JS_CONSOLE_LOG_H
-#define OHOS_ABILITY_RUNTIME_JS_CONSOLE_LOG_H
+#ifndef FOUNDATION_ABILITY_RUNTIME_SIMULATOR_COMMON_INCLUDE_BUNDLE_CONSTANTS_H
+#define FOUNDATION_ABILITY_RUNTIME_SIMULATOR_COMMON_INCLUDE_BUNDLE_CONSTANTS_H
 
-#include "native_engine/native_engine.h"
+#include <map>
+#include <string>
+#include <vector>
 
 namespace OHOS {
-namespace AbilityRuntime {
-void InitConsoleLogModule(NativeEngine &engine, NativeObject &globalObject);
-} // namespace AbilityRuntime
+namespace AppExecFwk {
+namespace Constants {
+constexpr int PERMISSION_GRANTED = 0;
+} // namespace Constants
+} // namespace AppExecFwk
 } // namespace OHOS
-
-#endif // OHOS_ABILITY_RUNTIME_JS_CONSOLE_LOG_H
+#endif // FOUNDATION_ABILITY_RUNTIME_SIMULATOR_COMMON_INCLUDE_BUNDLE_CONSTANTS_H

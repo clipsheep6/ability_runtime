@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_JS_CONSOLE_LOG_H
-#define OHOS_ABILITY_RUNTIME_JS_CONSOLE_LOG_H
+class Ability {
+  onCreate() { }
+  onDestroy() { }
+  onWindowStageCreate(windowStage) { }
+  onWindowStageDestroy() { }
+  onForeground() { }
+  onBackground() { }
+  onConfigurationUpdated(config) { }
+  onConfigurationUpdate(newConfig) { }
+}
 
-#include "native_engine/native_engine.h"
-
-namespace OHOS {
-namespace AbilityRuntime {
-void InitConsoleLogModule(NativeEngine &engine, NativeObject &globalObject);
-} // namespace AbilityRuntime
-} // namespace OHOS
-
-#endif // OHOS_ABILITY_RUNTIME_JS_CONSOLE_LOG_H
+export default Ability;
