@@ -51,6 +51,7 @@
 #include "ipc_types.h"
 #include "iservice_registry.h"
 #include "itest_observer.h"
+#include "mission_info.h"
 #include "mission_info_mgr.h"
 #include "mock_session_manager_service.h"
 #include "os_account_manager_wrapper.h"
@@ -6522,6 +6523,59 @@ int AbilityManagerService::DumpAbilityInfoDone(std::vector<std::string> &infos, 
     }
     abilityRecord->DumpAbilityInfoDone(infos);
     return ERR_OK;
+}
+
+int AbilityManagerService::SetMissionContinueState(const sptr<IRemoteObject> &token, const AAFwk::ContinueState &state)
+{
+    HILOG_DEBUG("SetMissionContinueState begin. State: %{public}d", state);
+
+    CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
+
+    int32_t missionId = GetMissionIdByAbilityToken(token);
+    if (missionId == -1) {
+        HILOG_ERROR("SetMissionContinueState failed to get missionId. State: %{public}d", state);
+        return ERR_INVALID_VALUE;
+    }
+   
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    if (!abilityRecord) {
+        HILOG_ERROR("SetMissionContinueState: No such ability record. Mission id: %{public}d, state: %{public}d",
+            missionId, state);
+        return -1;
+    }
+
+    auto callingTokenId = IPCSkeleton::GetCallingTokenID();
+    auto tokenID = abilityRecord->GetApplicationInfo().accessTokenId;
+    if (callingTokenId != tokenID) {
+        HILOG_ERROR("SetMissionContinueState not self, not enabled. Mission id: %{public}d, state: %{public}d",
+            missionId, state);
+        return -1;
+    }
+
+    auto userId = abilityRecord->GetOwnerMissionUserId();
+    auto missionListManager = GetListManagerByUserId(userId);
+    if (!missionListManager) {
+        HILOG_ERROR("failed to find mission list manager. Mission id: %{public}d, state: %{public}d",
+            missionId, state);
+        return -1;
+    }
+ 
+    auto setResult = missionListManager->SetMissionContinueState(token, missionId, state);
+    if (setResult != ERR_OK) {
+        HILOG_ERROR("missionListManager set failed, result: %{public}d, mission id: %{public}d, state: %{public}d",
+            setResult, missionId, state);
+        return setResult;
+    }
+ 
+    DistributedClient dmsClient;
+    auto result =  dmsClient.SetMissionContinueState(missionId, state);
+    if (result != ERR_OK) {
+        HILOG_ERROR("Notify DMS client failed, result: %{public}d. Mission id: %{public}d, state: %{public}d",
+            result, missionId, state);
+    }
+
+    HILOG_DEBUG("SetMissionContinueState end. Mission id: %{public}d, state: %{public}d", missionId, state);
+    return result;
 }
 
 #ifdef SUPPORT_GRAPHICS

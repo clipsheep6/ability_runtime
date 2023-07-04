@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -113,6 +113,15 @@ public:
      * @param listenerController The mission listener controller.
      */
     bool DeleteAllMissionInfos(const std::shared_ptr<MissionListenerController> &listenerController);
+
+    /**
+     * @brief Update mission continue state.
+     *
+     * @param missionId indicates this mission id.
+     * @param state indicates this mission label.
+     * @return 0 if success.
+     */
+    int UpdateMissionContinueState(int32_t missionId, const AAFwk::ContinueState &state);
 
     /**
      * @brief Update mission label.

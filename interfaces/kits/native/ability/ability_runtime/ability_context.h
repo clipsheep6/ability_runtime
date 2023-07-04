@@ -23,6 +23,7 @@
 #include "caller_callback.h"
 #include "configuration.h"
 #include "iability_callback.h"
+#include "mission_info.h"
 #include "native_engine/native_reference.h"
 #include "native_engine/native_value.h"
 #include "start_options.h"
@@ -284,6 +285,14 @@ public:
     virtual ErrCode ReportDrawnCompleted() = 0;
 
     virtual ErrCode GetMissionId(int32_t &missionId) = 0;
+
+    /**
+     * Set mission continue state of this ability.
+     *
+     * @param state the mission continuation state of this ability.
+     * @return Returns ERR_OK if success.
+     */
+    virtual ErrCode SetMissionContinueState(const AAFwk::ContinueState &state) = 0;
 
 #ifdef SUPPORT_GRAPHICS
     /**

@@ -58,6 +58,7 @@ public:
         int32_t callerUid, int32_t requestCode, uint32_t accessToken, const sptr<IRemoteObject>& callback);
     int32_t StopRemoteExtensionAbility(const Want &want, int32_t callerUid,
         uint32_t accessToken, int32_t extensionType);
+    int32_t SetMissionContinueState(int32_t missionId, const AAFwk::ContinueState &state);
     enum {
         START_REMOTE_ABILITY = 1,
         CONNECT_REMOTE_ABILITY = 6,
@@ -77,7 +78,8 @@ public:
         START_REMOTE_FREE_INSTALL = 200,
         STOP_REMOTE_EXTERNSION_ABILITY = 225,
         REGISTER_ON_LISTENER = 260,
-        REGISTER_OFF_LISTENER = 261
+        REGISTER_OFF_LISTENER = 261,
+        SET_MISSION_CONTINUE_STATE = 300
     };
 private:
     sptr<IRemoteObject> GetDmsProxy();
