@@ -30,7 +30,8 @@ namespace OHOS {
 namespace AbilityRuntime {
 using IBundleMgr = AppExecFwk::IBundleMgr;
 
-JsModuleReader::JsModuleReader(const std::string& bundleName, const std::string& hapPath) : JsModuleSearcher(bundleName)
+JsModuleReader::JsModuleReader(const std::string& bundleName, const std::string& hapPath, bool isFormRender)
+    : JsModuleSearcher(bundleName), isFormRender_(isFormRender)
 {
     if (!hapPath.empty() && hapPath.find(std::string(SYS_ABS_CODE_PATH)) == 0) {
         isSystemPath_ = true;
@@ -41,25 +42,20 @@ JsModuleReader::JsModuleReader(const std::string& bundleName, const std::string&
 
 std::vector<uint8_t> JsModuleReader::operator()(const std::string& inputPath) const
 {
+    HILOG_INFO("JsModuleReader operator start: %{private}s", inputPath.c_str());
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::vector<uint8_t> buffer;
     if (inputPath.empty()) {
         HILOG_ERROR("inputPath is empty");
         return buffer;
     }
-    std::string realHapPath;
-    std::string suffix = std::string(SHARED_FILE_SUFFIX);
-    if (isSystemPath_) {
-        realHapPath = GetPresetAppHapPath(inputPath);
-    } else {
-        realHapPath = std::string(ABS_CODE_PATH) + inputPath + suffix;
-    }
-    if (realHapPath.empty() ||
-        realHapPath.length() < suffix.length() ||
-        realHapPath.compare(realHapPath.length() - suffix.length(), suffix.length(), suffix) != 0) {
-        HILOG_ERROR("failed to obtain realHapPath");
+
+    auto realHapPath = GetAppHspPath(inputPath);
+    if (realHapPath.empty()) {
+        HILOG_ERROR("realHapPath is empty");
         return buffer;
     }
+
     bool newCreate = false;
     std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(realHapPath, newCreate);
     if (extractor == nullptr) {
@@ -74,6 +70,58 @@ std::vector<uint8_t> JsModuleReader::operator()(const std::string& inputPath) co
     }
     buffer.assign(dataPtr.get(), dataPtr.get() + len);
     return buffer;
+}
+
+std::string JsModuleReader::GetAppHspPath(const std::string& inputPath) const
+{
+    if (isFormRender_) {
+        return GetFormAppHspPath(inputPath);
+    }
+    return GetCommonAppHspPath(inputPath);
+}
+
+std::string JsModuleReader::GetFormAppHspPath(const std::string& inputPath) const
+{
+    std::string realHapPath;
+    std::string suffix = std::string(SHARED_FILE_SUFFIX);
+    realHapPath.append("/data/bundles/")
+        .append(bundleName_).append("/")
+        .append(GetModuleName(inputPath))
+        .append(SHARED_FILE_SUFFIX);
+
+    HILOG_INFO("realHapPath: %{private}s", realHapPath.c_str());
+    if (realHapPath.empty() ||
+        realHapPath.length() < suffix.length() ||
+        realHapPath.compare(realHapPath.length() - suffix.length(), suffix.length(), suffix) != 0) {
+        HILOG_ERROR("failed to obtain realHapPath");
+        return realHapPath;
+    }
+    return realHapPath;
+}
+
+std::string JsModuleReader::GetModuleName(const std::string& inputPath) const
+{
+    return inputPath.substr(inputPath.find_last_of("/") + 1);
+}
+
+std::string JsModuleReader::GetCommonAppHspPath(const std::string& inputPath) const
+{
+    std::string realHapPath;
+    std::string suffix = std::string(SHARED_FILE_SUFFIX);
+    if (isSystemPath_) {
+        realHapPath = GetPresetAppHapPath(inputPath);
+    } else {
+        realHapPath = std::string(ABS_CODE_PATH) + inputPath + suffix;
+    }
+
+    HILOG_INFO("realHapPath: %{private}s", realHapPath.c_str());
+    if (realHapPath.empty() ||
+        realHapPath.length() < suffix.length() ||
+        realHapPath.compare(realHapPath.length() - suffix.length(), suffix.length(), suffix) != 0) {
+        HILOG_ERROR("failed to obtain realHapPath");
+        return realHapPath;
+    }
+    return realHapPath;
 }
 
 std::string JsModuleReader::GetPresetAppHapPath(const std::string& inputPath) const
