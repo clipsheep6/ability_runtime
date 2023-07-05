@@ -21,6 +21,7 @@
 #include "ability_manager_service.h"
 #include "ability_util.h"
 #include "app_exit_reason_data_manager.h"
+#include "appfreeze_manager.h"
 #include "hitrace_meter.h"
 #include "errors.h"
 #include "hilog_wrapper.h"
@@ -2008,7 +2009,7 @@ void MissionListManager::PostMissionLabelUpdateTask(int missionId) const
     handler->SubmitTask(task, "NotifyMissionLabelUpdated.", DELAY_NOTIFY_LABEL_TIME);
 }
 
-void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId)
+void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId, bool isHalf)
 {
     if (ability == nullptr) {
         HILOG_ERROR("ability is nullptr");
@@ -2022,10 +2023,12 @@ void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &a
             ability->GetAbilityInfo().name.data());
         return;
     }
+    int typeId = AppExecFwk::AppfreezeManager::TypeAttribute::NORMAL_TIMEOUT;
     std::string msgContent = "ability:" + ability->GetAbilityInfo().name + " ";
     switch (msgId) {
         case AbilityManagerService::LOAD_TIMEOUT_MSG:
             msgContent += "load timeout";
+            typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
             break;
         case AbilityManagerService::ACTIVE_TIMEOUT_MSG:
             msgContent += "active timeout";
@@ -2035,6 +2038,7 @@ void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &a
             break;
         case AbilityManagerService::FOREGROUND_TIMEOUT_MSG:
             msgContent += "foreground timeout";
+            typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
             break;
         case AbilityManagerService::BACKGROUND_TIMEOUT_MSG:
             msgContent += "background timeout";
@@ -2045,18 +2049,15 @@ void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &a
         default:
             return;
     }
-    std::string eventType = "LIFECYCLE_TIMEOUT";
-    HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
-        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
-        EVENT_KEY_UID, processInfo.uid_,
-        EVENT_KEY_PID, processInfo.pid_,
-        EVENT_KEY_PACKAGE_NAME, ability->GetAbilityInfo().bundleName,
-        EVENT_KEY_PROCESS_NAME, processInfo.processName_,
-        EVENT_KEY_MESSAGE, msgContent);
 
-    HILOG_WARN("LIFECYCLE_TIMEOUT: uid: %{public}d, pid: %{public}d, bundleName: %{public}s, abilityName: %{public}s,"
-        "msg: %{public}s", processInfo.uid_, processInfo.pid_, ability->GetAbilityInfo().bundleName.c_str(),
+    std::string eventName = isHalf ? "LIFECYCLE_HALF_TIMEOUT" : "LIFECYCLE_TIMEOUT";
+    HILOG_WARN("%{public}s: uid: %{public}d, pid: %{public}d, bundleName: %{public}s, abilityName: %{public}s,"
+        "msg: %{public}s", eventName.c_str(),
+        processInfo.uid_, processInfo.pid_, ability->GetAbilityInfo().bundleName.c_str(),
         ability->GetAbilityInfo().name.c_str(), msgContent.c_str());
+
+    AppExecFwk::AppfreezeManager::GetInstance()->LifecycleTimeoutHandle(
+        typeId, processInfo.pid_, eventName, ability->GetAbilityInfo().bundleName, msgContent);
 }
 
 void MissionListManager::UpdateMissionSnapshot(const std::shared_ptr<AbilityRecord>& abilityRecord) const
@@ -2076,7 +2077,7 @@ void MissionListManager::UpdateMissionSnapshot(const std::shared_ptr<AbilityReco
     }
 }
 
-void MissionListManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId)
+void MissionListManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId, bool isHalf)
 {
     HILOG_INFO("On timeout, msgId is %{public}d", msgId);
     std::lock_guard guard(managerLock_);
@@ -2094,7 +2095,10 @@ void MissionListManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId)
     }
 #endif
 
-    PrintTimeOutLog(abilityRecord, msgId);
+    PrintTimeOutLog(abilityRecord, msgId, isHalf);
+    if (isHalf) {
+        return;
+    }
     switch (msgId) {
         case AbilityManagerService::LOAD_TIMEOUT_MSG:
             HandleLoadTimeout(abilityRecord);

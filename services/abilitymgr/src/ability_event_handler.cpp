@@ -43,7 +43,7 @@ void AbilityEventHandler::ProcessEvent(const EventWrap &event)
     }
     switch (event.GetEventId()) {
         case AbilityManagerService::LOAD_TIMEOUT_MSG: {
-            ProcessLoadTimeOut(event.GetParam());
+            ProcessLoadTimeOut(event);
             break;
         }
         case AbilityManagerService::ACTIVE_TIMEOUT_MSG: {
@@ -57,7 +57,7 @@ void AbilityEventHandler::ProcessEvent(const EventWrap &event)
             break;
         }
         case AbilityManagerService::FOREGROUND_TIMEOUT_MSG: {
-            ProcessForegroundTimeOut(event.GetParam());
+            ProcessForegroundTimeOut(event);
             break;
         }
         case AbilityManagerService::SHAREDATA_TIMEOUT_MSG: {
@@ -71,12 +71,22 @@ void AbilityEventHandler::ProcessEvent(const EventWrap &event)
     }
 }
 
-void AbilityEventHandler::ProcessLoadTimeOut(int64_t abilityRecordId)
+void AbilityEventHandler::ProcessLoadTimeOut(const EventWrap &event)
 {
     HILOG_INFO("Attach timeout.");
     auto server = server_.lock();
     CHECK_POINTER(server);
-    server->HandleLoadTimeOut(abilityRecordId);
+    if (event.GetRunCount() == 0) {
+        uint32_t timeout = event.GetTimeout();
+        if (timeout == 0) {
+            timeout = 3000; // 3000 : default timeout
+        }
+        auto eventWrap = EventWrap(AbilityManagerService::LOAD_TIMEOUT_MSG, event.GetParam());
+        eventWrap.SetRunCount(event.GetRunCount() + 1);
+        eventWrap.SetTimeout(timeout);
+        SendEvent(eventWrap, timeout);
+    }
+    server->HandleLoadTimeOut(event.GetParam(), event.GetRunCount() == 0);
 }
 
 void AbilityEventHandler::ProcessActiveTimeOut(int64_t abilityRecordId)
@@ -95,12 +105,22 @@ void AbilityEventHandler::ProcessInactiveTimeOut(int64_t abilityRecordId)
     server->HandleInactiveTimeOut(abilityRecordId);
 }
 
-void AbilityEventHandler::ProcessForegroundTimeOut(int64_t abilityRecordId)
+void AbilityEventHandler::ProcessForegroundTimeOut(const EventWrap &event)
 {
     HILOG_INFO("Foreground timeout.");
     auto server = server_.lock();
     CHECK_POINTER(server);
-    server->HandleForegroundTimeOut(abilityRecordId);
+    if (event.GetRunCount() == 0) {
+        uint32_t timeout = event.GetTimeout();
+        if (timeout == 0) {
+            timeout = 3000; // 3000 : default timeout
+        }
+        auto eventWrap = EventWrap(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, event.GetParam());
+        eventWrap.SetRunCount(event.GetRunCount() + 1);
+        eventWrap.SetTimeout(timeout);
+        SendEvent(eventWrap, timeout);
+    }
+    server->HandleForegroundTimeOut(event.GetParam(), event.GetRunCount() == 0);
 }
 
 void AbilityEventHandler::ProcessShareDataTimeOut(int64_t uniqueId)

@@ -17,6 +17,7 @@
 
 #include "ability_manager_service.h"
 #include "ability_util.h"
+#include "appfreeze_manager.h"
 #include "errors.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
@@ -660,7 +661,8 @@ void UIAbilityLifecycleManager::NotifyAbilityToken(const sptr<IRemoteObject> &to
     }
 }
 
-void UIAbilityLifecycleManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId)
+void UIAbilityLifecycleManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability,
+    uint32_t msgId, bool isHalf)
 {
     if (ability == nullptr) {
         HILOG_ERROR("failed, ability is nullptr");
@@ -674,13 +676,16 @@ void UIAbilityLifecycleManager::PrintTimeOutLog(const std::shared_ptr<AbilityRec
             ability->GetAbilityInfo().name.data());
         return;
     }
+    int typeId = AppExecFwk::AppfreezeManager::TypeAttribute::NORMAL_TIMEOUT;
     std::string msgContent = "ability:" + ability->GetAbilityInfo().name + " ";
     switch (msgId) {
         case AbilityManagerService::LOAD_TIMEOUT_MSG:
             msgContent += "load timeout";
+            typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
             break;
         case AbilityManagerService::FOREGROUND_TIMEOUT_MSG:
             msgContent += "foreground timeout";
+            typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
             break;
         case AbilityManagerService::BACKGROUND_TIMEOUT_MSG:
             msgContent += "background timeout";
@@ -691,18 +696,15 @@ void UIAbilityLifecycleManager::PrintTimeOutLog(const std::shared_ptr<AbilityRec
         default:
             return;
     }
-    std::string eventType = "LIFECYCLE_TIMEOUT";
-    HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
-        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
-        EVENT_KEY_UID, processInfo.uid_,
-        EVENT_KEY_PID, processInfo.pid_,
-        EVENT_KEY_PACKAGE_NAME, ability->GetAbilityInfo().bundleName,
-        EVENT_KEY_PROCESS_NAME, processInfo.processName_,
-        EVENT_KEY_MESSAGE, msgContent);
 
-    HILOG_WARN("LIFECYCLE_TIMEOUT: uid: %{public}d, pid: %{public}d, bundleName: %{public}s, abilityName: %{public}s,"
-        "msg: %{public}s", processInfo.uid_, processInfo.pid_, ability->GetAbilityInfo().bundleName.c_str(),
+    std::string eventName = isHalf ? "LIFECYCLE_HALF_TIMEOUT" : "LIFECYCLE_TIMEOUT";
+    HILOG_WARN("%{public}s: uid: %{public}d, pid: %{public}d, bundleName: %{public}s, abilityName: %{public}s,"
+        "msg: %{public}s", eventName.c_str(),
+        processInfo.uid_, processInfo.pid_, ability->GetAbilityInfo().bundleName.c_str(),
         ability->GetAbilityInfo().name.c_str(), msgContent.c_str());
+
+    AppExecFwk::AppfreezeManager::GetInstance()->LifecycleTimeoutHandle(
+        typeId, processInfo.pid_, eventName, ability->GetAbilityInfo().bundleName, msgContent);
 }
 
 void UIAbilityLifecycleManager::CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord)
@@ -910,7 +912,7 @@ void UIAbilityLifecycleManager::ReportEventToSuspendManager(const AppExecFwk::Ab
 #endif // EFFICIENCY_MANAGER_ENABLE
 }
 
-void UIAbilityLifecycleManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId)
+void UIAbilityLifecycleManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId, bool isHalf)
 {
     HILOG_DEBUG("call, msgId is %{public}d", msgId);
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
@@ -927,7 +929,10 @@ void UIAbilityLifecycleManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordI
     }
     HILOG_DEBUG("call, msgId:%{public}d, name:%{public}s", msgId, abilityRecord->GetAbilityInfo().name.c_str());
 
-    PrintTimeOutLog(abilityRecord, msgId);
+    PrintTimeOutLog(abilityRecord, msgId, isHalf);
+    if (isHalf) {
+        return;
+    }
     switch (msgId) {
         case AbilityManagerService::LOAD_TIMEOUT_MSG:
             HandleLoadTimeout(abilityRecord);
