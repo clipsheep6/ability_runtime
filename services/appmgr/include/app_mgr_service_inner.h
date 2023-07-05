@@ -740,6 +740,10 @@ private:
     int32_t StartPerfProcess(const std::shared_ptr<AppRunningRecord> &appRecord, const std::string& perfCmd,
         const std::string& debugCmd, bool isSanboxApp) const;
 
+    void StartProcessVerifyPermission(const BundleInfo &bundleInfo, bool &hasAccessBundleDirReq,
+        uint8_t &setAllowInternet, uint8_t &allowInternet, std::vector<int32_t> &gids,
+        std::set<std::string> &permissions);
+
     /**
      * StartProcess, load the ability that needed to be started(Start on a new boot process).
      *

@@ -92,6 +92,7 @@ const std::string DEBUG_CMD = "debugCmd";
 const std::string ENTER_SANBOX = "sanboxApp";
 const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
 const std::string PERMISSION_INTERNET = "ohos.permission.INTERNET";
+const std::string PERMISSION_MANAGE_VPN = "ohos.permission.MANAGE_VPN";
 const std::string PERMISSION_ACCESS_BUNDLE_DIR = "ohos.permission.ACCESS_BUNDLE_DIR";
 const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
 const std::string SUPPORT_ISOLATION_MODE = "supportIsolationMode";
@@ -132,6 +133,8 @@ const std::string PROCESS_EXIT_EVENT_TASK = "Send Process Exit Event Task";
 constexpr int32_t ROOT_UID = 0;
 constexpr int32_t FOUNDATION_UID = 5523;
 constexpr int32_t DEFAULT_USER_ID = 0;
+
+constexpr int32_t BLUETOOTH_GROUPID = 1002;
 
 int32_t GetUserIdByUid(int32_t uid)
 {
@@ -1738,6 +1741,57 @@ void AppMgrServiceInner::SetOverlayInfo(const std::string &bundleName,
     }
 }
 
+void AppMgrServiceInner::StartProcessVerifyPermission(const BundleInfo &bundleInfo, bool &hasAccessBundleDirReq,
+                                                      uint8_t &setAllowInternet, uint8_t &allowInternet,
+                                                      std::vector<int32_t> &gids, std::set<std::string> &permissions)
+{
+    hasAccessBundleDirReq = std::any_of(bundleInfo.reqPermissions.begin(), bundleInfo.reqPermissions.end(),
+        [] (const auto &reqPermission) {
+            if (PERMISSION_ACCESS_BUNDLE_DIR == reqPermission) {
+                return true;
+            }
+            return false;
+        });
+
+    auto token = bundleInfo.applicationInfo.accessTokenId;
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_APP, "AccessTokenKit::VerifyAccessToken");
+        int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, PERMISSION_INTERNET);
+        if (result != Security::AccessToken::PERMISSION_GRANTED) {
+            setAllowInternet = 1;
+            allowInternet = 0;
+    #ifdef APP_MGR_SERVICE_APPMS
+            auto ret = SetInternetPermission(bundleInfo.uid, 0);
+            HILOG_DEBUG("SetInternetPermission, ret = %{public}d", ret);
+        } else {
+            auto ret = SetInternetPermission(bundleInfo.uid, 1);
+            HILOG_DEBUG("SetInternetPermission, ret = %{public}d", ret);
+    #endif
+        }
+
+        result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, PERMISSION_MANAGE_VPN);
+        if (result == Security::AccessToken::PERMISSION_GRANTED) {
+            gids.push_back(BLUETOOTH_GROUPID);
+        }
+
+        if (hasAccessBundleDirReq) {
+            int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, PERMISSION_ACCESS_BUNDLE_DIR);
+            if (result != Security::AccessToken::PERMISSION_GRANTED) {
+                HILOG_ERROR("StartProcess PERMISSION_ACCESS_BUNDLE_DIR NOT GRANTED");
+                hasAccessBundleDirReq = false;
+            }
+        }
+    }
+
+    std::set<std::string> mountPermissionList = AppSpawn::AppspawnMountPermission::GetMountPermissionList();
+    for (std::string permission : mountPermissionList) {
+        if (Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, permission) ==
+            Security::AccessToken::PERMISSION_GRANTED) {
+            permissions.insert(permission);
+        }
+    }
+}
+
 void AppMgrServiceInner::StartProcess(const std::string &appName, const std::string &processName, uint32_t startFlags,
                                       const std::shared_ptr<AppRunningRecord> &appRecord, const int uid,
                                       const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag)
@@ -1794,45 +1848,18 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         HILOG_DEBUG("the bundle has no groupInfos");
     }
 
-    bool hasAccessBundleDirReq = std::any_of(bundleInfo.reqPermissions.begin(), bundleInfo.reqPermissions.end(),
-        [] (const auto &reqPermission) {
-            if (PERMISSION_ACCESS_BUNDLE_DIR == reqPermission) {
-                return true;
-            }
-
-            return false;
-        });
+    bool hasAccessBundleDirReq;
     uint8_t setAllowInternet = 0;
     uint8_t allowInternet = 1;
-    auto token = bundleInfo.applicationInfo.accessTokenId;
-    {
-        // Add TRACE
-        HITRACE_METER_NAME(HITRACE_TAG_APP, "AccessTokenKit::VerifyAccessToken");
-        int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, PERMISSION_INTERNET);
-        if (result != Security::AccessToken::PERMISSION_GRANTED) {
-            setAllowInternet = 1;
-            allowInternet = 0;
-#ifdef APP_MGR_SERVICE_APPMS
-            auto ret = SetInternetPermission(bundleInfo.uid, 0);
-            HILOG_DEBUG("SetInternetPermission, ret = %{public}d", ret);
-        } else {
-            auto ret = SetInternetPermission(bundleInfo.uid, 1);
-            HILOG_DEBUG("SetInternetPermission, ret = %{public}d", ret);
-#endif
-        }
-
-        if (hasAccessBundleDirReq) {
-            int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, PERMISSION_ACCESS_BUNDLE_DIR);
-            if (result != Security::AccessToken::PERMISSION_GRANTED) {
-                HILOG_ERROR("StartProcess PERMISSION_ACCESS_BUNDLE_DIR NOT GRANTED");
-                hasAccessBundleDirReq = false;
-            }
-        }
-    }
+    std::vector<int32_t> gids;
+    std::set<std::string> permissions;
+    StartProcessVerifyPermission(bundleInfo, hasAccessBundleDirReq, setAllowInternet, allowInternet, gids,
+                                 permissions);
 
     AppSpawnStartMsg startMsg;
     startMsg.uid = bundleInfo.uid;
     startMsg.gid = bundleInfo.gid;
+    startMsg.gids = gids;
     startMsg.accessTokenId = bundleInfo.applicationInfo.accessTokenId;
     startMsg.apl = bundleInfo.applicationInfo.appPrivilegeLevel;
     startMsg.bundleName = bundleName;
@@ -1844,14 +1871,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     startMsg.hspList = hspList;
     startMsg.dataGroupInfoList = dataGroupInfoList;
     startMsg.hapFlags = bundleInfo.isPreInstallApp ? 1 : 0;
-    std::set<std::string> mountPermissionList = AppSpawn::AppspawnMountPermission::GetMountPermissionList();
-    std::set<std::string> permissions;
-    for (std::string permission : mountPermissionList) {
-        if (Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, permission) ==
-            Security::AccessToken::PERMISSION_GRANTED) {
-            permissions.insert(permission);
-        }
-    }
+
     startMsg.mountPermissionFlags = AppSpawn::AppspawnMountPermission::GenPermissionCode(permissions);
     if (hasAccessBundleDirReq) {
         startMsg.flags = startMsg.flags | APP_ACCESS_BUNDLE_DIR;
