@@ -43,6 +43,7 @@ JsEnvironment::~JsEnvironment()
     JSENV_LOG_I("Js environment destructor.");
 
     if (engine_ != nullptr) {
+        engine_->RunCleanup();
         engine_->DeleteEngine();
         delete engine_;
         engine_ = nullptr;
