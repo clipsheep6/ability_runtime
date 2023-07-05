@@ -33,7 +33,7 @@ public:
     static constexpr char BUNDLE[] = "bundle/";
     static constexpr char MERGE_ABC_PATH[] = "ets/modules.abc";
     static constexpr char SHARED_FILE_SUFFIX[] = ".hsp";
-    JsModuleReader(const std::string& bundleName, const std::string& hapPath);
+    JsModuleReader(const std::string& bundleName, const std::string& hapPath, bool isFormRender = false);
     ~JsModuleReader() = default;
 
     JsModuleReader(const JsModuleReader&) = default;
@@ -45,7 +45,13 @@ public:
     std::string GetPresetAppHapPath(const std::string& inputPath) const;
 
 private:
+    std::string GetAppHspPath(const std::string& inputPath) const;
+    std::string GetCommonAppHspPath(const std::string& inputPath) const;
+    std::string GetFormAppHspPath(const std::string& inputPath) const;
+    std::string GetModuleName(const std::string& inputPath) const;
+
     bool isSystemPath_ = false;
+    bool isFormRender_ = false;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
