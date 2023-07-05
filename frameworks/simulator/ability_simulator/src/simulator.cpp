@@ -456,7 +456,7 @@ void SimulatorImpl::Run()
         uv_run(uvLoop, UV_RUN_NOWAIT);
     }
 
-    AppExecFwk::EventHandler::Current().PostTask([this]() {
+    AppExecFwk::EventHandler::PostTask([this]() {
         Run();
     });
 }
