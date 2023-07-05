@@ -15,7 +15,11 @@
 
 #include "task_handler_wrap.h"
 
+#ifdef CONFIG_USE_JEMALLOC_DFX_INTF
+#include <malloc.h>
+#endif
 #include <mutex>
+
 #include "cpp/mutex.h"
 #include "hilog_wrapper.h"
 #include "ffrt_task_utils_wrap.h"
@@ -134,6 +138,13 @@ TaskHandle TaskHandlerWrap::SubmitTask(const std::function<void()> &task, const 
     }
     TaskHandle result(shared_from_this(), nullptr);
     auto taskWrap = [result, task]() {
+#ifdef CONFIG_USE_JEMALLOC_DFX_INTF
+        // 0 indicates success
+        auto err = mallopt(M_SET_THREAD_CACHE, M_THREAD_CACHE_DISABLE);
+        HILOG_INFO("disable tcache = %{public}d", err);
+        err = mallopt(M_DELAYED_FREE, M_DELAYED_FREE_DISABLE);
+        HILOG_INFO("disable decay_time = %{public}d", err);
+#endif
         *result.status_ = TaskStatus::EXECUTING;
         task();
         *result.status_ = TaskStatus::FINISHED;
