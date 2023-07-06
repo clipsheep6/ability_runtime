@@ -208,7 +208,7 @@ void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppL
             HILOG_DEBUG("name: %{public}s, patch lib path = %{private}s", hapInfo.name.c_str(), patchLibPath.c_str());
             appLibPaths[appLibPathKey].emplace_back(patchLibPath);
         }
-        if (GetHapSoPath(hapInfo, appLibPaths, bundleInfo.isPreInstallApp)) {
+        if (GetHapSoPath(hapInfo, appLibPaths, hapInfo.hapPath.find(ABS_CODE_PATH) != 0u)) {
             continue;
         }
 
@@ -222,7 +222,7 @@ void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppL
     for (auto &hspInfo : hspList) {
         HILOG_DEBUG("bundle:%s, module:%s, nativeLibraryPath:%s", hspInfo.bundleName.c_str(),
             hspInfo.moduleName.c_str(), hspInfo.nativeLibraryPath.c_str());
-        GetHspNativeLibPath(hspInfo, appLibPaths, hspInfo.hapPath.find("/system/app/") == 0u);
+        GetHspNativeLibPath(hspInfo, appLibPaths, hspInfo.hapPath.find(ABS_CODE_PATH) != 0u);
     }
 }
 } // namespace
