@@ -15,6 +15,7 @@
 
 #ifndef OHOS_ABILITY_RUNTIME_ABILITY_THREAD_H
 #define OHOS_ABILITY_RUNTIME_ABILITY_THREAD_H
+#include <condition_variable>
 
 #include "want.h"
 #include "ability_manager_client.h"
@@ -121,7 +122,7 @@ public:
      * @param requestCode Indicates the requestCode
      */
     void ScheduleShareData(const int32_t &requestCode);
-    
+
     /**
      * @description:  Provide operating system ShareData information to the observer
      * @param requestCode Indicates the requestCode

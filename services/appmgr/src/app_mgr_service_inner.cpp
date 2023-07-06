@@ -59,7 +59,7 @@
 #include "socket_permission.h"
 #endif
 #include "application_info.h"
-#include "meminfo.h"
+// #include "meminfo.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -142,8 +142,8 @@ int32_t GetUserIdByUid(int32_t uid)
 }
 }  // namespace
 
-using OHOS::AppExecFwk::Constants::PERMISSION_GRANTED;
-using OHOS::AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
+// using OHOS::AppExecFwk::Constants::PERMISSION_GRANTED;
+// using OHOS::AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
 
 AppMgrServiceInner::AppMgrServiceInner()
     : appProcessManager_(std::make_shared<AppProcessManager>()),
@@ -3947,8 +3947,8 @@ void AppMgrServiceInner::KillRenderProcess(const std::shared_ptr<AppRunningRecor
 int32_t AppMgrServiceInner::GetProcessMemoryByPid(const int32_t pid, int32_t &memorySize)
 {
     CHECK_CALLER_IS_SYSTEM_APP;
-    uint64_t memSize = OHOS::MemInfo::GetPssByPid(pid);
-    memorySize = memSize;
+    // uint64_t memSize = OHOS::MemInfo::GetPssByPid(pid);
+    memorySize = 0;// memSize;
     return ERR_OK;
 }
 

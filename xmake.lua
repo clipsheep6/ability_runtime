@@ -60,8 +60,12 @@ target("ability_runtime")
     add_includedirs("../communication_dsoftbus/interfaces/kits/bus_center", "../communication_dsoftbus/interfaces/kits/common")
     add_includedirs("../startup_syspara_lite/interfaces/kits")
     add_includedirs("../window_window_manager/interfaces/innerkits/wm", "../window_window_manager/interfaces/innerkits/dm", "../window_window_manager/utils/include",
-        "../window_window_manager/window_scene", "../window_window_manager/window_scene/interfaces/innerkits/include",
-        "../window_window_manager/interfaces/kits/napi/window_runtime/window_napi", "../window_window_manager/interfaces/kits/napi/window_runtime/window_stage_napi")
+        "../window_window_manager/window_scene",
+        "../window_window_manager/window_scene/session_manager/include",
+        "../window_window_manager/window_scene/interfaces/innerkits/include",
+        "../window_window_manager/interfaces/kits/napi/window_runtime/window_napi",
+        "../window_window_manager/interfaces/kits/napi/window_runtime/window_stage_napi",
+        "../window_window_manager/wmserver/include")
     add_includedirs("../distributeddatamgr_relational_store/interfaces/inner_api/rdb/include", "../distributeddatamgr_relational_store/interfaces/inner_api/appdatafwk/include",
         "../distributeddatamgr_relational_store/interfaces/inner_api/dataability/include")
     add_includedirs("../ability_form_fwk/interfaces/inner_api/include", "../ability_form_fwk/interfaces/kits/native/include")
