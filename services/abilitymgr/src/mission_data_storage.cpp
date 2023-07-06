@@ -421,8 +421,8 @@ std::unique_ptr<Media::PixelMap> MissionDataStorage::GetPixelMap(int missionId, 
     }
     Media::SourceOptions sourceOptions;
     auto imageSource = Media::ImageSource::CreateImageSource(buffer.get(), bufferSize, sourceOptions, errCode);
-    if (errCode != OHOS::Media::SUCCESS) {
-        HILOG_ERROR("snapshot: CreateImageSource failed, errCode = %{public}d", errCode);
+    if (errCode != OHOS::Media::SUCCESS || imageSource == nullptr) {
+        HILOG_ERROR("snapshot: CreateImageSource failed, nullptr or errCode = %{public}d", errCode);
         return nullptr;
     }
     Media::DecodeOptions decodeOptions;

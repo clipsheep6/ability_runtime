@@ -533,7 +533,8 @@ bool JsRuntime::Initialize(const Options& options)
 
             panda::JSNApi::SetBundle(vm, options.isBundle);
             panda::JSNApi::SetBundleName(vm, options.bundleName);
-            panda::JSNApi::SetHostResolveBufferTracker(vm, JsModuleReader(options.bundleName, options.hapPath));
+            panda::JSNApi::SetHostResolveBufferTracker(
+                vm, JsModuleReader(options.bundleName, options.hapPath, options.isUnique));
             isModular = !panda::JSNApi::IsBundle(vm);
         }
     }

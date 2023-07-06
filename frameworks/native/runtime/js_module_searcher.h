@@ -34,7 +34,7 @@ public:
 
     std::string operator()(const std::string& curJsModulePath, const std::string& newJsModuleUri) const;
 
-private:
+protected:
     std::string bundleName_;
 };
 } // namespace AbilityRuntime
