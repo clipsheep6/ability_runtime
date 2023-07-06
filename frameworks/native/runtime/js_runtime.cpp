@@ -545,11 +545,11 @@ bool JsRuntime::Initialize(const Options& options)
         auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>(options.hapPath, isModular);
         InitSourceMap(operatorObj);
 
-        if (options.isUnique) {
-            HILOG_INFO("Not supported TimerModule when form render");
-        } else {
+        // if (options.isUnique) {
+        //     HILOG_INFO("Not supported TimerModule when form render");
+        // } else {
             InitTimerModule();
-        }
+        // }
 
         InitWorkerModule(options);
         SetModuleLoadChecker(options.moduleCheckerDelegate);
