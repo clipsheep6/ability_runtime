@@ -6920,7 +6920,12 @@ int AbilityManagerService::CheckCallServiceExtensionPermission(const AbilityRequ
     if (IsCallFromBackground(abilityRequest, verificationInfo.isBackgroundCall) != ERR_OK) {
         return ERR_INVALID_VALUE;
     }
-
+    std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
+    if (callerAbility &&
+        callerAbility->GetAbilityInfo().extensionAbilityType == AppExecFwk::ExtensionAbilityType::FORM) {
+        // FormExtension is allowed to call ServiceExtension from background
+        verificationInfo.isBackgroundCall = false;
+    }
     int result = AAFwk::PermissionVerification::GetInstance()->CheckCallServiceExtensionPermission(verificationInfo);
     if (result != ERR_OK) {
         HILOG_ERROR("Do not have permission to start ServiceExtension or DataShareExtension");
