@@ -136,6 +136,10 @@ constexpr int32_t DEFAULT_USER_ID = 0;
 
 constexpr int32_t BLUETOOTH_GROUPID = 1002;
 
+#ifdef APP_MGR_SERVICE_APPMS
+constexpr int32_t NETSYS_SOCKET_GROUPID = 1097;
+#endif
+
 int32_t GetUserIdByUid(int32_t uid)
 {
     return uid / BASE_USER_RANGE;
@@ -1766,6 +1770,7 @@ void AppMgrServiceInner::StartProcessVerifyPermission(const BundleInfo &bundleIn
         } else {
             auto ret = SetInternetPermission(bundleInfo.uid, 1);
             HILOG_DEBUG("SetInternetPermission, ret = %{public}d", ret);
+            gids.push_back(NETSYS_SOCKET_GROUPID);
     #endif
         }
 
