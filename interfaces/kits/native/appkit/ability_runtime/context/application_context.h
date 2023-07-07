@@ -72,6 +72,8 @@ public:
     bool PrintDrawnCompleted() override;
     std::string GetDatabaseDir() override;
     std::string GetPreferencesDir() override;
+    int GetSystemDatabaseDir(std::string groupId, std::string &databaseDir) override;
+    int GetSystemPreferencesDir(std::string groupId, std::string &preferencesDir) override;
     std::string GetGroupDir(std::string groupId) override;
     std::string GetDistributedFilesDir() override;
     sptr<IRemoteObject> GetToken() override;

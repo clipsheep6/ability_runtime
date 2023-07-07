@@ -148,5 +148,15 @@ std::string MockAbilityRuntimeContext::GetGroupDir(std::string groupId)
 {
     return {};
 }
+
+int MockAbilityRuntimeContext::GetSystemDatabaseDir(std::string groupId, std::string &databaseDir)
+{
+    return 0;
+}
+
+int MockAbilityRuntimeContext::GetSystemPreferencesDir(std::string groupId, std::string &preferencesDir)
+{
+    return 0;
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS
