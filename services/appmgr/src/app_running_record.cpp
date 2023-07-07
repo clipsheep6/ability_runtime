@@ -17,6 +17,7 @@
 #include "app_mgr_service_inner.h"
 #include "hitrace_meter.h"
 #include "hilog_wrapper.h"
+#include "ui_extension_utils.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -857,7 +858,7 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
             if (abilityRecord && abilityRecord->GetState() == AbilityState::ABILITY_STATE_FOREGROUND &&
                 abilityRecord->GetAbilityInfo() &&
                 (abilityRecord->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE
-                || abilityRecord->GetAbilityInfo()->extensionAbilityType == ExtensionAbilityType::UI)) {
+                || AAFwk::UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo()->extensionAbilityType))) {
                 foregroundSize++;
                 break;
             }

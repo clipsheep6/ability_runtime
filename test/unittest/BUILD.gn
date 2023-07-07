@@ -411,6 +411,7 @@ group("unittest") {
     "system_ability_token_callback_stub_test:unittest",
     "task_data_persistence_mgr_test:unittest",
     "trigger_Info_test:unittest",
+    "ui_extension_utils_test:unittest",
     "uri_permission_impl_test:unittest",
     "uri_permission_manager_test:unittest",
     "uri_permission_test:unittest",

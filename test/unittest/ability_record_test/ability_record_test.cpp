@@ -30,6 +30,7 @@
 #include "parameters.h"
 #include "sa_mgr_client.h"
 #include "system_ability_definition.h"
+#include "ui_extension_utils.h"
 #ifdef SUPPORT_GRAPHICS
 #define private public
 #define protected public
@@ -2369,7 +2370,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GetRecoveryInfo_001, TestSize.Level1)
 HWTEST_F(AbilityRecordTest, IsUIExtension_001, TestSize.Level1)
 {
     abilityRecord_->abilityInfo_.extensionAbilityType = AppExecFwk::ExtensionAbilityType::UI;
-    EXPECT_EQ(abilityRecord_->IsUIExtension(), true);
+    EXPECT_EQ(UIExtensionUtils::IsUIExtension(abilityRecord_->abilityInfo_.extensionAbilityType), true);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -37,6 +37,7 @@
 #include "mock_iapp_state_callback.h"
 #include "mock_bundle_manager.h"
 #include "mock_render_scheduler.h"
+#include "ui_extension_utils.h"
 
 using namespace testing::ext;
 using testing::_;
@@ -2652,12 +2653,12 @@ HWTEST_F(AmsAppRunningRecordTest, IsUIExtension_001, TestSize.Level1)
         GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
 
     EXPECT_TRUE(record != nullptr);
-    EXPECT_EQ(record->IsUIExtension(), false);
+    EXPECT_EQ(AAFwk::UIExtensionUtils::IsUIExtension(record->extensionType_), false);
 
     auto otherRecord = service_->GetAppRunningRecordByAppRecordId(record->GetRecordId());
     EXPECT_TRUE(otherRecord != nullptr);
 
-    EXPECT_EQ(otherRecord->IsUIExtension(), false);
+    EXPECT_EQ(AAFwk::UIExtensionUtils::IsUIExtension(otherRecord->extensionType_), false);
 }
 
 /*
@@ -2688,12 +2689,12 @@ HWTEST_F(AmsAppRunningRecordTest, IsUIExtension_002, TestSize.Level1)
         GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
 
     EXPECT_TRUE(record != nullptr);
-    EXPECT_EQ(record->IsUIExtension(), true);
+    EXPECT_EQ(AAFwk::UIExtensionUtils::IsUIExtension(record->extensionType_), true);
 
     auto otherRecord = service_->GetAppRunningRecordByAppRecordId(record->GetRecordId());
     EXPECT_TRUE(otherRecord != nullptr);
 
-    EXPECT_EQ(otherRecord->IsUIExtension(), true);
+    EXPECT_EQ(AAFwk::UIExtensionUtils::IsUIExtension(otherRecord->extensionType_), true);
 }
 
 /*

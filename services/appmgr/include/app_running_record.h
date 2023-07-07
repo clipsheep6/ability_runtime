@@ -632,16 +632,6 @@ public:
     {
         return isSpawned_.load();
     }
-
-    bool IsUIExtension() const
-    {
-        return extensionType_ == ExtensionAbilityType::UI;
-    }
-
-    bool IsWindowExtension() const
-    {
-        return extensionType_ == ExtensionAbilityType::WINDOW;
-    }
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.

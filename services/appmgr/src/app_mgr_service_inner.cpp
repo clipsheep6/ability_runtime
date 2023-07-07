@@ -54,6 +54,7 @@
 #include "permission_constants.h"
 #include "permission_verification.h"
 #include "system_ability_definition.h"
+#include "ui_extension_utils.h"
 #include "uri_permission_manager_client.h"
 #ifdef APP_MGR_SERVICE_APPMS
 #include "socket_permission.h"
@@ -514,7 +515,8 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
     }
     if (appRecord->GetState() == ApplicationState::APP_STATE_FOREGROUND) {
         appRecord->SetState(ApplicationState::APP_STATE_BACKGROUND);
-        bool needNotifyApp = !appRecord->IsUIExtension() && !appRecord->IsWindowExtension()
+        bool needNotifyApp = !AAFwk::UIExtensionUtils::IsUIExtension(appRecord->GetExtensionType())
+            && !AAFwk::UIExtensionUtils::IsWindowExtension(appRecord->GetExtensionType())
             && appRunningManager_->IsApplicationBackground(appRecord->GetBundleName());
         OnAppStateChanged(appRecord, ApplicationState::APP_STATE_BACKGROUND, needNotifyApp);
         DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);

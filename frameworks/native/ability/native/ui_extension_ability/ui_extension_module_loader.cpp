@@ -28,8 +28,8 @@ Extension *UIExtensionModuleLoader::Create(const std::unique_ptr<Runtime>& runti
 std::map<std::string, std::string> UIExtensionModuleLoader::GetParams()
 {
     std::map<std::string, std::string> params;
-    // type means extension type in ExtensionAbilityType of extension_ability_info.h, 16 means uiextension.
-    params.insert(std::pair<std::string, std::string>("type", "16"));
+    // type means extension type in ExtensionAbilityType of extension_ability_info.h, 256 means uiextension.
+    params.insert(std::pair<std::string, std::string>("type", "256"));
     // extension name
     params.insert(std::pair<std::string, std::string>("name", "UIExtensionAbility"));
     return params;

@@ -27,6 +27,7 @@
 #include "in_process_call_wrapper.h"
 #include "parameter.h"
 #include "session/host/include/zidl/session_interface.h"
+#include "ui_extension_utils.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -140,7 +141,8 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
 
     targetService->SetLaunchReason(LaunchReason::LAUNCHREASON_START_EXTENSION);
 
-    if (targetService->IsUIExtension() && abilityRequest.sessionInfo && abilityRequest.sessionInfo->sessionToken) {
+    if (UIExtensionUtils::IsUIExtension(targetService->GetAbilityInfo().extensionAbilityType)
+        && abilityRequest.sessionInfo && abilityRequest.sessionInfo->sessionToken) {
         auto &remoteObj = abilityRequest.sessionInfo->sessionToken;
         uiExtensionMap_.emplace(remoteObj, UIExtWindowMapValType(targetService, abilityRequest.sessionInfo));
         AddUIExtWindowDeathRecipient(remoteObj);
@@ -152,8 +154,8 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
         // It may have been started through connect
         targetService->SetWant(abilityRequest.want);
         CommandAbility(targetService);
-    } else if (targetService->IsUIExtension() && targetService->IsReady()
-        && !targetService->IsAbilityState(AbilityState::INACTIVATING)) {
+    } else if (UIExtensionUtils::IsUIExtension(targetService->GetAbilityInfo().extensionAbilityType)
+        && targetService->IsReady() && !targetService->IsAbilityState(AbilityState::INACTIVATING)) {
         targetService->SetWant(abilityRequest.want);
         CommandAbilityWindow(targetService, abilityRequest.sessionInfo, WIN_CMD_FOREGROUND);
     } else {
@@ -507,7 +509,7 @@ void AbilityConnectManager::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
     if (abilityState == AppAbilityState::ABILITY_STATE_FOREGROUND) {
         auto abilityRecord = GetExtensionFromServiceMapInner(token);
         CHECK_POINTER(abilityRecord);
-        if (!abilityRecord->IsUIExtension()) {
+        if (!UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
             HILOG_ERROR("Not ui extension.");
             return;
         }
@@ -1183,7 +1185,7 @@ int AbilityConnectManager::DispatchInactive(const std::shared_ptr<AbilityRecord>
     abilityRecord->SetAbilityState(AbilityState::INACTIVE);
     if (abilityRecord->IsCreateByConnect()) {
         ConnectAbility(abilityRecord);
-    } else if (abilityRecord->IsUIExtension()) {
+    } else if (UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
         CommandAbilityWindow(abilityRecord, abilityRecord->GetSessionInfo(), WIN_CMD_FOREGROUND);
     } else {
         CommandAbility(abilityRecord);
