@@ -213,6 +213,7 @@ private:
     int EnableRecoverAbilityInner(MessageParcel &data, MessageParcel &reply);
     int ScheduleRecoverAbilityInner(MessageParcel &data, MessageParcel &reply);
     int GetTopAbilityInner(MessageParcel &data, MessageParcel &reply);
+    int GetFocusAbilityInner(MessageParcel &data, MessageParcel &reply);
     int DumpAbilityInfoDoneInner(MessageParcel &data, MessageParcel &reply);
     int32_t IsValidMissionIdsInner(MessageParcel &data, MessageParcel &reply);
 

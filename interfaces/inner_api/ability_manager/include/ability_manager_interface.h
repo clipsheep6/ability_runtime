@@ -244,6 +244,11 @@ public:
         return {};
     }
 
+    virtual AppExecFwk::ElementName GetFocusAbility(const sptr<IRemoteObject> &token)
+    {
+        return {};
+    }
+
     /**
      * TerminateAbility, terminate the special ability.
      *
@@ -1427,6 +1432,7 @@ public:
         GET_TOP_ABILITY = 3000,
         FREE_INSTALL_ABILITY_FROM_REMOTE = 3001,
         ADD_FREE_INSTALL_OBSERVER = 3002,
+        GET_FOCUS_ABILITY = 3003,
 
         // ipc id for app recovery(3010)
         ABILITY_RECOVERY = 3010,

@@ -6426,6 +6426,31 @@ AppExecFwk::ElementName AbilityManagerService::GetTopAbility()
     return elementName;
 }
 
+AppExecFwk::ElementName AbilityManagerService::GetFocusAbility(const sptr<IRemoteObject> &token)
+{
+    HILOG_DEBUG("%{public}s start.", __func__);
+    AppExecFwk::ElementName elementName = {};
+#ifdef SUPPORT_GRAPHICS
+    if (!token) {
+        HILOG_ERROR("token is nullptr");
+        return elementName;
+    }
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("%{public}s abilityRecord is null.", __func__);
+        return elementName;
+    }
+    elementName = abilityRecord->GetWant().GetElement();
+    bool isDeviceEmpty = elementName.GetDeviceID().empty();
+    std::string localDeviceId;
+    bool hasLocalDeviceId = GetLocalDeviceId(localDeviceId);
+    if (isDeviceEmpty && hasLocalDeviceId) {
+        elementName.SetDeviceID(localDeviceId);
+    }
+#endif
+    return elementName;
+}
+
 int AbilityManagerService::Dump(int fd, const std::vector<std::u16string>& args)
 {
     HILOG_DEBUG("Dump begin fd: %{public}d", fd);

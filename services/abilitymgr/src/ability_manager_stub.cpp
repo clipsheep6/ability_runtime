@@ -259,6 +259,8 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::GetMissionIdByTokenInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_TOP_ABILITY)] =
         &AbilityManagerStub::GetTopAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_FOCUS_ABILITY)] =
+        &AbilityManagerStub::GetFocusAbilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DUMP_ABILITY_INFO_DONE)] =
         &AbilityManagerStub::DumpAbilityInfoDoneInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_EXTENSION_ABILITY)] =
@@ -339,6 +341,17 @@ int AbilityManagerStub::GetTopAbilityInner(MessageParcel &data, MessageParcel &r
     AppExecFwk::ElementName result = GetTopAbility();
     if (result.GetDeviceID().empty()) {
         HILOG_DEBUG("GetTopAbilityInner is nullptr");
+    }
+    reply.WriteParcelable(&result);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::GetFocusAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();;
+    AppExecFwk::ElementName result = GetFocusAbility(token);
+    if (result.GetDeviceID().empty()) {
+        HILOG_DEBUG("GetFocusAbilityInner is nullptr");
     }
     reply.WriteParcelable(&result);
     return NO_ERROR;
