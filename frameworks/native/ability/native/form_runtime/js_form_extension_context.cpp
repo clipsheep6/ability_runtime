@@ -21,6 +21,7 @@
 #include "hilog_wrapper.h"
 #include "form_mgr_errors.h"
 #include "js_extension_context.h"
+#include "js_error_utils.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "napi/native_api.h"
@@ -34,8 +35,11 @@ namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr int32_t INDEX_ZERO = 0;
+constexpr int32_t INDEX_ONE = 1;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
+constexpr int32_t ERROR_CODE_ONE = 1;
+constexpr int32_t ERROR_CODE_TWO = 2;
 const int UPDATE_FORM_PARAMS_SIZE = 2;
 class JsFormExtensionContext final {
 public:
@@ -58,6 +62,18 @@ public:
     {
         JsFormExtensionContext* me = CheckParamsAndGetThis<JsFormExtensionContext>(engine, info);
         return (me != nullptr) ? me->OnStartAbility(*engine, *info) : nullptr;
+    }
+
+    static NativeValue* ConnectAbility(NativeEngine* engine, NativeCallbackInfo* info)
+    {
+        JsFormExtensionContext* me = CheckParamsAndGetThis<JsFormExtensionContext>(engine, info);
+        return (me != nullptr) ? me->OnConnectAbility(*engine, *info) : nullptr;
+    }
+
+    static NativeValue* DisconnectAbility(NativeEngine* engine, NativeCallbackInfo* info)
+    {
+        JsFormExtensionContext* me = CheckParamsAndGetThis<JsFormExtensionContext>(engine, info);
+        return (me != nullptr) ? me->OnDisconnectAbility(*engine, *info) : nullptr;
     }
 
 private:
@@ -164,6 +180,160 @@ private:
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
+
+    NativeValue* OnConnectAbility(NativeEngine& engine, NativeCallbackInfo& info)
+    {
+        HILOG_DEBUG("ConnectAbility called.");
+        // Check params count
+        if (info.argc < ARGC_TWO) {
+            HILOG_ERROR("Connect ability failed, not enough params.");
+            ThrowTooFewParametersError(engine);
+            return engine.CreateUndefined();
+        }
+        // Unwrap want and connection
+        AAFwk::Want want;
+        sptr<JSFormExtensionConnection> connection = new JSFormExtensionConnection(engine);
+        if (!CheckWantParam(engine, info.argv[0], want) ||
+            !CheckConnectionParam(engine, info.argv[1], connection, want)) {
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
+        }
+        int64_t connectId = connection->GetConnectionId();
+        AsyncTask::CompleteCallback complete =
+            [weak = context_, want, connection, connectId](NativeEngine& engine, AsyncTask& task, int32_t status) {
+                auto context = weak.lock();
+                if (!context) {
+                    HILOG_ERROR("context is released");
+                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "Context is released"));
+                    return;
+                }
+                HILOG_DEBUG("ConnectAbility connection:%{public}d", static_cast<int32_t>(connectId));
+                auto innerErrorCode = context->ConnectAbility(want, connection);
+                int32_t errcode = static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(innerErrorCode));
+                if (errcode) {
+                    connection->CallJsFailed(errcode);
+                }
+                task.Resolve(engine, engine.CreateUndefined());
+            };
+        NativeValue* result = nullptr;
+        AsyncTask::Schedule("JSFormExtensionConnection::OnConnectAbility",
+            engine, CreateAsyncTaskWithLastParam(engine, nullptr, nullptr, std::move(complete), &result));
+        return engine.CreateNumber(connectId);
+    }
+
+    NativeValue* OnDisconnectAbility(NativeEngine& engine, NativeCallbackInfo& info)
+    {
+        HILOG_INFO("DisconnectAbility");
+        if (info.argc < ARGC_ONE) {
+            HILOG_ERROR("Disconnect ability failed, not enough params.");
+            ThrowTooFewParametersError(engine);
+            return engine.CreateUndefined();
+        }
+        int64_t connectId = -1;
+        if (!CheckOnDisconnectAbilityParam(engine, info, connectId)) {
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
+        }
+
+        AAFwk::Want want;
+        sptr<JSFormExtensionConnection> connection = nullptr;
+        FindConnection(engine, info, want, connection, connectId);
+        // begin disconnect
+        AsyncTask::CompleteCallback complete =
+            [weak = context_, want, connection](
+                NativeEngine& engine, AsyncTask& task, int32_t status) {
+                auto context = weak.lock();
+                if (!context) {
+                    HILOG_WARN("context is released");
+                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "Context is released"));
+                    return;
+                }
+                if (connection == nullptr) {
+                    HILOG_WARN("connection nullptr");
+                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_TWO, "not found connection"));
+                    return;
+                }
+                HILOG_DEBUG("context->DisconnectAbility");
+                auto innerErrorCode = context->DisconnectAbility(want, connection);
+                if (innerErrorCode == 0) {
+                    task.Resolve(engine, engine.CreateUndefined());
+                } else {
+                    task.Reject(engine, CreateJsErrorByNativeErr(engine, innerErrorCode));
+                }
+            };
+
+        NativeValue* lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[INDEX_ONE];
+        NativeValue* result = nullptr;
+        AsyncTask::Schedule("JSFormExtensionConnection::OnDisconnectAbility",
+            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        return result;
+    }
+
+    bool CheckWantParam(NativeEngine& engine, NativeValue* value, AAFwk::Want& want) const
+    {
+        if (!OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine),
+            reinterpret_cast<napi_value>(value), want)) {
+            HILOG_ERROR("The input want is invalid.");
+            return false;
+        }
+        HILOG_INFO("UnwrapWant, BundleName: %{public}s, AbilityName: %{public}s.",
+            want.GetBundle().c_str(),
+            want.GetElement().GetAbilityName().c_str());
+        return true;
+    }
+
+    bool CheckConnectionParam(
+        NativeEngine& engine, NativeValue* value,
+        sptr<JSFormExtensionConnection>& connection, AAFwk::Want& want) const
+    {
+        if (ConvertNativeValueTo<NativeObject>(value) == nullptr) {
+            HILOG_ERROR("Failed to get connection object");
+            return false;
+        }
+        connection->SetJsConnectionObject(value);
+        ConnectionKey key;
+        key.id = serialNumber_;
+        key.want = want;
+        connection->SetConnectionId(key.id);
+        connects_.emplace(key, connection);
+        if (serialNumber_ < INT32_MAX) {
+            serialNumber_++;
+        } else {
+            serialNumber_ = 0;
+        }
+        HILOG_DEBUG("not find connection, make new one");
+        return true;
+    }
+
+    bool CheckOnDisconnectAbilityParam(NativeEngine& engine, NativeCallbackInfo& info, int64_t& connectId) const
+    {
+        // Check input connection is number type
+        if (!AppExecFwk::UnwrapInt64FromJS2(
+            reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), connectId)) {
+            HILOG_ERROR("The input connection id is not number type.");
+            return false;
+        }
+        return true;
+    }
+
+    void FindConnection(
+        NativeEngine& engine, NativeCallbackInfo& info,
+        AAFwk::Want& want, sptr<JSFormExtensionConnection>& connection, int64_t& connectId) const
+    {
+        HILOG_INFO("Disconnect ability begin, connection:%{public}d.", static_cast<int32_t>(connectId));
+        auto item = std::find_if(connects_.begin(),
+            connects_.end(),
+            [&connectId](const std::map<ConnectionKey, sptr<JSFormExtensionConnection>>::value_type &obj) {
+                return connectId == obj.first.id;
+            });
+        if (item != connects_.end()) {
+            // match id
+            want = item->first.want;
+            connection = item->second;
+            HILOG_DEBUG("find conn ability exist");
+        }
+        return;
+    }
 };
 } // namespace
 
@@ -180,12 +350,213 @@ NativeValue* CreateJsFormExtensionContext(NativeEngine& engine, std::shared_ptr<
     std::unique_ptr<JsFormExtensionContext> jsContext = std::make_unique<JsFormExtensionContext>(context);
     object->SetNativePointer(jsContext.release(), JsFormExtensionContext::Finalizer, nullptr);
 
+    // make mainHandler to callback
+    handler_ = std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
+
     const char *moduleName = "JsFormExtensionContext";
     BindNativeFunction(engine, *object, "updateForm", moduleName, JsFormExtensionContext::UpdateForm);
     BindNativeFunction(engine, *object, "startAbility", moduleName, JsFormExtensionContext::StartAbility);
+    BindNativeFunction(
+        engine, *object, "connectServiceExtensionAbility", moduleName, JsFormExtensionContext::ConnectAbility);
+    BindNativeFunction(engine, *object, "disconnectServiceExtensionAbility",
+        moduleName, JsFormExtensionContext::DisconnectAbility);
 
     HILOG_DEBUG("Create finished.");
     return objValue;
+}
+
+JSFormExtensionConnection::JSFormExtensionConnection(NativeEngine& engine) : engine_(engine) {}
+
+JSFormExtensionConnection::~JSFormExtensionConnection()
+{
+    if (jsConnectionObject_ == nullptr) {
+        return;
+    }
+
+    uv_loop_t *loop = engine_.GetUVLoop();
+    if (loop == nullptr) {
+        return;
+    }
+
+    uv_work_t *work = new (std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        return;
+    }
+    work->data = reinterpret_cast<void *>(jsConnectionObject_.release());
+    int ret = uv_queue_work(loop, work, [](uv_work_t *work) {},
+    [](uv_work_t *work, int status) {
+        if (work == nullptr) {
+            return;
+        }
+        if (work->data == nullptr) {
+            delete work;
+            work = nullptr;
+            return;
+        }
+        delete reinterpret_cast<NativeReference *>(work->data);
+        work->data = nullptr;
+        delete work;
+        work = nullptr;
+    });
+    if (ret != 0) {
+        delete reinterpret_cast<NativeReference *>(work->data);
+        work->data = nullptr;
+        delete work;
+        work = nullptr;
+    }
+}
+
+void JSFormExtensionConnection::SetConnectionId(int64_t id)
+{
+    connectionId_ = id;
+}
+
+int64_t JSFormExtensionConnection::GetConnectionId()
+{
+    return connectionId_;
+}
+
+void JSFormExtensionConnection::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
+    const sptr<IRemoteObject> &remoteObject, int resultCode)
+{
+    HILOG_DEBUG("OnAbilityConnectDone, resultCode:%{public}d", resultCode);
+    if (handler_ == nullptr) {
+        HILOG_INFO("handler_ nullptr");
+        return;
+    }
+    wptr<JSFormExtensionConnection> connection = this;
+    auto task = [connection, element, remoteObject, resultCode]() {
+        sptr<JSFormExtensionConnection> connectionSptr = connection.promote();
+        if (!connectionSptr) {
+            HILOG_INFO("connectionSptr nullptr");
+            return;
+        }
+        connectionSptr->HandleOnAbilityConnectDone(element, remoteObject, resultCode);
+    };
+    handler_->PostTask(task, "OnAbilityConnectDone");
+}
+
+void JSFormExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::ElementName &element,
+    const sptr<IRemoteObject> &remoteObject, int resultCode)
+{
+    HILOG_INFO("HandleOnAbilityConnectDone, resultCode:%{public}d", resultCode);
+    // wrap ElementName
+    napi_value napiElementName = OHOS::AppExecFwk::WrapElementName(reinterpret_cast<napi_env>(&engine_), element);
+    NativeValue* nativeElementName = reinterpret_cast<NativeValue*>(napiElementName);
+
+    // wrap RemoteObject
+    napi_value napiRemoteObject = NAPI_ohos_rpc_CreateJsRemoteObject(
+        reinterpret_cast<napi_env>(&engine_), remoteObject);
+    NativeValue* nativeRemoteObject = reinterpret_cast<NativeValue*>(napiRemoteObject);
+    NativeValue* argv[] = {nativeElementName, nativeRemoteObject};
+    if (jsConnectionObject_ == nullptr) {
+        HILOG_ERROR("jsConnectionObject_ nullptr");
+        return;
+    }
+    NativeValue* value = jsConnectionObject_->Get();
+    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
+    if (obj == nullptr) {
+        HILOG_ERROR("Failed to get object");
+        return;
+    }
+    NativeValue* methodOnConnect = obj->GetProperty("onConnect");
+    if (methodOnConnect == nullptr) {
+        HILOG_ERROR("Failed to get onConnect from object");
+        return;
+    }
+    engine_.CallFunction(value, methodOnConnect, argv, ARGC_TWO);
+}
+
+void JSFormExtensionConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
+{
+    HILOG_DEBUG("OnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
+    if (handler_ == nullptr) {
+        HILOG_INFO("handler_ nullptr");
+        return;
+    }
+    wptr<JSFormExtensionConnection> connection = this;
+    auto task = [connection, element, resultCode]() {
+        sptr<JSFormExtensionConnection> connectionSptr = connection.promote();
+        if (!connectionSptr) {
+            HILOG_INFO("connectionSptr nullptr");
+            return;
+        }
+        connectionSptr->HandleOnAbilityDisconnectDone(element, resultCode);
+    };
+    handler_->PostTask(task, "OnAbilityDisconnectDone");
+}
+
+void JSFormExtensionConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
+    int resultCode)
+{
+    HILOG_INFO("HandleOnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
+    napi_value napiElementName = OHOS::AppExecFwk::WrapElementName(reinterpret_cast<napi_env>(&engine_), element);
+    NativeValue* nativeElementName = reinterpret_cast<NativeValue*>(napiElementName);
+    NativeValue* argv[] = {nativeElementName};
+    if (jsConnectionObject_ == nullptr) {
+        HILOG_ERROR("jsConnectionObject_ nullptr");
+        return;
+    }
+    NativeValue* value = jsConnectionObject_->Get();
+    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
+    if (obj == nullptr) {
+        HILOG_ERROR("Failed to get object");
+        return;
+    }
+
+    NativeValue* method = obj->GetProperty("onDisconnect");
+    if (method == nullptr) {
+        HILOG_ERROR("Failed to get onDisconnect from object");
+        return;
+    }
+
+    // release connect
+    HILOG_DEBUG("OnAbilityDisconnectDone connects_.size:%{public}zu", connects_.size());
+    std::string bundleName = element.GetBundleName();
+    std::string abilityName = element.GetAbilityName();
+    auto item = std::find_if(connects_.begin(),
+        connects_.end(),
+        [bundleName, abilityName, connectionId = connectionId_](
+            const std::map<ConnectionKey, sptr<JSFormExtensionConnection>>::value_type &obj) {
+            return (bundleName == obj.first.want.GetBundle()) &&
+                   (abilityName == obj.first.want.GetElement().GetAbilityName()) &&
+                   connectionId == obj.first.id;
+        });
+    if (item != connects_.end()) {
+        // match bundleName && abilityName
+        connects_.erase(item);
+        HILOG_DEBUG("OnAbilityDisconnectDone erase connects_.size:%{public}zu", connects_.size());
+    }
+    engine_.CallFunction(value, method, argv, ARGC_ONE);
+}
+
+void JSFormExtensionConnection::SetJsConnectionObject(NativeValue* jsConnectionObject)
+{
+    jsConnectionObject_ = std::unique_ptr<NativeReference>(engine_.CreateReference(jsConnectionObject, 1));
+}
+
+void JSFormExtensionConnection::CallJsFailed(int32_t errorCode)
+{
+    HILOG_DEBUG("CallJsFailed begin");
+    if (jsConnectionObject_ == nullptr) {
+        HILOG_ERROR("jsConnectionObject_ nullptr");
+        return;
+    }
+    NativeValue* value = jsConnectionObject_->Get();
+    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
+    if (obj == nullptr) {
+        HILOG_ERROR("Failed to get object");
+        return;
+    }
+
+    NativeValue* method = obj->GetProperty("onFailed");
+    if (method == nullptr) {
+        HILOG_ERROR("Failed to get onFailed from object");
+        return;
+    }
+    NativeValue* argv[] = {engine_.CreateNumber(errorCode)};
+    engine_.CallFunction(value, method, argv, ARGC_ONE);
+    HILOG_DEBUG("CallJsFailed end");
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

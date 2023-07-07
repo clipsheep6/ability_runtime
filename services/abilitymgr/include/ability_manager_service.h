@@ -876,6 +876,9 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int GetTopAbility(sptr<IRemoteObject> &token) override;
+
+    virtual int CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId, bool& isFocused) override;
+
     /**
      * The delegator calls this interface to move the ability to the foreground.
      *
@@ -974,6 +977,8 @@ public:
         const std::string &mainAbility, std::string &uri);
 
     virtual AppExecFwk::ElementName GetTopAbility() override;
+
+    virtual AppExecFwk::ElementName GetFocusAbility(const sptr<IRemoteObject> &token) override;
 
     /**
      * AtomicServiceStatusCallback OnInstallFinished callback.

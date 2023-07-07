@@ -708,7 +708,7 @@ private:
             return false;
         }
         connection->SetJsConnectionObject(value);
-        ConnecttionKey key;
+        ConnectionKey key;
         key.id = serialNumber_;
         key.want = want;
         connection->SetConnectionId(key.id);
@@ -788,7 +788,7 @@ private:
         HILOG_INFO("Disconnect ability begin, connection:%{public}d.", static_cast<int32_t>(connectId));
         auto item = std::find_if(connects_.begin(),
             connects_.end(),
-            [&connectId](const std::map<ConnecttionKey, sptr<JSServiceExtensionConnection>>::value_type &obj) {
+            [&connectId](const std::map<ConnectionKey, sptr<JSServiceExtensionConnection>>::value_type &obj) {
                 return connectId == obj.first.id;
             });
         if (item != connects_.end()) {
@@ -1181,7 +1181,7 @@ void JSServiceExtensionConnection::HandleOnAbilityDisconnectDone(const AppExecFw
     auto item = std::find_if(connects_.begin(),
         connects_.end(),
         [bundleName, abilityName, connectionId = connectionId_](
-            const std::map<ConnecttionKey, sptr<JSServiceExtensionConnection>>::value_type &obj) {
+            const std::map<ConnectionKey, sptr<JSServiceExtensionConnection>>::value_type &obj) {
             return (bundleName == obj.first.want.GetBundle()) &&
                    (abilityName == obj.first.want.GetElement().GetAbilityName()) &&
                    connectionId == obj.first.id;

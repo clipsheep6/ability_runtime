@@ -245,6 +245,8 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::FinishUserTestInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_TOP_ABILITY_TOKEN)] =
         &AbilityManagerStub::GetTopAbilityTokenInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CHECK_UI_EXTENSION_IS_FOCUSED)] =
+        &AbilityManagerStub::CheckUIExtensionIsFocusedInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DELEGATOR_DO_ABILITY_FOREGROUND)] =
         &AbilityManagerStub::DelegatorDoAbilityForegroundInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DELEGATOR_DO_ABILITY_BACKGROUND)] =
@@ -257,6 +259,8 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::GetMissionIdByTokenInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_TOP_ABILITY)] =
         &AbilityManagerStub::GetTopAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_FOCUS_ABILITY)] =
+        &AbilityManagerStub::GetFocusAbilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DUMP_ABILITY_INFO_DONE)] =
         &AbilityManagerStub::DumpAbilityInfoDoneInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_EXTENSION_ABILITY)] =
@@ -309,7 +313,6 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[START_SPECIFIED_ABILITY_BY_SCB] = &AbilityManagerStub::StartSpecifiedAbilityBySCBInner;
     requestFuncMap_[NOTIFY_SAVE_AS_RESULT] = &AbilityManagerStub::NotifySaveAsResultInner;
     requestFuncMap_[SET_SESSIONMANAGERSERVICE] = &AbilityManagerStub::SetSessionManagerServiceInner;
-    requestFuncMap_[NOTIFY_SAVE_AS_RESULT] = &AbilityManagerStub::NotifySaveAsResultInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -337,6 +340,17 @@ int AbilityManagerStub::GetTopAbilityInner(MessageParcel &data, MessageParcel &r
     AppExecFwk::ElementName result = GetTopAbility();
     if (result.GetDeviceID().empty()) {
         HILOG_DEBUG("GetTopAbilityInner is nullptr");
+    }
+    reply.WriteParcelable(&result);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::GetFocusAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();;
+    AppExecFwk::ElementName result = GetFocusAbility(token);
+    if (result.GetDeviceID().empty()) {
+        HILOG_DEBUG("GetFocusAbilityInner is nullptr");
     }
     reply.WriteParcelable(&result);
     return NO_ERROR;
@@ -1759,6 +1773,20 @@ int AbilityManagerStub::GetTopAbilityTokenInner(MessageParcel &data, MessageParc
     reply.WriteInt32(result);
 
     return NO_ERROR;
+}
+
+int AbilityManagerStub::CheckUIExtensionIsFocusedInner(MessageParcel &data, MessageParcel &reply)
+{
+    uint32_t uiExtensionTokenId = data.ReadUint32();
+    bool isFocused = false;
+    auto result = CheckUIExtensionIsFocused(uiExtensionTokenId, isFocused);
+    if (result == ERR_OK) {
+        if (!reply.WriteBool(isFocused)) {
+            HILOG_ERROR("reply write failed.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+    return result;
 }
 
 int AbilityManagerStub::DelegatorDoAbilityForegroundInner(MessageParcel &data, MessageParcel &reply)

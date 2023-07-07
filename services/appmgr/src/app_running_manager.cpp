@@ -27,6 +27,7 @@
 #include "perf_profile.h"
 #include "quick_fix_callback_with_record.h"
 #include "scene_board_judgement.h"
+#include "ui_extension_utils.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -529,8 +530,9 @@ void AppRunningManager::GetForegroundApplications(std::vector<AppStateData> &lis
             return;
         }
         auto state = appRecord->GetState();
-        if (state == ApplicationState::APP_STATE_FOREGROUND && !appRecord->IsUIExtension()
-            && !appRecord->IsWindowExtension()) {
+        if (state == ApplicationState::APP_STATE_FOREGROUND
+            && !AAFwk::UIExtensionUtils::IsUIExtension(appRecord->GetExtensionType())
+            && !AAFwk::UIExtensionUtils::IsWindowExtension(appRecord->GetExtensionType())) {
             AppStateData appData;
             appData.bundleName = appRecord->GetBundleName();
             appData.uid = appRecord->GetUid();
@@ -795,13 +797,15 @@ bool AppRunningManager::IsApplicationFirstForeground(const AppRunningRecord &for
 {
     HILOG_DEBUG("function called.");
     std::lock_guard<ffrt::mutex> guard(lock_);
-    if (foregroundingRecord.IsUIExtension() || foregroundingRecord.IsWindowExtension()) {
+    if (AAFwk::UIExtensionUtils::IsUIExtension(foregroundingRecord.GetExtensionType())
+        || AAFwk::UIExtensionUtils::IsWindowExtension(foregroundingRecord.GetExtensionType())) {
         return false;
     }
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord == nullptr || appRecord->GetBundleName() != foregroundingRecord.GetBundleName()
-            || appRecord->IsUIExtension() || appRecord->IsWindowExtension()) {
+            || AAFwk::UIExtensionUtils::IsUIExtension(appRecord->GetExtensionType())
+            || AAFwk::UIExtensionUtils::IsWindowExtension(appRecord->GetExtensionType())) {
             continue;
         }
         auto state = appRecord->GetState();
@@ -823,7 +827,8 @@ bool AppRunningManager::IsApplicationBackground(const std::string &bundleName)
             HILOG_ERROR("appRecord is nullptr");
             return false;
         }
-        if (appRecord->IsUIExtension() || appRecord->IsWindowExtension()) {
+        if (AAFwk::UIExtensionUtils::IsUIExtension(appRecord->GetExtensionType())
+            || AAFwk::UIExtensionUtils::IsWindowExtension(appRecord->GetExtensionType())) {
             continue;
         }
         auto state = appRecord->GetState();

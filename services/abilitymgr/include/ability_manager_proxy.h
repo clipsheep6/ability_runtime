@@ -421,6 +421,13 @@ public:
     virtual AppExecFwk::ElementName GetTopAbility() override;
 
     /**
+     * Get focus ability.
+     *
+     * @return Returns front desk focus ability elementName.
+     */
+    virtual AppExecFwk::ElementName GetFocusAbility(const sptr<IRemoteObject> &token) override;
+
+    /**
      * Kill the process immediately.
      *
      * @param bundleName.
@@ -637,6 +644,8 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int GetTopAbility(sptr<IRemoteObject> &token) override;
+
+    virtual int CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId, bool& isFocused) override;
 
     /**
      * The delegator calls this interface to move the ability to the foreground.

@@ -868,6 +868,23 @@ ErrCode AbilityManagerClient::GetTopAbility(sptr<IRemoteObject> &token)
     return abms->GetTopAbility(token);
 }
 
+AppExecFwk::ElementName AbilityManagerClient::GetFocusAbility(const sptr<IRemoteObject> &token)
+{
+    auto abms = GetAbilityManager();
+    if (abms == nullptr) {
+        HILOG_ERROR("abms == nullptr");
+        return {};
+    }
+    return abms->GetFocusAbility(token);
+}
+
+ErrCode AbilityManagerClient::CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId, bool& isFocused)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->CheckUIExtensionIsFocused(uiExtensionTokenId, isFocused);
+}
+
 ErrCode AbilityManagerClient::DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token)
 {
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
@@ -1087,6 +1104,20 @@ ErrCode AbilityManagerClient::FreeInstallAbilityFromRemote(const Want &want, con
 
 AppExecFwk::ElementName AbilityManagerClient::GetTopAbility()
 {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        AppExecFwk::ElementName elementName = {};
+        sptr<IRemoteObject> token;
+        auto ret = GetTopAbility(token);
+        if (!ret) {
+            HILOG_ERROR("elementName has nothing");
+            return elementName;
+        }
+        if (!token) {
+            HILOG_ERROR("token is nullptr");
+            return elementName;
+        }
+        return GetFocusAbility(token);
+    }
     HILOG_DEBUG("enter.");
     auto abms = GetAbilityManager();
     if (abms == nullptr) {

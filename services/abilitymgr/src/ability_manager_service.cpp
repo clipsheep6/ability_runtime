@@ -65,6 +65,7 @@
 #include "string_ex.h"
 #include "system_ability_definition.h"
 #include "system_ability_token_callback.h"
+#include "ui_extension_utils.h"
 #include "uri_permission_manager_client.h"
 
 #ifdef SUPPORT_GRAPHICS
@@ -1778,7 +1779,9 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
         extensionSessionInfo->want.GetElement().GetBundleName().c_str(),
         extensionSessionInfo->want.GetElement().GetAbilityName().c_str(), userId);
     CHECK_POINTER_AND_RETURN(extensionSessionInfo, ERR_INVALID_VALUE);
-    AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UI;
+    std::string extensionTypeStr = extensionSessionInfo->want.GetStringParam(UIEXTENSION_TYPE_KEY);
+    AppExecFwk::ExtensionAbilityType extensionType = extensionTypeStr.empty() ?
+        AppExecFwk::ExtensionAbilityType::UI : AppExecFwk::ConvertToExtensionAbilityType(extensionTypeStr);
     EventInfo eventInfo = BuildEventInfo(extensionSessionInfo->want, userId);
     eventInfo.extensionType = static_cast<int32_t>(extensionType);
     EventReport::SendExtensionEvent(EventName::START_SERVICE, HiSysEventType::BEHAVIOR, eventInfo);
@@ -1835,7 +1838,6 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
     AbilityRequest abilityRequest;
     abilityRequest.Voluation(extensionSessionInfo->want, DEFAULT_INVAL_VALUE, callerToken);
     abilityRequest.callType = AbilityCallType::START_EXTENSION_TYPE;
-    abilityRequest.extensionType = extensionType;
     abilityRequest.sessionInfo = extensionSessionInfo;
     result = GenerateExtensionAbilityRequest(extensionSessionInfo->want, abilityRequest, callerToken, validUserId);
     if (result != ERR_OK) {
@@ -1844,13 +1846,15 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
         EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
         return result;
     }
+    abilityRequest.extensionType = abilityRequest.abilityInfo.extensionAbilityType;
 
     auto abilityInfo = abilityRequest.abilityInfo;
     validUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : validUserId;
     HILOG_DEBUG("userId is : %{public}d, singleton is : %{public}d",
         validUserId, static_cast<int>(abilityInfo.applicationInfo.singleton));
 
-    result = CheckOptExtensionAbility(extensionSessionInfo->want, abilityRequest, validUserId, extensionType);
+    result = CheckOptExtensionAbility(extensionSessionInfo->want, abilityRequest, validUserId,
+        abilityRequest.extensionType);
     if (result != ERR_OK) {
         HILOG_ERROR("CheckOptExtensionAbility error.");
         eventInfo.errCode = result;
@@ -2083,7 +2087,7 @@ int AbilityManagerService::TerminateUIExtensionAbility(const sptr<SessionInfo> &
         return result;
     }
 
-    if (!targetRecord->IsUIExtension()) {
+    if (!UIExtensionUtils::IsUIExtension(targetRecord->GetAbilityInfo().extensionAbilityType)) {
         HILOG_ERROR("Cannot terminate except ui extension ability.");
         return ERR_WRONG_INTERFACE_CALL;
     }
@@ -2375,7 +2379,7 @@ int AbilityManagerService::MinimizeUIExtensionAbility(const sptr<SessionInfo> &e
         return result;
     }
 
-    if (!targetRecord->IsUIExtension()) {
+    if (!UIExtensionUtils::IsUIExtension(targetRecord->GetAbilityInfo().extensionAbilityType)) {
         HILOG_ERROR("Cannot minimize except ui extension ability.");
         return ERR_WRONG_INTERFACE_CALL;
     }
@@ -2681,7 +2685,7 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
         return ERR_STATIC_CFG_PERMISSION;
     }
 
-    if (extensionType == AppExecFwk::ExtensionAbilityType::UI) {
+    if (AAFwk::UIExtensionUtils::IsUIExtension(extensionType)) {
         AppExecFwk::ExtensionAbilityType targetExtensionType = abilityInfo.extensionAbilityType;
         if (targetExtensionType != AppExecFwk::ExtensionAbilityType::UI
             && targetExtensionType != AppExecFwk::ExtensionAbilityType::WINDOW) {
@@ -4080,7 +4084,8 @@ int AbilityManagerService::ScheduleCommandAbilityWindowDone(
         return CHECK_PERMISSION_FAILED;
     }
 
-    if (!abilityRecord->IsUIExtension() && !abilityRecord->IsWindowExtension()) {
+    if (!UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)
+        && !UIExtensionUtils::IsWindowExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
         HILOG_ERROR("target ability is not ui or window extension.");
         return ERR_INVALID_VALUE;
     }
@@ -6133,10 +6138,15 @@ void AbilityManagerService::UpdateCallerInfo(Want& want, const sptr<IRemoteObjec
         HILOG_WARN("%{public}s caller abilityRecord is null.", __func__);
         want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
         want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, std::string(""));
+        want.RemoveParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
+        want.SetParam(Want::PARAM_RESV_CALLER_ABILITY_NAME, std::string(""));
     } else {
         std::string callerBundleName = abilityRecord->GetAbilityInfo().bundleName;
         want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
         want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerBundleName);
+        std::string callerAbilityName = abilityRecord->GetAbilityInfo().name;
+        want.RemoveParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
+        want.SetParam(Want::PARAM_RESV_CALLER_ABILITY_NAME, callerAbilityName);
     }
 }
 
@@ -6393,6 +6403,31 @@ AppExecFwk::ElementName AbilityManagerService::GetTopAbility()
     if (ret) {
         return elementName;
     }
+    if (!token) {
+        HILOG_ERROR("token is nullptr");
+        return elementName;
+    }
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("%{public}s abilityRecord is null.", __func__);
+        return elementName;
+    }
+    elementName = abilityRecord->GetWant().GetElement();
+    bool isDeviceEmpty = elementName.GetDeviceID().empty();
+    std::string localDeviceId;
+    bool hasLocalDeviceId = GetLocalDeviceId(localDeviceId);
+    if (isDeviceEmpty && hasLocalDeviceId) {
+        elementName.SetDeviceID(localDeviceId);
+    }
+#endif
+    return elementName;
+}
+
+AppExecFwk::ElementName AbilityManagerService::GetFocusAbility(const sptr<IRemoteObject> &token)
+{
+    HILOG_DEBUG("%{public}s start.", __func__);
+    AppExecFwk::ElementName elementName = {};
+#ifdef SUPPORT_GRAPHICS
     if (!token) {
         HILOG_ERROR("token is nullptr");
         return elementName;
@@ -6917,7 +6952,12 @@ int AbilityManagerService::CheckCallServiceExtensionPermission(const AbilityRequ
     if (IsCallFromBackground(abilityRequest, verificationInfo.isBackgroundCall) != ERR_OK) {
         return ERR_INVALID_VALUE;
     }
-
+    std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
+    if (callerAbility &&
+        callerAbility->GetAbilityInfo().extensionAbilityType == AppExecFwk::ExtensionAbilityType::FORM) {
+        // FormExtension is allowed to call ServiceExtension from background
+        verificationInfo.isBackgroundCall = false;
+    }
     int result = AAFwk::PermissionVerification::GetInstance()->CheckCallServiceExtensionPermission(verificationInfo);
     if (result != ERR_OK) {
         HILOG_ERROR("Do not have permission to start ServiceExtension or DataShareExtension");
@@ -6938,7 +6978,7 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
     if (extensionType == AppExecFwk::ExtensionAbilityType::WINDOW) {
         return ERR_OK;
     }
-    if (extensionType == AppExecFwk::ExtensionAbilityType::UI) {
+    if (AAFwk::UIExtensionUtils::IsUIExtension(extensionType)) {
         return ERR_OK;
     }
     const std::string fileAccessPermission = "ohos.permission.FILE_ACCESS_MANAGER";
@@ -7374,6 +7414,26 @@ std::shared_ptr<AbilityRecord> AbilityManagerService::GetFocusAbility()
 #endif
 
     return nullptr;
+}
+
+int AbilityManagerService::CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId, bool& isFocused)
+{
+    sptr<IRemoteObject> token;
+    auto ret = GetTopAbility(token);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("GetTopAbility failed");
+        return ret;
+    }
+
+    int32_t userId = GetValidUserId(DEFAULT_INVAL_VALUE);
+    auto connectManager = GetConnectManagerByUserId(userId);
+    if (!connectManager) {
+        HILOG_ERROR("connectManager is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    isFocused = connectManager->IsUIExtensionFocused(uiExtensionTokenId, token);
+    HILOG_DEBUG("isFocused: %{public}d", isFocused);
+    return ERR_OK;
 }
 
 int AbilityManagerService::AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer)

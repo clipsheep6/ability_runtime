@@ -308,6 +308,8 @@ enum class AbilityManagerInterfaceCode {
     // ipc id for connect ui extension ability
     CONNECT_UI_EXTENSION_ABILITY,
 
+    CHECK_UI_EXTENSION_IS_FOCUSED,
+
     START_UI_ABILITY_BY_SCB,
 
     // ipc id for minimize ui ability by scb
@@ -381,6 +383,7 @@ enum class AbilityManagerInterfaceCode {
     GET_TOP_ABILITY = 3000,
     FREE_INSTALL_ABILITY_FROM_REMOTE = 3001,
     ADD_FREE_INSTALL_OBSERVER = 3002,
+    GET_FOCUS_ABILITY = 3003,
 
     // ipc id for app recovery(3010)
     ABILITY_RECOVERY = 3010,

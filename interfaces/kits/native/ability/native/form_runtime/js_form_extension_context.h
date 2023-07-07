@@ -19,12 +19,52 @@
 #include <memory>
 
 #include "form_extension_context.h"
-#include "ability_connect_callback_stub.h"
+#include "ability_connect_callback.h"
+#include "event_handler.h"
 #include "native_engine/native_engine.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 NativeValue* CreateJsFormExtensionContext(NativeEngine& engine, std::shared_ptr<FormExtensionContext> context);
+
+class JSFormExtensionConnection : public AbilityConnectCallback {
+public:
+    explicit JSFormExtensionConnection(NativeEngine& engine);
+    ~JSFormExtensionConnection();
+    void OnAbilityConnectDone(
+        const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
+    void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override;
+    void HandleOnAbilityConnectDone(
+        const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode);
+    void HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode);
+    void SetJsConnectionObject(NativeValue* jsConnectionObject);
+    void CallJsFailed(int32_t errorCode);
+    void SetConnectionId(int64_t id);
+    int64_t GetConnectionId();
+private:
+    NativeEngine& engine_;
+    std::unique_ptr<NativeReference> jsConnectionObject_ = nullptr;
+    int64_t connectionId_ = -1;
+};
+
+struct ConnectionKey {
+    AAFwk::Want want;
+    int64_t id;
+};
+
+struct key_compare {
+    bool operator()(const ConnectionKey &key1, const ConnectionKey &key2) const
+    {
+        if (key1.id < key2.id) {
+            return true;
+        }
+        return false;
+    }
+};
+
+static std::map<ConnectionKey, sptr<JSFormExtensionConnection>, key_compare> connects_;
+static int64_t serialNumber_ = 0;
+static std::shared_ptr<AppExecFwk::EventHandler> handler_ = nullptr;
 } // namespace AbilityRuntime
 } // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_JS_FORM_EXTENSION_CONTEXT_H

@@ -33,7 +33,7 @@ using IBundleMgr = AppExecFwk::IBundleMgr;
 JsModuleReader::JsModuleReader(const std::string& bundleName, const std::string& hapPath, bool isFormRender)
     : JsModuleSearcher(bundleName), isFormRender_(isFormRender)
 {
-    if (!hapPath.empty() && hapPath.find(std::string(SYS_ABS_CODE_PATH)) == 0) {
+    if (!hapPath.empty() && hapPath.find(std::string(ABS_DATA_CODE_PATH)) != 0) {
         isSystemPath_ = true;
     } else {
         isSystemPath_ = false;
@@ -106,11 +106,9 @@ std::string JsModuleReader::GetModuleName(const std::string& inputPath) const
 
 std::string JsModuleReader::GetCommonAppHspPath(const std::string& inputPath) const
 {
-    std::string realHapPath;
     std::string suffix = std::string(SHARED_FILE_SUFFIX);
-    if (isSystemPath_) {
-        realHapPath = GetPresetAppHapPath(inputPath);
-    } else {
+    std::string realHapPath = GetPresetAppHapPath(inputPath);
+    if ((realHapPath.find(ABS_DATA_CODE_PATH) == 0) || (realHapPath == inputPath)) {
         realHapPath = std::string(ABS_CODE_PATH) + inputPath + suffix;
     }
 
@@ -126,10 +124,10 @@ std::string JsModuleReader::GetCommonAppHspPath(const std::string& inputPath) co
 
 std::string JsModuleReader::GetPresetAppHapPath(const std::string& inputPath) const
 {
-    std::string presetAppHapPath;
-    std::string moudleName = inputPath.substr(inputPath.find_last_of("/") + 1);
-    if (moudleName.empty()) {
-        HILOG_ERROR("failed to obtain moudleName.");
+    std::string presetAppHapPath = inputPath;
+    std::string moduleName = inputPath.substr(inputPath.find_last_of("/") + 1);
+    if (moduleName.empty()) {
+        HILOG_ERROR("failed to obtain moduleName.");
         return presetAppHapPath;
     }
     auto systemAbilityManagerClient = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -143,17 +141,33 @@ std::string JsModuleReader::GetPresetAppHapPath(const std::string& inputPath) co
         return presetAppHapPath;
     }
     auto bundleMgrProxy = iface_cast<IBundleMgr>(remoteObject);
-    AppExecFwk::BundleInfo bundleInfo;
-    auto getInfoResult = bundleMgrProxy->GetBundleInfoForSelf(static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::
-        GET_BUNDLE_INFO_WITH_HAP_MODULE), bundleInfo);
-    if (getInfoResult != 0 || bundleInfo.hapModuleInfos.size() == 0) {
-        HILOG_ERROR("GetBundleInfoForSelf failed.");
-        return presetAppHapPath;
-    }
-    for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-        if (hapModuleInfo.moduleName == moudleName) {
-            presetAppHapPath = hapModuleInfo.hapPath;
-            break;
+    if (inputPath.find_first_of("/") == inputPath.find_last_of("/")) {
+        AppExecFwk::BundleInfo bundleInfo;
+        auto getInfoResult = bundleMgrProxy->GetBundleInfoForSelf(static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::
+            GET_BUNDLE_INFO_WITH_HAP_MODULE), bundleInfo);
+        if (getInfoResult != 0 || bundleInfo.hapModuleInfos.empty()) {
+            HILOG_ERROR("GetBundleInfoForSelf failed.");
+            return presetAppHapPath;
+        }
+        for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
+            if (hapModuleInfo.moduleName == moduleName) {
+                presetAppHapPath = hapModuleInfo.hapPath;
+                break;
+            }
+        }
+    } else {
+        std::vector<AppExecFwk::BaseSharedBundleInfo> baseSharedBundleInfos;
+        if (bundleMgrProxy->GetBaseSharedBundleInfos(bundleName_, baseSharedBundleInfos) != 0) {
+            HILOG_ERROR("GetBaseSharedBundleInfos failed.");
+            return presetAppHapPath;
+        }
+        std::string tmpPath = inputPath.substr(inputPath.find_first_of("/") + 1);
+        const std::string sharedBundleName = tmpPath.substr(0, tmpPath.find_first_of("/"));
+        for (const auto &info : baseSharedBundleInfos) {
+            if ((info.bundleName == sharedBundleName) && (info.moduleName == moduleName)) {
+                presetAppHapPath = info.hapPath;
+                break;
+            }
         }
     }
     return presetAppHapPath;

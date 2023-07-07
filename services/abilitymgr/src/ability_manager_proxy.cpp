@@ -95,6 +95,31 @@ AppExecFwk::ElementName AbilityManagerProxy::GetTopAbility()
     return result;
 }
 
+AppExecFwk::ElementName AbilityManagerProxy::GetFocusAbility(const sptr<IRemoteObject> &token)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return {};
+    }
+    if (!data.WriteRemoteObject(token)) {
+        return {};
+    }
+    int error = SendRequest(AbilityManagerInterfaceCode::GET_FOCUS_ABILITY, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return {};
+    }
+    std::unique_ptr<AppExecFwk::ElementName> name(reply.ReadParcelable<AppExecFwk::ElementName>());
+    if (!name) {
+        HILOG_ERROR("Read info failed.");
+        return {};
+    }
+    AppExecFwk::ElementName result = *name;
+    return result;
+}
+
 int AbilityManagerProxy::StartAbility(const Want &want, const AbilityStartSetting &abilityStartSetting,
     const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode)
 {
@@ -3133,6 +3158,36 @@ int AbilityManagerProxy::GetTopAbility(sptr<IRemoteObject> &token)
     }
 
     return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId, bool& isFocused)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+
+    if (!data.WriteUint32(uiExtensionTokenId)) {
+        HILOG_ERROR("uiExtensionTokenId write failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::CHECK_UI_EXTENSION_IS_FOCUSED, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+
+    isFocused = reply.ReadBool();
+    return NO_ERROR;
 }
 
 int AbilityManagerProxy::DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token)

@@ -3247,6 +3247,20 @@ HWTEST_F(AbilityManagerServiceTest, MinimizeUIExtensionAbility_001, TestSize.Lev
 
 /*
  * Feature: AbilityManagerService
+ * Function: CheckUIExtensionIsFocused
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService CheckUIExtensionIsFocused
+ */
+HWTEST_F(AbilityManagerServiceTest, CheckUIExtensionIsFocused_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest CheckUIExtensionIsFocused_001 start");
+    bool isFocused = false;
+    EXPECT_EQ(abilityMs_->CheckUIExtensionIsFocused(0, isFocused), CHECK_PERMISSION_FAILED);
+    HILOG_INFO("AbilityManagerServiceTest CheckUIExtensionIsFocused_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: StopExtensionAbility
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService StopExtensionAbility

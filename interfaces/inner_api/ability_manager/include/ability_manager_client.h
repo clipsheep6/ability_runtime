@@ -99,6 +99,13 @@ public:
     AppExecFwk::ElementName GetTopAbility();
 
     /**
+     * Get focus ability.
+     *
+     * @return Returns front desk focus ability elementName.
+     */
+    AppExecFwk::ElementName GetFocusAbility(const sptr<IRemoteObject> &token);
+
+    /**
      * StartAbility with want, send want to ability manager service.
      *
      * @param want Ability want.
@@ -884,6 +891,8 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode GetTopAbility(sptr<IRemoteObject> &token);
+
+    ErrCode CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId, bool& isFocused);
 
     /**
      * DelegatorDoAbilityForeground, the delegator calls this interface to move the ability to the foreground.

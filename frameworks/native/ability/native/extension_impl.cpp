@@ -21,6 +21,7 @@
 #include "hitrace_meter.h"
 #include "extension_context.h"
 #include "hilog_wrapper.h"
+#include "ui_extension_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -41,7 +42,7 @@ void ExtensionImpl::Init(std::shared_ptr<AppExecFwk::OHOSApplication> &applicati
     token_ = record->GetToken();
     extension_ = extension;
     if (record->GetAbilityInfo() != nullptr &&
-        record->GetAbilityInfo()->extensionAbilityType == AppExecFwk::ExtensionAbilityType::UI) {
+        AAFwk::UIExtensionUtils::IsUIExtension(record->GetAbilityInfo()->extensionAbilityType)) {
         extension_->SetExtensionWindowLifeCycleListener(
             sptr<ExtensionWindowLifeCycleImpl>(new ExtensionWindowLifeCycleImpl(token_, shared_from_this())));
     }

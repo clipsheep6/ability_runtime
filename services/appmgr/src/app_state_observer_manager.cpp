@@ -16,6 +16,7 @@
 #include "app_state_observer_manager.h"
 #include "application_state_observer_stub.h"
 #include "hilog_wrapper.h"
+#include "ui_extension_utils.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -332,7 +333,8 @@ void AppStateObserverManager::HandleAppStateChanged(const std::shared_ptr<AppRun
     }
 
     if ((state == ApplicationState::APP_STATE_FOREGROUND || state == ApplicationState::APP_STATE_BACKGROUND)
-        && !appRecord->IsUIExtension() && !appRecord->IsWindowExtension()) {
+        && !AAFwk::UIExtensionUtils::IsUIExtension(appRecord->GetExtensionType())
+        && !AAFwk::UIExtensionUtils::IsWindowExtension(appRecord->GetExtensionType())) {
         AppStateData data = WrapAppStateData(appRecord, state);
         HILOG_DEBUG("HandleAppStateChanged, name:%{public}s, uid:%{public}d, state:%{public}d, notify:%{public}d",
             data.bundleName.c_str(), data.uid, data.state, needNotifyApp);

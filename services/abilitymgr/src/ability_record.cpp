@@ -1271,16 +1271,6 @@ bool AbilityRecord::IsCreateByConnect() const
     return isCreateByConnect_;
 }
 
-bool AbilityRecord::IsUIExtension() const
-{
-    return abilityInfo_.extensionAbilityType == AppExecFwk::ExtensionAbilityType::UI;
-}
-
-bool AbilityRecord::IsWindowExtension() const
-{
-    return abilityInfo_.extensionAbilityType == AppExecFwk::ExtensionAbilityType::WINDOW;
-}
-
 void AbilityRecord::SetCreateByConnectMode()
 {
     isCreateByConnect_ = true;
@@ -1460,7 +1450,7 @@ void AbilityRecord::SendSandboxSavefileResult(const Want &want, int resultCode, 
         arraySize > 0 && AAFwk::Array::IsStringArray(uriArray)) {
         for (long i = 0; i < arraySize; i++) {
             sptr<AAFwk::IInterface> iface = nullptr;
-            if (uriArray->Get(i, iface) == ERR_OK) {
+            if (uriArray->Get(i, iface) != ERR_OK) {
                 continue;
             }
             AAFwk::IString* iuri = AAFwk::IString::Query(iface);
@@ -1473,7 +1463,7 @@ void AbilityRecord::SendSandboxSavefileResult(const Want &want, int resultCode, 
             }
             Uri uri(uriStr);
             auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(uri,
-            Want::FLAG_AUTH_WRITE_URI_PERMISSION, abilityInfo_.bundleName, 0, appIndex_));
+                Want::FLAG_AUTH_WRITE_URI_PERMISSION, abilityInfo_.bundleName, 0, appIndex_));
             if (ret != ERR_OK) {
                 HILOG_WARN("GrantUriPermission failed");
             }

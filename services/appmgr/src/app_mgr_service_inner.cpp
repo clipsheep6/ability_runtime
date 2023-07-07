@@ -54,6 +54,7 @@
 #include "permission_constants.h"
 #include "permission_verification.h"
 #include "system_ability_definition.h"
+#include "ui_extension_utils.h"
 #include "uri_permission_manager_client.h"
 #ifdef APP_MGR_SERVICE_APPMS
 #include "socket_permission.h"
@@ -135,6 +136,10 @@ constexpr int32_t FOUNDATION_UID = 5523;
 constexpr int32_t DEFAULT_USER_ID = 0;
 
 constexpr int32_t BLUETOOTH_GROUPID = 1002;
+
+#ifdef APP_MGR_SERVICE_APPMS
+constexpr int32_t NETSYS_SOCKET_GROUPID = 1097;
+#endif
 
 int32_t GetUserIdByUid(int32_t uid)
 {
@@ -510,7 +515,8 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
     }
     if (appRecord->GetState() == ApplicationState::APP_STATE_FOREGROUND) {
         appRecord->SetState(ApplicationState::APP_STATE_BACKGROUND);
-        bool needNotifyApp = !appRecord->IsUIExtension() && !appRecord->IsWindowExtension()
+        bool needNotifyApp = !AAFwk::UIExtensionUtils::IsUIExtension(appRecord->GetExtensionType())
+            && !AAFwk::UIExtensionUtils::IsWindowExtension(appRecord->GetExtensionType())
             && appRunningManager_->IsApplicationBackground(appRecord->GetBundleName());
         OnAppStateChanged(appRecord, ApplicationState::APP_STATE_BACKGROUND, needNotifyApp);
         DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
@@ -1766,6 +1772,7 @@ void AppMgrServiceInner::StartProcessVerifyPermission(const BundleInfo &bundleIn
         } else {
             auto ret = SetInternetPermission(bundleInfo.uid, 1);
             HILOG_DEBUG("SetInternetPermission, ret = %{public}d", ret);
+            gids.push_back(NETSYS_SOCKET_GROUPID);
     #endif
         }
 

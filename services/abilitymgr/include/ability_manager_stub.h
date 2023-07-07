@@ -171,6 +171,7 @@ private:
     int StartUserTestInner(MessageParcel &data, MessageParcel &reply);
     int FinishUserTestInner(MessageParcel &data, MessageParcel &reply);
     int GetTopAbilityTokenInner(MessageParcel &data, MessageParcel &reply);
+    int CheckUIExtensionIsFocusedInner(MessageParcel &data, MessageParcel &reply);
     int DelegatorDoAbilityForegroundInner(MessageParcel &data, MessageParcel &reply);
     int DelegatorDoAbilityBackgroundInner(MessageParcel &data, MessageParcel &reply);
     int DoAbilityForegroundInner(MessageParcel &data, MessageParcel &reply);
@@ -212,6 +213,7 @@ private:
     int EnableRecoverAbilityInner(MessageParcel &data, MessageParcel &reply);
     int ScheduleRecoverAbilityInner(MessageParcel &data, MessageParcel &reply);
     int GetTopAbilityInner(MessageParcel &data, MessageParcel &reply);
+    int GetFocusAbilityInner(MessageParcel &data, MessageParcel &reply);
     int DumpAbilityInfoDoneInner(MessageParcel &data, MessageParcel &reply);
     int32_t IsValidMissionIdsInner(MessageParcel &data, MessageParcel &reply);
 

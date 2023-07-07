@@ -1877,6 +1877,23 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_GetTopAbilityTokenInner_001,
 }
 
 /*
+ * Feature: AbilityManagerStub
+ * Function: CheckUIExtensionIsFocusedInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService CheckUIExtensionIsFocusedInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function CheckUIExtensionIsFocused is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_CheckUIExtensionIsFocusedInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->CheckUIExtensionIsFocusedInner(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+
+/*
  * Feature: AbilityManagerService
  * Function: DelegatorDoAbilityForegroundInner
  * SubFunction: NA

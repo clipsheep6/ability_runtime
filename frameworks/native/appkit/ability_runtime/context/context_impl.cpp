@@ -268,7 +268,7 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
     appContext->InitHapModuleInfo(*info);
     appContext->SetConfiguration(config_);
     InitResourceManager(bundleInfo, appContext, GetBundleName() == bundleName, moduleName);
-    appContext->SetApplicationInfo(GetApplicationInfo());
+    appContext->SetApplicationInfo(std::make_shared<AppExecFwk::ApplicationInfo>(bundleInfo.applicationInfo));
     return appContext;
 }
 
@@ -385,7 +385,7 @@ std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bun
 
     // init resourceManager.
     InitResourceManager(bundleInfo, appContext);
-    appContext->SetApplicationInfo(GetApplicationInfo());
+    appContext->SetApplicationInfo(std::make_shared<AppExecFwk::ApplicationInfo>(bundleInfo.applicationInfo));
     return appContext;
 }
 
