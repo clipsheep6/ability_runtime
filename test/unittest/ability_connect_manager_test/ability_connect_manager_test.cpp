@@ -3192,5 +3192,32 @@ HWTEST_F(AbilityConnectManagerTest, HandleUIExtWindowDiedTask_001, TestSize.Leve
     EXPECT_TRUE(connectManager->uiExtRecipientMap_.empty());
     EXPECT_TRUE(connectManager->uiExtensionMap_.empty());
 }
+
+/*
+ * Feature: AbilityConnectManager
+ * Function: IsUIExtensionFocused
+ * SubFunction: IsUIExtensionFocused
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityConnectManager IsUIExtensionFocused
+ */
+HWTEST_F(AbilityConnectManagerTest, IsUIExtensionFocused_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
+    connectManager->uiExtensionMap_.clear();
+    bool isFocused = connectManager->IsUIExtensionFocused(
+        serviceRecord_->GetApplicationInfo().accessTokenId, serviceRecord1_->GetToken());
+    EXPECT_EQ(isFocused, false);
+
+    sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
+    sessionInfo->callerToken = serviceRecord1_->GetToken();
+    connectManager->uiExtensionMap_.emplace(
+        callbackA_->AsObject(), AbilityConnectManager::UIExtWindowMapValType(serviceRecord_, sessionInfo));
+    isFocused = connectManager->IsUIExtensionFocused(
+        serviceRecord_->GetApplicationInfo().accessTokenId, serviceRecord1_->GetToken());
+    EXPECT_EQ(isFocused, true);
+    connectManager.reset();
+}
 }  // namespace AAFwk
 }  // namespace OHOS

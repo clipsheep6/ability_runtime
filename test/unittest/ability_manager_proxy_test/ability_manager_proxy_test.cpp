@@ -876,6 +876,24 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetTopAbility_002, TestSiz
 }
 
 /*
+ * Feature: AbilityManagerProxy
+ * Function: CheckUIExtensionIsFocused
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerProxy CheckUIExtensionIsFocused
+ * EnvConditions: NA
+ * CaseDescription: Verify the function CheckUIExtensionIsFocused is normal flow.
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_CheckUIExtensionIsFocused_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    bool isFocused = false;
+    proxy_->CheckUIExtensionIsFocused(0, isFocused);
+    EXPECT_EQ(IAbilityManager::CHECK_UI_EXTENSION_IS_FOCUSED, mock_->code_);
+}
+
+/*
  * Feature: AbilityManagerService
  * Function: StartExtensionAbility
  * SubFunction: NA

@@ -7394,6 +7394,26 @@ std::shared_ptr<AbilityRecord> AbilityManagerService::GetFocusAbility()
     return nullptr;
 }
 
+int AbilityManagerService::CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId, bool& isFocused)
+{
+    sptr<IRemoteObject> token;
+    auto ret = GetTopAbility(token);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("GetTopAbility failed");
+        return ret;
+    }
+
+    int32_t userId = GetValidUserId(DEFAULT_INVAL_VALUE);
+    auto connectManager = GetConnectManagerByUserId(userId);
+    if (!connectManager) {
+        HILOG_ERROR("connectManager is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    isFocused = connectManager->IsUIExtensionFocused(uiExtensionTokenId, token);
+    HILOG_DEBUG("isFocused: %{public}d", isFocused);
+    return ERR_OK;
+}
+
 int AbilityManagerService::AddFreeInstallObserver(const sptr<AbilityRuntime::IFreeInstallObserver> &observer)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);

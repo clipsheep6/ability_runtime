@@ -879,7 +879,8 @@ std::shared_ptr<AbilityRecord> AbilityConnectManager::GetUIExtensioBySessionInfo
             uiExtensionMap_.erase(it);
         }
         auto savedSessionInfo = it->second.second;
-        if (!savedSessionInfo || savedSessionInfo->sessionToken != sessionInfo->sessionToken) {
+        if (!savedSessionInfo || savedSessionInfo->sessionToken != sessionInfo->sessionToken
+            || savedSessionInfo->callerToken != sessionInfo->callerToken) {
             HILOG_WARN("Inconsistent sessionInfo.");
             return nullptr;
         }
@@ -1983,6 +1984,20 @@ void AbilityConnectManager::HandleUIExtWindowDiedTask(const sptr<IRemoteObject> 
         HILOG_INFO("Died object can't find from map.");
         return;
     }
+}
+
+bool AbilityConnectManager::IsUIExtensionFocused(uint32_t uiExtensionTokenId, const sptr<IRemoteObject>& focusToken)
+{
+    std::lock_guard guard(Lock_);
+    for (auto& item: uiExtensionMap_) {
+        auto uiExtension = item.second.first.lock();
+        auto sessionInfo = item.second.second;
+        if (uiExtension && uiExtension->GetApplicationInfo().accessTokenId == uiExtensionTokenId
+            && sessionInfo && sessionInfo->callerToken == focusToken) {
+            return true;
+        }
+    }
+    return false;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

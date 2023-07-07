@@ -245,6 +245,8 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::FinishUserTestInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_TOP_ABILITY_TOKEN)] =
         &AbilityManagerStub::GetTopAbilityTokenInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CHECK_UI_EXTENSION_IS_FOCUSED)] =
+        &AbilityManagerStub::CheckUIExtensionIsFocusedInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DELEGATOR_DO_ABILITY_FOREGROUND)] =
         &AbilityManagerStub::DelegatorDoAbilityForegroundInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DELEGATOR_DO_ABILITY_BACKGROUND)] =
@@ -1759,6 +1761,20 @@ int AbilityManagerStub::GetTopAbilityTokenInner(MessageParcel &data, MessageParc
     reply.WriteInt32(result);
 
     return NO_ERROR;
+}
+
+int AbilityManagerStub::CheckUIExtensionIsFocusedInner(MessageParcel &data, MessageParcel &reply)
+{
+    uint32_t uiExtensionTokenId = data.ReadUint32();
+    bool isFocused = false;
+    auto result = CheckUIExtensionIsFocused(uiExtensionTokenId, isFocused);
+    if (result == ERR_OK) {
+        if (!reply.WriteBool(isFocused)) {
+            HILOG_ERROR("reply write failed.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+    return result;
 }
 
 int AbilityManagerStub::DelegatorDoAbilityForegroundInner(MessageParcel &data, MessageParcel &reply)

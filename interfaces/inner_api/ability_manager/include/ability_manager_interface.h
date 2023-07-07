@@ -800,6 +800,11 @@ public:
      */
     virtual int GetTopAbility(sptr<IRemoteObject> &token) = 0;
 
+    virtual int CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId, bool& isFocused)
+    {
+        return 0;
+    }
+
     /**
      * The delegator calls this interface to move the ability to the foreground.
      *
@@ -1346,6 +1351,8 @@ public:
 
         // ipc id for connect ui extension ability
         CONNECT_UI_EXTENSION_ABILITY,
+
+        CHECK_UI_EXTENSION_IS_FOCUSED,
 
         START_UI_ABILITY_BY_SCB,
 

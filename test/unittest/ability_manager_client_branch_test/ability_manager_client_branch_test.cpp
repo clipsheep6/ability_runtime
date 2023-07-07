@@ -1121,6 +1121,19 @@ HWTEST_F(AbilityManagerClientBranchTest, MinimizeUIExtensionAbility_0100, TestSi
     GTEST_LOG_(INFO) << "MinimizeUIExtensionAbility_0100 end";
 }
 
+/**
+ * @tc.name: AbilityManagerClient_CheckUIExtensionIsFocused_0100
+ * @tc.desc: CheckUIExtensionIsFocused
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, CheckUIExtensionIsFocused_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "CheckUIExtensionIsFocused_0100 start";
+    bool isFocused = false;
+    EXPECT_EQ(client_->CheckUIExtensionIsFocused(0, isFocused), ERR_OK);
+    GTEST_LOG_(INFO) << "CheckUIExtensionIsFocused_0100 end";
+}
+
 #ifdef ABILITY_COMMAND_FOR_TEST
 /**
  * @tc.name: AbilityManagerClient_ForceTimeoutForTest_0100

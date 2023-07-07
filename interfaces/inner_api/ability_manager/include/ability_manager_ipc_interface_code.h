@@ -308,6 +308,8 @@ enum class AbilityManagerInterfaceCode {
     // ipc id for connect ui extension ability
     CONNECT_UI_EXTENSION_ABILITY,
 
+    CHECK_UI_EXTENSION_IS_FOCUSED,
+
     START_UI_ABILITY_BY_SCB,
 
     // ipc id for minimize ui ability by scb
