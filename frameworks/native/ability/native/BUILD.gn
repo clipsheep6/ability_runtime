@@ -536,6 +536,8 @@ ohos_shared_library("service_extension") {
     "ipc:ipc_core",
     "ipc:ipc_napi_common",
     "napi:ace_napi",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
   ]
 
   if (ability_runtime_graphics) {

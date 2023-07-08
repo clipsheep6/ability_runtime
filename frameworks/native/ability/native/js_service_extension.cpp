@@ -31,6 +31,8 @@
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
 #ifdef SUPPORT_GRAPHICS
+#include "iservice_registry.h"
+#include "system_ability_definition.h"
 #include "window_scene.h"
 #endif
 
@@ -170,14 +172,35 @@ void JsServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
             context->SetConfiguration(std::make_shared<Configuration>(*appConfig));
         }
     }
+    ListenWMS();
+}
 
+void JsServiceExtension::ListenWMS()
+{
 #ifdef SUPPORT_GRAPHICS
     HILOG_INFO("RegisterDisplayListener");
-    std::shared_ptr<JsServiceExtension> jsServiceExtension = std::static_pointer_cast<JsServiceExtension>(
-        shared_from_this());
-    displayListener_ = new (std::nothrow) JsServiceExtensionDisplayListener(jsServiceExtension);
-    Rosen::DisplayManager::GetInstance().RegisterDisplayListener(displayListener_);
+    auto abilityManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (abilityManager == nullptr) {
+        HILOG_ERROR("Failed to get SaMgr.");
+        return;
+    }
+    auto jsServiceExtension = std::static_pointer_cast<JsServiceExtension>(shared_from_this());
+    displayListener_ = new JsServiceExtensionDisplayListener(jsServiceExtension);
+    sptr<ISystemAbilityStatusChange> listener = new SystemAbilityStatusChangeListener(displayListener_);
+    auto ret = abilityManager->SubscribeSystemAbility(WINDOW_MANAGER_SERVICE_ID, listener);
+    if (ret != 0) {
+        HILOG_ERROR("subscribe system ability failed, ret = %{public}d.", ret);
+    }
 #endif
+}
+
+void JsServiceExtension::SystemAbilityStatusChangeListener::OnAddSystemAbility(int32_t systemAbilityId,
+    const std::string& deviceId)
+{
+    HILOG_INFO("systemAbilityId: %{public}d add", systemAbilityId);
+    if (systemAbilityId == WINDOW_MANAGER_SERVICE_ID) {
+        Rosen::DisplayManager::GetInstance().RegisterDisplayListener(tmpDisplayListener_);
+    }
 }
 
 void JsServiceExtension::BindContext(NativeEngine& engine, NativeObject* obj)
@@ -250,6 +273,7 @@ void JsServiceExtension::OnStop()
         ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());
         HILOG_INFO("The service extension connection is not disconnected.");
     }
+    Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(displayListener_);
     HILOG_INFO("ok");
 }
 
