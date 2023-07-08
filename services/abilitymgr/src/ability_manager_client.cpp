@@ -868,14 +868,14 @@ ErrCode AbilityManagerClient::GetTopAbility(sptr<IRemoteObject> &token)
     return abms->GetTopAbility(token);
 }
 
-AppExecFwk::ElementName AbilityManagerClient::GetFocusAbility(const sptr<IRemoteObject> &token)
+AppExecFwk::ElementName AbilityManagerClient::GetElementNameByToken(const sptr<IRemoteObject> &token)
 {
     auto abms = GetAbilityManager();
     if (abms == nullptr) {
         HILOG_ERROR("abms == nullptr");
         return {};
     }
-    return abms->GetFocusAbility(token);
+    return abms->GetElementNameByToken(token);
 }
 
 ErrCode AbilityManagerClient::CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId, bool& isFocused)
@@ -1108,15 +1108,15 @@ AppExecFwk::ElementName AbilityManagerClient::GetTopAbility()
         AppExecFwk::ElementName elementName = {};
         sptr<IRemoteObject> token;
         auto ret = GetTopAbility(token);
-        if (!ret) {
-            HILOG_ERROR("elementName has nothing");
+        if (ret != ERR_OK) {
+            HILOG_ERROR("get top ability token failed");
             return elementName;
         }
         if (!token) {
             HILOG_ERROR("token is nullptr");
             return elementName;
         }
-        return GetFocusAbility(token);
+        return GetElementNameByToken(token);
     }
     HILOG_DEBUG("enter.");
     auto abms = GetAbilityManager();

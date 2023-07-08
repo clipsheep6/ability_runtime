@@ -978,7 +978,7 @@ public:
 
     virtual AppExecFwk::ElementName GetTopAbility() override;
 
-    virtual AppExecFwk::ElementName GetFocusAbility(const sptr<IRemoteObject> &token) override;
+    virtual AppExecFwk::ElementName GetElementNameByToken(const sptr<IRemoteObject> &token) override;
 
     /**
      * AtomicServiceStatusCallback OnInstallFinished callback.

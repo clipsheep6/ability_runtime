@@ -99,11 +99,11 @@ public:
     AppExecFwk::ElementName GetTopAbility();
 
     /**
-     * Get focus ability.
+     * Get element name by token.
      *
-     * @return Returns front desk focus ability elementName.
+     * @return Returns front desk focus ability elementName by token.
      */
-    AppExecFwk::ElementName GetFocusAbility(const sptr<IRemoteObject> &token);
+    AppExecFwk::ElementName GetElementNameByToken(const sptr<IRemoteObject> &token);
 
     /**
      * StartAbility with want, send want to ability manager service.

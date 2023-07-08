@@ -259,8 +259,8 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::GetMissionIdByTokenInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_TOP_ABILITY)] =
         &AbilityManagerStub::GetTopAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_FOCUS_ABILITY)] =
-        &AbilityManagerStub::GetFocusAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ELEMENT_NAME_BY_TOKEN)] =
+        &AbilityManagerStub::GetElementNameByTokenInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DUMP_ABILITY_INFO_DONE)] =
         &AbilityManagerStub::DumpAbilityInfoDoneInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_EXTENSION_ABILITY)] =
@@ -345,12 +345,12 @@ int AbilityManagerStub::GetTopAbilityInner(MessageParcel &data, MessageParcel &r
     return NO_ERROR;
 }
 
-int AbilityManagerStub::GetFocusAbilityInner(MessageParcel &data, MessageParcel &reply)
+int AbilityManagerStub::GetElementNameByTokenInner(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> token = data.ReadRemoteObject();;
-    AppExecFwk::ElementName result = GetFocusAbility(token);
+    AppExecFwk::ElementName result = GetElementNameByToken(token);
     if (result.GetDeviceID().empty()) {
-        HILOG_DEBUG("GetFocusAbilityInner is nullptr");
+        HILOG_DEBUG("GetElementNameByTokenInner is nullptr");
     }
     reply.WriteParcelable(&result);
     return NO_ERROR;

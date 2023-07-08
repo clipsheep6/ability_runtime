@@ -421,11 +421,11 @@ public:
     virtual AppExecFwk::ElementName GetTopAbility() override;
 
     /**
-     * Get focus ability.
+     * Get element name by token.
      *
-     * @return Returns front desk focus ability elementName.
+     * @return Returns front desk focus ability elementName by token.
      */
-    virtual AppExecFwk::ElementName GetFocusAbility(const sptr<IRemoteObject> &token) override;
+    virtual AppExecFwk::ElementName GetElementNameByToken(const sptr<IRemoteObject> &token) override;
 
     /**
      * Kill the process immediately.

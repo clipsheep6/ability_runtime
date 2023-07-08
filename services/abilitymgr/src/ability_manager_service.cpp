@@ -6426,7 +6426,7 @@ AppExecFwk::ElementName AbilityManagerService::GetTopAbility()
     return elementName;
 }
 
-AppExecFwk::ElementName AbilityManagerService::GetFocusAbility(const sptr<IRemoteObject> &token)
+AppExecFwk::ElementName AbilityManagerService::GetElementNameByToken(const sptr<IRemoteObject> &token)
 {
     HILOG_DEBUG("%{public}s start.", __func__);
     AppExecFwk::ElementName elementName = {};

@@ -95,7 +95,7 @@ AppExecFwk::ElementName AbilityManagerProxy::GetTopAbility()
     return result;
 }
 
-AppExecFwk::ElementName AbilityManagerProxy::GetFocusAbility(const sptr<IRemoteObject> &token)
+AppExecFwk::ElementName AbilityManagerProxy::GetElementNameByToken(const sptr<IRemoteObject> &token)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -106,7 +106,7 @@ AppExecFwk::ElementName AbilityManagerProxy::GetFocusAbility(const sptr<IRemoteO
     if (!data.WriteRemoteObject(token)) {
         return {};
     }
-    int error = SendRequest(AbilityManagerInterfaceCode::GET_FOCUS_ABILITY, data, reply, option);
+    int error = SendRequest(AbilityManagerInterfaceCode::GET_ELEMENT_NAME_BY_TOKEN, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return {};
