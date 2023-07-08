@@ -96,7 +96,7 @@ int DataObsMgrInnerRdb::HandleNotifyChange(const Uri &uri)
             HILOG_WARN("there is no obs on the uri : %{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
             return NO_OBS_FOR_URI;
         }
-        obsList = obsPair->second
+        obsList = obsPair->second;
     }
 
     for (auto &obs : obsList) {
