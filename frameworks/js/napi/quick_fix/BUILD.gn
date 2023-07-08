@@ -38,8 +38,18 @@ ohos_shared_library("quickfixmanager_napi") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
+    "init:libbegetutil",
     "napi:ace_napi",
+    "eventhandler:libeventhandler",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 
   relative_install_dir = "module/app/ability"
   subsystem_name = "ability"

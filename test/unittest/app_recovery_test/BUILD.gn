@@ -53,6 +53,7 @@ ohos_unittest("AppRecoveryUnitTest") {
     "ability_base:zuri",
     "ability_runtime:ability_context_native",
     "ability_runtime:ability_deps_wrapper",
+    "init:libbegetutil",
     "ability_runtime:ability_manager",
     "ability_runtime:napi_base_context",
     "ability_runtime:runtime",
@@ -73,6 +74,14 @@ ohos_unittest("AppRecoveryUnitTest") {
     "ipc:ipc_core",
     "napi:ace_napi",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ohos_unittest("AbilityRecoveryUnitTest") {
@@ -107,6 +116,7 @@ ohos_unittest("AbilityRecoveryUnitTest") {
 
   external_deps = [
     "ability_base:base",
+    "init:libbegetutil",
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
@@ -132,6 +142,14 @@ ohos_unittest("AbilityRecoveryUnitTest") {
     "ipc:ipc_core",
     "napi:ace_napi",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 group("unittest") {

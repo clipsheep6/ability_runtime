@@ -37,7 +37,18 @@ ohos_unittest("authorization_result_test") {
     "ability_runtime:ability_context_native",
     "c_utils:utils",
     "ipc:ipc_core",
+    "init:libbegetutil",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 group("unittest") {

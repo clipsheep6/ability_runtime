@@ -54,7 +54,10 @@ ohos_fuzztest("AppRunningRecordSecondFuzzTest") {
     "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "init:libbegetutil",
     "c_utils:utils",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "common_event_service:cesfwk_innerkits",
     "ffrt:libffrt",
     "ipc:ipc_core",
@@ -63,7 +66,12 @@ ohos_fuzztest("AppRunningRecordSecondFuzzTest") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 

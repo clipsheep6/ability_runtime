@@ -54,8 +54,19 @@ ohos_fuzztest("StartAbilityFuzzTest") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "init:libbegetutil",
     "ffrt:libffrt",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ###############################################################################

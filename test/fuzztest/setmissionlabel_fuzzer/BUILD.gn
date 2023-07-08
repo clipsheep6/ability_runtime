@@ -51,9 +51,20 @@ ohos_fuzztest("SetMissionLabelFuzzTest") {
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "init:libbegetutil",
     "c_utils:utils",
     "ffrt:libffrt",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ###############################################################################

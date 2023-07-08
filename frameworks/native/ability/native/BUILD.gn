@@ -273,6 +273,7 @@ ohos_shared_library("abilitykit_native") {
     "resource_management:global_resmgr",
     "samgr:samgr_proxy",
     "window_manager:libwsutils",
+    "init:libbegetutil",
   ]
 
   defines = []
@@ -296,7 +297,6 @@ ohos_shared_library("abilitykit_native") {
     ":abilitykit_utils",
     ":extensionkit_native",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
-    "${init_path}/interfaces/innerkits:libbegetutil",
   ]
 
   if (ability_runtime_graphics) {
@@ -313,12 +313,9 @@ ohos_shared_library("abilitykit_native") {
       "input:libmmi-client",
       "multimedia_image_framework:image",
       "window_manager:windowstage_kit",
-    ]
-
-    public_deps += [
-      "${multimedia_path}/interfaces/innerkits:image_native",
-      "${windowmanager_path}/dm:libdm",
-      "${windowmanager_path}/wm:libwm",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
     ]
   }
 
@@ -388,13 +385,10 @@ ohos_shared_library("extensionkit_native") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "napi:ace_napi",
+    "eventhandler:libeventhandler",
   ]
 
-  public_deps = [
-    ":abilitykit_utils",
-    "${arkui_path}/napi:ace_napi",
-    "${eventhandler_path}/frameworks/eventhandler:libeventhandler",
-  ]
+  public_deps = [ ":abilitykit_utils" ]
 
   if (ability_runtime_graphics) {
     external_deps += [ "ability_base:session_info" ]
@@ -428,8 +422,19 @@ ohos_shared_library("ability_thread") {
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
+    "napi:ace_napi",
+    "init:libbegetutil",
+    "eventhandler:libeventhandler",
     "ipc:ipc_core",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 
   innerapi_tags = [ "platformsdk_indirect" ]
   subsystem_name = "ability"
@@ -470,6 +475,12 @@ ohos_shared_library("form_extension") {
       "hilog:libhilog",
       "ipc:ipc_core",
       "ipc:ipc_napi_common",
+      "init:libbegetutil",
+      "napi:ace_napi",
+      "eventhandler:libeventhandler",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
     ]
   }
   subsystem_name = "ability"
@@ -534,6 +545,7 @@ ohos_shared_library("service_extension") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "init:libbegetutil",
     "ipc:ipc_napi_common",
     "napi:ace_napi",
   ]
@@ -542,6 +554,8 @@ ohos_shared_library("service_extension") {
     external_deps += [
       "multimedia_image_framework:image",
       "window_manager:libdm",
+      "multimedia_image_framework:image_native",
+      "window_manager:libwm",
     ]
   }
 
@@ -781,8 +795,19 @@ ohos_shared_library("ui_extension") {
     "c_utils:utils",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
+    "init:libbegetutil",
     "ipc:ipc_napi_common",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 
   subsystem_name = "ability"
   part_name = "ability_runtime"

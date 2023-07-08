@@ -49,13 +49,24 @@ ohos_fuzztest("StopServiceExtensionAbilityFuzzTest") {
 
   external_deps = [
     "ability_base:want",
+    "init:libbegetutil",
     "ability_runtime:ability_manager",
     "appspawn:appspawn_socket_client",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "bundle_framework:appexecfwk_base",
     "common_event_service:cesfwk_innerkits",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ###############################################################################

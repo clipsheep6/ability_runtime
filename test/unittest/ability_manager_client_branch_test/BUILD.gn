@@ -59,9 +59,12 @@ ohos_unittest("ability_manager_client_branch_test") {
     "ability_runtime:ability_manager",
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
+    "eventhandler:libeventhandler",
+    "init:libbegetutil",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "dsoftbus:softbus_client",
+    "napi:ace_napi",
     "ffrt:libffrt",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
@@ -73,6 +76,14 @@ ohos_unittest("ability_manager_client_branch_test") {
 
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 

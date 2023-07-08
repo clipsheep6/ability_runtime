@@ -79,6 +79,8 @@ ohos_moduletest("AbilityRecordModuleTest") {
     "hicollie:libhicollie",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "hitrace:hitrace_meter",
     "init:libbegetutil",
     "ipc:ipc_core",
@@ -104,7 +106,9 @@ ohos_moduletest("AbilityRecordModuleTest") {
   if (ability_runtime_graphics) {
     external_deps += [
       "input:libmmi-client",
+      "multimedia_image_framework:image_native",
       "window_manager:libdm",
+      "window_manager:libwm",
     ]
   }
 }

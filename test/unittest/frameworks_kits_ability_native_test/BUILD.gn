@@ -104,6 +104,7 @@ ohos_unittest("ability_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:session_info",
@@ -119,13 +120,20 @@ ohos_unittest("ability_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -148,16 +156,23 @@ ohos_unittest("ability_lifecycle_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -180,16 +195,23 @@ ohos_unittest("ability_lifecycle_executor_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "eventhandler:libeventhandler",
+    "napi:ace_napi",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -214,15 +236,23 @@ ohos_unittest("ability_context_interface_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "hilog:libhilog",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "ipc:ipc_core",
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -254,6 +284,7 @@ ohos_unittest("ability_context_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:session_info",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
@@ -262,10 +293,16 @@ ohos_unittest("ability_context_test") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "eventhandler:libeventhandler",
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -291,6 +328,7 @@ ohos_unittest("page_ability_impl_test") {
     ]
 
     external_deps = [
+    "init:libbegetutil",
       "ability_base:want",
       "bundle_framework:appexecfwk_base",
       "c_utils:utils",
@@ -298,7 +336,12 @@ ohos_unittest("page_ability_impl_test") {
       "hilog:libhilog",
       "hitrace:hitrace_meter",
       "input:libmmi-client",
+      "napi:ace_napi",
+      "eventhandler:libeventhandler",
       "ipc:ipc_core",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
     ]
   }
 }
@@ -324,9 +367,12 @@ ohos_unittest("service_ability_impl_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
@@ -334,7 +380,12 @@ ohos_unittest("service_ability_impl_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -357,12 +408,18 @@ ohos_unittest("scene_created_test") {
     ]
 
     external_deps = [
+    "init:libbegetutil",
       "ability_base:want",
       "bundle_framework:appexecfwk_base",
       "c_utils:utils",
       "hilog:libhilog",
+      "napi:ace_napi",
+      "eventhandler:libeventhandler",
       "input:libmmi-client",
       "ipc:ipc_core",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
     ]
   }
 }
@@ -397,11 +454,13 @@ ohos_unittest("data_ability_helper_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:base",
     "ability_base:session_info",
     "ability_base:want",
     "ability_base:zuri",
     "c_utils:utils",
+    "napi:ace_napi",
     "common_event_service:cesfwk_innerkits",
     "data_share:datashare_common",
     "data_share:datashare_consumer",
@@ -417,7 +476,12 @@ ohos_unittest("data_ability_helper_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -454,11 +518,13 @@ ohos_unittest("data_ability_helper_impl_test") {
     "//third_party/googletest:gtest_main",
   ]
   external_deps = [
+    "init:libbegetutil",
     "ability_base:base",
     "ability_base:session_info",
     "ability_base:want",
     "ability_base:zuri",
     "c_utils:utils",
+    "napi:ace_napi",
     "common_event_service:cesfwk_innerkits",
     "data_share:datashare_common",
     "data_share:datashare_consumer",
@@ -472,8 +538,14 @@ ohos_unittest("data_ability_helper_impl_test") {
     "relational_store:native_rdb",
     "relational_store:rdb_data_ability_adapter",
   ]
+
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -496,12 +568,14 @@ ohos_unittest("data_ability_operation_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:base",
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_manager",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "napi:ace_napi",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
@@ -511,7 +585,12 @@ ohos_unittest("data_ability_operation_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -535,12 +614,14 @@ ohos_unittest("ability_impl_active_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:base",
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "napi:ace_napi",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
@@ -549,7 +630,12 @@ ohos_unittest("ability_impl_active_test") {
 
   if (ability_runtime_graphics) {
     sources += [ "ability_impl_active_test.cpp" ]
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -576,6 +662,7 @@ ohos_unittest("ability_impl_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
@@ -583,6 +670,7 @@ ohos_unittest("ability_impl_test") {
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "napi:ace_napi",
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
@@ -596,7 +684,12 @@ ohos_unittest("ability_impl_test") {
   if (ability_runtime_graphics) {
     sources += [ "ability_impl_test.cpp" ]
     deps += [ "${global_path}/i18n/frameworks/intl:intl_util" ]
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -637,12 +730,14 @@ ohos_unittest("ability_thread_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_deps_wrapper",
     "ability_runtime:runtime",
+    "napi:ace_napi",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
@@ -657,7 +752,12 @@ ohos_unittest("ability_thread_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -687,12 +787,14 @@ ohos_unittest("service_extension_module_loader_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_deps_wrapper",
     "ability_runtime:runtime",
+    "napi:ace_napi",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
@@ -705,7 +807,12 @@ ohos_unittest("service_extension_module_loader_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -732,12 +839,14 @@ ohos_unittest("ability_process_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_deps_wrapper",
     "ability_runtime:runtime",
+    "napi:ace_napi",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
@@ -750,7 +859,12 @@ ohos_unittest("ability_process_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -774,12 +888,14 @@ ohos_unittest("extension_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_deps_wrapper",
     "ability_runtime:runtime",
+    "napi:ace_napi",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
@@ -792,7 +908,12 @@ ohos_unittest("extension_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -817,6 +938,7 @@ ohos_unittest("form_extension_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
@@ -824,6 +946,7 @@ ohos_unittest("form_extension_test") {
     "ability_runtime:ability_deps_wrapper",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
+    "napi:ace_napi",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
@@ -836,7 +959,12 @@ ohos_unittest("form_extension_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -859,17 +987,27 @@ ohos_unittest("ability_thread_call_request_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "napi:ace_napi",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "resource_management:global_resmgr",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ohos_unittest("form_extension_provider_client_test") {
@@ -897,11 +1035,13 @@ ohos_unittest("form_extension_provider_client_test") {
     ]
 
     external_deps = [
+    "init:libbegetutil",
       "ability_base:want",
       "ability_runtime:runtime",
       "access_token:libaccesstoken_sdk",
       "bundle_framework:appexecfwk_base",
       "bundle_framework:appexecfwk_core",
+      "napi:ace_napi",
       "c_utils:utils",
       "eventhandler:libeventhandler",
       "form_fwk:fmskit_native",
@@ -909,6 +1049,9 @@ ohos_unittest("form_extension_provider_client_test") {
       "hilog:libhilog",
       "input:libmmi-client",
       "ipc:ipc_core",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
     ]
   }
 }
@@ -954,12 +1097,14 @@ ohos_unittest("data_ability_impl_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_context_native",
     "ability_runtime:ability_deps_wrapper",
+    "napi:ace_napi",
     "ability_runtime:ability_manager",
     "ability_runtime:napi_base_context",
     "ability_runtime:runtime",
@@ -984,7 +1129,12 @@ ohos_unittest("data_ability_impl_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -1015,6 +1165,7 @@ ohos_unittest("data_ability_impl_file_secondpart_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
@@ -1022,6 +1173,7 @@ ohos_unittest("data_ability_impl_file_secondpart_test") {
     "ability_runtime:ability_deps_wrapper",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
+    "napi:ace_napi",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
@@ -1034,7 +1186,12 @@ ohos_unittest("data_ability_impl_file_secondpart_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -1065,6 +1222,7 @@ ohos_unittest("data_ability_impl_file_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
@@ -1073,6 +1231,7 @@ ohos_unittest("data_ability_impl_file_test") {
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "napi:ace_napi",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
@@ -1084,7 +1243,12 @@ ohos_unittest("data_ability_impl_file_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -1117,6 +1281,7 @@ ohos_unittest("ability_thread_dataability_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
@@ -1129,6 +1294,7 @@ ohos_unittest("ability_thread_dataability_test") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
+    "napi:ace_napi",
     "ipc:ipc_core",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
@@ -1136,7 +1302,12 @@ ohos_unittest("ability_thread_dataability_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -1203,6 +1374,7 @@ ohos_unittest("extension_impl_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
@@ -1210,6 +1382,7 @@ ohos_unittest("extension_impl_test") {
     "ability_runtime:ability_deps_wrapper",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
+    "napi:ace_napi",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
@@ -1222,7 +1395,12 @@ ohos_unittest("extension_impl_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -1274,17 +1452,25 @@ ohos_unittest("ability_permission_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:session_info",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "napi:ace_napi",
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
+
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -1325,14 +1511,22 @@ ohos_unittest("ability_thread_for_ability_on_configuration_update") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -1348,15 +1542,23 @@ ohos_unittest("data_ability_result_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:zuri",
     "ability_runtime:ability_manager",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -1387,10 +1589,12 @@ ohos_unittest("form_host_client_test") {
     ]
 
     external_deps = [
+    "init:libbegetutil",
       "ability_base:configuration",
       "ability_base:want",
       "ability_runtime:ability_manager",
       "ability_runtime:runtime",
+      "napi:ace_napi",
       "bundle_framework:appexecfwk_base",
       "bundle_framework:appexecfwk_core",
       "c_utils:utils",
@@ -1401,6 +1605,9 @@ ohos_unittest("form_host_client_test") {
       "hitrace:hitrace_meter",
       "input:libmmi-client",
       "ipc:ipc_core",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
     ]
   }
 }
@@ -1431,10 +1638,12 @@ ohos_unittest("continuation_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
+    "napi:ace_napi",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
@@ -1449,7 +1658,12 @@ ohos_unittest("continuation_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -1500,15 +1714,21 @@ ohos_unittest("new_ability_impl_test") {
     ]
 
     external_deps = [
+    "init:libbegetutil",
       "ability_base:want",
       "bundle_framework:appexecfwk_base",
       "c_utils:utils",
+      "napi:ace_napi",
+      "eventhandler:libeventhandler",
       "common_event_service:cesfwk_innerkits",
       "hilog:libhilog",
       "hitrace:hitrace_meter",
       "input:libmmi-client",
       "ipc:ipc_core",
       "window_manager:libwsutils",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
     ]
   }
 }
@@ -1533,14 +1753,20 @@ ohos_unittest("reserse_continuation_scheduler_primary_stub_test") {
     ]
 
     external_deps = [
+    "init:libbegetutil",
       "ability_base:want",
       "bundle_framework:appexecfwk_base",
       "c_utils:utils",
       "common_event_service:cesfwk_innerkits",
       "hilog:libhilog",
       "hitrace:hitrace_meter",
+      "napi:ace_napi",
+      "eventhandler:libeventhandler",
       "input:libmmi-client",
       "ipc:ipc_core",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
     ]
   }
 }
@@ -1569,15 +1795,21 @@ ohos_unittest("reserse_continuation_scheduler_primary_proxy_test") {
     ]
 
     external_deps = [
+    "init:libbegetutil",
       "ability_base:want",
       "bundle_framework:appexecfwk_base",
       "c_utils:utils",
       "common_event_service:cesfwk_innerkits",
       "hilog:libhilog",
+      "napi:ace_napi",
+      "eventhandler:libeventhandler",
       "hitrace:hitrace_meter",
       "input:libmmi-client",
       "ipc:ipc_core",
       "window_manager:libwsutils",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
     ]
   }
 }
@@ -1602,13 +1834,24 @@ ohos_unittest("distributed_client_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "hilog:libhilog",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ohos_unittest("ability_window_test") {
@@ -1636,10 +1879,12 @@ ohos_unittest("ability_window_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
+    "napi:ace_napi",
     "ability_runtime:ability_context_native",
     "ability_runtime:runtime",
     "ability_runtime:wantagent_innerkits",
@@ -1659,7 +1904,11 @@ ohos_unittest("ability_window_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+    ]
   }
 }
 
@@ -1684,6 +1933,7 @@ ohos_unittest("ability_handler_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
@@ -1691,11 +1941,20 @@ ohos_unittest("ability_handler_test") {
     "ability_runtime:ability_manager",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "napi:ace_napi",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ohos_unittest("ability_impl_factory_test") {
@@ -1725,6 +1984,7 @@ ohos_unittest("ability_impl_factory_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
@@ -1734,6 +1994,8 @@ ohos_unittest("ability_impl_factory_test") {
     "ability_runtime:napi_base_context",
     "ability_runtime:runtime",
     "ability_runtime:wantagent_innerkits",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
@@ -1747,6 +2009,14 @@ ohos_unittest("ability_impl_factory_test") {
     "relational_store:rdb_data_share_adapter",
     "samgr:samgr_proxy",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ohos_unittest("ability_loader_test") {
@@ -1768,14 +2038,25 @@ ohos_unittest("ability_loader_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ohos_unittest("ability_local_record_test") {
@@ -1797,14 +2078,25 @@ ohos_unittest("ability_local_record_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "napi:ace_napi",
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ohos_unittest("reverse_continuation_scheduler_replica_proxy_test") {
@@ -1826,14 +2118,25 @@ ohos_unittest("reverse_continuation_scheduler_replica_proxy_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ohos_unittest("reverse_continuation_scheduler_replica_stub_test") {
@@ -1855,13 +2158,24 @@ ohos_unittest("reverse_continuation_scheduler_replica_stub_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "c_utils:utils",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ohos_unittest("ability_connection_manager_test") {
@@ -1887,6 +2201,7 @@ ohos_unittest("ability_connection_manager_test") {
   ]
 
   external_deps = [
+    "init:libbegetutil",
     "ability_base:want",
     "ability_runtime:ability_manager",
     "ability_runtime:runtime",
@@ -1901,7 +2216,16 @@ ohos_unittest("ability_connection_manager_test") {
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "eventhandler:libeventhandler",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ohos_unittest("abilityruntime_test") {

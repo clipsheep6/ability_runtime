@@ -81,6 +81,9 @@ ohos_moduletest("ability_moduletest") {
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
+    "init:libbegetutil",
+    "eventhandler:libeventhandler",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -88,7 +91,12 @@ ohos_moduletest("ability_moduletest") {
 
   if (ability_runtime_graphics) {
     deps += [ "${multimedia_path}/interfaces/innerkits:image_native" ]
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -133,6 +141,9 @@ ohos_moduletest("ability_conetxt_test") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
+    "init:libbegetutil",
     "hilog:libhilog",
     "ipc:ipc_core",
     "relational_store:native_appdatafwk",
@@ -140,7 +151,12 @@ ohos_moduletest("ability_conetxt_test") {
     "relational_store:native_rdb",
   ]
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -168,8 +184,18 @@ ohos_moduletest("ability_thread_call_request_module_test") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
+    "init:libbegetutil",
     "hilog:libhilog",
+    "napi:ace_napi",
   ]
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ohos_moduletest("data_ability_operation_moduletest") {
@@ -206,6 +232,9 @@ ohos_moduletest("data_ability_operation_moduletest") {
     "ability_base:configuration",
     "ability_base:session_info",
     "ability_base:want",
+    "init:libbegetutil",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -219,7 +248,12 @@ ohos_moduletest("data_ability_operation_moduletest") {
 
   if (ability_runtime_graphics) {
     deps += [ "${multimedia_path}/interfaces/innerkits:image_native" ]
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -256,8 +290,10 @@ ohos_moduletest("data_ability_helper_module_test") {
     "ability_base:base",
     "ability_base:want",
     "ability_base:zuri",
+    "napi:ace_napi",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "init:libbegetutil",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
@@ -268,7 +304,12 @@ ohos_moduletest("data_ability_helper_module_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -304,7 +345,9 @@ ohos_moduletest("ability_post_event_timeout_test") {
     "ability_base:want",
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
+    "napi:ace_napi",
     "c_utils:utils",
+    "init:libbegetutil",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
@@ -314,7 +357,12 @@ ohos_moduletest("ability_post_event_timeout_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 

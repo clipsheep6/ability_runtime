@@ -59,6 +59,9 @@ ohos_unittest("ability_timeout_test") {
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
+    "init:libbegetutil",
+    "eventhandler:libeventhandler",
+    "napi:ace_napi",
     "common_event_service:cesfwk_innerkits",
     "dsoftbus:softbus_client",
     "ffrt:libffrt",
@@ -69,6 +72,14 @@ ohos_unittest("ability_timeout_test") {
 
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 

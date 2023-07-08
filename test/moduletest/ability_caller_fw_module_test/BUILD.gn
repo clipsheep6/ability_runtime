@@ -50,9 +50,20 @@ ohos_moduletest("ability_caller_fw_module_test") {
     "ability_base:want",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "napi:ace_napi",
+    "init:libbegetutil",
     "hilog:libhilog",
+    "eventhandler:libeventhandler",
     "ipc:ipc_core",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ################################################################################

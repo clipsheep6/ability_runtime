@@ -46,8 +46,11 @@ ohos_fuzztest("ScheduleAcceptWantDoneFuzzTest") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "init:libbegetutil",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "ffrt:libffrt",
@@ -57,7 +60,12 @@ ohos_fuzztest("ScheduleAcceptWantDoneFuzzTest") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 

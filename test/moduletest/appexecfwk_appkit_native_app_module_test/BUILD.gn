@@ -60,9 +60,20 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_first") {
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
+    "napi:ace_napi",
+    "init:libbegetutil",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ohos_moduletest("appexecfwk_appkit_native_app_module_test_second") {
@@ -93,12 +104,23 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_second") {
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "init:libbegetutil",
     "c_utils:utils",
+    "napi:ace_napi",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ohos_moduletest("appexecfwk_appkit_native_app_module_test_third") {
@@ -130,11 +152,22 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_third") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
+    "napi:ace_napi",
     "eventhandler:libeventhandler",
+    "init:libbegetutil",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ohos_moduletest("appexecfwk_appkit_native_app_module_test_fourth") {
@@ -166,11 +199,22 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_fourth") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
+    "init:libbegetutil",
+    "napi:ace_napi",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ###############################################################################

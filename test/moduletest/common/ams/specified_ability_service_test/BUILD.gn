@@ -75,8 +75,10 @@ ohos_moduletest("specified_ability_service_test") {
     "ability_runtime:ability_deps_wrapper",
     "ability_runtime:ability_manager",
     "access_token:libaccesstoken_sdk",
+    "napi:ace_napi",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "eventhandler:libeventhandler",
     "c_utils:utils",
     "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
@@ -116,7 +118,9 @@ ohos_moduletest("specified_ability_service_test") {
   if (ability_runtime_graphics) {
     external_deps += [
       "input:libmmi-client",
+      "multimedia_image_framework:image_native",
       "window_manager:libdm",
+      "window_manager:libwm",
     ]
   }
 }

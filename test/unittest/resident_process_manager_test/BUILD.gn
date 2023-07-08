@@ -54,7 +54,10 @@ ohos_unittest("resident_process_manager_test") {
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "napi:ace_napi",
     "ffrt:libffrt",
+    "eventhandler:libeventhandler",
+    "init:libbegetutil",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "init:libbeget_proxy",
@@ -63,6 +66,14 @@ ohos_unittest("resident_process_manager_test") {
 
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 

@@ -56,14 +56,25 @@ ohos_moduletest("start_option_module_test") {
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "napi:ace_napi",
     "dsoftbus:softbus_client",
+    "init:libbegetutil",
     "ffrt:libffrt",
     "hilog:libhilog",
+    "eventhandler:libeventhandler",
     "ipc:ipc_core",
   ]
 
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 

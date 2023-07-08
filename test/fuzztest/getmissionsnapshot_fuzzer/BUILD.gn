@@ -51,6 +51,9 @@ ohos_fuzztest("GetMissionSnapshotFuzzTest") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "init:libbegetutil",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "common_event_service:cesfwk_innerkits",
     "ffrt:libffrt",
     "ipc:ipc_core",
@@ -63,6 +66,8 @@ ohos_fuzztest("GetMissionSnapshotFuzzTest") {
     deps += []
     external_deps += [
       "i18n:intl_util",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
       "window_manager:libwm",
     ]
   }
