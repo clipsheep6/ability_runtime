@@ -23,7 +23,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 class RequestInfo {
 public:
-    explicit RequestInfo(const sptr<IRemoteObject> &token);
+    explicit RequestInfo(const sptr<IRemoteObject> &token, int32_t left, int32_t top, int32_t width, int32_t height);
     ~RequestInfo();
 
     /**
@@ -51,8 +51,24 @@ public:
      */
     sptr<IRemoteObject> GetToken();
 
+    /**
+     * @brief Create JsWindowRect.
+     *
+     * @param engine NativeEngine.
+     * @param the left position of WindowRect.
+     * @param the top position of WindowRect.
+     * @param the width position of WindowRect.
+     * @param the height position of WindowRect.
+     * @return Native value Created from left, top, width, height.
+     */
+    static NativeValue* CreateJsWindowRect(
+        NativeEngine& engine, int32_t left, int32_t top, int32_t width, int32_t height);
 private:
     sptr<IRemoteObject> callerToken_;
+    int32_t left_ = 0;
+    int32_t top_ = 0;
+    int32_t width_ = 0;
+    int32_t height_ = 0;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -564,7 +564,12 @@ ErrCode AbilityContextImpl::RequestDialogService(NativeEngine &engine,
     AAFwk::Want &want, RequestDialogResultTask &&task)
 {
     want.SetParam(RequestConstants::REQUEST_TOKEN_KEY, token_);
-
+    int32_t left, top, width, height;
+    GetWindowRect(left, top, width, height);
+    want.SetParam(RequestConstants::WINDOW_RECTANGLE_LEFT_KEY, left);
+    want.SetParam(RequestConstants::WINDOW_RECTANGLE_TOP_KEY, top);
+    want.SetParam(RequestConstants::WINDOW_RECTANGLE_WIDTH_KEY, width);
+    want.SetParam(RequestConstants::WINDOW_RECTANGLE_HEIGHT_KEY, height);
     auto resultTask =
         [&engine, outTask = std::move(task)](int32_t resultCode, const AAFwk::Want &resultWant) {
         auto retData = new RequestResult();
@@ -659,6 +664,15 @@ ErrCode AbilityContextImpl::SetMissionContinueState(const AAFwk::ContinueState &
         HILOG_ERROR("SetMissionContinueState failed: %{public}d", err);
     }
     return err;
+}
+
+void AbilityContextImpl::GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t &height)
+{
+    HILOG_DEBUG("call");
+    auto abilityCallback = abilityCallback_.lock();
+    if (abilityCallback) {
+        abilityCallback->GetWindowRect(left, top, width, height);
+    }
 }
 
 #ifdef SUPPORT_GRAPHICS
