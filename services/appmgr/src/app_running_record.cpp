@@ -553,6 +553,7 @@ void AppRunningRecord::ScheduleBackgroundRunning()
     if (appLifeCycleDeal_) {
         appLifeCycleDeal_->ScheduleBackgroundRunning();
     }
+    isAbilityForegrounding_.store(false);
 }
 
 void AppRunningRecord::ScheduleProcessSecurityExit()

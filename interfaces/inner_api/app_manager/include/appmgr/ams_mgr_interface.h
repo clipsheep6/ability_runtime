@@ -169,6 +169,8 @@ public:
 
     virtual void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) = 0;
 
+    virtual void SetAbilityForegroundingFlagToAppRecord(const pid_t pid) = 0;
+
     virtual void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo) = 0;
 
     virtual void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response) = 0;
@@ -218,7 +220,8 @@ public:
         GET_RUNNING_PROCESS_INFO_BY_PID,
         UPDATE_APPLICATION_INFO_INSTALLED,
         SET_CURRENT_USER_ID,
-        Get_BUNDLE_NAME_BY_PID
+        Get_BUNDLE_NAME_BY_PID,
+        SET_ABILITY_FOREGROUNDING_FLAG
     };
 };
 }  // namespace AppExecFwk

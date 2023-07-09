@@ -7076,12 +7076,11 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
     AppExecFwk::RunningProcessInfo processInfo;
     std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
     if (callerAbility) {
-        auto userId = callerAbility->GetOwnerMissionUserId();
-        auto missionListManager = GetListManagerByUserId(userId);
-        if (missionListManager && missionListManager->IsTopAbility(callerAbility)) {
+        if (callerAbility->IsForeground() || callerAbility->GetAbilityForegroundingFlag()) {
             isBackgroundCall = false;
             return ERR_OK;
         }
+        // CallerAbility is not foreground, so check process state
         DelayedSingleton<AppScheduler>::GetInstance()->
             GetRunningProcessInfoByToken(callerAbility->GetToken(), processInfo);
     } else {
@@ -7108,7 +7107,7 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
 
     if (backgroundJudgeFlag_) {
         isBackgroundCall = processInfo.state_ != AppExecFwk::AppProcessState::APP_STATE_FOREGROUND &&
-            !processInfo.isFocused;
+            !processInfo.isFocused && !processInfo.isAbilityForegrounding;
     } else {
         isBackgroundCall = !processInfo.isFocused;
         if (!processInfo.isFocused && processInfo.state_ == AppExecFwk::AppProcessState::APP_STATE_FOREGROUND) {

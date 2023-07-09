@@ -59,6 +59,7 @@ private:
     int32_t HandleKillApplicationSelf(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetRunningProcessInfoByToken(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetRunningProcessInfoByPid(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleSetAbilityForegroundingFlagToAppRecord(MessageParcel &data, MessageParcel &reply);
     int32_t HandleStartSpecifiedAbility(MessageParcel &data, MessageParcel &reply);
     int32_t HandleRegisterStartSpecifiedAbilityResponse(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetApplicationInfoByProcessID(MessageParcel &data, MessageParcel &reply);

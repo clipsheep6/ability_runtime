@@ -61,6 +61,8 @@ AmsMgrStub::AmsMgrStub()
         &AmsMgrStub::HandleGetRunningProcessInfoByToken;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::GET_RUNNING_PROCESS_INFO_BY_PID)] =
         &AmsMgrStub::HandleGetRunningProcessInfoByPid;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::SET_ABILITY_FOREGROUNDING_FLAG)] =
+        &AmsMgrStub::HandleSetAbilityForegroundingFlagToAppRecord;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::START_SPECIFIED_ABILITY)] =
         &AmsMgrStub::HandleStartSpecifiedAbility;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::REGISTER_START_SPECIFIED_ABILITY_RESPONSE)] =
@@ -293,6 +295,14 @@ int32_t AmsMgrStub::HandleGetRunningProcessInfoByPid(MessageParcel &data, Messag
         HILOG_ERROR("process info write failed.");
         return ERR_INVALID_VALUE;
     }
+    return NO_ERROR;
+}
+
+int32_t AmsMgrStub::HandleSetAbilityForegroundingFlagToAppRecord(MessageParcel &data, MessageParcel &reply)
+{
+    RunningProcessInfo processInfo;
+    auto pid = static_cast<pid_t>(data.ReadInt32());
+    SetAbilityForegroundingFlagToAppRecord(pid);
     return NO_ERROR;
 }
 

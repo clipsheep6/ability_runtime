@@ -509,6 +509,18 @@ void AppRunningManager::AssignRunningProcessInfoByAppRecord(
     info.isFocused = appRecord->GetFocusFlag();
     info.isTestProcess = (appRecord->GetUserTestInfo() != nullptr);
     info.startTimeMillis_ = appRecord->GetAppStartTime();
+    info.isAbilityForegrounding = appRecord->GetAbilityForegroundingFlag();
+}
+
+void AppRunningManager::SetAbilityForegroundingFlagToAppRecord(const pid_t pid)
+{
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    auto appRecord = GetAppRunningRecordByPidInner(pid);
+    if (appRecord == nullptr) {
+        HILOG_ERROR("appRecord is nullptr");
+        return;
+    }
+    appRecord->SetAbilityForegroundingFlag();
 }
 
 void AppRunningManager::ClipStringContent(const std::regex &re, const std::string &source, std::string &afterCutStr)

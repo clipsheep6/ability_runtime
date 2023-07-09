@@ -2303,6 +2303,16 @@ void AppMgrServiceInner::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppEx
     appRunningManager_->GetRunningProcessInfoByPid(pid, info);
 }
 
+void AppMgrServiceInner::SetAbilityForegroundingFlagToAppRecord(const pid_t pid) const
+{
+    HILOG_DEBUG("called");
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        return;
+    }
+
+    appRunningManager_->SetAbilityForegroundingFlagToAppRecord(pid);
+}
+
 bool AppMgrServiceInner::CheckGetRunningInfoPermission() const
 {
     if (!appRunningManager_) {

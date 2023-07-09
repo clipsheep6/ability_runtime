@@ -242,6 +242,25 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetGetToken, TestSize.Level1)
  * Feature: AbilityRecord
  * Function: create AbilityRecord
  * SubFunction: NA
+ * FunctionPoints: SetAbilityState GetAbilityState
+ * EnvConditions: NA
+ * CaseDescription: SetAbilityState GetAbilityState UT.
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_GetAbilityState, TestSize.Level1)
+{
+    abilityRecord_->SetAbilityForegroundingFlag();
+    abilityRecord_->SetAbilityState(AbilityState::BACKGROUND);
+    EXPECT_FALSE(abilityRecord_->GetAbilityForegroundingFlag());
+
+    abilityRecord_->SetAbilityForegroundingFlag();
+    abilityRecord_->SetAbilityState(AbilityState::FOREGROUND);
+    EXPECT_TRUE(abilityRecord_->GetAbilityForegroundingFlag());
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: create AbilityRecord
+ * SubFunction: NA
  * FunctionPoints: SetPreAbilityRecord SetNextAbilityRecord GetPreAbilityRecord GetNextAbilityRecord
  * EnvConditions: NA
  * CaseDescription: SetPreAbilityRecord SetNextAbilityRecord GetPreAbilityRecord GetNextAbilityRecord UT.

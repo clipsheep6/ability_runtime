@@ -157,6 +157,14 @@ public:
 
     void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) override;
 
+    /**
+     * Set AbilityForegroundingFlag of an app-record to true.
+     *
+     * @param pid, pid.
+     *
+     */
+    void SetAbilityForegroundingFlagToAppRecord(const pid_t pid) override;
+
     virtual void StartSpecifiedAbility(
         const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo) override;
 

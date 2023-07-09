@@ -297,6 +297,14 @@ void AmsMgrScheduler::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecF
     amsMgrServiceInner_->GetRunningProcessInfoByPid(pid, info);
 }
 
+void AmsMgrScheduler::SetAbilityForegroundingFlagToAppRecord(const pid_t pid)
+{
+    if (!IsReady()) {
+        return;
+    }
+    amsMgrServiceInner_->SetAbilityForegroundingFlagToAppRecord(pid);
+}
+
 void AmsMgrScheduler::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
 {
     if (!IsReady()) {

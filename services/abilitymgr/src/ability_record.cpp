@@ -1147,7 +1147,21 @@ bool AbilityRecord::IsForeground() const
 void AbilityRecord::SetAbilityStateInner(AbilityState state)
 {
     currentState_ = state;
+    if (currentState_ == AbilityState::BACKGROUND) {
+        isAbilityForegrounding_ = false;
+    }
     DelayedSingleton<MissionInfoMgr>::GetInstance()->SetMissionAbilityState(missionId_, currentState_);
+}
+
+bool AbilityRecord::GetAbilityForegroundingFlag() const
+{
+    return isAbilityForegrounding_;
+}
+
+void AbilityRecord::SetAbilityForegroundingFlag()
+{
+    isAbilityForegrounding_ = true;
+    DelayedSingleton<AppScheduler>::GetInstance()->SetAbilityForegroundingFlagToAppRecord(pid_);
 }
 
 void AbilityRecord::SetAbilityState(AbilityState state)
