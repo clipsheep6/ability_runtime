@@ -16,9 +16,11 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 config("extension_manager_public_config") {
   visibility = [ ":*" ]
-  include_dirs = [ "include",
+  include_dirs = [
+    "include",
     "${ability_runtime_innerkits_path}/ability_manager/include",
-    "${ability_runtime_abilitymgr_path}/include"]
+    "${ability_runtime_abilitymgr_path}/include",
+  ]
 
   cflags = []
   if (target_cpu == "arm") {
@@ -27,8 +29,10 @@ config("extension_manager_public_config") {
 }
 
 ohos_shared_library("extension_manager") {
-  sources = [ "src/extension_manager_proxy.cpp",
-   "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp", ]
+  sources = [
+    "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
+    "src/extension_manager_proxy.cpp",
+  ]
 
   include_dirs = [
     "${ability_runtime_innerkits_path}/ability_manager/include",
