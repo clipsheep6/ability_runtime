@@ -34,6 +34,11 @@ public:
     using TerminateCallback = std::function<void(int64_t)>;
     using FormUpdateCallback = std::function<void(int64_t, const std::string&)>;
 
+    /**
+     * Create a simulator instance.
+     *
+     * @param options The simulator options.
+     */
     static std::unique_ptr<Simulator> Create(const Options &options);
 
     virtual ~Simulator() = default;

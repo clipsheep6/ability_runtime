@@ -311,5 +311,5 @@ NativeValue *CreateJsBaseContext(NativeEngine &engine, std::shared_ptr<Context> 
 
     return objValue;
 }
-}  // namespace AbilityRuntime
-}  // namespace OHOS
+} // namespace AbilityRuntime
+} // namespace OHOS

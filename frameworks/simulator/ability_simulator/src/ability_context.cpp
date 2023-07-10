@@ -21,19 +21,19 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
-const std::string CONTEXT_DISTRIBUTEDFILES("distributedfiles");
-const std::string CONTEXT_FILE_SEPARATOR("/");
-const std::string CONTEXT_FILE_OPPOSITE_SEPARATOR("\\");
-const std::string CONTEXT_BASE("base");
-const std::string CONTEXT_CACHE("cache");
-const std::string CONTEXT_PREFERENCES("preferences");
-const std::string CONTEXT_DATABASE("database");
-const std::string CONTEXT_TEMP("temp");
-const std::string CONTEXT_FILES("files");
-const std::string CONTEXT_HAPS("haps");
-const std::string CONTEXT_PREVIEW(".preview");
-const std::string CONTEXT_ASSET("asset");
-const std::string CONTEXT_ELS[] = {"el1", "el2"};
+constexpr const char* CONTEXT_DISTRIBUTEDFILES("distributedfiles");
+constexpr const char* CONTEXT_FILE_SEPARATOR("/");
+constexpr const char* CONTEXT_FILE_OPPOSITE_SEPARATOR("\\");
+constexpr const char* CONTEXT_BASE("base");
+constexpr const char* CONTEXT_CACHE("cache");
+constexpr const char* CONTEXT_PREFERENCES("preferences");
+constexpr const char* CONTEXT_DATABASE("database");
+constexpr const char* CONTEXT_TEMP("temp");
+constexpr const char* CONTEXT_FILES("files");
+constexpr const char* CONTEXT_HAPS("haps");
+constexpr const char* CONTEXT_PREVIEW(".preview");
+constexpr const char* CONTEXT_ASSET("asset");
+constexpr const char* CONTEXT_ELS[] = {"el1", "el2"};
 constexpr int DIR_DEFAULT_PERM = 0770;
 }
 std::shared_ptr<AppExecFwk::Configuration> AbilityContext::GetConfiguration()
@@ -108,7 +108,7 @@ std::string AbilityContext::GetCacheDir()
     }
 
     auto dir = GetBaseDir() + fileSeparator_ + CONTEXT_CACHE;
-    CreateMutiDir(dir);
+    CreateMultiDir(dir);
     return dir;
 }
 
@@ -119,7 +119,7 @@ std::string AbilityContext::GetTempDir()
     }
 
     auto dir = GetBaseDir() + fileSeparator_ + CONTEXT_TEMP;
-    CreateMutiDir(dir);
+    CreateMultiDir(dir);
     return dir;
 }
 
@@ -130,7 +130,7 @@ std::string AbilityContext::GetFilesDir()
     }
 
     auto dir = GetBaseDir() + fileSeparator_ + CONTEXT_FILES;
-    CreateMutiDir(dir);
+    CreateMultiDir(dir);
     return dir;
 }
 
@@ -143,7 +143,7 @@ std::string AbilityContext::GetDatabaseDir()
 
     auto dir = preivewDir + fileSeparator_ + currArea_ + fileSeparator_ + CONTEXT_DATABASE +
         fileSeparator_ + options_.moduleName;
-    CreateMutiDir(dir);
+    CreateMultiDir(dir);
     return dir;
 }
 
@@ -154,7 +154,7 @@ std::string AbilityContext::GetPreferencesDir()
     }
 
     auto dir = GetBaseDir() + fileSeparator_ + CONTEXT_PREFERENCES;
-    CreateMutiDir(dir);
+    CreateMultiDir(dir);
     return dir;
 }
 
@@ -166,7 +166,7 @@ std::string AbilityContext::GetDistributedFilesDir()
     }
 
     auto dir = preivewDir + fileSeparator_ + currArea_ + fileSeparator_ + CONTEXT_DISTRIBUTEDFILES;
-    CreateMutiDir(dir);
+    CreateMultiDir(dir);
     return dir;
 }
 
@@ -184,7 +184,7 @@ int AbilityContext::GetArea()
 {
     HILOG_DEBUG("called");
     int mode = -1;
-    for (int i = 0; i < static_cast<int32_t>(sizeof(CONTEXT_ELS) / sizeof(CONTEXT_ELS[0])); i++) {
+    for (int i = 0; i < static_cast<int>(sizeof(CONTEXT_ELS) / sizeof(CONTEXT_ELS[0])); i++) {
         if (currArea_ == CONTEXT_ELS[i]) {
             mode = i;
             break;
@@ -199,7 +199,12 @@ int AbilityContext::GetArea()
 
 std::string AbilityContext::GetBaseDir()
 {
-    return GetPreviewPath() + fileSeparator_ + currArea_ + fileSeparator_ + CONTEXT_BASE + fileSeparator_ +
+    auto previewPath = GetPreviewPath();
+    if (previewPath.empty()) {
+        return "";
+    }
+
+    return previewPath + fileSeparator_ + currArea_ + fileSeparator_ + CONTEXT_BASE + fileSeparator_ +
         CONTEXT_HAPS + fileSeparator_ + options_.moduleName;
 }
 
@@ -208,7 +213,7 @@ std::string AbilityContext::GetPreviewPath()
     std::string previewPath;
     auto pos = options_.modulePath.find(CONTEXT_PREVIEW);
     if (pos != std::string::npos) {
-        previewPath = options_.modulePath.substr(0, pos + strlen(CONTEXT_PREVIEW.c_str()));
+        previewPath = options_.modulePath.substr(0, pos + strlen(CONTEXT_PREVIEW));
     }
     return previewPath;
 }
@@ -243,11 +248,16 @@ void AbilityContext::Mkdir(const std::string &path)
     }
 }
 
-bool AbilityContext::CreateMutiDir(const std::string &path)
+bool AbilityContext::CreateMultiDir(const std::string &path)
 {
     if (path.empty()) {
         HILOG_DEBUG("path is empty");
         return false;
+    }
+
+    if (Access(path)) {
+        HILOG_DEBUG("path is already exist");
+        return true;
     }
 
     std::string tempStr = path;

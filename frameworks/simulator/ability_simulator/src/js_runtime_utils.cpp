@@ -287,5 +287,5 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(NativeEngin
 
     return std::unique_ptr<NativeReference>(engine->CreateReference(instanceValue, 1));
 }
-}  // namespace AbilityRuntime
-}  // namespace OHOS
+} // namespace AbilityRuntime
+} // namespace OHOS

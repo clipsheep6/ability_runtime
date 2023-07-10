@@ -26,8 +26,7 @@ namespace Global {
 namespace Resource {
 class ResourceManagerAddon {
 public:
-    static napi_value Create(
-        napi_env env, const std::string &bundleName,
+    static napi_value Create(napi_env env, const std::string &bundleName,
             const std::shared_ptr<ResourceManager> &resMgr, std::shared_ptr<AbilityRuntime::Context> context);
 
     static bool Init(napi_env env);

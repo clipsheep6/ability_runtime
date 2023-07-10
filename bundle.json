@@ -326,10 +326,7 @@
           {
             "header": {
               "header_base": "//foundation/ability/ability_runtime/frameworks/simulator",
-              "header_files": [
-                "ability_simulator/include/simulator.h",
-                "common/include/options.h"
-              ]
+              "header_files": []
             },
             "name": "//foundation/ability/ability_runtime/frameworks/simulator/ability_simulator:ability_simulator"
           },

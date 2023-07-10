@@ -26,7 +26,7 @@ namespace AbilityRuntime {
 namespace {
 constexpr char APPLICATION_CONTEXT_NAME[] = "__application_context_ptr__";
 const char *MD_NAME = "JsApplicationContextUtils";
-}  // namespace
+} // namespace
 
 NativeValue *JsApplicationContextUtils::CreateBundleContext(NativeEngine *engine, NativeCallbackInfo *info)
 {
@@ -330,5 +330,5 @@ void JsApplicationContextUtils::BindNativeApplicationContext(NativeEngine &engin
     BindNativeFunction(engine, *object, "getRunningProcessInformation", MD_NAME,
         JsApplicationContextUtils::GetRunningProcessInformation);
 }
-}  // namespace AbilityRuntime
-}  // namespace OHOS
+} // namespace AbilityRuntime
+} // namespace OHOS

@@ -47,7 +47,7 @@ public:
     bool Access(const std::string &path);
     void Mkdir(const std::string &path);
     static void fs_req_cleanup(uv_fs_t* req);
-    bool CreateMutiDir(const std::string &path);
+    bool CreateMultiDir(const std::string &path);
     std::shared_ptr<Global::Resource::ResourceManager> GetResourceManager() const;
     void SetResourceManager(const std::shared_ptr<Global::Resource::ResourceManager> &resMgr);
 
