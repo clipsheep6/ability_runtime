@@ -541,11 +541,6 @@ public:
         return false;
     }
 
-    friend DataAbilityHelperImpl;
-    friend OHOS::DataShare::DataShareHelper;
-    friend ContinuationConnector;
-
-protected:
     virtual sptr<IRemoteObject> GetToken() = 0;
 };
 }  // namespace AppExecFwk
