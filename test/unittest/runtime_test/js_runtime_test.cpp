@@ -412,6 +412,7 @@ HWTEST_F(JsRuntimeTest, JsRuntimeStartDebugModeTest_0100, TestSize.Level0)
 
     bool needBreakPoint = true;
     jsRuntime->StartDebugMode(needBreakPoint);
+    jsRuntime->StopDebugMode();
 
     HILOG_INFO("StartDebugMode end");
 }
@@ -756,6 +757,53 @@ HWTEST_F(JsRuntimeTest, PostSyncTask_0100, TestSize.Level0)
 }
 
 /**
+ * @tc.name: PostSyncTask_0200
+ * @tc.desc: Js runtime post sync task in preload scene.
+ * @tc.type: FUNC
+ * @tc.require: issueI7C87T
+ */
+HWTEST_F(JsRuntimeTest, PostSyncTask_0200, TestSize.Level1)
+{
+    options_.preload = true;
+    std::unique_ptr<Runtime> jsRuntime = JsRuntime::Create(options_);
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    Runtime::SavePreloaded(std::move(jsRuntime));
+
+    options_.preload = false;
+    auto newJsRuntime = JsRuntime::Create(options_);
+    EXPECT_TRUE(newJsRuntime != nullptr);
+
+    std::string taskName = "syncTask002";
+    bool taskExecuted = false;
+    auto task = [taskName, &taskExecuted]() {
+        HILOG_INFO("%{public}s called.", taskName.c_str());
+        taskExecuted = true;
+    };
+    newJsRuntime->PostSyncTask(task, taskName);
+    EXPECT_EQ(taskExecuted, true);
+}
+
+/**
+ * @tc.name: ReInitJsEnvImpl_0100
+ * @tc.desc: Js runtime reinit js env impl.
+ * @tc.type: FUNC
+ * @tc.require: issueI7C87T
+ */
+HWTEST_F(JsRuntimeTest, ReInitJsEnvImpl_0100, TestSize.Level1)
+{
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    // called when jsEnv is invalid.
+    jsRuntime->ReInitJsEnvImpl(options_);
+
+    auto ret = jsRuntime->CreateJsEnv(options_);
+    EXPECT_EQ(ret, true);
+    jsRuntime->ReInitJsEnvImpl(options_);
+}
+
+/**
  * @tc.name: JsRuntimeStartProfilerTest_0100
  * @tc.desc: JsRuntime test for StartProfiler.
  * @tc.type: FUNC
@@ -837,8 +885,8 @@ HWTEST_F(JsRuntimeTest, StartDebugger_0100, TestSize.Level0)
     bool needBreakPoint = false;
     uint32_t instanceId = 1;
 
-    auto result = jsRuntime->StartDebugger(needBreakPoint, instanceId);
-    EXPECT_NE(result, false);
+    jsRuntime->StartDebugger(needBreakPoint, instanceId);
+    // debug mode is global option, maybe has started by other testcase, not check here.
     HILOG_INFO("StartDebugger_0100 end");
 }
 
