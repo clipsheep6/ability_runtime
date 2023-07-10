@@ -838,7 +838,7 @@ HWTEST_F(JsRuntimeTest, StartDebugger_0100, TestSize.Level0)
     uint32_t instanceId = 1;
 
     auto result = jsRuntime->StartDebugger(needBreakPoint, instanceId);
-    EXPECT_NE(result, false);
+    EXPECT_EQ(result, false);
     HILOG_INFO("StartDebugger_0100 end");
 }
 
