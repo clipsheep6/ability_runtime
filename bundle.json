@@ -356,6 +356,15 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:ui_extension"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/extension_manager/include",
+              "header_files": [
+                "extension_manager_client.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/extension_manager:extension_manager"
           }
         ],
         "test": [
