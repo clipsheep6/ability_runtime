@@ -6629,7 +6629,7 @@ int AbilityManagerService::SetMissionContinueState(const sptr<IRemoteObject> &to
     }
 
     HILOG_DEBUG("SetMissionContinueState end. Mission id: %{public}d, state: %{public}d", missionId, state);
-    return result;
+    return ERR_OK;
 }
 
 #ifdef SUPPORT_GRAPHICS
