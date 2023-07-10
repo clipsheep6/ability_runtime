@@ -290,8 +290,9 @@ ErrCode AbilityManagerClient::CloseAbility(const sptr<IRemoteObject> &token, int
         info->want = *resultWant;
         info->resultCode = resultCode;
         info->sessionToken = token;
-        HILOG_INFO("CloseAbility Calling SceneBoard Interface.");
-        return ERR_INVALID_VALUE;
+        auto err = sceneSessionManager->TerminateSessionNew(info, false);
+        HILOG_INFO("CloseAbility Calling SceneBoard Interface ret=%{public}d", err);
+        return static_cast<int>(err);
     }
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
