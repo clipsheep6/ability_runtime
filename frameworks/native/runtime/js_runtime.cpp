@@ -272,10 +272,6 @@ void JsRuntime::StartProfiler(const std::string &perfCmd)
         instanceId_ = static_cast<uint32_t>(gettid());
     }
 
-    auto debuggerPostTask = [jsEnv = jsEnv_](std::function<void()>&& task) {
-        jsEnv->PostTask(task);
-    };
-
     StartDebuggerInWorkerModule();
     HdcRegister::Get().StartHdcRegister(bundleName_);
     ConnectServerManager::Get().StartConnectServer(bundleName_);
@@ -289,7 +285,7 @@ void JsRuntime::StartProfiler(const std::string &perfCmd)
     }
 
     HILOG_DEBUG("profiler:%{public}d interval:%{public}d.", profiler, interval);
-    jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval, debuggerPostTask);
+    jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval);
 }
 
 bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer)

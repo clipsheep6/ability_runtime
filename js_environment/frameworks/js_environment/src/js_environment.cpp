@@ -220,12 +220,20 @@ bool JsEnvironment::LoadScript(const std::string& path, uint8_t *buffer, size_t 
 }
 
 void JsEnvironment::StartProfiler(const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler,
-    int32_t interval, const DebuggerPostTask &debuggerPostTask)
+    int32_t interval)
 {
     if (vm_ == nullptr) {
         JSENV_LOG_E("Invalid vm.");
         return;
     }
+    auto debuggerPostTask = [weak = weak_from_this()](std::function<void()>&& task) {
+        auto jsEnv = weak.lock();
+        if (jsEnv == nullptr) {
+            JSENV_LOG_E("JsEnv is invalid.");
+            return;
+        }
+        jsEnv->PostTask(task);
+    };
 
     panda::DFXJSNApi::ProfilerOption option;
     option.libraryPath = libraryPath;
