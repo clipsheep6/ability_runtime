@@ -111,5 +111,95 @@ void AbilityEventHandler::ProcessShareDataTimeOut(int64_t uniqueId)
     server->HandleShareDataTimeOut(uniqueId);
 }
 
+AbilityEventOldHandler::AbilityEventOldHandler(
+    const std::shared_ptr<AppExecFwk::EventRunner> &runner, const std::weak_ptr<AbilityManagerService> &server)
+    : AppExecFwk::EventHandler(runner), server_(server)
+{
+    HILOG_INFO("Constructors.");
+}
+
+void AbilityEventOldHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event)
+{
+    CHECK_POINTER(event);
+    HILOG_DEBUG("Event id obtained: %{public}u.", event->GetInnerEventId());
+    // check libc.hook_mode
+    const int bufferLen = 128;
+    char paramOutBuf[bufferLen] = {0};
+    const char *hook_mode = "startup:";
+    int ret = GetParameter("libc.hook_mode", "", paramOutBuf, bufferLen);
+    if (ret > 0 && strncmp(paramOutBuf, hook_mode, strlen(hook_mode)) == 0) {
+        HILOG_DEBUG("Hook_mode: no process time out");
+        return;
+    }
+    switch (event->GetInnerEventId()) {
+        case AbilityManagerService::LOAD_TIMEOUT_MSG: {
+            ProcessLoadTimeOut(event->GetParam());
+            break;
+        }
+        case AbilityManagerService::ACTIVE_TIMEOUT_MSG: {
+            ProcessActiveTimeOut(event->GetParam());
+            break;
+        }
+        case AbilityManagerService::INACTIVE_TIMEOUT_MSG: {
+            HILOG_INFO("Inactive timeout.");
+            // inactivate pre ability immediately in case blocking next ability start
+            ProcessInactiveTimeOut(event->GetParam());
+            break;
+        }
+        case AbilityManagerService::FOREGROUND_TIMEOUT_MSG: {
+            ProcessForegroundTimeOut(event->GetParam());
+            break;
+        }
+        case AbilityManagerService::SHAREDATA_TIMEOUT_MSG: {
+            ProcessShareDataTimeOut(event->GetParam());
+            break;
+        }
+        default: {
+            HILOG_WARN("Unsupported timeout message.");
+            break;
+        }
+    }
+}
+
+void AbilityEventOldHandler::ProcessLoadTimeOut(int64_t abilityRecordId)
+{
+    HILOG_INFO("Attach timeout.");
+    auto server = server_.lock();
+    CHECK_POINTER(server);
+    server->HandleLoadTimeOut(abilityRecordId);
+}
+
+void AbilityEventOldHandler::ProcessActiveTimeOut(int64_t abilityRecordId)
+{
+    HILOG_INFO("Active timeout.");
+    auto server = server_.lock();
+    CHECK_POINTER(server);
+    server->HandleActiveTimeOut(abilityRecordId);
+}
+
+void AbilityEventOldHandler::ProcessInactiveTimeOut(int64_t abilityRecordId)
+{
+    HILOG_INFO("Inactive timeout.");
+    auto server = server_.lock();
+    CHECK_POINTER(server);
+    server->HandleInactiveTimeOut(abilityRecordId);
+}
+
+void AbilityEventOldHandler::ProcessForegroundTimeOut(int64_t abilityRecordId)
+{
+    HILOG_INFO("Foreground timeout.");
+    auto server = server_.lock();
+    CHECK_POINTER(server);
+    server->HandleForegroundTimeOut(abilityRecordId);
+}
+
+void AbilityEventOldHandler::ProcessShareDataTimeOut(int64_t uniqueId)
+{
+    HILOG_INFO("ShareData timeout.");
+    auto server = server_.lock();
+    CHECK_POINTER(server);
+    server->HandleShareDataTimeOut(uniqueId);
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS

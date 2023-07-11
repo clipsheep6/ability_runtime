@@ -18,6 +18,8 @@
 
 #include <memory>
 
+#include "event_handler.h"
+#include "event_runner.h"
 #include "event_handler_wrap.h"
 
 namespace OHOS {
@@ -39,6 +41,29 @@ public:
      * @param event, inner event loop.
      */
     void ProcessEvent(const EventWrap &event) override;
+
+private:
+    void ProcessLoadTimeOut(int64_t abilityRecordId);
+    void ProcessActiveTimeOut(int64_t abilityRecordId);
+    void ProcessInactiveTimeOut(int64_t abilityRecordId);
+    void ProcessForegroundTimeOut(int64_t abilityRecordId);
+    void ProcessShareDataTimeOut(int64_t uniqueId);
+private:
+    std::weak_ptr<AbilityManagerService> server_;
+};
+
+class AbilityEventOldHandler : public AppExecFwk::EventHandler {
+public:
+    AbilityEventOldHandler(
+        const std::shared_ptr<AppExecFwk::EventRunner> &runner, const std::weak_ptr<AbilityManagerService> &server);
+    virtual ~AbilityEventOldHandler() = default;
+
+    /**
+     * ProcessEvent with request.
+     *
+     * @param event, inner event loop.
+     */
+    void ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event) override;
 
 private:
     void ProcessLoadTimeOut(int64_t abilityRecordId);

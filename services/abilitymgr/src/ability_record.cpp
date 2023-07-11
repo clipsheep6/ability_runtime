@@ -587,13 +587,15 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
     GrantUriPermission(want_, GetCurrentAccountId(), applicationInfo_.bundleName);
 
     if (isReady_) {
-        auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+        // auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+        auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventOldHandler();
         if (!handler) {
             HILOG_ERROR("Fail to get AbilityEventHandler.");
             return;
         }
         auto taskName = std::to_string(missionId_) + "_hot";
-        handler->CancelTask(taskName);
+        handler->RemoveTask(taskName);
+        // handler->CancelTask(taskName);
         StartingWindowTask(isRecent, false, abilityRequest, startOptions);
         AnimationTask(isRecent, abilityRequest, startOptions, callerAbility);
         PostCancelStartingWindowHotTask();
@@ -747,7 +749,8 @@ void AbilityRecord::PostCancelStartingWindowHotTask()
         return;
     }
     HILOG_INFO("PostCancelStartingWindowHotTask was called.");
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    // auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventOldHandler();
     CHECK_POINTER_LOG(handler, "Fail to get TaskHandler.");
 
     auto windowHandler = GetWMSHandler();
@@ -765,7 +768,8 @@ void AbilityRecord::PostCancelStartingWindowHotTask()
     auto taskName = std::to_string(missionId_) + "_hot";
     int foregroundTimeout =
         AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
-    handler->SubmitTask(delayTask, taskName, foregroundTimeout);
+    handler->PostTask(delayTask, taskName, foregroundTimeout);
+    // handler->SubmitTask(delayTask, taskName, foregroundTimeout);
 }
 
 void AbilityRecord::PostCancelStartingWindowColdTask()
@@ -777,7 +781,8 @@ void AbilityRecord::PostCancelStartingWindowColdTask()
         return;
     }
     HILOG_DEBUG("PostCancelStartingWindowColdTask was called.");
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    // auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventOldHandler();
     CHECK_POINTER_LOG(handler, "Fail to get TaskHandler.");
 
     auto windowHandler = GetWMSHandler();
@@ -795,7 +800,8 @@ void AbilityRecord::PostCancelStartingWindowColdTask()
     };
     auto taskName = std::to_string(missionId_) + "_cold";
     int loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_MULTIPLE;
-    handler->SubmitTask(delayTask, taskName, loadTimeout);
+    handler->PostTask(delayTask, taskName, loadTimeout);
+    // handler->SubmitTask(delayTask, taskName, loadTimeout);
 }
 
 sptr<IWindowManagerServiceHandler> AbilityRecord::GetWMSHandler() const

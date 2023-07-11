@@ -244,6 +244,8 @@ sptr<AbilityManagerService> AbilityManagerService::instance_;
 
 AbilityManagerService::AbilityManagerService()
     : SystemAbility(ABILITY_MGR_SERVICE_ID, true),
+    eventLoop_(nullptr),
+      handler_(nullptr),
       state_(ServiceRunningState::STATE_NOT_START),
       iBundleManager_(nullptr)
 {
@@ -266,6 +268,7 @@ void AbilityManagerService::OnStart()
         return;
     }
     state_ = ServiceRunningState::STATE_RUNNING;
+    eventLoop_->Run();
     /* Publish service maybe failed, so we need call this function at the last,
      * so it can't affect the TDD test program */
     instance_ = DelayedSingleton<AbilityManagerService>::GetInstance().get();
@@ -289,6 +292,12 @@ void AbilityManagerService::OnStart()
 
 bool AbilityManagerService::Init()
 {
+    eventLoop_ = AppExecFwk::EventRunner::Create(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
+    CHECK_POINTER_RETURN_BOOL(eventLoop_);
+
+    handler_ = std::make_shared<AbilityEventOldHandler>(eventLoop_, weak_from_this());
+    CHECK_POINTER_RETURN_BOOL(handler_);
+
     taskHandler_ = TaskHandlerWrap::CreateQueueHandler(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
     eventHandler_ = std::make_shared<AbilityEventHandler>(taskHandler_, weak_from_this());
     freeInstallManager_ = std::make_shared<FreeInstallManager>(weak_from_this());
@@ -382,9 +391,16 @@ void AbilityManagerService::OnStop()
             }
         }
     }
+    eventLoop_.reset();
+    handler_.reset();
     eventHandler_.reset();
     taskHandler_.reset();
     state_ = ServiceRunningState::STATE_NOT_START;
+}
+
+std::shared_ptr<AbilityEventOldHandler> AbilityManagerService::GetEventOldHandler()
+{
+    return handler_;
 }
 
 ServiceRunningState AbilityManagerService::QueryServiceState() const
