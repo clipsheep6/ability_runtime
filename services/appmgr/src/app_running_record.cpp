@@ -1080,6 +1080,9 @@ void AppRunningRecord::SendEvent(uint32_t msg, int64_t timeOut)
     if (msg == AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG) {
         startProcessSpecifiedAbilityEventId_ = eventId_;
     }
+    if (msg == AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG) {
+        addAbilityStageInfoEventId_ = eventId_;
+    }
 
     HILOG_INFO("eventId %{public}d", static_cast<int>(eventId_));
     eventHandler_->SendEvent(AAFwk::EventWrap(msg, eventId_), timeOut, false);
