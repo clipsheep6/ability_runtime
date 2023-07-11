@@ -108,18 +108,17 @@ int32_t DataObsManagerProxy::NotifyChange(const Uri &uri)
     if (!WriteInterfaceToken(data)) {
         return IPC_PARCEL_ERROR;
     }
-
     if (!data.WriteString(uri.ToString())) {
         HILOG_ERROR("failed, write uri error, uri: %{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
         return INVALID_PARAM;
     }
-
     auto error = Remote()->SendRequest(IDataObsMgr::NOTIFY_CHANGE, data, reply, option);
     if (error != 0) {
         HILOG_ERROR("failed, SendRequest error: %{public}d, uri: %{public}s", error,
             CommonUtils::Anonymous(uri.ToString()).c_str());
         return IPC_ERROR;
     }
+
     int32_t res = IPC_ERROR;
     return reply.ReadInt32(res) ? res : IPC_ERROR;
 }

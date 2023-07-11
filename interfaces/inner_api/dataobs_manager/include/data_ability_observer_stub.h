@@ -46,6 +46,12 @@ private:
      */
     int32_t OnChangeExtInner(MessageParcel &data, MessageParcel &reply);
 
+    /**
+     * @brief Called back to notify that the data being observed has changed.
+     *
+     */
+    int32_t OnChangePreferencesInner(MessageParcel &data, MessageParcel &reply);
+
     using RequestFuncType = int (DataAbilityObserverStub::*)(MessageParcel &data, MessageParcel &reply);
     static const RequestFuncType HANDLES[TRANS_BUTT];
 

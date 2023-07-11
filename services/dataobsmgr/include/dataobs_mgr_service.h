@@ -24,6 +24,7 @@
 
 #include "dataobs_mgr_inner.h"
 #include "dataobs_mgr_inner_ext.h"
+#include "dataobs_mgr_inner_pref.h"
 #include "dataobs_mgr_stub.h"
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
@@ -34,7 +35,7 @@
 namespace OHOS {
 namespace AAFwk {
 enum class DataObsServiceRunningState { STATE_NOT_START, STATE_RUNNING };
-
+constexpr char SHARE_PREFERENCES[] = "sharepreferences";
 /**
  * @class DataObsMgrService
  * DataObsMgrService provides a facility for dataobserver.
@@ -81,6 +82,7 @@ private:
 
     std::shared_ptr<DataObsMgrInner> dataObsMgrInner_;
     std::shared_ptr<DataObsMgrInnerExt> dataObsMgrInnerExt_;
+    std::shared_ptr<DataObsMgrInnerPref> dataObsMgrInnerPref_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

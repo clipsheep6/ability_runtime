@@ -28,6 +28,7 @@ public:
         TRANS_HEAD,
         DATA_ABILITY_OBSERVER_CHANGE = TRANS_HEAD,
         DATA_ABILITY_OBSERVER_CHANGE_EXT,
+        DATA_ABILITY_OBSERVER_CHANGE_PREFERENCES,
         TRANS_BUTT,
     };
 
@@ -44,6 +45,16 @@ public:
      * @param changeInfo Indicates the info of the data to operate.
      */
     virtual void OnChangeExt(const ChangeInfo &changeInfo)
+    {
+        return;
+    }
+
+    /**
+     * @brief Called back to notify that the data being observed has changed.
+     *
+     * @param key Indicates the key that has changed.
+     */
+    virtual void OnChangePreferences(const std::string &key)
     {
         return;
     }

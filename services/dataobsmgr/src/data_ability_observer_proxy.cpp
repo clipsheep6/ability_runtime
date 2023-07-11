@@ -85,5 +85,39 @@ void DataAbilityObserverProxy::OnChangeExt(const ChangeInfo &changeInfo)
     }
 }
 
+/**
+ * @brief Called back to notify that the data being observed has changed.
+ *
+ * @param uri Indicates the path of the data to operate.
+ */
+void DataAbilityObserverProxy::OnChangePreferences(const std::string &key)
+{
+    auto remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote is nullptr");
+        return;
+    }
+
+    OHOS::MessageParcel data;
+    OHOS::MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+
+    if (!data.WriteInterfaceToken(DataAbilityObserverProxy::GetDescriptor())) {
+        HILOG_ERROR("data.WriteInterfaceToken(GetDescriptor()) return false");
+        return;
+    }
+
+    if (!data.WriteString(key)) {
+        HILOG_ERROR("data.WriteString(key) return false");
+        return;
+    }
+
+    int result =
+        remote->SendRequest(IDataAbilityObserver::DATA_ABILITY_OBSERVER_CHANGE_PREFERENCES, data, reply, option);
+    if (result != ERR_NONE) {
+        HILOG_ERROR("SendRequest error, result=%{public}d", result);
+    }
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS
