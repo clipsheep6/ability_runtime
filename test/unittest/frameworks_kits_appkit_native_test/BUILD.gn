@@ -326,8 +326,8 @@ ohos_unittest("watchdog_test") {
     "c_utils:utilsbase",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
+    "image_framework:image_native",
     "ipc:ipc_core",
-    "multimedia_image_framework:image_native",
     "napi:ace_napi",
   ]
 }

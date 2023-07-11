@@ -189,8 +189,8 @@ ohos_shared_library("abilityms") {
     external_deps += [
       "ability_base:session_info",
       "i18n:intl_util",
+      "image_framework:image_native",
       "input:libmmi-client",
-      "multimedia_image_framework:image_native",
       "resource_management:global_resmgr",
       "window_manager:libdm",
     ]

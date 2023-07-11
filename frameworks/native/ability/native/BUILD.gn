@@ -310,8 +310,8 @@ ohos_shared_library("abilitykit_native") {
     external_deps += [
       "ability_base:session_info",
       "form_fwk:form_manager",
+      "image_framework:image",
       "input:libmmi-client",
-      "multimedia_image_framework:image",
       "window_manager:windowstage_kit",
     ]
 
@@ -542,7 +542,7 @@ ohos_shared_library("service_extension") {
 
   if (ability_runtime_graphics) {
     external_deps += [
-      "multimedia_image_framework:image",
+      "image_framework:image",
       "window_manager:libdm",
     ]
   }
@@ -659,7 +659,7 @@ ohos_shared_library("service_extension_module") {
 
   if (ability_runtime_graphics) {
     external_deps += [
-      "multimedia_image_framework:image",
+      "image_framework:image",
       "window_manager:libdm",
     ]
   }
