@@ -2154,6 +2154,19 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_DumpAbilityInfoDoneInner_001
     EXPECT_EQ(res, NO_ERROR);
 }
 
+/**
+ * @tc.number: HandleReportDrawnCompleted_001
+ * @tc.name: HandleReportDrawnCompleted
+ * @tc.desc: Returns ERR_INVALID_VALUE after passing in parameters
+ */
+HWTEST_F(AbilityManagerStubTest, HandleReportDrawnCompleted_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->HandleReportDrawnCompleted(data, reply);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
 /*
  * Feature: AbilityManagerService
  * Function: UpdateMissionSnapShotInner

@@ -1434,5 +1434,30 @@ HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_SetSessionManagerS
     auto result = client_->SetSessionManagerService(sessionManagerService);
     EXPECT_TRUE(result = ERR_WRONG_INTERFACE_CALL);
 }
+
+/**
+ * @tc.number: ReportDrawnCompleted_0100
+ * @tc.name: ReportDrawnCompleted
+ * @tc.desc: After passing in a callerToken with parameter nullptr, INNER_ERR is returned
+ */
+HWTEST_F(AbilityManagerClientBranchTest, ReportDrawnCompleted_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> callerToken = nullptr;
+    auto result = AbilityManagerClient::GetInstance()->ReportDrawnCompleted(callerToken);
+    EXPECT_EQ(result, INNER_ERR);
+}
+
+/**
+ * @tc.number: ReportDrawnCompleted_0200
+ * @tc.name: ReportDrawnCompleted
+ * @tc.desc: After passing in the parameter callerToken, ERR_OK is returned
+ */
+HWTEST_F(AbilityManagerClientBranchTest, ReportDrawnCompleted_0200, TestSize.Level1)
+{
+    sptr<IRemoteObject> callerToken = new AbilityManagerStubTestMock();
+    EXPECT_NE(callerToken, nullptr);
+    auto result = AbilityManagerClient::GetInstance()->ReportDrawnCompleted(callerToken);
+    EXPECT_EQ(result, ERR_OK);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

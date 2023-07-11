@@ -1927,6 +1927,34 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_SendANRProcessID_001, Test
     EXPECT_EQ(res, NO_ERROR);
 }
 
+/**
+ * @tc.number: ReportDrawnCompleted_001
+ * @tc.name: ReportDrawnCompleted
+ * @tc.desc: After passing in a callerToken with parameter nullptr, INNER_ERR is returned
+ */
+HWTEST_F(AbilityManagerProxyTest, ReportDrawnCompleted_001, TestSize.Level1)
+{
+    sptr<IRemoteObject> callerToken = nullptr;
+    auto res = proxy_->ReportDrawnCompleted(callerToken);
+    EXPECT_EQ(res, INNER_ERR);
+}
+
+/**
+ * @tc.number: ReportDrawnCompleted_002
+ * @tc.name: ReportDrawnCompleted
+ * @tc.desc: After passing in the parameter callerToken, NO_ERROR is returned
+ */
+HWTEST_F(AbilityManagerProxyTest, ReportDrawnCompleted_002, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    OHOS::sptr<IRemoteObject> callerToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    auto res = proxy_->ReportDrawnCompleted(callerToken);
+    EXPECT_EQ(IAbilityManager::REPORT_DRAWN_COMPLETED, mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
 /*
  * Feature: AbilityManagerService
  * Function: GetMissionIdByToken
