@@ -119,6 +119,12 @@ const char* PREPARE_TERMINATE_ENABLE_PARAMETER = "persist.sys.prepare_terminate"
 const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
 // UIExtension type
 const std::string UIEXTENSION_TYPE_KEY = "ability.want.params.uiExtensionType";
+// Share picker params
+constexpr char SHARE_PICKER_DIALOG_BUNDLE_NAME_KEY[] = "const.system.sharePicker.bundleName";
+constexpr char SHARE_PICKER_DIALOG_ABILITY_NAME_KEY[] = "const.system.sharePicker.abilityName";
+constexpr char SHARE_PICKER_DIALOG_DEFAULY_BUNDLE_NAME[] = "com.ohos.sharepickerdialog";
+constexpr char SHARE_PICKER_DIALOG_DEFAULY_ABILITY_NAME[] = "PickerDialog";
+constexpr char TOKEN_KEY[] = "ohos.ability.params.token";
 
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
 
@@ -6720,10 +6726,11 @@ int32_t AbilityManagerService::ShowPickerDialog(
     const Want& want, int32_t userId, const sptr<IRemoteObject> &callerToken)
 {
     AAFwk::Want newWant = want;
-    constexpr char PICKER_DIALOG_ABILITY_BUNDLE_NAME[] = "com.ohos.sharepickerdialog";
-    constexpr char PICKER_DIALOG_ABILITY_NAME[] = "PickerDialog";
-    constexpr char TOKEN_KEY[] = "ohos.ability.params.token";
-    newWant.SetElementName(PICKER_DIALOG_ABILITY_BUNDLE_NAME, PICKER_DIALOG_ABILITY_NAME);
+    std::string sharePickerBundleName =
+        OHOS::system::GetParameter(SHARE_PICKER_DIALOG_BUNDLE_NAME_KEY, SHARE_PICKER_DIALOG_DEFAULY_BUNDLE_NAME);
+    std::string sharePickerAbilityName =
+        OHOS::system::GetParameter(SHARE_PICKER_DIALOG_ABILITY_NAME_KEY, SHARE_PICKER_DIALOG_DEFAULY_ABILITY_NAME);
+    newWant.SetElementName(sharePickerBundleName, sharePickerAbilityName);
     newWant.SetParam(TOKEN_KEY, callerToken);
     // note: clear actions
     newWant.SetAction("");
