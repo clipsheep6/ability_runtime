@@ -87,9 +87,25 @@ void AbilityInfoCallbackProxy::NotifyStartSpecifiedAbility(const sptr<IRemoteObj
         return;
     }
 
-    data.WriteRemoteObject(callerToken);
-    data.WriteParcelable(&want);
-    data.WriteInt32(requestCode);
+    if (callerToken) {
+        if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
+            HILOG_ERROR("flag and callerToken write failed.");
+            return;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return;
+        }
+    }
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("want write failed.");
+        return;
+    }
+    if (!data.WriteInt32(requestCode)) {
+        HILOG_ERROR("%{public}s, requestCode write failed.", __func__);
+        return;
+    }
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         HILOG_ERROR("Remote() is NULL");
