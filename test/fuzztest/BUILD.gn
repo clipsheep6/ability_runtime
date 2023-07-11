@@ -160,6 +160,7 @@ group("fuzztest") {
     "sendanrprocessid_fuzzer:fuzztest",
     "sendresulttoability_fuzzer:fuzztest",
     "setabilitycontroller_fuzzer:fuzztest",
+    "setmissioncontinuestate_fuzzer:fuzztest",
     "setmissionicon_fuzzer:fuzztest",
     "setmissionlabel_fuzzer:fuzztest",
     "startability_fuzzer:fuzztest",

@@ -125,6 +125,7 @@ public:
     MOCK_METHOD2(AcquireShareData, int32_t(const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData));
     MOCK_METHOD4(ShareDataDone, int32_t(const sptr<IRemoteObject> &token,
         const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam));
+    MOCK_METHOD2(SetMissionContinueState, int(const sptr<IRemoteObject>& token, const AAFwk::ContinueState& state));
     int StartUser(int userId) override;
     int StopUser(int userId, const sptr<IStopUserCallback>& callback) override;
     int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override;
@@ -283,6 +284,7 @@ public:
     MOCK_METHOD2(AcquireShareData, int32_t(const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData));
     MOCK_METHOD4(ShareDataDone, int32_t(const sptr<IRemoteObject> &token,
         const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam));
+    MOCK_METHOD2(SetMissionContinueState, int(const sptr<IRemoteObject>& token, const AAFwk::ContinueState& state));
     int StartUser(int userId) override;
     int StopUser(int userId, const sptr<IStopUserCallback>& callback) override;
     int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override;

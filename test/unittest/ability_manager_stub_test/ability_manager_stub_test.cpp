@@ -2256,6 +2256,22 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_GetDlpConnectionInfosInner_0
 
 /*
  * Feature: AbilityManagerService
+ * Function: SetMissionContinueStateInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService SetMissionContinueStateInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function SetMissionContinueStateInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_SetMissionContinueStateInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->SetMissionContinueStateInner(data, reply);
+    EXPECT_EQ(res, ERR_NULL_OBJECT);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: SetMissionLabelInner
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService SetMissionLabelInner

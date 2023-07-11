@@ -226,6 +226,11 @@ public:
         return 0;
     }
 
+    int SetMissionContinueState(const sptr<IRemoteObject>& abilityToken, const AAFwk::ContinueState &state) override
+    {
+        return commonMockResultFlag_ ? 0 : -1;
+    }
+
     int SetMissionIcon(const sptr<IRemoteObject>& abilityToken,
         const std::shared_ptr<OHOS::Media::PixelMap>& icon)
     {

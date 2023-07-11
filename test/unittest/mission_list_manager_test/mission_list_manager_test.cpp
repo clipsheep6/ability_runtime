@@ -4491,6 +4491,25 @@ HWTEST_F(MissionListManagerTest, BackToLauncher_003, TestSize.Level1)
     missionListManager.reset();
 }
 
+/*
+ * Feature: MissionListManager
+ * Function: SetMissionContinueState
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager SetMissionContinueState
+ * EnvConditions: NA
+ * CaseDescription: Verify SetMissionContinueState
+ */
+HWTEST_F(MissionListManagerTest, SetMissionContinueState_001, TestSize.Level1)
+{
+    int userId = 3;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    int missionId = 1;
+    AAFwk::ContinueState state = AAFwk::ContinueState::CONTINUESTATE_ACTIVE;
+    int res = missionListManager->SetMissionContinueState(nullptr, missionId, state);
+    EXPECT_EQ(res, -1);
+    missionListManager.reset();
+}
+
 #ifdef SUPPORT_GRAPHICS
 /*
  * Feature: MissionListManager

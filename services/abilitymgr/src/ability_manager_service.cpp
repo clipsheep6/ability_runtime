@@ -6626,7 +6626,7 @@ int AbilityManagerService::SetMissionContinueState(const sptr<IRemoteObject> &to
             setResult, missionId, state);
         return setResult;
     }
- 
+
     DistributedClient dmsClient;
     auto result =  dmsClient.SetMissionContinueState(missionId, state);
     if (result != ERR_OK) {
