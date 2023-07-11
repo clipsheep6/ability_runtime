@@ -427,9 +427,23 @@ HWTEST_F(AppMgrServiceInnerTest, AttachApplication_001, TestSize.Level0)
 
     appMgrServiceInner->AttachApplication(1, nullptr);
 
+    BundleInfo info;
+    std::string processName = "test_processName";
+    std::shared_ptr<AppRunningRecord> appRecord =
+        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(nullptr, processName, info);
+    recordId_ += 1;
+    appMgrServiceInner->AttachApplication(recordId_, nullptr);
+
+    appRecord = appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
+    recordId_ += 1;
+    appMgrServiceInner->AttachApplication(recordId_, nullptr);
+
     sptr<MockAppScheduler> mockAppScheduler = new (std::nothrow) MockAppScheduler();
     sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockAppScheduler.GetRefPtr());
-    appMgrServiceInner->AttachApplication(1, client);
+    appMgrServiceInner->AttachApplication(recordId_, client);
+
+    appRecord->SetState(ApplicationState::APP_STATE_READY);
+    appMgrServiceInner->AttachApplication(recordId_, client);
     HILOG_INFO("AttachApplication_001 end");
 }
 
@@ -450,7 +464,11 @@ HWTEST_F(AppMgrServiceInnerTest, LaunchApplication_001, TestSize.Level0)
     BundleInfo info;
     std::string processName = "test_processName";
     std::shared_ptr<AppRunningRecord> appRecord =
-        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
+        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(nullptr, processName, info);
+    recordId_ += 1;
+    appMgrServiceInner->LaunchApplication(appRecord);
+
+    appRecord = appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
     recordId_ += 1;
     appMgrServiceInner->LaunchApplication(appRecord);
 
@@ -480,6 +498,13 @@ HWTEST_F(AppMgrServiceInnerTest, LaunchApplication_001, TestSize.Level0)
     appMgrServiceInner->LaunchApplication(appRecord);
 
     appMgrServiceInner->configuration_ = nullptr;
+    appMgrServiceInner->LaunchApplication(appRecord);
+
+    appMgrServiceInner->configuration_ = std::make_shared<Configuration>();
+    std::shared_ptr<AppRunningRecord> appRecord2 =
+        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
+    recordId_ += 1;
+    appRecord->SetCallerPid(recordId_);
     appMgrServiceInner->LaunchApplication(appRecord);
     HILOG_INFO("LaunchApplication_001 end");
 }
@@ -606,6 +631,11 @@ HWTEST_F(AppMgrServiceInnerTest, ApplicationBackgrounded_001, TestSize.Level0)
 
     appMgrServiceInner->ApplicationBackgrounded(recordId_);
 
+    appRecord->SetUpdateStateFromService(true);
+    appMgrServiceInner->ApplicationBackgrounded(recordId_);
+
+    appRecord = appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(nullptr, processName, info);
+    recordId_ += 1;
     appRecord->SetState(ApplicationState::APP_STATE_FOREGROUND);
     appMgrServiceInner->ApplicationBackgrounded(recordId_);
 
@@ -651,6 +681,10 @@ HWTEST_F(AppMgrServiceInnerTest, ApplicationTerminated_001, TestSize.Level0)
     appMgrServiceInner->ApplicationTerminated(recordId_);
 
     appRecord->SetState(ApplicationState::APP_STATE_BACKGROUND);
+    appMgrServiceInner->ApplicationTerminated(recordId_);
+
+    appRecord = appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(nullptr, processName, info);
+    recordId_ += 1;
     appMgrServiceInner->ApplicationTerminated(recordId_);
 
     appMgrServiceInner->appRunningManager_ = nullptr;
@@ -932,6 +966,16 @@ HWTEST_F(AppMgrServiceInnerTest, KillProcessByPid_001, TestSize.Level0)
 
     result = appMgrServiceInner->KillProcessByPid(1);
     EXPECT_EQ(result, 0);
+
+    BundleInfo info;
+    std::string processName = "test_processName";
+    auto appRecord = appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(nullptr, processName, info);
+    recordId_ += 1;
+    result = appMgrServiceInner->KillProcessByPid(recordId_);
+
+    appRecord = appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
+    recordId_ += 1;
+    result = appMgrServiceInner->KillProcessByPid(recordId_);
 
     HILOG_INFO("KillProcessByPid_001 end");
 }

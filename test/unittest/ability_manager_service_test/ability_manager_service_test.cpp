@@ -3419,5 +3419,50 @@ HWTEST_F(AbilityManagerServiceTest, ScheduleCommandAbilityWindowDone_001, TestSi
     EXPECT_EQ(abilityMs_->ScheduleCommandAbilityWindowDone(
         MockToken(AbilityType::EXTENSION), session, WIN_CMD_FOREGROUND, ABILITY_CMD_FOREGROUND), ERR_INVALID_VALUE);
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartSpecifiedAbilityBySCB
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartSpecifiedAbilityBySCB
+ * @tc.require: AR000I7F9D
+ */
+HWTEST_F(AbilityManagerServiceTest, StartSpecifiedAbilityBySCB_001, TestSize.Level1)
+{
+    Want want;
+    ASSERT_NE(abilityMs_, nullptr);
+    abilityMs_->StartSpecifiedAbilityBySCB(want);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: SwitchToUser
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService SwitchToUser
+ * @tc.require: AR000I7F9D
+ */
+HWTEST_F(AbilityManagerServiceTest, SwitchToUser_001, TestSize.Level1)
+{
+    int32_t userId = 100;
+    ASSERT_NE(abilityMs_, nullptr);
+    abilityMs_->SwitchToUser(0, userId);
+    abilityMs_->SwitchToUser(1, userId);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: SwitchManagers
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService SwitchManagers
+ * @tc.require: AR000I7F9D
+ */
+HWTEST_F(AbilityManagerServiceTest, SwitchManagers_001, TestSize.Level1)
+{
+    int32_t userId = 100;
+    bool switchUser = true;
+    ASSERT_NE(abilityMs_, nullptr);
+    abilityMs_->SwitchManagers(0, switchUser);
+    abilityMs_->SwitchManagers(1, switchUser);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

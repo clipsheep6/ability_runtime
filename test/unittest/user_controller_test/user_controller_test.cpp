@@ -75,6 +75,7 @@ HWTEST_F(UserControllerTest, StartUserTest_0100, TestSize.Level0)
     userController.StartUser(0, true);
     userController.StartUser(-1, true);
     userController.StartUser(100, true);
+    userController.StartUser(0, false);
     EXPECT_TRUE(userController.StartUser(100, true) == 0);
 }
 
