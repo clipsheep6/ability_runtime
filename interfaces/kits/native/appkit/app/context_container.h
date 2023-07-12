@@ -150,13 +150,6 @@ public:
     std::string GetBundleName() const override;
 
     /**
-     * @brief Obtains the path of the OHOS Ability Package (HAP} containing this ability.
-     *
-     * @return Returns the path of the HAP containing this ability.
-     */
-    std::string GetBundleResourcePath() override;
-
-    /**
      * @brief Obtains an ability manager.
      * The ability manager provides information about running processes and memory usage of an application.
      *
@@ -173,13 +166,6 @@ public:
      * returns an empty string if the query fails.
      */
     std::string GetAppType() override;
-
-    /**
-     * @brief Sets the pattern of this Context based on the specified pattern ID.
-     *
-     * @param patternId Indicates the resource ID of the pattern to set.
-     */
-    void SetPattern(int patternId) override;
 
     /**
      * @brief Obtains the HapModuleInfo object of the application.
@@ -199,15 +185,11 @@ public:
      * @brief Creates a Context object for an application with the given bundle name.
      *
      * @param bundleName Indicates the bundle name of the application.
-     * @param flag  Indicates the flag for creating a Context object. It can be 0, any of
-     * the following values, or any combination of the following values: CONTEXT_IGNORE_SECURITY,
-     * CONTEXT_INCLUDE_CODE, and CONTEXT_RESTRICTED. The value 0 indicates that there is no restriction
-     * on creating contexts for applications.
      * @param accountId Indicates the account id.
      *
      * @return Returns a Context object created for the specified application.
      */
-    std::shared_ptr<Context> CreateBundleContext(std::string bundleName, int flag, int accountId = DEFAULT_ACCOUNT_ID);
+    std::shared_ptr<Context> CreateBundleContext(std::string bundleName, int accountId = DEFAULT_ACCOUNT_ID);
 
     /**
      * @brief Obtains information about the caller of this ability.
@@ -231,70 +213,6 @@ public:
     void InitResourceManager(BundleInfo &bundleInfo, std::shared_ptr<ContextDeal> &deal);
 
     /**
-     * @brief Get the string of this Context based on the specified resource ID.
-     *
-     * @param resId Indicates the resource ID of the string to get.
-     *
-     * @return Returns the string of this Context.
-     */
-    std::string GetString(int resId) override;
-
-    /**
-     * @brief Get the string array of this Context based on the specified resource ID.
-     *
-     * @param resId Indicates the resource ID of the string array to get.
-     *
-     * @return Returns the string array of this Context.
-     */
-    std::vector<std::string> GetStringArray(int resId) override;
-
-    /**
-     * @brief Get the integer array of this Context based on the specified resource ID.
-     *
-     * @param resId Indicates the resource ID of the integer array to get.
-     *
-     * @return Returns the integer array of this Context.
-     */
-    std::vector<int> GetIntArray(int resId) override;
-
-    /**
-     * @brief Obtains the theme of this Context.
-     *
-     * @return theme Returns the theme of this Context.
-     */
-    std::map<std::string, std::string> GetTheme() override;
-
-    /**
-     * @brief Sets the theme of this Context based on the specified theme ID.
-     *
-     * @param themeId Indicates the resource ID of the theme to set.
-     */
-    void SetTheme(int themeId) override;
-
-    /**
-     * @brief Obtains the pattern of this Context.
-     *
-     * @return getPattern in interface Context
-     */
-    std::map<std::string, std::string> GetPattern() override;
-
-    /**
-     * @brief Get the color of this Context based on the specified resource ID.
-     *
-     * @param resId Indicates the resource ID of the color to get.
-     *
-     * @return Returns the color value of this Context.
-     */
-    int GetColor(int resId) override;
-
-    /**
-     * @brief Obtains the theme id of this Context.
-     *
-     * @return int Returns the theme id of this Context.
-     */
-    int GetThemeId() override;
-
-    /**
      * @brief Obtains the current display orientation of this ability.
      *
      * @return Returns the current display orientation.
@@ -308,20 +226,6 @@ public:
      * @return Returns the preference file path .
      */
     std::string GetPreferencesDir() override;
-
-    /**
-     * @brief Set color mode
-     *
-     * @param the value of color mode.
-     */
-    void SetColorMode(int mode) override;
-
-    /**
-     * @brief Obtains color mode.
-     *
-     * @return Returns the color mode value.
-     */
-    int GetColorMode() override;
 
     /**
      * @brief Obtains the unique ID of the mission containing this ability.

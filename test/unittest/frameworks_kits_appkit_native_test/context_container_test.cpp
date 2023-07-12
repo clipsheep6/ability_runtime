@@ -183,35 +183,6 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetApplicationInfo_02
 }
 
 /**
- * @tc.number: AppExecFwk_ContextContainer_GetBundleResourcePath_0100
- * @tc.name: GetBundleResourcePath
- * @tc.desc: Test whether AttachBaseContext is called normally,
- *           and verify whether the return value of GetBundleResourcePath is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetBundleResourcePath_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<AbilityInfo> info = std::make_shared<AbilityInfo>();
-    std::string resourcePath = "ResourcePath";
-    info->resourcePath = resourcePath;
-    contextDeal_->SetAbilityInfo(info);
-    context_->AttachBaseContext(contextDeal_);
-
-    EXPECT_STREQ(context_->GetBundleResourcePath().c_str(), resourcePath.c_str());
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_GetBundleResourcePath_0200
- * @tc.name: GetBundleResourcePath
- * @tc.desc: Test GetBundleResourcePath exception status.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetBundleResourcePath_0200, Function | MediumTest | Level3)
-{
-    std::string path = context_->GetBundleResourcePath();
-    std::string empty = "";
-    EXPECT_STREQ(context_->GetBundleResourcePath().c_str(), empty.c_str());
-}
-
-/**
  * @tc.number: AppExecFwk_ContextContainer_GetAppType_0100
  * @tc.name: GetAppType
  * @tc.desc: Test whether AttachBaseContext is called normally,
@@ -530,7 +501,8 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetProcessName_0200, 
  */
 HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_InitResourceManager_0100, Function | MediumTest | Level3)
 {
-    std::shared_ptr<AppExecFwk::ContextDeal> appContext = std::make_shared<AppExecFwk::ContextDeal>(true);
+    std::shared_ptr<AppExecFwk::ContextDeal> appContext = std::make_shared<AppExecFwk::ContextDeal>();
+    appContext->SetSystemAppFlag(true);
     AppExecFwk::BundleInfo bundleInfo;
     context_->InitResourceManager(bundleInfo, appContext);
     EXPECT_TRUE(appContext->GetResourceManager() != nullptr);
@@ -705,32 +677,6 @@ HWTEST_F(ContextContainerTest, VerifyPermission_0200, Function | MediumTest | Le
 }
 
 /**
- * @tc.number: SetPattern_0100
- * @tc.name: SetPattern
- * @tc.desc: SetPattern
- */
-HWTEST_F(ContextContainerTest, SetPattern_0100, Function | MediumTest | Level1)
-{
-    ASSERT_NE(context_, nullptr);
-    context_->AttachBaseContext(contextDeal_);
-    int patternId = 0;
-    context_->SetPattern(patternId);
-}
-
-/**
- * @tc.number: SetPattern_0200
- * @tc.name: SetPattern
- * @tc.desc: SetPattern
- */
-HWTEST_F(ContextContainerTest, SetPattern_0200, Function | MediumTest | Level1)
-{
-    ASSERT_NE(context_, nullptr);
-    context_->AttachBaseContext(nullptr);
-    int patternId = 0;
-    context_->SetPattern(patternId);
-}
-
-/**
  * @tc.number: GetAbilityPackageContext_0100
  * @tc.name: GetAbilityPackageContext
  * @tc.desc: GetAbilityPackageContext
@@ -791,9 +737,8 @@ HWTEST_F(ContextContainerTest, CreateBundleContext_0100, Function | MediumTest |
 {
     context_->AttachBaseContext(contextDeal_);
     std::string bundleName = "test_bundle";
-    int flag = 0;
     int accountId = 0;
-    EXPECT_EQ(context_->CreateBundleContext(bundleName, flag, accountId), nullptr);
+    EXPECT_EQ(context_->CreateBundleContext(bundleName, accountId), nullptr);
 }
 
 /**
@@ -805,9 +750,8 @@ HWTEST_F(ContextContainerTest, CreateBundleContext_0200, Function | MediumTest |
 {
     context_->AttachBaseContext(contextDeal_);
     std::string bundleName = "";
-    int flag = 0;
     int accountId = 0;
-    EXPECT_EQ(context_->CreateBundleContext(bundleName, flag, accountId), nullptr);
+    EXPECT_EQ(context_->CreateBundleContext(bundleName, accountId), nullptr);
 }
 
 /**
@@ -819,165 +763,8 @@ HWTEST_F(ContextContainerTest, CreateBundleContext_0300, Function | MediumTest |
 {
     context_->AttachBaseContext(nullptr);
     std::string bundleName = "test_bundle";
-    int flag = 0;
     int accountId = 0;
-    EXPECT_EQ(context_->CreateBundleContext(bundleName, flag, accountId), nullptr);
-}
-
-/**
- * @tc.number: GetString_0100
- * @tc.name: GetString
- * @tc.desc: GetString
- */
-HWTEST_F(ContextContainerTest, GetString_0100, Function | MediumTest | Level1)
-{
-    context_->AttachBaseContext(contextDeal_);
-    EXPECT_EQ(context_->GetString(1), "");
-}
-
-/**
- * @tc.number: GetString_0200
- * @tc.name: GetString
- * @tc.desc: GetString
- */
-HWTEST_F(ContextContainerTest, GetString_0200, Function | MediumTest | Level1)
-{
-    context_->AttachBaseContext(nullptr);
-    EXPECT_EQ(context_->GetString(1), "");
-}
-
-/**
- * @tc.number: GetStringArray_0100
- * @tc.name: GetStringArray
- * @tc.desc: GetStringArray
- */
-HWTEST_F(ContextContainerTest, GetStringArray_0100, Function | MediumTest | Level1)
-{
-    context_->AttachBaseContext(contextDeal_);
-    EXPECT_EQ(context_->GetStringArray(1).size(), 0);
-}
-
-/**
- * @tc.number: GetStringArray_0200
- * @tc.name: GetStringArray
- * @tc.desc: GetStringArray
- */
-HWTEST_F(ContextContainerTest, GetStringArray_0200, Function | MediumTest | Level1)
-{
-    context_->AttachBaseContext(nullptr);
-    EXPECT_EQ(context_->GetStringArray(1).size(), 0);
-}
-
-/**
- * @tc.number: GetIntArray_0100
- * @tc.name: GetIntArray
- * @tc.desc: GetIntArray
- */
-HWTEST_F(ContextContainerTest, GetIntArray_0100, Function | MediumTest | Level1)
-{
-    context_->AttachBaseContext(contextDeal_);
-    EXPECT_EQ(context_->GetIntArray(1).size(), 0);
-}
-
-/**
- * @tc.number: GetIntArray_0200
- * @tc.name: GetIntArray
- * @tc.desc: GetIntArray
- */
-HWTEST_F(ContextContainerTest, GetIntArray_0200, Function | MediumTest | Level1)
-{
-    context_->AttachBaseContext(nullptr);
-    EXPECT_EQ(context_->GetIntArray(1).size(), 0);
-}
-
-/**
- * @tc.number: GetTheme_0100
- * @tc.name: GetTheme
- * @tc.desc: GetTheme
- */
-HWTEST_F(ContextContainerTest, GetTheme_0100, Function | MediumTest | Level1)
-{
-    context_->AttachBaseContext(contextDeal_);
-    EXPECT_EQ(context_->GetTheme().size(), 0);
-}
-
-/**
- * @tc.number: GetTheme_0200
- * @tc.name: GetTheme
- * @tc.desc: GetTheme
- */
-HWTEST_F(ContextContainerTest, GetTheme_0200, Function | MediumTest | Level1)
-{
-    context_->AttachBaseContext(nullptr);
-    EXPECT_EQ(context_->GetTheme().size(), 0);
-}
-
-/**
- * @tc.number: SetTheme_0100
- * @tc.name: SetTheme
- * @tc.desc: SetTheme
- */
-HWTEST_F(ContextContainerTest, SetTheme_0100, Function | MediumTest | Level1)
-{
-    ASSERT_NE(context_, nullptr);
-    context_->AttachBaseContext(contextDeal_);
-    context_->SetTheme(1);
-}
-
-/**
- * @tc.number: SetTheme_0200
- * @tc.name: SetTheme
- * @tc.desc: SetTheme
- */
-HWTEST_F(ContextContainerTest, SetTheme_0200, Function | MediumTest | Level1)
-{
-    ASSERT_NE(context_, nullptr);
-    context_->AttachBaseContext(nullptr);
-    context_->SetTheme(1);
-}
-
-/**
- * @tc.number: GetPattern_0100
- * @tc.name: GetPattern
- * @tc.desc: GetPattern
- */
-HWTEST_F(ContextContainerTest, GetPattern_0100, Function | MediumTest | Level1)
-{
-    context_->AttachBaseContext(contextDeal_);
-    EXPECT_EQ(context_->GetPattern().size(), 0);
-}
-
-/**
- * @tc.number: GetPattern_0200
- * @tc.name: GetPattern
- * @tc.desc: GetPattern
- */
-HWTEST_F(ContextContainerTest, GetPattern_0200, Function | MediumTest | Level1)
-{
-    context_->AttachBaseContext(nullptr);
-    EXPECT_EQ(context_->GetPattern().size(), 0);
-}
-
-/**
- * @tc.number: GetColor_0100
- * @tc.name: GetColor
- * @tc.desc: GetColor
- */
-HWTEST_F(ContextContainerTest, GetColor_0100, Function | MediumTest | Level1)
-{
-    context_->AttachBaseContext(contextDeal_);
-    EXPECT_EQ(context_->GetColor(1), -1);
-}
-
-/**
- * @tc.number: GetThemeId_0100
- * @tc.name: GetThemeId
- * @tc.desc: GetThemeId
- */
-HWTEST_F(ContextContainerTest, GetThemeId_0100, Function | MediumTest | Level1)
-{
-    context_->AttachBaseContext(contextDeal_);
-    EXPECT_EQ(context_->GetThemeId(), -1);
+    EXPECT_EQ(context_->CreateBundleContext(bundleName, accountId), nullptr);
 }
 
 /**
@@ -1022,52 +809,6 @@ HWTEST_F(ContextContainerTest, GetPreferencesDir_0200, Function | MediumTest | L
 {
     context_->AttachBaseContext(nullptr);
     EXPECT_EQ(context_->GetPreferencesDir(), "");
-}
-
-/**
- * @tc.number: SetColorMode_0100
- * @tc.name: SetColorMode
- * @tc.desc: SetColorMode
- */
-HWTEST_F(ContextContainerTest, SetColorMode_0100, Function | MediumTest | Level1)
-{
-    ASSERT_NE(context_, nullptr);
-    context_->AttachBaseContext(contextDeal_);
-    context_->SetColorMode(1);
-}
-
-/**
- * @tc.number: SetColorMode_0200
- * @tc.name: SetColorMode
- * @tc.desc: SetColorMode
- */
-HWTEST_F(ContextContainerTest, SetColorMode_0200, Function | MediumTest | Level1)
-{
-    ASSERT_NE(context_, nullptr);
-    context_->AttachBaseContext(nullptr);
-    context_->SetColorMode(1);
-}
-
-/**
- * @tc.number: GetColorMode_0100
- * @tc.name: GetColorMode
- * @tc.desc: GetColorMode
- */
-HWTEST_F(ContextContainerTest, GetColorMode_0100, Function | MediumTest | Level1)
-{
-    context_->AttachBaseContext(contextDeal_);
-    EXPECT_EQ(context_->GetColorMode(), -1);
-}
-
-/**
- * @tc.number: GetColorMode_0200
- * @tc.name: GetColorMode
- * @tc.desc: GetColorMode
- */
-HWTEST_F(ContextContainerTest, GetColorMode_0200, Function | MediumTest | Level1)
-{
-    context_->AttachBaseContext(nullptr);
-    EXPECT_EQ(context_->GetColorMode(), -1);
 }
 
 /**
@@ -1323,257 +1064,6 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetCaller_0200, Funct
 }
 
 /**
- * @tc.number: AppExecFwk_ContextContainer_GetString_0100
- * @tc.name: Get String
- * @tc.desc: Test Get String When baseContext is not null,
- *           and verify whether the return value of Get String is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetString_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
-    std::shared_ptr<Context> context(ability);
-    contextDeal_->SetContext(context);
-    context_->AttachBaseContext(contextDeal_);
-
-    EXPECT_EQ(context_->GetString(0), "");
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_GetString_0200
- * @tc.name: Get String
- * @tc.desc: Test Get String When baseContext is null.
- *           and verify whether the return value of Get String is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetString_0200, Function | MediumTest | Level3)
-{
-    EXPECT_EQ(context_->GetString(0), "");
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_GetStringArray_0100
- * @tc.name: Get String Array
- * @tc.desc: Test Get String Array When baseContext is not null,
- *           and verify whether the return value of Get String Array is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetStringArray_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
-    std::shared_ptr<Context> context(ability);
-    contextDeal_->SetContext(context);
-    context_->AttachBaseContext(contextDeal_);
-
-    std::vector<std::string> ret = context_->GetStringArray(0);
-    EXPECT_EQ(ret.size(), 0);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_GetStringArray_0200
- * @tc.name: Get String Array
- * @tc.desc: Test Get String Array When baseContext is null.
- *           and verify whether the return value of Get String Array is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetStringArray_0200, Function | MediumTest | Level3)
-{
-    std::vector<std::string> ret = context_->GetStringArray(0);
-    EXPECT_EQ(ret.size(), 0);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_GetIntArray_0100
- * @tc.name: Get Int Array
- * @tc.desc: Test Get Int Array When baseContext is not null,
- *           and verify whether the return value of Get Int Array is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetIntArray_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
-    std::shared_ptr<Context> context(ability);
-    contextDeal_->SetContext(context);
-    context_->AttachBaseContext(contextDeal_);
-
-    std::vector<int> ret = context_->GetIntArray(0);
-    EXPECT_EQ(ret.size(), 0);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_GetIntArray_0200
- * @tc.name: Get Int Array
- * @tc.desc: Test Get Int Array When baseContext is null.
- *           and verify whether the return value of Get Int Array is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetIntArray_0200, Function | MediumTest | Level3)
-{
-    std::vector<int> ret = context_->GetIntArray(0);
-    EXPECT_EQ(ret.size(), 0);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_GetTheme_0100
- * @tc.name: Get Theme
- * @tc.desc: Test Get Theme When baseContext is not null,
- *           and verify whether the return value of Get Theme is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetTheme_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
-    std::shared_ptr<Context> context(ability);
-    contextDeal_->SetContext(context);
-    context_->AttachBaseContext(contextDeal_);
-    std::map<std::string, std::string> ret = context_->GetTheme();
-    EXPECT_EQ(ret.size(), 0);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_GetTheme_0200
- * @tc.name: Get Theme
- * @tc.desc: Test Get Theme When baseContext is null.
- *           and verify whether the return value of Get Theme is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetTheme_0200, Function | MediumTest | Level3)
-{
-    std::map<std::string, std::string> ret = context_->GetTheme();
-    EXPECT_EQ(ret.size(), 0);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_SetTheme_0100
- * @tc.name: Set Theme
- * @tc.desc: Test Set Theme When baseContext is not null,
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_SetTheme_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
-    std::shared_ptr<Context> context(ability);
-    ASSERT_NE(context, nullptr);
-    contextDeal_->SetContext(context);
-    context_->AttachBaseContext(contextDeal_);
-    context_->SetTheme(0);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_SetTheme_0200
- * @tc.name: Set Theme
- * @tc.desc: Test Set Theme When baseContext is null.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_SetTheme_0200, Function | MediumTest | Level3)
-{
-    ASSERT_NE(context_, nullptr);
-    context_->SetTheme(0);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainerGetPattern_0100
- * @tc.name: Get Pattern
- * @tc.desc: Test Get Pattern When baseContext is not null,
- *           and verify whether the return value of Get Pattern is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetPattern_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
-    std::shared_ptr<Context> context(ability);
-    contextDeal_->SetContext(context);
-    context_->AttachBaseContext(contextDeal_);
-
-    std::map<std::string, std::string> ret = context_->GetPattern();
-    EXPECT_EQ(ret.size(), 0);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_GetPattern_0200
- * @tc.name: Get Pattern
- * @tc.desc: Test Get Pattern When baseContext is null.
- *           and verify whether the return value of Get Pattern is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetPattern_0200, Function | MediumTest | Level3)
-{
-    std::map<std::string, std::string> ret = context_->GetPattern();
-    EXPECT_EQ(ret.size(), 0);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainerSetPattern_0100
- * @tc.name: Set Pattern
- * @tc.desc: Test Get Pattern When baseContext is not null,
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_SetPattern_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
-    std::shared_ptr<Context> context(ability);
-    ASSERT_NE(context, nullptr);
-    contextDeal_->SetContext(context);
-    context_->AttachBaseContext(contextDeal_);
-
-    context_->SetPattern(0);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_SetPattern_0200
- * @tc.name: Set Pattern
- * @tc.desc: Test Set Pattern When baseContext is null.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_SetPattern_0200, Function | MediumTest | Level3)
-{
-    ASSERT_NE(context_, nullptr);
-    context_->SetPattern(0);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_GetColor_0100
- * @tc.name: Get Color
- * @tc.desc: Test Get Color When baseContext is not null,
- *           and verify whether the return value of Get Color is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetColor_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
-    std::shared_ptr<Context> context(ability);
-    ASSERT_NE(context, nullptr);
-    contextDeal_->SetContext(context);
-    context_->AttachBaseContext(contextDeal_);
-
-    EXPECT_EQ(context_->GetColor(0), -1);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_GetColor_0200
- * @tc.name: Get Color
- * @tc.desc: Test Get Color When baseContext is null.
- *           and verify whether the return value of Get Color is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetColor_0200, Function | MediumTest | Level3)
-{
-    EXPECT_EQ(context_->GetColor(0), -1);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_GetThemeId_0100
- * @tc.name: Get Theme Id
- * @tc.desc: Test Get Theme Id When baseContext is not null,
- *           and verify whether the return value of Get Theme Id is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetThemeId_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
-    std::shared_ptr<Context> context(ability);
-    ASSERT_NE(context, nullptr);
-    contextDeal_->SetContext(context);
-    context_->AttachBaseContext(contextDeal_);
-
-    EXPECT_EQ(context_->GetThemeId(), -1);
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_GetThemeId_0200
- * @tc.name: Get Theme Id
- * @tc.desc: Test Get Theme Id When baseContext is null.
- *           and verify whether the return value of Get Theme Id is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetThemeId_0200, Function | MediumTest | Level3)
-{
-    EXPECT_EQ(context_->GetThemeId(), -1);
-}
-
-/**
  * @tc.number: AppExecFwk_ContextContainer_GetDisplayOrientation_0100
  * @tc.name: Get Display Orientation
  * @tc.desc: Test Get Display Orientation When baseContext is not null,
@@ -1627,36 +1117,6 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetPreferencesDire_01
 HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetPreferencesDir_0200, Function | MediumTest | Level3)
 {
     EXPECT_EQ(context_->GetPreferencesDir(), "");
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_GetColorMode_0100
- * @tc.name: Get Color Mode
- * @tc.desc: Test Get Color Mode When baseContext is not null,
- *           and verify whether the return value of Get Color Mode is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetColorMode_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
-    std::shared_ptr<Context> context(ability);
-    contextDeal_->SetContext(context);
-    contextDeal_->hapModuleInfoLocal_ = std::make_shared<HapModuleInfo>();
-    context_->AttachBaseContext(contextDeal_);
-
-    context_->SetColorMode(static_cast<int>(ModuleColorMode::DARK));
-    EXPECT_EQ(context_->GetColorMode(), static_cast<int>(ModuleColorMode::DARK));
-}
-
-/**
- * @tc.number: AppExecFwk_ContextContainer_GetColorMode_0200
- * @tc.name: Get Color Mode
- * @tc.desc: Test Get Color Mode When baseContext is null.
- *           and verify whether the return value of Get Color Mode is correct.
- */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetColorMode_0200, Function | MediumTest | Level3)
-{
-    context_->SetColorMode(-1);
-    EXPECT_EQ(context_->GetColorMode(), -1);
 }
 
 /**
@@ -1761,7 +1221,7 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_CreateBundleContext_0
     contextDeal_->SetApplicationContext(context);
     context_->AttachBaseContext(contextDeal_);
 
-    EXPECT_NE(context_->CreateBundleContext("BundleName", 0, 0), nullptr);
+    EXPECT_NE(context_->CreateBundleContext("BundleName", 0), nullptr);
 }
 
 /**
@@ -1776,7 +1236,7 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_CreateBundleContext_0
     contextDeal_->SetContext(context);
     context_->AttachBaseContext(contextDeal_);
 
-    EXPECT_EQ(context_->CreateBundleContext("bundlename", 0, 0), nullptr);
+    EXPECT_EQ(context_->CreateBundleContext("bundlename", 0), nullptr);
 }
 
 /**
@@ -1791,7 +1251,7 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_CreateBundleContext_0
     contextDeal_->SetContext(context);
     context_->AttachBaseContext(contextDeal_);
 
-    EXPECT_EQ(context_->CreateBundleContext("bundlename", 0, DEFAULT_ACCOUNT_ID), nullptr);
+    EXPECT_EQ(context_->CreateBundleContext("bundlename", DEFAULT_ACCOUNT_ID), nullptr);
 }
 
 /**
@@ -1801,7 +1261,7 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_CreateBundleContext_0
  */
 HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_CreateBundleContext_0400, Function | MediumTest | Level3)
 {
-    EXPECT_EQ(context_->CreateBundleContext("", 0, 0), nullptr);
+    EXPECT_EQ(context_->CreateBundleContext("", 0), nullptr);
 }
 
 }  // namespace AppExecFwk

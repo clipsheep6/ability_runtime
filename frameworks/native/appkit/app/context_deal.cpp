@@ -36,16 +36,12 @@ using namespace OHOS::AbilityBase::Constants;
 
 const std::string ContextDeal::CONTEXT_DEAL_FILE_SEPARATOR("/");
 const std::string ContextDeal::CONTEXT_DEAL_Files("files");
-const int64_t ContextDeal::CONTEXT_CREATE_BY_SYSTEM_APP(0x00000001);
 const std::string ContextDeal::CONTEXT_DATA_STORAGE("/data/storage/");
 const std::string ContextDeal::CONTEXT_DEAL_DATA_APP("/data/app/");
 const std::string ContextDeal::CONTEXT_DEAL_BASE("base");
 const std::string ContextDeal::CONTEXT_DEAL_DATABASE("database");
 const std::string ContextDeal::CONTEXT_DEAL_PREFERENCES("preferences");
 const std::string ContextDeal::CONTEXT_DEAL_DATA("data");
-
-ContextDeal::ContextDeal(bool isCreateBySystemApp) : isCreateBySystemApp_(isCreateBySystemApp)
-{}
 
 std::shared_ptr<ApplicationInfo> ContextDeal::GetApplicationInfo() const
 {
@@ -144,7 +140,7 @@ std::shared_ptr<Global::Resource::ResourceManager> ContextDeal::GetResourceManag
 std::string ContextDeal::GetDatabaseDir()
 {
     std::string dir;
-    if (IsCreateBySystemApp()) {
+    if (isCreateBySystemApp_) {
         dir = CONTEXT_DEAL_DATA_APP + currArea_ + CONTEXT_DEAL_FILE_SEPARATOR + std::to_string(GetCurrentAccountId())
             + CONTEXT_DEAL_FILE_SEPARATOR + CONTEXT_DEAL_DATABASE + CONTEXT_DEAL_FILE_SEPARATOR + GetBundleName();
     } else {
@@ -191,22 +187,6 @@ std::string ContextDeal::GetBundleName() const
     return (applicationInfo_ != nullptr) ? applicationInfo_->bundleName : "";
 }
 
-std::string ContextDeal::GetBundleResourcePath()
-{
-    if (abilityInfo_ == nullptr) {
-        return "";
-    }
-
-    std::string dir;
-    if (isCreateBySystemApp_) {
-        dir = std::regex_replace(abilityInfo_->resourcePath, std::regex(ABS_CODE_PATH), LOCAL_BUNDLES);
-    } else {
-        std::regex pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + abilityInfo_->bundleName);
-        dir = std::regex_replace(abilityInfo_->resourcePath, pattern, LOCAL_CODE_PATH);
-    }
-    return dir;
-}
-
 sptr<AAFwk::IAbilityManager> ContextDeal::GetAbilityManager()
 {
     auto remoteObject = OHOS::DelayedSingleton<SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
@@ -229,11 +209,6 @@ std::string ContextDeal::GetAppType()
     return retString;
 }
 
-bool ContextDeal::IsCreateBySystemApp() const
-{
-    return (static_cast<uint64_t>(flags_) & static_cast<uint64_t>(CONTEXT_CREATE_BY_SYSTEM_APP)) == 1;
-}
-
 int ContextDeal::GetCurrentAccountId() const
 {
     int userId = 0;
@@ -253,19 +228,9 @@ void ContextDeal::CreateDirIfNotExist(const std::string &dirPath) const
     }
 }
 
-void ContextDeal::SetPattern(int patternId)
+void ContextDeal::SetSystemAppFlag(bool isCreateBySystemApp)
 {
-    if (resourceManager_ != nullptr) {
-        if (!pattern_.empty()) {
-            pattern_.clear();
-        }
-        OHOS::Global::Resource::RState errval = resourceManager_->GetPatternById(patternId, pattern_);
-        if (errval != OHOS::Global::Resource::RState::SUCCESS) {
-            HILOG_ERROR("SetPattern GetPatternById(patternId:%d) retval is %u", patternId, errval);
-        }
-    } else {
-        HILOG_ERROR("SetPattern resourceManager_ is nullptr");
-    }
+    isCreateBySystemApp_ = isCreateBySystemApp;
 }
 
 std::shared_ptr<HapModuleInfo> ContextDeal::GetHapModuleInfo()
@@ -286,125 +251,6 @@ void ContextDeal::initResourceManager(const std::shared_ptr<Global::Resource::Re
     resourceManager_ = resourceManager;
 }
 
-std::string ContextDeal::GetString(int resId)
-{
-    if (resourceManager_ == nullptr) {
-        HILOG_ERROR("GetString resourceManager_ is nullptr");
-        return "";
-    }
-
-    std::string ret;
-    OHOS::Global::Resource::RState errval = resourceManager_->GetStringById(resId, ret);
-    if (errval == OHOS::Global::Resource::RState::SUCCESS) {
-        return ret;
-    } else {
-        HILOG_ERROR("GetString GetStringById(resId:%d) retval is %u", resId, errval);
-        return "";
-    }
-}
-
-std::vector<std::string> ContextDeal::GetStringArray(int resId)
-{
-    if (resourceManager_ == nullptr) {
-        HILOG_ERROR("GetStringArray resourceManager_ is nullptr");
-        return std::vector<std::string>();
-    }
-
-    std::vector<std::string> retv;
-    OHOS::Global::Resource::RState errval = resourceManager_->GetStringArrayById(resId, retv);
-    if (errval == OHOS::Global::Resource::RState::SUCCESS) {
-        return retv;
-    } else {
-        HILOG_ERROR("GetStringArray GetStringArrayById(resId:%d) retval is %u", resId, errval);
-        return std::vector<std::string>();
-    }
-}
-
-std::vector<int> ContextDeal::GetIntArray(int resId)
-{
-    if (resourceManager_ == nullptr) {
-        HILOG_ERROR("GetIntArray resourceManager_ is nullptr");
-        return std::vector<int>();
-    }
-
-    std::vector<int> retv;
-    OHOS::Global::Resource::RState errval = resourceManager_->GetIntArrayById(resId, retv);
-    if (errval == OHOS::Global::Resource::RState::SUCCESS) {
-        return retv;
-    } else {
-        HILOG_ERROR("GetIntArray GetIntArrayById(resId:%d) retval is %u", resId, errval);
-        return std::vector<int>();
-    }
-}
-
-std::map<std::string, std::string> ContextDeal::GetTheme()
-{
-    if (theme_.empty()) {
-        SetTheme(GetThemeId());
-    }
-    return theme_;
-}
-
-void ContextDeal::SetTheme(int themeId)
-{
-    if (resourceManager_ == nullptr) {
-        HILOG_ERROR("SetTheme resourceManager_ is nullptr");
-        return;
-    }
-
-    auto hapModInfo = GetHapModuleInfo();
-    if (hapModInfo == nullptr) {
-        HILOG_ERROR("SetTheme hapModInfo is nullptr");
-        return;
-    }
-
-    if (!theme_.empty()) {
-        theme_.clear();
-    }
-    OHOS::Global::Resource::RState errval = resourceManager_->GetThemeById(themeId, theme_);
-    if (errval != OHOS::Global::Resource::RState::SUCCESS) {
-        HILOG_ERROR("SetTheme GetThemeById(themeId:%d) retval is %u", themeId, errval);
-    }
-}
-
-std::map<std::string, std::string> ContextDeal::GetPattern()
-{
-    if (!pattern_.empty()) {
-        return pattern_;
-    } else {
-        HILOG_ERROR("GetPattern pattern_ is empty");
-        return std::map<std::string, std::string>();
-    }
-}
-
-int ContextDeal::GetColor(int resId)
-{
-    if (resourceManager_ == nullptr) {
-        HILOG_ERROR("GetColor resourceManager_ is nullptr");
-        return INVALID_RESOURCE_VALUE;
-    }
-
-    uint32_t ret = INVALID_RESOURCE_VALUE;
-    OHOS::Global::Resource::RState errval = resourceManager_->GetColorById(resId, ret);
-    if (errval == OHOS::Global::Resource::RState::SUCCESS) {
-        return ret;
-    } else {
-        HILOG_ERROR("GetColor GetColorById(resId:%d) retval is %u", resId, errval);
-        return INVALID_RESOURCE_VALUE;
-    }
-}
-
-int ContextDeal::GetThemeId()
-{
-    auto hapModInfo = GetHapModuleInfo();
-    if (hapModInfo != nullptr) {
-        return -1;
-    } else {
-        HILOG_ERROR("GetThemeId hapModInfo is nullptr");
-        return -1;
-    }
-}
-
 int ContextDeal::GetDisplayOrientation()
 {
     if (abilityInfo_ != nullptr) {
@@ -423,34 +269,6 @@ std::string ContextDeal::GetPreferencesDir()
     HILOG_DEBUG("GetPreferencesDir:%{public}s", dir.c_str());
     return dir;
 }
-
-void ContextDeal::SetColorMode(int mode)
-{
-    auto hapModInfo = GetHapModuleInfo();
-    if (hapModInfo == nullptr) {
-        HILOG_ERROR("SetColorMode hapModInfo is nullptr");
-        return;
-    }
-
-    if (mode == static_cast<int>(ModuleColorMode::DARK)) {
-        hapModInfo->colorMode = ModuleColorMode::DARK;
-    } else if (mode == static_cast<int>(ModuleColorMode::LIGHT)) {
-        hapModInfo->colorMode = ModuleColorMode::LIGHT;
-    } else {  // default use AUTO
-        hapModInfo->colorMode = ModuleColorMode::AUTO;
-    }
-}
-
-int ContextDeal::GetColorMode()
-{
-    auto hapModInfo = GetHapModuleInfo();
-    if (hapModInfo == nullptr) {
-        HILOG_ERROR("GetColorMode hapModInfo is nullptr");
-        return -1;
-    }
-    return static_cast<int>(hapModInfo->colorMode);
-}
-
 
 bool ContextDeal::HapModuleInfoRequestInit()
 {
@@ -476,7 +294,7 @@ bool ContextDeal::HapModuleInfoRequestInit()
 std::string ContextDeal::GetBaseDir() const
 {
     std::string baseDir;
-    if (IsCreateBySystemApp()) {
+    if (isCreateBySystemApp_) {
         baseDir = CONTEXT_DEAL_DATA_APP + currArea_ + CONTEXT_DEAL_FILE_SEPARATOR +
             std::to_string(GetCurrentAccountId()) + CONTEXT_DEAL_FILE_SEPARATOR + CONTEXT_DEAL_BASE +
             CONTEXT_DEAL_FILE_SEPARATOR + GetBundleName();

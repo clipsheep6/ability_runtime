@@ -247,24 +247,6 @@ HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetBundleName_0100, Function |
 }
 
 /**
- * @tc.number: AaFwk_AbilityContext_GetBundleResourcePath_0100
- * @tc.name: GetBundleResourcePath
- * @tc.desc: Test the attachbasecontext call to verify whether the return value of getbundleresourcepath is correct.
- */
-HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetBundleResourcePath_0100, Function | MediumTest | Level1)
-{
-    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
-    std::string resourcePath = "hello";
-    abilityInfo->resourcePath = resourcePath;
-
-    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
-    deal->SetAbilityInfo(abilityInfo);
-
-    context_->AttachBaseContext(deal);
-    EXPECT_STREQ(resourcePath.c_str(), context_->GetBundleResourcePath().c_str());
-}
-
-/**
  * @tc.number: AaFwk_AbilityContext_GetApplicationContext_0100
  * @tc.name: GetApplicationContext
  * @tc.desc: Test the attachbasecontext call to verify whether the return value of getapplicationcontext is correct.
