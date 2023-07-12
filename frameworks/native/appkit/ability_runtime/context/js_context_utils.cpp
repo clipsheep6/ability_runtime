@@ -604,7 +604,12 @@ NativeValue* CreateJsBaseContext(NativeEngine& engine, std::shared_ptr<Context> 
     }
     auto resourceManager = context->GetResourceManager();
     if (resourceManager != nullptr) {
-        object->SetProperty("resourceManager", CreateJsResourceManager(engine, resourceManager, context));
+        auto jsResourceManager = CreateJsResourceManager(engine, resourceManager, context);
+        if (jsResourceManager != nullptr) {
+            object->SetProperty("resourceManager", jsResourceManager);
+        } else {
+            HILOG_ERROR("jsResourceManager is nullptr");
+        }
     }
 
     BindNativeProperty(*object, "cacheDir", JsBaseContext::GetCacheDir);
