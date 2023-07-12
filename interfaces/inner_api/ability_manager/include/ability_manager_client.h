@@ -298,27 +298,6 @@ public:
         const Want *resultWant = nullptr);
 
     /**
-     * TerminateAbility, terminate the special ability.
-     *
-     * @param callerToken, caller ability token.
-     * @param requestCode Ability request code.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode TerminateAbility(const sptr<IRemoteObject> &callerToken, int requestCode);
-
-    /**
-     * Destroys this Service ability if the number of times it
-     * has been started equals the number represented by
-     * the given startId.
-     *
-     * @param token ability's token.
-     * @param startId is incremented by 1 every time this ability is started.
-     * @return Returns true if the startId matches the number of startup times
-     * and this Service ability will be destroyed; returns false otherwise.
-     */
-    ErrCode TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId);
-
-    /**
      * MinimizeAbility, minimize the special ability.
      *
      * @param token, ability token.

@@ -87,7 +87,6 @@ public:
     void DumpSysState(
         const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID) override;
 
-    int TerminateAbilityResult(const sptr<IRemoteObject>& token, int startId) override;
     int StopServiceAbility(const Want& want, int32_t userId = DEFAULT_INVAL_VALUE,
         const sptr<IRemoteObject> &token = nullptr) override;
 
@@ -170,11 +169,6 @@ public:
     int KillProcess(const std::string& bundleName) override;
 
     int UninstallApp(const std::string& bundleName, int32_t uid) override;
-
-    int TerminateAbilityByCaller(const sptr<IRemoteObject>& callerToken, int requestCode) override
-    {
-        return 0;
-    }
 
     int ClearUpApplicationData(const std::string& bundleName) override
     {

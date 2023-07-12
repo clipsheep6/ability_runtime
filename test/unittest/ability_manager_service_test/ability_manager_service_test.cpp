@@ -715,20 +715,6 @@ HWTEST_F(AbilityManagerServiceTest, CheckIfOperateRemote_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
- * Function: TerminateAbilityByCaller
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService TerminateAbilityByCaller
- */
-HWTEST_F(AbilityManagerServiceTest, TerminateAbilityByCaller_001, TestSize.Level1)
-{
-    HILOG_INFO("AbilityManagerServiceTest TerminateAbilityByCaller_001 start");
-    EXPECT_EQ(abilityMs_->TerminateAbilityByCaller(nullptr, 1), ERR_INVALID_VALUE);
-    EXPECT_EQ(abilityMs_->TerminateAbilityByCaller(MockToken(AbilityType::PAGE), 1), ERR_INVALID_VALUE);
-    HILOG_INFO("AbilityManagerServiceTest TerminateAbilityByCaller_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: MinimizeAbility
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService MinimizeAbility
@@ -1801,19 +1787,6 @@ HWTEST_F(AbilityManagerServiceTest, GenerateExtensionAbilityRequest_001, TestSiz
     AbilityRequest request;
     EXPECT_EQ(abilityMs_->GenerateExtensionAbilityRequest(want, request, nullptr, 100), RESOLVE_ABILITY_ERR);
     HILOG_INFO("AbilityManagerServiceTest GenerateExtensionAbilityRequest_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: TerminateAbilityResult
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService TerminateAbilityResult
- */
-HWTEST_F(AbilityManagerServiceTest, TerminateAbilityResult_001, TestSize.Level1)
-{
-    HILOG_INFO("AbilityManagerServiceTest TerminateAbilityResult_001 start");
-    EXPECT_EQ(abilityMs_->TerminateAbilityResult(nullptr, 1), ERR_INVALID_VALUE);
-    HILOG_INFO("AbilityManagerServiceTest TerminateAbilityResult_001 end");
 }
 
 /*

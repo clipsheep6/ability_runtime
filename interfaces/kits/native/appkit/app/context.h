@@ -272,17 +272,6 @@ public:
     virtual std::string GetAppType() = 0;
 
     /**
-     * @brief Destroys another ability you had previously started by calling Ability.startAbilityForResult
-     * (ohos.aafwk.content.Want, int, ohos.aafwk.ability.startsetting.AbilityStartSetting) with the same requestCode
-     * passed.
-     *
-     * @param requestCode Indicates the request code passed for starting the ability.
-     *
-     * @return errCode ERR_OK on success, others on failure.
-     */
-    virtual ErrCode TerminateAbility(int requestCode) = 0;
-
-    /**
      * @brief Destroys the current ability.
      *
      * @return errCode ERR_OK on success, others on failure.
@@ -460,23 +449,6 @@ public:
      * @return int Returns the theme id of this Context.
      */
     virtual int GetThemeId() = 0;
-
-    /**
-     * @brief
-     * Destroys this Service ability if the number of times it has been started equals the number represented by the
-     * given {@code startId}. This method is the same as calling {@link #terminateAbility} to destroy this Service
-     * ability, except that this method helps you avoid destroying it if a client has requested a Service
-     * ability startup in {@link ohos.aafwk.ability.Ability#onCommand} but you are unaware of it.
-     *
-     * @param startId Indicates the number of startup times of this Service ability passed to
-     *                {@link ohos.aafwk.ability.Ability#onCommand}. The {@code startId} is
-     *                incremented by 1 every time this ability is started. For example,
-     *                if this ability has been started for six times, the value of {@code startId} is {@code 6}.
-     *
-     * @return Returns {@code true} if the {@code startId} matches the number of startup times
-     *         and this Service ability will be destroyed; returns {@code false} otherwise.
-     */
-    virtual bool TerminateAbilityResult(int startId) = 0;
 
     /**
      * @brief Obtains the current display orientation of this ability.

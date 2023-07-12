@@ -217,15 +217,6 @@ public:
     virtual int SendResultToAbility(int32_t requestCode, int32_t resultCode, Want& resultWant) override;
 
     /**
-     * TerminateAbility, terminate the special ability.
-     *
-     * @param callerToken, caller ability token.
-     * @param requestCode, Ability request code.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int TerminateAbilityByCaller(const sptr<IRemoteObject> &callerToken, int requestCode) override;
-
-    /**
      * MoveAbilityToBackground.
      *
      * @param token, the token of the ability to move.
@@ -391,17 +382,6 @@ public:
     virtual void DumpState(const std::string &args, std::vector<std::string> &state) override;
     virtual void DumpSysState(
         const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID) override;
-    /**
-     * Destroys this Service ability if the number of times it
-     * has been started equals the number represented by
-     * the given startId.
-     *
-     * @param token ability's token.
-     * @param startId is incremented by 1 every time this ability is started.
-     * @return Returns true if the startId matches the number of startup times
-     * and this Service ability will be destroyed; returns false otherwise.
-     */
-    virtual int TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId) override;
 
     /**
      * Destroys this Service ability by Want.

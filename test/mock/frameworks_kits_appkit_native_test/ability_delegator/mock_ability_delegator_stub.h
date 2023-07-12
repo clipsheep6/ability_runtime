@@ -43,7 +43,6 @@ public:
         const sptr<IRemoteObject>& callerToken, int requestCode = DEFAULT_INVAL_VALUE,
         int32_t userId = DEFAULT_INVAL_VALUE) override;
     MOCK_METHOD3(TerminateAbility, int(const sptr<IRemoteObject>& token, int resultCode, const Want* resultWant));
-    MOCK_METHOD2(TerminateAbility, int(const sptr<IRemoteObject>& callerToken, int requestCode));
     int CloseAbility(const sptr<IRemoteObject>& token, int resultCode = DEFAULT_INVAL_VALUE,
         const Want* resultWant = nullptr) override;
     int MinimizeAbility(const sptr<IRemoteObject>& token, bool fromUser = false) override;
@@ -64,10 +63,8 @@ public:
     MOCK_METHOD4(ScheduleCommandAbilityWindowDone, int(const sptr<IRemoteObject> &token,
         const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd, AbilityCommand abilityCmd));
     void DumpState(const std::string& args, std::vector<std::string>& state) override;
-    MOCK_METHOD2(TerminateAbilityResult, int(const sptr<IRemoteObject>& token, int startId));
     int StopServiceAbility(const Want& want, int32_t userId = DEFAULT_INVAL_VALUE,
         const sptr<IRemoteObject> &token = nullptr) override;
-    MOCK_METHOD2(TerminateAbilityByCaller, int(const sptr<IRemoteObject>& callerToken, int requestCode));
     MOCK_METHOD1(MoveMissionToTop, int(int32_t missionId));
     MOCK_METHOD1(RemoveMission, int(int id));
     MOCK_METHOD1(RemoveStack, int(int id));
@@ -202,7 +199,6 @@ public:
         const sptr<IRemoteObject>& callerToken, int requestCode = DEFAULT_INVAL_VALUE,
         int32_t userId = DEFAULT_INVAL_VALUE) override;
     MOCK_METHOD3(TerminateAbility, int(const sptr<IRemoteObject>& token, int resultCode, const Want* resultWant));
-    MOCK_METHOD2(TerminateAbility, int(const sptr<IRemoteObject>& callerToken, int requestCode));
     int CloseAbility(const sptr<IRemoteObject>& token, int resultCode = DEFAULT_INVAL_VALUE,
         const Want* resultWant = nullptr) override;
     int MinimizeAbility(const sptr<IRemoteObject>& token, bool fromUser = false) override;
@@ -223,10 +219,8 @@ public:
     MOCK_METHOD4(ScheduleCommandAbilityWindowDone, int(const sptr<IRemoteObject> &token,
         const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd, AbilityCommand abilityCmd));
     void DumpState(const std::string& args, std::vector<std::string>& state) override;
-    MOCK_METHOD2(TerminateAbilityResult, int(const sptr<IRemoteObject>& token, int startId));
     int StopServiceAbility(const Want& want, int32_t userId = DEFAULT_INVAL_VALUE,
         const sptr<IRemoteObject> &token = nullptr) override;
-    MOCK_METHOD2(TerminateAbilityByCaller, int(const sptr<IRemoteObject>& callerToken, int requestCode));
     MOCK_METHOD1(MoveMissionToTop, int(int32_t missionId));
     MOCK_METHOD1(RemoveMission, int(int id));
     MOCK_METHOD1(RemoveStack, int(int id));

@@ -67,12 +67,9 @@ public:
 
     void DumpState(const std::string& args, std::vector<std::string>& state);
 
-    MOCK_METHOD2(TerminateAbilityResult, int(const sptr<IRemoteObject>& token, int startId));
-
     int StopServiceAbility(const Want& want, int32_t userId = DEFAULT_INVAL_VALUE,
         const sptr<IRemoteObject> &token = nullptr);
 
-    MOCK_METHOD2(TerminateAbilityByCaller, int(const sptr<IRemoteObject>& callerToken, int requestCode));
     MOCK_METHOD1(KillProcess, int(const std::string& bundleName));
     MOCK_METHOD2(UninstallApp, int(const std::string& bundleName, int32_t uid));
 

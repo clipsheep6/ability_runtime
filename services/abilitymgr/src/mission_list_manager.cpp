@@ -1486,28 +1486,6 @@ int MissionListManager::TerminateAbilityInner(const std::shared_ptr<AbilityRecor
     return TerminateAbilityLocked(abilityRecord, flag);
 }
 
-int MissionListManager::TerminateAbility(const std::shared_ptr<AbilityRecord> &caller, int requestCode)
-{
-    HILOG_DEBUG("Terminate ability with result called.");
-    std::lock_guard guard(managerLock_);
-
-    std::shared_ptr<AbilityRecord> targetAbility = GetAbilityRecordByCaller(caller, requestCode);
-    if (!targetAbility) {
-        HILOG_ERROR("%{public}s, Can't find target ability", __func__);
-        return NO_FOUND_ABILITY_BY_CALLER;
-    }
-
-    auto abilityMs = DelayedSingleton<AbilityManagerService>::GetInstance();
-    CHECK_POINTER_AND_RETURN(abilityMs, GET_ABILITY_SERVICE_FAILED)
-    int result = abilityMs->JudgeAbilityVisibleControl(targetAbility->GetAbilityInfo());
-    if (result != ERR_OK) {
-        HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
-        return result;
-    }
-
-    return TerminateAbilityInner(targetAbility, DEFAULT_INVAL_VALUE, nullptr, true);
-}
-
 int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord, bool flag)
 {
     std::string element = abilityRecord->GetWant().GetElement().GetURI();

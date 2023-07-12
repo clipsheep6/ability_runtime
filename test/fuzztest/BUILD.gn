@@ -181,7 +181,6 @@ group("fuzztest") {
     "stopusercallbackstub_fuzzer:fuzztest",
     "systemabilitytokencallbackstub_fuzzer:fuzztest",
     "terminateability_fuzzer:fuzztest",
-    "terminateabilityresult_fuzzer:fuzztest",
     "unlockmissionforcleanup_fuzzer:fuzztest",
     "unregisterabilitylifecyclecallback_fuzzer:fuzztest",
     "unregisterapplicationstateobserver_fuzzer:fuzztest",

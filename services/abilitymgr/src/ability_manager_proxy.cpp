@@ -624,39 +624,6 @@ int AbilityManagerProxy::SendResultToAbility(int32_t requestCode, int32_t result
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::TerminateAbilityByCaller(const sptr<IRemoteObject> &callerToken, int requestCode)
-{
-    int error;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    if (!WriteInterfaceToken(data)) {
-        return INNER_ERR;
-    }
-    if (callerToken) {
-        if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
-            HILOG_ERROR("flag and callerToken write failed.");
-            return INNER_ERR;
-        }
-    } else {
-        if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
-            return INNER_ERR;
-        }
-    }
-    if (!data.WriteInt32(requestCode)) {
-        HILOG_ERROR("data write failed.");
-        return INNER_ERR;
-    }
-    error = SendRequest(AbilityManagerInterfaceCode::TERMINATE_ABILITY_BY_CALLER, data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
-        return error;
-    }
-    return reply.ReadInt32();
-}
-
 int AbilityManagerProxy::MoveAbilityToBackground(const sptr<IRemoteObject> &token)
 {
     int error;
@@ -1124,29 +1091,6 @@ void AbilityManagerProxy::DumpState(const std::string &args, std::vector<std::st
         std::string stac = Str16ToStr8(reply.ReadString16());
         state.emplace_back(stac);
     }
-}
-
-int AbilityManagerProxy::TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId)
-{
-    int error;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    if (!WriteInterfaceToken(data)) {
-        return INNER_ERR;
-    }
-    if (!data.WriteRemoteObject(token) || !data.WriteInt32(startId)) {
-        HILOG_ERROR("data write failed.");
-        return ERR_INVALID_VALUE;
-    }
-
-    error = SendRequest(AbilityManagerInterfaceCode::TERMINATE_ABILITY_RESULT, data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
-        return error;
-    }
-    return reply.ReadInt32();
 }
 
 int AbilityManagerProxy::MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser)

@@ -256,21 +256,6 @@ ErrCode AbilityManagerClient::TerminateUIExtensionAbility(const sptr<SessionInfo
     return abms->TerminateUIExtensionAbility(extensionSessionInfo, resultCode, resultWant);
 }
 
-ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject> &callerToken, int requestCode)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->TerminateAbilityByCaller(callerToken, requestCode);
-}
-
-ErrCode AbilityManagerClient::TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId)
-{
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->TerminateAbilityResult(token, startId);
-}
-
 ErrCode AbilityManagerClient::MoveAbilityToBackground(const sptr<IRemoteObject> &token)
 {
     HILOG_INFO("call");

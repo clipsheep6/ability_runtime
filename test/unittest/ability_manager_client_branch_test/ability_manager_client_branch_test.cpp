@@ -227,32 +227,6 @@ HWTEST_F(AbilityManagerClientBranchTest, StopExtensionAbility_0100, TestSize.Lev
 }
 
 /**
- * @tc.name: AbilityManagerClient_TerminateAbility_0100
- * @tc.desc: TerminateAbility
- * @tc.type: FUNC
- * @tc.require: issueI5NRWT
- */
-HWTEST_F(AbilityManagerClientBranchTest, TerminateAbility_0100, TestSize.Level1)
-{
-    sptr<IRemoteObject> callerToken = nullptr;
-    auto result = client_->TerminateAbility(callerToken, -1);
-    EXPECT_EQ(ERR_OK, result);
-}
-
-/**
- * @tc.name: AbilityManagerClient_TerminateAbilityResult_0100
- * @tc.desc: TerminateAbilityResult
- * @tc.type: FUNC
- * @tc.require: issueI5NRWT
- */
-HWTEST_F(AbilityManagerClientBranchTest, TerminateAbilityResult_0100, TestSize.Level1)
-{
-    sptr<IRemoteObject> callerToken = nullptr;
-    auto result = client_->TerminateAbilityResult(callerToken, 1);
-    EXPECT_EQ(ERR_OK, result);
-}
-
-/**
  * @tc.name: AbilityManagerClient_MinimizeAbility_0100
  * @tc.desc: MinimizeAbility
  * @tc.type: FUNC

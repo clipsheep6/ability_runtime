@@ -43,8 +43,6 @@ void AbilityManagerStub::FirstStepInit()
 {
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_ABILITY)] =
         &AbilityManagerStub::TerminateAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_ABILITY_BY_CALLER)] =
-        &AbilityManagerStub::TerminateAbilityByCallerInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MINIMIZE_ABILITY)] =
         &AbilityManagerStub::MinimizeAbilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ATTACH_ABILITY_THREAD)] =
@@ -55,8 +53,6 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::ScheduleConnectAbilityDoneInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DISCONNECT_ABILITY_DONE)] =
         &AbilityManagerStub::ScheduleDisconnectAbilityDoneInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_ABILITY_RESULT)] =
-        &AbilityManagerStub::TerminateAbilityResultInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::COMMAND_ABILITY_DONE)] =
         &AbilityManagerStub::ScheduleCommandAbilityDoneInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::COMMAND_ABILITY_WINDOW_DONE)] =
@@ -425,18 +421,6 @@ int AbilityManagerStub::SendResultToAbilityInner(MessageParcel &data, MessagePar
     return NO_ERROR;
 }
 
-int AbilityManagerStub::TerminateAbilityByCallerInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> callerToken = nullptr;
-    if (data.ReadBool()) {
-        callerToken = data.ReadRemoteObject();
-    }
-    int requestCode = data.ReadInt32();
-    int32_t result = TerminateAbilityByCaller(callerToken, requestCode);
-    reply.WriteInt32(result);
-    return NO_ERROR;
-}
-
 int AbilityManagerStub::MinimizeAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
     auto token = data.ReadRemoteObject();
@@ -512,15 +496,6 @@ int AbilityManagerStub::ScheduleDisconnectAbilityDoneInner(MessageParcel &data, 
 {
     auto token = data.ReadRemoteObject();
     int32_t result = ScheduleDisconnectAbilityDone(token);
-    reply.WriteInt32(result);
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::TerminateAbilityResultInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> token = data.ReadRemoteObject();
-    int startId = data.ReadInt32();
-    int32_t result = TerminateAbilityResult(token, startId);
     reply.WriteInt32(result);
     return NO_ERROR;
 }

@@ -170,16 +170,6 @@ ErrCode AbilityManagerClient::TerminateAbility(
     return abms->TerminateAbility(token, resultCode, resultWant);
 }
 
-ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject>& callerToken, int requestCode)
-{
-    if (g_remoteObject == nullptr) {
-        HILOG_ERROR("%{private}s:ability service not connect", __func__);
-        return ABILITY_SERVICE_NOT_CONNECTED;
-    }
-    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(g_remoteObject);
-    return abms->TerminateAbility(callerToken, requestCode);
-}
-
 ErrCode AbilityManagerClient::ConnectAbility(
     const Want& want, const sptr<IAbilityConnection>& connect, const sptr<IRemoteObject>& callerToken, int32_t userId)
 {

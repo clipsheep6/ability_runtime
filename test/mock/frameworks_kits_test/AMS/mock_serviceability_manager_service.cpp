@@ -166,17 +166,6 @@ int MockServiceAbilityManagerService::ScheduleCommandAbilityWindowDone(
     return 0;
 }
 
-int MockServiceAbilityManagerService::TerminateAbilityResult(const sptr<IRemoteObject>& token, int startId)
-{
-    return 0;
-}
-
-int MockServiceAbilityManagerService::TerminateAbilityByCaller(const sptr<IRemoteObject>& callerToken,
-    int requestCode)
-{
-    return 0;
-}
-
 int MockServiceAbilityManagerService::StopServiceAbility(const Want& want, int32_t userId,
     const sptr<IRemoteObject> &token)
 {

@@ -110,7 +110,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->StartRemoteAbility(*want, intParam, int32Param, token);
     abilityms->CheckIfOperateRemote(*want);
     abilityms->AnonymizeDeviceId(stringParam);
-    abilityms->TerminateAbilityByCaller(token, intParam);
     abilityms->MinimizeAbility(token, boolParam);
     abilityms->ConnectAbility(*want, connect, token, int32Param);
     abilityms->ConnectAbilityCommon(*want, connect, token, extensionType, int32Param);

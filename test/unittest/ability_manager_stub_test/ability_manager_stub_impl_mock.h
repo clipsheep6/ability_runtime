@@ -32,7 +32,6 @@ public:
     virtual ~AbilityManagerStubImplMock()
     {}
 
-    MOCK_METHOD2(TerminateAbilityByCaller, int(const sptr<IRemoteObject>& callerToken, int requestCode));
     MOCK_METHOD4(StartAbility, int(const Want& want, const sptr<IRemoteObject>& callerToken,
         int32_t userId, int requestCode));
     MOCK_METHOD4(StartAbilityAsCaller, int(const Want &want, const sptr<IRemoteObject> &callerToken,
@@ -207,11 +206,6 @@ public:
     virtual void DumpSysState(
         const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int UserID)
     {}
-
-    virtual int TerminateAbilityResult(const sptr<IRemoteObject>& token, int startId)
-    {
-        return 0;
-    }
 
     virtual int StopServiceAbility(const Want& want, int32_t userId = DEFAULT_INVAL_VALUE,
         const sptr<IRemoteObject> &token = nullptr)

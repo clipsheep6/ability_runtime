@@ -2252,75 +2252,6 @@ std::string AbilityManagerService::AnonymizeDeviceId(const std::string& deviceId
     return anonDeviceId;
 }
 
-int AbilityManagerService::TerminateAbilityByCaller(const sptr<IRemoteObject> &callerToken, int requestCode)
-{
-    HILOG_INFO("Terminate ability by caller.");
-    if (!VerificationAllToken(callerToken)) {
-        return ERR_INVALID_VALUE;
-    }
-
-    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    if (!JudgeSelfCalled(abilityRecord)) {
-        return CHECK_PERMISSION_FAILED;
-    }
-#ifdef SUPPORT_GRAPHICS
-    if (IsSystemUiApp(abilityRecord->GetAbilityInfo())) {
-        HILOG_ERROR("System ui not allow terminate.");
-        return ERR_INVALID_VALUE;
-    }
-#endif
-
-    auto userId = abilityRecord->GetApplicationInfo().uid / BASE_USER_RANGE;
-    auto type = abilityRecord->GetAbilityInfo().type;
-    auto missionListManager = GetListManagerByUserId(userId);
-    auto connectManager = GetConnectManagerByUserId(userId);
-    switch (type) {
-        case AppExecFwk::AbilityType::SERVICE:
-        case AppExecFwk::AbilityType::EXTENSION: {
-            if (!connectManager) {
-                HILOG_ERROR("connectManager is nullptr.");
-                return ERR_INVALID_VALUE;
-            }
-            auto result = connectManager->TerminateAbility(abilityRecord, requestCode);
-            if (result == NO_FOUND_ABILITY_BY_CALLER) {
-                if (!IsAbilityControllerForeground(abilityRecord->GetAbilityInfo().bundleName)) {
-                    return ERR_WOULD_BLOCK;
-                }
-
-                if (!missionListManager) {
-                    HILOG_ERROR("missionListManager is nullptr. userId=%{public}d", userId);
-                    return ERR_INVALID_VALUE;
-                }
-                return missionListManager->TerminateAbility(abilityRecord, requestCode);
-            }
-            return result;
-        }
-#ifdef SUPPORT_GRAPHICS
-        case AppExecFwk::AbilityType::PAGE: {
-            if (!IsAbilityControllerForeground(abilityRecord->GetAbilityInfo().bundleName)) {
-                return ERR_WOULD_BLOCK;
-            }
-            if (!missionListManager) {
-                HILOG_ERROR("missionListManager is nullptr.");
-                return ERR_INVALID_VALUE;
-            }
-            auto result = missionListManager->TerminateAbility(abilityRecord, requestCode);
-            if (result == NO_FOUND_ABILITY_BY_CALLER) {
-                if (!connectManager) {
-                    HILOG_ERROR("connectManager is nullptr.");
-                    return ERR_INVALID_VALUE;
-                }
-                return connectManager->TerminateAbility(abilityRecord, requestCode);
-            }
-            return result;
-        }
-#endif
-        default:
-            return ERR_INVALID_VALUE;
-    }
-}
-
 int AbilityManagerService::MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -4405,34 +4336,6 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
     request.want.SetModuleName(request.abilityInfo.moduleName);
 
     return ERR_OK;
-}
-
-int AbilityManagerService::TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId)
-{
-    HILOG_INFO("Terminate ability result, startId: %{public}d", startId);
-    if (!VerificationAllToken(token)) {
-        return ERR_INVALID_VALUE;
-    }
-
-    auto abilityRecord = Token::GetAbilityRecordByToken(token);
-    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    if (!JudgeSelfCalled(abilityRecord)) {
-        return CHECK_PERMISSION_FAILED;
-    }
-
-    auto userId = abilityRecord->GetApplicationInfo().uid / BASE_USER_RANGE;
-    auto type = abilityRecord->GetAbilityInfo().type;
-    if (type != AppExecFwk::AbilityType::SERVICE && type != AppExecFwk::AbilityType::EXTENSION) {
-        HILOG_ERROR("target ability is not service.");
-        return TARGET_ABILITY_NOT_SERVICE;
-    }
-
-    auto connectManager = GetConnectManagerByUserId(userId);
-    if (!connectManager) {
-        HILOG_ERROR("connectManager is nullptr. userId=%{public}d", userId);
-        return ERR_INVALID_VALUE;
-    }
-    return connectManager->TerminateAbilityResult(token, startId);
 }
 
 int AbilityManagerService::StopServiceAbility(const Want &want, int32_t userId, const sptr<IRemoteObject> &token)

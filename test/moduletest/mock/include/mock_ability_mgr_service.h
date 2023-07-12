@@ -31,7 +31,6 @@ public:
         int32_t userId, int requestCode));
     MOCK_METHOD5(StartAbilityAsCaller, int(const Want &want, const StartOptions &startOptions,
         const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode));
-    MOCK_METHOD2(TerminateAbilityByCaller, int(const sptr<IRemoteObject>& callerToken, int requestCode));
     MOCK_METHOD3(TerminateAbility, int(const sptr<IRemoteObject>& token, int resultCode, const Want* resultWant));
     virtual int CloseAbility(const sptr<IRemoteObject>& token, int resultCode = DEFAULT_INVAL_VALUE,
         const Want* resultWant = nullptr) override
@@ -60,7 +59,6 @@ public:
     MOCK_METHOD5(
         DumpSysState,
         void(const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int UserID));
-    MOCK_METHOD2(TerminateAbilityResult, int(const sptr<IRemoteObject>&, int startId));
     MOCK_METHOD3(StopServiceAbility, int(const Want&, int32_t userId, const sptr<IRemoteObject> &token));
     MOCK_METHOD1(GetMissionIdByToken, int32_t(const sptr<IRemoteObject>& token));
     MOCK_METHOD2(GetAbilityTokenByCalleeObj, void(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token));

@@ -463,46 +463,6 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_0017, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
- * Function: TerminateAbilityResult
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService TerminateAbilityResult
- * EnvConditions: NA
- * CaseDescription: Verify the normal conditions of terminateAbilityResult
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_0018, TestSize.Level1)
-{
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-    OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
-    auto res = proxy_->TerminateAbilityResult(token, 1);
-
-    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_ABILITY_RESULT), mock_->code_);
-    EXPECT_EQ(res, NO_ERROR);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: TerminateAbilityResult
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService TerminateAbilityResult
- * EnvConditions: NA
- * CaseDescription: Verify the abnormal conditions of terminateAbilityResult
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_019, TestSize.Level1)
-{
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeErrorSendRequest));
-    OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
-    auto res = proxy_->TerminateAbilityResult(token, 1);
-
-    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_ABILITY_RESULT), mock_->code_);
-    EXPECT_NE(res, NO_ERROR);
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: ScheduleCommandAbilityDone
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService ScheduleCommandAbilityDone
@@ -930,25 +890,6 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StopExtensionAbility_001, 
     sptr<IRemoteObject> callerToken = nullptr;
     auto res = proxy_->StopExtensionAbility(want, callerToken);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::STOP_EXTENSION_ABILITY), mock_->code_);
-    EXPECT_EQ(res, NO_ERROR);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: TerminateAbilityByCaller
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService TerminateAbilityByCaller
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of TerminateAbilityByCaller
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_TerminateAbilityByCaller_001, TestSize.Level1)
-{
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-    sptr<IRemoteObject> callerToken = nullptr;
-    auto res = proxy_->TerminateAbilityByCaller(callerToken, -1);
-    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_ABILITY_BY_CALLER), mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
