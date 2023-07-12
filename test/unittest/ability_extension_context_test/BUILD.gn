@@ -45,12 +45,23 @@ ohos_unittest("ability_extension_context_test") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_runtime:runtime",
+    "napi:ace_napi",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "init:libbegetutil",
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 group("unittest") {

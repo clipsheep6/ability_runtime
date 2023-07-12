@@ -48,12 +48,15 @@ ohos_fuzztest("AbilityConnectManagerFuzzTest") {
 
   external_deps = [
     "ability_base:want",
+    "init:libbegetutil",
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "ffrt:libffrt",
     "ipc:ipc_core",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "samgr:samgr_proxy",
@@ -64,6 +67,8 @@ ohos_fuzztest("AbilityConnectManagerFuzzTest") {
     external_deps += [
       "i18n:intl_util",
       "window_manager:libwm",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
     ]
   }
 }

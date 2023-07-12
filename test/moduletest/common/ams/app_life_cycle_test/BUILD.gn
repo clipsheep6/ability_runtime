@@ -40,15 +40,27 @@ ohos_moduletest("AmsAppLifeCycleModuleTest") {
     "ability_base:configuration",
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "bundle_framework:appexecfwk_base",
     "ffrt:libffrt",
     "hilog:libhilog",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
 
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 

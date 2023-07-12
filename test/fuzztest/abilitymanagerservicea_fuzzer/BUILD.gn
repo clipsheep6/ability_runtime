@@ -53,8 +53,11 @@ ohos_fuzztest("AbilityManagerServiceAFuzzTest") {
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
+    "init:libbegetutil",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
     "ffrt:libffrt",
@@ -68,6 +71,8 @@ ohos_fuzztest("AbilityManagerServiceAFuzzTest") {
     deps += []
     external_deps += [
       "i18n:intl_util",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
       "window_manager:libwm",
     ]
   }

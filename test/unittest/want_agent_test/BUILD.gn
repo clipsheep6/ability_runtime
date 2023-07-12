@@ -47,9 +47,20 @@ ohos_unittest("want_agent_test") {
     "common_event_service:cesfwk_core",
     "ffrt:libffrt",
     "hilog:libhilog",
+    "init:libbegetutil",
     "ipc:ipc_core",
+    "eventhandler:libeventhandler",
     "samgr:samgr_proxy",
+    "napi:ace_napi",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 group("unittest") {

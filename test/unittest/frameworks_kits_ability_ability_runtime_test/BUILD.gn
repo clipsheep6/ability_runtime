@@ -52,12 +52,23 @@ ohos_unittest("ability_context_impl_test") {
     "ability_base:configuration",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
+    "init:libbegetutil",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ohos_unittest("caller_call_back_ut_test") {
@@ -73,7 +84,18 @@ ohos_unittest("caller_call_back_ut_test") {
   external_deps = [
     "ability_base:want",
     "c_utils:utils",
+    "napi:ace_napi",
+    "init:libbegetutil",
+    "eventhandler:libeventhandler",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ohos_unittest("local_call_container_ut_test") {
@@ -102,8 +124,19 @@ ohos_unittest("local_call_container_ut_test") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hilog:libhilog",
+    "init:libbegetutil",
+    "eventhandler:libeventhandler",
+    "napi:ace_napi",
     "ipc:ipc_core",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ohos_unittest("local_call_record_ut_test") {
@@ -132,8 +165,19 @@ ohos_unittest("local_call_record_ut_test") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hilog:libhilog",
+    "napi:ace_napi",
+    "init:libbegetutil",
+    "eventhandler:libeventhandler",
     "ipc:ipc_core",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ################################################################################

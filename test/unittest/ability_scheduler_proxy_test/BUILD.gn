@@ -56,7 +56,10 @@ ohos_unittest("ability_scheduler_proxy_test") {
     "ability_runtime:ability_manager",
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
+    "napi:ace_napi",
+    "init:libbegetutil",
     "common_event_service:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
     "ffrt:libffrt",
     "hilog:libhilog",
     "init:libbeget_proxy",
@@ -65,6 +68,14 @@ ohos_unittest("ability_scheduler_proxy_test") {
 
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 

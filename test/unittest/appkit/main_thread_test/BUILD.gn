@@ -69,6 +69,14 @@ ohos_unittest("main_thread_test") {
     "napi:ace_napi",
     "samgr:samgr_proxy",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 group("unittest") {

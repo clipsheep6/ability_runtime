@@ -62,7 +62,6 @@ ohos_unittest("ohos_application_test") {
     "ability_base:zuri",
     "ability_runtime:ability_deps_wrapper",
     "ability_runtime:ability_manager",
-    "ability_runtime:abilitykit_native",
     "ability_runtime:app_manager",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
@@ -80,6 +79,14 @@ ohos_unittest("ohos_application_test") {
     "napi:ace_napi",
     "samgr:samgr_proxy",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 group("unittest") {

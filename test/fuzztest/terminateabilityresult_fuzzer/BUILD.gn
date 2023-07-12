@@ -52,7 +52,10 @@ ohos_fuzztest("TerminateAbilityResultFuzzTest") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "napi:ace_napi",
+    "init:libbegetutil",
     "ffrt:libffrt",
+    "eventhandler:libeventhandler",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
@@ -61,6 +64,8 @@ ohos_fuzztest("TerminateAbilityResultFuzzTest") {
     deps += []
     external_deps += [
       "i18n:intl_util",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
       "window_manager:libwm",
     ]
   }

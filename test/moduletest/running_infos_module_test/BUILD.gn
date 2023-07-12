@@ -91,6 +91,7 @@ ohos_moduletest("running_infos_module_test") {
     "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "napi:ace_napi",
     "c_utils:utils",
     "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
@@ -98,6 +99,7 @@ ohos_moduletest("running_infos_module_test") {
     "ffrt:libffrt",
     "hicollie:libhicollie",
     "hilog:libhilog",
+    "eventhandler:libeventhandler",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
     "init:libbeget_proxy",
@@ -129,7 +131,9 @@ ohos_moduletest("running_infos_module_test") {
   if (ability_runtime_graphics) {
     external_deps += [
       "input:libmmi-client",
+      "multimedia_image_framework:image_native",
       "window_manager:libdm",
+      "window_manager:libwm",
     ]
   }
 }

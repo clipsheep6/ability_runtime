@@ -51,7 +51,10 @@ ohos_fuzztest("ScheduleDisconnectAbilityDoneFuzzTest") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "init:libbegetutil",
     "ffrt:libffrt",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
@@ -60,6 +63,8 @@ ohos_fuzztest("ScheduleDisconnectAbilityDoneFuzzTest") {
     deps += []
     external_deps += [
       "i18n:intl_util",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
       "window_manager:libwm",
     ]
   }

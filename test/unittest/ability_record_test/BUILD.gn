@@ -57,8 +57,11 @@ ohos_unittest("ability_record_test") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_deps_wrapper",
+    "init:libbegetutil",
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
+    "eventhandler:libeventhandler",
+    "napi:ace_napi",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "ffrt:libffrt",
@@ -70,6 +73,14 @@ ohos_unittest("ability_record_test") {
 
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -112,8 +123,11 @@ ohos_unittest("ability_record_test_call") {
     "ability_base:session_info",
     "ability_base:want",
     "ability_base:zuri",
+    "init:libbegetutil",
     "access_token:libaccesstoken_sdk",
+    "eventhandler:libeventhandler",
     "bundle_framework:appexecfwk_base",
+    "napi:ace_napi",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "ffrt:libffrt",
@@ -123,6 +137,14 @@ ohos_unittest("ability_record_test_call") {
 
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 

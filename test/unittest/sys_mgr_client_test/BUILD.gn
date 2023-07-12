@@ -49,8 +49,19 @@ ohos_unittest("sys_mgr_client_test") {
     "ability_runtime:runtime",
     "c_utils:utils",
     "ipc:ipc_core",
+    "init:libbegetutil",
+    "eventhandler:libeventhandler",
+    "napi:ace_napi",
     "samgr:samgr_proxy",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 group("unittest") {

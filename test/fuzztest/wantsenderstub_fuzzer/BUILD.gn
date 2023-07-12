@@ -49,12 +49,20 @@ ohos_fuzztest("WantSenderStubFuzzTest") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "ipc:ipc_core",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
+    "init:libbegetutil",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 

@@ -153,6 +153,8 @@ ohos_shared_library("abilityms") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "kv_store:distributeddata_inner",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -193,6 +195,7 @@ ohos_shared_library("abilityms") {
       "multimedia_image_framework:image_native",
       "resource_management:global_resmgr",
       "window_manager:libdm",
+      "window_manager:libwm",
     ]
   }
 

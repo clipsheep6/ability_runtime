@@ -47,7 +47,17 @@ ohos_shared_library("appmanager") {
     "ipc:ipc_core",
     "napi:ace_napi",
     "samgr:samgr_proxy",
+    "eventhandler:libeventhandler",
+    "init:libbegetutil",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 
   relative_install_dir = "module/app/ability"
 

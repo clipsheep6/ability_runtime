@@ -53,7 +53,10 @@ ohos_fuzztest("AbilityTransitionDoneFuzzTest") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "ffrt:libffrt",
+    "init:libbegetutil",
     "ipc:ipc_core",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "samgr:samgr_proxy",
   ]
 
@@ -61,6 +64,8 @@ ohos_fuzztest("AbilityTransitionDoneFuzzTest") {
     deps += []
     external_deps += [
       "i18n:intl_util",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
       "window_manager:libwm",
     ]
   }

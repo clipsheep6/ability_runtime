@@ -56,10 +56,21 @@ ohos_moduletest("quick_fix_manager_module_test") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
+    "init:libbegetutil",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 group("moduletest") {

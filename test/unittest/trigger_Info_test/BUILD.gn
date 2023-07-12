@@ -48,8 +48,18 @@ ohos_unittest("trigger_Info_test") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "init:libbegetutil",
     "samgr:samgr_proxy",
+    "napi:ace_napi",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 group("unittest") {

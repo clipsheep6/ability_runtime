@@ -52,7 +52,9 @@ ohos_fuzztest("SendANRProcessIDFuzzTest") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "eventhandler:libeventhandler",
+    "init:libbegetutil",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "samgr:samgr_proxy",
@@ -62,6 +64,8 @@ ohos_fuzztest("SendANRProcessIDFuzzTest") {
     deps += []
     external_deps += [
       "i18n:intl_util",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
       "window_manager:libwm",
     ]
   }

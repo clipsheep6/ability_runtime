@@ -48,13 +48,21 @@ ohos_fuzztest("StopUserCallbackStubFuzzTest") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "napi:ace_napi",
+    "init:libbegetutil",
+    "eventhandler:libeventhandler",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 

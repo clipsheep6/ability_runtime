@@ -53,12 +53,23 @@ ohos_fuzztest("TerminateAbilityFuzzTest") {
     "ability_base:want",
     "ability_runtime:ability_manager",
     "appspawn:appspawn_socket_client",
+    "init:libbegetutil",
     "bundle_framework:appexecfwk_base",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
     "bundle_framework:appexecfwk_core",
     "ffrt:libffrt",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
+  }
 }
 
 ###############################################################################

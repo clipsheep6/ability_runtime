@@ -49,6 +49,7 @@ ohos_fuzztest("AbilityMgrRestFuzzTest") {
     "ability_runtime:ability_deps_wrapper",
     "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_base",
+    "init:libbegetutil",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
@@ -56,10 +57,17 @@ ohos_fuzztest("AbilityMgrRestFuzzTest") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "napi:ace_napi",
+    "eventhandler:libeventhandler",
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "multimedia_image_framework:image_native",
+      "window_manager:libdm",
+      "window_manager:libwm",
+    ]
   }
 }
 
