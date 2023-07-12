@@ -150,7 +150,7 @@ ohos_shared_library("appkit_native") {
     "faultloggerd:libbacktrace_local",
     "faultloggerd:libdfx_procinfo",
     "faultloggerd:libfaultloggerd",
-    "graphic_standard:librender_service_client",
+    "graphic_2d:librender_service_client",
     "hicollie:libhicollie",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
