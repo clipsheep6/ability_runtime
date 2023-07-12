@@ -545,6 +545,8 @@ public:
      */
     std::shared_ptr<AbilityEventHandler> GetEventHandler();
 
+    std::shared_ptr<AbilityEventOldHandler> GetEventOldHandler();
+
     /**
      * @brief Ability hidump.
      * @param fd Indicates the fd.
@@ -1509,6 +1511,8 @@ private:
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 
+    std::shared_ptr<AppExecFwk::EventRunner> eventLoop_;
+    std::shared_ptr<AbilityEventOldHandler> handler_;
     std::shared_ptr<TaskHandlerWrap> taskHandler_;
     std::shared_ptr<AbilityEventHandler> eventHandler_;
     ServiceRunningState state_;

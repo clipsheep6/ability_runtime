@@ -943,10 +943,12 @@ int MissionListManager::AttachAbilityThread(const sptr<IAbilityScheduler> &sched
         abilityRecord->CallRequest();
     }
 
-    auto taskHandler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
-    CHECK_POINTER_AND_RETURN_LOG(taskHandler, ERR_INVALID_VALUE, "Fail to get AbilityTaskHandler.");
+    // auto taskHandler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventOldHandler();
+    CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityTaskHandler.");
     auto taskName = std::to_string(abilityRecord->GetMissionId()) + "_cold";
-    taskHandler->CancelTask(taskName);
+    handler->RemoveTask(taskName);
+    // taskHandler->CancelTask(taskName);
 #ifdef SUPPORT_GRAPHICS
     abilityRecord->PostCancelStartingWindowHotTask();
 #endif
@@ -1162,8 +1164,10 @@ int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> 
 #ifdef SUPPORT_GRAPHICS
         HILOG_INFO("ok");
         abilityRecord->SetStartingWindow(false);
+        auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventOldHandler();
         auto taskName = std::to_string(abilityRecord->GetMissionId()) + "_hot";
-        taskHandler->CancelTask(taskName);
+        handler->RemoveTask(taskName);
+        // taskHandler->CancelTask(taskName);
 #endif
         auto task = [self, abilityRecord]() {
             auto selfObj = self.lock();
