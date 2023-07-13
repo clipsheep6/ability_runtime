@@ -97,7 +97,7 @@ public:
      *
      * @return Returns the local group database file.
      */
-    int GetSystemDatabaseDir(std::string groupId, std::string &databaseDir) override;
+    int32_t GetSystemDatabaseDir(const std::string &groupId, bool checkExist, std::string &databaseDir) override;
 
     /**
      * @brief Obtains the path storing the storage file of the application.
@@ -111,7 +111,7 @@ public:
      *
      * @return Returns the local system storage file.
      */
-    int GetSystemPreferencesDir(std::string groupId, std::string &preferencesDir) override;
+    int32_t GetSystemPreferencesDir(const std::string &groupId, bool checkExist, std::string &preferencesDir) override;
 
     /**
      * @brief Obtains the path storing the group file of the application by the groupId.
@@ -350,8 +350,12 @@ private:
     void ChangeToLocalPath(const std::string &bundleName,
         const std::string &sourcDir, std::string &localPath);
 
-    std::string GetGroupDatabaseDir(std::string groupId);
-    std::string GetGroupPreferencesDir(std::string groupId);
+    void CreateDirIfNotExistWithCheck(const std::string& dirPath, const mode_t& mode, bool checkExist = true);
+    int32_t GetDatabaseDirWithCheck(bool checkExist, std::string &databaseDir);
+    int32_t GetGroupDatabaseDirWithCheck(const std::string &groupId, bool checkExist, std::string &databaseDir);
+    int32_t GetPreferencesDirWithCheck(bool checkExist, std::string &preferencesDir);
+    int32_t GetGroupPreferencesDirWithCheck(const std::string &groupId, bool checkExist, std::string &preferencesDir);
+    int32_t GetGroupDirWithCheck(const std::string &groupId, bool checkExist, std::string &groupDir);
 
     static Global::Resource::DeviceType deviceType_;
     std::shared_ptr<AppExecFwk::ApplicationInfo> applicationInfo_ = nullptr;
@@ -361,6 +365,8 @@ private:
     std::shared_ptr<AppExecFwk::Configuration> config_ = nullptr;
     std::string currArea_ = "el2";
     std::vector<AppExecFwk::OverlayModuleInfo> overlayModuleInfos_;
+    std::set<std::string> checkedDirSet_;
+    std::mutex checkedDirSetLock_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
