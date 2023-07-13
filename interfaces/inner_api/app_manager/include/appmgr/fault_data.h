@@ -48,6 +48,10 @@ struct FaultData : public Parcelable {
     // error object
     ErrorObject errorObject;
     FaultDataType faultType = FaultDataType::UNKNOWN;
+    std::string timeoutMarkers;
+    bool waitSaveState = false;
+    bool notifyApp = false;
+    bool forceExit = false;
 };
 
 /**
@@ -62,6 +66,10 @@ struct AppFaultDataBySA : public Parcelable {
     ErrorObject errorObject;
     FaultDataType faultType = FaultDataType::UNKNOWN;
     int32_t pid = -1;
+    std::string timeoutMarkers;
+    bool waitSaveState = false;
+    bool notifyApp = false;
+    bool forceExit = false;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

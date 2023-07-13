@@ -132,8 +132,9 @@ public:
      *
      * @param msgId the msg id in ability record
      * @param abilityRecordId the id of ability record
+     * @param isHalf is half
      */
-    void OnTimeOut(uint32_t msgId, int64_t abilityRecordId);
+    void OnTimeOut(uint32_t msgId, int64_t abilityRecordId, bool isHalf = false);
 
     /**
      * @brief handle when ability died
@@ -219,7 +220,7 @@ private:
         std::string errorReason);
     void MoveToBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    void PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId);
+    void PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId, bool isHalf = false);
     void DelayCompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
     bool IsContainsAbilityInner(const sptr<IRemoteObject> &token) const;
