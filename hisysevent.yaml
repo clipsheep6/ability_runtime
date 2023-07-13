@@ -246,6 +246,7 @@ PROCESS_START:
   CALLER_BUNDLE_NAME: {type: STRING, desc: caller bundle name}
   CALLER_UID: {type: INT32, desc: caller uid}
   CALLER_PROCESS_NAME: {type: STRING, desc: caller process name}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
 
 PROCESS_EXIT:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: application process exit event reporting}
