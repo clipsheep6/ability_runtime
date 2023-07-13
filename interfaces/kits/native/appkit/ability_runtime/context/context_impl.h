@@ -92,6 +92,14 @@ public:
     std::string GetDatabaseDir() override;
 
     /**
+     * @brief Obtains the local system database path.
+     * If the local group database path does not exist, the system creates one and returns the created path.
+     *
+     * @return Returns the local group database file.
+     */
+    int GetSystemDatabaseDir(std::string groupId, std::string &databaseDir) override;
+
+    /**
      * @brief Obtains the path storing the storage file of the application.
      *
      * @return Returns the local storage file.
@@ -99,9 +107,16 @@ public:
     std::string GetPreferencesDir() override;
 
     /**
-     * @brief Obtains the path storing the storage file of the application by the groupId.
+     * @brief Obtains the path storing the system storage file of the application.
      *
-     * @return Returns the local storage file.
+     * @return Returns the local system storage file.
+     */
+    int GetSystemPreferencesDir(std::string groupId, std::string &preferencesDir) override;
+
+    /**
+     * @brief Obtains the path storing the group file of the application by the groupId.
+     *
+     * @return Returns the local group file.
      */
     std::string GetGroupDir(std::string groupId) override;
 
@@ -334,6 +349,9 @@ private:
 
     void ChangeToLocalPath(const std::string &bundleName,
         const std::string &sourcDir, std::string &localPath);
+
+    std::string GetGroupDatabaseDir(std::string groupId);
+    std::string GetGroupPreferencesDir(std::string groupId);
 
     static Global::Resource::DeviceType deviceType_;
     std::shared_ptr<AppExecFwk::ApplicationInfo> applicationInfo_ = nullptr;

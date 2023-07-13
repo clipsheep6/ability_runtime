@@ -287,6 +287,12 @@ void AppScheduler::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk:
     IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->GetRunningProcessInfoByPid(pid, info));
 }
 
+void AppScheduler::SetAbilityForegroundingFlagToAppRecord(const pid_t pid) const
+{
+    CHECK_POINTER(appMgrClient_);
+    IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->SetAbilityForegroundingFlagToAppRecord(pid));
+}
+
 void AppScheduler::StartupResidentProcess(const std::vector<AppExecFwk::BundleInfo> &bundleInfos)
 {
     CHECK_POINTER(appMgrClient_);

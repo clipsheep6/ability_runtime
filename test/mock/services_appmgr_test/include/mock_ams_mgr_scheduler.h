@@ -45,6 +45,7 @@ public:
     MOCK_METHOD2(GetRunningProcessInfoByToken,
         void(const sptr<IRemoteObject>& token, OHOS::AppExecFwk::RunningProcessInfo& info));
     MOCK_METHOD2(GetRunningProcessInfoByPid, void(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo& info));
+    MOCK_METHOD1(SetAbilityForegroundingFlagToAppRecord, void(const pid_t pid));
     MOCK_METHOD2(StartSpecifiedAbility, void(const AAFwk::Want& want, const AppExecFwk::AbilityInfo& abilityInfo));
     MOCK_METHOD1(RegisterStartSpecifiedAbilityResponse, void(const sptr<IStartSpecifiedAbilityResponse>& response));
     MOCK_METHOD3(GetApplicationInfoByProcessID, int(const int pid, AppExecFwk::ApplicationInfo& application,

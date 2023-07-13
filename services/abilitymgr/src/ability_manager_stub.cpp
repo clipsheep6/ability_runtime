@@ -43,8 +43,6 @@ void AbilityManagerStub::FirstStepInit()
 {
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_ABILITY)] =
         &AbilityManagerStub::TerminateAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_ABILITY_BY_CALLER)] =
-        &AbilityManagerStub::TerminateAbilityByCallerInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MINIMIZE_ABILITY)] =
         &AbilityManagerStub::MinimizeAbilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ATTACH_ABILITY_THREAD)] =
@@ -55,8 +53,6 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::ScheduleConnectAbilityDoneInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DISCONNECT_ABILITY_DONE)] =
         &AbilityManagerStub::ScheduleDisconnectAbilityDoneInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_ABILITY_RESULT)] =
-        &AbilityManagerStub::TerminateAbilityResultInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::COMMAND_ABILITY_DONE)] =
         &AbilityManagerStub::ScheduleCommandAbilityDoneInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::COMMAND_ABILITY_WINDOW_DONE)] =
@@ -245,6 +241,8 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::FinishUserTestInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_TOP_ABILITY_TOKEN)] =
         &AbilityManagerStub::GetTopAbilityTokenInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CHECK_UI_EXTENSION_IS_FOCUSED)] =
+        &AbilityManagerStub::CheckUIExtensionIsFocusedInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DELEGATOR_DO_ABILITY_FOREGROUND)] =
         &AbilityManagerStub::DelegatorDoAbilityForegroundInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DELEGATOR_DO_ABILITY_BACKGROUND)] =
@@ -257,6 +255,8 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::GetMissionIdByTokenInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_TOP_ABILITY)] =
         &AbilityManagerStub::GetTopAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ELEMENT_NAME_BY_TOKEN)] =
+        &AbilityManagerStub::GetElementNameByTokenInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DUMP_ABILITY_INFO_DONE)] =
         &AbilityManagerStub::DumpAbilityInfoDoneInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_EXTENSION_ABILITY)] =
@@ -275,6 +275,8 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::GetDlpConnectionInfosInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_ABILITY_TO_BACKGROUND)] =
         &AbilityManagerStub::MoveAbilityToBackgroundInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_CONTINUE_STATE)] =
+        &AbilityManagerStub::SetMissionContinueStateInner;
 #ifdef SUPPORT_GRAPHICS
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_LABEL)] =
         &AbilityManagerStub::SetMissionLabelInner;
@@ -307,7 +309,6 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[START_SPECIFIED_ABILITY_BY_SCB] = &AbilityManagerStub::StartSpecifiedAbilityBySCBInner;
     requestFuncMap_[NOTIFY_SAVE_AS_RESULT] = &AbilityManagerStub::NotifySaveAsResultInner;
     requestFuncMap_[SET_SESSIONMANAGERSERVICE] = &AbilityManagerStub::SetSessionManagerServiceInner;
-    requestFuncMap_[NOTIFY_SAVE_AS_RESULT] = &AbilityManagerStub::NotifySaveAsResultInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -335,6 +336,17 @@ int AbilityManagerStub::GetTopAbilityInner(MessageParcel &data, MessageParcel &r
     AppExecFwk::ElementName result = GetTopAbility();
     if (result.GetDeviceID().empty()) {
         HILOG_DEBUG("GetTopAbilityInner is nullptr");
+    }
+    reply.WriteParcelable(&result);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::GetElementNameByTokenInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();;
+    AppExecFwk::ElementName result = GetElementNameByToken(token);
+    if (result.GetDeviceID().empty()) {
+        HILOG_DEBUG("GetElementNameByTokenInner is nullptr");
     }
     reply.WriteParcelable(&result);
     return NO_ERROR;
@@ -409,18 +421,6 @@ int AbilityManagerStub::SendResultToAbilityInner(MessageParcel &data, MessagePar
     return NO_ERROR;
 }
 
-int AbilityManagerStub::TerminateAbilityByCallerInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> callerToken = nullptr;
-    if (data.ReadBool()) {
-        callerToken = data.ReadRemoteObject();
-    }
-    int requestCode = data.ReadInt32();
-    int32_t result = TerminateAbilityByCaller(callerToken, requestCode);
-    reply.WriteInt32(result);
-    return NO_ERROR;
-}
-
 int AbilityManagerStub::MinimizeAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
     auto token = data.ReadRemoteObject();
@@ -448,7 +448,8 @@ int AbilityManagerStub::MinimizeUIAbilityBySCBInner(MessageParcel &data, Message
     if (data.ReadBool()) {
         sessionInfo = data.ReadParcelable<SessionInfo>();
     }
-    int32_t result = MinimizeUIAbilityBySCB(sessionInfo);
+    bool fromUser = data.ReadBool();
+    int32_t result = MinimizeUIAbilityBySCB(sessionInfo, fromUser);
     reply.WriteInt32(result);
     return NO_ERROR;
 }
@@ -495,15 +496,6 @@ int AbilityManagerStub::ScheduleDisconnectAbilityDoneInner(MessageParcel &data, 
 {
     auto token = data.ReadRemoteObject();
     int32_t result = ScheduleDisconnectAbilityDone(token);
-    reply.WriteInt32(result);
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::TerminateAbilityResultInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> token = data.ReadRemoteObject();
-    int startId = data.ReadInt32();
-    int32_t result = TerminateAbilityResult(token, startId);
     reply.WriteInt32(result);
     return NO_ERROR;
 }
@@ -1758,6 +1750,20 @@ int AbilityManagerStub::GetTopAbilityTokenInner(MessageParcel &data, MessageParc
     return NO_ERROR;
 }
 
+int AbilityManagerStub::CheckUIExtensionIsFocusedInner(MessageParcel &data, MessageParcel &reply)
+{
+    uint32_t uiExtensionTokenId = data.ReadUint32();
+    bool isFocused = false;
+    auto result = CheckUIExtensionIsFocused(uiExtensionTokenId, isFocused);
+    if (result == ERR_OK) {
+        if (!reply.WriteBool(isFocused)) {
+            HILOG_ERROR("reply write failed.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+    return result;
+}
+
 int AbilityManagerStub::DelegatorDoAbilityForegroundInner(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> token = data.ReadRemoteObject();
@@ -2116,6 +2122,23 @@ int AbilityManagerStub::GetDlpConnectionInfosInner(MessageParcel &data, MessageP
     }
 
     return ERR_OK;
+}
+
+int AbilityManagerStub::SetMissionContinueStateInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    if (!token) {
+        HILOG_ERROR("SetMissionContinueStateInner read ability token failed.");
+        return ERR_NULL_OBJECT;
+    }
+
+    int32_t state = data.ReadInt32();
+    int result = SetMissionContinueState(token, static_cast<AAFwk::ContinueState>(state));
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("SetMissionContinueState failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
 }
 
 #ifdef SUPPORT_GRAPHICS

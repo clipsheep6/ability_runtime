@@ -21,6 +21,11 @@ namespace AbilityRuntime {
 namespace RequestConstants {
 constexpr const char* REQUEST_TOKEN_KEY = "ohos.ability.params.request.token";
 constexpr const char* REQUEST_CALLBACK_KEY = "ohos.ability.params.request.callback";
+constexpr const char* WINDOW_RECTANGLE_LEFT_KEY = "ohos.ability.params.request.left";
+constexpr const char* WINDOW_RECTANGLE_TOP_KEY = "ohos.ability.params.request.top";
+constexpr const char* WINDOW_RECTANGLE_HEIGHT_KEY = "ohos.ability.params.request.height";
+constexpr const char* WINDOW_RECTANGLE_WIDTH_KEY = "ohos.ability.params.request.width";
+
 }  // namespace RequestConstants
 }  // namespace AbilityRuntime
 }  // namespace OHOS

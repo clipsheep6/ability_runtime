@@ -53,7 +53,7 @@
             "faultloggerd",
             "ffrt",
             "form_fwk",
-            "graphic_standard",
+            "graphic_2d",
             "hichecker",
             "hicollie",
             "hilog",
@@ -71,12 +71,14 @@
             "napi",
             "netmanager_base",
             "os_account",
+            "previewer",
             "relational_store",
             "resource_management",
             "resource_schedule_service",
             "safwk",
             "samgr",
             "storage_service",
+            "toolchain",
             "webview",
             "window_manager"
   ],
@@ -323,6 +325,13 @@
           },
           {
             "header": {
+              "header_base": "//foundation/ability/ability_runtime/frameworks/simulator",
+              "header_files": []
+            },
+            "name": "//foundation/ability/ability_runtime/frameworks/simulator/ability_simulator:ability_simulator"
+          },
+          {
+            "header": {
               "header_base": "//foundation/ability/ability_runtime/tools/aa/include",
               "header_files": [
                 "shell_command.h"
@@ -347,6 +356,15 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:ui_extension"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/extension_manager/include",
+              "header_files": [
+                "extension_manager_client.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/extension_manager:extension_manager"
           }
         ],
         "test": [

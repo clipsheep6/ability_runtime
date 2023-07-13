@@ -15,25 +15,77 @@
 
 #include <cstdint>
 #include <iostream>
+
+#include "options.h"
 #include "simulator.h"
 
-constexpr int32_t MIN_PARAMS = 5;
+constexpr int32_t PARAM_ONE = 1;
+constexpr int32_t PARAM_TWO = 2;
+constexpr int32_t PARAM_THREE = 3;
+constexpr int32_t PARAM_FOUR = 4;
+constexpr int32_t PARAM_FIVE = 5;
+constexpr int32_t PARAM_SIX = 6;
+constexpr int32_t PARAM_SEVEN = 7;
+constexpr int32_t PARAM_EIGHT = 8;
+constexpr int32_t PARAM_NINE = 9;
+constexpr int32_t PARAM_TEN = 10;
+constexpr int32_t PARAM_ELEVEN = 11;
+constexpr int32_t PARAM_TWELVE = 12;
+constexpr int32_t PARAM_THIRTEEN = 13;
+constexpr int32_t PARAM_FOURTEEN = 14;
+constexpr int32_t PARAM_FIFTEEN = 15;
+constexpr int32_t PARAM_SIXTEEN = 16;
+constexpr int32_t PARAM_SEVENTEEN = 17;
+constexpr int32_t PARAM_EIGHTEEN = 18;
+constexpr int32_t PARAM_NINETEEN = 19;
+constexpr int32_t PARAM_TWENTY = 20;
+constexpr int32_t PARAM_TWENTYONE = 21;
+constexpr int32_t PARAM_TWENTYTWO = 22;
+constexpr int32_t PARAM_TWENTYTHREE = 23;
+constexpr int32_t PARAM_TWENTYFOUR = 24;
+constexpr int32_t PARAM_TWENTYFIVE = 25;
+constexpr int32_t MIN_PARAMS = 26;
 
-int32_t main(int32_t argc, const char* argv[])
+int32_t main(int32_t argc, const char *argv[])
 {
     if (argc < MIN_PARAMS) {
         std::cout << "Insufficient parameters." << std::endl;
         return 1;
     }
 
-    OHOS::AbilityRuntime::Simulator::Options options {argv[1], argv[2], argv[3], argv[4], atoi(argv[5])};
+    OHOS::AbilityRuntime::Options options;
+    options.bundleName = argv[PARAM_ONE];
+    options.moduleName = argv[PARAM_TWO];
+    options.modulePath = argv[PARAM_THREE];
+    options.resourcePath = argv[PARAM_FOUR];
+    options.debugPort = atoi(argv[PARAM_FIVE]);
+    options.assetPath = argv[PARAM_SIX];
+    options.systemResourcePath = argv[PARAM_SEVEN];
+    options.appResourcePath = argv[PARAM_EIGHT];
+    options.containerSdkPath = argv[PARAM_NINE];
+    options.url = argv[PARAM_TEN];
+    options.language = argv[PARAM_ELEVEN];
+    options.region = argv[PARAM_TWELVE];
+    options.script = argv[PARAM_THIRTEEN];
+    options.themeId = atoi(argv[PARAM_FOURTEEN]);
+    options.deviceWidth = atoi(argv[PARAM_FIFTEEN]);
+    options.deviceHeight = atoi(argv[PARAM_SIXTEEN]);
+    options.isRound = atoi(argv[PARAM_SEVENTEEN]);
+    options.compatibleVersion = atoi(argv[PARAM_EIGHTEEN]);
+    options.installationFree = atoi(argv[PARAM_NINETEEN]);
+    options.labelId = atoi(argv[PARAM_TWENTY]);
+    options.compileMode = argv[PARAM_TWENTYONE];
+    options.pageProfile = argv[PARAM_TWENTYTWO];
+    options.targetVersion = atoi(argv[PARAM_TWENTYTHREE]);
+    options.releaseType = argv[PARAM_TWENTYFOUR];
+    options.enablePartialUpdate = atoi(argv[PARAM_TWENTYFIVE]);
     auto simulator = OHOS::AbilityRuntime::Simulator::Create(options);
     if (!simulator) {
         std::cout << "Create Simulator failed." << std::endl;
         return 1;
     }
 
-    std::string abilitySrcPath {argv[6]};
+    std::string abilitySrcPath {argv[MIN_PARAMS]};
     int64_t id = simulator->StartAbility(abilitySrcPath, [](int64_t abilityId) {});
     if (id < 0) {
         std::cout << "Start Ability failed." << std::endl;

@@ -88,17 +88,6 @@ ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject>& token,
     return -1;
 }
 
-ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject>& callerToken, int requestCode)
-{
-    GTEST_LOG_(INFO) << "Mock AbilityManagerClient::TerminateAbility called";
-    return -1;
-}
-
-ErrCode AbilityManagerClient::TerminateAbilityResult(const sptr<IRemoteObject>& token, int startId)
-{
-    return -1;
-}
-
 ErrCode AbilityManagerClient::ConnectAbility(
     const Want& want, const sptr<IAbilityConnection>& connect, const sptr<IRemoteObject>& callerToken, int32_t userId)
 {

@@ -53,51 +53,6 @@ void AbilityContextInterfaceTest::TearDown()
 {}
 
 /**
- * @tc.number: AaFwk_AbilityContext_TerminateAbilityResult_0100
- * @tc.name: TerminateAbilityResult
- * @tc.desc: Test the attachbasecontext call to verify that the return value of TerminateAbilityResult is correct.
- */
-HWTEST_F(AbilityContextInterfaceTest, AaFwk_AbilityContext_TerminateAbilityResult_0100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AaFwk_AbilityContext_TerminateAbilityResult_0100 start";
-    const ErrCode testValue = ERR_OK;
-    OHOS::AAFwk::MockAbilityManagerClient::GetInstance()->SetTerminateAbilityResult(testValue);
-    std::shared_ptr<AbilityContext> abilityContext = std::make_shared<AbilityContext>();
-    EXPECT_TRUE(abilityContext->TerminateAbilityResult(0));
-    GTEST_LOG_(INFO) << "AaFwk_AbilityContext_TerminateAbilityResult_0100 end";
-}
-
-/**
- * @tc.number: AaFwk_AbilityContext_TerminateAbilityResult_0200
- * @tc.name: TerminateAbilityResult
- * @tc.desc: Test the attachbasecontext call to verify that the return value of TerminateAbilityResult is correct.
- */
-HWTEST_F(AbilityContextInterfaceTest, AaFwk_AbilityContext_TerminateAbilityResult_0200, Function | MediumTest | Level3)
-{
-    GTEST_LOG_(INFO) << "AaFwk_AbilityContext_TerminateAbilityResult_0200 start";
-    const ErrCode testValue = ERR_NO_INIT;
-    OHOS::AAFwk::MockAbilityManagerClient::GetInstance()->SetTerminateAbilityResult(testValue);
-    std::shared_ptr<AbilityContext> abilityContext = std::make_shared<AbilityContext>();
-    EXPECT_FALSE(abilityContext->TerminateAbilityResult(0));
-    GTEST_LOG_(INFO) << "AaFwk_AbilityContext_TerminateAbilityResult_0200 end";
-}
-
-/**
- * @tc.number: AaFwk_AbilityContext_TerminateAbilityResult_0300
- * @tc.name: TerminateAbilityResult
- * @tc.desc: Test the attachbasecontext call to verify that the return value of TerminateAbilityResult is correct.
- */
-HWTEST_F(AbilityContextInterfaceTest, AaFwk_AbilityContext_TerminateAbilityResult_0300, Function | MediumTest | Level3)
-{
-    GTEST_LOG_(INFO) << "AaFwk_AbilityContext_TerminateAbilityResult_0300 start";
-    OHOS::AAFwk::MockAbilityManagerClient::SetInstanceNull(false);
-    std::shared_ptr<AbilityContext> abilityContext = std::make_shared<AbilityContext>();
-    EXPECT_FALSE(abilityContext->TerminateAbilityResult(0));
-    OHOS::AAFwk::MockAbilityManagerClient::SetInstanceNull(true);
-    GTEST_LOG_(INFO) << "AaFwk_AbilityContext_TerminateAbilityResult_0300 end";
-}
-
-/**
  * @tc.number: AaFwk_AbilityContext_SetColorMode_0100
  * @tc.name: SetColorMode
  * @tc.desc: Test the attachbasecontext call to verify that the return value of SetColorMode is correct.
@@ -508,23 +463,6 @@ HWTEST_F(AbilityContextInterfaceTest, AaFwk_AbilityContext_SetPattern_0100, Func
     retVal = abilityContext->GetPattern();
     EXPECT_TRUE((retVal == testList));
     GTEST_LOG_(INFO) << "AaFwk_AbilityContext_SetPattern_0100 end";
-}
-
-/**
- * @tc.number: AaFwk_AbilityContext_TerminateAbility_0100
- * @tc.name: TerminateAbility
- * @tc.desc: Test the attachbasecontext call to verify that the return value of TerminateAbility is correct.
- */
-HWTEST_F(AbilityContextInterfaceTest, AaFwk_AbilityContext_TerminateAbility_0100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AaFwk_AbilityContext_TerminateAbility_0100 start";
-    const ErrCode mockValue = ERR_OK;
-    int testValue = 0;
-    OHOS::AAFwk::MockAbilityManagerClient::GetInstance()->SetTerminateAbility(mockValue);
-    std::shared_ptr<AbilityContext> abilityContext = std::make_shared<AbilityContext>();
-    abilityContext->TerminateAbility(testValue);
-    EXPECT_EQ(testValue, AAFwk::MockAbilityManagerClient::GetInstance()->GetTerminateAbilityValue());
-    GTEST_LOG_(INFO) << "AaFwk_AbilityContext_TerminateAbility_0100 end";
 }
 
 HWTEST_F(AbilityContextInterfaceTest, AaFwk_AbilityContext_GetMissionId_0100, Function | MediumTest | Level1)

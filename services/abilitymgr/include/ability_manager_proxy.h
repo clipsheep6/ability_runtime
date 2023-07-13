@@ -19,6 +19,7 @@
 #include "ability_manager_interface.h"
 #include "hilog_wrapper.h"
 #include "iremote_proxy.h"
+#include "mission_info.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -216,15 +217,6 @@ public:
     virtual int SendResultToAbility(int32_t requestCode, int32_t resultCode, Want& resultWant) override;
 
     /**
-     * TerminateAbility, terminate the special ability.
-     *
-     * @param callerToken, caller ability token.
-     * @param requestCode, Ability request code.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int TerminateAbilityByCaller(const sptr<IRemoteObject> &callerToken, int requestCode) override;
-
-    /**
      * MoveAbilityToBackground.
      *
      * @param token, the token of the ability to move.
@@ -266,9 +258,10 @@ public:
      * MinimizeUIAbilityBySCB, minimize the special ability by scb.
      *
      * @param sessionInfo the session info of the ability to minimize.
+     * @param fromUser, Whether form user.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo) override;
+    virtual int MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool fromUser = false) override;
 
     /**
      * ConnectAbility, connect session with service ability.
@@ -389,17 +382,6 @@ public:
     virtual void DumpState(const std::string &args, std::vector<std::string> &state) override;
     virtual void DumpSysState(
         const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID) override;
-    /**
-     * Destroys this Service ability if the number of times it
-     * has been started equals the number represented by
-     * the given startId.
-     *
-     * @param token ability's token.
-     * @param startId is incremented by 1 every time this ability is started.
-     * @return Returns true if the startId matches the number of startup times
-     * and this Service ability will be destroyed; returns false otherwise.
-     */
-    virtual int TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId) override;
 
     /**
      * Destroys this Service ability by Want.
@@ -417,6 +399,13 @@ public:
      * @return Returns front desk focus ability elementName.
      */
     virtual AppExecFwk::ElementName GetTopAbility() override;
+
+    /**
+     * Get element name by token.
+     *
+     * @return Returns front desk focus ability elementName by token.
+     */
+    virtual AppExecFwk::ElementName GetElementNameByToken(const sptr<IRemoteObject> &token) override;
 
     /**
      * Kill the process immediately.
@@ -562,6 +551,8 @@ public:
 
     virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override;
 
+    virtual int SetMissionContinueState(const sptr<IRemoteObject> &token, const AAFwk::ContinueState &state) override;
+
 #ifdef SUPPORT_GRAPHICS
     virtual int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label) override;
 
@@ -633,6 +624,8 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int GetTopAbility(sptr<IRemoteObject> &token) override;
+
+    virtual int CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId, bool& isFocused) override;
 
     /**
      * The delegator calls this interface to move the ability to the foreground.

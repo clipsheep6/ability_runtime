@@ -865,18 +865,6 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetThemeId_0100, Function | M
 }
 
 /**
- * @tc.number: AaFwk_Ability_Context_TerminateAbilityResult_0100
- * @tc.name: TerminateAbilityResult
- * @tc.desc: Verify that function TerminateAbilityResult.
- */
-HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_TerminateAbilityResult_0100, Function | MediumTest | Level1)
-{
-    int32_t startId = 1;
-    auto result = context_->TerminateAbilityResult(startId);
-    EXPECT_FALSE(result);
-}
-
-/**
  * @tc.number: AaFwk_Ability_Context_GetDisplayOrientation_0100
  * @tc.name: GetDisplayOrientation
  * @tc.desc: Verify that function GetDisplayOrientation.

@@ -22,6 +22,7 @@
 #include "ability_manager_errors.h"
 #include "ability_scheduler_interface.h"
 #include "ability_manager_interface.h"
+#include "mission_info.h"
 #include "snapshot.h"
 #include "want.h"
 
@@ -96,6 +97,13 @@ public:
      * @return Returns front desk focus ability elementName.
      */
     AppExecFwk::ElementName GetTopAbility();
+
+    /**
+     * Get element name by token.
+     *
+     * @return Returns front desk focus ability elementName by token.
+     */
+    AppExecFwk::ElementName GetElementNameByToken(const sptr<IRemoteObject> &token);
 
     /**
      * StartAbility with want, send want to ability manager service.
@@ -290,27 +298,6 @@ public:
         const Want *resultWant = nullptr);
 
     /**
-     * TerminateAbility, terminate the special ability.
-     *
-     * @param callerToken, caller ability token.
-     * @param requestCode Ability request code.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode TerminateAbility(const sptr<IRemoteObject> &callerToken, int requestCode);
-
-    /**
-     * Destroys this Service ability if the number of times it
-     * has been started equals the number represented by
-     * the given startId.
-     *
-     * @param token ability's token.
-     * @param startId is incremented by 1 every time this ability is started.
-     * @return Returns true if the startId matches the number of startup times
-     * and this Service ability will be destroyed; returns false otherwise.
-     */
-    ErrCode TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId);
-
-    /**
      * MinimizeAbility, minimize the special ability.
      *
      * @param token, ability token.
@@ -332,9 +319,10 @@ public:
      * MinimizeUIAbilityBySCB, minimize the special ability by scb.
      *
      * @param sessionInfo the session info of the ability to minimize.
+     * @param fromUser, Whether form user.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo);
+    ErrCode MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool fromUser = false);
 
     /**
      * ConnectAbility, connect session with service ability.
@@ -802,6 +790,16 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode PrepareTerminateAbility(const sptr<IRemoteObject> &token, sptr<IPrepareTerminateCallback> &callback);
+
+    /**
+     * Set mission continue state of this ability.
+     *
+     * @param token Indidate token of ability.
+     * @param state the mission continuation state of this ability.
+     * @return Returns ERR_OK if success.
+     */
+    ErrCode SetMissionContinueState(const sptr<IRemoteObject> &token, const AAFwk::ContinueState &state);
+
 #ifdef SUPPORT_GRAPHICS
     /**
      * Set mission label of this ability.
@@ -872,6 +870,8 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode GetTopAbility(sptr<IRemoteObject> &token);
+
+    ErrCode CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId, bool& isFocused);
 
     /**
      * DelegatorDoAbilityForeground, the delegator calls this interface to move the ability to the foreground.

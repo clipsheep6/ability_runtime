@@ -16,6 +16,7 @@
 #include "form_extension_context.h"
 
 #include "ability_manager_client.h"
+#include "connection_manager.h"
 #include "appexecfwk_errors.h"
 #include "form_mgr.h"
 #include "form_mgr_errors.h"
@@ -83,6 +84,30 @@ void FormExtensionContext::SetAbilityInfo(const std::shared_ptr<OHOS::AppExecFwk
         return;
     }
     abilityInfo_ = abilityInfo;
+}
+
+ErrCode FormExtensionContext::ConnectAbility(
+    const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) const
+{
+    HILOG_INFO("Connect ability begin, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
+    ErrCode ret =
+        ConnectionManager::GetInstance().ConnectAbility(token_, want, connectCallback);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("FormExtensionContext::ConnectAbility ErrorCode = %{public}d", ret);
+    }
+    return ret;
+}
+
+ErrCode FormExtensionContext::DisconnectAbility(
+    const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) const
+{
+    HILOG_INFO("Call");
+    ErrCode ret =
+        ConnectionManager::GetInstance().DisconnectAbility(token_, want.GetElement(), connectCallback);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("DisconnectAbility error, ret=%{public}d", ret);
+    }
+    return ret;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

@@ -70,33 +70,12 @@ public:
     int TerminateAbility(const sptr<IRemoteObject> &token);
 
     /**
-     * TerminateAbility, terminate the special ability.
-     *
-     * @param caller, caller ability record.
-     * @param requestCode, abililty request code
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    int TerminateAbility(const std::shared_ptr<AbilityRecord> &caller, int requestCode);
-
-    /**
      * StopServiceAbility with request.
      *
      * @param abilityRequest, request.
      * @return Returns ERR_OK on success, others on failure.
      */
     int StopServiceAbility(const AbilityRequest &abilityRequest);
-
-    /**
-     * Destroys this Service ability if the number of times it
-     * has been started equals the number represented by
-     * the given startId.
-     *
-     * @param token ability's token.
-     * @param startId is incremented by 1 every time this ability is started.
-     * @return Returns true if the startId matches the number of startup times
-     * and this Service ability will be destroyed; returns false otherwise.
-     */
-    int TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId);
 
     /**
      * ConnectAbilityLocked, connect session with service ability.
@@ -264,6 +243,8 @@ public:
     void CommandAbilityWindow(const std::shared_ptr<AbilityRecord> &abilityRecord,
         const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd);
 
+    bool IsUIExtensionFocused(uint32_t uiExtensionTokenId, const sptr<IRemoteObject>& focusToken);
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t CONNECT_TIMEOUT_MSG = 1;
@@ -286,18 +267,6 @@ private:
      * @return Returns ERR_OK on success, others on failure.
      */
     int TerminateAbilityLocked(const sptr<IRemoteObject> &token);
-
-    /**
-     * Destroys this Service ability if the number of times it
-     * has been started equals the number represented by
-     * the given startId.
-     *
-     * @param token ability's token.
-     * @param startId is incremented by 1 every time this ability is started.
-     * @return Returns true if the startId matches the number of startup times
-     * and this Service ability will be destroyed; returns false otherwise.
-     */
-    int TerminateAbilityResultLocked(const sptr<IRemoteObject> &token, int startId);
 
     /**
      * StopAbilityLocked with request.

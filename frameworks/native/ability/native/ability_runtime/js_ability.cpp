@@ -226,6 +226,10 @@ void JsAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(&nativeEngine), want);
     NativeValue *jsWant = reinterpret_cast<NativeValue *>(napiWant);
+    if(jsWant == nullptr) {
+        HILOG_ERROR("jsWant is nullptr");
+        return;
+    }
 
     obj->SetProperty("launchWant", jsWant);
     obj->SetProperty("lastRequestWant", jsWant);
@@ -457,6 +461,10 @@ void JsAbility::OnForeground(const Want &want)
 
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(&nativeEngine), want);
     NativeValue *jsWant = reinterpret_cast<NativeValue *>(napiWant);
+    if(jsWant == nullptr) {
+        HILOG_ERROR("jsWant is nullptr");
+        return;
+    }
 
     obj->SetProperty("lastRequestWant", jsWant);
 

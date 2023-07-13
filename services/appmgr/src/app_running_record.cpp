@@ -17,6 +17,7 @@
 #include "app_mgr_service_inner.h"
 #include "hitrace_meter.h"
 #include "hilog_wrapper.h"
+#include "ui_extension_utils.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -552,6 +553,7 @@ void AppRunningRecord::ScheduleBackgroundRunning()
     if (appLifeCycleDeal_) {
         appLifeCycleDeal_->ScheduleBackgroundRunning();
     }
+    isAbilityForegrounding_.store(false);
 }
 
 void AppRunningRecord::ScheduleProcessSecurityExit()
@@ -857,7 +859,7 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
             if (abilityRecord && abilityRecord->GetState() == AbilityState::ABILITY_STATE_FOREGROUND &&
                 abilityRecord->GetAbilityInfo() &&
                 (abilityRecord->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE
-                || abilityRecord->GetAbilityInfo()->extensionAbilityType == ExtensionAbilityType::UI)) {
+                || AAFwk::UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo()->extensionAbilityType))) {
                 foregroundSize++;
                 break;
             }
@@ -1077,6 +1079,9 @@ void AppRunningRecord::SendEvent(uint32_t msg, int64_t timeOut)
     eventId_ = appEventId_;
     if (msg == AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG) {
         startProcessSpecifiedAbilityEventId_ = eventId_;
+    }
+    if (msg == AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG) {
+        addAbilityStageInfoEventId_ = eventId_;
     }
 
     HILOG_INFO("eventId %{public}d", static_cast<int>(eventId_));

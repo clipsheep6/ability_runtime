@@ -141,15 +141,6 @@ public:
         int resultCode, const Want *resultWant, bool flag);
 
     /**
-     * @brief Terminate ability with caller
-     *
-     * @param caller the ability which start the ability
-     * @param requestCode which ability to terminate
-     * @return int error code
-     */
-    int TerminateAbility(const std::shared_ptr<AbilityRecord> &caller, int requestCode);
-
-    /**
      * @brief remove the mission list from the mission list manager
      *
      * @param MissionList the mission list need to remove
@@ -358,8 +349,9 @@ public:
     void GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList);
 
     void CallRequestDone(const std::shared_ptr<AbilityRecord> &abilityRecord, const sptr<IRemoteObject> &callStub);
-
-    bool IsTopAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
+  
+    int SetMissionContinueState(const sptr<IRemoteObject> &token, const int32_t missionId,
+        const AAFwk::ContinueState &state);
 
 #ifdef SUPPORT_GRAPHICS
 public:

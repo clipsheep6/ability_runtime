@@ -72,16 +72,6 @@ ErrCode AbilityContext::StartAbility(const Want &want, int requestCode, const Ab
     return err;
 }
 
-ErrCode AbilityContext::TerminateAbility(int requestCode)
-{
-    HILOG_DEBUG("%{public}s begin.", __func__);
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, requestCode);
-    if (err != ERR_OK) {
-        HILOG_ERROR("AbilityContext::TerminateAbility is failed %{public}d", err);
-    }
-    return err;
-}
-
 ErrCode AbilityContext::TerminateAbility()
 {
     std::shared_ptr<AbilityInfo> info = GetAbilityInfo();
@@ -314,26 +304,6 @@ void AbilityContext::SetCallingContext(const std::string &deviceId, const std::s
     callingBundleName_ = bundleName;
     callingAbilityName_ = abilityName;
     callingModuleName_ = moduleName;
-}
-
-bool AbilityContext::TerminateAbilityResult(int startId)
-{
-    HILOG_DEBUG("%{public}s begin.", __func__);
-    auto abilityClient = AAFwk::AbilityManagerClient::GetInstance();
-    if (abilityClient == nullptr) {
-        HILOG_ERROR("AbilityContext::TerminateAbilityResult abilityClient is nullptr");
-        return false;
-    }
-
-    HILOG_DEBUG("%{public}s begin ams->TerminateAbilityResult, startId=%{public}d.", __func__, startId);
-    ErrCode errval = abilityClient->TerminateAbilityResult(token_, startId);
-    HILOG_DEBUG("%{public}s end ams->TerminateAbilityResult, ret=%{public}d.", __func__, errval);
-    if (errval != ERR_OK) {
-        HILOG_ERROR("AbilityContext::TerminateAbilityResult TerminateAbilityResult retval is %d", errval);
-    }
-
-    HILOG_DEBUG("%{public}s end.", __func__);
-    return (errval == ERR_OK) ? true : false;
 }
 
 void AbilityContext::StartAbilities(const std::vector<AAFwk::Want> &wants)

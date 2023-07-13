@@ -36,6 +36,8 @@ public:
     static NativeValue* SendData(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* SetReceiveDataCallback(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* LoadContent(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* SetWindowBackgroundColor(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* SetWindowPrivacyMode(NativeEngine* engine, NativeCallbackInfo* info);
 
 protected:
     NativeValue* OnTerminateSelf(NativeEngine& engine, NativeCallbackInfo& info);
@@ -43,6 +45,8 @@ protected:
     NativeValue* OnSendData(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnSetReceiveDataCallback(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnLoadContent(NativeEngine& engine, NativeCallbackInfo& info);
+    NativeValue* OnSetWindowBackgroundColor(NativeEngine& engine, NativeCallbackInfo& info);
+    NativeValue* OnSetWindowPrivacyMode(NativeEngine& engine, NativeCallbackInfo& info);
 
     static void CallReceiveDataCallBack(NativeEngine& engine, std::weak_ptr<NativeReference> weakCallback,
         const AAFwk::WantParams& wantParams);

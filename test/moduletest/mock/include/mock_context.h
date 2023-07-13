@@ -50,7 +50,6 @@ public:
     virtual void UnauthUriPermission(const std::string& permission, const Uri& uri, int uid) = 0;
     virtual sptr<AAFwk::IAbilityManager> GetAbilityManager() = 0;
     virtual std::string GetAppType() = 0;
-    virtual void TerminateAbility(int requestCode) = 0;
     virtual void TerminateAbility() = 0;
     virtual bool CanRequestPermission(const std::string& permission) = 0;
     virtual int VerifyCallingOrSelfPermission(const std::string& permission) = 0;
@@ -74,7 +73,6 @@ public:
     virtual std::map<std::string, std::string> GetPattern() = 0;
     virtual int GetColor(int resId) = 0;
     virtual int GetThemeId() = 0;
-    virtual bool TerminateAbilityResult(int startId) = 0;
     virtual int GetDisplayOrientation() = 0;
     virtual std::string GetPreferencesDir() = 0;
     virtual void SetColorMode(int mode) = 0;

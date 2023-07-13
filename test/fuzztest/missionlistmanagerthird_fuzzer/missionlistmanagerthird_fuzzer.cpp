@@ -114,7 +114,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     missionListManager->DispatchBackground(abilityRecord);
     missionListManager->CompleteBackground(abilityRecord);
     missionListManager->TerminateAbility(abilityRecord, intParam, want, boolParam);
-    missionListManager->TerminateAbility(abilityRecord, intParam);
     return true;
 }
 }

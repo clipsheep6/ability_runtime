@@ -405,6 +405,8 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
 
     NotifyAbilityToken(targetAbilityRecord->GetToken(), abilityRequest);
 
+    targetAbilityRecord->SetAbilityForegroundingFlag();
+
 #ifdef SUPPORT_GRAPHICS
     std::shared_ptr<StartOptions> startOptions = nullptr;
     targetAbilityRecord->ProcessForegroundAbility(false, abilityRequest, startOptions, callerAbility);
@@ -1119,7 +1121,8 @@ int MissionListManager::DispatchState(const std::shared_ptr<AbilityRecord> &abil
         case AbilityState::INITIAL: {
             return DispatchTerminate(abilityRecord);
         }
-        case AbilityState::BACKGROUND: {
+        case AbilityState::BACKGROUND:
+        case AbilityState::BACKGROUND_FAILED: {
             return DispatchBackground(abilityRecord);
         }
         case AbilityState::FOREGROUND: {
@@ -1484,28 +1487,6 @@ int MissionListManager::TerminateAbilityInner(const std::shared_ptr<AbilityRecor
     return TerminateAbilityLocked(abilityRecord, flag);
 }
 
-int MissionListManager::TerminateAbility(const std::shared_ptr<AbilityRecord> &caller, int requestCode)
-{
-    HILOG_DEBUG("Terminate ability with result called.");
-    std::lock_guard guard(managerLock_);
-
-    std::shared_ptr<AbilityRecord> targetAbility = GetAbilityRecordByCaller(caller, requestCode);
-    if (!targetAbility) {
-        HILOG_ERROR("%{public}s, Can't find target ability", __func__);
-        return NO_FOUND_ABILITY_BY_CALLER;
-    }
-
-    auto abilityMs = DelayedSingleton<AbilityManagerService>::GetInstance();
-    CHECK_POINTER_AND_RETURN(abilityMs, GET_ABILITY_SERVICE_FAILED)
-    int result = abilityMs->JudgeAbilityVisibleControl(targetAbility->GetAbilityInfo());
-    if (result != ERR_OK) {
-        HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
-        return result;
-    }
-
-    return TerminateAbilityInner(targetAbility, DEFAULT_INVAL_VALUE, nullptr, true);
-}
-
 int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord, bool flag)
 {
     std::string element = abilityRecord->GetWant().GetElement().GetURI();
@@ -1634,6 +1615,7 @@ void MissionListManager::RemoveTerminatingAbility(const std::shared_ptr<AbilityR
     if (!needTopAbility->IsForeground() && !needTopAbility->IsMinimizeFromUser() && needTopAbility->IsReady()) {
         HILOG_DEBUG("%{public}s is need to foreground.", elementName.GetURI().c_str());
         abilityRecord->SetNextAbilityRecord(needTopAbility);
+        needTopAbility->SetAbilityForegroundingFlag();
     }
 }
 
@@ -2646,6 +2628,20 @@ void MissionListManager::BackToLauncher()
     launcherList_->AddMissionToTop(launcherRootMission);
     MoveMissionListToTop(launcherList_);
     launcherRootAbility->ProcessForegroundAbility();
+}
+
+int MissionListManager::SetMissionContinueState(const sptr<IRemoteObject> &token, const int32_t missionId,
+    const AAFwk::ContinueState &state)
+{
+    HILOG_DEBUG("SetMissionContinueState start. Mission id: %{public}d, state: %{public}d",
+        missionId, state);
+    if (!token) {
+        HILOG_ERROR("SetMissionContinueState token is nullptr. Mission id: %{public}d, state: %{public}d",
+            missionId, state);
+        return -1;
+    }
+
+    return DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionContinueState(missionId, state);
 }
 
 #ifdef SUPPORT_GRAPHICS
@@ -3939,15 +3935,6 @@ void MissionListManager::CallRequestDone(const std::shared_ptr<AbilityRecord> &a
         return;
     }
     abilityRecord->CallRequestDone(callStub);
-}
-
-bool MissionListManager::IsTopAbility(const std::shared_ptr<AbilityRecord> &abilityRecord)
-{
-    if (abilityRecord == nullptr) {
-        return false;
-    }
-    std::lock_guard guard(managerLock_);
-    return GetCurrentTopAbilityLocked() == abilityRecord;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

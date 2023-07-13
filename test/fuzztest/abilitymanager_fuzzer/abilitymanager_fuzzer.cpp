@@ -46,7 +46,6 @@ void EmplaceCodeMap1()
     codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::CONNECT_ABILITY_DONE));
     codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::DISCONNECT_ABILITY_DONE));
     codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::ADD_WINDOW_INFO));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::TERMINATE_ABILITY_RESULT));
     codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::LIST_STACK_INFO));
     codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_RECENT_MISSION));
     codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::REMOVE_MISSION));
@@ -58,7 +57,6 @@ void EmplaceCodeMap1()
     codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::MOVE_MISSION_TO_TOP));
     codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::KILL_PROCESS));
     codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::UNINSTALL_APP));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::TERMINATE_ABILITY_BY_CALLER));
     codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::MOVE_MISSION_TO_FLOATING_STACK));
     codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::MOVE_MISSION_TO_SPLITSCREEN_STACK));
     codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::CHANGE_FOCUS_ABILITY));

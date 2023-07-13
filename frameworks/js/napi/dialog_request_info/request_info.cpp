@@ -16,13 +16,18 @@
 #include "request_info.h"
 
 #include "hilog_wrapper.h"
+#include "js_runtime_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 
-RequestInfo::RequestInfo(const sptr<IRemoteObject> &token)
+RequestInfo::RequestInfo(const sptr<IRemoteObject> &token, int32_t left, int32_t top, int32_t width, int32_t height)
 {
     callerToken_ = token;
+    left_ = left;
+    top_ = top;
+    width_ = width;
+    height_ = height;
 }
 
 RequestInfo::~RequestInfo()
@@ -69,7 +74,27 @@ NativeValue* RequestInfo::WrapRequestInfo(NativeEngine &engine, RequestInfo *req
     };
 
     nativeObject->SetNativePointer(reinterpret_cast<void*>(request), nativeFinalize, nullptr);
+    nativeObject->SetProperty("windowRect",
+        CreateJsWindowRect(engine, request->left_, request->top_, request->width_, request->height_));
     return result;
+}
+
+NativeValue* RequestInfo::CreateJsWindowRect(
+    NativeEngine& engine, int32_t left, int32_t top, int32_t width, int32_t height)
+{
+    HILOG_DEBUG("left: %{public}d, top: %{public}d, width: %{public}d, height: %{public}d",
+        left, top, width, height);
+    NativeValue* objValue = engine.CreateObject();
+    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+    if (object == nullptr) {
+        HILOG_ERROR("Native object is nullptr.");
+        return objValue;
+    }
+    object->SetProperty("left", CreateJsValue(engine, left));
+    object->SetProperty("top", CreateJsValue(engine, top));
+    object->SetProperty("width", CreateJsValue(engine, width));
+    object->SetProperty("height", CreateJsValue(engine, height));
+    return objValue;
 }
 
 std::shared_ptr<RequestInfo> RequestInfo::UnwrapRequestInfo(NativeEngine &engine, NativeValue *jsParam)
@@ -95,5 +120,6 @@ std::shared_ptr<RequestInfo> RequestInfo::UnwrapRequestInfo(NativeEngine &engine
     RequestInfo *info = static_cast<RequestInfo*>(nativeObject->GetNativePointer());
     return std::make_shared<RequestInfo>(*info);
 }
+
 }  // namespace AbilityRuntime
 }  // namespace OHOS

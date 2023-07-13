@@ -99,8 +99,6 @@ public:
     void DumpState(const std::string& args, std::vector<std::string>& info) override;
     void DumpSysState(
         const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID) override;
-    int TerminateAbilityByCaller(const sptr<IRemoteObject>& callerToken, int requestCode) override;
-    int TerminateAbilityResult(const sptr<IRemoteObject>& token, int startId) override;
     int StopServiceAbility(const Want& want, int32_t userId = DEFAULT_INVAL_VALUE,
         const sptr<IRemoteObject> &token = nullptr) override;
 
@@ -141,6 +139,7 @@ public:
     MOCK_METHOD2(MoveMissionToFront, int(int32_t missionId, const StartOptions& startOptions));
     MOCK_METHOD2(MoveMissionsToForeground, int(const std::vector<int32_t>& missionIds, int32_t topMissionId));
     MOCK_METHOD2(MoveMissionsToBackground, int(const std::vector<int32_t>& missionIds, std::vector<int32_t>& result));
+    MOCK_METHOD2(SetMissionContinueState, int(const sptr<IRemoteObject>& token, const AAFwk::ContinueState& state));
     MOCK_METHOD2(SetMissionLabel, int(const sptr<IRemoteObject>& token, const std::string& label));
     MOCK_METHOD2(SetMissionIcon, int(const sptr<IRemoteObject>& token,
         const std::shared_ptr<OHOS::Media::PixelMap>& icon));

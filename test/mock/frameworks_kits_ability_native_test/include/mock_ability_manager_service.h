@@ -87,7 +87,6 @@ public:
     void DumpSysState(
         const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID) override;
 
-    int TerminateAbilityResult(const sptr<IRemoteObject>& token, int startId) override;
     int StopServiceAbility(const Want& want, int32_t userId = DEFAULT_INVAL_VALUE,
         const sptr<IRemoteObject> &token = nullptr) override;
 
@@ -123,6 +122,7 @@ public:
     MOCK_METHOD3(GetMissionInfo, int(const std::string& deviceId, int32_t missionId, MissionInfo& missionInfo));
     MOCK_METHOD1(CleanMission, int(int32_t missionId));
     MOCK_METHOD0(CleanAllMissions, int());
+    MOCK_METHOD2(SetMissionContinueState, int(const sptr<IRemoteObject>& token, const AAFwk::ContinueState& state));
     MOCK_METHOD2(SetMissionLabel, int(const sptr<IRemoteObject>& token, const std::string& label));
     MOCK_METHOD2(SetMissionIcon, int(const sptr<IRemoteObject>& token,
         const std::shared_ptr<OHOS::Media::PixelMap>& icon));
@@ -169,11 +169,6 @@ public:
     int KillProcess(const std::string& bundleName) override;
 
     int UninstallApp(const std::string& bundleName, int32_t uid) override;
-
-    int TerminateAbilityByCaller(const sptr<IRemoteObject>& callerToken, int requestCode) override
-    {
-        return 0;
-    }
 
     int ClearUpApplicationData(const std::string& bundleName) override
     {

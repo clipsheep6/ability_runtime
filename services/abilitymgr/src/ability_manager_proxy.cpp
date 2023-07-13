@@ -95,6 +95,31 @@ AppExecFwk::ElementName AbilityManagerProxy::GetTopAbility()
     return result;
 }
 
+AppExecFwk::ElementName AbilityManagerProxy::GetElementNameByToken(const sptr<IRemoteObject> &token)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return {};
+    }
+    if (!data.WriteRemoteObject(token)) {
+        return {};
+    }
+    int error = SendRequest(AbilityManagerInterfaceCode::GET_ELEMENT_NAME_BY_TOKEN, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return {};
+    }
+    std::unique_ptr<AppExecFwk::ElementName> name(reply.ReadParcelable<AppExecFwk::ElementName>());
+    if (!name) {
+        HILOG_ERROR("Read info failed.");
+        return {};
+    }
+    AppExecFwk::ElementName result = *name;
+    return result;
+}
+
 int AbilityManagerProxy::StartAbility(const Want &want, const AbilityStartSetting &abilityStartSetting,
     const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode)
 {
@@ -599,39 +624,6 @@ int AbilityManagerProxy::SendResultToAbility(int32_t requestCode, int32_t result
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::TerminateAbilityByCaller(const sptr<IRemoteObject> &callerToken, int requestCode)
-{
-    int error;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    if (!WriteInterfaceToken(data)) {
-        return INNER_ERR;
-    }
-    if (callerToken) {
-        if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
-            HILOG_ERROR("flag and callerToken write failed.");
-            return INNER_ERR;
-        }
-    } else {
-        if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
-            return INNER_ERR;
-        }
-    }
-    if (!data.WriteInt32(requestCode)) {
-        HILOG_ERROR("data write failed.");
-        return INNER_ERR;
-    }
-    error = SendRequest(AbilityManagerInterfaceCode::TERMINATE_ABILITY_BY_CALLER, data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
-        return error;
-    }
-    return reply.ReadInt32();
-}
-
 int AbilityManagerProxy::MoveAbilityToBackground(const sptr<IRemoteObject> &token)
 {
     int error;
@@ -1101,29 +1093,6 @@ void AbilityManagerProxy::DumpState(const std::string &args, std::vector<std::st
     }
 }
 
-int AbilityManagerProxy::TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId)
-{
-    int error;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    if (!WriteInterfaceToken(data)) {
-        return INNER_ERR;
-    }
-    if (!data.WriteRemoteObject(token) || !data.WriteInt32(startId)) {
-        HILOG_ERROR("data write failed.");
-        return ERR_INVALID_VALUE;
-    }
-
-    error = SendRequest(AbilityManagerInterfaceCode::TERMINATE_ABILITY_RESULT, data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
-        return error;
-    }
-    return reply.ReadInt32();
-}
-
 int AbilityManagerProxy::MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser)
 {
     int error;
@@ -1188,7 +1157,7 @@ int AbilityManagerProxy::MinimizeUIExtensionAbility(const sptr<SessionInfo> &ext
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
+int AbilityManagerProxy::MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool fromUser)
 {
     int error;
     MessageParcel data;
@@ -1208,6 +1177,10 @@ int AbilityManagerProxy::MinimizeUIAbilityBySCB(const sptr<SessionInfo> &session
             HILOG_ERROR("flag write failed.");
             return INNER_ERR;
         }
+    }
+    if (!data.WriteBool(fromUser)) {
+        HILOG_ERROR("fromUser write failed.");
+        return INNER_ERR;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::MINIMIZE_UI_ABILITY_BY_SCB, data, reply, option);
@@ -2427,6 +2400,35 @@ int AbilityManagerProxy::StartUser(int userId)
     return reply.ReadInt32();
 }
 
+int AbilityManagerProxy::SetMissionContinueState(const sptr<IRemoteObject> &token, const AAFwk::ContinueState &state)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteRemoteObject(token)) {
+        HILOG_ERROR("SetMissionContinueState write token failed.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteInt32(static_cast<int32_t>(state))) {
+        HILOG_ERROR("SetMissionContinueState write state failed.");
+        return ERR_INVALID_VALUE;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::SET_MISSION_CONTINUE_STATE, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("SetMissionContinueState Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 int AbilityManagerProxy::StopUser(int userId, const sptr<IStopUserCallback> &callback)
 {
     int error;
@@ -3100,6 +3102,36 @@ int AbilityManagerProxy::GetTopAbility(sptr<IRemoteObject> &token)
     }
 
     return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId, bool& isFocused)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+
+    if (!data.WriteUint32(uiExtensionTokenId)) {
+        HILOG_ERROR("uiExtensionTokenId write failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return INNER_ERR;
+    }
+    auto error = remote->SendRequest(IAbilityManager::CHECK_UI_EXTENSION_IS_FOCUSED, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+
+    isFocused = reply.ReadBool();
+    return NO_ERROR;
 }
 
 int AbilityManagerProxy::DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token)

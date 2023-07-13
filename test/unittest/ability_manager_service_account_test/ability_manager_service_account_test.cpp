@@ -1417,36 +1417,5 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_KillProcess_001, TestSize.Lev
     EXPECT_EQ(ERR_OK, resultFunction);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_KillProcess_001 end";
 }
-
-/*
- * Feature: AbilityManagerService
- * Function: TerminateAbilityResult
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService TerminateAbilityResult
- * EnvConditions: NA
- * CaseDescription: Verify function TerminateAbilityResult
- */
-HWTEST_F(AbilityManagerServiceAccountTest, Account_TerminateAbilityResult_001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_TerminateAbilityResult_001 start";
-    Want want;
-    ElementName element("", "com.ix.accountService", "accountService");
-    want.SetElement(element);
-    OHOS::sptr<IAbilityConnection> callback = new AbilityConnectCallback();
-
-    auto result2 = abilityMs_->ConnectAbility(want, callback, nullptr, USER_ID_U100);
-    EXPECT_EQ(result2, ERR_OK);
-
-    sptr<IRemoteObject> token1 = nullptr;
-    auto serviceMapIter = abilityMs_->GetConnectManagerByUserId(USER_ID_U100)->serviceMap_.find(element.GetURI());
-
-    if (serviceMapIter != abilityMs_->GetConnectManagerByUserId(USER_ID_U100)->serviceMap_.end()) {
-        token1 = serviceMapIter->second->GetToken();
-    }
-
-    auto result1 = abilityMs_->TerminateAbilityResult(token1, serviceMapIter->second->GetStartId());
-    EXPECT_EQ(OHOS::ERR_OK, result1);
-    GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_TerminateAbilityResult_001 end";
-}
 }  // namespace AAFwk
 }  // namespace OHOS

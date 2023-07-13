@@ -55,8 +55,6 @@ public:
         EXPECT_TRUE(DumpStateCalled_);
         return;
     }
-    MOCK_METHOD2(TerminateAbilityResult, int(const sptr<IRemoteObject>&, int startId));
-    MOCK_METHOD2(TerminateAbilityByCaller, int(const sptr<IRemoteObject>& callerToken, int requestCode));
     MOCK_METHOD3(StopServiceAbility, int(const Want&, int32_t userId, const sptr<IRemoteObject> &token));
     MOCK_METHOD4(OnRemoteRequest, int(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option));
 

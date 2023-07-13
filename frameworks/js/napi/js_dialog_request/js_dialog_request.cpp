@@ -99,8 +99,12 @@ private:
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();
         }
+        int32_t left = want.GetIntParam(RequestConstants::WINDOW_RECTANGLE_LEFT_KEY, 0);
+        int32_t top = want.GetIntParam(RequestConstants::WINDOW_RECTANGLE_TOP_KEY, 0);
+        int32_t width = want.GetIntParam(RequestConstants::WINDOW_RECTANGLE_WIDTH_KEY, 0);
+        int32_t height = want.GetIntParam(RequestConstants::WINDOW_RECTANGLE_HEIGHT_KEY, 0);
 
-        auto requestInfo = new RequestInfo(callerToken);
+        auto requestInfo = new RequestInfo(callerToken, left, top, width, height);
         auto jsRequestInfo = RequestInfo::WrapRequestInfo(engine, requestInfo);
         if (jsRequestInfo == nullptr) {
             HILOG_ERROR("Can not wrap requestinfo from target request.");

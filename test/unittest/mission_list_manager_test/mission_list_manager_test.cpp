@@ -2283,25 +2283,6 @@ HWTEST_F(MissionListManagerTest, TerminateAbility_003, TestSize.Level1)
 
 /*
  * Feature: MissionListManager
- * Function: TerminateAbility
- * SubFunction: NA
- * FunctionPoints: MissionListManager TerminateAbility
- * EnvConditions: NA
- * CaseDescription: Verify TerminateAbility
- */
-HWTEST_F(MissionListManagerTest, TerminateAbility_004, TestSize.Level1)
-{
-    int userId = 3;
-    auto missionListManager = std::make_shared<MissionListManager>(userId);
-    std::shared_ptr<AbilityRecord> abilityRecord = nullptr;
-    int resultCode = 0;
-    int res = missionListManager->TerminateAbility(abilityRecord, resultCode);
-    EXPECT_EQ(res, NO_FOUND_ABILITY_BY_CALLER);
-    missionListManager.reset();
-}
-
-/*
- * Feature: MissionListManager
  * Function: RemoveTerminatingAbility
  * SubFunction: NA
  * FunctionPoints: MissionListManager RemoveTerminatingAbility
@@ -4491,6 +4472,25 @@ HWTEST_F(MissionListManagerTest, BackToLauncher_003, TestSize.Level1)
     missionListManager.reset();
 }
 
+/*
+ * Feature: MissionListManager
+ * Function: SetMissionContinueState
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager SetMissionContinueState
+ * EnvConditions: NA
+ * CaseDescription: Verify SetMissionContinueState
+ */
+HWTEST_F(MissionListManagerTest, SetMissionContinueState_001, TestSize.Level1)
+{
+    int userId = 3;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    int missionId = 1;
+    AAFwk::ContinueState state = AAFwk::ContinueState::CONTINUESTATE_ACTIVE;
+    int res = missionListManager->SetMissionContinueState(nullptr, missionId, state);
+    EXPECT_EQ(res, -1);
+    missionListManager.reset();
+}
+
 #ifdef SUPPORT_GRAPHICS
 /*
  * Feature: MissionListManager
@@ -5906,67 +5906,6 @@ HWTEST_F(MissionListManagerTest, IsValidMissionIds_003, TestSize.Level1)
     std::vector<MissionVaildResult> results;
     EXPECT_EQ(missionListManager->IsValidMissionIds(missionIds, results), ERR_OK);
     EXPECT_EQ(results.size(), size);
-}
-
-/*
- * Feature: MissionListManager
- * Function: IsTopAbility
- * SubFunction: NA
- * FunctionPoints: MissionListManager IsTopAbility
- * EnvConditions: NA
- * CaseDescription: Verify IsTopAbility
- */
-HWTEST_F(MissionListManagerTest, IsTopAbility_001, TestSize.Level1)
-{
-    constexpr int32_t userId = 3;
-    auto missionListManager = std::make_shared<MissionListManager>(userId);
-    std::shared_ptr<AbilityRecord> abilityRecord = nullptr;
-    EXPECT_FALSE(missionListManager->IsTopAbility(abilityRecord));
-}
-
-/*
- * Feature: MissionListManager
- * Function: IsTopAbility
- * SubFunction: NA
- * FunctionPoints: MissionListManager IsTopAbility
- * EnvConditions: NA
- * CaseDescription: Verify IsTopAbility
- */
-HWTEST_F(MissionListManagerTest, IsTopAbility_002, TestSize.Level1)
-{
-    constexpr int32_t userId = 3;
-    auto missionListManager = std::make_shared<MissionListManager>(userId);
-    AppExecFwk::AbilityInfo abilityInfo;
-    Want want;
-    AppExecFwk::ApplicationInfo applicationInfo;
-    auto abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
-    EXPECT_FALSE(missionListManager->IsTopAbility(abilityRecord));
-}
-
-/*
- * Feature: MissionListManager
- * Function: IsTopAbility
- * SubFunction: NA
- * FunctionPoints: MissionListManager IsTopAbility
- * EnvConditions: NA
- * CaseDescription: Verify IsTopAbility
- */
-HWTEST_F(MissionListManagerTest, IsTopAbility_003, TestSize.Level1)
-{
-    constexpr int32_t userId = 3;
-    auto missionListManager = std::make_shared<MissionListManager>(userId);
-    AppExecFwk::AbilityInfo abilityInfo;
-    Want want;
-    AppExecFwk::ApplicationInfo applicationInfo;
-    auto abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
-
-    // Move ability to top
-    std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord, "missionName");
-    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
-    missionList->missions_.push_front(mission);
-    missionListManager->currentMissionLists_.push_front(missionList);
-
-    EXPECT_TRUE(missionListManager->IsTopAbility(abilityRecord));
 }
 }  // namespace AAFwk
 }  // namespace OHOS

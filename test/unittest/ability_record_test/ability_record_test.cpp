@@ -30,6 +30,7 @@
 #include "parameters.h"
 #include "sa_mgr_client.h"
 #include "system_ability_definition.h"
+#include "ui_extension_utils.h"
 #ifdef SUPPORT_GRAPHICS
 #define private public
 #define protected public
@@ -235,6 +236,25 @@ INSTANTIATE_TEST_SUITE_P(AbilityRecordTestCaseP, AbilityRecordTest,
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetGetToken, TestSize.Level1)
 {
     EXPECT_EQ(Token::GetAbilityRecordByToken(abilityRecord_->GetToken()).get(), abilityRecord_.get());
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: create AbilityRecord
+ * SubFunction: NA
+ * FunctionPoints: SetAbilityState GetAbilityState
+ * EnvConditions: NA
+ * CaseDescription: SetAbilityState GetAbilityState UT.
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_GetAbilityState, TestSize.Level1)
+{
+    abilityRecord_->SetAbilityForegroundingFlag();
+    abilityRecord_->SetAbilityState(AbilityState::BACKGROUND);
+    EXPECT_FALSE(abilityRecord_->GetAbilityForegroundingFlag());
+
+    abilityRecord_->SetAbilityForegroundingFlag();
+    abilityRecord_->SetAbilityState(AbilityState::FOREGROUND);
+    EXPECT_TRUE(abilityRecord_->GetAbilityForegroundingFlag());
 }
 
 /*
@@ -2369,7 +2389,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GetRecoveryInfo_001, TestSize.Level1)
 HWTEST_F(AbilityRecordTest, IsUIExtension_001, TestSize.Level1)
 {
     abilityRecord_->abilityInfo_.extensionAbilityType = AppExecFwk::ExtensionAbilityType::UI;
-    EXPECT_EQ(abilityRecord_->IsUIExtension(), true);
+    EXPECT_EQ(UIExtensionUtils::IsUIExtension(abilityRecord_->abilityInfo_.extensionAbilityType), true);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -48,6 +48,7 @@ const std::string PATTERN_VERSION = std::string(FILE_SEPARATOR) + "v\\d+" + FILE
 const size_t Context::CONTEXT_TYPE_ID(std::hash<const char*> {} ("Context"));
 const int64_t ContextImpl::CONTEXT_CREATE_BY_SYSTEM_APP(0x00000001);
 const mode_t MODE = 0770;
+const mode_t GROUP_MODE = 02770;
 const std::string ContextImpl::CONTEXT_DATA_APP("/data/app/");
 const std::string ContextImpl::CONTEXT_BUNDLE("/bundle/");
 const std::string ContextImpl::CONTEXT_DISTRIBUTEDFILES_BASE_BEFORE("/mnt/hmdfs/");
@@ -67,6 +68,8 @@ const std::string ContextImpl::CONTEXT_HAPS("/haps");
 const std::string ContextImpl::CONTEXT_ELS[] = {"el1", "el2"};
 Global::Resource::DeviceType ContextImpl::deviceType_ = Global::Resource::DeviceType::DEVICE_NOT_SET;
 const std::string OVERLAY_STATE_CHANGED = "usual.event.OVERLAY_STATE_CHANGED";
+const std::string TYPE_RESERVE = "1";
+const std::string TYPE_OTHERS = "2";
 
 std::string ContextImpl::GetBundleName() const
 {
@@ -112,6 +115,21 @@ bool ContextImpl::PrintDrawnCompleted()
     return false;
 }
 
+int ContextImpl::GetSystemDatabaseDir(std::string groupId, std::string &databaseDir)
+{
+    std::string dir;
+    if (groupId.empty()) {
+        databaseDir = GetDatabaseDir();
+    } else {
+        databaseDir = GetGroupDatabaseDir(groupId);
+    }
+    HILOG_DEBUG("ContextImpl::GetSystemDatabaseDir:%{public}s", dir.c_str());
+    if (databaseDir.empty()) {
+        return ERR_INVALID_VALUE;
+    }
+    return ERR_OK;
+}
+
 std::string ContextImpl::GetDatabaseDir()
 {
     std::string dir;
@@ -129,6 +147,33 @@ std::string ContextImpl::GetDatabaseDir()
     return dir;
 }
 
+std::string ContextImpl::GetGroupDatabaseDir(std::string groupId)
+{
+    std::string dir = GetGroupDir(groupId);
+    if (dir.empty()) {
+        return dir;
+    }
+    dir = dir + CONTEXT_FILE_SEPARATOR + CONTEXT_DATABASE;
+    CreateDirIfNotExist(dir, GROUP_MODE);
+    HILOG_DEBUG("ContextImpl::GetGroupDatabaseDir:%{public}s", dir.c_str());
+    return dir;
+}
+
+int ContextImpl::GetSystemPreferencesDir(std::string groupId, std::string &preferencesDir)
+{
+    std::string dir;
+    if (groupId.empty()) {
+        preferencesDir = GetPreferencesDir();
+    } else {
+        preferencesDir = GetGroupPreferencesDir(groupId);
+    }
+    HILOG_DEBUG("ContextImpl::GetSystemPreferencesDir:%{public}s", dir.c_str());
+    if (preferencesDir.empty()) {
+        return ERR_INVALID_VALUE;
+    }
+    return ERR_OK;
+}
+
 std::string ContextImpl::GetPreferencesDir()
 {
     std::string dir = GetBaseDir() + CONTEXT_FILE_SEPARATOR + CONTEXT_PREFERENCES;
@@ -137,15 +182,30 @@ std::string ContextImpl::GetPreferencesDir()
     return dir;
 }
 
+std::string ContextImpl::GetGroupPreferencesDir(std::string groupId)
+{
+    std::string dir = GetGroupDir(groupId);
+    if (dir.empty()) {
+        return dir;
+    }
+    dir = dir + CONTEXT_FILE_SEPARATOR + CONTEXT_PREFERENCES;
+    CreateDirIfNotExist(dir, GROUP_MODE);
+    HILOG_DEBUG("ContextImpl::GetGroupPreferencesDir:%{public}s", dir.c_str());
+    return dir;
+}
+
 std::string ContextImpl::GetGroupDir(std::string groupId)
 {
     std::string dir = "";
+    if (currArea_ == CONTEXT_ELS[0]) {
+        HILOG_ERROR("GroupDir currently only supports the el2 level");
+        return dir;
+    }
     sptr<AppExecFwk::IBundleMgr> bundleMgr = GetBundleManager();
     if (bundleMgr == nullptr) {
         HILOG_ERROR("GetBundleManager is nullptr");
         return dir;
     }
-
     std::string groupDir;
     bool ret = bundleMgr->GetGroupDir(groupId, groupDir);
     if (!ret || groupDir.empty()) {
@@ -268,7 +328,7 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
     appContext->InitHapModuleInfo(*info);
     appContext->SetConfiguration(config_);
     InitResourceManager(bundleInfo, appContext, GetBundleName() == bundleName, moduleName);
-    appContext->SetApplicationInfo(GetApplicationInfo());
+    appContext->SetApplicationInfo(std::make_shared<AppExecFwk::ApplicationInfo>(bundleInfo.applicationInfo));
     return appContext;
 }
 
@@ -385,7 +445,7 @@ std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bun
 
     // init resourceManager.
     InitResourceManager(bundleInfo, appContext);
-    appContext->SetApplicationInfo(GetApplicationInfo());
+    appContext->SetApplicationInfo(std::make_shared<AppExecFwk::ApplicationInfo>(bundleInfo.applicationInfo));
     return appContext;
 }
 
@@ -394,8 +454,36 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
 {
     HILOG_DEBUG("InitResourceManager begin, bundleName:%{public}s, moduleName:%{public}s",
         bundleInfo.name.c_str(), moduleName.c_str());
+
+    if (appContext == nullptr) {
+        HILOG_ERROR("InitResourceManager appContext is nullptr");
+        return;
+    }
+    if (bundleInfo.applicationInfo.codePath == TYPE_RESERVE ||
+        bundleInfo.applicationInfo.codePath == TYPE_OTHERS) {
+        std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
+        std::string hapPath;
+        std::vector<std::string> overlayPaths;
+        int32_t appType;
+        if (bundleInfo.applicationInfo.codePath == TYPE_RESERVE) {
+            appType = 1;
+        } else if (bundleInfo.applicationInfo.codePath == TYPE_OTHERS) {
+            appType = 2;
+        } else {
+            appType = 0;
+        }
+        std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager(
+            bundleInfo.name, moduleName, hapPath, overlayPaths, *resConfig, appType));
+        if (resourceManager == nullptr) {
+            HILOG_ERROR("ContextImpl::InitResourceManager create resourceManager failed");
+            return;
+        }
+        appContext->SetResourceManager(resourceManager);
+        return;
+    }
+
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
-    if (appContext == nullptr || resourceManager == nullptr) {
+    if (resourceManager == nullptr) {
         HILOG_ERROR("InitResourceManager create resourceManager failed");
         return;
     }

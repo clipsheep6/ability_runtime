@@ -244,6 +244,11 @@ public:
         return {};
     }
 
+    virtual AppExecFwk::ElementName GetElementNameByToken(const sptr<IRemoteObject> &token)
+    {
+        return {};
+    }
+
     /**
      * TerminateAbility, terminate the special ability.
      *
@@ -294,15 +299,6 @@ public:
     }
 
     /**
-     * TerminateAbility, terminate the special ability.
-     *
-     * @param callerToken, caller ability token.
-     * @param requestCode, Ability request code.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int TerminateAbilityByCaller(const sptr<IRemoteObject> &callerToken, int requestCode) = 0;
-
-    /**
      * MoveAbilityToBackground.
      *
      * @param token, the token of the ability to move.
@@ -349,9 +345,10 @@ public:
      * MinimizeUIAbilityBySCB, minimize the special ui ability by scb.
      *
      * @param sessionInfo the session info of the ability to minimize.
+     * @param fromUser, Whether form user.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
+    virtual int MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool fromUser = false)
     {
         return 0;
     };
@@ -496,18 +493,6 @@ public:
     virtual void DumpState(const std::string &args, std::vector<std::string> &state) = 0;
     virtual void DumpSysState(
         const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID) = 0;
-
-    /**
-     * Destroys this Service ability if the number of times it
-     * has been started equals the number represented by
-     * the given startId.
-     *
-     * @param token ability's token.
-     * @param startId is incremented by 1 every time this ability is started.
-     * @return Returns true if the startId matches the number of startup times
-     * and this Service ability will be destroyed; returns false otherwise.
-     */
-    virtual int TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId) = 0;
 
     /**
      * Destroys this Service ability by Want.
@@ -663,6 +648,11 @@ public:
 
     virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) = 0;
 
+    virtual int SetMissionContinueState(const sptr<IRemoteObject> &token, const AAFwk::ContinueState &state)
+    {
+        return 0;
+    };
+
 #ifdef SUPPORT_GRAPHICS
     virtual int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label) = 0;
 
@@ -793,6 +783,11 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int GetTopAbility(sptr<IRemoteObject> &token) = 0;
+
+    virtual int CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId, bool& isFocused)
+    {
+        return 0;
+    }
 
     /**
      * The delegator calls this interface to move the ability to the foreground.
@@ -1072,11 +1067,8 @@ public:
         // ipc id for add window token (6)
         ADD_WINDOW_INFO,
 
-        // ipc id for terminating ability for result (7)
-        TERMINATE_ABILITY_RESULT,
-
         // ipc id for list stack info (8)
-        LIST_STACK_INFO,
+        LIST_STACK_INFO = 8,
 
         // ipc id for get recent mission (9)
         GET_RECENT_MISSION,
@@ -1108,11 +1100,8 @@ public:
         // ipc id for uninstall app (18)
         UNINSTALL_APP,
 
-        // ipc id for terminate ability by callerToken and request code (19)
-        TERMINATE_ABILITY_BY_CALLER,
-
         // ipc id for move mission to floating stack (20)
-        MOVE_MISSION_TO_FLOATING_STACK,
+        MOVE_MISSION_TO_FLOATING_STACK = 20,
 
         // ipc id for move mission to floating stack (21)
         MOVE_MISSION_TO_SPLITSCREEN_STACK,
@@ -1245,6 +1234,9 @@ public:
 
         MOVE_ABILITY_TO_BACKGROUND,
 
+        // ipc id for set mission continue state (69)
+        SET_MISSION_CONTINUE_STATE,
+
         // ipc id 1001-2000 for DMS
         // ipc id for starting ability (1001)
         START_ABILITY = 1001,
@@ -1338,6 +1330,8 @@ public:
         // ipc id for connect ui extension ability
         CONNECT_UI_EXTENSION_ABILITY,
 
+        CHECK_UI_EXTENSION_IS_FOCUSED,
+
         START_UI_ABILITY_BY_SCB,
 
         // ipc id for minimize ui ability by scb
@@ -1411,6 +1405,7 @@ public:
         GET_TOP_ABILITY = 3000,
         FREE_INSTALL_ABILITY_FROM_REMOTE = 3001,
         ADD_FREE_INSTALL_OBSERVER = 3002,
+        GET_ELEMENT_NAME_BY_TOKEN = 3003,
 
         // ipc id for app recovery(3010)
         ABILITY_RECOVERY = 3010,

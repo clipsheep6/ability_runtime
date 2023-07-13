@@ -103,11 +103,8 @@ public:
     void DumpSysState(
         const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID) override;
 
-    int TerminateAbilityResult(const sptr<IRemoteObject>& token, int startId) override;
     int StopServiceAbility(const Want& want, int32_t userId = DEFAULT_INVAL_VALUE,
         const sptr<IRemoteObject> &token = nullptr) override;
-
-    int TerminateAbilityByCaller(const sptr<IRemoteObject>& callerToken, int requestCode) override;
 
     void CallRequestDone(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& callStub) override;
 
@@ -224,6 +221,11 @@ public:
     int StopUser(int accountId, const sptr<IStopUserCallback>& callback)
     {
         return 0;
+    }
+
+    int SetMissionContinueState(const sptr<IRemoteObject>& abilityToken, const AAFwk::ContinueState &state) override
+    {
+        return commonMockResultFlag_ ? 0 : -1;
     }
 
     int SetMissionIcon(const sptr<IRemoteObject>& abilityToken,

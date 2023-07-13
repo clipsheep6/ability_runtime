@@ -23,6 +23,7 @@
 #include "caller_callback.h"
 #include "configuration.h"
 #include "iability_callback.h"
+#include "mission_info.h"
 #include "native_engine/native_reference.h"
 #include "native_engine/native_value.h"
 #include "start_options.h"
@@ -285,6 +286,14 @@ public:
 
     virtual ErrCode GetMissionId(int32_t &missionId) = 0;
 
+    /**
+     * Set mission continue state of this ability.
+     *
+     * @param state the mission continuation state of this ability.
+     * @return Returns ERR_OK if success.
+     */
+    virtual ErrCode SetMissionContinueState(const AAFwk::ContinueState &state) = 0;
+
 #ifdef SUPPORT_GRAPHICS
     /**
      * @brief Set mission label of this ability.
@@ -303,6 +312,16 @@ public:
     virtual ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon) = 0;
 
     virtual int GetCurrentWindowMode() = 0;
+
+    /**
+     * @brief Get window rectangle of this ability.
+     *
+     * @param the left position of window rectangle.
+     * @param the top position of window rectangle.
+     * @param the width position of window rectangle.
+     * @param the height position of window rectangle.
+     */
+    virtual void GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t &height) = 0;
 #endif
     virtual bool IsTerminating() = 0;
     virtual void SetTerminating(bool state) = 0;

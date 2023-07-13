@@ -13,4 +13,18 @@
  * limitations under the License.
  */
 
-FUZZ
+#ifndef FOUNDATION_ABILITY_RUNTIME_SIMULATOR_COMMON_INCLUDE_BUNDLE_CONSTANTS_H
+#define FOUNDATION_ABILITY_RUNTIME_SIMULATOR_COMMON_INCLUDE_BUNDLE_CONSTANTS_H
+
+#include <map>
+#include <string>
+#include <vector>
+
+namespace OHOS {
+namespace AppExecFwk {
+namespace Constants {
+constexpr int PERMISSION_GRANTED = 0;
+} // namespace Constants
+} // namespace AppExecFwk
+} // namespace OHOS
+#endif // FOUNDATION_ABILITY_RUNTIME_SIMULATOR_COMMON_INCLUDE_BUNDLE_CONSTANTS_H
