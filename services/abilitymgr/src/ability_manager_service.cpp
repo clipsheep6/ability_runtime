@@ -2589,7 +2589,10 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
     ErrCode result = GenerateAbilityRequest(want, DEFAULT_INVAL_VALUE, abilityRequest, callerToken, userId);
 
     Want requestWant = want;
+    CHECK_POINTER_AND_RETURN_LOG(connect, ERR_INVALID_VALUE, "connect is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(connect->AsObject(), ERR_INVALID_VALUE, "abilityConnectionObj is nullptr");
     requestWant.SetParam("abilityConnectionObj", connect->AsObject());
+    HILOG_DEBUG("requestWant SetParam success");
     ComponentRequest componentRequest = initComponentRequest(callerToken);
     if (!IsComponentInterceptionStart(requestWant, componentRequest, abilityRequest)) {
         return componentRequest.requestResult;
