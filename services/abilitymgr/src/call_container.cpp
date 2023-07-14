@@ -35,6 +35,7 @@ CallContainer::~CallContainer()
         });
 
     deathRecipientMap_.clear();
+    std::lock_guard<std::mutex> lock(mutex_);
     callRecordMap_.clear();
 }
 
@@ -45,6 +46,7 @@ void CallContainer::AddCallRecord(const sptr<IAbilityConnection> & connect,
     CHECK_POINTER(connect);
     CHECK_POINTER(connect->AsObject());
 
+    std::lock_guard<std::mutex> lock(mutex_);
     auto iter = callRecordMap_.find(connect->AsObject());
     if (iter != callRecordMap_.end()) {
         RemoveConnectDeathRecipient(connect);
@@ -64,6 +66,7 @@ std::shared_ptr<CallRecord> CallContainer::GetCallRecord(const sptr<IAbilityConn
     CHECK_POINTER_AND_RETURN(connect, nullptr);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), nullptr);
 
+    std::lock_guard<std::mutex> lock(mutex_);
     auto mapIter = callRecordMap_.find(connect->AsObject());
     if (mapIter != callRecordMap_.end()) {
         return mapIter->second;
@@ -78,6 +81,7 @@ bool CallContainer::RemoveCallRecord(const sptr<IAbilityConnection> & connect)
     CHECK_POINTER_AND_RETURN(connect, false);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), false);
 
+    std::lock_guard<std::mutex> lock(mutex_);
     auto iter = callRecordMap_.find(connect->AsObject());
     if (iter != callRecordMap_.end()) {
         auto callrecord = iter->second;
@@ -106,9 +110,12 @@ void CallContainer::OnConnectionDied(const wptr<IRemoteObject> &remote)
     CHECK_POINTER(object);
 
     std::shared_ptr<CallRecord> callRecord = nullptr;
-    auto mapIter = callRecordMap_.find(object);
-    if (mapIter != callRecordMap_.end()) {
-        callRecord = mapIter->second;
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        auto mapIter = callRecordMap_.find(object);
+        if (mapIter != callRecordMap_.end()) {
+            callRecord = mapIter->second;
+        }
     }
 
     auto abilityManagerService = DelayedSingleton<AbilityManagerService>::GetInstance();
@@ -127,6 +134,7 @@ bool CallContainer::CallRequestDone(const sptr<IRemoteObject> &callStub)
 
     CHECK_POINTER_AND_RETURN(callStub, false);
 
+    std::lock_guard<std::mutex> lock(mutex_);
     std::for_each(callRecordMap_.begin(),
         callRecordMap_.end(),
         [&callStub](CallMapType::reference service) {
@@ -144,6 +152,7 @@ bool CallContainer::CallRequestDone(const sptr<IRemoteObject> &callStub)
 void CallContainer::Dump(std::vector<std::string> &info) const
 {
     HILOG_INFO("Dump call records.");
+    std::lock_guard<std::mutex> lock(mutex_);
     for (const auto &iter : callRecordMap_) {
         auto callRecord = iter.second;
         if (callRecord) {
@@ -154,6 +163,7 @@ void CallContainer::Dump(std::vector<std::string> &info) const
 
 bool CallContainer::IsNeedToCallRequest() const
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     for (const auto &iter : callRecordMap_) {
         auto callRecord = iter.second;
         if (callRecord && !callRecord->IsCallState(CallState::REQUESTED)) {
@@ -201,6 +211,7 @@ void CallContainer::RemoveConnectDeathRecipient(const sptr<IAbilityConnection> &
 
 bool CallContainer::IsExistConnection(const sptr<IAbilityConnection> &connect)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     return callRecordMap_.find(connect->AsObject()) != callRecordMap_.end();
 }
 }  // namespace AAFwk

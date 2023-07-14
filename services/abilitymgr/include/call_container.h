@@ -55,6 +55,7 @@ private:
     void OnConnectionDied(const wptr<IRemoteObject> & remote);
 
 private:
+    std::mutex mutex_;
     CallMapType callRecordMap_;
     RecipientMapType deathRecipientMap_;
 
