@@ -190,6 +190,13 @@ public:
     int ReleaseCallLocked(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element);
 
     /**
+     * @brief handle when call connection died
+     *
+     * @param callRecord the died call connection
+     */
+    void OnCallConnectDied(const std::shared_ptr<CallRecord> &callRecord);
+
+    /**
      * Get sessionId by ability token.
      *
      * @param token the ability token.

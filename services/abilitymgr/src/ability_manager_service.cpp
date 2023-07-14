@@ -322,7 +322,9 @@ bool AbilityManagerService::Init()
 #ifdef SUPPORT_GRAPHICS
     DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(OHOS::system::GetDeviceType());
     implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
-    InitFocusListener();
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        InitFocusListener();
+    }
     InitPrepareTerminateConfig();
 #endif
 
@@ -1247,6 +1249,11 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
         HILOG_ERROR("IsAbilityControllerStart failed : %{public}s.", abilityInfo.bundleName.c_str());
         return ERR_WOULD_BLOCK;
     }
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        ReportAbilitStartInfoToRSS(abilityInfo);
+        ReportEventToSuspendManager(abilityInfo);
+        return uiAbilityLifecycleManager_->NotifySCBToStartUIAbility(abilityRequest, oriValidUserId);
+    }
     auto missionListManager = GetListManagerByUserId(oriValidUserId);
     if (missionListManager == nullptr) {
         HILOG_ERROR("missionListManager is nullptr. userId:%{public}d", validUserId);
@@ -1302,7 +1309,8 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
     }
 
     auto abilityInfo = abilityRequest.abilityInfo;
-    if (abilityInfo.type != AppExecFwk::AbilityType::PAGE) {
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSystemAppCall() &&
+        abilityInfo.type != AppExecFwk::AbilityType::PAGE) {
         HILOG_ERROR("Only support for page type ability.");
         return ERR_INVALID_VALUE;
     }
@@ -2012,6 +2020,10 @@ int AbilityManagerService::CloseAbility(const sptr<IRemoteObject> &token, int re
 int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &token, int resultCode,
     const Want *resultWant, bool flag)
 {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        HILOG_DEBUG("Not support in scb.");
+        return ERR_OK;
+    }
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Terminate ability begin, flag:%{public}d.", flag);
     if (!VerificationAllToken(token)) {
@@ -2254,6 +2266,10 @@ std::string AbilityManagerService::AnonymizeDeviceId(const std::string& deviceId
 
 int AbilityManagerService::MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser)
 {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        HILOG_DEBUG("Not support in scb.");
+        return ERR_OK;
+    }
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Minimize ability, fromUser:%{public}d.", fromUser);
     if (!VerificationAllToken(token)) {
@@ -3488,10 +3504,14 @@ int AbilityManagerService::AttachAbilityThread(
 
 void AbilityManagerService::DumpFuncInit()
 {
-    dumpFuncMap_[KEY_DUMP_ALL] = &AbilityManagerService::DumpInner;
-    dumpFuncMap_[KEY_DUMP_MISSION] = &AbilityManagerService::DumpMissionInner;
     dumpFuncMap_[KEY_DUMP_SERVICE] = &AbilityManagerService::DumpStateInner;
     dumpFuncMap_[KEY_DUMP_DATA] = &AbilityManagerService::DataDumpStateInner;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        HILOG_DEBUG("Support by scb, not ability server.");
+        return;
+    }
+    dumpFuncMap_[KEY_DUMP_ALL] = &AbilityManagerService::DumpInner;
+    dumpFuncMap_[KEY_DUMP_MISSION] = &AbilityManagerService::DumpMissionInner;
     dumpFuncMap_[KEY_DUMP_MISSION_LIST] = &AbilityManagerService::DumpMissionListInner;
     dumpFuncMap_[KEY_DUMP_MISSION_INFOS] = &AbilityManagerService::DumpMissionInfosInner;
 }
@@ -3499,12 +3519,16 @@ void AbilityManagerService::DumpFuncInit()
 void AbilityManagerService::DumpSysFuncInit()
 {
     dumpsysFuncMap_[KEY_DUMPSYS_ALL] = &AbilityManagerService::DumpSysInner;
-    dumpsysFuncMap_[KEY_DUMPSYS_MISSION_LIST] = &AbilityManagerService::DumpSysMissionListInner;
-    dumpsysFuncMap_[KEY_DUMPSYS_ABILITY] = &AbilityManagerService::DumpSysAbilityInner;
     dumpsysFuncMap_[KEY_DUMPSYS_SERVICE] = &AbilityManagerService::DumpSysStateInner;
     dumpsysFuncMap_[KEY_DUMPSYS_PENDING] = &AbilityManagerService::DumpSysPendingInner;
     dumpsysFuncMap_[KEY_DUMPSYS_PROCESS] = &AbilityManagerService::DumpSysProcess;
     dumpsysFuncMap_[KEY_DUMPSYS_DATA] = &AbilityManagerService::DataDumpSysStateInner;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        HILOG_DEBUG("Support by scb, not ability server.");
+        return;
+    }
+    dumpsysFuncMap_[KEY_DUMPSYS_MISSION_LIST] = &AbilityManagerService::DumpSysMissionListInner;
+    dumpsysFuncMap_[KEY_DUMPSYS_ABILITY] = &AbilityManagerService::DumpSysAbilityInner;
 }
 
 void AbilityManagerService::DumpSysInner(
@@ -3515,7 +3539,9 @@ void AbilityManagerService::DumpSysInner(
     if (argList.empty()) {
         return;
     }
-    DumpSysMissionListInner(args, info, isClient, isUserID, userId);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        DumpSysMissionListInner(args, info, isClient, isUserID, userId);
+    }
     DumpSysStateInner(args, info, isClient, isUserID, userId);
     DumpSysPendingInner(args, info, isClient, isUserID, userId);
     DumpSysProcess(args, info, isClient, isUserID, userId);
@@ -4397,16 +4423,18 @@ int AbilityManagerService::StopServiceAbility(const Want &want, int32_t userId, 
 void AbilityManagerService::OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord)
 {
     CHECK_POINTER(abilityRecord);
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() &&
-        abilityRecord->GetAbilityInfo().type == AbilityType::PAGE) {
-        uiAbilityLifecycleManager_->OnAbilityDied(abilityRecord);
-        return;
-    }
-    auto manager = GetListManagerByUserId(abilityRecord->GetOwnerMissionUserId());
-    if (manager && abilityRecord->GetAbilityInfo().type == AbilityType::PAGE) {
-        ReleaseAbilityTokenMap(abilityRecord->GetToken());
-        manager->OnAbilityDied(abilityRecord, GetUserId());
-        return;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        if (abilityRecord->GetAbilityInfo().type == AbilityType::PAGE) {
+            uiAbilityLifecycleManager_->OnAbilityDied(abilityRecord);
+            return;
+        }
+    } else {
+        auto manager = GetListManagerByUserId(abilityRecord->GetOwnerMissionUserId());
+        if (manager && abilityRecord->GetAbilityInfo().type == AbilityType::PAGE) {
+            ReleaseAbilityTokenMap(abilityRecord->GetToken());
+            manager->OnAbilityDied(abilityRecord, GetUserId());
+            return;
+        }
     }
 
     auto connectManager = GetConnectManagerByToken(abilityRecord->GetToken());
@@ -4424,6 +4452,10 @@ void AbilityManagerService::OnAbilityDied(std::shared_ptr<AbilityRecord> ability
 void AbilityManagerService::OnCallConnectDied(std::shared_ptr<CallRecord> callRecord)
 {
     CHECK_POINTER(callRecord);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        uiAbilityLifecycleManager_->OnCallConnectDied(callRecord);
+        return;
+    }
     if (currentMissionListManager_) {
         currentMissionListManager_->OnCallConnectDied(callRecord);
     }
@@ -5283,6 +5315,10 @@ void AbilityManagerService::ClearUserData(int32_t userId)
 
 int AbilityManagerService::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
 {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        HILOG_DEBUG("Not support in scb.");
+        return ERR_OK;
+    }
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (!isSaCall) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
@@ -5974,6 +6010,10 @@ int AbilityManagerService::DelegatorDoAbilityBackground(const sptr<IRemoteObject
 
 int AbilityManagerService::DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag)
 {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        HILOG_DEBUG("Not support in scb.");
+        return ERR_OK;
+    }
     HILOG_DEBUG("DoAbilityForeground, sceneFlag:%{public}u", flag);
     CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
     if (!VerificationToken(token) && !VerificationAllToken(token)) {
@@ -6005,6 +6045,10 @@ int AbilityManagerService::DoAbilityForeground(const sptr<IRemoteObject> &token,
 
 int AbilityManagerService::DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag)
 {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        HILOG_DEBUG("Not support in scb.");
+        return ERR_OK;
+    }
     HILOG_DEBUG("DoAbilityBackground, sceneFlag:%{public}u", flag);
     CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
 

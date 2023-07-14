@@ -1237,6 +1237,27 @@ int UIAbilityLifecycleManager::ReleaseCallLocked(
     return ERR_OK;
 }
 
+void UIAbilityLifecycleManager::OnCallConnectDied(const std::shared_ptr<CallRecord> &callRecord)
+{
+    HILOG_INFO("On callConnect died.");
+    CHECK_POINTER(callRecord);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+
+    AppExecFwk::ElementName element = callRecord->GetTargetServiceName();
+    auto abilityRecords = GetAbilityRecordsByName(element);
+    auto isExist = [callRecord] (const std::shared_ptr<AbilityRecord> &abilityRecord) {
+        return abilityRecord->IsExistConnection(callRecord->GetConCallBack());
+    };
+    auto findRecord = std::find_if(abilityRecords.begin(), abilityRecords.end(), isExist);
+    if (findRecord == abilityRecords.end()) {
+        HILOG_ERROR("not found ability record by callback");
+        return;
+    }
+    auto abilityRecord = *findRecord;
+    CHECK_POINTER(abilityRecord);
+    abilityRecord->ReleaseCall(callRecord->GetConCallBack());
+}
+
 std::vector<std::shared_ptr<AbilityRecord>> UIAbilityLifecycleManager::GetAbilityRecordsByName(
     const AppExecFwk::ElementName &element)
 {
