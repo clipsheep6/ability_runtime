@@ -59,8 +59,10 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
     auto iter = sessionAbilityMap_.find(sessionInfo->persistentId);
     if (iter != sessionAbilityMap_.end()) {
         uiAbilityRecord = iter->second;
-        uiAbilityRecord->SetWant(abilityRequest.want);
-        uiAbilityRecord->SetIsNewWant(true);
+        uiAbilityRecord->SetIsNewWant(sessionInfo->isNewWant);
+        if (sessionInfo->isNewWant) {
+            uiAbilityRecord->SetWant(abilityRequest.want);
+        }
     } else {
         if (sessionInfo->startSetting != nullptr) {
             HILOG_DEBUG("startSetting is valid.");
