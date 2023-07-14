@@ -89,6 +89,12 @@ ohos_shared_library("task_handler_wrap") {
   public_configs = [ ":common_config" ]
   include_dirs = [ "include" ]
 
+  if (use_musl) {
+    if (use_jemalloc && use_jemalloc_dfx_intf) {
+      defines += [ CONFIG_USE_JEMALLOC_DFX_INTF ]
+    }
+  }
+
   sources = [
     "src/event_handler_wrap.cpp",
     "src/ffrt_task_handler_wrap.cpp",
