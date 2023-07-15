@@ -34,6 +34,7 @@
 #ifdef SUPPORT_GRAPHICS
 #include "page_ability_impl.h"
 #endif
+#include "ui_extension_utils.h"
 #include "values_bucket.h"
 
 namespace OHOS {
@@ -169,7 +170,7 @@ std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalR
         if (abilityInfo->extensionAbilityType == ExtensionAbilityType::INPUTMETHOD) {
             abilityName = INPUTMETHOD_EXTENSION;
         }
-        if (abilityInfo->extensionAbilityType == ExtensionAbilityType::UI) {
+        if (AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo->extensionAbilityType)) {
             abilityName = UI_EXTENSION;
         }
         if (abilityInfo->extensionAbilityType == ExtensionAbilityType::SYSPICKER_MEDIACONTROL) {

@@ -210,6 +210,7 @@ ErrCode AbilityManagerClient::StartUIExtensionAbility(const sptr<SessionInfo> &e
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    CHECK_POINTER_RETURN_NOT_CONNECTED(extensionSessionInfo);
     HILOG_INFO("name:%{public}s %{public}s, userId:%{public}d.",
         extensionSessionInfo->want.GetElement().GetAbilityName().c_str(),
         extensionSessionInfo->want.GetElement().GetBundleName().c_str(), userId);
