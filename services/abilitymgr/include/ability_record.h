@@ -194,6 +194,12 @@ enum AbilityCallType {
     START_EXTENSION_TYPE,
 };
 
+enum CollaboratorType {
+    DEFAULT_TYPE = 0,
+    RESERVE_TYPE,
+    OTHERS_TYPE
+};
+
 struct ComponentRequest {
     sptr<IRemoteObject> callerToken = nullptr;
     int requestCode = 0;
@@ -211,6 +217,7 @@ struct AbilityRequest {
     int32_t restartCount = -1;
     int64_t restartTime = 0;
     bool startRecent = false;
+    int32_t collaboratorType = CollaboratorType::DEFAULT_TYPE;
 
     // call ability
     int callerUid = -1;

@@ -298,7 +298,7 @@ int MissionInfoMgr::GetInnerMissionInfoById(int32_t missionId, InnerMissionInfo 
 }
 
 bool MissionInfoMgr::FindReusedMissionInfo(const std::string &missionName,
-    const std::string &flag, bool isFindRecentStandard, InnerMissionInfo &info)
+    const std::string &flag, bool isFindRecentStandard, bool isFromCollaborator, InnerMissionInfo &info)
 {
     if (missionName.empty()) {
         return false;
@@ -306,7 +306,11 @@ bool MissionInfoMgr::FindReusedMissionInfo(const std::string &missionName,
 
     std::lock_guard<ffrt::mutex> lock(mutex_);
     auto it = std::find_if(missionInfoList_.begin(), missionInfoList_.end(),
-        [&missionName, &flag, &isFindRecentStandard](const InnerMissionInfo item) {
+        [&missionName, &flag, &isFindRecentStandard, &isFromCollaborator](const InnerMissionInfo item) {
+            if (isFromCollaborator && missionName == item.missionAffinity) {
+                return true;
+            }
+
             if (missionName != item.missionName) {
                 return false;
             }

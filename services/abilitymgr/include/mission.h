@@ -215,6 +215,16 @@ public:
         return unclearable_;
     }
 
+    int32_t GetCollaboratorType() const
+    {
+        return collaboratorType_;
+    }
+
+    void SetCollaboratorType(int32_t collaboratorType)
+    {
+        collaboratorType_ = collaboratorType;
+    }
+
 private:
     int32_t missionId_;
     int32_t startMethod_;
@@ -229,6 +239,7 @@ private:
     bool needNotifyUpdateLabel_ = false;
     std::string missionTime_ = "0";
     bool unclearable_ = false;
+    int32_t collaboratorType_ = CollaboratorType::DEFAULT_TYPE;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

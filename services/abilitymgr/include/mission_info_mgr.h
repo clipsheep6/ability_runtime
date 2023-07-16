@@ -105,7 +105,7 @@ public:
      * @return true if success.
      */
     bool FindReusedMissionInfo(const std::string &missionName, const std::string &flag,
-        bool isFindRecentStandard, InnerMissionInfo &info);
+        bool isFindRecentStandard, bool isFromCollaborator, InnerMissionInfo &info);
 
     /**
      * @brief Delete all the mission info.

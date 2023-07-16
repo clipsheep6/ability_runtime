@@ -69,6 +69,7 @@ constexpr int32_t U0_USER_ID = 0;
 constexpr int32_t INVALID_USER_ID = -1;
 using OHOS::AppExecFwk::IAbilityController;
 class PendingWantManager;
+class IAbilityManagerCollaborator;
 /**
  * @class AbilityManagerService
  * AbilityManagerService provides a facility for managing ability life cycle.
@@ -1121,6 +1122,13 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService) override;
+
+    /**
+     * @brief Get collaborator.
+     * @param type collaborator type.
+     * @return nullptr or IAbilityManagerCollaborator stpr.
+    */
+    sptr<IAbilityManagerCollaborator> GetCollaborator(int32_t type);
 
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
