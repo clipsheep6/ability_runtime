@@ -28,8 +28,8 @@ namespace OHOS {
 namespace AppExecFwk {
 // for api7 demo special
 constexpr int CURRENT_ACCOUNT_ID = 100;
-const std::string TYPE_RESERVE = "1";
-const std::string TYPE_OTHERS = "2";
+const int32_t TYPE_RESERVE = 1;
+const int32_t TYPE_OTHERS = 2;
 
 void ContextContainer::AttachBaseContext(const std::shared_ptr<ContextDeal> &base)
 {
@@ -288,16 +288,17 @@ void ContextContainer::InitResourceManager(BundleInfo &bundleInfo, std::shared_p
         HILOG_ERROR("InitResourceManager deal is nullptr");
         return;
     }
-    if (bundleInfo.applicationInfo.codePath == TYPE_RESERVE || bundleInfo.applicationInfo.codePath == TYPE_OTHERS) {
+    if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_RESERVE) ||
+        bundleInfo.applicationInfo.codePath == std::to_string(TYPE_OTHERS)) {
         std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
         std::string moduleName;
         std::string hapPath;
         std::vector<std::string> overlayPaths;
         int32_t appType;
-        if (bundleInfo.applicationInfo.codePath == TYPE_RESERVE) {
-            appType = 1;
-        } else if (bundleInfo.applicationInfo.codePath == TYPE_OTHERS) {
-            appType = 2;
+        if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_RESERVE)) {
+            appType = TYPE_RESERVE;
+        } else if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_OTHERS)) {
+            appType = TYPE_OTHERS;
         } else {
             appType = 0;
         }

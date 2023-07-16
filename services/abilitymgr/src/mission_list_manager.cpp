@@ -371,6 +371,23 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
     }
     targetAbilityRecord->AddCallerRecord(abilityRequest.callerToken, abilityRequest.requestCode, srcAbilityId);
 
+    if (abilityRequest.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
+        auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(
+            abilityRequest.collaboratorType);
+        if (collaborator == nullptr) {
+            HILOG_ERROR("collaborator: GetCollaborator is nullptr.");
+            return RESOLVE_ABILITY_ERR;
+        }
+
+        int32_t ret = collaborator->NotifyLoadAbility(
+            abilityRequest.abilityInfo, targetMission->GetMissionId(), abilityRequest.want);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("collaborator notify broker load ability failed, errCode: %{public}d.", ret);
+            return RESOLVE_ABILITY_ERR;
+        }
+        HILOG_INFO("collaborator notify broker load ability success.");
+    }
+
     // 3. move mission to target list
     bool isCallerFromLauncher = (callerAbility && callerAbility->IsLauncherAbility());
     MoveMissionToTargetList(isCallerFromLauncher, targetList, targetMission);
@@ -577,6 +594,22 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
         DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionInfo(info);
     } else {
         DelayedSingleton<MissionInfoMgr>::GetInstance()->AddMissionInfo(info);
+    }
+
+    if (abilityRequest.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
+        auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(
+            abilityRequest.collaboratorType);
+        if (collaborator == nullptr) {
+            HILOG_ERROR("collaborator: GetCollaborator is nullptr.");
+            return;
+        }
+
+        int32_t ret = collaborator->NotifyMissionCreated(targetMission->GetMissionId(), abilityRequest.want);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("collaborator NotifyMissionCreated failed, errCode: %{public}d.", ret);
+            return;
+        }
+        HILOG_INFO("collaborator NotifyMissionCreated success.");
     }
 }
 
