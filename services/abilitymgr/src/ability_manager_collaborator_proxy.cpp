@@ -19,7 +19,6 @@
 
 namespace OHOS {
 namespace AAFwk {
-
 int32_t AbilityManagerCollaboratorProxy::NotifyStartAbility(
     const AppExecFwk::AbilityInfo &abilityInfo, int32_t userId, Want &want, uint64_t accessTokenIDEx)
 {

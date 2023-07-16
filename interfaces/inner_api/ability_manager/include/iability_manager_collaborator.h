@@ -33,7 +33,8 @@ public:
      * @param AbilityInfo ability info from bms
      * @param userId userId.
      * @param want targert info, will modify by collaborator.
-     * @return 0 or else.
+     * @param accessTokenIDEx accessToken
+     * @return 0 when notify start ability success or else failed.
     */
     virtual int32_t NotifyStartAbility(const AppExecFwk::AbilityInfo &abilityInfo,
         int32_t userId, Want &want, uint64_t accessTokenIDEx) = 0;
@@ -42,7 +43,7 @@ public:
      * @brief Notify when mission is created.
      * @param missionId missionId.
      * @param want target info.
-     * @return 0 or else.
+     * @return 0 when notify mission created success or else failed.
     */
     virtual int32_t NotifyMissionCreated(int32_t missionId, const Want &want) = 0;
 
@@ -51,7 +52,7 @@ public:
      * @param AbilityInfo ability info from bms.
      * @param missionId missionId.
      * @param want target info.
-     * @return 0 or else.
+     * @return 0 when notify load ability success or else failed.
     */
     virtual int32_t NotifyLoadAbility(
         const AppExecFwk::AbilityInfo &abilityInfo, int32_t missionId, const Want &want) = 0;
@@ -59,28 +60,28 @@ public:
     /**
      * @brief Notify when notify app to background.
      * @param missionId missionId.
-     * @return 0 or else.
+     * @return 0 when notify move mission to background success or else failed.
     */
     virtual int32_t NotifyMoveMissionToBackground(int32_t missionId) = 0;
 
     /**
      * @brief Notify when notify app to foreground.
      * @param missionId missionId.
-     * @return 0 or else.
+     * @return 0 when notify move mission to foreground success or else failed.
     */
     virtual int32_t NotifyMoveMissionToForeground(int32_t missionId) = 0;
 
     /**
      * @brief Notify when notify ability is terminated, but mission is not cleared.
      * @param missionId missionId.
-     * @return 0 or else.
+     * @return 0 when notify terminate mission success or else failed.
     */
     virtual int32_t NotifyTerminateMission(int32_t missionId) = 0;
 
     /**
      * @brief Notify to broker when clear mission.
      * @param missionId missionId.
-     * @return 0 or else.
+     * @return 0 when notify clear mission success or else failed.
     */
     virtual int32_t NotifyClearMission(int32_t missionId) = 0;
 
@@ -89,7 +90,7 @@ public:
      * @param pid pid of shell process.
      * @param type died type.
      * @param reason addational message for died reason.
-     * @return 0 or else.
+     * @return 0 when notify remove shell process success or else failed.
     */
     virtual int32_t NotifyRemoveShellProcess(int32_t pid, int32_t type, const std::string &reason) = 0;
 
@@ -104,6 +105,6 @@ public:
         NOTIFY_REMOVE_SHELL_PROCESS,
     };
 };
-}
-}
+}  // namespace AAFwk
+}  // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_IABILITY_MANAGER_COLLABORATOR_H

@@ -4279,6 +4279,32 @@ int AbilityManagerService::GenerateAbilityRequest(
     }
     HILOG_DEBUG("QueryAbilityInfo success, ability name: %{public}s, is stage mode: %{public}d.",
         request.abilityInfo.name.c_str(), request.abilityInfo.isStageBasedModel);
+
+    if (request.abilityInfo.applicationInfo.codePath == std::to_string(CollaboratorType::RESERVE_TYPE)) {
+        request.collaboratorType = CollaboratorType::RESERVE_TYPE;
+    } else if (request.abilityInfo.applicationInfo.codePath == std::to_string(CollaboratorType::OTHERS_TYPE)) {
+        request.collaboratorType = CollaboratorType::OTHERS_TYPE;
+    }
+    if (request.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
+        auto collaborator = GetCollaborator(request.collaboratorType);
+        if (collaborator == nullptr) {
+            HILOG_ERROR("collaborator GetCollaborator is nullptr.");
+            return RESOLVE_ABILITY_ERR;
+        }
+
+        uint64_t accessTokenIDEx = IPCSkeleton::GetCallingFullTokenID();
+
+        int32_t ret = collaborator->NotifyStartAbility(request.abilityInfo, userId, request.want, accessTokenIDEx);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("collaborator: notify broker start ability failed");
+            return RESOLVE_ABILITY_ERR;
+        }
+        
+        IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(request.want, abilityInfoFlag, userId, request.abilityInfo));
+
+        HILOG_INFO("collaborator notify broker start ability success");
+    }
+
     if (request.abilityInfo.type == AppExecFwk::AbilityType::SERVICE && request.abilityInfo.isStageBasedModel) {
         HILOG_INFO("Stage mode, abilityInfo SERVICE type reset EXTENSION.");
         request.abilityInfo.type = AppExecFwk::AbilityType::EXTENSION;
@@ -4294,34 +4320,6 @@ int AbilityManagerService::GenerateAbilityRequest(
         request.appInfo.name.c_str(), request.abilityInfo.moduleName.c_str(), request.uid);
 
     request.want.SetModuleName(request.abilityInfo.moduleName);
-
-    if (request.appInfo.codePath == std::to_string(CollaboratorType::RESERVE_TYPE)) {
-        request.collaboratorType = CollaboratorType::RESERVE_TYPE;
-    } else if (request.appInfo.codePath == std::to_string(CollaboratorType::OTHERS_TYPE)) {
-        request.collaboratorType = CollaboratorType::OTHERS_TYPE;
-    }
-    if (request.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
-        auto collaborator = GetCollaborator(request.collaboratorType);
-        if (collaborator == nullptr) {
-            HILOG_ERROR("collaborator GetCollaborator is nullptr.");
-            return RESOLVE_ABILITY_ERR;
-        }
-
-        uint64_t accessTokenIDEx = IPCSkeleton::GetCallingFullTokenID();
-        Want wantBroker = want;
-
-        int32_t ret = collaborator->NotifyStartAbility(request.abilityInfo, userId, wantBroker, accessTokenIDEx);
-        if (ret != ERR_OK) {
-            HILOG_ERROR("collaborator: notify broker start ability failed");
-            return RESOLVE_ABILITY_ERR;
-        }
-        request.want = wantBroker;
-        std::string bundleName = wantBroker.GetElement().GetBundleName();
-        request.abilityInfo.applicationInfo.bundleName = bundleName;
-        request.abilityInfo.applicationInfo.name = bundleName;
-
-        HILOG_INFO("collaborator notify broker start ability success");
-    }
 
     if (want.GetBoolParam(Want::PARAM_RESV_START_RECENT, false) &&
         AAFwk::PermissionVerification::GetInstance()->VerifyMissionPermission()) {

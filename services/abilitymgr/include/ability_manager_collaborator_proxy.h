@@ -12,15 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef ABILITY_MANAGER_COLLABORATOR_PROXY_H
-#define ABILITY_MANAGER_COLLABORATOR_PROXY_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_COLLABORATOR_PROXY_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_COLLABORATOR_PROXY_H
 
 #include "iability_manager_collaborator.h"
 #include "iremote_proxy.h"
 
 namespace OHOS {
 namespace AAFwk {
-
 class AbilityManagerCollaboratorProxy : public IRemoteProxy<IAbilityManagerCollaborator> {
 public:
     explicit AbilityManagerCollaboratorProxy(const sptr<IRemoteObject> &impl)
@@ -29,12 +28,12 @@ public:
     virtual ~AbilityManagerCollaboratorProxy() = default;
 
     /**
-     * @brief Notify Broker to StartAbility.
+     * @brief Notify collaborator to StartAbility.
      * @param AbilityInfo ability info from bms
      * @param userId userId.
-     * @param want targert info, will modify by broker.
+     * @param want targert info, will modify by collaborator.
      * @param accessTokenIDEx accessToken
-     * @return Returns 0 means in container, other return.
+     * @return 0 when notify start ability success or else failed.
     */
     virtual int32_t NotifyStartAbility(const AppExecFwk::AbilityInfo &abilityInfo,
         int32_t userId, Want &want, uint64_t accessTokenIDEx) override;
@@ -43,7 +42,7 @@ public:
      * @brief Notify when mission is created.
      * @param missionId missionId.
      * @param want target info.
-     * @return 0 or else.
+     * @return 0 when notify mission created success or else failed.
     */
     virtual int32_t NotifyMissionCreated(int32_t missionId, const Want &want) override;
 
@@ -52,7 +51,7 @@ public:
      * @param AbilityInfo ability info from bms.
      * @param missionId missionId.
      * @param want target info.
-     * @return 0 or else.
+     * @return 0 when notify load ability success or else failed.
     */
     virtual int32_t NotifyLoadAbility(const AppExecFwk::AbilityInfo &abilityInfo,
         int32_t missionId, const Want &want) override;
@@ -60,28 +59,28 @@ public:
     /**
      * @brief Notify when notify app to background.
      * @param missionId missionId.
-     * @return 0 or else.
+     * @return 0 when notify move mission to background success or else failed.
     */
     virtual int32_t NotifyMoveMissionToBackground(int32_t missionId) override;
 
     /**
      * @brief Notify when notify app to foreground.
      * @param missionId missionId.
-     * @return 0 or else.
+     * @return 0 when notify move mission to foreground success or else failed.
     */
     virtual int32_t NotifyMoveMissionToForeground(int32_t missionId) override;
 
     /**
      * @brief Notify when notify ability is terminated, but mission is not cleared.
      * @param missionId missionId.
-     * @return 0 or else.
+     * @return 0 when notify terminate mission success or else failed.
     */
     virtual int32_t NotifyTerminateMission(int32_t missionId) override;
 
     /**
      * @brief Notify to broker when clear mission.
      * @param missionId missionId.
-     * @return 0 or else.
+     * @return 0 when notify clear mission success or else failed.
     */
     virtual int32_t NotifyClearMission(int32_t missionId) override;
 
@@ -90,14 +89,13 @@ public:
      * @param pid pid of shell process.
      * @param type died type.
      * @param reason addational message for died reason.
-     * @return 0 or else.
+     * @return 0 when notify remove shell process success or else failed.
     */
     virtual int32_t NotifyRemoveShellProcess(int32_t pid, int32_t type, const std::string &reason) override;
 
 private:
     static inline BrokerDelegator<AbilityManagerCollaboratorProxy> delegator_;
-    bool WriteInterfaceToken(MessageParcel &data);
 };
 }   // namespace AAFWK
 }   // namespace OHOS
-#endif // ABILITY_MANAGER_COLLABORATOR_PROXY_H
+#endif // OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_COLLABORATOR_PROXY_H
