@@ -20,6 +20,7 @@
 
 #include "ability_connect_callback_proxy.h"
 #include "ability_connect_callback_stub.h"
+#include "ability_manager_collaborator_proxy.h"
 #include "ability_manager_errors.h"
 #include "ability_scheduler_proxy.h"
 #include "ability_scheduler_stub.h"
@@ -131,6 +132,14 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::MinimizeUIAbilityBySCBInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CLOSE_UI_ABILITY_BY_SCB)] =
         &AbilityManagerStub::CloseUIAbilityBySCBInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_COLLABORATOR)] =
+        &AbilityManagerStub::RegisterIAbilityManagerCollaboratorInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_COLLABORATOR)] =
+        &AbilityManagerStub::UnregisterIAbilityManagerCollaboratorInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_MISSION_TO_BACKGROUND)] =
+        &AbilityManagerStub::MoveMissionToBackgroundInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_MISSION)] =
+        &AbilityManagerStub::TerminateMissionInner;
 }
 
 void AbilityManagerStub::SecondStepInit()
@@ -2346,5 +2355,43 @@ int AbilityManagerStub::SetSessionManagerServiceInner(MessageParcel &data, Messa
     SetSessionManagerService(sessionManagerService);
     return NO_ERROR;
 }
+
+int32_t AbilityManagerStub::RegisterIAbilityManagerCollaboratorInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t type = data.ReadInt32();
+    sptr<IAbilityManagerCollaborator> collaborator = iface_cast<IAbilityManagerCollaborator>(data.ReadRemoteObject());
+    if (collaborator == nullptr) {
+        HILOG_ERROR("read collaborator failed.");
+        return ERR_NULL_OBJECT;
+    }
+    int32_t ret = RegisterIAbilityManagerCollaborator(type, collaborator);
+    reply.WriteInt32(ret);
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::UnregisterIAbilityManagerCollaboratorInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t type = data.ReadInt32();
+    int32_t ret = UnregisterIAbilityManagerCollaborator(type);
+    reply.WriteInt32(ret);
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::MoveMissionToBackgroundInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t missionId = data.ReadInt32();
+    int32_t ret = MoveMissionToBackground(missionId);
+    reply.WriteInt32(ret);
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::TerminateMissionInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t missionId = data.ReadInt32();
+    int32_t ret = TerminateMission(missionId);
+    reply.WriteInt32(ret);
+    return NO_ERROR;
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS

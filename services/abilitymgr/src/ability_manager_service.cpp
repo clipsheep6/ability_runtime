@@ -4295,6 +4295,34 @@ int AbilityManagerService::GenerateAbilityRequest(
 
     request.want.SetModuleName(request.abilityInfo.moduleName);
 
+    if (request.appInfo.codePath == std::to_string(CollaboratorType::RESERVE_TYPE)) {
+        request.collaboratorType = CollaboratorType::RESERVE_TYPE;
+    } else if (request.appInfo.codePath == std::to_string(CollaboratorType::OTHERS_TYPE)) {
+        request.collaboratorType = CollaboratorType::OTHERS_TYPE;
+    }
+    if (request.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
+        auto collaborator = GetCollaborator(request.collaboratorType);
+        if (collaborator == nullptr) {
+            HILOG_ERROR("collaborator GetCollaborator is nullptr.");
+            return RESOLVE_ABILITY_ERR;
+        }
+
+        uint64_t accessTokenIDEx = IPCSkeleton::GetCallingFullTokenID();
+        Want wantBroker = want;
+
+        int32_t ret = collaborator->NotifyStartAbility(request.abilityInfo, userId, wantBroker, accessTokenIDEx);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("collaborator: notify broker start ability failed");
+            return RESOLVE_ABILITY_ERR;
+        }
+        request.want = wantBroker;
+        std::string bundleName = wantBroker.GetElement().GetBundleName();
+        request.abilityInfo.applicationInfo.bundleName = bundleName;
+        request.abilityInfo.applicationInfo.name = bundleName;
+
+        HILOG_INFO("collaborator notify broker start ability success");
+    }
+
     if (want.GetBoolParam(Want::PARAM_RESV_START_RECENT, false) &&
         AAFwk::PermissionVerification::GetInstance()->VerifyMissionPermission()) {
         request.startRecent = true;
@@ -7588,5 +7616,77 @@ void AbilityManagerService::StartSpecifiedAbilityBySCB(const Want &want)
     int32_t userId = GetUserId();
     uiAbilityLifecycleManager_->StartSpecifiedAbilityBySCB(want, userId);
 }
+
+int32_t AbilityManagerService::RegisterIAbilityManagerCollaborator(
+    int32_t type, const sptr<IAbilityManagerCollaborator> &impl)
+{
+    if (!CheckCollaboratorType(type)) {
+        HILOG_ERROR("collaborator register failed, invalid type.");
+        return ERR_INVALID_VALUE;
+    }
+    {
+        std::lock_guard<ffrt::mutex> autoLock(collaboratorMapLock_);
+        collaboratorMap_[type] = impl;
+    }
+    return ERR_OK;
+}
+
+int32_t AbilityManagerService::UnregisterIAbilityManagerCollaborator(int32_t type)
+{
+    if (!CheckCollaboratorType(type)) {
+        HILOG_ERROR("collaborator unregister failed, invalid type.");
+        return ERR_INVALID_VALUE;
+    }
+    {
+        std::lock_guard<ffrt::mutex> autoLock(collaboratorMapLock_);
+        collaboratorMap_.erase(type);
+    }
+    return ERR_OK;
+}
+
+int32_t AbilityManagerService::MoveMissionToBackground(int32_t missionId)
+{
+    std::vector<int32_t> missionIds;
+    std::vector<int32_t> results;
+    missionIds.emplace_back(missionId);
+    int32_t ret = MoveMissionsToBackground(missionIds, results);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("collaborator: MoveMissionToBackground failed.");
+        return ret;
+    }
+    return ERR_OK;
+}
+
+int32_t AbilityManagerService::TerminateMission(int32_t missionId)
+{
+    HILOG_DEBUG("collaborator: TerminateMission successfully.");
+    return ERR_OK;
+}
+
+sptr<IAbilityManagerCollaborator> AbilityManagerService::GetCollaborator(int32_t type)
+{
+    if (!CheckCollaboratorType(type)) {
+        HILOG_ERROR("collaborator: CheckCollaboratorType failed");
+        return nullptr;
+    }
+    {
+        std::lock_guard<ffrt::mutex> autoLock(collaboratorMapLock_);
+        auto it = collaboratorMap_.find(type);
+        if (it != collaboratorMap_.end()) {
+            return it->second;
+        }
+    }
+    return nullptr;
+}
+
+bool AbilityManagerService::CheckCollaboratorType(int32_t type)
+{
+    if (type != CollaboratorType::RESERVE_TYPE && type != CollaboratorType::OTHERS_TYPE) {
+        HILOG_ERROR("type is invalid");
+        return false;
+    }
+    return true;
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS

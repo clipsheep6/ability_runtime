@@ -68,8 +68,8 @@ const std::string ContextImpl::CONTEXT_HAPS("/haps");
 const std::string ContextImpl::CONTEXT_ELS[] = {"el1", "el2"};
 Global::Resource::DeviceType ContextImpl::deviceType_ = Global::Resource::DeviceType::DEVICE_NOT_SET;
 const std::string OVERLAY_STATE_CHANGED = "usual.event.OVERLAY_STATE_CHANGED";
-const std::string TYPE_RESERVE = "1";
-const std::string TYPE_OTHERS = "2";
+const int32_t TYPE_RESERVE = 1;
+const int32_t TYPE_OTHERS = 2;
 
 std::string ContextImpl::GetBundleName() const
 {
@@ -344,16 +344,20 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
         }
     }
 
-    auto info = std::find_if(bundleInfo.hapModuleInfos.begin(), bundleInfo.hapModuleInfos.end(),
-        [&moduleName](const AppExecFwk::HapModuleInfo &hapModuleInfo) {
-            return hapModuleInfo.moduleName == moduleName;
-        });
-    if (info == bundleInfo.hapModuleInfos.end()) {
-        HILOG_ERROR("ContextImpl::CreateModuleContext moduleName is error.");
-        return nullptr;
-    }
     std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();
-    appContext->InitHapModuleInfo(*info);
+    if (bundleInfo.applicationInfo.codePath != std::to_string(TYPE_RESERVE) &&
+        bundleInfo.applicationInfo.codePath != std::to_string(TYPE_OTHERS)) {
+        auto info = std::find_if(bundleInfo.hapModuleInfos.begin(), bundleInfo.hapModuleInfos.end(),
+            [&moduleName](const AppExecFwk::HapModuleInfo &hapModuleInfo) {
+                return hapModuleInfo.moduleName == moduleName;
+            });
+        if (info == bundleInfo.hapModuleInfos.end()) {
+            HILOG_ERROR("ContextImpl::CreateModuleContext moduleName is error.");
+            return nullptr;
+        }
+        appContext->InitHapModuleInfo(*info);
+    }
+    
     appContext->SetConfiguration(config_);
     InitResourceManager(bundleInfo, appContext, GetBundleName() == bundleName, moduleName);
     appContext->SetApplicationInfo(std::make_shared<AppExecFwk::ApplicationInfo>(bundleInfo.applicationInfo));
@@ -487,16 +491,16 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
         HILOG_ERROR("InitResourceManager appContext is nullptr");
         return;
     }
-    if (bundleInfo.applicationInfo.codePath == TYPE_RESERVE ||
-        bundleInfo.applicationInfo.codePath == TYPE_OTHERS) {
+    if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_RESERVE) ||
+        bundleInfo.applicationInfo.codePath == std::to_string(TYPE_OTHERS)) {
         std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
         std::string hapPath;
         std::vector<std::string> overlayPaths;
         int32_t appType;
-        if (bundleInfo.applicationInfo.codePath == TYPE_RESERVE) {
-            appType = 1;
-        } else if (bundleInfo.applicationInfo.codePath == TYPE_OTHERS) {
-            appType = 2;
+        if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_RESERVE)) {
+            appType = TYPE_RESERVE;
+        } else if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_OTHERS)) {
+            appType = TYPE_OTHERS;
         } else {
             appType = 0;
         }

@@ -30,6 +30,7 @@
 #include "extension_running_info.h"
 #include "free_install_observer_interface.h"
 #include "iability_controller.h"
+#include "iability_manager_collaborator.h"
 #include "iacquire_share_data_callback_interface.h"
 #include "icomponent_interception.h"
 #include "iprepare_terminate_callback_interface.h"
@@ -1045,6 +1046,47 @@ public:
     virtual int32_t SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService)
     {
         return 0;
+    }
+
+    /**
+     * @brief Register collaborator.
+     * @param type collaborator type.
+     * @param impl collaborator.
+     * @return 0 or else.
+    */
+    virtual int32_t RegisterIAbilityManagerCollaborator(int32_t type, const sptr<IAbilityManagerCollaborator> &impl)
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Unregister collaborator.
+     * @param type collaborator type.
+     * @return 0 or else.
+    */
+    virtual int32_t UnregisterIAbilityManagerCollaborator(int32_t type)
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Notify to move mission to backround.
+     * @param missionId missionId
+     * @return 0 or else
+    */
+    virtual int32_t MoveMissionToBackground(int32_t missionId)
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Notify to terminate mission. it is not clear.
+     * @param missionId missionId
+     * @return 0 or else
+    */
+    virtual int32_t TerminateMission(int32_t missionId)
+    {
+            return 0;
     }
 
     enum {
