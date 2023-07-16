@@ -118,7 +118,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     InnerMissionInfo innerMissionInfo;
     missionListManager->CreateOrReusedMissionInfo(abilityRequest, innerMissionInfo);
     missionListManager->GetTargetMissionAndAbility(abilityRequest, mission, abilityRecord, boolParam);
-    missionListManager->BuildInnerMissionInfo(innerMissionInfo, stringParam, abilityRequest);
+    missionListManager->BuildInnerMissionInfo(innerMissionInfo, stringParam, stringParam, abilityRequest);
     missionListManager->GetTargetMissionList(abilityRecord, abilityRequest);
     missionListManager->GetTargetMissionListByLauncher(abilityRequest);
     missionListManager->GetTargetMissionListByDefault(abilityRecord, abilityRequest);

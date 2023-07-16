@@ -30,6 +30,8 @@
 #include "extension_running_info.h"
 #include "free_install_observer_interface.h"
 #include "iability_controller.h"
+#include "iability_manager_collaborator.h"
+#include "iability_controller.h"
 #include "iacquire_share_data_callback_interface.h"
 #include "icomponent_interception.h"
 #include "iprepare_terminate_callback_interface.h"

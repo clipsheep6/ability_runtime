@@ -181,5 +181,21 @@ bool InnerMissionInfo::CheckJsonNode(nlohmann::json &value, const std::string &n
     }
     return false;
 }
+
+bool InnerMissionInfo::ReadFromParcel(Parcel &parcel)
+{
+    return true;
+}
+
+InnerMissionInfo *InnerMissionInfo::Unmarshalling(Parcel &parcel)
+{
+    InnerMissionInfo *info = new (std::nothrow) InnerMissionInfo();
+    return info;
+}
+
+bool InnerMissionInfo::Marshalling(Parcel &parcel) const
+{
+    return true;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -40,9 +40,10 @@ enum class StartMethod {
  * @struct InnerMissionInfo
  * InnerMissionInfo is used to save informations about mission information.
  */
-struct InnerMissionInfo {
+struct InnerMissionInfo : public Parcelable {
     MissionInfo missionInfo;
     std::string missionName;
+    std::string missionAffinity;
     int32_t launchMode;
     int32_t startMethod;
     std::string bundleName;
@@ -55,6 +56,10 @@ struct InnerMissionInfo {
     bool FromJsonStr(const std::string &jsonStr);
     void Dump(std::vector<std::string> &info) const;
     bool CheckJsonNode(nlohmann::json &value, const std::string &node, JsonType jsonType);
+
+    bool ReadFromParcel(Parcel &parcel);
+    bool Marshalling(Parcel &parcel) const override;
+    static InnerMissionInfo *Unmarshalling(Parcel &parcel);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

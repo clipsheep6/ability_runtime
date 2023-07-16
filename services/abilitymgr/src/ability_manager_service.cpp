@@ -3283,6 +3283,19 @@ int AbilityManagerService::MoveMissionsToForeground(const std::vector<int32_t>& 
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
+
+    for (auto i = 0; i < static_cast<int32_t>(missionIds.size()); ++i) {
+        std::shared_ptr<Mission> mission = currentMissionListManager_->GetMissionById(missionIds.at(i));
+        if (!mission && GetCollaborator(mission->GetCollaboratorType()) != nullptr) {
+            auto collaborator = GetCollaborator(mission->GetCollaboratorType());
+            if (collaborator == nullptr) {
+                HILOG_ERROR("collaborator is nullptr");
+            } else {
+                collaborator->NotifyMoveMissionToForeground(missionIds.at(i));
+            }
+        }
+    }
+
     if (wmsHandler_) {
         auto ret = wmsHandler_->MoveMissionsToForeground(missionIds, topMissionId);
         if (ret) {
@@ -3303,6 +3316,19 @@ int AbilityManagerService::MoveMissionsToBackground(const std::vector<int32_t>& 
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
+
+    for (auto i = 0; i < static_cast<int32_t>(missionIds.size()); ++i) {
+        std::shared_ptr<Mission> mission = currentMissionListManager_->GetMissionById(missionIds.at(i));
+        if (!mission && GetCollaborator(mission->GetCollaboratorType()) != nullptr) {
+            auto collaborator = GetCollaborator(mission->GetCollaboratorType());
+            if (collaborator == nullptr) {
+                HILOG_ERROR("collaborator is nullptr");
+            } else {
+                collaborator->NotifyMoveMissionToBackground(missionIds.at(i));
+            }
+        }
+    }
+
     if (wmsHandler_) {
         auto ret = wmsHandler_->MoveMissionsToBackground(missionIds, result);
         if (ret) {
@@ -7587,6 +7613,11 @@ void AbilityManagerService::StartSpecifiedAbilityBySCB(const Want &want)
     }
     int32_t userId = GetUserId();
     uiAbilityLifecycleManager_->StartSpecifiedAbilityBySCB(want, userId);
+}
+
+sptr<IAbilityManagerCollaborator> AbilityManagerService::GetCollaborator(int32_t type)
+{
+    return nullptr;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
