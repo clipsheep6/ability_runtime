@@ -38,7 +38,7 @@ power_manager_path = "//base/powermgr/power_manager"
 request_path = "//base/request/request"
 hiebpf_path = "//developtools/profiler/hiebpf"
 
-multimedia_path = "//foundation/multimedia/image_framework"
+multimedia_path = "//foundation/graphic/image_framework"
 multimodalinput_path = "//foundation/multimodalinput/input"
 windowmanager_path = "//foundation/window/window_manager"
 graphic_path = "//foundation/graphic/graphic_2d"
