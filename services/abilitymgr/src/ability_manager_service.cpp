@@ -7657,8 +7657,13 @@ int32_t AbilityManagerService::MoveMissionToBackground(int32_t missionId)
 
 int32_t AbilityManagerService::TerminateMission(int32_t missionId)
 {
-    HILOG_DEBUG("collaborator: TerminateMission successfully.");
-    return ERR_OK;
+    HILOG_INFO("call");
+    if (!currentMissionListManager_) {
+        HILOG_ERROR("currentMissionListManager_ is null.");
+        return ERR_INVALID_VALUE;
+    }
+
+    return currentMissionListManager_->TerminateMission(missionId);
 }
 
 sptr<IAbilityManagerCollaborator> AbilityManagerService::GetCollaborator(int32_t type)

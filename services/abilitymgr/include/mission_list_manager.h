@@ -376,6 +376,8 @@ public:
 
     void PostMissionLabelUpdateTask(int missionId) const;
 
+    int32_t TerminateMission(int32_t missionId);
+
 private:
     Closure GetCancelStartingWindowTask(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
     void PostCancelStartingWindowTask(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
