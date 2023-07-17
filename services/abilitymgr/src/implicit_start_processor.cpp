@@ -25,10 +25,21 @@
 #include "in_process_call_wrapper.h"
 #include "parameters.h"
 #include "want.h"
+#ifdef SUPPORT_ERMS
+#include "ecological_rule_mgr_service_client.h"
+#endif
 
 namespace OHOS {
 namespace AAFwk {
+#ifdef SUPPORT_ERMS
+using namespace OHOS::EcologicalRuleMgrService;
+
+constexpr int32_t TYPE_HARMONY_INVALID = 0;
+constexpr int32_t TYPE_HARMONY_APP = 1;
+constexpr int32_t TYPE_HARMONY_SERVICE = 2;
+#else
 using ErmsCallerInfo = OHOS::AppExecFwk::ErmsParams::CallerInfo;
+#endif
 
 const std::string BLACK_ACTION_SELECT_DATA = "ohos.want.action.select";
 const std::string STR_PHONE = "phone";
@@ -171,7 +182,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
 
     if (abilityInfos.size() + extensionInfos.size() > 1) {
         HILOG_INFO("More than one target application, filter by erms");
-        bool ret = FilterAbilityList(request.want, abilityInfos, extensionInfos);
+        bool ret = FilterAbilityList(request.want, abilityInfos, extensionInfos, userId);
         if (!ret) {
             HILOG_ERROR("FilterAbilityList failed");
         }
@@ -346,8 +357,14 @@ sptr<AppExecFwk::IDefaultApp> ImplicitStartProcessor::GetDefaultAppProxy()
 }
 
 bool ImplicitStartProcessor::FilterAbilityList(const Want &want,
-    std::vector<AppExecFwk::AbilityInfo> &abilityInfos, std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos)
+    std::vector<AppExecFwk::AbilityInfo> &abilityInfos, std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos, int32_t userId)
 {
+#ifdef SUPPORT_ERMS
+    ErmsCallerInfo callerInfo;
+    GetEcologicalCallerInfo(want, callerInfo, userId);
+    int ret = IN_PROCESS_CALL(EcologicalRuleMgrServiceClient::GetInstance()->EvaluateResolveInfos(want, callerInfo, 0,
+        abilityInfos, extensionInfos));
+#else
     auto erms = AbilityUtil::CheckEcologicalRuleMgr();
     if (!erms) {
         HILOG_ERROR("get ecological rule mgr failed.");
@@ -356,11 +373,67 @@ bool ImplicitStartProcessor::FilterAbilityList(const Want &want,
 
     ErmsCallerInfo callerInfo;
     int ret = IN_PROCESS_CALL(erms->EvaluateResolveInfos(want, callerInfo, 0, abilityInfos, extensionInfos));
+#endif
+    
     if (ret != ERR_OK) {
         HILOG_ERROR("Failed to evaluate resolve infos from erms.");
         return false;
     }
     return true;
 }
+
+#ifdef SUPPORT_ERMS
+void ImplicitStartProcessor::GetEcologicalCallerInfo(const Want &want, ErmsCallerInfo &callerInfo, int32_t userId)
+{
+    callerInfo.packageName = want.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+    callerInfo.uid = want.GetIntParam(Want::PARAM_RESV_CALLER_UID, IPCSkeleton::GetCallingUid());
+    callerInfo.pid = want.GetIntParam(Want::PARAM_RESV_CALLER_PID, IPCSkeleton::GetCallingPid());
+    callerInfo.targetAppType = TYPE_HARMONY_INVALID;
+    callerInfo.callerAppType = TYPE_HARMONY_INVALID;
+
+    auto bms = AbilityUtil::GetBundleManager();
+    if (!bms) {
+        HILOG_ERROR("GetBundleManager failed");
+        return;
+    }
+
+    std::string targetBundleName = want.GetBundle();
+    AppExecFwk::ApplicationInfo targetAppInfo;
+    bool getTargetResult = IN_PROCESS_CALL(bms->GetApplicationInfo(targetBundleName,
+        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, targetAppInfo));
+    if (!getTargetResult) {
+        HILOG_ERROR("Get targetAppInfo failed.");
+    } else if (targetAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
+        HILOG_DEBUG("the target type  is atomic service");
+        callerInfo.targetAppType = TYPE_HARMONY_SERVICE;
+    } else if (targetAppInfo.bundleType == AppExecFwk::BundleType::APP) {
+        HILOG_DEBUG("the target type is app");
+        callerInfo.targetAppType = TYPE_HARMONY_APP;
+    } else {
+        HILOG_DEBUG("the target type is invalid type");
+    }
+
+    std::string callerBundleName;
+    ErrCode err = IN_PROCESS_CALL(bms->GetNameForUid(callerInfo.uid, callerBundleName));
+    if (err != ERR_OK) {
+        HILOG_ERROR("Get callerBundleName failed.");
+        return;
+    }
+    AppExecFwk::ApplicationInfo callerAppInfo;
+    bool getCallerResult = IN_PROCESS_CALL(bms->GetApplicationInfo(callerBundleName,
+        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, callerAppInfo));
+    if (!getCallerResult) {
+        HILOG_DEBUG("Get callerAppInfo failed.");
+    } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
+        HILOG_DEBUG("the caller type  is atomic service");
+        callerInfo.callerAppType = TYPE_HARMONY_SERVICE;
+    } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::APP) {
+        HILOG_DEBUG("the caller type is app");
+        callerInfo.callerAppType = TYPE_HARMONY_APP;
+    } else {
+        HILOG_DEBUG("the caller type is invalid type");
+    }
+}
+#endif
 }  // namespace AAFwk
 }  // namespace OHOS

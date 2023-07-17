@@ -333,7 +333,12 @@ bool AbilityManagerService::Init()
     interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
     interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
     interceptorExecuter_->AddInterceptor(std::make_shared<ControlInterceptor>());
+#ifdef SUPPORT_ERMS
+    afterCheckExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
+    afterCheckExecuter_->AddInterceptor(std::make_shared<EcologicalRuleInterceptor>());
+#else
     interceptorExecuter_->AddInterceptor(std::make_shared<EcologicalRuleInterceptor>());
+#endif
     bool isAppJumpEnabled = OHOS::system::GetBoolParameter(
         OHOS::AppExecFwk::PARAMETER_APP_JUMP_INTERCEPTOR_ENABLE, false);
     HILOG_ERROR("GetBoolParameter -> isAppJumpEnabled:%{public}s", (isAppJumpEnabled ? "true" : "false"));
@@ -695,6 +700,15 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         }
     }
 
+#ifdef SUPPORT_ERMS
+    result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
+        afterCheckExecuter_->DoProcess(abilityRequest.want, requestCode, GetUserId(), true);
+    if (result != ERR_OK) {
+        HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
+        return result;
+    }
+#endif
+
     if (!AbilityUtil::IsSystemDialogAbility(abilityInfo.bundleName, abilityInfo.name)) {
         HILOG_DEBUG("PreLoadAppDataAbilities:%{public}s.", abilityInfo.bundleName.c_str());
         result = PreLoadAppDataAbilities(abilityInfo.bundleName, validUserId);
@@ -862,6 +876,15 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_WRONG_INTERFACE_CALL;
     }
+
+#ifdef SUPPORT_ERMS
+    result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
+        afterCheckExecuter_->DoProcess(abilityRequest.want, requestCode, GetUserId(), true);
+    if (result != ERR_OK) {
+        HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
+        return result;
+    }
+#endif
 
     if (!AbilityUtil::IsSystemDialogAbility(abilityInfo.bundleName, abilityInfo.name)) {
         result = PreLoadAppDataAbilities(abilityInfo.bundleName, validUserId);
@@ -1065,6 +1088,15 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
+
+#ifdef SUPPORT_ERMS
+    result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
+        afterCheckExecuter_->DoProcess(abilityRequest.want, requestCode, GetUserId(), true);
+    if (result != ERR_OK) {
+        HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
+        return result;
+    }
+#endif
 
     if (!AbilityUtil::IsSystemDialogAbility(abilityInfo.bundleName, abilityInfo.name)) {
         result = PreLoadAppDataAbilities(abilityInfo.bundleName, validUserId);
@@ -1765,6 +1797,15 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
         EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
         return result;
     }
+
+#ifdef SUPPORT_ERMS
+    result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
+        afterCheckExecuter_->DoProcess(abilityRequest.want, 0, GetUserId(), true);
+    if (result != ERR_OK) {
+        HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
+        return result;
+    }
+#endif
 
     auto connectManager = GetConnectManagerByUserId(validUserId);
     if (!connectManager) {
@@ -5140,6 +5181,15 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
     if (!IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
         return componentRequest.requestResult;
     }
+
+#ifdef SUPPORT_ERMS
+    result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
+        afterCheckExecuter_->DoProcess(abilityRequest.want, 0, GetUserId(), true);
+    if (result != ERR_OK) {
+        HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
+        return result;
+    }
+#endif
 
     return missionListMgr->ResolveLocked(abilityRequest);
 }

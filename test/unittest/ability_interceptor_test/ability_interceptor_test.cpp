@@ -28,7 +28,9 @@
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
+#ifndef SUPPORT_ERMS
 using ExperienceRule = OHOS::AppExecFwk::ErmsParams::ExperienceRule;
+#endif
 
 namespace {
 const std::string BUNDLE_NAME = "testBundle";
@@ -212,6 +214,7 @@ HWTEST_F(AbilityInterceptorTest, ControlInterceptor_005, TestSize.Level1)
     EXPECT_EQ(result, ERR_OK);
 }
 
+#ifndef SUPPORT_ERMS
 /**
  * @tc.name: AbilityInterceptorTest_EcologicalRuleInterceptor_001
  * @tc.desc: EcologicalRuleInterceptor DoProcess ERR_OK when erms invalid
@@ -336,5 +339,6 @@ HWTEST_F(AbilityInterceptorTest, EcologicalRuleInterceptor_006, TestSize.Level1)
     int result = executer->DoProcess(want, requestCode, userId, true);
     EXPECT_EQ(result, ERR_OK);
 }
+#endif
 } // namespace AAFwk
 } // namespace OHOS

@@ -24,7 +24,9 @@
 #include "ability_manager_client.h"
 #include "app_jump_control_rule.h"
 #include "bundlemgr/bundle_mgr_interface.h"
+#ifndef SUPPORT_ERMS
 #include "erms_mgr_interface.h"
+#endif
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
@@ -174,6 +176,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     return iface_cast<AppExecFwk::IBundleMgr>(bundleObj);
 }
 
+#ifndef SUPPORT_ERMS
 [[maybe_unused]] static sptr<AppExecFwk::IEcologicalRuleManager> CheckEcologicalRuleMgr()
 {
     // should remove when AG SA online
@@ -187,6 +190,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
 
     return iface_cast<AppExecFwk::IEcologicalRuleManager>(remoteObject);
 }
+#endif
 
 [[maybe_unused]] static bool ParseJumpInterceptorWant(Want &targetWant, const std::string callerPkg)
 {
