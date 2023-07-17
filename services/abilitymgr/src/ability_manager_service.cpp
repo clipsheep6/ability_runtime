@@ -7690,6 +7690,5 @@ bool AbilityManagerService::CheckCollaboratorType(int32_t type)
     }
     return true;
 }
-
 }  // namespace AAFwk
 }  // namespace OHOS

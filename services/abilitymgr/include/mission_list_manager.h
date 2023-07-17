@@ -519,6 +519,9 @@ private:
 
     bool CheckPrepareTerminateEnable(const std::shared_ptr<Mission> &mission);
 
+    void NotifyCollaboratorMissionCreated(const AbilityRequest &abilityRequest,
+        const std::shared_ptr<Mission> &targetMission, InnerMissionInfo &info);
+
     int userId_;
     mutable ffrt::mutex managerLock_;
     // launcher list is also in currentMissionLists_
