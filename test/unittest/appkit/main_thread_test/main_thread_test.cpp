@@ -2200,5 +2200,206 @@ HWTEST_F(MainThreadTest, ScheduleNotifyAppFault_0100, TestSize.Level1)
     auto ret = mainThread_->ScheduleNotifyAppFault(faultData);
     EXPECT_EQ(ret, NO_ERROR);
 }
+
+/**
+ * @tc.name: GetNativeLibPath_0100
+ * @tc.desc: Get native library path when lib compressed and not isolated.
+ * @tc.type: FUNC
+ * @tc.require: issueI7KMGU
+ */
+HWTEST_F(MainThreadTest, GetNativeLibPath_0100, TestSize.Level1)
+{
+    BundleInfo bundleInfo;
+    HspList hspList;
+    AppLibPathMap appLibPaths;
+
+    bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.nativeLibraryPath = "patch_1001/libs/arm";
+    bundleInfo.applicationInfo.nativeLibraryPath = "libs/arm";
+
+    HapModuleInfo hapModuleInfo1;
+    hapModuleInfo1.isLibIsolated = false;
+    hapModuleInfo1.compressNativeLibs = true;
+    // if isLibIsolated is false, hapModuleInfo.hqfInfo.nativeLibraryPath and hapModuleInfo.nativeLibraryPath is empty.
+    bundleInfo.hapModuleInfos.emplace_back(hapModuleInfo1);
+
+    BaseSharedBundleInfo hspInfo1;
+    hspList.emplace_back(hspInfo1);
+
+    mainThread_->GetNativeLibPath(bundleInfo, hspList, appLibPaths);
+    ASSERT_EQ(appLibPaths.size(), size_t(1));
+    ASSERT_EQ(appLibPaths["default"].size(), size_t(2));
+    EXPECT_EQ(appLibPaths["default"][0], "/data/storage/el1/bundle/patch_1001/libs/arm");
+    EXPECT_EQ(appLibPaths["default"][1], "/data/storage/el1/bundle/libs/arm");
+}
+
+/**
+ * @tc.name: GetNativeLibPath_0200
+ * @tc.desc: Get native library path when lib compressed and isolated.
+ * @tc.type: FUNC
+ * @tc.require: issueI7KMGU
+ */
+HWTEST_F(MainThreadTest, GetNativeLibPath_0200, TestSize.Level1)
+{
+    BundleInfo bundleInfo;
+    HspList hspList;
+    AppLibPathMap appLibPaths;
+
+    // if all hap lib is compressed and isolated, nativeLibraryPath of application is empty.
+    HapModuleInfo hapModuleInfo1;
+    hapModuleInfo1.isLibIsolated = true;
+    hapModuleInfo1.compressNativeLibs = true;
+    hapModuleInfo1.bundleName = "com.ohos.myapplication";
+    hapModuleInfo1.moduleName = "entry";
+    hapModuleInfo1.nativeLibraryPath = "entry/libs/arm";
+    hapModuleInfo1.hqfInfo.nativeLibraryPath = "patch_1001/entry/libs/arm";
+    bundleInfo.hapModuleInfos.emplace_back(hapModuleInfo1);
+
+    HapModuleInfo hapModuleInfo2;
+    hapModuleInfo2.isLibIsolated = true;
+    hapModuleInfo2.compressNativeLibs = true;
+    hapModuleInfo2.bundleName = "com.ohos.myapplication";
+    hapModuleInfo2.moduleName = "feature";
+    hapModuleInfo2.nativeLibraryPath = "feature/libs/arm";
+    hapModuleInfo2.hqfInfo.nativeLibraryPath = "patch_1001/feature/libs/arm";
+    bundleInfo.hapModuleInfos.emplace_back(hapModuleInfo2);
+
+    BaseSharedBundleInfo hspInfo1;
+    hspInfo1.compressNativeLibs = true;
+    hspInfo1.bundleName = "com.ohos.myapplication";
+    hspInfo1.moduleName = "library";
+    hspInfo1.nativeLibraryPath = "library/libs/arm";
+    hspList.emplace_back(hspInfo1);
+
+    mainThread_->GetNativeLibPath(bundleInfo, hspList, appLibPaths);
+    ASSERT_EQ(appLibPaths.size(), size_t(3));
+    ASSERT_EQ(appLibPaths["com.ohos.myapplication/entry"].size(), size_t(2));
+    EXPECT_EQ(appLibPaths["com.ohos.myapplication/entry"][0], "/data/storage/el1/bundle/patch_1001/entry/libs/arm");
+    EXPECT_EQ(appLibPaths["com.ohos.myapplication/entry"][1], "/data/storage/el1/bundle/entry/libs/arm");
+
+    ASSERT_EQ(appLibPaths["com.ohos.myapplication/feature"].size(), size_t(2));
+    EXPECT_EQ(appLibPaths["com.ohos.myapplication/feature"][0], "/data/storage/el1/bundle/patch_1001/feature/libs/arm");
+    EXPECT_EQ(appLibPaths["com.ohos.myapplication/feature"][1], "/data/storage/el1/bundle/feature/libs/arm");
+
+    ASSERT_EQ(appLibPaths["com.ohos.myapplication/library"].size(), size_t(1));
+    EXPECT_EQ(appLibPaths["com.ohos.myapplication/library"][0],
+        "/data/storage/el1/bundle/com.ohos.myapplication/library/libs/arm");
+}
+
+/**
+ * @tc.name: GetNativeLibPath_0300
+ * @tc.desc: Get native library path when lib uncompressed and not isolated.
+ * @tc.type: FUNC
+ * @tc.require: issueI7KMGU
+ */
+HWTEST_F(MainThreadTest, GetNativeLibPath_0300, TestSize.Level1)
+{
+    BundleInfo bundleInfo;
+    HspList hspList;
+    AppLibPathMap appLibPaths;
+
+    // if all hap lib is uncompressed, nativeLibraryPath of application is empty.
+    bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.nativeLibraryPath = "patch_1001/libs/arm";
+
+    HapModuleInfo hapModuleInfo1;
+    hapModuleInfo1.isLibIsolated = false;
+    hapModuleInfo1.compressNativeLibs = false;
+    hapModuleInfo1.bundleName = "com.ohos.myapplication";
+    hapModuleInfo1.moduleName = "entry";
+    hapModuleInfo1.hapPath = "/data/app/el1/bundle/public/com.ohos.myapplication/entry.hap";
+    hapModuleInfo1.nativeLibraryPath = "entry.hap!/libs/armeabi-v7a";
+    bundleInfo.hapModuleInfos.emplace_back(hapModuleInfo1);
+
+    HapModuleInfo hapModuleInfo2;
+    hapModuleInfo2.isLibIsolated = false;
+    hapModuleInfo2.compressNativeLibs = false;
+    hapModuleInfo2.bundleName = "com.ohos.myapplication";
+    hapModuleInfo2.moduleName = "feature";
+    hapModuleInfo2.hapPath = "/data/app/el1/bundle/public/com.ohos.myapplication/feature.hap";
+    hapModuleInfo2.nativeLibraryPath = "feature.hap!/libs/armeabi-v7a";
+    bundleInfo.hapModuleInfos.emplace_back(hapModuleInfo2);
+
+    BaseSharedBundleInfo hspInfo1;
+    hspInfo1.compressNativeLibs = false;
+    hspInfo1.hapPath = "/data/app/el1/bundle/public/com.ohos.myapplication/library.hsp";
+    hspInfo1.bundleName = "com.ohos.myapplication";
+    hspInfo1.moduleName = "library";
+    hspInfo1.nativeLibraryPath = "library.hsp!/libs/armeabi-v7a";
+    hspList.emplace_back(hspInfo1);
+
+    mainThread_->GetNativeLibPath(bundleInfo, hspList, appLibPaths);
+    ASSERT_EQ(appLibPaths.size(), size_t(4));
+    ASSERT_EQ(appLibPaths["default"].size(), size_t(1));
+    EXPECT_EQ(appLibPaths["default"][0], "/data/storage/el1/bundle/patch_1001/libs/arm");
+
+    ASSERT_EQ(appLibPaths["com.ohos.myapplication/entry"].size(), size_t(2));
+    EXPECT_EQ(appLibPaths["com.ohos.myapplication/entry"][0], "/data/storage/el1/bundle/patch_1001/libs/arm");
+    EXPECT_EQ(appLibPaths["com.ohos.myapplication/entry"][1], "/data/storage/el1/bundle/entry.hap!/libs/armeabi-v7a");
+
+    ASSERT_EQ(appLibPaths["com.ohos.myapplication/feature"].size(), size_t(2));
+    EXPECT_EQ(appLibPaths["com.ohos.myapplication/feature"][0], "/data/storage/el1/bundle/patch_1001/libs/arm");
+    EXPECT_EQ(appLibPaths["com.ohos.myapplication/feature"][1],
+        "/data/storage/el1/bundle/feature.hap!/libs/armeabi-v7a");
+
+    ASSERT_EQ(appLibPaths["com.ohos.myapplication/library"].size(), size_t(1));
+    EXPECT_EQ(appLibPaths["com.ohos.myapplication/library"][0],
+        "/data/storage/el1/bundle/com.ohos.myapplication/library/library.hsp!/libs/armeabi-v7a");
+}
+
+/**
+ * @tc.name: GetNativeLibPath_0400
+ * @tc.desc: Get native library path when lib uncompressed and isolated.
+ * @tc.type: FUNC
+ * @tc.require: issueI7KMGU
+ */
+HWTEST_F(MainThreadTest, GetNativeLibPath_0400, TestSize.Level1)
+{
+    BundleInfo bundleInfo;
+    HspList hspList;
+    AppLibPathMap appLibPaths;
+
+    // if all hap lib is uncompressed and isolated, nativeLibraryPath of application is empty.
+    HapModuleInfo hapModuleInfo1;
+    hapModuleInfo1.isLibIsolated = true;
+    hapModuleInfo1.compressNativeLibs = false;
+    hapModuleInfo1.bundleName = "com.ohos.myapplication";
+    hapModuleInfo1.moduleName = "entry";
+    hapModuleInfo1.hapPath = "/data/app/el1/bundle/public/com.ohos.myapplication/entry.hap";
+    hapModuleInfo1.nativeLibraryPath = "entry.hap!/libs/armeabi-v7a";
+    hapModuleInfo1.hqfInfo.nativeLibraryPath = "patch_1001/entry/libs/arm";
+    bundleInfo.hapModuleInfos.emplace_back(hapModuleInfo1);
+
+    HapModuleInfo hapModuleInfo2;
+    hapModuleInfo2.isLibIsolated = true;
+    hapModuleInfo2.compressNativeLibs = false;
+    hapModuleInfo2.bundleName = "com.ohos.myapplication";
+    hapModuleInfo2.moduleName = "feature";
+    hapModuleInfo2.hapPath = "/data/app/el1/bundle/public/com.ohos.myapplication/feature.hap";
+    hapModuleInfo2.nativeLibraryPath = "feature.hap!/libs/armeabi-v7a";
+    hapModuleInfo2.hqfInfo.nativeLibraryPath = "patch_1001/feature/libs/arm";
+    bundleInfo.hapModuleInfos.emplace_back(hapModuleInfo2);
+
+    BaseSharedBundleInfo hspInfo1;
+    hspInfo1.compressNativeLibs = false;
+    hspInfo1.bundleName = "com.ohos.myapplication";
+    hspInfo1.moduleName = "library";
+    hspInfo1.hapPath = "/data/app/el1/bundle/public/com.ohos.myapplication/library.hsp";
+    hspInfo1.nativeLibraryPath = "library.hsp!/libs/armeabi-v7a";
+    hspList.emplace_back(hspInfo1);
+
+    mainThread_->GetNativeLibPath(bundleInfo, hspList, appLibPaths);
+    ASSERT_EQ(appLibPaths.size(), size_t(3));
+    ASSERT_EQ(appLibPaths["com.ohos.myapplication/entry"].size(), size_t(2));
+    EXPECT_EQ(appLibPaths["com.ohos.myapplication/entry"][0], "/data/storage/el1/bundle/patch_1001/entry/libs/arm");
+    EXPECT_EQ(appLibPaths["com.ohos.myapplication/entry"][1], "/data/storage/el1/bundle/entry.hap!/libs/armeabi-v7a");
+
+    ASSERT_EQ(appLibPaths["com.ohos.myapplication/feature"].size(), size_t(2));
+    EXPECT_EQ(appLibPaths["com.ohos.myapplication/feature"][0], "/data/storage/el1/bundle/patch_1001/feature/libs/arm");
+    EXPECT_EQ(appLibPaths["com.ohos.myapplication/feature"][1],
+        "/data/storage/el1/bundle/feature.hap!/libs/armeabi-v7a");
+
+    ASSERT_EQ(appLibPaths["com.ohos.myapplication/library"].size(), size_t(1));
+    EXPECT_EQ(appLibPaths["com.ohos.myapplication/library"][0],
+        "/data/storage/el1/bundle/com.ohos.myapplication/library/library.hsp!/libs/armeabi-v7a");
+}
 } // namespace AppExecFwk
 } // namespace OHOS
