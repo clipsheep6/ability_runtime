@@ -43,6 +43,7 @@ constexpr const char *EVENT_KEY_EXIT_TIME = "EXIT_TIME";
 constexpr const char *EVENT_KEY_EXIT_RESULT = "EXIT_RESULT";
 constexpr const char *EVENT_KEY_EXIT_PID = "EXIT_PID";
 constexpr const char *EVENT_KEY_BUNDLE_TYPE = "BUNDLE_TYPE";
+constexpr const char *EVENT_KEY_PROCESS_PID = "PROCESS_PID";
 const std::map<EventName, std::string> eventNameToStrMap_ = {
     std::map<EventName, std::string>::value_type(EventName::START_ABILITY_ERROR, "START_ABILITY_ERROR"),
     std::map<EventName, std::string>::value_type(EventName::TERMINATE_ABILITY_ERROR, "TERMINATE_ABILITY_ERROR"),
@@ -92,7 +93,8 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, 
                     EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName,
                     EVENT_KEY_CALLER_UID, eventInfo.callerUid,
                     EVENT_KEY_CALLER_PROCESS_NAME, eventInfo.callerProcessName,
-                    EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName);
+                    EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+                    EVENT_KEY_PROCESS_PID, eventInfo.processPid);
             } else {
                 HiSysEventWrite(
                     HiSysEvent::Domain::AAFWK,
@@ -104,7 +106,8 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, 
                     EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName,
                     EVENT_KEY_CALLER_UID, eventInfo.callerUid,
                     EVENT_KEY_CALLER_PROCESS_NAME, eventInfo.callerProcessName,
-                    EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName);
+                    EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+                    EVENT_KEY_PROCESS_PID, eventInfo.processPid);
             }
             break;
         case EventName::PROCESS_EXIT:

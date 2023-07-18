@@ -43,6 +43,7 @@ struct EventInfo {
     int32_t callerUid = -1;
     int32_t exitResult = -1;
     int32_t bundleType = -1;
+    int32_t processPid = -1;
 };
 
 enum class EventName {

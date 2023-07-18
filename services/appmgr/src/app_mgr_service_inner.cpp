@@ -1978,6 +1978,9 @@ bool AppMgrServiceInner::SendProcessStartEvent(const std::shared_ptr<AppRunningR
     if (!appRecord->GetBundleName().empty()) {
         eventInfo.bundleName = appRecord->GetBundleName();
     }
+    if (appRecord->GetPriorityObject() != nullptr) {
+        eventInfo.processPid = appRecord->GetPriorityObject()->GetPid();
+    }
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::PROCESS_START, HiSysEventType::BEHAVIOR, eventInfo);
     HILOG_DEBUG("%{public}s. time : %{public}" PRId64 ", abilityType : %{public}d, bundle : %{public}s,\
         uid : %{public}d, process : %{public}s",
