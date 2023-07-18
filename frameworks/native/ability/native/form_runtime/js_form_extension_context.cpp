@@ -38,8 +38,6 @@ constexpr int32_t INDEX_ZERO = 0;
 constexpr int32_t INDEX_ONE = 1;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
-constexpr int32_t ERROR_CODE_ONE = 1;
-constexpr int32_t ERROR_CODE_TWO = 2;
 const int UPDATE_FORM_PARAMS_SIZE = 2;
 class JsFormExtensionContext final {
 public:
@@ -204,7 +202,7 @@ private:
                 auto context = weak.lock();
                 if (!context) {
                     HILOG_ERROR("context is released");
-                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "Context is released"));
+                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                     return;
                 }
                 HILOG_DEBUG("ConnectAbility connection:%{public}d", static_cast<int32_t>(connectId));
@@ -245,12 +243,12 @@ private:
                 auto context = weak.lock();
                 if (!context) {
                     HILOG_WARN("context is released");
-                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "Context is released"));
+                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                     return;
                 }
                 if (connection == nullptr) {
                     HILOG_WARN("connection nullptr");
-                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_TWO, "not found connection"));
+                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
                     return;
                 }
                 HILOG_DEBUG("context->DisconnectAbility");
