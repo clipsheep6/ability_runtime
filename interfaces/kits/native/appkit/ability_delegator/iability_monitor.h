@@ -42,6 +42,15 @@ public:
     explicit IAbilityMonitor(const std::string &abilityName);
 
     /**
+     * A constructor used to create a IAbilityMonitor instance with the input parameter passed.
+     *
+     * @param abilityName Indicates the specified ability name for monitoring the lifecycle state changes
+     * @param moduleName Indicates the specified ability moduleName for monitoring the lifecycle state changes
+     * of the ability.
+     */
+    explicit IAbilityMonitor(const std::string &abilityName, const std::string &moduleName);
+
+    /**
      * Default deconstructor used to deconstruct.
      */
     virtual ~IAbilityMonitor() = default;
@@ -128,6 +137,7 @@ public:
 
 private:
     std::string abilityName_;
+    std::string moduleName_;
     std::shared_ptr<ADelegatorAbilityProperty> matchedAbility_;
 
     std::condition_variable cvMatch_;

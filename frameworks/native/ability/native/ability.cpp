@@ -637,6 +637,16 @@ std::string Ability::GetAbilityName()
     return abilityInfo_->name;
 }
 
+std::string Ability::GetModuleName()
+{
+    if (abilityInfo_ == nullptr) {
+        HILOG_ERROR("Ability::GetModuleName abilityInfo_ is nullptr");
+        return "";
+    }
+
+    return abilityInfo_->moduleName;
+}
+
 bool Ability::IsTerminating()
 {
     return false;
