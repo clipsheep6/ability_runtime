@@ -57,6 +57,7 @@ ohos_fuzztest("StartUserTestFuzzTest") {
     "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_base",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 

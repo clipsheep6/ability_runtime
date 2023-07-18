@@ -81,6 +81,7 @@ ohos_moduletest("ability_moduletest") {
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -135,6 +136,7 @@ ohos_moduletest("ability_conetxt_test") {
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -169,6 +171,7 @@ ohos_moduletest("ability_thread_call_request_module_test") {
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
+    "napi:ace_napi",
   ]
 }
 
@@ -212,6 +215,7 @@ ohos_moduletest("data_ability_operation_moduletest") {
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -262,6 +266,7 @@ ohos_moduletest("data_ability_helper_module_test") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -308,6 +313,7 @@ ohos_moduletest("ability_post_event_timeout_test") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",

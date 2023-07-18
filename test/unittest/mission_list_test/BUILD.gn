@@ -55,6 +55,7 @@ ohos_unittest("mission_list_test") {
     "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 
   if (background_task_mgr_continuous_task_enable) {
@@ -97,6 +98,7 @@ ohos_unittest("mission_list_test_call") {
     "common_event_service:cesfwk_innerkits",
     "ffrt:libffrt",
     "hilog:libhilog",
+    "napi:ace_napi",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

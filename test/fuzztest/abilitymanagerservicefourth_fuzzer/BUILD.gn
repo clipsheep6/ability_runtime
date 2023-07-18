@@ -59,6 +59,7 @@ ohos_fuzztest("AbilityManagerServiceFourthFuzzTest") {
     "common_event_service:cesfwk_innerkits",
     "ffrt:libffrt",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "samgr:samgr_proxy",

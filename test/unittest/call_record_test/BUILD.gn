@@ -50,6 +50,7 @@ ohos_unittest("call_record_test") {
   external_deps = [
     "ability_base:want",
     "ffrt:libffrt",
+    "napi:ace_napi",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

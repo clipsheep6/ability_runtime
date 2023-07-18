@@ -60,6 +60,7 @@ ohos_unittest("implicit_start_processor_test") {
     "hitrace:hitrace_meter",
     "init:libbeget_proxy",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

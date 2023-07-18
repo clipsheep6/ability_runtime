@@ -57,6 +57,7 @@ ohos_fuzztest("TerminateAbilityFuzzTest") {
     "bundle_framework:appexecfwk_core",
     "ffrt:libffrt",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "samgr:samgr_proxy",
   ]
 }

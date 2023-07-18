@@ -62,6 +62,7 @@ ohos_unittest("continuation_connector_test") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

@@ -62,6 +62,7 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_first") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 
@@ -98,6 +99,7 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_second") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 
@@ -134,6 +136,7 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_third") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 
@@ -170,6 +173,7 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_fourth") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 

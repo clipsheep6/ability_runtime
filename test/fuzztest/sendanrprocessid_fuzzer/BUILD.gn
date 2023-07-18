@@ -53,6 +53,7 @@ ohos_fuzztest("SendANRProcessIDFuzzTest") {
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "samgr:samgr_proxy",

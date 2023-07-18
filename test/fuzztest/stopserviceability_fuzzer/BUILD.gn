@@ -49,6 +49,7 @@ ohos_fuzztest("StopServiceAbilityFuzzTest") {
   external_deps = [
     "ability_base:want",
     "c_utils:utils",
+    "napi:ace_napi",
   ]
 }
 

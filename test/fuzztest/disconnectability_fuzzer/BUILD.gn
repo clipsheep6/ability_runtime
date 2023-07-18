@@ -58,6 +58,7 @@ ohos_fuzztest("DisconnectAbilityFuzzTest") {
     "appspawn:appspawn_socket_client",
     "c_utils:utils",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "samgr:samgr_proxy",
   ]
 }

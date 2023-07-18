@@ -40,6 +40,7 @@ ohos_shared_library("missionmanager_napi") {
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 
   if (ability_runtime_graphics) {

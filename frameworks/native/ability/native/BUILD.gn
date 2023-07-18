@@ -391,10 +391,7 @@ ohos_shared_library("extensionkit_native") {
     "napi:ace_napi",
   ]
 
-  public_deps = [
-    ":abilitykit_utils",
-    "${arkui_path}/napi:ace_napi",
-  ]
+  public_deps = [ ":abilitykit_utils" ]
 
   if (ability_runtime_graphics) {
     external_deps += [ "ability_base:session_info" ]
@@ -430,6 +427,7 @@ ohos_shared_library("ability_thread") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 
   innerapi_tags = [ "platformsdk_indirect" ]
@@ -472,6 +470,7 @@ ohos_shared_library("form_extension") {
       "hilog:libhilog",
       "ipc:ipc_core",
       "ipc:ipc_napi_common",
+      "napi:ace_napi",
     ]
   }
   subsystem_name = "ability"
@@ -787,6 +786,7 @@ ohos_shared_library("ui_extension") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_napi_common",
+    "napi:ace_napi",
   ]
 
   subsystem_name = "ability"

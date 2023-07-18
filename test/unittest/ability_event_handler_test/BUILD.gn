@@ -57,6 +57,7 @@ ohos_unittest("ability_event_handler_test") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

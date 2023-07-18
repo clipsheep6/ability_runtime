@@ -52,6 +52,7 @@ ohos_unittest("ability_manager_test") {
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

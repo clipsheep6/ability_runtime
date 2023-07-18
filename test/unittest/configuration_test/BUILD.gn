@@ -62,6 +62,7 @@ ohos_unittest("configuration_test") {
     "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "resource_management:global_resmgr",
   ]
 

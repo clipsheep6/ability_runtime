@@ -52,6 +52,7 @@ ohos_fuzztest("StartupResidentProcessFuzzTest") {
     "common_event_service:cesfwk_innerkits",
     "ffrt:libffrt",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]

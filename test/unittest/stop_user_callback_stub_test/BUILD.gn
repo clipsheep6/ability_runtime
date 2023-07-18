@@ -59,6 +59,7 @@ ohos_unittest("stop_user_callback_stub_test") {
     "hilog:libhilog",
     "init:libbeget_proxy",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",

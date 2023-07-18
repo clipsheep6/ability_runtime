@@ -76,6 +76,7 @@ ohos_unittest("context_deal_interface_test") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 
   if (ability_runtime_graphics) {
@@ -127,6 +128,7 @@ ohos_unittest("application_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "resource_management:global_resmgr",
   ]
 }
@@ -166,6 +168,7 @@ ohos_unittest("context_container_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 
@@ -211,6 +214,7 @@ ohos_unittest("context_deal_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "resource_management:global_resmgr",
   ]
 }
@@ -256,6 +260,7 @@ ohos_unittest("application_impl_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 
@@ -353,6 +358,7 @@ ohos_unittest("mix_stack_dumper_test") {
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "faultloggerd:libbacktrace_local",
+    "napi:ace_napi",
   ]
 }
 
@@ -397,6 +403,7 @@ ohos_unittest("ability_stage_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "resource_management:global_resmgr",
   ]
 }
@@ -435,6 +442,7 @@ ohos_unittest("form_extension_context_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 

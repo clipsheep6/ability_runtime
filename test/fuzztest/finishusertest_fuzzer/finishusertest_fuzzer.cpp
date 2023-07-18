@@ -20,6 +20,7 @@
 
 #include "ability_manager_client.h"
 #include "app_mgr_client.h"
+#include "securec.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
