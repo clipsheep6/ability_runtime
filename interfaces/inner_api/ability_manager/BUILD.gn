@@ -32,7 +32,6 @@ config("ability_manager_public_config") {
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr",
-    "${ability_runtime_innerkits_path}/ability_manager/include",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_path}/interfaces/kits/native/appkit",
@@ -65,7 +64,6 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_native_path}/ability/native/data_ability_result.cpp",
     "${ability_runtime_native_path}/ability/native/task_handler.cpp",
     "${ability_runtime_native_path}/ability/native/task_handler_client.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_client.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_collaborator_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_proxy.cpp",
@@ -107,11 +105,13 @@ ohos_shared_library("ability_manager") {
   public_configs = [
     ":ability_manager_public_config",
     "${ability_runtime_services_path}/abilitymgr:abilityms_config",
+    "${ability_runtime_innerkits_path}/extension_manager:connection_callback_public_config",
   ]
 
   deps = [
     ":ability_start_setting",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/extension_manager:connection_callback",
     "//third_party/jsoncpp:jsoncpp",
   ]
 

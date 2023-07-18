@@ -413,6 +413,7 @@ ohos_shared_library("ability_thread") {
     ":abilitykit_native",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
+    "${ability_runtime_innerkits_path}/extension_manager:connection_callback",
     "${ability_runtime_native_path}/ability:ability_context_native",
     "${ability_runtime_native_path}/appkit:app_context",
   ]
@@ -452,6 +453,7 @@ ohos_shared_library("form_extension") {
 
     deps = [
       ":abilitykit_native",
+      "${ability_runtime_innerkits_path}/extension_manager:connection_callback",
       "${ability_runtime_innerkits_path}/runtime:runtime",
       "${ability_runtime_napi_path}/inner/napi_common:napi_common",
       "${ability_runtime_native_path}/ability:ability_context_native",
@@ -519,6 +521,7 @@ ohos_shared_library("service_extension") {
   deps = [
     ":abilitykit_native",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/extension_manager:connection_callback",
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/ability:ability_context_native",
@@ -580,6 +583,7 @@ ohos_shared_library("continuation_ipc") {
   deps = [
     ":abilitykit_utils",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/extension_manager:connection_callback",
   ]
 
   external_deps = [

@@ -16,12 +16,13 @@
 #ifndef OHOS_ABILITY_RUNTIME_ABILITY_CONNECT_CALLBACK_INTERFACE_H
 #define OHOS_ABILITY_RUNTIME_ABILITY_CONNECT_CALLBACK_INTERFACE_H
 
-#include "want.h"
-#include "element_name.h"
-
 #include "iremote_broker.h"
 
 namespace OHOS {
+namespace AppExecFwk {
+class ElementName;
+} // AppExecFwk
+
 namespace AAFwk {
 /**
  * @class IAbilityConnection
