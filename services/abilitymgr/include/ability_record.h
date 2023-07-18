@@ -910,6 +910,8 @@ private:
 
     void HandleDlpAttached();
     void HandleDlpClosed();
+    void NotifyRemoveShellProcess();
+    void NotifyAnimationAbilityDied();
     inline void SetCallerAccessTokenId(uint32_t callerAccessTokenId)
     {
         callerAccessTokenId_ = callerAccessTokenId;

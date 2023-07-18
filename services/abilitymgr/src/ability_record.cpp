@@ -2028,6 +2028,14 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
     };
     handler->SubmitTask(uriTask);
 #ifdef SUPPORT_GRAPHICS
+    NotifyAnimationAbilityDied();
+#endif
+    HandleDlpClosed();
+    NotifyRemoveShellProcess();
+}
+
+void AbilityRecord::NotifyAnimationAbilityDied()
+{
     // notify winddow manager service the ability died
     if (missionId_ != -1) {
         if (GetWMSHandler()) {
@@ -2037,8 +2045,6 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
             GetWMSHandler()->NotifyAnimationAbilityDied(info);
         }
     }
-#endif
-    HandleDlpClosed();
 }
 
 void AbilityRecord::SetConnRemoteObject(const sptr<IRemoteObject> &remoteObject)
@@ -2608,6 +2614,28 @@ void AbilityRecord::HandleDlpClosed()
 
     if (appIndex_ > 0) {
         DelayedSingleton<ConnectionStateManager>::GetInstance()->RemoveDlpAbility(shared_from_this());
+    }
+}
+
+void AbilityRecord::NotifyRemoveShellProcess()
+{
+    InnerMissionInfo info;
+    int getMission = DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(
+        missionId_, info);
+    if (getMission == ERR_OK && info.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
+        auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(
+            info.collaboratorType);
+        if (collaborator == nullptr) {
+            HILOG_DEBUG("collaborator is nullptr");
+            return;
+        }
+        int32_t type = 0;
+        std::string reason;
+        int ret = collaborator->NotifyRemoveShellProcess(pid_, type, reason);
+        HILOG_INFO("notify broker params: %{public}d", pid_);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("notify broker remove shell process failed, err: %{public}d", ret);
+        }
     }
 }
 
