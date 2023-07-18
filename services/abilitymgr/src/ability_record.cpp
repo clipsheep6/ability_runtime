@@ -2504,6 +2504,7 @@ void AbilityRecord::GrantUriPermission(Want &want, int32_t userId, std::string t
     HILOG_DEBUG("GrantUriPermission uriVec size: %{public}zu", uriVec.size());
     auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
     auto fromTokenId = IPCSkeleton::GetCallingTokenID();
+    auto callerTokenId = static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, -1));
     for (auto&& str : uriVec) {
         Uri uri(str);
         auto&& scheme = uri.GetScheme();
@@ -2521,7 +2522,8 @@ void AbilityRecord::GrantUriPermission(Want &want, int32_t userId, std::string t
             continue;
         }
         if (uriBundleInfo.applicationInfo.accessTokenId != fromTokenId &&
-            uriBundleInfo.applicationInfo.accessTokenId != callerAccessTokenId_) {
+            uriBundleInfo.applicationInfo.accessTokenId != callerAccessTokenId_ &&
+            uriBundleInfo.applicationInfo.accessTokenId != callerTokenId) {
             HILOG_ERROR("the uri does not belong to caller.");
             continue;
         }

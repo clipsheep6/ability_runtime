@@ -629,6 +629,11 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             return componentRequest.requestResult;
         }
         abilityRequest.Voluation(want, requestCode, callerToken);
+        if (!isStartAsCaller) {
+            UpdateCallerInfo(abilityRequest.want, callerToken);
+        } else {
+            HILOG_INFO("start as caller, skip UpdateCallerInfo!");
+        }
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
         return implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
     }
@@ -1035,6 +1040,11 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
         abilityRequest.callType = AbilityCallType::START_OPTIONS_TYPE;
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
+        if (!isStartAsCaller) {
+            UpdateCallerInfo(abilityRequest.want, callerToken);
+        } else {
+            HILOG_INFO("start as caller, skip UpdateCallerInfo!");
+        }
         result = implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
         if (result != ERR_OK) {
             HILOG_ERROR("implicit start ability error.");
@@ -6149,7 +6159,7 @@ int AbilityManagerService::DelegatorMoveMissionToFront(int32_t missionId)
 
 void AbilityManagerService::UpdateCallerInfo(Want& want, const sptr<IRemoteObject> &callerToken)
 {
-    int32_t tokenId = (int32_t)IPCSkeleton::GetCallingTokenID();
+    int32_t tokenId = static_cast<int32_t>(IPCSkeleton::GetCallingTokenID());
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     int32_t callerPid = IPCSkeleton::GetCallingPid();
     want.RemoveParam(Want::PARAM_RESV_CALLER_TOKEN);
