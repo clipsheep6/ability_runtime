@@ -59,7 +59,7 @@ int32_t DistributedClient::StartRemoteAbility(const OHOS::AAFwk::Want& want,
 
 int32_t DistributedClient::ConnectRemoteAbility(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect)
 {
-    HILOG_INFO("ConnectRemoteAbility called");
+    HILOG_INFO("called");
     if (connect == nullptr) {
         HILOG_ERROR("ConnectRemoteAbility connect is null");
         return ERR_NULL_OBJECT;
@@ -81,7 +81,7 @@ int32_t DistributedClient::ConnectRemoteAbility(const OHOS::AAFwk::Want& want, c
 int32_t DistributedClient::DisconnectRemoteAbility(const sptr<IRemoteObject>& connect, int32_t callerUid,
     uint32_t accessToken)
 {
-    HILOG_INFO("DisconnectRemoteAbility called");
+    HILOG_INFO("called");
     if (connect == nullptr) {
         HILOG_ERROR("DisconnectRemoteAbility connect is null");
         return ERR_NULL_OBJECT;
@@ -106,7 +106,7 @@ int32_t DistributedClient::DisconnectRemoteAbility(const sptr<IRemoteObject>& co
 int32_t DistributedClient::ContinueMission(const std::string& srcDeviceId, const std::string& dstDeviceId,
     int32_t missionId, const sptr<IRemoteObject>& callback, const OHOS::AAFwk::WantParams& wantParams)
 {
-    HILOG_INFO("ContinueMission called");
+    HILOG_INFO("called");
     if (callback == nullptr) {
         HILOG_ERROR("ContinueMission callback null");
         return ERR_NULL_OBJECT;
@@ -158,7 +158,7 @@ int32_t DistributedClient::ContinueMission(const std::string& srcDeviceId, const
 int32_t DistributedClient::StartContinuation(const OHOS::AAFwk::Want& want, int32_t missionId, int32_t callerUid,
     int32_t status, uint32_t accessToken)
 {
-    HILOG_INFO("StartContinuation called");
+    HILOG_INFO("called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("StartContinuation remote service null");
@@ -180,7 +180,7 @@ int32_t DistributedClient::StartContinuation(const OHOS::AAFwk::Want& want, int3
 ErrCode DistributedClient::NotifyCompleteContinuation(
     const std::u16string &devId, int32_t sessionId, bool isSuccess)
 {
-    HILOG_INFO("NotifyCompleteContinuation called");
+    HILOG_INFO("called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("NotifyCompleteContinuation remote service null");
@@ -215,7 +215,7 @@ ErrCode DistributedClient::NotifyCompleteContinuation(
 
 int32_t DistributedClient::StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag)
 {
-    HILOG_INFO("StartSyncRemoteMissions called");
+    HILOG_INFO("called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("remote system abiity is null");
@@ -235,7 +235,7 @@ int32_t DistributedClient::StartSyncRemoteMissions(const std::string& devId, boo
 
 int32_t DistributedClient::StopSyncRemoteMissions(const std::string& devId)
 {
-    HILOG_INFO("StopSyncRemoteMissions called");
+    HILOG_INFO("called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("remote system abiity is null");
@@ -253,7 +253,7 @@ int32_t DistributedClient::StopSyncRemoteMissions(const std::string& devId)
 int32_t DistributedClient::RegisterMissionListener(const std::u16string& devId,
     const sptr<IRemoteObject>& obj)
 {
-    HILOG_INFO("RegisterMissionListener called");
+    HILOG_INFO("called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("remote system ablity is null");
@@ -272,7 +272,7 @@ int32_t DistributedClient::RegisterMissionListener(const std::u16string& devId,
 int32_t DistributedClient::RegisterOnListener(const std::string& type,
     const sptr<IRemoteObject>& obj)
 {
-    HILOG_INFO("RegisterOnListener called");
+    HILOG_INFO("called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("remote system ablity is null");
@@ -291,7 +291,7 @@ int32_t DistributedClient::RegisterOnListener(const std::string& type,
 int32_t DistributedClient::RegisterOffListener(const std::string& type,
     const sptr<IRemoteObject>& obj)
 {
-    HILOG_INFO("RegisterOffListener called");
+    HILOG_INFO("called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("remote system ablity is null");
@@ -310,7 +310,7 @@ int32_t DistributedClient::RegisterOffListener(const std::string& type,
 int32_t DistributedClient::UnRegisterMissionListener(const std::u16string& devId,
     const sptr<IRemoteObject>& obj)
 {
-    HILOG_INFO("UnRegisterMissionListener called");
+    HILOG_INFO("called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("remote system abiity is null");
@@ -329,7 +329,7 @@ int32_t DistributedClient::UnRegisterMissionListener(const std::u16string& devId
 int32_t DistributedClient::GetMissionInfos(const std::string& deviceId, int32_t numMissions,
     std::vector<AAFwk::MissionInfo>& missionInfos)
 {
-    HILOG_INFO("GetMissionInfos called");
+    HILOG_INFO("called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("remote system abiity is null");
@@ -414,7 +414,7 @@ bool DistributedClient::ReadMissionInfosFromParcel(Parcel& parcel,
 
 int32_t DistributedClient::StartRemoteAbilityByCall(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect)
 {
-    HILOG_INFO("StartRemoteAbilityByCall called");
+    HILOG_INFO("called");
     if (connect == nullptr) {
         HILOG_ERROR("StartRemoteAbilityByCall connect is null");
         return ERR_NULL_OBJECT;
@@ -436,7 +436,7 @@ int32_t DistributedClient::StartRemoteAbilityByCall(const OHOS::AAFwk::Want& wan
 int32_t DistributedClient::ReleaseRemoteAbility(const sptr<IRemoteObject>& connect,
     const AppExecFwk::ElementName &element)
 {
-    HILOG_INFO("ReleaseRemoteAbility called");
+    HILOG_INFO("called");
     if (connect == nullptr) {
         HILOG_ERROR("ReleaseRemoteAbility connect is null");
         return ERR_NULL_OBJECT;
