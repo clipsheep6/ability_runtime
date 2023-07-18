@@ -71,11 +71,29 @@ public:
     {
         return eventData_ == other.eventData_;
     }
+    void SetRunCount(int runCount)
+    {
+        runCount_ = runCount;
+    }
+    int GetRunCount() const
+    {
+        return runCount_;
+    }
+    void SetTimeout(uint32_t timeout)
+    {
+        timeout_ = timeout;
+    }
+    uint32_t GetTimeout() const
+    {
+        return timeout_;
+    }
 private:
     uint32_t eventId_;
     int64_t param_;
     std::shared_ptr<EventDataBase> eventData_;
     TaskHandle eventTask_;
+    int runCount_ = 0;
+    uint32_t timeout_ = 0;
 };
 
 class EventHandlerWrap : public std::enable_shared_from_this<EventHandlerWrap> {

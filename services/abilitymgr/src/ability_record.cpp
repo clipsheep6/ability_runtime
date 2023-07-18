@@ -73,6 +73,7 @@ const int32_t SEND_RESULT_CANCELED = -1;
 const int VECTOR_SIZE = 2;
 const int LOAD_TIMEOUT_ASANENABLED = 150;
 const int TERMINATE_TIMEOUT_ASANENABLED = 150;
+const int HALF_TIMEOUT = 2;
 #ifdef SUPPORT_ASAN
 const int COLDSTART_TIMEOUT_MULTIPLE = 150;
 const int LOAD_TIMEOUT_MULTIPLE = 150;
@@ -262,10 +263,10 @@ int AbilityRecord::LoadAbility()
     if (applicationInfo_.asanEnabled) {
         loadTimeout =
             AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_ASANENABLED;
-        SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, loadTimeout);
+        SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, loadTimeout / HALF_TIMEOUT);
     } else if (abilityInfo_.type != AppExecFwk::AbilityType::DATA) {
         auto delayTime = want_.GetBoolParam("coldStart", false) ? coldStartTimeout : loadTimeout;
-        SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, delayTime);
+        SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, delayTime / HALF_TIMEOUT);
     }
 
     startTime_ = AbilityUtil::SystemTimeMillis();
@@ -338,7 +339,7 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
 
     int foregroundTimeout =
         AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
-    SendEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, foregroundTimeout);
+    SendEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, foregroundTimeout / HALF_TIMEOUT);
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
@@ -2109,7 +2110,9 @@ void AbilityRecord::SendEvent(uint32_t msg, uint32_t timeOut, int32_t param)
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     CHECK_POINTER(handler);
     param = (param == -1) ? recordId_ : param;
-    handler->SendEvent(EventWrap(msg, param), timeOut);
+    auto eventWrap = EventWrap(msg, param);
+    eventWrap.SetTimeout(timeOut);
+    handler->SendEvent(eventWrap, timeOut);
 }
 
 void AbilityRecord::SetStartSetting(const std::shared_ptr<AbilityStartSetting> &setting)

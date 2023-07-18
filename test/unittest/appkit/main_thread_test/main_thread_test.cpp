@@ -2193,7 +2193,7 @@ HWTEST_F(MainThreadTest, HandleOnOverlayChanged_0100, TestSize.Level1)
 HWTEST_F(MainThreadTest, ScheduleNotifyAppFault_0100, TestSize.Level1)
 {
     FaultData faultData;
-    faultData.faultType = FaultDataType::APP_FREEZE;
+    faultData.faultType = FaultDataType::JS_ERROR;
     faultData.errorObject.message = "msgContent";
     faultData.errorObject.stack = "stack";
     faultData.errorObject.name = "eventType";

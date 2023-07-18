@@ -69,7 +69,7 @@
 #include "uri_permission_manager_client.h"
 
 #ifdef SUPPORT_GRAPHICS
-
+#include "application_anr_listener.h"
 #include "display_manager.h"
 #include "input_manager.h"
 #include "png.h"
@@ -320,6 +320,8 @@ bool AbilityManagerService::Init()
     int amsTimeOut = AmsConfigurationParameter::GetInstance().GetAMSTimeOutTime();
     HILOG_INFO("amsTimeOut is %{public}d", amsTimeOut);
 #ifdef SUPPORT_GRAPHICS
+    auto anrListener = std::make_shared<ApplicationAnrListener>();
+    MMI::InputManager::GetInstance()->SetAnrObserver(anrListener);
     DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(OHOS::system::GetDeviceType());
     implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
@@ -4699,17 +4701,17 @@ bool AbilityManagerService::IsSystemUI(const std::string &bundleName) const
     return bundleName == AbilityConfig::SYSTEM_UI_BUNDLE_NAME;
 }
 
-void AbilityManagerService::HandleLoadTimeOut(int64_t abilityRecordId)
+void AbilityManagerService::HandleLoadTimeOut(int64_t abilityRecordId, bool isHalf)
 {
     HILOG_DEBUG("Handle load timeout.");
     std::lock_guard<ffrt::mutex> lock(managersMutex_);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        uiAbilityLifecycleManager_->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecordId);
+        uiAbilityLifecycleManager_->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecordId, isHalf);
         return;
     }
     for (auto& item : missionListManagers_) {
         if (item.second) {
-            item.second->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecordId);
+            item.second->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecordId, isHalf);
         }
     }
 }
@@ -4742,17 +4744,17 @@ void AbilityManagerService::HandleInactiveTimeOut(int64_t abilityRecordId)
     }
 }
 
-void AbilityManagerService::HandleForegroundTimeOut(int64_t abilityRecordId)
+void AbilityManagerService::HandleForegroundTimeOut(int64_t abilityRecordId, bool isHalf)
 {
     HILOG_DEBUG("Handle foreground timeout.");
     std::lock_guard<ffrt::mutex> lock(managersMutex_);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        uiAbilityLifecycleManager_->OnTimeOut(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecordId);
+        uiAbilityLifecycleManager_->OnTimeOut(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecordId, isHalf);
         return;
     }
     for (auto& item : missionListManagers_) {
         if (item.second) {
-            item.second->OnTimeOut(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecordId);
+            item.second->OnTimeOut(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecordId, isHalf);
         }
     }
 }
@@ -5526,6 +5528,28 @@ void AbilityManagerService::ReportAppRecoverResult(const int32_t appId, const Ap
         "RECOVERY_RESULT", result);
 }
 
+void AbilityManagerService::AppRecoverKill(pid_t pid, int32_t reason)
+{
+    AppExecFwk::AppFaultDataBySA faultDataSA;
+    faultDataSA.errorObject.name = "appRecovery";
+    switch (reason) {
+        case AppExecFwk::StateReason::CPP_CRASH:
+            faultDataSA.faultType = AppExecFwk::FaultDataType::CPP_CRASH;
+            break;
+        case AppExecFwk::StateReason::JS_ERROR:
+            faultDataSA.faultType = AppExecFwk::FaultDataType::JS_ERROR;
+            break;
+        case AppExecFwk::StateReason::LIFECYCLE:
+        case AppExecFwk::StateReason::APP_FREEZE:
+            faultDataSA.faultType = AppExecFwk::FaultDataType::APP_FREEZE;
+            break;
+        default:
+            faultDataSA.faultType = AppExecFwk::FaultDataType::UNKNOWN;
+    }
+    faultDataSA.pid = pid;
+    IN_PROCESS_CALL(DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFaultBySA(faultDataSA));
+}
+
 void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& token, int32_t reason, const Want *want)
 {
     if (token == nullptr) {
@@ -5568,7 +5592,7 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
             HILOG_ERROR("%{public}s AppRecovery recover app more than once in one minute, just kill app(%{public}d).",
                 __func__, record->GetPid());
             ReportAppRecoverResult(record->GetUid(), appInfo, abilityInfo.name, "FAIL_WITHIN_ONE_MINUTE");
-            kill(record->GetPid(), SIGKILL);
+            AppRecoverKill(record->GetPid(), reason);
             return;
         }
 
@@ -5621,7 +5645,7 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
         curWant.SetParam(AAFwk::Want::PARAM_ABILITY_RECOVERY_RESTART, true);
 
         ReportAppRecoverResult(record->GetUid(), appInfo, abilityInfo.name, "SUCCESS");
-        kill(record->GetPid(), SIGKILL);
+        AppRecoverKill(record->GetPid(), reason);
     }
 
     constexpr int delaytime = 1000;

@@ -37,6 +37,15 @@ enum class FaultDataType {
     RESOURCE_CONTROL
 };
 
+class AppFreezeType {
+public:
+    static constexpr char LIFECYCLE_HALF_TIMEOUT[] = "LIFECYCLE_HALF_TIMEOUT";
+    static constexpr char LIFECYCLE_TIMEOUT[] = "LIFECYCLE_TIMEOUT";
+    static constexpr char APP_LIFECYCLE_TIMEOUT[] = "APP_LIFECYCLE_TIMEOUT";
+    static constexpr char THREAD_BLOCK_3S[] = "THREAD_BLOCK_3S";
+    static constexpr char THREAD_BLOCK_6S[] = "THREAD_BLOCK_6S";
+    static constexpr char APP_INPUT_BLOCK[] = "APP_INPUT_BLOCK";
+};
 /**
  * @struct FaultData
  * FaultData is used to save information about faultdata.
@@ -48,6 +57,10 @@ struct FaultData : public Parcelable {
     // error object
     ErrorObject errorObject;
     FaultDataType faultType = FaultDataType::UNKNOWN;
+    std::string timeoutMarkers;
+    bool waitSaveState = false;
+    bool notifyApp = false;
+    bool forceExit = false;
 };
 
 /**
@@ -62,6 +75,10 @@ struct AppFaultDataBySA : public Parcelable {
     ErrorObject errorObject;
     FaultDataType faultType = FaultDataType::UNKNOWN;
     int32_t pid = -1;
+    std::string timeoutMarkers;
+    bool waitSaveState = false;
+    bool notifyApp = false;
+    bool forceExit = false;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

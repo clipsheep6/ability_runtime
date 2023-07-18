@@ -28,6 +28,7 @@
 #include "app_mgr_service.h"
 #include "app_process_data.h"
 #include "app_state_observer_manager.h"
+#include "appfreeze_manager.h"
 #include "application_state_observer_stub.h"
 #include "appspawn_mount_permission.h"
 #include "bundle_constants.h"
@@ -111,7 +112,6 @@ constexpr int32_t RESTART_INTERVAL_TIME = 120000;
 
 constexpr ErrCode APPMGR_ERR_OFFSET = ErrCodeOffset(SUBSYS_APPEXECFWK, 0x01);
 constexpr ErrCode ERR_ALREADY_EXIST_RENDER = APPMGR_ERR_OFFSET + 100; // error code for already exist render.
-const std::string EVENT_NAME_LIFECYCLE_TIMEOUT = "APP_LIFECYCLE_TIMEOUT";
 constexpr char EVENT_KEY_UID[] = "UID";
 constexpr char EVENT_KEY_PID[] = "PID";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
@@ -3025,46 +3025,43 @@ void AppMgrServiceInner::SendHiSysEvent(const int32_t innerEventId, const int64_
         return;
     }
 
-    std::string eventName = EVENT_NAME_LIFECYCLE_TIMEOUT;
+    std::string eventName = AppExecFwk::AppFreezeType::LIFECYCLE_TIMEOUT;
     int32_t pid = appRecord->GetPriorityObject()->GetPid();
     int32_t uid = appRecord->GetUid();
     std::string packageName = appRecord->GetBundleName();
     std::string processName = appRecord->GetProcessName();
-    std::string msg;
+    std::string msg = AppExecFwk::AppFreezeType::APP_LIFECYCLE_TIMEOUT;
+    msg += ",";
+    int typeId = AppExecFwk::AppfreezeManager::TypeAttribute::NORMAL_TIMEOUT;
     switch (innerEventId) {
         case AMSEventHandler::TERMINATE_ABILITY_TIMEOUT_MSG:
-            msg = EVENT_MESSAGE_TERMINATE_ABILITY_TIMEOUT;
+            msg += EVENT_MESSAGE_TERMINATE_ABILITY_TIMEOUT;
             break;
         case AMSEventHandler::TERMINATE_APPLICATION_TIMEOUT_MSG:
-            msg = EVENT_MESSAGE_TERMINATE_APPLICATION_TIMEOUT;
+            msg += EVENT_MESSAGE_TERMINATE_APPLICATION_TIMEOUT;
             break;
         case AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG:
-            msg = EVENT_MESSAGE_ADD_ABILITY_STAGE_INFO_TIMEOUT;
+            msg += EVENT_MESSAGE_ADD_ABILITY_STAGE_INFO_TIMEOUT;
+            typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
             break;
         case AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG:
-            msg = EVENT_MESSAGE_START_PROCESS_SPECIFIED_ABILITY_TIMEOUT;
+            msg += EVENT_MESSAGE_START_PROCESS_SPECIFIED_ABILITY_TIMEOUT;
+            typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
             break;
         case AMSEventHandler::START_SPECIFIED_ABILITY_TIMEOUT_MSG:
-            msg = EVENT_MESSAGE_START_SPECIFIED_ABILITY_TIMEOUT;
+            msg += EVENT_MESSAGE_START_SPECIFIED_ABILITY_TIMEOUT;
+            typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
             break;
         default:
-            msg = EVENT_MESSAGE_DEFAULT;
+            msg += EVENT_MESSAGE_DEFAULT;
             break;
     }
 
-    HILOG_DEBUG("SendHiSysEvent, eventName = %{public}s, uid = %{public}d, pid = %{public}d, \
+    HILOG_WARN("LIFECYCLE_TIMEOUT, eventName = %{public}s, uid = %{public}d, pid = %{public}d, \
         packageName = %{public}s, processName = %{public}s, msg = %{public}s",
         eventName.c_str(), uid, pid, packageName.c_str(), processName.c_str(), msg.c_str());
-
-    HiSysEventWrite(
-        OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK,
-        eventName,
-        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
-        EVENT_KEY_PID, pid,
-        EVENT_KEY_UID, uid,
-        EVENT_KEY_PACKAGE_NAME, packageName,
-        EVENT_KEY_PROCESS_NAME, processName,
-        EVENT_KEY_MESSAGE, msg);
+    AppExecFwk::AppfreezeManager::GetInstance()->LifecycleTimeoutHandle(
+        typeId, pid, eventName, packageName, msg);
 }
 
 int AppMgrServiceInner::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens)
@@ -3739,6 +3736,44 @@ int32_t AppMgrServiceInner::NotifyUnLoadRepairPatch(const std::string &bundleNam
     return appRunningManager_->NotifyUnLoadRepairPatch(bundleName, callback);
 }
 
+void AppMgrServiceInner::AppRecoveryNotifyApp(int32_t pid, const std::string& bundleName,
+    FaultDataType faultType, const std::string& markers)
+{
+    HILOG_INFO("AppRecovery NotifyApp to kill is: bundleName: %{public}s, faultType: %{public}d, pid: %{public}d",
+        bundleName.c_str(), faultType, pid);
+    if (faultType != FaultDataType::APP_FREEZE) {
+        KillProcessByPid(pid);
+        return;
+    }
+
+    std::string timeOutName = "waitSaveTask" + std::to_string(pid) + bundleName;
+    if (markers == "appRecovery") {
+        if (taskHandler_->CancelTask(timeOutName)) {
+            KillProcessByPid(pid);
+        }
+        return;
+    }
+
+    if (markers != "recoveryTimeout") {
+        return;
+    }
+    auto waitSaveTask = [pid, bundleName, innerService = shared_from_this()]() {
+        auto appRecord = innerService->GetAppRunningRecordByPid(pid);
+        if (appRecord == nullptr) {
+            HILOG_ERROR("no such appRecord");
+            return;
+        }
+        std::string name = appRecord->GetBundleName();
+        if (bundleName == name) {
+            HILOG_INFO("waitSaveTask timeout %{public}s,pid == %{public}d is going to exit due to AppRecovery.",
+                bundleName.c_str(), pid);
+            innerService->KillProcessByPid(pid);
+        }
+    };
+    constexpr int32_t timeOut = 2000;
+    taskHandler_->SubmitTask(waitSaveTask, timeOutName, timeOut);
+}
+
 int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
 {
     HILOG_DEBUG("called.");
@@ -3750,10 +3785,66 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
         return ERR_INVALID_VALUE;
     }
     std::string bundleName = appRecord->GetBundleName();
-    HILOG_DEBUG("FaultData is: error name: %{public}s, faultType: %{public}s, uid: %{public}d, pid: %{public}d,\
-        bundleName: %{public}s", faultData.errorObject.name.c_str(), FaultTypeToString(faultData.faultType).c_str(),
-        callerUid, pid, bundleName.c_str());
+
+    if (faultData.faultType == FaultDataType::APP_FREEZE) {
+        if (faultData.timeoutMarkers != "") {
+            if (!taskHandler_->CancelTask(faultData.timeoutMarkers)) {
+                return ERR_OK;
+            }
+        }
+
+        if (faultData.waitSaveState) {
+            AppRecoveryNotifyApp(pid, bundleName, FaultDataType::APP_FREEZE, "recoveryTimeout");
+        }
+    }
+
+    auto notifyAppTask = [appRecord, pid, callerUid, bundleName, faultData, innerService = shared_from_this()]() {
+        if (faultData.faultType == FaultDataType::APP_FREEZE) {
+            AppfreezeManager::AppInfo info = {
+                .pid = pid,
+                .uid = callerUid,
+                .bundleName = bundleName,
+                .processName = bundleName,
+            };
+            auto appfreezeManager = AppExecFwk::AppfreezeManager::GetInstance();
+            if (!appfreezeManager->IsHandleAppfreeze(bundleName)) {
+                return;
+            }
+            appfreezeManager->AppfreezeHandle(faultData, info);
+        }
+
+        HILOG_WARN("FaultData is: name: %{public}s, faultType: %{public}d, uid: %{public}d, pid: %{public}d,"
+            "bundleName: %{public}s, faultData.forceExit==%{public}d, faultData.waitSaveState==%{public}d",
+            faultData.errorObject.name.c_str(), faultData.faultType,
+            callerUid, pid, bundleName.c_str(), faultData.forceExit, faultData.waitSaveState);
+
+        if (faultData.forceExit && !faultData.waitSaveState && appRecord->IsKeepAliveApp()) {
+            HILOG_INFO("FaultData %{public}s,pid == %{public}d is going to exit due to %{public}s.",
+                bundleName.c_str(), pid, innerService->FaultTypeToString(faultData.faultType).c_str());
+            innerService->KillProcessByPid(pid);
+            return;
+        }
+    };
+
+    taskHandler_->SubmitTask(notifyAppTask, "notifyAppFaultTask");
     return ERR_OK;
+}
+
+void AppMgrServiceInner::TimeoutNotifyApp(int32_t pid, int32_t uid,
+    const std::string& bundleName, const FaultData &faultData)
+{
+    if (faultData.faultType == FaultDataType::APP_FREEZE) {
+        AppfreezeManager::AppInfo info = {
+            .pid = pid,
+            .uid = uid,
+            .bundleName = bundleName,
+            .processName = bundleName,
+        };
+        AppExecFwk::AppfreezeManager::GetInstance()->AppfreezeHandleWithStack(faultData, info);
+    }
+    HILOG_WARN("FaultData timeout NotifyApp %{public}s is going to exit due to %{public}s.",
+        bundleName.c_str(), FaultTypeToString(faultData.faultType).c_str());
+    KillProcessByPid(pid);
 }
 
 int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
@@ -3776,14 +3867,34 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
             HILOG_ERROR("no such appRecord");
             return ERR_INVALID_VALUE;
         }
+
+        int64_t time = SystemTimeMillisecond();
         FaultData transformedFaultData = ConvertDataTypes(faultData);
         int32_t uid = appRecord->GetUid();
         std::string bundleName = appRecord->GetBundleName();
-        HILOG_DEBUG("FaultDataBySA is: error name: %{public}s, faultType: %{public}s, uid: %{public}d,\
-            pid: %{public}d, bundleName: %{public}s",
+
+        if (faultData.errorObject.name == "appRecovery") {
+            AppRecoveryNotifyApp(pid, bundleName, faultData.faultType, "appRecovery");
+            return ERR_OK;
+        }
+
+        if (transformedFaultData.timeoutMarkers.empty()) {
+            transformedFaultData.timeoutMarkers = "notifyFault" + std::to_string(pid) + "-" + std::to_string(time);
+        }
+        const int64_t timeout = 3000;
+        if (faultData.faultType == FaultDataType::APP_FREEZE) {
+            if (!AppExecFwk::AppfreezeManager::GetInstance()->IsHandleAppfreeze(bundleName)) {
+                return ERR_OK;
+            }
+            auto timeoutNotifyApp = std::bind(&AppMgrServiceInner::TimeoutNotifyApp, this,
+                pid, uid, bundleName, transformedFaultData);
+            taskHandler_->SubmitTask(timeoutNotifyApp, transformedFaultData.timeoutMarkers, timeout);
+        }
+        appRecord->NotifyAppFault(transformedFaultData);
+        HILOG_WARN("FaultDataBySA is: name: %{public}s, faultType: %{public}s, uid: %{public}d,"
+            "pid: %{public}d, bundleName: %{public}s",
             faultData.errorObject.name.c_str(), FaultTypeToString(faultData.faultType).c_str(),
             uid, pid, bundleName.c_str());
-        appRecord->NotifyAppFault(transformedFaultData);
     } else {
         HILOG_DEBUG("this is not called by SA.");
         return AAFwk::CHECK_PERMISSION_FAILED;
@@ -3796,6 +3907,10 @@ FaultData AppMgrServiceInner::ConvertDataTypes(const AppFaultDataBySA &faultData
     FaultData newfaultData;
     newfaultData.faultType = faultData.faultType;
     newfaultData.errorObject = faultData.errorObject;
+    newfaultData.timeoutMarkers = faultData.timeoutMarkers;
+    newfaultData.waitSaveState = faultData.waitSaveState;
+    newfaultData.notifyApp = faultData.notifyApp;
+    newfaultData.forceExit = faultData.forceExit;
     return newfaultData;
 }
 
