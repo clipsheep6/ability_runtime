@@ -413,7 +413,7 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
             // mark if need back to other mission stack
             targetAbilityRecord->SetNeedBackToOtherMissionStack(true);
             auto focusAbility = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetFocusAbility();
-            if (focusAbility) {
+            if (focusAbility && (GetMissionIdByAbilityTokenInner(focusAbility->GetToken()) != -1)) {
                 targetAbilityRecord->SetOtherMissionStackAbilityRecord(focusAbility);
             } else {
                 targetAbilityRecord->SetOtherMissionStackAbilityRecord(currentTopAbility);
