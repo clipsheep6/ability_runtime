@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -19,11 +19,11 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 module_output_path = "ability_runtime/abilitymgr"
 
 ##############################fuzztest##########################################
-ohos_fuzztest("AbilityManagerFuzzTest") {
+ohos_fuzztest("AbilityManagerFirstFuzzTest") {
   module_out_path = module_output_path
 
   fuzz_config_file =
-      "${ability_runtime_test_path}/fuzztest/abilitymanager_fuzzer"
+      "${ability_runtime_test_path}/fuzztest/abilitymanagerfirst_fuzzer"
   include_dirs = [ "${ability_runtime_innerkits_path}/ability_manager/include" ]
   cflags = [
     "-g",
@@ -31,7 +31,7 @@ ohos_fuzztest("AbilityManagerFuzzTest") {
     "-Wno-unused-variable",
     "-fno-omit-frame-pointer",
   ]
-  sources = [ "abilitymanager_fuzzer.cpp" ]
+  sources = [ "abilitymanagerfirst_fuzzer.cpp" ]
 
   configs = [ "${ability_runtime_innerkits_path}/ability_manager:ability_manager_public_config" ]
 
@@ -49,6 +49,7 @@ ohos_fuzztest("AbilityManagerFuzzTest") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "ffrt:libffrt",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
     "safwk:system_ability_fwk",
@@ -56,7 +57,10 @@ ohos_fuzztest("AbilityManagerFuzzTest") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -66,7 +70,7 @@ group("fuzztest") {
   deps = []
   deps += [
     # deps file
-    ":AbilityManagerFuzzTest",
+    ":AbilityManagerFirstFuzzTest",
   ]
 }
 ###############################################################################
