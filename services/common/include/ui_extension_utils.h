@@ -26,7 +26,8 @@ namespace UIExtensionUtils {
 const std::unordered_set<AppExecFwk::ExtensionAbilityType> UI_EXTENSION_SET = {
     AppExecFwk::ExtensionAbilityType::UI,
     AppExecFwk::ExtensionAbilityType::SYSPICKER_MEDIACONTROL,
-    AppExecFwk::ExtensionAbilityType::SYSDIALOG_USERAUTH
+    AppExecFwk::ExtensionAbilityType::SYSDIALOG_USERAUTH,
+    AppExecFwk::ExtensionAbilityType::SYSDIALOG_COMMON
 };
 
 inline bool IsUIExtension(const AppExecFwk::ExtensionAbilityType type)
