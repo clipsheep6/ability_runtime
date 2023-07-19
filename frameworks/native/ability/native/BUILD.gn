@@ -391,7 +391,10 @@ ohos_shared_library("extensionkit_native") {
     "napi:ace_napi",
   ]
 
-  public_deps = [ ":abilitykit_utils" ]
+  public_deps = [
+    ":abilitykit_utils",
+    "${arkui_path}/napi:ace_napi",
+  ]
 
   if (ability_runtime_graphics) {
     external_deps += [ "ability_base:session_info" ]
