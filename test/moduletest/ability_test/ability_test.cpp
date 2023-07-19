@@ -65,6 +65,7 @@ void AbilityBaseTest::SetUpTestCase(void)
 void AbilityBaseTest::TearDownTestCase(void)
 {}
 
+#ifndef SUPPORT_ERMS
 class TestIEcologicalRuleManager : public AppExecFwk::IEcologicalRuleManager {
 public:
     TestIEcologicalRuleManager() = default;
@@ -75,6 +76,7 @@ public:
         return nullptr;
     }
 };
+#endif
 
 void AbilityBaseTest::SetUp(void)
 {
@@ -1331,7 +1333,6 @@ HWTEST_F(AbilityTerminateTest,
     EXPECT_EQ(0, erms->QueryPublishFormExperience(want, rule));
     GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryPublishFormExperience_0100";
 }
-#endif
 
 /**
  * @tc.number: AppExecFwk_IEcologicalRuleManager_IsSupportPublishForm_0100
@@ -1365,5 +1366,6 @@ HWTEST_F(AbilityTerminateTest,
     EXPECT_EQ(0, erms->QueryLastSyncTime());
     GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryLastSyncTime_0100";
 }
+#endif
 }  // namespace AppExecFwk
 }  // namespace OHOS

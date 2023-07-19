@@ -67,6 +67,10 @@ ohos_unittest("free_install_manager_test") {
     "ipc:ipc_core",
     "napi:ace_napi",
   ]
+
+  if (ecologic_rule_enabled) {
+    external_deps += [ "ecological_rule_mgr:erms_client" ]
+  }
 }
 
 group("unittest") {

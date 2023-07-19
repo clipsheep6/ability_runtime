@@ -39,6 +39,10 @@ ohos_unittest("ability_manager_service_dialog_test") {
     "ffrt:libffrt",
     "hilog:libhilog",
   ]
+
+  if (ecologic_rule_enabled) {
+    external_deps += [ "ecological_rule_mgr:erms_client" ]
+  }
 }
 
 group("unittest") {
