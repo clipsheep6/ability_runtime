@@ -33,7 +33,7 @@ class Want;
  */
 class IExtensionManager : public OHOS::IRemoteBroker {
 public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.aafwk.AbilityManager")
+    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.aafwk.ExtensionManager")
 
     /**
      * Connect ability common method.
