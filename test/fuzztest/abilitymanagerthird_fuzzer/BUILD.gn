@@ -62,6 +62,10 @@ ohos_fuzztest("AbilityManagerThirdFuzzTest") {
       "window_manager:libwm",
     ]
   }
+
+  if (ecologic_rule_enabled) {
+    external_deps += [ "ecological_rule_mgr:erms_client" ]
+  }
 }
 
 ###############################################################################
