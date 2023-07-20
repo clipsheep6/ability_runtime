@@ -256,22 +256,8 @@ int DataAbilityRecord::RemoveClient(const sptr<IRemoteObject> &client, bool isNo
         return ERR_OK;
     }
 
-    auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
-    if (!appScheduler) {
-        HILOG_ERROR("Data ability record remove client: invalid app scheduler.");
-        return ERR_NULL_OBJECT;
-    }
-
     for (auto it(clients_.begin()); it != clients_.end(); ++it) {
         if (it->client == client) {
-            if (!isNotHap) {
-                auto clientAbilityRecord = Token::GetAbilityRecordByToken(client);
-                CHECK_POINTER_AND_RETURN(clientAbilityRecord, ERR_UNKNOWN_OBJECT);
-                appScheduler->AbilityBehaviorAnalysis(ability_->GetToken(), clientAbilityRecord->GetToken(), 0, 0, 0);
-                HILOG_INFO("Ability ability '%{public}s|%{public}s'.",
-                    clientAbilityRecord->GetApplicationInfo().bundleName.c_str(),
-                    clientAbilityRecord->GetAbilityInfo().name.c_str());
-            }
             clients_.erase(it);
             HILOG_INFO("Data ability '%{public}s|%{public}s'.",
                 ability_->GetApplicationInfo().bundleName.c_str(),

@@ -462,16 +462,16 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityHelper::Query(
     Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
-    HILOG_INFO("Query called.");
+    HILOG_DEBUG("Query called.");
     std::shared_ptr<NativeRdb::AbsSharedResultSet> resultSet = nullptr;
     auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
     if (dataAbilityHelperImpl) {
-        HILOG_INFO("Call DataAbilityHelperImpl Query.");
-        resultSet = dataAbilityHelperImpl->Query(uri, columns, predicates);
+        HILOG_DEBUG("Call DataAbilityHelperImpl Query.");
+        return dataAbilityHelperImpl->Query(uri, columns, predicates);
     }
     auto dataShareHelper = GetDataShareHelper();
     if (dataShareHelper) {
-        HILOG_INFO("Call DataShareHelper Query.");
+        HILOG_DEBUG("Call DataShareHelper Query.");
         DataShare::DataSharePredicates dataSharePredicates = RdbDataAbilityUtils::ToDataSharePredicates(predicates);
         Uri dataShareUri("");
         if (TransferScheme(uri, dataShareUri)) {
