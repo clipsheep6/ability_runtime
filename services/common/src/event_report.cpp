@@ -163,6 +163,7 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, 
                 EVENT_KEY_VERSION_CODE, eventInfo.versionCode,
                 EVENT_KEY_PROCESS_NAME, eventInfo.processName,
                 EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName);
+            break;
         default:
             HiSysEventWrite(
                 HiSysEvent::Domain::AAFWK,

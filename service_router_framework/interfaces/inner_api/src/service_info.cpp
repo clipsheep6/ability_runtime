@@ -96,6 +96,10 @@ bool BusinessAbilityInfo::ReadFromParcel(Parcel &parcel)
     int32_t size;
     READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, size);
     CONTAINER_SECURITY_VERIFY(parcel, size, &permissions);
+    if (size > CYCLE_LIMIT) {
+        APP_LOGE("size is too large.");
+        return false;
+    }
     for (int32_t i = 0; i < size; i++) {
         permissions.emplace_back(Str16ToStr8(parcel.ReadString16()));
     }

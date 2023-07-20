@@ -110,7 +110,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     int themeId = static_cast<int>(GetU32Data(data));
     abilityContext.SetTheme(themeId);
     abilityContext.GetColor(resId);
-    int startId = static_cast<int>(GetU32Data(data));
     abilityContext.SetColorMode(mode);
     std::vector<AAFwk::Want> wants;
     abilityContext.StartAbilities(wants);

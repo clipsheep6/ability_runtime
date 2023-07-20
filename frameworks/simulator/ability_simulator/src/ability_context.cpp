@@ -266,7 +266,6 @@ bool AbilityContext::CreateMultiDir(const std::string &path)
     std::string::size_type pos = 0;
     std::string::size_type prePos = 0;
     std::string strFolderPath;
-    std::string stdFolderPath;
 
     while ((pos = tempStr.find(fileSeparator_, pos)) != std::string::npos) {
         strFolderPath = tempStr.substr(0, pos);
