@@ -21,7 +21,7 @@
 #include <ipc_types.h>
 #include <iremote_broker.h>
 
-#include "ability_connect_callback_interface.h"
+// #include "ability_connect_callback_interface.h"
 #include "ability_manager_ipc_interface_code.h"
 #include "ability_running_info.h"
 #include "ability_scheduler_interface.h"
@@ -57,6 +57,8 @@
 
 namespace OHOS {
 namespace AAFwk {
+class IAbilityConnection;
+
 constexpr const char* ABILITY_MANAGER_SERVICE_NAME = "AbilityManagerService";
 const int DEFAULT_INVAL_VALUE = -1;
 const int DELAY_LOCAL_FREE_INSTALL_TIMEOUT = 40000;

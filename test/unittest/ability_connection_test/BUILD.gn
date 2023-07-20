@@ -26,6 +26,7 @@ ohos_unittest("ability_connection_test") {
   configs = []
 
   deps = [
+    "${ability_runtime_innerkits_path}/extension_manager:connection_callback",
     "${ability_runtime_native_path}/ability:ability_context_native",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",

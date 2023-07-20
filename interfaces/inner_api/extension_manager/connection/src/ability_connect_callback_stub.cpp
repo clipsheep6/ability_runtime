@@ -14,12 +14,12 @@
  */
 
 #include "ability_connect_callback_stub.h"
-
 #include "ability_connect_callback_proxy.h"
+
+#include "element_name.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "message_parcel.h"
-#include "want.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -92,12 +92,6 @@ void AbilityConnectionProxy::OnAbilityDisconnectDone(const AppExecFwk::ElementNa
     }
 }
 
-AbilityConnectionStub::AbilityConnectionStub()
-{}
-
-AbilityConnectionStub::~AbilityConnectionStub()
-{}
-
 int AbilityConnectionStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -155,11 +149,5 @@ void AbilityConnectCallbackRecipient::OnRemoteDied(const wptr<IRemoteObject> &__
         handler_(remote);
     }
 }
-
-AbilityConnectCallbackRecipient::AbilityConnectCallbackRecipient(RemoteDiedHandler handler) : handler_(handler)
-{}
-
-AbilityConnectCallbackRecipient::~AbilityConnectCallbackRecipient()
-{}
 }  // namespace AAFwk
 }  // namespace OHOS

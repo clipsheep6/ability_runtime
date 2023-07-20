@@ -21,6 +21,8 @@ group("innerkits_target") {
     "dataobs_manager:dataobs_manager",
     "deps_wrapper:ability_deps_wrapper",
     "error_utils:ability_runtime_error_util",
+    "extension_manager:connection_callback",
+    "extension_manager:extension_manager",
     "quick_fix:quickfix_manager",
     "uri_permission:uri_permission_mgr",
     "wantagent:wantagent_innerkits",

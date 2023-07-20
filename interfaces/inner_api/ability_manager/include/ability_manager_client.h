@@ -18,7 +18,6 @@
 
 #include <mutex>
 
-#include "ability_connect_callback_interface.h"
 #include "ability_manager_errors.h"
 #include "ability_scheduler_interface.h"
 #include "ability_manager_interface.h"
@@ -32,6 +31,7 @@
 
 namespace OHOS {
 namespace AAFwk {
+class IAbilityConnection;
 /**
  * @class AbilityManagerClient
  * AbilityManagerClient is used to access ability manager services.

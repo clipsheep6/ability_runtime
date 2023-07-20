@@ -15,6 +15,7 @@
 
 #include "ability_context.h"
 
+#include "ability_connect_callback_interface.h"
 #include "ability_manager_client.h"
 #include "accesstoken_kit.h"
 #include "authorization_result.h"
