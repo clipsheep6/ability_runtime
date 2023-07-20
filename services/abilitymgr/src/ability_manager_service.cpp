@@ -2126,16 +2126,11 @@ int AbilityManagerService::TerminateUIExtensionAbility(const sptr<SessionInfo> &
     CHECK_POINTER_AND_RETURN(extensionSessionInfo, ERR_INVALID_VALUE);
     auto abilityRecord = Token::GetAbilityRecordByToken(extensionSessionInfo->callerToken);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    int32_t userId = GetValidUserId(DEFAULT_INVAL_VALUE);
-    HILOG_DEBUG("userId=%{public}d", userId);
-    auto connectManager = GetConnectManagerByUserId(userId);
-    if (!connectManager) {
-        HILOG_ERROR("connectManager is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-
-    auto targetRecord = connectManager->GetUIExtensioBySessionInfo(extensionSessionInfo);
+    std::shared_ptr<AbilityConnectManager> connectManager;
+    std::shared_ptr<AbilityRecord> targetRecord;
+    GetConnectManagerAndUIExtensionBySessionInfo(extensionSessionInfo, connectManager, targetRecord);
     CHECK_POINTER_AND_RETURN(targetRecord, ERR_INVALID_VALUE);
+    CHECK_POINTER_AND_RETURN(connectManager, ERR_INVALID_VALUE);
 
     if (!JudgeSelfCalled(targetRecord) && !JudgeSelfCalled(abilityRecord)) {
         return CHECK_PERMISSION_FAILED;
@@ -2353,16 +2348,12 @@ int AbilityManagerService::MinimizeUIExtensionAbility(const sptr<SessionInfo> &e
     if (!JudgeSelfCalled(abilityRecord)) {
         return CHECK_PERMISSION_FAILED;
     }
-    int32_t userId = GetValidUserId(DEFAULT_INVAL_VALUE);
-    HILOG_DEBUG("userId=%{public}d", userId);
-    auto connectManager = GetConnectManagerByUserId(userId);
-    if (!connectManager) {
-        HILOG_ERROR("connectManager is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
 
-    auto targetRecord = connectManager->GetUIExtensioBySessionInfo(extensionSessionInfo);
+    std::shared_ptr<AbilityConnectManager> connectManager;
+    std::shared_ptr<AbilityRecord> targetRecord;
+    GetConnectManagerAndUIExtensionBySessionInfo(extensionSessionInfo, connectManager, targetRecord);
     CHECK_POINTER_AND_RETURN(targetRecord, ERR_INVALID_VALUE);
+    CHECK_POINTER_AND_RETURN(connectManager, ERR_INVALID_VALUE);
 
     auto result = JudgeAbilityVisibleControl(targetRecord->GetAbilityInfo());
     if (result != ERR_OK) {
@@ -7465,13 +7456,24 @@ int AbilityManagerService::CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId
         return ret;
     }
 
+    bool focused = false;
     int32_t userId = GetValidUserId(DEFAULT_INVAL_VALUE);
     auto connectManager = GetConnectManagerByUserId(userId);
-    if (!connectManager) {
-        HILOG_ERROR("connectManager is nullptr.");
-        return ERR_INVALID_VALUE;
+    if (connectManager) {
+        focused = connectManager->IsUIExtensionFocused(uiExtensionTokenId, token);
+    } else {
+        HILOG_WARN("connectManager is nullptr, userId: %{public}d", userId);
     }
-    isFocused = connectManager->IsUIExtensionFocused(uiExtensionTokenId, token);
+    if (!focused && userId != U0_USER_ID) {
+        HILOG_DEBUG("Check connectManager in user0");
+        connectManager = GetConnectManagerByUserId(U0_USER_ID);
+        if (connectManager) {
+            focused = connectManager->IsUIExtensionFocused(uiExtensionTokenId, token);
+        } else {
+            HILOG_WARN("connectManager is nullptr, userId: 0");
+        }
+    }
+    isFocused = focused;
     HILOG_DEBUG("isFocused: %{public}d", isFocused);
     return ERR_OK;
 }
@@ -7753,6 +7755,29 @@ bool AbilityManagerService::CheckCollaboratorType(int32_t type)
         return false;
     }
     return true;
+}
+
+void AbilityManagerService::GetConnectManagerAndUIExtensionBySessionInfo(const sptr<SessionInfo> &sessionInfo,
+    std::shared_ptr<AbilityConnectManager> &connectManager, std::shared_ptr<AbilityRecord> &targetAbility)
+{
+    targetAbility = nullptr;
+    int32_t userId = GetValidUserId(DEFAULT_INVAL_VALUE);
+    HILOG_DEBUG("userId=%{public}d", userId);
+    connectManager = GetConnectManagerByUserId(userId);
+    if (connectManager) {
+        targetAbility = connectManager->GetUIExtensioBySessionInfo(sessionInfo);
+    } else {
+        HILOG_WARN("connectManager is nullptr, userId: %{public}d", userId);
+    }
+    if (targetAbility == nullptr && userId != U0_USER_ID) {
+        HILOG_DEBUG("try to find UIExtension in user0");
+        connectManager = GetConnectManagerByUserId(U0_USER_ID);
+        if (connectManager) {
+            targetAbility = connectManager->GetUIExtensioBySessionInfo(sessionInfo);
+        } else {
+            HILOG_WARN("connectManager is nullptr, userId: 0");
+        }
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS
