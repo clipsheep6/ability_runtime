@@ -483,7 +483,7 @@ private:
     void NotifyMissionCreated(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
     bool IsExcludeFromMissions(const std::shared_ptr<Mission> &mission);
     void BuildInnerMissionInfo(InnerMissionInfo &info, const std::string &missionName,
-        const AbilityRequest &abilityRequest) const;
+        const std::string &missionAffinity, const AbilityRequest &abilityRequest) const;
     void NotifyStartSpecifiedAbility(AbilityRequest &request, const AAFwk::Want &want);
     void NotifyRestartSpecifiedAbility(AbilityRequest &request, const sptr<IRemoteObject> &token);
     void ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const;

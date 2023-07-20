@@ -58,6 +58,7 @@ const int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
 constexpr int32_t TRACE_ATOMIC_SERVICE_ID = 201;
 const std::string TRACE_ATOMIC_SERVICE = "StartAtomicService";
 const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
+const std::string PARAM_MISSION_AFFINITY_KEY = "ohos.anco.param.missionAffinity";
 std::string GetCurrentTime()
 {
     struct timespec tn;
@@ -519,28 +520,23 @@ bool MissionListManager::CreateOrReusedMissionInfo(const AbilityRequest &ability
     bool needFind = false;
     bool isFindRecentStandard = abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::STANDARD &&
         abilityRequest.startRecent;
-    // judge caller is laucnher
-    bool isLauncherStartCollaborator = false;
-    std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
-    if (callerAbility != nullptr && callerAbility->GetAbilityInfo().bundleName == AbilityConfig::LAUNCHER_BUNDLE_NAME &&
-        abilityRequest.want.GetElement().GetBundleName() == SHELL_ASSISTANT_BUNDLENAME &&
-        abilityRequest.collaboratorType == CollaboratorType::DEFAULT_TYPE) {
-        isFindRecentStandard = true;
-    }
     if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::STANDARD || isFindRecentStandard) {
         needFind = true;
     }
 
     std::string missionName = GetMissionName(abilityRequest);
+    std::string missionAffinity = abilityRequest.want.GetStringParam(PARAM_MISSION_AFFINITY_KEY);
+    bool isFromCollaborator = (abilityRequest.collaboratorType != CollaboratorType::DEFAULT_TYPE);
     auto mgr = DelayedSingleton<MissionInfoMgr>::GetInstance();
     if (needFind && mgr &&
-        mgr->FindReusedMissionInfo(missionName, abilityRequest.specifiedFlag, isFindRecentStandard, info)
+        mgr->FindReusedMissionInfo(missionName, missionAffinity, abilityRequest.specifiedFlag, isFindRecentStandard,
+            isFromCollaborator, info)
         && info.missionInfo.id > 0) {
         reUsedMissionInfo = true;
     }
     HILOG_INFO("result:%{public}d", reUsedMissionInfo);
 
-    BuildInnerMissionInfo(info, missionName, abilityRequest);
+    BuildInnerMissionInfo(info, missionName, missionAffinity, abilityRequest);
     return reUsedMissionInfo;
 }
 
@@ -578,6 +574,8 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
             info.missionName, info.startMethod);
         targetRecord->UpdateRecoveryInfo(info.hasRecoverInfo);
         info.hasRecoverInfo = false;
+        std::string missionAffinity = abilityRequest.want.GetStringParam(PARAM_MISSION_AFFINITY_KEY);
+        targetMission->SetMissionAffinity(missionAffinity);
         targetMission->SetLockedState(info.missionInfo.lockedState);
         targetMission->SetUnclearable(info.missionInfo.unclearable);
         targetMission->UpdateMissionTime(info.missionInfo.time);
@@ -603,10 +601,11 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
     if (findReusedMissionInfo) {
         DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionInfo(info);
     } else {
-        if (abilityRequest.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
-            NotifyCollaboratorMissionCreated(abilityRequest, targetMission, info);
-        }
         DelayedSingleton<MissionInfoMgr>::GetInstance()->AddMissionInfo(info);
+    }
+    
+    if (abilityRequest.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
+        NotifyCollaboratorMissionCreated(abilityRequest, targetMission, info);
     }
 }
 
@@ -622,9 +621,10 @@ void MissionListManager::EnableRecoverAbility(int32_t missionId)
 }
 
 void MissionListManager::BuildInnerMissionInfo(InnerMissionInfo &info, const std::string &missionName,
-    const AbilityRequest &abilityRequest) const
+    const std::string &missionAffinity, const AbilityRequest &abilityRequest) const
 {
     info.missionName = missionName;
+    info.missionAffinity = missionAffinity;
     info.launchMode = static_cast<int32_t>(abilityRequest.abilityInfo.launchMode);
     info.startMethod = CallType2StartMethod(abilityRequest.callType);
     info.bundleName = abilityRequest.abilityInfo.bundleName;
@@ -794,8 +794,23 @@ std::shared_ptr<Mission> MissionListManager::GetReusedStandardMission(const Abil
     if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::STANDARD) {
         return nullptr;
     }
+    
+    // reuse mission temp
+    bool isLauncherStartAnco = false;
+    std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
+    if (callerAbility != nullptr && callerAbility->GetAbilityInfo().bundleName == AbilityConfig::LAUNCHER_BUNDLE_NAME &&
+        abilityRequest.want.GetElement().GetBundleName() == SHELL_ASSISTANT_BUNDLENAME &&
+        abilityRequest.collaboratorType == CollaboratorType::DEFAULT_TYPE) {
+        HILOG_DEBUG("The launcher start anco shell");
+        isLauncherStartAnco = true;
+    }
 
-    if (!abilityRequest.startRecent) {
+    bool isFromCollaborator = false;
+    if (abilityRequest.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
+        isFromCollaborator = true;
+    }
+
+    if (!abilityRequest.startRecent && !isFromCollaborator && !isLauncherStartAnco) {
         return nullptr;
     }
 
@@ -817,16 +832,36 @@ std::shared_ptr<Mission> MissionListManager::GetReusedStandardMission(const Abil
             continue;
         }
 
-        auto mission = missionList->GetRecentStandardMission(missionName);
-        if (mission && mission->GetMissionTime() >= missionTime) {
-            missionTime = mission->GetMissionTime();
-            reUsedMission = mission;
+        if (isFromCollaborator) {
+            std::string missionAffinity = abilityRequest.want.GetStringParam(PARAM_MISSION_AFFINITY_KEY);
+            HILOG_DEBUG("begin find reused mission, missionAffinity:%{public}s", missionAffinity.c_str());
+            auto mission = missionList->GetRecentStandardMissionWithAffinity(missionAffinity);
+            if (mission && mission->GetMissionTime() >= missionTime) {
+                missionTime = mission->GetMissionTime();
+                reUsedMission = mission;
+                HILOG_DEBUG("find mission success");
+            }
+        } else if (isLauncherStartAnco) {
+            // reuse mission temp
+            auto mission = missionList->GetRecentStandardMission(missionName);
+            if (mission && mission->GetMissionTime() >= missionTime && mission->GetMissionAffinity() == "") {
+                missionTime = mission->GetMissionTime();
+                reUsedMission = mission;
+            }
+        } else {
+            auto mission = missionList->GetRecentStandardMission(missionName);
+            if (mission && mission->GetMissionTime() >= missionTime) {
+                missionTime = mission->GetMissionTime();
+                reUsedMission = mission;
+            }
         }
     }
 
-    auto mission = defaultStandardList_->GetRecentStandardMission(missionName);
-    if (mission && mission->GetMissionTime() >= missionTime) {
-        reUsedMission = mission;
+    if (!isFromCollaborator && !isLauncherStartAnco) {
+        auto mission = defaultStandardList_->GetRecentStandardMission(missionName);
+        if (mission && mission->GetMissionTime() >= missionTime) {
+            reUsedMission = mission;
+        }
     }
 
     return reUsedMission;

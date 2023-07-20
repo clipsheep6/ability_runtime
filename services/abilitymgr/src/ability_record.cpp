@@ -2221,6 +2221,7 @@ void AbilityRecord::SetMission(const std::shared_ptr<Mission> &mission)
         HILOG_DEBUG("SetMission come, missionId is %{public}d.", missionId_);
     }
     const std::string KEY_MISSION_ID = "ohos.anco.param.missionId";
+    want_.RemoveParam(KEY_MISSION_ID);
     want_.SetParam(KEY_MISSION_ID, missionId_);
     mission_ = mission;
 }
