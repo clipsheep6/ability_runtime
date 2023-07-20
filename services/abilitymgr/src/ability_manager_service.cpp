@@ -2070,10 +2070,6 @@ int AbilityManagerService::CloseAbility(const sptr<IRemoteObject> &token, int re
 int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &token, int resultCode,
     const Want *resultWant, bool flag)
 {
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        HILOG_DEBUG("Not support in scb.");
-        return ERR_OK;
-    }
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Terminate ability begin, flag:%{public}d.", flag);
     if (!VerificationAllToken(token)) {
@@ -2316,10 +2312,6 @@ std::string AbilityManagerService::AnonymizeDeviceId(const std::string& deviceId
 
 int AbilityManagerService::MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser)
 {
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        HILOG_DEBUG("Not support in scb.");
-        return ERR_OK;
-    }
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Minimize ability, fromUser:%{public}d.", fromUser);
     if (!VerificationAllToken(token)) {
@@ -5400,10 +5392,6 @@ void AbilityManagerService::ClearUserData(int32_t userId)
 
 int AbilityManagerService::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
 {
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        HILOG_DEBUG("Not support in scb.");
-        return ERR_OK;
-    }
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (!isSaCall) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
@@ -6117,10 +6105,6 @@ int AbilityManagerService::DelegatorDoAbilityBackground(const sptr<IRemoteObject
 
 int AbilityManagerService::DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag)
 {
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        HILOG_DEBUG("Not support in scb.");
-        return ERR_OK;
-    }
     HILOG_DEBUG("DoAbilityForeground, sceneFlag:%{public}u", flag);
     CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
     if (!VerificationToken(token) && !VerificationAllToken(token)) {
@@ -6152,10 +6136,6 @@ int AbilityManagerService::DoAbilityForeground(const sptr<IRemoteObject> &token,
 
 int AbilityManagerService::DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag)
 {
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        HILOG_DEBUG("Not support in scb.");
-        return ERR_OK;
-    }
     HILOG_DEBUG("DoAbilityBackground, sceneFlag:%{public}u", flag);
     CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
 
