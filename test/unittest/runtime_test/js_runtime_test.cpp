@@ -63,7 +63,6 @@ void JsRuntimeTest::SetUp()
 {
     options_.bundleName = TEST_BUNDLE_NAME;
     options_.codePath = TEST_CODE_PATH;
-    options_.hapPath = TEST_HAP_PATH;
     options_.loadAce = false;
     options_.isBundle = true;
     options_.preload = false;
@@ -813,7 +812,12 @@ HWTEST_F(JsRuntimeTest, JsRuntimeStartProfilerTest_0100, TestSize.Level1)
     AbilityRuntime::Runtime::Options options;
     options.preload = false;
     auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
-    std::string perfCmd = "profile test";
+
+    bool needBreakPoint = false;
+    uint32_t instanceId = 1;
+    jsRuntime->StartDebugger(needBreakPoint, instanceId);
+
+    std::string perfCmd = "profile jsperf 100";
     jsRuntime->StartProfiler(perfCmd);
     ASSERT_NE(jsRuntime, nullptr);
 }
