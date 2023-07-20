@@ -139,9 +139,6 @@ bool PermissionVerification::VerifyDlpPermission(Want &want) const
         return true;
     }
 
-    if (IsSACall()) {
-        return true;
-    }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_ACCESS_DLP)) {
         return true;
     }

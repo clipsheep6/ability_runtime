@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,7 +15,12 @@
 
 #include "application_anr_listener.h"
 
-#include "ability_manager_service.h"
+#include <sys/time.h>
+#include "singleton.h"
+
+#include "app_mgr_client.h"
+#include "fault_data.h"
+#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -25,7 +30,16 @@ ApplicationAnrListener::~ApplicationAnrListener() {}
 
 void ApplicationAnrListener::OnAnr(int32_t pid) const
 {
-    DelayedSingleton<AbilityManagerService>::GetInstance()->SendANRProcessID(pid);
+    AppExecFwk::AppFaultDataBySA faultData;
+    faultData.faultType = AppExecFwk::FaultDataType::APP_FREEZE;
+    faultData.pid = pid;
+    faultData.errorObject.message = "User input does not respond!";
+    faultData.errorObject.stack = "";
+    faultData.errorObject.name = AppExecFwk::AppFreezeType::APP_INPUT_BLOCK;
+    faultData.waitSaveState = false;
+    faultData.notifyApp = false;
+    faultData.forceExit = false;
+    DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFaultBySA(faultData);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

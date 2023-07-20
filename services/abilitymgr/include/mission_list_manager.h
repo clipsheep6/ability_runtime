@@ -203,8 +203,9 @@ public:
      *
      * @param msgId the msg id in ability record
      * @param abilityRecordId the id of ability record
+     * @param isHalf is half
      */
-    void OnTimeOut(uint32_t msgId, int64_t abilityRecordId);
+    void OnTimeOut(uint32_t msgId, int64_t abilityRecordId, bool isHalf = false);
 
     /**
      * @brief handle when ability died
@@ -410,7 +411,7 @@ private:
         const std::shared_ptr<Mission> &mission);
     void MoveMissionListToTop(const std::shared_ptr<MissionList> &missionList);
     void MoveNoneTopMissionToDefaultList(const std::shared_ptr<Mission> &mission);
-    void PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId);
+    void PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId, bool isHalf = false);
 
     int DispatchState(const std::shared_ptr<AbilityRecord> &abilityRecord, int state);
     int DispatchForeground(const std::shared_ptr<AbilityRecord> &abilityRecord, bool success,
