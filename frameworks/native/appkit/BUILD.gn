@@ -265,7 +265,6 @@ ohos_shared_library("app_context_utils") {
   sources = [
     "ability_runtime/context/js_application_context_utils.cpp",
     "ability_runtime/context/js_context_utils.cpp",
-    "ability_runtime/context/js_hap_module_info_utils.cpp",
     "ability_runtime/context/js_resource_manager_utils.cpp",
   ]
   cflags = []
