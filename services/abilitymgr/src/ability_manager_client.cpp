@@ -210,6 +210,7 @@ ErrCode AbilityManagerClient::StartUIExtensionAbility(const sptr<SessionInfo> &e
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    CHECK_POINTER_RETURN_NOT_CONNECTED(extensionSessionInfo);
     HILOG_INFO("name:%{public}s %{public}s, userId:%{public}d.",
         extensionSessionInfo->want.GetElement().GetAbilityName().c_str(),
         extensionSessionInfo->want.GetElement().GetBundleName().c_str(), userId);
@@ -254,21 +255,6 @@ ErrCode AbilityManagerClient::TerminateUIExtensionAbility(const sptr<SessionInfo
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     HILOG_INFO("call");
     return abms->TerminateUIExtensionAbility(extensionSessionInfo, resultCode, resultWant);
-}
-
-ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject> &callerToken, int requestCode)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->TerminateAbilityByCaller(callerToken, requestCode);
-}
-
-ErrCode AbilityManagerClient::TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId)
-{
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->TerminateAbilityResult(token, startId);
 }
 
 ErrCode AbilityManagerClient::MoveAbilityToBackground(const sptr<IRemoteObject> &token)

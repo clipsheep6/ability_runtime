@@ -149,12 +149,14 @@ std::string MockAbilityRuntimeContext::GetGroupDir(std::string groupId)
     return {};
 }
 
-int MockAbilityRuntimeContext::GetSystemDatabaseDir(std::string groupId, std::string &databaseDir)
+int32_t MockAbilityRuntimeContext::GetSystemDatabaseDir(const std::string &groupId, bool checkExist,
+    std::string &databaseDir)
 {
     return 0;
 }
 
-int MockAbilityRuntimeContext::GetSystemPreferencesDir(std::string groupId, std::string &preferencesDir)
+int32_t MockAbilityRuntimeContext::GetSystemPreferencesDir(const std::string &groupId, bool checkExist,
+    std::string &preferencesDir)
 {
     return 0;
 }

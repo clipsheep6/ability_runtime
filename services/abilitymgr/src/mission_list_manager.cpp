@@ -21,6 +21,7 @@
 #include "ability_manager_service.h"
 #include "ability_util.h"
 #include "app_exit_reason_data_manager.h"
+#include "appfreeze_manager.h"
 #include "hitrace_meter.h"
 #include "errors.h"
 #include "hilog_wrapper.h"
@@ -56,6 +57,7 @@ const char* PREPARE_TERMINATE_ENABLE_PARAMETER = "persist.sys.prepare_terminate"
 const int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
 constexpr int32_t TRACE_ATOMIC_SERVICE_ID = 201;
 const std::string TRACE_ATOMIC_SERVICE = "StartAtomicService";
+const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 std::string GetCurrentTime()
 {
     struct timespec tn;
@@ -371,6 +373,23 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
     }
     targetAbilityRecord->AddCallerRecord(abilityRequest.callerToken, abilityRequest.requestCode, srcAbilityId);
 
+    if (abilityRequest.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
+        auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(
+            abilityRequest.collaboratorType);
+        if (collaborator == nullptr) {
+            HILOG_ERROR("collaborator: GetCollaborator is nullptr.");
+            return RESOLVE_ABILITY_ERR;
+        }
+
+        int32_t ret = collaborator->NotifyLoadAbility(
+            abilityRequest.abilityInfo, targetMission->GetMissionId(), abilityRequest.want);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("collaborator notify broker load ability failed, errCode: %{public}d.", ret);
+            return RESOLVE_ABILITY_ERR;
+        }
+        HILOG_INFO("collaborator notify broker load ability success.");
+    }
+
     // 3. move mission to target list
     bool isCallerFromLauncher = (callerAbility && callerAbility->IsLauncherAbility());
     MoveMissionToTargetList(isCallerFromLauncher, targetList, targetMission);
@@ -394,7 +413,7 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
             // mark if need back to other mission stack
             targetAbilityRecord->SetNeedBackToOtherMissionStack(true);
             auto focusAbility = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetFocusAbility();
-            if (focusAbility) {
+            if (focusAbility && (GetMissionIdByAbilityTokenInner(focusAbility->GetToken()) != -1)) {
                 targetAbilityRecord->SetOtherMissionStackAbilityRecord(focusAbility);
             } else {
                 targetAbilityRecord->SetOtherMissionStackAbilityRecord(currentTopAbility);
@@ -500,6 +519,14 @@ bool MissionListManager::CreateOrReusedMissionInfo(const AbilityRequest &ability
     bool needFind = false;
     bool isFindRecentStandard = abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::STANDARD &&
         abilityRequest.startRecent;
+    // judge caller is laucnher
+    bool isLauncherStartCollaborator = false;
+    std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
+    if (callerAbility != nullptr && callerAbility->GetAbilityInfo().bundleName == AbilityConfig::LAUNCHER_BUNDLE_NAME &&
+        abilityRequest.want.GetElement().GetBundleName() == SHELL_ASSISTANT_BUNDLENAME &&
+        abilityRequest.collaboratorType == CollaboratorType::DEFAULT_TYPE) {
+        isFindRecentStandard = true;
+    }
     if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::STANDARD || isFindRecentStandard) {
         needFind = true;
     }
@@ -576,6 +603,9 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
     if (findReusedMissionInfo) {
         DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionInfo(info);
     } else {
+        if (abilityRequest.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
+            NotifyCollaboratorMissionCreated(abilityRequest, targetMission, info);
+        }
         DelayedSingleton<MissionInfoMgr>::GetInstance()->AddMissionInfo(info);
     }
 }
@@ -1486,28 +1516,6 @@ int MissionListManager::TerminateAbilityInner(const std::shared_ptr<AbilityRecor
     return TerminateAbilityLocked(abilityRecord, flag);
 }
 
-int MissionListManager::TerminateAbility(const std::shared_ptr<AbilityRecord> &caller, int requestCode)
-{
-    HILOG_DEBUG("Terminate ability with result called.");
-    std::lock_guard guard(managerLock_);
-
-    std::shared_ptr<AbilityRecord> targetAbility = GetAbilityRecordByCaller(caller, requestCode);
-    if (!targetAbility) {
-        HILOG_ERROR("%{public}s, Can't find target ability", __func__);
-        return NO_FOUND_ABILITY_BY_CALLER;
-    }
-
-    auto abilityMs = DelayedSingleton<AbilityManagerService>::GetInstance();
-    CHECK_POINTER_AND_RETURN(abilityMs, GET_ABILITY_SERVICE_FAILED)
-    int result = abilityMs->JudgeAbilityVisibleControl(targetAbility->GetAbilityInfo());
-    if (result != ERR_OK) {
-        HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
-        return result;
-    }
-
-    return TerminateAbilityInner(targetAbility, DEFAULT_INVAL_VALUE, nullptr, true);
-}
-
 int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord, bool flag)
 {
     std::string element = abilityRecord->GetWant().GetElement().GetURI();
@@ -1812,6 +1820,23 @@ int MissionListManager::ClearMissionLocked(int missionId, const std::shared_ptr<
             listenerController_->NotifyMissionDestroyed(missionId);
         }
     }
+
+    InnerMissionInfo info;
+    int getMission = DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(
+        missionId, info);
+    if (getMission == ERR_OK && info.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
+        auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(
+            info.collaboratorType);
+        if (collaborator == nullptr) {
+            HILOG_DEBUG("collaborator is nullptr");
+        } else {
+            int ret = collaborator->NotifyClearMission(missionId);
+            if (ret != ERR_OK) {
+                HILOG_ERROR("notify broker clear mission failed, err: %{public}d", ret);
+            }
+        }
+    }
+
     if (mission == nullptr) {
         HILOG_DEBUG("ability has already terminate, just remove mission.");
         return ERR_OK;
@@ -2012,7 +2037,7 @@ void MissionListManager::PostMissionLabelUpdateTask(int missionId) const
     handler->SubmitTask(task, "NotifyMissionLabelUpdated.", DELAY_NOTIFY_LABEL_TIME);
 }
 
-void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId)
+void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId, bool isHalf)
 {
     if (ability == nullptr) {
         HILOG_ERROR("ability is nullptr");
@@ -2026,10 +2051,12 @@ void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &a
             ability->GetAbilityInfo().name.data());
         return;
     }
+    int typeId = AppExecFwk::AppfreezeManager::TypeAttribute::NORMAL_TIMEOUT;
     std::string msgContent = "ability:" + ability->GetAbilityInfo().name + " ";
     switch (msgId) {
         case AbilityManagerService::LOAD_TIMEOUT_MSG:
             msgContent += "load timeout";
+            typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
             break;
         case AbilityManagerService::ACTIVE_TIMEOUT_MSG:
             msgContent += "active timeout";
@@ -2039,6 +2066,7 @@ void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &a
             break;
         case AbilityManagerService::FOREGROUND_TIMEOUT_MSG:
             msgContent += "foreground timeout";
+            typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
             break;
         case AbilityManagerService::BACKGROUND_TIMEOUT_MSG:
             msgContent += "background timeout";
@@ -2049,18 +2077,16 @@ void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &a
         default:
             return;
     }
-    std::string eventType = "LIFECYCLE_TIMEOUT";
-    HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
-        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
-        EVENT_KEY_UID, processInfo.uid_,
-        EVENT_KEY_PID, processInfo.pid_,
-        EVENT_KEY_PACKAGE_NAME, ability->GetAbilityInfo().bundleName,
-        EVENT_KEY_PROCESS_NAME, processInfo.processName_,
-        EVENT_KEY_MESSAGE, msgContent);
 
-    HILOG_WARN("LIFECYCLE_TIMEOUT: uid: %{public}d, pid: %{public}d, bundleName: %{public}s, abilityName: %{public}s,"
-        "msg: %{public}s", processInfo.uid_, processInfo.pid_, ability->GetAbilityInfo().bundleName.c_str(),
+    std::string eventName = isHalf ?
+        AppExecFwk::AppFreezeType::LIFECYCLE_HALF_TIMEOUT : AppExecFwk::AppFreezeType::LIFECYCLE_TIMEOUT;
+    HILOG_WARN("%{public}s: uid: %{public}d, pid: %{public}d, bundleName: %{public}s, abilityName: %{public}s,"
+        "msg: %{public}s", eventName.c_str(),
+        processInfo.uid_, processInfo.pid_, ability->GetAbilityInfo().bundleName.c_str(),
         ability->GetAbilityInfo().name.c_str(), msgContent.c_str());
+
+    AppExecFwk::AppfreezeManager::GetInstance()->LifecycleTimeoutHandle(
+        typeId, processInfo.pid_, eventName, ability->GetAbilityInfo().bundleName, msgContent);
 }
 
 void MissionListManager::UpdateMissionSnapshot(const std::shared_ptr<AbilityRecord>& abilityRecord) const
@@ -2080,7 +2106,7 @@ void MissionListManager::UpdateMissionSnapshot(const std::shared_ptr<AbilityReco
     }
 }
 
-void MissionListManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId)
+void MissionListManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId, bool isHalf)
 {
     HILOG_INFO("On timeout, msgId is %{public}d", msgId);
     std::lock_guard guard(managerLock_);
@@ -2098,7 +2124,10 @@ void MissionListManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId)
     }
 #endif
 
-    PrintTimeOutLog(abilityRecord, msgId);
+    PrintTimeOutLog(abilityRecord, msgId, isHalf);
+    if (isHalf) {
+        return;
+    }
     switch (msgId) {
         case AbilityManagerService::LOAD_TIMEOUT_MSG:
             HandleLoadTimeout(abilityRecord);
@@ -3953,6 +3982,46 @@ void MissionListManager::CallRequestDone(const std::shared_ptr<AbilityRecord> &a
         return;
     }
     abilityRecord->CallRequestDone(callStub);
+}
+
+void MissionListManager::NotifyCollaboratorMissionCreated(const AbilityRequest &abilityRequest,
+    const std::shared_ptr<Mission> &targetMission, InnerMissionInfo &info)
+{
+    if (targetMission == nullptr) {
+        HILOG_ERROR("targetMission is nullptr.");
+        return;
+    }
+    info.collaboratorType = abilityRequest.collaboratorType;
+    auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(
+        abilityRequest.collaboratorType);
+    if (collaborator == nullptr) {
+        HILOG_ERROR("collaborator: GetCollaborator is nullptr.");
+        return;
+    }
+
+    int32_t ret = collaborator->NotifyMissionCreated(targetMission->GetMissionId(), abilityRequest.want);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("collaborator NotifyMissionCreated failed, errCode: %{public}d.", ret);
+        return;
+    }
+    HILOG_INFO("collaborator NotifyMissionCreated success.");
+}
+
+int32_t MissionListManager::TerminateMission(int32_t missionId)
+{
+    HILOG_INFO("call");
+    std::shared_ptr<Mission> mission = GetMissionById(missionId);
+    if (!mission) {
+        HILOG_ERROR("mission is null.");
+        return ERR_INVALID_VALUE;
+    }
+    std::shared_ptr<AbilityRecord> abilityRecord = mission->GetAbilityRecord();
+    if (!abilityRecord) {
+        HILOG_ERROR("abilityRecord is null.");
+        return ERR_INVALID_VALUE;
+    }
+    std::lock_guard guard(managerLock_);
+    return TerminateAbilityInner(abilityRecord, DEFAULT_INVAL_VALUE, nullptr, true);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

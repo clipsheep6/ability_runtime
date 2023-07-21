@@ -954,30 +954,6 @@ private:
 };
 } // namespace
 
-NativeValue* CreateJsMetadata(NativeEngine& engine, const AppExecFwk::Metadata &info)
-{
-    HILOG_DEBUG("CreateJsMetadata");
-    NativeValue* objValue = engine.CreateObject();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
-
-    object->SetProperty("name", CreateJsValue(engine, info.name));
-    object->SetProperty("value", CreateJsValue(engine, info.value));
-    object->SetProperty("resource", CreateJsValue(engine, info.resource));
-    return objValue;
-}
-
-NativeValue* CreateJsMetadataArray(NativeEngine& engine, const std::vector<AppExecFwk::Metadata> &info)
-{
-    HILOG_DEBUG("CreateJsMetadataArray");
-    NativeValue* arrayValue = engine.CreateArray(info.size());
-    NativeArray* array = ConvertNativeValueTo<NativeArray>(arrayValue);
-    uint32_t index = 0;
-    for (const auto& item : info) {
-        array->SetElement(index++, CreateJsMetadata(engine, item));
-    }
-    return arrayValue;
-}
-
 NativeValue* CreateJsServiceExtensionContext(NativeEngine& engine, std::shared_ptr<ServiceExtensionContext> context)
 {
     HILOG_DEBUG("CreateJsServiceExtensionContext");

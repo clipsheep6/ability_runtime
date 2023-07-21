@@ -715,20 +715,6 @@ HWTEST_F(AbilityManagerServiceTest, CheckIfOperateRemote_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
- * Function: TerminateAbilityByCaller
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService TerminateAbilityByCaller
- */
-HWTEST_F(AbilityManagerServiceTest, TerminateAbilityByCaller_001, TestSize.Level1)
-{
-    HILOG_INFO("AbilityManagerServiceTest TerminateAbilityByCaller_001 start");
-    EXPECT_EQ(abilityMs_->TerminateAbilityByCaller(nullptr, 1), ERR_INVALID_VALUE);
-    EXPECT_EQ(abilityMs_->TerminateAbilityByCaller(MockToken(AbilityType::PAGE), 1), ERR_INVALID_VALUE);
-    HILOG_INFO("AbilityManagerServiceTest TerminateAbilityByCaller_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: MinimizeAbility
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService MinimizeAbility
@@ -1801,19 +1787,6 @@ HWTEST_F(AbilityManagerServiceTest, GenerateExtensionAbilityRequest_001, TestSiz
     AbilityRequest request;
     EXPECT_EQ(abilityMs_->GenerateExtensionAbilityRequest(want, request, nullptr, 100), RESOLVE_ABILITY_ERR);
     HILOG_INFO("AbilityManagerServiceTest GenerateExtensionAbilityRequest_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: TerminateAbilityResult
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService TerminateAbilityResult
- */
-HWTEST_F(AbilityManagerServiceTest, TerminateAbilityResult_001, TestSize.Level1)
-{
-    HILOG_INFO("AbilityManagerServiceTest TerminateAbilityResult_001 start");
-    EXPECT_EQ(abilityMs_->TerminateAbilityResult(nullptr, 1), ERR_INVALID_VALUE);
-    HILOG_INFO("AbilityManagerServiceTest TerminateAbilityResult_001 end");
 }
 
 /*
@@ -2924,6 +2897,33 @@ HWTEST_F(AbilityManagerServiceTest, VerifyAccountPermission_001, TestSize.Level1
     EXPECT_EQ(abilityMs_->VerifyAccountPermission(-1), ERR_OK);
     EXPECT_EQ(abilityMs_->VerifyAccountPermission(0), ERR_OK);
     HILOG_INFO("AbilityManagerServiceTest VerifyAccountPermission_001 end");
+}
+
+/**
+ * @tc.number: ReportDrawnCompleted_001
+ * @tc.name: ReportDrawnCompleted
+ * @tc.desc: After passing in the parameter callerToken, INNER_ERR is returned
+ */
+HWTEST_F(AbilityManagerServiceTest, ReportDrawnCompleted_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest ReportDrawnCompleted_001 start");
+    auto callerToken = MockAbilityRecord(AbilityType::PAGE)->GetToken();
+    EXPECT_NE(callerToken, nullptr);
+    EXPECT_EQ(abilityMs_->ReportDrawnCompleted(callerToken), INNER_ERR);
+    HILOG_INFO("AbilityManagerServiceTest ReportDrawnCompleted_001 end");
+}
+
+/**
+ * @tc.number: ReportDrawnCompleted_002
+ * @tc.name: ReportDrawnCompleted
+ * @tc.desc: After passing in a callerToken with parameter nullptr, INNER_ERR is returned
+ */
+HWTEST_F(AbilityManagerServiceTest, ReportDrawnCompleted_002, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest ReportDrawnCompleted_002 start");
+    sptr<IRemoteObject> callerToken = nullptr;
+    EXPECT_EQ(abilityMs_->ReportDrawnCompleted(callerToken), INNER_ERR);
+    HILOG_INFO("AbilityManagerServiceTest ReportDrawnCompleted_002 end");
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST

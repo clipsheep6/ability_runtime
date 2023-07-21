@@ -98,11 +98,11 @@ TaskHandle TaskHandlerWrap::SubmitTaskJust(const std::function<void()> &task,
 TaskHandle TaskHandlerWrap::SubmitTask(const std::function<void()> &task,
     const std::string &name, int64_t delayMillis, bool forceSubmit)
 {
-    HILOG_INFO("SubmitTask delay task begin");
     TaskAttribute atskAttr{name, delayMillis};
     std::lock_guard<ffrt::mutex> guard(*tasksMutex_);
     auto it = tasks_.find(name);
     if (it != tasks_.end()) {
+        HILOG_DEBUG("SubmitTask repeated task: %{public}s", name.c_str());
         if (forceSubmit) {
             return SubmitTask(task, atskAttr);
         } else {
@@ -115,13 +115,11 @@ TaskHandle TaskHandlerWrap::SubmitTask(const std::function<void()> &task,
 
     // submit clear task to clear map record
     auto clearTask = [whandler = weak_from_this(), name, taskHandle = result]() {
-        HILOG_INFO("clearTask delay task begin");
         auto handler = whandler.lock();
         if (!handler) {
             return;
         }
         handler->RemoveTask(name, taskHandle);
-        HILOG_INFO("clearTask delay task end");
     };
     SubmitTask(clearTask, delayMillis);
 
@@ -143,7 +141,7 @@ TaskHandle TaskHandlerWrap::SubmitTask(const std::function<void()> &task, const 
 }
 bool TaskHandlerWrap::CancelTask(const std::string &name)
 {
-    HILOG_INFO("CancelTask task begin");
+    HILOG_DEBUG("CancelTask task: %{public}s", name.c_str());
     std::lock_guard<ffrt::mutex> guard(*tasksMutex_);
     auto it = tasks_.find(name);
     if (it == tasks_.end()) {
@@ -167,18 +165,24 @@ bool TaskHandlerWrap::RemoveTask(const std::string &name, const TaskHandle &task
 }
 ffrt::qos Convert2FfrtQos(TaskQoS taskqos)
 {
-    static ffrt::qos qosMap[] = {
-        ffrt::qos_inherit,
-        ffrt::qos_background,
-        ffrt::qos_utility,
-        ffrt::qos_default,
-        ffrt::qos_user_initiated,
-        ffrt::qos_deadline_request,
-        ffrt::qos_user_interactive,
-        ffrt::qos_defined_ive
-    };
+    switch (taskqos) {
+        case TaskQoS::INHERENT:
+            return ffrt::qos_inherit;
+        case TaskQoS::BACKGROUND:
+            return ffrt::qos_background;
+        case TaskQoS::UTILITY:
+            return ffrt::qos_utility;
+        case TaskQoS::DEFAULT:
+            return ffrt::qos_default;
+        case TaskQoS::USER_INITIATED:
+            return ffrt::qos_user_initiated;
+        case TaskQoS::DEADLINE_REQUEST:
+            return ffrt::qos_deadline_request;
+        case TaskQoS::USER_INTERACTIVE:
+            return ffrt::qos_user_interactive;
+    }
 
-    return qosMap[static_cast<int>(taskqos)];
+    return ffrt::qos_inherit;
 }
 void BuildFfrtTaskAttr(const TaskAttribute &taskAttr, ffrt::task_attr &result)
 {

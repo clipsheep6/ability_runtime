@@ -50,6 +50,7 @@ ohos_unittest("ability_extension_module_loader_test") {
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 

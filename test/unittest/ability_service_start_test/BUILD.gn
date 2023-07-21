@@ -60,6 +60,7 @@ ohos_unittest("ability_service_start_test") {
     "hilog:libhilog",
     "init:libbeget_proxy",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

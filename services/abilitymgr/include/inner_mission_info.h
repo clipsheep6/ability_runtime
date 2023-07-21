@@ -18,6 +18,7 @@
 
 #include <string>
 
+#include "ability_record.h"
 #include "mission_info.h"
 #include "parcel.h"
 
@@ -50,6 +51,7 @@ struct InnerMissionInfo {
     bool isTemporary;
     std::string specifiedFlag;
     bool hasRecoverInfo;
+    int32_t collaboratorType = CollaboratorType::DEFAULT_TYPE;
 
     std::string ToJsonStr() const;
     bool FromJsonStr(const std::string &jsonStr);

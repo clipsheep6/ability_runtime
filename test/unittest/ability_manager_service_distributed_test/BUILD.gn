@@ -46,6 +46,7 @@ ohos_unittest("ability_manager_service_distributed_test") {
     "hilog:libhilog",
     "init:libbeget_proxy",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]

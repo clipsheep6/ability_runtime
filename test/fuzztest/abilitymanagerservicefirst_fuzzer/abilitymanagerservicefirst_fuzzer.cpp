@@ -110,7 +110,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->StartRemoteAbility(*want, intParam, int32Param, token);
     abilityms->CheckIfOperateRemote(*want);
     abilityms->AnonymizeDeviceId(stringParam);
-    abilityms->TerminateAbilityByCaller(token, intParam);
     abilityms->MinimizeAbility(token, boolParam);
     abilityms->ConnectAbility(*want, connect, token, int32Param);
     abilityms->ConnectAbilityCommon(*want, connect, token, extensionType, int32Param);
@@ -133,6 +132,23 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->UnregisterObserver(observer);
     std::vector<AbilityRuntime::DlpConnectionInfo> infos;
     abilityms->GetDlpConnectionInfos(infos);
+
+    sptr<SessionInfo> extensionSessionInfo;
+    abilityms->StartUIExtensionAbility(extensionSessionInfo, int32Param);
+    extensionSessionInfo = new (std::nothrow) SessionInfo();
+    extensionSessionInfo->sessionToken = token;
+    extensionSessionInfo->callerToken = token;
+    extensionSessionInfo->persistentId = int64Param;
+    extensionSessionInfo->resultCode = int32Param;
+    extensionSessionInfo->requestCode = int32Param;
+    extensionSessionInfo->errorReason = stringParam;
+    extensionSessionInfo->errorCode = int32Param;
+    extensionSessionInfo->uiAbilityId = int64Param;
+    extensionSessionInfo->userId = int32Param;
+    extensionSessionInfo->state = CallToState::FOREGROUND;
+    extensionSessionInfo->want = *want;
+    abilityms->StartUIExtensionAbility(extensionSessionInfo, int32Param);
+
     if (!want) {
         delete want;
         want = nullptr;

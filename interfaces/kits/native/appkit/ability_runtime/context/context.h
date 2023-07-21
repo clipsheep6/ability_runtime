@@ -149,7 +149,7 @@ public:
      *
      * @return Returns the local database file.
      */
-    virtual int GetSystemDatabaseDir(std::string groupId, std::string &databaseDir) = 0;
+    virtual int32_t GetSystemDatabaseDir(const std::string &groupId, bool checkExist, std::string &databaseDir) = 0;
 
     /**
      * @brief Obtains the path storing the storage file of the application.
@@ -163,7 +163,8 @@ public:
      *
      * @return Returns the local system storage file.
      */
-    virtual int GetSystemPreferencesDir(std::string groupId, std::string &preferencesDir) = 0;
+    virtual int32_t GetSystemPreferencesDir(const std::string &groupId, bool checkExist,
+        std::string &preferencesDir) = 0;
 
     /**
      * @brief Obtains the path storing the group file of the application by the groupId.

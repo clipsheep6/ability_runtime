@@ -30,6 +30,7 @@
 #include "extension_running_info.h"
 #include "free_install_observer_interface.h"
 #include "iability_controller.h"
+#include "iability_manager_collaborator.h"
 #include "iacquire_share_data_callback_interface.h"
 #include "icomponent_interception.h"
 #include "iprepare_terminate_callback_interface.h"
@@ -299,15 +300,6 @@ public:
     }
 
     /**
-     * TerminateAbility, terminate the special ability.
-     *
-     * @param callerToken, caller ability token.
-     * @param requestCode, Ability request code.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int TerminateAbilityByCaller(const sptr<IRemoteObject> &callerToken, int requestCode) = 0;
-
-    /**
      * MoveAbilityToBackground.
      *
      * @param token, the token of the ability to move.
@@ -502,18 +494,6 @@ public:
     virtual void DumpState(const std::string &args, std::vector<std::string> &state) = 0;
     virtual void DumpSysState(
         const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID) = 0;
-
-    /**
-     * Destroys this Service ability if the number of times it
-     * has been started equals the number represented by
-     * the given startId.
-     *
-     * @param token ability's token.
-     * @param startId is incremented by 1 every time this ability is started.
-     * @return Returns true if the startId matches the number of startup times
-     * and this Service ability will be destroyed; returns false otherwise.
-     */
-    virtual int TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId) = 0;
 
     /**
      * Destroys this Service ability by Want.
@@ -1068,6 +1048,47 @@ public:
         return 0;
     }
 
+    /**
+     * @brief Register collaborator.
+     * @param type collaborator type.
+     * @param impl collaborator.
+     * @return 0 or else.
+    */
+    virtual int32_t RegisterIAbilityManagerCollaborator(int32_t type, const sptr<IAbilityManagerCollaborator> &impl)
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Unregister collaborator.
+     * @param type collaborator type.
+     * @return 0 or else.
+    */
+    virtual int32_t UnregisterIAbilityManagerCollaborator(int32_t type)
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Notify to move mission to backround.
+     * @param missionId missionId
+     * @return 0 or else
+    */
+    virtual int32_t MoveMissionToBackground(int32_t missionId)
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Notify to terminate mission. it is not clear.
+     * @param missionId missionId
+     * @return 0 or else
+    */
+    virtual int32_t TerminateMission(int32_t missionId)
+    {
+            return 0;
+    }
+
     enum {
         // ipc id 1-1000 for kit
         // ipc id for terminating ability (1)
@@ -1088,11 +1109,8 @@ public:
         // ipc id for add window token (6)
         ADD_WINDOW_INFO,
 
-        // ipc id for terminating ability for result (7)
-        TERMINATE_ABILITY_RESULT,
-
         // ipc id for list stack info (8)
-        LIST_STACK_INFO,
+        LIST_STACK_INFO = 8,
 
         // ipc id for get recent mission (9)
         GET_RECENT_MISSION,
@@ -1124,11 +1142,8 @@ public:
         // ipc id for uninstall app (18)
         UNINSTALL_APP,
 
-        // ipc id for terminate ability by callerToken and request code (19)
-        TERMINATE_ABILITY_BY_CALLER,
-
         // ipc id for move mission to floating stack (20)
-        MOVE_MISSION_TO_FLOATING_STACK,
+        MOVE_MISSION_TO_FLOATING_STACK = 20,
 
         // ipc id for move mission to floating stack (21)
         MOVE_MISSION_TO_SPLITSCREEN_STACK,

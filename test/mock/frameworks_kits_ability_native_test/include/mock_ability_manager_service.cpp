@@ -144,12 +144,6 @@ int MockAbilityManagerService::ScheduleCommandAbilityWindowDone(
     return 0;
 }
 
-int MockAbilityManagerService::TerminateAbilityResult(const sptr<IRemoteObject>& token, int startId)
-{
-    GTEST_LOG_(INFO) << "MockAbilityManagerService::TerminateAbilityResult";
-    return ERR_OK;
-}
-
 int MockAbilityManagerService::StopServiceAbility(const Want& want, int32_t userId, const sptr<IRemoteObject> &token)
 {
     GTEST_LOG_(INFO) << "MockAbilityManagerService::StopServiceAbility";

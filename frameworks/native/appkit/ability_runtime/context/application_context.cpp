@@ -368,16 +368,17 @@ std::string ApplicationContext::GetPreferencesDir()
     return (contextImpl_ != nullptr) ? contextImpl_->GetPreferencesDir() : "";
 }
 
-int ApplicationContext::GetSystemDatabaseDir(std::string groupId, std::string &databaseDir)
+int32_t ApplicationContext::GetSystemDatabaseDir(const std::string &groupId, bool checkExist, std::string &databaseDir)
 {
     return contextImpl_ ?
-        contextImpl_->GetSystemDatabaseDir(groupId, databaseDir) : ERR_INVALID_VALUE;
+        contextImpl_->GetSystemDatabaseDir(groupId, checkExist, databaseDir) : ERR_INVALID_VALUE;
 }
 
-int ApplicationContext::GetSystemPreferencesDir(std::string groupId, std::string &preferencesDir)
+int32_t ApplicationContext::GetSystemPreferencesDir(const std::string &groupId, bool checkExist,
+    std::string &preferencesDir)
 {
     return contextImpl_ ?
-        contextImpl_->GetSystemPreferencesDir(groupId, preferencesDir) : ERR_INVALID_VALUE;
+        contextImpl_->GetSystemPreferencesDir(groupId, checkExist, preferencesDir) : ERR_INVALID_VALUE;
 }
 
 std::string ApplicationContext::GetGroupDir(std::string groupId)

@@ -57,8 +57,8 @@ public:
     std::string GetBaseDir() const override;
     Global::Resource::DeviceType GetDeviceType() const override;
     std::string GetGroupDir(std::string groupId) override;
-    int GetSystemDatabaseDir(std::string groupId, std::string &databaseDir) override;
-    int GetSystemPreferencesDir(std::string groupId, std::string &preferencesDir) override;
+    int32_t GetSystemDatabaseDir(const std::string &groupId, bool checkExist, std::string &databaseDir) override;
+    int32_t GetSystemPreferencesDir(const std::string &groupId, bool checkExist, std::string &preferencesDir) override;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

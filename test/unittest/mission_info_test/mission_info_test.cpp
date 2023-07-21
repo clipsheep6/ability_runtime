@@ -59,6 +59,7 @@ HWTEST_F(MissionInfoTest, mission_info_marshalling_001, TestSize.Level1)
     parcelable1->time = "time";
     parcelable1->label = "label";
     parcelable1->iconPath = "iconpath";
+    parcelable1->continueState = AAFwk::ContinueState::CONTINUESTATE_ACTIVE;
     EXPECT_EQ(true, parcelable1->Marshalling(parcel));
     MissionInfo* parcelable2 = parcelable1->Unmarshalling(parcel);
     EXPECT_EQ(parcelable2->id, 1);
@@ -68,6 +69,7 @@ HWTEST_F(MissionInfoTest, mission_info_marshalling_001, TestSize.Level1)
     EXPECT_EQ(parcelable2->time, "time");
     EXPECT_EQ(parcelable2->label, "label");
     EXPECT_EQ(parcelable2->iconPath, "iconpath");
+    EXPECT_EQ(parcelable2->continueState, AAFwk::ContinueState::CONTINUESTATE_ACTIVE);
 }
 }
 }

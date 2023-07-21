@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,13 +13,15 @@
  * limitations under the License.
  */
 
-#include "terminateabilityresult_fuzzer.h"
+#include "setmissioncontinuestate_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
 
+#include "ability_connect_callback_interface.h"
 #include "ability_manager_client.h"
 #include "ability_record.h"
+#include "mission_info.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
@@ -44,22 +46,23 @@ sptr<Token> GetFuzzAbilityToken()
 
     return token;
 }
+
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    auto abilitymgr = AbilityManagerClient::GetInstance();
-    int startId = 0;
-    if (!abilitymgr) {
+    auto abilityMgr = AbilityManagerClient::GetInstance();
+    if (!abilityMgr) {
         return false;
     }
 
-    // get token
-    sptr<IRemoteObject> token = GetFuzzAbilityToken();
+    sptr<Token> token = GetFuzzAbilityToken();
     if (!token) {
         std::cout << "Get ability token failed." << std::endl;
         return false;
     }
 
-    if (abilitymgr->TerminateAbilityResult(token, startId) != 0) {
+    // fuzz for continue state
+    OHOS::AAFwk::ContinueState state = OHOS::AAFwk::ContinueState::CONTINUESTATE_ACTIVE;
+    if (abilityMgr->SetMissionContinueState(token, state) != 0) {
         return false;
     }
 

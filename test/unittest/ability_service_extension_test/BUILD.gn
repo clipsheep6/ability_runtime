@@ -62,6 +62,7 @@ ohos_unittest("ability_service_extension_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 

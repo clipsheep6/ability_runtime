@@ -44,6 +44,7 @@ ohos_moduletest("AmsAppLifeCycleModuleTest") {
     "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "samgr:samgr_proxy",
   ]
 

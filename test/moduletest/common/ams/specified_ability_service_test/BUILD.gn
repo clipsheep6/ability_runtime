@@ -90,6 +90,7 @@ ohos_moduletest("specified_ability_service_test") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "kv_store:distributeddata_inner",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -118,6 +119,10 @@ ohos_moduletest("specified_ability_service_test") {
       "input:libmmi-client",
       "window_manager:libdm",
     ]
+  }
+
+  if (ecologic_rule_enabled) {
+    external_deps += [ "ecological_rule_mgr:erms_client" ]
   }
 }
 

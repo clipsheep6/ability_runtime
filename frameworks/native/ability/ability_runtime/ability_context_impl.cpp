@@ -65,10 +65,10 @@ std::string AbilityContextImpl::GetDatabaseDir()
     return stageContext_ ? stageContext_->GetDatabaseDir() : "";
 }
 
-int AbilityContextImpl::GetSystemDatabaseDir(std::string groupId, std::string &databaseDir)
+int32_t AbilityContextImpl::GetSystemDatabaseDir(const std::string &groupId, bool checkExist, std::string &databaseDir)
 {
     return stageContext_ ?
-        stageContext_->GetSystemDatabaseDir(groupId, databaseDir) : ERR_INVALID_VALUE;
+        stageContext_->GetSystemDatabaseDir(groupId, checkExist, databaseDir) : ERR_INVALID_VALUE;
 }
 
 std::string AbilityContextImpl::GetPreferencesDir()
@@ -76,10 +76,11 @@ std::string AbilityContextImpl::GetPreferencesDir()
     return stageContext_ ? stageContext_->GetPreferencesDir() : "";
 }
 
-int AbilityContextImpl::GetSystemPreferencesDir(std::string groupId, std::string &preferencesDir)
+int AbilityContextImpl::GetSystemPreferencesDir(const std::string &groupId, bool checkExist,
+    std::string &preferencesDir)
 {
     return stageContext_ ?
-        stageContext_->GetSystemPreferencesDir(groupId, preferencesDir) : ERR_INVALID_VALUE;
+        stageContext_->GetSystemPreferencesDir(groupId, checkExist, preferencesDir) : ERR_INVALID_VALUE;
 }
 
 std::string AbilityContextImpl::GetGroupDir(std::string groupId)

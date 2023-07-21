@@ -84,12 +84,9 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     sptr<IRemoteObject> token = GetFuzzAbilityToken();
     abilityConnectManager->TerminateAbility(token);
     std::shared_ptr<AbilityRecord> caller = GetFuzzAbilityRecord();
-    abilityConnectManager->TerminateAbility(caller, intParam);
     abilityConnectManager->StopServiceAbility(abilityRequest);
-    abilityConnectManager->TerminateAbilityResult(token, intParam);
     abilityConnectManager->StartAbilityLocked(abilityRequest);
     abilityConnectManager->TerminateAbilityLocked(token);
-    abilityConnectManager->TerminateAbilityResultLocked(token, intParam);
     abilityConnectManager->StopServiceAbilityLocked(abilityRequest);
     bool boolParam = *data % ENABLE;
     std::shared_ptr<AbilityRecord> targetService = GetFuzzAbilityRecord();

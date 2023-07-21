@@ -26,6 +26,7 @@ namespace AAFwk {
 const DataAbilityObserverStub::RequestFuncType DataAbilityObserverStub::HANDLES[TRANS_BUTT] = {
     &DataAbilityObserverStub::OnChangeInner,
     &DataAbilityObserverStub::OnChangeExtInner,
+    &DataAbilityObserverStub::OnChangePreferencesInner,
 };
 
 DataAbilityObserverStub::DataAbilityObserverStub() {}
@@ -76,6 +77,21 @@ int32_t DataAbilityObserverStub::OnChangeExtInner(MessageParcel &data, MessagePa
         return IPC_STUB_INVALID_DATA_ERR;
     }
     OnChangeExt(changeInfo);
+    return ERR_NONE;
+}
+
+/**
+ * @brief Called back to notify that the data being observed has changed.
+ *
+ * @return Returns 0 on success, others on failure.
+ */
+int32_t DataAbilityObserverStub::OnChangePreferencesInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::string key = data.ReadString();
+    if (key.empty()) {
+        return IPC_STUB_INVALID_DATA_ERR;
+    }
+    OnChangePreferences(key);
     return ERR_NONE;
 }
 

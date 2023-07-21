@@ -24,8 +24,10 @@
 #include "app_running_control_rule_result.h"
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "bundle_constants.h"
+#ifndef SUPPORT_ERMS
 #include "erms_mgr_interface.h"
 #include "erms_mgr_param.h"
+#endif
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
@@ -35,8 +37,16 @@
 #include "want.h"
 namespace OHOS {
 namespace AAFwk {
+#ifdef SUPPORT_ERMS
+using namespace OHOS::EcologicalRuleMgrService;
+
+constexpr int32_t TYPE_HARMONY_INVALID = 0;
+constexpr int32_t TYPE_HARMONY_APP = 1;
+constexpr int32_t TYPE_HARMONY_SERVICE = 2;
+#else
 using ErmsCallerInfo = OHOS::AppExecFwk::ErmsParams::CallerInfo;
 using ExperienceRule = OHOS::AppExecFwk::ErmsParams::ExperienceRule;
+#endif
 
 const std::string ACTION_MARKET_CROWDTEST = "ohos.want.action.marketCrowdTest";
 const std::string ACTION_MARKET_DISPOSED = "ohos.want.action.marketDisposed";
@@ -179,7 +189,12 @@ ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, 
 
     ErmsCallerInfo callerInfo;
     ExperienceRule rule;
+#ifdef SUPPORT_ERMS
+    GetEcologicalCallerInfo(want, callerInfo, userId);
+    int ret = IN_PROCESS_CALL(EcologicalRuleMgrServiceClient::GetInstance()->QueryStartExperience(want, callerInfo, rule));
+#else
     int ret = CheckRule(want, callerInfo, rule);
+#endif
     if (!ret) {
         HILOG_ERROR("check ecological rule failed, keep going.");
         return ERR_OK;
@@ -203,6 +218,59 @@ ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, 
     return ERR_ECOLOGICAL_CONTROL_STATUS;
 }
 
+#ifdef SUPPORT_ERMS
+void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCallerInfo &callerInfo, int32_t userId)
+{
+    callerInfo.packageName = want.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+    callerInfo.uid = want.GetIntParam(Want::PARAM_RESV_CALLER_UID, IPCSkeleton::GetCallingUid());
+    callerInfo.pid = want.GetIntParam(Want::PARAM_RESV_CALLER_PID, IPCSkeleton::GetCallingPid());
+    callerInfo.targetAppType = TYPE_HARMONY_INVALID;
+    callerInfo.callerAppType = TYPE_HARMONY_INVALID;
+
+    auto bms = AbilityUtil::GetBundleManager();
+    if (!bms) {
+        HILOG_ERROR("GetBundleManager failed");
+        return;
+    }
+
+    std::string targetBundleName = want.GetBundle();
+    AppExecFwk::ApplicationInfo targetAppInfo;
+    bool getTargetResult = IN_PROCESS_CALL(bms->GetApplicationInfo(targetBundleName,
+        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, targetAppInfo));
+    if (!getTargetResult) {
+        HILOG_ERROR("Get targetAppInfo failed.");
+    } else if (targetAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
+        HILOG_DEBUG("the target type  is atomic service");
+        callerInfo.targetAppType = TYPE_HARMONY_SERVICE;
+    } else if (targetAppInfo.bundleType == AppExecFwk::BundleType::APP) {
+        HILOG_DEBUG("the target type is app");
+        callerInfo.targetAppType = TYPE_HARMONY_APP;
+    } else {
+        HILOG_DEBUG("the target type is invalid type");
+    }
+
+    std::string callerBundleName;
+    ErrCode err = IN_PROCESS_CALL(bms->GetNameForUid(callerInfo.uid, callerBundleName));
+    if (err != ERR_OK) {
+        HILOG_ERROR("Get callerBundleName failed.");
+        return;
+    }
+    AppExecFwk::ApplicationInfo callerAppInfo;
+    bool getCallerResult = IN_PROCESS_CALL(bms->GetApplicationInfo(callerBundleName,
+        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, callerAppInfo));
+    if (!getCallerResult) {
+        HILOG_DEBUG("Get callerAppInfo failed.");
+    } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
+        HILOG_DEBUG("the caller type  is atomic service");
+        callerInfo.callerAppType = TYPE_HARMONY_SERVICE;
+    } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::APP) {
+        HILOG_DEBUG("the caller type is app");
+        callerInfo.callerAppType = TYPE_HARMONY_APP;
+    } else {
+        HILOG_DEBUG("the caller type is invalid type");
+    }
+}
+#else
 bool EcologicalRuleInterceptor::CheckRule(const Want &want, ErmsCallerInfo &callerInfo, ExperienceRule &rule)
 {
     HILOG_DEBUG("Enter Erms CheckRule.");
@@ -219,6 +287,7 @@ bool EcologicalRuleInterceptor::CheckRule(const Want &want, ErmsCallerInfo &call
 
     return true;
 }
+#endif
 
 AbilityJumpInterceptor::AbilityJumpInterceptor()
 {}

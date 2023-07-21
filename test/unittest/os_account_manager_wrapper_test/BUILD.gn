@@ -43,6 +43,7 @@ ohos_unittest("os_account_manager_wrapper_test") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 

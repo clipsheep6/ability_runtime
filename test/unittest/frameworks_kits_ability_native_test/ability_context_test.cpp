@@ -569,17 +569,6 @@ HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_StopAbility_0200, Function | M
 }
 
 /**
- * @tc.number: AaFwk_AbilityContext_TerminateAbility_0200
- * @tc.name: TerminateAbility
- * @tc.desc: Test whether terminateability is called normally.
- */
-HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_TerminateAbility_0200, Function | MediumTest | Level1)
-{
-    int code = 1992;
-    context_->TerminateAbility(code);
-}
-
-/**
  * @tc.number: AaFwk_Ability_GetHapModuleInfo_0100
  * @tc.name: GetHapModuleInfo
  * @tc.desc: Test the attachbasecontext call to verify that the return value of gethapmoduleinfo is correct.

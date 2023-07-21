@@ -29,6 +29,7 @@ using namespace testing::ext;
 namespace OHOS {
 namespace AppExecFwk {
 static bool eventHandlerFlag_ = false;
+const int EVENT_ID = 10;
 class MockAMSEventHandler : public AMSEventHandler {
 public:
     MockAMSEventHandler(const std::shared_ptr<AAFwk::TaskHandlerWrap>& runner,
@@ -37,7 +38,7 @@ public:
 
     void ProcessEvent(const AAFwk::EventWrap& event) override
     {
-        if (event.GetEventId() == 10) {
+        if (event.GetEventId() == EVENT_ID) {
             eventHandlerFlag_ = true;
         }
     }

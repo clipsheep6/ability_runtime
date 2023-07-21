@@ -1377,88 +1377,6 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_029, TestSize.Level1)
 
 /*
  * Feature: AbilityConnectManager
- * Function: TerminateAbility
- * SubFunction: TerminateAbility
- * FunctionPoints: NA
- * EnvConditions: NA
- * CaseDescription: Verify AbilityConnectManager TerminateAbility
- */
-HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_TerminateAbility_001, TestSize.Level1)
-{
-    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
-    std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
-    int requestCode = 0;
-    std::shared_ptr<CallerRecord> caller = std::make_shared<CallerRecord>(requestCode, abilityRecord);
-    abilityRecord->callerList_.emplace_back(caller);
-    abilityRecord->abilityInfo_.visible = false;
-    connectManager->serviceMap_.emplace("first", abilityRecord);
-    int res = connectManager->TerminateAbility(abilityRecord, requestCode);
-    EXPECT_EQ(res, ERR_OK);
-}
-
-/*
- * Feature: AbilityConnectManager
- * Function: TerminateAbility
- * SubFunction: TerminateAbility
- * FunctionPoints: NA
- * EnvConditions: NA
- * CaseDescription: Verify AbilityConnectManager TerminateAbility
- */
-HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_TerminateAbility_002, TestSize.Level1)
-{
-    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
-    std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
-    int requestCode = 0;
-    std::shared_ptr<CallerRecord> caller = std::make_shared<CallerRecord>(0, abilityRecord);
-    abilityRecord->callerList_.emplace_back(caller);
-    abilityRecord->abilityInfo_.visible = true;
-    connectManager->serviceMap_.emplace("first", abilityRecord);
-    int res = connectManager->TerminateAbility(abilityRecord, requestCode);
-    EXPECT_EQ(res, ERR_OK);
-}
-
-/*
- * Feature: AbilityConnectManager
- * Function: TerminateAbility
- * SubFunction: TerminateAbility
- * FunctionPoints: NA
- * EnvConditions: NA
- * CaseDescription: Verify AbilityConnectManager TerminateAbility
- */
-HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_TerminateAbility_003, TestSize.Level1)
-{
-    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
-    std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
-    int requestCode = 0;
-    std::shared_ptr<CallerRecord> caller = std::make_shared<CallerRecord>(1, abilityRecord);
-    abilityRecord->callerList_.emplace_back(caller);
-    connectManager->serviceMap_.emplace("first", abilityRecord);
-    int res = connectManager->TerminateAbility(abilityRecord, requestCode);
-    EXPECT_EQ(res, NO_FOUND_ABILITY_BY_CALLER);
-}
-
-/*
- * Feature: AbilityConnectManager
- * Function: TerminateAbility
- * SubFunction: TerminateAbility
- * FunctionPoints: NA
- * EnvConditions: NA
- * CaseDescription: Verify AbilityConnectManager TerminateAbility
- */
-HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_TerminateAbility_004, TestSize.Level1)
-{
-    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
-    std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
-    int requestCode = 0;
-    std::shared_ptr<CallerRecord> caller = std::make_shared<CallerRecord>(1, serviceRecord1_);
-    abilityRecord->callerList_.emplace_back(caller);
-    connectManager->serviceMap_.emplace("first", abilityRecord);
-    int res = connectManager->TerminateAbility(abilityRecord, requestCode);
-    EXPECT_EQ(res, NO_FOUND_ABILITY_BY_CALLER);
-}
-
-/*
- * Feature: AbilityConnectManager
  * Function: StartAbilityLocked
  * SubFunction: StartAbilityLocked
  * FunctionPoints: NA
@@ -1483,29 +1401,6 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_StartAbilityLocked_001, Test
     connectManager->serviceMap_.emplace(stringUri, abilityRecord);
     int res = connectManager->StartAbilityLocked(abilityRequest);
     EXPECT_EQ(res, ERR_OK);
-}
-
-/*
- * Feature: AbilityConnectManager
- * Function: TerminateAbilityResultLocked
- * SubFunction: TerminateAbilityResultLocked
- * FunctionPoints: NA
- * EnvConditions: NA
- * CaseDescription: Verify AbilityConnectManager TerminateAbilityResultLocked
- */
-HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_TerminateAbilityResultLocked_001, TestSize.Level1)
-{
-    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
-    std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
-    int startId = 1;
-    abilityRecord->startId_ = startId;
-    int res1 = connectManager->TerminateAbilityResultLocked(abilityRecord->GetToken(), startId);
-    EXPECT_NE(res1, TERMINATE_ABILITY_RESULT_FAILED);
-    abilityRecord->AddStartId();
-    std::string stringUri = "id/bundle/module/name";
-    connectManager->serviceMap_.emplace(stringUri, abilityRecord);
-    int res2 = connectManager->TerminateAbilityResultLocked(abilityRecord->GetToken(), startId);
-    EXPECT_EQ(res2, TERMINATE_ABILITY_RESULT_FAILED);
 }
 
 /*

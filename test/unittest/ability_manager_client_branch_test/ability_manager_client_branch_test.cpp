@@ -227,32 +227,6 @@ HWTEST_F(AbilityManagerClientBranchTest, StopExtensionAbility_0100, TestSize.Lev
 }
 
 /**
- * @tc.name: AbilityManagerClient_TerminateAbility_0100
- * @tc.desc: TerminateAbility
- * @tc.type: FUNC
- * @tc.require: issueI5NRWT
- */
-HWTEST_F(AbilityManagerClientBranchTest, TerminateAbility_0100, TestSize.Level1)
-{
-    sptr<IRemoteObject> callerToken = nullptr;
-    auto result = client_->TerminateAbility(callerToken, -1);
-    EXPECT_EQ(ERR_OK, result);
-}
-
-/**
- * @tc.name: AbilityManagerClient_TerminateAbilityResult_0100
- * @tc.desc: TerminateAbilityResult
- * @tc.type: FUNC
- * @tc.require: issueI5NRWT
- */
-HWTEST_F(AbilityManagerClientBranchTest, TerminateAbilityResult_0100, TestSize.Level1)
-{
-    sptr<IRemoteObject> callerToken = nullptr;
-    auto result = client_->TerminateAbilityResult(callerToken, 1);
-    EXPECT_EQ(ERR_OK, result);
-}
-
-/**
  * @tc.name: AbilityManagerClient_MinimizeAbility_0100
  * @tc.desc: MinimizeAbility
  * @tc.type: FUNC
@@ -1433,6 +1407,31 @@ HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_SetSessionManagerS
     sptr<IRemoteObject> sessionManagerService = nullptr;
     auto result = client_->SetSessionManagerService(sessionManagerService);
     EXPECT_TRUE(result = ERR_WRONG_INTERFACE_CALL);
+}
+
+/**
+ * @tc.number: ReportDrawnCompleted_0100
+ * @tc.name: ReportDrawnCompleted
+ * @tc.desc: After passing in a callerToken with parameter nullptr, INNER_ERR is returned
+ */
+HWTEST_F(AbilityManagerClientBranchTest, ReportDrawnCompleted_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> callerToken = nullptr;
+    auto result = AbilityManagerClient::GetInstance()->ReportDrawnCompleted(callerToken);
+    EXPECT_EQ(result, INNER_ERR);
+}
+
+/**
+ * @tc.number: ReportDrawnCompleted_0200
+ * @tc.name: ReportDrawnCompleted
+ * @tc.desc: After passing in the parameter callerToken, ERR_OK is returned
+ */
+HWTEST_F(AbilityManagerClientBranchTest, ReportDrawnCompleted_0200, TestSize.Level1)
+{
+    sptr<IRemoteObject> callerToken = new AbilityManagerStubTestMock();
+    EXPECT_NE(callerToken, nullptr);
+    auto result = AbilityManagerClient::GetInstance()->ReportDrawnCompleted(callerToken);
+    EXPECT_EQ(result, ERR_OK);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

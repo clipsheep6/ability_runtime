@@ -481,7 +481,7 @@ std::string SourceMap::GetSourceInfo(const std::string& line, const std::string&
     if (mapInfo.row == 0 || mapInfo.col == 0) {
         return "";
     }
-    std::string sources = GetRelativePath(mapInfo.sources);
+    std::string sources = isModular_ ? mapInfo.sources : GetRelativePath(mapInfo.sources);
     sourceInfo = "(" + sources + ":" + std::to_string(mapInfo.row) + ":" + std::to_string(mapInfo.col) + ")";
     return sourceInfo;
 }

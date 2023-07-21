@@ -68,7 +68,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     }
     int requestCode = static_cast<int>(GetU32Data(data));
     abilityContext.StartAbility(*want, requestCode);
-    abilityContext.TerminateAbility(requestCode);
     sptr<AAFwk::IAbilityConnection> conn = nullptr;
     abilityContext.ConnectAbility(*want, conn);
     abilityContext.StopAbility(*want);
@@ -112,7 +111,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityContext.SetTheme(themeId);
     abilityContext.GetColor(resId);
     int startId = static_cast<int>(GetU32Data(data));
-    abilityContext.TerminateAbilityResult(startId);
     abilityContext.SetColorMode(mode);
     std::vector<AAFwk::Want> wants;
     abilityContext.StartAbilities(wants);

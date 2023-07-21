@@ -30,6 +30,7 @@
 #include "resource_manager.h"
 #include "foundation/ability/ability_runtime/interfaces/inner_api/runtime/include/runtime.h"
 #include "ipc_singleton.h"
+#include "js_runtime.h"
 #include "native_engine/native_engine.h"
 #include "overlay_event_subscriber.h"
 #include "watchdog.h"
@@ -41,6 +42,8 @@ namespace OHOS {
 namespace AppExecFwk {
 using namespace OHOS::Global;
 using OHOS::AbilityRuntime::Runtime;
+struct BaseSharedBundleInfo;
+using HspList = std::vector<BaseSharedBundleInfo>;
 enum class MainThreadState { INIT, ATTACH, READY, RUNNING };
 struct BundleInfo;
 class ContextDeal;
@@ -602,6 +605,7 @@ private:
 
     bool GetHqfFileAndHapPath(const std::string &bundleName,
         std::vector<std::pair<std::string, std::string>> &fileMap);
+    void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppLibPathMap &appLibPaths);
 
     std::vector<std::string> fileEntries_;
     std::vector<std::string> nativeFileEntries_;

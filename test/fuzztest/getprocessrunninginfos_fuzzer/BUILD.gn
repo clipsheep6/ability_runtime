@@ -53,6 +53,7 @@ ohos_fuzztest("GetProcessRunningInfosFuzzTest") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
+    "napi:ace_napi",
   ]
 }
 

@@ -91,7 +91,8 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, 
                     EVENT_KEY_STARTUP_ABILITY_TYPE, eventInfo.abilityType,
                     EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName,
                     EVENT_KEY_CALLER_UID, eventInfo.callerUid,
-                    EVENT_KEY_CALLER_PROCESS_NAME, eventInfo.callerProcessName);
+                    EVENT_KEY_CALLER_PROCESS_NAME, eventInfo.callerProcessName,
+                    EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName);
             } else {
                 HiSysEventWrite(
                     HiSysEvent::Domain::AAFWK,
@@ -102,7 +103,8 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, 
                     EVENT_KEY_STARTUP_EXTENSION_TYPE, eventInfo.extensionType,
                     EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName,
                     EVENT_KEY_CALLER_UID, eventInfo.callerUid,
-                    EVENT_KEY_CALLER_PROCESS_NAME, eventInfo.callerProcessName);
+                    EVENT_KEY_CALLER_PROCESS_NAME, eventInfo.callerProcessName,
+                    EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName);
             }
             break;
         case EventName::PROCESS_EXIT:

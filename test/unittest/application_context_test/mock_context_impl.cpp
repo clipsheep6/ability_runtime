@@ -74,12 +74,13 @@ std::string MockContextImpl::GetGroupDir(std::string groupId)
     return "/group";
 }
 
-int MockContextImpl::GetSystemDatabaseDir(std::string groupId, std::string &databaseDir)
+int32_t MockContextImpl::GetSystemDatabaseDir(const std::string &groupId, bool checkExist, std::string &databaseDir)
 {
     return 0;
 }
 
-int MockContextImpl::GetSystemPreferencesDir(std::string groupId, std::string &preferencesDir)
+int32_t MockContextImpl::GetSystemPreferencesDir(const std::string &groupId, bool checkExist,
+    std::string &preferencesDir)
 {
     return 0;
 }

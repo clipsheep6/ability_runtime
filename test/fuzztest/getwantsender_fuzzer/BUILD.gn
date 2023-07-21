@@ -54,6 +54,7 @@ ohos_fuzztest("GetWantSenderFuzzTest") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "ffrt:libffrt",
+    "napi:ace_napi",
   ]
 }
 

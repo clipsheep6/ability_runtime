@@ -36,7 +36,6 @@ private:
 std::shared_ptr<InnerTaskHandle> FfrtTaskHandlerWrap::SubmitTaskInner(std::function<void()> &&task,
     const TaskAttribute &taskAttr)
 {
-    HILOG_INFO("SubmitTaskInner ffrt task begin");
     auto outDep = std::make_shared<int>();
     if (taskAttr.IsDefault()) {
         return std::make_shared<FfrtTaskHandle>(ffrt::submit_h(std::move(task)), outDep);

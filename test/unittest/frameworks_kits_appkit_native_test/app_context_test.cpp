@@ -104,21 +104,6 @@ HWTEST_F(AppContextTest, AppExecFwk_AppContextTest_StartAbility_0200, Function |
 }
 
 /**
- * @tc.number: AppExecFwk_AppContextTest_TerminateAbility_0100
- * @tc.name: AppContext TerminateAbility
- * @tc.desc: Test whether the function of TerminateAbility is normal.
- */
-HWTEST_F(AppContextTest, AppExecFwk_AppContextTest_TerminateAbility_0100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AppExecFwk_AppContextTest_TerminateAbility_0100 start";
-    auto appContext = std::make_shared<AppContext>();
-    int requestCode = INT_PARAMETER;
-    auto result = appContext->TerminateAbility(requestCode);
-    EXPECT_EQ(result, ERR_INVALID_VALUE);
-    GTEST_LOG_(INFO) << "AppExecFwk_AppContextTest_TerminateAbility_0100 end";
-}
-
-/**
  * @tc.number: AppExecFwk_AppContextTest_TerminateAbility_0200
  * @tc.name: AppContext TerminateAbility
  * @tc.desc: Test whether the function of TerminateAbility is normal.
@@ -130,21 +115,6 @@ HWTEST_F(AppContextTest, AppExecFwk_AppContextTest_TerminateAbility_0200, Functi
     auto result = appContext->TerminateAbility();
     EXPECT_EQ(result, ERR_INVALID_VALUE);
     GTEST_LOG_(INFO) << "AppExecFwk_AppContextTest_TerminateAbility_0200 end";
-}
-
-/**
- * @tc.number: AppExecFwk_AppContextTest_TerminateAbilityResult_0100
- * @tc.name: AppContext TerminateAbilityResult
- * @tc.desc: Test whether the function of TerminateAbilityResult is normal.
- */
-HWTEST_F(AppContextTest, AppExecFwk_AppContextTest_TerminateAbilityResult_0100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AppExecFwk_AppContextTest_TerminateAbilityResult_0100 start";
-    auto appContext = std::make_shared<AppContext>();
-    int startId = INT_PARAMETER;
-    auto result = appContext->TerminateAbilityResult(startId);
-    EXPECT_EQ(result, false);
-    GTEST_LOG_(INFO) << "AppExecFwk_AppContextTest_TerminateAbilityResult_0100 end";
 }
 
 /**

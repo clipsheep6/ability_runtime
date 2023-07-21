@@ -40,6 +40,13 @@ public:
      */
     void OnChangeExt(const ChangeInfo &changeInfo) override;
 
+    /**
+     * @brief Called back to notify that the data being observed has changed.
+     *
+     * @param uri Indicates the path of the data to operate.
+     */
+    void OnChangePreferences(const std::string &key) override;
+
 private:
     static inline BrokerDelegator<DataAbilityObserverProxy> delegator_;
 };

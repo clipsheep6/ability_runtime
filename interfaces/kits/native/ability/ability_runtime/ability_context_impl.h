@@ -43,8 +43,8 @@ public:
     std::string GetGroupDir(std::string groupId) override;
     std::string GetPreferencesDir() override;
     std::string GetDistributedFilesDir() override;
-    int GetSystemDatabaseDir(std::string groupId, std::string &databaseDir) override;
-    int GetSystemPreferencesDir(std::string groupId, std::string &preferencesDir) override;
+    int32_t GetSystemDatabaseDir(const std::string &groupId, bool checkExist, std::string &databaseDir) override;
+    int32_t GetSystemPreferencesDir(const std::string &groupId, bool checkExist, std::string &preferencesDir) override;
     void SwitchArea(int mode) override;
     int GetArea() override;
     std::string GetBundleName() const override;

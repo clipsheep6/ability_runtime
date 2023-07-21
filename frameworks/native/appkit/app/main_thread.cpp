@@ -29,6 +29,7 @@
 #include "ability_util.h"
 #include "app_loader.h"
 #include "app_recovery.h"
+#include "appfreeze_inner.h"
 #include "application_data_manager.h"
 #include "application_env_impl.h"
 #include "bundle_mgr_proxy.h"
@@ -82,7 +83,6 @@
 namespace OHOS {
 namespace AppExecFwk {
 using namespace OHOS::AbilityBase::Constants;
-using HspList = std::vector<BaseSharedBundleInfo>;
 std::weak_ptr<OHOSApplication> MainThread::applicationForDump_;
 std::shared_ptr<EventHandler> MainThread::signalHandler_ = nullptr;
 std::shared_ptr<MainThread::MainHandler> MainThread::mainHandler_ = nullptr;
@@ -128,21 +128,23 @@ std::string GetLibPath(const std::string &hapPath, bool isPreInstallApp)
     return libPath;
 }
 
-bool GetHapSoPath(const HapModuleInfo &hapInfo, AppLibPathMap &appLibPaths, bool isPreInstallApp)
+void GetHapSoPath(const HapModuleInfo &hapInfo, AppLibPathMap &appLibPaths, bool isPreInstallApp)
 {
-    if (hapInfo.compressNativeLibs) {
-        return false;
-    }
-
     if (hapInfo.nativeLibraryPath.empty()) {
-        return true;
+        HILOG_DEBUG("Lib path of %{public}s is empty, lib isn't isolated or compressed.", hapInfo.moduleName.c_str());
+        return;
     }
 
-    std::string libPath = GetLibPath(hapInfo.hapPath, isPreInstallApp);
+    std::string appLibPathKey = hapInfo.bundleName + "/" + hapInfo.moduleName;
+    std::string libPath = LOCAL_CODE_PATH;
+    if (!hapInfo.compressNativeLibs) {
+        HILOG_DEBUG("Lib of %{public}s will not be extracted from hap.", hapInfo.moduleName.c_str());
+        libPath = GetLibPath(hapInfo.hapPath, isPreInstallApp);
+    }
+
     libPath += (libPath.back() == '/') ? hapInfo.nativeLibraryPath : "/" + hapInfo.nativeLibraryPath;
-    HILOG_DEBUG("module lib path = %{public}s", libPath.c_str());
-    appLibPaths["default"].emplace_back(libPath);
-    return true;
+    HILOG_INFO("appLibPathKey: %{private}s, lib path: %{private}s", appLibPathKey.c_str(), libPath.c_str());
+    appLibPaths[appLibPathKey].emplace_back(libPath);
 }
 
 void GetHspNativeLibPath(const BaseSharedBundleInfo &hspInfo, AppLibPathMap &appLibPaths, bool isPreInstallApp)
@@ -170,14 +172,39 @@ void GetHspNativeLibPath(const BaseSharedBundleInfo &hspInfo, AppLibPathMap &app
     appLibPaths[appLibPathKey].emplace_back(libPath);
 }
 
-void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppLibPathMap &appLibPaths)
+void GetPatchNativeLibPath(const HapModuleInfo &hapInfo, std::string &patchNativeLibraryPath,
+    AppLibPathMap &appLibPaths)
+{
+    if (hapInfo.isLibIsolated) {
+        patchNativeLibraryPath = hapInfo.hqfInfo.nativeLibraryPath;
+    }
+
+    if (patchNativeLibraryPath.empty()) {
+        HILOG_DEBUG("Patch lib path of %{public}s is empty.", hapInfo.moduleName.c_str());
+        return;
+    }
+
+    if (hapInfo.compressNativeLibs && !hapInfo.isLibIsolated) {
+        HILOG_DEBUG("Lib of %{public}s has compressed and isn't isolated, no need to set.", hapInfo.moduleName.c_str());
+        return;
+    }
+
+    std::string appLibPathKey = hapInfo.bundleName + "/" + hapInfo.moduleName;
+    std::string patchLibPath = LOCAL_CODE_PATH;
+    patchLibPath += (patchLibPath.back() == '/') ? patchNativeLibraryPath : "/" + patchNativeLibraryPath;
+    HILOG_INFO("appLibPathKey: %{public}s, patch lib path: %{private}s", appLibPathKey.c_str(), patchLibPath.c_str());
+    appLibPaths[appLibPathKey].emplace_back(patchLibPath);
+}
+} // namespace
+
+void MainThread::GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppLibPathMap &appLibPaths)
 {
     std::string patchNativeLibraryPath = bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.nativeLibraryPath;
     if (!patchNativeLibraryPath.empty()) {
         // libraries in patch lib path has a higher priority when loading.
         std::string patchLibPath = LOCAL_CODE_PATH;
         patchLibPath += (patchLibPath.back() == '/') ? patchNativeLibraryPath : "/" + patchNativeLibraryPath;
-        HILOG_DEBUG("napi patch lib path = %{private}s", patchLibPath.c_str());
+        HILOG_INFO("napi patch lib path = %{private}s", patchLibPath.c_str());
         appLibPaths["default"].emplace_back(patchLibPath);
     }
 
@@ -188,35 +215,15 @@ void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppL
         }
         std::string libPath = LOCAL_CODE_PATH;
         libPath += (libPath.back() == '/') ? nativeLibraryPath : "/" + nativeLibraryPath;
-        HILOG_DEBUG("napi lib path = %{private}s", libPath.c_str());
+        HILOG_INFO("napi lib path = %{private}s", libPath.c_str());
         appLibPaths["default"].emplace_back(libPath);
     }
 
     for (auto &hapInfo : bundleInfo.hapModuleInfos) {
-        HILOG_DEBUG("name: %{public}s, isLibIsolated: %{public}d, nativeLibraryPath: %{public}s",
-            hapInfo.name.c_str(), hapInfo.isLibIsolated, hapInfo.nativeLibraryPath.c_str());
-        std::string appLibPathKey = hapInfo.bundleName + "/" + hapInfo.moduleName;
-
-        // libraries in patch lib path has a higher priority when loading.
-        if (hapInfo.isLibIsolated) {
-            patchNativeLibraryPath = hapInfo.hqfInfo.nativeLibraryPath;
-        }
-
-        if (!patchNativeLibraryPath.empty()) {
-            std::string patchLibPath = LOCAL_CODE_PATH;
-            patchLibPath += (patchLibPath.back() == '/') ? patchNativeLibraryPath : "/" + patchNativeLibraryPath;
-            HILOG_DEBUG("name: %{public}s, patch lib path = %{private}s", hapInfo.name.c_str(), patchLibPath.c_str());
-            appLibPaths[appLibPathKey].emplace_back(patchLibPath);
-        }
-        if (GetHapSoPath(hapInfo, appLibPaths, hapInfo.hapPath.find(ABS_CODE_PATH) != 0u)) {
-            continue;
-        }
-
-        std::string libPath = LOCAL_CODE_PATH;
-        const auto &tmpNativePath = hapInfo.isLibIsolated ? hapInfo.nativeLibraryPath : nativeLibraryPath;
-        libPath += (libPath.back() == '/') ? tmpNativePath : "/" + tmpNativePath;
-        HILOG_DEBUG("appLibPathKey: %{private}s, libPath: %{private}s", appLibPathKey.c_str(), libPath.c_str());
-        appLibPaths[appLibPathKey].emplace_back(libPath);
+        HILOG_DEBUG("moduleName: %{public}s, isLibIsolated: %{public}d, compressNativeLibs: %{public}d.",
+            hapInfo.moduleName.c_str(), hapInfo.isLibIsolated, hapInfo.compressNativeLibs);
+        GetPatchNativeLibPath(hapInfo, patchNativeLibraryPath, appLibPaths);
+        GetHapSoPath(hapInfo, appLibPaths, hapInfo.hapPath.find(ABS_CODE_PATH));
     }
 
     for (auto &hspInfo : hspList) {
@@ -225,7 +232,6 @@ void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppL
         GetHspNativeLibPath(hspInfo, appLibPaths, hspInfo.hapPath.find(ABS_CODE_PATH) != 0u);
     }
 }
-} // namespace
 
 #define ACEABILITY_LIBRARY_LOADER
 #ifdef ABILITY_LIBRARY_LOADER
@@ -888,10 +894,7 @@ bool MainThread::InitCreate(
         HILOG_ERROR("MainThread::InitCreate create contextDeal failed");
         return false;
     }
-
-    if (watchdog_ != nullptr) {
-        watchdog_->SetApplicationInfo(applicationInfo_);
-    }
+    AppExecFwk::AppfreezeInner::GetInstance()->SetApplicationInfo(applicationInfo_);
 
     application_->SetProcessInfo(processInfo_);
     contextDeal->SetApplicationInfo(applicationInfo_);
@@ -2027,6 +2030,7 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner)
     TaskTimeoutDetected(runner);
 
     watchdog_->Init(mainHandler_);
+    AppExecFwk::AppfreezeInner::GetInstance()->SetMainHandler(mainHandler_);
     extensionConfigMgr_->Init();
 }
 
@@ -2506,6 +2510,11 @@ int32_t MainThread::ScheduleNotifyAppFault(const FaultData &faultData)
         HILOG_ERROR("mainHandler is nullptr");
         return ERR_INVALID_VALUE;
     }
+
+    if (faultData.faultType == FaultDataType::APP_FREEZE) {
+        return AppExecFwk::AppfreezeInner::GetInstance()->AppfreezeHandle(faultData, false);
+    }
+
     wptr<MainThread> weak = this;
     auto task = [weak, faultData] {
         auto appThread = weak.promote();
@@ -2521,12 +2530,14 @@ int32_t MainThread::ScheduleNotifyAppFault(const FaultData &faultData)
 
 void MainThread::NotifyAppFault(const FaultData &faultData)
 {
-    ErrorObject faultErrorObj = {
-        .name = faultData.errorObject.name,
-        .message = faultData.errorObject.message,
-        .stack = faultData.errorObject.stack
-    };
-    ApplicationDataManager::GetInstance().NotifyExceptionObject(faultErrorObj);
+    if (faultData.notifyApp) {
+        ErrorObject faultErrorObj = {
+            .name = faultData.errorObject.name,
+            .message = faultData.errorObject.message,
+            .stack = faultData.errorObject.stack
+        };
+        ApplicationDataManager::GetInstance().NotifyExceptionObject(faultErrorObj);
+    }
 }
 
 void MainThread::SetProcessExtensionType(const std::shared_ptr<AbilityLocalRecord> &abilityRecord)

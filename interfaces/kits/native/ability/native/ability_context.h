@@ -62,17 +62,6 @@ public:
     ErrCode StartAbility(const Want &want, int requestCode, const AbilityStartSetting &abilityStartSetting) override;
 
     /**
-     * @brief Destroys another ability you had previously started by calling Ability.startAbilityForResult
-     * (ohos.aafwk.content.Want, int, ohos.aafwk.ability.startsetting.AbilityStartSetting) with the same requestCode
-     * passed.
-     *
-     * @param requestCode Indicates the request code passed for starting the ability.
-     *
-     * @return errCode ERR_OK on success, others on failure.
-     */
-    ErrCode TerminateAbility(int requestCode) override;
-
-    /**
      * @brief Destroys the current ability.
      *
      * @return errCode ERR_OK on success, others on failure.
@@ -177,23 +166,6 @@ public:
      */
     void SetCallingContext(const std::string &deviceId, const std::string &bundleName,
         const std::string &abilityName, const std::string &moduleName = "");
-
-    /**
-     * @brief
-     * Destroys this Service ability if the number of times it has been started equals the number represented by the
-     * given {@code startId}. This method is the same as calling {@link #terminateAbility} to destroy this Service
-     * ability, except that this method helps you avoid destroying it if a client has requested a Service
-     * ability startup in {@link ohos.aafwk.ability.Ability#onCommand} but you are unaware of it.
-     *
-     * @param startId Indicates the number of startup times of this Service ability passed to
-     *                {@link ohos.aafwk.ability.Ability#onCommand}. The {@code startId} is
-     *                incremented by 1 every time this ability is started. For example,
-     *                if this ability has been started for six times, the value of {@code startId} is {@code 6}.
-     *
-     * @return Returns {@code true} if the {@code startId} matches the number of startup times
-     *         and this Service ability will be destroyed; returns {@code false} otherwise.
-     */
-    bool TerminateAbilityResult(int startId) override;
 
     /**
      * @brief Starts multiple abilities.

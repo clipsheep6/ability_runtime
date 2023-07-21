@@ -70,7 +70,6 @@ private:
     int TerminateUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
     int CloseUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
     int SendResultToAbilityInner(MessageParcel &data, MessageParcel &reply);
-    int TerminateAbilityByCallerInner(MessageParcel &data, MessageParcel &reply);
     int MinimizeAbilityInner(MessageParcel &data, MessageParcel &reply);
     int MinimizeUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
     int MinimizeUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
@@ -78,7 +77,6 @@ private:
     int AbilityTransitionDoneInner(MessageParcel &data, MessageParcel &reply);
     int ScheduleConnectAbilityDoneInner(MessageParcel &data, MessageParcel &reply);
     int ScheduleDisconnectAbilityDoneInner(MessageParcel &data, MessageParcel &reply);
-    int TerminateAbilityResultInner(MessageParcel &data, MessageParcel &reply);
     int ScheduleCommandAbilityDoneInner(MessageParcel &data, MessageParcel &reply);
     int ScheduleCommandAbilityWindowDoneInner(MessageParcel &data, MessageParcel &reply);
     int GetMissionSnapshotInner(MessageParcel &data, MessageParcel &reply);
@@ -235,6 +233,11 @@ private:
     int NotifySaveAsResultInner(MessageParcel &data, MessageParcel &reply);
 
     int SetSessionManagerServiceInner(MessageParcel &data, MessageParcel &reply);
+
+    int32_t RegisterIAbilityManagerCollaboratorInner(MessageParcel &data, MessageParcel &reply);
+    int32_t UnregisterIAbilityManagerCollaboratorInner(MessageParcel &data, MessageParcel &reply);
+    int32_t MoveMissionToBackgroundInner(MessageParcel &data, MessageParcel &reply);
+    int32_t TerminateMissionInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

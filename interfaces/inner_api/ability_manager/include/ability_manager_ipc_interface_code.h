@@ -39,11 +39,8 @@ enum class AbilityManagerInterfaceCode {
     // ipc id for add window token (6)
     ADD_WINDOW_INFO,
 
-    // ipc id for terminating ability for result (7)
-    TERMINATE_ABILITY_RESULT,
-
     // ipc id for list stack info (8)
-    LIST_STACK_INFO,
+    LIST_STACK_INFO = 8,
 
     // ipc id for get recent mission (9)
     GET_RECENT_MISSION,
@@ -75,11 +72,8 @@ enum class AbilityManagerInterfaceCode {
     // ipc id for uninstall app (18)
     UNINSTALL_APP,
 
-    // ipc id for terminate ability by callerToken and request code (19)
-    TERMINATE_ABILITY_BY_CALLER,
-
     // ipc id for move mission to floating stack (20)
-    MOVE_MISSION_TO_FLOATING_STACK,
+    MOVE_MISSION_TO_FLOATING_STACK = 20,
 
     // ipc id for move mission to floating stack (21)
     MOVE_MISSION_TO_SPLITSCREEN_STACK,
@@ -395,6 +389,12 @@ enum class AbilityManagerInterfaceCode {
 
     ACQUIRE_SHARE_DATA = 4001,
     SHARE_DATA_DONE = 4002,
+
+    // ipc id for collborator
+    REGISTER_COLLABORATOR = 4050,
+    UNREGISTER_COLLABORATOR = 4051,
+    MOVE_MISSION_TO_BACKGROUND = 4052,
+    TERMINATE_MISSION = 4053,
 
     GET_ABILITY_TOKEN = 5001,
 
