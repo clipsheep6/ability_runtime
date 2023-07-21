@@ -38,6 +38,16 @@ public:
     AbilityMonitor(const std::string &name, const std::shared_ptr<JSAbilityMonitor> &jsAbilityMonitor);
 
     /**
+     * A constructor used to create a AbilityMonitor instance with the input parameter passed.
+     *
+     * @param name Indicates the specified ability name.
+     * @param moduleName Indicates the specified ability moduleName.
+     * @param jsAbilityMonitor Indicates the JSAbilityMonitor object.
+     */
+    AbilityMonitor(const std::string &name, const std::string &moduleName, 
+        const std::shared_ptr<JSAbilityMonitor> &jsAbilityMonitor);
+
+    /**
      * Default deconstructor used to deconstruct.
      */
     ~AbilityMonitor() = default;

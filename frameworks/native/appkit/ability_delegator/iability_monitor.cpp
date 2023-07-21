@@ -23,6 +23,10 @@ namespace AppExecFwk {
 IAbilityMonitor::IAbilityMonitor(const std::string &abilityName) : abilityName_(abilityName)
 {}
 
+IAbilityMonitor::IAbilityMonitor(const std::string &abilityName,
+    const std::string &moduleName) : abilityName_(abilityName), moduleName_(moduleName)
+{}
+
 bool IAbilityMonitor::Match(const std::shared_ptr<ADelegatorAbilityProperty> &ability, bool isNotify)
 {
     if (!ability) {
@@ -39,6 +43,13 @@ bool IAbilityMonitor::Match(const std::shared_ptr<ADelegatorAbilityProperty> &ab
 
     if (abilityName_.compare(aName)) {
         HILOG_WARN("Different name");
+        return false;
+    }
+
+    const auto &aModuleName = ability->moduleName_;
+
+    if (!moduleName_.empty() && moduleName_.compare(aModuleName) != 0) {
+        HILOG_ERROR("Different moduleName, %{public}s and %{public}s.", moduleName_.c_str(), aModuleName.c_str());
         return false;
     }
 

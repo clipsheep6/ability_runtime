@@ -348,6 +348,13 @@ public:
     bool IsTerminating();
 
     /**
+     * @brief Obtains the mole name in this ability name, without the prefixed bundle name.
+     *
+     * @return Returns the module name of this ability.
+     */
+    std::string GetModuleName();
+
+    /**
      * @brief Called when startAbilityForResult(ohos.aafwk.content.Want,int) is called to start an ability and the
      * result is returned. This method is called only on Page abilities. You can start a new ability to perform some
      * calculations and use setResult (int,ohos.aafwk.content.Want) to return the calculation result. Then the system

@@ -26,6 +26,11 @@ AbilityMonitor::AbilityMonitor(const std::string &name, const std::shared_ptr<JS
     : IAbilityMonitor(name), jsMonitor_(jsAbilityMonitor)
 {}
 
+AbilityMonitor::AbilityMonitor(const std::string &name, const std::string &moduleName, 
+    const std::shared_ptr<JSAbilityMonitor> &jsAbilityMonitor)
+    : IAbilityMonitor(name, moduleName), jsMonitor_(jsAbilityMonitor)
+{}
+
 void AbilityMonitor::OnAbilityStart(const std::weak_ptr<NativeReference> &abilityObj)
 {
     HILOG_INFO("enter");
