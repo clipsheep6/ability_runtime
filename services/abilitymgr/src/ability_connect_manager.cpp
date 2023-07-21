@@ -411,7 +411,6 @@ void AbilityConnectManager::DisconnectRecordForce(ConnectListType &list,
     if (abilityRecord->IsConnectListEmpty() && abilityRecord->GetStartId() == 0) {
         HILOG_WARN("Force terminate ability record state: %{public}d.", abilityRecord->GetAbilityState());
         TerminateRecord(abilityRecord);
-        RemoveServiceAbility(abilityRecord);
     }
 }
 
