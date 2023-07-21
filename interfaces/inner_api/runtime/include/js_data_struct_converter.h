@@ -19,7 +19,7 @@
 #include "ability_info.h"
 #include "application_info.h"
 #include "launch_param.h"
-#include "module_info.h"
+#include "hap_module_info.h"
 #include "want.h"
 #include "configuration.h"
 
@@ -30,15 +30,11 @@ namespace OHOS {
 namespace AbilityRuntime {
 NativeValue* CreateJsWantObject(NativeEngine& engine, const AAFwk::Want& want);
 NativeValue* CreateJsAbilityInfo(NativeEngine& engine, const AppExecFwk::AbilityInfo& abilityInfo);
-NativeValue* CreateJsModuleInfo(NativeEngine& engine, const AppExecFwk::ModuleInfo &moduleInfo);
 NativeValue* CreateJsApplicationInfo(NativeEngine& engine, const AppExecFwk::ApplicationInfo &applicationInfo);
 NativeValue* CreateJsLaunchParam(NativeEngine& engine, const AAFwk::LaunchParam& launchParam);
-NativeValue* CreateJsCustomizeData(NativeEngine& engine, const AppExecFwk::CustomizeData &info);
-NativeValue* CreateJsCustomizeDataArray(NativeEngine& engine, const std::vector<AppExecFwk::CustomizeData> &info);
 NativeValue* CreateJsConfiguration(NativeEngine& engine, const AppExecFwk::Configuration& configuration);
-NativeValue* CreateJsMetadataArray(NativeEngine& engine, const std::vector<AppExecFwk::Metadata> &infos);
-NativeValue* CreateJsMetadata(NativeEngine& engine, const AppExecFwk::Metadata &info);
 NativeValue* CreateJsExtensionAbilityInfo(NativeEngine& engine, const AppExecFwk::ExtensionAbilityInfo& info);
-}  // namespace AbilityRuntime
-}  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_JS_DATA_STRUCT_CONVERTER_H
+NativeValue* CreateJsHapModuleInfo(NativeEngine& engine, const AppExecFwk::HapModuleInfo& hapModuleInfo);
+} // namespace AbilityRuntime
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_JS_DATA_STRUCT_CONVERTER_H

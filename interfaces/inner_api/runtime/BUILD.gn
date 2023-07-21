@@ -45,7 +45,10 @@ config("runtime_all_deps_config") {
 }
 
 ohos_shared_library("runtime") {
-  include_dirs = [ "${ability_runtime_path}/services/abilitymgr/include" ]
+  include_dirs = [
+    "${ability_runtime_path}/services/abilitymgr/include",
+    "${bundlefwk_path}/interfaces/kits/js/common",
+  ]
 
   sources = [
     "${ability_runtime_native_path}/runtime/connect_server_manager.cpp",
@@ -88,6 +91,7 @@ ohos_shared_library("runtime") {
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "bundle_framework:bundle_napi_common",
     "c_utils:utils",
     "ets_runtime:libark_jsruntime",
     "ets_utils:console",
