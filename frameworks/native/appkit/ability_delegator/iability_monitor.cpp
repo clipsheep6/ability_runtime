@@ -49,9 +49,7 @@ bool IAbilityMonitor::Match(const std::shared_ptr<ADelegatorAbilityProperty> &ab
 
     if (moduleName_.empty() || aModuleName.empty()) {
         HILOG_WARN("ModuleName is empty");
-    }
-
-    if (moduleName_.compare(aModuleName)) {
+    } else if (moduleName_.compare(aModuleName)) {
         HILOG_WARN("Different moduleName");
         return false;
     }
