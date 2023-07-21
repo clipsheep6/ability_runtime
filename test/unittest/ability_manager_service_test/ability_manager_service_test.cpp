@@ -89,7 +89,7 @@ public:
     void TearDown();
     std::shared_ptr<AbilityRecord> MockAbilityRecord(AbilityType);
     sptr<Token> MockToken(AbilityType);
-    sptr<SessionInfo> MockSessionInfo(uint64_t persistentId);
+    sptr<SessionInfo> MockSessionInfo(int32_t persistentId);
 
     AbilityRequest GenerateAbilityRequest(const std::string& deviceName, const std::string& abilityName,
         const std::string& appName, const std::string& bundleName, const std::string& moduleName);
@@ -118,7 +118,7 @@ sptr<Token> AbilityManagerServiceTest::MockToken(AbilityType abilityType)
     return abilityRecord->GetToken();
 }
 
-sptr<SessionInfo> AbilityManagerServiceTest::MockSessionInfo(uint64_t persistentId)
+sptr<SessionInfo> AbilityManagerServiceTest::MockSessionInfo(int32_t persistentId)
 {
     sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
     if (!sessionInfo) {

@@ -661,7 +661,7 @@ int AbilityConnectManager::ScheduleCommandAbilityWindowDone(
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     std::string element = abilityRecord->GetWant().GetElement().GetURI();
-    HILOG_DEBUG("Ability: %{public}s, persistentId: %{private}" PRIu64", winCmd: %{public}d, abilityCmd: %{public}d",
+    HILOG_DEBUG("Ability: %{public}s, persistentId: %{private}d, winCmd: %{public}d, abilityCmd: %{public}d",
         element.c_str(), sessionInfo->persistentId, winCmd, abilityCmd);
 
     if (taskHandler_) {
@@ -1212,7 +1212,7 @@ void AbilityConnectManager::CommandAbilityWindow(const std::shared_ptr<AbilityRe
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_POINTER(abilityRecord);
     CHECK_POINTER(sessionInfo);
-    HILOG_DEBUG("ability: %{public}s, persistentId: %{private}" PRIu64", wincmd: %{public}d",
+    HILOG_DEBUG("ability: %{public}s, persistentId: %{private}d, wincmd: %{public}d",
         abilityRecord->GetAbilityInfo().name.c_str(), sessionInfo->persistentId, winCmd);
     if (taskHandler_ != nullptr) {
         int recordId = abilityRecord->GetRecordId();

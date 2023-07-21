@@ -48,10 +48,10 @@ public:
 
     std::shared_ptr<AbilityManagerClient> client_{ nullptr };
     sptr<AbilityManagerStubTestMock> mock_{ nullptr };
-    sptr<SessionInfo> MockSessionInfo(uint64_t persistentId);
+    sptr<SessionInfo> MockSessionInfo(int32_t persistentId);
 };
 
-    sptr<SessionInfo> AbilityManagerClientBranchTest::MockSessionInfo(uint64_t persistentId)
+    sptr<SessionInfo> AbilityManagerClientBranchTest::MockSessionInfo(int32_t persistentId)
 {
     sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
     if (!sessionInfo) {

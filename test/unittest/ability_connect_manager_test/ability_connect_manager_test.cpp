@@ -78,7 +78,7 @@ public:
 
     static constexpr int TEST_WAIT_TIME = 1000000;
 
-    sptr<SessionInfo> MockSessionInfo(uint64_t persistentId);
+    sptr<SessionInfo> MockSessionInfo(int32_t persistentId);
     std::shared_ptr<AbilityRecord> InitAbilityRecord();
 
 protected:
@@ -128,7 +128,7 @@ AbilityRequest AbilityConnectManagerTest::GenerateAbilityRequest(const std::stri
     return abilityRequest;
 }
 
-sptr<SessionInfo> AbilityConnectManagerTest::MockSessionInfo(uint64_t persistentId)
+sptr<SessionInfo> AbilityConnectManagerTest::MockSessionInfo(int32_t persistentId)
 {
     sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
     if (!sessionInfo) {
