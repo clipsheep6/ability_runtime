@@ -1436,6 +1436,7 @@ int AbilityRecord::GetRequestCode() const
 
 void AbilityRecord::SetResult(const std::shared_ptr<AbilityResult> &result)
 {
+    HILOG_WARN("GYC SetResult code is  %{public}d, me is %{public}s.", result.requestCode_, GetAbilityInfo().applicationName.c_str());
     result_ = result;
 }
 
@@ -1527,6 +1528,7 @@ void AbilityRecord::SaveResultToCallers(const int resultCode, const Want *result
     }
     auto latestCaller = callerRecordList.back();
     for (auto caller : callerRecordList) {
+        HILOG_WARN("GYC caller is %{public}s.", caller.GetCaller().GetAbilityInfo().applicationName.c_str());
         if (caller == nullptr) {
             HILOG_WARN("Caller record is nullptr.");
             continue;
@@ -1543,6 +1545,7 @@ void AbilityRecord::SaveResultToCallers(const int resultCode, const Want *result
 void AbilityRecord::SaveResult(int resultCode, const Want *resultWant, std::shared_ptr<CallerRecord> caller)
 {
     std::shared_ptr<AbilityRecord> callerAbilityRecord = caller->GetCaller();
+    HILOG_WARN("GYC save result code is  %{public}d, caller is %{public}s.", resultCode, caller.GetCaller().GetAbilityInfo().applicationName.c_str());
     if (callerAbilityRecord != nullptr) {
         callerAbilityRecord->SetResult(
             std::make_shared<AbilityResult>(caller->GetRequestCode(), resultCode, *resultWant));
