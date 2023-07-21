@@ -207,6 +207,7 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
             HILOG_ERROR("CreateAppRunningRecord failed, appRecord is nullptr");
             return;
         }
+        SendAppStartupTypeEvent(appRecord, abilityInfo, AppStartType::COLD);
         auto callRecord = GetAppRunningRecordByAbilityToken(preToken);
         if (callRecord != nullptr) {
             auto launchReson = (want == nullptr) ? 0 : want->GetIntParam("ohos.ability.launch.reason", 0);
@@ -1985,6 +1986,36 @@ bool AppMgrServiceInner::SendProcessStartEvent(const std::shared_ptr<AppRunningR
         eventInfo.callerProcessName.c_str());
 
     return true;
+}
+
+void AppMgrServiceInner::SendAppStartupTypeEvent(const std::shared_ptr<AppRunningRecord> &appRecord,
+    const std::shared_ptr<AbilityInfo> &abilityInfo, const AppStartType startType)
+{
+    if (!appRecord) {
+        HILOG_ERROR("appRecord is nullptr");
+        return;
+    }
+    AAFwk::EventInfo eventInfo;
+    auto applicationInfo = appRecord->GetApplicationInfo();
+    if (!applicationInfo) {
+        HILOG_ERROR("applicationInfo is nullptr, can not get app information");
+    } else {
+        eventInfo.bundleName = applicationInfo->name;
+        eventInfo.versionName = applicationInfo->versionName;
+        eventInfo.versionCode = applicationInfo->versionCode;
+    }
+    if (!abilityInfo) {
+        HILOG_ERROR("abilityInfo is nullptr, can not get ability information");
+    } else {
+        eventInfo.abilityName = abilityInfo->name;
+    }
+    if (appRecord->GetPriorityObject() == nullptr) {
+        HILOG_ERROR("appRecord's priorityObject is null");
+    } else {
+        eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
+    }
+    eventInfo.startType = static_cast<int32_t>(startType);
+    AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_STARTUP_TYPE, HiSysEventType::BEHAVIOR, eventInfo);
 }
 
 void AppMgrServiceInner::RemoveAppFromRecentList(const std::string &appName, const std::string &processName)

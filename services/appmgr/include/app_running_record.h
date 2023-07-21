@@ -568,6 +568,7 @@ public:
 
     void SendEventForSpecifiedAbility(uint32_t msg, int64_t timeOut);
 
+    void SendAppStartupTypeEvent(const std::shared_ptr<AbilityRunningRecord> &ability, const AppStartType startType);
     void SetKilling();
     bool IsKilling() const;
     void SetAppIndex(const int32_t appIndex);

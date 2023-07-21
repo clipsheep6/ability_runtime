@@ -930,6 +930,9 @@ private:
 
     bool SendProcessStartEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
 
+    void SendAppStartupTypeEvent(const std::shared_ptr<AppRunningRecord> &appRecord,
+        const std::shared_ptr<AbilityInfo> &abilityInfo, const AppStartType startType);
+
     void SendProcessExitEvent(pid_t pid);
 
     void SendProcessExitEventTask(pid_t pid, time_t exitTime, int32_t count);

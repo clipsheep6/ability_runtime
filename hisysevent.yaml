@@ -256,6 +256,15 @@ APP_RECOVERY:
   ABILITY_NAME: {type: STRING, desc: ability name}
   RECOVERY_RESULT: {type: STRING, desc: recovery result}
 
+APP_STARTUP_TYPE:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: app start type}
+  APP_PID: {type: INT32, desc: app pid}
+  VERSION_CODE: {type: INT32, desc: version code}
+  VERSION_NAME: {type: STRING, desc: version name}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  START_TYPE: {type: INT32, desc: type of start, cold or hot}
+
 PROCESS_START:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: application process startup event reporting}
   STARTUP_TIME: {type: INT64, desc: process start time}

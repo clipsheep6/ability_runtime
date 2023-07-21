@@ -43,6 +43,7 @@ struct EventInfo {
     int32_t callerUid = -1;
     int32_t exitResult = -1;
     int32_t bundleType = -1;
+    int32_t startType = 0;
 };
 
 enum class EventName {
@@ -80,6 +81,7 @@ enum class EventName {
     PROCESS_START,
     PROCESS_EXIT,
     DRAWN_COMPLETED,
+    APP_STARTUP_TYPE,
 };
 
 class EventReport {

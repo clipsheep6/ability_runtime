@@ -43,6 +43,7 @@ constexpr const char *EVENT_KEY_EXIT_TIME = "EXIT_TIME";
 constexpr const char *EVENT_KEY_EXIT_RESULT = "EXIT_RESULT";
 constexpr const char *EVENT_KEY_EXIT_PID = "EXIT_PID";
 constexpr const char *EVENT_KEY_BUNDLE_TYPE = "BUNDLE_TYPE";
+constexpr const char *EVENT_KEY_START_TYPE = "START_TYPE";
 const std::map<EventName, std::string> eventNameToStrMap_ = {
     std::map<EventName, std::string>::value_type(EventName::START_ABILITY_ERROR, "START_ABILITY_ERROR"),
     std::map<EventName, std::string>::value_type(EventName::TERMINATE_ABILITY_ERROR, "TERMINATE_ABILITY_ERROR"),
@@ -69,6 +70,7 @@ const std::map<EventName, std::string> eventNameToStrMap_ = {
     std::map<EventName, std::string>::value_type(EventName::PROCESS_START, "PROCESS_START"),
     std::map<EventName, std::string>::value_type(EventName::PROCESS_EXIT, "PROCESS_EXIT"),
     std::map<EventName, std::string>::value_type(EventName::DRAWN_COMPLETED, "DRAWN_COMPLETED"),
+    std::map<EventName, std::string>::value_type(EventName::APP_STARTUP_TYPE, "APP_STARTUP_TYPE"),
 };
 }
 
@@ -115,6 +117,18 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, 
                 EVENT_KEY_EXIT_TIME, eventInfo.time,
                 EVENT_KEY_EXIT_RESULT, eventInfo.exitResult,
                 EVENT_KEY_EXIT_PID, eventInfo.pid);
+            break;
+        case EventName::APP_STARTUP_TYPE:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK,
+                name,
+                type,
+                EVENT_KEY_APP_PID, eventInfo.pid,
+                EVENT_KEY_VERSION_CODE, eventInfo.versionCode,
+                EVENT_KEY_VERSION_NAME, eventInfo.versionName,
+                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
+                EVENT_KEY_START_TYPE, eventInfo.startType);
             break;
         case EventName::APP_FOREGROUND:
             HiSysEventWrite(
