@@ -177,7 +177,7 @@ int PermissionVerification::VerifyAppStateObserverPermission() const
         return ERR_OK;
     }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_RUNNING_STATE_OBSERVER)) {
-        HILOG_INFO("Permission verification succeeded.");
+        HILOG_DEBUG("Permission verification succeeded.");
         return ERR_OK;
     }
     HILOG_ERROR("Permission verification failed.");
