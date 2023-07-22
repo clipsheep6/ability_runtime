@@ -751,6 +751,25 @@ public:
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
         const std::shared_ptr<Media::PixelMap> &pixelMap) override;
 
+    /**
+     * Called to add ability recover info.
+     * @param token The target ability.
+     */
+    virtual void AddAbilityRecoverInfo(const sptr<IRemoteObject>& token) override;
+
+    /**
+     * Called to delete ability recover info.
+     * @param token The target ability.
+     */
+    virtual void DeleteAbilityRecoverInfo(const sptr<IRemoteObject>& token) override;
+
+    /**
+     * Called to get ability recover info.
+     * @param token The target ability.
+     * @return has recover info
+     */
+    virtual bool GetAbilityRecoverInfo(const sptr<IRemoteObject>& token) override;
+
     virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) override;
     virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason,
         const Want *want = nullptr) override;

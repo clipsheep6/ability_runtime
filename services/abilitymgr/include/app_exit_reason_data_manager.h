@@ -40,6 +40,12 @@ public:
 
     int32_t DeleteAppExitReason(const std::string &bundleName);
 
+    int32_t AddAbilityRecoverInfo(int sessionId);
+
+    int32_t DeleteAbilityRecoverInfo(int sessionId);
+
+    int32_t GetAbilityRecoverInfo(int sessionId, bool &hasRecoverInfo);
+
 private:
     DistributedKv::Status GetKvStore();
     bool CheckKvStore();
@@ -50,6 +56,11 @@ private:
     void UpdateAppExitReason(
         const std::string &bundleName, const std::vector<std::string> &abilityList, const AAFwk::Reason &reason);
     void InnerDeleteAppExitReason(const std::string &bundleName);
+
+    void UpdateAbilityRecoverInfo(const std::vector<int> &hasRecoverInfoIdList);
+    DistributedKv::Value ConvertAbilityRecoverInfoToValue(const std::vector<int> &hasRecoverInfoIdList);
+    void ConvertAbilityRecoverInfoFromValue(const DistributedKv::Value &value, std::vector<int> &hasRecoverInfoIdList);
+    void InnerDeleteAbilityRecoverInfo();
 
     const DistributedKv::AppId appId_ { "app_exit_reason_storage" };
     const DistributedKv::StoreId storeId_ { "app_exit_reason_infos" };

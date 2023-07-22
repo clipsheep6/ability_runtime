@@ -208,6 +208,11 @@ private:
     int BlockAbilityInner(MessageParcel &data, MessageParcel &reply);
     int BlockAppServiceInner(MessageParcel &data, MessageParcel &reply);
     #endif
+
+    int AddAbilityRecoverInfoInner(MessageParcel &data, MessageParcel &reply);
+    int DeleteAbilityRecoverInfoInner(MessageParcel &data, MessageParcel &reply);
+    int GetAbilityRecoverInfoInner(MessageParcel &data, MessageParcel &reply);
+
     int EnableRecoverAbilityInner(MessageParcel &data, MessageParcel &reply);
     int ScheduleRecoverAbilityInner(MessageParcel &data, MessageParcel &reply);
     int GetTopAbilityInner(MessageParcel &data, MessageParcel &reply);

@@ -914,6 +914,29 @@ public:
      * @param token The target ability.
      */
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) = 0;
+
+    /**
+     * Called to add ability recover info.
+     * @param token The target ability.
+     */
+    virtual void AddAbilityRecoverInfo(const sptr<IRemoteObject>& token) {};
+
+    /**
+     * Called to delete ability recover info.
+     * @param token The target ability.
+     */
+    virtual void DeleteAbilityRecoverInfo(const sptr<IRemoteObject>& token) {};
+
+    /**
+     * Called to get ability recover info.
+     * @param token The target ability.
+     * @return has recover info
+     */
+    virtual bool GetAbilityRecoverInfo(const sptr<IRemoteObject>& token)
+    {
+        return false;
+    }
+
     virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) {};
     virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason,
         const Want *want = nullptr) {};
@@ -1456,6 +1479,10 @@ public:
         QUERY_MISSION_VAILD = 3012,
 
         VERIFY_PERMISSION = 3013,
+
+        ADD_ABILITY_RECOVER_INFO = 3014,
+        DELETE_ABILITY_RECOVER_INFO = 3015,
+        GET_ABILITY_RECOVER_INFO = 3016,
 
         ACQUIRE_SHARE_DATA = 4001,
         SHARE_DATA_DONE = 4002,

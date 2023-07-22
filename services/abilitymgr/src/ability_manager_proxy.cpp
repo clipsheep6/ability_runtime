@@ -1333,6 +1333,81 @@ void AbilityManagerProxy::UpdateMissionSnapShot(const sptr<IRemoteObject> &token
     }
 }
 
+void AbilityManagerProxy::AddAbilityRecoverInfo(const sptr<IRemoteObject>& token)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("AddAbilityRecoverInfo WriteInterfaceToken failed.");
+        return;
+    }
+
+    if (!data.WriteRemoteObject(token)) {
+        HILOG_ERROR("AddAbilityRecoverInfo WriteRemoteObject failed.");
+        return;
+    }
+
+    error = SendRequest(AbilityManagerInterfaceCode::ADD_ABILITY_RECOVER_INFO, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("AddAbilityRecoverInfo Send request error: %{public}d", error);
+        return;
+    }
+    return;
+}
+
+void AbilityManagerProxy::DeleteAbilityRecoverInfo(const sptr<IRemoteObject>& token)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("DeleteAbilityRecoverInfo WriteInterfaceToken failed.");
+        return;
+    }
+
+    if (!data.WriteRemoteObject(token)) {
+        HILOG_ERROR("DeleteAbilityRecoverInfo WriteRemoteObject failed.");
+        return;
+    }
+
+    error = SendRequest(AbilityManagerInterfaceCode::DELETE_ABILITY_RECOVER_INFO, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("DeleteAbilityRecoverInfo Send request error: %{public}d", error);
+        return;
+    }
+    return;
+}
+
+bool AbilityManagerProxy::GetAbilityRecoverInfo(const sptr<IRemoteObject>& token)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("GetAbilityRecoverInfo WriteInterfaceToken failed.");
+        return false;
+    }
+
+    if (!data.WriteRemoteObject(token)) {
+        HILOG_ERROR("GetAbilityRecoverInfo WriteRemoteObject failed.");
+        return false;
+    }
+
+    error = SendRequest(AbilityManagerInterfaceCode::GET_ABILITY_RECOVER_INFO, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("GetAbilityRecoverInfo Send request error: %{public}d", error);
+        return false;
+    }
+    return reply.ReadBool();
+}
+
 void AbilityManagerProxy::EnableRecoverAbility(const sptr<IRemoteObject>& token)
 {
     int error;

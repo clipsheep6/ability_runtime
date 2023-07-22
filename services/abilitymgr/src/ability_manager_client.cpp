@@ -1021,6 +1021,29 @@ void AbilityManagerClient::UpdateMissionSnapShot(const sptr<IRemoteObject> &toke
     return abms->UpdateMissionSnapShot(token, pixelMap);
 }
 
+void AbilityManagerClient::AddAbilityRecoverInfo(const sptr<IRemoteObject>& token)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN(abms);
+    return abms->AddAbilityRecoverInfo(token);
+}
+
+void AbilityManagerClient::DeleteAbilityRecoverInfo(const sptr<IRemoteObject>& token)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN(abms);
+    return abms->DeleteAbilityRecoverInfo(token);
+}
+
+bool AbilityManagerClient::GetAbilityRecoverInfo(const sptr<IRemoteObject>& token)
+{
+    auto abms = GetAbilityManager();
+    if (abms == nullptr) {
+        return false;
+    }
+    return abms->GetAbilityRecoverInfo(token);
+}
+
 void AbilityManagerClient::EnableRecoverAbility(const sptr<IRemoteObject>& token)
 {
     auto abms = GetAbilityManager();
