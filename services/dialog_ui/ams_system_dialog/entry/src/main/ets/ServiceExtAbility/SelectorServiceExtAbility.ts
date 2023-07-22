@@ -120,12 +120,9 @@ export default class SelectorServiceExtensionAbility extends extension {
         win.destroy();
         winNum--;
       }
-      if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
-        this.createWindow('SelectorDialog' + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
-      } else {
-        console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
-        this.createWindow('SelectorDialog' + startId, window.WindowType.TYPE_DIALOG, navigationBarRect);
-      }
+      console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
+      this.createWindow('SelectorDialog' + startId, window.WindowType.TYPE_DIALOG, navigationBarRect);
+
       winNum++;
     });
   }
