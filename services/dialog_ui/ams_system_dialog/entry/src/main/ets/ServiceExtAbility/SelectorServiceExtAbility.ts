@@ -124,7 +124,7 @@ export default class SelectorServiceExtensionAbility extends extension {
         this.createWindow('SelectorDialog' + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
       } else {
         console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
-        this.createWindow('SelectorDialog' + startId, window.WindowType.TYPE_DIALOG, navigationBarRect);
+        this.createWindow('SelectorDialog' + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
       }
       winNum++;
     });

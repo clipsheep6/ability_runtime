@@ -49,7 +49,7 @@ export default class TipsServiceExtensionAbility extends extension {
       if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
         this.createWindow('TipsDialog' + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
       } else {
-        this.createWindow('TipsDialog' + startId, window.WindowType.TYPE_DIALOG, navigationBarRect);
+        this.createWindow('TipsDialog' + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
       }
       winNum++;
     });
