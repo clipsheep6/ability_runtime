@@ -17,22 +17,12 @@
 #define private public
 #define protected public
 #include "ability_manager_service.h"
-#include "ability_event_handler.h"
-#include "ams_configuration_parameter.h"
 #undef private
 #undef protected
 
 #include "app_process_data.h"
 #include "system_ability_definition.h"
 #include "ability_manager_errors.h"
-#include "ability_scheduler.h"
-#include "bundlemgr/mock_bundle_manager.h"
-#include "sa_mgr_client.h"
-#include "mock_ability_connect_callback.h"
-#include "mock_ability_token.h"
-#include "if_system_ability_manager.h"
-#include "iservice_registry.h"
-#include "os_account_manager_wrapper.h"
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
@@ -41,118 +31,23 @@ namespace AAFwk {
 namespace {
 const int32_t USER_ID_U100 = 100;
 constexpr int32_t DISPLAY_ID = 256;
-
-static void WaitUntilTaskFinished()
-{
-    const uint32_t maxRetryCount = 1000;
-    const uint32_t sleepTime = 1000;
-    uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
-    std::atomic<bool> taskCalled(false);
-    auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->SubmitTask(f)) {
-        while (!taskCalled.load()) {
-            ++count;
-            if (count >= maxRetryCount) {
-                break;
-            }
-            usleep(sleepTime);
-        }
-    }
-}
 }  // namespace
 
 class StartOptionDisplayIdTest : public testing::Test {
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
-    void SetUp();
-    void TearDown();
-    void OnStartAms();
-    void OnStopAms();
-
-public:
-    std::shared_ptr<AbilityManagerService> abilityMs_{ nullptr };
+    void SetUp() override;
+    void TearDown() override;
 };
 
-void StartOptionDisplayIdTest::SetUpTestCase()
-{
-    OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
-        OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, new BundleMgrService());
-}
+void StartOptionDisplayIdTest::SetUpTestCase() { }
 
-void StartOptionDisplayIdTest::TearDownTestCase()
-{
-    OHOS::DelayedSingleton<SaMgrClient>::DestroyInstance();
-}
+void StartOptionDisplayIdTest::TearDownTestCase() { }
 
-void StartOptionDisplayIdTest::SetUp()
-{
-    abilityMs_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
-    OnStartAms();
+void StartOptionDisplayIdTest::SetUp() { }
 
-    auto missionListMgr = abilityMs_->GetListManagerByUserId(USER_ID_U100);
-    if (!missionListMgr) {
-        return;
-    }
-
-    auto topAbility = missionListMgr->GetCurrentTopAbilityLocked();
-    if (topAbility) {
-        topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
-    }
-}
-
-void StartOptionDisplayIdTest::TearDown()
-{
-    OnStopAms();
-    OHOS::DelayedSingleton<AbilityManagerService>::DestroyInstance();
-}
-
-void StartOptionDisplayIdTest::OnStartAms()
-{
-    if (abilityMs_) {
-        if (abilityMs_->state_ == ServiceRunningState::STATE_RUNNING) {
-            return;
-        }
-
-        abilityMs_->state_ = ServiceRunningState::STATE_RUNNING;
-
-        abilityMs_->taskHandler_ = TaskHandlerWrap::CreateQueueHandler(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
-        EXPECT_TRUE(abilityMs_->taskHandler_);
-        abilityMs_->eventHandler_ = std::make_shared<AbilityEventHandler>(abilityMs_->taskHandler_, abilityMs_);
-        EXPECT_TRUE(abilityMs_->eventHandler_);
-
-        // init user controller.
-        abilityMs_->userController_ = std::make_shared<UserController>();
-        EXPECT_TRUE(abilityMs_->userController_);
-        abilityMs_->userController_->Init();
-        int userId = USER_ID_U100;
-        abilityMs_->userController_->SetCurrentUserId(userId);
-        abilityMs_->InitConnectManager(userId, true);
-        abilityMs_->InitDataAbilityManager(userId, true);
-        abilityMs_->InitPendWantManager(userId, true);
-        abilityMs_->systemDataAbilityManager_ = std::make_shared<DataAbilityManager>();
-        EXPECT_TRUE(abilityMs_->systemDataAbilityManager_);
-
-        AmsConfigurationParameter::GetInstance().Parse();
-
-        abilityMs_->InitMissionListManager(userId, true);
-        abilityMs_->connectManager_->SetTaskHandler(abilityMs_->taskHandler_);
-        abilityMs_->connectManager_->SetEventHandler(abilityMs_->eventHandler_);
-
-        WaitUntilTaskFinished();
-        return;
-    }
-
-    GTEST_LOG_(INFO) << "OnStart fail";
-}
-
-void StartOptionDisplayIdTest::OnStopAms()
-{
-    abilityMs_->eventHandler_.reset();
-    abilityMs_->taskHandler_.reset();
-    abilityMs_->state_ = ServiceRunningState::STATE_NOT_START;
-}
+void StartOptionDisplayIdTest::TearDown() { }
 
 /*
  * Feature: AbilityManagerService
@@ -164,13 +59,13 @@ void StartOptionDisplayIdTest::OnStopAms()
  */
 HWTEST_F(StartOptionDisplayIdTest, start_option_display_id_001, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
     StartOptions option;
     option.SetDisplayID(DISPLAY_ID);
     auto result = abilityMs_->StartAbility(want, option, nullptr);
-    WaitUntilTaskFinished();
     if (result == OHOS::ERR_OK) {
         auto topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
         if (topAbility) {
@@ -191,13 +86,13 @@ HWTEST_F(StartOptionDisplayIdTest, start_option_display_id_001, TestSize.Level1)
  */
 HWTEST_F(StartOptionDisplayIdTest, start_option_display_id_002, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
     ElementName element("device", "com.ix.musicService", "MusicService");
     want.SetElement(element);
     StartOptions option;
     option.SetDisplayID(DISPLAY_ID);
     auto result = abilityMs_->StartAbility(want, option, nullptr);
-    WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_INVALID_VALUE, result);
 }
 }  // namespace AAFwk

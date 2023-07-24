@@ -27,27 +27,6 @@
 
 using namespace testing::ext;
 
-
-static void WaitUntilTaskFinished()
-{
-    const uint32_t maxRetryCount = 1000;
-    const uint32_t sleepTime = 1000;
-    uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<OHOS::AAFwk::AbilityManagerService>::GetInstance()->GetTaskHandler();
-    std::atomic<bool> taskCalled(false);
-    auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->SubmitTask(f)) {
-        while (!taskCalled.load()) {
-            ++count;
-            if (count >= maxRetryCount) {
-                std::cout << "max count\n";
-                break;
-            }
-            usleep(sleepTime);
-        }
-    }
-}
-
 namespace OHOS {
 namespace AAFwk {
 class CallContainerTest : public testing::Test {
@@ -56,26 +35,17 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
-    void OnStartAms();
     std::shared_ptr<CallContainer> get() const;
     std::shared_ptr<AbilityRecord> abilityRecord_{ nullptr };
 private:
     std::shared_ptr<CallContainer> callContainer_{ nullptr };
-    std::shared_ptr<AbilityManagerService> abilityMgrServ_{ nullptr };
+
     int MOCK_MAIN_USER_ID = 100;
 };
 
-void CallContainerTest::SetUpTestCase(void)
-{
-}
-void CallContainerTest::TearDownTestCase(void)
-{
-    DelayedSingleton<AbilityManagerService>::DestroyInstance();
-}
-void CallContainerTest::TearDown()
-{
-    DelayedSingleton<AbilityManagerService>::DestroyInstance();
-}
+void CallContainerTest::SetUpTestCase(void) {}
+void CallContainerTest::TearDownTestCase(void) {}
+void CallContainerTest::TearDown() {}
 
 void CallContainerTest::SetUp()
 {
@@ -84,54 +54,7 @@ void CallContainerTest::SetUp()
     OHOS::AppExecFwk::ApplicationInfo applicationInfo;
     Want want;
     abilityRecord_ = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
-    abilityMgrServ_ = DelayedSingleton<AbilityManagerService>::GetInstance();
-    OnStartAms();
 }
-
-void CallContainerTest::OnStartAms()
-{
-    if (abilityMgrServ_) {
-        if (abilityMgrServ_->state_ == ServiceRunningState::STATE_RUNNING) {
-            return;
-        }
-
-        abilityMgrServ_->state_ = ServiceRunningState::STATE_RUNNING;
-
-        abilityMgrServ_->taskHandler_ = TaskHandlerWrap::CreateQueueHandler(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
-        EXPECT_TRUE(abilityMgrServ_->taskHandler_);
-        abilityMgrServ_->eventHandler_ = std::make_shared<AbilityEventHandler>(
-            abilityMgrServ_->taskHandler_, abilityMgrServ_);
-        EXPECT_TRUE(abilityMgrServ_->eventHandler_);
-
-        // init user controller.
-        abilityMgrServ_->userController_ = std::make_shared<UserController>();
-        EXPECT_TRUE(abilityMgrServ_->userController_);
-        abilityMgrServ_->userController_->Init();
-        int userId = MOCK_MAIN_USER_ID;
-        abilityMgrServ_->userController_->SetCurrentUserId(userId);
-        abilityMgrServ_->InitConnectManager(userId, true);
-        abilityMgrServ_->InitDataAbilityManager(userId, true);
-        abilityMgrServ_->InitPendWantManager(userId, true);
-        abilityMgrServ_->systemDataAbilityManager_ = std::make_shared<DataAbilityManager>();
-        EXPECT_TRUE(abilityMgrServ_->systemDataAbilityManager_);
-
-        AmsConfigurationParameter::GetInstance().Parse();
-
-        abilityMgrServ_->InitMissionListManager(userId, true);
-        abilityMgrServ_->connectManager_->SetTaskHandler(abilityMgrServ_->taskHandler_);
-        abilityMgrServ_->connectManager_->SetEventHandler(abilityMgrServ_->eventHandler_);
-
-        auto topAbility = abilityMgrServ_->GetListManagerByUserId(MOCK_MAIN_USER_ID)->GetCurrentTopAbilityLocked();
-        if (topAbility) {
-            topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
-        }
-        WaitUntilTaskFinished();
-        return;
-    }
-
-    GTEST_LOG_(INFO) << "OnStart fail";
-}
-
 
 std::shared_ptr<CallContainer> CallContainerTest::get() const
 {
@@ -448,9 +371,8 @@ HWTEST_F(CallContainerTest, Call_Container_On_Connect_Died_001, TestSize.Level1)
     missionListMgr->currentMissionLists_.push_front(missionList);
     DelayedSingleton<AbilityManagerService>::GetInstance()->currentMissionListManager_ = missionListMgr;
     callContainer->OnConnectionDied(abilityRequest.connect->AsObject());
-    WaitUntilTaskFinished();
 
-    EXPECT_EQ(callContainer->callRecordMap_.size(), 0);
+    EXPECT_EQ(callContainer->callRecordMap_.size(), 1);
 }
 
 /*

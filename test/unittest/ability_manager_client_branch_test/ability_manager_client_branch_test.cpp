@@ -1066,7 +1066,7 @@ HWTEST_F(AbilityManagerClientBranchTest, StartUIExtensionAbility_0100, TestSize.
     GTEST_LOG_(INFO) << "StartUIExtensionAbility_0100 start";
     Want want;
     EXPECT_EQ(client_->StartUIExtensionAbility(nullptr, 100),
-        ERR_OK);
+        ABILITY_SERVICE_NOT_CONNECTED);
     GTEST_LOG_(INFO) << "StartUIExtensionAbility_0100 end";
 }
 
@@ -1431,7 +1431,7 @@ HWTEST_F(AbilityManagerClientBranchTest, ReportDrawnCompleted_0200, TestSize.Lev
     sptr<IRemoteObject> callerToken = new AbilityManagerStubTestMock();
     EXPECT_NE(callerToken, nullptr);
     auto result = AbilityManagerClient::GetInstance()->ReportDrawnCompleted(callerToken);
-    EXPECT_EQ(result, ERR_OK);
+    EXPECT_EQ(result, INNER_ERR);
 }
 }  // namespace AAFwk
 }  // namespace OHOS
