@@ -20,40 +20,26 @@ ohos_unittest("ability_manager_service_anr_test") {
   module_out_path = module_output_path
 
   include_dirs = [
-    "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/system_ability_mock",
-    "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/arkui_mock",
+    "${ace_engine_path}/interfaces/inner_api/ui_service_manager/include",
+    "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/arkui_mock/include",
+    "${ace_engine_path}/adapter/ohos/services/uiservice/include",
     "${ace_engine_path}/frameworks",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
-    "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
-    "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
-    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
-    "${common_event_service_path}/frameworks/core/include",
-    "${common_event_service_path}/interfaces/inner_api",
+    "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/include",
   ]
 
   sources = [
-    # add mock file
-    "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/arkui_mock/src/ui_service_mgr_client_mock.cpp",
     "ability_manager_service_anr_test.cpp",
   ]
 
   configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
-  cflags = []
-  if (target_cpu == "arm") {
-    cflags += [ "-DBINDER_IPC_32BIT" ]
-  }
+
   deps = [
-    "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
-    "${ability_runtime_innerkits_path}/app_manager:app_manager",
-    "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${ability_runtime_services_path}/common:perm_verification",
-    "${ability_runtime_services_path}/common:task_handler_wrap",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/aakit:aakit_mock",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core:appexecfwk_appmgr_mock",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core:appexecfwk_bundlemgr_mock",
-    "${ability_runtime_test_path}/unittest:abilityms_test_source",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/icu/icu4c:shared_icuuc",
@@ -61,18 +47,23 @@ ohos_unittest("ability_manager_service_anr_test") {
 
   external_deps = [
     "ability_base:session_info",
+    "ability_base:want",
     "ability_base:zuri",
-    "access_token:libaccesstoken_sdk",
+    "ability_runtime:ability_deps_wrapper",
+    "ability_runtime:app_manager",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
-    "dsoftbus:softbus_client",
+    "common_event_service:cesfwk_innerkits",
     "ffrt:libffrt",
     "hilog:libhilog",
-    "init:libbeget_proxy",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "window_manager:scene_session",
   ]
-  if (background_task_mgr_continuous_task_enable) {
-    external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+
+  if (ecologic_rule_enabled) {
+    external_deps += [ "ecological_rule_mgr:erms_client" ]
   }
 
   if (ecologic_rule_enabled) {
@@ -82,5 +73,6 @@ ohos_unittest("ability_manager_service_anr_test") {
 
 group("unittest") {
   testonly = true
+
   deps = [ ":ability_manager_service_anr_test" ]
 }

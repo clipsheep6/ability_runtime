@@ -17,22 +17,9 @@
 #define private public
 #define protected public
 #include "ability_manager_service.h"
-#include "ability_event_handler.h"
-#include "user_controller.h"
 #undef private
 #undef protected
-#include "ability_state.h"
-#include "app_process_data.h"
-#include "system_ability_definition.h"
 #include "ability_manager_errors.h"
-#include "ability_scheduler.h"
-#include "bundlemgr/mock_bundle_manager.h"
-#include "sa_mgr_client.h"
-#include "mock_ability_connect_callback.h"
-#include "mock_ability_token.h"
-#include "mock_native_token.h"
-#include "if_system_ability_manager.h"
-#include "iservice_registry.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -42,25 +29,6 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 const int32_t MOCK_MAIN_USER_ID = 100;
-
-static void WaitUntilTaskFinished()
-{
-    const uint32_t maxRetryCount = 1000;
-    const uint32_t sleepTime = 1000;
-    uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
-    std::atomic<bool> taskCalled(false);
-    auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->SubmitTask(f)) {
-        while (!taskCalled.load()) {
-            ++count;
-            if (count >= maxRetryCount) {
-                break;
-            }
-            usleep(sleepTime);
-        }
-    }
-}
 }  // namespace
 class RunningInfosTest : public testing::Test {
 public:
@@ -68,84 +36,15 @@ public:
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
-    void OnStartAms();
-    void OnStopAms();
-
-public:
-    std::shared_ptr<AbilityManagerService> abilityMs_{ nullptr };
 };
 
-void RunningInfosTest::OnStartAms()
-{
-    if (abilityMs_) {
-        if (abilityMs_->state_ == ServiceRunningState::STATE_RUNNING) {
-            return;
-        }
+void RunningInfosTest::SetUpTestCase() {}
 
-        abilityMs_->state_ = ServiceRunningState::STATE_RUNNING;
+void RunningInfosTest::TearDownTestCase() {}
 
-        abilityMs_->taskHandler_ = TaskHandlerWrap::CreateQueueHandler(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
-        EXPECT_TRUE(abilityMs_->taskHandler_);
-        abilityMs_->eventHandler_ = std::make_shared<AbilityEventHandler>(abilityMs_->taskHandler_, abilityMs_);
-        EXPECT_TRUE(abilityMs_->eventHandler_);
+void RunningInfosTest::SetUp() {}
 
-        // init user controller.
-        abilityMs_->userController_ = std::make_shared<UserController>();
-        EXPECT_TRUE(abilityMs_->userController_);
-        abilityMs_->userController_->Init();
-        int userId = MOCK_MAIN_USER_ID;
-        abilityMs_->userController_->SetCurrentUserId(userId);
-        abilityMs_->InitConnectManager(userId, true);
-        abilityMs_->InitDataAbilityManager(userId, true);
-        abilityMs_->InitPendWantManager(userId, true);
-        abilityMs_->systemDataAbilityManager_ = std::make_shared<DataAbilityManager>();
-        EXPECT_TRUE(abilityMs_->systemDataAbilityManager_);
-
-        AmsConfigurationParameter::GetInstance().Parse();
-        abilityMs_->InitMissionListManager(userId, true);
-        abilityMs_->connectManager_->SetTaskHandler(abilityMs_->taskHandler_);
-        abilityMs_->connectManager_->SetEventHandler(abilityMs_->eventHandler_);
-        WaitUntilTaskFinished();
-        auto topAbility = abilityMs_->GetListManagerByUserId(MOCK_MAIN_USER_ID)->GetCurrentTopAbilityLocked();
-        if (topAbility) {
-            topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
-        }
-        return;
-    }
-
-    GTEST_LOG_(INFO) << "OnStart fail";
-}
-
-void RunningInfosTest::OnStopAms()
-{
-    abilityMs_->eventHandler_.reset();
-    abilityMs_->taskHandler_.reset();
-    abilityMs_->state_ = ServiceRunningState::STATE_NOT_START;
-}
-
-void RunningInfosTest::SetUpTestCase()
-{
-    OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
-        OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, new BundleMgrService());
-    MockNativeToken::SetNativeToken();
-}
-
-void RunningInfosTest::TearDownTestCase()
-{
-    OHOS::DelayedSingleton<SaMgrClient>::DestroyInstance();
-}
-
-void RunningInfosTest::SetUp()
-{
-    abilityMs_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
-    OnStartAms();
-}
-
-void RunningInfosTest::TearDown()
-{
-    OnStopAms();
-    OHOS::DelayedSingleton<AbilityManagerService>::DestroyInstance();
-}
+void RunningInfosTest::TearDown() {}
 
 /*
  * Feature: AbilityManagerService
@@ -157,6 +56,7 @@ void RunningInfosTest::TearDown()
  */
 HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_001, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
@@ -184,6 +84,7 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_001, TestSize.Level1)
  */
 HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_002, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
     ElementName element("device", "com.ix.hiService", "ServiceAbility");
     want.SetElement(element);
@@ -211,6 +112,7 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_002, TestSize.Level1)
  */
 HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_003, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
     ElementName element("device", "com.ohos.launcher", "com.ohos.launcher.MainAbility");
     want.SetElement(element);
@@ -238,6 +140,7 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_003, TestSize.Level1)
  */
 HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_004, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
@@ -277,6 +180,7 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_004, TestSize.Level1)
  */
 HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_005, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
     ElementName element("device", "com.ix.hiService", "ServiceAbility");
     want.SetElement(element);
@@ -310,6 +214,7 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_005, TestSize.Level1)
  */
 HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_006, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
     ElementName element("device", "com.ohos.launcher", "com.ohos.launcher.MainAbility");
     want.SetElement(element);
@@ -347,6 +252,7 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_006, TestSize.Level1)
  */
 HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_007, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
@@ -379,6 +285,7 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_007, TestSize.Level1)
  */
 HWTEST_F(RunningInfosTest, GetExtensionRunningInfos_001, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
     ElementName element("device", "com.ix.hiExtension", "hiExtension");
     want.SetElement(element);
@@ -406,6 +313,7 @@ HWTEST_F(RunningInfosTest, GetExtensionRunningInfos_001, TestSize.Level1)
  */
 HWTEST_F(RunningInfosTest, GetExtensionRunningInfos_002, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
     ElementName element("device", "com.ix.hiExtension", "hiExtension");
     want.SetElement(element);
@@ -436,6 +344,7 @@ HWTEST_F(RunningInfosTest, GetExtensionRunningInfos_002, TestSize.Level1)
  */
 HWTEST_F(RunningInfosTest, GetProcessRunningInfos_001, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
     ElementName element("device", "com.ix.hiExtension", "hiExtension");
     want.SetElement(element);
@@ -458,6 +367,7 @@ HWTEST_F(RunningInfosTest, GetProcessRunningInfos_001, TestSize.Level1)
  */
 HWTEST_F(RunningInfosTest, ConnectManagerGetAbilityRunningInfos_001, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
     ElementName element("device", "com.ix.hiService", "ServiceAbility");
     want.SetElement(element);
@@ -485,6 +395,7 @@ HWTEST_F(RunningInfosTest, ConnectManagerGetAbilityRunningInfos_001, TestSize.Le
  */
 HWTEST_F(RunningInfosTest, ConnectManagerGetAbilityRunningInfos_002, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
     ElementName element("device", "com.ix.hiService", "ServiceAbility");
     want.SetElement(element);
@@ -519,6 +430,7 @@ HWTEST_F(RunningInfosTest, ConnectManagerGetAbilityRunningInfos_002, TestSize.Le
  */
 HWTEST_F(RunningInfosTest, ConnectManagerGetExtensionRunningInfos_001, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
     ElementName element("device", "com.ix.hiExtension", "hiExtension");
     want.SetElement(element);
@@ -547,6 +459,7 @@ HWTEST_F(RunningInfosTest, ConnectManagerGetExtensionRunningInfos_001, TestSize.
  */
 HWTEST_F(RunningInfosTest, ConnectManagerGetExtensionRunningInfos_002, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
     ElementName element("device", "com.ix.hiExtension", "hiExtension");
     want.SetElement(element);
@@ -580,6 +493,7 @@ HWTEST_F(RunningInfosTest, ConnectManagerGetExtensionRunningInfos_002, TestSize.
  */
 HWTEST_F(RunningInfosTest, MissionGetAbilityRunningInfos_001, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
@@ -607,6 +521,7 @@ HWTEST_F(RunningInfosTest, MissionGetAbilityRunningInfos_001, TestSize.Level1)
  */
 HWTEST_F(RunningInfosTest, MissionGetAbilityRunningInfos_002, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
@@ -647,6 +562,8 @@ HWTEST_F(RunningInfosTest, MissionGetAbilityRunningInfos_002, TestSize.Level1)
  */
 HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_001, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
@@ -685,6 +602,8 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_001, TestSize.Level1)
  */
 HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_002, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
@@ -723,6 +642,8 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_002, TestSize.Level1)
  */
 HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_003, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);

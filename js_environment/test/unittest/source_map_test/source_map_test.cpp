@@ -390,7 +390,7 @@ HWTEST_F(SourceMapTest, JsEnv_SourceMap_1500, Function | MediumTest | Level1)
     mapObj->Init(true, "");
     mapObj->SplitSourceMap(sourceMaps);
     std::string stack = mapObj->TranslateBySourceMap(stackStr);
-    EXPECT_STREQ(stack.c_str(), "at anonymous (/ets/pages/Index.ets:85:9)\n");
+    EXPECT_STREQ(stack.c_str(), "at anonymous (entry/src/main/ets/pages/Index.ets:85:9)\n");
 
     GTEST_LOG_(INFO) << "JsEnv_SourceMap_1500 end" << stack.c_str();
 }

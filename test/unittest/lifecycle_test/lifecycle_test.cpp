@@ -20,54 +20,25 @@
 
 #define private public
 #define protected public
-#include "system_ability_definition.h"
 #include "lifecycle_test_base.h"
-#include "mock_bundle_manager.h"
-#include "sa_mgr_client.h"
 #undef private
 #undef protected
 
+using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace AAFwk {
-namespace {
-const std::string NAME_BUNDLE_MGR_SERVICE = "BundleMgrService";
-}
-
-static void WaitUntilTaskFinished()
-{
-    const uint32_t maxRetryCount = 1000;
-    const uint32_t sleepTime = 1000;
-    uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
-    if (handler == nullptr) {
-        GTEST_LOG_(ERROR) << "handler is nullptr";
-        return;
-    }
-    std::atomic<bool> taskCalled(false);
-    auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->SubmitTask(f)) {
-        while (!taskCalled.load()) {
-            ++count;
-            if (count >= maxRetryCount) {
-                break;
-            }
-            usleep(sleepTime);
-        }
-    }
-}
-
 class LifecycleTest : public testing::Test, public LifecycleTestBase {
 public:
-    static void SetUpTestCase(void);
+    static void SetUpTestCase();
 
-    static void TearDownTestCase(void);
+    static void TearDownTestCase();
 
-    void SetUp() override;
+    void SetUp();
 
-    void TearDown() override;
+    void TearDown();
 
     bool StartNextAbility() override;
 
@@ -78,7 +49,6 @@ public:
 public:
     int startLancherFlag_ = false;
 
-    std::shared_ptr<AbilityManagerService> abilityMs_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
     std::shared_ptr<OHOS::AAFwk::AbilityRecord> launcherAbilityRecord_{ nullptr };  // launcher ability
     OHOS::sptr<OHOS::IRemoteObject> launcherToken_{ nullptr };                      // token of launcher ability
     std::shared_ptr<OHOS::AAFwk::AbilityRecord> nextAbilityRecord_{ nullptr };      // ability being launched
@@ -88,66 +58,16 @@ public:
     std::unique_ptr<LifeTestCommand> command_{ nullptr };                           // test command_ interact with ams_
 };
 
-void LifecycleTest::OnStartabilityAms()
-{
-    if (abilityMs_) {
-        if (abilityMs_->state_ == ServiceRunningState::STATE_RUNNING) {
-            return;
-        }
+void LifecycleTest::SetUpTestCase() {}
 
-        abilityMs_->state_ = ServiceRunningState::STATE_RUNNING;
-        abilityMs_->taskHandler_ = TaskHandlerWrap::CreateQueueHandler(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
-        abilityMs_->eventHandler_ = std::make_shared<AbilityEventHandler>(abilityMs_->taskHandler_, abilityMs_);
-        abilityMs_->connectManager_ = std::make_shared<AbilityConnectManager>(0);
-        abilityMs_->connectManagers_.emplace(0, abilityMs_->connectManager_);
-        EXPECT_TRUE(abilityMs_->taskHandler_);
-        EXPECT_TRUE(abilityMs_->connectManager_);
-        abilityMs_->connectManager_->SetTaskHandler(abilityMs_->taskHandler_);
-        abilityMs_->connectManager_->SetEventHandler(abilityMs_->eventHandler_);
-        abilityMs_->dataAbilityManager_ = std::make_shared<DataAbilityManager>();
-        abilityMs_->dataAbilityManagers_.emplace(0, abilityMs_->dataAbilityManager_);
-        EXPECT_TRUE(abilityMs_->dataAbilityManager_);
-        AmsConfigurationParameter::GetInstance().Parse();
-        abilityMs_->currentMissionListManager_ = std::make_shared<MissionListManager>(0);
-        abilityMs_->currentMissionListManager_->Init();
-        abilityMs_->pendingWantManager_ = std::make_shared<PendingWantManager>();
-        EXPECT_TRUE(abilityMs_->pendingWantManager_);
-        return;
-    }
-
-    GTEST_LOG_(INFO) << "OnStart fail";
-}
-
-void LifecycleTest::SetUpTestCase(void)
-{
-    OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
-        OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, new BundleMgrService());
-}
-
-void LifecycleTest::TearDownTestCase(void)
+void LifecycleTest::TearDownTestCase()
 {
     OHOS::DelayedSingleton<SaMgrClient>::DestroyInstance();
 }
 
-void LifecycleTest::SetUp(void)
-{
-    OnStartabilityAms();
-    WaitUntilTaskFinished();
-    command_ = std::make_unique<LifeTestCommand>();
-}
+void LifecycleTest::SetUp() {}
 
-void LifecycleTest::TearDown(void)
-{
-    abilityMs_->OnStop();
-    launcherAbilityRecord_.reset();
-    launcherToken_ = nullptr;
-    nextAbilityRecord_.reset();
-    nextToken_ = nullptr;
-    launcherScheduler_ = nullptr;
-    nextScheduler_ = nullptr;
-    command_.reset();
-    startLancherFlag_ = false;
-}
+void LifecycleTest::TearDown() {}
 
 bool LifecycleTest::StartNextAbility()
 {
@@ -157,6 +77,7 @@ bool LifecycleTest::StartNextAbility()
 int LifecycleTest::AttachAbility(
     const OHOS::sptr<OHOS::AAFwk::AbilityScheduler>& scheduler, const OHOS::sptr<OHOS::IRemoteObject>& token)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     return abilityMs_->AttachAbilityThread(scheduler, token);
 }
 
@@ -171,6 +92,7 @@ int LifecycleTest::AttachAbility(
  */
 HWTEST_F(LifecycleTest, AAFWK_AbilityMS_StartLauncherAbilityLifeCycle_001, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     if (startLancherFlag_) {
         EXPECT_TRUE(abilityMs_);
         EXPECT_TRUE(launcherAbilityRecord_);
@@ -192,6 +114,7 @@ HWTEST_F(LifecycleTest, AAFWK_AbilityMS_StartLauncherAbilityLifeCycle_001, TestS
  */
 HWTEST_F(LifecycleTest, AAFWK_AbilityMS_StartLauncherAbilityLifeCycle_002, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     if (startLancherFlag_) {
         EXPECT_TRUE(abilityMs_);
         EXPECT_TRUE(launcherAbilityRecord_);
@@ -213,6 +136,7 @@ HWTEST_F(LifecycleTest, AAFWK_AbilityMS_StartLauncherAbilityLifeCycle_002, TestS
  */
 HWTEST_F(LifecycleTest, AAFWK_AbilityMS_StartLauncherAbilityLifeCycle_003, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     if (startLancherFlag_) {
         command_->callback_ = false;
         command_->expectState_ = OHOS::AAFwk::AbilityState::ACTIVE;
@@ -240,6 +164,7 @@ HWTEST_F(LifecycleTest, AAFWK_AbilityMS_StartLauncherAbilityLifeCycle_003, TestS
  */
 HWTEST_F(LifecycleTest, AAFWK_AbilityMS_StartLauncherAbilityLifeCycle_004, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     if (startLancherFlag_) {
         // AttachAbilityThread done and success
         EXPECT_EQ(AttachAbility(launcherScheduler_, launcherToken_), 0);
@@ -273,6 +198,7 @@ HWTEST_F(LifecycleTest, AAFWK_AbilityMS_StartLauncherAbilityLifeCycle_004, TestS
  */
 HWTEST_F(LifecycleTest, AAFWK_AbilityMS_StartLauncherAbilityLifeCycle_005, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     if (startLancherFlag_) {
         // AttachAbilityThread done and success
         EXPECT_EQ(AttachAbility(launcherScheduler_, launcherToken_), 0);
@@ -293,7 +219,6 @@ HWTEST_F(LifecycleTest, AAFWK_AbilityMS_StartLauncherAbilityLifeCycle_005, TestS
         PacMap saveData;
         abilityMs_->AbilityTransitionDone(launcherToken_, command_->state_, saveData);
         if (launcherAbilityRecord_->GetAbilityState() != OHOS::AAFwk::AbilityState::ACTIVE) {
-            WaitUntilTaskFinished();
             EXPECT_EQ(launcherAbilityRecord_->GetAbilityState(), OHOS::AAFwk::AbilityState::ACTIVE);
         }
         EXPECT_EQ(launcherAbilityRecord_->IsReady(), true);
@@ -311,6 +236,7 @@ HWTEST_F(LifecycleTest, AAFWK_AbilityMS_StartLauncherAbilityLifeCycle_005, TestS
  */
 HWTEST_F(LifecycleTest, AAFWK_AbilityMS_StartLauncherAbilityLifeCycle_006, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     if (startLancherFlag_) {
         command_->callback_ = false;
         command_->expectState_ = OHOS::AAFwk::AbilityState::ACTIVE;
@@ -335,6 +261,7 @@ HWTEST_F(LifecycleTest, AAFWK_AbilityMS_StartLauncherAbilityLifeCycle_006, TestS
  */
 HWTEST_F(LifecycleTest, AAFWK_AbilityMS_startAbilityLifeCycle_001, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     if (startLancherFlag_) {
         command_->callback_ = false;
         command_->expectState_ = OHOS::AAFwk::AbilityState::INACTIVE;
@@ -365,13 +292,13 @@ HWTEST_F(LifecycleTest, AAFWK_AbilityMS_startAbilityLifeCycle_001, TestSize.Leve
  */
 HWTEST_F(LifecycleTest, AAFWK_AbilityMS_startAbilityLifeCycle_002, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     if (startLancherFlag_) {
         EXPECT_EQ(AttachAbility(launcherScheduler_, launcherToken_), 0);
         EXPECT_TRUE(StartNextAbility());
         // launcher is in inactivating process.
         PacMap saveData;
         EXPECT_NE(abilityMs_->AbilityTransitionDone(launcherToken_, OHOS::AAFwk::AbilityState::ACTIVE, saveData), 0);
-        WaitUntilTaskFinished();
         EXPECT_EQ(launcherAbilityRecord_->GetAbilityState(), OHOS::AAFwk::AbilityState::INACTIVATING);
         EXPECT_EQ(nextAbilityRecord_->GetAbilityState(), OHOS::AAFwk::AbilityState::INITIAL);
     }
@@ -387,12 +314,12 @@ HWTEST_F(LifecycleTest, AAFWK_AbilityMS_startAbilityLifeCycle_002, TestSize.Leve
  */
 HWTEST_F(LifecycleTest, AAFWK_AbilityMS_startAbilityLifeCycle_003, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     if (startLancherFlag_) {
         command_->callback_ = false;
         command_->expectState_ = OHOS::AAFwk::AbilityState::ACTIVE;
         command_->state_ = OHOS::AAFwk::AbilityState::INITIAL;
         EXPECT_EQ(AttachAbility(launcherScheduler_, launcherToken_), 0);
-        WaitUntilTaskFinished();
         EXPECT_TRUE(StartNextAbility());
         launcherAbilityRecord_->SetAbilityState(OHOS::AAFwk::AbilityState::INACTIVATING);
         PacMap saveData;
@@ -406,8 +333,6 @@ HWTEST_F(LifecycleTest, AAFWK_AbilityMS_startAbilityLifeCycle_003, TestSize.Leve
         // check timeout handler
         EXPECT_EQ(nextAbilityRecord_->GetAbilityState(), OHOS::AAFwk::AbilityState::ACTIVATING);
         pthread_join(tid, nullptr);
-
-        WaitUntilTaskFinished();
     }
 }
 
@@ -423,6 +348,7 @@ HWTEST_F(LifecycleTest, AAFWK_AbilityMS_startAbilityLifeCycle_003, TestSize.Leve
  */
 HWTEST_F(LifecycleTest, AAFWK_AbilityMS_startAbilityLifeCycle_004, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     if (startLancherFlag_) {
         EXPECT_EQ(AttachAbility(launcherScheduler_, launcherToken_), 0);
         EXPECT_TRUE(StartNextAbility());
@@ -448,6 +374,7 @@ HWTEST_F(LifecycleTest, AAFWK_AbilityMS_startAbilityLifeCycle_004, TestSize.Leve
  */
 HWTEST_F(LifecycleTest, AAFWK_AbilityMS_startAbilityLifeCycle_005, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     if (startLancherFlag_) {
         command_->callback_ = true;
         command_->expectState_ = OHOS::AAFwk::AbilityState::ACTIVE;
@@ -458,7 +385,6 @@ HWTEST_F(LifecycleTest, AAFWK_AbilityMS_startAbilityLifeCycle_005, TestSize.Leve
         launcherAbilityRecord_->SetAbilityState(OHOS::AAFwk::AbilityState::INACTIVATING);
         PacMap saveData;
         EXPECT_EQ(abilityMs_->AbilityTransitionDone(launcherToken_, OHOS::AAFwk::AbilityState::INACTIVE, saveData), 0);
-        WaitUntilTaskFinished();
         // launcher oninactive done.
         nextAbilityRecord_->SetAbilityState(OHOS::AAFwk::AbilityState::INITIAL);
         EXPECT_EQ(AttachAbility(nextScheduler_, nextToken_), 0);
@@ -485,6 +411,7 @@ HWTEST_F(LifecycleTest, AAFWK_AbilityMS_startAbilityLifeCycle_005, TestSize.Leve
  */
 HWTEST_F(LifecycleTest, AAFWK_AbilityMS_startAbilityLifeCycle_006, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     if (startLancherFlag_) {
         command_->callback_ = false;
         command_->expectState_ = OHOS::AAFwk::AbilityState::ACTIVE;
@@ -516,6 +443,7 @@ HWTEST_F(LifecycleTest, AAFWK_AbilityMS_startAbilityLifeCycle_006, TestSize.Leve
  */
 HWTEST_F(LifecycleTest, AAFWK_AbilityMS_startAbilityLifeCycle_007, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     if (startLancherFlag_) {
         command_->callback_ = true;
         command_->expectState_ = OHOS::AAFwk::AbilityState::ACTIVE;
@@ -527,7 +455,6 @@ HWTEST_F(LifecycleTest, AAFWK_AbilityMS_startAbilityLifeCycle_007, TestSize.Leve
         EXPECT_EQ(abilityMs_->AbilityTransitionDone(
             launcherToken_, OHOS::AAFwk::AbilityState::INACTIVE, saveData), OHOS::ERR_OK);
         // launcher oninactive done.
-        WaitUntilTaskFinished();
         EXPECT_EQ(launcherAbilityRecord_->GetAbilityState(), OHOS::AAFwk::AbilityState::INACTIVE);
         EXPECT_EQ(AttachAbility(nextScheduler_, nextToken_), 0);
         pthread_t tid = 0;

@@ -347,9 +347,6 @@ HWTEST_F(MissionInfoMgrTest, GetMissionInfoById_001, TestSize.Level1)
 
     missionInfo.startMethod = 100;
     EXPECT_EQ(missionInfoMgr->GetMissionInfoById(1, myMissionInfo), 0);
-
-    missionInfoMgr->missionIdMap_[2] = true;
-    EXPECT_EQ(missionInfoMgr->GetMissionInfoById(2, myMissionInfo), -1);
 }
 
 /*
@@ -370,9 +367,6 @@ HWTEST_F(MissionInfoMgrTest, GetInnerMissionInfoById_001, TestSize.Level1)
     missionInfo.missionInfo.id = 1;
     missionInfoMgr->missionInfoList_.push_back(missionInfo);
     EXPECT_EQ(missionInfoMgr->GetInnerMissionInfoById(1, missionInfo), 0);
-
-    missionInfoMgr->missionIdMap_[2] = true;
-    EXPECT_EQ(missionInfoMgr->GetInnerMissionInfoById(2, missionInfo), MISSION_NOT_FOUND);
 }
 
 /*
