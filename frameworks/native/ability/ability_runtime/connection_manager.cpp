@@ -178,7 +178,7 @@ ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject>& connectC
 
 bool ConnectionManager::DisconnectCaller(const sptr<IRemoteObject>& connectCaller)
 {
-    HILOG_DEBUG("diconenctCaller begin.");
+    HILOG_DEBUG("call");
     if (connectCaller == nullptr) {
         HILOG_ERROR("connectCaller is nullptr.");
         return false;
