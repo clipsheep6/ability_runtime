@@ -125,6 +125,8 @@ constexpr char SHARE_PICKER_DIALOG_ABILITY_NAME_KEY[] = "const.system.sharePicke
 constexpr char SHARE_PICKER_DIALOG_DEFAULY_BUNDLE_NAME[] = "com.ohos.sharepickerdialog";
 constexpr char SHARE_PICKER_DIALOG_DEFAULY_ABILITY_NAME[] = "PickerDialog";
 constexpr char TOKEN_KEY[] = "ohos.ability.params.token";
+// Broker params key
+const std::string KEY_VISIBLE_ID = "ohos.anco.param.visible";
 
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
 
@@ -4338,6 +4340,11 @@ int AbilityManagerService::GenerateAbilityRequest(
         
         IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(request.want, abilityInfoFlag, userId, request.abilityInfo));
 
+        if (request.want.GetBoolParam(KEY_VISIBLE_ID, false) && !request.abilityInfo.visible) {
+            request.abilityInfo.visible = true;
+            HILOG_DEBUG("request.abilityInfo.visible set true");
+        }
+        
         HILOG_INFO("collaborator notify broker start ability success");
     }
 
