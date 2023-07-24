@@ -148,6 +148,23 @@ ohos_shared_library("ability_manager") {
   part_name = "ability_runtime"
 }
 
+ohos_shared_library("mission_info") {
+  sources =
+      [ "${ability_runtime_services_path}/abilitymgr/src/mission_info.cpp" ]
+
+  public_configs = [ ":ability_manager_public_config" ]
+
+  external_deps = [
+    "ability_base:want",
+    "c_utils:utils",
+    "ipc:ipc_core",
+  ]
+  cflags_cc = []
+  innerapi_tags = [ "platformsdk" ]
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
 ohos_shared_library("ability_manager_c") {
   include_dirs = [ "include" ]
   sources = [ "src/ability_manager_client_c.cpp" ]
