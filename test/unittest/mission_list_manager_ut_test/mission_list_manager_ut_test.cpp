@@ -21,6 +21,7 @@
 #include "ability_connect_callback_interface.h"
 #include "ability_loader.h"
 #include "ability_thread.h"
+#include "fa_ability_thread.h"
 #define private public
 #define protected public
 #include "ability_record.h"
@@ -83,7 +84,7 @@ public:
     virtual void OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int resultCode) {};
 };
 
-class MissionListManagerTestAbilityThreadStub : public AppExecFwk::AbilityThread {
+class MissionListManagerTestAbilityThreadStub : public AppExecFwk::FAAbilityThread {
 public:
     MissionListManagerTestAbilityThreadStub() {};
     ~MissionListManagerTestAbilityThreadStub() {};

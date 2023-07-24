@@ -19,19 +19,20 @@
 #include "ability.h"
 #include "ability_impl.h"
 #include "ability_thread.h"
+#include "fa_ability_thread.h"
 #include <gtest/gtest.h>
 
 namespace OHOS {
 namespace AppExecFwk {
 using Want = OHOS::AAFwk::Want;
 
-class MockAbilityThread : public AbilityThread {
+class MockAbilityThread : public FAAbilityThread {
 public:
     MockAbilityThread() = default;
     virtual ~MockAbilityThread() = default;
 
 private:
-    AbilityThread AbilityThread_;
+    FAAbilityThread AbilityThread_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -79,21 +79,6 @@ HWTEST_F(AbilityLocalRecordTest, GetEventRunner_0100, TestSize.Level0)
     record->SetEventRunner(runner);
     EXPECT_TRUE(record->GetEventRunner() != nullptr);
     GTEST_LOG_(INFO) << "AbilityLocalRecordTest SetEventHandler_0100 end";
-}
-
-/**
- * @tc.number: GetAbilityImpl_0100
- * @tc.name: GetAbilityImpl
- * @tc.desc: GetAbilityImpl Test, return is not nullptr.
- */
-HWTEST_F(AbilityLocalRecordTest, GetAbilityImpl_0100, TestSize.Level0)
-{
-    GTEST_LOG_(INFO) << "AbilityLocalRecordTest GetAbilityImpl_0100 start";
-    auto record = std::make_shared<OHOS::AppExecFwk::AbilityLocalRecord>(nullptr, nullptr);
-    auto abilityImpl = std::make_shared<AbilityImpl>();
-    record->SetAbilityImpl(abilityImpl);
-    EXPECT_TRUE(record->GetAbilityImpl() != nullptr);
-    GTEST_LOG_(INFO) << "AbilityLocalRecordTest GetAbilityImpl_0100 end";
 }
 
 /**

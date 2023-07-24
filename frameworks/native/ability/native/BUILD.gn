@@ -312,6 +312,7 @@ ohos_shared_library("abilitykit_native") {
       "form_fwk:form_manager",
       "image_framework:image",
       "input:libmmi-client",
+      "multimedia_image_framework:image",
       "window_manager:windowstage_kit",
     ]
 
@@ -391,7 +392,10 @@ ohos_shared_library("extensionkit_native") {
     "napi:ace_napi",
   ]
 
-  public_deps = [ ":abilitykit_utils" ]
+  public_deps = [
+    ":abilitykit_utils",
+    "${arkui_path}/napi:ace_napi",
+  ]
 
   if (ability_runtime_graphics) {
     external_deps += [ "ability_base:session_info" ]
@@ -406,11 +410,15 @@ ohos_shared_library("ability_thread") {
   include_dirs =
       [ "${ability_runtime_path}/interfaces/kits/native/ability/native" ]
 
-  sources =
-      [ "${ability_runtime_native_path}/ability/native/ability_thread.cpp" ]
+  sources = [
+    "${ability_runtime_native_path}/ability/native/ability_thread.cpp",
+    "${ability_runtime_native_path}/ability/native/fa_ability_thread.cpp",
+  ]
 
   deps = [
     ":abilitykit_native",
+    ":abilitykit_utils",
+    ":extensionkit_native",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
     "${ability_runtime_native_path}/ability:ability_context_native",

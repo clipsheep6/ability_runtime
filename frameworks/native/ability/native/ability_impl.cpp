@@ -44,7 +44,6 @@ void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std:
     }
 
     token_ = record->GetToken();
-    record->SetAbilityImpl(shared_from_this());
     ability_ = ability;
     handler_ = handler;
     auto info = record->GetAbilityInfo();

@@ -15,7 +15,9 @@
 
 #include "ohos_application.h"
 
+#include "ability.h"
 #include "ability_record_mgr.h"
+#include "ability_thread.h"
 #include "app_loader.h"
 #include "application_impl.h"
 #include "context_impl.h"
@@ -27,7 +29,6 @@
 #ifdef SUPPORT_GRAPHICS
 #include "window.h"
 #endif
-#include "ability_thread.h"
 
 namespace OHOS {
 namespace AppExecFwk {

@@ -20,6 +20,7 @@
 #include "ability_manager_client.h"
 #include "ability_scheduler_proxy.h"
 #include "ability_thread.h"
+#include "fa_ability_thread.h"
 
 #include <iremote_object.h>
 #include <iremote_stub.h>
@@ -57,7 +58,7 @@ public:
         } else {
             if (abilitySchedulerProxyInstance2 == nullptr) {
                 if (abilityThreadInstance == nullptr) {
-                    abilityThreadInstance = std::make_shared<AbilityThread>();
+                    abilityThreadInstance = std::make_shared<FAAbilityThread>();
                 }
                 abilitySchedulerProxyInstance2 = sptr<AAFwk::AbilitySchedulerProxy>(
                     new (std::nothrow) AAFwk::AbilitySchedulerProxy(abilityThreadInstance->AsObject()));

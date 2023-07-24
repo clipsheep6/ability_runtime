@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 #include <functional>
 #define private public
 #include "ability_thread.h"
+#include "fa_ability_thread.h"
 #define protected public
 #include "ability_handler.h"
 #include "system_ability_definition.h"
@@ -78,7 +79,7 @@ HWTEST_F(AbilityThreadCallRequestTest, AaFwk_AbilityThread_CallRequest_0100, Fun
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CallRequest_0100 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    FAAbilityThread* abilitythread = new (std::nothrow) FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         abilitythread->currentAbility_ = std::make_shared<CurrentAbilityTest>();
@@ -99,7 +100,7 @@ HWTEST_F(AbilityThreadCallRequestTest, AaFwk_AbilityThread_CallRequest_0100, Fun
 HWTEST_F(AbilityThreadCallRequestTest, AaFwk_AbilityThread_CallRequest_0200, Function | MediumTest | Level3)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CallRequest_0200 start";
-    AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
+    FAAbilityThread *abilitythread = new (std::nothrow) FAAbilityThread();
     abilitythread->CallRequest();
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CallRequest_0200 end";
 }
@@ -113,7 +114,7 @@ HWTEST_F(AbilityThreadCallRequestTest, AaFwk_AbilityThread_CallRequest_0300, Fun
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CallRequest_0300 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    FAAbilityThread* abilitythread = new (std::nothrow) FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         abilitythread->currentAbility_ = std::make_shared<CurrentAbilityTest>();

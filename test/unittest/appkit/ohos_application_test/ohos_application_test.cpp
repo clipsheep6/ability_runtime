@@ -24,6 +24,7 @@
 #include "application_info.h"
 #include "context_deal.h"
 #include "context_impl.h"
+#include "fa_ability_thread.h"
 #include "mock_ability_lifecycle_callbacks.h"
 #include "mock_element_callback.h"
 #include "mock_i_remote_object.h"
@@ -650,7 +651,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnConfigurationUpda
     std::shared_ptr<AbilityInfo> info =  nullptr;
     std::shared_ptr<AbilityLocalRecord> abilityRecord =  std::make_shared<AbilityLocalRecord>(info, token);
     ohosApplication_->abilityRecordMgr_->abilityRecords_.emplace(token, abilityRecord);
-    sptr<AbilityThread> abilityThread = new (std::nothrow) AbilityThread();
+    sptr<AbilityThread> abilityThread = new (std::nothrow) FAAbilityThread();
     abilityRecord->SetAbilityThread(abilityThread);
     ohosApplication_->OnConfigurationUpdated(config);
     EXPECT_TRUE(!ohosApplication_->abilityRecordMgr_->abilityRecords_.empty());
@@ -733,7 +734,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0100,
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(info, token);
     EXPECT_TRUE(abilityRecord != nullptr);
     ohosApplication_->abilityRecordMgr_->abilityRecords_.emplace(token, abilityRecord);
-    sptr<AbilityThread> abilityThread = new (std::nothrow) AbilityThread();
+    sptr<AbilityThread> abilityThread = new (std::nothrow) FAAbilityThread();
     abilityRecord->SetAbilityThread(abilityThread);
     ohosApplication_->OnMemoryLevel(level);
     EXPECT_FALSE(ohosApplication_->abilityRecordMgr_->abilityRecords_.empty());
