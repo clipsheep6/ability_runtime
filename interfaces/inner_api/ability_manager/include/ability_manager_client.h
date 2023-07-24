@@ -976,6 +976,28 @@ public:
     void UpdateMissionSnapShot(const sptr<IRemoteObject>& token);
 
     /**
+     * @brief add ability recover info.
+     *
+     * @param token Ability identify.
+     */
+    void AddAbilityRecoverInfo(const sptr<IRemoteObject>& token);
+
+    /**
+     * @brief delete ability recover info.
+     *
+     * @param token Ability identify.
+     */
+    void DeleteAbilityRecoverInfo(const sptr<IRemoteObject>& token);
+
+    /**
+     * @brief get ability recover info.
+     *
+     * @param token Ability identify.
+     * @return has recover info
+     */
+    bool GetAbilityRecoverInfo(const sptr<IRemoteObject>& token);
+
+    /**
      * @brief Enable recover ability.
      *
      * @param token Ability identify.

@@ -143,6 +143,12 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::MoveMissionToBackgroundInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_MISSION)] =
         &AbilityManagerStub::TerminateMissionInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ADD_ABILITY_RECOVER_INFO)] =
+        &AbilityManagerStub::AddAbilityRecoverInfoInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DELETE_ABILITY_RECOVER_INFO)] =
+        &AbilityManagerStub::DeleteAbilityRecoverInfoInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ABILITY_RECOVER_INFO)] =
+        &AbilityManagerStub::GetAbilityRecoverInfoInner;
 }
 
 void AbilityManagerStub::SecondStepInit()
@@ -1971,6 +1977,43 @@ int AbilityManagerStub::UpdateMissionSnapShotFromWMSInner(MessageParcel &data, M
         return ERR_NULL_OBJECT;
     }
     UpdateMissionSnapShot(token, pixelMap);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::AddAbilityRecoverInfoInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    if (!token) {
+        HILOG_ERROR("AddAbilityRecoverInfoInner read ability token failed.");
+        return ERR_NULL_OBJECT;
+    }
+    AddAbilityRecoverInfo(token);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::DeleteAbilityRecoverInfoInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    if (!token) {
+        HILOG_ERROR("DeleteAbilityRecoverInfoInner read ability token failed.");
+        return ERR_NULL_OBJECT;
+    }
+    DeleteAbilityRecoverInfo(token);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::GetAbilityRecoverInfoInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    if (!token) {
+        HILOG_ERROR("GetAbilityRecoverInfoInner read ability token failed.");
+        return ERR_NULL_OBJECT;
+    }
+    bool hasRecoverInfo = GetAbilityRecoverInfo(token);
+    if (!reply.WriteBool(hasRecoverInfo)) {
+        HILOG_ERROR("GetAbilityRecoverInfo reply write failed!");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 

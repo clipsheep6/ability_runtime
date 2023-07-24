@@ -5457,6 +5457,83 @@ void AbilityManagerService::UpdateMissionSnapShot(const sptr<IRemoteObject> &tok
     }
 }
 
+void AbilityManagerService::AddAbilityRecoverInfo(const sptr<IRemoteObject>& token)
+{
+    if (token == nullptr) {
+        return;
+    }
+    auto record = Token::GetAbilityRecordByToken(token);
+    if (record == nullptr) {
+        HILOG_ERROR("AddAbilityRecoverInfo failed find abilityRecord by given token.");
+        return;
+    }
+
+    auto callingTokenId = IPCSkeleton::GetCallingTokenID();
+    auto tokenID = record->GetApplicationInfo().accessTokenId;
+    if (callingTokenId != tokenID) {
+        HILOG_ERROR("AddAbilityRecoverInfo not self, not enabled");
+        return;
+    }
+
+    {
+        std::lock_guard<ffrt::mutex> guard(globalLock_);
+        auto it = appRecoveryHistory_.find(record->GetUid());
+        if (it == appRecoveryHistory_.end()) {
+            appRecoveryHistory_.emplace(record->GetUid(), 0);
+        }
+    }
+
+    int sessionId = uiAbilityLifecycleManager_->GetSessionIdByAbilityToken(token);
+    DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->AddAbilityRecoverInfo(sessionId);
+}
+
+void AbilityManagerService::DeleteAbilityRecoverInfo(const sptr<IRemoteObject>& token)
+{
+    if (token == nullptr) {
+        return;
+    }
+    auto record = Token::GetAbilityRecordByToken(token);
+    if (record == nullptr) {
+        HILOG_ERROR("DeleteAbilityRecoverInfo failed find abilityRecord by given token.");
+        return;
+    }
+
+    auto callingTokenId = IPCSkeleton::GetCallingTokenID();
+    auto tokenID = record->GetApplicationInfo().accessTokenId;
+    if (callingTokenId != tokenID) {
+        HILOG_ERROR("DeleteAbilityRecoverInfo not self, not enabled");
+        return;
+    }
+
+    int sessionId = uiAbilityLifecycleManager_->GetSessionIdByAbilityToken(token);
+    DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->DeleteAbilityRecoverInfo(sessionId);
+}
+
+bool AbilityManagerService::GetAbilityRecoverInfo(const sptr<IRemoteObject>& token)
+{
+    if (token == nullptr) {
+        return false;
+    }
+    auto record = Token::GetAbilityRecordByToken(token);
+    if (record == nullptr) {
+        HILOG_ERROR("GetAbilityRecoverInfo failed find abilityRecord by given token.");
+        return false;
+    }
+
+    auto callingTokenId = IPCSkeleton::GetCallingTokenID();
+    auto tokenID = record->GetApplicationInfo().accessTokenId;
+    if (callingTokenId != tokenID) {
+        HILOG_ERROR("GetAbilityRecoverInfo not self, not enabled");
+        return false;
+    }
+
+    int sessionId = uiAbilityLifecycleManager_->GetSessionIdByAbilityToken(token);
+    bool hasRecoverInfo = false;
+    DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->GetAbilityRecoverInfo(
+        sessionId, hasRecoverInfo);
+    return hasRecoverInfo;
+}
+
 void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& token)
 {
     if (token == nullptr) {
