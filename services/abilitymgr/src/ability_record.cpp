@@ -63,6 +63,7 @@ const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
 const std::string DLP_INDEX = "ohos.dlp.params.index";
 const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
 const std::string COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
+const std::string KEY_MISSION_ID = "ohos.anco.param.missionId";
 const std::string NEED_STARTINGWINDOW = "ohos.ability.NeedStartingWindow";
 const std::string PARAMS_URI = "ability.verify.uri";
 const std::string PARAMS_FILE_SAVING_URL_KEY = "pick_path_return";
@@ -2220,7 +2221,6 @@ void AbilityRecord::SetMission(const std::shared_ptr<Mission> &mission)
         missionId_ = mission->GetMissionId();
         HILOG_DEBUG("SetMission come, missionId is %{public}d.", missionId_);
     }
-    const std::string KEY_MISSION_ID = "ohos.anco.param.missionId";
     want_.RemoveParam(KEY_MISSION_ID);
     want_.SetParam(KEY_MISSION_ID, missionId_);
     mission_ = mission;

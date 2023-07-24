@@ -4042,6 +4042,24 @@ void MissionListManager::NotifyCollaboratorMissionCreated(const AbilityRequest &
     HILOG_INFO("collaborator NotifyMissionCreated success.");
 }
 
+int32_t MissionListManager::MoveMissionToBackground(int32_t missionId)
+{
+    HILOG_INFO("call");
+    std::shared_ptr<Mission> mission = GetMissionById(missionId);
+    if (!mission) {
+        HILOG_ERROR("mission is null.");
+        return ERR_INVALID_VALUE;
+    }
+    std::shared_ptr<AbilityRecord> abilityRecord = mission->GetAbilityRecord();
+    if (!abilityRecord) {
+        HILOG_ERROR("abilityRecord is null.");
+        return ERR_INVALID_VALUE;
+    }
+    std::lock_guard guard(managerLock_);
+    MoveToBackgroundTask(abilityRecord);
+    return ERR_OK;
+}
+
 int32_t MissionListManager::TerminateMission(int32_t missionId)
 {
     HILOG_INFO("call");

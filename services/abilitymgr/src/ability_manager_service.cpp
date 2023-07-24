@@ -125,6 +125,8 @@ constexpr char SHARE_PICKER_DIALOG_ABILITY_NAME_KEY[] = "const.system.sharePicke
 constexpr char SHARE_PICKER_DIALOG_DEFAULY_BUNDLE_NAME[] = "com.ohos.sharepickerdialog";
 constexpr char SHARE_PICKER_DIALOG_DEFAULY_ABILITY_NAME[] = "PickerDialog";
 constexpr char TOKEN_KEY[] = "ohos.ability.params.token";
+// Broker params key
+const std::string KEY_VISIBLE_ID = "ohos.anco.param.visible";
 
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
 
@@ -171,6 +173,7 @@ const int32_t GET_PARAMETER_INCORRECT = -9;
 const int32_t GET_PARAMETER_OTHER = -1;
 const int32_t SIZE_10 = 10;
 const int32_t ACCOUNT_MGR_SERVICE_UID = 3058;
+const int32_t BROKER_UID = 5528;
 const int32_t DMS_UID = 5522;
 const int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
 const std::string BUNDLE_NAME_KEY = "bundleName";
@@ -4325,7 +4328,7 @@ int AbilityManagerService::GenerateAbilityRequest(
         auto collaborator = GetCollaborator(request.collaboratorType);
         if (collaborator == nullptr) {
             HILOG_ERROR("collaborator GetCollaborator is nullptr.");
-            return RESOLVE_ABILITY_ERR;
+            return ERR_COLLABORATOR_NOT_REGISTER;
         }
 
         uint64_t accessTokenIDEx = IPCSkeleton::GetCallingFullTokenID();
@@ -4333,10 +4336,15 @@ int AbilityManagerService::GenerateAbilityRequest(
         int32_t ret = collaborator->NotifyStartAbility(request.abilityInfo, userId, request.want, accessTokenIDEx);
         if (ret != ERR_OK) {
             HILOG_ERROR("collaborator: notify broker start ability failed");
-            return RESOLVE_ABILITY_ERR;
+            return ERR_COLLABORATOR_NOTIFY_FAILED;
         }
         
         IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(request.want, abilityInfoFlag, userId, request.abilityInfo));
+
+        if (request.want.GetBoolParam(KEY_VISIBLE_ID, false) && !request.abilityInfo.visible) {
+            request.abilityInfo.visible = true;
+            HILOG_DEBUG("request.abilityInfo.visible set true");
+        }
 
         HILOG_INFO("collaborator notify broker start ability success");
     }
@@ -7676,6 +7684,12 @@ void AbilityManagerService::StartSpecifiedAbilityBySCB(const Want &want)
 int32_t AbilityManagerService::RegisterIAbilityManagerCollaborator(
     int32_t type, const sptr<IAbilityManagerCollaborator> &impl)
 {
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    auto callingUid = IPCSkeleton::GetCallingUid();
+    if (!isSaCall || callingUid != BROKER_UID) {
+        HILOG_ERROR("The interface only support for broker");
+        return CHECK_PERMISSION_FAILED;
+    }
     if (!CheckCollaboratorType(type)) {
         HILOG_ERROR("collaborator register failed, invalid type.");
         return ERR_INVALID_VALUE;
@@ -7689,6 +7703,12 @@ int32_t AbilityManagerService::RegisterIAbilityManagerCollaborator(
 
 int32_t AbilityManagerService::UnregisterIAbilityManagerCollaborator(int32_t type)
 {
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    auto callingUid = IPCSkeleton::GetCallingUid();
+    if (!isSaCall || callingUid != BROKER_UID) {
+        HILOG_ERROR("The interface only support for broker");
+        return CHECK_PERMISSION_FAILED;
+    }
     if (!CheckCollaboratorType(type)) {
         HILOG_ERROR("collaborator unregister failed, invalid type.");
         return ERR_INVALID_VALUE;
@@ -7702,20 +7722,30 @@ int32_t AbilityManagerService::UnregisterIAbilityManagerCollaborator(int32_t typ
 
 int32_t AbilityManagerService::MoveMissionToBackground(int32_t missionId)
 {
-    std::vector<int32_t> missionIds;
-    std::vector<int32_t> results;
-    missionIds.emplace_back(missionId);
-    int32_t ret = MoveMissionsToBackground(missionIds, results);
-    if (ret != NO_ERROR) {
-        HILOG_ERROR("collaborator: MoveMissionToBackground failed.");
-        return ret;
+    HILOG_INFO("call");
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    auto callingUid = IPCSkeleton::GetCallingUid();
+    if (!isSaCall || callingUid != BROKER_UID) {
+        HILOG_ERROR("The interface only support for broker");
+        return CHECK_PERMISSION_FAILED;
     }
-    return ERR_OK;
+    if (!currentMissionListManager_) {
+        HILOG_ERROR("currentMissionListManager_ is null.");
+        return ERR_INVALID_VALUE;
+    }
+
+    return currentMissionListManager_->MoveMissionToBackground(missionId);
 }
 
 int32_t AbilityManagerService::TerminateMission(int32_t missionId)
 {
     HILOG_INFO("call");
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    auto callingUid = IPCSkeleton::GetCallingUid();
+    if (!isSaCall || callingUid != BROKER_UID) {
+        HILOG_ERROR("The interface only support for broker");
+        return CHECK_PERMISSION_FAILED;
+    }
     if (!currentMissionListManager_) {
         HILOG_ERROR("currentMissionListManager_ is null.");
         return ERR_INVALID_VALUE;

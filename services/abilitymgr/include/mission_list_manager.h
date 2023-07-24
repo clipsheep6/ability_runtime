@@ -353,6 +353,7 @@ public:
     int SetMissionContinueState(const sptr<IRemoteObject> &token, const int32_t missionId,
         const AAFwk::ContinueState &state);
 
+    int32_t MoveMissionToBackground(int32_t missionId);
 #ifdef SUPPORT_GRAPHICS
 public:
     /**
