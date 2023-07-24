@@ -64,6 +64,9 @@ class Runtime;
 }
 #ifdef SUPPORT_GRAPHICS
 class KeyEvent;
+namespace Ace {
+class UIContent;
+}
 #endif
 namespace AppExecFwk {
 using FeatureAbilityTask = std::function<void(int, const AAFwk::Want&)>;
@@ -1132,6 +1135,13 @@ public:
      * @param the height position of window rectangle.
      */
     virtual void GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t &height) override;
+
+    /**
+     * @brief Get ui content object.
+     *
+     * @return UIContent object of ACE.
+     */
+    Ace::UIContent* GetUIContent() override;
 
 protected:
     class AbilityDisplayListener : public OHOS::Rosen::DisplayManager::IDisplayListener {

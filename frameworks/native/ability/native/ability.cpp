@@ -1919,6 +1919,21 @@ void Ability::GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t
     HILOG_INFO("left: %{public}d, top: %{public}d, width: %{public}d, height: %{public}d", left, top, width, height);
 }
 
+Ace::UIContent* Ability::GetUIContent()
+{
+    HILOG_DEBUG("call");
+    if (scene_ == nullptr) {
+        HILOG_ERROR("get window scene failed.");
+        return nullptr;
+    }
+    auto window = scene_->GetMainWindow();
+    if (window == nullptr) {
+        HILOG_ERROR("get window failed.");
+        return nullptr;
+    }
+    return window->GetUIContent();
+}
+
 void Ability::OnCreate(Rosen::DisplayId displayId)
 {
     HILOG_DEBUG("%{public}s called.", __func__);

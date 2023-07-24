@@ -34,6 +34,10 @@
 #endif
 
 namespace OHOS {
+namespace Ace {
+class UIContent;
+}
+
 namespace AbilityRuntime {
 using RuntimeTask = std::function<void(int, const AAFwk::Want&, bool)>;
 using PermissionRequestTask = std::function<void(const std::vector<std::string>&, const std::vector<int>&)>;
@@ -322,6 +326,13 @@ public:
      * @param the height position of window rectangle.
      */
     virtual void GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t &height) = 0;
+
+    /**
+     * @brief Get ui content object.
+     *
+     * @return UIContent object of ACE.
+     */
+    virtual Ace::UIContent* GetUIContent() = 0;
 #endif
     virtual bool IsTerminating() = 0;
     virtual void SetTerminating(bool state) = 0;

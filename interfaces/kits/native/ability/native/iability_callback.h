@@ -21,6 +21,10 @@
 #endif
 
 namespace OHOS {
+namespace Ace {
+class UIContent;
+}
+
 namespace AppExecFwk {
 class IAbilityCallback {
 public:
@@ -69,6 +73,13 @@ public:
      * @param the height position of window rectangle.
      */
     virtual void GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t &height) = 0;
+
+    /**
+     * @brief Get ui content object.
+     *
+     * @return UIContent object of ACE.
+     */
+    virtual Ace::UIContent* GetUIContent() = 0;
 #endif
 };
 }  // namespace AppExecFwk

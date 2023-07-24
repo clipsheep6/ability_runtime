@@ -26,6 +26,9 @@
 #include "sys_mgr_client.h"
 
 namespace OHOS {
+namespace Ace {
+class UIContent;
+}
 namespace AppExecFwk {
 using namespace testing::ext;
 using namespace OHOS::AbilityRuntime;
@@ -55,6 +58,11 @@ public:
     virtual void GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t &height)
     {
         return;
+    }
+
+    virtual Ace::UIContent* GetUIContent()
+    {
+        return nullptr;
     }
 };
 

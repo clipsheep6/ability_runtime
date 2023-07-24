@@ -715,6 +715,17 @@ int AbilityContextImpl::GetCurrentWindowMode()
     }
     return abilityCallback->GetCurrentWindowMode();
 }
+
+Ace::UIContent* AbilityContextImpl::GetUIContent()
+{
+    HILOG_DEBUG("call");
+    auto abilityCallback = abilityCallback_.lock();
+    if (abilityCallback == nullptr) {
+        return nullptr;
+    }
+
+    return abilityCallback->GetUIContent();
+}
 #endif
 } // namespace AbilityRuntime
 } // namespace OHOS
