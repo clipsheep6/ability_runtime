@@ -2485,6 +2485,7 @@ int AbilityManagerService::ConnectAbilityCommon(
     }
 
     Want abilityWant = want;
+    AbilityRequest abilityRequest;
     std::string uri = abilityWant.GetUri().ToString();
     if (!uri.empty()) {
         // if the want include uri, it may only has uri information. it is probably a datashare extension.
@@ -2493,7 +2494,6 @@ int AbilityManagerService::ConnectAbilityCommon(
         auto bms = GetBundleManager();
         CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
 
-        AbilityRequest abilityRequest;
         abilityWant.SetParam("abilityConnectionObj", connect->AsObject());
         ComponentRequest componentRequest = initComponentRequest(callerToken);
         if (!IsComponentInterceptionStart(abilityWant, componentRequest, abilityRequest)) {
@@ -2590,6 +2590,7 @@ int AbilityManagerService::ConnectUIExtensionAbility(const Want &want, const spt
     int32_t validUserId = GetValidUserId(userId);
 
     Want abilityWant = want;
+    AbilityRequest abilityRequest;
     std::string uri = abilityWant.GetUri().ToString();
     if (!uri.empty()) {
         // if the want include uri, it may only has uri information.
@@ -2598,7 +2599,6 @@ int AbilityManagerService::ConnectUIExtensionAbility(const Want &want, const spt
         auto bms = GetBundleManager();
         CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
 
-        AbilityRequest abilityRequest;
         abilityWant.SetParam("abilityConnectionObj", connect->AsObject());
         ComponentRequest componentRequest = initComponentRequest(callerToken);
         if (!IsComponentInterceptionStart(abilityWant, componentRequest, abilityRequest)) {
