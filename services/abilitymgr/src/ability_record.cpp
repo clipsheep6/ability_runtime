@@ -370,7 +370,7 @@ void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
         if (!want_.GetBoolParam(DEBUG_APP, false) && !want_.GetBoolParam(NATIVE_DEBUG, false)) {
             int foregroundTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
-            handler->SubmitTask(task, "foreground_" + std::to_string(recordId_), foregroundTimeout);
+            handler->SubmitTask(task, "foreground_" + std::to_string(recordId_), foregroundTimeout, false);
         } else {
             HILOG_INFO("Is debug mode, no need to handle time out.");
         }
@@ -1081,7 +1081,7 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
             want_.GetStringParam(PERF_CMD).empty()) {
             int backgroundTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * BACKGROUND_TIMEOUT_MULTIPLE;
-            handler->SubmitTask(task, "background_" + std::to_string(recordId_), backgroundTimeout);
+            handler->SubmitTask(task, "background_" + std::to_string(recordId_), backgroundTimeout, false);
         } else {
             HILOG_INFO("Is debug mode, no need to handle time out.");
         }

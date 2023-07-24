@@ -451,6 +451,10 @@ void AbilityConnectManager::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
             HILOG_ERROR("Not ui extension.");
             return;
         }
+        if (abilityRecord->IsAbilityState(AbilityState::FOREGROUNDING)) {
+            HILOG_WARN("abilityRecord is foregrounding.");
+            return;
+        }
         std::string element = abilityRecord->GetWant().GetElement().GetURI();
         HILOG_DEBUG("Ability is %{public}s, start to foreground.", element.c_str());
         MoveToForeground(abilityRecord);
