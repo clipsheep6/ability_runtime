@@ -68,6 +68,9 @@ const std::string NEED_STARTINGWINDOW = "ohos.ability.NeedStartingWindow";
 const std::string PARAMS_URI = "ability.verify.uri";
 const std::string PARAMS_FILE_SAVING_URL_KEY = "pick_path_return";
 const uint32_t RELEASE_STARTING_BG_TIMEOUT = 15000; // release starting window resource timeout.
+const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
+const std::string SHELL_ASSISTANT_DIEREASON = "crash_die";
+const int32_t SHELL_ASSISTANT_DIETYPE = 0;
 int64_t AbilityRecord::abilityRecordId = 0;
 const int32_t DEFAULT_USER_ID = 0;
 const int32_t SEND_RESULT_CANCELED = -1;
@@ -2623,19 +2626,16 @@ void AbilityRecord::HandleDlpClosed()
 
 void AbilityRecord::NotifyRemoveShellProcess()
 {
+    HILOG_INFO("On scheduler died. NotifyRemoveShellProcess");
     InnerMissionInfo info;
-    int getMission = DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(
-        missionId_, info);
-    if (getMission == ERR_OK && info.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
+    if (abilityInfo_.bundleName == SHELL_ASSISTANT_BUNDLENAME) {
         auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(
             info.collaboratorType);
         if (collaborator == nullptr) {
             HILOG_DEBUG("collaborator is nullptr");
             return;
         }
-        int32_t type = 0;
-        std::string reason;
-        int ret = collaborator->NotifyRemoveShellProcess(pid_, type, reason);
+        int ret = collaborator->NotifyRemoveShellProcess(pid_, SHELL_ASSISTANT_DIETYPE, SHELL_ASSISTANT_DIEREASON);
         HILOG_INFO("notify broker params: %{public}d", pid_);
         if (ret != ERR_OK) {
             HILOG_ERROR("notify broker remove shell process failed, err: %{public}d", ret);

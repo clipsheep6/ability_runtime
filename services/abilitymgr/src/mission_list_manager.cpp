@@ -58,6 +58,8 @@ const int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
 constexpr int32_t TRACE_ATOMIC_SERVICE_ID = 201;
 const std::string TRACE_ATOMIC_SERVICE = "StartAtomicService";
 const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
+const std::string SHELL_ASSISTANT_DIEREASON = "terminate_die";
+const int32_t SHELL_ASSISTANT_DIETYPE = 0;
 const std::string PARAM_MISSION_AFFINITY_KEY = "ohos.anco.param.missionAffinity";
 std::string GetCurrentTime()
 {
@@ -1883,6 +1885,8 @@ int MissionListManager::ClearMissionLocked(int missionId, const std::shared_ptr<
         return ERR_OK;
     }
 
+    NotifyRemoveShellProcess(missionId, abilityRecord);
+
     abilityRecord->SetTerminatingState();
     abilityRecord->SetClearMissionFlag(true);
     Want want;
@@ -1894,6 +1898,69 @@ int MissionListManager::ClearMissionLocked(int missionId, const std::shared_ptr<
     }
 
     return ERR_OK;
+}
+
+void MissionListManager::NotifyRemoveShellProcess(int missionId, const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    if (!abilityRecord) {
+        HILOG_ERROR("abilityRecord is nullptr.");
+        return;
+    }
+    if (abilityRecord->GetApplicationInfo().bundleName != SHELL_ASSISTANT_BUNDLENAME) {
+        HILOG_INFO("Is not shell assistant die.");
+        return;
+    }
+
+    auto targetMission = GetMissionById(missionId);
+    auto missionList = targetMission->GetMissionList();
+    bool IsNeedNotify = true;
+    for (auto listIter = currentMissionLists_.begin(); listIter != currentMissionLists_.end();) {
+        auto missionList = (*listIter);
+        listIter++;
+        if (!missionList || missionList->GetType() == MissionListType::LAUNCHER) {
+            continue;
+        }
+        IsNeedNotify = NeedNotifyRemoveShellProcess(missionList->GetAllMissions(), targetMission);
+    }
+
+    if (IsNeedNotify) {
+        InnerMissionInfo info;
+        auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(
+            info.collaboratorType);
+        if (collaborator == nullptr) {
+            HILOG_DEBUG("collaborator is nullptr");
+            return;
+        }
+
+        AppExecFwk::RunningProcessInfo processInfo = {};
+        DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(abilityRecord->GetToken(),
+            processInfo);
+        int ret = collaborator->NotifyRemoveShellProcess(processInfo.pid_, SHELL_ASSISTANT_DIETYPE,
+            SHELL_ASSISTANT_DIEREASON);
+        HILOG_INFO("notify broker params: %{public}d", processInfo.pid_);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("notify broker remove shell process failed, err: %{public}d", ret);
+        }
+    }
+}
+
+bool MissionListManager::NeedNotifyRemoveShellProcess(std::list<std::shared_ptr<Mission>> &missionList,
+    const std::shared_ptr<Mission> &targetMission)
+{
+    bool isNeedNotify = true;
+    for (auto listIter = missionList.begin(); listIter != missionList.end();) {
+        auto mission = (*listIter);
+        listIter++;
+        if (!mission) {
+            continue;
+        }
+        if (mission->GetAbilityRecord() &&
+            mission->GetAbilityRecord()->GetApplicationInfo().bundleName == SHELL_ASSISTANT_BUNDLENAME &&
+            mission->GetMissionAffinity() != targetMission->GetMissionAffinity()) {
+            isNeedNotify = false;
+        }
+    }
+    return isNeedNotify;
 }
 
 int MissionListManager::ClearAllMissions()
