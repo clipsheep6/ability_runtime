@@ -855,14 +855,16 @@ NativeValue *JSAbilityDelegator::ParseMonitorPara(
     std::shared_ptr<JSAbilityMonitor> abilityMonitor = nullptr;
     if (moduleName.empty()) {
         abilityMonitor = std::make_shared<JSAbilityMonitor>(abilityName);
+        abilityMonitor->SetJsAbilityMonitorEnv(&engine);
+        abilityMonitor->SetJsAbilityMonitor(value);
+        monitor = std::make_shared<AbilityMonitor>(abilityName, abilityMonitor);
     } else {
         abilityMonitor = std::make_shared<JSAbilityMonitor>(abilityName, moduleName);
+        abilityMonitor->SetJsAbilityMonitorEnv(&engine);
+        abilityMonitor->SetJsAbilityMonitor(value);
+        monitor = std::make_shared<AbilityMonitor>(abilityName, moduleName, abilityMonitor);
     }
 
-    abilityMonitor->SetJsAbilityMonitorEnv(&engine);
-    abilityMonitor->SetJsAbilityMonitor(value);
-
-    monitor = std::make_shared<AbilityMonitor>(abilityName, abilityMonitor);
     std::shared_ptr<NativeReference> reference = nullptr;
     reference.reset(engine.CreateReference(value, 1));
     g_monitorRecord.emplace(reference, monitor);
