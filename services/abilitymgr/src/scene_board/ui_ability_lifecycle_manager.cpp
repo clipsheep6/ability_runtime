@@ -18,11 +18,13 @@
 #include "ability_manager_service.h"
 #include "ability_util.h"
 #include "appfreeze_manager.h"
+#include "app_exit_reason_data_manager.h"
 #include "errors.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "iability_info_callback.h"
-#include "session/host/include/zidl/session_interface.h"
+#include "mission_info.h"
+#include "session_info.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -38,6 +40,7 @@ const int KILL_TIMEOUT_MULTIPLE = 45;
 #else
 const int KILL_TIMEOUT_MULTIPLE = 3;
 #endif
+constexpr int32_t DEFAULT_USER_ID = 0;
 }
 int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sptr<SessionInfo> sessionInfo)
 {
@@ -70,6 +73,9 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
             abilityRequest.startSetting = sessionInfo->startSetting;
         }
         uiAbilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+        uiAbilityRecord->SetOwnerMissionUserId(DelayedSingleton<AbilityManagerService>::GetInstance()->GetUserId());
+        SetRevicerInfo(abilityRequest, uiAbilityRecord);
+        SetLastExitReason(uiAbilityRecord);
     }
     CHECK_POINTER_AND_RETURN(uiAbilityRecord, ERR_INVALID_VALUE);
 
@@ -524,6 +530,9 @@ int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRe
     auto persistentId = GetPersistentIdByAbilityRequest(abilityRequest);
     if (persistentId == 0) {
         uiAbilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+        uiAbilityRecord->SetOwnerMissionUserId(DelayedSingleton<AbilityManagerService>::GetInstance()->GetUserId());
+        SetRevicerInfo(abilityRequest, uiAbilityRecord);
+        SetLastExitReason(uiAbilityRecord);
     } else {
         uiAbilityRecord = sessionAbilityMap_.at(persistentId);
     }
@@ -1284,7 +1293,7 @@ std::vector<std::shared_ptr<AbilityRecord>> UIAbilityLifecycleManager::GetAbilit
     return records;
 }
 
-uint64_t UIAbilityLifecycleManager::GetSessionIdByAbilityToken(const sptr<IRemoteObject> &token)
+int32_t UIAbilityLifecycleManager::GetSessionIdByAbilityToken(const sptr<IRemoteObject> &token)
 {
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
     for (const auto& [first, second] : sessionAbilityMap_) {
@@ -1294,6 +1303,108 @@ uint64_t UIAbilityLifecycleManager::GetSessionIdByAbilityToken(const sptr<IRemot
     }
     HILOG_ERROR("not find");
     return 0;
+}
+
+void UIAbilityLifecycleManager::GetActiveAbilityList(const std::string &bundleName,
+    std::vector<std::string> &abilityList)
+{
+    auto currentAccountId = DelayedSingleton<AbilityManagerService>::GetInstance()->GetUserId();
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    for (const auto& [first, second] : sessionAbilityMap_) {
+        if (second->GetOwnerMissionUserId() == currentAccountId) {
+            const auto &abilityInfo = second->GetAbilityInfo();
+            if (abilityInfo.bundleName == bundleName && !abilityInfo.name.empty()) {
+                HILOG_DEBUG("find ability name is %{public}s", abilityInfo.name.c_str());
+                abilityList.push_back(abilityInfo.name);
+            }
+        }
+    }
+}
+
+int32_t UIAbilityLifecycleManager::IsValidMissionIds(const std::vector<int32_t> &missionIds,
+    std::vector<MissionVaildResult> &results, int32_t userId) {
+    constexpr int32_t searchCount = 20;
+    auto callerUid = IPCSkeleton::GetCallingUid();
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    for (auto i = 0; i < searchCount && i < static_cast<int32_t>(missionIds.size()); ++i) {
+        MissionVaildResult missionResult = {};
+        missionResult.missionId = missionIds.at(i);
+        auto search = sessionAbilityMap_.find(missionResult.missionId);
+        if (search == sessionAbilityMap_.end()) {
+            results.push_back(missionResult);
+            continue;
+        }
+
+        if (callerUid != search->second->GetUid() || search->second->GetOwnerMissionUserId() != userId) {
+            results.push_back(missionResult);
+            continue;
+        }
+
+        missionResult.isVaild = true;
+        results.push_back(missionResult);
+    }
+
+    return ERR_OK;
+}
+
+void UIAbilityLifecycleManager::SetRevicerInfo(const AbilityRequest &abilityRequest,
+    std::shared_ptr<AbilityRecord> &abilityRecord) const
+{
+    const auto &abilityInfo = abilityRequest.abilityInfo;
+    auto isStandard = abilityInfo.launchMode == AppExecFwk::LaunchMode::STANDARD && !abilityRequest.startRecent;
+    if (!isStandard) {
+        bool hasRecoverInfo = false;
+        (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
+            GetAbilityRecoverInfo(abilityInfo.bundleName, abilityInfo.moduleName, abilityInfo.name, hasRecoverInfo);
+        abilityRecord->UpdateRecoveryInfo(hasRecoverInfo);
+        (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
+            DeleteAbilityRecoverInfo(abilityInfo.bundleName, abilityInfo.moduleName, abilityInfo.name);
+    }
+}
+
+void UIAbilityLifecycleManager::SetLastExitReason(std::shared_ptr<AbilityRecord> &abilityRecord) const
+{
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("abilityRecord is nullptr.");
+        return;
+    }
+
+    if (abilityRecord->GetAbilityInfo().bundleName.empty()) {
+        HILOG_ERROR("bundleName is empty.");
+        return;
+    }
+
+    Reason exitReason;
+    bool isSetReason;
+    DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->GetAppExitReason(
+        abilityRecord->GetAbilityInfo().bundleName, abilityRecord->GetAbilityInfo().name, isSetReason, exitReason);
+
+    if (isSetReason) {
+        abilityRecord->SetLastExitReason(CovertAppExitReasonToLastReason(exitReason));
+    }
+}
+
+LastExitReason UIAbilityLifecycleManager::CovertAppExitReasonToLastReason(const Reason exitReason) const
+{
+    switch (exitReason) {
+        case REASON_NORMAL:
+            return LASTEXITREASON_NORMAL;
+        case REASON_CPP_CRASH:
+            return LASTEXITREASON_CPP_CRASH;
+        case REASON_JS_ERROR:
+            return LASTEXITREASON_JS_ERROR;
+        case REASON_APP_FREEZE:
+            return LASTEXITREASON_APP_FREEZE;
+        case REASON_PERFORMANCE_CONTROL:
+            return LASTEXITREASON_PERFORMANCE_CONTROL;
+        case REASON_RESOURCE_CONTROL:
+            return LASTEXITREASON_RESOURCE_CONTROL;
+        case REASON_UPGRADE:
+            return LASTEXITREASON_UPGRADE;
+        case REASON_UNKNOWN:
+        default:
+            return LASTEXITREASON_UNKNOWN;
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS

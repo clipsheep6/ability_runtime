@@ -1159,6 +1159,12 @@ public:
     */
     sptr<IAbilityManagerCollaborator> GetCollaborator(int32_t type);
 
+    /**
+     * get the user id.
+     *
+     */
+    int32_t GetUserId() const;
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -1245,11 +1251,7 @@ private:
      *
      */
     void ConnectBmsService();
-    /**
-     * get the user id.
-     *
-     */
-    int GetUserId();
+
     /**
      * Determine whether it is a system APP
      *
