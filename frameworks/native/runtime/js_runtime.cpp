@@ -934,7 +934,13 @@ bool JsRuntime::BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFram
     auto nativeEngine = GetNativeEnginePointer();
     CHECK_POINTER_AND_RETURN(nativeEngine, false);
     std::vector<JsFrameInfo> jsFrameInfo;
+    auto arkNativeEngine = static_cast<ArkNativeEngine*>(nativeEngine->GetWorkerVm(nativeEngine, tid));
+    if (arkNativeEngine == nullptr){
+        return false;
+    }
+    arkNativeEngine->SuspendVM();
     bool ret = nativeEngine->BuildJsStackInfoList(tid, jsFrameInfo);
+    arkNativeEngine->ResumeVM();
     if (!ret) {
         return ret;
     }
