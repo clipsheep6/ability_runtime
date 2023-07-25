@@ -314,6 +314,11 @@ public:
         return true;
     }
 
+    NativeEngine* GetWorkerVm(NativeEngine* hostEngine, uint32_t tid) override
+    {
+        return nullptr;
+    }
+
     bool StartHeapTracking(double timeInterval, bool isVmMode = true) override
     {
         return true;
