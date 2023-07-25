@@ -440,8 +440,13 @@ private:
      */
     void DumpAbilityInfoInner(const std::vector<std::string> &params, std::vector<std::string> &info);
 
-
+    /**
+     * @description: Dump other Ability Runner info.
+     * 
+     * @param info ability runner info
+     */
     void DumpOtherInfo(std::vector<std::string> &info);
+    
     /**
      * @description: Create the abilityname.
      *
