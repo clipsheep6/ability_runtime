@@ -127,7 +127,11 @@ ohos_unittest("ability_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "image_framework:image_native",
+      "input:libmmi-client",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -611,7 +615,10 @@ ohos_unittest("ability_impl_test") {
   if (ability_runtime_graphics) {
     sources += [ "ability_impl_test.cpp" ]
     deps += [ "${global_path}/i18n/frameworks/intl:intl_util" ]
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -673,7 +680,11 @@ ohos_unittest("ability_thread_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "ability_base:session_info",
+      "input:libmmi-client",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -811,7 +822,10 @@ ohos_unittest("extension_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "ability_base:session_info",
+      "input:libmmi-client",
+    ]
   }
 }
 
@@ -1007,7 +1021,10 @@ ohos_unittest("data_ability_impl_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -1058,7 +1075,10 @@ ohos_unittest("data_ability_impl_file_secondpart_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -1109,7 +1129,10 @@ ohos_unittest("data_ability_impl_file_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -1162,7 +1185,10 @@ ohos_unittest("ability_thread_dataability_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -1249,7 +1275,10 @@ ohos_unittest("extension_impl_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "ability_base:session_info",
+      "input:libmmi-client",
+    ]
   }
 }
 
@@ -1432,6 +1461,7 @@ ohos_unittest("form_host_client_test") {
       "input:libmmi-client",
       "ipc:ipc_core",
       "napi:ace_napi",
+      "window_manager:libwm",
     ]
   }
 }
@@ -1481,7 +1511,10 @@ ohos_unittest("continuation_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -1697,7 +1730,10 @@ ohos_unittest("ability_window_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "image_framework:image_native",
+      "input:libmmi-client",
+    ]
   }
 }
 
@@ -1735,6 +1771,10 @@ ohos_unittest("ability_handler_test") {
     "hitrace:hitrace_meter",
     "napi:ace_napi",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:libwm" ]
+  }
 }
 
 ohos_unittest("ability_impl_factory_test") {
@@ -1787,6 +1827,10 @@ ohos_unittest("ability_impl_factory_test") {
     "relational_store:rdb_data_share_adapter",
     "samgr:samgr_proxy",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:libwm" ]
+  }
 }
 
 ohos_unittest("ability_loader_test") {

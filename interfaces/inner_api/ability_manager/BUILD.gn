@@ -133,8 +133,10 @@ ohos_shared_library("ability_manager") {
 
   if (ability_runtime_graphics) {
     deps += []
-    external_deps += [ "image_framework:image_native" ]
-    public_deps = [ "${ability_base_path}:session_info" ]
+    external_deps += [
+      "ability_base:session_info",
+      "image_framework:image_native",
+    ]
   }
 
   cflags_cc = []
