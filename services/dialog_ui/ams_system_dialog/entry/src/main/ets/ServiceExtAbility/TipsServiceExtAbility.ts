@@ -16,6 +16,7 @@
 import extension from '@ohos.app.ability.ServiceExtensionAbility';
 import window from '@ohos.window';
 import display from '@ohos.display';
+import dialogRequest from '@ohos.app.ability.dialogRequest';
 
 const TAG = 'TipsDialog_Service';
 
@@ -33,7 +34,7 @@ export default class TipsServiceExtensionAbility extends extension {
     globalThis.abilityWant = want;
     globalThis.params = JSON.parse(want.parameters.params);
     globalThis.position = JSON.parse(want.parameters.position);
-    globalThis.callerToken = want.parameters.callerToken;
+    globalThis.requestInfo = dialogRequest.getRequestInfo(want);
 
     display.getDefaultDisplay().then(dis => {
       let navigationBarRect = {
@@ -63,7 +64,7 @@ export default class TipsServiceExtensionAbility extends extension {
     console.info(TAG, 'create window');
     try {
       win = await window.create(globalThis.tipsExtensionContext, name, windowType);
-      await win.bindDialogTarget(globalThis.callerToken.value, () => {
+      await win.bindDialogTarget(globalThis.requestInfo, () => {
         win.destroyWindow();
         winNum--;
         if (winNum === 0) {
