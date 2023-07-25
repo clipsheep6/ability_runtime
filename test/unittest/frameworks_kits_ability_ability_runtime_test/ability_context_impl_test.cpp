@@ -27,6 +27,9 @@
 #include "sys_mgr_client.h"
 
 namespace OHOS {
+namespace Ace {
+class UIContent;
+}
 namespace AppExecFwk {
 using namespace testing::ext;
 using namespace OHOS::AbilityRuntime;

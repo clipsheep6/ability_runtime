@@ -21,7 +21,9 @@
 #include "ability_impl_factory.h"
 #include "data_ability_helper.h"
 #include "context_deal.h"
+#ifndef SUPPORT_ERMS
 #include "erms_mgr_interface.h"
+#endif
 #include "ohos_application.h"
 #include "sys_mgr_client.h"
 #include "ability_manager_interface.h"
@@ -64,6 +66,7 @@ void AbilityBaseTest::SetUpTestCase(void)
 void AbilityBaseTest::TearDownTestCase(void)
 {}
 
+#ifndef SUPPORT_ERMS
 class TestIEcologicalRuleManager : public AppExecFwk::IEcologicalRuleManager {
 public:
     TestIEcologicalRuleManager() = default;
@@ -74,6 +77,7 @@ public:
         return nullptr;
     }
 };
+#endif
 
 void AbilityBaseTest::SetUp(void)
 {
@@ -1257,6 +1261,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_VerifyPermission_0100, Func
     GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_VerifyPermission_0100";
 }
 
+#ifndef SUPPORT_ERMS
 /**
  * @tc.number: AppExecFwk_IEcologicalRuleManager_QueryFreeInstallExperience_0100
  * @tc.name: QueryFreeInstallExperience
@@ -1362,5 +1367,6 @@ HWTEST_F(AbilityTerminateTest,
     EXPECT_EQ(0, erms->QueryLastSyncTime());
     GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryLastSyncTime_0100";
 }
+#endif
 }  // namespace AppExecFwk
 }  // namespace OHOS
