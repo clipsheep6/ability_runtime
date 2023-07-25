@@ -84,7 +84,7 @@ public:
     virtual void OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int resultCode) {};
 };
 
-class MissionListManagerTestAbilityThreadStub : public AppExecFwk::FAAbilityThread {
+class MissionListManagerTestAbilityThreadStub : public AbilityRuntime::FAAbilityThread {
 public:
     MissionListManagerTestAbilityThreadStub() {};
     ~MissionListManagerTestAbilityThreadStub() {};

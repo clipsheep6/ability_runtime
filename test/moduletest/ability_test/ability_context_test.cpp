@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -86,7 +86,7 @@ void AbilityContextTest::TearDown(void)
 HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_ConnectAbility_0100, Function | MediumTest | Level1)
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new FAAbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AppExecFwk::AbilityType::SERVICE;
     abilityInfo->name = "DemoAbility";
@@ -112,7 +112,7 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_ConnectAbility_0100, Function
 HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_DisconnectAbility_0100, Function | MediumTest | Level1)
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new FAAbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AppExecFwk::AbilityType::SERVICE;
     abilityInfo->name = "DemoAbility";
@@ -139,7 +139,7 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_DisconnectAbility_0100, Funct
 HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_StartAbility_0100, Function | MediumTest | Level1)
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new FAAbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AppExecFwk::AbilityType::SERVICE;
     abilityInfo->name = "DemoAbility";
@@ -160,7 +160,7 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_StartAbility_0100, Function |
 HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_TerminateAbility_0100, Function | MediumTest | Level1)
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new FAAbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AppExecFwk::AbilityType::SERVICE;
     abilityInfo->name = "DemoAbility";
@@ -187,7 +187,7 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_TerminateAbility_0100, Functi
 HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_TerminateAbility_0200, Function | MediumTest | Level1)
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new FAAbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AppExecFwk::AbilityType::SERVICE;
     abilityInfo->name = "DemoAbility";
@@ -211,7 +211,7 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_TerminateAbility_0200, Functi
 HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_StopService_0100, Function | MediumTest | Level1)
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new FAAbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AppExecFwk::AbilityType::SERVICE;
     abilityInfo->name = "DemoAbility";
@@ -240,7 +240,7 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_StopService_0100, Function | 
 HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_StopService_0200, Function | MediumTest | Level1)
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new FAAbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AppExecFwk::AbilityType::SERVICE;
     abilityInfo->name = "DemoAbility";
@@ -328,7 +328,7 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_ConnectAbility_0200, Function
 HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_ConnectAbility_0300, Function | MediumTest | Level1)
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new FAAbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AppExecFwk::AbilityType::DATA;
     abilityInfo->name = "DemoAbility";
@@ -350,7 +350,7 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_ConnectAbility_0300, Function
 HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_StopService_0300, Function | MediumTest | Level1)
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new FAAbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AppExecFwk::AbilityType::DATA;
     abilityInfo->name = "DemoAbility";
@@ -552,7 +552,7 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetAbilityInfoType_0100, Func
 HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetAbilityInfoType_0200, Function | MediumTest | Level1)
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new FAAbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AppExecFwk::AbilityType::SERVICE;
     abilityInfo->name = "DemoAbility";
@@ -599,7 +599,7 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetResourceManager_0100, Func
 HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetResourceManager_0200, Function | MediumTest | Level1)
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new FAAbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AppExecFwk::AbilityType::SERVICE;
     abilityInfo->name = "DemoAbility";
@@ -648,7 +648,7 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_VerifyPermission_0200, Functi
 HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_VerifyPermission_0300, Function | MediumTest | Level1)
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new FAAbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AppExecFwk::AbilityType::SERVICE;
     abilityInfo->name = "DemoAbility";
@@ -895,7 +895,7 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_GetPreferencesDir_0100, Funct
 HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_SetColorMode_0100, Function | MediumTest | Level1)
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new FAAbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
     AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);

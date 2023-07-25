@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -651,7 +651,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnConfigurationUpda
     std::shared_ptr<AbilityInfo> info =  nullptr;
     std::shared_ptr<AbilityLocalRecord> abilityRecord =  std::make_shared<AbilityLocalRecord>(info, token);
     ohosApplication_->abilityRecordMgr_->abilityRecords_.emplace(token, abilityRecord);
-    sptr<AbilityThread> abilityThread = new (std::nothrow) FAAbilityThread();
+    sptr<AbilityThread> abilityThread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     abilityRecord->SetAbilityThread(abilityThread);
     ohosApplication_->OnConfigurationUpdated(config);
     EXPECT_TRUE(!ohosApplication_->abilityRecordMgr_->abilityRecords_.empty());
@@ -734,7 +734,7 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0100,
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(info, token);
     EXPECT_TRUE(abilityRecord != nullptr);
     ohosApplication_->abilityRecordMgr_->abilityRecords_.emplace(token, abilityRecord);
-    sptr<AbilityThread> abilityThread = new (std::nothrow) FAAbilityThread();
+    sptr<AbilityThread> abilityThread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     abilityRecord->SetAbilityThread(abilityThread);
     ohosApplication_->OnMemoryLevel(level);
     EXPECT_FALSE(ohosApplication_->abilityRecordMgr_->abilityRecords_.empty());

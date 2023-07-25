@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,7 +33,7 @@ namespace OHOS {
 namespace AppExecFwk {
 sptr<AppExecFwk::AbilityThread> MockCreateAbilityThread()
 {
-    sptr<AppExecFwk::AbilityThread> abilitythread(new (std::nothrow) AppExecFwk::FAAbilityThread());
+    sptr<AppExecFwk::AbilityThread> abilitythread(new (std::nothrow) AbilityRuntime::FAAbilityThread());
     if (abilitythread == nullptr) {
         GTEST_LOG_(INFO) << "mock_ability_thread_for_data_observer:mock abilityhreadptr is nullptr called";
         return nullptr;
@@ -56,7 +56,7 @@ sptr<AppExecFwk::AbilityThread> MockCreateAbilityThread()
     info->isNativeAbility = true;
     std::cout << "info->name : " << (*info).name << std::endl;
 
-    sptr<IRemoteObject> token = sptr<IRemoteObject>(new FAAbilityThread());
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
 
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(info, token);
     std::shared_ptr<EventRunner> mainRunner = EventRunner::Create(info->name);

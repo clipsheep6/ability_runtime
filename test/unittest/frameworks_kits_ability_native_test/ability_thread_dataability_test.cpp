@@ -86,7 +86,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Query_0100, Function | MediumTes
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Query_0100 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) FAAbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -123,7 +123,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Query_0100, Function | MediumTes
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Query_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Query_0200 start";
-    AbilityThread* abilitythread = new FAAbilityThread();
+    AbilityThread* abilitythread = new AbilityRuntime::FAAbilityThread();
 
     std::shared_ptr<AbilityImpl> abilityimpl = std::make_shared<AbilityImpl>();
 
@@ -151,7 +151,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_GetFileTypes_0100, Function | Me
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_GetFileTypes_0100 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) FAAbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -194,7 +194,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_GetFileTypes_0200, Function | Me
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_GetFileTypes_0200 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) FAAbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         Uri uri("\nullptr");
@@ -220,7 +220,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_OpenFile_0100, Function | Medium
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_OpenFile_0100 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) FAAbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -257,7 +257,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_OpenFile_0200, Function | Medium
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_OpenFile_0200 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) FAAbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         int fd = -1;
@@ -280,7 +280,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Insert_0100, Function | MediumTe
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Insert_0100 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) FAAbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -315,7 +315,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Insert_0200, Function | MediumTe
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Insert_0200 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) FAAbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         Uri uri("\nullptr");
@@ -336,7 +336,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Update_0100, Function | MediumTe
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Update_0100 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) FAAbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -372,7 +372,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Update_0200, Function | MediumTe
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Update_0200 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) FAAbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         Uri uri("\nullptr");
@@ -394,7 +394,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Delete_0100, Function | MediumTe
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Delete_0100 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) FAAbilityThread();
+    AbilityThread* abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         Uri uri("\nullptr");
