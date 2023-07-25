@@ -60,7 +60,7 @@ constexpr static char BASE_DRIVER_EXTENSION[] = "DriverExtension";
 constexpr static char STATIC_SUBSCRIBER_EXTENSION[] = "StaticSubscriberExtension";
 constexpr static char DATA_SHARE_EXT_ABILITY[] = "DataShareExtAbility";
 constexpr static char WORK_SCHEDULER_EXTENSION[] = "WorkSchedulerExtension";
-constexpr static char ACCESSIBILITY_EXTENSION[] = "AccessibilityExtension";
+constexpr static char ACCESSABILITY_EXTENSION[] = "AccessAbilityExtension";
 constexpr static char WALLPAPER_EXTENSION[] = "WallpaperExtension";
 constexpr static char FILEACCESS_EXT_ABILITY[] = "FileAccessExtension";
 constexpr static char ENTERPRISE_ADMIN_EXTENSION[] = "EnterpriseAdminExtension";
@@ -153,8 +153,8 @@ std::string FAAbilityThread::CreateAbilityName(const std::shared_ptr<AppExecFwk:
         if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::WORK_SCHEDULER) {
             abilityName = WORK_SCHEDULER_EXTENSION;
         }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ACCESSIBILITY) {
-            abilityName = ACCESSIBILITY_EXTENSION;
+        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ACCESSABILITY) {
+            abilityName = ACCESSABILITY_EXTENSION;
         }
         if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::WALLPAPER) {
             abilityName = WALLPAPER_EXTENSION;
