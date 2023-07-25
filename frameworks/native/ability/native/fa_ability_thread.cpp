@@ -153,7 +153,7 @@ std::string FAAbilityThread::CreateAbilityName(const std::shared_ptr<AppExecFwk:
         if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::WORK_SCHEDULER) {
             abilityName = WORK_SCHEDULER_EXTENSION;
         }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ACCESSABILITY) {
+        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ACCESSIBILITY) {
             abilityName = ACCESSABILITY_EXTENSION;
         }
         if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::WALLPAPER) {
