@@ -112,14 +112,14 @@ public:
 
     /**
      * @description: Provide operating system ShareData information to the observer
-     * 
+     *
      * @param requestCode Indicates the Ability request code.
      */
     virtual void ScheduleShareData(const int32_t &requestCode);
 
     /**
      * @description: Provide operating system ConnectAbility information to the observer
-     * 
+     *
      * @param want Indicates the structure containing connect information about the ability.
      */
     virtual void ScheduleConnectAbility(const Want &want);
