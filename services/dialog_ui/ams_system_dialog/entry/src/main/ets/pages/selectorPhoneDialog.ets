@@ -69,14 +69,14 @@ struct SelectorPhoneDialog {
   private phoneShowData: SelectorDataSource = new SelectorDataSource([])
   @State private selector: SelectorPhone = {
     swiper: {
-      height: "100vp",
+      height: "200vp",
       indicator: false,
-      contentHeight: "100vp",
+      contentHeight: "200vp",
       gridColumns: "1fr 1fr",
       gridRows: "1fr",
     },
     btn: {
-      marginTop: "20vp",
+      marginTop: "40vp",
     }
   }
   @State private hapList: HapInfo[] = [];
@@ -106,15 +106,15 @@ struct SelectorPhoneDialog {
 
   getHapListStyle() {
     if (this.hapList.length > 8) {
-      this.selector.swiper.height = "220vp";
+      this.selector.swiper.height = "440vp";
       this.selector.swiper.indicator = true;
-      this.selector.swiper.contentHeight = "200vp";
+      this.selector.swiper.contentHeight = "400vp";
       this.selector.swiper.gridColumns = "1fr 1fr 1fr 1fr";
       this.selector.swiper.gridRows = "1fr 1fr";
-      this.selector.btn.marginTop = "10vp";
+      this.selector.btn.marginTop = "20vp";
     } else if (this.hapList.length > 3) {
-      this.selector.swiper.height = "200vp";
-      this.selector.swiper.contentHeight = "200vp";
+      this.selector.swiper.height = "400vp";
+      this.selector.swiper.contentHeight = "400vp";
       this.selector.swiper.gridColumns = "1fr 1fr 1fr 1fr";
       this.selector.swiper.gridRows = "1fr 1fr";
     } else if (this.hapList.length > 2) {
@@ -133,7 +133,7 @@ struct SelectorPhoneDialog {
           .textAlign(TextAlign.Start)
           .margin({ top: 25, left: 20 })
       }
-      .height(100)
+      .height(200)
 
       Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center }) {
         Swiper() {
@@ -146,26 +146,26 @@ struct SelectorPhoneDialog {
                       if (item.split("#")[3].indexOf('image/json') > -1) {
                         Image(globalThis.jsonIconMap.get(item.split("#")[0] + ':' + item.split("#")[4]
                            + ':' + item.split("#")[1]))
-                          .height(60)
-                          .width(60)
+                          .height(100)
+                          .width(100)
                           .alignSelf(ItemAlign.Center);
                       } else {
                         Image(item.split("#")[3])
-                          .height(60)
-                          .width(60)
+                          .height(100)
+                          .width(100)
                           .alignSelf(ItemAlign.Center);
                       }
                     } else {
                       Image($r("app.media.app_icon"))
-                        .height(60)
-                        .width(60)
+                        .height(100)
+                        .width(100)
                         .alignSelf(ItemAlign.Center);
                     }
                     if (item.split("#")[2] != "") {
                       Text(item.split("#")[2])
                         .fontSize(16)
                         .width(80)
-                        .height(23)
+                        .height(40)
                         .textAlign(TextAlign.Center)
                         .alignSelf(ItemAlign.Center)
                         .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -173,13 +173,13 @@ struct SelectorPhoneDialog {
                       Text(item.split("#")[0])
                         .fontSize(16)
                         .width(80)
-                        .height(23)
+                        .height(40)
                         .textAlign(TextAlign.Center)
                         .alignSelf(ItemAlign.Center)
                         .textOverflow({ overflow: TextOverflow.Ellipsis })
                     }
                   }
-                  .height(180)
+                  .height(360)
                   .onClick(() => {
                     this.onSelectApp(item)
                   })
@@ -192,7 +192,7 @@ struct SelectorPhoneDialog {
             .columnsGap(12)
             .rowsGap(12)
             .margin({ top: 30 })
-            .height(210)
+            .height(400)
           }, item => item)
         }
         .indicatorStyle({ color: "#bebdc0", selectedColor: "#ff326Ce9", size: 4 })
@@ -208,7 +208,7 @@ struct SelectorPhoneDialog {
           .fontWeight(FontWeight.Regular)
       }
       .width("90%")
-      .height(100)
+      .height(400)
       .backgroundColor("#ffffff")
       .borderRadius(20)
       .margin({ bottom: 20, top: 10 })
