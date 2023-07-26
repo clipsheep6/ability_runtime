@@ -78,7 +78,7 @@ void AbilityContextTest::TearDown(void) {}
 /**
  * @tc.number: AaFwk_Ability_Context_ConnectAbility_0100
  * @tc.name: AbilityFwk
- * @tc.desc: When connecting ability, AMS will inform ability to process OnStart
+ * @tc.desc: When connecting ability, ams will inform ability to process OnStart
  * in the life cycle, and then inform ability to process onconnect, and the
  * connection is successful
  */
