@@ -135,10 +135,10 @@ export default class SelectorServiceExtensionAbility extends extension {
 
     display.getDefaultDisplay().then(dis => {
       let navigationBarRect = {
-        left: globalThis.position.offsetX,
-        top: globalThis.position.offsetY,
-        width: globalThis.position.width,
-        height: globalThis.position.height
+        left: 300,
+        top: 300,
+        width: 400,
+        height: 400
       };
       if (winNum > 1) {
         win.destroy();
