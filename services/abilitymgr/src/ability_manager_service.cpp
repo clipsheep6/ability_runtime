@@ -605,22 +605,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_INFO("try to StartRemoteAbility");
         return StartRemoteAbility(want, requestCode, validUserId, callerToken);
     }
-    if (AbilityUtil::IsStartFreeInstall(want)) {
-        if (freeInstallManager_ == nullptr) {
-            return ERR_INVALID_VALUE;
-        }
-        Want localWant = want;
-        if (!localWant.GetDeviceId().empty()) {
-            localWant.SetDeviceId("");
-        }
-        if (!isStartAsCaller) {
-            UpdateCallerInfo(localWant, callerToken);
-        } else {
-            HILOG_DEBUG("start as caller, skip UpdateCallerInfo!");
-        }
-        return freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, true);
-    }
-
+    
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
         return ERR_CROSS_USER;
@@ -647,6 +632,32 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     ComponentRequest componentRequest = initComponentRequest(callerToken, requestCode, result);
     if (CheckProxyComponent(want, result) && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
         return componentRequest.requestResult;
+    }
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    std::string callerBundleName = abilityRecord ? abilityRecord->GetAbilityInfo().bundleName : "";
+    bool selfFreeInstallEnable = (result == RESOLVE_ABILITY_ERR && want.GetElement().GetModuleName() != "" &&
+                                  want.GetElement().GetBundleName() == callerBundleName);
+    if (AbilityUtil::IsStartFreeInstall(want) || selfFreeInstallEnable) {
+        if (freeInstallManager_ == nullptr) {
+            return ERR_INVALID_VALUE;
+        }
+        Want localWant = want;
+        if (!localWant.GetDeviceId().empty()) {
+            localWant.SetDeviceId("");
+        }
+        if (!isStartAsCaller) {
+            UpdateCallerInfo(localWant, callerToken);
+        }
+        HILOG_DEBUG("start as caller, skip UpdateCallerInfo!");
+        if (selfFreeInstallEnable) {
+            int32_t ret = freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode,
+                                                                callerToken, false);
+            if (ret == ERR_OK) {
+                result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
+            }
+        } else {
+            return freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, true);
+        }
     }
 
     if (result != ERR_OK) {
