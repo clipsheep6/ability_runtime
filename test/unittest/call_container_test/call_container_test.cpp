@@ -21,7 +21,6 @@
 #include "ability_manager_service.h"
 #undef private
 #undef protected
-#include "ability_event_handler.h"
 #include "ability_scheduler_mock.h"
 #include "mock_ability_connect_callback.h"
 
