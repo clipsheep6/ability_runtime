@@ -83,6 +83,7 @@ public:
     void PostSyncTask(const std::function<void()>& task, const std::string& name);
     void RemoveTask(const std::string& name);
     void DumpHeapSnapshot(bool isPrivate) override;
+    bool SuspendVMAndResumeVM(uint32_t tid, bool isSuspendVM = true) override;
     bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) override;
     void NotifyApplicationState(bool isBackground) override;
 

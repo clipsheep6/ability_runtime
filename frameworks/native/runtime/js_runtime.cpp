@@ -929,6 +929,19 @@ void JsRuntime::DumpHeapSnapshot(bool isPrivate)
     nativeEngine->DumpHeapSnapshot(true, DumpFormat::JSON, isPrivate);
 }
 
+bool JsRuntime::SuspendVMAndResumeVM(uint32_t tid, bool isSuspendVM)
+{
+    auto nativeEngine = GetNativeEnginePointer();
+    CHECK_POINTER_AND_RETURN(nativeEngine, false);
+    auto arkNativeEngine = static_cast<ArkNativeEngine*>(nativeEngine->GetWorkerVm(nativeEngine, tid));
+    if (isSuspendVM) {
+        return arkNativeEngine->SuspendVM();
+    } else {
+        arkNativeEngine->ResumeVM();
+        return true;
+    }
+}
+
 bool JsRuntime::BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames)
 {
     auto nativeEngine = GetNativeEnginePointer();
