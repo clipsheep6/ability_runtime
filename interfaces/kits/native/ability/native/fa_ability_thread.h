@@ -176,9 +176,9 @@ public:
 
     /**
      * @brief Send the result code and data to be returned by this Page ability to the caller.
-     * When a Page ability is destroyed, the caller overrides the AbilitySlice#onAbilityResult(int32_t, int32_t, Want) method to
-     * receive the result set in the current method. This method can be called only after the ability has been
-     * initialized.
+     * When a Page ability is destroyed, the caller overrides the AbilitySlice#onAbilityResult(int32_t, int32_t, Want)
+     *  method to receive the result set in the current method. This method can be called only after the ability has
+     * been initialized.
      *
      * @param requestCode Indicates the request code for send.
      * @param resultCode Indicates the result code returned after the ability is destroyed. You can define the result

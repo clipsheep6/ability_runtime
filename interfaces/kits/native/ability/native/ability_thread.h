@@ -89,7 +89,7 @@ public:
     /**
      * @brief notify this ability current memory level.
      *
-     * @param level: Current memory level
+     * @param level Current memory level
      */
     virtual void NotifyMemoryLevel(int32_t level) = 0;
 
@@ -126,7 +126,7 @@ public:
 
     /**
      * @description: Provide operating system DisconnectAbility information to the observer
-     * 
+     *
      * @param want Indicates the structure containing connect information about the ability.
      */
     virtual void ScheduleDisconnectAbility(const Want &want);
@@ -165,7 +165,7 @@ public:
 
     /**
      * @description: Provide operating system RestoreAbilityState information to the observer
-     * 
+     *
      * @param state Indicates resotre ability state used to dispatchRestoreAbilityState.
      */
     virtual void ScheduleRestoreAbilityState(const PacMap &state);
@@ -179,8 +179,8 @@ public:
      * @param requestCode Indicates the request code for send.
      * @param resultCode Indicates the result code returned after the ability is destroyed. You can define the result
      * code to identify an error.
-     * @param resultData Indicates the data returned after the ability is destroyed. You can define the data returned. This
-     * parameter can be null.
+     * @param resultData Indicates the data returned after the ability is destroyed. You can define the data returned.
+     * This parameter can be null.
      */
     virtual void SendResult(int32_t requestCode, int32_t resultCode, const Want &resultData);
 
@@ -230,7 +230,17 @@ public:
      * @return Returns the index of the inserted data record.
      */
     virtual int32_t Insert(const Uri &uri, const NativeRdb::ValuesBucket &value);
-
+	
+    /**
+     * @brief Calls the method of the Data ability.
+     *
+     * @param uri Indicates the path of the data to operate.
+     * @param method Indicates the method to call
+	 * @param arg Indicates the parameter of the String type.
+	 * @param pacMap Defines a PacMap object for storing a series of values.
+     *
+     * Returns the call result.
+     */
     virtual std::shared_ptr<AppExecFwk::PacMap> Call(
         const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap);
 
@@ -357,7 +367,8 @@ public:
      * @param dataObserver Indicates the IDataAbilityObserver object.
      */
     virtual bool ScheduleUnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver);
-    /**
+    
+	/**
      * @brief Notifies the registered observers of a change to the data resource specified by Uri.
      *
      * @param uri Indicates the path of the data to operate.
@@ -392,7 +403,8 @@ public:
 private:
 #ifdef ABILITY_COMMAND_FOR_TEST
     /**
-     * Block ability.
+     * @brief Block ability.
+     * 
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t BlockAbility();
