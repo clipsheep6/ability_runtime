@@ -44,6 +44,14 @@ ohos_moduletest("start_option_module_test") {
     "ipc:ipc_core",
     "window_manager:scene_session",
   ]
+
+  if (background_task_mgr_continuous_task_enable) {
+    external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
+
+  if (ecologic_rule_enabled) {
+    external_deps += [ "ecological_rule_mgr:erms_client" ]
+  }
 }
 
 group("moduletest") {
