@@ -41,9 +41,7 @@ OHOSApplication::OHOSApplication()
     elementsCallbacks_.clear();
 }
 
-OHOSApplication::~OHOSApplication()
-{
-}
+OHOSApplication::~OHOSApplication() {}
 
 /**
  *
@@ -152,7 +150,7 @@ void OHOSApplication::DumpApplication()
  *
  * @param runtime Runtime instance.
  */
-void OHOSApplication::SetRuntime(std::unique_ptr<AbilityRuntime::Runtime>&& runtime)
+void OHOSApplication::SetRuntime(std::unique_ptr<AbilityRuntime::Runtime> &&runtime)
 {
     HILOG_DEBUG("OHOSApplication::SetRuntime begin");
     if (runtime == nullptr) {
@@ -634,8 +632,8 @@ bool OHOSApplication::AddAbilityStage(const AppExecFwk::HapModuleInfo &hapModule
     return true;
 }
 
-void OHOSApplication::CleanAbilityStage(const sptr<IRemoteObject> &token,
-    const std::shared_ptr<AbilityInfo> &abilityInfo)
+void OHOSApplication::CleanAbilityStage(
+    const sptr<IRemoteObject> &token, const std::shared_ptr<AbilityInfo> &abilityInfo)
 {
     if (abilityInfo == nullptr) {
         HILOG_ERROR("CleanAbilityStage:abilityInfo is nullptr");
@@ -671,7 +669,7 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::GetAppContext() const
     return abilityRuntimeContext_;
 }
 
-const std::unique_ptr<AbilityRuntime::Runtime>& OHOSApplication::GetRuntime()
+const std::unique_ptr<AbilityRuntime::Runtime> &OHOSApplication::GetRuntime()
 {
     return runtime_;
 }
@@ -734,5 +732,5 @@ bool OHOSApplication::NotifyUnLoadRepairPatch(const std::string &hqfFile)
 
     return runtime_->UnLoadRepairPatch(hqfFile);
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
+} // namespace AppExecFwk
+} // namespace OHOS

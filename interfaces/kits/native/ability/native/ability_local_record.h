@@ -18,10 +18,10 @@
 
 #include <string>
 
-#include "iremote_object.h"
-#include "event_runner.h"
 #include "ability_info.h"
 #include "application_info.h"
+#include "event_runner.h"
+#include "iremote_object.h"
 #include "refbase.h"
 #include "want.h"
 
@@ -102,6 +102,7 @@ public:
     void SetWant(const std::shared_ptr<AAFwk::Want> &want);
 
     const std::shared_ptr<AAFwk::Want> &GetWant();
+
 private:
     std::shared_ptr<AbilityInfo> abilityInfo_ = nullptr;
     sptr<IRemoteObject> token_;
@@ -110,6 +111,6 @@ private:
     sptr<AbilityThread> abilityThread_;
     std::shared_ptr<AAFwk::Want> want_ = nullptr;
 };
-}  // namespace AppExecFwk
-}  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_ABILITY_LOCAL_RECORD_H
+} // namespace AppExecFwk
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_ABILITY_LOCAL_RECORD_H

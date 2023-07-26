@@ -16,11 +16,11 @@
 #include <gtest/gtest.h>
 #define private public
 #define protected public
-#include "ability_local_record.h"
 #include "ability_impl.h"
+#include "ability_local_record.h"
 #include "ability_thread.h"
-#include "iservice_registry.h"
 #include "iremote_object.h"
+#include "iservice_registry.h"
 #include "mock_ability_token.h"
 #include "parcel.h"
 #undef protected
@@ -39,17 +39,13 @@ public:
     void TearDown();
 };
 
-void AbilityLocalRecordTest::SetUpTestCase()
-{}
+void AbilityLocalRecordTest::SetUpTestCase() {}
 
-void AbilityLocalRecordTest::TearDownTestCase()
-{}
+void AbilityLocalRecordTest::TearDownTestCase() {}
 
-void AbilityLocalRecordTest::SetUp()
-{}
+void AbilityLocalRecordTest::SetUp() {}
 
-void AbilityLocalRecordTest::TearDown()
-{}
+void AbilityLocalRecordTest::TearDown() {}
 
 /**
  * @tc.number: GetEventHandler_0100

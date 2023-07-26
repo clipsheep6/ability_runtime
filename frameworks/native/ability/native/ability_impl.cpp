@@ -29,7 +29,7 @@ namespace AppExecFwk {
 namespace {
 const std::string PERMISSION_KEY = "ohos.user.grant.permission";
 const std::string GRANTED_RESULT_KEY = "ohos.user.grant.permission.result";
-}
+} // namespace
 
 void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &record,
     std::shared_ptr<Ability> &ability, std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token)
@@ -68,13 +68,11 @@ void AbilityImpl::Start(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
         return;
     }
 #ifdef SUPPORT_GRAPHICS
-    if ((ability_->GetAbilityInfo()->type == AbilityType::PAGE) &&
-        (!ability_->GetAbilityInfo()->isStageBasedModel)) {
+    if ((ability_->GetAbilityInfo()->type == AbilityType::PAGE) && (!ability_->GetAbilityInfo()->isStageBasedModel)) {
         ability_->HandleCreateAsContinuation(want);
     }
 
-    if ((ability_->GetAbilityInfo()->type == AbilityType::PAGE) &&
-        (ability_->GetAbilityInfo()->isStageBasedModel)) {
+    if ((ability_->GetAbilityInfo()->type == AbilityType::PAGE) && (ability_->GetAbilityInfo()->isStageBasedModel)) {
         ability_->HandleCreateAsRecovery(want);
     }
 #endif
@@ -250,15 +248,13 @@ void AbilityImpl::DispatchRestoreAbilityState(const PacMap &inState)
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
-void AbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
-    sptr<AAFwk::SessionInfo> sessionInfo)
+void AbilityImpl::HandleAbilityTransaction(
+    const Want &want, const AAFwk::LifeCycleStateInfo &targetState, sptr<AAFwk::SessionInfo> sessionInfo)
 {}
 
-void AbilityImpl::HandleShareData(const int32_t &requestCode)
-{}
+void AbilityImpl::HandleShareData(const int32_t &requestCode) {}
 
-void AbilityImpl::AbilityTransactionCallback(const AAFwk::AbilityLifeCycleState &state)
-{}
+void AbilityImpl::AbilityTransactionCallback(const AAFwk::AbilityLifeCycleState &state) {}
 
 sptr<IRemoteObject> AbilityImpl::ConnectAbility(const Want &want)
 {
@@ -532,7 +528,7 @@ std::vector<std::shared_ptr<DataAbilityResult>> AbilityImpl::ExecuteBatch(
     return results;
 }
 
-void AbilityImpl::ContinueAbility(const std::string& deviceId, uint32_t versionCode)
+void AbilityImpl::ContinueAbility(const std::string &deviceId, uint32_t versionCode)
 {
     if (ability_ == nullptr) {
         HILOG_ERROR("AbilityImpl::ContinueAbility ability_ is nullptr");
@@ -593,9 +589,9 @@ void AbilityImpl::AfterFocusedCommon(bool isFocused)
             if (applicationContext == nullptr || applicationContext->IsAbilityLifecycleCallbackEmpty()) {
                 return;
             }
-            auto& jsAbility = static_cast<AbilityRuntime::JsAbility&>(*(impl->ability_));
+            auto &jsAbility = static_cast<AbilityRuntime::JsAbility &>(*(impl->ability_));
             if (focuseMode) {
-                applicationContext->DispatchWindowStageFocus(jsAbility.GetJsAbility(),  jsAbility.GetJsWindowStage());
+                applicationContext->DispatchWindowStageFocus(jsAbility.GetJsAbility(), jsAbility.GetJsWindowStage());
             } else {
                 applicationContext->DispatchWindowStageUnfocus(jsAbility.GetJsAbility(), jsAbility.GetJsWindowStage());
             }
@@ -646,8 +642,8 @@ void AbilityImpl::WindowLifeCycleImpl::AfterForeground()
     if (needNotifyAMS) {
         HILOG_INFO("Stage mode ability, window after foreground, notify ability manager service.");
         PacMap restoreData;
-        AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
-            AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_NEW, restoreData);
+        AbilityManagerClient::GetInstance()->AbilityTransitionDone(
+            token_, AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_NEW, restoreData);
     }
 }
 
@@ -662,8 +658,8 @@ void AbilityImpl::WindowLifeCycleImpl::AfterBackground()
 
     HILOG_INFO("UIAbility, window after background.");
     PacMap restoreData;
-    AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
-        AbilityLifeCycleState::ABILITY_STATE_BACKGROUND_NEW, restoreData);
+    AbilityManagerClient::GetInstance()->AbilityTransitionDone(
+        token_, AbilityLifeCycleState::ABILITY_STATE_BACKGROUND_NEW, restoreData);
 }
 
 void AbilityImpl::WindowLifeCycleImpl::AfterFocused()
@@ -693,8 +689,8 @@ void AbilityImpl::WindowLifeCycleImpl::ForegroundFailed(int32_t type)
     switch (type) {
         case static_cast<int32_t>(OHOS::Rosen::WMError::WM_ERROR_INVALID_OPERATION): {
             HILOG_DEBUG("window was freezed.");
-            AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
-                AbilityLifeCycleState::ABILITY_STATE_WINDOW_FREEZED, restoreData);
+            AbilityManagerClient::GetInstance()->AbilityTransitionDone(
+                token_, AbilityLifeCycleState::ABILITY_STATE_WINDOW_FREEZED, restoreData);
             break;
         }
         case static_cast<int32_t>(OHOS::Rosen::WMError::WM_ERROR_INVALID_WINDOW_MODE_OR_SIZE): {
@@ -705,18 +701,18 @@ void AbilityImpl::WindowLifeCycleImpl::ForegroundFailed(int32_t type)
             }
 
             HILOG_DEBUG("The ability is stage mode, schedule foreground invalid mode.");
-            AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
-                AbilityLifeCycleState::ABILITY_STATE_INVALID_WINDOW_MODE, restoreData);
+            AbilityManagerClient::GetInstance()->AbilityTransitionDone(
+                token_, AbilityLifeCycleState::ABILITY_STATE_INVALID_WINDOW_MODE, restoreData);
             break;
         }
         case static_cast<int32_t>(OHOS::Rosen::WMError::WM_DO_NOTHING): {
-            AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
-                AbilityLifeCycleState::ABILITY_STATE_DO_NOTHING, restoreData);
+            AbilityManagerClient::GetInstance()->AbilityTransitionDone(
+                token_, AbilityLifeCycleState::ABILITY_STATE_DO_NOTHING, restoreData);
             break;
         }
         default: {
-            AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
-                AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_FAILED, restoreData);
+            AbilityManagerClient::GetInstance()->AbilityTransitionDone(
+                token_, AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_FAILED, restoreData);
         }
     }
 }
@@ -751,8 +747,8 @@ void AbilityImpl::WindowLifeCycleImpl::BackgroundFailed(int32_t type)
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (type == static_cast<int32_t>(OHOS::Rosen::WMError::WM_DO_NOTHING)) {
         PacMap restoreData;
-        AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
-            AbilityLifeCycleState::ABILITY_STATE_BACKGROUND_FAILED, restoreData);
+        AbilityManagerClient::GetInstance()->AbilityTransitionDone(
+            token_, AbilityLifeCycleState::ABILITY_STATE_BACKGROUND_FAILED, restoreData);
     }
 }
 
@@ -775,17 +771,17 @@ void AbilityImpl::Background()
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-void AbilityImpl::DoKeyDown(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
+void AbilityImpl::DoKeyDown(const std::shared_ptr<MMI::KeyEvent> &keyEvent)
 {
     HILOG_DEBUG("AbilityImpl::DoKeyDown called");
 }
 
-void AbilityImpl::DoKeyUp(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
+void AbilityImpl::DoKeyUp(const std::shared_ptr<MMI::KeyEvent> &keyEvent)
 {
     HILOG_DEBUG("AbilityImpl::DoKeyUp called");
 }
 
-void AbilityImpl::DoPointerEvent(std::shared_ptr<MMI::PointerEvent>& pointerEvent)
+void AbilityImpl::DoPointerEvent(std::shared_ptr<MMI::PointerEvent> &pointerEvent)
 {
     HILOG_DEBUG("AbilityImpl::DoPointerEvent called");
 }
@@ -808,5 +804,5 @@ void AbilityImpl::InputEventConsumerImpl::OnInputEvent(std::shared_ptr<MMI::Poin
     abilityImpl_->DoPointerEvent(pointerEvent);
 }
 #endif
-}  // namespace AppExecFwk
-}  // namespace OHOS
+} // namespace AppExecFwk
+} // namespace OHOS

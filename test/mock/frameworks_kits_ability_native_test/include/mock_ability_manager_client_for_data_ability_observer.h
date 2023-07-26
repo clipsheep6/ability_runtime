@@ -15,16 +15,14 @@
 #ifndef MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MANAGER_CLIENT_FOR_DATA_ABILITY_OBSERVER_H
 #define MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MANAGER_CLIENT_FOR_DATA_ABILITY_OBSERVER_H
 
-#include "gmock/gmock.h"
+#include <iremote_object.h>
+#include <iremote_stub.h>
 
 #include "ability_manager_client.h"
 #include "ability_scheduler_proxy.h"
 #include "ability_thread.h"
 #include "fa_ability_thread.h"
-
-#include <iremote_object.h>
-#include <iremote_stub.h>
-
+#include "gmock/gmock.h"
 #include "mock_ability_scheduler_for_observer.h"
 
 namespace OHOS {
@@ -95,8 +93,8 @@ private:
 };
 
 std::shared_ptr<MockAbilitySchedulerTools> MockAbilitySchedulerTools::instance_ = nullptr;
-}  // namespace AppExecFwk
-}  // namespace OHOS
+} // namespace AppExecFwk
+} // namespace OHOS
 
 namespace OHOS {
 namespace AAFwk {
@@ -111,6 +109,7 @@ ErrCode AbilityManagerClient::ReleaseDataAbility(
 {
     return ERR_OK;
 }
-}  // namespace AAFwk
-}  // namespace OHOS
-#endif /* MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MANAGER_CLIENT_FOR_DATA_ABILITY_OBSERVER_H */
+} // namespace AAFwk
+} // namespace OHOS
+#endif /* MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MANAGER_CLIENT_FOR_DATA_ABILITY_OBSERVER_H \
+        */

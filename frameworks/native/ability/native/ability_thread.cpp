@@ -36,8 +36,8 @@ void AbilityThread::AbilityThreadMain(std::shared_ptr<OHOSApplication> &applicat
     HILOG_DEBUG("end");
 }
 
-void AbilityThread::AbilityThreadMain(
-    std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
+void AbilityThread::AbilityThreadMain(std::shared_ptr<OHOSApplication> &application,
+    const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
     const std::shared_ptr<AbilityRuntime::Context> &stageContext)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -57,15 +57,15 @@ bool AbilityThread::CheckObsPermission()
     return true;
 }
 
-void AbilityThread::ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &targetState,
-        sptr<SessionInfo> sessionInfo) 
+void AbilityThread::ScheduleAbilityTransaction(
+    const Want &want, const LifeCycleStateInfo &targetState, sptr<SessionInfo> sessionInfo)
 {
-     HILOG_DEBUG("called");
+    HILOG_DEBUG("called");
 }
 
 void AbilityThread::ScheduleShareData(const int32_t &requestCode)
 {
-     HILOG_DEBUG("called");
+    HILOG_DEBUG("called");
 }
 
 void AbilityThread::ScheduleConnectAbility(const Want &want)
@@ -83,8 +83,8 @@ void AbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int32
     HILOG_DEBUG("called");
 }
 
-void AbilityThread::ScheduleCommandAbilityWindow(const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
-        AAFwk::WindowCommand winCmd)
+void AbilityThread::ScheduleCommandAbilityWindow(
+    const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
 {
     HILOG_DEBUG("called");
 }
@@ -110,7 +110,7 @@ void AbilityThread::SendResult(int32_t requestCode, int32_t resultCode, const Wa
     HILOG_DEBUG("called");
 }
 
-std::vector<std::string> AbilityThread::GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter) 
+std::vector<std::string> AbilityThread::GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)
 {
     HILOG_DEBUG("called");
     std::vector<std::string> types;
@@ -136,14 +136,14 @@ int32_t AbilityThread::Insert(const Uri &uri, const NativeRdb::ValuesBucket &val
 }
 
 std::shared_ptr<AppExecFwk::PacMap> AbilityThread::Call(
-        const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap)
+    const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap)
 {
     HILOG_DEBUG("called");
     return nullptr;
 }
 
-int32_t AbilityThread::Update(const Uri &uri, const NativeRdb::ValuesBucket &value,
-        const NativeRdb::DataAbilityPredicates &predicates)
+int32_t AbilityThread::Update(
+    const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
 {
     HILOG_DEBUG("called");
     return -1;
@@ -156,7 +156,7 @@ int32_t AbilityThread::Delete(const Uri &uri, const NativeRdb::DataAbilityPredic
 }
 
 std::shared_ptr<NativeRdb::AbsSharedResultSet> AbilityThread::Query(
-        const Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
+    const Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
 {
     HILOG_DEBUG("called");
     return nullptr;
@@ -180,7 +180,7 @@ int32_t AbilityThread::BatchInsert(const Uri &uri, const std::vector<NativeRdb::
     return -1;
 }
 
-void AbilityThread::ContinueAbility(const std::string& deviceId, uint32_t versionCode)
+void AbilityThread::ContinueAbility(const std::string &deviceId, uint32_t versionCode)
 {
     HILOG_DEBUG("called");
 }
@@ -231,7 +231,7 @@ void AbilityThread::CallRequest()
 }
 
 std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> AbilityThread::ExecuteBatch(
-        const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> &operations) 
+    const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> &operations)
 {
     HILOG_DEBUG("called");
     std::vector<std::shared_ptr<DataAbilityResult>> results;
@@ -240,10 +240,10 @@ std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> AbilityThread::Execu
 
 #ifdef ABILITY_COMMAND_FOR_TEST
 int32_t AbilityThread::BlockAbility()
-{ 
+{
     HILOG_DEBUG("called");
-    return -1; 
+    return -1;
 }
 #endif
-}  // namespace AppExecFwk
-}  // namespace OHOS
+} // namespace AppExecFwk
+} // namespace OHOS

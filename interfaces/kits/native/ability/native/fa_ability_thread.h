@@ -32,7 +32,7 @@ namespace AppExecFwk {
 class AbilityImpl;
 class AbilityHandler;
 class AbilityLocalRecord;
-}
+} // namespace AppExecFwk
 namespace AbilityRuntime {
 using LifeCycleStateInfo = OHOS::AAFwk::LifeCycleStateInfo;
 class FAAbilityThread : public AppExecFwk::AbilityThread {
@@ -52,12 +52,14 @@ public:
      * @param appContext the AbilityRuntime context
      */
 
-    void Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &application, const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
-        const std::shared_ptr<AppExecFwk::EventRunner> &mainRunner, const std::shared_ptr<Context> &appContext) override;
+    void Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+        const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
+        const std::shared_ptr<AppExecFwk::EventRunner> &mainRunner,
+        const std::shared_ptr<Context> &appContext) override;
 
     /**
      * @description: Attach The ability thread to the main process.
-     * 
+     *
      * @param application Indicates the main process.
      * @param abilityRecord current running ability record
      * @param mainRunner The runner which main_thread holds.
@@ -68,7 +70,7 @@ public:
 
     /**
      * @description: Attach The ability thread to the main process.
-     * 
+     *
      * @param application Indicates the main process.
      * @param abilityRecord current running ability record
      */
@@ -79,13 +81,13 @@ public:
 
     /**
      * @description: Attach The ability thread to the main process.
-     * 
+     *
      * @param application Indicates the main process.
      * @param abilityRecord current running ability record
      * @param appContext the AbilityRuntime context
      */
-    void Attach(
-        std::shared_ptr<AppExecFwk::OHOSApplication> &application, const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
+    void Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+        const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
         const std::shared_ptr<Context> &appContext) override;
 
     /**
@@ -140,13 +142,13 @@ public:
 
     /**
      * @description: Schedule Command AbilityWindow
-     * 
+     *
      * @param want The Want object to command to.
      * @param sessionInfo Indicates the session info.
      * @param winCmd Indicates the WindowCommand of winCmd
      */
-    void ScheduleCommandAbilityWindow(const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
-        AAFwk::WindowCommand winCmd) override;
+    void ScheduleCommandAbilityWindow(
+        const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd) override;
 
     /**
      * @description: Provide operating system PrepareTerminateAbility information to the observer
@@ -167,7 +169,7 @@ public:
 
     /**
      * @brief ScheduleUpdateConfiguration, scheduling update configuration.
-     * 
+     *
      * @param config Indicates the updated configuration information
      */
     void ScheduleUpdateConfiguration(const AppExecFwk::Configuration &config) override;
@@ -235,11 +237,11 @@ public:
 
     /**
      * @description:  Calls the method of the Data ability.
-     * 
+     *
      * @param method Indicates the method to call
      * @param arg Indicates the parameter of the String type.
      * @param pacMap Defines a PacMap object for storing a series of values.
-     * 
+     *
      * @return Returns the call result.
      */
     std::shared_ptr<AppExecFwk::PacMap> Call(
@@ -317,7 +319,7 @@ public:
      * @param deviceId target deviceId
      * @param versionCode Target bundle version.
      */
-    void ContinueAbility(const std::string& deviceId, uint32_t versionCode) override;
+    void ContinueAbility(const std::string &deviceId, uint32_t versionCode) override;
 
     /**
      * @brief notify this ability continuation result.
@@ -365,7 +367,7 @@ public:
      *
      * @param uri Indicates the path of the data to operate.
      * @param dataObserver Indicates the IDataAbilityObserver object.
-     * 
+     *
      * @return The operation succeeded or failed. Procedure
      */
     bool HandleRegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver);
@@ -418,14 +420,14 @@ public:
 
     /**
      * @brief Call Request
-    */
+     */
     void CallRequest() override;
 
     /**
      * @description: Performs batch operations on the database
-     * 
+     *
      * @param operations Indicates a list of database operations on the database.
-     * 
+     *
      * @return Returns the result of each operation, in array.
      */
     std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> ExecuteBatch(
@@ -434,7 +436,7 @@ public:
 private:
     /**
      * @description: Dump Ability Runner info.
-     * 
+     *
      * @param params the params need to be Dumped
      * @param info ability runner info
      */
@@ -442,17 +444,17 @@ private:
 
     /**
      * @description: Dump other Ability Runner info.
-     * 
+     *
      * @param info ability runner info
      */
     void DumpOtherInfo(std::vector<std::string> &info);
-    
+
     /**
      * @description: Create the abilityname.
      *
      * @param abilityRecord current running ability record
      * @param application Indicates the application.
-     * 
+     *
      * @return Returns the abilityname.
      */
     std::string CreateAbilityName(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
@@ -468,8 +470,10 @@ private:
      * @return Returns the contextDeal.
      *
      */
-    std::shared_ptr<AppExecFwk::ContextDeal> CreateAndInitContextDeal(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-        const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord, const std::shared_ptr<AppExecFwk::AbilityContext> &abilityObject);
+    std::shared_ptr<AppExecFwk::ContextDeal> CreateAndInitContextDeal(
+        std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+        const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
+        const std::shared_ptr<AppExecFwk::AbilityContext> &abilityObject);
 
     /**
      * @description:  Handle the life cycle of Ability.
@@ -546,13 +550,13 @@ private:
 
     /**
      * @description: Handle Command Extension Window
-     * 
+     *
      * @param want The Want object to command to.
      * @param sessionInfo Indicates the sessionInfo
      * @param winCmd Indicates the winCmd
      */
-    void HandleCommandExtensionWindow(const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
-        AAFwk::WindowCommand winCmd);
+    void HandleCommandExtensionWindow(
+        const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd);
 
     /**
      * @description: Handle the restoreAbility state.
@@ -563,19 +567,19 @@ private:
 
     /**
      * @brief Handle the scheduling update configuration
-     * 
+     *
      * @param config Indicates the updated configuration information
      */
     void HandleUpdateConfiguration(const AppExecFwk::Configuration &config);
 
-    #ifdef ABILITY_COMMAND_FOR_TEST
+#ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * @brief Block ability.
-     * 
+     *
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t BlockAbility() override;
-    #endif
+#endif
 
     /**
      * @brief Handle the scheduling update configuration of extension.
@@ -591,15 +595,15 @@ private:
 
     /**
      * @brief Build Ability Context
-     * 
+     *
      * @param abilityInfo Indicate the Ability information.
      * @param application Indicates the main process.
      * @param token the remote token
      * @param stageContext Indicates the stage of Context
-    */
-    std::shared_ptr<AbilityContext> BuildAbilityContext(
-        const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo, const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-        const sptr<IRemoteObject> &token, const std::shared_ptr<Context> &stageContext);
+     */
+    std::shared_ptr<AbilityContext> BuildAbilityContext(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
+        const std::shared_ptr<AppExecFwk::OHOSApplication> &application, const sptr<IRemoteObject> &token,
+        const std::shared_ptr<Context> &stageContext);
 
     std::shared_ptr<AppExecFwk::AbilityImpl> abilityImpl_ = nullptr;
     std::shared_ptr<AppExecFwk::Ability> currentAbility_ = nullptr;
@@ -611,6 +615,6 @@ private:
     std::mutex mutex_;
     std::condition_variable cv_;
 };
-}  // namespace AppExecFwk
-}  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_FA_ABILITY_THREAD_H
+} // namespace AbilityRuntime
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_FA_ABILITY_THREAD_H

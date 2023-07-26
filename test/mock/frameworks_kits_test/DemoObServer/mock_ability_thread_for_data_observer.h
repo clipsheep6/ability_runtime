@@ -19,16 +19,14 @@
 #include <iostream>
 #include <memory>
 
-#include "gtest/gtest.h"
-
-#include "mock_ability_test.h"
-#include "ohos_application.h"
-#include "ability_thread.h"
-#include "event_runner.h"
 #include "ability_info.h"
 #include "ability_local_record.h"
+#include "ability_thread.h"
+#include "event_runner.h"
 #include "fa_ability_thread.h"
-#include <iostream> //
+#include "gtest/gtest.h"
+#include "mock_ability_test.h"
+#include "ohos_application.h"
 namespace OHOS {
 namespace AppExecFwk {
 sptr<AppExecFwk::AbilityThread> MockCreateAbilityThread()
@@ -65,6 +63,6 @@ sptr<AppExecFwk::AbilityThread> MockCreateAbilityThread()
 
     return abilitythread;
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
-#endif  // MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_THREAD_FOR_DATA_OBSERVER_H
+} // namespace AppExecFwk
+} // namespace OHOS
+#endif // MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_THREAD_FOR_DATA_OBSERVER_H

@@ -26,8 +26,8 @@
 #include "abs_shared_result_set.h"
 #include "application_impl.h"
 #include "context_deal.h"
-#include "dataobs_mgr_client.h"
 #include "data_ability_predicates.h"
+#include "dataobs_mgr_client.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ohos_application.h"
@@ -68,9 +68,7 @@ constexpr static char INPUTMETHOD_EXTENSION[] = "InputMethodExtensionAbility";
 constexpr static char APP_ACCOUNT_AUTHORIZATION_EXTENSION[] = "AppAccountAuthorizationExtension";
 
 const int32_t PREPARE_TO_TERMINATE_TIMEOUT_MILLISECONDS = 3000;
-FAAbilityThread::FAAbilityThread()
-    : abilityImpl_(nullptr), currentAbility_(nullptr)
-{}
+FAAbilityThread::FAAbilityThread() : abilityImpl_(nullptr), currentAbility_(nullptr) {}
 
 FAAbilityThread::~FAAbilityThread()
 {
@@ -189,8 +187,10 @@ std::string FAAbilityThread::CreateAbilityName(const std::shared_ptr<AppExecFwk:
     return abilityName;
 }
 
-std::shared_ptr<AppExecFwk::ContextDeal> FAAbilityThread::CreateAndInitContextDeal(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-    const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord, const std::shared_ptr<AppExecFwk::AbilityContext> &abilityObject)
+std::shared_ptr<AppExecFwk::ContextDeal> FAAbilityThread::CreateAndInitContextDeal(
+    std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+    const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
+    const std::shared_ptr<AppExecFwk::AbilityContext> &abilityObject)
 {
     HILOG_DEBUG("begin");
     std::shared_ptr<AppExecFwk::ContextDeal> contextDeal = nullptr;
@@ -213,8 +213,8 @@ std::shared_ptr<AppExecFwk::ContextDeal> FAAbilityThread::CreateAndInitContextDe
 }
 
 void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-    const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord, const std::shared_ptr<AppExecFwk::EventRunner> &mainRunner,
-    const std::shared_ptr<Context> &stageContext)
+    const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
+    const std::shared_ptr<AppExecFwk::EventRunner> &mainRunner, const std::shared_ptr<Context> &stageContext)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if ((application == nullptr) || (abilityRecord == nullptr) || (mainRunner == nullptr)) {
@@ -227,7 +227,7 @@ void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
         AttachExtension(application, abilityRecord, mainRunner);
         HILOG_DEBUG("Execute  AttachExtension.");
         return;
-    } 
+    }
 
     // 1.new AbilityHandler
     std::string abilityName = CreateAbilityName(abilityRecord, application);
@@ -255,16 +255,17 @@ void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
     abilityRecord->SetEventRunner(mainRunner);
     abilityRecord->SetAbilityThread(this);
     std::shared_ptr<AppExecFwk::AbilityContext> abilityObject = currentAbility_;
-    std::shared_ptr<AppExecFwk::ContextDeal> contextDeal = CreateAndInitContextDeal(application, abilityRecord, abilityObject);
+    std::shared_ptr<AppExecFwk::ContextDeal> contextDeal =
+        CreateAndInitContextDeal(application, abilityRecord, abilityObject);
     ability->AttachBaseContext(contextDeal);
 
     // new hap requires
-    ability->AttachAbilityContext(BuildAbilityContext(abilityRecord->GetAbilityInfo(), application, token_,
-        stageContext));
+    ability->AttachAbilityContext(
+        BuildAbilityContext(abilityRecord->GetAbilityInfo(), application, token_, stageContext));
 
     // 3.new abilityImpl
-    abilityImpl_ =
-        DelayedSingleton<AppExecFwk::AbilityImplFactory>::GetInstance()->MakeAbilityImplObject(abilityRecord->GetAbilityInfo());
+    abilityImpl_ = DelayedSingleton<AppExecFwk::AbilityImplFactory>::GetInstance()->MakeAbilityImplObject(
+        abilityRecord->GetAbilityInfo());
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("abilityImpl_ is nullptr.");
         return;
@@ -279,7 +280,8 @@ void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
 }
 
 void FAAbilityThread::AttachExtension(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-    const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord, const std::shared_ptr<AppExecFwk::EventRunner> &mainRunner)
+    const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
+    const std::shared_ptr<AppExecFwk::EventRunner> &mainRunner)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if ((application == nullptr) || (abilityRecord == nullptr) || (mainRunner == nullptr)) {
@@ -378,9 +380,8 @@ void FAAbilityThread::AttachExtension(std::shared_ptr<AppExecFwk::OHOSApplicatio
     HILOG_DEBUG("end");
 }
 
-void FAAbilityThread::Attach(
-    std::shared_ptr<AppExecFwk::OHOSApplication> &application, const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
-    const std::shared_ptr<Context> &stageContext)
+void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+    const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord, const std::shared_ptr<Context> &stageContext)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("begin");
@@ -394,7 +395,7 @@ void FAAbilityThread::Attach(
         AttachExtension(application, abilityRecord);
         HILOG_DEBUG("Execute  AttachExtension.");
         return;
-    } 
+    }
 
     // 1.new AbilityHandler
     std::string abilityName = CreateAbilityName(abilityRecord, application);
@@ -422,16 +423,17 @@ void FAAbilityThread::Attach(
     abilityRecord->SetEventRunner(runner_);
     abilityRecord->SetAbilityThread(this);
     std::shared_ptr<AppExecFwk::AbilityContext> abilityObject = currentAbility_;
-    std::shared_ptr<AppExecFwk::ContextDeal> contextDeal = CreateAndInitContextDeal(application, abilityRecord, abilityObject);
+    std::shared_ptr<AppExecFwk::ContextDeal> contextDeal =
+        CreateAndInitContextDeal(application, abilityRecord, abilityObject);
     ability->AttachBaseContext(contextDeal);
 
     // new hap requires
-    ability->AttachAbilityContext(BuildAbilityContext(abilityRecord->GetAbilityInfo(), application, token_,
-        stageContext));
+    ability->AttachAbilityContext(
+        BuildAbilityContext(abilityRecord->GetAbilityInfo(), application, token_, stageContext));
 
     // 3.new abilityImpl
-    abilityImpl_ =
-        DelayedSingleton<AppExecFwk::AbilityImplFactory>::GetInstance()->MakeAbilityImplObject(abilityRecord->GetAbilityInfo());
+    abilityImpl_ = DelayedSingleton<AppExecFwk::AbilityImplFactory>::GetInstance()->MakeAbilityImplObject(
+        abilityRecord->GetAbilityInfo());
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("abilityImpl_ is nullptr.");
         return;
@@ -447,8 +449,8 @@ void FAAbilityThread::Attach(
     HILOG_DEBUG("end");
 }
 
-void FAAbilityThread::HandleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
-    sptr<AppExecFwk::SessionInfo> sessionInfo)
+void FAAbilityThread::HandleAbilityTransaction(
+    const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AppExecFwk::SessionInfo> sessionInfo)
 {
     std::string connector = "##";
     std::string traceName = __PRETTY_FUNCTION__ + connector + want.GetElement().GetAbilityName();
@@ -459,10 +461,8 @@ void FAAbilityThread::HandleAbilityTransaction(const Want &want, const LifeCycle
         return;
     }
 
-    abilityImpl_->SetCallingContext(lifeCycleStateInfo.caller.deviceId,
-        lifeCycleStateInfo.caller.bundleName,
-        lifeCycleStateInfo.caller.abilityName,
-        lifeCycleStateInfo.caller.moduleName);
+    abilityImpl_->SetCallingContext(lifeCycleStateInfo.caller.deviceId, lifeCycleStateInfo.caller.bundleName,
+        lifeCycleStateInfo.caller.abilityName, lifeCycleStateInfo.caller.moduleName);
     abilityImpl_->HandleAbilityTransaction(want, lifeCycleStateInfo, sessionInfo);
     HILOG_DEBUG("end");
 }
@@ -478,8 +478,8 @@ void FAAbilityThread::HandleShareData(const int32_t &uniqueId)
     HILOG_DEBUG("end");
 }
 
-void FAAbilityThread::HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
-    sptr<AppExecFwk::SessionInfo> sessionInfo)
+void FAAbilityThread::HandleExtensionTransaction(
+    const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AppExecFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("begin");
@@ -590,8 +590,8 @@ void FAAbilityThread::HandleCommandExtension(const Want &want, bool restart, int
     HILOG_DEBUG("end");
 }
 
-void FAAbilityThread::HandleCommandExtensionWindow(const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
-    AAFwk::WindowCommand winCmd)
+void FAAbilityThread::HandleCommandExtensionWindow(
+    const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("begin");
@@ -692,14 +692,12 @@ void FAAbilityThread::HandleExtensionUpdateConfiguration(const AppExecFwk::Confi
     HILOG_DEBUG("end");
 }
 
-void FAAbilityThread::ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
-    sptr<AppExecFwk::SessionInfo> sessionInfo)
+void FAAbilityThread::ScheduleAbilityTransaction(
+    const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AppExecFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("name:%{public}s,targeState:%{public}d,isNewWant:%{public}d",
-        want.GetElement().GetAbilityName().c_str(),
-        lifeCycleStateInfo.state,
-        lifeCycleStateInfo.isNewWant);
+    HILOG_INFO("name:%{public}s,targeState:%{public}d,isNewWant:%{public}d", want.GetElement().GetAbilityName().c_str(),
+        lifeCycleStateInfo.state, lifeCycleStateInfo.isNewWant);
 
     if (token_ == nullptr) {
         HILOG_ERROR("token_ is nullptr.");
@@ -894,8 +892,8 @@ bool FAAbilityThread::SchedulePrepareTerminateAbility()
     }
 }
 
-void FAAbilityThread::ScheduleCommandAbilityWindow(const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
-    AAFwk::WindowCommand winCmd)
+void FAAbilityThread::ScheduleCommandAbilityWindow(
+    const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
 {
     HILOG_DEBUG("begin");
     wptr<FAAbilityThread> weak = this;
@@ -941,8 +939,7 @@ void FAAbilityThread::SendResult(int32_t requestCode, int32_t resultCode, const 
             abilityThread->abilityImpl_->SendResult(requestCode, resultCode, want);
             return;
         }
-        HILOG_ERROR(
-            "%{public}simpl is nullptr.", abilityThread->isExtension_ ? "extension" : "ability");
+        HILOG_ERROR("%{public}simpl is nullptr.", abilityThread->isExtension_ ? "extension" : "ability");
     };
 
     if (abilityHandler_ == nullptr) {
@@ -1111,7 +1108,7 @@ int32_t FAAbilityThread::BatchInsert(const Uri &uri, const std::vector<NativeRdb
     return ret;
 }
 
-void FAAbilityThread::ContinueAbility(const std::string& deviceId, uint32_t versionCode)
+void FAAbilityThread::ContinueAbility(const std::string &deviceId, uint32_t versionCode)
 {
     HILOG_DEBUG("begin");
     if (abilityImpl_ == nullptr) {
@@ -1354,8 +1351,9 @@ std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> FAAbilityThread::Exe
 }
 
 std::shared_ptr<AbilityContext> FAAbilityThread::BuildAbilityContext(
-    const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo, const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-    const sptr<IRemoteObject> &token, const std::shared_ptr<Context> &stageContext)
+    const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
+    const std::shared_ptr<AppExecFwk::OHOSApplication> &application, const sptr<IRemoteObject> &token,
+    const std::shared_ptr<Context> &stageContext)
 {
     auto abilityContextImpl = std::make_shared<AbilityContextImpl>();
     abilityContextImpl->SetStageContext(stageContext);
@@ -1485,7 +1483,7 @@ void FAAbilityThread::CallRequest()
 
     sptr<IRemoteObject> retval = nullptr;
     std::weak_ptr<OHOS::AppExecFwk::Ability> weakAbility = currentAbility_;
-    auto syncTask = [ability = weakAbility, &retval] () {
+    auto syncTask = [ability = weakAbility, &retval]() {
         auto currentAbility = ability.lock();
         if (currentAbility == nullptr) {
             HILOG_ERROR("ability is nullptr.");
@@ -1512,7 +1510,7 @@ int32_t FAAbilityThread::BlockAbility()
     if (abilityHandler_) {
         auto task = []() {
             while (1) {
-                std::this_thread::sleep_for(BLOCK_ABILITY_TIME*1s);
+                std::this_thread::sleep_for(BLOCK_ABILITY_TIME * 1s);
             }
         };
         abilityHandler_->PostTask(task);
@@ -1532,8 +1530,8 @@ void FAAbilityThread::HandlePrepareTermianteAbility()
     }
     isPrepareTerminate_ = abilityImpl_->PrepareTerminateAbility();
     HILOG_DEBUG("end, ret = %{public}d", isPrepareTerminate_);
-    isPrepareTerminateAbilityDone_.store(true); 
+    isPrepareTerminateAbilityDone_.store(true);
     cv_.notify_all();
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
+} // namespace AbilityRuntime
+} // namespace OHOS

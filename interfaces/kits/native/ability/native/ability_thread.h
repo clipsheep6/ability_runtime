@@ -35,7 +35,7 @@ public:
 
     /**
      * @description: Attach The ability thread to the main process.
-     * 
+     *
      * @param application Indicates the main process.
      * @param abilityRecord Indicates the abilityRecord.
      * @param mainRunner The runner which main_thread holds.
@@ -47,13 +47,13 @@ public:
 
     /**
      * @description: Attach The ability thread to the main process.
-     * 
+     *
      * @param application Indicates the main process.
      * @param abilityRecord Indicates the abilityRecord.
      * @param appContext the AbilityRuntime context
      */
-    static void AbilityThreadMain(
-        std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
+    static void AbilityThreadMain(std::shared_ptr<OHOSApplication> &application,
+        const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
         const std::shared_ptr<AbilityRuntime::Context> &appContext);
 
     /**
@@ -64,30 +64,31 @@ public:
      * @param mainRunner The runner which main_thread holds.
      * @param appContext the AbilityRuntime context
      */
-    virtual void Attach(std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
-        const std::shared_ptr<EventRunner> &mainRunner, const std::shared_ptr<AbilityRuntime::Context> &appContext) = 0;
+    virtual void Attach(std::shared_ptr<OHOSApplication> &application,
+        const std::shared_ptr<AbilityLocalRecord> &abilityRecord, const std::shared_ptr<EventRunner> &mainRunner,
+        const std::shared_ptr<AbilityRuntime::Context> &appContext) = 0;
 
     /**
      * @description: Attach The ability thread to the main process.
-     * 
+     *
      * @param application Indicates the main process.
      * @param abilityRecord Indicates the abilityRecord.
      * @param appContext the AbilityRuntime context
      */
-    virtual void Attach(
-        std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
+    virtual void Attach(std::shared_ptr<OHOSApplication> &application,
+        const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
         const std::shared_ptr<AbilityRuntime::Context> &appContext) = 0;
 
     /**
      * @brief ScheduleUpdateConfiguration, scheduling update configuration.
-     * 
+     *
      * @param config Indicates the updated configuration information
      */
     virtual void ScheduleUpdateConfiguration(const Configuration &config) = 0;
 
     /**
      * @brief notify this ability current memory level.
-     * 
+     *
      * @param level: Current memory level
      */
     virtual void NotifyMemoryLevel(int32_t level) = 0;
@@ -96,16 +97,18 @@ public:
      * @brief Access authority verification.
      */
     bool CheckObsPermission();
- 
+
     /**
-     * @description:  Provide operating system AbilityTransaction information to the observer
-     * 
-     * @param want Indicates the structure containing Transaction information about the ability.
+     * @description:  Provide operating system AbilityTransaction information to
+     * the observer
+     *
+     * @param want Indicates the structure containing Transaction information
+     * about the ability.
      * @param targetState Indicates the lifecycle state.
      * @param sessionInfo Indicates the session info.
      */
-    virtual void ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &targetState,
-        sptr<SessionInfo> sessionInfo = nullptr);
+    virtual void ScheduleAbilityTransaction(
+        const Want &want, const LifeCycleStateInfo &targetState, sptr<SessionInfo> sessionInfo = nullptr);
 
     /**
      * @description: Provide operating system ShareData information to the observer
@@ -142,13 +145,13 @@ public:
 
     /**
      * @brief Schedule Command AbilityWindow
-     * 
+     *
      * @param want The Want object to command to.
      * @param sessionInfo Indicates the session info.
      * @param winCmd Indicates the WindowCommand of winCmd
      */
-    virtual void ScheduleCommandAbilityWindow(const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
-        AAFwk::WindowCommand winCmd);
+    virtual void ScheduleCommandAbilityWindow(
+        const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd);
 
     /**
      * @description: Provide operating system PrepareTerminateAbility information to the observer
@@ -240,8 +243,8 @@ public:
      *
      * @return Returns the number of data records updated.
      */
-    virtual int32_t Update(const Uri &uri, const NativeRdb::ValuesBucket &value,
-        const NativeRdb::DataAbilityPredicates &predicates);
+    virtual int32_t Update(
+        const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates);
 
     /**
      * @brief Deletes one or more data records from the database.
@@ -303,7 +306,7 @@ public:
      * @param deviceId target deviceId
      * @param versionCode Target bundle version.
      */
-    virtual void ContinueAbility(const std::string& deviceId, uint32_t versionCode);
+    virtual void ContinueAbility(const std::string &deviceId, uint32_t versionCode);
 
     /**
      * @brief notify this ability continuation result.
@@ -368,7 +371,7 @@ public:
      * @param info ability runner info.
      */
     virtual void DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info);
-    
+
     /**
      * @brief Call Request
      */
@@ -385,15 +388,16 @@ public:
     sptr<IRemoteObject> token_;
     std::shared_ptr<AbilityHandler> abilityHandler_ = nullptr;
     std::shared_ptr<EventRunner> runner_ = nullptr;
+
 private:
-    #ifdef ABILITY_COMMAND_FOR_TEST
+#ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block ability.
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t BlockAbility();
-    #endif
+#endif
 };
-}  // namespace AppExecFwk
-}  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_ABILITY_THREAD_H
+} // namespace AppExecFwk
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_ABILITY_THREAD_H

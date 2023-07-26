@@ -15,24 +15,25 @@
 
 #include <climits>
 #include <gtest/gtest.h>
-#include "ability_thread.h"
-#include "ability_local_record.h"
-#include "ability_loader.h"
+
 #include "ability_impl_factory.h"
-#include "data_ability_helper.h"
+#include "ability_loader.h"
+#include "ability_local_record.h"
+#include "ability_thread.h"
 #include "context_deal.h"
+#include "data_ability_helper.h"
 #ifndef SUPPORT_ERMS
 #include "erms_mgr_interface.h"
 #endif
+#include "ability_manager_client.h"
+#include "ability_manager_interface.h"
+#include "demo_ability_test.h"
+#include "fa_ability_thread.h"
+#include "mock_ability_manager_service.h"
+#include "mock_bundle_manager.h"
 #include "ohos_application.h"
 #include "sys_mgr_client.h"
-#include "ability_manager_interface.h"
-#include "ability_manager_client.h"
 #include "system_ability_definition.h"
-#include "demo_ability_test.h"
-#include "mock_bundle_manager.h"
-#include "mock_ability_manager_service.h"
-#include "fa_ability_thread.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -56,22 +57,19 @@ public:
     void SetUp();
     void TearDown();
     OHOS::sptr<OHOS::IRemoteObject> abilityObject_;
-    static constexpr int TEST_WAIT_TIME = 500 * 1000;  // 500 ms
+    static constexpr int TEST_WAIT_TIME = 500 * 1000; // 500 ms
     static const int RESULT_CODE = 1992;
 };
 
-void AbilityBaseTest::SetUpTestCase(void)
-{}
+void AbilityBaseTest::SetUpTestCase(void) {}
 
-void AbilityBaseTest::TearDownTestCase(void)
-{}
+void AbilityBaseTest::TearDownTestCase(void) {}
 
 #ifndef SUPPORT_ERMS
 class TestIEcologicalRuleManager : public AppExecFwk::IEcologicalRuleManager {
 public:
     TestIEcologicalRuleManager() = default;
-    virtual ~TestIEcologicalRuleManager()
-    {};
+    virtual ~TestIEcologicalRuleManager(){};
     sptr<IRemoteObject> AsObject() override
     {
         return nullptr;
@@ -505,15 +503,13 @@ public:
 
 public:
     OHOS::sptr<OHOS::IRemoteObject> abilityObject_;
-    static constexpr int TEST_WAIT_TIME = 500 * 1000;  // 500 ms
+    static constexpr int TEST_WAIT_TIME = 500 * 1000; // 500 ms
     static const int RESULT_CODE = 1992;
 };
 
-void AbilityTerminateTest::SetUpTestCase(void)
-{}
+void AbilityTerminateTest::SetUpTestCase(void) {}
 
-void AbilityTerminateTest::TearDownTestCase(void)
-{}
+void AbilityTerminateTest::TearDownTestCase(void) {}
 
 void AbilityTerminateTest::SetUp(void)
 {
@@ -550,7 +546,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0100, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_INACTIVE);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -587,7 +583,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0200, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_ACTIVE);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -624,7 +620,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0300, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_BACKGROUND);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -661,7 +657,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0400, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_INITIAL);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -698,7 +694,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0500, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_INACTIVE);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -730,7 +726,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0600, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_ACTIVE);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -762,7 +758,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0700, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_BACKGROUND);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -794,7 +790,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0800, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_INITIAL);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -826,7 +822,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_WMS_window_test_0100, Function | MediumTest
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         GTEST_LOG_(INFO) << "AaFwk_WMS_window_test_001 StartAbility";
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_ACTIVE);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
@@ -859,7 +855,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_WMS_window_test_0200, Function | MediumTest
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_BACKGROUND);
         GTEST_LOG_(INFO) << "AaFwk_WMS_window_test_002 BackGround";
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
@@ -1267,8 +1263,8 @@ HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_VerifyPermission_0100, Func
  * @tc.name: QueryFreeInstallExperience
  * @tc.desc: test QueryFreeInstallExperience function
  */
-HWTEST_F(AbilityTerminateTest,
-    AppExecFwk_IEcologicalRuleManager_QueryFreeInstallExperience_0100, Function | MediumTest | Level1)
+HWTEST_F(AbilityTerminateTest, AppExecFwk_IEcologicalRuleManager_QueryFreeInstallExperience_0100,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryFreeInstallExperience_0100";
     sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();
@@ -1285,8 +1281,8 @@ HWTEST_F(AbilityTerminateTest,
  * @tc.name: EvaluateResolveInfos
  * @tc.desc: test EvaluateResolveInfos function
  */
-HWTEST_F(AbilityTerminateTest,
-    AppExecFwk_IEcologicalRuleManager_EvaluateResolveInfos_0100, Function | MediumTest | Level1)
+HWTEST_F(
+    AbilityTerminateTest, AppExecFwk_IEcologicalRuleManager_EvaluateResolveInfos_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_EvaluateResolveInfos_0100";
     sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();
@@ -1305,8 +1301,8 @@ HWTEST_F(AbilityTerminateTest,
  * @tc.name: QueryStartExperience
  * @tc.desc: test QueryStartExperience function
  */
-HWTEST_F(AbilityTerminateTest,
-    AppExecFwk_IEcologicalRuleManager_QueryStartExperience_0100, Function | MediumTest | Level1)
+HWTEST_F(
+    AbilityTerminateTest, AppExecFwk_IEcologicalRuleManager_QueryStartExperience_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryStartExperience_0100";
     sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();
@@ -1323,8 +1319,8 @@ HWTEST_F(AbilityTerminateTest,
  * @tc.name: QueryPublishFormExperience
  * @tc.desc: test QueryPublishFormExperience function
  */
-HWTEST_F(AbilityTerminateTest,
-    AppExecFwk_IEcologicalRuleManager_QueryPublishFormExperience_0100, Function | MediumTest | Level1)
+HWTEST_F(AbilityTerminateTest, AppExecFwk_IEcologicalRuleManager_QueryPublishFormExperience_0100,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryPublishFormExperience_0100";
     sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();
@@ -1340,8 +1336,8 @@ HWTEST_F(AbilityTerminateTest,
  * @tc.name: IsSupportPublishForm
  * @tc.desc: test IsSupportPublishForm function
  */
-HWTEST_F(AbilityTerminateTest,
-    AppExecFwk_IEcologicalRuleManager_IsSupportPublishForm_0100, Function | MediumTest | Level1)
+HWTEST_F(
+    AbilityTerminateTest, AppExecFwk_IEcologicalRuleManager_IsSupportPublishForm_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_IsSupportPublishForm_0100";
     sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();
@@ -1358,8 +1354,7 @@ HWTEST_F(AbilityTerminateTest,
  * @tc.name: QueryLastSyncTime
  * @tc.desc: test QueryLastSyncTime function
  */
-HWTEST_F(AbilityTerminateTest,
-    AppExecFwk_IEcologicalRuleManager_QueryLastSyncTime_0100, Function | MediumTest | Level1)
+HWTEST_F(AbilityTerminateTest, AppExecFwk_IEcologicalRuleManager_QueryLastSyncTime_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryLastSyncTime_0100";
     sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();
@@ -1368,5 +1363,5 @@ HWTEST_F(AbilityTerminateTest,
     GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryLastSyncTime_0100";
 }
 #endif
-}  // namespace AppExecFwk
-}  // namespace OHOS
+} // namespace AppExecFwk
+} // namespace OHOS

@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-#include <gtest/gtest.h>
 #include <functional>
+#include <gtest/gtest.h>
 #define private public
 #include "ability_handler.h"
 #include "ability_thread.h"
 #include "fa_ability_thread.h"
 #define protected public
-#include "system_ability_definition.h"
 #include "sys_mgr_client.h"
+#include "system_ability_definition.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -40,24 +40,21 @@ public:
 
 class AbilityThreadCallRequestTest : public testing::Test {
 public:
-    AbilityThreadCallRequestTest() : abilitythread_(nullptr)
-    {}
+    AbilityThreadCallRequestTest() : abilitythread_(nullptr) {}
     ~AbilityThreadCallRequestTest()
     {
         abilitythread_ = nullptr;
     }
-    AbilityThread* abilitythread_;
+    AbilityThread *abilitythread_;
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
 };
 
-void AbilityThreadCallRequestTest::SetUpTestCase(void)
-{}
+void AbilityThreadCallRequestTest::SetUpTestCase(void) {}
 
-void AbilityThreadCallRequestTest::TearDownTestCase(void)
-{}
+void AbilityThreadCallRequestTest::TearDownTestCase(void) {}
 
 void AbilityThreadCallRequestTest::SetUp(void)
 {
@@ -69,7 +66,6 @@ void AbilityThreadCallRequestTest::TearDown(void)
     GTEST_LOG_(INFO) << "AbilityThreadCallRequestTest TearDown";
 }
 
-
 /**
  * @tc.number: AaFwk_AbilityThread_CallRequest_0100
  * @tc.name: CallRequest
@@ -79,7 +75,7 @@ HWTEST_F(AbilityThreadCallRequestTest, AaFwk_AbilityThread_CallRequest_0100, Fun
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CallRequest_0100 start";
 
-    AbilityRuntime::FAAbilityThread* abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         abilitythread->currentAbility_ = std::make_shared<CurrentAbilityTest>();
@@ -114,7 +110,7 @@ HWTEST_F(AbilityThreadCallRequestTest, AaFwk_AbilityThread_CallRequest_0300, Fun
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CallRequest_0300 start";
 
-    AbilityRuntime::FAAbilityThread* abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         abilitythread->currentAbility_ = std::make_shared<CurrentAbilityTest>();
@@ -123,5 +119,5 @@ HWTEST_F(AbilityThreadCallRequestTest, AaFwk_AbilityThread_CallRequest_0300, Fun
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CallRequest_0300 end";
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
+} // namespace AppExecFwk
+} // namespace OHOS

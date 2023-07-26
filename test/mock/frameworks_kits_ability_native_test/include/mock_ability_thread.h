@@ -16,11 +16,12 @@
 #ifndef MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_THREAD_H
 #define MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_THREAD_H
 
+#include <gtest/gtest.h>
+
 #include "ability.h"
 #include "ability_impl.h"
 #include "ability_thread.h"
 #include "fa_ability_thread.h"
-#include <gtest/gtest.h>
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -35,6 +36,6 @@ public:
 private:
     FAAbilityThread AbilityThread_;
 };
-}  // namespace AppExecFwk
-}  // namespace OHOS
-#endif  // MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_THREAD_H
+} // namespace AppExecFwk
+} // namespace OHOS
+#endif // MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_THREAD_H
