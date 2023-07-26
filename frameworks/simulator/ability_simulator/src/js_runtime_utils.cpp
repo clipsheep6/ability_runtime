@@ -20,7 +20,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
-std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine &engine, NativeValue* lastParam,
+std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine &engine, NativeValue *lastParam,
     std::unique_ptr<AsyncTask::ExecuteCallback> &&execute, std::unique_ptr<AsyncTask::CompleteCallback> &&complete,
     NativeValue **result)
 {

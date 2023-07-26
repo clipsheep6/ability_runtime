@@ -20,7 +20,7 @@ gen_js_src_binary("ability_stage") {
   js_source = "${ability_runtime_napi_path}/app/ability_stage/ability_stage.js"
 }
 
-ohos_shared_library("ability_stage_napi") {
+ohos_shared_library("abilitystage") {
   if (is_mingw) {
     defines = [ "WINDOWS_PLATFORM" ]
   } else {
@@ -36,6 +36,8 @@ ohos_shared_library("ability_stage_napi") {
     ":gen_obj_src_ability_stage_js",
   ]
   external_deps = [ "napi:ace_napi" ]
+
+  defines += [ "ENABLE_ERRCODE" ]
 
   part_name = "ability_runtime"
   subsystem_name = "ability"

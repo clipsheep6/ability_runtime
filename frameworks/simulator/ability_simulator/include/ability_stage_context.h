@@ -13,26 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_SIMULATOR_ABILITY_CONTEXT_H
-#define OHOS_ABILITY_RUNTIME_SIMULATOR_ABILITY_CONTEXT_H
+#ifndef OHOS_ABILITY_RUNTIME_SIMULATOR_ABILITY_STAGE_CONTEXT_H
+#define OHOS_ABILITY_RUNTIME_SIMULATOR_ABILITY_STAGE_CONTEXT_H
 
-#include "ability_stage_context.h"
 #include "context.h"
-#include "resource_manager.h"
-#include "simulator.h"
 #include "uv.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-class AbilityContext : public Context {
+class AbilityStageContext : public Context {
 public:
-    AbilityContext() = default;
-    virtual ~AbilityContext() = default;
+    AbilityStageContext() = default;
+    virtual ~AbilityStageContext() = default;
 
     std::shared_ptr<AppExecFwk::Configuration> GetConfiguration() override;
+    void SetConfiguration(const std::shared_ptr<AppExecFwk::Configuration> &configuration);
     std::shared_ptr<AppExecFwk::ApplicationInfo> GetApplicationInfo() const override;
     std::shared_ptr<AppExecFwk::HapModuleInfo> GetHapModuleInfo() const override;
-    std::shared_ptr<AppExecFwk::AbilityInfo> GetAbilityInfo() const;
 
     Options GetOptions() override;
     void SetOptions(const Options &options) override;
@@ -48,23 +45,21 @@ public:
     void SwitchArea(int mode) override;
     int GetArea() override;
     std::string GetBaseDir() override;
-    std::shared_ptr<Global::Resource::ResourceManager> GetResourceManager() const;
-    void SetResourceManager(const std::shared_ptr<Global::Resource::ResourceManager> &resMgr);
-    void SetAbilityStageContext(const std::shared_ptr<AbilityStageContext> &stageContext);
-    bool IsTerminating();
-    void SetTerminating(const bool &state);
-    int32_t TerminateSelf();
-    void SetSimulator(Simulator *simulator);
+    std::string GetPreviewPath();
+    bool Access(const std::string &path);
+    void Mkdir(const std::string &path);
+    static void FsReqCleanup(uv_fs_t *req);
+    bool CreateMultiDir(const std::string &path);
 
 private:
     static const int EL_DEFAULT = 1;
     Options options_;
-    std::shared_ptr<Global::Resource::ResourceManager> resourceMgr_;
-    std::shared_ptr<AbilityStageContext> stageContext_;
-    bool isTerminating_ = false;
-    Simulator *simulator_;
-    std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_;
+    std::string currArea_ = "el2";
+    std::string fileSeparator_ = "/";
+    std::shared_ptr<AppExecFwk::Configuration> configuration_;
+    std::shared_ptr<AppExecFwk::ApplicationInfo> applicationInfo_;
+    std::shared_ptr<AppExecFwk::HapModuleInfo> hapModuleInfo_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_SIMULATOR_ABILITY_CONTEXT_H
+#endif // OHOS_ABILITY_RUNTIME_SIMULATOR_ABILITY_STAGE_CONTEXT_H

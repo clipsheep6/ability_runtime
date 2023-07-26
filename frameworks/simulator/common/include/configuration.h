@@ -67,33 +67,28 @@ constexpr const char* DIRECTION_HORIZONTAL = "horizontal";
 
 class Configuration {
 public:
-    Configuration();
+    Configuration() {}
 
-    Configuration(const Configuration &other);
+    Configuration(const Configuration &other)
+    {
+        defaultDisplayId_ = other.defaultDisplayId_;
+        configParameter_.clear();
+        configParameter_ = other.configParameter_;
+    }
 
-    Configuration& operator=(const Configuration &other);
+    Configuration& operator=(const Configuration &other)
+    {
+        if (this == &other) {
+            return *this;
+        }
 
-    ~Configuration();
+        defaultDisplayId_ = other.defaultDisplayId_;
+        configParameter_.clear();
+        configParameter_ = other.configParameter_;
+        return *this;
+    }
 
-    /**
-     * @brief Compare the difference between the current and the passed in object.
-     *
-     * @param diffKeyV Out Ginseng. get the current difference item keys.
-     * @param other Comparisons obj
-     *
-     * @return void
-     */
-    void CompareDifferent(std::vector<std::string> &diffKeyV, const Configuration &other);
-
-    /**
-     * @brief Update the content according to the key.
-     *
-     * @param mergeItemKey The key of the element currently to be updated.
-     * @param other Provide updated content obj
-     *
-     * @return void
-     */
-    void Merge(const std::vector<std::string> &diffKeyV, const Configuration &other);
+    ~Configuration() {}
 
     /**
      * @brief obtain the value according to the display number and storage key.
@@ -104,7 +99,20 @@ public:
      * @param value Changed value
      * @return return true if the deposit is successful, otherwise return false
      */
-    bool AddItem(int displayId, const std::string &key, const std::string &value);
+    bool AddItem(int displayId, const std::string &key, const std::string &value)
+    {
+        if (key.empty() || value.empty()) {
+            return false;
+        }
+
+        std::string getKey;
+        if (!MakeTheKey(getKey, displayId, key)) {
+            return false;
+        }
+
+        configParameter_[getKey] = value;
+        return true;
+    }
 
     /**
      * @brief obtain the value according to the display number and storage key.
@@ -115,63 +123,24 @@ public:
      *
      * @return return empty string if not found | return val if found
      */
-    std::string GetItem(int displayId, const std::string &key) const;
+    std::string GetItem(int displayId, const std::string &key) const
+    {
+        if (key.empty()) {
+            return ConfigurationInner::EMPTY_STRING;
+        }
 
-    /**
-     * @brief Delete element.
-     *
-     * @param displayId Currently displayed id.
-     * @param key The key of the item to access configura. ej : key = GlobalConfigurationKey::SYSTEM_LANGUAGE
-     * Means you want to change the language part
-     *
-     * @return Return an integer greater than 0 if the deletion succeeds, otherwise it returns 0.
-     */
-    int RemoveItem(int displayId, const std::string &key);
+        std::string getKey;
+        if (!MakeTheKey(getKey, displayId, key)) {
+            return ConfigurationInner::EMPTY_STRING;
+        }
 
-    /**
-     * @brief obtain the value according to the display number and storage key.
-     *
-     * @param key The key of the item to access configura. ej : key = GlobalConfigurationKey::SYSTEM_LANGUAGE
-     * Means you want to change the language part
-     * @param value Changed value
-     * @return return true if the deposit is successful, otherwise return false
-     */
-    bool AddItem(const std::string &key, const std::string &value);
+        auto iter = configParameter_.find(getKey);
+        if (iter != configParameter_.end()) {
+            return iter->second;
+        }
 
-    /**
-     * @brief obtain the value according to the display number and storage key.
-     *
-     * @param key The key of the item to access configura. ej : key = GlobalConfigurationKey::SYSTEM_LANGUAGE
-     * Means you want to change the language part
-     *
-     * @return return empty string if not found | return val if found
-     */
-    std::string GetItem(const std::string &key) const;
-
-    /**
-     * @brief Delete element.
-     *
-     * @param key The key of the item to access configura. ej : key = GlobalConfigurationKey::SYSTEM_LANGUAGE
-     * Means you want to change the language part
-     *
-     * @return Return an integer greater than 0 if the deletion succeeds, otherwise it returns 0.
-     */
-    int RemoveItem(const std::string &key);
-
-    /**
-     * @brief Get the currently existing key-value pairs.
-     *
-     * @return return currently item size.
-     */
-    int GetItemSize() const;
-
-    /**
-     * @brief Return all current key-value pairs.
-     *
-     */
-    const std::string& GetName() const;
-
-private:
+        return ConfigurationInner::EMPTY_STRING;
+    }
 
     /**
      * @brief Make the key by id and param
@@ -181,27 +150,54 @@ private:
      * @param param The key of the item to access configura.
      *
      */
-    bool MakeTheKey(std::string &getKey, int id, const std::string &param) const;
+    bool MakeTheKey(std::string &getKey, int id, const std::string &param) const
+    {
+        if (param.empty()) {
+            return false;
+        }
+
+        if (std::find(ConfigurationInner::SystemConfigurationKeyStore.begin(),
+            ConfigurationInner::SystemConfigurationKeyStore.end(), param) ==
+            ConfigurationInner::SystemConfigurationKeyStore.end()) {
+            return false;
+        }
+
+        getKey.clear();
+        getKey += std::to_string(id);
+        getKey += ConfigurationInner::CONNECTION_SYMBOL;
+        getKey += param;
+
+        return true;
+    }
 
     /**
-     * @brief Get all current keys.
+     * @brief obtain the value according to the display number and storage key.
      *
-     * @param keychain Out Ginseng. Contains all current keys.
+     * @param key The key of the item to access configura. ej : key = GlobalConfigurationKey::SYSTEM_LANGUAGE
+     * Means you want to change the language part
+     * @param value Changed value
+     * @return return true if the deposit is successful, otherwise return false
      */
-    void GetAllKey(std::vector<std::string> &keychain) const;
+    bool AddItem(const std::string &key, const std::string &value)
+    {
+        return AddItem(defaultDisplayId_, key, value);
+    }
 
     /**
-     * @brief Get value by key.
+     * @brief obtain the value according to the display number and storage key.
      *
-     * @param key the key to get value.
+     * @param key The key of the item to access configura. ej : key = GlobalConfigurationKey::SYSTEM_LANGUAGE
+     * Means you want to change the language part
+     *
+     * @return return empty string if not found | return val if found
      */
-    std::string GetValue(const std::string &key) const;
+    std::string GetItem(const std::string &key) const
+    {
+        return GetItem(defaultDisplayId_, key);
+    }
 
 private:
     int defaultDisplayId_ {0};
-    mutable std::string toStrintg_ {""}; /* For interface GetName(), Assign value only when calling the interface */
-
-    mutable std::recursive_mutex configParameterMutex_;
     std::unordered_map<std::string, std::string> configParameter_;
 };
 } // namespace AppExecFwk
