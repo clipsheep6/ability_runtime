@@ -93,7 +93,7 @@ HWTEST_F(AbilityDelegatorRegistryTest, Ability_Delegator_Registry_Test_0100, Fun
     }
     std::shared_ptr<AbilityDelegatorArgs> abilityArgs = std::make_shared<AbilityDelegatorArgs>(want);
 
-    std::unique_ptr<TestRunner> testRunner = TestRunner::Create(nullptr, abilityArgs, true);
+    std::unique_ptr<TestRunner> testRunner = TestRunner::Create(nullptr, abilityArgs, true, true);
     std::shared_ptr<AbilityDelegator> abilityDelegator =
         std::make_shared<AbilityDelegator>(nullptr, std::move(testRunner), nullptr);
     AbilityDelegatorRegistry::RegisterInstance(abilityDelegator, abilityArgs);

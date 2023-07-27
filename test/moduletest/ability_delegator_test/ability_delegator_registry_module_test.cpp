@@ -83,6 +83,7 @@ HWTEST_F(AbilityDelegatorRegistryModuleTest,
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
         abilityArgs,
+        true,
         true);
     std::shared_ptr<AbilityDelegator> abilityDelegator =
         std::make_shared<AbilityDelegator>(nullptr, std::move(testRunner), nullptr);

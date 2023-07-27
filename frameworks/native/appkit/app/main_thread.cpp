@@ -1610,7 +1610,7 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
     auto args = std::make_shared<AbilityDelegatorArgs>(record->want);
     if (isStageBased) { // Stage model
         HILOG_DEBUG("PrepareAbilityDelegator for Stage model.");
-        auto testRunner = TestRunner::Create(application_->GetRuntime(), args, false);
+        auto testRunner = TestRunner::Create(application_->GetRuntime(), args, false, true);
         auto delegator = std::make_shared<AbilityDelegator>(
             application_->GetAppContext(), std::move(testRunner), record->observer);
         AbilityDelegatorRegistry::RegisterInstance(delegator, args);
@@ -1633,7 +1633,7 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
         }
         bool isFaJsModel = entryHapModuleInfo.abilityInfos.front().srcLanguage == "js" ? true : false;
         static auto runtime = AbilityRuntime::Runtime::Create(options);
-        auto testRunner = TestRunner::Create(runtime, args, isFaJsModel);
+        auto testRunner = TestRunner::Create(runtime, args, isFaJsModel, false);
         if (testRunner == nullptr) {
             HILOG_ERROR("Failed to Create testRunner");
             return false;
