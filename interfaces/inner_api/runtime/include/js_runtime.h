@@ -85,6 +85,8 @@ public:
     void DumpHeapSnapshot(bool isPrivate) override;
     bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) override;
     void NotifyApplicationState(bool isBackground) override;
+    bool SuspendVM(uint32_t tid) override;
+    void ResumeVM(uint32_t tid) override;
 
     bool RunSandboxScript(const std::string& path, const std::string& hapPath);
     bool RunScript(const std::string& path, const std::string& hapPath, bool useCommonChunk = false);

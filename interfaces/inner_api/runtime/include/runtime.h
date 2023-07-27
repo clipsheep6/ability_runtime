@@ -79,6 +79,8 @@ public:
     virtual bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) = 0;
     virtual void DumpHeapSnapshot(bool isPrivate) = 0;
     virtual void NotifyApplicationState(bool isBackground) = 0;
+    virtual bool SuspendVM(uint32_t tid) = 0;
+    virtual void ResumeVM(uint32_t tid) = 0;
     virtual void PreloadSystemModule(const std::string& moduleName) = 0;
     virtual void FinishPreload() = 0;
     virtual bool LoadRepairPatch(const std::string& patchFile, const std::string& baseFile) = 0;
