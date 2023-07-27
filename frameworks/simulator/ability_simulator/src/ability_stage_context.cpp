@@ -71,7 +71,16 @@ void AbilityStageContext::SetOptions(const Options &options)
     }
 
     applicationInfo_ = std::make_shared<AppExecFwk::ApplicationInfo>(options.applicationInfo);
+    if (applicationInfo_ != nullptr) {
+        applicationInfo_->name = options_.bundleName;
+    }
     hapModuleInfo_ = std::make_shared<AppExecFwk::HapModuleInfo>(options.hapModuleInfo);
+    if (hapModuleInfo_ != nullptr) {
+        for (auto &ability : hapModuleInfo_->abilityInfos) {
+            ability.bundleName = options_.bundleName;
+            ability.moduleName = options_.moduleName;
+        }
+    }
 }
 
 std::string AbilityStageContext::GetBundleName()
