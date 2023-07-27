@@ -598,14 +598,14 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
         return;
     }
 
+    if (abilityRequest.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
+        NotifyCollaboratorMissionCreated(abilityRequest, targetMission, info);
+    }
+
     if (findReusedMissionInfo) {
         DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionInfo(info);
     } else {
         DelayedSingleton<MissionInfoMgr>::GetInstance()->AddMissionInfo(info);
-    }
-    
-    if (abilityRequest.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
-        NotifyCollaboratorMissionCreated(abilityRequest, targetMission, info);
     }
 }
 
@@ -794,7 +794,7 @@ std::shared_ptr<Mission> MissionListManager::GetReusedStandardMission(const Abil
     if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::STANDARD) {
         return nullptr;
     }
-    
+
     // reuse mission temp
     bool isLauncherStartAnco = false;
     std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
@@ -4039,6 +4039,10 @@ void MissionListManager::NotifyCollaboratorMissionCreated(const AbilityRequest &
         HILOG_ERROR("collaborator NotifyMissionCreated failed, errCode: %{public}d.", ret);
         return;
     }
+    // update lable and icon from broker
+    InnerMissionInfoDto innerMissionInfoDto = info.ConvertInnerMissionInfoDto();
+    collaborator->UpdateMissionInfo(innerMissionInfoDto);
+    info.UpdateMissionInfo(innerMissionInfoDto);
     HILOG_INFO("collaborator NotifyMissionCreated success.");
 }
 

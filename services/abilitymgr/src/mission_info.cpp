@@ -123,5 +123,83 @@ MissionVaildResult *MissionVaildResult::Unmarshalling(Parcel &parcel)
     }
     return info.release();
 }
+
+bool InnerMissionInfoDto::ReadFromParcel(Parcel &parcel)
+{
+    std::unique_ptr<MissionInfo> missionInfoPtr(parcel.ReadParcelable<MissionInfo>());
+    if (!missionInfoPtr) {
+        return false;
+    }
+    missionInfo = *missionInfoPtr;
+    missionName = Str16ToStr8(parcel.ReadString16());
+    missionAffinity = Str16ToStr8(parcel.ReadString16());
+    launchMode = parcel.ReadInt32();
+    startMethod = parcel.ReadInt32();
+    bundleName = Str16ToStr8(parcel.ReadString16());
+    uid = parcel.ReadInt32();
+    isTemporary = parcel.ReadBool();
+    specifiedFlag = parcel.ReadInt32();
+    hasRecoverInfo = parcel.ReadBool();
+    collaboratorType = parcel.ReadInt32();
+    return true;
+}
+
+InnerMissionInfoDto *InnerMissionInfoDto::Unmarshalling(Parcel &parcel)
+{
+    InnerMissionInfoDto *info = new InnerMissionInfoDto();
+    if (!info->ReadFromParcel(parcel)) {
+        delete info;
+        info = nullptr;
+    }
+    return info;
+}
+
+bool InnerMissionInfoDto::Marshalling(Parcel &parcel) const
+{
+    if (!(parcel).WriteParcelable(&missionInfo)) {
+        return false;
+    }
+
+    if (!(parcel).WriteString16(Str8ToStr16(missionName))) {
+        return false;
+    }
+
+    if (!(parcel).WriteString16(Str8ToStr16(missionAffinity))) {
+        return false;
+    }
+
+    if (!(parcel).WriteInt32(launchMode)) {
+        return false;
+    }
+
+    if (!(parcel).WriteInt32(startMethod)) {
+        return false;
+    }
+
+    if (!(parcel).WriteString16(Str8ToStr16(bundleName))) {
+        return false;
+    }
+
+    if (!(parcel).WriteInt32(uid)) {
+        return false;
+    }
+
+    if (!(parcel).WriteBool(isTemporary)) {
+        return false;
+    }
+
+    if (!(parcel).WriteString16(Str8ToStr16(specifiedFlag))) {
+        return false;
+    }
+
+    if (!(parcel).WriteBool(hasRecoverInfo)) {
+        return false;
+    }
+
+    if (!(parcel).WriteInt32(collaboratorType)) {
+        return false;
+    }
+    return true;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

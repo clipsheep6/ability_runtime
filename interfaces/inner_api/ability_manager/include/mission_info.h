@@ -65,6 +65,28 @@ struct MissionVaildResult : public Parcelable {
     int32_t missionId = -1;
     bool isVaild = false;
 };
+
+/**
+ * @struct InnerMissionInfoDto
+ * The Dto of InnerMissionInfo
+ */
+struct InnerMissionInfoDto : public Parcelable {
+    MissionInfo missionInfo;
+    std::string missionName;
+    std::string missionAffinity;
+    int32_t launchMode;
+    int32_t startMethod;
+    std::string bundleName;
+    int32_t uid;
+    bool isTemporary;
+    std::string specifiedFlag;
+    bool hasRecoverInfo;
+    int32_t collaboratorType;
+
+    bool ReadFromParcel(Parcel &parcel);
+    virtual bool Marshalling(Parcel &parcel) const override;
+    static InnerMissionInfoDto *Unmarshalling(Parcel &parcel);
+};
 }  // namespace AAFwk
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_MISSION_INFO_H

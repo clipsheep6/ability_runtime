@@ -308,10 +308,11 @@ bool MissionInfoMgr::FindReusedMissionInfo(const std::string &missionName, const
     auto it = std::find_if(missionInfoList_.begin(), missionInfoList_.end(),
         [&missionName, &missionAffinity, &flag, &isFindRecentStandard, &isFromCollaborator](
             const InnerMissionInfo item) {
-            if (isFromCollaborator && missionAffinity == item.missionAffinity) {
+            if (isFromCollaborator && missionAffinity == item.missionAffinity &&
+                item.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
                 return true;
             }
-            
+
             if (missionName != item.missionName) {
                 return false;
             }
@@ -409,6 +410,8 @@ void MissionInfoMgr::SetMissionAbilityState(int32_t missionId, AbilityState stat
     if (collaborator == nullptr) {
         HILOG_DEBUG("collaborator is nullptr");
     } else {
+        HILOG_INFO("start notify collaborator, missionId:%{public}d, state:%{public}d", missionId,
+            static_cast<int32_t>(state));
         int ret = ERR_OK;
         switch (state) {
             case AbilityState::FOREGROUNDING: {

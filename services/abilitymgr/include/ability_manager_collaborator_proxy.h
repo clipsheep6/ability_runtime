@@ -34,7 +34,7 @@ public:
      * @param want targert info, will modify by collaborator.
      * @param accessTokenIDEx accessToken
      * @return 0 when notify start ability success or else failed.
-    */
+     */
     virtual int32_t NotifyStartAbility(const AppExecFwk::AbilityInfo &abilityInfo,
         int32_t userId, Want &want, uint64_t accessTokenIDEx) override;
     
@@ -43,7 +43,7 @@ public:
      * @param missionId missionId.
      * @param want target info.
      * @return 0 when notify mission created success or else failed.
-    */
+     */
     virtual int32_t NotifyMissionCreated(int32_t missionId, const Want &want) override;
 
     /**
@@ -52,7 +52,7 @@ public:
      * @param missionId missionId.
      * @param want target info.
      * @return 0 when notify load ability success or else failed.
-    */
+     */
     virtual int32_t NotifyLoadAbility(const AppExecFwk::AbilityInfo &abilityInfo,
         int32_t missionId, const Want &want) override;
 
@@ -60,28 +60,28 @@ public:
      * @brief Notify when notify app to background.
      * @param missionId missionId.
      * @return 0 when notify move mission to background success or else failed.
-    */
+     */
     virtual int32_t NotifyMoveMissionToBackground(int32_t missionId) override;
 
     /**
      * @brief Notify when notify app to foreground.
      * @param missionId missionId.
      * @return 0 when notify move mission to foreground success or else failed.
-    */
+     */
     virtual int32_t NotifyMoveMissionToForeground(int32_t missionId) override;
 
     /**
      * @brief Notify when notify ability is terminated, but mission is not cleared.
      * @param missionId missionId.
      * @return 0 when notify terminate mission success or else failed.
-    */
+     */
     virtual int32_t NotifyTerminateMission(int32_t missionId) override;
 
     /**
      * @brief Notify to broker when clear mission.
      * @param missionId missionId.
      * @return 0 when notify clear mission success or else failed.
-    */
+     */
     virtual int32_t NotifyClearMission(int32_t missionId) override;
 
     /**
@@ -90,9 +90,14 @@ public:
      * @param type died type.
      * @param reason addational message for died reason.
      * @return 0 when notify remove shell process success or else failed.
-    */
+     */
     virtual int32_t NotifyRemoveShellProcess(int32_t pid, int32_t type, const std::string &reason) override;
 
+    /**
+     * @brief Update mission info to real element by broker.
+     * @param info info of mission.
+     */
+    virtual void UpdateMissionInfo(InnerMissionInfoDto &info) override;
 private:
     static inline BrokerDelegator<AbilityManagerCollaboratorProxy> delegator_;
 };
