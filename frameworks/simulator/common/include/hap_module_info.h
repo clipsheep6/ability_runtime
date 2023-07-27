@@ -19,6 +19,7 @@
 #include <string>
 
 #include "ability_info.h"
+#include "extension_ability_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -53,6 +54,26 @@ enum class AOTCompileStatus {
     COMPILE_FAILED = 2,
 };
 
+struct Dependency {
+    std::string bundleName;
+    std::string moduleName;
+    uint32_t versionCode;
+};
+
+struct ProxyData {
+    std::string uri;
+    std::string requiredReadPermission;
+    std::string requiredWritePermission;
+    Metadata metadata;
+};
+
+struct PreloadItem {
+    std::string moduleName;
+
+    PreloadItem() = default;
+    explicit PreloadItem(std::string name) : moduleName(name) {}
+};
+
 // configuration information about an module
 struct HapModuleInfo {
     std::string name;        // module.name in config.json
@@ -78,6 +99,7 @@ struct HapModuleInfo {
 
     std::vector<std::string> reqCapabilities;
     std::vector<std::string> deviceTypes;
+    std::vector<Dependency> dependencies;
     std::vector<AbilityInfo> abilityInfos;
     ModuleColorMode colorMode = ModuleColorMode::AUTO;
     // new version fields
@@ -95,9 +117,14 @@ struct HapModuleInfo {
     bool isStageBasedModel = false;
     std::map<std::string, bool> isRemovable;
     ModuleType moduleType = ModuleType::UNKNOWN;
+    std::vector<ExtensionAbilityInfo> extensionInfos;
+    std::vector<Metadata> metadata;
+    std::vector<ProxyData> proxyDatas;
     int32_t upgradeFlag = 0;
+    CompileMode compileMode = CompileMode::JS_BUNDLE;
     std::string moduleSourceDir;
     AtomicServiceModuleType atomicServiceModuleType = AtomicServiceModuleType::NORMAL;
+    std::vector<PreloadItem> preloads;
     std::string buildHash;
     IsolationMode isolationMode = IsolationMode::NONISOLATION_FIRST;
     AOTCompileStatus aotCompileStatus = AOTCompileStatus::NOT_COMPILED;

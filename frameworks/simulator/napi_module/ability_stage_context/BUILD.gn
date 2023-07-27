@@ -20,7 +20,7 @@ gen_js_src_binary("ability_stage_context") {
   js_source = "${ability_runtime_napi_path}/app/ability_stage_context/ability_stage_context.js"
 }
 
-ohos_shared_library("ability_stage_context_napi") {
+ohos_shared_library("abilitystagecontext_napi") {
   if (is_mingw) {
     defines = [ "WINDOWS_PLATFORM" ]
   } else {

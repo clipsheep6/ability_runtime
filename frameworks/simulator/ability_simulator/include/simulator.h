@@ -13,13 +13,14 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_SIMULAOTR_H
-#define OHOS_ABILITY_RUNTIME_SIMULAOTR_H
+#ifndef OHOS_ABILITY_RUNTIME_SIMULATOR_H
+#define OHOS_ABILITY_RUNTIME_SIMULATOR_H
 
 #include <functional>
 #include <memory>
 #include <string>
 
+#include "configuration.h"
 #include "options.h"
 
 #ifdef _WIN32
@@ -45,8 +46,9 @@ public:
 
     virtual int64_t StartAbility(const std::string &abilitySrcPath, TerminateCallback callback) = 0;
     virtual void TerminateAbility(int64_t abilityId) = 0;
+    virtual void UpdateConfiguration(const AppExecFwk::Configuration &config) = 0;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
 
-#endif // OHOS_ABILITY_RUNTIME_SIMULAOTR_H
+#endif // OHOS_ABILITY_RUNTIME_SIMULATOR_H
