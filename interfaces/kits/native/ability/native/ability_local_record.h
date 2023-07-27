@@ -102,15 +102,15 @@ public:
     void SetWant(const std::shared_ptr<AAFwk::Want> &want);
 
     const std::shared_ptr<AAFwk::Want> &GetWant();
-
 private:
     std::shared_ptr<AbilityInfo> abilityInfo_ = nullptr;
     sptr<IRemoteObject> token_;
     std::shared_ptr<EventRunner> runner_ = nullptr;
     std::shared_ptr<EventHandler> handler_ = nullptr;
+    std::shared_ptr<AbilityImpl> abilityImpl_ = nullptr;  // store abilityImpl
     sptr<AbilityThread> abilityThread_;
     std::shared_ptr<AAFwk::Want> want_ = nullptr;
 };
-} // namespace AppExecFwk
-} // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_ABILITY_LOCAL_RECORD_H
+}  // namespace AppExecFwk
+}  // namespace OHOS
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_LOCAL_RECORD_H

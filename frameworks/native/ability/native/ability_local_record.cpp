@@ -20,8 +20,7 @@
 namespace OHOS {
 namespace AppExecFwk {
 AbilityLocalRecord::AbilityLocalRecord(const std::shared_ptr<AbilityInfo> &info, const sptr<IRemoteObject> &token)
-    : abilityInfo_(info), token_(token)
-{}
+    : abilityInfo_(info), token_(token) {}
 
 AbilityLocalRecord::~AbilityLocalRecord() {}
 
@@ -74,5 +73,5 @@ const std::shared_ptr<AAFwk::Want> &AbilityLocalRecord::GetWant()
 {
     return want_;
 }
-} // namespace AppExecFwk
-} // namespace OHOS
+}  // namespace AppExecFwk
+}  // namespace OHOS

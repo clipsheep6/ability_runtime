@@ -61,13 +61,17 @@ public:
     void TearDown() override;
 };
 
-void AbilityThreadTest::SetUpTestCase(void) {}
+void AbilityThreadTest::SetUpTestCase(void)
+{}
 
-void AbilityThreadTest::TearDownTestCase(void) {}
+void AbilityThreadTest::TearDownTestCase(void)
+{}
 
-void AbilityThreadTest::SetUp(void) {}
+void AbilityThreadTest::SetUp(void)
+{}
 
-void AbilityThreadTest::TearDown(void) {}
+void AbilityThreadTest::TearDown(void)
+{}
 
 /**
  * @tc.name: AaFwk_AbilityThread_DumpAbilityInfo_0100
@@ -1240,7 +1244,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_SendResult_0300, Function | Medi
     auto abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     std::shared_ptr<EventRunner> mainRunner = EventRunner::Create(abilityInfo->name);
     abilitythread->Attach(application, abilityRecord, mainRunner, nullptr);
-
+    
     abilitythread->abilityImpl_ = std::make_shared<AbilityImpl>();
     EXPECT_NE(abilitythread->abilityImpl_, nullptr);
 
@@ -1262,7 +1266,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_SendResult_0400, Function | Medi
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_SendResult_0400 start";
     AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
-
+    
     abilitythread->abilityImpl_ = std::make_shared<AbilityImpl>();
     EXPECT_NE(abilitythread->abilityImpl_, nullptr);
 
@@ -2427,5 +2431,5 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_CallRequest_0200, Function | Med
     abilitythread->CallRequest();
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CallRequest_0200 end";
 }
-} // namespace AppExecFwk
-} // namespace OHOS
+}  // namespace AppExecFwk
+}  // namespace OHOS

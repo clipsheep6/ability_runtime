@@ -36,7 +36,7 @@ using namespace OHOS::AbilityRuntime;
 namespace {
 std::string TEST_LABEL = "testLabel";
 OHOS::sptr<MockServiceAbilityManagerService> g_mockAbilityMs = nullptr;
-} // namespace
+}
 
 class MyAbilityCallback : public IAbilityCallback {
 public:
@@ -45,12 +45,12 @@ public:
         return 0;
     }
 
-    virtual ErrCode SetMissionLabel(const std::string &label)
+    virtual ErrCode SetMissionLabel(const std::string& label)
     {
         return 0;
     }
 
-    virtual ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon)
+    virtual ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap>& icon)
     {
         GTEST_LOG_(INFO) << "========AbilityCallback SetMissionIcon------------------------.";
         return 0;
@@ -73,7 +73,6 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
-
 public:
     std::unique_ptr<AbilityContextImpl> context_ = nullptr;
     std::shared_ptr<MockContext> mock_ = nullptr;
@@ -90,7 +89,8 @@ void AbilityContextImplTest::SetUpTestCase(void)
     sysMgr->RegisterSystemAbility(OHOS::ABILITY_MGR_SERVICE_ID, g_mockAbilityMs);
 }
 
-void AbilityContextImplTest::TearDownTestCase(void) {}
+void AbilityContextImplTest::TearDownTestCase(void)
+{}
 
 void AbilityContextImplTest::SetUp(void)
 {
@@ -98,7 +98,8 @@ void AbilityContextImplTest::SetUp(void)
     mock_ = std::make_shared<MockContext>();
 }
 
-void AbilityContextImplTest::TearDown(void) {}
+void AbilityContextImplTest::TearDown(void)
+{}
 
 /**
  * @tc.number: Ability_Context_Impl_StartAbility_0100
@@ -111,7 +112,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbility_0100, Functio
     want.SetElementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
 
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
-    callback->SetCallBack([](const sptr<IRemoteObject> &) {});
+    callback->SetCallBack([](const sptr<IRemoteObject>&) {});
 
     ErrCode ret = context_->StartAbilityByCall(want, callback);
     EXPECT_TRUE(ret == ERR_OK);
@@ -128,7 +129,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbility_0200, Functio
     want.SetElementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
 
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
-    callback->SetCallBack([](const sptr<IRemoteObject> &) {});
+    callback->SetCallBack([](const sptr<IRemoteObject>&) {});
 
     context_->localCallContainer_ = std::make_shared<LocalCallContainer>();
     EXPECT_NE(context_->localCallContainer_, nullptr);
@@ -147,9 +148,9 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ReleaseCall_0100, Function
     GTEST_LOG_(INFO) << "========Ability_Context_Impl_ReleaseCall_0100beagin==============.";
 
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
-    callback->SetCallBack([](const sptr<IRemoteObject> &) {});
+    callback->SetCallBack([](const sptr<IRemoteObject>&) {});
     std::shared_ptr<CallerCallBack> callbackSec = std::make_shared<CallerCallBack>();
-    callbackSec->SetCallBack([](const sptr<IRemoteObject> &) {});
+    callbackSec->SetCallBack([](const sptr<IRemoteObject>&) {});
 
     AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
     std::shared_ptr<LocalCallRecord> localCallRecord = std::make_shared<LocalCallRecord>(elementName);
@@ -169,8 +170,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ReleaseCall_0100, Function
 /**
  * @tc.number: Ability_Context_Impl_ReleaseCall_0200
  * @tc.name: StartAbility
- * @tc.desc: Ability context to process ReleaseCall, and the result is fail
- * because localCallContainer is null.
+ * @tc.desc: Ability context to process ReleaseCall, and the result is fail because localCallContainer is null.
  */
 HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ReleaseCall_0200, Function | MediumTest | Level1)
 {
@@ -421,17 +421,14 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartServiceExtensionAbili
  * @tc.name: StartAbilityForResultWithAccount
  * @tc.desc: Start Ability For Result With Account
  */
-HWTEST_F(
-    AbilityContextImplTest, Ability_Context_Impl_StartAbilityForResultWithAccount_0100, Function | MediumTest | Level1)
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbilityForResultWithAccount_0100, Function | MediumTest | Level1)
 {
     AAFwk::Want want;
     int32_t accountId = 1;
     AAFwk::StartOptions startOptions;
     int32_t requestCode = 1;
-    RuntimeTask task = [](const int32_t count, const Want &want, bool isInner) {
-        GTEST_LOG_(INFO) << "Ability_Context_Impl_StartAbilityForResultWithAccount_"
-                            "0100 task called";
-    };
+    RuntimeTask task = [](const int32_t count, const Want& want, bool isInner)
+    { GTEST_LOG_(INFO) << "Ability_Context_Impl_StartAbilityForResultWithAccount_0100 task called"; };
     auto ret = context_->StartAbilityForResultWithAccount(want, accountId, startOptions, requestCode, std::move(task));
     EXPECT_NE(ret, ERR_OK);
 }
@@ -446,9 +443,8 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbilityForResult_0100
     AAFwk::Want want;
     AAFwk::StartOptions startOptions;
     int32_t requestCode = 1;
-    RuntimeTask task = [](const int32_t count, const Want &want, bool isInner) {
-        GTEST_LOG_(INFO) << "Ability_Context_Impl_StartAbilityForResult_0100 task called";
-    };
+    RuntimeTask task = [](const int32_t count, const Want& want, bool isInner)
+    { GTEST_LOG_(INFO) << "Ability_Context_Impl_StartAbilityForResult_0100 task called"; };
     auto ret = context_->StartAbilityForResult(want, startOptions, requestCode, std::move(task));
     EXPECT_NE(ret, ERR_OK);
 }
@@ -458,16 +454,13 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbilityForResult_0100
  * @tc.name: StartAbilityForResultWithAccount
  * @tc.desc: Start Ability For Result With Account
  */
-HWTEST_F(
-    AbilityContextImplTest, Ability_Context_Impl_StartAbilityForResultWithAccount_0200, Function | MediumTest | Level1)
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbilityForResultWithAccount_0200, Function | MediumTest | Level1)
 {
     AAFwk::Want want;
     int32_t requestCode = 1;
     int32_t accountId = 1;
-    RuntimeTask task = [](const int32_t count, const Want &want, bool isInner) {
-        GTEST_LOG_(INFO) << "Ability_Context_Impl_StartAbilityForResultWithAccount_"
-                            "0200 task called";
-    };
+    RuntimeTask task = [](const int32_t count, const Want& want, bool isInner)
+    { GTEST_LOG_(INFO) << "Ability_Context_Impl_StartAbilityForResultWithAccount_0200 task called"; };
     auto ret = context_->StartAbilityForResultWithAccount(want, accountId, requestCode, std::move(task));
     EXPECT_EQ(ret, ERR_OK);
 }
@@ -481,9 +474,8 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbilityForResult_0200
 {
     AAFwk::Want want;
     int32_t requestCode = 1;
-    RuntimeTask task = [](const int32_t count, const Want &want, bool isInner) {
-        GTEST_LOG_(INFO) << "Ability_Context_Impl_StartAbilityForResult_0200 task called";
-    };
+    RuntimeTask task = [](const int32_t count, const Want& want, bool isInner)
+    { GTEST_LOG_(INFO) << "Ability_Context_Impl_StartAbilityForResult_0200 task called"; };
     auto ret = context_->StartAbilityForResult(want, requestCode, std::move(task));
     EXPECT_EQ(ret, ERR_OK);
 }

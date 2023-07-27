@@ -39,13 +39,17 @@ public:
     void TearDown();
 };
 
-void AbilityLocalRecordTest::SetUpTestCase() {}
+void AbilityLocalRecordTest::SetUpTestCase()
+{}
 
-void AbilityLocalRecordTest::TearDownTestCase() {}
+void AbilityLocalRecordTest::TearDownTestCase()
+{}
 
-void AbilityLocalRecordTest::SetUp() {}
+void AbilityLocalRecordTest::SetUp()
+{}
 
-void AbilityLocalRecordTest::TearDown() {}
+void AbilityLocalRecordTest::TearDown()
+{}
 
 /**
  * @tc.number: GetEventHandler_0100
