@@ -73,7 +73,8 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
             abilityRequest.startSetting = sessionInfo->startSetting;
         }
         uiAbilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
-        uiAbilityRecord->SetOwnerMissionUserId(DelayedSingleton<AbilityManagerService>::GetInstance()->GetUserId());
+        HILOG_DEBUG("user id: %{public}d.", sessionInfo->userId);
+        uiAbilityRecord->SetOwnerMissionUserId(sessionInfo->userId);
         SetRevicerInfo(abilityRequest, uiAbilityRecord);
         SetLastExitReason(uiAbilityRecord);
     }
@@ -1330,7 +1331,7 @@ int32_t UIAbilityLifecycleManager::IsValidMissionIds(const std::vector<int32_t> 
         MissionVaildResult missionResult = {};
         missionResult.missionId = missionIds.at(i);
         auto search = sessionAbilityMap_.find(missionResult.missionId);
-        if (search == sessionAbilityMap_.end()) {
+        if (search == sessionAbilityMap_.end() || search->second == nullptr) {
             results.push_back(missionResult);
             continue;
         }
