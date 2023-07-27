@@ -27,14 +27,7 @@ constexpr int32_t NAPI_RETURN_ZERO = 0;
 constexpr int32_t NAPI_RETURN_ONE = 1;
 constexpr const char *BUNDLE_NAME = "bundleName";
 constexpr const char *MODULE_NAME = "moduleName";
-constexpr const char *ABILITY_NAME = "abilityName";
-constexpr const char *TARGET_MODULE_NAME = "targetModuleName";
 constexpr const char *URI = "uri";
-constexpr const char *TYPE = "type";
-constexpr const char *ACTION = "action";
-constexpr const char *ENTITIES = "entities";
-constexpr const char *FLAGS = "flags";
-constexpr const char *DEVICE_ID = "deviceId";
 constexpr const char *NAME = "name";
 constexpr const char *IS_VISIBLE = "isVisible";
 constexpr const char *EXPORTED = "exported";
@@ -50,8 +43,6 @@ constexpr const char *DESCRIPTION_ID = "descriptionId";
 constexpr const char *ICON = "icon";
 constexpr const char *ICON_ID = "iconId";
 constexpr const char *APPLICATION_INFO = "applicationInfo";
-constexpr const char *PRIORITY = "priority";
-constexpr const char *STATE = "state";
 constexpr const char *DEBUG = "debug";
 }
 

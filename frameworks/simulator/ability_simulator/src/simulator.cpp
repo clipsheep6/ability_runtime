@@ -232,6 +232,13 @@ int64_t SimulatorImpl::StartAbility(const std::string &abilitySrcPath, Terminate
     stream.close();
 
     auto buf = buffer.release();
+
+    if (stageContext_ == nullptr) {
+        stageContext_ = std::make_shared<AbilityStageContext>();
+        stageContext_->SetOptions(options_);
+        stageContext_->SetConfiguration(options_.configuration);
+    }
+
     if (!LoadAbilityStage(buf, len)) {
         HILOG_ERROR("Load ability stage failed.");
         return -1;
@@ -280,12 +287,6 @@ bool SimulatorImpl::LoadAbilityStage(uint8_t *buffer, size_t len)
     if (instanceValue == nullptr) {
         HILOG_ERROR("Failed to create ability stage instance");
         return false;
-    }
-
-    if (stageContext_ == nullptr) {
-        stageContext_ = std::make_shared<AbilityStageContext>();
-        stageContext_->SetOptions(options_);
-        stageContext_->SetConfiguration(options_.configuration);
     }
 
     InitJsAbilityStageContext(instanceValue);

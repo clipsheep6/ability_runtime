@@ -22,9 +22,6 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-namespace {
-constexpr float DPI_BASE = 160.0;
-}
 Global::Resource::ColorMode ConvertColorMode(const std::string &colormode)
 {
     auto resolution = Global::Resource::ColorMode::COLOR_MODE_NOT_SET;
