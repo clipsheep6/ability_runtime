@@ -13,11 +13,13 @@
  * limitations under the License.
  */
 
-import extension from '@ohos.app.ability.ServiceExtensionAbility';
-import window from '@ohos.window';
-import display from '@ohos.display';
-import defaultAppManager from '@ohos.bundle.defaultAppManager';
 import bundleManager from '@ohos.bundle.bundleManager';
+import defaultAppManager from '@ohos.bundle.defaultAppManager';
+import display from '@ohos.display';
+import drawableDescriptor from '@ohos.arkui.drawableDescriptor';
+import extension from '@ohos.app.ability.ServiceExtensionAbility';
+import type image from '@ohos.multimedia.image';
+import window from '@ohos.window';
 
 const TAG = 'SelectorDialog_Service';
 
@@ -36,8 +38,9 @@ export default class SelectorServiceExtensionAbility extends extension {
     const lineNums = 8;
     let showHapList = [];
     let phoneShowHapList = [];
+    let jsonIconMap: Map<string, image.PixelMap> = new Map();
     for (let i = 1; i <= globalThis.params.hapList.length; i++) {
-      await this.getHapResource(globalThis.params.hapList[i - 1], showHapList);
+      await this.getHapResource(globalThis.params.hapList[i - 1], showHapList, jsonIconMap);
       if (i % lineNums === 0) {
         phoneShowHapList.push(showHapList);
         showHapList = [];
@@ -47,19 +50,22 @@ export default class SelectorServiceExtensionAbility extends extension {
       }
     }
     globalThis.phoneShowHapList = phoneShowHapList;
+    globalThis.jsonIconMap = jsonIconMap;
     console.debug(TAG, 'phoneShowHapList: ' + JSON.stringify(phoneShowHapList));
   }
 
   async getPcShowHapList() {
     let pcShowHapList = [];
+    let jsonIconMap: Map<string, image.PixelMap> = new Map();
     for (let i = 0; i < globalThis.params.hapList.length; i++) {
-      await this.getHapResource(globalThis.params.hapList[i], pcShowHapList);
+      await this.getHapResource(globalThis.params.hapList[i], pcShowHapList, jsonIconMap);
     }
     globalThis.pcShowHapList = pcShowHapList;
+    globalThis.jsonIconMap = jsonIconMap;
     console.debug(TAG, 'pcShowHapList: ' + JSON.stringify(pcShowHapList));
   }
 
-  async getHapResource(hap, showHapList) {
+  async getHapResource(hap, showHapList, jsonIconMap) {
     let bundleName = hap.bundle;
     let moduleName = hap.module;
     let abilityName = hap.ability;
@@ -82,6 +88,24 @@ export default class SelectorServiceExtensionAbility extends extension {
     let iconId = Number(hap.icon);
     await moduleContext.resourceManager.getMediaBase64(iconId).then(value => {
       appIcon = value;
+      if (appIcon.indexOf('image/json') > -1) {
+        try {
+          const imageDescriptor = moduleContext.resourceManager.getDrawableDescriptor(iconId);
+          if (imageDescriptor !== null && imageDescriptor !== undefined &&
+            imageDescriptor instanceof drawableDescriptor.LayeredDrawableDescriptor) {
+            let layeredDrawableDescriptor: drawableDescriptor.LayeredDrawableDescriptor =
+              <drawableDescriptor.LayeredDrawableDescriptor> imageDescriptor;
+            let foregroundDescriptor: drawableDescriptor.DrawableDescriptor = layeredDrawableDescriptor.getForeground();
+            if (foregroundDescriptor !== null && foregroundDescriptor !== undefined) {
+              jsonIconMap.set(bundleName + ':' + moduleName + ':' + abilityName, foregroundDescriptor.getPixelMap());
+            } else {
+              console.error(TAG, 'get foregroundDescriptor is null');
+            }
+          }
+        } catch (e) {
+          console.error(TAG, 'get drawableDescriptor error:' + JSON.stringify(e));
+        }
+      }
     }).catch(error => {
       console.error(TAG, 'getMediaBase64 error:' + JSON.stringify(error));
     });
