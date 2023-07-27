@@ -45,7 +45,6 @@ public:
     AbilityInfo CreateAbilityInfo(const std::string& name, const std::string& appName, const std::string& bundleName,
         const std::string& moduleName, bool mode);
     ApplicationInfo CreateAppInfo(const std::string& appName, const std::string& name);
-    inline static std::shared_ptr<AbilityManagerService> abilityMgrServ_{ nullptr };
 };
 
 AbilityInfo OnNewWantModuleTest::CreateAbilityInfo(const std::string& name, const std::string& appName,
@@ -81,21 +80,13 @@ ApplicationInfo OnNewWantModuleTest::CreateAppInfo(const std::string& appName, c
     return appInfo;
 }
 
-void OnNewWantModuleTest::SetUpTestCase()
-{
-    abilityMgrServ_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
-}
+void OnNewWantModuleTest::SetUpTestCase() {}
 
-void OnNewWantModuleTest::TearDownTestCase()
-{
-    abilityMgrServ_->OnStop();
-}
+void OnNewWantModuleTest::TearDownTestCase() {}
 
-void OnNewWantModuleTest::SetUp()
-{}
+void OnNewWantModuleTest::SetUp() {}
 
-void OnNewWantModuleTest::TearDown()
-{}
+void OnNewWantModuleTest::TearDown() {}
 
 /*
  * Feature: MissionListManager

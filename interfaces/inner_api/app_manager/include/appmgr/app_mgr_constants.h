@@ -71,6 +71,11 @@ enum class ProcessType {
     EXTENSION,
     RENDER,
 };
+
+enum class AppStartType {
+    COLD = 0,
+    HOT,
+};
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_APP_MGR_CONSTANTS_H

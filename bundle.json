@@ -67,7 +67,7 @@
             "ipc_js",
             "kv_store",
             "memory_utils",
-            "multimedia_image_framework",
+            "image_framework",
             "napi",
             "netmanager_base",
             "os_account",
@@ -347,6 +347,15 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager:ability_start_setting"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager/include",
+              "header_files": [
+                "mission_info.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager:mission_info"
           },
           {
             "header": {

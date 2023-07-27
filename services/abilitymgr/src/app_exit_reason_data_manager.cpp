@@ -32,6 +32,8 @@ constexpr const char *APP_EXIT_REASON_STORAGE_DIR = "/data/service/el1/public/da
 const std::string JSON_KEY_REASON = "reason";
 const std::string JSON_KEY_TIME_STAMP = "time_stamp";
 const std::string JSON_KEY_ABILITY_LIST = "ability_list";
+const std::string KEY_RECOVER_INFO_PREFIX = "recover_info";
+const std::string JSON_KEY_RECOVER_INFO_LIST = "recover_info_list";
 } // namespace
 AppExitReasonDataManager::AppExitReasonDataManager() {}
 
@@ -267,6 +269,209 @@ void AppExitReasonDataManager::InnerDeleteAppExitReason(const std::string &bundl
     }
 
     DistributedKv::Key key(bundleName);
+    DistributedKv::Status status;
+    {
+        std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
+        status = kvStorePtr_->Delete(key);
+    }
+
+    if (status != DistributedKv::Status::SUCCESS) {
+        HILOG_ERROR("delete data from kvStore error: %{public}d", status);
+    }
+}
+
+int32_t AppExitReasonDataManager::AddAbilityRecoverInfo(
+    const std::string &bundleName, const std::string &moduleName, const std::string &abilityName)
+{
+    HILOG_INFO("AddAbilityRecoverInfo bundleName %{public}s bundleName %{public}s bundleName %{public}s ",
+        bundleName.c_str(), moduleName.c_str(), abilityName.c_str());
+    {
+        std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
+        if (!CheckKvStore()) {
+            HILOG_ERROR("kvStore is nullptr");
+            return ERR_NO_INIT;
+        }
+    }
+
+    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + bundleName);
+    DistributedKv::Value value;
+    DistributedKv::Status status = kvStorePtr_->Get(key, value);
+    if (status != DistributedKv::Status::SUCCESS && status != DistributedKv::Status::KEY_NOT_FOUND) {
+        HILOG_ERROR("AddAbilityRecoverInfo get error: %{public}d", status);
+        return ERR_INVALID_VALUE;
+    }
+
+    std::vector<std::string> recoverInfoList;
+    std::string recoverInfo = moduleName + abilityName;
+    if (status == DistributedKv::Status::SUCCESS) {
+        ConvertAbilityRecoverInfoFromValue(value, recoverInfoList);
+        auto pos = std::find(recoverInfoList.begin(), recoverInfoList.end(), recoverInfo);
+        if (pos != recoverInfoList.end()) {
+            HILOG_WARN("AddAbilityRecoverInfo recoverInfo already record");
+            return ERR_OK;
+        }
+    }
+
+    recoverInfoList.emplace_back(recoverInfo);
+    value = ConvertAbilityRecoverInfoToValue(recoverInfoList);
+    {
+        std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
+        status = kvStorePtr_->Put(key, value);
+    }
+
+    if (status != DistributedKv::Status::SUCCESS) {
+        HILOG_ERROR("insert data to kvStore error : %{public}d", status);
+        return ERR_INVALID_OPERATION;
+    }
+
+    HILOG_INFO("AddAbilityRecoverInfo finish");
+    return ERR_OK;
+}
+
+int32_t AppExitReasonDataManager::DeleteAbilityRecoverInfo(
+    const std::string &bundleName, const std::string &moduleName, const std::string &abilityName)
+{
+    HILOG_INFO("DeleteAbilityRecoverInfo bundleName %{public}s bundleName %{public}s bundleName %{public}s ",
+        bundleName.c_str(), moduleName.c_str(), abilityName.c_str());
+    {
+        std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
+        if (!CheckKvStore()) {
+            HILOG_ERROR("kvStore is nullptr");
+            return ERR_NO_INIT;
+        }
+    }
+
+    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + bundleName);
+    DistributedKv::Value value;
+    DistributedKv::Status status = kvStorePtr_->Get(key, value);
+    if (status != DistributedKv::Status::SUCCESS) {
+        HILOG_ERROR("DeleteAbilityRecoverInfo get error: %{public}d", status);
+        return ERR_INVALID_VALUE;
+    }
+
+    std::vector<std::string> recoverInfoList;
+    std::string recoverInfo = moduleName + abilityName;
+    ConvertAbilityRecoverInfoFromValue(value, recoverInfoList);
+    auto pos = std::find(recoverInfoList.begin(), recoverInfoList.end(), recoverInfo);
+    if (pos != recoverInfoList.end()) {
+        recoverInfoList.erase(std::remove(recoverInfoList.begin(), recoverInfoList.end(), recoverInfo),
+            recoverInfoList.end());
+        UpdateAbilityRecoverInfo(bundleName, recoverInfoList);
+        HILOG_INFO("DeleteAbilityRecoverInfo remove recoverInfo succeed");
+    }
+    if (recoverInfoList.empty()) {
+        InnerDeleteAbilityRecoverInfo(bundleName);
+    }
+
+    HILOG_INFO("DeleteAbilityRecoverInfo finished");
+    return ERR_OK;
+}
+
+int32_t AppExitReasonDataManager::GetAbilityRecoverInfo(
+    const std::string &bundleName, const std::string &moduleName, const std::string &abilityName, bool &hasRecoverInfo)
+{
+    HILOG_INFO("GetAbilityRecoverInfo bundleName %{public}s bundleName %{public}s bundleName %{public}s ",
+        bundleName.c_str(), moduleName.c_str(), abilityName.c_str());
+    hasRecoverInfo = false;
+    {
+        std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
+        if (!CheckKvStore()) {
+            HILOG_ERROR("kvStore is nullptr");
+            return ERR_NO_INIT;
+        }
+    }
+
+    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + bundleName);
+    DistributedKv::Value value;
+    DistributedKv::Status status = kvStorePtr_->Get(key, value);
+    if (status != DistributedKv::Status::SUCCESS) {
+        if (status == DistributedKv::Status::KEY_NOT_FOUND) {
+            HILOG_WARN("GetAbilityRecoverInfo KEY_NOT_FOUND");
+        } else {
+            HILOG_ERROR("GetAbilityRecoverInfo error: %{public}d", status);
+        }
+        return ERR_INVALID_VALUE;
+    }
+
+    std::vector<std::string> recoverInfoList;
+    std::string recoverInfo = moduleName + abilityName;
+    ConvertAbilityRecoverInfoFromValue(value, recoverInfoList);
+    auto pos = std::find(recoverInfoList.begin(), recoverInfoList.end(), recoverInfo);
+    if (pos != recoverInfoList.end()) {
+        hasRecoverInfo = true;
+        HILOG_INFO("GetAbilityRecoverInfo sessionId found info");
+    }
+    return ERR_OK;
+}
+
+void AppExitReasonDataManager::UpdateAbilityRecoverInfo(
+    const std::string &bundleName, const std::vector<std::string> &recoverInfoList)
+{
+    if (kvStorePtr_ == nullptr) {
+        HILOG_ERROR("kvStore is nullptr");
+        return;
+    }
+
+    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + bundleName);
+    DistributedKv::Status status;
+    {
+        std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
+        status = kvStorePtr_->Delete(key);
+    }
+    if (status != DistributedKv::Status::SUCCESS) {
+        HILOG_ERROR("delete data from kvStore error: %{public}d", status);
+        return;
+    }
+
+    DistributedKv::Value value = ConvertAbilityRecoverInfoToValue(recoverInfoList);
+    {
+        std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
+        status = kvStorePtr_->Put(key, value);
+    }
+    if (status != DistributedKv::Status::SUCCESS) {
+        HILOG_ERROR("insert data to kvStore error: %{public}d", status);
+    }
+}
+
+DistributedKv::Value AppExitReasonDataManager::ConvertAbilityRecoverInfoToValue(
+    const std::vector<std::string> &recoverInfoList)
+{
+    nlohmann::json jsonObject = nlohmann::json {
+        { JSON_KEY_RECOVER_INFO_LIST, recoverInfoList },
+    };
+    DistributedKv::Value value(jsonObject.dump());
+    HILOG_INFO("ConvertAbilityRecoverInfoToValue value: %{public}s", value.ToString().c_str());
+    return value;
+}
+
+void AppExitReasonDataManager::ConvertAbilityRecoverInfoFromValue(const DistributedKv::Value &value,
+    std::vector<std::string> &recoverInfoList)
+{
+    nlohmann::json jsonObject = nlohmann::json::parse(value.ToString(), nullptr, false);
+    if (jsonObject.is_discarded()) {
+        HILOG_ERROR("failed to parse json sting.");
+        return;
+    }
+    if (jsonObject.contains(JSON_KEY_RECOVER_INFO_LIST)
+        && jsonObject[JSON_KEY_RECOVER_INFO_LIST].is_array()) {
+        recoverInfoList.clear();
+        auto size = jsonObject[JSON_KEY_RECOVER_INFO_LIST].size();
+        for (size_t i = 0; i < size; i++) {
+            if (jsonObject[JSON_KEY_RECOVER_INFO_LIST][i].is_string()) {
+                recoverInfoList.emplace_back(jsonObject[JSON_KEY_RECOVER_INFO_LIST][i]);
+            }
+        }
+    }
+}
+
+void AppExitReasonDataManager::InnerDeleteAbilityRecoverInfo(const std::string &bundleName)
+{
+    if (kvStorePtr_ == nullptr) {
+        HILOG_ERROR("kvStore is nullptr");
+        return;
+    }
+
+    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + bundleName);
     DistributedKv::Status status;
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);

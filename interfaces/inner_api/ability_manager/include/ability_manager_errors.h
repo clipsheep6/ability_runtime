@@ -343,6 +343,16 @@ enum {
      * Result(2097216) for sandbox application grant URI permission.
      */
     ERR_CODE_GRANT_URI_PERMISSION,
+
+    /**
+     * Result(2097217) for collaborator is empty.
+     */
+    ERR_COLLABORATOR_NOT_REGISTER,
+
+    /**
+     * Result(2097218) for collaborator is empty.
+     */
+    ERR_COLLABORATOR_NOTIFY_FAILED,
 };
 
 enum {

@@ -69,7 +69,7 @@
 #include "uri_permission_manager_client.h"
 
 #ifdef SUPPORT_GRAPHICS
-
+#include "application_anr_listener.h"
 #include "display_manager.h"
 #include "input_manager.h"
 #include "png.h"
@@ -125,6 +125,8 @@ constexpr char SHARE_PICKER_DIALOG_ABILITY_NAME_KEY[] = "const.system.sharePicke
 constexpr char SHARE_PICKER_DIALOG_DEFAULY_BUNDLE_NAME[] = "com.ohos.sharepickerdialog";
 constexpr char SHARE_PICKER_DIALOG_DEFAULY_ABILITY_NAME[] = "PickerDialog";
 constexpr char TOKEN_KEY[] = "ohos.ability.params.token";
+// Broker params key
+const std::string KEY_VISIBLE_ID = "ohos.anco.param.visible";
 
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
 
@@ -171,6 +173,7 @@ const int32_t GET_PARAMETER_INCORRECT = -9;
 const int32_t GET_PARAMETER_OTHER = -1;
 const int32_t SIZE_10 = 10;
 const int32_t ACCOUNT_MGR_SERVICE_UID = 3058;
+const int32_t BROKER_UID = 5528;
 const int32_t DMS_UID = 5522;
 const int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
 const std::string BUNDLE_NAME_KEY = "bundleName";
@@ -320,6 +323,8 @@ bool AbilityManagerService::Init()
     int amsTimeOut = AmsConfigurationParameter::GetInstance().GetAMSTimeOutTime();
     HILOG_INFO("amsTimeOut is %{public}d", amsTimeOut);
 #ifdef SUPPORT_GRAPHICS
+    auto anrListener = std::make_shared<ApplicationAnrListener>();
+    MMI::InputManager::GetInstance()->SetAnrObserver(anrListener);
     DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(OHOS::system::GetDeviceType());
     implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
@@ -600,22 +605,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_INFO("try to StartRemoteAbility");
         return StartRemoteAbility(want, requestCode, validUserId, callerToken);
     }
-    if (AbilityUtil::IsStartFreeInstall(want)) {
-        if (freeInstallManager_ == nullptr) {
-            return ERR_INVALID_VALUE;
-        }
-        Want localWant = want;
-        if (!localWant.GetDeviceId().empty()) {
-            localWant.SetDeviceId("");
-        }
-        if (!isStartAsCaller) {
-            UpdateCallerInfo(localWant, callerToken);
-        } else {
-            HILOG_DEBUG("start as caller, skip UpdateCallerInfo!");
-        }
-        return freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, true);
-    }
-
+    
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
         return ERR_CROSS_USER;
@@ -629,6 +619,11 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             return componentRequest.requestResult;
         }
         abilityRequest.Voluation(want, requestCode, callerToken);
+        if (!isStartAsCaller) {
+            UpdateCallerInfo(abilityRequest.want, callerToken);
+        } else {
+            HILOG_INFO("start as caller, skip UpdateCallerInfo!");
+        }
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
         return implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
     }
@@ -637,6 +632,32 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     ComponentRequest componentRequest = initComponentRequest(callerToken, requestCode, result);
     if (CheckProxyComponent(want, result) && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
         return componentRequest.requestResult;
+    }
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    std::string callerBundleName = abilityRecord ? abilityRecord->GetAbilityInfo().bundleName : "";
+    bool selfFreeInstallEnable = (result == RESOLVE_ABILITY_ERR && want.GetElement().GetModuleName() != "" &&
+                                  want.GetElement().GetBundleName() == callerBundleName);
+    if (AbilityUtil::IsStartFreeInstall(want) || selfFreeInstallEnable) {
+        if (freeInstallManager_ == nullptr) {
+            return ERR_INVALID_VALUE;
+        }
+        Want localWant = want;
+        if (!localWant.GetDeviceId().empty()) {
+            localWant.SetDeviceId("");
+        }
+        if (!isStartAsCaller) {
+            UpdateCallerInfo(localWant, callerToken);
+        }
+        HILOG_DEBUG("start as caller, skip UpdateCallerInfo!");
+        if (selfFreeInstallEnable) {
+            int32_t ret = freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode,
+                                                                callerToken, false);
+            if (ret == ERR_OK) {
+                result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
+            }
+        } else {
+            return freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, true);
+        }
     }
 
     if (result != ERR_OK) {
@@ -1035,6 +1056,11 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
         abilityRequest.callType = AbilityCallType::START_OPTIONS_TYPE;
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
+        if (!isStartAsCaller) {
+            UpdateCallerInfo(abilityRequest.want, callerToken);
+        } else {
+            HILOG_INFO("start as caller, skip UpdateCallerInfo!");
+        }
         result = implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
         if (result != ERR_OK) {
             HILOG_ERROR("implicit start ability error.");
@@ -1263,6 +1289,15 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
         return ERR_WRONG_INTERFACE_CALL;
     }
 
+#ifdef SUPPORT_ERMS
+    result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
+        afterCheckExecuter_->DoProcess(abilityRequest.want, requestCode, GetUserId(), true);
+    if (result != ERR_OK) {
+        HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
+        return result;
+    }
+#endif
+
     if (type == AppExecFwk::AbilityType::EXTENSION) {
         auto connectManager = GetConnectManagerByUserId(validUserId);
         if (!connectManager) {
@@ -1346,6 +1381,15 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
         HILOG_ERROR("Only support for page type ability.");
         return ERR_INVALID_VALUE;
     }
+
+#ifdef SUPPORT_ERMS
+    result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
+        afterCheckExecuter_->DoProcess(abilityRequest.want, requestCode, GetUserId(), true);
+    if (result != ERR_OK) {
+        HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
+        return result;
+    }
+#endif
 
     if (!AbilityUtil::IsSystemDialogAbility(abilityInfo.bundleName, abilityInfo.name)) {
         result = PreLoadAppDataAbilities(abilityInfo.bundleName, currentUserId);
@@ -1439,7 +1483,7 @@ void AbilityManagerService::AppUpgradeCompleted(const std::string &bundleName, i
 
 int32_t AbilityManagerService::RecordAppExitReason(Reason exitReason)
 {
-    if (!currentMissionListManager_) {
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && !currentMissionListManager_) {
         HILOG_ERROR("currentMissionListManager_ is null.");
         return ERR_NULL_OBJECT;
     }
@@ -1455,7 +1499,11 @@ int32_t AbilityManagerService::RecordAppExitReason(Reason exitReason)
     }
 
     std::vector<std::string> abilityList;
-    currentMissionListManager_->GetActiveAbilityList(bundleName, abilityList);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        uiAbilityLifecycleManager_->GetActiveAbilityList(bundleName, abilityList);
+    } else {
+        currentMissionListManager_->GetActiveAbilityList(bundleName, abilityList);
+    }
 
     return DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->SetAppExitReason(
         bundleName, abilityList, exitReason);
@@ -1800,7 +1848,7 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
 
 #ifdef SUPPORT_ERMS
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(abilityRequest.want, 0, GetUserId(), true);
+        afterCheckExecuter_->DoProcess(abilityRequest.want, 0, GetUserId(), false);
     if (result != ERR_OK) {
         HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
         return result;
@@ -1917,6 +1965,15 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
         EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
         return result;
     }
+
+#ifdef SUPPORT_ERMS
+    result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
+        afterCheckExecuter_->DoProcess(abilityRequest.want, 0, GetUserId(), false);
+    if (result != ERR_OK) {
+        HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
+        return result;
+    }
+#endif
 
     auto connectManager = GetConnectManagerByUserId(validUserId);
     if (!connectManager) {
@@ -2058,10 +2115,6 @@ int AbilityManagerService::CloseAbility(const sptr<IRemoteObject> &token, int re
 int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &token, int resultCode,
     const Want *resultWant, bool flag)
 {
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        HILOG_DEBUG("Not support in scb.");
-        return ERR_OK;
-    }
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Terminate ability begin, flag:%{public}d.", flag);
     if (!VerificationAllToken(token)) {
@@ -2118,16 +2171,11 @@ int AbilityManagerService::TerminateUIExtensionAbility(const sptr<SessionInfo> &
     CHECK_POINTER_AND_RETURN(extensionSessionInfo, ERR_INVALID_VALUE);
     auto abilityRecord = Token::GetAbilityRecordByToken(extensionSessionInfo->callerToken);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    int32_t userId = GetValidUserId(DEFAULT_INVAL_VALUE);
-    HILOG_DEBUG("userId=%{public}d", userId);
-    auto connectManager = GetConnectManagerByUserId(userId);
-    if (!connectManager) {
-        HILOG_ERROR("connectManager is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-
-    auto targetRecord = connectManager->GetUIExtensioBySessionInfo(extensionSessionInfo);
+    std::shared_ptr<AbilityConnectManager> connectManager;
+    std::shared_ptr<AbilityRecord> targetRecord;
+    GetConnectManagerAndUIExtensionBySessionInfo(extensionSessionInfo, connectManager, targetRecord);
     CHECK_POINTER_AND_RETURN(targetRecord, ERR_INVALID_VALUE);
+    CHECK_POINTER_AND_RETURN(connectManager, ERR_INVALID_VALUE);
 
     if (!JudgeSelfCalled(targetRecord) && !JudgeSelfCalled(abilityRecord)) {
         return CHECK_PERMISSION_FAILED;
@@ -2304,10 +2352,6 @@ std::string AbilityManagerService::AnonymizeDeviceId(const std::string& deviceId
 
 int AbilityManagerService::MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser)
 {
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        HILOG_DEBUG("Not support in scb.");
-        return ERR_OK;
-    }
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Minimize ability, fromUser:%{public}d.", fromUser);
     if (!VerificationAllToken(token)) {
@@ -2349,16 +2393,12 @@ int AbilityManagerService::MinimizeUIExtensionAbility(const sptr<SessionInfo> &e
     if (!JudgeSelfCalled(abilityRecord)) {
         return CHECK_PERMISSION_FAILED;
     }
-    int32_t userId = GetValidUserId(DEFAULT_INVAL_VALUE);
-    HILOG_DEBUG("userId=%{public}d", userId);
-    auto connectManager = GetConnectManagerByUserId(userId);
-    if (!connectManager) {
-        HILOG_ERROR("connectManager is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
 
-    auto targetRecord = connectManager->GetUIExtensioBySessionInfo(extensionSessionInfo);
+    std::shared_ptr<AbilityConnectManager> connectManager;
+    std::shared_ptr<AbilityRecord> targetRecord;
+    GetConnectManagerAndUIExtensionBySessionInfo(extensionSessionInfo, connectManager, targetRecord);
     CHECK_POINTER_AND_RETURN(targetRecord, ERR_INVALID_VALUE);
+    CHECK_POINTER_AND_RETURN(connectManager, ERR_INVALID_VALUE);
 
     auto result = JudgeAbilityVisibleControl(targetRecord->GetAbilityInfo());
     if (result != ERR_OK) {
@@ -2460,6 +2500,7 @@ int AbilityManagerService::ConnectAbilityCommon(
     }
 
     Want abilityWant = want;
+    AbilityRequest abilityRequest;
     std::string uri = abilityWant.GetUri().ToString();
     if (!uri.empty()) {
         // if the want include uri, it may only has uri information. it is probably a datashare extension.
@@ -2468,7 +2509,6 @@ int AbilityManagerService::ConnectAbilityCommon(
         auto bms = GetBundleManager();
         CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
 
-        AbilityRequest abilityRequest;
         abilityWant.SetParam("abilityConnectionObj", connect->AsObject());
         ComponentRequest componentRequest = initComponentRequest(callerToken);
         if (!IsComponentInterceptionStart(abilityWant, componentRequest, abilityRequest)) {
@@ -2495,6 +2535,15 @@ int AbilityManagerService::ConnectAbilityCommon(
         return eventInfo.errCode;
     }
     UpdateCallerInfo(abilityWant, callerToken);
+
+#ifdef SUPPORT_ERMS
+    result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
+        afterCheckExecuter_->DoProcess(abilityRequest.want, 0, GetUserId(), false);
+    if (result != ERR_OK) {
+        HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
+        return result;
+    }
+#endif
 
     if (callerToken != nullptr && callerToken->GetObjectDescriptor() != u"ohos.aafwk.AbilityToken") {
         HILOG_INFO("%{public}s invalid Token.", __func__);
@@ -2556,6 +2605,7 @@ int AbilityManagerService::ConnectUIExtensionAbility(const Want &want, const spt
     int32_t validUserId = GetValidUserId(userId);
 
     Want abilityWant = want;
+    AbilityRequest abilityRequest;
     std::string uri = abilityWant.GetUri().ToString();
     if (!uri.empty()) {
         // if the want include uri, it may only has uri information.
@@ -2564,7 +2614,6 @@ int AbilityManagerService::ConnectUIExtensionAbility(const Want &want, const spt
         auto bms = GetBundleManager();
         CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
 
-        AbilityRequest abilityRequest;
         abilityWant.SetParam("abilityConnectionObj", connect->AsObject());
         ComponentRequest componentRequest = initComponentRequest(callerToken);
         if (!IsComponentInterceptionStart(abilityWant, componentRequest, abilityRequest)) {
@@ -2583,6 +2632,15 @@ int AbilityManagerService::ConnectUIExtensionAbility(const Want &want, const spt
     }
 
     UpdateCallerInfo(abilityWant, callerToken);
+
+#ifdef SUPPORT_ERMS
+    result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
+        afterCheckExecuter_->DoProcess(abilityRequest.want, 0, GetUserId(), false);
+    if (result != ERR_OK) {
+        HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
+        return result;
+    }
+#endif
 
     if (callerToken != nullptr && callerToken->GetObjectDescriptor() != u"ohos.aafwk.AbilityToken") {
         HILOG_INFO("%{public}s invalid Token.", __func__);
@@ -4185,7 +4243,7 @@ void AbilityManagerService::InitMissionListManager(int userId, bool switchUser)
 }
 
 // multi user scene
-int AbilityManagerService::GetUserId()
+int32_t AbilityManagerService::GetUserId() const
 {
     if (userController_) {
         auto userId = userController_->GetCurrentUserId();
@@ -4330,7 +4388,7 @@ int AbilityManagerService::GenerateAbilityRequest(
         auto collaborator = GetCollaborator(request.collaboratorType);
         if (collaborator == nullptr) {
             HILOG_ERROR("collaborator GetCollaborator is nullptr.");
-            return RESOLVE_ABILITY_ERR;
+            return ERR_COLLABORATOR_NOT_REGISTER;
         }
 
         uint64_t accessTokenIDEx = IPCSkeleton::GetCallingFullTokenID();
@@ -4338,10 +4396,15 @@ int AbilityManagerService::GenerateAbilityRequest(
         int32_t ret = collaborator->NotifyStartAbility(request.abilityInfo, userId, request.want, accessTokenIDEx);
         if (ret != ERR_OK) {
             HILOG_ERROR("collaborator: notify broker start ability failed");
-            return RESOLVE_ABILITY_ERR;
+            return ERR_COLLABORATOR_NOTIFY_FAILED;
         }
         
         IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(request.want, abilityInfoFlag, userId, request.abilityInfo));
+
+        if (request.want.GetBoolParam(KEY_VISIBLE_ID, false) && !request.abilityInfo.visible) {
+            request.abilityInfo.visible = true;
+            HILOG_DEBUG("request.abilityInfo.visible set true");
+        }
 
         HILOG_INFO("collaborator notify broker start ability success");
     }
@@ -4689,17 +4752,17 @@ bool AbilityManagerService::IsSystemUI(const std::string &bundleName) const
     return bundleName == AbilityConfig::SYSTEM_UI_BUNDLE_NAME;
 }
 
-void AbilityManagerService::HandleLoadTimeOut(int64_t abilityRecordId)
+void AbilityManagerService::HandleLoadTimeOut(int64_t abilityRecordId, bool isHalf)
 {
     HILOG_DEBUG("Handle load timeout.");
     std::lock_guard<ffrt::mutex> lock(managersMutex_);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        uiAbilityLifecycleManager_->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecordId);
+        uiAbilityLifecycleManager_->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecordId, isHalf);
         return;
     }
     for (auto& item : missionListManagers_) {
         if (item.second) {
-            item.second->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecordId);
+            item.second->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecordId, isHalf);
         }
     }
 }
@@ -4732,17 +4795,17 @@ void AbilityManagerService::HandleInactiveTimeOut(int64_t abilityRecordId)
     }
 }
 
-void AbilityManagerService::HandleForegroundTimeOut(int64_t abilityRecordId)
+void AbilityManagerService::HandleForegroundTimeOut(int64_t abilityRecordId, bool isHalf)
 {
     HILOG_DEBUG("Handle foreground timeout.");
     std::lock_guard<ffrt::mutex> lock(managersMutex_);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        uiAbilityLifecycleManager_->OnTimeOut(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecordId);
+        uiAbilityLifecycleManager_->OnTimeOut(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecordId, isHalf);
         return;
     }
     for (auto& item : missionListManagers_) {
         if (item.second) {
-            item.second->OnTimeOut(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecordId);
+            item.second->OnTimeOut(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecordId, isHalf);
         }
     }
 }
@@ -5184,7 +5247,7 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
 
 #ifdef SUPPORT_ERMS
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(abilityRequest.want, 0, GetUserId(), true);
+        afterCheckExecuter_->DoProcess(abilityRequest.want, 0, GetUserId(), false);
     if (result != ERR_OK) {
         HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
         return result;
@@ -5388,10 +5451,6 @@ void AbilityManagerService::ClearUserData(int32_t userId)
 
 int AbilityManagerService::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
 {
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        HILOG_DEBUG("Not support in scb.");
-        return ERR_OK;
-    }
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (!isSaCall) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
@@ -5484,13 +5543,20 @@ void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& toke
         }
     }
 
-    auto userId = record->GetOwnerMissionUserId();
-    auto missionListMgr = GetListManagerByUserId(userId);
-    if (missionListMgr == nullptr) {
-        HILOG_ERROR("missionListMgr is nullptr");
-        return;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        const auto& abilityInfo = record->GetAbilityInfo();
+        (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
+            AddAbilityRecoverInfo(abilityInfo.bundleName, abilityInfo.moduleName, abilityInfo.name);
+    } else {
+        auto userId = record->GetOwnerMissionUserId();
+        auto missionListMgr = GetListManagerByUserId(userId);
+        if (missionListMgr == nullptr) {
+            HILOG_ERROR("missionListMgr is nullptr");
+            return;
+        }
+        missionListMgr->EnableRecoverAbility(record->GetMissionId());
     }
-    missionListMgr->EnableRecoverAbility(record->GetMissionId());
+
 }
 
 void AbilityManagerService::RecoverAbilityRestart(const Want& want)
@@ -5514,6 +5580,28 @@ void AbilityManagerService::ReportAppRecoverResult(const int32_t appId, const Ap
         "BUNDLE_NAME", appInfo.bundleName,
         "ABILITY_NAME", abilityName,
         "RECOVERY_RESULT", result);
+}
+
+void AbilityManagerService::AppRecoverKill(pid_t pid, int32_t reason)
+{
+    AppExecFwk::AppFaultDataBySA faultDataSA;
+    faultDataSA.errorObject.name = "appRecovery";
+    switch (reason) {
+        case AppExecFwk::StateReason::CPP_CRASH:
+            faultDataSA.faultType = AppExecFwk::FaultDataType::CPP_CRASH;
+            break;
+        case AppExecFwk::StateReason::JS_ERROR:
+            faultDataSA.faultType = AppExecFwk::FaultDataType::JS_ERROR;
+            break;
+        case AppExecFwk::StateReason::LIFECYCLE:
+        case AppExecFwk::StateReason::APP_FREEZE:
+            faultDataSA.faultType = AppExecFwk::FaultDataType::APP_FREEZE;
+            break;
+        default:
+            faultDataSA.faultType = AppExecFwk::FaultDataType::UNKNOWN;
+    }
+    faultDataSA.pid = pid;
+    IN_PROCESS_CALL(DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFaultBySA(faultDataSA));
 }
 
 void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& token, int32_t reason, const Want *want)
@@ -5558,7 +5646,7 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
             HILOG_ERROR("%{public}s AppRecovery recover app more than once in one minute, just kill app(%{public}d).",
                 __func__, record->GetPid());
             ReportAppRecoverResult(record->GetUid(), appInfo, abilityInfo.name, "FAIL_WITHIN_ONE_MINUTE");
-            kill(record->GetPid(), SIGKILL);
+            AppRecoverKill(record->GetPid(), reason);
             return;
         }
 
@@ -5611,7 +5699,7 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
         curWant.SetParam(AAFwk::Want::PARAM_ABILITY_RECOVERY_RESTART, true);
 
         ReportAppRecoverResult(record->GetUid(), appInfo, abilityInfo.name, "SUCCESS");
-        kill(record->GetPid(), SIGKILL);
+        AppRecoverKill(record->GetPid(), reason);
     }
 
     constexpr int delaytime = 1000;
@@ -6083,10 +6171,6 @@ int AbilityManagerService::DelegatorDoAbilityBackground(const sptr<IRemoteObject
 
 int AbilityManagerService::DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag)
 {
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        HILOG_DEBUG("Not support in scb.");
-        return ERR_OK;
-    }
     HILOG_DEBUG("DoAbilityForeground, sceneFlag:%{public}u", flag);
     CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
     if (!VerificationToken(token) && !VerificationAllToken(token)) {
@@ -6118,10 +6202,6 @@ int AbilityManagerService::DoAbilityForeground(const sptr<IRemoteObject> &token,
 
 int AbilityManagerService::DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag)
 {
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        HILOG_DEBUG("Not support in scb.");
-        return ERR_OK;
-    }
     HILOG_DEBUG("DoAbilityBackground, sceneFlag:%{public}u", flag);
     CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
 
@@ -6149,7 +6229,7 @@ int AbilityManagerService::DelegatorMoveMissionToFront(int32_t missionId)
 
 void AbilityManagerService::UpdateCallerInfo(Want& want, const sptr<IRemoteObject> &callerToken)
 {
-    int32_t tokenId = (int32_t)IPCSkeleton::GetCallingTokenID();
+    int32_t tokenId = static_cast<int32_t>(IPCSkeleton::GetCallingTokenID());
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     int32_t callerPid = IPCSkeleton::GetCallingPid();
     want.RemoveParam(Want::PARAM_RESV_CALLER_TOKEN);
@@ -6976,15 +7056,7 @@ int AbilityManagerService::CheckCallServiceExtensionPermission(const AbilityRequ
     verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
     verificationInfo.visible = IsAbilityVisible(abilityRequest);
     verificationInfo.withContinuousTask = IsBackgroundTaskUid(IPCSkeleton::GetCallingUid());
-    if (IsCallFromBackground(abilityRequest, verificationInfo.isBackgroundCall) != ERR_OK) {
-        return ERR_INVALID_VALUE;
-    }
-    std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
-    if (callerAbility &&
-        callerAbility->GetAbilityInfo().extensionAbilityType == AppExecFwk::ExtensionAbilityType::FORM) {
-        // FormExtension is allowed to call ServiceExtension from background
-        verificationInfo.isBackgroundCall = false;
-    }
+    verificationInfo.isBackgroundCall = false;
     int result = AAFwk::PermissionVerification::GetInstance()->CheckCallServiceExtensionPermission(verificationInfo);
     if (result != ERR_OK) {
         HILOG_ERROR("Do not have permission to start ServiceExtension or DataShareExtension");
@@ -7451,13 +7523,24 @@ int AbilityManagerService::CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId
         return ret;
     }
 
+    bool focused = false;
     int32_t userId = GetValidUserId(DEFAULT_INVAL_VALUE);
     auto connectManager = GetConnectManagerByUserId(userId);
-    if (!connectManager) {
-        HILOG_ERROR("connectManager is nullptr.");
-        return ERR_INVALID_VALUE;
+    if (connectManager) {
+        focused = connectManager->IsUIExtensionFocused(uiExtensionTokenId, token);
+    } else {
+        HILOG_WARN("connectManager is nullptr, userId: %{public}d", userId);
     }
-    isFocused = connectManager->IsUIExtensionFocused(uiExtensionTokenId, token);
+    if (!focused && userId != U0_USER_ID) {
+        HILOG_DEBUG("Check connectManager in user0");
+        connectManager = GetConnectManagerByUserId(U0_USER_ID);
+        if (connectManager) {
+            focused = connectManager->IsUIExtensionFocused(uiExtensionTokenId, token);
+        } else {
+            HILOG_WARN("connectManager is nullptr, userId: 0");
+        }
+    }
+    isFocused = focused;
     HILOG_DEBUG("isFocused: %{public}d", isFocused);
     return ERR_OK;
 }
@@ -7476,6 +7559,9 @@ int32_t AbilityManagerService::IsValidMissionIds(
     const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results)
 {
     auto userId = IPCSkeleton::GetCallingUid() / BASE_USER_RANGE;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        return uiAbilityLifecycleManager_->IsValidMissionIds(missionIds, results, userId);
+    }
     auto missionlistMgr = GetListManagerByUserId(userId);
     if (missionlistMgr == nullptr) {
         HILOG_ERROR("missionlistMgr is nullptr.");
@@ -7668,6 +7754,12 @@ void AbilityManagerService::StartSpecifiedAbilityBySCB(const Want &want)
 int32_t AbilityManagerService::RegisterIAbilityManagerCollaborator(
     int32_t type, const sptr<IAbilityManagerCollaborator> &impl)
 {
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    auto callingUid = IPCSkeleton::GetCallingUid();
+    if (!isSaCall || callingUid != BROKER_UID) {
+        HILOG_ERROR("The interface only support for broker");
+        return CHECK_PERMISSION_FAILED;
+    }
     if (!CheckCollaboratorType(type)) {
         HILOG_ERROR("collaborator register failed, invalid type.");
         return ERR_INVALID_VALUE;
@@ -7681,6 +7773,12 @@ int32_t AbilityManagerService::RegisterIAbilityManagerCollaborator(
 
 int32_t AbilityManagerService::UnregisterIAbilityManagerCollaborator(int32_t type)
 {
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    auto callingUid = IPCSkeleton::GetCallingUid();
+    if (!isSaCall || callingUid != BROKER_UID) {
+        HILOG_ERROR("The interface only support for broker");
+        return CHECK_PERMISSION_FAILED;
+    }
     if (!CheckCollaboratorType(type)) {
         HILOG_ERROR("collaborator unregister failed, invalid type.");
         return ERR_INVALID_VALUE;
@@ -7694,20 +7792,30 @@ int32_t AbilityManagerService::UnregisterIAbilityManagerCollaborator(int32_t typ
 
 int32_t AbilityManagerService::MoveMissionToBackground(int32_t missionId)
 {
-    std::vector<int32_t> missionIds;
-    std::vector<int32_t> results;
-    missionIds.emplace_back(missionId);
-    int32_t ret = MoveMissionsToBackground(missionIds, results);
-    if (ret != NO_ERROR) {
-        HILOG_ERROR("collaborator: MoveMissionToBackground failed.");
-        return ret;
+    HILOG_INFO("call");
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    auto callingUid = IPCSkeleton::GetCallingUid();
+    if (!isSaCall || callingUid != BROKER_UID) {
+        HILOG_ERROR("The interface only support for broker");
+        return CHECK_PERMISSION_FAILED;
     }
-    return ERR_OK;
+    if (!currentMissionListManager_) {
+        HILOG_ERROR("currentMissionListManager_ is null.");
+        return ERR_INVALID_VALUE;
+    }
+
+    return currentMissionListManager_->MoveMissionToBackground(missionId);
 }
 
 int32_t AbilityManagerService::TerminateMission(int32_t missionId)
 {
     HILOG_INFO("call");
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    auto callingUid = IPCSkeleton::GetCallingUid();
+    if (!isSaCall || callingUid != BROKER_UID) {
+        HILOG_ERROR("The interface only support for broker");
+        return CHECK_PERMISSION_FAILED;
+    }
     if (!currentMissionListManager_) {
         HILOG_ERROR("currentMissionListManager_ is null.");
         return ERR_INVALID_VALUE;
@@ -7739,6 +7847,29 @@ bool AbilityManagerService::CheckCollaboratorType(int32_t type)
         return false;
     }
     return true;
+}
+
+void AbilityManagerService::GetConnectManagerAndUIExtensionBySessionInfo(const sptr<SessionInfo> &sessionInfo,
+    std::shared_ptr<AbilityConnectManager> &connectManager, std::shared_ptr<AbilityRecord> &targetAbility)
+{
+    targetAbility = nullptr;
+    int32_t userId = GetValidUserId(DEFAULT_INVAL_VALUE);
+    HILOG_DEBUG("userId=%{public}d", userId);
+    connectManager = GetConnectManagerByUserId(userId);
+    if (connectManager) {
+        targetAbility = connectManager->GetUIExtensioBySessionInfo(sessionInfo);
+    } else {
+        HILOG_WARN("connectManager is nullptr, userId: %{public}d", userId);
+    }
+    if (targetAbility == nullptr && userId != U0_USER_ID) {
+        HILOG_DEBUG("try to find UIExtension in user0");
+        connectManager = GetConnectManagerByUserId(U0_USER_ID);
+        if (connectManager) {
+            targetAbility = connectManager->GetUIExtensioBySessionInfo(sessionInfo);
+        } else {
+            HILOG_WARN("connectManager is nullptr, userId: 0");
+        }
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS

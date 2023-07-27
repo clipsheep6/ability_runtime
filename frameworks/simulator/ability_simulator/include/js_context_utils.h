@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_SIMULAOTR_JS_CONTEXT_UTILS_H
-#define OHOS_ABILITY_RUNTIME_SIMULAOTR_JS_CONTEXT_UTILS_H
+#ifndef OHOS_ABILITY_RUNTIME_SIMULATOR_JS_CONTEXT_UTILS_H
+#define OHOS_ABILITY_RUNTIME_SIMULATOR_JS_CONTEXT_UTILS_H
 
 #include <memory>
 
@@ -23,7 +23,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue* CreateJsBaseContext(NativeEngine &engine, std::shared_ptr<Context> context, bool keepContext = false);
+NativeValue *CreateJsBaseContext(NativeEngine &engine, std::shared_ptr<Context> context, bool keepContext = false);
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_SIMULAOTR_JS_CONTEXT_UTILS_H
+#endif // OHOS_ABILITY_RUNTIME_SIMULATOR_JS_CONTEXT_UTILS_H

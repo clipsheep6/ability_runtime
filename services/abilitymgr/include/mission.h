@@ -215,11 +215,22 @@ public:
         return unclearable_;
     }
 
+    std::string GetMissionAffinity() const
+    {
+        return missionAffinity_;
+    }
+
+    void SetMissionAffinity(const std::string &missionAffinity)
+    {
+        missionAffinity_ = missionAffinity;
+    }
+
 private:
     int32_t missionId_;
     int32_t startMethod_;
     std::shared_ptr<AbilityRecord> abilityRecord_;
     std::string missionName_;
+    std::string missionAffinity_;
     std::string specifiedFlag_;
     std::weak_ptr<MissionList> ownerMissionList_;
     bool lockedState_ = false;

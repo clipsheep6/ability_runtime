@@ -23,35 +23,14 @@
 
 #define private public
 #define protected public
-#include "mock_ability_connect_callback_stub.h"
-#include "mock_ability_scheduler.h"
-#include "mock_app_mgr_client.h"
-#include "mock_bundle_mgr.h"
-#include "ability_state.h"
 #include "ability_manager_errors.h"
-#include "sa_mgr_client.h"
-#include "system_ability_definition.h"
 #include "ability_manager_service.h"
-#include "ability_connect_callback_proxy.h"
-#include "ability_config.h"
-#include "pending_want_manager.h"
-#include "pending_want_record.h"
 #undef private
 #undef protected
-#include "wants_info.h"
-#include "want_receiver_stub.h"
-#include "want_sender_stub.h"
 
 using namespace std::placeholders;
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
-using OHOS::iface_cast;
-using OHOS::IRemoteObject;
-using OHOS::sptr;
-using testing::_;
-using testing::Invoke;
-using testing::Return;
-
 namespace OHOS {
 namespace AAFwk {
 class SpecifiedAbilityServiceTest : public testing::Test {
@@ -63,13 +42,6 @@ public:
     Want CreateWant(const std::string& entity);
     AbilityInfo CreateAbilityInfo(const std::string& name, const std::string& appName, const std::string& bundleName);
     ApplicationInfo CreateAppInfo(const std::string& appName, const std::string& name);
-    bool MockAppClient() const;
-    void WaitAMS();
-
-    inline static std::shared_ptr<MockAppMgrClient> mockAppMgrClient_{ nullptr };
-    inline static std::shared_ptr<AbilityManagerService> abilityMgrServ_{ nullptr };
-    sptr<MockAbilityScheduler> scheduler_{ nullptr };
-    inline static bool doOnce_ = false;  // In order for mock to execute once
 };
 
 Want SpecifiedAbilityServiceTest::CreateWant(const std::string& entity)
@@ -107,68 +79,13 @@ ApplicationInfo SpecifiedAbilityServiceTest::CreateAppInfo(const std::string& ap
     return appInfo;
 }
 
-bool SpecifiedAbilityServiceTest::MockAppClient() const
-{
-    if (!mockAppMgrClient_) {
-        GTEST_LOG_(INFO) << "MockAppClient::1";
-        return false;
-    }
+void SpecifiedAbilityServiceTest::SetUpTestCase(void) {}
 
-    OHOS::DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_.reset(mockAppMgrClient_.get());
-    return true;
-}
+void SpecifiedAbilityServiceTest::TearDownTestCase(void) {}
 
-void SpecifiedAbilityServiceTest::WaitAMS()
-{
-    const uint32_t maxRetryCount = 1000;
-    const uint32_t sleepTime = 1000;
-    uint32_t count = 0;
-    if (!abilityMgrServ_) {
-        return;
-    }
-    auto handler = abilityMgrServ_->GetTaskHandler();
-    if (!handler) {
-        return;
-    }
-    std::atomic<bool> taskCalled(false);
-    auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->SubmitTask(f)) {
-        while (!taskCalled.load()) {
-            ++count;
-            if (count >= maxRetryCount) {
-                break;
-            }
-            usleep(sleepTime);
-        }
-    }
-}
+void SpecifiedAbilityServiceTest::SetUp(void) {}
 
-void SpecifiedAbilityServiceTest::SetUpTestCase(void)
-{
-    OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
-        OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, new (std::nothrow) BundleMgrService());
-    abilityMgrServ_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
-    mockAppMgrClient_ = std::make_shared<MockAppMgrClient>();
-}
-
-void SpecifiedAbilityServiceTest::TearDownTestCase(void)
-{
-    abilityMgrServ_->OnStop();
-    mockAppMgrClient_.reset();
-}
-
-void SpecifiedAbilityServiceTest::SetUp(void)
-{
-    scheduler_ = new MockAbilityScheduler();
-    if (!doOnce_) {
-        doOnce_ = true;
-        MockAppClient();
-    }
-    WaitAMS();
-}
-
-void SpecifiedAbilityServiceTest::TearDown(void)
-{}
+void SpecifiedAbilityServiceTest::TearDown(void) {}
 
 /**
  * @tc.name: OnAcceptWantResponse_001
@@ -178,6 +95,7 @@ void SpecifiedAbilityServiceTest::TearDown(void)
  */
 HWTEST_F(SpecifiedAbilityServiceTest, OnAcceptWantResponse_001, TestSize.Level1)
 {
+    auto abilityMgrServ_ = std::make_shared<AbilityManagerService>();
     std::string abilityName = "MusicAbility";
     std::string appName = "test_app";
     std::string bundleName = "com.ix.hiMusic";

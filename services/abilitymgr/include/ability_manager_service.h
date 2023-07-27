@@ -705,10 +705,10 @@ public:
 
     void OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord);
     void OnCallConnectDied(std::shared_ptr<CallRecord> callRecord);
-    void HandleLoadTimeOut(int64_t abilityRecordId);
+    void HandleLoadTimeOut(int64_t abilityRecordId, bool isHalf = false);
     void HandleActiveTimeOut(int64_t abilityRecordId);
     void HandleInactiveTimeOut(int64_t abilityRecordId);
-    void HandleForegroundTimeOut(int64_t abilityRecordId);
+    void HandleForegroundTimeOut(int64_t abilityRecordId, bool isHalf = false);
     void HandleShareDataTimeOut(int64_t uniqueId);
     int32_t GetShareDataPairAndReturnData(std::shared_ptr<AbilityRecord> abilityRecord,
         const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam);
@@ -1159,6 +1159,12 @@ public:
     */
     sptr<IAbilityManagerCollaborator> GetCollaborator(int32_t type);
 
+    /**
+     * get the user id.
+     *
+     */
+    int32_t GetUserId() const;
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -1245,11 +1251,7 @@ private:
      *
      */
     void ConnectBmsService();
-    /**
-     * get the user id.
-     *
-     */
-    int GetUserId();
+
     /**
      * Determine whether it is a system APP
      *
@@ -1404,6 +1406,8 @@ private:
     void ReportAppRecoverResult(const int32_t appId, const AppExecFwk::ApplicationInfo &appInfo,
         const std::string& abilityName, const std::string& result);
 
+    void AppRecoverKill(pid_t pid, int32_t reason);
+
     /**
      * Check if Caller is allowed to start ServiceAbility(FA) or ServiceExtension(Stage) or DataShareExtension(Stage).
      *
@@ -1523,6 +1527,9 @@ private:
     bool CheckPrepareTerminateEnable();
 
     bool CheckCollaboratorType(int32_t type);
+
+    void GetConnectManagerAndUIExtensionBySessionInfo(const sptr<SessionInfo> &sessionInfo,
+        std::shared_ptr<AbilityConnectManager> &connectManager, std::shared_ptr<AbilityRecord> &targetAbility);
     
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;

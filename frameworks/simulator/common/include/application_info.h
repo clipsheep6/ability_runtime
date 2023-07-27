@@ -19,12 +19,14 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "module_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
 static const std::string AVAILABLELEVEL_NORMAL = "normal";
 static const std::string DEFAULT_ENTITY_TYPE = "unspecified";
+static const std::string DEFAULT_COMPILE_SDK_TYPE = "OpenHarmony";
 }
 enum ApplicationFlag {
     GET_BASIC_APPLICATION_INFO = 0x00000000,
@@ -91,6 +93,7 @@ struct ApplicationInfo {
 
     uint32_t apiCompatibleVersion = 0;
     int32_t apiTargetVersion = 0;
+    int64_t crowdtestDeadline = -1;
 
     std::string iconPath;
     int32_t iconId = 0;
@@ -114,6 +117,7 @@ struct ApplicationInfo {
     bool hideDesktopIcon = false;
     bool formVisibleNotify = false;
     std::vector<std::string> allowCommonEvent;
+    std::vector<int32_t> resourcesApply;
 
     bool isSystemApp = false;
     bool isLauncherApp = false;
@@ -138,6 +142,8 @@ struct ApplicationInfo {
 
     // apl
     std::string appPrivilegeLevel = AVAILABLELEVEL_NORMAL;
+    std::string appDistributionType = "none";
+    std::string appProvisionType = "release";
 
     // user related fields, assign when calling the get interface
     uint32_t accessTokenId = 0;
@@ -154,6 +160,7 @@ struct ApplicationInfo {
     // assign when calling the get interface
     std::vector<std::string> permissions;
     std::vector<std::string> moduleSourceDirs;
+    std::vector<ModuleInfo> moduleInfos;
     std::map<std::string, std::vector<CustomizeData>> metaData;
     std::map<std::string, std::vector<Metadata>> metadata;
     // Installation-free
@@ -184,7 +191,7 @@ struct ApplicationInfo {
     BundleType bundleType = BundleType::APP;
 
     std::string compileSdkVersion;
-    std::string compileSdkType = "OpenHarmony";
+    std::string compileSdkType = DEFAULT_COMPILE_SDK_TYPE;
 };
 } // namespace AppExecFwk
 } // namespace OHOS

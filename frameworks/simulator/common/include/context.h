@@ -60,6 +60,10 @@ public:
     virtual Options GetOptions() = 0;
 
     virtual void SetOptions(const Options &options) = 0;
+
+    virtual std::shared_ptr<AppExecFwk::ApplicationInfo> GetApplicationInfo() const = 0;
+
+    virtual std::shared_ptr<AppExecFwk::HapModuleInfo> GetHapModuleInfo() const = 0;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

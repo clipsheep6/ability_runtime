@@ -485,7 +485,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityHelperImpl::Query(
     resultset = dataAbilityProxy->Query(uri, columns, predicates);
 
     ReleaseDataAbility(dataAbilityProxy);
-    HILOG_INFO("Return resultset is or not nullptr: %{public}d.", resultset == nullptr);
+    HILOG_DEBUG("Return resultset is or not nullptr: %{public}d.", resultset == nullptr);
     return resultset;
 }
 

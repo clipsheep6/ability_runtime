@@ -637,6 +637,16 @@ std::string Ability::GetAbilityName()
     return abilityInfo_->name;
 }
 
+std::string Ability::GetModuleName()
+{
+    if (abilityInfo_ == nullptr) {
+        HILOG_ERROR("Ability::GetModuleName abilityInfo_ is nullptr");
+        return "";
+    }
+
+    return abilityInfo_->moduleName;
+}
+
 bool Ability::IsTerminating()
 {
     return false;
@@ -1907,6 +1917,21 @@ void Ability::GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t
     width = static_cast<int32_t>(window->GetRect().width_);
     height = static_cast<int32_t>(window->GetRect().height_);
     HILOG_INFO("left: %{public}d, top: %{public}d, width: %{public}d, height: %{public}d", left, top, width, height);
+}
+
+Ace::UIContent* Ability::GetUIContent()
+{
+    HILOG_DEBUG("call");
+    if (scene_ == nullptr) {
+        HILOG_ERROR("get window scene failed.");
+        return nullptr;
+    }
+    auto window = scene_->GetMainWindow();
+    if (window == nullptr) {
+        HILOG_ERROR("get window failed.");
+        return nullptr;
+    }
+    return window->GetUIContent();
 }
 
 void Ability::OnCreate(Rosen::DisplayId displayId)

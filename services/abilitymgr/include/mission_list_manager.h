@@ -203,8 +203,9 @@ public:
      *
      * @param msgId the msg id in ability record
      * @param abilityRecordId the id of ability record
+     * @param isHalf is half
      */
-    void OnTimeOut(uint32_t msgId, int64_t abilityRecordId);
+    void OnTimeOut(uint32_t msgId, int64_t abilityRecordId, bool isHalf = false);
 
     /**
      * @brief handle when ability died
@@ -352,6 +353,7 @@ public:
     int SetMissionContinueState(const sptr<IRemoteObject> &token, const int32_t missionId,
         const AAFwk::ContinueState &state);
 
+    int32_t MoveMissionToBackground(int32_t missionId);
 #ifdef SUPPORT_GRAPHICS
 public:
     /**
@@ -410,7 +412,7 @@ private:
         const std::shared_ptr<Mission> &mission);
     void MoveMissionListToTop(const std::shared_ptr<MissionList> &missionList);
     void MoveNoneTopMissionToDefaultList(const std::shared_ptr<Mission> &mission);
-    void PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId);
+    void PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId, bool isHalf = false);
 
     int DispatchState(const std::shared_ptr<AbilityRecord> &abilityRecord, int state);
     int DispatchForeground(const std::shared_ptr<AbilityRecord> &abilityRecord, bool success,
@@ -482,7 +484,7 @@ private:
     void NotifyMissionCreated(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
     bool IsExcludeFromMissions(const std::shared_ptr<Mission> &mission);
     void BuildInnerMissionInfo(InnerMissionInfo &info, const std::string &missionName,
-        const AbilityRequest &abilityRequest) const;
+        const std::string &missionAffinity, const AbilityRequest &abilityRequest) const;
     void NotifyStartSpecifiedAbility(AbilityRequest &request, const AAFwk::Want &want);
     void NotifyRestartSpecifiedAbility(AbilityRequest &request, const sptr<IRemoteObject> &token);
     void ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const;

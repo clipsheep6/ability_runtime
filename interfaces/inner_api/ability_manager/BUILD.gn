@@ -133,8 +133,10 @@ ohos_shared_library("ability_manager") {
 
   if (ability_runtime_graphics) {
     deps += []
-    external_deps += [ "multimedia_image_framework:image_native" ]
-    public_deps = [ "${ability_base_path}:session_info" ]
+    external_deps += [
+      "ability_base:session_info",
+      "image_framework:image_native",
+    ]
   }
 
   cflags_cc = []
@@ -143,6 +145,23 @@ ohos_shared_library("ability_manager") {
     external_deps += [ "dlp_permission_service:libdlpparse" ]
   }
 
+  innerapi_tags = [ "platformsdk" ]
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_shared_library("mission_info") {
+  sources =
+      [ "${ability_runtime_services_path}/abilitymgr/src/mission_info.cpp" ]
+
+  public_configs = [ ":ability_manager_public_config" ]
+
+  external_deps = [
+    "ability_base:want",
+    "c_utils:utils",
+    "ipc:ipc_core",
+  ]
+  cflags_cc = []
   innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"
   part_name = "ability_runtime"

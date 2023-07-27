@@ -13,13 +13,14 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_SIMULAOTR_JS_ABILITY_CONTEXT_H
-#define OHOS_ABILITY_RUNTIME_SIMULAOTR_JS_ABILITY_CONTEXT_H
+#ifndef OHOS_ABILITY_RUNTIME_SIMULATOR_JS_ABILITY_CONTEXT_H
+#define OHOS_ABILITY_RUNTIME_SIMULATOR_JS_ABILITY_CONTEXT_H
 
 #include <algorithm>
 #include <memory>
 #include <native_engine/native_value.h>
 #include "ability_context.h"
+#include "configuration.h"
 
 class NativeObject;
 class NativeReference;
@@ -29,7 +30,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 class JsAbilityContext final {
 public:
-    JsAbilityContext() {}
+    explicit JsAbilityContext(const std::shared_ptr<AbilityContext> &context) : context_(context) {}
     ~JsAbilityContext() = default;
 
     static void Finalizer(NativeEngine *engine, void *data, void *hint);
@@ -53,8 +54,19 @@ public:
     static NativeValue *RestoreWindowStage(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue *RequestDialogService(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue *IsTerminating(NativeEngine *engine, NativeCallbackInfo *info);
+
+    static void ConfigurationUpdated(NativeEngine *engine, std::shared_ptr<NativeReference> &jsContext,
+        const std::shared_ptr<AppExecFwk::Configuration> &config);
+
+private:
+    NativeValue *OnTerminateSelf(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue *OnIsTerminating(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue *OnTerminateSelfWithResult(NativeEngine &engine, NativeCallbackInfo &info);
+
+    std::weak_ptr<AbilityContext> context_;
 };
 NativeValue *CreateJsAbilityContext(NativeEngine &engine, const std::shared_ptr<AbilityContext> &context);
+NativeValue *CreateJsErrorByNativeErr(NativeEngine &engine, int32_t err, const std::string &permission = "");
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_SIMULAOTR_JS_ABILITY_CONTEXT_H
+#endif // OHOS_ABILITY_RUNTIME_SIMULATOR_JS_ABILITY_CONTEXT_H

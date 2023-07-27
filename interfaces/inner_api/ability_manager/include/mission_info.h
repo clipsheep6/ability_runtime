@@ -25,8 +25,10 @@ namespace OHOS {
 namespace AAFwk {
 
 enum ContinueState {
+    CONTINUESTATE_UNKNOWN = -1,
     CONTINUESTATE_ACTIVE = 0,
-    CONTINUESTATE_INACTIVE
+    CONTINUESTATE_INACTIVE = 1,
+    CONTINUESTATE_MAX
 };
 
 /**

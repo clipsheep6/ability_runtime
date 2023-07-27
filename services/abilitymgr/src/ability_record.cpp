@@ -63,6 +63,7 @@ const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
 const std::string DLP_INDEX = "ohos.dlp.params.index";
 const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
 const std::string COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
+const std::string KEY_MISSION_ID = "ohos.anco.param.missionId";
 const std::string NEED_STARTINGWINDOW = "ohos.ability.NeedStartingWindow";
 const std::string PARAMS_URI = "ability.verify.uri";
 const std::string PARAMS_FILE_SAVING_URL_KEY = "pick_path_return";
@@ -73,16 +74,17 @@ const int32_t SEND_RESULT_CANCELED = -1;
 const int VECTOR_SIZE = 2;
 const int LOAD_TIMEOUT_ASANENABLED = 150;
 const int TERMINATE_TIMEOUT_ASANENABLED = 150;
+const int HALF_TIMEOUT = 2;
 #ifdef SUPPORT_ASAN
-const int COLDSTART_TIMEOUT_MULTIPLE = 150;
-const int LOAD_TIMEOUT_MULTIPLE = 150;
-const int FOREGROUND_TIMEOUT_MULTIPLE = 75;
-const int BACKGROUND_TIMEOUT_MULTIPLE = 45;
-const int ACTIVE_TIMEOUT_MULTIPLE = 75;
-const int TERMINATE_TIMEOUT_MULTIPLE = 150;
-const int INACTIVE_TIMEOUT_MULTIPLE = 8;
-const int DUMP_TIMEOUT_MULTIPLE = 15;
-const int SHAREDATA_TIMEOUT_MULTIPLE = 75;
+const int COLDSTART_TIMEOUT_MULTIPLE = 15000;
+const int LOAD_TIMEOUT_MULTIPLE = 15000;
+const int FOREGROUND_TIMEOUT_MULTIPLE = 7500;
+const int BACKGROUND_TIMEOUT_MULTIPLE = 4500;
+const int ACTIVE_TIMEOUT_MULTIPLE = 7500;
+const int TERMINATE_TIMEOUT_MULTIPLE = 15000;
+const int INACTIVE_TIMEOUT_MULTIPLE = 800;
+const int DUMP_TIMEOUT_MULTIPLE = 1500;
+const int SHAREDATA_TIMEOUT_MULTIPLE = 7500;
 #else
 const int COLDSTART_TIMEOUT_MULTIPLE = 10;
 const int LOAD_TIMEOUT_MULTIPLE = 10;
@@ -262,10 +264,10 @@ int AbilityRecord::LoadAbility()
     if (applicationInfo_.asanEnabled) {
         loadTimeout =
             AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_ASANENABLED;
-        SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, loadTimeout);
+        SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, loadTimeout / HALF_TIMEOUT);
     } else if (abilityInfo_.type != AppExecFwk::AbilityType::DATA) {
         auto delayTime = want_.GetBoolParam("coldStart", false) ? coldStartTimeout : loadTimeout;
-        SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, delayTime);
+        SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, delayTime / HALF_TIMEOUT);
     }
 
     startTime_ = AbilityUtil::SystemTimeMillis();
@@ -338,7 +340,7 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
 
     int foregroundTimeout =
         AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
-    SendEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, foregroundTimeout);
+    SendEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, foregroundTimeout / HALF_TIMEOUT);
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
@@ -369,7 +371,7 @@ void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
         if (!want_.GetBoolParam(DEBUG_APP, false) && !want_.GetBoolParam(NATIVE_DEBUG, false)) {
             int foregroundTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
-            handler->SubmitTask(task, "foreground_" + std::to_string(recordId_), foregroundTimeout);
+            handler->SubmitTask(task, "foreground_" + std::to_string(recordId_), foregroundTimeout, false);
         } else {
             HILOG_INFO("Is debug mode, no need to handle time out.");
         }
@@ -1080,7 +1082,7 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
             want_.GetStringParam(PERF_CMD).empty()) {
             int backgroundTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * BACKGROUND_TIMEOUT_MULTIPLE;
-            handler->SubmitTask(task, "background_" + std::to_string(recordId_), backgroundTimeout);
+            handler->SubmitTask(task, "background_" + std::to_string(recordId_), backgroundTimeout, false);
         } else {
             HILOG_INFO("Is debug mode, no need to handle time out.");
         }
@@ -2028,6 +2030,14 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
     };
     handler->SubmitTask(uriTask);
 #ifdef SUPPORT_GRAPHICS
+    NotifyAnimationAbilityDied();
+#endif
+    HandleDlpClosed();
+    NotifyRemoveShellProcess();
+}
+
+void AbilityRecord::NotifyAnimationAbilityDied()
+{
     // notify winddow manager service the ability died
     if (missionId_ != -1) {
         if (GetWMSHandler()) {
@@ -2037,8 +2047,6 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
             GetWMSHandler()->NotifyAnimationAbilityDied(info);
         }
     }
-#endif
-    HandleDlpClosed();
 }
 
 void AbilityRecord::SetConnRemoteObject(const sptr<IRemoteObject> &remoteObject)
@@ -2103,7 +2111,9 @@ void AbilityRecord::SendEvent(uint32_t msg, uint32_t timeOut, int32_t param)
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     CHECK_POINTER(handler);
     param = (param == -1) ? recordId_ : param;
-    handler->SendEvent(EventWrap(msg, param), timeOut);
+    auto eventWrap = EventWrap(msg, param);
+    eventWrap.SetTimeout(timeOut);
+    handler->SendEvent(eventWrap, timeOut);
 }
 
 void AbilityRecord::SetStartSetting(const std::shared_ptr<AbilityStartSetting> &setting)
@@ -2211,7 +2221,7 @@ void AbilityRecord::SetMission(const std::shared_ptr<Mission> &mission)
         missionId_ = mission->GetMissionId();
         HILOG_DEBUG("SetMission come, missionId is %{public}d.", missionId_);
     }
-    const std::string KEY_MISSION_ID = "ohos.anco.param.missionId";
+    want_.RemoveParam(KEY_MISSION_ID);
     want_.SetParam(KEY_MISSION_ID, missionId_);
     mission_ = mission;
 }
@@ -2504,6 +2514,7 @@ void AbilityRecord::GrantUriPermission(Want &want, int32_t userId, std::string t
     HILOG_DEBUG("GrantUriPermission uriVec size: %{public}zu", uriVec.size());
     auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
     auto fromTokenId = IPCSkeleton::GetCallingTokenID();
+    auto callerTokenId = static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, -1));
     for (auto&& str : uriVec) {
         Uri uri(str);
         auto&& scheme = uri.GetScheme();
@@ -2521,7 +2532,8 @@ void AbilityRecord::GrantUriPermission(Want &want, int32_t userId, std::string t
             continue;
         }
         if (uriBundleInfo.applicationInfo.accessTokenId != fromTokenId &&
-            uriBundleInfo.applicationInfo.accessTokenId != callerAccessTokenId_) {
+            uriBundleInfo.applicationInfo.accessTokenId != callerAccessTokenId_ &&
+            uriBundleInfo.applicationInfo.accessTokenId != callerTokenId) {
             HILOG_ERROR("the uri does not belong to caller.");
             continue;
         }
@@ -2606,6 +2618,28 @@ void AbilityRecord::HandleDlpClosed()
 
     if (appIndex_ > 0) {
         DelayedSingleton<ConnectionStateManager>::GetInstance()->RemoveDlpAbility(shared_from_this());
+    }
+}
+
+void AbilityRecord::NotifyRemoveShellProcess()
+{
+    InnerMissionInfo info;
+    int getMission = DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(
+        missionId_, info);
+    if (getMission == ERR_OK && info.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
+        auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(
+            info.collaboratorType);
+        if (collaborator == nullptr) {
+            HILOG_DEBUG("collaborator is nullptr");
+            return;
+        }
+        int32_t type = 0;
+        std::string reason;
+        int ret = collaborator->NotifyRemoveShellProcess(pid_, type, reason);
+        HILOG_INFO("notify broker params: %{public}d", pid_);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("notify broker remove shell process failed, err: %{public}d", ret);
+        }
     }
 }
 

@@ -29,6 +29,7 @@
 #include "ability_util.h"
 #include "app_loader.h"
 #include "app_recovery.h"
+#include "appfreeze_inner.h"
 #include "application_data_manager.h"
 #include "application_env_impl.h"
 #include "bundle_mgr_proxy.h"
@@ -893,10 +894,7 @@ bool MainThread::InitCreate(
         HILOG_ERROR("MainThread::InitCreate create contextDeal failed");
         return false;
     }
-
-    if (watchdog_ != nullptr) {
-        watchdog_->SetApplicationInfo(applicationInfo_);
-    }
+    AppExecFwk::AppfreezeInner::GetInstance()->SetApplicationInfo(applicationInfo_);
 
     application_->SetProcessInfo(processInfo_);
     contextDeal->SetApplicationInfo(applicationInfo_);
@@ -1254,6 +1252,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         options.isDebugVersion = bundleInfo.applicationInfo.debug;
         options.arkNativeFilePath = bundleInfo.applicationInfo.arkNativeFilePath;
         options.uid = bundleInfo.applicationInfo.uid;
+        options.apiTargetVersion = appInfo.apiTargetVersion;
         auto runtime = AbilityRuntime::Runtime::Create(options);
         if (!runtime) {
             HILOG_ERROR("Failed to create runtime");
@@ -1625,6 +1624,9 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
         options.loadAce = false;
         options.isStageModel = false;
         options.isTestFramework = true;
+        if (applicationInfo_) {
+            options.apiTargetVersion = applicationInfo_->apiTargetVersion;
+        }
         if (entryHapModuleInfo.abilityInfos.empty()) {
             HILOG_ERROR("Failed to abilityInfos");
             return false;
@@ -2032,6 +2034,7 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner)
     TaskTimeoutDetected(runner);
 
     watchdog_->Init(mainHandler_);
+    AppExecFwk::AppfreezeInner::GetInstance()->SetMainHandler(mainHandler_);
     extensionConfigMgr_->Init();
 }
 
@@ -2511,6 +2514,11 @@ int32_t MainThread::ScheduleNotifyAppFault(const FaultData &faultData)
         HILOG_ERROR("mainHandler is nullptr");
         return ERR_INVALID_VALUE;
     }
+
+    if (faultData.faultType == FaultDataType::APP_FREEZE) {
+        return AppExecFwk::AppfreezeInner::GetInstance()->AppfreezeHandle(faultData, false);
+    }
+
     wptr<MainThread> weak = this;
     auto task = [weak, faultData] {
         auto appThread = weak.promote();
@@ -2526,12 +2534,14 @@ int32_t MainThread::ScheduleNotifyAppFault(const FaultData &faultData)
 
 void MainThread::NotifyAppFault(const FaultData &faultData)
 {
-    ErrorObject faultErrorObj = {
-        .name = faultData.errorObject.name,
-        .message = faultData.errorObject.message,
-        .stack = faultData.errorObject.stack
-    };
-    ApplicationDataManager::GetInstance().NotifyExceptionObject(faultErrorObj);
+    if (faultData.notifyApp) {
+        ErrorObject faultErrorObj = {
+            .name = faultData.errorObject.name,
+            .message = faultData.errorObject.message,
+            .stack = faultData.errorObject.stack
+        };
+        ApplicationDataManager::GetInstance().NotifyExceptionObject(faultErrorObj);
+    }
 }
 
 void MainThread::SetProcessExtensionType(const std::shared_ptr<AbilityLocalRecord> &abilityRecord)

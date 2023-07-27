@@ -138,7 +138,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     extensionSessionInfo = new (std::nothrow) SessionInfo();
     extensionSessionInfo->sessionToken = token;
     extensionSessionInfo->callerToken = token;
-    extensionSessionInfo->persistentId = int64Param;
+    extensionSessionInfo->persistentId = int32Param;
     extensionSessionInfo->resultCode = int32Param;
     extensionSessionInfo->requestCode = int32Param;
     extensionSessionInfo->errorReason = stringParam;

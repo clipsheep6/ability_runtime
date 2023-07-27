@@ -222,13 +222,13 @@ int32_t ContextImpl::GetGroupDirWithCheck(const std::string &groupId, bool check
         HILOG_ERROR("GroupDir currently only supports the el2 level");
         return ERR_INVALID_VALUE;
     }
-    sptr<AppExecFwk::IBundleMgr> bundleMgr = GetBundleManager();
-    if (bundleMgr == nullptr) {
-        HILOG_ERROR("GetBundleManager is nullptr");
-        return ERR_INVALID_VALUE;
+    int errCode = GetBundleManager();
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("failed, errCode: %{public}d.", errCode);
+        return errCode;
     }
     std::string groupDirGet;
-    bool ret = bundleMgr->GetGroupDir(groupId, groupDirGet);
+    bool ret = bundleMgr_->GetGroupDir(groupId, groupDirGet);
     if (!ret || groupDirGet.empty()) {
         HILOG_ERROR("GetGroupDir failed or groupDirGet is empty");
         return ERR_INVALID_VALUE;
@@ -307,9 +307,9 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
         return nullptr;
     }
 
-    sptr<AppExecFwk::IBundleMgr> bundleMgr = GetBundleManager();
-    if (bundleMgr == nullptr) {
-        HILOG_ERROR("ContextImpl::CreateModuleContext GetBundleManager is nullptr");
+    int errCode = GetBundleManager();
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("failed, errCode: %{public}d.", errCode);
         return nullptr;
     }
 
@@ -323,7 +323,7 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
 
     AppExecFwk::BundleInfo bundleInfo;
     if (bundleName == GetBundleName()) {
-        bundleMgr->GetBundleInfoForSelf(
+        bundleMgr_->GetBundleInfoForSelf(
             (static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) +
             static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY) +
             static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) +
@@ -332,12 +332,12 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
             static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY) +
             static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_METADATA)), bundleInfo);
     } else {
-        bundleMgr->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, accountId);
+        bundleMgr_->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, accountId);
     }
 
     if (bundleInfo.name.empty() || bundleInfo.applicationInfo.name.empty()) {
         HILOG_ERROR("ContextImpl::CreateModuleContext GetBundleInfo is error");
-        ErrCode ret = bundleMgr->GetDependentBundleInfo(bundleName, bundleInfo);
+        ErrCode ret = bundleMgr_->GetDependentBundleInfo(bundleName, bundleInfo);
         if (ret != ERR_OK) {
             HILOG_ERROR("ContextImpl::CreateModuleContext GetDependentBundleInfo failed:%d", ret);
             return nullptr;
@@ -451,9 +451,9 @@ std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bun
         return nullptr;
     }
 
-    sptr<AppExecFwk::IBundleMgr> bundleMgr = GetBundleManager();
-    if (bundleMgr == nullptr) {
-        HILOG_ERROR("ContextImpl::CreateBundleContext GetBundleManager is nullptr");
+    int errCode = GetBundleManager();
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("failed, errCode: %{public}d.", errCode);
         return nullptr;
     }
 
@@ -464,7 +464,7 @@ std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bun
     }
     HILOG_DEBUG("ContextImpl::CreateBundleContext length: %{public}zu, bundleName: %{public}s",
         (size_t)bundleName.length(), bundleName.c_str());
-    bundleMgr->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, accountId);
+    bundleMgr_->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, accountId);
 
     if (bundleInfo.name.empty() || bundleInfo.applicationInfo.name.empty()) {
         HILOG_ERROR("ContextImpl::CreateBundleContext GetBundleInfo is error");
@@ -612,21 +612,27 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
     appContext->SetResourceManager(resourceManager);
 }
 
-sptr<AppExecFwk::IBundleMgr> ContextImpl::GetBundleManager() const
+ErrCode ContextImpl::GetBundleManager()
 {
-    HILOG_DEBUG("ContextImpl::GetBundleManager");
+    std::lock_guard<std::mutex> lock(bundleManagerMutex_);
+    if (bundleMgr_ != nullptr && !resetFlag_) {
+        return ERR_OK;
+    }
+
     auto instance = OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance();
     if (instance == nullptr) {
         HILOG_ERROR("failed to get SysMrgClient instance");
-        return nullptr;
+        return ERR_NULL_OBJECT;
     }
     auto bundleObj = instance->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     if (bundleObj == nullptr) {
         HILOG_ERROR("failed to get bundle manager service");
-        return nullptr;
+        return ERR_NULL_OBJECT;
     }
-    sptr<AppExecFwk::IBundleMgr> bms = iface_cast<AppExecFwk::IBundleMgr>(bundleObj);
-    return bms;
+
+    bundleMgr_ = iface_cast<AppExecFwk::IBundleMgr>(bundleObj);
+    HILOG_DEBUG("ContextImpl::GetBundleManager success");
+    return ERR_OK;
 }
 
 void ContextImpl::SetApplicationInfo(const std::shared_ptr<AppExecFwk::ApplicationInfo> &info)
@@ -681,14 +687,14 @@ void ContextImpl::InitHapModuleInfo(const std::shared_ptr<AppExecFwk::AbilityInf
     if (hapModuleInfo_ != nullptr || abilityInfo == nullptr) {
         return;
     }
-    sptr<AppExecFwk::IBundleMgr> ptr = GetBundleManager();
-    if (ptr == nullptr) {
-        HILOG_ERROR("InitHapModuleInfo: failed to get bundle manager service");
-        return;
+    int errCode = GetBundleManager();
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("failed, errCode: %{public}d.", errCode);
+        return ;
     }
 
     hapModuleInfo_ = std::make_shared<AppExecFwk::HapModuleInfo>();
-    if (!ptr->GetHapModuleInfo(*abilityInfo.get(), *hapModuleInfo_)) {
+    if (!bundleMgr_->GetHapModuleInfo(*abilityInfo.get(), *hapModuleInfo_)) {
         HILOG_ERROR("InitHapModuleInfo: GetHapModuleInfo failed, will retval false value");
     }
 }
@@ -801,13 +807,13 @@ Global::Resource::DeviceType ContextImpl::GetDeviceType() const
 int ContextImpl::GetOverlayModuleInfos(const std::string &bundleName, const std::string &moduleName,
     std::vector<AppExecFwk::OverlayModuleInfo> &overlayModuleInfos)
 {
-    sptr<AppExecFwk::IBundleMgr> bundleMgr = GetBundleManager();
-    if (bundleMgr == nullptr) {
-        HILOG_ERROR("ContextImpl::CreateBundleContext GetBundleManager is nullptr");
-        return ERR_INVALID_VALUE;
+    int errCode = GetBundleManager();
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("failed, errCode: %{public}d.", errCode);
+        return errCode;
     }
 
-    auto overlayMgrProxy = bundleMgr->GetOverlayManagerProxy();
+    auto overlayMgrProxy = bundleMgr_->GetOverlayManagerProxy();
     if (overlayMgrProxy ==  nullptr) {
         HILOG_ERROR("GetOverlayManagerProxy failed.");
         return ERR_INVALID_VALUE;

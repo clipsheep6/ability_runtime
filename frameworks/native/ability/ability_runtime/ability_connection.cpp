@@ -65,7 +65,8 @@ void AbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName& e
     }
     // if resultCode < 0 that means the service is dead
     if (resultCode == DIED) {
-        bool ret = ConnectionManager::GetInstance().RemoveConnection(this);
+        sptr<AbilityConnection> connection(this);
+        bool ret = ConnectionManager::GetInstance().RemoveConnection(connection);
         if (ret) {
             ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());
             HILOG_INFO("The service connection is not disconnected.");

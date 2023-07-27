@@ -63,9 +63,9 @@ AbilityProcess::~AbilityProcess()
 
 ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, CallbackInfo callback)
 {
-    HILOG_INFO("AbilityProcess::StartAbility begin");
+    HILOG_DEBUG("begin");
     if (ability == nullptr) {
-        HILOG_ERROR("AbilityProcess::StartAbility ability is nullptr");
+        HILOG_ERROR("ability is nullptr");
         return ERR_NULL_OBJECT;
     }
 #ifdef SUPPORT_GRAPHICS
@@ -80,11 +80,11 @@ ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, C
     ErrCode err = ERR_OK;
     if (param.forResultOption == true) {
         if (param.setting == nullptr) {
-            HILOG_INFO("%{public}s param.setting == nullptr call StartAbilityForResult.", __func__);
+            HILOG_INFO("param.setting == nullptr call StartAbilityForResult.");
             param.want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
             err = ability->StartAbilityForResult(param.want, param.requestCode);
         } else {
-            HILOG_INFO("%{public}s param.setting != nullptr call StartAbilityForResult.", __func__);
+            HILOG_INFO("param.setting != nullptr call StartAbilityForResult.");
             err = ability->StartAbilityForResult(param.want, param.requestCode, *(param.setting));
         }
 
@@ -93,9 +93,9 @@ ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, C
         std::map<int, CallbackInfo> map;
         auto it = abilityResultMap_.find(ability);
         if (it == abilityResultMap_.end()) {
-            HILOG_INFO("AbilityProcess::StartAbility ability: is not in the abilityResultMap_");
+            HILOG_INFO("ability is not in the abilityResultMap_");
         } else {
-            HILOG_INFO("AbilityProcess::StartAbility ability: is in the abilityResultMap_");
+            HILOG_INFO("ability is in the abilityResultMap_");
             map = it->second;
         }
         callback.errCode = err;
@@ -103,14 +103,14 @@ ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, C
         abilityResultMap_[ability] = map;
     } else {
         if (param.setting == nullptr) {
-            HILOG_INFO("%{public}s param.setting == nullptr call StartAbility.", __func__);
+            HILOG_INFO("param.setting == nullptr call StartAbility.");
             err = ability->StartAbility(param.want);
         } else {
-            HILOG_INFO("%{public}s param.setting != nullptr call StartAbility.", __func__);
+            HILOG_INFO("param.setting != nullptr call StartAbility.");
             err = ability->StartAbility(param.want, *(param.setting));
         }
     }
-    HILOG_INFO("AbilityProcess::StartAbility end");
+    HILOG_DEBUG("end");
     return err;
 }
 
@@ -122,9 +122,9 @@ void AbilityProcess::AddAbilityResultCallback(Ability *ability, CallAbilityParam
     std::map<int, CallbackInfo> map;
     auto it = abilityResultMap_.find(ability);
     if (it == abilityResultMap_.end()) {
-        HILOG_INFO("AbilityProcess::StartAbility ability: is not in the abilityResultMap_");
+        HILOG_INFO("ability is not in the abilityResultMap_");
     } else {
-        HILOG_INFO("AbilityProcess::StartAbility ability: is in the abilityResultMap_");
+        HILOG_INFO("ability is in the abilityResultMap_");
         map = it->second;
     }
     callback.errCode = errCode;
@@ -134,20 +134,20 @@ void AbilityProcess::AddAbilityResultCallback(Ability *ability, CallAbilityParam
 
 void AbilityProcess::OnAbilityResult(Ability *ability, int requestCode, int resultCode, const Want &resultData)
 {
-    HILOG_INFO("AbilityProcess::OnAbilityResult begin");
+    HILOG_DEBUG("begin");
 
     std::lock_guard<std::mutex> lock_l(mutex_);
 
     auto it = abilityResultMap_.find(ability);
     if (it == abilityResultMap_.end()) {
-        HILOG_ERROR("AbilityProcess::OnAbilityResult ability: is not in the abilityResultMap");
+        HILOG_ERROR("ability is not in the abilityResultMap");
         return;
     }
     std::map<int, CallbackInfo> map = it->second;
 
     auto callback = map.find(requestCode);
     if (callback == map.end()) {
-        HILOG_ERROR("AbilityProcess::OnAbilityResult requestCode: %{public}d is not in the map", requestCode);
+        HILOG_ERROR("requestCode: %{public}d is not in the map", requestCode);
         return;
     }
     CallbackInfo callbackInfo = callback->second;
@@ -156,8 +156,7 @@ void AbilityProcess::OnAbilityResult(Ability *ability, int requestCode, int resu
     if (g_handle == nullptr) {
         g_handle = dlopen(SHARED_LIBRARY_FEATURE_ABILITY, RTLD_LAZY);
         if (g_handle == nullptr) {
-            HILOG_ERROR("%{public}s, dlopen failed %{public}s. %{public}s",
-                __func__,
+            HILOG_ERROR("dlopen failed %{public}s. %{public}s",
                 SHARED_LIBRARY_FEATURE_ABILITY,
                 dlerror());
             return;
@@ -167,8 +166,7 @@ void AbilityProcess::OnAbilityResult(Ability *ability, int requestCode, int resu
     // get function
     auto func = reinterpret_cast<NAPICallOnAbilityResult>(dlsym(g_handle, FUNC_CALL_ON_ABILITY_RESULT));
     if (func == nullptr) {
-        HILOG_ERROR(
-            "%{public}s, dlsym failed %{public}s. %{public}s", __func__, FUNC_CALL_ON_ABILITY_RESULT, dlerror());
+        HILOG_ERROR("dlsym failed %{public}s. %{public}s", FUNC_CALL_ON_ABILITY_RESULT, dlerror());
         dlclose(g_handle);
         g_handle = nullptr;
         return;
@@ -178,47 +176,47 @@ void AbilityProcess::OnAbilityResult(Ability *ability, int requestCode, int resu
     map.erase(requestCode);
 
     abilityResultMap_[ability] = map;
-    HILOG_INFO("AbilityProcess::OnAbilityResult end");
+    HILOG_DEBUG("end");
 }
 
 void AbilityProcess::RequestPermissionsFromUser(
     Ability *ability, CallAbilityPermissionParam &param, CallbackInfo callbackInfo)
 {
-    HILOG_INFO("AbilityProcess::RequestPermissionsFromUser begin");
+    HILOG_DEBUG("begin");
     if (ability == nullptr) {
-        HILOG_ERROR("AbilityProcess::RequestPermissionsFromUser ability is nullptr");
+        HILOG_ERROR("ability is nullptr");
         return;
     }
 
     std::vector<PermissionListState> permList;
     for (auto permission : param.permission_list) {
-        HILOG_DEBUG("%{public}s. permission: %{public}s.", __func__, permission.c_str());
+        HILOG_DEBUG("permission: %{public}s.", permission.c_str());
         PermissionListState permState;
         permState.permissionName = permission;
         permState.state = -1;
         permList.emplace_back(permState);
     }
-    HILOG_DEBUG("%{public}s. permList size: %{public}zu, permissions size: %{public}zu.",
-        __func__, permList.size(), param.permission_list.size());
+    HILOG_DEBUG("permList size: %{public}zu, permissions size: %{public}zu.",
+        permList.size(), param.permission_list.size());
 
     auto ret = AccessTokenKit::GetSelfPermissionsState(permList);
     if (permList.size() != param.permission_list.size()) {
-        HILOG_ERROR("%{public}s. Returned permList size: %{public}zu.", __func__, permList.size());
+        HILOG_ERROR("Returned permList size: %{public}zu.", permList.size());
         return;
     }
 
     std::vector<int> permissionsState;
     for (auto permState : permList) {
-        HILOG_DEBUG("%{public}s. permissions: %{public}s. permissionsState: %{public}u",
-            __func__, permState.permissionName.c_str(), permState.state);
+        HILOG_DEBUG("permissions: %{public}s. permissionsState: %{public}u",
+            permState.permissionName.c_str(), permState.state);
         permissionsState.emplace_back(permState.state);
     }
-    HILOG_DEBUG("%{public}s. permissions size: %{public}zu. permissionsState size: %{public}zu",
-        __func__, param.permission_list.size(), permissionsState.size());
+    HILOG_DEBUG("permissions size: %{public}zu. permissionsState size: %{public}zu",
+        param.permission_list.size(), permissionsState.size());
 
     auto requestCode = param.requestCode;
     if (ret != TypePermissionOper::DYNAMIC_OPER) {
-        HILOG_DEBUG("%{public}s. No dynamic popup required.", __func__);
+        HILOG_DEBUG("No dynamic popup required.");
         (void)CaullFunc(requestCode, param.permission_list, permissionsState, callbackInfo);
         return;
     }
@@ -226,11 +224,11 @@ void AbilityProcess::RequestPermissionsFromUser(
     auto task = [self = GetInstance(), requestCode, callbackInfo]
         (const std::vector<std::string> &permissions, const std::vector<int> &grantResults) mutable {
         if (!self) {
-            HILOG_ERROR("%{public}s: self is nullptr.", __func__);
+            HILOG_ERROR("self is nullptr.");
             return;
         }
         if (!self->CaullFunc(requestCode, permissions, grantResults, callbackInfo)) {
-            HILOG_ERROR("%{public}s: call function failed.", __func__);
+            HILOG_ERROR("call function failed.");
             return;
         }
     };
@@ -246,8 +244,8 @@ bool AbilityProcess::CaullFunc(int requestCode, const std::vector<std::string> &
     if (g_handle == nullptr) {
         g_handle = dlopen(SHARED_LIBRARY_FEATURE_ABILITY, RTLD_LAZY);
         if (g_handle == nullptr) {
-            HILOG_ERROR("%{public}s, dlopen failed %{public}s. %{public}s",
-                __func__, SHARED_LIBRARY_FEATURE_ABILITY, dlerror());
+            HILOG_ERROR("dlopen failed %{public}s. %{public}s",
+                SHARED_LIBRARY_FEATURE_ABILITY, dlerror());
             return false;
         }
     }
@@ -256,8 +254,8 @@ bool AbilityProcess::CaullFunc(int requestCode, const std::vector<std::string> &
     auto func = reinterpret_cast<NAPICallOnRequestPermissionsFromUserResult>(
         dlsym(g_handle, FUNC_CALL_ON_REQUEST_PERMISSIONS_FROM_USERRESULT));
     if (func == nullptr) {
-        HILOG_ERROR("%{public}s, dlsym failed %{public}s. %{public}s",
-            __func__, FUNC_CALL_ON_REQUEST_PERMISSIONS_FROM_USERRESULT, dlerror());
+        HILOG_ERROR("dlsym failed %{public}s. %{public}s",
+            FUNC_CALL_ON_REQUEST_PERMISSIONS_FROM_USERRESULT, dlerror());
         dlclose(g_handle);
         g_handle = nullptr;
         return false;

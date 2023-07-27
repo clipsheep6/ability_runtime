@@ -284,7 +284,7 @@ int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName)
         auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
             AAFwk::PermissionConstants::PERMISSION_CLEAN_APPLICATION_DATA);
         if (!isCallingPerm) {
-            HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+            HILOG_ERROR("Permission verification failed");
             return ERR_PERMISSION_DENIED;
         }
     }
@@ -380,9 +380,9 @@ void AppMgrService::AddAbilityStageDone(const int32_t recordId)
 int32_t AppMgrService::RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
     const std::vector<std::string> &bundleNameList)
 {
-    HILOG_INFO("%{public}s begin", __func__);
+    HILOG_DEBUG("begin");
     if (!IsReady()) {
-        HILOG_ERROR("%{public}s begin, not ready", __func__);
+        HILOG_ERROR("not ready");
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->RegisterApplicationStateObserver(observer, bundleNameList);
@@ -390,9 +390,9 @@ int32_t AppMgrService::RegisterApplicationStateObserver(const sptr<IApplicationS
 
 int32_t AppMgrService::UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer)
 {
-    HILOG_INFO("%{public}s begin", __func__);
+    HILOG_DEBUG("begin");
     if (!IsReady()) {
-        HILOG_ERROR("%{public}s begin, not ready", __func__);
+        HILOG_ERROR("not ready");
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->UnregisterApplicationStateObserver(observer);
@@ -400,9 +400,9 @@ int32_t AppMgrService::UnregisterApplicationStateObserver(const sptr<IApplicatio
 
 int32_t AppMgrService::GetForegroundApplications(std::vector<AppStateData> &list)
 {
-    HILOG_INFO("%{public}s begin", __func__);
+    HILOG_DEBUG("begin");
     if (!IsReady()) {
-        HILOG_ERROR("%{public}s begin, not ready", __func__);
+        HILOG_ERROR("not ready");
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->GetForegroundApplications(list);
@@ -412,7 +412,7 @@ int AppMgrService::StartUserTestProcess(const AAFwk::Want &want, const sptr<IRem
     const AppExecFwk::BundleInfo &bundleInfo, int32_t userId)
 {
     if (!IsReady()) {
-        HILOG_ERROR("%{public}s begin, not ready", __func__);
+        HILOG_ERROR("not ready");
         return ERR_INVALID_OPERATION;
     }
     if (!AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
@@ -428,7 +428,7 @@ int AppMgrService::StartUserTestProcess(const AAFwk::Want &want, const sptr<IRem
 int AppMgrService::FinishUserTest(const std::string &msg, const int64_t &resultCode, const std::string &bundleName)
 {
     if (!IsReady()) {
-        HILOG_ERROR("%{public}s begin, not ready", __func__);
+        HILOG_ERROR("not ready");
         return ERR_INVALID_OPERATION;
     }
     std::shared_ptr<RemoteClientManager> remoteClientManager = std::make_shared<RemoteClientManager>();
@@ -460,7 +460,7 @@ int AppMgrService::FinishUserTest(const std::string &msg, const int64_t &resultC
 int AppMgrService::Dump(int fd, const std::vector<std::u16string>& args)
 {
     if (!IsReady()) {
-        HILOG_ERROR("%{public}s, not ready.", __func__);
+        HILOG_ERROR("not ready.");
         return ERR_APPEXECFWK_HIDUMP_ERROR;
     }
 
@@ -468,7 +468,7 @@ int AppMgrService::Dump(int fd, const std::vector<std::u16string>& args)
     Dump(args, result);
     int ret = dprintf(fd, "%s\n", result.c_str());
     if (ret < 0) {
-        HILOG_ERROR("%{public}s, dprintf error.", __func__);
+        HILOG_ERROR("dprintf error.");
         return ERR_APPEXECFWK_HIDUMP_ERROR;
     }
     return ERR_OK;
@@ -499,7 +499,7 @@ void AppMgrService::ShowHelp(std::string& result) const
 void AppMgrService::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Want &want, const std::string &flag)
 {
     if (!IsReady()) {
-        HILOG_ERROR("%{public}s begin, not ready", __func__);
+        HILOG_ERROR("not ready");
         return;
     }
     if (!JudgeSelfCalledByRecordId(recordId)) {
@@ -512,7 +512,7 @@ void AppMgrService::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::
 int AppMgrService::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens)
 {
     if (!IsReady()) {
-        HILOG_ERROR("%{public}s begin, not ready", __func__);
+        HILOG_ERROR("not ready");
         return ERR_INVALID_OPERATION;
     }
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
@@ -610,13 +610,13 @@ int32_t AppMgrService::UnregisterConfigurationObserver(const sptr<IConfiguration
 #ifdef ABILITY_COMMAND_FOR_TEST
 int AppMgrService::BlockAppService()
 {
-    HILOG_DEBUG("%{public}s begin", __func__);
+    HILOG_DEBUG("begin");
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }
     auto task = [=]() {
         while (1) {
-            HILOG_DEBUG("%{public}s begin block app service", __func__);
+            HILOG_DEBUG("begin block app service");
             std::this_thread::sleep_for(APP_MS_BLOCK*1s);
         }
     };

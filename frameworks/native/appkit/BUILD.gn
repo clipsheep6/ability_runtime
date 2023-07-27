@@ -107,6 +107,7 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_native_path}/appkit/app/ability_manager.cpp",
     "${ability_runtime_native_path}/appkit/app/ability_record_mgr.cpp",
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
+    "${ability_runtime_native_path}/appkit/app/appfreeze_inner.cpp",
     "${ability_runtime_native_path}/appkit/app/application_data_manager.cpp",
     "${ability_runtime_native_path}/appkit/app/application_env.cpp",
     "${ability_runtime_native_path}/appkit/app/application_env_impl.cpp",
@@ -165,7 +166,10 @@ ohos_shared_library("appkit_native") {
 
   if (ability_runtime_graphics) {
     deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
-    external_deps += [ "i18n:intl_util" ]
+    external_deps += [
+      "i18n:intl_util",
+      "window_manager:libwm",
+    ]
   }
 
   defines = []
@@ -264,7 +268,6 @@ ohos_shared_library("app_context_utils") {
   sources = [
     "ability_runtime/context/js_application_context_utils.cpp",
     "ability_runtime/context/js_context_utils.cpp",
-    "ability_runtime/context/js_hap_module_info_utils.cpp",
     "ability_runtime/context/js_resource_manager_utils.cpp",
   ]
   cflags = []

@@ -1909,7 +1909,7 @@ void UnwrapDataAbilityPredicates(NativeRdb::DataAbilityPredicates &predicates, n
 {
     auto tempPredicates = DataAbilityJsKit::DataAbilityPredicatesProxy::GetNativePredicates(env, value);
     if (tempPredicates == nullptr) {
-        HILOG_ERROR("%{public}s, GetNativePredicates retval Marshalling failed.", __func__);
+        HILOG_ERROR("GetNativePredicates retval Marshalling failed.");
         return;
     }
     predicates = *tempPredicates;
@@ -3131,7 +3131,7 @@ void BatchInsertPromiseCompleteCB(napi_env env, napi_status status, void *data)
  */
 napi_value NAPI_Query(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("%{public}s,called", __func__);
+    HILOG_INFO("NAPI_Query called");
     DAHelperQueryCB *queryCB = new DAHelperQueryCB;
     queryCB->cbBase.cbInfo.env = env;
     queryCB->cbBase.asyncWork = nullptr;
@@ -3140,12 +3140,12 @@ napi_value NAPI_Query(napi_env env, napi_callback_info info)
 
     napi_value ret = QueryWrap(env, info, queryCB);
     if (ret == nullptr) {
-        HILOG_ERROR("%{public}s,ret == nullptr", __func__);
+        HILOG_ERROR("ret == nullptr");
         delete queryCB;
         queryCB = nullptr;
         ret = WrapVoidToJS(env);
     }
-    HILOG_INFO("%{public}s,end", __func__);
+    HILOG_INFO("NAPI_Query end");
     return ret;
 }
 
@@ -3159,7 +3159,6 @@ napi_value NAPI_Query(napi_env env, napi_callback_info info)
  */
 napi_value QueryWrap(napi_env env, napi_callback_info info, DAHelperQueryCB *queryCB)
 {
-    HILOG_INFO("%{public}s,called", __func__);
     size_t argcAsync = ARGS_FOUR;
     const size_t argcPromise = ARGS_THREE;
     const size_t argCountWithAsync = argcPromise + ARGS_ASYNC_COUNT;
@@ -3169,7 +3168,7 @@ napi_value QueryWrap(napi_env env, napi_callback_info info, DAHelperQueryCB *que
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     if (argcAsync > argCountWithAsync) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("Wrong argument count.");
         return nullptr;
     }
 
@@ -3177,18 +3176,15 @@ napi_value QueryWrap(napi_env env, napi_callback_info info, DAHelperQueryCB *que
     NAPI_CALL(env, napi_typeof(env, args[PARAM0], &valuetype));
     if (valuetype == napi_string) {
         queryCB->uri = NapiValueToStringUtf8(env, args[PARAM0]);
-        HILOG_INFO("%{public}s,uri=%{public}s", __func__, queryCB->uri.c_str());
+        HILOG_DEBUG("uri=%{public}s", queryCB->uri.c_str());
     }
 
     std::vector<std::string> result;
     bool arrayStringbool = NapiValueToArrayStringUtf8(env, args[PARAM1], result);
     if (!arrayStringbool) {
-        HILOG_ERROR("%{public}s, The return value of arraystringbool is false", __func__);
+        HILOG_ERROR("The return value of arraystringbool is false");
     }
     queryCB->columns = result;
-    for (size_t i = 0; i < queryCB->columns.size(); i++) {
-        HILOG_INFO("%{public}s,columns=%{public}s", __func__, queryCB->columns.at(i).c_str());
-    }
 
     UnwrapDataAbilityPredicates(queryCB->predicates, env, args[PARAM2]);
     GetDataAbilityHelper(env, thisVar, queryCB->dataAbilityHelper);
@@ -3198,15 +3194,14 @@ napi_value QueryWrap(napi_env env, napi_callback_info info, DAHelperQueryCB *que
     } else {
         ret = QueryPromise(env, queryCB);
     }
-    HILOG_INFO("%{public}s,end", __func__);
     return ret;
 }
 
 napi_value QuerySync(napi_env env, napi_value *args, const size_t argCallback, DAHelperQueryCB *queryCB)
 {
-    HILOG_INFO("%{public}s, asyncCallback.", __func__);
+    HILOG_DEBUG("asyncCallback.");
     if (args == nullptr || queryCB == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("param == nullptr.");
         return nullptr;
     }
 
@@ -3247,15 +3242,14 @@ napi_value QuerySync(napi_env env, napi_value *args, const size_t argCallback, D
 
     napi_value ret = nullptr;
     NAPI_CALL(env, napi_get_null(env, &ret));
-    HILOG_INFO("%{public}s, asyncCallback end.", __func__);
     return ret;
 }
 
 napi_value QueryPromise(napi_env env, DAHelperQueryCB *queryCB)
 {
-    HILOG_INFO("%{public}s, promise.", __func__);
+    HILOG_DEBUG("promise.");
     if (queryCB == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("param == nullptr.");
         return nullptr;
     }
 
@@ -3278,15 +3272,14 @@ napi_value QueryPromise(napi_env env, DAHelperQueryCB *queryCB)
     delete queryCB;
     queryCB = nullptr;
 
-    HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }
 
 napi_value WrapResultSet(napi_env env, const std::shared_ptr<NativeRdb::AbsSharedResultSet> &resultSet)
 {
-    HILOG_INFO("%{public}s,called", __func__);
+    HILOG_DEBUG("called");
     if (resultSet == nullptr) {
-        HILOG_ERROR("%{public}s, input parameter resultSet is nullptr", __func__);
+        HILOG_ERROR("input parameter resultSet is nullptr");
         return WrapVoidToJS(env);
     }
 

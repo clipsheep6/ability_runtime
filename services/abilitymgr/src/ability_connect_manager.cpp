@@ -22,6 +22,7 @@
 #include "ability_manager_errors.h"
 #include "ability_manager_service.h"
 #include "ability_util.h"
+#include "appfreeze_manager.h"
 #include "hitrace_meter.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
@@ -411,7 +412,6 @@ void AbilityConnectManager::DisconnectRecordForce(ConnectListType &list,
     if (abilityRecord->IsConnectListEmpty() && abilityRecord->GetStartId() == 0) {
         HILOG_WARN("Force terminate ability record state: %{public}d.", abilityRecord->GetAbilityState());
         TerminateRecord(abilityRecord);
-        RemoveServiceAbility(abilityRecord);
     }
 }
 
@@ -449,6 +449,10 @@ void AbilityConnectManager::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
         CHECK_POINTER(abilityRecord);
         if (!UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
             HILOG_ERROR("Not ui extension.");
+            return;
+        }
+        if (abilityRecord->IsAbilityState(AbilityState::FOREGROUNDING)) {
+            HILOG_WARN("abilityRecord is foregrounding.");
             return;
         }
         std::string element = abilityRecord->GetWant().GetElement().GetURI();
@@ -661,7 +665,7 @@ int AbilityConnectManager::ScheduleCommandAbilityWindowDone(
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     std::string element = abilityRecord->GetWant().GetElement().GetURI();
-    HILOG_DEBUG("Ability: %{public}s, persistentId: %{private}" PRIu64", winCmd: %{public}d, abilityCmd: %{public}d",
+    HILOG_DEBUG("Ability: %{public}s, persistentId: %{private}d, winCmd: %{public}d, abilityCmd: %{public}d",
         element.c_str(), sessionInfo->persistentId, winCmd, abilityCmd);
 
     if (taskHandler_) {
@@ -1212,7 +1216,7 @@ void AbilityConnectManager::CommandAbilityWindow(const std::shared_ptr<AbilityRe
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_POINTER(abilityRecord);
     CHECK_POINTER(sessionInfo);
-    HILOG_DEBUG("ability: %{public}s, persistentId: %{private}" PRIu64", wincmd: %{public}d",
+    HILOG_DEBUG("ability: %{public}s, persistentId: %{private}d, wincmd: %{public}d",
         abilityRecord->GetAbilityInfo().name.c_str(), sessionInfo->persistentId, winCmd);
     if (taskHandler_ != nullptr) {
         int recordId = abilityRecord->GetRecordId();
@@ -1810,10 +1814,12 @@ void AbilityConnectManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord>
             ability->GetAbilityInfo().name.data());
         return;
     }
+    int typeId = AppExecFwk::AppfreezeManager::TypeAttribute::NORMAL_TIMEOUT;
     std::string msgContent = "ability:" + ability->GetAbilityInfo().name + " ";
     switch (msgId) {
         case AbilityManagerService::LOAD_TIMEOUT_MSG:
             msgContent += "load timeout";
+            typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
             break;
         case AbilityManagerService::ACTIVE_TIMEOUT_MSG:
             msgContent += "active timeout";
@@ -1823,6 +1829,7 @@ void AbilityConnectManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord>
             break;
         case AbilityManagerService::FOREGROUND_TIMEOUT_MSG:
             msgContent += "foreground timeout";
+            typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
             break;
         case AbilityManagerService::BACKGROUND_TIMEOUT_MSG:
             msgContent += "background timeout";
@@ -1833,18 +1840,13 @@ void AbilityConnectManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord>
         default:
             return;
     }
-    std::string eventType = "LIFECYCLE_TIMEOUT";
-    HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
-        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
-        EVENT_KEY_UID, processInfo.uid_,
-        EVENT_KEY_PID, processInfo.pid_,
-        EVENT_KEY_PACKAGE_NAME, ability->GetAbilityInfo().bundleName,
-        EVENT_KEY_PROCESS_NAME, processInfo.processName_,
-        EVENT_KEY_MESSAGE, msgContent);
+    std::string eventName = AppExecFwk::AppFreezeType::LIFECYCLE_TIMEOUT;
 
     HILOG_WARN("LIFECYCLE_TIMEOUT: uid: %{public}d, pid: %{public}d, bundleName: %{public}s, abilityName: %{public}s,"
         "msg: %{public}s", processInfo.uid_, processInfo.pid_, ability->GetAbilityInfo().bundleName.c_str(),
         ability->GetAbilityInfo().name.c_str(), msgContent.c_str());
+    AppExecFwk::AppfreezeManager::GetInstance()->LifecycleTimeoutHandle(
+        typeId, processInfo.pid_, eventName, ability->GetAbilityInfo().bundleName, msgContent);
 }
 
 void AbilityConnectManager::MoveToTerminatingMap(const std::shared_ptr<AbilityRecord>& abilityRecord)

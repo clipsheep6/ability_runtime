@@ -44,7 +44,7 @@ void AppStateObserverManager::Init()
 int32_t AppStateObserverManager::RegisterApplicationStateObserver(
     const sptr<IApplicationStateObserver> &observer, const std::vector<std::string> &bundleNameList)
 {
-    HILOG_INFO("RegisterApplicationStateObserver");
+    HILOG_DEBUG("called");
     if (bundleNameList.size() > BUNDLE_NAME_LIST_MAX_SIZE) {
         HILOG_ERROR("the bundleNameList passed in is too long");
         return ERR_INVALID_VALUE;
@@ -70,7 +70,7 @@ int32_t AppStateObserverManager::RegisterApplicationStateObserver(
 
 int32_t AppStateObserverManager::UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer)
 {
-    HILOG_INFO("UnregisterApplicationStateObserver");
+    HILOG_DEBUG("called");
     if (AAFwk::PermissionVerification::GetInstance()->VerifyAppStateObserverPermission() == ERR_PERMISSION_DENIED) {
         HILOG_ERROR("Permission verification failed");
         return ERR_PERMISSION_DENIED;

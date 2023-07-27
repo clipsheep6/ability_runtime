@@ -18,6 +18,7 @@
 #include <iostream>
 #include "hilog_wrapper.h"
 #include "js_application_context_utils.h"
+#include "js_data_converter.h"
 #include "js_runtime_utils.h"
 
 namespace OHOS {
@@ -291,6 +292,16 @@ NativeValue *CreateJsBaseContext(NativeEngine &engine, std::shared_ptr<Context> 
         HILOG_WARN("invalid object.");
         return objValue;
     }
+
+    auto appInfo = context->GetApplicationInfo();
+    if (appInfo != nullptr) {
+        object->SetProperty("applicationInfo", CreateJsApplicationInfo(engine, *appInfo));
+    }
+    auto hapModuleInfo = context->GetHapModuleInfo();
+    if (hapModuleInfo != nullptr) {
+        object->SetProperty("currentHapModuleInfo", CreateJsHapModuleInfo(engine, *hapModuleInfo));
+    }
+
     auto jsContext = std::make_unique<JsBaseContext>(context);
     SetNamedNativePointer(engine, *object, BASE_CONTEXT_NAME, jsContext.release(), JsBaseContext::Finalizer);
 

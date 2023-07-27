@@ -146,7 +146,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     if (deviceType == STR_PHONE || deviceType == STR_DEFAULT) {
         HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose.");
         want = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want, request.callerToken);
-        ret = abilityMgr->StartAbility(want, request.callerToken);
+        ret = abilityMgr->StartAbilityAsCaller(want, request.callerToken);
         // reset calling indentity
         IPCSkeleton::SetCallingIdentity(identity);
         return ret;
@@ -155,7 +155,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose in pc.");
     auto type = request.want.GetType();
     want = sysDialogScheduler->GetPcSelectorDialogWant(dialogAppInfos, request.want, type, userId, request.callerToken);
-    ret = abilityMgr->StartAbility(want, request.callerToken);
+    ret = abilityMgr->StartAbilityAsCaller(want, request.callerToken);
     // reset calling indentity
     IPCSkeleton::SetCallingIdentity(identity);
     return ret;

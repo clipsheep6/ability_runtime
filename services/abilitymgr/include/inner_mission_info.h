@@ -44,6 +44,7 @@ enum class StartMethod {
 struct InnerMissionInfo {
     MissionInfo missionInfo;
     std::string missionName;
+    std::string missionAffinity;
     int32_t launchMode;
     int32_t startMethod;
     std::string bundleName;

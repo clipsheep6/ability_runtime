@@ -67,6 +67,7 @@ constexpr uint8_t SYSCAP_MAX_SIZE = 64;
 constexpr int64_t DEFAULT_GC_POOL_SIZE = 0x10000000; // 256MB
 constexpr int32_t DEFAULT_INTER_VAL = 500;
 constexpr int32_t TRIGGER_GC_AFTER_CLEAR_STAGE_MS = 3000;
+constexpr int32_t API8 = 8;
 const std::string SANDBOX_ARK_CACHE_PATH = "/data/storage/ark-cache/";
 const std::string SANDBOX_ARK_PROIFILE_PATH = "/data/storage/ark-profile";
 #ifdef APP_USE_ARM
@@ -457,7 +458,8 @@ bool JsRuntime::Initialize(const Options& options)
             return false;
         }
     }
-
+    apiTargetVersion_ = options.apiTargetVersion;
+    HILOG_INFO("Initialize: %{public}d.", apiTargetVersion_);
     bool isModular = false;
     if (IsUseAbilityRuntime(options)) {
         HandleScope handleScope(*this);
@@ -519,8 +521,6 @@ bool JsRuntime::Initialize(const Options& options)
                     return false;
                 }
                 if (newCreate) {
-                    ExtractorUtil::AddExtractor(loadPath, extractor);
-                    extractor->SetRuntimeFlag(true);
                     panda::JSNApi::LoadAotFile(vm, options.moduleName);
                 }
             }
@@ -833,8 +833,6 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
         return false;
     }
     if (newCreate) {
-        ExtractorUtil::AddExtractor(loadPath, extractor);
-        extractor->SetRuntimeFlag(true);
         panda::JSNApi::LoadAotFile(vm, moduleName_);
         auto resourceManager = AbilityBase::ExtractResourceManager::GetExtractResourceManager().GetGlobalObject();
         if (resourceManager) {
@@ -843,14 +841,14 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
     }
 
     auto func = [&](std::string modulePath, const std::string abcPath) {
-        if (!extractor->IsHapCompress(modulePath)) {
-            std::unique_ptr<uint8_t[]> dataPtr = nullptr;
-            size_t len = 0;
-            if (!extractor->ExtractToBufByName(modulePath, dataPtr, len, true)) {
+        bool useSafeMempry = apiTargetVersion_ == 0 || apiTargetVersion_ > API8;
+        if (!extractor->IsHapCompress(modulePath) && useSafeMempry) {
+            auto safeData = extractor->GetSafeData(modulePath);
+            if (!safeData) {
                 HILOG_ERROR("Get abc file failed.");
                 return false;
             }
-            return LoadScript(abcPath, dataPtr.release(), len, isBundle_);
+            return LoadScript(abcPath, safeData->GetDataPtr(), safeData->GetDataLen(), isBundle_);
         } else {
             std::ostringstream outStream;
             if (!extractor->GetFileBuffer(modulePath, outStream)) {

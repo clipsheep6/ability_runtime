@@ -154,7 +154,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilitySchedulerProxy->BlockAbility();
 #endif
     // fuzz for AmsConfigurationParameter
-    AmsConfigurationParameter::GetInstance().Parse();
     AmsConfigurationParameter::GetInstance().NonConfigFile();
     AmsConfigurationParameter::GetInstance().GetMissionSaveTime();
     AmsConfigurationParameter::GetInstance().GetOrientation();

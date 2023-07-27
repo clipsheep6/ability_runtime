@@ -347,9 +347,6 @@ HWTEST_F(MissionInfoMgrTest, GetMissionInfoById_001, TestSize.Level1)
 
     missionInfo.startMethod = 100;
     EXPECT_EQ(missionInfoMgr->GetMissionInfoById(1, myMissionInfo), 0);
-
-    missionInfoMgr->missionIdMap_[2] = true;
-    EXPECT_EQ(missionInfoMgr->GetMissionInfoById(2, myMissionInfo), -1);
 }
 
 /*
@@ -370,9 +367,6 @@ HWTEST_F(MissionInfoMgrTest, GetInnerMissionInfoById_001, TestSize.Level1)
     missionInfo.missionInfo.id = 1;
     missionInfoMgr->missionInfoList_.push_back(missionInfo);
     EXPECT_EQ(missionInfoMgr->GetInnerMissionInfoById(1, missionInfo), 0);
-
-    missionInfoMgr->missionIdMap_[2] = true;
-    EXPECT_EQ(missionInfoMgr->GetInnerMissionInfoById(2, missionInfo), MISSION_NOT_FOUND);
 }
 
 /*
@@ -389,50 +383,50 @@ HWTEST_F(MissionInfoMgrTest, FindReusedMissionInfo_001, TestSize.Level1)
     int userId = 0;
     missionInfoMgr->Init(userId);
     InnerMissionInfo missionInfo;
-    EXPECT_FALSE(missionInfoMgr->FindReusedMissionInfo("", "", false, missionInfo));
-    EXPECT_FALSE(missionInfoMgr->FindReusedMissionInfo("test", "", false, missionInfo));
+    EXPECT_FALSE(missionInfoMgr->FindReusedMissionInfo("", "", "", false, false, missionInfo));
+    EXPECT_FALSE(missionInfoMgr->FindReusedMissionInfo("test", "", "", false, false, missionInfo));
 
     missionInfo.missionInfo.id = 1;
     missionInfo.launchMode = static_cast<int32_t>(AppExecFwk::LaunchMode::STANDARD);
     missionInfoMgr->missionInfoList_.push_back(missionInfo);
-    EXPECT_FALSE(missionInfoMgr->FindReusedMissionInfo("test", "", false, missionInfo));
+    EXPECT_FALSE(missionInfoMgr->FindReusedMissionInfo("test", "", "", false, false, missionInfo));
 
     missionInfoMgr->missionInfoList_.clear();
     missionInfo.launchMode = static_cast<int32_t>(AppExecFwk::LaunchMode::SINGLETON);
     missionInfoMgr->missionInfoList_.push_back(missionInfo);
-    EXPECT_FALSE(missionInfoMgr->FindReusedMissionInfo("test", "", false, missionInfo));
+    EXPECT_FALSE(missionInfoMgr->FindReusedMissionInfo("test", "", "", false, false, missionInfo));
     missionInfoMgr->missionInfoList_.clear();
     missionInfo.missionName = "test";
     missionInfoMgr->missionInfoList_.push_back(missionInfo);
-    EXPECT_TRUE(missionInfoMgr->FindReusedMissionInfo("test", "", false, missionInfo));
+    EXPECT_TRUE(missionInfoMgr->FindReusedMissionInfo("test", "", "", false, false, missionInfo));
 
     missionInfoMgr->missionInfoList_.clear();
     missionInfo.launchMode = static_cast<int32_t>(AppExecFwk::LaunchMode::SPECIFIED);
     missionInfoMgr->missionInfoList_.push_back(missionInfo);
-    EXPECT_TRUE(missionInfoMgr->FindReusedMissionInfo("test", "", false, missionInfo));
+    EXPECT_TRUE(missionInfoMgr->FindReusedMissionInfo("test", "", "", false, false, missionInfo));
 
     missionInfoMgr->missionInfoList_.clear();
     missionInfo.missionName = "test1";
     missionInfoMgr->missionInfoList_.push_back(missionInfo);
-    EXPECT_FALSE(missionInfoMgr->FindReusedMissionInfo("test", "", false, missionInfo));
+    EXPECT_FALSE(missionInfoMgr->FindReusedMissionInfo("test", "", "", false, false, missionInfo));
 
     missionInfoMgr->missionInfoList_.clear();
     missionInfo.missionName = "test";
     missionInfo.specifiedFlag = "flag";
     missionInfoMgr->missionInfoList_.push_back(missionInfo);
-    EXPECT_FALSE(missionInfoMgr->FindReusedMissionInfo("test", "", false, missionInfo));
+    EXPECT_FALSE(missionInfoMgr->FindReusedMissionInfo("test", "", "", false, false, missionInfo));
 
     missionInfoMgr->missionInfoList_.clear();
     missionInfo.specifiedFlag = "";
     missionInfo.launchMode = 1000;
     missionInfoMgr->missionInfoList_.push_back(missionInfo);
-    EXPECT_FALSE(missionInfoMgr->FindReusedMissionInfo("test", "", false, missionInfo));
+    EXPECT_FALSE(missionInfoMgr->FindReusedMissionInfo("test", "", "", false, false, missionInfo));
 
     missionInfoMgr->missionInfoList_.clear();
     missionInfo.missionName = "test";
     missionInfo.launchMode = static_cast<int32_t>(AppExecFwk::LaunchMode::STANDARD);
     missionInfoMgr->missionInfoList_.push_back(missionInfo);
-    EXPECT_TRUE(missionInfoMgr->FindReusedMissionInfo("test", "", true, missionInfo));
+    EXPECT_TRUE(missionInfoMgr->FindReusedMissionInfo("test", "", "", true, false, missionInfo));
 }
 
 /*

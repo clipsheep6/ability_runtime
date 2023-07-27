@@ -16,6 +16,7 @@
 #include "form_runtime/js_form_extension.h"
 
 #include "ability_info.h"
+#include "connection_manager.h"
 #include "form_provider_data.h"
 #include "form_runtime/form_extension_provider_client.h"
 #include "form_runtime/js_form_extension_context.h"
@@ -205,6 +206,16 @@ void JsFormExtension::OnDestroy(const int64_t formId)
     NativeValue* nativeFormId = reinterpret_cast<NativeValue*>(napiFormId);
     NativeValue* argv[] = {nativeFormId};
     CallObjectMethod("onRemoveForm", "onDestroy", argv, 1);
+}
+
+void JsFormExtension::OnStop()
+{
+    HILOG_INFO("call");
+    bool ret = ConnectionManager::GetInstance().DisconnectCaller(GetContext()->GetToken());
+    if (ret) {
+        ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());
+        HILOG_INFO("The service extension connection is not disconnected.");
+    }
 }
 
 void JsFormExtension::OnEvent(const int64_t formId, const std::string& message)

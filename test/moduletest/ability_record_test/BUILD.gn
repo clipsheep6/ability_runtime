@@ -108,6 +108,10 @@ ohos_moduletest("AbilityRecordModuleTest") {
       "window_manager:libdm",
     ]
   }
+
+  if (ecologic_rule_enabled) {
+    external_deps += [ "ecological_rule_mgr:erms_client" ]
+  }
 }
 
 group("moduletest") {
