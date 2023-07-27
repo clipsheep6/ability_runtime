@@ -1433,5 +1433,19 @@ HWTEST_F(AbilityManagerClientBranchTest, ReportDrawnCompleted_0200, TestSize.Lev
     auto result = AbilityManagerClient::GetInstance()->ReportDrawnCompleted(callerToken);
     EXPECT_EQ(result, INNER_ERR);
 }
+
+/**
+ * @tc.number: GetElementNameByToken_0100
+ * @tc.name: GetElementNameByToken
+ * @tc.desc: Token is nullptr, empty element name is returned
+ */
+HWTEST_F(AbilityManagerClientBranchTest, GetElementNameByToken_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    ElementName element = {};
+    auto result = AbilityManagerClient::GetInstance()->GetElementNameByToken(token);
+    EXPECT_EQ(result, element);
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS
