@@ -454,6 +454,14 @@ public:
      */
     int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData);
 
+    /**
+     * Set AbilityForegroundingFlag of an app-record to true.
+     *
+     * @param pid, pid.
+     *
+     */
+    void SetAbilityForegroundingFlagToAppRecord(const pid_t pid) const;
+
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);
     /**

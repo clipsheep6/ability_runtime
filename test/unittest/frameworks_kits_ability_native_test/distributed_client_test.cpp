@@ -750,3 +750,23 @@ HWTEST_F(DistributedClientTest, StopRemoteExtensionAbility_0100, TestSize.Level1
     }
     GTEST_LOG_(INFO) << "DistributedClientTest StopRemoteExtensionAbility_0100 end";
 }
+
+/**
+ * @tc.number: SetMissionContinueState_0100
+ * @tc.name: SetMissionContinueState
+ * @tc.desc: SetMissionContinueState Test.
+ */
+HWTEST_F(DistributedClientTest, SetMissionContinueState_0100, TestSize.Level3)
+{
+    GTEST_LOG_(INFO) << "DistributedClientTest SetMissionContinueState_0100 start";
+    auto client = std::make_shared<OHOS::AAFwk::DistributedClient>();
+    int32_t missionId = 0 ;
+    OHOS::AAFwk::ContinueState state = OHOS::AAFwk::ContinueState::CONTINUESTATE_ACTIVE;
+    int32_t result = client->SetMissionContinueState(missionId, state);
+    if (client->GetDmsProxy() != nullptr) {
+        EXPECT_EQ(result, 0);
+    } else {
+        EXPECT_EQ(result, OHOS::AAFwk::INVALID_PARAMETERS_ERR);
+    }
+    GTEST_LOG_(INFO) << "DistributedClientTest SetMissionContinueState_0100 end";
+}

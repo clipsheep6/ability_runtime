@@ -22,6 +22,7 @@
 #include "configuration_utils.h"
 #ifdef SUPPORT_GRAPHICS
 #include "locale_config.h"
+#include "window_scene.h"
 #endif
 #undef private
 #undef protected
@@ -36,6 +37,8 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
+
+    void InitResourceManager(std::shared_ptr<Global::Resource::ResourceManager> resourceManager);
 };
 
 void ConfigurationTest::SetUpTestCase(void)
@@ -46,8 +49,30 @@ void ConfigurationTest::TearDownTestCase(void)
 
 void ConfigurationTest::SetUp(void)
 {}
+
 void ConfigurationTest::TearDown(void)
 {}
+
+void ConfigurationTest::InitResourceManager(std::shared_ptr<Global::Resource::ResourceManager> resourceManager)
+{
+    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
+    if (resConfig == nullptr) {
+        HILOG_ERROR("res config is invalid.");
+        return;
+    }
+
+#ifdef SUPPORT_GRAPHICS
+    UErrorCode status = U_ZERO_ERROR;
+    icu::Locale locale = icu::Locale::forLanguageTag("zh", status);
+    HILOG_INFO("language: %{public}s, script: %{public}s, region: %{public}s", locale.getLanguage(),
+        locale.getScript(), locale.getCountry());
+    resConfig->SetLocaleInfo(locale);
+#endif
+    Global::Resource::RState updateRet = resourceManager->UpdateResConfig(*resConfig);
+    if (updateRet != Global::Resource::RState::SUCCESS) {
+        HILOG_ERROR("Init locale failed.");
+    }
+}
 
 /*
  * Feature: Configuration
@@ -503,5 +528,129 @@ HWTEST_F(ConfigurationTest, UpdateConfigToResMgr_001, TestSize.Level1)
     EXPECT_EQ(updatedResConfig->GetColorMode(), ConvertColorMode("dark"));
     EXPECT_EQ(updatedResConfig->GetInputDevice(), ConvertHasPointerDevice("false"));
 }
-}  // namespace AAFwk
-}  // namespace OHOS
+
+/**
+ * @tc.name: InitDisplayConfig_0100
+ * @tc.desc: Init display config.
+ * @tc.type: FUNC
+ * @tc.require: issueI7HPHB
+ */
+HWTEST_F(ConfigurationTest, InitDisplayConfig_0100, TestSize.Level1)
+{
+    auto configUtils = std::make_shared<AbilityRuntime::ConfigurationUtils>();
+    ASSERT_NE(configUtils, nullptr);
+
+    int displayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
+    float originDensity;
+    std::string originDirection;
+    auto ret = configUtils->GetDisplayConfig(displayId, originDensity, originDirection);
+    EXPECT_EQ(ret, true);
+
+    configUtils->InitDisplayConfig(displayId, nullptr, nullptr);
+
+    AppExecFwk::Configuration originConfig;
+    auto configuration = std::make_shared<Configuration>(originConfig);
+    ASSERT_NE(configuration, nullptr);
+    configUtils->InitDisplayConfig(displayId, configuration, nullptr);
+
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
+    ASSERT_NE(resourceManager, nullptr);
+    InitResourceManager(resourceManager);
+    configUtils->InitDisplayConfig(displayId, configuration, resourceManager);
+
+    // check configurtion
+    std::string displayIdStr = configuration->GetItem(ConfigurationInner::APPLICATION_DISPLAYID);
+    EXPECT_EQ(displayIdStr, std::to_string(displayId));
+    std::string densityStr = configuration->GetItem(displayId, ConfigurationInner::APPLICATION_DENSITYDPI);
+    EXPECT_EQ(densityStr, GetDensityStr(originDensity));
+    std::string directionStr = configuration->GetItem(displayId, ConfigurationInner::APPLICATION_DIRECTION);
+    EXPECT_EQ(directionStr, originDirection);
+
+    // check resourcemanager
+    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
+    resourceManager->GetResConfig(*resConfig);
+    EXPECT_EQ(originDensity, resConfig->GetScreenDensity());
+    EXPECT_EQ(ConvertDirection(originDirection), resConfig->GetDirection());
+}
+
+/**
+ * @tc.name: UpdateDisplayConfig_0100
+ * @tc.desc: Update display config with changed config.
+ * @tc.type: FUNC
+ * @tc.require: issueI7HPHB
+ */
+HWTEST_F(ConfigurationTest, UpdateDisplayConfig_0100, TestSize.Level1)
+{
+    auto configUtils = std::make_shared<AbilityRuntime::ConfigurationUtils>();
+    ASSERT_NE(configUtils, nullptr);
+
+    int displayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
+    float originDensity;
+    std::string originDirection;
+    auto ret = configUtils->GetDisplayConfig(displayId, originDensity, originDirection);
+    EXPECT_EQ(ret, true);
+
+    bool configChanged;
+    configUtils->UpdateDisplayConfig(displayId, nullptr, nullptr, configChanged);
+
+    AppExecFwk::Configuration originConfig;
+    auto configuration = std::make_shared<Configuration>(originConfig);
+    ASSERT_NE(configuration, nullptr);
+    configUtils->UpdateDisplayConfig(displayId, configuration, nullptr, configChanged);
+
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
+    ASSERT_NE(resourceManager, nullptr);
+    InitResourceManager(resourceManager);
+    configUtils->UpdateDisplayConfig(displayId, configuration, resourceManager, configChanged);
+    EXPECT_EQ(configChanged, true);
+
+    // check configurtion
+    std::string densityStr = configuration->GetItem(displayId, ConfigurationInner::APPLICATION_DENSITYDPI);
+    EXPECT_EQ(densityStr, GetDensityStr(originDensity));
+    std::string directionStr = configuration->GetItem(displayId, ConfigurationInner::APPLICATION_DIRECTION);
+    EXPECT_EQ(directionStr, originDirection);
+
+    // check resourcemanager
+    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
+    resourceManager->GetResConfig(*resConfig);
+    EXPECT_EQ(originDensity, resConfig->GetScreenDensity());
+    EXPECT_EQ(ConvertDirection(originDirection), resConfig->GetDirection());
+}
+
+/**
+ * @tc.name: UpdateDisplayConfig_0200
+ * @tc.desc: Update display config with unchanged config.
+ * @tc.type: FUNC
+ * @tc.require: issueI7HPHB
+ */
+HWTEST_F(ConfigurationTest, UpdateDisplayConfig_0200, TestSize.Level1)
+{
+    auto configUtils = std::make_shared<AbilityRuntime::ConfigurationUtils>();
+    ASSERT_NE(configUtils, nullptr);
+
+    int displayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
+    float originDensity;
+    std::string originDirection;
+    auto ret = configUtils->GetDisplayConfig(displayId, originDensity, originDirection);
+    EXPECT_EQ(ret, true);
+
+    bool configChanged;
+    configUtils->UpdateDisplayConfig(displayId, nullptr, nullptr, configChanged);
+
+    AppExecFwk::Configuration originConfig;
+    auto configuration = std::make_shared<Configuration>(originConfig);
+    ASSERT_NE(configuration, nullptr);
+    configUtils->UpdateDisplayConfig(displayId, configuration, nullptr, configChanged);
+
+    // Add configuration.
+    configuration->AddItem(displayId, ConfigurationInner::APPLICATION_DENSITYDPI, GetDensityStr(originDensity));
+    configuration->AddItem(displayId, ConfigurationInner::APPLICATION_DIRECTION, originDirection);
+    configuration->AddItem(ConfigurationInner::APPLICATION_DISPLAYID, std::to_string(displayId));
+
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
+    ASSERT_NE(resourceManager, nullptr);
+    configUtils->UpdateDisplayConfig(displayId, configuration, resourceManager, configChanged);
+    EXPECT_EQ(configChanged, false);
+}
+} // namespace AAFwk
+} // namespace OHOS

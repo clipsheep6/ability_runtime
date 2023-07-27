@@ -49,6 +49,7 @@ ohos_fuzztest("UriPermissionManagerFuzzTest") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "storage_service:storage_manager_sa_proxy",

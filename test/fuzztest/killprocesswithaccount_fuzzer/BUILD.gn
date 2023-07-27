@@ -52,6 +52,7 @@ ohos_fuzztest("KillProcessWithAccountFuzzTest") {
     "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_base",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "samgr:samgr_proxy",
   ]
 }

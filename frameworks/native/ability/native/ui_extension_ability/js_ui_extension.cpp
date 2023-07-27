@@ -38,7 +38,6 @@ using namespace OHOS::AppExecFwk;
 namespace {
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
-constexpr static char DEFAULT_BACKGROUND_COLOR[] = "#40ffffff";
 }
 
 NativeValue *AttachUIExtensionContext(NativeEngine *engine, void *value, void *)
@@ -219,7 +218,7 @@ void JsUIExtension::OnCommandWindow(const AAFwk::Want &want, const sptr<AAFwk::S
         HILOG_ERROR("sessionInfo is nullptr.");
         return;
     }
-    HILOG_DEBUG("begin. persistentId: %{private}" PRIu64", winCmd: %{public}d", sessionInfo->persistentId, winCmd);
+    HILOG_DEBUG("begin. persistentId: %{private}d, winCmd: %{public}d", sessionInfo->persistentId, winCmd);
     Extension::OnCommandWindow(want, sessionInfo, winCmd);
     switch (winCmd) {
         case AAFwk::WIN_CMD_FOREGROUND:
@@ -330,7 +329,6 @@ void JsUIExtension::ForegroundWindow(const AAFwk::Want &want, const sptr<AAFwk::
     }
     auto& uiWindow = uiWindowMap_[obj];
     if (uiWindow) {
-        uiWindow->SetBackgroundColor(DEFAULT_BACKGROUND_COLOR);
         uiWindow->Show();
         foregroundWindows_.emplace(obj);
     }

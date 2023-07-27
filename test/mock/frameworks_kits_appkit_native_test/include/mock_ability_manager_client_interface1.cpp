@@ -24,7 +24,6 @@ MockAbilityManagerClient::MockAbilityManagerClient()
 {
     startAbility_ = ERR_INVALID_OPERATION;
     terminateAbility_ = ERR_INVALID_OPERATION;
-    terminateAbilityResult_ = ERR_INVALID_OPERATION;
     terminateAbilityValue_ = 0;
 }
 MockAbilityManagerClient::~MockAbilityManagerClient()
@@ -167,11 +166,6 @@ ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject>& caller
     return MockAbilityManagerClient::GetInstance()->GetTerminateAbility();
 }
 
-ErrCode AbilityManagerClient::TerminateAbilityResult(const sptr<IRemoteObject>& token, int startId)
-{
-    return MockAbilityManagerClient::GetInstance()->GetTerminateAbilityResult();
-}
-
 ErrCode MockAbilityManagerClient::GetStartAbility()
 {
     return startAbility_;
@@ -179,10 +173,6 @@ ErrCode MockAbilityManagerClient::GetStartAbility()
 ErrCode MockAbilityManagerClient::GetTerminateAbility()
 {
     return terminateAbility_;
-}
-ErrCode MockAbilityManagerClient::GetTerminateAbilityResult()
-{
-    return terminateAbilityResult_;
 }
 
 void MockAbilityManagerClient::SetStartAbility(ErrCode tValue)
@@ -192,10 +182,6 @@ void MockAbilityManagerClient::SetStartAbility(ErrCode tValue)
 void MockAbilityManagerClient::SetTerminateAbility(ErrCode tValue)
 {
     terminateAbility_ = tValue;
-}
-void MockAbilityManagerClient::SetTerminateAbilityResult(ErrCode tValue)
-{
-    terminateAbilityResult_ = tValue;
 }
 
 int MockAbilityManagerClient::GetTerminateAbilityValue()

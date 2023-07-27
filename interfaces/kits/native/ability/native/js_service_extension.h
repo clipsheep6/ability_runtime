@@ -19,6 +19,7 @@
 #include "configuration.h"
 #ifdef SUPPORT_GRAPHICS
 #include "display_manager.h"
+#include "system_ability_status_change_stub.h"
 #endif
 #include "service_extension.h"
 
@@ -168,6 +169,8 @@ private:
 
     bool CallPromise(NativeValue *result, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo);
 
+    void ListenWMS();
+
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;
     std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
@@ -215,6 +218,17 @@ protected:
     void OnChange(Rosen::DisplayId displayId);
 
 private:
+    class SystemAbilityStatusChangeListener : public OHOS::SystemAbilityStatusChangeStub {
+    public:
+        SystemAbilityStatusChangeListener(sptr<JsServiceExtensionDisplayListener> displayListener)
+            : tmpDisplayListener_(displayListener) {};
+        virtual void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+        virtual void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override {}
+
+    private:
+        sptr<JsServiceExtensionDisplayListener> tmpDisplayListener_ = nullptr;
+    };
+
     sptr<JsServiceExtensionDisplayListener> displayListener_ = nullptr;
 #endif
 };

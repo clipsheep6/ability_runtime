@@ -175,7 +175,7 @@ public:
     virtual ColorSpace GetColorSpace() {return ColorSpace::COLOR_SPACE_DEFAULT;}
     virtual void DumpInfo(const std::vector<std::string>& params, std::vector<std::string>& info) {}
     virtual std::shared_ptr<Media::PixelMap> Snapshot() {return nullptr;}
-    virtual WMError NotifyMemoryLevel(int32_t level) const {return WMError::WM_OK;}
+    virtual WMError NotifyMemoryLevel(int32_t level) {return WMError::WM_OK;}
     virtual bool IsAllowHaveSystemSubWindow() {return false;}
     virtual WmErrorCode RaiseToAppTop() {return WmErrorCode::WM_OK;}
     virtual WMError SetAspectRatio(float ratio) {return WMError::WM_OK;}

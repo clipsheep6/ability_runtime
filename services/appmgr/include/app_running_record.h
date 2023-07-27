@@ -568,6 +568,7 @@ public:
 
     void SendEventForSpecifiedAbility(uint32_t msg, int64_t timeOut);
 
+    void SendAppStartupTypeEvent(const std::shared_ptr<AbilityRunningRecord> &ability, const AppStartType startType);
     void SetKilling();
     bool IsKilling() const;
     void SetAppIndex(const int32_t appIndex);
@@ -622,6 +623,16 @@ public:
     ProcessType GetProcessType() const;
 
     int32_t NotifyAppFault(const FaultData &faultData);
+
+    inline void SetAbilityForegroundingFlag()
+    {
+        isAbilityForegrounding_.store(true);
+    }
+
+    inline bool GetAbilityForegroundingFlag()
+    {
+        return isAbilityForegrounding_.load();
+    }
 
     inline void SetSpawned()
     {
@@ -690,6 +701,11 @@ private:
     bool isStageBasedModel_ = false;
     ApplicationState curState_ = ApplicationState::APP_STATE_CREATE;  // current state of this process
     bool isFocused_ = false; // if process is focused.
+    /**
+     * If there is an ability is foregrounding, this flag will be true,
+     * and this flag will remain true until this application is background.
+     */
+    std::atomic_bool isAbilityForegrounding_ = false;
 
     std::shared_ptr<ApplicationInfo> appInfo_ = nullptr;  // the application's info of this process
     int32_t appRecordId_ = 0;

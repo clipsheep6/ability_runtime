@@ -48,6 +48,7 @@ const std::string PATTERN_VERSION = std::string(FILE_SEPARATOR) + "v\\d+" + FILE
 const size_t Context::CONTEXT_TYPE_ID(std::hash<const char*> {} ("Context"));
 const int64_t ContextImpl::CONTEXT_CREATE_BY_SYSTEM_APP(0x00000001);
 const mode_t MODE = 0770;
+const mode_t GROUP_MODE = 02770;
 const std::string ContextImpl::CONTEXT_DATA_APP("/data/app/");
 const std::string ContextImpl::CONTEXT_BUNDLE("/bundle/");
 const std::string ContextImpl::CONTEXT_DISTRIBUTEDFILES_BASE_BEFORE("/mnt/hmdfs/");
@@ -67,6 +68,8 @@ const std::string ContextImpl::CONTEXT_HAPS("/haps");
 const std::string ContextImpl::CONTEXT_ELS[] = {"el1", "el2"};
 Global::Resource::DeviceType ContextImpl::deviceType_ = Global::Resource::DeviceType::DEVICE_NOT_SET;
 const std::string OVERLAY_STATE_CHANGED = "usual.event.OVERLAY_STATE_CHANGED";
+const int32_t TYPE_RESERVE = 1;
+const int32_t TYPE_OTHERS = 2;
 
 std::string ContextImpl::GetBundleName() const
 {
@@ -112,49 +115,134 @@ bool ContextImpl::PrintDrawnCompleted()
     return false;
 }
 
+void ContextImpl::CreateDirIfNotExistWithCheck(const std::string &dirPath, const mode_t &mode, bool checkExist)
+{
+    if (checkExist) {
+        CreateDirIfNotExist(dirPath, mode);
+        return;
+    }
+    // Check if the dirPath exists on the first call
+    std::lock_guard<std::mutex> lock(checkedDirSetLock_);
+    if (checkedDirSet_.find(dirPath) != checkedDirSet_.end()) {
+        return;
+    }
+    checkedDirSet_.emplace(dirPath);
+    CreateDirIfNotExist(dirPath, mode);
+}
+
+int32_t ContextImpl::GetDatabaseDirWithCheck(bool checkExist, std::string &databaseDir)
+{
+    if (IsCreateBySystemApp()) {
+        databaseDir = CONTEXT_DATA_APP + currArea_ + CONTEXT_FILE_SEPARATOR + std::to_string(GetCurrentAccountId())
+                      + CONTEXT_FILE_SEPARATOR + CONTEXT_DATABASE + CONTEXT_FILE_SEPARATOR + GetBundleName();
+    } else {
+        databaseDir = CONTEXT_DATA_STORAGE + currArea_ + CONTEXT_FILE_SEPARATOR + CONTEXT_DATABASE;
+    }
+    if (parentContext_ != nullptr) {
+        databaseDir = databaseDir + CONTEXT_FILE_SEPARATOR +
+                      ((GetHapModuleInfo() == nullptr) ? "" : GetHapModuleInfo()->moduleName);
+    }
+    CreateDirIfNotExistWithCheck(databaseDir, 0, checkExist);
+    return ERR_OK;
+}
+
+int32_t ContextImpl::GetGroupDatabaseDirWithCheck(const std::string &groupId, bool checkExist, std::string &databaseDir)
+{
+    int32_t ret = GetGroupDirWithCheck(groupId, checkExist, databaseDir);
+    if (ret != ERR_OK) {
+        return ret;
+    }
+    databaseDir = databaseDir + CONTEXT_FILE_SEPARATOR + CONTEXT_DATABASE;
+    CreateDirIfNotExistWithCheck(databaseDir, GROUP_MODE, checkExist);
+    return ERR_OK;
+}
+
+int32_t ContextImpl::GetSystemDatabaseDir(const std::string &groupId, bool checkExist, std::string &databaseDir)
+{
+    int32_t ret;
+    if (groupId.empty()) {
+        ret = GetDatabaseDirWithCheck(checkExist, databaseDir);
+    } else {
+        ret = GetGroupDatabaseDirWithCheck(groupId, checkExist, databaseDir);
+    }
+    HILOG_DEBUG("databaseDir: %{public}s", databaseDir.c_str());
+    return ret;
+}
+
 std::string ContextImpl::GetDatabaseDir()
 {
     std::string dir;
-    if (IsCreateBySystemApp()) {
-        dir = CONTEXT_DATA_APP + currArea_ + CONTEXT_FILE_SEPARATOR + std::to_string(GetCurrentAccountId())
-            + CONTEXT_FILE_SEPARATOR + CONTEXT_DATABASE + CONTEXT_FILE_SEPARATOR + GetBundleName();
-    } else {
-        dir = CONTEXT_DATA_STORAGE + currArea_ + CONTEXT_FILE_SEPARATOR + CONTEXT_DATABASE;
-    }
-    if (parentContext_ != nullptr) {
-        dir = dir + CONTEXT_FILE_SEPARATOR + ((GetHapModuleInfo() == nullptr) ? "" : GetHapModuleInfo()->moduleName);
-    }
-    CreateDirIfNotExist(dir, 0);
-    HILOG_DEBUG("ContextImpl::GetDatabaseDir:%{public}s", dir.c_str());
+    GetDatabaseDirWithCheck(true, dir);
+    HILOG_DEBUG("databaseDir: %{public}s", dir.c_str());
     return dir;
+}
+
+int32_t ContextImpl::GetPreferencesDirWithCheck(bool checkExist, std::string &preferencesDir)
+{
+    preferencesDir = GetBaseDir() + CONTEXT_FILE_SEPARATOR + CONTEXT_PREFERENCES;
+    CreateDirIfNotExistWithCheck(preferencesDir, MODE, checkExist);
+    return ERR_OK;
+}
+
+int32_t ContextImpl::GetGroupPreferencesDirWithCheck(const std::string &groupId, bool checkExist,
+    std::string &preferencesDir)
+{
+    int32_t ret = GetGroupDirWithCheck(groupId, checkExist, preferencesDir);
+    if (ret != ERR_OK) {
+        return ret;
+    }
+    preferencesDir = preferencesDir + CONTEXT_FILE_SEPARATOR + CONTEXT_PREFERENCES;
+    CreateDirIfNotExistWithCheck(preferencesDir, GROUP_MODE, checkExist);
+    return ERR_OK;
+}
+
+int32_t ContextImpl::GetSystemPreferencesDir(const std::string &groupId, bool checkExist, std::string &preferencesDir)
+{
+    int32_t ret;
+    if (groupId.empty()) {
+        ret = GetPreferencesDirWithCheck(checkExist, preferencesDir);
+    } else {
+        ret = GetGroupPreferencesDirWithCheck(groupId, checkExist, preferencesDir);
+    }
+    HILOG_DEBUG("preferencesDir: %{public}s", preferencesDir.c_str());
+    return ret;
 }
 
 std::string ContextImpl::GetPreferencesDir()
 {
-    std::string dir = GetBaseDir() + CONTEXT_FILE_SEPARATOR + CONTEXT_PREFERENCES;
-    CreateDirIfNotExist(dir, MODE);
-    HILOG_DEBUG("ContextImpl::GetPreferencesDir:%{public}s", dir.c_str());
+    std::string dir;
+    GetPreferencesDirWithCheck(true, dir);
+    HILOG_DEBUG("preferencesDir: %{public}s", dir.c_str());
     return dir;
+}
+
+int32_t ContextImpl::GetGroupDirWithCheck(const std::string &groupId, bool checkExist, std::string &groupDir)
+{
+    if (currArea_ == CONTEXT_ELS[0]) {
+        HILOG_ERROR("GroupDir currently only supports the el2 level");
+        return ERR_INVALID_VALUE;
+    }
+    int errCode = GetBundleManager();
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("failed, errCode: %{public}d.", errCode);
+        return errCode;
+    }
+    std::string groupDirGet;
+    bool ret = bundleMgr_->GetGroupDir(groupId, groupDirGet);
+    if (!ret || groupDirGet.empty()) {
+        HILOG_ERROR("GetGroupDir failed or groupDirGet is empty");
+        return ERR_INVALID_VALUE;
+    }
+    std::string uuid = groupDirGet.substr(groupDirGet.rfind('/'));
+    groupDir = CONTEXT_DATA_STORAGE + currArea_ + CONTEXT_FILE_SEPARATOR + CONTEXT_GROUP + uuid;
+    CreateDirIfNotExistWithCheck(groupDir, MODE, true);
+    return ERR_OK;
 }
 
 std::string ContextImpl::GetGroupDir(std::string groupId)
 {
-    std::string dir = "";
-    sptr<AppExecFwk::IBundleMgr> bundleMgr = GetBundleManager();
-    if (bundleMgr == nullptr) {
-        HILOG_ERROR("GetBundleManager is nullptr");
-        return dir;
-    }
-
-    std::string groupDir;
-    bool ret = bundleMgr->GetGroupDir(groupId, groupDir);
-    if (!ret || groupDir.empty()) {
-        HILOG_ERROR("GetGroupDir failed or groupDir is empty");
-        return dir;
-    }
-    std::string uuid = groupDir.substr(groupDir.rfind("/"));
-    dir = CONTEXT_DATA_STORAGE + currArea_ + CONTEXT_FILE_SEPARATOR + CONTEXT_GROUP + uuid;
-    CreateDirIfNotExist(dir, MODE);
+    std::string dir;
+    GetGroupDirWithCheck(groupId, true, dir);
     HILOG_DEBUG("GroupDir:%{public}s", dir.c_str());
     return dir;
 }
@@ -219,9 +307,9 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
         return nullptr;
     }
 
-    sptr<AppExecFwk::IBundleMgr> bundleMgr = GetBundleManager();
-    if (bundleMgr == nullptr) {
-        HILOG_ERROR("ContextImpl::CreateModuleContext GetBundleManager is nullptr");
+    int errCode = GetBundleManager();
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("failed, errCode: %{public}d.", errCode);
         return nullptr;
     }
 
@@ -235,7 +323,7 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
 
     AppExecFwk::BundleInfo bundleInfo;
     if (bundleName == GetBundleName()) {
-        bundleMgr->GetBundleInfoForSelf(
+        bundleMgr_->GetBundleInfoForSelf(
             (static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) +
             static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY) +
             static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) +
@@ -244,28 +332,32 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
             static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY) +
             static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_METADATA)), bundleInfo);
     } else {
-        bundleMgr->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, accountId);
+        bundleMgr_->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, accountId);
     }
 
     if (bundleInfo.name.empty() || bundleInfo.applicationInfo.name.empty()) {
         HILOG_ERROR("ContextImpl::CreateModuleContext GetBundleInfo is error");
-        ErrCode ret = bundleMgr->GetDependentBundleInfo(bundleName, bundleInfo);
+        ErrCode ret = bundleMgr_->GetDependentBundleInfo(bundleName, bundleInfo);
         if (ret != ERR_OK) {
             HILOG_ERROR("ContextImpl::CreateModuleContext GetDependentBundleInfo failed:%d", ret);
             return nullptr;
         }
     }
 
-    auto info = std::find_if(bundleInfo.hapModuleInfos.begin(), bundleInfo.hapModuleInfos.end(),
-        [&moduleName](const AppExecFwk::HapModuleInfo &hapModuleInfo) {
-            return hapModuleInfo.moduleName == moduleName;
-        });
-    if (info == bundleInfo.hapModuleInfos.end()) {
-        HILOG_ERROR("ContextImpl::CreateModuleContext moduleName is error.");
-        return nullptr;
-    }
     std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();
-    appContext->InitHapModuleInfo(*info);
+    if (bundleInfo.applicationInfo.codePath != std::to_string(TYPE_RESERVE) &&
+        bundleInfo.applicationInfo.codePath != std::to_string(TYPE_OTHERS)) {
+        auto info = std::find_if(bundleInfo.hapModuleInfos.begin(), bundleInfo.hapModuleInfos.end(),
+            [&moduleName](const AppExecFwk::HapModuleInfo &hapModuleInfo) {
+                return hapModuleInfo.moduleName == moduleName;
+            });
+        if (info == bundleInfo.hapModuleInfos.end()) {
+            HILOG_ERROR("ContextImpl::CreateModuleContext moduleName is error.");
+            return nullptr;
+        }
+        appContext->InitHapModuleInfo(*info);
+    }
+    
     appContext->SetConfiguration(config_);
     InitResourceManager(bundleInfo, appContext, GetBundleName() == bundleName, moduleName);
     appContext->SetApplicationInfo(std::make_shared<AppExecFwk::ApplicationInfo>(bundleInfo.applicationInfo));
@@ -359,9 +451,9 @@ std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bun
         return nullptr;
     }
 
-    sptr<AppExecFwk::IBundleMgr> bundleMgr = GetBundleManager();
-    if (bundleMgr == nullptr) {
-        HILOG_ERROR("ContextImpl::CreateBundleContext GetBundleManager is nullptr");
+    int errCode = GetBundleManager();
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("failed, errCode: %{public}d.", errCode);
         return nullptr;
     }
 
@@ -372,7 +464,7 @@ std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bun
     }
     HILOG_DEBUG("ContextImpl::CreateBundleContext length: %{public}zu, bundleName: %{public}s",
         (size_t)bundleName.length(), bundleName.c_str());
-    bundleMgr->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, accountId);
+    bundleMgr_->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, accountId);
 
     if (bundleInfo.name.empty() || bundleInfo.applicationInfo.name.empty()) {
         HILOG_ERROR("ContextImpl::CreateBundleContext GetBundleInfo is error");
@@ -394,8 +486,36 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
 {
     HILOG_DEBUG("InitResourceManager begin, bundleName:%{public}s, moduleName:%{public}s",
         bundleInfo.name.c_str(), moduleName.c_str());
+
+    if (appContext == nullptr) {
+        HILOG_ERROR("InitResourceManager appContext is nullptr");
+        return;
+    }
+    if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_RESERVE) ||
+        bundleInfo.applicationInfo.codePath == std::to_string(TYPE_OTHERS)) {
+        std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
+        std::string hapPath;
+        std::vector<std::string> overlayPaths;
+        int32_t appType;
+        if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_RESERVE)) {
+            appType = TYPE_RESERVE;
+        } else if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_OTHERS)) {
+            appType = TYPE_OTHERS;
+        } else {
+            appType = 0;
+        }
+        std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager(
+            bundleInfo.name, moduleName, hapPath, overlayPaths, *resConfig, appType));
+        if (resourceManager == nullptr) {
+            HILOG_ERROR("ContextImpl::InitResourceManager create resourceManager failed");
+            return;
+        }
+        appContext->SetResourceManager(resourceManager);
+        return;
+    }
+
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
-    if (appContext == nullptr || resourceManager == nullptr) {
+    if (resourceManager == nullptr) {
         HILOG_ERROR("InitResourceManager create resourceManager failed");
         return;
     }
@@ -492,21 +612,27 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
     appContext->SetResourceManager(resourceManager);
 }
 
-sptr<AppExecFwk::IBundleMgr> ContextImpl::GetBundleManager() const
+ErrCode ContextImpl::GetBundleManager()
 {
-    HILOG_DEBUG("ContextImpl::GetBundleManager");
+    std::lock_guard<std::mutex> lock(bundleManagerMutex_);
+    if (bundleMgr_ != nullptr && !resetFlag_) {
+        return ERR_OK;
+    }
+
     auto instance = OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance();
     if (instance == nullptr) {
         HILOG_ERROR("failed to get SysMrgClient instance");
-        return nullptr;
+        return ERR_NULL_OBJECT;
     }
     auto bundleObj = instance->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     if (bundleObj == nullptr) {
         HILOG_ERROR("failed to get bundle manager service");
-        return nullptr;
+        return ERR_NULL_OBJECT;
     }
-    sptr<AppExecFwk::IBundleMgr> bms = iface_cast<AppExecFwk::IBundleMgr>(bundleObj);
-    return bms;
+
+    bundleMgr_ = iface_cast<AppExecFwk::IBundleMgr>(bundleObj);
+    HILOG_DEBUG("ContextImpl::GetBundleManager success");
+    return ERR_OK;
 }
 
 void ContextImpl::SetApplicationInfo(const std::shared_ptr<AppExecFwk::ApplicationInfo> &info)
@@ -561,14 +687,14 @@ void ContextImpl::InitHapModuleInfo(const std::shared_ptr<AppExecFwk::AbilityInf
     if (hapModuleInfo_ != nullptr || abilityInfo == nullptr) {
         return;
     }
-    sptr<AppExecFwk::IBundleMgr> ptr = GetBundleManager();
-    if (ptr == nullptr) {
-        HILOG_ERROR("InitHapModuleInfo: failed to get bundle manager service");
-        return;
+    int errCode = GetBundleManager();
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("failed, errCode: %{public}d.", errCode);
+        return ;
     }
 
     hapModuleInfo_ = std::make_shared<AppExecFwk::HapModuleInfo>();
-    if (!ptr->GetHapModuleInfo(*abilityInfo.get(), *hapModuleInfo_)) {
+    if (!bundleMgr_->GetHapModuleInfo(*abilityInfo.get(), *hapModuleInfo_)) {
         HILOG_ERROR("InitHapModuleInfo: GetHapModuleInfo failed, will retval false value");
     }
 }
@@ -621,8 +747,8 @@ sptr<IRemoteObject> ContextImpl::GetToken()
 
 void ContextImpl::CreateDirIfNotExist(const std::string& dirPath, const mode_t& mode) const
 {
-    HILOG_DEBUG("createDir: create directory if not exists.");
     if (!OHOS::FileExists(dirPath)) {
+        HILOG_DEBUG("ForceCreateDirectory, dir: %{public}s", dirPath.c_str());
         bool createDir = OHOS::ForceCreateDirectory(dirPath);
         if (!createDir) {
             HILOG_ERROR("createDir: create dir %{public}s failed, errno is %{public}d.", dirPath.c_str(), errno);
@@ -681,13 +807,13 @@ Global::Resource::DeviceType ContextImpl::GetDeviceType() const
 int ContextImpl::GetOverlayModuleInfos(const std::string &bundleName, const std::string &moduleName,
     std::vector<AppExecFwk::OverlayModuleInfo> &overlayModuleInfos)
 {
-    sptr<AppExecFwk::IBundleMgr> bundleMgr = GetBundleManager();
-    if (bundleMgr == nullptr) {
-        HILOG_ERROR("ContextImpl::CreateBundleContext GetBundleManager is nullptr");
-        return ERR_INVALID_VALUE;
+    int errCode = GetBundleManager();
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("failed, errCode: %{public}d.", errCode);
+        return errCode;
     }
 
-    auto overlayMgrProxy = bundleMgr->GetOverlayManagerProxy();
+    auto overlayMgrProxy = bundleMgr_->GetOverlayManagerProxy();
     if (overlayMgrProxy ==  nullptr) {
         HILOG_ERROR("GetOverlayManagerProxy failed.");
         return ERR_INVALID_VALUE;

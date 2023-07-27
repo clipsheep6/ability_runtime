@@ -102,6 +102,8 @@ napi_value WantConstantInit(napi_env env, napi_value exports)
     SetNamedProperty(env, params, "ohos.extra.param.key.contentTitle", "CONTENT_TITLE_KEY");
     SetNamedProperty(env, params, "ohos.extra.param.key.shareAbstract", "SHARE_ABSTRACT_KEY");
     SetNamedProperty(env, params, "ohos.extra.param.key.shareUrl", "SHARE_URL_KEY");
+    SetNamedProperty(env, params, "ohos.extra.param.key.supportContinuePageStack", "SUPPORT_CONTINUE_PAGE_STACK_KEY");
+    SetNamedProperty(env, params, "ohos.extra.param.key.supportContinueSourceExit", "SUPPORT_CONTINUE_SOURCE_EXIT_KEY");
     napi_property_descriptor exportFuncs[] = {
         DECLARE_NAPI_PROPERTY("Action", action),
         DECLARE_NAPI_PROPERTY("Entity", entity),

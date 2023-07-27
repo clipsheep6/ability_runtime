@@ -41,7 +41,6 @@ public:
     std::shared_ptr<MockHandler> mockHandler_ = nullptr;
     std::shared_ptr<EventRunner> runner_ = nullptr;
     std::shared_ptr<Watchdog> watchdog_ = nullptr;
-    std::shared_ptr<MainHandlerDumper> mainHandlerDumper_;
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
     void SetUp();
@@ -61,13 +60,11 @@ void WatchdogTest::SetUp(void)
 
     watchdog_ = std::make_shared<Watchdog>();
     watchdog_->Init(mockHandler_);
-    mainHandlerDumper_ = std::make_shared<MainHandlerDumper>();
 }
 
 void WatchdogTest::TearDown(void)
 {
     watchdog_->Stop();
-    mainHandlerDumper_ = nullptr;
 }
 
 /**
@@ -108,8 +105,6 @@ HWTEST_F(WatchdogTest, AppExecFwk_watchdog_ReportEvent_0001, Function | MediumTe
     // be ready for ReportEvent
     watchdog_->lastWatchTime_ = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::
         steady_clock::now().time_since_epoch()).count() - TEST_INTERVAL_TIME;
-    std::shared_ptr<ApplicationInfo> application = std::make_shared<ApplicationInfo>();
-    watchdog_->SetApplicationInfo(application);
     watchdog_->needReport_ = true;
 
     watchdog_->isSixSecondEvent_.store(true);
@@ -129,8 +124,6 @@ HWTEST_F(WatchdogTest, AppExecFwk_watchdog_ReportEvent_0002, Function | MediumTe
     // be ready for ReportEvent
     watchdog_->lastWatchTime_ = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
         system_clock::now().time_since_epoch()).count() - TEST_INTERVAL_TIME;
-    std::shared_ptr<ApplicationInfo> application = std::make_shared<ApplicationInfo>();
-    watchdog_->SetApplicationInfo(application);
     watchdog_->needReport_ = true;
 
     watchdog_->isSixSecondEvent_.store(false);
@@ -196,21 +189,6 @@ HWTEST_F(WatchdogTest, WatchdogTest_Stop_002, TestSize.Level1)
     watchdog_->Stop();
     EXPECT_TRUE(watchdog_->stopWatchdog_);
     GTEST_LOG_(INFO) << "WatchdogTest_Stop_002 end";
-}
-
-/**
- * @tc.number: WatchdogTest_SetApplicationInfo_001
- * @tc.name: SetApplicationInfo
- * @tc.desc: Verify that function SetApplicationInfo.
- */
-HWTEST_F(WatchdogTest, WatchdogTest_SetApplicationInfo_001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "WatchdogTest_SetApplicationInfo_001 start";
-    std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
-    EXPECT_TRUE(watchdog_->applicationInfo_ == nullptr);
-    watchdog_->SetApplicationInfo(applicationInfo);
-    EXPECT_TRUE(watchdog_->applicationInfo_ != nullptr);
-    GTEST_LOG_(INFO) << "WatchdogTest_SetApplicationInfo_001 end";
 }
 
 /**
@@ -397,7 +375,7 @@ HWTEST_F(WatchdogTest, WatchdogTest_ReportEvent_004, TestSize.Level1)
     watchdog_->lastWatchTime_ = std::chrono::duration_cast<std::chrono::microseconds>(
         std::chrono::steady_clock::now().time_since_epoch()).count();
     watchdog_->ReportEvent();
-    EXPECT_TRUE(watchdog_->applicationInfo_ == nullptr);
+    EXPECT_TRUE(watchdog_->appMainHandler_ != nullptr);
     GTEST_LOG_(INFO) << "WatchdogTest_ReportEvent_002 end";
 }
 
@@ -411,10 +389,8 @@ HWTEST_F(WatchdogTest, WatchdogTest_ReportEvent_005, TestSize.Level1)
     GTEST_LOG_(INFO) << "WatchdogTest_ReportEvent_005 start";
     watchdog_->lastWatchTime_ = std::chrono::duration_cast<std::chrono::microseconds>(
         std::chrono::steady_clock::now().time_since_epoch()).count();
-    watchdog_->applicationInfo_ = std::make_shared<ApplicationInfo>();
     watchdog_->needReport_ = false;
     watchdog_->ReportEvent();
-    EXPECT_TRUE(watchdog_->applicationInfo_ != nullptr);
     EXPECT_TRUE(watchdog_->needReport_ == false);
     GTEST_LOG_(INFO) << "WatchdogTest_ReportEvent_005 end";
 }
@@ -429,10 +405,8 @@ HWTEST_F(WatchdogTest, WatchdogTest_ReportEvent_006, TestSize.Level1)
     GTEST_LOG_(INFO) << "WatchdogTest_ReportEvent_006 start";
     watchdog_->lastWatchTime_ = std::chrono::duration_cast<std::chrono::microseconds>(
         std::chrono::steady_clock::now().time_since_epoch()).count();
-    watchdog_->applicationInfo_ = std::make_shared<ApplicationInfo>();
     watchdog_->isSixSecondEvent_ = true;
     watchdog_->ReportEvent();
-    EXPECT_TRUE(watchdog_->applicationInfo_ != nullptr);
     EXPECT_TRUE(watchdog_->needReport_);
     GTEST_LOG_(INFO) << "WatchdogTest_ReportEvent_006 end";
 }
@@ -447,38 +421,9 @@ HWTEST_F(WatchdogTest, WatchdogTest_ReportEvent_007, TestSize.Level1)
     GTEST_LOG_(INFO) << "WatchdogTest_ReportEvent_007 start";
     watchdog_->lastWatchTime_ = std::chrono::duration_cast<std::chrono::microseconds>(
         std::chrono::steady_clock::now().time_since_epoch()).count();
-    watchdog_->applicationInfo_ = std::make_shared<ApplicationInfo>();
     watchdog_->ReportEvent();
-    EXPECT_TRUE(watchdog_->applicationInfo_ != nullptr);
     EXPECT_FALSE(watchdog_->isSixSecondEvent_);
     GTEST_LOG_(INFO) << "WatchdogTest_ReportEvent_007 end";
-}
-
-/**
- * @tc.number: WatchdogTest_Dump_001
- * @tc.name: Dump
- * @tc.desc: Verify that function Dump.
- */
-HWTEST_F(WatchdogTest, WatchdogTest_Dump_001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "WatchdogTest_Dump_001 start";
-    std::string message = "message";
-    mainHandlerDumper_->dumpInfo = "dump";
-    mainHandlerDumper_->Dump(message);
-    EXPECT_EQ(mainHandlerDumper_->GetDumpInfo(), "dumpmessage");
-    GTEST_LOG_(INFO) << "WatchdogTest_Dump_001 end";
-}
-
-/**
- * @tc.number: WatchdogTest_GetTag_001
- * @tc.name: GetTag
- * @tc.desc: Verify that function GetTag.
- */
-HWTEST_F(WatchdogTest, WatchdogTest_GetTag_001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "WatchdogTest_GetTag_001 start";
-    EXPECT_EQ(mainHandlerDumper_->GetTag(), "");
-    GTEST_LOG_(INFO) << "WatchdogTest_GetTag_001 end";
 }
 
 /**
@@ -491,7 +436,6 @@ HWTEST_F(WatchdogTest, WatchdogTest_ReportEvent_008, TestSize.Level1)
     watchdog_->lastWatchTime_ = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
         system_clock::now().time_since_epoch()).count() - TEST_INTERVAL_TIME;
     std::shared_ptr<EventHandler> eventHandler = std::make_shared<EventHandler>();
-    watchdog_->applicationInfo_ = std::make_shared<ApplicationInfo>();
     watchdog_->needReport_ = true;
     watchdog_->isSixSecondEvent_.store(true);
     EXPECT_TRUE(watchdog_->needReport_);

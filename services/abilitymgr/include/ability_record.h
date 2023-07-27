@@ -194,6 +194,12 @@ enum AbilityCallType {
     START_EXTENSION_TYPE,
 };
 
+enum CollaboratorType {
+    DEFAULT_TYPE = 0,
+    RESERVE_TYPE,
+    OTHERS_TYPE
+};
+
 struct ComponentRequest {
     sptr<IRemoteObject> callerToken = nullptr;
     int requestCode = 0;
@@ -211,6 +217,7 @@ struct AbilityRequest {
     int32_t restartCount = -1;
     int64_t restartTime = 0;
     bool startRecent = false;
+    int32_t collaboratorType = CollaboratorType::DEFAULT_TYPE;
 
     // call ability
     int callerUid = -1;
@@ -368,6 +375,10 @@ public:
      * @param state, ability's state.
      */
     void SetAbilityState(AbilityState state);
+
+    bool GetAbilityForegroundingFlag() const;
+
+    void SetAbilityForegroundingFlag();
 
     /**
      * get ability's state.
@@ -899,6 +910,8 @@ private:
 
     void HandleDlpAttached();
     void HandleDlpClosed();
+    void NotifyRemoveShellProcess();
+    void NotifyAnimationAbilityDied();
     inline void SetCallerAccessTokenId(uint32_t callerAccessTokenId)
     {
         callerAccessTokenId_ = callerAccessTokenId;
@@ -973,6 +986,13 @@ private:
      * Now we assume only one result generate when terminate.
      */
     std::shared_ptr<AbilityResult> result_ = {};
+
+    /**
+     * When this ability startAbilityForResult another ability, if another ability is terminated,
+     * this ability will move to foreground, during this time, isAbilityForegrounding_ is true,
+     * isAbilityForegrounding_ will be set to false when this ability is background
+     */
+    bool isAbilityForegrounding_ = false;
 
     // service(ability) can be connected by multi-pages(abilites), so need to store this service's connections
     std::list<std::shared_ptr<ConnectionRecord>> connRecordList_ = {};

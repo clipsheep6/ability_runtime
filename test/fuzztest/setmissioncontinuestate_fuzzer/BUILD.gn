@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Copyright (c) 2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -19,51 +19,41 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 module_output_path = "ability_runtime/abilitymgr"
 
 ##############################fuzztest##########################################
-ohos_fuzztest("TerminateAbilityResultFuzzTest") {
+ohos_fuzztest("SetMissionContinueStateFuzzTest") {
   module_out_path = module_output_path
 
   fuzz_config_file =
-      "${ability_runtime_test_path}/fuzztest/terminateabilityresult_fuzzer"
-  include_dirs = [ "${ability_runtime_innerkits_path}/ability_manager/include" ]
+      "${ability_runtime_test_path}/fuzztest/setmissioncontinuestate_fuzzer"
+
+  include_dirs = [
+    "${ability_runtime_innerkits_path}/ability_manager/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/",
+  ]
+
   cflags = [
     "-g",
     "-O0",
     "-Wno-unused-variable",
     "-fno-omit-frame-pointer",
   ]
-  sources = [ "terminateabilityresult_fuzzer.cpp" ]
 
-  configs = [
-    "${ability_runtime_innerkits_path}/ability_manager:ability_manager_public_config",
-    "${ability_runtime_services_path}/abilitymgr:abilityms_config",
-  ]
+  sources = [ "setmissioncontinuestate_fuzzer.cpp" ]
+
+  configs = [ "${ability_runtime_innerkits_path}/ability_manager:ability_manager_public_config" ]
 
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
-    "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
-    "//third_party/jsoncpp:jsoncpp",
   ]
 
   external_deps = [
     "ability_base:want",
-    "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
-    "common_event_service:cesfwk_innerkits",
     "ffrt:libffrt",
-    "ipc:ipc_core",
-    "samgr:samgr_proxy",
   ]
-
-  if (ability_runtime_graphics) {
-    deps += []
-    external_deps += [
-      "i18n:intl_util",
-      "window_manager:libwm",
-    ]
-  }
 }
 
 ###############################################################################
@@ -72,7 +62,7 @@ group("fuzztest") {
   deps = []
   deps += [
     # deps file
-    ":TerminateAbilityResultFuzzTest",
+    ":SetMissionContinueStateFuzzTest",
   ]
 }
 ###############################################################################

@@ -20,27 +20,3 @@ config("ability_simulator_common_config") {
     "${ability_runtime_services_path}/common/include",
   ]
 }
-
-ohos_shared_library("ability_simulator_common") {
-  if (is_mingw) {
-    defines = [
-      "WINDOWS_PLATFORM",
-      "NOGDI",
-    ]
-  }
-
-  cflags = [ "-std=c++17" ]
-
-  include_dirs = [ "${ability_runtime_innerkits_path}/runtime/include" ]
-
-  sources = [ "src/configuration.cpp" ]
-
-  public_configs = [ ":ability_simulator_common_config" ]
-
-  deps = []
-
-  external_deps = [ "hilog:libhilog" ]
-
-  part_name = "ability_runtime"
-  subsystem_name = "ability"
-}

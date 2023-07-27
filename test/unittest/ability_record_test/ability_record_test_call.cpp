@@ -48,17 +48,8 @@ public:
     static constexpr unsigned int CHANGE_CONFIG_LOCALE = 0x00000001;
 };
 
-void AbilityRecordTest::SetUpTestCase(void)
-{
-    OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
-        OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, new BundleMgrService());
-    OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->OnStart();
-}
-void AbilityRecordTest::TearDownTestCase(void)
-{
-    OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->OnStop();
-    OHOS::DelayedSingleton<SaMgrClient>::DestroyInstance();
-}
+void AbilityRecordTest::SetUpTestCase(void) {}
+void AbilityRecordTest::TearDownTestCase(void) {}
 
 void AbilityRecordTest::SetUp(void)
 {

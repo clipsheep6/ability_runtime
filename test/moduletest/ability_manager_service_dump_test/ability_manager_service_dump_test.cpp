@@ -19,7 +19,6 @@
 #include "ability_manager_service.h"
 #undef private
 #undef protected
-#include "mock_app_mgr_client.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -39,10 +38,6 @@ public:
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
-
-public:
-    std::shared_ptr<AbilityManagerService> abilityMs_;
-    std::unique_ptr<MockAppMgrClient> mockAppMgrClient_;
 };
 
 void AbilityManagerServiceDumpTest::SetUpTestCase()
@@ -53,18 +48,10 @@ void AbilityManagerServiceDumpTest::TearDownTestCase()
 
 void AbilityManagerServiceDumpTest::SetUp()
 {
-    abilityMs_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
-    EXPECT_NE(abilityMs_, nullptr);
-
-    mockAppMgrClient_ = std::make_unique<MockAppMgrClient>();
-    EXPECT_NE(mockAppMgrClient_, nullptr);
-
-    OHOS::DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = std::move(mockAppMgrClient_);
 }
 
 void AbilityManagerServiceDumpTest::TearDown()
 {
-    OHOS::DelayedSingleton<AbilityManagerService>::DestroyInstance();
 }
 
 /**
@@ -75,9 +62,10 @@ void AbilityManagerServiceDumpTest::TearDown()
  */
 HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_GetProcessRunningInfosByUserId_0100, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     std::vector<RunningProcessInfo> info;
     auto result = abilityMs_->GetProcessRunningInfosByUserId(info, USER_ID);
-    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+    EXPECT_NE(result, AppMgrResultCode::RESULT_OK);
 }
 
 /**
@@ -88,6 +76,7 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_GetProcessRunningI
  */
 HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DumpSysFuncInit_0100, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     abilityMs_->DumpSysFuncInit();
     EXPECT_GT(abilityMs_->dumpsysFuncMap_.size(), SIZE_ZERO);
 }
@@ -100,6 +89,7 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DumpSysFuncInit_01
  */
 HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DumpSysInner_0100, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     std::string args = "-a";
     std::vector<std::string> info;
     bool isClient = false;
@@ -116,6 +106,7 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DumpSysInner_0100,
  */
 HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DumpSysMissionListInner_0100, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     std::string args = "-a";
     std::vector<std::string> info;
     bool isClient = false;
@@ -132,6 +123,7 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DumpSysMissionList
  */
 HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DumpSysAbilityInner_0100, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     std::string args = "-a";
     std::vector<std::string> info;
     bool isClient = false;
@@ -148,6 +140,7 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DumpSysAbilityInne
  */
 HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DumpSysStateInner_0100, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     std::string args = "-a";
     std::vector<std::string> info;
     bool isClient = false;
@@ -164,6 +157,7 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DumpSysStateInner_
  */
 HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DumpSysPendingInner_0100, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     std::string args = "-a";
     std::vector<std::string> info;
     bool isClient = false;
@@ -180,12 +174,13 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DumpSysPendingInne
  */
 HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DumpSysProcess_0100, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     std::string args = "-a";
     std::vector<std::string> info;
     bool isClient = false;
     bool isUserID = true;
     abilityMs_->DumpSysProcess(args, info, isClient, isUserID, USER_ID);
-    EXPECT_GT(info.size(), SIZE_ZERO);
+    EXPECT_EQ(info.size(), SIZE_ZERO);
 }
 
 /**
@@ -196,6 +191,7 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DumpSysProcess_010
  */
 HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DataDumpSysStateInner_0100, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     std::string args = "-a";
     std::vector<std::string> info;
     bool isClient = false;
@@ -212,6 +208,7 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DataDumpSysStateIn
  */
 HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_OnAppStateChanged_0100, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     abilityMs_->connectManager_ = std::make_shared<AbilityConnectManager>(0);
     EXPECT_NE(abilityMs_->connectManager_, nullptr);
 

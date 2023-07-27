@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -76,6 +76,7 @@ ohos_unittest("context_deal_interface_test") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 
   if (ability_runtime_graphics) {
@@ -127,8 +128,13 @@ ohos_unittest("application_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "resource_management:global_resmgr",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:libwm" ]
+  }
 }
 
 ohos_unittest("context_container_test") {
@@ -166,7 +172,12 @@ ohos_unittest("context_container_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:libwm" ]
+  }
 }
 
 ohos_unittest("context_deal_test") {
@@ -211,8 +222,13 @@ ohos_unittest("context_deal_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "resource_management:global_resmgr",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:libwm" ]
+  }
 }
 
 ohos_unittest("application_impl_test") {
@@ -256,7 +272,12 @@ ohos_unittest("application_impl_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:libwm" ]
+  }
 }
 
 config("ability_start_setting_config") {
@@ -326,8 +347,8 @@ ohos_unittest("watchdog_test") {
     "c_utils:utilsbase",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
+    "image_framework:image_native",
     "ipc:ipc_core",
-    "multimedia_image_framework:image_native",
     "napi:ace_napi",
   ]
 }
@@ -351,7 +372,10 @@ ohos_unittest("mix_stack_dumper_test") {
     "ability_runtime:abilitykit_native",
     "ability_runtime:runtime",
     "common_event_service:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
     "faultloggerd:libbacktrace_local",
+    "hilog:libhilog",
+    "napi:ace_napi",
   ]
 }
 
@@ -396,8 +420,13 @@ ohos_unittest("ability_stage_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "resource_management:global_resmgr",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:libwm" ]
+  }
 }
 
 ohos_unittest("form_extension_context_test") {
@@ -434,7 +463,12 @@ ohos_unittest("form_extension_context_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:libwm" ]
+  }
 }
 
 ###############################################################################

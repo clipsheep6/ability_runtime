@@ -37,6 +37,7 @@ ohos_unittest("authorization_result_test") {
     "ability_runtime:ability_context_native",
     "c_utils:utils",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 

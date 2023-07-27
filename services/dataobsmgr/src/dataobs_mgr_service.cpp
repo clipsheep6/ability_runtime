@@ -40,6 +40,7 @@ DataObsMgrService::DataObsMgrService()
 {
     dataObsMgrInner_ = std::make_shared<DataObsMgrInner>();
     dataObsMgrInnerExt_ = std::make_shared<DataObsMgrInnerExt>();
+    dataObsMgrInnerPref_ = std::make_shared<DataObsMgrInnerPref>();
 }
 
 DataObsMgrService::~DataObsMgrService()
@@ -96,7 +97,13 @@ int DataObsMgrService::RegisterObserver(const Uri &uri, sptr<IDataAbilityObserve
         return DATAOBS_SERVICE_INNER_IS_NULL;
     }
 
-    auto status = dataObsMgrInner_->HandleRegisterObserver(uri, dataObserver);
+    int status;
+    if (const_cast<Uri &>(uri).GetScheme() == SHARE_PREFERENCES) {
+        status = dataObsMgrInnerPref_->HandleRegisterObserver(uri, dataObserver);
+    } else {
+        status = dataObsMgrInner_->HandleRegisterObserver(uri, dataObserver);
+    }
+
     if (status != NO_ERROR) {
         HILOG_ERROR("Observer register failed: %{public}d, uri:%{public}s", status,
             CommonUtils::Anonymous(uri.ToString()).c_str());
@@ -117,7 +124,13 @@ int DataObsMgrService::UnregisterObserver(const Uri &uri, sptr<IDataAbilityObser
         return DATAOBS_SERVICE_INNER_IS_NULL;
     }
 
-    auto status = dataObsMgrInner_->HandleUnregisterObserver(uri, dataObserver);
+    int status;
+    if (const_cast<Uri &>(uri).GetScheme() == SHARE_PREFERENCES) {
+        status = dataObsMgrInnerPref_->HandleUnregisterObserver(uri, dataObserver);
+    } else {
+        status = dataObsMgrInner_->HandleUnregisterObserver(uri, dataObserver);
+    }
+
     if (status != NO_ERROR) {
         HILOG_ERROR("Observer unregister failed: %{public}d, uri:%{public}s", status,
             CommonUtils::Anonymous(uri.ToString()).c_str());
@@ -133,8 +146,8 @@ int DataObsMgrService::NotifyChange(const Uri &uri)
         return DATAOBS_SERVICE_HANDLER_IS_NULL;
     }
 
-    if (dataObsMgrInner_ == nullptr || dataObsMgrInnerExt_ == nullptr) {
-        HILOG_ERROR("dataObsMgrInner_ is nullptr, uri:%{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
+    if (dataObsMgrInner_ == nullptr || dataObsMgrInnerExt_ == nullptr || dataObsMgrInnerPref_ == nullptr) {
+        HILOG_ERROR("dataObsMgr is nullptr, uri:%{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
         return DATAOBS_SERVICE_INNER_IS_NULL;
     }
 
@@ -150,8 +163,12 @@ int DataObsMgrService::NotifyChange(const Uri &uri)
 
     ChangeInfo changeInfo = { ChangeInfo::ChangeType::OTHER, { uri } };
     handler_->SubmitTask([this, uri, changeInfo]() {
-        dataObsMgrInner_->HandleNotifyChange(uri);
-        dataObsMgrInnerExt_->HandleNotifyChange(changeInfo);
+        if (const_cast<Uri &>(uri).GetScheme() == SHARE_PREFERENCES) {
+            dataObsMgrInnerPref_->HandleNotifyChange(uri);
+        } else {
+            dataObsMgrInner_->HandleNotifyChange(uri);
+            dataObsMgrInnerExt_->HandleNotifyChange(changeInfo);
+        }
         std::lock_guard<ffrt::mutex> lck(taskCountMutex_);
         --taskCount_;
     });

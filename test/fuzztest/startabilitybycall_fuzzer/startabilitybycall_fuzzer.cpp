@@ -77,12 +77,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
         }
     }
 
-    // get token and connectCallback
-    sptr<IRemoteObject> token = GetFuzzAbilityToken();
-    if (token) {
-        abilitymgr->StartAbilityByCall(*want, connect, token);
-    }
-
     return true;
 }
 }

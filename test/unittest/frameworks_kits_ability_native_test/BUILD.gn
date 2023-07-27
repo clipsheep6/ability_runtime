@@ -115,17 +115,23 @@ ohos_unittest("ability_test") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
     "ffrt:libffrt",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "image_framework:image_native",
+      "input:libmmi-client",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -154,6 +160,7 @@ ohos_unittest("ability_lifecycle_test") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 
   if (ability_runtime_graphics) {
@@ -186,6 +193,7 @@ ohos_unittest("ability_lifecycle_executor_test") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 
   if (ability_runtime_graphics) {
@@ -219,6 +227,7 @@ ohos_unittest("ability_context_interface_test") {
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 
   if (ability_runtime_graphics) {
@@ -295,10 +304,12 @@ ohos_unittest("page_ability_impl_test") {
       "bundle_framework:appexecfwk_base",
       "c_utils:utils",
       "common_event_service:cesfwk_innerkits",
+      "eventhandler:libeventhandler",
       "hilog:libhilog",
       "hitrace:hitrace_meter",
       "input:libmmi-client",
       "ipc:ipc_core",
+      "napi:ace_napi",
     ]
   }
 }
@@ -328,9 +339,11 @@ ohos_unittest("service_ability_impl_test") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 
   if (ability_runtime_graphics) {
@@ -363,6 +376,7 @@ ohos_unittest("scene_created_test") {
       "hilog:libhilog",
       "input:libmmi-client",
       "ipc:ipc_core",
+      "napi:ace_napi",
     ]
   }
 }
@@ -410,6 +424,7 @@ ohos_unittest("data_ability_helper_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -467,6 +482,7 @@ ohos_unittest("data_ability_helper_impl_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -505,6 +521,7 @@ ohos_unittest("data_ability_operation_test") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -545,6 +562,7 @@ ohos_unittest("ability_impl_active_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 
   if (ability_runtime_graphics) {
@@ -588,6 +606,7 @@ ohos_unittest("ability_impl_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -596,7 +615,10 @@ ohos_unittest("ability_impl_test") {
   if (ability_runtime_graphics) {
     sources += [ "ability_impl_test.cpp" ]
     deps += [ "${global_path}/i18n/frameworks/intl:intl_util" ]
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -650,6 +672,7 @@ ohos_unittest("ability_thread_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -657,7 +680,11 @@ ohos_unittest("ability_thread_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "ability_base:session_info",
+      "input:libmmi-client",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -699,6 +726,7 @@ ohos_unittest("service_extension_module_loader_test") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -744,6 +772,7 @@ ohos_unittest("ability_process_test") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -786,13 +815,17 @@ ohos_unittest("extension_test") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "ability_base:session_info",
+      "input:libmmi-client",
+    ]
   }
 }
 
@@ -830,6 +863,7 @@ ohos_unittest("form_extension_test") {
     "form_fwk:form_manager",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -868,6 +902,7 @@ ohos_unittest("ability_thread_call_request_test") {
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
+    "napi:ace_napi",
     "resource_management:global_resmgr",
   ]
 }
@@ -909,6 +944,7 @@ ohos_unittest("form_extension_provider_client_test") {
       "hilog:libhilog",
       "input:libmmi-client",
       "ipc:ipc_core",
+      "napi:ace_napi",
     ]
   }
 }
@@ -975,6 +1011,7 @@ ohos_unittest("data_ability_impl_test") {
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -984,7 +1021,10 @@ ohos_unittest("data_ability_impl_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -1028,13 +1068,17 @@ ohos_unittest("data_ability_impl_file_secondpart_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -1078,13 +1122,17 @@ ohos_unittest("data_ability_impl_file_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -1130,13 +1178,17 @@ ohos_unittest("ability_thread_dataability_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -1216,13 +1268,17 @@ ohos_unittest("extension_impl_test") {
     "form_fwk:form_manager",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "ability_base:session_info",
+      "input:libmmi-client",
+    ]
   }
 }
 
@@ -1282,6 +1338,7 @@ ohos_unittest("ability_permission_test") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
   if (ability_runtime_graphics) {
     external_deps += [ "input:libmmi-client" ]
@@ -1329,6 +1386,7 @@ ohos_unittest("ability_thread_for_ability_on_configuration_update") {
     "bundle_framework:appexecfwk_base",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 
   if (ability_runtime_graphics) {
@@ -1353,6 +1411,7 @@ ohos_unittest("data_ability_result_test") {
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 
   if (ability_runtime_graphics) {
@@ -1401,6 +1460,8 @@ ohos_unittest("form_host_client_test") {
       "hitrace:hitrace_meter",
       "input:libmmi-client",
       "ipc:ipc_core",
+      "napi:ace_napi",
+      "window_manager:libwm",
     ]
   }
 }
@@ -1443,13 +1504,17 @@ ohos_unittest("continuation_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "input:libmmi-client",
+      "window_manager:libwm",
+    ]
   }
 }
 
@@ -1504,10 +1569,12 @@ ohos_unittest("new_ability_impl_test") {
       "bundle_framework:appexecfwk_base",
       "c_utils:utils",
       "common_event_service:cesfwk_innerkits",
+      "eventhandler:libeventhandler",
       "hilog:libhilog",
       "hitrace:hitrace_meter",
       "input:libmmi-client",
       "ipc:ipc_core",
+      "napi:ace_napi",
       "window_manager:libwsutils",
     ]
   }
@@ -1541,6 +1608,7 @@ ohos_unittest("reserse_continuation_scheduler_primary_stub_test") {
       "hitrace:hitrace_meter",
       "input:libmmi-client",
       "ipc:ipc_core",
+      "napi:ace_napi",
     ]
   }
 }
@@ -1577,6 +1645,7 @@ ohos_unittest("reserse_continuation_scheduler_primary_proxy_test") {
       "hitrace:hitrace_meter",
       "input:libmmi-client",
       "ipc:ipc_core",
+      "napi:ace_napi",
       "window_manager:libwsutils",
     ]
   }
@@ -1608,6 +1677,7 @@ ohos_unittest("distributed_client_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 
@@ -1650,8 +1720,9 @@ ohos_unittest("ability_window_test") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
+    "image_framework:image",
     "ipc:ipc_core",
-    "multimedia_image_framework:image",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -1659,7 +1730,10 @@ ohos_unittest("ability_window_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "input:libmmi-client" ]
+    external_deps += [
+      "image_framework:image_native",
+      "input:libmmi-client",
+    ]
   }
 }
 
@@ -1695,7 +1769,12 @@ ohos_unittest("ability_handler_test") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
+    "napi:ace_napi",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:libwm" ]
+  }
 }
 
 ohos_unittest("ability_impl_factory_test") {
@@ -1742,11 +1821,16 @@ ohos_unittest("ability_impl_factory_test") {
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "relational_store:rdb_data_share_adapter",
     "samgr:samgr_proxy",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:libwm" ]
+  }
 }
 
 ohos_unittest("ability_loader_test") {
@@ -1775,6 +1859,7 @@ ohos_unittest("ability_loader_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 
@@ -1801,9 +1886,11 @@ ohos_unittest("ability_local_record_test") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 
@@ -1833,6 +1920,7 @@ ohos_unittest("reverse_continuation_scheduler_replica_proxy_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 
@@ -1861,6 +1949,7 @@ ohos_unittest("reverse_continuation_scheduler_replica_stub_test") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 

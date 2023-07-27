@@ -93,6 +93,11 @@ Want PendingWantKey::GetRequestWant()
     return requestWant_;
 }
 
+Want& PendingWantKey::GetRequestWantRef()
+{
+    return requestWant_;
+}
+
 std::string PendingWantKey::GetRequestResolvedType()
 {
     return requestResolvedType_;

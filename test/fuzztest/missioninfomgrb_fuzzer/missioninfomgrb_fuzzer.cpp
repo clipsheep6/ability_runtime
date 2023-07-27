@@ -54,7 +54,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     MissionInfo missionInfo;
     missionInfoMgr->GetMissionInfoById(int32Param, missionInfo);
     missionInfoMgr->GetInnerMissionInfoById(int32Param, innerMissionInfo);
-    missionInfoMgr->FindReusedMissionInfo(stringParam, stringParam, boolParam, innerMissionInfo);
+    missionInfoMgr->FindReusedMissionInfo(stringParam, stringParam, stringParam, boolParam, boolParam,
+        innerMissionInfo);
 
     return true;
 }

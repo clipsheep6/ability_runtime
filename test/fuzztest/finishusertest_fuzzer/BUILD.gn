@@ -48,7 +48,10 @@ ohos_fuzztest("FinishUserTestFuzzTest") {
     "${ability_runtime_native_path}/appkit:appkit_delegator",
   ]
 
-  external_deps = [ "ability_base:want" ]
+  external_deps = [
+    "ability_base:want",
+    "napi:ace_napi",
+  ]
 }
 
 ###############################################################################

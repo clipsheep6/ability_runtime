@@ -28,6 +28,8 @@ namespace OHOS {
 namespace AppExecFwk {
 // for api7 demo special
 constexpr int CURRENT_ACCOUNT_ID = 100;
+const int32_t TYPE_RESERVE = 1;
+const int32_t TYPE_OTHERS = 2;
 
 void ContextContainer::AttachBaseContext(const std::shared_ptr<ContextDeal> &base)
 {
@@ -280,8 +282,38 @@ std::shared_ptr<Context> ContextContainer::CreateBundleContext(std::string bundl
 
 void ContextContainer::InitResourceManager(BundleInfo &bundleInfo, std::shared_ptr<ContextDeal> &deal)
 {
+    HILOG_DEBUG("InitResourceManager begin, bundleName:%{public}s, codePath:%{public}s",
+        bundleInfo.name.c_str(), bundleInfo.applicationInfo.codePath.c_str());
+    if (deal == nullptr) {
+        HILOG_ERROR("InitResourceManager deal is nullptr");
+        return;
+    }
+    if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_RESERVE) ||
+        bundleInfo.applicationInfo.codePath == std::to_string(TYPE_OTHERS)) {
+        std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
+        std::string moduleName;
+        std::string hapPath;
+        std::vector<std::string> overlayPaths;
+        int32_t appType;
+        if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_RESERVE)) {
+            appType = TYPE_RESERVE;
+        } else if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_OTHERS)) {
+            appType = TYPE_OTHERS;
+        } else {
+            appType = 0;
+        }
+        std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager(
+            bundleInfo.name, moduleName, hapPath, overlayPaths, *resConfig, appType));
+        if (resourceManager == nullptr) {
+            HILOG_ERROR("ContextImpl::InitResourceManager create resourceManager failed");
+            return;
+        }
+        deal->initResourceManager(resourceManager);
+        return;
+    }
+
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
-    if (deal == nullptr || resourceManager == nullptr) {
+    if (resourceManager == nullptr) {
         HILOG_ERROR("ContextContainer::InitResourceManager create resourceManager failed");
         return;
     }

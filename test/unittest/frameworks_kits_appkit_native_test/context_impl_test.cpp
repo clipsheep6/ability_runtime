@@ -1063,7 +1063,8 @@ HWTEST_F(ContextImplTest, GetBundleManager_0100, TestSize.Level1)
     HILOG_INFO("%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
-    EXPECT_NE(contextImpl->GetBundleManager(), nullptr);
+    contextImpl->GetBundleManager();
+    EXPECT_NE(contextImpl->bundleMgr_, nullptr);
     HILOG_INFO("%{public}s end.", __func__);
 }
 

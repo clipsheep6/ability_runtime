@@ -1656,6 +1656,12 @@ NativeValue* JsAbilityContext::OnSetMissionContinueState(NativeEngine& engine, N
         return engine.CreateUndefined();
     }
 
+    if (state <= AAFwk::ContinueState::CONTINUESTATE_UNKNOWN || state >= AAFwk::ContinueState::CONTINUESTATE_MAX) {
+        HILOG_ERROR("OnSetMissionContinueState, invalid state param, state = %{public}d.", state);
+        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return engine.CreateUndefined();
+    }
+
     AsyncTask::CompleteCallback complete =
         [weak = context_, state](NativeEngine& engine, AsyncTask& task, int32_t status) {
             auto context = weak.lock();

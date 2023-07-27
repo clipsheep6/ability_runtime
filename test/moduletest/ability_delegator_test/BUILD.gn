@@ -135,6 +135,7 @@ ohos_moduletest("ability_delegator_registry_moduletest") {
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 
@@ -161,6 +162,7 @@ ohos_moduletest("iability_monitor_moduletest") {
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 
@@ -226,6 +228,7 @@ ohos_moduletest("js_test_runner_moduletest") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 

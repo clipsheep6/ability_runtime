@@ -73,6 +73,18 @@ NativeValue *JsUIExtensionContentSession::LoadContent(NativeEngine* engine, Nati
     return (me != nullptr) ? me->OnLoadContent(*engine, *info) : nullptr;
 }
 
+NativeValue *JsUIExtensionContentSession::SetWindowBackgroundColor(NativeEngine* engine, NativeCallbackInfo* info)
+{
+    JsUIExtensionContentSession* me = CheckParamsAndGetThis<JsUIExtensionContentSession>(engine, info);
+    return (me != nullptr) ? me->OnSetWindowBackgroundColor(*engine, *info) : nullptr;
+}
+
+NativeValue *JsUIExtensionContentSession::SetWindowPrivacyMode(NativeEngine* engine, NativeCallbackInfo* info)
+{
+    JsUIExtensionContentSession* me = CheckParamsAndGetThis<JsUIExtensionContentSession>(engine, info);
+    return (me != nullptr) ? me->OnSetWindowPrivacyMode(*engine, *info) : nullptr;
+}
+
 NativeValue *JsUIExtensionContentSession::OnTerminateSelf(NativeEngine& engine, NativeCallbackInfo& info)
 {
     HILOG_DEBUG("called");
@@ -117,7 +129,7 @@ NativeValue *JsUIExtensionContentSession::OnTerminateSelfWithResult(NativeEngine
         [uiWindow = uiWindow_, sessionInfo = sessionInfo_, want, resultCode](NativeEngine& engine,
             AsyncTask& task, int32_t status) {
             if (uiWindow == nullptr) {
-                HILOG_WARN("uiWindow is nullptr");
+                HILOG_ERROR("uiWindow is nullptr");
                 task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
                 return;
             }
@@ -234,6 +246,62 @@ NativeValue *JsUIExtensionContentSession::OnLoadContent(NativeEngine& engine, Na
     return engine.CreateUndefined();
 }
 
+NativeValue *JsUIExtensionContentSession::OnSetWindowBackgroundColor(NativeEngine& engine, NativeCallbackInfo& info)
+{
+    HILOG_DEBUG("called");
+    std::string color;
+    if (info.argc < ARGC_ONE || !ConvertFromJsValue(engine, info.argv[INDEX_ZERO], color)) {
+        HILOG_ERROR("invalid param");
+        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return engine.CreateUndefined();
+    }
+
+    if (uiWindow_ == nullptr) {
+        HILOG_ERROR("uiWindow_ is nullptr");
+        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
+        return engine.CreateUndefined();
+    }
+    Rosen::WMError ret = uiWindow_->SetBackgroundColor(color);
+    if (ret == Rosen::WMError::WM_OK) {
+        HILOG_DEBUG("SetBackgroundColor success");
+    } else {
+        HILOG_ERROR("SetBackgroundColor failed, ret=%{public}d", ret);
+        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
+    }
+    return engine.CreateUndefined();
+}
+
+NativeValue *JsUIExtensionContentSession::OnSetWindowPrivacyMode(NativeEngine& engine, NativeCallbackInfo& info)
+{
+    HILOG_DEBUG("called");
+    bool isPrivacyMode = false;
+    if (info.argc < ARGC_ONE || !ConvertFromJsValue(engine, info.argv[INDEX_ZERO], isPrivacyMode)) {
+        HILOG_ERROR("invalid param");
+        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return engine.CreateUndefined();
+    }
+
+    AsyncTask::CompleteCallback complete =
+        [uiWindow = uiWindow_, isPrivacyMode](NativeEngine& engine, AsyncTask& task, int32_t status) {
+            if (uiWindow == nullptr) {
+                HILOG_ERROR("uiWindow is nullptr");
+                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            auto ret = uiWindow->SetPrivacyMode(isPrivacyMode);
+            if (ret == Rosen::WMError::WM_OK) {
+                task.ResolveWithNoError(engine, engine.CreateUndefined());
+            } else {
+                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+            }
+        };
+    NativeValue* lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue* result = nullptr;
+    AsyncTask::Schedule("JsUIExtensionContentSession::OnSetWindowPrivacyMode",
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
 NativeValue *JsUIExtensionContentSession::CreateJsUIExtensionContentSession(NativeEngine& engine,
     sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow)
 {
@@ -251,6 +319,8 @@ NativeValue *JsUIExtensionContentSession::CreateJsUIExtensionContentSession(Nati
     BindNativeFunction(engine, *object, "sendData", moduleName, SendData);
     BindNativeFunction(engine, *object, "setReceiveDataCallback", moduleName, SetReceiveDataCallback);
     BindNativeFunction(engine, *object, "loadContent", moduleName, LoadContent);
+    BindNativeFunction(engine, *object, "setWindowBackgroundColor", moduleName, SetWindowBackgroundColor);
+    BindNativeFunction(engine, *object, "setWindowPrivacyMode", moduleName, SetWindowPrivacyMode);
     return objValue;
 }
 

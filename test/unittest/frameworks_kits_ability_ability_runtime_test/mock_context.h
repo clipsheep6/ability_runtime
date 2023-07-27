@@ -49,6 +49,10 @@ public:
 
     std::string GetDistributedFilesDir() override;
 
+    int32_t GetSystemDatabaseDir(const std::string &groupId, bool checkExist, std::string &databaseDir) override;
+
+    int32_t GetSystemPreferencesDir(const std::string &groupId, bool checkExist, std::string &preferencesDir) override;
+
     void SwitchArea(int mode) override;
 
     std::shared_ptr<Context> CreateModuleContext(const std::string &moduleName) override;

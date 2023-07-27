@@ -227,6 +227,10 @@ void JsAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(&nativeEngine), want);
     NativeValue *jsWant = reinterpret_cast<NativeValue *>(napiWant);
+    if (jsWant == nullptr) {
+        HILOG_ERROR("jsWant is nullptr");
+        return;
+    }
 
     obj->SetProperty("launchWant", jsWant);
     obj->SetProperty("lastRequestWant", jsWant);
@@ -458,6 +462,10 @@ void JsAbility::OnForeground(const Want &want)
 
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(&nativeEngine), want);
     NativeValue *jsWant = reinterpret_cast<NativeValue *>(napiWant);
+    if(jsWant == nullptr) {
+        HILOG_ERROR("jsWant is nullptr");
+        return;
+    }
 
     obj->SetProperty("lastRequestWant", jsWant);
 
@@ -1014,6 +1022,7 @@ std::shared_ptr<AppExecFwk::ADelegatorAbilityProperty> JsAbility::CreateADelegat
     auto property = std::make_shared<AppExecFwk::ADelegatorAbilityProperty>();
     property->token_          = GetAbilityContext()->GetToken();
     property->name_           = GetAbilityName();
+    property->moduleName_     = GetModuleName();
     if (GetApplicationInfo() == nullptr || GetApplicationInfo()->bundleName.empty()) {
         property->fullName_ = GetAbilityName();
     } else {

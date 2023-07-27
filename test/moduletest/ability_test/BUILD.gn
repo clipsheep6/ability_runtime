@@ -81,6 +81,7 @@ ohos_moduletest("ability_moduletest") {
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -89,6 +90,10 @@ ohos_moduletest("ability_moduletest") {
   if (ability_runtime_graphics) {
     deps += [ "${multimedia_path}/interfaces/innerkits:image_native" ]
     external_deps += [ "input:libmmi-client" ]
+  }
+
+  if (ecologic_rule_enabled) {
+    external_deps += [ "ecological_rule_mgr:erms_client" ]
   }
 }
 
@@ -135,12 +140,17 @@ ohos_moduletest("ability_conetxt_test") {
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
   if (ability_runtime_graphics) {
     external_deps += [ "input:libmmi-client" ]
+  }
+
+  if (ecologic_rule_enabled) {
+    external_deps += [ "ecological_rule_mgr:erms_client" ]
   }
 }
 
@@ -169,6 +179,7 @@ ohos_moduletest("ability_thread_call_request_module_test") {
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
+    "napi:ace_napi",
   ]
 }
 
@@ -212,6 +223,7 @@ ohos_moduletest("data_ability_operation_moduletest") {
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -220,6 +232,10 @@ ohos_moduletest("data_ability_operation_moduletest") {
   if (ability_runtime_graphics) {
     deps += [ "${multimedia_path}/interfaces/innerkits:image_native" ]
     external_deps += [ "input:libmmi-client" ]
+  }
+
+  if (ecologic_rule_enabled) {
+    external_deps += [ "ecological_rule_mgr:erms_client" ]
   }
 }
 
@@ -262,6 +278,7 @@ ohos_moduletest("data_ability_helper_module_test") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -269,6 +286,10 @@ ohos_moduletest("data_ability_helper_module_test") {
 
   if (ability_runtime_graphics) {
     external_deps += [ "input:libmmi-client" ]
+  }
+
+  if (ecologic_rule_enabled) {
+    external_deps += [ "ecological_rule_mgr:erms_client" ]
   }
 }
 
@@ -308,6 +329,7 @@ ohos_moduletest("ability_post_event_timeout_test") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -315,6 +337,10 @@ ohos_moduletest("ability_post_event_timeout_test") {
 
   if (ability_runtime_graphics) {
     external_deps += [ "input:libmmi-client" ]
+  }
+
+  if (ecologic_rule_enabled) {
+    external_deps += [ "ecological_rule_mgr:erms_client" ]
   }
 }
 

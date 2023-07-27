@@ -115,7 +115,8 @@ HWTEST_F(AbilityExtensionModuleLoaderTest, RequestInfo_GetToken_0100, TestSize.L
 {
     HILOG_INFO("RequestInfo_GetToken_0100 start");
     sptr<IRemoteObject> token = nullptr;
-    auto requestInfo = std::make_shared<RequestInfo>(token);
+    int32_t left = 0, top = 0, width = 0, height = 0;
+    auto requestInfo = std::make_shared<RequestInfo>(token, left, top, width, height);
     EXPECT_EQ(requestInfo->GetToken(), nullptr);
     HILOG_INFO("RequestInfo_GetToken_0100 end");
 }

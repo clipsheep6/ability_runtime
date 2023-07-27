@@ -409,26 +409,6 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_013, TestSize.Level1)
  * Function: OnRemoteRequest
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService OnRemoteRequest
- * EnvConditions: code is TERMINATE_ABILITY_RESULT
- * CaseDescription: Verify that on remote request is normal
- */
-HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_015, TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    WriteInterfaceToken(data);
-    int res = stub_->OnRemoteRequest(static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_ABILITY_RESULT),
-        data, reply, option);
-
-    EXPECT_EQ(res, NO_ERROR);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: OnRemoteRequest
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService OnRemoteRequest
  * EnvConditions: code is default
  * CaseDescription: Verify that on remote request is normal
  */
@@ -580,22 +560,6 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_SendResultToAbilityInner_001
 
 /*
  * Feature: AbilityManagerService
- * Function: TerminateAbilityByCallerInner
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService TerminateAbilityByCallerInner
- * EnvConditions: NA
- * CaseDescription: Verify the function TerminateAbilityByCallerInner is normal flow.
- */
-HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_TerminateAbilityByCallerInner_001, TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    auto res = stub_->TerminateAbilityByCallerInner(data, reply);
-    EXPECT_EQ(res, NO_ERROR);
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: MinimizeAbilityInner
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService MinimizeAbilityInner
@@ -671,22 +635,6 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_ScheduleDisconnectAbilityDon
     MessageParcel data;
     MessageParcel reply;
     auto res = stub_->ScheduleDisconnectAbilityDoneInner(data, reply);
-    EXPECT_EQ(res, NO_ERROR);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: TerminateAbilityResultInner
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService TerminateAbilityResultInner
- * EnvConditions: NA
- * CaseDescription: Verify the function TerminateAbilityResultInner is normal flow.
- */
-HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_TerminateAbilityResultInner_001, TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    auto res = stub_->TerminateAbilityResultInner(data, reply);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -2154,6 +2102,19 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_DumpAbilityInfoDoneInner_001
     EXPECT_EQ(res, NO_ERROR);
 }
 
+/**
+ * @tc.number: HandleReportDrawnCompleted_001
+ * @tc.name: HandleReportDrawnCompleted
+ * @tc.desc: Returns ERR_INVALID_VALUE after passing in parameters
+ */
+HWTEST_F(AbilityManagerStubTest, HandleReportDrawnCompleted_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->HandleReportDrawnCompleted(data, reply);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
 /*
  * Feature: AbilityManagerService
  * Function: UpdateMissionSnapShotInner
@@ -2252,6 +2213,22 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_GetDlpConnectionInfosInner_0
     MessageParcel reply;
     auto res = stub_->GetDlpConnectionInfosInner(data, reply);
     EXPECT_EQ(res, ERR_OK);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: SetMissionContinueStateInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService SetMissionContinueStateInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function SetMissionContinueStateInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_SetMissionContinueStateInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->SetMissionContinueStateInner(data, reply);
+    EXPECT_EQ(res, ERR_NULL_OBJECT);
 }
 
 /*

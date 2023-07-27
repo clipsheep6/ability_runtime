@@ -17,173 +17,33 @@
 #define private public
 #define protected public
 #include "ability_manager_service.h"
-#include "ability_event_handler.h"
 #undef private
 #undef protected
-
-#include "app_process_data.h"
-#include "system_ability_definition.h"
-#include "ability_manager_errors.h"
-#include "ability_scheduler.h"
-#include "sa_mgr_client.h"
-#include "mock_ability_connect_callback.h"
-#include "mock_ability_token.h"
-#include "mock_bundle_mgr.h"
-#include "nativetoken_kit.h"
-#include "token_setproc.h"
-#include "if_system_ability_manager.h"
-#include "iservice_registry.h"
 
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
 
-namespace {
-const std::string DEVICE_ID = "15010038475446345206a332922cb765";
-const std::string BUNDLE_NAME = "testBundle";
-const std::string NAME = ".testMainAbility";
-}
-
 namespace OHOS {
 namespace AAFwk {
-static void WaitUntilTaskFinished()
-{
-    const uint32_t maxRetryCount = 1000;
-    const uint32_t sleepTime = 1000;
-    uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
-    std::atomic<bool> taskCalled(false);
-    auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->SubmitTask(f)) {
-        while (!taskCalled.load()) {
-            ++count;
-            if (count >= maxRetryCount) {
-                break;
-            }
-            usleep(sleepTime);
-        }
-    }
-}
-
-#define SLEEP(milli) std::this_thread::sleep_for(std::chrono::seconds(milli))
-
-namespace {
-const std::string WaitUntilTaskFinishedByTimer = "BundleMgrService";
-
-void SetNativeToken()
-{
-    uint64_t tokenId;
-    const char* perms[] = {
-        "ohos.permission.START_INVISIBLE_ABILITY",
-        "ohos.permission.START_ABILITIES_FROM_BACKGROUND",
-        "ohos.permission.START_ABILIIES_FROM_BACKGROUND",
-        "ohos.permission.ABILITY_BACKGROUND_COMMUNICATION"
-    };
-    NativeTokenInfoParams infoInstance = {
-        .dcapsNum = 0,
-        .permsNum = 4,
-        .aclsNum = 0,
-        .dcaps = nullptr,
-        .perms = perms,
-        .acls = nullptr,
-        .aplStr = "system_core",
-    };
-
-    infoInstance.processName = "SetUpTestCase";
-    tokenId = GetAccessTokenId(&infoInstance);
-    SetSelfTokenID(tokenId);
-}
-}  // namespace
-
 class AbilityManagerServiceTest : public testing::Test {
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
-    void OnStartAms();
-    void OnStopAms();
-    int StartAbility(const Want& want);
-    static constexpr int TEST_WAIT_TIME = 100000;
-
 public:
     AbilityRequest abilityRequest_;
     std::shared_ptr<AbilityRecord> abilityRecord_{ nullptr };
-    std::shared_ptr<AbilityManagerService> abilityMs_ = DelayedSingleton<AbilityManagerService>::GetInstance();
 };
 
-int AbilityManagerServiceTest::StartAbility(const Want& want)
-{
-    int ref = -1;
-    return ref;
-}
+void AbilityManagerServiceTest::SetUpTestCase() {}
 
-void AbilityManagerServiceTest::OnStartAms()
-{
-    if (abilityMs_) {
-        if (abilityMs_->state_ == ServiceRunningState::STATE_RUNNING) {
-            return;
-        }
+void AbilityManagerServiceTest::TearDownTestCase() {}
 
-        abilityMs_->state_ = ServiceRunningState::STATE_RUNNING;
+void AbilityManagerServiceTest::SetUp() {}
 
-        abilityMs_->taskHandler_ = TaskHandlerWrap::CreateQueueHandler("AbilityManagerServiceTest");
-        abilityMs_->eventHandler_ = std::make_shared<AbilityEventHandler>(abilityMs_->taskHandler_, abilityMs_);
-        abilityMs_->connectManager_ = std::make_shared<AbilityConnectManager>(0);
-        abilityMs_->connectManagers_.emplace(0, abilityMs_->connectManager_);
-        EXPECT_TRUE(abilityMs_->taskHandler_);
-        EXPECT_TRUE(abilityMs_->connectManager_);
-
-        abilityMs_->dataAbilityManager_ = std::make_shared<DataAbilityManager>();
-        abilityMs_->dataAbilityManagers_.emplace(0, abilityMs_->dataAbilityManager_);
-        EXPECT_TRUE(abilityMs_->dataAbilityManager_);
-
-        AmsConfigurationParameter::GetInstance().Parse();
-
-        abilityMs_->pendingWantManager_ = std::make_shared<PendingWantManager>();
-        EXPECT_TRUE(abilityMs_->pendingWantManager_);
-
-        abilityMs_->currentMissionListManager_ = std::make_shared<MissionListManager>(0);
-        abilityMs_->currentMissionListManager_->Init();
-        return;
-    }
-
-    GTEST_LOG_(INFO) << "OnStart fail";
-}
-
-void AbilityManagerServiceTest::OnStopAms()
-{
-    abilityMs_->OnStop();
-}
-
-void AbilityManagerServiceTest::SetUpTestCase()
-{
-    OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
-        OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, new BundleMgrService());
-    SetNativeToken();
-}
-
-void AbilityManagerServiceTest::TearDownTestCase()
-{
-    OHOS::DelayedSingleton<SaMgrClient>::DestroyInstance();
-}
-
-void AbilityManagerServiceTest::SetUp()
-{
-    OnStartAms();
-    WaitUntilTaskFinished();
-    if (abilityRecord_ == nullptr) {
-        abilityRequest_.appInfo.bundleName = "data.client.bundle";
-        abilityRequest_.abilityInfo.name = "ClientAbility";
-        abilityRequest_.abilityInfo.type = AbilityType::DATA;
-        abilityRecord_ = AbilityRecord::CreateAbilityRecord(abilityRequest_);
-    }
-}
-
-void AbilityManagerServiceTest::TearDown()
-{
-    OnStopAms();
-}
+void AbilityManagerServiceTest::TearDown() {}
 
 /**
  * @tc.name: CheckStartByCallPermission_001
@@ -193,6 +53,14 @@ void AbilityManagerServiceTest::TearDown()
  */
 HWTEST_F(AbilityManagerServiceTest, CheckStartByCallPermission_001, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
+    if (abilityRecord_ == nullptr) {
+        abilityRequest_.appInfo.bundleName = "data.client.bundle";
+        abilityRequest_.abilityInfo.name = "ClientAbility";
+        abilityRequest_.abilityInfo.type = AbilityType::DATA;
+        abilityRecord_ = AbilityRecord::CreateAbilityRecord(abilityRequest_);
+    }
     abilityRequest_.callerUid = 0;
     EXPECT_EQ(RESOLVE_CALL_ABILITY_TYPE_ERR, abilityMs_->CheckStartByCallPermission(abilityRequest_));
 }
@@ -205,10 +73,18 @@ HWTEST_F(AbilityManagerServiceTest, CheckStartByCallPermission_001, TestSize.Lev
  */
 HWTEST_F(AbilityManagerServiceTest, CheckStartByCallPermission_002, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
+    if (abilityRecord_ == nullptr) {
+        abilityRequest_.appInfo.bundleName = "data.client.bundle";
+        abilityRequest_.abilityInfo.name = "ClientAbility";
+        abilityRequest_.abilityInfo.type = AbilityType::DATA;
+        abilityRecord_ = AbilityRecord::CreateAbilityRecord(abilityRequest_);
+    }
     abilityRequest_.callerUid = 1000;
     abilityRequest_.abilityInfo.type = AppExecFwk::AbilityType::PAGE;
     abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
-    EXPECT_EQ(ERR_OK, abilityMs_->CheckStartByCallPermission(abilityRequest_));
+    EXPECT_EQ(RESOLVE_CALL_NO_PERMISSIONS, abilityMs_->CheckStartByCallPermission(abilityRequest_));
 }
 }
 }

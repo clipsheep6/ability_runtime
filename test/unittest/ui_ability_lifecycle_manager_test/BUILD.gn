@@ -53,6 +53,7 @@ ohos_unittest("ui_ability_lifecycle_manager_test") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "window_manager:scene_session",

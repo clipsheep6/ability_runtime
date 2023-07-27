@@ -42,6 +42,7 @@ ohos_unittest("atomic_service_status_callback_stub_test") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
   ]
 }
 

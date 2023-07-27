@@ -20,7 +20,6 @@
 #include "ipc_skeleton.h"
 #include "js_application_context_utils.h"
 #include "js_data_struct_converter.h"
-#include "js_hap_module_info_utils.h"
 #include "js_resource_manager_utils.h"
 #include "js_runtime_utils.h"
 #include "tokenid_kit.h"
@@ -604,7 +603,12 @@ NativeValue* CreateJsBaseContext(NativeEngine& engine, std::shared_ptr<Context> 
     }
     auto resourceManager = context->GetResourceManager();
     if (resourceManager != nullptr) {
-        object->SetProperty("resourceManager", CreateJsResourceManager(engine, resourceManager, context));
+        auto jsResourceManager = CreateJsResourceManager(engine, resourceManager, context);
+        if (jsResourceManager != nullptr) {
+            object->SetProperty("resourceManager", jsResourceManager);
+        } else {
+            HILOG_ERROR("jsResourceManager is nullptr");
+        }
     }
 
     BindNativeProperty(*object, "cacheDir", JsBaseContext::GetCacheDir);

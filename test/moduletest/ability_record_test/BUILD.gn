@@ -82,6 +82,7 @@ ohos_moduletest("AbilityRecordModuleTest") {
     "hitrace:hitrace_meter",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -106,6 +107,10 @@ ohos_moduletest("AbilityRecordModuleTest") {
       "input:libmmi-client",
       "window_manager:libdm",
     ]
+  }
+
+  if (ecologic_rule_enabled) {
+    external_deps += [ "ecological_rule_mgr:erms_client" ]
   }
 }
 

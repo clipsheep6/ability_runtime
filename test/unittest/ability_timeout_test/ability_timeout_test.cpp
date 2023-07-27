@@ -17,20 +17,10 @@
 #define private public
 #define protected public
 #include "ability_manager_service.h"
-#include "ability_event_handler.h"
 #undef private
 #undef protected
 
-#include "app_process_data.h"
-#include "system_ability_definition.h"
 #include "ability_manager_errors.h"
-#include "ability_scheduler.h"
-#include "bundlemgr/mock_bundle_manager.h"
-#include "sa_mgr_client.h"
-#include "mock_ability_connect_callback.h"
-#include "mock_ability_token.h"
-#include "if_system_ability_manager.h"
-#include "iservice_registry.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -44,57 +34,13 @@ const int32_t MOCK_MISSION_ID = 10000;
 const int32_t MOCK_U0_USER_ID = 0;
 }  // namespace
 
-static void WaitUntilTaskFinished()
-{
-    const uint32_t maxRetryCount = 1000;
-    const uint32_t sleepTime = 1000;
-    uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
-    std::atomic<bool> taskCalled(false);
-    auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->SubmitTask(f)) {
-        while (!taskCalled.load()) {
-            ++count;
-            if (count >= maxRetryCount) {
-                break;
-            }
-            usleep(sleepTime);
-        }
-    }
-}
-
-static void WaitUntilTaskFinishedByTimer()
-{
-    const uint32_t maxRetryCount = 1000;
-    const uint32_t sleepTime = 1000;
-    uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
-    std::atomic<bool> taskCalled(false);
-    auto f = [&taskCalled]() { taskCalled.store(true); };
-    int sleepingTime = 5000;
-    if (handler->SubmitTask(f, "AbilityManagerServiceTest", sleepingTime)) {
-        while (!taskCalled.load()) {
-            ++count;
-            if (count >= maxRetryCount) {
-                break;
-            }
-            usleep(sleepTime);
-        }
-    }
-}
-
 class AbilityTimeoutTest : public testing::Test {
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
-    void MockOnStart();
-    static void MockOnStop();
     static constexpr int TEST_WAIT_TIME = 100000;
-
-public:
-    std::shared_ptr<AbilityManagerService> abilityMs_ = DelayedSingleton<AbilityManagerService>::GetInstance();
 };
 
 void AbilityTimeoutTest::SetUpTestCase()
@@ -104,87 +50,13 @@ void AbilityTimeoutTest::SetUpTestCase()
 
 void AbilityTimeoutTest::TearDownTestCase()
 {
-    MockOnStop();
     GTEST_LOG_(INFO) << "TearDownTestCase.";
 }
 
-void AbilityTimeoutTest::SetUp()
-{
-    MockOnStart();
-}
+void AbilityTimeoutTest::SetUp() {}
 
-void AbilityTimeoutTest::TearDown()
-{
-    WaitUntilTaskFinishedByTimer();
-    abilityMs_->currentMissionListManager_->terminateAbilityList_.clear();
-    abilityMs_->currentMissionListManager_->launcherList_->missions_.clear();
-    abilityMs_->currentMissionListManager_->defaultStandardList_->missions_.clear();
-    abilityMs_->currentMissionListManager_->defaultSingleList_->missions_.clear();
-    abilityMs_->currentMissionListManager_->currentMissionLists_.clear();
-    abilityMs_->currentMissionListManager_->currentMissionLists_.push_front(
-        abilityMs_->currentMissionListManager_->launcherList_);
-}
+void AbilityTimeoutTest::TearDown() {}
 
-void AbilityTimeoutTest::MockOnStart()
-{
-    if (!abilityMs_) {
-        GTEST_LOG_(ERROR) << "Mock OnStart failed.";
-        return;
-    }
-    if (abilityMs_->state_ == ServiceRunningState::STATE_RUNNING) {
-        return;
-    }
-    abilityMs_->taskHandler_ = TaskHandlerWrap::CreateQueueHandler(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
-    abilityMs_->eventHandler_ = std::make_shared<AbilityEventHandler>(abilityMs_->taskHandler_, abilityMs_);
-    EXPECT_TRUE(abilityMs_->taskHandler_);
-    EXPECT_TRUE(abilityMs_->eventHandler_);
-
-    // init user controller.
-    abilityMs_->userController_ = std::make_shared<UserController>();
-    EXPECT_TRUE(abilityMs_->userController_);
-    abilityMs_->userController_->Init();
-    int userId = MOCK_MAIN_USER_ID;
-
-    abilityMs_->InitConnectManager(userId, true);
-    abilityMs_->InitDataAbilityManager(userId, true);
-    abilityMs_->InitPendWantManager(userId, true);
-    abilityMs_->systemDataAbilityManager_ = std::make_shared<DataAbilityManager>();
-    EXPECT_TRUE(abilityMs_->systemDataAbilityManager_);
-
-    AmsConfigurationParameter::GetInstance().Parse();
-
-    abilityMs_->InitMissionListManager(userId, true);
-    abilityMs_->SwitchManagers(MOCK_U0_USER_ID, false);
-
-    abilityMs_->state_ = ServiceRunningState::STATE_RUNNING;
-    abilityMs_->iBundleManager_ = new BundleMgrService();
-
-    WaitUntilTaskFinished();
-}
-
-void AbilityTimeoutTest::MockOnStop()
-{
-    WaitUntilTaskFinishedByTimer();
-    auto abilityMs_ = DelayedSingleton<AbilityManagerService>::GetInstance();
-    if (!abilityMs_) {
-        GTEST_LOG_(ERROR) << "Mock OnStart failed.";
-        return;
-    }
-
-    abilityMs_->connectManagers_.clear();
-    abilityMs_->connectManager_.reset();
-    abilityMs_->iBundleManager_.clear();
-    abilityMs_->dataAbilityManagers_.clear();
-    abilityMs_->dataAbilityManager_.reset();
-    abilityMs_->systemDataAbilityManager_.reset();
-    abilityMs_->pendingWantManagers_.clear();
-    abilityMs_->pendingWantManager_.reset();
-    abilityMs_->missionListManagers_.clear();
-    abilityMs_->currentMissionListManager_.reset();
-    abilityMs_->userController_.reset();
-    abilityMs_->abilityController_.clear();
-    abilityMs_->OnStop();
-}
 /*
  * Feature: AbilityManagerService
  * Function: GetMaxRestartNum
@@ -195,6 +67,8 @@ void AbilityTimeoutTest::MockOnStop()
  */
 HWTEST_F(AbilityTimeoutTest, GetMaxRestartNum_001, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
 
     int maxRestart = -1;
@@ -213,6 +87,8 @@ HWTEST_F(AbilityTimeoutTest, GetMaxRestartNum_001, TestSize.Level1)
  */
 HWTEST_F(AbilityTimeoutTest, OnAbilityDied_001, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto defList = abilityMs_->currentMissionListManager_->defaultStandardList_;
@@ -246,6 +122,8 @@ HWTEST_F(AbilityTimeoutTest, OnAbilityDied_001, TestSize.Level1)
  */
 HWTEST_F(AbilityTimeoutTest, OnAbilityDied_002, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
@@ -284,6 +162,8 @@ HWTEST_F(AbilityTimeoutTest, OnAbilityDied_002, TestSize.Level1)
  */
 HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_001, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
@@ -324,6 +204,8 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_001, TestSize.Level1)
  */
 HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_002, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     auto curListManager = abilityMs_->currentMissionListManager_;
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
@@ -379,6 +261,8 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_002, TestSize.Level1)
  */
 HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_003, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     auto curListManager = abilityMs_->currentMissionListManager_;
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
@@ -441,6 +325,8 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_003, TestSize.Level1)
  */
 HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_004, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     auto curListManager = abilityMs_->currentMissionListManager_;
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
@@ -504,6 +390,8 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_004, TestSize.Level1)
  */
 HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_005, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     auto curListManager = abilityMs_->currentMissionListManager_;
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
@@ -567,6 +455,8 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_005, TestSize.Level1)
  */
 HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_006, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     auto curListManager = abilityMs_->currentMissionListManager_;
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
@@ -628,6 +518,8 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_006, TestSize.Level1)
  */
 HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_007, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     auto curListManager = abilityMs_->currentMissionListManager_;
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
@@ -691,6 +583,8 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_007, TestSize.Level1)
  */
 HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_001, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     auto curListManager = abilityMs_->currentMissionListManager_;
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
@@ -732,6 +626,8 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_001, TestSize.Level1)
  */
 HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_002, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     auto curListManager = abilityMs_->currentMissionListManager_;
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
@@ -786,6 +682,8 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_002, TestSize.Level1)
  */
 HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_003, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     auto curListManager = abilityMs_->currentMissionListManager_;
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
@@ -849,6 +747,8 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_003, TestSize.Level1)
  */
 HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_004, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     auto curListManager = abilityMs_->currentMissionListManager_;
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
@@ -913,6 +813,8 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_004, TestSize.Level1)
  */
 HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_005, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     auto curListManager = abilityMs_->currentMissionListManager_;
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
@@ -978,6 +880,8 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_005, TestSize.Level1)
  */
 HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_006, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     auto curListManager = abilityMs_->currentMissionListManager_;
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
@@ -1043,6 +947,8 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_006, TestSize.Level1)
  */
 HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_007, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
     EXPECT_TRUE(abilityMs_ != nullptr);
     auto curListManager = abilityMs_->currentMissionListManager_;
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;

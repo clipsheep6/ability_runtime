@@ -437,6 +437,7 @@ std::unique_ptr<Media::PixelMap> MissionDataStorage::GetPixelMap(int missionId, 
 
 void MissionDataStorage::WriteRgb888ToJpeg(const char* fileName, uint32_t width, uint32_t height, const uint8_t* data)
 {
+    HILOG_INFO("file:%{public}s", fileName);
     if (data == nullptr) {
         HILOG_ERROR("snapshot: data error, nullptr!\n");
         return;

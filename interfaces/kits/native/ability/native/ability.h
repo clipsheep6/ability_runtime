@@ -63,6 +63,9 @@ class Runtime;
 }
 #ifdef SUPPORT_GRAPHICS
 class KeyEvent;
+namespace Ace {
+class UIContent;
+}
 #endif
 namespace AppExecFwk {
 using FeatureAbilityTask = std::function<void(int, const AAFwk::Want&)>;
@@ -346,6 +349,13 @@ public:
      * @return Returns true if the current ability is being destroyed; returns false otherwise.
      */
     bool IsTerminating();
+
+    /**
+     * @brief Obtains the mole name in this ability name, without the prefixed bundle name.
+     *
+     * @return Returns the module name of this ability.
+     */
+    std::string GetModuleName();
 
     /**
      * @brief Called when startAbilityForResult(ohos.aafwk.content.Want,int) is called to start an ability and the
@@ -1115,6 +1125,23 @@ public:
      * @return Returns ERR_OK if success.
      */
     virtual ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon) override;
+
+    /**
+     * @brief Get window rectangle of this ability.
+     *
+     * @param the left position of window rectangle.
+     * @param the top position of window rectangle.
+     * @param the width position of window rectangle.
+     * @param the height position of window rectangle.
+     */
+    virtual void GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t &height) override;
+
+    /**
+     * @brief Get ui content object.
+     *
+     * @return UIContent object of ACE.
+     */
+    Ace::UIContent* GetUIContent() override;
 
 protected:
     class AbilityDisplayListener : public OHOS::Rosen::DisplayManager::IDisplayListener {

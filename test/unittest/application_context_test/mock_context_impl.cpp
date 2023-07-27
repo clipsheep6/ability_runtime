@@ -74,6 +74,17 @@ std::string MockContextImpl::GetGroupDir(std::string groupId)
     return "/group";
 }
 
+int32_t MockContextImpl::GetSystemDatabaseDir(const std::string &groupId, bool checkExist, std::string &databaseDir)
+{
+    return 0;
+}
+
+int32_t MockContextImpl::GetSystemPreferencesDir(const std::string &groupId, bool checkExist,
+    std::string &preferencesDir)
+{
+    return 0;
+}
+
 std::shared_ptr<Context> MockContextImpl::CreateModuleContext(const std::string &moduleName)
 {
     std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();

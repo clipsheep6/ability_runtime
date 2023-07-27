@@ -48,10 +48,10 @@ public:
 
     std::shared_ptr<AbilityManagerClient> client_{ nullptr };
     sptr<AbilityManagerStubTestMock> mock_{ nullptr };
-    sptr<SessionInfo> MockSessionInfo(uint64_t persistentId);
+    sptr<SessionInfo> MockSessionInfo(int32_t persistentId);
 };
 
-    sptr<SessionInfo> AbilityManagerClientBranchTest::MockSessionInfo(uint64_t persistentId)
+    sptr<SessionInfo> AbilityManagerClientBranchTest::MockSessionInfo(int32_t persistentId)
 {
     sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
     if (!sessionInfo) {
@@ -223,32 +223,6 @@ HWTEST_F(AbilityManagerClientBranchTest, StopExtensionAbility_0100, TestSize.Lev
     int32_t userId = DEFAULT_INVAL_VALUE;
     AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
     auto result = client_->StopExtensionAbility(want, callerToken, userId, extensionType);
-    EXPECT_EQ(ERR_OK, result);
-}
-
-/**
- * @tc.name: AbilityManagerClient_TerminateAbility_0100
- * @tc.desc: TerminateAbility
- * @tc.type: FUNC
- * @tc.require: issueI5NRWT
- */
-HWTEST_F(AbilityManagerClientBranchTest, TerminateAbility_0100, TestSize.Level1)
-{
-    sptr<IRemoteObject> callerToken = nullptr;
-    auto result = client_->TerminateAbility(callerToken, -1);
-    EXPECT_EQ(ERR_OK, result);
-}
-
-/**
- * @tc.name: AbilityManagerClient_TerminateAbilityResult_0100
- * @tc.desc: TerminateAbilityResult
- * @tc.type: FUNC
- * @tc.require: issueI5NRWT
- */
-HWTEST_F(AbilityManagerClientBranchTest, TerminateAbilityResult_0100, TestSize.Level1)
-{
-    sptr<IRemoteObject> callerToken = nullptr;
-    auto result = client_->TerminateAbilityResult(callerToken, 1);
     EXPECT_EQ(ERR_OK, result);
 }
 
@@ -1092,7 +1066,7 @@ HWTEST_F(AbilityManagerClientBranchTest, StartUIExtensionAbility_0100, TestSize.
     GTEST_LOG_(INFO) << "StartUIExtensionAbility_0100 start";
     Want want;
     EXPECT_EQ(client_->StartUIExtensionAbility(nullptr, 100),
-        ERR_OK);
+        ABILITY_SERVICE_NOT_CONNECTED);
     GTEST_LOG_(INFO) << "StartUIExtensionAbility_0100 end";
 }
 
@@ -1434,5 +1408,44 @@ HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_SetSessionManagerS
     auto result = client_->SetSessionManagerService(sessionManagerService);
     EXPECT_TRUE(result = ERR_WRONG_INTERFACE_CALL);
 }
+
+/**
+ * @tc.number: ReportDrawnCompleted_0100
+ * @tc.name: ReportDrawnCompleted
+ * @tc.desc: After passing in a callerToken with parameter nullptr, INNER_ERR is returned
+ */
+HWTEST_F(AbilityManagerClientBranchTest, ReportDrawnCompleted_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> callerToken = nullptr;
+    auto result = AbilityManagerClient::GetInstance()->ReportDrawnCompleted(callerToken);
+    EXPECT_EQ(result, INNER_ERR);
+}
+
+/**
+ * @tc.number: ReportDrawnCompleted_0200
+ * @tc.name: ReportDrawnCompleted
+ * @tc.desc: After passing in the parameter callerToken, ERR_OK is returned
+ */
+HWTEST_F(AbilityManagerClientBranchTest, ReportDrawnCompleted_0200, TestSize.Level1)
+{
+    sptr<IRemoteObject> callerToken = new AbilityManagerStubTestMock();
+    EXPECT_NE(callerToken, nullptr);
+    auto result = AbilityManagerClient::GetInstance()->ReportDrawnCompleted(callerToken);
+    EXPECT_EQ(result, INNER_ERR);
+}
+
+/**
+ * @tc.number: GetElementNameByToken_0100
+ * @tc.name: GetElementNameByToken
+ * @tc.desc: Token is nullptr, empty element name is returned
+ */
+HWTEST_F(AbilityManagerClientBranchTest, GetElementNameByToken_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    ElementName element = {};
+    auto result = AbilityManagerClient::GetInstance()->GetElementNameByToken(token);
+    EXPECT_EQ(result, element);
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS

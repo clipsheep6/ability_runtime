@@ -92,6 +92,14 @@ public:
     std::string GetDatabaseDir() override;
 
     /**
+     * @brief Obtains the local system database path.
+     * If the local group database path does not exist, the system creates one and returns the created path.
+     *
+     * @return Returns the local group database file.
+     */
+    int32_t GetSystemDatabaseDir(const std::string &groupId, bool checkExist, std::string &databaseDir) override;
+
+    /**
      * @brief Obtains the path storing the storage file of the application.
      *
      * @return Returns the local storage file.
@@ -99,9 +107,16 @@ public:
     std::string GetPreferencesDir() override;
 
     /**
-     * @brief Obtains the path storing the storage file of the application by the groupId.
+     * @brief Obtains the path storing the system storage file of the application.
      *
-     * @return Returns the local storage file.
+     * @return Returns the local system storage file.
+     */
+    int32_t GetSystemPreferencesDir(const std::string &groupId, bool checkExist, std::string &preferencesDir) override;
+
+    /**
+     * @brief Obtains the path storing the group file of the application by the groupId.
+     *
+     * @return Returns the local group file.
      */
     std::string GetGroupDir(std::string groupId) override;
 
@@ -175,7 +190,7 @@ public:
     *
     * @return Returns an IBundleMgr instance.
     */
-    sptr<AppExecFwk::IBundleMgr> GetBundleManager() const;
+    ErrCode GetBundleManager();
 
     /**
      * @brief Set ApplicationInfo
@@ -335,6 +350,13 @@ private:
     void ChangeToLocalPath(const std::string &bundleName,
         const std::string &sourcDir, std::string &localPath);
 
+    void CreateDirIfNotExistWithCheck(const std::string& dirPath, const mode_t& mode, bool checkExist = true);
+    int32_t GetDatabaseDirWithCheck(bool checkExist, std::string &databaseDir);
+    int32_t GetGroupDatabaseDirWithCheck(const std::string &groupId, bool checkExist, std::string &databaseDir);
+    int32_t GetPreferencesDirWithCheck(bool checkExist, std::string &preferencesDir);
+    int32_t GetGroupPreferencesDirWithCheck(const std::string &groupId, bool checkExist, std::string &preferencesDir);
+    int32_t GetGroupDirWithCheck(const std::string &groupId, bool checkExist, std::string &groupDir);
+
     static Global::Resource::DeviceType deviceType_;
     std::shared_ptr<AppExecFwk::ApplicationInfo> applicationInfo_ = nullptr;
     std::shared_ptr<Context> parentContext_ = nullptr;
@@ -343,6 +365,15 @@ private:
     std::shared_ptr<AppExecFwk::Configuration> config_ = nullptr;
     std::string currArea_ = "el2";
     std::vector<AppExecFwk::OverlayModuleInfo> overlayModuleInfos_;
+    std::set<std::string> checkedDirSet_;
+    std::mutex checkedDirSetLock_;
+
+    std::mutex bundleManagerMutex_;
+    sptr<AppExecFwk::IBundleMgr> bundleMgr_;
+
+    // True: need to get a new fms remote object,
+    // False: no need to get a new fms remote object.
+    volatile bool resetFlag_ = false;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

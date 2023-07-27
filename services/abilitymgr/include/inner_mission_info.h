@@ -18,6 +18,7 @@
 
 #include <string>
 
+#include "ability_record.h"
 #include "mission_info.h"
 #include "parcel.h"
 
@@ -43,6 +44,7 @@ enum class StartMethod {
 struct InnerMissionInfo {
     MissionInfo missionInfo;
     std::string missionName;
+    std::string missionAffinity;
     int32_t launchMode;
     int32_t startMethod;
     std::string bundleName;
@@ -50,6 +52,7 @@ struct InnerMissionInfo {
     bool isTemporary;
     std::string specifiedFlag;
     bool hasRecoverInfo;
+    int32_t collaboratorType = CollaboratorType::DEFAULT_TYPE;
 
     std::string ToJsonStr() const;
     bool FromJsonStr(const std::string &jsonStr);

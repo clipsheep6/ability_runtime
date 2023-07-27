@@ -141,15 +141,6 @@ public:
         int resultCode, const Want *resultWant, bool flag);
 
     /**
-     * @brief Terminate ability with caller
-     *
-     * @param caller the ability which start the ability
-     * @param requestCode which ability to terminate
-     * @return int error code
-     */
-    int TerminateAbility(const std::shared_ptr<AbilityRecord> &caller, int requestCode);
-
-    /**
      * @brief remove the mission list from the mission list manager
      *
      * @param MissionList the mission list need to remove
@@ -212,8 +203,9 @@ public:
      *
      * @param msgId the msg id in ability record
      * @param abilityRecordId the id of ability record
+     * @param isHalf is half
      */
-    void OnTimeOut(uint32_t msgId, int64_t abilityRecordId);
+    void OnTimeOut(uint32_t msgId, int64_t abilityRecordId, bool isHalf = false);
 
     /**
      * @brief handle when ability died
@@ -357,12 +349,11 @@ public:
     void GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList);
 
     void CallRequestDone(const std::shared_ptr<AbilityRecord> &abilityRecord, const sptr<IRemoteObject> &callStub);
-
-    bool IsTopAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
   
     int SetMissionContinueState(const sptr<IRemoteObject> &token, const int32_t missionId,
         const AAFwk::ContinueState &state);
 
+    int32_t MoveMissionToBackground(int32_t missionId);
 #ifdef SUPPORT_GRAPHICS
 public:
     /**
@@ -386,6 +377,8 @@ public:
     void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) const;
 
     void PostMissionLabelUpdateTask(int missionId) const;
+
+    int32_t TerminateMission(int32_t missionId);
 
 private:
     Closure GetCancelStartingWindowTask(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
@@ -419,7 +412,7 @@ private:
         const std::shared_ptr<Mission> &mission);
     void MoveMissionListToTop(const std::shared_ptr<MissionList> &missionList);
     void MoveNoneTopMissionToDefaultList(const std::shared_ptr<Mission> &mission);
-    void PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId);
+    void PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId, bool isHalf = false);
 
     int DispatchState(const std::shared_ptr<AbilityRecord> &abilityRecord, int state);
     int DispatchForeground(const std::shared_ptr<AbilityRecord> &abilityRecord, bool success,
@@ -491,7 +484,7 @@ private:
     void NotifyMissionCreated(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
     bool IsExcludeFromMissions(const std::shared_ptr<Mission> &mission);
     void BuildInnerMissionInfo(InnerMissionInfo &info, const std::string &missionName,
-        const AbilityRequest &abilityRequest) const;
+        const std::string &missionAffinity, const AbilityRequest &abilityRequest) const;
     void NotifyStartSpecifiedAbility(AbilityRequest &request, const AAFwk::Want &want);
     void NotifyRestartSpecifiedAbility(AbilityRequest &request, const sptr<IRemoteObject> &token);
     void ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const;
@@ -527,6 +520,9 @@ private:
     int PrepareClearMissionLocked(int missionId, const std::shared_ptr<Mission> &mission);
 
     bool CheckPrepareTerminateEnable(const std::shared_ptr<Mission> &mission);
+
+    void NotifyCollaboratorMissionCreated(const AbilityRequest &abilityRequest,
+        const std::shared_ptr<Mission> &targetMission, InnerMissionInfo &info);
 
     int userId_;
     mutable ffrt::mutex managerLock_;

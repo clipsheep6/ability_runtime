@@ -43,6 +43,8 @@ public:
     std::string GetGroupDir(std::string groupId) override;
     std::string GetPreferencesDir() override;
     std::string GetDistributedFilesDir() override;
+    int32_t GetSystemDatabaseDir(const std::string &groupId, bool checkExist, std::string &databaseDir) override;
+    int32_t GetSystemPreferencesDir(const std::string &groupId, bool checkExist, std::string &preferencesDir) override;
     void SwitchArea(int mode) override;
     int GetArea() override;
     std::string GetBundleName() const override;
@@ -223,6 +225,23 @@ public:
      * @return Returns the current window mode.
      */
     int GetCurrentWindowMode() override;
+
+    /**
+     * @brief Get window rectangle of this ability.
+     *
+     * @param the left position of window rectangle.
+     * @param the top position of window rectangle.
+     * @param the width position of window rectangle.
+     * @param the height position of window rectangle.
+     */
+    void GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t &height) override;
+
+    /**
+     * @brief Get ui content object.
+     *
+     * @return UIContent object of ACE.
+     */
+    Ace::UIContent* GetUIContent() override;
 #endif
 
 private:

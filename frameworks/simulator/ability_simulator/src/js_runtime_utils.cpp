@@ -20,7 +20,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
-std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine &engine, NativeValue* lastParam,
+std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine &engine, NativeValue *lastParam,
     std::unique_ptr<AsyncTask::ExecuteCallback> &&execute, std::unique_ptr<AsyncTask::CompleteCallback> &&complete,
     NativeValue **result)
 {
@@ -287,5 +287,5 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(NativeEngin
 
     return std::unique_ptr<NativeReference>(engine->CreateReference(instanceValue, 1));
 }
-}  // namespace AbilityRuntime
-}  // namespace OHOS
+} // namespace AbilityRuntime
+} // namespace OHOS

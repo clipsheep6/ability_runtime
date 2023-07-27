@@ -247,6 +247,14 @@ public:
     void GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info) const;
 
     /**
+     * Set AbilityForegroundingFlag of an app-record to true.
+     *
+     * @param pid, pid.
+     *
+     */
+    void SetAbilityForegroundingFlagToAppRecord(const pid_t pid) const;
+
+    /**
      * Start a resident process
      */
     void StartupResidentProcess(const std::vector<AppExecFwk::BundleInfo> &bundleInfos);

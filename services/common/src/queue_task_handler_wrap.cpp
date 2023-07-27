@@ -25,7 +25,6 @@ QueueTaskHandlerWrap::QueueTaskHandlerWrap(const std::string &queueName, TaskQoS
 std::shared_ptr<InnerTaskHandle> QueueTaskHandlerWrap::SubmitTaskInner(std::function<void()> &&task,
     const TaskAttribute &taskAttr)
 {
-    HILOG_INFO("SubmitTaskInner queue task begin");
     if (taskAttr.IsDefault()) {
         return std::make_shared<InnerTaskHandle>(taskQueue_.submit_h(std::move(task)));
     } else {

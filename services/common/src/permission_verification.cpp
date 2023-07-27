@@ -139,9 +139,6 @@ bool PermissionVerification::VerifyDlpPermission(Want &want) const
         return true;
     }
 
-    if (IsSACall()) {
-        return true;
-    }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_ACCESS_DLP)) {
         return true;
     }
@@ -180,7 +177,7 @@ int PermissionVerification::VerifyAppStateObserverPermission() const
         return ERR_OK;
     }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_RUNNING_STATE_OBSERVER)) {
-        HILOG_INFO("Permission verification succeeded.");
+        HILOG_DEBUG("Permission verification succeeded.");
         return ERR_OK;
     }
     HILOG_ERROR("Permission verification failed.");

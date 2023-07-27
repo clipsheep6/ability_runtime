@@ -39,19 +39,9 @@ ErrCode AppContext::StartAbility(const Want &want, int requestCode,
     return ERR_INVALID_VALUE;
 }
 
-ErrCode AppContext::TerminateAbility(int requestCode)
-{
-    return ERR_INVALID_VALUE;
-}
-
 ErrCode AppContext::TerminateAbility()
 {
     return ERR_INVALID_VALUE;
-}
-
-bool AppContext::TerminateAbilityResult(int startId)
-{
-    return false;
 }
 
 std::string AppContext::GetCallingBundle()

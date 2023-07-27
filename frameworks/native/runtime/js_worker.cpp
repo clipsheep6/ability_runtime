@@ -147,17 +147,12 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
     // 1. compilemode is jsbundle
     // 2. compilemode is esmodule
     if (workerInfo_->isBundle) {
-        // 1.1 start with @bundle:bundlename/modulename
-        // 1.2 start with /modulename
-        // 1.3 start with ../
-        // 1.4 start with modulename
+        // the @bundle:bundlename/modulename only exist in esmodule.
+        // 1.1 start with /modulename
+        // 1.2 start with ../
+        // 1.3 start with modulename
         HILOG_DEBUG("The application is packaged using jsbundle mode.");
-        if (uri.find(BUNDLE_NAME_FLAG) == 0) {
-            size_t index = 0;
-            HILOG_DEBUG("uri start with @bundle:");
-            index = uri.find_first_of("/");
-            realPath = uri.substr(index + 1);
-        } else if (uri.find_first_of("/") == 0) {
+        if (uri.find_first_of("/") == 0) {
             HILOG_DEBUG("uri start with /modulename");
             realPath = uri.substr(1);
         } else if (uri.find("../") == 0 && !workerInfo_->isStageModel) {
@@ -212,6 +207,13 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
         filePath = NormalizedFileName(realPath);
         ami = workerInfo_->codePath + filePath;
         HILOG_DEBUG("Get asset, ami: %{private}s", ami.c_str());
+        if (ami.find(CACHE_DIRECTORY) != std::string::npos) {
+            if (!ReadAmiData(ami, content)) {
+                HILOG_ERROR("Get asset content by ami failed.");
+            }
+        } else if (!ReadFilePathData(filePath, content)) {
+            HILOG_ERROR("Get asset content by filepath failed.");
+        }
     }
 }
 
@@ -327,7 +329,7 @@ bool AssetHelper::ReadFilePathData(const std::string& filePath, std::vector<uint
             return false;
         }
     }
-    
+
     if (!workerInfo_->isDebugVersion && fileLen > ASSET_FILE_MAX_SIZE) {
         HILOG_ERROR("ReadFilePathData failed, file is too large");
         return false;

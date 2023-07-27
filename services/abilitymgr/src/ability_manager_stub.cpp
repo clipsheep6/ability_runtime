@@ -20,6 +20,7 @@
 
 #include "ability_connect_callback_proxy.h"
 #include "ability_connect_callback_stub.h"
+#include "ability_manager_collaborator_proxy.h"
 #include "ability_manager_errors.h"
 #include "ability_scheduler_proxy.h"
 #include "ability_scheduler_stub.h"
@@ -27,6 +28,9 @@
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+const std::u16string extensionDescriptor = u"ohos.aafwk.ExtensionManager";
+}
 AbilityManagerStub::AbilityManagerStub()
 {
     FirstStepInit();
@@ -43,8 +47,6 @@ void AbilityManagerStub::FirstStepInit()
 {
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_ABILITY)] =
         &AbilityManagerStub::TerminateAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_ABILITY_BY_CALLER)] =
-        &AbilityManagerStub::TerminateAbilityByCallerInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MINIMIZE_ABILITY)] =
         &AbilityManagerStub::MinimizeAbilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ATTACH_ABILITY_THREAD)] =
@@ -55,8 +57,6 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::ScheduleConnectAbilityDoneInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DISCONNECT_ABILITY_DONE)] =
         &AbilityManagerStub::ScheduleDisconnectAbilityDoneInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_ABILITY_RESULT)] =
-        &AbilityManagerStub::TerminateAbilityResultInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::COMMAND_ABILITY_DONE)] =
         &AbilityManagerStub::ScheduleCommandAbilityDoneInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::COMMAND_ABILITY_WINDOW_DONE)] =
@@ -135,6 +135,14 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::MinimizeUIAbilityBySCBInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CLOSE_UI_ABILITY_BY_SCB)] =
         &AbilityManagerStub::CloseUIAbilityBySCBInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_COLLABORATOR)] =
+        &AbilityManagerStub::RegisterIAbilityManagerCollaboratorInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_COLLABORATOR)] =
+        &AbilityManagerStub::UnregisterIAbilityManagerCollaboratorInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_MISSION_TO_BACKGROUND)] =
+        &AbilityManagerStub::MoveMissionToBackgroundInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_MISSION)] =
+        &AbilityManagerStub::TerminateMissionInner;
 }
 
 void AbilityManagerStub::SecondStepInit()
@@ -259,8 +267,8 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::GetMissionIdByTokenInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_TOP_ABILITY)] =
         &AbilityManagerStub::GetTopAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_FOCUS_ABILITY)] =
-        &AbilityManagerStub::GetFocusAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ELEMENT_NAME_BY_TOKEN)] =
+        &AbilityManagerStub::GetElementNameByTokenInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DUMP_ABILITY_INFO_DONE)] =
         &AbilityManagerStub::DumpAbilityInfoDoneInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_EXTENSION_ABILITY)] =
@@ -317,9 +325,9 @@ void AbilityManagerStub::ThirdStepInit()
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    std::u16string descriptor = AbilityManagerStub::GetDescriptor();
+    std::u16string abilityDescriptor = AbilityManagerStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
-    if (descriptor != remoteDescriptor) {
+    if (abilityDescriptor != remoteDescriptor && extensionDescriptor != remoteDescriptor) {
         HILOG_ERROR("local descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
@@ -345,12 +353,12 @@ int AbilityManagerStub::GetTopAbilityInner(MessageParcel &data, MessageParcel &r
     return NO_ERROR;
 }
 
-int AbilityManagerStub::GetFocusAbilityInner(MessageParcel &data, MessageParcel &reply)
+int AbilityManagerStub::GetElementNameByTokenInner(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> token = data.ReadRemoteObject();;
-    AppExecFwk::ElementName result = GetFocusAbility(token);
+    AppExecFwk::ElementName result = GetElementNameByToken(token);
     if (result.GetDeviceID().empty()) {
-        HILOG_DEBUG("GetFocusAbilityInner is nullptr");
+        HILOG_DEBUG("GetElementNameByTokenInner is nullptr");
     }
     reply.WriteParcelable(&result);
     return NO_ERROR;
@@ -422,18 +430,6 @@ int AbilityManagerStub::SendResultToAbilityInner(MessageParcel &data, MessagePar
     if (resultWant != nullptr) {
         delete resultWant;
     }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::TerminateAbilityByCallerInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> callerToken = nullptr;
-    if (data.ReadBool()) {
-        callerToken = data.ReadRemoteObject();
-    }
-    int requestCode = data.ReadInt32();
-    int32_t result = TerminateAbilityByCaller(callerToken, requestCode);
-    reply.WriteInt32(result);
     return NO_ERROR;
 }
 
@@ -512,15 +508,6 @@ int AbilityManagerStub::ScheduleDisconnectAbilityDoneInner(MessageParcel &data, 
 {
     auto token = data.ReadRemoteObject();
     int32_t result = ScheduleDisconnectAbilityDone(token);
-    reply.WriteInt32(result);
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::TerminateAbilityResultInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> token = data.ReadRemoteObject();
-    int startId = data.ReadInt32();
-    int32_t result = TerminateAbilityResult(token, startId);
     reply.WriteInt32(result);
     return NO_ERROR;
 }
@@ -2371,5 +2358,43 @@ int AbilityManagerStub::SetSessionManagerServiceInner(MessageParcel &data, Messa
     SetSessionManagerService(sessionManagerService);
     return NO_ERROR;
 }
+
+int32_t AbilityManagerStub::RegisterIAbilityManagerCollaboratorInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t type = data.ReadInt32();
+    sptr<IAbilityManagerCollaborator> collaborator = iface_cast<IAbilityManagerCollaborator>(data.ReadRemoteObject());
+    if (collaborator == nullptr) {
+        HILOG_ERROR("read collaborator failed.");
+        return ERR_NULL_OBJECT;
+    }
+    int32_t ret = RegisterIAbilityManagerCollaborator(type, collaborator);
+    reply.WriteInt32(ret);
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::UnregisterIAbilityManagerCollaboratorInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t type = data.ReadInt32();
+    int32_t ret = UnregisterIAbilityManagerCollaborator(type);
+    reply.WriteInt32(ret);
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::MoveMissionToBackgroundInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t missionId = data.ReadInt32();
+    int32_t ret = MoveMissionToBackground(missionId);
+    reply.WriteInt32(ret);
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::TerminateMissionInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t missionId = data.ReadInt32();
+    int32_t ret = TerminateMission(missionId);
+    reply.WriteInt32(ret);
+    return NO_ERROR;
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS

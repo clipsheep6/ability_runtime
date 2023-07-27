@@ -109,6 +109,7 @@ ohos_source_set("abilityms_test_source") {
     "${ability_runtime_services_path}/abilitymgr/src/ability_event_util.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_interceptor.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_interceptor_executer.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_collaborator_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_service.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_stub.cpp",
@@ -265,6 +266,10 @@ ohos_source_set("abilityms_test_source") {
     ]
   }
 
+  if (ecologic_rule_enabled) {
+    external_deps += [ "ecological_rule_mgr:erms_client" ]
+  }
+
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
@@ -361,6 +366,7 @@ group("unittest") {
     "data_ability_record_test:unittest",
     "dataobs_mgr_client_test:unittest",
     "dataobs_mgr_inner_ext_test:unittest",
+    "dataobs_mgr_inner_pref_test:unittest",
     "dataobs_mgr_inner_test:unittest",
     "dataobs_mgr_proxy_test:unittest",
     "dataobs_mgr_service_dump_test:unittest",
@@ -380,6 +386,7 @@ group("unittest") {
     "free_install_manager_test:unittest",
     "image_info_test:unittest",
     "implicit_start_processor_test:unittest",
+    "js_service_extension_test:unittest",
     "lifecycle_deal_test:unittest",
     "lifecycle_test:unittest",
     "mission_data_storage_test:unittest",

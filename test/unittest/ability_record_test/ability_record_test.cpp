@@ -31,6 +31,7 @@
 #include "sa_mgr_client.h"
 #include "system_ability_definition.h"
 #include "ui_extension_utils.h"
+#include "hilog_wrapper.h"
 #ifdef SUPPORT_GRAPHICS
 #define private public
 #define protected public
@@ -236,6 +237,25 @@ INSTANTIATE_TEST_SUITE_P(AbilityRecordTestCaseP, AbilityRecordTest,
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetGetToken, TestSize.Level1)
 {
     EXPECT_EQ(Token::GetAbilityRecordByToken(abilityRecord_->GetToken()).get(), abilityRecord_.get());
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: create AbilityRecord
+ * SubFunction: NA
+ * FunctionPoints: SetAbilityState GetAbilityState
+ * EnvConditions: NA
+ * CaseDescription: SetAbilityState GetAbilityState UT.
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_GetAbilityState, TestSize.Level1)
+{
+    abilityRecord_->SetAbilityForegroundingFlag();
+    abilityRecord_->SetAbilityState(AbilityState::BACKGROUND);
+    EXPECT_FALSE(abilityRecord_->GetAbilityForegroundingFlag());
+
+    abilityRecord_->SetAbilityForegroundingFlag();
+    abilityRecord_->SetAbilityState(AbilityState::FOREGROUND);
+    EXPECT_TRUE(abilityRecord_->GetAbilityForegroundingFlag());
 }
 
 /*

@@ -65,9 +65,22 @@ std::string AbilityContextImpl::GetDatabaseDir()
     return stageContext_ ? stageContext_->GetDatabaseDir() : "";
 }
 
+int32_t AbilityContextImpl::GetSystemDatabaseDir(const std::string &groupId, bool checkExist, std::string &databaseDir)
+{
+    return stageContext_ ?
+        stageContext_->GetSystemDatabaseDir(groupId, checkExist, databaseDir) : ERR_INVALID_VALUE;
+}
+
 std::string AbilityContextImpl::GetPreferencesDir()
 {
     return stageContext_ ? stageContext_->GetPreferencesDir() : "";
+}
+
+int AbilityContextImpl::GetSystemPreferencesDir(const std::string &groupId, bool checkExist,
+    std::string &preferencesDir)
+{
+    return stageContext_ ?
+        stageContext_->GetSystemPreferencesDir(groupId, checkExist, preferencesDir) : ERR_INVALID_VALUE;
 }
 
 std::string AbilityContextImpl::GetGroupDir(std::string groupId)
@@ -552,7 +565,12 @@ ErrCode AbilityContextImpl::RequestDialogService(NativeEngine &engine,
     AAFwk::Want &want, RequestDialogResultTask &&task)
 {
     want.SetParam(RequestConstants::REQUEST_TOKEN_KEY, token_);
-
+    int32_t left, top, width, height;
+    GetWindowRect(left, top, width, height);
+    want.SetParam(RequestConstants::WINDOW_RECTANGLE_LEFT_KEY, left);
+    want.SetParam(RequestConstants::WINDOW_RECTANGLE_TOP_KEY, top);
+    want.SetParam(RequestConstants::WINDOW_RECTANGLE_WIDTH_KEY, width);
+    want.SetParam(RequestConstants::WINDOW_RECTANGLE_HEIGHT_KEY, height);
     auto resultTask =
         [&engine, outTask = std::move(task)](int32_t resultCode, const AAFwk::Want &resultWant) {
         auto retData = new RequestResult();
@@ -649,6 +667,15 @@ ErrCode AbilityContextImpl::SetMissionContinueState(const AAFwk::ContinueState &
     return err;
 }
 
+void AbilityContextImpl::GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t &height)
+{
+    HILOG_DEBUG("call");
+    auto abilityCallback = abilityCallback_.lock();
+    if (abilityCallback) {
+        abilityCallback->GetWindowRect(left, top, width, height);
+    }
+}
+
 #ifdef SUPPORT_GRAPHICS
 ErrCode AbilityContextImpl::SetMissionLabel(const std::string& label)
 {
@@ -687,6 +714,17 @@ int AbilityContextImpl::GetCurrentWindowMode()
         return AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED;
     }
     return abilityCallback->GetCurrentWindowMode();
+}
+
+Ace::UIContent* AbilityContextImpl::GetUIContent()
+{
+    HILOG_DEBUG("call");
+    auto abilityCallback = abilityCallback_.lock();
+    if (abilityCallback == nullptr) {
+        return nullptr;
+    }
+
+    return abilityCallback->GetUIContent();
 }
 #endif
 } // namespace AbilityRuntime

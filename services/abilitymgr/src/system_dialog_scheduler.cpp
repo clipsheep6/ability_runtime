@@ -182,7 +182,10 @@ Want SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInf
     targetWant.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_SELECTOR_DIALOG);
     targetWant.SetParam(DIALOG_POSITION, GetDialogPositionParams(position));
     targetWant.SetParam(DIALOG_PARAMS, params);
-    targetWant.SetParam(CALLER_TOKEN, callerToken);
+    if (callerToken != nullptr) {
+        HILOG_DEBUG("set callertoken to targetWant");
+        targetWant.SetParam(CALLER_TOKEN, callerToken);
+    }
 
     return targetWant;
 }

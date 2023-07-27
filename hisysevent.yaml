@@ -20,6 +20,16 @@ LIFECYCLE_TIMEOUT:
   PACKAGE_NAME: {type: STRING, desc: package name}
   PROCESS_NAME: {type: STRING, desc: process name}
   MSG: {type: STRING, desc: application event message}
+  STACK: {type: STRING, desc: main thread stacktrace}
+
+LIFECYCLE_HALF_TIMEOUT:
+  __BASE: {type: FAULT, level: CRITICAL, tag: STABILITY, desc: ability timeout}
+  PID: {type: INT32, desc: process id}
+  UID: {type: INT32, desc: app uid}
+  PACKAGE_NAME: {type: STRING, desc: package name}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  MSG: {type: STRING, desc: application event message}
+  STACK: {type: STRING, desc: main thread stacktrace}
 
 APP_LIFECYCLE_TIMEOUT:
   __BASE: {type: FAULT, level: CRITICAL, tag: STABILITY, desc: application timeout}
@@ -57,6 +67,14 @@ THREAD_BLOCK_6S:
   MSG: {type: STRING, desc: application event message}
   STACK: {type: STRING, desc: main thread stacktrace}
 
+APP_INPUT_BLOCK:
+  __BASE: {type: FAULT, level: CRITICAL, tag: STABILITY, desc: application freeze}
+  PID: {type: INT32, desc: process id}
+  UID: {type: INT32, desc: app uid}
+  PACKAGE_NAME: {type: STRING, desc: package name}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  MSG: {type: STRING, desc: application event message}
+  STACK: {type: STRING, desc: main thread stacktrace}
 # fault event
 
 START_ABILITY_ERROR:
@@ -238,6 +256,15 @@ APP_RECOVERY:
   ABILITY_NAME: {type: STRING, desc: ability name}
   RECOVERY_RESULT: {type: STRING, desc: recovery result}
 
+APP_STARTUP_TYPE:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: app start type}
+  APP_PID: {type: INT32, desc: app pid}
+  VERSION_CODE: {type: INT32, desc: version code}
+  VERSION_NAME: {type: STRING, desc: version name}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  START_TYPE: {type: INT32, desc: type of start, cold or hot}
+
 PROCESS_START:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: application process startup event reporting}
   STARTUP_TIME: {type: INT64, desc: process start time}
@@ -246,6 +273,7 @@ PROCESS_START:
   CALLER_BUNDLE_NAME: {type: STRING, desc: caller bundle name}
   CALLER_UID: {type: INT32, desc: caller uid}
   CALLER_PROCESS_NAME: {type: STRING, desc: caller process name}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
 
 PROCESS_EXIT:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: application process exit event reporting}

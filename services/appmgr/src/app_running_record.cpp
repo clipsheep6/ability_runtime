@@ -15,6 +15,7 @@
 
 #include "app_running_record.h"
 #include "app_mgr_service_inner.h"
+#include "event_report.h"
 #include "hitrace_meter.h"
 #include "hilog_wrapper.h"
 #include "ui_extension_utils.h"
@@ -553,6 +554,7 @@ void AppRunningRecord::ScheduleBackgroundRunning()
     if (appLifeCycleDeal_) {
         appLifeCycleDeal_->ScheduleBackgroundRunning();
     }
+    isAbilityForegrounding_.store(false);
 }
 
 void AppRunningRecord::ScheduleProcessSecurityExit()
@@ -818,6 +820,9 @@ void AppRunningRecord::AbilityForeground(const std::shared_ptr<AbilityRunningRec
             ScheduleForegroundRunning();
         }
         foregroundingAbilityTokens_.push_back(ability->GetToken());
+        if (curState_ == ApplicationState::APP_STATE_BACKGROUND) {
+            SendAppStartupTypeEvent(ability, AppStartType::HOT);
+        }
         return;
     } else if (curState_ == ApplicationState::APP_STATE_FOREGROUND) {
         // Just change ability to foreground if current application state is foreground or focus.
@@ -1062,6 +1067,38 @@ void AppRunningRecord::SendEventForSpecifiedAbility(uint32_t msg, int64_t timeOu
     SendEvent(msg, timeOut);
 }
 
+void AppRunningRecord::SendAppStartupTypeEvent(const std::shared_ptr<AbilityRunningRecord> &ability,
+    const AppStartType startType)
+{
+    if (!ability) {
+        HILOG_ERROR("AbilityRunningRecord is nullptr");
+        return;
+    }
+    AAFwk::EventInfo eventInfo;
+    auto applicationInfo = GetApplicationInfo();
+    if (!applicationInfo) {
+        HILOG_ERROR("applicationInfo is nullptr, can not get app information");
+    } else {
+        eventInfo.bundleName = applicationInfo->name;
+        eventInfo.versionName = applicationInfo->versionName;
+        eventInfo.versionCode = applicationInfo->versionCode;
+    }
+
+    auto abilityInfo = ability->GetAbilityInfo();
+    if (!abilityInfo) {
+        HILOG_ERROR("abilityInfo is nullptr, can not get ability information");
+    } else {
+        eventInfo.abilityName = abilityInfo->name;
+    }
+    if (GetPriorityObject() == nullptr) {
+        HILOG_ERROR("appRecord's priorityObject is null");
+    } else {
+        eventInfo.pid = GetPriorityObject()->GetPid();
+    }
+    eventInfo.startType = static_cast<int32_t>(startType);
+    AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_STARTUP_TYPE, HiSysEventType::BEHAVIOR, eventInfo);
+}
+
 void AppRunningRecord::SendEvent(uint32_t msg, int64_t timeOut)
 {
     if (!eventHandler_) {
@@ -1078,6 +1115,9 @@ void AppRunningRecord::SendEvent(uint32_t msg, int64_t timeOut)
     eventId_ = appEventId_;
     if (msg == AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG) {
         startProcessSpecifiedAbilityEventId_ = eventId_;
+    }
+    if (msg == AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG) {
+        addAbilityStageInfoEventId_ = eventId_;
     }
 
     HILOG_INFO("eventId %{public}d", static_cast<int>(eventId_));

@@ -17,20 +17,10 @@
 #define private public
 #define protected public
 #include "ability_manager_service.h"
-#include "ability_event_handler.h"
 #undef private
 #undef protected
 
-#include "app_process_data.h"
 #include "ability_manager_errors.h"
-#include "ability_scheduler.h"
-#include "bundlemgr/mock_bundle_manager.h"
-#include "if_system_ability_manager.h"
-#include "iservice_registry.h"
-#include "mock_ability_connect_callback.h"
-#include "mock_ability_token.h"
-#include "sa_mgr_client.h"
-#include "system_ability_definition.h"
 #include "ui_service_mgr_client_mock.h"
 
 using namespace testing;
@@ -47,99 +37,22 @@ const std::string EVENT_CLOSE_CODE = "1";
 
 namespace OHOS {
 namespace AAFwk {
-static void WaitUntilTaskFinished()
-{
-    const uint32_t maxRetryCount = 1000;
-    const uint32_t sleepTime = 1000;
-    uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
-    std::atomic<bool> taskCalled(false);
-    auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->SubmitTask(f)) {
-        while (!taskCalled.load()) {
-            ++count;
-            if (count >= maxRetryCount) {
-                break;
-            }
-            usleep(sleepTime);
-        }
-    }
-}
-
 class AbilityManagerServiceAnrTest : public testing::Test {
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
-    void OnStartAms();
-    void OnStopAms();
     static constexpr int TEST_WAIT_TIME = 100000;
-
-public:
-    std::shared_ptr<AbilityManagerService> abilityMs_ = DelayedSingleton<AbilityManagerService>::GetInstance();
 };
 
-void AbilityManagerServiceAnrTest::OnStartAms()
-{
-    if (abilityMs_) {
-        if (abilityMs_->state_ == ServiceRunningState::STATE_RUNNING) {
-            return;
-        }
+void AbilityManagerServiceAnrTest::SetUpTestCase() {}
 
-        abilityMs_->state_ = ServiceRunningState::STATE_RUNNING;
+void AbilityManagerServiceAnrTest::TearDownTestCase() {}
 
-        abilityMs_->taskHandler_ = TaskHandlerWrap::CreateQueueHandler(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
-        EXPECT_TRUE(abilityMs_->taskHandler_);
+void AbilityManagerServiceAnrTest::SetUp() {}
 
-        abilityMs_->eventHandler_ = std::make_shared<AbilityEventHandler>(abilityMs_->taskHandler_, abilityMs_);
-
-        abilityMs_->dataAbilityManager_ = std::make_shared<DataAbilityManager>();
-        abilityMs_->dataAbilityManagers_.emplace(0, abilityMs_->dataAbilityManager_);
-        EXPECT_TRUE(abilityMs_->dataAbilityManager_);
-
-        AmsConfigurationParameter::GetInstance().Parse();
-
-        abilityMs_->pendingWantManager_ = std::make_shared<PendingWantManager>();
-        EXPECT_TRUE(abilityMs_->pendingWantManager_);
-
-#ifdef SUPPORT_GRAPHICS
-        auto deviceType = AmsConfigurationParameter::GetInstance().GetDeviceType();
-        DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(deviceType);
-#endif
-        return;
-    }
-
-    GTEST_LOG_(INFO) << "OnStart fail";
-}
-
-void AbilityManagerServiceAnrTest::OnStopAms()
-{
-    abilityMs_->OnStop();
-}
-
-void AbilityManagerServiceAnrTest::SetUpTestCase()
-{
-    OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
-        OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, new BundleMgrService());
-}
-
-void AbilityManagerServiceAnrTest::TearDownTestCase()
-{
-    OHOS::DelayedSingleton<SaMgrClient>::DestroyInstance();
-    OHOS::DelayedSingleton<AbilityManagerService>::DestroyInstance();
-}
-
-void AbilityManagerServiceAnrTest::SetUp()
-{
-    OnStartAms();
-    WaitUntilTaskFinished();
-}
-
-void AbilityManagerServiceAnrTest::TearDown()
-{
-    OnStopAms();
-}
+void AbilityManagerServiceAnrTest::TearDown() {}
 
 /*
  * Feature: AbilityManagerService
@@ -152,6 +65,8 @@ void AbilityManagerServiceAnrTest::TearDown()
  */
 HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_001, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
     pid_t pid;
     if ((pid = fork()) == 0) {
         for (;;) {
@@ -178,6 +93,8 @@ HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_001, TestSize.Level1)
  */
 HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_002, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
     pid_t pid;
     if ((pid = fork()) == 0) {
         for (;;) {
@@ -205,6 +122,8 @@ HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_002, TestSize.Level1)
  */
 HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_003, TestSize.Level1)
 {
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
     pid_t pid = -1;
     auto result = abilityMs_->SendANRProcessID(pid);
     sleep(6);

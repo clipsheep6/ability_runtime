@@ -27,7 +27,9 @@
 #include "background_task_observer.h"
 #include "call_container.h"
 #include "call_record.h"
+#ifndef SUPPORT_ERMS
 #include "caller_info.h"
+#endif
 #include "free_install_manager.h"
 #undef protected
 #undef private
@@ -180,12 +182,14 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     callContainer->AddConnectDeathRecipient(connect);
     callContainer->RemoveConnectDeathRecipient(connect);
 
+#ifndef SUPPORT_ERMS
     // fuzz for CallerInfo
     auto callerInfo = std::make_shared<CallerInfo>();
     Parcel parcel;
     callerInfo->Marshalling(parcel);
     callerInfo->Unmarshalling(parcel);
     callerInfo->ReadFromParcel(parcel);
+#endif
 
     return true;
 }

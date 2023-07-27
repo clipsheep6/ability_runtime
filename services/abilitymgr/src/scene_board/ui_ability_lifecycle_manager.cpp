@@ -17,11 +17,14 @@
 
 #include "ability_manager_service.h"
 #include "ability_util.h"
+#include "appfreeze_manager.h"
+#include "app_exit_reason_data_manager.h"
 #include "errors.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "iability_info_callback.h"
-#include "session/host/include/zidl/session_interface.h"
+#include "mission_info.h"
+#include "session_info.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -37,6 +40,7 @@ const int KILL_TIMEOUT_MULTIPLE = 45;
 #else
 const int KILL_TIMEOUT_MULTIPLE = 3;
 #endif
+constexpr int32_t DEFAULT_USER_ID = 0;
 }
 int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sptr<SessionInfo> sessionInfo)
 {
@@ -59,14 +63,20 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
     auto iter = sessionAbilityMap_.find(sessionInfo->persistentId);
     if (iter != sessionAbilityMap_.end()) {
         uiAbilityRecord = iter->second;
-        uiAbilityRecord->SetWant(abilityRequest.want);
-        uiAbilityRecord->SetIsNewWant(true);
+        uiAbilityRecord->SetIsNewWant(sessionInfo->isNewWant);
+        if (sessionInfo->isNewWant) {
+            uiAbilityRecord->SetWant(abilityRequest.want);
+        }
     } else {
         if (sessionInfo->startSetting != nullptr) {
             HILOG_DEBUG("startSetting is valid.");
             abilityRequest.startSetting = sessionInfo->startSetting;
         }
         uiAbilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+        HILOG_DEBUG("user id: %{public}d.", sessionInfo->userId);
+        uiAbilityRecord->SetOwnerMissionUserId(sessionInfo->userId);
+        SetRevicerInfo(abilityRequest, uiAbilityRecord);
+        SetLastExitReason(uiAbilityRecord);
     }
     CHECK_POINTER_AND_RETURN(uiAbilityRecord, ERR_INVALID_VALUE);
 
@@ -521,6 +531,9 @@ int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRe
     auto persistentId = GetPersistentIdByAbilityRequest(abilityRequest);
     if (persistentId == 0) {
         uiAbilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+        uiAbilityRecord->SetOwnerMissionUserId(DelayedSingleton<AbilityManagerService>::GetInstance()->GetUserId());
+        SetRevicerInfo(abilityRequest, uiAbilityRecord);
+        SetLastExitReason(uiAbilityRecord);
     } else {
         uiAbilityRecord = sessionAbilityMap_.at(persistentId);
     }
@@ -661,7 +674,8 @@ void UIAbilityLifecycleManager::NotifyAbilityToken(const sptr<IRemoteObject> &to
     }
 }
 
-void UIAbilityLifecycleManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId)
+void UIAbilityLifecycleManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability,
+    uint32_t msgId, bool isHalf)
 {
     if (ability == nullptr) {
         HILOG_ERROR("failed, ability is nullptr");
@@ -675,13 +689,16 @@ void UIAbilityLifecycleManager::PrintTimeOutLog(const std::shared_ptr<AbilityRec
             ability->GetAbilityInfo().name.data());
         return;
     }
+    int typeId = AppExecFwk::AppfreezeManager::TypeAttribute::NORMAL_TIMEOUT;
     std::string msgContent = "ability:" + ability->GetAbilityInfo().name + " ";
     switch (msgId) {
         case AbilityManagerService::LOAD_TIMEOUT_MSG:
             msgContent += "load timeout";
+            typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
             break;
         case AbilityManagerService::FOREGROUND_TIMEOUT_MSG:
             msgContent += "foreground timeout";
+            typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
             break;
         case AbilityManagerService::BACKGROUND_TIMEOUT_MSG:
             msgContent += "background timeout";
@@ -692,18 +709,16 @@ void UIAbilityLifecycleManager::PrintTimeOutLog(const std::shared_ptr<AbilityRec
         default:
             return;
     }
-    std::string eventType = "LIFECYCLE_TIMEOUT";
-    HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
-        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
-        EVENT_KEY_UID, processInfo.uid_,
-        EVENT_KEY_PID, processInfo.pid_,
-        EVENT_KEY_PACKAGE_NAME, ability->GetAbilityInfo().bundleName,
-        EVENT_KEY_PROCESS_NAME, processInfo.processName_,
-        EVENT_KEY_MESSAGE, msgContent);
 
-    HILOG_WARN("LIFECYCLE_TIMEOUT: uid: %{public}d, pid: %{public}d, bundleName: %{public}s, abilityName: %{public}s,"
-        "msg: %{public}s", processInfo.uid_, processInfo.pid_, ability->GetAbilityInfo().bundleName.c_str(),
+    std::string eventName = isHalf ?
+        AppExecFwk::AppFreezeType::LIFECYCLE_HALF_TIMEOUT : AppExecFwk::AppFreezeType::LIFECYCLE_TIMEOUT;
+    HILOG_WARN("%{public}s: uid: %{public}d, pid: %{public}d, bundleName: %{public}s, abilityName: %{public}s,"
+        "msg: %{public}s", eventName.c_str(),
+        processInfo.uid_, processInfo.pid_, ability->GetAbilityInfo().bundleName.c_str(),
         ability->GetAbilityInfo().name.c_str(), msgContent.c_str());
+
+    AppExecFwk::AppfreezeManager::GetInstance()->LifecycleTimeoutHandle(
+        typeId, processInfo.pid_, eventName, ability->GetAbilityInfo().bundleName, msgContent);
 }
 
 void UIAbilityLifecycleManager::CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord)
@@ -827,7 +842,7 @@ void UIAbilityLifecycleManager::CompleteTerminate(const std::shared_ptr<AbilityR
     terminateAbilityList_.remove(abilityRecord);
 }
 
-uint64_t UIAbilityLifecycleManager::GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest) const
+int32_t UIAbilityLifecycleManager::GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest) const
 {
     if (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED) {
         return GetReusedSpecifiedPersistentId(abilityRequest);
@@ -853,7 +868,7 @@ uint64_t UIAbilityLifecycleManager::GetPersistentIdByAbilityRequest(const Abilit
     return 0;
 }
 
-uint64_t UIAbilityLifecycleManager::GetReusedSpecifiedPersistentId(const AbilityRequest &abilityRequest) const
+int32_t UIAbilityLifecycleManager::GetReusedSpecifiedPersistentId(const AbilityRequest &abilityRequest) const
 {
     if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::SPECIFIED) {
         HILOG_WARN("Not SPECIFIED.");
@@ -871,7 +886,7 @@ uint64_t UIAbilityLifecycleManager::GetReusedSpecifiedPersistentId(const Ability
     return 0;
 }
 
-uint64_t UIAbilityLifecycleManager::GetReusedStandardPersistentId(const AbilityRequest &abilityRequest) const
+int32_t UIAbilityLifecycleManager::GetReusedStandardPersistentId(const AbilityRequest &abilityRequest) const
 {
     if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::STANDARD) {
         HILOG_WARN("Not STANDARD.");
@@ -884,7 +899,7 @@ uint64_t UIAbilityLifecycleManager::GetReusedStandardPersistentId(const AbilityR
     }
 
     int64_t sessionTime = 0;
-    uint64_t persistentId = 0;
+    int32_t persistentId = 0;
     for (const auto& [first, second] : sessionAbilityMap_) {
         if (CheckProperties(second, abilityRequest, AppExecFwk::LaunchMode::STANDARD) &&
             second->GetRestartTime() >= sessionTime) {
@@ -911,7 +926,7 @@ void UIAbilityLifecycleManager::ReportEventToSuspendManager(const AppExecFwk::Ab
 #endif // EFFICIENCY_MANAGER_ENABLE
 }
 
-void UIAbilityLifecycleManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId)
+void UIAbilityLifecycleManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordId, bool isHalf)
 {
     HILOG_DEBUG("call, msgId is %{public}d", msgId);
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
@@ -928,7 +943,10 @@ void UIAbilityLifecycleManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordI
     }
     HILOG_DEBUG("call, msgId:%{public}d, name:%{public}s", msgId, abilityRecord->GetAbilityInfo().name.c_str());
 
-    PrintTimeOutLog(abilityRecord, msgId);
+    PrintTimeOutLog(abilityRecord, msgId, isHalf);
+    if (isHalf) {
+        return;
+    }
     switch (msgId) {
         case AbilityManagerService::LOAD_TIMEOUT_MSG:
             HandleLoadTimeout(abilityRecord);
@@ -1237,6 +1255,27 @@ int UIAbilityLifecycleManager::ReleaseCallLocked(
     return ERR_OK;
 }
 
+void UIAbilityLifecycleManager::OnCallConnectDied(const std::shared_ptr<CallRecord> &callRecord)
+{
+    HILOG_INFO("On callConnect died.");
+    CHECK_POINTER(callRecord);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+
+    AppExecFwk::ElementName element = callRecord->GetTargetServiceName();
+    auto abilityRecords = GetAbilityRecordsByName(element);
+    auto isExist = [callRecord] (const std::shared_ptr<AbilityRecord> &abilityRecord) {
+        return abilityRecord->IsExistConnection(callRecord->GetConCallBack());
+    };
+    auto findRecord = std::find_if(abilityRecords.begin(), abilityRecords.end(), isExist);
+    if (findRecord == abilityRecords.end()) {
+        HILOG_ERROR("not found ability record by callback");
+        return;
+    }
+    auto abilityRecord = *findRecord;
+    CHECK_POINTER(abilityRecord);
+    abilityRecord->ReleaseCall(callRecord->GetConCallBack());
+}
+
 std::vector<std::shared_ptr<AbilityRecord>> UIAbilityLifecycleManager::GetAbilityRecordsByName(
     const AppExecFwk::ElementName &element)
 {
@@ -1255,7 +1294,7 @@ std::vector<std::shared_ptr<AbilityRecord>> UIAbilityLifecycleManager::GetAbilit
     return records;
 }
 
-uint64_t UIAbilityLifecycleManager::GetSessionIdByAbilityToken(const sptr<IRemoteObject> &token)
+int32_t UIAbilityLifecycleManager::GetSessionIdByAbilityToken(const sptr<IRemoteObject> &token)
 {
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
     for (const auto& [first, second] : sessionAbilityMap_) {
@@ -1265,6 +1304,108 @@ uint64_t UIAbilityLifecycleManager::GetSessionIdByAbilityToken(const sptr<IRemot
     }
     HILOG_ERROR("not find");
     return 0;
+}
+
+void UIAbilityLifecycleManager::GetActiveAbilityList(const std::string &bundleName,
+    std::vector<std::string> &abilityList)
+{
+    auto currentAccountId = DelayedSingleton<AbilityManagerService>::GetInstance()->GetUserId();
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    for (const auto& [first, second] : sessionAbilityMap_) {
+        if (second->GetOwnerMissionUserId() == currentAccountId) {
+            const auto &abilityInfo = second->GetAbilityInfo();
+            if (abilityInfo.bundleName == bundleName && !abilityInfo.name.empty()) {
+                HILOG_DEBUG("find ability name is %{public}s", abilityInfo.name.c_str());
+                abilityList.push_back(abilityInfo.name);
+            }
+        }
+    }
+}
+
+int32_t UIAbilityLifecycleManager::IsValidMissionIds(const std::vector<int32_t> &missionIds,
+    std::vector<MissionVaildResult> &results, int32_t userId) {
+    constexpr int32_t searchCount = 20;
+    auto callerUid = IPCSkeleton::GetCallingUid();
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    for (auto i = 0; i < searchCount && i < static_cast<int32_t>(missionIds.size()); ++i) {
+        MissionVaildResult missionResult = {};
+        missionResult.missionId = missionIds.at(i);
+        auto search = sessionAbilityMap_.find(missionResult.missionId);
+        if (search == sessionAbilityMap_.end() || search->second == nullptr) {
+            results.push_back(missionResult);
+            continue;
+        }
+
+        if (callerUid != search->second->GetUid() || search->second->GetOwnerMissionUserId() != userId) {
+            results.push_back(missionResult);
+            continue;
+        }
+
+        missionResult.isVaild = true;
+        results.push_back(missionResult);
+    }
+
+    return ERR_OK;
+}
+
+void UIAbilityLifecycleManager::SetRevicerInfo(const AbilityRequest &abilityRequest,
+    std::shared_ptr<AbilityRecord> &abilityRecord) const
+{
+    const auto &abilityInfo = abilityRequest.abilityInfo;
+    auto isStandard = abilityInfo.launchMode == AppExecFwk::LaunchMode::STANDARD && !abilityRequest.startRecent;
+    if (!isStandard) {
+        bool hasRecoverInfo = false;
+        (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
+            GetAbilityRecoverInfo(abilityInfo.bundleName, abilityInfo.moduleName, abilityInfo.name, hasRecoverInfo);
+        abilityRecord->UpdateRecoveryInfo(hasRecoverInfo);
+        (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
+            DeleteAbilityRecoverInfo(abilityInfo.bundleName, abilityInfo.moduleName, abilityInfo.name);
+    }
+}
+
+void UIAbilityLifecycleManager::SetLastExitReason(std::shared_ptr<AbilityRecord> &abilityRecord) const
+{
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("abilityRecord is nullptr.");
+        return;
+    }
+
+    if (abilityRecord->GetAbilityInfo().bundleName.empty()) {
+        HILOG_ERROR("bundleName is empty.");
+        return;
+    }
+
+    Reason exitReason;
+    bool isSetReason;
+    DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->GetAppExitReason(
+        abilityRecord->GetAbilityInfo().bundleName, abilityRecord->GetAbilityInfo().name, isSetReason, exitReason);
+
+    if (isSetReason) {
+        abilityRecord->SetLastExitReason(CovertAppExitReasonToLastReason(exitReason));
+    }
+}
+
+LastExitReason UIAbilityLifecycleManager::CovertAppExitReasonToLastReason(const Reason exitReason) const
+{
+    switch (exitReason) {
+        case REASON_NORMAL:
+            return LASTEXITREASON_NORMAL;
+        case REASON_CPP_CRASH:
+            return LASTEXITREASON_CPP_CRASH;
+        case REASON_JS_ERROR:
+            return LASTEXITREASON_JS_ERROR;
+        case REASON_APP_FREEZE:
+            return LASTEXITREASON_APP_FREEZE;
+        case REASON_PERFORMANCE_CONTROL:
+            return LASTEXITREASON_PERFORMANCE_CONTROL;
+        case REASON_RESOURCE_CONTROL:
+            return LASTEXITREASON_RESOURCE_CONTROL;
+        case REASON_UPGRADE:
+            return LASTEXITREASON_UPGRADE;
+        case REASON_UNKNOWN:
+        default:
+            return LASTEXITREASON_UNKNOWN;
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS

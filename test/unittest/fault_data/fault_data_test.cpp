@@ -82,7 +82,19 @@ HWTEST_F(FaultDataTest, ReadFromParcel_001, TestSize.Level1)
     messageFifth.WriteString(helloWord);
     messageFifth.WriteInt32(12);
     bool retFifth = faultData->ReadFromParcel(messageFifth);
-    EXPECT_EQ(true, retFifth);
+    EXPECT_EQ(false, retFifth);
+
+    MessageParcel messageSixth;
+    messageSixth.WriteString(helloWord);
+    messageSixth.WriteString(helloWord);
+    messageSixth.WriteString(helloWord);
+    messageSixth.WriteInt32(12);
+    messageSixth.WriteString(helloWord);
+    messageSixth.WriteBool(true);
+    messageSixth.WriteBool(true);
+    messageSixth.WriteBool(true);
+    bool retSixth = faultData->ReadFromParcel(messageSixth);
+    EXPECT_EQ(true, retSixth);
 }
 
 /**
@@ -102,6 +114,10 @@ HWTEST_F(FaultDataTest, Unmarshalling_001, TestSize.Level1)
     message.WriteString(helloWord);
     message.WriteString(helloWord);
     message.WriteInt32(12);
+    message.WriteString(helloWord);
+    message.WriteBool(true);
+    message.WriteBool(true);
+    message.WriteBool(true);
     auto retSecond = faultData->Unmarshalling(message);
     EXPECT_NE(nullptr, retSecond);
 }
@@ -168,6 +184,10 @@ HWTEST_F(FaultDataTest, ReadFromParcel_002, TestSize.Level1)
     messageSixth.WriteString(helloWord);
     messageSixth.WriteInt32(12);
     messageSixth.WriteInt32(34);
+    messageSixth.WriteString(helloWord);
+    messageSixth.WriteBool(true);
+    messageSixth.WriteBool(true);
+    messageSixth.WriteBool(true);
     bool retSixth = appFaultDataBySA->ReadFromParcel(messageSixth);
     EXPECT_EQ(true, retSixth);
 }
@@ -190,8 +210,10 @@ HWTEST_F(FaultDataTest, Unmarshalling_002, TestSize.Level1)
     message.WriteString(helloWord);
     message.WriteInt32(12);
     message.WriteInt32(34);
-    message.WriteInt32(56);
     message.WriteString(helloWord);
+    message.WriteBool(true);
+    message.WriteBool(true);
+    message.WriteBool(true);
     auto retSecond = appFaultDataBySA->Unmarshalling(message);
     EXPECT_NE(nullptr, retSecond);
 }
