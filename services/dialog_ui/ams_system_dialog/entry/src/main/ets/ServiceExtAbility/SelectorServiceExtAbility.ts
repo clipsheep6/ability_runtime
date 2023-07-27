@@ -25,6 +25,7 @@ const TAG = 'SelectorDialog_Service';
 
 let winNum = 1;
 let win;
+let displayClass = null;
 
 export default class SelectorServiceExtensionAbility extends extension {
   onCreate(want) {
@@ -115,6 +116,10 @@ export default class SelectorServiceExtensionAbility extends extension {
 
   async onRequest(want, startId) {
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
+    console.debug(TAG, '====new code ====: ' + JSON.stringify(want));
+    displayClass = display.getDefaultDisplaySync();
+    console.info('displayWidth is :' + JSON.stringify(displayClass.width));//blue:720
+    console.info('disPlayHeight is :' + JSON.stringify(displayClass.height));//blue:1280
     globalThis.abilityWant = want;
     globalThis.params = JSON.parse(want.parameters.params);
     globalThis.position = JSON.parse(want.parameters.position);
@@ -135,10 +140,10 @@ export default class SelectorServiceExtensionAbility extends extension {
 
     display.getDefaultDisplay().then(dis => {
       let navigationBarRect = {
-        left: 300,
-        top: 300,
-        width: 400,
-        height: 400
+        left: globalThis.position.offsetX,
+        top: globalThis.position.offsetY,
+        width: globalThis.position.width,
+        height: globalThis.position.height
       };
       if (winNum > 1) {
         win.destroy();
