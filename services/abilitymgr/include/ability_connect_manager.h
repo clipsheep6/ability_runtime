@@ -49,6 +49,8 @@ public:
     using RecipientMapType = std::map<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>>;
     using UIExtWindowMapValType = std::pair<std::weak_ptr<AbilityRecord>, sptr<SessionInfo>>;
     using UIExtensionMapType = std::map<sptr<IRemoteObject>, UIExtWindowMapValType>;
+    using WindowExtMapValType = std::pair<uint32_t, sptr<SessionInfo>>;
+    using WindowExtensionMapType = std::map<sptr<IRemoteObject>, WindowExtMapValType>;
 
     explicit AbilityConnectManager(int userId);
     virtual ~AbilityConnectManager();
@@ -245,6 +247,8 @@ public:
 
     bool IsUIExtensionFocused(uint32_t uiExtensionTokenId, const sptr<IRemoteObject>& focusToken);
 
+    bool IsWindowExtensionFocused(uint32_t extensionTokenId, const sptr<IRemoteObject>& focusToken);
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t CONNECT_TIMEOUT_MSG = 1;
@@ -339,6 +343,9 @@ private:
     void HandleCommandWindowTimeoutTask(const std::shared_ptr<AbilityRecord> &abilityRecord,
         const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd);
     void HandleRestartResidentTask(const AbilityRequest &abilityRequest);
+    void HandleActiveAbility(std::shared_ptr<AbilityRecord> &targetService,
+        std::shared_ptr<ConnectionRecord> &connectRecord);
+    void HandleCommandDestroy(const sptr<SessionInfo> &sessionInfo);
 
     /**
      * IsAbilityConnected.
@@ -485,6 +492,7 @@ private:
     std::unordered_map<std::string, std::shared_ptr<std::list<AbilityRequest>>> startServiceReqList_;
     ffrt::mutex startServiceReqListLock_;
     UIExtensionMapType uiExtensionMap_;
+    WindowExtensionMapType windowExtensionMap_;
 
     DISALLOW_COPY_AND_MOVE(AbilityConnectManager);
 };
