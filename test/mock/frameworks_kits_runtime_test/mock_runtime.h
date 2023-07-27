@@ -47,6 +47,11 @@ public:
     {
         return true;
     }
+    bool SuspendVM(uint32_t tid) override
+    {
+        return true;
+    }
+    void ResumeVM(uint32_t tid) override {}
     bool UnLoadRepairPatch(const std::string& patchFile) override
     {
         return true;

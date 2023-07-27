@@ -957,6 +957,30 @@ void JsRuntime::NotifyApplicationState(bool isBackground)
     HILOG_INFO("NotifyApplicationState, isBackground %{public}d.", isBackground);
 }
 
+bool JsRuntime::SuspendVM(uint32_t tid)
+{
+    auto nativeEngine = GetNativeEnginePointer();
+    CHECK_POINTER_AND_RETURN(nativeEngine, false);
+    auto arkNativeEngine = nativeEngine->GetWorkerEngine(tid);
+    if (arkNativeEngine == nullptr) {
+        HILOG_ERROR("SuspendVM arkNativeEngine is nullptr");
+        return false;
+    }
+    return arkNativeEngine->SuspendVM();
+}
+
+void JsRuntime::ResumeVM(uint32_t tid)
+{
+    auto nativeEngine = GetNativeEnginePointer();
+    CHECK_POINTER(nativeEngine);
+    auto arkNativeEngine = nativeEngine->GetWorkerEngine(tid);
+    if (arkNativeEngine == nullptr) {
+        HILOG_ERROR("ResumeVM arkNativeEngine is nullptr");
+        return;
+    }
+    arkNativeEngine->ResumeVM();
+}
+
 void JsRuntime::PreloadSystemModule(const std::string& moduleName)
 {
     HandleScope handleScope(*this);

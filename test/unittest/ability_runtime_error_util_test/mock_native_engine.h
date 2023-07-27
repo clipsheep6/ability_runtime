@@ -310,12 +310,12 @@ public:
         return true;
     }
 
-    bool DeleteWorker(NativeEngine* hostEngine, NativeEngine* workerEngine) override
+    bool DeleteWorker(NativeEngine* workerEngine) override
     {
         return true;
     }
 
-    NativeEngine* GetWorkerVm(NativeEngine* hostEngine, uint32_t tid) override
+    NativeEngine* GetWorkerEngine(uint32_t tid) override
     {
         return nullptr;
     }
