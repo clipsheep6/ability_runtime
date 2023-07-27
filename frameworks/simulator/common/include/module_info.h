@@ -13,17 +13,20 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_SIMULATOR_JS_CONTEXT_UTILS_H
-#define OHOS_ABILITY_RUNTIME_SIMULATOR_JS_CONTEXT_UTILS_H
+#ifndef FOUNDATION_ABILITY_RUNTIME_SIMULATOR_MODULE_INFO_H
+#define FOUNDATION_ABILITY_RUNTIME_SIMULATOR_MODULE_INFO_H
 
-#include <memory>
-
-#include "context.h"
-#include "native_engine/native_engine.h"
+#include <string>
+#include <vector>
 
 namespace OHOS {
-namespace AbilityRuntime {
-NativeValue *CreateJsBaseContext(NativeEngine &engine, std::shared_ptr<Context> context, bool keepContext = false);
-} // namespace AbilityRuntime
+namespace AppExecFwk {
+// stores module information about an application
+struct ModuleInfo {
+    std::string moduleName;  // the "name" in module part in config.json
+    std::string moduleSourceDir;
+    std::vector<std::string> preloads;
+};
+} // namespace AppExecFwk
 } // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_SIMULATOR_JS_CONTEXT_UTILS_H
+#endif // FOUNDATION_ABILITY_RUNTIME_SIMULATOR_MODULE_INFO_H

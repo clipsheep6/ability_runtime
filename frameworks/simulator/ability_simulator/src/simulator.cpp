@@ -23,15 +23,19 @@
 #include <unordered_map>
 
 #include "ability_context.h"
+#include "ability_stage_context.h"
 #include "EventHandler.h"
 #include "hilog_wrapper.h"
 #include "js_ability_context.h"
+#include "js_ability_stage_context.h"
 #include "js_console_log.h"
+#include "js_data_converter.h"
 #include "js_module_searcher.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "js_timer.h"
 #include "js_window_stage.h"
+#include "launch_param.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
 #include "resource_manager.h"
 #include "window_scene.h"
@@ -87,15 +91,19 @@ public:
 
     int64_t StartAbility(const std::string &abilityName, TerminateCallback callback) override;
     void TerminateAbility(int64_t abilityId) override;
+    void UpdateConfiguration(const AppExecFwk::Configuration &config) override;
 private:
     bool OnInit();
     void Run();
-    NativeValue *LoadScript();
+    NativeValue *LoadScript(const std::string &srcPath);
     void InitResourceMgr();
     void InitJsAbilityContext(NativeValue *instanceValue);
     void DispatchStartLifecycle(NativeValue *instanceValue);
     std::unique_ptr<NativeReference> CreateJsWindowStage(const std::shared_ptr<Rosen::WindowScene> &windowScene);
     NativeValue *CreateJsWant(NativeEngine &engine);
+    bool LoadAbilityStage(uint8_t *buffer, size_t len);
+    void InitJsAbilityStageContext(NativeValue *instanceValue);
+    NativeValue *CreateJsLaunchParam(NativeEngine &engine);
 
     panda::ecmascript::EcmaVM *CreateJSVM();
     Options options_;
@@ -111,6 +119,9 @@ private:
     std::unordered_map<int64_t, std::shared_ptr<NativeReference>> jsContexts_;
     std::shared_ptr<Global::Resource::ResourceManager> resourceMgr_;
     std::shared_ptr<AbilityContext> context_;
+    std::shared_ptr<NativeReference> abilityStage_;
+    std::shared_ptr<AbilityStageContext> stageContext_;
+    std::shared_ptr<NativeReference> jsStageContext_;
 };
 
 void DebuggerTask::HandleTask(const uv_async_t *req)
@@ -194,9 +205,9 @@ void CallObjectMethod(NativeEngine &engine, NativeValue *value, const char *name
     engine.CallFunction(value, methodOnCreate, argv, argc);
 }
 
-NativeValue *SimulatorImpl::LoadScript()
+NativeValue *SimulatorImpl::LoadScript(const std::string &srcPath)
 {
-    panda::Local<panda::ObjectRef> objRef = panda::JSNApi::GetExportObject(vm_, abilityPath_, "default");
+    panda::Local<panda::ObjectRef> objRef = panda::JSNApi::GetExportObject(vm_, srcPath, "default");
     if (objRef->IsNull()) {
         HILOG_ERROR("Get export object failed");
         return nullptr;
@@ -208,8 +219,6 @@ NativeValue *SimulatorImpl::LoadScript()
 
 int64_t SimulatorImpl::StartAbility(const std::string &abilitySrcPath, TerminateCallback callback)
 {
-    abilityPath_ = BUNDLE_INSTALL_PATH + options_.moduleName + "/" + abilitySrcPath;
-
     std::ifstream stream(options_.modulePath, std::ios::ate | std::ios::binary);
     if (!stream.is_open()) {
         HILOG_ERROR("Failed to open: %{public}s", options_.modulePath.c_str());
@@ -221,12 +230,27 @@ int64_t SimulatorImpl::StartAbility(const std::string &abilitySrcPath, Terminate
     stream.seekg(0);
     stream.read(reinterpret_cast<char*>(buffer.get()), len);
     stream.close();
-    if (!nativeEngine_->RunScriptBuffer(abilityPath_, buffer.release(), len, false)) {
+
+    auto buf = buffer.release();
+
+    if (stageContext_ == nullptr) {
+        stageContext_ = std::make_shared<AbilityStageContext>();
+        stageContext_->SetOptions(options_);
+        stageContext_->SetConfiguration(options_.configuration);
+    }
+
+    if (!LoadAbilityStage(buf, len)) {
+        HILOG_ERROR("Load ability stage failed.");
+        return -1;
+    }
+
+    abilityPath_ = BUNDLE_INSTALL_PATH + options_.moduleName + "/" + abilitySrcPath;
+    if (!nativeEngine_->RunScriptBuffer(abilityPath_, buf, len, false)) {
         HILOG_ERROR("Failed to run script: %{public}s", abilityPath_.c_str());
         return -1;
     }
 
-    NativeValue *instanceValue = LoadScript();
+    NativeValue *instanceValue = LoadScript(abilityPath_);
     if (instanceValue == nullptr) {
         HILOG_ERROR("Failed to create object instance");
         return -1;
@@ -241,8 +265,78 @@ int64_t SimulatorImpl::StartAbility(const std::string &abilitySrcPath, Terminate
     return currentId_;
 }
 
+bool SimulatorImpl::LoadAbilityStage(uint8_t *buffer, size_t len)
+{
+    if (options_.hapModuleInfo.srcEntrance.empty()) {
+        HILOG_DEBUG("module src path is empty.");
+        return true;
+    }
+
+    if (nativeEngine_ == nullptr) {
+        HILOG_ERROR("nativeEngine_ is nullptr");
+        return false;
+    }
+
+    auto moduleSrcPath = BUNDLE_INSTALL_PATH + options_.moduleName + "/" + options_.hapModuleInfo.srcEntrance;
+    if (!nativeEngine_->RunScriptBuffer(moduleSrcPath, buffer, len, false)) {
+        HILOG_ERROR("Failed to run ability stage script: %{public}s", moduleSrcPath.c_str());
+        return false;
+    }
+
+    NativeValue *instanceValue = LoadScript(moduleSrcPath);
+    if (instanceValue == nullptr) {
+        HILOG_ERROR("Failed to create ability stage instance");
+        return false;
+    }
+
+    InitJsAbilityStageContext(instanceValue);
+
+    CallObjectMethod(*nativeEngine_, instanceValue, "onCreate", nullptr, 0);
+    NativeValue *wantArgv[] = {
+        CreateJsWant(*nativeEngine_)
+    };
+    CallObjectMethod(*nativeEngine_, instanceValue, "onAcceptWant", wantArgv, ArraySize(wantArgv));
+
+    abilityStage_ = std::shared_ptr<NativeReference>(nativeEngine_->CreateReference(instanceValue, 1));
+    return true;
+}
+
+void SimulatorImpl::InitJsAbilityStageContext(NativeValue *instanceValue)
+{
+    NativeValue *contextObj = CreateJsAbilityStageContext(*nativeEngine_, stageContext_);
+    if (contextObj == nullptr) {
+        HILOG_ERROR("contextObj is nullptr");
+        return;
+    }
+
+    jsStageContext_ = std::shared_ptr<NativeReference>(
+        JsRuntime::LoadSystemModuleByEngine(nativeEngine_.get(), "application.AbilityStageContext", &contextObj, 1));
+    if (jsStageContext_ == nullptr) {
+        HILOG_ERROR("Failed to get LoadSystemModuleByEngine");
+        return;
+    }
+
+    contextObj = jsStageContext_->Get();
+    if (contextObj == nullptr) {
+        HILOG_ERROR("contextObj is nullptr.");
+        return;
+    }
+
+    NativeObject *obj = ConvertNativeValueTo<NativeObject>(instanceValue);
+    if (obj == nullptr) {
+        HILOG_ERROR("obj is nullptr");
+        return;
+    }
+    obj->SetProperty("context", contextObj);
+}
+
 void SimulatorImpl::TerminateAbility(int64_t abilityId)
 {
+    if (abilityId == 0 && abilities_.begin() != abilities_.end()) {
+        TerminateAbility(abilities_.begin()->first);
+        return;
+    }
+
     auto it = abilities_.find(abilityId);
     if (it == abilities_.end()) {
         return;
@@ -276,6 +370,49 @@ void SimulatorImpl::TerminateAbility(int64_t abilityId)
     }
 }
 
+void SimulatorImpl::UpdateConfiguration(const AppExecFwk::Configuration &config)
+{
+    HILOG_DEBUG("called.");
+    if (abilityStage_ == nullptr) {
+        HILOG_ERROR("abilityStage_ is nullptr");
+        return;
+    }
+
+    auto configuration = std::make_shared<AppExecFwk::Configuration>(config);
+    if (configuration == nullptr) {
+        return;
+    }
+
+    if (stageContext_) {
+        stageContext_->SetConfiguration(configuration);
+    }
+
+    NativeValue *configArgv[] = {
+        CreateJsConfiguration(*nativeEngine_, config)
+    };
+
+    auto abilityStage = abilityStage_->Get();
+    if (abilityStage == nullptr) {
+        HILOG_ERROR("abilityStage is nullptr");
+        return;
+    }
+    CallObjectMethod(*nativeEngine_, abilityStage, "onConfigurationUpdated", configArgv, ArraySize(configArgv));
+    CallObjectMethod(*nativeEngine_, abilityStage, "onConfigurationUpdate", configArgv, ArraySize(configArgv));
+    JsAbilityStageContext::ConfigurationUpdated(nativeEngine_.get(), jsStageContext_, configuration);
+
+    for (auto iter = abilities_.begin(); iter != abilities_.end(); iter++) {
+        auto ability = iter->second->Get();
+        if (ability == nullptr) {
+            HILOG_ERROR("ability is nullptr");
+            continue;
+        }
+
+        CallObjectMethod(*nativeEngine_, ability, "onConfigurationUpdated", configArgv, ArraySize(configArgv));
+        CallObjectMethod(*nativeEngine_, ability, "onConfigurationUpdate", configArgv, ArraySize(configArgv));
+        JsAbilityContext::ConfigurationUpdated(nativeEngine_.get(), iter->second, configuration);
+    }
+}
+
 void SimulatorImpl::InitResourceMgr()
 {
     HILOG_DEBUG("called.");
@@ -295,7 +432,9 @@ void SimulatorImpl::InitJsAbilityContext(NativeValue *instanceValue)
 {
     if (context_ == nullptr) {
         context_ = std::make_shared<AbilityContext>();
+        context_->SetSimulator(static_cast<Simulator*>(this));
         context_->SetOptions(options_);
+        context_->SetAbilityStageContext(stageContext_);
         context_->SetResourceManager(resourceMgr_);
     }
     NativeValue *contextObj = CreateJsAbilityContext(*nativeEngine_, context_);
@@ -326,23 +465,33 @@ NativeValue *SimulatorImpl::CreateJsWant(NativeEngine &engine)
     NativeValue *objValue = engine.CreateObject();
     NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
 
-    object->SetProperty("deviceId", engine.CreateUndefined());
-    object->SetProperty("bundleName", engine.CreateUndefined());
-    object->SetProperty("abilityName", engine.CreateUndefined());
-    object->SetProperty("moduleName", engine.CreateUndefined());
-    object->SetProperty("uri", engine.CreateUndefined());
-    object->SetProperty("type", engine.CreateUndefined());
-    object->SetProperty("flags", engine.CreateUndefined());
-    object->SetProperty("action", engine.CreateUndefined());
-    object->SetProperty("parameters", engine.CreateUndefined());
-    object->SetProperty("entities", engine.CreateUndefined());
+    object->SetProperty("deviceId", CreateJsValue(engine, ""));
+    object->SetProperty("bundleName", CreateJsValue(engine, options_.bundleName));
+    object->SetProperty("abilityName", CreateJsValue(engine, options_.abilityInfo.name));
+    object->SetProperty("moduleName", CreateJsValue(engine, options_.moduleName));
+    object->SetProperty("uri", CreateJsValue(engine, ""));
+    object->SetProperty("type", CreateJsValue(engine, ""));
+    object->SetProperty("flags", CreateJsValue(engine, 0));
+    object->SetProperty("action", CreateJsValue(engine, ""));
+    object->SetProperty("parameters", engine.CreateObject());
+    object->SetProperty("entities", engine.CreateArray(0));
+    return objValue;
+}
+
+NativeValue *SimulatorImpl::CreateJsLaunchParam(NativeEngine &engine)
+{
+    NativeValue *objValue = engine.CreateObject();
+    NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
+    object->SetProperty("launchReason", CreateJsValue(engine, AAFwk::LAUNCHREASON_UNKNOWN));
+    object->SetProperty("lastExitReason", CreateJsValue(engine, AAFwk::LASTEXITREASON_UNKNOWN));
     return objValue;
 }
 
 void SimulatorImpl::DispatchStartLifecycle(NativeValue *instanceValue)
 {
     NativeValue *wantArgv[] = {
-        CreateJsWant(*nativeEngine_)
+        CreateJsWant(*nativeEngine_),
+        CreateJsLaunchParam(*nativeEngine_)
     };
     CallObjectMethod(*nativeEngine_, instanceValue, "onCreate", wantArgv, ArraySize(wantArgv));
 

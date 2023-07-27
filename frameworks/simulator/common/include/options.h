@@ -16,8 +16,14 @@
 #ifndef FOUNDATION_ABILITY_RUNTIME_SIMULATOR_OPTIONS_H
 #define FOUNDATION_ABILITY_RUNTIME_SIMULATOR_OPTIONS_H
 
+#include <memory>
 #include <string>
 #include <vector>
+
+#include "ability_info.h"
+#include "application_info.h"
+#include "configuration.h"
+#include "hap_module_info.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -87,6 +93,10 @@ struct Options {
     int32_t targetVersion;
     std::string releaseType;
     bool enablePartialUpdate;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    AppExecFwk::HapModuleInfo hapModuleInfo;
+    AppExecFwk::AbilityInfo abilityInfo;
+    std::shared_ptr<AppExecFwk::Configuration> configuration;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

@@ -18,6 +18,7 @@
 #include <map>
 #include "hilog_wrapper.h"
 #include "js_context_utils.h"
+#include "js_data_converter.h"
 #include "js_runtime_utils.h"
 #include "js_runtime.h"
 
@@ -265,7 +266,9 @@ NativeValue *JsApplicationContextUtils::Off(NativeEngine *engine, NativeCallback
 
 NativeValue *JsApplicationContextUtils::GetApplicationContext(NativeEngine *engine, NativeCallbackInfo *info)
 {
-    return nullptr;
+    JsApplicationContextUtils *me =
+        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
+    return me != nullptr ? me->OnGetApplicationContext(*engine, *info) : nullptr;
 }
 
 NativeValue *JsApplicationContextUtils::OnGetApplicationContext(NativeEngine &engine, NativeCallbackInfo &info)
@@ -293,6 +296,11 @@ NativeValue *JsApplicationContextUtils::CreateJsApplicationContext(
     auto jsApplicationContextUtils = std::make_unique<JsApplicationContextUtils>(context);
     SetNamedNativePointer(engine, *object, APPLICATION_CONTEXT_NAME, jsApplicationContextUtils.release(),
         JsApplicationContextUtils::Finalizer);
+
+    auto appInfo = context->GetApplicationInfo();
+    if (appInfo != nullptr) {
+        object->SetProperty("applicationInfo", CreateJsApplicationInfo(engine, *appInfo));
+    }
 
     BindNativeApplicationContext(engine, object);
 
