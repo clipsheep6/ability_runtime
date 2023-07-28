@@ -133,6 +133,11 @@ public:
         abilityInfo.bundleName = "com.ohos.launcher";
         return true;
     }
+    virtual bool GetGroupDir(const std::string &dataGroupId, std::string &dir) override
+    {
+        dir = "group";
+        return true;
+    }
 
     sptr<IQuickFixManager> GetQuickFixManagerProxy() override;
 

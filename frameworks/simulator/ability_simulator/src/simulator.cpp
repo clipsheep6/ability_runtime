@@ -232,6 +232,13 @@ int64_t SimulatorImpl::StartAbility(const std::string &abilitySrcPath, Terminate
     stream.close();
 
     auto buf = buffer.release();
+
+    if (stageContext_ == nullptr) {
+        stageContext_ = std::make_shared<AbilityStageContext>();
+        stageContext_->SetOptions(options_);
+        stageContext_->SetConfiguration(options_.configuration);
+    }
+
     if (!LoadAbilityStage(buf, len)) {
         HILOG_ERROR("Load ability stage failed.");
         return -1;
@@ -269,8 +276,12 @@ bool SimulatorImpl::LoadAbilityStage(uint8_t *buffer, size_t len)
         HILOG_ERROR("nativeEngine_ is nullptr");
         return false;
     }
+    std::string srcEntrance = options_.hapModuleInfo.srcEntrance;
+    srcEntrance.erase(srcEntrance.rfind("."));
+    srcEntrance.append(".abc");
+    srcEntrance = srcEntrance.substr(srcEntrance.find('/') + 1, srcEntrance.length());
 
-    auto moduleSrcPath = BUNDLE_INSTALL_PATH + options_.moduleName + "/" + options_.hapModuleInfo.srcEntrance;
+    auto moduleSrcPath = BUNDLE_INSTALL_PATH + options_.moduleName + "/" + srcEntrance;
     if (!nativeEngine_->RunScriptBuffer(moduleSrcPath, buffer, len, false)) {
         HILOG_ERROR("Failed to run ability stage script: %{public}s", moduleSrcPath.c_str());
         return false;
@@ -280,12 +291,6 @@ bool SimulatorImpl::LoadAbilityStage(uint8_t *buffer, size_t len)
     if (instanceValue == nullptr) {
         HILOG_ERROR("Failed to create ability stage instance");
         return false;
-    }
-
-    if (stageContext_ == nullptr) {
-        stageContext_ = std::make_shared<AbilityStageContext>();
-        stageContext_->SetOptions(options_);
-        stageContext_->SetConfiguration(options_.configuration);
     }
 
     InitJsAbilityStageContext(instanceValue);

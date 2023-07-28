@@ -67,11 +67,14 @@ constexpr const char* DIRECTION_HORIZONTAL = "horizontal";
 
 class Configuration {
 public:
-    Configuration() {}
+    Configuration()
+    {
+        AddItem(AppExecFwk::ConfigurationInner::APPLICATION_DISPLAYID, "0");
+        AddItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, "true");
+    }
 
     Configuration(const Configuration &other)
     {
-        defaultDisplayId_ = other.defaultDisplayId_;
         configParameter_.clear();
         configParameter_ = other.configParameter_;
     }
@@ -82,93 +85,12 @@ public:
             return *this;
         }
 
-        defaultDisplayId_ = other.defaultDisplayId_;
         configParameter_.clear();
         configParameter_ = other.configParameter_;
         return *this;
     }
 
     ~Configuration() {}
-
-    /**
-     * @brief obtain the value according to the display number and storage key.
-     *
-     * @param displayId Currently displayed id.
-     * @param key The key of the item to access configura. ej : key = GlobalConfigurationKey::SYSTEM_LANGUAGE
-     * Means you want to change the language part
-     * @param value Changed value
-     * @return return true if the deposit is successful, otherwise return false
-     */
-    bool AddItem(int displayId, const std::string &key, const std::string &value)
-    {
-        if (key.empty() || value.empty()) {
-            return false;
-        }
-
-        std::string getKey;
-        if (!MakeTheKey(getKey, displayId, key)) {
-            return false;
-        }
-
-        configParameter_[getKey] = value;
-        return true;
-    }
-
-    /**
-     * @brief obtain the value according to the display number and storage key.
-     *
-     * @param displayId Currently displayed id.
-     * @param key The key of the item to access configura. ej : key = GlobalConfigurationKey::SYSTEM_LANGUAGE
-     * Means you want to change the language part
-     *
-     * @return return empty string if not found | return val if found
-     */
-    std::string GetItem(int displayId, const std::string &key) const
-    {
-        if (key.empty()) {
-            return ConfigurationInner::EMPTY_STRING;
-        }
-
-        std::string getKey;
-        if (!MakeTheKey(getKey, displayId, key)) {
-            return ConfigurationInner::EMPTY_STRING;
-        }
-
-        auto iter = configParameter_.find(getKey);
-        if (iter != configParameter_.end()) {
-            return iter->second;
-        }
-
-        return ConfigurationInner::EMPTY_STRING;
-    }
-
-    /**
-     * @brief Make the key by id and param
-     *
-     * @param getKey Key made.
-     * @param id displayId.
-     * @param param The key of the item to access configura.
-     *
-     */
-    bool MakeTheKey(std::string &getKey, int id, const std::string &param) const
-    {
-        if (param.empty()) {
-            return false;
-        }
-
-        if (std::find(ConfigurationInner::SystemConfigurationKeyStore.begin(),
-            ConfigurationInner::SystemConfigurationKeyStore.end(), param) ==
-            ConfigurationInner::SystemConfigurationKeyStore.end()) {
-            return false;
-        }
-
-        getKey.clear();
-        getKey += std::to_string(id);
-        getKey += ConfigurationInner::CONNECTION_SYMBOL;
-        getKey += param;
-
-        return true;
-    }
 
     /**
      * @brief obtain the value according to the display number and storage key.
@@ -180,7 +102,12 @@ public:
      */
     bool AddItem(const std::string &key, const std::string &value)
     {
-        return AddItem(defaultDisplayId_, key, value);
+        if (key.empty() || value.empty()) {
+            return false;
+        }
+
+        configParameter_[key] = value;
+        return true;
     }
 
     /**
@@ -193,11 +120,19 @@ public:
      */
     std::string GetItem(const std::string &key) const
     {
-        return GetItem(defaultDisplayId_, key);
+        if (key.empty()) {
+            return ConfigurationInner::EMPTY_STRING;
+        }
+
+        auto iter = configParameter_.find(key);
+        if (iter != configParameter_.end()) {
+            return iter->second;
+        }
+
+        return ConfigurationInner::EMPTY_STRING;
     }
 
 private:
-    int defaultDisplayId_ {0};
     std::unordered_map<std::string, std::string> configParameter_;
 };
 } // namespace AppExecFwk

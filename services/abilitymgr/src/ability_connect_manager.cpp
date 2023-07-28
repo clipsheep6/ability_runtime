@@ -290,6 +290,12 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
     connectMap_.emplace(connect->AsObject(), connectRecordList);
     targetService->SetLaunchReason(LaunchReason::LAUNCHREASON_CONNECT_EXTENSION);
 
+    if (UIExtensionUtils::IsWindowExtension(targetService->GetAbilityInfo().extensionAbilityType)
+        && abilityRequest.sessionInfo) {
+        windowExtensionMap_.emplace(connect->AsObject(),
+            WindowExtMapValType(targetService->GetApplicationInfo().accessTokenId, abilityRequest.sessionInfo));
+    }
+
     // 5. load or connect ability
     int ret = ERR_OK;
     if (!isLoadedAbility) {
@@ -297,16 +303,7 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
     } else if (targetService->IsAbilityState(AbilityState::ACTIVE)) {
         // this service ability has connected already
         targetService->SetWant(abilityRequest.want);
-        if (targetService->GetConnectRecordList().size() > 1) {
-            if (taskHandler_ != nullptr && targetService->GetConnRemoteObject()) {
-                auto task = [connectRecord]() { connectRecord->CompleteConnect(ERR_OK); };
-                taskHandler_->SubmitTask(task);
-            } else {
-                HILOG_INFO("Target service is connecting, wait for callback");
-            }
-        } else {
-            ConnectAbility(targetService);
-        }
+        HandleActiveAbility(targetService, connectRecord);
     } else {
         HILOG_INFO("Target service is activating, wait for callback");
     }
@@ -315,6 +312,25 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
     auto preToken = iface_cast<Token>(connectRecord->GetToken());
     DelayedSingleton<AppScheduler>::GetInstance()->AbilityBehaviorAnalysis(token, preToken, 0, 1, 1);
     return ret;
+}
+
+void AbilityConnectManager::HandleActiveAbility(std::shared_ptr<AbilityRecord> &targetService,
+    std::shared_ptr<ConnectionRecord> &connectRecord)
+{
+    if (targetService == nullptr) {
+        HILOG_WARN("null target service.");
+        return;
+    }
+    if (targetService->GetConnectRecordList().size() > 1) {
+        if (taskHandler_ != nullptr && targetService->GetConnRemoteObject()) {
+            auto task = [connectRecord]() { connectRecord->CompleteConnect(ERR_OK); };
+            taskHandler_->SubmitTask(task);
+        } else {
+            HILOG_INFO("Target service is connecting, wait for callback");
+        }
+    } else {
+        ConnectAbility(targetService);
+    }
 }
 
 int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection> &connect)
@@ -676,10 +692,7 @@ int AbilityConnectManager::ScheduleCommandAbilityWindowDone(
     }
 
     if (winCmd == WIN_CMD_DESTROY) {
-        if (sessionInfo->sessionToken) {
-            RemoveUIExtWindowDeathRecipient(sessionInfo->sessionToken);
-            uiExtensionMap_.erase(sessionInfo->sessionToken);
-        }
+        HandleCommandDestroy(sessionInfo);
     }
 
     switch (abilityCmd) {
@@ -718,6 +731,29 @@ int AbilityConnectManager::ScheduleCommandAbilityWindowDone(
 
     CompleteStartServiceReq(element);
     return ERR_OK;
+}
+
+void AbilityConnectManager::HandleCommandDestroy(const sptr<SessionInfo> &sessionInfo)
+{
+    if (sessionInfo == nullptr) {
+        HILOG_WARN("null session info.");
+        return;
+    }
+    if (sessionInfo->sessionToken) {
+        RemoveUIExtWindowDeathRecipient(sessionInfo->sessionToken);
+        size_t ret = uiExtensionMap_.erase(sessionInfo->sessionToken);
+        if (ret > 0) {
+            return;
+        }
+
+        for (auto& item : windowExtensionMap_) {
+            auto sessionInfoVal = item.second.second;
+            if (sessionInfoVal && sessionInfoVal->callerToken == sessionInfo->sessionToken) {
+                windowExtensionMap_.erase(item.first);
+                break;
+            }
+        }
+    }
 }
 
 void AbilityConnectManager::CompleteCommandAbility(std::shared_ptr<AbilityRecord> abilityRecord)
@@ -1345,6 +1381,10 @@ void AbilityConnectManager::HandleCallBackDiedTask(const sptr<IRemoteObject> &co
     HILOG_INFO("Handle call back died task.");
     std::lock_guard guard(Lock_);
     CHECK_POINTER(connect);
+    auto item = windowExtensionMap_.find(connect);
+    if (item != windowExtensionMap_.end()) {
+        windowExtensionMap_.erase(item);
+    }
     auto it = connectMap_.find(connect);
     if (it != connectMap_.end()) {
         ConnectListType connectRecordList = it->second;
@@ -1934,6 +1974,19 @@ bool AbilityConnectManager::IsUIExtensionFocused(uint32_t uiExtensionTokenId, co
         auto sessionInfo = item.second.second;
         if (uiExtension && uiExtension->GetApplicationInfo().accessTokenId == uiExtensionTokenId
             && sessionInfo && sessionInfo->callerToken == focusToken) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool AbilityConnectManager::IsWindowExtensionFocused(uint32_t extensionTokenId, const sptr<IRemoteObject>& focusToken)
+{
+    std::lock_guard guard(Lock_);
+    for (auto& item: windowExtensionMap_) {
+        uint32_t windowExtTokenId = item.second.first;
+        auto sessionInfo = item.second.second;
+        if (windowExtTokenId == extensionTokenId && sessionInfo && sessionInfo->callerToken == focusToken) {
             return true;
         }
     }

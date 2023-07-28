@@ -743,6 +743,60 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetGroupDir_0200, Function
 }
 
 /**
+ * @tc.number: Ability_Context_Impl_GetSystemDatabaseDir_0100
+ * @tc.name: GetSystemDatabaseDir
+ * @tc.desc: Get Group Dir sucess
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetSystemDatabaseDir_0100, Function | MediumTest | Level1)
+{
+    context_->SetStageContext(mock_);
+    std::string databaseDir;
+    auto ret = context_->GetSystemDatabaseDir("1", true, databaseDir);
+    EXPECT_EQ(ret, 0);
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_GetSystemDatabaseDir_0200
+ * @tc.name: GetSystemDatabaseDir
+ * @tc.desc: Get Group Dir failed
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetSystemDatabaseDir_0200, Function | MediumTest | Level1)
+{
+    context_->SetStageContext(nullptr);
+    std::string databaseDir;
+    auto ret = context_->GetSystemDatabaseDir("1", true, databaseDir);
+    EXPECT_EQ(ret, OHOS::ERR_INVALID_VALUE);
+}
+
+
+/**
+ * @tc.number: Ability_Context_Impl_GetSystemPreferencesDir_0100
+ * @tc.name: GetSystemPreferencesDir
+ * @tc.desc: Get Group Dir sucess
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetSystemPreferencesDir_0100, Function | MediumTest | Level1)
+{
+    context_->SetStageContext(mock_);
+    std::string preferencesDir;
+    auto ret = context_->GetSystemPreferencesDir("1", true, preferencesDir);
+    EXPECT_EQ(ret, 0);
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_GetSystemPreferencesDir_0200
+ * @tc.name: GetSystemPreferencesDir
+ * @tc.desc: Get Group Dir failed
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetSystemPreferencesDir_0200, Function | MediumTest | Level1)
+{
+    context_->SetStageContext(nullptr);
+    std::string databaseDir;
+    auto ret = context_->GetSystemPreferencesDir("1", true, databaseDir);
+    EXPECT_EQ(ret, OHOS::ERR_INVALID_VALUE);
+}
+
+
+/**
  * @tc.number: Ability_Context_Impl_GetFilesDir_0100
  * @tc.name: GetFilesDir
  * @tc.desc: Get Files Dir sucess

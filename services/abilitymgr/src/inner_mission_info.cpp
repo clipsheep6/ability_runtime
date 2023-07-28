@@ -181,5 +181,38 @@ bool InnerMissionInfo::CheckJsonNode(nlohmann::json &value, const std::string &n
     }
     return false;
 }
+
+void InnerMissionInfo::UpdateMissionInfo(const InnerMissionInfoDto &info)
+{
+    missionInfo = info.missionInfo;
+    missionName = info.missionName;
+    missionAffinity = info.missionAffinity;
+    launchMode = info.launchMode;
+    startMethod = info.startMethod;
+    bundleName = info.bundleName;
+    uid = info.uid;
+    isTemporary = info.isTemporary;
+    specifiedFlag = info.specifiedFlag;
+    hasRecoverInfo = info.hasRecoverInfo;
+    collaboratorType = info.collaboratorType;
+}
+
+InnerMissionInfoDto InnerMissionInfo::ConvertInnerMissionInfoDto()
+{
+    InnerMissionInfoDto info;
+    info.missionInfo = missionInfo;
+    info.missionName = missionName;
+    info.missionAffinity = missionAffinity;
+    info.launchMode = launchMode;
+    info.startMethod = startMethod;
+    info.bundleName = bundleName;
+    info.uid = uid;
+    info.isTemporary = isTemporary;
+    info.specifiedFlag = specifiedFlag;
+    info.hasRecoverInfo = hasRecoverInfo;
+    info.collaboratorType = collaboratorType;
+
+    return info;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -429,5 +429,21 @@ HWTEST_F(ExtensionTest, AaFwk_Extension_2300, Function | MediumTest | Level1)
     extension_->OnCommandWindow(want, session, AAFwk::WIN_CMD_FOREGROUND);
     GTEST_LOG_(INFO) << "AaFwk_Extension_2300 end";
 }
+
+/**
+ * @tc.number: AaFwk_Extension_2400
+ * @tc.name: OnAbilityResult
+ * @tc.desc: Successfully verified OnAbilityResult.
+ */
+HWTEST_F(ExtensionTest, AaFwk_Extension_2400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_Extension_2400 start";
+    EXPECT_NE(extension_, nullptr);
+    Want want;
+    int requestCode = 0;
+    int resultCode = 0;
+    extension_->OnAbilityResult(requestCode, resultCode, want);
+    GTEST_LOG_(INFO) << "AaFwk_Extension_2400 end";
+}
 } // namespace AppExecFwk
 } // namespace OHOS

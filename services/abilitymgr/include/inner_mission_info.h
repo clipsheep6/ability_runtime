@@ -18,9 +18,7 @@
 
 #include <string>
 
-#include "ability_record.h"
 #include "mission_info.h"
-#include "parcel.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -52,12 +50,15 @@ struct InnerMissionInfo {
     bool isTemporary;
     std::string specifiedFlag;
     bool hasRecoverInfo;
-    int32_t collaboratorType = CollaboratorType::DEFAULT_TYPE;
+    int32_t collaboratorType = 0;
 
     std::string ToJsonStr() const;
     bool FromJsonStr(const std::string &jsonStr);
     void Dump(std::vector<std::string> &info) const;
     bool CheckJsonNode(nlohmann::json &value, const std::string &node, JsonType jsonType);
+
+    void UpdateMissionInfo(const InnerMissionInfoDto &info);
+    InnerMissionInfoDto ConvertInnerMissionInfoDto();
 };
 }  // namespace AAFwk
 }  // namespace OHOS
