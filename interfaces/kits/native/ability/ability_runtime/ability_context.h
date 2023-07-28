@@ -16,7 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_ABILITY_CONTEXT_H
 #define OHOS_ABILITY_RUNTIME_ABILITY_CONTEXT_H
 
-#include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/context.h"
+#include "../../appkit/ability_runtime/context/context.h"
 
 #include "ability_connect_callback.h"
 #include "ability_info.h"

@@ -122,7 +122,7 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned in
 int UriPermissionManagerStubImpl::GrantUriPermissionImpl(const Uri &uri, unsigned int flag,
     TokenId fromTokenId, TokenId targetTokenId, int autoremove)
 {
-    ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
+    /*ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
     if (storageManager_ == nullptr) {
         HILOG_ERROR("ConnectManager failed");
         return INNER_ERR;
@@ -152,7 +152,7 @@ int UriPermissionManagerStubImpl::GrantUriPermissionImpl(const Uri &uri, unsigne
             return ERR_OK;
         }
     }
-    infoList.emplace_back(info);
+    infoList.emplace_back(info);*/
     return ERR_OK;
 }
 
@@ -188,7 +188,7 @@ void UriPermissionManagerStubImpl::RevokeUriPermission(const TokenId tokenId)
         }
     }
 
-    ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
+    /*ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
     if (storageManager_ == nullptr) {
         HILOG_ERROR("ConnectManager failed");
         return;
@@ -196,7 +196,7 @@ void UriPermissionManagerStubImpl::RevokeUriPermission(const TokenId tokenId)
 
     if (!uriList.empty()) {
         storageManager_->DeleteShareFile(tokenId, uriList);
-    }
+    }*/
 }
 
 void UriPermissionManagerStubImpl::RevokeAllUriPermissions(uint32_t tokenId)
@@ -225,7 +225,7 @@ void UriPermissionManagerStubImpl::RevokeAllUriPermissions(uint32_t tokenId)
         }
     }
 
-    ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
+    /*ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
     if (storageManager_ == nullptr) {
         HILOG_ERROR("ConnectStorageManager failed");
         return;
@@ -235,7 +235,7 @@ void UriPermissionManagerStubImpl::RevokeAllUriPermissions(uint32_t tokenId)
         for (auto iter = uriLists.begin(); iter != uriLists.end(); iter++) {
             storageManager_->DeleteShareFile(iter->first, iter->second);
         }
-    }
+    }*/
 }
 
 int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, const std::string bundleName)
@@ -271,7 +271,7 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
     for (auto it = list.begin(); it != list.end(); it++) {
         if (it->targetTokenId == tokenId) {
             HILOG_INFO("Erase an info form list.");
-            ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
+            /*ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
             if (storageManager_ == nullptr) {
                 HILOG_ERROR("ConnectStorageManager failed");
                 return INNER_ERR;
@@ -283,7 +283,7 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
             } else {
                 HILOG_ERROR("DeleteShareFile failed");
                 return INNER_ERR;
-            }
+            }*/
         }
     }
     if (list.size() == 0) {

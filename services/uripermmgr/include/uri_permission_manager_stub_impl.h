@@ -21,7 +21,7 @@
 
 #include "app_mgr_interface.h"
 #include "bundlemgr/bundle_mgr_interface.h"
-#include "istorage_manager.h"
+// // #include "istorage_manager.h"
 #include "uri.h"
 #include "uri_bundle_event_callback.h"
 #include "uri_permission_manager_stub.h"
@@ -77,7 +77,7 @@ private:
     std::mutex mgrMutex_;
     sptr<AppExecFwk::IAppMgr> appMgr_ = nullptr;
     sptr<AppExecFwk::IBundleMgr> bundleManager_ = nullptr;
-    sptr<StorageManager::IStorageManager> storageManager_ = nullptr;
+    // sptr<StorageManager::IStorageManager> storageManager_ = nullptr;
     sptr<AppExecFwk::IBundleEventCallback> uriBundleEventCallback_ = nullptr;
 };
 }  // namespace OHOS::AAFwk

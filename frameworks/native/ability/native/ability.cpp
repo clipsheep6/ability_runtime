@@ -45,6 +45,7 @@
 #include "system_ability_definition.h"
 #include "task_handler_client.h"
 #include "values_bucket.h"
+#include "continuation_handler.h"
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 #include "background_task_mgr_helper.h"
@@ -52,8 +53,8 @@
 #endif
 
 #ifdef SUPPORT_GRAPHICS
-#include "display_type.h"
-#include "key_event.h"
+// #include "display_type.h"
+// #include "key_event.h"
 #endif
 
 #ifdef IMAGE_PURGEABLE_PIXELMAP

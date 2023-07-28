@@ -96,7 +96,6 @@ void MixStackDumper::InstallDumpHandler(std::shared_ptr<OHOSApplication> applica
     if (!hasInstalled) {
         signalHandler_ = handler;
         application_ = application;
-
         struct signal_chain_action sigchain = {
             .sca_sigaction = MixStackDumper::Dump_SignalHandler,
             .sca_mask = {},

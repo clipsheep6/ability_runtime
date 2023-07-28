@@ -714,7 +714,7 @@ private:
     int64_t eventId_ = 0;
     int64_t startProcessSpecifiedAbilityEventId_ = 0;
     int64_t addAbilityStageInfoEventId_ = 0;
-    std::list<const sptr<IRemoteObject>> foregroundingAbilityTokens_;
+    std::list<sptr<IRemoteObject>> foregroundingAbilityTokens_;
     std::weak_ptr<AppMgrServiceInner> appMgrServiceInner_;
     sptr<AppDeathRecipient> appDeathRecipient_ = nullptr;
     std::shared_ptr<PriorityObject> priorityObject_ = nullptr;

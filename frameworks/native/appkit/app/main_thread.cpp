@@ -18,7 +18,6 @@
 #include <malloc.h>
 #include <new>
 #include <regex>
-#include <sys/prctl.h>
 #include <unistd.h>
 
 #include "constants.h"
@@ -45,7 +44,7 @@
 #include "file_path_utils.h"
 #include "hilog_wrapper.h"
 #ifdef SUPPORT_GRAPHICS
-#include "locale_config.h"
+// #include "locale_config.h"
 #endif
 #include "app_mgr_client.h"
 #include "if_system_ability_manager.h"
@@ -552,6 +551,7 @@ void MainThread::ScheduleMemoryLevel(const int level)
  */
 void MainThread::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
 {
+    /*
     struct mallinfo mi = mallinfo();
     int usmblks = mi.usmblks; // 当前从分配器中分配的总的堆内存大小
     int uordblks = mi.uordblks; // 当前已释放给分配器，分配缓存了未释放给系统的内存大小
@@ -561,6 +561,7 @@ void MainThread::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocI
     mallocInfo.usmblks = usmblks;
     mallocInfo.uordblks = uordblks;
     mallocInfo.fordblks = fordblks;
+    */
 }
 
 /**
@@ -984,7 +985,7 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
 #ifdef SUPPORT_GRAPHICS
     UErrorCode status = U_ZERO_ERROR;
-    icu::Locale locale = icu::Locale::forLanguageTag(Global::I18n::LocaleConfig::GetSystemLanguage(), status);
+    icu::Locale locale = icu::Locale::forLanguageTag(icu::StringPiece()/*Global::I18n::LocaleConfig::GetSystemLanguage()*/, status);
     resConfig->SetLocaleInfo(locale);
     const icu::Locale *localeInfo = resConfig->GetLocaleInfo();
     if (localeInfo != nullptr) {
@@ -2089,7 +2090,7 @@ void MainThread::Start()
         HILOG_ERROR("MainThread::static failed. new MainThread failed");
         return;
     }
-
+/*
     struct sigaction sigAct;
     sigemptyset(&sigAct.sa_mask);
     sigAct.sa_flags = 0;
@@ -2097,7 +2098,7 @@ void MainThread::Start()
     sigaction(SIGUSR1, &sigAct, NULL);
     sigaction(SIGNAL_JS_HEAP, &sigAct, NULL);
     sigaction(SIGNAL_JS_HEAP_PRIV, &sigAct, NULL);
-
+*/
     thread->Init(runner);
 
     thread->Attach();

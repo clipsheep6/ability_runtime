@@ -46,7 +46,7 @@
 #include "iservice_registry.h"
 #include "itest_observer.h"
 #ifdef SUPPORT_GRAPHICS
-#include "locale_config.h"
+// #include "locale_config.h"
 #endif
 #include "os_account_manager_wrapper.h"
 #include "parameter.h"
@@ -61,7 +61,7 @@
 #include "socket_permission.h"
 #endif
 #include "application_info.h"
-#include "meminfo.h"
+// #include "meminfo.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -147,8 +147,8 @@ int32_t GetUserIdByUid(int32_t uid)
 }
 }  // namespace
 
-using OHOS::AppExecFwk::Constants::PERMISSION_GRANTED;
-using OHOS::AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
+// using OHOS::AppExecFwk::Constants::PERMISSION_GRANTED;
+// using OHOS::AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
 
 AppMgrServiceInner::AppMgrServiceInner()
     : appProcessManager_(std::make_shared<AppProcessManager>()),
@@ -2050,7 +2050,7 @@ void AppMgrServiceInner::RemoveAppFromRecentList(const std::string &appName, con
     appProcessManager_->RemoveAppFromRecentList(appTaskInfo);
 }
 
-const std::list<const std::shared_ptr<AppTaskInfo>> &AppMgrServiceInner::GetRecentAppList() const
+const std::list<std::shared_ptr<AppTaskInfo>> &AppMgrServiceInner::GetRecentAppList() const
 {
     return appProcessManager_->GetRecentAppList();
 }
@@ -2946,7 +2946,7 @@ int32_t AppMgrServiceInner::RegisterConfigurationObserver(const sptr<IConfigurat
         return ERR_INVALID_VALUE;
     }
     configurationObservers_.push_back(observer);
-    return NO_ERROR;
+    return EventFwkNapi::NO_ERROR;
 }
 
 int32_t AppMgrServiceInner::UnregisterConfigurationObserver(const sptr<IConfigurationObserver>& observer)
@@ -2964,7 +2964,7 @@ int32_t AppMgrServiceInner::UnregisterConfigurationObserver(const sptr<IConfigur
     );
     if (it != configurationObservers_.end()) {
         configurationObservers_.erase(it);
-        return NO_ERROR;
+        return EventFwkNapi::NO_ERROR;
     }
     HILOG_INFO("AppMgrServiceInner ConfigurationObserver not register");
     return ERR_INVALID_VALUE;
@@ -2979,7 +2979,7 @@ void AppMgrServiceInner::InitGlobalConfiguration()
 
 #ifdef SUPPORT_GRAPHICS
     // Currently only this interface is known
-    auto language = OHOS::Global::I18n::LocaleConfig::GetSystemLanguage();
+    std::string language = "zh_cn" /*OHOS::Global::I18n::LocaleConfig::GetSystemLanguage()*/;
     HILOG_INFO("current global language is : %{public}s", language.c_str());
     configuration_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, language);
 #endif
@@ -4114,8 +4114,8 @@ void AppMgrServiceInner::KillRenderProcess(const std::shared_ptr<AppRunningRecor
 int32_t AppMgrServiceInner::GetProcessMemoryByPid(const int32_t pid, int32_t &memorySize)
 {
     CHECK_CALLER_IS_SYSTEM_APP;
-    uint64_t memSize = OHOS::MemInfo::GetPssByPid(pid);
-    memorySize = memSize;
+    // uint64_t memSize = OHOS::MemInfo::GetPssByPid(pid);
+    memorySize = 0;// memSize;
     return ERR_OK;
 }
 

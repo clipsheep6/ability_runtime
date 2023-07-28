@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_RUNTIME_H
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 

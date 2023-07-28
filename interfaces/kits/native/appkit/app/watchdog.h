@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_WATCHDOG_H
 #define OHOS_ABILITY_RUNTIME_WATCHDOG_H
 
+#include <condition_variable>
 #include <string>
 #include <mutex>
 #include <thread>

@@ -71,8 +71,8 @@
 #ifdef SUPPORT_GRAPHICS
 #include "application_anr_listener.h"
 #include "display_manager.h"
-#include "input_manager.h"
-#include "png.h"
+// #include "input_manager.h"
+// #include "png.h"
 #endif
 
 #ifdef EFFICIENCY_MANAGER_ENABLE
@@ -84,7 +84,6 @@
 #include "res_type.h"
 #endif // RESOURCE_SCHEDULE_SERVICE_ENABLE
 
-using OHOS::AppExecFwk::ElementName;
 using OHOS::Security::AccessToken::AccessTokenKit;
 
 namespace OHOS {
@@ -1931,7 +1930,6 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
         EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
-
     AbilityRequest abilityRequest;
     abilityRequest.Voluation(extensionSessionInfo->want, DEFAULT_INVAL_VALUE, callerToken);
     abilityRequest.callType = AbilityCallType::START_EXTENSION_TYPE;
@@ -5976,7 +5974,6 @@ int AbilityManagerService::SendANRProcessID(int pid)
         HILOG_ERROR("SendANRProcessID error, debug mode.");
         return ERR_INVALID_VALUE;
     }
-
     auto sysDialog = DelayedSingleton<SystemDialogScheduler>::GetInstance();
     if (!sysDialog) {
         HILOG_ERROR("SystemDialogScheduler is nullptr.");

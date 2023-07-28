@@ -436,7 +436,7 @@ public:
      *
      * @return a list of recent applications.
      */
-    const std::list<const std::shared_ptr<AppTaskInfo>> &GetRecentAppList() const;
+    const std::list<std::shared_ptr<AppTaskInfo>> &GetRecentAppList() const;
 
     /**
      * GetRecentAppList, Remove the corresponding latest application list data by applying the name.
@@ -970,7 +970,7 @@ private:
         const std::string &msg, const int64_t &resultCode, const std::shared_ptr<AppRunningRecord> &appRecord);
     int32_t GetCurrentAccountId() const;
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
-    std::vector<const sptr<IAppStateCallback>> appStateCallbacks_;
+    std::vector<sptr<IAppStateCallback>> appStateCallbacks_;
     std::shared_ptr<AppProcessManager> appProcessManager_;
     std::shared_ptr<RemoteClientManager> remoteClientManager_;
     std::shared_ptr<AppRunningManager> appRunningManager_;

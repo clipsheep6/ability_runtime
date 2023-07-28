@@ -18,6 +18,7 @@
 
 #include <mutex>
 #include <unordered_map>
+#include <functional>
 
 namespace OHOS::AbilityRuntime {
 class ConnectServerManager final {

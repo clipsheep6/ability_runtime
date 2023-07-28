@@ -49,7 +49,7 @@ void AppProcessManager::AddAppToRecentList(
     recentAppList_.push_front(appTaskInfo);
 }
 
-const std::list<const std::shared_ptr<AppTaskInfo>> &AppProcessManager::GetRecentAppList() const
+const std::list<std::shared_ptr<AppTaskInfo>> &AppProcessManager::GetRecentAppList() const
 {
     return recentAppList_;
 }

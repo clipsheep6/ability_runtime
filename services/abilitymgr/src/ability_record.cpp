@@ -18,7 +18,7 @@
 #include <singleton.h>
 #include <vector>
 
-#include "constants.h"
+// #include "constants.h"
 #include "ability_event_handler.h"
 #include "ability_manager_service.h"
 #include "ability_scheduler_stub.h"
@@ -29,7 +29,7 @@
 #include "configuration_convertor.h"
 #include "connection_state_manager.h"
 #include "hitrace_meter.h"
-#include "image_source.h"
+// #include "image_source.h"
 #include "in_process_call_wrapper.h"
 #include "errors.h"
 #include "event_report.h"
@@ -40,9 +40,9 @@
 #include "uri_permission_manager_client.h"
 #ifdef SUPPORT_GRAPHICS
 #include "image_source.h"
-#include "locale_config.h"
-#include "mission_info_mgr.h"
+// #include "locale_config.h"
 #endif
+#include "mission_info_mgr.h"
 #ifdef EFFICIENCY_MANAGER_ENABLE
 #include "suspend_manager_client.h"
 #endif // EFFICIENCY_MANAGER_ENABLE
@@ -867,7 +867,7 @@ std::shared_ptr<Global::Resource::ResourceManager> AbilityRecord::CreateResource
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     UErrorCode status = U_ZERO_ERROR;
-    icu::Locale locale = icu::Locale::forLanguageTag(Global::I18n::LocaleConfig::GetSystemLanguage(), status);
+    icu::Locale locale = icu::Locale::forLanguageTag(icu::StringPiece()/*Global::I18n::LocaleConfig::GetSystemLanguage()*/, status);
     resConfig->SetLocaleInfo(locale);
 
     AppExecFwk::Configuration cfg;

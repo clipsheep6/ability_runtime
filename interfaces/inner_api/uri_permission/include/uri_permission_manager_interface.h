@@ -16,7 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_URI_PERMISSION_MANAGER_INTERFACE_H
 #define OHOS_ABILITY_RUNTIME_URI_PERMISSION_MANAGER_INTERFACE_H
 
-#include "base/security/access_token/interfaces/innerkits/accesstoken/include/access_token.h"
+#include "access_token.h"
 #include "iremote_broker.h"
 #include "uri.h"
 

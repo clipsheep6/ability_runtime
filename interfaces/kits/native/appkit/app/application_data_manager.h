@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_APPLICATION_DATA_MANAGER_H
 
 #include <string>
+#include <memory>
 
 #include "ierror_observer.h"
 #include "nocopyable.h"

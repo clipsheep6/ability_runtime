@@ -22,7 +22,10 @@
 #include <vector>
 #include <unistd.h>
 
-#include "js_env_logger.h"
+#define JSENV_LOG_D(param) ; // #include "js_env_logger.h"
+#define JSENV_LOG_E(param, ...) ;
+#define JSENV_LOG_I(param) ;
+#define JSENV_LOG_W(param) ;
 
 namespace OHOS {
 namespace JsEnv {

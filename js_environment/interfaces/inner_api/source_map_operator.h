@@ -18,7 +18,7 @@
 #include <memory>
 #include <string>
 
-#include "js_env_logger.h"
+// #include "js_env_logger.h"
 #include "source_map.h"
 
 namespace OHOS {

@@ -25,6 +25,8 @@
 #include "ohos_application.h"
 #include "runtime.h"
 
+struct siginfo_t;
+
 namespace OHOS {
 namespace AppExecFwk {
 class MixStackDumper {
@@ -48,7 +50,6 @@ private:
     void PrintProcessHeader(int fd, pid_t pid, uid_t uid);
     void Write(int fd, const std::string& outStr);
     std::string DumpMixStackLocked(int fd, pid_t tid);
-
     static void HandleMixDumpRequest();
 
 private:

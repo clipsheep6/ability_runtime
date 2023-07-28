@@ -20,7 +20,7 @@
 #include <native_engine/native_value.h>
 
 #include "iremote_object.h"
-#include "foundation/ability/ability_runtime/interfaces/kits/native/ability/ability_runtime/ability_context.h"
+#include "ability_context.h"
 
 namespace OHOS {
 namespace AbilityRuntime {

@@ -17,7 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_AUTHORIZATION_RESULT_H
 
 #include "ability_context.h"
-#include "base/security/access_token/interfaces/innerkits/token_callback/include/token_callback_stub.h"
+#include "security_access_token/interfaces/innerkits/token_callback/include/token_callback_stub.h"
 
 namespace OHOS {
 namespace AbilityRuntime {

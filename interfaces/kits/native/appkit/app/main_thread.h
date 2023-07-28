@@ -28,7 +28,7 @@
 #include "application_impl.h"
 #include "common_event_subscriber.h"
 #include "resource_manager.h"
-#include "foundation/ability/ability_runtime/interfaces/inner_api/runtime/include/runtime.h"
+#include "runtime.h"
 #include "ipc_singleton.h"
 #include "js_runtime.h"
 #include "native_engine/native_engine.h"

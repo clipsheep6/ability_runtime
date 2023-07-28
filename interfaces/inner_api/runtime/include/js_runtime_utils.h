@@ -198,13 +198,13 @@ std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, Na
     AsyncTask::ExecuteCallback&& execute, AsyncTask::CompleteCallback&& complete, NativeValue** result);
 
 std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, NativeValue* lastParam,
-    AsyncTask::ExecuteCallback&& execute, nullptr_t, NativeValue** result);
+    AsyncTask::ExecuteCallback&& execute, std::nullptr_t, NativeValue** result);
 
 std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, NativeValue* lastParam,
-    nullptr_t, AsyncTask::CompleteCallback&& complete, NativeValue** result);
+    std::nullptr_t, AsyncTask::CompleteCallback&& complete, NativeValue** result);
 
 std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, NativeValue* lastParam,
-    nullptr_t, nullptr_t, NativeValue** result);
+    std::nullptr_t, std::nullptr_t, NativeValue** result);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 

@@ -1,0 +1,85 @@
+add_cxxflags("-Wno-format")
+
+target("ability_runtime")
+    set_kind("static")
+    add_files("services/**/*.cpp", "frameworks/native/**.cpp")
+    add_defines("DEBUG_REFBASE", "INCLUDE_SELF_DEFINE", "SUPPORT_GRAPHICS")
+    add_includedirs("services/abilitymgr/include", "services/common/include", "services/appmgr/include",
+        "services/dataobsmgr/include", "services/uripermmgr/include")
+    add_includedirs("frameworks/js/napi/inner/napi_common", "frameworks/js/napi/inner/napi_ability_common")
+    add_includedirs("d:/repo", "interfaces")
+    add_includedirs("interfaces/inner_api/app_manager/include", "interfaces/inner_api/app_manager/include/appmgr",
+        "interfaces/inner_api/ability_manager/include", "interfaces/inner_api/connectionobs_manager/include",
+        "interfaces/inner_api/error_utils/include", "interfaces/inner_api/napi_base_context/include",
+        "interfaces/inner_api/runtime/include", "interfaces/inner_api/deps_wrapper/include",
+        "interfaces/inner_api/uri_permission/include", "interfaces/inner_api/wantagent/include",
+        "interfaces/inner_api/dataobs_manager/include",
+        "interfaces/kits/native/appkit/ability_runtime",
+        "interfaces/kits/native/appkit/ability_runtime/context",
+        "interfaces/kits/native/appkit/ability_runtime/app",
+        "interfaces/kits/native/appkit/app",
+        "interfaces/kits/native/ability/ability_runtime",
+        "interfaces/kits/native/ability/native",
+        "interfaces/kits/native/ability/native/distributed_ability_runtime",
+        "interfaces/kits/native/ability/native/continuation/kits",
+        "interfaces/kits/native/ability/native/continuation/distributed",
+        "interfaces/kits/native/ability/native/continuation/remote_register_service",
+        "interfaces/kits/native/ability/native/ability_business_error",
+        "interfaces/kits/native/ability/native/dialog_request_callback",
+        "interfaces/kits/native/ability/native/ui_extension_ability",
+        "interfaces/kits/native/ability/native/recovery", "interfaces/kits/native/appkit/ability_delegator",
+        "tools/aa/include", "tools/fm/include")
+    add_includedirs("js_environment/interfaces/inner_api")
+    add_includedirs("../communication_ipc/interfaces/innerkits/ipc_core/include", "../communication_ipc/interfaces/innerkits/ipc_napi_common/include")
+    add_includedirs("../commonlibrary_c_utils/base/include")
+    add_includedirs("D:/cache/include")
+    add_includedirs("../bundlemanager_bundle_framework/interfaces/inner_api/appexecfwk_base/include",
+        "../bundlemanager_bundle_framework/interfaces/inner_api/appexecfwk_base/include/overlay",
+        "../bundlemanager_bundle_framework/interfaces/inner_api/appexecfwk_core/include",
+        "../bundlemanager_bundle_framework/interfaces/inner_api/appexecfwk_core/include/bundlemgr",
+        "../bundlemanager_bundle_framework/interfaces/inner_api/appexecfwk_core/include/default_app")
+    add_includedirs("../ability_ability_base/interfaces/kits/native/want/include", "../ability_ability_base/interfaces/inner_api/base/include",
+        "../ability_ability_base/interfaces/kits/native/uri/include", "../ability_ability_base/interfaces/kits/native/configuration/include",
+        "../ability_ability_base/interfaces/kits/native/extractortool/include", "../ability_ability_base/interfaces/kits/native/session_info/include")
+    add_includedirs("../third_party_json/single_include", "../third_party_json/include", "../third_party_jsoncpp/include")
+    add_includedirs("../hiviewdfx_hitrace/interfaces/native/innerkits/include/hitrace_meter", "../hiviewdfx_hilog_lite/interfaces/native/innerkits")
+    add_includedirs("../notification_eventhandler/interfaces/inner_api", "../notification_common_event_service/interfaces/inner_api",
+        "../notification_common_event_service/interfaces/kits/napi/common_event/include", "../notification_common_event_service/frameworks/core/include")
+    add_includedirs("../startup_appspawn/interfaces/innerkits/include")
+    add_includedirs("../systemabilitymgr_safwk/services/safwk/include", "../systemabilitymgr_samgr/interfaces/innerkits/samgr_proxy/include")
+    add_includedirs("../distributedhardware_device_manager/interfaces/inner_kits/native_cpp/include")
+    add_includedirs("../arkui_napi/interfaces/kits", "../arkui_napi/interfaces/inner_api")
+    add_includedirs("../other_include", "../arkui_napi")
+    add_includedirs("../arkui_ace_engine/frameworks", "../arkui_ace_engine/interfaces/inner_api/ace",
+        "../arkui_ace_engine/interfaces/inner_api/ui_service_manager/include")
+    add_includedirs("../global_resource_management/interfaces/inner_api/include")
+    add_includedirs("../security_access_token/interfaces/innerkits/accesstoken/include")
+    add_includedirs("../hiviewdfx_hisysevent/interfaces/native/innerkits/hisysevent/include",
+        "../hiviewdfx_hisysevent/interfaces/native/innerkits/hisysevent/encode/include")
+    add_includedirs("../hiviewdfx_hicollie/interfaces/native/innerkits/include")
+    add_includedirs("../communication_dsoftbus/interfaces/kits/bus_center", "../communication_dsoftbus/interfaces/kits/common")
+    add_includedirs("../startup_syspara_lite/interfaces/kits")
+    add_includedirs("../window_window_manager/interfaces/innerkits/wm", "../window_window_manager/interfaces/innerkits/dm", "../window_window_manager/utils/include",
+        "../window_window_manager/window_scene",
+        "../window_window_manager/window_scene/session_manager/include",
+        "../window_window_manager/window_scene/interfaces/innerkits/include",
+        "../window_window_manager/interfaces/kits/napi/window_runtime/window_napi",
+        "../window_window_manager/interfaces/kits/napi/window_runtime/window_stage_napi",
+        "../window_window_manager/wmserver/include")
+    add_includedirs("../distributeddatamgr_relational_store/interfaces/inner_api/rdb/include", "../distributeddatamgr_relational_store/interfaces/inner_api/appdatafwk/include",
+        "../distributeddatamgr_relational_store/interfaces/inner_api/dataability/include")
+    add_includedirs("../ability_form_fwk/interfaces/inner_api/include", "../ability_form_fwk/interfaces/kits/native/include")
+    add_includedirs("../arkcompiler_ets_runtime", "../arkcompiler_runtime_core/libpandabase")
+    add_includedirs("../hiviewdfx_faultloggerd/interfaces/innerkits/dump_catcher/include", "../hiviewdfx_faultloggerd/common",
+        "../hiviewdfx_faultloggerd/tools/process_dump", "../hiviewdfx_faultloggerd/interfaces/innerkits/faultloggerd_client/include",
+        "../hiviewdfx_faultloggerd/interfaces/innerkits/backtrace/include", "../hiviewdfx_faultloggerd/interfaces/common",
+        "../hiviewdfx_faultloggerd/frameworks/unwinder/include", "../hiviewdfx_faultloggerd/interfaces/innerkits/procinfo/include")
+    add_includedirs("../hiviewdfx_hichecker/interfaces/native/innerkits/include")
+    add_includedirs("../startup_init_lite/interfaces/innerkits/include")
+    add_includedirs("../third_include_dir")
+    add_includedirs("../multimedia_image_framework/interfaces/innerkits/include", "../multimedia_image_framework/interfaces/kits/js/common/include")
+    add_includedirs("../resourceschedule_ffrt/interfaces/kits")
+    add_includedirs("../third_party/libjpeg-turbo")
+
+
+set_languages("c11", "c++17")
