@@ -69,6 +69,11 @@ public:
         return context_.lock();
     }
 
+    void SetEventHandler(std::shared_ptr<AppExecFwk::EventHandler> handler)
+    {
+        handler_ = handler;
+    }
+
 #ifdef SUPPORT_GRAPHICS
 public:
     static NativeValue* SetMissionLabel(NativeEngine* engine, NativeCallbackInfo* info);
@@ -115,52 +120,12 @@ private:
     std::weak_ptr<AbilityContext> context_;
     int curRequestCode_ = 0;
     sptr<JsFreeInstallObserver> freeInstallObserver_ = nullptr;
+    std::shared_ptr<AppExecFwk::EventHandler> handler_;
 };
 
 NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<AbilityContext> context);
 
-struct ConnectCallback {
-    std::unique_ptr<NativeReference> jsConnectionObject_ = nullptr;
-};
 
-class JSAbilityConnection : public AbilityConnectCallback {
-public:
-    explicit JSAbilityConnection(NativeEngine& engine);
-    ~JSAbilityConnection();
-    void OnAbilityConnectDone(
-        const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
-    void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override;
-    void HandleOnAbilityConnectDone(
-        const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode);
-    void HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode);
-    void SetJsConnectionObject(NativeValue* jsConnectionObject);
-    void CallJsFailed(int32_t errorCode);
-    void SetConnectionId(int64_t id);
-private:
-    NativeValue* ConvertElement(const AppExecFwk::ElementName &element);
-    NativeEngine& engine_;
-    std::unique_ptr<NativeReference> jsConnectionObject_ = nullptr;
-    int64_t connectionId_ = -1;
-};
-
-struct ConnectionKey {
-    AAFwk::Want want;
-    int64_t id;
-};
-
-struct KeyCompare {
-    bool operator()(const ConnectionKey &key1, const ConnectionKey &key2) const
-    {
-        if (key1.id < key2.id) {
-            return true;
-        }
-        return false;
-    }
-};
-
-static std::map<ConnectionKey, sptr<JSAbilityConnection>, KeyCompare> abilityConnects_;
-static int64_t g_serialNumber = 0;
-static std::shared_ptr<AppExecFwk::EventHandler> handler_ = nullptr;
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_JS_ABILITY_CONTEXT_H
