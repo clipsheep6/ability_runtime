@@ -31,7 +31,6 @@ constexpr const char* CONTEXT_DATABASE("database");
 constexpr const char* CONTEXT_TEMP("temp");
 constexpr const char* CONTEXT_FILES("files");
 constexpr const char* CONTEXT_HAPS("haps");
-constexpr const char* CONTEXT_PREVIEW(".preview");
 constexpr const char* CONTEXT_ASSET("asset");
 constexpr const char* CONTEXT_ELS[] = {"el1", "el2"};
 constexpr int DIR_DEFAULT_PERM = 0770;
@@ -65,7 +64,7 @@ void AbilityStageContext::SetOptions(const Options &options)
 {
     options_ = options;
 
-    auto pos = options_.modulePath.find(CONTEXT_FILE_SEPARATOR);
+    auto pos = options_.previewPath.find(CONTEXT_FILE_SEPARATOR);
     if (pos == std::string::npos) {
         fileSeparator_ = CONTEXT_FILE_OPPOSITE_SEPARATOR;
     }
@@ -212,12 +211,7 @@ std::string AbilityStageContext::GetBaseDir()
 
 std::string AbilityStageContext::GetPreviewPath()
 {
-    std::string previewPath;
-    auto pos = options_.modulePath.find(CONTEXT_PREVIEW);
-    if (pos != std::string::npos) {
-        previewPath = options_.modulePath.substr(0, pos + strlen(CONTEXT_PREVIEW));
-    }
-    return previewPath;
+    return options_.previewPath;
 }
 
 bool AbilityStageContext::Access(const std::string &path)

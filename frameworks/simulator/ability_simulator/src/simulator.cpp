@@ -276,8 +276,12 @@ bool SimulatorImpl::LoadAbilityStage(uint8_t *buffer, size_t len)
         HILOG_ERROR("nativeEngine_ is nullptr");
         return false;
     }
+    std::string srcEntrance = options_.hapModuleInfo.srcEntrance;
+    srcEntrance.erase(srcEntrance.rfind("."));
+    srcEntrance.append(".abc");
+    srcEntrance = srcEntrance.substr(srcEntrance.find('/') + 1, srcEntrance.length());
 
-    auto moduleSrcPath = BUNDLE_INSTALL_PATH + options_.moduleName + "/" + options_.hapModuleInfo.srcEntrance;
+    auto moduleSrcPath = BUNDLE_INSTALL_PATH + options_.moduleName + "/" + srcEntrance;
     if (!nativeEngine_->RunScriptBuffer(moduleSrcPath, buffer, len, false)) {
         HILOG_ERROR("Failed to run ability stage script: %{public}s", moduleSrcPath.c_str());
         return false;

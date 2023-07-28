@@ -93,6 +93,7 @@ struct Options {
     int32_t targetVersion;
     std::string releaseType;
     bool enablePartialUpdate;
+    std::string previewPath;
     AppExecFwk::ApplicationInfo applicationInfo;
     AppExecFwk::HapModuleInfo hapModuleInfo;
     AppExecFwk::AbilityInfo abilityInfo;
