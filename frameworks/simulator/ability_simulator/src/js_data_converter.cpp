@@ -103,17 +103,17 @@ NativeValue *CreateJsConfiguration(NativeEngine &engine, const AppExecFwk::Confi
 
     object->SetProperty("language", CreateJsValue(engine,
         configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE)));
+
     object->SetProperty("colorMode", CreateJsValue(engine,
         ConvertColorMode(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE))));
 
-    int32_t displayId = ConvertDisplayId(configuration.GetItem(AppExecFwk::ConfigurationInner::APPLICATION_DISPLAYID));
-
-    std::string direction = configuration.GetItem(displayId, AppExecFwk::ConfigurationInner::APPLICATION_DIRECTION);
+    std::string direction = configuration.GetItem(AppExecFwk::ConfigurationInner::APPLICATION_DIRECTION);
     object->SetProperty("direction", CreateJsValue(engine, ConvertDirection(direction)));
 
-    std::string density = configuration.GetItem(displayId, AppExecFwk::ConfigurationInner::APPLICATION_DENSITYDPI);
+    std::string density = configuration.GetItem(AppExecFwk::ConfigurationInner::APPLICATION_DENSITYDPI);
     object->SetProperty("screenDensity", CreateJsValue(engine, ConvertDensity(density)));
 
+    int32_t displayId = ConvertDisplayId(configuration.GetItem(AppExecFwk::ConfigurationInner::APPLICATION_DISPLAYID));
     object->SetProperty("displayId", CreateJsValue(engine, displayId));
 
     std::string hasPointerDevice = configuration.GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
