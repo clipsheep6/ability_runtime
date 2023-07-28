@@ -439,7 +439,8 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleConnectAbility_0200, Fun
         abilityInfo->type = AbilityType::PAGE;
         sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
         std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-        std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+        std::shared_ptr<AbilityLocalRecord> abilityRecord =
+            std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> mainRunner = EventRunner::Create(abilityInfo->name);
         abilitythread->Attach(application, abilityRecord, mainRunner, nullptr);
 
@@ -499,7 +500,8 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleDisconnectAbility_0200, 
         abilityInfo->type = AbilityType::PAGE;
         sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
         std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-        std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+        std::shared_ptr<AbilityLocalRecord> abilityRecord =
+            std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> mainRunner = EventRunner::Create(abilityInfo->name);
         abilitythread->Attach(application, abilityRecord, mainRunner, nullptr);
 
@@ -563,7 +565,8 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleCommandAbility_0200, Fun
         abilityInfo->type = AbilityType::PAGE;
         sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
         std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-        std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+        std::shared_ptr<AbilityLocalRecord> abilityRecord =
+            std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> mainRunner = EventRunner::Create(abilityInfo->name);
         abilitythread->Attach(application, abilityRecord, mainRunner, nullptr);
 
@@ -662,7 +665,8 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_SendResult_0200, Function | Medi
         abilityInfo->type = AbilityType::PAGE;
         sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
         std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-        std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+        std::shared_ptr<AbilityLocalRecord> abilityRecord =
+            std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> mainRunner = EventRunner::Create(abilityInfo->name);
         abilitythread->Attach(application, abilityRecord, mainRunner, nullptr);
 

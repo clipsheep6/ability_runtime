@@ -112,7 +112,8 @@ HWTEST_F(MissionListManagerTest, MissionListManager_001, Function | MediumTest |
     AppExecFwk::ElementName element;
 
     std::shared_ptr<MissionListManager> missionListMgr = std::make_shared<MissionListManager>(0);
-    std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
+    std::shared_ptr<AbilityRecord> abilityRecord =
+        std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
     std::shared_ptr<CallRecord> callRecord =
         std::make_shared<CallRecord>(callerUid, abilityRecord, connCallback, callToken);
     std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
@@ -151,7 +152,8 @@ HWTEST_F(MissionListManagerTest, MissionListManager_002, Function | MediumTest |
     AppExecFwk::ElementName element;
 
     std::shared_ptr<MissionListManager> missionListMgr = std::make_shared<MissionListManager>(0);
-    std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
+    std::shared_ptr<AbilityRecord> abilityRecord =
+        std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
     std::shared_ptr<CallRecord> callRecord =
         std::make_shared<CallRecord>(callerUid, abilityRecord, connCallback, callToken);
     std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();

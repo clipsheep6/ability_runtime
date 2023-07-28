@@ -409,7 +409,6 @@ private:
      * @param abilityRecord current running ability record
      * @param abilityObject Indicates the abilityObject.
      * @return Returns the contextDeal.
-     *
      */
     std::shared_ptr<AppExecFwk::ContextDeal> CreateAndInitContextDeal(
         std::shared_ptr<AppExecFwk::OHOSApplication> &application,
@@ -531,10 +530,10 @@ private:
         const std::shared_ptr<AppExecFwk::OHOSApplication> &application, const sptr<IRemoteObject> &token,
         const std::shared_ptr<Context> &stageContext);
 
-    std::shared_ptr<AppExecFwk::AbilityImpl> abilityImpl_ = nullptr;
-    std::shared_ptr<AppExecFwk::Ability> currentAbility_ = nullptr;
-    std::shared_ptr<ExtensionImpl> extensionImpl_ = nullptr;
-    std::shared_ptr<Extension> currentExtension_ = nullptr;
+    std::shared_ptr<AppExecFwk::AbilityImpl> abilityImpl_;
+    std::shared_ptr<AppExecFwk::Ability> currentAbility_;
+    std::shared_ptr<ExtensionImpl> extensionImpl_;
+    std::shared_ptr<Extension> currentExtension_;
     bool isExtension_ = false;
     bool isPrepareTerminate_ = false;
     std::atomic_bool isPrepareTerminateAbilityDone_ = false;

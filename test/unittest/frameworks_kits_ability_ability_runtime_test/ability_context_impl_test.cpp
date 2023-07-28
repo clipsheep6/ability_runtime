@@ -61,7 +61,7 @@ public:
         return;
     }
 
-    virtual Ace::UIContent *GetUIContent()
+    virtual Ace::UIContent* GetUIContent()
     {
         return nullptr;
     }
