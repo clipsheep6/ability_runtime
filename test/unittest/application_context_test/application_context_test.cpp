@@ -392,6 +392,68 @@ HWTEST_F(ApplicationContextTest, GetGroupDir_0200, TestSize.Level1)
 }
 
 /**
+ * @tc.number: GetSystemDatabaseDir_0100
+ * @tc.name: GetSystemDatabaseDir
+ * @tc.desc: Get Group Dir failed
+ */
+HWTEST_F(ApplicationContextTest, GetSystemDatabaseDir_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetSystemDatabaseDir_0100 start";
+    std::shared_ptr<ContextImpl> contextImpl = nullptr;
+    context_->AttachContextImpl(contextImpl);
+    std::string databaseDir;
+    auto ret = context_->GetSystemDatabaseDir("1", true, databaseDir);
+    EXPECT_EQ(ret, OHOS::ERR_INVALID_VALUE);
+    GTEST_LOG_(INFO) << "GetSystemDatabaseDir_0100 end";
+}
+
+/**
+ * @tc.number: GetSystemDatabaseDir_0200
+ * @tc.name: GetSystemDatabaseDir
+ * @tc.desc:Get Group Dir sucess
+ */
+HWTEST_F(ApplicationContextTest, GetSystemDatabaseDir_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetSystemDatabaseDir_0200 start";
+    context_->AttachContextImpl(mock_);
+    std::string databaseDir;
+    auto ret = context_->GetSystemDatabaseDir("1", true, databaseDir);
+    EXPECT_EQ(ret, 0);
+    GTEST_LOG_(INFO) << "GetSystemDatabaseDir_0200 end";
+}
+
+/**
+ * @tc.number: GetSystemPreferencesDir_0100
+ * @tc.name: GetSystemPreferencesDir
+ * @tc.desc: Get Group Dir failed
+ */
+HWTEST_F(ApplicationContextTest, GetSystemPreferencesDir_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetSystemPreferencesDir_0100 start";
+    std::shared_ptr<ContextImpl> contextImpl = nullptr;
+    context_->AttachContextImpl(contextImpl);
+    std::string preferencesDir;
+    auto ret = context_->GetSystemPreferencesDir("1", true, preferencesDir);
+    EXPECT_EQ(ret, OHOS::ERR_INVALID_VALUE);
+    GTEST_LOG_(INFO) << "GetSystemPreferencesDir_0100 end";
+}
+
+/**
+ * @tc.number: GetSystemPreferencesDir_0200
+ * @tc.name: GetSystemPreferencesDir
+ * @tc.desc:Get System Preferences Dir sucess
+ */
+HWTEST_F(ApplicationContextTest, GetSystemPreferencesDir_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetSystemDatabaseDir_0200 start";
+    context_->AttachContextImpl(mock_);
+    std::string preferencesDir;
+    auto ret = context_->GetSystemPreferencesDir("1", true, preferencesDir);
+    EXPECT_EQ(ret, 0);
+    GTEST_LOG_(INFO) << "GetSystemPreferencesDir_0200 end";
+}
+
+/**
  * @tc.number: GetFilesDir_0100
  * @tc.name: GetFilesDir
  * @tc.desc: Get Files Dir failed
