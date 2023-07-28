@@ -242,6 +242,22 @@ ErrCode AbilityManagerClient::StopExtensionAbility(const Want &want, const sptr<
 
 ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
 {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
+        HILOG_DEBUG("call");
+        if (resultWant == nullptr) {
+            HILOG_ERROR("failed, resultWant is nullptr");
+            return ERR_INVALID_VALUE;
+        }
+        sptr<AAFwk::SessionInfo> info = new AAFwk::SessionInfo();
+        info->want = *resultWant;
+        info->resultCode = resultCode;
+        info->sessionToken = token;
+        auto err = sceneSessionManager->TerminateSessionNew(info, true);
+        HILOG_INFO("TerminateAbility. ret=%{public}d", err);
+        return static_cast<int>(err);
+    }
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     HILOG_INFO("call");
@@ -274,6 +290,10 @@ ErrCode AbilityManagerClient::CloseAbility(const sptr<IRemoteObject> &token, int
         HILOG_DEBUG("call");
         sptr<AAFwk::SessionInfo> info = new AAFwk::SessionInfo();
         info->want = *resultWant;
+        if (resultWant == nullptr) {
+            HILOG_ERROR("failed, resultWant is nullptr");
+            return ERR_INVALID_VALUE;
+        }
         info->resultCode = resultCode;
         info->sessionToken = token;
         auto err = sceneSessionManager->TerminateSessionNew(info, false);
