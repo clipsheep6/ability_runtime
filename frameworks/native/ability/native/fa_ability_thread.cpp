@@ -44,6 +44,7 @@ using DataObsMgrClient = OHOS::AAFwk::DataObsMgrClient;
 #ifdef ABILITY_COMMAND_FOR_TEST
 const int32_t BLOCK_ABILITY_TIME = 20;
 #endif
+namespace {
 constexpr static char ACE_SERVICE_ABILITY_NAME[] = "AceServiceAbility";
 constexpr static char ACE_DATA_ABILITY_NAME[] = "AceDataAbility";
 #ifdef SUPPORT_GRAPHICS
@@ -66,6 +67,7 @@ constexpr static char FILEACCESS_EXT_ABILITY[] = "FileAccessExtension";
 constexpr static char ENTERPRISE_ADMIN_EXTENSION[] = "EnterpriseAdminExtension";
 constexpr static char INPUTMETHOD_EXTENSION[] = "InputMethodExtensionAbility";
 constexpr static char APP_ACCOUNT_AUTHORIZATION_EXTENSION[] = "AppAccountAuthorizationExtension";
+}
 
 const int32_t PREPARE_TO_TERMINATE_TIMEOUT_MILLISECONDS = 3000;
 FAAbilityThread::FAAbilityThread() : abilityImpl_(nullptr), currentAbility_(nullptr) {}
@@ -1502,24 +1504,6 @@ void FAAbilityThread::CallRequest()
     AbilityManagerClient::GetInstance()->CallRequestDone(token_, retval);
     HILOG_DEBUG("end");
 }
-
-#ifdef ABILITY_COMMAND_FOR_TEST
-int32_t FAAbilityThread::BlockAbility()
-{
-    HILOG_DEBUG("begin");
-    if (abilityHandler_) {
-        auto task = []() {
-            while (1) {
-                std::this_thread::sleep_for(BLOCK_ABILITY_TIME * 1s);
-            }
-        };
-        abilityHandler_->PostTask(task);
-        HILOG_DEBUG("end");
-        return ERR_OK;
-    }
-    return ERR_NO_INIT;
-}
-#endif
 
 void FAAbilityThread::HandlePrepareTermianteAbility()
 {

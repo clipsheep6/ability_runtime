@@ -120,19 +120,19 @@ std::vector<std::string> AbilityThread::GetFileTypes(const Uri &uri, const std::
 int32_t AbilityThread::OpenFile(const Uri &uri, const std::string &mode)
 {
     HILOG_DEBUG("called");
-    return -1;
+    return ERR_INVALID_VALUE;
 }
 
 int32_t AbilityThread::OpenRawFile(const Uri &uri, const std::string &mode)
 {
     HILOG_DEBUG("called");
-    return -1;
+    return ERR_INVALID_VALUE;
 }
 
 int32_t AbilityThread::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
 {
     HILOG_DEBUG("called");
-    return -1;
+    return ERR_INVALID_VALUE;
 }
 
 std::shared_ptr<AppExecFwk::PacMap> AbilityThread::Call(
@@ -146,13 +146,13 @@ int32_t AbilityThread::Update(
     const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
 {
     HILOG_DEBUG("called");
-    return -1;
+    return ERR_INVALID_VALUE;
 }
 
 int32_t AbilityThread::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
 {
     HILOG_DEBUG("called");
-    return -1;
+    return ERR_INVALID_VALUE;
 }
 
 std::shared_ptr<NativeRdb::AbsSharedResultSet> AbilityThread::Query(
@@ -177,7 +177,7 @@ bool AbilityThread::Reload(const Uri &uri, const PacMap &extras)
 int32_t AbilityThread::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
 {
     HILOG_DEBUG("called");
-    return -1;
+    return ERR_INVALID_VALUE;
 }
 
 void AbilityThread::ContinueAbility(const std::string &deviceId, uint32_t versionCode)
@@ -241,8 +241,18 @@ std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> AbilityThread::Execu
 #ifdef ABILITY_COMMAND_FOR_TEST
 int32_t AbilityThread::BlockAbility()
 {
-    HILOG_DEBUG("called");
-    return -1;
+    HILOG_DEBUG("begin");
+    if (abilityHandler_) {
+        auto task = []() {
+            while (1) {
+                std::this_thread::sleep_for(BLOCK_ABILITY_TIME * 1s);
+            }
+        };
+        abilityHandler_->PostTask(task);
+        HILOG_DEBUG("end");
+        return ERR_OK;
+    }
+    return ERR_NO_INIT;
 }
 #endif
 } // namespace AppExecFwk

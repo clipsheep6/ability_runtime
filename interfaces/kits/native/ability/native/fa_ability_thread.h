@@ -50,7 +50,6 @@ public:
      * @param mainRunner The runner which main_thread holds.
      * @param appContext the AbilityRuntime context
      */
-
     void Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
         const std::shared_ptr<AppExecFwk::EventRunner> &mainRunner,
@@ -74,6 +73,10 @@ public:
     void AttachExtension(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord);
 
+    /**
+     * @description: Init extension Ability flag.
+     * @param abilityRecord current running ability record
+     */
     void InitExtensionFlag(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord);
 
     /**
@@ -100,12 +103,6 @@ public:
      * @param requestCode Indicates the Ability request code.
      */
     void ScheduleShareData(const int32_t &requestCode) override;
-    
-    /**
-     * @description: Provide operating system ShareData information to the observer
-     * @param requestCode Indicates the Ability request code.
-     */
-    void HandleShareData(const int32_t &requestCode);
 
     /**
      * @description: Provide operating system ConnectAbility information to the observer
@@ -323,27 +320,6 @@ public:
      * @brief Registers an observer to DataObsMgr specified by the given Uri.
      * @param uri Indicates the path of the data to operate.
      * @param dataObserver Indicates the IDataAbilityObserver object.
-     * @return The operation succeeded or failed. Procedure
-     */
-    bool HandleRegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver);
-
-    /**
-     * @brief Deregisters an observer used for DataObsMgr specified by the given Uri.
-     * @param uri Indicates the path of the data to operate.
-     * @param dataObserver Indicates the IDataAbilityObserver object.
-     */
-    bool HandleUnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver);
-
-    /**
-     * @brief Notifies the registered observers of a change to the data resource specified by Uri.
-     * @param uri Indicates the path of the data to operate.
-     */
-    bool HandleNotifyChange(const Uri &uri);
-
-    /**
-     * @brief Registers an observer to DataObsMgr specified by the given Uri.
-     * @param uri Indicates the path of the data to operate.
-     * @param dataObserver Indicates the IDataAbilityObserver object.
      */
     bool ScheduleRegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver) override;
 
@@ -500,14 +476,6 @@ private:
      */
     void HandleUpdateConfiguration(const AppExecFwk::Configuration &config);
 
-#ifdef ABILITY_COMMAND_FOR_TEST
-    /**
-     * @brief Block ability.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    int32_t BlockAbility() override;
-#endif
-
     /**
      * @brief Handle the scheduling update configuration of extension.
      * @param config Indicates the updated configuration information
@@ -518,6 +486,33 @@ private:
      * @brief Handle the scheduling prepare terminate ability.
      */
     void HandlePrepareTermianteAbility();
+
+    /**
+     * @description: Provide operating system ShareData information to the observer
+     * @param requestCode Indicates the Ability request code.
+     */
+    void HandleShareData(const int32_t &requestCode);
+
+        /**
+     * @brief Registers an observer to DataObsMgr specified by the given Uri.
+     * @param uri Indicates the path of the data to operate.
+     * @param dataObserver Indicates the IDataAbilityObserver object.
+     * @return The operation succeeded or failed. Procedure
+     */
+    bool HandleRegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver);
+
+    /**
+     * @brief Deregisters an observer used for DataObsMgr specified by the given Uri.
+     * @param uri Indicates the path of the data to operate.
+     * @param dataObserver Indicates the IDataAbilityObserver object.
+     */
+    bool HandleUnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver);
+
+    /**
+     * @brief Notifies the registered observers of a change to the data resource specified by Uri.
+     * @param uri Indicates the path of the data to operate.
+     */
+    bool HandleNotifyChange(const Uri &uri);
 
     /**
      * @brief Build Ability Context
