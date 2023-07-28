@@ -21,6 +21,13 @@
 #include "ui_extension_context.h"
 #include "native_engine/native_engine.h"
 
+#include <algorithm>
+#include "ability_connect_callback.h"
+#include "foundation/ability/ability_runtime/interfaces/kits/native/ability/ability_runtime/ability_context.h"
+#include "js_free_install_observer.h"
+#include "js_runtime.h"
+#include "event_handler.h"
+
 namespace OHOS {
 namespace AbilityRuntime {
 class JsUIExtensionContext {
@@ -33,16 +40,27 @@ public:
     static NativeValue* TerminateSelfWithResult(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* CreateJsUIExtensionContext(NativeEngine& engine, std::shared_ptr<UIExtensionContext> context);
     static NativeValue* StartAbilityForResult(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* ConnectAbility(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* DisconnectAbility(NativeEngine* engine, NativeCallbackInfo* info);
 
+    void SetEventHandler(std::shared_ptr<AppExecFwk::EventHandler> handler)
+    {
+        handler_ = handler;
+    }
+    
 protected:
     virtual NativeValue* OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info);
     virtual NativeValue* OnTerminateSelf(NativeEngine& engine, const NativeCallbackInfo& info);
     virtual NativeValue* OnTerminateSelfWithResult(NativeEngine& engine, const NativeCallbackInfo& info);
     virtual NativeValue* OnStartAbilityForResult(NativeEngine& engine, NativeCallbackInfo& info);
 
+    NativeValue* OnConnectAbility(NativeEngine& engine, NativeCallbackInfo& info);
+    NativeValue* OnDisconnectAbility(NativeEngine& engine, NativeCallbackInfo& info);
+
 private:
     std::weak_ptr<UIExtensionContext> context_;
     int curRequestCode_ = 0;
+    std::shared_ptr<AppExecFwk::EventHandler> handler_;
 
     bool CheckStartAbilityInputParam(NativeEngine& engine, NativeCallbackInfo& info, AAFwk::Want& want,
         AAFwk::StartOptions& startOptions, size_t& unwrapArgc) const;
@@ -53,6 +71,7 @@ private:
     static NativeValue* WrapAbilityResult(NativeEngine& engine, const int& resultCode, const AAFwk::Want& want);
     static NativeValue* WrapWant(NativeEngine& engine, const AAFwk::Want& want);
 };
+
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_JS_UI_EXTENSION_CONTEXT_H

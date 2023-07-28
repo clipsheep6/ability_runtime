@@ -16,6 +16,7 @@
 #include "ui_extension_context.h"
 
 #include "ability_manager_client.h"
+#include "connection_manager.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 
@@ -46,6 +47,34 @@ ErrCode UIExtensionContext::StartAbility(const AAFwk::Want &want, const AAFwk::S
     }
     return err;
 }
+
+/* add new */
+ErrCode UIExtensionContext::ConnectAbility(const AAFwk::Want& want, const sptr<AbilityConnectCallback>& connectCallback)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("rq ConnectAbility begin, name:%{public}s.", abilityInfo_ == nullptr ? "" : abilityInfo_->name.c_str());
+    ErrCode ret = ConnectionManager::GetInstance().ConnectAbility(token_, want, connectCallback);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("ConnectAbility ret:%{public}d", ret);
+    }
+    return ret;
+}
+
+void UIExtensionContext::DisconnectAbility(const AAFwk::Want& want,
+    const sptr<AbilityConnectCallback>& connectCallback)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("DisconnectAbility begin, caller:%{public}s.",
+        abilityInfo_ == nullptr ? "" : abilityInfo_->name.c_str());
+    ErrCode ret =
+        ConnectionManager::GetInstance().DisconnectAbility(token_, want.GetElement(), connectCallback);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("error, ret=%{public}d", ret);
+    }
+}
+
+
+/* end */
 
 ErrCode UIExtensionContext::TerminateSelf()
 {

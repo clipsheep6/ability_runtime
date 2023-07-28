@@ -48,6 +48,24 @@ class UIExtensionContext extends ExtensionContext {
     console.log('terminateSelfWithResult');
     return this.__context_impl__.terminateSelfWithResult(abilityResult, callback);
   }
+
+  connectAbility(want, options) {
+    return this.__context_impl__.connectAbility(want, options);
+  }
+
+  connectServiceExtensionAbility(want, options) {
+    return this.__context_impl__.connectServiceExtensionAbility(want, options);
+  }
+
+  disconnectAbility(connection, callback) {
+    return this.__context_impl__.disconnectAbility(connection, callback);
+  }
+
+  disconnectServiceExtensionAbility(connection, callback) {
+    return this.__context_impl__.disconnectServiceExtensionAbility(connection, callback);
+  }
+
+
 }
 
 export default UIExtensionContext;

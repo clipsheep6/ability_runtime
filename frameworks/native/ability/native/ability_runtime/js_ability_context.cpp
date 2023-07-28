@@ -14,6 +14,7 @@
  */
 
 #include "ability_runtime/js_ability_context.h"
+#include "ability_runtime/js_ability_connection.h"
 
 #include <chrono>
 #include <cstdint>
@@ -926,6 +927,7 @@ NativeValue* JsAbilityContext::OnConnectAbility(NativeEngine& engine, NativeCall
     // unwarp connection
     sptr<JSAbilityConnection> connection = new JSAbilityConnection(engine);
     connection->SetJsConnectionObject(info.argv[1]);
+    connection->SetEventHandler(handler_);
     int64_t connectId = g_serialNumber;
     ConnectionKey key;
     key.id = g_serialNumber;
@@ -1363,10 +1365,10 @@ NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<Abilit
     NativeValue* objValue = CreateJsBaseContext(engine, context);
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
 
+    std::shared_ptr<AppExecFwk::EventHandler> handler_ = std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
     std::unique_ptr<JsAbilityContext> jsContext = std::make_unique<JsAbilityContext>(context);
+    jsContext->SetEventHandler(handler_);
     object->SetNativePointer(jsContext.release(), JsAbilityContext::Finalizer, nullptr);
-
-    handler_ = std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
 
     auto abilityInfo = context->GetAbilityInfo();
     if (abilityInfo != nullptr) {
