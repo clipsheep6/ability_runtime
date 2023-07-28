@@ -317,6 +317,10 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
 void AbilityConnectManager::HandleActiveAbility(std::shared_ptr<AbilityRecord> &targetService,
     std::shared_ptr<ConnectionRecord> &connectRecord)
 {
+    if (targetService == nullptr) {
+        HILOG_WARN("null target service.");
+        return;
+    }
     if (targetService->GetConnectRecordList().size() > 1) {
         if (taskHandler_ != nullptr && targetService->GetConnRemoteObject()) {
             auto task = [connectRecord]() { connectRecord->CompleteConnect(ERR_OK); };
@@ -731,6 +735,10 @@ int AbilityConnectManager::ScheduleCommandAbilityWindowDone(
 
 void AbilityConnectManager::HandleCommandDestroy(const sptr<SessionInfo> &sessionInfo)
 {
+    if (sessionInfo == nullptr) {
+        HILOG_WARN("null session info.");
+        return;
+    }
     if (sessionInfo->sessionToken) {
         RemoveUIExtWindowDeathRecipient(sessionInfo->sessionToken);
         size_t ret = uiExtensionMap_.erase(sessionInfo->sessionToken);

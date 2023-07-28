@@ -6133,8 +6133,8 @@ int AbilityManagerService::GetTopAbility(sptr<IRemoteObject> &token)
             HILOG_ERROR("wmsHandler_ is nullptr.");
             return ERR_INVALID_VALUE;
         }
+        wmsHandler_->GetFocusWindow(token);
     }
-    wmsHandler_->GetFocusWindow(token);
 
     if (!token) {
         HILOG_ERROR("token is nullptr");
