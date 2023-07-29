@@ -515,7 +515,7 @@ bool JsRuntime::Initialize(const Options& options)
             if (!options.hapPath.empty()) {
                 bool newCreate = false;
                 std::string loadPath = ExtractorUtil::GetLoadFilePath(options.hapPath);
-                std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
+                std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate, true);
                 if (!extractor) {
                     HILOG_ERROR("Get extractor failed. hapPath[%{private}s]", options.hapPath.c_str());
                     return false;
@@ -827,7 +827,7 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
 
     bool newCreate = false;
     std::string loadPath = ExtractorUtil::GetLoadFilePath(hapPath);
-    std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
+    std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate, true);
     if (!extractor) {
         HILOG_ERROR("Get extractor failed. hapPath[%{private}s]", hapPath.c_str());
         return false;
