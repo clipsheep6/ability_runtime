@@ -1323,7 +1323,8 @@ void UIAbilityLifecycleManager::GetActiveAbilityList(const std::string &bundleNa
 }
 
 int32_t UIAbilityLifecycleManager::IsValidMissionIds(const std::vector<int32_t> &missionIds,
-    std::vector<MissionVaildResult> &results, int32_t userId) {
+    std::vector<MissionVaildResult> &results, int32_t userId)
+{
     constexpr int32_t searchCount = 20;
     auto callerUid = IPCSkeleton::GetCallingUid();
     std::lock_guard<ffrt::mutex> guard(sessionLock_);

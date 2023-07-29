@@ -5542,7 +5542,6 @@ void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& toke
         HILOG_ERROR("AppRecovery ScheduleRecoverAbility not self, not enabled");
         return;
     }
-
     {
         std::lock_guard<ffrt::mutex> guard(globalLock_);
         auto it = appRecoveryHistory_.find(record->GetUid());
