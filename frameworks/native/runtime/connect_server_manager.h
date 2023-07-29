@@ -29,8 +29,8 @@ public:
     bool AddInstance(int32_t instanceId, const std::string& instanceName = "PandaDebugger");
     void RemoveInstance(int32_t instanceId);
     void SendInspector(const std::string& jsonTreeStr, const std::string& jsonSnapshotStr);
-    void SetLayoutInspectorCallback(
-        const std::function<void(int32_t)> &createLayoutInfo, const std::function<void(bool)> &setStatus);
+    void SetLayoutInspectorCallback(const std::function<void(int32_t)> &createLayoutInfo,
+        const std::function<void(bool)> &setStatus, const int32_t containerId);
     std::function<void(int32_t)> GetLayoutInspectorCallback();
 
 private:
@@ -45,6 +45,7 @@ private:
     std::unordered_map<int32_t, std::string> instanceMap_;
     std::function<void(int32_t)> createLayoutInfo_;
     std::function<void(int32_t)> setStatus_;
+    int32_t containerId_ = 0;
     ConnectServerManager(const ConnectServerManager&) = delete;
     ConnectServerManager(ConnectServerManager&&) = delete;
     ConnectServerManager& operator=(const ConnectServerManager&) = delete;

@@ -131,7 +131,7 @@ bool ConnectServerManager::AddInstance(int32_t instanceId, const std::string& in
         return false;
     }
     setSwitchCallBack([this](bool status) { setStatus_(status); },
-        [this](int32_t containerId) { createLayoutInfo_(containerId); }, instanceId);
+        [this](int32_t containerId) { createLayoutInfo_(containerId); }, containerId_);
 
     // Get the message including information of new instance, which will be send to IDE.
     std::string message = GetInstanceMapMessage("addInstance", instanceId, instanceName);
@@ -227,11 +227,25 @@ void ConnectServerManager::SendInspector(const std::string& jsonTreeStr, const s
     storeInspectorInfo(jsonTreeStr, jsonSnapshotStr);
 }
 
-void ConnectServerManager::SetLayoutInspectorCallback(
-    const std::function<void(int32_t)>& createLayoutInfo, const std::function<void(bool)>& setStatus)
-{
+void ConnectServerManager::SetLayoutInspectorCallback(const std::function<void(int32_t)> &createLayoutInfo,
+    const std::function<void(bool)> &setStatus, const int32_t containerId) {
     createLayoutInfo_ = createLayoutInfo;
     setStatus_ = setStatus;
+    containerId_ = containerId;
+    if (handlerConnectServerSo_ == nullptr) {
+        HILOG_ERROR("ConnectServerManager::SetLayoutInspectorCallback "
+                    "handlerConnectServerSo_ is nullptr");
+        return;
+    }
+    auto setSwitchCallBack = reinterpret_cast<SetSwitchCallBack>(
+        dlsym(handlerConnectServerSo_, "SetSwitchCallBack"));
+    if (setSwitchCallBack == nullptr) {
+        HILOG_ERROR("ConnectServerManager::SetLayoutInspectorCallback failed "
+                    "to find symbol 'setSwitchCallBack'");
+        return;
+    }
+    setSwitchCallBack([this](bool status) { setStatus_(status); },
+        [this](int32_t containerId) { createLayoutInfo_(containerId); }, containerId_);
 }
 
 std::function<void(int32_t)> ConnectServerManager::GetLayoutInspectorCallback()
