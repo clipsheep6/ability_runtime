@@ -370,7 +370,10 @@ void JsAbility::OnSceneCreated()
 
     HandleScope handleScope(jsRuntime_);
     NativeValue *argv[] = {jsAppWindowStage->Get()};
-    CallObjectMethod("onWindowStageCreate", argv, ArraySize(argv));
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "onWindowStageCreate");
+        CallObjectMethod("onWindowStageCreate", argv, ArraySize(argv));
+    }
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
