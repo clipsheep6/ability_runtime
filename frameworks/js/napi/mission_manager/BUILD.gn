@@ -70,6 +70,7 @@ ohos_shared_library("distributedmissionmanager") {
 
   sources = [
     "distributed_mission_manager.cpp",
+    "dms_sa_client.cpp",
     "mission_continue_stub.cpp",
   ]
 
@@ -90,6 +91,7 @@ ohos_shared_library("distributedmissionmanager") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "samgr:samgr_proxy",
   ]
 
   relative_install_dir = "module"
