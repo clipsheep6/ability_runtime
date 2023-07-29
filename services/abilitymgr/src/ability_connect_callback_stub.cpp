@@ -101,7 +101,7 @@ AbilityConnectionStub::~AbilityConnectionStub()
 int AbilityConnectionStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_DEBUG("AbilityConnectionStub::OnRemoteRequest code: %{public}ud", code);
+    HILOG_INFO("AbilityConnectionStub::OnRemoteRequest code: %{public}u", code);
     std::u16string descriptor = AbilityConnectionStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
@@ -114,6 +114,7 @@ int AbilityConnectionStub::OnRemoteRequest(
         HILOG_ERROR("callback stub receive element is nullptr");
         return ERR_INVALID_VALUE;
     }
+    HILOG_INFO("AbilityConnectionStub Call callback");
     switch (code) {
         case IAbilityConnection::ON_ABILITY_CONNECT_DONE: {
             auto remoteObject = data.ReadRemoteObject();
@@ -123,23 +124,27 @@ int AbilityConnectionStub::OnRemoteRequest(
                 return ERR_INVALID_VALUE;
             }
             auto resultCode = data.ReadInt32();
+            HILOG_INFO("AbilityConnectionStub ON_ABILITY_CONNECT_DONE");
             OnAbilityConnectDone(*element, remoteObject, resultCode);
             delete element;
             return NO_ERROR;
         }
         case IAbilityConnection::ON_ABILITY_DISCONNECT_DONE: {
             auto resultCode = data.ReadInt32();
+            HILOG_INFO("AbilityConnectionStub ON_ABILITY_DISCONNECT_DONE");
             OnAbilityDisconnectDone(*element, resultCode);
             delete element;
             return NO_ERROR;
         }
         case IAbilityConnection::ON_REMOTE_STATE_CHANGED: {
             int32_t abilityState = data.ReadInt32();
+            HILOG_INFO("AbilityConnectionStub ON_REMOTE_STATE_CHANGED");
             OnRemoteStateChanged(*element, abilityState);
             delete element;
             return NO_ERROR;
         }
         default: {
+            HILOG_INFO("AbilityConnectionStub default");
             if (element != nullptr) {
                 delete element;
             }
