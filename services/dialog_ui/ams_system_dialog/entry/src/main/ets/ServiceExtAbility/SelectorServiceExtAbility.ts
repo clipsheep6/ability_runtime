@@ -25,6 +25,7 @@ const TAG = 'SelectorDialog_Service';
 
 let winNum = 1;
 let win;
+let displayClass = null;
 
 export default class SelectorServiceExtensionAbility extends extension {
   onCreate(want) {
@@ -115,6 +116,10 @@ export default class SelectorServiceExtensionAbility extends extension {
 
   async onRequest(want, startId) {
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
+    console.debug(TAG, '====new code ====: ' + JSON.stringify(want));
+    displayClass = display.getDefaultDisplaySync();
+    console.info('displayWidth is :' + JSON.stringify(displayClass.width));//blue:720
+    console.info('disPlayHeight is :' + JSON.stringify(displayClass.height));//blue:1280
     globalThis.abilityWant = want;
     globalThis.params = JSON.parse(want.parameters.params);
     globalThis.position = JSON.parse(want.parameters.position);
