@@ -542,13 +542,13 @@ void AppRunningManager::GetForegroundApplications(std::vector<AppStateData> &lis
             return;
         }
         auto state = appRecord->GetState();
-        if (state == ApplicationState::APP_STATE_FOREGROUND
-            && !AAFwk::UIExtensionUtils::IsUIExtension(appRecord->GetExtensionType())
-            && !AAFwk::UIExtensionUtils::IsWindowExtension(appRecord->GetExtensionType())) {
+        if (state == ApplicationState::APP_STATE_FOREGROUND) {
             AppStateData appData;
             appData.bundleName = appRecord->GetBundleName();
             appData.uid = appRecord->GetUid();
+            appData.pid = appRecord->GetPriorityObject()->GetPid();
             appData.state = static_cast<int32_t>(ApplicationState::APP_STATE_FOREGROUND);
+            appData.extensionType = appRecord->GetExtensionType();
             appData.isFocused = appRecord->GetFocusFlag();
             list.push_back(appData);
             HILOG_INFO("%{public}s, bundleName:%{public}s", __func__, appData.bundleName.c_str());
