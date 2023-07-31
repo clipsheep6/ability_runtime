@@ -22,6 +22,16 @@
 #include "start_options.h"
 #include "want.h"
 
+#include "ability_connect_callback.h"
+#include "ability_info.h"
+#include "caller_callback.h"
+#include "configuration.h"
+#include "iability_callback.h"
+#include "native_engine/native_reference.h"
+#include "native_engine/native_value.h"
+#include "start_options.h"
+#include "want.h"
+
 namespace OHOS {
 namespace AbilityRuntime {
 using RuntimeTask = std::function<void(int, const AAFwk::Want &, bool)>;
@@ -46,6 +56,33 @@ public:
      */
     virtual ErrCode StartAbility(const AAFwk::Want &want) const;
     virtual ErrCode StartAbility(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions) const;
+
+    /**
+    * @brief Connects the current ability to an ability using the AbilityInfo.AbilityType.SERVICE template.
+    *
+    * @param want Indicates the want containing information about the ability to connect
+    * @param connectCallback Indicates the callback object when the target ability is connected.
+    * @return True means success and false means failure
+    */
+    virtual ErrCode ConnectAbility(const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback);
+    /**
+    * @brief Disconnects the current ability from an ability
+    *
+    * @param want Indicates the want containing information about the ability to disconnect
+    * @param connectCallback Indicates the callback object when the target ability is connected.
+    * is set up. The IAbilityConnection object uniquely identifies a connection between two abilities.
+    */
+    virtual void DisconnectAbility(const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback);
+
+    /**
+     * @brief Attachs ability's token.
+     *
+     * @param token The token represents ability.
+     */
+    void SetToken(const sptr<IRemoteObject> &token) override
+    {
+        token_ = token;
+    }
 
     /**
      * @brief Destroys the current ui extension ability.
@@ -87,6 +124,8 @@ public:
 private:
     static int ILLEGAL_REQUEST_CODE;
     std::map<int, RuntimeTask> resultCallbacks_;
+    sptr<IRemoteObject> token_ = nullptr;
+    std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_ = nullptr;
 
     /**
      * @brief Get Current Ability Type
