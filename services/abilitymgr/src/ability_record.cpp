@@ -1917,6 +1917,13 @@ void AbilityRecord::DumpAbilityState(
         info.push_back(dumpInfo);
     }
 
+    auto mission = GetMission();
+    if (mission) {
+        std::string missionAffinity = mission->GetMissionAffinity();
+        dumpInfo = "        missionAffinity: " + missionAffinity;
+        info.push_back(dumpInfo);
+    }
+
     // add dump client info
     DumpClientInfo(info, params, isClient, params.empty());
 }
