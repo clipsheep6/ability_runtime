@@ -41,9 +41,6 @@ namespace AbilityRuntime {
 using namespace std::chrono_literals;
 using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
 using DataObsMgrClient = OHOS::AAFwk::DataObsMgrClient;
-#ifdef ABILITY_COMMAND_FOR_TEST
-const int32_t BLOCK_ABILITY_TIME = 20;
-#endif
 namespace {
 constexpr static char ACE_SERVICE_ABILITY_NAME[] = "AceServiceAbility";
 constexpr static char ACE_DATA_ABILITY_NAME[] = "AceDataAbility";
