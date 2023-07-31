@@ -46,7 +46,7 @@ public:
     int GetArea() override;
     std::string GetBaseDir() override;
     std::string GetPreviewPath();
-    bool Access(const std::string &path);
+    static bool Access(const std::string &path);
     void Mkdir(const std::string &path);
     static void FsReqCleanup(uv_fs_t *req);
     bool CreateMultiDir(const std::string &path);
