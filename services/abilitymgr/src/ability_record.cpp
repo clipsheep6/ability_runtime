@@ -71,8 +71,11 @@ int64_t AbilityRecord::abilityRecordId = 0;
 const int32_t DEFAULT_USER_ID = 0;
 const int32_t SEND_RESULT_CANCELED = -1;
 const int VECTOR_SIZE = 2;
-const int LOAD_TIMEOUT_ASANENABLED = 150;
-const int TERMINATE_TIMEOUT_ASANENABLED = 150;
+const int LOAD_TIMEOUT_ASANENABLED = 15000;
+const int TERMINATE_TIMEOUT_ASANENABLED = 15000;
+const int ACTIVE_TIMEOUT_ASANENABLED = 7500;
+const int INACTIVE_TIMEOUT_ASANENABLED = 800;
+const int SHAREDATA_TIMEOUT_ASANENABLED = 7500;
 const int HALF_TIMEOUT = 2;
 #ifdef SUPPORT_ASAN
 const int COLDSTART_TIMEOUT_MULTIPLE = 15000;
@@ -1298,7 +1301,14 @@ void AbilityRecord::Activate()
     HILOG_INFO("Activate.");
     CHECK_POINTER(lifecycleDeal_);
 
-    int activeTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * ACTIVE_TIMEOUT_MULTIPLE;
+    int activeTimeout = 0;
+    if (applicationInfo_.asanEnabled) {
+        activeTimeout =
+            AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * ACTIVE_TIMEOUT_ASANENABLED;
+    } else {
+        activeTimeout =
+            AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * ACTIVE_TIMEOUT_MULTIPLE;
+    }
     SendEvent(AbilityManagerService::ACTIVE_TIMEOUT_MSG, activeTimeout);
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
@@ -1322,8 +1332,14 @@ void AbilityRecord::Inactivate()
     HILOG_INFO("ability:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
 
-    int inactiveTimeout =
-        AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * INACTIVE_TIMEOUT_MULTIPLE;
+    int inactiveTimeout = 0;
+    if (applicationInfo_.asanEnabled) {
+        inactiveTimeout =
+            AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * INACTIVE_TIMEOUT_ASANENABLED;
+    } else {
+        inactiveTimeout =
+            AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * INACTIVE_TIMEOUT_MULTIPLE;
+    }
     SendEvent(AbilityManagerService::INACTIVE_TIMEOUT_MSG, inactiveTimeout);
 
     // schedule inactive after updating AbilityState and sending timeout message to avoid ability async callback
@@ -1363,7 +1379,14 @@ void AbilityRecord::ShareData(const int32_t &uniqueId)
 {
     HILOG_INFO("ability:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
-    int loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * SHAREDATA_TIMEOUT_MULTIPLE;
+    int loadTimeout = 0;
+    if (applicationInfo_.asanEnabled) {
+        loadTimeout =
+            AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * SHAREDATA_TIMEOUT_ASANENABLED;
+    } else {
+        loadTimeout =
+            AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * SHAREDATA_TIMEOUT_MULTIPLE;
+    }
     HILOG_DEBUG("loadTimeOut %{public}d.", loadTimeout);
     SendEvent(AbilityManagerService::SHAREDATA_TIMEOUT_MSG, loadTimeout, uniqueId);
     lifecycleDeal_->ShareData(uniqueId);
