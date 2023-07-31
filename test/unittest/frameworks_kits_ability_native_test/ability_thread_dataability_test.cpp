@@ -28,7 +28,7 @@
 #include "hilog_wrapper.h"
 #include "mock_ability_impl.h"
 #include "mock_ability_lifecycle_callbacks.h"
-#include "mock_ability_thread.h"
+// #include "mock_ability_thread.h"
 #include "mock_ability_token.h"
 #include "mock_data_ability.h"
 #include "mock_page_ability.h"
