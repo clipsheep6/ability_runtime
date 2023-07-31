@@ -329,7 +329,7 @@ HWTEST_F(AbilityRecordModuleTest, AbilityScheduler_001, TestSize.Level3)
             std::make_shared<AbilityResult>(abilityRequest.requestCode, testResultCode, abilityRequest.want);
         EXPECT_TRUE(abilityResult);
         abilityRecord->SetResult(abilityResult);
-        abilityRecord->SendResult();
+        abilityRecord->SendResult(0, 0);
         EXPECT_TRUE(testResult);
     }
 

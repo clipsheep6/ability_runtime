@@ -2262,7 +2262,7 @@ int AbilityManagerService::SendResultToAbility(int32_t requestCode, int32_t resu
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
     abilityRecord->SetResult(std::make_shared<AbilityResult>(requestCode, resultCode, resultWant));
-    abilityRecord->SendResult();
+    abilityRecord->SendResult(0, 0);
     return ERR_OK;
 }
 
@@ -7498,7 +7498,7 @@ int32_t AbilityManagerService::SendResultToAbilityByToken(const Want &want, cons
         return ERR_INVALID_VALUE;
     }
     abilityRecord->SetResult(std::make_shared<AbilityResult>(requestCode, resultCode, want));
-    abilityRecord->SendResult();
+    abilityRecord->SendResult(0, 0);
     return ERR_OK;
 }
 
