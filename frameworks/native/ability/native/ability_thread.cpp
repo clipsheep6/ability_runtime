@@ -701,6 +701,8 @@ void AbilityThread::ScheduleAbilityTransaction(const Want &want, const LifeCycle
         }
         if (abilityThread->isExtension_) {
             abilityThread->HandleExtensionTransaction(want, lifeCycleStateInfo, sessionInfo);
+            Want newWant(want);
+            newWant.CloseAllFd();
         } else {
             abilityThread->HandleAbilityTransaction(want, lifeCycleStateInfo, sessionInfo);
         }
@@ -815,6 +817,8 @@ void AbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int s
         }
         if (abilityThread->isExtension_) {
             abilityThread->HandleCommandExtension(want, restart, startId);
+            Want newWant(want);
+            newWant.CloseAllFd();
         } else {
             abilityThread->HandleCommandAbility(want, restart, startId);
         }
