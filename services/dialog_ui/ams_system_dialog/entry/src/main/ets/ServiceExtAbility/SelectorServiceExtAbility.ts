@@ -136,16 +136,21 @@ export default class SelectorServiceExtensionAbility extends extension {
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
     globalThis.abilityWant = want;
     globalThis.params = JSON.parse(want.parameters.params);
-    globalThis.landScapePosition = JSON.parse(want.parameters.landscapeScreen);
-    globalThis.verticalPosition = JSON.parse(want.parameters.position);
     let displayClass = display.getDefaultDisplaySync();
-    if (displayClass.orientation === display.Orientation.PORTRAIT || displayClass.orientation === display.Orientation.PORTRAIT_INVERTED) {
-      globalThis.position = globalThis.verticalPosition;
-      console.debug(TAG, 'screen position is vertical');
+    if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
+      globalThis.landScapePosition = JSON.parse(want.parameters.landscapeScreen);
+      globalThis.verticalPosition = JSON.parse(want.parameters.position);
+      if (displayClass.orientation === display.Orientation.PORTRAIT || displayClass.orientation === display.Orientation.PORTRAIT_INVERTED) {
+        globalThis.position = globalThis.verticalPosition;
+        console.debug(TAG, 'screen position is vertical');
+      } else {
+        globalThis.position = globalThis.landScapePosition;
+        console.debug(TAG, 'screen position is landscape');
+      }
     } else {
-      globalThis.position = globalThis.landScapePosition;
-      console.debug(TAG, 'screen position is landscape');
+      globalThis.position = JSON.parse(want.parameters.position);
     }
+
     console.debug(TAG, 'onRequest display is' + JSON.stringify(displayClass));
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
     console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
@@ -236,6 +241,10 @@ export default class SelectorServiceExtensionAbility extends extension {
 
   onConfigurationUpdate(config): void {
     console.debug(TAG, 'configuration is : ' + JSON.stringify(config));
+    if (globalThis.params.deviceType !== 'phone' && globalThis.params.deviceType !== 'default') {
+      console.debug(TAG, 'device is not phone');
+      return;
+    }
     let displayClass = display.getDefaultDisplaySync();
     console.debug(TAG, 'display is' + JSON.stringify(displayClass));
     if (displayClass.orientation === display.Orientation.PORTRAIT || displayClass.orientation === display.Orientation.PORTRAIT_INVERTED) {
