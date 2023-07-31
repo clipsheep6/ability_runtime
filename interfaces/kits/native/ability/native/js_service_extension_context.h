@@ -39,6 +39,7 @@ public:
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode);
     void HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode);
     void SetJsConnectionObject(NativeValue* jsConnectionObject);
+    void RemoveConnectionObject();
     void CallJsFailed(int32_t errorCode);
     void SetConnectionId(int64_t id);
     int64_t GetConnectionId();

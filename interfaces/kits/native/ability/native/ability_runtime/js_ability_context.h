@@ -134,6 +134,7 @@ public:
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode);
     void HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode);
     void SetJsConnectionObject(NativeValue* jsConnectionObject);
+    void RemoveConnectionObject();
     void CallJsFailed(int32_t errorCode);
     void SetConnectionId(int64_t id);
 private:
@@ -157,10 +158,6 @@ struct KeyCompare {
         return false;
     }
 };
-
-static std::map<ConnectionKey, sptr<JSAbilityConnection>, KeyCompare> abilityConnects_;
-static int64_t g_serialNumber = 0;
-static std::shared_ptr<AppExecFwk::EventHandler> handler_ = nullptr;
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_JS_ABILITY_CONTEXT_H
