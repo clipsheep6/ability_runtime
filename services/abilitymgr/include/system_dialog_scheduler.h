@@ -47,6 +47,7 @@ struct DialogPosition {
     int32_t width_narrow = 0;
     int32_t height_narrow = 0;
     bool wideScreen = true;
+    bool oversizeHeight = false;
     DialogAlign align = DialogAlign::CENTER;
 };
 struct DialogAppInfo {
@@ -93,6 +94,16 @@ private:
 
     void InitDialogPosition(DialogType type, DialogPosition &position) const;
     void GetDialogPositionAndSize(DialogType type, DialogPosition &position, int lineNums = 0) const;
+    void GetSelectorDialogPositionAndSize(
+        DialogPosition &portraitPosition, DialogPosition &landscapePosition, int lineNums) const;
+    void GetSelectorDialogLandscapePosition(
+        DialogPosition &position, int32_t height, int32_t width, int lineNums, float densityPixels) const;
+    void DialogLandscapePositionAdaptive(
+        DialogPosition &position, float densityPixels, int lineNums) const;
+    void GetSelectorDialogPortraitPosition(
+        DialogPosition &position, int32_t height, int32_t width, int lineNums, float densityPixels) const;
+    void DialogPortraitPositionAdaptive(
+        DialogPosition &position, float densityPixels, int lineNums) const;
     void DialogPositionAdaptive(DialogPosition &position, int lineNums) const;
 
     sptr<AppExecFwk::IBundleMgr> GetBundleManager();

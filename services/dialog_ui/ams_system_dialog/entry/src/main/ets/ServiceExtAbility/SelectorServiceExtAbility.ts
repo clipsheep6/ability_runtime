@@ -40,6 +40,7 @@ export default class SelectorServiceExtensionAbility extends extension {
     let phoneShowHapList = [];
     let jsonIconMap: Map<string, image.PixelMap> = new Map();
     for (let i = 1; i <= globalThis.params.hapList.length; i++) {
+      console.info(TAG, 'hapList[' + (i - 1).toString() + ']: ' + JSON.stringify(globalThis.params.hapList[i]));
       await this.getHapResource(globalThis.params.hapList[i - 1], showHapList, jsonIconMap);
       if (i % lineNums === 0) {
         phoneShowHapList.push(showHapList);
@@ -52,6 +53,24 @@ export default class SelectorServiceExtensionAbility extends extension {
     globalThis.phoneShowHapList = phoneShowHapList;
     globalThis.jsonIconMap = jsonIconMap;
     console.debug(TAG, 'phoneShowHapList: ' + JSON.stringify(phoneShowHapList));
+
+    const signalRowlineNums = 4;
+    let signalRowShowHapList = [];
+    let signalRowPhoneShowHapList = [];
+    let jsonIconMapData: Map<string, image.PixelMap> = new Map();
+    for (let i = 1; i <= globalThis.params.hapList.length; i++) {
+      console.info(TAG, 'hapList[' + (i - 1).toString() + ']: ' + JSON.stringify(globalThis.params.hapList[i]));
+      await this.getHapResource(globalThis.params.hapList[i - 1], signalRowShowHapList, jsonIconMapData);
+      if (i % signalRowlineNums === 0) {
+        signalRowPhoneShowHapList.push(signalRowShowHapList);
+        signalRowShowHapList = [];
+      }
+      if (i >= globalThis.params.hapList.length && signalRowShowHapList.length > 0) {
+        signalRowPhoneShowHapList.push(signalRowShowHapList);
+      }
+    }
+    globalThis.signalRowPhoneShowHapList = signalRowPhoneShowHapList;
+    console.debug(TAG, 'signalRowPhoneShowHapList: ' + JSON.stringify(signalRowPhoneShowHapList));
   }
 
   async getPcShowHapList() {
@@ -117,11 +136,20 @@ export default class SelectorServiceExtensionAbility extends extension {
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
     globalThis.abilityWant = want;
     globalThis.params = JSON.parse(want.parameters.params);
-    globalThis.position = JSON.parse(want.parameters.position);
+    globalThis.landScapePosition = JSON.parse(want.parameters.landscapeScreen);
+    globalThis.verticalPosition = JSON.parse(want.parameters.position);
+    let displayClass = display.getDefaultDisplaySync();
+    if (displayClass.orientation === display.Orientation.PORTRAIT || displayClass.orientation === display.Orientation.PORTRAIT_INVERTED) {
+      globalThis.position = globalThis.verticalPosition;
+      console.debug(TAG, 'screen position is vertical');
+    } else {
+      globalThis.position = globalThis.landScapePosition;
+      console.debug(TAG, 'screen position is landscape');
+    }
+    console.debug(TAG, 'onRequest display is' + JSON.stringify(displayClass));
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
     console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
     globalThis.callerToken = want.parameters.callerToken;
-    console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
     console.debug(TAG, 'onRequest, position: ' + JSON.stringify(globalThis.position));
     if (globalThis.params.deviceType !== 'phone' && globalThis.params.deviceType !== 'default') {
       globalThis.modelFlag = Boolean(globalThis.params.modelFlag);
@@ -133,6 +161,7 @@ export default class SelectorServiceExtensionAbility extends extension {
       await this.getPcShowHapList();
     }
 
+    AppStorage.SetOrCreate('oversizeHeight', globalThis.position.oversizeHeight ? 'true' : 'false');
     display.getDefaultDisplay().then(dis => {
       let navigationBarRect = {
         left: globalThis.position.offsetX,
@@ -145,7 +174,7 @@ export default class SelectorServiceExtensionAbility extends extension {
         winNum--;
       }
       if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
-        this.createWindow('SelectorDialog' + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
+        this.createWindow('SelectorDialog' + startId, window.WindowType.TYPE_FLOAT, navigationBarRect);
       } else {
         console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
         let windowType = (typeof(globalThis.callerToken) === 'object' && globalThis.callerToken !== null) ?
@@ -185,5 +214,43 @@ export default class SelectorServiceExtensionAbility extends extension {
     } catch (e) {
       console.error(TAG, 'window create failed: ' + JSON.stringify(e));
     }
+  }
+
+  private async moveWindow(rect): Promise<void> {
+    try {
+      await win.moveTo(rect.left, rect.top);
+      await win.resetSize(rect.width, rect.height);
+      if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
+        try {
+          await win.loadContent('pages/selectorPhoneDialog');
+          await win.setBackgroundColor('#00000000');
+        } catch (e) {
+          console.error(TAG, 'window loadContent failed: ' + JSON.stringify(e));
+        }
+      }
+      await win.show();
+    } catch (e) {
+      console.error(TAG, 'window move failed: ' + JSON.stringify(e));
+    }
+  }
+
+  onConfigurationUpdate(config): void {
+    console.debug(TAG, 'configuration is : ' + JSON.stringify(config));
+    let displayClass = display.getDefaultDisplaySync();
+    console.debug(TAG, 'display is' + JSON.stringify(displayClass));
+    if (displayClass.orientation === display.Orientation.PORTRAIT || displayClass.orientation === display.Orientation.PORTRAIT_INVERTED) {
+      globalThis.position = globalThis.verticalPosition;
+    } else {
+      globalThis.position = globalThis.landScapePosition;
+    }
+    let navigationBarRect = {
+      left: globalThis.position.offsetX,
+      top: globalThis.position.offsetY,
+      width: globalThis.position.width,
+      height: globalThis.position.height
+    };
+    AppStorage.SetOrCreate('oversizeHeight', globalThis.position.oversizeHeight ? 'true' : 'false');
+    console.debug(TAG, 'onConfigurationUpdate navigationBarRect is' + JSON.stringify(navigationBarRect));
+    this.moveWindow(navigationBarRect);
   }
 };
