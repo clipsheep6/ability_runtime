@@ -21,6 +21,9 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+#ifdef ABILITY_COMMAND_FOR_TEST
+const int32_t BLOCK_ABILITY_TIME = 20;
+#endif
 void AbilityThread::AbilityThreadMain(std::shared_ptr<OHOSApplication> &application,
     const std::shared_ptr<AbilityLocalRecord> &abilityRecord, const std::shared_ptr<EventRunner> &mainRunner,
     const std::shared_ptr<AbilityRuntime::Context> &stageContext)
