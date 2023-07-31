@@ -24,9 +24,7 @@
         "ability_runtime_graphics",
         "ability_runtime_power"
       ],
-      "adapted_system_type": [
-          "standard2"
-      ],
+      "adapted_system_type": ["standard2","small"],
       "rom": "",
       "ram": "",
       "hisysevent_config":[
