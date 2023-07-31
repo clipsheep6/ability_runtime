@@ -1254,6 +1254,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         options.isDebugVersion = bundleInfo.applicationInfo.debug;
         options.arkNativeFilePath = bundleInfo.applicationInfo.arkNativeFilePath;
         options.uid = bundleInfo.applicationInfo.uid;
+        options.apiTargetVersion = appInfo.apiTargetVersion;
         auto runtime = AbilityRuntime::Runtime::Create(options);
         if (!runtime) {
             HILOG_ERROR("Failed to create runtime");
@@ -1625,6 +1626,9 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
         options.loadAce = false;
         options.isStageModel = false;
         options.isTestFramework = true;
+        if (applicationInfo_) {
+            options.apiTargetVersion = applicationInfo_->apiTargetVersion;
+        }
         if (entryHapModuleInfo.abilityInfos.empty()) {
             HILOG_ERROR("Failed to abilityInfos");
             return false;

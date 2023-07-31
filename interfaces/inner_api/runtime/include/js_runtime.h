@@ -139,6 +139,7 @@ private:
     std::shared_ptr<JsEnv::JsEnvironment> jsEnv_ = nullptr;
     uint32_t instanceId_ = 0;
     std::string bundleName_;
+    int32_t apiTargetVersion_ = 0;
 
     static std::atomic<bool> hasInstance;
 

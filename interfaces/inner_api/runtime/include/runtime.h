@@ -63,6 +63,7 @@ public:
         bool isUnique = false;
         // ArkTsCard end
         std::shared_ptr<ModuleCheckerDelegate> moduleCheckerDelegate;
+        int32_t apiTargetVersion = 0;
     };
 
     static std::unique_ptr<Runtime> Create(const Options& options);
