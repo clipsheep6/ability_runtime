@@ -493,7 +493,7 @@ private:
      */
     void HandleShareData(const int32_t &requestCode);
 
-        /**
+    /**
      * @brief Registers an observer to DataObsMgr specified by the given Uri.
      * @param uri Indicates the path of the data to operate.
      * @param dataObserver Indicates the IDataAbilityObserver object.
