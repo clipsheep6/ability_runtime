@@ -427,6 +427,7 @@ private:
      * @param abilityRecord, died ability.
      */
     void HandleAbilityDiedTask(const std::shared_ptr<AbilityRecord> &abilityRecord, int32_t currentUserId);
+    void HandleUIExtensionDied(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
     void RestartAbility(const std::shared_ptr<AbilityRecord> &abilityRecord, int32_t currentUserId);
 

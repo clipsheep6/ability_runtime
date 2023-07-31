@@ -1544,6 +1544,10 @@ void AbilityConnectManager::HandleAbilityDiedTask(
         return;
     }
 
+    if (UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
+        HandleUIExtensionDied(abilityRecord);
+    }
+
     if (GetExtensionFromServiceMapInner(abilityRecord->GetToken()) == nullptr) {
         HILOG_ERROR("Died ability record is not exist in service map.");
         return;
@@ -1554,6 +1558,33 @@ void AbilityConnectManager::HandleAbilityDiedTask(
     if (IsAbilityNeedKeepAlive(abilityRecord)) {
         HILOG_INFO("restart ability: %{public}s", abilityRecord->GetAbilityInfo().name.c_str());
         RestartAbility(abilityRecord, currentUserId);
+    }
+}
+
+void AbilityConnectManager::HandleUIExtensionDied(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    HILOG_DEBUG("called");
+    CHECK_POINTER(abilityRecord);
+    for (auto it = uiExtensionMap_.begin(); it != uiExtensionMap_.end();) {
+        std::shared_ptr<AbilityRecord> uiExtAbility = it->second.first.lock();
+        if (uiExtAbility == nullptr) {
+            HILOG_WARN("uiExtAbility is nullptr");
+            RemoveUIExtWindowDeathRecipient(it->first);
+            it = uiExtensionMap_.erase(it);
+            continue;
+        }
+
+        if (abilityRecord == uiExtAbility) {
+            sptr<Rosen::ISession> sessionProxy = iface_cast<Rosen::ISession>(it->first);
+            if (sessionProxy) {
+                HILOG_DEBUG("start NotifyExtensionDied");
+                sessionProxy->NotifyExtensionDied();
+            }
+            RemoveUIExtWindowDeathRecipient(it->first);
+            it = uiExtensionMap_.erase(it);
+            continue;
+        }
+        it++;
     }
 }
 
