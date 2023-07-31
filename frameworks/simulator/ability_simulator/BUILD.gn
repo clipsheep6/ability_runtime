@@ -44,7 +44,7 @@ config("ability_simulator_public_config") {
   include_dirs = [ "include" ]
 }
 
-ohos_shared_library("ability_simulator") {
+ohos_shared_library("ability_simulator_inner") {
   if (is_mingw || is_mac) {
     if (is_mingw) {
       defines = [
@@ -115,7 +115,14 @@ ohos_shared_library("ability_simulator") {
     }
   }
 
+  output_name = "ability_simulator"
   innerapi_tags = [ "platformsdk" ]
   part_name = "ability_runtime"
   subsystem_name = "ability"
+}
+
+group("ability_simulator") {
+  if (is_mingw || is_mac) {
+    public_deps = [ ":ability_simulator_inner" ]
+  }
 }
