@@ -48,8 +48,13 @@ public:
     std::shared_ptr<PendingWantKey> GetKey();
     int32_t GetUid() const;
     void SetCallerUid(const int32_t callerUid);
+    int32_t GetCallerUid();
     void SetCanceled();
     bool GetCanceled();
+    void SetProcessName(std::string processName);
+    std::string GetProcessName() const;
+    pid_t GetCreatePid() const;
+    void SetCreatePid(pid_t pid);
     std::list<sptr<IWantReceiver>> GetCancelCallbacks();
 
 private:
@@ -57,6 +62,8 @@ private:
     int32_t uid_ = 0;
     int32_t callerUid_ = 0;
     int32_t callerTokenId_ = 0;
+    std::string processName_;
+    pid_t createPid_;
     sptr<IRemoteObject> callerToken_ = {};
     bool canceled_ = false;
     std::shared_ptr<PendingWantKey> key_ = {};
