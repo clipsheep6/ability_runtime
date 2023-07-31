@@ -29,7 +29,7 @@
 #include "hilog_wrapper.h"
 #include "mock_ability_impl.h"
 #include "mock_ability_lifecycle_callbacks.h"
-#include "mock_ability_thread.h"
+// #include "mock_ability_thread.h"
 #include "mock_ability_token.h"
 #include "mock_data_ability.h"
 #include "mock_data_obs_mgr_stub.h"
@@ -39,6 +39,7 @@
 #include "page_ability_impl.h"
 #include "uri.h"
 
+using Want = OHOS::AAFwk::Want;
 namespace OHOS {
 namespace AppExecFwk {
 using namespace testing::ext;
