@@ -585,7 +585,9 @@ bool SimulatorImpl::OnInit()
     }
     std::string fileName = options_.containerSdkPath + fileSeparator + "apiMock" + fileSeparator + "jsMockHmos.abc";
     HILOG_DEBUG("file name: %{public}s", fileName.c_str());
-    panda::JSNApi::Execute(vm_, fileName, "_GLOBAL::func_main_0");
+    if (!fileName.empty() && AbilityStageContext::Access(fileName)) {
+        panda::JSNApi::Execute(vm_, fileName, "_GLOBAL::func_main_0");
+    }
 
     const char *moduleName = "SimulatorImpl";
     BindNativeFunction(*nativeEngine, *globalObj, "requireNapi", moduleName,
