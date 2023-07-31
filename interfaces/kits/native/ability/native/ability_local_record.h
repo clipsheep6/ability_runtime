@@ -18,10 +18,10 @@
 
 #include <string>
 
+#include "iremote_object.h"
+#include "event_runner.h"
 #include "ability_info.h"
 #include "application_info.h"
-#include "event_runner.h"
-#include "iremote_object.h"
 #include "refbase.h"
 #include "want.h"
 
