@@ -32,7 +32,7 @@ public:
     virtual ~MockAbilityThread() = default;
 
 private:
-    AbilityThread AbilityThread_;
+    FAAbilityThread AbilityThread_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
