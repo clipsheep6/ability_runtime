@@ -126,6 +126,7 @@ int AbilityConnectionStub::OnRemoteRequest(
             auto resultCode = data.ReadInt32();
             HILOG_INFO("AbilityConnectionStub ON_ABILITY_CONNECT_DONE");
             OnAbilityConnectDone(*element, remoteObject, resultCode);
+            HILOG_INFO("AbilityConnectionStub ON_ABILITY_CONNECT_DONE end");
             delete element;
             return NO_ERROR;
         }
