@@ -16,25 +16,22 @@
 #ifndef MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_THREAD_H
 #define MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_THREAD_H
 
-#include <gtest/gtest.h>
-
 #include "ability.h"
 #include "ability_impl.h"
 #include "ability_thread.h"
-#include "fa_ability_thread.h"
+#include <gtest/gtest.h>
 
 namespace OHOS {
 namespace AppExecFwk {
 using Want = OHOS::AAFwk::Want;
-using FAAbilityThread = OHOS::AbilityRuntime::FAAbilityThread;
 
-class MockAbilityThread : public FAAbilityThread {
+class MockAbilityThread : public AbilityThread {
 public:
     MockAbilityThread() = default;
     virtual ~MockAbilityThread() = default;
 
 private:
-    FAAbilityThread AbilityThread_;
+    AbilityThread AbilityThread_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
