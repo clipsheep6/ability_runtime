@@ -653,8 +653,7 @@ void AbilityRecord::AnimationTask(bool isRecent, const AbilityRequest &abilityRe
 void AbilityRecord::SetShowWhenLocked(const AppExecFwk::AbilityInfo &abilityInfo,
     sptr<AbilityTransitionInfo> &info) const
 {
-    std::vector<AppExecFwk::CustomizeData> datas = abilityInfo.metaData.customizeData;
-    for (AppExecFwk::CustomizeData data : datas) {
+    for (const auto &data : abilityInfo.metaData.customizeData) {
         if (data.name == SHOW_ON_LOCK_SCREEN) {
             info->isShowWhenLocked_ = true;
             break;
