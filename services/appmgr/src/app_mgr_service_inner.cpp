@@ -4115,7 +4115,7 @@ int32_t AppMgrServiceInner::GetProcessMemoryByPid(const int32_t pid, int32_t &me
 {
     CHECK_CALLER_IS_SYSTEM_APP;
     uint64_t memSize = OHOS::MemInfo::GetPssByPid(pid);
-    memorySize = memSize;
+    memorySize = static_cast<int32_t>(memSize);
     return ERR_OK;
 }
 

@@ -93,6 +93,10 @@ const int32_t LINE_NUMS_THREE = 3;
 const int32_t LINE_NUMS_FOUR = 4;
 const int32_t LINE_NUMS_EIGHT = 8;
 
+const float WIDTH_MULTIPLE = 0.8;
+const float HEIGHT_MULTIPLE = 0.3;
+const float SETX_WIDTH_MULTIPLE = 0.1;
+
 bool SystemDialogScheduler::GetANRDialogWant(int userId, int pid, AAFwk::Want &want)
 {
     HILOG_DEBUG("GetANRDialogWant start");
@@ -382,9 +386,9 @@ void SystemDialogScheduler::GetDialogPositionAndSize(DialogType type, DialogPosi
                 }
                 break;
             case DialogAlign::BOTTOM:
-                position.width = display->GetWidth() * 0.8;
-                position.height = display->GetHeight() * 0.3;
-                position.offsetX = display->GetWidth() * 0.1;
+                position.width = display->GetWidth() * WIDTH_MULTIPLE;
+                position.height = display->GetHeight() * HEIGHT_MULTIPLE;
+                position.offsetX = display->GetWidth() * SETX_WIDTH_MULTIPLE;
                 position.offsetY = display->GetHeight() - position.height - UI_DEFAULT_BUTTOM_CLIP;
                 break;
             default:
