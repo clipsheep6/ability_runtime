@@ -3076,16 +3076,19 @@ void AbilityManagerService::CancelWantSender(const sptr<IWantSender> &sender)
         HILOG_ERROR("GetOsAccountLocalIdFromUid failed. uid=%{public}d", callerUid);
         return;
     }
-    AppExecFwk::BundleInfo bundleInfo;
-    bool bundleMgrResult = IN_PROCESS_CALL(
-        bms->GetBundleInfo(record->GetKey()->GetBundleName(),
-            AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
-    if (!bundleMgrResult) {
-        HILOG_ERROR("GetBundleInfo is fail.");
-        return;
+    std::string apl;
+    if (record->GetKey() != nullptr && !record->GetKey()->GetBundleName().empty()) {
+        AppExecFwk::BundleInfo bundleInfo;
+        bool bundleMgrResult = IN_PROCESS_CALL(
+            bms->GetBundleInfo(record->GetKey()->GetBundleName(),
+                 AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
+        if (!bundleMgrResult) {
+            HILOG_ERROR("GetBundleInfo is fail.");
+            return;
+        }
+        auto apl = bundleInfo.applicationInfo.appPrivilegeLevel;
     }
 
-    auto apl = bundleInfo.applicationInfo.appPrivilegeLevel;
     pendingWantManager_->CancelWantSender(apl, sender);
 }
 
