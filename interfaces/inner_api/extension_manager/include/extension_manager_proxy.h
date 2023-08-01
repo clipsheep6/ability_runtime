@@ -54,10 +54,49 @@ public:
      */
     virtual int DisconnectAbility(const sptr<IRemoteObject> &connect) override;
 
+    /**
+     * Start extension ability with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param callerToken, caller ability token.
+     * @param userId, Designation User ID.
+     * @param extensionType If an ExtensionAbilityType is set, only extension of that type can be started.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartExtensionAbility(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED) override;
+
+    /**
+     * Stop extension ability with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to stop.
+     * @param callerToken, caller ability token.
+     * @param userId, Designation User ID.
+     * @param extensionType If an ExtensionAbilityType is set, only extension of that type can be stopped.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StopExtensionAbility(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED) override;
+
+    /**
+     * Request dialog service with want, send want to ability manager service.
+     *
+     * @param want, the want of the dialog service to start.
+     * @param callerToken, caller ability token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RequestDialogService(const Want &want, const sptr<IRemoteObject> &callerToken) override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     ErrCode SendRequest(AbilityManagerInterfaceCode code, MessageParcel &data, MessageParcel &reply,
-        MessageOption& option);
+        MessageOption &option);
 
 private:
     static inline BrokerDelegator<ExtensionManagerProxy> delegator_;
