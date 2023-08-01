@@ -427,6 +427,9 @@ private:
     bool RemoveMissionList(const std::list<std::shared_ptr<MissionList>> lists,
         const std::shared_ptr<MissionList> &list);
     int ClearMissionLocked(int missionId, const std::shared_ptr<Mission> &mission);
+    void NotifyRemoveShellProcess(int missionId, const std::shared_ptr<AbilityRecord> &abilityRecord);
+    bool NeedNotifyRemoveShellProcess(std::list<std::shared_ptr<Mission>> &missionList,
+        const std::shared_ptr<Mission> &targetMission);
     int ClearMissionLocking(int missionId, const std::shared_ptr<Mission> &mission);
     int MoveAbilityToBackgroundLocked(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void RemoveBackgroundingAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
