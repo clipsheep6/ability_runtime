@@ -373,7 +373,7 @@ bool ImplicitStartProcessor::FilterAbilityList(const Want &want, std::vector<App
 
     ErmsCallerInfo callerInfo;
     int ret = IN_PROCESS_CALL(erms->EvaluateResolveInfos(want, callerInfo, 0, abilityInfos, extensionInfos));
-#endif    
+#endif
     if (ret != ERR_OK) {
         HILOG_ERROR("Failed to evaluate resolve infos from erms.");
         return false;
