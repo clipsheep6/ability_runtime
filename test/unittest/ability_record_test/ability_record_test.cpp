@@ -654,7 +654,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SendResult, TestSize.Level1)
     OHOS::sptr<IAbilityScheduler> scheduler = new AbilityScheduler();
     abilityRecord_->SetScheduler(scheduler);
     abilityRecord_->SetResult(abilityResult_);
-    abilityRecord_->SendResult();
+    abilityRecord_->SendResult(0, 0);
     EXPECT_EQ(nullptr, abilityRecord_->GetResult());
 }
 
@@ -2155,9 +2155,8 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_001, TestSize.Level
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
     EXPECT_NE(abilityRecord, nullptr);
     Want want;
-    int32_t userId = 100;
     std::string targetBundleName = "name";
-    abilityRecord->GrantUriPermission(want, userId, "name");
+    abilityRecord->GrantUriPermission(want, targetBundleName, true, 0);
 }
 
 /*
@@ -2175,9 +2174,8 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_002, TestSize.Level
     Want want;
     want.SetFlags(1);
     want.SetUri("datashare://ohos.samples.clock/data/storage/el2/base/haps/entry/files/test_A.txt");
-    int32_t userId = 100;
     std::string targetBundleName = "name";
-    abilityRecord->GrantUriPermission(want, userId, targetBundleName);
+    abilityRecord->GrantUriPermission(want, targetBundleName, false, 0);
 }
 
 /*
@@ -2195,9 +2193,8 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_003, TestSize.Level
     Want want;
     want.SetFlags(1);
     want.SetUri("file://com.example.mock/data/storage/el2/base/haps/entry/files/test_A.txt");
-    int32_t userId = 100;
     std::string targetBundleName = "name";
-    abilityRecord->GrantUriPermission(want, userId, targetBundleName);
+    abilityRecord->GrantUriPermission(want, targetBundleName, false, 0);
 }
 
 /*
@@ -2215,9 +2212,8 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_004, TestSize.Level
     Want want;
     want.SetFlags(1);
     want.SetUri("file://ohos.samples.clock/data/storage/el2/base/haps/entry/files/test_A.txt");
-    int32_t userId = 100;
     std::string targetBundleName = "name";
-    abilityRecord->GrantUriPermission(want, userId, targetBundleName);
+    abilityRecord->GrantUriPermission(want, targetBundleName, false, 0);
 }
 
 /*
@@ -2235,9 +2231,8 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_005, TestSize.Level
     Want want;
     want.SetFlags(1);
     want.SetUri("file://ohos.samples.clock/data/storage/el2/base/haps/entry/files/test_A.txt");
-    int32_t userId = 100;
     std::string targetBundleName = "name";
-    abilityRecord->GrantUriPermission(want, userId, targetBundleName);
+    abilityRecord->GrantUriPermission(want, targetBundleName, false, 0);
 }
 
 /*

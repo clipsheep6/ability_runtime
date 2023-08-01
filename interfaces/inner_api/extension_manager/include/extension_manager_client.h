@@ -34,6 +34,11 @@ public:
     virtual ~ExtensionManagerClient() = default;
     static ExtensionManagerClient& GetInstance();
 
+    ErrCode ConnectServiceExtensionAbility(const Want &want, const sptr<IRemoteObject> &connect, int32_t userId);
+
+    ErrCode ConnectServiceExtensionAbility(const Want &want, const sptr<IRemoteObject> &connect,
+        const sptr<IRemoteObject> &callerToken, int32_t userId);
+
     /**
      * Connect extension ability.
      *

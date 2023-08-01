@@ -54,8 +54,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     missionDataStorage->GetReducedPixelMap(snapshot);
     missionDataStorage->GetCachedSnapshot(int32Param, missionSnapshot);
     missionDataStorage->SaveCachedSnapshot(int32Param, missionSnapshot);
-    missionDataStorage->GetSnapshot(intParam, boolParam);
-    missionDataStorage->GetPixelMap(intParam, boolParam);
     missionDataStorage->DeleteMissionInfo(intParam);
     missionDataStorage->DeleteMissionSnapshot(int32Param);
     missionDataStorage->DeleteCachedSnapshot(int32Param);

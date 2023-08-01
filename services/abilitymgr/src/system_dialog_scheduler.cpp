@@ -14,11 +14,14 @@
  */
 #include "system_dialog_scheduler.h"
 
+#include <cmath>
 #include <regex>
 
+#include "display_info.h"
 #include "constants.h"
 #include "ability_util.h"
 #include "app_scheduler.h"
+#include "dm_common.h"
 #include "display_manager.h"
 #include "errors.h"
 #include "hilog_wrapper.h"
@@ -42,6 +45,24 @@ const int32_t UI_SELECTOR_DIALOG_PC_H3 = (64 * 3 + 56 + 48 + 54 + 64 + 48 + 2) *
 const int32_t UI_SELECTOR_DIALOG_PC_H4 = (64 * 4 + 56 + 48 + 54 + 64 + 48 + 2) * 2;
 const int32_t UI_SELECTOR_DIALOG_PC_H5 = (64 * 4 + 56 + 48 + 54 + 64 + 48 + 58 + 2) * 2;
 
+const int32_t UI_SELECTOR_PORTRAIT_PHONE_H1 = 280;
+const int32_t UI_SELECTOR_PORTRAIT_PHONE_H2 = 400;
+const int32_t UI_SELECTOR_PORTRAIT_PHONE_H3 = 410;
+const int32_t UI_SELECTOR_LANDSCAPE_SIGNAL_BAR = 24;
+const int32_t UI_SELECTOR_LANDSCAPE_HEIGHT = 350;
+const int32_t UI_SELECTOR_LANDSCAPE_HEIGHT_NARROW = 350;
+const int32_t UI_SELECTOR_LANDSCAPE_PHONE_H1 = 280;
+const int32_t UI_SELECTOR_LANDSCAPE_PHONE_H2 = 400;
+const int32_t UI_SELECTOR_LANDSCAPE_PHONE_H3 = 410;
+const int32_t UI_SELECTOR_LANDSCAPE_COUNT_THREE = 3;
+const int32_t UI_SELECTOR_LANDSCAPE_COUNT_FOUR = 4;
+const float UI_SELECTOR_LANDSCAPE_GRILLE_LARGE = 0.107692;
+const float UI_SELECTOR_LANDSCAPE_GRILLE_SAMLL = 0.015385;
+const float UI_SELECTOR_LANDSCAPE_MAX_RATIO = 0.9;
+const float UI_SELECTOR_PORTRAIT_WIDTH_RATIO = 0.8;
+const float UI_SELECTOR_PORTRAIT_WIDTH_EDGE_RATIO = 0.1;
+const float UI_SELECTOR_PORTRAIT_HEIGHT_RATIO = 0.98;
+
 const int32_t UI_TIPS_DIALOG_WIDTH = 328 * 2;
 const int32_t UI_TIPS_DIALOG_HEIGHT = 135 * 2;
 const int32_t UI_TIPS_DIALOG_HEIGHT_NARROW = 135 * 2;
@@ -62,6 +83,7 @@ const std::string WIDTH = "width";
 const std::string HEIGHT = "height";
 const std::string MODEL_FLAG = "modelFlag";
 const std::string ACTION = "action";
+const std::string OVERSIZE_HEIGHT = "oversizeHeight";
 
 const int32_t UI_HALF = 2;
 const int32_t UI_DEFAULT_BUTTOM_CLIP = 100;
@@ -80,18 +102,24 @@ const std::string BUNDLE_NAME = "bundleName";
 const std::string BUNDLE_NAME_DIALOG = "com.ohos.amsdialog";
 const std::string DIALOG_PARAMS = "params";
 const std::string DIALOG_POSITION = "position";
+const std::string VERTICAL_SCREEN_DIALOG_POSITION = "landscapeScreen";
 const std::string ABILITY_NAME_ANR_DIALOG = "AnrDialog";
 const std::string ABILITY_NAME_TIPS_DIALOG = "TipsDialog";
 const std::string ABILITY_NAME_SELECTOR_DIALOG = "SelectorDialog";
 const std::string CALLER_TOKEN = "callerToken";
 const std::string ABILITY_NAME_JUMP_INTERCEPTOR_DIALOG = "JumpInterceptorDialog";
 const std::string TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard";
+const std::string ORIENTATION = "orientation";
 
 const int32_t LINE_NUMS_ZERO = 0;
 const int32_t LINE_NUMS_TWO = 2;
 const int32_t LINE_NUMS_THREE = 3;
 const int32_t LINE_NUMS_FOUR = 4;
 const int32_t LINE_NUMS_EIGHT = 8;
+
+const float WIDTH_MULTIPLE = 0.8;
+const float HEIGHT_MULTIPLE = 0.3;
+const float SETX_WIDTH_MULTIPLE = 0.1;
 
 bool SystemDialogScheduler::GetANRDialogWant(int userId, int pid, AAFwk::Want &want)
 {
@@ -171,16 +199,157 @@ Want SystemDialogScheduler::GetJumpInterceptorDialogWant(Want &targetWant)
     return targetWant;
 }
 
+void SystemDialogScheduler::DialogPortraitPositionAdaptive(
+    DialogPosition &position, float densityPixels, int lineNums) const
+{
+    if (lineNums > LINE_NUMS_EIGHT) {
+        position.height = static_cast<int32_t>(UI_SELECTOR_PORTRAIT_PHONE_H3 * densityPixels);
+        return;
+    } else if (lineNums > LINE_NUMS_FOUR) {
+        position.height = static_cast<int32_t>(UI_SELECTOR_PORTRAIT_PHONE_H2 * densityPixels);
+        return;
+    } else if (lineNums > LINE_NUMS_ZERO) {
+        position.height = static_cast<int32_t>(UI_SELECTOR_PORTRAIT_PHONE_H1 * densityPixels);
+        return;
+    }
+
+    HILOG_DEBUG("dialog portrait lineNums is zero.");
+}
+
+void SystemDialogScheduler::GetSelectorDialogPortraitPosition(
+    DialogPosition &position, int32_t height, int32_t width, int lineNums, float densityPixels) const
+{
+    HILOG_DEBUG("PortraitPosition height %{public}d width %{public}d density %{public}f.",
+        height, width, densityPixels);
+    position.width = static_cast<int32_t>(width * UI_SELECTOR_PORTRAIT_WIDTH_RATIO);
+    position.height = static_cast<int32_t>(UI_SELECTOR_DIALOG_HEIGHT * densityPixels);
+    position.width_narrow = static_cast<int32_t>(width * UI_SELECTOR_PORTRAIT_WIDTH_RATIO);
+    position.height_narrow = static_cast<int32_t>(UI_SELECTOR_DIALOG_HEIGHT_NARROW * densityPixels);
+
+    if (width < UI_WIDTH_780DP) {
+        HILOG_INFO("show dialog narrow.");
+        position.width = position.width_narrow;
+        position.height = position.height_narrow;
+    }
+
+    DialogPortraitPositionAdaptive(position, densityPixels, lineNums);
+
+    int32_t portraitMax = static_cast<int32_t>(height * UI_SELECTOR_PORTRAIT_HEIGHT_RATIO);
+    if (portraitMax < position.height) {
+        position.oversizeHeight = true;
+        position.height = static_cast<int32_t>(UI_SELECTOR_PORTRAIT_PHONE_H1 * densityPixels);
+        HILOG_INFO("portrait ratio 0.9 height is %{public}d.", portraitMax);
+    }
+
+    position.offsetX = static_cast<int32_t>(width * UI_SELECTOR_PORTRAIT_WIDTH_EDGE_RATIO);
+    position.offsetY = static_cast<int32_t>((height * UI_SELECTOR_PORTRAIT_HEIGHT_RATIO - position.height));
+    HILOG_DEBUG("dialog offset x:%{public}d y:%{public}d h:%{public}d w:%{public}d",
+        position.offsetX, position.offsetY, position.height, position.width);
+}
+
+void SystemDialogScheduler::DialogLandscapePositionAdaptive(
+    DialogPosition &position, float densityPixels, int lineNums) const
+{
+    if (lineNums > LINE_NUMS_EIGHT) {
+        position.height = static_cast<int32_t>(UI_SELECTOR_LANDSCAPE_PHONE_H3 * densityPixels);
+        return;
+    } else if (lineNums > LINE_NUMS_FOUR) {
+        position.height = static_cast<int32_t>(UI_SELECTOR_LANDSCAPE_PHONE_H2 * densityPixels);
+        return;
+    } else if (lineNums > LINE_NUMS_ZERO) {
+        position.height = static_cast<int32_t>(UI_SELECTOR_LANDSCAPE_PHONE_H1 * densityPixels);
+        return;
+    }
+
+    HILOG_DEBUG("dialog landscape lineNums is zero.");
+}
+
+void SystemDialogScheduler::GetSelectorDialogLandscapePosition(
+    DialogPosition &position, int32_t height, int32_t width, int lineNums, float densityPixels) const
+{
+    HILOG_DEBUG("LandscapePosition height %{public}d width %{public}d density %{public}f.",
+        height, width, densityPixels);
+    position.width = static_cast<int32_t>(width *
+        (UI_SELECTOR_LANDSCAPE_GRILLE_LARGE * UI_SELECTOR_LANDSCAPE_COUNT_FOUR +
+        UI_SELECTOR_LANDSCAPE_GRILLE_SAMLL * UI_SELECTOR_LANDSCAPE_COUNT_THREE));
+    position.height = static_cast<int32_t>((UI_SELECTOR_LANDSCAPE_HEIGHT) * densityPixels);
+    position.width_narrow = static_cast<int32_t>(width *
+        (UI_SELECTOR_LANDSCAPE_GRILLE_LARGE * UI_SELECTOR_LANDSCAPE_COUNT_FOUR +
+        UI_SELECTOR_LANDSCAPE_GRILLE_SAMLL * UI_SELECTOR_LANDSCAPE_COUNT_THREE));
+    position.height_narrow = static_cast<int32_t>((UI_SELECTOR_LANDSCAPE_HEIGHT_NARROW) * densityPixels);
+    DialogLandscapePositionAdaptive(position, densityPixels, lineNums);
+
+    int32_t landscapeMax = static_cast<int32_t>(
+        (height - UI_SELECTOR_LANDSCAPE_SIGNAL_BAR * densityPixels) * UI_SELECTOR_LANDSCAPE_MAX_RATIO);
+    if (position.height > landscapeMax) {
+        position.oversizeHeight = true;
+        position.height = static_cast<int32_t>(UI_SELECTOR_LANDSCAPE_PHONE_H1 * densityPixels);
+        HILOG_INFO("landscape ratio 0.9 height is %{public}d.", landscapeMax);
+    }
+
+    HILOG_DEBUG("dialog height is %{public}d.", position.height);
+    position.offsetX = static_cast<int32_t>((width - position.width) / UI_HALF);
+    position.offsetY = static_cast<int32_t>((height * UI_SELECTOR_PORTRAIT_HEIGHT_RATIO - position.height));
+    HILOG_DEBUG("dialog offset x:%{public}d y:%{public}d h:%{public}d w:%{public}d",
+        position.offsetX, position.offsetY, position.height, position.width);
+}
+
+void SystemDialogScheduler::GetSelectorDialogPositionAndSize(
+    DialogPosition &portraitPosition, DialogPosition &landscapePosition, int lineNums) const
+{
+    portraitPosition.wideScreen = (deviceType_ != STR_PHONE) && (deviceType_ != STR_DEFAULT);
+    portraitPosition.align = ((deviceType_ == STR_PHONE) || (deviceType_ == STR_DEFAULT)) ?
+        DialogAlign::BOTTOM : DialogAlign::CENTER;
+    landscapePosition.wideScreen = portraitPosition.wideScreen;
+    landscapePosition.align = portraitPosition.align;
+
+    auto display = Rosen::DisplayManager::GetInstance().GetDefaultDisplay();
+    if (display == nullptr) {
+        HILOG_ERROR("share dialog GetDefaultDisplay fail, try again.");
+        display = Rosen::DisplayManager::GetInstance().GetDefaultDisplay();
+    }
+    if (display == nullptr) {
+        HILOG_ERROR("share dialog GetDefaultDisplay fail.");
+        return;
+    }
+
+    auto displayInfo = display->GetDisplayInfo();
+    if (displayInfo == nullptr) {
+        HILOG_ERROR("share dialog GetDisplayInfo fail.");
+        return;
+    }
+
+    HILOG_DEBUG("GetDialogPositionAndSize GetOrientation, %{public}d %{public}f",
+        displayInfo->GetDisplayOrientation(), display->GetVirtualPixelRatio());
+    if (displayInfo->GetDisplayOrientation() == Rosen::DisplayOrientation::PORTRAIT ||
+        displayInfo->GetDisplayOrientation() == Rosen::DisplayOrientation::PORTRAIT_INVERTED) {
+        HILOG_INFO("GetDialogPositionAndSize GetOrientation, PORTRAIT or PORTRAIT_INVERTED");
+        GetSelectorDialogPortraitPosition(portraitPosition, display->GetHeight(), display->GetWidth(),
+            lineNums, display->GetVirtualPixelRatio());
+        GetSelectorDialogLandscapePosition(landscapePosition, display->GetWidth(), display->GetHeight(),
+            lineNums, display->GetVirtualPixelRatio());
+        return;
+    }
+
+    HILOG_INFO("GetDialogPositionAndSize GetOrientation, LANDSCAPE or LANDSCAPE_INVERTED");
+    GetSelectorDialogPortraitPosition(portraitPosition, display->GetWidth(), display->GetHeight(),
+        lineNums, display->GetVirtualPixelRatio());
+    GetSelectorDialogLandscapePosition(landscapePosition, display->GetHeight(), display->GetWidth(),
+        lineNums, display->GetVirtualPixelRatio());
+}
+
 Want SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant,
     const sptr<IRemoteObject> &callerToken)
 {
     HILOG_DEBUG("GetSelectorDialogWant start");
-    DialogPosition position;
-    GetDialogPositionAndSize(DialogType::DIALOG_SELECTOR, position, static_cast<int>(dialogAppInfos.size()));
+    DialogPosition portraitPosition;
+    DialogPosition landscapePosition;
+    GetSelectorDialogPositionAndSize(portraitPosition, landscapePosition, static_cast<int>(dialogAppInfos.size()));
     std::string params = GetSelectorParams(dialogAppInfos);
 
     targetWant.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_SELECTOR_DIALOG);
-    targetWant.SetParam(DIALOG_POSITION, GetDialogPositionParams(position));
+    targetWant.SetParam(DIALOG_POSITION, GetDialogPositionParams(portraitPosition));
+    targetWant.SetParam(VERTICAL_SCREEN_DIALOG_POSITION, GetDialogPositionParams(landscapePosition));
     targetWant.SetParam(DIALOG_PARAMS, params);
     if (callerToken != nullptr) {
         HILOG_DEBUG("set callertoken to targetWant");
@@ -273,6 +442,7 @@ const std::string SystemDialogScheduler::GetDialogPositionParams(const DialogPos
     dialogPositionData[OFF_SET_Y] = position.offsetY;
     dialogPositionData[WIDTH] = position.width;
     dialogPositionData[HEIGHT] = position.height;
+    dialogPositionData[OVERSIZE_HEIGHT] = position.oversizeHeight;
     return dialogPositionData.dump();
 }
 
@@ -382,7 +552,9 @@ void SystemDialogScheduler::GetDialogPositionAndSize(DialogType type, DialogPosi
                 }
                 break;
             case DialogAlign::BOTTOM:
-                position.offsetX = (display->GetWidth() - position.width) / UI_HALF;
+                position.width = display->GetWidth() * WIDTH_MULTIPLE;
+                position.height = display->GetHeight() * HEIGHT_MULTIPLE;
+                position.offsetX = display->GetWidth() * SETX_WIDTH_MULTIPLE;
                 position.offsetY = display->GetHeight() - position.height - UI_DEFAULT_BUTTOM_CLIP;
                 break;
             default:

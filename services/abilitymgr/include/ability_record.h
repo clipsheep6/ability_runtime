@@ -332,7 +332,7 @@ public:
      * process request of foregrounding the ability.
      *
      */
-    void ProcessForegroundAbility(uint32_t sceneFlag = 0);
+    void ProcessForegroundAbility(uint32_t tokenId, uint32_t sceneFlag = 0);
 
     /**
      * move the ability to back ground.
@@ -627,7 +627,7 @@ public:
      * send result object to caller ability thread.
      *
      */
-    void SendResult(bool isSandboxApp = false);
+    void SendResult(bool isSandboxApp, uint32_t tokeId);
 
     /**
      * send result object to caller ability thread for sandbox app file saving.
@@ -894,7 +894,7 @@ private:
      */
     void GetAbilityTypeString(std::string &typeStr);
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
-    void GrantUriPermission(Want &want, int32_t userId, std::string targetBundleName, bool isSandboxApp = false);
+    void GrantUriPermission(Want &want, std::string targetBundleName, bool isSandboxApp, uint32_t tokenId);
     void GrantDmsUriPermission(Want &want, std::string targetBundleName);
     bool IsDmsCall();
     int32_t GetCurrentAccountId() const;

@@ -44,7 +44,7 @@ config("ability_simulator_public_config") {
   include_dirs = [ "include" ]
 }
 
-ohos_shared_library("ability_simulator") {
+ohos_shared_library("ability_simulator_inner") {
   if (is_mingw || is_mac) {
     if (is_mingw) {
       defines = [
@@ -56,7 +56,9 @@ ohos_shared_library("ability_simulator") {
     cflags = [ "-std=c++17" ]
 
     include_dirs = [
+      "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_business_error",
       "${ability_runtime_native_path}/runtime",
+      "${ability_runtime_innerkits_path}/ability_manager/include",
       "${ability_runtime_innerkits_path}/runtime/include",
       "${windowmanager_path}/previewer/include",
       "${windowmanager_path}/previewer/mock",
@@ -68,12 +70,17 @@ ohos_shared_library("ability_simulator") {
     ]
 
     sources = [
+      "${ability_runtime_native_path}/ability/native/ability_business_error/ability_business_error.cpp",
       "${ability_runtime_native_path}/runtime/js_module_searcher.cpp",
       "src/ability_context.cpp",
+      "src/ability_stage_context.cpp",
+      "src/common_func.cpp",
       "src/js_ability_context.cpp",
+      "src/js_ability_stage_context.cpp",
       "src/js_application_context_utils.cpp",
       "src/js_console_log.cpp",
       "src/js_context_utils.cpp",
+      "src/js_data_converter.cpp",
       "src/js_resource_manager_utils.cpp",
       "src/js_runtime_utils.cpp",
       "src/js_timer.cpp",
@@ -88,10 +95,7 @@ ohos_shared_library("ability_simulator") {
 
     configs = [ "${windowmanager_path}/previewer:previewer_window_config" ]
 
-    deps = [
-      ":gen_obj_src_js_mock_abc",
-      "${simulator_path}/common:ability_simulator_common",
-    ]
+    deps = [ ":gen_obj_src_js_mock_abc" ]
 
     external_deps = [
       "ability_base:string_utils",
@@ -111,7 +115,14 @@ ohos_shared_library("ability_simulator") {
     }
   }
 
+  output_name = "ability_simulator"
   innerapi_tags = [ "platformsdk" ]
   part_name = "ability_runtime"
   subsystem_name = "ability"
+}
+
+group("ability_simulator") {
+  if (is_mingw || is_mac) {
+    public_deps = [ ":ability_simulator_inner" ]
+  }
 }

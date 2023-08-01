@@ -13,11 +13,13 @@
  * limitations under the License.
  */
 
-import extension from '@ohos.app.ability.ServiceExtensionAbility';
-import window from '@ohos.window';
-import display from '@ohos.display';
-import defaultAppManager from '@ohos.bundle.defaultAppManager';
 import bundleManager from '@ohos.bundle.bundleManager';
+import defaultAppManager from '@ohos.bundle.defaultAppManager';
+import display from '@ohos.display';
+import drawableDescriptor from '@ohos.arkui.drawableDescriptor';
+import extension from '@ohos.app.ability.ServiceExtensionAbility';
+import type image from '@ohos.multimedia.image';
+import window from '@ohos.window';
 
 const TAG = 'SelectorDialog_Service';
 
@@ -36,8 +38,10 @@ export default class SelectorServiceExtensionAbility extends extension {
     const lineNums = 8;
     let showHapList = [];
     let phoneShowHapList = [];
+    let jsonIconMap: Map<string, image.PixelMap> = new Map();
     for (let i = 1; i <= globalThis.params.hapList.length; i++) {
-      await this.getHapResource(globalThis.params.hapList[i - 1], showHapList);
+      console.info(TAG, 'hapList[' + (i - 1).toString() + ']: ' + JSON.stringify(globalThis.params.hapList[i]));
+      await this.getHapResource(globalThis.params.hapList[i - 1], showHapList, jsonIconMap);
       if (i % lineNums === 0) {
         phoneShowHapList.push(showHapList);
         showHapList = [];
@@ -47,19 +51,40 @@ export default class SelectorServiceExtensionAbility extends extension {
       }
     }
     globalThis.phoneShowHapList = phoneShowHapList;
+    globalThis.jsonIconMap = jsonIconMap;
     console.debug(TAG, 'phoneShowHapList: ' + JSON.stringify(phoneShowHapList));
+
+    const signalRowlineNums = 4;
+    let signalRowShowHapList = [];
+    let signalRowPhoneShowHapList = [];
+    let jsonIconMapData: Map<string, image.PixelMap> = new Map();
+    for (let i = 1; i <= globalThis.params.hapList.length; i++) {
+      console.info(TAG, 'hapList[' + (i - 1).toString() + ']: ' + JSON.stringify(globalThis.params.hapList[i]));
+      await this.getHapResource(globalThis.params.hapList[i - 1], signalRowShowHapList, jsonIconMapData);
+      if (i % signalRowlineNums === 0) {
+        signalRowPhoneShowHapList.push(signalRowShowHapList);
+        signalRowShowHapList = [];
+      }
+      if (i >= globalThis.params.hapList.length && signalRowShowHapList.length > 0) {
+        signalRowPhoneShowHapList.push(signalRowShowHapList);
+      }
+    }
+    globalThis.signalRowPhoneShowHapList = signalRowPhoneShowHapList;
+    console.debug(TAG, 'signalRowPhoneShowHapList: ' + JSON.stringify(signalRowPhoneShowHapList));
   }
 
   async getPcShowHapList() {
     let pcShowHapList = [];
+    let jsonIconMap: Map<string, image.PixelMap> = new Map();
     for (let i = 0; i < globalThis.params.hapList.length; i++) {
-      await this.getHapResource(globalThis.params.hapList[i], pcShowHapList);
+      await this.getHapResource(globalThis.params.hapList[i], pcShowHapList, jsonIconMap);
     }
     globalThis.pcShowHapList = pcShowHapList;
+    globalThis.jsonIconMap = jsonIconMap;
     console.debug(TAG, 'pcShowHapList: ' + JSON.stringify(pcShowHapList));
   }
 
-  async getHapResource(hap, showHapList) {
+  async getHapResource(hap, showHapList, jsonIconMap) {
     let bundleName = hap.bundle;
     let moduleName = hap.module;
     let abilityName = hap.ability;
@@ -82,6 +107,24 @@ export default class SelectorServiceExtensionAbility extends extension {
     let iconId = Number(hap.icon);
     await moduleContext.resourceManager.getMediaBase64(iconId).then(value => {
       appIcon = value;
+      if (appIcon.indexOf('image/json') > -1) {
+        try {
+          const imageDescriptor = moduleContext.resourceManager.getDrawableDescriptor(iconId);
+          if (imageDescriptor !== null && imageDescriptor !== undefined &&
+            imageDescriptor instanceof drawableDescriptor.LayeredDrawableDescriptor) {
+            let layeredDrawableDescriptor: drawableDescriptor.LayeredDrawableDescriptor =
+              <drawableDescriptor.LayeredDrawableDescriptor> imageDescriptor;
+            let foregroundDescriptor: drawableDescriptor.DrawableDescriptor = layeredDrawableDescriptor.getForeground();
+            if (foregroundDescriptor !== null && foregroundDescriptor !== undefined) {
+              jsonIconMap.set(bundleName + ':' + moduleName + ':' + abilityName, foregroundDescriptor.getPixelMap());
+            } else {
+              console.error(TAG, 'get foregroundDescriptor is null');
+            }
+          }
+        } catch (e) {
+          console.error(TAG, 'get drawableDescriptor error:' + JSON.stringify(e));
+        }
+      }
     }).catch(error => {
       console.error(TAG, 'getMediaBase64 error:' + JSON.stringify(error));
     });
@@ -93,11 +136,25 @@ export default class SelectorServiceExtensionAbility extends extension {
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
     globalThis.abilityWant = want;
     globalThis.params = JSON.parse(want.parameters.params);
-    globalThis.position = JSON.parse(want.parameters.position);
+    let displayClass = display.getDefaultDisplaySync();
+    if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
+      globalThis.landScapePosition = JSON.parse(want.parameters.landscapeScreen);
+      globalThis.verticalPosition = JSON.parse(want.parameters.position);
+      if (displayClass.orientation === display.Orientation.PORTRAIT || displayClass.orientation === display.Orientation.PORTRAIT_INVERTED) {
+        globalThis.position = globalThis.verticalPosition;
+        console.debug(TAG, 'screen position is vertical');
+      } else {
+        globalThis.position = globalThis.landScapePosition;
+        console.debug(TAG, 'screen position is landscape');
+      }
+    } else {
+      globalThis.position = JSON.parse(want.parameters.position);
+    }
+
+    console.debug(TAG, 'onRequest display is' + JSON.stringify(displayClass));
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
     console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
     globalThis.callerToken = want.parameters.callerToken;
-    console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
     console.debug(TAG, 'onRequest, position: ' + JSON.stringify(globalThis.position));
     if (globalThis.params.deviceType !== 'phone' && globalThis.params.deviceType !== 'default') {
       globalThis.modelFlag = Boolean(globalThis.params.modelFlag);
@@ -109,6 +166,7 @@ export default class SelectorServiceExtensionAbility extends extension {
       await this.getPcShowHapList();
     }
 
+    AppStorage.SetOrCreate('oversizeHeight', globalThis.position.oversizeHeight ? 'true' : 'false');
     display.getDefaultDisplay().then(dis => {
       let navigationBarRect = {
         left: globalThis.position.offsetX,
@@ -121,7 +179,7 @@ export default class SelectorServiceExtensionAbility extends extension {
         winNum--;
       }
       if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
-        this.createWindow('SelectorDialog' + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
+        this.createWindow('SelectorDialog' + startId, window.WindowType.TYPE_FLOAT, navigationBarRect);
       } else {
         console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
         let windowType = (typeof(globalThis.callerToken) === 'object' && globalThis.callerToken !== null) ?
@@ -161,5 +219,47 @@ export default class SelectorServiceExtensionAbility extends extension {
     } catch (e) {
       console.error(TAG, 'window create failed: ' + JSON.stringify(e));
     }
+  }
+
+  private async moveWindow(rect): Promise<void> {
+    try {
+      await win.moveTo(rect.left, rect.top);
+      await win.resetSize(rect.width, rect.height);
+      if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
+        try {
+          await win.loadContent('pages/selectorPhoneDialog');
+          await win.setBackgroundColor('#00000000');
+        } catch (e) {
+          console.error(TAG, 'window loadContent failed: ' + JSON.stringify(e));
+        }
+      }
+      await win.show();
+    } catch (e) {
+      console.error(TAG, 'window move failed: ' + JSON.stringify(e));
+    }
+  }
+
+  onConfigurationUpdate(config): void {
+    console.debug(TAG, 'configuration is : ' + JSON.stringify(config));
+    if (globalThis.params.deviceType !== 'phone' && globalThis.params.deviceType !== 'default') {
+      console.debug(TAG, 'device is not phone');
+      return;
+    }
+    let displayClass = display.getDefaultDisplaySync();
+    console.debug(TAG, 'display is' + JSON.stringify(displayClass));
+    if (displayClass.orientation === display.Orientation.PORTRAIT || displayClass.orientation === display.Orientation.PORTRAIT_INVERTED) {
+      globalThis.position = globalThis.verticalPosition;
+    } else {
+      globalThis.position = globalThis.landScapePosition;
+    }
+    let navigationBarRect = {
+      left: globalThis.position.offsetX,
+      top: globalThis.position.offsetY,
+      width: globalThis.position.width,
+      height: globalThis.position.height
+    };
+    AppStorage.SetOrCreate('oversizeHeight', globalThis.position.oversizeHeight ? 'true' : 'false');
+    console.debug(TAG, 'onConfigurationUpdate navigationBarRect is' + JSON.stringify(navigationBarRect));
+    this.moveWindow(navigationBarRect);
   }
 };

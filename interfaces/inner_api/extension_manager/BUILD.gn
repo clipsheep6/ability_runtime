@@ -36,13 +36,14 @@ config("extension_manager_config") {
 
 ohos_shared_library("extension_manager") {
   sources = [
-    "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
     "src/extension_manager_client.cpp",
     "src/extension_manager_proxy.cpp",
   ]
 
   configs = [ ":extension_manager_config" ]
   public_configs = [ ":extension_manager_public_config" ]
+
+  public_deps = [ "${ability_runtime_innerkits_path}/ability_manager:ability_connect_callback_stub" ]
 
   external_deps = [
     "ability_base:want",

@@ -44,7 +44,7 @@ public:
      * @param moduleName Indicates the specified ability moduleName.
      * @param jsAbilityMonitor Indicates the JSAbilityMonitor object.
      */
-    AbilityMonitor(const std::string &name, const std::string &moduleName, 
+    AbilityMonitor(const std::string &name, const std::string &moduleName,
         const std::shared_ptr<JSAbilityMonitor> &jsAbilityMonitor);
 
     /**

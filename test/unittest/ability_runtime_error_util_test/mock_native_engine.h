@@ -310,9 +310,14 @@ public:
         return true;
     }
 
-    bool DeleteWorker(NativeEngine* hostEngine, NativeEngine* workerEngine) override
+    bool DeleteWorker(NativeEngine* workerEngine) override
     {
         return true;
+    }
+
+    NativeEngine* GetWorkerEngine(uint32_t tid) override
+    {
+        return nullptr;
     }
 
     bool StartHeapTracking(double timeInterval, bool isVmMode = true) override

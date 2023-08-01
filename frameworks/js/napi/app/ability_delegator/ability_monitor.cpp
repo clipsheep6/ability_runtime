@@ -16,6 +16,7 @@
 #include "ability_monitor.h"
 
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "js_ability_delegator_utils.h"
 #include "napi/native_common.h"
 
@@ -26,7 +27,7 @@ AbilityMonitor::AbilityMonitor(const std::string &name, const std::shared_ptr<JS
     : IAbilityMonitor(name), jsMonitor_(jsAbilityMonitor)
 {}
 
-AbilityMonitor::AbilityMonitor(const std::string &name, const std::string &moduleName, 
+AbilityMonitor::AbilityMonitor(const std::string &name, const std::string &moduleName,
     const std::shared_ptr<JSAbilityMonitor> &jsAbilityMonitor)
     : IAbilityMonitor(name, moduleName), jsMonitor_(jsAbilityMonitor)
 {}
@@ -85,6 +86,7 @@ void AbilityMonitor::OnAbilityStop(const std::weak_ptr<NativeReference> &ability
 
 void AbilityMonitor::OnWindowStageCreate(const std::weak_ptr<NativeReference> &abilityObj)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("enter");
 
     if (jsMonitor_ == nullptr) {

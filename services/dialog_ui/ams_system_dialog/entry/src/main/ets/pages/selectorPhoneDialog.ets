@@ -67,6 +67,7 @@ class SelectorDataSource implements IDataSource {
 @Component
 struct SelectorPhoneDialog {
   private phoneShowData: SelectorDataSource = new SelectorDataSource([])
+  @StorageLink('oversizeHeight') oversizeHeight: string = 'false';
   @State private selector: SelectorPhone = {
     swiper: {
       height: "100vp",
@@ -86,7 +87,11 @@ struct SelectorPhoneDialog {
     console.log(this.TAG, "dialog page appears");
     this.hapList = globalThis.params.hapList;
     this.getHapListStyle();
-    this.phoneShowData = new SelectorDataSource(globalThis.phoneShowHapList);
+  }
+
+  onPageShow() {
+    console.info(this.TAG, 'onPageShow called');
+    this.getHapListStyle();
   }
 
   onSelectApp(item) {
@@ -105,22 +110,31 @@ struct SelectorPhoneDialog {
   }
 
   getHapListStyle() {
-    if (this.hapList.length > 8) {
-      this.selector.swiper.height = "220vp";
-      this.selector.swiper.indicator = true;
-      this.selector.swiper.contentHeight = "200vp";
-      this.selector.swiper.gridColumns = "1fr 1fr 1fr 1fr";
-      this.selector.swiper.gridRows = "1fr 1fr";
-      this.selector.btn.marginTop = "10vp";
-    } else if (this.hapList.length > 3) {
-      this.selector.swiper.height = "200vp";
-      this.selector.swiper.contentHeight = "200vp";
-      this.selector.swiper.gridColumns = "1fr 1fr 1fr 1fr";
-      this.selector.swiper.gridRows = "1fr 1fr";
-    } else if (this.hapList.length > 2) {
-      this.selector.swiper.gridColumns = "1fr 1fr 1fr";
+    if (this.oversizeHeight === 'false') {
+      if (this.hapList.length > 8) {
+        this.selector.swiper.height = '220vp';
+        this.selector.swiper.indicator = true;
+        this.selector.swiper.contentHeight = '200vp';
+        this.selector.swiper.gridColumns = '1fr 1fr 1fr 1fr';
+        this.selector.swiper.gridRows = '1fr 1fr';
+        this.selector.btn.marginTop = '10vp';
+      } else if (this.hapList.length > 4) {
+        this.selector.swiper.height = '200vp';
+        this.selector.swiper.contentHeight = '200vp';
+        this.selector.swiper.gridColumns = '1fr 1fr 1fr 1fr';
+        this.selector.swiper.gridRows = '1fr 1fr';
+      } else if (this.hapList.length > 3) {
+        this.selector.swiper.gridColumns = '1fr 1fr 1fr 1fr';
+      } else if (this.hapList.length > 2) {
+        this.selector.swiper.gridColumns = '1fr 1fr 1fr';
+      } else {
+        ;
+      }
+      this.phoneShowData = new SelectorDataSource(globalThis.phoneShowHapList);
     } else {
-      ;
+      this.selector.swiper.gridColumns = '1fr 1fr 1fr 1fr';
+      this.selector.swiper.gridRows = '1fr';
+      this.phoneShowData = new SelectorDataSource(globalThis.signalRowPhoneShowHapList);
     }
   }
 
@@ -143,10 +157,18 @@ struct SelectorPhoneDialog {
                 GridItem() {
                   Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center }) {
                     if (item.split("#")[3] != "") {
-                      Image(item.split("#")[3])
-                        .height(60)
-                        .width(60)
-                        .alignSelf(ItemAlign.Center);
+                      if (item.split("#")[3].indexOf('image/json') > -1) {
+                        Image(globalThis.jsonIconMap.get(item.split("#")[0] + ':' + item.split("#")[4]
+                           + ':' + item.split("#")[1]))
+                          .height(60)
+                          .width(60)
+                          .alignSelf(ItemAlign.Center);
+                      } else {
+                        Image(item.split("#")[3])
+                          .height(60)
+                          .width(60)
+                          .alignSelf(ItemAlign.Center);
+                      }
                     } else {
                       Image($r("app.media.app_icon"))
                         .height(60)

@@ -28,6 +28,9 @@ namespace OHOS {
 namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
+constexpr size_t INPUT_EIGHT = 8;
+constexpr size_t INPUT_SIXTEEN = 16;
+constexpr size_t INPUT_TWENTYFOUR = 24;
 }
 const std::u16string ABILITYMGR_INTERFACE_TOKEN = u"ohos.aafwk.AbilityManager";
 std::map<int, int> codeMap_;
@@ -35,7 +38,7 @@ std::map<int, int> codeMap_;
 uint32_t GetU32Data(const char* ptr)
 {
     // convert fuzz input data to an integer
-    return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
+    return (ptr[0] << INPUT_TWENTYFOUR) | (ptr[1] << INPUT_SIXTEEN) | (ptr[2] << INPUT_EIGHT) | ptr[3];
 }
 
 void EmplaceCodeMap()
@@ -106,7 +109,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    char* ch = (char*)malloc(size + 1);
+    char* ch = static_cast<char*>(malloc(size + 1));
     if (ch == nullptr) {
         std::cout << "malloc failed." << std::endl;
         return 0;

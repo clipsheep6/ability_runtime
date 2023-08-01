@@ -1241,5 +1241,38 @@ ErrCode AbilityManagerClient::SetSessionManagerService(const sptr<IRemoteObject>
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->SetSessionManagerService(sessionManagerService);
 }
+
+ErrCode AbilityManagerClient::RegisterIAbilityManagerCollaborator(
+    int32_t type, const sptr<IAbilityManagerCollaborator> &impl)
+{
+    HILOG_INFO("call");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->RegisterIAbilityManagerCollaborator(type, impl);
+}
+
+ErrCode AbilityManagerClient::UnregisterIAbilityManagerCollaborator(int32_t type)
+{
+    HILOG_INFO("call");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->UnregisterIAbilityManagerCollaborator(type);
+}
+
+ErrCode AbilityManagerClient::MoveMissionToBackground(int32_t missionId)
+{
+    HILOG_INFO("call");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->MoveMissionToBackground(missionId);
+}
+
+ErrCode AbilityManagerClient::TerminateMission(int32_t missionId)
+{
+    HILOG_INFO("call");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->TerminateMission(missionId);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -1063,7 +1063,8 @@ HWTEST_F(ContextImplTest, GetBundleManager_0100, TestSize.Level1)
     HILOG_INFO("%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
-    EXPECT_NE(contextImpl->GetBundleManager(), nullptr);
+    contextImpl->GetBundleManager();
+    EXPECT_NE(contextImpl->bundleMgr_, nullptr);
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1173,6 +1174,27 @@ HWTEST_F(ContextImplTest, OnOverlayChanged_0100, TestSize.Level1)
     data.SetWant(want);
 
     contextImpl->OnOverlayChanged(data, resourceManager, bundleName, moduleName, loadPath);
+}
+
+HWTEST_F(ContextImplTest, GetGroupDir_0100, TestSize.Level1)
+{
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+    contextImpl->currArea_ = "el1";
+    auto path = contextImpl->GetGroupDir("1");
+    EXPECT_EQ(path, "");
+    contextImpl->currArea_ = "el2";
+    path = contextImpl->GetGroupDir("1");
+    string systemPreferencesDir; 
+    auto res = contextImpl->GetSystemPreferencesDir("", true, systemPreferencesDir);
+    EXPECT_EQ(res, 0);
+    res = contextImpl->GetSystemPreferencesDir("", false, systemPreferencesDir);
+    EXPECT_EQ(res, 0);
+    string systemDatabaseDir; 
+    res = contextImpl->GetSystemDatabaseDir("", true, systemDatabaseDir);
+    EXPECT_EQ(res, 0);
+    res = contextImpl->GetSystemDatabaseDir("", false, systemDatabaseDir);
+    EXPECT_EQ(res, 0);
 }
 }  // namespace AppExecFwk
 }

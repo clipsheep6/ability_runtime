@@ -226,7 +226,7 @@ void JsAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(&nativeEngine), want);
     NativeValue *jsWant = reinterpret_cast<NativeValue *>(napiWant);
-    if(jsWant == nullptr) {
+    if (jsWant == nullptr) {
         HILOG_ERROR("jsWant is nullptr");
         return;
     }
@@ -370,7 +370,10 @@ void JsAbility::OnSceneCreated()
 
     HandleScope handleScope(jsRuntime_);
     NativeValue *argv[] = {jsAppWindowStage->Get()};
-    CallObjectMethod("onWindowStageCreate", argv, ArraySize(argv));
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "onWindowStageCreate");
+        CallObjectMethod("onWindowStageCreate", argv, ArraySize(argv));
+    }
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {

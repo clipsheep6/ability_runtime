@@ -99,6 +99,7 @@ public:
      * @brief Try find reused mission info.
      *
      * @param missionName name of mission.
+     * @param missionAffinity uni-key of mission from broker.
      * @param flag name of specified mission flag.
      * @param isFindRecentStandard find recent standard mission.
      * @param isFromCollaborator request from collaborator.

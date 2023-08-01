@@ -27,7 +27,6 @@
 namespace OHOS {
 namespace AAFwk {
 namespace {
-static const int MAX_PROCESS_LEN = 256;
 static const int MAX_RETRY = 10;
 static const int DELAY_TIME = 1000;
 OHOS::sptr<OHOS::AppExecFwk::IAppMgr> GetAppMgr()
@@ -49,14 +48,7 @@ ConnectionStateManager::~ConnectionStateManager() {}
 
 std::string ConnectionStateManager::GetProcessNameByPid(int32_t pid)
 {
-    char path[MAX_PROCESS_LEN] = { 0 };
-    if (snprintf_s(path, MAX_PROCESS_LEN, MAX_PROCESS_LEN - 1, "/proc/%d/cmdline", pid) <= 0) {
-        return "";
-    }
-    std::ifstream file(path);
-    std::string name = "";
-    getline(file, name);
-    return name;
+    return std::to_string(pid);
 }
 
 void ConnectionStateManager::Init(const std::shared_ptr<TaskHandlerWrap> &handler)

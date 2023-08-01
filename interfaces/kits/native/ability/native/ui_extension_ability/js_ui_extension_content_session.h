@@ -23,6 +23,8 @@
 namespace OHOS {
 namespace AbilityRuntime {
 class JsUIExtensionContentSession {
+private:
+    class CallbackWrapper;
 public:
     JsUIExtensionContentSession(NativeEngine& engine, sptr<AAFwk::SessionInfo> sessionInfo,
         sptr<Rosen::Window> uiWindow);
@@ -48,15 +50,29 @@ protected:
     NativeValue* OnSetWindowBackgroundColor(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnSetWindowPrivacyMode(NativeEngine& engine, NativeCallbackInfo& info);
 
-    static void CallReceiveDataCallBack(NativeEngine& engine, std::weak_ptr<NativeReference> weakCallback,
+    static void CallReceiveDataCallback(NativeEngine& engine, std::weak_ptr<CallbackWrapper> weakCallback,
         const AAFwk::WantParams& wantParams);
     static bool UnWrapAbilityResult(NativeEngine& engine, NativeValue* argv, int& resultCode, AAFwk::Want& want);
 private:
     NativeEngine& engine_;
     sptr<AAFwk::SessionInfo> sessionInfo_;
     sptr<Rosen::Window> uiWindow_;
-    std::shared_ptr<NativeReference> receiveDataCallback_;
+    std::shared_ptr<CallbackWrapper> receiveDataCallback_;
     bool isRegistered = false;
+};
+
+class JsUIExtensionContentSession::CallbackWrapper {
+public:
+    void ResetCallback(std::shared_ptr<NativeReference> callback)
+    {
+        callback_ = callback;
+    }
+    std::shared_ptr<NativeReference> GetCallback() const
+    {
+        return callback_;
+    }
+private:
+    std::shared_ptr<NativeReference> callback_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -356,8 +356,8 @@ sptr<AppExecFwk::IDefaultApp> ImplicitStartProcessor::GetDefaultAppProxy()
     return defaultAppProxy;
 }
 
-bool ImplicitStartProcessor::FilterAbilityList(const Want &want,
-    std::vector<AppExecFwk::AbilityInfo> &abilityInfos, std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos, int32_t userId)
+bool ImplicitStartProcessor::FilterAbilityList(const Want &want, std::vector<AppExecFwk::AbilityInfo> &abilityInfos,
+    std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos, int32_t userId)
 {
 #ifdef SUPPORT_ERMS
     ErmsCallerInfo callerInfo;
@@ -373,8 +373,7 @@ bool ImplicitStartProcessor::FilterAbilityList(const Want &want,
 
     ErmsCallerInfo callerInfo;
     int ret = IN_PROCESS_CALL(erms->EvaluateResolveInfos(want, callerInfo, 0, abilityInfos, extensionInfos));
-#endif
-    
+#endif    
     if (ret != ERR_OK) {
         HILOG_ERROR("Failed to evaluate resolve infos from erms.");
         return false;

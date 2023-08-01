@@ -36,6 +36,7 @@
 #include "hilog_wrapper.h"
 #include "os_account_manager_wrapper.h"
 #include "parameters.h"
+#include "scene_board_judgement.h"
 #include "system_ability_token_callback.h"
 #include "uri_permission_manager_client.h"
 #ifdef SUPPORT_GRAPHICS
@@ -78,13 +79,13 @@ const int HALF_TIMEOUT = 2;
 #ifdef SUPPORT_ASAN
 const int COLDSTART_TIMEOUT_MULTIPLE = 15000;
 const int LOAD_TIMEOUT_MULTIPLE = 15000;
-const int FOREGROUND_TIMEOUT_MULTIPLE = 75;
-const int BACKGROUND_TIMEOUT_MULTIPLE = 45;
-const int ACTIVE_TIMEOUT_MULTIPLE = 75;
+const int FOREGROUND_TIMEOUT_MULTIPLE = 7500;
+const int BACKGROUND_TIMEOUT_MULTIPLE = 4500;
+const int ACTIVE_TIMEOUT_MULTIPLE = 7500;
 const int TERMINATE_TIMEOUT_MULTIPLE = 15000;
-const int INACTIVE_TIMEOUT_MULTIPLE = 8;
-const int DUMP_TIMEOUT_MULTIPLE = 15;
-const int SHAREDATA_TIMEOUT_MULTIPLE = 75;
+const int INACTIVE_TIMEOUT_MULTIPLE = 800;
+const int DUMP_TIMEOUT_MULTIPLE = 1500;
+const int SHAREDATA_TIMEOUT_MULTIPLE = 7500;
 #else
 const int COLDSTART_TIMEOUT_MULTIPLE = 10;
 const int LOAD_TIMEOUT_MULTIPLE = 10;
@@ -395,11 +396,12 @@ void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
     }
 }
 
-void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
+void AbilityRecord::ProcessForegroundAbility(uint32_t tokenId, uint32_t sceneFlag)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::string element = GetWant().GetElement().GetURI();
     HILOG_DEBUG("ability record: %{public}s", element.c_str());
+    GrantUriPermission(want_, applicationInfo_.bundleName, false, tokenId);
 
     if (isReady_) {
         if (IsAbilityState(AbilityState::FOREGROUND)) {
@@ -586,7 +588,7 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
     std::string element = GetWant().GetElement().GetURI();
     HILOG_DEBUG("SUPPORT_GRAPHICS: ability record: %{public}s", element.c_str());
 
-    GrantUriPermission(want_, GetCurrentAccountId(), applicationInfo_.bundleName);
+    GrantUriPermission(want_, applicationInfo_.bundleName, false, 0);
 
     if (isReady_) {
         auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
@@ -653,8 +655,7 @@ void AbilityRecord::AnimationTask(bool isRecent, const AbilityRequest &abilityRe
 void AbilityRecord::SetShowWhenLocked(const AppExecFwk::AbilityInfo &abilityInfo,
     sptr<AbilityTransitionInfo> &info) const
 {
-    std::vector<AppExecFwk::CustomizeData> datas = abilityInfo.metaData.customizeData;
-    for (AppExecFwk::CustomizeData data : datas) {
+    for (const auto &data : abilityInfo.metaData.customizeData) {
         if (data.name == SHOW_ON_LOCK_SCREEN) {
             info->isShowWhenLocked_ = true;
             break;
@@ -1445,13 +1446,13 @@ std::shared_ptr<AbilityResult> AbilityRecord::GetResult() const
     return result_;
 }
 
-void AbilityRecord::SendResult(bool isSandboxApp)
+void AbilityRecord::SendResult(bool isSandboxApp, uint32_t tokeId)
 {
     HILOG_INFO("ability:%{public}s.", abilityInfo_.name.c_str());
     std::lock_guard<ffrt::mutex> guard(lock_);
     CHECK_POINTER(scheduler_);
     CHECK_POINTER(result_);
-    GrantUriPermission(result_->resultWant_, GetCurrentAccountId(), applicationInfo_.bundleName, isSandboxApp);
+    GrantUriPermission(result_->resultWant_, applicationInfo_.bundleName, isSandboxApp, tokeId);
     scheduler_->SendResult(result_->requestCode_, result_->resultCode_, result_->resultWant_);
     // reset result to avoid send result next time
     result_.reset();
@@ -1506,7 +1507,7 @@ void AbilityRecord::SendResultToCallers(bool schedulerdied)
         std::shared_ptr<AbilityRecord> callerAbilityRecord = caller->GetCaller();
         if (callerAbilityRecord != nullptr && callerAbilityRecord->GetResult() != nullptr) {
             bool isSandboxApp = appIndex_ > 0 ? true : false;
-            callerAbilityRecord->SendResult(isSandboxApp);
+            callerAbilityRecord->SendResult(isSandboxApp, applicationInfo_.accessTokenId);
         } else {
             std::shared_ptr<SystemAbilityCallerRecord> callerSystemAbilityRecord = caller->GetSaCaller();
             if (callerSystemAbilityRecord != nullptr) {
@@ -1917,6 +1918,13 @@ void AbilityRecord::DumpAbilityState(
         info.push_back(dumpInfo);
     }
 
+    auto mission = GetMission();
+    if (mission) {
+        std::string missionAffinity = mission->GetMissionAffinity();
+        dumpInfo = "        missionAffinity: " + missionAffinity;
+        info.push_back(dumpInfo);
+    }
+
     // add dump client info
     DumpClientInfo(info, params, isClient, params.empty());
 }
@@ -2315,8 +2323,6 @@ void AbilityRecord::SetStartToForeground(const bool flag)
 void AbilityRecord::CallRequest()
 {
     CHECK_POINTER(scheduler_);
-
-    GrantUriPermission(want_, GetCurrentAccountId(), applicationInfo_.bundleName);
     // Async call request
     scheduler_->CallRequest();
 }
@@ -2481,7 +2487,7 @@ void AbilityRecord::DumpAbilityInfoDone(std::vector<std::string> &infos)
     dumpCondition_.notify_all();
 }
 
-void AbilityRecord::GrantUriPermission(Want &want, int32_t userId, std::string targetBundleName, bool isSandboxApp)
+void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName, bool isSandboxApp, uint32_t tokenId)
 {
     // reject sandbox to grant uri permission by start ability
     if (!callerList_.empty() && callerList_.back()) {
@@ -2513,7 +2519,13 @@ void AbilityRecord::GrantUriPermission(Want &want, int32_t userId, std::string t
     uriVec.emplace_back(uriStr);
     HILOG_DEBUG("GrantUriPermission uriVec size: %{public}zu", uriVec.size());
     auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
-    auto fromTokenId = IPCSkeleton::GetCallingTokenID();
+    uint32_t fromTokenId = 0;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        fromTokenId = tokenId;
+    } else {
+        fromTokenId = IPCSkeleton::GetCallingTokenID();
+    }
+    auto userId = GetCurrentAccountId();
     auto callerTokenId = static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, -1));
     for (auto&& str : uriVec) {
         Uri uri(str);

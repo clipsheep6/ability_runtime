@@ -18,6 +18,7 @@
 
 #include <sys/types.h>
 
+#include "ability_info.h"
 #include "parcel.h"
 #include "iremote_object.h"
 
@@ -52,6 +53,7 @@ struct AppStateData : public Parcelable {
     int32_t state = 0;
     int32_t accessTokenId = 0;
     bool isFocused = false;
+    ExtensionAbilityType extensionType = ExtensionAbilityType::UNSPECIFIED;
     std::vector<int32_t> renderPids;
 };
 }  // namespace AppExecFwk

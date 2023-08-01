@@ -190,7 +190,7 @@ public:
     *
     * @return Returns an IBundleMgr instance.
     */
-    sptr<AppExecFwk::IBundleMgr> GetBundleManager() const;
+    ErrCode GetBundleManager();
 
     /**
      * @brief Set ApplicationInfo
@@ -367,6 +367,13 @@ private:
     std::vector<AppExecFwk::OverlayModuleInfo> overlayModuleInfos_;
     std::set<std::string> checkedDirSet_;
     std::mutex checkedDirSetLock_;
+
+    std::mutex bundleManagerMutex_;
+    sptr<AppExecFwk::IBundleMgr> bundleMgr_;
+
+    // True: need to get a new fms remote object,
+    // False: no need to get a new fms remote object.
+    volatile bool resetFlag_ = false;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -197,6 +197,7 @@ ohos_shared_library("abilityms") {
       "input:libmmi-client",
       "resource_management:global_resmgr",
       "window_manager:libdm",
+      "window_manager:libwm",
     ]
   }
 

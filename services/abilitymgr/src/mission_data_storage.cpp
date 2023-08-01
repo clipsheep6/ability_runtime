@@ -366,7 +366,7 @@ std::unique_ptr<uint8_t[]> MissionDataStorage::ReadFileToBuffer(const std::strin
         HILOG_ERROR("GetPixelMap: get the file size failed, ret:%{public}d.", ret);
         return nullptr;
     }
-    bufferSize = statbuf.st_size;
+    bufferSize = static_cast<size_t>(statbuf.st_size);
     std::string realPath;
     if (!OHOS::PathToRealPath(filePath, realPath)) {
         HILOG_ERROR("ReadFileToBuffer:file path to real path failed, file path=%{public}s.", filePath.c_str());
@@ -385,7 +385,7 @@ std::unique_ptr<uint8_t[]> MissionDataStorage::ReadFileToBuffer(const std::strin
         return nullptr;
     }
     fseek(fp, 0, SEEK_END);
-    size_t fileSize = ftell(fp);
+    size_t fileSize = static_cast<size_t>(ftell(fp));
     fseek(fp, 0, SEEK_SET);
     if (bufferSize < fileSize) {
         HILOG_ERROR("ReadFileToBuffer:buffer size:(%{public}zu) is smaller than file size:(%{public}zu).", bufferSize,

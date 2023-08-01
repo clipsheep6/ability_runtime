@@ -38,6 +38,7 @@ public:
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode);
     void HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode);
     void SetJsConnectionObject(NativeValue* jsConnectionObject);
+    void RemoveConnectionObject();
     void CallJsFailed(int32_t errorCode);
     void SetConnectionId(int64_t id);
     int64_t GetConnectionId();
@@ -61,10 +62,6 @@ struct key_compare {
         return false;
     }
 };
-
-static std::map<ConnectionKey, sptr<JSFormExtensionConnection>, key_compare> connects_;
-static int64_t serialNumber_ = 0;
-static std::shared_ptr<AppExecFwk::EventHandler> handler_ = nullptr;
 } // namespace AbilityRuntime
 } // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_JS_FORM_EXTENSION_CONTEXT_H

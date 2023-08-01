@@ -44,7 +44,6 @@ JsEnvironment::~JsEnvironment()
 
     if (engine_ != nullptr) {
         engine_->RunCleanup();
-        engine_->DeleteEngine();
         delete engine_;
         engine_ = nullptr;
     }

@@ -284,5 +284,41 @@ int32_t AbilityManagerCollaboratorProxy::NotifyRemoveShellProcess(int32_t pid, i
     }
     return NO_ERROR;
 }
+
+void AbilityManagerCollaboratorProxy::UpdateMissionInfo(InnerMissionInfoDto &info)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!data.WriteInterfaceToken(AbilityManagerCollaboratorProxy::GetDescriptor())) {
+        HILOG_ERROR("Write interface token failed.");
+        return;
+    }
+
+    if (!data.WriteParcelable(&info)) {
+        HILOG_ERROR("write mission info failed.");
+        return;
+    }
+
+    auto remote = Remote();
+    if (!remote) {
+        HILOG_ERROR("remote is nullptr");
+        return;
+    }
+    int32_t ret = remote->SendRequest(IAbilityManagerCollaborator::UPDATE_MISSION_INFO, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", ret);
+        return;
+    }
+
+    std::unique_ptr<InnerMissionInfoDto> innerInfo(reply.ReadParcelable<InnerMissionInfoDto>());
+    if (!innerInfo) {
+        HILOG_ERROR("Get InnerMissionInfoDto error.");
+        return;
+    }
+    info = *innerInfo;
+    return;
+}
 }   // namespace AAFwk
 }   // namespace OHOS

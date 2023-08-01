@@ -668,6 +668,8 @@ void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemo
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("schedule launch ability %{public}s, type is %{public}d.", info.name.c_str(), info.type);
 
+    AAFwk::Want newWant(*want);
+    newWant.CloseAllFd();
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>(info);
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     abilityRecord->SetWant(want);
@@ -1252,6 +1254,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         options.isDebugVersion = bundleInfo.applicationInfo.debug;
         options.arkNativeFilePath = bundleInfo.applicationInfo.arkNativeFilePath;
         options.uid = bundleInfo.applicationInfo.uid;
+        options.apiTargetVersion = appInfo.apiTargetVersion;
         auto runtime = AbilityRuntime::Runtime::Create(options);
         if (!runtime) {
             HILOG_ERROR("Failed to create runtime");
@@ -1623,6 +1626,9 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
         options.loadAce = false;
         options.isStageModel = false;
         options.isTestFramework = true;
+        if (applicationInfo_) {
+            options.apiTargetVersion = applicationInfo_->apiTargetVersion;
+        }
         if (entryHapModuleInfo.abilityInfos.empty()) {
             HILOG_ERROR("Failed to abilityInfos");
             return false;

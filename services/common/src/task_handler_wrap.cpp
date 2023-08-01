@@ -180,6 +180,8 @@ ffrt::qos Convert2FfrtQos(TaskQoS taskqos)
             return ffrt::qos_deadline_request;
         case TaskQoS::USER_INTERACTIVE:
             return ffrt::qos_user_interactive;
+        default:
+            break;
     }
 
     return ffrt::qos_inherit;

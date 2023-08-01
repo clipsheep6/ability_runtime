@@ -16,15 +16,21 @@
 #ifndef OHOS_ABILITY_RUNTIME_UI_ABILITY_LIFECYCLE_MANAGER_H
 #define OHOS_ABILITY_RUNTIME_UI_ABILITY_LIFECYCLE_MANAGER_H
 
+#include <list>
+#include <map>
+#include <memory>
 #include <queue>
+#include <unordered_map>
 #include "cpp/mutex.h"
 
 #include "ability_record.h"
 #include "session/host/include/zidl/session_interface.h"
-#include "session_info.h"
 
 namespace OHOS {
 namespace AAFwk {
+class SessionInfo;
+struct MissionVaildResult;
+
 class UIAbilityLifecycleManager : public std::enable_shared_from_this<UIAbilityLifecycleManager> {
 public:
     UIAbilityLifecycleManager() = default;
@@ -63,7 +69,7 @@ public:
      * @param saveData the saved data
      * @return execute error code
      */
-    int AbilityTransactionDone(const sptr<IRemoteObject> &token, int state, const PacMap &saveData);
+    int AbilityTransactionDone(const sptr<IRemoteObject> &token, int state, const AppExecFwk::PacMap &saveData);
 
     /**
      * attach ability thread ipc object.
@@ -203,7 +209,12 @@ public:
      * @param token the ability token.
      * @return Returns sessionId on success, zero on failure.
      */
-    uint64_t GetSessionIdByAbilityToken(const sptr<IRemoteObject> &token);
+    int32_t GetSessionIdByAbilityToken(const sptr<IRemoteObject> &token);
+
+    void GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList);
+
+    int32_t IsValidMissionIds(const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results,
+        int32_t userId);
 
 private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
@@ -253,9 +264,13 @@ private:
     std::shared_ptr<AbilityRecord> GetReusedSpecifiedAbility(const AAFwk::Want &want, const std::string &flag);
     void EraseSpecifiedAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
+    void SetLastExitReason(std::shared_ptr<AbilityRecord> &abilityRecord) const;
+    LastExitReason CovertAppExitReasonToLastReason(const Reason exitReason) const;
+    void SetRevicerInfo(const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &abilityRecord) const;
+
     mutable ffrt::mutex sessionLock_;
-    std::map<int32_t, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;
-    std::map<int64_t, std::shared_ptr<AbilityRecord>> tmpAbilityMap_;
+    std::unordered_map<int32_t, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;
+    std::unordered_map<int64_t, std::shared_ptr<AbilityRecord>> tmpAbilityMap_;
     std::list<std::shared_ptr<AbilityRecord>> terminateAbilityList_;
     sptr<Rosen::ISession> rootSceneSession_;
     std::map<SpecifiedInfo, std::shared_ptr<AbilityRecord>, key_compare> specifiedAbilityMap_;
