@@ -3086,7 +3086,7 @@ void AbilityManagerService::CancelWantSender(const sptr<IWantSender> &sender)
             HILOG_ERROR("GetBundleInfo is fail.");
             return;
         }
-        auto apl = bundleInfo.applicationInfo.appPrivilegeLevel;
+        apl = bundleInfo.applicationInfo.appPrivilegeLevel;
     }
 
     pendingWantManager_->CancelWantSender(apl, sender);
