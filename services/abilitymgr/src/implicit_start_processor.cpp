@@ -105,7 +105,8 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         };
         return imp->CallStartAbilityInner(userId, targetWant, callBack, request.callType);
     };
-
+    bool defaultPicker = false;
+    defaultPicker = request.want.GetBoolParam(SHOW_DEFAULT_PICKER_FLAG, defaultPicker);
     AAFwk::Want want;
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     if (dialogAppInfos.size() == 0 && (deviceType == STR_PHONE || deviceType == STR_DEFAULT)) {
@@ -121,22 +122,20 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
             HILOG_ERROR("generate ability request by action failed.");
             return ret;
         }
-        if (dialogAllAppInfos.size() == 0) {
+        if (dialogAllAppInfos.size() == 0 && !defaultPicker) {
             Want dialogWant = sysDialogScheduler->GetTipsDialogWant(request.callerToken);
             abilityMgr->StartAbility(dialogWant);
             return ERR_IMPLICIT_START_ABILITY_FAIL;
+            want = sysDialogScheduler->GetPcSelectorDialogWant(dialogAllAppInfos, request.want,
+                TYPE_ONLY_MATCH_WILDCARD, userId, request.callerToken);
+            ret = abilityMgr->StartAbility(want, request.callerToken);
+            // reset calling indentity
+            IPCSkeleton::SetCallingIdentity(identity);
+            return ret;
         }
-        want = sysDialogScheduler->GetPcSelectorDialogWant(dialogAllAppInfos, request.want,
-            TYPE_ONLY_MATCH_WILDCARD, userId, request.callerToken);
-        ret = abilityMgr->StartAbility(want, request.callerToken);
-        // reset calling indentity
-        IPCSkeleton::SetCallingIdentity(identity);
-        return ret;
     }
 
     //There is a default opening method add Only one application supports
-    bool defaultPicker = false;
-    defaultPicker = request.want.GetBoolParam(SHOW_DEFAULT_PICKER_FLAG, defaultPicker);
     if (dialogAppInfos.size() == 1 && (!defaultPicker || deviceType == STR_PHONE || deviceType == STR_DEFAULT)) {
         auto info = dialogAppInfos.front();
         HILOG_INFO("ImplicitQueryInfos success, target ability: %{public}s", info.abilityName.data());
