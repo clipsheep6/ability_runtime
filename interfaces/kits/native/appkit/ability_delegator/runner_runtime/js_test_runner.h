@@ -39,7 +39,7 @@ public:
      * @return the TestRunner object if JsTestRunner object is created successfully; returns null otherwise.
      */
     static std::unique_ptr<TestRunner> Create(const std::unique_ptr<Runtime> &runtime,
-        const std::shared_ptr<AbilityDelegatorArgs> &args, const AppExecFwk::BundleInfo &bundleInfo, bool isFaJsModel);
+        const std::shared_ptr<AbilityDelegatorArgs> &args, const AppExecFwk::BundleInfo &bundleInfo, bool isFaJsModel, bool isStage);
 
     /**
      * Default deconstructor used to deconstruct.
@@ -60,7 +60,7 @@ public:
 
 private:
     JsTestRunner(JsRuntime &jsRuntime,
-        const std::shared_ptr<AbilityDelegatorArgs> &args, const AppExecFwk::BundleInfo &bundleInfo, bool isFaJsModel);
+        const std::shared_ptr<AbilityDelegatorArgs> &args, const AppExecFwk::BundleInfo &bundleInfo, bool isFaJsModel, bool isStage);
 
     void CallObjectMethod(const char *name, NativeValue *const *argv = nullptr, size_t argc = 0);
     void ReportFinished(const std::string &msg);

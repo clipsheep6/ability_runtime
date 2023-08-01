@@ -35,7 +35,7 @@ public:
      * @return the TestRunner object if TestRunner object is created successfully; returns null otherwise.
      */
     static std::unique_ptr<TestRunner> Create(const std::unique_ptr<AbilityRuntime::Runtime> &runtime,
-        const std::shared_ptr<AbilityDelegatorArgs> &args, bool isFaJsModel);
+        const std::shared_ptr<AbilityDelegatorArgs> &args, bool isFaJsModel, bool isStage);
 
     /**
      * Default constructor used to create a TestRunner instance.
