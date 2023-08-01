@@ -147,7 +147,7 @@ ABILITY_ONFOREGROUND:
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
-  BUNDLE_TYPE: {type: INT32, desc: type of componment, atomic service or normal app}
+  BUNDLE_TYPE: {type: INT32, desc: 'type of componment, atomic service or normal app'}
   CALLER_BUNDLENAME: {type: STRING, desc: caller bundle name}
 
 ABILITY_ONBACKGROUND:
@@ -155,7 +155,7 @@ ABILITY_ONBACKGROUND:
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
-  BUNDLE_TYPE: {type: INT32, desc: type of componment, atomic service or normal app}
+  BUNDLE_TYPE: {type: INT32, desc: 'type of componment, atomic service or normal app'}
 
 ABILITY_ONACTIVE:
   __BASE: {type: BEHAVIOR, level: MINOR, desc: ability onActive}
@@ -163,7 +163,7 @@ ABILITY_ONACTIVE:
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
   ABILITY_TYPE: {type: INT32, desc: ability type}
-  BUNDLE_TYPE: {type: INT32, desc: type of componment, atomic service or normal app}
+  BUNDLE_TYPE: {type: INT32, desc: 'type of componment, atomic service or normal app'}
   CALLER_BUNDLENAME: {type: STRING, desc: caller bundle name}
 
 ABILITY_ONINACTIVE:
@@ -171,7 +171,7 @@ ABILITY_ONINACTIVE:
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
-  BUNDLE_TYPE: {type: INT32, desc: type of componment, atomic service or normal app}
+  BUNDLE_TYPE: {type: INT32, desc: 'type of componment, atomic service or normal app'}
 
 # serviceExtensionAbility behavior event
 
@@ -227,7 +227,7 @@ APP_FOREGROUND:
   VERSION_NAME: {type: STRING, desc: version name}
   PROCESS_NAME: {type: STRING, desc: process name}
   BUNDLE_NAME: {type: STRING, desc: bundle name}
-  BUNDLE_TYPE: {type: INT32, desc: type of componment, atomic service or normal app}
+  BUNDLE_TYPE: {type: INT32, desc: 'type of componment, atomic service or normal app'}
   CALLER_BUNDLENAME: {type: STRING, desc: caller bundle name}
 
 APP_BACKGROUND:
@@ -237,7 +237,7 @@ APP_BACKGROUND:
   VERSION_NAME: {type: STRING, desc: version name}
   PROCESS_NAME: {type: STRING, desc: process name}
   BUNDLE_NAME: {type: STRING, desc: bundle name}
-  BUNDLE_TYPE: {type: INT32, desc: type of componment, atomic service or normal app}
+  BUNDLE_TYPE: {type: INT32, desc: 'type of componment, atomic service or normal app'}
 
 APP_TERMINATE:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: terminate app}
@@ -263,7 +263,7 @@ APP_STARTUP_TYPE:
   VERSION_NAME: {type: STRING, desc: version name}
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   ABILITY_NAME: {type: STRING, desc: ability name}
-  START_TYPE: {type: INT32, desc: type of start, cold or hot}
+  START_TYPE: {type: INT32, desc: 'type of start, cold or hot'}
 
 PROCESS_START:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: application process startup event reporting}
