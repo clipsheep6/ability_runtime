@@ -701,14 +701,14 @@ void FAAbilityThread::ScheduleAbilityTransaction(
         lifeCycleStateInfo.isNewWant);
 
     if (token_ == nullptr) {
-        HILOG_ERROR("ScheduleAbilityTransaction::failed, token_  nullptr");
+        HILOG_ERROR("failed, token_  nullptr");
         return;
     }
     wptr<FAAbilityThread> weak = this;
     auto task = [weak, want, lifeCycleStateInfo, sessionInfo]() {
         auto abilityThread = weak.promote();
         if (abilityThread == nullptr) {
-            HILOG_ERROR("abilityThread is nullptr, ScheduleAbilityTransaction failed.");
+            HILOG_ERROR("abilityThread is nullptr");
             return;
         }
         if (abilityThread->isExtension_) {
@@ -721,13 +721,13 @@ void FAAbilityThread::ScheduleAbilityTransaction(
     };
 
     if (abilityHandler_ == nullptr) {
-        HILOG_ERROR("AbilityThread::ScheduleAbilityTransaction abilityHandler_ == nullptr");
+        HILOG_ERROR("abilityHandler_ == nullptr");
         return;
     }
 
     bool ret = abilityHandler_->PostTask(task);
     if (!ret) {
-        HILOG_ERROR("AbilityThread::ScheduleAbilityTransaction PostTask error");
+        HILOG_ERROR("PostTask error");
     }
 }
 
@@ -819,12 +819,12 @@ void FAAbilityThread::ScheduleDisconnectAbility(const Want &want)
 
 void FAAbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int32_t startId)
 {
-    HILOG_DEBUG("AbilityThread::ScheduleCommandAbility begin. startId:%{public}d", startId);
+    HILOG_DEBUG("FAAbilityThread::ScheduleCommandAbility begin. startId:%{public}d", startId);
     wptr<FAAbilityThread> weak = this;
     auto task = [weak, want, restart, startId]() {
         auto abilityThread = weak.promote();
         if (abilityThread == nullptr) {
-            HILOG_ERROR("abilityThread is nullptr, ScheduleCommandAbility failed.");
+            HILOG_ERROR("abilityThread is nullptr");
             return;
         }
         if (abilityThread->isExtension_) {
@@ -837,15 +837,15 @@ void FAAbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int
     };
 
     if (abilityHandler_ == nullptr) {
-        HILOG_ERROR("AbilityThread::ScheduleCommandAbility abilityHandler_ == nullptr");
+        HILOG_ERROR("abilityHandler_ == nullptr");
         return;
     }
 
     bool ret = abilityHandler_->PostTask(task);
     if (!ret) {
-        HILOG_ERROR("AbilityThread::ScheduleCommandAbility PostTask error");
+        HILOG_ERROR("PostTask error");
     }
-    HILOG_DEBUG("AbilityThread::ScheduleCommandAbility end");
+    HILOG_DEBUG("end");
 }
 
 bool FAAbilityThread::SchedulePrepareTerminateAbility()
