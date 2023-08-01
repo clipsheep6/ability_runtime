@@ -24,8 +24,7 @@
 namespace OHOS {
 namespace AAFwk {
 
-class IDataAbilityManager : public OHOS::IRemoteBroker
-{
+class IDataAbilityManager : public OHOS::IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.aafwk.DataAbilityManager")
 

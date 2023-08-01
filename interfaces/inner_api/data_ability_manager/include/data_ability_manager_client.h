@@ -19,7 +19,6 @@
 #include <mutex>
 
 #include "ability_manager_errors.h"
-// #include "ability_manager_interface.h"
 #include "uri.h"
 #include "data_ability_manager_interface.h"
 
