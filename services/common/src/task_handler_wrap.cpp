@@ -46,10 +46,12 @@ void TaskHandle::Sync() const
 {
     auto handler = handler_.lock();
     if (!status_ || !handler || !innerTaskHandle_) {
+        HILOG_ERROR("Invalid state");
         return;
     }
     auto &status = *status_;
     if (status == TaskStatus::FINISHED || status == TaskStatus::CANCELED) {
+        HILOG_ERROR("Invalid status");
         return;
     }
     handler->WaitTaskInner(innerTaskHandle_);
