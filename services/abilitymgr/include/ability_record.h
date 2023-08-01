@@ -910,7 +910,7 @@ private:
 
     void HandleDlpAttached();
     void HandleDlpClosed();
-    void NotifyRemoveShellProcess();
+    void NotifyRemoveShellProcess(int32_t type);
     void NotifyAnimationAbilityDied();
     inline void SetCallerAccessTokenId(uint32_t callerAccessTokenId)
     {
