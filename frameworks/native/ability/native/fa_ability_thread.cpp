@@ -695,35 +695,39 @@ void FAAbilityThread::ScheduleAbilityTransaction(
     const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AppExecFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("name:%{public}s,targeState:%{public}d,isNewWant:%{public}d", want.GetElement().GetAbilityName().c_str(),
-        lifeCycleStateInfo.state, lifeCycleStateInfo.isNewWant);
+    HILOG_INFO("name:%{public}s,targeState:%{public}d,isNewWant:%{public}d",
+        want.GetElement().GetAbilityName().c_str(),
+        lifeCycleStateInfo.state,
+        lifeCycleStateInfo.isNewWant);
 
     if (token_ == nullptr) {
-        HILOG_ERROR("token_ is nullptr.");
+        HILOG_ERROR("ScheduleAbilityTransaction::failed, token_  nullptr");
         return;
     }
     wptr<FAAbilityThread> weak = this;
     auto task = [weak, want, lifeCycleStateInfo, sessionInfo]() {
         auto abilityThread = weak.promote();
         if (abilityThread == nullptr) {
-            HILOG_ERROR("abilityThread is nullptr.");
+            HILOG_ERROR("abilityThread is nullptr, ScheduleAbilityTransaction failed.");
             return;
         }
         if (abilityThread->isExtension_) {
             abilityThread->HandleExtensionTransaction(want, lifeCycleStateInfo, sessionInfo);
+            Want newWant(want);
+            newWant.CloseAllFd();
         } else {
             abilityThread->HandleAbilityTransaction(want, lifeCycleStateInfo, sessionInfo);
         }
     };
 
     if (abilityHandler_ == nullptr) {
-        HILOG_ERROR("abilityHandler_ == nullptr.");
+        HILOG_ERROR("AbilityThread::ScheduleAbilityTransaction abilityHandler_ == nullptr");
         return;
     }
 
     bool ret = abilityHandler_->PostTask(task);
     if (!ret) {
-        HILOG_ERROR("PostTask error.");
+        HILOG_ERROR("AbilityThread::ScheduleAbilityTransaction PostTask error");
     }
 }
 
@@ -815,31 +819,33 @@ void FAAbilityThread::ScheduleDisconnectAbility(const Want &want)
 
 void FAAbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int32_t startId)
 {
-    HILOG_DEBUG("begin startId:%{public}d", startId);
+    HILOG_DEBUG("AbilityThread::ScheduleCommandAbility begin. startId:%{public}d", startId);
     wptr<FAAbilityThread> weak = this;
     auto task = [weak, want, restart, startId]() {
         auto abilityThread = weak.promote();
         if (abilityThread == nullptr) {
-            HILOG_ERROR("abilityThread is nullptr.");
+            HILOG_ERROR("abilityThread is nullptr, ScheduleCommandAbility failed.");
             return;
         }
         if (abilityThread->isExtension_) {
             abilityThread->HandleCommandExtension(want, restart, startId);
+            Want newWant(want);
+            newWant.CloseAllFd();
         } else {
             abilityThread->HandleCommandAbility(want, restart, startId);
         }
     };
 
     if (abilityHandler_ == nullptr) {
-        HILOG_ERROR("abilityHandler_ is nullptr.");
+        HILOG_ERROR("AbilityThread::ScheduleCommandAbility abilityHandler_ == nullptr");
         return;
     }
 
     bool ret = abilityHandler_->PostTask(task);
     if (!ret) {
-        HILOG_ERROR("PostTask error.");
+        HILOG_ERROR("AbilityThread::ScheduleCommandAbility PostTask error");
     }
-    HILOG_DEBUG("end");
+    HILOG_DEBUG("AbilityThread::ScheduleCommandAbility end");
 }
 
 bool FAAbilityThread::SchedulePrepareTerminateAbility()
