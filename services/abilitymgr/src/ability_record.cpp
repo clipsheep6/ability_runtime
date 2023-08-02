@@ -36,6 +36,8 @@
 #include "hilog_wrapper.h"
 #include "os_account_manager_wrapper.h"
 #include "parameters.h"
+#include "permission_constants.h"
+#include "permission_verification.h"
 #include "scene_board_judgement.h"
 #include "system_ability_token_callback.h"
 #include "uri_permission_manager_client.h"
@@ -2531,6 +2533,8 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
     }
     auto userId = GetCurrentAccountId();
     auto callerTokenId = static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, -1));
+    auto permission = PermissionVerification::GetInstance()->VerifyCallingPermission(
+        AAFwk::PermissionConstants::PERMISSION_PROXY_AUTHORIZATION_URI);
     for (auto&& str : uriVec) {
         Uri uri(str);
         auto&& scheme = uri.GetScheme();
@@ -2543,11 +2547,11 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         auto&& authority = uri.GetAuthority();
         HILOG_INFO("uri authority is %{public}s.", authority.c_str());
         AppExecFwk::BundleInfo uriBundleInfo;
-        if (!IN_PROCESS_CALL(bms->GetBundleInfo(authority, bundleFlag, uriBundleInfo, userId))) {
+        if (!permission && !IN_PROCESS_CALL(bms->GetBundleInfo(authority, bundleFlag, uriBundleInfo, userId))) {
             HILOG_WARN("To fail to get bundle info according to uri.");
             continue;
         }
-        if (uriBundleInfo.applicationInfo.accessTokenId != fromTokenId &&
+        if (!permission && uriBundleInfo.applicationInfo.accessTokenId != fromTokenId &&
             uriBundleInfo.applicationInfo.accessTokenId != callerAccessTokenId_ &&
             uriBundleInfo.applicationInfo.accessTokenId != callerTokenId) {
             HILOG_ERROR("the uri does not belong to caller.");
