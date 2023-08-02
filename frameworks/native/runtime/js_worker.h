@@ -20,6 +20,7 @@
 #include "bundle_mgr_proxy.h"
 #include "js_environment_impl.h"
 #include "native_engine/native_engine.h"
+#include "source_map_operator.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -42,7 +43,8 @@ public:
 
     std::string NormalizedFileName(const std::string& fileName) const;
 
-    void operator()(const std::string& uri, std::vector<uint8_t>& content, std::string &ami);
+    void operator()(NativeEngine* engine, const std::string& uri, std::vector<uint8_t>& content,
+                    std::string &ami, bool isFromWorker);
 
     sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
 
@@ -54,6 +56,7 @@ public:
 private:
     std::shared_ptr<JsEnv::WorkerInfo> workerInfo_;
     sptr<AppExecFwk::IBundleMgr> bundleMgrProxy_ = nullptr;
+    std::shared_ptr<JsEnv::SourceMapOperator> sourceMapOperator_ = nullptr;
 };
 
 } // namespace AbilityRuntime
