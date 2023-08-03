@@ -203,7 +203,7 @@ int ExtensionManagerProxy::StopExtensionAbility(const Want &want, const sptr<IRe
 
 int32_t ExtensionManagerProxy::RequestDialogService(const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("RequestDialogService Call");
+    HILOG_DEBUG("RequestDialogService Call");
     if (!callerToken) {
         HILOG_ERROR("callerToken is invalid.");
         return ERR_INVALID_CALLER;

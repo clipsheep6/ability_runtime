@@ -152,7 +152,7 @@ ErrCode ExtensionManagerClient::ConnectAbility(
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetExtensionManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("name:%{public}s %{public}s, userId:%{public}d.",
+    HILOG_DEBUG("name:%{public}s %{public}s, userId:%{public}d.",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
     return abms->ConnectAbilityCommon(want, connect, callerToken, AppExecFwk::ExtensionAbilityType::SERVICE, userId);
 }
@@ -162,7 +162,7 @@ ErrCode ExtensionManagerClient::StartExtensionAbility(const Want &want, const sp
 {
     auto abms = GetExtensionManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("name:%{public}s %{public}s, userId=%{public}d.",
+    HILOG_DEBUG("name:%{public}s %{public}s, userId=%{public}d.",
         want.GetElement().GetAbilityName().c_str(), want.GetElement().GetBundleName().c_str(), userId);
     return abms->StartExtensionAbility(want, callerToken, userId, extensionType);
 }
@@ -172,7 +172,7 @@ ErrCode ExtensionManagerClient::StopExtensionAbility(const Want &want, const spt
 {
     auto abms = GetExtensionManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("name:%{public}s %{public}s, userId=%{public}d.",
+    HILOG_DEBUG("name:%{public}s %{public}s, userId=%{public}d.",
         want.GetElement().GetAbilityName().c_str(), want.GetElement().GetBundleName().c_str(), userId);
     return abms->StopExtensionAbility(want, callerToken, userId, extensionType);
 }
@@ -182,7 +182,7 @@ ErrCode ExtensionManagerClient::RequestDialogService(const Want &want, const spt
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetExtensionManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("request is:%{public}s.", want.GetElement().GetURI().c_str());
+    HILOG_DEBUG("request is:%{public}s.", want.GetElement().GetURI().c_str());
     HandleDlpApp(const_cast<Want &>(want));
     return abms->RequestDialogService(want, callerToken);
 }

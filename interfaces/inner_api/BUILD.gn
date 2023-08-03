@@ -24,6 +24,5 @@ group("innerkits_target") {
     "quick_fix:quickfix_manager",
     "uri_permission:uri_permission_mgr",
     "wantagent:wantagent_innerkits",
-    "extension_manager:extension_manager",
   ]
 }
