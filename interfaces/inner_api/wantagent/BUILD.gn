@@ -90,7 +90,10 @@ ohos_shared_library("wantagent_innerkits") {
     cflags = [ "-DCONFIG_DUAL_FRAMEWORK" ]
   }
 
-  innerapi_tags = [ "platformsdk" ]
+  innerapi_tags = [
+    "platformsdk",
+    "sasdk",
+  ]
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
