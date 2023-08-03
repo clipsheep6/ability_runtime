@@ -27,6 +27,10 @@ using namespace OHOS::AAFwk;
 namespace OHOS {
 namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
+constexpr size_t INDEX_ZERO = 0;
+constexpr size_t INDEX_ONE = 1;
+constexpr size_t INDEX_TWO = 2;
+constexpr size_t INDEX_THREE = 3;
 constexpr size_t U32_AT_SIZE = 4;
 constexpr size_t INPUT_EIGHT = 8;
 constexpr size_t INPUT_SIXTEEN = 16;
@@ -38,7 +42,8 @@ std::map<int, int> codeMap_;
 uint32_t GetU32Data(const char* ptr)
 {
     // convert fuzz input data to an integer
-    return (ptr[0] << INPUT_TWENTYFOUR) | (ptr[1] << INPUT_SIXTEEN) | (ptr[2] << INPUT_EIGHT) | ptr[3];
+    return (ptr[INDEX_ZERO] << INPUT_TWENTYFOUR) | (ptr[INDEX_ONE] << INPUT_SIXTEEN) |
+        (ptr[INDEX_TWO] << INPUT_EIGHT) | ptr[INDEX_THREE];
 }
 
 void EmplaceCodeMap()

@@ -49,6 +49,7 @@ namespace AAFwk {
 namespace {
 const std::string DEBUG_APP = "debugApp";
 const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
+const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
 }
 class AbilityRecordTest : public testing::TestWithParam<OHOS::AAFwk::AbilityState> {
@@ -654,7 +655,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SendResult, TestSize.Level1)
     OHOS::sptr<IAbilityScheduler> scheduler = new AbilityScheduler();
     abilityRecord_->SetScheduler(scheduler);
     abilityRecord_->SetResult(abilityResult_);
-    abilityRecord_->SendResult();
+    abilityRecord_->SendResult(0, 0);
     EXPECT_EQ(nullptr, abilityRecord_->GetResult());
 }
 
@@ -2155,9 +2156,8 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_001, TestSize.Level
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
     EXPECT_NE(abilityRecord, nullptr);
     Want want;
-    int32_t userId = 100;
     std::string targetBundleName = "name";
-    abilityRecord->GrantUriPermission(want, userId, "name");
+    abilityRecord->GrantUriPermission(want, targetBundleName, true, 0);
 }
 
 /*
@@ -2175,9 +2175,8 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_002, TestSize.Level
     Want want;
     want.SetFlags(1);
     want.SetUri("datashare://ohos.samples.clock/data/storage/el2/base/haps/entry/files/test_A.txt");
-    int32_t userId = 100;
     std::string targetBundleName = "name";
-    abilityRecord->GrantUriPermission(want, userId, targetBundleName);
+    abilityRecord->GrantUriPermission(want, targetBundleName, false, 0);
 }
 
 /*
@@ -2195,9 +2194,8 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_003, TestSize.Level
     Want want;
     want.SetFlags(1);
     want.SetUri("file://com.example.mock/data/storage/el2/base/haps/entry/files/test_A.txt");
-    int32_t userId = 100;
     std::string targetBundleName = "name";
-    abilityRecord->GrantUriPermission(want, userId, targetBundleName);
+    abilityRecord->GrantUriPermission(want, targetBundleName, false, 0);
 }
 
 /*
@@ -2215,9 +2213,8 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_004, TestSize.Level
     Want want;
     want.SetFlags(1);
     want.SetUri("file://ohos.samples.clock/data/storage/el2/base/haps/entry/files/test_A.txt");
-    int32_t userId = 100;
     std::string targetBundleName = "name";
-    abilityRecord->GrantUriPermission(want, userId, targetBundleName);
+    abilityRecord->GrantUriPermission(want, targetBundleName, false, 0);
 }
 
 /*
@@ -2235,9 +2232,8 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_005, TestSize.Level
     Want want;
     want.SetFlags(1);
     want.SetUri("file://ohos.samples.clock/data/storage/el2/base/haps/entry/files/test_A.txt");
-    int32_t userId = 100;
     std::string targetBundleName = "name";
-    abilityRecord->GrantUriPermission(want, userId, targetBundleName);
+    abilityRecord->GrantUriPermission(want, targetBundleName, false, 0);
 }
 
 /*
@@ -2270,6 +2266,38 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_HandleDlpClosed_001, TestSize.Level1)
     abilityRecord->abilityInfo_.bundleName = DLP_BUNDLE_NAME;
     abilityRecord->appIndex_ = 1;
     abilityRecord->HandleDlpClosed();
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: NotifyAnimationAbilityDied
+ * SubFunction: NotifyAnimationAbilityDied
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord NotifyAnimationAbilityDied
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_NotifyAnimationAbilityDied_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
+    abilityRecord->missionId_ = 1;
+    abilityRecord->NotifyAnimationAbilityDied();
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: NotifyRemoveShellProcess
+ * SubFunction: NotifyRemoveShellProcess
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord NotifyRemoveShellProcess
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_NotifyRemoveShellProcess_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
+    abilityRecord->abilityInfo_.bundleName = SHELL_ASSISTANT_BUNDLENAME;
+    abilityRecord->NotifyRemoveShellProcess(CollaboratorType::RESERVE_TYPE);
 }
 
 /*

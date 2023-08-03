@@ -1066,7 +1066,7 @@ bool JsRuntime::ReadSourceMapData(const std::string& hapPath, const std::string&
             return false;
         }
     }
-    content = reinterpret_cast<char*>(dataPtr.get());
+    content.assign(dataPtr.get(), dataPtr.get() + len);
     return true;
 }
 

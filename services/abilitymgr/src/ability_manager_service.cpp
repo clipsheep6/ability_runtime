@@ -2262,7 +2262,7 @@ int AbilityManagerService::SendResultToAbility(int32_t requestCode, int32_t resu
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
     abilityRecord->SetResult(std::make_shared<AbilityResult>(requestCode, resultCode, resultWant));
-    abilityRecord->SendResult();
+    abilityRecord->SendResult(0, 0);
     return ERR_OK;
 }
 
@@ -3076,16 +3076,19 @@ void AbilityManagerService::CancelWantSender(const sptr<IWantSender> &sender)
         HILOG_ERROR("GetOsAccountLocalIdFromUid failed. uid=%{public}d", callerUid);
         return;
     }
-    AppExecFwk::BundleInfo bundleInfo;
-    bool bundleMgrResult = IN_PROCESS_CALL(
-        bms->GetBundleInfo(record->GetKey()->GetBundleName(),
+    std::string apl;
+    if (record->GetKey() != nullptr && !record->GetKey()->GetBundleName().empty()) {
+        AppExecFwk::BundleInfo bundleInfo;
+        bool bundleMgrResult = IN_PROCESS_CALL(
+            bms->GetBundleInfo(record->GetKey()->GetBundleName(),
             AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
-    if (!bundleMgrResult) {
-        HILOG_ERROR("GetBundleInfo is fail.");
-        return;
+        if (!bundleMgrResult) {
+            HILOG_ERROR("GetBundleInfo is fail.");
+            return;
+        }
+        apl = bundleInfo.applicationInfo.appPrivilegeLevel;
     }
 
-    auto apl = bundleInfo.applicationInfo.appPrivilegeLevel;
     pendingWantManager_->CancelWantSender(apl, sender);
 }
 
@@ -7498,7 +7501,7 @@ int32_t AbilityManagerService::SendResultToAbilityByToken(const Want &want, cons
         return ERR_INVALID_VALUE;
     }
     abilityRecord->SetResult(std::make_shared<AbilityResult>(requestCode, resultCode, want));
-    abilityRecord->SendResult();
+    abilityRecord->SendResult(0, 0);
     return ERR_OK;
 }
 

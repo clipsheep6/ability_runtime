@@ -1447,5 +1447,17 @@ HWTEST_F(AbilityManagerClientBranchTest, GetElementNameByToken_0100, TestSize.Le
     EXPECT_EQ(result, element);
 }
 
+/**
+ * @tc.number: NotifySaveAsResult_0100
+ * @tc.name: NotifySaveAsResult
+ * @tc.desc: The caller is expected to be dlp manager.
+ */
+HWTEST_F(AbilityManagerClientBranchTest, NotifySaveAsResult_0100, TestSize.Level1)
+{
+    Want want;
+    auto result = AbilityManagerClient::GetInstance()->NotifySaveAsResult(want, 0, 0);
+    EXPECT_EQ(result, ERR_INVALID_CALLER);
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS
