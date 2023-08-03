@@ -30,13 +30,6 @@ public:
     static DataAbilityManagerClient& GetInstance();
 
     /**
-     * Connect ability manager service.
-     *
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode Connect();
-
-    /**
      * AcquireDataAbility, acquire a data ability by its authority, if it not existed,
      * AMS loads it synchronously.
      *
@@ -60,7 +53,7 @@ private:
     class DataAbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
         DataAbilityMgrDeathRecipient() = default;
-        ~DataAbilityMgrDeathRecipient() = default;
+        virtual ~DataAbilityMgrDeathRecipient() = default;
         void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
 
     private:
@@ -68,6 +61,7 @@ private:
     };
 
     sptr<IDataAbilityManager> GetDataAbilityManager();
+    ErrCode Connect();
     void ResetProxy(const wptr<IRemoteObject> &remote);
 
     std::mutex mutex_;

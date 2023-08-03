@@ -30,7 +30,7 @@ bool DataAbilityManagerProxy::WriteInterfaceToken(MessageParcel &data)
 }
 
 ErrCode DataAbilityManagerProxy::SendRequest(AbilityManagerInterfaceCode code, MessageParcel &data,
-    MessageParcel &reply, MessageOption& option)
+    MessageParcel &reply, MessageOption &option)
 {
     auto remote = Remote();
     if (remote == nullptr) {
@@ -43,15 +43,12 @@ ErrCode DataAbilityManagerProxy::SendRequest(AbilityManagerInterfaceCode code, M
 sptr<IAbilityScheduler> DataAbilityManagerProxy::AcquireDataAbility(
     const Uri &uri, bool tryBind, const sptr<IRemoteObject> &callerToken)
 {
-    int error;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
     if (!callerToken) {
         HILOG_ERROR("invalid parameters for acquire data ability.");
         return nullptr;
     }
+
+    MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         return nullptr;
     }
@@ -60,7 +57,9 @@ sptr<IAbilityScheduler> DataAbilityManagerProxy::AcquireDataAbility(
         return nullptr;
     }
 
-    error = SendRequest(AbilityManagerInterfaceCode::ACQUIRE_DATA_ABILITY, data, reply, option);
+    MessageParcel reply;
+    MessageOption option;
+    int error = SendRequest(AbilityManagerInterfaceCode::ACQUIRE_DATA_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return nullptr;
@@ -72,14 +71,11 @@ sptr<IAbilityScheduler> DataAbilityManagerProxy::AcquireDataAbility(
 int DataAbilityManagerProxy::ReleaseDataAbility(
     sptr<IAbilityScheduler> dataAbilityScheduler, const sptr<IRemoteObject> &callerToken)
 {
-    int error;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
     if (!dataAbilityScheduler || !callerToken) {
         return ERR_INVALID_VALUE;
     }
+
+    MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
@@ -88,7 +84,9 @@ int DataAbilityManagerProxy::ReleaseDataAbility(
         return INNER_ERR;
     }
 
-    error = SendRequest(AbilityManagerInterfaceCode::RELEASE_DATA_ABILITY, data, reply, option);
+    MessageParcel reply;
+    MessageOption option;
+    int error = SendRequest(AbilityManagerInterfaceCode::RELEASE_DATA_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
