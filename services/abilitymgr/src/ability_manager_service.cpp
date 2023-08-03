@@ -3081,7 +3081,7 @@ void AbilityManagerService::CancelWantSender(const sptr<IWantSender> &sender)
         AppExecFwk::BundleInfo bundleInfo;
         bool bundleMgrResult = IN_PROCESS_CALL(
             bms->GetBundleInfo(record->GetKey()->GetBundleName(),
-                 AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
+            AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
         if (!bundleMgrResult) {
             HILOG_ERROR("GetBundleInfo is fail.");
             return;
