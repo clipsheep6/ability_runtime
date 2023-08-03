@@ -1051,7 +1051,7 @@ void AppMgrServiceInner::GetRunningProcess(const std::shared_ptr<AppRunningRecor
     info.startTimeMillis_ = appRecord->GetAppStartTime();
     appRecord->GetBundleNames(info.bundleNames);
     info.processType_ = appRecord->GetProcessType();
-    info.extensionType_ = appRecord->GetExtensionType();
+    info.extensionType_ = AAFwk::UIExtensionUtils::ConvertType(appRecord->GetExtensionType());
 }
 
 void AppMgrServiceInner::GetRenderProcesses(const std::shared_ptr<AppRunningRecord> &appRecord,
