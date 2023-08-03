@@ -286,7 +286,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     }
     AppExecFwk::ApplicationInfo callerAppInfo;
     bool getCallerResult = IN_PROCESS_CALL(bms->GetApplicationInfo(callerBundleName,
-        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, callerUid, callerAppInfo));
+        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, callerAppInfo));
     if (!getCallerResult) {
         HILOG_ERROR("Get callerAppInfo failed in check atomic service.");
         return false;
