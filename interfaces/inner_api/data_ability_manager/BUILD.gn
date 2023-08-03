@@ -14,10 +14,13 @@
 import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
-config("extension_manager_public_config") {
+config("data_ability_manager_public_config") {
   include_dirs = [
     "include",
     "${ability_runtime_innerkits_path}/ability_manager/include",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
+    "${ability_base_kits_path}/uri/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
   ]
 
   if (target_cpu == "arm") {
@@ -25,7 +28,7 @@ config("extension_manager_public_config") {
   }
 }
 
-config("extension_manager_config") {
+config("data_ability_manager_config") {
   visibility = [ ":*" ]
 
   include_dirs = [
@@ -34,18 +37,22 @@ config("extension_manager_config") {
   ]
 }
 
-ohos_shared_library("extension_manager") {
+ohos_shared_library("data_ability_manager") {
   sources = [
-    "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
-    "src/extension_manager_client.cpp",
-    "src/extension_manager_proxy.cpp",
+    "src/data_ability_manager_client.cpp",
+    "src/data_ability_manager_proxy.cpp",
   ]
 
-  configs = [ ":extension_manager_config" ]
-  public_configs = [ ":extension_manager_public_config" ]
+  configs = [
+    "${c_utils_base_path}:utils_config",
+    ":data_ability_manager_config",
+  ]
+
+  public_configs = [ ":data_ability_manager_public_config" ]
 
   external_deps = [
     "ability_base:want",
+    "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "hilog:libhilog",
