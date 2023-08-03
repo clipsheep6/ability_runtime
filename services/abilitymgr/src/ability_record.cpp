@@ -226,6 +226,7 @@ std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityR
         HILOG_DEBUG("abilityRequest.callType is CALL_REQUEST_TYPE.");
         abilityRecord->SetStartedByCall(true);
     }
+    abilityRecord->collaboratorType_ = abilityRequest.collaboratorType;
     return abilityRecord;
 }
 
@@ -1156,6 +1157,36 @@ void AbilityRecord::SetAbilityStateInner(AbilityState state)
     if (currentState_ == AbilityState::BACKGROUND) {
         isAbilityForegrounding_ = false;
     }
+
+    auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(
+        collaboratorType_);
+    if (collaborator == nullptr) {
+        HILOG_DEBUG("collaborator is nullptr");
+    } else {
+        HILOG_INFO("start notify collaborator, missionId:%{public}d, state:%{public}d", missionId_,
+            static_cast<int32_t>(state));
+        int ret = ERR_OK;
+        switch (state) {
+            case AbilityState::FOREGROUNDING: {
+                ret = collaborator->NotifyMoveMissionToForeground(missionId_);
+                break;
+            }
+            case AbilityState::BACKGROUNDING: {
+                ret = collaborator->NotifyMoveMissionToBackground(missionId_);
+                break;
+            }
+            case AbilityState::TERMINATING: {
+                ret = collaborator->NotifyTerminateMission(missionId_);
+                break;
+            }
+            default:
+                break;
+        }
+        if (ret != ERR_OK) {
+            HILOG_ERROR("notify broker move mission to background failed, err: %{public}d", ret);
+        }
+    }
+
     DelayedSingleton<MissionInfoMgr>::GetInstance()->SetMissionAbilityState(missionId_, currentState_);
 }
 
@@ -2734,6 +2765,11 @@ void AbilityRecord::UpdateRecoveryInfo(bool hasRecoverInfo)
 bool AbilityRecord::GetRecoveryInfo()
 {
     return want_.GetBoolParam(Want::PARAM_ABILITY_RECOVERY_RESTART, false);
+}
+
+int32_t AbilityRecord::GetCollaboratorType() const
+{
+    return collaboratorType_;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

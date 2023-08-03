@@ -1856,22 +1856,6 @@ int MissionListManager::ClearMissionLocked(int missionId, const std::shared_ptr<
         }
     }
 
-    InnerMissionInfo info;
-    int getMission = DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(
-        missionId, info);
-    if (getMission == ERR_OK && info.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
-        auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(
-            info.collaboratorType);
-        if (collaborator == nullptr) {
-            HILOG_DEBUG("collaborator is nullptr");
-        } else {
-            int ret = collaborator->NotifyClearMission(missionId);
-            if (ret != ERR_OK) {
-                HILOG_ERROR("notify broker clear mission failed, err: %{public}d", ret);
-            }
-        }
-    }
-
     if (mission == nullptr) {
         HILOG_DEBUG("ability has already terminate, just remove mission.");
         return ERR_OK;
@@ -1881,6 +1865,20 @@ int MissionListManager::ClearMissionLocked(int missionId, const std::shared_ptr<
     if (abilityRecord == nullptr || abilityRecord->IsTerminating()) {
         HILOG_WARN("Ability record is not exist or is on terminating.");
         return ERR_OK;
+    }
+
+    int collaboratorType = abilityRecord->GetCollaboratorType();
+    if (collaboratorType != CollaboratorType::DEFAULT_TYPE) {
+        auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(
+            collaboratorType);
+        if (collaborator == nullptr) {
+            HILOG_DEBUG("collaborator is nullptr");
+        } else {
+            int ret = collaborator->NotifyClearMission(missionId);
+            if (ret != ERR_OK) {
+                HILOG_ERROR("notify broker clear mission failed, err: %{public}d", ret);
+            }
+        }
     }
 
     abilityRecord->SetTerminatingState();

@@ -879,6 +879,8 @@ public:
     void RemoveAbilityDeathRecipient() const;
     bool IsExistConnection(const sptr<IAbilityConnection> &connect);
 
+    int32_t GetCollaboratorType() const;
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
 
@@ -1058,6 +1060,7 @@ private:
     uint32_t callerAccessTokenId_ = -1;
     bool isNeedBackToOtherMissionStack_ = false;
     std::weak_ptr<AbilityRecord> otherMissionStackAbilityRecord_; // who starts this ability record by SA
+    int32_t collaboratorType_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
