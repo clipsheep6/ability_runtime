@@ -2435,9 +2435,6 @@ int AbilityManagerService::MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessi
         return ERR_WRONG_INTERFACE_CALL;
     }
 
-    if (sessionInfo->callerToken != nullptr && !VerificationAllToken(sessionInfo->callerToken)) {
-        return ERR_INVALID_CALLER;
-    }
     if (!uiAbilityLifecycleManager_) {
         HILOG_ERROR("failed, uiAbilityLifecycleManager is nullptr");
         return ERR_INVALID_VALUE;
