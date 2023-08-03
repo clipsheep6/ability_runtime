@@ -58,6 +58,61 @@ public:
      */
     ErrCode DisconnectAbility(const sptr<IRemoteObject> &connect);
 
+    /**
+     * ConnectAbility, connect session with service ability.
+     *
+     * @param want, Special want for service type's ability.
+     * @param connect, Callback used to notify caller the result of connecting or disconnecting.
+     * @param callerToken, caller ability token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode ConnectAbility(
+        const Want &want,
+        const sptr<IRemoteObject> &connect,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVALID_USER_ID);
+
+    /**
+     * Start extension ability with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param callerToken, caller ability token.
+     * @param userId, Designation User ID.
+     * @param extensionType If an ExtensionAbilityType is set, only extension of that type can be started.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartExtensionAbility(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVALID_USER_ID,
+        AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED);
+
+    /**
+     * Stop extension ability with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to stop.
+     * @param callerToken, caller ability token.
+     * @param userId, Designation User ID.
+     * @param extensionType If an ExtensionAbilityType is set, only extension of that type can be stopped.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StopExtensionAbility(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVALID_USER_ID,
+        AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED);
+
+    /**
+     * Request dialog service with want, send want to ability manager service.
+     *
+     * @param want target component.
+     * @param callerToken caller ability token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode RequestDialogService(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken);
+
 private:
     class ExtensionMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
@@ -71,6 +126,7 @@ private:
     sptr<IExtensionManager> GetExtensionManager();
     void Connect();
     void ResetProxy(const wptr<IRemoteObject>& remote);
+    void HandleDlpApp(Want &want);
 
     std::mutex mutex_;
     sptr<IExtensionManager> proxy_;
