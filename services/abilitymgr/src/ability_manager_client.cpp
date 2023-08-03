@@ -242,6 +242,17 @@ ErrCode AbilityManagerClient::StopExtensionAbility(const Want &want, const sptr<
 
 ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
 {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
+        sptr<AAFwk::SessionInfo> info = new AAFwk::SessionInfo();
+        info->want = *resultWant;
+        info->resultCode = resultCode;
+        info->sessionToken = token;
+        HILOG_DEBUG("call");
+        auto err = sceneSessionManager->TerminateSessionNew(info, true);
+        return static_cast<int>(err);
+    }
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     HILOG_INFO("call");
@@ -271,13 +282,12 @@ ErrCode AbilityManagerClient::CloseAbility(const sptr<IRemoteObject> &token, int
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
-        HILOG_DEBUG("call");
         sptr<AAFwk::SessionInfo> info = new AAFwk::SessionInfo();
         info->want = *resultWant;
         info->resultCode = resultCode;
         info->sessionToken = token;
+        HILOG_DEBUG("call");
         auto err = sceneSessionManager->TerminateSessionNew(info, false);
-        HILOG_INFO("CloseAbility Calling SceneBoard Interface ret=%{public}d", err);
         return static_cast<int>(err);
     }
     auto abms = GetAbilityManager();
