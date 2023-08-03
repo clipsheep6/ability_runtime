@@ -27,7 +27,7 @@ public:
     DataAbilityManagerClient() = default;
     ~DataAbilityManagerClient() = default;
 
-    static std::shared_ptr<DataAbilityManagerClient> GetInstance();
+    static DataAbilityManagerClient& GetInstance();
 
     /**
      * Connect ability manager service.
@@ -70,8 +70,7 @@ private:
     sptr<IDataAbilityManager> GetDataAbilityManager();
     void ResetProxy(const wptr<IRemoteObject> &remote);
 
-    static std::recursive_mutex mutex_;
-    static std::shared_ptr<DataAbilityManagerClient> instance_;
+    std::mutex mutex_;
     sptr<IDataAbilityManager> proxy_;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_;
 };

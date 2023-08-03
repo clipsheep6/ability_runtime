@@ -39,6 +39,9 @@ ohos_shared_library("data_ability_manager") {
   sources = [
     "src/data_ability_manager_client.cpp",
     "src/data_ability_manager_proxy.cpp",
+    "${ability_runtime_native_path}/ability/native/data_ability_operation.cpp",
+    "${ability_runtime_native_path}/ability/native/data_ability_operation_builder.cpp",
+    "${ability_runtime_native_path}/ability/native/data_ability_result.cpp",
   ]
 
   configs = [ ":data_ability_manager_config" ]
@@ -53,6 +56,8 @@ ohos_shared_library("data_ability_manager") {
     "hilog:libhilog",
     "ipc:ipc_single",
     "samgr:samgr_proxy",
+    "relational_store:native_dataability",
+    "relational_store:native_rdb",
   ]
 
   innerapi_tags = [ "platformsdk" ]

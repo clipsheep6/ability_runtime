@@ -383,6 +383,15 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/interfaces/inner_api/extension_manager:extension_manager"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/data_ability_manager/include",
+              "header_files": [
+                "data_ability_manager_client.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/data_ability_manager:data_ability_manager"
           }
         ],
         "test": [

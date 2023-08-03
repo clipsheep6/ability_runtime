@@ -23,29 +23,21 @@
 
 namespace OHOS {
 namespace AAFwk {
-std::shared_ptr<DataAbilityManagerClient> DataAbilityManagerClient::instance_ = nullptr;
-std::recursive_mutex DataAbilityManagerClient::mutex_;
-
 #define CHECK_POINTER_RETURN_NOT_CONNECTED(object)   \
     if (!object) {                                   \
         HILOG_ERROR("proxy is nullptr.");            \
         return ABILITY_SERVICE_NOT_CONNECTED;        \
     }
 
-std::shared_ptr<DataAbilityManagerClient> DataAbilityManagerClient::GetInstance()
+DataAbilityManagerClient& DataAbilityManagerClient::GetInstance()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::recursive_mutex> lock_l(mutex_);
-        if (instance_ == nullptr) {
-            instance_ = std::make_shared<DataAbilityManagerClient>();
-        }
-    }
-    return instance_;
+    static DataAbilityManagerClient instance;
+    return instance;
 }
 
 sptr<IDataAbilityManager> DataAbilityManagerClient::GetDataAbilityManager()
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     if (!proxy_) {
         (void)Connect();
     }
@@ -54,13 +46,13 @@ sptr<IDataAbilityManager> DataAbilityManagerClient::GetDataAbilityManager()
 
 void DataAbilityManagerClient::DataAbilityMgrDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_INFO("DataAbilityMgrDeathRecipient handle remote died.");
-    DataAbilityManagerClient::GetInstance()->ResetProxy(remote);
+    HILOG_DEBUG("handle remote died.");
+    DataAbilityManagerClient::GetInstance().ResetProxy(remote);
 }
 
 ErrCode DataAbilityManagerClient::Connect()
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     if (proxy_ != nullptr) {
         return ERR_OK;
     }
@@ -92,7 +84,7 @@ ErrCode DataAbilityManagerClient::Connect()
 
 void DataAbilityManagerClient::ResetProxy(const wptr<IRemoteObject> &remote)
 {
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     if (!proxy_) {
         return;
     }
