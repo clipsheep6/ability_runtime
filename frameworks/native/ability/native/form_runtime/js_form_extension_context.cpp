@@ -42,7 +42,6 @@ const int UPDATE_FORM_PARAMS_SIZE = 2;
 
 std::map<ConnectionKey, sptr<JSFormExtensionConnection>, key_compare> g_connects;
 int64_t g_serialNumber = 0;
-std::shared_ptr<AppExecFwk::EventHandler> g_handler;
 
 void RemoveConnection(int64_t connectId)
 {
@@ -371,9 +370,6 @@ NativeValue* CreateJsFormExtensionContext(NativeEngine& engine, std::shared_ptr<
     std::unique_ptr<JsFormExtensionContext> jsContext = std::make_unique<JsFormExtensionContext>(context);
     object->SetNativePointer(jsContext.release(), JsFormExtensionContext::Finalizer, nullptr);
 
-    // make mainHandler to callback
-    g_handler = std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
-
     const char *moduleName = "JsFormExtensionContext";
     BindNativeFunction(engine, *object, "updateForm", moduleName, JsFormExtensionContext::UpdateForm);
     BindNativeFunction(engine, *object, "startAbility", moduleName, JsFormExtensionContext::StartAbility);
@@ -441,20 +437,21 @@ void JSFormExtensionConnection::OnAbilityConnectDone(const AppExecFwk::ElementNa
     const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
     HILOG_DEBUG("OnAbilityConnectDone, resultCode:%{public}d", resultCode);
-    if (g_handler == nullptr) {
-        HILOG_INFO("g_handler nullptr");
-        return;
-    }
     wptr<JSFormExtensionConnection> connection = this;
-    auto task = [connection, element, remoteObject, resultCode]() {
-        sptr<JSFormExtensionConnection> connectionSptr = connection.promote();
-        if (!connectionSptr) {
-            HILOG_INFO("connectionSptr nullptr");
-            return;
-        }
-        connectionSptr->HandleOnAbilityConnectDone(element, remoteObject, resultCode);
-    };
-    g_handler->PostTask(task, "OnAbilityConnectDone");
+    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
+        ([connection, element, remoteObject, resultCode](NativeEngine &engine, AsyncTask &task, int32_t status) {
+            sptr<JSFormExtensionConnection> connectionSptr = connection.promote();
+            if (!connectionSptr) {
+                HILOG_ERROR("connectionSptr nullptr");
+                return;
+            }
+            connectionSptr->HandleOnAbilityConnectDone(element, remoteObject, resultCode);
+        });
+
+    NativeReference* callback = nullptr;
+    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
+    AsyncTask::Schedule("JSFormExtensionConnection::OnAbilityConnectDone",
+        engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
 void JSFormExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::ElementName &element,
@@ -491,20 +488,20 @@ void JSFormExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::Ele
 void JSFormExtensionConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
 {
     HILOG_DEBUG("OnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
-    if (g_handler == nullptr) {
-        HILOG_INFO("g_handler nullptr");
-        return;
-    }
     wptr<JSFormExtensionConnection> connection = this;
-    auto task = [connection, element, resultCode]() {
-        sptr<JSFormExtensionConnection> connectionSptr = connection.promote();
-        if (!connectionSptr) {
-            HILOG_INFO("connectionSptr nullptr");
-            return;
-        }
-        connectionSptr->HandleOnAbilityDisconnectDone(element, resultCode);
-    };
-    g_handler->PostTask(task, "OnAbilityDisconnectDone");
+    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
+        ([connection, element, resultCode](NativeEngine &engine, AsyncTask &task, int32_t status) {
+            sptr<JSFormExtensionConnection> connectionSptr = connection.promote();
+            if (!connectionSptr) {
+                HILOG_INFO("connectionSptr nullptr");
+                return;
+            }
+            connectionSptr->HandleOnAbilityDisconnectDone(element, resultCode);
+        });
+    NativeReference* callback = nullptr;
+    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
+    AsyncTask::Schedule("JSFormExtensionConnection::OnAbilityDisconnectDone",
+        engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
 void JSFormExtensionConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
