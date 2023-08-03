@@ -109,5 +109,5 @@ ErrCode DataShareManagerClient::ConnectDataShareExtensionAbility(const Want &wan
     return abilityMgr->ConnectAbilityCommon(
         want, connect, nullptr, AppExecFwk::ExtensionAbilityType::DATASHARE, userId);
 }
-}  // namespace AAFwk
-}  // namespace OHOS
+} // namespace AAFwk
+} // namespace OHOS
