@@ -2244,11 +2244,12 @@ void MissionListManager::CompleteForegroundFailed(const std::shared_ptr<AbilityR
     }
     if (state == AbilityState::FOREGROUND_DO_NOTHING) {
         HILOG_INFO("ForegroundFailed. WMS return do_nothing");
+        abilityRecord->SetAbilityState(AbilityState::FOREGROUND);
         auto pendingState = abilityRecord->GetPendingState();
         if (pendingState == AbilityState::BACKGROUND) {
             MoveToBackgroundTask(abilityRecord);
         } else if (pendingState == AbilityState::FOREGROUND) {
-            DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(abilityRecord->GetToken());
+            abilityRecord->SetPendingState(AbilityState::INITIAL);
         }
         return;
     }
