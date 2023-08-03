@@ -122,10 +122,7 @@ ErrCode ExtensionManagerProxy::SendRequest(AbilityManagerInterfaceCode code, Mes
 int ExtensionManagerProxy::StartExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
     int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
 {
-    int error;
     MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
@@ -152,7 +149,10 @@ int ExtensionManagerProxy::StartExtensionAbility(const Want &want, const sptr<IR
         HILOG_ERROR("StartExtensionAbility, extensionType write failed.");
         return INNER_ERR;
     }
-    error = SendRequest(AbilityManagerInterfaceCode::START_EXTENSION_ABILITY, data, reply, option);
+
+    MessageParcel reply;
+    MessageOption option;
+    int error = SendRequest(AbilityManagerInterfaceCode::START_EXTENSION_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("StartExtensionAbility, Send request error: %{public}d", error);
         return error;
@@ -163,10 +163,7 @@ int ExtensionManagerProxy::StartExtensionAbility(const Want &want, const sptr<IR
 int ExtensionManagerProxy::StopExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
     int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
 {
-    int error;
     MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
@@ -193,7 +190,10 @@ int ExtensionManagerProxy::StopExtensionAbility(const Want &want, const sptr<IRe
         HILOG_ERROR("extensionType write failed.");
         return INNER_ERR;
     }
-    error = SendRequest(AbilityManagerInterfaceCode::STOP_EXTENSION_ABILITY, data, reply, option);
+
+    MessageParcel reply;
+    MessageOption option;
+    int error = SendRequest(AbilityManagerInterfaceCode::STOP_EXTENSION_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -210,8 +210,6 @@ int32_t ExtensionManagerProxy::RequestDialogService(const Want &want, const sptr
     }
 
     MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
@@ -226,6 +224,8 @@ int32_t ExtensionManagerProxy::RequestDialogService(const Want &want, const sptr
         return INNER_ERR;
     }
 
+    MessageParcel reply;
+    MessageOption option;
     auto error = SendRequest(AbilityManagerInterfaceCode::REQUEST_DIALOG_SERVICE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("request dialog service Send request error: %{public}d", error);
