@@ -912,5 +912,24 @@ HWTEST_F(JsRuntimeTest, DoCleanWorkAfterStageCleaned_0100, TestSize.Level0)
     jsRuntime->DoCleanWorkAfterStageCleaned();
     HILOG_INFO("DoCleanWorkAfterStageCleaned_0100 end");
 }
+
+/**
+ * @tc.name: ReloadFormComponent_0100
+ * @tc.desc: JsRuntime test for ReloadFormComponent.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, ReloadFormComponent_0100, TestSize.Level0)
+{
+    HILOG_INFO("ReloadFormComponent_0100 start");
+
+    AbilityRuntime::Runtime::Options options;
+    options.preload = true;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+
+    ASSERT_NE(jsRuntime, nullptr);
+
+    jsRuntime->ReloadFormComponent();
+    HILOG_INFO("ReloadFormComponent_0100 end");
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

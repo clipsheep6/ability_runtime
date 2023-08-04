@@ -387,4 +387,30 @@ HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0019, Func
     auto ret = info.ReadFromParcel(parcel);
     EXPECT_TRUE(ret);
 }
+
+/**
+ * @tc.number: ServiceRouterMgrInterfaceTest_0020
+ * @tc.name: test StartUIExtensionAbility
+ */
+HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0020, Function | SmallTest | Level0)
+{
+    auto serviceRouterMgr = ServiceRouterMgrHelper::GetInstance().GetServiceRouterMgr();
+    EXPECT_TRUE(serviceRouterMgr != nullptr);
+    serviceRouterMgr->StartUIExtensionAbility(nullptr, 100);
+}
+
+/**
+ * @tc.number: ServiceRouterMgrInterfaceTest_0021
+ * @tc.name: test ConnectUIExtensionAbility
+ */
+HWTEST_F(ServiceRouterMgrInterfaceTest, ServiceRouterMgrInterfaceTest_0021, Function | SmallTest | Level0)
+{
+    auto serviceRouterMgr = ServiceRouterMgrHelper::GetInstance().GetServiceRouterMgr();
+    EXPECT_TRUE(serviceRouterMgr != nullptr);
+    Want want;
+    sptr<IAbilityConnection> connect = nullptr;
+    sptr<SessionInfo> sessionInfo = nullptr;
+    int32_t userId = 1;
+    serviceRouterMgr->ConnectUIExtensionAbility(want, connect, sessionInfo, userId);
+}
 } // OHOS
