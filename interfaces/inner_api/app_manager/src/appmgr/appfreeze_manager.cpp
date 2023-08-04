@@ -279,9 +279,14 @@ std::set<int> AppfreezeManager::GetBinderPeerPids(std::string& stack, int pid) c
     std::set<int> pids;
     std::ifstream fin;
     std::string path = LOGGER_DEBUG_PROC_PATH;
-    fin.open(path.c_str());
+    char resolvePath[PATH_MAX] = {0};
+    if (realpath(path.c_str(), resolvePath) == nullptr) {
+        HILOG_ERROR("GetBinderPeerPids realpath error");
+        return pids;
+    }
+    fin.open(resolvePath);
     if (!fin.is_open()) {
-        HILOG_ERROR("open file failed, %{public}s.", path.c_str());
+        HILOG_ERROR("open file failed, %{public}s.", resolvePath);
         stack += "open file failed :" + path + "\r\n";
         return pids;
     }

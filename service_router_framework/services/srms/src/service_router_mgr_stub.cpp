@@ -157,11 +157,13 @@ int ServiceRouterMgrStub::HandleConnectUIExtensionAbility(MessageParcel &data, M
     }
     int32_t userId = data.ReadInt32();
     int32_t result = ConnectUIExtensionAbility(*want, callback, sessionInfo, userId);
+    if (want != nullptr) {
+        delete want;
+    }
     if (!reply.WriteInt32(result)) {
         APP_LOGE("write result failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
-    delete want;
     return ERR_OK;
 }
 
