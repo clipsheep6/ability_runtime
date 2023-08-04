@@ -3883,7 +3883,7 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
     HILOG_DEBUG("called");
     std::string callerBundleName;
     if (auto bundleMgr = remoteClientManager_->GetBundleManager(); bundleMgr != nullptr) {
-        bundleMgr->GetBundleNameForUid(IPCSkeleton::GetCallingUid(), callerBundleName);
+        IN_PROCESS_CALL(bundleMgr->GetNameForUid(IPCSkeleton::GetCallingUid(), callerBundleName));
     }
 #ifdef ABILITY_FAULT_AND_EXIT_TEST
     if ((AAFwk::PermissionVerification::GetInstance()->IsSACall()) ||
