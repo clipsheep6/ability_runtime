@@ -39,6 +39,7 @@
 #include "scene_board_judgement.h"
 #include "system_ability_token_callback.h"
 #include "uri_permission_manager_client.h"
+#include "permission_constants.h"
 #ifdef SUPPORT_GRAPHICS
 #include "image_source.h"
 #include "locale_config.h"
@@ -52,6 +53,7 @@
 namespace OHOS {
 namespace AAFwk {
 using namespace OHOS::Security;
+using namespace OHOS::AAFwk::PermissionConstants;
 const std::string DEBUG_APP = "debugApp";
 const std::string NATIVE_DEBUG = "nativeDebug";
 const std::string PERF_CMD = "perfCmd";
@@ -2560,6 +2562,10 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
     } else {
         fromTokenId = IPCSkeleton::GetCallingTokenID();
     }
+
+    auto permission =
+        PermissionVerification::GetInstance()->VerifyCallingPermission(PERMISSION_PROXY_AUTHORIZATION_URI) ||
+        PermissionVerification::GetInstance()->VerifyPermissionByTokenId(tokenId, PERMISSION_PROXY_AUTHORIZATION_URI);
     auto userId = GetCurrentAccountId();
     auto callerTokenId = static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, -1));
     for (auto&& str : uriVec) {
@@ -2573,16 +2579,23 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         }
         auto&& authority = uri.GetAuthority();
         HILOG_INFO("uri authority is %{public}s.", authority.c_str());
-        AppExecFwk::BundleInfo uriBundleInfo;
-        if (!IN_PROCESS_CALL(bms->GetBundleInfo(authority, bundleFlag, uriBundleInfo, userId))) {
-            HILOG_WARN("To fail to get bundle info according to uri.");
+        bool authorityFlag = authority == "media" || authority == "docs";
+        if (authorityFlag && !permission) {
+            HILOG_ERROR("the uri is media or docs, have no permission");
             continue;
         }
-        if (uriBundleInfo.applicationInfo.accessTokenId != fromTokenId &&
-            uriBundleInfo.applicationInfo.accessTokenId != callerAccessTokenId_ &&
-            uriBundleInfo.applicationInfo.accessTokenId != callerTokenId) {
-            HILOG_ERROR("the uri does not belong to caller.");
-            continue;
+        if (!authorityFlag) {
+            AppExecFwk::BundleInfo uriBundleInfo;
+            if (!IN_PROCESS_CALL(bms->GetBundleInfo(authority, bundleFlag, uriBundleInfo, userId))) {
+                HILOG_WARN("To fail to get bundle info according to uri.");
+                continue;
+            }
+            if (uriBundleInfo.applicationInfo.accessTokenId != fromTokenId &&
+                uriBundleInfo.applicationInfo.accessTokenId != callerAccessTokenId_ &&
+                uriBundleInfo.applicationInfo.accessTokenId != callerTokenId) {
+                HILOG_ERROR("the uri does not belong to caller.");
+                continue;
+            }
         }
         int autoremove = 1;
         auto ret = IN_PROCESS_CALL(
