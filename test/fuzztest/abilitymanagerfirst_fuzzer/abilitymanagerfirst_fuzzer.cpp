@@ -37,7 +37,7 @@ constexpr size_t INPUT_SIXTEEN = 16;
 constexpr size_t INPUT_TWENTYFOUR = 24;
 }
 const std::u16string ABILITYMGR_INTERFACE_TOKEN = u"ohos.aafwk.AbilityManager";
-std::map<int, int> codeMap_;
+std::map<int, uint32_t> codeMap_;
 
 uint32_t GetU32Data(const char* ptr)
 {
@@ -48,36 +48,38 @@ uint32_t GetU32Data(const char* ptr)
 
 void EmplaceCodeMap()
 {
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::TERMINATE_ABILITY));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::ATTACH_ABILITY_THREAD));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::ABILITY_TRANSITION_DONE));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::CONNECT_ABILITY_DONE));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::DISCONNECT_ABILITY_DONE));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::ADD_WINDOW_INFO));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::LIST_STACK_INFO));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_RECENT_MISSION));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::REMOVE_MISSION));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::REMOVE_STACK));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::COMMAND_ABILITY_DONE));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_MISSION_SNAPSHOT));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::ACQUIRE_DATA_ABILITY));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::RELEASE_DATA_ABILITY));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::MOVE_MISSION_TO_TOP));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::KILL_PROCESS));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::UNINSTALL_APP));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::MOVE_MISSION_TO_FLOATING_STACK));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::MOVE_MISSION_TO_SPLITSCREEN_STACK));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::CHANGE_FOCUS_ABILITY));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::MINIMIZE_MULTI_WINDOW));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::MAXIMIZE_MULTI_WINDOW));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_FLOATING_MISSIONS));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::CLOSE_MULTI_WINDOW));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::MOVE_MISSION_TO_END));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::COMPEL_VERIFY_PERMISSION));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::POWER_OFF));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::POWER_ON));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::LUCK_MISSION));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::UNLUCK_MISSION));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_ABILITY));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::ATTACH_ABILITY_THREAD));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::ABILITY_TRANSITION_DONE));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::CONNECT_ABILITY_DONE));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::DISCONNECT_ABILITY_DONE));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::ADD_WINDOW_INFO));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::LIST_STACK_INFO));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_RECENT_MISSION));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::REMOVE_MISSION));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::REMOVE_STACK));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::COMMAND_ABILITY_DONE));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_MISSION_SNAPSHOT));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::ACQUIRE_DATA_ABILITY));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::RELEASE_DATA_ABILITY));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_MISSION_TO_TOP));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::KILL_PROCESS));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::UNINSTALL_APP));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_MISSION_TO_FLOATING_STACK));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_MISSION_TO_SPLITSCREEN_STACK));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::CHANGE_FOCUS_ABILITY));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::MINIMIZE_MULTI_WINDOW));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::MAXIMIZE_MULTI_WINDOW));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_FLOATING_MISSIONS));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::CLOSE_MULTI_WINDOW));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_MISSION_TO_END));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::COMPEL_VERIFY_PERMISSION));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::POWER_OFF));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::POWER_ON));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::LUCK_MISSION));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::UNLUCK_MISSION));
 }
 
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)

@@ -24,6 +24,7 @@
 
 using namespace OHOS::AAFwk;
 
+#define DISABLE_FUZZ
 namespace OHOS {
 namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
@@ -37,7 +38,7 @@ constexpr size_t INPUT_SIXTEEN = 16;
 constexpr size_t INPUT_TWENTYFOUR = 24;
 }
 const std::u16string ABILITYMGR_INTERFACE_TOKEN = u"ohos.aafwk.AbilityManager";
-std::map<int, int> codeMap_;
+std::map<int, uint32_t> codeMap_;
 
 uint32_t GetU32Data(const char* ptr)
 {
@@ -48,38 +49,46 @@ uint32_t GetU32Data(const char* ptr)
 
 void EmplaceCodeMap()
 {
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::STOP_SYNC_MISSIONS));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::REGISTER_SNAPSHOT_HANDLER));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_MISSION_SNAPSHOT_INFO));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::UPDATE_MISSION_SNAPSHOT));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::MOVE_MISSIONS_TO_FOREGROUND));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::MOVE_MISSIONS_TO_BACKGROUND));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::UPDATE_MISSION_SNAPSHOT_FROM_WMS));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::START_USER_TEST));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::FINISH_USER_TEST));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::DELEGATOR_DO_ABILITY_FOREGROUND));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::DELEGATOR_DO_ABILITY_BACKGROUND));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_TOP_ABILITY_TOKEN));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::DUMP_STATE));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::DUMPSYS_STATE));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::FORCE_TIMEOUT));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::REGISTER_WMS_HANDLER));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::COMPLETEFIRSTFRAMEDRAWING));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::REGISTER_CONNECTION_OBSERVER));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::UNREGISTER_CONNECTION_OBSERVER));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_DLP_CONNECTION_INFOS));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_TOP_ABILITY));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::FREE_INSTALL_ABILITY_FROM_REMOTE));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::ADD_FREE_INSTALL_OBSERVER));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::ABILITY_RECOVERY));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::ABILITY_RECOVERY_ENABLE));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::QUERY_MISSION_VAILD));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::VERIFY_PERMISSION));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::ACQUIRE_SHARE_DATA));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::SHARE_DATA_DONE));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_ABILITY_TOKEN));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::FORCE_EXIT_APP));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::RECORD_APP_EXIT_REASON));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::STOP_SYNC_MISSIONS));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_SNAPSHOT_HANDLER));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_MISSION_SNAPSHOT_INFO));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::UPDATE_MISSION_SNAPSHOT));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_MISSIONS_TO_FOREGROUND));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_MISSIONS_TO_BACKGROUND));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::UPDATE_MISSION_SNAPSHOT_FROM_WMS));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::START_USER_TEST));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::FINISH_USER_TEST));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::DELEGATOR_DO_ABILITY_FOREGROUND));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::DELEGATOR_DO_ABILITY_BACKGROUND));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_TOP_ABILITY_TOKEN));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::DUMP_STATE));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::DUMPSYS_STATE));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::FORCE_TIMEOUT));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_WMS_HANDLER));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::COMPLETEFIRSTFRAMEDRAWING));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_CONNECTION_OBSERVER));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_CONNECTION_OBSERVER));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_DLP_CONNECTION_INFOS));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_TOP_ABILITY));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::FREE_INSTALL_ABILITY_FROM_REMOTE));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::ADD_FREE_INSTALL_OBSERVER));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::ABILITY_RECOVERY));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::ABILITY_RECOVERY_ENABLE));
+#ifndef DISABLE_FUZZ
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::QUERY_MISSION_VAILD));
+#endif
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::VERIFY_PERMISSION));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::ACQUIRE_SHARE_DATA));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::SHARE_DATA_DONE));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ABILITY_TOKEN));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::FORCE_EXIT_APP));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::RECORD_APP_EXIT_REASON));
 }
 
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)

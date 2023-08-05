@@ -37,7 +37,7 @@ constexpr size_t INPUT_SIXTEEN = 16;
 constexpr size_t INPUT_TWENTYFOUR = 24;
 }
 const std::u16string ABILITYMGR_INTERFACE_TOKEN = u"ohos.aafwk.AbilityManager";
-std::map<int, int> codeMap_;
+std::map<int, uint32_t> codeMap_;
 
 uint32_t GetU32Data(const char* ptr)
 {
@@ -48,36 +48,39 @@ uint32_t GetU32Data(const char* ptr)
 
 void EmplaceCodeMap()
 {
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::SET_MISSION_INFO));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_MISSION_LOCK_MODE_STATE));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::MINIMIZE_ABILITY));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::LOCK_MISSION_FOR_CLEANUP));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::UNLOCK_MISSION_FOR_CLEANUP));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::REGISTER_MISSION_LISTENER));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::UNREGISTER_MISSION_LISTENER));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_MISSION_INFOS));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_MISSION_INFO_BY_ID));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::CLEAN_MISSION));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::CLEAN_ALL_MISSIONS));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::MOVE_MISSION_TO_FRONT));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_MISSION_SNAPSHOT_BY_ID));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::START_USER));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::STOP_USER));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::SET_ABILITY_CONTROLLER));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::IS_USER_A_STABILITY_TEST));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::SET_MISSION_LABEL));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::DO_ABILITY_FOREGROUND));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::DO_ABILITY_BACKGROUND));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::MOVE_MISSION_TO_FRONT_BY_OPTIONS));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_MISSION_ID_BY_ABILITY_TOKEN));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::SET_MISSION_ICON));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::DUMP_ABILITY_INFO_DONE));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::START_EXTENSION_ABILITY));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::STOP_EXTENSION_ABILITY));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::SET_COMPONENT_INTERCEPTION));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::SEND_ABILITY_RESULT_BY_TOKEN));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::SET_ROOT_SCENE_SESSION));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::PREPARE_TERMINATE_ABILITY));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_INFO));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_MISSION_LOCK_MODE_STATE));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::MINIMIZE_ABILITY));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::LOCK_MISSION_FOR_CLEANUP));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::UNLOCK_MISSION_FOR_CLEANUP));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_MISSION_LISTENER));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_MISSION_LISTENER));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_MISSION_INFOS));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_MISSION_INFO_BY_ID));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::CLEAN_MISSION));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::CLEAN_ALL_MISSIONS));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_MISSION_TO_FRONT));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_MISSION_SNAPSHOT_BY_ID));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::START_USER));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::STOP_USER));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_ABILITY_CONTROLLER));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_USER_A_STABILITY_TEST));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_LABEL));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::DO_ABILITY_FOREGROUND));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::DO_ABILITY_BACKGROUND));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_MISSION_TO_FRONT_BY_OPTIONS));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_MISSION_ID_BY_ABILITY_TOKEN));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_ICON));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::DUMP_ABILITY_INFO_DONE));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::START_EXTENSION_ABILITY));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::STOP_EXTENSION_ABILITY));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_COMPONENT_INTERCEPTION));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_ABILITY_RESULT_BY_TOKEN));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_ROOT_SCENE_SESSION));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::PREPARE_TERMINATE_ABILITY));
 }
 
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)

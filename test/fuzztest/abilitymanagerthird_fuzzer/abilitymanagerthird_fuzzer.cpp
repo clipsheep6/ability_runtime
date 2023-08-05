@@ -37,7 +37,7 @@ constexpr size_t INPUT_SIXTEEN = 16;
 constexpr size_t INPUT_TWENTYFOUR = 24;
 }
 const std::u16string ABILITYMGR_INTERFACE_TOKEN = u"ohos.aafwk.AbilityManager";
-std::map<int, int> codeMap_;
+std::map<int, uint32_t> codeMap_;
 
 uint32_t GetU32Data(const char* ptr)
 {
@@ -48,36 +48,39 @@ uint32_t GetU32Data(const char* ptr)
 
 void EmplaceCodeMap()
 {
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::COMMAND_ABILITY_WINDOW_DONE));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::CALL_ABILITY_BY_SCB));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::MOVE_ABILITY_TO_BACKGROUND));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::START_ABILITY));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::CONNECT_ABILITY));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::DISCONNECT_ABILITY));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::STOP_SERVICE_ABILITY));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::START_ABILITY_ADD_CALLER));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_PENDING_WANT_SENDER));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::SEND_PENDING_WANT_SENDER));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::CANCEL_PENDING_WANT_SENDER));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_PENDING_WANT_UID));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_PENDING_WANT_BUNDLENAME));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_PENDING_WANT_USERID));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_PENDING_WANT_TYPE));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_PENDING_WANT_CODE));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::REGISTER_CANCEL_LISTENER));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::UNREGISTER_CANCEL_LISTENER));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_PENDING_REQUEST_WANT));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_PENDING_WANT_SENDER_INFO));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::SET_SHOW_ON_LOCK_SCREEN));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::SEND_APP_NOT_RESPONSE_PROCESS_ID));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::START_ABILITY_FOR_SETTINGS));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_ABILITY_MISSION_SNAPSHOT));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_APP_MEMORY_SIZE));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::IS_RAM_CONSTRAINED_DEVICE));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_ABILITY_RUNNING_INFO));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_EXTENSION_RUNNING_INFO));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::GET_PROCESS_RUNNING_INFO));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::CLEAR_UP_APPLICATION_DATA));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::COMMAND_ABILITY_WINDOW_DONE));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::CALL_ABILITY_BY_SCB));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_ABILITY_TO_BACKGROUND));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::CONNECT_ABILITY));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::DISCONNECT_ABILITY));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::STOP_SERVICE_ABILITY));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_ADD_CALLER));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_SENDER));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_PENDING_WANT_SENDER));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::CANCEL_PENDING_WANT_SENDER));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_UID));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_BUNDLENAME));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_USERID));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_TYPE));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_CODE));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_CANCEL_LISTENER));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_CANCEL_LISTENER));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_REQUEST_WANT));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_SENDER_INFO));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_SHOW_ON_LOCK_SCREEN));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_APP_NOT_RESPONSE_PROCESS_ID));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_FOR_SETTINGS));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ABILITY_MISSION_SNAPSHOT));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_APP_MEMORY_SIZE));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_RAM_CONSTRAINED_DEVICE));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ABILITY_RUNNING_INFO));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_EXTENSION_RUNNING_INFO));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PROCESS_RUNNING_INFO));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::CLEAR_UP_APPLICATION_DATA));
 }
 
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
