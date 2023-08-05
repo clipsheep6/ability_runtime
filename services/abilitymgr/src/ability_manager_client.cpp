@@ -1148,8 +1148,10 @@ ErrCode AbilityManagerClient::DumpAbilityInfoDone(std::vector<std::string> &info
 void AbilityManagerClient::HandleDlpApp(Want &want)
 {
 #ifdef WITH_DLP
-    bool sandboxFlag = Security::DlpPermission::DlpFileKits::GetSandboxFlag(want);
-    want.SetParam(DLP_PARAMS_SANDBOX, sandboxFlag);
+    if (!want.GetParams().HasParam(DLP_PARAMS_SANDBOX)) {
+        bool sandboxFlag = Security::DlpPermission::DlpFileKits::GetSandboxFlag(want);
+        want.SetParam(DLP_PARAMS_SANDBOX, sandboxFlag);
+    }
 #endif // WITH_DLP
 }
 
