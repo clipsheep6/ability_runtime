@@ -824,8 +824,8 @@ void AbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int s
         if (abilityThread->isExtension_) {
             Want newWant(want);
 #ifdef WITH_DLP
-            bool sandboxFlag = Security::DlpPermission::DlpFileKits::GetSandboxFlag(want);
-            want.SetParam(DLP_PARAMS_SANDBOX, sandboxFlag);
+            bool sandboxFlag = Security::DlpPermission::DlpFileKits::GetSandboxFlag(newWant);
+            newWant.SetParam(DLP_PARAMS_SANDBOX, sandboxFlag);
             if (sandboxFlag) {
                 newWant.CloseAllFd();
             }
