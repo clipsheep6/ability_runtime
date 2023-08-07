@@ -330,6 +330,125 @@ HWTEST_F(AmsAppRunningRecordTest, CreateAppRunningRecord_005, TestSize.Level1)
  * Feature: AMS
  * Function: AppRunningRecord
  * SubFunction: NA
+ * FunctionPoints: Add RenderRecord.
+ * EnvConditions: NA
+ * CaseDescription: AddRenderRecord with empty renderRecord.
+ */
+HWTEST_F(AmsAppRunningRecordTest, AddRenderRecord_001, TestSize.Level1)
+{
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();;
+    std::shared_ptr<AppRunningRecord> appRunningRecord =
+        std::make_shared<AppRunningRecord>(appInfo, AppRecordId::Create(), GetTestProcessName());
+    EXPECT_NE(appRunningRecord, nullptr);
+    std::shared_ptr<RenderRecord> renderRecord;
+    appRunningRecord->AddRenderRecord(renderRecord);
+}
+
+/*
+ * Feature: AMS
+ * Function: RemoveRenderRecord
+ * SubFunction: NA
+ * FunctionPoints: Remove RenderRecord.
+ * EnvConditions: NA
+ * CaseDescription: RemoveRenderRecord with empty renderRecord.
+ */
+HWTEST_F(AmsAppRunningRecordTest, RemoveRenderRecord_001, TestSize.Level1)
+{
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();;
+    std::shared_ptr<AppRunningRecord> appRunningRecord =
+        std::make_shared<AppRunningRecord>(appInfo, AppRecordId::Create(), GetTestProcessName());
+    EXPECT_NE(appRunningRecord, nullptr);
+    std::shared_ptr<RenderRecord> renderRecord;
+    appRunningRecord->RemoveRenderRecord(renderRecord);
+}
+
+/*
+ * Feature: AMS
+ * Function: Add/RemoveRenderRecord
+ * SubFunction: NA
+ * FunctionPoints: Add/Remove RenderRecord.
+ * EnvConditions: NA
+ * CaseDescription: Add/RemoveRenderRecord with renderRecord.
+ */
+HWTEST_F(AmsAppRunningRecordTest, RemoveRenderRecord_002, TestSize.Level1)
+{
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->name = GetTestAppName();
+    appInfo->bundleName = GetTestAppName();
+    int32_t recordId = 11;
+    std::string processName = "processName";
+    std::shared_ptr<AppRunningRecord> appRunningRecord =
+        std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
+    int32_t uid = 10001;
+    appRunningRecord->SetUid(uid);
+    EXPECT_NE(appRunningRecord, nullptr);
+    pid_t hostPid = 1;
+    std::string renderParam = "test_render_param";
+    int32_t ipcFd = 1;
+    int32_t sharedFd = 1;
+    int32_t crashFd = 1;
+    std::shared_ptr<RenderRecord> renderRecord =
+        RenderRecord::CreateRenderRecord(hostPid, renderParam, ipcFd, sharedFd, crashFd, appRunningRecord);
+    EXPECT_NE(renderRecord, nullptr);
+    appRunningRecord->AddRenderRecord(renderRecord);
+    appRunningRecord->RemoveRenderRecord(renderRecord);
+}
+
+/*
+ * Feature: AMS
+ * Function: GetRenderRecordByPid
+ * SubFunction: NA
+ * FunctionPoints: Get RenderRecord by pid
+ * EnvConditions: NA
+ * CaseDescription: GetRenderRecordByPid with empty renderRecordMap.
+ */
+HWTEST_F(AmsAppRunningRecordTest, GetRenderRecordByPid_001, TestSize.Level1)
+{
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();;
+    std::shared_ptr<AppRunningRecord> appRunningRecord =
+        std::make_shared<AppRunningRecord>(appInfo, AppRecordId::Create(), GetTestProcessName());
+    EXPECT_NE(appRunningRecord, nullptr);
+    pid_t pid = 1;
+    EXPECT_EQ(appRunningRecord->GetRenderRecordByPid(pid), nullptr);
+}
+
+/*
+ * Feature: AMS
+ * Function: GetRenderRecordByPid
+ * SubFunction: NA
+ * FunctionPoints: Get RenderRecord by pid
+ * EnvConditions: NA
+ * CaseDescription: GetRenderRecordByPid with pid.
+ */
+HWTEST_F(AmsAppRunningRecordTest, GetRenderRecordByPid_002, TestSize.Level1)
+{
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->name = GetTestAppName();
+    appInfo->bundleName = GetTestAppName();
+    int32_t recordId = 11;
+    std::string processName = "processName";
+    std::shared_ptr<AppRunningRecord> appRunningRecord =
+        std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
+    int32_t uid = 10001;
+    appRunningRecord->SetUid(uid);
+    EXPECT_NE(appRunningRecord, nullptr);
+    pid_t hostPid = 1;
+    std::string renderParam = "test_render_param";
+    int32_t ipcFd = 1;
+    int32_t sharedFd = 1;
+    int32_t crashFd = 1;
+    std::shared_ptr<RenderRecord> renderRecord =
+        RenderRecord::CreateRenderRecord(hostPid, renderParam, ipcFd, sharedFd, crashFd, appRunningRecord);
+    EXPECT_NE(renderRecord, nullptr);
+    appRunningRecord->AddRenderRecord(renderRecord);
+    EXPECT_EQ(appRunningRecord->GetRenderRecordByPid(renderRecord->GetPid()), renderRecord);
+    EXPECT_EQ(appRunningRecord->GetRenderRecordByPid(hostPid), nullptr);
+}
+
+/*
+ * Feature: AMS
+ * Function: AppRunningRecord
+ * SubFunction: NA
  * FunctionPoints: Test launch application.
  * EnvConditions: NA
  * CaseDescription: Create an AppRunningRecord and call LaunchApplication.
@@ -1872,6 +1991,46 @@ HWTEST_F(AmsAppRunningRecordTest, SetPid_001, TestSize.Level1)
     pid_t pid = 0;
     renderRecord->SetPid(pid);
     EXPECT_EQ(renderRecord->GetPid(), pid);
+}
+
+/*
+ * Feature: AMS
+ * Function: GetHostPid
+ * SubFunction: GetHostPid
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Get HostPid
+ */
+HWTEST_F(AmsAppRunningRecordTest, GetHostPid_001, TestSize.Level1)
+{
+    pid_t hostPid = 1;
+    std::string renderParam = "test_render_param";
+    std::shared_ptr<AppRunningRecord> host;
+    RenderRecord* renderRecord =
+        new RenderRecord(hostPid, renderParam, 1, 0, 0, host);
+    EXPECT_NE(renderRecord, nullptr);
+    EXPECT_EQ(renderRecord->GetHostPid(), hostPid);
+}
+
+/*
+ * Feature: AMS
+ * Function: Set/GetUid
+ * SubFunction: Set/GetUid
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Set/Get Uid
+ */
+HWTEST_F(AmsAppRunningRecordTest, SetUid_001, TestSize.Level1)
+{
+    pid_t hostPid = 0;
+    std::string renderParam = "test_render_param";
+    std::shared_ptr<AppRunningRecord> host;
+    RenderRecord* renderRecord =
+        new RenderRecord(hostPid, renderParam, 0, 0, 0, host);
+    EXPECT_NE(renderRecord, nullptr);
+    int32_t uid = 1;
+    renderRecord->SetUid(uid);
+    EXPECT_EQ(renderRecord->GetUid(), uid);
 }
 
 /*

@@ -2210,6 +2210,305 @@ HWTEST_F(MissionListManagerTest, CompleteBackground_006, TestSize.Level1)
 
 /*
  * Feature: MissionListManager
+ * Function: MoveAbilityToBackground
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager MoveAbilityToBackground
+ * EnvConditions: NA
+ * CaseDescription: Verify MoveAbilityToBackground
+ */
+HWTEST_F(MissionListManagerTest, MoveAbilityToBackground_001, TestSize.Level1)
+{
+    int userId = 3;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    abilityRecord->SetAbilityState(AbilityState::BACKGROUND);
+    int res = missionListManager->MoveAbilityToBackground(abilityRecord);
+    EXPECT_EQ(res, ERR_OK);
+    missionListManager.reset();
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: MoveAbilityToBackground
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager MoveAbilityToBackground
+ * EnvConditions: NA
+ * CaseDescription: Verify MoveAbilityToBackground
+ */
+HWTEST_F(MissionListManagerTest, MoveAbilityToBackground_002, TestSize.Level1)
+{
+    int userId = 3;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    abilityRecord->SetAbilityState(AbilityState::FOREGROUND);
+    int res = missionListManager->MoveAbilityToBackground(abilityRecord);
+    EXPECT_EQ(res, ERR_OK);
+    missionListManager.reset();
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: RemoveBackgroundingAbility
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager RemoveBackgroundingAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify RemoveBackgroundingAbility
+ */
+HWTEST_F(MissionListManagerTest, RemoveBackgroundingAbility_001, TestSize.Level1)
+{
+    int userId = 3;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
+    missionListManager->RemoveBackgroundingAbility(abilityRecord);
+    missionListManager.reset();
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: RemoveBackgroundingAbility
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager RemoveBackgroundingAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify RemoveBackgroundingAbility
+ */
+HWTEST_F(MissionListManagerTest, RemoveBackgroundingAbility_002, TestSize.Level1)
+{
+    int userId = 3;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
+    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+    std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord, "missionName");
+    missionList->missions_.push_back(mission);
+    missionListManager->defaultSingleList_ = std::make_shared<MissionList>();
+    abilityRecord->SetMissionList(missionList);
+    abilityRecord->SetAbilityState(AbilityState::BACKGROUND);
+    missionListManager->RemoveBackgroundingAbility(abilityRecord);
+    missionListManager.reset();
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: RemoveBackgroundingAbility
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager RemoveBackgroundingAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify RemoveBackgroundingAbility
+ */
+HWTEST_F(MissionListManagerTest, RemoveBackgroundingAbility_003, TestSize.Level1)
+{
+    int userId = 3;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
+    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+    missionList->missions_.clear();
+    std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord, "missionName");
+    missionList->missions_.push_back(mission);
+    missionListManager->defaultSingleList_ = std::make_shared<MissionList>();
+    abilityRecord->SetMissionList(missionList);
+    abilityRecord->SetAbilityState(AbilityState::FOREGROUNDING);
+    missionListManager->RemoveBackgroundingAbility(abilityRecord);
+    missionListManager.reset();
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: RemoveBackgroundingAbility
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager RemoveBackgroundingAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify RemoveBackgroundingAbility
+ */
+HWTEST_F(MissionListManagerTest, RemoveBackgroundingAbility_004, TestSize.Level1)
+{
+    int userId = 3;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    std::shared_ptr<AbilityRecord> abilityRecord2 = InitAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
+    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+    std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord, "missionName");
+    std::shared_ptr<Mission> mission2 = std::make_shared<Mission>(2, abilityRecord2, "missionName");
+    missionList->missions_.push_back(mission);
+    missionList->missions_.push_back(mission2);
+    missionListManager->defaultSingleList_ = std::make_shared<MissionList>();
+    abilityRecord->SetMissionList(missionList);
+    abilityRecord->SetAbilityState(AbilityState::FOREGROUND);
+    missionListManager->RemoveBackgroundingAbility(abilityRecord);
+    missionListManager.reset();
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: RemoveBackgroundingAbility
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager RemoveBackgroundingAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify RemoveBackgroundingAbility
+ */
+HWTEST_F(MissionListManagerTest, RemoveBackgroundingAbility_005, TestSize.Level1)
+{
+    int userId = 3;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    std::shared_ptr<AbilityRecord> abilityRecord2 = InitAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
+    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+    Want want;
+    want.SetElementName(AbilityConfig::LAUNCHER_BUNDLE_NAME, AbilityConfig::LAUNCHER_RECENT_ABILITY_NAME);
+    abilityRecord2->SetWant(want);
+    std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord, "missionName");
+    std::shared_ptr<Mission> mission2 = std::make_shared<Mission>(2, abilityRecord2, "missionName");
+    missionList->missions_.push_back(mission);
+    missionList->missions_.push_back(mission2);
+    missionListManager->defaultSingleList_ = std::make_shared<MissionList>();
+    abilityRecord->SetMissionList(missionList);
+    abilityRecord->SetAbilityState(AbilityState::FOREGROUNDING);
+    missionListManager->launcherList_ = missionList;
+    missionListManager->RemoveBackgroundingAbility(abilityRecord);
+    missionListManager.reset();
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: RemoveBackgroundingAbility
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager RemoveBackgroundingAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify RemoveBackgroundingAbility
+ */
+HWTEST_F(MissionListManagerTest, RemoveBackgroundingAbility_006, TestSize.Level1)
+{
+    int userId = 3;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    std::shared_ptr<AbilityRecord> abilityRecord2 = InitAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
+    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+    Want want;
+    want.SetElementName(AbilityConfig::LAUNCHER_BUNDLE_NAME, "abilityName");
+    abilityRecord2->SetWant(want);
+    abilityRecord2->SetAbilityState(AbilityState::BACKGROUND);
+    abilityRecord2->minimizeReason_ = false;
+    abilityRecord2->isReady_ = true;
+    std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord, "missionName");
+    std::shared_ptr<Mission> mission2 = std::make_shared<Mission>(2, abilityRecord2, "missionName");
+    missionList->missions_.push_back(mission);
+    missionList->missions_.push_back(mission2);
+    missionListManager->defaultSingleList_ = std::make_shared<MissionList>();
+    abilityRecord->SetMissionList(missionList);
+    abilityRecord->SetAbilityState(AbilityState::FOREGROUNDING);
+    missionListManager->launcherList_ = missionList;
+    missionListManager->RemoveBackgroundingAbility(abilityRecord);
+    missionListManager.reset();
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: RemoveBackgroundingAbility
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager RemoveBackgroundingAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify RemoveBackgroundingAbility
+ */
+HWTEST_F(MissionListManagerTest, RemoveBackgroundingAbility_007, TestSize.Level1)
+{
+    int userId = 3;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    std::shared_ptr<AbilityRecord> abilityRecord2 = InitAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
+    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+    Want want;
+    want.SetElementName("bundleName", AbilityConfig::LAUNCHER_RECENT_ABILITY_NAME);
+    abilityRecord2->SetWant(want);
+    abilityRecord2->SetAbilityState(AbilityState::FOREGROUND);
+    abilityRecord2->minimizeReason_ = false;
+    abilityRecord2->isReady_ = true;
+    std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord, "missionName");
+    std::shared_ptr<Mission> mission2 = std::make_shared<Mission>(2, abilityRecord2, "missionName");
+    missionList->missions_.push_back(mission);
+    missionList->missions_.push_back(mission2);
+    missionListManager->defaultSingleList_ = std::make_shared<MissionList>();
+    abilityRecord->SetMissionList(missionList);
+    abilityRecord->SetAbilityState(AbilityState::FOREGROUNDING);
+    missionListManager->launcherList_ = missionList;
+    missionListManager->RemoveBackgroundingAbility(abilityRecord);
+    missionListManager.reset();
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: RemoveBackgroundingAbility
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager RemoveBackgroundingAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify RemoveBackgroundingAbility
+ */
+HWTEST_F(MissionListManagerTest, RemoveBackgroundingAbility_008, TestSize.Level1)
+{
+    int userId = 3;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    std::shared_ptr<AbilityRecord> abilityRecord2 = InitAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
+    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+    Want want;
+    want.SetElementName("bundleName", AbilityConfig::LAUNCHER_RECENT_ABILITY_NAME);
+    abilityRecord2->SetWant(want);
+    abilityRecord2->SetAbilityState(AbilityState::BACKGROUND);
+    abilityRecord2->minimizeReason_ = true;
+    abilityRecord2->isReady_ = true;
+    std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord, "missionName");
+    std::shared_ptr<Mission> mission2 = std::make_shared<Mission>(2, abilityRecord2, "missionName");
+    missionList->missions_.push_back(mission);
+    missionList->missions_.push_back(mission2);
+    missionListManager->defaultSingleList_ = std::make_shared<MissionList>();
+    abilityRecord->SetMissionList(missionList);
+    abilityRecord->SetAbilityState(AbilityState::FOREGROUNDING);
+    missionListManager->launcherList_ = missionList;
+    missionListManager->RemoveBackgroundingAbility(abilityRecord);
+    missionListManager.reset();
+}
+
+/*
+ * Feature: MissionListManager
+ * Function: RemoveBackgroundingAbility
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager RemoveBackgroundingAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify RemoveBackgroundingAbility
+ */
+HWTEST_F(MissionListManagerTest, RemoveBackgroundingAbility_009, TestSize.Level1)
+{
+    int userId = 3;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    std::shared_ptr<AbilityRecord> abilityRecord2 = InitAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
+    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
+    Want want;
+    want.SetElementName("bundleName", AbilityConfig::LAUNCHER_RECENT_ABILITY_NAME);
+    abilityRecord2->SetWant(want);
+    abilityRecord2->SetAbilityState(AbilityState::BACKGROUND);
+    abilityRecord2->minimizeReason_ = false;
+    abilityRecord2->isReady_ = false;
+    std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord, "missionName");
+    std::shared_ptr<Mission> mission2 = std::make_shared<Mission>(2, abilityRecord2, "missionName");
+    missionList->missions_.push_back(mission);
+    missionList->missions_.push_back(mission2);
+    missionListManager->defaultSingleList_ = std::make_shared<MissionList>();
+    abilityRecord->SetMissionList(missionList);
+    abilityRecord->SetAbilityState(AbilityState::FOREGROUNDING);
+    missionListManager->launcherList_ = missionList;
+    missionListManager->RemoveBackgroundingAbility(abilityRecord);
+    missionListManager.reset();
+}
+
+/*
+ * Feature: MissionListManager
  * Function: TerminateAbility
  * SubFunction: NA
  * FunctionPoints: MissionListManager TerminateAbility
