@@ -120,10 +120,6 @@ bool PermissionVerification::VerifyRunningInfoPerm() const
 
 bool PermissionVerification::VerifyControllerPerm() const
 {
-    if (IsSACall()) {
-        HILOG_DEBUG("%{public}s: the interface called by SA.", __func__);
-        return true;
-    }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_SET_ABILITY_CONTROLLER)) {
         HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
         return true;
@@ -148,9 +144,6 @@ bool PermissionVerification::VerifyDlpPermission(Want &want) const
 
 int PermissionVerification::VerifyAccountPermission() const
 {
-    if (IsSACall()) {
-        return ERR_OK;
-    }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS)) {
         return ERR_OK;
     }
@@ -186,7 +179,7 @@ int PermissionVerification::VerifyAppStateObserverPermission() const
 
 int32_t PermissionVerification::VerifyUpdateConfigurationPerm() const
 {
-    if (IsSACall() || VerifyCallingPermission(PermissionConstants::PERMISSION_UPDATE_CONFIGURATION)) {
+    if (VerifyCallingPermission(PermissionConstants::PERMISSION_UPDATE_CONFIGURATION)) {
         HILOG_INFO("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_UPDATE_CONFIGURATION);
         return ERR_OK;
     }
@@ -196,7 +189,7 @@ int32_t PermissionVerification::VerifyUpdateConfigurationPerm() const
 
 bool PermissionVerification::VerifyInstallBundlePermission() const
 {
-    if (IsSACall() || VerifyCallingPermission(PermissionConstants::PERMISSION_INSTALL_BUNDLE)) {
+    if (IsShellCall() || VerifyCallingPermission(PermissionConstants::PERMISSION_INSTALL_BUNDLE)) {
         HILOG_INFO("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_INSTALL_BUNDLE);
         return true;
     }
@@ -207,7 +200,7 @@ bool PermissionVerification::VerifyInstallBundlePermission() const
 
 bool PermissionVerification::VerifyGetBundleInfoPrivilegedPermission() const
 {
-    if (IsSACall() || VerifyCallingPermission(PermissionConstants::PERMISSION_GET_BUNDLE_INFO_PRIVILEGED)) {
+    if (IsShellCall() || VerifyCallingPermission(PermissionConstants::PERMISSION_GET_BUNDLE_INFO_PRIVILEGED)) {
         HILOG_INFO("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_GET_BUNDLE_INFO_PRIVILEGED);
         return true;
     }
