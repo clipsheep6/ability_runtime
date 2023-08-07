@@ -170,7 +170,7 @@ void AbilityManagerStub::SecondStepInit()
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_REQUEST_WANT)] =
         &AbilityManagerStub::GetPendingRequestWantInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_SENDER_INFO)] =
-        &AbilityManagerStub::GetPendingRequestWantInner;
+        &AbilityManagerStub::GetWantSenderInfoInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_APP_MEMORY_SIZE)] =
         &AbilityManagerStub::GetAppMemorySizeInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_RAM_CONSTRAINED_DEVICE)] =
