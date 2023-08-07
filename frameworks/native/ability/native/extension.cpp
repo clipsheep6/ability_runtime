@@ -20,6 +20,9 @@
 #include "extension_context.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "ability_lifecycle_executor.h"
+#include "ability_lifecycle_interface.h"
+#include "ability_lifecycle.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -54,9 +57,25 @@ void Extension::OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessio
     SetLastRequestWant(want);
 }
 
-void Extension::OnStop()
-{
+void Extension::OnStop(){
     HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
+    if (abilityLifecycleExecutor_ == nullptr) {
+        HILOG_ERROR("Ability::OnStop error. abilityLifecycleExecutor_ == nullptr.");
+        return;
+    }
+    abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::INITIAL);
+    if (lifecycle_ == nullptr) {
+        HILOG_ERROR("Ability::OnStop error. lifecycle_ == nullptr.");
+        return;
+    }
+    lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_STOP);
+    HILOG_DEBUG("%{public}s end", __func__);
+}
+
+void Extension::OnStop(AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback)
+{
+    isAsyncCallback = false;
+    OnStop();
 }
 
 sptr<IRemoteObject> Extension::OnConnect(const AAFwk::Want &want)
