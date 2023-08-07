@@ -5,7 +5,6 @@
             "ability.particleAbility",
             "resourceschedule.backgroundTaskManager",
             "multimedia.camera",
-            "multimedia.audio",
             "multimedia.media"
         ],
         "FileAccessExtension": [
