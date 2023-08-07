@@ -18,6 +18,7 @@
 
 #include <map>
 
+#include "ability_connect_callback.h"
 #include "extension_context.h"
 #include "start_options.h"
 #include "want.h"
@@ -53,7 +54,28 @@ public:
      * @return errCode ERR_OK on success, others on failure.
      */
     virtual ErrCode TerminateSelf();
+        /**
+     * @brief Connects the current ability to an ability using the AbilityInfo.AbilityType.SERVICE template.
+     *
+     * @param want Indicates the want containing information about the ability to connect
+     *
+     * @param conn Indicates the callback object when the target ability is connected.
+     *
+     * @return Returns zero on success, others on failure.
+     */
+    virtual ErrCode ConnectAbility(
+        const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) const;
 
+    /**
+     * @brief Disconnects the current ability from an ability.
+     *
+     * @param conn Indicates the IAbilityConnection callback object passed by connectAbility after the connection
+     * is set up. The IAbilityConnection object uniquely identifies a connection between two abilities.
+     *
+     * @return errCode ERR_OK on success, others on failure.
+     */
+    virtual ErrCode DisconnectAbility(
+        const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) const;
     /**
      * Start other ability for result.
      *
