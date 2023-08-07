@@ -246,10 +246,13 @@ ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject> &token,
         auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         sptr<AAFwk::SessionInfo> info = new AAFwk::SessionInfo();
-        info->want = *resultWant;
+        HILOG_INFO("call");
+        if (resultWant != nullptr) {
+            info->want = *resultWant;
+        }
         info->resultCode = resultCode;
         info->sessionToken = token;
-        HILOG_DEBUG("call");
+        HILOG_INFO("call TerminateSessionNew.");
         auto err = sceneSessionManager->TerminateSessionNew(info, true);
         return static_cast<int>(err);
     }
@@ -283,7 +286,9 @@ ErrCode AbilityManagerClient::CloseAbility(const sptr<IRemoteObject> &token, int
         auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         sptr<AAFwk::SessionInfo> info = new AAFwk::SessionInfo();
-        info->want = *resultWant;
+        if (resultWant != nullptr) {
+            info->want = *resultWant;
+        }
         info->resultCode = resultCode;
         info->sessionToken = token;
         HILOG_DEBUG("call");
