@@ -6544,6 +6544,7 @@ AppExecFwk::ElementName AbilityManagerService::GetTopAbility()
 
 AppExecFwk::ElementName AbilityManagerService::GetElementNameByToken(const sptr<IRemoteObject> &token)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("%{public}s start.", __func__);
     AppExecFwk::ElementName elementName = {};
 #ifdef SUPPORT_GRAPHICS

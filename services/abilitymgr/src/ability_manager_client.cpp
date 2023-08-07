@@ -854,6 +854,7 @@ ErrCode AbilityManagerClient::FinishUserTest(
 
 ErrCode AbilityManagerClient::GetTopAbility(sptr<IRemoteObject> &token)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
@@ -868,6 +869,7 @@ ErrCode AbilityManagerClient::GetTopAbility(sptr<IRemoteObject> &token)
 
 AppExecFwk::ElementName AbilityManagerClient::GetElementNameByToken(const sptr<IRemoteObject> &token)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     if (abms == nullptr) {
         HILOG_ERROR("abms == nullptr");
@@ -1102,6 +1104,7 @@ ErrCode AbilityManagerClient::FreeInstallAbilityFromRemote(const Want &want, con
 
 AppExecFwk::ElementName AbilityManagerClient::GetTopAbility()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         AppExecFwk::ElementName elementName = {};
         sptr<IRemoteObject> token;
