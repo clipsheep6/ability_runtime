@@ -814,6 +814,245 @@ HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromString_0200, Function | MediumTest | 
 }
 
 /**
+ * @tc.number: AppExecFwk_PacMap_FromString_0300
+ * @tc.name: Marshalling and Unmarshalling
+ * @tc.desc: Verify type.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromString_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_0300 start";
+    std::string str = "{\"pacmap\":{\"key_boolean\":{\"data\":true,\"type\":\"a\"}}}";
+    auto result = pacmap_->FromString(str);
+    EXPECT_TRUE(result);
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_0300 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_FromString_0400
+ * @tc.name: Marshalling and Unmarshalling
+ * @tc.desc: Verify type.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromString_0400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_0400 start";
+    std::string str = "{\"pacmap\":{\"key_boolean\":{\"data\":\"a\",\"type\":7}}}";
+    auto result = pacmap_->FromString(str);
+    EXPECT_TRUE(result);
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_0400 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_FromString_0500
+ * @tc.name: Marshalling and Unmarshalling
+ * @tc.desc: Verify type.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromString_0500, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_0500 start";
+    std::string str = "{\"pacmap\":{\"key_boolean_array\":{\"data\":[{\"a\":\"a\"}],\"type\":1536}}}";
+    auto result = pacmap_->FromString(str);
+    EXPECT_TRUE(result);
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_0500 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_FromString_0600
+ * @tc.name: Marshalling and Unmarshalling
+ * @tc.desc: Verify type.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromString_0600, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_0600 start";
+    std::string str = "{\"pacmap\":{\"key_byte\":{\"data\":\"a\",\"type\":5}}}";
+    auto result = pacmap_->FromString(str);
+    EXPECT_TRUE(result);
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_0600 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_FromString_0700
+ * @tc.name: Marshalling and Unmarshalling
+ * @tc.desc: Verify type.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromString_0700, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_0700 start";
+    std::string str = "{\"pacmap\":{\"key_byte_array\":{\"data\":[{\"a\":\"a\"}],\"type\":1280}}}";
+    auto result = pacmap_->FromString(str);
+    EXPECT_TRUE(result);
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_0700 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_FromString_0800
+ * @tc.name: Marshalling and Unmarshalling
+ * @tc.desc: Verify type.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromString_0800, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_0800 start";
+    std::string str = "{\"pacmap\":{\"key_double\":{\"data\":\"a\",\"type\":9}}}";
+    auto result = pacmap_->FromString(str);
+    EXPECT_TRUE(result);
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_0800 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_FromString_0900
+ * @tc.name: Marshalling and Unmarshalling
+ * @tc.desc: Verify type.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromString_0900, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_0900 start";
+    std::string str = "{\"pacmap\":{\"key_double_array\":{\"data\":[{\"a\":\"a\"}],\"type\":2048}}}";
+    auto result = pacmap_->FromString(str);
+    EXPECT_TRUE(result);
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_0900 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_FromString_1000
+ * @tc.name: Marshalling and Unmarshalling
+ * @tc.desc: Verify type.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromString_1000, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_1000 start";
+    std::string str = "{\"pacmap\":{\"key_float\":{\"data\":\"a\",\"type\":8}}}";
+    auto result = pacmap_->FromString(str);
+    EXPECT_TRUE(result);
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_1000 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_FromString_1100
+ * @tc.name: Marshalling and Unmarshalling
+ * @tc.desc: Verify type.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromString_1100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_1100 start";
+    std::string str = "{\"pacmap\":{\"key_float_array\":{\"data\":[{\"a\":\"a\"}],\"type\":1792}}}";
+    auto result = pacmap_->FromString(str);
+    EXPECT_TRUE(result);
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_1100 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_FromString_1200
+ * @tc.name: Marshalling and Unmarshalling
+ * @tc.desc: Verify type.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromString_1200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_1200 start";
+    std::string str = "{\"pacmap\":{\"key_int\":{\"data\":\"a\",\"type\":2}}}";
+    auto result = pacmap_->FromString(str);
+    EXPECT_TRUE(result);
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_1200 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_FromString_1300
+ * @tc.name: Marshalling and Unmarshalling
+ * @tc.desc: Verify type.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromString_1300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_1300 start";
+    std::string str = "{\"pacmap\":{\"key_int_array\":{\"data\":[{\"a\":\"a\"}],\"type\":512}}}";
+    auto result = pacmap_->FromString(str);
+    EXPECT_TRUE(result);
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_1300 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_FromString_1400
+ * @tc.name: Marshalling and Unmarshalling
+ * @tc.desc: Verify type.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromString_1400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_1400 start";
+    std::string str = "{\"pacmap\":{\"key_long\":{\"data\":\"a\",\"type\":3}}}";
+    auto result = pacmap_->FromString(str);
+    EXPECT_TRUE(result);
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_1400 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_FromString_1500
+ * @tc.name: Marshalling and Unmarshalling
+ * @tc.desc: Verify type.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromString_1500, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_1500 start";
+    std::string str = "{\"pacmap\":{\"key_long_array\":{\"data\":[{\"a\":\"a\"}],\"type\":768}}}";
+    auto result = pacmap_->FromString(str);
+    EXPECT_TRUE(result);
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_1500 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_FromString_1600
+ * @tc.name: Marshalling and Unmarshalling
+ * @tc.desc: Verify type.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromString_1600, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_1600 start";
+    std::string str =
+        "{\"pacmap\":{\"key_object\":{\"class\":\"TUserObjectTest\",\"data\":{\"a\":\"a\"},\"type\":65536}}}";
+    auto result = pacmap_->FromString(str);
+    EXPECT_TRUE(result);
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_1600 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_FromString_1700
+ * @tc.name: Marshalling and Unmarshalling
+ * @tc.desc: Verify type.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromString_1700, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_1700 start";
+    std::string str = "{\"pacmap\":{\"key_short\":{\"data\":\"a\",\"type\":1}}}";
+    auto result = pacmap_->FromString(str);
+    EXPECT_TRUE(result);
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_1700 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_FromString_1800
+ * @tc.name: Marshalling and Unmarshalling
+ * @tc.desc: Verify type.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromString_1800, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_1800 start";
+    std::string str = "{\"pacmap\":{\"key_short_array\":{\"data\":[{\"a\":\"a\"}],\"type\":256}}}";
+    auto result = pacmap_->FromString(str);
+    EXPECT_TRUE(result);
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_1800 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_PacMap_FromString_1900
+ * @tc.name: Marshalling and Unmarshalling
+ * @tc.desc: Verify type.
+ */
+HWTEST_F(PacMapTest, AppExecFwk_PacMap_FromString_1900, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_1900 start";
+    std::string str = "{\"pacmap\":{\"key_string\":{\"data\":{\"a\":\"a\"},\"type\":10}}}";
+    auto result = pacmap_->FromString(str);
+    EXPECT_TRUE(result);
+    GTEST_LOG_(INFO) << "AppExecFwk_PacMap_FromString_1900 end";
+}
+
+/**
  * @tc.number: AppExecFwk_PacMap_Parse_0100
  * @tc.name: Marshalling and Unmarshalling
  * @tc.desc: Verify Marshalling() and Unmarshalling().

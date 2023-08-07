@@ -56,7 +56,6 @@ const std::string TRACE_ATOMIC_SERVICE = "StartAtomicService";
 namespace {
 static std::map<ConnectionKey, sptr<JSAbilityConnection>, KeyCompare> g_connects;
 int64_t g_serialNumber = 0;
-std::shared_ptr<AppExecFwk::EventHandler> g_handler;
 
 // This function has to be called from engine thread
 void RemoveConnection(int64_t connectId)
@@ -1393,8 +1392,6 @@ NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<Abilit
     std::unique_ptr<JsAbilityContext> jsContext = std::make_unique<JsAbilityContext>(context);
     object->SetNativePointer(jsContext.release(), JsAbilityContext::Finalizer, nullptr);
 
-    g_handler = std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
-
     auto abilityInfo = context->GetAbilityInfo();
     if (abilityInfo != nullptr) {
         object->SetProperty("abilityInfo", CreateJsAbilityInfo(engine, *abilityInfo));
@@ -1516,21 +1513,21 @@ void JSAbilityConnection::OnAbilityConnectDone(const AppExecFwk::ElementName &el
     const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
     HILOG_INFO("OnAbilityConnectDone, resultCode:%{public}d", resultCode);
-    if (g_handler == nullptr) {
-        HILOG_ERROR("g_handler nullptr");
-        return;
-    }
-
     wptr<JSAbilityConnection> connection = this;
-    auto task = [connection, element, remoteObject, resultCode] {
-        sptr<JSAbilityConnection> connectionSptr = connection.promote();
-        if (!connectionSptr) {
-            HILOG_ERROR("connectionSptr nullptr");
-            return;
-        }
-        connectionSptr->HandleOnAbilityConnectDone(element, remoteObject, resultCode);
-    };
-    g_handler->PostTask(task, "OnAbilityConnectDone");
+    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
+        ([connection, element, remoteObject, resultCode](NativeEngine &engine, AsyncTask &task, int32_t status) {
+            sptr<JSAbilityConnection> connectionSptr = connection.promote();
+            if (!connectionSptr) {
+                HILOG_ERROR("connectionSptr nullptr");
+                return;
+            }
+            connectionSptr->HandleOnAbilityConnectDone(element, remoteObject, resultCode);
+        });
+
+    NativeReference* callback = nullptr;
+    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
+    AsyncTask::Schedule("JSAbilityConnection::OnAbilityConnectDone",
+        engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
 void JSAbilityConnection::HandleOnAbilityConnectDone(const AppExecFwk::ElementName &element,
@@ -1565,21 +1562,20 @@ void JSAbilityConnection::HandleOnAbilityConnectDone(const AppExecFwk::ElementNa
 void JSAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
 {
     HILOG_INFO("OnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
-    if (g_handler == nullptr) {
-        HILOG_INFO("g_handler nullptr");
-        return;
-    }
-
     wptr<JSAbilityConnection> connection = this;
-    auto task = [connection, element, resultCode] {
-        sptr<JSAbilityConnection> connectionSptr = connection.promote();
-        if (!connectionSptr) {
-            HILOG_INFO("connectionSptr nullptr");
-            return;
-        }
-        connectionSptr->HandleOnAbilityDisconnectDone(element, resultCode);
-    };
-    g_handler->PostTask(task, "OnAbilityDisconnectDone");
+    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
+        ([connection, element, resultCode](NativeEngine &engine, AsyncTask &task, int32_t status) {
+            sptr<JSAbilityConnection> connectionSptr = connection.promote();
+            if (!connectionSptr) {
+                HILOG_INFO("connectionSptr nullptr");
+                return;
+            }
+            connectionSptr->HandleOnAbilityDisconnectDone(element, resultCode);
+        });
+    NativeReference* callback = nullptr;
+    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
+    AsyncTask::Schedule("JSAbilityConnection::OnAbilityDisconnectDone",
+        engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
 void JSAbilityConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element,

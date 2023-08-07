@@ -40,36 +40,37 @@ JsModuleReader::JsModuleReader(const std::string& bundleName, const std::string&
     }
 }
 
-std::vector<uint8_t> JsModuleReader::operator()(const std::string& inputPath) const
+bool JsModuleReader::operator()(const std::string& inputPath, uint8_t **buff, size_t *buffSize) const
 {
     HILOG_INFO("JsModuleReader operator start: %{private}s", inputPath.c_str());
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::vector<uint8_t> buffer;
-    if (inputPath.empty()) {
-        HILOG_ERROR("inputPath is empty");
-        return buffer;
+    if (inputPath.empty() || buff == nullptr || buffSize == nullptr) {
+        HILOG_ERROR("Invalid param");
+        return false;
     }
 
     auto realHapPath = GetAppHspPath(inputPath);
     if (realHapPath.empty()) {
         HILOG_ERROR("realHapPath is empty");
-        return buffer;
+        return false;
     }
 
     bool newCreate = false;
     std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(realHapPath, newCreate);
     if (extractor == nullptr) {
         HILOG_ERROR("realHapPath %{private}s GetExtractor failed", realHapPath.c_str());
-        return buffer;
+        return false;
     }
-    std::unique_ptr<uint8_t[]> dataPtr = nullptr;
-    size_t len = 0;
-    if (!extractor->ExtractToBufByName(MERGE_ABC_PATH, dataPtr, len)) {
+
+    auto data = extractor->GetSafeData(MERGE_ABC_PATH);
+    if (!data) {
         HILOG_ERROR("get mergeAbc fileBuffer failed");
-        return buffer;
+        return false;
     }
-    buffer.assign(dataPtr.get(), dataPtr.get() + len);
-    return buffer;
+
+    *buff = data->GetDataPtr();
+    *buffSize = data->GetDataLen();
+    return true;
 }
 
 std::string JsModuleReader::GetAppHspPath(const std::string& inputPath) const

@@ -64,8 +64,8 @@ struct RunningProcessInfo : public Parcelable {
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;
     static RunningProcessInfo *Unmarshalling(Parcel &parcel);
-    ProcessType processType_;
-    ExtensionAbilityType extensionType_;
+    ProcessType processType_ = ProcessType::NORMAL;
+    ExtensionAbilityType extensionType_ = ExtensionAbilityType::UNSPECIFIED;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

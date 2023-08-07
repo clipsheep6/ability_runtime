@@ -1185,12 +1185,12 @@ HWTEST_F(ContextImplTest, GetGroupDir_0100, TestSize.Level1)
     EXPECT_EQ(path, "");
     contextImpl->currArea_ = "el2";
     path = contextImpl->GetGroupDir("1");
-    string systemPreferencesDir; 
+    string systemPreferencesDir;
     auto res = contextImpl->GetSystemPreferencesDir("", true, systemPreferencesDir);
     EXPECT_EQ(res, 0);
     res = contextImpl->GetSystemPreferencesDir("", false, systemPreferencesDir);
     EXPECT_EQ(res, 0);
-    string systemDatabaseDir; 
+    string systemDatabaseDir;
     res = contextImpl->GetSystemDatabaseDir("", true, systemDatabaseDir);
     EXPECT_EQ(res, 0);
     res = contextImpl->GetSystemDatabaseDir("", false, systemDatabaseDir);

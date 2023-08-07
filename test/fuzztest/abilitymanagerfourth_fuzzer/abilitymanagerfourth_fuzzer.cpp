@@ -27,54 +27,70 @@ using namespace OHOS::AAFwk;
 namespace OHOS {
 namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
+constexpr size_t INDEX_ZERO = 0;
+constexpr size_t INDEX_ONE = 1;
+constexpr size_t INDEX_TWO = 2;
+constexpr size_t INDEX_THREE = 3;
 constexpr size_t U32_AT_SIZE = 4;
 constexpr size_t INPUT_EIGHT = 8;
 constexpr size_t INPUT_SIXTEEN = 16;
 constexpr size_t INPUT_TWENTYFOUR = 24;
 }
 const std::u16string ABILITYMGR_INTERFACE_TOKEN = u"ohos.aafwk.AbilityManager";
-std::map<int, int> codeMap_;
+std::map<int, uint32_t> codeMap_;
 
 uint32_t GetU32Data(const char* ptr)
 {
     // convert fuzz input data to an integer
-    return (ptr[0] << INPUT_TWENTYFOUR) | (ptr[1] << INPUT_SIXTEEN) | (ptr[2] << INPUT_EIGHT) | ptr[3];
+    return (ptr[INDEX_ZERO] << INPUT_TWENTYFOUR) | (ptr[INDEX_ONE] << INPUT_SIXTEEN) |
+        (ptr[INDEX_TWO] << INPUT_EIGHT) | ptr[INDEX_THREE];
 }
 
 void EmplaceCodeMap()
 {
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::START_ABILITY_FOR_OPTIONS));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::BLOCK_AMS_SERVICE));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::BLOCK_ABILITY));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::BLOCK_APP_SERVICE));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::START_CALL_ABILITY));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::RELEASE_CALL_ABILITY));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::CONNECT_ABILITY_WITH_TYPE));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::START_UI_EXTENSION_ABILITY));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::CALL_REQUEST_DONE));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::START_ABILITY_AS_CALLER_BY_TOKEN));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::START_ABILITY_AS_CALLER_FOR_OPTIONS));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::MINIMIZE_UI_EXTENSION_ABILITY));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::TERMINATE_UI_EXTENSION_ABILITY));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::CONNECT_UI_EXTENSION_ABILITY));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::START_UI_ABILITY_BY_SCB));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::MINIMIZE_UI_ABILITY_BY_SCB));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::CLOSE_UI_ABILITY_BY_SCB));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::REQUEST_DIALOG_SERVICE));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::START_SPECIFIED_ABILITY_BY_SCB));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::SET_SESSIONMANAGERSERVICE));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::START_CONTINUATION));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::NOTIFY_CONTINUATION_RESULT));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::NOTIFY_COMPLETE_CONTINUATION));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::CONTINUE_ABILITY));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::CONTINUE_MISSION));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::SEND_RESULT_TO_ABILITY));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::REGISTER_REMOTE_ON_LISTENER));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::REGISTER_REMOTE_OFF_LISTENER));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::CONTINUE_MISSION_OF_BUNDLENAME));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::REGISTER_REMOTE_MISSION_LISTENER));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::UNREGISTER_REMOTE_MISSION_LISTENER));
-    codeMap_.emplace(codeMap_.size(), static_cast<int>(IAbilityManager::START_SYNC_MISSIONS));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_FOR_OPTIONS));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::BLOCK_AMS_SERVICE));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::BLOCK_ABILITY));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::BLOCK_APP_SERVICE));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::START_CALL_ABILITY));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::RELEASE_CALL_ABILITY));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::CONNECT_ABILITY_WITH_TYPE));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::CALL_REQUEST_DONE));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_BY_TOKEN));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_FOR_OPTIONS));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::MINIMIZE_UI_EXTENSION_ABILITY));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_UI_EXTENSION_ABILITY));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::CONNECT_UI_EXTENSION_ABILITY));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::START_UI_ABILITY_BY_SCB));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::MINIMIZE_UI_ABILITY_BY_SCB));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::CLOSE_UI_ABILITY_BY_SCB));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::REQUEST_DIALOG_SERVICE));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::START_SPECIFIED_ABILITY_BY_SCB));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_SESSIONMANAGERSERVICE));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::START_CONTINUATION));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::NOTIFY_CONTINUATION_RESULT));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::NOTIFY_COMPLETE_CONTINUATION));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::CONTINUE_ABILITY));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::CONTINUE_MISSION));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_RESULT_TO_ABILITY));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_REMOTE_ON_LISTENER));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_REMOTE_OFF_LISTENER));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::CONTINUE_MISSION_OF_BUNDLENAME));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_REMOTE_MISSION_LISTENER));
+    codeMap_.emplace(codeMap_.size(),
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_REMOTE_MISSION_LISTENER));
+    codeMap_.emplace(codeMap_.size(), static_cast<uint32_t>(AbilityManagerInterfaceCode::START_SYNC_MISSIONS));
 }
 
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)

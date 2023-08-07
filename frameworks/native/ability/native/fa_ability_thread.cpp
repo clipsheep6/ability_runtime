@@ -28,6 +28,9 @@
 #include "context_deal.h"
 #include "data_ability_predicates.h"
 #include "dataobs_mgr_client.h"
+#ifdef WITH_DLP
+#include "dlp_file_kits.h"
+#endif // WITH_DLP
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ohos_application.h"
@@ -64,6 +67,9 @@ constexpr static char FILEACCESS_EXT_ABILITY[] = "FileAccessExtension";
 constexpr static char ENTERPRISE_ADMIN_EXTENSION[] = "EnterpriseAdminExtension";
 constexpr static char INPUTMETHOD_EXTENSION[] = "InputMethodExtensionAbility";
 constexpr static char APP_ACCOUNT_AUTHORIZATION_EXTENSION[] = "AppAccountAuthorizationExtension";
+#ifdef WITH_DLP
+constexpr static char DLP_PARAMS_SANDBOX[] = "ohos.dlp.params.sandbox";
+#endif // WITH_DLP
 }
 
 const int32_t PREPARE_TO_TERMINATE_TIMEOUT_MILLISECONDS = 3000;
@@ -828,8 +834,15 @@ void FAAbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int
             return;
         }
         if (abilityThread->isExtension_) {
-            abilityThread->HandleCommandExtension(want, restart, startId);
             Want newWant(want);
+#ifdef WITH_DLP
+            bool sandboxFlag = Security::DlpPermission::DlpFileKits::GetSandboxFlag(newWant);
+            newWant.SetParam(DLP_PARAMS_SANDBOX, sandboxFlag);
+            if (sandboxFlag) {
+                newWant.CloseAllFd();
+            }
+#endif // WITH_DLP
+            abilityThread->HandleCommandExtension(newWant, restart, startId);
             newWant.CloseAllFd();
         } else {
             abilityThread->HandleCommandAbility(want, restart, startId);

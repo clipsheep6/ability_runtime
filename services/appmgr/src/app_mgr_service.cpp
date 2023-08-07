@@ -28,6 +28,7 @@
 #include "app_death_recipient.h"
 #include "app_mgr_constants.h"
 #include "hilog_wrapper.h"
+#include "in_process_call_wrapper.h"
 #include "perf_profile.h"
 
 #include "permission_constants.h"
@@ -439,15 +440,15 @@ int AppMgrService::FinishUserTest(const std::string &msg, const int64_t &resultC
     }
     int32_t callingUid = IPCSkeleton::GetCallingUid();
     std::string callerBundleName;
-    bool result = bundleMgr->GetBundleNameForUid(callingUid, callerBundleName);
-    if (result) {
+    auto result = IN_PROCESS_CALL(bundleMgr->GetNameForUid(callingUid, callerBundleName));
+    if (result == ERR_OK) {
         HILOG_INFO("FinishUserTest callingPid_ is %{public}s", callerBundleName.c_str());
         if (bundleName != callerBundleName) {
             HILOG_ERROR("AppMgrService::FinishUserTest Not this process call.");
             return ERR_INVALID_OPERATION;
         }
     } else {
-        HILOG_ERROR("AppMgrService::FinishUserTest GetBundleNameForUid is nullptr");
+        HILOG_ERROR("GetBundleName failed: %{public}d", result);
         return ERR_INVALID_OPERATION;
     }
     pid_t callingPid = IPCSkeleton::GetCallingPid();

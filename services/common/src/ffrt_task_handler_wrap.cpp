@@ -18,34 +18,19 @@
 
 namespace OHOS {
 namespace AAFwk {
-namespace {
-class FfrtTaskHandle : public InnerTaskHandle {
-public:
-    FfrtTaskHandle(ffrt::task_handle &&taskHandle, const std::shared_ptr<int> &outDep)
-        : InnerTaskHandle(std::move(taskHandle)), outDep_(outDep)
-    {}
-    ~FfrtTaskHandle() override = default;
-    const std::shared_ptr<int> &GetOutDep() const
-    {
-        return outDep_;
-    }
-private:
-    std::shared_ptr<int> outDep_;
-};
-}
 std::shared_ptr<InnerTaskHandle> FfrtTaskHandlerWrap::SubmitTaskInner(std::function<void()> &&task,
     const TaskAttribute &taskAttr)
 {
-    auto outDep = std::make_shared<int>();
     if (taskAttr.IsDefault()) {
-        return std::make_shared<FfrtTaskHandle>(ffrt::submit_h(std::move(task)), outDep);
+        return std::make_shared<InnerTaskHandle>(ffrt::submit_h(std::move(task)));
     } else {
         ffrt::task_attr ffrtTaskAttr;
         BuildFfrtTaskAttr(taskAttr, ffrtTaskAttr);
-        return std::make_shared<FfrtTaskHandle>(ffrt::submit_h(std::move(task),
-            {}, {outDep.get()}, ffrtTaskAttr), outDep);
+        return std::make_shared<InnerTaskHandle>(ffrt::submit_h(std::move(task),
+            {}, {}, ffrtTaskAttr));
     }
 }
+
 bool FfrtTaskHandlerWrap::CancelTaskInner(const std::shared_ptr<InnerTaskHandle> &taskHandle)
 {
     if (!taskHandle) {
@@ -53,13 +38,13 @@ bool FfrtTaskHandlerWrap::CancelTaskInner(const std::shared_ptr<InnerTaskHandle>
     }
     return ffrt::skip(taskHandle->GetFfrtHandle()) == 0;
 }
+
 void FfrtTaskHandlerWrap::WaitTaskInner(const std::shared_ptr<InnerTaskHandle> &taskHandle)
 {
     if (!taskHandle) {
         return;
     }
-    auto ffrtTaskHandle = static_cast<FfrtTaskHandle*>(taskHandle.get());
-    ffrt::wait({ffrtTaskHandle->GetOutDep().get()});
+    ffrt::wait({taskHandle->GetFfrtHandle()});
 }
 } // namespace AAFwk
 } // namespace OHOS

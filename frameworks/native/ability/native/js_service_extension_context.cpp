@@ -59,7 +59,6 @@ public:
 
 static std::map<ConnectionKey, sptr<JSServiceExtensionConnection>, key_compare> g_connects;
 static int64_t g_serialNumber = 0;
-static std::shared_ptr<AppExecFwk::EventHandler> g_handler = nullptr;
 
 void RemoveConnection(int64_t connectId)
 {
@@ -992,9 +991,6 @@ NativeValue* CreateJsServiceExtensionContext(NativeEngine& engine, std::shared_p
     std::unique_ptr<JsServiceExtensionContext> jsContext = std::make_unique<JsServiceExtensionContext>(context);
     object->SetNativePointer(jsContext.release(), JsServiceExtensionContext::Finalizer, nullptr);
 
-    // make handler
-    g_handler = std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
-
     const char *moduleName = "JsServiceExtensionContext";
     BindNativeFunction(engine, *object, "startAbility", moduleName, JsServiceExtensionContext::StartAbility);
     BindNativeFunction(engine, *object, "startAbilityAsCaller",
@@ -1085,20 +1081,21 @@ void JSServiceExtensionConnection::OnAbilityConnectDone(const AppExecFwk::Elemen
     const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
     HILOG_DEBUG("OnAbilityConnectDone, resultCode:%{public}d", resultCode);
-    if (g_handler == nullptr) {
-        HILOG_INFO("g_handler nullptr");
-        return;
-    }
     wptr<JSServiceExtensionConnection> connection = this;
-    auto task = [connection, element, remoteObject, resultCode]() {
-        sptr<JSServiceExtensionConnection> connectionSptr = connection.promote();
-        if (!connectionSptr) {
-            HILOG_INFO("connectionSptr nullptr");
-            return;
-        }
-        connectionSptr->HandleOnAbilityConnectDone(element, remoteObject, resultCode);
-    };
-    g_handler->PostTask(task, "OnAbilityConnectDone");
+    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
+        ([connection, element, remoteObject, resultCode](NativeEngine &engine, AsyncTask &task, int32_t status) {
+            sptr<JSServiceExtensionConnection> connectionSptr = connection.promote();
+            if (!connectionSptr) {
+                HILOG_ERROR("connectionSptr nullptr");
+                return;
+            }
+            connectionSptr->HandleOnAbilityConnectDone(element, remoteObject, resultCode);
+        });
+
+    NativeReference* callback = nullptr;
+    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
+    AsyncTask::Schedule("JSServiceExtensionConnection::OnAbilityConnectDone",
+        engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
 void JSServiceExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::ElementName &element,
@@ -1135,20 +1132,20 @@ void JSServiceExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::
 void JSServiceExtensionConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
 {
     HILOG_DEBUG("OnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
-    if (g_handler == nullptr) {
-        HILOG_INFO("g_handler nullptr");
-        return;
-    }
     wptr<JSServiceExtensionConnection> connection = this;
-    auto task = [connection, element, resultCode]() {
-        sptr<JSServiceExtensionConnection> connectionSptr = connection.promote();
-        if (!connectionSptr) {
-            HILOG_INFO("connectionSptr nullptr");
-            return;
-        }
-        connectionSptr->HandleOnAbilityDisconnectDone(element, resultCode);
-    };
-    g_handler->PostTask(task, "OnAbilityDisconnectDone");
+    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
+        ([connection, element, resultCode](NativeEngine &engine, AsyncTask &task, int32_t status) {
+            sptr<JSServiceExtensionConnection> connectionSptr = connection.promote();
+            if (!connectionSptr) {
+                HILOG_INFO("connectionSptr nullptr");
+                return;
+            }
+            connectionSptr->HandleOnAbilityDisconnectDone(element, resultCode);
+        });
+    NativeReference* callback = nullptr;
+    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
+    AsyncTask::Schedule("JSServiceExtensionConnection::OnAbilityDisconnectDone",
+        engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
 void JSServiceExtensionConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element,

@@ -404,35 +404,6 @@ void MissionInfoMgr::SetMissionAbilityState(int32_t missionId, AbilityState stat
         return;
     }
     it->missionInfo.abilityState = state;
-
-    auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(
-        it->collaboratorType);
-    if (collaborator == nullptr) {
-        HILOG_DEBUG("collaborator is nullptr");
-    } else {
-        HILOG_INFO("start notify collaborator, missionId:%{public}d, state:%{public}d", missionId,
-            static_cast<int32_t>(state));
-        int ret = ERR_OK;
-        switch (state) {
-            case AbilityState::FOREGROUNDING: {
-                ret = collaborator->NotifyMoveMissionToForeground(missionId);
-                break;
-            }
-            case AbilityState::BACKGROUNDING: {
-                ret = collaborator->NotifyMoveMissionToBackground(missionId);
-                break;
-            }
-            case AbilityState::TERMINATING: {
-                ret = collaborator->NotifyTerminateMission(missionId);
-                break;
-            }
-            default:
-                break;
-        }
-        if (ret != ERR_OK) {
-            HILOG_ERROR("notify broker move mission to background failed, err: %{public}d", ret);
-        }
-    }
 }
 
 bool MissionInfoMgr::LoadAllMissionInfo()

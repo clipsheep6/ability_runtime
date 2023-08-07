@@ -49,6 +49,7 @@ namespace AAFwk {
 namespace {
 const std::string DEBUG_APP = "debugApp";
 const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
+const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
 }
 class AbilityRecordTest : public testing::TestWithParam<OHOS::AAFwk::AbilityState> {
@@ -2265,6 +2266,38 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_HandleDlpClosed_001, TestSize.Level1)
     abilityRecord->abilityInfo_.bundleName = DLP_BUNDLE_NAME;
     abilityRecord->appIndex_ = 1;
     abilityRecord->HandleDlpClosed();
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: NotifyAnimationAbilityDied
+ * SubFunction: NotifyAnimationAbilityDied
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord NotifyAnimationAbilityDied
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_NotifyAnimationAbilityDied_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
+    abilityRecord->missionId_ = 1;
+    abilityRecord->NotifyAnimationAbilityDied();
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: NotifyRemoveShellProcess
+ * SubFunction: NotifyRemoveShellProcess
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord NotifyRemoveShellProcess
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_NotifyRemoveShellProcess_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
+    abilityRecord->abilityInfo_.bundleName = SHELL_ASSISTANT_BUNDLENAME;
+    abilityRecord->NotifyRemoveShellProcess(CollaboratorType::RESERVE_TYPE);
 }
 
 /*

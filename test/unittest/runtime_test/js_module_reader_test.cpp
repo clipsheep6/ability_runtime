@@ -54,8 +54,10 @@ void JsModuleReaderTest::TearDown()
 HWTEST_F(JsModuleReaderTest, JsModuleReaderTest_0100, TestSize.Level0)
 {
     JsModuleReader jsModuleReader("JsModuleReader", "");
-    std::vector<uint8_t> result = jsModuleReader("");
-    EXPECT_EQ(result.size(), 0);
+    uint8_t *buff = nullptr;
+    size_t buffSize = 0;
+    auto result = jsModuleReader("", &buff, &buffSize);
+    EXPECT_EQ(result, false);
 }
 
 /**
@@ -67,8 +69,10 @@ HWTEST_F(JsModuleReaderTest, JsModuleReaderTest_0100, TestSize.Level0)
 HWTEST_F(JsModuleReaderTest, JsModuleReaderTest_0200, TestSize.Level0)
 {
     JsModuleReader jsModuleReader("JsModuleReader", "");
-    std::vector<uint8_t> result = jsModuleReader("bundleName/moduleName");
-    EXPECT_EQ(result.size(), 0);
+    uint8_t *buff = nullptr;
+    size_t buffSize = 0;
+    auto result = jsModuleReader("bundleName/moduleName", &buff, &buffSize);
+    EXPECT_EQ(result, false);
 }
 
 /**

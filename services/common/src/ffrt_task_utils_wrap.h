@@ -17,7 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_FFRT_TASK_UTILS_WRAP_H
 
 #include <string>
-#include "cpp/task.h"
+#include "ffrt_inner.h"
 #include "task_utils_wrap.h"
 
 namespace OHOS {
