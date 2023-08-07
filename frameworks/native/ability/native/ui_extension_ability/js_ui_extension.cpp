@@ -188,6 +188,15 @@ void JsUIExtension::OnStop()
     CallObjectMethod("onDestroy");
     HILOG_DEBUG("JsUIExtension OnStop end.");
 }
+void JsUIExtension::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback){
+    if (callbackInfo == nullptr) {
+        isAsyncCallback = false;
+        OnStop();
+        return;
+    }
+    //无需异步callback回调
+    OnStop();
+}
 
 sptr<IRemoteObject> JsUIExtension::OnConnect(const AAFwk::Want &want)
 {
