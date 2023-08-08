@@ -2332,6 +2332,7 @@ bool AbilityManagerService::CheckIfOperateRemote(const Want &want)
 
 bool AbilityManagerService::GetLocalDeviceId(std::string& localDeviceId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto localNode = std::make_unique<NodeBasicInfo>();
     int32_t errCode = GetLocalNodeDeviceInfo(DM_PKG_NAME.c_str(), localNode.get());
     if (errCode != ERR_OK) {
