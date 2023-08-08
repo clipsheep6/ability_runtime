@@ -60,12 +60,12 @@ void Extension::OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessio
 void Extension::OnStop(){
     HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
     if (abilityLifecycleExecutor_ == nullptr) {
-        HILOG_ERROR("Ability::OnStop error. abilityLifecycleExecutor_ == nullptr.");
+        HILOG_ERROR("Extension::OnStop error. abilityLifecycleExecutor_ == nullptr.");
         return;
     }
     abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::INITIAL);
     if (lifecycle_ == nullptr) {
-        HILOG_ERROR("Ability::OnStop error. lifecycle_ == nullptr.");
+        HILOG_ERROR("Extension::OnStop error. lifecycle_ == nullptr.");
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_STOP);

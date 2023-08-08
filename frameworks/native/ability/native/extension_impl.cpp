@@ -212,8 +212,13 @@ void ExtensionImpl::Stop(bool &isAsyncCallback)
     // else: callbackInfo will be destroyed after the async callback
     HILOG_DEBUG("%{public}s end.", __func__);
 }
+
 void ExtensionImpl::AbilityTransactionCallback(const AAFwk::AbilityLifeCycleState &state)
-{}
+{
+    HILOG_INFO("call abilityms");
+    AAFwk::PacMap restoreData;
+    AAFwk::AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, restoreData);
+}
 
 /**
  * @brief Connect the extension. and Calling information back to Extension.
