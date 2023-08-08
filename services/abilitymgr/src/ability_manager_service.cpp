@@ -151,7 +151,7 @@ bool CheckCallerIsDlpManager(const sptr<AppExecFwk::IBundleMgr> &bundleManager)
     return true;
 }
 } // namespace
-
+//
 using namespace std::chrono;
 using namespace std::chrono_literals;
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
