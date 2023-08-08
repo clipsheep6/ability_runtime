@@ -30,6 +30,7 @@
 #include "hitrace_meter.h"
 #include "scene_board_judgement.h"
 #include "session_manager.h"
+#include "ws_common.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -590,6 +591,13 @@ ErrCode AbilityManagerClient::RegisterMissionListener(const sptr<IMissionListene
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
+        HILOG_DEBUG("call");
+        auto err = sceneSessionManager->RegisterSessionListener(listener);
+        return static_cast<int>(err);
+    }
     return abms->RegisterMissionListener(listener);
 }
 
@@ -597,6 +605,13 @@ ErrCode AbilityManagerClient::UnRegisterMissionListener(const sptr<IMissionListe
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
+        HILOG_DEBUG("call");
+        auto err = sceneSessionManager->UnRegisterSessionListener(listener);
+        return static_cast<int>(err);
+    }
     return abms->UnRegisterMissionListener(listener);
 }
 
@@ -637,6 +652,13 @@ ErrCode AbilityManagerClient::GetMissionInfos(const std::string& deviceId, int32
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
+        HILOG_DEBUG("call");
+        auto err = sceneSessionManager->GetSessionInfos(numMax, missionInfos);
+        return static_cast<int>(err);
+    }
     return abms->GetMissionInfos(deviceId, numMax, missionInfos);
 }
 
@@ -645,6 +667,13 @@ ErrCode AbilityManagerClient::GetMissionInfo(const std::string& deviceId, int32_
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
+        HILOG_DEBUG("call");
+        auto err = sceneSessionManager->GetSessionInfo(missionId, missionInfo);
+        return static_cast<int>(err);
+    }
     return abms->GetMissionInfo(deviceId, missionId, missionInfo);
 }
 
@@ -652,6 +681,13 @@ ErrCode AbilityManagerClient::CleanMission(int32_t missionId)
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
+        HILOG_DEBUG("call");
+        auto err = sceneSessionManager->ClearSession(missionId);
+        return static_cast<int>(err);
+    }
     return abms->CleanMission(missionId);
 }
 
@@ -659,6 +695,13 @@ ErrCode AbilityManagerClient::CleanAllMissions()
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
+        HILOG_DEBUG("call");
+        auto err = sceneSessionManager->ClearAllSessions();
+        return static_cast<int>(err);
+    }
     return abms->CleanAllMissions();
 }
 
@@ -834,6 +877,13 @@ ErrCode AbilityManagerClient::GetMissionSnapshot(const std::string& deviceId, in
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
+        HILOG_DEBUG("call");
+        auto err = sceneSessionManager->GetSessionSnapshot(missionId, snapshot, isLowResolution);
+        return static_cast<int>(err);
+    }
     return abms->GetMissionSnapshot(deviceId, missionId, snapshot, isLowResolution);
 }
 
@@ -914,6 +964,13 @@ ErrCode AbilityManagerClient::SetMissionContinueState(const sptr<IRemoteObject> 
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
+        HILOG_DEBUG("call");
+        auto err = sceneSessionManager->SetSessionContinueState(token, static_cast<Rosen::ContinueState>(state));
+        return static_cast<int>(err);
+    }
     return abms->SetMissionContinueState(token, state);
 }
 
