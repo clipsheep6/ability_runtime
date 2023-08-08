@@ -23,7 +23,7 @@ extern const char _binary_delegator_mgmt_abc_end[];
 namespace OHOS {
 namespace RunnerRuntime {
 std::unique_ptr<TestRunner> JsTestRunner::Create(const std::unique_ptr<Runtime> &runtime,
-    const std::shared_ptr<AbilityDelegatorArgs> &args, const AppExecFwk::BundleInfo &bundleInfo, bool isFaJsModel)
+    const std::shared_ptr<AbilityDelegatorArgs> &args, const AppExecFwk::BundleInfo &bundleInfo, bool isFaJsModel, bool isStage)
 {
     if (!runtime) {
         HILOG_ERROR("Invalid runtime");
@@ -36,7 +36,7 @@ std::unique_ptr<TestRunner> JsTestRunner::Create(const std::unique_ptr<Runtime> 
     }
 
     auto pTestRunner = new (std::nothrow) JsTestRunner(static_cast<JsRuntime &>(*runtime), args, bundleInfo,
-        isFaJsModel);
+        isFaJsModel, isStage);
     if (!pTestRunner) {
         HILOG_ERROR("Failed to create test runner");
         return nullptr;
@@ -47,7 +47,7 @@ std::unique_ptr<TestRunner> JsTestRunner::Create(const std::unique_ptr<Runtime> 
 
 JsTestRunner::JsTestRunner(
     JsRuntime &jsRuntime, const std::shared_ptr<AbilityDelegatorArgs> &args, const AppExecFwk::BundleInfo &bundleInfo,
-    bool isFaJsModel)
+    bool isFaJsModel, bool isStage)
     : jsRuntime_(jsRuntime), isFaJsModel_(isFaJsModel)
 {
     std::string moduleName;
@@ -56,12 +56,24 @@ JsTestRunner::JsTestRunner(
         if (bundleInfo.hapModuleInfos.back().isModuleJson) {
             srcPath.append(args->GetTestModuleName());
             if (args->GetTestRunnerClassName().find("/") == std::string::npos) {
-                srcPath.append("/ets/TestRunner/");
+                if (isStage) {
+                    HILOG_INFO("stage module");
+                    srcPath.append("/ets/testrunner/");
+                } else {
+                    HILOG_INFO("FA module");
+                    srcPath.append("/ets/TestRunner/");
+                }
             }
             moduleName = args->GetTestModuleName();
         } else {
             srcPath.append(args->GetTestPackageName());
-            srcPath.append("/assets/js/TestRunner/");
+            if (isStage) {
+                HILOG_INFO("stage module");
+                srcPath.append("/assets/js/testrunner/");
+            } else {
+                HILOG_INFO("FA module");
+                srcPath.append("/assets/js/TestRunner/");
+            }
             moduleName = args->GetTestPackageName();
         }
         srcPath.append(args->GetTestRunnerClassName());
