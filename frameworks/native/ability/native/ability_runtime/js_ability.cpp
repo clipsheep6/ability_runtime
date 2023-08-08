@@ -226,7 +226,7 @@ void JsAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(&nativeEngine), want);
     NativeValue *jsWant = reinterpret_cast<NativeValue *>(napiWant);
-    if(jsWant == nullptr) {
+    if (jsWant == nullptr) {
         HILOG_ERROR("jsWant is nullptr");
         return;
     }
