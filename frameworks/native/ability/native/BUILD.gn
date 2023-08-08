@@ -789,10 +789,12 @@ ohos_shared_library("ui_extension") {
 
   external_deps = [
     "ability_base:want",
+    "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
+    "ipc:ipc_core",
     "ipc:ipc_napi_common",
     "napi:ace_napi",
   ]

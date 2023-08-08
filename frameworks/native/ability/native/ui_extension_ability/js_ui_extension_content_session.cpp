@@ -16,8 +16,10 @@
 #include "js_ui_extension_content_session.h"
 
 #include "ability_manager_client.h"
+#include "accesstoken_kit.h"
 #include "event_handler.h"
 #include "hilog_wrapper.h"
+#include "ipc_skeleton.h"
 #include "js_error_utils.h"
 #include "js_runtime_utils.h"
 #include "js_ui_extension_context.h"
@@ -31,6 +33,7 @@ constexpr int32_t INDEX_ZERO = 0;
 constexpr int32_t INDEX_ONE = 1;
 constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
+constexpr const char* PERMISSION_PRIVACY_WINDOW = "ohos.permission.PRIVACY_WINDOW";
 } // namespace
 
 JsUIExtensionContentSession::JsUIExtensionContentSession(
@@ -285,6 +288,12 @@ NativeValue *JsUIExtensionContentSession::OnSetWindowPrivacyMode(NativeEngine& e
     if (info.argc < ARGC_ONE || !ConvertFromJsValue(engine, info.argv[INDEX_ZERO], isPrivacyMode)) {
         HILOG_ERROR("invalid param");
         ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return engine.CreateUndefined();
+    }
+    auto selfToken = IPCSkeleton::GetSelfTokenID();
+    int ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(selfToken, PERMISSION_PRIVACY_WINDOW);
+    if (ret != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
+        ThrowNoPermissionError(engine, PERMISSION_PRIVACY_WINDOW);
         return engine.CreateUndefined();
     }
 
