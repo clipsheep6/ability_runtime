@@ -7914,5 +7914,18 @@ int AbilityManagerService::PrepareTerminateAbilityBySCB(const sptr<SessionInfo> 
 
     return ERR_OK;
 }
+
+int AbilityManagerService::RegisterSessionHandler(const sptr<IRemoteObject> &object)
+{
+    HILOG_INFO("call");
+    CHECK_POINTER_AND_RETURN(uiAbilityLifecycleManager_, ERR_NO_INIT);
+    if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD, U0_USER_ID)) {
+        HILOG_ERROR("Not sceneboard called, not allowed.");
+        return ERR_WRONG_INTERFACE_CALL;
+    }
+    sptr<ISessionHandler> handler = iface_cast<ISessionHandler>(object);
+    uiAbilityLifecycleManager_->SetSessionHandler(handler);
+    return ERR_OK;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

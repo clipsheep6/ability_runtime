@@ -1288,5 +1288,13 @@ ErrCode AbilityManagerClient::PrepareTerminateAbilityBySCB(const sptr<SessionInf
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->PrepareTerminateAbilityBySCB(sessionInfo, isPrepareTerminate);
 }
+
+ErrCode AbilityManagerClient::RegisterSessionHandler(const sptr<IRemoteObject> &object)
+{
+    HILOG_DEBUG("call");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->RegisterSessionHandler(object);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

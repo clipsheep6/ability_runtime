@@ -880,6 +880,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isPrepareTerminate) override;
+    virtual int RegisterSessionHandler(const sptr<IRemoteObject> &object) override;
 
 private:
     template <typename T>

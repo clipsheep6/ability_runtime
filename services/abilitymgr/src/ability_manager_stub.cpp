@@ -235,6 +235,8 @@ void AbilityManagerStub::SecondStepInit()
         &AbilityManagerStub::ForceExitAppInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RECORD_APP_EXIT_REASON)] =
         &AbilityManagerStub::RecordAppExitReasonInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_SESSION_HANDLER)] =
+        &AbilityManagerStub::RegisterSessionHandlerInner;
 #ifdef ABILITY_COMMAND_FOR_TEST
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::BLOCK_ABILITY)] =
         &AbilityManagerStub::BlockAbilityInner;
@@ -2414,6 +2416,18 @@ int AbilityManagerStub::PrepareTerminateAbilityBySCBInner(MessageParcel &data, M
         }
     }
     return result;
+}
+
+int AbilityManagerStub::RegisterSessionHandlerInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> handler = data.ReadRemoteObject();
+    if (handler == nullptr) {
+        HILOG_ERROR("stub register session handler, handler is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = RegisterSessionHandler(handler);
+    reply.WriteInt32(result);
+    return NO_ERROR;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

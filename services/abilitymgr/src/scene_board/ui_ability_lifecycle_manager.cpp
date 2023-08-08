@@ -339,6 +339,9 @@ void UIAbilityLifecycleManager::CompleteForegroundSuccess(const std::shared_ptr<
         HILOG_DEBUG("not continuous startup.");
         abilityRecord->SetPendingState(AbilityState::INITIAL);
     }
+    if (handler_ != nullptr && abilityRecord->GetSessionInfo() != nullptr) {
+        handler_->OnSessionMovedToFront(abilityRecord->GetSessionInfo()->persistentId);
+    }
 }
 
 void UIAbilityLifecycleManager::HandleForegroundFailed(const std::shared_ptr<AbilityRecord> &ability,
@@ -1465,6 +1468,11 @@ bool UIAbilityLifecycleManager::CheckPrepareTerminateEnable(const std::shared_pt
         return false;
     }
     return true;
+}
+
+void UIAbilityLifecycleManager::SetSessionHandler(const sptr<ISessionHandler> &handler)
+{
+    handler_ = handler;
 }
 
 std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetAbilityRecordsById(int32_t sessionId) const

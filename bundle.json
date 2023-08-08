@@ -383,6 +383,13 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/interfaces/inner_api/extension_manager:extension_manager"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/session_handler/include",
+              "header_files": []
+            },
+            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/session_handler:session_handler"
           }
         ],
         "test": [

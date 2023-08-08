@@ -1139,6 +1139,14 @@ public:
     */
     ErrCode TerminateMission(int32_t missionId);
 
+    /**
+     * @brief Register session handler.
+     * @param object The handler.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+    */
+    ErrCode RegisterSessionHandler(const sptr<IRemoteObject> &object);
+
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
