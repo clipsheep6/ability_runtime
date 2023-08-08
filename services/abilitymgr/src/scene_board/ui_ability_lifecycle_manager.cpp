@@ -35,6 +35,7 @@ constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
 const std::string DLP_INDEX = "ohos.dlp.params.index";
+constexpr int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
 #ifdef SUPPORT_ASAN
 const int KILL_TIMEOUT_MULTIPLE = 45;
 #else
@@ -1409,6 +1410,61 @@ LastExitReason UIAbilityLifecycleManager::CovertAppExitReasonToLastReason(const 
         default:
             return LASTEXITREASON_UNKNOWN;
     }
+}
+
+bool UIAbilityLifecycleManager::PrepareTerminateAbility(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    HILOG_DEBUG("call");
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("ability record is null");
+        return false;
+    }
+    HILOG_INFO("abilityInfoName:%{public}s", abilityRecord->GetAbilityInfo().name.c_str());
+    if (!CheckPrepareTerminateEnable(abilityRecord)) {
+        HILOG_DEBUG("Not support prepare terminate.");
+        return false;
+    }
+    // execute onPrepareToTerminate util timeout
+    auto taskHandler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    if (taskHandler == nullptr) {
+        HILOG_ERROR("Fail to get AbilityTaskHandler.");
+        return false;
+    }
+    auto promise = std::make_shared<std::promise<bool>>();
+    auto future = promise->get_future();
+    auto task = [promise, abilityRecord]() {
+        promise->set_value(abilityRecord->PrepareTerminateAbility());
+    };
+    taskHandler->SubmitTask(task);
+    int prepareTerminateTimeout =
+        AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * PREPARE_TERMINATE_TIMEOUT_MULTIPLE;
+    std::future_status status = future.wait_for(std::chrono::milliseconds(prepareTerminateTimeout));
+    if (status == std::future_status::timeout) {
+        HILOG_ERROR("onPrepareToTerminate timeout.");
+        return false;
+    }
+    return future.get();
+}
+
+bool UIAbilityLifecycleManager::CheckPrepareTerminateEnable(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    if (abilityRecord == nullptr || abilityRecord->IsTerminating()) {
+        HILOG_DEBUG("Ability record is not exist or is on terminating.");
+        return false;
+    }
+    auto type = abilityRecord->GetAbilityInfo().type;
+    bool isStageBasedModel = abilityRecord->GetAbilityInfo().isStageBasedModel;
+    if (!isStageBasedModel || type != AppExecFwk::AbilityType::PAGE) {
+        HILOG_DEBUG("ability mode not support.");
+        return false;
+    }
+    auto tokenId = abilityRecord->GetApplicationInfo().accessTokenId;
+    if (!AAFwk::PermissionVerification::GetInstance()->VerifyPrepareTerminatePermission(tokenId)) {
+        HILOG_DEBUG("failed, please apply permission ohos.permission.PREPARE_APP_TERMINATE");
+        return false;
+    }
+    return true;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

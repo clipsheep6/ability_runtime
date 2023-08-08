@@ -25,304 +25,307 @@ enum class AbilityManagerInterfaceCode {
     TERMINATE_ABILITY = 1,
 
     // ipc id for attaching ability thread (2)
-    ATTACH_ABILITY_THREAD,
+    ATTACH_ABILITY_THREAD = 2,
 
     // ipc id for ability transition done (3)
-    ABILITY_TRANSITION_DONE,
+    ABILITY_TRANSITION_DONE = 3,
 
     // ipc id for connecting ability done (4)
-    CONNECT_ABILITY_DONE,
+    CONNECT_ABILITY_DONE = 4,
 
     // ipc id for disconnecting ability done (5)
-    DISCONNECT_ABILITY_DONE,
+    DISCONNECT_ABILITY_DONE = 5,
 
     // ipc id for add window token (6)
-    ADD_WINDOW_INFO,
+    ADD_WINDOW_INFO = 6,
 
     // ipc id for list stack info (8)
     LIST_STACK_INFO = 8,
 
     // ipc id for get recent mission (9)
-    GET_RECENT_MISSION,
+    GET_RECENT_MISSION = 9,
 
     // ipc id for removing mission (10)
-    REMOVE_MISSION,
+    REMOVE_MISSION = 10,
 
     // ipc id for removing mission (11)
-    REMOVE_STACK,
+    REMOVE_STACK = 11,
 
     // ipc id for removing mission (12)
-    COMMAND_ABILITY_DONE,
+    COMMAND_ABILITY_DONE = 12,
 
     // ipc id for get mission snapshot (13)
-    GET_MISSION_SNAPSHOT,
+    GET_MISSION_SNAPSHOT = 13,
 
     // ipc id for acquire data ability (14)
-    ACQUIRE_DATA_ABILITY,
+    ACQUIRE_DATA_ABILITY = 14,
 
     // ipc id for release data ability (15)
-    RELEASE_DATA_ABILITY,
+    RELEASE_DATA_ABILITY = 15,
 
     // ipc id for move mission to top (16)
-    MOVE_MISSION_TO_TOP,
+    MOVE_MISSION_TO_TOP = 16,
 
     // ipc id for kill process (17)
-    KILL_PROCESS,
+    KILL_PROCESS = 17,
 
     // ipc id for uninstall app (18)
-    UNINSTALL_APP,
+    UNINSTALL_APP = 18,
 
     // ipc id for move mission to floating stack (20)
     MOVE_MISSION_TO_FLOATING_STACK = 20,
 
     // ipc id for move mission to floating stack (21)
-    MOVE_MISSION_TO_SPLITSCREEN_STACK,
+    MOVE_MISSION_TO_SPLITSCREEN_STACK = 21,
 
     // ipc id for change focus ability (22)
-    CHANGE_FOCUS_ABILITY,
+    CHANGE_FOCUS_ABILITY = 22,
 
     // ipc id for Minimize MultiWindow (23)
-    MINIMIZE_MULTI_WINDOW,
+    MINIMIZE_MULTI_WINDOW = 23,
 
     // ipc id for Maximize MultiWindow (24)
-    MAXIMIZE_MULTI_WINDOW,
+    MAXIMIZE_MULTI_WINDOW = 24,
 
     // ipc id for get floating missions (25)
-    GET_FLOATING_MISSIONS,
+    GET_FLOATING_MISSIONS = 25,
 
     // ipc id for get floating missions (26)
-    CLOSE_MULTI_WINDOW,
+    CLOSE_MULTI_WINDOW = 26,
 
-    // ipc id for move mission to end (29)
-    MOVE_MISSION_TO_END,
+    // ipc id for move mission to end (27)
+    MOVE_MISSION_TO_END = 27,
 
-    // ipc id for compel verify permission (30)
-    COMPEL_VERIFY_PERMISSION,
+    // ipc id for compel verify permission (28)
+    COMPEL_VERIFY_PERMISSION = 28,
 
-    // ipc id for power off (31)
-    POWER_OFF,
+    // ipc id for power off (29)
+    POWER_OFF = 29,
 
-    // ipc id for power off (32)
-    POWER_ON,
+    // ipc id for power off (30)
+    POWER_ON = 30,
 
-    // ipc id for luck mission (33)
-    LUCK_MISSION,
+    // ipc id for luck mission (31)
+    LUCK_MISSION = 31,
 
-    // ipc id for unluck mission (34)
-    UNLUCK_MISSION,
+    // ipc id for unluck mission (32)
+    UNLUCK_MISSION = 32,
 
-    // ipc id for set mission info (35)
-    SET_MISSION_INFO,
+    // ipc id for set mission info (33)
+    SET_MISSION_INFO = 33,
 
-    // ipc id for get mission lock mode state (36)
-    GET_MISSION_LOCK_MODE_STATE,
+    // ipc id for get mission lock mode state (34)
+    GET_MISSION_LOCK_MODE_STATE = 34,
 
-    // ipc id for minimize ability (38)
-    MINIMIZE_ABILITY,
+    // ipc id for minimize ability (35)
+    MINIMIZE_ABILITY = 35,
 
-    // ipc id for lock mission for cleanup operation (39)
-    LOCK_MISSION_FOR_CLEANUP,
+    // ipc id for lock mission for cleanup operation (36)
+    LOCK_MISSION_FOR_CLEANUP = 36,
 
-    // ipc id for unlock mission for cleanup operation (40)
-    UNLOCK_MISSION_FOR_CLEANUP,
+    // ipc id for unlock mission for cleanup operation (37)
+    UNLOCK_MISSION_FOR_CLEANUP = 37,
 
-    // ipc id for register mission listener (41)
-    REGISTER_MISSION_LISTENER,
+    // ipc id for register mission listener (38)
+    REGISTER_MISSION_LISTENER = 38,
 
-    // ipc id for unregister mission listener (42)
-    UNREGISTER_MISSION_LISTENER,
+    // ipc id for unregister mission listener (39)
+    UNREGISTER_MISSION_LISTENER = 39,
 
-    // ipc id for get mission infos (43)
-    GET_MISSION_INFOS,
+    // ipc id for get mission infos (40)
+    GET_MISSION_INFOS = 40,
 
-    // ipc id for get mission info by id (44)
-    GET_MISSION_INFO_BY_ID,
+    // ipc id for get mission info by id (41)
+    GET_MISSION_INFO_BY_ID = 41,
 
-    // ipc id for clean mission (45)
-    CLEAN_MISSION,
+    // ipc id for clean mission (42)
+    CLEAN_MISSION = 42,
 
-    // ipc id for clean all missions (46)
-    CLEAN_ALL_MISSIONS,
+    // ipc id for clean all missions (43)
+    CLEAN_ALL_MISSIONS = 43,
+
+    // ipc id for move mission to front (44)
+    MOVE_MISSION_TO_FRONT = 44,
+
+    // ipc id for get mission snap shot (45)
+    GET_MISSION_SNAPSHOT_BY_ID = 45,
+
+    // ipc id for move mission to front (46)
+    START_USER = 46,
 
     // ipc id for move mission to front (47)
-    MOVE_MISSION_TO_FRONT,
+    STOP_USER = 47,
 
-    // ipc id for get mission snap shot (48)
-    GET_MISSION_SNAPSHOT_BY_ID,
+    // ipc id for set ability controller (48)
+    SET_ABILITY_CONTROLLER = 48,
 
-    // ipc id for move mission to front (49)
-    START_USER,
+    // ipc id for get stability test flag (49)
+    IS_USER_A_STABILITY_TEST = 49,
 
-    // ipc id for move mission to front (50)
-    STOP_USER,
+    // ipc id for set mission label (50)
+    SET_MISSION_LABEL = 50,
 
-    // ipc id for set ability controller (51)
-    SET_ABILITY_CONTROLLER,
+    // ipc id for ability foreground (51)
+    DO_ABILITY_FOREGROUND = 51,
 
-    // ipc id for get stability test flag (52)
-    IS_USER_A_STABILITY_TEST,
+    // ipc id for ability background (52)
+    DO_ABILITY_BACKGROUND = 52,
 
-    // ipc id for set mission label (53)
-    SET_MISSION_LABEL,
+    // ipc id for move mission to front by options (53)
+    MOVE_MISSION_TO_FRONT_BY_OPTIONS = 53,
 
-    // ipc id for ability foreground (54)
-    DO_ABILITY_FOREGROUND,
+    // ipc for get mission id by ability token (54)
+    GET_MISSION_ID_BY_ABILITY_TOKEN = 54,
 
-    // ipc id for ability background (55)
-    DO_ABILITY_BACKGROUND,
+    // ipc id for set mission icon (55)
+    SET_MISSION_ICON = 55,
 
-    // ipc id for move mission to front by options (56)
-    MOVE_MISSION_TO_FRONT_BY_OPTIONS,
+    // dump ability info done (56)
+    DUMP_ABILITY_INFO_DONE = 56,
 
-    // ipc for get mission id by ability token (57)
-    GET_MISSION_ID_BY_ABILITY_TOKEN,
+    // start extension ability (57)
+    START_EXTENSION_ABILITY = 57,
 
-    // ipc id for set mission icon (58)
-    SET_MISSION_ICON,
+    // stop extension ability (58)
+    STOP_EXTENSION_ABILITY = 58,
 
-    // dump ability info done (59)
-    DUMP_ABILITY_INFO_DONE,
+    SET_COMPONENT_INTERCEPTION = 59,
 
-    // start extension ability (60)
-    START_EXTENSION_ABILITY,
+    SEND_ABILITY_RESULT_BY_TOKEN = 60,
 
-    // stop extension ability (61)
-    STOP_EXTENSION_ABILITY,
+    // ipc id for set rootSceneSession (61)
+    SET_ROOT_SCENE_SESSION = 61,
 
-    SET_COMPONENT_INTERCEPTION,
+    // prepare terminate ability (62)
+    PREPARE_TERMINATE_ABILITY = 62,
 
-    SEND_ABILITY_RESULT_BY_TOKEN,
+    COMMAND_ABILITY_WINDOW_DONE = 63,
 
-    // ipc id for set rootSceneSession (64)
-    SET_ROOT_SCENE_SESSION,
+    // prepare terminate ability (64)
+    CALL_ABILITY_BY_SCB = 64,
 
-    // prepare terminate ability (65)
-    PREPARE_TERMINATE_ABILITY,
+    MOVE_ABILITY_TO_BACKGROUND = 65,
 
-    COMMAND_ABILITY_WINDOW_DONE,
-
-    // prepare terminate ability (67)
-    CALL_ABILITY_BY_SCB,
-
-    MOVE_ABILITY_TO_BACKGROUND,
-
-    // ipc id for set mission continue state (69)
-    SET_MISSION_CONTINUE_STATE,
+    // ipc id for set mission continue state (66)
+    SET_MISSION_CONTINUE_STATE = 66,
 
     // ipc id 1001-2000 for DMS
     // ipc id for starting ability (1001)
     START_ABILITY = 1001,
 
     // ipc id for connecting ability (1002)
-    CONNECT_ABILITY,
+    CONNECT_ABILITY = 1002,
 
     // ipc id for disconnecting ability (1003)
-    DISCONNECT_ABILITY,
+    DISCONNECT_ABILITY = 1003,
 
     // ipc id for disconnecting ability (1004)
-    STOP_SERVICE_ABILITY,
+    STOP_SERVICE_ABILITY = 1004,
 
     // ipc id for starting ability by caller(1005)
-    START_ABILITY_ADD_CALLER,
+    START_ABILITY_ADD_CALLER = 1005,
 
-    GET_PENDING_WANT_SENDER,
+    GET_PENDING_WANT_SENDER = 1006,
 
-    SEND_PENDING_WANT_SENDER,
+    SEND_PENDING_WANT_SENDER = 1007,
 
-    CANCEL_PENDING_WANT_SENDER,
+    CANCEL_PENDING_WANT_SENDER = 1008,
 
-    GET_PENDING_WANT_UID,
+    GET_PENDING_WANT_UID = 1009,
 
-    GET_PENDING_WANT_BUNDLENAME,
+    GET_PENDING_WANT_BUNDLENAME = 1010,
 
-    GET_PENDING_WANT_USERID,
+    GET_PENDING_WANT_USERID = 1011,
 
-    GET_PENDING_WANT_TYPE,
+    GET_PENDING_WANT_TYPE = 1012,
 
-    GET_PENDING_WANT_CODE,
+    GET_PENDING_WANT_CODE = 1013,
 
-    REGISTER_CANCEL_LISTENER,
+    REGISTER_CANCEL_LISTENER = 1014,
 
-    UNREGISTER_CANCEL_LISTENER,
+    UNREGISTER_CANCEL_LISTENER = 1015,
 
-    GET_PENDING_REQUEST_WANT,
+    GET_PENDING_REQUEST_WANT = 1016,
 
-    GET_PENDING_WANT_SENDER_INFO,
-    SET_SHOW_ON_LOCK_SCREEN,
+    GET_PENDING_WANT_SENDER_INFO = 1017,
+    SET_SHOW_ON_LOCK_SCREEN = 1018,
 
-    SEND_APP_NOT_RESPONSE_PROCESS_ID,
+    SEND_APP_NOT_RESPONSE_PROCESS_ID = 1019,
 
-    // ipc id for starting ability by settings(1018)
-    START_ABILITY_FOR_SETTINGS,
+    // ipc id for starting ability by settings(1020)
+    START_ABILITY_FOR_SETTINGS = 1020,
 
-    GET_ABILITY_MISSION_SNAPSHOT,
+    GET_ABILITY_MISSION_SNAPSHOT = 1021,
 
-    GET_APP_MEMORY_SIZE,
+    GET_APP_MEMORY_SIZE = 1022,
 
-    IS_RAM_CONSTRAINED_DEVICE,
+    IS_RAM_CONSTRAINED_DEVICE = 1023,
 
-    GET_ABILITY_RUNNING_INFO,
+    GET_ABILITY_RUNNING_INFO = 1024,
 
-    GET_EXTENSION_RUNNING_INFO,
+    GET_EXTENSION_RUNNING_INFO = 1025,
 
-    GET_PROCESS_RUNNING_INFO,
+    GET_PROCESS_RUNNING_INFO = 1026,
 
-    CLEAR_UP_APPLICATION_DATA,
+    CLEAR_UP_APPLICATION_DATA = 1027,
 
-    START_ABILITY_FOR_OPTIONS,
+    START_ABILITY_FOR_OPTIONS = 1028,
 
-    BLOCK_AMS_SERVICE,
+    BLOCK_AMS_SERVICE = 1029,
 
-    BLOCK_ABILITY,
+    BLOCK_ABILITY = 1030,
 
-    BLOCK_APP_SERVICE,
+    BLOCK_APP_SERVICE = 1031,
 
     // ipc id for call ability
-    START_CALL_ABILITY,
+    START_CALL_ABILITY = 1032,
 
-    RELEASE_CALL_ABILITY,
+    RELEASE_CALL_ABILITY = 1033,
 
-    CONNECT_ABILITY_WITH_TYPE,
+    CONNECT_ABILITY_WITH_TYPE = 1034,
 
     // start ui extension ability
-    START_UI_EXTENSION_ABILITY,
+    START_UI_EXTENSION_ABILITY = 1035,
 
-    CALL_REQUEST_DONE,
+    CALL_REQUEST_DONE = 1036,
 
-    START_ABILITY_AS_CALLER_BY_TOKEN,
+    START_ABILITY_AS_CALLER_BY_TOKEN = 1037,
 
-    START_ABILITY_AS_CALLER_FOR_OPTIONS,
+    START_ABILITY_AS_CALLER_FOR_OPTIONS = 1038,
 
     // ipc id for minimize ui extension ability
-    MINIMIZE_UI_EXTENSION_ABILITY,
+    MINIMIZE_UI_EXTENSION_ABILITY = 1039,
 
     // ipc id for terminating ui extension ability
-    TERMINATE_UI_EXTENSION_ABILITY,
+    TERMINATE_UI_EXTENSION_ABILITY = 1040,
 
     // ipc id for connect ui extension ability
-    CONNECT_UI_EXTENSION_ABILITY,
+    CONNECT_UI_EXTENSION_ABILITY = 1041,
 
-    CHECK_UI_EXTENSION_IS_FOCUSED,
+    CHECK_UI_EXTENSION_IS_FOCUSED = 1042,
 
-    START_UI_ABILITY_BY_SCB,
+    START_UI_ABILITY_BY_SCB = 1043,
 
     // ipc id for minimize ui ability by scb
-    MINIMIZE_UI_ABILITY_BY_SCB,
+    MINIMIZE_UI_ABILITY_BY_SCB = 1044,
 
     // ipc id for close ui ability by scb
-    CLOSE_UI_ABILITY_BY_SCB,
+    CLOSE_UI_ABILITY_BY_SCB = 1045,
 
     // ipc id for request dialog service
-    REQUEST_DIALOG_SERVICE,
+    REQUEST_DIALOG_SERVICE = 1046,
 
     // ipc id for start specified ability by scb
-    START_SPECIFIED_ABILITY_BY_SCB,
+    START_SPECIFIED_ABILITY_BY_SCB = 1047,
 
     // ipc id for set sessionManagerService
-    SET_SESSIONMANAGERSERVICE,
+    SET_SESSIONMANAGERSERVICE = 1048,
 
     // ipc id for report drawn completed
-    REPORT_DRAWN_COMPLETED,
+    REPORT_DRAWN_COMPLETED = 1049,
+
+    // ipc id for prepare to terminate ability by scb
+    PREPARE_TERMINATE_ABILITY_BY_SCB = 1050,
 
     // ipc id for continue ability(1101)
     START_CONTINUATION = 1101,

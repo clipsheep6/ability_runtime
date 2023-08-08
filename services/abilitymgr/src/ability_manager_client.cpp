@@ -1279,5 +1279,14 @@ ErrCode AbilityManagerClient::TerminateMission(int32_t missionId)
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->TerminateMission(missionId);
 }
+
+ErrCode AbilityManagerClient::PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &sessionInfo,
+    bool &isPrepareTerminate)
+{
+    HILOG_INFO("call.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->PrepareTerminateAbilityBySCB(sessionInfo, isPrepareTerminate);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

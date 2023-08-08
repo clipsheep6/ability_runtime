@@ -289,6 +289,8 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::MoveAbilityToBackgroundInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_CONTINUE_STATE)] =
         &AbilityManagerStub::SetMissionContinueStateInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::PREPARE_TERMINATE_ABILITY_BY_SCB)] =
+        &AbilityManagerStub::PrepareTerminateAbilityBySCBInner;
 #ifdef SUPPORT_GRAPHICS
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_LABEL)] =
         &AbilityManagerStub::SetMissionLabelInner;
@@ -2396,5 +2398,22 @@ int32_t AbilityManagerStub::TerminateMissionInner(MessageParcel &data, MessagePa
     return NO_ERROR;
 }
 
+int AbilityManagerStub::PrepareTerminateAbilityBySCBInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Call.");
+    sptr<SessionInfo> sessionInfo = nullptr;
+    if (data.ReadBool()) {
+        sessionInfo = data.ReadParcelable<SessionInfo>();
+    }
+    bool isPrepareTerminate = false;
+    auto result = PrepareTerminateAbilityBySCB(sessionInfo, isPrepareTerminate);
+    if (result == ERR_OK) {
+        if (!reply.WriteBool(isPrepareTerminate)) {
+            HILOG_ERROR("reply write failed.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+    return result;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

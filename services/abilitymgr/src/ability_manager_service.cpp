@@ -7887,5 +7887,30 @@ void AbilityManagerService::GetConnectManagerAndUIExtensionBySessionInfo(const s
         }
     }
 }
+
+int AbilityManagerService::PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isTerminate)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("Call.");
+    if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
+        HILOG_ERROR("sessionInfo is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD, U0_USER_ID)) {
+        HILOG_ERROR("Not sceneboard called, not allowed.");
+        return ERR_WRONG_INTERFACE_CALL;
+    }
+
+    if (!uiAbilityLifecycleManager_) {
+        HILOG_ERROR("failed, uiAbilityLifecycleManager is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto abilityRecord = uiAbilityLifecycleManager_->GetUIAbilityRecordBySessionInfo(sessionInfo);
+    isTerminate = uiAbilityLifecycleManager_->PrepareTerminateAbility(abilityRecord);
+
+    return ERR_OK;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

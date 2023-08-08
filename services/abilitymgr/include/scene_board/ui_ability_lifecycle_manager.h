@@ -216,6 +216,8 @@ public:
     int32_t IsValidMissionIds(const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results,
         int32_t userId);
 
+    bool PrepareTerminateAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
+
 private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
     int32_t GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest) const;
@@ -267,6 +269,8 @@ private:
     void SetLastExitReason(std::shared_ptr<AbilityRecord> &abilityRecord) const;
     LastExitReason CovertAppExitReasonToLastReason(const Reason exitReason) const;
     void SetRevicerInfo(const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &abilityRecord) const;
+
+    bool CheckPrepareTerminateEnable(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
     mutable ffrt::mutex sessionLock_;
     std::unordered_map<int32_t, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;
