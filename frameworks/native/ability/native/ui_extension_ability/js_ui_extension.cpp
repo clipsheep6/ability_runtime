@@ -194,7 +194,7 @@ void JsUIExtension::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbac
         OnStop();
         return;
     }
-    //无需异步callback回调
+    //无需异步stopcallback释放资源
     OnStop();
 }
 
