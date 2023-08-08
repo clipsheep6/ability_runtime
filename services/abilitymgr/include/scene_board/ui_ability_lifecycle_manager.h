@@ -218,6 +218,14 @@ public:
 
     bool PrepareTerminateAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
+    /**
+     * Get abilityRecord by session id.
+     *
+     * @param sessionId the session id.
+     * @return Returns abilityRecord on success, nullptr on failure.
+     */
+    std::shared_ptr<AbilityRecord> GetAbilityRecordsById(int32_t sessionId) const;
+
 private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
     int32_t GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest) const;
