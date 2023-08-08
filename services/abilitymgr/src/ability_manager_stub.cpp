@@ -30,6 +30,7 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 const std::u16string extensionDescriptor = u"ohos.aafwk.ExtensionManager";
+const std::u16string dataAbilityDescriptor = u"ohos.aafwk.DataAbilityManager";
 }
 AbilityManagerStub::AbilityManagerStub()
 {
@@ -329,7 +330,8 @@ int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Mess
 {
     std::u16string abilityDescriptor = AbilityManagerStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
-    if (abilityDescriptor != remoteDescriptor && extensionDescriptor != remoteDescriptor) {
+    if (abilityDescriptor != remoteDescriptor && extensionDescriptor != remoteDescriptor
+        && dataAbilityDescriptor != remoteDescriptor) {
         HILOG_ERROR("local descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
