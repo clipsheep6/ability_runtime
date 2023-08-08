@@ -58,6 +58,7 @@ constexpr static char FORM_EXTENSION[] = "FormExtension";
 constexpr static char UI_EXTENSION[] = "UIExtensionAbility";
 constexpr static char MEDIA_CONTROL_EXTENSION[] = "MediaControlExtensionAbility";
 constexpr static char USER_AUTH_EXTENSION[] = "UserAuthExtensionAbility";
+constexpr static char SHARE_EXTENSION[] = "ShareExtensionAbility";
 #endif
 constexpr static char BASE_SERVICE_EXTENSION[] = "ServiceExtension";
 constexpr static char BASE_DRIVER_EXTENSION[] = "DriverExtension";
@@ -177,7 +178,11 @@ std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalR
             abilityName = INPUTMETHOD_EXTENSION;
         }
         if (AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo->extensionAbilityType)) {
-            abilityName = UI_EXTENSION;
+            if (abilityInfo->extensionAbilityType == ExtensionAbilityType::SHARE) {
+                abilityName = SHARE_EXTENSION;
+            } else {
+                abilityName = UI_EXTENSION;
+            }
         }
         if (abilityInfo->extensionAbilityType == ExtensionAbilityType::SYSPICKER_MEDIACONTROL) {
             abilityName = MEDIA_CONTROL_EXTENSION;
