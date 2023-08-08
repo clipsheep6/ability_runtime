@@ -133,11 +133,21 @@ std::string AssetHelper::NormalizedFileName(const std::string& fileName) const
     return normalizedFilePath;
 }
 
-void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& content, std::string &ami)
+void AssetHelper::operator()(NativeEngine* engine, const std::string& uri, std::vector<uint8_t>& content,
+                             std::string &ami, bool isFromWorker)
 {
     if (uri.empty() || workerInfo_ == nullptr) {
         HILOG_ERROR("Uri is empty.");
         return;
+    }
+
+    if (isFromWorker) {
+        HILOG_DEBUG("InitSourceMap for worker.");
+        sourceMapOperator_ = std::make_shared<JsEnv::SourceMapOperator>(workerInfo_->hapPath, !workerInfo_->isBundle);
+        auto translateBySourceMapFunc = [&](const std::string& rawStack) {
+            return sourceMapOperator_->TranslateBySourceMap(rawStack);
+        };
+        engine->RegisterTranslateBySourceMap(translateBySourceMapFunc);
     }
 
     HILOG_INFO("RegisterAssetFunc called, uri: %{private}s", uri.c_str());
