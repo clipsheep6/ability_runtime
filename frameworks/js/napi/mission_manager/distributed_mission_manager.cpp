@@ -18,6 +18,7 @@
 #include "distributed_mission_manager.h"
 
 #include "ability_manager_client.h"
+#include "dms_sa_client.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "napi_common_data.h"
@@ -779,13 +780,12 @@ void OnExecuteCB(napi_env &env, OnCB *onCB)
     onCB->onRegistration->
         SetOnCallbackCBRef(onCB->onCallbackCB.callback);
     HILOG_INFO("set callback success.");
-    onCB->result =
-        AbilityManagerClient::GetInstance()->
-        RegisterOnListener(onCB->type,
-        onCB->onRegistration);
+    onCB->result = DmsSaClient::GetInstance().AddListener(onCB->type, onCB->onRegistration);
     if (onCB->result == NO_ERROR) {
-        HILOG_INFO("add registrationOfOn.");
+        HILOG_INFO("add registrationOfOn success.");
         registrationOfOn_[onCB->type] = registrationOfOn;
+    } else {
+        HILOG_INFO("add registrationOfOn failed");
     }
     HILOG_INFO("%{public}s called end.", __func__);
 }
@@ -838,10 +838,7 @@ void OffExecuteCB(napi_env env, OnCB *onCB)
         return;
     }
     onCB->onRegistration = registrationOfOn;
-    onCB->result =
-        AbilityManagerClient::GetInstance()->
-        RegisterOffListener(onCB->type,
-        onCB->onRegistration);
+    DmsSaClient::GetInstance().DelListener(onCB->type, onCB->onRegistration);
     if (onCB->result == NO_ERROR) {
         HILOG_INFO("remove registration.");
         registrationOfOn_.erase(onCB->type);
