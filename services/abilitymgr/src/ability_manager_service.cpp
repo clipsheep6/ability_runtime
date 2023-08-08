@@ -5553,8 +5553,9 @@ void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& toke
 
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         const auto& abilityInfo = record->GetAbilityInfo();
-        (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
-            AddAbilityRecoverInfo(abilityInfo.bundleName, abilityInfo.moduleName, abilityInfo.name);
+        (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->AddAbilityRecoverInfo(
+            abilityInfo.bundleName, abilityInfo.moduleName, abilityInfo.name,
+            uiAbilityLifecycleManager_->GetSessionIdByAbilityToken(token));
     } else {
         auto userId = record->GetOwnerMissionUserId();
         auto missionListMgr = GetListManagerByUserId(userId);

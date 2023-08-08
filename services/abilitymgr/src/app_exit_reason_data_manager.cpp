@@ -34,6 +34,7 @@ const std::string JSON_KEY_TIME_STAMP = "time_stamp";
 const std::string JSON_KEY_ABILITY_LIST = "ability_list";
 const std::string KEY_RECOVER_INFO_PREFIX = "recover_info";
 const std::string JSON_KEY_RECOVER_INFO_LIST = "recover_info_list";
+const std::string JSON_KEY_SESSION_ID_LIST = "session_id_list";
 } // namespace
 AppExitReasonDataManager::AppExitReasonDataManager() {}
 
@@ -280,11 +281,11 @@ void AppExitReasonDataManager::InnerDeleteAppExitReason(const std::string &bundl
     }
 }
 
-int32_t AppExitReasonDataManager::AddAbilityRecoverInfo(
-    const std::string &bundleName, const std::string &moduleName, const std::string &abilityName)
+int32_t AppExitReasonDataManager::AddAbilityRecoverInfo(const std::string &bundleName,
+    const std::string &moduleName, const std::string &abilityName, const int &sessionId)
 {
-    HILOG_INFO("AddAbilityRecoverInfo bundleName %{public}s bundleName %{public}s bundleName %{public}s ",
-        bundleName.c_str(), moduleName.c_str(), abilityName.c_str());
+    HILOG_INFO("AddAbilityRecoverInfo bundle %{public}s module %{public}s ability %{public}s id %{public}d ",
+        bundleName.c_str(), moduleName.c_str(), abilityName.c_str(), sessionId);
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {
@@ -302,18 +303,22 @@ int32_t AppExitReasonDataManager::AddAbilityRecoverInfo(
     }
 
     std::vector<std::string> recoverInfoList;
+    std::vector<int> sessionIdList;
     std::string recoverInfo = moduleName + abilityName;
     if (status == DistributedKv::Status::SUCCESS) {
-        ConvertAbilityRecoverInfoFromValue(value, recoverInfoList);
+        ConvertAbilityRecoverInfoFromValue(value, recoverInfoList, sessionIdList);
         auto pos = std::find(recoverInfoList.begin(), recoverInfoList.end(), recoverInfo);
         if (pos != recoverInfoList.end()) {
             HILOG_WARN("AddAbilityRecoverInfo recoverInfo already record");
+            int index = std::distance(recoverInfoList.begin(), pos);
+            sessionIdList[index] = sessionId;
             return ERR_OK;
         }
     }
 
     recoverInfoList.emplace_back(recoverInfo);
-    value = ConvertAbilityRecoverInfoToValue(recoverInfoList);
+    sessionIdList.emplace_back(sessionId);
+    value = ConvertAbilityRecoverInfoToValue(recoverInfoList, sessionIdList);
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         status = kvStorePtr_->Put(key, value);
@@ -331,7 +336,7 @@ int32_t AppExitReasonDataManager::AddAbilityRecoverInfo(
 int32_t AppExitReasonDataManager::DeleteAbilityRecoverInfo(
     const std::string &bundleName, const std::string &moduleName, const std::string &abilityName)
 {
-    HILOG_INFO("DeleteAbilityRecoverInfo bundleName %{public}s bundleName %{public}s bundleName %{public}s ",
+    HILOG_INFO("DeleteAbilityRecoverInfo bundle %{public}s module %{public}s ability %{public}s ",
         bundleName.c_str(), moduleName.c_str(), abilityName.c_str());
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
@@ -350,13 +355,17 @@ int32_t AppExitReasonDataManager::DeleteAbilityRecoverInfo(
     }
 
     std::vector<std::string> recoverInfoList;
+    std::vector<int> sessionIdList;
     std::string recoverInfo = moduleName + abilityName;
-    ConvertAbilityRecoverInfoFromValue(value, recoverInfoList);
+    ConvertAbilityRecoverInfoFromValue(value, recoverInfoList, sessionIdList);
     auto pos = std::find(recoverInfoList.begin(), recoverInfoList.end(), recoverInfo);
     if (pos != recoverInfoList.end()) {
         recoverInfoList.erase(std::remove(recoverInfoList.begin(), recoverInfoList.end(), recoverInfo),
             recoverInfoList.end());
-        UpdateAbilityRecoverInfo(bundleName, recoverInfoList);
+        int index = std::distance(recoverInfoList.begin(), pos);
+        sessionIdList.erase(std::remove(sessionIdList.begin(), sessionIdList.end(), sessionIdList[index]),
+            sessionIdList.end());
+        UpdateAbilityRecoverInfo(bundleName, recoverInfoList, sessionIdList);
         HILOG_INFO("DeleteAbilityRecoverInfo remove recoverInfo succeed");
     }
     if (recoverInfoList.empty()) {
@@ -370,7 +379,7 @@ int32_t AppExitReasonDataManager::DeleteAbilityRecoverInfo(
 int32_t AppExitReasonDataManager::GetAbilityRecoverInfo(
     const std::string &bundleName, const std::string &moduleName, const std::string &abilityName, bool &hasRecoverInfo)
 {
-    HILOG_INFO("GetAbilityRecoverInfo bundleName %{public}s bundleName %{public}s bundleName %{public}s ",
+    HILOG_INFO("GetAbilityRecoverInfo bundle %{public}s module %{public}s abillity %{public}s ",
         bundleName.c_str(), moduleName.c_str(), abilityName.c_str());
     hasRecoverInfo = false;
     {
@@ -394,18 +403,58 @@ int32_t AppExitReasonDataManager::GetAbilityRecoverInfo(
     }
 
     std::vector<std::string> recoverInfoList;
+    std::vector<int> sessionIdList;
     std::string recoverInfo = moduleName + abilityName;
-    ConvertAbilityRecoverInfoFromValue(value, recoverInfoList);
+    ConvertAbilityRecoverInfoFromValue(value, recoverInfoList, sessionIdList);
     auto pos = std::find(recoverInfoList.begin(), recoverInfoList.end(), recoverInfo);
     if (pos != recoverInfoList.end()) {
         hasRecoverInfo = true;
-        HILOG_INFO("GetAbilityRecoverInfo sessionId found info");
+        HILOG_INFO("GetAbilityRecoverInfo hasRecoverInfo found info");
     }
     return ERR_OK;
 }
 
-void AppExitReasonDataManager::UpdateAbilityRecoverInfo(
-    const std::string &bundleName, const std::vector<std::string> &recoverInfoList)
+int32_t AppExitReasonDataManager::GetAbilitySessionId(const std::string &bundleName,
+    const std::string &moduleName, const std::string &abilityName, int &sessionId)
+{
+    HILOG_INFO("GetAbilityRecoverInfo bundle %{public}s bundle %{public}s bundle %{public}s  ",
+        bundleName.c_str(), moduleName.c_str(), abilityName.c_str());
+    sessionId = 0;
+    {
+        std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
+        if (!CheckKvStore()) {
+            HILOG_ERROR("kvStore is nullptr");
+            return ERR_NO_INIT;
+        }
+    }
+
+    DistributedKv::Key key(KEY_RECOVER_INFO_PREFIX + bundleName);
+    DistributedKv::Value value;
+    DistributedKv::Status status = kvStorePtr_->Get(key, value);
+    if (status != DistributedKv::Status::SUCCESS) {
+        if (status == DistributedKv::Status::KEY_NOT_FOUND) {
+            HILOG_WARN("GetAbilityRecoverInfo KEY_NOT_FOUND");
+        } else {
+            HILOG_ERROR("GetAbilityRecoverInfo error: %{public}d", status);
+        }
+        return ERR_INVALID_VALUE;
+    }
+
+    std::vector<std::string> recoverInfoList;
+    std::vector<int> sessionIdList;
+    std::string recoverInfo = moduleName + abilityName;
+    ConvertAbilityRecoverInfoFromValue(value, recoverInfoList, sessionIdList);
+    auto pos = std::find(recoverInfoList.begin(), recoverInfoList.end(), recoverInfo);
+    if (pos != recoverInfoList.end()) {
+        int index = std::distance(recoverInfoList.begin(), pos);
+        sessionId = sessionIdList[index];
+        HILOG_INFO("GetAbilityRecoverInfo sessionId found info %{public}d ", sessionId);
+    }
+    return ERR_OK;
+}
+
+void AppExitReasonDataManager::UpdateAbilityRecoverInfo(const std::string &bundleName,
+    const std::vector<std::string> &recoverInfoList, const std::vector<int> &sessionIdList)
 {
     if (kvStorePtr_ == nullptr) {
         HILOG_ERROR("kvStore is nullptr");
@@ -423,7 +472,7 @@ void AppExitReasonDataManager::UpdateAbilityRecoverInfo(
         return;
     }
 
-    DistributedKv::Value value = ConvertAbilityRecoverInfoToValue(recoverInfoList);
+    DistributedKv::Value value = ConvertAbilityRecoverInfoToValue(recoverInfoList, sessionIdList);
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         status = kvStorePtr_->Put(key, value);
@@ -434,10 +483,11 @@ void AppExitReasonDataManager::UpdateAbilityRecoverInfo(
 }
 
 DistributedKv::Value AppExitReasonDataManager::ConvertAbilityRecoverInfoToValue(
-    const std::vector<std::string> &recoverInfoList)
+    const std::vector<std::string> &recoverInfoList, const std::vector<int> &sessionIdList)
 {
     nlohmann::json jsonObject = nlohmann::json {
         { JSON_KEY_RECOVER_INFO_LIST, recoverInfoList },
+        { JSON_KEY_SESSION_ID_LIST, sessionIdList },
     };
     DistributedKv::Value value(jsonObject.dump());
     HILOG_INFO("ConvertAbilityRecoverInfoToValue value: %{public}s", value.ToString().c_str());
@@ -445,7 +495,7 @@ DistributedKv::Value AppExitReasonDataManager::ConvertAbilityRecoverInfoToValue(
 }
 
 void AppExitReasonDataManager::ConvertAbilityRecoverInfoFromValue(const DistributedKv::Value &value,
-    std::vector<std::string> &recoverInfoList)
+    std::vector<std::string> &recoverInfoList, std::vector<int> &sessionIdList)
 {
     nlohmann::json jsonObject = nlohmann::json::parse(value.ToString(), nullptr, false);
     if (jsonObject.is_discarded()) {
@@ -459,6 +509,16 @@ void AppExitReasonDataManager::ConvertAbilityRecoverInfoFromValue(const Distribu
         for (size_t i = 0; i < size; i++) {
             if (jsonObject[JSON_KEY_RECOVER_INFO_LIST][i].is_string()) {
                 recoverInfoList.emplace_back(jsonObject[JSON_KEY_RECOVER_INFO_LIST][i]);
+            }
+        }
+    }
+    if (jsonObject.contains(JSON_KEY_SESSION_ID_LIST)
+        && jsonObject[JSON_KEY_SESSION_ID_LIST].is_array()) {
+        sessionIdList.clear();
+        auto size = jsonObject[JSON_KEY_SESSION_ID_LIST].size();
+        for (size_t i = 0; i < size; i++) {
+            if (jsonObject[JSON_KEY_SESSION_ID_LIST][i].is_number_integer()) {
+                sessionIdList.emplace_back(jsonObject[JSON_KEY_SESSION_ID_LIST][i]);
             }
         }
     }

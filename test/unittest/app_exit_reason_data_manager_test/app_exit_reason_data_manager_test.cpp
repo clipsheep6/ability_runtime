@@ -30,6 +30,7 @@ namespace {
 const std::string BUNDLE_NAME = "bundle.name";
 const std::string MODULE_NAME = "module_name";
 const std::string ABILITY_NAME = "ability_name";
+const int SESSION_ID = 111;
 }  // namespace
 
 class AppExitReasonDataManagerTest : public testing::Test {
@@ -64,11 +65,11 @@ void AppExitReasonDataManagerTest::TearDown()
 HWTEST_F(AppExitReasonDataManagerTest, AppExitReasonDataManager_AddAbilityRecoverInfo_001, TestSize.Level1)
 {
     auto result = DelayedSingleton<AppExitReasonDataManager>::GetInstance()->AddAbilityRecoverInfo(
-        BUNDLE_NAME, MODULE_NAME, ABILITY_NAME);
+        BUNDLE_NAME, MODULE_NAME, ABILITY_NAME, SESSION_ID);
     EXPECT_EQ(result, ERR_OK);
 
     result = DelayedSingleton<AppExitReasonDataManager>::GetInstance()->AddAbilityRecoverInfo(
-        BUNDLE_NAME, MODULE_NAME, ABILITY_NAME);
+        BUNDLE_NAME, MODULE_NAME, ABILITY_NAME, SESSION_ID);
     EXPECT_EQ(result, ERR_OK);
 }
 
@@ -85,7 +86,7 @@ HWTEST_F(AppExitReasonDataManagerTest, AppExitReasonDataManager_DeleteAbilityRec
     EXPECT_EQ(result, ERR_INVALID_VALUE);
 
     result = DelayedSingleton<AppExitReasonDataManager>::GetInstance()->AddAbilityRecoverInfo(
-        BUNDLE_NAME, MODULE_NAME, ABILITY_NAME);
+        BUNDLE_NAME, MODULE_NAME, ABILITY_NAME, SESSION_ID);
     EXPECT_EQ(result, ERR_OK);
     result = DelayedSingleton<AppExitReasonDataManager>::GetInstance()->DeleteAbilityRecoverInfo(
         BUNDLE_NAME, MODULE_NAME, ABILITY_NAME);
@@ -107,12 +108,35 @@ HWTEST_F(AppExitReasonDataManagerTest, AppExitReasonDataManager_GetAbilityRecove
     EXPECT_EQ(hasRecoverInfo, false);
 
     result = DelayedSingleton<AppExitReasonDataManager>::GetInstance()->AddAbilityRecoverInfo(
-        BUNDLE_NAME, MODULE_NAME, ABILITY_NAME);
+        BUNDLE_NAME, MODULE_NAME, ABILITY_NAME, SESSION_ID);
     EXPECT_EQ(result, ERR_OK);
     result = DelayedSingleton<AppExitReasonDataManager>::GetInstance()->GetAbilityRecoverInfo(
         BUNDLE_NAME, MODULE_NAME, ABILITY_NAME, hasRecoverInfo);
     EXPECT_EQ(result, ERR_OK);
     EXPECT_EQ(hasRecoverInfo, true);
+}
+
+/**
+ * @tc.name: AppExitReasonDataManager_GetAbilitySessionId_001
+ * @tc.desc: GetAbilitySessionId
+ * @tc.type: FUNC
+ * @tc.require: issuesI7R9JC
+ */
+HWTEST_F(AppExitReasonDataManagerTest, AppExitReasonDataManager_GetAbilitySessionId_001, TestSize.Level1)
+{
+    int sessionId = 0;
+    auto result = DelayedSingleton<AppExitReasonDataManager>::GetInstance()->GetAbilitySessionId(
+        BUNDLE_NAME, MODULE_NAME, ABILITY_NAME, sessionId);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    EXPECT_EQ(sessionId, 0);
+
+    result = DelayedSingleton<AppExitReasonDataManager>::GetInstance()->AddAbilityRecoverInfo(
+        BUNDLE_NAME, MODULE_NAME, ABILITY_NAME, SESSION_ID);
+    EXPECT_EQ(result, ERR_OK);
+    result = DelayedSingleton<AppExitReasonDataManager>::GetInstance()->GetAbilitySessionId(
+        BUNDLE_NAME, MODULE_NAME, ABILITY_NAME, sessionId);
+    EXPECT_EQ(result, ERR_OK);
+    EXPECT_EQ(sessionId, SESSION_ID);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
