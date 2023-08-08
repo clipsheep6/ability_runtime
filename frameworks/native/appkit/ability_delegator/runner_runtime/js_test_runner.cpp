@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#include <regex>
+
 #include "ability_delegator_registry.h"
 #include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
@@ -22,6 +24,11 @@ extern const char _binary_delegator_mgmt_abc_start[];
 extern const char _binary_delegator_mgmt_abc_end[];
 namespace OHOS {
 namespace RunnerRuntime {
+namespace {
+const std::string CAPITALTESTRUNNER = "/ets/TestRunner/";
+const std::string LOWERCASETESTRUNNER = "/ets/testrunner/";
+}  // namespace
+    
 std::unique_ptr<TestRunner> JsTestRunner::Create(const std::unique_ptr<Runtime> &runtime,
     const std::shared_ptr<AbilityDelegatorArgs> &args, const AppExecFwk::BundleInfo &bundleInfo, bool isFaJsModel)
 {
@@ -56,7 +63,7 @@ JsTestRunner::JsTestRunner(
         if (bundleInfo.hapModuleInfos.back().isModuleJson) {
             srcPath.append(args->GetTestModuleName());
             if (args->GetTestRunnerClassName().find("/") == std::string::npos) {
-                srcPath.append("/ets/TestRunner/");
+                srcPath.append(LOWERCASETESTRUNNER);
             }
             moduleName = args->GetTestModuleName();
         } else {
@@ -90,6 +97,14 @@ JsTestRunner::JsTestRunner(
     moduleName.append("::").append("TestRunner");
     jsTestRunnerObj_ = jsRuntime_.LoadModule(moduleName, srcPath_, hapPath_,
         bundleInfo.hapModuleInfos.back().compileMode == AppExecFwk::CompileMode::ES_MODULE);
+    if (!jsTestRunnerObj_ && srcPath_.find(LOWERCASETESTRUNNER) != std::string::npos) {
+        HILOG_DEBUG("Not found %{public}s , retry load capital address", srcPath_.c_str());
+        std::regex src_pattern(LOWERCASETESTRUNNER);
+        srcPath_ = std::regex_replace(srcPath_, src_pattern, CAPITALTESTRUNNER);
+        HILOG_DEBUG("Capital address is %{public}s", srcPath_.c_str());
+        jsTestRunnerObj_ = jsRuntime_.LoadModule(moduleName, srcPath_, hapPath_,
+            bundleInfo.hapModuleInfos.back().compileMode == AppExecFwk::CompileMode::ES_MODULE);
+    }
 }
 
 JsTestRunner::~JsTestRunner() = default;
