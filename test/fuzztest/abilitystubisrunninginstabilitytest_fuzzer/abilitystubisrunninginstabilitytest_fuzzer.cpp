@@ -33,7 +33,7 @@ const std::u16string ABILITYMGR_INTERFACE_TOKEN = u"ohos.aafwk.AbilityManager";
 
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    uint32_t code = AbilityManagerInterfaceCode::IS_USER_A_STABILITY_TEST;
+    uint32_t code = static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_USER_A_STABILITY_TEST);
 
     MessageParcel parcel;
     parcel.WriteInterfaceToken(ABILITYMGR_INTERFACE_TOKEN);

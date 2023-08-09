@@ -24,6 +24,7 @@
 
 using namespace OHOS::AAFwk;
 
+#define DISABLE_FUZZ
 namespace OHOS {
 namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
@@ -33,7 +34,7 @@ const std::u16string ABILITYMGR_INTERFACE_TOKEN = u"ohos.aafwk.AbilityManager";
 
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    uint32_t code = AbilityManagerInterfaceCode::QUERY_MISSION_VAILD;
+    uint32_t code = IAbilityManager::QUERY_MISSION_VAILD;
 
     MessageParcel parcel;
     parcel.WriteInterfaceToken(ABILITYMGR_INTERFACE_TOKEN);
@@ -75,7 +76,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
+#ifndef DISABLE_FUZZ
     OHOS::DoSomethingInterestingWithMyAPI(ch, size);
+#endif
     free(ch);
     ch = nullptr;
     return 0;

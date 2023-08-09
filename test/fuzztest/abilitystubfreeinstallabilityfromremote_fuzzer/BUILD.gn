@@ -19,7 +19,7 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 module_output_path = "ability_runtime/abilitymgr"
 
 ##############################fuzztest##########################################
-ohos_fuzztest("AbilityStubFreeInstallAbilityRemoteFuzzTest") {
+ohos_fuzztest("AbilityStubFreeInstallAbilityFromRemoteFuzzTest") {
   module_out_path = module_output_path
 
   fuzz_config_file = "${ability_runtime_test_path}/fuzztest/abilitystubfreeinstallabilityfromremote_fuzzer"
@@ -73,7 +73,7 @@ group("fuzztest") {
   deps = []
   deps += [
     # deps file
-    ":AbilityStubFreeInstallAbilityRemoteFuzzTest",
+    ":AbilityStubFreeInstallAbilityFromRemoteFuzzTest",
   ]
 }
 ###############################################################################
