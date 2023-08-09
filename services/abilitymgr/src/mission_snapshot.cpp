@@ -15,10 +15,6 @@
 
 #include "mission_snapshot.h"
 
-#include "hilog_wrapper.h"
-#include "nlohmann/json.hpp"
-#include "string_ex.h"
-
 namespace OHOS {
 namespace AAFwk {
 bool MissionSnapshot::ReadFromParcel(Parcel &parcel)

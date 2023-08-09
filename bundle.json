@@ -361,7 +361,8 @@
             "header": {
               "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager/include",
               "header_files": [
-                "mission_info.h"
+                "mission_info.h",
+                "mission_snapshot.h"
               ]
             },
             "name": "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager:mission_info"

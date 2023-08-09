@@ -16,8 +16,6 @@
 #ifndef OHOS_ABILITY_RUNTIME_MISSION_SNAPSHOT_H
 #define OHOS_ABILITY_RUNTIME_MISSION_SNAPSHOT_H
 
-#include <string>
-#include "image_info.h"
 #include "parcel.h"
 #include "element_name.h"
 #ifdef SUPPORT_GRAPHICS
