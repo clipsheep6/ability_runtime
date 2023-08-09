@@ -54,7 +54,45 @@ TriggerCompleteCallBack::TriggerCompleteCallBack()
 {}
 
 TriggerCompleteCallBack::~TriggerCompleteCallBack()
-{}
+{
+    uv_loop_t *loop = triggerCompleteInfo_.engine->GetUVLoop();
+    if (loop == nullptr) {
+        HILOG_ERROR("~TriggerCompleteCallBack loop is nullptr.");
+        return;
+    }
+    uv_work_t *work = new (std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        HILOG_ERROR("~TriggerCompleteCallBack work is nullptr.");
+        return;
+    }
+    std::unique_ptr<NativeReference> nativeReference = std::move(triggerCompleteInfo_.nativeRef);
+    work->data = reinterpret_cast<void *>(nativeReference);
+    int ret = uv_queue_work(loop, work, [](uv_work_t *work) {}, [](uv_work_t *work, int status) {
+        if (work == nullptr) {
+            HILOG_ERROR("~TriggerCompleteCallBack: work is nullptr.");
+            return;
+        }
+        if (work->data == nullptr) {
+            HILOG_ERROR("~TriggerCompleteCallBack: data is nullptr.");
+            delete work;
+            work = nullptr;
+            return;
+        }
+        std::unique_ptr<NativeReference> nativeReference =
+            reinterpret_cast<std::unique_ptr<NativeReference>>(work->data);
+        if (nativeReference != nullptr) {
+            nativeReference.reset();
+        }
+        delete work;
+        work = nullptr;
+    });
+    if (ret != 0) {
+        if (work != nullptr) {
+            delete work;
+            work = nullptr;
+        }
+    }
+}
 
 void TriggerCompleteCallBack::SetCallbackInfo(NativeEngine &engine, NativeReference* ref)
 {
