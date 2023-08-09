@@ -196,7 +196,7 @@ int UIAbilityLifecycleManager::NotifySCBToStartUIAbility(const AbilityRequest &a
     sessionInfo->requestCode = abilityRequest.requestCode;
     sessionInfo->persistentId = GetPersistentIdByAbilityRequest(abilityRequest);
     sessionInfo->userId = userId;
-    return NotifySCBPendingActivation(sessionInfo, abilityRequest.callerToken);
+    return NotifySCBPendingActivation(sessionInfo, abilityRequest);
 }
 
 int UIAbilityLifecycleManager::DispatchState(const std::shared_ptr<AbilityRecord> &abilityRecord, int state)
@@ -556,7 +556,7 @@ int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRe
             sessionInfo->persistentId = persistentId;
             sessionInfo->state = CallToState::FOREGROUND;
             DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(uiAbilityRecord->GetToken());
-            return NotifySCBPendingActivation(sessionInfo, abilityRequest.callerToken);
+            return NotifySCBPendingActivation(sessionInfo, abilityRequest);
         }
     } else if (ret == ResolveResultType::NG_INNER_ERROR) {
         HILOG_ERROR("resolve failed, error: %{public}d.", RESOLVE_CALL_ABILITY_INNER_ERR);
@@ -573,7 +573,7 @@ int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRe
     }
     HILOG_DEBUG("Notify scb's abilityId is %{public}" PRIu64 ".", sessionInfo->uiAbilityId);
     tmpAbilityMap_.emplace(uiAbilityRecord->GetAbilityRecordId(), uiAbilityRecord);
-    return NotifySCBPendingActivation(sessionInfo, abilityRequest.callerToken);
+    return NotifySCBPendingActivation(sessionInfo, abilityRequest);
 }
 
 void UIAbilityLifecycleManager::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
@@ -628,14 +628,10 @@ sptr<SessionInfo> UIAbilityLifecycleManager::CreateSessionInfo(const AbilityRequ
 }
 
 int UIAbilityLifecycleManager::NotifySCBPendingActivation(sptr<SessionInfo> &sessionInfo,
-    const sptr<IRemoteObject> &token) const
+    const AbilityRequest &abilityRequest) const
 {
-    auto abilityRecord = GetAbilityRecordByToken(token);
-    if (abilityRecord == nullptr) {
-        CHECK_POINTER_AND_RETURN(rootSceneSession_, ERR_INVALID_VALUE);
-        HILOG_INFO("Call PendingSessionActivation by callerSession.");
-        return static_cast<int>(rootSceneSession_->PendingSessionActivation(sessionInfo));
-    } else {
+    auto abilityRecord = GetAbilityRecordByToken(abilityRequest.callerToken);
+    if (abilityRecord != nullptr) {
         auto callerSessionInfo = abilityRecord->GetSessionInfo();
         CHECK_POINTER_AND_RETURN(callerSessionInfo, ERR_INVALID_VALUE);
         CHECK_POINTER_AND_RETURN(callerSessionInfo->sessionToken, ERR_INVALID_VALUE);
@@ -643,6 +639,18 @@ int UIAbilityLifecycleManager::NotifySCBPendingActivation(sptr<SessionInfo> &ses
         HILOG_INFO("Call PendingSessionActivation by rootSceneSession.");
         return static_cast<int>(callerSession->PendingSessionActivation(sessionInfo));
     }
+    CHECK_POINTER_AND_RETURN(rootSceneSession_, ERR_INVALID_VALUE);
+    if (sessionInfo->persistentId == 0) {
+        const auto &abilityInfo = abilityRequest.abilityInfo;
+        auto isStandard = abilityInfo.launchMode == AppExecFwk::LaunchMode::STANDARD && !abilityRequest.startRecent;
+        if (!isStandard) {
+            (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->GetAbilitySessionId(
+                abilityInfo.bundleName, abilityInfo.moduleName, abilityInfo.name, sessionInfo->persistentId);
+            HILOG_INFO("session id: %{public}d.", sessionInfo->persistentId);
+        }
+    }
+    HILOG_INFO("Call PendingSessionActivation by callerSession.");
+    return static_cast<int>(rootSceneSession_->PendingSessionActivation(sessionInfo));
 }
 
 int UIAbilityLifecycleManager::ResolveAbility(

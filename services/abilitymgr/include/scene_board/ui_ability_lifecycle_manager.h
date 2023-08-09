@@ -262,7 +262,7 @@ private:
     // byCall
     int CallAbilityLocked(const AbilityRequest &abilityRequest);
     sptr<SessionInfo> CreateSessionInfo(const AbilityRequest &abilityRequest) const;
-    int NotifySCBPendingActivation(sptr<SessionInfo> &sessionInfo, const sptr<IRemoteObject> &token) const;
+    int NotifySCBPendingActivation(sptr<SessionInfo> &sessionInfo, const AbilityRequest &abilityRequest) const;
     int ResolveAbility(const std::shared_ptr<AbilityRecord> &targetAbility, const AbilityRequest &abilityRequest) const;
     std::vector<std::shared_ptr<AbilityRecord>> GetAbilityRecordsByName(const AppExecFwk::ElementName &element);
 
