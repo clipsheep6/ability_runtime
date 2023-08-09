@@ -37,6 +37,7 @@
 #ifdef SUPPORT_GRAPHICS
 #include "page_ability_impl.h"
 #endif
+#include "ui_extension.h"
 #include "values_bucket.h"
 
 namespace OHOS {
