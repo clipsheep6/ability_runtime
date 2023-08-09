@@ -174,9 +174,9 @@ std::string FAAbilityThread::CreateAbilityName(const std::shared_ptr<AppExecFwk:
             abilityName = INPUTMETHOD_EXTENSION;
         }
         if (AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo->extensionAbilityType)) {
-            if (abilityInfo->extensionAbilityType == ExtensionAbilityType::SHARE) {
+            if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SHARE) {
                 abilityName = SHARE_EXTENSION;
-            } else if (abilityInfo->extensionAbilityType == ExtensionAbilityType::ACTION) {
+            } else if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ACTION) {
                 abilityName = ACTION_EXTENSION;
             } else {
                 abilityName = UI_EXTENSION;
