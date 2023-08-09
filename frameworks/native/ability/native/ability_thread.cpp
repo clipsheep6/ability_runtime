@@ -58,6 +58,7 @@ constexpr static char FORM_EXTENSION[] = "FormExtension";
 constexpr static char UI_EXTENSION[] = "UIExtensionAbility";
 constexpr static char MEDIA_CONTROL_EXTENSION[] = "MediaControlExtensionAbility";
 constexpr static char USER_AUTH_EXTENSION[] = "UserAuthExtensionAbility";
+constexpr static char ACTION_EXTENSION[] = "ActionExtensionAbility";
 constexpr static char SHARE_EXTENSION[] = "ShareExtensionAbility";
 #endif
 constexpr static char BASE_SERVICE_EXTENSION[] = "ServiceExtension";
@@ -180,6 +181,8 @@ std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalR
         if (AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo->extensionAbilityType)) {
             if (abilityInfo->extensionAbilityType == ExtensionAbilityType::SHARE) {
                 abilityName = SHARE_EXTENSION;
+            } else if (abilityInfo->extensionAbilityType == ExtensionAbilityType::ACTION) {
+                abilityName = ACTION_EXTENSION;
             } else {
                 abilityName = UI_EXTENSION;
             }
