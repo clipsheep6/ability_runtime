@@ -1322,7 +1322,7 @@ HWTEST_F(AbilityManagerServiceTest, GetMissionInfo_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest GetMissionInfo_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_-> OnStart();
+    abilityMs_->OnStart();
     MissionInfo missionInfo;
     EXPECT_EQ(abilityMs_->GetMissionInfo("", 10, missionInfo), CHECK_PERMISSION_FAILED);
     HILOG_INFO("AbilityManagerServiceTest GetMissionInfo_001 end");
@@ -3556,6 +3556,173 @@ HWTEST_F(AbilityManagerServiceTest, ScheduleCommandAbilityWindowDone_001, TestSi
         nullptr, session, WIN_CMD_FOREGROUND, ABILITY_CMD_FOREGROUND), ERR_INVALID_VALUE);
     EXPECT_EQ(abilityMs_->ScheduleCommandAbilityWindowDone(
         MockToken(AbilityType::EXTENSION), session, WIN_CMD_FOREGROUND, ABILITY_CMD_FOREGROUND), ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityInner
+ * CaseDescription:
+ * IsStartFreeInstall = 0, selfFreeInstallEnable = 0 (callerToken = nullptr)
+ */
+HWTEST_F(AbilityManagerServiceTest, StartAbilityInnerFreeInstall_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest StartAbilityInnerFreeInstall_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
+    Want want;
+    ElementName element("", "com.test.demo", "MainAbility", "");
+    want.SetElement(element);
+    MyFlag::flag_ = 1;
+    auto result = abilityMs_->StartAbilityInner(want, nullptr, -1, -1, false);
+    MyFlag::flag_ = 0;
+    EXPECT_EQ(RESOLVE_ABILITY_ERR, result);
+    abilityMs_->OnStop();
+    HILOG_INFO("AbilityManagerServiceTest StartAbilityInnerFreeInstall_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityInner
+ * CaseDescription:
+ * IsStartFreeInstall = 0, selfFreeInstallEnable = 0 (ModuleName = "")
+ */
+HWTEST_F(AbilityManagerServiceTest, StartAbilityInnerFreeInstall_002, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest StartAbilityInnerFreeInstall_002 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
+    Want want;
+    ElementName element("", "com.test.demo", "MainAbility", "");
+    want.SetElement(element);
+    std::shared_ptr<AbilityRecord> abilityRecord = MockAbilityRecord(AbilityType::PAGE);
+    sptr<IRemoteObject> callerToken = abilityRecord->GetToken();
+    const int32_t userId = -1;
+    const int requestCode = 0;
+    MyFlag::flag_ = 1;
+    auto result = abilityMs_->StartAbilityInner(want, callerToken, requestCode, userId, false);
+    MyFlag::flag_ = 0;
+    abilityMs_->OnStop();
+    EXPECT_EQ(RESOLVE_ABILITY_ERR, result);
+    HILOG_INFO("AbilityManagerServiceTest StartAbilityInnerFreeInstall_002 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityInner
+ * CaseDescription:
+ * IsStartFreeInstall = 0, selfFreeInstallEnable = 0 (BundleName != callerBundlerName)
+ */
+HWTEST_F(AbilityManagerServiceTest, StartAbilityInnerFreeInstall_003, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest StartAbilityInnerFreeInstall_003 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
+    Want want;
+    ElementName element("", "com.test.demo1", "MainAbility", "Entry");
+    want.SetElement(element);
+    std::shared_ptr<AbilityRecord> abilityRecord = MockAbilityRecord(AbilityType::PAGE);
+    sptr<IRemoteObject> callerToken = abilityRecord->GetToken();
+    const int32_t userId = -1;
+    const int requestCode = 0;
+    MyFlag::flag_ = 1;
+    auto result = abilityMs_->StartAbilityInner(want, callerToken, requestCode, userId, false);
+    MyFlag::flag_ = 0;
+    abilityMs_->OnStop();
+    EXPECT_EQ(RESOLVE_ABILITY_ERR, result);
+    HILOG_INFO("AbilityManagerServiceTest StartAbilityInnerFreeInstall_003 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityInner
+ * CaseDescription:
+ * IsStartFreeInstall = 0, selfFreeInstallEnable = 1 (Ability not exist)
+ */
+HWTEST_F(AbilityManagerServiceTest, StartAbilityInnerFreeInstall_004, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest StartAbilityInnerFreeInstall_004 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
+    Want want;
+    ElementName element("", "com.test.demo", "MainAbility1", "Entry");
+    want.SetElement(element);
+    std::shared_ptr<AbilityRecord> abilityRecord = MockAbilityRecord(AbilityType::PAGE);
+    sptr<IRemoteObject> callerToken = abilityRecord->GetToken();
+    const int32_t userId = -1;
+    const int requestCode = 0;
+    MyFlag::flag_ = 1;
+    auto result = abilityMs_->StartAbilityInner(want, callerToken, requestCode, userId, false);
+    MyFlag::flag_ = 0;
+    abilityMs_->OnStop();
+    EXPECT_EQ(RESOLVE_ABILITY_ERR, result);
+    HILOG_INFO("AbilityManagerServiceTest StartAbilityInnerFreeInstall_004 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityInner
+ * CaseDescription:
+ * IsStartFreeInstall = 0, selfFreeInstallEnable = 1
+ */
+HWTEST_F(AbilityManagerServiceTest, StartAbilityInnerFreeInstall_005, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest StartAbilityInnerFreeInstall_005 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
+    Want want;
+    ElementName element("", "com.test.demo", "MainAbility", "Entry");
+    want.SetElement(element);
+    std::shared_ptr<AbilityRecord> abilityRecord = MockAbilityRecord(AbilityType::PAGE);
+    abilityRecord->abilityInfo_.bundleName = "com.test.demo";
+    sptr<IRemoteObject> callerToken = abilityRecord->GetToken();
+    const int32_t userId = -1;
+    const int requestCode = 0;
+    MyFlag::flag_ = 1;
+    auto result = abilityMs_->StartAbilityInner(want, callerToken, requestCode, userId, false);
+    MyFlag::flag_ = 0;
+    abilityMs_->OnStop();
+    EXPECT_EQ(RESOLVE_ABILITY_ERR, result);
+    HILOG_INFO("AbilityManagerServiceTest StartAbilityInnerFreeInstall_005 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityInner
+ * CaseDescription:
+ * IsStartFreeInstall = 1, selfFreeInstallEnable = 0
+ */
+HWTEST_F(AbilityManagerServiceTest, StartAbilityInnerFreeInstall_006, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest StartAbilityInnerFreeInstall_006 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->OnStart();
+    Want want;
+    ElementName element("", "com.test.demo", "MainAbility");
+    want.SetElement(element);
+    want.SetFlags(Want::FLAG_INSTALL_ON_DEMAND);
+    std::shared_ptr<AbilityRecord> abilityRecord = MockAbilityRecord(AbilityType::PAGE);
+    abilityRecord->abilityInfo_.bundleName = "com.test.demo";
+    sptr<IRemoteObject> callerToken = abilityRecord->GetToken();
+    const int32_t userId = -1;
+    const int requestCode = 0;
+    MyFlag::flag_ = 1;
+    auto result = abilityMs_->StartAbilityInner(want, callerToken, requestCode, userId, false);
+    MyFlag::flag_ = 0;
+    abilityMs_->OnStop();
+    EXPECT_EQ(ERR_OK, result);
+    HILOG_INFO("AbilityManagerServiceTest StartAbilityInnerFreeInstall_006 end");
 }
 }  // namespace AAFwk
 }  // namespace OHOS

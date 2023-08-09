@@ -606,7 +606,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_INFO("try to StartRemoteAbility");
         return StartRemoteAbility(want, requestCode, validUserId, callerToken);
     }
-    
+
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
         return ERR_CROSS_USER;
@@ -621,9 +621,8 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         }
         abilityRequest.Voluation(want, requestCode, callerToken);
         if (!isStartAsCaller) {
+            HILOG_DEBUG("do not start as caller, UpdateCallerInfo");
             UpdateCallerInfo(abilityRequest.want, callerToken);
-        } else {
-            HILOG_INFO("start as caller, skip UpdateCallerInfo!");
         }
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
         return implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
@@ -637,8 +636,9 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     std::string callerBundleName = abilityRecord ? abilityRecord->GetAbilityInfo().bundleName : "";
     bool selfFreeInstallEnable = (result == RESOLVE_ABILITY_ERR && want.GetElement().GetModuleName() != "" &&
-                                  want.GetElement().GetBundleName() == callerBundleName);
-    if (AbilityUtil::IsStartFreeInstall(want) || selfFreeInstallEnable) {
+        want.GetElement().GetBundleName() == callerBundleName);
+    bool isStartFreeInstallByWant = AbilityUtil::IsStartFreeInstall(want);
+    if (isStartFreeInstallByWant || selfFreeInstallEnable) {
         if (freeInstallManager_ == nullptr) {
             return ERR_INVALID_VALUE;
         }
@@ -647,17 +647,16 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             localWant.SetDeviceId("");
         }
         if (!isStartAsCaller) {
+            HILOG_DEBUG("do not start as caller, UpdateCallerInfo");
             UpdateCallerInfo(localWant, callerToken);
         }
-        HILOG_DEBUG("start as caller, skip UpdateCallerInfo!");
-        if (selfFreeInstallEnable) {
-            int32_t ret = freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode,
-                                                                callerToken, false);
-            if (ret == ERR_OK) {
-                result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
-            }
-        } else {
+
+        if (isStartFreeInstallByWant) {
             return freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, true);
+        }
+        int32_t ret = freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, false);
+        if (ret == ERR_OK) {
+            result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
         }
     }
 
@@ -667,9 +666,8 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
 
     if (!isStartAsCaller) {
+        HILOG_DEBUG("do not start as caller, UpdateCallerInfo");
         UpdateCallerInfo(abilityRequest.want, callerToken);
-    } else {
-        HILOG_INFO("start as caller, skip UpdateCallerInfo!");
     }
 
     auto abilityInfo = abilityRequest.abilityInfo;
@@ -1032,9 +1030,8 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         }
         Want localWant = want;
         if (!isStartAsCaller) {
+            HILOG_DEBUG("do not start as caller, UpdateCallerInfo");
             UpdateCallerInfo(localWant, callerToken);
-        } else {
-            HILOG_INFO("start as caller, skip UpdateCallerInfo!");
         }
         return freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, true);
     }
@@ -1058,9 +1055,8 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         abilityRequest.callType = AbilityCallType::START_OPTIONS_TYPE;
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
         if (!isStartAsCaller) {
+            HILOG_DEBUG("do not start as caller, UpdateCallerInfo");
             UpdateCallerInfo(abilityRequest.want, callerToken);
-        } else {
-            HILOG_INFO("start as caller, skip UpdateCallerInfo!");
         }
         result = implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
         if (result != ERR_OK) {
@@ -1084,9 +1080,8 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     }
 
     if (!isStartAsCaller) {
+        HILOG_DEBUG("do not start as caller, UpdateCallerInfo");
         UpdateCallerInfo(abilityRequest.want, callerToken);
-    } else {
-        HILOG_INFO("start as caller, skip UpdateCallerInfo!");
     }
     auto abilityInfo = abilityRequest.abilityInfo;
     validUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : validUserId;
