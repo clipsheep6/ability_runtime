@@ -1761,8 +1761,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, NotifySCBPendingActivation_001, TestSize
     uiAbilityLifecycleManager->sessionAbilityMap_.emplace(sessionInfo->persistentId, abilityRecord);
     auto token = abilityRecord->GetToken();
     EXPECT_NE(token, nullptr);
-    auto object = token->AsObject();
-    uiAbilityLifecycleManager->NotifySCBPendingActivation(sessionInfo, object);
+    abilityRequest.callerToken = token->AsObject();
+    uiAbilityLifecycleManager->NotifySCBPendingActivation(sessionInfo, abilityRequest);
     EXPECT_NE(uiAbilityLifecycleManager, nullptr);
 }
 

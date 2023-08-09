@@ -531,6 +531,18 @@ HWTEST_F(AbilityManagerClientBranchTest, ScheduleCommandAbilityWindowDone_0100, 
 }
 
 /**
+ * @tc.name: AbilityManagerClient_MoveAbilityToBackground_0100
+ * @tc.desc: MoveAbilityToBackground
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, MoveAbilityToBackground_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    auto result = client_->MoveAbilityToBackground(token);
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
  * @tc.name: AbilityManagerClient_CloseAbility_0100
  * @tc.desc: CloseAbility
  * @tc.type: FUNC

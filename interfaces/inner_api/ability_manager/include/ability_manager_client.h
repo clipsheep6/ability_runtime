@@ -792,6 +792,15 @@ public:
     ErrCode PrepareTerminateAbility(const sptr<IRemoteObject> &token, sptr<IPrepareTerminateCallback> &callback);
 
     /**
+     * PrepareTerminateAbilityBySCB, prepare to terminate ability by scb.
+     *
+     * @param sessionInfo the session info of the ability to terminate.
+     * @param isPrepareTerminate the result of ability onPrepareToTermiante.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isPrepareTerminate);
+
+    /**
      * Set mission continue state of this ability.
      *
      * @param token Indidate token of ability.
@@ -1129,6 +1138,14 @@ public:
      * @return Returns ERR_OK on success, others on failure.
     */
     ErrCode TerminateMission(int32_t missionId);
+
+    /**
+     * @brief Register session handler.
+     * @param object The handler.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+    */
+    ErrCode RegisterSessionHandler(const sptr<IRemoteObject> &object);
 
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {

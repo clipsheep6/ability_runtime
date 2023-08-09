@@ -24,6 +24,7 @@
 #include "cpp/mutex.h"
 
 #include "ability_record.h"
+#include "isession_handler_interface.h"
 #include "session/host/include/zidl/session_interface.h"
 
 namespace OHOS {
@@ -216,6 +217,17 @@ public:
     int32_t IsValidMissionIds(const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results,
         int32_t userId);
 
+    bool PrepareTerminateAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void SetSessionHandler(const sptr<ISessionHandler> &handler);
+
+    /**
+     * Get abilityRecord by session id.
+     *
+     * @param sessionId the session id.
+     * @return Returns abilityRecord on success, nullptr on failure.
+     */
+    std::shared_ptr<AbilityRecord> GetAbilityRecordsById(int32_t sessionId) const;
+
 private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
     int32_t GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest) const;
@@ -250,7 +262,7 @@ private:
     // byCall
     int CallAbilityLocked(const AbilityRequest &abilityRequest);
     sptr<SessionInfo> CreateSessionInfo(const AbilityRequest &abilityRequest) const;
-    int NotifySCBPendingActivation(sptr<SessionInfo> &sessionInfo, const sptr<IRemoteObject> &token) const;
+    int NotifySCBPendingActivation(sptr<SessionInfo> &sessionInfo, const AbilityRequest &abilityRequest) const;
     int ResolveAbility(const std::shared_ptr<AbilityRecord> &targetAbility, const AbilityRequest &abilityRequest) const;
     std::vector<std::shared_ptr<AbilityRecord>> GetAbilityRecordsByName(const AppExecFwk::ElementName &element);
 
@@ -268,6 +280,8 @@ private:
     LastExitReason CovertAppExitReasonToLastReason(const Reason exitReason) const;
     void SetRevicerInfo(const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &abilityRecord) const;
 
+    bool CheckPrepareTerminateEnable(const std::shared_ptr<AbilityRecord> &abilityRecord);
+
     mutable ffrt::mutex sessionLock_;
     std::unordered_map<int32_t, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;
     std::unordered_map<int64_t, std::shared_ptr<AbilityRecord>> tmpAbilityMap_;
@@ -276,6 +290,7 @@ private:
     std::map<SpecifiedInfo, std::shared_ptr<AbilityRecord>, key_compare> specifiedAbilityMap_;
     std::queue<AbilityRequest> abilityQueue_;
     std::queue<SpecifiedInfo> specifiedInfoQueue_;
+    sptr<ISessionHandler> handler_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -353,6 +353,89 @@ HWTEST_F(AppMgrServiceInnerTest, SendProcessExitEvent_001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: CheckIsolationMode_001
+ * @tc.desc: CheckIsolationMode
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, CheckIsolationMode_001, TestSize.Level1)
+{
+    HILOG_INFO("CheckIsolationMode_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    HapModuleInfo hapModuleInfo;
+    string supportIsolationMode = OHOS::system::GetParameter("persist.bms.supportIsolationMode", "false");
+    if (supportIsolationMode.compare("true") == 0) {
+        hapModuleInfo.isolationMode = IsolationMode::ISOLATION_FIRST;
+        EXPECT_TRUE(appMgrServiceInner->CheckIsolationMode(hapModuleInfo));
+        hapModuleInfo.isolationMode = IsolationMode::ISOLATION_ONLY;
+        EXPECT_TRUE(appMgrServiceInner->CheckIsolationMode(hapModuleInfo));
+        hapModuleInfo.isolationMode = IsolationMode::NONISOLATION_FIRST;
+        EXPECT_FALSE(appMgrServiceInner->CheckIsolationMode(hapModuleInfo));
+        hapModuleInfo.isolationMode = IsolationMode::NONISOLATION_ONLY;
+        EXPECT_FALSE(appMgrServiceInner->CheckIsolationMode(hapModuleInfo));
+    } else {
+        hapModuleInfo.isolationMode = IsolationMode::ISOLATION_FIRST;
+        EXPECT_FALSE(appMgrServiceInner->CheckIsolationMode(hapModuleInfo));
+        hapModuleInfo.isolationMode = IsolationMode::ISOLATION_ONLY;
+        EXPECT_FALSE(appMgrServiceInner->CheckIsolationMode(hapModuleInfo));
+        hapModuleInfo.isolationMode = IsolationMode::NONISOLATION_FIRST;
+        EXPECT_FALSE(appMgrServiceInner->CheckIsolationMode(hapModuleInfo));
+        hapModuleInfo.isolationMode = IsolationMode::NONISOLATION_ONLY;
+        EXPECT_FALSE(appMgrServiceInner->CheckIsolationMode(hapModuleInfo));
+    }
+    HILOG_INFO("CheckIsolationMode_001 end");
+}
+
+/**
+ * @tc.name: GenerateRenderUid_001
+ * @tc.desc: Generate RenderUid
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, GenerateRenderUid_001, TestSize.Level1)
+{
+    HILOG_INFO("GenerateRenderUid_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    int32_t renderUid = Constants::INVALID_UID;
+    EXPECT_TRUE(appMgrServiceInner->GenerateRenderUid(renderUid));
+    int32_t renderUid1 = Constants::INVALID_UID;
+    EXPECT_TRUE(appMgrServiceInner->GenerateRenderUid(renderUid1));
+    HILOG_INFO("GenerateRenderUid_001 end");
+}
+
+/**
+ * @tc.name: StartRenderProcessImpl_001
+ * @tc.desc: start render process.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, StartRenderProcessImpl_001, TestSize.Level0)
+{
+    HILOG_INFO("StartRenderProcessImpl_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    BundleInfo bundleInfo;
+    std::string appName = "test_appName";
+    std::string processName = "test_processName";
+    std::string bundleName = "test_bundleName";
+    sptr<IRemoteObject> token = new MockAbilityToken();
+    std::shared_ptr<AppRunningRecord> appRecord =
+        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, bundleInfo);
+    EXPECT_NE(appRecord, nullptr);
+    pid_t hostPid = 1;
+    std::string renderParam = "test_render_param";
+    int32_t ipcFd = 1;
+    int32_t sharedFd = 1;
+    int32_t crashFd = 1;
+    std::shared_ptr<RenderRecord> renderRecord =
+        RenderRecord::CreateRenderRecord(hostPid, renderParam, ipcFd, sharedFd, crashFd, appRecord);
+    EXPECT_NE(renderRecord, nullptr);
+    pid_t renderPid = 1;
+    appMgrServiceInner->StartRenderProcessImpl(nullptr, nullptr, renderPid);
+    appMgrServiceInner->StartRenderProcessImpl(renderRecord, appRecord, renderPid);
+    HILOG_INFO("StartRenderProcessImpl_001 end");
+}
+
+/**
  * @tc.name: UpDateStartupType_001
  * @tc.desc: Verify that the UpDateStartupType interface calls abnormal parameter
  * @tc.type: FUNC

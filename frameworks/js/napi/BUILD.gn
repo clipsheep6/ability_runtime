@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -24,6 +24,7 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/ability_context:abilitycontext_napi",
     "${ability_runtime_napi_path}/ability_manager:abilitymanager",
     "${ability_runtime_napi_path}/ability_manager:abilitymanager_napi",
+    "${ability_runtime_napi_path}/action_extension_ability:actionextensionability_napi",
     "${ability_runtime_napi_path}/app/ability_delegator:abilitydelegatorregistry",
     "${ability_runtime_napi_path}/app/ability_delegator:abilitydelegatorregistry_napi",
     "${ability_runtime_napi_path}/app/ability_stage:abilitystage",
@@ -58,6 +59,7 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/service_extension_ability:serviceextensionability",
     "${ability_runtime_napi_path}/service_extension_ability:serviceextensionability_napi",
     "${ability_runtime_napi_path}/service_extension_context:serviceextensioncontext_napi",
+    "${ability_runtime_napi_path}/share_extension_ability:shareextensionability_napi",
     "${ability_runtime_napi_path}/ui_extension_ability:uiextensionability_napi",
     "${ability_runtime_napi_path}/ui_extension_context:uiextensioncontext_napi",
     "${ability_runtime_napi_path}/uri_permission:uripermissionmanager_napi",

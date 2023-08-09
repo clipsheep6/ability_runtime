@@ -170,7 +170,7 @@ void AbilityManagerStub::SecondStepInit()
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_REQUEST_WANT)] =
         &AbilityManagerStub::GetPendingRequestWantInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PENDING_WANT_SENDER_INFO)] =
-        &AbilityManagerStub::GetPendingRequestWantInner;
+        &AbilityManagerStub::GetWantSenderInfoInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_APP_MEMORY_SIZE)] =
         &AbilityManagerStub::GetAppMemorySizeInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_RAM_CONSTRAINED_DEVICE)] =
@@ -235,6 +235,8 @@ void AbilityManagerStub::SecondStepInit()
         &AbilityManagerStub::ForceExitAppInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RECORD_APP_EXIT_REASON)] =
         &AbilityManagerStub::RecordAppExitReasonInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_SESSION_HANDLER)] =
+        &AbilityManagerStub::RegisterSessionHandlerInner;
 #ifdef ABILITY_COMMAND_FOR_TEST
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::BLOCK_ABILITY)] =
         &AbilityManagerStub::BlockAbilityInner;
@@ -289,6 +291,8 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::MoveAbilityToBackgroundInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_CONTINUE_STATE)] =
         &AbilityManagerStub::SetMissionContinueStateInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::PREPARE_TERMINATE_ABILITY_BY_SCB)] =
+        &AbilityManagerStub::PrepareTerminateAbilityBySCBInner;
 #ifdef SUPPORT_GRAPHICS
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_LABEL)] =
         &AbilityManagerStub::SetMissionLabelInner;
@@ -2396,5 +2400,34 @@ int32_t AbilityManagerStub::TerminateMissionInner(MessageParcel &data, MessagePa
     return NO_ERROR;
 }
 
+int AbilityManagerStub::PrepareTerminateAbilityBySCBInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Call.");
+    sptr<SessionInfo> sessionInfo = nullptr;
+    if (data.ReadBool()) {
+        sessionInfo = data.ReadParcelable<SessionInfo>();
+    }
+    bool isPrepareTerminate = false;
+    auto result = PrepareTerminateAbilityBySCB(sessionInfo, isPrepareTerminate);
+    if (result == ERR_OK) {
+        if (!reply.WriteBool(isPrepareTerminate)) {
+            HILOG_ERROR("reply write failed.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+    return result;
+}
+
+int AbilityManagerStub::RegisterSessionHandlerInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> handler = data.ReadRemoteObject();
+    if (handler == nullptr) {
+        HILOG_ERROR("stub register session handler, handler is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = RegisterSessionHandler(handler);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

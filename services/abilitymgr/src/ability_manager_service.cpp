@@ -174,6 +174,7 @@ const int32_t GET_PARAMETER_OTHER = -1;
 const int32_t SIZE_10 = 10;
 const int32_t ACCOUNT_MGR_SERVICE_UID = 3058;
 const int32_t BROKER_UID = 5528;
+const int32_t BROKER_RESERVE_UID = 5005;
 const int32_t DMS_UID = 5522;
 const int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
 const std::string BUNDLE_NAME_KEY = "bundleName";
@@ -2331,6 +2332,7 @@ bool AbilityManagerService::CheckIfOperateRemote(const Want &want)
 
 bool AbilityManagerService::GetLocalDeviceId(std::string& localDeviceId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto localNode = std::make_unique<NodeBasicInfo>();
     int32_t errCode = GetLocalNodeDeviceInfo(DM_PKG_NAME.c_str(), localNode.get());
     if (errCode != ERR_OK) {
@@ -5551,8 +5553,9 @@ void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& toke
 
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         const auto& abilityInfo = record->GetAbilityInfo();
-        (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
-            AddAbilityRecoverInfo(abilityInfo.bundleName, abilityInfo.moduleName, abilityInfo.name);
+        (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->AddAbilityRecoverInfo(
+            abilityInfo.bundleName, abilityInfo.moduleName, abilityInfo.name,
+            uiAbilityLifecycleManager_->GetSessionIdByAbilityToken(token));
     } else {
         auto userId = record->GetOwnerMissionUserId();
         auto missionListMgr = GetListManagerByUserId(userId);
@@ -6543,6 +6546,7 @@ AppExecFwk::ElementName AbilityManagerService::GetTopAbility()
 
 AppExecFwk::ElementName AbilityManagerService::GetElementNameByToken(const sptr<IRemoteObject> &token)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("%{public}s start.", __func__);
     AppExecFwk::ElementName elementName = {};
 #ifdef SUPPORT_GRAPHICS
@@ -7770,7 +7774,7 @@ int32_t AbilityManagerService::RegisterIAbilityManagerCollaborator(
 {
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     auto callingUid = IPCSkeleton::GetCallingUid();
-    if (!isSaCall || callingUid != BROKER_UID) {
+    if (!isSaCall || (callingUid != BROKER_UID && callingUid != BROKER_RESERVE_UID)) {
         HILOG_ERROR("The interface only support for broker");
         return CHECK_PERMISSION_FAILED;
     }
@@ -7789,7 +7793,7 @@ int32_t AbilityManagerService::UnregisterIAbilityManagerCollaborator(int32_t typ
 {
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     auto callingUid = IPCSkeleton::GetCallingUid();
-    if (!isSaCall || callingUid != BROKER_UID) {
+    if (!isSaCall || (callingUid != BROKER_UID && callingUid != BROKER_RESERVE_UID)) {
         HILOG_ERROR("The interface only support for broker");
         return CHECK_PERMISSION_FAILED;
     }
@@ -7809,7 +7813,7 @@ int32_t AbilityManagerService::MoveMissionToBackground(int32_t missionId)
     HILOG_INFO("call");
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     auto callingUid = IPCSkeleton::GetCallingUid();
-    if (!isSaCall || callingUid != BROKER_UID) {
+    if (!isSaCall || (callingUid != BROKER_UID && callingUid != BROKER_RESERVE_UID)) {
         HILOG_ERROR("The interface only support for broker");
         return CHECK_PERMISSION_FAILED;
     }
@@ -7826,7 +7830,7 @@ int32_t AbilityManagerService::TerminateMission(int32_t missionId)
     HILOG_INFO("call");
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     auto callingUid = IPCSkeleton::GetCallingUid();
-    if (!isSaCall || callingUid != BROKER_UID) {
+    if (!isSaCall || (callingUid != BROKER_UID && callingUid != BROKER_RESERVE_UID)) {
         HILOG_ERROR("The interface only support for broker");
         return CHECK_PERMISSION_FAILED;
     }
@@ -7884,6 +7888,44 @@ void AbilityManagerService::GetConnectManagerAndUIExtensionBySessionInfo(const s
             HILOG_WARN("connectManager is nullptr, userId: 0");
         }
     }
+}
+
+int AbilityManagerService::PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isTerminate)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("Call.");
+    if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
+        HILOG_ERROR("sessionInfo is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD, U0_USER_ID)) {
+        HILOG_ERROR("Not sceneboard called, not allowed.");
+        return ERR_WRONG_INTERFACE_CALL;
+    }
+
+    if (!uiAbilityLifecycleManager_) {
+        HILOG_ERROR("failed, uiAbilityLifecycleManager is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto abilityRecord = uiAbilityLifecycleManager_->GetUIAbilityRecordBySessionInfo(sessionInfo);
+    isTerminate = uiAbilityLifecycleManager_->PrepareTerminateAbility(abilityRecord);
+
+    return ERR_OK;
+}
+
+int AbilityManagerService::RegisterSessionHandler(const sptr<IRemoteObject> &object)
+{
+    HILOG_INFO("call");
+    CHECK_POINTER_AND_RETURN(uiAbilityLifecycleManager_, ERR_NO_INIT);
+    if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD, U0_USER_ID)) {
+        HILOG_ERROR("Not sceneboard called, not allowed.");
+        return ERR_WRONG_INTERFACE_CALL;
+    }
+    sptr<ISessionHandler> handler = iface_cast<ISessionHandler>(object);
+    uiAbilityLifecycleManager_->SetSessionHandler(handler);
+    return ERR_OK;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

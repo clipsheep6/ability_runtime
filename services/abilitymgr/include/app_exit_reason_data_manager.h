@@ -40,14 +40,17 @@ public:
 
     int32_t DeleteAppExitReason(const std::string &bundleName);
 
-    int32_t AddAbilityRecoverInfo(
-        const std::string &bundleName, const std::string &moduleName, const std::string &abilityName);
+    int32_t AddAbilityRecoverInfo(const std::string &bundleName,
+        const std::string &moduleName, const std::string &abilityName, const int &sessionId);
 
     int32_t DeleteAbilityRecoverInfo(
         const std::string &bundleName, const std::string &moduleName, const std::string &abilityName);
 
     int32_t GetAbilityRecoverInfo(const std::string &bundleName,
         const std::string &moduleName, const std::string &abilityName, bool &hasRecoverInfo);
+
+    int32_t GetAbilitySessionId(const std::string &bundleName,
+        const std::string &moduleName, const std::string &abilityName, int &sessionId);
 
 private:
     DistributedKv::Status GetKvStore();
@@ -60,10 +63,12 @@ private:
         const std::string &bundleName, const std::vector<std::string> &abilityList, const AAFwk::Reason &reason);
     void InnerDeleteAppExitReason(const std::string &bundleName);
 
-    void UpdateAbilityRecoverInfo(const std::string &bundleName, const std::vector<std::string> &recoverInfoList);
-    DistributedKv::Value ConvertAbilityRecoverInfoToValue(const std::vector<std::string> &recoverInfoList);
+    void UpdateAbilityRecoverInfo(const std::string &bundleName,
+        const std::vector<std::string> &recoverInfoList, const std::vector<int> &sessionIdList);
+    DistributedKv::Value ConvertAbilityRecoverInfoToValue(
+        const std::vector<std::string> &recoverInfoList, const std::vector<int> &sessionIdList);
     void ConvertAbilityRecoverInfoFromValue(
-        const DistributedKv::Value &value, std::vector<std::string> &recoverInfoList);
+        const DistributedKv::Value &value, std::vector<std::string> &recoverInfoList, std::vector<int> &sessionIdList);
     void InnerDeleteAbilityRecoverInfo(const std::string &bundleName);
 
     const DistributedKv::AppId appId_ { "app_exit_reason_storage" };

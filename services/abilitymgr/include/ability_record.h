@@ -1060,7 +1060,7 @@ private:
     uint32_t callerAccessTokenId_ = -1;
     bool isNeedBackToOtherMissionStack_ = false;
     std::weak_ptr<AbilityRecord> otherMissionStackAbilityRecord_; // who starts this ability record by SA
-    int32_t collaboratorType_;
+    int32_t collaboratorType_ = 0;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

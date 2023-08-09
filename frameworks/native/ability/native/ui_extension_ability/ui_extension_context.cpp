@@ -16,6 +16,7 @@
 #include "ui_extension_context.h"
 
 #include "ability_manager_client.h"
+#include "connection_manager.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 
@@ -56,6 +57,29 @@ ErrCode UIExtensionContext::TerminateSelf()
     }
     HILOG_DEBUG("TerminateSelf end.");
     return err;
+}
+
+ErrCode UIExtensionContext::ConnectAbility(
+    const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) const
+{
+    HILOG_DEBUG("Connect ability begin, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
+    ErrCode ret =
+        ConnectionManager::GetInstance().ConnectAbility(token_, want, connectCallback);
+    HILOG_DEBUG("UIExtensionContext::ConnectAbility ErrorCode = %{public}d", ret);
+    return ret;
+}
+
+ErrCode UIExtensionContext::DisconnectAbility(
+    const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) const
+{
+    HILOG_DEBUG("%{public}s begin.", __func__);
+    ErrCode ret =
+        ConnectionManager::GetInstance().DisconnectAbility(token_, want.GetElement(), connectCallback);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("%{public}s end DisconnectAbility error, ret=%{public}d", __func__, ret);
+    }
+    HILOG_DEBUG("%{public}s end DisconnectAbility", __func__);
+    return ret;
 }
 
 ErrCode UIExtensionContext::StartAbilityForResult(const AAFwk::Want &want, int requestCode, RuntimeTask &&task)
