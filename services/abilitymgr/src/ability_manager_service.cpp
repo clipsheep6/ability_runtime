@@ -5124,6 +5124,9 @@ int32_t AbilityManagerService::GetMissionIdByAbilityToken(const sptr<IRemoteObje
     if (!JudgeSelfCalled(abilityRecord) && (IPCSkeleton::GetCallingPid() != getpid())) {
         return -1;
     }
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        return uiAbilityLifecycleManager_->GetSessionIdByAbilityToken(token);
+    }
     auto userId = abilityRecord->GetOwnerMissionUserId();
     auto missionListManager = GetListManagerByUserId(userId);
     if (!missionListManager) {
