@@ -2253,10 +2253,14 @@ int AbilityManagerService::SendResultToAbility(int32_t requestCode, int32_t resu
         HILOG_ERROR("MissionId is empty");
         return ERR_INVALID_VALUE;
     }
-    sptr<IRemoteObject> abilityToken = GetAbilityTokenByMissionId(missionId);
-    CHECK_POINTER_AND_RETURN(abilityToken, ERR_INVALID_VALUE);
-
-    auto abilityRecord = Token::GetAbilityRecordByToken(abilityToken);
+    std::shared_ptr<AbilityRecord> abilityRecord = nullptr;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        abilityRecord = uiAbilityLifecycleManager_->GetAbilityRecordsById(missionId);
+    } else {
+        sptr<IRemoteObject> abilityToken = GetAbilityTokenByMissionId(missionId);
+        CHECK_POINTER_AND_RETURN(abilityToken, ERR_INVALID_VALUE);
+        abilityRecord = Token::GetAbilityRecordByToken(abilityToken);
+    }
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
     abilityRecord->SetResult(std::make_shared<AbilityResult>(requestCode, resultCode, resultWant));
@@ -2279,7 +2283,16 @@ int AbilityManagerService::StartRemoteAbility(const Want &want, int requestCode,
     }
     if (remoteWant.GetBoolParam(Want::PARAM_RESV_FOR_RESULT, false)) {
         HILOG_INFO("%{public}s: try to StartAbilityForResult", __func__);
-        int32_t missionId = GetMissionIdByAbilityToken(callerToken);
+        int32_t missionId = -1;
+        if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+            missionId = uiAbilityLifecycleManager_->GetSessionIdByAbilityToken(callerToken);
+            if (!missionId) {
+                HILOG_ERROR("Invalid missionId id.");
+                return ERR_INVALID_VALUE;
+            }
+        } else {
+            missionId = GetMissionIdByAbilityToken(callerToken);
+        }
         if (missionId < 0) {
             return ERR_INVALID_VALUE;
         }
@@ -2839,10 +2852,14 @@ int AbilityManagerService::ContinueAbility(const std::string &deviceId, int32_t 
 {
     HILOG_INFO("ContinueAbility missionId = %{public}d, version = %{public}u.", missionId, versionCode);
 
-    sptr<IRemoteObject> abilityToken = GetAbilityTokenByMissionId(missionId);
-    CHECK_POINTER_AND_RETURN(abilityToken, ERR_INVALID_VALUE);
-
-    auto abilityRecord = Token::GetAbilityRecordByToken(abilityToken);
+    std::shared_ptr<AbilityRecord> abilityRecord = nullptr;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        abilityRecord = uiAbilityLifecycleManager_->GetAbilityRecordsById(missionId);
+    } else {
+        sptr<IRemoteObject> abilityToken = GetAbilityTokenByMissionId(missionId);
+        CHECK_POINTER_AND_RETURN(abilityToken, ERR_INVALID_VALUE);
+        abilityRecord = Token::GetAbilityRecordByToken(abilityToken);
+    }
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
     abilityRecord->ContinueAbility(deviceId, versionCode);
@@ -2861,8 +2878,17 @@ int AbilityManagerService::StartContinuation(const Want &want, const sptr<IRemot
     int32_t appUid = IPCSkeleton::GetCallingUid();
     uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
     HILOG_INFO("AbilityManagerService::Try to StartContinuation, AccessTokenID = %{public}u", accessToken);
-    int32_t missionId = GetMissionIdByAbilityToken(abilityToken);
-    if (missionId == -1) {
+    int32_t missionId = -1;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        missionId = uiAbilityLifecycleManager_->GetSessionIdByAbilityToken(abilityToken);
+        if (!missionId) {
+            HILOG_ERROR("Invalid missionId id.");
+            return ERR_INVALID_VALUE;
+        }
+    } else {
+        missionId = GetMissionIdByAbilityToken(abilityToken);
+    }
+    if (missionId < 0) {
         HILOG_ERROR("AbilityManagerService::StartContinuation failed to get missionId.");
         return ERR_INVALID_VALUE;
     }
@@ -2887,10 +2913,14 @@ int AbilityManagerService::NotifyContinuationResult(int32_t missionId, int32_t r
 {
     HILOG_INFO("Notify Continuation Result : %{public}d.", result);
 
-    auto abilityToken = GetAbilityTokenByMissionId(missionId);
-    CHECK_POINTER_AND_RETURN(abilityToken, ERR_INVALID_VALUE);
-
-    auto abilityRecord = Token::GetAbilityRecordByToken(abilityToken);
+    std::shared_ptr<AbilityRecord> abilityRecord = nullptr;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        abilityRecord = uiAbilityLifecycleManager_->GetAbilityRecordsById(missionId);
+    } else {
+        sptr<IRemoteObject> abilityToken = GetAbilityTokenByMissionId(missionId);
+        CHECK_POINTER_AND_RETURN(abilityToken, ERR_INVALID_VALUE);
+        abilityRecord = Token::GetAbilityRecordByToken(abilityToken);
+    }
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
     abilityRecord->NotifyContinuationResult(result);
@@ -5155,7 +5185,16 @@ int AbilityManagerService::StartRemoteAbilityByCall(const Want &want, const sptr
         HILOG_ERROR("%{public}s AddStartControlParam failed.", __func__);
         return ERR_INVALID_VALUE;
     }
-    int32_t missionId = GetMissionIdByAbilityToken(callerToken);
+    int32_t missionId = -1;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        missionId = uiAbilityLifecycleManager_->GetSessionIdByAbilityToken(callerToken);
+        if (!missionId) {
+            HILOG_ERROR("Invalid missionId id.");
+            return ERR_INVALID_VALUE;
+        }
+    } else {
+        missionId = GetMissionIdByAbilityToken(callerToken);
+    }
     if (missionId < 0) {
         return ERR_INVALID_VALUE;
     }

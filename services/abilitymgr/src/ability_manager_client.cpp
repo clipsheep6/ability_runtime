@@ -963,6 +963,15 @@ ErrCode AbilityManagerClient::DelegatorDoAbilityBackground(const sptr<IRemoteObj
 ErrCode AbilityManagerClient::SetMissionContinueState(const sptr<IRemoteObject> &token,
     const AAFwk::ContinueState &state)
 {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
+        HILOG_DEBUG("call");
+        uint32_t value = static_cast<uint32_t>(state);
+        Rosen::ContinueState continueState = static_cast<Rosen::ContinueState>(value);
+        auto err = sceneSessionManager->SetSessionContinueState(token, continueState);
+        return static_cast<int>(err);
+    }
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->SetMissionContinueState(token, state);
