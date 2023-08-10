@@ -1528,7 +1528,9 @@ int32_t AbilityManagerService::ForceExitApp(const int32_t pid, Reason exitReason
 
     int32_t targetUserId = uid / BASE_USER_RANGE;
     std::vector<std::string> abilityLists;
-    if (targetUserId == U0_USER_ID) {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        uiAbilityLifecycleManager_->GetActiveAbilityList(bundleName, abilityLists, targetUserId);
+    } else if (targetUserId == U0_USER_ID) {
         std::lock_guard lock(managersMutex_);
         for (auto item: missionListManagers_) {
             if (item.second) {

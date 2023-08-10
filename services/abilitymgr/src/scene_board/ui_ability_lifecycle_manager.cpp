@@ -1493,5 +1493,28 @@ std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetAbilityRecordsById(
     }
     return search->second;
 }
+
+void UIAbilityLifecycleManager::GetActiveAbilityList(const std::string &bundleName,
+    std::vector<std::string> &abilityList, int32_t targetUserId) const
+{
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    HILOG_INFO("Call.");
+    for (const auto& [sessionId, abilityRecord] : sessionAbilityMap_) {
+        if (abilityRecord == nullptr) {
+            HILOG_WARN("second is nullptr.");
+            continue;
+        }
+        const auto &abilityInfo = abilityRecord->GetAbilityInfo();
+        if (abilityInfo.bundleName == bundleName && !abilityInfo.name.empty() &&
+            (targetUserId == DEFAULT_USER_ID || abilityRecord->GetOwnerMissionUserId() == targetUserId)) {
+            HILOG_DEBUG("find ability name is %{public}s", abilityInfo.name.c_str());
+            abilityList.push_back(abilityInfo.name);
+        }
+    }
+    if (!abilityList.empty()) {
+        sort(abilityList.begin(), abilityList.end());
+        abilityList.erase(unique(abilityList.begin(), abilityList.end()), abilityList.end());
+    }
+}
 }  // namespace AAFwk
 }  // namespace OHOS
