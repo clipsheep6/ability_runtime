@@ -64,7 +64,6 @@
             "init",
             "input",
             "ipc",
-            "ipc_js",
             "kv_store",
             "memory_utils",
             "image_framework",
