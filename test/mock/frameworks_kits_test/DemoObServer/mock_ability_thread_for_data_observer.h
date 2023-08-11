@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,20 +19,18 @@
 #include <iostream>
 #include <memory>
 
-#include "gtest/gtest.h"
-
-#include "mock_ability_test.h"
-#include "ohos_application.h"
-#include "ability_thread.h"
-#include "event_runner.h"
 #include "ability_info.h"
 #include "ability_local_record.h"
-#include <iostream> //
+#include "event_runner.h"
+#include "fa_ability_thread.h"
+#include "gtest/gtest.h"
+#include "mock_ability_test.h"
+#include "ohos_application.h"
 namespace OHOS {
 namespace AppExecFwk {
 sptr<AppExecFwk::AbilityThread> MockCreateAbilityThread()
 {
-    sptr<AppExecFwk::AbilityThread> abilitythread(new (std::nothrow) AppExecFwk::AbilityThread());
+    sptr<AppExecFwk::AbilityThread> abilitythread(new (std::nothrow) AbilityRuntime::FAAbilityThread());
     if (abilitythread == nullptr) {
         GTEST_LOG_(INFO) << "mock_ability_thread_for_data_observer:mock abilityhreadptr is nullptr called";
         return nullptr;
@@ -55,7 +53,7 @@ sptr<AppExecFwk::AbilityThread> MockCreateAbilityThread()
     info->isNativeAbility = true;
     std::cout << "info->name : " << (*info).name << std::endl;
 
-    sptr<IRemoteObject> token = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
 
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(info, token);
     std::shared_ptr<EventRunner> mainRunner = EventRunner::Create(info->name);
