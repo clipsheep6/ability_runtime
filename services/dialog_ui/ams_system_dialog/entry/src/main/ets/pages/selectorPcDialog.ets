@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+import drawableDescriptor from '@ohos.arkui.drawableDescriptor';
+
 interface SelectorPc {
   width: string,
   height: string
@@ -134,6 +136,25 @@ struct SelectorPcDialog {
         let iconId = Number(hap.iconId);
         moduleContext.resourceManager.getMediaBase64(iconId).then(value => {
             appIcon = value;
+            if (appIcon.indexOf('image/json') > -1) {
+              try {
+                const imageDescriptor = moduleContext.resourceManager.getDrawableDescriptor(iconId);
+                if (imageDescriptor !== null && imageDescriptor !== undefined &&
+                  imageDescriptor instanceof drawableDescriptor.LayeredDrawableDescriptor) {
+                  let layeredDrawableDescriptor: drawableDescriptor.LayeredDrawableDescriptor =
+                    <drawableDescriptor.LayeredDrawableDescriptor> imageDescriptor;
+                  let foregroundDescriptor: drawableDescriptor.DrawableDescriptor = layeredDrawableDescriptor.getForeground();
+                  if (foregroundDescriptor !== null && foregroundDescriptor !== undefined) {
+                    globalThis.jsonIconMap.set(bundleName + ':' + moduleName + ':' + abilityName,
+                      foregroundDescriptor.getPixelMap());
+                  } else {
+                    console.error(this.TAG, 'get foregroundDescriptor is null');
+                  }
+                }
+              } catch (e) {
+                console.error(this.TAG, 'get drawableDescriptor error:' + JSON.stringify(e));
+              }
+            }
             let moreHapList = ""
             moreHapList = bundleName + abilityName + moduleName
             if (globalThis.params.hapList.find(item => String(item.bundleName + item.ability + item.moduleName) ==
@@ -250,12 +271,22 @@ struct SelectorPcDialog {
                 ListItem() {
                   Flex({ direction: FlexDirection.Row }) {
                     if (item.split("#")[3] != "") {
-                      Image(item.split("#")[3])
-                        .height(48)
-                        .width(48)
-                        .alignSelf(ItemAlign.Center)
-                        .margin({ left : 16 })
-                        .borderRadius(12)
+                      if (item.split("#")[3].indexOf('image/json') > -1) {
+                        Image(globalThis.jsonIconMap.get(item.split("#")[0] + ':' + item.split("#")[4]
+                           + ':' + item.split("#")[1]))
+                          .height(48)
+                          .width(48)
+                          .alignSelf(ItemAlign.Center)
+                          .margin({ left : 16 })
+                          .borderRadius(12);
+                      } else {
+                        Image(item.split("#")[3])
+                          .height(48)
+                          .width(48)
+                          .alignSelf(ItemAlign.Center)
+                          .margin({ left : 16 })
+                          .borderRadius(12);
+                      }
                     } else {
                       Image($r("app.media.app_icon"))
                         .height(48)
@@ -336,12 +367,22 @@ struct SelectorPcDialog {
                 ListItem() {
                   Flex({ direction: FlexDirection.Row }) {
                     if (item.split("#")[3] != "") {
-                      Image(item.split("#")[3])
-                        .height(48)
-                        .width(48)
-                        .alignSelf(ItemAlign.Center)
-                        .margin({ left : 16 })
-                        .borderRadius(12)
+                      if (item.split("#")[3].indexOf('image/json') > -1) {
+                        Image(globalThis.jsonIconMap.get(item.split("#")[0] + ':' + item.split("#")[4]
+                           + ':' + item.split("#")[1]))
+                          .height(48)
+                          .width(48)
+                          .alignSelf(ItemAlign.Center)
+                          .margin({ left : 16 })
+                          .borderRadius(12);
+                      } else {
+                        Image(item.split("#")[3])
+                          .height(48)
+                          .width(48)
+                          .alignSelf(ItemAlign.Center)
+                          .margin({ left : 16 })
+                          .borderRadius(12)
+                      }
                     } else {
                       Image($r("app.media.app_icon"))
                         .height(48)
