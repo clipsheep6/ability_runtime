@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,20 +18,20 @@
 
 #include "ability.h"
 #include "ability_impl.h"
-#include "ability_thread.h"
-#include <gtest/gtest.h>
+#include "fa_ability_thread.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 using Want = OHOS::AAFwk::Want;
+using FAAbilityThread = OHOS::AbilityRuntime::FAAbilityThread;
 
-class MockAbilityThread : public AbilityThread {
+class MockAbilityThread : public FAAbilityThread {
 public:
     MockAbilityThread() = default;
     virtual ~MockAbilityThread() = default;
 
 private:
-    AbilityThread AbilityThread_;
+    FAAbilityThread AbilityThread_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

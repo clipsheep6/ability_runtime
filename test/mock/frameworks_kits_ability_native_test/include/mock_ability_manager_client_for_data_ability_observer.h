@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,15 +15,13 @@
 #ifndef MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MANAGER_CLIENT_FOR_DATA_ABILITY_OBSERVER_H
 #define MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MANAGER_CLIENT_FOR_DATA_ABILITY_OBSERVER_H
 
-#include "gmock/gmock.h"
-
-#include "ability_manager_client.h"
-#include "ability_scheduler_proxy.h"
-#include "ability_thread.h"
-
 #include <iremote_object.h>
 #include <iremote_stub.h>
 
+#include "ability_manager_client.h"
+#include "ability_scheduler_proxy.h"
+#include "fa_ability_thread.h"
+#include "gmock/gmock.h"
 #include "mock_ability_scheduler_for_observer.h"
 
 namespace OHOS {
@@ -57,7 +55,7 @@ public:
         } else {
             if (abilitySchedulerProxyInstance2 == nullptr) {
                 if (abilityThreadInstance == nullptr) {
-                    abilityThreadInstance = std::make_shared<AbilityThread>();
+                    abilityThreadInstance = std::make_shared<AbilityRuntime::FAAbilityThread>();
                 }
                 abilitySchedulerProxyInstance2 = sptr<AAFwk::AbilitySchedulerProxy>(
                     new (std::nothrow) AAFwk::AbilitySchedulerProxy(abilityThreadInstance->AsObject()));
