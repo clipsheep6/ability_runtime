@@ -16,7 +16,6 @@
 #include <functional>
 #include <gtest/gtest.h>
 #define private public
-#include "ability_thread.h"
 #include "fa_ability_thread.h"
 #define protected public
 #include "ability_handler.h"

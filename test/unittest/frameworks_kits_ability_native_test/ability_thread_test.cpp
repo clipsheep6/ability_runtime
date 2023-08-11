@@ -18,7 +18,6 @@
 #define private public
 #define protected public
 #include "ability_loader.h"
-#include "ability_thread.h"
 #include "fa_ability_thread.h"
 #undef private
 #undef protected

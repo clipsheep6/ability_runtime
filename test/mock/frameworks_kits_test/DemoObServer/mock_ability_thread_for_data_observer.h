@@ -21,7 +21,6 @@
 
 #include "ability_info.h"
 #include "ability_local_record.h"
-// #include "ability_thread.h"
 #include "event_runner.h"
 #include "fa_ability_thread.h"
 #include "gtest/gtest.h"

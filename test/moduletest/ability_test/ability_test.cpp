@@ -19,7 +19,6 @@
 #include "ability_impl_factory.h"
 #include "ability_loader.h"
 #include "ability_local_record.h"
-#include "ability_thread.h"
 #include "context_deal.h"
 #include "data_ability_helper.h"
 #ifndef SUPPORT_ERMS

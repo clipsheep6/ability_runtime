@@ -18,7 +18,6 @@
 #include "ability.h"
 #include "ability_local_record.h"
 #include "ability_record_mgr.h"
-#include "ability_thread.h"
 #include "application_context.h"
 #include "application_impl.h"
 #include "application_info.h"

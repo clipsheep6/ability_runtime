@@ -15,7 +15,6 @@
 
 #include <gtest/gtest.h>
 
-#include "ability_thread.h"
 #include "context_deal.h"
 #include "fa_ability_thread.h"
 #include "hilog_wrapper.h"

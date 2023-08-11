@@ -20,7 +20,6 @@
 #include "ability_impl.h"
 #include "ability_impl_factory.h"
 #include "ability_loader.h"
-#include "ability_thread.h"
 #include "abs_shared_result_set.h"
 #include "context_deal.h"
 #include "data_ability_predicates.h"

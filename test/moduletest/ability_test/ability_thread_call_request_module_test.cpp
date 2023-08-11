@@ -17,7 +17,6 @@
 #include <gtest/gtest.h>
 #define private public
 #include "ability_handler.h"
-#include "ability_thread.h"
 #include "fa_ability_thread.h"
 #define protected public
 #include "sys_mgr_client.h"

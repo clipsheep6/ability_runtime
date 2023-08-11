@@ -19,7 +19,6 @@
 #include "ability_context.h"
 #include "ability_loader.h"
 #include "ability_manager_client.h"
-#include "ability_thread.h"
 #include "context_deal.h"
 #include "fa_ability_thread.h"
 #include "mock_serviceability_manager_service.h"
