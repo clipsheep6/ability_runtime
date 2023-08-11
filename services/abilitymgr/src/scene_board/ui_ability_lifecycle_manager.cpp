@@ -60,9 +60,11 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
     }
     abilityRequest.sessionInfo = sessionInfo;
 
+    HILOG_INFO("session id: %{public}d.", sessionInfo->persistentId);
     std::shared_ptr<AbilityRecord> uiAbilityRecord = nullptr;
     auto iter = sessionAbilityMap_.find(sessionInfo->persistentId);
     if (iter != sessionAbilityMap_.end()) {
+        HILOG_DEBUG("isNewWant: %{public}d.", sessionInfo->isNewWant);
         uiAbilityRecord = iter->second;
         uiAbilityRecord->SetIsNewWant(sessionInfo->isNewWant);
         if (sessionInfo->isNewWant) {
@@ -194,7 +196,7 @@ int UIAbilityLifecycleManager::NotifySCBToStartUIAbility(const AbilityRequest &a
     }
     auto sessionInfo = CreateSessionInfo(abilityRequest);
     sessionInfo->requestCode = abilityRequest.requestCode;
-    sessionInfo->persistentId = GetPersistentIdByAbilityRequest(abilityRequest);
+    sessionInfo->persistentId = GetPersistentIdByAbilityRequest(abilityRequest, sessionInfo->reuse);
     sessionInfo->userId = userId;
     return NotifySCBPendingActivation(sessionInfo, abilityRequest);
 }
@@ -532,7 +534,8 @@ int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRe
 
     // Get target uiAbility record.
     std::shared_ptr<AbilityRecord> uiAbilityRecord;
-    auto persistentId = GetPersistentIdByAbilityRequest(abilityRequest);
+    bool reuse = false;
+    auto persistentId = GetPersistentIdByAbilityRequest(abilityRequest, reuse);
     if (persistentId == 0) {
         uiAbilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
         uiAbilityRecord->SetOwnerMissionUserId(DelayedSingleton<AbilityManagerService>::GetInstance()->GetUserId());
@@ -555,6 +558,7 @@ int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRe
             auto sessionInfo = CreateSessionInfo(abilityRequest);
             sessionInfo->persistentId = persistentId;
             sessionInfo->state = CallToState::FOREGROUND;
+            sessionInfo->reuse = reuse;
             DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(uiAbilityRecord->GetToken());
             return NotifySCBPendingActivation(sessionInfo, abilityRequest);
         }
@@ -565,6 +569,7 @@ int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRe
 
     auto sessionInfo = CreateSessionInfo(abilityRequest);
     sessionInfo->persistentId = persistentId;
+    sessionInfo->reuse = reuse;
     sessionInfo->uiAbilityId = uiAbilityRecord->GetAbilityRecordId();
     if (abilityRequest.want.GetBoolParam(Want::PARAM_RESV_CALL_TO_FOREGROUND, false)) {
         sessionInfo->state = CallToState::FOREGROUND;
@@ -856,14 +861,15 @@ void UIAbilityLifecycleManager::CompleteTerminate(const std::shared_ptr<AbilityR
     terminateAbilityList_.remove(abilityRecord);
 }
 
-int32_t UIAbilityLifecycleManager::GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest) const
+int32_t UIAbilityLifecycleManager::GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest,
+    bool &reuse) const
 {
     if (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED) {
-        return GetReusedSpecifiedPersistentId(abilityRequest);
+        return GetReusedSpecifiedPersistentId(abilityRequest, reuse);
     }
 
     if (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::STANDARD) {
-        return GetReusedStandardPersistentId(abilityRequest);
+        return GetReusedStandardPersistentId(abilityRequest, reuse);
     }
 
     if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::SINGLETON) {
@@ -871,6 +877,7 @@ int32_t UIAbilityLifecycleManager::GetPersistentIdByAbilityRequest(const Ability
         return 0;
     }
 
+    reuse = true;
     for (const auto& [first, second] : sessionAbilityMap_) {
         if (CheckProperties(second, abilityRequest, AppExecFwk::LaunchMode::SINGLETON)) {
             HILOG_DEBUG("SINGLETON: find.");
@@ -882,13 +889,16 @@ int32_t UIAbilityLifecycleManager::GetPersistentIdByAbilityRequest(const Ability
     return 0;
 }
 
-int32_t UIAbilityLifecycleManager::GetReusedSpecifiedPersistentId(const AbilityRequest &abilityRequest) const
+int32_t UIAbilityLifecycleManager::GetReusedSpecifiedPersistentId(const AbilityRequest &abilityRequest,
+    bool &reuse) const
 {
+    HILOG_DEBUG("Call.");
     if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::SPECIFIED) {
         HILOG_WARN("Not SPECIFIED.");
         return 0;
     }
 
+    reuse = true;
     // specified ability name and bundle name and module name and appIndex format is same as singleton.
     for (const auto& [first, second] : sessionAbilityMap_) {
         if (second->GetSpecifiedFlag() == abilityRequest.specifiedFlag &&
@@ -900,8 +910,10 @@ int32_t UIAbilityLifecycleManager::GetReusedSpecifiedPersistentId(const AbilityR
     return 0;
 }
 
-int32_t UIAbilityLifecycleManager::GetReusedStandardPersistentId(const AbilityRequest &abilityRequest) const
+int32_t UIAbilityLifecycleManager::GetReusedStandardPersistentId(const AbilityRequest &abilityRequest,
+    bool &reuse) const
 {
+    HILOG_DEBUG("Call.");
     if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::STANDARD) {
         HILOG_WARN("Not STANDARD.");
         return 0;
@@ -912,6 +924,7 @@ int32_t UIAbilityLifecycleManager::GetReusedStandardPersistentId(const AbilityRe
         return 0;
     }
 
+    reuse = true;
     int64_t sessionTime = 0;
     int32_t persistentId = 0;
     for (const auto& [first, second] : sessionAbilityMap_) {
@@ -1071,7 +1084,8 @@ void UIAbilityLifecycleManager::OnAcceptWantResponse(const AAFwk::Want &want, co
     auto callerAbility = GetAbilityRecordByToken(abilityRequest.callerToken);
     if (!flag.empty()) {
         abilityRequest.specifiedFlag = flag;
-        auto persistentId = GetReusedSpecifiedPersistentId(abilityRequest);
+        bool reuse = false;
+        auto persistentId = GetReusedSpecifiedPersistentId(abilityRequest, reuse);
         if (persistentId != 0) {
             auto abilityRecord = GetReusedSpecifiedAbility(want, flag);
             if (!abilityRecord) {

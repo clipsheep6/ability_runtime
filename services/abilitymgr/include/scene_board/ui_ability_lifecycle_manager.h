@@ -233,9 +233,9 @@ public:
 
 private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
-    int32_t GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest) const;
-    int32_t GetReusedSpecifiedPersistentId(const AbilityRequest &abilityRequest) const;
-    int32_t GetReusedStandardPersistentId(const AbilityRequest &abilityRequest) const;
+    int32_t GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest, bool &reuse) const;
+    int32_t GetReusedSpecifiedPersistentId(const AbilityRequest &abilityRequest, bool &reuse) const;
+    int32_t GetReusedStandardPersistentId(const AbilityRequest &abilityRequest, bool &reuse) const;
     void UpdateAbilityRecordLaunchReason(const AbilityRequest &abilityRequest,
         std::shared_ptr<AbilityRecord> &abilityRecord) const;
     void EraseAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);

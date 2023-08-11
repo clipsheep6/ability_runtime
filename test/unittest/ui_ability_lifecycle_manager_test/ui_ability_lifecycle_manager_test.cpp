@@ -1570,7 +1570,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, GetPersistentIdByAbilityRequest_001, Tes
     EXPECT_NE(uiAbilityLifecycleManager, nullptr);
     AbilityRequest abilityRequest;
     abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
-    EXPECT_EQ(uiAbilityLifecycleManager->GetPersistentIdByAbilityRequest(abilityRequest), 0);
+    bool reuse = false;
+    EXPECT_EQ(uiAbilityLifecycleManager->GetPersistentIdByAbilityRequest(abilityRequest, reuse), 0);
 }
 
 /**
@@ -1584,7 +1585,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, GetPersistentIdByAbilityRequest_002, Tes
     EXPECT_NE(uiAbilityLifecycleManager, nullptr);
     AbilityRequest abilityRequest;
     abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::STANDARD;
-    EXPECT_EQ(uiAbilityLifecycleManager->GetPersistentIdByAbilityRequest(abilityRequest), 0);
+    bool reuse = false;
+    EXPECT_EQ(uiAbilityLifecycleManager->GetPersistentIdByAbilityRequest(abilityRequest, reuse), 0);
 }
 
 /**
@@ -1609,7 +1611,9 @@ HWTEST_F(UIAbilityLifecycleManagerTest, GetPersistentIdByAbilityRequest_003, Tes
     abilityRequest.sessionInfo = sessionInfo;
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     uiAbilityLifecycleManager->sessionAbilityMap_.emplace(sessionInfo->persistentId, abilityRecord);
-    EXPECT_EQ(uiAbilityLifecycleManager->GetPersistentIdByAbilityRequest(abilityRequest), sessionInfo->persistentId);
+    bool reuse = false;
+    EXPECT_EQ(uiAbilityLifecycleManager->GetPersistentIdByAbilityRequest(abilityRequest, reuse),
+        sessionInfo->persistentId);
 }
 
 /**
@@ -1633,7 +1637,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, GetPersistentIdByAbilityRequest_004, Tes
     abilityRequest.abilityInfo.name = "testAbility";
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     uiAbilityLifecycleManager->sessionAbilityMap_.emplace(sessionInfo->persistentId, abilityRecord);
-    EXPECT_EQ(uiAbilityLifecycleManager->GetPersistentIdByAbilityRequest(abilityRequest1), 0);
+    bool reuse = false;
+    EXPECT_EQ(uiAbilityLifecycleManager->GetPersistentIdByAbilityRequest(abilityRequest1, reuse), 0);
 }
 
 /**
@@ -1646,7 +1651,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, GetReusedSpecifiedPersistentId_001, Test
     auto uiAbilityLifecycleManager = std::make_unique<UIAbilityLifecycleManager>();
     EXPECT_NE(uiAbilityLifecycleManager, nullptr);
     AbilityRequest abilityRequest;
-    EXPECT_EQ(uiAbilityLifecycleManager->GetReusedSpecifiedPersistentId(abilityRequest), 0);
+    bool reuse = false;
+    EXPECT_EQ(uiAbilityLifecycleManager->GetReusedSpecifiedPersistentId(abilityRequest, reuse), 0);
 }
 
 /**
@@ -1675,7 +1681,9 @@ HWTEST_F(UIAbilityLifecycleManagerTest, GetReusedSpecifiedPersistentId_002, Test
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     abilityRecord->SetSpecifiedFlag(flag);
     uiAbilityLifecycleManager->sessionAbilityMap_.emplace(sessionInfo->persistentId, abilityRecord);
-    EXPECT_EQ(uiAbilityLifecycleManager->GetReusedSpecifiedPersistentId(abilityRequest), sessionInfo->persistentId);
+    bool reuse = false;
+    EXPECT_EQ(uiAbilityLifecycleManager->GetReusedSpecifiedPersistentId(abilityRequest, reuse),
+        sessionInfo->persistentId);
 }
 
 /**
@@ -1700,7 +1708,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, GetReusedSpecifiedPersistentId_003, Test
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     abilityRecord->SetSpecifiedFlag(flag);
     uiAbilityLifecycleManager->sessionAbilityMap_.emplace(sessionInfo->persistentId, abilityRecord);
-    EXPECT_EQ(uiAbilityLifecycleManager->GetReusedSpecifiedPersistentId(abilityRequest), 0);
+    bool reuse = false;
+    EXPECT_EQ(uiAbilityLifecycleManager->GetReusedSpecifiedPersistentId(abilityRequest, reuse), 0);
 }
 
 /**
@@ -1713,7 +1722,8 @@ HWTEST_F(UIAbilityLifecycleManagerTest, GetReusedStandardPersistentId_001, TestS
     auto uiAbilityLifecycleManager = std::make_unique<UIAbilityLifecycleManager>();
     EXPECT_NE(uiAbilityLifecycleManager, nullptr);
     AbilityRequest abilityRequest;
-    EXPECT_EQ(uiAbilityLifecycleManager->GetReusedStandardPersistentId(abilityRequest), 0);
+    bool reuse = false;
+    EXPECT_EQ(uiAbilityLifecycleManager->GetReusedStandardPersistentId(abilityRequest, reuse), 0);
 }
 
 /**
@@ -1739,7 +1749,9 @@ HWTEST_F(UIAbilityLifecycleManagerTest, GetReusedStandardPersistentId_002, TestS
     abilityRequest.sessionInfo = sessionInfo;
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     uiAbilityLifecycleManager->sessionAbilityMap_.emplace(sessionInfo->persistentId, abilityRecord);
-    EXPECT_EQ(uiAbilityLifecycleManager->GetReusedStandardPersistentId(abilityRequest), sessionInfo->persistentId);
+    bool reuse = false;
+    EXPECT_EQ(uiAbilityLifecycleManager->GetReusedStandardPersistentId(abilityRequest, reuse),
+        sessionInfo->persistentId);
 }
 
 /**
