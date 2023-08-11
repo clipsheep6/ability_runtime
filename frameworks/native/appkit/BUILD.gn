@@ -178,10 +178,6 @@ ohos_shared_library("appkit_native") {
   }
 
   if (defined(global_parts_info.web_webview)) {
-    deps += [ "${webview_path}/ohos_adapter:nweb_ohos_adapter" ]
-
-    include_dirs += [ "${webview_path}/ohos_adapter/interfaces" ]
-
     external_deps += [ "webview:libnweb" ]
 
     defines += [ "NWEB" ]
