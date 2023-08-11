@@ -58,6 +58,13 @@ NativeValue *CreateJsAbilityDelegator(NativeEngine &engine)
     BindNativeFunction(engine, *object, "printSync", moduleName, JSAbilityDelegator::PrintSync);
     BindNativeFunction(engine, *object, "executeShellCommand", moduleName, JSAbilityDelegator::ExecuteShellCommand);
     BindNativeFunction(engine, *object, "finishTest", moduleName, JSAbilityDelegator::FinishTest);
+    BindNativeFunction(engine, *object, "addAbilityMonitorSync", moduleName, JSAbilityDelegator::AddAbilityMonitorSync);
+    BindNativeFunction(engine, *object, "addAbilityStageMonitorSync",
+                       moduleName, JSAbilityDelegator::AddAbilityStageMonitorSync);
+    BindNativeFunction(engine, *object, "removeAbilityMonitorSync", moduleName,
+                       JSAbilityDelegator::RemoveAbilityMonitorSync);
+    BindNativeFunction(engine, *object, "removeAbilityStageMonitorSync",
+                       moduleName, JSAbilityDelegator::RemoveAbilityStageMonitorSync);
     return objValue;
 }
 

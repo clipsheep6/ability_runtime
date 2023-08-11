@@ -63,10 +63,10 @@ public:
 
     NativeValue* OnOn(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnOff(NativeEngine &engine, const NativeCallbackInfo &info);
-    NativeValue* OnOnAbilityLifecycle(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnOffAbilityLifecycle(NativeEngine &engine, const NativeCallbackInfo &info, int32_t callbackId);
-    NativeValue* OnOnEnvironment(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnOffEnvironment(NativeEngine &engine, const NativeCallbackInfo &info, int32_t callbackId);
+    NativeValue* OnOnAbilityLifecycleSync(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnOffAbilityLifecycleSync(NativeEngine &engine, const NativeCallbackInfo &info, int32_t callbackId);
+    NativeValue* OnOnEnvironmentSync(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnOffEnvironmentSync(NativeEngine &engine, const NativeCallbackInfo &info, int32_t callbackId);
     NativeValue* OnOnApplicationStateChange(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnOffApplicationStateChange(NativeEngine &engine, const NativeCallbackInfo &info);
 
