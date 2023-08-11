@@ -176,7 +176,10 @@ ohos_shared_library("appkit_native") {
 
     include_dirs += [ "${webview_path}/ohos_adapter/interfaces" ]
 
-    external_deps += [ "webview:libnweb" ]
+    external_deps += [
+      "webview:libnweb",
+      "webview:ohos_nweb_warm_up",
+    ]
 
     defines += [ "NWEB" ]
   }
