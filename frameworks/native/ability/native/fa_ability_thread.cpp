@@ -64,7 +64,7 @@ constexpr static char BASE_DRIVER_EXTENSION[] = "DriverExtension";
 constexpr static char STATIC_SUBSCRIBER_EXTENSION[] = "StaticSubscriberExtension";
 constexpr static char DATA_SHARE_EXT_ABILITY[] = "DataShareExtAbility";
 constexpr static char WORK_SCHEDULER_EXTENSION[] = "WorkSchedulerExtension";
-constexpr static char ACCESSABILITY_EXTENSION[] = "AccessAbilityExtension";
+constexpr static char ACCESSIBILITY_EXTENSION[] = "AccessibilityExtension";
 constexpr static char WALLPAPER_EXTENSION[] = "WallpaperExtension";
 constexpr static char FILEACCESS_EXT_ABILITY[] = "FileAccessExtension";
 constexpr static char ENTERPRISE_ADMIN_EXTENSION[] = "EnterpriseAdminExtension";
@@ -73,9 +73,9 @@ constexpr static char APP_ACCOUNT_AUTHORIZATION_EXTENSION[] = "AppAccountAuthori
 #ifdef WITH_DLP
 constexpr static char DLP_PARAMS_SANDBOX[] = "ohos.dlp.params.sandbox";
 #endif // WITH_DLP
+const int32_t PREPARE_TO_TERMINATE_TIMEOUT_MILLISECONDS = 3000;
 }
 
-const int32_t PREPARE_TO_TERMINATE_TIMEOUT_MILLISECONDS = 3000;
 FAAbilityThread::FAAbilityThread() : abilityImpl_(nullptr), currentAbility_(nullptr) {}
 
 FAAbilityThread::~FAAbilityThread()
@@ -160,7 +160,7 @@ std::string FAAbilityThread::CreateAbilityName(const std::shared_ptr<AppExecFwk:
             abilityName = WORK_SCHEDULER_EXTENSION;
         }
         if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ACCESSIBILITY) {
-            abilityName = ACCESSABILITY_EXTENSION;
+            abilityName = ACCESSIBILITY_EXTENSION;
         }
         if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::WALLPAPER) {
             abilityName = WALLPAPER_EXTENSION;
@@ -710,7 +710,7 @@ void FAAbilityThread::ScheduleAbilityTransaction(
     const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AppExecFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("name:%{public}s,targeState:%{public}d,isNewWant:%{public}d",
+    HILOG_DEBUG("name:%{public}s,targeState:%{public}d,isNewWant:%{public}d",
         want.GetElement().GetAbilityName().c_str(),
         lifeCycleStateInfo.state,
         lifeCycleStateInfo.isNewWant);

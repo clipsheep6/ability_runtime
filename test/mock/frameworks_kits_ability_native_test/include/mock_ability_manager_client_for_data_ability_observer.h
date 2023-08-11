@@ -20,7 +20,7 @@
 
 #include "ability_manager_client.h"
 #include "ability_scheduler_proxy.h"
-#include "ability_thread.h"
+// #include "ability_thread.h"
 #include "fa_ability_thread.h"
 #include "gmock/gmock.h"
 #include "mock_ability_scheduler_for_observer.h"

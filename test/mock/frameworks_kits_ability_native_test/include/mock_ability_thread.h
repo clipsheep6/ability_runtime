@@ -18,7 +18,6 @@
 
 #include "ability.h"
 #include "ability_impl.h"
-#include "ability_thread.h"
 #include "fa_ability_thread.h"
 
 namespace OHOS {
