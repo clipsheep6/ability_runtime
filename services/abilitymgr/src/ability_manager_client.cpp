@@ -1218,6 +1218,21 @@ int32_t AbilityManagerClient::IsValidMissionIds(
     const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results)
 {
     HILOG_INFO("call");
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
+        std::vector<bool> isValidList;
+        auto err = sceneSessionManager->IsValidSessionIds(missionIds, isValidList);
+        HILOG_DEBUG("IsValidSessionIds %{public}d size %{public}d",
+            static_cast<int>(err), static_cast<int32_t>(isValidList.size()));
+        for (auto i = 0; i < static_cast<int32_t>(isValidList.size()); ++i) {
+            MissionVaildResult missionResult = {};
+            missionResult.missionId = missionIds.at(i);
+            missionResult.isVaild = isValidList.at(i);
+            results.push_back(missionResult);
+        }
+        return static_cast<int>(err);
+    }
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->IsValidMissionIds(missionIds, results);
