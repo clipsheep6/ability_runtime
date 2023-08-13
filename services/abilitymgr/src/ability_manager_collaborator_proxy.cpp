@@ -101,6 +101,40 @@ int32_t AbilityManagerCollaboratorProxy::NotifyMissionCreated(int32_t missionId,
     return NO_ERROR;
 }
 
+int32_t AbilityManagerCollaboratorProxy::NotifyMissionCreated(const sptr<SessionInfo> &sessionInfo)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+
+    if (!data.WriteInterfaceToken(AbilityManagerCollaboratorProxy::GetDescriptor())) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_OPERATION;
+    }
+    if (sessionInfo) {
+        if (!data.WriteBool(true) || !data.WriteParcelable(sessionInfo)) {
+            HILOG_ERROR("flag and sessionInfo write failed.");
+            return ERR_INVALID_OPERATION;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return ERR_INVALID_OPERATION;
+        }
+    }
+    auto remote = Remote();
+    if (!remote) {
+        HILOG_ERROR("remote is nullptr");
+        return ERR_INVALID_OPERATION;
+    }
+    int32_t ret = remote->SendRequest(IAbilityManagerCollaborator::NOTIFY_MISSION_CREATED_BY_SCB, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", ret);
+        return ret;
+    }
+    return NO_ERROR;
+}
+
 int32_t AbilityManagerCollaboratorProxy::NotifyLoadAbility(
     const AppExecFwk::AbilityInfo &abilityInfo, int32_t missionId, const Want &want)
 {
@@ -130,6 +164,45 @@ int32_t AbilityManagerCollaboratorProxy::NotifyLoadAbility(
         return ERR_INVALID_OPERATION;
     }
     int32_t ret = remote->SendRequest(IAbilityManagerCollaborator::NOTIFY_LOAD_ABILITY, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", ret);
+        return ret;
+    }
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerCollaboratorProxy::NotifyLoadAbility(
+    const AppExecFwk::AbilityInfo &abilityInfo, const sptr<SessionInfo> &sessionInfo)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+
+    if (!data.WriteInterfaceToken(AbilityManagerCollaboratorProxy::GetDescriptor())) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_OPERATION;
+    }
+    if (!data.WriteParcelable(&abilityInfo)) {
+        HILOG_ERROR("abilityInfo write failed.");
+        return ERR_INVALID_OPERATION;
+    }
+    if (sessionInfo) {
+        if (!data.WriteBool(true) || !data.WriteParcelable(sessionInfo)) {
+            HILOG_ERROR("flag and sessionInfo write failed.");
+            return ERR_INVALID_OPERATION;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return ERR_INVALID_OPERATION;
+        }
+    }
+    auto remote = Remote();
+    if (!remote) {
+        HILOG_ERROR("remote is nullptr");
+        return ERR_INVALID_OPERATION;
+    }
+    int32_t ret = remote->SendRequest(IAbilityManagerCollaborator::NOTIFY_LOAD_ABILITY_BY_SCB, data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", ret);
         return ret;
@@ -318,6 +391,44 @@ void AbilityManagerCollaboratorProxy::UpdateMissionInfo(InnerMissionInfoDto &inf
         return;
     }
     info = *innerInfo;
+    return;
+}
+
+void AbilityManagerCollaboratorProxy::UpdateMissionInfo(sptr<SessionInfo> &sessionInfo)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!data.WriteInterfaceToken(AbilityManagerCollaboratorProxy::GetDescriptor())) {
+        HILOG_ERROR("Write interface token failed.");
+        return;
+    }
+
+    if (sessionInfo) {
+        if (!data.WriteBool(true) || !data.WriteParcelable(sessionInfo)) {
+            HILOG_ERROR("flag and sessionInfo write failed.");
+            return;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return;
+        }
+    }
+
+    auto remote = Remote();
+    if (!remote) {
+        HILOG_ERROR("remote is nullptr");
+        return;
+    }
+    int32_t ret = remote->SendRequest(IAbilityManagerCollaborator::UPDATE_MISSION_INFO_BY_SCB, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", ret);
+        return;
+    }
+
+    sessionInfo = reply.ReadParcelable<SessionInfo>();
     return;
 }
 }   // namespace AAFwk

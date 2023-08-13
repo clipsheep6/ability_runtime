@@ -4426,7 +4426,8 @@ int AbilityManagerService::GenerateAbilityRequest(
     } else if (request.abilityInfo.applicationInfo.codePath == std::to_string(CollaboratorType::OTHERS_TYPE)) {
         request.collaboratorType = CollaboratorType::OTHERS_TYPE;
     }
-    if (request.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
+    if (request.collaboratorType != CollaboratorType::DEFAULT_TYPE &&
+        !Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto collaborator = GetCollaborator(request.collaboratorType);
         if (collaborator == nullptr) {
             HILOG_ERROR("collaborator GetCollaborator is nullptr.");

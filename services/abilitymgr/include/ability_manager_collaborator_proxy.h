@@ -47,6 +47,13 @@ public:
     virtual int32_t NotifyMissionCreated(int32_t missionId, const Want &want) override;
 
     /**
+     * @brief Notify when mission is created.
+     * @param sessionInfo sessionInfo.
+     * @return 0 when notify mission created success or else failed.
+     */
+    virtual int32_t NotifyMissionCreated(const sptr<SessionInfo> &sessionInfo) override;
+
+    /**
      * @brief Notify when start loading ability record.
      * @param AbilityInfo ability info from bms.
      * @param missionId missionId.
@@ -55,6 +62,15 @@ public:
      */
     virtual int32_t NotifyLoadAbility(const AppExecFwk::AbilityInfo &abilityInfo,
         int32_t missionId, const Want &want) override;
+
+    /**
+     * @brief Notify when start loading ability record.
+     * @param AbilityInfo ability info from bms.
+     * @param sessionInfo sessionInfo.
+     * @return 0 when notify load ability success or else failed.
+    */
+    virtual int32_t NotifyLoadAbility(
+        const AppExecFwk::AbilityInfo &abilityInfo, const sptr<SessionInfo> &sessionInfo) override;
 
     /**
      * @brief Notify when notify app to background.
@@ -98,6 +114,12 @@ public:
      * @param info info of mission.
      */
     virtual void UpdateMissionInfo(InnerMissionInfoDto &info) override;
+
+    /**
+     * @brief Update mission info to real element by broker.
+     * @param sessionInfo sessionInfo.
+     */
+    virtual void UpdateMissionInfo(sptr<SessionInfo> &sessionInfo) override;
 private:
     static inline BrokerDelegator<AbilityManagerCollaboratorProxy> delegator_;
 };

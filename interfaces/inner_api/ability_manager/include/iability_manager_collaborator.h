@@ -20,10 +20,12 @@
 #include "iremote_broker.h"
 #include "iremote_object.h"
 #include "mission_info.h"
+#include "session_info.h"
 #include "want.h"
 
 namespace OHOS {
 namespace AAFwk {
+class SessionInfo;
 
 class IAbilityManagerCollaborator : public IRemoteBroker {
 public:
@@ -49,6 +51,13 @@ public:
     virtual int32_t NotifyMissionCreated(int32_t missionId, const Want &want) = 0;
 
     /**
+     * @brief Notify when mission is created.
+     * @param sessionInfo sessionInfo.
+     * @return 0 when notify mission created success or else failed.
+     */
+    virtual int32_t NotifyMissionCreated(const sptr<SessionInfo> &sessionInfo) = 0;
+
+    /**
      * @brief Notify when start loading ability record.
      * @param AbilityInfo ability info from bms.
      * @param missionId missionId.
@@ -57,6 +66,15 @@ public:
     */
     virtual int32_t NotifyLoadAbility(
         const AppExecFwk::AbilityInfo &abilityInfo, int32_t missionId, const Want &want) = 0;
+
+    /**
+     * @brief Notify when start loading ability record.
+     * @param AbilityInfo ability info from bms.
+     * @param sessionInfo sessionInfo.
+     * @return 0 when notify load ability success or else failed.
+    */
+    virtual int32_t NotifyLoadAbility(
+        const AppExecFwk::AbilityInfo &abilityInfo, const sptr<SessionInfo> &sessionInfo) = 0;
 
     /**
      * @brief Notify when notify app to background.
@@ -101,6 +119,12 @@ public:
      */
     virtual void UpdateMissionInfo(InnerMissionInfoDto &info) = 0;
 
+    /**
+     * @brief Update mission info to real element by broker.
+     * @param sessionInfo sessionInfo.
+     */
+    virtual void UpdateMissionInfo(sptr<SessionInfo> &sessionInfo) = 0;
+
     enum {
         NOTIFY_START_ABILITY = 1,
         NOTIFY_MISSION_CREATED,
@@ -111,6 +135,9 @@ public:
         NOTIFY_CLEAR_MISSION,
         NOTIFY_REMOVE_SHELL_PROCESS,
         UPDATE_MISSION_INFO,
+        NOTIFY_MISSION_CREATED_BY_SCB,
+        NOTIFY_LOAD_ABILITY_BY_SCB,
+        UPDATE_MISSION_INFO_BY_SCB,
     };
 };
 }  // namespace AAFwk
