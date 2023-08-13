@@ -4242,9 +4242,15 @@ void AbilityManagerService::OnAppStateChanged(const AppInfo &info)
 {
     HILOG_INFO("On app state changed.");
     CHECK_POINTER_LOG(connectManager_, "Connect manager not init.");
-    CHECK_POINTER_LOG(currentMissionListManager_, "Current mission list manager not init.");
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        CHECK_POINTER_LOG(currentMissionListManager_, "Current mission list manager not init.");
+    }
     connectManager_->OnAppStateChanged(info);
-    currentMissionListManager_->OnAppStateChanged(info);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        uiAbilityLifecycleManager_->OnAppStateChanged(info, GetUserId());
+    } else {
+        currentMissionListManager_->OnAppStateChanged(info);
+    }
     dataAbilityManager_->OnAppStateChanged(info);
 }
 
@@ -4683,7 +4689,9 @@ int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t u
     }
 
     int32_t targetUserId = uid / BASE_USER_RANGE;
-    if (targetUserId == U0_USER_ID) {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        uiAbilityLifecycleManager_->UninstallApp(bundleName, uid, targetUserId);
+    } else if (targetUserId == U0_USER_ID) {
         std::lock_guard<ffrt::mutex> lock(managersMutex_);
         for (auto item: missionListManagers_) {
             if (item.second) {
@@ -6522,6 +6530,9 @@ int AbilityManagerService::BlockAbility(int32_t abilityRecordId)
         HILOG_ERROR("Not shell call");
         return ERR_PERMISSION_DENIED;
     }
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        return uiAbilityLifecycleManager_->BlockAbility(abilityRecordId, GetUserId());
+    }
     CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
     return currentMissionListManager_->BlockAbility(abilityRecordId);
 }
@@ -7616,9 +7627,6 @@ int32_t AbilityManagerService::IsValidMissionIds(
     const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results)
 {
     auto userId = IPCSkeleton::GetCallingUid() / BASE_USER_RANGE;
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        return uiAbilityLifecycleManager_->IsValidMissionIds(missionIds, results, userId);
-    }
     auto missionlistMgr = GetListManagerByUserId(userId);
     if (missionlistMgr == nullptr) {
         HILOG_ERROR("missionlistMgr is nullptr.");

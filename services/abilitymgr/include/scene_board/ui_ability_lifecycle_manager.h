@@ -214,9 +214,6 @@ public:
 
     void GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList);
 
-    int32_t IsValidMissionIds(const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results,
-        int32_t userId);
-
     bool PrepareTerminateAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void SetSessionHandler(const sptr<ISessionHandler> &handler);
 
@@ -230,6 +227,20 @@ public:
 
     void GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList,
         int32_t targetUserId) const;
+
+    void OnAppStateChanged(const AppInfo &info, int32_t targetUserId);
+
+    void UninstallApp(const std::string &bundleName, int32_t uid, int32_t targetUserId);
+
+    #ifdef ABILITY_COMMAND_FOR_TEST
+    /**
+     * Block ability.
+     *
+     * @param abilityRecordId The Ability Record Id.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int BlockAbility(int abilityRecordId, int32_t targetUserId) const;
+    #endif
 
 private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;

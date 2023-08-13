@@ -1355,33 +1355,6 @@ void UIAbilityLifecycleManager::GetActiveAbilityList(const std::string &bundleNa
     }
 }
 
-int32_t UIAbilityLifecycleManager::IsValidMissionIds(const std::vector<int32_t> &missionIds,
-    std::vector<MissionVaildResult> &results, int32_t userId)
-{
-    constexpr int32_t searchCount = 20;
-    auto callerUid = IPCSkeleton::GetCallingUid();
-    std::lock_guard<ffrt::mutex> guard(sessionLock_);
-    for (auto i = 0; i < searchCount && i < static_cast<int32_t>(missionIds.size()); ++i) {
-        MissionVaildResult missionResult = {};
-        missionResult.missionId = missionIds.at(i);
-        auto search = sessionAbilityMap_.find(missionResult.missionId);
-        if (search == sessionAbilityMap_.end() || search->second == nullptr) {
-            results.push_back(missionResult);
-            continue;
-        }
-
-        if (callerUid != search->second->GetUid() || search->second->GetOwnerMissionUserId() != userId) {
-            results.push_back(missionResult);
-            continue;
-        }
-
-        missionResult.isVaild = true;
-        results.push_back(missionResult);
-    }
-
-    return ERR_OK;
-}
-
 void UIAbilityLifecycleManager::SetRevicerInfo(const AbilityRequest &abilityRequest,
     std::shared_ptr<AbilityRecord> &abilityRecord) const
 {
@@ -1535,5 +1508,77 @@ void UIAbilityLifecycleManager::GetActiveAbilityList(const std::string &bundleNa
         abilityList.erase(unique(abilityList.begin(), abilityList.end()), abilityList.end());
     }
 }
+
+void UIAbilityLifecycleManager::OnAppStateChanged(const AppInfo &info, int32_t targetUserId)
+{
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    HILOG_INFO("Call.");
+    if (info.state == AppState::TERMINATED || info.state == AppState::END) {
+        for (const auto& abilityRecord : terminateAbilityList_) {
+            if (abilityRecord == nullptr) {
+                HILOG_WARN("abilityRecord is nullptr.");
+                continue;
+            }
+            if ((info.processName == abilityRecord->GetAbilityInfo().process ||
+                info.processName == abilityRecord->GetApplicationInfo().bundleName) &&
+                targetUserId == abilityRecord->GetOwnerMissionUserId()) {
+                abilityRecord->SetAppState(info.state);
+            }
+        }
+        return;
+    }
+    for (const auto& [sessionId, abilityRecord] : sessionAbilityMap_) {
+        if (abilityRecord == nullptr) {
+            HILOG_WARN("abilityRecord is nullptr.");
+            continue;
+        }
+        if ((info.processName == abilityRecord->GetAbilityInfo().process ||
+            info.processName == abilityRecord->GetApplicationInfo().bundleName) &&
+            targetUserId == abilityRecord->GetOwnerMissionUserId()) {
+            abilityRecord->SetAppState(info.state);
+        }
+    }
+}
+
+void UIAbilityLifecycleManager::UninstallApp(const std::string &bundleName, int32_t uid, int32_t targetUserId)
+{
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    HILOG_INFO("Call.");
+    for (auto it = sessionAbilityMap_.begin(); it != sessionAbilityMap_.end();) {
+        if (it->second == nullptr) {
+            it++;
+            continue;
+        }
+        auto &abilityInfo = it->second->GetAbilityInfo();
+        if (abilityInfo.bundleName == bundleName && it->second->GetUid() == uid &&
+            (targetUserId == DEFAULT_USER_ID || it->second->GetOwnerMissionUserId() == targetUserId)) {
+            (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
+                DeleteAbilityRecoverInfo(abilityInfo.bundleName, abilityInfo.moduleName, abilityInfo.name);
+            sessionAbilityMap_.erase(it++);
+            continue;
+        }
+        it++;
+    }
+}
+
+#ifdef ABILITY_COMMAND_FOR_TEST
+int UIAbilityLifecycleManager::BlockAbility(int32_t abilityRecordId, int32_t targetUserId) const
+{
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    HILOG_INFO("Call.");
+    for (const auto& [first, second] : sessionAbilityMap_) {
+        if (second == nullptr) {
+            HILOG_WARN("abilityRecord is nullptr.");
+            continue;
+        }
+        if (second->GetRecordId() == abilityRecordId && targetUserId == abilityRecord->GetOwnerMissionUserId()) {
+            HILOG_INFO("Call BlockAbility.");
+            return second->BlockAbility();
+        }
+    }
+    HILOG_ERROR("The abilityRecordId is invalid.");
+    return -1;
+}
+#endif
 }  // namespace AAFwk
 }  // namespace OHOS
