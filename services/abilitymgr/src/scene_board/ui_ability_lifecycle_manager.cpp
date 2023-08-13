@@ -185,7 +185,7 @@ int UIAbilityLifecycleManager::AbilityTransactionDone(const sptr<IRemoteObject> 
 int UIAbilityLifecycleManager::NotifySCBToStartUIAbility(const AbilityRequest &abilityRequest, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("Call.");
+    HILOG_DEBUG("Call, userId: %{public}d.", userId);
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
     auto isSpecified = (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED);
     if (isSpecified) {
@@ -196,7 +196,7 @@ int UIAbilityLifecycleManager::NotifySCBToStartUIAbility(const AbilityRequest &a
     }
     auto sessionInfo = CreateSessionInfo(abilityRequest);
     sessionInfo->requestCode = abilityRequest.requestCode;
-    sessionInfo->persistentId = GetPersistentIdByAbilityRequest(abilityRequest, sessionInfo->reuse);
+    sessionInfo->persistentId = GetPersistentIdByAbilityRequest(abilityRequest, sessionInfo->reuse, userId);
     sessionInfo->userId = userId;
     return NotifySCBPendingActivation(sessionInfo, abilityRequest);
 }
@@ -515,7 +515,7 @@ void UIAbilityLifecycleManager::MoveToBackground(const std::shared_ptr<AbilityRe
     abilityRecord->BackgroundAbility(task);
 }
 
-int UIAbilityLifecycleManager::ResolveLocked(const AbilityRequest &abilityRequest)
+int UIAbilityLifecycleManager::ResolveLocked(const AbilityRequest &abilityRequest, int32_t userId)
 {
     HILOG_INFO("ability_name:%{public}s", abilityRequest.want.GetElement().GetURI().c_str());
 
@@ -524,10 +524,10 @@ int UIAbilityLifecycleManager::ResolveLocked(const AbilityRequest &abilityReques
         return RESOLVE_CALL_ABILITY_INNER_ERR;
     }
 
-    return CallAbilityLocked(abilityRequest);
+    return CallAbilityLocked(abilityRequest, userId);
 }
 
-int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRequest)
+int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRequest, int32_t userId)
 {
     HILOG_DEBUG("Call.");
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
@@ -535,7 +535,7 @@ int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRe
     // Get target uiAbility record.
     std::shared_ptr<AbilityRecord> uiAbilityRecord;
     bool reuse = false;
-    auto persistentId = GetPersistentIdByAbilityRequest(abilityRequest, reuse);
+    auto persistentId = GetPersistentIdByAbilityRequest(abilityRequest, reuse, userId);
     if (persistentId == 0) {
         uiAbilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
         uiAbilityRecord->SetOwnerMissionUserId(DelayedSingleton<AbilityManagerService>::GetInstance()->GetUserId());
@@ -862,14 +862,14 @@ void UIAbilityLifecycleManager::CompleteTerminate(const std::shared_ptr<AbilityR
 }
 
 int32_t UIAbilityLifecycleManager::GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest,
-    bool &reuse) const
+    bool &reuse, int32_t userId) const
 {
     if (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED) {
-        return GetReusedSpecifiedPersistentId(abilityRequest, reuse);
+        return GetReusedSpecifiedPersistentId(abilityRequest, reuse, userId);
     }
 
     if (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::STANDARD) {
-        return GetReusedStandardPersistentId(abilityRequest, reuse);
+        return GetReusedStandardPersistentId(abilityRequest, reuse, userId);
     }
 
     if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::SINGLETON) {
@@ -879,7 +879,7 @@ int32_t UIAbilityLifecycleManager::GetPersistentIdByAbilityRequest(const Ability
 
     reuse = true;
     for (const auto& [first, second] : sessionAbilityMap_) {
-        if (CheckProperties(second, abilityRequest, AppExecFwk::LaunchMode::SINGLETON)) {
+        if (CheckProperties(second, abilityRequest, AppExecFwk::LaunchMode::SINGLETON, userId)) {
             HILOG_DEBUG("SINGLETON: find.");
             return first;
         }
@@ -890,7 +890,7 @@ int32_t UIAbilityLifecycleManager::GetPersistentIdByAbilityRequest(const Ability
 }
 
 int32_t UIAbilityLifecycleManager::GetReusedSpecifiedPersistentId(const AbilityRequest &abilityRequest,
-    bool &reuse) const
+    bool &reuse, int32_t userId) const
 {
     HILOG_DEBUG("Call.");
     if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::SPECIFIED) {
@@ -902,7 +902,7 @@ int32_t UIAbilityLifecycleManager::GetReusedSpecifiedPersistentId(const AbilityR
     // specified ability name and bundle name and module name and appIndex format is same as singleton.
     for (const auto& [first, second] : sessionAbilityMap_) {
         if (second->GetSpecifiedFlag() == abilityRequest.specifiedFlag &&
-            CheckProperties(second, abilityRequest, AppExecFwk::LaunchMode::SPECIFIED)) {
+            CheckProperties(second, abilityRequest, AppExecFwk::LaunchMode::SPECIFIED, userId)) {
             HILOG_DEBUG("SPECIFIED: find.");
             return first;
         }
@@ -911,7 +911,7 @@ int32_t UIAbilityLifecycleManager::GetReusedSpecifiedPersistentId(const AbilityR
 }
 
 int32_t UIAbilityLifecycleManager::GetReusedStandardPersistentId(const AbilityRequest &abilityRequest,
-    bool &reuse) const
+    bool &reuse, int32_t userId) const
 {
     HILOG_DEBUG("Call.");
     if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::STANDARD) {
@@ -928,7 +928,7 @@ int32_t UIAbilityLifecycleManager::GetReusedStandardPersistentId(const AbilityRe
     int64_t sessionTime = 0;
     int32_t persistentId = 0;
     for (const auto& [first, second] : sessionAbilityMap_) {
-        if (CheckProperties(second, abilityRequest, AppExecFwk::LaunchMode::STANDARD) &&
+        if (CheckProperties(second, abilityRequest, AppExecFwk::LaunchMode::STANDARD, userId) &&
             second->GetRestartTime() >= sessionTime) {
             persistentId = first;
             sessionTime = second->GetRestartTime();
@@ -938,8 +938,12 @@ int32_t UIAbilityLifecycleManager::GetReusedStandardPersistentId(const AbilityRe
 }
 
 bool UIAbilityLifecycleManager::CheckProperties(const std::shared_ptr<AbilityRecord> &abilityRecord,
-    const AbilityRequest &abilityRequest, AppExecFwk::LaunchMode launchMode) const
+    const AbilityRequest &abilityRequest, AppExecFwk::LaunchMode launchMode, int32_t userId) const
 {
+    if (userId != abilityRecord->GetOwnerMissionUserId()) {
+        HILOG_WARN("userId: %{public}d, ability's userId: %{public}d", userId, abilityRecord->GetOwnerMissionUserId());
+        return false;
+    }
     const auto& abilityInfo = abilityRecord->GetAbilityInfo();
     return abilityInfo.launchMode == launchMode && abilityRequest.abilityInfo.name == abilityInfo.name &&
         abilityRequest.abilityInfo.bundleName == abilityInfo.bundleName &&
@@ -1085,7 +1089,8 @@ void UIAbilityLifecycleManager::OnAcceptWantResponse(const AAFwk::Want &want, co
     if (!flag.empty()) {
         abilityRequest.specifiedFlag = flag;
         bool reuse = false;
-        auto persistentId = GetReusedSpecifiedPersistentId(abilityRequest, reuse);
+        auto currentAccountId = DelayedSingleton<AbilityManagerService>::GetInstance()->GetUserId();
+        auto persistentId = GetReusedSpecifiedPersistentId(abilityRequest, reuse, currentAccountId);
         if (persistentId != 0) {
             auto abilityRecord = GetReusedSpecifiedAbility(want, flag);
             if (!abilityRecord) {

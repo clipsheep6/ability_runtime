@@ -5280,7 +5280,7 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
         abilityRequest.abilityInfo.applicationInfo.singleton ? "true" : "false");
     UpdateCallerInfo(abilityRequest.want, callerToken);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        return uiAbilityLifecycleManager_->ResolveLocked(abilityRequest);
+        return uiAbilityLifecycleManager_->ResolveLocked(abilityRequest, oriValidUserId);
     }
 
     auto missionListMgr = GetListManagerByUserId(oriValidUserId);

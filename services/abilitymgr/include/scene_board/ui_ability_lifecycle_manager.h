@@ -155,7 +155,7 @@ public:
      *
      * @param abilityRequest target ability request.
      */
-    int ResolveLocked(const AbilityRequest &abilityRequest);
+    int ResolveLocked(const AbilityRequest &abilityRequest, int32_t userId);
 
     /**
      * Call UIAbility by SCB.
@@ -233,9 +233,9 @@ public:
 
 private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
-    int32_t GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest, bool &reuse) const;
-    int32_t GetReusedSpecifiedPersistentId(const AbilityRequest &abilityRequest, bool &reuse) const;
-    int32_t GetReusedStandardPersistentId(const AbilityRequest &abilityRequest, bool &reuse) const;
+    int32_t GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest, bool &reuse, int32_t userId) const;
+    int32_t GetReusedSpecifiedPersistentId(const AbilityRequest &abilityRequest, bool &reuse, int32_t userId) const;
+    int32_t GetReusedStandardPersistentId(const AbilityRequest &abilityRequest, bool &reuse, int32_t userId) const;
     void UpdateAbilityRecordLaunchReason(const AbilityRequest &abilityRequest,
         std::shared_ptr<AbilityRecord> &abilityRecord) const;
     void EraseAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
@@ -259,11 +259,11 @@ private:
     bool IsContainsAbilityInner(const sptr<IRemoteObject> &token) const;
     void ReportEventToSuspendManager(const AppExecFwk::AbilityInfo &abilityInfo) const;
     bool CheckProperties(const std::shared_ptr<AbilityRecord> &abilityRecord, const AbilityRequest &abilityRequest,
-        AppExecFwk::LaunchMode launchMode) const;
+        AppExecFwk::LaunchMode launchMode, int32_t userId) const;
     void NotifyAbilityToken(const sptr<IRemoteObject> &token, const AbilityRequest &abilityRequest) const;
 
     // byCall
-    int CallAbilityLocked(const AbilityRequest &abilityRequest);
+    int CallAbilityLocked(const AbilityRequest &abilityRequest, int32_t userId);
     sptr<SessionInfo> CreateSessionInfo(const AbilityRequest &abilityRequest) const;
     int NotifySCBPendingActivation(sptr<SessionInfo> &sessionInfo, const AbilityRequest &abilityRequest) const;
     int ResolveAbility(const std::shared_ptr<AbilityRecord> &targetAbility, const AbilityRequest &abilityRequest) const;
