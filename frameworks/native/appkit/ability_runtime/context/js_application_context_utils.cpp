@@ -37,7 +37,6 @@ constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
 constexpr size_t INDEX_ZERO = 0;
 constexpr size_t INDEX_ONE = 1;
-constexpr size_t INDEX_TWO = 2;
 constexpr int32_t ERROR_CODE_ONE = 1;
 const char* MD_NAME = "JsApplicationContextUtils";
 }  // namespace
@@ -741,11 +740,11 @@ NativeValue *JsApplicationContextUtils::OnOn(NativeEngine &engine, NativeCallbac
         return engine.CreateUndefined();
     }
 
-    if (type == "abilityLifecycle") {
-        return OnOnAbilityLifecycle(engine, info);
+    if (type == "abilityLifecycleCallback") {
+        return OnOnAbilityLifecycleSync(engine, info);
     }
-    if (type == "environment") {
-        return OnOnEnvironment(engine, info);
+    if (type == "environmentCallback") {
+        return OnOnEnvironmentSync(engine, info);
     }
     if (type == "applicationStateChange") {
         return OnOnApplicationStateChange(engine, info);
@@ -793,21 +792,21 @@ NativeValue *JsApplicationContextUtils::OnOff(NativeEngine &engine, const Native
         HILOG_DEBUG("callbackId is %{public}d.", callbackId);
     }
 
-    if (type == "abilityLifecycle") {
-        return OnOffAbilityLifecycle(engine, info, callbackId);
+    if (type == "abilityLifecycleCallback") {
+        return OnOffAbilityLifecycleSync(engine, info, callbackId);
     }
-    if (type == "environment") {
-        return OnOffEnvironment(engine, info, callbackId);
+    if (type == "environmentCallback") {
+        return OnOffEnvironmentSync(engine, info, callbackId);
     }
     HILOG_ERROR("off function type not match.");
     AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
     return engine.CreateUndefined();
 }
 
-NativeValue *JsApplicationContextUtils::OnOnAbilityLifecycle(
+NativeValue *JsApplicationContextUtils::OnOnAbilityLifecycleSync(
     NativeEngine &engine, NativeCallbackInfo &info)
 {
-    HILOG_INFO("OnOnAbilityLifecycle is called");
+    HILOG_INFO("OnOnAbilityLifecycleSync is called");
 
     auto applicationContext = applicationContext_.lock();
     if (applicationContext == nullptr) {
@@ -823,14 +822,14 @@ NativeValue *JsApplicationContextUtils::OnOnAbilityLifecycle(
     callback_ = std::make_shared<JsAbilityLifecycleCallback>(&engine);
     int32_t callbackId = callback_->Register(info.argv[1]);
     applicationContext->RegisterAbilityLifecycleCallback(callback_);
-    HILOG_INFO("OnOnAbilityLifecycle is end");
+    HILOG_INFO("OnOnAbilityLifecycleSync is end");
     return engine.CreateNumber(callbackId);
 }
 
-NativeValue *JsApplicationContextUtils::OnOffAbilityLifecycle(
+NativeValue *JsApplicationContextUtils::OnOffAbilityLifecycleSync(
     NativeEngine &engine, const NativeCallbackInfo &info, int32_t callbackId)
 {
-    HILOG_INFO("OnOffAbilityLifecycle is called");
+    HILOG_INFO("OnOffAbilityLifecycleSync is called");
 
     auto applicationContext = applicationContext_.lock();
     if (applicationContext == nullptr) {
@@ -838,39 +837,24 @@ NativeValue *JsApplicationContextUtils::OnOffAbilityLifecycle(
         AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return engine.CreateUndefined();
     }
-
     std::weak_ptr<JsAbilityLifecycleCallback> callbackWeak(callback_);
-    AsyncTask::CompleteCallback complete = [callbackWeak, callbackId](
-            NativeEngine &engine, AsyncTask &task, int32_t status) {
-            auto callback = callbackWeak.lock();
-            if (callback == nullptr) {
-                HILOG_ERROR("callback is nullptr");
-                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER,
-                    "callback is nullptr"));
-                return;
-            }
-
-            HILOG_DEBUG("OnOffAbilityLifecycle begin");
-            if (!callback->UnRegister(callbackId)) {
-                HILOG_ERROR("call UnRegister failed!");
-                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER,
-                    "call UnRegister failed!"));
-                return;
-            }
-
-            task.ResolveWithNoError(engine, engine.CreateUndefined());
-        };
-    NativeValue *lastParam = (info.argc <= ARGC_TWO) ? nullptr : info.argv[INDEX_TWO];
-    NativeValue *result = nullptr;
-    AsyncTask::Schedule("JsApplicationContextUtils::OnOffAbilityLifecycle", engine,
-        CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
-    return result;
+    auto callback = callbackWeak.lock();
+    if (callback == nullptr) {
+        HILOG_ERROR("callback is nullptr");
+        return CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER, "callback is nullptr");
+    }
+    HILOG_DEBUG("OnOffAbilityLifecycle begin");
+    if (!callback->UnRegister(callbackId)) {
+        HILOG_ERROR("call UnRegister failed!");
+        return CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER, "call UnRegister failed!");
+    }
+    return engine.CreateUndefined();
 }
 
-NativeValue *JsApplicationContextUtils::OnOnEnvironment(
+NativeValue *JsApplicationContextUtils::OnOnEnvironmentSync(
     NativeEngine &engine, NativeCallbackInfo &info)
 {
-    HILOG_DEBUG("OnOnEnvironment is called");
+    HILOG_DEBUG("OnOnEnvironmentSync is called");
 
     auto applicationContext = applicationContext_.lock();
     if (applicationContext == nullptr) {
@@ -886,14 +870,14 @@ NativeValue *JsApplicationContextUtils::OnOnEnvironment(
     envCallback_ = std::make_shared<JsEnvironmentCallback>(&engine);
     int32_t callbackId = envCallback_->Register(info.argv[1]);
     applicationContext->RegisterEnvironmentCallback(envCallback_);
-    HILOG_DEBUG("OnOnEnvironment is end");
+    HILOG_DEBUG("OnOnEnvironmentSync is end");
     return engine.CreateNumber(callbackId);
 }
 
-NativeValue *JsApplicationContextUtils::OnOffEnvironment(
+NativeValue *JsApplicationContextUtils::OnOffEnvironmentSync(
     NativeEngine &engine, const NativeCallbackInfo &info, int32_t callbackId)
 {
-    HILOG_DEBUG("OnOffEnvironment is called");
+    HILOG_DEBUG("OnOffEnvironmentSync is called");
 
     auto applicationContext = applicationContext_.lock();
     if (applicationContext == nullptr) {
@@ -901,34 +885,18 @@ NativeValue *JsApplicationContextUtils::OnOffEnvironment(
         AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return engine.CreateUndefined();
     }
-
     std::weak_ptr<JsEnvironmentCallback> envCallbackWeak(envCallback_);
-    AsyncTask::CompleteCallback complete = [envCallbackWeak, callbackId](
-            NativeEngine &engine, AsyncTask &task, int32_t status) {
-            auto env_callback = envCallbackWeak.lock();
-            if (env_callback == nullptr) {
-                HILOG_ERROR("env_callback is nullptr");
-                task.Reject(engine,
-                    CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER,
-                        "env_callback is nullptr"));
-                return;
-            }
-
-            HILOG_DEBUG("OnOffEnvironment begin");
-            if (!env_callback->UnRegister(callbackId)) {
-                HILOG_ERROR("call UnRegister failed!");
-                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER,
-                    "call UnRegister failed!"));
-                return;
-            }
-
-            task.ResolveWithNoError(engine, engine.CreateUndefined());
-        };
-    NativeValue *lastParam = (info.argc <= ARGC_TWO) ? nullptr : info.argv[INDEX_TWO];
-    NativeValue *result = nullptr;
-    AsyncTask::Schedule("JsApplicationContextUtils::OnOffEnvironment", engine,
-        CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
-    return result;
+    auto env_callback = envCallbackWeak.lock();
+    if (env_callback == nullptr) {
+        HILOG_ERROR("env_callback is nullptr");
+        return CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER, "env_callback is nullptr");
+    }
+    HILOG_DEBUG("OnOffEnvironmentSync begin");
+    if (!env_callback->UnRegister(callbackId)) {
+        HILOG_ERROR("call UnRegister failed!");
+        return CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER, "call UnRegister failed!");
+    }
+    return engine.CreateUndefined();
 }
 
 NativeValue *JsApplicationContextUtils::OnOnApplicationStateChange(
