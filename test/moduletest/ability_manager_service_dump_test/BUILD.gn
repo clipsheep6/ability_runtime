@@ -23,7 +23,10 @@ ohos_moduletest("ability_manager_service_dump_test") {
 
   sources = [ "ability_manager_service_dump_test.cpp" ]
 
-  configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
+  configs = [
+    "${ability_runtime_services_path}/abilitymgr:abilityms_config",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native_common_public_config",
+  ]
 
   deps = [
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
