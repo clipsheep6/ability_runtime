@@ -1066,13 +1066,6 @@ ErrCode AbilityManagerClient::SendANRProcessID(int pid)
     return abms->SendANRProcessID(pid);
 }
 
-void AbilityManagerClient::UpdateMissionSnapShot(const sptr<IRemoteObject>& token)
-{
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN(abms);
-    return abms->UpdateMissionSnapShot(token);
-}
-
 void AbilityManagerClient::UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
     const std::shared_ptr<Media::PixelMap> &pixelMap)
 {

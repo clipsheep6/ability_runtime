@@ -1012,12 +1012,6 @@ public:
     /**
      * Called to update mission snapshot.
      * @param token The target ability.
-     */
-    virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
-
-    /**
-     * Called to update mission snapshot.
-     * @param token The target ability.
      * @param pixelMap The snapshot.
      */
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject> &token,

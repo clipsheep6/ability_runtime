@@ -16,6 +16,7 @@
 #include "scene_board/ui_ability_lifecycle_manager.h"
 
 #include "ability_manager_service.h"
+#include "ability_running_info.h"
 #include "ability_util.h"
 #include "appfreeze_manager.h"
 #include "app_exit_reason_data_manager.h"
@@ -1558,6 +1559,28 @@ void UIAbilityLifecycleManager::UninstallApp(const std::string &bundleName, int3
             continue;
         }
         it++;
+    }
+}
+
+void UIAbilityLifecycleManager::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info, bool isPerm,
+    int32_t userId) const
+{
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    HILOG_DEBUG("Call.");
+    for (auto [sessionId, abilityRecord] : sessionAbilityMap_) {
+        if (abilityRecord == nullptr || userId != abilityRecord->GetOwnerMissionUserId()) {
+            HILOG_WARN("abilityRecord is nullptr.");
+            continue;
+        }
+        if (isPerm) {
+            DelayedSingleton<AbilityManagerService>::GetInstance()->GetAbilityRunningInfo(info, abilityRecord);
+        } else {
+            auto callingTokenId = IPCSkeleton::GetCallingTokenID();
+            auto tokenID = abilityRecord->GetApplicationInfo().accessTokenId;
+            if (callingTokenId == tokenID) {
+                DelayedSingleton<AbilityManagerService>::GetInstance()->GetAbilityRunningInfo(info, abilityRecord);
+            }
+        }
     }
 }
 

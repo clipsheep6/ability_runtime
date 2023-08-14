@@ -30,6 +30,7 @@
 namespace OHOS {
 namespace AAFwk {
 class SessionInfo;
+struct AbilityRunningInfo;
 struct MissionVaildResult;
 
 class UIAbilityLifecycleManager : public std::enable_shared_from_this<UIAbilityLifecycleManager> {
@@ -231,6 +232,8 @@ public:
     void OnAppStateChanged(const AppInfo &info, int32_t targetUserId);
 
     void UninstallApp(const std::string &bundleName, int32_t uid, int32_t targetUserId);
+
+    void GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info, bool isPerm, int32_t userId) const;
 
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**

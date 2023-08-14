@@ -5431,11 +5431,15 @@ int AbilityManagerService::GetAbilityRunningInfos(std::vector<AbilityRunningInfo
     HILOG_DEBUG("Get running ability infos.");
     CHECK_CALLER_IS_SYSTEM_APP;
     auto isPerm = AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm();
-    if (!currentMissionListManager_ || !connectManager_ || !dataAbilityManager_) {
-        return ERR_INVALID_VALUE;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        uiAbilityLifecycleManager_->GetAbilityRunningInfos(info, isPerm, GetUserId());
+    } else {
+        if (!currentMissionListManager_) {
+            return ERR_INVALID_VALUE;
+        }
+        currentMissionListManager_->GetAbilityRunningInfos(info, isPerm);
     }
 
-    currentMissionListManager_->GetAbilityRunningInfos(info, isPerm);
     UpdateFocusState(info);
 
     return ERR_OK;
@@ -5547,23 +5551,6 @@ int32_t AbilityManagerService::GetMissionSnapshot(const std::string& deviceId, i
         return INNER_ERR;
     }
     return ERR_OK;
-}
-
-void AbilityManagerService::UpdateMissionSnapShot(const sptr<IRemoteObject>& token)
-{
-    CHECK_POINTER_LOG(currentMissionListManager_, "Current mission manager not init.");
-    auto abilityRecord = Token::GetAbilityRecordByToken(token);
-    if (abilityRecord && !JudgeSelfCalled(abilityRecord)) {
-        return;
-    }
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
-        if (!CheckCallingTokenId(BUNDLE_NAME_LAUNCHER, GetUserId())) {
-            HILOG_ERROR("Not launcher called, not allowed.");
-            return;
-        }
-    }
-    currentMissionListManager_->UpdateSnapShot(token);
 }
 
 void AbilityManagerService::UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
@@ -7680,16 +7667,21 @@ int32_t AbilityManagerService::AcquireShareData(
 {
     HILOG_DEBUG("missionId is %{public}d.", missionId);
     CHECK_CALLER_IS_SYSTEM_APP;
-    if (!currentMissionListManager_) {
-        HILOG_ERROR("currentMissionListManager_ is null.");
-        return ERR_INVALID_VALUE;
+    std::shared_ptr<AbilityRecord> abilityRecord = nullptr;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        abilityRecord = uiAbilityLifecycleManager_->GetAbilityRecordsById(missionId);
+    } else {
+        if (!currentMissionListManager_) {
+            HILOG_ERROR("currentMissionListManager_ is null.");
+            return ERR_INVALID_VALUE;
+        }
+        std::shared_ptr<Mission> mission = currentMissionListManager_->GetMissionById(missionId);
+        if (!mission) {
+            HILOG_ERROR("mission is null.");
+            return ERR_INVALID_VALUE;
+        }
+        abilityRecord = mission->GetAbilityRecord();
     }
-    std::shared_ptr<Mission> mission = currentMissionListManager_->GetMissionById(missionId);
-    if (!mission) {
-        HILOG_ERROR("mission is null.");
-        return ERR_INVALID_VALUE;
-    }
-    std::shared_ptr<AbilityRecord> abilityRecord = mission->GetAbilityRecord();
     if (!abilityRecord) {
         HILOG_ERROR("abilityRecord is null.");
         return ERR_INVALID_VALUE;

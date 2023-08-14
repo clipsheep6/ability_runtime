@@ -178,7 +178,6 @@ private:
     int IsRunningInStabilityTestInner(MessageParcel &data, MessageParcel &reply);
     int MoveMissionToFrontByOptionsInner(MessageParcel &data, MessageParcel &reply);
 
-    int UpdateMissionSnapShotInner(MessageParcel &data, MessageParcel &reply);
     int UpdateMissionSnapShotFromWMSInner(MessageParcel &data, MessageParcel &reply);
     int RegisterConnectionObserverInner(MessageParcel &data, MessageParcel &reply);
     int UnregisterConnectionObserverInner(MessageParcel &data, MessageParcel &reply);

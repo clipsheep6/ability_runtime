@@ -935,24 +935,6 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetMissionSnapshot_001, Te
 
 /*
  * Feature: AbilityManagerService
- * Function: UpdateMissionSnapShot
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService UpdateMissionSnapShot
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of UpdateMissionSnapShot
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_UpdateMissionSnapShot_001, TestSize.Level1)
-{
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-    OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
-    proxy_->UpdateMissionSnapShot(token);
-    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::UPDATE_MISSION_SNAPSHOT), mock_->code_);
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: EnableRecoverAbility
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService EnableRecoverAbility
