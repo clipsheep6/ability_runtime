@@ -183,7 +183,6 @@ ohos_shared_library("appkit_native") {
       "webview:nweb_ohos_adapter",
     ]
 
-    defines += [ "NWEB" ]
   }
 
   if (purgeable_ashmem_enable) {
