@@ -1085,7 +1085,7 @@ napi_value GetAppTypeAsync(napi_env env, napi_value *args, const size_t argCallb
             GetAppTypeAsyncCompleteCB,
             static_cast<void *>(appTypeCB),
             &appTypeCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, appTypeCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, appTypeCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
     HILOG_INFO("%{public}s, asyncCallback end.", __func__);
@@ -1122,7 +1122,7 @@ napi_value GetAppTypePromise(napi_env env, AppTypeCB *appTypeCB)
             GetAppTypePromiseCompleteCB,
             static_cast<void *>(appTypeCB),
             &appTypeCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, appTypeCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, appTypeCB->cbBase.asyncWork, napi_qos_user_initiated));
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }
@@ -1600,7 +1600,7 @@ napi_value GetAbilityInfoAsync(napi_env env, napi_value *args, const size_t argC
             GetAbilityInfoAsyncCompleteCB,
             static_cast<void *>(abilityInfoCB),
             &abilityInfoCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, abilityInfoCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, abilityInfoCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
     HILOG_INFO("%{public}s, asyncCallback end.", __func__);
@@ -1637,7 +1637,7 @@ napi_value GetAbilityInfoPromise(napi_env env, AbilityInfoCB *abilityInfoCB)
             GetAbilityInfoPromiseCompleteCB,
             static_cast<void *>(abilityInfoCB),
             &abilityInfoCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, abilityInfoCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, abilityInfoCB->cbBase.asyncWork, napi_qos_user_initiated));
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }
@@ -1938,7 +1938,7 @@ napi_value GetHapModuleInfoAsync(
             GetHapModuleInfoAsyncCompleteCB,
             static_cast<void *>(hapModuleInfoCB),
             &hapModuleInfoCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, hapModuleInfoCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, hapModuleInfoCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
     HILOG_INFO("%{public}s, asyncCallback end.", __func__);
@@ -1975,7 +1975,7 @@ napi_value GetHapModuleInfoPromise(napi_env env, HapModuleInfoCB *hapModuleInfoC
             GetHapModuleInfoPromiseCompleteCB,
             static_cast<void *>(hapModuleInfoCB),
             &hapModuleInfoCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, hapModuleInfoCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, hapModuleInfoCB->cbBase.asyncWork, napi_qos_user_initiated));
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }
@@ -2212,7 +2212,7 @@ napi_value GetAppVersionInfoAsync(
         env, napi_create_async_work(env, nullptr, resourceName, GetAppVersionInfoExecuteCB,
                  GetAppVersionInfoAsyncCompleteCB, static_cast<void *>(appVersionInfoCB),
                  &appVersionInfoCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, appVersionInfoCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, appVersionInfoCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
     HILOG_INFO("%{public}s, asyncCallback end.", __func__);
@@ -2245,7 +2245,7 @@ napi_value GetAppVersionInfoPromise(napi_env env, AppVersionInfoCB *appVersionIn
         env, napi_create_async_work(env, nullptr, resourceName, GetAppVersionInfoExecuteCB,
                  GetAppVersionInfoPromiseCompleteCB, static_cast<void *>(appVersionInfoCB),
                  &appVersionInfoCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, appVersionInfoCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, appVersionInfoCB->cbBase.asyncWork, napi_qos_user_initiated));
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }
@@ -2436,7 +2436,7 @@ napi_value GetContextAsync(
         },
         static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork);
-    napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
+    napi_queue_async_work_with_qos(env, asyncCallbackInfo->asyncWork, napi_qos_user_initiated);
     napi_value result = nullptr;
     napi_get_null(env, &result);
     HILOG_INFO("%{public}s, asyncCallback end.", __func__);
@@ -2481,7 +2481,7 @@ napi_value GetContextPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
         },
         static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork);
-    napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
+    napi_queue_async_work_with_qos(env, asyncCallbackInfo->asyncWork, napi_qos_user_initiated);
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }
@@ -2625,7 +2625,7 @@ napi_value GetWantAsync(napi_env env, napi_value *args, const size_t argCallback
         },
         static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork);
-    napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
+    napi_queue_async_work_with_qos(env, asyncCallbackInfo->asyncWork, napi_qos_user_initiated);
     napi_value result = nullptr;
     napi_get_null(env, &result);
     HILOG_INFO("%{public}s, asyncCallback end.", __func__);
@@ -2670,7 +2670,7 @@ napi_value GetWantPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
         },
         static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork);
-    napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
+    napi_queue_async_work_with_qos(env, asyncCallbackInfo->asyncWork, napi_qos_user_initiated);
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }
@@ -2909,7 +2909,7 @@ napi_value GetAbilityNameAsync(napi_env env, napi_value *args, const size_t argC
             GetAbilityNameAsyncCompleteCB,
             static_cast<void *>(abilityNameCB),
             &abilityNameCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, abilityNameCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, abilityNameCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
     HILOG_INFO("%{public}s, asyncCallback end.", __func__);
@@ -2946,7 +2946,7 @@ napi_value GetAbilityNamePromise(napi_env env, AbilityNameCB *abilityNameCB)
             GetAbilityNamePromiseCompleteCB,
             static_cast<void *>(abilityNameCB),
             &abilityNameCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, abilityNameCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, abilityNameCB->cbBase.asyncWork, napi_qos_user_initiated));
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }
@@ -3383,8 +3383,8 @@ void NAPIAbilityConnection::HandleOnAbilityConnectDone(ConnectionCallback &callb
     connectAbilityCB->abilityConnectionCB.connection = serviceRemoteObject_;
     work->data = static_cast<void *>(connectAbilityCB);
 
-    int rev = uv_queue_work(
-        loop, work, [](uv_work_t *work) {}, UvWorkOnAbilityConnectDone);
+    int rev = uv_queue_work_with_qos(
+        loop, work, [](uv_work_t *work) {}, UvWorkOnAbilityConnectDone, uv_qos_user_initiated);
     if (rev != 0) {
         if (connectAbilityCB != nullptr) {
             delete connectAbilityCB;
@@ -3771,7 +3771,7 @@ napi_value StartBackgroundRunningAsync(
             BackgroundRunningCallbackCompletedCB,
             static_cast<void *>(asyncCallbackInfo),
             &asyncCallbackInfo->asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, asyncCallbackInfo->asyncWork, napi_qos_utility));
 
     HILOG_INFO("%{public}s asyncCallback end.", __func__);
     return WrapVoidToJS(env);
@@ -3799,7 +3799,7 @@ napi_value StartBackgroundRunningPromise(napi_env env, AsyncCallbackInfo *asyncC
             BackgroundRunningPromiseCompletedCB,
             static_cast<void *>(asyncCallbackInfo),
             &asyncCallbackInfo->asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, asyncCallbackInfo->asyncWork, napi_qos_utility));
     HILOG_INFO("%{public}s, end.", __func__);
     return promise;
 }
@@ -4262,7 +4262,7 @@ NativeValue* JsNapiCommon::JsGetFilesDir(NativeEngine &engine, NativeCallbackInf
 
     auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
     NativeValue *result = nullptr;
-    AsyncTask::Schedule("JsNapiCommon::JsGetFilesDir",
+    AsyncTask::ScheduleHighQos("JsNapiCommon::JsGetFilesDir",
         engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
     return result;
 }
@@ -4397,7 +4397,7 @@ NativeValue* JsNapiCommon::JsGetCacheDir(NativeEngine &engine, NativeCallbackInf
 
     auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
     NativeValue *result = nullptr;
-    AsyncTask::Schedule("JsNapiCommon::JsGetCacheDir",
+    AsyncTask::ScheduleHighQos("JsNapiCommon::JsGetCacheDir",
         engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
 
     return result;
@@ -4442,7 +4442,7 @@ NativeValue* JsNapiCommon::JsGetCtxAppType(
 
     auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
     NativeValue *result = nullptr;
-    AsyncTask::Schedule("JsNapiCommon::JsGetCtxAppType",
+    AsyncTask::ScheduleHighQos("JsNapiCommon::JsGetCtxAppType",
         engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
 
     return result;
@@ -4488,7 +4488,7 @@ NativeValue* JsNapiCommon::JsGetCtxHapModuleInfo(
 
     auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
     NativeValue *result = nullptr;
-    AsyncTask::Schedule("JsNapiCommon::JsGetCtxHapModuleInfo",
+    AsyncTask::ScheduleHighQos("JsNapiCommon::JsGetCtxHapModuleInfo",
         engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
 
     return result;
@@ -4535,7 +4535,7 @@ NativeValue* JsNapiCommon::JsGetAppVersionInfo(
 
     auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
     NativeValue *result = nullptr;
-    AsyncTask::Schedule("JsNapiCommon::JsGetAppVersionInfo",
+    AsyncTask::ScheduleHighQos("JsNapiCommon::JsGetAppVersionInfo",
         engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
 
     return result;
@@ -4582,7 +4582,7 @@ NativeValue* JsNapiCommon::JsGetCtxAbilityInfo(
 
     auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
     NativeValue *result = nullptr;
-    AsyncTask::Schedule("JsNapiCommon::JsGetCtxAbilityInfo",
+    AsyncTask::ScheduleHighQos("JsNapiCommon::JsGetCtxAbilityInfo",
         engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
 
     return result;
@@ -4673,7 +4673,7 @@ NativeValue* JsNapiCommon::JsGetDisplayOrientation(
 
     auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
     NativeValue *result = nullptr;
-    AsyncTask::Schedule("JsNapiCommon::JsGetDisplayOrientation",
+    AsyncTask::ScheduleHighQos("JsNapiCommon::JsGetDisplayOrientation",
         engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
 
     return result;
@@ -5049,7 +5049,7 @@ NativeValue* JsNapiCommon::JsGetWant(
 
     auto callback = (info.argc == ARGS_ZERO) ? nullptr : info.argv[PARAM0];
     NativeValue *result = nullptr;
-    AsyncTask::Schedule("JsNapiCommon::JsGetWant",
+    AsyncTask::ScheduleHighQos("JsNapiCommon::JsGetWant",
         engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
     return result;
 }
@@ -5084,7 +5084,7 @@ NativeValue* JsNapiCommon::JsTerminateAbility(NativeEngine &engine, NativeCallba
 
     auto callback = (info.argc == ARGS_ZERO) ? nullptr : info.argv[PARAM0];
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JsNapiCommon::JsTerminateAbility",
+    AsyncTask::ScheduleHighQos("JsNapiCommon::JsTerminateAbility",
         engine, CreateAsyncTaskWithLastParam(engine, callback, nullptr, std::move(complete), &result));
     return result;
 }
@@ -5176,10 +5176,10 @@ NativeValue* JsNapiCommon::JsStartAbility(NativeEngine &engine, NativeCallbackIn
     NativeValue* result = nullptr;
     if ((param->want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
         AddFreeInstallObserver(engine, param->want, callback);
-        AsyncTask::Schedule("JsNapiCommon::JsStartAbility", engine,
+        AsyncTask::ScheduleHighQos("JsNapiCommon::JsStartAbility", engine,
             CreateAsyncTaskWithLastParam(engine, nullptr, std::move(execute), nullptr, &result));
     } else {
-        AsyncTask::Schedule("JsNapiCommon::JsStartAbility", engine,
+        AsyncTask::ScheduleHighQos("JsNapiCommon::JsStartAbility", engine,
             CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
     }
 
@@ -5218,7 +5218,7 @@ NativeValue* JsNapiCommon::JsGetExternalCacheDir(NativeEngine &engine,
 
     auto callback = (info.argc == ARGS_ZERO) ? nullptr : info.argv[PARAM0];
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JsNapiCommon::JsGetExternalCacheDir",
+    AsyncTask::ScheduleHighQos("JsNapiCommon::JsGetExternalCacheDir",
         engine, CreateAsyncTaskWithLastParam(engine, callback, nullptr, std::move(complete), &result));
     return result;
 }

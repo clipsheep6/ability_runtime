@@ -129,7 +129,7 @@ static napi_value SetShowOnLockScreenAsync(napi_env env, napi_value *args, ShowO
             SetShowOnLockScreenAsyncCompleteCB,
             static_cast<void *>(showOnLockScreenCB),
             &showOnLockScreenCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, showOnLockScreenCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, showOnLockScreenCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
 
@@ -181,7 +181,7 @@ napi_value SetShowOnLockScreenPromise(napi_env env, ShowOnLockScreenCB *cbData)
         },
         static_cast<void *>(cbData),
         &cbData->cbBase.asyncWork);
-    napi_queue_async_work(env, cbData->cbBase.asyncWork);
+    napi_queue_async_work_with_qos(env, cbData->cbBase.asyncWork, napi_qos_user_initiated);
     HILOG_INFO("promise end.");
     return promise;
 }
@@ -724,7 +724,7 @@ napi_value NAPI_RequestPermissionsFromUserWrap(
                 static_cast<void *>(asyncCallbackInfo),
                 &asyncCallbackInfo->asyncWork));
 
-        NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
+        NAPI_CALL(env, napi_queue_async_work_with_qos(env, asyncCallbackInfo->asyncWork, napi_qos_user_initiated));
 
         return promise;
     }
@@ -840,8 +840,8 @@ void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<s
     reqData->asyncTask = callbackInfo.asyncTask;
     reqData->uvWork.data = static_cast<void *>(reqData.get());
 
-    int rev = uv_queue_work(loop, &(reqData->uvWork),
-        OnRequestPermissionsData::WorkCallback, OnRequestPermissionsData::AfterWorkCallback);
+    int rev = uv_queue_work_with_qos(loop, &(reqData->uvWork),
+        OnRequestPermissionsData::WorkCallback, OnRequestPermissionsData::AfterWorkCallback, uv_qos_user_initiated);
     if (rev == 0) {
         (void)reqData.release();
     }
@@ -1118,7 +1118,7 @@ napi_value GetApplicationInfoAsync(napi_env env, napi_value *args, const size_t 
             GetAppInfoAsyncCompleteCB,
             static_cast<void *>(appInfoCB),
             &appInfoCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, appInfoCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, appInfoCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
     HILOG_INFO("%{public}s, asyncCallback end.", __func__);
@@ -1171,7 +1171,7 @@ napi_value GetApplicationInfoPromise(napi_env env, AppInfoCB *appInfoCB)
             GetAppInfoPromiseCompleteCB,
             static_cast<void *>(appInfoCB),
             &appInfoCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, appInfoCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, appInfoCB->cbBase.asyncWork, napi_qos_user_initiated));
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }
@@ -1391,7 +1391,7 @@ napi_value GetProcessInfoAsync(napi_env env, napi_value *args, const size_t argC
             GetProcessInfoAsyncCompleteCB,
             static_cast<void *>(processInfoCB),
             &processInfoCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, processInfoCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, processInfoCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
     HILOG_INFO("%{public}s, asyncCallback end.", __func__);
@@ -1439,7 +1439,7 @@ napi_value GetProcessInfoPromise(napi_env env, ProcessInfoCB *processInfoCB)
             GetProcessInfoPromiseCompleteCB,
             static_cast<void *>(processInfoCB),
             &processInfoCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, processInfoCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, processInfoCB->cbBase.asyncWork, napi_qos_user_initiated));
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }
@@ -1654,7 +1654,7 @@ napi_value GetElementNamePromise(napi_env env, ElementNameCB *elementNameCB)
             GetElementNamePromiseCompleteCB,
             static_cast<void *>(elementNameCB),
             &elementNameCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, elementNameCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, elementNameCB->cbBase.asyncWork, napi_qos_user_initiated));
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }
@@ -1682,7 +1682,7 @@ napi_value GetElementNameAsync(napi_env env, napi_value *args, const size_t argC
             GetElementNameAsyncCompleteCB,
             static_cast<void *>(elementNameCB),
             &elementNameCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, elementNameCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, elementNameCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
     HILOG_INFO("%{public}s, asyncCallback end.", __func__);
@@ -1846,7 +1846,7 @@ napi_value GetProcessNameAsync(napi_env env, napi_value *args, const size_t argC
             GetProcessNameAsyncCompleteCB,
             static_cast<void *>(processNameCB),
             &processNameCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, processNameCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, processNameCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
     HILOG_INFO("%{public}s, asyncCallback end.", __func__);
@@ -1875,7 +1875,7 @@ napi_value GetProcessNamePromise(napi_env env, ProcessNameCB *processNameCB)
             GetProcessNamePromiseCompleteCB,
             static_cast<void *>(processNameCB),
             &processNameCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, processNameCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, processNameCB->cbBase.asyncWork, napi_qos_user_initiated));
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }
@@ -2038,7 +2038,7 @@ napi_value GetCallingBundleAsync(
             GetCallingBundleAsyncCompleteCB,
             static_cast<void *>(callingBundleCB),
             &callingBundleCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, callingBundleCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, callingBundleCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
     HILOG_INFO("%{public}s, asyncCallback end.", __func__);
@@ -2067,7 +2067,7 @@ napi_value GetCallingBundlePromise(napi_env env, CallingBundleCB *callingBundleC
             GetCallingBundlePromiseCompleteCB,
             static_cast<void *>(callingBundleCB),
             &callingBundleCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, callingBundleCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, callingBundleCB->cbBase.asyncWork, napi_qos_user_initiated));
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }
@@ -3289,7 +3289,7 @@ NativeValue* NapiJsContext::OnGetBundleName(NativeEngine &engine, NativeCallback
 
     auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
     NativeValue *result = nullptr;
-    AsyncTask::Schedule("NapiJsContext::OnGetBundleName",
+    AsyncTask::ScheduleHighQos("NapiJsContext::OnGetBundleName",
         engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
 
     return result;
@@ -3335,7 +3335,7 @@ NativeValue* NapiJsContext::OnVerifyPermission(NativeEngine &engine, NativeCallb
         ((info.argc == ARGS_TWO) ? info.argv[PARAM1] : info.argv[PARAM2]) :
         nullptr;
     NativeValue *result = nullptr;
-    AsyncTask::Schedule("NapiJsContext::OnGetBundleName",
+    AsyncTask::ScheduleHighQos("NapiJsContext::OnGetBundleName",
         engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
 
     return result;
@@ -3377,7 +3377,7 @@ NativeValue* NapiJsContext::OnGetApplicationInfo(NativeEngine &engine, NativeCal
 
     auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
     NativeValue *result = nullptr;
-    AsyncTask::Schedule("NapiJsContext::OnGetApplicationInfo",
+    AsyncTask::ScheduleHighQos("NapiJsContext::OnGetApplicationInfo",
         engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
 
     return result;
@@ -3420,7 +3420,7 @@ NativeValue* NapiJsContext::OnGetProcessInfo(NativeEngine &engine, NativeCallbac
 
     auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
     NativeValue *result = nullptr;
-    AsyncTask::Schedule("NapiJsContext::OnGetProcessInfo",
+    AsyncTask::ScheduleHighQos("NapiJsContext::OnGetProcessInfo",
         engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
 
     return result;
@@ -3466,7 +3466,7 @@ NativeValue* NapiJsContext::OnGetElementName(NativeEngine &engine, NativeCallbac
 
     auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
     NativeValue *result = nullptr;
-    AsyncTask::Schedule("NapiJsContext::OnGetElementName",
+    AsyncTask::ScheduleHighQos("NapiJsContext::OnGetElementName",
         engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
 
     return result;
@@ -3507,7 +3507,7 @@ NativeValue* NapiJsContext::OnGetProcessName(NativeEngine &engine, NativeCallbac
 
     auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
     NativeValue *result = nullptr;
-    AsyncTask::Schedule("NapiJsContext::OnGetProcessName",
+    AsyncTask::ScheduleHighQos("NapiJsContext::OnGetProcessName",
         engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
 
     return result;
@@ -3548,7 +3548,7 @@ NativeValue* NapiJsContext::OnGetCallingBundle(NativeEngine &engine, NativeCallb
 
     auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
     NativeValue *result = nullptr;
-    AsyncTask::Schedule("NapiJsContext::OnGetCallingBundle",
+    AsyncTask::ScheduleHighQos("NapiJsContext::OnGetCallingBundle",
         engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
 
     return result;
@@ -3698,7 +3698,7 @@ NativeValue* NapiJsContext::OnSetDisplayOrientation(NativeEngine &engine, Native
 
     auto callback = info.argc == ARGS_ONE ? nullptr : info.argv[PARAM1];
     NativeValue *result = nullptr;
-    AsyncTask::Schedule("NapiJsContext::SetDisplayOrientation",
+    AsyncTask::ScheduleHighQos("NapiJsContext::SetDisplayOrientation",
         engine, CreateAsyncTaskWithLastParam(engine, callback, nullptr, std::move(complete), &result));
 
     return result;

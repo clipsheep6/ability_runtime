@@ -585,11 +585,12 @@ ErrCode AbilityContextImpl::RequestDialogService(NativeEngine &engine,
         }
         auto work = new uv_work_t;
         work->data = static_cast<void*>(retData);
-        int rev = uv_queue_work(
+        int rev = uv_queue_work_with_qos(
             loop,
             work,
             [](uv_work_t* work) {},
-            RequestDialogResultJSThreadWorker);
+            RequestDialogResultJSThreadWorker,
+            uv_qos_user_initiated);
         if (rev != 0) {
             delete retData;
             retData = nullptr;

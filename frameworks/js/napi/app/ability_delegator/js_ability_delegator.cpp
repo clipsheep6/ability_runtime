@@ -687,7 +687,7 @@ NativeValue *JSAbilityDelegator::OnGetCurrentTopAbility(NativeEngine &engine, Na
 
     NativeValue *lastParam = (info.argc >= ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
     NativeValue *result = nullptr;
-    AsyncTask::Schedule("JSAbilityDelegator::OnGetCurrentTopAbility",
+    AsyncTask::ScheduleHighQos("JSAbilityDelegator::OnGetCurrentTopAbility",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -719,7 +719,7 @@ NativeValue *JSAbilityDelegator::OnStartAbility(NativeEngine &engine, NativeCall
 
     NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     NativeValue *result = nullptr;
-    AsyncTask::Schedule("JSAbilityDelegator::OnStartAbility",
+    AsyncTask::ScheduleHighQos("JSAbilityDelegator::OnStartAbility",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -750,7 +750,7 @@ NativeValue *JSAbilityDelegator::OnDoAbilityForeground(NativeEngine &engine, Nat
 
     NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     NativeValue *result = nullptr;
-    AsyncTask::Schedule("JSAbilityDelegator::OnDoAbilityForeground",
+    AsyncTask::ScheduleHighQos("JSAbilityDelegator::OnDoAbilityForeground",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -781,7 +781,7 @@ NativeValue *JSAbilityDelegator::OnDoAbilityBackground(NativeEngine &engine, Nat
 
     NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     NativeValue *result = nullptr;
-    AsyncTask::Schedule("JSAbilityDelegator::OnDoAbilityBackground",
+    AsyncTask::ScheduleHighQos("JSAbilityDelegator::OnDoAbilityBackground",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }

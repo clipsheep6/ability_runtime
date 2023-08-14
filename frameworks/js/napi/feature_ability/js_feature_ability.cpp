@@ -127,7 +127,7 @@ NativeValue* JsFeatureAbility::OnStartAbility(NativeEngine &engine, NativeCallba
         };
 
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JSFeatureAbility::OnStartAbility",
+    AsyncTask::ScheduleHighQos("JSFeatureAbility::OnStartAbility",
         engine, CreateAsyncTaskWithLastParam(engine, nullptr, nullptr, std::move(complete), &result));
     return result;
 }
@@ -235,7 +235,7 @@ NativeValue *JsFeatureAbility::OnFinishWithResult(NativeEngine &engine, NativeCa
         };
 
     NativeValue *result = nullptr;
-    AsyncTask::Schedule("JSFeatureAbility::OnFinishWithResult",
+    AsyncTask::ScheduleHighQos("JSFeatureAbility::OnFinishWithResult",
         engine, CreateAsyncTaskWithLastParam(engine, nullptr, nullptr, std::move(complete), &result));
     return result;
 }
