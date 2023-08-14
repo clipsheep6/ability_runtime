@@ -146,5 +146,53 @@ ErrCode ExtensionManagerClient::DisconnectAbility(const sptr<IRemoteObject> &con
     return abms->DisconnectAbility(connect);
 }
 
+ErrCode ExtensionManagerClient::ConnectAbility(
+    const Want &want, const sptr<IRemoteObject> &connect, const sptr<IRemoteObject> &callerToken, int32_t userId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto abms = GetExtensionManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_DEBUG("name:%{public}s %{public}s, userId:%{public}d.",
+        want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
+    return abms->ConnectAbilityCommon(want, connect, callerToken, AppExecFwk::ExtensionAbilityType::SERVICE, userId);
+}
+
+ErrCode ExtensionManagerClient::StartExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
+    int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
+{
+    auto abms = GetExtensionManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_DEBUG("name:%{public}s %{public}s, userId=%{public}d.",
+        want.GetElement().GetAbilityName().c_str(), want.GetElement().GetBundleName().c_str(), userId);
+    return abms->StartExtensionAbility(want, callerToken, userId, extensionType);
+}
+
+ErrCode ExtensionManagerClient::StopExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
+    int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
+{
+    auto abms = GetExtensionManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_DEBUG("name:%{public}s %{public}s, userId=%{public}d.",
+        want.GetElement().GetAbilityName().c_str(), want.GetElement().GetBundleName().c_str(), userId);
+    return abms->StopExtensionAbility(want, callerToken, userId, extensionType);
+}
+
+ErrCode ExtensionManagerClient::RequestDialogService(const Want &want, const sptr<IRemoteObject> &callerToken)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto abms = GetExtensionManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_DEBUG("request is:%{public}s.", want.GetElement().GetURI().c_str());
+    HandleDlpApp(const_cast<Want &>(want));
+    return abms->RequestDialogService(want, callerToken);
+}
+
+void ExtensionManagerClient::HandleDlpApp(Want &want)
+{
+#ifdef WITH_DLP
+    bool sandboxFlag = Security::DlpPermission::DlpFileKits::GetSandboxFlag(want);
+    want.SetParam(DLP_PARAMS_SANDBOX, sandboxFlag);
+#endif // WITH_DLP
+}
 }  // namespace AAFwk
 }  // namespace OHOS

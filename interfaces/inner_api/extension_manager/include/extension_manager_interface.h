@@ -18,6 +18,8 @@
 
 #include <iremote_broker.h>
 
+#include "extension_ability_info.h"
+
 namespace OHOS {
 namespace AppExecFwk {
 enum class ExtensionAbilityType;
@@ -59,6 +61,45 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int DisconnectAbility(const sptr<IRemoteObject> &connect) = 0;
+
+    /**
+     * Start extension ability with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param callerToken, caller ability token.
+     * @param userId, Designation User ID.
+     * @param extensionType If an ExtensionAbilityType is set, only extension of that type can be started.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartExtensionAbility(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVALID_USER_ID,
+        AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED) = 0;
+
+    /**
+     * Stop extension ability with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to stop.
+     * @param callerToken, caller ability token.
+     * @param userId, Designation User ID.
+     * @param extensionType If an ExtensionAbilityType is set, only extension of that type can be stopped.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StopExtensionAbility(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVALID_USER_ID,
+        AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED) = 0;
+
+    /**
+     * Request dialog service with want, send want to ability manager service.
+     *
+     * @param want, the want of the dialog service to start.
+     * @param callerToken, caller ability token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RequestDialogService(const Want &want, const sptr<IRemoteObject> &callerToken) = 0;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
