@@ -141,7 +141,7 @@ void AbilityImpl::Stop(bool &isAsyncCallback)
     };
     callbackInfo->Push(asyncCallback);
 
-    ability_->OnStop(callbackInfo, isAsyncCallback);
+    ability_->OnStop(callbackInfo, isAsyncCallback);//该调用没有实现异步。
     if (!isAsyncCallback) {
         StopCallback();
         AbilityTransactionCallbackInfo<>::Destroy(callbackInfo);

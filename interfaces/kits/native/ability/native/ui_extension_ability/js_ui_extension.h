@@ -110,6 +110,7 @@ public:
      * You can override this function to implement your own processing logic.
      */
     virtual void OnStop() override;
+    virtual void OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback) override;
 
     /**
      * @brief Called when the system configuration is updated.
