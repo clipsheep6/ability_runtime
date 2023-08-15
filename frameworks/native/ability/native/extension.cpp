@@ -59,20 +59,20 @@ void Extension::OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessio
 
 void Extension::OnStop(){
     HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
-    if (abilityLifecycleExecutor_ == nullptr) {
-        HILOG_ERROR("Extension::OnStop error. abilityLifecycleExecutor_ == nullptr.");
-        return;
-    }
-    abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::INITIAL);
-    if (lifecycle_ == nullptr) {
-        HILOG_ERROR("Extension::OnStop error. lifecycle_ == nullptr.");
-        return;
-    }
-    lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_STOP);
+    // if (abilityLifecycleExecutor_ == nullptr) {
+    //     HILOG_ERROR("Extension::OnStop error. abilityLifecycleExecutor_ == nullptr.");
+    //     return;
+    // }
+    // abilityLifecycleExecutor_->DispatchLifecycleState(AppExecFwk::AbilityLifecycleExecutor::LifecycleState::INITIAL);
+    // if (lifecycle_ == nullptr) {
+    //     HILOG_ERROR("Extension::OnStop error. lifecycle_ == nullptr.");
+    //     return;
+    // }
+    // lifecycle_->DispatchLifecycle(AppExecFwk::LifeCycle::Event::ON_STOP);
     HILOG_DEBUG("%{public}s end", __func__);
 }
 
-void Extension::OnStop(AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback)
+void Extension::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback)
 {
     isAsyncCallback = false;
     OnStop();

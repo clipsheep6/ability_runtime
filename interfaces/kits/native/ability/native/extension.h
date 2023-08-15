@@ -25,6 +25,8 @@
 #include "foundation/window/window_manager/interfaces/innerkits/wm/window.h"
 #include "ui_extension_window_command.h"
 #include "want.h"
+#include "ability_lifecycle_executor.h"
+#include "ability_lifecycle_interface.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -174,7 +176,7 @@ public:
      * @param callbackInfo Indicates the lifecycle transaction callback information
      * @param isAsyncCallback Indicates whether it is an asynchronous lifecycle callback
      */
-    virtual void OnStop(AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback);
+    virtual void OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback);
 
     /**
      * @brief Called when the system configuration is updated.
@@ -242,8 +244,8 @@ private:
     std::shared_ptr<AAFwk::Want> lastRequestWant_ = nullptr;
     std::shared_ptr<CallingInfo> callingInfo_ = nullptr;
 
-    std::shared_ptr<LifeCycle> lifecycle_ = nullptr;
-    std::shared_ptr<AbilityLifecycleExecutor> abilityLifecycleExecutor_ = nullptr;
+    std::shared_ptr<AppExecFwk::LifeCycle> lifecycle_ = nullptr;
+    std::shared_ptr<AppExecFwk::AbilityLifecycleExecutor> abilityLifecycleExecutor_ = nullptr;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
