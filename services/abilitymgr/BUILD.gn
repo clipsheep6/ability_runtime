@@ -93,10 +93,6 @@ config("abilityms_config") {
     defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
   }
 
-  if (resource_schedule_service_enable) {
-    defines += [ "RESOURCE_SCHEDULE_SERVICE_ENABLE" ]
-  }
-
   if (efficiency_manager) {
     defines += [ "EFFICIENCY_MANAGER_ENABLE" ]
   }
@@ -172,10 +168,6 @@ ohos_shared_library("abilityms") {
 
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
-  }
-
-  if (resource_schedule_service_enable) {
-    external_deps += [ "resource_schedule_service:ressched_client" ]
   }
 
   if (efficiency_manager) {

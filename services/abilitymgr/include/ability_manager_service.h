@@ -1402,8 +1402,6 @@ private:
 
     void UnsubscribeBundleEventCallback();
 
-    void ReportAbilitStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo);
-
     void ReportEventToSuspendManager(const AppExecFwk::AbilityInfo &abilityInfo);
 
     void ReportAppRecoverResult(const int32_t appId, const AppExecFwk::ApplicationInfo &appInfo,
