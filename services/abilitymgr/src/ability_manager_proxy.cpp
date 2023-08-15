@@ -1286,28 +1286,6 @@ int AbilityManagerProxy::GetMissionSnapshot(const std::string& deviceId, int32_t
     return reply.ReadInt32();
 }
 
-void AbilityManagerProxy::UpdateMissionSnapShot(const sptr<IRemoteObject>& token)
-{
-    int error;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    if (!WriteInterfaceToken(data)) {
-        return;
-    }
-    if (!data.WriteRemoteObject(token)) {
-        HILOG_ERROR("token write failed.");
-        return;
-    }
-    error = SendRequest(AbilityManagerInterfaceCode::UPDATE_MISSION_SNAPSHOT, data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
-        return;
-    }
-    return;
-}
-
 void AbilityManagerProxy::UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
     const std::shared_ptr<Media::PixelMap> &pixelMap)
 {

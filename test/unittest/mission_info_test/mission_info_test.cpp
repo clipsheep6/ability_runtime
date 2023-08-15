@@ -71,5 +71,44 @@ HWTEST_F(MissionInfoTest, mission_info_marshalling_001, TestSize.Level1)
     EXPECT_EQ(parcelable2->iconPath, "iconpath");
     EXPECT_EQ(parcelable2->continueState, AAFwk::ContinueState::CONTINUESTATE_ACTIVE);
 }
+
+/*
+ * Feature: Mission Info
+ * Function: ReadFromParcel
+ * SubFunction: NA
+ * FunctionPoints: Mission ReadFromParcel
+ */
+HWTEST_F(MissionInfoTest, mission_info_dto_ReadFromParcel_0100, TestSize.Level1)
+{
+    InnerMissionInfoDto info;
+    MessageParcel parcel;
+    EXPECT_FALSE(info.ReadFromParcel(parcel));
+}
+
+/*
+ * Feature: Mission Info
+ * Function: Marshalling
+ * SubFunction: NA
+ * FunctionPoints: Mission Marshalling
+ */
+HWTEST_F(MissionInfoTest, mission_info_dto_Marshalling_0100, TestSize.Level1)
+{
+    InnerMissionInfoDto info;
+    MessageParcel parcel;
+    EXPECT_TRUE(info.Marshalling(parcel));
+}
+
+/*
+ * Feature: Mission Info
+ * Function: Marshalling
+ * SubFunction: NA
+ * FunctionPoints: Mission Marshalling
+ */
+HWTEST_F(MissionInfoTest, mission_info_dto_Unmarshalling_0100, TestSize.Level1)
+{
+    InnerMissionInfoDto info;
+    MessageParcel parcel;
+    EXPECT_FALSE(info.Unmarshalling(parcel));
+}
 }
 }

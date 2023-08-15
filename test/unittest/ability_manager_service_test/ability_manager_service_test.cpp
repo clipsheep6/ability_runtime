@@ -2470,26 +2470,6 @@ HWTEST_F(AbilityManagerServiceTest, GetMissionSnapshot_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
- * Function: UpdateMissionSnapShot
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService UpdateMissionSnapShot
- */
-HWTEST_F(AbilityManagerServiceTest, UpdateMissionSnapShot_001, TestSize.Level1)
-{
-    HILOG_INFO("AbilityManagerServiceTest UpdateMissionSnapShot_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    MissionSnapshot missionSnapshot;
-    ASSERT_NE(abilityMs_, nullptr);
-    abilityMs_->UpdateMissionSnapShot(nullptr);
-
-    MyFlag::flag_ = 1;
-    abilityMs_->UpdateMissionSnapShot(nullptr);
-    MyFlag::flag_ = 0;
-    HILOG_INFO("AbilityManagerServiceTest UpdateMissionSnapShot_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: EnableRecoverAbility
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService EnableRecoverAbility

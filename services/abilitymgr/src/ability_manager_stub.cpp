@@ -277,8 +277,6 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::StartExtensionAbilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::STOP_EXTENSION_ABILITY)] =
         &AbilityManagerStub::StopExtensionAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UPDATE_MISSION_SNAPSHOT)] =
-        &AbilityManagerStub::UpdateMissionSnapShotInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UPDATE_MISSION_SNAPSHOT_FROM_WMS)] =
         &AbilityManagerStub::UpdateMissionSnapShotFromWMSInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_CONNECTION_OBSERVER)] =
@@ -1947,17 +1945,6 @@ int AbilityManagerStub::DumpAbilityInfoDoneInner(MessageParcel &data, MessagePar
         HILOG_ERROR("reply write failed.");
         return ERR_INVALID_VALUE;
     }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::UpdateMissionSnapShotInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> token = data.ReadRemoteObject();
-    if (!token) {
-        HILOG_ERROR("UpdateMissionSnapShot read ability token failed.");
-        return ERR_NULL_OBJECT;
-    }
-    UpdateMissionSnapShot(token);
     return NO_ERROR;
 }
 

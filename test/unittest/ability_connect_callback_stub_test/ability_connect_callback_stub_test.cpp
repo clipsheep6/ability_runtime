@@ -161,3 +161,17 @@ HWTEST_F(AbilityConnectCallBackStubTest, AbilityConnectionCallBack_IPC_004, Test
         mockAbilityConnectStub->OnRemoteRequest(IAbilityConnection::ON_ABILITY_DISCONNECT_DONE, data, reply, option);
     EXPECT_EQ(res, ERR_OK);
 }
+
+/*
+ * Feature: AbilityConnectionStub
+ * Function: OnRemoteStateChanged
+ * SubFunction: NA
+ * FunctionPoints: AbilityConnectionStub OnRemoteStateChanged
+ */
+HWTEST_F(AbilityConnectCallBackStubTest, AbilityConnectionCallBack_IPC_005, TestSize.Level1)
+{
+    sptr<MockAbilityConnectCallback> mockAbilityConnectStub(new MockAbilityConnectCallback());
+    EXPECT_TRUE(mockAbilityConnectStub != nullptr);
+    AppExecFwk::ElementName element;
+    mockAbilityConnectStub->OnRemoteStateChanged(element, 10);
+}

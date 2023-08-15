@@ -312,12 +312,6 @@ public:
     /**
      * Called to update mission snapshot.
      * @param token The target ability.
-     */
-    void UpdateSnapShot(const sptr<IRemoteObject>& token);
-
-    /**
-     * Called to update mission snapshot.
-     * @param token The target ability.
      * @param pixelMap The snapshot.
      */
     void UpdateSnapShot(const sptr<IRemoteObject> &token, const std::shared_ptr<Media::PixelMap> &pixelMap);

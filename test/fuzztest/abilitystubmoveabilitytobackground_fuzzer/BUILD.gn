@@ -19,10 +19,10 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 module_output_path = "ability_runtime/abilitymgr"
 
 ##############################fuzztest##########################################
-ohos_fuzztest("AbilityStubMinimizeUIExtensionAbilityFuzzTest") {
+ohos_fuzztest("AbilityStubMoveAbilityToBackgroundFuzzTest") {
   module_out_path = module_output_path
 
-  fuzz_config_file = "${ability_runtime_test_path}/fuzztest/abilitystubminimizeuiextensionability_fuzzer"
+  fuzz_config_file = "${ability_runtime_test_path}/fuzztest/abilitystubmoveabilitytobackground_fuzzer"
   include_dirs = [ "${ability_runtime_innerkits_path}/ability_manager/include" ]
   cflags = [
     "-g",
@@ -30,7 +30,7 @@ ohos_fuzztest("AbilityStubMinimizeUIExtensionAbilityFuzzTest") {
     "-Wno-unused-variable",
     "-fno-omit-frame-pointer",
   ]
-  sources = [ "abilitystubminimizeuiextensionability_fuzzer.cpp" ]
+  sources = [ "abilitystubmoveabilitytobackground_fuzzer.cpp" ]
 
   configs = [ "${ability_runtime_innerkits_path}/ability_manager:ability_manager_public_config" ]
 
@@ -73,7 +73,7 @@ group("fuzztest") {
   deps = []
   deps += [
     # deps file
-    ":AbilityStubMinimizeUIExtensionAbilityFuzzTest",
+    ":AbilityStubMoveAbilityToBackgroundFuzzTest",
   ]
 }
 ###############################################################################

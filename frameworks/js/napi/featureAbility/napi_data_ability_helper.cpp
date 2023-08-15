@@ -335,7 +335,7 @@ napi_value InsertAsync(napi_env env, napi_value *args, const size_t argCallback,
             InsertAsyncCompleteCB,
             static_cast<void *>(insertCB),
             &insertCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, insertCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, insertCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
     HILOG_INFO("%{public}s, asyncCallback end", __func__);
@@ -364,7 +364,7 @@ napi_value InsertPromise(napi_env env, DAHelperInsertCB *insertCB)
             InsertPromiseCompleteCB,
             static_cast<void *>(insertCB),
             &insertCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, insertCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, insertCB->cbBase.asyncWork, napi_qos_user_initiated));
     HILOG_INFO("%{public}s, promise end", __func__);
     return promise;
 }
@@ -1037,7 +1037,7 @@ void NAPIDataAbilityObserver::SafeReleaseJSCallback()
 
     uv_work_t* work = new uv_work_t;
     work->data = static_cast<void*>(delRefCallbackInfo);
-    int ret = uv_queue_work(
+    int ret = uv_queue_work_with_qos(
         loop, work, [](uv_work_t* work) {},
         [](uv_work_t* work, int status) {
             // JS Thread
@@ -1058,7 +1058,7 @@ void NAPIDataAbilityObserver::SafeReleaseJSCallback()
             delRefCallbackInfo = nullptr;
             delete work;
             work = nullptr;
-        });
+        }, uv_qos_user_initiated);
     if (ret != 0) {
         if (delRefCallbackInfo != nullptr) {
             delete delRefCallbackInfo;
@@ -1259,7 +1259,7 @@ napi_value GetTypeAsync(napi_env env, napi_value *args, const size_t argCallback
             GetTypeAsyncCompleteCB,
             static_cast<void *>(gettypeCB),
             &gettypeCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, gettypeCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, gettypeCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
     HILOG_INFO("%{public}s, asyncCallback end", __func__);
@@ -1288,7 +1288,7 @@ napi_value GetTypePromise(napi_env env, DAHelperGetTypeCB *gettypeCB)
             GetTypePromiseCompleteCB,
             static_cast<void *>(gettypeCB),
             &gettypeCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, gettypeCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, gettypeCB->cbBase.asyncWork, napi_qos_user_initiated));
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }
@@ -1438,7 +1438,7 @@ napi_value GetFileTypesAsync(
             GetFileTypesAsyncCompleteCB,
             static_cast<void *>(getfiletypesCB),
             &getfiletypesCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, getfiletypesCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, getfiletypesCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
     HILOG_INFO("%{public}s, asyncCallback end.", __func__);
@@ -1467,7 +1467,7 @@ napi_value GetFileTypesPromise(napi_env env, DAHelperGetFileTypesCB *getfiletype
             GetFileTypesPromiseCompleteCB,
             static_cast<void *>(getfiletypesCB),
             &getfiletypesCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, getfiletypesCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, getfiletypesCB->cbBase.asyncWork, napi_qos_user_initiated));
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }
@@ -1635,7 +1635,7 @@ napi_value NormalizeUriAsync(
             NormalizeUriAsyncCompleteCB,
             static_cast<void *>(normalizeuriCB),
             &normalizeuriCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, normalizeuriCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, normalizeuriCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
     HILOG_INFO("%{public}s, asyncCallback end.", __func__);
@@ -1664,7 +1664,7 @@ napi_value NormalizeUriPromise(napi_env env, DAHelperNormalizeUriCB *normalizeur
             NormalizeUriPromiseCompleteCB,
             static_cast<void *>(normalizeuriCB),
             &normalizeuriCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, normalizeuriCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, normalizeuriCB->cbBase.asyncWork, napi_qos_user_initiated));
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }
@@ -1809,7 +1809,7 @@ napi_value DenormalizeUriAsync(
             DenormalizeUriAsyncCompleteCB,
             static_cast<void *>(denormalizeuriCB),
             &denormalizeuriCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, denormalizeuriCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, denormalizeuriCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
     HILOG_INFO("%{public}s, asyncCallback end.", __func__);
@@ -1838,7 +1838,7 @@ napi_value DenormalizeUriPromise(napi_env env, DAHelperDenormalizeUriCB *denorma
             DenormalizeUriPromiseCompleteCB,
             static_cast<void *>(denormalizeuriCB),
             &denormalizeuriCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, denormalizeuriCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, denormalizeuriCB->cbBase.asyncWork, napi_qos_user_initiated));
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }
@@ -2010,7 +2010,7 @@ napi_value DeleteAsync(napi_env env, napi_value *args, const size_t argCallback,
             DeleteAsyncCompleteCB,
             static_cast<void *>(deleteCB),
             &deleteCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, deleteCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, deleteCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
     HILOG_INFO("%{public}s, asyncCallback end.", __func__);
@@ -2039,7 +2039,7 @@ napi_value DeletePromise(napi_env env, DAHelperDeleteCB *deleteCB)
             DeletePromiseCompleteCB,
             static_cast<void *>(deleteCB),
             &deleteCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, deleteCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, deleteCB->cbBase.asyncWork, napi_qos_user_initiated));
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }
@@ -2198,7 +2198,7 @@ napi_value UpdateAsync(napi_env env, napi_value *args, const size_t argCallback,
             UpdateAsyncCompleteCB,
             static_cast<void *>(updateCB),
             &updateCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, updateCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, updateCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
     HILOG_INFO("%{public}s, asyncCallback end.", __func__);
@@ -2227,7 +2227,7 @@ napi_value UpdatePromise(napi_env env, DAHelperUpdateCB *updateCB)
             UpdatePromiseCompleteCB,
             static_cast<void *>(updateCB),
             &updateCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, updateCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, updateCB->cbBase.asyncWork, napi_qos_user_initiated));
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }
@@ -2359,7 +2359,7 @@ napi_value CallErrorAsync(napi_env env, napi_value *args, const size_t argCallba
 
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, CallErrorExecuteCB, CallErrorAsyncCompleteCB,
                        static_cast<void *>(errorCB), &errorCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, errorCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, errorCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
     HILOG_INFO("%{public}s, asyncCallback end.", __func__);
@@ -2382,7 +2382,7 @@ napi_value CallErrorPromise(napi_env env, DAHelperErrorCB *errorCB)
 
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, CallErrorExecuteCB, CallErrorPromiseCompleteCB,
                        static_cast<void *>(errorCB), &errorCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, errorCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, errorCB->cbBase.asyncWork, napi_qos_user_initiated));
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }
@@ -2801,7 +2801,7 @@ napi_value OpenFileAsync(napi_env env, napi_value *args, const size_t argCallbac
             OpenFileAsyncCompleteCB,
             static_cast<void *>(openFileCB),
             &openFileCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, openFileCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, openFileCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
     HILOG_INFO("%{public}s, asyncCallback end.", __func__);
@@ -2830,7 +2830,7 @@ napi_value OpenFilePromise(napi_env env, DAHelperOpenFileCB *openFileCB)
             OpenFilePromiseCompleteCB,
             static_cast<void *>(openFileCB),
             &openFileCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, openFileCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, openFileCB->cbBase.asyncWork, napi_qos_user_initiated));
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }

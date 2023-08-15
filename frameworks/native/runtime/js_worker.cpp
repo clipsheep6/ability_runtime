@@ -57,6 +57,7 @@ constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
 
 bool g_debugMode = false;
 bool g_jsFramework = false;
+std::mutex g_mutex;
 }
 
 void InitWorkerFunc(NativeEngine* nativeEngine)
@@ -219,6 +220,7 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
 
 sptr<IBundleMgr> AssetHelper::GetBundleMgrProxy()
 {
+    std::lock_guard<std::mutex> lock(g_mutex);
     if (bundleMgrProxy_ == nullptr) {
         auto systemAbilityManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         if (!systemAbilityManager) {

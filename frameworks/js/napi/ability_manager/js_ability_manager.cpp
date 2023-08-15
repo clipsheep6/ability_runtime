@@ -129,7 +129,7 @@ private:
 
         NativeValue* lastParam = (info.argc == 0) ? nullptr : info.argv[0];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("JsAbilityManager::OnGetAbilityRunningInfos",
+        AsyncTask::ScheduleHighQos("JsAbilityManager::OnGetAbilityRunningInfos",
             engine, CreateAsyncTaskWithLastParam(engine,
             lastParam, nullptr, std::move(complete), &result));
         return result;
@@ -172,7 +172,7 @@ private:
 
         NativeValue* lastParam = (info.argc == 1) ? nullptr : info.argv[1];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("JsAbilityManager::OnGetExtensionRunningInfos",
+        AsyncTask::ScheduleHighQos("JsAbilityManager::OnGetExtensionRunningInfos",
             engine, CreateAsyncTaskWithLastParam(engine,
             lastParam, nullptr, std::move(complete), &result));
         return result;
@@ -227,7 +227,7 @@ private:
 
         NativeValue* lastParam = (info.argc == 1) ? nullptr : info.argv[1];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("JsAbilityManager::OnGetExtensionRunningInfos",
+        AsyncTask::ScheduleHighQos("JsAbilityManager::OnGetExtensionRunningInfos",
             engine, CreateAsyncTaskWithLastParam(engine,
             lastParam, nullptr, std::move(complete), &result));
         return result;
@@ -256,7 +256,7 @@ private:
 
         NativeValue* lastParam = (info.argc == 0) ? nullptr : info.argv[0];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("JsAbilityManager::OnGetTopAbility",
+        AsyncTask::ScheduleHighQos("JsAbilityManager::OnGetTopAbility",
             engine, CreateAsyncTaskWithLastParam(engine,
             lastParam, nullptr, std::move(complete), &result));
         return result;
@@ -347,7 +347,7 @@ private:
 
         NativeValue* lastParam = (info.argc == ARGC_TWO) ? nullptr : info.argv[ARGC_TWO];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("JsAbilityManager::OnNotifySaveAsResult",
+        AsyncTask::ScheduleHighQos("JsAbilityManager::OnNotifySaveAsResult",
             engine, CreateAsyncTaskWithLastParam(engine,
             lastParam, std::move(execute), std::move(complete), &result));
         return result;

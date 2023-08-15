@@ -401,7 +401,7 @@ NativeValue *JsApplicationContextUtils::OnGetGroupDir(NativeEngine &engine, Nati
 
     NativeValue* lastParam = (info.argc == ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JsApplicationContextUtils::OnGetGroupDir",
+    AsyncTask::ScheduleHighQos("JsApplicationContextUtils::OnGetGroupDir",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -454,7 +454,7 @@ NativeValue *JsApplicationContextUtils::OnKillProcessBySelf(NativeEngine &engine
         };
     NativeValue* lastParam = (info.argc = ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JsApplicationContextUtils::OnkillProcessBySelf",
+    AsyncTask::ScheduleHighQos("JsApplicationContextUtils::OnkillProcessBySelf",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }

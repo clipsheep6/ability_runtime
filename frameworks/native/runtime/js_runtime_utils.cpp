@@ -175,6 +175,34 @@ void AsyncTask::Schedule(const std::string &name, NativeEngine& engine, std::uni
     }
 }
 
+void AsyncTask::ScheduleHighQos(const std::string &name, NativeEngine& engine, std::unique_ptr<AsyncTask>&& task)
+{
+    if (task && task->StartHighQos(name, engine)) {
+        task.release();
+    }
+}
+
+void AsyncTask::ScheduleLowQos(const std::string &name, NativeEngine& engine, std::unique_ptr<AsyncTask>&& task)
+{
+    if (task && task->StartLowQos(name, engine)) {
+        task.release();
+    }
+}
+
+void AsyncTask::ScheduleWithDefaultQos(const std::string &name,
+    NativeEngine& engine, std::unique_ptr<AsyncTask>&& task)
+{
+    if (task && task->StartWithDefaultQos(name, engine)) {
+        task.release();
+    }
+}
+
+bool AsyncTask::StartWithDefaultQos(const std::string &name, NativeEngine& engine)
+{
+    work_.reset(engine.CreateAsyncWork(name, Execute, Complete, this));
+    return work_->QueueWithQos(napi_qos_default);
+}
+
 void AsyncTask::Resolve(NativeEngine& engine, NativeValue* value)
 {
     HILOG_DEBUG("AsyncTask::Resolve is called");
@@ -290,6 +318,18 @@ bool AsyncTask::Start(const std::string &name, NativeEngine& engine)
 {
     work_.reset(engine.CreateAsyncWork(name, Execute, Complete, this));
     return work_->Queue();
+}
+
+bool AsyncTask::StartHighQos(const std::string &name, NativeEngine& engine)
+{
+    work_.reset(engine.CreateAsyncWork(name, Execute, Complete, this));
+    return work_->QueueWithQos(napi_qos_user_initiated);
+}
+
+bool AsyncTask::StartLowQos(const std::string &name, NativeEngine& engine)
+{
+    work_.reset(engine.CreateAsyncWork(name, Execute, Complete, this));
+    return work_->QueueWithQos(napi_qos_utility);
 }
 
 std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, NativeValue* lastParam,

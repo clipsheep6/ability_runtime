@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -291,6 +291,27 @@ HWTEST_F(MissionInfoMgrTest, DeleteAllMissionInfos_001, TestSize.Level1)
 {
     auto missionInfoMgr = std::make_shared<MissionInfoMgr>();
     EXPECT_FALSE(missionInfoMgr->DeleteAllMissionInfos(nullptr));
+}
+
+/*
+ * @tc.number    : DeleteAllMissionInfos_002
+ * @tc.name      : DeleteAllMissionInfos
+ * @tc.desc      : Test DeleteAllMissionInfos when mission is unclearable
+ */
+HWTEST_F(MissionInfoMgrTest, DeleteAllMissionInfos_002, TestSize.Level1)
+{
+    auto missionInfoMgr = std::make_shared<MissionInfoMgr>();
+    int userId = 0;
+    missionInfoMgr->Init(userId);
+    InnerMissionInfo missionInfo;
+    missionInfo.missionInfo.id = 1;
+    missionInfo.missionInfo.unclearable = true;
+    missionInfo.missionInfo.runningState = 0;
+    missionInfo.missionInfo.lockedState = false;
+    missionInfoMgr->missionInfoList_.push_back(missionInfo);
+    EXPECT_TRUE(missionInfoMgr->DeleteAllMissionInfos(nullptr));
+    EXPECT_EQ(missionInfoMgr->missionInfoList_.size(), 1);
+    missionInfoMgr->DeleteMissionInfo(missionInfo.missionInfo.id);
 }
 
 /*

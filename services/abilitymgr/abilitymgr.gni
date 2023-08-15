@@ -48,7 +48,6 @@ abilityms_files = [
   "src/pending_want_common_event.cpp",
   "src/ams_configuration_parameter.cpp",
   "src/image_info.cpp",
-  "src/mission_snapshot.cpp",
   "src/window_focus_changed_listener.cpp",
 
   # start ability handler
@@ -65,7 +64,6 @@ abilityms_files = [
   "src/inner_mission_info.cpp",
   "src/mission.cpp",
   "src/mission_data_storage.cpp",
-  "src/mission_info.cpp",
   "src/mission_info_mgr.cpp",
   "src/mission_listener_controller.cpp",
   "src/mission_listener_proxy.cpp",

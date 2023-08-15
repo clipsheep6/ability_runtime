@@ -141,7 +141,7 @@ private:
         NativeValue* lastParam =
             (info.argc == UPDATE_FORM_PARAMS_SIZE) ? nullptr : info.argv[info.argc - 1];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("JsFormExtensionContext::OnUpdateForm",
+        AsyncTask::ScheduleHighQos("JsFormExtensionContext::OnUpdateForm",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -194,7 +194,7 @@ private:
 
         NativeValue* lastParam = (info.argc == unwrapArgc) ? nullptr : info.argv[unwrapArgc];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("JsFormExtensionContext::OnStartAbility",
+        AsyncTask::ScheduleHighQos("JsFormExtensionContext::OnStartAbility",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -236,7 +236,7 @@ private:
                 task.Resolve(engine, engine.CreateUndefined());
             };
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("JSFormExtensionConnection::OnConnectAbility",
+        AsyncTask::ScheduleHighQos("JSFormExtensionConnection::OnConnectAbility",
             engine, CreateAsyncTaskWithLastParam(engine, nullptr, nullptr, std::move(complete), &result));
         return engine.CreateNumber(connectId);
     }

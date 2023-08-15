@@ -30,6 +30,7 @@
 namespace OHOS {
 namespace AAFwk {
 class SessionInfo;
+struct AbilityRunningInfo;
 struct MissionVaildResult;
 
 class UIAbilityLifecycleManager : public std::enable_shared_from_this<UIAbilityLifecycleManager> {
@@ -155,7 +156,7 @@ public:
      *
      * @param abilityRequest target ability request.
      */
-    int ResolveLocked(const AbilityRequest &abilityRequest);
+    int ResolveLocked(const AbilityRequest &abilityRequest, int32_t userId);
 
     /**
      * Call UIAbility by SCB.
@@ -214,9 +215,6 @@ public:
 
     void GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList);
 
-    int32_t IsValidMissionIds(const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results,
-        int32_t userId);
-
     bool PrepareTerminateAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void SetSessionHandler(const sptr<ISessionHandler> &handler);
 
@@ -228,11 +226,30 @@ public:
      */
     std::shared_ptr<AbilityRecord> GetAbilityRecordsById(int32_t sessionId) const;
 
+    void GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList,
+        int32_t targetUserId) const;
+
+    void OnAppStateChanged(const AppInfo &info, int32_t targetUserId);
+
+    void UninstallApp(const std::string &bundleName, int32_t uid, int32_t targetUserId);
+
+    void GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info, bool isPerm, int32_t userId) const;
+
+    #ifdef ABILITY_COMMAND_FOR_TEST
+    /**
+     * Block ability.
+     *
+     * @param abilityRecordId The Ability Record Id.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int BlockAbility(int abilityRecordId, int32_t targetUserId) const;
+    #endif
+
 private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
-    int32_t GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest) const;
-    int32_t GetReusedSpecifiedPersistentId(const AbilityRequest &abilityRequest) const;
-    int32_t GetReusedStandardPersistentId(const AbilityRequest &abilityRequest) const;
+    int32_t GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest, bool &reuse, int32_t userId) const;
+    int32_t GetReusedSpecifiedPersistentId(const AbilityRequest &abilityRequest, bool &reuse, int32_t userId) const;
+    int32_t GetReusedStandardPersistentId(const AbilityRequest &abilityRequest, bool &reuse, int32_t userId) const;
     void UpdateAbilityRecordLaunchReason(const AbilityRequest &abilityRequest,
         std::shared_ptr<AbilityRecord> &abilityRecord) const;
     void EraseAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
@@ -256,11 +273,11 @@ private:
     bool IsContainsAbilityInner(const sptr<IRemoteObject> &token) const;
     void ReportEventToSuspendManager(const AppExecFwk::AbilityInfo &abilityInfo) const;
     bool CheckProperties(const std::shared_ptr<AbilityRecord> &abilityRecord, const AbilityRequest &abilityRequest,
-        AppExecFwk::LaunchMode launchMode) const;
+        AppExecFwk::LaunchMode launchMode, int32_t userId) const;
     void NotifyAbilityToken(const sptr<IRemoteObject> &token, const AbilityRequest &abilityRequest) const;
 
     // byCall
-    int CallAbilityLocked(const AbilityRequest &abilityRequest);
+    int CallAbilityLocked(const AbilityRequest &abilityRequest, int32_t userId);
     sptr<SessionInfo> CreateSessionInfo(const AbilityRequest &abilityRequest) const;
     int NotifySCBPendingActivation(sptr<SessionInfo> &sessionInfo, const AbilityRequest &abilityRequest) const;
     int ResolveAbility(const std::shared_ptr<AbilityRecord> &targetAbility, const AbilityRequest &abilityRequest) const;

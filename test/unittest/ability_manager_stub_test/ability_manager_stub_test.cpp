@@ -2115,22 +2115,6 @@ HWTEST_F(AbilityManagerStubTest, HandleReportDrawnCompleted_001, TestSize.Level1
     EXPECT_EQ(res, ERR_INVALID_VALUE);
 }
 
-/*
- * Feature: AbilityManagerService
- * Function: UpdateMissionSnapShotInner
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService UpdateMissionSnapShotInner
- * EnvConditions: NA
- * CaseDescription: Verify the function UpdateMissionSnapShotInner is normal flow.
- */
-HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_UpdateMissionSnapShotInner_001, TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    auto res = stub_->UpdateMissionSnapShotInner(data, reply);
-    EXPECT_EQ(res, ERR_NULL_OBJECT);
-}
-
 #ifdef ABILITY_COMMAND_FOR_TEST
 /*
  * Feature: AbilityManagerService

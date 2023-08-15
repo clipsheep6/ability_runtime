@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,49 +13,35 @@
  * limitations under the License.
  */
 
-#include "updatemissionsnapshot_fuzzer.h"
+#include "abilitystubdumpsysstate_fuzzer.h"
 
 #include <cstddef>
 #include <cstdint>
 
-#include "ability_manager_client.h"
-#include "ability_record.h"
+#include "ability_manager_service.h"
+#include "message_parcel.h"
+#include "securec.h"
 
 using namespace OHOS::AAFwk;
-using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace {
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
 }
-sptr<Token> GetFuzzAbilityToken()
-{
-    sptr<Token> token = nullptr;
+const std::u16string ABILITYMGR_INTERFACE_TOKEN = u"ohos.aafwk.AbilityManager";
 
-    AbilityRequest abilityRequest;
-    abilityRequest.appInfo.bundleName = "com.example.fuzzTest";
-    abilityRequest.abilityInfo.name = "MainAbility";
-    abilityRequest.abilityInfo.type = AbilityType::DATA;
-    std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
-    if (abilityRecord) {
-        token = abilityRecord->GetToken();
-    }
-
-    return token;
-}
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
-    auto abilitymgr = AbilityManagerClient::GetInstance();
-    if (!abilitymgr) {
-        return false;
-    }
+    uint32_t code = static_cast<uint32_t>(AbilityManagerInterfaceCode::DUMPSYS_STATE);
 
-    // get token and connectCallback
-    sptr<IRemoteObject> token = GetFuzzAbilityToken();
-    if (token) {
-        abilitymgr->UpdateMissionSnapShot(token);
-    }
+    MessageParcel parcel;
+    parcel.WriteInterfaceToken(ABILITYMGR_INTERFACE_TOKEN);
+    parcel.WriteBuffer(data, size);
+    parcel.RewindRead(0);
+    MessageParcel reply;
+    MessageOption option;
+    DelayedSingleton<AbilityManagerService>::GetInstance()->OnRemoteRequest(code, parcel, reply, option);
 
     return true;
 }
@@ -75,7 +61,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         return 0;
     }
 
-    char* ch = (char*)malloc(size + 1);
+    char* ch = static_cast<char*>(malloc(size + 1));
     if (ch == nullptr) {
         std::cout << "malloc failed." << std::endl;
         return 0;

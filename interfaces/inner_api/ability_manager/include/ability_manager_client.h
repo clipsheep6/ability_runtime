@@ -979,12 +979,6 @@ public:
     ErrCode DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken);
 
     /**
-     * Called to update mission snapshot.
-     * @param token The target ability.
-     */
-    void UpdateMissionSnapShot(const sptr<IRemoteObject>& token);
-
-    /**
      * @brief Enable recover ability.
      *
      * @param token Ability identify.

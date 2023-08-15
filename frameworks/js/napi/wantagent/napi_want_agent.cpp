@@ -76,7 +76,7 @@ NativeValue* RetErrMsg(NativeEngine &engine, NativeValue* lastParam, int32_t err
     };
 
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("RetErrMsg",
+    AsyncTask::ScheduleHighQos("RetErrMsg",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
 
     return result;
@@ -381,7 +381,7 @@ NativeValue* JsWantAgent::OnEqual(NativeEngine &engine, NativeCallbackInfo &info
         };
 
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JsWantAgent::OnEqual",
+    AsyncTask::ScheduleHighQos("JsWantAgent::OnEqual",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -423,7 +423,7 @@ NativeValue* JsWantAgent::OnGetWant(NativeEngine &engine, NativeCallbackInfo &in
     };
 
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JsWantAgent::OnGetWant",
+    AsyncTask::ScheduleHighQos("JsWantAgent::OnGetWant",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -460,7 +460,7 @@ NativeValue* JsWantAgent::OnGetOperationType(NativeEngine &engine, NativeCallbac
     };
 
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JsWantAgent::OnGetOperationType",
+    AsyncTask::ScheduleHighQos("JsWantAgent::OnGetOperationType",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -521,7 +521,7 @@ NativeValue* JsWantAgent::OnGetBundleName(NativeEngine &engine, NativeCallbackIn
     };
 
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JsWantAgent::OnGetBundleName",
+    AsyncTask::ScheduleHighQos("JsWantAgent::OnGetBundleName",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -582,7 +582,7 @@ NativeValue* JsWantAgent::OnGetUid(NativeEngine &engine, NativeCallbackInfo &inf
 #endif
     };
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JsWantAgent::OnGetUid",
+    AsyncTask::ScheduleHighQos("JsWantAgent::OnGetUid",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -918,7 +918,7 @@ NativeValue* JsWantAgent::OnGetWantAgent(NativeEngine &engine, NativeCallbackInf
     };
 
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JsWantAgent::OnGetWantAgent",
+    AsyncTask::ScheduleHighQos("JsWantAgent::OnGetWantAgent",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -966,7 +966,7 @@ NativeValue* JsWantAgent::OnNapiGetWant(NativeEngine &engine, NativeCallbackInfo
     };
     NativeValue* lastParam = (info.argc >= ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JsWantAgent::OnNapiGetWant",
+    AsyncTask::ScheduleHighQos("JsWantAgent::OnNapiGetWant",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -1050,7 +1050,7 @@ NativeValue* JsWantAgent::OnNapiGetWantAgent(NativeEngine &engine, NativeCallbac
 
     NativeValue* lastParam = (info.argc >= ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JsWantAgent::OnNapiGetWantAgent",
+    AsyncTask::ScheduleHighQos("JsWantAgent::OnNapiGetWantAgent",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -1093,7 +1093,7 @@ NativeValue* JsWantAgent::OnNapiGetOperationType(NativeEngine &engine, NativeCal
 
     NativeValue* lastParam = (info.argc >= ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JsWantAgent::OnNapiGetOperationType",
+    AsyncTask::ScheduleHighQos("JsWantAgent::OnNapiGetOperationType",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }

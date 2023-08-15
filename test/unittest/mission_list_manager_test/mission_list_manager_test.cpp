@@ -3370,46 +3370,6 @@ HWTEST_F(MissionListManagerTest, SetMissionLockedState_004, TestSize.Level1)
 
 /*
  * Feature: MissionListManager
- * Function: UpdateSnapShot
- * SubFunction: NA
- * FunctionPoints: MissionListManager UpdateSnapShot
- * EnvConditions: NA
- * CaseDescription: Verify UpdateSnapShot
- */
-HWTEST_F(MissionListManagerTest, UpdateSnapShot_001, TestSize.Level1)
-{
-    int userId = 3;
-    auto missionListManager = std::make_shared<MissionListManager>(userId);
-    std::shared_ptr<AbilityRecord> abilityRecord1 = InitAbilityRecord();
-    std::shared_ptr<AbilityRecord> abilityRecord2 = InitAbilityRecord();
-    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
-    missionListManager->terminateAbilityList_.push_back(abilityRecord2);
-    missionListManager->defaultSingleList_ = missionList;
-    missionListManager->defaultStandardList_ = missionList;
-    missionListManager->UpdateSnapShot(abilityRecord1->GetToken());
-    missionListManager.reset();
-}
-
-/*
- * Feature: MissionListManager
- * Function: UpdateSnapShot
- * SubFunction: NA
- * FunctionPoints: MissionListManager UpdateSnapShot
- * EnvConditions: NA
- * CaseDescription: Verify UpdateSnapShot
- */
-HWTEST_F(MissionListManagerTest, UpdateSnapShot_002, TestSize.Level1)
-{
-    int userId = 3;
-    auto missionListManager = std::make_shared<MissionListManager>(userId);
-    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
-    missionListManager->terminateAbilityList_.push_back(abilityRecord);
-    missionListManager->UpdateSnapShot(abilityRecord->GetToken());
-    missionListManager.reset();
-}
-
-/*
- * Feature: MissionListManager
  * Function: MoveToBackgroundTask
  * SubFunction: NA
  * FunctionPoints: MissionListManager MoveToBackgroundTask
