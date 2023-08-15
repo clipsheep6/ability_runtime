@@ -18,6 +18,10 @@
 
 #include "extension_base.h"
 
+#include "ability_lifecycle_executor.h"
+#include "ability_lifecycle_interface.h"
+#include "ability_transaction_callback_info.h"
+
 namespace OHOS {
 namespace AbilityRuntime {
 class UIExtensionContext;
