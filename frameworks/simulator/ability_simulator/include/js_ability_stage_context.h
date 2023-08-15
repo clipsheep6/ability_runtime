@@ -27,7 +27,7 @@ public:
     explicit JsAbilityStageContext(const std::shared_ptr<Context> &context) : context_(context) {}
     ~JsAbilityStageContext() = default;
 
-    static void ConfigurationUpdated(NativeEngine* engine, std::shared_ptr<NativeReference> &jsContext,
+    static void ConfigurationUpdated(NativeEngine *engine, std::shared_ptr<NativeReference> &jsContext,
         const std::shared_ptr<AppExecFwk::Configuration> &config);
 
     std::shared_ptr<Context> GetContext()

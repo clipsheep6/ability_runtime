@@ -21,18 +21,18 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
-constexpr const char* CONTEXT_DISTRIBUTEDFILES("distributedfiles");
-constexpr const char* CONTEXT_FILE_SEPARATOR("/");
-constexpr const char* CONTEXT_FILE_OPPOSITE_SEPARATOR("\\");
-constexpr const char* CONTEXT_BASE("base");
-constexpr const char* CONTEXT_CACHE("cache");
-constexpr const char* CONTEXT_PREFERENCES("preferences");
-constexpr const char* CONTEXT_DATABASE("database");
-constexpr const char* CONTEXT_TEMP("temp");
-constexpr const char* CONTEXT_FILES("files");
-constexpr const char* CONTEXT_HAPS("haps");
-constexpr const char* CONTEXT_ASSET("asset");
-constexpr const char* CONTEXT_ELS[] = {"el1", "el2"};
+constexpr const char *CONTEXT_DISTRIBUTEDFILES("distributedfiles");
+constexpr const char *CONTEXT_FILE_SEPARATOR("/");
+constexpr const char *CONTEXT_FILE_OPPOSITE_SEPARATOR("\\");
+constexpr const char *CONTEXT_BASE("base");
+constexpr const char *CONTEXT_CACHE("cache");
+constexpr const char *CONTEXT_PREFERENCES("preferences");
+constexpr const char *CONTEXT_DATABASE("database");
+constexpr const char *CONTEXT_TEMP("temp");
+constexpr const char *CONTEXT_FILES("files");
+constexpr const char *CONTEXT_HAPS("haps");
+constexpr const char *CONTEXT_ASSET("asset");
+constexpr const char *CONTEXT_ELS[] = {"el1", "el2"};
 constexpr int DIR_DEFAULT_PERM = 0770;
 }
 std::shared_ptr<AppExecFwk::Configuration> AbilityStageContext::GetConfiguration()
@@ -55,6 +55,16 @@ std::shared_ptr<AppExecFwk::HapModuleInfo> AbilityStageContext::GetHapModuleInfo
     return hapModuleInfo_;
 }
 
+void AbilityStageContext::SetApplicationInfo(const std::shared_ptr<AppExecFwk::ApplicationInfo> &info)
+{
+    applicationInfo_ = info;
+}
+
+void AbilityStageContext::SetHapModuleInfo(const std::shared_ptr<AppExecFwk::HapModuleInfo> &info)
+{
+    hapModuleInfo_ = info;
+}
+
 Options AbilityStageContext::GetOptions()
 {
     return options_;
@@ -67,18 +77,6 @@ void AbilityStageContext::SetOptions(const Options &options)
     auto pos = options_.previewPath.find(CONTEXT_FILE_SEPARATOR);
     if (pos == std::string::npos) {
         fileSeparator_ = CONTEXT_FILE_OPPOSITE_SEPARATOR;
-    }
-
-    applicationInfo_ = std::make_shared<AppExecFwk::ApplicationInfo>(options.applicationInfo);
-    if (applicationInfo_ != nullptr) {
-        applicationInfo_->name = options_.bundleName;
-    }
-    hapModuleInfo_ = std::make_shared<AppExecFwk::HapModuleInfo>(options.hapModuleInfo);
-    if (hapModuleInfo_ != nullptr) {
-        for (auto &ability : hapModuleInfo_->abilityInfos) {
-            ability.bundleName = options_.bundleName;
-            ability.moduleName = options_.moduleName;
-        }
     }
 }
 

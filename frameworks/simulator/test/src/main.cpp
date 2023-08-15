@@ -14,6 +14,7 @@
  */
 
 #include <cstdint>
+#include <fstream>
 #include <iostream>
 
 #include "options.h"
@@ -81,20 +82,7 @@ int32_t main(int32_t argc, const char *argv[])
     options.targetVersion = atoi(argv[PARAM_TWENTYTHREE]);
     options.releaseType = argv[PARAM_TWENTYFOUR];
     options.enablePartialUpdate = atoi(argv[PARAM_TWENTYFIVE]);
-    options.previewPath = argv[PARAM_TWENTYEIGHT];
-
-    OHOS::AppExecFwk::HapModuleInfo hapModuleInfo;
-    hapModuleInfo.name = "entry";
-    hapModuleInfo.srcEntrance = argv[PARAM_TWENTYSEVEN];
-    options.hapModuleInfo = hapModuleInfo;
-
-    OHOS::AppExecFwk::ApplicationInfo appInfo;
-    appInfo.name = "com.test.simulator";
-    options.applicationInfo = appInfo;
-
-    OHOS::AppExecFwk::AbilityInfo abilityInfo;
-    abilityInfo.name = "EntryAbility";
-    options.abilityInfo = abilityInfo;
+    options.previewPath = argv[PARAM_TWENTYSEVEN];
 
     OHOS::AppExecFwk::Configuration config;
     config.AddItem(OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, "testlanguage");
@@ -102,6 +90,22 @@ int32_t main(int32_t argc, const char *argv[])
     config.AddItem(OHOS::AppExecFwk::ConfigurationInner::APPLICATION_DIRECTION, "vertical");
     auto configuration = std::make_shared<OHOS::AppExecFwk::Configuration>(config);
     options.configuration = configuration;
+
+    options.moduleJsonPath = argv[PARAM_TWENTYEIGHT];
+    std::ifstream stream(options.moduleJsonPath, std::ios::ate | std::ios::binary);
+    if (!stream.is_open()) {
+        std::cout << "Failed to open: " << options.moduleJsonPath << std::endl;
+        return -1;
+    }
+
+    size_t len = stream.tellg();
+    std::cout << "module json len: " << len << std::endl;
+    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(len);
+    stream.seekg(0);
+    stream.read(reinterpret_cast<char*>(buffer.get()), len);
+    stream.close();
+    auto buf = buffer.release();
+    options.moduleJsonBuffer.assign(buf, buf + len);
 
     auto simulator = OHOS::AbilityRuntime::Simulator::Create(options);
     if (!simulator) {
