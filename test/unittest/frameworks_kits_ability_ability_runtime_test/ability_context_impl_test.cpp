@@ -18,12 +18,13 @@
 #include "ability_context_impl.h"
 #define protected public
 #include "ability_loader.h"
+#include "ability_manager_client.h"
 #include "ability_thread.h"
 #include "iability_callback.h"
 #include "mock_context.h"
 #include "mock_serviceability_manager_service.h"
-#include "system_ability_definition.h"
 #include "sys_mgr_client.h"
+#include "system_ability_definition.h"
 
 namespace OHOS {
 namespace Ace {
@@ -1130,17 +1131,6 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ClearFailedCallConnection_
     context_->localCallContainer_ = std::make_shared<LocalCallContainer>();
     context_->ClearFailedCallConnection(nullptr);
     EXPECT_NE(context_->localCallContainer_, nullptr);
-}
-
-/**
- * @tc.number: Ability_Context_Impl_SetWeakSessionToken_0100
- * @tc.name: SetWeakSessionToken
- * @tc.desc: Set weak sessionToken
- */
-HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_SetWeakSessionToken_0100, Function | MediumTest | Level1)
-{
-    context_->SetWeakSessionToken(nullptr);
-    EXPECT_EQ(context_->sessionToken_, nullptr);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

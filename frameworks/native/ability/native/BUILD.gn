@@ -237,7 +237,6 @@ ohos_shared_library("abilitykit_native") {
     ":extension_blocklist_config",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
-    "${ability_runtime_innerkits_path}/ability_manager:mission_info",
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_innerkits_path}/napi_base_context:napi_base_context",
@@ -405,11 +404,15 @@ ohos_shared_library("ability_thread") {
   include_dirs =
       [ "${ability_runtime_path}/interfaces/kits/native/ability/native" ]
 
-  sources =
-      [ "${ability_runtime_native_path}/ability/native/ability_thread.cpp" ]
+  sources = [
+    "${ability_runtime_native_path}/ability/native/ability_thread.cpp",
+    "${ability_runtime_native_path}/ability/native/fa_ability_thread.cpp",
+    "${ability_runtime_native_path}/ability/native/extension_ability_thread.cpp",
+  ]
 
   deps = [
     ":abilitykit_native",
+    ":extensionkit_native",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
     "${ability_runtime_native_path}/ability:ability_context_native",
@@ -753,9 +756,7 @@ group("extension_blocklist_config") {
 
 group("extension_module") {
   deps = [
-    ":action_extension_module",
     ":service_extension_module",
-    ":share_extension_module",
     ":ui_extension_module",
   ]
 
@@ -792,12 +793,10 @@ ohos_shared_library("ui_extension") {
 
   external_deps = [
     "ability_base:want",
-    "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
-    "ipc:ipc_core",
     "ipc:ipc_napi_common",
     "napi:ace_napi",
   ]
@@ -819,144 +818,6 @@ ohos_shared_library("ui_extension_module") {
 
   deps = [
     ":ui_extension",
-    "${ability_runtime_innerkits_path}/runtime:runtime",
-  ]
-
-  external_deps = [
-    "ability_base:configuration",
-    "ability_base:session_info",
-    "ability_base:want",
-    "bundle_framework:appexecfwk_core",
-    "hilog:libhilog",
-    "napi:ace_napi",
-  ]
-
-  relative_install_dir = "extensionability/"
-  subsystem_name = "ability"
-  part_name = "ability_runtime"
-}
-
-config("share_extension_config") {
-  visibility = [ ":*" ]
-  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/share_extension_ability" ]
-}
-
-ohos_shared_library("share_extension") {
-  configs = [ ":share_extension_config" ]
-
-  sources = [
-    "${ability_runtime_native_path}/ability/native/share_extension_ability/js_share_extension.cpp",
-    "${ability_runtime_native_path}/ability/native/share_extension_ability/share_extension.cpp",
-  ]
-
-  deps = [
-    ":abilitykit_native",
-    ":ui_extension",
-    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
-    "${ability_runtime_innerkits_path}/runtime:runtime",
-    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
-    "${ability_runtime_native_path}/ability:ability_context_native",
-    "${ability_runtime_native_path}/ability/native:ability_business_error",
-    "${ability_runtime_native_path}/appkit:app_context",
-  ]
-
-  external_deps = [
-    "ability_base:want",
-    "c_utils:utils",
-    "eventhandler:libeventhandler",
-    "hilog:libhilog",
-    "hitrace:hitrace_meter",
-    "ipc:ipc_napi_common",
-    "napi:ace_napi",
-  ]
-
-  if (ability_runtime_graphics) {
-    external_deps += [ "window_manager:libwm" ]
-  }
-
-  subsystem_name = "ability"
-  part_name = "ability_runtime"
-}
-
-config("action_extension_config") {
-  visibility = [ ":*" ]
-  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/action_extension_ability" ]
-}
-
-ohos_shared_library("action_extension") {
-  configs = [ ":action_extension_config" ]
-
-  sources = [
-    "${ability_runtime_native_path}/ability/native/action_extension_ability/action_extension.cpp",
-    "${ability_runtime_native_path}/ability/native/action_extension_ability/js_action_extension.cpp",
-  ]
-
-  deps = [
-    ":abilitykit_native",
-    ":ui_extension",
-    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
-    "${ability_runtime_innerkits_path}/runtime:runtime",
-    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
-    "${ability_runtime_native_path}/ability:ability_context_native",
-    "${ability_runtime_native_path}/ability/native:ability_business_error",
-    "${ability_runtime_native_path}/appkit:app_context",
-  ]
-
-  external_deps = [
-    "ability_base:want",
-    "c_utils:utils",
-    "eventhandler:libeventhandler",
-    "hilog:libhilog",
-    "hitrace:hitrace_meter",
-    "ipc:ipc_napi_common",
-    "napi:ace_napi",
-  ]
-
-  if (ability_runtime_graphics) {
-    external_deps += [ "window_manager:libwm" ]
-  }
-
-  subsystem_name = "ability"
-  part_name = "ability_runtime"
-}
-
-ohos_shared_library("share_extension_module") {
-  sources = [ "${ability_runtime_native_path}/ability/native/share_extension_ability/share_extension_module_loader.cpp" ]
-
-  configs = [
-    ":ability_config",
-    ":share_extension_config",
-  ]
-
-  deps = [
-    ":share_extension",
-    "${ability_runtime_innerkits_path}/runtime:runtime",
-  ]
-
-  external_deps = [
-    "ability_base:configuration",
-    "ability_base:session_info",
-    "ability_base:want",
-    "bundle_framework:appexecfwk_core",
-    "hilog:libhilog",
-    "napi:ace_napi",
-  ]
-
-  relative_install_dir = "extensionability/"
-  subsystem_name = "ability"
-  part_name = "ability_runtime"
-}
-
-ohos_shared_library("action_extension_module") {
-  sources = [ "${ability_runtime_native_path}/ability/native/action_extension_ability/action_extension_module_loader.cpp" ]
-
-  configs = [
-    ":ability_config",
-    ":action_extension_config",
-  ]
-
-  deps = [
-    ":action_extension",
     "${ability_runtime_innerkits_path}/runtime:runtime",
   ]
 
