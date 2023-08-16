@@ -23,6 +23,7 @@
 #include "ability_connect_manager.h"
 #include "ability_connection.h"
 #include "ability_start_setting.h"
+#include "recovery_param.h"
 #undef private
 #undef protected
 
@@ -2479,6 +2480,27 @@ HWTEST_F(AbilityManagerServiceTest, GetMissionSnapshot_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
+ * Function: UpdateMissionSnapShot
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService UpdateMissionSnapShot
+ */
+HWTEST_F(AbilityManagerServiceTest, UpdateMissionSnapShot_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest UpdateMissionSnapShot_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    auto pixelMap = std::shared_ptr<Media::PixelMap>();
+    MissionSnapshot missionSnapshot;
+    ASSERT_NE(abilityMs_, nullptr);
+    abilityMs_->UpdateMissionSnapShot(nullptr, pixelMap);
+
+    MyFlag::flag_ = 1;
+    abilityMs_->UpdateMissionSnapShot(nullptr, pixelMap);
+    MyFlag::flag_ = 0;
+    HILOG_INFO("AbilityManagerServiceTest UpdateMissionSnapShot_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: EnableRecoverAbility
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService EnableRecoverAbility
@@ -3712,6 +3734,23 @@ HWTEST_F(AbilityManagerServiceTest, StartAbilityInnerFreeInstall_006, TestSize.L
     abilityMs_->OnStop();
     EXPECT_EQ(ERR_OK, result);
     HILOG_INFO("AbilityManagerServiceTest StartAbilityInnerFreeInstall_006 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: AppRecoverKill
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService AppRecoverKill
+ * @tc.require: AR000I7F9D
+ */
+HWTEST_F(AbilityManagerServiceTest, AppRecoverKill_001, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    pid_t pid = 8145;
+    abilityMs_->AppRecoverKill(pid, StateReason::CPP_CRASH);
+    abilityMs_->AppRecoverKill(pid, StateReason::JS_ERROR);
+    abilityMs_->AppRecoverKill(pid, StateReason::LIFECYCLE);
+    abilityMs_->AppRecoverKill(pid, StateReason::APP_FREEZE);
 }
 }  // namespace AAFwk
 }  // namespace OHOS
