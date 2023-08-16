@@ -6514,7 +6514,7 @@ int AbilityManagerService::FreeInstallAbilityFromRemote(const Want &want, const 
     return freeInstallManager_->FreeInstallAbilityFromRemote(want, callback, validUserId, requestCode);
 }
 
-AppExecFwk::ElementName AbilityManagerService::GetTopAbility()
+AppExecFwk::ElementName AbilityManagerService::GetTopAbility(bool isNeedLocalDeviceId)
 {
     HILOG_DEBUG("%{public}s start.", __func__);
     AppExecFwk::ElementName elementName = {};
@@ -6536,15 +6536,15 @@ AppExecFwk::ElementName AbilityManagerService::GetTopAbility()
     elementName = abilityRecord->GetWant().GetElement();
     bool isDeviceEmpty = elementName.GetDeviceID().empty();
     std::string localDeviceId;
-    bool hasLocalDeviceId = GetLocalDeviceId(localDeviceId);
-    if (isDeviceEmpty && hasLocalDeviceId) {
+    if (isDeviceEmpty && isNeedLocalDeviceId && GetLocalDeviceId(localDeviceId)) {
         elementName.SetDeviceID(localDeviceId);
     }
 #endif
     return elementName;
 }
 
-AppExecFwk::ElementName AbilityManagerService::GetElementNameByToken(const sptr<IRemoteObject> &token)
+AppExecFwk::ElementName AbilityManagerService::GetElementNameByToken(const sptr<IRemoteObject> &token,
+    bool isNeedLocalDeviceId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("%{public}s start.", __func__);
@@ -6562,8 +6562,7 @@ AppExecFwk::ElementName AbilityManagerService::GetElementNameByToken(const sptr<
     elementName = abilityRecord->GetWant().GetElement();
     bool isDeviceEmpty = elementName.GetDeviceID().empty();
     std::string localDeviceId;
-    bool hasLocalDeviceId = GetLocalDeviceId(localDeviceId);
-    if (isDeviceEmpty && hasLocalDeviceId) {
+    if (isDeviceEmpty && isNeedLocalDeviceId && GetLocalDeviceId(localDeviceId)) {
         elementName.SetDeviceID(localDeviceId);
     }
 #endif
