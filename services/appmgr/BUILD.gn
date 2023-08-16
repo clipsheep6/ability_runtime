@@ -106,6 +106,10 @@ ohos_shared_library("libappms") {
     external_deps += [ "netmanager_base:socket_permission" ]
   }
 
+  if (resource_schedule_service_enable) {
+    external_deps += [ "resource_schedule_service:ressched_client" ]
+  }
+
   if (ability_runtime_graphics) {
     defines += [ "SUPPORT_GRAPHICS" ]
     deps += []
@@ -117,6 +121,10 @@ ohos_shared_library("libappms") {
 
   if (background_task_mgr_continuous_task_enable) {
     defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
+  }
+
+  if (resource_schedule_service_enable) {
+    defines += [ "RESOURCE_SCHEDULE_SERVICE_ENABLE" ]
   }
 
   if (is_asan) {

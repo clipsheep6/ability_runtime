@@ -93,7 +93,7 @@ public:
     bool CheckObsPermission();
 
     /**
-     * @description:  Provide operating system AbilityTransaction information to
+     * @description: Provide operating system AbilityTransaction information to
      * the observer
      * @param want Indicates the structure containing Transaction information
      * about the ability.
@@ -184,7 +184,7 @@ public:
      * @param mode Indicates the file open mode, which can be "r" for read-only access, "w" for write-only access
      * (erasing whatever data is currently in the file), "wt" for write access that truncates any existing file,
      * "wa" for write-only access to append to any existing data, "rw" for read and write access on any existing data,
-     *  or "rwt" for read and write access that truncates any existing file.
+     * or "rwt" for read and write access that truncates any existing file.
      * @return Returns the file descriptor.
      */
     int32_t OpenFile(const Uri &uri, const std::string &mode) override;
@@ -204,7 +204,7 @@ public:
     /**
      * @brief Inserts a single data record into the database.
      * @param uri Indicates the path of the data to operate.
-     * @param value  Indicates the data record to insert. If this parameter is null, a blank row will be inserted.
+     * @param value Indicates the data record to insert. If this parameter is null, a blank row will be inserted.
      * @return Returns the index of the inserted data record.
      */
     int32_t Insert(const Uri &uri, const NativeRdb::ValuesBucket &value) override;

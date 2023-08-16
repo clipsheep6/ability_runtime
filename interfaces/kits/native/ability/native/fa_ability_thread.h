@@ -185,13 +185,13 @@ public:
      * @param mode Indicates the file open mode, which can be "r" for read-only access, "w" for write-only access
      * (erasing whatever data is currently in the file), "wt" for write access that truncates any existing file,
      * "wa" for write-only access to append to any existing data, "rw" for read and write access on any existing data,
-     *  or "rwt" for read and write access that truncates any existing file.
+     * or "rwt" for read and write access that truncates any existing file.
      * @return Returns the file descriptor.
      */
     int32_t OpenFile(const Uri &uri, const std::string &mode) override;
 
     /**
-     * @brief This is like openFile, open a file that need to be able to return sub-sections of files£¬often assets
+     * @brief This is like openFile, open a file that need to be able to return sub-sections of filesï¿½ï¿½often assets
      * inside of their .hap.
      * @param uri Indicates the path of the file to open.
      * @param mode Indicates the file open mode, which can be "r" for read-only access, "w" for write-only access
@@ -205,13 +205,13 @@ public:
     /**
      * @brief Inserts a single data record into the database.
      * @param uri Indicates the path of the data to operate.
-     * @param value  Indicates the data record to insert. If this parameter is null, a blank row will be inserted.
+     * @param value Indicates the data record to insert. If this parameter is null, a blank row will be inserted.
      * @return Returns the index of the inserted data record.
      */
     int32_t Insert(const Uri &uri, const NativeRdb::ValuesBucket &value) override;
 
     /**
-     * @description:  Calls the method of the Data ability.
+     * @description: Calls the method of the Data ability.
      * @param method Indicates the method to call
      * @param arg Indicates the parameter of the String type.
      * @param pacMap Defines a PacMap object for storing a series of values.
@@ -392,32 +392,32 @@ private:
         const std::shared_ptr<AppExecFwk::AbilityContext> &abilityObject);
 
     /**
-     * @description:  Handle the life cycle of Ability.
-     * @param want  Indicates the structure containing lifecycle information about the ability.
-     * @param lifeCycleStateInfo  Indicates the lifeCycleStateInfo.
-     * @param sessionInfo  Indicates the sessionInfo.
+     * @description: Handle the life cycle of Ability.
+     * @param want Indicates the structure containing lifecycle information about the ability.
+     * @param lifeCycleStateInfo Indicates the lifeCycleStateInfo.
+     * @param sessionInfo Indicates the sessionInfo.
      */
     void HandleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
         sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr);
 
     /**
-     * @description:  Handle the life cycle of Extension.
-     * @param want  Indicates the structure containing lifecycle information about the extension.
-     * @param lifeCycleStateInfo  Indicates the lifeCycleStateInfo.
-     * @param sessionInfo  Indicates the sessionInfo.
+     * @description: Handle the life cycle of Extension.
+     * @param want Indicates the structure containing lifecycle information about the extension.
+     * @param lifeCycleStateInfo Indicates the lifeCycleStateInfo.
+     * @param sessionInfo Indicates the sessionInfo.
      */
     void HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
         sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr);
 
     /**
-     * @description:  Handle the current connection of Ability.
-     * @param want  Indicates the structure containing connection information about the ability.
+     * @description: Handle the current connection of Ability.
+     * @param want Indicates the structure containing connection information about the ability.
      */
     void HandleConnectAbility(const Want &want);
 
     /**
-     * @description:  Handle the current disconnection of Ability.
-     * @param want  Indicates the structure containing connection information about the ability.
+     * @description: Handle the current disconnection of Ability.
+     * @param want Indicates the structure containing connection information about the ability.
      */
     void HandleDisconnectAbility(const Want &want);
 
@@ -433,8 +433,8 @@ private:
     void HandleCommandAbility(const Want &want, bool restart, int32_t startId);
 
     /**
-     * @description:  Handle the current connection of Extension.
-     * @param want  Indicates the structure containing connection information about the extension.
+     * @description: Handle the current connection of Extension.
+     * @param want Indicates the structure containing connection information about the extension.
      */
     void HandleConnectExtension(const Want &want);
 
@@ -466,7 +466,7 @@ private:
 
     /**
      * @description: Handle the restoreAbility state.
-     * @param state  Indicates save ability state used to dispatchRestoreAbilityState.
+     * @param state Indicates save ability state used to dispatchRestoreAbilityState.
      */
     void HandleRestoreAbilityState(const AppExecFwk::PacMap &state);
 

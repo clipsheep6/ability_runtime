@@ -86,6 +86,10 @@ HWTEST_F(UIExtensionUtilsTest, IsWindowExtension_0100, TestSize.Level0)
     extensionAbilityType = AppExecFwk::ExtensionAbilityType::WINDOW;
     result = UIExtensionUtils::IsWindowExtension(extensionAbilityType);
     EXPECT_TRUE(result);
+
+    extensionAbilityType = AppExecFwk::ExtensionAbilityType::SHARE;
+    result = UIExtensionUtils::IsUIExtension(extensionAbilityType);
+    EXPECT_TRUE(result);
 }
 }  // namespace AAFwk
 }  // namespace OHOS
