@@ -32,7 +32,7 @@ void AbilityThread::AbilityThreadMain(std::shared_ptr<OHOSApplication> &applicat
     HILOG_DEBUG("begin");
     sptr<AbilityThread> thread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     if (thread == nullptr) {
-        HILOG_ERROR("thread is nullptr.");
+        HILOG_ERROR("thread is nullptr");
         return;
     }
     thread->Attach(application, abilityRecord, mainRunner, stageContext);
@@ -47,7 +47,7 @@ void AbilityThread::AbilityThreadMain(std::shared_ptr<OHOSApplication> &applicat
     HILOG_DEBUG("begin");
     sptr<AbilityThread> thread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     if (thread == nullptr) {
-        HILOG_ERROR("thread is nullptr.");
+        HILOG_ERROR("thread is nullptr");
         return;
     }
     thread->Attach(application, abilityRecord, stageContext);
