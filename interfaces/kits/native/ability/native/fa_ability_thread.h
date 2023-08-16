@@ -44,7 +44,7 @@ public:
     ~FAAbilityThread() override;
 
     /**
-     * @description: Attach The ability thread to the main process.
+     * @brief: Attach The ability thread to the main process.
      * @param application Indicates the main process.
      * @param abilityRecord current running ability record
      * @param mainRunner The runner which main_thread holds.
@@ -56,7 +56,7 @@ public:
         const std::shared_ptr<Context> &appContext) override;
 
     /**
-     * @description: Attach The ability thread to the main process.
+     * @brief: Attach The ability thread to the main process.
      * @param application Indicates the main process.
      * @param abilityRecord current running ability record
      * @param mainRunner The runner which main_thread holds.
@@ -66,7 +66,7 @@ public:
         const std::shared_ptr<AppExecFwk::EventRunner> &mainRunner);
 
     /**
-     * @description: Attach The ability thread to the main process.
+     * @brief: Attach The ability thread to the main process.
      * @param application Indicates the main process.
      * @param abilityRecord current running ability record
      */
@@ -74,13 +74,13 @@ public:
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord);
 
     /**
-     * @description: Init extension Ability flag.
+     * @brief: Init extension Ability flag.
      * @param abilityRecord current running ability record
      */
     void InitExtensionFlag(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord);
 
     /**
-     * @description: Attach The ability thread to the main process.
+     * @brief: Attach The ability thread to the main process.
      * @param application Indicates the main process.
      * @param abilityRecord current running ability record
      * @param appContext the AbilityRuntime context
@@ -90,7 +90,7 @@ public:
         const std::shared_ptr<Context> &appContext) override;
 
     /**
-     * @description: Provide operating system AbilityTransaction information to the observer
+     * @brief: Provide operating system AbilityTransaction information to the observer
      * @param want Indicates the structure containing Transaction information about the ability.
      * @param targetState Indicates the lifecycle state.
      * @param sessionInfo Indicates the session info.
@@ -99,25 +99,25 @@ public:
         sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr) override;
 
     /**
-     * @description: Provide operating system ShareData information to the observer
+     * @brief: Provide operating system ShareData information to the observer
      * @param requestCode Indicates the Ability request code.
      */
     void ScheduleShareData(const int32_t &requestCode) override;
 
     /**
-     * @description: Provide operating system ConnectAbility information to the observer
+     * @brief: Provide operating system ConnectAbility information to the observer
      * @param want Indicates the structure containing connect information about the ability.
      */
     void ScheduleConnectAbility(const Want &want) override;
 
     /**
-     * @description: Provide operating system DisconnectAbility information to the observer
+     * @brief: Provide operating system DisconnectAbility information to the observer
      * @param want Indicates the structure containing connect information about the ability.
      */
     void ScheduleDisconnectAbility(const Want &want) override;
 
     /**
-     * @description: Provide operating system CommandAbility information to the observer
+     * @brief: Provide operating system CommandAbility information to the observer
      * @param want The Want object to command to.
      * @param restart Indicates the startup mode. The value true indicates that Service is restarted after being
      * destroyed, and the value false indicates a normal startup.
@@ -128,7 +128,7 @@ public:
     void ScheduleCommandAbility(const Want &want, bool restart, int32_t startId) override;
 
     /**
-     * @description: Schedule Command AbilityWindow
+     * @brief: Schedule Command AbilityWindow
      * @param want The Want object to command to.
      * @param sessionInfo Indicates the session info.
      * @param winCmd Indicates the WindowCommand of winCmd
@@ -137,17 +137,17 @@ public:
         const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd) override;
 
     /**
-     * @description: Provide operating system PrepareTerminateAbility information to the observer
+     * @brief: Provide operating system PrepareTerminateAbility information to the observer
      */
     bool SchedulePrepareTerminateAbility() override;
 
     /**
-     * @description: Provide operating system SaveabilityState information to the observer
+     * @brief: Provide operating system SaveabilityState information to the observer
      */
     void ScheduleSaveAbilityState() override;
 
     /**
-     * @description: Provide operating system RestoreAbilityState information to the observer
+     * @brief: Provide operating system RestoreAbilityState information to the observer
      * @param state Indicates resotre ability state used to dispatchRestoreAbilityState.
      */
     void ScheduleRestoreAbilityState(const AppExecFwk::PacMap &state) override;
@@ -185,13 +185,13 @@ public:
      * @param mode Indicates the file open mode, which can be "r" for read-only access, "w" for write-only access
      * (erasing whatever data is currently in the file), "wt" for write access that truncates any existing file,
      * "wa" for write-only access to append to any existing data, "rw" for read and write access on any existing data,
-     *  or "rwt" for read and write access that truncates any existing file.
+     * or "rwt" for read and write access that truncates any existing file.
      * @return Returns the file descriptor.
      */
     int32_t OpenFile(const Uri &uri, const std::string &mode) override;
 
     /**
-     * @brief This is like openFile, open a file that need to be able to return sub-sections of files，often assets
+     * @brief This is like openFile, open a file that need to be able to return sub-sections of files��often assets
      * inside of their .hap.
      * @param uri Indicates the path of the file to open.
      * @param mode Indicates the file open mode, which can be "r" for read-only access, "w" for write-only access
@@ -205,13 +205,13 @@ public:
     /**
      * @brief Inserts a single data record into the database.
      * @param uri Indicates the path of the data to operate.
-     * @param value  Indicates the data record to insert. If this parameter is null, a blank row will be inserted.
+     * @param value Indicates the data record to insert. If this parameter is null, a blank row will be inserted.
      * @return Returns the index of the inserted data record.
      */
     int32_t Insert(const Uri &uri, const NativeRdb::ValuesBucket &value) override;
 
     /**
-     * @description:  Calls the method of the Data ability.
+     * @brief: Calls the method of the Data ability.
      * @param method Indicates the method to call
      * @param arg Indicates the parameter of the String type.
      * @param pacMap Defines a PacMap object for storing a series of values.
@@ -349,7 +349,7 @@ public:
     void CallRequest() override;
 
     /**
-     * @description: Performs batch operations on the database
+     * @brief: Performs batch operations on the database
      * @param operations Indicates a list of database operations on the database.
      * @return Returns the result of each operation, in array.
      */
@@ -358,20 +358,20 @@ public:
 
 private:
     /**
-     * @description: Dump Ability Runner info.
+     * @brief: Dump Ability Runner info.
      * @param params the params need to be Dumped
      * @param info ability runner info
      */
     void DumpAbilityInfoInner(const std::vector<std::string> &params, std::vector<std::string> &info);
 
     /**
-     * @description: Dump other Ability Runner info.
+     * @brief: Dump other Ability Runner info.
      * @param info ability runner info
      */
     void DumpOtherInfo(std::vector<std::string> &info);
 
     /**
-     * @description: Create the abilityname.
+     * @brief: Create the abilityname.
      * @param abilityRecord current running ability record
      * @param application Indicates the application.
      * @return Returns the abilityname.
@@ -380,7 +380,7 @@ private:
         std::shared_ptr<AppExecFwk::OHOSApplication> &application);
 
     /**
-     * @description: Create and init contextDeal.
+     * @brief: Create and init contextDeal.
      * @param application Indicates the main process.
      * @param abilityRecord current running ability record
      * @param abilityObject Indicates the abilityObject.
@@ -392,32 +392,32 @@ private:
         const std::shared_ptr<AppExecFwk::AbilityContext> &abilityObject);
 
     /**
-     * @description:  Handle the life cycle of Ability.
-     * @param want  Indicates the structure containing lifecycle information about the ability.
-     * @param lifeCycleStateInfo  Indicates the lifeCycleStateInfo.
-     * @param sessionInfo  Indicates the sessionInfo.
+     * @brief: Handle the life cycle of Ability.
+     * @param want Indicates the structure containing lifecycle information about the ability.
+     * @param lifeCycleStateInfo Indicates the lifeCycleStateInfo.
+     * @param sessionInfo Indicates the sessionInfo.
      */
     void HandleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
         sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr);
 
     /**
-     * @description:  Handle the life cycle of Extension.
-     * @param want  Indicates the structure containing lifecycle information about the extension.
-     * @param lifeCycleStateInfo  Indicates the lifeCycleStateInfo.
-     * @param sessionInfo  Indicates the sessionInfo.
+     * @brief: Handle the life cycle of Extension.
+     * @param want Indicates the structure containing lifecycle information about the extension.
+     * @param lifeCycleStateInfo Indicates the lifeCycleStateInfo.
+     * @param sessionInfo Indicates the sessionInfo.
      */
     void HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
         sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr);
 
     /**
-     * @description:  Handle the current connection of Ability.
-     * @param want  Indicates the structure containing connection information about the ability.
+     * @brief: Handle the current connection of Ability.
+     * @param want Indicates the structure containing connection information about the ability.
      */
     void HandleConnectAbility(const Want &want);
 
     /**
-     * @description:  Handle the current disconnection of Ability.
-     * @param want  Indicates the structure containing connection information about the ability.
+     * @brief: Handle the current disconnection of Ability.
+     * @param want Indicates the structure containing connection information about the ability.
      */
     void HandleDisconnectAbility(const Want &want);
 
@@ -433,13 +433,13 @@ private:
     void HandleCommandAbility(const Want &want, bool restart, int32_t startId);
 
     /**
-     * @description:  Handle the current connection of Extension.
-     * @param want  Indicates the structure containing connection information about the extension.
+     * @brief: Handle the current connection of Extension.
+     * @param want Indicates the structure containing connection information about the extension.
      */
     void HandleConnectExtension(const Want &want);
 
     /**
-     * @description: Handle the current disconnection of Extension.
+     * @brief: Handle the current disconnection of Extension.
      * @param want Indicates the structure containing connection information about the extension.
      */
     void HandleDisconnectExtension(const Want &want);
@@ -456,7 +456,7 @@ private:
     void HandleCommandExtension(const Want &want, bool restart, int32_t startId);
 
     /**
-     * @description: Handle Command Extension Window
+     * @brief: Handle Command Extension Window
      * @param want The Want object to command to.
      * @param sessionInfo Indicates the sessionInfo
      * @param winCmd Indicates the winCmd
@@ -465,8 +465,8 @@ private:
         const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd);
 
     /**
-     * @description: Handle the restoreAbility state.
-     * @param state  Indicates save ability state used to dispatchRestoreAbilityState.
+     * @brief: Handle the restoreAbility state.
+     * @param state Indicates save ability state used to dispatchRestoreAbilityState.
      */
     void HandleRestoreAbilityState(const AppExecFwk::PacMap &state);
 
@@ -488,7 +488,7 @@ private:
     void HandlePrepareTermianteAbility();
 
     /**
-     * @description: Provide operating system ShareData information to the observer
+     * @brief: Provide operating system ShareData information to the observer
      * @param requestCode Indicates the Ability request code.
      */
     void HandleShareData(const int32_t &requestCode);

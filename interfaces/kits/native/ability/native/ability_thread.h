@@ -34,7 +34,7 @@ public:
     virtual ~AbilityThread() = default;
 
     /**
-     * @description: Attach The ability thread to the main process.
+     * @brief: Attach The ability thread to the main process.
      * @param application Indicates the main process.
      * @param abilityRecord Indicates the abilityRecord.
      * @param mainRunner The runner which main_thread holds.
@@ -45,7 +45,7 @@ public:
         const std::shared_ptr<AbilityRuntime::Context> &appContext);
 
     /**
-     * @description: Attach The ability thread to the main process.
+     * @brief: Attach The ability thread to the main process.
      * @param application Indicates the main process.
      * @param abilityRecord Indicates the abilityRecord.
      * @param appContext the AbilityRuntime context
@@ -55,7 +55,7 @@ public:
         const std::shared_ptr<AbilityRuntime::Context> &appContext);
 
     /**
-     * @description: Attach The ability thread to the main process.
+     * @brief: Attach The ability thread to the main process.
      * @param application Indicates the main process.
      * @param abilityRecord Indicates the abilityRecord.
      * @param mainRunner The runner which main_thread holds.
@@ -66,7 +66,7 @@ public:
         const std::shared_ptr<AbilityRuntime::Context> &appContext) = 0;
 
     /**
-     * @description: Attach The ability thread to the main process.
+     * @brief: Attach The ability thread to the main process.
      * @param application Indicates the main process.
      * @param abilityRecord Indicates the abilityRecord.
      * @param appContext the AbilityRuntime context
@@ -93,7 +93,7 @@ public:
     bool CheckObsPermission();
 
     /**
-     * @description:  Provide operating system AbilityTransaction information to the observer
+     * @brief:  Provide operating system AbilityTransaction information to the observer
      * @param want Indicates the structure containing Transaction information about the ability.
      * @param targetState Indicates the lifecycle state.
      * @param sessionInfo Indicates the session info.
@@ -102,25 +102,25 @@ public:
         const Want &want, const LifeCycleStateInfo &targetState, sptr<SessionInfo> sessionInfo = nullptr) override;
 
     /**
-     * @description: Provide operating system ShareData information to the observer
+     * @brief: Provide operating system ShareData information to the observer
      * @param requestCode Indicates the Ability request code.
      */
     void ScheduleShareData(const int32_t &requestCode) override;
 
     /**
-     * @description: Provide operating system ConnectAbility information to the observer
+     * @brief: Provide operating system ConnectAbility information to the observer
      * @param want Indicates the structure containing connect information about the ability.
      */
     void ScheduleConnectAbility(const Want &want) override;
 
     /**
-     * @description: Provide operating system DisconnectAbility information to the observer
+     * @brief: Provide operating system DisconnectAbility information to the observer
      * @param want Indicates the structure containing connect information about the ability.
      */
     void ScheduleDisconnectAbility(const Want &want) override;
 
     /**
-     * @description: Provide operating system CommandAbility information to the observer
+     * @brief: Provide operating system CommandAbility information to the observer
      * @param want Indicates the structure containing connect information about the ability.
      * @param restart Indicates the startup mode. The value true indicates that Service is restarted after being
      * destroyed, and the value false indicates a normal startup.
@@ -140,17 +140,17 @@ public:
         const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd) override;
 
     /**
-     * @description: Provide operating system PrepareTerminateAbility information to the observer
+     * @brief: Provide operating system PrepareTerminateAbility information to the observer
      */
     bool SchedulePrepareTerminateAbility() override;
 
     /**
-     * @description: Provide operating system SaveabilityState information to the observer
+     * @brief: Provide operating system SaveabilityState information to the observer
      */
     void ScheduleSaveAbilityState() override;
 
     /**
-     * @description: Provide operating system RestoreAbilityState information to the observer
+     * @brief: Provide operating system RestoreAbilityState information to the observer
      * @param state Indicates resotre ability state used to dispatchRestoreAbilityState.
      */
     void ScheduleRestoreAbilityState(const PacMap &state) override;
@@ -182,7 +182,7 @@ public:
      * @param mode Indicates the file open mode, which can be "r" for read-only access, "w" for write-only access
      * (erasing whatever data is currently in the file), "wt" for write access that truncates any existing file,
      * "wa" for write-only access to append to any existing data, "rw" for read and write access on any existing data,
-     *  or "rwt" for read and write access that truncates any existing file.
+     * or "rwt" for read and write access that truncates any existing file.
      * @return Returns the file descriptor.
      */
     int32_t OpenFile(const Uri &uri, const std::string &mode) override;
@@ -202,7 +202,7 @@ public:
     /**
      * @brief Inserts a single data record into the database.
      * @param uri Indicates the path of the data to operate.
-     * @param value  Indicates the data record to insert. If this parameter is null, a blank row will be inserted.
+     * @param value Indicates the data record to insert. If this parameter is null, a blank row will be inserted.
      * @return Returns the index of the inserted data record.
      */
     int32_t Insert(const Uri &uri, const NativeRdb::ValuesBucket &value) override;
@@ -341,7 +341,7 @@ public:
     void CallRequest() override;
 
     /**
-     * @description: Execute Batch
+     * @brief: Execute Batch
      * @param operations Indicates the operations
      */
     std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> ExecuteBatch(
