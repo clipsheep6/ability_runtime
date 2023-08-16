@@ -93,10 +93,8 @@ public:
     bool CheckObsPermission();
 
     /**
-     * @description:  Provide operating system AbilityTransaction information to
-     * the observer
-     * @param want Indicates the structure containing Transaction information
-     * about the ability.
+     * @description:  Provide operating system AbilityTransaction information to the observer
+     * @param want Indicates the structure containing Transaction information about the ability.
      * @param targetState Indicates the lifecycle state.
      * @param sessionInfo Indicates the session info.
      */
