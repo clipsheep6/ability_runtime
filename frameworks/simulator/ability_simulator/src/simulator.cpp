@@ -106,7 +106,8 @@ private:
     bool LoadAbilityStage(uint8_t *buffer, size_t len);
     void InitJsAbilityStageContext(NativeValue *instanceValue);
     NativeValue *CreateJsLaunchParam(NativeEngine &engine);
-    void BundleParse(const std::string &abilitySrcPath);
+    void ParseBundleAndModuleInfo();
+    void ParseAbilityInfo(const std::string &abilitySrcPath);
 
     panda::ecmascript::EcmaVM *CreateJSVM();
     Options options_;
@@ -223,7 +224,7 @@ NativeValue *SimulatorImpl::LoadScript(const std::string &srcPath)
     return nativeEngine_->CreateInstance(obj, nullptr, 0);
 }
 
-void SimulatorImpl::BundleParse(const std::string &abilitySrcPath)
+void SimulatorImpl::ParseBundleAndModuleInfo()
 {
     AppExecFwk::BundleContainer::GetInstance().LoadBundleInfos(options_.moduleJsonBuffer);
     appInfo_ = AppExecFwk::BundleContainer::GetInstance().GetApplicationInfo();
@@ -234,6 +235,21 @@ void SimulatorImpl::BundleParse(const std::string &abilitySrcPath)
         std::cout << "appinfo : " << json.dump() << std::endl;
     }
 
+    options_.bundleName = appInfo_->bundleName;
+    options_.compatibleVersion = appInfo_->apiCompatibleVersion;
+    options_.installationFree = (appInfo_->bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE ? true : false);
+    options_.targetVersion = appInfo_->apiTargetVersion;
+    options_.releaseType = appInfo_->apiReleaseType;
+    options_.compileMode = "esmodule";
+    options_.enablePartialUpdate = false;
+
+    if (appInfo_->moduleInfos.empty()) {
+        HILOG_ERROR("module name is not exist");
+        return;
+    }
+    options_.moduleName = appInfo_->moduleInfos[0].moduleName;
+    std::cout << "module name is " << options_.moduleName << std::endl;
+
     moduleInfo_ = AppExecFwk::BundleContainer::GetInstance().GetHapModuleInfo(options_.moduleName);
     if (moduleInfo_) {
         std::cout << "moduleInfo is not null" << std::endl;
@@ -242,6 +258,11 @@ void SimulatorImpl::BundleParse(const std::string &abilitySrcPath)
         std::cout << "moduleInfo : " << json.dump() << std::endl;
     }
 
+    options_.pageProfile = moduleInfo_->pages;
+}
+
+void SimulatorImpl::ParseAbilityInfo(const std::string &abilitySrcPath)
+{
     auto path = abilitySrcPath;
     path.erase(path.rfind("."));
     auto abilityName = path.substr(path.rfind('/') + 1, path.length());
@@ -252,11 +273,13 @@ void SimulatorImpl::BundleParse(const std::string &abilitySrcPath)
         to_json(json, *abilityInfo_);
         std::cout << "abilityInfo : " << json.dump() << std::endl;
     }
+
+    options_.labelId = abilityInfo_->labelId;
 }
 
 int64_t SimulatorImpl::StartAbility(const std::string &abilitySrcPath, TerminateCallback callback)
 {
-    BundleParse(abilitySrcPath);
+    ParseAbilityInfo(abilitySrcPath);
 
     if (stageContext_ == nullptr) {
         stageContext_ = std::make_shared<AbilityStageContext>();
@@ -595,6 +618,8 @@ panda::ecmascript::EcmaVM *SimulatorImpl::CreateJSVM()
 
 bool SimulatorImpl::OnInit()
 {
+    ParseBundleAndModuleInfo();
+
     vm_ = CreateJSVM();
     if (vm_ == nullptr) {
         return false;
