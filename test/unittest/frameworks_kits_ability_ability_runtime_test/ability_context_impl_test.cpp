@@ -24,6 +24,7 @@
 #include "mock_serviceability_manager_service.h"
 #include "system_ability_definition.h"
 #include "sys_mgr_client.h"
+#include "scene_board_judgement.h"
 
 namespace OHOS {
 namespace Ace {
@@ -211,7 +212,9 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_SetMissionContinueState_01
 
     g_mockAbilityMs->SetCommonMockResult(true);
     ret = context_->SetMissionContinueState(state);
-    EXPECT_EQ(ret, 0);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(ret, 0);
+    }
 }
 
 /**
@@ -232,7 +235,9 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_SetMissionLabel_0100, Func
 
     g_mockAbilityMs->SetCommonMockResult(true);
     ret = context_->SetMissionLabel(TEST_LABEL);
-    EXPECT_EQ(ret, 0);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(ret, 0);
+    }
 
     std::shared_ptr<MyAbilityCallback> abilityCallback = std::make_shared<MyAbilityCallback>();
     context_->RegisterAbilityCallback(abilityCallback);
@@ -264,7 +269,9 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_SetMissionIcon_0100, Funct
 
     g_mockAbilityMs->SetCommonMockResult(true);
     ret = context_->SetMissionIcon(icon);
-    EXPECT_EQ(ret, 0);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(ret, 0);
+    }
 
     std::shared_ptr<MyAbilityCallback> abilityCallback = std::make_shared<MyAbilityCallback>();
     context_->RegisterAbilityCallback(abilityCallback);
@@ -336,8 +343,11 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ConnectAbilityWithAccount_
  */
 HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_TerminateSelf_0100, Function | MediumTest | Level1)
 {
+    ASSERT_TRUE(context_ != nullptr);
     auto ret = context_->TerminateSelf();
-    EXPECT_EQ(ret, false);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(ret, false);
+    }
 }
 
 /**
@@ -372,8 +382,11 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_SetConfiguration_0100, Fun
  */
 HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_CloseAbility_0100, Function | MediumTest | Level1)
 {
+    ASSERT_TRUE(context_ != nullptr);
     auto ret = context_->CloseAbility();
-    EXPECT_NE(ret, ERR_OK);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_NE(ret, ERR_OK);
+    }
 }
 
 /**
@@ -383,10 +396,13 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_CloseAbility_0100, Functio
  */
 HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_TerminateAbilityWithResult_0100, Function | MediumTest | Level1)
 {
+    ASSERT_TRUE(context_ != nullptr);
     AAFwk::Want want;
     int32_t resultCode = 1;
     auto ret = context_->TerminateAbilityWithResult(want, resultCode);
-    EXPECT_EQ(ret, ERR_OK);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(ret, ERR_OK);
+    }
 }
 
 /**

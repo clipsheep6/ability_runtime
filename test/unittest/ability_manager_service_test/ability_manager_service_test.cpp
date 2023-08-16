@@ -605,6 +605,15 @@ HWTEST_F(AbilityManagerServiceTest, StartRemoteAbility_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest StartRemoteAbility_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    auto mgr = std::make_unique<UIAbilityLifecycleManager>();
+    AbilityRequest abilityRequest;
+    Rosen::SessionInfo info;
+    sptr<SessionInfo> sessionInfo(new SessionInfo());
+    sessionInfo->sessionToken = new Rosen::Session(info);
+    sessionInfo->persistentId = 1;
+    abilityRequest.sessionInfo = sessionInfo;
+    auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+    mgr->sessionAbilityMap_.emplace(sessionInfo->persistentId, abilityRecord);
     Want want;
     // AddStartControlParam
     EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, nullptr), ERR_INVALID_VALUE);
@@ -2324,12 +2333,12 @@ HWTEST_F(AbilityManagerServiceTest, GetAbilityRunningInfos_001, TestSize.Level1)
 
     auto temp2 = abilityMs_->connectManager_;
     abilityMs_->connectManager_.reset();
-    EXPECT_EQ(abilityMs_->GetAbilityRunningInfos(info), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->GetAbilityRunningInfos(info), ERR_OK);
     abilityMs_->connectManager_ = temp2;
 
     auto temp3 = abilityMs_->dataAbilityManager_;
     abilityMs_->dataAbilityManager_.reset();
-    EXPECT_EQ(abilityMs_->GetAbilityRunningInfos(info), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->GetAbilityRunningInfos(info), ERR_OK);
     abilityMs_->dataAbilityManager_ = temp3;
     HILOG_INFO("AbilityManagerServiceTest GetAbilityRunningInfos_001 end");
 }

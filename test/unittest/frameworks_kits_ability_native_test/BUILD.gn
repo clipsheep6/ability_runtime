@@ -124,6 +124,7 @@ ohos_unittest("ability_test") {
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
+    "window_manager:scene_session",
   ]
 
   if (ability_runtime_graphics) {
@@ -1728,6 +1729,7 @@ ohos_unittest("ability_window_test") {
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "window_manager:libwm",
+    "window_manager:scene_session",
   ]
 
   if (ability_runtime_graphics) {
