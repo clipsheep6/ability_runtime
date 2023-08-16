@@ -3888,7 +3888,8 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
     HILOG_DEBUG("called");
     std::string callerBundleName;
     if (auto bundleMgr = remoteClientManager_->GetBundleManager(); bundleMgr != nullptr) {
-        IN_PROCESS_CALL(bundleMgr->GetNameForUid(IPCSkeleton::GetCallingUid(), callerBundleName));
+        int32_t callingUid = IPCSkeleton::GetCallingUid();
+        IN_PROCESS_CALL(bundleMgr->GetNameForUid(callingUid, callerBundleName));
     }
 #ifdef ABILITY_FAULT_AND_EXIT_TEST
     if ((AAFwk::PermissionVerification::GetInstance()->IsSACall()) ||
@@ -3928,9 +3929,8 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
         }
         appRecord->NotifyAppFault(transformedFaultData);
         HILOG_WARN("FaultDataBySA is: name: %{public}s, faultType: %{public}s, uid: %{public}d,"
-            "pid: %{public}d, bundleName: %{public}s",
-            faultData.errorObject.name.c_str(), FaultTypeToString(faultData.faultType).c_str(),
-            uid, pid, bundleName.c_str());
+            "pid: %{public}d, bundleName: %{public}s", faultData.errorObject.name.c_str(),
+            FaultTypeToString(faultData.faultType).c_str(), uid, pid, bundleName.c_str());
     } else {
         HILOG_DEBUG("this is not called by SA.");
         return AAFwk::CHECK_PERMISSION_FAILED;
