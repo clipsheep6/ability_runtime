@@ -916,7 +916,8 @@ ErrCode AbilityManagerClient::GetTopAbility(sptr<IRemoteObject> &token)
     return abms->GetTopAbility(token);
 }
 
-AppExecFwk::ElementName AbilityManagerClient::GetElementNameByToken(const sptr<IRemoteObject> &token)
+AppExecFwk::ElementName AbilityManagerClient::GetElementNameByToken(const sptr<IRemoteObject> &token,
+    bool isNeedLocalDeviceId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
@@ -924,7 +925,7 @@ AppExecFwk::ElementName AbilityManagerClient::GetElementNameByToken(const sptr<I
         HILOG_ERROR("abms == nullptr");
         return {};
     }
-    return abms->GetElementNameByToken(token);
+    return abms->GetElementNameByToken(token, isNeedLocalDeviceId);
 }
 
 ErrCode AbilityManagerClient::CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId, bool& isFocused)
@@ -1153,7 +1154,7 @@ ErrCode AbilityManagerClient::FreeInstallAbilityFromRemote(const Want &want, con
     return abms->FreeInstallAbilityFromRemote(want, callback, userId, requestCode);
 }
 
-AppExecFwk::ElementName AbilityManagerClient::GetTopAbility()
+AppExecFwk::ElementName AbilityManagerClient::GetTopAbility(bool isNeedLocalDeviceId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
@@ -1168,7 +1169,7 @@ AppExecFwk::ElementName AbilityManagerClient::GetTopAbility()
             HILOG_ERROR("token is nullptr");
             return elementName;
         }
-        return GetElementNameByToken(token);
+        return GetElementNameByToken(token, isNeedLocalDeviceId);
     }
     HILOG_DEBUG("enter.");
     auto abms = GetAbilityManager();
@@ -1177,7 +1178,7 @@ AppExecFwk::ElementName AbilityManagerClient::GetTopAbility()
         return {};
     }
 
-    return abms->GetTopAbility();
+    return abms->GetTopAbility(isNeedLocalDeviceId);
 }
 
 ErrCode AbilityManagerClient::DumpAbilityInfoDone(std::vector<std::string> &infos,

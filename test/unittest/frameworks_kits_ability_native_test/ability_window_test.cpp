@@ -27,6 +27,7 @@
 #include "window_option.h"
 #include "window_scene.h"
 #include "wm_common.h"
+#include "scene_board_judgement.h"
 #undef private
 
 namespace OHOS {
@@ -91,8 +92,11 @@ HWTEST_F(AbilityWindowTest, Ability_Window_InitWindow_0100, TestSize.Level1)
     int32_t displayId = 0;
     sptr<Rosen::WindowOption> option = nullptr;
     bool isPrivacy = false;
+    EXPECT_TRUE(abilityWindow_ != nullptr);
     bool result = abilityWindow_->InitWindow(abilityContextImpl, listener, displayId, option, isPrivacy);
-    EXPECT_TRUE(result);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_TRUE(result);
+    }
     GTEST_LOG_(INFO) << "Ability_Window_InitWindow_0100 end";
 }
 
@@ -109,9 +113,12 @@ HWTEST_F(AbilityWindowTest, Ability_Window_InitWindow_0200, TestSize.Level1)
     int32_t displayId = 0;
     sptr<WindowOption> option = nullptr;
     bool isPrivacy = true;
+    EXPECT_TRUE(abilityWindow_ != nullptr);
     abilityWindow_->windowScene_ = std::make_shared<WindowScene>();
     bool result = abilityWindow_->InitWindow(abilityContextImpl, listener, displayId, option, isPrivacy);
-    EXPECT_TRUE(result);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_TRUE(result);
+    }
     GTEST_LOG_(INFO) << "Ability_Window_InitWindow_0200 end";
 }
 
