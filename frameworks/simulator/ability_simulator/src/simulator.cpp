@@ -246,7 +246,7 @@ bool SimulatorImpl::ParseBundleAndModuleInfo()
 
     if (appInfo_->moduleInfos.empty()) {
         HILOG_ERROR("module name is not exist");
-        return;
+        return false;
     }
     options_.moduleName = appInfo_->moduleInfos[0].moduleName;
     std::cout << "module name is " << options_.moduleName << std::endl;
