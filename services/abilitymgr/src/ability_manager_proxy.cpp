@@ -72,12 +72,15 @@ int AbilityManagerProxy::StartAbility(const Want &want, int32_t userId, int requ
     return reply.ReadInt32();
 }
 
-AppExecFwk::ElementName AbilityManagerProxy::GetTopAbility()
+AppExecFwk::ElementName AbilityManagerProxy::GetTopAbility(bool isNeedLocalDeviceId)
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
+        return {};
+    }
+    if (!data.WriteBool(isNeedLocalDeviceId)) {
         return {};
     }
 
@@ -95,7 +98,8 @@ AppExecFwk::ElementName AbilityManagerProxy::GetTopAbility()
     return result;
 }
 
-AppExecFwk::ElementName AbilityManagerProxy::GetElementNameByToken(const sptr<IRemoteObject> &token)
+AppExecFwk::ElementName AbilityManagerProxy::GetElementNameByToken(const sptr<IRemoteObject> &token,
+    bool isNeedLocalDeviceId)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -104,6 +108,9 @@ AppExecFwk::ElementName AbilityManagerProxy::GetElementNameByToken(const sptr<IR
         return {};
     }
     if (!data.WriteRemoteObject(token)) {
+        return {};
+    }
+    if (!data.WriteBool(isNeedLocalDeviceId)) {
         return {};
     }
     int error = SendRequest(AbilityManagerInterfaceCode::GET_ELEMENT_NAME_BY_TOKEN, data, reply, option);

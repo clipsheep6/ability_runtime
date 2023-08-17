@@ -955,9 +955,10 @@ public:
     bool GetDataAbilityUri(const std::vector<AppExecFwk::AbilityInfo> &abilityInfos,
         const std::string &mainAbility, std::string &uri);
 
-    virtual AppExecFwk::ElementName GetTopAbility() override;
+    virtual AppExecFwk::ElementName GetTopAbility(bool isNeedLocalDeviceId = true) override;
 
-    virtual AppExecFwk::ElementName GetElementNameByToken(const sptr<IRemoteObject> &token) override;
+    virtual AppExecFwk::ElementName GetElementNameByToken(const sptr<IRemoteObject> &token,
+        bool isNeedLocalDeviceId = true) override;
 
     /**
      * AtomicServiceStatusCallback OnInstallFinished callback.

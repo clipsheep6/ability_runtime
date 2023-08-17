@@ -347,7 +347,8 @@ int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Mess
 
 int AbilityManagerStub::GetTopAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
-    AppExecFwk::ElementName result = GetTopAbility();
+    bool isNeedLocalDeviceId = data.ReadBool();
+    AppExecFwk::ElementName result = GetTopAbility(isNeedLocalDeviceId);
     if (result.GetDeviceID().empty()) {
         HILOG_DEBUG("GetTopAbilityInner is nullptr");
     }
@@ -357,8 +358,9 @@ int AbilityManagerStub::GetTopAbilityInner(MessageParcel &data, MessageParcel &r
 
 int AbilityManagerStub::GetElementNameByTokenInner(MessageParcel &data, MessageParcel &reply)
 {
-    sptr<IRemoteObject> token = data.ReadRemoteObject();;
-    AppExecFwk::ElementName result = GetElementNameByToken(token);
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    bool isNeedLocalDeviceId = data.ReadBool();
+    AppExecFwk::ElementName result = GetElementNameByToken(token, isNeedLocalDeviceId);
     if (result.GetDeviceID().empty()) {
         HILOG_DEBUG("GetElementNameByTokenInner is nullptr");
     }

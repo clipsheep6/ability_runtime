@@ -240,12 +240,13 @@ public:
         return false;
     }
 
-    virtual AppExecFwk::ElementName GetTopAbility()
+    virtual AppExecFwk::ElementName GetTopAbility(bool isNeedLocalDeviceId = true)
     {
         return {};
     }
 
-    virtual AppExecFwk::ElementName GetElementNameByToken(const sptr<IRemoteObject> &token)
+    virtual AppExecFwk::ElementName GetElementNameByToken(const sptr<IRemoteObject> &token,
+        bool isNeedLocalDeviceId = true)
     {
         return {};
     }
