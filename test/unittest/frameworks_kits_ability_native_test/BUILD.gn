@@ -2112,7 +2112,7 @@ ohos_unittest("action_extension_module_loader_test") {
   deps = [
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
-    "${ability_runtime_native_path}/ability/native/action_extension_ability:action_extension",
+    "${ability_runtime_native_path}/ability/native:action_extension",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
