@@ -106,8 +106,8 @@ private:
     bool LoadAbilityStage(uint8_t *buffer, size_t len);
     void InitJsAbilityStageContext(NativeValue *instanceValue);
     NativeValue *CreateJsLaunchParam(NativeEngine &engine);
-    void ParseBundleAndModuleInfo();
-    void ParseAbilityInfo(const std::string &abilitySrcPath);
+    bool ParseBundleAndModuleInfo();
+    bool ParseAbilityInfo(const std::string &abilitySrcPath);
 
     panda::ecmascript::EcmaVM *CreateJSVM();
     Options options_;
@@ -224,16 +224,17 @@ NativeValue *SimulatorImpl::LoadScript(const std::string &srcPath)
     return nativeEngine_->CreateInstance(obj, nullptr, 0);
 }
 
-void SimulatorImpl::ParseBundleAndModuleInfo()
+bool SimulatorImpl::ParseBundleAndModuleInfo()
 {
     AppExecFwk::BundleContainer::GetInstance().LoadBundleInfos(options_.moduleJsonBuffer);
     appInfo_ = AppExecFwk::BundleContainer::GetInstance().GetApplicationInfo();
-    if (appInfo_) {
-        std::cout << "appinfo is not null" << std::endl;
-        nlohmann::json json;
-        to_json(json, *appInfo_);
-        std::cout << "appinfo : " << json.dump() << std::endl;
+    if (appInfo_ == nullptr) {
+        HILOG_ERROR("appinfo parse failed.");
+        return false;
     }
+    nlohmann::json appInfoJson;
+    to_json(appInfoJson, *appInfo_);
+    std::cout << "appinfo : " << appInfoJson.dump() << std::endl;
 
     options_.bundleName = appInfo_->bundleName;
     options_.compatibleVersion = appInfo_->apiCompatibleVersion;
@@ -251,35 +252,41 @@ void SimulatorImpl::ParseBundleAndModuleInfo()
     std::cout << "module name is " << options_.moduleName << std::endl;
 
     moduleInfo_ = AppExecFwk::BundleContainer::GetInstance().GetHapModuleInfo(options_.moduleName);
-    if (moduleInfo_) {
-        std::cout << "moduleInfo is not null" << std::endl;
-        nlohmann::json json;
-        to_json(json, *moduleInfo_);
-        std::cout << "moduleInfo : " << json.dump() << std::endl;
+    if (moduleInfo_ == nullptr) {
+        HILOG_ERROR("module info parse failed.");
+        return false;
     }
+    nlohmann::json moduleInfoJson;
+    to_json(moduleInfoJson, *moduleInfo_);
+    std::cout << "moduleInfo : " << moduleInfoJson.dump() << std::endl;
 
     options_.pageProfile = moduleInfo_->pages;
+    return true;
 }
 
-void SimulatorImpl::ParseAbilityInfo(const std::string &abilitySrcPath)
+bool SimulatorImpl::ParseAbilityInfo(const std::string &abilitySrcPath)
 {
     auto path = abilitySrcPath;
     path.erase(path.rfind("."));
     auto abilityName = path.substr(path.rfind('/') + 1, path.length());
     abilityInfo_ = AppExecFwk::BundleContainer::GetInstance().GetAbilityInfo(options_.moduleName, abilityName);
-    if (abilityInfo_) {
-        std::cout << "abilityInfo is not null" << std::endl;
-        nlohmann::json json;
-        to_json(json, *abilityInfo_);
-        std::cout << "abilityInfo : " << json.dump() << std::endl;
+    if (abilityInfo_ == nullptr) {
+        HILOG_ERROR("ability info parse failed.");
+        return false;
     }
+    nlohmann::json json;
+    to_json(json, *abilityInfo_);
+    std::cout << "abilityInfo : " << json.dump() << std::endl;
 
     options_.labelId = abilityInfo_->labelId;
+    return true;
 }
 
 int64_t SimulatorImpl::StartAbility(const std::string &abilitySrcPath, TerminateCallback callback)
 {
-    ParseAbilityInfo(abilitySrcPath);
+    if (!ParseAbilityInfo(abilitySrcPath)) {
+        return -1;
+    }
 
     if (stageContext_ == nullptr) {
         stageContext_ = std::make_shared<AbilityStageContext>();
@@ -618,7 +625,10 @@ panda::ecmascript::EcmaVM *SimulatorImpl::CreateJSVM()
 
 bool SimulatorImpl::OnInit()
 {
-    ParseBundleAndModuleInfo();
+    if (!ParseBundleAndModuleInfo()) {
+        HILOG_ERROR("parse bundle and module info failed.");
+        return false;
+    }
 
     vm_ = CreateJSVM();
     if (vm_ == nullptr) {
