@@ -73,6 +73,7 @@ const std::string PARAMS_FILE_SAVING_URL_KEY = "pick_path_return";
 const uint32_t RELEASE_STARTING_BG_TIMEOUT = 15000; // release starting window resource timeout.
 const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 const std::string SHELL_ASSISTANT_DIEREASON = "crash_die";
+const std::string PARAM_MISSION_AFFINITY_KEY = "ohos.anco.param.missionAffinity";
 const int32_t SHELL_ASSISTANT_DIETYPE = 0;
 int64_t AbilityRecord::abilityRecordId = 0;
 const int32_t DEFAULT_USER_ID = 0;
@@ -230,6 +231,7 @@ std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityR
         abilityRecord->SetStartedByCall(true);
     }
     abilityRecord->collaboratorType_ = abilityRequest.collaboratorType;
+    abilityRecord->missionAffinity_ = abilityRequest.want.GetStringParam(PARAM_MISSION_AFFINITY_KEY);
     return abilityRecord;
 }
 
@@ -2805,6 +2807,11 @@ bool AbilityRecord::GetRecoveryInfo()
 int32_t AbilityRecord::GetCollaboratorType() const
 {
     return collaboratorType_;
+}
+
+std::string AbilityRecord::GetMissionAffinity() const
+{
+    return missionAffinity_;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

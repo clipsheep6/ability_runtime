@@ -37,6 +37,7 @@ constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
 const std::string DLP_INDEX = "ohos.dlp.params.index";
 constexpr int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
+const std::string PARAM_MISSION_AFFINITY_KEY = "ohos.anco.param.missionAffinity";
 #ifdef SUPPORT_ASAN
 const int KILL_TIMEOUT_MULTIPLE = 45;
 #else
@@ -865,6 +866,10 @@ void UIAbilityLifecycleManager::CompleteTerminate(const std::shared_ptr<AbilityR
 int32_t UIAbilityLifecycleManager::GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest,
     bool &reuse, int32_t userId) const
 {
+    if (abilityRequest.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
+        return GetReusedCollaboratorPersistentId(abilityRequest, reuse);
+    }
+
     if (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED) {
         return GetReusedSpecifiedPersistentId(abilityRequest, reuse, userId);
     }
@@ -931,6 +936,25 @@ int32_t UIAbilityLifecycleManager::GetReusedStandardPersistentId(const AbilityRe
     for (const auto& [first, second] : sessionAbilityMap_) {
         if (CheckProperties(second, abilityRequest, AppExecFwk::LaunchMode::STANDARD, userId) &&
             second->GetRestartTime() >= sessionTime) {
+            persistentId = first;
+            sessionTime = second->GetRestartTime();
+        }
+    }
+    return persistentId;
+}
+
+int32_t UIAbilityLifecycleManager::GetReusedCollaboratorPersistentId(const AbilityRequest &abilityRequest,
+    bool &reuse) const
+{
+    HILOG_DEBUG("Call.");
+
+    reuse = false;
+    int64_t sessionTime = 0;
+    int32_t persistentId = 0;
+    for (const auto& [first, second] : sessionAbilityMap_) {
+        if (abilityRequest.want.GetStringParam(PARAM_MISSION_AFFINITY_KEY) == second->GetMissionAffinity() &&
+            second->GetRestartTime() >= sessionTime) {
+            reuse = true;
             persistentId = first;
             sessionTime = second->GetRestartTime();
         }
