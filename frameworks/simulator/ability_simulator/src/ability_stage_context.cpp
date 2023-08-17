@@ -243,16 +243,16 @@ void AbilityStageContext::Mkdir(const std::string &path)
     }
 }
 
-bool AbilityStageContext::CreateMultiDir(const std::string &path)
+void AbilityStageContext::CreateMultiDir(const std::string &path)
 {
     if (path.empty()) {
         HILOG_DEBUG("path is empty");
-        return false;
+        return;
     }
 
     if (Access(path)) {
         HILOG_DEBUG("path is already exist");
-        return true;
+        return;
     }
 
     std::string tempStr = path;
@@ -275,7 +275,9 @@ bool AbilityStageContext::CreateMultiDir(const std::string &path)
         prePos = pos;
     }
 
-    return Access(tempStr);
+    if (!Access(tempStr)) {
+        HILOG_ERROR("path is not exist");
+    }
 }
 
 void AbilityStageContext::FsReqCleanup(uv_fs_t *req)

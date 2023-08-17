@@ -49,7 +49,7 @@ public:
     static bool Access(const std::string &path);
     void Mkdir(const std::string &path);
     static void FsReqCleanup(uv_fs_t *req);
-    bool CreateMultiDir(const std::string &path);
+    void CreateMultiDir(const std::string &path);
 
 private:
     static const int EL_DEFAULT = 1;
