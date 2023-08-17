@@ -151,7 +151,6 @@ ohos_shared_library("appkit_native") {
     "faultloggerd:libbacktrace_local",
     "faultloggerd:libdfx_procinfo",
     "faultloggerd:libfaultloggerd",
-    "graphic_2d:librender_service_client",
     "hicollie:libhicollie",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
@@ -167,6 +166,7 @@ ohos_shared_library("appkit_native") {
   if (ability_runtime_graphics) {
     deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
     external_deps += [
+      "graphic_2d:librender_service_client",
       "i18n:intl_util",
       "window_manager:libwm",
     ]
@@ -178,11 +178,10 @@ ohos_shared_library("appkit_native") {
   }
 
   if (defined(global_parts_info.web_webview)) {
-    deps += [ "${webview_path}/ohos_adapter:nweb_ohos_adapter" ]
-
-    include_dirs += [ "${webview_path}/ohos_adapter/interfaces" ]
-
-    external_deps += [ "webview:libnweb" ]
+    external_deps += [
+      "webview:libnweb",
+      "webview:nweb_ohos_adapter",
+    ]
 
     defines += [ "NWEB" ]
   }

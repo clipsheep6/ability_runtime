@@ -142,7 +142,7 @@ int ServiceRouterMgrStub::HandleStartUIExtensionAbility(MessageParcel &data, Mes
 int ServiceRouterMgrStub::HandleConnectUIExtensionAbility(MessageParcel &data, MessageParcel &reply)
 {
     APP_LOGD("ServiceRouterMgrStub handle connect ui extension ability");
-    Want *want = data.ReadParcelable<Want>();
+    std::unique_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         APP_LOGE("ReadParcelable<want> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
@@ -157,9 +157,6 @@ int ServiceRouterMgrStub::HandleConnectUIExtensionAbility(MessageParcel &data, M
     }
     int32_t userId = data.ReadInt32();
     int32_t result = ConnectUIExtensionAbility(*want, callback, sessionInfo, userId);
-    if (want != nullptr) {
-        delete want;
-    }
     if (!reply.WriteInt32(result)) {
         APP_LOGE("write result failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;

@@ -376,7 +376,7 @@ NativeValue* JsBaseContext::OnGetGroupDir(NativeEngine& engine, NativeCallbackIn
 
     NativeValue* lastParam = (info.argc == ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JsBaseContext::OnGetGroupDir",
+    AsyncTask::ScheduleHighQos("JsBaseContext::OnGetGroupDir",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }

@@ -396,16 +396,20 @@ public:
     /**
      * Get top ability.
      *
+     * @param isNeedLocalDeviceId is need local device id.
      * @return Returns front desk focus ability elementName.
      */
-    virtual AppExecFwk::ElementName GetTopAbility() override;
+    virtual AppExecFwk::ElementName GetTopAbility(bool isNeedLocalDeviceId = true) override;
 
     /**
      * Get element name by token.
      *
+     * @param token ability's token.
+     * @param isNeedLocalDeviceId is need local device id.
      * @return Returns front desk focus ability elementName by token.
      */
-    virtual AppExecFwk::ElementName GetElementNameByToken(const sptr<IRemoteObject> &token) override;
+    virtual AppExecFwk::ElementName GetElementNameByToken(const sptr<IRemoteObject> &token,
+        bool isNeedLocalDeviceId = true) override;
 
     /**
      * Kill the process immediately.
@@ -736,12 +740,6 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken) override;
-
-    /**
-     * Called to update mission snapshot.
-     * @param token The target ability.
-     */
-    virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
 
     /**
      * Called to update mission snapshot.

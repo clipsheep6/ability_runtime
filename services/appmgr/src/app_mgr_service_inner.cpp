@@ -54,6 +54,10 @@
 #include "perf_profile.h"
 #include "permission_constants.h"
 #include "permission_verification.h"
+#ifdef RESOURCE_SCHEDULE_SERVICE_ENABLE
+#include "res_sched_client.h"
+#include "res_type.h"
+#endif
 #include "system_ability_definition.h"
 #include "ui_extension_utils.h"
 #include "uri_permission_manager_client.h"
@@ -199,6 +203,7 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
 
     auto appRecord =
         appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name, processName, appInfo->uid, bundleInfo);
+    ReportAbilitStartInfoToRSS(*abilityInfo, appRecord);
     if (!appRecord) {
         bool appExistFlag = appRunningManager_->CheckAppRunningRecordIsExistByBundleName(bundleInfo.name);
         appRecord = CreateAppRunningRecord(token, preToken, appInfo, abilityInfo,
@@ -3883,7 +3888,8 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
     HILOG_DEBUG("called");
     std::string callerBundleName;
     if (auto bundleMgr = remoteClientManager_->GetBundleManager(); bundleMgr != nullptr) {
-        IN_PROCESS_CALL(bundleMgr->GetNameForUid(IPCSkeleton::GetCallingUid(), callerBundleName));
+        int32_t callingUid = IPCSkeleton::GetCallingUid();
+        IN_PROCESS_CALL(bundleMgr->GetNameForUid(callingUid, callerBundleName));
     }
 #ifdef ABILITY_FAULT_AND_EXIT_TEST
     if ((AAFwk::PermissionVerification::GetInstance()->IsSACall()) ||
@@ -3923,9 +3929,8 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
         }
         appRecord->NotifyAppFault(transformedFaultData);
         HILOG_WARN("FaultDataBySA is: name: %{public}s, faultType: %{public}s, uid: %{public}d,"
-            "pid: %{public}d, bundleName: %{public}s",
-            faultData.errorObject.name.c_str(), FaultTypeToString(faultData.faultType).c_str(),
-            uid, pid, bundleName.c_str());
+            "pid: %{public}d, bundleName: %{public}s", faultData.errorObject.name.c_str(),
+            FaultTypeToString(faultData.faultType).c_str(), uid, pid, bundleName.c_str());
     } else {
         HILOG_DEBUG("this is not called by SA.");
         return AAFwk::CHECK_PERMISSION_FAILED;
@@ -4158,6 +4163,28 @@ int32_t AppMgrServiceInner::GetRunningProcessInformation(
         }
     }
     return ERR_OK;
+}
+
+void AppMgrServiceInner::ReportAbilitStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo,
+    const std::shared_ptr<AppRunningRecord> &appRecord) const
+{
+#ifdef RESOURCE_SCHEDULE_SERVICE_ENABLE
+    if (abilityInfo.type == AppExecFwk::AbilityType::PAGE &&
+        abilityInfo.launchMode != AppExecFwk::LaunchMode::SPECIFIED) {
+        int32_t isColdStart = (appRecord ? 0 : 1);
+        int32_t pid = (appRecord && appRecord->GetPriorityObject() ? appRecord->GetPriorityObject()->GetPid() : 0);
+        std::unordered_map<std::string, std::string> eventParams {
+            { "name", "ability_start" },
+            { "uid", std::to_string(abilityInfo.applicationInfo.uid) },
+            { "bundleName", abilityInfo.applicationInfo.bundleName },
+            { "abilityName", abilityInfo.name },
+            { "pid", std::to_string(pid) },
+            { "isColdStart", std::to_string(isColdStart) }
+        };
+        ResourceSchedule::ResSchedClient::GetInstance().ReportData(
+            ResourceSchedule::ResType::RES_TYPE_APP_ABILITY_START, isColdStart, eventParams);
+    }
+#endif
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

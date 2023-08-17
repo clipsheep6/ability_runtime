@@ -377,7 +377,7 @@ private:
 
         NativeValue* lastParam = (info.argc > 1) ?  info.argv[1] : nullptr;
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("MissioManager::OnLockMission",
+        AsyncTask::ScheduleHighQos("MissioManager::OnLockMission",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -410,7 +410,7 @@ private:
 
         NativeValue* lastParam = (info.argc > 1) ? info.argv[1] : nullptr;
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("MissioManager::OnUnlockMission",
+        AsyncTask::ScheduleHighQos("MissioManager::OnUnlockMission",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -443,7 +443,7 @@ private:
 
         NativeValue* lastParam = (info.argc > 1) ? info.argv[1] : nullptr;
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("MissioManager::OnClearMission",
+        AsyncTask::ScheduleHighQos("MissioManager::OnClearMission",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -464,7 +464,7 @@ private:
 
         NativeValue* lastParam = (info.argc > 0) ? info.argv[0] : nullptr;
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("MissioManager::OnMoveMissionToFront",
+        AsyncTask::ScheduleHighQos("MissioManager::OnMoveMissionToFront",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -506,7 +506,7 @@ private:
 
         NativeValue* lastParam = (info.argc > unwrapArgc) ? info.argv[unwrapArgc] : nullptr;
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("MissioManager::OnMoveMissionToFront",
+        AsyncTask::ScheduleHighQos("MissioManager::OnMoveMissionToFront",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }

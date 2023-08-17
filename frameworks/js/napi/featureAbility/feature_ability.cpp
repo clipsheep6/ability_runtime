@@ -246,7 +246,7 @@ NativeValue* JsFeatureAbility::OnHasWindowFocus(NativeEngine &engine, const Nati
         };
     NativeValue *result = nullptr;
     NativeValue *lastParam = (info.argc == ARGS_ZERO) ? nullptr : info.argv[PARAM0];
-    AsyncTask::Schedule("JSFeatureAbility::OnHasWindowFocus",
+    AsyncTask::ScheduleHighQos("JSFeatureAbility::OnHasWindowFocus",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     HILOG_DEBUG("OnHasWindowFocus is called end");
     return result;
@@ -377,7 +377,7 @@ NativeValue* JsFeatureAbility::OnFinishWithResult(NativeEngine &engine, NativeCa
     };
     NativeValue *result = nullptr;
     NativeValue *lastParam = (info.argc >= ARGS_TWO) ? info.argv[ARGS_ONE] : nullptr;
-    AsyncTask::Schedule("JSFeatureAbility::OnFinishWithResult",
+    AsyncTask::ScheduleHighQos("JSFeatureAbility::OnFinishWithResult",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -420,7 +420,7 @@ NativeValue* JsFeatureAbility::OnGetWindow(NativeEngine &engine, NativeCallbackI
 
     auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JsFeatureAbility::OnGetWindow",
+    AsyncTask::ScheduleHighQos("JsFeatureAbility::OnGetWindow",
         engine, CreateAsyncTaskWithLastParam(engine, callback, nullptr, std::move(complete), &result));
 
     return result;
@@ -1029,7 +1029,8 @@ napi_value GetDataAbilityHelperAsync(
             GetDataAbilityHelperAsyncCompleteCB,
             static_cast<void *>(dataAbilityHelperCB),
             &dataAbilityHelperCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, dataAbilityHelperCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, dataAbilityHelperCB->cbBase.asyncWork,
+        napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
     HILOG_INFO("%{public}s, asyncCallback end", __func__);
@@ -1056,7 +1057,8 @@ napi_value GetDataAbilityHelperPromise(napi_env env, DataAbilityHelperCB *dataAb
             GetDataAbilityHelperPromiseCompleteCB,
             static_cast<void *>(dataAbilityHelperCB),
             &dataAbilityHelperCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, dataAbilityHelperCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work_with_qos(env, dataAbilityHelperCB->cbBase.asyncWork,
+        napi_qos_user_initiated));
     HILOG_INFO("%{public}s, promise end.", __func__);
     return promise;
 }

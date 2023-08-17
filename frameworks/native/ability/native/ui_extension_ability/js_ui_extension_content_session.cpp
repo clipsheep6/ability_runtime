@@ -107,7 +107,7 @@ NativeValue *JsUIExtensionContentSession::OnTerminateSelf(NativeEngine& engine, 
 
     NativeValue* lastParam = (info.argc > ARGC_ZERO) ? info.argv[INDEX_ZERO] : nullptr;
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JsUIExtensionContentSession::OnTerminateSelf",
+    AsyncTask::ScheduleHighQos("JsUIExtensionContentSession::OnTerminateSelf",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -151,7 +151,7 @@ NativeValue *JsUIExtensionContentSession::OnTerminateSelfWithResult(NativeEngine
 
     NativeValue* lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JsUIExtensionContentSession::OnTerminateSelfWithResult",
+    AsyncTask::ScheduleHighQos("JsUIExtensionContentSession::OnTerminateSelfWithResult",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }

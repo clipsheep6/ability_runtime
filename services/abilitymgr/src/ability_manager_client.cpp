@@ -916,7 +916,8 @@ ErrCode AbilityManagerClient::GetTopAbility(sptr<IRemoteObject> &token)
     return abms->GetTopAbility(token);
 }
 
-AppExecFwk::ElementName AbilityManagerClient::GetElementNameByToken(const sptr<IRemoteObject> &token)
+AppExecFwk::ElementName AbilityManagerClient::GetElementNameByToken(const sptr<IRemoteObject> &token,
+    bool isNeedLocalDeviceId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
@@ -924,7 +925,7 @@ AppExecFwk::ElementName AbilityManagerClient::GetElementNameByToken(const sptr<I
         HILOG_ERROR("abms == nullptr");
         return {};
     }
-    return abms->GetElementNameByToken(token);
+    return abms->GetElementNameByToken(token, isNeedLocalDeviceId);
 }
 
 ErrCode AbilityManagerClient::CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId, bool& isFocused)
@@ -1066,13 +1067,6 @@ ErrCode AbilityManagerClient::SendANRProcessID(int pid)
     return abms->SendANRProcessID(pid);
 }
 
-void AbilityManagerClient::UpdateMissionSnapShot(const sptr<IRemoteObject>& token)
-{
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN(abms);
-    return abms->UpdateMissionSnapShot(token);
-}
-
 void AbilityManagerClient::UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
     const std::shared_ptr<Media::PixelMap> &pixelMap)
 {
@@ -1160,7 +1154,7 @@ ErrCode AbilityManagerClient::FreeInstallAbilityFromRemote(const Want &want, con
     return abms->FreeInstallAbilityFromRemote(want, callback, userId, requestCode);
 }
 
-AppExecFwk::ElementName AbilityManagerClient::GetTopAbility()
+AppExecFwk::ElementName AbilityManagerClient::GetTopAbility(bool isNeedLocalDeviceId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
@@ -1175,7 +1169,7 @@ AppExecFwk::ElementName AbilityManagerClient::GetTopAbility()
             HILOG_ERROR("token is nullptr");
             return elementName;
         }
-        return GetElementNameByToken(token);
+        return GetElementNameByToken(token, isNeedLocalDeviceId);
     }
     HILOG_DEBUG("enter.");
     auto abms = GetAbilityManager();
@@ -1184,7 +1178,7 @@ AppExecFwk::ElementName AbilityManagerClient::GetTopAbility()
         return {};
     }
 
-    return abms->GetTopAbility();
+    return abms->GetTopAbility(isNeedLocalDeviceId);
 }
 
 ErrCode AbilityManagerClient::DumpAbilityInfoDone(std::vector<std::string> &infos,
@@ -1218,6 +1212,21 @@ int32_t AbilityManagerClient::IsValidMissionIds(
     const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results)
 {
     HILOG_INFO("call");
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
+        std::vector<bool> isValidList;
+        auto err = sceneSessionManager->IsValidSessionIds(missionIds, isValidList);
+        HILOG_DEBUG("IsValidSessionIds %{public}d size %{public}d",
+            static_cast<int>(err), static_cast<int32_t>(isValidList.size()));
+        for (auto i = 0; i < static_cast<int32_t>(isValidList.size()); ++i) {
+            MissionVaildResult missionResult = {};
+            missionResult.missionId = missionIds.at(i);
+            missionResult.isVaild = isValidList.at(i);
+            results.push_back(missionResult);
+        }
+        return static_cast<int>(err);
+    }
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->IsValidMissionIds(missionIds, results);

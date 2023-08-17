@@ -266,10 +266,10 @@ private:
         NativeValue* result = nullptr;
         if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
             AddFreeInstallObserver(engine, want, lastParam);
-            AsyncTask::Schedule("JSServiceExtensionContext::OnStartAbility", engine,
+            AsyncTask::ScheduleHighQos("JSServiceExtensionContext::OnStartAbility", engine,
                 CreateAsyncTaskWithLastParam(engine, nullptr, std::move(execute), nullptr, &result));
         } else {
-            AsyncTask::Schedule("JSServiceExtensionContext::OnStartAbility", engine,
+            AsyncTask::ScheduleHighQos("JSServiceExtensionContext::OnStartAbility", engine,
                 CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
         }
         return result;
@@ -315,7 +315,7 @@ private:
 
         NativeValue* lastParam = (info.argc == unwrapArgc) ? nullptr : info.argv[unwrapArgc];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("JSServiceExtensionContext::OnStartAbilityAsCaller",
+        AsyncTask::ScheduleHighQos("JSServiceExtensionContext::OnStartAbilityAsCaller",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -379,11 +379,11 @@ private:
 
         if (calls->remoteCallee == nullptr) {
             HILOG_DEBUG("OnStartAbilityByCall async wait execute");
-            AsyncTask::Schedule("JsAbilityContext::OnStartAbilityByCall", engine,
+            AsyncTask::ScheduleHighQos("JsAbilityContext::OnStartAbilityByCall", engine,
                 CreateAsyncTaskWithLastParam(
                     engine, nullptr, GetCallExecute(calls), GetCallComplete(calls), &retsult));
         } else {
-            AsyncTask::Schedule("JSServiceExtensionContext::OnStartAbilityByCall", engine,
+            AsyncTask::ScheduleHighQos("JSServiceExtensionContext::OnStartAbilityByCall", engine,
                 CreateAsyncTaskWithLastParam(engine, nullptr, nullptr, GetCallComplete(calls), &retsult));
         }
         return retsult;
@@ -555,10 +555,10 @@ private:
         NativeValue* result = nullptr;
         if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
             AddFreeInstallObserver(engine, want, lastParam);
-            AsyncTask::Schedule("JSServiceExtensionContext::OnStartAbilityWithAccount", engine,
+            AsyncTask::ScheduleHighQos("JSServiceExtensionContext::OnStartAbilityWithAccount", engine,
                 CreateAsyncTaskWithLastParam(engine, nullptr, std::move(execute), nullptr, &result));
         } else {
-            AsyncTask::Schedule("JSServiceExtensionContext::OnStartAbilityWithAccount", engine,
+            AsyncTask::ScheduleHighQos("JSServiceExtensionContext::OnStartAbilityWithAccount", engine,
                 CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
         }
         return result;
@@ -618,7 +618,7 @@ private:
 
         NativeValue* lastParam = (info.argc == ARGC_ZERO) ? nullptr : info.argv[INDEX_ZERO];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("JSServiceExtensionContext::OnTerminateAbility",
+        AsyncTask::ScheduleHighQos("JSServiceExtensionContext::OnTerminateAbility",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -660,7 +660,7 @@ private:
                 task.Resolve(engine, engine.CreateUndefined());
             };
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("JSServiceExtensionConnection::OnConnectAbility",
+        AsyncTask::ScheduleHighQos("JSServiceExtensionConnection::OnConnectAbility",
             engine, CreateAsyncTaskWithLastParam(engine, nullptr, nullptr, std::move(complete), &result));
         return engine.CreateNumber(connectId);
     }
@@ -705,7 +705,7 @@ private:
                     task.Resolve(engine, engine.CreateUndefined());
                 };
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("JSServiceExtensionConnection::OnConnectAbilityWithAccount",
+        AsyncTask::ScheduleHighQos("JSServiceExtensionConnection::OnConnectAbilityWithAccount",
             engine, CreateAsyncTaskWithLastParam(engine, nullptr, nullptr, std::move(complete), &result));
         return engine.CreateNumber(connectId);
     }
@@ -856,7 +856,7 @@ private:
 
         NativeValue* lastParam = (info.argc <= ARGC_ONE) ? nullptr : info.argv[ARGC_ONE];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("JSServiceExtensionContext::OnStartExtensionAbility",
+        AsyncTask::ScheduleHighQos("JSServiceExtensionContext::OnStartExtensionAbility",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -895,7 +895,7 @@ private:
 
         NativeValue* lastParam = (info.argc <= ARGC_TWO) ? nullptr : info.argv[ARGC_TWO];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("JSServiceExtensionContext::OnStartExtensionAbilityWithAccount",
+        AsyncTask::ScheduleHighQos("JSServiceExtensionContext::OnStartExtensionAbilityWithAccount",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }

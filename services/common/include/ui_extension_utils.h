@@ -31,6 +31,7 @@ const std::unordered_set<AppExecFwk::ExtensionAbilityType> UI_EXTENSION_SET = {
     AppExecFwk::ExtensionAbilityType::SYSDIALOG_USERAUTH,
     AppExecFwk::ExtensionAbilityType::SYSDIALOG_COMMON,
     AppExecFwk::ExtensionAbilityType::SYSDIALOG_ATOMICSERVICEPANEL,
+    AppExecFwk::ExtensionAbilityType::SYSDIALOG_POWER,
     AppExecFwk::ExtensionAbilityType::SYSPICKER_SHARE,
     AppExecFwk::ExtensionAbilityType::HMS_ACCOUNT
 };

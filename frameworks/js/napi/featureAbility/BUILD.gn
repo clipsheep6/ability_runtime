@@ -71,6 +71,7 @@ ohos_shared_library("featureability") {
     sources += [
       "${relational_store_napi_path}/common/src/js_utils.cpp",
       "${relational_store_napi_path}/dataability/src/napi_data_ability_predicates.cpp",
+      "${relational_store_napi_path}/rdb/src/napi_rdb_js_utils.cpp",
       "${relational_store_napi_path}/rdb/src/napi_result_set.cpp",
     ]
     external_deps += [

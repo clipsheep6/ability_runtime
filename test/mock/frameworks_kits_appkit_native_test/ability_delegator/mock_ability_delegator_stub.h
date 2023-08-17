@@ -138,7 +138,6 @@ public:
         const AppExecFwk::ElementName& element) override;
     int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
         MissionSnapshot& snapshot, bool isLowResolution) override;
-    void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
     int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override;
     int SendANRProcessID(int pid) override;
     int SetAbilityController(const sptr<AppExecFwk::IAbilityController>& abilityController,
@@ -294,7 +293,6 @@ public:
         const AppExecFwk::ElementName& element) override;
     int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
         MissionSnapshot& snapshot, bool isLowResolution) override;
-    void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
     int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override;
     int SendANRProcessID(int pid) override;
     int SetAbilityController(const sptr<AppExecFwk::IAbilityController>& abilityController,
@@ -306,7 +304,7 @@ public:
     int FinishUserTest(
         const std::string& msg, const int64_t& resultCode, const std::string& bundleName) override;
     int GetTopAbility(sptr<IRemoteObject>& token) override;
-    AppExecFwk::ElementName GetTopAbility() override;
+    AppExecFwk::ElementName GetTopAbility(bool isNeedLocalDeviceId = true) override;
     int DelegatorDoAbilityForeground(const sptr<IRemoteObject>& token) override;
     int DelegatorDoAbilityBackground(const sptr<IRemoteObject>& token) override;
     int32_t ReportDrawnCompleted(const sptr<IRemoteObject>& callerToken) override;

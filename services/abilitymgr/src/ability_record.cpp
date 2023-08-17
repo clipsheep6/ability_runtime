@@ -1163,12 +1163,33 @@ void AbilityRecord::SetAbilityStateInner(AbilityState state)
 
     auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(
         collaboratorType_);
-    if (collaborator == nullptr) {
-        HILOG_DEBUG("collaborator is nullptr");
-    } else {
+    if (collaborator != nullptr) {
         HILOG_INFO("start notify collaborator, missionId:%{public}d, state:%{public}d", missionId_,
             static_cast<int32_t>(state));
         int ret = ERR_OK;
+        if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+            if (sessionInfo_ == nullptr) {
+                HILOG_ERROR("sessionInfo_ is nullptr");
+                return;
+            }
+            int32_t persistentId = sessionInfo_->persistentId;
+            switch (state) {
+                case AbilityState::BACKGROUNDING: {
+                    ret = collaborator->NotifyMoveMissionToBackground(persistentId);
+                    break;
+                }
+                case AbilityState::TERMINATING: {
+                    ret = collaborator->NotifyTerminateMission(persistentId);
+                    break;
+                }
+                default:
+                    break;
+            }
+            if (ret != ERR_OK) {
+                HILOG_ERROR("notify broker move mission to background failed, err: %{public}d", ret);
+            }
+            return;
+        }
         switch (state) {
             case AbilityState::FOREGROUNDING: {
                 ret = collaborator->NotifyMoveMissionToForeground(missionId_);

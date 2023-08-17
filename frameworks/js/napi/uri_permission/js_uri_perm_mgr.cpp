@@ -119,7 +119,7 @@ private:
         };
         NativeValue* lastParam = (info.argc == argCountFour) ? info.argv[argCountThree] : nullptr;
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("JsUriPermMgr::OnGrantUriPermission",
+        AsyncTask::ScheduleHighQos("JsUriPermMgr::OnGrantUriPermission",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -172,7 +172,7 @@ private:
         };
         NativeValue* lastParam = (info.argc == argCountThree) ? info.argv[argCountTwo] : nullptr;
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("JsUriPermMgr::OnRevokeUriPermission",
+        AsyncTask::ScheduleHighQos("JsUriPermMgr::OnRevokeUriPermission",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }

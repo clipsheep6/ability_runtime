@@ -179,11 +179,6 @@ public:
         return 0;
     }
 
-    void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override
-    {
-        return;
-    }
-
     int ClearUpApplicationData(const std::string& bundleName) override
     {
         return 0;

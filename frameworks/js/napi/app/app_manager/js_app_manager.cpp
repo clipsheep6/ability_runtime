@@ -358,7 +358,7 @@ private:
 
         NativeValue* lastParam = (info.argc == ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("JSAppManager::OnkillProcessByBundleName",
+        AsyncTask::ScheduleHighQos("JSAppManager::OnkillProcessByBundleName",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -448,7 +448,7 @@ private:
 
         NativeValue* lastParam = (info.argc == ARGC_THREE) ? info.argv[INDEX_TWO] : nullptr;
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("JSAppManager::OnKillProcessWithAccount",
+        AsyncTask::ScheduleHighQos("JSAppManager::OnKillProcessWithAccount",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -480,7 +480,7 @@ private:
 
         NativeValue* lastParam = (info.argc == ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("JSAppManager::OnGetAppMemorySize",
+        AsyncTask::ScheduleHighQos("JSAppManager::OnGetAppMemorySize",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -512,7 +512,7 @@ private:
 
         NativeValue* lastParam = (info.argc == ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
         NativeValue* result = nullptr;
-        AsyncTask::Schedule("JSAppManager::OnIsRamConstrainedDevice",
+        AsyncTask::ScheduleHighQos("JSAppManager::OnIsRamConstrainedDevice",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }

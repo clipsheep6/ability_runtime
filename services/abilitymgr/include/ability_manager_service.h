@@ -955,9 +955,10 @@ public:
     bool GetDataAbilityUri(const std::vector<AppExecFwk::AbilityInfo> &abilityInfos,
         const std::string &mainAbility, std::string &uri);
 
-    virtual AppExecFwk::ElementName GetTopAbility() override;
+    virtual AppExecFwk::ElementName GetTopAbility(bool isNeedLocalDeviceId = true) override;
 
-    virtual AppExecFwk::ElementName GetElementNameByToken(const sptr<IRemoteObject> &token) override;
+    virtual AppExecFwk::ElementName GetElementNameByToken(const sptr<IRemoteObject> &token,
+        bool isNeedLocalDeviceId = true) override;
 
     /**
      * AtomicServiceStatusCallback OnInstallFinished callback.
@@ -1008,12 +1009,6 @@ public:
     bool GetLocalDeviceId(std::string& localDeviceId);
 
     int JudgeAbilityVisibleControl(const AppExecFwk::AbilityInfo &abilityInfo);
-
-    /**
-     * Called to update mission snapshot.
-     * @param token The target ability.
-     */
-    virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
 
     /**
      * Called to update mission snapshot.
@@ -1407,8 +1402,6 @@ private:
     void SubscribeBundleEventCallback();
 
     void UnsubscribeBundleEventCallback();
-
-    void ReportAbilitStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo);
 
     void ReportEventToSuspendManager(const AppExecFwk::AbilityInfo &abilityInfo);
 

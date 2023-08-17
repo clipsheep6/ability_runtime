@@ -114,11 +114,6 @@ int MockAbilityDelegatorStub::GetMissionSnapshot(const std::string& deviceId, in
     return 0;
 }
 
-void MockAbilityDelegatorStub::UpdateMissionSnapShot(const sptr<IRemoteObject>& token)
-{
-    return;
-}
-
 int MockAbilityDelegatorStub::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
 {
     return 0;
@@ -326,11 +321,6 @@ int MockAbilityDelegatorStub2::GetMissionSnapshot(const std::string& deviceId, i
     return 0;
 }
 
-void MockAbilityDelegatorStub2::UpdateMissionSnapShot(const sptr<IRemoteObject>& token)
-{
-    return;
-}
-
 int MockAbilityDelegatorStub2::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
 {
     return 0;
@@ -372,7 +362,7 @@ int MockAbilityDelegatorStub2::GetTopAbility(sptr<IRemoteObject>& token)
     return OHOS::ERR_INVALID_VALUE;
 }
 
-AppExecFwk::ElementName MockAbilityDelegatorStub2::GetTopAbility()
+AppExecFwk::ElementName MockAbilityDelegatorStub2::GetTopAbility(bool isNeedLocalDeviceId)
 {
     HILOG_INFO("GetTopAbility.");
     AppExecFwk::ElementName elementName = {};

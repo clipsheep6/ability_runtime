@@ -70,7 +70,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->RegisterSnapshotHandler(snapshotHandler);
     MissionSnapshot missionSnapshot;
     abilityms->GetMissionSnapshot(stringParam, int32Param, missionSnapshot, boolParam);
-    abilityms->UpdateMissionSnapShot(token);
     abilityms->EnableRecoverAbility(token);
 
     return true;

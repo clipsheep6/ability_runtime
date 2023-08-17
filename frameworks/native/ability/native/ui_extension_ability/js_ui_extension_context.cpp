@@ -197,7 +197,7 @@ NativeValue *JsUIExtensionContext::OnStartAbility(NativeEngine& engine, NativeCa
 
     NativeValue* lastParam = (info.argc == unwrapArgc) ? nullptr : info.argv[unwrapArgc];
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JSUIExtensionContext OnStartAbility",
+    AsyncTask::ScheduleHighQos("JSUIExtensionContext OnStartAbility",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -224,7 +224,7 @@ NativeValue *JsUIExtensionContext::OnTerminateSelf(NativeEngine& engine, const N
 
     NativeValue* lastParam = (info.argc == ARGC_ZERO) ? nullptr : info.argv[INDEX_ZERO];
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JSUIExtensionContext OnTerminateSelf",
+    AsyncTask::ScheduleHighQos("JSUIExtensionContext OnTerminateSelf",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -319,7 +319,7 @@ NativeValue* JsUIExtensionContext::OnTerminateSelfWithResult(NativeEngine& engin
 
     NativeValue* lastParam = (info.argc > ARGC_ONE) ? info.argv[1] : nullptr;
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JsUIExtensionContext::OnTerminateSelfWithResult",
+    AsyncTask::ScheduleHighQos("JsUIExtensionContext::OnTerminateSelfWithResult",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     HILOG_DEBUG("OnTerminateSelfWithResult is called end");
     return result;
@@ -362,7 +362,7 @@ NativeValue* JsUIExtensionContext::OnConnectAbility(NativeEngine& engine, Native
             task.Resolve(engine, engine.CreateUndefined());
         };
     NativeValue* result = nullptr;
-    AsyncTask::Schedule("JSUIExtensionConnection::OnConnectAbility",
+    AsyncTask::ScheduleHighQos("JSUIExtensionConnection::OnConnectAbility",
         engine, CreateAsyncTaskWithLastParam(engine, nullptr, nullptr, std::move(complete), &result));
     return engine.CreateNumber(connectId);
 }
@@ -598,7 +598,7 @@ void JSUIExtensionConnection::OnAbilityConnectDone(const AppExecFwk::ElementName
 
     NativeReference* callback = nullptr;
     std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
-    AsyncTask::Schedule("JSUIExtensionConnection::OnAbilityConnectDone",
+    AsyncTask::ScheduleHighQos("JSUIExtensionConnection::OnAbilityConnectDone",
         engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
