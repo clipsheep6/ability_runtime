@@ -2110,7 +2110,7 @@ ohos_unittest("action_extension_module_loader_test") {
   deps = [
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
-    "${ability_runtime_native_path}/ability/native:action_extension",
+    "${ability_runtime_native_path}/ability/native/action_extension_ability:action_extension",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -2170,7 +2170,7 @@ ohos_unittest("share_extension_module_loader_test") {
   deps = [
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
-    "${ability_runtime_native_path}/ability/native:share_extension",
+    "${ability_runtime_native_path}/ability/native/share_extension_ability:share_extension",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "//third_party/googletest:gmock_main",
