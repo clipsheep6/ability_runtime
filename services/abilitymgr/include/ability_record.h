@@ -972,6 +972,7 @@ private:
     int64_t startTime_ = 0;                           // records first time of ability start
     int64_t restartTime_ = 0;                         // the time of last trying restart
     bool isReady_ = false;                            // is ability thread attached?
+    bool isWindowStarted_ = false;                     // is window hotstart or coldstart?
     bool isWindowAttached_ = false;                   // Is window of this ability attached?
     bool isLauncherAbility_ = false;                  // is launcher?
     bool isKeepAlive_ = false;                 // is keep alive or resident ability?
