@@ -24,6 +24,7 @@
 namespace OHOS {
 namespace AppExecFwk {
 struct RunningProcessInfo;
+using HspList = std::vector<BaseSharedBundleInfo>;
 }
 namespace AbilityRuntime {
 class ContextImpl : public Context, public std::enable_shared_from_this<ContextImpl> {
@@ -340,7 +341,7 @@ private:
     void OnOverlayChanged(const EventFwk::CommonEventData &data,
         const std::shared_ptr<Global::Resource::ResourceManager> &resourceManager, const std::string &bundleName,
         const std::string &moduleName, const std::string &loadPath);
-    
+
     std::vector<std::string> GetAddOverlayPaths(
         const std::vector<AppExecFwk::OverlayModuleInfo> &overlayModuleInfos);
 

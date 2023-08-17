@@ -344,6 +344,8 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
         }
     }
 
+    AppExecFwk::HspList hspList;
+    bundleMgr_->GetBaseSharedBundleInfos(bundleName, hspList);
     std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();
     if (bundleInfo.applicationInfo.codePath != std::to_string(TYPE_RESERVE) &&
         bundleInfo.applicationInfo.codePath != std::to_string(TYPE_OTHERS)) {
@@ -351,13 +353,17 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
             [&moduleName](const AppExecFwk::HapModuleInfo &hapModuleInfo) {
                 return hapModuleInfo.moduleName == moduleName;
             });
-        if (info == bundleInfo.hapModuleInfos.end()) {
+        auto hspInfo = std::find_if(hspList.begin(), hspList.end(),
+            [&moduleName](const AppExecFwk::BaseSharedBundleInfo &hspInfo) {
+                return hspInfo.moduleName == moduleName;
+            });
+        if (info == bundleInfo.hapModuleInfos.end() && hspInfo == hspList.end()) {
             HILOG_ERROR("ContextImpl::CreateModuleContext moduleName is error.");
             return nullptr;
         }
         appContext->InitHapModuleInfo(*info);
     }
-    
+
     appContext->SetConfiguration(config_);
     InitResourceManager(bundleInfo, appContext, GetBundleName() == bundleName, moduleName);
     appContext->SetApplicationInfo(std::make_shared<AppExecFwk::ApplicationInfo>(bundleInfo.applicationInfo));
@@ -902,7 +908,7 @@ void ContextImpl::OnOverlayChanged(const EventFwk::CommonEventData &data,
     if (res != ERR_OK) {
         return;
     }
-    
+
     // 2.add/remove overlay hapPath
     if (loadPath.empty() || overlayModuleInfos.size() == 0) {
         HILOG_WARN("There is not any hapPath in overlayModuleInfo");
