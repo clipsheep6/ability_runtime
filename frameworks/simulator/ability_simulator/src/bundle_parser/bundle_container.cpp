@@ -84,14 +84,5 @@ std::shared_ptr<AbilityInfo> BundleContainer::GetAbilityInfo(
     }
     return nullptr;
 }
-
-void BundleContainer::SetAppCodePath(const std::string &codePath)
-{
-    if (bundleInfo_ == nullptr) {
-        HILOG_ERROR("bundleInfo_ is nullptr");
-        return;
-    }
-    bundleInfo_->SetAppCodePath(codePath);
-}
 } // namespace AppExecFwk
 } // namespace OHOS

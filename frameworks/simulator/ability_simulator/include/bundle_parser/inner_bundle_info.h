@@ -314,14 +314,6 @@ public:
         return baseApplicationInfo_->codePath;
     }
     /**
-     * @brief Set application code path.
-     * @param codePath Indicates the code path to be set.
-     */
-    void SetAppCodePath(const std::string codePath)
-    {
-        baseApplicationInfo_->codePath = codePath;
-    }
-    /**
      * @brief Insert innerModuleInfos.
      * @param modulePackage Indicates the modulePackage object as key.
      * @param innerModuleInfo Indicates the InnerModuleInfo object as value.

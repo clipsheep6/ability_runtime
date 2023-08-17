@@ -20,10 +20,7 @@
 #include <string>
 #include <vector>
 
-#include "ability_info.h"
-#include "application_info.h"
 #include "configuration.h"
-#include "hap_module_info.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -94,9 +91,6 @@ struct Options {
     std::string releaseType;
     bool enablePartialUpdate;
     std::string previewPath;
-    AppExecFwk::ApplicationInfo applicationInfo;
-    AppExecFwk::HapModuleInfo hapModuleInfo;
-    AppExecFwk::AbilityInfo abilityInfo;
     std::shared_ptr<AppExecFwk::Configuration> configuration;
     std::vector<uint8_t> moduleJsonBuffer;
 };

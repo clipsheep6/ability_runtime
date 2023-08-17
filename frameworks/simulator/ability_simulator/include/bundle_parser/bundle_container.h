@@ -34,7 +34,6 @@ public:
     std::shared_ptr<ApplicationInfo> GetApplicationInfo() const;
     std::shared_ptr<HapModuleInfo> GetHapModuleInfo(const std::string &modulePackage) const;
     std::shared_ptr<AbilityInfo> GetAbilityInfo(const std::string &moduleName, const std::string &abilityName) const;
-    void SetAppCodePath(const std::string &codePath);
 private:
     std::shared_ptr<InnerBundleInfo> bundleInfo_ = nullptr;
 };

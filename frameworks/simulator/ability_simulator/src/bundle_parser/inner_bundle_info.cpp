@@ -1013,7 +1013,7 @@ ErrCode InnerBundleInfo::FindAbilityInfo(
             }
         }
     }
-    HILOG_ERROR("bundleName: %{public}s not find moduleName:%{public}s, abilityName:%{public}s, isModuleFind:%{public}d",
+    HILOG_ERROR("bundleName:%{public}s not find moduleName:%{public}s, abilityName:%{public}s, isModuleFind:%{public}d",
         GetBundleName().c_str(), moduleName.c_str(), abilityName.c_str(), isModuleFind);
     if (isModuleFind) {
         return ERR_BUNDLE_MANAGER_ABILITY_NOT_EXIST;
@@ -1133,10 +1133,6 @@ void InnerBundleInfo::UpdateBaseApplicationInfo(const ApplicationInfo &applicati
     baseApplicationInfo_->appDetailAbilityLibraryPath = applicationInfo.appDetailAbilityLibraryPath;
     UpdatePrivilegeCapability(applicationInfo);
     SetHideDesktopIcon(applicationInfo.hideDesktopIcon);
-#ifdef BUNDLE_FRAMEWORK_OVERLAY_INSTALLATION
-    baseApplicationInfo_->targetBundleName = applicationInfo.targetBundleName;
-    baseApplicationInfo_->targetPriority = applicationInfo.targetPriority;
-#endif
 }
 
 void InnerBundleInfo::UpdatePrivilegeCapability(const ApplicationInfo &applicationInfo)
