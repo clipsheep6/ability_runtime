@@ -40,24 +40,21 @@ public:
 
 class AbilityThreadCallRequestTest : public testing::Test {
 public:
-    AbilityThreadCallRequestTest() : abilitythread_(nullptr)
-    {}
+    AbilityThreadCallRequestTest() : abilitythread_(nullptr) {}
     ~AbilityThreadCallRequestTest()
     {
         abilitythread_ = nullptr;
     }
-    AbilityThread* abilitythread_;
+    AbilityThread *abilitythread_;
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
 };
 
-void AbilityThreadCallRequestTest::SetUpTestCase(void)
-{}
+void AbilityThreadCallRequestTest::SetUpTestCase(void) {}
 
-void AbilityThreadCallRequestTest::TearDownTestCase(void)
-{}
+void AbilityThreadCallRequestTest::TearDownTestCase(void) {}
 
 void AbilityThreadCallRequestTest::SetUp(void)
 {
@@ -68,7 +65,6 @@ void AbilityThreadCallRequestTest::TearDown(void)
 {
     GTEST_LOG_(INFO) << "AbilityThreadCallRequestTest TearDown";
 }
-
 
 /**
  * @tc.number: AaFwk_AbilityThread_CallRequest_0100
@@ -123,5 +119,5 @@ HWTEST_F(AbilityThreadCallRequestTest, AaFwk_AbilityThread_CallRequest_0300, Fun
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CallRequest_0300 end";
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
+} // namespace AppExecFwk
+} // namespace OHOS

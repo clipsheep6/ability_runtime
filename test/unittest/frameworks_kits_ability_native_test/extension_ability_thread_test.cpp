@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 
-#include <gtest/gtest.h>
 #include <functional>
+#include <gtest/gtest.h>
 #define private public
 #define protected public
-#include "ability_thread.h"
 #include "ability_loader.h"
+#include "ability_thread.h"
 #include "extension_ability_thread.h"
 #undef private
 #undef protected
-#include "mock_ability_token.h"
 #include "mock_ability_thread.h"
+#include "mock_ability_token.h"
 #include "ohos_application.h"
 
 namespace OHOS {
@@ -44,17 +44,13 @@ public:
     void TearDown() override;
 };
 
-void ExtensionAbilityThreadTest::SetUpTestCase(void)
-{}
+void ExtensionAbilityThreadTest::SetUpTestCase(void) {}
 
-void ExtensionAbilityThreadTest::TearDownTestCase(void)
-{}
+void ExtensionAbilityThreadTest::TearDownTestCase(void) {}
 
-void ExtensionAbilityThreadTest::SetUp(void)
-{}
+void ExtensionAbilityThreadTest::SetUp(void) {}
 
-void ExtensionAbilityThreadTest::TearDown(void)
-{}
+void ExtensionAbilityThreadTest::TearDown(void) {}
 
 /**
  * @tc.name: AaFwk_ExtensionAbilityThread_DumpAbilityInfo_0100
@@ -66,7 +62,8 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_DumpAbilityInf
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_DumpAbilityInfo_0100 start";
 
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
     if (extensionabilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -97,12 +94,14 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_DumpAbilityInf
 /**
  * @tc.number: AaFwk_ExtensionAbilityThread_DumpAbilityInfo_0200
  * @tc.name: DumpAbilityInfo
- * @tc.desc: Test DumpAbilityInfo function when token_ and abilityHandler_ is not nullptr
+ * @tc.desc: Test DumpAbilityInfo function when token_ and abilityHandler_ is
+ * not nullptr
  */
 HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_DumpAbilityInfo_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_DumpAbilityInfo_0200 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     std::vector<std::string> params;
@@ -124,7 +123,8 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_DumpAbilityInf
 HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_DumpAbilityInfo_0300, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_DumpAbilityInfo_0300 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     std::vector<std::string> params;
@@ -145,7 +145,8 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_DumpAbilityInf
 HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_Attach_3_Param_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_Attach_3_Param_0100 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
     if (extensionabilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -173,7 +174,8 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_Attach_3_Param
 HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_Attach_3_Param_0200, Function | MediumTest | Level3)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_Attach_3_Param_0200 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
     if (extensionabilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -202,7 +204,8 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_Attach_3_Param
 HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_Attach_2_Param_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_Attach_2_Param_0100 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
     if (extensionabilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -230,7 +233,8 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_Attach_2_Param
 HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_Attach_2_Param_0200, Function | MediumTest | Level3)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_Attach_2_Param_0200 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
     if (extensionabilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -257,11 +261,13 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_Attach_2_Param
  * @tc.name: ScheduleAbilityTransaction
  * @tc.desc: Simulate successful test cases
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleAbilityTransaction_0100, Function | MediumTest | Level1)
+HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleAbilityTransaction_0100,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_ScheduleAbilityTransaction_0100 start";
 
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
     if (extensionabilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -291,10 +297,12 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleAbilit
  * @tc.name: ScheduleAbilityTransaction
  * @tc.desc: Validate when normally entering a string
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleAbilityTransaction_0200, Function | MediumTest | Level3)
+HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleAbilityTransaction_0200,
+    Function | MediumTest | Level3)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_ScheduleAbilityTransaction_0200 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
     if (extensionabilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -321,10 +329,12 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleAbilit
  * @tc.name: ScheduleAbilityTransaction
  * @tc.desc: Test ScheduleAbilityTransaction function when token_ is not nullptr
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleAbilityTransaction_0300, Function | MediumTest | Level1)
+HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleAbilityTransaction_0300,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_ScheduleAbilityTransaction_0300 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     extensionabilitythread->token_ = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
@@ -339,12 +349,15 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleAbilit
 /**
  * @tc.number: AaFwk_ExtensionAbilityThread_ScheduleAbilityTransaction_0400
  * @tc.name: ScheduleAbilityTransaction
- * @tc.desc: Test ScheduleAbilityTransaction function when abilityHandler_ and token_ is not nullptr
+ * @tc.desc: Test ScheduleAbilityTransaction function when abilityHandler_ and
+ * token_ is not nullptr
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleAbilityTransaction_0400, Function | MediumTest | Level1)
+HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleAbilityTransaction_0400,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_ScheduleAbilityTransaction_0400 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     extensionabilitythread->token_ = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
@@ -363,11 +376,13 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleAbilit
  * @tc.name: ScheduleConnectAbility
  * @tc.desc: Simulate successful test cases
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleConnectAbility_0100, Function | MediumTest | Level1)
+HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleConnectAbility_0100,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_ScheduleConnectAbility_0100 start";
 
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
     if (extensionabilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -396,11 +411,13 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleConnec
  * @tc.name: ScheduleConnectAbility
  * @tc.desc: Validate when normally entering a string
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleConnectAbility_0200, Function | MediumTest | Level1)
+HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleConnectAbility_0200,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_ScheduleConnectAbility_0200 start";
 
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
     if (extensionabilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -408,8 +425,7 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleConnec
         abilityInfo->type = AbilityType::PAGE;
         sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
         std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-        std::shared_ptr<AbilityLocalRecord> abilityRecord =
-            std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+        std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> mainRunner = EventRunner::Create(abilityInfo->name);
         extensionabilitythread->Attach(application, abilityRecord, mainRunner, nullptr);
 
@@ -424,11 +440,13 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleConnec
  * @tc.name: ScheduleDisconnectAbility
  * @tc.desc: Simulate successful test cases
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleDisconnectAbility_0100, Function | MediumTest | Level1)
+HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleDisconnectAbility_0100,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_ScheduleDisconnectAbility_0100 start";
 
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
     if (extensionabilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -457,11 +475,13 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleDiscon
  * @tc.name: ScheduleDisconnectAbility
  * @tc.desc: Validate when normally entering a string
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleDisconnectAbility_0200, Function | MediumTest | Level1)
+HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleDisconnectAbility_0200,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_ScheduleDisconnectAbility_0200 start";
 
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
     if (extensionabilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -469,8 +489,7 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleDiscon
         abilityInfo->type = AbilityType::PAGE;
         sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
         std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-        std::shared_ptr<AbilityLocalRecord> abilityRecord =
-            std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+        std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> mainRunner = EventRunner::Create(abilityInfo->name);
         extensionabilitythread->Attach(application, abilityRecord, mainRunner, nullptr);
 
@@ -485,11 +504,13 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleDiscon
  * @tc.name: ScheduleCommandAbility
  * @tc.desc: Simulate successful test cases
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleCommandAbility_0100, Function | MediumTest | Level1)
+HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleCommandAbility_0100,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_ScheduleCommandAbility_0100 start";
 
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
     if (extensionabilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -522,11 +543,13 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleComman
  * @tc.name: ScheduleCommandAbility
  * @tc.desc: Validate when normally entering a string
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleCommandAbility_0200, Function | MediumTest | Level1)
+HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleCommandAbility_0200,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_ScheduleCommandAbility_0200 start";
 
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
     if (extensionabilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -534,8 +557,7 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleComman
         abilityInfo->type = AbilityType::PAGE;
         sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
         std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-        std::shared_ptr<AbilityLocalRecord> abilityRecord =
-            std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+        std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> mainRunner = EventRunner::Create(abilityInfo->name);
         extensionabilitythread->Attach(application, abilityRecord, mainRunner, nullptr);
 
@@ -552,11 +574,13 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleComman
  * @tc.name: ScheduleCommandAbilityWindow
  * @tc.desc: Simulate successful test cases
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleCommandAbilityWindow_0100, Function | MediumTest | Level1)
+HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleCommandAbilityWindow_0100,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_ScheduleCommandAbilityWindow_0100 start";
 
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
     if (extensionabilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -584,12 +608,15 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleComman
 /**
  * @tc.number: AaFwk_ExtensionAbilityThread_HandleExtensionTransaction_0100
  * @tc.name: HandleExtensionTransaction
- * @tc.desc: Test HandleExtensionTransaction function when extensionImpl_ is nullptr
+ * @tc.desc: Test HandleExtensionTransaction function when extensionImpl_ is
+ * nullptr
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleExtensionTransaction_0100, Function | MediumTest | Level1)
+HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleExtensionTransaction_0100,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_HandleExtensionTransaction_0100 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
     Want want;
     LifeCycleStateInfo lifeCycleStateInfo;
@@ -602,12 +629,15 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleExtensio
 /**
  * @tc.number: AaFwk_ExtensionAbilityThread_HandleExtensionTransaction_0200
  * @tc.name: HandleExtensionTransaction
- * @tc.desc: Test HandleExtensionTransaction function when extensionImpl_ is not nullptr
+ * @tc.desc: Test HandleExtensionTransaction function when extensionImpl_ is not
+ * nullptr
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleExtensionTransaction_0200, Function | MediumTest | Level1)
+HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleExtensionTransaction_0200,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_HandleExtensionTransaction_0200 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
     Want want;
     LifeCycleStateInfo lifeCycleStateInfo;
@@ -623,10 +653,12 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleExtensio
  * @tc.name: HandleConnectExtension
  * @tc.desc: Test HandleConnectExtension function when extensionImpl_ is nullptr
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleConnectExtension_0100, Function | MediumTest | Level1)
+HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleConnectExtension_0100,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_HandleConnectExtension_0100 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     Want want;
@@ -638,12 +670,15 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleConnectE
 /**
  * @tc.number: AaFwk_ExtensionAbilityThread_HandleConnectExtension_0200
  * @tc.name: HandleConnectExtension
- * @tc.desc: Test HandleConnectExtension function when extensionImpl_ is not nullptr
+ * @tc.desc: Test HandleConnectExtension function when extensionImpl_ is not
+ * nullptr
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleConnectExtension_0200, Function | MediumTest | Level1)
+HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleConnectExtension_0200,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_HandleConnectExtension_0200 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     Want want;
@@ -658,10 +693,12 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleConnectE
  * @tc.name: HandleCommandExtension
  * @tc.desc: Test HandleCommandExtension function when extensionImpl_ is nullptr
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleCommandExtension_0100, Function | MediumTest | Level1)
+HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleCommandExtension_0100,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_HandleCommandExtension_0100 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     Want want;
@@ -673,12 +710,15 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleCommandE
 /**
  * @tc.number: AaFwk_ExtensionAbilityThread_HandleCommandExtension_0200
  * @tc.name: HandleCommandExtension
- * @tc.desc: Test HandleCommandExtension function when extensionImpl_ is not nullptr
+ * @tc.desc: Test HandleCommandExtension function when extensionImpl_ is not
+ * nullptr
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleCommandExtension_0200, Function | MediumTest | Level1)
+HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleCommandExtension_0200,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_HandleCommandExtension_0200 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     Want want;
@@ -691,12 +731,15 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleCommandE
 /**
  * @tc.number: AaFwk_ExtensionAbilityThread_HandleCommandExtensionWindow_0100
  * @tc.name: HandleCommandExtensionWindow
- * @tc.desc: Test HandleCommandExtensionWindow function when extensionImpl_ is nullptr
+ * @tc.desc: Test HandleCommandExtensionWindow function when extensionImpl_ is
+ * nullptr
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleCommandExtensionWindow_0100, Function | MediumTest | Level1)
+HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleCommandExtensionWindow_0100,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_HandleCommandExtensionWindow_0100 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     extensionabilitythread->extensionImpl_ = std::make_shared<AbilityRuntime::ExtensionImpl>();
@@ -710,12 +753,15 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleCommandE
 /**
  * @tc.number: AaFwk_ExtensionAbilityThread_ScheduleUpdateConfiguration_0100
  * @tc.name: ScheduleUpdateConfiguration
- * @tc.desc: Test ScheduleUpdateConfiguration function when abilityHandler_ is nullptr
+ * @tc.desc: Test ScheduleUpdateConfiguration function when abilityHandler_ is
+ * nullptr
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleUpdateConfiguration_0100, Function | MediumTest | Level1)
+HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleUpdateConfiguration_0100,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_ScheduleUpdateConfiguration_0100 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     Configuration config;
@@ -727,12 +773,15 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleUpdate
 /**
  * @tc.number: AaFwk_ExtensionAbilityThread_ScheduleUpdateConfiguration_0200
  * @tc.name: ScheduleUpdateConfiguration
- * @tc.desc: Test ScheduleUpdateConfiguration function when abilityHandler_ is not nullptr
+ * @tc.desc: Test ScheduleUpdateConfiguration function when abilityHandler_ is
+ * not nullptr
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleUpdateConfiguration_0200, Function | MediumTest | Level1)
+HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleUpdateConfiguration_0200,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_ScheduleUpdateConfiguration_0200 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     Configuration config;
@@ -745,12 +794,15 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ScheduleUpdate
 /**
  * @tc.number: AaFwk_ExtensionAbilityThread_ExtensionUpdateConfiguration_0100
  * @tc.name: HandleExtensionUpdateConfiguration
- * @tc.desc: Test HandleExtensionUpdateConfiguration function when extensionImpl_ is nullptr
+ * @tc.desc: Test HandleExtensionUpdateConfiguration function when
+ * extensionImpl_ is nullptr
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ExtensionUpdateConfiguration_0100, Function | MediumTest | Level1)
+HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ExtensionUpdateConfiguration_0100,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_ExtensionUpdateConfiguration_0100 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     Configuration config;
@@ -762,12 +814,15 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ExtensionUpdat
 /**
  * @tc.number: AaFwk_ExtensionAbilityThread_ExtensionUpdateConfiguration_0200
  * @tc.name: HandleExtensionUpdateConfiguration
- * @tc.desc: Test HandleExtensionUpdateConfiguration function when extensionImpl_ is not nullptr
+ * @tc.desc: Test HandleExtensionUpdateConfiguration function when
+ * extensionImpl_ is not nullptr
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ExtensionUpdateConfiguration_0200, Function | MediumTest | Level1)
+HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ExtensionUpdateConfiguration_0200,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_ExtensionUpdateConfiguration_0200 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     Configuration config;
@@ -780,12 +835,15 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_ExtensionUpdat
 /**
  * @tc.number: AaFwk_ExtensionAbilityThread_NotifyMemoryLevel_0100
  * @tc.name: NotifyMemoryLevel
- * @tc.desc: Test NotifyMemoryLevel function when isExtension_ is false and abilityImpl_ is nullptr
+ * @tc.desc: Test NotifyMemoryLevel function when isExtension_ is false and
+ * abilityImpl_ is nullptr
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_NotifyMemoryLevel_0100, Function | MediumTest | Level1)
+HWTEST_F(
+    ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_NotifyMemoryLevel_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_NotifyMemoryLevel_0100 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     int32_t result = STARTID;
@@ -797,12 +855,15 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_NotifyMemoryLe
 /**
  * @tc.number: AaFwk_ExtensionAbilityThread_NotifyMemoryLevel_0200
  * @tc.name: NotifyMemoryLevel
- * @tc.desc: Test NotifyMemoryLevel function when isExtension_ is false and abilityImpl_ is not nullptr
+ * @tc.desc: Test NotifyMemoryLevel function when isExtension_ is false and
+ * abilityImpl_ is not nullptr
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_NotifyMemoryLevel_0200, Function | MediumTest | Level1)
+HWTEST_F(
+    ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_NotifyMemoryLevel_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_NotifyMemoryLevel_0200 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     int32_t result = STARTID;
@@ -816,12 +877,15 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_NotifyMemoryLe
 /**
  * @tc.number: AaFwk_ExtensionAbilityThread_NotifyMemoryLevel_0300
  * @tc.name: NotifyMemoryLevel
- * @tc.desc: Test NotifyMemoryLevel function when isExtension_ is true and extensionImpl_ is nullptr
+ * @tc.desc: Test NotifyMemoryLevel function when isExtension_ is true and
+ * extensionImpl_ is nullptr
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_NotifyMemoryLevel_0300, Function | MediumTest | Level1)
+HWTEST_F(
+    ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_NotifyMemoryLevel_0300, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_NotifyMemoryLevel_0300 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     int32_t result = STARTID;
@@ -833,12 +897,15 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_NotifyMemoryLe
 /**
  * @tc.number: AaFwk_ExtensionAbilityThread_NotifyMemoryLevel_0400
  * @tc.name: NotifyMemoryLevel
- * @tc.desc: Test NotifyMemoryLevel function when isExtension_ is true and extensionImpl_ is not nullptr
+ * @tc.desc: Test NotifyMemoryLevel function when isExtension_ is true and
+ * extensionImpl_ is not nullptr
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_NotifyMemoryLevel_0400, Function | MediumTest | Level1)
+HWTEST_F(
+    ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_NotifyMemoryLevel_0400, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_NotifyMemoryLevel_0400 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     int32_t result = STARTID;
@@ -851,12 +918,15 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_NotifyMemoryLe
 /**
  * @tc.number: AaFwk_ExtensionAbilityThread_DumpAbilityInfoInner_0100
  * @tc.name: DumpAbilityInfoInner
- * @tc.desc: Test DumpAbilityInfoInner function when currentAbility_ and currentExtension_ is not nullptr
+ * @tc.desc: Test DumpAbilityInfoInner function when currentAbility_ and
+ * currentExtension_ is not nullptr
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_DumpAbilityInfoInner_0100, Function | MediumTest | Level1)
+HWTEST_F(
+    ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_DumpAbilityInfoInner_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_DumpAbilityInfoInner_0100 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     std::vector<std::string> params;
@@ -877,10 +947,12 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_DumpAbilityInf
  * @tc.name: DumpAbilityInfoInner
  * @tc.desc: Test DumpAbilityInfoInner function when currentAbility_ is nullptr
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_DumpAbilityInfoInner_0200, Function | MediumTest | Level1)
+HWTEST_F(
+    ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_DumpAbilityInfoInner_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_DumpAbilityInfoInner_0200 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     std::vector<std::string> params;
@@ -896,12 +968,15 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_DumpAbilityInf
 /**
  * @tc.number: AaFwk_ExtensionAbilityThread_DumpAbilityInfoInner_0300
  * @tc.name: DumpAbilityInfoInner
- * @tc.desc: Test DumpAbilityInfoInner function when currentExtension_ is nullptr
+ * @tc.desc: Test DumpAbilityInfoInner function when currentExtension_ is
+ * nullptr
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_DumpAbilityInfoInner_0300, Function | MediumTest | Level1)
+HWTEST_F(
+    ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_DumpAbilityInfoInner_0300, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_DumpAbilityInfoInner_0300 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     std::vector<std::string> params;
@@ -919,12 +994,14 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_DumpAbilityInf
 /**
  * @tc.number: AaFwk_ExtensionAbilityThread_DumpOtherInfo_0100
  * @tc.name: DumpOtherInfo
- * @tc.desc: Test DumpOtherInfo function when abilityHandler_ and currentAbility_ is not nullptr
+ * @tc.desc: Test DumpOtherInfo function when abilityHandler_ and
+ * currentAbility_ is not nullptr
  */
 HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_DumpOtherInfo_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_DumpOtherInfo_0100 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     extensionabilitythread->abilityHandler_ = std::make_shared<AbilityHandler>(nullptr);
@@ -952,7 +1029,8 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_DumpOtherInfo_
 HWTEST_F(ExtensionAbilityThreadTest, AaFwk_AbilityThread_DumpOtherInfo_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_DumpOtherInfo_0200 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     std::vector<std::string> info;
@@ -969,7 +1047,8 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_AbilityThread_DumpOtherInfo_0200, Fun
 HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_DumpOtherInfo_0300, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_DumpOtherInfo_0300 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     std::vector<std::string> info;
@@ -983,12 +1062,15 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_DumpOtherInfo_
 /**
  * @tc.number: AaFwk_ExtensionAbilityThread_CreateAbilityName_0100
  * @tc.name: CreateAbilityName
- * @tc.desc: Test CreateAbilityName function when parameters are application, mainRunner and abilityRecord
+ * @tc.desc: Test CreateAbilityName function when parameters are application,
+ * mainRunner and abilityRecord
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_CreateAbilityName_0100, Function | MediumTest | Level1)
+HWTEST_F(
+    ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_CreateAbilityName_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CreateAbilityName_0100 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
@@ -1011,12 +1093,15 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_CreateAbilityN
 /**
  * @tc.number: AaFwk_ExtensionAbilityThread_HandleDisconnectExtension_0100
  * @tc.name: HandleDisconnectExtension
- * @tc.desc: Test HandleDisconnectExtension function when abilityImpl_ is not nullptr
+ * @tc.desc: Test HandleDisconnectExtension function when abilityImpl_ is not
+ * nullptr
  */
-HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleDisconnectExtension_0100, Function | MediumTest | Level1)
+HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleDisconnectExtension_0100,
+    Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_HandleDisconnectExtension_0100 start";
-    AbilityRuntime::ExtensionAbilityThread* extensionabilitythread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+    AbilityRuntime::ExtensionAbilityThread *extensionabilitythread =
+        new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     EXPECT_NE(extensionabilitythread, nullptr);
 
     Want want;
@@ -1026,6 +1111,6 @@ HWTEST_F(ExtensionAbilityThreadTest, AaFwk_ExtensionAbilityThread_HandleDisconne
     extensionabilitythread->HandleDisconnectExtension(want);
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_HandleDisconnectExtension_0100 end";
 }
-}
-}  // namespace AppExecFwk
-}  // namespace OHOS
+} // namespace AppExecFwk
+} // namespace AbilityRuntime
+} // namespace OHOS

@@ -48,24 +48,21 @@ REGISTER_AA(MockPageAbility)
 
 class AbilityThreadTest : public testing::Test {
 public:
-    AbilityThreadTest() : abilitythread_(nullptr)
-    {}
+    AbilityThreadTest() : abilitythread_(nullptr) {}
     ~AbilityThreadTest()
     {
         abilitythread_ = nullptr;
     }
-    AbilityThread* abilitythread_;
+    AbilityThread *abilitythread_;
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
 };
 
-void AbilityThreadTest::SetUpTestCase(void)
-{}
+void AbilityThreadTest::SetUpTestCase(void) {}
 
-void AbilityThreadTest::TearDownTestCase(void)
-{}
+void AbilityThreadTest::TearDownTestCase(void) {}
 
 void AbilityThreadTest::SetUp(void)
 {
@@ -405,5 +402,5 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Delete_0100, Function | MediumTe
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Delete_0100 end";
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
+} // namespace AppExecFwk
+} // namespace OHOS

@@ -7,7 +7,7 @@
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, 
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -48,11 +48,9 @@ public:
     std::shared_ptr<OHOSApplication> ohosApplication_;
 };
 
-void OHOSApplicationTest::SetUpTestCase()
-{}
+void OHOSApplicationTest::SetUpTestCase() {}
 
-void OHOSApplicationTest::TearDownTestCase()
-{}
+void OHOSApplicationTest::TearDownTestCase() {}
 
 void OHOSApplicationTest::SetUp()
 {
@@ -65,10 +63,11 @@ void OHOSApplicationTest::TearDown()
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_DispatchAbilitySavedState_0100
-* @tc.name: DispatchAbilitySavedState
-* @tc.desc: Verify function DispatchAbilitySavedState list abilityLifecycleCallbacks_ empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_DispatchAbilitySavedState_0100
+ * @tc.name: DispatchAbilitySavedState
+ * @tc.desc: Verify function DispatchAbilitySavedState list
+ * abilityLifecycleCallbacks_ empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_DispatchAbilitySavedState_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_DispatchAbilitySavedState_0100 start.";
@@ -79,10 +78,11 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_DispatchAbilitySave
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_DispatchAbilitySavedState_0200
-* @tc.name: DispatchAbilitySavedState
-* @tc.desc: Verify function DispatchAbilitySavedState list abilityLifecycleCallbacks_ not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_DispatchAbilitySavedState_0200
+ * @tc.name: DispatchAbilitySavedState
+ * @tc.desc: Verify function DispatchAbilitySavedState list
+ * abilityLifecycleCallbacks_ not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_DispatchAbilitySavedState_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_DispatchAbilitySavedState_0200 start.";
@@ -97,10 +97,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_DispatchAbilitySave
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnForeground_0100
-* @tc.name: OnForeground
-* @tc.desc: Verify function OnForeground pointer runtime_  empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnForeground_0100
+ * @tc.name: OnForeground
+ * @tc.desc: Verify function OnForeground pointer runtime_  empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnForeground_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnForeground_0100 start.";
@@ -110,10 +110,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnForeground_0100, 
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnForeground_0200
-* @tc.name: OnForeground
-* @tc.desc: Verify function OnForeground pointer runtime_ not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnForeground_0200
+ * @tc.name: OnForeground
+ * @tc.desc: Verify function OnForeground pointer runtime_ not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnForeground_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnForeground_0200 start.";
@@ -124,10 +124,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnForeground_0200, 
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnBackground_0100
-* @tc.name: OnBackground
-* @tc.desc: Verify function OnBackground pointer runtime_ empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnBackground_0100
+ * @tc.name: OnBackground
+ * @tc.desc: Verify function OnBackground pointer runtime_ empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnBackground_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnBackground_0100 start.";
@@ -137,10 +137,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnBackground_0100, 
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnBackground_0200
-* @tc.name: OnBackground
-* @tc.desc: Verify function OnBackground pointer runtime_ not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnBackground_0200
+ * @tc.name: OnBackground
+ * @tc.desc: Verify function OnBackground pointer runtime_ not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnBackground_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnBackground_0200 start.";
@@ -151,10 +151,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnBackground_0200, 
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_DumpApplication_0100
-* @tc.name: DumpApplication
-* @tc.desc: Verify function DumpApplication pointer record not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_DumpApplication_0100
+ * @tc.name: DumpApplication
+ * @tc.desc: Verify function DumpApplication pointer record not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_DumpApplication_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_DumpApplication_0100 start.";
@@ -169,17 +169,17 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_DumpApplication_010
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_DumpApplication_0200
-* @tc.name: DumpApplication
-* @tc.desc: Verify function DumpApplication pointer abilityInfo not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_DumpApplication_0200
+ * @tc.name: DumpApplication
+ * @tc.desc: Verify function DumpApplication pointer abilityInfo not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_DumpApplication_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_DumpApplication_0200 start.";
     ohosApplication_->abilityRecordMgr_ = std::make_shared<AbilityRecordMgr>();
     sptr<Notification::MockIRemoteObject> token = new (std::nothrow) Notification::MockIRemoteObject();
     std::shared_ptr<AbilityInfo> info = std::make_shared<AbilityInfo>();
-    std::shared_ptr<AbilityLocalRecord> record =  std::make_shared<AbilityLocalRecord>(info, token);
+    std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(info, token);
     info->permissions.push_back(std::string("abc"));
     ohosApplication_->abilityRecordMgr_->abilityRecords_.emplace(token, record);
     ohosApplication_->DumpApplication();
@@ -188,10 +188,11 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_DumpApplication_020
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_DumpApplication_0300
-* @tc.name: DumpApplication
-* @tc.desc: Verify function DumpApplication pointer applicationInfoPtr not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_DumpApplication_0300
+ * @tc.name: DumpApplication
+ * @tc.desc: Verify function DumpApplication pointer applicationInfoPtr not
+ * empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_DumpApplication_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_DumpApplication_0300 start.";
@@ -206,10 +207,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_DumpApplication_030
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_SetRuntime_0100
-* @tc.name: SetRuntime
-* @tc.desc: Verify function SetRuntime pointer runtime empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_SetRuntime_0100
+ * @tc.name: SetRuntime
+ * @tc.desc: Verify function SetRuntime pointer runtime empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_SetRuntime_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_SetRuntime_0100 start.";
@@ -220,10 +221,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_SetRuntime_0100, Te
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_SetRuntime_0200
-* @tc.name: SetRuntime
-* @tc.desc: Verify function SetRuntime pointer runtime_ not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_SetRuntime_0200
+ * @tc.name: SetRuntime
+ * @tc.desc: Verify function SetRuntime pointer runtime_ not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_SetRuntime_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_SetRuntime_0200 start.";
@@ -235,10 +236,11 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_SetRuntime_0200, Te
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_SetApplicationContext_0100
-* @tc.name: SetApplicationContext
-* @tc.desc: Verify function SetApplicationContext pointer abilityRuntimeContext_ empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_SetApplicationContext_0100
+ * @tc.name: SetApplicationContext
+ * @tc.desc: Verify function SetApplicationContext pointer
+ * abilityRuntimeContext_ empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_SetApplicationContext_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_SetApplicationContext_0100 start.";
@@ -249,10 +251,11 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_SetApplicationConte
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_SetApplicationContext_0200
-* @tc.name: SetApplicationContext
-* @tc.desc: Verify function SetApplicationContext pointer abilityRuntimeContext_ not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_SetApplicationContext_0200
+ * @tc.name: SetApplicationContext
+ * @tc.desc: Verify function SetApplicationContext pointer
+ * abilityRuntimeContext_ not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_SetApplicationContext_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_SetApplicationContext_0200 start.";
@@ -265,10 +268,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_SetApplicationConte
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_SetAbilityRecordMgr_0100
-* @tc.name: SetAbilityRecordMgr
-* @tc.desc: Verify function SetAbilityRecordMgr pointer abilityRecordMgr_ empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_SetAbilityRecordMgr_0100
+ * @tc.name: SetAbilityRecordMgr
+ * @tc.desc: Verify function SetAbilityRecordMgr pointer abilityRecordMgr_ empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_SetAbilityRecordMgr_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_SetAbilityRecordMgr_0100 start.";
@@ -279,10 +282,11 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_SetAbilityRecordMgr
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_SetAbilityRecordMgr_0200
-* @tc.name: SetAbilityRecordMgr
-* @tc.desc: Verify function SetAbilityRecordMgr pointer abilityRecordMgr_ not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_SetAbilityRecordMgr_0200
+ * @tc.name: SetAbilityRecordMgr
+ * @tc.desc: Verify function SetAbilityRecordMgr pointer abilityRecordMgr_ not
+ * empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_SetAbilityRecordMgr_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_SetAbilityRecordMgr_0200 start.";
@@ -294,72 +298,88 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_SetAbilityRecordMgr
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_RegisterAbilityLifecycleCallbacks_0100
-* @tc.name: RegisterAbilityLifecycleCallbacks
-* @tc.desc: Verify function RegisterAbilityLifecycleCallbacks list abilityLifecycleCallbacks_ empty
-*/
+ * @tc.number:
+ * AppExecFwk_OHOSApplicationTest_RegisterAbilityLifecycleCallbacks_0100
+ * @tc.name: RegisterAbilityLifecycleCallbacks
+ * @tc.desc: Verify function RegisterAbilityLifecycleCallbacks list
+ * abilityLifecycleCallbacks_ empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_RegisterAbilityLifecycleCallbacks_0100, TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_RegisterAbilityLifecycleCallbacks_0100 start.";
+    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_"
+                        "RegisterAbilityLifecycleCallbacks_0100 start.";
     std::shared_ptr<MockAbilityLifecycleCallbacks> callBack = nullptr;
     EXPECT_TRUE(ohosApplication_->abilityLifecycleCallbacks_.empty());
     ohosApplication_->RegisterAbilityLifecycleCallbacks(callBack);
     EXPECT_TRUE(ohosApplication_->abilityLifecycleCallbacks_.empty());
-    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_RegisterAbilityLifecycleCallbacks_0100 end.";
+    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_"
+                        "RegisterAbilityLifecycleCallbacks_0100 end.";
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_RegisterAbilityLifecycleCallbacks_0200
-* @tc.name: RegisterAbilityLifecycleCallbacks
-* @tc.desc: Verify function RegisterAbilityLifecycleCallbacks list abilityLifecycleCallbacks_ not empty
-*/
+ * @tc.number:
+ * AppExecFwk_OHOSApplicationTest_RegisterAbilityLifecycleCallbacks_0200
+ * @tc.name: RegisterAbilityLifecycleCallbacks
+ * @tc.desc: Verify function RegisterAbilityLifecycleCallbacks list
+ * abilityLifecycleCallbacks_ not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_RegisterAbilityLifecycleCallbacks_0200, TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_RegisterAbilityLifecycleCallbacks_0200 start.";
+    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_"
+                        "RegisterAbilityLifecycleCallbacks_0200 start.";
     EXPECT_TRUE(ohosApplication_->abilityLifecycleCallbacks_.empty());
     std::shared_ptr<MockAbilityLifecycleCallbacks> callBack = std::make_shared<MockAbilityLifecycleCallbacks>();
     ohosApplication_->RegisterAbilityLifecycleCallbacks(callBack);
     EXPECT_FALSE(ohosApplication_->abilityLifecycleCallbacks_.empty());
-    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_RegisterAbilityLifecycleCallbacks_0200 end.";
+    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_"
+                        "RegisterAbilityLifecycleCallbacks_0200 end.";
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_UnregisterAbilityLifecycleCallbacks_0100
-* @tc.name: UnregisterAbilityLifecycleCallbacks
-* @tc.desc: Verify function UnregisterAbilityLifecycleCallbacks list abilityLifecycleCallbacks_ empty
-*/
+ * @tc.number:
+ * AppExecFwk_OHOSApplicationTest_UnregisterAbilityLifecycleCallbacks_0100
+ * @tc.name: UnregisterAbilityLifecycleCallbacks
+ * @tc.desc: Verify function UnregisterAbilityLifecycleCallbacks list
+ * abilityLifecycleCallbacks_ empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_UnregisterAbilityLifecycleCallbacks_0100, TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_UnregisterAbilityLifecycleCallbacks_0100 start.";
+    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_"
+                        "UnregisterAbilityLifecycleCallbacks_0100 start.";
     EXPECT_TRUE(ohosApplication_->abilityLifecycleCallbacks_.empty());
     std::shared_ptr<MockAbilityLifecycleCallbacks> callBack = nullptr;
     ohosApplication_->UnregisterAbilityLifecycleCallbacks(callBack);
     EXPECT_TRUE(ohosApplication_->abilityLifecycleCallbacks_.empty());
-    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_UnregisterAbilityLifecycleCallbacks_0100 end.";
+    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_"
+                        "UnregisterAbilityLifecycleCallbacks_0100 end.";
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_UnregisterAbilityLifecycleCallbacks_0200
-* @tc.name: UnregisterAbilityLifecycleCallbacks
-* @tc.desc: Verify function UnregisterAbilityLifecycleCallbacks list abilityLifecycleCallbacks_ not empty
-*/
+ * @tc.number:
+ * AppExecFwk_OHOSApplicationTest_UnregisterAbilityLifecycleCallbacks_0200
+ * @tc.name: UnregisterAbilityLifecycleCallbacks
+ * @tc.desc: Verify function UnregisterAbilityLifecycleCallbacks list
+ * abilityLifecycleCallbacks_ not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_UnregisterAbilityLifecycleCallbacks_0200, TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_UnregisterAbilityLifecycleCallbacks_0200 start.";
+    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_"
+                        "UnregisterAbilityLifecycleCallbacks_0200 start.";
     EXPECT_TRUE(ohosApplication_->abilityLifecycleCallbacks_.empty());
     std::shared_ptr<MockAbilityLifecycleCallbacks> callBack = std::make_shared<MockAbilityLifecycleCallbacks>();
     ohosApplication_->abilityLifecycleCallbacks_.emplace_back(callBack);
     EXPECT_FALSE(ohosApplication_->abilityLifecycleCallbacks_.empty());
     ohosApplication_->UnregisterAbilityLifecycleCallbacks(callBack);
     EXPECT_TRUE(ohosApplication_->abilityLifecycleCallbacks_.empty());
-    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_UnregisterAbilityLifecycleCallbacks_0200 end.";
+    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_"
+                        "UnregisterAbilityLifecycleCallbacks_0200 end.";
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityStart_0100
-* @tc.name: OnAbilityStart
-* @tc.desc: Verify function OnAbilityStart pointer ability empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityStart_0100
+ * @tc.name: OnAbilityStart
+ * @tc.desc: Verify function OnAbilityStart pointer ability empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityStart_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityStart_0100 start.";
@@ -370,10 +390,11 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityStart_0100
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityStart_0200
-* @tc.name: OnAbilityStart
-* @tc.desc: Verify function OnAbilityStart pointer abilityLifecycleCallbacks_ not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityStart_0200
+ * @tc.name: OnAbilityStart
+ * @tc.desc: Verify function OnAbilityStart pointer abilityLifecycleCallbacks_
+ * not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityStart_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityStart_0200 start.";
@@ -391,10 +412,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityStart_0200
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityInactive_0100
-* @tc.name: OnAbilityInactive
-* @tc.desc: Verify function OnAbilityInactive pointer ability empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityInactive_0100
+ * @tc.name: OnAbilityInactive
+ * @tc.desc: Verify function OnAbilityInactive pointer ability empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityInactive_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityInactive_0100 start.";
@@ -405,10 +426,11 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityInactive_0
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityInactive_0200
-* @tc.name: OnAbilityInactive
-* @tc.desc: Verify function OnAbilityInactive pointer abilityLifecycleCallbacks_ not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityInactive_0200
+ * @tc.name: OnAbilityInactive
+ * @tc.desc: Verify function OnAbilityInactive pointer
+ * abilityLifecycleCallbacks_ not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityInactive_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityInactive_0200 start.";
@@ -426,10 +448,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityInactive_0
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityBackground_0100
-* @tc.name: OnAbilityBackground
-* @tc.desc: Verify function OnAbilityBackground pointer ability empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityBackground_0100
+ * @tc.name: OnAbilityBackground
+ * @tc.desc: Verify function OnAbilityBackground pointer ability empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityBackground_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityBackground_0100 start.";
@@ -440,10 +462,11 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityBackground
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityBackground_0200
-* @tc.name: OnAbilityBackground
-* @tc.desc: Verify function OnAbilityBackground pointer abilityLifecycleCallbacks_ not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityBackground_0200
+ * @tc.name: OnAbilityBackground
+ * @tc.desc: Verify function OnAbilityBackground pointer
+ * abilityLifecycleCallbacks_ not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityBackground_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityBackground_0200 start.";
@@ -459,10 +482,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityBackground
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityForeground_0100
-* @tc.name: OnAbilityForeground
-* @tc.desc: Verify function OnAbilityForeground pointer ability empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityForeground_0100
+ * @tc.name: OnAbilityForeground
+ * @tc.desc: Verify function OnAbilityForeground pointer ability empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityForeground_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityForeground_0100 start.";
@@ -473,10 +496,11 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityForeground
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityForeground_0200
-* @tc.name: OnAbilityForeground
-* @tc.desc: Verify function OnAbilityForeground pointer abilityLifecycleCallbacks_ not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityForeground_0200
+ * @tc.name: OnAbilityForeground
+ * @tc.desc: Verify function OnAbilityForeground pointer
+ * abilityLifecycleCallbacks_ not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityForeground_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityForeground_0200 start.";
@@ -492,10 +516,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityForeground
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityActive_0100
-* @tc.name: OnAbilityActive
-* @tc.desc: Verify function OnAbilityActive pointer ability empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityActive_0100
+ * @tc.name: OnAbilityActive
+ * @tc.desc: Verify function OnAbilityActive pointer ability empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityActive_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityActive_0100 start.";
@@ -506,10 +530,11 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityActive_010
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityActive_0200
-* @tc.name: OnAbilityActive
-* @tc.desc: Verify function OnAbilityActive pointer abilityLifecycleCallbacks_ not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityActive_0200
+ * @tc.name: OnAbilityActive
+ * @tc.desc: Verify function OnAbilityActive pointer abilityLifecycleCallbacks_
+ * not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityActive_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityActive_0200 start.";
@@ -525,10 +550,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityActive_020
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityStop_0100
-* @tc.name: OnAbilityStop
-* @tc.desc: Verify function OnAbilityStop pointer ability empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityStop_0100
+ * @tc.name: OnAbilityStop
+ * @tc.desc: Verify function OnAbilityStop pointer ability empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityStop_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityStop_0100 start.";
@@ -539,10 +564,11 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityStop_0100,
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityStop_0200
-* @tc.name: OnAbilityStop
-* @tc.desc: Verify function OnAbilityStop pointer abilityLifecycleCallbacks_ not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnAbilityStop_0200
+ * @tc.name: OnAbilityStop
+ * @tc.desc: Verify function OnAbilityStop pointer abilityLifecycleCallbacks_
+ * not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityStop_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnAbilityStop_0200 start.";
@@ -558,10 +584,11 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnAbilityStop_0200,
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_RegisterElementsCallbacks_0100
-* @tc.name: RegisterElementsCallbacks
-* @tc.desc: Verify function RegisterElementsCallbacks list elementsCallbacks_ empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_RegisterElementsCallbacks_0100
+ * @tc.name: RegisterElementsCallbacks
+ * @tc.desc: Verify function RegisterElementsCallbacks list elementsCallbacks_
+ * empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_RegisterElementsCallbacks_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_RegisterElementsCallbacks_0100 start.";
@@ -573,10 +600,11 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_RegisterElementsCal
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_RegisterElementsCallbacks_0200
-* @tc.name: RegisterElementsCallbacks
-* @tc.desc: Verify function RegisterElementsCallbacks list elementsCallbacks_ not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_RegisterElementsCallbacks_0200
+ * @tc.name: RegisterElementsCallbacks
+ * @tc.desc: Verify function RegisterElementsCallbacks list elementsCallbacks_
+ * not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_RegisterElementsCallbacks_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_RegisterElementsCallbacks_0200 start.";
@@ -588,13 +616,15 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_RegisterElementsCal
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_UnregisterElementsCallbacks_0100
-* @tc.name: UnregisterElementsCallbacks
-* @tc.desc: Verify function UnregisterElementsCallbacks list elementsCallbacks_ empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_UnregisterElementsCallbacks_0100
+ * @tc.name: UnregisterElementsCallbacks
+ * @tc.desc: Verify function UnregisterElementsCallbacks list elementsCallbacks_
+ * empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_UnregisterElementsCallbacks_0100, TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_UnregisterElementsCallbacks_0100 start.";
+    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_"
+                        "UnregisterElementsCallbacks_0100 start.";
     std::shared_ptr<MockElementsCallback> callback = nullptr;
     EXPECT_TRUE(ohosApplication_->elementsCallbacks_.empty());
     ohosApplication_->UnregisterElementsCallbacks(callback);
@@ -603,13 +633,15 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_UnregisterElementsC
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_UnregisterElementsCallbacks_0200
-* @tc.name: UnregisterElementsCallbacks
-* @tc.desc: Verify function UnregisterElementsCallbacks list elementsCallbacks_ not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_UnregisterElementsCallbacks_0200
+ * @tc.name: UnregisterElementsCallbacks
+ * @tc.desc: Verify function UnregisterElementsCallbacks list elementsCallbacks_
+ * not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_UnregisterElementsCallbacks_0200, TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_UnregisterElementsCallbacks_0200 start.";
+    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_"
+                        "UnregisterElementsCallbacks_0200 start.";
     std::shared_ptr<MockElementsCallback> callback = std::make_shared<MockElementsCallback>();
     EXPECT_TRUE(ohosApplication_->elementsCallbacks_.empty());
     ohosApplication_->elementsCallbacks_.emplace_back(callback);
@@ -620,10 +652,11 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_UnregisterElementsC
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnConfigurationUpdated_0100
-* @tc.name: OnConfigurationUpdated
-* @tc.desc: Verify function OnConfigurationUpdated pointer abilityRecordMgr_ empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnConfigurationUpdated_0100
+ * @tc.name: OnConfigurationUpdated
+ * @tc.desc: Verify function OnConfigurationUpdated pointer abilityRecordMgr_
+ * empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnConfigurationUpdated_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnConfigurationUpdated_0100 start.";
@@ -637,10 +670,11 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnConfigurationUpda
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnConfigurationUpdated_0200
-* @tc.name: OnConfigurationUpdated
-* @tc.desc: Verify function OnConfigurationUpdated pointer abilityRecord not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnConfigurationUpdated_0200
+ * @tc.name: OnConfigurationUpdated
+ * @tc.desc: Verify function OnConfigurationUpdated pointer abilityRecord not
+ * empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnConfigurationUpdated_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnConfigurationUpdated_0200 start.";
@@ -648,8 +682,8 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnConfigurationUpda
     ohosApplication_->abilityRecordMgr_ = std::make_shared<AbilityRecordMgr>();
     ohosApplication_->configuration_ = std::make_shared<Configuration>();
     sptr<Notification::MockIRemoteObject> token = new (std::nothrow) Notification::MockIRemoteObject();
-    std::shared_ptr<AbilityInfo> info =  nullptr;
-    std::shared_ptr<AbilityLocalRecord> abilityRecord =  std::make_shared<AbilityLocalRecord>(info, token);
+    std::shared_ptr<AbilityInfo> info = nullptr;
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(info, token);
     ohosApplication_->abilityRecordMgr_->abilityRecords_.emplace(token, abilityRecord);
     sptr<AbilityThread> abilityThread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     abilityRecord->SetAbilityThread(abilityThread);
@@ -660,10 +694,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnConfigurationUpda
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnConfigurationUpdated_0300
-* @tc.name: OnConfigurationUpdated
-* @tc.desc: Verify function OnConfigurationUpdated map abilityStages_ not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnConfigurationUpdated_0300
+ * @tc.name: OnConfigurationUpdated
+ * @tc.desc: Verify function OnConfigurationUpdated map abilityStages_ not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnConfigurationUpdated_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnConfigurationUpdated_0300 start.";
@@ -680,10 +714,11 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnConfigurationUpda
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnConfigurationUpdated_0400
-* @tc.name: OnConfigurationUpdated
-* @tc.desc: Verify function OnConfigurationUpdated variable configurationUpdated_ true
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnConfigurationUpdated_0400
+ * @tc.name: OnConfigurationUpdated
+ * @tc.desc: Verify function OnConfigurationUpdated variable
+ * configurationUpdated_ true
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnConfigurationUpdated_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnConfigurationUpdated_0400 start.";
@@ -702,10 +737,11 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnConfigurationUpda
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnConfigurationUpdated_0500
-* @tc.name: OnConfigurationUpdated
-* @tc.desc: Verify function OnConfigurationUpdated list elementsCallbacks_ empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnConfigurationUpdated_0500
+ * @tc.name: OnConfigurationUpdated
+ * @tc.desc: Verify function OnConfigurationUpdated list elementsCallbacks_
+ * empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnConfigurationUpdated_0500, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnConfigurationUpdated_0500 start.";
@@ -719,10 +755,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnConfigurationUpda
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0100
-* @tc.name: OnMemoryLevel
-* @tc.desc: Verify function OnMemoryLevel pointer abilityRecord not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0100
+ * @tc.name: OnMemoryLevel
+ * @tc.desc: Verify function OnMemoryLevel pointer abilityRecord not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0100 start.";
@@ -742,10 +778,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0100,
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0200
-* @tc.name: OnMemoryLevel
-* @tc.desc: Verify function OnMemoryLevel map abilityStages_ not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0200
+ * @tc.name: OnMemoryLevel
+ * @tc.desc: Verify function OnMemoryLevel map abilityStages_ not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0200 start.";
@@ -764,10 +800,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0200,
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0300
-* @tc.name: OnMemoryLevel
-* @tc.desc: Verify function OnMemoryLevel variable onMemoryLevel_ true
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0300
+ * @tc.name: OnMemoryLevel
+ * @tc.desc: Verify function OnMemoryLevel variable onMemoryLevel_ true
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0300 start.";
@@ -786,10 +822,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0300,
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0400
-* @tc.name: OnMemoryLevel
-* @tc.desc: Verify function OnMemoryLevel variable onMemoryLevel_ true
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0400
+ * @tc.name: OnMemoryLevel
+ * @tc.desc: Verify function OnMemoryLevel variable onMemoryLevel_ true
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0400 start.";
@@ -802,10 +838,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnMemoryLevel_0400,
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_0100
-* @tc.name: AddAbilityStage
-* @tc.desc: Verify function AddAbilityStage pointer abilityRecord empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_0100
+ * @tc.name: AddAbilityStage
+ * @tc.desc: Verify function AddAbilityStage pointer abilityRecord empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0100 start.";
@@ -820,10 +856,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_010
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_0200
-* @tc.name: AddAbilityStage
-* @tc.desc: Verify function AddAbilityStage pointer abilityInfo empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_0200
+ * @tc.name: AddAbilityStage
+ * @tc.desc: Verify function AddAbilityStage pointer abilityInfo empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0200 start.";
@@ -835,10 +871,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_020
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_0300
-* @tc.name: AddAbilityStage
-* @tc.desc: Verify function AddAbilityStage pointer hapModuleInfo empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_0300
+ * @tc.name: AddAbilityStage
+ * @tc.desc: Verify function AddAbilityStage pointer hapModuleInfo empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0300 start.";
@@ -851,10 +887,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_030
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_0400
-* @tc.name: AddAbilityStage
-* @tc.desc: Verify function AddAbilityStage abilityRecord->GetWant() not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_0400
+ * @tc.name: AddAbilityStage
+ * @tc.desc: Verify function AddAbilityStage abilityRecord->GetWant() not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_0400, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0400 start.";
@@ -870,10 +906,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_040
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_0500
-* @tc.name: AddAbilityStage
-* @tc.desc: Verify function AddAbilityStage pointer abilityStages not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_0500
+ * @tc.name: AddAbilityStage
+ * @tc.desc: Verify function AddAbilityStage pointer abilityStages not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_0500, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0500 start.";
@@ -891,10 +927,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_050
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_0600
-* @tc.name: AddAbilityStage
-* @tc.desc: Verify function AddAbilityStage pointer token empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_0600
+ * @tc.name: AddAbilityStage
+ * @tc.desc: Verify function AddAbilityStage pointer token empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_0600, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0600 start.";
@@ -909,10 +945,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_060
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_0700
-* @tc.name: AddAbilityStage
-* @tc.desc: Verify function AddAbilityStage pointer token not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_0700
+ * @tc.name: AddAbilityStage
+ * @tc.desc: Verify function AddAbilityStage pointer token not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_0700, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0700 start.";
@@ -926,10 +962,11 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_070
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_0800
-* @tc.name: AddAbilityStage
-* @tc.desc: Verify function AddAbilityStage pointer abilityRuntimeContext_ empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_0800
+ * @tc.name: AddAbilityStage
+ * @tc.desc: Verify function AddAbilityStage pointer abilityRuntimeContext_
+ * empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_0800, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0800 start.";
@@ -941,10 +978,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_080
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_0900
-* @tc.name: AddAbilityStage
-* @tc.desc: Verify function AddAbilityStage pointer runtime_ empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_0900
+ * @tc.name: AddAbilityStage
+ * @tc.desc: Verify function AddAbilityStage pointer runtime_ empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_0900, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0900 start.";
@@ -957,10 +994,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_090
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_01000
-* @tc.name: AddAbilityStage
-* @tc.desc: Verify function AddAbilityStage map abilityStages_ not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_01000
+ * @tc.name: AddAbilityStage
+ * @tc.desc: Verify function AddAbilityStage map abilityStages_ not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_01000, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_01000 start.";
@@ -977,10 +1014,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_010
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_01100
-* @tc.name: AddAbilityStage
-* @tc.desc: Verify function AddAbilityStage variable moduleInfo empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_01100
+ * @tc.name: AddAbilityStage
+ * @tc.desc: Verify function AddAbilityStage variable moduleInfo empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_01100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_01100 start.";
@@ -1001,10 +1038,11 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_011
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_01200
-* @tc.name: AddAbilityStage
-* @tc.desc: Verify function AddAbilityStage abilityRuntimeContext_->GetApplicationInfo() true
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_AddAbilityStage_01200
+ * @tc.name: AddAbilityStage
+ * @tc.desc: Verify function AddAbilityStage
+ * abilityRuntimeContext_->GetApplicationInfo() true
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_01200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_01200 start.";
@@ -1025,10 +1063,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_012
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_CleanAbilityStage_0100
-* @tc.name: CleanAbilityStage
-* @tc.desc: Verify function CleanAbilityStage pointer abilityInfo empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_CleanAbilityStage_0100
+ * @tc.name: CleanAbilityStage
+ * @tc.desc: Verify function CleanAbilityStage pointer abilityInfo empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_CleanAbilityStage_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_CleanAbilityStage_0100 start.";
@@ -1040,10 +1078,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_CleanAbilityStage_0
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_CleanAbilityStage_0200
-* @tc.name: CleanAbilityStage
-* @tc.desc: Verify function CleanAbilityStage pointer token empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_CleanAbilityStage_0200
+ * @tc.name: CleanAbilityStage
+ * @tc.desc: Verify function CleanAbilityStage pointer token empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_CleanAbilityStage_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_CleanAbilityStage_0200 start.";
@@ -1055,10 +1093,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_CleanAbilityStage_0
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_CleanAbilityStage_0300
-* @tc.name: CleanAbilityStage
-* @tc.desc: Verify function CleanAbilityStage map abilityRecords_ not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_CleanAbilityStage_0300
+ * @tc.name: CleanAbilityStage
+ * @tc.desc: Verify function CleanAbilityStage map abilityRecords_ not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_CleanAbilityStage_0300, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_CleanAbilityStage_0300 start.";
@@ -1075,10 +1113,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_CleanAbilityStage_0
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_GetAppContext_0100
-* @tc.name: GetAppContext
-* @tc.desc: Verify function GetAppContext pointer token empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_GetAppContext_0100
+ * @tc.name: GetAppContext
+ * @tc.desc: Verify function GetAppContext pointer token empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_GetAppContext_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_GetAppContext_0100 start.";
@@ -1088,10 +1126,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_GetAppContext_0100,
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_GetRuntime_0100
-* @tc.name: GetRuntime
-* @tc.desc: Verify function GetRuntime pointer token empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_GetRuntime_0100
+ * @tc.name: GetRuntime
+ * @tc.desc: Verify function GetRuntime pointer token empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_GetRuntime_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_GetRuntime_0100 start.";
@@ -1101,10 +1139,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_GetRuntime_0100, Te
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_SetConfiguration_0100
-* @tc.name: SetConfiguration
-* @tc.desc: Verify function SetConfiguration pointer token empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_SetConfiguration_0100
+ * @tc.name: SetConfiguration
+ * @tc.desc: Verify function SetConfiguration pointer token empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_SetConfiguration_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_SetConfiguration_0100 start.";
@@ -1117,10 +1155,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_SetConfiguration_01
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_ScheduleAcceptWant_0100
-* @tc.name: ScheduleAcceptWant
-* @tc.desc: Verify function ScheduleAcceptWant pointer abilityStage not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_ScheduleAcceptWant_0100
+ * @tc.name: ScheduleAcceptWant
+ * @tc.desc: Verify function ScheduleAcceptWant pointer abilityStage not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_ScheduleAcceptWant_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_ScheduleAcceptWant_0100 start.";
@@ -1137,10 +1175,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_ScheduleAcceptWant_
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_GetConfiguration_0100
-* @tc.name: GetConfiguration
-* @tc.desc: Verify function GetConfiguration pointer configuration_ not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_GetConfiguration_0100
+ * @tc.name: GetConfiguration
+ * @tc.desc: Verify function GetConfiguration pointer configuration_ not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_GetConfiguration_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_GetConfiguration_0100 start.";
@@ -1155,10 +1193,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_GetConfiguration_01
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_SetExtensionTypeMap_0100
-* @tc.name: SetExtensionTypeMap
-* @tc.desc: Verify function SetExtensionTypeMap map extensionTypeMap_ not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_SetExtensionTypeMap_0100
+ * @tc.name: SetExtensionTypeMap
+ * @tc.desc: Verify function SetExtensionTypeMap map extensionTypeMap_ not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_SetExtensionTypeMap_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_SetExtensionTypeMap_0100 start.";
@@ -1172,10 +1210,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_SetExtensionTypeMap
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_NotifyLoadRepairPatch_0100
-* @tc.name: NotifyLoadRepairPatch
-* @tc.desc: Verify function NotifyLoadRepairPatch pointer runtime_ empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_NotifyLoadRepairPatch_0100
+ * @tc.name: NotifyLoadRepairPatch
+ * @tc.desc: Verify function NotifyLoadRepairPatch pointer runtime_ empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_NotifyLoadRepairPatch_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_NotifyLoadRepairPatch_0100 start.";
@@ -1187,10 +1225,11 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_NotifyLoadRepairPat
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_NotifyLoadRepairPatch_0200
-* @tc.name: NotifyLoadRepairPatch
-* @tc.desc: Verify function NotifyLoadRepairPatch function LoadRepairPatch called
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_NotifyLoadRepairPatch_0200
+ * @tc.name: NotifyLoadRepairPatch
+ * @tc.desc: Verify function NotifyLoadRepairPatch function LoadRepairPatch
+ * called
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_NotifyLoadRepairPatch_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_NotifyLoadRepairPatch_0200 start.";
@@ -1203,10 +1242,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_NotifyLoadRepairPat
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_NotifyHotReloadPage_0100
-* @tc.name: NotifyHotReloadPage
-* @tc.desc: Verify function NotifyHotReloadPage pointer runtime_ empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_NotifyHotReloadPage_0100
+ * @tc.name: NotifyHotReloadPage
+ * @tc.desc: Verify function NotifyHotReloadPage pointer runtime_ empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_NotifyHotReloadPage_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_NotifyHotReloadPage_0100 start.";
@@ -1216,10 +1255,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_NotifyHotReloadPage
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_NotifyHotReloadPage_0200
-* @tc.name: NotifyHotReloadPage
-* @tc.desc: Verify function NotifyHotReloadPage pointer runtime_ not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_NotifyHotReloadPage_0200
+ * @tc.name: NotifyHotReloadPage
+ * @tc.desc: Verify function NotifyHotReloadPage pointer runtime_ not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_NotifyHotReloadPage_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_NotifyHotReloadPage_0200 start.";
@@ -1230,10 +1269,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_NotifyHotReloadPage
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_NotifyUnLoadRepairPatch_0100
-* @tc.name: NotifyUnLoadRepairPatch
-* @tc.desc: Verify function NotifyHotReloadPage pointer runtime_ empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_NotifyUnLoadRepairPatch_0100
+ * @tc.name: NotifyUnLoadRepairPatch
+ * @tc.desc: Verify function NotifyHotReloadPage pointer runtime_ empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_NotifyUnLoadRepairPatch_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_NotifyUnLoadRepairPatch_0100 start.";
@@ -1244,10 +1283,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_NotifyUnLoadRepairP
 }
 
 /*
-* @tc.number: AppExecFwk_OHOSApplicationTest_NotifyUnLoadRepairPatch_0200
-* @tc.name: NotifyUnLoadRepairPatch
-* @tc.desc: Verify function NotifyHotReloadPage pointer runtime_ not empty
-*/
+ * @tc.number: AppExecFwk_OHOSApplicationTest_NotifyUnLoadRepairPatch_0200
+ * @tc.name: NotifyUnLoadRepairPatch
+ * @tc.desc: Verify function NotifyHotReloadPage pointer runtime_ not empty
+ */
 HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_NotifyUnLoadRepairPatch_0200, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_NotifyUnLoadRepairPatch_0200 start.";
@@ -1257,5 +1296,5 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_NotifyUnLoadRepairP
     EXPECT_TRUE(ohosApplication_->runtime_ != nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_NotifyUnLoadRepairPatch_0200 end.";
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
+} // namespace AppExecFwk
+} // namespace OHOS

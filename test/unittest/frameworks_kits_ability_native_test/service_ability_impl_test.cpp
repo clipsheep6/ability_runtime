@@ -32,8 +32,7 @@ using namespace OHOS::AAFwk;
 
 class ServiceAbilityImplTest : public testing::Test {
 public:
-    ServiceAbilityImplTest() : serviceAbilityImpl_(nullptr)
-    {}
+    ServiceAbilityImplTest() : serviceAbilityImpl_(nullptr) {}
     ~ServiceAbilityImplTest()
     {
         serviceAbilityImpl_ = nullptr;
@@ -46,19 +45,16 @@ public:
     void TearDown();
 };
 
-void ServiceAbilityImplTest::SetUpTestCase(void)
-{}
+void ServiceAbilityImplTest::SetUpTestCase(void) {}
 
-void ServiceAbilityImplTest::TearDownTestCase(void)
-{}
+void ServiceAbilityImplTest::TearDownTestCase(void) {}
 
 void ServiceAbilityImplTest::SetUp(void)
 {
     serviceAbilityImpl_ = std::make_shared<ServiceAbilityImpl>();
 }
 
-void ServiceAbilityImplTest::TearDown(void)
-{}
+void ServiceAbilityImplTest::TearDown(void) {}
 
 /**
  * @tc.number: AaFwk_ServiceAbilityImpl_HandleAbilityTransaction_0100
@@ -223,5 +219,5 @@ HWTEST_F(ServiceAbilityImplTest, AbilityTransactionCallback_0100, Function | Med
     serviceAbilityImpl_->AbilityTransactionCallback(state);
     GTEST_LOG_(INFO) << "AbilityTransactionCallback_0100 end";
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
+} // namespace AppExecFwk
+} // namespace OHOS

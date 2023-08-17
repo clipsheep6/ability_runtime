@@ -407,8 +407,8 @@ ohos_shared_library("ability_thread") {
 
   sources = [
     "${ability_runtime_native_path}/ability/native/ability_thread.cpp",
-    "${ability_runtime_native_path}/ability/native/fa_ability_thread.cpp",
     "${ability_runtime_native_path}/ability/native/extension_ability_thread.cpp",
+    "${ability_runtime_native_path}/ability/native/fa_ability_thread.cpp",
   ]
 
   deps = [

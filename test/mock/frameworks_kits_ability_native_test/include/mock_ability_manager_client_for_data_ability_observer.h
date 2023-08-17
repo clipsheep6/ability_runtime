@@ -93,22 +93,23 @@ private:
 };
 
 std::shared_ptr<MockAbilitySchedulerTools> MockAbilitySchedulerTools::instance_ = nullptr;
-}  // namespace AppExecFwk
-}  // namespace OHOS
+} // namespace AppExecFwk
+} // namespace OHOS
 
 namespace OHOS {
 namespace AAFwk {
 sptr<AAFwk::IAbilityScheduler> AAFwk::AbilityManagerClient::AcquireDataAbility(
-    const Uri& uri, bool tryBind, const sptr<IRemoteObject>& callerToken)
+    const Uri &uri, bool tryBind, const sptr<IRemoteObject> &callerToken)
 {
     return AppExecFwk::MockAbilitySchedulerTools::GetInstance()->GetAbilitySchedulerProxy();
 }
 
 ErrCode AbilityManagerClient::ReleaseDataAbility(
-    sptr<IAbilityScheduler> dataAbilityScheduler, const sptr<IRemoteObject>& callerToken)
+    sptr<IAbilityScheduler> dataAbilityScheduler, const sptr<IRemoteObject> &callerToken)
 {
     return ERR_OK;
 }
-}  // namespace AAFwk
-}  // namespace OHOS
-#endif /* MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MANAGER_CLIENT_FOR_DATA_ABILITY_OBSERVER_H */
+} // namespace AAFwk
+} // namespace OHOS
+#endif /* MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MANAGER_CLIENT_FOR_DATA_ABILITY_OBSERVER_H                            \
+        */

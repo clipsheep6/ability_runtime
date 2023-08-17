@@ -34,6 +34,6 @@ public:
 private:
     FAAbilityThread AbilityThread_;
 };
-}  // namespace AppExecFwk
-}  // namespace OHOS
-#endif  // MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_THREAD_H
+} // namespace AppExecFwk
+} // namespace OHOS
+#endif // MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_THREAD_H

@@ -15,10 +15,10 @@
 
 #include "extension_ability_thread.h"
 
-#include "ability_manager_client.h"
 #include "ability_context_impl.h"
 #include "ability_handler.h"
 #include "ability_loader.h"
+#include "ability_manager_client.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 
@@ -349,7 +349,8 @@ void ExtensionAbilityThread::ScheduleAbilityTransaction(
     const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AppExecFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Schedule ability transaction, name is %{public}s, targeState is %{public}d, isNewWant is %{public}d.",
+    HILOG_INFO("Schedule ability transaction, name is %{public}s, targeState is "
+               "%{public}d, isNewWant is %{public}d.",
         want.GetElement().GetAbilityName().c_str(), lifeCycleStateInfo.state, lifeCycleStateInfo.isNewWant);
 
     if (token_ == nullptr) {

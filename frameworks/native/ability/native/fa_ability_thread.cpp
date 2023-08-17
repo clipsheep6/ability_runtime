@@ -70,7 +70,7 @@ constexpr static char APP_ACCOUNT_AUTHORIZATION_EXTENSION[] = "AppAccountAuthori
 #ifdef WITH_DLP
 constexpr static char DLP_PARAMS_SANDBOX[] = "ohos.dlp.params.sandbox";
 #endif // WITH_DLP
-}
+} // namespace
 
 const int32_t PREPARE_TO_TERMINATE_TIMEOUT_MILLISECONDS = 3000;
 FAAbilityThread::FAAbilityThread() : abilityImpl_(nullptr), currentAbility_(nullptr) {}
@@ -702,9 +702,7 @@ void FAAbilityThread::ScheduleAbilityTransaction(
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("name: %{public}s,targeState: %{public}d,isNewWant: %{public}d",
-        want.GetElement().GetAbilityName().c_str(),
-        lifeCycleStateInfo.state,
-        lifeCycleStateInfo.isNewWant);
+        want.GetElement().GetAbilityName().c_str(), lifeCycleStateInfo.state, lifeCycleStateInfo.isNewWant);
 
     if (token_ == nullptr) {
         HILOG_ERROR("token_ is nullptr");

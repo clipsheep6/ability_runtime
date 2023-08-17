@@ -41,16 +41,16 @@ OHOSApplication::OHOSApplication()
     elementsCallbacks_.clear();
 }
 
-OHOSApplication::~OHOSApplication()
-{
-}
+OHOSApplication::~OHOSApplication() {}
 
 /**
  *
- * @brief Called when Ability#onSaveAbilityState(PacMap) was called on an ability.
+ * @brief Called when Ability#onSaveAbilityState(PacMap) was called on an
+ * ability.
  *
- * @param outState Indicates the PacMap object passed to Ability#onSaveAbilityState(PacMap)
- * for storing user data and states. This parameter cannot be null.
+ * @param outState Indicates the PacMap object passed to
+ * Ability#onSaveAbilityState(PacMap) for storing user data and states. This
+ * parameter cannot be null.
  */
 
 void OHOSApplication::DispatchAbilitySavedState(const PacMap &outState)
@@ -152,7 +152,7 @@ void OHOSApplication::DumpApplication()
  *
  * @param runtime Runtime instance.
  */
-void OHOSApplication::SetRuntime(std::unique_ptr<AbilityRuntime::Runtime>&& runtime)
+void OHOSApplication::SetRuntime(std::unique_ptr<AbilityRuntime::Runtime> &&runtime)
 {
     HILOG_DEBUG("OHOSApplication::SetRuntime begin");
     if (runtime == nullptr) {
@@ -199,7 +199,8 @@ void OHOSApplication::SetAbilityRecordMgr(const std::shared_ptr<AbilityRecordMgr
  *
  * Register AbilityLifecycleCallbacks with OHOSApplication
  *
- * @param callBack callBack When the life cycle of the ability in the application changes,
+ * @param callBack callBack When the life cycle of the ability in the
+ * application changes,
  */
 void OHOSApplication::RegisterAbilityLifecycleCallbacks(const std::shared_ptr<AbilityLifecycleCallbacks> &callBack)
 {
@@ -224,7 +225,8 @@ void OHOSApplication::UnregisterAbilityLifecycleCallbacks(const std::shared_ptr<
     HILOG_DEBUG("OHOSApplication::UnregisterAbilityLifecycleCallbacks: called");
 
     if (callBack == nullptr) {
-        HILOG_DEBUG("OHOSApplication::UnregisterAbilityLifecycleCallbacks: observer is null");
+        HILOG_DEBUG("OHOSApplication::UnregisterAbilityLifecycleCallbacks: "
+                    "observer is null");
         return;
     }
 
@@ -256,7 +258,8 @@ void OHOSApplication::OnAbilityStart(const std::shared_ptr<Ability> &ability)
  *
  * Will be called when the given ability calls Ability->onInactive
  *
- * @param Ability Indicates the Ability object that calls the onInactive() method.
+ * @param Ability Indicates the Ability object that calls the onInactive()
+ * method.
  */
 void OHOSApplication::OnAbilityInactive(const std::shared_ptr<Ability> &ability)
 {
@@ -277,7 +280,8 @@ void OHOSApplication::OnAbilityInactive(const std::shared_ptr<Ability> &ability)
  *
  * Will be called when the given ability calls Ability->onBackground
  *
- * @param Ability Indicates the Ability object that calls the onBackground() method.
+ * @param Ability Indicates the Ability object that calls the onBackground()
+ * method.
  */
 void OHOSApplication::OnAbilityBackground(const std::shared_ptr<Ability> &ability)
 {
@@ -298,7 +302,8 @@ void OHOSApplication::OnAbilityBackground(const std::shared_ptr<Ability> &abilit
  *
  * Will be called when the given ability calls Ability->onForeground
  *
- * @param Ability Indicates the Ability object that calls the onForeground() method.
+ * @param Ability Indicates the Ability object that calls the onForeground()
+ * method.
  */
 void OHOSApplication::OnAbilityForeground(const std::shared_ptr<Ability> &ability)
 {
@@ -450,10 +455,11 @@ void OHOSApplication::OnConfigurationUpdated(const Configuration &config)
 /**
  *
  * @brief Called when the system has determined to trim the memory, for example,
- * when the ability is running in the background and there is no enough memory for
- * running as many background processes as possible.
+ * when the ability is running in the background and there is no enough memory
+ * for running as many background processes as possible.
  *
- * @param level Indicates the memory trim level, which shows the current memory usage status.
+ * @param level Indicates the memory trim level, which shows the current memory
+ * usage status.
  */
 void OHOSApplication::OnMemoryLevel(int level)
 {
@@ -511,7 +517,8 @@ void OHOSApplication::OnTerminate()
  *
  * @brief Called when an ability calls Ability#onSaveAbilityState(PacMap).
  * You can implement your own logic in this method.
- * @param outState IIndicates the {@link PacMap} object passed to the onSaveAbilityState() callback.
+ * @param outState IIndicates the {@link PacMap} object passed to the
+ * onSaveAbilityState() callback.
  *
  */
 void OHOSApplication::OnAbilitySaveState(const PacMap &outState)
@@ -577,7 +584,8 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
  *
  * @brief update the application info after new module installed.
  *
- * @param appInfo The latest application info obtained from bms for update abilityRuntimeContext.
+ * @param appInfo The latest application info obtained from bms for update
+ * abilityRuntimeContext.
  *
  */
 void OHOSApplication::UpdateApplicationInfoInstalled(const AppExecFwk::ApplicationInfo &appInfo)
@@ -585,7 +593,8 @@ void OHOSApplication::UpdateApplicationInfoInstalled(const AppExecFwk::Applicati
     HILOG_DEBUG("OHOSApplication::UpdateApplicationInfoInstalled");
 
     if (abilityRuntimeContext_ == nullptr) {
-        HILOG_ERROR("OHOSApplication::UpdateApplicationInfoInstalled abilityRuntimeContext_ is nullptr.");
+        HILOG_ERROR("OHOSApplication::UpdateApplicationInfoInstalled "
+                    "abilityRuntimeContext_ is nullptr.");
         return;
     }
 
@@ -634,8 +643,8 @@ bool OHOSApplication::AddAbilityStage(const AppExecFwk::HapModuleInfo &hapModule
     return true;
 }
 
-void OHOSApplication::CleanAbilityStage(const sptr<IRemoteObject> &token,
-    const std::shared_ptr<AbilityInfo> &abilityInfo)
+void OHOSApplication::CleanAbilityStage(
+    const sptr<IRemoteObject> &token, const std::shared_ptr<AbilityInfo> &abilityInfo)
 {
     if (abilityInfo == nullptr) {
         HILOG_ERROR("CleanAbilityStage:abilityInfo is nullptr");
@@ -671,7 +680,7 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::GetAppContext() const
     return abilityRuntimeContext_;
 }
 
-const std::unique_ptr<AbilityRuntime::Runtime>& OHOSApplication::GetRuntime()
+const std::unique_ptr<AbilityRuntime::Runtime> &OHOSApplication::GetRuntime()
 {
     return runtime_;
 }
@@ -734,5 +743,5 @@ bool OHOSApplication::NotifyUnLoadRepairPatch(const std::string &hqfFile)
 
     return runtime_->UnLoadRepairPatch(hqfFile);
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
+} // namespace AppExecFwk
+} // namespace OHOS
