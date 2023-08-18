@@ -21,7 +21,6 @@
 
 #include "ability_info.h"
 #include "ability_local_record.h"
-#include "ability_thread.h"
 #include "event_runner.h"
 #include "fa_ability_thread.h"
 #include "gtest/gtest.h"
@@ -33,22 +32,19 @@ sptr<AppExecFwk::AbilityThread> MockCreateAbilityThread()
 {
     sptr<AppExecFwk::AbilityThread> abilitythread(new (std::nothrow) AbilityRuntime::FAAbilityThread());
     if (abilitythread == nullptr) {
-        GTEST_LOG_(INFO) << "mock_ability_thread_for_data_observer:mock "
-                            "abilityhreadptr is nullptr called";
+        GTEST_LOG_(INFO) << "mock_ability_thread_for_data_observer:mock abilityhreadptr is nullptr called";
         return nullptr;
     }
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     if (application == nullptr) {
-        GTEST_LOG_(INFO) << "mock_ability_thread_for_data_observer:mock "
-                            "applicationptr is nullptr called";
+        GTEST_LOG_(INFO) << "mock_ability_thread_for_data_observer:mock applicationptr is nullptr called";
         return nullptr;
     }
 
     std::shared_ptr<AbilityInfo> info = std::make_shared<AbilityInfo>();
     if (info == nullptr) {
-        GTEST_LOG_(INFO) << "mock_ability_thread_for_data_observer:mock "
-                            "AbilityInfo::info is nullptr called";
+        GTEST_LOG_(INFO) << "mock_ability_thread_for_data_observer:mock AbilityInfo::info is nullptr called";
         return nullptr;
     }
 
@@ -66,6 +62,6 @@ sptr<AppExecFwk::AbilityThread> MockCreateAbilityThread()
 
     return abilitythread;
 }
-} // namespace AppExecFwk
-} // namespace OHOS
-#endif // MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_THREAD_FOR_DATA_OBSERVER_H
+}  // namespace AppExecFwk
+}  // namespace OHOS
+#endif  // MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_THREAD_FOR_DATA_OBSERVER_H

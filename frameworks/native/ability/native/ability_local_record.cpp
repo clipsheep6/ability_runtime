@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,8 +20,7 @@
 namespace OHOS {
 namespace AppExecFwk {
 AbilityLocalRecord::AbilityLocalRecord(const std::shared_ptr<AbilityInfo> &info, const sptr<IRemoteObject> &token)
-    : abilityInfo_(info), token_(token)
-{}
+    : abilityInfo_(info), token_(token) {}
 
 AbilityLocalRecord::~AbilityLocalRecord() {}
 
@@ -74,5 +73,5 @@ const std::shared_ptr<AAFwk::Want> &AbilityLocalRecord::GetWant()
 {
     return want_;
 }
-} // namespace AppExecFwk
-} // namespace OHOS
+}  // namespace AppExecFwk
+}  // namespace OHOS

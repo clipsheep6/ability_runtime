@@ -19,7 +19,6 @@
 #include "ability_impl_factory.h"
 #include "ability_loader.h"
 #include "ability_local_record.h"
-#include "ability_thread.h"
 #include "context_deal.h"
 #include "data_ability_helper.h"
 #ifndef SUPPORT_ERMS
@@ -57,19 +56,22 @@ public:
     void SetUp();
     void TearDown();
     OHOS::sptr<OHOS::IRemoteObject> abilityObject_;
-    static constexpr int TEST_WAIT_TIME = 500 * 1000; // 500 ms
+    static constexpr int TEST_WAIT_TIME = 500 * 1000;  // 500 ms
     static const int RESULT_CODE = 1992;
 };
 
-void AbilityBaseTest::SetUpTestCase(void) {}
+void AbilityBaseTest::SetUpTestCase(void)
+{}
 
-void AbilityBaseTest::TearDownTestCase(void) {}
+void AbilityBaseTest::TearDownTestCase(void)
+{}
 
 #ifndef SUPPORT_ERMS
 class TestIEcologicalRuleManager : public AppExecFwk::IEcologicalRuleManager {
 public:
     TestIEcologicalRuleManager() = default;
-    virtual ~TestIEcologicalRuleManager(){};
+    virtual ~TestIEcologicalRuleManager()
+    {};
     sptr<IRemoteObject> AsObject() override
     {
         return nullptr;
@@ -157,8 +159,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Start_Test_0300, Function | M
 /**
  * @tc.number: AaFwk_Ability_AbilityFwk_Start_Test_0400
  * @tc.name: AbilityFwk Start
- * @tc.desc: The ability name is empty, so the ability instance cannot be
- * created.
+ * @tc.desc: The ability name is empty, so the ability instance cannot be created.
  */
 HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Start_Test_0400, Function | MediumTest | Level1)
 {
@@ -180,8 +181,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Start_Test_0400, Function | M
 /**
  * @tc.number: AaFwk_Ability_AbilityFwk_Start_Test_0500
  * @tc.name: AbilityFwk Start
- * @tc.desc: The ability type is unknown, so the AbilityImpl instance cannot be
- * created.
+ * @tc.desc: The ability type is unknown, so the AbilityImpl instance cannot be created.
  */
 HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Start_Test_0500, Function | MediumTest | Level1)
 {
@@ -204,8 +204,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Start_Test_0500, Function | M
 /**
  * @tc.number: AaFwk_Ability_AbilityFwk_Start_Test_0600
  * @tc.name: AbilityFwk Start
- * @tc.desc: The interface OnSaveAbilityState()/OnRestoreAbilityState() of
- * demoability was called.
+ * @tc.desc: The interface OnSaveAbilityState()/OnRestoreAbilityState() of demoability was called.
  */
 HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Start_Test_0600, Function | MediumTest | Level1)
 {
@@ -255,9 +254,8 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Start_Test_0600, Function | M
 /**
  * @tc.number: AaFwk_Ability_Lifecycle_Test_0100
  * @tc.name: Ability Lifecycle
- * @tc.desc: The ability life cycle will change from initial state initial to
- * inactive by calling the interface OnnStart(), and then to active by calling
- * OnActive().
+ * @tc.desc: The ability life cycle will change from initial state initial to inactive by calling the interface
+ * OnnStart(), and then to active by calling OnActive().
  */
 HWTEST_F(AbilityBaseTest, AaFwk_Ability_Lifecycle_Test_0100, Function | MediumTest | Level1)
 {
@@ -287,9 +285,8 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_Lifecycle_Test_0100, Function | MediumTe
 /**
  * @tc.number: AaFwk_Ability_AbilityFwk_Lifecycle_Test_0200
  * @tc.name: Ability Lifecycle
- * @tc.desc: The ability life cycle will change from initial state initial to
- * inactive by calling the interface OnnStart(), and then to active by calling
- * OnNewWant()+OnActive().
+ * @tc.desc: The ability life cycle will change from initial state initial to inactive by calling the interface
+ * OnnStart(), and then to active by calling OnNewWant()+OnActive().
  */
 HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Lifecycle_Test_0200, Function | MediumTest | Level1)
 {
@@ -319,8 +316,8 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Lifecycle_Test_0200, Function
 /**
  * @tc.number: AaFwk_Ability_AbilityFwk_Lifecycle_Test_0300
  * @tc.name: Ability Lifecycle
- * @tc.desc: Ability life cycle changes: initial - > active - > background, the
- interface of demoability will be called:
+ * @tc.desc: Ability life cycle changes: initial - > active - > background, the interface of demoability will be
+ called:
  * OnStart()->OnActive()->OnInactive()->OnBackground().
  */
 HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Lifecycle_Test_0300, Function | MediumTest | Level1)
@@ -354,8 +351,8 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Lifecycle_Test_0300, Function
 /**
  * @tc.number: AaFwk_Ability_AbilityFwk_Lifecycle_Test_0400
  * @tc.name: Ability Lifecycle
- * @tc.desc: Ability life cycle changes: initial - > active - > inactive, the
- interface of demoability will be called:
+ * @tc.desc: Ability life cycle changes: initial - > active - > inactive, the interface of demoability will be
+ called:
  * OnStart()->OnActive()->OnInactive().
  */
 HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Lifecycle_Test_0400, Function | MediumTest | Level1)
@@ -389,8 +386,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Lifecycle_Test_0400, Function
 /**
  * @tc.number: AaFwk_Ability_AbilityFwk_Lifecycle_Test_0500
  * @tc.name: Ability Lifecycle
- * @tc.desc: Ability life cycle changes: initial - > active , the interface of
- * demoability will be called:
+ * @tc.desc: Ability life cycle changes: initial - > active , the interface of demoability will be called:
  * OnStart()->OnActive()->OnInactive()->OnBackground()->OnForeground().
  */
 HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Lifecycle_Test_0500, Function | MediumTest | Level1)
@@ -426,8 +422,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Lifecycle_Test_0500, Function
 /**
  * @tc.number: AaFwk_Ability_AbilityFwk_Lifecycle_Test_0600
  * @tc.name: Ability Lifecycle
- * @tc.desc: Ability life cycle changes: initial - > active , the interface of
- * demoability will be called:
+ * @tc.desc: Ability life cycle changes: initial - > active , the interface of demoability will be called:
  * OnStart()->OnActive()->OnInactive()->OnBackground()->OnStop().
  */
 HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Lifecycle_Test_0600, Function | MediumTest | Level1)
@@ -510,13 +505,15 @@ public:
 
 public:
     OHOS::sptr<OHOS::IRemoteObject> abilityObject_;
-    static constexpr int TEST_WAIT_TIME = 500 * 1000; // 500 ms
+    static constexpr int TEST_WAIT_TIME = 500 * 1000;  // 500 ms
     static const int RESULT_CODE = 1992;
 };
 
-void AbilityTerminateTest::SetUpTestCase(void) {}
+void AbilityTerminateTest::SetUpTestCase(void)
+{}
 
-void AbilityTerminateTest::TearDownTestCase(void) {}
+void AbilityTerminateTest::TearDownTestCase(void)
+{}
 
 void AbilityTerminateTest::SetUp(void)
 {
@@ -534,8 +531,7 @@ void AbilityTerminateTest::TearDown(void)
 /**
  * @tc.number: AaFwk_Ability_Terminate_test_0100
  * @tc.name: TerminateAbility
- * @tc.desc: When the ability state is inactive, the call to terminateability
- * terminates.
+ * @tc.desc: When the ability state is inactive, the call to terminateability terminates.
  */
 HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0100, Function | MediumTest | Level1)
 {
@@ -554,7 +550,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0100, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_INACTIVE);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -572,8 +568,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0100, Function | Med
 /**
  * @tc.number: AaFwk_Ability_Terminate_test_0200
  * @tc.name: TerminateAbility
- * @tc.desc: When the ability state is active, the call to terminateability
- * terminates.
+ * @tc.desc: When the ability state is active, the call to terminateability terminates.
  */
 HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0200, Function | MediumTest | Level1)
 {
@@ -592,7 +587,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0200, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_ACTIVE);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -610,8 +605,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0200, Function | Med
 /**
  * @tc.number: AaFwk_Ability_Terminate_test_0300
  * @tc.name: TerminateAbility
- * @tc.desc: When the ability state is BACKGROUND, the call to terminateability
- * terminates.
+ * @tc.desc: When the ability state is BACKGROUND, the call to terminateability terminates.
  */
 HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0300, Function | MediumTest | Level1)
 {
@@ -630,7 +624,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0300, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_BACKGROUND);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -648,8 +642,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0300, Function | Med
 /**
  * @tc.number: AaFwk_Ability_Terminate_test_0400
  * @tc.name: TerminateAbility
- * @tc.desc: When the ability state is ABILITY_STATE_INITIAL, the call to
- * terminateability terminates.
+ * @tc.desc: When the ability state is ABILITY_STATE_INITIAL, the call to terminateability terminates.
  */
 HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0400, Function | MediumTest | Level1)
 {
@@ -668,7 +661,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0400, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_INITIAL);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -686,8 +679,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0400, Function | Med
 /**
  * @tc.number: AaFwk_Ability_Terminate_test_0500
  * @tc.name: TerminateAbility
- * @tc.desc: When the ability state is inactive, the call to terminateability
- * terminates.
+ * @tc.desc: When the ability state is inactive, the call to terminateability terminates.
  */
 HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0500, Function | MediumTest | Level1)
 {
@@ -706,7 +698,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0500, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_INACTIVE);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -719,8 +711,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0500, Function | Med
 /**
  * @tc.number: AaFwk_Ability_Terminate_test_0600
  * @tc.name: TerminateAbility
- * @tc.desc: When the ability state is active, the call to terminateability
- * terminates.
+ * @tc.desc: When the ability state is active, the call to terminateability terminates.
  */
 HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0600, Function | MediumTest | Level1)
 {
@@ -739,7 +730,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0600, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_ACTIVE);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -752,8 +743,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0600, Function | Med
 /**
  * @tc.number: AaFwk_Ability_Terminate_test_0700
  * @tc.name: TerminateAbility
- * @tc.desc: When the ability state is background, the call to terminateability
- * terminates.
+ * @tc.desc: When the ability state is background, the call to terminateability terminates.
  */
 HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0700, Function | MediumTest | Level1)
 {
@@ -772,7 +762,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0700, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_BACKGROUND);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -785,8 +775,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0700, Function | Med
 /**
  * @tc.number: AaFwk_Ability_Terminate_test_0800
  * @tc.name: TerminateAbility
- * @tc.desc: When the ability state is initial, the call to terminateability
- * terminates.
+ * @tc.desc: When the ability state is initial, the call to terminateability terminates.
  */
 HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0800, Function | MediumTest | Level1)
 {
@@ -805,7 +794,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0800, Function | Med
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_INITIAL);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
 
@@ -837,7 +826,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_WMS_window_test_0100, Function | MediumTest
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         GTEST_LOG_(INFO) << "AaFwk_WMS_window_test_001 StartAbility";
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_ACTIVE);
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
@@ -870,7 +859,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_WMS_window_test_0200, Function | MediumTest
         AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
 
         Want want;
-        MockAbilityManagerService *mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
+        MockAbilityManagerService* mockAMS = iface_cast<MockAbilityManagerService>(abilityObject_);
         mockAMS->StartAbility(want, AbilityLifeCycleState::ABILITY_STATE_BACKGROUND);
         GTEST_LOG_(INFO) << "AaFwk_WMS_window_test_002 BackGround";
         usleep(AbilityTerminateTest::TEST_WAIT_TIME);
@@ -886,8 +875,8 @@ HWTEST_F(AbilityTerminateTest, AaFwk_WMS_window_test_0200, Function | MediumTest
 /**
  * @tc.number: AaFwk_DataAbility_Launch_0100
  * @tc.name: DataAbilityHelper
- * @tc.desc: The AbilityManager could receive the shelder of abilitythread for
- * dataability when the dataability launched.
+ * @tc.desc: The AbilityManager could receive the shelder of abilitythread for dataability when the dataability
+ * launched.
  */
 HWTEST_F(AbilityTerminateTest, AaFwk_DataAbility_Launch_0100, Function | MediumTest | Level1)
 {
@@ -918,8 +907,8 @@ HWTEST_F(AbilityTerminateTest, AaFwk_DataAbility_Launch_0100, Function | MediumT
 /**
  * @tc.number: AaFwk_DataAbility_Start_0100
  * @tc.name: DataAbilityHelper
- * @tc.desc: The AbilityManager could receive the inactive state from
- abilitythread for dataability when the dataability
+ * @tc.desc: The AbilityManager could receive the inactive state from abilitythread for dataability when the
+ dataability
  * change its lifecycle state to inactive.
  */
 HWTEST_F(AbilityTerminateTest, AaFwk_DataAbility_Start_0100, Function | MediumTest | Level1)
@@ -952,9 +941,8 @@ HWTEST_F(AbilityTerminateTest, AaFwk_DataAbility_Start_0100, Function | MediumTe
 /**
  * @tc.number: AaFwk_DataAbility_Start_0200
  * @tc.name: DataAbilityHelper
- * @tc.desc: The AbilityManager could not receive the initial state from
- * abilitythread for dataability. And the OnStop coulde be called. When the
- * dataability change its lifecycle state to initial.
+ * @tc.desc: The AbilityManager could not receive the initial state from abilitythread for dataability.
+ *           And the OnStop coulde be called. When the dataability change its lifecycle state to initial.
  */
 HWTEST_F(AbilityTerminateTest, AaFwk_DataAbility_Start_0200, Function | MediumTest | Level1)
 {
@@ -986,9 +974,8 @@ HWTEST_F(AbilityTerminateTest, AaFwk_DataAbility_Start_0200, Function | MediumTe
 /**
  * @tc.number: AaFwk_DataAbility_Start_0300
  * @tc.name: DataAbilityHelper
- * @tc.desc: The AbilityManager could not receive the active state from
- * abilitythread for dataability. And the OnActive coulde be called. When the
- * dataability change its lifecycle state to active.
+ * @tc.desc: The AbilityManager could not receive the active state from abilitythread for dataability.
+ *           And the OnActive coulde be called. When the dataability change its lifecycle state to active.
  */
 HWTEST_F(AbilityTerminateTest, AaFwk_DataAbility_Start_0300, Function | MediumTest | Level1)
 {
@@ -1020,9 +1007,8 @@ HWTEST_F(AbilityTerminateTest, AaFwk_DataAbility_Start_0300, Function | MediumTe
 /**
  * @tc.number: AaFwk_DataAbility_Start_0400
  * @tc.name: DataAbilityHelper
- * @tc.desc: The AbilityManager could not receive the background state from
- * abilitythread for dataability. And the OnBackground coulde be called. When
- * the dataability change its lifecycle state to background.
+ * @tc.desc: The AbilityManager could not receive the background state from abilitythread for dataability.
+ *           And the OnBackground coulde be called. When the dataability change its lifecycle state to background.
  */
 HWTEST_F(AbilityTerminateTest, AaFwk_DataAbility_Start_0400, Function | MediumTest | Level1)
 {
@@ -1281,8 +1267,8 @@ HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_VerifyPermission_0100, Func
  * @tc.name: QueryFreeInstallExperience
  * @tc.desc: test QueryFreeInstallExperience function
  */
-HWTEST_F(AbilityTerminateTest, AppExecFwk_IEcologicalRuleManager_QueryFreeInstallExperience_0100,
-    Function | MediumTest | Level1)
+HWTEST_F(AbilityTerminateTest,
+    AppExecFwk_IEcologicalRuleManager_QueryFreeInstallExperience_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryFreeInstallExperience_0100";
     sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();
@@ -1299,8 +1285,8 @@ HWTEST_F(AbilityTerminateTest, AppExecFwk_IEcologicalRuleManager_QueryFreeInstal
  * @tc.name: EvaluateResolveInfos
  * @tc.desc: test EvaluateResolveInfos function
  */
-HWTEST_F(
-    AbilityTerminateTest, AppExecFwk_IEcologicalRuleManager_EvaluateResolveInfos_0100, Function | MediumTest | Level1)
+HWTEST_F(AbilityTerminateTest,
+    AppExecFwk_IEcologicalRuleManager_EvaluateResolveInfos_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_EvaluateResolveInfos_0100";
     sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();
@@ -1319,8 +1305,8 @@ HWTEST_F(
  * @tc.name: QueryStartExperience
  * @tc.desc: test QueryStartExperience function
  */
-HWTEST_F(
-    AbilityTerminateTest, AppExecFwk_IEcologicalRuleManager_QueryStartExperience_0100, Function | MediumTest | Level1)
+HWTEST_F(AbilityTerminateTest,
+    AppExecFwk_IEcologicalRuleManager_QueryStartExperience_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryStartExperience_0100";
     sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();
@@ -1337,8 +1323,8 @@ HWTEST_F(
  * @tc.name: QueryPublishFormExperience
  * @tc.desc: test QueryPublishFormExperience function
  */
-HWTEST_F(AbilityTerminateTest, AppExecFwk_IEcologicalRuleManager_QueryPublishFormExperience_0100,
-    Function | MediumTest | Level1)
+HWTEST_F(AbilityTerminateTest,
+    AppExecFwk_IEcologicalRuleManager_QueryPublishFormExperience_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryPublishFormExperience_0100";
     sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();
@@ -1354,8 +1340,8 @@ HWTEST_F(AbilityTerminateTest, AppExecFwk_IEcologicalRuleManager_QueryPublishFor
  * @tc.name: IsSupportPublishForm
  * @tc.desc: test IsSupportPublishForm function
  */
-HWTEST_F(
-    AbilityTerminateTest, AppExecFwk_IEcologicalRuleManager_IsSupportPublishForm_0100, Function | MediumTest | Level1)
+HWTEST_F(AbilityTerminateTest,
+    AppExecFwk_IEcologicalRuleManager_IsSupportPublishForm_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_IsSupportPublishForm_0100";
     sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();
@@ -1372,7 +1358,8 @@ HWTEST_F(
  * @tc.name: QueryLastSyncTime
  * @tc.desc: test QueryLastSyncTime function
  */
-HWTEST_F(AbilityTerminateTest, AppExecFwk_IEcologicalRuleManager_QueryLastSyncTime_0100, Function | MediumTest | Level1)
+HWTEST_F(AbilityTerminateTest,
+    AppExecFwk_IEcologicalRuleManager_QueryLastSyncTime_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryLastSyncTime_0100";
     sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();

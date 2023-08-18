@@ -18,7 +18,6 @@
 
 #include "ability.h"
 #include "ability_impl.h"
-#include "ability_thread.h"
 #include "fa_ability_thread.h"
 
 namespace OHOS {
@@ -34,6 +33,6 @@ public:
 private:
     FAAbilityThread AbilityThread_;
 };
-} // namespace AppExecFwk
-} // namespace OHOS
-#endif // MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_THREAD_H
+}  // namespace AppExecFwk
+}  // namespace OHOS
+#endif  // MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_THREAD_H

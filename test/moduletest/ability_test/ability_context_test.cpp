@@ -19,7 +19,6 @@
 #include "ability_context.h"
 #include "ability_loader.h"
 #include "ability_manager_client.h"
-#include "ability_thread.h"
 #include "context_deal.h"
 #include "fa_ability_thread.h"
 #include "mock_serviceability_manager_service.h"
@@ -45,7 +44,7 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
-    static constexpr int TEST_WAIT_TIME = 500 * 1000; // 500 ms
+    static constexpr int TEST_WAIT_TIME = 500 * 1000;  // 500 ms
 public:
     std::unique_ptr<AbilityContext> context_ = nullptr;
 };
@@ -63,24 +62,25 @@ void AbilityContextTest::SetUpTestCase(void)
     sysMgr->RegisterSystemAbility(OHOS::ABILITY_MGR_SERVICE_ID, abilityObject);
 
     AbilityLoader::GetInstance().RegisterAbility(
-        ACE_SERVICE_ABILITY_NAME, []() -> Ability * { return new (std::nothrow) Ability; });
+        ACE_SERVICE_ABILITY_NAME, []()->Ability* { return new (std::nothrow) Ability; });
 }
 
-void AbilityContextTest::TearDownTestCase(void) {}
+void AbilityContextTest::TearDownTestCase(void)
+{}
 
 void AbilityContextTest::SetUp(void)
 {
     context_ = std::make_unique<AbilityContext>();
 }
 
-void AbilityContextTest::TearDown(void) {}
+void AbilityContextTest::TearDown(void)
+{}
 
 /**
  * @tc.number: AaFwk_Ability_Context_ConnectAbility_0100
  * @tc.name: AbilityFwk
- * @tc.desc: When connecting ability, AMS will inform ability to process OnStart
- * in the life cycle, and then inform ability to process onconnect, and the
- * connection is successful
+ * @tc.desc: When connecting ability, AMS will inform ability to process OnStart in the life cycle, and then inform
+ * ability to process onconnect, and the connection is successful
  */
 HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_ConnectAbility_0100, Function | MediumTest | Level1)
 {
@@ -132,8 +132,8 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_DisconnectAbility_0100, Funct
 /**
  * @tc.number: AaFwk_Ability_Context_StartAbility_0100
  * @tc.name: AbilityFwk
- * @tc.desc: Starting ability service, AMS will inform ability to perform
- * OnStart lifecycle conversion, and then inform oncommand event.
+ * @tc.desc: Starting ability service, AMS will inform ability to perform OnStart lifecycle conversion, and then inform
+ * oncommand event.
  */
 HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_StartAbility_0100, Function | MediumTest | Level1)
 {
@@ -153,8 +153,8 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_StartAbility_0100, Function |
 /**
  * @tc.number: AaFwk_Ability_Context_TerminateAbility_0100
  * @tc.name: AbilityFwk
- * @tc.desc: To terminate ability service, AMS will notify ability to perform
- * onbackground lifecycle conversion, and then notify onstop event.
+ * @tc.desc: To terminate ability service, AMS will notify ability to perform onbackground lifecycle conversion, and
+ * then notify onstop event.
  */
 HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_TerminateAbility_0100, Function | MediumTest | Level1)
 {
@@ -180,8 +180,8 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_TerminateAbility_0100, Functi
 /**
  * @tc.number: AaFwk_Ability_Context_TerminateAbility_0200
  * @tc.name: AbilityFwk
- * @tc.desc: When there is no startability, calling terminateability directly
- * will not respond to onbackground and onstop events.
+ * @tc.desc: When there is no startability, calling terminateability directly will not respond to onbackground and
+ * onstop events.
  */
 HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_TerminateAbility_0200, Function | MediumTest | Level1)
 {
@@ -204,8 +204,8 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_TerminateAbility_0200, Functi
 /**
  * @tc.number: AaFwk_Ability_Context_StopService_0100
  * @tc.name: AbilityFwk
- * @tc.desc: To stop ability service, AMS will notify ability to perform
- * onbackground lifecycle conversion, and then notify onstop event.
+ * @tc.desc: To stop ability service, AMS will notify ability to perform onbackground lifecycle conversion, and then
+ * notify onstop event.
  */
 HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_StopService_0100, Function | MediumTest | Level1)
 {
@@ -233,8 +233,8 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_StopService_0100, Function | 
 /**
  * @tc.number: AaFwk_Ability_Context_StopService_0200
  * @tc.name: AbilityFwk
- * @tc.desc: When there is no startability, calling stop ability directly will
- * not respond to onbackground and onstop events.
+ * @tc.desc: When there is no startability, calling stop ability directly will not respond to onbackground and onstop
+ * events.
  */
 HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_StopService_0200, Function | MediumTest | Level1)
 {
@@ -655,7 +655,7 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_VerifyPermission_0300, Functi
     AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
     std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
     deal->SetAbilityInfo(abilityInfo);
-    context_->AttachBaseContext(deal);
+    context_->AttachBaseContext(deal);    
     std::string permission = "permission";
     int32_t pid = 1;
     int32_t uid = 1;
@@ -940,5 +940,5 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_PrintDrawnCompleted_0100, Fun
     auto result = context_->PrintDrawnCompleted();
     EXPECT_FALSE(result);
 }
-} // namespace AppExecFwk
-} // namespace OHOS
+}  // namespace AppExecFwk
+}  // namespace OHOS

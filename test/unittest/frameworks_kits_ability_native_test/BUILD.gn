@@ -23,6 +23,7 @@ config("coverage_flags") {
   }
 }
 
+###############################################################################
 config("module_private_config") {
   visibility = [ ":*" ]
   include_dirs = [
@@ -2223,6 +2224,8 @@ ohos_unittest("share_extension_test") {
   ]
 }
 
+###############################################################################
+
 group("unittest") {
   testonly = true
   deps = []
@@ -2246,6 +2249,8 @@ group("unittest") {
     ":ability_transaction_callback_info_test",
     ":ability_window_test",
     ":abilityruntime_test",
+    ":action_extension_module_loader_test",
+    ":action_extension_test",
     ":continuation_test",
     ":data_ability_helper_impl_test",
     ":data_ability_helper_test",
@@ -2282,3 +2287,4 @@ group("unittest") {
     ]
   }
 }
+###############################################################################

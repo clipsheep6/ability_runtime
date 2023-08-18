@@ -18,7 +18,6 @@
 #define private public
 #define protected public
 #include "ability_loader.h"
-#include "ability_thread.h"
 #include "fa_ability_thread.h"
 #undef private
 #undef protected
@@ -61,13 +60,17 @@ public:
     void TearDown() override;
 };
 
-void AbilityThreadTest::SetUpTestCase(void) {}
+void AbilityThreadTest::SetUpTestCase(void)
+{}
 
-void AbilityThreadTest::TearDownTestCase(void) {}
+void AbilityThreadTest::TearDownTestCase(void)
+{}
 
-void AbilityThreadTest::SetUp(void) {}
+void AbilityThreadTest::SetUp(void)
+{}
 
-void AbilityThreadTest::TearDown(void) {}
+void AbilityThreadTest::TearDown(void)
+{}
 
 /**
  * @tc.name: AaFwk_AbilityThread_DumpAbilityInfo_0100
@@ -435,7 +438,8 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleConnectAbility_0200, Fun
         abilityInfo->type = AbilityType::PAGE;
         sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
         std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-        std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+        std::shared_ptr<AbilityLocalRecord> abilityRecord =
+            std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> mainRunner = EventRunner::Create(abilityInfo->name);
         abilitythread->Attach(application, abilityRecord, mainRunner, nullptr);
 
@@ -495,7 +499,8 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleDisconnectAbility_0200, 
         abilityInfo->type = AbilityType::PAGE;
         sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
         std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-        std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+        std::shared_ptr<AbilityLocalRecord> abilityRecord =
+            std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> mainRunner = EventRunner::Create(abilityInfo->name);
         abilitythread->Attach(application, abilityRecord, mainRunner, nullptr);
 
@@ -559,7 +564,8 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleCommandAbility_0200, Fun
         abilityInfo->type = AbilityType::PAGE;
         sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
         std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-        std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+        std::shared_ptr<AbilityLocalRecord> abilityRecord =
+            std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> mainRunner = EventRunner::Create(abilityInfo->name);
         abilitythread->Attach(application, abilityRecord, mainRunner, nullptr);
 
@@ -658,7 +664,8 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_SendResult_0200, Function | Medi
         abilityInfo->type = AbilityType::PAGE;
         sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
         std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-        std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
+        std::shared_ptr<AbilityLocalRecord> abilityRecord =
+            std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> mainRunner = EventRunner::Create(abilityInfo->name);
         abilitythread->Attach(application, abilityRecord, mainRunner, nullptr);
 
@@ -785,8 +792,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AbilityThreadMain_0400, Function
 /**
  * @tc.number: AaFwk_AbilityThread_AttachExtension_0100
  * @tc.name: AttachExtension
- * @tc.desc: Test AttachExtension function when parameters are application,
- * mainRunner and abilityRecord
+ * @tc.desc: Test AttachExtension function when parameters are application, mainRunner and abilityRecord
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AttachExtension_0100, Function | MediumTest | Level1)
 {
@@ -815,8 +821,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AttachExtension_0100, Function |
 /**
  * @tc.number: AaFwk_AbilityThread_AttachExtension_0200
  * @tc.name: AttachExtension
- * @tc.desc: Test AttachExtension function when parameters are application and
- * abilityRecord
+ * @tc.desc: Test AttachExtension function when parameters are application and abilityRecord
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AttachExtension_0200, Function | MediumTest | Level1)
 {
@@ -861,8 +866,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleAbilityTransaction_0100, F
 /**
  * @tc.number: AaFwk_AbilityThread_HandleAbilityTransaction_0200
  * @tc.name: HandleAbilityTransaction
- * @tc.desc: Test HandleAbilityTransaction function when abilityImpl_ is not
- * nullptr
+ * @tc.desc: Test HandleAbilityTransaction function when abilityImpl_ is not nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleAbilityTransaction_0200, Function | MediumTest | Level1)
 {
@@ -881,8 +885,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleAbilityTransaction_0200, F
 /**
  * @tc.number: AaFwk_AbilityThread_HandleExtensionTransaction_0100
  * @tc.name: HandleExtensionTransaction
- * @tc.desc: Test HandleExtensionTransaction function when extensionImpl_ is
- * nullptr
+ * @tc.desc: Test HandleExtensionTransaction function when extensionImpl_ is nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleExtensionTransaction_0100, Function | MediumTest | Level1)
 {
@@ -900,8 +903,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleExtensionTransaction_0100,
 /**
  * @tc.number: AaFwk_AbilityThread_HandleExtensionTransaction_0200
  * @tc.name: HandleExtensionTransaction
- * @tc.desc: Test HandleExtensionTransaction function when extensionImpl_ is not
- * nullptr
+ * @tc.desc: Test HandleExtensionTransaction function when extensionImpl_ is not nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleExtensionTransaction_0200, Function | MediumTest | Level1)
 {
@@ -939,8 +941,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleConnectAbility_0100, Funct
 /**
  * @tc.number: AaFwk_AbilityThread_HandleDisconnectAbility_0100
  * @tc.name: HandleDisconnectAbility
- * @tc.desc: Test HandleDisconnectAbility function when abilityImpl_ is not
- * nullptr
+ * @tc.desc: Test HandleDisconnectAbility function when abilityImpl_ is not nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleDisconnectAbility_0100, Function | MediumTest | Level1)
 {
@@ -976,8 +977,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleConnectExtension_0100, Fun
 /**
  * @tc.number: AaFwk_AbilityThread_HandleConnectExtension_0200
  * @tc.name: HandleConnectExtension
- * @tc.desc: Test HandleConnectExtension function when extensionImpl_ is not
- * nullptr
+ * @tc.desc: Test HandleConnectExtension function when extensionImpl_ is not nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleConnectExtension_0200, Function | MediumTest | Level1)
 {
@@ -1012,8 +1012,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleCommandExtension_0100, Fun
 /**
  * @tc.number: AaFwk_AbilityThread_HandleCommandExtension_0200
  * @tc.name: HandleCommandExtension
- * @tc.desc: Test HandleCommandExtension function when extensionImpl_ is not
- * nullptr
+ * @tc.desc: Test HandleCommandExtension function when extensionImpl_ is not nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleCommandExtension_0200, Function | MediumTest | Level1)
 {
@@ -1031,8 +1030,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleCommandExtension_0200, Fun
 /**
  * @tc.number: AaFwk_AbilityThread_HandleCommandExtensionWindow_0100
  * @tc.name: HandleCommandExtensionWindow
- * @tc.desc: Test HandleCommandExtensionWindow function when extensionImpl_ is
- * nullptr
+ * @tc.desc: Test HandleCommandExtensionWindow function when extensionImpl_ is nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleCommandExtensionWindow_0100, Function | MediumTest | Level1)
 {
@@ -1051,8 +1049,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleCommandExtensionWindow_010
 /**
  * @tc.number: AaFwk_AbilityThread_HandleRestoreAbilityState_0100
  * @tc.name: HandleRestoreAbilityState
- * @tc.desc: Test HandleRestoreAbilityState function when abilityImpl_ is
- * nullptr
+ * @tc.desc: Test HandleRestoreAbilityState function when abilityImpl_ is nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleRestoreAbilityState_0100, Function | MediumTest | Level1)
 {
@@ -1069,8 +1066,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleRestoreAbilityState_0100, 
 /**
  * @tc.number: AaFwk_AbilityThread_HandleRestoreAbilityState_0200
  * @tc.name: HandleRestoreAbilityState
- * @tc.desc: Test HandleRestoreAbilityState function when abilityImpl_ is not
- * nullptr
+ * @tc.desc: Test HandleRestoreAbilityState function when abilityImpl_ is not nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleRestoreAbilityState_0200, Function | MediumTest | Level1)
 {
@@ -1088,8 +1084,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleRestoreAbilityState_0200, 
 /**
  * @tc.number: AaFwk_AbilityThread_ScheduleUpdateConfiguration_0100
  * @tc.name: ScheduleUpdateConfiguration
- * @tc.desc: Test ScheduleUpdateConfiguration function when abilityHandler_ is
- * nullptr
+ * @tc.desc: Test ScheduleUpdateConfiguration function when abilityHandler_ is nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleUpdateConfiguration_0100, Function | MediumTest | Level1)
 {
@@ -1106,8 +1101,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleUpdateConfiguration_0100
 /**
  * @tc.number: AaFwk_AbilityThread_ScheduleUpdateConfiguration_0200
  * @tc.name: ScheduleUpdateConfiguration
- * @tc.desc: Test ScheduleUpdateConfiguration function when abilityHandler_ is
- * not nullptr
+ * @tc.desc: Test ScheduleUpdateConfiguration function when abilityHandler_ is not nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleUpdateConfiguration_0200, Function | MediumTest | Level1)
 {
@@ -1125,8 +1119,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleUpdateConfiguration_0200
 /**
  * @tc.number: AaFwk_AbilityThread_HandleUpdateConfiguration_0100
  * @tc.name: HandleUpdateConfiguration
- * @tc.desc: Test HandleUpdateConfiguration function when abilityImpl_ is
- * nullptr
+ * @tc.desc: Test HandleUpdateConfiguration function when abilityImpl_ is nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleUpdateConfiguration_0100, Function | MediumTest | Level1)
 {
@@ -1143,8 +1136,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleUpdateConfiguration_0100, 
 /**
  * @tc.number: AaFwk_AbilityThread_HandleUpdateConfiguration_0200
  * @tc.name: HandleUpdateConfiguration
- * @tc.desc: Test HandleUpdateConfiguration function when abilityImpl_ is not
- * nullptr
+ * @tc.desc: Test HandleUpdateConfiguration function when abilityImpl_ is not nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleUpdateConfiguration_0200, Function | MediumTest | Level1)
 {
@@ -1162,8 +1154,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleUpdateConfiguration_0200, 
 /**
  * @tc.number: AaFwk_AbilityThread_ExtensionUpdateConfiguration_0100
  * @tc.name: HandleExtensionUpdateConfiguration
- * @tc.desc: Test HandleExtensionUpdateConfiguration function when
- * extensionImpl_ is nullptr
+ * @tc.desc: Test HandleExtensionUpdateConfiguration function when extensionImpl_ is nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ExtensionUpdateConfiguration_0100, Function | MediumTest | Level1)
 {
@@ -1180,8 +1171,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ExtensionUpdateConfiguration_010
 /**
  * @tc.number: AaFwk_AbilityThread_ExtensionUpdateConfiguration_0200
  * @tc.name: HandleExtensionUpdateConfiguration
- * @tc.desc: Test HandleExtensionUpdateConfiguration function when
- * extensionImpl_ is not nullptr
+ * @tc.desc: Test HandleExtensionUpdateConfiguration function when extensionImpl_ is not nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ExtensionUpdateConfiguration_0200, Function | MediumTest | Level1)
 {
@@ -1219,8 +1209,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleAbilityTransaction_0300,
 /**
  * @tc.number: AaFwk_AbilityThread_ScheduleAbilityTransaction_0400
  * @tc.name: ScheduleAbilityTransaction
- * @tc.desc: Test ScheduleAbilityTransaction function when abilityHandler_ and
- * token_ is not nullptr
+ * @tc.desc: Test ScheduleAbilityTransaction function when abilityHandler_ and token_ is not nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleAbilityTransaction_0400, Function | MediumTest | Level1)
 {
@@ -1258,7 +1247,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_SendResult_0300, Function | Medi
     auto abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     std::shared_ptr<EventRunner> mainRunner = EventRunner::Create(abilityInfo->name);
     abilitythread->Attach(application, abilityRecord, mainRunner, nullptr);
-
+    
     abilitythread->abilityImpl_ = std::make_shared<AbilityImpl>();
     EXPECT_NE(abilitythread->abilityImpl_, nullptr);
 
@@ -1280,7 +1269,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_SendResult_0400, Function | Medi
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_SendResult_0400 start";
     AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
-
+    
     abilitythread->abilityImpl_ = std::make_shared<AbilityImpl>();
     EXPECT_NE(abilitythread->abilityImpl_, nullptr);
 
@@ -1793,8 +1782,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ContinueAbility_0200, Function |
 /**
  * @tc.number: AaFwk_AbilityThread_NotifyContinuationResult_0100
  * @tc.name: NotifyContinuationResult
- * @tc.desc: Test NotifyContinuationResult function when abilityImpl_ is not
- * nullptr
+ * @tc.desc: Test NotifyContinuationResult function when abilityImpl_ is not nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NotifyContinuationResult_0100, Function | MediumTest | Level1)
 {
@@ -1829,8 +1817,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NotifyContinuationResult_0200, F
 /**
  * @tc.number: AaFwk_AbilityThread_NotifyMemoryLevel_0100
  * @tc.name: NotifyMemoryLevel
- * @tc.desc: Test NotifyMemoryLevel function when isExtension_ is false and
- * abilityImpl_ is nullptr
+ * @tc.desc: Test NotifyMemoryLevel function when isExtension_ is false and abilityImpl_ is nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NotifyMemoryLevel_0100, Function | MediumTest | Level1)
 {
@@ -1848,8 +1835,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NotifyMemoryLevel_0100, Function
 /**
  * @tc.number: AaFwk_AbilityThread_NotifyMemoryLevel_0200
  * @tc.name: NotifyMemoryLevel
- * @tc.desc: Test NotifyMemoryLevel function when isExtension_ is false and
- * abilityImpl_ is not nullptr
+ * @tc.desc: Test NotifyMemoryLevel function when isExtension_ is false and abilityImpl_ is not nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NotifyMemoryLevel_0200, Function | MediumTest | Level1)
 {
@@ -1868,8 +1854,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NotifyMemoryLevel_0200, Function
 /**
  * @tc.number: AaFwk_AbilityThread_NotifyMemoryLevel_0300
  * @tc.name: NotifyMemoryLevel
- * @tc.desc: Test NotifyMemoryLevel function when isExtension_ is true and
- * extensionImpl_ is nullptr
+ * @tc.desc: Test NotifyMemoryLevel function when isExtension_ is true and extensionImpl_ is nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NotifyMemoryLevel_0300, Function | MediumTest | Level1)
 {
@@ -1888,8 +1873,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NotifyMemoryLevel_0300, Function
 /**
  * @tc.number: AaFwk_AbilityThread_NotifyMemoryLevel_0400
  * @tc.name: NotifyMemoryLevel
- * @tc.desc: Test NotifyMemoryLevel function when isExtension_ is true and
- * extensionImpl_ is not nullptr
+ * @tc.desc: Test NotifyMemoryLevel function when isExtension_ is true and extensionImpl_ is not nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NotifyMemoryLevel_0400, Function | MediumTest | Level1)
 {
@@ -2064,8 +2048,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleUnregisterObserver_0100, F
 /**
  * @tc.number: AaFwk_AbilityThread_ScheduleRegisterObserver_0100
  * @tc.name: ScheduleRegisterObserver
- * @tc.desc: Test ScheduleRegisterObserver function when abilityHandler_ is
- * nullptr
+ * @tc.desc: Test ScheduleRegisterObserver function when abilityHandler_ is nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleRegisterObserver_0100, Function | MediumTest | Level1)
 {
@@ -2085,8 +2068,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleRegisterObserver_0100, F
 /**
  * @tc.number: AaFwk_AbilityThread_ScheduleRegisterObserver_0200
  * @tc.name: ScheduleRegisterObserver
- * @tc.desc: Test ScheduleRegisterObserver function when abilityHandler_ is not
- * nullptr
+ * @tc.desc: Test ScheduleRegisterObserver function when abilityHandler_ is not nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleRegisterObserver_0200, Function | MediumTest | Level1)
 {
@@ -2108,8 +2090,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleRegisterObserver_0200, F
 /**
  * @tc.number: AaFwk_AbilityThread_ScheduleUnregisterObserver_0100
  * @tc.name: ScheduleUnregisterObserver
- * @tc.desc: Test ScheduleUnregisterObserver function when abilityHandler_ is
- * nullptr
+ * @tc.desc: Test ScheduleUnregisterObserver function when abilityHandler_ is nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleUnregisterObserver_0100, Function | MediumTest | Level1)
 {
@@ -2129,8 +2110,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleUnregisterObserver_0100,
 /**
  * @tc.number: AaFwk_AbilityThread_ScheduleUnregisterObserver_0200
  * @tc.name: ScheduleUnregisterObserver
- * @tc.desc: Test ScheduleUnregisterObserver function when abilityHandler_ is
- * not nullptr
+ * @tc.desc: Test ScheduleUnregisterObserver function when abilityHandler_ is not nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleUnregisterObserver_0200, Function | MediumTest | Level1)
 {
@@ -2168,8 +2148,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleNotifyChange_0100, Funct
 /**
  * @tc.number: AaFwk_AbilityThread_ScheduleNotifyChange_0200
  * @tc.name: ScheduleNotifyChange
- * @tc.desc: Test ScheduleNotifyChange function when abilityHandler_ is not
- * nullptr
+ * @tc.desc: Test ScheduleNotifyChange function when abilityHandler_ is not nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleNotifyChange_0200, Function | MediumTest | Level1)
 {
@@ -2246,8 +2225,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_BuildAbilityContext_0100, Functi
 /**
  * @tc.number: AaFwk_AbilityThread_DumpAbilityInfo_0200
  * @tc.name: DumpAbilityInfo
- * @tc.desc: Test DumpAbilityInfo function when token_ and abilityHandler_ is
- * not nullptr
+ * @tc.desc: Test DumpAbilityInfo function when token_ and abilityHandler_ is not nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpAbilityInfo_0200, Function | MediumTest | Level1)
 {
@@ -2290,8 +2268,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpAbilityInfo_0300, Function |
 /**
  * @tc.number: AaFwk_AbilityThread_DumpAbilityInfoInner_0100
  * @tc.name: DumpAbilityInfoInner
- * @tc.desc: Test DumpAbilityInfoInner function when currentAbility_ and
- * currentExtension_ is not nullptr
+ * @tc.desc: Test DumpAbilityInfoInner function when currentAbility_ and currentExtension_ is not nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpAbilityInfoInner_0100, Function | MediumTest | Level1)
 {
@@ -2336,8 +2313,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpAbilityInfoInner_0200, Funct
 /**
  * @tc.number: AaFwk_AbilityThread_DumpAbilityInfoInner_0300
  * @tc.name: DumpAbilityInfoInner
- * @tc.desc: Test DumpAbilityInfoInner function when currentExtension_ is
- * nullptr
+ * @tc.desc: Test DumpAbilityInfoInner function when currentExtension_ is nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpAbilityInfoInner_0300, Function | MediumTest | Level1)
 {
@@ -2360,8 +2336,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpAbilityInfoInner_0300, Funct
 /**
  * @tc.number: AaFwk_AbilityThread_DumpOtherInfo_0100
  * @tc.name: DumpOtherInfo
- * @tc.desc: Test DumpOtherInfo function when abilityHandler_ and
- * currentAbility_ is not nullptr
+ * @tc.desc: Test DumpOtherInfo function when abilityHandler_ and currentAbility_ is not nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpOtherInfo_0100, Function | MediumTest | Level1)
 {
@@ -2425,8 +2400,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpOtherInfo_0300, Function | M
 /**
  * @tc.number: AaFwk_AbilityThread_CallRequest_0100
  * @tc.name: CallRequest
- * @tc.desc: Test CallRequest function when abilityHandler_ and currentAbility_
- * is not nullptr
+ * @tc.desc: Test CallRequest function when abilityHandler_ and currentAbility_ is not nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_CallRequest_0100, Function | MediumTest | Level1)
 {
@@ -2446,8 +2420,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_CallRequest_0100, Function | Med
 /**
  * @tc.number: AaFwk_AbilityThread_CallRequest_0200
  * @tc.name: CallRequest
- * @tc.desc: Test CallRequest function when abilityHandler_ and currentAbility_
- * is not nullptr
+ * @tc.desc: Test CallRequest function when abilityHandler_ and currentAbility_ is not nullptr
  */
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_CallRequest_0200, Function | MediumTest | Level1)
 {
@@ -2461,5 +2434,5 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_CallRequest_0200, Function | Med
     abilitythread->CallRequest();
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CallRequest_0200 end";
 }
-} // namespace AppExecFwk
-} // namespace OHOS
+}  // namespace AppExecFwk
+}  // namespace OHOS
