@@ -30,9 +30,17 @@
 #include "hitrace_meter.h"
 #include "scene_board_judgement.h"
 #include "session_manager.h"
+#include "ws_common.h"
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+static std::unordered_map<Rosen::WSError, int32_t> SCB_TO_MISSION_ERROR_CODE_MAP {
+    { Rosen::WSError::WS_ERROR_INVALID_PERMISSION, CHECK_PERMISSION_FAILED },
+    { Rosen::WSError::WS_ERROR_NOT_SYSTEM_APP, ERR_NOT_SYSTEM_APP },
+};
+}
+
 using OHOS::Rosen::SessionManager;
 std::shared_ptr<AbilityManagerClient> AbilityManagerClient::instance_ = nullptr;
 std::recursive_mutex AbilityManagerClient::mutex_;
@@ -595,6 +603,9 @@ ErrCode AbilityManagerClient::RegisterMissionListener(const sptr<IMissionListene
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_INFO("call");
         auto err = sceneSessionManager->RegisterSessionListener(listener);
+        if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
+            return SCB_TO_MISSION_ERROR_CODE_MAP[err];
+        }
         return static_cast<int>(err);
     }
     return abms->RegisterMissionListener(listener);
@@ -609,6 +620,9 @@ ErrCode AbilityManagerClient::UnRegisterMissionListener(const sptr<IMissionListe
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_INFO("call");
         auto err = sceneSessionManager->UnRegisterSessionListener(listener);
+        if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
+            return SCB_TO_MISSION_ERROR_CODE_MAP[err];
+        }
         return static_cast<int>(err);
     }
     return abms->UnRegisterMissionListener(listener);
@@ -656,6 +670,9 @@ ErrCode AbilityManagerClient::GetMissionInfos(const std::string& deviceId, int32
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_INFO("call");
         auto err = sceneSessionManager->GetSessionInfos(deviceId, numMax, missionInfos);
+        if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
+            return SCB_TO_MISSION_ERROR_CODE_MAP[err];
+        }
         return static_cast<int>(err);
     }
     return abms->GetMissionInfos(deviceId, numMax, missionInfos);
@@ -671,6 +688,9 @@ ErrCode AbilityManagerClient::GetMissionInfo(const std::string& deviceId, int32_
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_INFO("call");
         auto err = sceneSessionManager->GetSessionInfo(deviceId, missionId, missionInfo);
+        if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
+            return SCB_TO_MISSION_ERROR_CODE_MAP[err];
+        }
         return static_cast<int>(err);
     }
     return abms->GetMissionInfo(deviceId, missionId, missionInfo);
@@ -685,6 +705,9 @@ ErrCode AbilityManagerClient::CleanMission(int32_t missionId)
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_INFO("call");
         auto err = sceneSessionManager->ClearSession(missionId);
+        if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
+            return SCB_TO_MISSION_ERROR_CODE_MAP[err];
+        }
         return static_cast<int>(err);
     }
     return abms->CleanMission(missionId);
@@ -881,6 +904,9 @@ ErrCode AbilityManagerClient::GetMissionSnapshot(const std::string& deviceId, in
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_INFO("call");
         auto err = sceneSessionManager->GetSessionSnapshot(deviceId, missionId, snapshot.snapshot, isLowResolution);
+        if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
+            return SCB_TO_MISSION_ERROR_CODE_MAP[err];
+        }
         return static_cast<int>(err);
     }
     return abms->GetMissionSnapshot(deviceId, missionId, snapshot, isLowResolution);
