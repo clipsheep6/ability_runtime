@@ -79,6 +79,11 @@
 #include "suspend_manager_client.h"
 #endif // EFFICIENCY_MANAGER_ENABLE
 
+#ifdef RESOURCE_SCHEDULE_SERVICE_ENABLE
+#include "res_sched_client.h"
+#include "res_type.h"
+#endif // RESOURCE_SCHEDULE_SERVICE_ENABLE
+
 using OHOS::AppExecFwk::ElementName;
 using OHOS::Security::AccessToken::AccessTokenKit;
 
@@ -760,6 +765,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_ERROR("missionListManager is nullptr. userId=%{public}d", validUserId);
         return ERR_INVALID_VALUE;
     }
+    ReportAbilitStartInfoToRSS(abilityInfo);
     ReportEventToSuspendManager(abilityInfo);
     HILOG_DEBUG("Start ability, name is %{public}s.", abilityInfo.name.c_str());
     return missionListManager->StartAbility(abilityRequest);
@@ -1307,6 +1313,7 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
         return ERR_WOULD_BLOCK;
     }
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        ReportAbilitStartInfoToRSS(abilityInfo);
         ReportEventToSuspendManager(abilityInfo);
         return uiAbilityLifecycleManager_->NotifySCBToStartUIAbility(abilityRequest, oriValidUserId);
     }
@@ -1315,6 +1322,7 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
         HILOG_ERROR("missionListManager is nullptr. userId:%{public}d", validUserId);
         return ERR_INVALID_VALUE;
     }
+    ReportAbilitStartInfoToRSS(abilityInfo);
     ReportEventToSuspendManager(abilityInfo);
     HILOG_DEBUG("RequestDialogService, start ability, name is %{public}s.", abilityInfo.name.c_str());
     return missionListManager->StartAbility(abilityRequest);
@@ -1393,6 +1401,7 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
         HILOG_ERROR("uiAbilityLifecycleManager_ is nullptr");
         return ERR_INVALID_VALUE;
     }
+    ReportAbilitStartInfoToRSS(abilityInfo);
     return uiAbilityLifecycleManager_->StartUIAbility(abilityRequest, sessionInfo);
 }
 
@@ -1716,6 +1725,37 @@ void AbilityManagerService::UnsubscribeBundleEventCallback()
     }
     abilityBundleEventCallback_ = nullptr;
     HILOG_DEBUG("UnsubscribeBundleEventCallback success.");
+}
+
+void AbilityManagerService::ReportAbilitStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo)
+{
+#ifdef RESOURCE_SCHEDULE_SERVICE_ENABLE
+    if (abilityInfo.type == AppExecFwk::AbilityType::PAGE &&
+        abilityInfo.launchMode != AppExecFwk::LaunchMode::SPECIFIED) {
+        std::vector<AppExecFwk::RunningProcessInfo> runningProcessInfos;
+        if (IN_PROCESS_CALL(GetProcessRunningInfos(runningProcessInfos)) != ERR_OK) {
+            return;
+        }
+        bool isColdStart = true;
+        int32_t pid = 0;
+        for (auto const &info : runningProcessInfos) {
+            if (info.uid_ == abilityInfo.applicationInfo.uid) {
+                isColdStart = false;
+                pid = info.pid_;
+                break;
+            }
+        }
+        std::unordered_map<std::string, std::string> eventParams {
+            { "name", "ability_start" },
+            { "uid", std::to_string(abilityInfo.applicationInfo.uid) },
+            { "bundleName", abilityInfo.applicationInfo.bundleName },
+            { "abilityName", abilityInfo.name },
+            { "pid", std::to_string(pid) }
+        };
+        ResourceSchedule::ResSchedClient::GetInstance().ReportData(
+            ResourceSchedule::ResType::RES_TYPE_APP_ABILITY_START, isColdStart ? 1 : 0, eventParams);
+    }
+#endif
 }
 
 void AbilityManagerService::ReportEventToSuspendManager(const AppExecFwk::AbilityInfo &abilityInfo)

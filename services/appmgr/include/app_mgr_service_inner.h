@@ -952,9 +952,6 @@ private:
 
     void AppRecoveryNotifyApp(int32_t pid, const std::string& bundleName,
         FaultDataType faultType, const std::string& markers);
-
-    void ReportAbilitStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo,
-        const std::shared_ptr<AppRunningRecord> &appRecord) const;
 private:
     /**
      * Notify application status.
