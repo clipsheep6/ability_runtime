@@ -21,6 +21,7 @@
 #include "ability_manager_client.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "ui_extension_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
