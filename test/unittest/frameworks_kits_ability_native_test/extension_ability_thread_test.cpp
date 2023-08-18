@@ -986,7 +986,6 @@ HWTEST_F(
     EXPECT_NE(extensionabilitythread->currentExtension_, nullptr);
     extensionabilitythread->extensionImpl_ = std::make_shared<AbilityRuntime::ExtensionImpl>();
     EXPECT_NE(extensionabilitythread->extensionImpl_, nullptr);
-    EXPECT_EQ(extensionabilitythread->currentExtension_, nullptr);
     extensionabilitythread->DumpAbilityInfoInner(params, info);
     GTEST_LOG_(INFO) << "AaFwk_ExtensionAbilityThread_DumpAbilityInfoInner_0300 end";
 }
