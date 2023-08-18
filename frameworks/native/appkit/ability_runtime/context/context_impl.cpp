@@ -42,6 +42,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 using namespace OHOS::AbilityBase::Constants;
+using HspList = std::vector<BaseSharedBundleInfo>;
 
 const std::string PATTERN_VERSION = std::string(FILE_SEPARATOR) + "v\\d+" + FILE_SEPARATOR;
 

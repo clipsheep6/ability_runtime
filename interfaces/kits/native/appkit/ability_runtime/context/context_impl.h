@@ -24,7 +24,6 @@
 namespace OHOS {
 namespace AppExecFwk {
 struct RunningProcessInfo;
-using HspList = std::vector<BaseSharedBundleInfo>;
 }
 namespace AbilityRuntime {
 class ContextImpl : public Context, public std::enable_shared_from_this<ContextImpl> {
