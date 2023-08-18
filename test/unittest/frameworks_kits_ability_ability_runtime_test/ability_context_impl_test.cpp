@@ -23,6 +23,7 @@
 #include "iability_callback.h"
 #include "mock_context.h"
 #include "mock_serviceability_manager_service.h"
+#include "scene_board_judgement.h"
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
 
