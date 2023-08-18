@@ -898,6 +898,12 @@ void AppMgrServiceInner::ClearUpApplicationDataByUserId(
         HILOG_ERROR("Kill Application by bundle name is fail");
         return;
     }
+    // 5.revoke uri permission rights
+    result = AAFwk::UriPermissionManagerClient::GetInstance().RevokeAllUriPermissions(tokenId);
+    if (result != 0) {
+        HILOG_ERROR("Revoke all uri permissions is fail");
+        return;
+    }
     NotifyAppStatusByCallerUid(bundleName, userId, callerUid,
         EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_DATA_CLEARED);
 }

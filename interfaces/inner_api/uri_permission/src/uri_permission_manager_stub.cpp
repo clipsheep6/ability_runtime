@@ -29,41 +29,99 @@ int UriPermissionManagerStub::OnRemoteRequest(
     ErrCode errCode = ERR_OK;
     switch (code) {
         case UriPermMgrCmd::ON_GRANT_URI_PERMISSION : {
-            std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
-            if (!uri) {
-                errCode = ERR_DEAD_OBJECT;
-                HILOG_ERROR("To read uri failed.");
-                break;
-            }
-            auto flag = data.ReadInt32();
-            auto targetBundleName = data.ReadString();
-            auto autoremove = data.ReadInt32();
-            auto appIndex = data.ReadInt32();
-            int result = GrantUriPermission(*uri, flag, targetBundleName, autoremove, appIndex);
-            reply.WriteInt32(result);
-            break;
+            return HandleGrantUriPermission(data, reply);
         }
         case UriPermMgrCmd::ON_REVOKE_URI_PERMISSION : {
-            auto tokenId = data.ReadInt32();
-            RevokeUriPermission(tokenId);
-            break;
+            return HandleRevokeUriPermission(data, reply);
+        }
+        case UriPermMgrCmd::ON_REVOKE_ALL_URI_PERMISSION : {
+            return HandleRevokeAllUriPermission(data, reply);
         }
         case UriPermMgrCmd::ON_REVOKE_URI_PERMISSION_MANUALLY : {
-            std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
-            if (!uri) {
-                errCode = ERR_DEAD_OBJECT;
-                HILOG_ERROR("To read uri failed.");
-                break;
-            }
-            auto bundleName = data.ReadString();
-            int result = RevokeUriPermissionManually(*uri, bundleName);
-            reply.WriteInt32(result);
-            break;
+            return HandleRevokeUriPermissionManually(data, reply);
+        }
+        case UriPermMgrCmd::ON_CHECK_PERSISTABLE_URIPERMISSION_PROXY : {
+            return HandleCheckPerSiSTableUriPermissionProxy(data, reply);
+        }
+        case UriPermMgrCmd::ON_VERIFY_URI_PERMISSION : {
+            return HandleVerifyUriPermission(data, reply);
         }
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
     return errCode;
+}
+
+int UriPermissionManagerStub::HandleRevokeUriPermission(MessageParcel &data, MessageParcel &reply)
+{
+    auto tokenId = data.ReadInt32();
+    RevokeUriPermission(tokenId);
+    return ERR_OK;
+}
+
+int UriPermissionManagerStub::HandleRevokeAllUriPermission(MessageParcel &data, MessageParcel &reply)
+{
+    auto tokenId = data.ReadInt32();
+    int result = RevokeAllUriPermissions(tokenId);
+    reply.WriteInt32(result);
+    return ERR_OK;
+}
+
+int UriPermissionManagerStub::HandleGrantUriPermission(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
+    if (!uri) {
+        HILOG_ERROR("To read uri failed.");
+        return ERR_DEAD_OBJECT;
+    }
+    auto flag = data.ReadInt32();
+    auto targetBundleName = data.ReadString();
+    auto autoremove = data.ReadInt32();
+    auto appIndex = data.ReadInt32();
+    int result = GrantUriPermission(*uri, flag, targetBundleName, autoremove, appIndex);
+    reply.WriteInt32(result);
+    return ERR_OK;
+}
+
+int UriPermissionManagerStub::HandleRevokeUriPermissionManually(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
+    if (!uri) {
+        HILOG_ERROR("To read uri failed.");
+        return ERR_DEAD_OBJECT;
+    }
+    auto bundleName = data.ReadString();
+    int result = RevokeUriPermissionManually(*uri, bundleName);
+    reply.WriteInt32(result);
+    return ERR_OK;
+}
+
+int UriPermissionManagerStub::HandleCheckPerSiSTableUriPermissionProxy(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
+    if (!uri) {
+        HILOG_ERROR("To read uri failed.");
+        return ERR_DEAD_OBJECT;
+    }
+    auto flag = data.ReadInt32();
+    auto tokenId = data.ReadInt32();
+    bool result = CheckPersistableUriPermissionProxy(*uri, flag, tokenId);
+    reply.WriteBool(result);
+    return ERR_OK;
+}
+
+int UriPermissionManagerStub::HandleVerifyUriPermission(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
+    if (!uri) {
+        HILOG_ERROR("To read uri failed.");
+        return ERR_DEAD_OBJECT;
+    }
+    auto flag = data.ReadInt32();
+    auto tokenId = data.ReadInt32();
+    bool result = VerifyUriPermission(*uri, flag, tokenId);
+    reply.WriteBool(result);
+    return ERR_OK;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

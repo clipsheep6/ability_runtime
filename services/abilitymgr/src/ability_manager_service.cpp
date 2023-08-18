@@ -4715,7 +4715,12 @@ int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t u
     if (ret != ERR_OK) {
         return UNINSTALL_APP_FAILED;
     }
-
+    // revoke all uri permissions
+    auto tokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(targetUserId, bundleName, 0);
+    ret = AAFwk::UriPermissionManagerClient::GetInstance().RevokeAllUriPermissions(tokenId);
+    if (ret != 0) {
+        HILOG_ERROR("Revoke all uri permissions is fail");
+    }
     DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->DeleteAppExitReason(bundleName);
     return ERR_OK;
 }

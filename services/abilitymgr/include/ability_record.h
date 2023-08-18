@@ -452,6 +452,8 @@ public:
 
     bool GetRecoveryInfo();
 
+    void InitPersistableUriPermissionConfig();
+
 #ifdef SUPPORT_GRAPHICS
     /**
      * check whether the ability 's window is attached.
@@ -1064,6 +1066,7 @@ private:
     bool isNeedBackToOtherMissionStack_ = false;
     std::weak_ptr<AbilityRecord> otherMissionStackAbilityRecord_; // who starts this ability record by SA
     int32_t collaboratorType_ = 0;
+    bool isGrantPersistableUriPermissionEnable_ = false;
     std::string missionAffinity_ = "";
 };
 }  // namespace AAFwk

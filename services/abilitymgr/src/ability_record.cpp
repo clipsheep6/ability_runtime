@@ -73,6 +73,8 @@ const std::string PARAMS_FILE_SAVING_URL_KEY = "pick_path_return";
 const uint32_t RELEASE_STARTING_BG_TIMEOUT = 15000; // release starting window resource timeout.
 const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 const std::string SHELL_ASSISTANT_DIEREASON = "crash_die";
+const char* GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_PARAMETER = "persist.sys.prepare_terminate";
+constexpr int32_t GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_SIZE = 6;
 const std::string PARAM_MISSION_AFFINITY_KEY = "ohos.anco.param.missionAffinity";
 const int32_t SHELL_ASSISTANT_DIETYPE = 0;
 int64_t AbilityRecord::abilityRecordId = 0;
@@ -246,6 +248,7 @@ bool AbilityRecord::Init()
     if (applicationInfo_.isLauncherApp) {
         isLauncherAbility_ = true;
     }
+    InitPersistableUriPermissionConfig();
     return true;
 }
 
@@ -2611,26 +2614,42 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         auto&& authority = uri.GetAuthority();
         HILOG_INFO("uri authority is %{public}s.", authority.c_str());
         bool authorityFlag = authority == "media" || authority == "docs";
-        if (authorityFlag && !permission) {
-            HILOG_ERROR("the uri is media or docs, have no permission");
-            continue;
+        uint32_t flag = want.GetFlags();
+        if (authorityFlag && !isGrantPersistableUriPermissionEnable_) {
+            flag &= (~Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION);
+            if (!permission) {
+                HILOG_WARN("Do not have uri permission proxy.");
+                continue;
+            }
         }
+        
+        if (authorityFlag && isGrantPersistableUriPermissionEnable_ && !permission) {
+            if (!AAFwk::UriPermissionManagerClient::GetInstance().CheckPersistableUriPermissionProxy(
+                uri, flag, fromTokenId)) {
+                HILOG_WARN("Do not have persistable uri permission proxy.");
+                continue;
+            }
+            flag |= Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION;
+        }
+
         if (!authorityFlag) {
             AppExecFwk::BundleInfo uriBundleInfo;
             if (!IN_PROCESS_CALL(bms->GetBundleInfo(authority, bundleFlag, uriBundleInfo, userId))) {
                 HILOG_WARN("To fail to get bundle info according to uri.");
                 continue;
             }
-            if (uriBundleInfo.applicationInfo.accessTokenId != fromTokenId &&
+            bool notBelong2Caller = uriBundleInfo.applicationInfo.accessTokenId != fromTokenId &&
                 uriBundleInfo.applicationInfo.accessTokenId != callerAccessTokenId_ &&
-                uriBundleInfo.applicationInfo.accessTokenId != callerTokenId) {
+                uriBundleInfo.applicationInfo.accessTokenId != callerTokenId;
+            if (notBelong2Caller) {
                 HILOG_ERROR("the uri does not belong to caller.");
                 continue;
             }
+            flag &= (~Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION);
         }
         int autoremove = 1;
         auto ret = IN_PROCESS_CALL(
-            AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, want.GetFlags(),
+            AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, flag,
                 targetBundleName, autoremove, appIndex_));
         if (ret == 0) {
             isGrantedUriPermission_ = true;
@@ -2814,6 +2833,18 @@ bool AbilityRecord::GetRecoveryInfo()
 int32_t AbilityRecord::GetCollaboratorType() const
 {
     return collaboratorType_;
+}
+
+void AbilityRecord::InitPersistableUriPermissionConfig()
+{
+    char value[GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_SIZE] = "false";
+    int retSysParam = GetParameter(GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_PARAMETER, "false", value,
+        GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_SIZE);
+    HILOG_INFO("GrantPersistableUriPermissionEnable, %{public}s value is %{public}s.",
+        GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_PARAMETER, value);
+    if (retSysParam > 0 && !std::strcmp(value, "true")) {
+        isGrantPersistableUriPermissionEnable_ = true;
+    }
 }
 
 std::string AbilityRecord::GetMissionAffinity() const
