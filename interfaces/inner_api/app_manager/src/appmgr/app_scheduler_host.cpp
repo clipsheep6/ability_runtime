@@ -68,6 +68,7 @@ AppSchedulerHost::AppSchedulerHost()
 
 AppSchedulerHost::~AppSchedulerHost()
 {
+    HILOG_INFO("AppSchedulerHost destruction");
     memberFuncMap_.clear();
 }
 
