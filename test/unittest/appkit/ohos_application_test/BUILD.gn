@@ -52,6 +52,7 @@ ohos_unittest("ohos_application_test") {
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "../../../../frameworks/native/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:uiabilitykit_native",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]

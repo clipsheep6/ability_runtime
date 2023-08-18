@@ -13,27 +13,28 @@
  * limitations under the License.
  */
 
-#include <gtest/gtest.h>
 #include <functional>
+#include <gtest/gtest.h>
 #define private public
 #define protected public
-#include "ability_thread.h"
 #include "ability_loader.h"
+#include "ability_thread.h"
+#include "fa_ability_thread.h"
 #undef private
 #undef protected
-#include "ability_impl_factory.h"
 #include "ability.h"
 #include "ability_impl.h"
+#include "ability_impl_factory.h"
 #include "context_deal.h"
 #include "hilog_wrapper.h"
-#include "mock_page_ability.h"
-#include "mock_service_ability.h"
-#include "mock_ability_token.h"
-#include "mock_ability_lifecycle_callbacks.h"
 #include "mock_ability_impl.h"
+#include "mock_ability_lifecycle_callbacks.h"
 #include "mock_ability_thread.h"
+#include "mock_ability_token.h"
 #include "mock_data_ability.h"
 #include "mock_data_obs_mgr_stub.h"
+#include "mock_page_ability.h"
+#include "mock_service_ability.h"
 #include "ohos_application.h"
 #include "page_ability_impl.h"
 #include "uri.h"
@@ -82,7 +83,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpAbilityInfo_0100, Function |
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_DumpAbilityInfo_0100 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -119,7 +120,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleSaveAbilityState_0100, F
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleSaveAbilityState_0100 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -151,7 +152,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleSaveAbilityState_0200, F
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleSaveAbilityState_0200 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         abilitythread->ScheduleSaveAbilityState();
@@ -168,7 +169,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleRestoreAbilityState_0100
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleRestoreAbilityState_0100 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -201,7 +202,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleRestoreAbilityState_0200
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleRestoreAbilityState_0200 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         abilitythread->ScheduleSaveAbilityState();
@@ -217,7 +218,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleRestoreAbilityState_0200
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Attach_3_Param_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Attach_3_Param_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -245,7 +246,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Attach_3_Param_0100, Function | 
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Attach_3_Param_0200, Function | MediumTest | Level3)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Attach_3_Param_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -274,7 +275,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Attach_3_Param_0200, Function | 
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Attach_2_Param_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Attach_2_Param_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -302,7 +303,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Attach_2_Param_0100, Function | 
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Attach_2_Param_0200, Function | MediumTest | Level3)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Attach_2_Param_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -333,7 +334,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleAbilityTransaction_0100,
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleAbilityTransaction_0100 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -366,7 +367,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleAbilityTransaction_0100,
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleAbilityTransaction_0200, Function | MediumTest | Level3)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleAbilityTransaction_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -397,7 +398,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleConnectAbility_0100, Fun
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleConnectAbility_0100 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -430,7 +431,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleConnectAbility_0200, Fun
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleConnectAbility_0200 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -458,7 +459,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleDisconnectAbility_0100, 
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleDisconnectAbility_0100 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -491,7 +492,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleDisconnectAbility_0200, 
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleDisconnectAbility_0200 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -519,7 +520,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleCommandAbility_0100, Fun
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleCommandAbility_0100 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -556,7 +557,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleCommandAbility_0200, Fun
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleCommandAbility_0200 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -586,7 +587,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleCommandAbilityWindow_010
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleCommandAbilityWindow_0100 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -620,7 +621,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_SendResult_0100, Function | Medi
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_SendResult_0100 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -656,7 +657,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_SendResult_0200, Function | Medi
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_SendResult_0200 start";
 
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -685,7 +686,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_SendResult_0200, Function | Medi
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AbilityThreadMain_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_AbilityThreadMain_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -713,7 +714,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AbilityThreadMain_0100, Function
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AbilityThreadMain_0200, Function | MediumTest | Level3)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_AbilityThreadMain_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -741,7 +742,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AbilityThreadMain_0200, Function
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AbilityThreadMain_0300, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_AbilityThreadMain_0300 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -769,7 +770,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AbilityThreadMain_0300, Function
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AbilityThreadMain_0400, Function | MediumTest | Level3)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_AbilityThreadMain_0400 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     if (abilitythread != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -797,7 +798,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AbilityThreadMain_0400, Function
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AttachExtension_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_AttachExtension_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
@@ -826,7 +827,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AttachExtension_0100, Function |
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AttachExtension_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_AttachExtension_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
@@ -853,7 +854,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_AttachExtension_0200, Function |
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleAbilityTransaction_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_HandleAbilityTransaction_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     Want want;
     LifeCycleStateInfo lifeCycleStateInfo;
@@ -871,7 +872,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleAbilityTransaction_0100, F
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleAbilityTransaction_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_HandleAbilityTransaction_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     Want want;
     LifeCycleStateInfo lifeCycleStateInfo;
@@ -890,7 +891,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleAbilityTransaction_0200, F
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleExtensionTransaction_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_HandleExtensionTransaction_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     Want want;
     LifeCycleStateInfo lifeCycleStateInfo;
@@ -908,7 +909,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleExtensionTransaction_0100,
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleExtensionTransaction_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_HandleExtensionTransaction_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     Want want;
     LifeCycleStateInfo lifeCycleStateInfo;
@@ -927,7 +928,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleExtensionTransaction_0200,
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleConnectAbility_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_HandleConnectAbility_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Want want;
@@ -946,7 +947,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleConnectAbility_0100, Funct
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleDisconnectAbility_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_HandleDisconnectAbility_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Want want;
@@ -965,7 +966,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleDisconnectAbility_0100, Fu
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleConnectExtension_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_HandleConnectExtension_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Want want;
@@ -982,7 +983,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleConnectExtension_0100, Fun
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleConnectExtension_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_HandleConnectExtension_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Want want;
@@ -1000,7 +1001,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleConnectExtension_0200, Fun
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleCommandExtension_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_HandleCommandExtension_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Want want;
@@ -1017,7 +1018,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleCommandExtension_0100, Fun
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleCommandExtension_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_HandleCommandExtension_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Want want;
@@ -1035,7 +1036,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleCommandExtension_0200, Fun
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleCommandExtensionWindow_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_HandleCommandExtensionWindow_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     abilitythread->extensionImpl_ = std::make_shared<AbilityRuntime::ExtensionImpl>();
@@ -1054,7 +1055,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleCommandExtensionWindow_010
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleRestoreAbilityState_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_HandleRestoreAbilityState_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     PacMap state;
     EXPECT_EQ(abilitythread->abilityImpl_, nullptr);
@@ -1071,7 +1072,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleRestoreAbilityState_0100, 
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleRestoreAbilityState_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_HandleRestoreAbilityState_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     PacMap state;
     abilitythread->abilityImpl_ = std::make_shared<AbilityImpl>();
@@ -1089,7 +1090,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleRestoreAbilityState_0200, 
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleUpdateConfiguration_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleUpdateConfiguration_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Configuration config;
@@ -1106,7 +1107,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleUpdateConfiguration_0100
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleUpdateConfiguration_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleUpdateConfiguration_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Configuration config;
@@ -1124,7 +1125,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleUpdateConfiguration_0200
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleUpdateConfiguration_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_HandleUpdateConfiguration_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Configuration config;
@@ -1141,7 +1142,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleUpdateConfiguration_0100, 
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleUpdateConfiguration_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_HandleUpdateConfiguration_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Configuration config;
@@ -1159,7 +1160,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleUpdateConfiguration_0200, 
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ExtensionUpdateConfiguration_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ExtensionUpdateConfiguration_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Configuration config;
@@ -1176,7 +1177,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ExtensionUpdateConfiguration_010
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ExtensionUpdateConfiguration_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ExtensionUpdateConfiguration_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Configuration config;
@@ -1194,7 +1195,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ExtensionUpdateConfiguration_020
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleAbilityTransaction_0300, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleAbilityTransaction_0300 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     abilitythread->token_ = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
@@ -1214,7 +1215,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleAbilityTransaction_0300,
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleAbilityTransaction_0400, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleAbilityTransaction_0400 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     abilitythread->token_ = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
@@ -1236,7 +1237,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleAbilityTransaction_0400,
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_SendResult_0300, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_SendResult_0300 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     auto abilityInfo = std::make_shared<AbilityInfo>();
@@ -1267,7 +1268,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_SendResult_0300, Function | Medi
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_SendResult_0400, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_SendResult_0400 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     
     abilitythread->abilityImpl_ = std::make_shared<AbilityImpl>();
@@ -1289,7 +1290,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_SendResult_0400, Function | Medi
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_SendResult_0500, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_SendResult_0500 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     abilitythread->abilityImpl_ = std::make_shared<AbilityImpl>();
@@ -1312,7 +1313,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_SendResult_0500, Function | Medi
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_SendResult_0600, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_SendResult_0600 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     abilitythread->extensionImpl_ = std::make_shared<AbilityRuntime::ExtensionImpl>();
@@ -1336,7 +1337,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_SendResult_0600, Function | Medi
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_GetFileTypes_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_GetFileTypes_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1355,7 +1356,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_GetFileTypes_0100, Function | Me
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_GetFileTypes_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_GetFileTypes_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1373,7 +1374,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_GetFileTypes_0200, Function | Me
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_OpenFile_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_OpenFile_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1392,7 +1393,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_OpenFile_0100, Function | Medium
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_OpenFile_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_OpenFile_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1410,7 +1411,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_OpenFile_0200, Function | Medium
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_OpenRawFile_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_OpenRawFile_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1429,7 +1430,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_OpenRawFile_0100, Function | Med
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_OpenRawFile_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_OpenRawFile_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1447,7 +1448,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_OpenRawFile_0200, Function | Med
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Insert_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Insert_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1466,7 +1467,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Insert_0100, Function | MediumTe
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Insert_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Insert_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1484,7 +1485,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Insert_0200, Function | MediumTe
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Call_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Call_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1505,7 +1506,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Call_0100, Function | MediumTest
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Call_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Call_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1525,7 +1526,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Call_0200, Function | MediumTest
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Update_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Update_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1545,7 +1546,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Update_0100, Function | MediumTe
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Update_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Update_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1564,7 +1565,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Update_0200, Function | MediumTe
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Delete_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Delete_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1583,7 +1584,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Delete_0100, Function | MediumTe
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Delete_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Delete_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1602,7 +1603,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Delete_0200, Function | MediumTe
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Query_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Query_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1622,7 +1623,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Query_0100, Function | MediumTes
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Query_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Query_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1641,7 +1642,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Query_0200, Function | MediumTes
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_GetType_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_GetType_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1659,7 +1660,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_GetType_0100, Function | MediumT
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_GetType_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_GetType_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1676,7 +1677,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_GetType_0200, Function | MediumT
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Reload_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Reload_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1695,7 +1696,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Reload_0100, Function | MediumTe
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Reload_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_Reload_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1713,7 +1714,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Reload_0200, Function | MediumTe
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_BatchInsert_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_BatchInsert_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1732,7 +1733,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_BatchInsert_0100, Function | Med
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_BatchInsert_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_BatchInsert_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1750,7 +1751,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_BatchInsert_0200, Function | Med
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ContinueAbility_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ContinueAbility_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     std::string deviceId = DEVICE_ID;
@@ -1769,7 +1770,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ContinueAbility_0100, Function |
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ContinueAbility_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ContinueAbility_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     std::string deviceId = DEVICE_ID;
@@ -1787,7 +1788,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ContinueAbility_0200, Function |
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NotifyContinuationResult_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_NotifyContinuationResult_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     int32_t result = STARTID;
@@ -1805,7 +1806,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NotifyContinuationResult_0100, F
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NotifyContinuationResult_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_NotifyContinuationResult_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     int32_t result = STARTID;
@@ -1822,7 +1823,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NotifyContinuationResult_0200, F
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NotifyMemoryLevel_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_NotifyMemoryLevel_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     int32_t result = STARTID;
@@ -1840,7 +1841,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NotifyMemoryLevel_0100, Function
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NotifyMemoryLevel_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_NotifyMemoryLevel_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     int32_t result = STARTID;
@@ -1859,7 +1860,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NotifyMemoryLevel_0200, Function
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NotifyMemoryLevel_0300, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_NotifyMemoryLevel_0300 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     int32_t result = STARTID;
@@ -1878,7 +1879,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NotifyMemoryLevel_0300, Function
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NotifyMemoryLevel_0400, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_NotifyMemoryLevel_0400 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     int32_t result = STARTID;
@@ -1898,7 +1899,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NotifyMemoryLevel_0400, Function
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_InitExtensionFlag_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_InitExtensionFlag_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
     abilitythread->InitExtensionFlag(nullptr);
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_InitExtensionFlag_0100 end";
@@ -1912,7 +1913,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_InitExtensionFlag_0100, Function
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NormalizeUri_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_NormalizeUri_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1930,7 +1931,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NormalizeUri_0100, Function | Me
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NormalizeUri_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_NormalizeUri_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1948,7 +1949,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_NormalizeUri_0200, Function | Me
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DenormalizeUri_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_DenormalizeUri_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1966,7 +1967,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DenormalizeUri_0100, Function | 
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DenormalizeUri_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_DenormalizeUri_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -1984,7 +1985,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DenormalizeUri_0200, Function | 
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleNotifyChange_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_HandleNotifyChange_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -2000,7 +2001,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleNotifyChange_0100, Functio
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_CheckObsPermission_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CheckObsPermission_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     EXPECT_TRUE(abilitythread->CheckObsPermission());
@@ -2015,7 +2016,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_CheckObsPermission_0100, Functio
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleRegisterObserver_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_HandleRegisterObserver_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -2035,7 +2036,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleRegisterObserver_0100, Fun
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleUnregisterObserver_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_HandleUnregisterObserver_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -2053,7 +2054,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleUnregisterObserver_0100, F
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleRegisterObserver_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleRegisterObserver_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -2073,7 +2074,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleRegisterObserver_0100, F
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleRegisterObserver_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleRegisterObserver_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -2095,7 +2096,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleRegisterObserver_0200, F
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleUnregisterObserver_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleUnregisterObserver_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -2115,7 +2116,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleUnregisterObserver_0100,
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleUnregisterObserver_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleUnregisterObserver_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -2137,7 +2138,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleUnregisterObserver_0200,
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleNotifyChange_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleNotifyChange_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -2153,7 +2154,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleNotifyChange_0100, Funct
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleNotifyChange_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ScheduleNotifyChange_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     Uri uri(TEST);
@@ -2171,7 +2172,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ScheduleNotifyChange_0200, Funct
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ExecuteBatch_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ExecuteBatch_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     std::vector<std::shared_ptr<DataAbilityOperation>> operations;
@@ -2189,7 +2190,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ExecuteBatch_0100, Function | Me
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ExecuteBatch_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_ExecuteBatch_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     std::vector<std::shared_ptr<DataAbilityOperation>> operations;
@@ -2206,7 +2207,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_ExecuteBatch_0200, Function | Me
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_BuildAbilityContext_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_BuildAbilityContext_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -2230,7 +2231,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_BuildAbilityContext_0100, Functi
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpAbilityInfo_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_DumpAbilityInfo_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     std::vector<std::string> params;
@@ -2252,7 +2253,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpAbilityInfo_0200, Function |
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpAbilityInfo_0300, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_DumpAbilityInfo_0300 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     std::vector<std::string> params;
@@ -2273,7 +2274,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpAbilityInfo_0300, Function |
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpAbilityInfoInner_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_DumpAbilityInfoInner_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     std::vector<std::string> params;
@@ -2297,7 +2298,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpAbilityInfoInner_0100, Funct
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpAbilityInfoInner_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_DumpAbilityInfoInner_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     std::vector<std::string> params;
@@ -2318,7 +2319,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpAbilityInfoInner_0200, Funct
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpAbilityInfoInner_0300, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_DumpAbilityInfoInner_0300 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     std::vector<std::string> params;
@@ -2341,7 +2342,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpAbilityInfoInner_0300, Funct
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpOtherInfo_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_DumpOtherInfo_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     abilitythread->abilityHandler_ = std::make_shared<AbilityHandler>(nullptr);
@@ -2369,7 +2370,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpOtherInfo_0100, Function | M
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpOtherInfo_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_DumpOtherInfo_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     std::vector<std::string> info;
@@ -2386,7 +2387,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpOtherInfo_0200, Function | M
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpOtherInfo_0300, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_DumpOtherInfo_0300 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     std::vector<std::string> info;
@@ -2405,7 +2406,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_DumpOtherInfo_0300, Function | M
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_CallRequest_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CallRequest_0100 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     std::vector<std::string> info;
@@ -2425,7 +2426,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_CallRequest_0100, Function | Med
 HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_CallRequest_0200, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CallRequest_0200 start";
-    AbilityThread* abilitythread = new (std::nothrow) AbilityThread();
+    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     EXPECT_NE(abilitythread, nullptr);
 
     std::vector<std::string> info;

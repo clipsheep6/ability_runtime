@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,13 +25,13 @@
 #include <syscall.h>
 #include <unistd.h>
 
-#include "ability_runtime/js_ability.h"
+#include "ability_runtime/js_ui_ability.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "mission_info.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
-
+#include "context/application_context.h"
 #include "ability_manager_client.h"
 
 #include "directory_ex.h"
@@ -113,7 +113,7 @@ bool AppRecovery::InitApplicationInfo(const std::shared_ptr<EventHandler>& mainH
     return true;
 }
 
-bool AppRecovery::AddAbility(std::shared_ptr<Ability> ability,
+bool AppRecovery::AddAbility(std::shared_ptr<AbilityRuntime::UIAbility> ability,
     const std::shared_ptr<AbilityInfo>& abilityInfo, const sptr<IRemoteObject>& token)
 {
     if (!isEnable_) {
@@ -190,7 +190,7 @@ bool AppRecovery::ScheduleSaveAppState(StateReason reason, uintptr_t ability)
             HILOG_ERROR("AppRecovery Failed to block main thread, skip save state when appfreeze");
             return false;
         }
-        OHOS::AbilityRuntime::JsAbility& jsAbility = static_cast<AbilityRuntime::JsAbility&>(*abilityPtr);
+        OHOS::AbilityRuntime::JsUIAbility& jsAbility = static_cast<AbilityRuntime::JsUIAbility&>(*abilityPtr);
         AbilityRuntime::JsRuntime& runtime = const_cast<AbilityRuntime::JsRuntime&>(jsAbility.GetJsRuntime());
         auto& nativeEngine = runtime.GetNativeEngine();
         nativeEngine.AllowCrossThreadExecution();

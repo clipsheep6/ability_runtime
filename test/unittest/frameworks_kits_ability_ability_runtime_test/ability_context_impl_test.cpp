@@ -18,13 +18,13 @@
 #include "ability_context_impl.h"
 #define protected public
 #include "ability_loader.h"
+#include "ability_manager_client.h"
 #include "ability_thread.h"
 #include "iability_callback.h"
 #include "mock_context.h"
 #include "mock_serviceability_manager_service.h"
-#include "system_ability_definition.h"
 #include "sys_mgr_client.h"
-#include "scene_board_judgement.h"
+#include "system_ability_definition.h"
 
 namespace OHOS {
 namespace Ace {
