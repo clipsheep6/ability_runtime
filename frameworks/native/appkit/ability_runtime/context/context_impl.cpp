@@ -42,7 +42,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 using namespace OHOS::AbilityBase::Constants;
-using HspList = std::vector<BaseSharedBundleInfo>;
+using HspList = std::vector<AppExecFwk::BaseSharedBundleInfo>;
 
 const std::string PATTERN_VERSION = std::string(FILE_SEPARATOR) + "v\\d+" + FILE_SEPARATOR;
 
@@ -344,8 +344,7 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
             return nullptr;
         }
     }
-
-    AppExecFwk::HspList hspList;
+    HspList hspList;
     bundleMgr_->GetBaseSharedBundleInfos(bundleName, hspList);
     std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();
     if (bundleInfo.applicationInfo.codePath != std::to_string(TYPE_RESERVE) &&
