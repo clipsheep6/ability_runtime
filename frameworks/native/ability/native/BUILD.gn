@@ -484,7 +484,7 @@ ohos_shared_library("uiabilitykit_native") {
       "ability_base:session_info",
       "window_manager:libdm",
       "window_manager:libwm",
-      ]
+    ]
   }
 
   innerapi_tags = [ "platformsdk" ]
@@ -498,8 +498,8 @@ ohos_shared_library("ability_thread") {
 
   sources = [
     "${ability_runtime_native_path}/ability/native/ability_thread.cpp",
-    "${ability_runtime_native_path}/ability/native/fa_ability_thread.cpp",
     "${ability_runtime_native_path}/ability/native/extension_ability_thread.cpp",
+    "${ability_runtime_native_path}/ability/native/fa_ability_thread.cpp",
     "${ability_runtime_native_path}/ability/native/ui_ability_thread.cpp",
   ]
 
