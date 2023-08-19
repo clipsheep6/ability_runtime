@@ -2248,5 +2248,48 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RecordAppExitReason_001, T
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::RECORD_APP_EXIT_REASON), mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartUISessionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartExtensionAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of StartExtensionAbility
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartUISessionAbility_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    const sptr<AAFwk::SessionInfo> sessionInfo = nullptr;
+    StartOptions startOptions;
+    auto res = proxy_->StartUISessionAbility(want, startOptions, callerToken, sessionInfo);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::START_UI_SESSION_ABILITY_FOR_OPTIONS), mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartUISessionAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StopExtensionAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of StopExtensionAbility
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartUISessionAbility_002, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    const sptr<AAFwk::SessionInfo> sessionInfo = nullptr;
+    auto res = proxy_->StartUISessionAbility(want, callerToken, sessionInfo);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::START_UI_SESSION_ABILITY_ADD_CALLER), mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

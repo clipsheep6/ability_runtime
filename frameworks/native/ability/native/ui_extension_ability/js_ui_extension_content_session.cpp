@@ -19,11 +19,16 @@
 #include "accesstoken_kit.h"
 #include "event_handler.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "ipc_skeleton.h"
 #include "js_error_utils.h"
 #include "js_runtime_utils.h"
 #include "js_ui_extension_context.h"
+#include "napi_common_start_options.h"
 #include "napi_common_want.h"
+#include "native_engine.h"
+#include "native_value.h"
+#include "want.h"
 #include "window.h"
 
 namespace OHOS {
@@ -36,6 +41,47 @@ constexpr size_t ARGC_ONE = 1;
 constexpr const char* PERMISSION_PRIVACY_WINDOW = "ohos.permission.PRIVACY_WINDOW";
 } // namespace
 
+void UISessionAbilityResultListener::OnAbilityResult(int requestCode, int resultCode, const Want &resultData)
+{
+    HILOG_DEBUG("begin.");
+    auto callback = resultCallbacks_.find(requestCode);
+    if (callback != resultCallbacks_.end()) {
+        if (callback->second) {
+            callback->second(resultCode, resultData, false);
+        }
+        resultCallbacks_.erase(requestCode);
+    }
+    HILOG_DEBUG("end.");
+}
+
+void UISessionAbilityResultListener::OnAbilityResultInner(int requestCode, int resultCode, const Want &resultData)
+{
+    HILOG_DEBUG("begin.");
+    auto callback = resultCallbacks_.find(requestCode);
+    if (callback != resultCallbacks_.end()) {
+        if (callback->second) {
+            callback->second(resultCode, resultData, true);
+        }
+        resultCallbacks_.erase(requestCode);
+    }
+    HILOG_DEBUG("end.");
+}
+
+void UISessionAbilityResultListener::SaveResultCallbacks(int requestCode, RuntimeTask&& task)
+{
+    resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
+}
+
+JsUIExtensionContentSession::JsUIExtensionContentSession(
+    NativeEngine& engine, sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow,
+    std::weak_ptr<AbilityRuntime::Context> &context,
+    std::shared_ptr<AbilityResultListeners>& abilityResultListeners)
+    : engine_(engine), sessionInfo_(sessionInfo), uiWindow_(uiWindow), context_(context)
+{
+        listener_ = std::make_shared<UISessionAbilityResultListener>();
+        abilityResultListeners->AddListener(sessionInfo->sessionToken, listener_);
+}
+
 JsUIExtensionContentSession::JsUIExtensionContentSession(
     NativeEngine& engine, sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow)
     : engine_(engine), sessionInfo_(sessionInfo), uiWindow_(uiWindow) {}
@@ -44,6 +90,18 @@ void JsUIExtensionContentSession::Finalizer(NativeEngine* engine, void* data, vo
 {
     HILOG_DEBUG("JsUIExtensionContentSession Finalizer is called");
     std::unique_ptr<JsUIExtensionContentSession>(static_cast<JsUIExtensionContentSession*>(data));
+}
+
+NativeValue* JsUIExtensionContentSession::StartAbility(NativeEngine* engine, NativeCallbackInfo* info)
+{
+    JsUIExtensionContentSession* me = CheckParamsAndGetThis<JsUIExtensionContentSession>(engine, info);
+    return (me != nullptr) ? me->OnStartAbility(*engine, *info) : nullptr;
+}
+
+NativeValue* JsUIExtensionContentSession::StartAbilityForResult(NativeEngine* engine, NativeCallbackInfo* info)
+{
+    JsUIExtensionContentSession* me = CheckParamsAndGetThis<JsUIExtensionContentSession>(engine, info);
+    return (me != nullptr) ? me->OnStartAbilityForResult(*engine, *info) : nullptr;
 }
 
 NativeValue *JsUIExtensionContentSession::TerminateSelf(NativeEngine* engine, NativeCallbackInfo* info)
@@ -86,6 +144,160 @@ NativeValue *JsUIExtensionContentSession::SetWindowPrivacyMode(NativeEngine* eng
 {
     JsUIExtensionContentSession* me = CheckParamsAndGetThis<JsUIExtensionContentSession>(engine, info);
     return (me != nullptr) ? me->OnSetWindowPrivacyMode(*engine, *info) : nullptr;
+}
+
+NativeValue *JsUIExtensionContentSession::OnStartAbility(NativeEngine& engine, NativeCallbackInfo &info)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("OnStartAbility is called");
+
+    if (info.argc == ARGC_ZERO) {
+        HILOG_ERROR("Not enough params");
+        ThrowTooFewParametersError(engine);
+        return engine.CreateUndefined();
+    }
+
+    AAFwk::Want want;
+    OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(info.argv[0]), want);
+    decltype(info.argc) unwrapArgc = 1;
+    HILOG_INFO("StartAbility, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
+    AAFwk::StartOptions startOptions;
+    if (info.argc > ARGC_ONE && info.argv[1]->TypeOf() == NATIVE_OBJECT) {
+        HILOG_DEBUG("OnStartAbility start options is used.");
+        AppExecFwk::UnwrapStartOptions(reinterpret_cast<napi_env>(&engine),
+            reinterpret_cast<napi_value>(info.argv[1]), startOptions);
+        unwrapArgc++;
+    }
+
+    if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
+        std::string startTime = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
+            system_clock::now().time_since_epoch()).count());
+        want.SetParam(Want::PARAM_RESV_START_TIME, startTime);
+    }
+
+    auto innerErrorCode = std::make_shared<int>(ERR_OK);
+    AsyncTask::ExecuteCallback execute = [weak = context_, want, startOptions, unwrapArgc,
+        sessionInfo = sessionInfo_, &observer = freeInstallObserver_, innerErrorCode]() {
+        auto context = weak.lock();
+        if (!context) {
+            HILOG_WARN("context is released");
+            *innerErrorCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+            return;
+        }
+
+        *innerErrorCode = (unwrapArgc == 1) ?
+            AAFwk::AbilityManagerClient::GetInstance()->StartUISessionAbility(want,
+                context->GetToken(), sessionInfo, -1, -1) :
+            AAFwk::AbilityManagerClient::GetInstance()->StartUISessionAbility(want,
+                startOptions, context->GetToken(), sessionInfo, -1, -1);
+        if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND &&
+            *innerErrorCode != 0 && observer != nullptr) {
+            std::string bundleName = want.GetElement().GetBundleName();
+            std::string abilityName = want.GetElement().GetAbilityName();
+            std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
+            observer->OnInstallFinished(bundleName, abilityName, startTime, *innerErrorCode);
+        }
+    };
+
+    AsyncTask::CompleteCallback complete = [innerErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
+        if (*innerErrorCode == 0) {
+            task.Resolve(engine, engine.CreateUndefined());
+        } else {
+            task.Reject(engine, CreateJsErrorByNativeErr(engine, *innerErrorCode));
+        }
+    };
+
+    NativeValue* lastParam = (info.argc > unwrapArgc) ? info.argv[unwrapArgc] : nullptr;
+    NativeValue* result = nullptr;
+    if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
+        AddFreeInstallObserver(engine, want, lastParam);
+        AsyncTask::Schedule("JsUIExtensionContentSession::OnStartAbility", engine,
+            CreateAsyncTaskWithLastParam(engine, nullptr, std::move(execute), nullptr, &result));
+    } else {
+        AsyncTask::Schedule("JsUIExtensionContentSession::OnStartAbility", engine,
+            CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
+    }
+    HILOG_DEBUG("OnStartAbility is called end");
+    return result;
+}
+
+NativeValue *JsUIExtensionContentSession::OnStartAbilityForResult(NativeEngine& engine, NativeCallbackInfo &info)
+{
+    HILOG_DEBUG("OnStartAbilityForResult is called");
+
+    if (info.argc == ARGC_ZERO) {
+        ThrowTooFewParametersError(engine);
+        return engine.CreateUndefined();
+    }
+
+    AAFwk::Want want;
+    if (!UnWrapWant(engine, info.argv[0], want)) {
+        HILOG_ERROR("Failed to parse want!");
+        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return engine.CreateUndefined();
+    }
+    decltype(info.argc) unwrapArgc = 1;
+    AAFwk::StartOptions startOptions;
+    if (info.argc > ARGC_ONE && info.argv[1]->TypeOf() == NATIVE_OBJECT) {
+        HILOG_DEBUG("OnStartAbilityForResult start options is used.");
+        AppExecFwk::UnwrapStartOptions(reinterpret_cast<napi_env>(&engine),
+            reinterpret_cast<napi_value>(info.argv[1]), startOptions);
+        unwrapArgc++;
+    }
+
+    NativeValue* lastParam = info.argc > unwrapArgc ? info.argv[unwrapArgc] : nullptr;
+    NativeValue* result = nullptr;
+    if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
+        std::string startTime = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
+            system_clock::now().time_since_epoch()).count());
+        want.SetParam(Want::PARAM_RESV_START_TIME, startTime);
+        AddFreeInstallObserver(engine, want, lastParam, true);
+    }
+    std::unique_ptr<AsyncTask> uasyncTask =
+        CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, nullptr, &result);
+    std::shared_ptr<AsyncTask> asyncTask = std::move(uasyncTask);
+    RuntimeTask task = [&engine, asyncTask, &observer = freeInstallObserver_](int resultCode,
+    const AAFwk::Want& want, bool isInner) {
+        HILOG_DEBUG("OnStartAbilityForResult async callback is called");
+        NativeValue* abilityResult = WrapAbilityResult(engine, resultCode, want);
+        if (abilityResult == nullptr) {
+            HILOG_WARN("wrap abilityResult failed");
+            asyncTask->Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+        } else {
+            if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND &&
+                resultCode != 0 && observer != nullptr) {
+                std::string bundleName = want.GetElement().GetBundleName();
+                std::string abilityName = want.GetElement().GetAbilityName();
+                std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
+                observer->OnInstallFinished(bundleName, abilityName, startTime,
+                    static_cast<int>(GetJsErrorCodeByNativeError(resultCode)));
+            } else if (isInner) {
+                asyncTask->Reject(engine, CreateJsErrorByNativeErr(engine, resultCode));
+            } else {
+                asyncTask->Resolve(engine, abilityResult);
+            }
+        }
+    };
+    auto context = context_.lock();
+    if (context == nullptr) {
+        HILOG_WARN("context is released");
+        asyncTask->Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+    } else {
+        want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
+        int curRequestCode_ = reinterpret_cast<UIExtensionContext*>(context.get())->setCurRequestCode();
+        listener_->SaveResultCallbacks(curRequestCode_, std::move(task));
+        ErrCode err = (unwrapArgc == 1) ?
+            AAFwk::AbilityManagerClient::GetInstance()->StartUISessionAbility(want,
+                context->GetToken(), sessionInfo_, curRequestCode_, -1) :
+            AAFwk::AbilityManagerClient::GetInstance()->StartUISessionAbility(want,
+                startOptions, context->GetToken(), sessionInfo_, curRequestCode_, -1);
+        if (err != ERR_OK && err != AAFwk::START_ABILITY_WAITING) {
+            HILOG_ERROR("StartAbilityForResult. ret=%{public}d", err);
+            listener_->OnAbilityResultInner(curRequestCode_, err, want);
+        }
+    }
+    HILOG_DEBUG("OnStartAbilityForResult is called end");
+    return result;
 }
 
 NativeValue *JsUIExtensionContentSession::OnTerminateSelf(NativeEngine& engine, NativeCallbackInfo& info)
@@ -319,6 +531,32 @@ NativeValue *JsUIExtensionContentSession::OnSetWindowPrivacyMode(NativeEngine& e
 }
 
 NativeValue *JsUIExtensionContentSession::CreateJsUIExtensionContentSession(NativeEngine& engine,
+    sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow,
+    std::weak_ptr<AbilityRuntime::Context> context,
+    std::shared_ptr<AbilityResultListeners>& abilityResultListeners)
+{
+    HILOG_DEBUG("begin");
+    NativeValue* objValue = engine.CreateObject();
+    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+
+    std::unique_ptr<JsUIExtensionContentSession> jsSession =
+        std::make_unique<JsUIExtensionContentSession>(engine, sessionInfo, uiWindow, context, abilityResultListeners);
+    object->SetNativePointer(jsSession.release(), Finalizer, nullptr);
+
+    const char *moduleName = "JsUIExtensionContentSession";
+    BindNativeFunction(engine, *object, "terminateSelf", moduleName, TerminateSelf);
+    BindNativeFunction(engine, *object, "terminateSelfWithResult", moduleName, TerminateSelfWithResult);
+    BindNativeFunction(engine, *object, "sendData", moduleName, SendData);
+    BindNativeFunction(engine, *object, "setReceiveDataCallback", moduleName, SetReceiveDataCallback);
+    BindNativeFunction(engine, *object, "loadContent", moduleName, LoadContent);
+    BindNativeFunction(engine, *object, "setWindowBackgroundColor", moduleName, SetWindowBackgroundColor);
+    BindNativeFunction(engine, *object, "setWindowPrivacyMode", moduleName, SetWindowPrivacyMode);
+    BindNativeFunction(engine, *object, "startAbility", moduleName, StartAbility);
+    BindNativeFunction(engine, *object, "startAbilityForResult", moduleName, StartAbilityForResult);
+    return objValue;
+}
+
+NativeValue *JsUIExtensionContentSession::CreateJsUIExtensionContentSession(NativeEngine& engine,
     sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow)
 {
     HILOG_DEBUG("begin");
@@ -337,6 +575,8 @@ NativeValue *JsUIExtensionContentSession::CreateJsUIExtensionContentSession(Nati
     BindNativeFunction(engine, *object, "loadContent", moduleName, LoadContent);
     BindNativeFunction(engine, *object, "setWindowBackgroundColor", moduleName, SetWindowBackgroundColor);
     BindNativeFunction(engine, *object, "setWindowPrivacyMode", moduleName, SetWindowPrivacyMode);
+    BindNativeFunction(engine, *object, "startAbility", moduleName, StartAbility);
+    BindNativeFunction(engine, *object, "startAbilityForResult", moduleName, StartAbilityForResult);
     return objValue;
 }
 
@@ -400,6 +640,51 @@ bool JsUIExtensionContentSession::UnWrapAbilityResult(NativeEngine& engine, Nati
         return false;
     }
     return AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(jWant), want);
+}
+
+NativeValue* JsUIExtensionContentSession::WrapAbilityResult(NativeEngine& engine, const int& resultCode, const AAFwk::Want& want)
+{
+    NativeValue* jAbilityResult = engine.CreateObject();
+    NativeObject* abilityResult = ConvertNativeValueTo<NativeObject>(jAbilityResult);
+    abilityResult->SetProperty("resultCode", engine.CreateNumber(resultCode));
+    abilityResult->SetProperty("want", WrapWant(engine, want));
+    return jAbilityResult;
+}
+
+NativeValue* JsUIExtensionContentSession::WrapWant(NativeEngine& engine, const AAFwk::Want& want)
+{
+    return reinterpret_cast<NativeValue*>(AppExecFwk::WrapWant(reinterpret_cast<napi_env>(&engine), want));
+}
+
+bool JsUIExtensionContentSession::UnWrapWant(NativeEngine& engine, NativeValue* argv, AAFwk::Want& want)
+{
+    if (argv == nullptr) {
+        HILOG_WARN("argv == nullptr");
+        return false;
+    }
+    return AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(argv), want);
+}
+
+void JsUIExtensionContentSession::AddFreeInstallObserver(NativeEngine& engine, const AAFwk::Want &want, NativeValue* callback,
+    bool isAbilityResult)
+{
+    // adapter free install async return install and start result
+    int ret = 0;
+    if (freeInstallObserver_ == nullptr) {
+        freeInstallObserver_ = new JsFreeInstallObserver(engine);
+        ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(freeInstallObserver_);
+    }
+
+    if (ret != ERR_OK) {
+        HILOG_ERROR("AddFreeInstallObserver failed.");
+    } else {
+        HILOG_INFO("AddJsObserverObject");
+        // build a callback observer with last param
+        std::string bundleName = want.GetElement().GetBundleName();
+        std::string abilityName = want.GetElement().GetAbilityName();
+        std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
+        freeInstallObserver_->AddJsObserverObject(bundleName, abilityName, startTime, callback, isAbilityResult);
+    }
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

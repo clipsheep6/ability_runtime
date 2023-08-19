@@ -293,6 +293,11 @@ enum class AbilityManagerInterfaceCode {
 
     START_ABILITY_AS_CALLER_FOR_OPTIONS = 1038,
 
+    // start ui session ability
+    START_UI_SESSION_ABILITY_ADD_CALLER,
+
+    START_UI_SESSION_ABILITY_FOR_OPTIONS,
+
     // ipc id for minimize ui extension ability
     MINIMIZE_UI_EXTENSION_ABILITY = 1039,
 

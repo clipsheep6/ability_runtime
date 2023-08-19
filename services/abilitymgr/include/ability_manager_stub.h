@@ -85,6 +85,8 @@ private:
     int KillProcessInner(MessageParcel &data, MessageParcel &reply);
     int UninstallAppInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityInner(MessageParcel &data, MessageParcel &reply);
+    int StartUISessionAbilityAddCallerInner(MessageParcel &data, MessageParcel &reply);
+    int StartUISessionAbilityForOptionsInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityAsCallerByTokenInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityAsCallerForOptionInner(MessageParcel &data, MessageParcel &reply);
     int StartExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);

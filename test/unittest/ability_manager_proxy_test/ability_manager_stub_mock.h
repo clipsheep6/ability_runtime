@@ -82,6 +82,27 @@ public:
         return 0;
     }
 
+    virtual int StartUISessionAbility(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        const sptr<SessionInfo> &sessionInfo,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
+
+    virtual int StartUISessionAbility(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        const sptr<SessionInfo> &sessionInfo,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
+
     virtual int TerminateAbility(const sptr<IRemoteObject>& token, int resultCode, const Want* resultWant = nullptr)
     {
         return 0;
