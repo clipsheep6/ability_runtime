@@ -39,9 +39,13 @@ namespace AbilityRuntime {
 using namespace OHOS::AppExecFwk;
 using AbilityManagerClient = AAFwk::AbilityManagerClient;
 namespace {
+constexpr int32_t INDEX_ZERO = 0;
+constexpr int32_t INDEX_ONE = 1;
+constexpr int32_t INDEX_TWO = 2;
 constexpr size_t ARGC_ONE = 1;
 constexpr int32_t ARG_COUNT_TWO = 2;
 constexpr const char* ON_OFF_TYPE = "mission";
+constexpr const char* ON_OFF_TYPE_SYNC = "missionEvent";
 }
 class JsMissionManager {
 public:
@@ -54,16 +58,16 @@ public:
         std::unique_ptr<JsMissionManager>(static_cast<JsMissionManager*>(data));
     }
 
-    static NativeValue* RegisterMissionListener(NativeEngine* engine, NativeCallbackInfo* info)
+    static NativeValue* On(NativeEngine* engine, NativeCallbackInfo* info)
     {
         JsMissionManager* me = CheckParamsAndGetThis<JsMissionManager>(engine, info);
-        return (me != nullptr) ? me->OnRegisterMissionListener(*engine, *info) : nullptr;
+        return (me != nullptr) ? me->OnOn(*engine, *info) : nullptr;
     }
 
-    static NativeValue* UnregisterMissionListener(NativeEngine* engine, NativeCallbackInfo* info)
+    static NativeValue* Off(NativeEngine* engine, NativeCallbackInfo* info)
     {
         JsMissionManager* me = CheckParamsAndGetThis<JsMissionManager>(engine, info);
-        return (me != nullptr) ? me->OnUnregisterMissionListener(*engine, *info) : nullptr;
+        return (me != nullptr) ? me->OnOff(*engine, *info) : nullptr;
     }
 
     static NativeValue* GetMissionInfos(NativeEngine* engine, NativeCallbackInfo* info)
@@ -133,9 +137,19 @@ public:
     }
 
 private:
-    NativeValue* OnRegisterMissionListener(NativeEngine &engine, NativeCallbackInfo &info)
+    NativeValue* OnOn(NativeEngine &engine, NativeCallbackInfo &info)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        HILOG_DEBUG("called");
+        std::string type = ParseParamType(engine, info);
+        if (type == ON_OFF_TYPE_SYNC) {
+            return OnOnNew(engine, info);
+        }
+        return OnOnOld(engine, info);
+    }
+
+    NativeValue* OnOnOld(NativeEngine &engine, NativeCallbackInfo &info)
+    {
+        HILOG_DEBUG("called");
         if (info.argc < ARG_COUNT_TWO) {
             HILOG_ERROR("Params not match");
             ThrowTooFewParametersError(engine);
@@ -170,9 +184,56 @@ private:
         }
     }
 
-    NativeValue* OnUnregisterMissionListener(NativeEngine &engine, NativeCallbackInfo &info)
+    NativeValue* OnOnNew(NativeEngine &engine, NativeCallbackInfo &info)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        HILOG_DEBUG("called");
+        if (info.argc < ARG_COUNT_TWO) {
+            HILOG_ERROR("Params not match");
+            ThrowTooFewParametersError(engine);
+            return engine.CreateUndefined();
+        }
+        if (info.argv[INDEX_ONE]->TypeOf() != NativeValueType::NATIVE_OBJECT) {
+            HILOG_ERROR("Invalid param");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
+        }
+
+        missionListenerId_++;
+        if (missionListener_ != nullptr) {
+            missionListener_->AddJsListenerObject(missionListenerId_, info.argv[INDEX_ONE], true);
+            return engine.CreateNumber(missionListenerId_);
+        }
+
+        missionListener_ = new JsMissionListener(&engine);
+        auto ret = AbilityManagerClient::GetInstance()->RegisterMissionListener(missionListener_);
+        if (ret == 0) {
+            missionListener_->AddJsListenerObject(missionListenerId_, info.argv[INDEX_ONE], true);
+            return engine.CreateNumber(missionListenerId_);
+        } else {
+            HILOG_ERROR("RegisterMissionListener failed, ret = %{public}d", ret);
+            missionListener_ = nullptr;
+            if (ret == CHECK_PERMISSION_FAILED) {
+                ThrowNoPermissionError(engine, PermissionConstants::PERMISSION_MANAGE_MISSION);
+            } else {
+                ThrowError(engine, GetJsErrorCodeByNativeError(ret));
+            }
+            return engine.CreateUndefined();
+        }
+    }
+
+    NativeValue* OnOff(NativeEngine &engine, NativeCallbackInfo &info)
+    {
+        HILOG_DEBUG("called");
+        std::string type = ParseParamType(engine, info);
+        if (type == ON_OFF_TYPE_SYNC) {
+            return OnOffNew(engine, info);
+        }
+        return OnOffOld(engine, info);
+    }
+
+    NativeValue* OnOffOld(NativeEngine &engine, NativeCallbackInfo &info)
+    {
+        HILOG_DEBUG("called");
         if (info.argc < ARG_COUNT_TWO) {
             HILOG_ERROR("Not enough params");
             ThrowTooFewParametersError(engine);
@@ -213,11 +274,56 @@ private:
                 }
             };
 
-        NativeValue* lastParam = (info.argc <= 1) ? nullptr : info.argv[1];
+        NativeValue* lastParam = (info.argc <= ARG_COUNT_TWO) ? nullptr : info.argv[INDEX_TWO];
         NativeValue* result = nullptr;
         AsyncTask::Schedule("MissioManager::OnUnregisterMissionListener",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
+    }
+
+    NativeValue* OnOffNew(NativeEngine &engine, NativeCallbackInfo &info)
+    {
+        HILOG_DEBUG("called");
+        if (info.argc < ARG_COUNT_TWO) {
+            HILOG_ERROR("Not enough params");
+            ThrowTooFewParametersError(engine);
+            return engine.CreateUndefined();
+        }
+
+        int32_t missionListenerId = -1;
+        if (!ConvertFromJsValue(engine, info.argv[INDEX_ONE], missionListenerId)) {
+            HILOG_ERROR("Parse missionListenerId failed");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return engine.CreateUndefined();
+        }
+
+        if (missionListener_ == nullptr) {
+            HILOG_ERROR("missionListener_ is nullptr");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
+            return engine.CreateUndefined();
+        }
+        if (!missionListener_->RemoveJsListenerObject(missionListenerId, true)) {
+            HILOG_ERROR("missionListenerId not found");
+            ThrowError(engine, AbilityErrorCode::ERROR_CODE_NO_MISSION_LISTENER);
+            return engine.CreateUndefined();
+        }
+        if (!missionListener_->IsEmpty()) {
+            HILOG_DEBUG("Off success, missionListener is not empty");
+            return engine.CreateUndefined();
+        }
+        auto ret = AbilityManagerClient::GetInstance()->UnRegisterMissionListener(missionListener_);
+        if (ret == 0) {
+            HILOG_DEBUG("UnRegisterMissionListener success");
+            missionListener_ = nullptr;
+        } else {
+            HILOG_ERROR("UnRegisterMissionListener failed");
+            if (ret == CHECK_PERMISSION_FAILED) {
+                ThrowNoPermissionError(engine, PermissionConstants::PERMISSION_MANAGE_MISSION);
+            } else {
+                ThrowError(engine, GetJsErrorCodeByNativeError(ret));
+            }
+        }
+        return engine.CreateUndefined();
     }
 
     NativeValue* OnGetMissionInfos(NativeEngine &engine, NativeCallbackInfo &info)
@@ -666,6 +772,15 @@ private:
         return true;
     }
 
+    std::string ParseParamType(NativeEngine& engine, const NativeCallbackInfo& info)
+    {
+        std::string type;
+        if (info.argc > INDEX_ZERO && ConvertFromJsValue(engine, info.argv[INDEX_ZERO], type)) {
+            return type;
+        }
+        return "";
+    }
+
     sptr<JsMissionListener> missionListener_ = nullptr;
     uint32_t missionListenerId_ = 0;
 };
@@ -688,10 +803,8 @@ NativeValue* JsMissionManagerInit(NativeEngine* engine, NativeValue* exportObj)
     object->SetNativePointer(jsMissionManager.release(), JsMissionManager::Finalizer, nullptr);
 
     const char *moduleName = "JsMissionManager";
-    BindNativeFunction(*engine, *object, "on",
-        moduleName, JsMissionManager::RegisterMissionListener);
-    BindNativeFunction(*engine, *object, "off",
-        moduleName, JsMissionManager::UnregisterMissionListener);
+    BindNativeFunction(*engine, *object, "on", moduleName, JsMissionManager::On);
+    BindNativeFunction(*engine, *object, "off", moduleName, JsMissionManager::Off);
     BindNativeFunction(*engine, *object, "getMissionInfos", moduleName, JsMissionManager::GetMissionInfos);
     BindNativeFunction(*engine, *object, "getMissionInfo", moduleName, JsMissionManager::GetMissionInfo);
     BindNativeFunction(*engine, *object, "getMissionSnapShot", moduleName, JsMissionManager::GetMissionSnapShot);
