@@ -90,20 +90,6 @@ public:
         const std::shared_ptr<Context> &appContext) override;
 
     /**
-     * @brief To continue attaching The ability thread to the main process.
-     * @param application Indicates the main process.
-     * @param abilityRecord current running ability record
-     * @param stageContext the AbilityRuntime context
-     * @param ability the ability
-     * @param token_ the token
-     * @param currentAbility_ the current ability
-     */
-    void AttachInner(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-        const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
-        const std::shared_ptr<Context> &stageContext,
-        std::shared_ptr<AppExecFwk::Ability> &ability);
-
-    /**
      * @brief Provide operating system AbilityTransaction information to the observer
      * @param want Indicates the structure containing Transaction information about the ability.
      * @param targetState Indicates the lifecycle state.
@@ -385,6 +371,18 @@ private:
     void DumpOtherInfo(std::vector<std::string> &info);
 
     /**
+     * @brief To continue attaching The ability thread to the main process.
+     * @param application Indicates the main process.
+     * @param abilityRecord current running ability record
+     * @param stageContext the AbilityRuntime context
+     * @param ability the ability
+     */
+    void AttachInner(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+        const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
+        const std::shared_ptr<Context> &stageContext,
+        const std::shared_ptr<AppExecFwk::Ability> &ability);
+
+    /**
      * @brief Create the abilityname.
      * @param abilityRecord current running ability record
      * @param application Indicates the application.
@@ -399,15 +397,15 @@ private:
      * @param abilityInfo Indicates the abilityInfo.
      * @param abilityName Indicates the parameter about abilityName.
      */
-    void CreateExtensionAbilityName(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-        std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo, std::string &abilityName);
+    void CreateExtensionAbilityName(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+        const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo, std::string &abilityName);
 
     /**
      * @brief Create the extension abilityname which support graphics.
      * @param abilityInfo Indicates the abilityInfo.
      * @param abilityName Indicates the parameter about abilityName.
      */
-    void CreateExtensionAbilityNameSupportGraphics(std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
+    void CreateExtensionAbilityNameSupportGraphics(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
         std::string &abilityName);
 
     /**

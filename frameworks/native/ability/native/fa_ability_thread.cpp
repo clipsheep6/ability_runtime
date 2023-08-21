@@ -145,8 +145,8 @@ std::string FAAbilityThread::CreateAbilityName(const std::shared_ptr<AppExecFwk:
     return abilityName;
 }
 
-void FAAbilityThread::CreateExtensionAbilityName(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-    std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo, std::string &abilityName)
+void FAAbilityThread::CreateExtensionAbilityName(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+    const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo, std::string &abilityName)
 {
     application->GetExtensionNameByType(static_cast<int32_t>(abilityInfo->extensionAbilityType), abilityName);
     if (abilityName.length() > 0) {
@@ -188,7 +188,8 @@ void FAAbilityThread::CreateExtensionAbilityName(std::shared_ptr<AppExecFwk::OHO
     HILOG_DEBUG("extension abilityName: %{public}s", abilityName.c_str());
 }
 
-void FAAbilityThread::CreateExtensionAbilityNameSupportGraphics(std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
+void FAAbilityThread::CreateExtensionAbilityNameSupportGraphics(
+    const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
     std::string &abilityName)
 {
 #ifdef SUPPORT_GRAPHICS
@@ -291,7 +292,7 @@ void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
 void FAAbilityThread::AttachInner(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
     const std::shared_ptr<Context> &stageContext,
-    std::shared_ptr<AppExecFwk::Ability> &ability)
+    const std::shared_ptr<AppExecFwk::Ability> &ability)
 {
     // new hap requires
     ability->AttachAbilityContext(
