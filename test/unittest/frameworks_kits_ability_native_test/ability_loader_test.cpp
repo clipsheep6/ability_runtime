@@ -198,7 +198,7 @@ HWTEST_F(AbilityLoaderTest, GetUIAbilityByName_0100, TestSize.Level0)
     };
     AbilityLoader::GetInstance().uiAbilities_.clear();
     AbilityLoader::GetInstance().RegisterUIAbility(abilityName, createAblity);
-    EXPECT_TRUE(AbilityLoader::GetInstance().GetAbilityByName(abilityName) != nullptr);
+    EXPECT_TRUE(AbilityLoader::GetInstance().GetUIAbilityByName(abilityName) != nullptr);
     GTEST_LOG_(INFO) << "AbilityLoaderTest GetUIAbilityByName_0100 end";
 }
 
@@ -212,6 +212,6 @@ HWTEST_F(AbilityLoaderTest, GetUIAbilityByName_0200, TestSize.Level1)
     GTEST_LOG_(INFO) << "AbilityLoaderTest GetAbilityByName_0200 start";
     std::string abilityName = "UIAbilityName";
     AbilityLoader::GetInstance().abilities_.clear();
-    EXPECT_FALSE(AbilityLoader::GetInstance().GetAbilityByName(abilityName) != nullptr);
+    EXPECT_FALSE(AbilityLoader::GetInstance().GetUIAbilityByName(abilityName) != nullptr);
     GTEST_LOG_(INFO) << "AbilityLoaderTest GetUIAbilityByName_0200 start";
 }
