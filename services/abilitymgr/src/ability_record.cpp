@@ -2851,5 +2851,15 @@ std::string AbilityRecord::GetMissionAffinity() const
 {
     return missionAffinity_;
 }
+
+void AbilityRecord::SetLockedState(bool lockedState)
+{
+    lockedState_ = lockedState;
+}
+
+bool AbilityRecord::GetLockedState()
+{
+    return lockedState_;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

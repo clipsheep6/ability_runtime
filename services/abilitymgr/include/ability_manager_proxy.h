@@ -499,6 +499,8 @@ public:
 
     virtual int UnlockMissionForCleanup(int32_t missionId) override;
 
+    virtual void SetLockedState(int32_t sessionId, bool lockedState) override;
+
     virtual int RegisterMissionListener(const sptr<IMissionListener> &listener) override;
 
     virtual int UnRegisterMissionListener(const sptr<IMissionListener> &listener) override;

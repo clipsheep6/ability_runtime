@@ -633,6 +633,8 @@ public:
 
     virtual int UnlockMissionForCleanup(int32_t missionId) override;
 
+    virtual void SetLockedState(int32_t sessionId, bool lockedState) override;
+
     virtual int RegisterMissionListener(const sptr<IMissionListener> &listener) override;
 
     virtual int UnRegisterMissionListener(const sptr<IMissionListener> &listener) override;
@@ -1323,7 +1325,11 @@ private:
         const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
     void DumpSysMissionListInner(
         const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
+    void DumpSysMissionListInnerBySCB(
+        const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
     void DumpSysAbilityInner(
+        const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
+    void DumpSysAbilityInnerBySCB(
         const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
     void DumpSysStateInner(
         const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
@@ -1531,6 +1537,8 @@ private:
     bool CheckPrepareTerminateEnable();
 
     bool CheckCollaboratorType(int32_t type);
+
+    bool CheckUserIdActive(int32_t userId);
 
     void GetConnectManagerAndUIExtensionBySessionInfo(const sptr<SessionInfo> &sessionInfo,
         std::shared_ptr<AbilityConnectManager> &connectManager, std::shared_ptr<AbilityRecord> &targetAbility);

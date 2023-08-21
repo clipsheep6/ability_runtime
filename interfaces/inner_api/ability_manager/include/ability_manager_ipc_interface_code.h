@@ -209,6 +209,9 @@ enum class AbilityManagerInterfaceCode {
     // ipc id for set mission continue state (66)
     SET_MISSION_CONTINUE_STATE = 66,
 
+    // ipc id for set session locked state (67)
+    SET_SESSION_LOCKED_STATE = 67,
+
     // ipc id 1001-2000 for DMS
     // ipc id for starting ability (1001)
     START_ABILITY = 1001,

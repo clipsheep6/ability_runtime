@@ -589,6 +589,11 @@ public:
 
     virtual int UnlockMissionForCleanup(int32_t missionId) = 0;
 
+    virtual void SetLockedState(int32_t sessionId, bool lockedState)
+    {
+        return;
+    }
+
     virtual int RegisterMissionListener(const sptr<IMissionListener> &listener) = 0;
 
     virtual int UnRegisterMissionListener(const sptr<IMissionListener> &listener) = 0;

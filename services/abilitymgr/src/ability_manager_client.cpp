@@ -594,6 +594,13 @@ ErrCode AbilityManagerClient::UnlockMissionForCleanup(int32_t missionId)
     return abms->UnlockMissionForCleanup(missionId);
 }
 
+void AbilityManagerClient::SetLockedState(int32_t sessionId, bool lockedState)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN(abms);
+    abms->SetLockedState(sessionId, lockedState);
+}
+
 ErrCode AbilityManagerClient::RegisterMissionListener(const sptr<IMissionListener> &listener)
 {
     auto abms = GetAbilityManager();

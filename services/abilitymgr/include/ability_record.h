@@ -885,6 +885,9 @@ public:
 
     std::string GetMissionAffinity() const;
 
+    void SetLockedState(bool lockedState);
+    bool GetLockedState();
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
 
@@ -1068,6 +1071,7 @@ private:
     int32_t collaboratorType_ = 0;
     bool isGrantPersistableUriPermissionEnable_ = false;
     std::string missionAffinity_ = "";
+    bool lockedState_ = false;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

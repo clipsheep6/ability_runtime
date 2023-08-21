@@ -544,6 +544,15 @@ public:
     ErrCode UnlockMissionForCleanup(int32_t missionId);
 
     /**
+     * @brief change specified AbilityRecord lockState.
+     * @param sessionId The id of target AbilityRecord.
+     * @param lockState The lockState of target AbilityRecord.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    void SetLockedState(int32_t sessionId, bool lockedState);
+
+    /**
      * @brief Register mission listener to ams.
      * @param listener The handler of listener.
      *

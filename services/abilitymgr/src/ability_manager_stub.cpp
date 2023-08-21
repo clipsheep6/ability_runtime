@@ -181,6 +181,8 @@ void AbilityManagerStub::SecondStepInit()
         &AbilityManagerStub::LockMissionForCleanupInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNLOCK_MISSION_FOR_CLEANUP)] =
         &AbilityManagerStub::UnlockMissionForCleanupInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_SESSION_LOCKED_STATE)] =
+        &AbilityManagerStub::SetLockedStateInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_MISSION_LISTENER)] =
         &AbilityManagerStub::RegisterMissionListenerInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_MISSION_LISTENER)] =
@@ -1258,6 +1260,14 @@ int AbilityManagerStub::UnlockMissionForCleanupInner(MessageParcel &data, Messag
         HILOG_ERROR("AbilityManagerStub: unlock mission failed.");
         return ERR_INVALID_VALUE;
     }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::SetLockedStateInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t sessionId = data.ReadInt32();
+    bool flag = data.ReadBool();
+    SetLockedState(sessionId, flag);
     return NO_ERROR;
 }
 

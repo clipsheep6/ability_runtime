@@ -1627,5 +1627,124 @@ int UIAbilityLifecycleManager::BlockAbility(int32_t abilityRecordId, int32_t tar
     return -1;
 }
 #endif
+
+void UIAbilityLifecycleManager::Dump(std::vector<std::string> &info)
+{
+    HILOG_INFO("Call.");
+    std::unordered_map<int32_t, std::shared_ptr<AbilityRecord>> sessionAbilityMapLocked;
+    {
+        std::lock_guard<ffrt::mutex> guard(sessionLock_);
+        for (const auto& [sessionId, abilityRecord] : sessionAbilityMap_) {
+            sessionAbilityMapLocked[sessionId] = abilityRecord;
+        }
+    }
+    
+    int userId = DelayedSingleton<AbilityManagerService>::GetInstance()->GetUserId();
+    std::string dumpInfo = "User ID #" + std::to_string(userId);
+    info.push_back(dumpInfo);
+    dumpInfo = " current session lists:{";
+    info.push_back(dumpInfo);
+
+    for (const auto& [sessionId, abilityRecord] : sessionAbilityMapLocked) {
+        if (abilityRecord == nullptr) {
+            HILOG_WARN("abilityRecord is nullptr.");
+            continue;
+        }
+        if (abilityRecord->GetOwnerMissionUserId() != userId) {
+            continue;
+        }
+        
+        sptr<SessionInfo> sessionInfo = abilityRecord->GetSessionInfo();
+        dumpInfo = "  Session ID #" + std::to_string(sessionId);
+        
+        dumpInfo += "  lockedState #" + std::to_string(abilityRecord->GetLockedState());
+        dumpInfo += "  session affinity #[" + abilityRecord->GetMissionAffinity() + "]";
+        info.push_back(dumpInfo);
+
+        abilityRecord->Dump(info);
+
+        dumpInfo = " }";
+        info.push_back(dumpInfo);
+    }
+}
+
+void UIAbilityLifecycleManager::DumpMissionList(
+    std::vector<std::string> &info, bool isClient, int userId, const std::string &args)
+{
+    HILOG_INFO("Call.");
+    std::unordered_map<int32_t, std::shared_ptr<AbilityRecord>> sessionAbilityMapLocked;
+    {
+        std::lock_guard<ffrt::mutex> guard(sessionLock_);
+        for (const auto& [sessionId, abilityRecord] : sessionAbilityMap_) {
+            sessionAbilityMapLocked[sessionId] = abilityRecord;
+        }
+    }
+    std::string dumpInfo = "User ID #" + std::to_string(userId);
+    info.push_back(dumpInfo);
+    dumpInfo = " current session lists:{";
+    info.push_back(dumpInfo);
+
+    for (const auto& [sessionId, abilityRecord] : sessionAbilityMapLocked) {
+        if (abilityRecord == nullptr) {
+            HILOG_WARN("abilityRecord is nullptr.");
+            continue;
+        }
+        if (abilityRecord->GetOwnerMissionUserId() != userId) {
+            continue;
+        }
+        sptr<SessionInfo> sessionInfo = abilityRecord->GetSessionInfo();
+        dumpInfo = "  Session ID #" + std::to_string(sessionId);
+        
+        dumpInfo += "  lockedState #" + std::to_string(abilityRecord->GetLockedState());
+        dumpInfo += "  session affinity #[" + abilityRecord->GetMissionAffinity() + "]";
+        info.push_back(dumpInfo);
+
+        std::vector<std::string> params;
+        abilityRecord->DumpAbilityState(info, isClient, params);
+
+        dumpInfo = " }";
+        info.push_back(dumpInfo);
+    }
+}
+
+void UIAbilityLifecycleManager::DumpMissionListByRecordId(std::vector<std::string> &info, bool isClient,
+    int32_t abilityRecordId, const std::vector<std::string> &params, int userId)
+{
+    HILOG_INFO("Call.");
+    std::unordered_map<int32_t, std::shared_ptr<AbilityRecord>> sessionAbilityMapLocked;
+    {
+        std::lock_guard<ffrt::mutex> guard(sessionLock_);
+        for (const auto& [sessionId, abilityRecord] : sessionAbilityMap_) {
+            sessionAbilityMapLocked[sessionId] = abilityRecord;
+        }
+    }
+    std::string dumpInfo = "User ID #" + std::to_string(userId);
+    info.push_back(dumpInfo);
+    dumpInfo = " current session lists:{";
+    info.push_back(dumpInfo);
+
+    for (const auto& [sessionId, abilityRecord] : sessionAbilityMapLocked) {
+        if (abilityRecord == nullptr) {
+            HILOG_WARN("abilityRecord is nullptr.");
+            continue;
+        }
+        if (abilityRecord->GetAbilityRecordId() != abilityRecordId) {
+            continue;
+        }
+        sptr<SessionInfo> sessionInfo = abilityRecord->GetSessionInfo();
+        dumpInfo = "  Session ID #" + std::to_string(sessionId);
+        
+        dumpInfo += "  lockedState #" + std::to_string(abilityRecord->GetLockedState());
+        dumpInfo += "  session affinity #[" + abilityRecord->GetMissionAffinity() + "]";
+        info.push_back(dumpInfo);
+
+        std::vector<std::string> params;
+        abilityRecord->DumpAbilityState(info, isClient, params);
+
+        dumpInfo = " }";
+        info.push_back(dumpInfo);
+    }
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS

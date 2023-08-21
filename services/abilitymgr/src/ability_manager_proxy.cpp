@@ -2023,6 +2023,34 @@ int AbilityManagerProxy::UnlockMissionForCleanup(int32_t missionId)
     return reply.ReadInt32();
 }
 
+void AbilityManagerProxy::SetLockedState(int32_t sessionId, bool lockedState)
+{
+    MessageParcel data;
+
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+
+    if (!data.WriteInt32(sessionId)) {
+        HILOG_ERROR("lock abilityRecord by id , WriteInt32 fail.");
+        return;
+    }
+
+    if (!data.WriteBool(lockedState)) {
+        HILOG_ERROR("WriteBool fail.");
+        return;
+    }
+    
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    auto error = SendRequest(AbilityManagerInterfaceCode::SET_SESSION_LOCKED_STATE, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("lock or unlock abilityRecord by sessionId , error: %d", error);
+        return;
+    }
+    return;
+}
+
 int AbilityManagerProxy::RegisterMissionListener(const sptr<IMissionListener> &listener)
 {
     int error;
