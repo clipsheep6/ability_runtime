@@ -392,6 +392,9 @@ enum class AbilityManagerInterfaceCode {
     ACQUIRE_SHARE_DATA = 4001,
     SHARE_DATA_DONE = 4002,
 
+    // ipc id for notify as result (notify to snadbox app)
+    NOTIFY_SAVE_AS_RESULT = 4201,
+
     // ipc id for collborator
     REGISTER_COLLABORATOR = 4050,
     UNREGISTER_COLLABORATOR = 4051,

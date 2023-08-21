@@ -850,7 +850,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_CheckUIExtensionIsFocused_
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     bool isFocused = false;
     proxy_->CheckUIExtensionIsFocused(0, isFocused);
-    EXPECT_EQ(IAbilityManager::CHECK_UI_EXTENSION_IS_FOCUSED, mock_->code_);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::CHECK_UI_EXTENSION_IS_FOCUSED), mock_->code_);
 }
 
 /*
@@ -1874,7 +1874,7 @@ HWTEST_F(AbilityManagerProxyTest, ReportDrawnCompleted_002, TestSize.Level1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     OHOS::sptr<IRemoteObject> callerToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     auto res = proxy_->ReportDrawnCompleted(callerToken);
-    EXPECT_EQ(IAbilityManager::REPORT_DRAWN_COMPLETED, mock_->code_);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::REPORT_DRAWN_COMPLETED), mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
