@@ -458,7 +458,7 @@ void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
         CreateAndInitContextDeal(application, abilityRecord, abilityObject);
     ability->AttachBaseContext(contextDeal);
 
-    AttachInner(application, abilityRecord, stageContext, ability);
+    AttachInner(application, abilityRecord, stageContext);
 
     HILOG_DEBUG("end");
 }
