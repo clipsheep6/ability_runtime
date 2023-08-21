@@ -375,12 +375,10 @@ private:
      * @param application Indicates the main process.
      * @param abilityRecord current running ability record
      * @param stageContext the AbilityRuntime context
-     * @param ability the ability
      */
     void AttachInner(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
-        const std::shared_ptr<Context> &stageContext,
-        std::shared_ptr<AppExecFwk::Ability> &ability);
+        const std::shared_ptr<Context> &stageContext);
 
     /**
      * @brief Create the abilityname.

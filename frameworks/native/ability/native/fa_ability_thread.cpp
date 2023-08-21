@@ -248,7 +248,6 @@ void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
         HILOG_ERROR("application or abilityRecord or mainRunner is nullptr");
         return;
     }
-
     InitExtensionFlag(abilityRecord);
     if (isExtension_) {
         AttachExtension(application, abilityRecord, mainRunner);
@@ -275,7 +274,6 @@ void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
         HILOG_ERROR("ability is nullptr");
         return;
     }
-
     currentAbility_.reset(ability);
     token_ = abilityRecord->GetToken();
     abilityRecord->SetEventHandler(abilityHandler_);
@@ -285,19 +283,17 @@ void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
     std::shared_ptr<AppExecFwk::ContextDeal> contextDeal =
         CreateAndInitContextDeal(application, abilityRecord, abilityObject);
     ability->AttachBaseContext(contextDeal);
-
-    AttachInner(application, abilityRecord, stageContext, ability);
-}
-
-void FAAbilityThread::AttachInner(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-    const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
-    const std::shared_ptr<Context> &stageContext,
-    std::shared_ptr<AppExecFwk::Ability> &ability)
-{
     // new hap requires
     ability->AttachAbilityContext(
         BuildAbilityContext(abilityRecord->GetAbilityInfo(), application, token_, stageContext));
 
+    AttachInner(application, abilityRecord, stageContext);
+}
+
+void FAAbilityThread::AttachInner(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+    const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
+    const std::shared_ptr<Context> &stageContext)
+{
     // 3.new abilityImpl
     abilityImpl_ = DelayedSingleton<AppExecFwk::AbilityImplFactory>::GetInstance()->MakeAbilityImplObject(
         abilityRecord->GetAbilityInfo());
