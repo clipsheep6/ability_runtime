@@ -1275,10 +1275,6 @@ bool FAAbilityThread::HandleNotifyChange(const Uri &uri)
 bool FAAbilityThread::ScheduleRegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
     HILOG_DEBUG("called");
-    if (!CheckObsPermission()) {
-        HILOG_ERROR("CheckObsPermission failed");
-        return false;
-    }
 
     wptr<FAAbilityThread> weak = this;
     auto task = [weak, uri, dataObserver]() {
@@ -1305,10 +1301,6 @@ bool FAAbilityThread::ScheduleRegisterObserver(const Uri &uri, const sptr<AAFwk:
 bool FAAbilityThread::ScheduleUnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
     HILOG_DEBUG("called");
-    if (!CheckObsPermission()) {
-        HILOG_ERROR("CheckObsPermission failed");
-        return false;
-    }
 
     wptr<FAAbilityThread> weak = this;
     auto task = [weak, uri, dataObserver]() {
@@ -1335,10 +1327,6 @@ bool FAAbilityThread::ScheduleUnregisterObserver(const Uri &uri, const sptr<AAFw
 bool FAAbilityThread::ScheduleNotifyChange(const Uri &uri)
 {
     HILOG_DEBUG("called");
-    if (!CheckObsPermission()) {
-        HILOG_ERROR("CheckObsPermission failed");
-        return false;
-    }
 
     wptr<FAAbilityThread> weak = this;
     auto task = [weak, uri]() {

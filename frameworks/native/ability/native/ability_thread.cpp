@@ -54,12 +54,6 @@ void AbilityThread::AbilityThreadMain(std::shared_ptr<OHOSApplication> &applicat
     HILOG_DEBUG("end");
 }
 
-bool AbilityThread::CheckObsPermission()
-{
-    HILOG_DEBUG("called");
-    return true;
-}
-
 void AbilityThread::ScheduleAbilityTransaction(
     const Want &want, const LifeCycleStateInfo &targetState, sptr<SessionInfo> sessionInfo)
 {

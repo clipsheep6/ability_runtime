@@ -1993,21 +1993,6 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_HandleNotifyChange_0100, Functio
 }
 
 /**
- * @tc.number: AaFwk_AbilityThread_CheckObsPermission_0100
- * @tc.name: CheckObsPermission
- * @tc.desc: Test CheckObsPermission function
- */
-HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_CheckObsPermission_0100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CheckObsPermission_0100 start";
-    AbilityRuntime::FAAbilityThread *abilitythread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
-    EXPECT_NE(abilitythread, nullptr);
-
-    EXPECT_TRUE(abilitythread->CheckObsPermission());
-    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CheckObsPermission_0100 end";
-}
-
-/**
  * @tc.number: AaFwk_AbilityThread_HandleRegisterObserver_0100
  * @tc.name: HandleRegisterObserver
  * @tc.desc: Test HandleRegisterObserver function
