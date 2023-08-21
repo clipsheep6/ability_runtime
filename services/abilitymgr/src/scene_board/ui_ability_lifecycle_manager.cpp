@@ -952,7 +952,8 @@ int32_t UIAbilityLifecycleManager::GetReusedCollaboratorPersistentId(const Abili
     int64_t sessionTime = 0;
     int32_t persistentId = 0;
     for (const auto& [first, second] : sessionAbilityMap_) {
-        if (abilityRequest.want.GetStringParam(PARAM_MISSION_AFFINITY_KEY) == second->GetMissionAffinity() &&
+        if (second->GetCollaboratorType() != CollaboratorType::DEFAULT_TYPE &&
+            abilityRequest.want.GetStringParam(PARAM_MISSION_AFFINITY_KEY) == second->GetMissionAffinity() &&
             second->GetRestartTime() >= sessionTime) {
             reuse = true;
             persistentId = first;
