@@ -34,13 +34,13 @@ void ReverseContinuationSchedulerPrimaryStage::NotifyReplicaTerminated()
     };
 
     if (mainHandler_ == nullptr) {
-        HILOG_ERROR("mainHandler_ is nullptr.");
+        HILOG_ERROR("mainHandler_ is nullptr");
         return;
     }
 
     bool ret = mainHandler_->PostTask(task);
     if (!ret) {
-        HILOG_ERROR("PostTask error.");
+        HILOG_ERROR("PostTask error");
         return;
     }
     HILOG_DEBUG("end");
@@ -54,13 +54,13 @@ bool ReverseContinuationSchedulerPrimaryStage::ContinuationBack(const AAFwk::Wan
     };
 
     if (mainHandler_ == nullptr) {
-        HILOG_ERROR("mainHandler_ is nullptr.");
+        HILOG_ERROR("mainHandler_ is nullptr");
         return false;
     }
 
     bool ret = mainHandler_->PostTask(task);
     if (!ret) {
-        HILOG_ERROR("PostTask error.");
+        HILOG_ERROR("PostTask error");
         return false;
     }
     HILOG_INFO("end");
@@ -73,7 +73,7 @@ void ReverseContinuationSchedulerPrimaryStage::HandlerNotifyReplicaTerminated()
     std::shared_ptr<IReverseContinuationSchedulerPrimaryHandler> continuationHandler = nullptr;
     continuationHandler = continuationHandler_.lock();
     if (continuationHandler == nullptr) {
-        HILOG_ERROR("continuationHandler is nullptr.");
+        HILOG_ERROR("continuationHandler is nullptr");
         return;
     }
     continuationHandler->NotifyReplicaTerminated();
@@ -86,7 +86,7 @@ void ReverseContinuationSchedulerPrimaryStage::HandlerContinuationBack(const AAF
     std::shared_ptr<IReverseContinuationSchedulerPrimaryHandler> continuationHandler = nullptr;
     continuationHandler = continuationHandler_.lock();
     if (continuationHandler == nullptr) {
-        HILOG_ERROR("continuationHandler is nullptr.");
+        HILOG_ERROR("continuationHandler is nullptr");
         return;
     }
     continuationHandler->ContinuationBack(want);

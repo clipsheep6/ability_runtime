@@ -34,7 +34,7 @@ void UIAbilityImpl::Init(std::shared_ptr<AppExecFwk::OHOSApplication> &applicati
     HILOG_DEBUG("begin");
     if ((token == nullptr) || (application == nullptr) || (handler == nullptr) || (record == nullptr) ||
         ability == nullptr) {
-        HILOG_ERROR("Param is nullptr.");
+        HILOG_ERROR("Param is nullptr");
         return;
     }
     token_ = record->GetToken();
@@ -57,7 +57,7 @@ void UIAbilityImpl::Start(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sess
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("begin");
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
-        HILOG_ERROR("ability_ or abilityLifecycleCallbacks_ is nullptr.");
+        HILOG_ERROR("ability_ or abilityLifecycleCallbacks_ is nullptr");
         return;
     }
 #ifdef SUPPORT_GRAPHICS
@@ -78,7 +78,7 @@ void UIAbilityImpl::Stop()
 {
     HILOG_DEBUG("begin");
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
-        HILOG_ERROR("ability_ or abilityLifecycleCallbacks_ is nullptr.");
+        HILOG_ERROR("ability_ or abilityLifecycleCallbacks_ is nullptr");
         return;
     }
 
@@ -91,7 +91,7 @@ void UIAbilityImpl::Stop(bool &isAsyncCallback)
 {
     HILOG_DEBUG("begin");
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
-        HILOG_ERROR("ability_ or abilityLifecycleCallbacks_ is nullptr.");
+        HILOG_ERROR("ability_ or abilityLifecycleCallbacks_ is nullptr");
         isAsyncCallback = false;
         return;
     }
@@ -107,7 +107,7 @@ void UIAbilityImpl::Stop(bool &isAsyncCallback)
     auto asyncCallback = [abilityImplWeakPtr = weakPtr, state = AAFwk::ABILITY_STATE_INITIAL]() {
         auto abilityImpl = abilityImplWeakPtr.lock();
         if (abilityImpl == nullptr) {
-            HILOG_ERROR("abilityImpl is nullptr.");
+            HILOG_ERROR("abilityImpl is nullptr");
             return;
         }
         abilityImpl->StopCallback();
@@ -126,7 +126,7 @@ void UIAbilityImpl::Stop(bool &isAsyncCallback)
 void UIAbilityImpl::StopCallback()
 {
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
-        HILOG_ERROR("ability_ or abilityLifecycleCallbacks_ is nullptr.");
+        HILOG_ERROR("ability_ or abilityLifecycleCallbacks_ is nullptr");
         return;
     }
 #ifdef SUPPORT_GRAPHICS
@@ -142,7 +142,7 @@ int32_t UIAbilityImpl::Share(AAFwk::WantParams &wantParam)
 {
     HILOG_DEBUG("begin");
     if (ability_ == nullptr) {
-        HILOG_ERROR("ability_ is nullptr.");
+        HILOG_ERROR("ability_ is nullptr");
         return ERR_INVALID_VALUE;
     }
     return ability_->OnShare(wantParam);
@@ -152,7 +152,7 @@ void UIAbilityImpl::DispatchSaveAbilityState()
 {
     HILOG_DEBUG("begin");
     if (ability_ == nullptr || abilityLifecycleCallbacks_ == nullptr) {
-        HILOG_ERROR("ability_ or abilityLifecycleCallbacks_ is nullptr.");
+        HILOG_ERROR("ability_ or abilityLifecycleCallbacks_ is nullptr");
         return;
     }
 
@@ -190,7 +190,7 @@ void UIAbilityImpl::HandleAbilityTransaction(
             AAFwk::AbilityManagerClient::GetInstance()->AbilityTransitionDone(
                 token_, targetState.state, GetRestoreData());
         }
-        HILOG_ERROR("Org lifeCycleState equals to Dst lifeCycleState.");
+        HILOG_ERROR("Org lifeCycleState equals to Dst lifeCycleState");
         return;
     }
 #endif
@@ -213,10 +213,10 @@ void UIAbilityImpl::HandleAbilityTransaction(
 
 void UIAbilityImpl::HandleShareData(int32_t uniqueId)
 {
-    HILOG_DEBUG("begin sourceState:%{public}d.", lifecycleState_);
+    HILOG_DEBUG("begin sourceState:%{public}d", lifecycleState_);
     WantParams wantParam;
     int32_t resultCode = Share(wantParam);
-    HILOG_DEBUG("wantParam size: %{public}d.", wantParam.Size());
+    HILOG_DEBUG("wantParam size: %{public}d", wantParam.Size());
     AAFwk::AbilityManagerClient::GetInstance()->ShareDataDone(token_, resultCode, uniqueId, wantParam);
 }
 
@@ -230,11 +230,11 @@ bool UIAbilityImpl::PrepareTerminateAbility()
 {
     HILOG_DEBUG("begin");
     if (ability_ == nullptr) {
-        HILOG_ERROR("ability_ is nullptr.");
+        HILOG_ERROR("ability_ is nullptr");
         return false;
     }
     bool ret = ability_->OnPrepareTerminate();
-    HILOG_DEBUG("end, ret = %{public}d", ret);
+    HILOG_DEBUG("end ret = %{public}d", ret);
     return ret;
 }
 
@@ -254,7 +254,7 @@ void UIAbilityImpl::NewWant(const AAFwk::Want &want)
 {
     HILOG_DEBUG("begin");
     if (ability_ == nullptr) {
-        HILOG_ERROR("ability_ is nullptr.");
+        HILOG_ERROR("ability_ is nullptr");
         return;
     }
     ability_->SetWant(want);
@@ -268,7 +268,7 @@ void UIAbilityImpl::NewWant(const AAFwk::Want &want)
 void UIAbilityImpl::SetLifeCycleStateInfo(const AAFwk::LifeCycleStateInfo &info)
 {
     if (ability_ == nullptr) {
-        HILOG_ERROR("ability_ is nullptr.");
+        HILOG_ERROR("ability_ is nullptr");
         return;
     }
     ability_->SetLifeCycleStateInfo(info);
@@ -278,12 +278,12 @@ bool UIAbilityImpl::CheckAndRestore()
 {
     HILOG_DEBUG("begin");
     if (!hasSaveData_) {
-        HILOG_ERROR("hasSaveData_ is false.");
+        HILOG_ERROR("hasSaveData_ is false");
         return false;
     }
 
     if (ability_ == nullptr) {
-        HILOG_ERROR("ability_ is nullptr.");
+        HILOG_ERROR("ability_ is nullptr");
         return false;
     }
     ability_->OnRestoreAbilityState(restoreData_);
@@ -309,7 +309,7 @@ void UIAbilityImpl::ScheduleUpdateConfiguration(const AppExecFwk::Configuration 
 {
     HILOG_DEBUG("begin");
     if (ability_ == nullptr) {
-        HILOG_ERROR("ability_ is nullptr.");
+        HILOG_ERROR("ability_ is nullptr");
         return;
     }
 
@@ -324,7 +324,7 @@ void UIAbilityImpl::ScheduleUpdateConfiguration(const AppExecFwk::Configuration 
 void UIAbilityImpl::ContinueAbility(const std::string &deviceId, uint32_t versionCode)
 {
     if (ability_ == nullptr) {
-        HILOG_ERROR("ability_ is nullptr.");
+        HILOG_ERROR("ability_ is nullptr");
         return;
     }
     ability_->ContinueAbilityWithStack(deviceId, versionCode);
@@ -333,7 +333,7 @@ void UIAbilityImpl::ContinueAbility(const std::string &deviceId, uint32_t versio
 void UIAbilityImpl::NotifyContinuationResult(int32_t result)
 {
     if (ability_ == nullptr) {
-        HILOG_ERROR("ability_ is nullptr.");
+        HILOG_ERROR("ability_ is nullptr");
         return;
     }
     ability_->OnCompleteContinuation(result);
@@ -342,7 +342,7 @@ void UIAbilityImpl::NotifyContinuationResult(int32_t result)
 void UIAbilityImpl::NotifyMemoryLevel(int32_t level)
 {
     if (ability_ == nullptr) {
-        HILOG_ERROR("ability_ is nullptr.");
+        HILOG_ERROR("ability_ is nullptr");
         return;
     }
     ability_->OnMemoryLevel(level);
@@ -371,7 +371,7 @@ void UIAbilityImpl::AfterFocusedCommon(bool isFocused)
             HILOG_WARN("UIAbilityImpl::%{public}s failed", focuseMode ? "AfterFocused" : "AfterUnFocused");
             return;
         }
-        // if (impl->ability_->GetAbilityInfo()->isStageBasedModel) {
+
         auto abilityContext = impl->ability_->GetAbilityContext();
         if (abilityContext == nullptr) {
             return;
@@ -386,21 +386,6 @@ void UIAbilityImpl::AfterFocusedCommon(bool isFocused)
         } else {
             applicationContext->DispatchWindowStageUnfocus(jsAbility.GetJsAbility(), jsAbility.GetJsWindowStage());
         }
-        //     return;
-        // }
-
-        // if (impl->ability_->GetWant() == nullptr) {
-        //     HILOG_WARN("want is nullptr.");
-        //     return;
-        // }
-        // auto info = impl->ability_->GetLifeCycleStateInfo();
-        // if (focuseMode) {
-        //     info.state = AAFwk::AbilityLifeCycleState::ABILITY_STATE_ACTIVE;
-        // } else {
-        //     info.state = AAFwk::AbilityLifeCycleState::ABILITY_STATE_INACTIVE;
-        // }
-        // info.isNewWant = false;
-        // impl->HandleAbilityTransaction(*(impl->ability_->GetWant()), info);
     };
 
     if (handler_) {
@@ -415,7 +400,7 @@ void UIAbilityImpl::WindowLifeCycleImpl::AfterForeground()
     HILOG_DEBUG("begin");
     auto owner = owner_.lock();
     if (owner == nullptr) {
-        HILOG_ERROR("owner is nullptr.");
+        HILOG_ERROR("owner is nullptr");
         return;
     }
     bool needNotifyAMS = false;
@@ -425,13 +410,13 @@ void UIAbilityImpl::WindowLifeCycleImpl::AfterForeground()
             owner->notifyForegroundByAbility_ = false;
             needNotifyAMS = true;
         } else {
-            HILOG_DEBUG("Notify foreground by window, but client's foreground is running.");
+            HILOG_DEBUG("Notify foreground by window, but client's foreground is running");
             owner->notifyForegroundByWindow_ = true;
         }
     }
 
     if (needNotifyAMS) {
-        HILOG_DEBUG("Stage mode ability, window after foreground, notify ability manager service.");
+        HILOG_DEBUG("Stage mode ability, window after foreground, notify ability manager service");
         AppExecFwk::PacMap restoreData;
         AAFwk::AbilityManagerClient::GetInstance()->AbilityTransitionDone(
             token_, AAFwk::AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_NEW, restoreData);
@@ -473,13 +458,13 @@ void UIAbilityImpl::WindowLifeCycleImpl::ForegroundFailed(int32_t type)
     AppExecFwk::PacMap restoreData;
     switch (type) {
         case static_cast<int32_t>(OHOS::Rosen::WMError::WM_ERROR_INVALID_OPERATION): {
-            HILOG_DEBUG("window was freezed.");
+            HILOG_DEBUG("window was freezed");
             AAFwk::AbilityManagerClient::GetInstance()->AbilityTransitionDone(
                 token_, AAFwk::AbilityLifeCycleState::ABILITY_STATE_WINDOW_FREEZED, restoreData);
             break;
         }
         case static_cast<int32_t>(OHOS::Rosen::WMError::WM_ERROR_INVALID_WINDOW_MODE_OR_SIZE): {
-            HILOG_DEBUG("The ability is stage mode, schedule foreground invalid mode.");
+            HILOG_DEBUG("The ability is stage mode, schedule foreground invalid mode");
             AAFwk::AbilityManagerClient::GetInstance()->AbilityTransitionDone(
                 token_, AAFwk::AbilityLifeCycleState::ABILITY_STATE_INVALID_WINDOW_MODE, restoreData);
             break;
@@ -501,7 +486,7 @@ void UIAbilityImpl::Foreground(const AAFwk::Want &want)
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("begin");
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
-        HILOG_ERROR("ability_ or abilityLifecycleCallbacks_ is nullptr.");
+        HILOG_ERROR("ability_ or abilityLifecycleCallbacks_ is nullptr");
         return;
     }
 
@@ -530,7 +515,7 @@ void UIAbilityImpl::Background()
 {
     HILOG_DEBUG("begin");
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
-        HILOG_ERROR("ability_ or abilityLifecycleCallbacks_ is nullptr.");
+        HILOG_ERROR("ability_ or abilityLifecycleCallbacks_ is nullptr");
         return;
     }
     ability_->OnLeaveForeground();
@@ -598,11 +583,11 @@ bool UIAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycleS
         }
         default: {
             ret = false;
-            HILOG_ERROR("state error.");
+            HILOG_ERROR("state error");
             break;
         }
     }
-    HILOG_DEBUG("end: retVal = %{public}d", static_cast<int>(ret));
+    HILOG_DEBUG("end retVal = %{public}d", static_cast<int>(ret));
     return ret;
 }
 } // namespace AbilityRuntime

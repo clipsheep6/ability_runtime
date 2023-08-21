@@ -51,7 +51,7 @@ bool ContinuationManagerStage::Init(const std::shared_ptr<AbilityRuntime::UIAbil
 {
     HILOG_DEBUG("begin");
     if (ability == nullptr) {
-        HILOG_ERROR("ability is nullptr.");
+        HILOG_ERROR("ability is nullptr");
         return false;
     }
     ability_ = ability;
@@ -59,18 +59,18 @@ bool ContinuationManagerStage::Init(const std::shared_ptr<AbilityRuntime::UIAbil
     std::shared_ptr<AbilityRuntime::UIAbility> abilityTmp = nullptr;
     abilityTmp = ability_.lock();
     if (abilityTmp == nullptr) {
-        HILOG_ERROR("ability is nullptr.");
+        HILOG_ERROR("ability is nullptr");
         return false;
     }
 
     if (abilityTmp->GetAbilityInfo() == nullptr) {
-        HILOG_ERROR("abilityInfo is nullptr.");
+        HILOG_ERROR("abilityInfo is nullptr");
         return false;
     }
     abilityInfo_ = abilityTmp->GetAbilityInfo();
 
     if (continueToken == nullptr) {
-        HILOG_ERROR("continueToken is nullptr.");
+        HILOG_ERROR("continueToken is nullptr");
         return false;
     }
     continueToken_ = continueToken;
@@ -102,14 +102,14 @@ bool ContinuationManagerStage::HandleContinueAbilityWithStack(const std::string 
     HILOG_DEBUG("begin");
 
     if (!CheckAbilityToken()) {
-        HILOG_ERROR("checkAbilityToken failed.");
+        HILOG_ERROR("checkAbilityToken failed");
         return false;
     }
 
     sptr<IRemoteObject> continueToken = continueToken_;
     std::shared_ptr<ContinuationHandlerStage> continuationHandler = continuationHandler_.lock();
     if (continuationHandler == nullptr) {
-        HILOG_ERROR("continuationHandler is nullptr.");
+        HILOG_ERROR("continuationHandler is nullptr");
         return false;
     }
 
@@ -118,7 +118,7 @@ bool ContinuationManagerStage::HandleContinueAbilityWithStack(const std::string 
         continuationHandler->HandleStartContinuationWithStack(continueToken, deviceId, versionCode);
     };
     if (!mainHandler_->PostTask(task)) {
-        HILOG_ERROR("PostTask failed.");
+        HILOG_ERROR("PostTask failed");
         return false;
     }
 
@@ -137,11 +137,11 @@ int32_t ContinuationManagerStage::OnStartAndSaveData(WantParams &wantParams)
     }
 
     if (!ability->OnStartContinuation()) {
-        HILOG_ERROR("Ability rejected.");
+        HILOG_ERROR("Ability rejected");
         return CONTINUE_ABILITY_REJECTED;
     }
     if (!ability->OnSaveData(wantParams)) {
-        HILOG_ERROR("SaveData failed.");
+        HILOG_ERROR("SaveData failed");
         return CONTINUE_SAVE_DATA_FAILED;
     }
     HILOG_DEBUG("end");
@@ -164,19 +164,19 @@ int32_t ContinuationManagerStage::OnContinueAndGetContent(WantParams &wantParams
     std::shared_ptr<AbilityRuntime::UIAbility> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
-        HILOG_ERROR("ability is nullptr.");
+        HILOG_ERROR("ability is nullptr");
         return ERR_INVALID_VALUE;
     }
 
-    HILOG_DEBUG("OnContinue begin.");
+    HILOG_DEBUG("OnContinue begin");
     int32_t status = ability->OnContinue(wantParams);
     HILOG_DEBUG("OnContinue end, status: %{public}d", status);
     if (status != OnContinueResult::AGREE) {
         if (status == OnContinueResult::MISMATCH) {
-            HILOG_ERROR("OnContinue version mismatch.");
+            HILOG_ERROR("OnContinue version mismatch");
             return CONTINUE_ON_CONTINUE_MISMATCH;
         }
-        HILOG_ERROR("OnContinue failed.");
+        HILOG_ERROR("OnContinue failed");
         return CONTINUE_ON_CONTINUE_FAILED;
     }
 
@@ -184,7 +184,7 @@ int32_t ContinuationManagerStage::OnContinueAndGetContent(WantParams &wantParams
     if (IsContinuePageStack(wantParams)) {
         bool ret = GetContentInfo(wantParams);
         if (!ret) {
-            HILOG_ERROR("GetContentInfo failed.");
+            HILOG_ERROR("GetContentInfo failed");
             return CONTINUE_GET_CONTENT_FAILED;
         }
     }
@@ -225,7 +225,7 @@ bool ContinuationManagerStage::GetContentInfo(WantParams &wantParams)
 
     std::string pageStack = ability->GetContentInfo();
     if (pageStack.empty()) {
-        HILOG_ERROR("GetContentInfo failed.");
+        HILOG_ERROR("GetContentInfo failed");
         return false;
     }
     HILOG_DEBUG("ability pageStack: %{public}s", pageStack.c_str());
@@ -240,7 +240,7 @@ void ContinuationManagerStage::ContinueAbility(bool reversible, const std::strin
 {
     HILOG_DEBUG("begin");
     if (CheckContinuationIllegal()) {
-        HILOG_ERROR("Ability not available to continueAbility.");
+        HILOG_ERROR("Ability not available to continueAbility");
         return;
     }
 
@@ -250,7 +250,7 @@ void ContinuationManagerStage::ContinueAbility(bool reversible, const std::strin
     }
 
     if (continuationState_ != ContinuationState::LOCAL_RUNNING) {
-        HILOG_ERROR("Illegal continuation state  %{public}d", continuationState_);
+        HILOG_ERROR("Illegal continuation state %{public}d", continuationState_);
         return;
     }
 
@@ -265,18 +265,18 @@ bool ContinuationManagerStage::ReverseContinueAbility()
 {
     HILOG_DEBUG("begin");
     if (progressState_ != ProgressState::INITIAL) {
-        HILOG_ERROR("Failed progressState_ is %{public}d.", progressState_);
+        HILOG_ERROR("Failed progressState_ is %{public}d", progressState_);
         return false;
     }
 
     if (continuationState_ != ContinuationState::REMOTE_RUNNING) {
-        HILOG_ERROR("Failed continuationState_ is %{public}d.", continuationState_);
+        HILOG_ERROR("Failed continuationState_ is %{public}d", continuationState_);
         return false;
     }
 
     std::shared_ptr<ContinuationHandlerStage> continuationHandler = continuationHandler_.lock();
     if (continuationHandler == nullptr) {
-        HILOG_ERROR("continuationHandler_ is nullptr.");
+        HILOG_ERROR("continuationHandler_ is nullptr");
         return false;
     }
 
@@ -341,14 +341,14 @@ void ContinuationManagerStage::CompleteContinuation(int result)
 {
     HILOG_DEBUG("begin");
     if (CheckContinuationIllegal()) {
-        HILOG_ERROR("Ability not available to complete continuation.");
+        HILOG_ERROR("Ability not available to complete continuation");
         return;
     }
 
     std::shared_ptr<AbilityRuntime::UIAbility> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
-        HILOG_ERROR("ability is nullptr.");
+        HILOG_ERROR("ability is nullptr");
         return;
     }
 
@@ -391,7 +391,7 @@ bool ContinuationManagerStage::NotifyRemoteTerminated()
     std::shared_ptr<AbilityRuntime::UIAbility> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
-        HILOG_ERROR("ability is nullptr.");
+        HILOG_ERROR("ability is nullptr");
         return false;
     }
 
@@ -406,7 +406,7 @@ bool ContinuationManagerStage::CheckContinuationIllegal()
     std::shared_ptr<AbilityRuntime::UIAbility> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
-        HILOG_ERROR("ability is nullptr.");
+        HILOG_ERROR("ability is nullptr");
         return false;
     }
 
@@ -423,14 +423,14 @@ bool ContinuationManagerStage::HandleContinueAbility(bool reversible, const std:
     HILOG_DEBUG("begin");
 
     if (!CheckAbilityToken()) {
-        HILOG_ERROR("CheckAbilityToken failed.");
+        HILOG_ERROR("CheckAbilityToken failed");
         return false;
     }
 
     sptr<IRemoteObject> continueToken = continueToken_;
     std::shared_ptr<ContinuationHandlerStage> continuationHandler = continuationHandler_.lock();
     if (continuationHandler == nullptr) {
-        HILOG_ERROR("continuationHandler is nullptr.");
+        HILOG_ERROR("continuationHandler is nullptr");
         return false;
     }
     continuationHandler->SetReversible(reversible);
@@ -440,7 +440,7 @@ bool ContinuationManagerStage::HandleContinueAbility(bool reversible, const std:
         continuationHandler->HandleStartContinuation(continueToken, deviceId);
     };
     if (!mainHandler_->PostTask(task)) {
-        HILOG_ERROR("PostTask failed.");
+        HILOG_ERROR("PostTask failed");
         return false;
     }
 
@@ -475,7 +475,7 @@ void ContinuationManagerStage::RestoreStateWhenTimeout(long timeoutInMs, const P
 
     auto timeoutTask = [continuationManager = shared_from_this(), preState]() {
         HILOG_DEBUG(
-            "preState = %{public}d, currentState = %{public}d.", preState, continuationManager->GetProcessState());
+            "preState = %{public}d, currentState = %{public}d", preState, continuationManager->GetProcessState());
         if (preState == continuationManager->GetProcessState()) {
             continuationManager->ChangeProcessState(ProgressState::INITIAL);
         }
@@ -488,7 +488,7 @@ void ContinuationManagerStage::InitMainHandlerIfNeed()
 {
     HILOG_DEBUG("begin");
     if (mainHandler_ == nullptr) {
-        HILOG_DEBUG("Try to init main handler.");
+        HILOG_DEBUG("Try to init main handler");
         std::lock_guard<std::mutex> lock_l(lock_);
         if ((mainHandler_ == nullptr) && (EventRunner::GetMainEventRunner() != nullptr)) {
             mainHandler_ = std::make_shared<EventHandler>(EventRunner::GetMainEventRunner());
@@ -501,7 +501,7 @@ bool ContinuationManagerStage::CheckAbilityToken()
 {
     HILOG_DEBUG("begin");
     if (continueToken_ == nullptr) {
-        HILOG_ERROR("continueToken_ is nullptr.");
+        HILOG_ERROR("continueToken_ is nullptr");
         return false;
     }
     HILOG_DEBUG("end");
@@ -510,21 +510,21 @@ bool ContinuationManagerStage::CheckAbilityToken()
 
 void ContinuationManagerStage::CheckDmsInterfaceResult(int result, const std::string &interfaceName)
 {
-    HILOG_DEBUG("interfaceName: %{public}s, result: %{public}d.", interfaceName.c_str(), result);
+    HILOG_DEBUG("interfaceName: %{public}s, result: %{public}d", interfaceName.c_str(), result);
 }
 
 bool ContinuationManagerStage::DoScheduleStartContinuation()
 {
     HILOG_DEBUG("begin");
     if (CheckContinuationIllegal()) {
-        HILOG_ERROR("Ability not available to startContinuation.");
+        HILOG_ERROR("Ability not available to startContinuation");
         return false;
     }
 
     std::shared_ptr<AbilityRuntime::UIAbility> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
-        HILOG_ERROR("ability is nullptr.");
+        HILOG_ERROR("ability is nullptr");
         return false;
     }
     if (!ability->OnStartContinuation()) {
@@ -539,14 +539,14 @@ bool ContinuationManagerStage::DoScheduleSaveData(WantParams &saveData)
 {
     HILOG_DEBUG("begin");
     if (CheckContinuationIllegal()) {
-        HILOG_ERROR("Ability not available to save data.");
+        HILOG_ERROR("Ability not available to save data");
         return false;
     }
 
     std::shared_ptr<AbilityRuntime::UIAbility> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
-        HILOG_ERROR("ability is nullptr.");
+        HILOG_ERROR("ability is nullptr");
         return false;
     }
 
@@ -557,7 +557,7 @@ bool ContinuationManagerStage::DoScheduleSaveData(WantParams &saveData)
     }
 
     if (!ret) {
-        HILOG_ERROR("Ability save data failed.");
+        HILOG_ERROR("Ability save data failed");
     }
     HILOG_DEBUG("end");
     return ret;
@@ -567,14 +567,14 @@ bool ContinuationManagerStage::DoScheduleRestoreData(const WantParams &restoreDa
 {
     HILOG_DEBUG("begin");
     if (CheckContinuationIllegal()) {
-        HILOG_ERROR("Ability not available to restore data.");
+        HILOG_ERROR("Ability not available to restore data");
         return false;
     }
 
     std::shared_ptr<AbilityRuntime::UIAbility> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
-        HILOG_ERROR("ability is nullptr.");
+        HILOG_ERROR("ability is nullptr");
         return false;
     }
 
@@ -585,7 +585,7 @@ bool ContinuationManagerStage::DoScheduleRestoreData(const WantParams &restoreDa
 
     bool ret = ability->OnRestoreData(abilityRestoreData);
     if (!ret) {
-        HILOG_ERROR("Ability restore data failed.");
+        HILOG_ERROR("Ability restore data failed");
     }
     HILOG_DEBUG("end");
     return ret;
@@ -597,7 +597,7 @@ bool ContinuationManagerStage::DoRestoreFromRemote(const WantParams &restoreData
     std::shared_ptr<AbilityRuntime::UIAbility> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
-        HILOG_ERROR("ability is nullptr.");
+        HILOG_ERROR("ability is nullptr");
         return false;
     }
 
@@ -608,7 +608,7 @@ bool ContinuationManagerStage::DoRestoreFromRemote(const WantParams &restoreData
 
     bool ret = ability->OnRestoreData(abilityRestoreData);
     if (!ret) {
-        HILOG_ERROR("Ability restore data failed.");
+        HILOG_ERROR("Ability restore data failed");
     }
     HILOG_DEBUG("end");
     return ret;

@@ -38,11 +38,11 @@ bool ContinuationHandlerStage::HandleStartContinuationWithStack(
 {
     HILOG_DEBUG("begin");
     if (token == nullptr) {
-        HILOG_ERROR("token is null.");
+        HILOG_ERROR("token is null");
         return false;
     }
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("abilityInfo is null.");
+        HILOG_ERROR("abilityInfo is null");
         return false;
     }
 
@@ -72,7 +72,7 @@ bool ContinuationHandlerStage::HandleStartContinuationWithStack(
 
     int result = AAFwk::AbilityManagerClient::GetInstance()->StartContinuation(want, token, status);
     if (result != ERR_OK) {
-        HILOG_ERROR("startContinuation failed.");
+        HILOG_ERROR("startContinuation failed");
         return false;
     }
     HILOG_DEBUG("end");
@@ -83,11 +83,11 @@ bool ContinuationHandlerStage::HandleStartContinuation(const sptr<IRemoteObject>
 {
     HILOG_DEBUG("begin");
     if (token == nullptr) {
-        HILOG_ERROR("token is null.");
+        HILOG_ERROR("token is null");
         return false;
     }
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("abilityInfo is null.");
+        HILOG_ERROR("abilityInfo is null");
         return false;
     }
 
@@ -96,7 +96,7 @@ bool ContinuationHandlerStage::HandleStartContinuation(const sptr<IRemoteObject>
     std::shared_ptr<ContinuationManagerStage> continuationManagerTmp = nullptr;
     continuationManagerTmp = continuationManager_.lock();
     if (continuationManagerTmp == nullptr) {
-        HILOG_ERROR("continuationManagerTmp is nullptr.");
+        HILOG_ERROR("continuationManagerTmp is nullptr");
         return false;
     }
 
@@ -119,7 +119,7 @@ bool ContinuationHandlerStage::HandleStartContinuation(const sptr<IRemoteObject>
 
     int result = AAFwk::AbilityManagerClient::GetInstance()->StartContinuation(want, token, 0);
     if (result != 0) {
-        HILOG_ERROR("distClient_.startContinuation failed.");
+        HILOG_ERROR("distClient_.startContinuation failed");
         return false;
     }
     HILOG_DEBUG("end");
@@ -130,10 +130,9 @@ void ContinuationHandlerStage::HandleReceiveRemoteScheduler(const sptr<IRemoteOb
 {
     HILOG_DEBUG("begin");
     if (remoteReplica == nullptr) {
-        HILOG_ERROR("scheduler is nullptr.");
+        HILOG_ERROR("scheduler is nullptr");
         return;
     }
-
 
     if (remoteReplicaProxy_ != nullptr && schedulerDeathRecipient_ != nullptr) {
         auto schedulerObjectTmp = remoteReplicaProxy_->AsObject();
@@ -150,7 +149,7 @@ void ContinuationHandlerStage::HandleReceiveRemoteScheduler(const sptr<IRemoteOb
     remoteReplicaProxy_ = iface_cast<IReverseContinuationSchedulerReplica>(remoteReplica);
     auto schedulerObject = remoteReplicaProxy_->AsObject();
     if (schedulerObject == nullptr || !schedulerObject->AddDeathRecipient(schedulerDeathRecipient_)) {
-        HILOG_ERROR("AddDeathRcipient failed.");
+        HILOG_ERROR("AddDeathRcipient failed");
     }
 
     remoteReplicaProxy_->PassPrimary(remotePrimaryStub_);
@@ -202,18 +201,18 @@ void ContinuationHandlerStage::OnReplicaDied(const wptr<IRemoteObject> &remote)
 {
     HILOG_DEBUG("begin");
     if (remoteReplicaProxy_ == nullptr) {
-        HILOG_ERROR("remoteReplicaProxy_ is nullptr.");
+        HILOG_ERROR("remoteReplicaProxy_ is nullptr");
         return;
     }
 
     auto object = remote.promote();
     if (!object) {
-        HILOG_ERROR("object is null.");
+        HILOG_ERROR("object is null");
         return;
     }
 
     if (object != remoteReplicaProxy_->AsObject()) {
-        HILOG_ERROR("remoteReplica is not matches with remote.");
+        HILOG_ERROR("remoteReplica is not matches with remote");
         return;
     }
 
@@ -238,7 +237,7 @@ void ContinuationHandlerStage::NotifyReplicaTerminated()
     std::shared_ptr<ContinuationManagerStage> continuationManagerTmp = nullptr;
     continuationManagerTmp = continuationManager_.lock();
     if (continuationManagerTmp == nullptr) {
-        HILOG_ERROR("continuationManagerTmp is nullptr.");
+        HILOG_ERROR("continuationManagerTmp is nullptr");
         return;
     }
     HILOG_DEBUG("end");
@@ -252,10 +251,10 @@ Want ContinuationHandlerStage::SetWantParams(const WantParams &wantParams)
     want.SetParams(wantParams);
     want.AddFlags(want.FLAG_ABILITY_CONTINUATION);
     if (abilityInfo_->launchMode != LaunchMode::STANDARD) {
-        HILOG_DEBUG("SetWantParams: Clear task.");
+        HILOG_DEBUG("Clear task");
     }
     if (reversible_) {
-        HILOG_DEBUG("SetWantParams: Reversible.");
+        HILOG_DEBUG("Reversible");
         want.AddFlags(Want::FLAG_ABILITY_CONTINUATION_REVERSIBLE);
     }
     ElementName element("", abilityInfo_->bundleName, abilityInfo_->name, abilityInfo_->moduleName);
@@ -281,19 +280,19 @@ bool ContinuationHandlerStage::ReverseContinuation()
     HILOG_DEBUG("begin");
 
     if (remotePrimaryProxy_ == nullptr) {
-        HILOG_ERROR("remotePrimaryProxy_ not nullptr.");
+        HILOG_ERROR("remotePrimaryProxy_ not nullptr");
         return false;
     }
 
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("abilityInfo is null.");
+        HILOG_ERROR("abilityInfo is null");
         return false;
     }
 
     std::shared_ptr<ContinuationManagerStage> continuationManagerTmp = nullptr;
     continuationManagerTmp = continuationManager_.lock();
     if (continuationManagerTmp == nullptr) {
-        HILOG_ERROR("continuationManagerTmp is nullptr.");
+        HILOG_ERROR("continuationManagerTmp is nullptr");
         return false;
     }
 
@@ -313,7 +312,7 @@ bool ContinuationHandlerStage::ReverseContinuation()
     Want want;
     want.SetParams(wantParams);
     if (remotePrimaryProxy_->ContinuationBack(want)) {
-        HILOG_ERROR("ContinuationBack send failed.");
+        HILOG_ERROR("ContinuationBack send failed");
         return false;
     }
     HILOG_DEBUG("end");
@@ -327,7 +326,7 @@ void ContinuationHandlerStage::NotifyReverseResult(int reverseResult)
         std::shared_ptr<AbilityRuntime::UIAbility> ability = nullptr;
         ability = ability_.lock();
         if (ability == nullptr) {
-            HILOG_ERROR("ability is nullptr.");
+            HILOG_ERROR("ability is nullptr");
             return;
         }
         ability->TerminateAbility();
@@ -347,7 +346,7 @@ bool ContinuationHandlerStage::ContinuationBack(const Want &want)
 
     int result = 0;
     if (!continuationManagerTmp->RestoreFromRemote(want.GetParams())) {
-        HILOG_ERROR("RestoreFromRemote failed.");
+        HILOG_ERROR("RestoreFromRemote failed");
         result = ABILITY_FAILED_RESTORE_DATA;
     }
 
@@ -363,7 +362,7 @@ void ContinuationHandlerStage::NotifyTerminationToPrimary()
 {
     HILOG_DEBUG("begin");
     if (remotePrimaryProxy_ == nullptr) {
-        HILOG_ERROR("remotePrimaryProxy_ is nullptr.");
+        HILOG_ERROR("remotePrimaryProxy_ is nullptr");
         return;
     }
 
@@ -375,7 +374,7 @@ bool ContinuationHandlerStage::ReverseContinueAbility()
 {
     HILOG_DEBUG("begin");
     if (remoteReplicaProxy_ == nullptr) {
-        HILOG_ERROR("remoteReplicaProxy_ is nullptr.");
+        HILOG_ERROR("remoteReplicaProxy_ is nullptr");
         return false;
     }
 
