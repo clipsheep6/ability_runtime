@@ -380,7 +380,7 @@ private:
     void AttachInner(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
         const std::shared_ptr<Context> &stageContext,
-        const std::shared_ptr<AppExecFwk::Ability> &ability);
+        std::shared_ptr<AppExecFwk::Ability> &ability);
 
     /**
      * @brief Create the abilityname.
