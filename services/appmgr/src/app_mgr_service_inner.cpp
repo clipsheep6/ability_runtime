@@ -3879,9 +3879,6 @@ void AppMgrServiceInner::TimeoutNotifyApp(int32_t pid, int32_t uid,
         };
         AppExecFwk::AppfreezeManager::GetInstance()->AppfreezeHandleWithStack(faultData, info);
     }
-    HILOG_WARN("FaultData timeout NotifyApp %{public}s is going to exit due to %{public}s.",
-        bundleName.c_str(), FaultTypeToString(faultData.faultType).c_str());
-    KillProcessByPid(pid);
 }
 
 int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
