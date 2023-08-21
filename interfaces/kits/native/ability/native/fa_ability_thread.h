@@ -402,7 +402,7 @@ private:
      * @param abilityName Indicates the parameter about abilityName.
      */
     void CreateExtensionAbilityName(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-        std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo, std::string &abilityName)
+        std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo, std::string &abilityName);
 
     /**
      * @brief Create the extension abilityname which support graphics.
@@ -410,7 +410,7 @@ private:
      * @param abilityName Indicates the parameter about abilityName.
      */
     void CreateExtensionAbilityNameSupportGraphics(std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo,
-        std::string &abilityName)
+        std::string &abilityName);
 
     /**
      * @brief Create and init contextDeal.
