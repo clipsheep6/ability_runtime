@@ -136,69 +136,81 @@ std::string FAAbilityThread::CreateAbilityName(const std::shared_ptr<AppExecFwk:
     } else if (abilityInfo->type == AppExecFwk::AbilityType::DATA) {
         abilityName = ACE_DATA_ABILITY_NAME;
     } else if (abilityInfo->type == AppExecFwk::AbilityType::EXTENSION) {
-        application->GetExtensionNameByType(static_cast<int32_t>(abilityInfo->extensionAbilityType), abilityName);
-        if (abilityName.length() > 0) {
-            HILOG_DEBUG("extension name: %{public}s", abilityName.c_str());
-            return abilityName;
-        }
-        abilityName = BASE_SERVICE_EXTENSION;
-#ifdef SUPPORT_GRAPHICS
-        if (abilityInfo->formEnabled || abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::FORM) {
-            abilityName = FORM_EXTENSION;
-        }
-#endif
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::STATICSUBSCRIBER) {
-            abilityName = STATIC_SUBSCRIBER_EXTENSION;
-        }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::DRIVER) {
-            abilityName = BASE_DRIVER_EXTENSION;
-        }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::DATASHARE) {
-            abilityName = DATA_SHARE_EXT_ABILITY;
-        }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::WORK_SCHEDULER) {
-            abilityName = WORK_SCHEDULER_EXTENSION;
-        }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ACCESSIBILITY) {
-            abilityName = ACCESSIBILITY_EXTENSION;
-        }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::WALLPAPER) {
-            abilityName = WALLPAPER_EXTENSION;
-        }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION) {
-            abilityName = FILEACCESS_EXT_ABILITY;
-        }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN) {
-            abilityName = ENTERPRISE_ADMIN_EXTENSION;
-        }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::INPUTMETHOD) {
-            abilityName = INPUTMETHOD_EXTENSION;
-        }
-        if (AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo->extensionAbilityType)) {
-            if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SHARE) {
-                abilityName = SHARE_EXTENSION;
-            } else if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ACTION) {
-                abilityName = ACTION_EXTENSION;
-            } else {
-                abilityName = UI_EXTENSION;
-            }
-        }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SYSPICKER_MEDIACONTROL) {
-            abilityName = MEDIA_CONTROL_EXTENSION;
-        }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::APP_ACCOUNT_AUTHORIZATION) {
-            abilityName = APP_ACCOUNT_AUTHORIZATION_EXTENSION;
-        }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SYSDIALOG_USERAUTH) {
-            abilityName = USER_AUTH_EXTENSION;
-        }
-        HILOG_DEBUG("extension abilityName: %{public}s", abilityName.c_str());
+        CreateExtensionAbilityName(application, abilityInfo, abilityName);
     } else {
         abilityName = abilityInfo->name;
     }
 
     HILOG_DEBUG("ability name is %{public}s", abilityName.c_str());
     return abilityName;
+}
+
+void FAAbilityThread::CreateExtensionAbilityName(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+    std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo, std::string &abilityName)
+{
+    application->GetExtensionNameByType(static_cast<int32_t>(abilityInfo->extensionAbilityType), abilityName);
+    if (abilityName.length() > 0) {
+        HILOG_DEBUG("extension name: %{public}s", abilityName.c_str());
+        return abilityName;
+    }
+    abilityName = BASE_SERVICE_EXTENSION;
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::STATICSUBSCRIBER) {
+        abilityName = STATIC_SUBSCRIBER_EXTENSION;
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::DRIVER) {
+        abilityName = BASE_DRIVER_EXTENSION;
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::DATASHARE) {
+        abilityName = DATA_SHARE_EXT_ABILITY;
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::WORK_SCHEDULER) {
+        abilityName = WORK_SCHEDULER_EXTENSION;
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ACCESSIBILITY) {
+        abilityName = ACCESSIBILITY_EXTENSION;
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::WALLPAPER) {
+        abilityName = WALLPAPER_EXTENSION;
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION) {
+        abilityName = FILEACCESS_EXT_ABILITY;
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN) {
+        abilityName = ENTERPRISE_ADMIN_EXTENSION;
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::INPUTMETHOD) {
+        abilityName = INPUTMETHOD_EXTENSION;
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::APP_ACCOUNT_AUTHORIZATION) {
+        abilityName = APP_ACCOUNT_AUTHORIZATION_EXTENSION;
+    }
+    CreateExtensionAbilityNameSupportGraphics(abilityInfo, abilityName);
+    HILOG_DEBUG("extension abilityName: %{public}s", abilityName.c_str());
+}
+
+void FAAbilityThread::CreateExtensionAbilityNameSupportGraphics(std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo,
+    std::string &abilityName)
+{
+#ifdef SUPPORT_GRAPHICS
+    if (abilityInfo->formEnabled || abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::FORM) {
+        abilityName = FORM_EXTENSION;
+    }
+#endif
+    if (AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo->extensionAbilityType)) {
+        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SHARE) {
+            abilityName = SHARE_EXTENSION;
+        } else if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ACTION) {
+            abilityName = ACTION_EXTENSION;
+        } else {
+            abilityName = UI_EXTENSION;
+        }
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SYSDIALOG_USERAUTH) {
+        abilityName = USER_AUTH_EXTENSION;
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SYSPICKER_MEDIACONTROL) {
+        abilityName = MEDIA_CONTROL_EXTENSION;
+    }
 }
 
 std::shared_ptr<AppExecFwk::ContextDeal> FAAbilityThread::CreateAndInitContextDeal(
@@ -273,6 +285,18 @@ void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
         CreateAndInitContextDeal(application, abilityRecord, abilityObject);
     ability->AttachBaseContext(contextDeal);
 
+    AttachInner(application, abilityReocrd, stageContext, ability, token_);
+
+    HILOG_DEBUG("end");
+}
+
+void FAAbilityThread::AttachInner(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+    const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
+    const std::shared_ptr<Context> &stageContext,
+    std::shared_ptr<AppExecFwk::Ability> &ability,
+    sptr<IRemoteObject> &token_,
+    std::shared_ptr<AppExecFwk::Ability> &currentAbility_)
+{
     // new hap requires
     ability->AttachAbilityContext(
         BuildAbilityContext(abilityRecord->GetAbilityInfo(), application, token_, stageContext));
@@ -441,24 +465,7 @@ void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
         CreateAndInitContextDeal(application, abilityRecord, abilityObject);
     ability->AttachBaseContext(contextDeal);
 
-    // new hap requires
-    ability->AttachAbilityContext(
-        BuildAbilityContext(abilityRecord->GetAbilityInfo(), application, token_, stageContext));
-
-    // 3.new abilityImpl
-    abilityImpl_ = DelayedSingleton<AppExecFwk::AbilityImplFactory>::GetInstance()->MakeAbilityImplObject(
-        abilityRecord->GetAbilityInfo());
-    if (abilityImpl_ == nullptr) {
-        HILOG_ERROR("abilityImpl_ is nullptr");
-        return;
-    }
-    abilityImpl_->Init(application, abilityRecord, currentAbility_, abilityHandler_, token_);
-    // 4. ability attach : ipc
-    ErrCode err = AbilityManagerClient::GetInstance()->AttachAbilityThread(this, token_);
-    if (err != ERR_OK) {
-        HILOG_ERROR("err = %{public}d", err);
-        return;
-    }
+    AttachInner(application, abilityReocrd, stageContext, ability, token_);
 
     HILOG_DEBUG("end");
 }

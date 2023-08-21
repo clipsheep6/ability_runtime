@@ -206,7 +206,7 @@ public:
      * @return Returns the index of the inserted data record.
      */
     int32_t Insert(const Uri &uri, const NativeRdb::ValuesBucket &value) override;
-	
+
     /**
      * @brief Calls the method of the Data ability.
      * @param uri Indicates the path of the data to operate.
