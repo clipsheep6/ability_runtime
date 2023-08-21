@@ -101,9 +101,7 @@ public:
     void AttachInner(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
         const std::shared_ptr<Context> &stageContext,
-        std::shared_ptr<AppExecFwk::Ability> &ability,
-        sptr<IRemoteObject> &token_,
-        std::shared_ptr<AppExecFwk::Ability> &currentAbility_);
+        std::shared_ptr<AppExecFwk::Ability> &ability);
 
     /**
      * @brief Provide operating system AbilityTransaction information to the observer
@@ -402,14 +400,14 @@ private:
      * @param abilityName Indicates the parameter about abilityName.
      */
     void CreateExtensionAbilityName(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-        std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo, std::string &abilityName);
+        std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo, std::string &abilityName);
 
     /**
      * @brief Create the extension abilityname which support graphics.
      * @param abilityInfo Indicates the abilityInfo.
      * @param abilityName Indicates the parameter about abilityName.
      */
-    void CreateExtensionAbilityNameSupportGraphics(std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo,
+    void CreateExtensionAbilityNameSupportGraphics(std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
         std::string &abilityName);
 
     /**

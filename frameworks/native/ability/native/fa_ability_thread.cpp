@@ -146,12 +146,12 @@ std::string FAAbilityThread::CreateAbilityName(const std::shared_ptr<AppExecFwk:
 }
 
 void FAAbilityThread::CreateExtensionAbilityName(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-    std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo, std::string &abilityName)
+    std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo, std::string &abilityName)
 {
     application->GetExtensionNameByType(static_cast<int32_t>(abilityInfo->extensionAbilityType), abilityName);
     if (abilityName.length() > 0) {
         HILOG_DEBUG("extension name: %{public}s", abilityName.c_str());
-        return abilityName;
+        return;
     }
     abilityName = BASE_SERVICE_EXTENSION;
     if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::STATICSUBSCRIBER) {
@@ -188,7 +188,7 @@ void FAAbilityThread::CreateExtensionAbilityName(std::shared_ptr<AppExecFwk::OHO
     HILOG_DEBUG("extension abilityName: %{public}s", abilityName.c_str());
 }
 
-void FAAbilityThread::CreateExtensionAbilityNameSupportGraphics(std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo,
+void FAAbilityThread::CreateExtensionAbilityNameSupportGraphics(std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
     std::string &abilityName)
 {
 #ifdef SUPPORT_GRAPHICS
@@ -285,17 +285,13 @@ void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
         CreateAndInitContextDeal(application, abilityRecord, abilityObject);
     ability->AttachBaseContext(contextDeal);
 
-    AttachInner(application, abilityReocrd, stageContext, ability, token_);
-
-    HILOG_DEBUG("end");
+    AttachInner(application, abilityRecord, stageContext, ability);
 }
 
 void FAAbilityThread::AttachInner(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
     const std::shared_ptr<Context> &stageContext,
-    std::shared_ptr<AppExecFwk::Ability> &ability,
-    sptr<IRemoteObject> &token_,
-    std::shared_ptr<AppExecFwk::Ability> &currentAbility_)
+    std::shared_ptr<AppExecFwk::Ability> &ability)
 {
     // new hap requires
     ability->AttachAbilityContext(
@@ -465,7 +461,7 @@ void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
         CreateAndInitContextDeal(application, abilityRecord, abilityObject);
     ability->AttachBaseContext(contextDeal);
 
-    AttachInner(application, abilityReocrd, stageContext, ability, token_);
+    AttachInner(application, abilityRecord, stageContext, ability);
 
     HILOG_DEBUG("end");
 }
