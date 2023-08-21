@@ -125,7 +125,7 @@ public:
      * 1 every time the ability is started. For example, if the ability has been started for six times, the value of
      * startId is 6.
      */
-    void ScheduleCommandAbility(const Want &want, bool restart, int32_t startId) override;
+    void ScheduleCommandAbility(const Want &want, bool restart, int startId) override;
 
     /**
      * @brief Schedule Command AbilityWindow
@@ -169,7 +169,7 @@ public:
      * @param want Indicates the data returned after the ability is destroyed. You can define the data returned. This
      * parameter can be null.
      */
-    void SendResult(int32_t requestCode, int32_t resultCode, const Want &resultData) override;
+    void SendResult(int requestCode, int resultCode, const Want &resultData) override;
 
     /**
      * @brief Obtains the MIME types of files supported.
@@ -188,7 +188,7 @@ public:
      * or "rwt" for read and write access that truncates any existing file.
      * @return Returns the file descriptor.
      */
-    int32_t OpenFile(const Uri &uri, const std::string &mode) override;
+    int OpenFile(const Uri &uri, const std::string &mode) override;
 
     /**
      * @brief This is like openFile, open a file that need to be able to return sub-sections of files��often assets
@@ -200,7 +200,7 @@ public:
      * data, or "rwt" for read and write access that truncates any existing file.
      * @return Returns the RawFileDescriptor object containing file descriptor.
      */
-    int32_t OpenRawFile(const Uri &uri, const std::string &mode) override;
+    int OpenRawFile(const Uri &uri, const std::string &mode) override;
 
     /**
      * @brief Inserts a single data record into the database.
@@ -208,7 +208,7 @@ public:
      * @param value Indicates the data record to insert. If this parameter is null, a blank row will be inserted.
      * @return Returns the index of the inserted data record.
      */
-    int32_t Insert(const Uri &uri, const NativeRdb::ValuesBucket &value) override;
+    int Insert(const Uri &uri, const NativeRdb::ValuesBucket &value) override;
 
     /**
      * @brief Calls the method of the Data ability.
@@ -227,7 +227,7 @@ public:
      * @param predicates Indicates filter criteria. You should define the processing logic when this parameter is null.
      * @return Returns the number of data records updated.
      */
-    int32_t Update(const Uri &uri, const NativeRdb::ValuesBucket &value,
+    int Update(const Uri &uri, const NativeRdb::ValuesBucket &value,
         const NativeRdb::DataAbilityPredicates &predicates) override;
 
     /**
@@ -236,7 +236,7 @@ public:
      * @param predicates Indicates filter criteria. You should define the processing logic when this parameter is null.
      * @return Returns the number of data records deleted.
      */
-    int32_t Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates) override;
+    int Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates) override;
 
     /**
      * @brief Deletes one or more data records from the database.
@@ -272,7 +272,7 @@ public:
      * @param values Indicates the data records to insert.
      * @return Returns the number of data records inserted.
      */
-    int32_t BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values) override;
+    int BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values) override;
 
     /**
      * @brief continue ability to target device.

@@ -832,7 +832,7 @@ void FAAbilityThread::ScheduleDisconnectAbility(const Want &want)
     }
 }
 
-void FAAbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int32_t startId)
+void FAAbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int startId)
 {
     HILOG_DEBUG("begin. startId: %{public}d", startId);
     wptr<FAAbilityThread> weak = this;
@@ -945,7 +945,7 @@ void FAAbilityThread::ScheduleCommandAbilityWindow(
     HILOG_DEBUG("end");
 }
 
-void FAAbilityThread::SendResult(int32_t requestCode, int32_t resultCode, const Want &want)
+void FAAbilityThread::SendResult(int requestCode, int resultCode, const Want &want)
 {
     HILOG_DEBUG("begin");
     wptr<FAAbilityThread> weak = this;
@@ -995,7 +995,7 @@ std::vector<std::string> FAAbilityThread::GetFileTypes(const Uri &uri, const std
     return types;
 }
 
-int32_t FAAbilityThread::OpenFile(const Uri &uri, const std::string &mode)
+int FAAbilityThread::OpenFile(const Uri &uri, const std::string &mode)
 {
     HILOG_DEBUG("begin");
     int32_t fd = -1;
@@ -1009,7 +1009,7 @@ int32_t FAAbilityThread::OpenFile(const Uri &uri, const std::string &mode)
     return fd;
 }
 
-int32_t FAAbilityThread::OpenRawFile(const Uri &uri, const std::string &mode)
+int FAAbilityThread::OpenRawFile(const Uri &uri, const std::string &mode)
 {
     HILOG_DEBUG("begin");
     int32_t fd = -1;
@@ -1023,7 +1023,7 @@ int32_t FAAbilityThread::OpenRawFile(const Uri &uri, const std::string &mode)
     return fd;
 }
 
-int32_t FAAbilityThread::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
+int FAAbilityThread::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
 {
     HILOG_DEBUG("begin");
     int32_t index = -1;
@@ -1051,7 +1051,7 @@ std::shared_ptr<AppExecFwk::PacMap> FAAbilityThread::Call(
     return result;
 }
 
-int32_t FAAbilityThread::Update(
+int FAAbilityThread::Update(
     const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
 {
     HILOG_DEBUG("begin");
@@ -1066,7 +1066,7 @@ int32_t FAAbilityThread::Update(
     return index;
 }
 
-int32_t FAAbilityThread::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
+int FAAbilityThread::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
 {
     HILOG_DEBUG("begin");
     int32_t index = -1;
@@ -1121,7 +1121,7 @@ bool FAAbilityThread::Reload(const Uri &uri, const AppExecFwk::PacMap &extras)
     return ret;
 }
 
-int32_t FAAbilityThread::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
+int FAAbilityThread::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
 {
     HILOG_DEBUG("begin");
     int32_t ret = -1;
