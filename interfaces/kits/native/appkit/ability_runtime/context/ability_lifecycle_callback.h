@@ -145,8 +145,8 @@ public:
     void OnAbilityForeground(const std::shared_ptr<NativeReference> &ability) override;
     void OnAbilityBackground(const std::shared_ptr<NativeReference> &ability) override;
     void OnAbilityContinue(const std::shared_ptr<NativeReference> &ability) override;
-    int32_t Register(NativeValue *jsCallback);
-    bool UnRegister(int32_t callbackId);
+    int32_t Register(NativeValue *jsCallback, bool isSync = false);
+    bool UnRegister(int32_t callbackId, bool isSync = false);
     bool IsEmpty() const;
     static int32_t serialNumber_;
 
@@ -154,6 +154,7 @@ private:
     NativeEngine* engine_ = nullptr;
     std::shared_ptr<NativeReference> jsCallback_;
     std::map<int32_t, std::shared_ptr<NativeReference>> callbacks_;
+    std::map<int32_t, std::shared_ptr<NativeReference>> callbacksSync_;
     void CallJsMethod(const std::string &methodName, const std::shared_ptr<NativeReference> &ability);
     void CallWindowStageJsMethod(const std::string &methodName, const std::shared_ptr<NativeReference> &ability,
         const std::shared_ptr<NativeReference> &windowStage);

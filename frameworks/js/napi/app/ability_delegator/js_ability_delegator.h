@@ -62,6 +62,15 @@ public:
     static NativeValue *AddAbilityMonitor(NativeEngine *engine, NativeCallbackInfo *info);
 
     /**
+     * Sync adds ability monitor.
+     *
+     * @param engine Indicates the native engine.
+     * @param info Indicates the parameters from js.
+     * @return exec result.
+     */
+    static NativeValue *AddAbilityMonitorSync(NativeEngine *engine, NativeCallbackInfo *info);
+
+    /**
      * Adds abilityStage monitor.
      *
      * @param engine Indicates the native engine.
@@ -69,6 +78,15 @@ public:
      * @return exec result.
      */
     static NativeValue *AddAbilityStageMonitor(NativeEngine *engine, NativeCallbackInfo *info);
+
+    /**
+     * Sync adds abilityStage monitor.
+     *
+     * @param engine Indicates the native engine.
+     * @param info Indicates the parameters from js.
+     * @return exec result.
+     */
+    static NativeValue *AddAbilityStageMonitorSync(NativeEngine *engine, NativeCallbackInfo *info);
 
     /**
      * Removes ability monitor.
@@ -80,6 +98,15 @@ public:
     static NativeValue *RemoveAbilityMonitor(NativeEngine *engine, NativeCallbackInfo *info);
 
     /**
+     * Sync removes ability monitor.
+     *
+     * @param engine Indicates the native engine.
+     * @param info Indicates the parameters from js.
+     * @return exec result.
+     */
+    static NativeValue *RemoveAbilityMonitorSync(NativeEngine *engine, NativeCallbackInfo *info);
+
+    /**
      * Removes abilityStage monitor.
      *
      * @param engine Indicates the native engine.
@@ -87,6 +114,15 @@ public:
      * @return exec result.
      */
     static NativeValue *RemoveAbilityStageMonitor(NativeEngine *engine, NativeCallbackInfo *info);
+
+    /**
+     * Sync removes abilityStage monitor.
+     *
+     * @param engine Indicates the native engine.
+     * @param info Indicates the parameters from js.
+     * @return exec result.
+     */
+    static NativeValue *RemoveAbilityStageMonitorSync(NativeEngine *engine, NativeCallbackInfo *info);
 
     /**
      * Waits for the specified monitor.
@@ -198,9 +234,13 @@ public:
 
 private:
     NativeValue *OnAddAbilityMonitor(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue *OnAddAbilityMonitorSync(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnAddAbilityStageMonitor(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue *OnAddAbilityStageMonitorSync(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnRemoveAbilityMonitor(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue *OnRemoveAbilityMonitorSync(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnRemoveAbilityStageMonitor(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue *OnRemoveAbilityStageMonitorSync(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnWaitAbilityMonitor(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnWaitAbilityStageMonitor(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnPrint(NativeEngine &engine, NativeCallbackInfo &info);
@@ -223,9 +263,9 @@ private:
     void AbilityLifecycleStateToJs(
         const AbilityDelegator::AbilityState &lifeState, AbilityLifecycleState &abilityLifeState);
     NativeValue *ParseAbilityMonitorPara(
-        NativeEngine &engine, NativeCallbackInfo &info, std::shared_ptr<AbilityMonitor> &monitor);
-    NativeValue *ParseAbilityStageMonitorPara(
-        NativeEngine &engine, NativeCallbackInfo &info, std::shared_ptr<AbilityStageMonitor> &monitor, bool &isExisted);
+        NativeEngine &engine, NativeCallbackInfo &info, std::shared_ptr<AbilityMonitor> &monitor, bool isSync);
+    NativeValue *ParseAbilityStageMonitorPara(NativeEngine &engine, NativeCallbackInfo &info,
+        std::shared_ptr<AbilityStageMonitor> &monitor, bool &isExisted, bool isSync);
     NativeValue *ParseWaitAbilityMonitorPara(NativeEngine &engine, NativeCallbackInfo &info,
         std::shared_ptr<AbilityMonitor> &monitor, TimeoutCallback &opt, int64_t &timeout);
     NativeValue *ParseWaitAbilityStageMonitorPara(NativeEngine &engine, NativeCallbackInfo &info,
