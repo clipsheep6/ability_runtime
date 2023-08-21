@@ -420,7 +420,6 @@ void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
         HILOG_ERROR("application or abilityRecord is nullptr");
         return;
     }
-
     InitExtensionFlag(abilityRecord);
     if (isExtension_) {
         AttachExtension(application, abilityRecord);
@@ -447,7 +446,6 @@ void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
         HILOG_ERROR("ability is nullptr");
         return;
     }
-
     currentAbility_.reset(ability);
     token_ = abilityRecord->GetToken();
     abilityRecord->SetEventHandler(abilityHandler_);
@@ -457,9 +455,11 @@ void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
     std::shared_ptr<AppExecFwk::ContextDeal> contextDeal =
         CreateAndInitContextDeal(application, abilityRecord, abilityObject);
     ability->AttachBaseContext(contextDeal);
+    // new hap requires
+    ability->AttachAbilityContext(
+        BuildAbilityContext(abilityRecord->GetAbilityInfo(), application, token_, stageContext));
 
     AttachInner(application, abilityRecord, stageContext);
-
     HILOG_DEBUG("end");
 }
 
