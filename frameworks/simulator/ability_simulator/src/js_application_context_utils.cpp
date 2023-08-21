@@ -279,8 +279,7 @@ NativeValue *JsApplicationContextUtils::OnGetApplicationContext(NativeEngine &en
         HILOG_WARN("OnGetApplicationContext, invalid systemModule.");
         return engine.CreateUndefined();
     }
-    auto contextObj = systemModule->Get();
-    return contextObj;
+    return systemModule->Get();
 }
 
 NativeValue *JsApplicationContextUtils::CreateJsApplicationContext(
