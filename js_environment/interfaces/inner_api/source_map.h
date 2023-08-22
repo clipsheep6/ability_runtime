@@ -70,6 +70,7 @@ public:
 
     void Init(bool isModular, const std::string& hapPath);
     std::string TranslateBySourceMap(const std::string& stackStr);
+    bool TranslateUrlPositionBySourceMap(std::string& url, std::string& line, std::string& column);
 
     static std::string GetOriginalNames(std::shared_ptr<SourceMapData> targetMapData,
         const std::string& sourceCode, uint32_t& errorPos);
@@ -89,6 +90,7 @@ private:
     std::string GetRelativePath(const std::string& sources);
     std::string GetSourceInfo(const std::string& line, const std::string& column,
         const SourceMapData& targetMap, const std::string& key);
+    bool GetLineAndColumnNumbers(std::string& line, std::string& column, SourceMapData& targetMap, std::string& key);
 
 private:
     bool isModular_ = true;
