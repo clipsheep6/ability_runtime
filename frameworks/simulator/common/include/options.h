@@ -20,7 +20,10 @@
 #include <string>
 #include <vector>
 
+#include "ability_info.h"
+#include "application_info.h"
 #include "configuration.h"
+#include "hap_module_info.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
