@@ -40,9 +40,6 @@ void BundleContainer::LoadBundleInfos(const std::vector<uint8_t> &buffer)
     bundleInfo_->SetIsNewVersion(true);
     ModuleProfile moduleProfile;
     moduleProfile.TransformTo(buffer, *bundleInfo_);
-    auto toString = bundleInfo_->ToString();
-    HILOG_DEBUG("module json to string: %{public}s", toString.c_str());
-    return;
 }
 
 std::shared_ptr<ApplicationInfo> BundleContainer::GetApplicationInfo() const
