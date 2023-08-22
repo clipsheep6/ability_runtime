@@ -153,11 +153,11 @@ void ExtensionAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication>
 
     // 1.new AbilityHandler
     std::string abilityName = CreateAbilityName(abilityRecord, application);
-    if (abilityName == "") {
-        HILOG_ERROR("abilityName is nullptr.");
+    if (abilityName.empty()) {
+        HILOG_ERROR("abilityName is empty");
         return;
     }
-    HILOG_DEBUG("begin, extension:%{public}s.", abilityRecord->GetAbilityInfo()->name.c_str());
+    HILOG_DEBUG("begin, extension:%{public}s", abilityRecord->GetAbilityInfo()->name.c_str());
     abilityHandler_ = std::make_shared<AppExecFwk::AbilityHandler>(mainRunner);
     if (abilityHandler_ == nullptr) {
         HILOG_ERROR("abilityHandler_ is nullptr");
@@ -241,6 +241,7 @@ void ExtensionAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication>
         HILOG_ERROR("Attach failed err = %{public}d", err);
         return;
     }
+    HILOG_DEBUG("end");
 }
 
 void ExtensionAbilityThread::HandleExtensionTransaction(
@@ -361,7 +362,7 @@ void ExtensionAbilityThread::ScheduleAbilityTransaction(
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Schedule ability transaction, name is %{public}s, targeState is "
-               "%{public}d, isNewWant is %{public}d.",
+               "%{public}d, isNewWant is %{public}d",
         want.GetElement().GetAbilityName().c_str(), lifeCycleStateInfo.state, lifeCycleStateInfo.isNewWant);
 
     if (token_ == nullptr) {
@@ -434,7 +435,7 @@ void ExtensionAbilityThread::ScheduleDisconnectAbility(const Want &want)
 
     bool ret = abilityHandler_->PostTask(task);
     if (!ret) {
-        HILOG_ERROR("PostTask error");
+        HILOG_ERROR("postTask error");
     }
 }
 

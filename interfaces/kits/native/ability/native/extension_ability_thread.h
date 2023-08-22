@@ -17,7 +17,6 @@
 #define OHOS_ABILITY_RUNTIME_EXTENSION_ABILITY_THREAD_H
 
 #include "ability_thread.h"
-// #include "ability_manager_client.h"
 #include "extension_impl.h"
 #include "want.h"
 
@@ -30,13 +29,16 @@ namespace AbilityRuntime {
 using LifeCycleStateInfo = OHOS::AAFwk::LifeCycleStateInfo;
 class ExtensionAbilityThread : public AppExecFwk::AbilityThread {
 public:
+    /**
+     * @brief Default constructor used to create a ExtensionAbilityThread instance.
+     */
     ExtensionAbilityThread();
     ~ExtensionAbilityThread() override;
 
     /**
-     * @description: Attach The ability thread to the main process.
+     * @brief Attach The ability thread to the main process.
      * @param application Indicates the main process.
-     * @param abilityRecord current running ability record.
+     * @param abilityRecord current running ability record
      * @param mainRunner The runner which main_thread holds.
      * @param appContext the AbilityRuntime context
      */
@@ -46,9 +48,9 @@ public:
         [[maybe_unused]] const std::shared_ptr<AbilityRuntime::Context> &appContext) override;
 
     /**
-     * @description: Attach The ability thread to the main process.
+     * @brief: Attach The ability thread to the main process.
      * @param application Indicates the main process.
-     * @param abilityRecord current running ability record.
+     * @param abilityRecord current running ability record
      * @param appContext the AbilityRuntime context
      */
     void Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
@@ -56,10 +58,8 @@ public:
         [[maybe_unused]] const std::shared_ptr<AbilityRuntime::Context> &appContext) override;
 
     /**
-     * @description:  Provide operating system AbilityTransaction information to
-     * the observer
-     * @param want Indicates the structure containing Transaction information
-     * about the ability.
+     * @brief Provide operating system AbilityTransaction information to the observer
+     * @param want Indicates the structure containing Transaction information about the ability.
      * @param targetState Indicates the lifecycle state.
      * @param sessionInfo Indicates the session info.
      */
@@ -67,10 +67,8 @@ public:
         sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr) override;
 
     /**
-     * @description:  Provide operating system ConnectAbility information to the
-     * observer
-     * @param want Indicates the structure containing connect information about
-     * the ability.
+     * @brief Provide operating system ConnectAbility information to the observer
+     * @param want Indicates the structure containing connect information about the ability.
      */
     void ScheduleConnectAbility(const Want &want) override;
 
@@ -83,15 +81,12 @@ public:
     void ScheduleDisconnectAbility(const Want &want) override;
 
     /**
-     * @description: Provide operating system CommandAbility information to the
-     * observer
+     * @brief Provide operating system CommandAbility information to the observer
      * @param want The Want object to command to.
-     * @param restart Indicates the startup mode. The value true indicates that
-     * Service is restarted after being destroyed, and the value false indicates a
-     * normal startup.
-     * @param startId Indicates the number of times the Service ability has been
-     * started. The startId is incremented by 1 every time the ability is started.
-     * For example, if the ability has been started for six times, the value of
+     * @param restart Indicates the startup mode. The value true indicates that Service is restarted after being
+     * destroyed, and the value false indicates a normal startup.
+     * @param startId Indicates the number of times the Service ability has been started. The startId is incremented by
+     * 1 every time the ability is started. For example, if the ability has been started for six times, the value of
      * startId is 6.
      */
     void ScheduleCommandAbility(const Want &want, bool restart, int32_t startId) override;
@@ -139,7 +134,7 @@ private:
     void DumpOtherInfo(std::vector<std::string> &info);
 
     /**
-     * @description: Create the abilityname.
+     * @brief Create the abilityname.
      * @param abilityRecord current running ability record.
      * @param application Indicates the main process.
      * @return Returns the abilityname.
@@ -148,7 +143,7 @@ private:
         std::shared_ptr<AppExecFwk::OHOSApplication> &application);
 
     /**
-     * @description:  Handle the life cycle of Extension.
+     * @brief Handle the life cycle of Extension.
      * @param want Indicates the structure containing lifecycle information about
      * the extension.
      * @param lifeCycleStateInfo  Indicates the lifecycle state.
@@ -158,36 +153,33 @@ private:
         sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr);
 
     /**
-     * @description:  Handle the current connection of Extension.
+     * @brief Handle the current connection of Extension.
      * @param want Indicates the structure containing connection information about
      * the extension.
      */
     void HandleConnectExtension(const Want &want);
 
     /**
-     * @description:  Handle the current disconnection of Extension.
-     * @param want Indicates the structure containing connection information about
-     * the extension.
+     * @brief Handle the current disconnection of Extension.
+     * @param want Indicates the structure containing connection information about the extension.
      */
     void HandleDisconnectExtension(const Want &want);
 
     /**
      * @brief Handle the current command of Extension.
      * @param want The Want object to command to.
-     * @param restart Indicates the startup mode. The value true indicates that
-     * Service is restarted after being destroyed, and the value false indicates a
-     * normal startup.
-     * @param startId Indicates the number of times the Service extension has been
-     * started. The startId is incremented by 1 every time the extension is
-     * started. For example, if the extension has been started for six times, the
+     * @param restart Indicates the startup mode. The value true indicates that Service is restarted after being
+     * destroyed, and the value false indicates a normal startup.
+     * @param startId Indicates the number of times the Service extension has been started. The startId is incremented
+     * by 1 every time the extension is started. For example, if the extension has been started for six times, the
      * value of startId is 6.
      */
     void HandleCommandExtension(const Want &want, bool restart, int32_t startId);
 
     /**
-     * @brief Handle Command ExtensionWindow
+     * @brief Handle Command Extension Window
      * @param want The Want object to command to.
-     * @param sessionInfo Indicates the session info.
+     * @param sessionInfo Indicates the sessionInfo
      * @param winCmd Indicates the WindowCommand of winCmd
      */
     void HandleCommandExtensionWindow(
