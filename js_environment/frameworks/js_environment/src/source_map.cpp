@@ -175,6 +175,34 @@ std::string SourceMap::TranslateBySourceMap(const std::string& stackStr)
     return ans;
 }
 
+
+bool SourceMap::TranslateUrlPositionBySourceMap(std::string& url, std::string& line, std::string& column)
+{
+    std::string sourceInfo;
+    if (!isModular_) {
+        size_t start = url.find("/ets/");
+        size_t end = url.rfind("_.js");
+        std::string key = url.substr(start + 1, end - start - 1);
+        std::string curSourceMap;
+        if (!ReadSourceMapData(hapPath_, key + ".js.map", curSourceMap)) {
+            JSENV_LOG_W("ReadSourceMapData fail");
+            return false;
+        }
+        ExtractSourceMapData(curSourceMap, nonModularMap_);
+        sourceInfo = GetSourceInfo(line, column, *nonModularMap_, key + ".ts");
+    } else {
+        auto iter = sourceMaps_.find(url);
+        if (iter != sourceMaps_.end()) {
+            sourceInfo = GetSourceInfo(line, column, *(iter->second), url);
+        }
+    }
+    if (sourceInfo.empty()) {
+        return false;
+    }
+    url = sourceInfo;
+    return true;
+}
+
 void SourceMap::SplitSourceMap(const std::string& sourceMapData)
 {
     if (!isModular_) {

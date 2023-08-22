@@ -124,6 +124,11 @@ void JsEnvironment::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator
         return sourceMapOperator_->TranslateBySourceMap(rawStack);
     };
     engine_->RegisterTranslateBySourceMap(translateBySourceMapFunc);
+
+    auto translateUrlBySourceMapFunc = [&](std::string& url, std::string& line, std::string& column) {
+        return sourceMapOperator_->TranslateUrlPositionBySourceMap(url, line, column);
+    };
+    engine_->RegisterTranslateUrlPositionBySourceMap(translateUrlBySourceMapFunc);
 }
 
 void JsEnvironment::RegisterUncaughtExceptionHandler(JsEnv::UncaughtExceptionInfo uncaughtExceptionInfo)
