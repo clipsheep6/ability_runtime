@@ -94,6 +94,9 @@ struct Options {
     std::string releaseType;
     bool enablePartialUpdate;
     std::string previewPath;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    AppExecFwk::HapModuleInfo hapModuleInfo;
+    AppExecFwk::AbilityInfo abilityInfo;
     std::shared_ptr<AppExecFwk::Configuration> configuration;
     std::vector<uint8_t> moduleJsonBuffer;
 };
