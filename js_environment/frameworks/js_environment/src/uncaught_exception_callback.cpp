@@ -74,11 +74,11 @@ void UncaughtExceptionCallback::operator()(NativeValue* value)
             error = fuc->GetSourceCodeInfo(errorPos);
         }
     }
-    if (sourceMapOperator_ == nullptr) {
-        JSENV_LOG_E("sourceMapOperator_ is empty");
-        return;
+
+    if (sourceMap_ != nullptr) {
+        summary += error + "Stacktrace:\n" + sourceMap_->TranslateBySourceMap(errorStack);
     }
-    summary += error + "Stacktrace:\n" + sourceMapOperator_->TranslateBySourceMap(errorStack);
+
     if (uncaughtTask_) {
         uncaughtTask_(summary, errorObj);
     }

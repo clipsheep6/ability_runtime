@@ -50,7 +50,6 @@
 #include "extractor.h"
 #include "systemcapability.h"
 #include "source_map.h"
-#include "source_map_operator.h"
 #include "ace_forward_compatibility.h"
 
 #ifdef SUPPORT_GRAPHICS
@@ -548,8 +547,7 @@ bool JsRuntime::Initialize(const Options& options)
     }
 
     if (!options.preload) {
-        auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>(options.hapPath, isModular);
-        InitSourceMap(operatorObj);
+        InitSourceMap(options.hapPath, isModular);
 
         if (options.isUnique) {
             HILOG_INFO("Not supported TimerModule when form render");
@@ -673,11 +671,11 @@ void JsRuntime::SetAppLibPath(const AppLibPathMap& appLibPaths, const bool& isSy
     }
 }
 
-void JsRuntime::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorObj)
+void JsRuntime::InitSourceMap(const std::string& hapPath, bool isModular)
 {
     CHECK_POINTER(jsEnv_);
-    jsEnv_->InitSourceMap(operatorObj);
     JsEnv::SourceMap::RegisterReadSourceMapCallback(JsRuntime::ReadSourceMapData);
+    jsEnv_->InitSourceMap(hapPath, isModular);
 }
 
 void JsRuntime::Deinitialize()
