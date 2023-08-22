@@ -89,6 +89,7 @@ ohos_shared_library("runtime") {
     "ability_base:string_utils",
     "ability_base:want",
     "access_token:libaccesstoken_sdk",
+    "ace_engine:ace_forward_compatibility",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "bundle_framework:bundle_napi_common",
