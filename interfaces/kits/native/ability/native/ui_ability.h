@@ -16,16 +16,17 @@
 #ifndef OHOS_ABILITY_RUNTIME_UI_ABILITY_H
 #define OHOS_ABILITY_RUNTIME_UI_ABILITY_H
 
+#include "../ability_runtime/ability_context.h"
 #include "ability_context.h"
 #include "ability_continuation_interface.h"
 #include "ability_lifecycle_executor.h"
+#include "ability_lifecycle_interface.h"
 #include "ability_transaction_callback_info.h"
 #include "configuration.h"
 #include "context.h"
 #include "continuation_handler_stage.h"
 #include "iability_callback.h"
 #include "want.h"
-#include "../ability_runtime/ability_context.h"
 #ifdef SUPPORT_GRAPHICS
 #include "display_manager.h"
 #include "session_info.h"
@@ -44,6 +45,7 @@ class ContinuationManagerStage;
 namespace AbilityRuntime {
 class Runtime;
 class UIAbility : public AppExecFwk::AbilityContext,
+                  public AppExecFwk::ILifeCycle,
                   public AppExecFwk::IAbilityCallback,
                   public AppExecFwk::IAbilityContinuation,
                   public std::enable_shared_from_this<UIAbility> {
@@ -57,6 +59,12 @@ public:
      * @return Returns the UIAbility object of the ability
      */
     static UIAbility *Create(const std::unique_ptr<AbilityRuntime::Runtime> &runtime);
+
+    /**
+     * @brief Obtains the Lifecycle object of the current ability
+     * @return Returns the Lifecycle object.
+     */
+    std::shared_ptr<AppExecFwk::LifeCycle> GetLifecycle() override final;
 
     /**
      * @brief Obtains the AbilityContext object of the ability.
@@ -306,8 +314,8 @@ private:
     void HandleCreateAsRecovery(const AAFwk::Want &want);
     void SetStartAbilitySetting(std::shared_ptr<AppExecFwk::AbilityStartSetting> setting);
     void SetLaunchParam(const AAFwk::LaunchParam &launchParam);
-    void InitConfigurationProperties(const AppExecFwk::Configuration& changeConfiguration, std::string& language,
-        std::string& colormode, std::string& hasPointerDevice);
+    void InitConfigurationProperties(const AppExecFwk::Configuration &changeConfiguration, std::string &language,
+        std::string &colormode, std::string &hasPointerDevice);
 
     std::shared_ptr<AppExecFwk::ContinuationHandlerStage> continuationHandler_ = nullptr;
     std::shared_ptr<AppExecFwk::ContinuationManagerStage> continuationManager_ = nullptr;
@@ -367,7 +375,6 @@ public:
      * @return Return true if ability need to stop terminating; return false if ability need to terminate.
      */
     virtual bool OnPrepareTerminate();
-
 
     /**
      * @brief Inflates UI controls by using windowOption.
@@ -439,7 +446,7 @@ public:
      * @brief Get ui content object.
      * @return UIContent object of ACE.
      */
-    Ace::UIContent* GetUIContent() override;
+    Ace::UIContent *GetUIContent() override;
 
 protected:
     class UIAbilityDisplayListener : public OHOS::Rosen::DisplayManager::IDisplayListener {
@@ -509,6 +516,9 @@ protected:
     sptr<Rosen::IDisplayMoveListener> abilityDisplayMoveListener_ = nullptr;
 
 private:
+    void OnStartForSupportGraphics(const AAFwk::Want &want);
+    void OnChangeForUpdateConfiguration(const AppExecFwk::Configuration &newConfig);
+
     bool showOnLockScreen_ = false;
 #endif
 };

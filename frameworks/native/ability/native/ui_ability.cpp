@@ -101,6 +101,12 @@ void UIAbility::Init(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo
     HILOG_DEBUG("end");
 }
 
+std::shared_ptr<OHOS::AppExecFwk::LifeCycle> UIAbility::GetLifecycle()
+{
+    HILOG_DEBUG("Ability::GetLifecycle called");
+    return lifecycle_;
+}
+
 void UIAbility::AttachAbilityContext(const std::shared_ptr<AbilityRuntime::AbilityContext> &abilityContext)
 {
     abilityContext_ = abilityContext;
@@ -122,50 +128,7 @@ void UIAbility::OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessio
     sessionInfo_ = sessionInfo;
     HILOG_DEBUG("begin ability is %{public}s", abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
-    if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
-        int32_t defualtDisplayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
-        int32_t displayId = want.GetIntParam(AAFwk::Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
-        HILOG_DEBUG("abilityName:%{public}s, displayId:%{public}d", abilityInfo_->name.c_str(), displayId);
-        auto option = GetWindowOption(want);
-        InitWindow(displayId, option);
-
-        // Update resMgr, Configuration
-        HILOG_DEBUG("displayId %{public}d", displayId);
-        auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
-        if (display) {
-            float density = display->GetVirtualPixelRatio();
-            int32_t width = display->GetWidth();
-            int32_t height = display->GetHeight();
-            std::shared_ptr<AppExecFwk::Configuration> configuration = nullptr;
-            if (application_) {
-                configuration = application_->GetConfiguration();
-            }
-            if (configuration) {
-                std::string direction = AppExecFwk::GetDirectionStr(height, width);
-                configuration->AddItem(displayId, AppExecFwk::ConfigurationInner::APPLICATION_DIRECTION, direction);
-                configuration->AddItem(displayId, AppExecFwk::ConfigurationInner::APPLICATION_DENSITYDPI,
-                    AppExecFwk::GetDensityStr(density));
-                configuration->AddItem(
-                    AppExecFwk::ConfigurationInner::APPLICATION_DISPLAYID, std::to_string(displayId));
-                UpdateContextConfiguration();
-            }
-
-            std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
-            if (resConfig == nullptr) {
-                HILOG_ERROR("resConfig is nullptr");
-                return;
-            }
-            auto resourceManager = GetResourceManager();
-            if (resourceManager != nullptr) {
-                resourceManager->GetResConfig(*resConfig);
-                resConfig->SetScreenDensity(density);
-                resConfig->SetDirection(AppExecFwk::ConvertDirection(height, width));
-                resourceManager->UpdateResConfig(*resConfig);
-                HILOG_DEBUG("Density: %{public}f, Direction: %{public}d", resConfig->GetScreenDensity(),
-                    resConfig->GetDirection());
-            }
-        }
-    }
+    OnStartForSupportGraphics(want);
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
         HILOG_ERROR("abilityLifecycleExecutor_ is nullptr");
@@ -829,40 +792,18 @@ void UIAbility::OnChange(Rosen::DisplayId displayId)
         return;
     }
 
-    auto configuration = application_->GetConfiguration();
-    if (!configuration) {
-        HILOG_ERROR("configuration is nullptr");
-        return;
-    }
-
-    std::vector<std::string> changeKeyV;
-    configuration->CompareDifferent(changeKeyV, newConfig);
-    HILOG_DEBUG("changeKeyV size :%{public}zu", changeKeyV.size());
-    if (!changeKeyV.empty()) {
-        configuration->Merge(changeKeyV, newConfig);
-        auto task = [ability = shared_from_this(), configuration = *configuration]() {
-            ability->OnConfigurationUpdated(configuration);
-        };
-        handler_->PostTask(task);
-
-        auto diffConfiguration = std::make_shared<AppExecFwk::Configuration>(newConfig);
-        HILOG_DEBUG("Update display config %{public}s for all windows", diffConfiguration->GetName().c_str());
-        Rosen::Window::UpdateConfigurationForAll(diffConfiguration);
-    }
-
+    OnChangeForUpdateConfiguration(newConfig);
     HILOG_DEBUG("end");
 }
 
 void UIAbility::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
 {
     HILOG_DEBUG("from displayId %{public}" PRIu64 " to %{public}" PRIu64 ".", from, to);
-
     auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(to);
     if (!display) {
         HILOG_ERROR("Get display by displayId %{public}" PRIu64 " failed.", to);
         return;
     }
-
     // Get new display config
     float density = display->GetVirtualPixelRatio();
     int32_t width = display->GetWidth();
@@ -885,12 +826,10 @@ void UIAbility::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
     newConfig.AddItem(
         to, AppExecFwk::ConfigurationInner::APPLICATION_DIRECTION, AppExecFwk::GetDirectionStr(height, width));
     newConfig.AddItem(to, AppExecFwk::ConfigurationInner::APPLICATION_DENSITYDPI, AppExecFwk::GetDensityStr(density));
-
     if (application_ == nullptr) {
         HILOG_ERROR("application_ is nullptr");
         return;
     }
-
     std::vector<std::string> changeKeyV;
     auto configuration = application_->GetConfiguration();
     if (!configuration) {
@@ -955,6 +894,78 @@ sptr<Rosen::WindowOption> UIAbility::GetWindowOption(const AAFwk::Want &want)
 void UIAbility::ContinuationRestore(const AAFwk::Want &want)
 {
     HILOG_DEBUG("called");
+}
+
+void UIAbility::OnStartForSupportGraphics(const AAFwk::Want &want)
+{
+    if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
+        int32_t defualtDisplayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
+        int32_t displayId = want.GetIntParam(AAFwk::Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
+        HILOG_DEBUG("abilityName:%{public}s, displayId:%{public}d", abilityInfo_->name.c_str(), displayId);
+        auto option = GetWindowOption(want);
+        InitWindow(displayId, option);
+
+        // Update resMgr, Configuration
+        HILOG_DEBUG("displayId %{public}d", displayId);
+        auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
+        if (display) {
+            float density = display->GetVirtualPixelRatio();
+            int32_t width = display->GetWidth();
+            int32_t height = display->GetHeight();
+            std::shared_ptr<AppExecFwk::Configuration> configuration = nullptr;
+            if (application_) {
+                configuration = application_->GetConfiguration();
+            }
+            if (configuration) {
+                std::string direction = AppExecFwk::GetDirectionStr(height, width);
+                configuration->AddItem(displayId, AppExecFwk::ConfigurationInner::APPLICATION_DIRECTION, direction);
+                configuration->AddItem(displayId, AppExecFwk::ConfigurationInner::APPLICATION_DENSITYDPI,
+                    AppExecFwk::GetDensityStr(density));
+                configuration->AddItem(
+                    AppExecFwk::ConfigurationInner::APPLICATION_DISPLAYID, std::to_string(displayId));
+                UpdateContextConfiguration();
+            }
+
+            std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
+            if (resConfig == nullptr) {
+                HILOG_ERROR("resConfig is nullptr");
+                return;
+            }
+            auto resourceManager = GetResourceManager();
+            if (resourceManager != nullptr) {
+                resourceManager->GetResConfig(*resConfig);
+                resConfig->SetScreenDensity(density);
+                resConfig->SetDirection(AppExecFwk::ConvertDirection(height, width));
+                resourceManager->UpdateResConfig(*resConfig);
+                HILOG_DEBUG("Density: %{public}f, Direction: %{public}d", resConfig->GetScreenDensity(),
+                    resConfig->GetDirection());
+            }
+        }
+    }
+}
+
+void UIAbility::OnChangeForUpdateConfiguration(const AppExecFwk::Configuration &newConfig)
+{
+    auto configuration = application_->GetConfiguration();
+    if (!configuration) {
+        HILOG_ERROR("configuration is nullptr");
+        return;
+    }
+
+    std::vector<std::string> changeKeyV;
+    configuration->CompareDifferent(changeKeyV, newConfig);
+    HILOG_DEBUG("changeKeyV size :%{public}zu", changeKeyV.size());
+    if (!changeKeyV.empty()) {
+        configuration->Merge(changeKeyV, newConfig);
+        auto task = [ability = shared_from_this(), configuration = *configuration]() {
+            ability->OnConfigurationUpdated(configuration);
+        };
+        handler_->PostTask(task);
+
+        auto diffConfiguration = std::make_shared<AppExecFwk::Configuration>(newConfig);
+        HILOG_DEBUG("Update display config %{public}s for all windows", diffConfiguration->GetName().c_str());
+        Rosen::Window::UpdateConfigurationForAll(diffConfiguration);
+    }
 }
 #endif
 } // namespace AbilityRuntime
