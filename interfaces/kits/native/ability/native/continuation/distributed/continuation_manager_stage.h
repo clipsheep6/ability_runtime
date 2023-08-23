@@ -59,7 +59,7 @@ public:
     ContinuationState GetContinuationState();
 
     /**
-     * @brief  Obtains the ID of the source device from which this ability is migrated.
+     * @brief Obtains the ID of the source device from which this ability is migrated.
      * @return Returns the source device ID.
      */
     std::string GetOriginalDeviceId();

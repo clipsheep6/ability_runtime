@@ -526,7 +526,7 @@ void UIAbilityImpl::Background()
 }
 #endif
 
-bool UIAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+bool UIAbilityImpl::AbilityTransaction(const AAFwk::Want &want, const AAFwk::LifeCycleStateInfo &targetState)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("begin");
@@ -542,7 +542,7 @@ bool UIAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycleS
             bool isAsyncCallback = false;
             Stop(isAsyncCallback);
             if (isAsyncCallback) {
-                // AMS will be notified after async callback
+                //AbilityManagerService will be notified after async callback
                 ret = false;
             }
             break;
@@ -552,23 +552,7 @@ bool UIAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycleS
                 NewWant(want);
             }
 #ifdef SUPPORT_GRAPHICS
-            if (lifecycleState_ == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
-                if (ability_) {
-                    ability_->RequestFocus(want);
-                }
-            } else {
-                {
-                    std::lock_guard<std::mutex> lock(notifyForegroundLock_);
-                    notifyForegroundByWindow_ = false;
-                }
-                Foreground(want);
-                std::lock_guard<std::mutex> lock(notifyForegroundLock_);
-                ret = notifyForegroundByWindow_;
-                if (ret) {
-                    notifyForegroundByWindow_ = false;
-                    notifyForegroundByAbility_ = false;
-                }
-            }
+            HandleForegroundNewState(want, ret);
 #endif
             break;
         }
@@ -590,5 +574,28 @@ bool UIAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycleS
     HILOG_DEBUG("end retVal = %{public}d", static_cast<int>(ret));
     return ret;
 }
+
+#ifdef SUPPORT_GRAPHICS
+void UIAbilityImpl::HandleForegroundNewState(const AAFwk::Want &want, bool &bflag)
+{
+    if (lifecycleState_ == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
+        if (ability_) {
+            ability_->RequestFocus(want);
+        }
+    } else {
+        {
+            std::lock_guard<std::mutex> lock(notifyForegroundLock_);
+            notifyForegroundByWindow_ = false;
+        }
+        Foreground(want);
+        std::lock_guard<std::mutex> lock(notifyForegroundLock_);
+        bflag = notifyForegroundByWindow_;
+        if (bflag) {
+            notifyForegroundByWindow_ = false;
+            notifyForegroundByAbility_ = false;
+        }
+    }
+}
+#endif
 } // namespace AbilityRuntime
 } // namespace OHOS

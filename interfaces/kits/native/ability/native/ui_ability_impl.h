@@ -187,6 +187,8 @@ private:
 
 #ifdef SUPPORT_GRAPHICS
 private:
+    void HandleForegroundNewState(const AAFwk::Want &want, bool &bFlag);
+
     class WindowLifeCycleImpl : public Rosen::IWindowLifeCycle {
     public:
         WindowLifeCycleImpl(const sptr<IRemoteObject> &token, const std::shared_ptr<UIAbilityImpl> &owner)
