@@ -41,6 +41,7 @@ int UriPermissionManagerClient::GrantUriPermission(const Uri &uri, unsigned int 
     if (uriPermMgr) {
         return uriPermMgr->GrantUriPermission(uri, flag, targetBundleName, autoremove, appIndex);
     }
+    
     return INNER_ERR;
 }
 
@@ -53,6 +54,16 @@ void UriPermissionManagerClient::RevokeUriPermission(const Security::AccessToken
     }
 }
 
+int UriPermissionManagerClient::RevokeAllUriPermissions(const Security::AccessToken::AccessTokenID tokenId)
+{
+    HILOG_DEBUG("UriPermissionManagerClient::RevokeAllUriPermissions is called.");
+    auto uriPermMgr = ConnectUriPermService();
+    if (uriPermMgr) {
+        return uriPermMgr->RevokeAllUriPermissions(tokenId);
+    }
+    return INNER_ERR;
+}
+
 int UriPermissionManagerClient::RevokeUriPermissionManually(const Uri &uri, const std::string bundleName)
 {
     HILOG_DEBUG("UriPermissionManagerClient::RevokeUriPermissionManually is called.");
@@ -61,6 +72,24 @@ int UriPermissionManagerClient::RevokeUriPermissionManually(const Uri &uri, cons
         return uriPermMgr->RevokeUriPermissionManually(uri, bundleName);
     }
     return INNER_ERR;
+}
+
+bool UriPermissionManagerClient::CheckPersistableUriPermissionProxy(const Uri& uri, uint32_t flag, uint32_t tokenId)
+{
+    auto uriPermMgr = ConnectUriPermService();
+    if (uriPermMgr) {
+        return uriPermMgr->CheckPersistableUriPermissionProxy(uri, flag, tokenId);
+    }
+    return false;
+}
+
+bool UriPermissionManagerClient::VerifyUriPermission(const Uri& uri, uint32_t flag, uint32_t tokenId)
+{
+    auto uriPermMgr = ConnectUriPermService();
+    if (uriPermMgr) {
+        return uriPermMgr->VerifyUriPermission(uri, flag, tokenId);
+    }
+    return false;
 }
 
 sptr<IUriPermissionManager> UriPermissionManagerClient::ConnectUriPermService()

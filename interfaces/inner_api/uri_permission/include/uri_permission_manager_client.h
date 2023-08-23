@@ -48,12 +48,37 @@ public:
     void RevokeUriPermission(const Security::AccessToken::AccessTokenID tokenId);
 
     /**
+     * @brief Clear user's all uri authorization record with auto remove flag.
+     *
+     * @param tokenId A tokenId of an application.
+     */
+    int RevokeAllUriPermissions(const Security::AccessToken::AccessTokenID tokenId);
+
+    /**
      * @brief Clear user's uri authorization record.
      *
      * @param uri The file uri.
      * @param BundleName A BundleName of an application.
      */
     int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName);
+
+    /**
+     * @brief check if caller can grant persistable uri permission
+     *
+     * @param uri The file uri.
+     * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
+     * @param tokenId A tokenId of an application.
+     */
+    bool CheckPersistableUriPermissionProxy(const Uri& uri, uint32_t flag, uint32_t tokenId);
+
+    /**
+     * @brief verify if tokenId have uri permission of flag, including temporary permission and persistable permission
+     *
+     * @param uri The file uri.
+     * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
+     * @param tokenId A tokenId of an application.
+     */
+    bool VerifyUriPermission(const Uri& uri, uint32_t flag, uint32_t tokenId);
 
     void OnLoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject);
     void OnLoadSystemAbilityFail();
