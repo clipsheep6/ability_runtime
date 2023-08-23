@@ -46,6 +46,7 @@
 #include "hilog_wrapper.h"
 #ifdef SUPPORT_GRAPHICS
 #include "locale_config.h"
+#include "ace_forward_compatibility.h"
 #endif
 #include "app_mgr_client.h"
 #include "if_system_ability_manager.h"
@@ -64,7 +65,6 @@
 #include "hisysevent.h"
 #include "js_runtime_utils.h"
 #include "context/application_context.h"
-#include "ace_forward_compatibility.h"
 
 #if defined(NWEB)
 #include <thread>
@@ -233,8 +233,6 @@ void MainThread::GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &h
         GetHspNativeLibPath(hspInfo, appLibPaths, hspInfo.hapPath.find(ABS_CODE_PATH) != 0u);
     }
 }
-
-#define ACEABILITY_LIBRARY_LOADER
 
 /**
  *
@@ -1096,18 +1094,8 @@ void MainThread::HandleOnOverlayChanged(const EventFwk::CommonEventData &data,
     HILOG_DEBUG("GetNativeStrFromJsTaggedObj Success %{public}s:%{public}s", key, ret.c_str());
     return ret;
 }
-bool IsNeedLoadLibrary(const std::string &bundleName, const ApplicationInfo &appInfo, const AppExecFwk::HapModuleInfo &moduleInfo)
+bool IsNeedLoadLibrary(const std::string &bundleName)
 {
-    std::vector<OHOS::AppExecFwk::Metadata> metaData = moduleInfo.metadata;
-
-    bool isFullUpdate = std::any_of(metaData.begin(), metaData.end(), [](const auto& metaDataItem) {
-        return metaDataItem.name == "ArkTSPartialUpdate" && metaDataItem.value == "false";
-    });
-    Ace::AceForwardCompatibility::Init(bundleName, appInfo.apiCompatibleVersion, isFullUpdate);
-
-    if (Ace::AceForwardCompatibility::PipelineChanged()) {
-        return true;
-    }
     std::vector<std::string> needLoadLibraryBundleNames{
         "com.ohos.contactsdataability",
         "com.ohos.medialibrary.medialibrarydata",
@@ -1203,11 +1191,25 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         isStageBased = entryHapModuleInfo.isStageBasedModel;
     }
 
-    if (IsNeedLoadLibrary(bundleName, appInfo, entryHapModuleInfo)) {
+#ifdef SUPPORT_GRAPHICS
+    std::vector<OHOS::AppExecFwk::Metadata> metaData = entryHapModuleInfo.metadata;
+    bool isFullUpdate = std::any_of(metaData.begin(), metaData.end(), [](const auto &metaDataItem) {
+        return metaDataItem.name == "ArkTSPartialUpdate" && metaDataItem.value == "false";
+    });
+    Ace::AceForwardCompatibility::Init(bundleName, appInfo.apiCompatibleVersion, isFullUpdate);
+#endif
+
+    if (IsNeedLoadLibrary(bundleName)) {
         std::vector<std::string> localPaths;
         ChangeToLocalPath(bundleName, appInfo.moduleSourceDirs, localPaths);
         LoadAbilityLibrary(localPaths);
         LoadNativeLiabrary(bundleInfo, appInfo.nativeLibraryPath);
+#ifdef SUPPORT_GRAPHICS
+    } else if (Ace::AceForwardCompatibility::PipelineChanged()) {
+        std::vector<std::string> localPaths;
+        ChangeToLocalPath(bundleName, appInfo.moduleSourceDirs, localPaths);
+        LoadAbilityLibrary(localPaths);
+#endif
     }
     if (appInfo.needAppDetail) {
         HILOG_DEBUG("MainThread::handleLaunchApplication %{public}s need add app detail ability library path",
@@ -2178,7 +2180,7 @@ void MainThread::LoadAbilityLibrary(const std::vector<std::string> &libraryPaths
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
 #ifdef ABILITY_LIBRARY_LOADER
     HILOG_DEBUG("MainThread load ability library start.");
-#ifdef ACEABILITY_LIBRARY_LOADER
+#ifdef SUPPORT_GRAPHICS
     void *AceAbilityLib = nullptr;
     const char *path = Ace::AceForwardCompatibility::GetAceLibName();
     AceAbilityLib = dlopen(path, RTLD_NOW | RTLD_LOCAL);
@@ -2188,7 +2190,7 @@ void MainThread::LoadAbilityLibrary(const std::vector<std::string> &libraryPaths
         HILOG_DEBUG("Success to dlopen %{public}s", path);
         handleAbilityLib_.emplace_back(AceAbilityLib);
     }
-#endif  // ACEABILITY_LIBRARY_LOADER
+#endif
     size_t size = libraryPaths.size();
     for (size_t index = 0; index < size; index++) {
         std::string libraryPath = libraryPaths[index];

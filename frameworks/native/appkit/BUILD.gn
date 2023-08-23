@@ -143,7 +143,6 @@ ohos_shared_library("appkit_native") {
     "ability_base:extractresourcemanager",
     "ability_base:string_utils",
     "ability_base:want",
-    "ace_engine:ace_forward_compatibility",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
@@ -167,6 +166,7 @@ ohos_shared_library("appkit_native") {
   if (ability_runtime_graphics) {
     deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
     external_deps += [
+      "ace_engine:ace_forward_compatibility",
       "graphic_2d:librender_service_client",
       "i18n:intl_util",
       "window_manager:libwm",

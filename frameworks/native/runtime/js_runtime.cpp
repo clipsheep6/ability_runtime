@@ -50,9 +50,9 @@
 #include "extractor.h"
 #include "systemcapability.h"
 #include "source_map.h"
-#include "ace_forward_compatibility.h"
 
 #ifdef SUPPORT_GRAPHICS
+#include "ace_forward_compatibility.h"
 #include "declarative_module_preloader.h"
 #endif
 
@@ -153,11 +153,12 @@ std::unique_ptr<JsRuntime> JsRuntime::Create(const Options& options)
     if (!options.preload && options.isStageModel) {
         auto preloadedInstance = Runtime::GetPreloaded();
 
+#ifdef SUPPORT_GRAPHICS
         // reload ace if compatible mode changes
         if (Ace::AceForwardCompatibility::PipelineChanged() && preloadedInstance) {
             preloadedInstance.reset();
         }
-
+#endif
         if (preloadedInstance && preloadedInstance->GetLanguage() == Runtime::Language::JS) {
             instance.reset(static_cast<JsRuntime*>(preloadedInstance.release()));
         } else {
@@ -458,9 +459,11 @@ void JsRuntime::FinishPreload()
 bool JsRuntime::Initialize(const Options& options)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+#ifdef SUPPORT_GRAPHICS
     if (Ace::AceForwardCompatibility::PipelineChanged()) {
         preloaded_ = false;
     }
+#endif
     if (!preloaded_) {
         if (!CreateJsEnv(options)) {
             HILOG_ERROR("Create js environment failed.");
