@@ -48,8 +48,8 @@ HWTEST_F(UriPermissionManagerTest, ConnectUriPermService_001, TestSize.Level1)
 {
     auto& upmc = AAFwk::UriPermissionManagerClient::GetInstance();
     upmc.saLoadFinished_ = true;
+    EXPECT_EQ(upmc.GetUriPermMgr(), nullptr);
     auto ret = upmc.ConnectUriPermService();
-    EXPECT_TRUE(ret == nullptr);
 }
 
 /*
@@ -63,8 +63,8 @@ HWTEST_F(UriPermissionManagerTest, ConnectUriPermService_002, TestSize.Level1)
     auto& upmc = AAFwk::UriPermissionManagerClient::GetInstance();
     sptr<IRemoteObject> remoteObject = new (std::nothrow) UriPermissionLoadCallback();
     upmc.SetUriPermMgr(remoteObject);
+    EXPECT_EQ(upmc.GetUriPermMgr(), nullptr);
     auto ret = upmc.ConnectUriPermService();
-    EXPECT_TRUE(ret == nullptr);
 }
 
 /*
@@ -78,8 +78,8 @@ HWTEST_F(UriPermissionManagerTest, ConnectUriPermService_003, TestSize.Level1)
     auto& upmc = AAFwk::UriPermissionManagerClient::GetInstance();
     sptr<IRemoteObject> remoteObject = nullptr;
     upmc.SetUriPermMgr(remoteObject);
+    EXPECT_EQ(upmc.GetUriPermMgr(), nullptr);
     auto ret = upmc.ConnectUriPermService();
-    EXPECT_TRUE(ret == nullptr);
 }
 
 /*

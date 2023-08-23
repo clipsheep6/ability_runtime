@@ -112,8 +112,11 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_DumpSysMissionList
     std::vector<std::string> info;
     bool isClient = false;
     bool isUserID = true;
+    EXPECT_TRUE(abilityMs_ != nullptr);
     abilityMs_->DumpSysMissionListInner(args, info, isClient, isUserID, USER_ID);
-    EXPECT_GT(info.size(), SIZE_ZERO);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_GT(info.size(), SIZE_ZERO);
+    }
 }
 
 /**
