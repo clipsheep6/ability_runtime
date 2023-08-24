@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,88 +13,90 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_ABILITY_THREAD_H
-#define OHOS_ABILITY_RUNTIME_ABILITY_THREAD_H
+#ifndef OHOS_ABILITY_RUNTIME_FA_ABILITY_THREAD_H
+#define OHOS_ABILITY_RUNTIME_FA_ABILITY_THREAD_H
 
-#include "ability_scheduler_stub.h"
+#include "ability.h"
+#include "ability_manager_client.h"
+#include "ability_manager_interface.h"
+#include "ability_thread.h"
 #include "context.h"
+#include "extension_impl.h"
+#include "ipc_singleton.h"
 #include "ohos_application.h"
+#include "pac_map.h"
+#include "want.h"
 
 namespace OHOS {
 namespace AppExecFwk {
-using AbilitySchedulerStub = OHOS::AAFwk::AbilitySchedulerStub;
+class AbilityImpl;
 class AbilityHandler;
 class AbilityLocalRecord;
-class AbilityThread : public AbilitySchedulerStub {
+} // namespace AppExecFwk
+namespace AbilityRuntime {
+using LifeCycleStateInfo = OHOS::AAFwk::LifeCycleStateInfo;
+class FAAbilityThread : public AppExecFwk::AbilityThread {
 public:
     /**
-     * @brief Default constructor used to create a AbilityThread instance.
+     * @brief Default constructor used to create a FAAbilityThread instance.
      */
-    AbilityThread() = default;
-    virtual ~AbilityThread() = default;
+    FAAbilityThread();
+    ~FAAbilityThread() override;
 
     /**
      * @brief Attach The ability thread to the main process.
      * @param application Indicates the main process.
-     * @param abilityRecord Indicates the abilityRecord.
+     * @param abilityRecord current running ability record
      * @param mainRunner The runner which main_thread holds.
      * @param appContext the AbilityRuntime context
      */
-    static void AbilityThreadMain(std::shared_ptr<OHOSApplication> &application,
-        const std::shared_ptr<AbilityLocalRecord> &abilityRecord, const std::shared_ptr<EventRunner> &mainRunner,
-        const std::shared_ptr<AbilityRuntime::Context> &appContext);
+    void Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+        const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
+        const std::shared_ptr<AppExecFwk::EventRunner> &mainRunner,
+        const std::shared_ptr<Context> &appContext) override;
 
     /**
      * @brief Attach The ability thread to the main process.
      * @param application Indicates the main process.
-     * @param abilityRecord Indicates the abilityRecord.
-     * @param appContext the AbilityRuntime context
-     */
-    static void AbilityThreadMain(std::shared_ptr<OHOSApplication> &application,
-        const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
-        const std::shared_ptr<AbilityRuntime::Context> &appContext);
-
-    /**
-     * @brief Attach The ability thread to the main process.
-     * @param application Indicates the main process.
-     * @param abilityRecord Indicates the abilityRecord.
+     * @param abilityRecord current running ability record
      * @param mainRunner The runner which main_thread holds.
-     * @param appContext the AbilityRuntime context
      */
-    virtual void Attach(std::shared_ptr<OHOSApplication> &application,
-        const std::shared_ptr<AbilityLocalRecord> &abilityRecord, const std::shared_ptr<EventRunner> &mainRunner,
-        const std::shared_ptr<AbilityRuntime::Context> &appContext) = 0;
+    void AttachExtension(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+        const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
+        const std::shared_ptr<AppExecFwk::EventRunner> &mainRunner);
 
     /**
      * @brief Attach The ability thread to the main process.
      * @param application Indicates the main process.
-     * @param abilityRecord Indicates the abilityRecord.
+     * @param abilityRecord current running ability record
+     */
+    void AttachExtension(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+        const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord);
+
+    /**
+     * @brief Init extension Ability flag.
+     * @param abilityRecord current running ability record
+     */
+    void InitExtensionFlag(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord);
+
+    /**
+     * @brief Attach The ability thread to the main process.
+     * @param application Indicates the main process.
+     * @param abilityRecord current running ability record
      * @param appContext the AbilityRuntime context
      */
-    virtual void Attach(std::shared_ptr<OHOSApplication> &application,
-        const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
-        const std::shared_ptr<AbilityRuntime::Context> &appContext) = 0;
+    void Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+        const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
+        const std::shared_ptr<Context> &appContext) override;
 
     /**
-     * @brief ScheduleUpdateConfiguration, scheduling update configuration.
-     * @param config Indicates the updated configuration information
-     */
-    virtual void ScheduleUpdateConfiguration(const Configuration &config) = 0;
-
-    /**
-     * @brief notify this ability current memory level.
-     * @param level Current memory level
-     */
-    virtual void NotifyMemoryLevel(int32_t level) = 0;
-
-    /**
-     * @brief  Provide operating system AbilityTransaction information to the observer
+     * @brief Provide operating system AbilityTransaction information to the observer
      * @param want Indicates the structure containing Transaction information about the ability.
      * @param targetState Indicates the lifecycle state.
      * @param sessionInfo Indicates the session info.
      */
-    void ScheduleAbilityTransaction(
-        const Want &want, const LifeCycleStateInfo &targetState, sptr<SessionInfo> sessionInfo = nullptr) override;
+    void ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &targetState,
+        sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr) override;
 
     /**
      * @brief Provide operating system ShareData information to the observer
@@ -116,7 +118,7 @@ public:
 
     /**
      * @brief Provide operating system CommandAbility information to the observer
-     * @param want Indicates the structure containing connect information about the ability.
+     * @param want The Want object to command to.
      * @param restart Indicates the startup mode. The value true indicates that Service is restarted after being
      * destroyed, and the value false indicates a normal startup.
      * @param startId Indicates the number of times the Service ability has been started. The startId is incremented by
@@ -148,18 +150,24 @@ public:
      * @brief Provide operating system RestoreAbilityState information to the observer
      * @param state Indicates resotre ability state used to dispatchRestoreAbilityState.
      */
-    void ScheduleRestoreAbilityState(const PacMap &state) override;
+    void ScheduleRestoreAbilityState(const AppExecFwk::PacMap &state) override;
+
+    /**
+     * @brief ScheduleUpdateConfiguration, scheduling update configuration.
+     * @param config Indicates the updated configuration information
+     */
+    void ScheduleUpdateConfiguration(const AppExecFwk::Configuration &config) override;
 
     /**
      * @brief Send the result code and data to be returned by this Page ability to the caller.
-     * When a Page ability is destroyed, the caller overrides the AbilitySlice#onAbilityResult(int, int, Want) method to
-     * receive the result set in the current method. This method can be called only after the ability has been
-     * initialized.
+     * When a Page ability is destroyed, the caller overrides the AbilitySlice#onAbilityResult(int32_t, int32_t, Want)
+     * method to receive the result set in the current method. This method can be called only after the ability has
+     * been initialized.
      * @param requestCode Indicates the request code for send.
      * @param resultCode Indicates the result code returned after the ability is destroyed. You can define the result
      * code to identify an error.
-     * @param resultData Indicates the data returned after the ability is destroyed. You can define the data returned.
-     * This parameter can be null.
+     * @param want Indicates the data returned after the ability is destroyed. You can define the data returned. This
+     * parameter can be null.
      */
     void SendResult(int requestCode, int resultCode, const Want &resultData) override;
 
@@ -183,7 +191,7 @@ public:
     int OpenFile(const Uri &uri, const std::string &mode) override;
 
     /**
-     * @brief This is like openFile, open a file that need to be able to return sub-sections of files that often assets
+     * @brief This is like openFile, open a file that need to be able to return sub-sections of files��often assets
      * inside of their .hap.
      * @param uri Indicates the path of the file to open.
      * @param mode Indicates the file open mode, which can be "r" for read-only access, "w" for write-only access
@@ -204,7 +212,6 @@ public:
 
     /**
      * @brief Calls the method of the Data ability.
-     * @param uri Indicates the path of the data to operate.
      * @param method Indicates the method to call
      * @param arg Indicates the parameter of the String type.
      * @param pacMap Defines a PacMap object for storing a series of values.
@@ -220,8 +227,8 @@ public:
      * @param predicates Indicates filter criteria. You should define the processing logic when this parameter is null.
      * @return Returns the number of data records updated.
      */
-    int Update(
-        const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates) override;
+    int Update(const Uri &uri, const NativeRdb::ValuesBucket &value,
+        const NativeRdb::DataAbilityPredicates &predicates) override;
 
     /**
      * @brief Deletes one or more data records from the database.
@@ -257,7 +264,7 @@ public:
      * processes, you must call BasePacMap.setClassLoader(ClassLoader) to set a class loader for the custom object.
      * @return Returns true if the data is successfully reloaded; returns false otherwise.
      */
-    bool Reload(const Uri &uri, const PacMap &extras) override;
+    bool Reload(const Uri &uri, const AppExecFwk::PacMap &extras) override;
 
     /**
      * @brief Inserts multiple data records into the database.
@@ -279,6 +286,12 @@ public:
      * @param result: Continuation result
      */
     void NotifyContinuationResult(int32_t result) override;
+
+    /**
+     * @brief notify this ability current memory level.
+     * @param level Current memory level
+     */
+    void NotifyMemoryLevel(int32_t level) override;
 
     /**
      * @brief Converts the given uri that refer to the Data ability into a normalized URI. A normalized URI can be used
@@ -325,7 +338,7 @@ public:
 
     /**
      * @brief Dump ability runner info.
-     * @param params Indicates the params
+     * @param params the params need to be Dumped
      * @param info ability runner info.
      */
     void DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info) override;
@@ -336,23 +349,219 @@ public:
     void CallRequest() override;
 
     /**
-     * @brief Execute Batch
-     * @param operations Indicates the operations
+     * @brief Performs batch operations on the database
+     * @param operations Indicates a list of database operations on the database.
+     * @return Returns the result of each operation, in array.
      */
     std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> ExecuteBatch(
         const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> &operations) override;
 
-#ifdef ABILITY_COMMAND_FOR_TEST
+private:
     /**
-     * @brief Block ability.
-     * @return Returns ERR_OK on success, others on failure.
+     * @brief Dump Ability Runner info.
+     * @param params the params need to be Dumped
+     * @param info ability runner info
      */
-    int BlockAbility() override;
-#endif
-    sptr<IRemoteObject> token_;
-    std::shared_ptr<AbilityHandler> abilityHandler_ = nullptr;
-    std::shared_ptr<EventRunner> runner_ = nullptr;
+    void DumpAbilityInfoInner(const std::vector<std::string> &params, std::vector<std::string> &info);
+
+    /**
+     * @brief Dump other Ability Runner info.
+     * @param info ability runner info
+     */
+    void DumpOtherInfo(std::vector<std::string> &info);
+
+    /**
+     * @brief To continue attaching The ability thread to the main process.
+     * @param application Indicates the main process.
+     * @param abilityRecord current running ability record
+     * @param stageContext the AbilityRuntime context
+     */
+    void AttachInner(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+        const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
+        const std::shared_ptr<Context> &stageContext);
+
+    /**
+     * @brief Create the abilityname.
+     * @param abilityRecord current running ability record
+     * @param application Indicates the application.
+     * @return Returns the abilityname.
+     */
+    std::string CreateAbilityName(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
+        std::shared_ptr<AppExecFwk::OHOSApplication> &application);
+
+    /**
+     * @brief Create the extension abilityname.
+     * @param application Indicates the application.
+     * @param abilityInfo Indicates the abilityInfo.
+     * @param abilityName Indicates the parameter about abilityName.
+     */
+    void CreateExtensionAbilityName(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+        const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo, std::string &abilityName);
+
+    /**
+     * @brief Create the extension abilityname which support graphics.
+     * @param abilityInfo Indicates the abilityInfo.
+     * @param abilityName Indicates the parameter about abilityName.
+     */
+    void CreateExtensionAbilityNameSupportGraphics(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
+        std::string &abilityName);
+
+    /**
+     * @brief Create and init contextDeal.
+     * @param application Indicates the main process.
+     * @param abilityRecord current running ability record
+     * @param abilityObject Indicates the abilityObject.
+     * @return Returns the contextDeal.
+     */
+    std::shared_ptr<AppExecFwk::ContextDeal> CreateAndInitContextDeal(
+        std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+        const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
+        const std::shared_ptr<AppExecFwk::AbilityContext> &abilityObject);
+
+    /**
+     * @brief Handle the life cycle of Ability.
+     * @param want Indicates the structure containing lifecycle information about the ability.
+     * @param lifeCycleStateInfo Indicates the lifeCycleStateInfo.
+     * @param sessionInfo Indicates the sessionInfo.
+     */
+    void HandleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
+        sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr);
+
+    /**
+     * @brief Handle the life cycle of Extension.
+     * @param want Indicates the structure containing lifecycle information about the extension.
+     * @param lifeCycleStateInfo Indicates the lifeCycleStateInfo.
+     * @param sessionInfo Indicates the sessionInfo.
+     */
+    void HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
+        sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr);
+
+    /**
+     * @brief Handle the current connection of Ability.
+     * @param want Indicates the structure containing connection information about the ability.
+     */
+    void HandleConnectAbility(const Want &want);
+
+    /**
+     * @brief Handle the current disconnection of Ability.
+     * @param want Indicates the structure containing connection information about the ability.
+     */
+    void HandleDisconnectAbility(const Want &want);
+
+    /**
+     * @brief Handle the current command of Ability.
+     * @param want The Want object to command to.
+     * @param restart Indicates the startup mode. The value true indicates that Service is restarted after being
+     * destroyed, and the value false indicates a normal startup.
+     * @param startId Indicates the number of times the Service ability has been started. The startId is incremented by
+     * 1 every time the ability is started. For example, if the ability has been started for six times, the value of
+     * startId is 6.
+     */
+    void HandleCommandAbility(const Want &want, bool restart, int32_t startId);
+
+    /**
+     * @brief Handle the current connection of Extension.
+     * @param want Indicates the structure containing connection information about the extension.
+     */
+    void HandleConnectExtension(const Want &want);
+
+    /**
+     * @brief Handle the current disconnection of Extension.
+     * @param want Indicates the structure containing connection information about the extension.
+     */
+    void HandleDisconnectExtension(const Want &want);
+
+    /**
+     * @brief Handle the current command of Extension.
+     * @param want The Want object to command to.
+     * @param restart Indicates the startup mode. The value true indicates that Service is restarted after being
+     * destroyed, and the value false indicates a normal startup.
+     * @param startId Indicates the number of times the Service extension has been started. The startId is incremented
+     * by 1 every time the extension is started. For example, if the extension has been started for six times, the
+     * value of startId is 6.
+     */
+    void HandleCommandExtension(const Want &want, bool restart, int32_t startId);
+
+    /**
+     * @brief Handle Command Extension Window
+     * @param want The Want object to command to.
+     * @param sessionInfo Indicates the sessionInfo
+     * @param winCmd Indicates the winCmd
+     */
+    void HandleCommandExtensionWindow(
+        const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd);
+
+    /**
+     * @brief Handle the restoreAbility state.
+     * @param state Indicates save ability state used to dispatchRestoreAbilityState.
+     */
+    void HandleRestoreAbilityState(const AppExecFwk::PacMap &state);
+
+    /**
+     * @brief Handle the scheduling update configuration
+     * @param config Indicates the updated configuration information
+     */
+    void HandleUpdateConfiguration(const AppExecFwk::Configuration &config);
+
+    /**
+     * @brief Handle the scheduling update configuration of extension.
+     * @param config Indicates the updated configuration information
+     */
+    void HandleExtensionUpdateConfiguration(const AppExecFwk::Configuration &config);
+
+    /**
+     * @brief Handle the scheduling prepare terminate ability.
+     */
+    void HandlePrepareTermianteAbility();
+
+    /**
+     * @brief Provide operating system ShareData information to the observer
+     * @param requestCode Indicates the Ability request code.
+     */
+    void HandleShareData(const int32_t &requestCode);
+
+    /**
+     * @brief Registers an observer to DataObsMgr specified by the given Uri.
+     * @param uri Indicates the path of the data to operate.
+     * @param dataObserver Indicates the IDataAbilityObserver object.
+     * @return The operation succeeded or failed. Procedure
+     */
+    bool HandleRegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver);
+
+    /**
+     * @brief Deregisters an observer used for DataObsMgr specified by the given Uri.
+     * @param uri Indicates the path of the data to operate.
+     * @param dataObserver Indicates the IDataAbilityObserver object.
+     */
+    bool HandleUnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver);
+
+    /**
+     * @brief Notifies the registered observers of a change to the data resource specified by Uri.
+     * @param uri Indicates the path of the data to operate.
+     */
+    bool HandleNotifyChange(const Uri &uri);
+
+    /**
+     * @brief Build Ability Context
+     * @param abilityInfo Indicate the Ability information.
+     * @param application Indicates the main process.
+     * @param token the remote token
+     * @param stageContext Indicates the stage of Context
+     */
+    std::shared_ptr<AbilityContext> BuildAbilityContext(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
+        const std::shared_ptr<AppExecFwk::OHOSApplication> &application, const sptr<IRemoteObject> &token,
+        const std::shared_ptr<Context> &stageContext);
+
+    std::shared_ptr<AppExecFwk::AbilityImpl> abilityImpl_;
+    std::shared_ptr<AppExecFwk::Ability> currentAbility_;
+    std::shared_ptr<ExtensionImpl> extensionImpl_;
+    std::shared_ptr<Extension> currentExtension_;
+    bool isExtension_ = false;
+    bool isPrepareTerminate_ = false;
+    std::atomic_bool isPrepareTerminateAbilityDone_ = false;
+    std::mutex mutex_;
+    std::condition_variable cv_;
 };
-} // namespace AppExecFwk
+} // namespace AbilityRuntime
 } // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_ABILITY_THREAD_H
+#endif // OHOS_ABILITY_RUNTIME_FA_ABILITY_THREAD_H
