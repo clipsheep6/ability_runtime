@@ -279,7 +279,7 @@ bool UriPermissionRdb::QueryData(const NativeRdb::AbsRdbPredicates &absRdbPredic
 bool UriPermissionRdb::InsertData(const std::vector<RdbGrantInfo> &rdbGrantInfoList)
 {
     std::vector<NativeRdb::ValuesBucket> valuesBuckets;
-    int64_t grantInfoNum = rdbGrantInfoList.size();
+    int64_t grantInfoNum = static_cast<int64_t>(rdbGrantInfoList.size());
     for (int i = 0; i < grantInfoNum; i++) {
         NativeRdb::ValuesBucket valuesBucket;
         valuesBucket.PutString(COLUMN_URI, rdbGrantInfoList[i].uri);

@@ -52,7 +52,7 @@ private:
 private:
     void CallJsMethod(const std::string &methodName, int32_t missionId);
     void CallJsMethodInner(const std::string &methodName, int32_t missionId);
-    void CallJsFunction(NativeValue* value, const char* methodName, NativeValue* const* argv, size_t argc);
+    void CallJsFunction(NativeValue* value, const char* methodName, NativeValue* const *argv, size_t argc);
 
     NativeEngine* engine_ = nullptr;
     std::map<int32_t, std::shared_ptr<NativeReference>> jsListenerObjectMap_;
