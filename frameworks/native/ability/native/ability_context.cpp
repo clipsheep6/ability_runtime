@@ -85,6 +85,10 @@ ErrCode AbilityContext::TerminateAbility()
         case AppExecFwk::AbilityType::PAGE:
             HILOG_DEBUG("Terminate ability begin, type is page, ability is %{public}s.", info->name.c_str());
             if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+                if (sessionInfo_ == nullptr) {
+                    HILOG_ERROR("sessionInfo_ is nullptr.");
+                    return ERR_INVALID_VALUE;
+                }
                 auto sessionToken = sessionInfo_->sessionToken;
                 if (sessionToken == nullptr) {
                     HILOG_ERROR("sessionToken is nullptr.");

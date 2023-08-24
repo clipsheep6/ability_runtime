@@ -4074,8 +4074,8 @@ void AbilityManagerService::DumpMissionListInner(const std::string &args, std::v
 void AbilityManagerService::DumpMissionInfosInner(const std::string &args, std::vector<std::string> &info)
 {
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        HILOG_INFO("Support by scb, not ability server.");
-        // notify wms
+        HILOG_INFO("call");
+        Rosen::WindowManager::GetInstance().DumpSessionAll(info);
         return;
     }
     if (currentMissionListManager_) {
@@ -4085,12 +4085,6 @@ void AbilityManagerService::DumpMissionInfosInner(const std::string &args, std::
 
 void AbilityManagerService::DumpMissionInner(const std::string &args, std::vector<std::string> &info)
 {
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        HILOG_INFO("Support by scb, not ability server.");
-        // notify wms missionInfo
-        return;
-    }
-    CHECK_POINTER_LOG(currentMissionListManager_, "Current mission manager not init.");
     std::vector<std::string> argList;
     SplitStr(args, " ", argList);
     if (argList.empty()) {
@@ -4102,6 +4096,14 @@ void AbilityManagerService::DumpMissionInner(const std::string &args, std::vecto
     }
     int missionId = DEFAULT_INVAL_VALUE;
     (void)StrToInt(argList[1], missionId);
+
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        HILOG_INFO("call");
+        Rosen::WindowManager::GetInstance().DumpSessionWithId(missionId, info);
+        return;
+    }
+
+    CHECK_POINTER_LOG(currentMissionListManager_, "Current mission manager not init.");
     currentMissionListManager_->DumpMission(missionId, info);
 }
 
