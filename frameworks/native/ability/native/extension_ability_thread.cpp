@@ -92,6 +92,7 @@ std::string ExtensionAbilityThread::CreateAbilityName(
 #endif
     CreateExtensionAbilityName(abilityInfo, abilityName);
     HILOG_DEBUG("abilityName:%{public}s", abilityName.c_str());
+	return abilityName;
 }
 
 void ExtensionAbilityThread::CreateExtensionAbilityName(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo, 
