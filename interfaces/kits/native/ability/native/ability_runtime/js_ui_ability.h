@@ -164,7 +164,6 @@ public:
 
 #ifdef SUPPORT_GRAPHICS
 public:
-
     /**
      * @brief Called after instantiating WindowScene.
      * You can override this function to implement your own processing logic.
@@ -242,6 +241,11 @@ private:
     std::unique_ptr<NativeReference> CreateAppWindowStage();
     std::shared_ptr<AppExecFwk::ADelegatorAbilityProperty> CreateADelegatorAbilityProperty();
     sptr<IRemoteObject> SetNewRuleFlagToCallee(NativeEngine &nativeEngine, NativeValue *remoteJsObj);
+    void SetAbilityContext(
+        const std::shared_ptr<AbilityInfo> &abilityInfo, const std::string &moduleName, const std::string &srcPath);
+    void DoOnForegroundForSceneIsNull(const Want &want);
+    void GetDumpInfo(
+        NativeEngine &nativeEngine, NativeValue *dumpInfo, NativeValue *onDumpInfo, std::vector<std::string> &info);
 
     JsRuntime &jsRuntime_;
     std::shared_ptr<NativeReference> shellContextRef_;

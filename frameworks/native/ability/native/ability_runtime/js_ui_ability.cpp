@@ -161,22 +161,25 @@ void JsUIAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     std::string moduleName(abilityInfo->moduleName);
     moduleName.append("::").append(abilityInfo->name);
 
+    SetAbilityContext(abilityInfo, moduleName, srcPath);
+}
+
+void JsUIAbility::SetAbilityContext(
+    const std::shared_ptr<AbilityInfo> &abilityInfo, const std::string &moduleName, const std::string &srcPath)
+{
     HandleScope handleScope(jsRuntime_);
     auto &engine = jsRuntime_.GetNativeEngine();
-
     jsAbilityObj_ = jsRuntime_.LoadModule(
         moduleName, srcPath, abilityInfo->hapPath, abilityInfo->compileMode == AppExecFwk::CompileMode::ES_MODULE);
     if (jsAbilityObj_ == nullptr) {
         HILOG_ERROR("Failed to get AbilityStage object");
         return;
     }
-
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(jsAbilityObj_->Get());
     if (obj == nullptr) {
         HILOG_ERROR("Failed to convert AbilityStage object");
         return;
     }
-
     auto context = GetAbilityContext();
     if (context == nullptr) {
         HILOG_ERROR("invalid context");
@@ -190,7 +193,6 @@ void JsUIAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
         HILOG_ERROR("shellContextRef_ is nullptr");
         return;
     }
-
     contextObj = shellContextRef_->Get();
     auto nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
     if (nativeObj == nullptr) {
@@ -201,8 +203,6 @@ void JsUIAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachJsAbilityContext, workContext, nullptr);
     context->Bind(jsRuntime_, shellContextRef_.get());
     obj->SetProperty("context", contextObj);
-    HILOG_DEBUG("Set ability context");
-
     if (abilityRecovery_ != nullptr) {
         abilityRecovery_->SetJsAbility(reinterpret_cast<uintptr_t>(workContext));
     }
@@ -630,42 +630,7 @@ void JsUIAbility::DoOnForeground(const Want &want)
             HILOG_ERROR("abilityContext_ or sceneListener_ is nullptr");
             return;
         }
-        scene_ = std::make_shared<Rosen::WindowScene>();
-        int32_t displayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
-        if (setting_ != nullptr) {
-            std::string strDisplayId =
-                setting_->GetProperty(OHOS::AppExecFwk::AbilityStartSetting::WINDOW_DISPLAY_ID_KEY);
-            std::regex formatRegex("[0-9]{0,9}$");
-            std::smatch sm;
-            bool flag = std::regex_match(strDisplayId, sm, formatRegex);
-            if (flag && !strDisplayId.empty()) {
-                int base = 10; // Numerical base (radix) that determines the valid characters and their interpretation.
-                displayId = strtol(strDisplayId.c_str(), nullptr, base);
-                HILOG_DEBUG("Success displayId is %{public}d", displayId);
-            } else {
-                HILOG_WARN("Failed to formatRegex:[%{public}s]", strDisplayId.c_str());
-            }
-        }
-        auto option = GetWindowOption(want);
-        Rosen::WMError ret = Rosen::WMError::WM_OK;
-        if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && sessionInfo_ != nullptr) {
-            abilityContext_->SetWeakSessionToken(sessionInfo_->sessionToken);
-            ret = scene_->Init(displayId, abilityContext_, sceneListener_, option, sessionInfo_->sessionToken);
-        } else {
-            ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);
-        }
-        if (ret != Rosen::WMError::WM_OK) {
-            HILOG_ERROR("Failed to init window scene");
-            return;
-        }
-
-        AbilityContinuationOrRecover(want);
-        auto window = scene_->GetMainWindow();
-        if (window) {
-            HILOG_DEBUG("Call RegisterDisplayMoveListener, windowId: %{public}d", window->GetWindowId());
-            abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weak_from_this());
-            window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
-        }
+        DoOnForegroundForSceneIsNull(want);
     } else {
         auto window = scene_->GetMainWindow();
         if (window != nullptr && want.HasParameter(Want::PARAM_RESV_WINDOW_MODE)) {
@@ -684,6 +649,45 @@ void JsUIAbility::DoOnForeground(const Want &want)
     HILOG_DEBUG("begin sceneFlag_:%{public}d", UIAbility::sceneFlag_);
     scene_->GoForeground(UIAbility::sceneFlag_);
     HILOG_DEBUG("end");
+}
+
+void JsUIAbility::DoOnForegroundForSceneIsNull(const Want &want)
+{
+    scene_ = std::make_shared<Rosen::WindowScene>();
+    int32_t displayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
+    if (setting_ != nullptr) {
+        std::string strDisplayId = setting_->GetProperty(OHOS::AppExecFwk::AbilityStartSetting::WINDOW_DISPLAY_ID_KEY);
+        std::regex formatRegex("[0-9]{0,9}$");
+        std::smatch sm;
+        bool flag = std::regex_match(strDisplayId, sm, formatRegex);
+        if (flag && !strDisplayId.empty()) {
+            int base = 10; // Numerical base (radix) that determines the valid characters and their interpretation.
+            displayId = strtol(strDisplayId.c_str(), nullptr, base);
+            HILOG_DEBUG("Success displayId is %{public}d", displayId);
+        } else {
+            HILOG_WARN("Failed to formatRegex:[%{public}s]", strDisplayId.c_str());
+        }
+    }
+    auto option = GetWindowOption(want);
+    Rosen::WMError ret = Rosen::WMError::WM_OK;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && sessionInfo_ != nullptr) {
+        abilityContext_->SetWeakSessionToken(sessionInfo_->sessionToken);
+        ret = scene_->Init(displayId, abilityContext_, sceneListener_, option, sessionInfo_->sessionToken);
+    } else {
+        ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);
+    }
+    if (ret != Rosen::WMError::WM_OK) {
+        HILOG_ERROR("Failed to init window scene");
+        return;
+    }
+
+    AbilityContinuationOrRecover(want);
+    auto window = scene_->GetMainWindow();
+    if (window) {
+        HILOG_DEBUG("Call RegisterDisplayMoveListener, windowId: %{public}d", window->GetWindowId());
+        abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weak_from_this());
+        window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
+    }
 }
 
 void JsUIAbility::RequestFocus(const Want &want)
@@ -1088,6 +1092,13 @@ void JsUIAbility::Dump(const std::vector<std::string> &params, std::vector<std::
         onDumpInfo = nativeEngine.CallFunction(value, onDumpMethod, argv, 1);
     }
 
+    GetDumpInfo(nativeEngine, dumpInfo, onDumpInfo, info);
+    HILOG_DEBUG("Dump info size: %{public}zu", info.size());
+}
+
+void JsUIAbility::GetDumpInfo(
+    NativeEngine &nativeEngine, NativeValue *dumpInfo, NativeValue *onDumpInfo, std::vector<std::string> &info)
+{
     NativeArray *dumpInfoNative = nullptr;
     if (dumpInfo != nullptr) {
         dumpInfoNative = ConvertNativeValueTo<NativeArray>(dumpInfo);
@@ -1119,8 +1130,6 @@ void JsUIAbility::Dump(const std::vector<std::string> &params, std::vector<std::
             info.push_back(dumpInfoStr);
         }
     }
-
-    HILOG_DEBUG("Dump info size: %{public}zu", info.size());
 }
 
 std::shared_ptr<NativeReference> JsUIAbility::GetJsAbility()
