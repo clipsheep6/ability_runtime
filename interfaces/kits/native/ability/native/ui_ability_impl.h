@@ -140,7 +140,15 @@ public:
 
 #ifdef SUPPORT_GRAPHICS
 public:
+
+    /**
+     * @brief Notify caller that window is UnFocused.
+     */
     void AfterUnFocused();
+
+    /**
+     * @brief Notify caller that window is Focused.
+     */
     void AfterFocused();
 
 protected:
