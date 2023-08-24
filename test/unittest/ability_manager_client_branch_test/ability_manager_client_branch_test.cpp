@@ -455,6 +455,7 @@ HWTEST_F(AbilityManagerClientBranchTest, CleanMission_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityManagerClientBranchTest, CleanAllMissions_0100, TestSize.Level1)
 {
+    EXPECT_TRUE(client_ != nullptr);
     auto result = client_->CleanAllMissions();
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         EXPECT_EQ(result, ERR_OK);
@@ -1484,6 +1485,18 @@ HWTEST_F(AbilityManagerClientBranchTest, NotifySaveAsResult_0100, TestSize.Level
     Want want;
     auto result = AbilityManagerClient::GetInstance()->NotifySaveAsResult(want, 0, 0);
     EXPECT_EQ(result, ERR_INVALID_CALLER);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_RegisterSessionHandler_0100
+ * @tc.desc: RegisterSessionHandler
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, RegisterSessionHandler_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    auto result = client_->RegisterSessionHandler(token);
+    EXPECT_EQ(ERR_OK, result);
 }
 
 }  // namespace AAFwk
