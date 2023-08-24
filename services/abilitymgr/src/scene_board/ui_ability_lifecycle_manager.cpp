@@ -199,7 +199,7 @@ int UIAbilityLifecycleManager::NotifySCBToStartUIAbility(const AbilityRequest &a
     sessionInfo->requestCode = abilityRequest.requestCode;
     sessionInfo->persistentId = GetPersistentIdByAbilityRequest(abilityRequest, sessionInfo->reuse, userId);
     sessionInfo->userId = userId;
-    HILOG_INFO("Reused sessionId: %{public}d, userId: %{public}d.",sessionInfo->persistentId, userId);
+    HILOG_INFO("Reused sessionId: %{public}d, userId: %{public}d.", sessionInfo->persistentId, userId);
     return NotifySCBPendingActivation(sessionInfo, abilityRequest);
 }
 
