@@ -60,8 +60,10 @@
 #include "recovery_param.h"
 #include "sa_mgr_client.h"
 #include "scene_board_judgement.h"
+#include "session_info.h"
 #include "softbus_bus_center.h"
 #include "start_ability_handler/start_ability_sandbox_savefile.h"
+#include "start_options.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
 #include "system_ability_token_callback.h"
@@ -454,6 +456,62 @@ int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObje
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
     }
     return ret;
+}
+
+int AbilityManagerService::StartAbilityByUIContentSession(const Want &want, const sptr<IRemoteObject> &callerToken,
+    const sptr<SessionInfo> &sessionInfo, int32_t userId, int requestCode)
+{
+    sptr<IRemoteObject> token;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        Rosen::FocusChangeInfo focusChangeInfo;
+        Rosen::WindowManager::GetInstance().GetFocusWindowInfo(focusChangeInfo);
+        token = focusChangeInfo.abilityToken_;
+    } else {
+        if (!wmsHandler_) {
+            HILOG_ERROR("wmsHandler_ is nullptr.");
+            return ERR_INVALID_VALUE;
+        }
+        wmsHandler_->GetFocusWindow(token);
+    }
+
+    if (!token) {
+        HILOG_ERROR("token is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (token != sessionInfo->callerToken) {
+        HILOG_ERROR("callerToken is not equal to top ablity token");
+        return NOT_TOP_ABILITY;
+    }
+    return StartAbility(want, callerToken, userId, requestCode);
+}
+
+int AbilityManagerService::StartAbilityByUIContentSession(const Want &want, const StartOptions &startOptions,
+    const sptr<IRemoteObject> &callerToken, const sptr<SessionInfo> &sessionInfo, int32_t userId, int requestCode)
+{
+    sptr<IRemoteObject> token;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        Rosen::FocusChangeInfo focusChangeInfo;
+        Rosen::WindowManager::GetInstance().GetFocusWindowInfo(focusChangeInfo);
+        token = focusChangeInfo.abilityToken_;
+    } else {
+        if (!wmsHandler_) {
+            HILOG_ERROR("wmsHandler_ is nullptr.");
+            return ERR_INVALID_VALUE;
+        }
+        wmsHandler_->GetFocusWindow(token);
+    }
+
+    if (!token) {
+        HILOG_ERROR("token is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (token != sessionInfo->callerToken) {
+        HILOG_ERROR("callerToken is not equal to top ablity token");
+        return NOT_TOP_ABILITY;
+    }
+    return StartAbility(want, startOptions, callerToken, userId, requestCode);
 }
 
 int AbilityManagerService::StartAbilityAsCaller(const Want &want, const sptr<IRemoteObject> &callerToken,

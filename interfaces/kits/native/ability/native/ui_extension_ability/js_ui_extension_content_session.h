@@ -17,22 +17,50 @@
 #define OHOS_ABILITY_RUNTIME_JS_UI_EXTENSION_CONTENT_SESSION_H
 
 #include "native_engine/native_engine.h"
+#include "js_free_install_observer.h"
+#include "js_runtime_utils.h"
+#include "js_ui_extension.h"
 #include "session_info.h"
+#include "start_options.h"
 #include "window.h"
+
 
 namespace OHOS {
 namespace AbilityRuntime {
+using RuntimeTask = std::function<void(int, const AAFwk::Want&, bool)>;
+
+class UISessionAbilityResultListener : public AbilityResultListener {
+public:
+    UISessionAbilityResultListener() = default;
+    virtual ~UISessionAbilityResultListener() = default;
+    virtual void OnAbilityResult(int requestCode, int resultCode, const Want &resultData);
+    virtual bool IsMatch(int requestCode);
+    void OnAbilityResultInner(int requestCode, int resultCode, const Want &resultData);
+    void SaveResultCallbacks(int requestCode, RuntimeTask&& task);
+private:
+    std::map<int, RuntimeTask> resultCallbacks_;
+};
+
 class JsUIExtensionContentSession {
 private:
     class CallbackWrapper;
 public:
     JsUIExtensionContentSession(NativeEngine& engine, sptr<AAFwk::SessionInfo> sessionInfo,
+        sptr<Rosen::Window> uiWindow, std::weak_ptr<AbilityRuntime::Context>& context,
+        std::shared_ptr<AbilityResultListeners>& abilityResultListeners);
+    JsUIExtensionContentSession(NativeEngine& engine, sptr<AAFwk::SessionInfo> sessionInfo,
         sptr<Rosen::Window> uiWindow);
     virtual ~JsUIExtensionContentSession() = default;
     static void Finalizer(NativeEngine* engine, void* data, void* hint);
     static NativeValue* CreateJsUIExtensionContentSession(NativeEngine& engine,
+        sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow,
+        std::weak_ptr<AbilityRuntime::Context> context,
+        std::shared_ptr<AbilityResultListeners>& abilityResultListeners);
+    static NativeValue* CreateJsUIExtensionContentSession(NativeEngine& engine,
         sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow);
 
+    static NativeValue* StartAbility(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* StartAbilityForResult(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* TerminateSelf(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* TerminateSelfWithResult(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* SendData(NativeEngine* engine, NativeCallbackInfo* info);
@@ -42,6 +70,8 @@ public:
     static NativeValue* SetWindowPrivacyMode(NativeEngine* engine, NativeCallbackInfo* info);
 
 protected:
+    NativeValue* OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info);
+    NativeValue* OnStartAbilityForResult(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnTerminateSelf(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnTerminateSelfWithResult(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnSendData(NativeEngine& engine, NativeCallbackInfo& info);
@@ -53,12 +83,25 @@ protected:
     static void CallReceiveDataCallback(NativeEngine& engine, std::weak_ptr<CallbackWrapper> weakCallback,
         const AAFwk::WantParams& wantParams);
     static bool UnWrapAbilityResult(NativeEngine& engine, NativeValue* argv, int& resultCode, AAFwk::Want& want);
+    static NativeValue* WrapAbilityResult(NativeEngine& engine, const int& resultCode, const AAFwk::Want& want);
+    static NativeValue* WrapWant(NativeEngine& engine, const AAFwk::Want& want);
+    static bool UnWrapWant(NativeEngine& engine, NativeValue* argv, AAFwk::Want& want);
+    void AddFreeInstallObserver(NativeEngine& engine, const AAFwk::Want &want, NativeValue* callback,
+        bool isAbilityResult = false);
+    AsyncTask::ExecuteCallback StartAbilityExecuteCallback(AAFwk::Want& want, size_t& unwrapArgc,
+        NativeEngine& engine, NativeCallbackInfo &info, std::shared_ptr<int> &innerErrorCode);
+    void StartAbilityForResultRuntimeTask(NativeEngine& engine, AAFwk::Want &want,
+        std::shared_ptr<AsyncTask> asyncTask, size_t& unwrapArgc, AAFwk::StartOptions startOptions);
+    
 private:
     NativeEngine& engine_;
     sptr<AAFwk::SessionInfo> sessionInfo_;
     sptr<Rosen::Window> uiWindow_;
+    std::weak_ptr<AbilityRuntime::Context> context_;
     std::shared_ptr<CallbackWrapper> receiveDataCallback_;
     bool isRegistered = false;
+    std::shared_ptr<UISessionAbilityResultListener> listener_;
+    sptr<JsFreeInstallObserver> freeInstallObserver_ = nullptr;
 };
 
 class JsUIExtensionContentSession::CallbackWrapper {
