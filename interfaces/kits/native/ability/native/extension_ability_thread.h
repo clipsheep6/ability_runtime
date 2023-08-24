@@ -146,8 +146,7 @@ private:
      * @param abilityName abilityName Indicates the parameter about abilityName.
      */
     void CreateExtensionAbilityName(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo, 
-        std::string &abilityName)
-{
+        std::string &abilityName);
 
     /**
      * @brief Handle the life cycle of Extension.
