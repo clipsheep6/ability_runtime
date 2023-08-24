@@ -136,69 +136,82 @@ std::string FAAbilityThread::CreateAbilityName(const std::shared_ptr<AppExecFwk:
     } else if (abilityInfo->type == AppExecFwk::AbilityType::DATA) {
         abilityName = ACE_DATA_ABILITY_NAME;
     } else if (abilityInfo->type == AppExecFwk::AbilityType::EXTENSION) {
-        application->GetExtensionNameByType(static_cast<int32_t>(abilityInfo->extensionAbilityType), abilityName);
-        if (abilityName.length() > 0) {
-            HILOG_DEBUG("extension name: %{public}s", abilityName.c_str());
-            return abilityName;
-        }
-        abilityName = BASE_SERVICE_EXTENSION;
-#ifdef SUPPORT_GRAPHICS
-        if (abilityInfo->formEnabled || abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::FORM) {
-            abilityName = FORM_EXTENSION;
-        }
-#endif
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::STATICSUBSCRIBER) {
-            abilityName = STATIC_SUBSCRIBER_EXTENSION;
-        }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::DRIVER) {
-            abilityName = BASE_DRIVER_EXTENSION;
-        }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::DATASHARE) {
-            abilityName = DATA_SHARE_EXT_ABILITY;
-        }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::WORK_SCHEDULER) {
-            abilityName = WORK_SCHEDULER_EXTENSION;
-        }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ACCESSIBILITY) {
-            abilityName = ACCESSIBILITY_EXTENSION;
-        }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::WALLPAPER) {
-            abilityName = WALLPAPER_EXTENSION;
-        }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION) {
-            abilityName = FILEACCESS_EXT_ABILITY;
-        }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN) {
-            abilityName = ENTERPRISE_ADMIN_EXTENSION;
-        }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::INPUTMETHOD) {
-            abilityName = INPUTMETHOD_EXTENSION;
-        }
-        if (AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo->extensionAbilityType)) {
-            if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SHARE) {
-                abilityName = SHARE_EXTENSION;
-            } else if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ACTION) {
-                abilityName = ACTION_EXTENSION;
-            } else {
-                abilityName = UI_EXTENSION;
-            }
-        }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SYSPICKER_MEDIACONTROL) {
-            abilityName = MEDIA_CONTROL_EXTENSION;
-        }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::APP_ACCOUNT_AUTHORIZATION) {
-            abilityName = APP_ACCOUNT_AUTHORIZATION_EXTENSION;
-        }
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SYSDIALOG_USERAUTH) {
-            abilityName = USER_AUTH_EXTENSION;
-        }
-        HILOG_DEBUG("extension abilityName: %{public}s", abilityName.c_str());
+        CreateExtensionAbilityName(application, abilityInfo, abilityName);
     } else {
         abilityName = abilityInfo->name;
     }
 
     HILOG_DEBUG("ability name is %{public}s", abilityName.c_str());
     return abilityName;
+}
+
+void FAAbilityThread::CreateExtensionAbilityName(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+    const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo, std::string &abilityName)
+{
+    application->GetExtensionNameByType(static_cast<int32_t>(abilityInfo->extensionAbilityType), abilityName);
+    if (abilityName.length() > 0) {
+        HILOG_DEBUG("extension name: %{public}s", abilityName.c_str());
+        return;
+    }
+    abilityName = BASE_SERVICE_EXTENSION;
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::STATICSUBSCRIBER) {
+        abilityName = STATIC_SUBSCRIBER_EXTENSION;
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::DRIVER) {
+        abilityName = BASE_DRIVER_EXTENSION;
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::DATASHARE) {
+        abilityName = DATA_SHARE_EXT_ABILITY;
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::WORK_SCHEDULER) {
+        abilityName = WORK_SCHEDULER_EXTENSION;
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ACCESSIBILITY) {
+        abilityName = ACCESSIBILITY_EXTENSION;
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::WALLPAPER) {
+        abilityName = WALLPAPER_EXTENSION;
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION) {
+        abilityName = FILEACCESS_EXT_ABILITY;
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN) {
+        abilityName = ENTERPRISE_ADMIN_EXTENSION;
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::INPUTMETHOD) {
+        abilityName = INPUTMETHOD_EXTENSION;
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::APP_ACCOUNT_AUTHORIZATION) {
+        abilityName = APP_ACCOUNT_AUTHORIZATION_EXTENSION;
+    }
+    CreateExtensionAbilityNameSupportGraphics(abilityInfo, abilityName);
+    HILOG_DEBUG("extension abilityName: %{public}s", abilityName.c_str());
+}
+
+void FAAbilityThread::CreateExtensionAbilityNameSupportGraphics(
+    const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
+    std::string &abilityName)
+{
+#ifdef SUPPORT_GRAPHICS
+    if (abilityInfo->formEnabled || abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::FORM) {
+        abilityName = FORM_EXTENSION;
+    }
+#endif
+    if (AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo->extensionAbilityType)) {
+        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SHARE) {
+            abilityName = SHARE_EXTENSION;
+        } else if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ACTION) {
+            abilityName = ACTION_EXTENSION;
+        } else {
+            abilityName = UI_EXTENSION;
+        }
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SYSDIALOG_USERAUTH) {
+        abilityName = USER_AUTH_EXTENSION;
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SYSPICKER_MEDIACONTROL) {
+        abilityName = MEDIA_CONTROL_EXTENSION;
+    }
 }
 
 std::shared_ptr<AppExecFwk::ContextDeal> FAAbilityThread::CreateAndInitContextDeal(
@@ -235,7 +248,6 @@ void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
         HILOG_ERROR("application or abilityRecord or mainRunner is nullptr");
         return;
     }
-
     InitExtensionFlag(abilityRecord);
     if (isExtension_) {
         AttachExtension(application, abilityRecord, mainRunner);
@@ -262,7 +274,6 @@ void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
         HILOG_ERROR("ability is nullptr");
         return;
     }
-
     currentAbility_.reset(ability);
     token_ = abilityRecord->GetToken();
     abilityRecord->SetEventHandler(abilityHandler_);
@@ -272,11 +283,17 @@ void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
     std::shared_ptr<AppExecFwk::ContextDeal> contextDeal =
         CreateAndInitContextDeal(application, abilityRecord, abilityObject);
     ability->AttachBaseContext(contextDeal);
-
     // new hap requires
     ability->AttachAbilityContext(
         BuildAbilityContext(abilityRecord->GetAbilityInfo(), application, token_, stageContext));
 
+    AttachInner(application, abilityRecord, stageContext);
+}
+
+void FAAbilityThread::AttachInner(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+    const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
+    const std::shared_ptr<Context> &stageContext)
+{
     // 3.new abilityImpl
     abilityImpl_ = DelayedSingleton<AppExecFwk::AbilityImplFactory>::GetInstance()->MakeAbilityImplObject(
         abilityRecord->GetAbilityInfo());
@@ -403,7 +420,6 @@ void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
         HILOG_ERROR("application or abilityRecord is nullptr");
         return;
     }
-
     InitExtensionFlag(abilityRecord);
     if (isExtension_) {
         AttachExtension(application, abilityRecord);
@@ -430,7 +446,6 @@ void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
         HILOG_ERROR("ability is nullptr");
         return;
     }
-
     currentAbility_.reset(ability);
     token_ = abilityRecord->GetToken();
     abilityRecord->SetEventHandler(abilityHandler_);
@@ -440,26 +455,11 @@ void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
     std::shared_ptr<AppExecFwk::ContextDeal> contextDeal =
         CreateAndInitContextDeal(application, abilityRecord, abilityObject);
     ability->AttachBaseContext(contextDeal);
-
     // new hap requires
     ability->AttachAbilityContext(
         BuildAbilityContext(abilityRecord->GetAbilityInfo(), application, token_, stageContext));
 
-    // 3.new abilityImpl
-    abilityImpl_ = DelayedSingleton<AppExecFwk::AbilityImplFactory>::GetInstance()->MakeAbilityImplObject(
-        abilityRecord->GetAbilityInfo());
-    if (abilityImpl_ == nullptr) {
-        HILOG_ERROR("abilityImpl_ is nullptr");
-        return;
-    }
-    abilityImpl_->Init(application, abilityRecord, currentAbility_, abilityHandler_, token_);
-    // 4. ability attach : ipc
-    ErrCode err = AbilityManagerClient::GetInstance()->AttachAbilityThread(this, token_);
-    if (err != ERR_OK) {
-        HILOG_ERROR("err = %{public}d", err);
-        return;
-    }
-
+    AttachInner(application, abilityRecord, stageContext);
     HILOG_DEBUG("end");
 }
 
@@ -832,7 +832,7 @@ void FAAbilityThread::ScheduleDisconnectAbility(const Want &want)
     }
 }
 
-void FAAbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int32_t startId)
+void FAAbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int startId)
 {
     HILOG_DEBUG("begin. startId: %{public}d", startId);
     wptr<FAAbilityThread> weak = this;
@@ -945,7 +945,7 @@ void FAAbilityThread::ScheduleCommandAbilityWindow(
     HILOG_DEBUG("end");
 }
 
-void FAAbilityThread::SendResult(int32_t requestCode, int32_t resultCode, const Want &want)
+void FAAbilityThread::SendResult(int requestCode, int resultCode, const Want &want)
 {
     HILOG_DEBUG("begin");
     wptr<FAAbilityThread> weak = this;
@@ -995,7 +995,7 @@ std::vector<std::string> FAAbilityThread::GetFileTypes(const Uri &uri, const std
     return types;
 }
 
-int32_t FAAbilityThread::OpenFile(const Uri &uri, const std::string &mode)
+int FAAbilityThread::OpenFile(const Uri &uri, const std::string &mode)
 {
     HILOG_DEBUG("begin");
     int32_t fd = -1;
@@ -1009,7 +1009,7 @@ int32_t FAAbilityThread::OpenFile(const Uri &uri, const std::string &mode)
     return fd;
 }
 
-int32_t FAAbilityThread::OpenRawFile(const Uri &uri, const std::string &mode)
+int FAAbilityThread::OpenRawFile(const Uri &uri, const std::string &mode)
 {
     HILOG_DEBUG("begin");
     int32_t fd = -1;
@@ -1023,7 +1023,7 @@ int32_t FAAbilityThread::OpenRawFile(const Uri &uri, const std::string &mode)
     return fd;
 }
 
-int32_t FAAbilityThread::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
+int FAAbilityThread::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
 {
     HILOG_DEBUG("begin");
     int32_t index = -1;
@@ -1051,7 +1051,7 @@ std::shared_ptr<AppExecFwk::PacMap> FAAbilityThread::Call(
     return result;
 }
 
-int32_t FAAbilityThread::Update(
+int FAAbilityThread::Update(
     const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
 {
     HILOG_DEBUG("begin");
@@ -1066,7 +1066,7 @@ int32_t FAAbilityThread::Update(
     return index;
 }
 
-int32_t FAAbilityThread::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
+int FAAbilityThread::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
 {
     HILOG_DEBUG("begin");
     int32_t index = -1;
@@ -1121,7 +1121,7 @@ bool FAAbilityThread::Reload(const Uri &uri, const AppExecFwk::PacMap &extras)
     return ret;
 }
 
-int32_t FAAbilityThread::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
+int FAAbilityThread::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
 {
     HILOG_DEBUG("begin");
     int32_t ret = -1;
@@ -1275,10 +1275,6 @@ bool FAAbilityThread::HandleNotifyChange(const Uri &uri)
 bool FAAbilityThread::ScheduleRegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
     HILOG_DEBUG("called");
-    if (!CheckObsPermission()) {
-        HILOG_ERROR("CheckObsPermission failed");
-        return false;
-    }
 
     wptr<FAAbilityThread> weak = this;
     auto task = [weak, uri, dataObserver]() {
@@ -1305,10 +1301,6 @@ bool FAAbilityThread::ScheduleRegisterObserver(const Uri &uri, const sptr<AAFwk:
 bool FAAbilityThread::ScheduleUnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
     HILOG_DEBUG("called");
-    if (!CheckObsPermission()) {
-        HILOG_ERROR("CheckObsPermission failed");
-        return false;
-    }
 
     wptr<FAAbilityThread> weak = this;
     auto task = [weak, uri, dataObserver]() {
@@ -1335,10 +1327,6 @@ bool FAAbilityThread::ScheduleUnregisterObserver(const Uri &uri, const sptr<AAFw
 bool FAAbilityThread::ScheduleNotifyChange(const Uri &uri)
 {
     HILOG_DEBUG("called");
-    if (!CheckObsPermission()) {
-        HILOG_ERROR("CheckObsPermission failed");
-        return false;
-    }
 
     wptr<FAAbilityThread> weak = this;
     auto task = [weak, uri]() {

@@ -73,10 +73,8 @@ public:
     void ScheduleConnectAbility(const Want &want) override;
 
     /**
-     * @description: Provide operating system ConnectAbility information to the
-     * observer
-     * @param want Indicates the structure containing connect information about
-     * the ability.
+     * @description: Provide operating system ConnectAbility information to the observer
+     * @param want Indicates the structure containing connect information about the ability.
      */
     void ScheduleDisconnectAbility(const Want &want) override;
 
@@ -143,9 +141,17 @@ private:
         std::shared_ptr<AppExecFwk::OHOSApplication> &application);
 
     /**
+     * @brief Create the extension abilityname.
+     * @param abilityInfo abilityInfo Indicates the parameter about abilityInfo.
+     * @param abilityName abilityName Indicates the parameter about abilityName.
+     */
+    void CreateExtensionAbilityName(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo, 
+        std::string &abilityName)
+{
+
+    /**
      * @brief Handle the life cycle of Extension.
-     * @param want Indicates the structure containing lifecycle information about
-     * the extension.
+     * @param want Indicates the structure containing lifecycle information about the extension.
      * @param lifeCycleStateInfo  Indicates the lifecycle state.
      * @param sessionInfo Indicates the session info.
      */
@@ -154,8 +160,7 @@ private:
 
     /**
      * @brief Handle the current connection of Extension.
-     * @param want Indicates the structure containing connection information about
-     * the extension.
+     * @param want Indicates the structure containing connection information about the extension.
      */
     void HandleConnectExtension(const Want &want);
 

@@ -90,6 +90,13 @@ std::string ExtensionAbilityThread::CreateAbilityName(
         abilityName = FORM_EXTENSION;
     }
 #endif
+    CreateExtensionAbilityName(abilityInfo, abilityName);
+    HILOG_DEBUG("abilityName:%{public}s", abilityName.c_str());
+}
+
+void ExtensionAbilityThread::CreateExtensionAbilityName(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo, 
+    std::string &abilityName)
+{
     if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::STATICSUBSCRIBER) {
         abilityName = STATIC_SUBSCRIBER_EXTENSION;
     }
@@ -135,9 +142,6 @@ std::string ExtensionAbilityThread::CreateAbilityName(
     if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SYSDIALOG_USERAUTH) {
         abilityName = USER_AUTH_EXTENSION;
     }
-
-    HILOG_DEBUG("abilityName:%{public}s", abilityName.c_str());
-    return abilityName;
 }
 
 void ExtensionAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
@@ -329,7 +333,6 @@ void ExtensionAbilityThread::ScheduleUpdateConfiguration(const AppExecFwk::Confi
             HILOG_ERROR("abilityThread is nullptr");
             return;
         }
-
         abilityThread->HandleExtensionUpdateConfiguration(config);
     };
 
@@ -352,7 +355,6 @@ void ExtensionAbilityThread::HandleExtensionUpdateConfiguration(const AppExecFwk
         HILOG_ERROR("extensionImpl_ is nullptr");
         return;
     }
-
     extensionImpl_->ScheduleUpdateConfiguration(config);
     HILOG_DEBUG("end");
 }
@@ -527,7 +529,6 @@ void ExtensionAbilityThread::DumpAbilityInfo(const std::vector<std::string> &par
         HILOG_ERROR("abilityHandler_ is nullptr");
         return;
     }
-
     abilityHandler_->PostTask(task);
 }
 
