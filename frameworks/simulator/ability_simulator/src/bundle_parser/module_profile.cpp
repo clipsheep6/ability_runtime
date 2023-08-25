@@ -1716,50 +1716,9 @@ void SetInstallationFree(InnerModuleInfo &innerModuleInfo, BundleType bundleType
     }
 }
 
-bool ToInnerBundleInfo(const Profile::ModuleJson &moduleJson, InnerBundleInfo &innerBundleInfo)
+bool ParseExtensionInfo(const Profile::ModuleJson &moduleJson, InnerBundleInfo &innerBundleInfo,
+    TransformParam &transformParam)
 {
-    HILOG_DEBUG("transform ModuleJson to InnerBundleInfo");
-    if (!CheckBundleNameIsValid(moduleJson.app.bundleName) || !CheckModuleNameIsValid(moduleJson.module.name)) {
-        HILOG_ERROR("bundle name or module name is invalid");
-        return false;
-    }
-
-    TransformParam transformParam;
-
-    ApplicationInfo applicationInfo;
-    applicationInfo.isSystemApp = innerBundleInfo.GetAppType() == Constants::AppType::SYSTEM_APP;
-    transformParam.isSystemApp = applicationInfo.isSystemApp;
-    if (!ToApplicationInfo(moduleJson, transformParam, applicationInfo)) {
-        HILOG_ERROR("To applicationInfo failed");
-        return false;
-    }
-
-    InnerModuleInfo innerModuleInfo;
-    ToInnerModuleInfo(moduleJson, transformParam, innerModuleInfo);
-    SetInstallationFree(innerModuleInfo, applicationInfo.bundleType);
-
-    // handle abilities
-    bool findEntry = false;
-    for (const Profile::Ability &ability : moduleJson.module.abilities) {
-        AbilityInfo abilityInfo;
-        ToAbilityInfo(moduleJson, ability, transformParam, abilityInfo);
-        if (innerModuleInfo.mainAbility == abilityInfo.name) {
-            innerModuleInfo.icon = abilityInfo.iconPath;
-            innerModuleInfo.iconId = abilityInfo.iconId;
-            innerModuleInfo.label = abilityInfo.label;
-            innerModuleInfo.labelId = abilityInfo.labelId;
-        }
-        std::string key;
-        key.append(moduleJson.app.bundleName).append(".")
-            .append(moduleJson.module.name).append(".").append(abilityInfo.name);
-        innerModuleInfo.abilityKeys.emplace_back(key);
-        innerBundleInfo.InsertAbilitiesInfo(key, abilityInfo);
-        if (findEntry) {
-            continue;
-        }
-    }
-
-    // handle extensionAbilities
     for (const Profile::Extension &extension : moduleJson.module.extensionAbilities) {
         ExtensionAbilityInfo extensionInfo;
         if (!ToExtensionInfo(moduleJson, extension, transformParam, extensionInfo)) {
@@ -1779,6 +1738,46 @@ bool ToInnerBundleInfo(const Profile::ModuleJson &moduleJson, InnerBundleInfo &i
             .append(moduleJson.module.name).append(".").append(extension.name);
         innerModuleInfo.extensionKeys.emplace_back(key);
         innerBundleInfo.InsertExtensionInfo(key, extensionInfo);
+    }
+    return true;
+}
+
+bool ToInnerBundleInfo(const Profile::ModuleJson &moduleJson, InnerBundleInfo &innerBundleInfo)
+{
+    if (!CheckBundleNameIsValid(moduleJson.app.bundleName) || !CheckModuleNameIsValid(moduleJson.module.name)) {
+        return false;
+    }
+    TransformParam transformParam;
+    ApplicationInfo applicationInfo;
+    applicationInfo.isSystemApp = innerBundleInfo.GetAppType() == Constants::AppType::SYSTEM_APP;
+    transformParam.isSystemApp = applicationInfo.isSystemApp;
+    if (!ToApplicationInfo(moduleJson, transformParam, applicationInfo)) {
+        return false;
+    }
+    InnerModuleInfo innerModuleInfo;
+    ToInnerModuleInfo(moduleJson, transformParam, innerModuleInfo);
+    SetInstallationFree(innerModuleInfo, applicationInfo.bundleType);
+    bool findEntry = false;
+    for (const Profile::Ability &ability : moduleJson.module.abilities) {
+        AbilityInfo abilityInfo;
+        ToAbilityInfo(moduleJson, ability, transformParam, abilityInfo);
+        if (innerModuleInfo.mainAbility == abilityInfo.name) {
+            innerModuleInfo.icon = abilityInfo.iconPath;
+            innerModuleInfo.iconId = abilityInfo.iconId;
+            innerModuleInfo.label = abilityInfo.label;
+            innerModuleInfo.labelId = abilityInfo.labelId;
+        }
+        std::string key;
+        key.append(moduleJson.app.bundleName).append(".")
+            .append(moduleJson.module.name).append(".").append(abilityInfo.name);
+        innerModuleInfo.abilityKeys.emplace_back(key);
+        innerBundleInfo.InsertAbilitiesInfo(key, abilityInfo);
+        if (findEntry) {
+            continue;
+        }
+    }
+    if (!ParseExtensionInfo(moduleJson, innerBundleInfo, transformParam)) {
+        return false;
     }
     if (!findEntry && !transformParam.isPreInstallApp &&
         innerModuleInfo.distro.moduleType != Profile::MODULE_TYPE_SHARED) {
