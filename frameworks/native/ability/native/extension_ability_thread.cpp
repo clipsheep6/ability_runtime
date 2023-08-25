@@ -162,7 +162,7 @@ void ExtensionAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication>
         HILOG_ERROR("abilityName is empty");
         return;
     }
-    HILOG_DEBUG("begin, extension: %{public}s", abilityName.c_str);
+    HILOG_DEBUG("begin, extension: %{public}s", abilityName.c_str());
     abilityHandler_ = std::make_shared<AppExecFwk::AbilityHandler>(mainRunner);
     if (abilityHandler_ == nullptr) {
         HILOG_ERROR("abilityHandler_ is nullptr");
