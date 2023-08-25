@@ -540,12 +540,9 @@ std::string SourceMap::GetOriginalNames(std::shared_ptr<SourceMapData> targetMap
     }
     // adjust position of ^ in dump file
     if (posDiff < 0) {
-        int32_t flagPos = static_cast<int32_t>(lineBreakPos) + static_cast<int32_t>(errorPos);
-        if (lineBreakPos > 0 && errorPos > 0 && flagPos < 0) {
-            JSENV_LOG_W("Add overflow of sourceCode.");
-            return jsCode;
-        }
-        if (flagPos < static_cast<int32_t>(jsCode.length()) && jsCode[flagPos] == '^' && flagPos + posDiff - 1 > 0) {
+        uint32_t flagPos = lineBreakPos + errorPos;
+        if (flagPos < jsCode.length() && jsCode[flagPos] == '^' &&
+            static_cast<int32_t>(flagPos + posDiff - 1) > 0) {
             jsCode.erase(flagPos + posDiff - 1, -posDiff);
         }
     } else if (posDiff > 0) {
