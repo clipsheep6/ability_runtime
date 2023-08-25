@@ -83,7 +83,7 @@ uint32_t Base64CharToInt(char charCode)
     return DIGIT_NUM;
 };
 
-void SourceMap::Init(bool isModular, const std::string& hapPath)
+void SourceMap::Init(const std::string& hapPath, bool isModular)
 {
     isModular_ = isModular;
     hapPath_ = hapPath;

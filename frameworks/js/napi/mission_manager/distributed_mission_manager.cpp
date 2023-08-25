@@ -62,20 +62,6 @@ static int32_t ErrorCodeReturn(int32_t code)
             return PARAMETER_CHECK_FAILED;
         case REGISTER_REMOTE_MISSION_LISTENER_FAIL:
             return PARAMETER_CHECK_FAILED;
-        case ABILITY_SERVICE_NOT_CONNECTED:
-            return SYSTEM_WORK_ABNORMALLY;
-        case ERR_NULL_OBJECT:
-            return SYSTEM_WORK_ABNORMALLY;
-        case ERR_FLATTEN_OBJECT:
-            return SYSTEM_WORK_ABNORMALLY;
-        case GET_LOCAL_DEVICE_ERR:
-            return SYSTEM_WORK_ABNORMALLY;
-        case GET_REMOTE_DMS_FAIL:
-            return SYSTEM_WORK_ABNORMALLY;
-        case INNER_ERR:
-            return SYSTEM_WORK_ABNORMALLY;
-        case INVALID_REMOTE_PARAMETERS_ERR:
-            return SYSTEM_WORK_ABNORMALLY;
         case NO_MISSION_INFO_FOR_MISSION_ID:
             return NO_MISSION_INFO_FOR_MISSION_ID;
         case CONTINUE_REMOTE_UNINSTALLED_UNSUPPORT_FREEINSTALL:

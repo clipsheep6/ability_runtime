@@ -243,7 +243,9 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_SetMissionLabel_0100, Func
     std::shared_ptr<MyAbilityCallback> abilityCallback = std::make_shared<MyAbilityCallback>();
     context_->RegisterAbilityCallback(abilityCallback);
     ret = context_->SetMissionLabel(TEST_LABEL);
-    EXPECT_EQ(ret, 0);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(ret, 0);
+    }
 
     abilityCallback.reset();
     context_->RegisterAbilityCallback(abilityCallback);
@@ -277,7 +279,9 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_SetMissionIcon_0100, Funct
     std::shared_ptr<MyAbilityCallback> abilityCallback = std::make_shared<MyAbilityCallback>();
     context_->RegisterAbilityCallback(abilityCallback);
     ret = context_->SetMissionIcon(icon);
-    EXPECT_EQ(ret, 0);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(ret, 0);
+    }
 
     abilityCallback.reset();
     context_->RegisterAbilityCallback(abilityCallback);

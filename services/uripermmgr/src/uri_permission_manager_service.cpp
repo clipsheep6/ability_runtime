@@ -88,9 +88,6 @@ void UriPermissionManagerService::SelfClean()
             registerToService_ = false;
         }
     }
-    if (impl_ != nullptr) {
-        impl_->Stop();
-    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS

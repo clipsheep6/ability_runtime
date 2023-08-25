@@ -352,6 +352,12 @@ NativeValue* JsAbilityContext::OnStartAbilityAsCaller(NativeEngine& engine, Nati
 
 NativeValue* JsAbilityContext::OnStartAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info)
 {
+    auto selfToken = IPCSkeleton::GetSelfTokenID();
+    if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
+        HILOG_ERROR("This application is not system-app, can not use system-api");
+        ThrowError(engine, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
+        return engine.CreateUndefined();
+    }
     if (info.argc < ARGC_TWO) {
         ThrowTooFewParametersError(engine);
         return engine.CreateUndefined();
@@ -468,8 +474,6 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
         lastParam = info.argv[ARGC_TWO];
     }
 
-    calls->callerCallBack = std::make_shared<CallerCallBack>();
-
     auto callBackDone = [calldata = calls] (const sptr<IRemoteObject> &obj) {
         HILOG_DEBUG("OnStartAbilityByCall callBackDone mutexlock");
         std::unique_lock<std::mutex> lock(calldata->mutexlock);
@@ -498,17 +502,18 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
         HILOG_DEBUG("OnStartAbilityByCall callExecute end");
     };
 
-    auto callComplete = [weak = context_, calldata = calls] (
+    auto callerCallBack = std::make_shared<CallerCallBack>();
+    auto callComplete = [weak = context_, calldata = calls, callerCallBack] (
         NativeEngine& engine, AsyncTask& task, int32_t status) {
         if (calldata->err != 0) {
             HILOG_ERROR("OnStartAbilityByCall callComplete err is %{public}d", calldata->err);
             task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
-            ClearFailedCallConnection(weak, calldata->callerCallBack);
+            ClearFailedCallConnection(weak, callerCallBack);
             return;
         }
 
         auto context = weak.lock();
-        if (context != nullptr && calldata->callerCallBack != nullptr && calldata->remoteCallee != nullptr) {
+        if (context != nullptr && callerCallBack != nullptr && calldata->remoteCallee != nullptr) {
             auto releaseCallAbilityFunc = [weak] (
                 const std::shared_ptr<CallerCallBack> &callback) -> ErrCode {
                 auto contextForRelease = weak.lock();
@@ -520,7 +525,7 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
             };
             task.Resolve(engine,
                 CreateJsCallerComplex(
-                    engine, releaseCallAbilityFunc, calldata->remoteCallee, calldata->callerCallBack));
+                    engine, releaseCallAbilityFunc, calldata->remoteCallee, callerCallBack));
         } else {
             HILOG_ERROR("OnStartAbilityByCall callComplete params error %{public}s is nullptr",
                 context == nullptr ? "context" :
@@ -531,8 +536,8 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
         HILOG_DEBUG("OnStartAbilityByCall callComplete end");
     };
 
-    calls->callerCallBack->SetCallBack(callBackDone);
-    calls->callerCallBack->SetOnRelease(releaseListen);
+    callerCallBack->SetCallBack(callBackDone);
+    callerCallBack->SetOnRelease(releaseListen);
 
     auto context = context_.lock();
     if (context == nullptr) {
@@ -541,7 +546,7 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
         return engine.CreateUndefined();
     }
 
-    auto ret = context->StartAbilityByCall(want, calls->callerCallBack, userId);
+    auto ret = context->StartAbilityByCall(want, callerCallBack, userId);
     if (ret != 0) {
         HILOG_ERROR("OnStartAbilityByCall StartAbility is failed");
         ThrowErrorByNativeErr(engine, ret);

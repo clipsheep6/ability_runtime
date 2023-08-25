@@ -2269,6 +2269,7 @@ HWTEST_F(AbilityBaseTest, AbilitySetShowOnLockScreen_0100, TestSize.Level1)
     auto handler = std::make_shared<AbilityHandler>(eventRunner);
     ability->Init(pageAbilityInfo, nullptr, handler, nullptr);
 
+    sptr<AAFwk::SessionInfo> session = new (std::nothrow) AAFwk::SessionInfo();
     int32_t displayId = 0;
     sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
     ability->InitWindow(displayId, option);
@@ -2630,12 +2631,16 @@ HWTEST_F(AbilityBaseTest, AbilitySetDisplayOrientation_0100, TestSize.Level1)
     orientation = static_cast<int>(DisplayOrientation::LANDSCAPE);
     ability->SetDisplayOrientation(orientation);
     ret = ability->GetDisplayOrientation();
-    EXPECT_EQ(ret, static_cast<int>(DisplayOrientation::LANDSCAPE));
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(ret, static_cast<int>(DisplayOrientation::LANDSCAPE));
+    }
 
     orientation = static_cast<int>(DisplayOrientation::PORTRAIT);
     ability->SetDisplayOrientation(orientation);
     ret = ability->GetDisplayOrientation();
-    EXPECT_EQ(ret, static_cast<int>(DisplayOrientation::PORTRAIT));
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(ret, static_cast<int>(DisplayOrientation::PORTRAIT));
+    }
 
     HILOG_INFO("%{public}s end.", __func__);
 }

@@ -156,10 +156,22 @@ NativeValue *JSAbilityDelegator::AddAbilityMonitor(NativeEngine *engine, NativeC
     return (me != nullptr) ? me->OnAddAbilityMonitor(*engine, *info) : nullptr;
 }
 
+NativeValue *JSAbilityDelegator::AddAbilityMonitorSync(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
+    return (me != nullptr) ? me->OnAddAbilityMonitorSync(*engine, *info) : nullptr;
+}
+
 NativeValue *JSAbilityDelegator::RemoveAbilityMonitor(NativeEngine *engine, NativeCallbackInfo *info)
 {
     JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
     return (me != nullptr) ? me->OnRemoveAbilityMonitor(*engine, *info) : nullptr;
+}
+
+NativeValue *JSAbilityDelegator::RemoveAbilityMonitorSync(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
+    return (me != nullptr) ? me->OnRemoveAbilityMonitorSync(*engine, *info) : nullptr;
 }
 
 NativeValue *JSAbilityDelegator::WaitAbilityMonitor(NativeEngine *engine, NativeCallbackInfo *info)
@@ -174,10 +186,22 @@ NativeValue *JSAbilityDelegator::AddAbilityStageMonitor(NativeEngine *engine, Na
     return (me != nullptr) ? me->OnAddAbilityStageMonitor(*engine, *info) : nullptr;
 }
 
+NativeValue *JSAbilityDelegator::AddAbilityStageMonitorSync(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
+    return (me != nullptr) ? me->OnAddAbilityStageMonitorSync(*engine, *info) : nullptr;
+}
+
 NativeValue *JSAbilityDelegator::RemoveAbilityStageMonitor(NativeEngine *engine, NativeCallbackInfo *info)
 {
     JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
     return (me != nullptr) ? me->OnRemoveAbilityStageMonitor(*engine, *info) : nullptr;
+}
+
+NativeValue *JSAbilityDelegator::RemoveAbilityStageMonitorSync(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
+    return (me != nullptr) ? me->OnRemoveAbilityStageMonitorSync(*engine, *info) : nullptr;
 }
 
 NativeValue *JSAbilityDelegator::WaitAbilityStageMonitor(NativeEngine *engine, NativeCallbackInfo *info)
@@ -251,7 +275,7 @@ NativeValue *JSAbilityDelegator::OnAddAbilityMonitor(NativeEngine &engine, Nativ
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::shared_ptr<AbilityMonitor> monitor = nullptr;
-    if (!ParseAbilityMonitorPara(engine, info, monitor)) {
+    if (!ParseAbilityMonitorPara(engine, info, monitor, false)) {
         HILOG_ERROR("Parse addAbilityMonitor parameters failed");
         return ThrowJsError(engine, INCORRECT_PARAMETERS);
     }
@@ -274,13 +298,31 @@ NativeValue *JSAbilityDelegator::OnAddAbilityMonitor(NativeEngine &engine, Nativ
     return result;
 }
 
+NativeValue *JSAbilityDelegator::OnAddAbilityMonitorSync(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+
+    std::shared_ptr<AbilityMonitor> monitor = nullptr;
+    if (!ParseAbilityMonitorPara(engine, info, monitor, true)) {
+        HILOG_ERROR("Parse addAbilityMonitorSync parameters failed");
+        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+    }
+    auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
+    if (delegator) {
+        delegator->AddAbilityMonitor(monitor);
+    } else {
+        engine.Throw(CreateJsError(engine, COMMON_FAILED, "addAbilityMonitor failed."));
+    }
+    return engine.CreateUndefined();
+}
+
 NativeValue *JSAbilityDelegator::OnAddAbilityStageMonitor(NativeEngine &engine, NativeCallbackInfo &info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     bool isExisted = false;
     std::shared_ptr<AbilityStageMonitor> monitor = nullptr;
-    if (!ParseAbilityStageMonitorPara(engine, info, monitor, isExisted)) {
+    if (!ParseAbilityStageMonitorPara(engine, info, monitor, isExisted, false)) {
         HILOG_ERROR("Parse addAbilityStageMonitor parameters failed");
         return ThrowJsError(engine, INCORRECT_PARAMETERS);
     }
@@ -307,12 +349,34 @@ NativeValue *JSAbilityDelegator::OnAddAbilityStageMonitor(NativeEngine &engine, 
     return result;
 }
 
+NativeValue *JSAbilityDelegator::OnAddAbilityStageMonitorSync(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+
+    bool isExisted = false;
+    std::shared_ptr<AbilityStageMonitor> monitor = nullptr;
+    if (!ParseAbilityStageMonitorPara(engine, info, monitor, isExisted, true)) {
+        HILOG_ERROR("Parse addAbilityStageMonitorSync parameters failed");
+        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+    }
+    auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
+    if (!delegator) {
+        engine.Throw(CreateJsError(engine, COMMON_FAILED, "addAbilityStageMonitor failed."));
+        return engine.CreateUndefined();
+    }
+    delegator->AddAbilityStageMonitor(monitor);
+    if (!isExisted) {
+        AddStageMonitorRecord(engine, info.argv[INDEX_ZERO], monitor);
+    }
+    return engine.CreateUndefined();
+}
+
 NativeValue *JSAbilityDelegator::OnRemoveAbilityMonitor(NativeEngine &engine, NativeCallbackInfo &info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::shared_ptr<AbilityMonitor> monitor = nullptr;
-    if (!ParseAbilityMonitorPara(engine, info, monitor)) {
+    if (!ParseAbilityMonitorPara(engine, info, monitor, false)) {
         HILOG_ERROR("Parse removeAbilityMonitor parameters failed");
         return ThrowJsError(engine, INCORRECT_PARAMETERS);
     }
@@ -347,13 +411,39 @@ NativeValue *JSAbilityDelegator::OnRemoveAbilityMonitor(NativeEngine &engine, Na
     return result;
 }
 
+
+NativeValue *JSAbilityDelegator::OnRemoveAbilityMonitorSync(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+
+    std::shared_ptr<AbilityMonitor> monitor = nullptr;
+    if (!ParseAbilityMonitorPara(engine, info, monitor, true)) {
+        HILOG_ERROR("Parse removeAbilityMonitorSync parameters failed");
+        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+    }
+    auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
+    if (!delegator) {
+        engine.Throw(CreateJsError(engine, COMMON_FAILED, "removeAbilityMonitor failed."));
+        return engine.CreateUndefined();
+    }
+    delegator->RemoveAbilityMonitor(monitor);
+    for (auto iter = g_monitorRecord.begin(); iter != g_monitorRecord.end(); ++iter) {
+        std::shared_ptr<NativeReference> jsMonitor = iter->first;
+        if ((info.argv[INDEX_ZERO])->StrictEquals(jsMonitor->Get())) {
+            g_monitorRecord.erase(iter);
+            break;
+        }
+    }
+    return engine.CreateUndefined();
+}
+
 NativeValue *JSAbilityDelegator::OnRemoveAbilityStageMonitor(NativeEngine &engine, NativeCallbackInfo &info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     bool isExisted = false;
     std::shared_ptr<AbilityStageMonitor> monitor = nullptr;
-    if (!ParseAbilityStageMonitorPara(engine, info, monitor, isExisted)) {
+    if (!ParseAbilityStageMonitorPara(engine, info, monitor, isExisted, false)) {
         HILOG_ERROR("Parse removeAbilityStageMonitor parameters failed");
         return ThrowJsError(engine, INCORRECT_PARAMETERS);
     }
@@ -380,6 +470,29 @@ NativeValue *JSAbilityDelegator::OnRemoveAbilityStageMonitor(NativeEngine &engin
         RemoveStageMonitorRecord(info.argv[INDEX_ZERO]);
     }
     return result;
+}
+
+NativeValue *JSAbilityDelegator::OnRemoveAbilityStageMonitorSync(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+
+    bool isExisted = false;
+    std::shared_ptr<AbilityStageMonitor> monitor = nullptr;
+    if (!ParseAbilityStageMonitorPara(engine, info, monitor, isExisted, true)) {
+        HILOG_ERROR("Parse removeAbilityStageMonitorSync parameters failed");
+        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+    }
+
+    auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
+    if (!delegator) {
+        engine.Throw(CreateJsError(engine, COMMON_FAILED, "removeAbilityStageMonitor failed."));
+        return engine.CreateUndefined();
+    }
+    delegator->RemoveAbilityStageMonitor(monitor);
+    if (isExisted) {
+        RemoveStageMonitorRecord(info.argv[INDEX_ZERO]);
+    }
+    return engine.CreateUndefined();
 }
 
 NativeValue *JSAbilityDelegator::OnWaitAbilityMonitor(NativeEngine &engine, NativeCallbackInfo &info)
@@ -990,7 +1103,7 @@ void JSAbilityDelegator::AbilityLifecycleStateToJs(
 }
 
 NativeValue *JSAbilityDelegator::ParseAbilityMonitorPara(
-    NativeEngine &engine, NativeCallbackInfo &info, std::shared_ptr<AbilityMonitor> &monitor)
+    NativeEngine &engine, NativeCallbackInfo &info, std::shared_ptr<AbilityMonitor> &monitor, bool isSync)
 {
     HILOG_INFO("enter");
     if (info.argc < ARGC_ONE) {
@@ -1002,6 +1115,10 @@ NativeValue *JSAbilityDelegator::ParseAbilityMonitorPara(
         HILOG_ERROR("Parse monitor parameters failed");
         return nullptr;
     }
+    
+    if (isSync) {
+        return engine.CreateNull();
+    }
 
     if (info.argc > ARGC_ONE) {
         if (info.argv[INDEX_ONE]->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
@@ -1012,8 +1129,8 @@ NativeValue *JSAbilityDelegator::ParseAbilityMonitorPara(
     return engine.CreateNull();
 }
 
-NativeValue *JSAbilityDelegator::ParseAbilityStageMonitorPara(
-    NativeEngine &engine, NativeCallbackInfo &info, std::shared_ptr<AbilityStageMonitor> &monitor, bool &isExisted)
+NativeValue *JSAbilityDelegator::ParseAbilityStageMonitorPara(NativeEngine &engine, NativeCallbackInfo &info,
+    std::shared_ptr<AbilityStageMonitor> &monitor, bool &isExisted, bool isSync)
 {
     HILOG_INFO("enter");
     if (info.argc < ARGC_ONE) {
@@ -1024,6 +1141,10 @@ NativeValue *JSAbilityDelegator::ParseAbilityStageMonitorPara(
     if (!ParseStageMonitorPara(engine, info.argv[INDEX_ZERO], monitor, isExisted)) {
         HILOG_ERROR("Parse stage monitor parameters failed");
         return nullptr;
+    }
+    
+    if (isSync) {
+        return engine.CreateNull();
     }
 
     if (info.argc > ARGC_ONE) {

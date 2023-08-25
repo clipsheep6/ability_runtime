@@ -68,7 +68,7 @@ public:
     SourceMap() = default;
     ~SourceMap() = default;
 
-    void Init(bool isModular, const std::string& hapPath);
+    void Init(const std::string& hapPath, bool isModular);
     std::string TranslateBySourceMap(const std::string& stackStr);
 
     static std::string GetOriginalNames(std::shared_ptr<SourceMapData> targetMapData,

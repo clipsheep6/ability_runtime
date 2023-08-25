@@ -37,8 +37,8 @@ public:
     void OnMissionClosed(int32_t missionId) override;
     void OnMissionLabelUpdated(int32_t missionId) override;
 
-    void AddJsListenerObject(int32_t listenerId, NativeValue* jsListenerObject);
-    bool RemoveJsListenerObject(int32_t listenerId);
+    void AddJsListenerObject(int32_t listenerId, NativeValue* jsListenerObject, bool isSync = false);
+    bool RemoveJsListenerObject(int32_t listenerId, bool isSync = false);
     bool IsEmpty();
 
 #ifdef SUPPORT_GRAPHICS
@@ -52,9 +52,11 @@ private:
 private:
     void CallJsMethod(const std::string &methodName, int32_t missionId);
     void CallJsMethodInner(const std::string &methodName, int32_t missionId);
+    void CallJsFunction(NativeValue* value, const char* methodName, NativeValue* const *argv, size_t argc);
 
     NativeEngine* engine_ = nullptr;
     std::map<int32_t, std::shared_ptr<NativeReference>> jsListenerObjectMap_;
+    std::map<int32_t, std::shared_ptr<NativeReference>> jsListenerObjectMapSync_;
     std::shared_ptr<OHOS::AppExecFwk::EventHandler> mainHandler_;
 };
 }  // namespace AbilityRuntime

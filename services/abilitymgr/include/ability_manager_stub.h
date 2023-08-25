@@ -85,6 +85,8 @@ private:
     int KillProcessInner(MessageParcel &data, MessageParcel &reply);
     int UninstallAppInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityInner(MessageParcel &data, MessageParcel &reply);
+    int StartAbilityByUIContentSessionAddCallerInner(MessageParcel &data, MessageParcel &reply);
+    int StartAbilityByUIContentSessionForOptionsInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityAsCallerByTokenInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityAsCallerForOptionInner(MessageParcel &data, MessageParcel &reply);
     int StartExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
@@ -135,6 +137,7 @@ private:
 
     int LockMissionForCleanupInner(MessageParcel &data, MessageParcel &reply);
     int UnlockMissionForCleanupInner(MessageParcel &data, MessageParcel &reply);
+    int SetLockedStateInner(MessageParcel &data, MessageParcel &reply);
     int RegisterMissionListenerInner(MessageParcel &data, MessageParcel &reply);
     int UnRegisterMissionListenerInner(MessageParcel &data, MessageParcel &reply);
     int GetMissionInfosInner(MessageParcel &data, MessageParcel &reply);

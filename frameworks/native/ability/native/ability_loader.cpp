@@ -26,7 +26,7 @@ AbilityLoader &AbilityLoader::GetInstance()
 
 void AbilityLoader::RegisterAbility(const std::string &abilityName, const CreateAblity &createFunc)
 {
-    abilities_.emplace(abilityName, createFunc);
+    abilities_.insert_or_assign(abilityName, createFunc);
     HILOG_DEBUG("AbilityLoader::RegisterAbility:%{public}s", abilityName.c_str());
 }
 

@@ -194,6 +194,40 @@ public:
             int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**
+     * Start ui session ability with extension session info, send session info to ability manager service.
+     *
+     * @param want Ability want.
+     * @param callerToken caller ability token.
+     * @param sessionInfo the information of UIExtensionContentSession.
+     * @param requestCode Ability request code.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartAbilityByUIContentSession(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        const sptr<AAFwk::SessionInfo> &sessionInfo,
+        int requestCode = DEFAULT_INVAL_VALUE,
+        int32_t userId = DEFAULT_INVAL_VALUE);
+
+    /**
+     * Start ui session ability with extension session info, send session info to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @param callerToken caller ability token.
+     * @param sessionInfo the information of UIExtensionContentSession.
+     * @param requestCode the resultCode of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartAbilityByUIContentSession(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        const sptr<AAFwk::SessionInfo> &sessionInfo,
+        int requestCode = DEFAULT_INVAL_VALUE,
+        int32_t userId = DEFAULT_INVAL_VALUE);
+
+    /**
      * Start extension ability with want, send want to ability manager service.
      *
      * @param want, the want of the ability to start.
@@ -542,6 +576,15 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode UnlockMissionForCleanup(int32_t missionId);
+
+    /**
+     * @brief change specified AbilityRecord lockState.
+     * @param sessionId The id of target AbilityRecord.
+     * @param lockState The lockState of target AbilityRecord.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    void SetLockedState(int32_t sessionId, bool lockedState);
 
     /**
      * @brief Register mission listener to ams.

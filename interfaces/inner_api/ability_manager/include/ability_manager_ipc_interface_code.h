@@ -209,6 +209,9 @@ enum class AbilityManagerInterfaceCode {
     // ipc id for set mission continue state (66)
     SET_MISSION_CONTINUE_STATE = 66,
 
+    // ipc id for set session locked state (67)
+    SET_SESSION_LOCKED_STATE = 67,
+
     // ipc id 1001-2000 for DMS
     // ipc id for starting ability (1001)
     START_ABILITY = 1001,
@@ -327,6 +330,11 @@ enum class AbilityManagerInterfaceCode {
     // ipc id for prepare to terminate ability by scb
     PREPARE_TERMINATE_ABILITY_BY_SCB = 1050,
 
+    // start ui session ability
+    START_UI_SESSION_ABILITY_ADD_CALLER = 1051,
+
+    START_UI_SESSION_ABILITY_FOR_OPTIONS = 1052,
+
     // ipc id for continue ability(1101)
     START_CONTINUATION = 1101,
 
@@ -391,6 +399,9 @@ enum class AbilityManagerInterfaceCode {
 
     ACQUIRE_SHARE_DATA = 4001,
     SHARE_DATA_DONE = 4002,
+
+    // ipc id for notify as result (notify to snadbox app)
+    NOTIFY_SAVE_AS_RESULT = 4201,
 
     // ipc id for collborator
     REGISTER_COLLABORATOR = 4050,

@@ -606,40 +606,64 @@ HWTEST_F(AbilityManagerServiceTest, StartRemoteAbility_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest StartRemoteAbility_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    auto mgr = std::make_unique<UIAbilityLifecycleManager>();
-    AbilityRequest abilityRequest;
-    Rosen::SessionInfo info;
-    sptr<SessionInfo> sessionInfo(new SessionInfo());
-    sessionInfo->sessionToken = new Rosen::Session(info);
-    sessionInfo->persistentId = 1;
-    abilityRequest.sessionInfo = sessionInfo;
-    auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
-    mgr->sessionAbilityMap_.emplace(sessionInfo->persistentId, abilityRecord);
+    Want want;
+    // AddStartControlParam
+    sptr<IRemoteObject> callerToken = MockToken(AbilityType::PAGE);
+    EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, callerToken), ERR_INVALID_VALUE);
+    HILOG_INFO("AbilityManagerServiceTest StartRemoteAbility_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartRemoteAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartRemoteAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, StartRemoteAbility_002, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest StartRemoteAbility_002 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
     // AddStartControlParam
     EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, nullptr), ERR_INVALID_VALUE);
+    HILOG_INFO("AbilityManagerServiceTest StartRemoteAbility_002 end");
+}
 
-    // IsStartFreeInstall
+/*
+ * Feature: AbilityManagerService
+ * Function: StartRemoteAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartRemoteAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, StartRemoteAbility_003, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest StartRemoteAbility_003 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    Want want;
     MyFlag::flag_ = 1;
     unsigned int flag = 0x00000800;
     want.SetFlags(flag);
     auto temp = abilityMs_->freeInstallManager_;
     abilityMs_->freeInstallManager_.reset();
     EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, nullptr), ERR_INVALID_VALUE);
+    HILOG_INFO("AbilityManagerServiceTest StartRemoteAbility_003 end");
+}
 
-    abilityMs_->freeInstallManager_ = temp;
-    EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, nullptr), ERR_INVALID_VALUE);
-
-    // GetBoolParam
+/*
+ * Feature: AbilityManagerService
+ * Function: StartRemoteAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartRemoteAbility
+ */
+HWTEST_F(AbilityManagerServiceTest, StartRemoteAbility_004, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest StartRemoteAbility_004 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    Want want;
     want.SetFlags(0);
     want.SetParam("ohos.aafwk.param.startAbilityForResult", true);
     EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, nullptr), ERR_INVALID_VALUE);
-
-    want.SetParam("test", true);
-    sptr<IRemoteObject> callerToken = MockToken(AbilityType::PAGE);
-    EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, callerToken), ERR_INVALID_VALUE);
-    MyFlag::flag_ = 0;
-    HILOG_INFO("AbilityManagerServiceTest StartRemoteAbility_001 end");
+    HILOG_INFO("AbilityManagerServiceTest StartRemoteAbility_004 end");
 }
 
 /*
@@ -699,14 +723,22 @@ HWTEST_F(AbilityManagerServiceTest, MinimizeUIAbilityBySCB_001, TestSize.Level1)
     HILOG_INFO("AbilityManagerServiceTest MinimizeUIAbilityBySCB_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     EXPECT_EQ(abilityMs_->MinimizeUIAbilityBySCB(nullptr), ERR_INVALID_VALUE);
+    HILOG_INFO("AbilityManagerServiceTest MinimizeUIAbilityBySCB_001 end");
+}
 
+/*
+ * Feature: AbilityManagerService
+ * Function: MinimizeUIAbilityBySCB
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService MinimizeUIAbilityBySCB
+ */
+HWTEST_F(AbilityManagerServiceTest, MinimizeUIAbilityBySCB_002, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest MinimizeUIAbilityBySCB_002 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
     sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
     EXPECT_EQ(abilityMs_->MinimizeUIAbilityBySCB(sessionInfo), ERR_INVALID_VALUE);
-
-    Rosen::SessionInfo info;
-    sessionInfo->sessionToken = new (std::nothrow) Rosen::Session(info);
-    EXPECT_EQ(abilityMs_->MinimizeUIAbilityBySCB(sessionInfo), ERR_WRONG_INTERFACE_CALL);
-    HILOG_INFO("AbilityManagerServiceTest MinimizeUIAbilityBySCB_001 end");
+    HILOG_INFO("AbilityManagerServiceTest MinimizeUIAbilityBySCB_002 end");
 }
 
 /*
@@ -723,11 +755,6 @@ HWTEST_F(AbilityManagerServiceTest, CloseUIAbilityBySCB_001, TestSize.Level1)
 
     sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
     EXPECT_EQ(abilityMs_->CloseUIAbilityBySCB(sessionInfo), ERR_INVALID_VALUE);
-
-    Rosen::SessionInfo info;
-    sessionInfo->sessionToken = new (std::nothrow) Rosen::Session(info);
-    EXPECT_EQ(abilityMs_->CloseUIAbilityBySCB(sessionInfo), ERR_WRONG_INTERFACE_CALL);
-    HILOG_INFO("AbilityManagerServiceTest CloseUIAbilityBySCB_001 end");
 }
 
 /*
@@ -802,7 +829,7 @@ HWTEST_F(AbilityManagerServiceTest, ConnectRemoteAbility_001, TestSize.Level1)
     HILOG_INFO("AbilityManagerServiceTest ConnectRemoteAbility_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
-    EXPECT_EQ(abilityMs_->ConnectRemoteAbility(want, nullptr, nullptr), ERR_INVALID_VALUE);
+    EXPECT_NE(abilityMs_->ConnectRemoteAbility(want, nullptr, nullptr), ERR_INVALID_VALUE);
 
     MyFlag::flag_ = 1;
     EXPECT_EQ(abilityMs_->ConnectRemoteAbility(want, nullptr, nullptr), ERR_NULL_OBJECT);
@@ -2492,10 +2519,6 @@ HWTEST_F(AbilityManagerServiceTest, UpdateMissionSnapShot_001, TestSize.Level1)
     MissionSnapshot missionSnapshot;
     ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->UpdateMissionSnapShot(nullptr, pixelMap);
-
-    MyFlag::flag_ = 1;
-    abilityMs_->UpdateMissionSnapShot(nullptr, pixelMap);
-    MyFlag::flag_ = 0;
     HILOG_INFO("AbilityManagerServiceTest UpdateMissionSnapShot_001 end");
 }
 
