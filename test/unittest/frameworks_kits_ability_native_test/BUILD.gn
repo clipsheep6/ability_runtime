@@ -2413,7 +2413,7 @@ group("unittest") {
     ":task_handler_client_test",
     ":ui_ability_impl_test",
     ":ui_ability_test",
-    ":ui_ability_thread_test", 
+    ":ui_ability_thread_test",
   ]
 
   if (ability_runtime_graphics) {
