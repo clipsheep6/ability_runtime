@@ -51,13 +51,15 @@ void AbilityThread::AbilityThreadMain(std::shared_ptr<OHOSApplication> &applicat
         }
         thread->Attach(application, abilityRecord, mainRunner, stageContext);
     } else if (abilityInfo->type == AbilityType::EXTENSION) {
-        sptr<AbilityThread> thread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
+        HILOG_DEBUG("start extension ability");
+		sptr<AbilityThread> thread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
         if (thread == nullptr) {
             HILOG_ERROR("thread is nullptr");
             return;
         }
         thread->Attach(application, abilityRecord, mainRunner, stageContext);
     } else {
+	    HILOG_DEBUG("start fa model ability");
         sptr<AbilityThread> thread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
         if (thread == nullptr) {
             HILOG_ERROR("thread is nullptr");
@@ -86,7 +88,7 @@ void AbilityThread::AbilityThreadMain(std::shared_ptr<OHOSApplication> &applicat
     }
 
 	if (abilityInfo->type == AbilityType::PAGE && abilityInfo->isStageBasedModel) {
-	    HILOG_DEBUG("start stage model ability.");
+	    HILOG_DEBUG("start stage model ability");
         sptr<AbilityThread> thread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
         if (thread == nullptr) {
             HILOG_ERROR("thread is nullptr");
@@ -94,7 +96,7 @@ void AbilityThread::AbilityThreadMain(std::shared_ptr<OHOSApplication> &applicat
         }
         thread->Attach(application, abilityRecord, stageContext);
     } else if (abilityInfo->type == AbilityType::EXTENSION) {
-        HILOG_DEBUG("extension model ability.");
+        HILOG_DEBUG("start extension ability");
         sptr<AbilityThread> thread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
         if (thread == nullptr) {
             HILOG_ERROR("thread is nullptr");
@@ -102,7 +104,7 @@ void AbilityThread::AbilityThreadMain(std::shared_ptr<OHOSApplication> &applicat
         }
         thread->Attach(application, abilityRecord, stageContext);
     } else {
-        HILOG_DEBUG("fa model ability");
+        HILOG_DEBUG("start fa model ability");
         sptr<AbilityThread> thread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
         if (thread == nullptr) {
         HILOG_ERROR("thread is nullptr");
@@ -140,7 +142,7 @@ void AbilityThread::ScheduleDisconnectAbility(const Want &want)
     HILOG_DEBUG("called");
 }
 
-void AbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int32_t startId)
+void AbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int startId)
 {
     HILOG_DEBUG("called");
 }
@@ -167,7 +169,7 @@ void AbilityThread::ScheduleRestoreAbilityState(const PacMap &state)
     HILOG_DEBUG("called");
 }
 
-void AbilityThread::SendResult(int32_t requestCode, int32_t resultCode, const Want &resultData)
+void AbilityThread::SendResult(int requestCode, int resultCode, const Want &resultData)
 {
     HILOG_DEBUG("called");
 }
@@ -179,19 +181,19 @@ std::vector<std::string> AbilityThread::GetFileTypes(const Uri &uri, const std::
     return types;
 }
 
-int32_t AbilityThread::OpenFile(const Uri &uri, const std::string &mode)
+int AbilityThread::OpenFile(const Uri &uri, const std::string &mode)
 {
     HILOG_DEBUG("called");
     return ERR_INVALID_VALUE;
 }
 
-int32_t AbilityThread::OpenRawFile(const Uri &uri, const std::string &mode)
+int AbilityThread::OpenRawFile(const Uri &uri, const std::string &mode)
 {
     HILOG_DEBUG("called");
     return ERR_INVALID_VALUE;
 }
 
-int32_t AbilityThread::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
+int AbilityThread::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
 {
     HILOG_DEBUG("called");
     return ERR_INVALID_VALUE;
@@ -204,14 +206,14 @@ std::shared_ptr<AppExecFwk::PacMap> AbilityThread::Call(
     return nullptr;
 }
 
-int32_t AbilityThread::Update(
+int AbilityThread::Update(
     const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
 {
     HILOG_DEBUG("called");
     return ERR_INVALID_VALUE;
 }
 
-int32_t AbilityThread::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
+int AbilityThread::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
 {
     HILOG_DEBUG("called");
     return ERR_INVALID_VALUE;
@@ -236,7 +238,7 @@ bool AbilityThread::Reload(const Uri &uri, const PacMap &extras)
     return false;
 }
 
-int32_t AbilityThread::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
+int AbilityThread::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
 {
     HILOG_DEBUG("called");
     return ERR_INVALID_VALUE;
@@ -301,7 +303,7 @@ std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> AbilityThread::Execu
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST
-int32_t AbilityThread::BlockAbility()
+int AbilityThread::BlockAbility()
 {
     HILOG_DEBUG("begin");
     if (abilityHandler_) {

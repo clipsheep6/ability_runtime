@@ -39,24 +39,24 @@ public:
     /**
      * @brief Attach The ability thread to the main process.
      * @param application Indicates the main process.
-     * @param abilityRecord Indicates the abilityRecord.
+     * @param abilityRecord current running ability record
      * @param mainRunner The runner which main_thread holds.
      * @param appContext the AbilityRuntime context
      */
     void Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
         const std::shared_ptr<AppExecFwk::EventRunner> &mainRunner,
-        const std::shared_ptr<AbilityRuntime::Context> &appContext) override;
+        const std::shared_ptr<Context> &appContext) override;
 
     /**
      * @brief Attach The ability thread to the main process.
      * @param application Indicates the main process.
-     * @param abilityRecord Indicates the abilityRecord.
+     * @param abilityRecord current running ability record
      * @param appContext the AbilityRuntime context
      */
     void Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
-        const std::shared_ptr<AbilityRuntime::Context> &appContext) override;
+        const std::shared_ptr<Context> &appContext) override;
 
     /**
      * @brief ScheduleUpdateConfiguration, scheduling update configuration.
@@ -66,14 +66,14 @@ public:
 
     /**
      * @brief notify this ability current memory level.
-     * @param level: Current memory level
+     * @param level Current memory level
      */
     void NotifyMemoryLevel(int32_t level) override;
 
     /**
      * @brief Provide operating system AbilityTransaction information to the observer
      * @param want Indicates the structure containing Transaction information about the ability.
-     * @param lifeCycleStateInfo Indicates the lifecycle state.
+     * @param targetState Indicates the lifecycle state.
      * @param sessionInfo Indicates the session info.
      */
     void ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &targetState,
@@ -81,7 +81,7 @@ public:
 
     /**
      * @brief Provide operating system ShareData information to the observer
-     * @param requestCode Indicates the requestCode
+     * @param requestCode Indicates the Ability request code.
      */
     void ScheduleShareData(const int32_t &requestCode) override;
 
@@ -141,6 +141,9 @@ public:
 private:
     void DumpAbilityInfoInner(const std::vector<std::string> &params, std::vector<std::string> &info);
     void DumpOtherInfo(std::vector<std::string> &info);
+    void AttachInner(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+        const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
+        const std::shared_ptr<Context> &stageContext);
     std::string CreateAbilityName(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord);
     std::shared_ptr<AppExecFwk::ContextDeal> CreateAndInitContextDeal(
         std::shared_ptr<AppExecFwk::OHOSApplication> &application,

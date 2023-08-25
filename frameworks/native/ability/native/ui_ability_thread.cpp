@@ -27,15 +27,19 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
+namespace {
 #ifdef SUPPORT_GRAPHICS
 constexpr static char ABILITY_NAME[] = "UIAbility";
 #endif
 const int32_t PREPARE_TO_TERMINATE_TIMEOUT_MILLISECONDS = 3000;
+}
 UIAbilityThread::UIAbilityThread() : abilityImpl_(nullptr), currentAbility_(nullptr) {}
 
 UIAbilityThread::~UIAbilityThread()
 {
     if (currentAbility_) {
+        currentAbility_->DetachBaseContext();
         currentAbility_.reset();
     }
 }
@@ -44,18 +48,18 @@ std::string UIAbilityThread::CreateAbilityName(const std::shared_ptr<AppExecFwk:
 {
     std::string abilityName;
     if (abilityRecord == nullptr) {
-        HILOG_ERROR("abilityRecord is nullptr.");
+        HILOG_ERROR("abilityRecord is nullptr");
         return abilityName;
     }
 
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo = abilityRecord->GetAbilityInfo();
     if (abilityInfo == nullptr) {
-        HILOG_ERROR("abilityInfo is nullptr.");
+        HILOG_ERROR("abilityInfo is nullptr");
         return abilityName;
     }
 
     if (abilityInfo->isNativeAbility) {
-        HILOG_DEBUG("AbilityInfo name is %{public}s.", abilityInfo->name.c_str());
+        HILOG_DEBUG("AbilityInfo name is %{public}s", abilityInfo->name.c_str());
         return abilityInfo->name;
     }
 #ifdef SUPPORT_GRAPHICS
@@ -63,7 +67,7 @@ std::string UIAbilityThread::CreateAbilityName(const std::shared_ptr<AppExecFwk:
 #else
     abilityName = abilityInfo->name;
 #endif
-    HILOG_DEBUG("Create ability name is %{public}s.", abilityName.c_str());
+    HILOG_DEBUG("ability name is %{public}s", abilityName.c_str());
     return abilityName;
 }
 
@@ -72,22 +76,31 @@ std::shared_ptr<AppExecFwk::ContextDeal> UIAbilityThread::CreateAndInitContextDe
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
     const std::shared_ptr<AppExecFwk::AbilityContext> &abilityObject)
 {
-    HILOG_DEBUG("begin");
+    HILOG_DEBUG("called");
     std::shared_ptr<AppExecFwk::ContextDeal> contextDeal = nullptr;
     if ((application == nullptr) || (abilityRecord == nullptr) || (abilityObject == nullptr)) {
-        HILOG_ERROR("context or record or abilityObject is nullptr.");
+        HILOG_ERROR("application or abilityRecord or abilityObject is nullptr");
         return contextDeal;
     }
 
     contextDeal = std::make_shared<AppExecFwk::ContextDeal>();
-    contextDeal->SetAbilityInfo(abilityRecord->GetAbilityInfo());
+	if (contextDeal == nullptr) {
+	    HILOG_ERROR("contextDeal is nullptr");
+        return contextDeal;
+	}
+	
+	auto abilityInfo = abilityRecord->GetAbilityInfo();
+	if (abilityInfo == nullptr){
+	    HILOG_ERROR("contextDeal is nullptr");
+        return nullptr;
+	}
+	
+    contextDeal->SetAbilityInfo(abilityInfo);
     contextDeal->SetApplicationInfo(application->GetApplicationInfo());
     abilityObject->SetProcessInfo(application->GetProcessInfo());
-
     std::shared_ptr<AppExecFwk::Context> tmpContext = application->GetApplicationContext();
     contextDeal->SetApplicationContext(tmpContext);
-
-    contextDeal->SetBundleCodePath(abilityRecord->GetAbilityInfo()->codePath);
+    contextDeal->SetBundleCodePath(abilityInfo->codePath);
     contextDeal->SetContext(abilityObject);
     return contextDeal;
 }
@@ -95,34 +108,33 @@ std::shared_ptr<AppExecFwk::ContextDeal> UIAbilityThread::CreateAndInitContextDe
 void UIAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
     const std::shared_ptr<AppExecFwk::EventRunner> &mainRunner,
-    const std::shared_ptr<AbilityRuntime::Context> &stageContext)
+    const std::shared_ptr<Context> &stageContext)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if ((application == nullptr) || (abilityRecord == nullptr) || (mainRunner == nullptr)) {
-        HILOG_ERROR("application or record is nullptr.");
+        HILOG_ERROR("application or abilityRecord or mainRunner is nullptr");
         return;
     }
 
     // 1.new AbilityHandler
     std::string abilityName = CreateAbilityName(abilityRecord);
-    if (abilityName == "") {
-        HILOG_ERROR("abilityName is nullptr.");
+    if (abilityName.empty()) {
+        HILOG_ERROR("abilityName is empty");
         return;
     }
-    HILOG_DEBUG("begin ability:%{public}s.", abilityRecord->GetAbilityInfo()->name.c_str());
+    HILOG_DEBUG("begin ability: %{public}s", abilityRecord->GetAbilityInfo()->name.c_str());
     abilityHandler_ = std::make_shared<AppExecFwk::AbilityHandler>(mainRunner);
     if (abilityHandler_ == nullptr) {
-        HILOG_ERROR("abilityHandler_ is nullptr.");
+        HILOG_ERROR("abilityHandler_ is nullptr");
         return;
     }
 
     // 2.new ability
     auto ability = AppExecFwk::AbilityLoader::GetInstance().GetUIAbilityByName(abilityName);
     if (ability == nullptr) {
-        HILOG_ERROR("ability is nullptr.");
+        HILOG_ERROR("ability is nullptr");
         return;
     }
-
     currentAbility_.reset(ability);
     token_ = abilityRecord->GetToken();
     abilityRecord->SetEventHandler(abilityHandler_);
@@ -137,48 +149,56 @@ void UIAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
     ability->AttachAbilityContext(
         BuildAbilityContext(abilityRecord->GetAbilityInfo(), application, token_, stageContext));
 
-    // 3.new abilityImpl
+    AttachInner(application, abilityRecord, stageContext);
+}
+
+void UIAbilityThread::AttachInner(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+    const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
+    const std::shared_ptr<Context> &stageContext)
+{
+    // new abilityImpl
     abilityImpl_ = std::make_shared<UIAbilityImpl>();
     if (abilityImpl_ == nullptr) {
-        HILOG_ERROR("abilityImpl_ is nullptr.");
+        HILOG_ERROR("abilityImpl_ is nullptr");
         return;
     }
     abilityImpl_->Init(application, abilityRecord, currentAbility_, abilityHandler_, token_);
-    // 4. ability attach : ipc
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->AttachAbilityThread(this, token_);
+
+    // ability attach : ipc
+    ErrCode err = AbilityManagerClient::GetInstance()->AttachAbilityThread(this, token_);
     if (err != ERR_OK) {
-        HILOG_ERROR("Attach ability err = %{public}d.", err);
+        HILOG_ERROR("err is %{public}d", err);
         return;
     }
 }
 
 void UIAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
-    const std::shared_ptr<AbilityRuntime::Context> &stageContext)
+    const std::shared_ptr<Context> &stageContext)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("begin");
     if ((application == nullptr) || (abilityRecord == nullptr)) {
-        HILOG_ERROR("context or record is nullptr.");
+        HILOG_ERROR("application or abilityRecord is nullptr");
         return;
     }
     // 1.new AbilityHandler
     std::string abilityName = CreateAbilityName(abilityRecord);
     runner_ = AppExecFwk::EventRunner::Create(abilityName);
     if (runner_ == nullptr) {
-        HILOG_ERROR("runner is nullptr.");
+        HILOG_ERROR("runner is nullptr");
         return;
     }
     abilityHandler_ = std::make_shared<AppExecFwk::AbilityHandler>(runner_);
     if (abilityHandler_ == nullptr) {
-        HILOG_ERROR("abilityHandler_ is nullptr.");
+        HILOG_ERROR("abilityHandler_ is nullptr");
         return;
     }
 
     // 2.new ability
     auto ability = AppExecFwk::AbilityLoader::GetInstance().GetUIAbilityByName(abilityName);
     if (ability == nullptr) {
-        HILOG_ERROR("ability is nullptr.");
+        HILOG_ERROR("ability is nullptr");
         return;
     }
 
@@ -196,32 +216,19 @@ void UIAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
     ability->AttachAbilityContext(
         BuildAbilityContext(abilityRecord->GetAbilityInfo(), application, token_, stageContext));
 
-    // 3.new abilityImpl
-    abilityImpl_ = std::make_shared<UIAbilityImpl>();
-    if (abilityImpl_ == nullptr) {
-        HILOG_ERROR("abilityImpl_ is nullptr.");
-        return;
-    }
-    abilityImpl_->Init(application, abilityRecord, currentAbility_, abilityHandler_, token_);
-    // 4. ability attach : ipc
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->AttachAbilityThread(this, token_);
-    if (err != ERR_OK) {
-        HILOG_ERROR("Attach ability err = %{public}d", err);
-        return;
-    }
-
+    AttachInner(application, abilityRecord, stageContext);
     HILOG_DEBUG("end");
 }
 
 void UIAbilityThread::HandleAbilityTransaction(
-    const AAFwk::Want &want, const AAFwk::LifeCycleStateInfo &lifeCycleStateInfo, sptr<AAFwk::SessionInfo> sessionInfo)
+    const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AppExecFwk::SessionInfo> sessionInfo)
 {
     std::string connector = "##";
     std::string traceName = __PRETTY_FUNCTION__ + connector + want.GetElement().GetAbilityName();
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, traceName);
-    HILOG_DEBUG("begin, name is %{public}s.", want.GetElement().GetAbilityName().c_str());
+    HILOG_DEBUG("begin, name is %{public}s", want.GetElement().GetAbilityName().c_str());
     if (abilityImpl_ == nullptr) {
-        HILOG_ERROR("abilityImpl_ is nullptr.");
+        HILOG_ERROR("abilityImpl_ is nullptr");
         return;
     }
 
@@ -235,7 +242,7 @@ void UIAbilityThread::HandleShareData(const int32_t &uniqueId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (abilityImpl_ == nullptr) {
-        HILOG_ERROR("abilityImpl_ is nullptr.");
+        HILOG_ERROR("abilityImpl_ is nullptr");
         return;
     }
     abilityImpl_->HandleShareData(uniqueId);
@@ -246,7 +253,7 @@ void UIAbilityThread::ScheduleSaveAbilityState()
 {
     HILOG_DEBUG("begin");
     if (abilityImpl_ == nullptr) {
-        HILOG_ERROR("abilityImpl_ is nullptr.");
+        HILOG_ERROR("abilityImpl_ is nullptr");
         return;
     }
 
@@ -258,7 +265,7 @@ void UIAbilityThread::ScheduleRestoreAbilityState(const AppExecFwk::PacMap &stat
 {
     HILOG_DEBUG("begin");
     if (abilityImpl_ == nullptr) {
-        HILOG_ERROR("abilityImpl_ is nullptr.");
+        HILOG_ERROR("abilityImpl_ is nullptr");
         return;
     }
     abilityImpl_->DispatchRestoreAbilityState(state);
@@ -272,7 +279,7 @@ void UIAbilityThread::ScheduleUpdateConfiguration(const AppExecFwk::Configuratio
     auto task = [weak, config]() {
         auto abilityThread = weak.promote();
         if (abilityThread == nullptr) {
-            HILOG_ERROR("abilityThread is nullptr.");
+            HILOG_ERROR("abilityThread is nullptr");
             return;
         }
 
@@ -295,7 +302,7 @@ void UIAbilityThread::HandleUpdateConfiguration(const AppExecFwk::Configuration 
 {
     HILOG_DEBUG("begin");
     if (abilityImpl_ == nullptr) {
-        HILOG_ERROR("abilityImpl_ is nullptr.");
+        HILOG_ERROR("abilityImpl_ is nullptr");
         return;
     }
 
@@ -304,11 +311,11 @@ void UIAbilityThread::HandleUpdateConfiguration(const AppExecFwk::Configuration 
 }
 
 void UIAbilityThread::ScheduleAbilityTransaction(
-    const AAFwk::Want &want, const AAFwk::LifeCycleStateInfo &lifeCycleStateInfo, sptr<AAFwk::SessionInfo> sessionInfo)
+    const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AppExecFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("name:%{public}s,targeState:%{public}d,isNewWant:%{public}d", want.GetElement().GetAbilityName().c_str(),
-        lifeCycleStateInfo.state, lifeCycleStateInfo.isNewWant);
+    HILOG_DEBUG("name: %{public}s,targeState: %{public}d,isNewWant: %{public}d",
+        want.GetElement().GetAbilityName().c_str(), lifeCycleStateInfo.state, lifeCycleStateInfo.isNewWant);
 
     if (token_ == nullptr) {
         HILOG_ERROR("token_ is nullptr");
@@ -318,7 +325,7 @@ void UIAbilityThread::ScheduleAbilityTransaction(
     auto task = [weak, want, lifeCycleStateInfo, sessionInfo]() {
         auto abilityThread = weak.promote();
         if (abilityThread == nullptr) {
-            HILOG_ERROR("abilityThread is nullptr.");
+            HILOG_ERROR("abilityThread is nullptr");
             return;
         }
 
@@ -326,13 +333,13 @@ void UIAbilityThread::ScheduleAbilityTransaction(
     };
 
     if (abilityHandler_ == nullptr) {
-        HILOG_ERROR("abilityHandler_ is nullptr.");
+        HILOG_ERROR("abilityHandler_ is nullptr");
         return;
     }
 
     bool ret = abilityHandler_->PostTask(task);
     if (!ret) {
-        HILOG_ERROR("PostTask error.");
+        HILOG_ERROR("PostTask error");
     }
 }
 
@@ -340,48 +347,47 @@ void UIAbilityThread::ScheduleShareData(const int32_t &uniqueId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (!token_) {
-        HILOG_ERROR("token_ is nullptr.");
+        HILOG_ERROR("token_ is nullptr");
         return;
     }
     wptr<UIAbilityThread> weak = this;
     auto task = [weak, uniqueId]() {
         auto abilityThread = weak.promote();
         if (!abilityThread) {
-            HILOG_ERROR("abilityThread is nullptr.");
+            HILOG_ERROR("abilityThread is nullptr");
             return;
         }
         abilityThread->HandleShareData(uniqueId);
     };
 
     if (!abilityHandler_) {
-        HILOG_ERROR("abilityHandler_ is nullptr.");
+        HILOG_ERROR("abilityHandler_ is nullptr");
         return;
     }
 
     bool ret = abilityHandler_->PostTask(task);
     if (!ret) {
-        HILOG_ERROR("postTask error.");
+        HILOG_ERROR("postTask error");
     }
 }
 
 bool UIAbilityThread::SchedulePrepareTerminateAbility()
 {
-    HILOG_DEBUG("call");
+    HILOG_DEBUG("begin");
     if (abilityImpl_ == nullptr) {
-        HILOG_ERROR("abilityImpl_ is nullptr.");
+        HILOG_ERROR("abilityImpl_ is nullptr");
         return true;
     }
     if (getpid() == gettid()) {
         bool ret = abilityImpl_->PrepareTerminateAbility();
-        HILOG_DEBUG("end, ret = %{public}d", ret);
+        HILOG_DEBUG("end ret is %{public}d", ret);
         return ret;
-        return false;
     } else {
         wptr<UIAbilityThread> weak = this;
         auto task = [weak]() {
             auto abilityThread = weak.promote();
             if (abilityThread == nullptr) {
-                HILOG_ERROR("abilityThread is nullptr.");
+                HILOG_ERROR("abilityThread is nullptr");
                 return;
             }
             abilityThread->HandlePrepareTermianteAbility();
@@ -407,32 +413,32 @@ bool UIAbilityThread::SchedulePrepareTerminateAbility()
             }
         };
         if (!cv_.wait_for(lock, std::chrono::milliseconds(PREPARE_TO_TERMINATE_TIMEOUT_MILLISECONDS), condition)) {
-            HILOG_WARN("Wait timeout.");
+            HILOG_WARN("Wait timeout");
         }
-        HILOG_DEBUG("end, ret = %{public}d", isPrepareTerminate_);
+        HILOG_DEBUG("end ret is %{public}d", isPrepareTerminate_);
         return isPrepareTerminate_;
     }
 }
 
-void UIAbilityThread::SendResult(int requestCode, int resultCode, const AAFwk::Want &want)
+void UIAbilityThread::SendResult(int requestCode, int resultCode, const Want &want)
 {
     HILOG_DEBUG("begin");
     wptr<UIAbilityThread> weak = this;
     auto task = [weak, requestCode, resultCode, want]() {
         auto abilityThread = weak.promote();
         if (abilityThread == nullptr) {
-            HILOG_ERROR("abilityThread is nullptr.");
+            HILOG_ERROR("abilityThread is nullptr");
             return;
         }
         if (requestCode == -1) {
-            HILOG_ERROR("requestCode is -1.");
+            HILOG_ERROR("requestCode is -1");
             return;
         }
         if (abilityThread->abilityImpl_ != nullptr) {
             abilityThread->abilityImpl_->SendResult(requestCode, resultCode, want);
             return;
         }
-        HILOG_ERROR("abilityImpl_ is nullptr.");
+        HILOG_ERROR("abilityImpl_ is nullptr");
     };
 
     if (abilityHandler_ == nullptr) {
@@ -451,7 +457,7 @@ void UIAbilityThread::ContinueAbility(const std::string &deviceId, uint32_t vers
 {
     HILOG_DEBUG("begin");
     if (abilityImpl_ == nullptr) {
-        HILOG_ERROR("abilityImpl_ is nullptr.");
+        HILOG_ERROR("abilityImpl_ is nullptr");
         return;
     }
     abilityImpl_->ContinueAbility(deviceId, versionCode);
@@ -459,7 +465,7 @@ void UIAbilityThread::ContinueAbility(const std::string &deviceId, uint32_t vers
 
 void UIAbilityThread::NotifyContinuationResult(int32_t result)
 {
-    HILOG_DEBUG("result:%{public}d", result);
+    HILOG_DEBUG("result: %{public}d", result);
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("abilityImpl_ is nullptr");
         return;
@@ -469,10 +475,10 @@ void UIAbilityThread::NotifyContinuationResult(int32_t result)
 
 void UIAbilityThread::NotifyMemoryLevel(int32_t level)
 {
-    HILOG_DEBUG("result:%{public}d", level);
+    HILOG_DEBUG("result: %{public}d", level);
 
     if (abilityImpl_ == nullptr) {
-        HILOG_ERROR("abilityImpl_ is nullptr.");
+        HILOG_ERROR("abilityImpl_ is nullptr");
         return;
     }
     abilityImpl_->NotifyMemoryLevel(level);
@@ -481,9 +487,9 @@ void UIAbilityThread::NotifyMemoryLevel(int32_t level)
 std::shared_ptr<AbilityRuntime::AbilityContext> UIAbilityThread::BuildAbilityContext(
     const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
     const std::shared_ptr<AppExecFwk::OHOSApplication> &application, const sptr<IRemoteObject> &token,
-    const std::shared_ptr<AbilityRuntime::Context> &stageContext)
+    const std::shared_ptr<Context> &stageContext)
 {
-    auto abilityContextImpl = std::make_shared<AbilityRuntime::AbilityContextImpl>();
+    auto abilityContextImpl = std::make_shared<AbilityContextImpl>();
     abilityContextImpl->SetStageContext(stageContext);
     abilityContextImpl->SetToken(token);
     abilityContextImpl->SetAbilityInfo(abilityInfo);
@@ -493,7 +499,7 @@ std::shared_ptr<AbilityRuntime::AbilityContext> UIAbilityThread::BuildAbilityCon
 
 void UIAbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
-    HILOG_DEBUG("begin.");
+    HILOG_DEBUG("begin");
     if (token_ == nullptr) {
         HILOG_ERROR("token_ is nullptr");
         return;
@@ -502,19 +508,19 @@ void UIAbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, st
     auto task = [weak, params, token = token_]() {
         auto abilityThread = weak.promote();
         if (abilityThread == nullptr) {
-            HILOG_ERROR("abilityThread is nullptr.");
+            HILOG_ERROR("abilityThread is nullptr");
             return;
         }
         std::vector<std::string> dumpInfo;
         abilityThread->DumpAbilityInfoInner(params, dumpInfo);
-        ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->DumpAbilityInfoDone(dumpInfo, token);
+        ErrCode err = AbilityManagerClient::GetInstance()->DumpAbilityInfoDone(dumpInfo, token);
         if (err != ERR_OK) {
-            HILOG_ERROR("DumpAbilityInfo failed err = %{public}d", err);
+            HILOG_ERROR("failed err is %{public}d", err);
         }
     };
 
     if (abilityHandler_ == nullptr) {
-        HILOG_ERROR("abilityHandler_ is nullptr.");
+        HILOG_ERROR("abilityHandler_ is nullptr");
         return;
     }
 
@@ -524,26 +530,24 @@ void UIAbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, st
 #ifdef SUPPORT_GRAPHICS
 void UIAbilityThread::DumpAbilityInfoInner(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
-    HILOG_DEBUG("begin.");
+    HILOG_DEBUG("begin");
     if (currentAbility_ == nullptr) {
-        HILOG_DEBUG("currentAbility_ is nullptr.");
+        HILOG_DEBUG("currentAbility_ is nullptr");
         return;
     }
-    if (currentAbility_ != nullptr) {
-        auto scene = currentAbility_->GetScene();
-        if (scene == nullptr) {
-            HILOG_ERROR("scene is nullptr.");
-            return;
-        }
-        auto window = scene->GetMainWindow();
-        if (window == nullptr) {
-            HILOG_ERROR("window is nullptr.");
-            return;
-        }
-        window->DumpInfo(params, info);
-        currentAbility_->Dump(params, info);
+    auto scene = currentAbility_->GetScene();
+    if (scene == nullptr) {
+        HILOG_ERROR("scene is nullptr");
+        return;
     }
 
+    auto window = scene->GetMainWindow();
+    if (window == nullptr) {
+        HILOG_ERROR("window is nullptr");
+        return;
+    }
+    window->DumpInfo(params, info);
+    currentAbility_->Dump(params, info);
     if (params.empty()) {
         DumpOtherInfo(info);
         return;
@@ -553,7 +557,7 @@ void UIAbilityThread::DumpAbilityInfoInner(const std::vector<std::string> &param
 #else
 void UIAbilityThread::DumpAbilityInfoInner(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
-    HILOG_DEBUG("begin");
+    HILOG_DEBUG("called");
     if (currentAbility_ != nullptr) {
         currentAbility_->Dump(params, info);
     }
@@ -567,12 +571,12 @@ void UIAbilityThread::DumpOtherInfo(std::vector<std::string> &info)
     std::string dumpInfo = "        event:";
     info.push_back(dumpInfo);
     if (!abilityHandler_) {
-        HILOG_DEBUG("abilityHandler_ is nullptr.");
+        HILOG_DEBUG("abilityHandler_ is nullptr");
         return;
     }
     auto runner = abilityHandler_->GetEventRunner();
     if (!runner) {
-        HILOG_DEBUG("runner is nullptr.");
+        HILOG_DEBUG("runner is nullptr");
         return;
     }
     dumpInfo = "";
@@ -581,12 +585,12 @@ void UIAbilityThread::DumpOtherInfo(std::vector<std::string> &info)
     if (currentAbility_ != nullptr) {
         const auto ablityContext = currentAbility_->GetAbilityContext();
         if (!ablityContext) {
-            HILOG_DEBUG("context is nullptr.");
+            HILOG_DEBUG("ablityContext is nullptr");
             return;
         }
         const auto localCallContainer = ablityContext->GetLocalCallContainer();
         if (!localCallContainer) {
-            HILOG_DEBUG("container is nullptr.");
+            HILOG_DEBUG("localCallContainer is nullptr");
             return;
         }
         localCallContainer->DumpCalls(info);
@@ -596,9 +600,8 @@ void UIAbilityThread::DumpOtherInfo(std::vector<std::string> &info)
 void UIAbilityThread::CallRequest()
 {
     HILOG_DEBUG("begin");
-
     if (!currentAbility_) {
-        HILOG_ERROR("ability is nullptr.");
+        HILOG_ERROR("ability is nullptr");
         return;
     }
 
@@ -607,7 +610,7 @@ void UIAbilityThread::CallRequest()
     auto syncTask = [ability = weakAbility, &retval]() {
         auto currentAbility = ability.lock();
         if (currentAbility == nullptr) {
-            HILOG_ERROR("ability is nullptr.");
+            HILOG_ERROR("ability is nullptr");
             return;
         }
 
@@ -615,10 +618,9 @@ void UIAbilityThread::CallRequest()
     };
 
     if (abilityHandler_ == nullptr) {
-        HILOG_ERROR("abilityHandler_ is nullptr.");
+        HILOG_ERROR("abilityHandler_ is nullptr");
         return;
     }
-
     abilityHandler_->PostSyncTask(syncTask);
     AAFwk::AbilityManagerClient::GetInstance()->CallRequestDone(token_, retval);
     HILOG_DEBUG("end");
@@ -628,11 +630,11 @@ void UIAbilityThread::HandlePrepareTermianteAbility()
 {
     std::unique_lock<std::mutex> lock(mutex_);
     if (abilityImpl_ == nullptr) {
-        HILOG_ERROR("abilityImpl_ is nullptr.");
+        HILOG_ERROR("abilityImpl_ is nullptr");
         return;
     }
     isPrepareTerminate_ = abilityImpl_->PrepareTerminateAbility();
-    HILOG_DEBUG("end, ret = %{public}d", isPrepareTerminate_);
+    HILOG_DEBUG("end ret is %{public}d", isPrepareTerminate_);
     isPrepareTerminateAbilityDone_.store(true);
     cv_.notify_all();
 }
