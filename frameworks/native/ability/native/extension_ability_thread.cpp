@@ -63,7 +63,7 @@ std::string ExtensionAbilityThread::CreateAbilityName(
 {
     std::string abilityName;
     if (abilityRecord == nullptr || application == nullptr) {
-        HILOG_ERROR("abilityRecord or app is nullptr");
+        HILOG_ERROR("abilityRecord or application is nullptr");
         return abilityName;
     }
 
@@ -91,8 +91,8 @@ std::string ExtensionAbilityThread::CreateAbilityName(
     }
 #endif
     CreateExtensionAbilityName(abilityInfo, abilityName);
-    HILOG_DEBUG("abilityName:%{public}s", abilityName.c_str());
-	return abilityName;
+    HILOG_DEBUG("abilityName: %{public}s", abilityName.c_str());
+    return abilityName;
 }
 
 void ExtensionAbilityThread::CreateExtensionAbilityName(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo, 
@@ -152,7 +152,7 @@ void ExtensionAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication>
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if ((application == nullptr) || (abilityRecord == nullptr) || (mainRunner == nullptr)) {
-        HILOG_ERROR("Param is nullptr");
+        HILOG_ERROR("application or abilityRecord or mainRunner is nullptr");
         return;
     }
 
@@ -162,7 +162,7 @@ void ExtensionAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication>
         HILOG_ERROR("abilityName is empty");
         return;
     }
-    HILOG_DEBUG("begin, extension:%{public}s", abilityRecord->GetAbilityInfo()->name.c_str());
+    HILOG_DEBUG("begin, extension: %{public}s", abilityName);
     abilityHandler_ = std::make_shared<AppExecFwk::AbilityHandler>(mainRunner);
     if (abilityHandler_ == nullptr) {
         HILOG_ERROR("abilityHandler_ is nullptr");
@@ -192,7 +192,7 @@ void ExtensionAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication>
     // 4.ipc attach init
     ErrCode err = AbilityManagerClient::GetInstance()->AttachAbilityThread(this, token_);
     if (err != ERR_OK) {
-        HILOG_ERROR("attach failed err = %{public}d", err);
+        HILOG_ERROR("attach failed err is %{public}d", err);
         return;
     }
 }
@@ -243,7 +243,7 @@ void ExtensionAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication>
     // 4.ipc attach init
     ErrCode err = AbilityManagerClient::GetInstance()->AttachAbilityThread(this, token_);
     if (err != ERR_OK) {
-        HILOG_ERROR("Attach failed err = %{public}d", err);
+        HILOG_ERROR("Attach failed err is %{public}d", err);
         return;
     }
     HILOG_DEBUG("end");
@@ -306,7 +306,7 @@ void ExtensionAbilityThread::HandleCommandExtension(const Want &want, bool resta
     extensionImpl_->CommandExtension(want, restart, startId);
     ErrCode err = AbilityManagerClient::GetInstance()->ScheduleCommandAbilityDone(token_);
     if (err != ERR_OK) {
-        HILOG_ERROR("HandleCommandExtension failed err = %{public}d", err);
+        HILOG_ERROR("HandleCommandExtension failed err is %{public}d", err);
     }
     HILOG_DEBUG("end");
 }
@@ -364,10 +364,8 @@ void ExtensionAbilityThread::ScheduleAbilityTransaction(
     const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AppExecFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Schedule ability transaction, name is %{public}s, targeState is "
-               "%{public}d, isNewWant is %{public}d",
-        want.GetElement().GetAbilityName().c_str(), lifeCycleStateInfo.state, lifeCycleStateInfo.isNewWant);
-
+    HILOG_DEBUG("Schedule ability transaction, name is %{public}s, targeState is""%{public}d, isNewWant is %{public}d",
+    want.GetElement().GetAbilityName().c_str(), lifeCycleStateInfo.state, lifeCycleStateInfo.isNewWant);
     if (token_ == nullptr) {
         HILOG_ERROR("token_ is nullptr");
         return;
@@ -444,7 +442,7 @@ void ExtensionAbilityThread::ScheduleDisconnectAbility(const Want &want)
 
 void ExtensionAbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int32_t startId)
 {
-    HILOG_DEBUG("begin startId:%{public}d", startId);
+    HILOG_DEBUG("begin startId: %{public}d", startId);
     wptr<ExtensionAbilityThread> weak = this;
     auto task = [weak, want, restart, startId]() {
         auto abilityThread = weak.promote();
@@ -495,8 +493,7 @@ void ExtensionAbilityThread::ScheduleCommandAbilityWindow(
 
 void ExtensionAbilityThread::NotifyMemoryLevel(int32_t level)
 {
-    HILOG_DEBUG("Level:%{public}d", level);
-
+    HILOG_DEBUG("Level: %{public}d", level);
     if (extensionImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::NotifyMemoryLevel extensionImpl_ is nullptr");
         return;
@@ -522,7 +519,7 @@ void ExtensionAbilityThread::DumpAbilityInfo(const std::vector<std::string> &par
         abilityThread->DumpAbilityInfoInner(params, dumpInfo);
         ErrCode err = AbilityManagerClient::GetInstance()->DumpAbilityInfoDone(dumpInfo, token);
         if (err != ERR_OK) {
-            HILOG_ERROR("DumpAbilityInfo failed err = %{public}d", err);
+            HILOG_ERROR("DumpAbilityInfo failed err is %{public}d", err);
         }
     };
 
