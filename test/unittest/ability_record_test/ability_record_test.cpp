@@ -23,6 +23,7 @@
 
 #include "ability_connect_callback_stub.h"
 #include "ability_scheduler.h"
+#include "ability_util.h"
 #include "connection_record.h"
 #include "constants.h"
 #include "mock_ability_connect_callback.h"
@@ -2333,7 +2334,7 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_CanRestartResident_001, TestSize.Level
     EXPECT_TRUE(abilityRecord_->isRestarting_);
     EXPECT_EQ(abilityRecord_->restartCount_, -1);
 
-    abilityRecord_->restartTime_ = 100000000;
+    abilityRecord_->restartTime_ = AbilityUtil::SystemTimeMillis();
     EXPECT_FALSE(abilityRecord_->CanRestartResident());
     abilityRecord_->restartTime_ = 0;
     // restart success

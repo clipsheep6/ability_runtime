@@ -387,7 +387,7 @@ HWTEST_F(SourceMapTest, JsEnv_SourceMap_1500, Function | MediumTest | Level1)
     std::string stackStr = "at anonymous (entry/src/main/ets/pages/Index.ets:111:13)";
 
     auto mapObj = std::make_shared<SourceMap>();
-    mapObj->Init(true, "");
+    mapObj->Init("", true);
     mapObj->SplitSourceMap(sourceMaps);
     std::string stack = mapObj->TranslateBySourceMap(stackStr);
     EXPECT_STREQ(stack.c_str(), "at anonymous (entry/src/main/ets/pages/Index.ets:85:9)\n");
@@ -408,7 +408,7 @@ HWTEST_F(SourceMapTest, JsEnv_SourceMap_1600, Function | MediumTest | Level1)
     std::string stackStr = "at anonymous (entry/src/main/ets/pages/Index.ets:111:13)";
 
     auto mapObj = std::make_shared<SourceMap>();
-    mapObj->Init(true, sourceMaps);
+    mapObj->Init(sourceMaps, true);
     std::string stack = mapObj->TranslateBySourceMap(stackStr);
     size_t pos = stack.find(stackStr);
     EXPECT_NE(pos, std::string::npos);
@@ -439,7 +439,7 @@ HWTEST_F(SourceMapTest, JsEnv_SourceMap_1700, Function | MediumTest | Level1)
     std::string stackStr = "at anonymous (entry/src/main/ets/pages/Index.ets:111:13)";
 
     auto mapObj = std::make_shared<SourceMap>();
-    mapObj->Init(true, sourceMaps);
+    mapObj->Init(sourceMaps, true);
     std::string stack = mapObj->TranslateBySourceMap(stackStr);
     size_t pos = stack.find(stackStr);
     EXPECT_NE(pos, std::string::npos);
@@ -470,7 +470,7 @@ HWTEST_F(SourceMapTest, JsEnv_SourceMap_1800, Function | MediumTest | Level1)
     std::string stackStr = "123/Index.ets:111:13";
 
     auto mapObj = std::make_shared<SourceMap>();
-    mapObj->Init(true, sourceMaps);
+    mapObj->Init(sourceMaps, true);
     std::string stack = mapObj->TranslateBySourceMap(stackStr);
     size_t pos = stack.find(stackStr);
     EXPECT_NE(pos, std::string::npos);

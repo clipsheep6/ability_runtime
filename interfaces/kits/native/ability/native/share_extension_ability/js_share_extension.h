@@ -27,12 +27,13 @@ namespace OHOS {
 namespace AbilityRuntime {
 class ShareExtension;
 class JsRuntime;
+class JsUIExtensionBase;
 /**
  * @brief Basic share extension components.
  */
 class JsShareExtension : public ShareExtension, public std::enable_shared_from_this<JsShareExtension> {
 public:
-    explicit JsShareExtension(JsRuntime &jsRuntime);
+    explicit JsShareExtension(const std::unique_ptr<Runtime> &runtime);
     virtual ~JsShareExtension() override;
 
     /**
@@ -138,20 +139,7 @@ public:
     void OnAbilityResult(int32_t requestCode, int32_t resultCode, const Want &resultData) override;
 
 private:
-    virtual void BindContext(NativeEngine &engine, NativeObject *obj);
-
-    NativeValue *CallObjectMethod(const char *name, NativeValue *const *argv = nullptr, size_t argc = 0);
-
-    void ForegroundWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo);
-    void BackgroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo);
-    void DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo);
-
-    JsRuntime &jsRuntime_;
-    std::unique_ptr<NativeReference> jsObj_;
-    std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
-    std::map<sptr<IRemoteObject>, sptr<Rosen::Window>> uiWindowMap_;
-    std::set<sptr<IRemoteObject>> foregroundWindows_;
-    std::map<sptr<IRemoteObject>, std::shared_ptr<NativeReference>> contentSessions_;
+    std::shared_ptr<JsUIExtensionBase> jsUIExtensionBase_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

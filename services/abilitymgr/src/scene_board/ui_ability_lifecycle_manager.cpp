@@ -49,7 +49,6 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
-    HILOG_DEBUG("Call.");
     if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
         HILOG_ERROR("sessionInfo is invalid.");
         return ERR_INVALID_VALUE;
@@ -62,11 +61,12 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
     }
     abilityRequest.sessionInfo = sessionInfo;
 
-    HILOG_INFO("session id: %{public}d.", sessionInfo->persistentId);
+    HILOG_INFO("session id: %{public}d. bundle: %{public}s, ability: %{public}s", sessionInfo->persistentId,
+        abilityRequest.abilityInfo.bundleName.c_str(), abilityRequest.abilityInfo.name.c_str());
     std::shared_ptr<AbilityRecord> uiAbilityRecord = nullptr;
     auto iter = sessionAbilityMap_.find(sessionInfo->persistentId);
     if (iter != sessionAbilityMap_.end()) {
-        HILOG_DEBUG("isNewWant: %{public}d.", sessionInfo->isNewWant);
+        HILOG_INFO("isNewWant: %{public}d.", sessionInfo->isNewWant);
         uiAbilityRecord = iter->second;
         uiAbilityRecord->SetIsNewWant(sessionInfo->isNewWant);
         if (sessionInfo->isNewWant) {
@@ -187,7 +187,6 @@ int UIAbilityLifecycleManager::AbilityTransactionDone(const sptr<IRemoteObject> 
 int UIAbilityLifecycleManager::NotifySCBToStartUIAbility(const AbilityRequest &abilityRequest, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("Call, userId: %{public}d.", userId);
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
     auto isSpecified = (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED);
     if (isSpecified) {
@@ -200,6 +199,7 @@ int UIAbilityLifecycleManager::NotifySCBToStartUIAbility(const AbilityRequest &a
     sessionInfo->requestCode = abilityRequest.requestCode;
     sessionInfo->persistentId = GetPersistentIdByAbilityRequest(abilityRequest, sessionInfo->reuse, userId);
     sessionInfo->userId = userId;
+    HILOG_INFO("Reused sessionId: %{public}d, userId: %{public}d.", sessionInfo->persistentId, userId);
     return NotifySCBPendingActivation(sessionInfo, abilityRequest);
 }
 
@@ -561,6 +561,7 @@ int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRe
             sessionInfo->persistentId = persistentId;
             sessionInfo->state = CallToState::FOREGROUND;
             sessionInfo->reuse = reuse;
+            sessionInfo->uiAbilityId = uiAbilityRecord->GetAbilityRecordId();
             DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(uiAbilityRecord->GetToken());
             return NotifySCBPendingActivation(sessionInfo, abilityRequest);
         }
@@ -643,7 +644,7 @@ int UIAbilityLifecycleManager::NotifySCBPendingActivation(sptr<SessionInfo> &ses
         CHECK_POINTER_AND_RETURN(callerSessionInfo, ERR_INVALID_VALUE);
         CHECK_POINTER_AND_RETURN(callerSessionInfo->sessionToken, ERR_INVALID_VALUE);
         auto callerSession = iface_cast<Rosen::ISession>(callerSessionInfo->sessionToken);
-        HILOG_INFO("Call PendingSessionActivation by rootSceneSession.");
+        HILOG_INFO("Call PendingSessionActivation by callerSession.");
         return static_cast<int>(callerSession->PendingSessionActivation(sessionInfo));
     }
     CHECK_POINTER_AND_RETURN(rootSceneSession_, ERR_INVALID_VALUE);
@@ -656,7 +657,7 @@ int UIAbilityLifecycleManager::NotifySCBPendingActivation(sptr<SessionInfo> &ses
             HILOG_INFO("session id: %{public}d.", sessionInfo->persistentId);
         }
     }
-    HILOG_INFO("Call PendingSessionActivation by callerSession.");
+    HILOG_INFO("Call PendingSessionActivation by rootSceneSession.");
     return static_cast<int>(rootSceneSession_->PendingSessionActivation(sessionInfo));
 }
 
@@ -952,7 +953,8 @@ int32_t UIAbilityLifecycleManager::GetReusedCollaboratorPersistentId(const Abili
     int64_t sessionTime = 0;
     int32_t persistentId = 0;
     for (const auto& [first, second] : sessionAbilityMap_) {
-        if (abilityRequest.want.GetStringParam(PARAM_MISSION_AFFINITY_KEY) == second->GetMissionAffinity() &&
+        if (second->GetCollaboratorType() != CollaboratorType::DEFAULT_TYPE &&
+            abilityRequest.want.GetStringParam(PARAM_MISSION_AFFINITY_KEY) == second->GetMissionAffinity() &&
             second->GetRestartTime() >= sessionTime) {
             reuse = true;
             persistentId = first;
@@ -1627,5 +1629,130 @@ int UIAbilityLifecycleManager::BlockAbility(int32_t abilityRecordId, int32_t tar
     return -1;
 }
 #endif
+
+void UIAbilityLifecycleManager::Dump(std::vector<std::string> &info)
+{
+    HILOG_INFO("Call.");
+    std::unordered_map<int32_t, std::shared_ptr<AbilityRecord>> sessionAbilityMapLocked;
+    {
+        std::lock_guard<ffrt::mutex> guard(sessionLock_);
+        for (const auto& [sessionId, abilityRecord] : sessionAbilityMap_) {
+            sessionAbilityMapLocked[sessionId] = abilityRecord;
+        }
+    }
+    
+    int userId = DelayedSingleton<AbilityManagerService>::GetInstance()->GetUserId();
+    std::string dumpInfo = "User ID #" + std::to_string(userId);
+    info.push_back(dumpInfo);
+    dumpInfo = " current session lists:{";
+    info.push_back(dumpInfo);
+
+    for (const auto& [sessionId, abilityRecord] : sessionAbilityMapLocked) {
+        if (abilityRecord == nullptr) {
+            HILOG_WARN("abilityRecord is nullptr.");
+            continue;
+        }
+        if (abilityRecord->GetOwnerMissionUserId() != userId) {
+            continue;
+        }
+        
+        sptr<SessionInfo> sessionInfo = abilityRecord->GetSessionInfo();
+        dumpInfo = "  Session ID #" + std::to_string(sessionId);
+        if (sessionInfo) {
+            dumpInfo += "  session name #[" + sessionInfo->sessionName + "]";
+        }
+        dumpInfo += "  lockedState #" + std::to_string(abilityRecord->GetLockedState());
+        dumpInfo += "  session affinity #[" + abilityRecord->GetMissionAffinity() + "]";
+        info.push_back(dumpInfo);
+
+        abilityRecord->Dump(info);
+
+        dumpInfo = " }";
+        info.push_back(dumpInfo);
+    }
+}
+
+void UIAbilityLifecycleManager::DumpMissionList(
+    std::vector<std::string> &info, bool isClient, int userId, const std::string &args)
+{
+    HILOG_INFO("Call.");
+    std::unordered_map<int32_t, std::shared_ptr<AbilityRecord>> sessionAbilityMapLocked;
+    {
+        std::lock_guard<ffrt::mutex> guard(sessionLock_);
+        for (const auto& [sessionId, abilityRecord] : sessionAbilityMap_) {
+            sessionAbilityMapLocked[sessionId] = abilityRecord;
+        }
+    }
+    std::string dumpInfo = "User ID #" + std::to_string(userId);
+    info.push_back(dumpInfo);
+    dumpInfo = " current session lists:{";
+    info.push_back(dumpInfo);
+
+    for (const auto& [sessionId, abilityRecord] : sessionAbilityMapLocked) {
+        if (abilityRecord == nullptr) {
+            HILOG_WARN("abilityRecord is nullptr.");
+            continue;
+        }
+        if (abilityRecord->GetOwnerMissionUserId() != userId) {
+            continue;
+        }
+        sptr<SessionInfo> sessionInfo = abilityRecord->GetSessionInfo();
+        dumpInfo = "  Session ID #" + std::to_string(sessionId);
+        if (sessionInfo) {
+            dumpInfo += "  session name #[" + sessionInfo->sessionName + "]";
+        }
+        dumpInfo += "  lockedState #" + std::to_string(abilityRecord->GetLockedState());
+        dumpInfo += "  session affinity #[" + abilityRecord->GetMissionAffinity() + "]";
+        info.push_back(dumpInfo);
+
+        std::vector<std::string> params;
+        abilityRecord->DumpAbilityState(info, isClient, params);
+
+        dumpInfo = " }";
+        info.push_back(dumpInfo);
+    }
+}
+
+void UIAbilityLifecycleManager::DumpMissionListByRecordId(std::vector<std::string> &info, bool isClient,
+    int32_t abilityRecordId, const std::vector<std::string> &params, int userId)
+{
+    HILOG_INFO("Call.");
+    std::unordered_map<int32_t, std::shared_ptr<AbilityRecord>> sessionAbilityMapLocked;
+    {
+        std::lock_guard<ffrt::mutex> guard(sessionLock_);
+        for (const auto& [sessionId, abilityRecord] : sessionAbilityMap_) {
+            sessionAbilityMapLocked[sessionId] = abilityRecord;
+        }
+    }
+    std::string dumpInfo = "User ID #" + std::to_string(userId);
+    info.push_back(dumpInfo);
+    dumpInfo = " current session lists:{";
+    info.push_back(dumpInfo);
+
+    for (const auto& [sessionId, abilityRecord] : sessionAbilityMapLocked) {
+        if (abilityRecord == nullptr) {
+            HILOG_WARN("abilityRecord is nullptr.");
+            continue;
+        }
+        if (abilityRecord->GetAbilityRecordId() != abilityRecordId) {
+            continue;
+        }
+        sptr<SessionInfo> sessionInfo = abilityRecord->GetSessionInfo();
+        dumpInfo = "  Session ID #" + std::to_string(sessionId);
+        if (sessionInfo) {
+            dumpInfo += "  session name #[" + sessionInfo->sessionName + "]";
+        }
+        dumpInfo += "  lockedState #" + std::to_string(abilityRecord->GetLockedState());
+        dumpInfo += "  session affinity #[" + abilityRecord->GetMissionAffinity() + "]";
+        info.push_back(dumpInfo);
+
+        std::vector<std::string> params;
+        abilityRecord->DumpAbilityState(info, isClient, params);
+
+        dumpInfo = " }";
+        info.push_back(dumpInfo);
+    }
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS

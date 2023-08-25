@@ -182,6 +182,42 @@ public:
         int requestCode = DEFAULT_INVAL_VALUE) override;
 
     /**
+     * Start ui session ability with extension session info, send session info to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param callerToken, caller ability token.
+     * @param sessionInfo the information of UIExtensionContentSession.
+     * @param userId, Designation User ID.
+     * @param requestCode, Ability request code.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartAbilityByUIContentSession(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        const sptr<SessionInfo> &sessionInfo,
+        int32_t userId,
+        int requestCode) override;
+
+    /**
+     * Start ui session ability with extension session info, send session info to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @param callerToken, caller ability token.
+     * @param sessionInfo the information of UIExtensionContentSession.
+     * @param userId, Designation User ID.
+     * @param requestCode the resultCode of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartAbilityByUIContentSession(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        const sptr<SessionInfo> &sessionInfo,
+        int32_t userId,
+        int requestCode) override;
+
+    /**
      * Start extension ability with want, send want to ability manager service.
      *
      * @param want, the want of the ability to start.
@@ -632,6 +668,8 @@ public:
     virtual int LockMissionForCleanup(int32_t missionId) override;
 
     virtual int UnlockMissionForCleanup(int32_t missionId) override;
+
+    virtual void SetLockedState(int32_t sessionId, bool lockedState) override;
 
     virtual int RegisterMissionListener(const sptr<IMissionListener> &listener) override;
 
@@ -1323,7 +1361,11 @@ private:
         const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
     void DumpSysMissionListInner(
         const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
+    void DumpSysMissionListInnerBySCB(
+        const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
     void DumpSysAbilityInner(
+        const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
+    void DumpSysAbilityInnerBySCB(
         const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
     void DumpSysStateInner(
         const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
@@ -1402,6 +1444,8 @@ private:
     void SubscribeBundleEventCallback();
 
     void UnsubscribeBundleEventCallback();
+
+    void ReportAbilitStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo);
 
     void ReportEventToSuspendManager(const AppExecFwk::AbilityInfo &abilityInfo);
 
@@ -1529,6 +1573,8 @@ private:
     bool CheckPrepareTerminateEnable();
 
     bool CheckCollaboratorType(int32_t type);
+
+    bool CheckUserIdActive(int32_t userId);
 
     void GetConnectManagerAndUIExtensionBySessionInfo(const sptr<SessionInfo> &sessionInfo,
         std::shared_ptr<AbilityConnectManager> &connectManager, std::shared_ptr<AbilityRecord> &targetAbility);

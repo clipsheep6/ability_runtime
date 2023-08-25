@@ -46,6 +46,7 @@
 #include "hilog_wrapper.h"
 #ifdef SUPPORT_GRAPHICS
 #include "locale_config.h"
+#include "ace_forward_compatibility.h"
 #endif
 #include "app_mgr_client.h"
 #include "if_system_ability_manager.h"
@@ -232,11 +233,6 @@ void MainThread::GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &h
         GetHspNativeLibPath(hspInfo, appLibPaths, hspInfo.hapPath.find(ABS_CODE_PATH) != 0u);
     }
 }
-
-#define ACEABILITY_LIBRARY_LOADER
-#ifdef ABILITY_LIBRARY_LOADER
-    const std::string acelibdir("libace.z.so");
-#endif
 
 /**
  *
@@ -1098,7 +1094,6 @@ void MainThread::HandleOnOverlayChanged(const EventFwk::CommonEventData &data,
     HILOG_DEBUG("GetNativeStrFromJsTaggedObj Success %{public}s:%{public}s", key, ret.c_str());
     return ret;
 }
-
 bool IsNeedLoadLibrary(const std::string &bundleName)
 {
     std::vector<std::string> needLoadLibraryBundleNames{
@@ -1176,25 +1171,6 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         return;
     }
 
-    if (IsNeedLoadLibrary(bundleName)) {
-        std::vector<std::string> localPaths;
-        ChangeToLocalPath(bundleName, appInfo.moduleSourceDirs, localPaths);
-        LoadAbilityLibrary(localPaths);
-        LoadNativeLiabrary(bundleInfo, appInfo.nativeLibraryPath);
-    }
-    if (appInfo.needAppDetail) {
-        HILOG_DEBUG("MainThread::handleLaunchApplication %{public}s need add app detail ability library path",
-            bundleName.c_str());
-        LoadAppDetailAbilityLibrary(appInfo.appDetailAbilityLibraryPath);
-    }
-    LoadAppLibrary();
-
-    applicationForDump_ = application_;
-    mixStackDumper_ = std::make_shared<MixStackDumper>();
-    if (!mixStackDumper_->IsInstalled()) {
-        mixStackDumper_->InstallDumpHandler(application_, signalHandler_);
-    }
-
     bool moduelJson = false;
     bool isStageBased = false;
     bool findEntryHapModuleInfo = false;
@@ -1214,6 +1190,40 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         moduelJson = entryHapModuleInfo.isModuleJson;
         isStageBased = entryHapModuleInfo.isStageBasedModel;
     }
+
+#ifdef SUPPORT_GRAPHICS
+    std::vector<OHOS::AppExecFwk::Metadata> metaData = entryHapModuleInfo.metadata;
+    bool isFullUpdate = std::any_of(metaData.begin(), metaData.end(), [](const auto &metaDataItem) {
+        return metaDataItem.name == "ArkTSPartialUpdate" && metaDataItem.value == "false";
+    });
+    Ace::AceForwardCompatibility::Init(bundleName, appInfo.apiCompatibleVersion, isFullUpdate);
+#endif
+
+    if (IsNeedLoadLibrary(bundleName)) {
+        std::vector<std::string> localPaths;
+        ChangeToLocalPath(bundleName, appInfo.moduleSourceDirs, localPaths);
+        LoadAbilityLibrary(localPaths);
+        LoadNativeLiabrary(bundleInfo, appInfo.nativeLibraryPath);
+#ifdef SUPPORT_GRAPHICS
+    } else if (Ace::AceForwardCompatibility::PipelineChanged()) {
+        std::vector<std::string> localPaths;
+        ChangeToLocalPath(bundleName, appInfo.moduleSourceDirs, localPaths);
+        LoadAbilityLibrary(localPaths);
+#endif
+    }
+    if (appInfo.needAppDetail) {
+        HILOG_DEBUG("MainThread::handleLaunchApplication %{public}s need add app detail ability library path",
+            bundleName.c_str());
+        LoadAppDetailAbilityLibrary(appInfo.appDetailAbilityLibraryPath);
+    }
+    LoadAppLibrary();
+
+    applicationForDump_ = application_;
+    mixStackDumper_ = std::make_shared<MixStackDumper>();
+    if (!mixStackDumper_->IsInstalled()) {
+        mixStackDumper_->InstallDumpHandler(application_, signalHandler_);
+    }
+
     if (isStageBased) {
         AppRecovery::GetInstance().InitApplicationInfo(GetMainHandler(), GetApplicationInfo());
     }
@@ -2170,16 +2180,17 @@ void MainThread::LoadAbilityLibrary(const std::vector<std::string> &libraryPaths
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
 #ifdef ABILITY_LIBRARY_LOADER
     HILOG_DEBUG("MainThread load ability library start.");
-#ifdef ACEABILITY_LIBRARY_LOADER
+#ifdef SUPPORT_GRAPHICS
     void *AceAbilityLib = nullptr;
-    AceAbilityLib = dlopen(acelibdir.c_str(), RTLD_NOW | RTLD_GLOBAL);
+    const char *path = Ace::AceForwardCompatibility::GetAceLibName();
+    AceAbilityLib = dlopen(path, RTLD_NOW | RTLD_LOCAL);
     if (AceAbilityLib == nullptr) {
-        HILOG_ERROR("Fail to dlopen %{public}s, [%{public}s]", acelibdir.c_str(), dlerror());
+        HILOG_ERROR("Fail to dlopen %{public}s, [%{public}s]", path, dlerror());
     } else {
-        HILOG_DEBUG("Success to dlopen %{public}s", acelibdir.c_str());
+        HILOG_DEBUG("Success to dlopen %{public}s", path);
         handleAbilityLib_.emplace_back(AceAbilityLib);
     }
-#endif  // ACEABILITY_LIBRARY_LOADER
+#endif
     size_t size = libraryPaths.size();
     for (size_t index = 0; index < size; index++) {
         std::string libraryPath = libraryPaths[index];

@@ -28,11 +28,11 @@ JsEnvironmentCallback::JsEnvironmentCallback(NativeEngine* engine)
 
 int32_t JsEnvironmentCallback::serialNumber_ = 0;
 
-void JsEnvironmentCallback::CallConfigurationUpdatedInner(
-    const std::string &methodName, const AppExecFwk::Configuration &config)
+void JsEnvironmentCallback::CallConfigurationUpdatedInner(const std::string &methodName,
+    const AppExecFwk::Configuration &config, const std::map<int32_t, std::shared_ptr<NativeReference>> callbacks)
 {
     HILOG_DEBUG("CallConfigurationUpdatedInner methodName = %{public}s", methodName.c_str());
-    for (auto &callback : callbacks_) {
+    for (auto &callback : callbacks) {
         if (!callback.second) {
             HILOG_ERROR("CallConfigurationUpdatedInner, Invalid jsCallback");
             return;
@@ -60,10 +60,12 @@ void JsEnvironmentCallback::OnConfigurationUpdated(const AppExecFwk::Configurati
 {
     std::weak_ptr<JsEnvironmentCallback> thisWeakPtr(shared_from_this());
     std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>(
-        [thisWeakPtr, config](NativeEngine &engine, AsyncTask &task, int32_t status) {
+        [thisWeakPtr, config, callbacks = callbacks_, callbacksSync = callbacksSync_]
+        (NativeEngine &engine, AsyncTask &task, int32_t status) {
             std::shared_ptr<JsEnvironmentCallback> jsEnvCallback = thisWeakPtr.lock();
             if (jsEnvCallback) {
-                jsEnvCallback->CallConfigurationUpdatedInner("onConfigurationUpdated", config);
+                jsEnvCallback->CallConfigurationUpdatedInner("onConfigurationUpdated", config, callbacks);
+                jsEnvCallback->CallConfigurationUpdatedInner("onConfigurationUpdated", config, callbacksSync);
             }
         }
     );
@@ -73,10 +75,11 @@ void JsEnvironmentCallback::OnConfigurationUpdated(const AppExecFwk::Configurati
         *engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
-void JsEnvironmentCallback::CallMemoryLevelInner(const std::string &methodName, const int level)
+void JsEnvironmentCallback::CallMemoryLevelInner(const std::string &methodName, const int level,
+    const std::map<int32_t, std::shared_ptr<NativeReference>> callbacks)
 {
     HILOG_DEBUG("CallMemoryLevelInner methodName = %{public}s", methodName.c_str());
-    for (auto &callback : callbacks_) {
+    for (auto &callback : callbacks) {
         if (!callback.second) {
             HILOG_ERROR("CallMemoryLevelInner, Invalid jsCallback");
             return;
@@ -104,10 +107,12 @@ void JsEnvironmentCallback::OnMemoryLevel(const int level)
 {
     std::weak_ptr<JsEnvironmentCallback> thisWeakPtr(shared_from_this());
     std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>(
-        [thisWeakPtr, level](NativeEngine &engine, AsyncTask &task, int32_t status) {
+        [thisWeakPtr, level, callbacks = callbacks_, callbacksSync = callbacksSync_]
+        (NativeEngine &engine, AsyncTask &task, int32_t status) {
             std::shared_ptr<JsEnvironmentCallback> jsEnvCallback = thisWeakPtr.lock();
             if (jsEnvCallback) {
-                jsEnvCallback->CallMemoryLevelInner("onMemoryLevel", level);
+                jsEnvCallback->CallMemoryLevelInner("onMemoryLevel", level, callbacks);
+                jsEnvCallback->CallMemoryLevelInner("onMemoryLevel", level, callbacksSync);
             }
         }
     );
@@ -117,7 +122,7 @@ void JsEnvironmentCallback::OnMemoryLevel(const int level)
         *engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
-int32_t JsEnvironmentCallback::Register(NativeValue *jsCallback)
+int32_t JsEnvironmentCallback::Register(NativeValue *jsCallback, bool isSync)
 {
     if (engine_ == nullptr) {
         return -1;
@@ -128,13 +133,26 @@ int32_t JsEnvironmentCallback::Register(NativeValue *jsCallback)
     } else {
         serialNumber_ = 0;
     }
-    callbacks_.emplace(callbackId, std::shared_ptr<NativeReference>(engine_->CreateReference(jsCallback, 1)));
+    if (isSync) {
+        callbacksSync_.emplace(callbackId, std::shared_ptr<NativeReference>(engine_->CreateReference(jsCallback, 1)));
+    } else {
+        callbacks_.emplace(callbackId, std::shared_ptr<NativeReference>(engine_->CreateReference(jsCallback, 1)));
+    }
     return callbackId;
 }
 
-bool JsEnvironmentCallback::UnRegister(int32_t callbackId)
+bool JsEnvironmentCallback::UnRegister(int32_t callbackId, bool isSync)
 {
     HILOG_DEBUG("UnRegister called, env callbackId : %{public}d", callbackId);
+    if (isSync) {
+        auto it = callbacksSync_.find(callbackId);
+        if (it == callbacksSync_.end()) {
+            HILOG_ERROR("UnRegister env callbackId: %{public}d is not in callbacksSync_", callbackId);
+            return false;
+        }
+        HILOG_DEBUG("callbacksSync_.callbackId : %{public}d", it->first);
+        return callbacksSync_.erase(callbackId) == 1;
+    }
     auto it = callbacks_.find(callbackId);
     if (it == callbacks_.end()) {
         HILOG_ERROR("UnRegister env callbackId: %{public}d is not in callbacks_", callbackId);
@@ -146,7 +164,7 @@ bool JsEnvironmentCallback::UnRegister(int32_t callbackId)
 
 bool JsEnvironmentCallback::IsEmpty() const
 {
-    return callbacks_.empty();
+    return callbacks_.empty() && callbacksSync_.empty();
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

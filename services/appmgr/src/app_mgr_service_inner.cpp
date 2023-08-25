@@ -54,10 +54,6 @@
 #include "perf_profile.h"
 #include "permission_constants.h"
 #include "permission_verification.h"
-#ifdef RESOURCE_SCHEDULE_SERVICE_ENABLE
-#include "res_sched_client.h"
-#include "res_type.h"
-#endif
 #include "system_ability_definition.h"
 #include "ui_extension_utils.h"
 #include "uri_permission_manager_client.h"
@@ -203,7 +199,6 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
 
     auto appRecord =
         appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name, processName, appInfo->uid, bundleInfo);
-    ReportAbilitStartInfoToRSS(*abilityInfo, appRecord);
     if (!appRecord) {
         bool appExistFlag = appRunningManager_->CheckAppRunningRecordIsExistByBundleName(bundleInfo.name);
         appRecord = CreateAppRunningRecord(token, preToken, appInfo, abilityInfo,
@@ -901,6 +896,12 @@ void AppMgrServiceInner::ClearUpApplicationDataByUserId(
     result = KillApplicationByUserId(bundleName, userId);
     if (result < 0) {
         HILOG_ERROR("Kill Application by bundle name is fail");
+        return;
+    }
+    // 5.revoke uri permission rights
+    result = AAFwk::UriPermissionManagerClient::GetInstance().RevokeAllUriPermissions(tokenId);
+    if (result != 0) {
+        HILOG_ERROR("Revoke all uri permissions is fail");
         return;
     }
     NotifyAppStatusByCallerUid(bundleName, userId, callerUid,
@@ -3878,9 +3879,6 @@ void AppMgrServiceInner::TimeoutNotifyApp(int32_t pid, int32_t uid,
         };
         AppExecFwk::AppfreezeManager::GetInstance()->AppfreezeHandleWithStack(faultData, info);
     }
-    HILOG_WARN("FaultData timeout NotifyApp %{public}s is going to exit due to %{public}s.",
-        bundleName.c_str(), FaultTypeToString(faultData.faultType).c_str());
-    KillProcessByPid(pid);
 }
 
 int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
@@ -4163,28 +4161,6 @@ int32_t AppMgrServiceInner::GetRunningProcessInformation(
         }
     }
     return ERR_OK;
-}
-
-void AppMgrServiceInner::ReportAbilitStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo,
-    const std::shared_ptr<AppRunningRecord> &appRecord) const
-{
-#ifdef RESOURCE_SCHEDULE_SERVICE_ENABLE
-    if (abilityInfo.type == AppExecFwk::AbilityType::PAGE &&
-        abilityInfo.launchMode != AppExecFwk::LaunchMode::SPECIFIED) {
-        int32_t isColdStart = (appRecord ? 0 : 1);
-        int32_t pid = (appRecord && appRecord->GetPriorityObject() ? appRecord->GetPriorityObject()->GetPid() : 0);
-        std::unordered_map<std::string, std::string> eventParams {
-            { "name", "ability_start" },
-            { "uid", std::to_string(abilityInfo.applicationInfo.uid) },
-            { "bundleName", abilityInfo.applicationInfo.bundleName },
-            { "abilityName", abilityInfo.name },
-            { "pid", std::to_string(pid) },
-            { "isColdStart", std::to_string(isColdStart) }
-        };
-        ResourceSchedule::ResSchedClient::GetInstance().ReportData(
-            ResourceSchedule::ResType::RES_TYPE_APP_ABILITY_START, isColdStart, eventParams);
-    }
-#endif
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -59,30 +59,6 @@ public:
      * @brief Attach The ability thread to the main process.
      * @param application Indicates the main process.
      * @param abilityRecord current running ability record
-     * @param mainRunner The runner which main_thread holds.
-     */
-    void AttachExtension(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-        const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
-        const std::shared_ptr<AppExecFwk::EventRunner> &mainRunner);
-
-    /**
-     * @brief Attach The ability thread to the main process.
-     * @param application Indicates the main process.
-     * @param abilityRecord current running ability record
-     */
-    void AttachExtension(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-        const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord);
-
-    /**
-     * @brief Init extension Ability flag.
-     * @param abilityRecord current running ability record
-     */
-    void InitExtensionFlag(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord);
-
-    /**
-     * @brief Attach The ability thread to the main process.
-     * @param application Indicates the main process.
-     * @param abilityRecord current running ability record
      * @param appContext the AbilityRuntime context
      */
     void Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
@@ -369,6 +345,30 @@ private:
      * @param info ability runner info
      */
     void DumpOtherInfo(std::vector<std::string> &info);
+
+    /**
+     * @brief Attach The ability thread to the main process.
+     * @param application Indicates the main process.
+     * @param abilityRecord current running ability record
+     * @param mainRunner The runner which main_thread holds.
+     */
+    void AttachExtension(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+        const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
+        const std::shared_ptr<AppExecFwk::EventRunner> &mainRunner);
+
+    /**
+     * @brief Init extension Ability flag.
+     * @param abilityRecord current running ability record
+     */
+    void InitExtensionFlag(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord);
+
+    /**
+     * @brief Attach The ability thread to the main process.
+     * @param application Indicates the main process.
+     * @param abilityRecord current running ability record
+     */
+    void AttachExtension(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+        const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord);
 
     /**
      * @brief To continue attaching The ability thread to the main process.

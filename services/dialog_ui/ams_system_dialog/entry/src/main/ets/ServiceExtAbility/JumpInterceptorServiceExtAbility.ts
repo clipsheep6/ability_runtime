@@ -86,6 +86,9 @@ export default class JumpInterceptorServiceExtAbility extends extension {
 
   onDestroy() {
     console.info(TAG, 'onDestroy.');
+    if (win !== undefined) {
+      win.destroy();
+    }
   }
 
   private async createWindow(name: string, windowType: number, rect) {

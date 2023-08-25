@@ -452,6 +452,8 @@ public:
 
     bool GetRecoveryInfo();
 
+    void InitPersistableUriPermissionConfig();
+
 #ifdef SUPPORT_GRAPHICS
     /**
      * check whether the ability 's window is attached.
@@ -883,6 +885,9 @@ public:
 
     std::string GetMissionAffinity() const;
 
+    void SetLockedState(bool lockedState);
+    bool GetLockedState();
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
 
@@ -1064,7 +1069,9 @@ private:
     bool isNeedBackToOtherMissionStack_ = false;
     std::weak_ptr<AbilityRecord> otherMissionStackAbilityRecord_; // who starts this ability record by SA
     int32_t collaboratorType_ = 0;
+    bool isGrantPersistableUriPermissionEnable_ = false;
     std::string missionAffinity_ = "";
+    bool lockedState_ = false;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

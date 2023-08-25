@@ -60,8 +60,8 @@ public:
     explicit JsEnvironmentCallback(NativeEngine* engine);
     void OnConfigurationUpdated(const AppExecFwk::Configuration &config) override;
     void OnMemoryLevel(const int level) override;
-    int32_t Register(NativeValue *jsCallback);
-    bool UnRegister(int32_t callbackId);
+    int32_t Register(NativeValue *jsCallback, bool isSync = false);
+    bool UnRegister(int32_t callbackId, bool isSync = false);
     bool IsEmpty() const;
     static int32_t serialNumber_;
 
@@ -69,9 +69,11 @@ private:
     NativeEngine* engine_ = nullptr;
     std::shared_ptr<NativeReference> jsCallback_;
     std::map<int32_t, std::shared_ptr<NativeReference>> callbacks_;
-    void CallConfigurationUpdatedInner(
-        const std::string &methodName, const AppExecFwk::Configuration &config);
-    void CallMemoryLevelInner(const std::string &methodName, const int level);
+    std::map<int32_t, std::shared_ptr<NativeReference>> callbacksSync_;
+    void CallConfigurationUpdatedInner(const std::string &methodName, const AppExecFwk::Configuration &config,
+        const std::map<int32_t, std::shared_ptr<NativeReference>> callbacks);
+    void CallMemoryLevelInner(const std::string &methodName, const int level,
+        const std::map<int32_t, std::shared_ptr<NativeReference>> callbacks);
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

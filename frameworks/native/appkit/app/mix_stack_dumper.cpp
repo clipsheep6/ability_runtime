@@ -42,6 +42,7 @@ static std::mutex g_mutex;
 
 namespace {
 static const std::string PROC_SELF_CMDLINE_PATH = "/proc/self/cmdline";
+static constexpr int SUSPEND_VM_FRAME_SKIP_NUM = 2;
 static constexpr int HEADER_BUF_LEN = 512;
 static bool hasInstalled = false;
 static pid_t g_targetDumpTid = -1;
@@ -212,18 +213,19 @@ bool MixStackDumper::DumpMixFrame(int fd, pid_t nstid, pid_t tid)
     if (application != nullptr && application->GetRuntime() != nullptr) {
         isVmSuspended = application->GetRuntime()->SuspendVM(nstid);
     }
-    if (!catcher_->CatchFrame(nstid, nativeFrames)) {
+    int skipframes = isVmSuspended ? SUSPEND_VM_FRAME_SKIP_NUM : 0;
+    if (!catcher_->CatchFrame(nstid, nativeFrames, skipframes)) {
         hasNativeFrame = false;
     }
 
     bool hasJsFrame = true;
     std::vector<JsFrames> jsFrames;
     // if we failed to get native frame, target thread may not be seized
-    if (application->GetRuntime() != nullptr && isVmSuspended) {
+    if (application != nullptr && application->GetRuntime() != nullptr && isVmSuspended) {
         hasJsFrame = application->GetRuntime()->BuildJsStackInfoList(nstid, jsFrames);
     }
     catcher_->ReleaseThread(nstid);
-    if (application->GetRuntime() != nullptr && isVmSuspended) {
+    if (application != nullptr && application->GetRuntime() != nullptr && isVmSuspended) {
         application->GetRuntime()->ResumeVM(nstid);
     }
 

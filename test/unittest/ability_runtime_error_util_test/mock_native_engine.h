@@ -163,7 +163,18 @@ public:
     {
         return false;
     }
+
     bool InitTaskPoolFunc(NativeEngine* engine, NativeValue* func, void* taskInfo) override
+    {
+        return false;
+    }
+
+    bool HasPendingJob() override
+    {
+        return false;
+    }
+
+    bool IsProfiling() override
     {
         return false;
     }

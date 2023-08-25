@@ -113,15 +113,22 @@ void JsEnvironment::RemoveTask(const std::string& name)
     }
 }
 
-void JsEnvironment::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorObj)
+void JsEnvironment::InitSourceMap(const std::string& hapPath, bool isModular)
 {
-    sourceMapOperator_ = operatorObj;
     if (engine_ == nullptr) {
         JSENV_LOG_E("Invalid Native Engine.");
         return;
     }
-    auto translateBySourceMapFunc = [&](const std::string& rawStack) {
-        return sourceMapOperator_->TranslateBySourceMap(rawStack);
+
+    sourceMap_ = std::make_shared<SourceMap>();
+    sourceMap_->Init(hapPath, isModular);
+    auto translateBySourceMapFunc = [weak = weak_from_this()](const std::string& rawStack) {
+        std::string retStr;
+        auto jsEnv = weak.lock();
+        if (jsEnv != nullptr && jsEnv->sourceMap_ != nullptr) {
+            retStr = jsEnv->sourceMap_->TranslateBySourceMap(rawStack);
+        }
+        return retStr;
     };
     engine_->RegisterTranslateBySourceMap(translateBySourceMapFunc);
 }
@@ -134,7 +141,7 @@ void JsEnvironment::RegisterUncaughtExceptionHandler(JsEnv::UncaughtExceptionInf
     }
 
     engine_->RegisterUncaughtExceptionHandler(UncaughtExceptionCallback(uncaughtExceptionInfo.uncaughtTask,
-        sourceMapOperator_));
+        sourceMap_));
 }
 
 bool JsEnvironment::LoadScript(const std::string& path, std::vector<uint8_t>* buffer, bool isBundle)

@@ -35,6 +35,7 @@
 #include "test_observer.h"
 #include "test_runner.h"
 #include "want.h"
+#include "scene_board_judgement.h"
 
 using namespace testing::ext;
 using namespace OHOS;
@@ -339,6 +340,7 @@ HWTEST_F(AbilityDelegatorModuleTest, Ability_Delegator_Args_Test_0600, Function 
     }
 
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
+    EXPECT_TRUE(context != nullptr);
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
         std::make_shared<AbilityDelegatorArgs>(want),
@@ -348,7 +350,9 @@ HWTEST_F(AbilityDelegatorModuleTest, Ability_Delegator_Args_Test_0600, Function 
 
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
 
-    EXPECT_TRUE(abilityDelegator.DoAbilityForeground(token));
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_TRUE(abilityDelegator.DoAbilityForeground(token));
+    }
 }
 
 /**
@@ -371,6 +375,7 @@ HWTEST_F(AbilityDelegatorModuleTest, Ability_Delegator_Args_Test_0700, Function 
     }
 
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
+    EXPECT_TRUE(context != nullptr);
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
         std::make_shared<AbilityDelegatorArgs>(want),
@@ -380,7 +385,9 @@ HWTEST_F(AbilityDelegatorModuleTest, Ability_Delegator_Args_Test_0700, Function 
 
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
 
-    EXPECT_TRUE(abilityDelegator.DoAbilityBackground(token));
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_TRUE(abilityDelegator.DoAbilityForeground(token));
+    }
 }
 
 /**

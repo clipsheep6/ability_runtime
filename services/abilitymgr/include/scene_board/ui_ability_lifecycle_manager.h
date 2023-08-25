@@ -245,6 +245,29 @@ public:
     int BlockAbility(int abilityRecordId, int32_t targetUserId) const;
     #endif
 
+    /**
+     * @brief dump all abilities
+     *
+     * @param info dump result.
+     */
+    void Dump(std::vector<std::string>& info);
+
+    /**
+     * @brief dump mission list
+     *
+     * @param info dump result.
+     */
+    void DumpMissionList(std::vector<std::string> &info, bool isClient, int userId, const std::string &args = "");
+
+    /**
+     * @brief dump mission list by id with params
+     *
+     * @param info dump result.
+     * @param params dump params.
+     */
+    void DumpMissionListByRecordId(std::vector<std::string>& info, bool isClient, int32_t abilityRecordId,
+        const std::vector<std::string>& params, int userId);
+
 private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
     int32_t GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest, bool &reuse, int32_t userId) const;

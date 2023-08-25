@@ -30,7 +30,10 @@ public:
         const std::string targetBundleName, int autoremove, int32_t appIndex = 0) override;
 
     virtual void RevokeUriPermission(const Security::AccessToken::AccessTokenID tokenId) override;
+    virtual int RevokeAllUriPermissions(const Security::AccessToken::AccessTokenID tokenId) override;
     virtual int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) override;
+    virtual bool CheckPersistableUriPermissionProxy(const Uri& uri, uint32_t flag, uint32_t tokenId) override;
+    virtual bool VerifyUriPermission(const Uri &uri, uint32_t flag, uint32_t tokenId) override;
 
 private:
     static inline BrokerDelegator<UriPermissionManagerProxy> delegator_;

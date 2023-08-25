@@ -50,9 +50,9 @@
 #include "extractor.h"
 #include "systemcapability.h"
 #include "source_map.h"
-#include "source_map_operator.h"
 
 #ifdef SUPPORT_GRAPHICS
+#include "ace_forward_compatibility.h"
 #include "declarative_module_preloader.h"
 #endif
 
@@ -152,6 +152,13 @@ std::unique_ptr<JsRuntime> JsRuntime::Create(const Options& options)
 
     if (!options.preload && options.isStageModel) {
         auto preloadedInstance = Runtime::GetPreloaded();
+
+#ifdef SUPPORT_GRAPHICS
+        // reload ace if compatible mode changes
+        if (Ace::AceForwardCompatibility::PipelineChanged() && preloadedInstance) {
+            preloadedInstance.reset();
+        }
+#endif
         if (preloadedInstance && preloadedInstance->GetLanguage() == Runtime::Language::JS) {
             instance.reset(static_cast<JsRuntime*>(preloadedInstance.release()));
         } else {
@@ -452,6 +459,11 @@ void JsRuntime::FinishPreload()
 bool JsRuntime::Initialize(const Options& options)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+#ifdef SUPPORT_GRAPHICS
+    if (Ace::AceForwardCompatibility::PipelineChanged()) {
+        preloaded_ = false;
+    }
+#endif
     if (!preloaded_) {
         if (!CreateJsEnv(options)) {
             HILOG_ERROR("Create js environment failed.");
@@ -538,8 +550,7 @@ bool JsRuntime::Initialize(const Options& options)
     }
 
     if (!options.preload) {
-        auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>(options.hapPath, isModular);
-        InitSourceMap(operatorObj);
+        InitSourceMap(options.hapPath, isModular);
 
         if (options.isUnique) {
             HILOG_INFO("Not supported TimerModule when form render");
@@ -663,11 +674,11 @@ void JsRuntime::SetAppLibPath(const AppLibPathMap& appLibPaths, const bool& isSy
     }
 }
 
-void JsRuntime::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorObj)
+void JsRuntime::InitSourceMap(const std::string& hapPath, bool isModular)
 {
     CHECK_POINTER(jsEnv_);
-    jsEnv_->InitSourceMap(operatorObj);
     JsEnv::SourceMap::RegisterReadSourceMapCallback(JsRuntime::ReadSourceMapData);
+    jsEnv_->InitSourceMap(hapPath, isModular);
 }
 
 void JsRuntime::Deinitialize()
