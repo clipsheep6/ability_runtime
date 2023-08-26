@@ -3450,8 +3450,16 @@ int AbilityManagerService::CleanAllMissions()
 int AbilityManagerService::MoveMissionToFront(int32_t missionId)
 {
     HILOG_INFO("request MoveMissionToFront, missionId:%{public}d", missionId);
-    CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
     CHECK_CALLER_IS_SYSTEM_APP;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        if (!uiAbilityLifecycleManager_) {
+            HILOG_ERROR("failed, uiAbilityLifecycleManager is nullptr");
+            return ERR_INVALID_VALUE;
+        }
+        return uiAbilityLifecycleManager_->MoveMissionToFront(missionId);
+    }
+
+    CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
 
     if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
@@ -3469,8 +3477,15 @@ int AbilityManagerService::MoveMissionToFront(int32_t missionId)
 int AbilityManagerService::MoveMissionToFront(int32_t missionId, const StartOptions &startOptions)
 {
     HILOG_INFO("request MoveMissionToFront, missionId:%{public}d", missionId);
-    CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
     CHECK_CALLER_IS_SYSTEM_APP;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        if (!uiAbilityLifecycleManager_) {
+            HILOG_ERROR("failed, uiAbilityLifecycleManager is nullptr");
+            return ERR_INVALID_VALUE;
+        }
+        return uiAbilityLifecycleManager_->MoveMissionToFront(missionId);
+    }
+    CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
 
     if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);

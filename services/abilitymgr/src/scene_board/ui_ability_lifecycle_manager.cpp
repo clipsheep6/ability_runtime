@@ -1759,5 +1759,15 @@ void UIAbilityLifecycleManager::DumpMissionListByRecordId(std::vector<std::strin
     }
 }
 
+int UIAbilityLifecycleManager::MoveMissionToFront(int32_t sessionId) const
+{
+    CHECK_POINTER_AND_RETURN(rootSceneSession_, ERR_INVALID_VALUE);
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecordsById(sessionId);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    sptr<SessionInfo> sessionInfo = abilityRecord->GetSessionInfo();
+    CHECK_POINTER_AND_RETURN(sessionInfo, ERR_INVALID_VALUE);
+    HILOG_INFO("Call PendingSessionActivation by rootSceneSession.");
+    return static_cast<int>(rootSceneSession_->PendingSessionActivation(sessionInfo));
+}
 }  // namespace AAFwk
 }  // namespace OHOS

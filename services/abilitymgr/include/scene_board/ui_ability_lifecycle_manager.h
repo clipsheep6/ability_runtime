@@ -268,6 +268,8 @@ public:
     void DumpMissionListByRecordId(std::vector<std::string>& info, bool isClient, int32_t abilityRecordId,
         const std::vector<std::string>& params, int userId);
 
+    int MoveMissionToFront(int32_t sessionId) const;
+
 private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
     int32_t GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest, bool &reuse, int32_t userId) const;
