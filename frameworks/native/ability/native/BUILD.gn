@@ -431,8 +431,10 @@ config("uiability_config") {
 }
 
 ohos_shared_library("uiabilitykit_native") {
-  include_dirs =
-      [ "${ability_runtime_path}/interfaces/kits/native/ability/native" ]
+  include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_runtime",
+  ]
 
   sources = [
     "${ability_runtime_native_path}/ability/native/ability_runtime/js_ui_ability.cpp",

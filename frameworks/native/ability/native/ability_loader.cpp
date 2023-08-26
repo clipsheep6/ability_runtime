@@ -38,7 +38,7 @@ void AbilityLoader::RegisterExtension(const std::string &abilityName, const Crea
 
 void AbilityLoader::RegisterUIAbility(const std::string &abilityName, const CreateUIAbility &createFunc)
 {
-    HILOG_DEBUG("RegisterUIAbility:%{public}s", abilityName.c_str());
+    HILOG_DEBUG("RegisterUIAbility: %{public}s", abilityName.c_str());
     uiAbilities_.emplace(abilityName, createFunc);
 }
 
@@ -68,7 +68,7 @@ AbilityRuntime::UIAbility *AbilityLoader::GetUIAbilityByName(const std::string &
     if (it != uiAbilities_.end()) {
         return it->second();
     }
-    HILOG_ERROR("GetAbilityByName failed:%{public}s", abilityName.c_str());
+    HILOG_ERROR("GetAbilityByName failed: %{public}s", abilityName.c_str());
     return nullptr;
 }
 

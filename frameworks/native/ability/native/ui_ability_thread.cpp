@@ -84,16 +84,16 @@ std::shared_ptr<AppExecFwk::ContextDeal> UIAbilityThread::CreateAndInitContextDe
     }
 
     contextDeal = std::make_shared<AppExecFwk::ContextDeal>();
-	if (contextDeal == nullptr) {
-	    HILOG_ERROR("contextDeal is nullptr");
+    if (contextDeal == nullptr) {
+        HILOG_ERROR("contextDeal is nullptr");
         return contextDeal;
-	}
+    }
 	
-	auto abilityInfo = abilityRecord->GetAbilityInfo();
-	if (abilityInfo == nullptr){
-	    HILOG_ERROR("contextDeal is nullptr");
+    auto abilityInfo = abilityRecord->GetAbilityInfo();
+    if (abilityInfo == nullptr){
+        HILOG_ERROR("contextDeal is nullptr");
         return nullptr;
-	}
+    }
 	
     contextDeal->SetAbilityInfo(abilityInfo);
     contextDeal->SetApplicationInfo(application->GetApplicationInfo());
@@ -476,7 +476,6 @@ void UIAbilityThread::NotifyContinuationResult(int32_t result)
 void UIAbilityThread::NotifyMemoryLevel(int32_t level)
 {
     HILOG_DEBUG("result: %{public}d", level);
-
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("abilityImpl_ is nullptr");
         return;
@@ -490,6 +489,10 @@ std::shared_ptr<AbilityContext> UIAbilityThread::BuildAbilityContext(
     const std::shared_ptr<Context> &stageContext)
 {
     auto abilityContextImpl = std::make_shared<AbilityContextImpl>();
+    if (abilityContextImpl == nullptr){
+        HILOG_ERROR("abilityContextImpl is nullptr");
+        return abilityContextImpl;
+    }
     abilityContextImpl->SetStageContext(stageContext);
     abilityContextImpl->SetToken(token);
     abilityContextImpl->SetAbilityInfo(abilityInfo);

@@ -17,11 +17,11 @@
 
 #include "ability_lifecycle.h"
 #include "ability_recovery.h"
-#include "ability_runtime/js_ui_ability.h"
 #include "configuration_convertor.h"
 #include "event_report.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "js_ui_ability.h"
 #include "ohos_application.h"
 #include "reverse_continuation_scheduler_primary_stage.h"
 #include "runtime.h"
@@ -47,7 +47,6 @@ UIAbility *UIAbility::Create(const std::unique_ptr<Runtime> &runtime)
     switch (runtime->GetLanguage()) {
         case Runtime::Language::JS:
             return JsUIAbility::Create(runtime);
-
         default:
             return new UIAbility();
     }
@@ -223,17 +222,17 @@ bool UIAbility::ShouldRecoverState(const AAFwk::Want &want)
     }
 
     if (abilityRecovery_ == nullptr) {
-        HILOG_WARN("abilityRecovery_ is null");
+        HILOG_ERROR("abilityRecovery_ is null");
         return false;
     }
 
     if (abilityContext_ == nullptr) {
-        HILOG_WARN("abilityContext_ is null");
+        HILOG_ERROR("abilityContext_ is null");
         return false;
     }
 
     if (abilityContext_->GetContentStorage() == nullptr) {
-        HILOG_WARN("GetContentStorage is null");
+        HILOG_ERROR("GetContentStorage is null");
         return false;
     }
     return true;
@@ -246,7 +245,7 @@ void UIAbility::NotifyContinuationResult(const AAFwk::Want &want, bool success)
     std::string originDeviceId = want.GetStringParam(DMS_ORIGIN_DEVICE_ID);
 
     if (continuationManager_ == nullptr) {
-        HILOG_WARN("continuationManager_ is null");
+        HILOG_ERROR("continuationManager_ is null");
         return;
     }
     continuationManager_->NotifyCompleteContinuation(
@@ -754,7 +753,6 @@ void UIAbility::OnDestroy(Rosen::DisplayId displayId)
 void UIAbility::OnChange(Rosen::DisplayId displayId)
 {
     HILOG_DEBUG("begin displayId: %{public}" PRIu64 "", displayId);
-
     // Get display
     auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
     if (!display) {

@@ -414,7 +414,7 @@ public:
     void SetSceneListener(const sptr<Rosen::IWindowLifeCycle> &listener);
 
     /**
-     * @brief Called back at ability context. 
+     * @brief Called back at ability context.
      * @return current window mode of the ability.
      */
     int GetCurrentWindowMode() override;

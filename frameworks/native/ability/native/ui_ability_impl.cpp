@@ -17,10 +17,10 @@
 
 #include "ability_handler.h"
 #include "ability_manager_client.h"
-#include "ability_runtime/js_ui_ability.h"
 #include "context/application_context.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "js_ui_ability.h"
 #include "ohos_application.h"
 #include "scene_board_judgement.h"
 
@@ -52,7 +52,7 @@ void UIAbilityImpl::Init(std::shared_ptr<AppExecFwk::OHOSApplication> &applicati
     HILOG_DEBUG("end");
 }
 
-void UIAbilityImpl::Start(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
+void UIAbilityImpl::Start(const AAFwk::Want &want, sptr<AppExecFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("begin");
@@ -174,10 +174,10 @@ void UIAbilityImpl::DispatchRestoreAbilityState(const AppExecFwk::PacMap &inStat
 }
 
 void UIAbilityImpl::HandleAbilityTransaction(
-    const AAFwk::Want &want, const AAFwk::LifeCycleStateInfo &targetState, sptr<AAFwk::SessionInfo> sessionInfo)
+    const AAFwk::Want &want, const AAFwk::LifeCycleStateInfo &targetState, sptr<AppExecFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("called sourceState:%{public}d targetState: %{public}d isNewWant: %{public}d sceneFlag: %{public}d",
+    HILOG_DEBUG("called sourceState:%{public}d, targetState: %{public}d, isNewWant: %{public}d, sceneFlag: %{public}d",
         lifecycleState_, targetState.state, targetState.isNewWant, targetState.sceneFlag);
 #ifdef SUPPORT_GRAPHICS
     if (ability_ != nullptr) {
@@ -316,7 +316,6 @@ void UIAbilityImpl::ScheduleUpdateConfiguration(const AppExecFwk::Configuration 
         HILOG_DEBUG("ability name: [%{public}s]", ability_->GetAbilityName().c_str());
         ability_->OnConfigurationUpdatedNotify(config);
     }
-
     HILOG_DEBUG("end");
 }
 
@@ -476,6 +475,7 @@ void UIAbilityImpl::WindowLifeCycleImpl::ForegroundFailed(int32_t type)
         default: {
             AAFwk::AbilityManagerClient::GetInstance()->AbilityTransitionDone(
                 token_, AAFwk::AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_FAILED, restoreData);
+            break;
         }
     }
 }
@@ -541,7 +541,7 @@ bool UIAbilityImpl::AbilityTransaction(const AAFwk::Want &want, const AAFwk::Lif
             bool isAsyncCallback = false;
             Stop(isAsyncCallback);
             if (isAsyncCallback) {
-                //AbilityManagerService will be notified after async callback
+                // AbilityManagerService will be notified after async callback
                 ret = false;
             }
             break;

@@ -32,6 +32,14 @@ public:
     UIAbilityImpl() = default;
     ~UIAbilityImpl() = default;
 
+    /**
+     * @brief Init the UIAbilityImpl object.
+     * @param application Indicates the main process.
+     * @param record current running ability record
+     * @param ability current uiability object.
+     * @param handler the UIability EventHandler object
+     * @param token the remote token
+     */
     void Init(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &record, std::shared_ptr<UIAbility> &ability,
         std::shared_ptr<AppExecFwk::AbilityHandler> &handler, const sptr<IRemoteObject> &token);
@@ -167,7 +175,7 @@ protected:
 #endif
 
 protected:
-    void Start(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
+    void Start(const AAFwk::Want &want, sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr);
     void Stop();
     void Stop(bool &isAsyncCallback);
     void StopCallback();

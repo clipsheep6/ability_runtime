@@ -25,24 +25,23 @@
 #include <syscall.h>
 #include <unistd.h>
 
-#include "ability_runtime/js_ui_ability.h"
-#include "js_runtime.h"
-#include "js_runtime_utils.h"
-#include "mission_info.h"
-#include "napi/native_api.h"
-#include "napi/native_common.h"
-#include "context/application_context.h"
 #include "ability_manager_client.h"
-
+#include "context/application_context.h"
 #include "directory_ex.h"
 #include "file_ex.h"
 #include "hilog_wrapper.h"
+#include "js_runtime.h"
+#include "js_runtime_utils.h"
+#include "js_ui_ability.h"
+#include "mission_info.h"
+#include "napi/native_api.h"
+#include "napi/native_common.h"
+#include "ohos_application.h"
 #include "parcel.h"
-#include "want_params.h"
 #include "recovery_param.h"
 #include "string_ex.h"
 #include "string_wrapper.h"
-#include "ohos_application.h"
+#include "want_params.h"
 
 namespace OHOS {
 namespace AppExecFwk {
