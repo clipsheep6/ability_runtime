@@ -451,6 +451,11 @@ void UIAbilityLifecycleManager::UpdateAbilityRecordLaunchReason(
         return;
     }
 
+    if (abilityRequest.IsAcquireShareData()) {
+        abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_SHARE);
+        return;
+    }
+
     abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_START_ABILITY);
     return;
 }
