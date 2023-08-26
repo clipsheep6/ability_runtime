@@ -1717,7 +1717,7 @@ void SetInstallationFree(InnerModuleInfo &innerModuleInfo, BundleType bundleType
 }
 
 bool ParseExtensionInfo(const Profile::ModuleJson &moduleJson, InnerBundleInfo &innerBundleInfo,
-    TransformParam &transformParam)
+    TransformParam &transformParam, InnerModuleInfo &innerModuleInfo)
 {
     for (const Profile::Extension &extension : moduleJson.module.extensionAbilities) {
         ExtensionAbilityInfo extensionInfo;
@@ -1776,7 +1776,7 @@ bool ToInnerBundleInfo(const Profile::ModuleJson &moduleJson, InnerBundleInfo &i
             continue;
         }
     }
-    if (!ParseExtensionInfo(moduleJson, innerBundleInfo, transformParam)) {
+    if (!ParseExtensionInfo(moduleJson, innerBundleInfo, transformParam, innerModuleInfo)) {
         return false;
     }
     if (!findEntry && !transformParam.isPreInstallApp &&
