@@ -484,7 +484,7 @@ void UIAbilityThread::NotifyMemoryLevel(int32_t level)
     abilityImpl_->NotifyMemoryLevel(level);
 }
 
-std::shared_ptr<AbilityRuntime::AbilityContext> UIAbilityThread::BuildAbilityContext(
+std::shared_ptr<AbilityContext> UIAbilityThread::BuildAbilityContext(
     const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
     const std::shared_ptr<AppExecFwk::OHOSApplication> &application, const sptr<IRemoteObject> &token,
     const std::shared_ptr<Context> &stageContext)

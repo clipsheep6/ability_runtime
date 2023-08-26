@@ -34,7 +34,7 @@ void UIAbilityImpl::Init(std::shared_ptr<AppExecFwk::OHOSApplication> &applicati
     HILOG_DEBUG("begin");
     if ((token == nullptr) || (application == nullptr) || (handler == nullptr) || (record == nullptr) ||
         ability == nullptr) {
-        HILOG_ERROR("Param is nullptr");
+        HILOG_ERROR("token or application or handler or record is nullptr");
         return;
     }
     token_ = record->GetToken();
@@ -177,8 +177,7 @@ void UIAbilityImpl::HandleAbilityTransaction(
     const AAFwk::Want &want, const AAFwk::LifeCycleStateInfo &targetState, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("begin sourceState:%{public}d; targetState: %{public}d; "
-                "isNewWant: %{public}d, sceneFlag: %{public}d",
+    HILOG_DEBUG("called sourceState:%{public}d targetState: %{public}d isNewWant: %{public}d sceneFlag: %{public}d",
         lifecycleState_, targetState.state, targetState.isNewWant, targetState.sceneFlag);
 #ifdef SUPPORT_GRAPHICS
     if (ability_ != nullptr) {
@@ -213,7 +212,7 @@ void UIAbilityImpl::HandleAbilityTransaction(
 
 void UIAbilityImpl::HandleShareData(int32_t uniqueId)
 {
-    HILOG_DEBUG("begin sourceState:%{public}d", lifecycleState_);
+    HILOG_DEBUG("called sourceState: %{public}d", lifecycleState_);
     WantParams wantParam;
     int32_t resultCode = Share(wantParam);
     HILOG_DEBUG("wantParam size: %{public}d", wantParam.Size());
@@ -222,7 +221,7 @@ void UIAbilityImpl::HandleShareData(int32_t uniqueId)
 
 void UIAbilityImpl::AbilityTransactionCallback(const AAFwk::AbilityLifeCycleState &state)
 {
-    HILOG_DEBUG("call");
+    HILOG_DEBUG("called");
     AAFwk::AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, state, GetRestoreData());
 }
 
@@ -234,7 +233,7 @@ bool UIAbilityImpl::PrepareTerminateAbility()
         return false;
     }
     bool ret = ability_->OnPrepareTerminate();
-    HILOG_DEBUG("end ret = %{public}d", ret);
+    HILOG_DEBUG("end ret is %{public}d", ret);
     return ret;
 }
 
@@ -368,7 +367,7 @@ void UIAbilityImpl::AfterFocusedCommon(bool isFocused)
         }
 
         if (!impl->ability_ || !impl->ability_->GetAbilityInfo()) {
-            HILOG_WARN("UIAbilityImpl::%{public}s failed", focuseMode ? "AfterFocused" : "AfterUnFocused");
+            HILOG_WARN("%{public}s failed", focuseMode ? "AfterFocused" : "AfterUnFocused");
             return;
         }
 
@@ -571,7 +570,7 @@ bool UIAbilityImpl::AbilityTransaction(const AAFwk::Want &want, const AAFwk::Lif
             break;
         }
     }
-    HILOG_DEBUG("end retVal = %{public}d", static_cast<int>(ret));
+    HILOG_DEBUG("end retVal is %{public}d", static_cast<int>(ret));
     return ret;
 }
 

@@ -38,15 +38,15 @@ constexpr char DLP_INDEX[] = "ohos.dlp.params.index";
 constexpr char DLP_PARAMS_SECURITY_FLAG[] = "ohos.dlp.params.securityFlag";
 constexpr char COMPONENT_STARTUP_NEW_RULES[] = "component.startup.newRules";
 constexpr int32_t ERR_INVALID_VALUE = -1;
-UIAbility *UIAbility::Create(const std::unique_ptr<AbilityRuntime::Runtime> &runtime)
+UIAbility *UIAbility::Create(const std::unique_ptr<Runtime> &runtime)
 {
     if (!runtime) {
         return new UIAbility;
     }
 
     switch (runtime->GetLanguage()) {
-        case AbilityRuntime::Runtime::Language::JS:
-            return AbilityRuntime::JsUIAbility::Create(runtime);
+        case Runtime::Language::JS:
+            return JsUIAbility::Create(runtime);
 
         default:
             return new UIAbility();
@@ -62,7 +62,7 @@ void UIAbility::Init(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo
     application_ = application;
     abilityInfo_ = abilityInfo;
     handler_ = handler;
-    AbilityContext::token_ = token;
+    AppExecFwk::AbilityContext::token_ = token;
 #ifdef SUPPORT_GRAPHICS
     continuationManager_ = std::make_shared<AppExecFwk::ContinuationManagerStage>();
     std::weak_ptr<UIAbility> ability = shared_from_this();
@@ -103,7 +103,7 @@ void UIAbility::Init(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo
 
 std::shared_ptr<OHOS::AppExecFwk::LifeCycle> UIAbility::GetLifecycle()
 {
-    HILOG_DEBUG("Ability::GetLifecycle called");
+    HILOG_DEBUG("called");
     return lifecycle_;
 }
 
@@ -112,7 +112,7 @@ void UIAbility::AttachAbilityContext(const std::shared_ptr<AbilityRuntime::Abili
     abilityContext_ = abilityContext;
 }
 
-void UIAbility::OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
+void UIAbility::OnStart(const AAFwk::Want &want, sptr<AppExecFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (abilityInfo_ == nullptr) {
@@ -170,6 +170,7 @@ void UIAbility::OnStop()
         return;
     }
     abilityLifecycleExecutor_->DispatchLifecycleState(AppExecFwk::AbilityLifecycleExecutor::LifecycleState::INITIAL);
+
     if (lifecycle_ == nullptr) {
         HILOG_ERROR("lifecycle_ is nullptr");
         return;
@@ -210,7 +211,6 @@ bool UIAbility::IsRestoredInContinuation() const
         HILOG_DEBUG("not Restored In Continuation");
         return false;
     }
-
     HILOG_DEBUG("end");
     return true;
 }
@@ -236,13 +236,12 @@ bool UIAbility::ShouldRecoverState(const AAFwk::Want &want)
         HILOG_WARN("GetContentStorage is null");
         return false;
     }
-
     return true;
 }
 
 void UIAbility::NotifyContinuationResult(const AAFwk::Want &want, bool success)
 {
-    HILOG_DEBUG("begin");
+    HILOG_DEBUG("called");
     int sessionId = want.GetIntParam(DMS_SESSION_ID, DEFAULT_DMS_SESSION_ID);
     std::string originDeviceId = want.GetStringParam(DMS_ORIGIN_DEVICE_ID);
 
@@ -322,7 +321,7 @@ void UIAbility::InitConfigurationProperties(const AppExecFwk::Configuration &cha
 
 void UIAbility::OnMemoryLevel(int level)
 {
-    HILOG_DEBUG("begin");
+    HILOG_DEBUG("called");
     if (scene_ == nullptr) {
         HILOG_ERROR("WindowScene is null");
         return;
@@ -425,7 +424,7 @@ int32_t UIAbility::OnSaveState(int32_t reason, AAFwk::WantParams &wantParams)
 
 void UIAbility::OnCompleteContinuation(int result)
 {
-    HILOG_DEBUG("begin");
+    HILOG_DEBUG("called");
     if (continuationManager_ == nullptr) {
         HILOG_ERROR("Continuation manager is nullptr");
         return;
@@ -573,7 +572,7 @@ void UIAbility::OnBackground()
     }
 
     if (scene_ != nullptr) {
-        HILOG_DEBUG("GoBackground sceneFlag:%{public}d", sceneFlag_);
+        HILOG_DEBUG("GoBackground sceneFlag: %{public}d", sceneFlag_);
         scene_->GoBackground(sceneFlag_);
     }
     if (abilityRecovery_ != nullptr) {
@@ -660,7 +659,7 @@ int32_t UIAbility::GetCurrentWindowMode()
 
 ErrCode UIAbility::SetMissionLabel(const std::string &label)
 {
-    HILOG_DEBUG("begin");
+    HILOG_DEBUG("called");
     if (!abilityInfo_ || abilityInfo_->type != AppExecFwk::AbilityType::PAGE) {
         HILOG_ERROR("invalid ability info");
         return ERR_INVALID_VALUE;
@@ -729,7 +728,7 @@ void UIAbility::GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32
 
 Ace::UIContent *UIAbility::GetUIContent()
 {
-    HILOG_DEBUG("call");
+    HILOG_DEBUG("called");
     if (scene_ == nullptr) {
         HILOG_ERROR("get window scene failed");
         return nullptr;
@@ -754,7 +753,7 @@ void UIAbility::OnDestroy(Rosen::DisplayId displayId)
 
 void UIAbility::OnChange(Rosen::DisplayId displayId)
 {
-    HILOG_DEBUG("start, displayId: %{public}" PRIu64 "", displayId);
+    HILOG_DEBUG("begin displayId: %{public}" PRIu64 "", displayId);
 
     // Get display
     auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
@@ -798,10 +797,10 @@ void UIAbility::OnChange(Rosen::DisplayId displayId)
 
 void UIAbility::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
 {
-    HILOG_DEBUG("from displayId %{public}" PRIu64 " to %{public}" PRIu64 ".", from, to);
+    HILOG_DEBUG("from displayId %{public}" PRIu64 " to %{public}" PRIu64 "", from, to);
     auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(to);
     if (!display) {
-        HILOG_ERROR("Get display by displayId %{public}" PRIu64 " failed.", to);
+        HILOG_ERROR("Get display by displayId %{public}" PRIu64 " failed", to);
         return;
     }
     // Get new display config
@@ -816,8 +815,8 @@ void UIAbility::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
             resConfig->SetScreenDensity(density);
             resConfig->SetDirection(AppExecFwk::ConvertDirection(height, width));
             resourceManager->UpdateResConfig(*resConfig);
-            HILOG_DEBUG("Density: %{public}f, Direction: %{public}d", resConfig->GetScreenDensity(),
-                resConfig->GetDirection());
+            HILOG_DEBUG(
+                "Density: %{public}f, Direction: %{public}d", resConfig->GetScreenDensity(), resConfig->GetDirection());
         }
     }
 
@@ -838,7 +837,7 @@ void UIAbility::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
     }
 
     configuration->CompareDifferent(changeKeyV, newConfig);
-    HILOG_DEBUG("changeKeyV size :%{public}zu", changeKeyV.size());
+    HILOG_DEBUG("changeKeyV size: %{public}zu", changeKeyV.size());
     if (!changeKeyV.empty()) {
         configuration->Merge(changeKeyV, newConfig);
         auto task = [ability = shared_from_this(), configuration = *configuration]() {
@@ -901,7 +900,7 @@ void UIAbility::OnStartForSupportGraphics(const AAFwk::Want &want)
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         int32_t defualtDisplayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
         int32_t displayId = want.GetIntParam(AAFwk::Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
-        HILOG_DEBUG("abilityName:%{public}s, displayId:%{public}d", abilityInfo_->name.c_str(), displayId);
+        HILOG_DEBUG("abilityName: %{public}s, displayId: %{public}d", abilityInfo_->name.c_str(), displayId);
         auto option = GetWindowOption(want);
         InitWindow(displayId, option);
 
@@ -954,7 +953,7 @@ void UIAbility::OnChangeForUpdateConfiguration(const AppExecFwk::Configuration &
 
     std::vector<std::string> changeKeyV;
     configuration->CompareDifferent(changeKeyV, newConfig);
-    HILOG_DEBUG("changeKeyV size :%{public}zu", changeKeyV.size());
+    HILOG_DEBUG("changeKeyV size: %{public}zu", changeKeyV.size());
     if (!changeKeyV.empty()) {
         configuration->Merge(changeKeyV, newConfig);
         auto task = [ability = shared_from_this(), configuration = *configuration]() {

@@ -58,7 +58,7 @@ public:
      * @param runtime the runtime pointer
      * @return Returns the UIAbility object of the ability
      */
-    static UIAbility *Create(const std::unique_ptr<AbilityRuntime::Runtime> &runtime);
+    static UIAbility *Create(const std::unique_ptr<Runtime> &runtime);
 
     /**
      * @brief Obtains the Lifecycle object of the current ability
@@ -108,7 +108,7 @@ public:
      * @param Want Indicates the {@link Want} structure containing startup information about the ability.
      * @param sessionInfo Indicates the sessionInfo.
      */
-    virtual void OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
+    virtual void OnStart(const AAFwk::Want &want, sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr);
 
     /**
      * @brief Called when this ability enters the <b>STATE_STOP</b> state.
@@ -414,27 +414,27 @@ public:
     void SetSceneListener(const sptr<Rosen::IWindowLifeCycle> &listener);
 
     /**
-     * @brief Called back at ability context. [IAbilityCallback]
+     * @brief Called back at ability context. 
      * @return current window mode of the ability.
      */
     int GetCurrentWindowMode() override;
 
     /**
-     * @brief Set mission label of this ability.[IAbilityCallback]
+     * @brief Set mission label of this ability.
      * @param label the label of this ability.
      * @return Returns ERR_OK if success.
      */
     ErrCode SetMissionLabel(const std::string &label) override;
 
     /**
-     * @brief Set mission icon of this ability.[IAbilityCallback]
+     * @brief Set mission icon of this ability.
      * @param icon the icon of this ability.
      * @return Returns ERR_OK if success.
      */
     ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon) override;
 
     /**
-     * @brief Get window rectangle of this ability.[IAbilityCallback]
+     * @brief Get window rectangle of this ability.
      * @param left the left position of window rectangle.
      * @param top the top position of window rectangle.
      * @param width the width position of window rectangle.
@@ -514,7 +514,6 @@ protected:
     sptr<Rosen::IWindowLifeCycle> sceneListener_ = nullptr;
     sptr<UIAbilityDisplayListener> abilityDisplayListener_ = nullptr;
     sptr<Rosen::IDisplayMoveListener> abilityDisplayMoveListener_ = nullptr;
-
 private:
     void OnStartForSupportGraphics(const AAFwk::Want &want);
     void OnChangeForUpdateConfiguration(const AppExecFwk::Configuration &newConfig);

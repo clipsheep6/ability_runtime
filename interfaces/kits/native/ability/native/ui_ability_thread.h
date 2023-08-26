@@ -149,7 +149,7 @@ private:
         std::shared_ptr<AppExecFwk::OHOSApplication> &application,
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
         const std::shared_ptr<AppExecFwk::AbilityContext> &abilityObject);
-    std::shared_ptr<AbilityRuntime::AbilityContext> BuildAbilityContext(
+    std::shared_ptr<AbilityContext> BuildAbilityContext(
         const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
         const std::shared_ptr<AppExecFwk::OHOSApplication> &application, const sptr<IRemoteObject> &token,
         const std::shared_ptr<AbilityRuntime::Context> &stageContext);

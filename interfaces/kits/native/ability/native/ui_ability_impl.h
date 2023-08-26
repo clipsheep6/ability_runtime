@@ -24,7 +24,7 @@ class AbilityHandler;
 class AbilityLocalRecord;
 class AbilityLifecycleCallbacks;
 class OHOSApplication;
-}
+} // namespace AppExecFwk
 namespace AbilityRuntime {
 class UIAbility;
 class UIAbilityImpl : public std::enable_shared_from_this<UIAbilityImpl> {
@@ -62,7 +62,7 @@ public:
      * @param sessionInfo Indicates the sessionInfo
      */
     void HandleAbilityTransaction(const AAFwk::Want &want, const AAFwk::LifeCycleStateInfo &targetState,
-        sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
+        sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr);
 
     /**
      * @brief The life cycle callback.
