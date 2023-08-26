@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-#ifndef MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_IMPL_H
-#define MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_IMPL_H
+#ifndef MOCK_OHOS_ABILITY_RUNTIME_MOCK_UI_ABILITY_IMPL_H
+#define MOCK_OHOS_ABILITY_RUNTIME_MOCK_UI_ABILITY_IMPL_H
 
-#include "ui_ability.h"
-#include "ui_ability_impl.h"
 #include <gtest/gtest.h>
+
+#include "ui_ability_impl.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -29,7 +29,7 @@ public:
     MockUIAbilityimpl() = default;
     virtual ~MockUIAbilityimpl() = default;
 
-    void ImplStart(const Want& want)
+    void ImplStart(const Want &want)
     {
         this->Start(want);
     }
@@ -38,16 +38,6 @@ public:
     {
         this->Stop();
     }
-
-    // void ImplActive()
-    // {
-    //     this->Active();
-    // }
-
-    // void ImplInactive()
-    // {
-    //     this->Inactive();
-    // }
 
     void SetlifecycleState(int state)
     {
@@ -69,18 +59,13 @@ public:
         return ability_;
     }
 
-    // bool CheckAndSave()
-    // {
-    //     return UIAbilityImpl::CheckAndSave();
-    // }
-
     bool CheckAndRestore()
     {
         return UIAbilityImpl::CheckAndRestore();
     }
 
 #ifdef SUPPORT_GRAPHICS
-    void ImplForeground(const Want& want)
+    void ImplForeground(const Want &want)
     {
         this->Foreground(want);
     }
@@ -94,6 +79,6 @@ public:
 private:
     UIAbilityImpl AbilityImpl_;
 };
-}  // namespace AppExecFwk
-}  // namespace OHOS
-#endif  // MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_IMPL_H
+} // namespace AbilityRuntime
+} // namespace OHOS
+#endif // MOCK_OHOS_ABILITY_RUNTIME_MOCK_UI_ABILITY_IMPL_H

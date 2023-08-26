@@ -22,122 +22,93 @@
 #undef private
 #include "ability_context_impl.h"
 #include "ability_handler.h"
-// #include "ability_info.h"
-// #include "ability_local_record.h"
-#include "ability_recovery.h"
-// #include "ability_start_setting.h"
-// #include "abs_shared_result_set.h"
-// #include "app_loader.h"
-// #include "configuration.h"
-// #include "context_deal.h"
-// #include "data_ability_operation.h"
-// #include "data_ability_predicates.h"
-// #include "data_ability_result.h"
 #include "hilog_wrapper.h"
-// #include "key_event.h"
-#include "mock_page_ability.h"
 #include "ohos_application.h"
 #include "runtime.h"
 
-namespace OHOS{
+namespace OHOS {
 namespace AppExecFwk {
 using namespace testing::ext;
 using namespace OHOS;
-using namespace OHOS::AppExecFwk;
 using OHOS::Parcel;
 
 class UIAbilityBaseTest : public testing::Test {
 public:
-    UIAbilityBaseTest() : ability_(nullptr)
-    {}
-    ~UIAbilityBaseTest()
-    {}
+    UIAbilityBaseTest() : ability_(nullptr) {}
+    ~UIAbilityBaseTest() {}
     std::shared_ptr<AbilityRuntime::UIAbility> ability_;
-    static void SetUpTestCase(void); 
+    static void SetUpTestCase(void);
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
 };
 
-void UIAbilityBaseTest::SetUpTestCase(void)
-{}
+void UIAbilityBaseTest::SetUpTestCase(void) {}
 
-void UIAbilityBaseTest::TearDownTestCase(void)
-{}
+void UIAbilityBaseTest::TearDownTestCase(void) {}
 
 void UIAbilityBaseTest::SetUp(void)
 {
     ability_ = std::make_shared<AbilityRuntime::UIAbility>();
 }
 
-void UIAbilityBaseTest::TearDown(void)
-{}
+void UIAbilityBaseTest::TearDown(void) {}
 
 /**
- * @tc.number: AaFwk_UIAbility_Name_0100
+ * @tc.number: AbilityRuntime_Name_0100
  * @tc.name: GetUIAbilityName
  * @tc.desc: Verify that the return value of getabilityname is correct.
  */
-HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_Name_0100, Function | MediumTest | Level1)
+HWTEST_F(UIAbilityBaseTest, AbilityRuntime_Name_0100, Function | MediumTest | Level1)
 {
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_Name_0100 start";
+    GTEST_LOG_(INFO) << "AbilityRuntime_Name_0100 start";
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "UIability";
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
-
     ability_->Init(abilityInfo, application, handler, token);
     EXPECT_STREQ(abilityInfo->name.c_str(), ability_->GetAbilityName().c_str());
-
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_Name_0100 end";
+    GTEST_LOG_(INFO) << "AbilityRuntime_Name_0100 end";
 }
 
 /**
- * @tc.number: AaFwk_UIAbility_GetAbilityName_0100
+ * @tc.number: AbilityRuntime_GetAbilityName_0100
  * @tc.name: GetAbilityName
  * @tc.desc: Verify that the getabilityname return value is correct.
  */
-HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_GetAbilityName_0100, Function | MediumTest | Level1)
+HWTEST_F(UIAbilityBaseTest, AbilityRuntime_GetAbilityName_0100, Function | MediumTest | Level1)
 {
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_GetAbilityName_0100 start";
-
+    GTEST_LOG_(INFO) << "AbilityRuntime_GetAbilityName_0100 start";
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
-
     std::string name = "LOL";
     abilityInfo->name = name;
     ability_->Init(abilityInfo, application, handler, token);
-
     EXPECT_STREQ(ability_->GetAbilityName().c_str(), name.c_str());
-
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_GetAbilityName_0100 end";
+    GTEST_LOG_(INFO) << "AbilityRuntime_GetAbilityName_0100 end";
 }
 
 /**
- * @tc.number: AaFwk_UIAbility_GetLifecycle_0100
+ * @tc.number: AbilityRuntime_GetLifecycle_0100
  * @tc.name: GetLifecycle
  * @tc.desc: Verify that the return value of getlifecycle is not empty.
  */
-HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_GetLifecycle_0100, Function | MediumTest | Level1)
+HWTEST_F(UIAbilityBaseTest, AbilityRuntime_GetLifecycle_0100, Function | MediumTest | Level1)
 {
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_GetLifecycle_0100 start";
-
+    GTEST_LOG_(INFO) << "AbilityRuntime_GetLifecycle_0100 start";
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
-
     ability_->Init(abilityInfo, application, handler, token);
     std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
-
     EXPECT_NE(lifeCycle, nullptr);
-
     GTEST_LOG_(INFO) << "AaFwk_Ability_GetLifecycle_0100 end";
 }
 
@@ -149,13 +120,11 @@ HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_GetLifecycle_0100, Function | Medium
 HWTEST_F(UIAbilityBaseTest, UIAbility_Create_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
-
     AbilityRuntime::Runtime::Options options;
     options.lang = AbilityRuntime::Runtime::Language::JS;
     auto runtime = AbilityRuntime::Runtime::Create(options);
     auto ability = AbilityRuntime::UIAbility::Create(runtime);
     EXPECT_NE(ability, nullptr);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -167,197 +136,75 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_Create_0100, TestSize.Level1)
 HWTEST_F(UIAbilityBaseTest, UIAbility_Create_0200, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
-
     auto ability = AbilityRuntime::UIAbility::Create(nullptr);
     EXPECT_NE(ability, nullptr);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-// /**
-//  * @tc.number: AaFwk_UIAbility_GetState_0100
-//  * @tc.name: GetState
-//  * @tc.desc: Verify that the return value of getstate is equal to active.
-//  */
-// HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_GetState_0100, Function | MediumTest | Level1)
-// {
-//     GTEST_LOG_(INFO) << "AaFwk_UIAbility_GetState_0100 start";
-
-//     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
-//     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-//     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-//     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
-//     sptr<IRemoteObject> token = nullptr;
-
-//     ability_->Init(abilityInfo, application, handler, token);
-
-//     ability_->OnActive();
-//     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
-//     EXPECT_EQ(AbilityLifecycleExecutor::LifecycleState::ACTIVE, state);
-
-//     GTEST_LOG_(INFO) << "AaFwk_UIAbility_GetState_0100 end";
-// }
-
-// /**
-//  * @tc.number: AaFwk_UIAbility_GetState_0200
-//  * @tc.name: GetState
-//  * @tc.desc: Getstate exception test.
-//  */
-// HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_GetState_0200, Function | MediumTest | Level3)
-// {
-//     GTEST_LOG_(INFO) << "AaFwk_UIAbility_GetState_0200 start";
-
-//     ability_->OnActive();
-//     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
-//     EXPECT_EQ(AbilityLifecycleExecutor::LifecycleState::UNINITIALIZED, state);
-
-//     GTEST_LOG_(INFO) << "AaFwk_UIAbility_GetState_0200 end";
-// }
-
-// /**
-//  * @tc.number: AaFwk_UIAbility_Dump_0100
-//  * @tc.name: Dump
-//  * @tc.desc: Test dump normal flow.
-//  */
-// HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_Dump_0100, Function | MediumTest | Level1)
-// {
-//     GTEST_LOG_(INFO) << "AaFwk_UIAbility_Dump_0100 start";
-
-//     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
-//     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-//     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-//     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
-//     sptr<IRemoteObject> token = nullptr;
-
-//     ability_->Init(abilityInfo, application, handler, token);
-
-//     std::string extra = "";
-//     ability_->Dump(extra);
-
-//     GTEST_LOG_(INFO) << "AaFwk_UIAbility_Dump_0100 end";
-// }
-
-// /**
-//  * @tc.name: AaFwk_Ability_Dump_0200
-//  * @tc.desc: UIAbility Dump basic test.
-//  * @tc.type: FUNC
-//  * @tc.require: issueI60B7N
-//  */
-// HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_Dump_0200, TestSize.Level1)
-// {
-//     HILOG_INFO("%{public}s start.", __func__);
-//     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
-//     ASSERT_NE(ability, nullptr);
-
-//     // ability info, lifecycle and lifecycle executor is nullptr
-//     std::string extra = "";
-//     ability->Dump(extra);
-
-//     auto abilityInfo = std::make_shared<AbilityInfo>();
-//     EXPECT_NE(abilityInfo, nullptr);
-//     abilityInfo->package = "test_Dump";
-//     abilityInfo->name = "test_Dump";
-//     abilityInfo->label = "label";
-//     abilityInfo->description = "test dump";
-//     abilityInfo->iconPath = "/index/icon";
-//     abilityInfo->visible = true;
-//     abilityInfo->kind = "kind";
-//     abilityInfo->type = AbilityType::SERVICE;
-//     abilityInfo->orientation = DisplayOrientation::LANDSCAPE;
-//     abilityInfo->launchMode = LaunchMode::SINGLETON;
-//     abilityInfo->permissions.push_back("ohos.Permission.TestPermission1");
-//     abilityInfo->permissions.push_back("ohos.Permission.TestPermission2");
-//     abilityInfo->bundleName = "bundleName";
-//     abilityInfo->applicationName = "applicationName";
-
-//     auto application = std::make_shared<OHOSApplication>();
-//     EXPECT_NE(application, nullptr);
-//     auto eventRunner = EventRunner::Create(abilityInfo->name);
-//     auto handler = std::make_shared<AbilityHandler>(eventRunner);
-//     sptr<IRemoteObject> token = nullptr;
-//     ability->Init(abilityInfo, application, handler, token);
-//     ability->Dump(extra);
-
-//     HILOG_INFO("%{public}s end.", __func__);
-// }
-
 /**
- * @tc.number: AaFwk_UIAbility_OnNewWant_0100
+ * @tc.number: AbilityRuntime_OnNewWant_0100
  * @tc.name: OnNewWant
  * @tc.desc: Test whether onnewwant can be called normally.
  */
-HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnNewWant_0100, Function | MediumTest | Level1)
+HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnNewWant_0100, Function | MediumTest | Level1)
 {
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OnNewWant_0100 start";
-
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnNewWant_0100 start";
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
-
     ability_->Init(abilityInfo, application, handler, token);
-
     Want want;
     ability_->OnNewWant(want);
-
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OnNewWant_0100 end";
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnNewWant_0100 end";
 }
 
 /**
- * @tc.number: AaFwk_UIAbility_OnRestoreAbilityState_0100
+ * @tc.number: AbilityRuntime_OnRestoreAbilityState_0100
  * @tc.name: OnRestoreAbilityState
  * @tc.desc: Test whether onnewwant can be called normally.
  */
-HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnRestoreAbilityState_0100, Function | MediumTest | Level1)
+HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnRestoreAbilityState_0100, Function | MediumTest | Level1)
 {
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OnRestoreAbilityState_0100 start";
-
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnRestoreAbilityState_0100 start";
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
-
     ability_->Init(abilityInfo, application, handler, token);
-
     PacMap inState;
     ability_->OnRestoreAbilityState(inState);
-
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OnRestoreAbilityState_0100 end";
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnRestoreAbilityState_0100 end";
 }
 
 /**
- * @tc.number: AaFwk_UIAbility_TerminateAbility_0100
+ * @tc.number: AbilityRuntime_TerminateAbility_0100
  * @tc.name: GetWindow
  * @tc.desc: Test whether GetWindow is called normally.
  */
-HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_GetWindow_001, Function | MediumTest | Level1)
+HWTEST_F(UIAbilityBaseTest, AbilityRuntime_GetWindow_001, Function | MediumTest | Level1)
 {
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_GetWindow_0100 start";
-
+    GTEST_LOG_(INFO) << "AbilityRuntime_GetWindow_0100 start";
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
-
     ability_->Init(abilityInfo, application, handler, token);
-
     EXPECT_EQ(ability_->GetWindow(), nullptr);
-
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_GetWindow_0100 end";
+    GTEST_LOG_(INFO) << "AbilityRuntime_GetWindow_0100 end";
 }
 
 /**
- * @tc.number: AaFwk_UIAbility_OnStart_0100
+ * @tc.number: AbilityRuntime_OnStart_0100
  * @tc.name: OnStart
  * @tc.desc: Test whether OnStart is called normally and verify whether the members are correct.
  */
-HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnStart_0100, Function | MediumTest | Level1)
+HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnStart_0100, Function | MediumTest | Level1)
 {
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OnStart_0100 start";
-
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnStart_0100 start";
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     AbilityType type = AbilityType::PAGE;
     abilityInfo->type = type;
@@ -366,96 +213,80 @@ HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnStart_0100, Function | MediumTest 
     std::shared_ptr<AbilityHandler> handler = nullptr;
     sptr<IRemoteObject> token = nullptr;
     ability_->Init(abilityInfo, application, handler, token);
-
     Want want;
     ability_->OnStart(want);
-
     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
     std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
     LifeCycle::Event lifeCycleState = lifeCycle->GetLifecycleState();
-
     EXPECT_EQ(AbilityLifecycleExecutor::LifecycleState::STARTED_NEW, state);
     EXPECT_EQ(LifeCycle::Event::ON_START, lifeCycleState);
-
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OnStart_0100 end";
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnStart_0100 end";
 }
 
 /**
- * @tc.number: AaFwk_UIAbility_OnStart_0200
+ * @tc.number: AbilityRuntime_OnStart_0200
  * @tc.name: OnStart
  * @tc.desc: Test the OnStart exception.
  */
-HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnStart_0200, Function | MediumTest | Level3)
+HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnStart_0200, Function | MediumTest | Level3)
 {
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OnStart_0200 start";
-
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnStart_0200 start";
     Want want;
     ability_->OnStart(want);
     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
     std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
-
     EXPECT_EQ(AbilityLifecycleExecutor::LifecycleState::UNINITIALIZED, state);
     EXPECT_EQ(nullptr, lifeCycle);
-
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OnStart_0200 end";
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnStart_0200 end";
 }
 
 /**
- * @tc.name: AaFwk_UIAbility_OnStart_0300
+ * @tc.name: AbilityRuntime_OnStart_0300
  * @tc.desc: UIAbility OnStart test when configuration is not nullptr.
  * @tc.type: FUNC
  * @tc.require: issueI60B7N
  */
-HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnStart_0300, TestSize.Level1)
+HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnStart_0300, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     ASSERT_NE(ability, nullptr);
-
     auto abilityInfo = std::make_shared<AbilityInfo>();
     EXPECT_NE(abilityInfo, nullptr);
     abilityInfo->name = "test_OnStart";
     abilityInfo->type = AbilityType::PAGE;
     abilityInfo->isStageBasedModel = true;
-
     auto application = std::make_shared<OHOSApplication>();
     EXPECT_NE(application, nullptr);
     Configuration config;
     application->SetConfiguration(config);
-
     auto eventRunner = EventRunner::Create(abilityInfo->name);
     auto handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
     ability->Init(abilityInfo, application, handler, token);
-
     Want want;
     ability->OnStart(want);
     HILOG_INFO("%{public}s end.", __func__);
 }
 
 /**
- * @tc.name: AaFwk_UIAbility_OnStart_0400
+ * @tc.name: AbilityRuntime_OnStart_0400
  * @tc.desc: UIAbility OnStart test when ability lifecycle executor or lifecycle is nullptr.
  * @tc.type: FUNC
  * @tc.require: issueI60B7N
  */
-HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnStart_0400, TestSize.Level1)
+HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnStart_0400, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     ASSERT_NE(ability, nullptr);
-
     auto abilityInfo = std::make_shared<AbilityInfo>();
     EXPECT_NE(abilityInfo, nullptr);
     abilityInfo->name = "test_OnStart";
     abilityInfo->type = AbilityType::PAGE;
     ability->abilityInfo_ = abilityInfo;
-
     Want want;
-    // branch when lifecycle executor is nullptr
     ability->OnStart(want);
-
-    // branch when lifecycle is nullptr
     auto lifecycleExecutor = std::make_shared<AbilityLifecycleExecutor>();
     ability->abilityLifecycleExecutor_ = lifecycleExecutor;
     ability->OnStart(want);
@@ -463,14 +294,13 @@ HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnStart_0400, TestSize.Level1)
 }
 
 /**
- * @tc.number: AaFwk_UIAbility_OnStop_0100
+ * @tc.number: AbilityRuntime_OnStop_0100
  * @tc.name: OnStop
  * @tc.desc: Test whether onstop is called normally and verify whether the members are correct.
  */
-HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnStop_0100, Function | MediumTest | Level1)
+HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnStop_0100, Function | MediumTest | Level1)
 {
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OnStop_0100 start";
-
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnStop_0100 start";
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     AbilityType type = AbilityType::PAGE;
     abilityInfo->type = type;
@@ -478,37 +308,29 @@ HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnStop_0100, Function | MediumTest |
     std::shared_ptr<AbilityHandler> handler = nullptr;
     sptr<IRemoteObject> token = nullptr;
     ability_->Init(abilityInfo, application, handler, token);
-
     ability_->OnStop();
-
     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
     std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
     LifeCycle::Event lifeCycleState = lifeCycle->GetLifecycleState();
-
     EXPECT_EQ(AbilityLifecycleExecutor::LifecycleState::INITIAL, state);
     EXPECT_EQ(LifeCycle::Event::ON_STOP, lifeCycleState);
-
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OnStop_0100 end";
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnStop_0100 end";
 }
 
 /**
- * @tc.number: AaFwk_UIAbility_OnStop_0200
+ * @tc.number: AbilityRuntime_OnStop_0200
  * @tc.name: OnStop
  * @tc.desc: Test the OnStop exception.
  */
-HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnStop_0200, Function | MediumTest | Level3)
+HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnStop_0200, Function | MediumTest | Level3)
 {
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OnStop_0200 start";
-
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnStop_0200 start";
     ability_->OnStop();
-
     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
     std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
-
     EXPECT_EQ(AbilityLifecycleExecutor::LifecycleState::UNINITIALIZED, state);
     EXPECT_EQ(nullptr, lifeCycle);
-
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OnStop_0200 end";
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnStop_0200 end";
 }
 
 /**
@@ -517,13 +339,11 @@ HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnStop_0200, Function | MediumTest |
  * @tc.type: FUNC
  * @tc.require: issueI60B7N
  */
-HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnStop_0300, TestSize.Level1)
+HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnStop_0300, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     ASSERT_NE(ability, nullptr);
-
-    // ability recovery is not nullptr
     auto abilityRecovery = std::make_shared<AbilityRecovery>();
     EXPECT_NE(abilityRecovery, nullptr);
     ability->EnableAbilityRecovery(abilityRecovery);
@@ -539,7 +359,6 @@ HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnStop_0300, TestSize.Level1)
     auto lifecycleExecutor = std::make_shared<AbilityLifecycleExecutor>();
     ability->abilityLifecycleExecutor_ = lifecycleExecutor;
     ability->OnStop();
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -554,7 +373,6 @@ HWTEST_F(UIAbilityBaseTest, DestroyInstance_0100, TestSize.Level1)
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     ASSERT_NE(ability, nullptr);
-
     auto abilityInfo = std::make_shared<AbilityInfo>();
     EXPECT_NE(abilityInfo, nullptr);
     abilityInfo->name = "test_DestroyInstance";
@@ -566,20 +384,18 @@ HWTEST_F(UIAbilityBaseTest, DestroyInstance_0100, TestSize.Level1)
     auto handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
     ability->Init(abilityInfo, application, handler, token);
-
     ability->DestroyInstance();
     HILOG_INFO("%{public}s end.", __func__);
 }
 
 /**
- * @tc.number: AaFwk_UIAbility_OnForeground_0100
+ * @tc.number: AbilityRuntime_OnForeground_0100
  * @tc.name: OnForeground
  * @tc.desc: Test whether onforegroup is called normally, and verify whether the member is correct.
  */
-HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnForeground_0100, Function | MediumTest | Level1)
+HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnForeground_0100, Function | MediumTest | Level1)
 {
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OnForeground_0100 start";
-
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnForeground_0100 start";
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     AbilityType type = AbilityType::PAGE;
     abilityInfo->type = type;
@@ -587,50 +403,41 @@ HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnForeground_0100, Function | Medium
     std::shared_ptr<AbilityHandler> handler = nullptr;
     sptr<IRemoteObject> token = nullptr;
     ability_->Init(abilityInfo, application, handler, token);
-
     Want want;
     ability_->OnForeground(want);
-
     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
     std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
     LifeCycle::Event lifeCycleState = lifeCycle->GetLifecycleState();
-
     EXPECT_EQ(AbilityLifecycleExecutor::LifecycleState::INACTIVE, state);
     EXPECT_EQ(LifeCycle::Event::ON_FOREGROUND, lifeCycleState);
-
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OnForeground_0100 end";
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnForeground_0100 end";
 }
 
 /**
- * @tc.number: AaFwk_UIAbility_OnForeground_0200
+ * @tc.number: AbilityRuntime_OnForeground_0200
  * @tc.name: OnForeground
  * @tc.desc: Test the OnInactive exception.
  */
-HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnForeground_0200, Function | MediumTest | Level3)
+HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnForeground_0200, Function | MediumTest | Level3)
 {
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OnForeground_0200 start";
-
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnForeground_0200 start";
     Want want;
     ability_->OnForeground(want);
-
     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
     std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
-
     EXPECT_EQ(AbilityLifecycleExecutor::LifecycleState::UNINITIALIZED, state);
     EXPECT_EQ(nullptr, lifeCycle);
-
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OnForeground_0200 end";
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnForeground_0200 end";
 }
 
 /**
- * @tc.number: AaFwk_UIAbility_OnForeground_0300
+ * @tc.number: AbilityRuntime_OnForeground_0300
  * @tc.name: OnForeground
  * @tc.desc: Test the OnForeground exception.
  */
-HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnForeground_0300, Function | MediumTest | Level3)
+HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnForeground_0300, Function | MediumTest | Level3)
 {
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OnForeground_0300 start";
-
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnForeground_0300 start";
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     AbilityType type = AbilityType::PAGE;
     abilityInfo->type = type;
@@ -641,26 +448,22 @@ HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnForeground_0300, Function | Medium
     ability_->Init(abilityInfo, application, handler, token);
     Want want;
     ability_->OnForeground(want);
-
     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
     std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
     LifeCycle::Event lifeCycleState = lifeCycle->GetLifecycleState();
-
     EXPECT_EQ(AbilityLifecycleExecutor::LifecycleState::FOREGROUND_NEW, state);
     EXPECT_EQ(LifeCycle::Event::ON_FOREGROUND, lifeCycleState);
-
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OnForeground_0300 end";
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnForeground_0300 end";
 }
 
 /**
- * @tc.number: AaFwk_UIAbility_OnBackground_0100
+ * @tc.number: AbilityRuntime_OnBackground_0100
  * @tc.name: OnBackground
  * @tc.desc: Test whether onbackground is called normally and verify whether the members are correct.
  */
-HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnBackground_0100, Function | MediumTest | Level1)
+HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnBackground_0100, Function | MediumTest | Level1)
 {
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OnBackground_0100 start";
-
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnBackground_0100 start";
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     AbilityType type = AbilityType::PAGE;
     abilityInfo->type = type;
@@ -668,52 +471,44 @@ HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnBackground_0100, Function | Medium
     std::shared_ptr<AbilityHandler> handler = nullptr;
     sptr<IRemoteObject> token = nullptr;
     ability_->Init(abilityInfo, application, handler, token);
-
     ability_->OnBackground();
-
     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
     std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
     LifeCycle::Event lifeCycleState = lifeCycle->GetLifecycleState();
-
     EXPECT_EQ(AbilityLifecycleExecutor::LifecycleState::BACKGROUND, state);
     EXPECT_EQ(LifeCycle::Event::ON_BACKGROUND, lifeCycleState);
-
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OnBackground_0100 end";
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnBackground_0100 end";
 }
 
 /**
- * @tc.number: AaFwk_UIAbility_OnBackground_0200
+ * @tc.number: AbilityRuntime_OnBackground_0200
  * @tc.name: OnBackground
  * @tc.desc: Test the OnBackground exception.
  */
-HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnBackground_0200, Function | MediumTest | Level3)
+HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnBackground_0200, Function | MediumTest | Level3)
 {
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OnBackground_0200 start";
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnBackground_0200 start";
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::shared_ptr<OHOSApplication> application = nullptr;
     std::shared_ptr<AbilityHandler> handler = nullptr;
     sptr<IRemoteObject> token = nullptr;
     ability_->Init(abilityInfo, application, handler, token);
     ability_->OnBackground();
-
     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
     std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
-
     EXPECT_EQ(AbilityLifecycleExecutor::LifecycleState::BACKGROUND, state);
     EXPECT_TRUE(lifeCycle);
-
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OnBackground_0200 end"; 
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnBackground_0200 end";
 }
 
 /**
- * @tc.number: AaFwk_UIAbility_OnBackground_0300
+ * @tc.number: AbilityRuntime_OnBackground_0300
  * @tc.name: OnBackground
  * @tc.desc: Test the OnBackground exception.
  */
 HWTEST_F(UIAbilityBaseTest, AaFwk_Ability_OnBackground_0300, Function | MediumTest | Level3)
 {
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OnBackground_0300 start";
-
+    GTEST_LOG_(INFO) << "AbilityRuntime_OnBackground_0300 start";
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     AbilityType type = AbilityType::PAGE;
     abilityInfo->type = type;
@@ -723,16 +518,13 @@ HWTEST_F(UIAbilityBaseTest, AaFwk_Ability_OnBackground_0300, Function | MediumTe
     sptr<IRemoteObject> token = nullptr;
     ability_->Init(abilityInfo, application, handler, token);
     ability_->OnBackground();
-
     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
     std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
     LifeCycle::Event lifeCycleState = lifeCycle->GetLifecycleState();
-
     // Sence is nullptr, so lifecycle schedule failed.
     EXPECT_NE(AbilityLifecycleExecutor::LifecycleState::INITIAL, state);
     EXPECT_NE(LifeCycle::Event::UNDEFINED, lifeCycleState);
-
-    GTEST_LOG_(INFO) << "AaFwk_UIAbility_OBackground_0300 end";
+    GTEST_LOG_(INFO) << "AbilityRuntime_OBackground_0300 end";
 }
 
 /**
@@ -741,33 +533,28 @@ HWTEST_F(UIAbilityBaseTest, AaFwk_Ability_OnBackground_0300, Function | MediumTe
  * @tc.type: FUNC
  * @tc.require: issueI60B7N
  */
-HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnBackground_0400, TestSize.Level1)
+HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnBackground_0400, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     ASSERT_NE(ability, nullptr);
-
     // ability info is nullptr
     ability->OnBackground();
-
     // stage mode, scene is not nullptr
     auto abilityInfo = std::make_shared<AbilityInfo>();
     EXPECT_NE(abilityInfo, nullptr);
     abilityInfo->name = "test_OnStart";
     abilityInfo->type = AbilityType::PAGE;
     abilityInfo->isStageBasedModel = true;
-
     auto application = std::make_shared<OHOSApplication>();
     EXPECT_NE(application, nullptr);
     auto eventRunner = EventRunner::Create(abilityInfo->name);
     auto handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
     ability->Init(abilityInfo, application, handler, token);
-
     int32_t displayId = 0;
     sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
     ability->InitWindow(displayId, option);
-
     ability->OnBackground();
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -781,18 +568,15 @@ HWTEST_F(UIAbilityBaseTest, AaFwk_UIAbility_OnBackground_0400, TestSize.Level1)
 HWTEST_F(UIAbilityBaseTest, UIAbilityCreate_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
-
     AbilityRuntime::Runtime::Options options;
     auto runtime = AbilityRuntime::Runtime::Create(options);
     auto ability = AbilityRuntime::UIAbility::Create(runtime);
     EXPECT_NE(ability, nullptr);
-
     AbilityRuntime::Runtime::Options anotherOptions;
     anotherOptions.lang = static_cast<AbilityRuntime::Runtime::Language>(100); // invalid Runtime::Language
     auto anotherRuntime = AbilityRuntime::Runtime::Create(anotherOptions);
     auto anotherAbility = AbilityRuntime::UIAbility::Create(anotherRuntime);
     EXPECT_NE(anotherAbility, nullptr);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -827,7 +611,6 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityContinuation_0100, TestSize.Level1)
     // branch when abilityContext_ is nullptr
     auto ret = ability->IsRestoredInContinuation();
     EXPECT_EQ(ret, false);
-
     auto abilityContext = std::make_shared<AbilityRuntime::AbilityContextImpl>();
     ability->AttachAbilityContext(abilityContext);
     AAFwk::LaunchParam launchParam;
@@ -837,14 +620,12 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityContinuation_0100, TestSize.Level1)
     // branch when launchReason is not LAUNCHREASON_CONTINUATION
     ret = ability->IsRestoredInContinuation();
     EXPECT_EQ(ret, false);
-
     launchParam.launchReason = LaunchReason::LAUNCHREASON_CONTINUATION;
     ability->SetLaunchParam(launchParam);
 
     // branch when contentStorage_ is nullptr
     ret = ability->IsRestoredInContinuation();
     EXPECT_EQ(ret, false);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -865,7 +646,6 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityContinuation_0200, TestSize.Level1)
     bool ret = ability->ShouldRecoverState(want);
     EXPECT_EQ(ret, false);
     ability->HandleCreateAsRecovery(want);
-
     auto abilityRecovery = std::make_shared<AbilityRecovery>();
     ability->EnableAbilityRecovery(abilityRecovery);
 
@@ -874,7 +654,6 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityContinuation_0200, TestSize.Level1)
     ability->HandleCreateAsRecovery(want);
     ret = ability->ShouldRecoverState(want);
     EXPECT_EQ(ret, false);
-
     auto abilityContext = std::make_shared<AbilityRuntime::AbilityContextImpl>();
     ability->AttachAbilityContext(abilityContext);
 
@@ -890,7 +669,6 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityContinuation_0200, TestSize.Level1)
     want.SetParam(Want::PARAM_ABILITY_RECOVERY_RESTART, true);
     ret = ability->ShouldRecoverState(want);
     EXPECT_EQ(ret, false);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -903,7 +681,6 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityContinuation_0200, TestSize.Level1)
 HWTEST_F(UIAbilityBaseTest, UIAbilityContinuation_0300, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
-
     std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     ASSERT_NE(ability, nullptr);
     std::shared_ptr<AbilityInfo> pageAbilityInfo = std::make_shared<AbilityInfo>();
@@ -911,11 +688,9 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityContinuation_0300, TestSize.Level1)
     auto eventRunner = EventRunner::Create(pageAbilityInfo->name);
     auto handler = std::make_shared<AbilityHandler>(eventRunner);
     ability->Init(pageAbilityInfo, nullptr, handler, nullptr);
-
     Want want;
     bool success = false;
     ability->NotifyContinuationResult(want, success);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -930,7 +705,6 @@ HWTEST_F(UIAbilityBaseTest, InitConfigurationProperties_0100, TestSize.Level1)
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     ASSERT_NE(ability, nullptr);
-
     Configuration config;
     config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, "en");
     config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, "dark");
@@ -950,7 +724,6 @@ HWTEST_F(UIAbilityBaseTest, InitConfigurationProperties_0100, TestSize.Level1)
     EXPECT_EQ(language, "en");
     EXPECT_EQ(colormode, "dark");
     EXPECT_EQ(hasPointerDevice, "true");
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -965,16 +738,12 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityOnMemoryLevel_0100, TestSize.Level1)
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     ASSERT_NE(ability, nullptr);
-
     int level = 0;
     ability->OnMemoryLevel(level);
-
     ability->scene_ = std::make_shared<Rosen::WindowScene>();
     ability->OnMemoryLevel(level);
-
     auto contentInfo = ability->GetContentInfo();
     EXPECT_EQ(contentInfo, "");
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -989,28 +758,15 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityVirtualFunc_0100, TestSize.Level1)
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     ASSERT_NE(ability, nullptr);
-
     Configuration configuration;
     ability->OnConfigurationUpdated(configuration);
-
-    // auto ret = ability->IsTerminating();
-    // EXPECT_EQ(ret, false);
-
     int requestCode = 0;
     int resultCode = 0;
     Want want;
     ability->OnAbilityResult(requestCode, resultCode, want);
-
-    // ability->OnEventDispatch();
-
     std::vector<std::string> params;
     std::vector<std::string> info;
     ability->Dump(params, info);
-
-    // Uri originUri("test_virtual_function");
-    // auto destUri = ability->NormalizeUri(originUri);
-    // (void)ability->DenormalizeUri(destUri);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1025,34 +781,21 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityVirtualFunc_0200, TestSize.Level1)
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     ASSERT_NE(ability, nullptr);
-
     bool ret = ability->OnStartContinuation();
     EXPECT_EQ(ret, false);
-
     WantParams data;
     ret = ability->OnSaveData(data);
     EXPECT_EQ(ret, false);
-
     ret = ability->OnRestoreData(data);
     EXPECT_EQ(ret, false);
-
     int32_t reason = 0;
     EXPECT_EQ(ability->OnSaveState(reason, data), 0);
-
     int result = 0;
     ability->OnCompleteContinuation(result);
     ability->OnRemoteTerminated();
-
-    // (void)ability->OnSetCaller();
-
-    // std::string taskstr;
-    // auto timeout = ability->CreatePostEventTimeouter(taskstr);
-    // EXPECT_NE(timeout, nullptr);
-
     AAFwk::LaunchParam launchParam;
     ability->SetLaunchParam(launchParam);
     (void)ability->GetLaunchParam();
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1076,7 +819,6 @@ HWTEST_F(UIAbilityBaseTest, DispatchLifecycleOnForeground_0100, TestSize.Level1)
     auto lifecycleExecutor = std::make_shared<AbilityLifecycleExecutor>();
     ability->abilityLifecycleExecutor_ = lifecycleExecutor;
     ability->DispatchLifecycleOnForeground(want);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1091,21 +833,14 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityFuncList_0100, TestSize.Level1)
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     ASSERT_NE(ability, nullptr);
-
     ability->CallRequest();
-
     AAFwk::Want want;
     want.SetParam("component.startup.newRules", true);
     ability->SetWant(want);
     bool isNewRule = ability->IsUseNewStartUpRule();
     EXPECT_EQ(isNewRule, true);
-
     auto abilityRecovery = std::make_shared<AbilityRecovery>();
     ability->EnableAbilityRecovery(abilityRecovery);
-
-    // bool isCompleted = ability->PrintDrawnCompleted();
-    // EXPECT_EQ(isCompleted, false);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1120,17 +855,7 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityFuncList_0200, TestSize.Level1)
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     ASSERT_NE(ability, nullptr);
-
     ability->OnLeaveForeground();
-
-    // int volumeType = 0;
-    // ability->SetVolumeTypeAdjustedByKey(volumeType);
-
-    // int red = 0;
-    // int green = 0;
-    // int blue = 0;
-    // EXPECT_EQ(ability->SetWindowBackgroundColor(red, green, blue), -1);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1145,14 +870,11 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityScene_0100, TestSize.Level1)
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     ASSERT_NE(ability, nullptr);
-
     ability->OnSceneCreated();
     ability->OnSceneRestored();
     ability->onSceneDestroyed();
-
     auto scene = ability->GetScene();
     EXPECT_EQ(scene, nullptr);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1171,17 +893,14 @@ HWTEST_F(UIAbilityBaseTest, AbilityGetCurrentWindowMode_0100, TestSize.Level1)
     // scene_ is nullptr
     int windowMode = ability->GetCurrentWindowMode();
     EXPECT_EQ(windowMode, static_cast<int>(Rosen::WindowMode::WINDOW_MODE_UNDEFINED));
-
     ability->scene_ = std::make_shared<Rosen::WindowScene>();
     windowMode = ability->GetCurrentWindowMode();
     EXPECT_EQ(windowMode, static_cast<int>(Rosen::WindowMode::WINDOW_MODE_UNDEFINED));
-
     int32_t displayId = 0;
     sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
     ability->InitWindow(displayId, option);
     windowMode = ability->GetCurrentWindowMode();
     EXPECT_EQ(windowMode, static_cast<int>(Rosen::WindowMode::WINDOW_MODE_UNDEFINED));
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1196,21 +915,10 @@ HWTEST_F(UIAbilityBaseTest, UIAbilitySetMissionLabel_0100, TestSize.Level1)
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     ASSERT_NE(ability, nullptr);
-
     std::string label = "test_label";
     auto ret = ability->SetMissionLabel(label);
     EXPECT_EQ(ret, -1);
 
-    // ability type is not page
-    std::shared_ptr<AbilityInfo> serviceAbilityInfo = std::make_shared<AbilityInfo>();
-    serviceAbilityInfo->type = AppExecFwk::AbilityType::SERVICE;
-    auto eventRunner = EventRunner::Create(serviceAbilityInfo->name);
-    auto handler = std::make_shared<AbilityHandler>(eventRunner);
-    ability->Init(serviceAbilityInfo, nullptr, handler, nullptr);
-    ret = ability->SetMissionLabel(label);
-    EXPECT_EQ(ret, -1);
-
-    // stage mode
     std::shared_ptr<AbilityInfo> pageAbilityInfo = std::make_shared<AbilityInfo>();
     pageAbilityInfo->type = AppExecFwk::AbilityType::PAGE;
     pageAbilityInfo->isStageBasedModel = true;
@@ -1219,19 +927,11 @@ HWTEST_F(UIAbilityBaseTest, UIAbilitySetMissionLabel_0100, TestSize.Level1)
     ability->Init(pageAbilityInfo, nullptr, handler, nullptr);
     ret = ability->SetMissionLabel(label);
     EXPECT_EQ(ret, -1);
-
     int32_t displayId = 0;
     sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
     ability->InitWindow(displayId, option);
     ret = ability->SetMissionLabel(label);
     EXPECT_EQ(ret, -1);
-
-    // fa mode
-    pageAbilityInfo->isStageBasedModel = false;
-    ability->Init(pageAbilityInfo, nullptr, handler, nullptr);
-    ret = ability->SetMissionLabel(label);
-    EXPECT_EQ(ret, -1);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1246,21 +946,10 @@ HWTEST_F(UIAbilityBaseTest, UIAbilitySetMissionIcon_0100, TestSize.Level1)
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     ASSERT_NE(ability, nullptr);
-
     auto icon = std::make_shared<Media::PixelMap>();
     auto ret = ability->SetMissionIcon(icon);
     EXPECT_EQ(ret, -1);
 
-    // ability type is not page
-    std::shared_ptr<AbilityInfo> serviceAbilityInfo = std::make_shared<AbilityInfo>();
-    serviceAbilityInfo->type = AppExecFwk::AbilityType::SERVICE;
-    auto eventRunner = EventRunner::Create(serviceAbilityInfo->name);
-    auto handler = std::make_shared<AbilityHandler>(eventRunner);
-    ability->Init(serviceAbilityInfo, nullptr, handler, nullptr);
-    ret = ability->SetMissionIcon(icon);
-    EXPECT_EQ(ret, -1);
-
-    // stage mode
     std::shared_ptr<AbilityInfo> pageAbilityInfo = std::make_shared<AbilityInfo>();
     pageAbilityInfo->type = AppExecFwk::AbilityType::PAGE;
     pageAbilityInfo->isStageBasedModel = true;
@@ -1269,19 +958,11 @@ HWTEST_F(UIAbilityBaseTest, UIAbilitySetMissionIcon_0100, TestSize.Level1)
     ability->Init(pageAbilityInfo, nullptr, handler, nullptr);
     ret = ability->SetMissionIcon(icon);
     EXPECT_EQ(ret, -1);
-
     int32_t displayId = 0;
     sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
     ability->InitWindow(displayId, option);
     ret = ability->SetMissionIcon(icon);
     EXPECT_EQ(ret, -1);
-
-    // fa mode
-    pageAbilityInfo->isStageBasedModel = false;
-    ability->Init(pageAbilityInfo, nullptr, handler, nullptr);
-    ret = ability->SetMissionIcon(icon);
-    EXPECT_EQ(ret, -1);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1296,7 +977,6 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityOnChange_0100, TestSize.Level1)
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     ASSERT_NE(ability, nullptr);
-
     std::shared_ptr<AbilityInfo> pageAbilityInfo = std::make_shared<AbilityInfo>();
     pageAbilityInfo->type = AppExecFwk::AbilityType::PAGE;
     auto eventRunner = EventRunner::Create(pageAbilityInfo->name);
@@ -1308,7 +988,6 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityOnChange_0100, TestSize.Level1)
     ability->OnCreate(displayId);
     ability->OnDestroy(displayId);
     ability->OnChange(displayId);
-
     auto application = std::make_shared<OHOSApplication>();
     EXPECT_NE(application, nullptr);
     Configuration config;
@@ -1316,7 +995,6 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityOnChange_0100, TestSize.Level1)
     application->SetConfiguration(config);
     ability->Init(pageAbilityInfo, application, handler, nullptr);
     ability->OnChange(displayId);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1331,7 +1009,6 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityOnDisplayMove_0100, TestSize.Level1)
     HILOG_INFO("%{public}s start.", __func__);
     std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     ASSERT_NE(ability, nullptr);
-
     std::shared_ptr<AbilityInfo> pageAbilityInfo = std::make_shared<AbilityInfo>();
     pageAbilityInfo->type = AppExecFwk::AbilityType::PAGE;
     auto eventRunner = EventRunner::Create(pageAbilityInfo->name);
@@ -1350,7 +1027,6 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityOnDisplayMove_0100, TestSize.Level1)
     application->SetConfiguration(config);
     ability->Init(pageAbilityInfo, application, handler, nullptr);
     ability->OnDisplayMove(fromDisplayId, toDisplayId);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1369,7 +1045,6 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityRequestFocus_0100, TestSize.Level1)
     // ability window is nullptr
     Want want;
     ability->RequestFocus(want);
-
     std::shared_ptr<AbilityInfo> pageAbilityInfo = std::make_shared<AbilityInfo>();
     pageAbilityInfo->type = AppExecFwk::AbilityType::PAGE;
     pageAbilityInfo->isStageBasedModel = true;
@@ -1379,12 +1054,10 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityRequestFocus_0100, TestSize.Level1)
 
     // window is nullptr
     ability->RequestFocus(want);
-
     int32_t displayId = 0;
     sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
     ability->InitWindow(displayId, option);
     ability->RequestFocus(want);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1396,11 +1069,9 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityRequestFocus_0100, TestSize.Level1)
 HWTEST_F(UIAbilityBaseTest, UIAbility_GetResourceManager_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
-
     std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     auto resourceMgr = ability->GetResourceManager();
     EXPECT_EQ(resourceMgr, nullptr);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1412,24 +1083,19 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_GetResourceManager_0100, TestSize.Level1)
 HWTEST_F(UIAbilityBaseTest, UIAbility_OnStop_AsyncCallback_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
-
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<OHOSApplication> application = nullptr;
     std::shared_ptr<AbilityHandler> handler = nullptr;
     sptr<IRemoteObject> token = nullptr;
     ability_->Init(abilityInfo, application, handler, token);
-
     bool isAsyncCallback = false;
     ability_->OnStop(nullptr, isAsyncCallback);
-
     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
     std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
     LifeCycle::Event lifeCycleState = lifeCycle->GetLifecycleState();
-
     EXPECT_EQ(AbilityLifecycleExecutor::LifecycleState::INITIAL, state);
     EXPECT_EQ(LifeCycle::Event::ON_STOP, lifeCycleState);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1441,11 +1107,9 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_OnStop_AsyncCallback_0100, TestSize.Level1
 HWTEST_F(UIAbilityBaseTest, UIAbility_OnConfigurationUpdatedNotify_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
-
     Configuration configuration;
     ability_->OnConfigurationUpdatedNotify(configuration);
     EXPECT_NE(ability_, nullptr);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1457,7 +1121,6 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_OnConfigurationUpdatedNotify_0100, TestSiz
 HWTEST_F(UIAbilityBaseTest, UIAbility_InitWindow_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
-
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "ability";
     AbilityType type = AbilityType::PAGE;
@@ -1468,31 +1131,12 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_InitWindow_0100, TestSize.Level1)
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
     ability_->Init(abilityInfo, application, handler, token);
-
     int32_t displayId = 0;
     sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
     ability_->InitWindow(displayId, option);
     ASSERT_NE(ability_, nullptr);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
-
-// /**
-//  * @tc.name: Ability_OnShare_0100
-//  * @tc.desc: OnShare test
-//  * @tc.desc: Verify function OnShare.
-//  */
-// HWTEST_F(UIAbilityBaseTest, UIAbility_OnShare_0100, TestSize.Level1)
-// {
-//     HILOG_INFO("%{public}s start.", __func__);
-
-//     int64_t formId = 0;
-//     AAFwk::WantParams wantParams;
-//     bool isOnShare = ability_->OnShare(formId, wantParams);
-//     ASSERT_EQ(isOnShare, false);
-
-//     HILOG_INFO("%{public}s end.", __func__);
-// }
 
 /**
  * @tc.name: SetSceneListener_0100
@@ -1502,11 +1146,9 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_InitWindow_0100, TestSize.Level1)
 HWTEST_F(UIAbilityBaseTest, UIAbility_SetSceneListener_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
-
     sptr<Rosen::IWindowLifeCycle> listener;
     ability_->SetSceneListener(listener);
     ASSERT_NE(ability_, nullptr);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1518,7 +1160,6 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_SetSceneListener_0100, TestSize.Level1)
 HWTEST_F(UIAbilityBaseTest, UIAbility_GetWindowOption_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
-
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "ability";
     AbilityType type = AbilityType::PAGE;
@@ -1529,16 +1170,13 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_GetWindowOption_0100, TestSize.Level1)
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
     ability_->Init(abilityInfo, application, handler, token);
-
     CustomizeData custData = CustomizeData("ShowOnLockScreen", "0", "");
     std::vector<CustomizeData> vecCustData;
     vecCustData.push_back(custData);
     abilityInfo->metaData.customizeData = vecCustData;
-
     Want want;
     auto option = ability_->GetWindowOption(want);
     ASSERT_NE(option, nullptr);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1550,7 +1188,6 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_GetWindowOption_0100, TestSize.Level1)
 HWTEST_F(UIAbilityBaseTest, UIAbility_DoOnForeground_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
-
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "ability";
     AbilityType type = AbilityType::PAGE;
@@ -1561,11 +1198,9 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_DoOnForeground_0100, TestSize.Level1)
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
     ability_->Init(abilityInfo, application, handler, token);
-
     Want want;
     ability_->DoOnForeground(want);
     ASSERT_NE(ability_, nullptr);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1577,7 +1212,6 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_DoOnForeground_0100, TestSize.Level1)
 HWTEST_F(UIAbilityBaseTest, UIAbility_DoOnForeground_0200, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
-
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "ability";
     AbilityType type = AbilityType::PAGE;
@@ -1588,11 +1222,9 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_DoOnForeground_0200, TestSize.Level1)
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
     ability_->Init(abilityInfo, application, handler, token);
-
     Want want;
     ability_->DoOnForeground(want);
     ASSERT_NE(ability_, nullptr);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1604,10 +1236,8 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_DoOnForeground_0200, TestSize.Level1)
 HWTEST_F(UIAbilityBaseTest, UIAbility_GetAbilityContext_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
-
     auto abilityContext = ability_->GetAbilityContext();
     ASSERT_EQ(abilityContext, nullptr);
-
     HILOG_INFO("%{public}s end.", __func__);
 }
 } // namespace AppExecFwk
