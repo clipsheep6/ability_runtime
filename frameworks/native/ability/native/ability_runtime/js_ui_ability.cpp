@@ -20,7 +20,6 @@
 
 #include "ability_delegator_registry.h"
 #include "ability_recovery.h"
-#include "js_ability_context.h"
 #include "ability_start_setting.h"
 #include "app_recovery.h"
 #include "connection_manager.h"
@@ -29,9 +28,13 @@
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
+#include "js_ability_context.h"
 #include "js_data_struct_converter.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
+#ifdef SUPPORT_GRAPHICS
+#include "js_window_stage.h"
+#endif
 #include "napi_common_configuration.h"
 #include "napi_common_want.h"
 #include "napi_remote_object.h"

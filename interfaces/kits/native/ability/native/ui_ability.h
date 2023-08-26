@@ -16,7 +16,6 @@
 #ifndef OHOS_ABILITY_RUNTIME_UI_ABILITY_H
 #define OHOS_ABILITY_RUNTIME_UI_ABILITY_H
 
-#include "../ability_runtime/ability_context.h"
 #include "ability_context.h"
 #include "ability_continuation_interface.h"
 #include "ability_lifecycle_executor.h"
@@ -25,6 +24,7 @@
 #include "configuration.h"
 #include "context.h"
 #include "continuation_handler_stage.h"
+#include "foundation/ability/ability_runtime/interfaces/kits/native/ability/ability_runtime/ability_context.h"
 #include "iability_callback.h"
 #include "want.h"
 #ifdef SUPPORT_GRAPHICS
