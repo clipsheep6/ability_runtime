@@ -16,25 +16,46 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/abilitymgr"
 
-ohos_unittest("uri_permission_manager_test") {
+ohos_unittest("uri_permission_persistable_test") {
   module_out_path = module_output_path
 
-  sources = [ "uri_permission_manager_test.cpp" ]
+  include_dirs = [
+    "${ability_runtime_test_path}/mock/common/include",
+    "mock/include",
+  ]
+
+  sources = [
+    "${ability_runtime_test_path}/mock/common/src/mock_native_token.cpp",
+    "mock/src/mock_my_flag.cpp",
+    "mock/src/mock_permission_verification.cpp",
+    "uri_permission_persistable_test.cpp",
+  ]
 
   configs = [
-    "${ability_runtime_services_path}/uripermmgr:upms_config",
+    "${ability_runtime_innerkits_path}/app_manager:appmgr_sdk_config",
     "${ability_runtime_innerkits_path}/uri_permission:uripermkit_public_config",
-    "${ability_runtime_innerkits_path}/ability_manager:ability_manager_public_config",
+    "${ability_runtime_services_path}/uripermmgr:upms_config",
   ]
 
   deps = [
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_services_path}/uripermmgr:libupms_static",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
     "ability_base:zuri",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "init:libbeget_proxy",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "relational_store:native_rdb",
     "storage_service:storage_manager_sa_proxy",
   ]
 }
@@ -42,5 +63,5 @@ ohos_unittest("uri_permission_manager_test") {
 group("unittest") {
   testonly = true
 
-  deps = [ ":uri_permission_manager_test" ]
+  deps = [ ":uri_permission_persistable_test" ]
 }

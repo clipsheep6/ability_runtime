@@ -22,17 +22,23 @@ ohos_unittest("ability_record_test") {
   include_dirs = [
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/system_ability_mock",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
+    "${ability_runtime_test_path}/mock/common/include",
+    "mock/include",
   ]
 
   sources = [
     "${ability_runtime_services_path}/abilitymgr/src/lifecycle_deal.cpp",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp",
     "ability_record_test.cpp",  # add mock file
+    "mock/src/mock_my_flag.cpp",
+    "mock/src/mock_permission_verification.cpp",
   ]
 
   configs = [
     "${ability_runtime_services_path}/abilitymgr:abilityms_config",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test:aafwk_mock_config",
+    "${ability_runtime_services_path}/uripermmgr:upms_config",
+    "${ability_runtime_innerkits_path}/uri_permission:uripermkit_public_config",
   ]
   cflags = []
   if (target_cpu == "arm") {
@@ -42,9 +48,11 @@ ohos_unittest("ability_record_test") {
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
     "${ability_runtime_innerkits_path}/ability_manager:mission_info",
+    "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${ability_runtime_services_path}/common:perm_verification",
+    "${ability_runtime_services_path}/uripermmgr:libupms_static",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/aakit:aakit_mock",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core:appexecfwk_appmgr_mock",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core:appexecfwk_bundlemgr_mock",
@@ -68,7 +76,9 @@ ohos_unittest("ability_record_test") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "relational_store:native_rdb",
     "resource_management:global_resmgr",
+    "storage_service:storage_manager_sa_proxy",
   ]
 
   if (background_task_mgr_continuous_task_enable) {
