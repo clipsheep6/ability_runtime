@@ -1519,5 +1519,17 @@ HWTEST_F(AbilityManagerClientBranchTest, NotifySaveAsResult_0100, TestSize.Level
     EXPECT_EQ(result, ERR_INVALID_CALLER);
 }
 
+/**
+ * @tc.number: UpdateMissionSnapShot_0100
+ * @tc.name: UpdateMissionSnapShot
+ * @tc.desc: The caller is expected to be dlp manager.
+ */
+HWTEST_F(AbilityManagerClientBranchTest, UpdateMissionSnapShot_0100, TestSize.Level1)
+{
+    EXPECT_TRUE(client_ != nullptr);
+    sptr<IRemoteObject> token = nullptr;
+    auto pixelMap = std::shared_ptr<Media::PixelMap>();
+    client_->UpdateMissionSnapShot(token, pixelMap);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
