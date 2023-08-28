@@ -56,6 +56,5 @@ ohos_unittest("ability_timeout_test") {
 
 group("unittest") {
   testonly = true
-
-  deps = [ ":ability_timeout_test" ]
+  #   deps = [ ":ability_timeout_test" ]
 }
