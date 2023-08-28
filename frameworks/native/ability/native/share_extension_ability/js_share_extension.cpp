@@ -104,6 +104,10 @@ JsShareExtension::~JsShareExtension()
 
     jsRuntime_.FreeNativeReference(std::move(jsObj_));
     jsRuntime_.FreeNativeReference(std::move(shellContextRef_));
+    for (auto &item : contentSessions_) {
+        jsRuntime_.FreeNativeReference(std::move(item.second));
+    }
+    contentSessions_.clear();
 }
 
 void JsShareExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
