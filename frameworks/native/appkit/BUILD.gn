@@ -43,6 +43,7 @@ config("appkit_exception_config") {
 
 config("appkit_config") {
   defines = [ "AMS_LOG_TAG = \"Appkit\"" ]
+  defines += [ "AMS_LOG_DOMAIN = 0xD001305" ]
   if (target_cpu == "arm64") {
     defines += [ "_ARM64_" ]
   }
