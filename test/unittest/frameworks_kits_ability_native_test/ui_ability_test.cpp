@@ -22,6 +22,7 @@
 #undef private
 #include "ability_context_impl.h"
 #include "ability_handler.h"
+#include "ability_recovery.h"
 #include "hilog_wrapper.h"
 #include "ohos_application.h"
 #include "runtime.h"
