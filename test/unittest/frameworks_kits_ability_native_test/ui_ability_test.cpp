@@ -922,8 +922,8 @@ HWTEST_F(UIAbilityBaseTest, UIAbilitySetMissionLabel_0100, TestSize.Level1)
     std::shared_ptr<AbilityInfo> pageAbilityInfo = std::make_shared<AbilityInfo>();
     pageAbilityInfo->type = AppExecFwk::AbilityType::PAGE;
     pageAbilityInfo->isStageBasedModel = true;
-    shared_ptr<EventRunner> eventRunner = EventRunner::Create(pageAbilityInfo->name);
-    shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+    std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(pageAbilityInfo->name);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     ability->Init(pageAbilityInfo, nullptr, handler, nullptr);
     ret = ability->SetMissionLabel(label);
     EXPECT_EQ(ret, -1);
@@ -953,8 +953,8 @@ HWTEST_F(UIAbilityBaseTest, UIAbilitySetMissionIcon_0100, TestSize.Level1)
     std::shared_ptr<AbilityInfo> pageAbilityInfo = std::make_shared<AbilityInfo>();
     pageAbilityInfo->type = AppExecFwk::AbilityType::PAGE;
     pageAbilityInfo->isStageBasedModel = true;
-    shared_ptr<EventRunner> eventRunner = EventRunner::Create(pageAbilityInfo->name);
-    shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+    std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(pageAbilityInfo->name);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     ability->Init(pageAbilityInfo, nullptr, handler, nullptr);
     ret = ability->SetMissionIcon(icon);
     EXPECT_EQ(ret, -1);
