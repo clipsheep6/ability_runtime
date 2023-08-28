@@ -409,7 +409,7 @@ HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnForeground_0100, Function | MediumT
     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
     std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
     LifeCycle::Event lifeCycleState = lifeCycle->GetLifecycleState();
-    EXPECT_EQ(AbilityLifecycleExecutor::LifecycleState::INACTIVE, state);
+    EXPECT_EQ(AbilityLifecycleExecutor::LifecycleState::FOREGROUND_NEW, state);
     EXPECT_EQ(LifeCycle::Event::ON_FOREGROUND, lifeCycleState);
     GTEST_LOG_(INFO) << "AbilityRuntime_OnForeground_0100 end";
 }
@@ -476,7 +476,7 @@ HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnBackground_0100, Function | MediumT
     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
     std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
     LifeCycle::Event lifeCycleState = lifeCycle->GetLifecycleState();
-    EXPECT_EQ(AbilityLifecycleExecutor::LifecycleState::BACKGROUND, state);
+    EXPECT_EQ(AbilityLifecycleExecutor::LifecycleState::BACKGROUND_NEW, state);
     EXPECT_EQ(LifeCycle::Event::ON_BACKGROUND, lifeCycleState);
     GTEST_LOG_(INFO) << "AbilityRuntime_OnBackground_0100 end";
 }
@@ -497,7 +497,7 @@ HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnBackground_0200, Function | MediumT
     ability_->OnBackground();
     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
     std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
-    EXPECT_EQ(AbilityLifecycleExecutor::LifecycleState::BACKGROUND, state);
+    EXPECT_EQ(AbilityLifecycleExecutor::LifecycleState::BACKGROUND_NEW, state);
     EXPECT_TRUE(lifeCycle);
     GTEST_LOG_(INFO) << "AbilityRuntime_OnBackground_0200 end";
 }
