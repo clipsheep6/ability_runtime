@@ -96,6 +96,10 @@ JsUIExtensionBase::~JsUIExtensionBase()
     HILOG_DEBUG("destructor.");
     jsRuntime_.FreeNativeReference(std::move(jsObj_));
     jsRuntime_.FreeNativeReference(std::move(shellContextRef_));
+    for (auto &item : contentSessions_) {
+        jsRuntime_.FreeNativeReference(std::move(item.second));
+    }
+    contentSessions_.clear();
 }
 
 std::shared_ptr<JsExtensionCommon> JsUIExtensionBase::Init(const std::shared_ptr<AbilityLocalRecord> &record,
