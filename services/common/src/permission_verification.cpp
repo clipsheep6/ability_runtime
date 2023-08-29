@@ -90,6 +90,10 @@ bool PermissionVerification::IsGatewayCall() const
 bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission() const
 {
     HILOG_DEBUG("PermissionVerification::CheckSpecifidSystemAbilityAccessToken is called.");
+    if (IsGatewayCall()) {
+        HILOG_INFO("Is gateway call.");
+        return true;
+    }
     if (!IsSACall()) {
         HILOG_ERROR("caller tokenType is not native, verify failed.");
         return false;
