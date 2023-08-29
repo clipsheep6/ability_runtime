@@ -23,6 +23,8 @@
 namespace OHOS {
 namespace AbilityRuntime {
 const size_t ServiceExtensionContext::CONTEXT_TYPE_ID(std::hash<const char*> {} ("ServiceExtensionContext"));
+const std::string START_ABILITY_TYPE = "ABILITY_INNER_START_WITH_ACCOUNT";
+
 int ServiceExtensionContext::ILLEGAL_REQUEST_CODE(-1);
 
 ErrCode ServiceExtensionContext::StartAbility(const AAFwk::Want &want) const
@@ -120,6 +122,7 @@ ErrCode ServiceExtensionContext::StartAbilityWithAccount(const AAFwk::Want &want
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     HILOG_INFO("%{public}d accountId:", accountId);
+    (const_cast<Want &>(want)).SetParam(START_ABILITY_TYPE, true);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(
         want, token_, ILLEGAL_REQUEST_CODE, accountId);
     HILOG_DEBUG("%{public}s. End calling StartAbilityWithAccount. ret=%{public}d", __func__, err);
@@ -133,6 +136,7 @@ ErrCode ServiceExtensionContext::StartAbilityWithAccount(
     const AAFwk::Want &want, int accountId, const AAFwk::StartOptions &startOptions) const
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
+    (const_cast<Want &>(want)).SetParam(START_ABILITY_TYPE, true);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, startOptions, token_,
         ILLEGAL_REQUEST_CODE, accountId);
     HILOG_DEBUG("%{public}s. End calling StartAbilityWithAccount. ret=%{public}d", __func__, err);
