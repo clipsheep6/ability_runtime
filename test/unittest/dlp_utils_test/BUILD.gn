@@ -36,6 +36,7 @@ ohos_unittest("dlp_utils_test") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "ffrt:libffrt",
+    "hilog:libhilog",
     "ipc:ipc_core",
   ]
 }
