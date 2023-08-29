@@ -236,7 +236,8 @@ int UIAbilityLifecycleManager::DispatchForeground(const std::shared_ptr<AbilityR
     CHECK_POINTER_AND_RETURN_LOG(taskHandler, ERR_INVALID_VALUE, "Fail to get AbilityTaskHandler.");
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
-    if (!abilityRecord->IsAbilityState(AbilityState::FOREGROUNDING)) {
+    if (!abilityRecord->IsAbilityState(AbilityState::FOREGROUNDING) &&
+        !abilityRecord->IsAbilityState(AbilityState::FOREGROUND)) {
         HILOG_ERROR("DispatchForeground Ability transition life state error. expect %{public}d, actual %{public}d",
             AbilityState::FOREGROUNDING,
             abilityRecord->GetAbilityState());
