@@ -20,6 +20,7 @@
 
 #include "native_engine/native_engine.h"
 #include "source_map.h"
+#include "source_map_operator.h"
 
 namespace OHOS {
 namespace JsEnv {
@@ -44,8 +45,8 @@ class UncaughtExceptionCallback final {
 public:
     UncaughtExceptionCallback(
         std::function<void(const std::string summary, const JsEnv::ErrorObject errorObj)> uncaughtTask,
-        std::shared_ptr<SourceMap> sourceMap)
-        : uncaughtTask_(uncaughtTask), sourceMap_(sourceMap)
+        std::shared_ptr<SourceMapOperator> sourceMapOperator)
+        : uncaughtTask_(uncaughtTask), sourceMapOperator_(sourceMapOperator)
     {}
 
     ~UncaughtExceptionCallback() = default;
@@ -56,7 +57,7 @@ public:
 
 private:
     std::function<void(std::string summary, const JsEnv::ErrorObject errorObj)> uncaughtTask_;
-    std::shared_ptr<SourceMap> sourceMap_ = nullptr;
+    std::shared_ptr<SourceMapOperator> sourceMapOperator_ = nullptr;
 };
 } // namespace JsEnv
 } // namespace OHOS
