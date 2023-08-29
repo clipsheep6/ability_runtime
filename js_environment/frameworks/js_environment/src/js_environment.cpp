@@ -121,11 +121,11 @@ void JsEnvironment::InitSourceMap(const std::string& hapPath, bool isModular)
     }
 
     sourceMap_ = std::make_shared<SourceMap>();
-    sourceMap_->Init(hapPath, isModular);
-    auto translateBySourceMapFunc = [weak = weak_from_this()](const std::string& rawStack) {
+    auto translateBySourceMapFunc = [weak = weak_from_this(), hapPath, isModular](const std::string& rawStack) {
         std::string retStr;
         auto jsEnv = weak.lock();
         if (jsEnv != nullptr && jsEnv->sourceMap_ != nullptr) {
+            jsEnv->sourceMap_->Init(hapPath, isModular);
             retStr = jsEnv->sourceMap_->TranslateBySourceMap(rawStack);
         }
         return retStr;
