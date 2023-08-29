@@ -1087,6 +1087,9 @@ ErrCode AbilityManagerClient::SetMissionLabel(const sptr<IRemoteObject> &token, 
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_DEBUG("call");
         auto err = sceneSessionManager->SetSessionLabel(token, label);
+        if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
+            return SCB_TO_MISSION_ERROR_CODE_MAP[err];
+        }
         return static_cast<int>(err);
     }
     auto abms = GetAbilityManager();
@@ -1102,6 +1105,9 @@ ErrCode AbilityManagerClient::SetMissionIcon(
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_DEBUG("call");
         auto err = sceneSessionManager->SetSessionIcon(abilityToken, icon);
+        if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
+            return SCB_TO_MISSION_ERROR_CODE_MAP[err];
+        }
         return static_cast<int>(err);
     }
     auto abms = GetAbilityManager();
