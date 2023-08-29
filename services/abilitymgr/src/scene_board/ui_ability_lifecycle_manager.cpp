@@ -38,6 +38,9 @@ constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
 const std::string DLP_INDEX = "ohos.dlp.params.index";
 constexpr int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
 const std::string PARAM_MISSION_AFFINITY_KEY = "ohos.anco.param.missionAffinity";
+const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
+const std::string DMS_MISSION_ID = "dmsMissionId";
+const int DEFAULT_DMS_MISSION_ID = -1;
 #ifdef SUPPORT_ASAN
 const int KILL_TIMEOUT_MULTIPLE = 45;
 #else
@@ -98,7 +101,19 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
     UpdateAbilityRecordLaunchReason(abilityRequest, uiAbilityRecord);
     NotifyAbilityToken(uiAbilityRecord->GetToken(), abilityRequest);
 
-    uiAbilityRecord->AddCallerRecord(sessionInfo->callerToken, sessionInfo->requestCode);
+    std::string srcAbilityId = "";
+    if (abilityRequest.want.GetBoolParam(Want::PARAM_RESV_FOR_RESULT, false)) {
+        std::string srcDeviceId = abilityRequest.want.GetStringParam(DMS_SRC_NETWORK_ID);
+        int missionId = abilityRequest.want.GetIntParam(DMS_MISSION_ID, DEFAULT_DMS_MISSION_ID);
+        HILOG_DEBUG("Get srcNetWorkId = %{public}s, missionId = %{public}d", srcDeviceId.c_str(), missionId);
+        Want *newWant = const_cast<Want*>(&abilityRequest.want);
+        newWant->RemoveParam(DMS_SRC_NETWORK_ID);
+        newWant->RemoveParam(DMS_MISSION_ID);
+        newWant->RemoveParam(Want::PARAM_RESV_FOR_RESULT);
+        srcAbilityId = srcDeviceId + "_" + std::to_string(missionId);
+    }
+    uiAbilityRecord->AddCallerRecord(sessionInfo->callerToken,
+        sessionInfo->requestCode, srcAbilityId, sessionInfo->callingTokenId);
     if (iter == sessionAbilityMap_.end()) {
         sessionAbilityMap_.emplace(sessionInfo->persistentId, uiAbilityRecord);
     }
