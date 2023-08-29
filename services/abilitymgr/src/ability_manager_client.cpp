@@ -1235,6 +1235,7 @@ void AbilityManagerClient::ResetProxy(const wptr<IRemoteObject>& remote)
 
     auto serviceRemote = proxy_->AsObject();
     if ((serviceRemote != nullptr) && (serviceRemote == remote.promote())) {
+        HILOG_DEBUG("To remove death recipient.");
         serviceRemote->RemoveDeathRecipient(deathRecipient_);
         proxy_ = nullptr;
     }
