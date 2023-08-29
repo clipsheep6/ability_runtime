@@ -14,6 +14,7 @@
  */
 
 #include <cstdint>
+#include <fstream>
 #include <iostream>
 
 #include "options.h"
@@ -37,64 +38,31 @@ constexpr int32_t PARAM_FIFTEEN = 15;
 constexpr int32_t PARAM_SIXTEEN = 16;
 constexpr int32_t PARAM_SEVENTEEN = 17;
 constexpr int32_t PARAM_EIGHTEEN = 18;
-constexpr int32_t PARAM_NINETEEN = 19;
-constexpr int32_t PARAM_TWENTY = 20;
-constexpr int32_t PARAM_TWENTYONE = 21;
-constexpr int32_t PARAM_TWENTYTWO = 22;
-constexpr int32_t PARAM_TWENTYTHREE = 23;
-constexpr int32_t PARAM_TWENTYFOUR = 24;
-constexpr int32_t PARAM_TWENTYFIVE = 25;
-constexpr int32_t PARAM_TWENTYSIX = 26;
-constexpr int32_t PARAM_TWENTYSEVEN = 27;
-constexpr int32_t PARAM_TWENTYEIGHT = 28;
 
 int32_t main(int32_t argc, const char *argv[])
 {
-    if (argc < PARAM_TWENTYEIGHT) {
+    if (argc < PARAM_EIGHTEEN) {
         std::cout << "Insufficient parameters." << std::endl;
         return 1;
     }
 
     OHOS::AbilityRuntime::Options options;
-    options.bundleName = argv[PARAM_ONE];
-    options.moduleName = argv[PARAM_TWO];
-    options.modulePath = argv[PARAM_THREE];
-    options.resourcePath = argv[PARAM_FOUR];
-    options.debugPort = atoi(argv[PARAM_FIVE]);
-    options.assetPath = argv[PARAM_SIX];
-    options.systemResourcePath = argv[PARAM_SEVEN];
-    options.appResourcePath = argv[PARAM_EIGHT];
-    options.containerSdkPath = argv[PARAM_NINE];
-    options.url = argv[PARAM_TEN];
-    options.language = argv[PARAM_ELEVEN];
-    options.region = argv[PARAM_TWELVE];
-    options.script = argv[PARAM_THIRTEEN];
-    options.themeId = atoi(argv[PARAM_FOURTEEN]);
-    options.deviceWidth = atoi(argv[PARAM_FIFTEEN]);
-    options.deviceHeight = atoi(argv[PARAM_SIXTEEN]);
-    options.isRound = atoi(argv[PARAM_SEVENTEEN]);
-    options.compatibleVersion = atoi(argv[PARAM_EIGHTEEN]);
-    options.installationFree = atoi(argv[PARAM_NINETEEN]);
-    options.labelId = atoi(argv[PARAM_TWENTY]);
-    options.compileMode = argv[PARAM_TWENTYONE];
-    options.pageProfile = argv[PARAM_TWENTYTWO];
-    options.targetVersion = atoi(argv[PARAM_TWENTYTHREE]);
-    options.releaseType = argv[PARAM_TWENTYFOUR];
-    options.enablePartialUpdate = atoi(argv[PARAM_TWENTYFIVE]);
-    options.previewPath = argv[PARAM_TWENTYEIGHT];
-
-    OHOS::AppExecFwk::HapModuleInfo hapModuleInfo;
-    hapModuleInfo.name = "entry";
-    hapModuleInfo.srcEntrance = argv[PARAM_TWENTYSEVEN];
-    options.hapModuleInfo = hapModuleInfo;
-
-    OHOS::AppExecFwk::ApplicationInfo appInfo;
-    appInfo.name = "com.test.simulator";
-    options.applicationInfo = appInfo;
-
-    OHOS::AppExecFwk::AbilityInfo abilityInfo;
-    abilityInfo.name = "EntryAbility";
-    options.abilityInfo = abilityInfo;
+    options.modulePath = argv[PARAM_ONE];
+    options.resourcePath = argv[PARAM_TWO];
+    options.debugPort = atoi(argv[PARAM_THREE]);
+    options.assetPath = argv[PARAM_FOUR];
+    options.systemResourcePath = argv[PARAM_FIVE];
+    options.appResourcePath = argv[PARAM_SIX];
+    options.containerSdkPath = argv[PARAM_SEVEN];
+    options.url = argv[PARAM_EIGHT];
+    options.language = argv[PARAM_NINE];
+    options.region = argv[PARAM_TEN];
+    options.script = argv[PARAM_ELEVEN];
+    options.themeId = atoi(argv[PARAM_TWELVE]);
+    options.deviceWidth = atoi(argv[PARAM_THIRTEEN]);
+    options.deviceHeight = atoi(argv[PARAM_FOURTEEN]);
+    options.isRound = atoi(argv[PARAM_FIFTEEN]);
+    options.previewPath = argv[PARAM_SIXTEEN];
 
     OHOS::AppExecFwk::Configuration config;
     config.AddItem(OHOS::AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, "testlanguage");
@@ -103,13 +71,29 @@ int32_t main(int32_t argc, const char *argv[])
     auto configuration = std::make_shared<OHOS::AppExecFwk::Configuration>(config);
     options.configuration = configuration;
 
+    std::string moduleJsonPath = argv[PARAM_SEVENTEEN];
+    std::ifstream stream(moduleJsonPath, std::ios::ate | std::ios::binary);
+    if (!stream.is_open()) {
+        std::cout << "Failed to open: " << moduleJsonPath << std::endl;
+        return -1;
+    }
+
+    size_t len = stream.tellg();
+    std::cout << "module json len: " << len << std::endl;
+    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(len);
+    stream.seekg(0);
+    stream.read(reinterpret_cast<char*>(buffer.get()), len);
+    stream.close();
+    auto buf = buffer.release();
+    options.moduleJsonBuffer.assign(buf, buf + len);
+
     auto simulator = OHOS::AbilityRuntime::Simulator::Create(options);
     if (!simulator) {
         std::cout << "Create Simulator failed." << std::endl;
         return 1;
     }
 
-    std::string abilitySrcPath {argv[PARAM_TWENTYSIX]};
+    std::string abilitySrcPath {argv[PARAM_EIGHTEEN]};
     int64_t id = simulator->StartAbility(abilitySrcPath, [](int64_t abilityId) {});
     if (id < 0) {
         std::cout << "Start Ability failed." << std::endl;

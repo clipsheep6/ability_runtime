@@ -98,6 +98,7 @@ struct Options {
     AppExecFwk::HapModuleInfo hapModuleInfo;
     AppExecFwk::AbilityInfo abilityInfo;
     std::shared_ptr<AppExecFwk::Configuration> configuration;
+    std::vector<uint8_t> moduleJsonBuffer;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

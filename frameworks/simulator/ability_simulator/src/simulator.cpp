@@ -24,6 +24,7 @@
 
 #include "ability_context.h"
 #include "ability_stage_context.h"
+#include "bundle_container.h"
 #include "EventHandler.h"
 #include "hilog_wrapper.h"
 #include "js_ability_context.h"
@@ -35,6 +36,7 @@
 #include "js_runtime_utils.h"
 #include "js_timer.h"
 #include "js_window_stage.h"
+#include "json_serializer.h"
 #include "launch_param.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
 #include "resource_manager.h"
@@ -104,6 +106,8 @@ private:
     bool LoadAbilityStage(uint8_t *buffer, size_t len);
     void InitJsAbilityStageContext(NativeValue *instanceValue);
     NativeValue *CreateJsLaunchParam(NativeEngine &engine);
+    bool ParseBundleAndModuleInfo();
+    bool ParseAbilityInfo(const std::string &abilitySrcPath);
 
     panda::ecmascript::EcmaVM *CreateJSVM();
     Options options_;
@@ -122,6 +126,9 @@ private:
     std::shared_ptr<NativeReference> abilityStage_;
     std::shared_ptr<AbilityStageContext> stageContext_;
     std::shared_ptr<NativeReference> jsStageContext_;
+    std::shared_ptr<AppExecFwk::ApplicationInfo> appInfo_;
+    std::shared_ptr<AppExecFwk::HapModuleInfo> moduleInfo_;
+    std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_;
 };
 
 void DebuggerTask::HandleTask(const uv_async_t *req)
@@ -217,8 +224,78 @@ NativeValue *SimulatorImpl::LoadScript(const std::string &srcPath)
     return nativeEngine_->CreateInstance(obj, nullptr, 0);
 }
 
+bool SimulatorImpl::ParseBundleAndModuleInfo()
+{
+    AppExecFwk::BundleContainer::GetInstance().LoadBundleInfos(options_.moduleJsonBuffer);
+    appInfo_ = AppExecFwk::BundleContainer::GetInstance().GetApplicationInfo();
+    if (appInfo_ == nullptr) {
+        HILOG_ERROR("appinfo parse failed.");
+        return false;
+    }
+    nlohmann::json appInfoJson;
+    to_json(appInfoJson, *appInfo_);
+    std::cout << "appinfo : " << appInfoJson.dump() << std::endl;
+
+    options_.bundleName = appInfo_->bundleName;
+    options_.compatibleVersion = appInfo_->apiCompatibleVersion;
+    options_.installationFree = (appInfo_->bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE ? true : false);
+    options_.targetVersion = appInfo_->apiTargetVersion;
+    options_.releaseType = appInfo_->apiReleaseType;
+    options_.compileMode = "esmodule";
+    options_.enablePartialUpdate = false;
+
+    if (appInfo_->moduleInfos.empty()) {
+        HILOG_ERROR("module name is not exist");
+        return false;
+    }
+    options_.moduleName = appInfo_->moduleInfos[0].moduleName;
+    std::cout << "module name is " << options_.moduleName << std::endl;
+
+    moduleInfo_ = AppExecFwk::BundleContainer::GetInstance().GetHapModuleInfo(options_.moduleName);
+    if (moduleInfo_ == nullptr) {
+        HILOG_ERROR("module info parse failed.");
+        return false;
+    }
+    nlohmann::json moduleInfoJson;
+    to_json(moduleInfoJson, *moduleInfo_);
+    std::cout << "moduleInfo : " << moduleInfoJson.dump() << std::endl;
+
+    options_.pageProfile = moduleInfo_->pages;
+    return true;
+}
+
+bool SimulatorImpl::ParseAbilityInfo(const std::string &abilitySrcPath)
+{
+    auto path = abilitySrcPath;
+    path.erase(path.rfind("."));
+    auto abilityName = path.substr(path.rfind('/') + 1, path.length());
+    abilityInfo_ = AppExecFwk::BundleContainer::GetInstance().GetAbilityInfo(options_.moduleName, abilityName);
+    if (abilityInfo_ == nullptr) {
+        HILOG_ERROR("ability info parse failed.");
+        return false;
+    }
+    nlohmann::json json;
+    to_json(json, *abilityInfo_);
+    std::cout << "abilityInfo : " << json.dump() << std::endl;
+
+    options_.labelId = abilityInfo_->labelId;
+    return true;
+}
+
 int64_t SimulatorImpl::StartAbility(const std::string &abilitySrcPath, TerminateCallback callback)
 {
+    if (!ParseAbilityInfo(abilitySrcPath)) {
+        return -1;
+    }
+
+    if (stageContext_ == nullptr) {
+        stageContext_ = std::make_shared<AbilityStageContext>();
+        stageContext_->SetOptions(options_);
+        stageContext_->SetConfiguration(options_.configuration);
+        stageContext_->SetApplicationInfo(appInfo_);
+        stageContext_->SetHapModuleInfo(moduleInfo_);
+    }
+
     std::ifstream stream(options_.modulePath, std::ios::ate | std::ios::binary);
     if (!stream.is_open()) {
         HILOG_ERROR("Failed to open: %{public}s", options_.modulePath.c_str());
@@ -232,13 +309,6 @@ int64_t SimulatorImpl::StartAbility(const std::string &abilitySrcPath, Terminate
     stream.close();
 
     auto buf = buffer.release();
-
-    if (stageContext_ == nullptr) {
-        stageContext_ = std::make_shared<AbilityStageContext>();
-        stageContext_->SetOptions(options_);
-        stageContext_->SetConfiguration(options_.configuration);
-    }
-
     if (!LoadAbilityStage(buf, len)) {
         HILOG_ERROR("Load ability stage failed.");
         return -1;
@@ -267,7 +337,12 @@ int64_t SimulatorImpl::StartAbility(const std::string &abilitySrcPath, Terminate
 
 bool SimulatorImpl::LoadAbilityStage(uint8_t *buffer, size_t len)
 {
-    if (options_.hapModuleInfo.srcEntrance.empty()) {
+    if (moduleInfo_ == nullptr) {
+        HILOG_ERROR("moduleInfo is nullptr");
+        return false;
+    }
+
+    if (moduleInfo_->srcEntrance.empty()) {
         HILOG_DEBUG("module src path is empty.");
         return true;
     }
@@ -276,12 +351,13 @@ bool SimulatorImpl::LoadAbilityStage(uint8_t *buffer, size_t len)
         HILOG_ERROR("nativeEngine_ is nullptr");
         return false;
     }
-    std::string srcEntrance = options_.hapModuleInfo.srcEntrance;
+    std::string srcEntrance = moduleInfo_->srcEntrance;
     srcEntrance.erase(srcEntrance.rfind("."));
     srcEntrance.append(".abc");
     srcEntrance = srcEntrance.substr(srcEntrance.find('/') + 1, srcEntrance.length());
 
     auto moduleSrcPath = BUNDLE_INSTALL_PATH + options_.moduleName + "/" + srcEntrance;
+    HILOG_DEBUG("moduleSrcPath is %{public}s", moduleSrcPath.c_str());
     if (!nativeEngine_->RunScriptBuffer(moduleSrcPath, buffer, len, false)) {
         HILOG_ERROR("Failed to run ability stage script: %{public}s", moduleSrcPath.c_str());
         return false;
@@ -440,6 +516,7 @@ void SimulatorImpl::InitJsAbilityContext(NativeValue *instanceValue)
         context_->SetOptions(options_);
         context_->SetAbilityStageContext(stageContext_);
         context_->SetResourceManager(resourceMgr_);
+        context_->SetAbilityInfo(abilityInfo_);
     }
     NativeValue *contextObj = CreateJsAbilityContext(*nativeEngine_, context_);
     auto systemModule = std::shared_ptr<NativeReference>(
@@ -471,7 +548,9 @@ NativeValue *SimulatorImpl::CreateJsWant(NativeEngine &engine)
 
     object->SetProperty("deviceId", CreateJsValue(engine, ""));
     object->SetProperty("bundleName", CreateJsValue(engine, options_.bundleName));
-    object->SetProperty("abilityName", CreateJsValue(engine, options_.abilityInfo.name));
+    if (abilityInfo_) {
+        object->SetProperty("abilityName", CreateJsValue(engine, abilityInfo_->name));
+    }
     object->SetProperty("moduleName", CreateJsValue(engine, options_.moduleName));
     object->SetProperty("uri", CreateJsValue(engine, ""));
     object->SetProperty("type", CreateJsValue(engine, ""));
@@ -546,6 +625,11 @@ panda::ecmascript::EcmaVM *SimulatorImpl::CreateJSVM()
 
 bool SimulatorImpl::OnInit()
 {
+    if (!ParseBundleAndModuleInfo()) {
+        HILOG_ERROR("parse bundle and module info failed.");
+        return false;
+    }
+
     vm_ = CreateJSVM();
     if (vm_ == nullptr) {
         return false;

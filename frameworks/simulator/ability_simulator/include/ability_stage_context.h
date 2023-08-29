@@ -31,6 +31,9 @@ public:
     std::shared_ptr<AppExecFwk::ApplicationInfo> GetApplicationInfo() const override;
     std::shared_ptr<AppExecFwk::HapModuleInfo> GetHapModuleInfo() const override;
 
+    void SetApplicationInfo(const std::shared_ptr<AppExecFwk::ApplicationInfo> &info);
+    void SetHapModuleInfo(const std::shared_ptr<AppExecFwk::HapModuleInfo> &info);
+
     Options GetOptions() override;
     void SetOptions(const Options &options) override;
     std::string GetBundleName() override;

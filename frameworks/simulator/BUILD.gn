@@ -47,14 +47,12 @@ ohos_copy("ability_simulator_copy_application_modules") {
 
   napi_modules = [
     "napi_module/ability:ability_napi",
-    "napi_module/ability_constant:abilityconstant_napi",
     "napi_module/ability_context:abilitycontext_napi",
     "napi_module/ability_stage_context:abilitystagecontext_napi",
     "napi_module/application_context:applicationcontext_napi",
     "napi_module/caller:caller_napi",
     "napi_module/callee:callee",
     "napi_module/context:context_napi",
-    "napi_module/configuration_constant:configurationconstant_napi",
   ]
 
   foreach(module, napi_modules) {
@@ -77,6 +75,8 @@ ohos_copy("ability_simulator_copy_app_ability_modules") {
   napi_modules = [
     "napi_module/uiability:uiability",
     "napi_module/ability_stage:abilitystage",
+    "napi_module/ability_constant:abilityconstant",
+    "napi_module/configuration_constant:configurationconstant",
   ]
 
   foreach(module, napi_modules) {
