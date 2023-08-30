@@ -52,7 +52,7 @@ struct AppSpawnStartMsg {
     uint64_t accessTokenIdEx;
     uint32_t hapFlags = 0; // whether is pre installed hap
     HspList hspList; // list of harmony shared package
-    std::string overlayInfo;
+    std::string overlayInfo; // overlay hap resource path list
     DataGroupInfoList dataGroupInfoList; // list of harmony shared package
     uint32_t mountPermissionFlags;
 };
@@ -123,17 +123,9 @@ public:
     /**
      * Get function, return hsp list string
     */
-    const std::string& GetHspListStr() const
+    const std::string& GetExtraInfoStr() const
     {
-        return hspListStr;
-    }
-
-    /**
-     * Get function, return data group info list string
-    */
-    const std::string& GetDataGroupInfoListStr() const
-    {
-        return dataGroupInfoListStr;
+        return extraInfoStr;
     }
 
 private:
@@ -160,8 +152,7 @@ private:
     bool isValid_ = false;
     // because AppSpawnMsg's size is uncertain, so should use raw pointer.
     AppSpawnMsg *msg_ = nullptr;
-    std::string hspListStr;
-    std::string dataGroupInfoListStr;
+    std::string extraInfoStr;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
