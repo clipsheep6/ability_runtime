@@ -18,6 +18,9 @@
 
 #include "native_engine/native_engine.h"
 
+#include <mutex>
+#include <unordered_map>
+
 namespace OHOS {
 namespace AbilityRuntime {
 class ApplicationContextManager {
@@ -28,16 +31,17 @@ public:
 
     static ApplicationContextManager& GetApplicationContextManager();
 
-    void AddGlobalObject(std::shared_ptr<NativeReference> applicationContextObj);
+    void AddGlobalObject(NativeEngine &engine, std::shared_ptr<NativeReference> applicationContextObj);
 
-    std::shared_ptr<NativeReference> GetGlobalObject();
+    std::shared_ptr<NativeReference> GetGlobalObject(NativeEngine &engine);
 
 private:
     ApplicationContextManager();
 
     ~ApplicationContextManager();
 
-    std::shared_ptr<NativeReference> applicationContextObj_;
+    std::unordered_map<napi_env, std::shared_ptr<NativeReference>> applicationContextMap_;
+    std::mutex applicationContextMutex_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
