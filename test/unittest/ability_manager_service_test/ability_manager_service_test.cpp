@@ -3804,5 +3804,32 @@ HWTEST_F(AbilityManagerServiceTest, AppRecoverKill_001, TestSize.Level1)
     abilityMs_->AppRecoverKill(pid, StateReason::LIFECYCLE);
     abilityMs_->AppRecoverKill(pid, StateReason::APP_FREEZE);
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: SetLockedState
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService SetLockedState
+ */
+HWTEST_F(AbilityManagerServiceTest, SetLockedState_001, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs_, nullptr);
+    std::shared_ptr<AbilityRecord> abilityRecord = MockAbilityRecord(AbilityType::PAGE);
+    abilityMs_->SetLockedState(1, true);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: CheckUserIdActive
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService CheckUserIdActive
+ */
+HWTEST_F(AbilityManagerServiceTest, CheckUserIdActive_001, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs_, nullptr);
+    abilityMs_->CheckUserIdActive(USER_ID_U100);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

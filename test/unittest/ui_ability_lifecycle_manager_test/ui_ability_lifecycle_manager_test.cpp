@@ -2077,5 +2077,102 @@ HWTEST_F(UIAbilityLifecycleManagerTest, ReleaseCallLocked_002, TestSize.Level1)
     auto ret = uiAbilityLifecycleManager->ReleaseCallLocked(connect, element);
     EXPECT_EQ(ret, RELEASE_CALL_ABILITY_INNER_ERR);
 }
+
+/**
+ * @tc.name: UIAbilityLifecycleManager_Dump_001
+ * @tc.desc: Dump
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIAbilityLifecycleManagerTest, Dump_001, TestSize.Level1)
+{
+    auto uiAbilityLifecycleManager = std::make_unique<UIAbilityLifecycleManager>();
+    EXPECT_NE(uiAbilityLifecycleManager, nullptr);
+    AbilityRequest abilityRequest;
+    auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+    uiAbilityLifecycleManager->sessionAbilityMap_.emplace(1, abilityRecord);
+    uiAbilityLifecycleManager->sessionAbilityMap_.emplace(1, nullptr);
+    std::vector<std::string> info;
+    uiAbilityLifecycleManager->Dump(info);
+}
+
+/**
+ * @tc.name: UIAbilityLifecycleManager_DumpMissionList_001
+ * @tc.desc: DumpMissionList
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIAbilityLifecycleManagerTest, DumpMissionList_001, TestSize.Level1)
+{
+    auto uiAbilityLifecycleManager = std::make_unique<UIAbilityLifecycleManager>();
+    EXPECT_NE(uiAbilityLifecycleManager, nullptr);
+    AbilityRequest abilityRequest;
+    auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+    uiAbilityLifecycleManager->sessionAbilityMap_.emplace(1, nullptr);
+    uiAbilityLifecycleManager->sessionAbilityMap_.emplace(1, abilityRecord);
+    std::vector<std::string> info;
+    bool isClient = false;
+    int userId = -1;
+    std::string args;
+    uiAbilityLifecycleManager->DumpMissionList(info, isClient, userId, args);
+}
+
+/**
+ * @tc.name: UIAbilityLifecycleManager_DumpMissionList_002
+ * @tc.desc: DumpMissionList
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIAbilityLifecycleManagerTest, DumpMissionList_002, TestSize.Level1)
+{
+    auto uiAbilityLifecycleManager = std::make_unique<UIAbilityLifecycleManager>();
+    EXPECT_NE(uiAbilityLifecycleManager, nullptr);
+    AbilityRequest abilityRequest;
+    auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+    uiAbilityLifecycleManager->sessionAbilityMap_.emplace(1, abilityRecord);
+    std::vector<std::string> info;
+    bool isClient = false;
+    int userId = 100;
+    std::string args;
+    uiAbilityLifecycleManager->DumpMissionList(info, isClient, userId, args);
+}
+
+/**
+ * @tc.name: UIAbilityLifecycleManager_DumpMissionListByRecordId_001
+ * @tc.desc: DumpMissionListByRecordId
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIAbilityLifecycleManagerTest, DumpMissionListByRecordId_001, TestSize.Level1)
+{
+    auto uiAbilityLifecycleManager = std::make_unique<UIAbilityLifecycleManager>();
+    EXPECT_NE(uiAbilityLifecycleManager, nullptr);
+    AbilityRequest abilityRequest;
+    auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+    uiAbilityLifecycleManager->sessionAbilityMap_.emplace(1, nullptr);
+    uiAbilityLifecycleManager->sessionAbilityMap_.emplace(1, abilityRecord);
+    std::vector<std::string> info;
+    bool isClient = false;
+    int32_t abilityRecordId = 0;
+    int userId = 100;
+    std::vector<std::string> params;
+    uiAbilityLifecycleManager->DumpMissionListByRecordId(info, isClient, abilityRecordId, params, userId);
+}
+
+/**
+ * @tc.name: UIAbilityLifecycleManager_DumpMissionListByRecordId_002
+ * @tc.desc: DumpMissionListByRecordId
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIAbilityLifecycleManagerTest, DumpMissionListByRecordId_002, TestSize.Level1)
+{
+    auto uiAbilityLifecycleManager = std::make_unique<UIAbilityLifecycleManager>();
+    EXPECT_NE(uiAbilityLifecycleManager, nullptr);
+    AbilityRequest abilityRequest;
+    auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+    uiAbilityLifecycleManager->sessionAbilityMap_.emplace(1, abilityRecord);
+    std::vector<std::string> info;
+    bool isClient = false;
+    int32_t abilityRecordId = 1;
+    int userId = 100;
+    std::vector<std::string> params;
+    uiAbilityLifecycleManager->DumpMissionListByRecordId(info, isClient, abilityRecordId, params, userId);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
