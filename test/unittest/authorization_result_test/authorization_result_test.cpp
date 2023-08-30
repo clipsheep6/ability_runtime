@@ -54,7 +54,8 @@ HWTEST_F(AuthorizationResultTest, GrantResultsCallback_0100, Function | MediumTe
     EXPECT_NE(authorizationResult, nullptr);
     std::vector<std::string> permissions;
     std::vector<int> grantResults;
-    authorizationResult->GrantResultsCallback(permissions, grantResults);
+    std::vector<bool> isDialogShown;
+    authorizationResult->GrantResultsCallback(permissions, grantResults, isDialogShown);
 }
 
 /**
@@ -69,7 +70,8 @@ HWTEST_F(AuthorizationResultTest, GrantResultsCallback_0200, Function | MediumTe
     EXPECT_NE(authorizationResult, nullptr);
     std::vector<std::string> permissions;
     std::vector<int> grantResults;
-    authorizationResult->GrantResultsCallback(permissions, grantResults);
+    std::vector<bool> isDialogShown;
+    authorizationResult->GrantResultsCallback(permissions, grantResults, isDialogShown);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

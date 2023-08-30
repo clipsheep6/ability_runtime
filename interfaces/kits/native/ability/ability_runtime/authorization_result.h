@@ -27,7 +27,7 @@ public:
     virtual ~AuthorizationResult() = default;
 
     virtual void GrantResultsCallback(const std::vector<std::string> &permissions,
-        const std::vector<int> &grantResults) override;
+        const std::vector<int> &grantResults, const std::vector<bool> &isDialogShown) override;
 
 private:
     PermissionRequestTask task_;
