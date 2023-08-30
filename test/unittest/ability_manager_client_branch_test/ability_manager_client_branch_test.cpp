@@ -1036,7 +1036,7 @@ HWTEST_F(AbilityManagerClientBranchTest, IsValidMissionIds_0100, TestSize.Level1
     GTEST_LOG_(INFO) << "IsValidMissionIds_0100 start";
     EXPECT_TRUE(client_ != nullptr);
     std::vector<int32_t> missionIds;
-    std::vector<MissionVaildResult> results;
+    std::vector<MissionValidResult> results;
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         EXPECT_CALL(*mock_, IsValidMissionIds(_, _)).Times(1).WillOnce(Return(ERR_OK));
         EXPECT_EQ(client_->IsValidMissionIds(missionIds, results), ERR_OK);

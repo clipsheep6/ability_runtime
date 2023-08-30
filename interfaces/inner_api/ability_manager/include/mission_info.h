@@ -54,16 +54,16 @@ struct MissionInfo : public Parcelable {
 };
 
 /**
- * @struct MissionVaildResult
- * Mission is vaild result.
+ * @struct MissionValidResult
+ * Mission is valid result.
  */
-struct MissionVaildResult : public Parcelable {
+struct MissionValidResult : public Parcelable {
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;
-    static MissionVaildResult *Unmarshalling(Parcel &parcel);
+    static MissionValidResult *Unmarshalling(Parcel &parcel);
 
     int32_t missionId = -1;
-    bool isVaild = false;
+    bool isValid = false;
 };
 
 /**

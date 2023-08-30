@@ -3357,7 +3357,7 @@ HWTEST_F(AbilityManagerServiceTest, IsValidMissionIds_001, TestSize.Level1)
     HILOG_INFO("AbilityManagerServiceTest IsValidMissionIds_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     std::vector<int32_t> missionIds;
-    std::vector<MissionVaildResult> results;
+    std::vector<MissionValidResult> results;
     EXPECT_EQ(abilityMs_->IsValidMissionIds(missionIds, results), ERR_INVALID_VALUE);
     HILOG_INFO("AbilityManagerServiceTest IsValidMissionIds_001 end");
 }
@@ -3373,7 +3373,7 @@ HWTEST_F(AbilityManagerServiceTest, IsValidMissionIds_002, TestSize.Level1)
     HILOG_INFO("AbilityManagerServiceTest IsValidMissionIds_002 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     std::vector<int32_t> missionIds;
-    std::vector<MissionVaildResult> results;
+    std::vector<MissionValidResult> results;
     abilityMs_->InitMissionListManager(IPCSkeleton::GetCallingUid() / BASE_USER_RANGE, false);
     EXPECT_EQ(abilityMs_->IsValidMissionIds(missionIds, results), ERR_OK);
     HILOG_INFO("AbilityManagerServiceTest IsValidMissionIds_002 end");

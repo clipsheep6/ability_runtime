@@ -7813,7 +7813,7 @@ int AbilityManagerService::AddFreeInstallObserver(const sptr<AbilityRuntime::IFr
 }
 
 int32_t AbilityManagerService::IsValidMissionIds(
-    const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results)
+    const std::vector<int32_t> &missionIds, std::vector<MissionValidResult> &results)
 {
     auto userId = IPCSkeleton::GetCallingUid() / BASE_USER_RANGE;
     auto missionlistMgr = GetListManagerByUserId(userId);

@@ -47,7 +47,7 @@ public:
         int32_t userId = DEFAULT_INVALID_USER_ID) override;
 
     /**
-     * DisconnectAbility, connect session with service ability.
+     * Disconnect session with extension ability.
      *
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
      * @return Returns ERR_OK on success, others on failure.

@@ -1067,7 +1067,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t IsValidMissionIds(
-        const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results) override;
+        const std::vector<int32_t> &missionIds, std::vector<MissionValidResult> &results) override;
 
     virtual int32_t RequestDialogService(const Want &want, const sptr<IRemoteObject> &callerToken) override;
 

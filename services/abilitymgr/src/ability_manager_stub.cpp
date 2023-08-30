@@ -2316,7 +2316,7 @@ int32_t AbilityManagerStub::IsValidMissionIdsInner(MessageParcel &data, MessageP
 {
     HILOG_DEBUG("%{public}s is called.", __func__);
     std::vector<int32_t> missionIds;
-    std::vector<MissionVaildResult> results;
+    std::vector<MissionValidResult> results;
 
     data.ReadInt32Vector(&missionIds);
     auto err = IsValidMissionIds(missionIds, results);

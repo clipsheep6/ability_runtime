@@ -169,7 +169,7 @@ public:
     int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler);
     void CompleteFirstFrameDrawing(const sptr<IRemoteObject>& abilityToken) override {}
 #endif
-    MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionVaildResult>&));
+    MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionValidResult>&));
 public:
     std::string powerState_;
     static bool finishFlag_;
@@ -325,7 +325,7 @@ public:
     int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler);
     void CompleteFirstFrameDrawing(const sptr<IRemoteObject>& abilityToken) override {}
 #endif
-    MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionVaildResult>&));
+    MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionValidResult>&));
 public:
     std::string powerState_;
     static bool finishFlag_;

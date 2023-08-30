@@ -1317,7 +1317,7 @@ ErrCode AbilityManagerClient::AddFreeInstallObserver(const sptr<AbilityRuntime::
 }
 
 int32_t AbilityManagerClient::IsValidMissionIds(
-    const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results)
+    const std::vector<int32_t> &missionIds, std::vector<MissionValidResult> &results)
 {
     HILOG_INFO("call");
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
@@ -1328,9 +1328,9 @@ int32_t AbilityManagerClient::IsValidMissionIds(
         HILOG_DEBUG("IsValidSessionIds %{public}d size %{public}d",
             static_cast<int>(err), static_cast<int32_t>(isValidList.size()));
         for (auto i = 0; i < static_cast<int32_t>(isValidList.size()); ++i) {
-            MissionVaildResult missionResult = {};
+            MissionValidResult missionResult = {};
             missionResult.missionId = missionIds.at(i);
-            missionResult.isVaild = isValidList.at(i);
+            missionResult.isValid = isValidList.at(i);
             results.push_back(missionResult);
         }
         return static_cast<int>(err);

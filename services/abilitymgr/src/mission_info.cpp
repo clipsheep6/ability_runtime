@@ -95,29 +95,29 @@ bool MissionInfo::Marshalling(Parcel &parcel) const
     return true;
 }
 
-bool MissionVaildResult::ReadFromParcel(Parcel &parcel)
+bool MissionValidResult::ReadFromParcel(Parcel &parcel)
 {
     missionId = parcel.ReadInt32();
-    isVaild = parcel.ReadBool();
+    isValid = parcel.ReadBool();
     return true;
 }
 
-bool MissionVaildResult::Marshalling(Parcel &parcel) const
+bool MissionValidResult::Marshalling(Parcel &parcel) const
 {
     if (!parcel.WriteInt32(missionId)) {
         return false;
     }
 
-    if (!parcel.WriteBool(isVaild)) {
+    if (!parcel.WriteBool(isValid)) {
         return false;
     }
 
     return true;
 }
 
-MissionVaildResult *MissionVaildResult::Unmarshalling(Parcel &parcel)
+MissionValidResult *MissionValidResult::Unmarshalling(Parcel &parcel)
 {
-    std::unique_ptr<MissionVaildResult> info = std::make_unique<MissionVaildResult>();
+    std::unique_ptr<MissionValidResult> info = std::make_unique<MissionValidResult>();
     if (!info->ReadFromParcel(parcel)) {
         return nullptr;
     }

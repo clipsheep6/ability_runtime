@@ -798,7 +798,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t IsValidMissionIds(
-        const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results) override;
+        const std::vector<int32_t> &missionIds, std::vector<MissionValidResult> &results) override;
 
     /**
      * Query whether the application of the specified PID and UID has been granted a certain permission

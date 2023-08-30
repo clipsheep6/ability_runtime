@@ -31,7 +31,7 @@ namespace OHOS {
 namespace AAFwk {
 class SessionInfo;
 struct AbilityRunningInfo;
-struct MissionVaildResult;
+struct MissionValidResult;
 
 class UIAbilityLifecycleManager : public std::enable_shared_from_this<UIAbilityLifecycleManager> {
 public:

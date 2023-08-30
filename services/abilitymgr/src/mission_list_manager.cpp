@@ -3699,7 +3699,7 @@ void MissionListManager::SetMissionANRStateByTokens(const std::vector<sptr<IRemo
 }
 
 int32_t MissionListManager::IsValidMissionIds(
-    const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results)
+    const std::vector<int32_t> &missionIds, std::vector<MissionValidResult> &results)
 {
     constexpr int32_t searchCount = 20;
     auto callerUid = IPCSkeleton::GetCallingUid();
@@ -3710,7 +3710,7 @@ int32_t MissionListManager::IsValidMissionIds(
     }
     std::lock_guard guard(managerLock_);
     for (auto i = 0; i < searchCount && i < static_cast<int32_t>(missionIds.size()); ++i) {
-        MissionVaildResult missionResult = {};
+        MissionValidResult missionResult = {};
         missionResult.missionId = missionIds.at(i);
         InnerMissionInfo info;
         if (missionInfoMgr->GetInnerMissionInfoById(missionResult.missionId, info) != ERR_OK) {
@@ -3723,7 +3723,7 @@ int32_t MissionListManager::IsValidMissionIds(
             continue;
         }
 
-        missionResult.isVaild = true;
+        missionResult.isValid = true;
         results.push_back(missionResult);
     }
 

@@ -1054,7 +1054,7 @@ public:
      * @param results Output parameters, return results up to 20 query results.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t IsValidMissionIds(const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results);
+    int32_t IsValidMissionIds(const std::vector<int32_t> &missionIds, std::vector<MissionValidResult> &results);
 
     /**
      * Query whether the application of the specified PID and UID has been granted a certain permission

@@ -6089,16 +6089,16 @@ HWTEST_F(MissionListManagerTest, IsValidMissionIds_001, TestSize.Level1)
     innerInfoSecond.uid = missionUidSecond;
     missionInfoMgr->missionInfoList_.push_back(innerInfoSecond);
     std::vector<int32_t> missionIds;
-    std::vector<MissionVaildResult> results;
+    std::vector<MissionValidResult> results;
     for (int32_t i = 0; i < size; ++i) {
         missionIds.push_back(i);
     }
     EXPECT_EQ(missionListManager->IsValidMissionIds(missionIds, results), ERR_OK);
     for (auto &item : results) {
         if (item.missionId == missionIdFirst) {
-            EXPECT_TRUE(item.isVaild);
+            EXPECT_TRUE(item.isValid);
         } else {
-            EXPECT_FALSE(item.isVaild);
+            EXPECT_FALSE(item.isValid);
         }
     }
 }
@@ -6134,7 +6134,7 @@ HWTEST_F(MissionListManagerTest, IsValidMissionIds_002, TestSize.Level1)
     innerInfoSecond.uid = missionUidSecond;
     missionInfoMgr->missionInfoList_.push_back(innerInfoSecond);
     std::vector<int32_t> missionIds;
-    std::vector<MissionVaildResult> results;
+    std::vector<MissionValidResult> results;
     for (int32_t i = 0; i < size; ++i) {
         missionIds.push_back(i);
     }
@@ -6142,9 +6142,9 @@ HWTEST_F(MissionListManagerTest, IsValidMissionIds_002, TestSize.Level1)
     missionListManager->IsValidMissionIds(missionIds, results);
     for (auto &item : results) {
         if (item.missionId == missionIdFirst) {
-            EXPECT_TRUE(item.isVaild);
+            EXPECT_TRUE(item.isValid);
         } else {
-            EXPECT_FALSE(item.isVaild);
+            EXPECT_FALSE(item.isValid);
         }
     }
 }
@@ -6164,7 +6164,7 @@ HWTEST_F(MissionListManagerTest, IsValidMissionIds_003, TestSize.Level1)
     const std::string mockBundleNameFirst = "mock.bundle.name.first";
     auto missionListManager = std::make_shared<MissionListManager>(userId);
     std::vector<int32_t> missionIds;
-    std::vector<MissionVaildResult> results;
+    std::vector<MissionValidResult> results;
     EXPECT_EQ(missionListManager->IsValidMissionIds(missionIds, results), ERR_OK);
     EXPECT_EQ(results.size(), size);
 }

@@ -53,7 +53,7 @@ public:
     }
 
     /**
-     * DisconnectAbility, disconnect session with service ability.
+     * Disconnect session with extension ability.
      *
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
      * @return Returns ERR_OK on success, others on failure.

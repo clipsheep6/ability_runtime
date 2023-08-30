@@ -3573,7 +3573,7 @@ int AbilityManagerProxy::DumpAbilityInfoDone(std::vector<std::string> &infos, co
 }
 
 int32_t AbilityManagerProxy::IsValidMissionIds(
-    const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results)
+    const std::vector<int32_t> &missionIds, std::vector<MissionValidResult> &results)
 {
     HILOG_INFO("IsValidMissionIds Call. Quert size is %{public}zu", missionIds.size());
     MessageParcel data;
@@ -3605,7 +3605,7 @@ int32_t AbilityManagerProxy::IsValidMissionIds(
 
     auto infoSize = reply.ReadInt32();
     for (auto i = 0; i < infoSize && i < MAX_COUNT; ++i) {
-        std::unique_ptr<MissionVaildResult> info(reply.ReadParcelable<MissionVaildResult>());
+        std::unique_ptr<MissionValidResult> info(reply.ReadParcelable<MissionValidResult>());
         if (!info) {
             HILOG_ERROR("Read Parcelable result infos failed.");
             return INNER_ERR;
