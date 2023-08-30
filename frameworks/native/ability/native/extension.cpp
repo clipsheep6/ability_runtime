@@ -59,6 +59,16 @@ void Extension::OnStop()
     HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
 }
 
+void Extension::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback)
+{
+    isAsyncCallback = false;
+    OnStop();
+}
+
+void Extension::OnStopCallBack()
+{
+}
+
 sptr<IRemoteObject> Extension::OnConnect(const AAFwk::Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);

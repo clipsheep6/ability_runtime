@@ -161,6 +161,13 @@ protected:
      *
      */
     void Stop();
+     /**
+     * @brief Toggles the lifecycle status of Extension to AAFwk::ABILITY_STATE_INITIAL. And notifies the application
+     * that it belongs to of the lifecycle status.
+     * @param isAsyncCallback Indicates whether it is an asynchronous lifecycle callback
+     */
+    void Stop(bool &isAsyncCallback);
+    void AbilityTransactionCallback(const AAFwk::AbilityLifeCycleState &state);
 
     /**
      * @brief Toggles the lifecycle status of Extension to AAFwk::ABILITY_STATE_INACTIVE. And notifies the application

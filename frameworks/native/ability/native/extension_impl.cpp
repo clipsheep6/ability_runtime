@@ -74,8 +74,12 @@ void ExtensionImpl::HandleExtensionTransaction(const Want &want, const AAFwk::Li
 
     switch (targetState.state) {
         case AAFwk::ABILITY_STATE_INITIAL: {
+            bool isAsyncCallback = false;
             if (lifecycleState_ != AAFwk::ABILITY_STATE_INITIAL) {
-                Stop();
+                Stop(isAsyncCallback);
+            }
+            if (isAsyncCallback) {
+                ret = false;
             }
             break;
         }
@@ -174,6 +178,50 @@ void ExtensionImpl::Stop()
     extension_->OnStop();
     lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
     HILOG_INFO("ok");
+}
+
+void ExtensionImpl::Stop(bool &isAsyncCallback)
+{
+    HILOG_INFO("call");
+    if (extension_ == nullptr) {
+        HILOG_ERROR("ExtensionImpl::Stop extension_ is nullptr");
+        isAsyncCallback = false;
+        return;
+    }
+
+    auto *callbackInfo = AppExecFwk::AbilityTransactionCallbackInfo<>::Create();
+    if (callbackInfo == nullptr) {
+        extension_->OnStop();
+        lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
+        isAsyncCallback = false;
+        return;
+    }
+    std::weak_ptr<ExtensionImpl> weakPtr = shared_from_this();
+    auto asyncCallback = [ExtensionImplWeakPtr = weakPtr, state = AAFwk::ABILITY_STATE_INITIAL]() {
+        auto extensionImpl = ExtensionImplWeakPtr.lock();
+        if (extensionImpl == nullptr) {
+            HILOG_ERROR("extensionImpl is nullptr.");
+            return;
+        }
+        extensionImpl->lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
+        extensionImpl->AbilityTransactionCallback(state);
+    };
+    callbackInfo->Push(asyncCallback);
+
+    extension_->OnStop(callbackInfo, isAsyncCallback);
+    if (!isAsyncCallback) {
+        lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
+        AppExecFwk::AbilityTransactionCallbackInfo<>::Destroy(callbackInfo);
+    }
+    // else: callbackInfo will be destroyed after the async callback
+    HILOG_DEBUG("%{public}s end.", __func__);
+}
+
+void ExtensionImpl::AbilityTransactionCallback(const AAFwk::AbilityLifeCycleState &state)
+{
+    HILOG_INFO("call abilityms");
+    AAFwk::PacMap restoreData;
+    AAFwk::AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, state, restoreData);
 }
 
 /**
