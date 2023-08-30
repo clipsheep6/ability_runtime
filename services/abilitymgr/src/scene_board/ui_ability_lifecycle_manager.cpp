@@ -652,7 +652,8 @@ sptr<SessionInfo> UIAbilityLifecycleManager::CreateSessionInfo(const AbilityRequ
     if (abilityRequest.startSetting != nullptr) {
         sessionInfo->startSetting = abilityRequest.startSetting;
     }
-    sessionInfo->callingTokenId = IPCSkeleton::GetCallingTokenID();
+    sessionInfo->callingTokenId = abilityRequest.want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN,
+        IPCSkeleton::GetCallingTokenID());
     return sessionInfo;
 }
 
