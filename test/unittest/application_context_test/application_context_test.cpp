@@ -1023,5 +1023,32 @@ HWTEST_F(ApplicationContextTest, NotifyApplicationBackground_0100, TestSize.Leve
     EXPECT_NE(callback, nullptr);
     GTEST_LOG_(INFO) << "NotifyApplicationBackground_0100 end";
 }
+
+/**
+ * @tc.number: GetApplicationInfoUpdateFlag_0100
+ * @tc.name: GetApplicationInfoUpdateFlag
+ * @tc.desc: GetApplicationInfoUpdateFlag
+ */
+HWTEST_F(ApplicationContextTest, GetApplicationInfoUpdateFlag_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetApplicationInfoUpdateFlag_0100 start";
+    auto result = context_->GetApplicationInfoUpdateFlag();
+    EXPECT_EQ(result, false);
+    GTEST_LOG_(INFO) << "GetApplicationInfoUpdateFlag_0100 end";
+}
+
+/**
+ * @tc.number: SetApplicationInfoUpdateFlag_0100
+ * @tc.name: SetApplicationInfoUpdateFlag
+ * @tc.desc: SetApplicationInfoUpdateFlag
+ */
+HWTEST_F(ApplicationContextTest, SetApplicationInfoUpdateFlag_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "SetApplicationInfoUpdateFlag_0100 start";
+    EXPECT_TRUE(context_ != nullptr);
+    bool flag = true;
+    context_->SetApplicationInfoUpdateFlag(flag);
+    GTEST_LOG_(INFO) << "SetApplicationInfoUpdateFlag_0100 end";
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

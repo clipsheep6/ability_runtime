@@ -108,17 +108,9 @@ private:
     /**
      * @brief write message to appSpawn.
      *
-     * @param msgWrapper, request message.
      * @param startMsg, request message.
      */
-    ErrCode StartProcessForWriteMsg(const AppSpawnMsgWrapper &msgWrapper, const AppSpawnStartMsg &startMsg);
-
-    /**
-     * write hsp data group info list to appspawn
-     *
-     * @param msgWrapper, request message wrapper.
-     */
-    ErrCode WriteDataGroupInfoList(AppSpawnMsgWrapper &msgWrapper);
+    ErrCode StartProcessForWriteMsg(const AppSpawnMsgWrapper &msgWrapper);
 
 private:
     std::shared_ptr<AppSpawnSocket> socket_;

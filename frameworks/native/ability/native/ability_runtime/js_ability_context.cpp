@@ -352,12 +352,6 @@ NativeValue* JsAbilityContext::OnStartAbilityAsCaller(NativeEngine& engine, Nati
 
 NativeValue* JsAbilityContext::OnStartAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info)
 {
-    auto selfToken = IPCSkeleton::GetSelfTokenID();
-    if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
-        HILOG_ERROR("This application is not system-app, can not use system-api");
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
-        return engine.CreateUndefined();
-    }
     if (info.argc < ARGC_TWO) {
         ThrowTooFewParametersError(engine);
         return engine.CreateUndefined();

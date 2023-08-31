@@ -1037,7 +1037,7 @@ HWTEST_F(AbilityManagerClientBranchTest, IsValidMissionIds_0100, TestSize.Level1
     GTEST_LOG_(INFO) << "IsValidMissionIds_0100 start";
     EXPECT_TRUE(client_ != nullptr);
     std::vector<int32_t> missionIds;
-    std::vector<MissionVaildResult> results;
+    std::vector<MissionValidResult> results;
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         EXPECT_CALL(*mock_, IsValidMissionIds(_, _)).Times(1).WillOnce(Return(ERR_OK));
         EXPECT_EQ(client_->IsValidMissionIds(missionIds, results), ERR_OK);
@@ -1476,6 +1476,39 @@ HWTEST_F(AbilityManagerClientBranchTest, GetElementNameByToken_0100, TestSize.Le
 }
 
 /**
+ * @tc.name: AbilityManagerClient_StartAbilityByUIContentSession_0100
+ * @tc.desc: StartAbilityByUIContentSession
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, StartAbilityByUIContentSession_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "StartAbilityByUIContentSession_0100 start";
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    const sptr<AAFwk::SessionInfo> sessionInfo = nullptr;
+    EXPECT_EQ(client_->StartAbilityByUIContentSession(want, callerToken, sessionInfo),
+        ERR_OK);
+    GTEST_LOG_(INFO) << "StartUIExtensionAbility_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StartAbilityByUIContentSession_0100
+ * @tc.desc: StartAbilityByUIContentSession
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, StartAbilityByUIContentSession_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "StartAbilityByUIContentSession_0200 start";
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    const sptr<AAFwk::SessionInfo> sessionInfo = nullptr;
+    StartOptions startOptions;
+    EXPECT_EQ(client_->StartAbilityByUIContentSession(want, startOptions, callerToken, sessionInfo),
+        ERR_OK);
+    GTEST_LOG_(INFO) << "StartUIExtensionAbility_0200 end";
+}
+
+/**
  * @tc.number: NotifySaveAsResult_0100
  * @tc.name: NotifySaveAsResult
  * @tc.desc: The caller is expected to be dlp manager.
@@ -1499,5 +1532,17 @@ HWTEST_F(AbilityManagerClientBranchTest, RegisterSessionHandler_0100, TestSize.L
     EXPECT_EQ(ERR_OK, result);
 }
 
+/**
+ * @tc.number: UpdateMissionSnapShot_0100
+ * @tc.name: UpdateMissionSnapShot
+ * @tc.desc: The caller is expected to be dlp manager.
+ */
+HWTEST_F(AbilityManagerClientBranchTest, UpdateMissionSnapShot_0100, TestSize.Level1)
+{
+    EXPECT_TRUE(client_ != nullptr);
+    sptr<IRemoteObject> token = nullptr;
+    auto pixelMap = std::shared_ptr<Media::PixelMap>();
+    client_->UpdateMissionSnapShot(token, pixelMap);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

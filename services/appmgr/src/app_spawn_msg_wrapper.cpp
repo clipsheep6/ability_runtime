@@ -26,6 +26,9 @@ namespace {
     const std::string HSPLIST_BUNDLES = "bundles";
     const std::string HSPLIST_MODULES = "modules";
     const std::string HSPLIST_VERSIONS = "versions";
+    const std::string HSPLIST_SOCKET_TYPE = "|HspList|";
+    const std::string OVERLAY_SOCKET_TYPE = "|Overlay|";
+    const std::string DATA_GROUP_SOCKET_TYPE = "|DataGroup|";
     const std::string DATAGROUPINFOLIST_DATAGROUPID = "dataGroupId";
     const std::string DATAGROUPINFOLIST_GID = "gid";
     const std::string DATAGROUPINFOLIST_DIR = "dir";
@@ -122,17 +125,21 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
         msg_->hapFlags = startMsg.hapFlags;
 
         if (!startMsg.hspList.empty()) {
-            this->hspListStr = DumpToJson(startMsg.hspList);
-            msg_->hspList.totalLength = this->hspListStr.size() + 1; // including termination char '\0'
+            this->extraInfoStr += HSPLIST_SOCKET_TYPE + DumpToJson(startMsg.hspList) +
+                                  HSPLIST_SOCKET_TYPE;
         }
 
         if (!startMsg.dataGroupInfoList.empty()) {
-            this->dataGroupInfoListStr = DumpToJson(startMsg.dataGroupInfoList);
-            msg_->dataGroupInfoList.totalLength = this->dataGroupInfoListStr.size() + 1;
+            this->extraInfoStr += DATA_GROUP_SOCKET_TYPE + DumpToJson(startMsg.dataGroupInfoList) +
+                                  DATA_GROUP_SOCKET_TYPE;
         }
 
         if (!startMsg.overlayInfo.empty()) {
-            msg_->overlayInfo.totalLength = startMsg.overlayInfo.size() + 1; // including termination char '\0'
+            this->extraInfoStr += OVERLAY_SOCKET_TYPE + startMsg.overlayInfo +
+                                  OVERLAY_SOCKET_TYPE;
+        }
+        if (!this->extraInfoStr.empty()) {
+            msg_->extraInfo.totalLength = this->extraInfoStr.size() + 1;
         }
     } else if (msg_->code == AppSpawn::ClientSocket::AppOperateCode::GET_RENDER_TERMINATION_STATUS) {
         msg_->pid = startMsg.pid;

@@ -18,6 +18,7 @@
 #define private public
 #define protected public
 #include "ability_record.h"
+#include "uri_permission_rdb.h"
 #undef private
 #undef protected
 
@@ -28,6 +29,8 @@
 #include "constants.h"
 #include "mock_ability_connect_callback.h"
 #include "mock_bundle_manager.h"
+#include "mock_my_flag.h"
+#include "mock_permission_verification.h"
 #include "parameters.h"
 #include "sa_mgr_client.h"
 #include "system_ability_definition.h"
@@ -52,6 +55,7 @@ const std::string DEBUG_APP = "debugApp";
 const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
 const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
+const std::string URI_PERMISSION_TABLE_NAME = "uri_permission";
 }
 class AbilityRecordTest : public testing::TestWithParam<OHOS::AAFwk::AbilityState> {
 public:
@@ -2234,6 +2238,86 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_005, TestSize.Level
     want.SetFlags(1);
     want.SetUri("file://ohos.samples.clock/data/storage/el2/base/haps/entry/files/test_A.txt");
     std::string targetBundleName = "name";
+    abilityRecord->GrantUriPermission(want, targetBundleName, false, 0);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: GrantUriPermission
+ * SubFunction: GrantUriPermission
+ * FunctionPoints: NA
+ * CaseDescription: Verify AbilityRecord GrantUriPermission
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_UriPermissionPersistableTest_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
+    auto uprdb = std::make_shared<UriPermissionRdb>();
+    EXPECT_NE(uprdb, nullptr);
+    NativeRdb::AbsRdbPredicates absRdbPredicates(URI_PERMISSION_TABLE_NAME);
+    uprdb->DeleteData(absRdbPredicates);
+    std::string targetBundleName = "com.example.test";
+    auto uriStr = "file://docs/storage/Users/currentUser/test.txt";
+    unsigned int perReadFlag = Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION;
+    Want want;
+    want.SetFlags(perReadFlag);
+    want.SetUri(uriStr);
+    abilityRecord->isGrantPersistableUriPermissionEnable_ = true;
+    MyFlag::flag_ = 1;
+    abilityRecord->GrantUriPermission(want, targetBundleName, false, 0);
+    MyFlag::flag_ = 0;
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: GrantUriPermission
+ * SubFunction: GrantUriPermission
+ * FunctionPoints: NA
+ * CaseDescription: Verify AbilityRecord GrantUriPermission
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_UriPermissionPersistableTest_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
+    auto uprdb = std::make_shared<UriPermissionRdb>();
+    EXPECT_NE(uprdb, nullptr);
+    NativeRdb::AbsRdbPredicates absRdbPredicates(URI_PERMISSION_TABLE_NAME);
+    uprdb->DeleteData(absRdbPredicates);
+    std::string targetBundleName = "com.example.test";
+    auto uriStr = "file://docs/storage/Users/currentUser/test.txt";
+    unsigned int perReadFlag = Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION;
+    Want want;
+    want.SetFlags(perReadFlag);
+    want.SetUri(uriStr);
+    abilityRecord->isGrantPersistableUriPermissionEnable_ = true;
+    abilityRecord->GrantUriPermission(want, targetBundleName, false, 0);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: GrantUriPermission
+ * SubFunction: GrantUriPermission
+ * FunctionPoints: NA
+ * CaseDescription: Verify AbilityRecord GrantUriPermission
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_UriPermissionPersistableTest_003, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
+    auto uprdb = std::make_shared<UriPermissionRdb>();
+    EXPECT_NE(uprdb, nullptr);
+    NativeRdb::AbsRdbPredicates absRdbPredicates(URI_PERMISSION_TABLE_NAME);
+    uprdb->DeleteData(absRdbPredicates);
+    std::string targetBundleName = "com.example.test";
+    auto uriStr = "file://docs/storage/Users/currentUser/test.txt";
+    unsigned int perReadFlag = Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION;
+    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+    uint32_t ret = uprdb->AddGrantInfo(uriStr, perReadFlag, 0, callerTokenId);
+    ASSERT_EQ(ret, ERR_OK);
+    Want want;
+    want.SetFlags(perReadFlag);
+    want.SetUri(uriStr);
+    abilityRecord->isGrantPersistableUriPermissionEnable_ = true;
     abilityRecord->GrantUriPermission(want, targetBundleName, false, 0);
 }
 

@@ -2307,10 +2307,10 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_IsValidMissionIdsInner_001, 
 {
     MessageParcel data;
     MessageParcel reply;
-    auto isValidMissionIdsTask = [&](const std::vector<int32_t>& ids, std::vector<MissionVaildResult>& results) {
-        MissionVaildResult result;
+    auto isValidMissionIdsTask = [&](const std::vector<int32_t>& ids, std::vector<MissionValidResult>& results) {
+        MissionValidResult result;
         result.missionId = 1;
-        result.isVaild = true;
+        result.isValid = true;
         results.push_back(result);
         return ERR_OK;
     };
@@ -2330,7 +2330,7 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_IsValidMissionIdsInner_002, 
 {
     MessageParcel data;
     MessageParcel reply;
-    auto isValidMissionIdsTask = [&](const std::vector<int32_t>& ids, std::vector<MissionVaildResult>& results) {
+    auto isValidMissionIdsTask = [&](const std::vector<int32_t>& ids, std::vector<MissionValidResult>& results) {
         GTEST_LOG_(INFO) << "AbilityManagerStub_IsValidMissionIdsInner_002 caller";
         return ERR_INVALID_VALUE;
     };

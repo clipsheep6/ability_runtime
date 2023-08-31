@@ -364,10 +364,12 @@ void AppRunningRecord::RemoveModuleRecord(const std::shared_ptr<ModuleRunningRec
             item.second.end(),
             [&moduleRecord](const std::shared_ptr<ModuleRunningRecord> &record) { return moduleRecord == record; });
         if (iter != item.second.end()) {
+            HILOG_DEBUG("Removed a record.");
             iter = item.second.erase(iter);
             if (item.second.empty()) {
                 {
                     std::lock_guard<ffrt::mutex> appInfosLock(appInfosLock_);
+                    HILOG_DEBUG("Removed an appInfo.");
                     appInfos_.erase(item.first);
                 }
                 hapModules_.erase(item.first);
@@ -993,11 +995,13 @@ std::list<std::shared_ptr<ModuleRunningRecord>> AppRunningRecord::GetAllModuleRe
 {
     std::list<std::shared_ptr<ModuleRunningRecord>> moduleRecordList;
     std::lock_guard<ffrt::mutex> hapModulesLock(hapModulesLock_);
+    HILOG_DEBUG("Begin.");
     for (const auto &item : hapModules_) {
         for (const auto &list : item.second) {
             moduleRecordList.push_back(list);
         }
     }
+    HILOG_DEBUG("End.");
     return moduleRecordList;
 }
 
@@ -1297,9 +1301,11 @@ bool AppRunningRecord::CanRestartResidentProc()
 void AppRunningRecord::GetBundleNames(std::vector<std::string> &bundleNames)
 {
     std::lock_guard<ffrt::mutex> appInfosLock(appInfosLock_);
+    HILOG_DEBUG("Begin.");
     for (auto &app : appInfos_) {
         bundleNames.emplace_back(app.first);
     }
+    HILOG_DEBUG("End.");
 }
 
 void AppRunningRecord::SetUserTestInfo(const std::shared_ptr<UserTestRecord> &record)

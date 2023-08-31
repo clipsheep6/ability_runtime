@@ -53,6 +53,7 @@ config("ability_config") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   defines = [ "AMS_LOG_TAG = \"Ability\"" ]
+  defines += [ "AMS_LOG_DOMAIN = 0xD001300" ]
   if (target_cpu == "arm64") {
     defines += [ "_ARM64_" ]
   }
@@ -268,8 +269,8 @@ ohos_shared_library("abilitykit_native") {
     "hitrace:hitrace_meter",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "ipc:ipc_js",
     "ipc:ipc_napi_common",
-    "ipc_js:rpc",
     "napi:ace_napi",
     "relational_store:native_rdb",
     "resource_management:global_resmgr",

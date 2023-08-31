@@ -31,7 +31,7 @@ namespace OHOS {
 namespace AAFwk {
 class SessionInfo;
 struct AbilityRunningInfo;
-struct MissionVaildResult;
+struct MissionValidResult;
 
 class UIAbilityLifecycleManager : public std::enable_shared_from_this<UIAbilityLifecycleManager> {
 public:
@@ -267,6 +267,8 @@ public:
      */
     void DumpMissionListByRecordId(std::vector<std::string>& info, bool isClient, int32_t abilityRecordId,
         const std::vector<std::string>& params, int userId);
+
+    int MoveMissionToFront(int32_t sessionId) const;
 
 private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;

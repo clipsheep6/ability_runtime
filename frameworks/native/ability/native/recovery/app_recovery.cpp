@@ -415,7 +415,7 @@ void AppRecovery::DeleteInValidMissionFiles()
         return;
     }
     std::vector<int32_t> missionIds;
-    std::vector<MissionVaildResult> results;
+    std::vector<MissionValidResult> results;
 
     if (!GetMissionIds(fileDir, missionIds)) {
         HILOG_ERROR("AppRecovery get mssion file id error.");
@@ -437,8 +437,8 @@ void AppRecovery::DeleteInValidMissionFiles()
     }
     for (auto& item : results) {
         HILOG_INFO("AppRecovery missionResult: missionId: %{public}d, isValid: %{public}d", item.missionId,
-            item.isVaild);
-        if (!item.isVaild) {
+            item.isValid);
+        if (!item.isValid) {
             DeleteInValidMissionFileById(fileDir, item.missionId);
         }
     }

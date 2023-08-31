@@ -336,7 +336,7 @@ public:
 
     void SetMissionANRStateByTokens(const std::vector<sptr<IRemoteObject>> &tokens);
 
-    int32_t IsValidMissionIds(const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results);
+    int32_t IsValidMissionIds(const std::vector<int32_t> &missionIds, std::vector<MissionValidResult> &results);
 
     int DoAbilityForeground(std::shared_ptr<AbilityRecord> &abilityRecord, uint32_t flag);
 

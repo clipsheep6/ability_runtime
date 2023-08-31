@@ -198,5 +198,21 @@ HWTEST_F(UIExtensionContextTest, OnAbilityResult_0100, TestSize.Level1)
 
     HILOG_INFO("OnAbilityResult_0100 end");
 }
+
+/**
+ * @tc.number: GenerateCurRequestCode_0100
+ * @tc.name: GenerateCurRequestCode
+ * @tc.desc: GenerateCurRequestCode.
+ */
+HWTEST_F(UIExtensionContextTest, GenerateCurRequestCode_0100, TestSize.Level1)
+{
+    HILOG_INFO("GenerateCurRequestCode_0100 start");
+
+    auto context = std::make_shared<UIExtensionContext>();
+    auto result = context->GenerateCurRequestCode();
+    EXPECT_FALSE(result = 0);
+
+    HILOG_INFO("GenerateCurRequestCode_0100 end");
+}
 } // namespace AbilityRuntime
 } // namespace OHOS

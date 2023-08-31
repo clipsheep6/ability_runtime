@@ -77,6 +77,10 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::StartAbilityAsCallerByTokenInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_FOR_OPTIONS)] =
         &AbilityManagerStub::StartAbilityAsCallerForOptionInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_UI_SESSION_ABILITY_ADD_CALLER)] =
+        &AbilityManagerStub::StartAbilityByUIContentSessionAddCallerInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_UI_SESSION_ABILITY_FOR_OPTIONS)] =
+        &AbilityManagerStub::StartAbilityByUIContentSessionForOptionsInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CONNECT_ABILITY)] =
         &AbilityManagerStub::ConnectAbilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DISCONNECT_ABILITY)] =
@@ -621,6 +625,59 @@ int AbilityManagerStub::StartAbilityInner(MessageParcel &data, MessageParcel &re
     int32_t result = StartAbility(*want, userId, requestCode);
     reply.WriteInt32(result);
     delete want;
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::StartAbilityByUIContentSessionAddCallerInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<Want> want(data.ReadParcelable<Want>());
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (data.ReadBool()) {
+        callerToken = data.ReadRemoteObject();
+    }
+
+    sptr<SessionInfo> sessionInfo = nullptr;
+    if (data.ReadBool()) {
+        sessionInfo = data.ReadParcelable<SessionInfo>();
+    }
+
+    int32_t userId = data.ReadInt32();
+    int requestCode = data.ReadInt32();
+    int32_t result = StartAbilityByUIContentSession(*want, callerToken, sessionInfo, userId, requestCode);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::StartAbilityByUIContentSessionForOptionsInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<Want> want(data.ReadParcelable<Want>());
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    std::unique_ptr<StartOptions> startOptions(data.ReadParcelable<StartOptions>());
+    if (startOptions == nullptr) {
+        HILOG_ERROR("startOptions is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (data.ReadBool()) {
+        callerToken = data.ReadRemoteObject();
+    }
+    sptr<SessionInfo> sessionInfo = nullptr;
+    if (data.ReadBool()) {
+        sessionInfo = data.ReadParcelable<SessionInfo>();
+    }
+    int32_t userId = data.ReadInt32();
+    int requestCode = data.ReadInt32();
+    int32_t result = StartAbilityByUIContentSession(*want, *startOptions,
+        callerToken, sessionInfo, userId, requestCode);
+    reply.WriteInt32(result);
     return NO_ERROR;
 }
 
@@ -2065,6 +2122,10 @@ int AbilityManagerStub::ShareDataDoneInner(MessageParcel &data, MessageParcel &r
     int32_t resultCode = data.ReadInt32();
     int32_t uniqueId = data.ReadInt32();
     std::shared_ptr<WantParams> wantParam(data.ReadParcelable<WantParams>());
+    if (!wantParam) {
+        HILOG_ERROR("wantParam read failed.");
+        return ERR_INVALID_VALUE;
+    }
     int32_t result = ShareDataDone(token, resultCode, uniqueId, *wantParam);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("reply write failed.");
@@ -2255,7 +2316,7 @@ int32_t AbilityManagerStub::IsValidMissionIdsInner(MessageParcel &data, MessageP
 {
     HILOG_DEBUG("%{public}s is called.", __func__);
     std::vector<int32_t> missionIds;
-    std::vector<MissionVaildResult> results;
+    std::vector<MissionValidResult> results;
 
     data.ReadInt32Vector(&missionIds);
     auto err = IsValidMissionIds(missionIds, results);

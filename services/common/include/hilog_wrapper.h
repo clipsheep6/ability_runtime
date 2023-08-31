@@ -41,7 +41,7 @@
 #endif
 
 #ifndef AMS_LOG_DOMAIN
-#define AMS_LOG_DOMAIN 0xD001300
+#define AMS_LOG_DOMAIN 0xD001304
 #endif
 
 #ifndef AMS_LOG_TAG
