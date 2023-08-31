@@ -27,6 +27,7 @@ static constexpr int64_t NANOSECONDS = 1000000000;  // NANOSECONDS mean 10^9 nan
 static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 millias second
 constexpr int32_t MAX_RESTART_COUNT = 3;
 constexpr int32_t RESTART_INTERVAL_TIME = 120000;
+const std::string LAUNCHER_NAME = "com.ohos.sceneboard";
 }
 
 int64_t AppRunningRecord::appEventId_ = 0;
@@ -847,6 +848,7 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
         HILOG_ERROR("ability is null");
         return;
     }
+    HILOG_INFO("ability is %{public}s", mainBundleName_.c_str());
     if (ability->GetState() != AbilityState::ABILITY_STATE_FOREGROUND &&
         ability->GetState() != AbilityState::ABILITY_STATE_READY) {
         HILOG_ERROR("ability state is not foreground or focus");
@@ -871,8 +873,10 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
             }
         }
 
+
+
         // Then schedule application background when all ability is not foreground.
-        if (foregroundSize == 0) {
+        if (foregroundSize == 0 && mainBundleName_ != LAUNCHER_NAME) {
             ScheduleBackgroundRunning();
         }
     } else {
