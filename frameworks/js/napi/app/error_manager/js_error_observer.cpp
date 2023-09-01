@@ -91,7 +91,7 @@ void JsErrorObserver::AddJsObserverObject(const int32_t observerId, NativeValue*
     }
 }
 
-bool JsErrorObserver::RemoveJsObserverObject(const int32_t observerId, bool &isEmpty, bool isSync)
+bool JsErrorObserver::RemoveJsObserverObject(const int32_t observerId, bool isSync)
 {
     bool result = false;
     if (isSync) {
@@ -99,8 +99,13 @@ bool JsErrorObserver::RemoveJsObserverObject(const int32_t observerId, bool &isE
     } else {
         result = (jsObserverObjectMap_.erase(observerId) == 1);
     }
-    isEmpty = jsObserverObjectMap_.empty() && jsObserverObjectMapSync_.empty();
     return result;
+}
+
+bool JsErrorObserver::IsEmpty()
+{
+    bool isEmpty = jsObserverObjectMap_.empty() && jsObserverObjectMapSync_.empty();
+    return isEmpty;
 }
 
 void JsErrorObserver::OnExceptionObject(const AppExecFwk::ErrorObject &errorObj)
