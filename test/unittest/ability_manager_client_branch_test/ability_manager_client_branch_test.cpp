@@ -1163,7 +1163,7 @@ HWTEST_F(AbilityManagerClientBranchTest, StartAbilityByCall_002, TestSize.Level1
  */
 HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_001, TestSize.Level1)
 {
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(nullptr), ERR_INVALID_VALUE);
+    EXPECT_EQ(client_->StartUIAbilityBySCB(nullptr), ERR_INVALID_VALUE);
 }
 
 /**
@@ -1174,7 +1174,7 @@ HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_001, TestSize.Level
 HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_002, TestSize.Level1)
 {
     sptr<SessionInfo> sessionInfo(new SessionInfo());
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(sessionInfo), ERR_INVALID_VALUE);
+    EXPECT_EQ(client_->StartUIAbilityBySCB(sessionInfo), ERR_INVALID_VALUE);
 }
 
 /**
@@ -1187,7 +1187,7 @@ HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_003, TestSize.Level
     Rosen::SessionInfo info;
     sptr<SessionInfo> sessionInfo(new SessionInfo());
     sessionInfo->sessionToken = new Rosen::Session(info);
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartUIAbilityBySCB(sessionInfo),
+    EXPECT_EQ(client_->StartUIAbilityBySCB(sessionInfo),
         ERR_WRONG_INTERFACE_CALL);
 }
 
@@ -1198,7 +1198,7 @@ HWTEST_F(AbilityManagerClientBranchTest, StartUIAbilityBySCB_003, TestSize.Level
  */
 HWTEST_F(AbilityManagerClientBranchTest, MinimizeUIAbilityBySCB_001, TestSize.Level1)
 {
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->MinimizeUIAbilityBySCB(nullptr), ERR_INVALID_VALUE);
+    EXPECT_EQ(client_->MinimizeUIAbilityBySCB(nullptr), ERR_INVALID_VALUE);
 }
 
 /**
@@ -1209,7 +1209,7 @@ HWTEST_F(AbilityManagerClientBranchTest, MinimizeUIAbilityBySCB_001, TestSize.Le
 HWTEST_F(AbilityManagerClientBranchTest, MinimizeUIAbilityBySCB_002, TestSize.Level1)
 {
     sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->MinimizeUIAbilityBySCB(sessionInfo), ERR_INVALID_VALUE);
+    EXPECT_EQ(client_->MinimizeUIAbilityBySCB(sessionInfo), ERR_INVALID_VALUE);
 }
 
 /**
@@ -1222,7 +1222,7 @@ HWTEST_F(AbilityManagerClientBranchTest, MinimizeUIAbilityBySCB_003, TestSize.Le
     sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
     Rosen::SessionInfo info;
     sessionInfo->sessionToken = new (std::nothrow) Rosen::Session(info);
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->MinimizeUIAbilityBySCB(sessionInfo), ERR_WRONG_INTERFACE_CALL);
+    EXPECT_EQ(client_->MinimizeUIAbilityBySCB(sessionInfo), ERR_WRONG_INTERFACE_CALL);
 }
 
 /**
@@ -1232,7 +1232,7 @@ HWTEST_F(AbilityManagerClientBranchTest, MinimizeUIAbilityBySCB_003, TestSize.Le
  */
 HWTEST_F(AbilityManagerClientBranchTest, CloseUIAbilityBySCB_001, TestSize.Level1)
 {
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->CloseUIAbilityBySCB(nullptr), ERR_INVALID_VALUE);
+    EXPECT_EQ(client_->CloseUIAbilityBySCB(nullptr), ERR_INVALID_VALUE);
 }
 
 /**
@@ -1243,7 +1243,7 @@ HWTEST_F(AbilityManagerClientBranchTest, CloseUIAbilityBySCB_001, TestSize.Level
 HWTEST_F(AbilityManagerClientBranchTest, CloseUIAbilityBySCB_002, TestSize.Level1)
 {
     sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->CloseUIAbilityBySCB(sessionInfo), ERR_INVALID_VALUE);
+    EXPECT_EQ(client_->CloseUIAbilityBySCB(sessionInfo), ERR_INVALID_VALUE);
 }
 
 /**
@@ -1256,7 +1256,7 @@ HWTEST_F(AbilityManagerClientBranchTest, CloseUIAbilityBySCB_003, TestSize.Level
     sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
     Rosen::SessionInfo info;
     sessionInfo->sessionToken = new (std::nothrow) Rosen::Session(info);
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->CloseUIAbilityBySCB(sessionInfo), ERR_WRONG_INTERFACE_CALL);
+    EXPECT_EQ(client_->CloseUIAbilityBySCB(sessionInfo), ERR_WRONG_INTERFACE_CALL);
 }
 
 /**
@@ -1444,7 +1444,7 @@ HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_SetSessionManagerS
 HWTEST_F(AbilityManagerClientBranchTest, ReportDrawnCompleted_0100, TestSize.Level1)
 {
     sptr<IRemoteObject> callerToken = nullptr;
-    auto result = AbilityManagerClient::GetInstance()->ReportDrawnCompleted(callerToken);
+    auto result = client_->ReportDrawnCompleted(callerToken);
     EXPECT_EQ(result, INNER_ERR);
 }
 
@@ -1457,7 +1457,7 @@ HWTEST_F(AbilityManagerClientBranchTest, ReportDrawnCompleted_0200, TestSize.Lev
 {
     sptr<IRemoteObject> callerToken = new AbilityManagerStubTestMock();
     EXPECT_NE(callerToken, nullptr);
-    auto result = AbilityManagerClient::GetInstance()->ReportDrawnCompleted(callerToken);
+    auto result = client_->ReportDrawnCompleted(callerToken);
     EXPECT_EQ(result, INNER_ERR);
 }
 
@@ -1515,8 +1515,34 @@ HWTEST_F(AbilityManagerClientBranchTest, StartAbilityByUIContentSession_0200, Te
 HWTEST_F(AbilityManagerClientBranchTest, NotifySaveAsResult_0100, TestSize.Level1)
 {
     Want want;
-    auto result = AbilityManagerClient::GetInstance()->NotifySaveAsResult(want, 0, 0);
+    auto result = client_->NotifySaveAsResult(want, 0, 0);
     EXPECT_EQ(result, ERR_INVALID_CALLER);
+}
+
+/**
+ * @tc.number: PrepareTerminateAbility_0100
+ * @tc.name: PrepareTerminateAbility_0100
+ * @tc.desc: callback is nullptr, ERR_INVALID_VALUE is returned.
+ */
+HWTEST_F(AbilityManagerClientBranchTest, PrepareTerminateAbility_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    sptr<IPrepareTerminateCallback> callback = nullptr;
+    auto result = client_->PrepareTerminateAbility(token, callback);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.number: PrepareTerminateAbilityBySCB_0100
+ * @tc.name: PrepareTerminateAbilityBySCB_0100
+ * @tc.desc: sessionInfo is nullptr, INNER_ERR is returned.
+ */
+HWTEST_F(AbilityManagerClientBranchTest, PrepareTerminateAbilityBySCB_0100, TestSize.Level1)
+{
+    sptr<SessionInfo> sessionInfo = nullptr;
+    bool isPrepareTerminate = false;
+    auto result = client_->PrepareTerminateAbilityBySCB(sessionInfo, isPrepareTerminate);
+    EXPECT_EQ(result, INNER_ERR);
 }
 
 /**

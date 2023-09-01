@@ -2251,6 +2251,26 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RecordAppExitReason_001, T
 
 /*
  * Feature: AbilityManagerService
+ * Function: PrepareTerminateAbilityBySCB
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService PrepareTerminateAbilityBySCB
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of PrepareTerminateAbilityBySCB
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_PrepareTerminateAbilityBySCB_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    sptr<SessionInfo> sessionInfo = nullptr;
+    bool isPrepareTerminate = false;
+    auto res = proxy_->PrepareTerminateAbilityBySCB(sessionInfo, isPrepareTerminate);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::PREPARE_TERMINATE_ABILITY_BY_SCB), mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: StartAbilityByUIContentSession
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService StartExtensionAbility
