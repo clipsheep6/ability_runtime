@@ -3807,6 +3807,20 @@ HWTEST_F(AbilityManagerServiceTest, AppRecoverKill_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
+ * Function: RegisterSessionHandler
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService RegisterSessionHandler
+ */
+HWTEST_F(AbilityManagerServiceTest, RegisterSessionHandler_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest RegisterSessionHandler_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    EXPECT_EQ(abilityMs_->RegisterSessionHandler(nullptr), ERR_NO_INIT);
+    HILOG_INFO("AbilityManagerServiceTest RegisterSessionHandler_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: SetLockedState
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService SetLockedState
@@ -3817,6 +3831,21 @@ HWTEST_F(AbilityManagerServiceTest, SetLockedState_001, TestSize.Level1)
     EXPECT_NE(abilityMs_, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = MockAbilityRecord(AbilityType::PAGE);
     abilityMs_->SetLockedState(1, true);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: RegisterSessionHandler
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService RegisterSessionHandler
+ */
+HWTEST_F(AbilityManagerServiceTest, RegisterSessionHandler_002, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest RegisterSessionHandler_002 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    EXPECT_EQ(abilityMs_->RegisterSessionHandler(nullptr), ERR_WRONG_INTERFACE_CALL);
+    HILOG_INFO("AbilityManagerServiceTest RegisterSessionHandler_002 end");
 }
 
 /*

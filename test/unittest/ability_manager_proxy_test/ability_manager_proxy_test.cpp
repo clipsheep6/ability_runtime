@@ -2251,6 +2251,21 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RecordAppExitReason_001, T
 
 /*
  * Feature: AbilityManagerService
+ * Function: RegisterSessionHandler
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService RegisterSessionHandler
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of RegisterSessionHandler
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RegisterSessionHandler_001, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    auto res = proxy_->RegisterSessionHandler(token);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: StartAbilityByUIContentSession
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService StartExtensionAbility
@@ -2269,6 +2284,21 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbilityByUIContentSes
     auto res = proxy_->StartAbilityByUIContentSession(want, startOptions, callerToken, sessionInfo);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::START_UI_SESSION_ABILITY_FOR_OPTIONS), mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: RegisterSessionHandler
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService RegisterSessionHandler
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of RegisterSessionHandler
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RegisterSessionHandler_002, TestSize.Level1)
+{
+    OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    auto res = proxy_->RegisterSessionHandler(token);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_SESSION_HANDLER), mock_->code_);
 }
 
 /*
