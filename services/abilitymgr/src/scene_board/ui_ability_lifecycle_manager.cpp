@@ -1776,11 +1776,14 @@ void UIAbilityLifecycleManager::DumpMissionListByRecordId(std::vector<std::strin
     }
 }
 
-int UIAbilityLifecycleManager::MoveMissionToFront(int32_t sessionId) const
+int UIAbilityLifecycleManager::MoveMissionToFront(int32_t sessionId, std::shared_ptr<StartOptions> startOptions)
 {
     CHECK_POINTER_AND_RETURN(rootSceneSession_, ERR_INVALID_VALUE);
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecordsById(sessionId);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    if (startOptions != nullptr) {
+        abilityRecord->SetWindowMode(startOptions->GetWindowMode());
+    }
     sptr<SessionInfo> sessionInfo = abilityRecord->GetSessionInfo();
     CHECK_POINTER_AND_RETURN(sessionInfo, ERR_INVALID_VALUE);
     HILOG_INFO("Call PendingSessionActivation by rootSceneSession.");

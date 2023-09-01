@@ -3487,12 +3487,13 @@ int AbilityManagerService::MoveMissionToFront(int32_t missionId, const StartOpti
 {
     HILOG_INFO("request MoveMissionToFront, missionId:%{public}d", missionId);
     CHECK_CALLER_IS_SYSTEM_APP;
+    auto options = std::make_shared<StartOptions>(startOptions);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         if (!uiAbilityLifecycleManager_) {
             HILOG_ERROR("failed, uiAbilityLifecycleManager is nullptr");
             return ERR_INVALID_VALUE;
         }
-        return uiAbilityLifecycleManager_->MoveMissionToFront(missionId);
+        return uiAbilityLifecycleManager_->MoveMissionToFront(missionId, options);
     }
     CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
 
@@ -3506,7 +3507,6 @@ int AbilityManagerService::MoveMissionToFront(int32_t missionId, const StartOpti
         return ERR_WOULD_BLOCK;
     }
 
-    auto options = std::make_shared<StartOptions>(startOptions);
     return currentMissionListManager_->MoveMissionToFront(missionId, options);
 }
 

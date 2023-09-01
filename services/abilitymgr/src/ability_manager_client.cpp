@@ -803,7 +803,7 @@ ErrCode AbilityManagerClient::MoveMissionsToForeground(const std::vector<int32_t
         auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_INFO("call");
-        auto err = sceneSessionManager->MoveSessionsToForeground(missionIds);
+        auto err = sceneSessionManager->MoveSessionsToForeground(missionIds, topMissionId);
         if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
             return SCB_TO_MISSION_ERROR_CODE_MAP[err];
         }
@@ -822,7 +822,7 @@ ErrCode AbilityManagerClient::MoveMissionsToBackground(const std::vector<int32_t
         auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_INFO("call");
-        auto err = sceneSessionManager->MoveSessionsToBackground(missionIds);
+        auto err = sceneSessionManager->MoveSessionsToBackground(missionIds, result);
         if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
             return SCB_TO_MISSION_ERROR_CODE_MAP[err];
         }
