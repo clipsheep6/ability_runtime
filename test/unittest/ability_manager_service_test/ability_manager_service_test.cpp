@@ -33,6 +33,7 @@
 #include "mock_ability_token.h"
 #include "mock_ability_controller.h"
 #include "session/host/include/session.h"
+#include "scene_board_judgement.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -1433,6 +1434,25 @@ HWTEST_F(AbilityManagerServiceTest, MoveMissionToFront_002, TestSize.Level1)
     abilityMs_->OnStart();
     StartOptions startOptions;
     EXPECT_EQ(abilityMs_->MoveMissionToFront(100, startOptions), CHECK_PERMISSION_FAILED);
+    HILOG_INFO("AbilityManagerServiceTest MoveMissionToFront_002 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: MoveMissionToFront
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService MoveMissionToFront
+ */
+HWTEST_F(AbilityManagerServiceTest, MoveMissionToFront_003, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest MoveMissionToFront_003 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    EXPECT_TRUE(abilityMs_ != nullptr);
+    abilityMs_->OnStart();
+    StartOptions startOptions;
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(abilityMs_->MoveMissionToFront(100, startOptions), CHECK_PERMISSION_FAILED);
+    }
     HILOG_INFO("AbilityManagerServiceTest MoveMissionToFront_002 end");
 }
 
@@ -3821,6 +3841,20 @@ HWTEST_F(AbilityManagerServiceTest, SetLockedState_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
+ * Function: RegisterSessionHandler
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService RegisterSessionHandler
+ */
+HWTEST_F(AbilityManagerServiceTest, RegisterSessionHandler_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest RegisterSessionHandler_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    EXPECT_EQ(abilityMs_->RegisterSessionHandler(nullptr), ERR_NO_INIT);
+    HILOG_INFO("AbilityManagerServiceTest RegisterSessionHandler_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: CheckUserIdActive
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService CheckUserIdActive
@@ -3830,6 +3864,21 @@ HWTEST_F(AbilityManagerServiceTest, CheckUserIdActive_001, TestSize.Level1)
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     EXPECT_NE(abilityMs_, nullptr);
     abilityMs_->CheckUserIdActive(USER_ID_U100);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: RegisterSessionHandler
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService RegisterSessionHandler
+ */
+HWTEST_F(AbilityManagerServiceTest, RegisterSessionHandler_002, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest RegisterSessionHandler_002 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    EXPECT_EQ(abilityMs_->RegisterSessionHandler(nullptr), ERR_WRONG_INTERFACE_CALL);
+    HILOG_INFO("AbilityManagerServiceTest RegisterSessionHandler_002 end");
 }
 }  // namespace AAFwk
 }  // namespace OHOS

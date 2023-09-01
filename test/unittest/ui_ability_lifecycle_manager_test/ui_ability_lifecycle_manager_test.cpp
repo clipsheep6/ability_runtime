@@ -579,6 +579,25 @@ HWTEST_F(UIAbilityLifecycleManagerTest, CompleteForegroundSuccess_003, TestSize.
 }
 
 /**
+ * @tc.name: UIAbilityLifecycleManager_CompleteForegroundSuccess_0400
+ * @tc.desc: CompleteForegroundSuccess
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIAbilityLifecycleManagerTest, CompleteForegroundSuccess_004, TestSize.Level1)
+{
+    auto mgr = std::make_unique<UIAbilityLifecycleManager>();
+    EXPECT_NE(mgr, nullptr);
+    AbilityRequest abilityRequest;
+    auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+    abilityRecord->SetStartedByCall(true);
+    abilityRecord->SetStartToForeground(true);
+    abilityRecord->isReady_ = true;
+    abilityRecord->SetSessionInfo(new SessionInfo());
+    mgr->CompleteForegroundSuccess(abilityRecord);
+    EXPECT_NE(mgr, nullptr);
+}
+
+/**
  * @tc.name: UIAbilityLifecycleManager_HandleForegroundFailed_0100
  * @tc.desc: HandleForegroundOrFailed
  * @tc.type: FUNC

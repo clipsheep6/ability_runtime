@@ -326,6 +326,21 @@ HWTEST_F(AbilityManagerClientBranchTest, LockMissionForCleanup_0100, TestSize.Le
 }
 
 /**
+ * @tc.name: AbilityManagerClient_LockMissionForCleanup_0200
+ * @tc.desc: LockMissionForCleanup
+ * @tc.type: FUNC
+ * @tc.require: issueI5NRWT
+ */
+HWTEST_F(AbilityManagerClientBranchTest, LockMissionForCleanup_0200, TestSize.Level1)
+{
+    EXPECT_TRUE(client_ != nullptr);
+    auto result = client_->LockMissionForCleanup(1);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(result, ERR_OK);
+    }
+}
+
+/**
  * @tc.name: AbilityManagerClient_UnlockMissionForCleanup_0100
  * @tc.desc: UnlockMissionForCleanup
  * @tc.type: FUNC
@@ -335,6 +350,21 @@ HWTEST_F(AbilityManagerClientBranchTest, UnlockMissionForCleanup_0100, TestSize.
 {
     auto result = client_->UnlockMissionForCleanup(5);
     EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_UnlockMissionForCleanup_0200
+ * @tc.desc: UnlockMissionForCleanup
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientBranchTest, UnlockMissionForCleanup_0200, TestSize.Level1)
+{
+    EXPECT_TRUE(client_ != nullptr);
+    auto result = client_->UnlockMissionForCleanup(5);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(result, ERR_OK);
+    }
 }
 
 /**
@@ -455,6 +485,7 @@ HWTEST_F(AbilityManagerClientBranchTest, CleanMission_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityManagerClientBranchTest, CleanAllMissions_0100, TestSize.Level1)
 {
+    EXPECT_TRUE(client_ != nullptr);
     auto result = client_->CleanAllMissions();
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         EXPECT_EQ(result, ERR_OK);
@@ -500,6 +531,21 @@ HWTEST_F(AbilityManagerClientBranchTest, MoveMissionsToForeground_0100, TestSize
 }
 
 /**
+ * @tc.name: AbilityManagerClient_MoveMissionsToForeground_0200
+ * @tc.desc: MoveMissionsToForeground
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientBranchTest, MoveMissionsToForeground_0200, TestSize.Level1)
+{
+    EXPECT_TRUE(client_ != nullptr);
+    auto result = client_->MoveMissionsToForeground({1, 2, 3}, 1);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(result, ERR_OK);
+    }
+}
+
+/**
  * @tc.name: AbilityManagerClient_MoveMissionsToBackground_0100
  * @tc.desc: MoveMissionsToBackground
  * @tc.type: FUNC
@@ -510,6 +556,22 @@ HWTEST_F(AbilityManagerClientBranchTest, MoveMissionsToBackground_0100, TestSize
     std::vector<int32_t> rs;
     auto result = client_->MoveMissionsToBackground({1, 2, 3}, rs);
     EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_MoveMissionsToBackground_0100
+ * @tc.desc: MoveMissionsToBackground
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientBranchTest, MoveMissionsToBackground_0200, TestSize.Level1)
+{
+    std::vector<int32_t> rs;
+    EXPECT_TRUE(client_ != nullptr);
+    auto result = client_->MoveMissionsToBackground({1, 2, 3}, rs);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(result, ERR_OK);
+    }
 }
 
 /**
@@ -1531,5 +1593,18 @@ HWTEST_F(AbilityManagerClientBranchTest, UpdateMissionSnapShot_0100, TestSize.Le
     auto pixelMap = std::shared_ptr<Media::PixelMap>();
     client_->UpdateMissionSnapShot(token, pixelMap);
 }
+
+/**
+ * @tc.name: AbilityManagerClient_RegisterSessionHandler_0100
+ * @tc.desc: RegisterSessionHandler
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, RegisterSessionHandler_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    auto result = client_->RegisterSessionHandler(token);
+    EXPECT_EQ(ERR_OK, result);
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS
