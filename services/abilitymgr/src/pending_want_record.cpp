@@ -133,9 +133,30 @@ void PendingWantRecord::SetCanceled()
 {
     canceled_ = true;
 }
+
 bool PendingWantRecord::GetCanceled()
 {
     return canceled_;
+}
+
+void PendingWantRecord::SetProcessName(std::string processName)
+{
+    processName_ = processName;
+}
+
+std::string PendingWantRecord::GetProcessName() const
+{
+    return processName_;
+}
+
+void PendingWantRecord::SetCreatePid(pid_t pid)
+{
+    createPid_ = pid;
+}
+
+pid_t PendingWantRecord::GetCreatePid() const
+{
+    return createPid_;
 }
 
 void PendingWantRecord::SetCallerUid(const int32_t callerUid)
@@ -143,9 +164,15 @@ void PendingWantRecord::SetCallerUid(const int32_t callerUid)
     callerUid_ = callerUid;
 }
 
+int32_t PendingWantRecord::GetCallerUid()
+{
+    return callerUid_;
+}
+
 std::list<sptr<IWantReceiver>> PendingWantRecord::GetCancelCallbacks()
 {
     return mCancelCallbacks_;
 }
+
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -25,6 +25,7 @@
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "permission_verification.h"
+#include "accesstoken_kit.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -100,6 +101,7 @@ sptr<IWantSender> PendingWantManager::GetWantSenderLocked(const int32_t callingU
         }
         MakeWantSenderCanceledLocked(*ref);
         wantRecords_.erase(ref->GetKey());
+        HILOG_DEBUG("wantRecords_.size = %{public}zu", wantRecords_.size());
     }
 
     if (!needCreate) {
@@ -109,6 +111,13 @@ sptr<IWantSender> PendingWantManager::GetWantSenderLocked(const int32_t callingU
     sptr<PendingWantRecord> rec =
         new (std::nothrow) PendingWantRecord(shared_from_this(), uid, IPCSkeleton::GetCallingTokenID(),
         callerToken, pendingKey);
+
+    Security::AccessToken::NativeTokenInfo nativeTokenInfo;
+    int32_t result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(
+        IPCSkeleton::GetCallingTokenID(), nativeTokenInfo);
+    rec->SetProcessName(nativeTokenInfo.processName);
+    pid_t callingPid = IPCSkeleton::GetCallingPid();
+    rec->SetCreatePid(callingPid);
     if (rec != nullptr) {
         rec->SetCallerUid(callingUid);
         pendingKey->SetCode(PendingRecordIdCreate());
@@ -212,6 +221,7 @@ void PendingWantManager::CancelWantSenderLocked(PendingWantRecord &record, bool 
     MakeWantSenderCanceledLocked(record);
     if (cleanAbility) {
         wantRecords_.erase(record.GetKey());
+        HILOG_DEBUG("wantRecords_.size = %{public}zu", wantRecords_.size());
     }
 }
 int32_t PendingWantManager::DeviceIdDetermine(
@@ -534,34 +544,7 @@ void PendingWantManager::ClearPendingWantRecordTask(const std::string &bundleNam
 
 void PendingWantManager::Dump(std::vector<std::string> &info)
 {
-    std::string dumpInfo = "    PendingWantRecords:";
-    info.push_back(dumpInfo);
-
-    for (const auto &item : wantRecords_) {
-        const auto &pendingKey = item.first;
-        dumpInfo = "        PendWantRecord ID #" + std::to_string(pendingKey->GetCode()) +
-            "  type #" + std::to_string(pendingKey->GetType());
-        info.push_back(dumpInfo);
-        dumpInfo = "        bundle name [" + pendingKey->GetBundleName() + "]";
-        info.push_back(dumpInfo);
-        dumpInfo = "        result who [" + pendingKey->GetRequestWho() + "]";
-        info.push_back(dumpInfo);
-        dumpInfo = "        request code #" + std::to_string(pendingKey->GetRequestCode()) +
-            "  flags #" + std::to_string(pendingKey->GetFlags());
-        info.push_back(dumpInfo);
-        dumpInfo = "        resolved type [" + pendingKey->GetRequestResolvedType() + "]";
-        info.push_back(dumpInfo);
-        dumpInfo = "        Wants:";
-        info.push_back(dumpInfo);
-        auto Wants = pendingKey->GetAllWantsInfos();
-        for (const auto &Want : Wants) {
-            dumpInfo = "          uri [" + Want.want.GetElement().GetDeviceID() + "//" +
-                Want.want.GetElement().GetBundleName() + "/" + Want.want.GetElement().GetAbilityName() + "]";
-            info.push_back(dumpInfo);
-            dumpInfo = "          resolved types [" + Want.resolvedTypes + "]";
-            info.push_back(dumpInfo);
-        }
-    }
+    DumpByRecordId(info, "");
 }
 void PendingWantManager::DumpByRecordId(std::vector<std::string> &info, const std::string &args)
 {
@@ -570,7 +553,8 @@ void PendingWantManager::DumpByRecordId(std::vector<std::string> &info, const st
 
     for (const auto &item : wantRecords_) {
         const auto &pendingKey = item.first;
-        if (args == std::to_string(pendingKey->GetCode())) {
+        const auto &pendingRecord = item.second;
+        if (args.empty() || args == std::to_string(pendingKey->GetCode())) {
             dumpInfo = "        PendWantRecord ID #" + std::to_string(pendingKey->GetCode()) +
                 "  type #" + std::to_string(pendingKey->GetType());
                 info.push_back(dumpInfo);
@@ -581,6 +565,12 @@ void PendingWantManager::DumpByRecordId(std::vector<std::string> &info, const st
                 dumpInfo = "        request code #" + std::to_string(pendingKey->GetRequestCode()) +
                 "  flags #" + std::to_string(pendingKey->GetFlags());
                 info.push_back(dumpInfo);
+                dumpInfo = "        caller uid [" + std::to_string(pendingRecord->GetCallerUid()) + "]";
+                info.push_back(dumpInfo);
+                dumpInfo = "        process name [" + pendingRecord->GetProcessName() + "]";
+                info.push_back(dumpInfo);
+            dumpInfo = "        create pid [" + std::to_string(pendingRecord->GetCreatePid()) + "]";
+            info.push_back(dumpInfo);
             dumpInfo = "        resolved type [" + pendingKey->GetRequestResolvedType() + "]";
             info.push_back(dumpInfo);
             dumpInfo = "        Wants:";
