@@ -275,9 +275,9 @@ NativeValue *JsUIExtensionContext::OnStartAbilityForResult(NativeEngine &engine,
         return result;
     }
     want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
-    curRequestCode_ = (curRequestCode_ == INT_MAX) ? 0 : (curRequestCode_ + 1);
-    (unwrapArgc == INDEX_ONE) ? context->StartAbilityForResult(want, curRequestCode_, std::move(task))
-                              : context->StartAbilityForResult(want, startOptions, curRequestCode_, std::move(task));
+    int curRequestCode = context->GenerateCurRequestCode();
+    (unwrapArgc == INDEX_ONE) ? context->StartAbilityForResult(want, curRequestCode, std::move(task))
+                              : context->StartAbilityForResult(want, startOptions, curRequestCode, std::move(task));
     HILOG_DEBUG("end.");
     return result;
 }
