@@ -5288,6 +5288,7 @@ void AbilityManagerService::ConnectBmsService()
 
     HILOG_INFO("Waiting BundleMgr Service run completed.");
     /* wait until connected to bundle manager service */
+    std::lock_guard<ffrt::mutex> guard(globalLock_);
     while (iBundleManager_ == nullptr) {
         sptr<IRemoteObject> bundle_obj =
             OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
