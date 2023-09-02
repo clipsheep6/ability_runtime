@@ -979,7 +979,7 @@ int AbilityManagerProxy::AbilityTransitionDone(const sptr<IRemoteObject> &token,
     int error;
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option;
+    MessageOption option(MessageOption::TF_ASYNC);
 
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
@@ -1007,7 +1007,7 @@ int AbilityManagerProxy::ScheduleConnectAbilityDone(
     int error;
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option;
+    MessageOption option(MessageOption::TF_ASYNC);
 
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
@@ -1050,7 +1050,7 @@ int AbilityManagerProxy::ScheduleDisconnectAbilityDone(const sptr<IRemoteObject>
     int error;
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option;
+    MessageOption option(MessageOption::TF_ASYNC);
 
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
@@ -1073,7 +1073,7 @@ int AbilityManagerProxy::ScheduleCommandAbilityDone(const sptr<IRemoteObject> &t
     int error;
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option;
+    MessageOption option(MessageOption::TF_ASYNC);
 
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
@@ -1100,7 +1100,7 @@ int AbilityManagerProxy::ScheduleCommandAbilityWindowDone(
     int error;
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option;
+    MessageOption option(MessageOption::TF_ASYNC);
 
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
@@ -2021,7 +2021,7 @@ void AbilityManagerProxy::NotifyCompleteContinuation(const std::string &deviceId
 {
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option;
+    MessageOption option(MessageOption::TF_ASYNC);
     if (!WriteInterfaceToken(data)) {
         return;
     }
@@ -2049,7 +2049,7 @@ int AbilityManagerProxy::NotifyContinuationResult(int32_t missionId, int32_t res
 {
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option;
+    MessageOption option(MessageOption::TF_ASYNC);
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
@@ -3947,7 +3947,7 @@ int32_t AbilityManagerProxy::NotifySaveAsResult(const Want &want, int resultCode
     }
 
     MessageParcel reply;
-    MessageOption option;
+    MessageOption option(MessageOption::TF_ASYNC);
     auto error = SendRequest(AbilityManagerInterfaceCode::NOTIFY_SAVE_AS_RESULT, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
