@@ -176,6 +176,9 @@ NativeValue *JsUIExtensionContentSession::OnStartAbility(NativeEngine& engine, N
         ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return engine.CreateUndefined();
     }
+    if (!want.HasParameter(Want::PARAM_BACK_TO_OTHER_MISSION_STACK)) {
+        want.SetParam(Want::PARAM_BACK_TO_OTHER_MISSION_STACK, true);
+    }
     HILOG_INFO("StartAbility, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
     auto innerErrorCode = std::make_shared<int>(ERR_OK);
     AsyncTask::ExecuteCallback execute = StartAbilityExecuteCallback(want, unwrapArgc, engine, info, innerErrorCode);
@@ -255,6 +258,9 @@ NativeValue *JsUIExtensionContentSession::OnStartAbilityForResult(NativeEngine& 
         HILOG_ERROR("Failed to parse want!");
         ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return engine.CreateUndefined();
+    }
+    if (!want.HasParameter(Want::PARAM_BACK_TO_OTHER_MISSION_STACK)) {
+        want.SetParam(Want::PARAM_BACK_TO_OTHER_MISSION_STACK, true);
     }
     size_t unwrapArgc = 1;
     AAFwk::StartOptions startOptions;
