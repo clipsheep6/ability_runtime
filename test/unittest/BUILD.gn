@@ -27,6 +27,7 @@ config("appmgr_test_config") {
 
   include_dirs = [
     "${ability_runtime_test_path}/mock/services_appmgr_test/include",
+    "${distributeddatamgr_path}/kv_store/interfaces/innerkits/distributeddata/include",
     "${global_path}/i18n/frameworks/intl/include",
   ]
 }
@@ -90,6 +91,7 @@ ohos_source_set("appmgr_test_source") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "kv_store:distributeddata_mgr",
   ]
 
   subsystem_name = "ability"
