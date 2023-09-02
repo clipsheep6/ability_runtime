@@ -1631,5 +1631,29 @@ HWTEST_F(AbilityManagerClientBranchTest, RegisterSessionHandler_0100, TestSize.L
     EXPECT_EQ(ERR_OK, result);
 }
 
+/**
+ * @tc.name: AbilityManagerClient_SetLockedState_0100
+ * @tc.desc: SetLockedState
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, SetLockedState_0100, TestSize.Level1)
+{
+    EXPECT_TRUE(client_ != nullptr);
+    int32_t sessionId = 1;
+    bool lockedState = true;
+    client_->SetLockedState(sessionId, lockedState);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StartSpecifiedAbilityBySCB_0100
+ * @tc.desc: StartSpecifiedAbilityBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, StartSpecifiedAbilityBySCB_0100, TestSize.Level1)
+{
+    EXPECT_TRUE(client_ != nullptr);
+    Want want;
+    client_->StartSpecifiedAbilityBySCB(want);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

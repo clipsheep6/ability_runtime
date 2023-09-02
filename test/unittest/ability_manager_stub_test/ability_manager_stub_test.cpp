@@ -2374,5 +2374,38 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_RegisterSessionHandlerInner_
     auto res = stub_->RegisterSessionHandlerInner(data, reply);
     EXPECT_EQ(res, ERR_INVALID_VALUE);
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartSpecifiedAbilityBySCBInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartSpecifiedAbilityBySCBInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function StartSpecifiedAbilityBySCBInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartSpecifiedAbilityBySCBInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->StartSpecifiedAbilityBySCBInner(data, reply);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartSpecifiedAbilityBySCBInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartSpecifiedAbilityBySCBInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function StartSpecifiedAbilityBySCBInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartSpecifiedAbilityBySCBInner_002, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    Want want;
+    data.WriteParcelable(&want);
+    EXPECT_EQ(stub_->StartSpecifiedAbilityBySCBInner(data, reply), NO_ERROR);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

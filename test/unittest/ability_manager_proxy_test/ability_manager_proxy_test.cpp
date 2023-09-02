@@ -2345,5 +2345,38 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RegisterSessionHandler_002
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_SESSION_HANDLER), mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartSpecifiedAbilityBySCB
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartSpecifiedAbilityBySCB
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of StartSpecifiedAbilityBySCB
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartSpecifiedAbilityBySCB_001, TestSize.Level1)
+{
+    proxy_ = std::make_shared<AbilityManagerProxy>(nullptr);
+    EXPECT_TRUE(proxy_ != nullptr);
+    Want want;
+    proxy_->StartSpecifiedAbilityBySCB(want);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartSpecifiedAbilityBySCB
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartSpecifiedAbilityBySCB
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of StartSpecifiedAbilityBySCB
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartSpecifiedAbilityBySCB_002, TestSize.Level1)
+{
+    proxy_ = std::make_shared<AbilityManagerProxy>(mock_);
+    EXPECT_TRUE(proxy_ != nullptr);
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _)).Times(1).WillOnce(Return(NO_ERROR));
+    Want want;
+    proxy_->StartSpecifiedAbilityBySCB(want);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
