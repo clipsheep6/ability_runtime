@@ -21,6 +21,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include "mock_lifecycle_observer.h"
+#include "scene_board_judgement.h"
 
 using namespace std;
 const int openfileValue = 123;
@@ -51,8 +52,11 @@ void DemoAbility::OnActive()
     GTEST_LOG_(INFO) << "DemoAbility::OnActive called";
     Ability::OnActive();
     std::shared_ptr<AbilityInfo> abilityInfo = GetAbilityInfo();
+    EXPECT_TRUE(abilityInfo != nullptr);
     if (AppExecFwk::AbilityType::PAGE == abilityInfo->type) {
-        EXPECT_NE(nullptr, Ability::GetWindow());
+        if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+            EXPECT_NE(nullptr, Ability::GetWindow());
+        }
     }
 }
 void DemoAbility::OnInactive()

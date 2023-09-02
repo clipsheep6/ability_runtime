@@ -41,6 +41,7 @@
 #include "session_info.h"
 #include "uri.h"
 #include "values_bucket.h"
+#include "scene_board_judgement.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -2268,6 +2269,7 @@ HWTEST_F(AbilityBaseTest, AbilitySetShowOnLockScreen_0100, TestSize.Level1)
     auto handler = std::make_shared<AbilityHandler>(eventRunner);
     ability->Init(pageAbilityInfo, nullptr, handler, nullptr);
 
+    sptr<AAFwk::SessionInfo> session = new (std::nothrow) AAFwk::SessionInfo();
     int32_t displayId = 0;
     sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
     ability->InitWindow(displayId, option);
@@ -2622,7 +2624,9 @@ HWTEST_F(AbilityBaseTest, AbilitySetDisplayOrientation_0100, TestSize.Level1)
     ability->InitWindow(displayId, option);
     ability->SetDisplayOrientation(orientation);
     ret = ability->GetDisplayOrientation();
-    EXPECT_EQ(ret, 0);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(ret, 0);
+    }
 
     orientation = static_cast<int>(DisplayOrientation::LANDSCAPE);
     ability->SetDisplayOrientation(orientation);

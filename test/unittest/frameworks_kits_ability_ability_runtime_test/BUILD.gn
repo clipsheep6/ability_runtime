@@ -59,6 +59,8 @@ ohos_unittest("ability_context_impl_test") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "window_manager:libwsutils",
+    "window_manager:scene_session",
   ]
 }
 

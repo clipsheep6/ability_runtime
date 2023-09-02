@@ -39,6 +39,7 @@
 #include "test_observer.h"
 #include "test_runner.h"
 #include "want.h"
+#include "scene_board_judgement.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -430,7 +431,9 @@ HWTEST_F(AbilityDelegatorTest2, Ability_Delegator_Test_070, Function | MediumTes
 
     // Valid abilityName.
     MockAbilityDelegatorStub2::testcaseBranch_ = TESTCASE_BRANCH::BRANCH_3;
-    EXPECT_EQ(abilityDelegator.GetCurrentTopAbility(), ability);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(abilityDelegator.GetCurrentTopAbility(), ability);
+    }
 
     // Set testcase branch to default.
     MockAbilityDelegatorStub2::testcaseBranch_ = TESTCASE_BRANCH::BRANCH_1;

@@ -193,6 +193,7 @@ ohos_moduletest("ability_delegator_moduletest") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "window_manager:scene_session",
   ]
 }
 

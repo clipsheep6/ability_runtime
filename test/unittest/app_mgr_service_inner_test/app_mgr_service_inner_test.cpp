@@ -3352,5 +3352,99 @@ HWTEST_F(AppMgrServiceInnerTest, GetBundleNameByPid_002, TestSize.Level1)
 
     HILOG_INFO("GetBundleNameByPid_002 end");
 }
+
+/**
+ * @tc.name: AppRecoveryNotifyApp_001
+ * @tc.desc: AppRecovery NotifyApp.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, AppRecoveryNotifyApp_001, TestSize.Level1)
+{
+    HILOG_INFO("AppRecoveryNotifyApp_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    int32_t pid = 0;
+    std::string bundleName = "com.is.hiserice";
+    appMgrServiceInner->AppRecoveryNotifyApp(pid, bundleName, FaultDataType::RESOURCE_CONTROL, "appRecovery");
+    appMgrServiceInner->AppRecoveryNotifyApp(pid, bundleName, FaultDataType::APP_FREEZE, "recovery");
+    HILOG_INFO("AppRecoveryNotifyApp_001 end");
+}
+
+/**
+ * @tc.name: NotifyAppFault_001
+ * @tc.desc: Notify AppFault.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, NotifyAppFault_001, TestSize.Level1)
+{
+    HILOG_INFO("NotifyAppFault_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    FaultData faultData1;
+    faultData1.errorObject.name = "1234";
+    faultData1.timeoutMarkers = "456";
+    int32_t ret1 = appMgrServiceInner->NotifyAppFault(faultData1);
+    EXPECT_EQ(ret1, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: TimeoutNotifyApp_001
+ * @tc.desc: Timeout Notify App.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, TimeoutNotifyApp_001, TestSize.Level1)
+{
+    HILOG_INFO("TimeoutNotifyApp_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    int32_t pid = 0;
+    int32_t uid = 0;
+    std::string bundleName = "test_processName";
+    FaultData faultData;
+    faultData.errorObject.name = "1234";
+    faultData.faultType = FaultDataType::APP_FREEZE;
+    appMgrServiceInner->TimeoutNotifyApp(pid, uid, bundleName, faultData);
+    HILOG_INFO("TimeoutNotifyApp_001 end");
+}
+
+/**
+ * @tc.name: NotifyAppFaultBySA_001
+ * @tc.desc: Notify Fault Data By SA
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, NotifyAppFaultBySA_001, TestSize.Level1)
+{
+    HILOG_INFO("NotifyAppFaultBySA_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    AppFaultDataBySA faultData;
+    faultData.pid = 8142;
+    faultData.errorObject.name = "appRecovery";
+    int32_t ret = appMgrServiceInner->NotifyAppFaultBySA(faultData);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    HILOG_INFO("NotifyAppFaultBySA_001 end");
+}
+
+/**
+ * @tc.name: NotifyAppFaultBySA_002
+ * @tc.desc: Notify Fault Data By SA
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, NotifyAppFaultBySA_002, TestSize.Level1)
+{
+    HILOG_INFO("NotifyAppFaultBySA_002 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    AppFaultDataBySA faultData;
+    faultData.pid = 0;
+    faultData.errorObject.name = "app";
+    faultData.faultType = FaultDataType::APP_FREEZE;
+    BundleInfo info;
+    std::string processName = "test_processName";
+    appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
+    int32_t ret = appMgrServiceInner->NotifyAppFaultBySA(faultData);
+    EXPECT_EQ(ret, ERR_OK);
+    HILOG_INFO("NotifyAppFaultBySA_002 end");
+}
 } // namespace AppExecFwk
 } // namespace OHOS

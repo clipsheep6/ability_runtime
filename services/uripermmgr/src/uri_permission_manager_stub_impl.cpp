@@ -23,6 +23,7 @@
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "os_account_manager_wrapper.h"
+#include "parameter.h"
 #include "permission_constants.h"
 #include "permission_verification.h"
 #include "system_ability_definition.h"
@@ -33,32 +34,55 @@ namespace AAFwk {
 namespace {
 constexpr int32_t DEFAULT_USER_ID = 0;
 constexpr int32_t ERR_OK = 0;
+const char* GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_PARAMETER = "persist.sys.prepare_terminate";
+constexpr int32_t GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_SIZE = 6;
 }
 
 void UriPermissionManagerStubImpl::Init()
 {
-    // Register UriBundleEventCallback to receive hap updates
-    HILOG_INFO("Register UriBundleEventCallback to receive hap updates.");
-    ConnectManager(bundleManager_, BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    if (bundleManager_ ==  nullptr) {
-        HILOG_ERROR("Get BundleManager failed!");
-        return;
-    }
-    uriBundleEventCallback_ = new UriBundleEventCallback(this);
-    auto ret = bundleManager_->RegisterBundleEventCallback(uriBundleEventCallback_);
-    if (!ret) {
-        HILOG_ERROR("RegisterBundleEventCallback failed!");
-    }
+    uriPermissionRdb_ = std::make_shared<UriPermissionRdb>();
+    InitPersistableUriPermissionConfig();
 }
 
-void UriPermissionManagerStubImpl::Stop() const
+bool UriPermissionManagerStubImpl::CheckPersistableUriPermissionProxy(const Uri& uri, uint32_t flag, uint32_t tokenId)
 {
-    if (uriBundleEventCallback_ != nullptr) {
-        auto ret = bundleManager_->UnregisterBundleEventCallback(uriBundleEventCallback_);
-        if (!ret) {
-            HILOG_ERROR("UnregisterBundleEventCallback failed!");
+    // check if caller can grant persistable uri permission
+    auto uriStr = uri.ToString();
+    return uriPermissionRdb_->CheckPersistableUriPermissionProxy(uriStr, flag, tokenId);
+}
+
+bool UriPermissionManagerStubImpl::VerifyUriPermission(const Uri &uri, uint32_t flag, uint32_t tokenId)
+{
+    // verify if tokenId have uri permission of flag, including temporary permission and persistable permission
+    HILOG_DEBUG("VerifyUriPermission called: flag = %{public}i", static_cast<int>(flag));
+    auto uriStr = uri.ToString();
+    bool tempPermission = false;
+    bool perPermission = false;
+    {
+        std::lock_guard<std::mutex> guard(mutex_);
+        auto search = uriMap_.find(uriStr);
+        if (search != uriMap_.end()) {
+            auto& list = search->second;
+            for (auto it = list.begin(); it != list.end(); it++) {
+                bool condition = (it->targetTokenId == tokenId) &&
+                    ((it->flag | Want::FLAG_AUTH_READ_URI_PERMISSION) & flag) != 0;
+                if (condition) {
+                    HILOG_DEBUG("temporary uri permission exists");
+                    tempPermission = true;
+                    break;
+                }
+            }
         }
     }
+    if (uriPermissionRdb_->CheckPersistableUriPermissionProxy(uriStr, flag, tokenId)) {
+        HILOG_DEBUG("persistable uri permission exists");
+        tempPermission = true;
+    }
+    if (!tempPermission && !perPermission) {
+        HILOG_DEBUG("uri permission not exists");
+        return false;
+    }
+    return true;
 }
 
 int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned int flag,
@@ -88,26 +112,19 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned in
         return ERR_CODE_INVALID_URI_FLAG;
     }
     Uri uri_inner = uri;
-    auto&& authority = uri_inner.GetAuthority();
-    auto fromTokenId = GetTokenIdByBundleName(authority, 0);
-    auto targetTokenId = GetTokenIdByBundleName(targetBundleName, appIndex);
-    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
-    auto permission = PermissionVerification::GetInstance()->VerifyCallingPermission(
-        AAFwk::PermissionConstants::PERMISSION_PROXY_AUTHORIZATION_URI);
-    if (!permission && (fromTokenId != callerTokenId)) {
-        HILOG_WARN("UriPermissionManagerStubImpl::GrantUriPermission: No permission for proxy authorization uri.");
-        return CHECK_PERMISSION_FAILED;
-    }
-    unsigned int tmpFlag = 0;
-    if (flag & Want::FLAG_AUTH_WRITE_URI_PERMISSION) {
-        tmpFlag = Want::FLAG_AUTH_WRITE_URI_PERMISSION;
-    } else {
-        tmpFlag = Want::FLAG_AUTH_READ_URI_PERMISSION;
-    }
     auto&& scheme = uri_inner.GetScheme();
     if (scheme != "file") {
         HILOG_WARN("only support file uri.");
         return ERR_CODE_INVALID_URI_TYPE;
+    }
+    auto&& authority = uri_inner.GetAuthority();
+    auto fromTokenId = GetTokenIdByBundleName(authority, 0);
+    auto targetTokenId = GetTokenIdByBundleName(targetBundleName, appIndex);
+    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+    unsigned int tmpFlag = 0;
+    ret = GetUriPermissionFlag(uri, flag, fromTokenId, targetTokenId, tmpFlag);
+    if (ret != ERR_OK || tmpFlag == 0) {
+        return ret;
     }
     // auto remove URI permission for clipboard
     Security::AccessToken::NativeTokenInfo nativeInfo;
@@ -119,31 +136,73 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned in
     return GrantUriPermissionImpl(uri, tmpFlag, fromTokenId, targetTokenId, autoremove);
 }
 
-int UriPermissionManagerStubImpl::GrantUriPermissionImpl(const Uri &uri, unsigned int flag,
+int UriPermissionManagerStubImpl::GetUriPermissionFlag(const Uri &uri, unsigned int flag,
+    uint32_t fromTokenId, uint32_t targetTokenId, unsigned int &newFlag)
+{
+    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+    Uri uri_inner = uri;
+    auto&& authority = uri_inner.GetAuthority();
+    bool authorityFlag = authority == "media" || authority == "docs";
+    auto permission = PermissionVerification::GetInstance()->VerifyCallingPermission(
+        AAFwk::PermissionConstants::PERMISSION_PROXY_AUTHORIZATION_URI);
+    newFlag = flag & Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION;
+    if ((flag & Want::FLAG_AUTH_WRITE_URI_PERMISSION) != 0) {
+        newFlag |= Want::FLAG_AUTH_WRITE_URI_PERMISSION;
+    } else {
+        newFlag |= Want::FLAG_AUTH_READ_URI_PERMISSION;
+    }
+    if (!authorityFlag && !permission && (fromTokenId != callerTokenId)) {
+        HILOG_WARN("UriPermissionManagerStubImpl::GrantUriPermission: No permission for proxy authorization uri.");
+        return CHECK_PERMISSION_FAILED;
+    }
+    if (!authorityFlag) {
+        // ignore persistable uri permission flag.
+        newFlag &= (~Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION);
+        return ERR_OK;
+    }
+
+    if (!isGrantPersistableUriPermissionEnable_) {
+        if (!permission) {
+            HILOG_WARN("Do not have persistable uri permission proxy.");
+            return CHECK_PERMISSION_FAILED;
+        }
+        newFlag &= (~Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION);
+        return ERR_OK;
+    }
+
+    if ((newFlag & Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION) == 0 && CheckPersistableUriPermissionProxy(uri,
+        flag, targetTokenId)) {
+        newFlag = 0;
+        HILOG_DEBUG("persistable uri permission has been granted");
+        return ERR_OK;
+    }
+    if (!permission) {
+        if (!CheckPersistableUriPermissionProxy(uri, flag, callerTokenId)) {
+            HILOG_WARN("Do not have persistable uri permission proxy.");
+            return CHECK_PERMISSION_FAILED;
+        }
+        newFlag |= Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION;
+    }
+    return ERR_OK;
+}
+
+int UriPermissionManagerStubImpl::AddTempUriPermission(const std::string &uri, unsigned int flag,
     TokenId fromTokenId, TokenId targetTokenId, int autoremove)
 {
-    ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
-    if (storageManager_ == nullptr) {
-        HILOG_ERROR("ConnectManager failed");
-        return INNER_ERR;
-    }
-    auto uriStr = uri.ToString();
-    auto ret = storageManager_->CreateShareFile(uriStr, targetTokenId, flag);
-    if (ret != 0 && ret != -EEXIST) {
-        HILOG_ERROR("failed to CreateShareFile.");
-        return INNER_ERR;
-    }
     std::lock_guard<std::mutex> guard(mutex_);
-    auto search = uriMap_.find(uriStr);
+    auto search = uriMap_.find(uri);
     GrantInfo info = { flag, fromTokenId, targetTokenId, autoremove };
     if (search == uriMap_.end()) {
+        HILOG_INFO("Insert an uri r/w permission.");
         std::list<GrantInfo> infoList = { info };
-        uriMap_.emplace(uriStr, infoList);
+        uriMap_.emplace(uri, infoList);
         return ERR_OK;
     }
     auto& infoList = search->second;
     for (auto& item : infoList) {
         if (item.fromTokenId == fromTokenId && item.targetTokenId == targetTokenId) {
+            HILOG_DEBUG("Item: flag = %{public}i, fromTokenId = %{public}i, targetTokenId = %{public}i,\
+                autoremove = %{public}i", item.flag, item.fromTokenId, item.targetTokenId, item.autoremove);
             if ((flag & item.flag) == 0) {
                 HILOG_INFO("Update uri r/w permission.");
                 item.flag = flag;
@@ -156,9 +215,65 @@ int UriPermissionManagerStubImpl::GrantUriPermissionImpl(const Uri &uri, unsigne
     return ERR_OK;
 }
 
+int UriPermissionManagerStubImpl::DeletTempUriPermission(const std::string &uri, uint32_t flag,
+    uint32_t targetTokenId)
+{
+    if ((flag & Want::FLAG_AUTH_WRITE_URI_PERMISSION) != 0) {
+        flag |= Want::FLAG_AUTH_READ_URI_PERMISSION;
+    }
+    std::lock_guard<std::mutex> guard(mutex_);
+    auto search = uriMap_.find(uri);
+    if (search == uriMap_.end()) {
+        HILOG_DEBUG("uri do not in uri map.");
+        return ERR_OK;
+    }
+    auto& list = search->second;
+    for (auto it = list.begin(); it != list.end(); it++) {
+        if (it->targetTokenId == targetTokenId && (it->flag & flag) != 0) {
+            HILOG_DEBUG("delet the temporary uri permission in uri map.");
+            list.erase(it);
+            break;
+        }
+    }
+    if (list.size() == 0) {
+        uriMap_.erase(search);
+    }
+    return ERR_OK;
+}
+
+int UriPermissionManagerStubImpl::GrantUriPermissionImpl(const Uri &uri, unsigned int flag,
+    TokenId fromTokenId, TokenId targetTokenId, int autoremove)
+{
+    HILOG_INFO("uri = %{private}s, flag = %{public}i, fromTokenId = %{public}i, targetTokenId = %{public}i,\
+        autoremove = %{public}i", uri.ToString().c_str(), flag, fromTokenId, targetTokenId, autoremove);
+    ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
+    if (storageManager_ == nullptr) {
+        HILOG_ERROR("ConnectManager failed");
+        return INNER_ERR;
+    }
+    auto uriStr = uri.ToString();
+    auto ret = storageManager_->CreateShareFile(uriStr, targetTokenId, flag);
+    if (ret != 0 && ret != -EEXIST) {
+        HILOG_ERROR("failed to CreateShareFile.");
+        return INNER_ERR;
+    }
+    // grant persistable uri permission
+    if ((flag & Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION) != 0) {
+        ret = uriPermissionRdb_->AddGrantInfo(uriStr, flag, fromTokenId, targetTokenId);
+        if (ret == ERR_OK) {
+            // delete temporary uri permission
+            ret = DeletTempUriPermission(uriStr, flag, targetTokenId);
+        }
+        return ret;
+    }
+    // grant temporary uri permission
+    ret = AddTempUriPermission(uriStr, flag, fromTokenId, targetTokenId, autoremove);
+    return ret;
+}
+
 void UriPermissionManagerStubImpl::RevokeUriPermission(const TokenId tokenId)
 {
-    HILOG_DEBUG("Start to remove uri permission.");
+    HILOG_INFO("Start to remove uri permission.");
     auto callerTokenId = IPCSkeleton::GetCallingTokenID();
     Security::AccessToken::NativeTokenInfo nativeInfo;
     Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerTokenId, nativeInfo);
@@ -199,12 +314,13 @@ void UriPermissionManagerStubImpl::RevokeUriPermission(const TokenId tokenId)
     }
 }
 
-void UriPermissionManagerStubImpl::RevokeAllUriPermissions(uint32_t tokenId)
+int UriPermissionManagerStubImpl::RevokeAllUriPermissions(uint32_t tokenId)
 {
-    HILOG_DEBUG("Start to remove all uri permission for uninstalled app.");
+    HILOG_INFO("Start to remove all uri permission for uninstalled app or clear app data.");
     std::map<unsigned int, std::vector<std::string>> uriLists;
     {
         std::lock_guard<std::mutex> guard(mutex_);
+        // delte temporary uri permission
         for (auto iter = uriMap_.begin(); iter != uriMap_.end();) {
             auto& list = iter->second;
             for (auto it = list.begin(); it != list.end();) {
@@ -228,7 +344,7 @@ void UriPermissionManagerStubImpl::RevokeAllUriPermissions(uint32_t tokenId)
     ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
     if (storageManager_ == nullptr) {
         HILOG_ERROR("ConnectStorageManager failed");
-        return;
+        return INNER_ERR;
     }
 
     if (!uriLists.empty()) {
@@ -236,12 +352,20 @@ void UriPermissionManagerStubImpl::RevokeAllUriPermissions(uint32_t tokenId)
             storageManager_->DeleteShareFile(iter->first, iter->second);
         }
     }
+
+    if (!isGrantPersistableUriPermissionEnable_) {
+        return ERR_OK;
+    }
+    // delete persistable uri permission
+    auto ret = uriPermissionRdb_->RemoveGrantInfo(tokenId, storageManager_);
+    return ret;
 }
 
 int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, const std::string bundleName)
 {
-    HILOG_DEBUG("Start to remove uri permission manually.");
+    HILOG_INFO("Start to remove uri permission manually.");
     Uri uri_inner = uri;
+    auto uriStr = uri.ToString();
     auto&& authority = uri_inner.GetAuthority();
     auto&& scheme = uri_inner.GetScheme();
     if (scheme != "file") {
@@ -251,33 +375,60 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
     auto uriTokenId = GetTokenIdByBundleName(authority, 0);
     auto tokenId = GetTokenIdByBundleName(bundleName, 0);
     auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+    VerifyUriPermission(uri, Want::FLAG_AUTH_READ_URI_PERMISSION, tokenId);
+    VerifyUriPermission(uri, Want::FLAG_AUTH_WRITE_URI_PERMISSION, tokenId);
     auto permission = PermissionVerification::GetInstance()->VerifyCallingPermission(
         AAFwk::PermissionConstants::PERMISSION_PROXY_AUTHORIZATION_URI);
-    if (!permission && (uriTokenId != callerTokenId) && (tokenId != callerTokenId)) {
+    bool authorityFlag = authority == "media" || authority == "docs";
+
+    if (!authorityFlag && (uriTokenId != callerTokenId) && (tokenId != callerTokenId)) {
         HILOG_WARN("UriPermissionManagerStubImpl::RevokeUriPermission: No permission for revoke uri.");
         return CHECK_PERMISSION_FAILED;
     }
 
+    if (authorityFlag && !permission && tokenId != callerTokenId) {
+        HILOG_WARN("UriPermissionManagerStubImpl::RevokeUriPermission: No permission for revoke uri.");
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    if (authorityFlag && isGrantPersistableUriPermissionEnable_) {
+        // delete persistable grant info
+        ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
+        if (storageManager_ == nullptr) {
+            HILOG_ERROR("ConnectStorageManager failed");
+            return INNER_ERR;
+        }
+        auto ret = uriPermissionRdb_->RemoveGrantInfo(uriStr, tokenId, storageManager_);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("remove persistable uri permission failed.");
+            return INNER_ERR;
+        }
+    }
+    // delete temporary grant info
+    return DeletTempUriPermissionAndShareFile(uriStr, tokenId);
+}
+
+int UriPermissionManagerStubImpl::DeletTempUriPermissionAndShareFile(const std::string &uri, uint32_t targetTokenId)
+{
+    ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
+    if (storageManager_ == nullptr) {
+        HILOG_ERROR("ConnectStorageManager failed");
+        return INNER_ERR;
+    }
     std::vector<std::string> uriList;
-    auto uriStr = uri.ToString();
     std::lock_guard<std::mutex> guard(mutex_);
 
-    auto search = uriMap_.find(uriStr);
+    auto search = uriMap_.find(uri);
     if (search == uriMap_.end()) {
         HILOG_INFO("URI does not exist on uri map.");
         return ERR_OK;
     }
     auto& list = search->second;
     for (auto it = list.begin(); it != list.end(); it++) {
-        if (it->targetTokenId == tokenId) {
+        if (it->targetTokenId == targetTokenId) {
             HILOG_INFO("Erase an info form list.");
-            ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
-            if (storageManager_ == nullptr) {
-                HILOG_ERROR("ConnectStorageManager failed");
-                return INNER_ERR;
-            }
             uriList.emplace_back(search->first);
-            if (storageManager_->DeleteShareFile(tokenId, uriList) == ERR_OK) {
+            if (storageManager_->DeleteShareFile(targetTokenId, uriList) == ERR_OK) {
                 list.erase(it);
                 break;
             } else {
@@ -381,6 +532,18 @@ int32_t UriPermissionManagerStubImpl::GetCurrentAccountId() const
     }
 
     return osActiveAccountIds.front();
+}
+
+void UriPermissionManagerStubImpl::InitPersistableUriPermissionConfig()
+{
+    char value[GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_SIZE] = "false";
+    int retSysParam = GetParameter(GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_PARAMETER, "false", value,
+        GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_SIZE);
+    HILOG_INFO("GrantPersistableUriPermissionEnable, %{public}s value is %{public}s.",
+        GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_PARAMETER, value);
+    if (retSysParam > 0 && !std::strcmp(value, "true")) {
+        isGrantPersistableUriPermissionEnable_ = true;
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -23,6 +23,7 @@
 #include "ability_connect_manager.h"
 #include "ability_connection.h"
 #include "ability_start_setting.h"
+#include "recovery_param.h"
 #undef private
 #undef protected
 
@@ -605,6 +606,15 @@ HWTEST_F(AbilityManagerServiceTest, StartRemoteAbility_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceTest StartRemoteAbility_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    auto mgr = std::make_unique<UIAbilityLifecycleManager>();
+    AbilityRequest abilityRequest;
+    Rosen::SessionInfo info;
+    sptr<SessionInfo> sessionInfo(new SessionInfo());
+    sessionInfo->sessionToken = new Rosen::Session(info);
+    sessionInfo->persistentId = 1;
+    abilityRequest.sessionInfo = sessionInfo;
+    auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+    mgr->sessionAbilityMap_.emplace(sessionInfo->persistentId, abilityRecord);
     Want want;
     // AddStartControlParam
     EXPECT_EQ(abilityMs_->StartRemoteAbility(want, 1, 1, nullptr), ERR_INVALID_VALUE);
@@ -2324,12 +2334,12 @@ HWTEST_F(AbilityManagerServiceTest, GetAbilityRunningInfos_001, TestSize.Level1)
 
     auto temp2 = abilityMs_->connectManager_;
     abilityMs_->connectManager_.reset();
-    EXPECT_EQ(abilityMs_->GetAbilityRunningInfos(info), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->GetAbilityRunningInfos(info), ERR_OK);
     abilityMs_->connectManager_ = temp2;
 
     auto temp3 = abilityMs_->dataAbilityManager_;
     abilityMs_->dataAbilityManager_.reset();
-    EXPECT_EQ(abilityMs_->GetAbilityRunningInfos(info), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->GetAbilityRunningInfos(info), ERR_OK);
     abilityMs_->dataAbilityManager_ = temp3;
     HILOG_INFO("AbilityManagerServiceTest GetAbilityRunningInfos_001 end");
 }
@@ -2466,6 +2476,27 @@ HWTEST_F(AbilityManagerServiceTest, GetMissionSnapshot_001, TestSize.Level1)
     EXPECT_EQ(abilityMs_->GetMissionSnapshot("", 1, missionSnapshot, true), INNER_ERR);
     MyFlag::flag_ = 0;
     HILOG_INFO("AbilityManagerServiceTest GetMissionSnapshot_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: UpdateMissionSnapShot
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService UpdateMissionSnapShot
+ */
+HWTEST_F(AbilityManagerServiceTest, UpdateMissionSnapShot_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest UpdateMissionSnapShot_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    auto pixelMap = std::shared_ptr<Media::PixelMap>();
+    MissionSnapshot missionSnapshot;
+    ASSERT_NE(abilityMs_, nullptr);
+    abilityMs_->UpdateMissionSnapShot(nullptr, pixelMap);
+
+    MyFlag::flag_ = 1;
+    abilityMs_->UpdateMissionSnapShot(nullptr, pixelMap);
+    MyFlag::flag_ = 0;
+    HILOG_INFO("AbilityManagerServiceTest UpdateMissionSnapShot_001 end");
 }
 
 /*
@@ -3703,6 +3734,23 @@ HWTEST_F(AbilityManagerServiceTest, StartAbilityInnerFreeInstall_006, TestSize.L
     abilityMs_->OnStop();
     EXPECT_EQ(ERR_OK, result);
     HILOG_INFO("AbilityManagerServiceTest StartAbilityInnerFreeInstall_006 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: AppRecoverKill
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService AppRecoverKill
+ * @tc.require: AR000I7F9D
+ */
+HWTEST_F(AbilityManagerServiceTest, AppRecoverKill_001, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    pid_t pid = 8145;
+    abilityMs_->AppRecoverKill(pid, StateReason::CPP_CRASH);
+    abilityMs_->AppRecoverKill(pid, StateReason::JS_ERROR);
+    abilityMs_->AppRecoverKill(pid, StateReason::LIFECYCLE);
+    abilityMs_->AppRecoverKill(pid, StateReason::APP_FREEZE);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

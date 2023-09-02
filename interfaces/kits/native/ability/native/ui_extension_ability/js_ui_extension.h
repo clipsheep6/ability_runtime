@@ -18,6 +18,7 @@
 
 #include "configuration.h"
 #include "ui_extension.h"
+#include <unordered_set>
 
 class NativeReference;
 class NativeValue;
@@ -30,6 +31,28 @@ class JsRuntime;
 /**
  * @brief Basic ui extension components.
  */
+
+
+class AbilityResultListener {
+public:
+    AbilityResultListener() = default;
+    virtual ~AbilityResultListener() = default;
+    virtual void OnAbilityResult(int requestCode, int resultCode, const Want &resultData) = 0;
+    virtual bool IsMatch(int requestCode) = 0;
+};
+
+class AbilityResultListeners {
+public:
+    AbilityResultListeners() = default;
+    virtual ~AbilityResultListeners() = default;
+    void AddListener(const sptr<IRemoteObject> &sessionToken,
+        std::shared_ptr<AbilityResultListener> listener);
+    void RemoveListener(const sptr<IRemoteObject> &sessionToken);
+    void OnAbilityResult(int requestCode, int resultCode, const Want &resultData);
+private:
+    std::map<sptr<IRemoteObject>, std::shared_ptr<AbilityResultListener>> listeners_;
+};
+
 class JsUIExtension : public UIExtension, public std::enable_shared_from_this<JsUIExtension> {
 public:
     explicit JsUIExtension(JsRuntime& jsRuntime);
@@ -175,6 +198,7 @@ private:
     std::map<sptr<IRemoteObject>, sptr<Rosen::Window>> uiWindowMap_;
     std::set<sptr<IRemoteObject>> foregroundWindows_;
     std::map<sptr<IRemoteObject>, std::shared_ptr<NativeReference>> contentSessions_;
+    std::shared_ptr<AbilityResultListeners> abilityResultListeners_ = nullptr;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

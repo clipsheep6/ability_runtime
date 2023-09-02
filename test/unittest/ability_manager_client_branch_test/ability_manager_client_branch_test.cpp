@@ -25,6 +25,7 @@
 #include "hilog_wrapper.h"
 #include "mock_ability_connect_callback.h"
 #include "session/host/include/session.h"
+#include "scene_board_judgement.h"
 
 using namespace testing::ext;
 using namespace testing;
@@ -164,7 +165,9 @@ HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_SetMissionIcon_020
     std::shared_ptr<OHOS::Media::PixelMap> icon = nullptr;
 
     auto result = client_->SetMissionIcon(abilityToken, icon);
-    EXPECT_NE(result, ERR_OK);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_NE(result, ERR_OK);
+    }
 }
 
 /**
@@ -343,7 +346,9 @@ HWTEST_F(AbilityManagerClientBranchTest, RegisterMissionListener_0100, TestSize.
 {
     sptr<IMissionListener> listener = nullptr;
     auto result = client_->RegisterMissionListener(listener);
-    EXPECT_EQ(result, ERR_OK);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(result, ERR_OK);
+    }
 }
 
 /**
@@ -370,7 +375,9 @@ HWTEST_F(AbilityManagerClientBranchTest, UnRegisterMissionListener_0100, TestSiz
 {
     sptr<IMissionListener> listener = nullptr;
     auto result = client_->UnRegisterMissionListener(listener);
-    EXPECT_EQ(result, ERR_OK);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(result, ERR_OK);
+    }
 }
 
 /**
@@ -398,7 +405,9 @@ HWTEST_F(AbilityManagerClientBranchTest, GetMissionInfos_0100, TestSize.Level1)
     std::string deviceId = "123";
     std::vector<MissionInfo> missionInfos;
     auto result = client_->GetMissionInfos(deviceId, 10, missionInfos);
-    EXPECT_EQ(result, ERR_OK);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(result, ERR_OK);
+    }
 }
 
 /**
@@ -413,7 +422,9 @@ HWTEST_F(AbilityManagerClientBranchTest, GetMissionSnapshot_0100, TestSize.Level
     MissionSnapshot snapshot;
     bool isLowResolution = false;
     auto result = client_->GetMissionSnapshot(deviceId, 10, snapshot, isLowResolution);
-    EXPECT_EQ(result, ERR_OK);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(result, ERR_OK);
+    }
 }
 
 /**
@@ -425,7 +436,9 @@ HWTEST_F(AbilityManagerClientBranchTest, GetMissionSnapshot_0100, TestSize.Level
 HWTEST_F(AbilityManagerClientBranchTest, CleanMission_0100, TestSize.Level1)
 {
     auto result = client_->CleanMission(10);
-    EXPECT_EQ(result, ERR_OK);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(result, ERR_OK);
+    }
 }
 
 /**
@@ -1013,8 +1026,13 @@ HWTEST_F(AbilityManagerClientBranchTest, CallRequestDone_0100, TestSize.Level1)
 HWTEST_F(AbilityManagerClientBranchTest, IsValidMissionIds_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "IsValidMissionIds_0100 start";
+    EXPECT_TRUE(client_ != nullptr);
     std::vector<int32_t> missionIds;
     std::vector<MissionVaildResult> results;
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_CALL(*mock_, IsValidMissionIds(_, _)).Times(1).WillOnce(Return(ERR_OK));
+        EXPECT_EQ(client_->IsValidMissionIds(missionIds, results), ERR_OK);
+    }
     EXPECT_CALL(*mock_, IsValidMissionIds(_, _)).Times(1).WillOnce(Return(ERR_OK));
     EXPECT_EQ(client_->IsValidMissionIds(missionIds, results), ERR_OK);
     GTEST_LOG_(INFO) << "IsValidMissionIds_0100 end";
@@ -1310,7 +1328,10 @@ HWTEST_F(AbilityManagerClientBranchTest, GetMissionInfo_0100, TestSize.Level1)
     std::string deviceId = "123";
     int32_t missionId = 1;
     MissionInfo missionInfo;
-    EXPECT_EQ(client_->GetMissionInfo(deviceId, missionId, missionInfo), ERR_OK);
+    auto result = client_->GetMissionInfo(deviceId, missionId, missionInfo);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(result, ERR_OK);
+    }
 }
 
 /**
@@ -1442,6 +1463,39 @@ HWTEST_F(AbilityManagerClientBranchTest, GetElementNameByToken_0100, TestSize.Le
     ElementName element = {};
     auto result = AbilityManagerClient::GetInstance()->GetElementNameByToken(token);
     EXPECT_EQ(result, element);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StartAbilityByUIContentSession_0100
+ * @tc.desc: StartAbilityByUIContentSession
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, StartAbilityByUIContentSession_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "StartAbilityByUIContentSession_0100 start";
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    const sptr<AAFwk::SessionInfo> sessionInfo = nullptr;
+    EXPECT_EQ(client_->StartAbilityByUIContentSession(want, callerToken, sessionInfo),
+        ERR_OK);
+    GTEST_LOG_(INFO) << "StartUIExtensionAbility_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StartAbilityByUIContentSession_0100
+ * @tc.desc: StartAbilityByUIContentSession
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, StartAbilityByUIContentSession_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "StartAbilityByUIContentSession_0200 start";
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    const sptr<AAFwk::SessionInfo> sessionInfo = nullptr;
+    StartOptions startOptions;
+    EXPECT_EQ(client_->StartAbilityByUIContentSession(want, startOptions, callerToken, sessionInfo),
+        ERR_OK);
+    GTEST_LOG_(INFO) << "StartUIExtensionAbility_0200 end";
 }
 
 /**

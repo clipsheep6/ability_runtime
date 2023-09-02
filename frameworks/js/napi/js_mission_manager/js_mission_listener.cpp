@@ -24,6 +24,8 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+constexpr size_t ARGC_ONE = 1;
+
 void JsMissionListener::OnMissionCreated(int32_t missionId)
 {
     CallJsMethod("onMissionCreated", missionId);
@@ -54,24 +56,31 @@ void JsMissionListener::OnMissionLabelUpdated(int32_t missionId)
     CallJsMethod("onMissionLabelUpdated", missionId);
 }
 
-void JsMissionListener::AddJsListenerObject(int32_t listenerId, NativeValue* jsListenerObject)
+void JsMissionListener::AddJsListenerObject(int32_t listenerId, NativeValue* jsListenerObject, bool isSync)
 {
-    jsListenerObjectMap_.emplace(
-        listenerId, std::shared_ptr<NativeReference>(engine_->CreateReference(jsListenerObject, 1)));
+    if (isSync) {
+        jsListenerObjectMapSync_.emplace(
+            listenerId, std::shared_ptr<NativeReference>(engine_->CreateReference(jsListenerObject, 1)));
+    } else {
+        jsListenerObjectMap_.emplace(
+            listenerId, std::shared_ptr<NativeReference>(engine_->CreateReference(jsListenerObject, 1)));
+    }
 }
 
-bool JsMissionListener::RemoveJsListenerObject(int32_t listenerId)
+bool JsMissionListener::RemoveJsListenerObject(int32_t listenerId, bool isSync)
 {
-    if (jsListenerObjectMap_.find(listenerId) != jsListenerObjectMap_.end()) {
-        jsListenerObjectMap_.erase(listenerId);
-        return true;
+    bool result = false;
+    if (isSync) {
+        result = (jsListenerObjectMapSync_.erase(listenerId) == 1);
+    } else {
+        result = (jsListenerObjectMap_.erase(listenerId) == 1);
     }
-    return false;
+    return result;
 }
 
 bool JsMissionListener::IsEmpty()
 {
-    return jsListenerObjectMap_.empty();
+    return jsListenerObjectMap_.empty() && jsListenerObjectMapSync_.empty();
 }
 
 void JsMissionListener::CallJsMethod(const std::string &methodName, int32_t missionId)
@@ -101,19 +110,33 @@ void JsMissionListener::CallJsMethodInner(const std::string &methodName, int32_t
     auto tmpMap = jsListenerObjectMap_;
     for (auto &item : tmpMap) {
         NativeValue* value = (item.second)->Get();
-        NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
-        if (obj == nullptr) {
-            HILOG_ERROR("Failed to get object");
-            continue;
-        }
-        NativeValue* method = obj->GetProperty(methodName.c_str());
-        if (method == nullptr || method->TypeOf() == NATIVE_UNDEFINED) {
-            HILOG_ERROR("Failed to get %{public}s from object", methodName.c_str());
-            continue;
-        }
         NativeValue* argv[] = { CreateJsValue(*engine_, missionId) };
-        engine_->CallFunction(value, method, argv, ArraySize(argv));
+        CallJsFunction(value, methodName.c_str(), argv, ARGC_ONE);
     }
+    tmpMap = jsListenerObjectMapSync_;
+    for (auto &item : tmpMap) {
+        NativeValue* value = (item.second)->Get();
+        NativeValue* argv[] = { CreateJsValue(*engine_, missionId) };
+        CallJsFunction(value, methodName.c_str(), argv, ARGC_ONE);
+    }
+}
+
+void JsMissionListener::CallJsFunction(
+    NativeValue* value, const char* methodName, NativeValue* const* argv, size_t argc)
+{
+    HILOG_INFO("method:%{public}s", methodName);
+    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
+    if (obj == nullptr) {
+        HILOG_ERROR("Failed to get object");
+        return;
+    }
+
+    NativeValue* method = obj->GetProperty(methodName);
+    if (method == nullptr || method->TypeOf() == NATIVE_UNDEFINED) {
+        HILOG_ERROR("Failed to get method");
+        return;
+    }
+    engine_->CallFunction(value, method, argv, argc);
 }
 
 #ifdef SUPPORT_GRAPHICS

@@ -219,11 +219,11 @@ bool MixStackDumper::DumpMixFrame(int fd, pid_t nstid, pid_t tid)
     bool hasJsFrame = true;
     std::vector<JsFrames> jsFrames;
     // if we failed to get native frame, target thread may not be seized
-    if (application->GetRuntime() != nullptr && isVmSuspended) {
+    if (application != nullptr && application->GetRuntime() != nullptr && isVmSuspended) {
         hasJsFrame = application->GetRuntime()->BuildJsStackInfoList(nstid, jsFrames);
     }
     catcher_->ReleaseThread(nstid);
-    if (application->GetRuntime() != nullptr && isVmSuspended) {
+    if (application != nullptr && application->GetRuntime() != nullptr && isVmSuspended) {
         application->GetRuntime()->ResumeVM(nstid);
     }
 

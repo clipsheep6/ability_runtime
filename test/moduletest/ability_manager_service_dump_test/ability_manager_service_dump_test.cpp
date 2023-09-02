@@ -19,6 +19,7 @@
 #include "ability_manager_service.h"
 #undef private
 #undef protected
+#include "scene_board_judgement.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -219,21 +220,23 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_OnAppStateChanged_
     auto abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
     EXPECT_NE(abilityRecord, nullptr);
 
-    abilityMs_->currentMissionListManager_ = std::make_shared<MissionListManager>(USER_ID);
-    EXPECT_NE(abilityMs_->currentMissionListManager_, nullptr);
-    abilityMs_->currentMissionListManager_->terminateAbilityList_.push_back(abilityRecord);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        abilityMs_->currentMissionListManager_ = std::make_shared<MissionListManager>(USER_ID);
+        EXPECT_NE(abilityMs_->currentMissionListManager_, nullptr);
+        abilityMs_->currentMissionListManager_->terminateAbilityList_.push_back(abilityRecord);
 
-    abilityMs_->dataAbilityManager_ = std::make_shared<DataAbilityManager>();
-    EXPECT_NE(abilityMs_->dataAbilityManager_, nullptr);
+        abilityMs_->dataAbilityManager_ = std::make_shared<DataAbilityManager>();
+        EXPECT_NE(abilityMs_->dataAbilityManager_, nullptr);
 
-    AppInfo info;
-    info.processName = STRING_PROCESS_NAME;
-    info.state = AppState::TERMINATED;
-    abilityMs_->OnAppStateChanged(info);
+        AppInfo info;
+        info.processName = STRING_PROCESS_NAME;
+        info.state = AppState::TERMINATED;
+        abilityMs_->OnAppStateChanged(info);
 
-    abilityRecord = abilityMs_->currentMissionListManager_->terminateAbilityList_.front();
-    EXPECT_NE(abilityRecord, nullptr);
-    EXPECT_EQ(abilityRecord->GetAppState(), AppState::TERMINATED);
+        abilityRecord = abilityMs_->currentMissionListManager_->terminateAbilityList_.front();
+        EXPECT_NE(abilityRecord, nullptr);
+        EXPECT_EQ(abilityRecord->GetAppState(), AppState::TERMINATED);
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS

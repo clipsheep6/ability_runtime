@@ -421,7 +421,8 @@ HWTEST_F(MainThreadTest, InitCreate_0100, TestSize.Level1)
     std::shared_ptr<ContextDeal> contextDeal;
     ApplicationInfo appInfo;
     ProcessInfo processInfo;
-    EXPECT_TRUE(mainThread_->InitCreate(contextDeal, appInfo, processInfo));
+    auto result = mainThread_->InitCreate(contextDeal, appInfo, processInfo);
+    EXPECT_TRUE(result);
     HILOG_INFO("%{public}s end.", __func__);
 }
 

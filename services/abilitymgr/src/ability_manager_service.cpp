@@ -60,8 +60,10 @@
 #include "recovery_param.h"
 #include "sa_mgr_client.h"
 #include "scene_board_judgement.h"
+#include "session_info.h"
 #include "softbus_bus_center.h"
 #include "start_ability_handler/start_ability_sandbox_savefile.h"
+#include "start_options.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
 #include "system_ability_token_callback.h"
@@ -454,6 +456,62 @@ int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObje
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
     }
     return ret;
+}
+
+int AbilityManagerService::StartAbilityByUIContentSession(const Want &want, const sptr<IRemoteObject> &callerToken,
+    const sptr<SessionInfo> &sessionInfo, int32_t userId, int requestCode)
+{
+    sptr<IRemoteObject> token;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        Rosen::FocusChangeInfo focusChangeInfo;
+        Rosen::WindowManager::GetInstance().GetFocusWindowInfo(focusChangeInfo);
+        token = focusChangeInfo.abilityToken_;
+    } else {
+        if (!wmsHandler_) {
+            HILOG_ERROR("wmsHandler_ is nullptr.");
+            return ERR_INVALID_VALUE;
+        }
+        wmsHandler_->GetFocusWindow(token);
+    }
+
+    if (!token) {
+        HILOG_ERROR("token is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (token != sessionInfo->callerToken) {
+        HILOG_ERROR("callerToken is not equal to top ablity token");
+        return NOT_TOP_ABILITY;
+    }
+    return StartAbility(want, callerToken, userId, requestCode);
+}
+
+int AbilityManagerService::StartAbilityByUIContentSession(const Want &want, const StartOptions &startOptions,
+    const sptr<IRemoteObject> &callerToken, const sptr<SessionInfo> &sessionInfo, int32_t userId, int requestCode)
+{
+    sptr<IRemoteObject> token;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        Rosen::FocusChangeInfo focusChangeInfo;
+        Rosen::WindowManager::GetInstance().GetFocusWindowInfo(focusChangeInfo);
+        token = focusChangeInfo.abilityToken_;
+    } else {
+        if (!wmsHandler_) {
+            HILOG_ERROR("wmsHandler_ is nullptr.");
+            return ERR_INVALID_VALUE;
+        }
+        wmsHandler_->GetFocusWindow(token);
+    }
+
+    if (!token) {
+        HILOG_ERROR("token is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (token != sessionInfo->callerToken) {
+        HILOG_ERROR("callerToken is not equal to top ablity token");
+        return NOT_TOP_ABILITY;
+    }
+    return StartAbility(want, startOptions, callerToken, userId, requestCode);
 }
 
 int AbilityManagerService::StartAbilityAsCaller(const Want &want, const sptr<IRemoteObject> &callerToken,
@@ -1401,6 +1459,7 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
         HILOG_ERROR("uiAbilityLifecycleManager_ is nullptr");
         return ERR_INVALID_VALUE;
     }
+    ReportAbilitStartInfoToRSS(abilityInfo);
     return uiAbilityLifecycleManager_->StartUIAbility(abilityRequest, sessionInfo);
 }
 
@@ -4714,7 +4773,12 @@ int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t u
     if (ret != ERR_OK) {
         return UNINSTALL_APP_FAILED;
     }
-
+    // revoke all uri permissions
+    auto tokenId = Security::AccessToken::AccessTokenKit::GetHapTokenID(targetUserId, bundleName, 0);
+    ret = AAFwk::UriPermissionManagerClient::GetInstance().RevokeAllUriPermissions(tokenId);
+    if (ret != 0) {
+        HILOG_ERROR("Revoke all uri permissions is fail");
+    }
     DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->DeleteAppExitReason(bundleName);
     return ERR_OK;
 }
@@ -6553,7 +6617,7 @@ int AbilityManagerService::FreeInstallAbilityFromRemote(const Want &want, const 
     return freeInstallManager_->FreeInstallAbilityFromRemote(want, callback, validUserId, requestCode);
 }
 
-AppExecFwk::ElementName AbilityManagerService::GetTopAbility()
+AppExecFwk::ElementName AbilityManagerService::GetTopAbility(bool isNeedLocalDeviceId)
 {
     HILOG_DEBUG("%{public}s start.", __func__);
     AppExecFwk::ElementName elementName = {};
@@ -6575,15 +6639,15 @@ AppExecFwk::ElementName AbilityManagerService::GetTopAbility()
     elementName = abilityRecord->GetWant().GetElement();
     bool isDeviceEmpty = elementName.GetDeviceID().empty();
     std::string localDeviceId;
-    bool hasLocalDeviceId = GetLocalDeviceId(localDeviceId);
-    if (isDeviceEmpty && hasLocalDeviceId) {
+    if (isDeviceEmpty && isNeedLocalDeviceId && GetLocalDeviceId(localDeviceId)) {
         elementName.SetDeviceID(localDeviceId);
     }
 #endif
     return elementName;
 }
 
-AppExecFwk::ElementName AbilityManagerService::GetElementNameByToken(const sptr<IRemoteObject> &token)
+AppExecFwk::ElementName AbilityManagerService::GetElementNameByToken(const sptr<IRemoteObject> &token,
+    bool isNeedLocalDeviceId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("%{public}s start.", __func__);
@@ -6601,8 +6665,7 @@ AppExecFwk::ElementName AbilityManagerService::GetElementNameByToken(const sptr<
     elementName = abilityRecord->GetWant().GetElement();
     bool isDeviceEmpty = elementName.GetDeviceID().empty();
     std::string localDeviceId;
-    bool hasLocalDeviceId = GetLocalDeviceId(localDeviceId);
-    if (isDeviceEmpty && hasLocalDeviceId) {
+    if (isDeviceEmpty && isNeedLocalDeviceId && GetLocalDeviceId(localDeviceId)) {
         elementName.SetDeviceID(localDeviceId);
     }
 #endif

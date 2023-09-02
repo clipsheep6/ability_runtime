@@ -452,6 +452,8 @@ public:
 
     bool GetRecoveryInfo();
 
+    void InitPersistableUriPermissionConfig();
+
 #ifdef SUPPORT_GRAPHICS
     /**
      * check whether the ability 's window is attached.
@@ -881,6 +883,8 @@ public:
 
     int32_t GetCollaboratorType() const;
 
+    std::string GetMissionAffinity() const;
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
 
@@ -970,6 +974,7 @@ private:
     int64_t startTime_ = 0;                           // records first time of ability start
     int64_t restartTime_ = 0;                         // the time of last trying restart
     bool isReady_ = false;                            // is ability thread attached?
+    bool isWindowStarted_ = false;                     // is window hotstart or coldstart?
     bool isWindowAttached_ = false;                   // Is window of this ability attached?
     bool isLauncherAbility_ = false;                  // is launcher?
     bool isKeepAlive_ = false;                 // is keep alive or resident ability?
@@ -1061,6 +1066,8 @@ private:
     bool isNeedBackToOtherMissionStack_ = false;
     std::weak_ptr<AbilityRecord> otherMissionStackAbilityRecord_; // who starts this ability record by SA
     int32_t collaboratorType_ = 0;
+    bool isGrantPersistableUriPermissionEnable_ = false;
+    std::string missionAffinity_ = "";
 };
 }  // namespace AAFwk
 }  // namespace OHOS
