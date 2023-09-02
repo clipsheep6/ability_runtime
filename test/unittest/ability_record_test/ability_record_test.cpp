@@ -2505,5 +2505,53 @@ HWTEST_F(AbilityRecordTest, IsUIExtension_001, TestSize.Level1)
     abilityRecord_->abilityInfo_.extensionAbilityType = AppExecFwk::ExtensionAbilityType::UI;
     EXPECT_EQ(UIExtensionUtils::IsUIExtension(abilityRecord_->abilityInfo_.extensionAbilityType), true);
 }
+
+/*
+ * Feature: AbilityRecord
+ * Function: NotifyMoveMissionToForeground
+ * SubFunction: NotifyMoveMissionToForeground
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify NotifyMoveMissionToForeground
+ * @tc.require: issueI7LJ1M
+ */
+HWTEST_F(AbilityRecordTest, NotifyMoveMissionToForeground_001, TestSize.Level1)
+{
+    EXPECT_NE(abilityRecord_, nullptr);
+    abilityRecord_->collaboratorType_ = 1;
+    abilityRecord_->SetAbilityStateInner(AbilityState::FOREGROUNDING);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: NotifyMoveMissionToBackground
+ * SubFunction: NotifyMoveMissionToBackground
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify NotifyMoveMissionToBackground
+ * @tc.require: issueI7LJ1M
+ */
+HWTEST_F(AbilityRecordTest, NotifyMoveMissionToBackground_001, TestSize.Level1)
+{
+    EXPECT_NE(abilityRecord_, nullptr);
+    abilityRecord_->collaboratorType_ = 1;
+    abilityRecord_->SetAbilityStateInner(AbilityState::BACKGROUNDING);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: NotifyTerminateMission
+ * SubFunction: NotifyTerminateMission
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify NotifyTerminateMission
+ * @tc.require: issueI7LJ1M
+ */
+HWTEST_F(AbilityRecordTest, NotifyTerminateMission_001, TestSize.Level1)
+{
+    EXPECT_NE(abilityRecord_, nullptr);
+    abilityRecord_->collaboratorType_ = 1;
+    abilityRecord_->SetAbilityStateInner(AbilityState::TERMINATING);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

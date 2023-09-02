@@ -2340,6 +2340,27 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_IsValidMissionIdsInner_002, 
 
 /*
  * Feature: AbilityManagerService
+ * Function: PrepareTerminateAbilityBySCBInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService PrepareTerminateAbilityBySCBInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of PrepareTerminateAbilityBySCB.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_PrepareTerminateAbilityBySCBInner_002, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto prepareTerminateAbilityBySCBTask = [&](const sptr<SessionInfo> &sessionInfo, bool &isTerminate) {
+        GTEST_LOG_(INFO) << "AbilityManagerStub_IsValidMissionIdsInner_002 caller";
+        return ERR_INVALID_VALUE;
+    };
+    EXPECT_CALL(*stub_, PrepareTerminateAbilityBySCB(_, _)).Times(1).WillOnce(
+        testing::Invoke(prepareTerminateAbilityBySCBTask));
+    EXPECT_EQ(stub_->PrepareTerminateAbilityBySCBInner(data, reply), ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: RegisterSessionHandlerInner
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService RegisterSessionHandlerInner
