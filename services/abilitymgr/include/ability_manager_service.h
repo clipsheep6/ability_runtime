@@ -765,6 +765,13 @@ public:
         int32_t userId = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false);
 
+    int StartExtensionAbilityInner(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId,
+        AppExecFwk::ExtensionAbilityType extensionType,
+        bool checkSystemCaller = true);
+
     int StartAbilityForOptionWrap(
         const Want &want,
         const StartOptions &startOptions,
