@@ -395,7 +395,6 @@ void AbilityManagerService::OnStop()
             HILOG_ERROR("unsubscribe bgtask failed, err:%{public}d.", ret);
         }
     }
-    bgtaskObserver_.reset();
 #endif
     if (abilityBundleEventCallback_) {
         auto bms = GetBundleManager();
@@ -1737,13 +1736,11 @@ void AbilityManagerService::SubscribeBackgroundTask()
 {
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     std::unique_lock<ffrt::mutex> lock(bgtaskObserverMutex_);
-    if (bgtaskObserver_) {
-        return;
+    if (!bgtaskObserver_) {
+        bgtaskObserver_ = std::make_shared<BackgroundTaskObserver>();
     }
-    bgtaskObserver_ = std::make_shared<BackgroundTaskObserver>();
     int ret = BackgroundTaskMgrHelper::SubscribeBackgroundTask(*bgtaskObserver_);
     if (ret != ERR_OK) {
-        bgtaskObserver_ = nullptr;
         HILOG_ERROR("%{public}s failed, err:%{public}d.", __func__, ret);
         return;
     }
@@ -1759,7 +1756,6 @@ void AbilityManagerService::UnSubscribeBackgroundTask()
     if (!bgtaskObserver_) {
         return;
     }
-    bgtaskObserver_ = nullptr;
     HILOG_INFO("%{public}s success.", __func__);
 #endif
 }
@@ -4074,7 +4070,7 @@ void AbilityManagerService::DumpInner(const std::string &args, std::vector<std::
         uiAbilityLifecycleManager_->Dump(info);
         return;
     }
-    
+
     if (currentMissionListManager_) {
         currentMissionListManager_->Dump(info);
     }
