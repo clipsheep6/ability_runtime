@@ -68,9 +68,6 @@ private:
     int NotifyANR(const FaultData& faultData, const AppfreezeManager::AppInfo& appInfo);
 
     static const inline std::string LOGGER_DEBUG_PROC_PATH = "/proc/transaction_proc";
-    ffrt::mutex lifecycleMutex_;
-    ffrt::condition_variable lifecycleCv_;
-    std::set<std::string> lifecycleTimeOutMarks_;
     std::string name_;
     static ffrt::mutex singletonMutex_;
     static std::shared_ptr<AppfreezeManager> instance_;
