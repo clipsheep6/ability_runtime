@@ -16,6 +16,7 @@
 
 #include "app_log_wrapper.h"
 #include "bundle_info_resolve_util.h"
+#include "bundle_mgr_client.h"
 #include "iservice_registry.h"
 #include "sr_constants.h"
 #include "sr_samgr_helper.h"
@@ -32,16 +33,16 @@ namespace {
 bool ServiceRouterDataMgr::LoadAllBundleInfos()
 {
     APP_LOGD("SRDM LoadAllBundleInfos");
-    auto bms = SrSamgrHelper::GetInstance().GetBundleMgr();
-    if (bms == nullptr) {
-        APP_LOGE("SRDM GetBundleMgr return null");
+    std::shared_ptr<BundleMgrClient> client = DelayedSingleton<BundleMgrClient>::GetInstance();
+    if (client == nullptr) {
+        APP_LOGE("Failed to get BundleMgrClient");
         return false;
     }
     auto flags = (BundleFlag::GET_BUNDLE_WITH_ABILITIES | BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO);
     std::vector<BundleInfo> bundleInfos;
-    bool ret = bms->GetBundleInfos(flags, bundleInfos, SrSamgrHelper::GetCurrentActiveUserId());
+    bool ret = client->GetBundleInfos(flags, bundleInfos, SrSamgrHelper::GetCurrentActiveUserId());
     if (!ret) {
-        APP_LOGE("SRDM bms->GetBundleInfos return false");
+        APP_LOGE("SRDM client->GetBundleInfos return false");
     }
     if (!innerServiceInfos_.empty()) {
         innerServiceInfos_.clear();
@@ -55,16 +56,16 @@ bool ServiceRouterDataMgr::LoadAllBundleInfos()
 bool ServiceRouterDataMgr::LoadBundleInfo(const std::string &bundleName)
 {
     APP_LOGD("SRDM LoadBundleInfo");
-    auto bms = SrSamgrHelper::GetInstance().GetBundleMgr();
-    if (bms == nullptr) {
-        APP_LOGI("SRDM GetBundleMgr return null");
+    std::shared_ptr<BundleMgrClient> client = DelayedSingleton<BundleMgrClient>::GetInstance();
+    if (client == nullptr) {
+        APP_LOGI("Failed to get BundleMgrClient");
         return false;
     }
     BundleInfo bundleInfo;
     auto flags = (BundleFlag::GET_BUNDLE_WITH_ABILITIES | BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO);
-    bool ret = bms->GetBundleInfo(bundleName, flags, bundleInfo, SrSamgrHelper::GetCurrentActiveUserId());
+    bool ret = client->GetBundleInfo(bundleName, flags, bundleInfo, SrSamgrHelper::GetCurrentActiveUserId());
     if (!ret) {
-        APP_LOGE("SRDM bms->GetBundleInfos return false");
+        APP_LOGE("SRDM client->GetBundleInfo return false");
     }
     UpdateBundleInfo(bundleInfo);
     return ret;

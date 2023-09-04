@@ -17,12 +17,13 @@
 #include <cmath>
 #include <regex>
 
-#include "display_info.h"
-#include "constants.h"
 #include "ability_util.h"
 #include "app_scheduler.h"
-#include "dm_common.h"
+#include "bundle_mgr_client.h"
+#include "constants.h"
+#include "display_info.h"
 #include "display_manager.h"
+#include "dm_common.h"
 #include "errors.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
@@ -582,10 +583,10 @@ void SystemDialogScheduler::GetAppNameFromResource(int32_t labelId,
     }
 
     AppExecFwk::BundleInfo bundleInfo;
-    auto bms = GetBundleManager();
-    CHECK_POINTER(bms);
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    CHECK_POINTER(client);
     if (!IN_PROCESS_CALL(
-        bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId))) {
+            client->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId))) {
         HILOG_ERROR("Failed to get bundle info.");
         return;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,6 +23,7 @@
 #include "ability_manager_service.h"
 #include "ability_util.h"
 #include "appfreeze_manager.h"
+#include "bundle_mgr_client.h"
 #include "hitrace_meter.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
@@ -562,14 +563,14 @@ int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &toke
 
 void AbilityConnectManager::ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const
 {
-    auto bms = AbilityUtil::GetBundleManager();
-    CHECK_POINTER(bms);
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    CHECK_POINTER(client);
     auto abilityInfo = record->GetAbilityInfo();
     Want want;
     want.SetElementName(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name, abilityInfo.moduleName);
     auto uid = record->GetUid();
     want.SetParam("uid", uid);
-    bms->ProcessPreload(want);
+    client->ProcessPreload(want);
 }
 
 int AbilityConnectManager::ScheduleConnectAbilityDoneLocked(
@@ -1458,10 +1459,10 @@ bool AbilityConnectManager::IsAbilityNeedKeepAlive(const std::shared_ptr<Ability
             abilityRecord->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME)) {
         return true;
     }
-    auto bms = AbilityUtil::GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, false);
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    CHECK_POINTER_AND_RETURN(client, false);
     std::vector<AppExecFwk::BundleInfo> bundleInfos;
-    bool getBundleInfos = bms->GetBundleInfos(OHOS::AppExecFwk::GET_BUNDLE_DEFAULT, bundleInfos, USER_ID_NO_HEAD);
+    bool getBundleInfos = client->GetBundleInfos(OHOS::AppExecFwk::GET_BUNDLE_DEFAULT, bundleInfos, USER_ID_NO_HEAD);
     if (!getBundleInfos) {
         HILOG_ERROR("Handle ability died task, get bundle infos failed");
         return false;
@@ -1742,10 +1743,10 @@ void AbilityConnectManager::GetExtensionRunningInfo(std::shared_ptr<AbilityRecor
     ExtensionRunningInfo extensionInfo;
     AppExecFwk::RunningProcessInfo processInfo;
     extensionInfo.extension = abilityRecord->GetWant().GetElement();
-    auto bms = AbilityUtil::GetBundleManager();
-    CHECK_POINTER(bms);
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    CHECK_POINTER(client);
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
-    bool queryResult = IN_PROCESS_CALL(bms->QueryExtensionAbilityInfos(abilityRecord->GetWant(),
+    bool queryResult = IN_PROCESS_CALL(client->QueryExtensionAbilityInfos(abilityRecord->GetWant(),
         AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, userId, extensionInfos));
     if (queryResult) {
         HILOG_DEBUG("Success");

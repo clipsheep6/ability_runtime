@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,7 +15,7 @@
 #include "test_runner.h"
 
 #include "hilog_wrapper.h"
-#include "bundle_mgr_interface.h"
+#include "bundle_mgr_client.h"
 #include "runtime.h"
 #include "runner_runtime/js_test_runner.h"
 #include "sys_mgr_client.h"
@@ -30,16 +30,9 @@ std::unique_ptr<TestRunner> TestRunner::Create(const std::unique_ptr<AbilityRunt
         return std::make_unique<TestRunner>();
     }
 
-    auto bundleObj =
-        OHOS::DelayedSingleton<SysMrgClient>::GetInstance()->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    if (!bundleObj) {
-        HILOG_ERROR("Failed to get bundle manager service");
-        return nullptr;
-    }
-
-    auto bms = iface_cast<IBundleMgr>(bundleObj);
-    if (!bms) {
-        HILOG_ERROR("Cannot convert to IBundleMgr");
+    std::shared_ptr<BundleMgrClient> bundleMgr = DelayedSingleton<BundleMgrClient>::GetInstance();
+    if (bundleMgr == nullptr) {
+        HILOG_ERROR("Failed to get BundleMgrClient.");
         return nullptr;
     }
 
@@ -49,7 +42,7 @@ std::unique_ptr<TestRunner> TestRunner::Create(const std::unique_ptr<AbilityRunt
     }
 
     BundleInfo bundleInfo;
-    if (bms->GetBundleInfoForSelf(
+    if (bundleMgr->GetBundleInfoForSelf(
         (static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY) +
         static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY) +
         static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) +

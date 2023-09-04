@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -86,22 +86,19 @@ ErrCode CrowdTestInterceptor::DoProcess(const Want &want, int requestCode, int32
 
 bool CrowdTestInterceptor::CheckCrowdtest(const Want &want, int32_t userId)
 {
-    // get bms
-    auto bms = AbilityUtil::GetBundleManager();
-    if (!bms) {
-        HILOG_ERROR("GetBundleManager failed");
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    if (!client) {
+        HILOG_ERROR("GetBundleManagerClient failed");
         return false;
     }
 
     // get crowdtest status and time
     std::string bundleName = want.GetBundle();
     AppExecFwk::ApplicationInfo callerAppInfo;
-    bool result = IN_PROCESS_CALL(
-        bms->GetApplicationInfo(bundleName, AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO,
-            userId, callerAppInfo)
-    );
+    bool result = IN_PROCESS_CALL(client->GetApplicationInfo(
+        bundleName, AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, callerAppInfo));
     if (!result) {
-        HILOG_ERROR("GetApplicaionInfo from bms failed.");
+        HILOG_ERROR("GetApplicaionInfo from client failed.");
         return false;
     }
 
@@ -150,16 +147,16 @@ ErrCode ControlInterceptor::DoProcess(const Want &want, int requestCode, int32_t
 bool ControlInterceptor::CheckControl(const Want &want, int32_t userId,
     AppExecFwk::AppRunningControlRuleResult &controlRule)
 {
-    // get bms
-    auto bms = AbilityUtil::GetBundleManager();
-    if (!bms) {
-        HILOG_ERROR("GetBundleManager failed");
+    // get client
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    if (!client) {
+        HILOG_ERROR("GetBundleManagerClient failed");
         return false;
     }
 
     // get disposed status
     std::string bundleName = want.GetBundle();
-    auto appControlMgr = bms->GetAppControlProxy();
+    auto appControlMgr = client->GetAppControlProxy();
     if (appControlMgr == nullptr) {
         HILOG_ERROR("Get appControlMgr failed");
         return false;
@@ -228,16 +225,16 @@ void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCa
     callerInfo.targetAppType = TYPE_HARMONY_INVALID;
     callerInfo.callerAppType = TYPE_HARMONY_INVALID;
 
-    auto bms = AbilityUtil::GetBundleManager();
-    if (!bms) {
-        HILOG_ERROR("GetBundleManager failed");
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    if (!client) {
+        HILOG_ERROR("GetBundleManagerClient failed");
         return;
     }
 
     std::string targetBundleName = want.GetBundle();
     AppExecFwk::ApplicationInfo targetAppInfo;
-    bool getTargetResult = IN_PROCESS_CALL(bms->GetApplicationInfo(targetBundleName,
-        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, targetAppInfo));
+    bool getTargetResult = IN_PROCESS_CALL(client->GetApplicationInfo(
+        targetBundleName, AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, targetAppInfo));
     if (!getTargetResult) {
         HILOG_ERROR("Get targetAppInfo failed.");
     } else if (targetAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
@@ -251,14 +248,14 @@ void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCa
     }
 
     std::string callerBundleName;
-    ErrCode err = IN_PROCESS_CALL(bms->GetNameForUid(callerInfo.uid, callerBundleName));
+    ErrCode err = IN_PROCESS_CALL(client->GetNameForUid(callerInfo.uid, callerBundleName));
     if (err != ERR_OK) {
         HILOG_ERROR("Get callerBundleName failed.");
         return;
     }
     AppExecFwk::ApplicationInfo callerAppInfo;
-    bool getCallerResult = IN_PROCESS_CALL(bms->GetApplicationInfo(callerBundleName,
-        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, callerAppInfo));
+    bool getCallerResult = IN_PROCESS_CALL(client->GetApplicationInfo(
+        callerBundleName, AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, callerAppInfo));
     if (!getCallerResult) {
         HILOG_DEBUG("Get callerAppInfo failed.");
     } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {

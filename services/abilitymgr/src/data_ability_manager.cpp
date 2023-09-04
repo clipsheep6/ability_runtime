@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +20,7 @@
 
 #include "ability_manager_service.h"
 #include "ability_util.h"
+#include "bundle_mgr_client.h"
 #include "connection_state_manager.h"
 #include "hilog_wrapper.h"
 
@@ -630,10 +631,10 @@ void DataAbilityManager::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> 
 void DataAbilityManager::RestartDataAbility(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     // restart data ability if necessary
-    auto bms = AbilityUtil::GetBundleManager();
-    CHECK_POINTER(bms);
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    CHECK_POINTER(client);
     std::vector<AppExecFwk::BundleInfo> bundleInfos;
-    bool getBundleInfos = bms->GetBundleInfos(OHOS::AppExecFwk::GET_BUNDLE_DEFAULT, bundleInfos, USER_ID_NO_HEAD);
+    bool getBundleInfos = client->GetBundleInfos(OHOS::AppExecFwk::GET_BUNDLE_DEFAULT, bundleInfos, USER_ID_NO_HEAD);
     if (!getBundleInfos) {
         HILOG_ERROR("Handle ability died task, get bundle infos failed");
         return;
