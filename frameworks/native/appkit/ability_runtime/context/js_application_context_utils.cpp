@@ -1103,25 +1103,14 @@ bool JsApplicationContextUtils::CheckCallerIsSystemApp()
 NativeValue* JsApplicationContextUtils::CreateJsApplicationContext(NativeEngine &engine)
 {
     HILOG_DEBUG("CreateJsApplicationContext start");
-    std::shared_ptr<ApplicationContext> applicationContext = ApplicationContext::GetInstance();
-    if (applicationContext == nullptr) {
-        HILOG_ERROR("native applicationContext is null");
-        return engine.CreateObject();
-    }
-
-    if (!applicationContext->GetApplicationInfoUpdateFlag()) {
-        std::shared_ptr<NativeReference> applicationContextObj =
-            ApplicationContextManager::GetApplicationContextManager().GetGlobalObject(engine);
-        if (applicationContextObj != nullptr) {
-            NativeValue* objValue = applicationContextObj->Get();
-            return objValue;
-        }
-    }
-
-    HILOG_DEBUG("Create applicationContext object");
     NativeValue* objValue = engine.CreateObject();
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
     if (object == nullptr) {
+        return objValue;
+    }
+
+    std::shared_ptr<ApplicationContext> applicationContext = ApplicationContext::GetInstance();
+    if (applicationContext == nullptr) {
         return objValue;
     }
 
@@ -1140,11 +1129,6 @@ NativeValue* JsApplicationContextUtils::CreateJsApplicationContext(NativeEngine 
     }
 
     BindNativeApplicationContext(engine, object);
-
-    ApplicationContextManager::GetApplicationContextManager()
-        .AddGlobalObject(engine, std::shared_ptr<NativeReference>(engine.CreateReference(objValue, 1)));
-    applicationContext->SetApplicationInfoUpdateFlag(false);
-
     return objValue;
 }
 
