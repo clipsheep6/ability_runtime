@@ -624,7 +624,8 @@ void WebDelegateObserver::NotifyDestory()
 WebDelegate::~WebDelegate()
 {
     ReleasePlatformResource();
-    if (OHOS::system::GetDeviceType() == "tablet" || OHOS::system::GetDeviceType() == "2in1") {
+    if ((OHOS::system::GetDeviceType() == "tablet" || OHOS::system::GetDeviceType() == "2in1")
+        && system::GetBoolParameter("web.optimization", true)) {
         OHOS::Rosen::RSInterfaces::GetInstance().UnRegisterSurfaceOcclusionChangeCallback(surfaceNodeId_);
     }
     if (nweb_) {
@@ -2533,6 +2534,10 @@ void WebDelegate::SurfaceOcclusionCallback(bool occlusion)
 
 void WebDelegate::RegisterSurfaceOcclusionChangeFun()
 {
+    if (!system::GetBoolParameter("web.optimization", true)) {
+        LOGD("web optimization switch is closed.");
+        return;
+    }
     if (OHOS::system::GetDeviceType() != "tablet" && OHOS::system::GetDeviceType() != "2in1") {
         LOGD("only pad and pc will RegisterSurfaceOcclusionChangeCallback");
         return;
