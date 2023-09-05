@@ -1371,3 +1371,455 @@ void from_json(const nlohmann::json &jsonObject, ModuleJson &moduleJson)
         ArrayType::NOT_ARRAY);
 }
 } // namespace Profile
+
+namespace {
+struct TransformParam {
+    bool isSystemApp = false;
+    bool isPreInstallApp = false;
+};
+
+void GetMetadata(std::vector<Metadata> &metadata, const std::vector<Profile::Metadata> &profileMetadata)
+{
+    for (const Profile::Metadata &item : profileMetadata) {
+        Metadata tmpMetadata;
+        tmpMetadata.name = item.name;
+        tmpMetadata.value = item.value;
+        tmpMetadata.resource = item.resource;
+        metadata.emplace_back(tmpMetadata);
+    }
+}
+
+bool CheckBundleNameIsValid(const std::string &bundleName)
+{
+    if (bundleName.empty()) {
+        return false;
+    }
+    if (bundleName.size() < Constants::MIN_BUNDLE_NAME || bundleName.size() > Constants::MAX_BUNDLE_NAME) {
+        return false;
+    }
+    char head = bundleName.at(0);
+    if (!isalpha(head)) {
+        return false;
+    }
+    for (const auto &c : bundleName) {
+        if (!isalnum(c) && (c != '.') && (c != '_')) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool CheckModuleNameIsValid(const std::string &moduleName)
+{
+    if (moduleName.empty()) {
+        return false;
+    }
+    if (moduleName.size() > Constants::MAX_MODULE_NAME) {
+        return false;
+    }
+    if (moduleName.find(Constants::RELATIVE_PATH) != std::string::npos) {
+        return false;
+    }
+    if (moduleName.find(Constants::MODULE_NAME_SEPARATOR) != std::string::npos) {
+        HILOG_ERROR("module name should not contain ,");
+        return false;
+    }
+    return true;
+}
+
+Resource GetResource(const std::string &bundleName, const std::string &moduleName, int32_t resId)
+{
+    Resource resource;
+    resource.bundleName = bundleName;
+    resource.moduleName = moduleName;
+    resource.id = resId;
+    return resource;
+}
+
+bool ToApplicationInfo(
+    const Profile::ModuleJson &moduleJson,
+    const TransformParam &transformParam,
+    ApplicationInfo &applicationInfo)
+{
+    HILOG_DEBUG("transform ModuleJson to ApplicationInfo");
+    auto app = moduleJson.app;
+    applicationInfo.name = app.bundleName;
+    applicationInfo.bundleName = app.bundleName;
+
+    applicationInfo.versionCode = static_cast<uint32_t>(app.versionCode);
+    applicationInfo.versionName = app.versionName;
+    if (app.minCompatibleVersionCode != -1) {
+        applicationInfo.minCompatibleVersionCode = app.minCompatibleVersionCode;
+    } else {
+        applicationInfo.minCompatibleVersionCode = static_cast<int32_t>(applicationInfo.versionCode);
+    }
+
+    applicationInfo.apiCompatibleVersion = app.minAPIVersion;
+    applicationInfo.apiTargetVersion = app.targetAPIVersion;
+
+    applicationInfo.iconPath = app.icon;
+    applicationInfo.iconId = app.iconId;
+    applicationInfo.label = app.label;
+    applicationInfo.labelId = app.labelId;
+    applicationInfo.description = app.description;
+    applicationInfo.descriptionId = app.descriptionId;
+    applicationInfo.iconResource = GetResource(app.bundleName, moduleJson.module.name, app.iconId);
+    applicationInfo.labelResource = GetResource(app.bundleName, moduleJson.module.name, app.labelId);
+    applicationInfo.descriptionResource = GetResource(app.bundleName, moduleJson.module.name, app.descriptionId);
+    applicationInfo.targetBundleList = app.targetBundleList;
+
+    if (transformParam.isSystemApp && transformParam.isPreInstallApp) {
+        applicationInfo.keepAlive = app.keepAlive;
+        applicationInfo.singleton = app.singleton;
+        applicationInfo.userDataClearable = app.userDataClearable;
+        if (app.removable.first) {
+            applicationInfo.removable = app.removable.second;
+        } else {
+            applicationInfo.removable = false;
+        }
+        applicationInfo.accessible = app.accessible;
+    }
+
+    applicationInfo.apiReleaseType = app.apiReleaseType;
+    applicationInfo.debug = app.debug;
+    applicationInfo.deviceId = Constants::CURRENT_DEVICE_ID;
+    applicationInfo.distributedNotificationEnabled = true;
+    applicationInfo.entityType = Profile::APP_ENTITY_TYPE_DEFAULT_VALUE;
+    applicationInfo.vendor = app.vendor;
+    applicationInfo.asanEnabled = app.asanEnabled;
+    if (app.bundleType == Profile::BUNDLE_TYPE_ATOMIC_SERVICE) {
+        applicationInfo.bundleType = BundleType::ATOMIC_SERVICE;
+    }
+
+    applicationInfo.enabled = true;
+    applicationInfo.multiProjects = app.multiProjects;
+    applicationInfo.process = app.bundleName;
+    applicationInfo.targetBundleName = app.targetBundle;
+    applicationInfo.targetPriority = app.targetPriority;
+
+    auto iterBundleType = std::find_if(std::begin(Profile::BUNDLE_TYPE_MAP),
+        std::end(Profile::BUNDLE_TYPE_MAP),
+        [&app](const auto &item) { return item.first == app.bundleType; });
+    if (iterBundleType != Profile::BUNDLE_TYPE_MAP.end()) {
+        applicationInfo.bundleType = iterBundleType->second;
+    }
+    applicationInfo.compileSdkVersion = app.compileSdkVersion;
+    applicationInfo.compileSdkType = app.compileSdkType;
+    return true;
+}
+
+uint32_t GetBackgroundModes(const std::vector<std::string> &backgroundModes)
+{
+    uint32_t backgroundMode = 0;
+    for (const std::string &item : backgroundModes) {
+        if (Profile::BACKGROUND_MODES_MAP.find(item) != Profile::BACKGROUND_MODES_MAP.end()) {
+            backgroundMode |= Profile::BACKGROUND_MODES_MAP.at(item);
+        }
+    }
+    return backgroundMode;
+}
+
+inline CompileMode ConvertCompileMode(const std::string& compileMode)
+{
+    if (compileMode == Profile::COMPILE_MODE_ES_MODULE) {
+        return CompileMode::ES_MODULE;
+    } else {
+        return CompileMode::JS_BUNDLE;
+    }
+}
+
+std::set<SupportWindowMode> ConvertToAbilityWindowMode(const std::vector<std::string> &windowModes,
+    const std::unordered_map<std::string, SupportWindowMode> &windowMap)
+{
+    std::set<SupportWindowMode> modes;
+    for_each(windowModes.begin(), windowModes.end(),
+        [&windowMap, &modes](const auto &mode)->decltype(auto) {
+        if (windowMap.find(mode) != windowMap.end()) {
+            modes.emplace(windowMap.at(mode));
+        }
+    });
+    if (modes.empty()) {
+        modes.insert(SupportWindowMode::FULLSCREEN);
+        modes.insert(SupportWindowMode::SPLIT);
+        modes.insert(SupportWindowMode::FLOATING);
+    }
+    return modes;
+}
+
+bool ToAbilityInfo(
+    const Profile::ModuleJson &moduleJson,
+    const Profile::Ability &ability,
+    const TransformParam &transformParam,
+    AbilityInfo &abilityInfo)
+{
+    HILOG_DEBUG("transform ModuleJson to AbilityInfo");
+    abilityInfo.name = ability.name;
+    abilityInfo.srcEntrance = ability.srcEntrance;
+    abilityInfo.description = ability.description;
+    abilityInfo.descriptionId = ability.descriptionId;
+    abilityInfo.iconPath = ability.icon;
+    abilityInfo.iconId = ability.iconId;
+    abilityInfo.label = ability.label;
+    abilityInfo.labelId = ability.labelId;
+    abilityInfo.priority = ability.priority;
+    abilityInfo.excludeFromMissions = ability.excludeFromMissions;
+    abilityInfo.unclearableMission = ability.unclearableMission;
+    abilityInfo.recoverable = ability.recoverable;
+    abilityInfo.permissions = ability.permissions;
+    abilityInfo.visible = ability.visible;
+    abilityInfo.continuable = ability.continuable;
+    abilityInfo.backgroundModes = GetBackgroundModes(ability.backgroundModes);
+    GetMetadata(abilityInfo.metadata, ability.metadata);
+    abilityInfo.package = moduleJson.module.name;
+    abilityInfo.bundleName = moduleJson.app.bundleName;
+    abilityInfo.moduleName = moduleJson.module.name;
+    abilityInfo.applicationName = moduleJson.app.bundleName;
+    auto iterLaunch = std::find_if(std::begin(Profile::LAUNCH_MODE_MAP),
+        std::end(Profile::LAUNCH_MODE_MAP),
+        [&ability](const auto &item) { return item.first == ability.launchType; });
+    if (iterLaunch != Profile::LAUNCH_MODE_MAP.end()) {
+        abilityInfo.launchMode = iterLaunch->second;
+    }
+    abilityInfo.enabled = true;
+    abilityInfo.isModuleJson = true;
+    abilityInfo.isStageBasedModel = true;
+    abilityInfo.type = AbilityType::PAGE;
+    for (const std::string &deviceType : moduleJson.module.deviceTypes) {
+        abilityInfo.deviceTypes.emplace_back(deviceType);
+    }
+    abilityInfo.startWindowIcon = ability.startWindowIcon;
+    abilityInfo.startWindowIconId = ability.startWindowIconId;
+    abilityInfo.startWindowBackground = ability.startWindowBackground;
+    abilityInfo.startWindowBackgroundId = ability.startWindowBackgroundId;
+    abilityInfo.removeMissionAfterTerminate = ability.removeMissionAfterTerminate;
+    abilityInfo.compileMode = ConvertCompileMode(moduleJson.module.compileMode);
+    auto iterOrientation = std::find_if(std::begin(Profile::DISPLAY_ORIENTATION_MAP),
+        std::end(Profile::DISPLAY_ORIENTATION_MAP),
+        [&ability](const auto &item) { return item.first == ability.orientation; });
+    if (iterOrientation != Profile::DISPLAY_ORIENTATION_MAP.end()) {
+        abilityInfo.orientation = iterOrientation->second;
+    }
+
+    auto modesSet = ConvertToAbilityWindowMode(ability.windowModes, Profile::WINDOW_MODE_MAP);
+    abilityInfo.windowModes.assign(modesSet.begin(), modesSet.end());
+    abilityInfo.maxWindowRatio = ability.maxWindowRatio;
+    abilityInfo.minWindowRatio = ability.minWindowRatio;
+    abilityInfo.maxWindowWidth = ability.maxWindowWidth;
+    abilityInfo.minWindowWidth = ability.minWindowWidth;
+    abilityInfo.maxWindowHeight = ability.maxWindowHeight;
+    abilityInfo.minWindowHeight = ability.minWindowHeight;
+    return true;
+}
+
+bool ToExtensionInfo(
+    const Profile::ModuleJson &moduleJson,
+    const Profile::Extension &extension,
+    const TransformParam &transformParam,
+    ExtensionAbilityInfo &extensionInfo)
+{
+    HILOG_DEBUG("transform ModuleJson to ExtensionAbilityInfo");
+    extensionInfo.type = ConvertToExtensionAbilityType(extension.type);
+    extensionInfo.name = extension.name;
+    extensionInfo.srcEntrance = extension.srcEntrance;
+    extensionInfo.icon = extension.icon;
+    extensionInfo.iconId = extension.iconId;
+    extensionInfo.label = extension.label;
+    extensionInfo.labelId = extension.labelId;
+    extensionInfo.description = extension.description;
+    extensionInfo.descriptionId = extension.descriptionId;
+    if (transformParam.isSystemApp && transformParam.isPreInstallApp) {
+        extensionInfo.readPermission = extension.readPermission;
+        extensionInfo.writePermission = extension.writePermission;
+    }
+    extensionInfo.priority = extension.priority;
+    extensionInfo.uri = extension.uri;
+    extensionInfo.permissions = extension.permissions;
+    extensionInfo.visible = extension.visible;
+    GetMetadata(extensionInfo.metadata, extension.metadata);
+    extensionInfo.bundleName = moduleJson.app.bundleName;
+    extensionInfo.moduleName = moduleJson.module.name;
+
+    if (extensionInfo.type != ExtensionAbilityType::SERVICE &&
+        extensionInfo.type != ExtensionAbilityType::DATASHARE) {
+        extensionInfo.process = extensionInfo.bundleName;
+        extensionInfo.process.append(":");
+        extensionInfo.process.append(ConvertToExtensionTypeName(extensionInfo.type));
+    }
+
+    extensionInfo.compileMode = ConvertCompileMode(moduleJson.module.compileMode);
+
+    return true;
+}
+
+bool ToInnerModuleInfo(
+    const Profile::ModuleJson &moduleJson,
+    const TransformParam &transformParam,
+    InnerModuleInfo &innerModuleInfo)
+{
+    HILOG_DEBUG("transform ModuleJson to InnerModuleInfo");
+    innerModuleInfo.name = moduleJson.module.name;
+    innerModuleInfo.modulePackage = moduleJson.module.name;
+    innerModuleInfo.moduleName = moduleJson.module.name;
+    innerModuleInfo.description = moduleJson.module.description;
+    innerModuleInfo.descriptionId = moduleJson.module.descriptionId;
+    GetMetadata(innerModuleInfo.metadata, moduleJson.module.metadata);
+    innerModuleInfo.distro.deliveryWithInstall = moduleJson.module.deliveryWithInstall;
+    innerModuleInfo.distro.installationFree = moduleJson.module.installationFree;
+    innerModuleInfo.distro.moduleName = moduleJson.module.name;
+    innerModuleInfo.installationFree = moduleJson.module.installationFree;
+    if (Profile::MODULE_TYPE_SET.find(moduleJson.module.type) != Profile::MODULE_TYPE_SET.end()) {
+        innerModuleInfo.distro.moduleType = moduleJson.module.type;
+        if (moduleJson.module.type == Profile::MODULE_TYPE_ENTRY) {
+            innerModuleInfo.isEntry = true;
+        }
+    }
+
+    innerModuleInfo.mainAbility = moduleJson.module.mainElement;
+    innerModuleInfo.srcEntrance = moduleJson.module.srcEntrance;
+    innerModuleInfo.process = moduleJson.module.process;
+
+    for (const std::string &deviceType : moduleJson.module.deviceTypes) {
+        innerModuleInfo.deviceTypes.emplace_back(deviceType);
+    }
+
+    if (Profile::VIRTUAL_MACHINE_SET.find(moduleJson.module.virtualMachine) != Profile::VIRTUAL_MACHINE_SET.end()) {
+        innerModuleInfo.virtualMachine = moduleJson.module.virtualMachine;
+    }
+
+    innerModuleInfo.uiSyntax = Profile::MODULE_UI_SYNTAX_DEFAULT_VALUE;
+    innerModuleInfo.pages = moduleJson.module.pages;
+    innerModuleInfo.dependencies = moduleJson.module.dependencies;
+    innerModuleInfo.compileMode = moduleJson.module.compileMode;
+    innerModuleInfo.isModuleJson = true;
+    innerModuleInfo.isStageBasedModel = true;
+    innerModuleInfo.isLibIsolated = moduleJson.module.isLibIsolated;
+    innerModuleInfo.targetModuleName = moduleJson.module.targetModule;
+    innerModuleInfo.targetPriority = moduleJson.module.targetPriority;
+    if (moduleJson.module.proxyDatas.empty()) {
+        innerModuleInfo.proxyDatas = moduleJson.module.proxyData;
+    } else {
+        innerModuleInfo.proxyDatas = moduleJson.module.proxyDatas;
+    }
+    innerModuleInfo.buildHash = moduleJson.module.buildHash;
+    innerModuleInfo.isolationMode = moduleJson.module.isolationMode;
+    return true;
+}
+
+void SetInstallationFree(InnerModuleInfo &innerModuleInfo, BundleType bundleType)
+{
+    if (bundleType == BundleType::ATOMIC_SERVICE) {
+        innerModuleInfo.distro.installationFree = true;
+        innerModuleInfo.installationFree = true;
+    } else {
+        innerModuleInfo.distro.installationFree = false;
+        innerModuleInfo.installationFree = false;
+    }
+}
+
+bool ParseExtensionInfo(const Profile::ModuleJson &moduleJson, InnerBundleInfo &innerBundleInfo,
+    TransformParam &transformParam, InnerModuleInfo &innerModuleInfo)
+{
+    for (const Profile::Extension &extension : moduleJson.module.extensionAbilities) {
+        ExtensionAbilityInfo extensionInfo;
+        if (!ToExtensionInfo(moduleJson, extension, transformParam, extensionInfo)) {
+            HILOG_ERROR("To extensionInfo failed");
+            return false;
+        }
+
+        if (innerModuleInfo.mainAbility == extensionInfo.name) {
+            innerModuleInfo.icon = extensionInfo.icon;
+            innerModuleInfo.iconId = extensionInfo.iconId;
+            innerModuleInfo.label = extensionInfo.label;
+            innerModuleInfo.labelId = extensionInfo.labelId;
+        }
+
+        std::string key;
+        key.append(moduleJson.app.bundleName).append(".")
+            .append(moduleJson.module.name).append(".").append(extension.name);
+        innerModuleInfo.extensionKeys.emplace_back(key);
+        innerBundleInfo.InsertExtensionInfo(key, extensionInfo);
+    }
+    return true;
+}
+
+bool ToInnerBundleInfo(const Profile::ModuleJson &moduleJson, InnerBundleInfo &innerBundleInfo)
+{
+    if (!CheckBundleNameIsValid(moduleJson.app.bundleName) || !CheckModuleNameIsValid(moduleJson.module.name)) {
+        return false;
+    }
+    TransformParam transformParam;
+    ApplicationInfo applicationInfo;
+    applicationInfo.isSystemApp = innerBundleInfo.GetAppType() == Constants::AppType::SYSTEM_APP;
+    transformParam.isSystemApp = applicationInfo.isSystemApp;
+    if (!ToApplicationInfo(moduleJson, transformParam, applicationInfo)) {
+        return false;
+    }
+    InnerModuleInfo innerModuleInfo;
+    ToInnerModuleInfo(moduleJson, transformParam, innerModuleInfo);
+    SetInstallationFree(innerModuleInfo, applicationInfo.bundleType);
+    bool findEntry = false;
+    for (const Profile::Ability &ability : moduleJson.module.abilities) {
+        AbilityInfo abilityInfo;
+        ToAbilityInfo(moduleJson, ability, transformParam, abilityInfo);
+        if (innerModuleInfo.mainAbility == abilityInfo.name) {
+            innerModuleInfo.icon = abilityInfo.iconPath;
+            innerModuleInfo.iconId = abilityInfo.iconId;
+            innerModuleInfo.label = abilityInfo.label;
+            innerModuleInfo.labelId = abilityInfo.labelId;
+        }
+        std::string key;
+        key.append(moduleJson.app.bundleName).append(".")
+            .append(moduleJson.module.name).append(".").append(abilityInfo.name);
+        innerModuleInfo.abilityKeys.emplace_back(key);
+        innerBundleInfo.InsertAbilitiesInfo(key, abilityInfo);
+        if (findEntry) {
+            continue;
+        }
+    }
+    if (!ParseExtensionInfo(moduleJson, innerBundleInfo, transformParam, innerModuleInfo)) {
+        return false;
+    }
+    if (!findEntry && !transformParam.isPreInstallApp &&
+        innerModuleInfo.distro.moduleType != Profile::MODULE_TYPE_SHARED) {
+        applicationInfo.needAppDetail = true;
+        applicationInfo.appDetailAbilityLibraryPath = Profile::APP_DETAIL_ABILITY_LIBRARY_PATH;
+        if ((applicationInfo.labelId == 0) && (applicationInfo.label.empty())) {
+            applicationInfo.label = applicationInfo.bundleName;
+        }
+    }
+    innerBundleInfo.SetCurrentModulePackage(moduleJson.module.name);
+    innerBundleInfo.SetBaseApplicationInfo(applicationInfo);
+    innerBundleInfo.InsertInnerModuleInfo(moduleJson.module.name, innerModuleInfo);
+    innerBundleInfo.SetTargetPriority(moduleJson.app.targetPriority);
+    return true;
+}
+} // namespace
+
+ErrCode ModuleProfile::TransformTo(const std::vector<uint8_t> &buf, InnerBundleInfo &innerBundleInfo) const
+{
+    HILOG_DEBUG("transform module.json stream to InnerBundleInfo");
+    std::vector<uint8_t> buffer = buf;
+    buffer.push_back('\0');
+    nlohmann::json jsonObject = nlohmann::json::parse(buffer.data(), nullptr, false);
+    if (jsonObject.is_discarded()) {
+        HILOG_ERROR("bad profile");
+        return ERR_APPEXECFWK_PARSE_BAD_PROFILE;
+    }
+
+    Profile::ModuleJson moduleJson = jsonObject.get<Profile::ModuleJson>();
+    if (Profile::g_parseResult != ERR_OK) {
+        HILOG_ERROR("g_parseResult is %{public}d", Profile::g_parseResult);
+        int32_t ret = Profile::g_parseResult;
+        // need recover parse result to ERR_OK
+        Profile::g_parseResult = ERR_OK;
+        return ret;
+    }
+
+    if (!ToInnerBundleInfo(moduleJson, innerBundleInfo)) {
+        return ERR_APPEXECFWK_PARSE_PROFILE_PROP_CHECK_ERROR;
+    }
+
+    return ERR_OK;
+}
+}  // namespace AppExecFwk
+}  // namespace OHOS
