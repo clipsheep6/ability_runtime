@@ -44,7 +44,7 @@ public:
      */
     virtual int ConnectAbilityCommon(const Want &want, const sptr<IRemoteObject> &connect,
         const sptr<IRemoteObject> &callerToken, AppExecFwk::ExtensionAbilityType extensionType,
-        int32_t userId = DEFAULT_INVALID_USER_ID) override;
+        int32_t userId = DEFAULT_INVALID_USER_ID, bool isQueryExtensionOnly = true) override;
 
     /**
      * Disconnect session with extension ability.

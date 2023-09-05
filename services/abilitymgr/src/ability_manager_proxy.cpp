@@ -765,7 +765,7 @@ int AbilityManagerProxy::ConnectAbility(
 
 int AbilityManagerProxy::ConnectAbilityCommon(
     const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken,
-    AppExecFwk::ExtensionAbilityType extensionType, int32_t userId)
+    AppExecFwk::ExtensionAbilityType extensionType, int32_t userId, bool isQueryExtensionOnly)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -807,6 +807,10 @@ int AbilityManagerProxy::ConnectAbilityCommon(
     }
     if (!data.WriteInt32(static_cast<int32_t>(extensionType))) {
         HILOG_ERROR("%{public}s, extensionType write failed.", __func__);
+        return INNER_ERR;
+    }
+    if (!data.WriteBool(isQueryExtensionOnly)) {
+        HILOG_ERROR("isQueryExtensionOnly write failed.");
         return INNER_ERR;
     }
     int error = SendRequest(AbilityManagerInterfaceCode::CONNECT_ABILITY_WITH_TYPE, data, reply, option);

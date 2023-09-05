@@ -47,7 +47,7 @@ public:
      */
     virtual int ConnectAbilityCommon(const Want &want, const sptr<IRemoteObject> &connect,
         const sptr<IRemoteObject> &callerToken, AppExecFwk::ExtensionAbilityType extensionType,
-        int32_t userId = DEFAULT_INVALID_USER_ID)
+        int32_t userId = DEFAULT_INVALID_USER_ID, bool isQuerryExtensionOnly = true)
     {
         return 0;
     }
