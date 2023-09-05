@@ -64,7 +64,7 @@ ohos_fuzztest("AbilityStubStopUserFuzzTest") {
   }
 
   if (ecologic_rule_enabled) {
-    external_deps += [ "ecological_rule_mgr:erms_client" ]
+    external_deps += [ "ecological_rule_managerager:erms_client" ]
   }
 }
 

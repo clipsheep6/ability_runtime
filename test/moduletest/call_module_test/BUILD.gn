@@ -46,7 +46,7 @@ ohos_moduletest("call_ability_service_module_test") {
   ]
 
   if (ecologic_rule_enabled) {
-    external_deps += [ "ecological_rule_mgr:erms_client" ]
+    external_deps += [ "ecological_rule_manager:erms_client" ]
   }
 }
 

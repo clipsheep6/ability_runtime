@@ -144,7 +144,7 @@ ohos_unittest("ability_record_test_call") {
   }
 
   if (ecologic_rule_enabled) {
-    external_deps += [ "ecological_rule_mgr:erms_client" ]
+    external_deps += [ "ecological_rule_manager:erms_client" ]
   }
 
   if (ability_runtime_graphics) {

@@ -205,7 +205,7 @@ ohos_shared_library("abilityms") {
   }
 
   if (ecologic_rule_enabled) {
-    external_deps += [ "ecological_rule_mgr:erms_client" ]
+    external_deps += [ "ecological_rule_manager:erms_client" ]
   }
 
   version_script = "libabilityms.map"
