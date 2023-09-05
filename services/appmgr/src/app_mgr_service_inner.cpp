@@ -165,7 +165,6 @@ void AppMgrServiceInner::Init()
     supportIsolationMode_ = OHOS::system::GetParameter(SUPPORT_ISOLATION_MODE, "false");
     deviceType_ = OHOS::system::GetDeviceType();
     DelayedSingleton<AppStateObserverManager>::GetInstance()->Init();
-    InitFocusListener();
 }
 
 AppMgrServiceInner::~AppMgrServiceInner()
@@ -3608,6 +3607,21 @@ void AppMgrServiceInner::RegisterFocusListener()
     }
     WindowManager::GetInstance().RegisterFocusChangedListener(focusListener_);
     HILOG_INFO("RegisterFocusListener end");
+}
+
+void AppMgrServiceInner::FreeFocusListener()
+{
+    HILOG_INFO("FreeFocusListener begin");
+    if (!focusListener_) {
+        HILOG_ERROR("no focusListener_");
+        return;
+    }
+    WindowManager::GetInstance().UnregisterFocusChangedListener(focusListener_);
+    if (!focusListener_) {
+        delete focusListener_;
+        focusListener_ = nullptr;
+    }
+    HILOG_INFO("FreeFocusListener end");
 }
 
 void AppMgrServiceInner::HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo)

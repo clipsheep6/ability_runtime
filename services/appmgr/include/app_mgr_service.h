@@ -350,6 +350,20 @@ public:
     virtual int32_t GetRunningProcessInformation(
         const std::string &bundleName, int32_t userId, std::vector<RunningProcessInfo> &info) override;
 
+    /**
+     * on add systemAbility.
+     *
+     * @return
+     */
+    virtual void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+
+    /**
+     * on remove systemAbility.
+     *
+     * @return
+     */
+    virtual void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+
 private:
     /**
      * Init, Initialize application services.

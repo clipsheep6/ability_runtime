@@ -702,8 +702,21 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t GetRunningProcessInformation(
-        const std::string &bundleName, int32_t userId, std::vector<RunningProcessInfo> &info) ;
+        const std::string &bundleName, int32_t userId, std::vector<RunningProcessInfo> &info);
 
+    /**
+     * init focusListener.
+     *
+     * @return
+     */
+    void InitFocusListener();
+
+    /**
+     * free focusListener.
+     *
+     * @return
+     */
+    void FreeFocusListener();
 private:
 
     std::string FaultTypeToString(FaultDataType type);
@@ -899,7 +912,6 @@ private:
 
     bool VerifyAPL() const;
 
-    void InitFocusListener();
     void RegisterFocusListener();
 
     static void PointerDeviceEventCallback(const char *key, const char *value, void *context);
