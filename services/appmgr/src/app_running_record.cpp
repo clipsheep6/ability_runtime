@@ -817,12 +817,16 @@ void AppRunningRecord::AbilityForeground(const std::shared_ptr<AbilityRunningRec
         return;
     }
 
+    HILOG_INFO("appState: %{public}d, bundle: %{public}s, ability: %{public}s",
+        curState_, mainBundleName_.c_str(), ability->GetName().c_str());
     // We need schedule application to foregrounded when current application state is ready or background running.
     if (curState_ == ApplicationState::APP_STATE_READY || curState_ == ApplicationState::APP_STATE_BACKGROUND) {
         if (foregroundingAbilityTokens_.empty()) {
+            HILOG_INFO("application foregrounding.");
             ScheduleForegroundRunning();
         }
-        foregroundingAbilityTokens_.push_back(ability->GetToken());
+        foregroundingAbilityTokens_.insert(ability->GetToken());
+        HILOG_INFO("foregroundingAbility size: %{public}d", static_cast<int32_t>(foregroundingAbilityTokens_.size()));
         if (curState_ == ApplicationState::APP_STATE_BACKGROUND) {
             SendAppStartupTypeEvent(ability, AppStartType::HOT);
         }
@@ -950,13 +954,13 @@ bool AppRunningRecord::AbilityUnfocused(const std::shared_ptr<AbilityRunningReco
 
 void AppRunningRecord::PopForegroundingAbilityTokens()
 {
-    while (!foregroundingAbilityTokens_.empty()) {
-        const auto &token = foregroundingAbilityTokens_.front();
-        auto ability = GetAbilityRunningRecordByToken(token);
-        auto moduleRecord = GetModuleRunningRecordByToken(token);
+    HILOG_INFO("foregroundingAbility size: %{public}d", static_cast<int32_t>(foregroundingAbilityTokens_.size()));
+    for (auto iter = foregroundingAbilityTokens_.begin(); iter != foregroundingAbilityTokens_.end();) {
+        auto ability = GetAbilityRunningRecordByToken(*iter);
+        auto moduleRecord = GetModuleRunningRecordByToken(*iter);
         moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_FOREGROUND);
         StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_FOREGROUND), true);
-        foregroundingAbilityTokens_.pop_front();
+        iter = foregroundingAbilityTokens_.erase(iter);
     }
 }
 

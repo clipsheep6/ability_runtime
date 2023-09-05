@@ -166,8 +166,8 @@ void ModuleRunningRecord::OnAbilityStateChanged(
     }
     AbilityState oldState = ability->GetState();
     ability->SetState(state);
-    HILOG_INFO("Ability state change from %{public}d to %{public}d, name is %{public}s.",
-        oldState, state, ability->GetName().c_str());
+    HILOG_INFO("Ability state change from %{public}d to %{public}d. bundle: %{public}s, ability: %{public}s.",
+        oldState, state, ability->GetAbilityInfo()->bundleName.c_str(), ability->GetName().c_str());
     auto serviceInner = appMgrServiceInner_.lock();
     if (serviceInner) {
         serviceInner->OnAbilityStateChanged(ability, state);

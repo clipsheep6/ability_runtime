@@ -20,6 +20,8 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <unordered_set>
+
 #include "cpp/mutex.h"
 #include "iremote_object.h"
 #include "irender_scheduler.h"
@@ -696,6 +698,14 @@ private:
     void RemoveModuleRecord(const std::shared_ptr<ModuleRunningRecord> &record);
 
 private:
+    class RemoteObjHash {
+    public:
+        size_t operator() (const sptr<IRemoteObject> remoteObj) const
+        {
+            return reinterpret_cast<size_t>(remoteObj.GetRefPtr());
+        }
+    };
+
     bool isKeepAliveApp_ = false;  // Only resident processes can be set to true, please choose carefully
     bool isEmptyKeepAliveApp_ = false;  // Only empty resident processes can be set to true, please choose carefully
     bool isStageBasedModel_ = false;
@@ -714,7 +724,7 @@ private:
     int64_t eventId_ = 0;
     int64_t startProcessSpecifiedAbilityEventId_ = 0;
     int64_t addAbilityStageInfoEventId_ = 0;
-    std::list<const sptr<IRemoteObject>> foregroundingAbilityTokens_;
+    std::unordered_set<sptr<IRemoteObject>, RemoteObjHash> foregroundingAbilityTokens_;
     std::weak_ptr<AppMgrServiceInner> appMgrServiceInner_;
     sptr<AppDeathRecipient> appDeathRecipient_ = nullptr;
     std::shared_ptr<PriorityObject> priorityObject_ = nullptr;
