@@ -1986,25 +1986,35 @@ napi_value NAPI_ContinueAbility(napi_env env, napi_callback_info info)
     return ret;
 }
 
-void UvWorkOnContinueDone(uv_work_t *work, int status)
+ContinueAbilityCB *CheckAndGetParameters(uv_work_t *work, napi_handle_scope *scope)
 {
-    HILOG_INFO("UvWorkOnContinueDone, uv_queue_work");
+    HILOG_INFO("GetParam, start");
     if (work == nullptr) {
-        HILOG_ERROR("UvWorkOnContinueDone, work is null");
-        return;
+        HILOG_ERROR("GetParam, work is null");
+        return nullptr;
     }
     ContinueAbilityCB *continueAbilityCB = static_cast<ContinueAbilityCB *>(work->data);
     if (continueAbilityCB == nullptr) {
-        HILOG_ERROR("UvWorkOnContinueDone, continueAbilityCB is null");
+        HILOG_ERROR("GetParam, continueAbilityCB is null");
         delete work;
-        return;
+        return nullptr;
     }
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(continueAbilityCB->cbBase.cbInfo.env, &scope);
+    napi_open_handle_scope(continueAbilityCB->cbBase.cbInfo.env, scope);
     if (scope == nullptr) {
         delete continueAbilityCB;
         continueAbilityCB = nullptr;
         delete work;
+        return nullptr;
+    }
+    return continueAbilityCB;
+}
+
+void UvWorkOnContinueDone(uv_work_t *work, int status)
+{
+    HILOG_INFO("UvWorkOnContinueDone, uv_queue_work");
+    napi_handle_scope scope = nullptr;
+    ContinueAbilityCB *continueAbilityCB = CheckAndGetParameters(work, &scope);
+    if (continueAbilityCB == nullptr) {
         return;
     }
     HILOG_INFO("UvWorkOnContinueDone, resultCode = %{public}d", continueAbilityCB->resultCode);
