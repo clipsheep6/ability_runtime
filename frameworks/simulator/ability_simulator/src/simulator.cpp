@@ -578,6 +578,12 @@ bool SimulatorImpl::OnInit()
     NativeValue *mockRequireNapi = globalObj->GetProperty("requireNapi");
     globalObj->SetProperty("mockRequireNapi", mockRequireNapi);
 
+    auto* moduleManager = nativeEngine->GetModuleManager();
+    if (moduleManager != nullptr) {
+        HILOG_DEBUG("moduleManager SetPreviewSearchPath: %{public}s", options_.containerSdkPath.c_str());
+        moduleManager->SetPreviewSearchPath(options_.containerSdkPath);
+    }
+
     std::string fileSeparator = "/";
     auto pos = options_.containerSdkPath.find(fileSeparator);
     if (pos == std::string::npos) {
