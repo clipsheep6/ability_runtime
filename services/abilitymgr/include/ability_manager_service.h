@@ -67,6 +67,7 @@ enum class ServiceRunningState { STATE_NOT_START, STATE_RUNNING };
 constexpr int32_t BASE_USER_RANGE = 200000;
 constexpr int32_t U0_USER_ID = 0;
 constexpr int32_t INVALID_USER_ID = -1;
+constexpr int32_t SHARE_PICKER_SUCCESS = 2;
 using OHOS::AppExecFwk::IAbilityController;
 class PendingWantManager;
 /**
