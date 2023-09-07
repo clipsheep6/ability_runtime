@@ -251,11 +251,9 @@ int UIAbilityLifecycleManager::DispatchForeground(const std::shared_ptr<AbilityR
     CHECK_POINTER_AND_RETURN_LOG(taskHandler, ERR_INVALID_VALUE, "Fail to get AbilityTaskHandler.");
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
-    if (!abilityRecord->IsAbilityState(AbilityState::FOREGROUNDING) &&
-        !abilityRecord->IsAbilityState(AbilityState::FOREGROUND)) {
+    if (!abilityRecord->IsAbilityState(AbilityState::FOREGROUNDING)) {
         HILOG_ERROR("DispatchForeground Ability transition life state error. expect %{public}d, actual %{public}d",
-            AbilityState::FOREGROUNDING,
-            abilityRecord->GetAbilityState());
+            AbilityState::FOREGROUNDING, abilityRecord->GetAbilityState());
         return ERR_INVALID_VALUE;
     }
 
@@ -1115,6 +1113,23 @@ void UIAbilityLifecycleManager::OnAbilityDied(std::shared_ptr<AbilityRecord> abi
         HILOG_ERROR("failed, ability record is nullptr");
         return;
     }
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    CHECK_POINTER_LOG(handler, "Fail to get AbilityEventHandler.");
+    if (abilityRecord->GetAbilityState() == AbilityState::INITIAL) {
+        handler->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
+    }
+    if (abilityRecord->GetAbilityState() == AbilityState::FOREGROUNDING) {
+        handler->RemoveEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
+    }
+    auto taskHandler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    CHECK_POINTER_LOG(taskHandler, "Fail to get AbilityTaskHandler.");
+    if (abilityRecord->GetAbilityState() == AbilityState::BACKGROUNDING) {
+        taskHandler->CancelTask("background_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+    }
+    if (abilityRecord->GetAbilityState() == AbilityState::TERMINATING) {
+        taskHandler->CancelTask("terminate_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+    }
+
     terminateAbilityList_.push_back(abilityRecord);
     abilityRecord->SetAbilityState(AbilityState::TERMINATING);
     NotifySCBToHandleException(abilityRecord, static_cast<int32_t>(ErrorLifecycleState::ABILITY_STATE_DIED),
