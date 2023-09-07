@@ -22,12 +22,13 @@
 #include "ability_util.h"
 #include "app_exit_reason_data_manager.h"
 #include "appfreeze_manager.h"
-#include "hitrace_meter.h"
+#include "bundle_mgr_client.h"
 #include "errors.h"
 #include "hilog_wrapper.h"
 #include "hisysevent.h"
-#include "mission_info_mgr.h"
+#include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
+#include "mission_info_mgr.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -2834,14 +2835,14 @@ void MissionListManager::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &ab
 
 void MissionListManager::ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const
 {
-    auto bms = AbilityUtil::GetBundleManager();
-    CHECK_POINTER(bms);
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    CHECK_POINTER(client);
     auto abilityInfo = record->GetAbilityInfo();
     Want want;
     want.SetElementName(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name, abilityInfo.moduleName);
     auto uid = record->GetUid();
     want.SetParam("uid", uid);
-    bms->ProcessPreload(want);
+    client->ProcessPreload(want);
 }
 
 Closure MissionListManager::GetCancelStartingWindowTask(const std::shared_ptr<AbilityRecord> &abilityRecord) const

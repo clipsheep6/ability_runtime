@@ -112,7 +112,7 @@ std::shared_ptr<Context> ContextContainer::GetContext()
     }
 }
 
-sptr<IBundleMgr> ContextContainer::GetBundleManager() const
+std::shared_ptr<BundleMgrClient> ContextContainer::GetBundleManager() const
 {
     if (baseContext_ != nullptr) {
         return baseContext_->GetBundleManager();
@@ -247,7 +247,7 @@ std::shared_ptr<Context> ContextContainer::CreateBundleContext(std::string bundl
         return GetApplicationContext();
     }
 
-    sptr<IBundleMgr> bundleMgr = GetBundleManager();
+    std::shared_ptr<BundleMgrClient> bundleMgr = GetBundleManager();
     if (bundleMgr == nullptr) {
         HILOG_ERROR("ContextContainer::CreateBundleContext GetBundleManager is nullptr");
         return nullptr;

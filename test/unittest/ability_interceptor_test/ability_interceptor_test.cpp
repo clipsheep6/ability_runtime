@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 #define private public
+#include "iservice_registry.h"
 #define protected public
 #include "ability_manager_service.h"
 #undef private
@@ -22,8 +23,13 @@
 
 #include "ability_interceptor.h"
 #include "ability_interceptor_executer.h"
-#include "bundlemgr/mock_bundle_manager.h"
+#include "bundle_mgr_interface.h"
+#include "hilog_wrapper.h"
+#include "mock_bundle_installer_service.h"
+#include "mock_bundle_manager_service.h"
 #include "mock_ecological_rule_manager.h"
+#include "mock_system_ability_manager.h"
+#include "permission_verification.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -43,12 +49,17 @@ const std::string JUMP_ABILITY_NAME = "com.test.jump";
 
 namespace OHOS {
 namespace AAFwk {
+sptr<MockBundleInstallerService> mockBundleInstaller = new (std::nothrow) MockBundleInstallerService();
+sptr<MockBundleManagerService> mockBundleMgr = new (std::nothrow) MockBundleManagerService();
 class AbilityInterceptorTest : public testing::Test {
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
+    void MockBundleInstaller();
+    sptr<ISystemAbilityManager> iSystemAbilityMgr_ = nullptr;
+    sptr<AppExecFwk::MockSystemAbilityManager> mockSystemAbility_ = nullptr;
 
 public:
 };
@@ -58,11 +69,6 @@ void AbilityInterceptorTest::SetUpTestCase()
     GTEST_LOG_(INFO) << "AbilityInterceptorTest SetUpTestCase called";
     AbilityManagerClient::GetInstance()->CleanAllMissions();
     OHOS::DelayedSingleton<SaMgrClient>::DestroyInstance();
-
-    OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
-        OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, new BundleMgrService());
-    OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
-        ECOLOGICAL_RULE_SA_ID, new MockEcologicalRuleMgrService());
 }
 
 void AbilityInterceptorTest::TearDownTestCase()
@@ -72,10 +78,34 @@ void AbilityInterceptorTest::TearDownTestCase()
 }
 
 void AbilityInterceptorTest::SetUp()
-{}
+{
+    mockSystemAbility_ = new (std::nothrow) AppExecFwk::MockSystemAbilityManager();
+    iSystemAbilityMgr_ = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = mockSystemAbility_;
+}
 
 void AbilityInterceptorTest::TearDown()
-{}
+{
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = iSystemAbilityMgr_;
+}
+
+void AbilityInterceptorTest::MockBundleInstaller()
+{
+    auto mockGetBundleInstaller = [] () {
+        return mockBundleInstaller;
+    };
+    auto mockGetSystemAbility = [&] (int32_t systemAbilityId) {
+        if (systemAbilityId == BUNDLE_MGR_SERVICE_SYS_ABILITY_ID) {
+            return mockBundleMgr->AsObject();
+        } else {
+            return iSystemAbilityMgr_->GetSystemAbility(systemAbilityId);
+        }
+    };
+    EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
+    EXPECT_CALL(*mockSystemAbility_, GetSystemAbility(testing::_))
+        .WillOnce(testing::Invoke(mockGetSystemAbility))
+        .WillRepeatedly(testing::Invoke(mockGetSystemAbility));
+}
 
 HWTEST_F(AbilityInterceptorTest, CreateExecuter_001, TestSize.Level1)
 {
@@ -91,6 +121,7 @@ HWTEST_F(AbilityInterceptorTest, CreateExecuter_001, TestSize.Level1)
  */
 HWTEST_F(AbilityInterceptorTest, CrowdTestInterceptor_001, TestSize.Level1)
 {
+    MockBundleInstaller();
     std::shared_ptr<AbilityInterceptorExecuter> executer = std::make_shared<AbilityInterceptorExecuter>();
     Want want;
     ElementName element("", "com.test.crowdtest", "CrowdtestExpired");

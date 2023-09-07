@@ -18,28 +18,28 @@
 #include <singleton.h>
 #include <vector>
 
-#include "constants.h"
 #include "ability_event_handler.h"
 #include "ability_manager_service.h"
 #include "ability_scheduler_stub.h"
 #include "ability_util.h"
-#include "array_wrapper.h"
 #include "accesstoken_kit.h"
+#include "array_wrapper.h"
 #include "bundle_mgr_client.h"
 #include "configuration_convertor.h"
 #include "connection_state_manager.h"
-#include "hitrace_meter.h"
-#include "image_source.h"
-#include "in_process_call_wrapper.h"
+#include "constants.h"
 #include "errors.h"
 #include "event_report.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
+#include "image_source.h"
+#include "in_process_call_wrapper.h"
 #include "os_account_manager_wrapper.h"
 #include "parameters.h"
+#include "permission_constants.h"
 #include "scene_board_judgement.h"
 #include "system_ability_token_callback.h"
 #include "uri_permission_manager_client.h"
-#include "permission_constants.h"
 #ifdef SUPPORT_GRAPHICS
 #include "image_source.h"
 #include "locale_config.h"
@@ -2584,8 +2584,8 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         HILOG_WARN("Do not call uriPermissionMgr.");
         return;
     }
-    auto bms = AbilityUtil::GetBundleManager();
-    CHECK_POINTER_IS_NULLPTR(bms);
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    CHECK_POINTER_IS_NULLPTR(client);
     if (IsDmsCall()) {
         GrantDmsUriPermission(want, targetBundleName);
         return;
@@ -2640,7 +2640,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
 
         if (!authorityFlag) {
             AppExecFwk::BundleInfo uriBundleInfo;
-            if (!IN_PROCESS_CALL(bms->GetBundleInfo(authority, bundleFlag, uriBundleInfo, userId))) {
+            if (!IN_PROCESS_CALL(client->GetBundleInfo(authority, bundleFlag, uriBundleInfo, userId))) {
                 HILOG_WARN("To fail to get bundle info according to uri.");
                 continue;
             }

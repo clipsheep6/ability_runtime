@@ -397,9 +397,10 @@ void AbilityManagerService::OnStop()
     }
 #endif
     if (abilityBundleEventCallback_) {
-        auto bms = GetBundleManager();
-        if (bms) {
-            bool ret = IN_PROCESS_CALL(bms->UnregisterBundleEventCallback(abilityBundleEventCallback_));
+        std::shared_ptr<AppExecFwk::BundleMgrClient> client =
+            DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+        if (client) {
+            bool ret = IN_PROCESS_CALL(client->UnregisterBundleEventCallback(abilityBundleEventCallback_));
             if (ret != ERR_OK) {
                 HILOG_ERROR("unsubscribe bundle event callback failed, err:%{public}d.", ret);
             }
@@ -1482,14 +1483,14 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
 
 bool AbilityManagerService::CheckCallingTokenId(const std::string &bundleName, int32_t userId)
 {
-    auto bms = GetBundleManager();
-    if (bms == nullptr) {
-        HILOG_ERROR("bms is invalid.");
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    if (client == nullptr) {
+        HILOG_ERROR("client is invalid.");
         return false;
     }
     AppExecFwk::ApplicationInfo appInfo;
-    IN_PROCESS_CALL_WITHOUT_RET(bms->GetApplicationInfo(bundleName,
-        AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, userId, appInfo));
+    IN_PROCESS_CALL_WITHOUT_RET(
+        client->GetApplicationInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, userId, appInfo));
     auto accessTokenId = IPCSkeleton::GetCallingTokenID();
     if (accessTokenId != appInfo.accessTokenId) {
         HILOG_ERROR("Permission verification failed");
@@ -1523,13 +1524,13 @@ void AbilityManagerService::AppUpgradeCompleted(const std::string &bundleName, i
         return;
     }
 
-    auto bms = GetBundleManager();
-    CHECK_POINTER(bms);
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    CHECK_POINTER(client);
     auto userId = uid / BASE_USER_RANGE;
 
     AppExecFwk::BundleInfo bundleInfo;
     if (!IN_PROCESS_CALL(
-        bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, userId))) {
+            client->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, userId))) {
         HILOG_ERROR("Failed to get bundle info.");
         return;
     }
@@ -1561,12 +1562,12 @@ int32_t AbilityManagerService::RecordAppExitReason(Reason exitReason)
         return ERR_NULL_OBJECT;
     }
 
-    auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, ERR_NULL_OBJECT);
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    CHECK_POINTER_AND_RETURN(client, ERR_NULL_OBJECT);
 
     std::string bundleName;
     int32_t callerUid = IPCSkeleton::GetCallingUid();
-    if (IN_PROCESS_CALL(bms->GetNameForUid(callerUid, bundleName)) != ERR_OK) {
+    if (IN_PROCESS_CALL(client->GetNameForUid(callerUid, bundleName)) != ERR_OK) {
         HILOG_ERROR("Get Bundle Name failed.");
         return ERR_INVALID_VALUE;
     }
@@ -1778,9 +1779,9 @@ void AbilityManagerService::SubscribeBundleEventCallback()
 
     // Register abilityBundleEventCallback to receive hap updates
     abilityBundleEventCallback_ = new (std::nothrow) AbilityBundleEventCallback(taskHandler_);
-    auto bms = GetBundleManager();
-    if (bms) {
-        bool ret = IN_PROCESS_CALL(bms->RegisterBundleEventCallback(abilityBundleEventCallback_));
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    if (client) {
+        bool ret = IN_PROCESS_CALL(client->RegisterBundleEventCallback(abilityBundleEventCallback_));
         if (!ret) {
             HILOG_ERROR("RegisterBundleEventCallback failed!");
         }
@@ -2604,8 +2605,9 @@ int AbilityManagerService::ConnectAbilityCommon(
         // if the want include uri, it may only has uri information. it is probably a datashare extension.
         HILOG_INFO("%{public}s called. uri:%{public}s, userId %{public}d", __func__, uri.c_str(), validUserId);
         AppExecFwk::ExtensionAbilityInfo extensionInfo;
-        auto bms = GetBundleManager();
-        CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
+        std::shared_ptr<AppExecFwk::BundleMgrClient> client =
+            DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+        CHECK_POINTER_AND_RETURN(client, ERR_INVALID_VALUE);
 
         abilityWant.SetParam("abilityConnectionObj", connect->AsObject());
         ComponentRequest componentRequest = initComponentRequest(callerToken);
@@ -2614,7 +2616,7 @@ int AbilityManagerService::ConnectAbilityCommon(
         }
         abilityWant.RemoveParam("abilityConnectionObj");
 
-        bool queryResult = IN_PROCESS_CALL(bms->QueryExtensionAbilityInfoByUri(uri, validUserId, extensionInfo));
+        bool queryResult = IN_PROCESS_CALL(client->QueryExtensionAbilityInfoByUri(uri, validUserId, extensionInfo));
         if (!queryResult || extensionInfo.name.empty() || extensionInfo.bundleName.empty()) {
             HILOG_ERROR("Invalid extension ability info.");
             eventInfo.errCode = ERR_INVALID_VALUE;
@@ -2710,8 +2712,9 @@ int AbilityManagerService::ConnectUIExtensionAbility(const Want &want, const spt
         // if the want include uri, it may only has uri information.
         HILOG_INFO("%{public}s called. uri:%{public}s, userId %{public}d", __func__, uri.c_str(), validUserId);
         AppExecFwk::ExtensionAbilityInfo extensionInfo;
-        auto bms = GetBundleManager();
-        CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
+        std::shared_ptr<AppExecFwk::BundleMgrClient> client =
+            DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+        CHECK_POINTER_AND_RETURN(client, ERR_INVALID_VALUE);
 
         abilityWant.SetParam("abilityConnectionObj", connect->AsObject());
         ComponentRequest componentRequest = initComponentRequest(callerToken);
@@ -2720,7 +2723,7 @@ int AbilityManagerService::ConnectUIExtensionAbility(const Want &want, const spt
         }
         abilityWant.RemoveParam("abilityConnectionObj");
 
-        bool queryResult = IN_PROCESS_CALL(bms->QueryExtensionAbilityInfoByUri(uri, validUserId, extensionInfo));
+        bool queryResult = IN_PROCESS_CALL(client->QueryExtensionAbilityInfoByUri(uri, validUserId, extensionInfo));
         if (!queryResult || extensionInfo.name.empty() || extensionInfo.bundleName.empty()) {
             HILOG_ERROR("Invalid extension ability info.");
             eventInfo.errCode = ERR_INVALID_VALUE;
@@ -3126,15 +3129,15 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
     HILOG_INFO("Get want Sender.");
     CHECK_POINTER_AND_RETURN(pendingWantManager_, nullptr);
 
-    auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, nullptr);
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    CHECK_POINTER_AND_RETURN(client, nullptr);
 
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     int32_t userId = wantSenderInfo.userId;
     bool bundleMgrResult = false;
     if (userId < 0) {
-        if (DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->
-            GetOsAccountLocalIdFromUid(callerUid, userId) != 0) {
+        if (DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->GetOsAccountLocalIdFromUid(
+                callerUid, userId) != 0) {
             HILOG_ERROR("GetOsAccountLocalIdFromUid failed. uid=%{public}d", callerUid);
             return nullptr;
         }
@@ -3144,8 +3147,8 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
     if (!wantSenderInfo.allWants.empty()) {
         AppExecFwk::BundleInfo bundleInfo;
         std::string bundleName = wantSenderInfo.allWants.back().want.GetElement().GetBundleName();
-        bundleMgrResult = IN_PROCESS_CALL(bms->GetBundleInfo(bundleName,
-            AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
+        bundleMgrResult = IN_PROCESS_CALL(
+            client->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
         if (bundleMgrResult) {
             appUid = bundleInfo.uid;
         }
@@ -3155,8 +3158,8 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
     std::string apl;
     if (!wantSenderInfo.bundleName.empty()) {
         AppExecFwk::BundleInfo bundleInfo;
-        bundleMgrResult = IN_PROCESS_CALL(bms->GetBundleInfo(wantSenderInfo.bundleName,
-            AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
+        bundleMgrResult = IN_PROCESS_CALL(client->GetBundleInfo(
+            wantSenderInfo.bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
         if (bundleMgrResult) {
             apl = bundleInfo.applicationInfo.appPrivilegeLevel;
         }
@@ -3180,23 +3183,23 @@ void AbilityManagerService::CancelWantSender(const sptr<IWantSender> &sender)
     CHECK_POINTER(pendingWantManager_);
     CHECK_POINTER(sender);
 
-    auto bms = GetBundleManager();
-    CHECK_POINTER(bms);
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    CHECK_POINTER(client);
 
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     sptr<PendingWantRecord> record = iface_cast<PendingWantRecord>(sender->AsObject());
 
     int userId = -1;
-    if (DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->
-        GetOsAccountLocalIdFromUid(callerUid, userId) != 0) {
+    if (DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->GetOsAccountLocalIdFromUid(
+            callerUid, userId) != 0) {
         HILOG_ERROR("GetOsAccountLocalIdFromUid failed. uid=%{public}d", callerUid);
         return;
     }
     std::string apl;
     if (record->GetKey() != nullptr && !record->GetKey()->GetBundleName().empty()) {
         AppExecFwk::BundleInfo bundleInfo;
-        bool bundleMgrResult = IN_PROCESS_CALL(bms->GetBundleInfo(record->GetKey()->GetBundleName(),
-            AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
+        bool bundleMgrResult = IN_PROCESS_CALL(client->GetBundleInfo(
+            record->GetKey()->GetBundleName(), AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
         if (!bundleMgrResult) {
             HILOG_ERROR("GetBundleInfo is fail.");
             return;
@@ -3621,8 +3624,8 @@ std::list<std::shared_ptr<ConnectionRecord>> AbilityManagerService::GetConnectRe
 sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
     const Uri &uri, bool tryBind, const sptr<IRemoteObject> &callerToken)
 {
-    auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, nullptr);
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    CHECK_POINTER_AND_RETURN(client, nullptr);
 
     auto localUri(uri);
     if (localUri.GetScheme() != AbilityConfig::SCHEME_DATA_ABILITY) {
@@ -3639,8 +3642,9 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
     auto userId = GetValidUserId(INVALID_USER_ID);
     AbilityRequest abilityRequest;
     std::string dataAbilityUri = localUri.ToString();
-    HILOG_INFO("called. userId %{public}d", userId);
-    bool queryResult = IN_PROCESS_CALL(bms->QueryAbilityInfoByUri(dataAbilityUri, userId, abilityRequest.abilityInfo));
+    HILOG_INFO("Called. userId %{public}d", userId);
+    bool queryResult =
+        IN_PROCESS_CALL(client->QueryAbilityInfoByUri(dataAbilityUri, userId, abilityRequest.abilityInfo));
     if (!queryResult || abilityRequest.abilityInfo.name.empty() || abilityRequest.abilityInfo.bundleName.empty()) {
         HILOG_ERROR("Invalid ability info for data ability acquiring.");
         return nullptr;
@@ -4517,9 +4521,9 @@ int32_t AbilityManagerService::GetUserId() const
 
 void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isBoot)
 {
-    HILOG_DEBUG("%{public}s", __func__);
-    auto bms = GetBundleManager();
-    CHECK_POINTER(bms);
+    HILOG_DEBUG("Called");
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    CHECK_POINTER(client);
 
     /* Query the highest priority ability or extension ability, and start it. usually, it is OOBE or launcher */
     Want want;
@@ -4527,9 +4531,8 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
     AppExecFwk::AbilityInfo abilityInfo;
     AppExecFwk::ExtensionAbilityInfo extensionAbilityInfo;
     int attemptNums = 0;
-    while (!IN_PROCESS_CALL(bms->ImplicitQueryInfoByPriority(want,
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT, userId,
-        abilityInfo, extensionAbilityInfo))) {
+    while (!IN_PROCESS_CALL(client->ImplicitQueryInfoByPriority(
+        want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT, userId, abilityInfo, extensionAbilityInfo))) {
         HILOG_INFO("Waiting query highest priority ability info completed.");
         ++attemptNums;
         if (!isBoot && attemptNums > SWITCH_ACCOUNT_TRY) {
@@ -4595,8 +4598,8 @@ int AbilityManagerService::GenerateAbilityRequest(
         }
     }
 
-    auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    CHECK_POINTER_AND_RETURN(client, GET_ABILITY_SERVICE_FAILED);
 #ifdef SUPPORT_GRAPHICS
     if (want.GetAction().compare(ACTION_CHOOSE) == 0) {
         auto result = ShowPickerDialog(want, userId, callerToken);
@@ -4612,20 +4615,20 @@ int AbilityManagerService::GenerateAbilityRequest(
     HILOG_DEBUG("QueryAbilityInfo from bms, userId is %{public}d.", userId);
     int32_t appIndex = want.GetIntParam(DLP_INDEX, 0);
     if (appIndex == 0) {
-        IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(want, abilityInfoFlag, userId, request.abilityInfo));
+        IN_PROCESS_CALL_WITHOUT_RET(client->QueryAbilityInfo(want, abilityInfoFlag, userId, request.abilityInfo));
     } else {
-        IN_PROCESS_CALL_WITHOUT_RET(bms->GetSandboxAbilityInfo(want, appIndex,
-            abilityInfoFlag, userId, request.abilityInfo));
+        IN_PROCESS_CALL_WITHOUT_RET(
+            client->GetSandboxAbilityInfo(want, appIndex, abilityInfoFlag, userId, request.abilityInfo));
     }
     if (request.abilityInfo.name.empty() || request.abilityInfo.bundleName.empty()) {
         // try to find extension
         std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
         if (appIndex == 0) {
-            IN_PROCESS_CALL_WITHOUT_RET(bms->QueryExtensionAbilityInfos(want, abilityInfoFlag,
-                userId, extensionInfos));
+            IN_PROCESS_CALL_WITHOUT_RET(
+                client->QueryExtensionAbilityInfos(want, abilityInfoFlag, userId, extensionInfos));
         } else {
-            IN_PROCESS_CALL_WITHOUT_RET(bms->GetSandboxExtAbilityInfos(want, appIndex,
-                abilityInfoFlag, userId, extensionInfos));
+            IN_PROCESS_CALL_WITHOUT_RET(
+                client->GetSandboxExtAbilityInfos(want, appIndex, abilityInfoFlag, userId, extensionInfos));
         }
         if (extensionInfos.size() <= 0) {
             HILOG_ERROR("GenerateAbilityRequest error. Get extension info failed.");
@@ -4666,7 +4669,7 @@ int AbilityManagerService::GenerateAbilityRequest(
             return ERR_COLLABORATOR_NOTIFY_FAILED;
         }
 
-        IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(request.want, abilityInfoFlag, userId, request.abilityInfo));
+        IN_PROCESS_CALL_WITHOUT_RET(client->QueryAbilityInfo(request.want, abilityInfoFlag, userId, request.abilityInfo));
 
         if (request.want.GetBoolParam(KEY_VISIBLE_ID, false) && !request.abilityInfo.visible) {
             request.abilityInfo.visible = true;
@@ -4712,8 +4715,8 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
     request.callerToken = callerToken;
     request.startSetting = nullptr;
 
-    auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    CHECK_POINTER_AND_RETURN(client, GET_ABILITY_SERVICE_FAILED);
 
     auto abilityInfoFlag = (AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION |
         AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION |
@@ -4723,10 +4726,10 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
     int32_t appIndex = want.GetIntParam(DLP_INDEX, 0);
     if (appIndex == 0) {
-        IN_PROCESS_CALL_WITHOUT_RET(bms->QueryExtensionAbilityInfos(want, abilityInfoFlag, userId, extensionInfos));
+        IN_PROCESS_CALL_WITHOUT_RET(client->QueryExtensionAbilityInfos(want, abilityInfoFlag, userId, extensionInfos));
     } else {
-        IN_PROCESS_CALL_WITHOUT_RET(bms->GetSandboxExtAbilityInfos(want, appIndex,
-            abilityInfoFlag, userId, extensionInfos));
+        IN_PROCESS_CALL_WITHOUT_RET(
+            client->GetSandboxExtAbilityInfos(want, appIndex, abilityInfoFlag, userId, extensionInfos));
     }
     if (extensionInfos.size() <= 0) {
         HILOG_ERROR("GenerateAbilityRequest error. Get extension info failed.");
@@ -4870,12 +4873,12 @@ int AbilityManagerService::KillProcess(const std::string &bundleName)
 {
     HILOG_DEBUG("Kill process, bundleName: %{public}s", bundleName.c_str());
     CHECK_CALLER_IS_SYSTEM_APP;
-    auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, KILL_PROCESS_FAILED);
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    CHECK_POINTER_AND_RETURN(client, KILL_PROCESS_FAILED);
     int32_t userId = GetUserId();
     AppExecFwk::BundleInfo bundleInfo;
     if (!IN_PROCESS_CALL(
-        bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId))) {
+        client->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId))) {
         HILOG_ERROR("Failed to get bundle info when kill process.");
         return GET_BUNDLE_INFO_FAILED;
     }
@@ -4968,12 +4971,12 @@ int AbilityManagerService::PreLoadAppDataAbilities(const std::string &bundleName
         return ERR_INVALID_STATE;
     }
 
-    auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    CHECK_POINTER_AND_RETURN(client, GET_ABILITY_SERVICE_FAILED);
 
     AppExecFwk::BundleInfo bundleInfo;
     bool ret = IN_PROCESS_CALL(
-        bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, userId));
+        client->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, userId));
     if (!ret) {
         HILOG_ERROR("Failed to get bundle info when app data abilities preloading, userId is %{public}d", userId);
         return RESOLVE_APP_ERR;
@@ -5281,11 +5284,11 @@ void AbilityManagerService::StartResidentApps()
 {
     HILOG_DEBUG("%{public}s", __func__);
     ConnectBmsService();
-    auto bms = GetBundleManager();
-    CHECK_POINTER_IS_NULLPTR(bms);
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    CHECK_POINTER_IS_NULLPTR(client);
     std::vector<AppExecFwk::BundleInfo> bundleInfos;
     if (!IN_PROCESS_CALL(
-        bms->GetBundleInfos(OHOS::AppExecFwk::GET_BUNDLE_DEFAULT, bundleInfos, U0_USER_ID))) {
+        client->GetBundleInfos(OHOS::AppExecFwk::GET_BUNDLE_DEFAULT, bundleInfos, U0_USER_ID))) {
         HILOG_ERROR("Get resident bundleinfos failed");
         return;
     }
@@ -5938,17 +5941,17 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
                 ReportAppRecoverResult(record->GetUid(), appInfo, abilityInfo.name, "FAIL_TARGET_ABILITY_EMPTY");
                 return;
             } else {
-                auto bms = GetBundleManager();
-                if (bms == nullptr) {
-                    HILOG_ERROR("bms is nullptr");
+                std::shared_ptr<AppExecFwk::BundleMgrClient> client =
+                    DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+                if (client == nullptr) {
+                    HILOG_ERROR("Failed to get BundleMgrClient.");
                     return;
                 }
                 AppExecFwk::BundleInfo bundleInfo;
                 auto bundleName = want->GetElement().GetBundleName();
                 int32_t userId = GetUserId();
-                bool ret = IN_PROCESS_CALL(
-                    bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo,
-                    userId));
+                bool ret = IN_PROCESS_CALL(client->GetBundleInfo(
+                    bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, userId));
                 if (!ret) {
                     HILOG_ERROR("AppRecovery Failed to get bundle info, not do recovery!");
                     return;
@@ -6354,15 +6357,15 @@ int AbilityManagerService::StartUserTest(const Want &want, const sptr<IRemoteObj
         return ERR_INVALID_VALUE;
     }
 
-    auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, START_USER_TEST_FAIL);
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    CHECK_POINTER_AND_RETURN(client, START_USER_TEST_FAIL);
     AppExecFwk::BundleInfo bundleInfo;
     if (!IN_PROCESS_CALL(
-        bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, U0_USER_ID))) {
+        client->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, U0_USER_ID))) {
         HILOG_ERROR("Failed to get bundle info by U0_USER_ID %{public}d.", U0_USER_ID);
         int32_t userId = GetUserId();
         if (!IN_PROCESS_CALL(
-            bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId))) {
+            client->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId))) {
             HILOG_ERROR("Failed to get bundle info by userId %{public}d.", userId);
             return GET_BUNDLE_INFO_FAILED;
         }
@@ -7865,11 +7868,11 @@ int AbilityManagerService::VerifyPermission(const std::string &permission, int p
         return CHECK_PERMISSION_FAILED;
     }
 
-    auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
+    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    CHECK_POINTER_AND_RETURN(client, ERR_INVALID_VALUE);
 
     std::string bundleName;
-    if (IN_PROCESS_CALL(bms->GetNameForUid(uid, bundleName)) != ERR_OK) {
+    if (IN_PROCESS_CALL(client->GetNameForUid(uid, bundleName)) != ERR_OK) {
         HILOG_ERROR("VerifyPermission failed to get bundle name by uid");
         return CHECK_PERMISSION_FAILED;
     }
@@ -7877,8 +7880,8 @@ int AbilityManagerService::VerifyPermission(const std::string &permission, int p
     int account = -1;
     DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->GetOsAccountLocalIdFromUid(uid, account);
     AppExecFwk::ApplicationInfo appInfo;
-    if (!IN_PROCESS_CALL(bms->GetApplicationInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
-        account, appInfo))) {
+    if (!IN_PROCESS_CALL(
+            client->GetApplicationInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, account, appInfo))) {
         HILOG_ERROR("VerifyPermission failed to get application info");
         return CHECK_PERMISSION_FAILED;
     }
