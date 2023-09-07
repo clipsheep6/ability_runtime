@@ -855,6 +855,7 @@ std::shared_ptr<AbilityRecord> AbilityConnectManager::GetUIExtensioBySessionInfo
             HILOG_WARN("abilityRecord is nullptr.");
             RemoveUIExtWindowDeathRecipient(sessionToken->AsObject());
             uiExtensionMap_.erase(it);
+            return nullptr;
         }
         auto savedSessionInfo = it->second.second;
         if (!savedSessionInfo || savedSessionInfo->sessionToken != sessionInfo->sessionToken
