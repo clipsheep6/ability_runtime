@@ -470,6 +470,8 @@ private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByName(const AppExecFwk::ElementName &element);
     std::vector<std::shared_ptr<AbilityRecord>> GetAbilityRecordsByName(const AppExecFwk::ElementName &element);
     int CallAbilityLocked(const AbilityRequest &abilityRequest);
+    int CallAbilityForegroundLocked(const AbilityRequest &abilityRequest,
+        const std::shared_ptr<AbilityRecord> &targetAbilityRecord, const std::shared_ptr<Mission> &targetMission);
     void UpdateMissionSnapshot(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
     void AddUninstallTags(const std::string &bundleName, int32_t uid);
     void EraseWaitingAbility(const std::string &bundleName, int32_t uid);

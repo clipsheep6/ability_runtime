@@ -3073,6 +3073,11 @@ int MissionListManager::CallAbilityLocked(const AbilityRequest &abilityRequest)
     targetAbilityRecord->AddCallerRecord(abilityRequest.callerToken, abilityRequest.requestCode);
     targetAbilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_CALL);
 
+    // is target need to be called to foreground.
+    if (targetAbilityRecord->GetWant().GetBoolParam(Want::PARAM_RESV_CALL_TO_FOREGROUND, false)) {
+        return CallAbilityForegroundLocked(abilityRequest, targetAbilityRecord, targetMission);
+    }
+
     // mission is first created, add mission to default call mission list.
     // other keep in current mission list.
     if (!targetMission->GetMissionList()) {
@@ -3089,10 +3094,6 @@ int MissionListManager::CallAbilityLocked(const AbilityRequest &abilityRequest)
     auto ret = ResolveAbility(targetAbilityRecord, abilityRequest);
     if (ret == ResolveResultType::OK_HAS_REMOTE_OBJ) {
         HILOG_DEBUG("target ability has been resolved.");
-        if (targetAbilityRecord->GetWant().GetBoolParam(Want::PARAM_RESV_CALL_TO_FOREGROUND, false)) {
-            HILOG_DEBUG("target ability needs to be switched to foreground.");
-            DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(targetAbilityRecord->GetToken());
-        }
         return ERR_OK;
     } else if (ret == ResolveResultType::NG_INNER_ERROR) {
         HILOG_ERROR("resolve failed, error: %{public}d.", RESOLVE_CALL_ABILITY_INNER_ERR);
@@ -3110,8 +3111,107 @@ int MissionListManager::CallAbilityLocked(const AbilityRequest &abilityRequest)
             targetAbilityRecord->SetLauncherRoot();
         }
     }
-
+    
     return targetAbilityRecord->LoadAbility();
+}
+
+int MissionListManager::CallAbilityForegroundLocked(const AbilityRequest &abilityRequest,
+    const std::shared_ptr<AbilityRecord> &targetAbilityRecord, const std::shared_ptr<Mission> &targetMission)
+{
+    HILOG_DEBUG("target ability needs to be switched to foreground.");
+
+    // 1. choose target mission list
+    auto callerAbility = GetAbilityRecordByTokenInner(abilityRequest.callerToken);
+    std::shared_ptr<StartOptions> startOptions = nullptr;
+    auto targetList = GetTargetMissionList(callerAbility, abilityRequest);
+    CHECK_POINTER_AND_RETURN(targetList, ERR_INVALID_CALLER);
+
+    if (targetAbilityRecord->IsTerminating()) {
+        HILOG_ERROR("%{public}s is terminating.", targetAbilityRecord->GetAbilityInfo().name.c_str());
+        return ERR_INVALID_VALUE;
+    }
+
+    if (targetAbilityRecord->GetPendingState() == AbilityState::FOREGROUND) {
+        HILOG_DEBUG("pending state is FOREGROUND.");
+        targetAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
+        return ERR_OK;
+    } else {
+        HILOG_DEBUG("pending state is not FOREGROUND.");
+        targetAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
+    }
+
+    targetAbilityRecord->AddCallerRecord(abilityRequest.callerToken, abilityRequest.requestCode, "");
+
+    NotifyAbilityToken(targetAbilityRecord->GetToken(), abilityRequest);
+     // 2. move mission to target list
+    bool isCallerFromLauncher = (callerAbility && callerAbility->IsLauncherAbility());
+    MoveMissionToTargetList(isCallerFromLauncher, targetList, targetMission);
+
+    // 3. move target list to top
+    MoveMissionListToTop(targetList);
+
+    // 4. schedule target ability
+    auto currentTopAbility = GetCurrentTopAbilityLocked();
+    if (!currentTopAbility) {
+        // top ability is null, then launch the first Ability.
+        if (targetAbilityRecord->GetAbilityInfo().applicationInfo.isLauncherApp) {
+            targetAbilityRecord->SetLauncherRoot();
+        }
+    } else {
+        // only SA or no Page Ability support back to other mission stack
+        auto supportBackToOtherMissionStack =
+            (!callerAbility) || (callerAbility->GetAbilityInfo().type != AppExecFwk::AbilityType::PAGE);
+        auto needBackToOtherMissionStack =
+            abilityRequest.want.GetBoolParam(Want::PARAM_BACK_TO_OTHER_MISSION_STACK, false);
+        if (supportBackToOtherMissionStack && needBackToOtherMissionStack) {
+            // mark if need back to other mission stack
+            targetAbilityRecord->SetNeedBackToOtherMissionStack(true);
+            auto focusAbility = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetFocusAbility();
+            if (focusAbility && (GetMissionIdByAbilityTokenInner(focusAbility->GetToken()) != -1)) {
+                targetAbilityRecord->SetOtherMissionStackAbilityRecord(focusAbility);
+            } else {
+                targetAbilityRecord->SetOtherMissionStackAbilityRecord(currentTopAbility);
+            }
+        }
+    }
+
+    NotifyAbilityToken(targetAbilityRecord->GetToken(), abilityRequest);
+
+    // new version started by call type
+    auto ret = ResolveAbility(targetAbilityRecord, abilityRequest);
+    if (ret == ResolveResultType::OK_HAS_REMOTE_OBJ) {
+        HILOG_DEBUG("target ability has been resolved.");
+        targetAbilityRecord->SetAbilityForegroundingFlag();
+#ifdef SUPPORT_GRAPHICS
+        targetAbilityRecord->ProcessForegroundAbility(false, abilityRequest, startOptions, callerAbility);
+#else
+        targetAbilityRecord->ProcessForegroundAbility();
+#endif
+        return ERR_OK;
+    } else if (ret == ResolveResultType::NG_INNER_ERROR) {
+        HILOG_ERROR("resolve failed, error: %{public}d.", RESOLVE_CALL_ABILITY_INNER_ERR);
+        return RESOLVE_CALL_ABILITY_INNER_ERR;
+    }
+
+    // schedule target ability
+    std::string element = targetAbilityRecord->GetWant().GetElement().GetURI();
+    HILOG_DEBUG("load ability record: %{public}s", element.c_str());
+
+    // flag the first ability.
+    if (!currentTopAbility) {
+        if (targetAbilityRecord->GetAbilityInfo().applicationInfo.isLauncherApp) {
+            targetAbilityRecord->SetLauncherRoot();
+        }
+    }
+
+    //staring window animation for CALL_TO_FOREGROUND
+    targetAbilityRecord->SetAbilityForegroundingFlag();
+#ifdef SUPPORT_GRAPHICS
+    targetAbilityRecord->ProcessForegroundAbility(false, abilityRequest, startOptions, callerAbility);
+#else
+    targetAbilityRecord->ProcessForegroundAbility();
+#endif
+    return ERR_OK;
 }
 
 int MissionListManager::ReleaseCallLocked(
