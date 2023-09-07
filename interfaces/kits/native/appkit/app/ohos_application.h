@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -93,7 +93,7 @@ public:
      *
      * @param Ability Indicates the ability object that calls the onStart() method.
      */
-    void OnAbilityStart(const std::shared_ptr<Ability> &ability);
+    void OnAbilityStart(const std::shared_ptr<AbilityRuntime::UIAbility> &ability);
 
     /**
      *
@@ -101,7 +101,7 @@ public:
      *
      * @param Ability Indicates the Ability object that calls the onInactive() method.
      */
-    void OnAbilityInactive(const std::shared_ptr<Ability> &ability);
+    void OnAbilityInactive(const std::shared_ptr<AbilityRuntime::UIAbility> &ability);
 
     /**
      *
@@ -109,7 +109,7 @@ public:
      *
      * @param Ability Indicates the Ability object that calls the onBackground() method.
      */
-    void OnAbilityBackground(const std::shared_ptr<Ability> &ability);
+    void OnAbilityBackground(const std::shared_ptr<AbilityRuntime::UIAbility> &ability);
 
     /**
      *
@@ -117,7 +117,7 @@ public:
      *
      * @param Ability Indicates the Ability object that calls the onForeground() method.
      */
-    void OnAbilityForeground(const std::shared_ptr<Ability> &ability);
+    void OnAbilityForeground(const std::shared_ptr<AbilityRuntime::UIAbility> &ability);
 
     /**
      *
@@ -125,7 +125,7 @@ public:
      *
      * @param Ability Indicates the Ability object that calls the onActive() method.
      */
-    void OnAbilityActive(const std::shared_ptr<Ability> &ability);
+    void OnAbilityActive(const std::shared_ptr<AbilityRuntime::UIAbility> &ability);
 
     /**
      *
@@ -133,7 +133,7 @@ public:
      *
      * @param Ability Indicates the Ability object that calls the onStop() method.
      */
-    void OnAbilityStop(const std::shared_ptr<Ability> &ability);
+    void OnAbilityStop(const std::shared_ptr<AbilityRuntime::UIAbility> &ability);
 
     /**
      *

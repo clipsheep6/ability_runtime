@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,6 +36,12 @@ void AbilityLoader::RegisterExtension(const std::string &abilityName, const Crea
     HILOG_DEBUG("AbilityLoader::RegisterExtension:%{public}s", abilityName.c_str());
 }
 
+void AbilityLoader::RegisterUIAbility(const std::string &abilityName, const CreateUIAbility &createFunc)
+{
+    HILOG_DEBUG("RegisterUIAbility: %{public}s", abilityName.c_str());
+    uiAbilities_.emplace(abilityName, createFunc);
+}
+
 Ability *AbilityLoader::GetAbilityByName(const std::string &abilityName)
 {
     auto it = abilities_.find(abilityName);
@@ -53,6 +59,16 @@ AbilityRuntime::Extension *AbilityLoader::GetExtensionByName(const std::string &
         return it->second();
     }
     HILOG_ERROR("AbilityLoader::GetExtensionByName failed:%{public}s", abilityName.c_str());
+    return nullptr;
+}
+
+AbilityRuntime::UIAbility *AbilityLoader::GetUIAbilityByName(const std::string &abilityName)
+{
+    auto it = uiAbilities_.find(abilityName);
+    if (it != uiAbilities_.end()) {
+        return it->second();
+    }
+    HILOG_ERROR("GetAbilityByName failed: %{public}s", abilityName.c_str());
     return nullptr;
 }
 

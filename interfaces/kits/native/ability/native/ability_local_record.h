@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -87,20 +87,6 @@ public:
     const sptr<IRemoteObject> &GetToken();
 
     /**
-     * @description: Get an AbilityImpl in an ability.
-     *
-     * @return Returns AbilityImpl pointer
-     */
-    const std::shared_ptr<AbilityImpl> &GetAbilityImpl();
-
-    /**
-     * @description: Set an AbilityImpl in an ability.
-     * @param abilityImpl AbilityImpl object
-     * @return None.
-     */
-    void SetAbilityImpl(const std::shared_ptr<AbilityImpl> &abilityImpl);
-
-    /**
      * @description: Obtains the information based on ability thread.
      * @return return AbilityThread Pointer
      */
@@ -121,7 +107,6 @@ private:
     sptr<IRemoteObject> token_;
     std::shared_ptr<EventRunner> runner_ = nullptr;
     std::shared_ptr<EventHandler> handler_ = nullptr;
-    std::shared_ptr<AbilityImpl> abilityImpl_ = nullptr;  // store abilityImpl
     sptr<AbilityThread> abilityThread_;
     std::shared_ptr<AAFwk::Want> want_ = nullptr;
 };

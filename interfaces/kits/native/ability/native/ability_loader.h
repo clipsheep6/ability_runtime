@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,18 +16,21 @@
 #ifndef OHOS_ABILITY_RUNTIME_ABILITY_LOADER_H
 #define OHOS_ABILITY_RUNTIME_ABILITY_LOADER_H
 
+#include <functional>
+#include <string>
+#include <unordered_map>
+
 #include "ability.h"
 #include "context.h"
 #include "extension.h"
 #include "ohos_application.h"
-#include <functional>
-#include <string>
-#include <unordered_map>
+#include "ui_ability.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 using CreateExtension = std::function<AbilityRuntime::Extension *(void)>;
 using CreateAblity = std::function<Ability *(void)>;
+using CreateUIAbility = std::function<AbilityRuntime::UIAbility *(void)>;
 #ifdef ABILITY_WINDOW_SUPPORT
 using CreateSlice = std::function<AbilitySlice *(void)>;
 #endif
@@ -65,6 +68,13 @@ public:
     void RegisterExtension(const std::string &abilityName, const CreateExtension &createFunc);
 
     /**
+     * @brief Register UIAbility Info
+     * @param abilityName UIAbility classname
+     * @param createFunc  Constructor address
+     */
+    void RegisterUIAbility(const std::string &abilityName, const CreateUIAbility &createFunc);
+
+    /**
      * @brief Get Ability address
      *
      * @param abilityName ability classname
@@ -82,6 +92,13 @@ public:
      */
     AbilityRuntime::Extension *GetExtensionByName(const std::string &abilityName);
 
+    /**
+     * @brief Get UIAbility address
+     * @param abilityName UIAbility classname
+     * @return return UIAbility address
+     */
+    AbilityRuntime::UIAbility *GetUIAbilityByName(const std::string &abilityName);
+
 #ifdef ABILITY_WINDOW_SUPPORT
     void RegisterAbilitySlice(const std::string &sliceName, const CreateSlice &createFunc);
     AbilitySlice *GetAbilitySliceByName(const std::string &sliceName);
@@ -96,6 +113,7 @@ private:
 
     std::unordered_map<std::string, CreateAblity> abilities_;
     std::unordered_map<std::string, CreateExtension> extensions_;
+    std::unordered_map<std::string, CreateUIAbility> uiAbilities_;
 };
 /**
  * @brief Registers the class name of an {@link Ability} child class.

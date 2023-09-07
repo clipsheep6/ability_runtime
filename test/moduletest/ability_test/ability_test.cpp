@@ -15,23 +15,25 @@
 
 #include <climits>
 #include <gtest/gtest.h>
-#include "ability_thread.h"
-#include "ability_local_record.h"
-#include "ability_loader.h"
+
 #include "ability_impl_factory.h"
-#include "data_ability_helper.h"
+#include "ability_loader.h"
+#include "ability_local_record.h"
+#include "ability_thread.h"
 #include "context_deal.h"
+#include "data_ability_helper.h"
 #ifndef SUPPORT_ERMS
 #include "erms_mgr_interface.h"
 #endif
+#include "ability_manager_client.h"
+#include "ability_manager_interface.h"
+#include "demo_ability_test.h"
+#include "fa_ability_thread.h"
+#include "mock_ability_manager_service.h"
+#include "mock_bundle_manager.h"
 #include "ohos_application.h"
 #include "sys_mgr_client.h"
-#include "ability_manager_interface.h"
-#include "ability_manager_client.h"
 #include "system_ability_definition.h"
-#include "demo_ability_test.h"
-#include "mock_bundle_manager.h"
-#include "mock_ability_manager_service.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -101,7 +103,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Start_Test_0100, Function | M
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
 
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -125,7 +127,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Start_Test_0200, Function | M
 {
     std::shared_ptr<OHOSApplication> application = nullptr;
 
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -164,7 +166,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Start_Test_0400, Function | M
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
 
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -186,7 +188,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Start_Test_0500, Function | M
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
 
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -223,7 +225,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Start_Test_0600, Function | M
     contextDeal->SetApplicationContext(application);
     application->AttachBaseContext(contextDeal);
 
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -260,7 +262,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_Lifecycle_Test_0100, Function | MediumTe
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
 
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -291,7 +293,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Lifecycle_Test_0200, Function
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
 
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -323,7 +325,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Lifecycle_Test_0300, Function
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
 
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -358,7 +360,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Lifecycle_Test_0400, Function
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
 
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -392,7 +394,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Lifecycle_Test_0500, Function
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
 
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -428,7 +430,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_AbilityFwk_Lifecycle_Test_0600, Function
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
 
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -465,7 +467,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_TerminateAbility_ForResult_Test_0100, Fu
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
 
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -535,7 +537,7 @@ void AbilityTerminateTest::TearDown(void)
 HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0100, Function | MediumTest | Level1)
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -572,7 +574,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0100, Function | Med
 HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0200, Function | MediumTest | Level1)
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -609,7 +611,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0200, Function | Med
 HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0300, Function | MediumTest | Level1)
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -646,7 +648,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0300, Function | Med
 HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0400, Function | MediumTest | Level1)
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -683,7 +685,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0400, Function | Med
 HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0500, Function | MediumTest | Level1)
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -715,7 +717,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0500, Function | Med
 HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0600, Function | MediumTest | Level1)
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -747,7 +749,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0600, Function | Med
 HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0700, Function | MediumTest | Level1)
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -779,7 +781,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0700, Function | Med
 HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0800, Function | MediumTest | Level1)
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -811,7 +813,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_Ability_Terminate_test_0800, Function | Med
 HWTEST_F(AbilityTerminateTest, AaFwk_WMS_window_test_0100, Function | MediumTest | Level1)
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -844,7 +846,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_WMS_window_test_0100, Function | MediumTest
 HWTEST_F(AbilityTerminateTest, AaFwk_WMS_window_test_0200, Function | MediumTest | Level1)
 {
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -882,7 +884,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_DataAbility_Launch_0100, Function | MediumT
     GTEST_LOG_(INFO) << "AaFwk_DataAbility_Launch_0100";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -915,7 +917,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_DataAbility_Start_0100, Function | MediumTe
     GTEST_LOG_(INFO) << "AaFwk_DataAbility_Start_0100";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -948,7 +950,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_DataAbility_Start_0200, Function | MediumTe
     GTEST_LOG_(INFO) << "AaFwk_DataAbility_Start_0200";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -981,7 +983,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_DataAbility_Start_0300, Function | MediumTe
     GTEST_LOG_(INFO) << "AaFwk_DataAbility_Start_0300";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
@@ -1014,7 +1016,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_DataAbility_Start_0400, Function | MediumTe
     GTEST_LOG_(INFO) << "AaFwk_DataAbility_Start_0400";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
-    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityThread());
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
     EXPECT_NE(abilityToken, nullptr);
     if (abilityToken != nullptr) {
         std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();

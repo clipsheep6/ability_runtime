@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 
 #include "ability_local_record.h"
 
-#include "ability_impl.h"
 #include "ability_thread.h"
 
 namespace OHOS {
@@ -53,16 +52,6 @@ void AbilityLocalRecord::SetEventRunner(const std::shared_ptr<EventRunner> &runn
 const sptr<IRemoteObject> &AbilityLocalRecord::GetToken()
 {
     return token_;
-}
-
-const std::shared_ptr<AbilityImpl> &AbilityLocalRecord::GetAbilityImpl()
-{
-    return abilityImpl_;
-}
-
-void AbilityLocalRecord::SetAbilityImpl(const std::shared_ptr<AbilityImpl> &abilityImpl)
-{
-    abilityImpl_ = abilityImpl;
 }
 
 const sptr<AbilityThread> &AbilityLocalRecord::GetAbilityThread()
