@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,12 +36,16 @@ class EventHub {
     }
     if (this.eventMap[event]) {
       if (callback) {
-        let index = this.eventMap[event].indexOf(callback);
+        let cbArray = this.eventMap[event];
+        let index = cbArray.indexOf(callback);
         if (index > -1) {
-          this.eventMap[event].splice(index, 1);
+          for (; index + 1 < cbArray.length; index++) {
+            cbArray[index] = cbArray[index + 1];
+          }
+          cbArray.pop();
         }
       } else {
-        this.eventMap[event].length = 0;
+        delete this.eventMap[event];
       }
     }
   }
@@ -51,9 +55,11 @@ class EventHub {
       return;
     }
     if (this.eventMap[event]) {
-      this.eventMap[event].map((callback) => {
-        callback(...args);
-      });
+      const cloneArray = [...this.eventMap[event]];
+      const len = cloneArray.length;
+      for (let i = 0; i < len; ++i) {
+        cloneArray[i].apply(this, ...args);
+      }
     }
   }
 }
