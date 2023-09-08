@@ -33,6 +33,7 @@ public:
     std::shared_ptr<AppExecFwk::ApplicationInfo> GetApplicationInfo() const override;
     std::shared_ptr<AppExecFwk::HapModuleInfo> GetHapModuleInfo() const override;
     std::shared_ptr<AppExecFwk::AbilityInfo> GetAbilityInfo() const;
+    void SetAbilityInfo(const std::shared_ptr<AppExecFwk::AbilityInfo> &info);
 
     Options GetOptions() override;
     void SetOptions(const Options &options) override;

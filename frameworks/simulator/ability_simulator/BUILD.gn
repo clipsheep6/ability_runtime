@@ -67,6 +67,8 @@ ohos_shared_library("ability_simulator_inner") {
       "${windowmanager_path}/interfaces/innerkits/wm",
       "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_stage_napi",
       "${previewer_path}/jsapp/rich/external",
+      "include/bundle_parser",
+      "//third_party/json/include",
     ]
 
     sources = [
@@ -74,6 +76,14 @@ ohos_shared_library("ability_simulator_inner") {
       "${ability_runtime_native_path}/runtime/js_module_searcher.cpp",
       "src/ability_context.cpp",
       "src/ability_stage_context.cpp",
+      "src/bundle_parser/ability_info.cpp",
+      "src/bundle_parser/application_info.cpp",
+      "src/bundle_parser/bundle_container.cpp",
+      "src/bundle_parser/extension_ability_info.cpp",
+      "src/bundle_parser/hap_module_info.cpp",
+      "src/bundle_parser/inner_bundle_info.cpp",
+      "src/bundle_parser/module_info.cpp",
+      "src/bundle_parser/module_profile.cpp",
       "src/common_func.cpp",
       "src/js_ability_context.cpp",
       "src/js_ability_stage_context.cpp",
@@ -95,7 +105,10 @@ ohos_shared_library("ability_simulator_inner") {
 
     configs = [ "${windowmanager_path}/previewer:previewer_window_config" ]
 
-    deps = [ ":gen_obj_src_js_mock_abc" ]
+    deps = [
+      ":gen_obj_src_js_mock_abc",
+      "//third_party/jsoncpp:jsoncpp_static",
+    ]
 
     external_deps = [
       "ability_base:string_utils",
