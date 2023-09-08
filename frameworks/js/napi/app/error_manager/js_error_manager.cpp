@@ -176,7 +176,7 @@ private:
                 } else {
                     task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_ID));
                 }
-                if (observer->IsEmpty()) {
+                if (observer && observer->IsEmpty()) {
                     AppExecFwk::ApplicationDataManager::GetInstance().RemoveErrorObserver();
                     observer = nullptr;
                 }

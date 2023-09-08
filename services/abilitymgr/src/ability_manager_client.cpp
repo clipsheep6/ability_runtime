@@ -328,7 +328,7 @@ ErrCode AbilityManagerClient::CloseUIAbilityBySCB(const sptr<SessionInfo> &sessi
     }
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_DEBUG("call");
+    HILOG_INFO("call");
     return abms->CloseUIAbilityBySCB(sessionInfo);
 }
 
@@ -359,7 +359,7 @@ ErrCode AbilityManagerClient::MinimizeUIAbilityBySCB(const sptr<SessionInfo> &se
     }
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_DEBUG("call");
+    HILOG_INFO("call");
     return abms->MinimizeUIAbilityBySCB(sessionInfo, fromUser);
 }
 
@@ -1085,7 +1085,7 @@ ErrCode AbilityManagerClient::SetMissionLabel(const sptr<IRemoteObject> &token, 
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
-        HILOG_DEBUG("call");
+        HILOG_INFO("call");
         auto err = sceneSessionManager->SetSessionLabel(token, label);
         if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
             return SCB_TO_MISSION_ERROR_CODE_MAP[err];
@@ -1103,7 +1103,7 @@ ErrCode AbilityManagerClient::SetMissionIcon(
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
-        HILOG_DEBUG("call");
+        HILOG_INFO("call");
         auto err = sceneSessionManager->SetSessionIcon(abilityToken, icon);
         if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
             return SCB_TO_MISSION_ERROR_CODE_MAP[err];

@@ -2426,6 +2426,23 @@ void MissionListManager::OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRec
         return;
     }
 
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    CHECK_POINTER_LOG(handler, "Fail to get AbilityEventHandler.");
+    if (abilityRecord->GetAbilityState() == AbilityState::INITIAL) {
+        handler->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
+    }
+    if (abilityRecord->GetAbilityState() == AbilityState::FOREGROUNDING) {
+        handler->RemoveEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
+    }
+    auto taskHandler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    CHECK_POINTER_LOG(taskHandler, "Fail to get AbilityTaskHandler.");
+    if (abilityRecord->GetAbilityState() == AbilityState::BACKGROUNDING) {
+        taskHandler->CancelTask("background_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+    }
+    if (abilityRecord->GetAbilityState() == AbilityState::TERMINATING) {
+        taskHandler->CancelTask("terminate_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+    }
+
     HandleAbilityDied(abilityRecord);
 }
 
