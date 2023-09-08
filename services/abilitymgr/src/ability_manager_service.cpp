@@ -691,11 +691,11 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
         return implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
     }
+    if (want.GetAction().compare(ACTION_CHOOSE) == 0) {
+        return ShowPickerDialog(want, validUserId, callerToken);
+    }
 #endif
     result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
-    if (result == SHARE_PICKER_SUCCESS) {
-        return ERR_OK;
-    }
     ComponentRequest componentRequest = initComponentRequest(callerToken, requestCode, result);
     if (CheckProxyComponent(want, result) && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
         return componentRequest.requestResult;
@@ -923,11 +923,11 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         }
         return result;
     }
+    if (want.GetAction().compare(ACTION_CHOOSE) == 0) {
+        return ShowPickerDialog(want, validUserId, callerToken);
+    }
 #endif
     result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
-    if (result == SHARE_PICKER_SUCCESS) {
-        return ERR_OK;
-    }
     ComponentRequest componentRequest = initComponentRequest(callerToken, requestCode, result);
     if (result != ERR_OK && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
         return componentRequest.requestResult;
@@ -1139,11 +1139,11 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         }
         return result;
     }
+    if (want.GetAction().compare(ACTION_CHOOSE) == 0) {
+        return ShowPickerDialog(want, validUserId, callerToken);
+    }
 #endif
     result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
-    if (result == SHARE_PICKER_SUCCESS) {
-        return ERR_OK;
-    }
     ComponentRequest componentRequest = initComponentRequest(callerToken, requestCode, result);
     if (result != ERR_OK && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
         return componentRequest.requestResult;
@@ -4597,15 +4597,6 @@ int AbilityManagerService::GenerateAbilityRequest(
 
     auto bms = GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
-#ifdef SUPPORT_GRAPHICS
-    if (want.GetAction().compare(ACTION_CHOOSE) == 0) {
-        auto result = ShowPickerDialog(want, userId, callerToken);
-        if (result == ERR_OK) {
-            return SHARE_PICKER_SUCCESS;
-        }
-        return result;
-    }
-#endif
     auto abilityInfoFlag = (AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION |
         AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION |
         AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA);
