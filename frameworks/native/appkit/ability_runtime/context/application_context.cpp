@@ -299,6 +299,17 @@ void ApplicationContext::SetApplicationInfo(const std::shared_ptr<AppExecFwk::Ap
     if (contextImpl_ != nullptr) {
         contextImpl_->SetApplicationInfo(info);
     }
+    applicationInfoUpdateFlag_ = true;
+}
+
+bool ApplicationContext::GetApplicationInfoUpdateFlag() const
+{
+    return applicationInfoUpdateFlag_;
+}
+
+void ApplicationContext::SetApplicationInfoUpdateFlag(bool flag)
+{
+    applicationInfoUpdateFlag_ = flag;
 }
 
 std::shared_ptr<Global::Resource::ResourceManager> ApplicationContext::GetResourceManager() const

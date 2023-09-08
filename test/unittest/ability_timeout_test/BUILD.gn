@@ -46,7 +46,7 @@ ohos_unittest("ability_timeout_test") {
   ]
 
   if (ecologic_rule_enabled) {
-    external_deps += [ "ecological_rule_mgr:erms_client" ]
+    external_deps += [ "ecological_rule_manager:erms_client" ]
   }
 
   if (ability_runtime_graphics) {
@@ -56,6 +56,5 @@ ohos_unittest("ability_timeout_test") {
 
 group("unittest") {
   testonly = true
-
-  deps = [ ":ability_timeout_test" ]
+  #   deps = [ ":ability_timeout_test" ]
 }

@@ -21,6 +21,7 @@ config("appmgr_config") {
     "${ability_runtime_services_path}/common/include",
     "${appspawn_path}/interfaces/innerkits/include",
     "${ability_runtime_path}/tools/aa/include",
+    "${distributeddatamgr_path}/kv_store/interfaces/innerkits/distributeddatamgr/include",
   ]
 }
 
@@ -52,6 +53,7 @@ ohos_shared_library("libappms") {
   ]
 
   defines = [ "AMS_LOG_TAG = \"AppMgrService\"" ]
+  defines += [ "AMS_LOG_DOMAIN = 0xD001303" ]
 
   if (product_name != "ohcore") {
     defines += [ "APP_MGR_SERVICE_APPMS" ]
@@ -96,6 +98,7 @@ ohos_shared_library("libappms") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "kv_store:distributeddata_mgr",
     "memory_utils:libmeminfo",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",

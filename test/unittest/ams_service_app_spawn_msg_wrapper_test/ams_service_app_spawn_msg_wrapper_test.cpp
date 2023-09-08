@@ -375,8 +375,8 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_011, TestSize.Level1
     EXPECT_EQ(true, appSpawnMsgWrapper->AssembleMsg(params));
     AppSpawnMsg *msg = (AppSpawnMsg *)appSpawnMsgWrapper->GetMsgBuf();
     EXPECT_NE(nullptr, msg);
-    EXPECT_EQ(0, msg->hspList.totalLength);
-    EXPECT_EQ("", appSpawnMsgWrapper->GetHspListStr());
+    EXPECT_EQ(0, msg->extraInfo.totalLength);
+    EXPECT_EQ("", appSpawnMsgWrapper->GetExtraInfoStr());
 
     HILOG_INFO("ams_service_app_spawn_msg_wrapper_011 end");
 }
@@ -403,8 +403,8 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_012, TestSize.Level1
     EXPECT_EQ(true, appSpawnMsgWrapper->AssembleMsg(params));
     AppSpawnMsg *msg = (AppSpawnMsg *)appSpawnMsgWrapper->GetMsgBuf();
     EXPECT_NE(nullptr, msg);
-    EXPECT_NE("", appSpawnMsgWrapper->GetHspListStr());
-    EXPECT_EQ(msg->hspList.totalLength, appSpawnMsgWrapper->GetHspListStr().length() + 1);
+    EXPECT_NE("", appSpawnMsgWrapper->GetExtraInfoStr());
+    EXPECT_EQ(msg->extraInfo.totalLength, appSpawnMsgWrapper->GetExtraInfoStr().length() + 1);
 
     HILOG_INFO("ams_service_app_spawn_msg_wrapper_012 end");
 }

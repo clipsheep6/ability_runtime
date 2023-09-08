@@ -24,6 +24,7 @@ ohos_shared_library("quickfixmanager_napi") {
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
 
   defines = [ "AMS_LOG_TAG = \"QuickFixService\"" ]
+  defines += [ "AMS_LOG_DOMAIN = 0xD001307" ]
 
   deps = [
     "${ability_runtime_innerkits_path}/quick_fix:quickfix_manager",

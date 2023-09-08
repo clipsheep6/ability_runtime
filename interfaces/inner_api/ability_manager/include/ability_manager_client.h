@@ -194,6 +194,40 @@ public:
             int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**
+     * Start ui session ability with extension session info, send session info to ability manager service.
+     *
+     * @param want Ability want.
+     * @param callerToken caller ability token.
+     * @param sessionInfo the information of UIExtensionContentSession.
+     * @param requestCode Ability request code.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartAbilityByUIContentSession(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        const sptr<AAFwk::SessionInfo> &sessionInfo,
+        int requestCode = DEFAULT_INVAL_VALUE,
+        int32_t userId = DEFAULT_INVAL_VALUE);
+
+    /**
+     * Start ui session ability with extension session info, send session info to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @param callerToken caller ability token.
+     * @param sessionInfo the information of UIExtensionContentSession.
+     * @param requestCode the resultCode of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartAbilityByUIContentSession(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        const sptr<AAFwk::SessionInfo> &sessionInfo,
+        int requestCode = DEFAULT_INVAL_VALUE,
+        int32_t userId = DEFAULT_INVAL_VALUE);
+
+    /**
      * Start extension ability with want, send want to ability manager service.
      *
      * @param want, the want of the ability to start.
@@ -1020,7 +1054,7 @@ public:
      * @param results Output parameters, return results up to 20 query results.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t IsValidMissionIds(const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results);
+    int32_t IsValidMissionIds(const std::vector<int32_t> &missionIds, std::vector<MissionValidResult> &results);
 
     /**
      * Query whether the application of the specified PID and UID has been granted a certain permission

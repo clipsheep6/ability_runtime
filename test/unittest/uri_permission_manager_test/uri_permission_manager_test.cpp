@@ -18,6 +18,8 @@
 #include "uri_permission_manager_client.h"
 #include "uri_permission_load_callback.h"
 #undef private
+#include "ability_manager_errors.h"
+#include "want.h"
 using namespace testing;
 using namespace testing::ext;
 namespace OHOS {
@@ -48,8 +50,8 @@ HWTEST_F(UriPermissionManagerTest, ConnectUriPermService_001, TestSize.Level1)
 {
     auto& upmc = AAFwk::UriPermissionManagerClient::GetInstance();
     upmc.saLoadFinished_ = true;
+    EXPECT_EQ(upmc.GetUriPermMgr(), nullptr);
     auto ret = upmc.ConnectUriPermService();
-    EXPECT_TRUE(ret == nullptr);
 }
 
 /*
@@ -63,8 +65,8 @@ HWTEST_F(UriPermissionManagerTest, ConnectUriPermService_002, TestSize.Level1)
     auto& upmc = AAFwk::UriPermissionManagerClient::GetInstance();
     sptr<IRemoteObject> remoteObject = new (std::nothrow) UriPermissionLoadCallback();
     upmc.SetUriPermMgr(remoteObject);
+    EXPECT_EQ(upmc.GetUriPermMgr(), nullptr);
     auto ret = upmc.ConnectUriPermService();
-    EXPECT_TRUE(ret == nullptr);
 }
 
 /*
@@ -78,8 +80,8 @@ HWTEST_F(UriPermissionManagerTest, ConnectUriPermService_003, TestSize.Level1)
     auto& upmc = AAFwk::UriPermissionManagerClient::GetInstance();
     sptr<IRemoteObject> remoteObject = nullptr;
     upmc.SetUriPermMgr(remoteObject);
+    EXPECT_EQ(upmc.GetUriPermMgr(), nullptr);
     auto ret = upmc.ConnectUriPermService();
-    EXPECT_TRUE(ret == nullptr);
 }
 
 /*
@@ -94,6 +96,62 @@ HWTEST_F(UriPermissionManagerTest, LoadUriPermService_001, TestSize.Level1)
     upmc.saLoadFinished_ = true;
     auto ret = upmc.LoadUriPermService();
     EXPECT_TRUE(ret);
+}
+
+/*
+ * Feature: UriPermissionManagerClient
+ * Function: CheckPersistableUriPermissionProxy
+ * SubFunction: CheckPersistableUriPermissionProxy
+ * FunctionPoints: NA
+ * CaseDescription: Verify UriPermissionManagerClient AddGrantInfo
+ */
+HWTEST_F(UriPermissionManagerTest, UriPermissionManager_UriPermissionPersistableTest_001, TestSize.Level1)
+{
+    auto& upmc = AAFwk::UriPermissionManagerClient::GetInstance();
+    auto uriStr = "file://docs/storage/Users/currentUser/test.txt";
+    unsigned int perReadFlag = Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION;
+    std::string bundleName = "com.example.test";
+    uint32_t targetTokenId = 100002;
+    Uri uri(uriStr);
+    bool res = upmc.CheckPersistableUriPermissionProxy(uri, perReadFlag, targetTokenId);
+    EXPECT_EQ(res, false);
+}
+
+/*
+ * Feature: UriPermissionManagerClient
+ * Function: RevokeAllUriPermissions
+ * SubFunction: RevokeAllUriPermissions
+ * FunctionPoints: NA
+ * CaseDescription: Verify UriPermissionManagerClient RevokeAllUriPermissions
+ */
+HWTEST_F(UriPermissionManagerTest, UriPermissionManager_UriPermissionPersistableTest_002, TestSize.Level1)
+{
+    auto& upmc = AAFwk::UriPermissionManagerClient::GetInstance();
+    auto uriStr = "file://docs/storage/Users/currentUser/test.txt";
+    std::string bundleName = "com.example.test";
+    uint32_t targetTokenId = 100002;
+    Uri uri(uriStr);
+    auto ret = upmc.RevokeAllUriPermissions(targetTokenId);
+    EXPECT_EQ(ret, ERR_OK);
+}
+
+/*
+ * Feature: UriPermissionManagerClient
+ * Function: VerifyUriPermission
+ * SubFunction: VerifyUriPermission
+ * FunctionPoints: NA
+ * CaseDescription: Verify UriPermissionManagerClient VerifyUriPermission
+ */
+HWTEST_F(UriPermissionManagerTest, UriPermissionManager_UriPermissionPersistableTest_003, TestSize.Level1)
+{
+    auto& upmc = AAFwk::UriPermissionManagerClient::GetInstance();
+    auto uriStr = "file://docs/storage/Users/currentUser/test.txt";
+    unsigned int perReadFlag = Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION;
+    std::string bundleName = "com.example.test";
+    uint32_t targetTokenId = 100002;
+    Uri uri(uriStr);
+    bool res = upmc.VerifyUriPermission(uri, perReadFlag, targetTokenId);
+    EXPECT_EQ(res, false);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

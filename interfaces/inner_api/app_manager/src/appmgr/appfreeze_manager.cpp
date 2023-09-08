@@ -108,14 +108,6 @@ int AppfreezeManager::AppfreezeHandle(const FaultData& faultData, const Appfreez
     }
     if (faultData.errorObject.name == AppFreezeType::APP_INPUT_BLOCK) {
         AcquireStack(faultData, appInfo);
-    } else if (faultData.errorObject.name == AppFreezeType::LIFECYCLE_TIMEOUT ||
-          faultData.errorObject.name == AppFreezeType::LIFECYCLE_HALF_TIMEOUT) {
-        NotifyANR(faultData, appInfo);
-        {
-            std::unique_lock<ffrt::mutex> lock(lifecycleMutex_);
-            lifecycleTimeOutMarks_.erase(faultData.timeoutMarkers);
-        }
-        lifecycleCv_.notify_all();
     } else {
         NotifyANR(faultData, appInfo);
     }
@@ -162,19 +154,6 @@ int AppfreezeManager::LifecycleTimeoutHandle(int typeId, int32_t pid,
                                  "-" + std::to_string(GetMilliseconds());
     faultDataSA.pid = pid;
     DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFaultBySA(faultDataSA);
-    auto lcTimeout = 3500; // ms
-    std::chrono::milliseconds timeout { lcTimeout };
-    std::unique_lock<ffrt::mutex> lock(lifecycleMutex_);
-    lifecycleTimeOutMarks_.insert(faultDataSA.timeoutMarkers);
-    auto ret = lifecycleCv_.wait_for(lock, timeout,
-        [t = shared_from_this(), marker = faultDataSA.timeoutMarkers] {
-            return t->lifecycleTimeOutMarks_.find(marker) == t->lifecycleTimeOutMarks_.end();
-        });
-    if (!ret) {
-        lifecycleTimeOutMarks_.erase(faultDataSA.timeoutMarkers);
-        HILOG_WARN("LifecycleTimeoutHandle timeout, name_ %{public}s", name_.c_str());
-        return -1;
-    }
     return 0;
 }
 

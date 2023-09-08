@@ -97,7 +97,7 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
     std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("called");
     application_ = application;
     abilityInfo_ = abilityInfo;
     handler_ = handler;
@@ -121,7 +121,7 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
             sptr<ReverseContinuationSchedulerPrimary> primary = sptr<ReverseContinuationSchedulerPrimary>(
                 new (std::nothrow) ReverseContinuationSchedulerPrimary(continuationHandler, handler_));
             if (primary == nullptr) {
-                HILOG_ERROR("Ability::Init failed,primary create failed");
+                HILOG_ERROR("Create primary failed");
             } else {
                 continuationHandler_->SetPrimaryStub(primary);
                 continuationHandler_->SetAbilityInfo(abilityInfo_);
@@ -129,23 +129,19 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
         }
 
         // register displayid change callback
-        HILOG_DEBUG("Ability::Init call RegisterDisplayListener");
+        HILOG_DEBUG("Start RegisterDisplayListener");
         abilityDisplayListener_ = new AbilityDisplayListener(ability);
         Rosen::DisplayManager::GetInstance().RegisterDisplayListener(abilityDisplayListener_);
     }
 #endif
     lifecycle_ = std::make_shared<LifeCycle>();
     abilityLifecycleExecutor_ = std::make_shared<AbilityLifecycleExecutor>();
-    if (abilityLifecycleExecutor_ != nullptr) {
-        abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::INITIAL);
-    } else {
-        HILOG_ERROR("%{public}s abilityLifecycleExecutor_ make failed.", __func__);
-    }
+    abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::INITIAL);
 
     if (abilityContext_ != nullptr) {
         abilityContext_->RegisterAbilityCallback(weak_from_this());
     }
-    HILOG_DEBUG("%{public}s end.", __func__);
+    HILOG_DEBUG("end");
 }
 
 void Ability::AttachAbilityContext(const std::shared_ptr<AbilityRuntime::AbilityContext> &abilityContext)
@@ -177,17 +173,19 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     (const_cast<Want &>(want)).RemoveParam(DLP_PARAMS_SECURITY_FLAG);
     SetWant(want);
     sessionInfo_ = sessionInfo;
-    HILOG_INFO("%{public}s begin, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
+    HILOG_INFO("AbilityName is %{public}s.", abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         int defualtDisplayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
         int displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
         HILOG_DEBUG("abilityName:%{public}s, displayId:%{public}d", abilityInfo_->name.c_str(), displayId);
-        auto option = GetWindowOption(want);
-        InitWindow(displayId, option);
+        if (!abilityInfo_->isStageBasedModel) {
+            auto option = GetWindowOption(want);
+            InitWindow(displayId, option);
+        }
 
         if (abilityWindow_ != nullptr) {
-            HILOG_DEBUG("%{public}s get window from abilityWindow.", __func__);
+            HILOG_DEBUG("Get window from abilityWindow.");
             auto window = abilityWindow_->GetWindow();
             if (window) {
                 HILOG_DEBUG("Call RegisterDisplayMoveListener, windowId: %{public}d", window->GetWindowId());
@@ -197,7 +195,7 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
         }
 
         // Update resMgr, Configuration
-        HILOG_DEBUG("%{public}s get display by displayId %{public}d.", __func__, displayId);
+        HILOG_DEBUG("Get display by displayId %{public}d.", displayId);
         auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
         if (display) {
             float density = display->GetVirtualPixelRatio();
@@ -217,7 +215,7 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 
             std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
             if (resConfig == nullptr) {
-                HILOG_ERROR("%{public}s error, resConfig is nullptr.", __func__);
+                HILOG_ERROR("Create resource config failed.");
                 return;
             }
             auto resourceManager = GetResourceManager();
@@ -226,14 +224,14 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
                 resConfig->SetScreenDensity(density);
                 resConfig->SetDirection(ConvertDirection(height, width));
                 resourceManager->UpdateResConfig(*resConfig);
-                HILOG_DEBUG("%{public}s Notify ResourceManager, Density: %{public}f, Direction: %{public}d.", __func__,
+                HILOG_DEBUG("Notify ResourceManager, Density: %{public}f, Direction: %{public}d.",
                     resConfig->GetScreenDensity(), resConfig->GetDirection());
             }
         }
     }
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
-        HILOG_ERROR("Ability::OnStart error. abilityLifecycleExecutor_ == nullptr.");
+        HILOG_ERROR("abilityLifecycleExecutor_ is nullptr.");
         return;
     }
     if (!abilityInfo_->isStageBasedModel) {
@@ -243,17 +241,17 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     }
 
     if (lifecycle_ == nullptr) {
-        HILOG_ERROR("Ability::OnStart error. lifecycle_ == nullptr.");
+        HILOG_ERROR("lifecycle_ is nullptr.");
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_START, want);
-    HILOG_DEBUG("%{public}s end", __func__);
+    HILOG_DEBUG("end");
 }
 
 void Ability::OnStop()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("%{public}s begin", __func__);
+    HILOG_DEBUG("called");
 #ifdef SUPPORT_GRAPHICS
     if (abilityRecovery_ != nullptr) {
         abilityRecovery_->ScheduleSaveAbilityState(StateReason::LIFECYCLE);
@@ -271,16 +269,16 @@ void Ability::OnStop()
     }
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
-        HILOG_ERROR("Ability::OnStop error. abilityLifecycleExecutor_ == nullptr.");
+        HILOG_ERROR("abilityLifecycleExecutor_ is nullptr.");
         return;
     }
     abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::INITIAL);
     if (lifecycle_ == nullptr) {
-        HILOG_ERROR("Ability::OnStop error. lifecycle_ == nullptr.");
+        HILOG_ERROR("lifecycle_ is nullptr.");
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_STOP);
-    HILOG_DEBUG("%{public}s end", __func__);
+    HILOG_DEBUG("end");
 }
 
 void Ability::OnStop(AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback)
@@ -295,36 +293,36 @@ void Ability::OnStopCallback()
 
 void Ability::DestroyInstance()
 {
-    HILOG_DEBUG("%{public}s begin", __func__);
+    HILOG_DEBUG("called");
 #ifdef SUPPORT_GRAPHICS
     // Release the window.
     if (abilityWindow_ != nullptr && abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         abilityWindow_->OnPostAbilityStop(); // Ability instance will been released when window destroy.
     }
 #endif
-    HILOG_DEBUG("%{public}s end", __func__);
+    HILOG_DEBUG("end");
 }
 
 void Ability::OnActive()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("called");
 #ifdef SUPPORT_GRAPHICS
     bWindowFocus_ = true;
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
-        HILOG_ERROR("Ability::OnActive error. abilityLifecycleExecutor_ == nullptr.");
+        HILOG_ERROR("abilityLifecycleExecutor_ is nullptr.");
         return;
     }
     abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::ACTIVE);
 
     if (lifecycle_ == nullptr) {
-        HILOG_ERROR("Ability::OnActive error. lifecycle_ == nullptr.");
+        HILOG_ERROR("lifecycle_ is nullptr.");
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_ACTIVE);
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("Ability::OnActive error. abilityInfo_ == nullptr.");
+        HILOG_ERROR("abilityInfo_ is nullptr.");
         return;
     }
     AAFwk::EventInfo eventInfo;
@@ -341,29 +339,29 @@ void Ability::OnActive()
     }
     AAFwk::EventReport::SendAbilityEvent(AAFwk::EventName::ABILITY_ONACTIVE,
         HiSysEventType::BEHAVIOR, eventInfo);
-    HILOG_DEBUG("%{public}s end.", __func__);
+    HILOG_DEBUG("end");
 }
 
 void Ability::OnInactive()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("%{public}s begin", __func__);
+    HILOG_DEBUG("called");
 #ifdef SUPPORT_GRAPHICS
     bWindowFocus_ = false;
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
-        HILOG_ERROR("Ability::OnInactive error. abilityLifecycleExecutor_ == nullptr.");
+        HILOG_ERROR("abilityLifecycleExecutor_ is nullptr.");
         return;
     }
     abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::INACTIVE);
 
     if (lifecycle_ == nullptr) {
-        HILOG_ERROR("Ability::OnInactive error. lifecycle_ == nullptr.");
+        HILOG_ERROR("lifecycle_ is nullptr.");
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_INACTIVE);
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("Ability::OnInactive error. abilityInfo_ == nullptr.");
+        HILOG_ERROR("abilityInfo_ is nullptr.");
         return;
     }
     AAFwk::EventInfo eventInfo;
@@ -373,7 +371,7 @@ void Ability::OnInactive()
     eventInfo.bundleType = static_cast<int32_t>(abilityInfo_->applicationInfo.bundleType);
     AAFwk::EventReport::SendAbilityEvent(AAFwk::EventName::ABILITY_ONINACTIVE,
         HiSysEventType::BEHAVIOR, eventInfo);
-    HILOG_DEBUG("%{public}s end", __func__);
+    HILOG_DEBUG("end");
 }
 
 bool Ability::IsRestoredInContinuation() const
@@ -424,11 +422,11 @@ bool Ability::ShouldRecoverState(const Want& want)
 
 void Ability::NotifyContinuationResult(const Want& want, bool success)
 {
-    HILOG_INFO("NotifyContinuationResult begin");
+    HILOG_INFO("called");
 
     int sessionId = want.GetIntParam(DMS_SESSION_ID, DEFAULT_DMS_SESSION_ID);
     std::string originDeviceId = want.GetStringParam(DMS_ORIGIN_DEVICE_ID);
-    HILOG_DEBUG("Ability::NotifyContinuationComplete");
+    HILOG_DEBUG("Notify complete continuation.");
     continuationManager_->NotifyCompleteContinuation(
         originDeviceId, sessionId, success, reverseContinuationSchedulerReplica_);
 }
@@ -436,76 +434,76 @@ void Ability::NotifyContinuationResult(const Want& want, bool success)
 sptr<IRemoteObject> Ability::OnConnect(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("%{public}s begin", __func__);
+    HILOG_DEBUG("called");
     if (abilityLifecycleExecutor_ == nullptr) {
-        HILOG_ERROR("Ability::OnConnect error. abilityLifecycleExecutor_ == nullptr.");
+        HILOG_ERROR("abilityLifecycleExecutor_ is nullptr.");
         return nullptr;
     }
     abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::ACTIVE);
 
     if (lifecycle_ == nullptr) {
-        HILOG_ERROR("Ability::OnConnect error. lifecycle_ == nullptr.");
+        HILOG_ERROR("lifecycle_ is nullptr.");
         return nullptr;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_ACTIVE);
-    HILOG_DEBUG("%{public}s end", __func__);
+    HILOG_DEBUG("end");
     return nullptr;
 }
 
 void Ability::OnDisconnect(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("%{public}s come", __func__);
+    HILOG_DEBUG("called");
 }
 
 ErrCode Ability::StartAbilityForResult(const Want &want, int requestCode)
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("called");
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("Ability::StartAbilityForResult abilityInfo_ == nullptr");
+        HILOG_ERROR("abilityInfo_ is nullptr");
         return ERR_NULL_OBJECT;
     }
-    HILOG_DEBUG("Ability::StartAbilityForResult called type = %{public}d", abilityInfo_->type);
+    HILOG_DEBUG("Ability type is %{public}d", abilityInfo_->type);
     if (abilityInfo_->type != AppExecFwk::AbilityType::PAGE) {
-        HILOG_ERROR("Ability::StartAbility ability type: %{public}d", abilityInfo_->type);
+        HILOG_ERROR("Ability type %{public}d mismatch.", abilityInfo_->type);
         return ERR_INVALID_VALUE;
     }
     ErrCode err = AbilityContext::StartAbility(want, requestCode);
-    HILOG_DEBUG("%{public}s end.", __func__);
+    HILOG_DEBUG("end");
     return err;
 }
 
 ErrCode Ability::StartAbilityForResult(const Want &want, int requestCode, AbilityStartSetting abilityStartSetting)
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("called");
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("Ability::StartAbilityForResult abilityInfo_ == nullptr");
+        HILOG_ERROR("abilityInfo_ is nullptr");
         return ERR_NULL_OBJECT;
     }
-    HILOG_DEBUG("Ability::StartAbilityForResult called type = %{public}d", abilityInfo_->type);
+    HILOG_DEBUG("Ability type is %{public}d", abilityInfo_->type);
     if (abilityInfo_->type != AppExecFwk::AbilityType::PAGE) {
-        HILOG_ERROR("Ability::StartAbility ability type: %{public}d", abilityInfo_->type);
+        HILOG_ERROR("Ability type %{public}d mismatch.", abilityInfo_->type);
         return ERR_INVALID_VALUE;
     }
     ErrCode err = AbilityContext::StartAbility(want, requestCode, abilityStartSetting);
-    HILOG_DEBUG("%{public}s end.", __func__);
+    HILOG_DEBUG("end");
     return err;
 }
 
 ErrCode Ability::StartAbility(const Want &want, AbilityStartSetting abilityStartSetting)
 {
-    HILOG_DEBUG("%{public}s beign.", __func__);
+    HILOG_DEBUG("called");
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("Ability::StartAbility abilityInfo_ == nullptr");
+        HILOG_ERROR("abilityInfo_ is nullptr");
         return ERR_NULL_OBJECT;
     }
-    HILOG_DEBUG("Ability::StartAbility called type = %{public}d", abilityInfo_->type);
+    HILOG_DEBUG("Ability type is %{public}d", abilityInfo_->type);
     if (abilityInfo_->type != AppExecFwk::AbilityType::PAGE && abilityInfo_->type != AppExecFwk::AbilityType::SERVICE) {
-        HILOG_ERROR("Ability::StartAbility ability type: %{public}d", abilityInfo_->type);
+        HILOG_ERROR("Ability type %{public}d mismatch.", abilityInfo_->type);
         return ERR_INVALID_VALUE;
     }
     ErrCode err = AbilityContext::StartAbility(want, -1, abilityStartSetting);
-    HILOG_DEBUG("%{public}s end.", __func__);
+    HILOG_DEBUG("end");
     return err;
 }
 
@@ -527,12 +525,12 @@ std::shared_ptr<AppExecFwk::PacMap> Ability::Call(
 
 void Ability::OnConfigurationUpdated(const Configuration &configuration)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called");
 }
 
 void Ability::OnConfigurationUpdatedNotify(const Configuration &configuration)
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("called");
 
     std::string language;
     std::string colormode;
@@ -573,7 +571,7 @@ void Ability::OnConfigurationUpdatedNotify(const Configuration &configuration)
     }
     // Notify Ability Subclass
     OnConfigurationUpdated(configuration);
-    HILOG_DEBUG("%{public}s Notify Ability Subclass.", __func__);
+    HILOG_DEBUG("end");
 }
 
 void Ability::InitConfigurationProperties(const Configuration& changeConfiguration, std::string& language,
@@ -597,7 +595,7 @@ void Ability::InitConfigurationProperties(const Configuration& changeConfigurati
 
 void Ability::OnMemoryLevel(int level)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    HILOG_INFO("called");
     if (scene_ == nullptr) {
         HILOG_DEBUG("WindowScene is null");
         return;
@@ -618,19 +616,19 @@ int Ability::Update(
 
 std::shared_ptr<OHOSApplication> Ability::GetApplication()
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("called");
     if (application_ == nullptr) {
-        HILOG_ERROR("Ability::GetApplication error. application_ == nullptr.");
+        HILOG_ERROR("application_ is nullptr.");
         return nullptr;
     }
-    HILOG_DEBUG("%{public}s end.", __func__);
+    HILOG_DEBUG("end");
     return application_;
 }
 
 std::string Ability::GetAbilityName()
 {
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("Ability::GetAbilityName abilityInfo_ is nullptr");
+        HILOG_ERROR("abilityInfo_ is nullptr");
         return "";
     }
 
@@ -640,7 +638,7 @@ std::string Ability::GetAbilityName()
 std::string Ability::GetModuleName()
 {
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("Ability::GetModuleName abilityInfo_ is nullptr");
+        HILOG_ERROR("abilityInfo_ is nullptr");
         return "";
     }
 
@@ -657,32 +655,32 @@ void Ability::OnAbilityResult(int requestCode, int resultCode, const Want &want)
 
 void Ability::OnBackPressed()
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("called");
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("Ability::OnBackPressed abilityInfo_ is nullptr");
+        HILOG_ERROR("abilityInfo_ is nullptr");
         return;
     }
 
     if (abilityInfo_->isLauncherAbility == false) {
-        HILOG_DEBUG("Ability::OnBackPressed the ability is not Launcher");
+        HILOG_DEBUG("The ability is not Launcher");
         TerminateAbility();
     }
-    HILOG_DEBUG("%{public}s end.", __func__);
+    HILOG_DEBUG("end");
 }
 
 void Ability::OnNewWant(const Want &want)
 {
-    HILOG_DEBUG("Ability::OnNewWant called");
+    HILOG_DEBUG("called");
 }
 
 void Ability::OnRestoreAbilityState(const PacMap &inState)
 {
-    HILOG_DEBUG("Ability::OnRestoreAbilityState called");
+    HILOG_DEBUG("called");
 }
 
 void Ability::OnSaveAbilityState(PacMap &outState)
 {
-    HILOG_DEBUG("Ability::OnSaveAbilityState called");
+    HILOG_DEBUG("called");
 }
 
 void Ability::OnEventDispatch()
@@ -700,36 +698,35 @@ std::shared_ptr<AAFwk::Want> Ability::GetWant()
 
 void Ability::SetResult(int resultCode, const Want &resultData)
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("called");
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("Ability::SetResult abilityInfo_ == nullptr");
+        HILOG_ERROR("abilityInfo_ is nullptr");
         return;
     }
-    HILOG_DEBUG("Ability::SetResult called type = %{public}d", abilityInfo_->type);
+    HILOG_DEBUG("Ability type: %{public}d", abilityInfo_->type);
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         AbilityContext::resultWant_ = resultData;
         AbilityContext::resultCode_ = resultCode;
     }
-    HILOG_DEBUG("%{public}s end.", __func__);
+    HILOG_DEBUG("end");
 }
 
 void Ability::OnCommand(const AAFwk::Want &want, bool restart, int startId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO(
-        "%{public}s begin restart=%{public}s,startId=%{public}d.", __func__, restart ? "true" : "false", startId);
+    HILOG_INFO("restart: %{public}s, startId: %{public}d.", restart ? "true" : "false", startId);
     if (abilityLifecycleExecutor_ == nullptr) {
-        HILOG_ERROR("Ability::OnCommand error. abilityLifecycleExecutor_ == nullptr.");
+        HILOG_ERROR("abilityLifecycleExecutor_ is nullptr.");
         return;
     }
     abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::ACTIVE);
 
     if (lifecycle_ == nullptr) {
-        HILOG_ERROR("Ability::OnCommand error. lifecycle_ == nullptr.");
+        HILOG_ERROR("lifecycle_ is nullptr.");
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_ACTIVE);
-    HILOG_DEBUG("%{public}s end.", __func__);
+    HILOG_DEBUG("end");
 }
 
 void Ability::Dump(const std::string &extra)
@@ -826,21 +823,21 @@ bool Ability::Reload(const Uri &uri, const PacMap &extras)
 
 int Ability::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("called");
     int amount = 0;
     for (auto it = values.begin(); it != values.end(); it++) {
         if (Insert(uri, *it) >= 0) {
             amount++;
         }
     }
-    HILOG_DEBUG("%{public}s end, amount=%{public}d", __func__, amount);
+    HILOG_DEBUG("Insert amount: %{public}d", amount);
     return amount;
 }
 
 void Ability::ContinueAbilityReversibly(const std::string &deviceId)
 {
     if (!VerifySupportForContinuation()) {
-        HILOG_ERROR("Ability::ContinueAbilityReversibly(deviceId) failed. VerifySupportForContinuation faled");
+        HILOG_ERROR("Don't support continuation.");
         return;
     }
     continuationManager_->ContinueAbility(true, deviceId);
@@ -854,7 +851,7 @@ std::string Ability::GetOriginalDeviceId()
 ContinuationState Ability::GetContinuationState()
 {
     if (!VerifySupportForContinuation()) {
-        HILOG_ERROR("Ability::GetContinuationState failed. VerifySupportForContinuation faled");
+        HILOG_ERROR("Don't support continuation.");
         return ContinuationState::LOCAL_RUNNING;
     }
     return continuationManager_->GetContinuationState();
@@ -867,16 +864,16 @@ Uri Ability::DenormalizeUri(const Uri &uri)
 
 std::shared_ptr<LifeCycle> Ability::GetLifecycle()
 {
-    HILOG_DEBUG("Ability::GetLifecycle called");
+    HILOG_DEBUG("called");
     return lifecycle_;
 }
 
 AbilityLifecycleExecutor::LifecycleState Ability::GetState()
 {
-    HILOG_DEBUG("Ability::GetState called");
+    HILOG_DEBUG("called");
 
     if (abilityLifecycleExecutor_ == nullptr) {
-        HILOG_ERROR("Ability::GetState error. abilityLifecycleExecutor_ == nullptr.");
+        HILOG_ERROR("abilityLifecycleExecutor_ is nullptr.");
         return AbilityLifecycleExecutor::LifecycleState::UNINITIALIZED;
     }
 
@@ -885,15 +882,15 @@ AbilityLifecycleExecutor::LifecycleState Ability::GetState()
 
 ErrCode Ability::StartAbility(const Want &want)
 {
-    HILOG_DEBUG("%{public}s begin Ability::StartAbility", __func__);
+    HILOG_DEBUG("called");
     return AbilityContext::StartAbility(want, -1);
 }
 
 void Ability::PostTask(std::function<void()> task, long delayTime)
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("called");
     TaskHandlerClient::GetInstance()->PostTask(task, delayTime);
-    HILOG_DEBUG("%{public}s end.", __func__);
+    HILOG_DEBUG("end");
 }
 
 int32_t Ability::OnContinue(WantParams &wantParams)
@@ -904,12 +901,12 @@ int32_t Ability::OnContinue(WantParams &wantParams)
 void Ability::ContinueAbilityWithStack(const std::string &deviceId, uint32_t versionCode)
 {
     if (deviceId.empty()) {
-        HILOG_ERROR("ContinueAbilityWithStack(deviceId) failed. deviceId is empty");
+        HILOG_ERROR("Continue ability failed. deviceId is empty");
         return;
     }
 
     if (!VerifySupportForContinuation()) {
-        HILOG_ERROR("ContinueAbilityWithStack(deviceId) failed. VerifySupportForContinuation failed");
+        HILOG_ERROR("Don't support continuation.");
         return;
     }
     continuationManager_->ContinueAbilityWithStack(deviceId, versionCode);
@@ -918,12 +915,12 @@ void Ability::ContinueAbilityWithStack(const std::string &deviceId, uint32_t ver
 void Ability::ContinueAbility(const std::string &deviceId)
 {
     if (deviceId.empty()) {
-        HILOG_ERROR("Ability::ContinueAbility(deviceId) failed. deviceId is empty");
+        HILOG_ERROR("Continue ability failed. deviceId is empty");
         return;
     }
 
     if (!VerifySupportForContinuation()) {
-        HILOG_ERROR("Ability::ContinueAbility(deviceId) failed. VerifySupportForContinuation failed");
+        HILOG_ERROR("Don't support continuation.");
         return;
     }
     continuationManager_->ContinueAbility(false, deviceId);
@@ -951,7 +948,7 @@ int32_t Ability::OnSaveState(int32_t reason, WantParams &wantParams)
 
 void Ability::OnCompleteContinuation(int result)
 {
-    HILOG_DEBUG("Ability::OnCompleteContinuation change continuation state to initial");
+    HILOG_DEBUG("Change continuation state to initial");
     if (continuationManager_ == nullptr) {
         HILOG_ERROR("Continuation manager is nullptr.");
         return;
@@ -966,7 +963,7 @@ void Ability::OnRemoteTerminated()
 void Ability::DispatchLifecycleOnForeground(const Want &want)
 {
     if (abilityLifecycleExecutor_ == nullptr) {
-        HILOG_ERROR("Ability::OnForeground error. abilityLifecycleExecutor_ == nullptr.");
+        HILOG_ERROR("abilityLifecycleExecutor_ is nullptr.");
         return;
     }
     if (abilityInfo_ != nullptr && abilityInfo_->isStageBasedModel) {
@@ -975,7 +972,7 @@ void Ability::DispatchLifecycleOnForeground(const Want &want)
         abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::INACTIVE);
     }
     if (lifecycle_ == nullptr) {
-        HILOG_ERROR("Ability::OnForeground error. lifecycle_ == nullptr.");
+        HILOG_ERROR("lifecycle_ is nullptr.");
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_FOREGROUND, want);
@@ -984,7 +981,7 @@ void Ability::DispatchLifecycleOnForeground(const Want &want)
 bool Ability::VerifySupportForContinuation()
 {
     if (continuationManager_ == nullptr) {
-        HILOG_ERROR("Ability::VerifySupportForContinuation failed. continuationManager_ is nullptr");
+        HILOG_ERROR("Continuation manager is nullptr.");
         return false;
     }
     return true;
@@ -993,7 +990,7 @@ bool Ability::VerifySupportForContinuation()
 void Ability::HandleCreateAsContinuation(const Want &want)
 {
     if (!IsFlagExists(Want::FLAG_ABILITY_CONTINUATION, want.GetFlags())) {
-        HILOG_DEBUG("Ability::HandleCreateAsContinuation return. This not continuated ability");
+        HILOG_DEBUG("This's not continuated ability");
         return;
     }
 
@@ -1001,7 +998,7 @@ void Ability::HandleCreateAsContinuation(const Want &want)
     bool reversible = false;
     reversible = IsFlagExists(Want::FLAG_ABILITY_CONTINUATION_REVERSIBLE, want.GetFlags());
     if (!VerifySupportForContinuation()) {
-        HILOG_ERROR("Ability::HandleCreateAsContinuation failed. VerifySupportForContinuation failed");
+        HILOG_ERROR("Don't support continuation.");
         return;
     }
     bool success = continuationManager_->RestoreData(
@@ -1013,15 +1010,14 @@ void Ability::HandleCreateAsContinuation(const Want &want)
             new (std::nothrow) ReverseContinuationSchedulerReplica(handler_, ReplicaHandler));
 
         if (reverseContinuationSchedulerReplica_ == nullptr) {
-            HILOG_ERROR(
-                "Ability::HandleCreateAsContinuation failed, create reverseContinuationSchedulerReplica failed");
+            HILOG_ERROR("Create reverseContinuationSchedulerReplica failed");
             return;
         }
     }
 
     int sessionId = want.GetIntParam(DMS_SESSION_ID, DEFAULT_DMS_SESSION_ID);
     std::string originDeviceId = want.GetStringParam(DMS_ORIGIN_DEVICE_ID);
-    HILOG_DEBUG("Ability::HandleCreateAsContinuation");
+    HILOG_DEBUG("Notify complete continuation.");
     continuationManager_->NotifyCompleteContinuation(
         originDeviceId, sessionId, success, reverseContinuationSchedulerReplica_);
 }
@@ -1029,7 +1025,7 @@ void Ability::HandleCreateAsContinuation(const Want &want)
 void Ability::HandleCreateAsRecovery(const Want &want)
 {
     if (!want.GetBoolParam(Want::PARAM_ABILITY_RECOVERY_RESTART, false)) {
-        HILOG_ERROR("AppRecovery not recovery restart");
+        HILOG_DEBUG("AppRecovery not recovery restart");
         return;
     }
 
@@ -1092,19 +1088,19 @@ int Ability::StopBackgroundRunning()
 
 sptr<IBundleMgr> Ability::GetBundleMgr()
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called");
     if (iBundleMgr_ == nullptr) {
         sptr<ISystemAbilityManager> systemAbilityManager =
             SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         auto remoteObject = systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
         if (remoteObject == nullptr) {
-            HILOG_ERROR("%{public}s error, failed to get bundle manager service.", __func__);
+            HILOG_ERROR("Failed to get bundle manager service.");
             return nullptr;
         }
 
         iBundleMgr_ = iface_cast<IBundleMgr>(remoteObject);
         if (iBundleMgr_ == nullptr) {
-            HILOG_ERROR("%{public}s error, failed to get bundle manager service", __func__);
+            HILOG_ERROR("Failed to get remote object.");
             return nullptr;
         }
     }
@@ -1114,20 +1110,20 @@ sptr<IBundleMgr> Ability::GetBundleMgr()
 
 void Ability::SetBundleManager(const sptr<IBundleMgr> &bundleManager)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called");
 
     iBundleMgr_ = bundleManager;
 }
 
 void Ability::SetStartAbilitySetting(std::shared_ptr<AbilityStartSetting> setting)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called");
     setting_ = setting;
 }
 
 void Ability::SetLaunchParam(const AAFwk::LaunchParam &launchParam)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called");
     launchParam_ = launchParam;
 }
 
@@ -1139,7 +1135,7 @@ const AAFwk::LaunchParam& Ability::GetLaunchParam() const
 std::vector<std::shared_ptr<DataAbilityResult>> Ability::ExecuteBatch(
     const std::vector<std::shared_ptr<DataAbilityOperation>> &operations)
 {
-    HILOG_DEBUG("start");
+    HILOG_DEBUG("called");
     std::vector<std::shared_ptr<DataAbilityResult>> results;
     if (abilityInfo_ == nullptr) {
         HILOG_ERROR("abilityInfo is nullptr");
@@ -1476,16 +1472,16 @@ sptr<IRemoteObject> Ability::CallRequest()
 
 ErrCode Ability::StartFeatureAbilityForResult(const Want &want, int requestCode, FeatureAbilityTask &&task)
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("called");
     resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
     ErrCode err = StartAbilityForResult(want, requestCode);
-    HILOG_DEBUG("%{public}s end. ret=%{public}d", __func__, err);
+    HILOG_DEBUG("ret: %{public}d", err);
     return err;
 }
 
 void Ability::OnFeatureAbilityResult(int requestCode, int resultCode, const Want &want)
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("called");
     auto callback = resultCallbacks_.find(requestCode);
     if (callback != resultCallbacks_.end()) {
         if (callback->second) {
@@ -1493,7 +1489,7 @@ void Ability::OnFeatureAbilityResult(int requestCode, int resultCode, const Want
         }
         resultCallbacks_.erase(requestCode);
     }
-    HILOG_DEBUG("%{public}s end.", __func__);
+    HILOG_DEBUG("end");
 }
 
 bool Ability::IsUseNewStartUpRule()
@@ -1523,26 +1519,26 @@ bool Ability::PrintDrawnCompleted()
 
 void Ability::OnSceneCreated()
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called");
 }
 
 void Ability::OnSceneRestored()
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called");
 }
 
 void Ability::onSceneDestroyed()
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called");
 }
 
 void Ability::OnForeground(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("called");
     DoOnForeground(want);
     DispatchLifecycleOnForeground(want);
-    HILOG_DEBUG("%{public}s end.", __func__);
+    HILOG_DEBUG("end");
     AAFwk::EventInfo eventInfo;
     eventInfo.bundleName = want.GetElement().GetBundleName();
     eventInfo.moduleName = want.GetElement().GetModuleName();
@@ -1560,7 +1556,7 @@ void Ability::OnForeground(const Want &want)
 void Ability::OnBackground()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("called");
     if (abilityInfo_ == nullptr) {
         HILOG_ERROR("abilityInfo_ is nullptr.");
         return;
@@ -1603,7 +1599,7 @@ void Ability::OnBackground()
     PurgeableMem::PurgeableResourceManager::GetInstance().EndAccessPurgeableMem();
 #endif
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_BACKGROUND);
-    HILOG_DEBUG("%{public}s end", __func__);
+    HILOG_DEBUG("end");
     AAFwk::EventInfo eventInfo;
     eventInfo.bundleName = abilityInfo_->bundleName;
     eventInfo.moduleName = abilityInfo_->moduleName;
@@ -1648,7 +1644,7 @@ void Ability::OnPointerEvent(std::shared_ptr<MMI::PointerEvent>& pointerEvent)
 void Ability::InitWindow(int32_t displayId, sptr<Rosen::WindowOption> option)
 {
     if (abilityWindow_ == nullptr) {
-        HILOG_ERROR("Ability::InitWindow abilityWindow_ is nullptr");
+        HILOG_ERROR("Ability window is nullptr.");
         return;
     }
     abilityWindow_->SetSessionInfo(sessionInfo_);
@@ -1657,12 +1653,11 @@ void Ability::InitWindow(int32_t displayId, sptr<Rosen::WindowOption> option)
 
 const sptr<Rosen::Window> Ability::GetWindow()
 {
-    if (abilityWindow_ != nullptr) {
-        return abilityWindow_->GetWindow();
-    } else {
-        HILOG_DEBUG("%{public}s abilityWindow_ is nullptr.", __func__);
+    if (abilityWindow_ == nullptr) {
+        HILOG_DEBUG("Ability window is nullptr.");
         return nullptr;
     }
+    return abilityWindow_->GetWindow();
 }
 
 std::shared_ptr<Rosen::WindowScene> Ability::GetScene()
@@ -1728,14 +1723,14 @@ void Ability::OnTopActiveAbilityChanged(bool topActive)
 
 FormProviderInfo Ability::OnCreate(const Want &want)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called");
     FormProviderInfo formProviderInfo;
     return formProviderInfo;
 }
 
 bool Ability::OnShare(int64_t formId, AAFwk::WantParams &wantParams)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called");
     return false;
 }
 
@@ -1799,26 +1794,26 @@ sptr<Rosen::WindowOption> Ability::GetWindowOption(const Want &want)
 
 void Ability::DoOnForeground(const Want& want)
 {
-    if (abilityWindow_ != nullptr) {
-        HILOG_DEBUG("%{public}s begin abilityWindow_->OnPostAbilityForeground, sceneFlag:%{public}d.",
-            __func__, sceneFlag_);
-        auto window = abilityWindow_->GetWindow();
-        if (window != nullptr && want.HasParameter(Want::PARAM_RESV_WINDOW_MODE)) {
-            auto windowMode = want.GetIntParam(Want::PARAM_RESV_WINDOW_MODE,
-                AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
-            window->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
-            HILOG_DEBUG("set window mode = %{public}d.", windowMode);
-        }
-        abilityWindow_->OnPostAbilityForeground(sceneFlag_);
-        HILOG_DEBUG("%{public}s end abilityWindow_->OnPostAbilityForeground.", __func__);
-    } else {
-        HILOG_DEBUG("abilityWindow_ != nullptr");
+    if (abilityWindow_ == nullptr) {
+        HILOG_DEBUG("Ability window is nullptr.");
+        return;
     }
+
+    HILOG_DEBUG("sceneFlag: %{public}d.", sceneFlag_);
+    auto window = abilityWindow_->GetWindow();
+    if (window != nullptr && want.HasParameter(Want::PARAM_RESV_WINDOW_MODE)) {
+        auto windowMode = want.GetIntParam(Want::PARAM_RESV_WINDOW_MODE,
+            AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
+        window->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
+        HILOG_DEBUG("set window mode = %{public}d.", windowMode);
+    }
+    abilityWindow_->OnPostAbilityForeground(sceneFlag_);
+    HILOG_DEBUG("end");
 }
 
 int Ability::GetCurrentWindowMode()
 {
-    HILOG_DEBUG("%{public}s start", __func__);
+    HILOG_DEBUG("called");
     auto windowMode = static_cast<int>(Rosen::WindowMode::WINDOW_MODE_UNDEFINED);
     if (scene_ == nullptr) {
         return windowMode;
@@ -1832,7 +1827,7 @@ int Ability::GetCurrentWindowMode()
 
 ErrCode Ability::SetMissionLabel(const std::string &label)
 {
-    HILOG_DEBUG("%{public}s start", __func__);
+    HILOG_DEBUG("called");
     if (!abilityInfo_ || abilityInfo_->type != AppExecFwk::AbilityType::PAGE) {
         HILOG_ERROR("invalid ability info.");
         return -1;
@@ -1867,7 +1862,7 @@ ErrCode Ability::SetMissionLabel(const std::string &label)
 
 ErrCode Ability::SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon)
 {
-    HILOG_DEBUG("%{public}s start", __func__);
+    HILOG_DEBUG("called");
     if (!abilityInfo_ || abilityInfo_->type != AppExecFwk::AbilityType::PAGE) {
         HILOG_ERROR("invalid ability info, can not set mission icon.");
         return -1;
@@ -1936,18 +1931,17 @@ Ace::UIContent* Ability::GetUIContent()
 
 void Ability::OnCreate(Rosen::DisplayId displayId)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called");
 }
 
 void Ability::OnDestroy(Rosen::DisplayId displayId)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called");
 }
 
 void Ability::OnChange(Rosen::DisplayId displayId)
 {
-    HILOG_DEBUG("%{public}s start, displayId: %{public}" PRIu64"", __func__,
-        displayId);
+    HILOG_DEBUG("displayId: %{public}" PRIu64"", displayId);
 
     // Get display
     auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
@@ -1968,7 +1962,7 @@ void Ability::OnChange(Rosen::DisplayId displayId)
             resConfig->SetScreenDensity(density);
             resConfig->SetDirection(ConvertDirection(height, width));
             resourceManager->UpdateResConfig(*resConfig);
-            HILOG_INFO("%{public}s Notify ResourceManager, Density: %{public}f, Direction: %{public}d.", __func__,
+            HILOG_INFO("Notify ResourceManager, Density: %{public}f, Direction: %{public}d.",
                 resConfig->GetScreenDensity(), resConfig->GetDirection());
         }
     }
@@ -2004,12 +1998,12 @@ void Ability::OnChange(Rosen::DisplayId displayId)
         Rosen::Window::UpdateConfigurationForAll(diffConfiguration);
     }
 
-    HILOG_DEBUG("%{public}s end", __func__);
+    HILOG_DEBUG("end");
 }
 
 void Ability::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
 {
-    HILOG_INFO("%{public}s called, from displayId %{public}" PRIu64" to %{public}" PRIu64".", __func__, from, to);
+    HILOG_INFO("from displayId %{public}" PRIu64" to %{public}" PRIu64".", from, to);
 
     auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(to);
     if (!display) {
@@ -2029,7 +2023,7 @@ void Ability::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
             resConfig->SetScreenDensity(density);
             resConfig->SetDirection(ConvertDirection(height, width));
             resourceManager->UpdateResConfig(*resConfig);
-            HILOG_INFO("%{public}s Notify ResourceManager, Density: %{public}f, Direction: %{public}d.", __func__,
+            HILOG_INFO("Notify ResourceManager, Density: %{public}f, Direction: %{public}d.",
                 resConfig->GetScreenDensity(), resConfig->GetDirection());
         }
     }
@@ -2064,7 +2058,7 @@ void Ability::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
 
 void Ability::RequestFocus(const Want &want)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called");
     if (abilityWindow_ == nullptr) {
         return;
     }
@@ -2095,9 +2089,9 @@ void Ability::SetWakeUpScreen(bool wakeUp)
 
 void Ability::SetDisplayOrientation(int orientation)
 {
-    HILOG_DEBUG("FA mode::%{public}s called, orientation: %{public}d", __func__, orientation);
+    HILOG_DEBUG("FA mode, orientation: %{public}d", orientation);
     if (abilityWindow_ == nullptr) {
-        HILOG_ERROR("Ability::SetDisplayOrientation error. abilityWindow_ == nullptr.");
+        HILOG_ERROR("Ability window is nullptr.");
         return;
     }
     auto window = abilityWindow_->GetWindow();
@@ -2114,20 +2108,20 @@ void Ability::SetDisplayOrientation(int orientation)
         }
     }
     if (orientation == static_cast<int>(DisplayOrientation::LANDSCAPE)) {
-        HILOG_DEBUG("%{public}s, to set LANDSCAPE", __func__);
+        HILOG_DEBUG("Set LANDSCAPE");
         window->SetRequestedOrientation(Rosen::Orientation::HORIZONTAL);
     } else if (orientation == static_cast<int>(DisplayOrientation::PORTRAIT)) {
-        HILOG_DEBUG("%{public}s, to set PORTRAIT", __func__);
+        HILOG_DEBUG("Set PORTRAIT");
         window->SetRequestedOrientation(Rosen::Orientation::VERTICAL);
     } else {
-        HILOG_DEBUG("%{public}s, to set UNSPECIFIED", __func__);
+        HILOG_DEBUG("Set UNSPECIFIED");
         window->SetRequestedOrientation(Rosen::Orientation::UNSPECIFIED);
     }
 }
 
 int Ability::GetDisplayOrientation()
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called");
     if (abilityWindow_ == nullptr) {
         HILOG_ERROR("Ability::GetDisplayOrientation error. abilityWindow_ == nullptr.");
         return -1;
@@ -2140,20 +2134,20 @@ int Ability::GetDisplayOrientation()
     }
     auto orientation = window->GetRequestedOrientation();
     if (orientation == Rosen::Orientation::HORIZONTAL) {
-        HILOG_DEBUG("%{public}s, get window orientation: LANDSCAPE", __func__);
+        HILOG_DEBUG("Get window orientation: LANDSCAPE");
         return static_cast<int>(DisplayOrientation::LANDSCAPE);
     }
     if (orientation == Rosen::Orientation::VERTICAL) {
-        HILOG_DEBUG("%{public}s, get window orientation: PORTRAIT", __func__);
+        HILOG_DEBUG("Get window orientation: PORTRAIT");
         return static_cast<int>(DisplayOrientation::PORTRAIT);
     }
-    HILOG_DEBUG("%{public}s, get window orientation: UNSPECIFIED", __func__);
+    HILOG_DEBUG("Get window orientation: UNSPECIFIED");
     return 0;
 }
 
 void Ability::ContinuationRestore(const Want &want)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called");
 }
 #endif
 }  // namespace AppExecFwk

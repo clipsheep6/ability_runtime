@@ -16,6 +16,7 @@
 #include "js_context_utils.h"
 
 #include "ability_runtime_error_util.h"
+#include "application_context_manager.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "js_application_context_utils.h"
@@ -477,6 +478,15 @@ NativeValue* JsBaseContext::OnGetApplicationContext(NativeEngine& engine, Native
         return engine.CreateUndefined();
     }
 
+    if (!applicationContext->GetApplicationInfoUpdateFlag()) {
+        std::shared_ptr<NativeReference> applicationContextObj =
+            ApplicationContextManager::GetApplicationContextManager().GetGlobalObject(engine);
+        if (applicationContextObj != nullptr) {
+            NativeValue* objValue = applicationContextObj->Get();
+            return objValue;
+        }
+    }
+
     NativeValue* value = JsApplicationContextUtils::CreateJsApplicationContext(engine);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(&engine, "application.ApplicationContext", &value, 1);
     if (systemModule == nullptr) {
@@ -501,6 +511,9 @@ NativeValue* JsBaseContext::OnGetApplicationContext(NativeEngine& engine, Native
             delete static_cast<std::weak_ptr<ApplicationContext> *>(data);
         },
         nullptr);
+    ApplicationContextManager::GetApplicationContextManager()
+        .AddGlobalObject(engine, std::shared_ptr<NativeReference>(engine.CreateReference(contextObj, 1)));
+    applicationContext->SetApplicationInfoUpdateFlag(false);
     return contextObj;
 }
 

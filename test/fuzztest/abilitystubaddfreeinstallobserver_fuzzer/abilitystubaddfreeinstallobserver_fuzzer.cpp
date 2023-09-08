@@ -18,7 +18,9 @@
 #include <cstddef>
 #include <cstdint>
 
+#define private public
 #include "ability_manager_service.h"
+#undef private
 #include "message_parcel.h"
 #include "securec.h"
 
@@ -41,6 +43,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     parcel.RewindRead(0);
     MessageParcel reply;
     MessageOption option;
+    DelayedSingleton<AbilityManagerService>::GetInstance()->Init();
     DelayedSingleton<AbilityManagerService>::GetInstance()->OnRemoteRequest(code, parcel, reply, option);
 
     return true;

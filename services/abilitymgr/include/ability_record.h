@@ -688,7 +688,8 @@ public:
      * add caller record
      *
      */
-    void AddCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode, std::string srcAbilityId = "");
+    void AddCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode, std::string srcAbilityId = "",
+        uint32_t callingTokenId = 0);
 
     /**
      * get caller record to list.
@@ -915,7 +916,7 @@ private:
     void AddSystemAbilityCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode,
         std::string srcAbilityId);
 
-    bool IsSystemAbilityCall(const sptr<IRemoteObject> &callerToken);
+    bool IsSystemAbilityCall(const sptr<IRemoteObject> &callerToken, uint32_t callingTokenId = 0);
 
     void HandleDlpAttached();
     void HandleDlpClosed();

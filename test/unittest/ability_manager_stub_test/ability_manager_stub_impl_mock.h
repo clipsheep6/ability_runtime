@@ -391,7 +391,8 @@ public:
         return 0;
     }
 #endif
-    MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionVaildResult>&));
+    MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionValidResult>&));
+    MOCK_METHOD2(PrepareTerminateAbilityBySCB, int32_t(const sptr<SessionInfo> &sessionInfo, bool &isPrepareTerminate));
 };
 }  // namespace AAFwk
 }  // namespace OHOS

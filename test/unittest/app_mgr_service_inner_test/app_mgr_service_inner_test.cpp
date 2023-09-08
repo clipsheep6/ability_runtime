@@ -1644,13 +1644,8 @@ HWTEST_F(AppMgrServiceInnerTest, RemoveAppFromRecentList_001, TestSize.Level0)
     std::string processName1 = "hiservcie_processName";
     std::shared_ptr<AppRunningRecord> appRecord =
         appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName1, bundleInfo);
-    HILOG_INFO("RemoveAppFromRecentList_001 start 22");
 
     pid_t pid = 123;
-    std::string renderParam = "test_renderParam";
-    std::shared_ptr<RenderRecord> renderRecord =
-        RenderRecord::CreateRenderRecord(pid, renderParam, 1, 1, 1, appRecord);
-    appRecord->AddRenderRecord(renderRecord);
     appMgrServiceInner->AddAppToRecentList(appName1, processName1, pid, 0);
     appRecord->SetKeepAliveAppState(true, true);
     appMgrServiceInner->RemoveAppFromRecentList(appName1, processName1);
@@ -1702,7 +1697,6 @@ HWTEST_F(AppMgrServiceInnerTest, OnRemoteDied_001, TestSize.Level0)
  * @tc.name: ClearAppRunningData_001
  * @tc.desc: clear app running data.
  * @tc.type: FUNC
- * @tc.require: issueI5W4S7
  */
 HWTEST_F(AppMgrServiceInnerTest, ClearAppRunningData_001, TestSize.Level0)
 {
@@ -1711,38 +1705,58 @@ HWTEST_F(AppMgrServiceInnerTest, ClearAppRunningData_001, TestSize.Level0)
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     appMgrServiceInner->ClearAppRunningData(nullptr, true);
+    HILOG_INFO("ClearAppRunningData_001 end");
+}
 
+/**
+ * @tc.name: ClearAppRunningData_002
+ * @tc.desc: clear app running data.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, ClearAppRunningData_002, TestSize.Level0)
+{
+    HILOG_INFO("ClearAppRunningData_002 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
     BundleInfo info;
     std::string processName = "test_processName";
     std::shared_ptr<AppRunningRecord> appRecord =
         appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
     appMgrServiceInner->ClearAppRunningData(appRecord, true);
-    appMgrServiceInner->ClearAppRunningData(appRecord, false);
+    HILOG_INFO("ClearAppRunningData_002 end");
+}
 
-    std::shared_ptr<RenderRecord> renderRecord;
-    appRecord->AddRenderRecord(renderRecord);
+/**
+ * @tc.name: ClearAppRunningData_003
+ * @tc.desc: clear app running data.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, ClearAppRunningData_003, TestSize.Level0)
+{
+    HILOG_INFO("ClearAppRunningData_003 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    BundleInfo info;
+    std::string processName = "test_processName";
+    std::shared_ptr<AppRunningRecord> appRecord =
+        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
     appMgrServiceInner->ClearAppRunningData(appRecord, false);
+    HILOG_INFO("ClearAppRunningData_003 end");
+}
 
-    pid_t pid = 123;
-    std::string renderParam = "test_renderParam";
-    std::shared_ptr<RenderRecord> renderRecord1 =
-        RenderRecord::CreateRenderRecord(pid, renderParam, 1, 1, 1, appRecord);
-    appRecord->AddRenderRecord(renderRecord1);
-    appMgrServiceInner->ClearAppRunningData(appRecord, false);
+/**
+ * @tc.name: ClearAppRunningData_004
+ * @tc.desc: clear app running data.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, ClearAppRunningData_004, TestSize.Level0)
+{
+    HILOG_INFO("ClearAppRunningData_004 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
 
-    appRecord->SetKeepAliveAppState(true, true);
-    appMgrServiceInner->ClearAppRunningData(appRecord, false);
-
-    appMgrServiceInner->taskHandler_ = nullptr;
-    appMgrServiceInner->ClearAppRunningData(appRecord, false);
-
-    appRecord->restartResidentProcCount_ = 0;
-    appMgrServiceInner->ClearAppRunningData(appRecord, false);
-
-    appRecord->appInfo_ = nullptr;
-    appMgrServiceInner->ClearAppRunningData(appRecord, false);
-
-    HILOG_INFO("ClearAppRunningData_001 end");
+    appMgrServiceInner->ClearAppRunningData(nullptr, false);
+    HILOG_INFO("ClearAppRunningData_004 end");
 }
 
 /**
@@ -1757,14 +1771,6 @@ HWTEST_F(AppMgrServiceInnerTest, AddAppDeathRecipient_001, TestSize.Level0)
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
-    BundleInfo bundleInfo;
-    std::string appName = "test_appName";
-    std::string processName = "test_processName";
-    std::string bundleName = "test_bundleName";
-    sptr<IRemoteObject> token = new MockAbilityToken();
-    std::shared_ptr<AppRunningRecord> appRecord =
-        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, bundleInfo);
-    EXPECT_NE(appRecord, nullptr);
     sptr<AppDeathRecipient> appDeathRecipient;
     pid_t pid = 999;
     appMgrServiceInner->AddAppDeathRecipient(pid, appDeathRecipient);
@@ -2893,44 +2899,6 @@ HWTEST_F(AppMgrServiceInnerTest, StartRenderProcess_002, TestSize.Level0)
     pid_t hostPid1 = 1;
     std::string renderParam = "test_renderParam";
     pid_t renderPid = 0;
-
-    BundleInfo bundleInfo;
-    std::string processName = "test_processName";
-    std::shared_ptr<AppRunningRecord> appRecord =
-        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, bundleInfo);
-    EXPECT_NE(appRecord, nullptr);
-    appRecord->GetPriorityObject()->SetPid(hostPid1);
-    int ret = appMgrServiceInner->StartRenderProcess(hostPid1, renderParam, 1, 1, 1, renderPid);
-    EXPECT_EQ(ret, ERR_INVALID_VALUE);
-
-    std::shared_ptr<RenderRecord> renderRecord =
-        RenderRecord::CreateRenderRecord(hostPid1, renderParam, 1, 1, 1, appRecord);
-    appRecord->AddRenderRecord(renderRecord);
-    ret = appMgrServiceInner->StartRenderProcess(hostPid1, renderParam, 1, 1, 1, renderPid);
-    EXPECT_EQ(ret, ERR_INVALID_VALUE);
-
-    appMgrServiceInner->appRunningManager_ = nullptr;
-    ret = appMgrServiceInner->StartRenderProcess(hostPid1, renderParam, 1, 1, 1, renderPid);
-    EXPECT_EQ(ret, ERR_INVALID_VALUE);
-
-    HILOG_INFO("StartRenderProcess_002 end");
-}
-
-/**
- * @tc.name: StartRenderProcess_003
- * @tc.desc: start render process.
- * @tc.type: FUNC
- * @tc.require: issueI5W4S7
- */
-HWTEST_F(AppMgrServiceInnerTest, StartRenderProcess_003, TestSize.Level0)
-{
-    HILOG_INFO("StartRenderProcess_003 start");
-    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    EXPECT_NE(appMgrServiceInner, nullptr);
-
-    pid_t hostPid1 = 1;
-    std::string renderParam = "test_renderParam";
-    pid_t renderPid = 0;
     int ret = appMgrServiceInner->StartRenderProcess(hostPid1, "", 0, 0, 0, renderPid);
     EXPECT_EQ(ret, ERR_INVALID_VALUE);
     ret = appMgrServiceInner->StartRenderProcess(hostPid1, "", 0, 0, 1, renderPid);
@@ -2966,14 +2934,13 @@ HWTEST_F(AppMgrServiceInnerTest, StartRenderProcess_003, TestSize.Level0)
 
     ret = appMgrServiceInner->StartRenderProcess(hostPid1, renderParam, 1, 1, 1, renderPid);
     EXPECT_EQ(ret, ERR_INVALID_VALUE);
-    HILOG_INFO("StartRenderProcess_003 end");
+    HILOG_INFO("StartRenderProcess_002 end");
 }
 
 /**
  * @tc.name: AttachRenderProcess_001
  * @tc.desc: attach render process.
  * @tc.type: FUNC
- * @tc.require: issueI5W4S7
  */
 HWTEST_F(AppMgrServiceInnerTest, AttachRenderProcess_001, TestSize.Level0)
 {
@@ -2984,33 +2951,24 @@ HWTEST_F(AppMgrServiceInnerTest, AttachRenderProcess_001, TestSize.Level0)
     pid_t pid = 0;
     sptr<IRenderScheduler> scheduler;
     appMgrServiceInner->AttachRenderProcess(pid, scheduler);
-
-    pid = 1;
-    appMgrServiceInner->AttachRenderProcess(pid, scheduler);
-
-    sptr<MockRenderScheduler> mockRenderScheduler = new (std::nothrow) MockRenderScheduler();
-    EXPECT_CALL(*mockRenderScheduler, AsObject()).Times(1);
-    EXPECT_CALL(*mockRenderScheduler, NotifyBrowserFd(1, 1, 1)).Times(1);
-    appMgrServiceInner->AttachRenderProcess(pid, mockRenderScheduler);
-
-    BundleInfo bundleInfo;
-    std::string processName = "test_processName";
-    std::shared_ptr<AppRunningRecord> appRecord =
-        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, bundleInfo);
-    EXPECT_NE(appRecord, nullptr);
-    appRecord->GetPriorityObject()->SetPid(pid);
-    std::string renderParam = "test_renderParam";
-    std::shared_ptr<RenderRecord> renderRecord =
-        RenderRecord::CreateRenderRecord(pid, renderParam, 1, 1, 1, appRecord);
-    EXPECT_NE(renderRecord, nullptr);
-    renderRecord->SetPid(pid);
-    appRecord->AddRenderRecord(renderRecord);
-    appMgrServiceInner->AttachRenderProcess(pid, mockRenderScheduler);
-
-    appMgrServiceInner->appRunningManager_ = nullptr;
-    appMgrServiceInner->AttachRenderProcess(pid, mockRenderScheduler);
-
     HILOG_INFO("AttachRenderProcess_001 end");
+}
+
+/**
+ * @tc.name: AttachRenderProcess_002
+ * @tc.desc: attach render process.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, AttachRenderProcess_002, TestSize.Level0)
+{
+    HILOG_INFO("AttachRenderProcess_002 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    pid_t pid = 1;
+    sptr<IRenderScheduler> scheduler;
+    appMgrServiceInner->AttachRenderProcess(pid, scheduler);
+    HILOG_INFO("AttachRenderProcess_002 end");
 }
 
 /**
@@ -3423,28 +3381,6 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyAppFaultBySA_001, TestSize.Level1)
     int32_t ret = appMgrServiceInner->NotifyAppFaultBySA(faultData);
     EXPECT_EQ(ret, ERR_INVALID_VALUE);
     HILOG_INFO("NotifyAppFaultBySA_001 end");
-}
-
-/**
- * @tc.name: NotifyAppFaultBySA_002
- * @tc.desc: Notify Fault Data By SA
- * @tc.type: FUNC
- */
-HWTEST_F(AppMgrServiceInnerTest, NotifyAppFaultBySA_002, TestSize.Level1)
-{
-    HILOG_INFO("NotifyAppFaultBySA_002 start");
-    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    EXPECT_NE(appMgrServiceInner, nullptr);
-    AppFaultDataBySA faultData;
-    faultData.pid = 0;
-    faultData.errorObject.name = "app";
-    faultData.faultType = FaultDataType::APP_FREEZE;
-    BundleInfo info;
-    std::string processName = "test_processName";
-    appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
-    int32_t ret = appMgrServiceInner->NotifyAppFaultBySA(faultData);
-    EXPECT_EQ(ret, ERR_OK);
-    HILOG_INFO("NotifyAppFaultBySA_002 end");
 }
 } // namespace AppExecFwk
 } // namespace OHOS

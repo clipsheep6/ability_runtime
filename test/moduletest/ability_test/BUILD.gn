@@ -95,7 +95,7 @@ ohos_moduletest("ability_moduletest") {
   }
 
   if (ecologic_rule_enabled) {
-    external_deps += [ "ecological_rule_mgr:erms_client" ]
+    external_deps += [ "ecological_rule_manager:erms_client" ]
   }
 }
 
@@ -154,7 +154,7 @@ ohos_moduletest("ability_conetxt_test") {
   }
 
   if (ecologic_rule_enabled) {
-    external_deps += [ "ecological_rule_mgr:erms_client" ]
+    external_deps += [ "ecological_rule_manager:erms_client" ]
   }
 }
 
@@ -241,7 +241,7 @@ ohos_moduletest("data_ability_operation_moduletest") {
   }
 
   if (ecologic_rule_enabled) {
-    external_deps += [ "ecological_rule_mgr:erms_client" ]
+    external_deps += [ "ecological_rule_manager:erms_client" ]
   }
 }
 
@@ -295,7 +295,7 @@ ohos_moduletest("data_ability_helper_module_test") {
   }
 
   if (ecologic_rule_enabled) {
-    external_deps += [ "ecological_rule_mgr:erms_client" ]
+    external_deps += [ "ecological_rule_manager:erms_client" ]
   }
 }
 
@@ -346,7 +346,7 @@ ohos_moduletest("ability_post_event_timeout_test") {
   }
 
   if (ecologic_rule_enabled) {
-    external_deps += [ "ecological_rule_mgr:erms_client" ]
+    external_deps += [ "ecological_rule_manager:erms_client" ]
   }
 }
 

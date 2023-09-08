@@ -626,7 +626,7 @@ void AbilityImpl::AfterFocusedCommon(bool isFocused)
 void AbilityImpl::WindowLifeCycleImpl::AfterForeground()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_INFO("Call.");
     auto owner = owner_.lock();
     if (owner == nullptr || !owner->IsStageBasedModel()) {
         HILOG_ERROR("Not stage mode ability or abilityImpl is nullptr.");
@@ -655,9 +655,10 @@ void AbilityImpl::WindowLifeCycleImpl::AfterForeground()
 void AbilityImpl::WindowLifeCycleImpl::AfterBackground()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_INFO("Call.");
     auto owner = owner_.lock();
     if (owner && !owner->IsStageBasedModel()) {
+        HILOG_WARN("Not stage.");
         return;
     }
 

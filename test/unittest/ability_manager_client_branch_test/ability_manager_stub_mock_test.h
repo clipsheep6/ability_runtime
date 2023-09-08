@@ -82,6 +82,32 @@ public:
         return 0;
     }
 
+    virtual int StartAbilityByUIContentSession(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        const sptr<SessionInfo> &sessionInfo,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
+
+    virtual int StartAbilityByUIContentSession(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        const sptr<SessionInfo> &sessionInfo,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
+
+    virtual int RegisterSessionHandler(const sptr<IRemoteObject> &callerToken)
+    {
+        return 0;
+    }
+
     virtual int TerminateAbility(const sptr<IRemoteObject>& token, int resultCode, const Want* resultWant = nullptr)
     {
         return 0;
@@ -383,7 +409,7 @@ public:
         return 0;
     }
 #endif
-    MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionVaildResult>&));
+    MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionValidResult>&));
 };
 }  // namespace AAFwk
 }  // namespace OHOS

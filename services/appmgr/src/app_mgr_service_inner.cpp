@@ -36,6 +36,7 @@
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "datetime_ex.h"
+#include "distributed_data_mgr.h"
 #include "event_report.h"
 #include "hilog_wrapper.h"
 #include "hisysevent.h"
@@ -164,7 +165,6 @@ void AppMgrServiceInner::Init()
     supportIsolationMode_ = OHOS::system::GetParameter(SUPPORT_ISOLATION_MODE, "false");
     deviceType_ = OHOS::system::GetDeviceType();
     DelayedSingleton<AppStateObserverManager>::GetInstance()->Init();
-    InitFocusListener();
 }
 
 AppMgrServiceInner::~AppMgrServiceInner()
@@ -903,6 +903,11 @@ void AppMgrServiceInner::ClearUpApplicationDataByUserId(
     if (result != 0) {
         HILOG_ERROR("Revoke all uri permissions is fail");
         return;
+    }
+    auto dataMgr = OHOS::DistributedKv::DistributedDataMgr();
+    auto dataRet = dataMgr.ClearAppStorage(bundleName, userId, 0, tokenId);
+    if (dataRet != 0) {
+        HILOG_WARN("Distributeddata clear app storage failed, bundleName:%{public}s", bundleName.c_str());
     }
     NotifyAppStatusByCallerUid(bundleName, userId, callerUid,
         EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_DATA_CLEARED);
@@ -3602,6 +3607,21 @@ void AppMgrServiceInner::RegisterFocusListener()
     }
     WindowManager::GetInstance().RegisterFocusChangedListener(focusListener_);
     HILOG_INFO("RegisterFocusListener end");
+}
+
+void AppMgrServiceInner::FreeFocusListener()
+{
+    HILOG_INFO("FreeFocusListener begin");
+    if (!focusListener_) {
+        HILOG_ERROR("no focusListener_");
+        return;
+    }
+    WindowManager::GetInstance().UnregisterFocusChangedListener(focusListener_);
+    if (!focusListener_) {
+        delete focusListener_;
+        focusListener_ = nullptr;
+    }
+    HILOG_INFO("FreeFocusListener end");
 }
 
 void AppMgrServiceInner::HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo)

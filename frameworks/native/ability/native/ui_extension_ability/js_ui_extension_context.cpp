@@ -236,19 +236,12 @@ NativeValue *JsUIExtensionContext::OnStartAbilityForResult(NativeEngine &engine,
         ThrowTooFewParametersError(engine);
         return engine.CreateUndefined();
     }
+    size_t unwrapArgc = 0;
     AAFwk::Want want;
-    if (!UnWrapWant(engine, info.argv[INDEX_ZERO], want)) {
-        HILOG_ERROR("failed to parse want!");
+    AAFwk::StartOptions startOptions;
+    if (!CheckStartAbilityInputParam(engine, info, want, startOptions, unwrapArgc)) {
         ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return engine.CreateUndefined();
-    }
-    decltype(info.argc) unwrapArgc = 1;
-    AAFwk::StartOptions startOptions;
-    if (info.argc > ARGC_ONE && info.argv[INDEX_ONE]->TypeOf() == NATIVE_OBJECT) {
-        HILOG_INFO("start options is used.");
-        AppExecFwk::UnwrapStartOptions(
-            reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(info.argv[INDEX_ONE]), startOptions);
-        unwrapArgc++;
     }
     NativeValue *lastParam = info.argc > unwrapArgc ? info.argv[unwrapArgc] : nullptr;
     NativeValue *result = nullptr;
@@ -275,9 +268,9 @@ NativeValue *JsUIExtensionContext::OnStartAbilityForResult(NativeEngine &engine,
         return result;
     }
     want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
-    curRequestCode_ = (curRequestCode_ == INT_MAX) ? 0 : (curRequestCode_ + 1);
-    (unwrapArgc == INDEX_ONE) ? context->StartAbilityForResult(want, curRequestCode_, std::move(task))
-                              : context->StartAbilityForResult(want, startOptions, curRequestCode_, std::move(task));
+    int curRequestCode = context->GenerateCurRequestCode();
+    (unwrapArgc == INDEX_ONE) ? context->StartAbilityForResult(want, curRequestCode, std::move(task))
+                              : context->StartAbilityForResult(want, startOptions, curRequestCode, std::move(task));
     HILOG_DEBUG("end.");
     return result;
 }
@@ -450,6 +443,9 @@ bool JsUIExtensionContext::CheckStartAbilityInputParam(NativeEngine& engine, Nat
     // Check input want
     if (!CheckWantParam(engine, info.argv[INDEX_ZERO], want)) {
         return false;
+    }
+    if (!want.HasParameter(Want::PARAM_BACK_TO_OTHER_MISSION_STACK)) {
+        want.SetParam(Want::PARAM_BACK_TO_OTHER_MISSION_STACK, true);
     }
     ++unwrapArgc;
     if (info.argc > ARGC_ONE && info.argv[1]->TypeOf() == NATIVE_OBJECT) {

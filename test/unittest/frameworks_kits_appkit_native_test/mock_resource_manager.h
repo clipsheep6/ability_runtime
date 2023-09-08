@@ -308,6 +308,11 @@ bool RemoveAppOverlay(const std::string &path)
 {
     return true;
 }
+
+RState GetRawFdNdkFromHap(const std::string &name, RawFileDescriptor &descriptor)
+{
+    return SUCCESS;
+}
 };
 }  // namespace Resource
 }  // namespace Global

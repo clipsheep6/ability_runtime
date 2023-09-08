@@ -27,7 +27,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-class ApplicationContext : public Context, public std::enable_shared_from_this<ApplicationContext> {
+class ApplicationContext : public Context {
 public:
     ApplicationContext() = default;
     ~ApplicationContext() = default;
@@ -93,12 +93,16 @@ public:
     // unused
     std::shared_ptr<AppExecFwk::HapModuleInfo> GetHapModuleInfo() const override;
 
+    bool GetApplicationInfoUpdateFlag() const;
+    void SetApplicationInfoUpdateFlag(bool flag);
+
 private:
     std::shared_ptr<ContextImpl> contextImpl_;
     static std::vector<std::shared_ptr<AbilityLifecycleCallback>> callbacks_;
     static std::vector<std::shared_ptr<EnvironmentCallback>> envCallbacks_;
     static std::weak_ptr<ApplicationStateChangeCallback> applicationStateCallback_;
     std::mutex callbackLock_;
+    bool applicationInfoUpdateFlag_ = false;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

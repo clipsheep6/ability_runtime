@@ -46,7 +46,6 @@ protected:
 
 private:
     std::weak_ptr<UIExtensionContext> context_;
-    int curRequestCode_ = 0;
 
     bool CheckStartAbilityInputParam(NativeEngine& engine, NativeCallbackInfo& info, AAFwk::Want& want,
         AAFwk::StartOptions& startOptions, size_t& unwrapArgc) const;

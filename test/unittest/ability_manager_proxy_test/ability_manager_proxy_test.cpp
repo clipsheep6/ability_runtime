@@ -2080,14 +2080,14 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_CallRequestDone_001, TestS
 HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_001, TestSize.Level1)
 {
     std::vector<int32_t> missionIds;
-    std::vector<MissionVaildResult> results;
+    std::vector<MissionValidResult> results;
     auto isValidMissionIdsTask = [&](uint32_t id, MessageParcel &data, MessageParcel &reply, MessageOption &o) {
         constexpr int32_t size = 10;
         constexpr int32_t errorCode = ERR_OK;
         reply.WriteInt32(errorCode);
         reply.WriteInt32(size);
         for (auto i = 0;  i < size; ++i) {
-            MissionVaildResult results;
+            MissionValidResult results;
             results.missionId = i;
             reply.WriteParcelable(&results);
         }
@@ -2108,15 +2108,15 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_001, Tes
 HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_002, TestSize.Level1)
 {
     std::vector<int32_t> missionIds;
-    std::vector<MissionVaildResult> results;
+    std::vector<MissionValidResult> results;
     auto isValidMissionIdsTask = [&](uint32_t id, MessageParcel &data, MessageParcel &reply, MessageOption &o) {
         constexpr int32_t size = 30;
         constexpr int32_t errorCode = ERR_OK;
-        MissionVaildResult results;
+        MissionValidResult results;
         reply.WriteInt32(errorCode);
         reply.WriteInt32(size);
         for (auto i = 0;  i < size; ++i) {
-            MissionVaildResult results;
+            MissionValidResult results;
             results.missionId = i;
             reply.WriteParcelable(&results);
         }
@@ -2137,7 +2137,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_002, Tes
 HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_003, TestSize.Level1)
 {
     std::vector<int32_t> missionIds;
-    std::vector<MissionVaildResult> results;
+    std::vector<MissionValidResult> results;
     auto isValidMissionIdsTask = [&](uint32_t id, MessageParcel &data, MessageParcel &reply, MessageOption &o) {
         constexpr int32_t size = 1;
         constexpr int32_t errorCode = ERR_OK;
@@ -2160,7 +2160,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_003, Tes
 HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_004, TestSize.Level1)
 {
     std::vector<int32_t> missionIds;
-    std::vector<MissionVaildResult> results;
+    std::vector<MissionValidResult> results;
     auto isValidMissionIdsTask = [&](uint32_t id, MessageParcel &data, MessageParcel &reply, MessageOption &o) {
         constexpr int32_t size = 0;
         constexpr int32_t errorCode = ERR_OK;
@@ -2183,7 +2183,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_004, Tes
 HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_005, TestSize.Level1)
 {
     std::vector<int32_t> missionIds;
-    std::vector<MissionVaildResult> results;
+    std::vector<MissionValidResult> results;
     for (auto i = 0; i < 30; ++i) {
         missionIds.push_back(i);
     }
@@ -2202,7 +2202,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_005, Tes
 HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsValidMissionIds_006, TestSize.Level1)
 {
     std::vector<int32_t> missionIds;
-    std::vector<MissionVaildResult> results;
+    std::vector<MissionValidResult> results;
     for (auto i = 0; i < 10; ++i) {
         missionIds.push_back(i);
     }
@@ -2247,6 +2247,136 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RecordAppExitReason_001, T
     auto res = proxy_->RecordAppExitReason(exitReason);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::RECORD_APP_EXIT_REASON), mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: PrepareTerminateAbilityBySCB
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService PrepareTerminateAbilityBySCB
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of PrepareTerminateAbilityBySCB
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_PrepareTerminateAbilityBySCB_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    sptr<SessionInfo> sessionInfo = nullptr;
+    bool isPrepareTerminate = false;
+    auto res = proxy_->PrepareTerminateAbilityBySCB(sessionInfo, isPrepareTerminate);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::PREPARE_TERMINATE_ABILITY_BY_SCB), mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityByUIContentSession
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartExtensionAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of StartExtensionAbility
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbilityByUIContentSession_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    const sptr<AAFwk::SessionInfo> sessionInfo = nullptr;
+    StartOptions startOptions;
+    auto res = proxy_->StartAbilityByUIContentSession(want, startOptions, callerToken, sessionInfo);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::START_UI_SESSION_ABILITY_FOR_OPTIONS), mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityByUIContentSession
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StopExtensionAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of StopExtensionAbility
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbilityByUIContentSession_002, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    const sptr<AAFwk::SessionInfo> sessionInfo = nullptr;
+    auto res = proxy_->StartAbilityByUIContentSession(want, callerToken, sessionInfo);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::START_UI_SESSION_ABILITY_ADD_CALLER), mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: RegisterSessionHandler
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService RegisterSessionHandler
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of RegisterSessionHandler
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RegisterSessionHandler_001, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    auto res = proxy_->RegisterSessionHandler(token);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: RegisterSessionHandler
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService RegisterSessionHandler
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of RegisterSessionHandler
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RegisterSessionHandler_002, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    auto res = proxy_->RegisterSessionHandler(token);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_SESSION_HANDLER), mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartSpecifiedAbilityBySCB
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartSpecifiedAbilityBySCB
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of StartSpecifiedAbilityBySCB
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartSpecifiedAbilityBySCB_001, TestSize.Level1)
+{
+    proxy_ = std::make_shared<AbilityManagerProxy>(nullptr);
+    EXPECT_TRUE(proxy_ != nullptr);
+    Want want;
+    proxy_->StartSpecifiedAbilityBySCB(want);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartSpecifiedAbilityBySCB
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartSpecifiedAbilityBySCB
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of StartSpecifiedAbilityBySCB
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartSpecifiedAbilityBySCB_002, TestSize.Level1)
+{
+    proxy_ = std::make_shared<AbilityManagerProxy>(mock_);
+    EXPECT_TRUE(proxy_ != nullptr);
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _)).Times(1).WillOnce(Return(NO_ERROR));
+    Want want;
+    proxy_->StartSpecifiedAbilityBySCB(want);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

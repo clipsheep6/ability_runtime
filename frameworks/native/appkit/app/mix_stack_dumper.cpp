@@ -42,6 +42,7 @@ static std::mutex g_mutex;
 
 namespace {
 static const std::string PROC_SELF_CMDLINE_PATH = "/proc/self/cmdline";
+static constexpr int SUSPEND_VM_FRAME_SKIP_NUM = 2;
 static constexpr int HEADER_BUF_LEN = 512;
 static bool hasInstalled = false;
 static pid_t g_targetDumpTid = -1;
@@ -212,7 +213,8 @@ bool MixStackDumper::DumpMixFrame(int fd, pid_t nstid, pid_t tid)
     if (application != nullptr && application->GetRuntime() != nullptr) {
         isVmSuspended = application->GetRuntime()->SuspendVM(nstid);
     }
-    if (!catcher_->CatchFrame(nstid, nativeFrames)) {
+    int skipframes = isVmSuspended ? SUSPEND_VM_FRAME_SKIP_NUM : 0;
+    if (!catcher_->CatchFrame(nstid, nativeFrames, skipframes)) {
         hasNativeFrame = false;
     }
 

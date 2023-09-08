@@ -34,11 +34,13 @@ const std::unordered_set<AppExecFwk::ExtensionAbilityType> UI_EXTENSION_SET = {
     AppExecFwk::ExtensionAbilityType::SYSDIALOG_POWER,
     AppExecFwk::ExtensionAbilityType::SYSPICKER_SHARE,
     AppExecFwk::ExtensionAbilityType::HMS_ACCOUNT,
+    AppExecFwk::ExtensionAbilityType::ADS,
     AppExecFwk::ExtensionAbilityType::SYSDIALOG_MEETIMECALL,
     AppExecFwk::ExtensionAbilityType::SYSDIALOG_MEETIMECONTACT,
     AppExecFwk::ExtensionAbilityType::SYSDIALOG_MEETIMEMESSAGE,
     AppExecFwk::ExtensionAbilityType::SYSPICKER_MEETIMECONTACT,
-    AppExecFwk::ExtensionAbilityType::SYSPICKER_MEETIMECALLLOG
+    AppExecFwk::ExtensionAbilityType::SYSPICKER_MEETIMECALLLOG,
+    AppExecFwk::ExtensionAbilityType::SYS_COMMON_UI
 };
 
 inline bool IsUIExtension(const AppExecFwk::ExtensionAbilityType type)

@@ -129,6 +129,42 @@ public:
         int requestCode = DEFAULT_INVAL_VALUE) override;
 
     /**
+     * Start ui session ability with extension session info, send session info to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param callerToken, caller ability token.
+     * @param sessionInfo the information of UIExtensionContentSession.
+     * @param userId, Designation User ID.
+     * @param requestCode, Ability request code.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartAbilityByUIContentSession(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        const sptr<SessionInfo> &sessionInfo,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE) override;
+
+    /**
+     * Start ui session ability with extension session info, send session info to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @param callerToken, caller ability token.
+     * @param sessionInfo the information of UIExtensionContentSession.
+     * @param userId, Designation User ID.
+     * @param requestCode the resultCode of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartAbilityByUIContentSession(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        const sptr<SessionInfo> &sessionInfo,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE) override;
+
+    /**
      * Start extension ability with want, send want to ability manager service.
      *
      * @param want, the want of the ability to start.
@@ -283,7 +319,8 @@ public:
         const sptr<IAbilityConnection> &connect,
         const sptr<IRemoteObject> &callerToken,
         AppExecFwk::ExtensionAbilityType extensionType,
-        int32_t userId = DEFAULT_INVAL_VALUE) override;
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        bool isQueryExtensionOnly = false) override;
 
     virtual int ConnectUIExtensionAbility(
         const Want &want,
@@ -762,7 +799,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t IsValidMissionIds(
-        const std::vector<int32_t> &missionIds, std::vector<MissionVaildResult> &results) override;
+        const std::vector<int32_t> &missionIds, std::vector<MissionValidResult> &results) override;
 
     /**
      * Query whether the application of the specified PID and UID has been granted a certain permission
@@ -890,6 +927,8 @@ private:
     int TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant, bool flag);
     ErrCode SendRequest(AbilityManagerInterfaceCode code, MessageParcel &data, MessageParcel &reply,
         MessageOption& option);
+    int CheckUISessionParams(MessageParcel &data, const sptr<IRemoteObject> &callerToken,
+        const sptr<SessionInfo> &sessionInfo, int32_t userId, int requestCode);
 
 private:
     static inline BrokerDelegator<AbilityManagerProxy> delegator_;

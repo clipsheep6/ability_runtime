@@ -31,7 +31,8 @@ public:
     void OnExceptionObject(const AppExecFwk::ErrorObject &errorObj) override;
     void OnUnhandledException(const std::string errMsg) override;
     void AddJsObserverObject(const int32_t observerId, NativeValue* jsObserverObject, bool isSync = false);
-    bool RemoveJsObserverObject(const int32_t observerId, bool &isEmpty, bool isSync = false);
+    bool RemoveJsObserverObject(const int32_t observerId, bool isSync = false);
+    bool IsEmpty();
 
 private:
     void CallJsFunction(NativeValue* value, const char* methodName, NativeValue* const* argv, size_t argc);

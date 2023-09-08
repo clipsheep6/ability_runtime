@@ -2307,10 +2307,10 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_IsValidMissionIdsInner_001, 
 {
     MessageParcel data;
     MessageParcel reply;
-    auto isValidMissionIdsTask = [&](const std::vector<int32_t>& ids, std::vector<MissionVaildResult>& results) {
-        MissionVaildResult result;
+    auto isValidMissionIdsTask = [&](const std::vector<int32_t>& ids, std::vector<MissionValidResult>& results) {
+        MissionValidResult result;
         result.missionId = 1;
-        result.isVaild = true;
+        result.isValid = true;
         results.push_back(result);
         return ERR_OK;
     };
@@ -2330,12 +2330,82 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_IsValidMissionIdsInner_002, 
 {
     MessageParcel data;
     MessageParcel reply;
-    auto isValidMissionIdsTask = [&](const std::vector<int32_t>& ids, std::vector<MissionVaildResult>& results) {
+    auto isValidMissionIdsTask = [&](const std::vector<int32_t>& ids, std::vector<MissionValidResult>& results) {
         GTEST_LOG_(INFO) << "AbilityManagerStub_IsValidMissionIdsInner_002 caller";
         return ERR_INVALID_VALUE;
     };
     EXPECT_CALL(*stub_, IsValidMissionIds(_, _)).Times(1).WillOnce(testing::Invoke(isValidMissionIdsTask));
     EXPECT_EQ(stub_->IsValidMissionIdsInner(data, reply), NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: PrepareTerminateAbilityBySCBInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService PrepareTerminateAbilityBySCBInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of PrepareTerminateAbilityBySCB.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_PrepareTerminateAbilityBySCBInner_002, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto prepareTerminateAbilityBySCBTask = [&](const sptr<SessionInfo> &sessionInfo, bool &isTerminate) {
+        GTEST_LOG_(INFO) << "AbilityManagerStub_IsValidMissionIdsInner_002 caller";
+        return ERR_INVALID_VALUE;
+    };
+    EXPECT_CALL(*stub_, PrepareTerminateAbilityBySCB(_, _)).Times(1).WillOnce(
+        testing::Invoke(prepareTerminateAbilityBySCBTask));
+    EXPECT_EQ(stub_->PrepareTerminateAbilityBySCBInner(data, reply), ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: RegisterSessionHandlerInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService RegisterSessionHandlerInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function RegisterSessionHandlerInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_RegisterSessionHandlerInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->RegisterSessionHandlerInner(data, reply);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartSpecifiedAbilityBySCBInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartSpecifiedAbilityBySCBInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function StartSpecifiedAbilityBySCBInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartSpecifiedAbilityBySCBInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->StartSpecifiedAbilityBySCBInner(data, reply);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartSpecifiedAbilityBySCBInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartSpecifiedAbilityBySCBInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function StartSpecifiedAbilityBySCBInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartSpecifiedAbilityBySCBInner_002, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    Want want;
+    data.WriteParcelable(&want);
+    EXPECT_EQ(stub_->StartSpecifiedAbilityBySCBInner(data, reply), NO_ERROR);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -32,7 +32,8 @@ bool ExtensionManagerProxy::WriteInterfaceToken(MessageParcel &data)
 }
 
 int ExtensionManagerProxy::ConnectAbilityCommon(const Want &want, const sptr<IRemoteObject> &connect,
-    const sptr<IRemoteObject> &callerToken, AppExecFwk::ExtensionAbilityType extensionType, int32_t userId)
+    const sptr<IRemoteObject> &callerToken, AppExecFwk::ExtensionAbilityType extensionType, int32_t userId,
+    bool isQueryExtensionOnly)
 {
     if (connect == nullptr) {
         HILOG_ERROR("connect is nullptr");
@@ -68,6 +69,10 @@ int ExtensionManagerProxy::ConnectAbilityCommon(const Want &want, const sptr<IRe
     }
     if (!data.WriteInt32(static_cast<int32_t>(extensionType))) {
         HILOG_ERROR("%{public}s, extensionType write failed.", __func__);
+        return INNER_ERR;
+    }
+    if (!data.WriteBool(isQueryExtensionOnly)) {
+        HILOG_ERROR("isQueryExtensionOnly write failed.");
         return INNER_ERR;
     }
 

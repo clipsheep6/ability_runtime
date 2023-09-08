@@ -141,14 +141,9 @@ ErrCode AppSpawnClient::StartProcessImpl(const AppSpawnStartMsg &startMsg, pid_t
             HILOG_ERROR("WriteMessage failed!");
             return result;
         }
-        result = StartProcessForWriteMsg(msgWrapper, startMsg);
+        result = StartProcessForWriteMsg(msgWrapper);
         if (FAILED(result)) {
             HILOG_ERROR("StartProcessForWriteMsg failed!");
-            return result;
-        }
-        result = WriteDataGroupInfoList(msgWrapper);
-        if (FAILED(result)) {
-            HILOG_ERROR("WriteDataGroupInfoList failed!");
             return result;
         }
         result = socket_->ReadMessage(reinterpret_cast<void *>(pidMsg.pidBuf), LEN_PID);
@@ -166,17 +161,12 @@ ErrCode AppSpawnClient::StartProcessImpl(const AppSpawnStartMsg &startMsg, pid_t
     return result;
 }
 
-ErrCode AppSpawnClient::StartProcessForWriteMsg(const AppSpawnMsgWrapper &msgWrapper, const AppSpawnStartMsg &startMsg)
+ErrCode AppSpawnClient::StartProcessForWriteMsg(const AppSpawnMsgWrapper &msgWrapper)
 {
     ErrCode result = ERR_OK;
-    result = WriteStrInfoMessage(msgWrapper.GetHspListStr());
+    result = WriteStrInfoMessage(msgWrapper.GetExtraInfoStr());
     if (FAILED(result)) {
-        HILOG_ERROR("Write HspList failed!");
-        return result;
-    }
-    result = WriteStrInfoMessage(startMsg.overlayInfo);
-    if (FAILED(result)) {
-        HILOG_ERROR("Write OverlayInfo failed!");
+        HILOG_ERROR("Write extra info failed!");
         return result;
     }
     return result;
@@ -206,22 +196,6 @@ ErrCode AppSpawnClient::WriteStrInfoMessage(const std::string &strInfo)
     if (leftLen > 0) {
         result = socket_->WriteMessage(buff, leftLen);
     }
-    return result;
-}
-
-ErrCode AppSpawnClient::WriteDataGroupInfoList(AppSpawnMsgWrapper &msgWrapper)
-{
-    ErrCode result = ERR_OK;
-    const std::string& dataGroupInfoListStr = msgWrapper.GetDataGroupInfoListStr();
-    if (dataGroupInfoListStr.empty()) {
-        return result;
-    }
-
-    // split msg
-    const char *buff = dataGroupInfoListStr.c_str();
-    size_t leftLen = dataGroupInfoListStr.size() + 1;
-    HILOG_DEBUG("dataGroupInfoListStr length is %zu", leftLen);
-    result = socket_->WriteMessage(buff, leftLen);
     return result;
 }
 

@@ -47,13 +47,13 @@ public:
      */
     virtual int ConnectAbilityCommon(const Want &want, const sptr<IRemoteObject> &connect,
         const sptr<IRemoteObject> &callerToken, AppExecFwk::ExtensionAbilityType extensionType,
-        int32_t userId = DEFAULT_INVALID_USER_ID)
+        int32_t userId = DEFAULT_INVALID_USER_ID, bool isQuerryExtensionOnly = true)
     {
         return 0;
     }
 
     /**
-     * DisconnectAbility, disconnect session with service ability.
+     * Disconnect session with extension ability.
      *
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
      * @return Returns ERR_OK on success, others on failure.

@@ -27,6 +27,7 @@ static constexpr int64_t NANOSECONDS = 1000000000;  // NANOSECONDS mean 10^9 nan
 static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 millias second
 constexpr int32_t MAX_RESTART_COUNT = 3;
 constexpr int32_t RESTART_INTERVAL_TIME = 120000;
+const std::string LAUNCHER_NAME = "com.ohos.sceneboard";
 }
 
 int64_t AppRunningRecord::appEventId_ = 0;
@@ -364,10 +365,12 @@ void AppRunningRecord::RemoveModuleRecord(const std::shared_ptr<ModuleRunningRec
             item.second.end(),
             [&moduleRecord](const std::shared_ptr<ModuleRunningRecord> &record) { return moduleRecord == record; });
         if (iter != item.second.end()) {
+            HILOG_DEBUG("Removed a record.");
             iter = item.second.erase(iter);
             if (item.second.empty()) {
                 {
                     std::lock_guard<ffrt::mutex> appInfosLock(appInfosLock_);
+                    HILOG_DEBUG("Removed an appInfo.");
                     appInfos_.erase(item.first);
                 }
                 hapModules_.erase(item.first);
@@ -814,12 +817,16 @@ void AppRunningRecord::AbilityForeground(const std::shared_ptr<AbilityRunningRec
         return;
     }
 
+    HILOG_INFO("appState: %{public}d, bundle: %{public}s, ability: %{public}s",
+        curState_, mainBundleName_.c_str(), ability->GetName().c_str());
     // We need schedule application to foregrounded when current application state is ready or background running.
     if (curState_ == ApplicationState::APP_STATE_READY || curState_ == ApplicationState::APP_STATE_BACKGROUND) {
         if (foregroundingAbilityTokens_.empty()) {
+            HILOG_INFO("application foregrounding.");
             ScheduleForegroundRunning();
         }
-        foregroundingAbilityTokens_.push_back(ability->GetToken());
+        foregroundingAbilityTokens_.insert(ability->GetToken());
+        HILOG_INFO("foregroundingAbility size: %{public}d", static_cast<int32_t>(foregroundingAbilityTokens_.size()));
         if (curState_ == ApplicationState::APP_STATE_BACKGROUND) {
             SendAppStartupTypeEvent(ability, AppStartType::HOT);
         }
@@ -845,6 +852,7 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
         HILOG_ERROR("ability is null");
         return;
     }
+    HILOG_INFO("ability is %{public}s", mainBundleName_.c_str());
     if (ability->GetState() != AbilityState::ABILITY_STATE_FOREGROUND &&
         ability->GetState() != AbilityState::ABILITY_STATE_READY) {
         HILOG_ERROR("ability state is not foreground or focus");
@@ -869,8 +877,10 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
             }
         }
 
+
+
         // Then schedule application background when all ability is not foreground.
-        if (foregroundSize == 0) {
+        if (foregroundSize == 0 && mainBundleName_ != LAUNCHER_NAME) {
             ScheduleBackgroundRunning();
         }
     } else {
@@ -944,13 +954,13 @@ bool AppRunningRecord::AbilityUnfocused(const std::shared_ptr<AbilityRunningReco
 
 void AppRunningRecord::PopForegroundingAbilityTokens()
 {
-    while (!foregroundingAbilityTokens_.empty()) {
-        const auto &token = foregroundingAbilityTokens_.front();
-        auto ability = GetAbilityRunningRecordByToken(token);
-        auto moduleRecord = GetModuleRunningRecordByToken(token);
+    HILOG_INFO("foregroundingAbility size: %{public}d", static_cast<int32_t>(foregroundingAbilityTokens_.size()));
+    for (auto iter = foregroundingAbilityTokens_.begin(); iter != foregroundingAbilityTokens_.end();) {
+        auto ability = GetAbilityRunningRecordByToken(*iter);
+        auto moduleRecord = GetModuleRunningRecordByToken(*iter);
         moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_FOREGROUND);
         StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_FOREGROUND), true);
-        foregroundingAbilityTokens_.pop_front();
+        iter = foregroundingAbilityTokens_.erase(iter);
     }
 }
 
@@ -993,11 +1003,13 @@ std::list<std::shared_ptr<ModuleRunningRecord>> AppRunningRecord::GetAllModuleRe
 {
     std::list<std::shared_ptr<ModuleRunningRecord>> moduleRecordList;
     std::lock_guard<ffrt::mutex> hapModulesLock(hapModulesLock_);
+    HILOG_DEBUG("Begin.");
     for (const auto &item : hapModules_) {
         for (const auto &list : item.second) {
             moduleRecordList.push_back(list);
         }
     }
+    HILOG_DEBUG("End.");
     return moduleRecordList;
 }
 
@@ -1297,9 +1309,11 @@ bool AppRunningRecord::CanRestartResidentProc()
 void AppRunningRecord::GetBundleNames(std::vector<std::string> &bundleNames)
 {
     std::lock_guard<ffrt::mutex> appInfosLock(appInfosLock_);
+    HILOG_DEBUG("Begin.");
     for (auto &app : appInfos_) {
         bundleNames.emplace_back(app.first);
     }
+    HILOG_DEBUG("End.");
 }
 
 void AppRunningRecord::SetUserTestInfo(const std::shared_ptr<UserTestRecord> &record)

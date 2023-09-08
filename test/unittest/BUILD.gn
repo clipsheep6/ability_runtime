@@ -27,6 +27,7 @@ config("appmgr_test_config") {
 
   include_dirs = [
     "${ability_runtime_test_path}/mock/services_appmgr_test/include",
+    "${distributeddatamgr_path}/kv_store/interfaces/innerkits/distributeddata/include",
     "${global_path}/i18n/frameworks/intl/include",
   ]
 }
@@ -90,6 +91,7 @@ ohos_source_set("appmgr_test_source") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "kv_store:distributeddata_mgr",
   ]
 
   subsystem_name = "ability"
@@ -267,7 +269,7 @@ ohos_source_set("abilityms_test_source") {
   }
 
   if (ecologic_rule_enabled) {
-    external_deps += [ "ecological_rule_mgr:erms_client" ]
+    external_deps += [ "ecological_rule_manager:erms_client" ]
   }
 
   subsystem_name = "ability"
@@ -378,6 +380,7 @@ group("unittest") {
     "dummy_values_bucket_test:unittest",
     "event_report_test:unittest",
     "extension_config_mgr_test:unittest",
+    "extension_manager_client_test:unittest",
     "fault_data:unittest",
     "file_path_utils_test:unittest",
     "form_extension_context_test:unittest",
@@ -424,6 +427,7 @@ group("unittest") {
     "ui_extension_utils_test:unittest",
     "uri_permission_impl_test:unittest",
     "uri_permission_manager_test:unittest",
+    "uri_permission_persistable_test:unittest",
     "uri_permission_test:unittest",
     "user_controller_test:unittest",
     "user_event_handler_test:unittest",
