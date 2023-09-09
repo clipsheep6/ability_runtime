@@ -73,7 +73,7 @@ class EventHub {
       const cloneArray = [...this.eventMap[event]];
       const len = cloneArray.length;
       for (let i = 0; i < len; ++i) {
-        cloneArray[i].apply(this, ...args);
+        cloneArray[i].apply(this, args);
       }
     }
   }
