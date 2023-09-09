@@ -223,12 +223,8 @@ private:
         }
         std::vector<std::string> bundleNameList;
         if (info.argc > ARGC_TWO) {
-            if (!AppExecFwk::UnwrapArrayStringFromJS(reinterpret_cast<napi_env>(&engine),
-                reinterpret_cast<napi_value>(info.argv[INDEX_TWO]), bundleNameList)) {
-                HILOG_ERROR("Parse bundleNameList failed");
-                ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-                return engine.CreateUndefined();
-            }
+            AppExecFwk::UnwrapArrayStringFromJS(reinterpret_cast<napi_env>(&engine),
+                reinterpret_cast<napi_value>(info.argv[INDEX_TWO]), bundleNameList);
         }
         if (observerSync_ == nullptr) {
             observerSync_ = new JSAppStateObserver(engine);

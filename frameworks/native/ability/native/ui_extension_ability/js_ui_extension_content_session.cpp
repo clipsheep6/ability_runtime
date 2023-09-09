@@ -28,6 +28,7 @@
 #include "napi_common_want.h"
 #include "native_engine.h"
 #include "native_value.h"
+#include "tokenid_kit.h"
 #include "want.h"
 #include "window.h"
 
@@ -40,6 +41,16 @@ constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
 constexpr const char* PERMISSION_PRIVACY_WINDOW = "ohos.permission.PRIVACY_WINDOW";
 } // namespace
+
+#define CHECK_IS_SYSTEM_APP                                                             \
+do {                                                                                    \
+    auto selfToken = IPCSkeleton::GetSelfTokenID();                                     \
+    if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {      \
+        HILOG_ERROR("This application is not system-app, can not use system-api");      \
+        ThrowError(engine, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);                \
+        return engine.CreateUndefined();                                                \
+    }                                                                                   \
+} while(0)
 
 void UISessionAbilityResultListener::OnAbilityResult(int requestCode, int resultCode, const Want &resultData)
 {
@@ -161,6 +172,7 @@ NativeValue *JsUIExtensionContentSession::OnStartAbility(NativeEngine& engine, N
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("OnStartAbility is called");
+    CHECK_IS_SYSTEM_APP;
 
     if (info.argc == ARGC_ZERO) {
         HILOG_ERROR("Not enough params");
@@ -248,6 +260,7 @@ AsyncTask::ExecuteCallback JsUIExtensionContentSession::StartAbilityExecuteCallb
 
 NativeValue *JsUIExtensionContentSession::OnStartAbilityForResult(NativeEngine& engine, NativeCallbackInfo &info)
 {
+    CHECK_IS_SYSTEM_APP;
     if (info.argc == ARGC_ZERO) {
         ThrowTooFewParametersError(engine);
         return engine.CreateUndefined();
@@ -411,6 +424,7 @@ NativeValue *JsUIExtensionContentSession::OnTerminateSelfWithResult(NativeEngine
 NativeValue *JsUIExtensionContentSession::OnSendData(NativeEngine& engine, NativeCallbackInfo& info)
 {
     HILOG_DEBUG("called");
+    CHECK_IS_SYSTEM_APP;
     if (info.argc < ARGC_ONE) {
         HILOG_ERROR("invalid param");
         ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
@@ -443,6 +457,7 @@ NativeValue *JsUIExtensionContentSession::OnSendData(NativeEngine& engine, Nativ
 NativeValue *JsUIExtensionContentSession::OnSetReceiveDataCallback(NativeEngine& engine, NativeCallbackInfo& info)
 {
     HILOG_DEBUG("called");
+    CHECK_IS_SYSTEM_APP;
     if (info.argc < ARGC_ONE || info.argv[INDEX_ZERO]->TypeOf() != NATIVE_FUNCTION) {
         HILOG_ERROR("invalid param");
         ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
@@ -511,6 +526,7 @@ NativeValue *JsUIExtensionContentSession::OnLoadContent(NativeEngine& engine, Na
 NativeValue *JsUIExtensionContentSession::OnSetWindowBackgroundColor(NativeEngine& engine, NativeCallbackInfo& info)
 {
     HILOG_DEBUG("called");
+    CHECK_IS_SYSTEM_APP;
     std::string color;
     if (info.argc < ARGC_ONE || !ConvertFromJsValue(engine, info.argv[INDEX_ZERO], color)) {
         HILOG_ERROR("invalid param");
