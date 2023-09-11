@@ -47,6 +47,7 @@
 #ifdef SUPPORT_GRAPHICS
 #include "locale_config.h"
 #include "ace_forward_compatibility.h"
+#include "form_constants.h"
 #endif
 #include "app_mgr_client.h"
 #include "if_system_ability_manager.h"
@@ -1129,6 +1130,9 @@ bool GetBundleForLaunchApplication(sptr<IBundleMgr> bundleMgr, const std::string
             static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) +
             static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_SIGNATURE_INFO) +
             static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY) +
+#ifdef SUPPORT_GRAPHICS
+            static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_REQUESTED_PERMISSION) +
+#endif
             static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_METADATA)), bundleInfo) == ERR_OK);
     }
     return queryResult;
@@ -1196,7 +1200,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     bool isFullUpdate = std::any_of(metaData.begin(), metaData.end(), [](const auto &metaDataItem) {
         return metaDataItem.name == "ArkTSPartialUpdate" && metaDataItem.value == "false";
     });
-    Ace::AceForwardCompatibility::Init(bundleName, appInfo.apiCompatibleVersion, isFullUpdate);
+    bool isReqForm = std::any_of(bundleInfo.reqPermissions.begin(), bundleInfo.reqPermissions.end(),
+        [] (const auto &reqPermission) {
+        return reqPermission == OHOS::AppExecFwk::Constants::PERMISSION_REQUIRE_FORM;
+    });
+    Ace::AceForwardCompatibility::Init(bundleName, appInfo.apiCompatibleVersion, (isFullUpdate || isReqForm));
 #endif
 
     if (IsNeedLoadLibrary(bundleName)) {
