@@ -1483,5 +1483,13 @@ ErrCode AbilityManagerClient::RegisterSessionHandler(const sptr<IRemoteObject> &
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->RegisterSessionHandler(object);
 }
+
+bool AbilityManagerClient::IsAbilityControllerStart(const Want &want, const std::string &bundleName)
+{
+    HILOG_DEBUG("call");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->IsAbilityControllerStart(want, bundleName);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

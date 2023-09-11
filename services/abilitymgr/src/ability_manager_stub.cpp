@@ -341,6 +341,8 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::NotifySaveAsResultInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_SESSIONMANAGERSERVICE)] =
         &AbilityManagerStub::SetSessionManagerServiceInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_ABILITY_CONTROLLER_START)] =
+        &AbilityManagerStub::IsAbilityControllerStartInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -2500,6 +2502,23 @@ int AbilityManagerStub::RegisterSessionHandlerInner(MessageParcel &data, Message
     }
     int32_t result = RegisterSessionHandler(handler);
     reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::IsAbilityControllerStartInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<Want> want(data.ReadParcelable<Want>());
+    if (!want) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    std::string bundleName = data.ReadString();
+    bool result = IsAbilityControllerStart(*want, bundleName);
+    HILOG_INFO("AbilityManagerStub: IsAbilityControllerStart result = %{public}d", result);
+    if (!reply.WriteBool(result)) {
+        HILOG_ERROR("IsAbilityControllerStart failed.");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 }  // namespace AAFwk

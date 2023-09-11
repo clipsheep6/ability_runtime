@@ -950,7 +950,7 @@ public:
     virtual int32_t SendResultToAbilityByToken(const Want &want, const sptr<IRemoteObject> &abilityToken,
         int32_t requestCode, int32_t resultCode, int32_t userId) override;
 
-    bool IsAbilityControllerStart(const Want &want, const std::string &bundleName);
+    bool IsAbilityControllerStart(const Want &want, const std::string &bundleName) override;
 
     bool IsAbilityControllerForeground(const std::string &bundleName);
 

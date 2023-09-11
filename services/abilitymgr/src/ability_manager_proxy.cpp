@@ -4120,6 +4120,33 @@ int AbilityManagerProxy::PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &s
     return NO_ERROR;
 }
 
+bool AbilityManagerProxy::IsAbilityControllerStart(const Want &want, const std::string &bundleName)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return false;
+    }
+
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("WriteWantObject failed.");
+        return false;
+    }
+
+    if (!data.WriteString(bundleName)) {
+        HILOG_ERROR("bundleName write failed.");
+        return false;
+    }
+    auto error = SendRequest(AbilityManagerInterfaceCode::IS_ABILITY_CONTROLLER_START, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return false;
+    }
+    return reply.ReadBool();
+}
+
 ErrCode AbilityManagerProxy::SendRequest(AbilityManagerInterfaceCode code, MessageParcel &data, MessageParcel &reply,
     MessageOption& option)
 {

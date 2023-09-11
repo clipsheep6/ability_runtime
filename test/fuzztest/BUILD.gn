@@ -75,6 +75,7 @@ group("fuzztest") {
     "abilitystubgettopabilitytoken_fuzzer:fuzztest",
     "abilitystubgetwantsender_fuzzer:fuzztest",
     "abilitystubgetwantsendinfo_fuzzer:fuzztest",
+    "abilitystubisabilitycontrollerstart_fuzzer:fuzztest",
     "abilitystubisramconstraineddevice_fuzzer:fuzztest",
     "abilitystubisrunninginstabilitytest_fuzzer:fuzztest",
     "abilitystubkillprocess_fuzzer:fuzztest",

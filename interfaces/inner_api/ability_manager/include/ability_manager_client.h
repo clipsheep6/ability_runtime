@@ -1187,6 +1187,15 @@ public:
     */
     ErrCode RegisterSessionHandler(const sptr<IRemoteObject> &object);
 
+    /**
+     * @brief Register session handler.
+     * @param want Want information.
+     * @param bundleName Target bundleName.
+     *
+     * @return Returns true on success, others on false.
+    */
+    bool IsAbilityControllerStart(const Want &want, const std::string &bundleName);
+
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
