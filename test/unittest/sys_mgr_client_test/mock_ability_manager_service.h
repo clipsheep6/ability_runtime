@@ -264,6 +264,25 @@ public:
 #endif
     MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionValidResult>&));
 
+    int32_t RegisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener) override
+    {
+        return 0;
+    }
+
+    int32_t UnregisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener) override
+    {
+        return 0;
+    }
+
+    int32_t AttachAppDebug(const std::string &bundleName) override
+    {
+        return 0;
+    }
+
+    int32_t DetachAppDebug(const std::string &bundleName) override
+    {
+        return 0;
+    }
     AbilityLifeCycleState curstate_ = AbilityLifeCycleState::ABILITY_STATE_INITIAL;
     sptr<IAbilityScheduler> abilityScheduler_;  // kit interface used to schedule ability life
     Want want_;

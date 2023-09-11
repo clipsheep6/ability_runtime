@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -152,6 +152,16 @@ public:
         return appIndex_;
     }
 
+    inline void SetAppDebug(const bool &isDebug)
+    {
+        isDebug_ = isDebug;
+    }
+
+    bool GetAppDebug() const
+    {
+        return isDebug_;
+    }
+
     /**
      * @brief read this Sequenceable object from a Parcel.
      *
@@ -182,6 +192,7 @@ private:
     int32_t uId_ = 0;
     int32_t appIndex_ = 0;
     std::shared_ptr<UserTestRecord> userTestRecord_ = nullptr;
+    bool isDebug_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

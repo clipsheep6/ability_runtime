@@ -48,6 +48,26 @@ void AbilityManagerClientTest::SetUp()
 void AbilityManagerClientTest::TearDown()
 {}
 
+int32_t RegisterAppDebugListenerInner(MessageParcel &data, MessageParcel &reply)
+{
+    return 0;
+}
+
+int32_t UnregisterAppDebugListenerInner(MessageParcel &data, MessageParcel &reply)
+{
+    return 0;
+}
+
+int32_t AttachAppDebugInner(MessageParcel &data, MessageParcel &reply)
+{
+    return 0;
+}
+
+int32_t DetachAppDebugInner(MessageParcel &data, MessageParcel &reply)
+{
+    return 0;
+}
+
 /**
  * @tc.name: AbilityManagerClient_DumpSysState_0100
  * @tc.desc: DumpSysState

@@ -449,5 +449,71 @@ int32_t AppScheduler::NotifyFault(const AppExecFwk::FaultData &faultData)
 
     return ERR_OK;
 }
+
+int32_t AppScheduler::RegisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener)
+{
+    CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
+    auto ret = static_cast<int32_t>(appMgrClient_->RegisterAppDebugListener(listener));
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Register app debug listener failed.");
+        return INNER_ERR;
+    }
+    return ERR_OK;
+}
+
+int32_t AppScheduler::UnregisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener)
+{
+    CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
+    auto ret = static_cast<int32_t>(appMgrClient_->UnregisterAppDebugListener(listener));
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Unregister app debug listener failed.");
+        return INNER_ERR;
+    }
+    return ERR_OK;
+}
+
+int32_t AppScheduler::AttachAppDebug(const std::string &bundleName)
+{
+    CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
+    auto ret = static_cast<int32_t>(appMgrClient_->AttachAppDebug(bundleName));
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Attach app debug failed.");
+        return INNER_ERR;
+    }
+    return ERR_OK;
+}
+
+int32_t AppScheduler::DetachAppDebug(const std::string &bundleName)
+{
+    CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
+    auto ret = static_cast<int32_t>(appMgrClient_->DetachAppDebug(bundleName));
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Detach app debug failed.");
+        return INNER_ERR;
+    }
+    return ERR_OK;
+}
+
+int32_t AppScheduler::RegisterAbilityDebugResponse(const sptr<AppExecFwk::IAbilityDebugResponse> &response)
+{
+    CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
+    auto ret = static_cast<int32_t>(appMgrClient_->RegisterAbilityDebugResponse(response));
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Register ability debug response failed.");
+        return INNER_ERR;
+    }
+    return ERR_OK;
+}
+
+bool AppScheduler::IsAttachDebug(const std::string &bundleName)
+{
+    CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
+    auto ret = static_cast<int32_t>(appMgrClient_->IsAttachDebug(bundleName));
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Call is attach debug failed.");
+        return INNER_ERR;
+    }
+    return ERR_OK;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

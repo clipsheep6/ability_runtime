@@ -45,6 +45,11 @@ public:
     MOCK_METHOD2(ScheduleHeapMemory, void(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo));
     MOCK_METHOD0(ScheduleLowMemory, void());
     MOCK_METHOD1(ScheduleNotifyAppFault, int32_t(const FaultData &));
+    MOCK_METHOD1(RegisterAppDebugListener, int32_t(const sptr<AppExecFwk::IAppDebugListener> &listener));
+    MOCK_METHOD1(UnregisterAppDebugListener, int32_t(const sptr<AppExecFwk::IAppDebugListener> &listener));
+    MOCK_METHOD1(AttachAppDebug, int32_t(const std::string &bundleName));
+    MOCK_METHOD1(DetachAppDebug, int32_t(const std::string &bundleName));
+    MOCK_METHOD1(RegisterAbilityDebugResponse, int32_t(const sptr<AppExecFwk::IAbilityDebugResponse> &response));
 };
 }  // namespace AAFwk
 }  // namespace OHOS

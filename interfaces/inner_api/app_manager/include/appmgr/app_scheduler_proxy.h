@@ -174,6 +174,9 @@ public:
 
     int32_t ScheduleNotifyAppFault(const FaultData &faultData) override;
 
+    void AttachAppDebug() override;
+    void DetachAppDebug() override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     void ScheduleMemoryCommon(const int32_t level, const uint32_t operation);

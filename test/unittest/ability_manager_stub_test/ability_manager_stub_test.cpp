@@ -56,6 +56,26 @@ void AbilityManagerStubTest::WriteInterfaceToken(MessageParcel& data)
     data.WriteInterfaceToken(AbilityManagerStub::GetDescriptor());
 }
 
+int32_t RegisterAppDebugListenerInner(MessageParcel &data, MessageParcel &reply)
+{
+    return 0;
+}
+
+int32_t UnregisterAppDebugListenerInner(MessageParcel &data, MessageParcel &reply)
+{
+    return 0;
+}
+
+int32_t AttachAppDebugInner(MessageParcel &data, MessageParcel &reply)
+{
+    return 0;
+}
+
+int32_t DetachAppDebugInner(MessageParcel &data, MessageParcel &reply)
+{
+    return 0;
+}
+
 /**
  * @tc.name: AbilityManagerStub_DumpSysStateInner_0100
  * @tc.desc: DumpSysStateInner

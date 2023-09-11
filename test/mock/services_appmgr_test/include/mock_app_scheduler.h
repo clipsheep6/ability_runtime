@@ -52,6 +52,8 @@ public:
     MOCK_METHOD3(ScheduleNotifyUnLoadRepairPatch, int32_t(const std::string& bundleName,
         const sptr<IQuickFixCallback>& callback, const int32_t recordId));
     MOCK_METHOD1(ScheduleNotifyAppFault, int32_t(const FaultData &faultData));
+    MOCK_METHOD0(AttachAppDebug, void());
+    MOCK_METHOD0(DetachAppDebug, void());
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

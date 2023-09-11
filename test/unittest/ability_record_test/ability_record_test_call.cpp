@@ -22,6 +22,7 @@
 #undef protected
 
 #include "ability_connect_callback_stub.h"
+#include "ability_debug_deal.h"
 #include "ability_manager_service.h"
 #include "ability_scheduler_mock.h"
 #include "connection_record.h"

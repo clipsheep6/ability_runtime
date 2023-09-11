@@ -889,6 +889,8 @@ public:
     void SetLockedState(bool lockedState);
     bool GetLockedState();
 
+    void SetAttachDebug(const bool &isAttachDebug);
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
 
@@ -1073,6 +1075,7 @@ private:
     bool isGrantPersistableUriPermissionEnable_ = false;
     std::string missionAffinity_ = "";
     bool lockedState_ = false;
+    bool isAttachDebug_ = false;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

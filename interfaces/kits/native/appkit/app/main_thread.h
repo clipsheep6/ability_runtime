@@ -269,6 +269,9 @@ public:
 
     int32_t ScheduleNotifyAppFault(const FaultData &faultData) override;
 
+    void AttachAppDebug() override;
+    void DetachAppDebug() override;
+
 private:
     /**
      *
