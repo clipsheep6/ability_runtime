@@ -91,6 +91,7 @@ void AppMgrService::OnStart()
         return;
     }
     appMgrServiceState_.serviceRunningState = ServiceRunningState::STATE_RUNNING;
+    AddSystemAbilityListener(WINDOW_MANAGER_SERVICE_ID);
     HILOG_INFO("start service success");
     PerfProfile::GetInstance().SetAmsLoadEndTime(GetTickCount());
     PerfProfile::GetInstance().Dump();

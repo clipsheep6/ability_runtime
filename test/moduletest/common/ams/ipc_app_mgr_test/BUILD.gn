@@ -33,6 +33,7 @@ ohos_moduletest("AmsIpcAppmgrModuleTest") {
     "bundle_framework:appexecfwk_base",
     "hicollie:libhicollie",
     "ipc:ipc_core",
+    "safwk:system_ability_fwk",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

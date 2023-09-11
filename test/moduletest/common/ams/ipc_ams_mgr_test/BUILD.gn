@@ -44,6 +44,7 @@ ohos_moduletest("AmsIpcAmsmgrModuleTest") {
     "hicollie:libhicollie",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "safwk:system_ability_fwk",
     "window_manager:libwm",
   ]
 

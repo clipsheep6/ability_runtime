@@ -39,6 +39,7 @@ ohos_moduletest("AppRunningProcessesInfoModuleTest") {
     "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "safwk:system_ability_fwk",
     "window_manager:libwm",
   ]
 

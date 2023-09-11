@@ -38,6 +38,7 @@ ohos_moduletest("AmsAppServiceFlowModuleTest") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "safwk:system_ability_fwk",
   ]
 
   if (background_task_mgr_continuous_task_enable) {
