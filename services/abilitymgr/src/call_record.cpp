@@ -121,7 +121,9 @@ bool CallRecord::SchedulerConnectDone()
 {
     HILOG_DEBUG("Scheduler Connect Done by callback. id:%{public}d", recordId_);
     std::shared_ptr<AbilityRecord> tmpService = service_.lock();
-    if (!callRemoteObject_ || !connCallback_ || !tmpService) {
+    auto remoteObject = callRemoteObject_;
+    auto callback = connCallback_;
+    if (!remoteObject || !callback || !tmpService) {
         HILOG_ERROR("callstub or connCallback is nullptr, can't scheduler connect done.");
         return false;
     }
@@ -129,7 +131,12 @@ bool CallRecord::SchedulerConnectDone()
     const AppExecFwk::AbilityInfo &abilityInfo = tmpService->GetAbilityInfo();
     AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName,
         abilityInfo.name, abilityInfo.moduleName);
-    connCallback_->OnAbilityConnectDone(element, callRemoteObject_, static_cast<int32_t>(abilityInfo.launchMode));
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    CHECK_POINTER_AND_RETURN(handler, false);
+    handler->SubmitTask([callback, remoteObject, launchMode = abilityInfo.launchMode, element]() {
+        callback->OnAbilityConnectDone(element,
+            remoteObject, static_cast<int32_t>(launchMode));
+        });
     state_ = CallState::REQUESTED;
 
     HILOG_DEBUG("element: %{public}s, mode: %{public}d. connectstate:%{public}d.", element.GetURI().c_str(),
@@ -141,7 +148,8 @@ bool CallRecord::SchedulerDisconnectDone()
 {
     HILOG_DEBUG("Scheduler disconnect Done by callback. id:%{public}d", recordId_);
     std::shared_ptr<AbilityRecord> tmpService = service_.lock();
-    if (!connCallback_ || !tmpService) {
+    auto callback = connCallback_;
+    if (!callback || !tmpService) {
         HILOG_ERROR("callstub or connCallback is nullptr, can't scheduler connect done.");
         return false;
     }
@@ -149,7 +157,11 @@ bool CallRecord::SchedulerDisconnectDone()
     const AppExecFwk::AbilityInfo &abilityInfo = tmpService->GetAbilityInfo();
     AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName,
         abilityInfo.name, abilityInfo.moduleName);
-    connCallback_->OnAbilityDisconnectDone(element,  ERR_OK);
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    CHECK_POINTER_AND_RETURN(handler, false);
+    handler->SubmitTask([callback, element]() {
+        callback->OnAbilityDisconnectDone(element,  ERR_OK);
+        });
 
     return true;
 }
