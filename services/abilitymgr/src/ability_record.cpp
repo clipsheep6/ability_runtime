@@ -2071,9 +2071,11 @@ void AbilityRecord::RemoveAbilityDeathRecipient() const
 void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 {
     HILOG_WARN("On scheduler died.");
-    auto mission = GetMission();
-    if (mission) {
-        HILOG_WARN("On scheduler died. Is app not response Reason:%{public}d", mission->IsANRState());
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto mission = GetMission();
+        if (mission) {
+            HILOG_WARN("On scheduler died. Is app not response Reason:%{public}d", mission->IsANRState());
+        }
     }
     std::lock_guard<ffrt::mutex> guard(lock_);
     CHECK_POINTER(scheduler_);
@@ -2123,6 +2125,9 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 
 void AbilityRecord::NotifyAnimationAbilityDied()
 {
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        return;
+    }
     // notify winddow manager service the ability died
     if (missionId_ != -1) {
         if (GetWMSHandler()) {

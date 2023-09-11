@@ -1063,15 +1063,15 @@ void UIAbilityLifecycleManager::NotifySCBToHandleException(const std::shared_ptr
         HILOG_ERROR("ability record is nullptr");
         return;
     }
-    auto callerSessionInfo = abilityRecord->GetSessionInfo();
-    CHECK_POINTER(callerSessionInfo);
-    CHECK_POINTER(callerSessionInfo->sessionToken);
-    auto callerSession = iface_cast<Rosen::ISession>(callerSessionInfo->sessionToken);
+    auto sessionInfo = abilityRecord->GetSessionInfo();
+    CHECK_POINTER(sessionInfo);
+    CHECK_POINTER(sessionInfo->sessionToken);
+    auto session = iface_cast<Rosen::ISession>(sessionInfo->sessionToken);
     HILOG_INFO("call notifySessionException");
     sptr<SessionInfo> info = abilityRecord->GetSessionInfo();
     info->errorCode = errorCode;
     info->errorReason = errorReason;
-    callerSession->NotifySessionException(info);
+    session->NotifySessionException(info);
     EraseAbilityRecord(abilityRecord);
 }
 
@@ -1125,9 +1125,6 @@ void UIAbilityLifecycleManager::OnAbilityDied(std::shared_ptr<AbilityRecord> abi
     CHECK_POINTER_LOG(taskHandler, "Fail to get AbilityTaskHandler.");
     if (abilityRecord->GetAbilityState() == AbilityState::BACKGROUNDING) {
         taskHandler->CancelTask("background_" + std::to_string(abilityRecord->GetAbilityRecordId()));
-    }
-    if (abilityRecord->GetAbilityState() == AbilityState::TERMINATING) {
-        taskHandler->CancelTask("terminate_" + std::to_string(abilityRecord->GetAbilityRecordId()));
     }
 
     terminateAbilityList_.push_back(abilityRecord);
