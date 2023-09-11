@@ -1006,3 +1006,528 @@ int FAAbilityThread::OpenFile(const Uri &uri, const std::string &mode)
     HILOG_DEBUG("end");
     return fd;
 }
+
+int FAAbilityThread::OpenRawFile(const Uri &uri, const std::string &mode)
+{
+    HILOG_DEBUG("begin");
+    int32_t fd = -1;
+    if (abilityImpl_ == nullptr) {
+        HILOG_ERROR("abilityImpl_ is nullptr");
+        return fd;
+    }
+
+    fd = abilityImpl_->OpenRawFile(uri, mode);
+    HILOG_DEBUG("end");
+    return fd;
+}
+
+int FAAbilityThread::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
+{
+    HILOG_DEBUG("begin");
+    int32_t index = -1;
+    if (abilityImpl_ == nullptr) {
+        HILOG_ERROR("abilityImpl_ is nullptr");
+        return index;
+    }
+
+    index = abilityImpl_->Insert(uri, value);
+    HILOG_DEBUG("end");
+    return index;
+}
+
+std::shared_ptr<AppExecFwk::PacMap> FAAbilityThread::Call(
+    const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap)
+{
+    HILOG_DEBUG("begin");
+    if (abilityImpl_ == nullptr) {
+        HILOG_ERROR("abilityImpl_ is nullptr");
+        return nullptr;
+    }
+
+    std::shared_ptr<AppExecFwk::PacMap> result = abilityImpl_->Call(uri, method, arg, pacMap);
+    HILOG_DEBUG("end");
+    return result;
+}
+
+int FAAbilityThread::Update(
+    const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
+{
+    HILOG_DEBUG("begin");
+    int32_t index = -1;
+    if (abilityImpl_ == nullptr) {
+        HILOG_ERROR("abilityImpl_ is nullptr");
+        return index;
+    }
+
+    index = abilityImpl_->Update(uri, value, predicates);
+    HILOG_DEBUG("end");
+    return index;
+}
+
+int FAAbilityThread::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
+{
+    HILOG_DEBUG("begin");
+    int32_t index = -1;
+    if (abilityImpl_ == nullptr) {
+        HILOG_ERROR("abilityImpl_ is nullptr");
+        return index;
+    }
+    index = abilityImpl_->Delete(uri, predicates);
+    HILOG_DEBUG("end");
+    return index;
+}
+
+std::shared_ptr<NativeRdb::AbsSharedResultSet> FAAbilityThread::Query(
+    const Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
+{
+    HILOG_DEBUG("begin");
+    std::shared_ptr<NativeRdb::AbsSharedResultSet> resultSet = nullptr;
+    if (abilityImpl_ == nullptr) {
+        HILOG_ERROR("abilityImpl_ is nullptr");
+        return resultSet;
+    }
+
+    resultSet = abilityImpl_->Query(uri, columns, predicates);
+    HILOG_DEBUG("end");
+    return resultSet;
+}
+
+std::string FAAbilityThread::GetType(const Uri &uri)
+{
+    HILOG_DEBUG("begin");
+    std::string type;
+    if (abilityImpl_ == nullptr) {
+        HILOG_ERROR("abilityImpl_ is nullptr");
+        return type;
+    }
+
+    type = abilityImpl_->GetType(uri);
+    HILOG_DEBUG("end");
+    return type;
+}
+
+bool FAAbilityThread::Reload(const Uri &uri, const AppExecFwk::PacMap &extras)
+{
+    HILOG_DEBUG("begin");
+    bool ret = false;
+    if (abilityImpl_ == nullptr) {
+        HILOG_ERROR("abilityImpl_ is nullptr");
+        return ret;
+    }
+    ret = abilityImpl_->Reload(uri, extras);
+    HILOG_DEBUG("end");
+    return ret;
+}
+
+int FAAbilityThread::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
+{
+    HILOG_DEBUG("begin");
+    int32_t ret = -1;
+    if (abilityImpl_ == nullptr) {
+        HILOG_ERROR("abilityImpl_ is nullptr");
+        return ret;
+    }
+
+    ret = abilityImpl_->BatchInsert(uri, values);
+    HILOG_DEBUG("end");
+    return ret;
+}
+
+void FAAbilityThread::ContinueAbility(const std::string &deviceId, uint32_t versionCode)
+{
+    HILOG_DEBUG("begin");
+    if (abilityImpl_ == nullptr) {
+        HILOG_ERROR("abilityImpl_ is nullptr");
+        return;
+    }
+    abilityImpl_->ContinueAbility(deviceId, versionCode);
+    HILOG_DEBUG("end");
+}
+
+void FAAbilityThread::NotifyContinuationResult(int32_t result)
+{
+    HILOG_DEBUG("begin, result: %{public}d", result);
+    if (abilityImpl_ == nullptr) {
+        HILOG_ERROR("abilityImpl_ is nullptr");
+        return;
+    }
+    abilityImpl_->NotifyContinuationResult(result);
+}
+
+void FAAbilityThread::NotifyMemoryLevel(int32_t level)
+{
+    HILOG_DEBUG("begin, result: %{public}d", level);
+
+    if (isExtension_) {
+        HILOG_DEBUG("extension ability");
+        if (extensionImpl_ == nullptr) {
+            HILOG_ERROR("extensionImpl_ is nullptr");
+            return;
+        }
+        extensionImpl_->NotifyMemoryLevel(level);
+    } else {
+        HILOG_DEBUG("ability");
+        if (abilityImpl_ == nullptr) {
+            HILOG_ERROR("abilityImpl_ is nullptr");
+            return;
+        }
+        abilityImpl_->NotifyMemoryLevel(level);
+    }
+}
+
+void FAAbilityThread::InitExtensionFlag(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord)
+{
+    HILOG_DEBUG("begin");
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("abilityRecord is nullptr");
+        return;
+    }
+    std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo = abilityRecord->GetAbilityInfo();
+    if (abilityInfo == nullptr) {
+        HILOG_ERROR("abilityInfo is nullptr");
+        return;
+    }
+    if (abilityInfo->type == AppExecFwk::AbilityType::EXTENSION) {
+        HILOG_DEBUG("InitExtensionFlag true");
+        isExtension_ = true;
+    } else {
+        isExtension_ = false;
+    }
+}
+
+Uri FAAbilityThread::NormalizeUri(const Uri &uri)
+{
+    HILOG_DEBUG("begin");
+    Uri urivalue("");
+    if (abilityImpl_ == nullptr) {
+        HILOG_ERROR("abilityImpl_ is nullptr");
+        return urivalue;
+    }
+
+    urivalue = abilityImpl_->NormalizeUri(uri);
+    HILOG_DEBUG("end");
+    return urivalue;
+}
+
+Uri FAAbilityThread::DenormalizeUri(const Uri &uri)
+{
+    HILOG_DEBUG("begin");
+    Uri urivalue("");
+    if (abilityImpl_ == nullptr) {
+        HILOG_ERROR("abilityImpl is nullptr");
+        return urivalue;
+    }
+
+    urivalue = abilityImpl_->DenormalizeUri(uri);
+    HILOG_DEBUG("end");
+    return urivalue;
+}
+
+bool FAAbilityThread::HandleRegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
+{
+    auto obsMgrClient = DataObsMgrClient::GetInstance();
+    if (obsMgrClient == nullptr) {
+        HILOG_ERROR("obsMgrClient is nullptr");
+        return false;
+    }
+
+    ErrCode ret = obsMgrClient->RegisterObserver(uri, dataObserver);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("error %{public}d", ret);
+        return false;
+    }
+    return true;
+}
+
+bool FAAbilityThread::HandleUnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
+{
+    auto obsMgrClient = DataObsMgrClient::GetInstance();
+    if (obsMgrClient == nullptr) {
+        HILOG_ERROR("obsMgrClient is nullptr");
+        return false;
+    }
+
+    ErrCode ret = obsMgrClient->UnregisterObserver(uri, dataObserver);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("error %{public}d", ret);
+        return false;
+    }
+    return true;
+}
+
+bool FAAbilityThread::HandleNotifyChange(const Uri &uri)
+{
+    auto obsMgrClient = DataObsMgrClient::GetInstance();
+    if (obsMgrClient == nullptr) {
+        HILOG_ERROR("obsMgrClient is nullptr");
+        return false;
+    }
+
+    ErrCode ret = obsMgrClient->NotifyChange(uri);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("error %{public}d", ret);
+        return false;
+    }
+    return true;
+}
+
+bool FAAbilityThread::ScheduleRegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
+{
+    HILOG_DEBUG("called");
+
+    wptr<FAAbilityThread> weak = this;
+    auto task = [weak, uri, dataObserver]() {
+        auto abilityThread = weak.promote();
+        if (abilityThread == nullptr) {
+            HILOG_ERROR("abilityThread is nullptr");
+            return;
+        }
+        abilityThread->HandleRegisterObserver(uri, dataObserver);
+    };
+
+    if (abilityHandler_ == nullptr) {
+        HILOG_ERROR("abilityHandler_ is nullptr");
+        return false;
+    }
+
+    bool ret = abilityHandler_->PostTask(task);
+    if (!ret) {
+        HILOG_ERROR("PostTask error");
+    }
+    return ret;
+}
+
+bool FAAbilityThread::ScheduleUnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
+{
+    HILOG_DEBUG("called");
+
+    wptr<FAAbilityThread> weak = this;
+    auto task = [weak, uri, dataObserver]() {
+        auto abilityThread = weak.promote();
+        if (abilityThread == nullptr) {
+            HILOG_ERROR("abilityThread is nullptr");
+            return;
+        }
+        abilityThread->HandleUnregisterObserver(uri, dataObserver);
+    };
+
+    if (abilityHandler_ == nullptr) {
+        HILOG_ERROR("abilityHandler_ is nullptr");
+        return false;
+    }
+
+    bool ret = abilityHandler_->PostSyncTask(task);
+    if (!ret) {
+        HILOG_ERROR("PostTask error");
+    }
+    return ret;
+}
+
+bool FAAbilityThread::ScheduleNotifyChange(const Uri &uri)
+{
+    HILOG_DEBUG("called");
+
+    wptr<FAAbilityThread> weak = this;
+    auto task = [weak, uri]() {
+        auto abilityThread = weak.promote();
+        if (abilityThread == nullptr) {
+            HILOG_ERROR("abilityThread is nullptr");
+            return;
+        }
+        abilityThread->HandleNotifyChange(uri);
+    };
+
+    if (abilityHandler_ == nullptr) {
+        HILOG_ERROR("abilityHandler_ is nullptr");
+        return false;
+    }
+
+    bool ret = abilityHandler_->PostTask(task);
+    if (!ret) {
+        HILOG_ERROR("PostTask error");
+    }
+    return ret;
+}
+
+std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> FAAbilityThread::ExecuteBatch(
+    const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> &operations)
+{
+    HILOG_DEBUG("begin");
+    std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> results;
+    if (abilityImpl_ == nullptr) {
+        HILOG_ERROR("abilityImpl_ is nullptr");
+        results.clear();
+        return results;
+    }
+    results = abilityImpl_->ExecuteBatch(operations);
+    HILOG_DEBUG("end");
+    return results;
+}
+
+std::shared_ptr<AbilityContext> FAAbilityThread::BuildAbilityContext(
+    const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
+    const std::shared_ptr<AppExecFwk::OHOSApplication> &application, const sptr<IRemoteObject> &token,
+    const std::shared_ptr<Context> &stageContext)
+{
+    auto abilityContextImpl = std::make_shared<AbilityContextImpl>();
+    abilityContextImpl->SetStageContext(stageContext);
+    abilityContextImpl->SetToken(token);
+    abilityContextImpl->SetAbilityInfo(abilityInfo);
+    abilityContextImpl->SetConfiguration(application->GetConfiguration());
+    return abilityContextImpl;
+}
+
+void FAAbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info)
+{
+    HILOG_DEBUG("begin");
+    if (token_ == nullptr) {
+        HILOG_ERROR("token_ is nullptr");
+        return;
+    }
+    wptr<FAAbilityThread> weak = this;
+    auto task = [weak, params, token = token_]() {
+        auto abilityThread = weak.promote();
+        if (abilityThread == nullptr) {
+            HILOG_ERROR("abilityThread is nullptr");
+            return;
+        }
+        std::vector<std::string> dumpInfo;
+        abilityThread->DumpAbilityInfoInner(params, dumpInfo);
+        ErrCode err = AbilityManagerClient::GetInstance()->DumpAbilityInfoDone(dumpInfo, token);
+        if (err != ERR_OK) {
+            HILOG_ERROR("failed = %{public}d", err);
+        }
+    };
+
+    if (abilityHandler_ == nullptr) {
+        HILOG_ERROR("abilityHandler_ is nullptr");
+        return;
+    }
+
+    abilityHandler_->PostTask(task);
+}
+
+#ifdef SUPPORT_GRAPHICS
+void FAAbilityThread::DumpAbilityInfoInner(const std::vector<std::string> &params, std::vector<std::string> &info)
+{
+    HILOG_DEBUG("begin");
+    if (currentAbility_ == nullptr && currentExtension_ == nullptr) {
+        HILOG_DEBUG("currentAbility and currentExtension_ is nullptr");
+        return;
+    }
+    if (currentAbility_ != nullptr) {
+        if (abilityImpl_->IsStageBasedModel()) {
+            auto scene = currentAbility_->GetScene();
+            if (scene == nullptr) {
+                HILOG_ERROR("scene is nullptr");
+                return;
+            }
+            auto window = scene->GetMainWindow();
+            if (window == nullptr) {
+                HILOG_ERROR("window is nullptr");
+                return;
+            }
+            window->DumpInfo(params, info);
+        }
+        currentAbility_->Dump(params, info);
+    }
+    if (currentExtension_ != nullptr) {
+        currentExtension_->Dump(params, info);
+    }
+    if (params.empty()) {
+        DumpOtherInfo(info);
+        return;
+    }
+    HILOG_DEBUG("end");
+}
+#else
+void FAAbilityThread::DumpAbilityInfoInner(const std::vector<std::string> &params, std::vector<std::string> &info)
+{
+    HILOG_DEBUG("begin");
+    if (currentAbility_ != nullptr) {
+        currentAbility_->Dump(params, info);
+    }
+
+    if (currentExtension_ != nullptr) {
+        currentExtension_->Dump(params, info);
+    }
+    DumpOtherInfo(info);
+}
+#endif
+
+void FAAbilityThread::DumpOtherInfo(std::vector<std::string> &info)
+{
+    std::string dumpInfo = "        event:";
+    info.push_back(dumpInfo);
+    if (abilityHandler_ == nullptr) {
+        HILOG_DEBUG("abilityHandler_ is nullptr");
+        return;
+    }
+    auto runner = abilityHandler_->GetEventRunner();
+    if (runner == nullptr) {
+        HILOG_DEBUG("runner_ is nullptr");
+        return;
+    }
+    dumpInfo = "";
+    runner->DumpRunnerInfo(dumpInfo);
+    info.push_back(dumpInfo);
+    if (currentAbility_ != nullptr) {
+        const auto ablityContext = currentAbility_->GetAbilityContext();
+        if (ablityContext == nullptr) {
+            HILOG_DEBUG("abilitycontext is nullptr");
+            return;
+        }
+        const auto localCallContainer = ablityContext->GetLocalCallContainer();
+        if (localCallContainer == nullptr) {
+            HILOG_DEBUG("localCallContainer is nullptr");
+            return;
+        }
+        localCallContainer->DumpCalls(info);
+    }
+}
+
+void FAAbilityThread::CallRequest()
+{
+    HILOG_DEBUG("begin");
+
+    if (currentAbility_ == nullptr) {
+        HILOG_ERROR("ability is nullptr");
+        return;
+    }
+
+    sptr<IRemoteObject> retval = nullptr;
+    std::weak_ptr<OHOS::AppExecFwk::Ability> weakAbility = currentAbility_;
+    auto syncTask = [ability = weakAbility, &retval]() {
+        auto currentAbility = ability.lock();
+        if (currentAbility == nullptr) {
+            HILOG_ERROR("ability is nullptr");
+            return;
+        }
+
+        retval = currentAbility->CallRequest();
+    };
+
+    if (abilityHandler_ == nullptr) {
+        HILOG_ERROR("abilityHandler_ is nullptr");
+        return;
+    }
+
+    abilityHandler_->PostSyncTask(syncTask);
+    AbilityManagerClient::GetInstance()->CallRequestDone(token_, retval);
+    HILOG_DEBUG("end");
+}
+
+void FAAbilityThread::HandlePrepareTermianteAbility()
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    if (abilityImpl_ == nullptr) {
+        HILOG_ERROR("abilityImpl_ is nullptr");
+        return;
+    }
+    isPrepareTerminate_ = abilityImpl_->PrepareTerminateAbility();
+    HILOG_DEBUG("end, ret = %{public}d", isPrepareTerminate_);
+    isPrepareTerminateAbilityDone_.store(true);
+    cv_.notify_all();
+}
+} // namespace AbilityRuntime
+} // namespace OHOS
