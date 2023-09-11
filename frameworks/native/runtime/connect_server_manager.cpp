@@ -136,14 +136,14 @@ bool ConnectServerManager::AddInstance(int32_t instanceId, const std::string& in
     // Get the message including information of new instance, which will be send to IDE.
     std::string message = GetInstanceMapMessage("addInstance", instanceId, instanceName);
 
+    auto storeMessage = reinterpret_cast<StoreMessage>(dlsym(handlerConnectServerSo_, "StoreMessage"));
+    if (storeMessage == nullptr) {
+        HILOG_ERROR("ConnectServerManager::AddInstance failed to find symbol 'StoreMessage'");
+        return false;
+    }
+    storeMessage(instanceId, message);
+
     if (waitForConnection()) {
-        // if not connected, message will be stored and sent later when "connected" coming.
-        auto storeMessage = reinterpret_cast<StoreMessage>(dlsym(handlerConnectServerSo_, "StoreMessage"));
-        if (storeMessage == nullptr) {
-            HILOG_ERROR("ConnectServerManager::AddInstance failed to find symbol 'StoreMessage'");
-            return false;
-        }
-        storeMessage(instanceId, message);
         return false;
     }
 
@@ -189,13 +189,14 @@ void ConnectServerManager::RemoveInstance(int32_t instanceId)
     // Get the message including information of deleted instance, which will be send to IDE.
     std::string message = GetInstanceMapMessage("destroyInstance", instanceId, instanceName);
 
+    auto removeMessage = reinterpret_cast<RemoveMessage>(dlsym(handlerConnectServerSo_, "RemoveMessage"));
+    if (removeMessage == nullptr) {
+        HILOG_ERROR("ConnectServerManager::RemoveInstance failed to find symbol 'RemoveMessage'");
+        return;
+    }
+    removeMessage(instanceId);
+
     if (waitForConnection()) {
-        auto removeMessage = reinterpret_cast<RemoveMessage>(dlsym(handlerConnectServerSo_, "RemoveMessage"));
-        if (removeMessage == nullptr) {
-            HILOG_ERROR("ConnectServerManager::RemoveInstance failed to find symbol 'RemoveMessage'");
-            return;
-        }
-        removeMessage(instanceId);
         return;
     }
 
