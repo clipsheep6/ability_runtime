@@ -47,7 +47,7 @@ namespace {
 NativeValue *PromiseCallback(NativeEngine *engine, NativeCallbackInfo *info)
 {
     if (info == nullptr || info->functionInfo == nullptr || info->functionInfo->data == nullptr) {
-        HILOG_ERROR("PromiseCallback, Invalid input info.");
+        HILOG_ERROR("PromiseCallback, error input info.");
         return nullptr;
     }
     void *data = info->functionInfo->data;
@@ -60,8 +60,9 @@ NativeValue *PromiseCallback(NativeEngine *engine, NativeCallbackInfo *info)
 
 NativeValue *OnConnectPromiseCallback(NativeEngine *engine, NativeCallbackInfo *info)
 {
+    HILOG_DEBUG("enter");
     if (info == nullptr || info->functionInfo == nullptr || info->functionInfo->data == nullptr) {
-        HILOG_ERROR("PromiseCallback, Invalid input info.");
+        HILOG_ERROR("PromiseCallback, error input info.");
         return nullptr;
     }
     void *data = info->functionInfo->data;
@@ -285,7 +286,7 @@ sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want)
     auto remoteObj = NAPI_ohos_rpc_getNativeRemoteObject(
         reinterpret_cast<napi_env>(nativeEngine), reinterpret_cast<napi_value>(result));
     if (remoteObj == nullptr) {
-        HILOG_ERROR("remoteObj nullptr.");
+        HILOG_ERROR("remoteObj null.");
     }
     return remoteObj;
 }
@@ -302,7 +303,7 @@ sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want,
         sptr<IRemoteObject> remoteObj = NAPI_ohos_rpc_getNativeRemoteObject(reinterpret_cast<napi_env>(nativeEngine),
             reinterpret_cast<napi_value>(result));
         if (remoteObj == nullptr) {
-            HILOG_ERROR("remoteObj nullptr.");
+            HILOG_ERROR("remoteObj null.");
         }
         return remoteObj;
     }
@@ -311,16 +312,16 @@ sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want,
     do {
         auto *retObj = ConvertNativeValueTo<NativeObject>(result);
         if (retObj == nullptr) {
-            HILOG_ERROR("CallPromise, Failed to convert native value to NativeObject.");
+            HILOG_ERROR("CallPromise, error to convert native value to NativeObject.");
             break;
         }
         NativeValue *then = retObj->GetProperty("then");
         if (then == nullptr) {
-            HILOG_ERROR("CallPromise, Failed to get property: then.");
+            HILOG_ERROR("CallPromise, error to get property: then.");
             break;
         }
         if (!then->IsCallable()) {
-            HILOG_ERROR("CallPromise, property then is not callable.");
+            HILOG_ERROR("CallPromise, property then is not callable");
             break;
         }
         auto promiseCallback = nativeEngine->CreateFunction("promiseCallback", strlen("promiseCallback"),
@@ -331,7 +332,7 @@ sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want,
     } while (false);
 
     if (!callResult) {
-        HILOG_ERROR("Failed to call promise.");
+        HILOG_ERROR("error to call promise.");
         isAsyncCallback = false;
     } else {
         isAsyncCallback = true;
@@ -353,7 +354,7 @@ void JsServiceExtension::OnDisconnect(const AAFwk::Want &want,
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     Extension::OnDisconnect(want);
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s start.", __func__);
     NativeValue *result = CallOnDisconnect(want, true);
     bool isPromise = CheckPromise(result);
     if (!isPromise) {
@@ -362,7 +363,7 @@ void JsServiceExtension::OnDisconnect(const AAFwk::Want &want,
     }
     bool callResult = CallPromise(result, callbackInfo);
     if (!callResult) {
-        HILOG_ERROR("Failed to call promise.");
+        HILOG_ERROR("error to call promise.");
         isAsyncCallback = false;
     } else {
         isAsyncCallback = true;
@@ -510,7 +511,7 @@ NativeValue *JsServiceExtension::CallOnDisconnect(const AAFwk::Want &want, bool 
 bool JsServiceExtension::CheckPromise(NativeValue *result)
 {
     if (result == nullptr) {
-        HILOG_DEBUG("CheckPromise, result is null, no need to call promise.");
+        HILOG_DEBUG("CheckPromise, result is nullptr, no need to call promise.");
         return false;
     }
     if (!result->IsPromise()) {
@@ -524,12 +525,12 @@ bool JsServiceExtension::CallPromise(NativeValue *result, AppExecFwk::AbilityTra
 {
     auto *retObj = ConvertNativeValueTo<NativeObject>(result);
     if (retObj == nullptr) {
-        HILOG_ERROR("CallPromise, Failed to convert native value to NativeObject.");
+        HILOG_ERROR("CallPromise, Error to convert native value to NativeObject.");
         return false;
     }
     NativeValue *then = retObj->GetProperty("then");
     if (then == nullptr) {
-        HILOG_ERROR("CallPromise, Failed to get property: then.");
+        HILOG_ERROR("CallPromise, Error to get property: then.");
         return false;
     }
     if (!then->IsCallable()) {
@@ -543,6 +544,7 @@ bool JsServiceExtension::CallPromise(NativeValue *result, AppExecFwk::AbilityTra
     NativeValue *argv[1] = { promiseCallback };
     nativeEngine.CallFunction(result, then, argv, 1);
     return true;
+    HILOG_DEBUG("end");
 }
 
 void JsServiceExtension::OnConfigurationUpdated(const AppExecFwk::Configuration& configuration)
@@ -638,7 +640,7 @@ void JsServiceExtension::Dump(const std::vector<std::string> &params, std::vecto
     for (uint32_t i = 0; i < dumpInfoNative->GetLength(); i++) {
         std::string dumpInfoStr;
         if (!ConvertFromJsValue(nativeEngine, dumpInfoNative->GetElement(i), dumpInfoStr)) {
-            HILOG_ERROR("Parse dumpInfoStr failed");
+            HILOG_ERROR("Parse dumpInfoStr failed.");
             return;
         }
         info.push_back(dumpInfoStr);

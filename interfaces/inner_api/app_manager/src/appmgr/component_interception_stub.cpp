@@ -52,6 +52,7 @@ int ComponentInterceptionStub::OnRemoteRequest(
         }
     }
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+    HILOG_DEBUG("exit");
 }
 
 bool ComponentInterceptionStub::AllowComponentStart(const Want &want, const sptr<IRemoteObject> &callerToken,

@@ -22,6 +22,7 @@ namespace OHOS {
 namespace AAFwk {
 ShellCommand::ShellCommand(int argc, char* argv[], std::string name)
 {
+    HILOG_DEBUG("start");
     opterr = 0;
     argc_ = argc;
     argv_ = argv;
@@ -35,6 +36,7 @@ ShellCommand::ShellCommand(int argc, char* argv[], std::string name)
     for (int i = 2; i < argc; i++) {
         argList_.push_back(argv[i]);
     }
+    HILOG_DEBUG("exit");
 }
 
 ShellCommand::~ShellCommand()
@@ -42,6 +44,7 @@ ShellCommand::~ShellCommand()
 
 ErrCode ShellCommand::OnCommand()
 {
+    HILOG_DEBUG("start");
     int result = OHOS::ERR_OK;
 
     auto respond = commandMap_[cmd_];
@@ -57,10 +60,12 @@ ErrCode ShellCommand::OnCommand()
     }
 
     return result;
+    HILOG_DEBUG("end");
 }
 
 std::string ShellCommand::ExecCommand()
 {
+    HILOG_DEBUG("start");
     int result = CreateCommandMap();
     if (result != OHOS::ERR_OK) {
         HILOG_ERROR("failed to create command map.\n");
@@ -79,10 +84,12 @@ std::string ShellCommand::ExecCommand()
     }
 
     return resultReceiver_;
+    HILOG_DEBUG("end");
 }
 
 std::string ShellCommand::GetCommandErrorMsg() const
 {
+    HILOG_DEBUG("start");
     std::string commandErrorMsg =
         name_ + ": '" + cmd_ + "' is not a valid " + name_ + " command. See '" + name_ + " help'.\n";
 
@@ -91,13 +98,14 @@ std::string ShellCommand::GetCommandErrorMsg() const
 
 std::string ShellCommand::GetUnknownOptionMsg(std::string& unknownOption) const
 {
+    HILOG_DEBUG("start");
     std::string result = "";
 
     if (optind < 0 || optind > argc_) {
         return result;
     }
 
-    result.append("error: unknown option");
+    result.append("fail: unknown option");
     result.append(".\n");
 
     return result;

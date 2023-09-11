@@ -157,6 +157,7 @@ bool DataAbilityResult::ReadFromParcel(Parcel &parcel)
     int32_t empty = VALUE_NULL;
     if (!parcel.ReadInt32(empty)) {
         return false;
+        HILOG_DEBUG("Failed to read parcel");
     }
 
     if (empty == VALUE_OBJECT) {
@@ -167,6 +168,7 @@ bool DataAbilityResult::ReadFromParcel(Parcel &parcel)
             uri = nullptr;
         } else {
             return false;
+            HILOG_DEBUG("Failed to read parcel");
         }
     }
 

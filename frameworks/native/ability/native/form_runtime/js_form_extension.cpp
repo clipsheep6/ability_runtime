@@ -406,6 +406,7 @@ FormState JsFormExtension::OnAcquireFormState(const Want &want)
     } else {
         return static_cast<AppExecFwk::FormState>(state);
     }
+    HILOG_DEBUG("end");
 }
 
 bool JsFormExtension::OnShare(int64_t formId, AAFwk::WantParams &wantParams)

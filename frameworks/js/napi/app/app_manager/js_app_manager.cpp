@@ -538,15 +538,15 @@ OHOS::sptr<OHOS::AAFwk::IAbilityManager> GetAbilityManagerInstance()
 
 NativeValue* JsAppManagerInit(NativeEngine* engine, NativeValue* exportObj)
 {
-    HILOG_DEBUG("called");
+    HILOG_DEBUG("JsAppManagerInit start");
     if (engine == nullptr || exportObj == nullptr) {
-        HILOG_WARN("engine or exportObj null");
+        HILOG_WARN("engine or exportObj nullptr");
         return nullptr;
     }
 
     NativeObject* object = ConvertNativeValueTo<NativeObject>(exportObj);
     if (object == nullptr) {
-        HILOG_WARN("object null");
+        HILOG_WARN("object nullptr");
         return nullptr;
     }
 
@@ -577,7 +577,7 @@ NativeValue* JsAppManagerInit(NativeEngine* engine, NativeValue* exportObj)
         JsAppManager::GetAppMemorySize);
     BindNativeFunction(*engine, *object, "isRamConstrainedDevice", moduleName,
         JsAppManager::IsRamConstrainedDevice);
-    HILOG_DEBUG("end");
+    HILOG_DEBUG("JsAppManagerInit end");
     return engine->CreateUndefined();
 }
 }  // namespace AbilityRuntime

@@ -698,7 +698,7 @@ void JsUIExtension::Dump(const std::vector<std::string> &params, std::vector<std
     for (uint32_t i = 0; i < dumpInfoNative->GetLength(); i++) {
         std::string dumpInfoStr;
         if (!ConvertFromJsValue(nativeEngine, dumpInfoNative->GetElement(i), dumpInfoStr)) {
-            HILOG_ERROR("Parse dumpInfoStr failed");
+            HILOG_ERROR("Parse dumpInfoStr error.");
             return;
         }
         info.push_back(dumpInfoStr);
