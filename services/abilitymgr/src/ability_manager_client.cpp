@@ -798,7 +798,7 @@ ErrCode AbilityManagerClient::MoveMissionToFront(int32_t missionId, const StartO
 
 ErrCode AbilityManagerClient::MoveMissionsToForeground(const std::vector<int32_t>& missionIds, int32_t topMissionId)
 {
-    HILOG_INFO("MoveMissionsToForeground begin.");
+    HILOG_INFO("MoveMissionsToForeground begin, topMissionId:%{public}d", topMissionId);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
@@ -807,7 +807,19 @@ ErrCode AbilityManagerClient::MoveMissionsToForeground(const std::vector<int32_t
         if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
             return SCB_TO_MISSION_ERROR_CODE_MAP[err];
         }
-        return static_cast<int>(err);
+        auto abms = GetAbilityManager();
+        CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+        if (missionIds.empty()) {
+            return ERR_INVALID_VALUE;
+        }
+        int32_t missionId = topMissionId;
+        if (topMissionId > 0) {
+            missionId = topMissionId;
+        } else {
+            missionId = missionIds[0];
+        }
+        auto errAMS = abms->MoveMissionToFront(missionId);
+        return static_cast<int>(errAMS);
     }
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
@@ -976,7 +988,7 @@ ErrCode AbilityManagerClient::GetMissionSnapshot(const std::string& deviceId, in
         auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_INFO("call");
-        auto err = sceneSessionManager->GetSessionSnapshot(deviceId, missionId, snapshot.snapshot, isLowResolution);
+        auto err = sceneSessionManager->GetSessionSnapshot(deviceId, missionId, snapshot, isLowResolution);
         if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
             return SCB_TO_MISSION_ERROR_CODE_MAP[err];
         }
