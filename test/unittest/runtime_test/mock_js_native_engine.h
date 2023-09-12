@@ -403,6 +403,9 @@ public:
     void RegisterTranslateBySourceMap(SourceMapCallback callback) override
     {}
 
+    void RegisterSourceMapTranslateCallback(SourceMapTranslateCallback callback) override
+    {}
+
     std::string ExecuteTranslateBySourceMap(const std::string& rawStack) override
     {
         return "";

@@ -59,45 +59,6 @@ bool ReadSourceMapData(const std::string& hapPath, const std::string& mapPath, s
 }
 
 /**
- * @tc.name: JsEnv_SourceMap_0100
- * @tc.type: FUNC
- * @tc.desc: Test get original names from sourceCode which is empty string.
- * @tc.require: #I6T4K1
- */
-HWTEST_F(SourceMapTest, JsEnv_SourceMap_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "JsEnv_SourceMap_0100 start";
-    std::string sourceCode = "123";
-    uint32_t errorPos = 0;
-    std::shared_ptr<SourceMapData> targetMapData = std::make_shared<SourceMapData>();
-    targetMapData->names_.emplace_back("abc.ets");
-
-    std::string result = SourceMap::GetOriginalNames(targetMapData, sourceCode, errorPos);
-    EXPECT_EQ(result, sourceCode);
-    GTEST_LOG_(INFO) << "JsEnv_SourceMap_0100 end";
-}
-
-/**
- * @tc.name: JsEnv_SourceMap_0200
- * @tc.type: FUNC
- * @tc.desc: Test get original names from sourceCode which has "SourceCode:\n".
- * @tc.require: #I6T4K1
- */
-HWTEST_F(SourceMapTest, JsEnv_SourceMap_0200, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "JsEnv_SourceMap_0200 start";
-    std::string sourceCode = "SourceCode:\n/pages/Index.ets:111:13";
-    uint32_t errorPos = 0;
-    std::shared_ptr<SourceMapData> targetMapData = std::make_shared<SourceMapData>();
-    targetMapData->names_.emplace_back("Index.js");
-    targetMapData->names_.emplace_back("Index.ets");
-
-    std::string result = SourceMap::GetOriginalNames(targetMapData, sourceCode, errorPos);
-    EXPECT_EQ(result, sourceCode);
-    GTEST_LOG_(INFO) << "JsEnv_SourceMap_0200 end" << result;
-}
-
-/**
  * @tc.number: JsEnv_SourceMap_0300
  * @tc.name: GetErrorPos
  * @tc.desc: Verifying GetErrorPos succeeded.

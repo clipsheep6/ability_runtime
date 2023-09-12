@@ -506,56 +506,6 @@ ErrorPos SourceMap::GetErrorPos(const std::string& rawStack)
     return std::make_pair(StringToInt(lineStr), StringToInt(columnStr));
 }
 
-std::string SourceMap::GetOriginalNames(std::shared_ptr<SourceMapData> targetMapData,
-    const std::string& sourceCode, uint32_t& errorPos)
-{
-    if (sourceCode.empty() || sourceCode.find("SourceCode:\n") == std::string::npos) {
-        return sourceCode;
-    }
-    std::vector<std::string> names = targetMapData->names_;
-    if (names.size() % INDEX_TWO != 0) {
-        JSENV_LOG_E("Names in sourcemap is wrong.");
-        return sourceCode;
-    }
-
-    std::string jsCode = sourceCode;
-    int32_t posDiff = 0;
-    for (uint32_t i = 0; i < names.size(); i += INDEX_TWO) {
-        auto found = jsCode.find(names[i]);
-        while (found != std::string::npos) {
-            // names_[i + 1] is the original name of names_[i]
-            jsCode.replace(found, names[i].length(), names[i + 1]);
-            if (static_cast<uint32_t>(found) < errorPos) {
-                // sum the errorPos differences to adjust position of ^
-                posDiff += static_cast<int32_t>(names[i + 1].length()) - static_cast<int32_t>(names[i].length());
-            }
-            // In case there are other variable names not replaced.
-            found = jsCode.find(names[i], found + names[i + 1].length());
-        }
-    }
-    auto lineBreakPos = jsCode.rfind('\n', jsCode.length() - 2);
-    if (lineBreakPos == std::string::npos) {
-        JSENV_LOG_W("There is something wrong in source code of summaryBody.");
-        return jsCode;
-    }
-    // adjust position of ^ in dump file
-    if (posDiff < 0) {
-        int32_t flagPos = static_cast<int32_t>(lineBreakPos) + static_cast<int32_t>(errorPos);
-        if (lineBreakPos > 0 && errorPos > 0 && flagPos < 0) {
-            JSENV_LOG_W("Add overflow of sourceCode.");
-            return jsCode;
-        }
-        if (flagPos < static_cast<int32_t>(jsCode.length()) && jsCode[flagPos] == '^' && flagPos + posDiff - 1 > 0) {
-            jsCode.erase(flagPos + posDiff - 1, -posDiff);
-        }
-    } else if (posDiff > 0) {
-        if (lineBreakPos + 1 < jsCode.length() - 1) {
-            jsCode.insert(lineBreakPos + 1, posDiff, ' ');
-        }
-    }
-    return jsCode;
-}
-
 void SourceMap::RegisterReadSourceMapCallback(ReadSourceMapCallback readFunc)
 {
     readSourceMapFunc_ = readFunc;
@@ -567,6 +517,37 @@ bool SourceMap::ReadSourceMapData(const std::string& hapPath, const std::string&
         return readSourceMapFunc_(hapPath, sourceMapPath, content);
     }
     return false;
+}
+
+bool SourceMap::TranslateUrlPositionBySourceMap(std::string& url, int& line, int& column)
+{
+    if (isModular_) {
+        auto iter = sourceMaps_.find(url);
+        if (iter != sourceMaps_.end()) {
+            return GetLineAndColumnNumbers(line, column, *(iter->second), url);
+        }
+        JSENV_LOG_E("TranslateUrlPositionBySourceMap: stageMode sourceMaps find fail");
+        return false;
+    }
+    return false;
+}
+
+bool SourceMap::GetLineAndColumnNumbers(int& line, int& column, SourceMapData& targetMap, std::string& key)
+{
+    int32_t offSet = 0;
+    MappingInfo mapInfo;
+#if defined(WINDOWS_PLATFORM) || defined(MAC_PLATFORM)
+        mapInfo = Find(line - offSet + OFFSET_PREVIEW, column, targetMap, key);
+#else
+        mapInfo = Find(line - offSet, column, targetMap, key);
+#endif
+    if (mapInfo.row == 0 || mapInfo.col == 0) {
+        return false;
+    } else {
+        line = mapInfo.row;
+        column = mapInfo.col;
+        return true;
+    }
 }
 }   // namespace JsEnv
 }   // namespace OHOS

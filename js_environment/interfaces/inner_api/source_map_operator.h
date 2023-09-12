@@ -37,6 +37,13 @@ public:
         return sourceMapObj.TranslateBySourceMap(stackStr);
     }
 
+    bool TranslateUrlPositionBySourceMap(std::string& url, int& line, int& column)
+    {
+        SourceMap sourceMapObj;
+        sourceMapObj.Init(isModular_, hapPath_);
+        return sourceMapObj.TranslateUrlPositionBySourceMap(url, line, column);
+    }
+
 private:
     const std::string hapPath_;
     bool isModular_ = false;

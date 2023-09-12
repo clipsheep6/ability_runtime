@@ -70,12 +70,11 @@ public:
 
     void Init(bool isModular, const std::string& hapPath);
     std::string TranslateBySourceMap(const std::string& stackStr);
-
-    static std::string GetOriginalNames(std::shared_ptr<SourceMapData> targetMapData,
-        const std::string& sourceCode, uint32_t& errorPos);
+    bool TranslateUrlPositionBySourceMap(std::string& url, int& line, int& column);
     static ErrorPos GetErrorPos(const std::string& rawStack);
     static void RegisterReadSourceMapCallback(ReadSourceMapCallback readFunc);
     static bool ReadSourceMapData(const std::string& hapPath, const std::string& sourceMapPath, std::string& content);
+    bool GetLineAndColumnNumbers(int& line, int& column, SourceMapData& targetMap, std::string& key);
 
 private:
     void SplitSourceMap(const std::string& sourceMapData);

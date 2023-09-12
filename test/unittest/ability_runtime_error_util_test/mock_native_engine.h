@@ -388,6 +388,9 @@ public:
     void RegisterUncaughtExceptionHandler(UncaughtExceptionCallback callback) override
     {}
 
+    void RegisterSourceMapTranslateCallback(SourceMapTranslateCallback callback) override
+    {}
+
     void HandleUncaughtException() override
     {}
 
