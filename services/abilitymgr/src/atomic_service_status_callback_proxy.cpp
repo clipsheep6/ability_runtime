@@ -39,17 +39,17 @@ void AtomicServiceStatusCallbackProxy::OnInstallFinished(int resultCode, const W
     }
 
     if (!data.WriteInt32(resultCode)) {
-        HILOG_ERROR("Write resultCode error.");
+        HILOG_ERROR("Write resultCode failed.");
         return;
     }
 
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("Write want error.");
+        HILOG_ERROR("Write want failed.");
         return;
     }
 
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("Write userId error.");
+        HILOG_ERROR("Write userId failed.");
         return;
     }
 

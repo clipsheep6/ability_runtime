@@ -35,7 +35,7 @@ void JSAppStateObserver::OnForegroundApplicationChanged(const AppStateData &appS
         ([jsObserver, appStateData](NativeEngine &engine, AsyncTask &task, int32_t status) {
             sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
             if (!jsObserverSptr) {
-                HILOG_WARN("jsObserverSptr nullptr");
+                HILOG_WARN("jsObserverSptr null");
                 return;
             }
             jsObserverSptr->HandleOnForegroundApplicationChanged(appStateData);
@@ -44,11 +44,12 @@ void JSAppStateObserver::OnForegroundApplicationChanged(const AppStateData &appS
     std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
     AsyncTask::Schedule("JSAppStateObserver::OnForegroundApplicationChanged",
         engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
+    HILOG_DEBUG("OnForegroundApplicationChanged end");
 }
 
 void JSAppStateObserver::HandleOnForegroundApplicationChanged(const AppStateData &appStateData)
 {
-    HILOG_DEBUG("HandleOnForegroundApplicationChanged bundleName:%{public}s, uid:%{public}d, state:%{public}d",
+    HILOG_DEBUG("HandleOnForegroundApplicationChanged bundleName:%{public}s, uid:%{public}d, state:%{public}d.",
         appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
@@ -60,13 +61,13 @@ void JSAppStateObserver::HandleOnForegroundApplicationChanged(const AppStateData
 
 void JSAppStateObserver::OnAbilityStateChanged(const AbilityStateData &abilityStateData)
 {
-    HILOG_INFO("OnAbilityStateChanged begin");
+    HILOG_INFO("OnAbilityStateChanged start");
     wptr<JSAppStateObserver> jsObserver = this;
     std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
         ([jsObserver, abilityStateData](NativeEngine &engine, AsyncTask &task, int32_t status) {
             sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
             if (!jsObserverSptr) {
-                HILOG_WARN("jsObserverSptr nullptr");
+                HILOG_WARN("jsObserverSptr null");
                 return;
             }
             jsObserverSptr->HandleOnAbilityStateChanged(abilityStateData);
@@ -79,7 +80,7 @@ void JSAppStateObserver::OnAbilityStateChanged(const AbilityStateData &abilitySt
 
 void JSAppStateObserver::HandleOnAbilityStateChanged(const AbilityStateData &abilityStateData)
 {
-    HILOG_INFO("HandleOnAbilityStateChanged begin");
+    HILOG_INFO("HandleOnAbilityStateChanged start");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         NativeValue* value = (item.second)->Get();
@@ -90,7 +91,7 @@ void JSAppStateObserver::HandleOnAbilityStateChanged(const AbilityStateData &abi
 
 void JSAppStateObserver::OnExtensionStateChanged(const AbilityStateData &abilityStateData)
 {
-    HILOG_INFO("OnExtensionStateChanged begin");
+    HILOG_INFO("OnExtensionStateChanged start");
     wptr<JSAppStateObserver> jsObserver = this;
     std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
         ([jsObserver, abilityStateData](NativeEngine &engine, AsyncTask &task, int32_t status) {
@@ -109,7 +110,7 @@ void JSAppStateObserver::OnExtensionStateChanged(const AbilityStateData &ability
 
 void JSAppStateObserver::HandleOnExtensionStateChanged(const AbilityStateData &abilityStateData)
 {
-    HILOG_INFO("HandleOnExtensionStateChanged begin");
+    HILOG_INFO("HandleOnExtensionStateChanged start");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         NativeValue* value = (item.second)->Get();
@@ -120,7 +121,7 @@ void JSAppStateObserver::HandleOnExtensionStateChanged(const AbilityStateData &a
 
 void JSAppStateObserver::OnProcessCreated(const ProcessData &processData)
 {
-    HILOG_INFO("OnProcessCreated begin");
+    HILOG_INFO("OnProcessCreated start");
     wptr<JSAppStateObserver> jsObserver = this;
     std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
         ([jsObserver, processData](NativeEngine &engine, AsyncTask &task, int32_t status) {
@@ -139,7 +140,7 @@ void JSAppStateObserver::OnProcessCreated(const ProcessData &processData)
 
 void JSAppStateObserver::HandleOnProcessCreated(const ProcessData &processData)
 {
-    HILOG_INFO("HandleOnProcessCreated begin");
+    HILOG_INFO("HandleOnProcessCreated start");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         NativeValue* value = (item.second)->Get();
@@ -150,7 +151,7 @@ void JSAppStateObserver::HandleOnProcessCreated(const ProcessData &processData)
 
 void JSAppStateObserver::OnProcessStateChanged(const ProcessData &processData)
 {
-    HILOG_INFO("OnProcessStateChanged begin");
+    HILOG_INFO("OnProcessStateChanged start");
     wptr<JSAppStateObserver> jsObserver = this;
     std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
         ([jsObserver, processData](NativeEngine &engine, AsyncTask &task, int32_t status) {
@@ -199,7 +200,7 @@ void JSAppStateObserver::OnProcessDied(const ProcessData &processData)
 
 void JSAppStateObserver::HandleOnProcessDied(const ProcessData &processData)
 {
-    HILOG_INFO("HandleOnProcessDied begin");
+    HILOG_INFO("HandleOnProcessDied start");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         NativeValue* value = (item.second)->Get();
@@ -211,7 +212,7 @@ void JSAppStateObserver::HandleOnProcessDied(const ProcessData &processData)
 void JSAppStateObserver::CallJsFunction(
     NativeValue* value, const char *methodName, NativeValue *const *argv, size_t argc)
 {
-    HILOG_INFO("CallJsFunction begin, method:%{public}s", methodName);
+    HILOG_INFO("CallJsFunction start, method:%{public}s", methodName);
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
         HILOG_ERROR("Failed to get object");
@@ -220,11 +221,11 @@ void JSAppStateObserver::CallJsFunction(
 
     NativeValue* method = obj->GetProperty(methodName);
     if (method == nullptr) {
-        HILOG_ERROR("Failed to get from object");
+        HILOG_ERROR("error to get from object");
         return;
     }
     engine_.CallFunction(value, method, argv, argc);
-    HILOG_INFO("CallJsFunction end");
+    HILOG_INFO("CallJsFunction exit");
 }
 
 void JSAppStateObserver::AddJsObserverObject(const int32_t observerId, NativeValue* jsObserverObject)
@@ -237,6 +238,7 @@ bool JSAppStateObserver::RemoveJsObserverObject(const int32_t observerId)
 {
     bool result = (jsObserverObjectMap_.erase(observerId) == 1);
     return result;
+    HILOG_DEBUG("RemoveJsObserverObject end");
 }
 
 bool JSAppStateObserver::FindObserverByObserverId(const int32_t observerId)
@@ -248,6 +250,7 @@ bool JSAppStateObserver::FindObserverByObserverId(const int32_t observerId)
 
 size_t JSAppStateObserver::GetJsObserverMapSize()
 {
+    HILOG_DEBUG("GetJsObserverMapSize start");
     size_t length = jsObserverObjectMap_.size();
     return length;
 }

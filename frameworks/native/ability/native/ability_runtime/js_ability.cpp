@@ -1017,6 +1017,7 @@ bool JsAbility::CallPromise(NativeValue *result, AppExecFwk::AbilityTransactionC
     NativeValue *argv[1] = { promiseCallback };
     nativeEngine.CallFunction(result, then, argv, 1);
     return true;
+    HILOG_DEBUG("complete");
 }
 
 std::shared_ptr<AppExecFwk::ADelegatorAbilityProperty> JsAbility::CreateADelegatorAbilityProperty()

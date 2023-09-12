@@ -229,7 +229,7 @@ napi_value InsertWrap(napi_env env, napi_callback_info info, DAHelperInsertCB *i
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, Wrong parameter count.", __func__);
         return nullptr;
     }
 
@@ -684,7 +684,7 @@ napi_value NAPI_Register(napi_env env, napi_callback_info info)
  */
 napi_value RegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB *onCB)
 {
-    HILOG_INFO("%{public}s,called", __func__);
+    HILOG_INFO("%{public}s,start", __func__);
     size_t argcAsync = ARGS_THREE;
     const size_t argcPromise = ARGS_TWO;
     const size_t argCountWithAsync = argcPromise + ARGS_ASYNC_COUNT;
@@ -694,7 +694,7 @@ napi_value RegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB *
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     if (argcAsync > argCountWithAsync) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, Wrong parameter count.", __func__);
         return nullptr;
     }
 

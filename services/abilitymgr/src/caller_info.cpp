@@ -49,18 +49,22 @@ bool CallerInfo::Marshalling(Parcel &parcel) const
     }
     // write deviceId
     if (!parcel.WriteString16(Str8ToStr16(deviceId))) {
+        HILOG_DEBUG("Failed to write str deviceId");
         return false;
     }
     // write bundleName
     if (!parcel.WriteString16(Str8ToStr16(bundleName))) {
+        HILOG_DEBUG("Failed to write str bundleName");
         return false;
     }
     // write abilityName
     if (!parcel.WriteString16(Str8ToStr16(abilityName))) {
+        HILOG_DEBUG("Failed to write str abilityName");
         return false;
     }
     // write moduleName
     if (!parcel.WriteString16(Str8ToStr16(moduleName))) {
+        HILOG_DEBUG("Failed to write str moduleName");
         return false;
     }
     return true;
