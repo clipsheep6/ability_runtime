@@ -226,7 +226,7 @@ public:
     virtual int32_t DetachAppDebug(const std::string &bundleName) = 0;
 
     /**
-     * @brief Registering ability debug mode response to ams.
+     * @brief Registering ability debug mode response.
      * @param response Response for ability debug object.
      * @return Returns ERR_OK on success, others on failure.
      */

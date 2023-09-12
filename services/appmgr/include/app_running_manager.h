@@ -214,13 +214,13 @@ public:
      * @brief Attach app debug.
      * @param bundleName The application bundle name.
      */
-    void AttachAppDebug(const std::string &bundleName); 
+    void AttachAppDebug(const std::string &bundleName);
 
     /**
      * @brief Detach app debug.
      * @param bundleName The application bundle name.
      */
-    void DetachAppDebug(const std::string &bundleName); 
+    void DetachAppDebug(const std::string &bundleName);
 
     /**
      * @brief Obtain app information through bundleName.

@@ -27,13 +27,13 @@ public:
     ~AbilityDebugDeal() = default;
 
     /**
-     * @brief Set ability attach debug flag to ams.
+     * @brief Set ability attach debug flag.
      * @param tokens The token of ability records.
      */
     void OnAbilitysDebugStarted(const std::vector<sptr<IRemoteObject>> &tokens);
 
     /**
-     * @brief Cancel ability attach debug flag to ams.
+     * @brief Cancel ability attach debug flag.
      * @param tokens The token of ability records.
      */
     void OnAbilitysDebugStoped(const std::vector<sptr<IRemoteObject>> &tokens);

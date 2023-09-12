@@ -28,13 +28,13 @@ public:
     virtual ~AbilityDebugResponseProxy() = default;
     
     /**
-     * @brief Set ability attach debug flag to ams through proxy project.
+     * @brief Set ability attach debug flag through proxy project.
      * @param tokens The token of ability token.
      */
     void OnAbilitysDebugStarted(const std::vector<sptr<IRemoteObject>> &tokens) override;
 
     /**
-     * @brief Cancel ability attach debug flag to ams through proxy project.
+     * @brief Cancel ability attach debug flag through proxy project.
      * @param tokens The token of ability token.
      */
     void OnAbilitysDebugStoped(const std::vector<sptr<IRemoteObject>> &tokens) override;

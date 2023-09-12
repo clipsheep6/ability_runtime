@@ -25,13 +25,13 @@ public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.appexecfwk.AbilityDebugResponse");
 
     /**
-     * @brief Set ability attach debug flag to ams.
+     * @brief Set ability attach debug flag.
      * @param tokens The token of ability token.
      */
     virtual void OnAbilitysDebugStarted(const std::vector<sptr<IRemoteObject>> &tokens) = 0;
 
     /**
-     * @brief Cancel ability attach debug flag to ams.
+     * @brief Cancel ability attach debug flag.
      * @param tokens The token of ability token.
      */
     virtual void OnAbilitysDebugStoped(const std::vector<sptr<IRemoteObject>> &tokens) = 0;

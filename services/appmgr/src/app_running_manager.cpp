@@ -940,7 +940,8 @@ void AppRunningManager::GetAppDebugInfoByBundleName(
     }
 }
 
-void AppRunningManager::GetAbilityTokensByBundleName(const std::string &bundleName, std::vector<sptr<IRemoteObject>> &abilityTokens)
+void AppRunningManager::GetAbilityTokensByBundleName(
+    const std::string &bundleName, std::vector<sptr<IRemoteObject>> &abilityTokens)
 {
     HILOG_DEBUG("Called.");
     std::lock_guard<ffrt::mutex> guard(lock_);

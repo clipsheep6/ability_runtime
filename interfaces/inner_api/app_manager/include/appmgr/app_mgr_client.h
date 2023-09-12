@@ -492,7 +492,7 @@ public:
     int32_t DetachAppDebug(const std::string &bundleName);
 
     /**
-     * @brief Registering ability Debug Mode response to ams.
+     * @brief Registering ability Debug Mode response.
      * @param abilityResponse Response of ability debug object.
      * @return Returns ERR_OK on success, others on failure.
      */

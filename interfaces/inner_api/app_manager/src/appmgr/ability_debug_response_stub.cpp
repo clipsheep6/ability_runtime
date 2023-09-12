@@ -24,10 +24,10 @@ namespace OHOS {
 namespace AppExecFwk {
 AbilityDebugResponseStub::AbilityDebugResponseStub()
 {
-   responseFuncMap_[static_cast<uint32_t>(
-        IAbilityDebugResponse::Message::ON_ABILITYS_DEBUG_STARTED)] = &AbilityDebugResponseStub::HandleOnAbilitysDebugStarted;
-   responseFuncMap_[static_cast<uint32_t>(
-        IAbilityDebugResponse::Message::ON_ABILITYS_DEBUG_STOPED)] = &AbilityDebugResponseStub::HandleOnAbilitysDebugStoped;
+    responseFuncMap_[static_cast<uint32_t>(IAbilityDebugResponse::Message::ON_ABILITYS_DEBUG_STARTED)] =
+        &AbilityDebugResponseStub::HandleOnAbilitysDebugStarted;
+    responseFuncMap_[static_cast<uint32_t>(IAbilityDebugResponse::Message::ON_ABILITYS_DEBUG_STOPED)] =
+        &AbilityDebugResponseStub::HandleOnAbilitysDebugStoped;
 }
 
 AbilityDebugResponseStub::~AbilityDebugResponseStub()

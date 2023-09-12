@@ -377,7 +377,7 @@ public:
     int32_t DetachAppDebug(const std::string &bundleName);
 
     /**
-     * @brief Register ability debug response for ams to set debug mode.
+     * @brief Register ability debug response to set debug mode.
      * @param bundleName The application bundle name.
      * @return Returns ERR_OK on success, others on failure.
      */

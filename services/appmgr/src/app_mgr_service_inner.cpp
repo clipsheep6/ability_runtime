@@ -4293,7 +4293,7 @@ int32_t AppMgrServiceInner::AttachAppDebug(const std::string &bundleName)
 
     std::vector<AppDebugInfo> debugInfos;
     appRunningManager_->GetAppDebugInfoByBundleName(bundleName, debugInfos, false);
-    if (!debugInfos.empty()){
+    if (!debugInfos.empty()) {
         appDebugManager_->StartDebug(debugInfos);
     }
 
@@ -4312,7 +4312,7 @@ int32_t AppMgrServiceInner::DetachAppDebug(const std::string &bundleName)
 
     std::vector<AppDebugInfo> debugInfos;
     appRunningManager_->GetAppDebugInfoByBundleName(bundleName, debugInfos, true);
-    if (!debugInfos.empty()){
+    if (!debugInfos.empty()) {
         appDebugManager_->StopDebug(debugInfos);
     }
 
@@ -4340,7 +4340,7 @@ int32_t AppMgrServiceInner::NotifyAbilitysDebugChange(const std::string &bundleN
 
     std::vector<sptr<IRemoteObject>> tokens;
     appRunningManager_->GetAbilityTokensByBundleName(bundleName, tokens);
-    if (!tokens.empty()){
+    if (!tokens.empty()) {
         isAppDebug ? abilityDebugResponse_->OnAbilitysDebugStarted(tokens) :
             abilityDebugResponse_->OnAbilitysDebugStoped(tokens);
     }

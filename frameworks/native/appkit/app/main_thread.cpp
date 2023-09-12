@@ -2698,7 +2698,7 @@ void MainThread::DetachAppDebug()
     HILOG_DEBUG("Called.");
     if (watchdog_ == nullptr) {
         watchdog_ = std::make_shared<Watchdog>();
-        if (watchdog_ != nullptr){
+        if (watchdog_ != nullptr) {
             watchdog_->Init(mainHandler_);
         }
         return;

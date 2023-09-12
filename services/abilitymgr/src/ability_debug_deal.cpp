@@ -23,7 +23,7 @@ namespace AAFwk {
 AbilityDebugDeal::AbilityDebugDeal()
 {
     abilityDebugResponse_ = new (std::nothrow) AbilityDebugResponse(weak_from_this());
-    if (abilityDebugResponse_ == nullptr){
+    if (abilityDebugResponse_ == nullptr) {
         HILOG_ERROR("Ability debug response is nullptr.");
         return;
     }

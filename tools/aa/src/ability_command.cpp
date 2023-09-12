@@ -699,7 +699,7 @@ ErrCode AbilityManagerShellCommand::RunAsAttachDebugCommand()
     }
 
     auto result = AbilityManagerClient::GetInstance()->AttachAppDebug(bundleName);
-    if(result == OHOS::ERR_OK) {
+    if (result == OHOS::ERR_OK) {
         resultReceiver_.append(STRING_ATTACH_APP_DEBUG_OK + "\n");
         return result;
     }
@@ -720,7 +720,7 @@ ErrCode AbilityManagerShellCommand::RunAsDetachDebugCommand()
     }
 
     auto result = AbilityManagerClient::GetInstance()->DetachAppDebug(bundleName);
-    if(result == OHOS::ERR_OK) {
+    if (result == OHOS::ERR_OK) {
         resultReceiver_.append(STRING_DETACH_APP_DEBUG_OK + "\n");
         return result;
     }
