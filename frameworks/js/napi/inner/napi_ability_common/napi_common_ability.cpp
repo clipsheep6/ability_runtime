@@ -17,6 +17,7 @@
 
 #include <chrono>
 #include <dlfcn.h>
+#include <memory>
 #include <uv.h>
 
 #include "ability_util.h"
@@ -3252,6 +3253,67 @@ napi_value NAPI_StopAbilityCommon(napi_env env, napi_callback_info info, Ability
     }
     HILOG_INFO("%{public}s end.", __func__);
     return ret;
+}
+
+void ClearCallbackWork(uv_work_t* req, int)
+{
+    std::unique_ptr<uv_work_t> work(req);
+    if (!req) {
+        HILOG_ERROR("work null");
+        return;
+    }
+    std::unique_ptr<ConnectionCallback> callback(reinterpret_cast<ConnectionCallback*>(req->data));
+    if (!callback) {
+        HILOG_ERROR("data null");
+        return;
+    }
+    callback->Reset();
+}
+
+void ConnectionCallback::Reset()
+{
+    auto engine = reinterpret_cast<NativeEngine*>(env);
+    if (engine == nullptr) {
+        removeKey = nullptr;
+        return;
+    }
+    if (pthread_self() == engine->GetTid()) {
+        HILOG_DEBUG("in-js-thread");
+        if (connectCallbackRef) {
+            napi_delete_reference(env, connectCallbackRef);
+            connectCallbackRef = nullptr;
+        }
+        if (disconnectCallbackRef) {
+            napi_delete_reference(env, disconnectCallbackRef);
+            disconnectCallbackRef = nullptr;
+        }
+        if (failedCallbackRef) {
+            napi_delete_reference(env, failedCallbackRef);
+            failedCallbackRef = nullptr;
+        }
+        env = nullptr;
+        removeKey = nullptr;
+        return;
+    }
+    HILOG_INFO("not in-js-thread");
+    auto loop = engine->GetUVLoop();
+    if (loop == nullptr) {
+        HILOG_ERROR("%{public}s, loop == nullptr.", __func__);
+        env = nullptr;
+        removeKey = nullptr;
+        return;
+    }
+    uv_work_t *work = new(std::nothrow) uv_work_t;
+    ConnectionCallback *data = new(std::nothrow) ConnectionCallback(std::move(*this));
+    work->data = data;
+    auto ret = uv_queue_work(loop, work, [](uv_work_t*) {}, ClearCallbackWork);
+    if (ret != 0) {
+        HILOG_ERROR("uv_queue_work failed: %{public}d", ret);
+        data->env = nullptr;
+        data->removeKey = nullptr;
+        delete data;
+        delete work;
+    }
 }
 
 void NAPIAbilityConnection::AddConnectionCallback(std::shared_ptr<ConnectionCallback> callback)
