@@ -437,6 +437,9 @@ public:
     {
         return false;
     }
+
+    void NotifyForceExpandState(int32_t value) override
+    {}
 };
 
 #endif /* FOUNDATION_ABILITY_RUNTIME_MOCK_NATIVE_ENGINE_H */

@@ -1299,6 +1299,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
 ErrCode AbilityManagerShellCommand::RunAsTestCommand()
 {
     HILOG_INFO("enter");
+    
     std::map<std::string, std::string> params;
 
     for (int i = USER_TEST_COMMAND_START_INDEX; i < argc_; i++) {
