@@ -16,11 +16,10 @@ import("//build/config/features.gni")
 import("//build/ohos.gni")
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
-module_output_path = "ability_runtime/abilitymgr"
 
 ##############################fuzztest##########################################
 ohos_fuzztest("AbilityStubMoveAbilityToBackgroundFuzzTest") {
-  module_out_path = module_output_path
+  module_out_path = fuzz_test_output_path
 
   fuzz_config_file = "${ability_runtime_test_path}/fuzztest/abilitystubmoveabilitytobackground_fuzzer"
   include_dirs = [ "${ability_runtime_innerkits_path}/ability_manager/include" ]
