@@ -23,6 +23,11 @@ namespace AAFwk {
 AbilityDebugDeal::AbilityDebugDeal()
 {
     abilityDebugResponse_ = new (std::nothrow) AbilityDebugResponse(weak_from_this());
+    if (abilityDebugResponse_ == nullptr){
+        HILOG_ERROR("Ability debug response is nullptr.");
+        return;
+    }
+
     DelayedSingleton<AppScheduler>::GetInstance()->RegisterAbilityDebugResponse(abilityDebugResponse_);
 }
 
@@ -32,7 +37,7 @@ void AbilityDebugDeal::OnAbilitysDebugStarted(const std::vector<sptr<IRemoteObje
     for (auto &token : tokens) {
         auto abilityRecord = Token::GetAbilityRecordByToken(token);
         if (abilityRecord == nullptr) {
-            HILOG_ERROR("AbilityRecord is nullptr.");
+            HILOG_ERROR("Ability record is nullptr.");
             continue;
         }
         abilityRecord->SetAttachDebug(true);
@@ -45,7 +50,7 @@ void AbilityDebugDeal::OnAbilitysDebugStoped(const std::vector<sptr<IRemoteObjec
     for (auto &token : tokens) {
         auto abilityRecord = Token::GetAbilityRecordByToken(token);
         if (abilityRecord == nullptr) {
-            HILOG_ERROR("AbilityRecord is nullptr.");
+            HILOG_ERROR("Ability record is nullptr.");
             continue;
         }
         abilityRecord->SetAttachDebug(false);

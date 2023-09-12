@@ -994,13 +994,7 @@ void AppRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
         RemoveModuleRecord(moduleRecord);
     }
 
-    bool isExtensionDebug = false;
-    auto abilityRecord = GetAbilityRunningRecordByToken(token);
-    if (abilityRecord != nullptr) {
-        isExtensionDebug = (abilityRecord->GetAbilityInfo()->type == AppExecFwk::AbilityType::EXTENSION) &&
-                           (isAttachDebug_ || isDebugApp_);
-    }
-
+    bool isExtensionDebug = (processType_ == ProcessType::EXTENSION) && (isAttachDebug_ || isDebugApp_);
     auto moduleRecordList = GetAllModuleRecord();
     if (moduleRecordList.empty() && !IsKeepAliveApp() && !isExtensionDebug) {
         ScheduleTerminate();

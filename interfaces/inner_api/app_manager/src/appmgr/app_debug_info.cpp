@@ -31,12 +31,12 @@ AppDebugInfo *AppDebugInfo::Unmarshalling(Parcel &parcel)
 {
     AppDebugInfo *info = new (std::nothrow) AppDebugInfo();
     if (info == nullptr) {
-        HILOG_ERROR("AppDebugInfo is nullptr");
+        HILOG_ERROR("App debug info is nullptr.");
         return nullptr;
     }
 
     if (!info->ReadFromParcel(parcel)) {
-        HILOG_ERROR("ReadFromParcel failed");
+        HILOG_ERROR("Read from parcel failed.");
         delete info;
         info = nullptr;
     }
@@ -47,17 +47,17 @@ bool AppDebugInfo::Marshalling(Parcel &parcel) const
 {
     // write bundleName
     if (!parcel.WriteString(bundleName)) {
-        HILOG_ERROR("Write bundleName failed");
+        HILOG_ERROR("Write bundle name failed.");
         return false;
     }
     // write pid
     if (!parcel.WriteInt32(pid)) {
-        HILOG_ERROR("Write pid failed");
+        HILOG_ERROR("Write pid failed.");
         return false;
     }
     // write uid
     if (!parcel.WriteInt32(uid)) {
-        HILOG_ERROR("Write uid failed");
+        HILOG_ERROR("Write uid failed.");
         return false;
     }
     return true;

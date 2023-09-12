@@ -399,6 +399,11 @@ int32_t AmsMgrStub::HandleRegisterAppDebugListener(MessageParcel &data, MessageP
 {
     HILOG_DEBUG("Called.");
     auto appDebugLister = iface_cast<IAppDebugListener>(data.ReadRemoteObject());
+    if (appDebugLister == nullptr) {
+        HILOG_ERROR("App debug lister is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
     auto result = RegisterAppDebugListener(appDebugLister);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("Fail to write result.");
@@ -411,6 +416,11 @@ int32_t AmsMgrStub::HandleUnregisterAppDebugListener(MessageParcel &data, Messag
 {
     HILOG_DEBUG("Called.");
     auto appDebugLister = iface_cast<IAppDebugListener>(data.ReadRemoteObject());
+    if (appDebugLister == nullptr) {
+        HILOG_ERROR("App debug lister is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
     auto result = UnregisterAppDebugListener(appDebugLister);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("Fail to write result.");
@@ -423,6 +433,11 @@ int32_t AmsMgrStub::HandleAttachAppDebug(MessageParcel &data, MessageParcel &rep
 {
     HILOG_DEBUG("Called.");
     auto bundleName = data.ReadString();
+    if (bundleName.empty()) {
+        HILOG_ERROR("Bundle name is empty.");
+        return ERR_INVALID_VALUE;
+    }
+
     auto result = AttachAppDebug(bundleName);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("Fail to write result.");
@@ -435,6 +450,11 @@ int32_t AmsMgrStub::HandleDetachAppDebug(MessageParcel &data, MessageParcel &rep
 {
     HILOG_DEBUG("Called.");
     auto bundleName = data.ReadString();
+    if (bundleName.empty()) {
+        HILOG_ERROR("Bundle name is empty.");
+        return ERR_INVALID_VALUE;
+    }
+
     auto result = DetachAppDebug(bundleName);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("Fail to write result.");
@@ -446,8 +466,12 @@ int32_t AmsMgrStub::HandleDetachAppDebug(MessageParcel &data, MessageParcel &rep
 int32_t AmsMgrStub::HandleRegisterAbilityDebugResponse(MessageParcel &data, MessageParcel &reply)
 {
     HILOG_DEBUG("Called.");
-    auto obj = data.ReadRemoteObject();
-    auto response = iface_cast<IAbilityDebugResponse>(obj);
+    auto response = iface_cast<IAbilityDebugResponse>(data.ReadRemoteObject());
+    if (response == nullptr) {
+        HILOG_ERROR("Response is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
     auto result = RegisterAbilityDebugResponse(response);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("Fail to write result.");
@@ -460,6 +484,11 @@ int32_t AmsMgrStub::HandleIsAttachDebug(MessageParcel &data, MessageParcel &repl
 {
     HILOG_DEBUG("Called.");
     auto bundleName = data.ReadString();
+    if (bundleName.empty()) {
+        HILOG_ERROR("Bundle name is empty.");
+        return ERR_INVALID_VALUE;
+    }
+
     auto result = IsAttachDebug(bundleName);
     if (!reply.WriteBool(result)) {
         HILOG_ERROR("Fail to write result.");

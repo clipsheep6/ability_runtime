@@ -1245,13 +1245,6 @@ public:
      */
     int32_t DetachAppDebug(const std::string &bundleName) override;
 
-    /**
-     * @brief Determine whether it is an attachment debug application based on the bundle name.
-     * @param bundleName The application bundle name.
-     * @return Returns true if it is an attach debug application, otherwise it returns false.
-     */
-    bool IsAttachDebug(const std::string &bundleName);
-
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;

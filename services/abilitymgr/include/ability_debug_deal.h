@@ -24,7 +24,7 @@ namespace AAFwk {
 class AbilityDebugDeal : public std::enable_shared_from_this<AbilityDebugDeal>  {
 public:
     AbilityDebugDeal();
-    virtual ~AbilityDebugDeal() = default;
+    ~AbilityDebugDeal() = default;
 
     /**
      * @brief Set ability attach debug flag to ams.

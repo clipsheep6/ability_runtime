@@ -8254,11 +8254,5 @@ int32_t AbilityManagerService::DetachAppDebug(const std::string &bundleName)
     HILOG_DEBUG("Called.");
     return DelayedSingleton<AppScheduler>::GetInstance()->DetachAppDebug(bundleName);
 }
-
-bool AbilityManagerService::IsAttachDebug(const std::string &bundleName)
-{
-    HILOG_DEBUG("Called.");
-    return DelayedSingleton<AppScheduler>::GetInstance()->IsAttachDebug(bundleName);
-}
 }  // namespace AAFwk
 }  // namespace OHOS

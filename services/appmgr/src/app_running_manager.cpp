@@ -890,7 +890,7 @@ void AppRunningManager::AttachAppDebug(const std::string &bundleName)
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord->GetBundleName() == bundleName) {
-            HILOG_DEBUG("The application: %{public}s will be set debug mode", bundleName.c_str());
+            HILOG_DEBUG("The application: %{public}s will be set debug mode.", bundleName.c_str());
             appRecord->SetAttachDebug(true);
         }
     }
@@ -903,7 +903,7 @@ void AppRunningManager::DetachAppDebug(const std::string &bundleName)
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord->GetBundleName() == bundleName) {
-            HILOG_DEBUG("The application: %{public}s will be cancel debug mode", bundleName.c_str());
+            HILOG_DEBUG("The application: %{public}s will be cancel debug mode.", bundleName.c_str());
             appRecord->SetAttachDebug(false);
         }
     }
@@ -912,7 +912,7 @@ void AppRunningManager::DetachAppDebug(const std::string &bundleName)
 void AppRunningManager::GetAppDebugInfoByBundleName(
     const std::string &bundleName, std::vector<AppDebugInfo> &debugInfos, const bool &isDetachDebug)
 {
-    HILOG_DEBUG("Called");
+    HILOG_DEBUG("Called.");
     std::lock_guard<ffrt::mutex> guard(lock_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
@@ -942,7 +942,7 @@ void AppRunningManager::GetAppDebugInfoByBundleName(
 
 void AppRunningManager::GetAbilityTokensByBundleName(const std::string &bundleName, std::vector<sptr<IRemoteObject>> &abilityTokens)
 {
-    HILOG_DEBUG("Called");
+    HILOG_DEBUG("Called.");
     std::lock_guard<ffrt::mutex> guard(lock_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;

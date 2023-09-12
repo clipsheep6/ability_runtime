@@ -1172,7 +1172,7 @@ public:
     virtual int32_t AttachAppDebug(const std::string &bundleName) = 0;
 
     /**
-     * @brief Attach app debug.
+     * @brief Detach app debug.
      * @param bundleName The application bundle name.
      * @return Returns ERR_OK on success, others on failure.
      */

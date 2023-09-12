@@ -913,7 +913,7 @@ int32_t AmsMgrProxy::RegisterAbilityDebugResponse(const sptr<IAbilityDebugRespon
     int32_t ret = remote->SendRequest(
         static_cast<uint32_t>(IAmsMgr::Message::REGISTER_ABILITY_DEBUG_RESPONSE), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        HILOG_ERROR("SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
     return reply.ReadInt32();

@@ -218,10 +218,10 @@ enum class AbilityManagerInterfaceCode {
     // Cancel register the app debug mode listener (69)
     UNREGISTER_APP_DEBUG_LISTENER = 69,
 
-    // Set the app debug mode with the aa command (70)
+    // Attach app debug (70)
     ATTACH_APP_DEBUG = 70,
 
-    // Cancel the app debug mode with the aa command (71)
+    // Deatch app debug (71)
     DETACH_APP_DEBUG = 71,
 
     // ipc id 1001-2000 for DMS

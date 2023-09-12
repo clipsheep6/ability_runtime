@@ -4322,7 +4322,7 @@ int32_t AppMgrServiceInner::DetachAppDebug(const std::string &bundleName)
 
 int32_t AppMgrServiceInner::RegisterAbilityDebugResponse(const sptr<IAbilityDebugResponse> &response)
 {
-    if (!response) {
+    if (response == nullptr) {
         HILOG_ERROR("Response is nullptr.");
         return ERR_INVALID_VALUE;
     }

@@ -24,7 +24,7 @@ int32_t AppDebugManager::RegisterAppDebugListener(const sptr<IAppDebugListener> 
 {
     HILOG_DEBUG("Called.");
     if (listener == nullptr){
-        HILOG_ERROR("listener is nullptr.");
+        HILOG_ERROR("Listener is nullptr.");
         return ERR_INVALID_DATA;
     }
 
@@ -44,7 +44,7 @@ int32_t AppDebugManager::UnregisterAppDebugListener(const sptr<IAppDebugListener
 {
     HILOG_DEBUG("Called.");
     if (listener == nullptr){
-        HILOG_ERROR("listener is nullptr.");
+        HILOG_ERROR("Listener is nullptr.");
         return ERR_INVALID_DATA;
     }
 

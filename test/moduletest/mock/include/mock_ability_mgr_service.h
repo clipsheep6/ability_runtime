@@ -254,26 +254,10 @@ public:
     }
 #endif
     MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionValidResult>&));
-
-    int32_t RegisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener) override
-    {
-        return 0;
-    }
-
-    int32_t UnregisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener) override
-    {
-        return 0;
-    }
-
-    int32_t AttachAppDebug(const std::string &bundleName) override
-    {
-        return 0;
-    }
-
-    int32_t DetachAppDebug(const std::string &bundleName) override
-    {
-        return 0;
-    }
+    MOCK_METHOD1(RegisterAppDebugListener, int32_t(const sptr<AppExecFwk::IAppDebugListener> &listener));
+    MOCK_METHOD1(UnregisterAppDebugListener, int32_t(const sptr<AppExecFwk::IAppDebugListener> &listener));
+    MOCK_METHOD1(AttachAppDebug, int32_t(const std::string &bundleName));
+    MOCK_METHOD1(DetachAppDebug, int32_t(const std::string &bundleName));
 
 private:
     Semaphore sem_;

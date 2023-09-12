@@ -68,7 +68,7 @@ void AbilityDebugResponseProxy::OnAbilitysDebugStarted(const std::vector<sptr<IR
     int32_t ret = remote->SendRequest(
         static_cast<uint32_t>(IAbilityDebugResponse::Message::ON_ABILITYS_DEBUG_STARTED), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        HILOG_ERROR("SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -105,7 +105,7 @@ void AbilityDebugResponseProxy::OnAbilitysDebugStoped(const std::vector<sptr<IRe
     int32_t ret = remote->SendRequest(
         static_cast<uint32_t>(IAbilityDebugResponse::Message::ON_ABILITYS_DEBUG_STOPED), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        HILOG_ERROR("SendRequest is failed, error code: %{public}d", ret);
     }
 }
 } // namespace AppExecFwk

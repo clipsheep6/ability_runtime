@@ -2516,7 +2516,7 @@ int32_t AbilityManagerStub::RegisterAppDebugListenerInner(MessageParcel &data, M
     HILOG_DEBUG("Called.");
     auto appDebugLister = iface_cast<AppExecFwk::IAppDebugListener>(data.ReadRemoteObject());
     if (appDebugLister == nullptr) {
-        HILOG_ERROR("AppDebugLister is nullptr.");
+        HILOG_ERROR("App debug lister is nullptr.");
         return ERR_INVALID_VALUE;
     }
 
@@ -2533,7 +2533,7 @@ int32_t AbilityManagerStub::UnregisterAppDebugListenerInner(MessageParcel &data,
     HILOG_DEBUG("Called.");
     auto appDebugLister = iface_cast<AppExecFwk::IAppDebugListener>(data.ReadRemoteObject());
     if (appDebugLister == nullptr) {
-        HILOG_ERROR("AppDebugLister is nullptr.");
+        HILOG_ERROR("App debug lister is nullptr.");
         return ERR_INVALID_VALUE;
     }
 

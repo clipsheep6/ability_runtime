@@ -41,9 +41,11 @@ int32_t AbilityDebugResponseStub::HandleOnAbilitysDebugStarted(MessageParcel &da
     std::vector<sptr<IRemoteObject>> tokens;
     for (int32_t index = 0; index < tokenSize; index++) {
         auto token = data.ReadRemoteObject();
-        if (token != nullptr) {
-            tokens.push_back(token);
+        if (token == nullptr) {
+            HILOG_ERROR("Token is nullptr.");
+            return ERR_INVALID_DATA;
         }
+        tokens.push_back(token);
     }
     OnAbilitysDebugStarted(tokens);
     return NO_ERROR;
@@ -55,9 +57,11 @@ int32_t AbilityDebugResponseStub::HandleOnAbilitysDebugStoped(MessageParcel &dat
     std::vector<sptr<IRemoteObject>> tokens;
     for (int32_t index = 0; index < tokenSize; index++) {
         auto token = data.ReadRemoteObject();
-        if (token != nullptr) {
-            tokens.push_back(token);
+        if (token == nullptr) {
+            HILOG_ERROR("Token is nullptr.");
+            return ERR_INVALID_DATA;
         }
+        tokens.push_back(token);
     }
     OnAbilitysDebugStoped(tokens);
     return NO_ERROR;

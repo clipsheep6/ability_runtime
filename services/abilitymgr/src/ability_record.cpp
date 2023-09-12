@@ -309,17 +309,14 @@ int AbilityRecord::LoadAbility()
     }
     want_.SetParam(ABILITY_OWNER_USERID, ownerMissionUserId_);
     want_.SetParam("ohos.ability.launch.reason", static_cast<int>(lifeCycleStateInfo_.launchParam.launchReason));
-
-    auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
-    if (abilityMgr == nullptr) {
-        HILOG_WARN("Get Ability Manager Service failed.");
-        return ERR_INVALID_OPERATION;
-    }
-    abilityMgr->IsAttachDebug(abilityInfo_.bundleName);
-
     auto result = DelayedSingleton<AppScheduler>::GetInstance()->LoadAbility(
         token_, callerToken_, abilityInfo_, applicationInfo_, want_);
     want_.RemoveParam(ABILITY_OWNER_USERID);
+
+    auto isAttachDebug = DelayedSingleton<AppScheduler>::GetInstance()->IsAttachDebug(abilityInfo_.bundleName);
+    if (isAttachDebug) {
+        SetAttachDebug(true);
+    }
     return result;
 }
 

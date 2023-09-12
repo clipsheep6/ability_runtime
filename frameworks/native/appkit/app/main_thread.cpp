@@ -447,7 +447,7 @@ void MainThread::ScheduleForegroundApplication()
     }
 
     if (watchdog_ == nullptr) {
-        HILOG_WARN("Watch dog is nullptr.");
+        HILOG_ERROR("Watch dog is nullptr.");
         return;
     }
     watchdog_->SetBackgroundStatus(false);
@@ -475,7 +475,7 @@ void MainThread::ScheduleBackgroundApplication()
     }
     
     if (watchdog_ == nullptr) {
-        HILOG_WARN("Watch dog is nullptr.");
+        HILOG_ERROR("Watch dog is nullptr.");
         return;
     }
     watchdog_->SetBackgroundStatus(true);
@@ -2398,7 +2398,7 @@ void MainThread::ScheduleAcceptWant(const AAFwk::Want &want, const std::string &
 void MainThread::CheckMainThreadIsAlive()
 {
     if (watchdog_ == nullptr) {
-        HILOG_WARN("Watch dog is nullptr.");
+        HILOG_ERROR("Watch dog is nullptr.");
         return;
     }
 
@@ -2685,7 +2685,7 @@ void MainThread::AttachAppDebug()
 {
     HILOG_DEBUG("Called.");
     if (watchdog_ == nullptr || watchdog_->IsStopWatchdog()) {
-        HILOG_WARN("Watch dog is stoped.");
+        HILOG_ERROR("Watch dog is stoped.");
         return;
     }
 
@@ -2698,7 +2698,7 @@ void MainThread::DetachAppDebug()
     HILOG_DEBUG("Called.");
     if (watchdog_ == nullptr) {
         watchdog_ = std::make_shared<Watchdog>();
-        if (watchdog_){
+        if (watchdog_ != nullptr){
             watchdog_->Init(mainHandler_);
         }
         return;
