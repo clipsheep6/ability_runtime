@@ -3481,6 +3481,16 @@ int AbilityManagerService::MoveMissionToFront(int32_t missionId)
 {
     HILOG_INFO("request MoveMissionToFront, missionId:%{public}d", missionId);
     CHECK_CALLER_IS_SYSTEM_APP;
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    if (!IsAbilityControllerStartById(missionId)) {
+        HILOG_ERROR("IsAbilityControllerStart false");
+        return ERR_WOULD_BLOCK;
+    }
+
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         if (!uiAbilityLifecycleManager_) {
             HILOG_ERROR("failed, uiAbilityLifecycleManager is nullptr");
@@ -3491,6 +3501,13 @@ int AbilityManagerService::MoveMissionToFront(int32_t missionId)
 
     CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
 
+    return currentMissionListManager_->MoveMissionToFront(missionId);
+}
+
+int AbilityManagerService::MoveMissionToFront(int32_t missionId, const StartOptions &startOptions)
+{
+    HILOG_INFO("request MoveMissionToFront, missionId:%{public}d", missionId);
+    CHECK_CALLER_IS_SYSTEM_APP;
     if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
@@ -3501,13 +3518,6 @@ int AbilityManagerService::MoveMissionToFront(int32_t missionId)
         return ERR_WOULD_BLOCK;
     }
 
-    return currentMissionListManager_->MoveMissionToFront(missionId);
-}
-
-int AbilityManagerService::MoveMissionToFront(int32_t missionId, const StartOptions &startOptions)
-{
-    HILOG_INFO("request MoveMissionToFront, missionId:%{public}d", missionId);
-    CHECK_CALLER_IS_SYSTEM_APP;
     auto options = std::make_shared<StartOptions>(startOptions);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         if (!uiAbilityLifecycleManager_) {
@@ -3517,16 +3527,6 @@ int AbilityManagerService::MoveMissionToFront(int32_t missionId, const StartOpti
         return uiAbilityLifecycleManager_->MoveMissionToFront(missionId, options);
     }
     CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
-
-    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
-        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
-        return CHECK_PERMISSION_FAILED;
-    }
-
-    if (!IsAbilityControllerStartById(missionId)) {
-        HILOG_ERROR("IsAbilityControllerStart false");
-        return ERR_WOULD_BLOCK;
-    }
 
     return currentMissionListManager_->MoveMissionToFront(missionId, options);
 }
