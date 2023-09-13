@@ -336,7 +336,6 @@ bool AbilityManagerService::Init()
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         InitFocusListener();
     }
-    InitPrepareTerminateConfig();
 #endif
 
     DelayedSingleton<ConnectionStateManager>::GetInstance()->Init(taskHandler_);
@@ -366,6 +365,9 @@ bool AbilityManagerService::Init()
 
     auto initStartupFlagTask = [aams = shared_from_this()]() { aams->InitStartupFlag(); };
     taskHandler_->SubmitTask(initStartupFlagTask, "InitStartupFlag");
+
+    auto initPrepareTerminateConfigTask = [aams = shared_from_this()]() { aams->InitPrepareTerminateConfig(); };
+    taskHandler_->SubmitTask(initPrepareTerminateConfigTask, "InitPrepareTerminateConfig");
     HILOG_INFO("Init success.");
     return true;
 }
