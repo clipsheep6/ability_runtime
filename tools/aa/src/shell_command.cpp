@@ -59,8 +59,8 @@ ErrCode ShellCommand::OnCommand()
         result = OHOS::ERR_INVALID_VALUE;
     }
 
-    return result;
     HILOG_DEBUG("end");
+    return result;
 }
 
 std::string ShellCommand::ExecCommand()

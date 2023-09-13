@@ -90,7 +90,7 @@ private:
         }
         auto selfToken = IPCSkeleton::GetSelfTokenID();
         if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
-            HILOG_ERROR("This application is not system-app, can not use system-api");
+            HILOG_ERROR("This application is not system-app, can not use system-api.");
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
             return engine.CreateUndefined();
         }
@@ -135,7 +135,7 @@ private:
         std::string uriStr;
         if (!OHOS::AppExecFwk::UnwrapStringFromJS2(reinterpret_cast<napi_env>(&engine),
             reinterpret_cast<napi_value>(info.argv[0]), uriStr)) {
-            HILOG_ERROR("The uriStr is invalid.");
+            HILOG_ERROR("invalid of the uriStr.");
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();
         }
@@ -148,7 +148,7 @@ private:
         }
         auto selfToken = IPCSkeleton::GetSelfTokenID();
         if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
-            HILOG_ERROR("This application is not system-app, can not use system-api");
+            HILOG_ERROR("can not use system-api, this application is not system-app.");
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
             return engine.CreateUndefined();
         }

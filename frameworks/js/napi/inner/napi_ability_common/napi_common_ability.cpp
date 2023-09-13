@@ -358,7 +358,7 @@ void GetFilesDirExecuteCallback(napi_env, void *data)
     asyncCallbackInfo->native_data.data_type = NVT_STRING;
     std::shared_ptr<AbilityRuntime::AbilityContext> abilityContext = asyncCallbackInfo->ability->GetAbilityContext();
     if (abilityContext == nullptr) {
-        HILOG_ERROR("%{public}s GetAbilityContext is nullptr", __func__);
+        HILOG_ERROR("%{public}s GetAbilityContext is null", __func__);
         asyncCallbackInfo->error_code = NAPI_ERR_ACE_ABILITY;
         return;
     }
@@ -432,7 +432,7 @@ void PrintDrawnCompletedExecuteCallback(napi_env, void *data)
 
 napi_value NAPI_GetFilesDirWrap(napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_INFO("%{public}s start", __func__);
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value jsthis = nullptr;
@@ -441,20 +441,20 @@ napi_value NAPI_GetFilesDirWrap(napi_env env, napi_callback_info info, AsyncJSCa
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
 
     if (argc > ARGS_ONE) {
-        HILOG_INFO("%{public}s called, parameters is invalid.", __func__);
+        HILOG_INFO("%{public}s called, params is invalid.", __func__);
         return nullptr;
     }
 
     if (argc == ARGS_ONE) {
         if (!CreateAsyncCallback(env, args[PARAM0], asyncCallbackInfo)) {
-            HILOG_INFO("%{public}s called, the first parameter is invalid.", __func__);
+            HILOG_INFO("%{public}s begin, the first parameter is invalid.", __func__);
             return nullptr;
         }
     }
 
     AsyncParamEx asyncParamEx;
     if (asyncCallbackInfo->cbInfo.callback != nullptr) {
-        HILOG_INFO("%{public}s called. asyncCallback.", __func__);
+        HILOG_INFO("%{public}s begin. asyncCallback.", __func__);
         asyncParamEx.resource = "NAPI_GetFilesDirCallback";
         asyncParamEx.execute = GetFilesDirExecuteCallback;
         asyncParamEx.complete = CompleteAsyncCallbackWork;
@@ -516,7 +516,7 @@ void GetOrCreateDistributedDirExecuteCallback(napi_env, void *data)
     asyncCallbackInfo->native_data.data_type = NVT_STRING;
     std::shared_ptr<AbilityRuntime::AbilityContext> abilityContext = asyncCallbackInfo->ability->GetAbilityContext();
     if (abilityContext == nullptr) {
-        HILOG_ERROR("%{public}s GetAbilityContext is nullptr", __func__);
+        HILOG_ERROR("%{public}s GetAbilityContext is nullptr.", __func__);
         asyncCallbackInfo->error_code = NAPI_ERR_ACE_ABILITY;
         return;
     }
@@ -748,7 +748,7 @@ void GetExternalCacheDirExecuteCallback(napi_env, void *data)
  */
 napi_value NAPI_GetExternalCacheDirWrap(napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_INFO("%{public}s begin", __func__);
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value jsthis = nullptr;
@@ -757,20 +757,20 @@ napi_value NAPI_GetExternalCacheDirWrap(napi_env env, napi_callback_info info, A
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
 
     if (argc > ARGS_ONE) {
-        HILOG_INFO("%{public}s called, parameters is invalid.", __func__);
+        HILOG_INFO("%{public}s start, parameters is invalid.", __func__);
         return nullptr;
     }
 
     if (argc == ARGS_ONE) {
         if (!CreateAsyncCallback(env, args[PARAM0], asyncCallbackInfo)) {
-            HILOG_INFO("%{public}s called, the first parameter is invalid.", __func__);
+            HILOG_INFO("%{public}s start, the first parameter is invalid.", __func__);
             return nullptr;
         }
     }
 
     AsyncParamEx asyncParamEx;
     if (asyncCallbackInfo->cbInfo.callback != nullptr) {
-        HILOG_INFO("%{public}s called. asyncCallback.", __func__);
+        HILOG_INFO("%{public}s start. asyncCallback.", __func__);
         asyncParamEx.resource = "NAPI_GetExternalCacheDirCallback";
         asyncParamEx.execute = GetExternalCacheDirExecuteCallback;
         asyncParamEx.complete = CompleteAsyncCallbackWork;
@@ -809,7 +809,7 @@ napi_value NAPI_GetExternalCacheDirCommon(napi_env env, napi_callback_info info,
 napi_value NAPI_IsUpdatingConfigurationsWrap(
     napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_INFO("%{public}s enter", __func__);
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value jsthis = nullptr;
@@ -818,20 +818,20 @@ napi_value NAPI_IsUpdatingConfigurationsWrap(
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
 
     if (argc > ARGS_ONE) {
-        HILOG_INFO("%{public}s called, parameters is invalid.", __func__);
+        HILOG_INFO("%{public}s enter, parameters is invalid.", __func__);
         return nullptr;
     }
 
     if (argc == ARGS_ONE) {
         if (!CreateAsyncCallback(env, args[PARAM0], asyncCallbackInfo)) {
-            HILOG_INFO("%{public}s called, the first parameter is invalid.", __func__);
+            HILOG_INFO("%{public}s enter, the first parameter is invalid.", __func__);
             return nullptr;
         }
     }
 
     AsyncParamEx asyncParamEx;
     if (asyncCallbackInfo->cbInfo.callback != nullptr) {
-        HILOG_INFO("%{public}s called. asyncCallback.", __func__);
+        HILOG_INFO("%{public}s enter. asyncCallback.", __func__);
         asyncParamEx.resource = "NAPI_IsUpdatingConfigurationsCallback";
         asyncParamEx.execute = IsUpdatingConfigurationsExecuteCallback;
         asyncParamEx.complete = CompleteAsyncCallbackWork;
@@ -849,7 +849,7 @@ napi_value NAPI_IsUpdatingConfigurationsWrap(
 
 napi_value NAPI_PrintDrawnCompletedWrap(napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_INFO("%{public}s begin", __func__);
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value jsthis = nullptr;
@@ -858,13 +858,13 @@ napi_value NAPI_PrintDrawnCompletedWrap(napi_env env, napi_callback_info info, A
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
 
     if (argc > ARGS_ONE) {
-        HILOG_INFO("%{public}s called, parameters is invalid.", __func__);
+        HILOG_INFO("%{public}s called, arguments is invalid.", __func__);
         return nullptr;
     }
 
     if (argc == ARGS_ONE) {
         if (!CreateAsyncCallback(env, args[PARAM0], asyncCallbackInfo)) {
-            HILOG_INFO("%{public}s called, the first parameter is invalid.", __func__);
+            HILOG_INFO("%{public}s called, the first argument is invalid.", __func__);
             return nullptr;
         }
     }
@@ -1235,7 +1235,7 @@ void GetDisplayOrientationExecuteCallback(napi_env env, void *data)
     HILOG_INFO("%{public}s called.", __func__);
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s asyncCallbackInfo is null", __func__);
+        HILOG_ERROR("%{public}s asyncCallbackInfo is nullptr", __func__);
         return;
     }
 
@@ -1243,7 +1243,7 @@ void GetDisplayOrientationExecuteCallback(napi_env env, void *data)
     asyncCallbackInfo->native_data.data_type = NVT_NONE;
 
     if (asyncCallbackInfo->ability == nullptr) {
-        HILOG_ERROR("%{public}s ability is null", __func__);
+        HILOG_ERROR("%{public}s ability is nullptr", __func__);
         asyncCallbackInfo->error_code = NAPI_ERR_ACE_ABILITY;
         return;
     }
@@ -2394,7 +2394,7 @@ napi_value GetContextAsync(
 {
     HILOG_INFO("%{public}s, asyncCallback.", __func__);
     if (args == nullptr || asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("%{public}s, parameter == nullptr.", __func__);
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -2428,6 +2428,7 @@ napi_value GetContextAsync(
             napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
 
             if (asyncCallbackInfo->cbInfo.callback != nullptr) {
+                HILOG_DEBUG("Delete GetContextAsync callback reference.");
                 napi_delete_reference(env, asyncCallbackInfo->cbInfo.callback);
             }
             napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
@@ -2542,7 +2543,7 @@ napi_value NAPI_GetContextCommon(napi_env env, napi_callback_info info, AbilityT
 
     if (ret == nullptr) {
         ret = WrapVoidToJS(env);
-        HILOG_ERROR("%{public}s ret == nullptr", __func__);
+        HILOG_ERROR("%{public}s ret == nullptr.", __func__);
     } else {
         HILOG_INFO("%{public}s, end.", __func__);
     }
@@ -2617,6 +2618,7 @@ napi_value GetWantAsync(napi_env env, napi_value *args, const size_t argCallback
             napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
 
             if (asyncCallbackInfo->cbInfo.callback != nullptr) {
+                HILOG_DEBUG("Delete GetWantAsync callback reference.");
                 napi_delete_reference(env, asyncCallbackInfo->cbInfo.callback);
             }
             napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
@@ -3418,19 +3420,19 @@ void NAPIAbilityConnection::HandleOnAbilityConnectDone(ConnectionCallback &callb
     uv_loop_s *loop = nullptr;
     napi_get_uv_event_loop(callback.env, &loop);
     if (loop == nullptr) {
-        HILOG_ERROR("%{public}s, loop == nullptr.", __func__);
+        HILOG_ERROR("%{public}s, loop == null.", __func__);
         return;
     }
 
     uv_work_t *work = new(std::nothrow) uv_work_t;
     if (work == nullptr) {
-        HILOG_ERROR("%{public}s, work == nullptr.", __func__);
+        HILOG_ERROR("%{public}s, work == null.", __func__);
         return;
     }
 
     ConnectAbilityCB *connectAbilityCB = new (std::nothrow) ConnectAbilityCB;
     if (connectAbilityCB == nullptr) {
-        HILOG_ERROR("%{public}s, connectAbilityCB == nullptr.", __func__);
+        HILOG_ERROR("%{public}s, connectAbilityCB == null.", __func__);
         if (work != nullptr) {
             delete work;
             work = nullptr;
@@ -5295,7 +5297,7 @@ void JsNapiCommon::AddFreeInstallObserver(NativeEngine& engine, const AAFwk::Wan
     }
 
     if (ret != ERR_OK) {
-        HILOG_ERROR("AddFreeInstallObserver failed.");
+        HILOG_ERROR("AddFreeInstallObserver error.");
     } else {
         HILOG_INFO("AddJsObserverObject");
         // build a callback observer with last param

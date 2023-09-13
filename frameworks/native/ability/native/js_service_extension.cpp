@@ -651,12 +651,12 @@ void JsServiceExtension::Dump(const std::vector<std::string> &params, std::vecto
 #ifdef SUPPORT_GRAPHICS
 void JsServiceExtension::OnCreate(Rosen::DisplayId displayId)
 {
-    HILOG_DEBUG("OnCreate.");
+    HILOG_DEBUG("enter.");
 }
 
 void JsServiceExtension::OnDestroy(Rosen::DisplayId displayId)
 {
-    HILOG_DEBUG("OnDestroy.");
+    HILOG_DEBUG("exit.");
 }
 
 void JsServiceExtension::OnChange(Rosen::DisplayId displayId)

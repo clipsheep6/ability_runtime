@@ -728,7 +728,7 @@ NativeValue* JsUIExtensionContentSession::WrapWant(NativeEngine& engine, const A
 bool JsUIExtensionContentSession::UnWrapWant(NativeEngine& engine, NativeValue* argv, AAFwk::Want& want)
 {
     if (argv == nullptr) {
-        HILOG_WARN("argv == nullptr");
+        HILOG_WARN("argv == null");
         return false;
     }
     return AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(argv), want);
@@ -745,9 +745,9 @@ void JsUIExtensionContentSession::AddFreeInstallObserver(NativeEngine& engine,
     }
 
     if (ret != ERR_OK) {
-        HILOG_ERROR("AddFreeInstallObserver failed.");
+        HILOG_ERROR("AddFreeInstallObserver failed");
     } else {
-        HILOG_INFO("AddJsObserverObject");
+        HILOG_INFO("AddJsObserverObject.");
         // build a callback observer with last param
         std::string bundleName = want.GetElement().GetBundleName();
         std::string abilityName = want.GetElement().GetAbilityName();

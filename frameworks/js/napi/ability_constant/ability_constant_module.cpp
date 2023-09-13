@@ -31,6 +31,7 @@ enum class MemoryLevel {
 
 static napi_status SetEnumItem(napi_env env, napi_value object, const char* name, int32_t value)
 {
+    HILOG_DEBUG("start");
     napi_status status;
     napi_value itemName;
     napi_value itemValue;
@@ -41,11 +42,13 @@ static napi_status SetEnumItem(napi_env env, napi_value object, const char* name
     NAPI_CALL_BASE(env, status = napi_set_property(env, object, itemName, itemValue), status);
     NAPI_CALL_BASE(env, status = napi_set_property(env, object, itemValue, itemName), status);
 
+    HILOG_DEBUG("end");
     return napi_ok;
 }
 
 static napi_value InitLaunchReasonObject(napi_env env)
 {
+    HILOG_DEBUG("start");
     napi_value object;
     NAPI_CALL(env, napi_create_object(env, &object));
 
@@ -56,11 +59,13 @@ static napi_value InitLaunchReasonObject(napi_env env)
     NAPI_CALL(env, SetEnumItem(env, object, "APP_RECOVERY", LAUNCHREASON_APP_RECOVERY));
     NAPI_CALL(env, SetEnumItem(env, object, "SHARE", LAUNCHREASON_SHARE));
 
+    HILOG_DEBUG("end");
     return object;
 }
 
 static napi_value InitLastExitReasonObject(napi_env env)
 {
+    HILOG_DEBUG("start");
     napi_value object;
     NAPI_CALL(env, napi_create_object(env, &object));
 
@@ -74,11 +79,13 @@ static napi_value InitLastExitReasonObject(napi_env env)
     NAPI_CALL(env, SetEnumItem(env, object, "RESOURCE_CONTROL", LASTEXITREASON_RESOURCE_CONTROL));
     NAPI_CALL(env, SetEnumItem(env, object, "UPGRADE", LASTEXITREASON_UPGRADE));
 
+    HILOG_DEBUG("end");
     return object;
 }
 
 static napi_value InitOnContinueResultObject(napi_env env)
 {
+    HILOG_DEBUG("start");
     napi_value object;
     NAPI_CALL(env, napi_create_object(env, &object));
 
@@ -86,6 +93,7 @@ static napi_value InitOnContinueResultObject(napi_env env)
     NAPI_CALL(env, SetEnumItem(env, object, "REJECT", ONCONTINUE_REJECT));
     NAPI_CALL(env, SetEnumItem(env, object, "MISMATCH", ONCONTINUE_MISMATCH));
 
+    HILOG_DEBUG("end");
     return object;
 }
 
@@ -102,6 +110,7 @@ static napi_value InitContinueStateObject(napi_env env)
 
 static napi_value InitWindowModeObject(napi_env env)
 {
+    HILOG_DEBUG("start");
     napi_value object;
     NAPI_CALL(env, napi_create_object(env, &object));
 
@@ -111,12 +120,14 @@ static napi_value InitWindowModeObject(napi_env env)
     NAPI_CALL(env, SetEnumItem(env, object, "WINDOW_MODE_SPLIT_SECONDARY", MULTI_WINDOW_DISPLAY_SECONDARY));
     NAPI_CALL(env, SetEnumItem(env, object, "WINDOW_MODE_FLOATING", MULTI_WINDOW_DISPLAY_FLOATING));
 
+    HILOG_DEBUG("end");
     return object;
 }
 
 // AbilityConstant.OnSaveResult
 static napi_value InitOnSaveResultEnum(napi_env env)
 {
+    HILOG_DEBUG("start");
     napi_value object;
     NAPI_CALL(env, napi_create_object(env, &object));
     NAPI_CALL(env, SetEnumItem(env, object, "ALL_AGREE", AppExecFwk::ALL_AGREE));
@@ -125,21 +136,26 @@ static napi_value InitOnSaveResultEnum(napi_env env)
     NAPI_CALL(env, SetEnumItem(env, object, "RECOVERY_AGREE", AppExecFwk::RECOVERY_AGREE));
     NAPI_CALL(env, SetEnumItem(env, object, "RECOVERY_REJECT", AppExecFwk::RECOVERY_REJECT));
     NAPI_CALL(env, SetEnumItem(env, object, "ALL_REJECT", AppExecFwk::ALL_REJECT));
+    HILOG_DEBUG("end");
     return object;
 }
 
 // AbilityConstant.StateType
 static napi_value InitStateTypeEnum(napi_env env)
 {
+    
+    HILOG_DEBUG("start");
     napi_value object;
     NAPI_CALL(env, napi_create_object(env, &object));
     NAPI_CALL(env, SetEnumItem(env, object, "CONTINUATION", AppExecFwk::CONTINUATION));
     NAPI_CALL(env, SetEnumItem(env, object, "APP_RECOVERY", AppExecFwk::APP_RECOVERY));
+    HILOG_DEBUG("end");
     return object;
 }
 
 static napi_value InitMemoryLevelObject(napi_env env)
 {
+    HILOG_DEBUG("start");
     napi_value object;
     NAPI_CALL(env, napi_create_object(env, &object));
 
@@ -150,6 +166,7 @@ static napi_value InitMemoryLevelObject(napi_env env)
     NAPI_CALL(env, SetEnumItem(env, object, "MEMORY_LEVEL_CRITICAL",
         static_cast<int>(MemoryLevel::MEMORY_LEVEL_CRITICAL)));
 
+    HILOG_DEBUG("end");
     return object;
 }
 
@@ -160,49 +177,49 @@ static napi_value AbilityConstantInit(napi_env env, napi_value exports)
 {
     napi_value launchReason = InitLaunchReasonObject(env);
     if (launchReason == nullptr) {
-        HILOG_ERROR("failed to create launch reason object");
+        HILOG_ERROR("error to create launch reason object");
         return nullptr;
     }
 
     napi_value lastExitReason = InitLastExitReasonObject(env);
     if (lastExitReason == nullptr) {
-        HILOG_ERROR("failed to create last exit reason object");
+        HILOG_ERROR("error to create last exit reason object");
         return nullptr;
     }
 
     napi_value onContinueResult = InitOnContinueResultObject(env);
     if (onContinueResult == nullptr) {
-        HILOG_ERROR("failed to create onContinue result object");
+        HILOG_ERROR("error to create onContinue result object");
         return nullptr;
     }
 
     napi_value continueState = InitContinueStateObject(env);
     if (continueState == nullptr) {
-        HILOG_ERROR("failed to create continue state object");
+        HILOG_ERROR("error to create continue state object");
         return nullptr;
     }
 
     napi_value windowMode = InitWindowModeObject(env);
     if (windowMode == nullptr) {
-        HILOG_ERROR("failed to create window mode object");
+        HILOG_ERROR("error to create window mode object");
         return nullptr;
     }
 
     napi_value memoryLevel = InitMemoryLevelObject(env);
     if (memoryLevel == nullptr) {
-        HILOG_ERROR("failed to create memory level object");
+        HILOG_ERROR("error to create memory level object");
         return nullptr;
     }
 
     napi_value stateType = InitStateTypeEnum(env);
     if (stateType == nullptr) {
-        HILOG_ERROR("failed to create state type object");
+        HILOG_ERROR("error to create state type object");
         return nullptr;
     }
 
     napi_value saveResult = InitOnSaveResultEnum(env);
     if (saveResult == nullptr) {
-        HILOG_ERROR("failed to create save result object");
+        HILOG_ERROR("error to create save result object");
         return nullptr;
     }
 
@@ -218,7 +235,7 @@ static napi_value AbilityConstantInit(napi_env env, napi_value exports)
     };
     napi_status status = napi_define_properties(env, exports, sizeof(exportObjs) / sizeof(exportObjs[0]), exportObjs);
     if (status != napi_ok) {
-        HILOG_ERROR("failed to define properties for exports");
+        HILOG_ERROR("error to define properties for exports");
         return nullptr;
     }
 

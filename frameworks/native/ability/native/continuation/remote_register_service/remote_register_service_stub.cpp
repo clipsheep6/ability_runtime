@@ -66,7 +66,7 @@ int RemoteRegisterServiceStub::RegisterInner(MessageParcel &data, MessageParcel 
     }
     if (pExtras == nullptr) {
         reply.WriteInt32(ERR_INVALID_DATA);
-        HILOG_ERROR("%{public}s Failed to read ExtraParams.", __func__);
+        HILOG_ERROR("%{public}s error to read ExtraParams.", __func__);
         return ERR_INVALID_DATA;
     }
 
@@ -121,7 +121,7 @@ int RemoteRegisterServiceStub::ShowDeviceListInner(MessageParcel &data, MessageP
     }
     if (pExtras == nullptr) {
         reply.WriteInt32(ERR_INVALID_DATA);
-        HILOG_ERROR("%{public}s Failed to read ExtraParams.", __func__);
+        HILOG_ERROR("%{public}s Failed to read ExtraParams", __func__);
         return ERR_INVALID_DATA;
     }
 

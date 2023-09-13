@@ -507,7 +507,7 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
         std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager(
             bundleInfo.name, moduleName, hapPath, overlayPaths, *resConfig, appType));
         if (resourceManager == nullptr) {
-            HILOG_ERROR("ContextImpl::InitResourceManager create resourceManager failed");
+            HILOG_ERROR("ContextImpl::InitResourceManager create resourceManager error");
             return;
         }
         appContext->SetResourceManager(resourceManager);

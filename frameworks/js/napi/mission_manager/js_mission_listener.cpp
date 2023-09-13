@@ -78,7 +78,7 @@ void JsMissionListener::CallJsMethod(const std::string &methodName, int32_t miss
 {
     HILOG_INFO("methodName = %{public}s", methodName.c_str());
     if (engine_ == nullptr) {
-        HILOG_ERROR("engine_ nullptr");
+        HILOG_ERROR("engine_ null");
         return;
     }
 
@@ -98,6 +98,7 @@ void JsMissionListener::CallJsMethod(const std::string &methodName, int32_t miss
 void JsMissionListener::CallJsMethodInner(const std::string &methodName, int32_t missionId)
 {
     // jsListenerObjectMap_ may be changed in engine_->CallFunction()
+    HILOG_DEBUG("CallJsMethodInner enter");
     auto tmpMap = jsListenerObjectMap_;
     for (auto &item : tmpMap) {
         NativeValue* value = (item.second)->Get();
@@ -119,14 +120,14 @@ void JsMissionListener::CallJsMethodInner(const std::string &methodName, int32_t
 #ifdef SUPPORT_GRAPHICS
 void JsMissionListener::OnMissionIconUpdated(int32_t missionId, const std::shared_ptr<Media::PixelMap> &icon)
 {
-    HILOG_INFO("OnMissionIconUpdated, missionId = %{public}d", missionId);
+    HILOG_INFO("OnMissionIconUpdated, missionId = %{public}d.", missionId);
     if (engine_ == nullptr) {
-        HILOG_ERROR("engine_ is nullptr");
+        HILOG_ERROR("engine_ is null");
         return;
     }
 
     if (missionId <= 0 || !icon) {
-        HILOG_ERROR("missionId or icon is invalid, missionId:%{public}d", missionId);
+        HILOG_ERROR("missionId or icon is invalid, missionId:%{public}d.", missionId);
         return;
     }
 
@@ -146,7 +147,7 @@ void JsMissionListener::OnMissionIconUpdated(int32_t missionId, const std::share
 void JsMissionListener::CallJsMissionIconUpdated(int32_t missionId, const std::shared_ptr<Media::PixelMap> &icon)
 {
     if (engine_ == nullptr) {
-        HILOG_ERROR("engine_ is nullptr, not call js mission updated.");
+        HILOG_ERROR("engine_ is null, not call js mission updated.");
         return;
     }
 
@@ -159,12 +160,12 @@ void JsMissionListener::CallJsMissionIconUpdated(int32_t missionId, const std::s
         NativeValue* value = (item.second)->Get();
         NativeObject* listenerObj = ConvertNativeValueTo<NativeObject>(value);
         if (listenerObj == nullptr) {
-            HILOG_ERROR("Failed to get js object");
+            HILOG_ERROR("error to get js object");
             continue;
         }
         NativeValue* method = listenerObj->GetProperty("onMissionIconUpdated");
         if (method == nullptr || method->TypeOf() == NATIVE_UNDEFINED) {
-            HILOG_ERROR("Failed to get onMissionIconUpdated method from object");
+            HILOG_ERROR("error to get onMissionIconUpdated method from object");
             continue;
         }
 

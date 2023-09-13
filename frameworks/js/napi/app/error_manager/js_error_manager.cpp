@@ -82,8 +82,8 @@ private:
 
         std::string type;
         if (!ConvertFromJsValue(engine, info.argv[INDEX_ZERO], type) || type != ON_OFF_TYPE) {
-            HILOG_ERROR("Parse type failed");
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            HILOG_ERROR("Parse type failed");
             return engine.CreateUndefined();
         }
         int32_t observerId = serialNumber_;

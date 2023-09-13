@@ -305,7 +305,7 @@ void ContextContainer::InitResourceManager(BundleInfo &bundleInfo, std::shared_p
         std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager(
             bundleInfo.name, moduleName, hapPath, overlayPaths, *resConfig, appType));
         if (resourceManager == nullptr) {
-            HILOG_ERROR("ContextImpl::InitResourceManager create resourceManager failed");
+            HILOG_ERROR("ContextImpl::InitResourceManager failed to create resourceManager");
             return;
         }
         deal->initResourceManager(resourceManager);

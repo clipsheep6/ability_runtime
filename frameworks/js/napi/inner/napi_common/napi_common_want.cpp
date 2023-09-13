@@ -698,6 +698,7 @@ bool InnerSetWantParamsArrayObject(napi_env env, const std::string &key,
 bool InnerSetWantParamsArrayString(
     const std::string &key, const std::vector<std::string> &value, AAFwk::WantParams &wantParams)
 {
+    HILOG_DEBUG("InnerSetWantParamsArrayString enter");
     size_t size = value.size();
     sptr<AAFwk::IArray> ao = new (std::nothrow) AAFwk::Array(size, AAFwk::g_IID_IString);
     if (ao != nullptr) {

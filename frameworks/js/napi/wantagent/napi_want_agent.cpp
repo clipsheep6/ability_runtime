@@ -393,20 +393,20 @@ NativeValue* JsWantAgent::OnGetWant(NativeEngine &engine, NativeCallbackInfo &in
     int32_t errCode = BUSINESS_ERROR_CODE_OK;
     WantAgent* pWantAgent = nullptr;
     if (info.argc > ARGC_TWO || info.argc < ARGC_ONE) {
-        HILOG_ERROR("Not enough params");
+        HILOG_ERROR("Not enough arguments");
         return engine.CreateUndefined();
     }
 
     NativeValue* lastParam = (info.argc >= ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
     if (info.argv[0]->TypeOf() != NativeValueType::NATIVE_OBJECT) {
-        HILOG_ERROR("Wrong argument type. Object expected.");
+        HILOG_ERROR("Wrong parameter type. Object expected.");
         errCode = ERR_NOT_OK;
         return RetErrMsg(engine, lastParam, errCode);
     }
 
     UnwrapWantAgent(engine, info.argv[0], reinterpret_cast<void **>(&pWantAgent));
     if (pWantAgent == nullptr) {
-        HILOG_ERROR("Parse pWantAgent failed");
+        HILOG_ERROR("Parse pWantAgent error");
         errCode = ERR_NOT_OK;
         return RetErrMsg(engine, lastParam, errCode);
     }
@@ -1163,13 +1163,13 @@ NativeValue* JsWantAgentInit(NativeEngine* engine, NativeValue* exportObj)
     HILOG_DEBUG("JsWantAgentInit is called");
 
     if (engine == nullptr || exportObj == nullptr) {
-        HILOG_ERROR("engine or exportObj null");
+        HILOG_ERROR("engine or exportObj null.");
         return nullptr;
     }
 
     NativeObject* object = ConvertNativeValueTo<NativeObject>(exportObj);
     if (object == nullptr) {
-        HILOG_ERROR("object null");
+        HILOG_ERROR("object null.");
         return nullptr;
     }
 

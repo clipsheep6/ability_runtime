@@ -1180,7 +1180,7 @@ napi_value GetApplicationInfoWrap(napi_env env, napi_callback_info info, AppInfo
 {
     HILOG_INFO("%{public}s, asyncCallback.", __func__);
     if (appInfoCB == nullptr) {
-        HILOG_ERROR("%{public}s, appInfoCB == nullptr.", __func__);
+        HILOG_ERROR("%{public}s, appInfoCB == null.", __func__);
         return nullptr;
     }
 
@@ -1192,7 +1192,7 @@ napi_value GetApplicationInfoWrap(napi_env env, napi_callback_info info, AppInfo
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, Wrong parameter count.", __func__);
         return nullptr;
     }
 
@@ -1266,20 +1266,20 @@ napi_value NAPI_GetBundleNameWrap(napi_env env, napi_callback_info info, AsyncJS
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
 
     if (argc > ARGS_ONE) {
-        HILOG_INFO("%{public}s called, parameters is invalid.", __func__);
+        HILOG_INFO("%{public}s called, parameters is invalid", __func__);
         return nullptr;
     }
 
     if (argc == ARGS_ONE) {
         if (!CreateAsyncCallback(env, args[PARAM0], asyncCallbackInfo)) {
-            HILOG_INFO("%{public}s called, the first parameter is invalid.", __func__);
+            HILOG_INFO("%{public}s called, the first parameter is invalid", __func__);
             return nullptr;
         }
     }
 
     AsyncParamEx asyncParamEx;
     if (asyncCallbackInfo->cbInfo.callback != nullptr) {
-        HILOG_INFO("%{public}s called. asyncCallback.", __func__);
+        HILOG_INFO("%{public}s called. asyncCallback", __func__);
         asyncParamEx.resource = "NAPI_GetBundleNameCallback";
         asyncParamEx.execute = GetBundleNameExecuteCallback;
         asyncParamEx.complete = CompleteAsyncCallbackWork;
@@ -2544,7 +2544,7 @@ napi_value NAPI_GetDatabaseDirSync(napi_env env, napi_callback_info info)
         ret = WrapVoidToJS(env);
         HILOG_ERROR("%{public}s ret == nullptr", __func__);
     } else {
-        HILOG_INFO("%{public}s, end.", __func__);
+        HILOG_INFO("%{public}s, end", __func__);
     }
     return ret;
 }
@@ -3282,6 +3282,7 @@ NativeValue* NapiJsContext::OnGetBundleName(NativeEngine &engine, NativeCallback
         if (*value != static_cast<int32_t>(NAPI_ERR_NO_ERROR) || name == nullptr) {
             auto ecode = name == nullptr ? static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID) : *value;
             task.Reject(engine, CreateJsError(engine, ecode, obj->ConvertErrorCode(ecode)));
+            HILOG_DEBUG("task execute error, name is nullptr or NAPI_ERR_ABILITY_CALL_INVALID");
             return;
         }
         task.Resolve(engine, CreateJsValue(engine, name->name));
@@ -3500,6 +3501,7 @@ NativeValue* NapiJsContext::OnGetProcessName(NativeEngine &engine, NativeCallbac
         if (*value != static_cast<int32_t>(NAPI_ERR_NO_ERROR) || name == nullptr) {
             auto ecode = name == nullptr ? static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID) : *value;
             task.Reject(engine, CreateJsError(engine, ecode, obj->ConvertErrorCode(ecode)));
+            HILOG_DEBUG("task execute error, name is nullptr or NAPI_ERR_ABILITY_CALL_INVALID.");
             return;
         }
         task.Resolve(engine, CreateJsValue(engine, name->name));

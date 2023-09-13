@@ -65,13 +65,13 @@ void RemoveConnection(int64_t connectId)
         return connectId == obj.first.id;
     });
     if (item != g_connects.end()) {
-        HILOG_DEBUG("remove conn ability exist");
+        HILOG_DEBUG("remove connection ability exist.");
         if (item->second) {
             item->second->RemoveConnectionObject();
         }
         g_connects.erase(item);
     } else {
-        HILOG_DEBUG("remove conn ability not exist");
+        HILOG_DEBUG("remove connection ability not exist");
     }
 }
 }
@@ -233,7 +233,7 @@ NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallba
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
 
     if (info.argc == ARGC_ZERO) {
-        HILOG_ERROR("Not enough params");
+        HILOG_ERROR("Not enough arguments");
         ThrowTooFewParametersError(engine);
         return engine.CreateUndefined();
     }
@@ -1372,7 +1372,7 @@ void JsAbilityContext::AddFreeInstallObserver(NativeEngine& engine, const AAFwk:
     }
 
     if (ret != ERR_OK) {
-        HILOG_ERROR("AddFreeInstallObserver failed.");
+        HILOG_ERROR("AddFreeInstallObserver error.");
     } else {
         HILOG_INFO("AddJsObserverObject");
         // build a callback observer with last param
@@ -1540,7 +1540,7 @@ void JSAbilityConnection::HandleOnAbilityConnectDone(const AppExecFwk::ElementNa
     NativeValue* value = jsConnectionObject_->Get();
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
-        HILOG_ERROR("Failed to get object");
+        HILOG_ERROR("Error to get object");
         return;
     }
     NativeValue* methodOnConnect = obj->GetProperty("onConnect");
@@ -1582,7 +1582,7 @@ void JSAbilityConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::Elemen
 {
     HILOG_INFO("HandleOnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
     if (jsConnectionObject_ == nullptr) {
-        HILOG_ERROR("jsConnectionObject_ nullptr");
+        HILOG_ERROR("jsConnectionObject_ null.");
         return;
     }
     NativeValue* value = jsConnectionObject_->Get();
@@ -1630,7 +1630,7 @@ void JSAbilityConnection::CallJsFailed(int32_t errorCode)
     NativeValue* value = jsConnectionObject_->Get();
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
-        HILOG_ERROR("Failed to get object");
+        HILOG_ERROR("get object error");
         return;
     }
 

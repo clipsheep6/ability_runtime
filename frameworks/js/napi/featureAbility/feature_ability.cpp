@@ -526,16 +526,16 @@ napi_value SetResultAsync(
 
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName,
         [](napi_env env, void *data) {
-            HILOG_INFO("NAPI_SetResult, worker pool thread execute.");
+            HILOG_INFO("NAPI_SetResult, worker pool thread enter.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
             if (asyncCallbackInfo->ability != nullptr) {
                 asyncCallbackInfo->ability->SetResult(
                     asyncCallbackInfo->param.requestCode, asyncCallbackInfo->param.want);
                 asyncCallbackInfo->ability->TerminateAbility();
             } else {
-                HILOG_ERROR("NAPI_SetResult, ability == nullptr");
+                HILOG_ERROR("NAPI_SetResult, ability == null");
             }
-            HILOG_INFO("NAPI_SetResult, worker pool thread execute end.");
+            HILOG_INFO("NAPI_SetResult, worker pool thread execute exit.");
         },
         [](napi_env env, napi_status status, void *data) {
             HILOG_INFO("NAPI_SetResult, main event thread complete.");
@@ -870,9 +870,9 @@ napi_value NAPI_GetWantSync(napi_env env, napi_callback_info info)
 
     if (ret == nullptr) {
         ret = WrapVoidToJS(env);
-        HILOG_ERROR("%{public}s ret == nullptr", __func__);
+        HILOG_ERROR("%{public}s ret == null", __func__);
     } else {
-        HILOG_INFO("%{public}s, end.", __func__);
+        HILOG_INFO("%{public}s, exit.", __func__);
     }
     return ret;
 }
@@ -1251,12 +1251,12 @@ napi_value ContinueAbilityAsync(napi_env env, napi_value *args, AsyncCallbackInf
             if (asyncCallbackInfo->ability != nullptr) {
                 asyncCallbackInfo->ability->ContinueAbility(asyncCallbackInfo->optionInfo.deviceId);
             } else {
-                HILOG_ERROR("NAPI_ContinueAbilityForResult, asyncCallbackInfo == nullptr");
+                HILOG_ERROR("NAPI_ContinueAbilityForResult, asyncCallbackInfo == nullptr.");
             }
-            HILOG_INFO("NAPI_ContinueAbilityForResult, worker pool thread execute end.");
+            HILOG_INFO("NAPI_ContinueAbilityForResult, worker pool thread execute exit.");
         },
         [](napi_env env, napi_status status, void *data) {
-            HILOG_INFO("NAPI_ContinueAbility, main event thread complete.");
+            HILOG_INFO("NAPI_ContinueAbility, main event thread end.");
             AsyncCallbackInfo *asyncCallbackInfo = (AsyncCallbackInfo *)data;
             napi_value callback = nullptr;
             napi_value undefined = nullptr;

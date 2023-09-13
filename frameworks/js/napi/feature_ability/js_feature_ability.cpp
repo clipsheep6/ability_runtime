@@ -102,20 +102,20 @@ NativeValue* JsFeatureAbility::OnStartAbility(NativeEngine &engine, NativeCallba
 {
     HILOG_INFO("%{public}s is called", __FUNCTION__);
     if (info.argc != 1) {
-        HILOG_ERROR("Params not match");
+        HILOG_ERROR("arguments not match");
         return engine.CreateUndefined();
     }
 
     Ability* ability = GetAbility(reinterpret_cast<napi_env>(&engine));
     if (ability == nullptr) {
-        HILOG_ERROR("ability is nullptr");
+        HILOG_ERROR("ability is null");
         return engine.CreateUndefined();
     }
 
     DistributeReqParam requestParam;
     if (!UnWrapRequestParams(reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(info.argv[0]),
         requestParam)) {
-        HILOG_ERROR("unwrap request params failed");
+        HILOG_ERROR("unwrap request arguments failed");
         return engine.CreateUndefined();
     }
 
