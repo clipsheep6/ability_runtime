@@ -43,96 +43,76 @@ napi_value CreateJSToken(napi_env env, const sptr<IRemoteObject> target)
     return jsToken;
 }
 
-NativeValue* CreateJsAbilityRunningInfoArray(
-    NativeEngine &engine, const std::vector<AAFwk::AbilityRunningInfo> &infos)
+napi_value CreateJsAbilityRunningInfoArray(napi_env env, const std::vector<AAFwk::AbilityRunningInfo> &infos)
 {
-    NativeValue* arrayValue = engine.CreateArray(infos.size());
-    NativeArray* array = ConvertNativeValueTo<NativeArray>(arrayValue);
+    napi_value arrayValue = nullptr;
+    napi_create_array_with_length(env, infos.size(), &arrayValue);
     uint32_t index = 0;
     for (const auto &runningInfo : infos) {
-        array->SetElement(index++, CreateJsAbilityRunningInfo(engine, runningInfo));
+        napi_set_element(env, arrayValue, index++, CreateJsAbilityRunningInfo(env, runningInfo));
     }
     return arrayValue;
 }
 
-NativeValue* CreateJsElementName(NativeEngine &engine, const AppExecFwk::ElementName &elementName)
+napi_value CreateJsElementName(napi_env env, const AppExecFwk::ElementName &elementName)
 {
-    napi_value napiElementName =
-        OHOS::AppExecFwk::WrapElementName(reinterpret_cast<napi_env>(&engine), elementName);
-    return reinterpret_cast<NativeValue*>(napiElementName);
+    return OHOS::AppExecFwk::WrapElementName(env, elementName);
 }
 
-NativeValue* CreateJsExtensionRunningInfoArray(
-    NativeEngine &engine, const std::vector<AAFwk::ExtensionRunningInfo> &infos)
+napi_value CreateJsExtensionRunningInfoArray(napi_env env, const std::vector<AAFwk::ExtensionRunningInfo> &infos)
 {
-    NativeValue* arrayValue = engine.CreateArray(infos.size());
-    NativeArray* array = ConvertNativeValueTo<NativeArray>(arrayValue);
+    napi_value arrayValue = nullptr;
+    napi_create_array_with_length(env, infos.size(), &arrayValue);
     uint32_t index = 0;
     for (const auto &runningInfo : infos) {
-        array->SetElement(index++, CreateJsExtensionRunningInfo(engine, runningInfo));
+        napi_set_element(env, arrayValue, index++, CreateJsExtensionRunningInfo(env, runningInfo));
     }
     return arrayValue;
 }
 
-NativeValue* CreateJsAbilityRunningInfo(NativeEngine &engine, const AAFwk::AbilityRunningInfo &info)
+napi_value CreateJsAbilityRunningInfo(napi_env env, const AAFwk::AbilityRunningInfo &info)
 {
-    NativeValue* objValue = engine.CreateObject();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+    napi_value objValue = nullptr;
+    napi_create_object(env, &objValue);
 
-    napi_value napiElementName =
-        OHOS::AppExecFwk::WrapElementName(reinterpret_cast<napi_env>(&engine), info.ability);
-    object->SetProperty("ability", reinterpret_cast<NativeValue*>(napiElementName));
-    object->SetProperty("pid", CreateJsValue(engine, info.pid));
-    object->SetProperty("uid", CreateJsValue(engine, info.uid));
-    object->SetProperty("processName", CreateJsValue(engine, info.processName));
-    object->SetProperty("startTime", CreateJsValue(engine, info.startTime));
-    object->SetProperty("abilityState", CreateJsValue(engine, info.abilityState));
+    napi_value napiElementName = OHOS::AppExecFwk::WrapElementName(env, info.ability);
+    napi_set_named_property(env, objValue, "ability", napiElementName);
+    napi_set_named_property(env, objValue, "pid", CreateJsValue(env, info.pid));
+    napi_set_named_property(env, objValue, "uid", CreateJsValue(env, info.uid));
+    napi_set_named_property(env, objValue, "processName", CreateJsValue(env, info.processName));
+    napi_set_named_property(env, objValue, "startTime", CreateJsValue(env, info.startTime));
+    napi_set_named_property(env, objValue, "abilityState", CreateJsValue(env, info.abilityState));
     return objValue;
 }
 
-NativeValue* CreateJsExtensionRunningInfo(NativeEngine &engine, const AAFwk::ExtensionRunningInfo &info)
+napi_value CreateJsExtensionRunningInfo(napi_env env, const AAFwk::ExtensionRunningInfo &info)
 {
-    NativeValue* objValue = engine.CreateObject();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+    napi_value objValue = nullptr;
+    napi_create_object(env, &objValue);
 
-    napi_value napiElementName =
-        OHOS::AppExecFwk::WrapElementName(reinterpret_cast<napi_env>(&engine), info.extension);
-    object->SetProperty("extension", reinterpret_cast<NativeValue*>(napiElementName));
-    object->SetProperty("pid", CreateJsValue(engine, info.pid));
-    object->SetProperty("uid", CreateJsValue(engine, info.uid));
-    object->SetProperty("type", CreateJsValue(engine, info.type));
-    object->SetProperty("processName", CreateJsValue(engine, info.processName));
-    object->SetProperty("startTime", CreateJsValue(engine, info.startTime));
-    object->SetProperty("clientPackage", CreateNativeArray(engine, info.clientPackage));
+    napi_value napiElementName = OHOS::AppExecFwk::WrapElementName(env, info.extension);
+    napi_set_named_property(env, objValue, "extension", napiElementName);
+    napi_set_named_property(env, objValue, "pid", CreateJsValue(env, info.pid));
+    napi_set_named_property(env, objValue, "uid", CreateJsValue(env, info.uid));
+    napi_set_named_property(env, objValue, "type", CreateJsValue(env, info.type));
+    napi_set_named_property(env, objValue, "processName", CreateJsValue(env, info.processName));
+    napi_set_named_property(env, objValue, "startTime", CreateJsValue(env, info.startTime));
+    napi_set_named_property(env, objValue, "clientPackage", CreateNativeArray(env, info.clientPackage));
     return objValue;
 }
 
-NativeValue *AbilityStateInit(NativeEngine *engine)
+napi_value AbilityStateInit(napi_env env)
 {
     HILOG_INFO("enter");
+    napi_value objValue = nullptr;
+    napi_create_object(env, &objValue);
 
-    if (engine == nullptr) {
-        HILOG_ERROR("Invalid input parameters");
-        return nullptr;
-    }
-
-    NativeValue *objValue = engine->CreateObject();
-    NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
-
-    if (object == nullptr) {
-        HILOG_ERROR("Failed to get object");
-        return nullptr;
-    }
-
-    object->SetProperty("INITIAL", CreateJsValue(*engine, static_cast<int32_t>(AAFwk::AbilityState::INITIAL)));
-    object->SetProperty("FOCUS", CreateJsValue(*engine, static_cast<int32_t>(AAFwk::AbilityState::ACTIVE)));
-    object->SetProperty("FOREGROUND", CreateJsValue(*engine, static_cast<int32_t>(AAFwk::AbilityState::FOREGROUND)));
-    object->SetProperty("BACKGROUND", CreateJsValue(*engine, static_cast<int32_t>(AAFwk::AbilityState::BACKGROUND)));
-    object->SetProperty("FOREGROUNDING",
-        CreateJsValue(*engine, static_cast<int32_t>(AAFwk::AbilityState::FOREGROUNDING)));
-    object->SetProperty("BACKGROUNDING",
-        CreateJsValue(*engine, static_cast<int32_t>(AAFwk::AbilityState::BACKGROUNDING)));
-
+    napi_set_named_property(env, objValue, "INITIAL", CreateJsValue(env, AAFwk::AbilityState::INITIAL));
+    napi_set_named_property(env, objValue, "FOCUS", CreateJsValue(env, AAFwk::AbilityState::ACTIVE));
+    napi_set_named_property(env, objValue, "FOREGROUND", CreateJsValue(env, AAFwk::AbilityState::FOREGROUND));
+    napi_set_named_property(env, objValue, "BACKGROUND", CreateJsValue(env, AAFwk::AbilityState::BACKGROUND));
+    napi_set_named_property(env, objValue, "FOREGROUNDING", CreateJsValue(env, AAFwk::AbilityState::FOREGROUNDING));
+    napi_set_named_property(env, objValue, "BACKGROUNDING", CreateJsValue(env, AAFwk::AbilityState::BACKGROUNDING));
     return objValue;
 }
 }  // namespace AbilityRuntime

@@ -21,7 +21,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue* JsAbilityManagerInit(NativeEngine* engine, NativeValue* exportObj);
+napi_value JsAbilityManagerInit(napi_env env, napi_value exportObj);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_JS_ABILITY_MANAGER_H

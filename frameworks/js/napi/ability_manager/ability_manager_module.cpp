@@ -16,29 +16,40 @@
 #include "native_engine/native_engine.h"
 #include "js_ability_manager.h"
 
-extern "C" __attribute__((constructor))
 #ifdef ENABLE_ERRCODE
-void NAPI_app_ability_AbilityManager_AutoRegister()
-{
-    NativeModule newModuleInfo = {
-        .name = "app.ability.abilityManager",
-        .fileName = "app/ability/abilitymanager_napi.so/ability_manager.js",
-        .registerCallback = OHOS::AbilityRuntime::JsAbilityManagerInit,
-    };
+/*
+ * The module definition.
+ */
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_modname = "app.ability.abilityManager",
+    .nm_filename = "app/ability/abilitymanager_napi.so/ability_manager.js",
+    .nm_register_func = OHOS::AbilityRuntime::JsAbilityManagerInit,
+};
 
-    auto moduleManager = NativeModuleManager::GetInstance();
-    moduleManager->Register(&newModuleInfo);
+/*
+ * The module registration.
+ */
+extern "C" __attribute__((constructor)) void NAPI_application_AbilityManager_AutoRegister(void)
+{
+    napi_module_register(&_module);
 }
 #else
-void NAPI_application_AbilityManager_AutoRegister()
-{
-    NativeModule newModuleInfo = {
-        .name = "application.abilityManager",
-        .fileName = "application/abilitymanager_napi.so/ability_manager.js",
-        .registerCallback = OHOS::AbilityRuntime::JsAbilityManagerInit,
-    };
+/*
+ * The module definition.
+ */
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_modname = "application.abilityManager",
+    .nm_filename = "application/abilitymanager_napi.so/ability_manager.js",
+    .nm_register_func = OHOS::AbilityRuntime::JsAbilityManagerInit,
+};
 
-    auto moduleManager = NativeModuleManager::GetInstance();
-    moduleManager->Register(&newModuleInfo);
+/*
+ * The module registration.
+ */
+extern "C" __attribute__((constructor)) void NAPI_application_AbilityManager_AutoRegister(void)
+{
+    napi_module_register(&_module);
 }
 #endif

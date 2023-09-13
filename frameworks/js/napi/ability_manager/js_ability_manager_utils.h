@@ -23,14 +23,14 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue* CreateJsAbilityRunningInfoArray(
-    NativeEngine &engine, const std::vector<AAFwk::AbilityRunningInfo> &infos);
-NativeValue* CreateJsExtensionRunningInfoArray(
-    NativeEngine &engine, const std::vector<AAFwk::ExtensionRunningInfo> &infos);
-NativeValue* CreateJsAbilityRunningInfo(NativeEngine &engine, const AAFwk::AbilityRunningInfo &info);
-NativeValue* CreateJsExtensionRunningInfo(NativeEngine &engine, const AAFwk::ExtensionRunningInfo &info);
-NativeValue *AbilityStateInit(NativeEngine *engine);
-NativeValue* CreateJsElementName(NativeEngine &engine, const AppExecFwk::ElementName &elementName);
+napi_value CreateJsAbilityRunningInfoArray(
+    napi_env env, const std::vector<AAFwk::AbilityRunningInfo> &infos);
+napi_value CreateJsExtensionRunningInfoArray(
+    napi_env env, const std::vector<AAFwk::ExtensionRunningInfo> &infos);
+napi_value CreateJsAbilityRunningInfo(napi_env env, const AAFwk::AbilityRunningInfo &info);
+napi_value CreateJsExtensionRunningInfo(napi_env env, const AAFwk::ExtensionRunningInfo &info);
+napi_value AbilityStateInit(napi_env env);
+napi_value CreateJsElementName(napi_env env, const AppExecFwk::ElementName &elementName);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_JS_ABILITY_MANAGER_UTILS_H
