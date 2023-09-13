@@ -42,6 +42,7 @@ public:
      */
     virtual void UpdateExtensionState(const sptr<IRemoteObject> &token, const ExtensionState state) override;
 private:
+    void CreateMemberFuncMap();
     int32_t HandleLoadAbility(MessageParcel &data, MessageParcel &reply);
     int32_t HandleTerminateAbility(MessageParcel &data, MessageParcel &reply);
     int32_t HandleUpdateAbilityState(MessageParcel &data, MessageParcel &reply);

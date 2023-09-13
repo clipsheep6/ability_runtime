@@ -75,6 +75,16 @@ AmsMgrStub::AmsMgrStub()
         &AmsMgrStub::HandleSetCurrentUserId;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::Get_BUNDLE_NAME_BY_PID)] =
         &AmsMgrStub::HandleGetBundleNameByPid;
+    CreateMemberFuncMap();
+}
+
+AmsMgrStub::~AmsMgrStub()
+{
+    memberFuncMap_.clear();
+}
+
+void AmsMgrStub::CreateMemberFuncMap()
+{
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::REGISTER_APP_DEBUG_LISTENER)] =
         &AmsMgrStub::HandleRegisterAppDebugListener;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::UNREGISTER_APP_DEBUG_LISTENER)] =
@@ -85,11 +95,6 @@ AmsMgrStub::AmsMgrStub()
         &AmsMgrStub::HandleDetachAppDebug;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::IS_ATTACH_DEBUG)] =
         &AmsMgrStub::HandleIsAttachDebug;
-}
-
-AmsMgrStub::~AmsMgrStub()
-{
-    memberFuncMap_.clear();
 }
 
 int AmsMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)

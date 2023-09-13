@@ -988,13 +988,21 @@ void AppRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
         HILOG_ERROR("AbilityTerminated error, can not find module record");
         return;
     }
+
+    bool isExtensionDebug = false;
+    auto abilityRecord = moduleRecord->GetAbilityByTerminateLists(token);
+    if (abilityRecord != nullptr) {
+        isExtensionDebug = (abilityRecord->GetAbilityInfo()->type == AppExecFwk::AbilityType::EXTENSION) &&
+                           (isAttachDebug_ || isDebugApp_);
+    }
+    HILOG_DEBUG("ExtensionDebug is [%{public}s]", isExtensionDebug ? "true" : "false");
+
     moduleRecord->AbilityTerminated(token);
 
     if (moduleRecord->GetAbilities().empty() && !IsKeepAliveApp()) {
         RemoveModuleRecord(moduleRecord);
     }
 
-    bool isExtensionDebug = (processType_ == ProcessType::EXTENSION) && (isAttachDebug_ || isDebugApp_);
     auto moduleRecordList = GetAllModuleRecord();
     if (moduleRecordList.empty() && !IsKeepAliveApp() && !isExtensionDebug) {
         ScheduleTerminate();
