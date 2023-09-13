@@ -22,6 +22,7 @@
 #include <vector>
 #include <unordered_map>
 
+#include "EventHandler.h"
 #include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
@@ -59,17 +60,20 @@ public:
 
     void OnTimeout()
     {
-        std::vector<NativeValue*> args;
-        args.reserve(jsArgs_.size());
-        for (auto arg : jsArgs_) {
-            args.emplace_back(arg->Get());
-        }
-        nativeEngine_.CallFunction(nativeEngine_.CreateUndefined(), jsFunction_->Get(), args.data(), args.size());
+        auto task = [this]() {
+            std::vector<NativeValue*> args;
+            args.reserve(jsArgs_.size());
+            for (auto arg : jsArgs_) {
+                args.emplace_back(arg->Get());
+            }
+            nativeEngine_.CallFunction(nativeEngine_.CreateUndefined(), jsFunction_->Get(), args.data(), args.size());
 
-        if (uv_timer_get_repeat(&timerReq_) == 0) {
-            std::lock_guard<std::mutex> lock(g_mutex);
-            g_timerTable.erase(id_);
-        }
+            if (uv_timer_get_repeat(&timerReq_) == 0) {
+                std::lock_guard<std::mutex> lock(g_mutex);
+                g_timerTable.erase(id_);
+            }
+        };
+        AppExecFwk::EventHandler::PostTask(task);
     }
 
     void PushArgs(const std::shared_ptr<NativeReference> &ref)
