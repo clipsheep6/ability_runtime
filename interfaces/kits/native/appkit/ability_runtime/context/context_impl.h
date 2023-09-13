@@ -26,7 +26,7 @@ namespace AppExecFwk {
 struct RunningProcessInfo;
 }
 namespace AbilityRuntime {
-class ContextImpl : public Context {
+class ContextImpl : public Context, public std::enable_shared_from_this<ContextImpl> {
 public:
     ContextImpl() = default;
     virtual ~ContextImpl() = default;

@@ -27,7 +27,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-class ApplicationContext : public Context {
+class ApplicationContext : public Context, public std::enable_shared_from_this<ApplicationContext> {
 public:
     ApplicationContext() = default;
     ~ApplicationContext() = default;
