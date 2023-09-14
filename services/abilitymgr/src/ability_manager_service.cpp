@@ -2825,7 +2825,8 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
     }
 
     if (abilityRequest.abilityInfo.isStageBasedModel) {
-        bool isService = (abilityRequest.abilityInfo.extensionAbilityType == AppExecFwk::ExtensionAbilityType::SERVICE);
+        bool isService =
+            (abilityRequest.abilityInfo.extensionAbilityType == AppExecFwk::ExtensionAbilityType::SERVICE);
         if (isService && extensionType != AppExecFwk::ExtensionAbilityType::SERVICE) {
             HILOG_ERROR("Service extension type, please use ConnectAbility.");
             return ERR_WRONG_INTERFACE_CALL;

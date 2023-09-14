@@ -40,6 +40,15 @@ constexpr const char* TIMEOUT_UNIT_TIME = "timeout_unit_time";
 
 enum class SatrtUiMode { STATUSBAR = 1, NAVIGATIONBAR = 2, STARTUIBOTH = 3 };
 
+enum class JsonValueType {
+    NULLABLE,
+    BOOLEAN,
+    NUMBER,
+    OBJECT,
+    ARRAY,
+    STRING
+};
+
 class AmsConfigurationParameter final {
 public:
     static AmsConfigurationParameter &GetInstance();
@@ -112,6 +121,9 @@ private:
     int LoadAppConfigurationForStartUpService(nlohmann::json& Object);
     int LoadAppConfigurationForMemoryThreshold(nlohmann::json& Object);
     int LoadSystemConfiguration(nlohmann::json& Object);
+    bool CheckServiceConfigEnable(nlohmann::json& Object, const std::string &configName, JsonValueType type);
+    void UpdateStartUpServiceConfigInteger(nlohmann::json& Object, const std::string &configName, int32_t &value);
+    void UpdateStartUpServiceConfigString(nlohmann::json& Object, const std::string &configName, std::string &value);
 
 private:
     bool nonConfigFile_ {false};
