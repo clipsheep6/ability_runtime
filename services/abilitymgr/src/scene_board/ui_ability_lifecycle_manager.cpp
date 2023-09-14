@@ -1009,20 +1009,22 @@ void UIAbilityLifecycleManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordI
 {
     HILOG_DEBUG("call, msgId is %{public}d", msgId);
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::lock_guard<ffrt::mutex> guard(sessionLock_);
     std::shared_ptr<AbilityRecord> abilityRecord;
-    for (auto iter = sessionAbilityMap_.begin(); iter != sessionAbilityMap_.end(); iter++) {
-        if (iter->second != nullptr && iter->second->GetAbilityRecordId() == abilityRecordId) {
-            abilityRecord = iter->second;
-            break;
+    {
+        std::lock_guard<ffrt::mutex> guard(sessionLock_);
+        for (auto iter = sessionAbilityMap_.begin(); iter != sessionAbilityMap_.end(); iter++) {
+            if (iter->second != nullptr && iter->second->GetAbilityRecordId() == abilityRecordId) {
+                abilityRecord = iter->second;
+                break;
+            }
         }
+        if (abilityRecord == nullptr) {
+            HILOG_ERROR("failed, ability record is nullptr");
+            return;
+        }
+        HILOG_DEBUG("call, msgId:%{public}d, name:%{public}s", msgId, abilityRecord->GetAbilityInfo().name.c_str());
+        abilityRecord->RevokeUriPermission();
     }
-    if (abilityRecord == nullptr) {
-        HILOG_ERROR("failed, ability record is nullptr");
-        return;
-    }
-    HILOG_DEBUG("call, msgId:%{public}d, name:%{public}s", msgId, abilityRecord->GetAbilityInfo().name.c_str());
-    abilityRecord->RevokeUriPermission();
     PrintTimeOutLog(abilityRecord, msgId, isHalf);
     if (isHalf) {
         return;
@@ -1082,6 +1084,7 @@ void UIAbilityLifecycleManager::HandleLoadTimeout(const std::shared_ptr<AbilityR
         HILOG_ERROR("failed, ability record is nullptr");
         return;
     }
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
     NotifySCBToHandleException(abilityRecord,
         static_cast<int32_t>(ErrorLifecycleState::ABILITY_STATE_LOAD_TIMEOUT), "handleLoadTimeout");
     DelayedSingleton<AppScheduler>::GetInstance()->AttachTimeOut(abilityRecord->GetToken());
@@ -1098,6 +1101,7 @@ void UIAbilityLifecycleManager::HandleForegroundTimeout(const std::shared_ptr<Ab
         HILOG_ERROR("this ability is not foregrounding state");
         return;
     }
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
     NotifySCBToHandleException(abilityRecord,
         static_cast<int32_t>(ErrorLifecycleState::ABILITY_STATE_FOREGROUND_TIMEOUT), "handleForegroundTimeout");
     DelayedSingleton<AppScheduler>::GetInstance()->AttachTimeOut(abilityRecord->GetToken());
