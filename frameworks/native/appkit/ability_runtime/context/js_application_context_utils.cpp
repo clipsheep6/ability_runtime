@@ -830,7 +830,7 @@ NativeValue *JsApplicationContextUtils::OnOnAbilityLifecycle(
 
     if (callback_ != nullptr) {
         HILOG_DEBUG("callback_ is not nullptr.");
-        return engine.CreateNumber(callback_->Register(info.argv[1]));
+        return engine.CreateNumber(callback_->Register(info.argv[1], isSync));
     }
     callback_ = std::make_shared<JsAbilityLifecycleCallback>(&engine);
     int32_t callbackId = callback_->Register(info.argv[1], isSync);
@@ -917,7 +917,7 @@ NativeValue *JsApplicationContextUtils::OnOnEnvironment(
 
     if (envCallback_ != nullptr) {
         HILOG_DEBUG("envCallback_ is not nullptr.");
-        return engine.CreateNumber(envCallback_->Register(info.argv[1]));
+        return engine.CreateNumber(envCallback_->Register(info.argv[1], isSync));
     }
     envCallback_ = std::make_shared<JsEnvironmentCallback>(&engine);
     int32_t callbackId = envCallback_->Register(info.argv[1], isSync);
