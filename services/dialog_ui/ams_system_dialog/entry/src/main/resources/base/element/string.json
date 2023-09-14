@@ -55,6 +55,18 @@
     {
       "name": "JumpInterceptorServiceExtAbility_label",
       "value": "JumpInterceptorDialog"
+    },
+    {
+      "name": "SwitchUserServiceExtAbility_desc",
+      "value": "SwitchUserDialog"
+    },
+    {
+      "name": "SwitchUserServiceExtAbility_label",
+      "value": "SwitchUserDialog"
+    },
+    {
+        "name": "message_title_switchUser",
+        "value": "Switching, please wait a moment..."
     }
   ]
 }

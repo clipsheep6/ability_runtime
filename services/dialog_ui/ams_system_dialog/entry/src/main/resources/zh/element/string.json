@@ -21,6 +21,14 @@
       "value": "TipsDialog"
     },
     {
+      "name": "SwitchUserServiceExtAbility_desc",
+      "value": "SwitchUserDialog"
+    },
+    {
+      "name": "SwitchUserServiceExtAbility_label",
+      "value": "SwitchUserDialog"
+    },
+    {
       "name": "message_title_selector",
       "value": "使用以下方式打开"
     },
@@ -79,6 +87,10 @@
     {
         "name": "message_moreApps_selector",
         "value": "更多的应用"
+    },
+    {
+        "name": "message_title_switchUser",
+        "value": "正在切换,请稍候..."
     }
   ]
 }

@@ -42,6 +42,15 @@
         "label":"$string:JumpInterceptorServiceExtAbility_label",
         "visible": false,
         "type": "service"
+      },
+      {
+        "name": "SwitchUserDialog",
+        "srcEntrance": "./ets/ServiceExtAbility/SwitchUserServiceExtAbility.ts",
+        "description": "$string:SwitchUserServiceExtAbility_desc",
+        "icon": "$media:icon",
+        "label":"$string:SwitchUserServiceExtAbility_label",
+        "visible": false,
+        "type": "service"
       }
     ],
     "metadata": [

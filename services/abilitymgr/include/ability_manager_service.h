@@ -1589,6 +1589,23 @@ private:
         std::shared_ptr<AbilityConnectManager> &connectManager, std::shared_ptr<AbilityRecord> &targetAbility);
 
     virtual int RegisterSessionHandler(const sptr<IRemoteObject> &object) override;
+
+    /**
+     * Start switch user dialog Extension ability.
+     */
+    void StartSwitchUserDialog();
+
+    /**
+     * Stop switch user dialog Extension ability.
+     */
+    void StopSwitchUserDialog();
+
+    /**
+     * Stop switch user dialog inner.
+     * @param stopUserId, The userId who wants to stop the dialog box.
+     */
+    void StopSwitchUserDialogInner(const Want &want, const int32_t stopUserId);
+
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 

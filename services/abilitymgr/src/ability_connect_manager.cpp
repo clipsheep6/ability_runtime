@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -48,6 +48,8 @@ const int LOAD_TIMEOUT_MULTIPLE = 10;
 const int CONNECT_TIMEOUT_MULTIPLE = 3;
 const int COMMAND_TIMEOUT_MULTIPLE = 5;
 const int COMMAND_WINDOW_TIMEOUT_MULTIPLE = 5;
+const std::string BUNDLE_NAME_DIALOG = "com.ohos.amsdialog";
+const std::string ABILITY_NAME_DIALOG = "SwitchUserDialog";
 #endif
 }
 
@@ -1791,7 +1793,9 @@ void AbilityConnectManager::StopAllExtensions()
     std::lock_guard guard(Lock_);
     for (auto it = serviceMap_.begin(); it != serviceMap_.end();) {
         auto targetExtension = it->second;
-        if (targetExtension != nullptr && targetExtension->GetAbilityInfo().type == AbilityType::EXTENSION) {
+        if (targetExtension != nullptr && targetExtension->GetAbilityInfo().type == AbilityType::EXTENSION &&
+            targetExtension->GetAbilityInfo().bundleName != BUNDLE_NAME_DIALOG &&
+            targetExtension->GetAbilityInfo().name != ABILITY_NAME_DIALOG) {
             terminatingExtensionMap_.emplace(it->first, it->second);
             serviceMap_.erase(it++);
             TerminateAbilityLocked(targetExtension->GetToken());

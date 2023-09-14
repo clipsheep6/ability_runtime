@@ -2151,6 +2151,79 @@ int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRe
     return eventInfo.errCode;
 }
 
+void AbilityManagerService::StopSwitchUserDialog()
+{
+    HILOG_DEBUG("Stop switch user dialog extension ability come");
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        HILOG_ERROR("Scene board enabled.");
+        return;
+    }
+
+    if (userController_ == nullptr || userController_->GetFreezingLastUserId() == DEFAULT_INVAL_VALUE) {
+        HILOG_ERROR("Get last userId error.");
+        return;
+    }
+
+    auto sysDialog = DelayedSingleton<SystemDialogScheduler>::GetInstance();
+    if (sysDialog == nullptr) {
+        HILOG_ERROR("System dialog scheduler instance is nullptr.");
+        return;
+    }
+
+    if (!PermissionVerification::GetInstance()->JudgeCallerIsAllowedToUseSystemAPI()) {
+        HILOG_ERROR("The caller is not system-app, can not use system-api");
+        return;
+    }
+
+    Want stopWant = sysDialog->GetSwitchUserDialogWant();
+    StopSwitchUserDialogInner(stopWant, userController_->GetFreezingLastUserId());
+    userController_->SetFreezingLastUserId(DEFAULT_INVAL_VALUE);
+    return;
+}
+
+void AbilityManagerService::StopSwitchUserDialogInner(const Want &want, const int32_t lastUserId)
+{
+    HILOG_DEBUG("Stop switch user dialog inner come");
+    EventInfo eventInfo = BuildEventInfo(want, lastUserId);
+    eventInfo.extensionType = static_cast<int32_t>(AppExecFwk::ExtensionAbilityType::SERVICE);
+    EventReport::SendExtensionEvent(EventName::STOP_SERVICE, HiSysEventType::BEHAVIOR, eventInfo);
+    AbilityRequest abilityRequest;
+    auto result =
+        GenerateExtensionAbilityRequest(want, abilityRequest, nullptr, lastUserId);
+    if (result != ERR_OK) {
+        HILOG_ERROR("Generate ability request local error.");
+        eventInfo.errCode = result;
+        EventReport::SendExtensionEvent(EventName::STOP_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        return;
+    }
+
+    auto abilityInfo = abilityRequest.abilityInfo;
+    int32_t stopUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : lastUserId;
+    result = CheckOptExtensionAbility(want, abilityRequest, stopUserId,
+        AppExecFwk::ExtensionAbilityType::SERVICE);
+    if (result != ERR_OK) {
+        HILOG_ERROR("Check extensionAbility type error.");
+        eventInfo.errCode = result;
+        EventReport::SendExtensionEvent(EventName::STOP_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        return;
+    }
+
+    auto connectManager = GetConnectManagerByUserId(stopUserId);
+    if (!connectManager) {
+        HILOG_ERROR("ConnectManager is nullptr. userId:%{public}d", stopUserId);
+        eventInfo.errCode = ERR_INVALID_VALUE;
+        EventReport::SendExtensionEvent(EventName::STOP_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        return;
+    }
+
+    eventInfo.errCode = connectManager->StopServiceAbility(abilityRequest);
+    if (eventInfo.errCode != ERR_OK) {
+        HILOG_ERROR("EventInfo errCode is %{public}d", eventInfo.errCode);
+        EventReport::SendExtensionEvent(EventName::STOP_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+    }
+    return;
+}
+
 int AbilityManagerService::MoveAbilityToBackground(const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -5992,10 +6065,39 @@ int32_t AbilityManagerService::GetRemoteMissionSnapshotInfo(const std::string& d
     return ERR_OK;
 }
 
+void AbilityManagerService::StartSwitchUserDialog()
+{
+    HILOG_DEBUG("Start switch user dialog extension ability come");
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        HILOG_ERROR("Scene board enabled, dialog not show.");
+        return;
+    }
+
+    if (userController_ == nullptr) {
+        HILOG_ERROR("User Controller instance is nullptr.");
+        return;
+    }
+
+    auto sysDialog = DelayedSingleton<SystemDialogScheduler>::GetInstance();
+    if (sysDialog == nullptr) {
+        HILOG_ERROR("System dialog scheduler instance is nullptr.");
+        return;
+    }
+
+    Want dialogWant = sysDialog->GetSwitchUserDialogWant();
+    userController_->SetFreezingLastUserId(userController_->GetCurrentUserId());
+    auto result =
+        StartExtensionAbility(dialogWant, nullptr, DEFAULT_INVAL_VALUE, AppExecFwk::ExtensionAbilityType::SERVICE);
+    if (result != ERR_OK) {
+        HILOG_ERROR("Start extensionAbility error %{public}d.", result);
+    }
+}
+
 void AbilityManagerService::StartFreezingScreen()
 {
     HILOG_INFO("%{public}s", __func__);
 #ifdef SUPPORT_GRAPHICS
+    StartSwitchUserDialog();
     std::vector<Rosen::DisplayId> displayIds = Rosen::DisplayManager::GetInstance().GetAllDisplayIds();
     IN_PROCESS_CALL_WITHOUT_RET(Rosen::DisplayManager::GetInstance().Freeze(displayIds));
 #endif
@@ -6007,6 +6109,7 @@ void AbilityManagerService::StopFreezingScreen()
 #ifdef SUPPORT_GRAPHICS
     std::vector<Rosen::DisplayId> displayIds = Rosen::DisplayManager::GetInstance().GetAllDisplayIds();
     IN_PROCESS_CALL_WITHOUT_RET(Rosen::DisplayManager::GetInstance().Unfreeze(displayIds));
+    StopSwitchUserDialog();
 #endif
 }
 

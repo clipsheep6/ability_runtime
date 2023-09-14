@@ -2,6 +2,7 @@
   "src": [
     "pages/selectorPhoneDialog",
     "pages/selectorPcDialog",
+    "pages/switchUserDialog",
     "pages/tipsDialog",
     "pages/jumpInterceptorDialog"
   ]

@@ -74,6 +74,7 @@ public:
         const sptr<IRemoteObject> &callerToken);
     Want GetTipsDialogWant(const sptr<IRemoteObject> &callerToken);
     Want GetJumpInterceptorDialogWant(Want &targetWant);
+    Want GetSwitchUserDialogWant();
 
     void SetDeviceType(const std::string &deviceType)
     {

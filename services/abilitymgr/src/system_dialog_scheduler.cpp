@@ -104,6 +104,7 @@ const std::string DIALOG_PARAMS = "params";
 const std::string DIALOG_POSITION = "position";
 const std::string VERTICAL_SCREEN_DIALOG_POSITION = "landscapeScreen";
 const std::string ABILITY_NAME_ANR_DIALOG = "AnrDialog";
+const std::string ABILITY_NAME_FREEZE_DIALOG = "SwitchUserDialog";
 const std::string ABILITY_NAME_TIPS_DIALOG = "TipsDialog";
 const std::string ABILITY_NAME_SELECTOR_DIALOG = "SelectorDialog";
 const std::string CALLER_TOKEN = "callerToken";
@@ -622,6 +623,15 @@ sptr<AppExecFwk::IBundleMgr> SystemDialogScheduler::GetBundleManager()
         iBundleManager_ = AbilityUtil::GetBundleManager();
     }
     return iBundleManager_;
+}
+
+Want SystemDialogScheduler::GetSwitchUserDialogWant()
+{
+    HILOG_DEBUG("start");
+    AAFwk::Want dialogWant;
+    dialogWant.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_FREEZE_DIALOG);
+
+    return dialogWant;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

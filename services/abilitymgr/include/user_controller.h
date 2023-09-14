@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -87,6 +87,10 @@ public:
 
     void ProcessEvent(const EventWrap &event);
 
+    int32_t GetFreezingLastUserId() const;
+
+    void SetFreezingLastUserId(int32_t userId);
+
 private:
     bool IsCurrentUser(int32_t userId);
     bool IsExistOsAccount(int32_t userId);
@@ -125,6 +129,7 @@ private:
     int32_t currentUserId_ = USER_ID_NO_HEAD;
     std::unordered_map<int32_t, std::shared_ptr<UserItem>> userItems_;
     std::shared_ptr<UserEventHandler> eventHandler_;
+    int32_t freezingLastUserId_ = -1;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
