@@ -55,6 +55,12 @@ void JsErrorObserver::HandleOnUnhandledException(const std::string &errMsg)
         NativeValue* argv[] = { CreateJsValue(engine_, errMsg) };
         CallJsFunction(value, "onUnhandledException", argv, ARGC_ONE);
     }
+    tmpMap = jsObserverObjectMapSync_;
+    for (auto &item : tmpMap) {
+        NativeValue* value = (item.second)->Get();
+        NativeValue* argv[] = { CreateJsValue(engine_, errMsg) };
+        CallJsFunction(value, "onUnhandledException", argv, ARGC_ONE);
+    }
 }
 
 void JsErrorObserver::CallJsFunction(NativeValue* value, const char* methodName, NativeValue* const* argv, size_t argc)
@@ -74,16 +80,26 @@ void JsErrorObserver::CallJsFunction(NativeValue* value, const char* methodName,
     engine_.CallFunction(value, method, argv, argc);
 }
 
-void JsErrorObserver::AddJsObserverObject(const int32_t observerId, NativeValue* jsObserverObject)
+void JsErrorObserver::AddJsObserverObject(const int32_t observerId, NativeValue* jsObserverObject, bool isSync)
 {
-    jsObserverObjectMap_.emplace(
-        observerId, std::shared_ptr<NativeReference>(engine_.CreateReference(jsObserverObject, 1)));
+    if (isSync) {
+        jsObserverObjectMapSync_.emplace(
+            observerId, std::shared_ptr<NativeReference>(engine_.CreateReference(jsObserverObject, 1)));
+    } else {
+        jsObserverObjectMap_.emplace(
+            observerId, std::shared_ptr<NativeReference>(engine_.CreateReference(jsObserverObject, 1)));
+    }
 }
 
-bool JsErrorObserver::RemoveJsObserverObject(const int32_t observerId, bool &isEmpty)
+bool JsErrorObserver::RemoveJsObserverObject(const int32_t observerId, bool &isEmpty, bool isSync)
 {
-    bool result = (jsObserverObjectMap_.erase(observerId) == 1);
-    isEmpty = jsObserverObjectMap_.empty();
+    bool result = false;
+    if (isSync) {
+        result = (jsObserverObjectMapSync_.erase(observerId) == 1);
+    } else {
+        result = (jsObserverObjectMap_.erase(observerId) == 1);
+    }
+    isEmpty = jsObserverObjectMap_.empty() && jsObserverObjectMapSync_.empty();
     return result;
 }
 
@@ -108,6 +124,12 @@ void JsErrorObserver::HandleException(const AppExecFwk::ErrorObject &errorObj)
 {
     HILOG_DEBUG("HandleException come.");
     auto tmpMap = jsObserverObjectMap_;
+    for (auto &item : tmpMap) {
+        NativeValue* jsObj = (item.second)->Get();
+        NativeValue* jsValue[] = { CreateJsErrorObject(engine_, errorObj) };
+        CallJsFunction(jsObj, "onException", jsValue, ARGC_ONE);
+    }
+    tmpMap = jsObserverObjectMapSync_;
     for (auto &item : tmpMap) {
         NativeValue* jsObj = (item.second)->Get();
         NativeValue* jsValue[] = { CreateJsErrorObject(engine_, errorObj) };
