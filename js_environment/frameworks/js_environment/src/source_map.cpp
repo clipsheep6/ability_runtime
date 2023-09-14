@@ -49,6 +49,7 @@ const std::string NOT_FOUNDMAP = "Cannot get SourceMap info, dump raw stack:\n";
 const std::string MEGER_SOURCE_MAP_PATH = "ets/sourceMaps.map";
 } // namespace
 ReadSourceMapCallback SourceMap::readSourceMapFunc_ = nullptr;
+std::mutex SourceMap::sourceMapMutex_;
 
 int32_t StringToInt(const std::string& value)
 {
@@ -508,11 +509,13 @@ ErrorPos SourceMap::GetErrorPos(const std::string& rawStack)
 
 void SourceMap::RegisterReadSourceMapCallback(ReadSourceMapCallback readFunc)
 {
+    std::lock_guard<std::mutex> lock(sourceMapMutex_);
     readSourceMapFunc_ = readFunc;
 }
 
 bool SourceMap::ReadSourceMapData(const std::string& hapPath, const std::string& sourceMapPath, std::string& content)
 {
+    std::lock_guard<std::mutex> lock(sourceMapMutex_);
     if (readSourceMapFunc_) {
         return readSourceMapFunc_(hapPath, sourceMapPath, content);
     }

@@ -19,6 +19,7 @@
 #include <cstring>
 #include <fstream>
 #include <limits.h>
+#include <mutex>
 #include <unordered_map>
 #include <utility>
 #include <thread>
@@ -95,6 +96,7 @@ private:
     std::unordered_map<std::string, std::shared_ptr<SourceMapData>> sourceMaps_;
     std::shared_ptr<SourceMapData> nonModularMap_;
     static ReadSourceMapCallback readSourceMapFunc_;
+    static std::mutex sourceMapMutex_;
 };
 } // namespace JsEnv
 } // namespace OHOS
