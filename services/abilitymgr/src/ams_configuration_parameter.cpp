@@ -18,6 +18,10 @@
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+const int LOAD_CONFIGURATION_FAILED = -1;
+const int LOAD_CONFIGURATION_SUCCESS = 0;
+}
 
 AmsConfigurationParameter &AmsConfigurationParameter::GetInstance()
 {
@@ -131,35 +135,19 @@ int AmsConfigurationParameter::LoadAmsConfiguration(const std::string &filePath)
 
 int AmsConfigurationParameter::LoadAppConfigurationForStartUpService(nlohmann::json& Object)
 {
-    int ret = -1;
-    if (Object.contains(AmsConfig::SERVICE_ITEM_AMS)) {
-        missionSaveTime_ = Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::MISSION_SAVE_TIME).get<int>();
-        anrTime_ =
-            Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::APP_NOT_RESPONSE_PROCESS_TIMEOUT_TIME).get<int>();
-        amsTime_ =
-            Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::AMS_TIMEOUT_TIME).get<int>();
-        maxRootLauncherRestartNum_ =
-            Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::ROOT_LAUNCHER_RESTART_MAX).get<int>();
-        if (Object.at(AmsConfig::SERVICE_ITEM_AMS).contains(AmsConfig::RESIDENT_RESTART_MAX)) {
-            maxResidentRestartNum_ =
-                Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::RESIDENT_RESTART_MAX).get<int>();
-        }
-        if (Object.at(AmsConfig::SERVICE_ITEM_AMS).contains(AmsConfig::RESTART_INTERVAL_TIME)) {
-            restartIntervalTime_ =
-                Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::RESTART_INTERVAL_TIME).get<int>();
-        }
-        deviceType_ = Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::DEVICE_TYPE).get<std::string>();
-        bootAnimationTime_ =
-            Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::BOOT_ANIMATION_TIMEOUT_TIME).get<int>();
-        if (Object.at(AmsConfig::SERVICE_ITEM_AMS).contains(AmsConfig::TIMEOUT_UNIT_TIME)) {
-            timeoutUnitTime_ =
-                Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::TIMEOUT_UNIT_TIME).get<int>();
-        }
-        HILOG_INFO("get ams service config success!");
-        ret = 0;
+    if (!Object.contains(AmsConfig::SERVICE_ITEM_AMS)) {
+        return LOAD_CONFIGURATION_FAILED;
     }
-
-    return ret;
+    UpdateStartUpServiceConfigInteger(Object, AmsConfig::MISSION_SAVE_TIME, missionSaveTime_);
+    UpdateStartUpServiceConfigInteger(Object, AmsConfig::APP_NOT_RESPONSE_PROCESS_TIMEOUT_TIME, anrTime_);
+    UpdateStartUpServiceConfigInteger(Object, AmsConfig::AMS_TIMEOUT_TIME, amsTime_);
+    UpdateStartUpServiceConfigInteger(Object, AmsConfig::ROOT_LAUNCHER_RESTART_MAX, maxRootLauncherRestartNum_);
+    UpdateStartUpServiceConfigInteger(Object, AmsConfig::RESIDENT_RESTART_MAX, maxResidentRestartNum_);
+    UpdateStartUpServiceConfigInteger(Object, AmsConfig::RESTART_INTERVAL_TIME, restartIntervalTime_);
+    UpdateStartUpServiceConfigString(Object, AmsConfig::DEVICE_TYPE, deviceType_);
+    UpdateStartUpServiceConfigInteger(Object, AmsConfig::BOOT_ANIMATION_TIMEOUT_TIME, bootAnimationTime_);
+    UpdateStartUpServiceConfigInteger(Object, AmsConfig::TIMEOUT_UNIT_TIME, timeoutUnitTime_);
+    return LOAD_CONFIGURATION_SUCCESS;
 }
 
 int AmsConfigurationParameter::LoadAppConfigurationForMemoryThreshold(nlohmann::json &Object)
@@ -175,12 +163,53 @@ int AmsConfigurationParameter::LoadAppConfigurationForMemoryThreshold(nlohmann::
 
 int AmsConfigurationParameter::LoadSystemConfiguration(nlohmann::json& Object)
 {
-    if (Object.contains(AmsConfig::SYSTEM_CONFIGURATION)) {
+    if (Object.contains(AmsConfig::SYSTEM_CONFIGURATION) &&
+        Object.at(AmsConfig::SYSTEM_CONFIGURATION).contains(AmsConfig::SYSTEM_ORIENTATION) &&
+        Object.at(AmsConfig::SYSTEM_CONFIGURATION).at(AmsConfig::SYSTEM_ORIENTATION).is_string()) {
         orientation_ = Object.at(AmsConfig::SYSTEM_CONFIGURATION).at(AmsConfig::SYSTEM_ORIENTATION).get<std::string>();
         return READ_OK;
     }
 
     return READ_FAIL;
+}
+
+bool AmsConfigurationParameter::CheckServiceConfigEnable(nlohmann::json& Object, const std::string &configName,
+    JsonValueType type)
+{
+    if (Object.contains(AmsConfig::SERVICE_ITEM_AMS) &&
+        Object.at(AmsConfig::SERVICE_ITEM_AMS).contains(configName)) {
+        switch (type) {
+            case JsonValueType::NUMBER: {
+                return Object.at(AmsConfig::SERVICE_ITEM_AMS).at(configName).is_number();
+            }
+            case JsonValueType::STRING: {
+                return Object.at(AmsConfig::SERVICE_ITEM_AMS).at(configName).is_string();
+            }
+            case JsonValueType::BOOLEAN: {
+                return Object.at(AmsConfig::SERVICE_ITEM_AMS).at(configName).is_boolean();
+            }
+            default: {
+                return false;
+            }
+        }
+    }
+    return false;
+}
+
+void AmsConfigurationParameter::UpdateStartUpServiceConfigInteger(nlohmann::json& Object,
+    const std::string &configName, int32_t &value)
+{
+    if (CheckServiceConfigEnable(Object, configName, JsonValueType::NUMBER)) {
+        value = Object.at(AmsConfig::SERVICE_ITEM_AMS).at(configName).get<int>();
+    }
+}
+
+void AmsConfigurationParameter::UpdateStartUpServiceConfigString(nlohmann::json& Object,
+    const std::string &configName, std::string &value)
+{
+    if (CheckServiceConfigEnable(Object, configName, JsonValueType::STRING)) {
+        value = Object.at(AmsConfig::SERVICE_ITEM_AMS).at(configName).get<std::string>();
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS
