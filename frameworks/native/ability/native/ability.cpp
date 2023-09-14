@@ -25,8 +25,6 @@
 #include "configuration_convertor.h"
 #include "connection_manager.h"
 #include "continuation_manager.h"
-#include "continuation_register_manager.h"
-#include "continuation_register_manager_proxy.h"
 #include "data_ability_operation.h"
 #include "data_ability_predicates.h"
 #include "data_ability_result.h"

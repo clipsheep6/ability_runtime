@@ -44,14 +44,6 @@ OHOSApplication::~OHOSApplication()
 {
 }
 
-/**
- *
- * @brief Called when Ability#onSaveAbilityState(PacMap) was called on an ability.
- *
- * @param outState Indicates the PacMap object passed to Ability#onSaveAbilityState(PacMap)
- * for storing user data and states. This parameter cannot be null.
- */
-
 void OHOSApplication::DispatchAbilitySavedState(const PacMap &outState)
 {
     HILOG_DEBUG("OHOSApplication::dispatchAbilitySavedState: called");
@@ -62,11 +54,6 @@ void OHOSApplication::DispatchAbilitySavedState(const PacMap &outState)
     }
 }
 
-/**
- *
- * @brief Will be called the application foregrounds
- *
- */
 void OHOSApplication::OnForeground()
 {
     HILOG_DEBUG("NotifyApplicationState::OnForeground begin");
@@ -82,11 +69,6 @@ void OHOSApplication::OnForeground()
     HILOG_DEBUG("NotifyApplicationState::OnForeground end");
 }
 
-/**
- *
- * @brief Will be called the application backgrounds
- *
- */
 void OHOSApplication::OnBackground()
 {
     HILOG_DEBUG("NotifyApplicationState::OnBackground begin");
@@ -146,11 +128,6 @@ void OHOSApplication::DumpApplication()
     }
 }
 
-/**
- * @brief Set Runtime
- *
- * @param runtime Runtime instance.
- */
 void OHOSApplication::SetRuntime(std::unique_ptr<AbilityRuntime::Runtime>&& runtime)
 {
     HILOG_DEBUG("OHOSApplication::SetRuntime begin");
@@ -162,11 +139,6 @@ void OHOSApplication::SetRuntime(std::unique_ptr<AbilityRuntime::Runtime>&& runt
     HILOG_DEBUG("OHOSApplication::SetRuntime end");
 }
 
-/**
- * @brief Set ApplicationContext
- *
- * @param abilityRuntimeContext ApplicationContext instance.
- */
 void OHOSApplication::SetApplicationContext(
     const std::shared_ptr<AbilityRuntime::ApplicationContext> &abilityRuntimeContext)
 {
@@ -178,12 +150,6 @@ void OHOSApplication::SetApplicationContext(
     abilityRuntimeContext_ = abilityRuntimeContext;
 }
 
-/**
- *
- * @brief Set the abilityRecordMgr to the OHOSApplication.
- *
- * @param abilityRecordMgr
- */
 void OHOSApplication::SetAbilityRecordMgr(const std::shared_ptr<AbilityRecordMgr> &abilityRecordMgr)
 {
     HILOG_DEBUG("OHOSApplication::SetAbilityRecordMgr");
@@ -194,12 +160,6 @@ void OHOSApplication::SetAbilityRecordMgr(const std::shared_ptr<AbilityRecordMgr
     abilityRecordMgr_ = abilityRecordMgr;
 }
 
-/**
- *
- * Register AbilityLifecycleCallbacks with OHOSApplication
- *
- * @param callBack callBack When the life cycle of the ability in the application changes,
- */
 void OHOSApplication::RegisterAbilityLifecycleCallbacks(const std::shared_ptr<AbilityLifecycleCallbacks> &callBack)
 {
     HILOG_DEBUG("OHOSApplication::RegisterAbilityLifecycleCallbacks: called");
@@ -212,12 +172,6 @@ void OHOSApplication::RegisterAbilityLifecycleCallbacks(const std::shared_ptr<Ab
     abilityLifecycleCallbacks_.emplace_back(callBack);
 }
 
-/**
- *
- * Unregister AbilityLifecycleCallbacks with OHOSApplication
- *
- * @param callBack RegisterAbilityLifecycleCallbacks`s callBack
- */
 void OHOSApplication::UnregisterAbilityLifecycleCallbacks(const std::shared_ptr<AbilityLifecycleCallbacks> &callBack)
 {
     HILOG_DEBUG("OHOSApplication::UnregisterAbilityLifecycleCallbacks: called");
@@ -230,12 +184,6 @@ void OHOSApplication::UnregisterAbilityLifecycleCallbacks(const std::shared_ptr<
     abilityLifecycleCallbacks_.remove(callBack);
 }
 
-/**
- *
- * Will be called when the given ability calls Ability->onStart
- *
- * @param Ability Indicates the ability object that calls the onStart() method.
- */
 void OHOSApplication::OnAbilityStart(const std::shared_ptr<Ability> &ability)
 {
     if (ability == nullptr) {
@@ -251,12 +199,6 @@ void OHOSApplication::OnAbilityStart(const std::shared_ptr<Ability> &ability)
     }
 }
 
-/**
- *
- * Will be called when the given ability calls Ability->onInactive
- *
- * @param Ability Indicates the Ability object that calls the onInactive() method.
- */
 void OHOSApplication::OnAbilityInactive(const std::shared_ptr<Ability> &ability)
 {
     if (ability == nullptr) {
@@ -272,12 +214,6 @@ void OHOSApplication::OnAbilityInactive(const std::shared_ptr<Ability> &ability)
     }
 }
 
-/**
- *
- * Will be called when the given ability calls Ability->onBackground
- *
- * @param Ability Indicates the Ability object that calls the onBackground() method.
- */
 void OHOSApplication::OnAbilityBackground(const std::shared_ptr<Ability> &ability)
 {
     if (ability == nullptr) {
@@ -293,12 +229,6 @@ void OHOSApplication::OnAbilityBackground(const std::shared_ptr<Ability> &abilit
     }
 }
 
-/**
- *
- * Will be called when the given ability calls Ability->onForeground
- *
- * @param Ability Indicates the Ability object that calls the onForeground() method.
- */
 void OHOSApplication::OnAbilityForeground(const std::shared_ptr<Ability> &ability)
 {
     if (ability == nullptr) {
@@ -314,12 +244,6 @@ void OHOSApplication::OnAbilityForeground(const std::shared_ptr<Ability> &abilit
     }
 }
 
-/**
- *
- * Will be called when the given ability calls Ability->onActive
- *
- * @param Ability Indicates the Ability object that calls the onActive() method.
- */
 void OHOSApplication::OnAbilityActive(const std::shared_ptr<Ability> &ability)
 {
     if (ability == nullptr) {
@@ -335,12 +259,6 @@ void OHOSApplication::OnAbilityActive(const std::shared_ptr<Ability> &ability)
     }
 }
 
-/**
- *
- * Will be called when the given ability calls Ability->onStop
- *
- * @param Ability Indicates the Ability object that calls the onStop() method.
- */
 void OHOSApplication::OnAbilityStop(const std::shared_ptr<Ability> &ability)
 {
     if (ability == nullptr) {
@@ -356,12 +274,6 @@ void OHOSApplication::OnAbilityStop(const std::shared_ptr<Ability> &ability)
     }
 }
 
-/**
- *
- * @brief Register ElementsCallback with OHOSApplication
- *
- * @param callBack callBack when the system configuration of the device changes.
- */
 void OHOSApplication::RegisterElementsCallbacks(const std::shared_ptr<ElementsCallback> &callback)
 {
     HILOG_DEBUG("OHOSApplication::RegisterElementsCallbacks: called");
@@ -374,12 +286,6 @@ void OHOSApplication::RegisterElementsCallbacks(const std::shared_ptr<ElementsCa
     elementsCallbacks_.emplace_back(callback);
 }
 
-/**
- *
- * @brief Unregister ElementsCallback with OHOSApplication
- *
- * @param callback RegisterElementsCallbacks`s callback
- */
 void OHOSApplication::UnregisterElementsCallbacks(const std::shared_ptr<ElementsCallback> &callback)
 {
     HILOG_DEBUG("OHOSApplication::UnregisterElementsCallbacks: called");
@@ -392,12 +298,6 @@ void OHOSApplication::UnregisterElementsCallbacks(const std::shared_ptr<Elements
     elementsCallbacks_.remove(callback);
 }
 
-/**
- *
- * @brief Will be Called when the system configuration of the device changes.
- *
- * @param config Indicates the new Configuration object.
- */
 void OHOSApplication::OnConfigurationUpdated(const Configuration &config)
 {
     HILOG_DEBUG("OHOSApplication::OnConfigurationUpdated: called");
@@ -446,14 +346,6 @@ void OHOSApplication::OnConfigurationUpdated(const Configuration &config)
     abilityRuntimeContext_->DispatchConfigurationUpdated(config);
 }
 
-/**
- *
- * @brief Called when the system has determined to trim the memory, for example,
- * when the ability is running in the background and there is no enough memory for
- * running as many background processes as possible.
- *
- * @param level Indicates the memory trim level, which shows the current memory usage status.
- */
 void OHOSApplication::OnMemoryLevel(int level)
 {
     HILOG_DEBUG("OHOSApplication::OnMemoryLevel: called");
@@ -486,33 +378,16 @@ void OHOSApplication::OnMemoryLevel(int level)
     abilityRuntimeContext_->DispatchMemoryLevel(level);
 }
 
-/**
- *
- * @brief Will be called the application starts
- *
- */
 void OHOSApplication::OnStart()
 {
     HILOG_DEBUG("OnStart called.");
 }
 
-/**
- *
- * @brief Will be called the application ends
- *
- */
 void OHOSApplication::OnTerminate()
 {
     HILOG_DEBUG("OHOSApplication::OnTerminate: called");
 }
 
-/**
- *
- * @brief Called when an ability calls Ability#onSaveAbilityState(PacMap).
- * You can implement your own logic in this method.
- * @param outState IIndicates the {@link PacMap} object passed to the onSaveAbilityState() callback.
- *
- */
 void OHOSApplication::OnAbilitySaveState(const PacMap &outState)
 {
     DispatchAbilitySavedState(outState);
@@ -572,13 +447,6 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
     return abilityStage->GetContext();
 }
 
-/**
- *
- * @brief update the application info after new module installed.
- *
- * @param appInfo The latest application info obtained from bms for update abilityRuntimeContext.
- *
- */
 void OHOSApplication::UpdateApplicationInfoInstalled(const AppExecFwk::ApplicationInfo &appInfo)
 {
     HILOG_DEBUG("OHOSApplication::UpdateApplicationInfoInstalled");
