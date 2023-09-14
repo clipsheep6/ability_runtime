@@ -24,6 +24,7 @@
 
 #include "ability_context.h"
 #include "ability_stage_context.h"
+#include "commonlibrary/ets_utils/js_sys_module/timer/timer.h"
 #include "EventHandler.h"
 #include "hilog_wrapper.h"
 #include "js_ability_context.h"
@@ -564,7 +565,10 @@ bool SimulatorImpl::OnInit()
     }
 
     InitConsoleLogModule(*nativeEngine, *globalObj);
-    InitTimer(*nativeEngine, *globalObj);
+    auto ret = JsSysModule::Timer::RegisterTime(reinterpret_cast<napi_env>(nativeEngine.get()));
+    if (!ret) {
+        HILOG_ERROR("Register timer failed");
+    }
 
     globalObj->SetProperty("group", nativeEngine->CreateObject());
 
