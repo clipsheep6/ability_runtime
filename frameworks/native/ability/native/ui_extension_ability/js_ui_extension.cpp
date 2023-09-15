@@ -327,6 +327,7 @@ bool JsUIExtension::CallPromise(NativeValue *result, AppExecFwk::AbilityTransact
         callbackInfo);
     NativeValue *argv[1] = { promiseCallback };
     nativeEngine.CallFunction(result, then, argv, 1);
+    HILOG_DEBUG("exit");
     return true;
 }
 

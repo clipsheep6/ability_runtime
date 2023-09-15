@@ -41,12 +41,12 @@ NativeValue* AttachFormExtensionContext(NativeEngine* engine, void* value, void*
 {
     HILOG_INFO("call");
     if (value == nullptr) {
-        HILOG_WARN("invalid parameter.");
+        HILOG_WARN("invalid parameter");
         return nullptr;
     }
     auto ptr = reinterpret_cast<std::weak_ptr<FormExtensionContext>*>(value)->lock();
     if (ptr == nullptr) {
-        HILOG_WARN("invalid context.");
+        HILOG_WARN("invalid context");
         return nullptr;
     }
     NativeValue* object = CreateJsFormExtensionContext(*engine, ptr);
@@ -415,7 +415,7 @@ bool JsFormExtension::OnShare(int64_t formId, AAFwk::WantParams &wantParams)
     HandleScope handleScope(jsRuntime_);
     NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
     if (nativeEngine == nullptr) {
-        HILOG_ERROR("NativeEngine is nullptr.");
+        HILOG_ERROR("NativeEngine is null.");
         return false;
     }
 
@@ -434,11 +434,11 @@ bool JsFormExtension::OnShare(int64_t formId, AAFwk::WantParams &wantParams)
 
     if (!OHOS::AppExecFwk::UnwrapWantParams(reinterpret_cast<napi_env>(nativeEngine),
         reinterpret_cast<napi_value>(nativeResult), wantParams)) {
-        HILOG_ERROR("Unwrap want params failed.");
+        HILOG_ERROR("Unwrap want params error.");
         return false;
     }
 
-    HILOG_DEBUG("called end.");
+    HILOG_DEBUG("OnShare called end.");
     return true;
 }
 
@@ -471,7 +471,7 @@ bool JsFormExtension::OnAcquireData(int64_t formId, AAFwk::WantParams &wantParam
         return false;
     }
 
-    HILOG_DEBUG("called end.");
+    HILOG_DEBUG("OnAcquireData called end.");
     return true;
 }
 

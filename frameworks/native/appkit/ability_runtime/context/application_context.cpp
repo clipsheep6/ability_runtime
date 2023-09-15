@@ -143,9 +143,9 @@ void ApplicationContext::DispatchOnWindowStageDestroy(const std::shared_ptr<Nati
 void ApplicationContext::DispatchWindowStageFocus(const std::shared_ptr<NativeReference> &ability,
     const std::shared_ptr<NativeReference> &windowStage)
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s start.", __func__);
     if (!ability || !windowStage) {
-        HILOG_ERROR("ability or windowStage is nullptr");
+        HILOG_ERROR("ability or windowStage is null");
         return;
     }
     std::lock_guard<std::mutex> lock(callbackLock_);

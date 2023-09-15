@@ -292,7 +292,7 @@ private:
 
         // only support 0 or 1 params
         if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
-            HILOG_ERROR("Not enough params");
+            HILOG_ERROR("Not enough arguments");
             errCode = ERR_NOT_OK;
         }
         AsyncTask::CompleteCallback complete =
@@ -320,13 +320,13 @@ private:
 
     NativeValue* OnkillProcessByBundleName(NativeEngine &engine, const NativeCallbackInfo &info)
     {
-        HILOG_DEBUG("called");
+        HILOG_DEBUG("OnkillProcessByBundleName called");
         int32_t errCode = 0;
         std::string bundleName;
 
         // only support 1 or 2 params
         if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
-            HILOG_ERROR("Not enough params");
+            HILOG_ERROR("Not enough arguments");
             errCode = ERR_NOT_OK;
         } else {
             if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
@@ -344,7 +344,7 @@ private:
                 return;
             }
             if (abilityManager == nullptr) {
-                HILOG_WARN("abilityManager nullptr");
+                HILOG_WARN("abilityManager null");
                 task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "abilityManager nullptr"));
                 return;
             }
@@ -442,6 +442,7 @@ private:
                 if (ret == 0) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
+                    HILOG_DEBUG("failed error:%{public}d", ret);
                     task.Reject(engine, CreateJsError(engine, ret, "Kill processes failed."));
                 }
             };
@@ -451,6 +452,7 @@ private:
         AsyncTask::ScheduleHighQos("JSAppManager::OnKillProcessWithAccount",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
+        HILOG_DEBUG("end");
     }
 
     NativeValue* OnGetAppMemorySize(NativeEngine& engine, const NativeCallbackInfo& info)
@@ -459,7 +461,7 @@ private:
 
         // only support 0 or 1 params
         if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
-            HILOG_ERROR("Not enough params");
+            HILOG_ERROR("Insufficient params");
             errCode = ERR_NOT_OK;
         }
         AsyncTask::CompleteCallback complete =
@@ -491,7 +493,7 @@ private:
 
         // only support 0 or 1 params
         if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
-            HILOG_ERROR("Not enough params");
+            HILOG_ERROR("Not enough parameters");
             errCode = ERR_NOT_OK;
         }
         AsyncTask::CompleteCallback complete =

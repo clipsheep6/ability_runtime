@@ -50,13 +50,13 @@ void RemoveConnection(int64_t connectId)
         return connectId == obj.first.id;
     });
     if (item != g_connects.end()) {
-        HILOG_DEBUG("remove conn ability exist");
+        HILOG_DEBUG("remove conn ability exist.");
         if (item->second) {
             item->second->RemoveConnectionObject();
         }
         g_connects.erase(item);
     } else {
-        HILOG_DEBUG("remove conn ability not exist");
+        HILOG_DEBUG("remove connection ability not exist");
     }
 }
 class JsFormExtensionContext final {
@@ -204,7 +204,7 @@ private:
         HILOG_DEBUG("ConnectAbility called.");
         // Check params count
         if (info.argc < ARGC_TWO) {
-            HILOG_ERROR("Connect ability failed, not enough params.");
+            HILOG_ERROR("Connect ability failed, not enough arguments.");
             ThrowTooFewParametersError(engine);
             return engine.CreateUndefined();
         }
@@ -457,7 +457,7 @@ void JSFormExtensionConnection::OnAbilityConnectDone(const AppExecFwk::ElementNa
 void JSFormExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::ElementName &element,
     const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
-    HILOG_INFO("HandleOnAbilityConnectDone, resultCode:%{public}d", resultCode);
+    HILOG_INFO("HandleOnAbilityConnectDone start, resultCode:%{public}d", resultCode);
     // wrap ElementName
     napi_value napiElementName = OHOS::AppExecFwk::WrapElementName(reinterpret_cast<napi_env>(&engine_), element);
     NativeValue* nativeElementName = reinterpret_cast<NativeValue*>(napiElementName);
@@ -468,13 +468,13 @@ void JSFormExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::Ele
     NativeValue* nativeRemoteObject = reinterpret_cast<NativeValue*>(napiRemoteObject);
     NativeValue* argv[] = {nativeElementName, nativeRemoteObject};
     if (jsConnectionObject_ == nullptr) {
-        HILOG_ERROR("jsConnectionObject_ nullptr");
+        HILOG_ERROR("jsConnectionObject_ null");
         return;
     }
     NativeValue* value = jsConnectionObject_->Get();
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
-        HILOG_ERROR("Failed to get object");
+        HILOG_ERROR("error to get object");
         return;
     }
     NativeValue* methodOnConnect = obj->GetProperty("onConnect");

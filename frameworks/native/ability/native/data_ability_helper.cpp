@@ -82,6 +82,7 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     if (dataShareHelper) {
         ptrDataAbilityHelper = new DataAbilityHelper(dataShareHelper);
     }
+    HILOG_DEBUG("Creator end");
     return std::shared_ptr<DataAbilityHelper>(ptrDataAbilityHelper);
 }
 

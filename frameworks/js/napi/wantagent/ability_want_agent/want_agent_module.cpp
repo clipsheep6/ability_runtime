@@ -39,13 +39,13 @@ NativeValue* JsNapiWantAgentInit(NativeEngine* engine, NativeValue* exportObj)
     HILOG_DEBUG("JsNapiWantAgentInit is called");
 
     if (engine == nullptr || exportObj == nullptr) {
-        HILOG_ERROR("engine or exportObj null");
+        HILOG_ERROR("engine or exportObj nullptr");
         return nullptr;
     }
 
     NativeObject* object = ConvertNativeValueTo<NativeObject>(exportObj);
     if (object == nullptr) {
-        HILOG_ERROR("object null");
+        HILOG_ERROR("object nullptr");
         return nullptr;
     }
 

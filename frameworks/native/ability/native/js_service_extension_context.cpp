@@ -67,13 +67,13 @@ void RemoveConnection(int64_t connectId)
         return connectId == obj.first.id;
     });
     if (item != g_connects.end()) {
-        HILOG_DEBUG("remove conn ability exist");
+        HILOG_DEBUG("remove conn ability exist.");
         if (item->second) {
             item->second->RemoveConnectionObject();
         }
         g_connects.erase(item);
     } else {
-        HILOG_DEBUG("remove conn ability not exist");
+        HILOG_DEBUG("remove conn ability not exist.");
     }
 }
 
@@ -256,6 +256,7 @@ private:
         AsyncTask::CompleteCallback complete =
             [innerErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
                 if (*innerErrorCode == 0) {
+                    HILOG_ERROR("success to StartAbility");
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
                     task.Reject(engine, CreateJsErrorByNativeErr(engine, *innerErrorCode));
@@ -403,7 +404,7 @@ private:
                     return false;
                 }
             } else {
-                HILOG_ERROR("input param type invalid");
+                HILOG_ERROR("input parameter type invalid");
                 return false;
             }
         }
@@ -457,7 +458,7 @@ private:
             constexpr int callerTimeOut = 10; // 10s
             std::unique_lock<std::mutex> lock(calldata->mutexlock);
             if (calldata->remoteCallee != nullptr) {
-                HILOG_INFO("OnStartAbilityByCall callExecute callee isn`t nullptr");
+                HILOG_INFO("OnStartAbilityByCall callExecute callee isn`t null");
                 return;
             }
 
@@ -465,7 +466,7 @@ private:
                 HILOG_ERROR("OnStartAbilityByCall callExecute waiting callee timeout");
                 calldata->err = -1;
             }
-            HILOG_DEBUG("OnStartAbilityByCall callExecute end");
+            HILOG_DEBUG("OnStartAbilityByCall callExecute exit");
         };
         return callExecute;
     }
@@ -545,6 +546,7 @@ private:
         AsyncTask::CompleteCallback complete =
             [innerErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
                 if (*innerErrorCode == 0) {
+                    HILOG_ERROR("StartAbility is success");
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
                     task.Reject(engine, CreateJsErrorByNativeErr(engine, *innerErrorCode));
@@ -628,7 +630,7 @@ private:
         HILOG_DEBUG("ConnectAbility called.");
         // Check params count
         if (info.argc < ARGC_TWO) {
-            HILOG_ERROR("Connect ability failed, not enough params.");
+            HILOG_ERROR("Connect ability error, not enough params.");
             ThrowTooFewParametersError(engine);
             return engine.CreateUndefined();
         }
@@ -949,6 +951,7 @@ private:
         int32_t accountId = -1;
         if (!CheckWantParam(engine, info.argv[INDEX_ZERO], want) ||
             !CheckAccountIdParam(engine, info.argv[INDEX_ONE], accountId)) {
+            HILOG_DEBUG("Failed, input param type invalid");
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();
         }
@@ -1101,7 +1104,7 @@ void JSServiceExtensionConnection::OnAbilityConnectDone(const AppExecFwk::Elemen
 void JSServiceExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::ElementName &element,
     const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
-    HILOG_INFO("HandleOnAbilityConnectDone, resultCode:%{public}d", resultCode);
+    HILOG_INFO("HandleOnAbilityConnectDone begin, resultCode:%{public}d", resultCode);
     // wrap ElementName
     napi_value napiElementName = OHOS::AppExecFwk::WrapElementName(reinterpret_cast<napi_env>(&engine_), element);
     NativeValue* nativeElementName = reinterpret_cast<NativeValue*>(napiElementName);
@@ -1112,13 +1115,13 @@ void JSServiceExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::
     NativeValue* nativeRemoteObject = reinterpret_cast<NativeValue*>(napiRemoteObject);
     NativeValue* argv[] = {nativeElementName, nativeRemoteObject};
     if (jsConnectionObject_ == nullptr) {
-        HILOG_ERROR("jsConnectionObject_ nullptr");
+        HILOG_ERROR("jsConnectionObject_ nullptr.");
         return;
     }
     NativeValue* value = jsConnectionObject_->Get();
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
-        HILOG_ERROR("Failed to get object");
+        HILOG_ERROR("error to get object");
         return;
     }
     NativeValue* methodOnConnect = obj->GetProperty("onConnect");

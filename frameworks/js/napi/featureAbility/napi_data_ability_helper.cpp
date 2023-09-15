@@ -1202,7 +1202,7 @@ napi_value NAPI_GetType(napi_env env, napi_callback_info info)
 
 napi_value GetTypeWrap(napi_env env, napi_callback_info info, DAHelperGetTypeCB *gettypeCB)
 {
-    HILOG_INFO("%{public}s,called", __func__);
+    HILOG_INFO("%{public}s,start", __func__);
     size_t argcAsync = ARGS_TWO;
     const size_t argcPromise = ARGS_ONE;
     const size_t argCountWithAsync = argcPromise + ARGS_ASYNC_COUNT;
@@ -1212,7 +1212,7 @@ napi_value GetTypeWrap(napi_env env, napi_callback_info info, DAHelperGetTypeCB 
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, error argument count.", __func__);
         return nullptr;
     }
 
@@ -1580,7 +1580,7 @@ napi_value NAPI_NormalizeUri(napi_env env, napi_callback_info info)
 
 napi_value NormalizeUriWrap(napi_env env, napi_callback_info info, DAHelperNormalizeUriCB *normalizeuriCB)
 {
-    HILOG_INFO("%{public}s,called", __func__);
+    HILOG_INFO("%{public}s,begin", __func__);
     size_t argcAsync = ARGS_TWO;
     const size_t argcPromise = ARGS_ONE;
     const size_t argCountWithAsync = argcPromise + ARGS_ASYNC_COUNT;
@@ -1590,7 +1590,7 @@ napi_value NormalizeUriWrap(napi_env env, napi_callback_info info, DAHelperNorma
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, Error argument count.", __func__);
         return nullptr;
     }
 
@@ -2431,6 +2431,7 @@ void CallExecuteCB(napi_env env, void *data)
 
 static std::string ExcludeTag(const std::string& jsonString, const std::string& tagString)
 {
+    HILOG_DEBUG("enter");
     size_t pos = jsonString.find(tagString);
     if (pos == std::string::npos) {
         return jsonString;
@@ -2450,6 +2451,7 @@ static std::string ExcludeTag(const std::string& jsonString, const std::string& 
     if (valuePos >= valueString.size()) {
         return "";
     }
+    HILOG_DEBUG("exit");
     valueString = valueString.substr(valuePos);
     return valueString.substr(0, valueString.size() - 1);
 }

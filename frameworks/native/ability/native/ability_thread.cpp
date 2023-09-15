@@ -1256,7 +1256,7 @@ bool AbilityThread::HandleRegisterObserver(const Uri &uri, const sptr<AAFwk::IDa
 {
     auto obsMgrClient = DataObsMgrClient::GetInstance();
     if (obsMgrClient == nullptr) {
-        HILOG_ERROR("%{public}s obsMgrClient is nullptr", __func__);
+        HILOG_ERROR("%{public}s obsMgrClient is null", __func__);
         return false;
     }
 
@@ -1272,7 +1272,7 @@ bool AbilityThread::HandleUnregisterObserver(const Uri &uri, const sptr<AAFwk::I
 {
     auto obsMgrClient = DataObsMgrClient::GetInstance();
     if (obsMgrClient == nullptr) {
-        HILOG_ERROR("%{public}s obsMgrClient is nullptr", __func__);
+        HILOG_ERROR("%{public}s obsMgrClient is nullptr.", __func__);
         return false;
     }
 
@@ -1288,13 +1288,13 @@ bool AbilityThread::HandleNotifyChange(const Uri &uri)
 {
     auto obsMgrClient = DataObsMgrClient::GetInstance();
     if (obsMgrClient == nullptr) {
-        HILOG_ERROR("%{public}s obsMgrClient is nullptr", __func__);
+        HILOG_ERROR("%{public}s obsMgrClient is null.", __func__);
         return false;
     }
 
     ErrCode ret = obsMgrClient->NotifyChange(uri);
     if (ret != ERR_OK) {
-        HILOG_ERROR("%{public}s obsMgrClient->NotifyChange error return %{public}d", __func__, ret);
+        HILOG_ERROR("%{public}s obsMgrClient->NotifyChange fail return %{public}d", __func__, ret);
         return false;
     }
     return true;

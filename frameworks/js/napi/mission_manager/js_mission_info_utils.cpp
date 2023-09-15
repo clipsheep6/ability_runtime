@@ -49,6 +49,7 @@ NativeValue* CreateJsMissionInfo(NativeEngine &engine, const AAFwk::MissionInfo 
 
 NativeValue* CreateJsWant(NativeEngine &engine, const AAFwk::Want &want)
 {
+    HILOG_DEBUG("enter");
     NativeValue* objValue = engine.CreateObject();
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
     object->SetProperty("deviceId", CreateJsValue(engine, want.GetElement().GetDeviceID()));
@@ -60,11 +61,13 @@ NativeValue* CreateJsWant(NativeEngine &engine, const AAFwk::Want &want)
     object->SetProperty("action", CreateJsValue(engine, want.GetAction()));
     object->SetProperty("parameters", CreateJsWantParams(engine, want.GetParams()));
     object->SetProperty("entities", CreateNativeArray(engine, want.GetEntities()));
+    HILOG_DEBUG("end");
     return objValue;
 }
 
 NativeValue* CreateJsWantParams(NativeEngine &engine, const AAFwk::WantParams &wantParams)
 {
+    HILOG_DEBUG("enter");
     NativeValue* objValue = engine.CreateObject();
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
     const std::map<std::string, sptr<AAFwk::IInterface>> paramList = wantParams.GetParams();
@@ -106,23 +109,27 @@ NativeValue* CreateJsWantParams(NativeEngine &engine, const AAFwk::WantParams &w
             InnerWrapJsWantParamsWantParams(engine, object, iter->first, wantParams);
         }
     }
+    HILOG_DEBUG("end");
     return objValue;
 }
 
 NativeValue* CreateJsMissionInfoArray(NativeEngine &engine, const std::vector<AAFwk::MissionInfo> &missionInfos)
 {
+    HILOG_DEBUG("enter");
     NativeValue* arrayValue = engine.CreateArray(missionInfos.size());
     NativeArray* array = ConvertNativeValueTo<NativeArray>(arrayValue);
     uint32_t index = 0;
     for (const auto &missionInfo : missionInfos) {
         array->SetElement(index++, CreateJsMissionInfo(engine, missionInfo));
     }
+    HILOG_DEBUG("end");
     return arrayValue;
 }
 
 bool InnerWrapJsWantParamsWantParams(
     NativeEngine &engine, NativeObject* object, const std::string &key, const AAFwk::WantParams &wantParams)
 {
+    HILOG_DEBUG("enter");
     auto value = wantParams.GetParam(key);
     AAFwk::IWantParams *o = AAFwk::IWantParams::Query(value);
     if (o != nullptr) {
@@ -130,12 +137,13 @@ bool InnerWrapJsWantParamsWantParams(
         object->SetProperty(key.c_str(), CreateJsWantParams(engine, wp));
         return true;
     }
+    HILOG_DEBUG("end");
     return false;
 }
 
 bool WrapJsWantParamsArray(NativeEngine &engine, NativeObject* object, const std::string &key, sptr<AAFwk::IArray> &ao)
 {
-    HILOG_INFO("%{public}s called. key=%{public}s", __func__, key.c_str());
+    HILOG_INFO("%{public}s start. key=%{public}s", __func__, key.c_str());
     if (AAFwk::Array::IsStringArray(ao)) {
         return InnerWrapWantParamsArray<AAFwk::IString, AAFwk::String, std::string>(
             engine, object, key, ao);

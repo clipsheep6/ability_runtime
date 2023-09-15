@@ -65,13 +65,13 @@ void RemoveConnection(int64_t connectId)
         return connectId == obj.first.id;
     });
     if (item != g_connects.end()) {
-        HILOG_DEBUG("remove conn ability exist");
+        HILOG_DEBUG("remove connection ability exist.");
         if (item->second) {
             item->second->RemoveConnectionObject();
         }
         g_connects.erase(item);
     } else {
-        HILOG_DEBUG("remove conn ability not exist");
+        HILOG_DEBUG("remove connection ability not exist");
     }
 }
 }
@@ -233,7 +233,7 @@ NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallba
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
 
     if (info.argc == ARGC_ZERO) {
-        HILOG_ERROR("Not enough params");
+        HILOG_ERROR("Not enough arguments");
         ThrowTooFewParametersError(engine);
         return engine.CreateUndefined();
     }
@@ -1372,7 +1372,7 @@ void JsAbilityContext::AddFreeInstallObserver(NativeEngine& engine, const AAFwk:
     }
 
     if (ret != ERR_OK) {
-        HILOG_ERROR("AddFreeInstallObserver failed.");
+        HILOG_ERROR("AddFreeInstallObserver error.");
     } else {
         HILOG_INFO("AddJsObserverObject");
         // build a callback observer with last param

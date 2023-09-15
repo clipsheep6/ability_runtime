@@ -1016,9 +1016,9 @@ void NAPIRemoteMissionListener::SetNotifyNetDisconnectCBRef(const napi_ref &ref)
 
 void UvWorkNotifyMissionChanged(uv_work_t *work, int status)
 {
-    HILOG_INFO("UvWorkNotifyMissionChanged, uv_queue_work");
+    HILOG_INFO("UvWorkNotifyMissionChanged start, uv_queue_work");
     if (work == nullptr) {
-        HILOG_ERROR("UvWorkNotifyMissionChanged, work is null");
+        HILOG_ERROR("UvWorkNotifyMissionChanged, work is nullptr");
         return;
     }
     RegisterMissionCB *registerMissionCB = static_cast<RegisterMissionCB *>(work->data);
@@ -1170,12 +1170,12 @@ void NAPIRemoteOnListener::OnCallback(const uint32_t continueState, const std::s
         onCB = nullptr;
         delete work;
     }
-    HILOG_INFO("%{public}s, end.", __func__);
+    HILOG_INFO("%{public}s, OnCallback end.", __func__);
 }
 
 void UvWorkNotifySnapshot(uv_work_t *work, int status)
 {
-    HILOG_INFO("UvWorkNotifySnapshot, uv_queue_work");
+    HILOG_INFO("UvWorkNotifySnapshot enter, uv_queue_work");
     if (work == nullptr) {
         HILOG_ERROR("UvWorkNotifySnapshot, work is null");
         return;
@@ -1252,14 +1252,14 @@ void NAPIRemoteMissionListener::NotifySnapshot(const std::string &deviceId, int3
         registerMissionCB = nullptr;
         delete work;
     }
-    HILOG_INFO("%{public}s, end.", __func__);
+    HILOG_INFO("%{public}s, NotifySnapshot end.", __func__);
 }
 
 void UvWorkNotifyNetDisconnect(uv_work_t *work, int status)
 {
-    HILOG_INFO("UvWorkNotifyNetDisconnect, uv_queue_work");
+    HILOG_INFO("UvWorkNotifyNetDisconnect begin, uv_queue_work");
     if (work == nullptr) {
-        HILOG_ERROR("UvWorkNotifyNetDisconnect, work is null");
+        HILOG_ERROR("UvWorkNotifyNetDisconnect, work is null.");
         return;
     }
     RegisterMissionCB *registerMissionCB = static_cast<RegisterMissionCB *>(work->data);
