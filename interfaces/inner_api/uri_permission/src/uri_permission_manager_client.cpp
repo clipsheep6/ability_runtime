@@ -33,13 +33,13 @@ UriPermissionManagerClient& UriPermissionManagerClient::GetInstance()
     return instance;
 }
 
-int UriPermissionManagerClient::GrantUriPermission(const Uri &uri, unsigned int flag,
+int UriPermissionManagerClient::GrantUriPermission(const std::vector<Uri> &uriList, unsigned int flag,
     const std::string targetBundleName, int autoremove, int32_t appIndex)
 {
     HILOG_DEBUG("targetBundleName :%{public}s", targetBundleName.c_str());
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
-        return uriPermMgr->GrantUriPermission(uri, flag, targetBundleName, autoremove, appIndex);
+        return uriPermMgr->GrantUriPermission(uriList, flag, targetBundleName, autoremove, appIndex);
     }
     
     return INNER_ERR;

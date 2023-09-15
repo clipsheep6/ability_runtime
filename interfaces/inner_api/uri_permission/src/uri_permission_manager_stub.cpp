@@ -78,7 +78,8 @@ int UriPermissionManagerStub::HandleGrantUriPermission(MessageParcel &data, Mess
     auto targetBundleName = data.ReadString();
     auto autoremove = data.ReadInt32();
     auto appIndex = data.ReadInt32();
-    int result = GrantUriPermission(*uri, flag, targetBundleName, autoremove, appIndex);
+    std::vector<Uri> uriList(1, *uri);
+    int result = GrantUriPermission(uriList, flag, targetBundleName, autoremove, appIndex);
     reply.WriteInt32(result);
     return ERR_OK;
 }

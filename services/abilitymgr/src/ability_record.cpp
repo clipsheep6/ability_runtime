@@ -1551,7 +1551,8 @@ void AbilityRecord::SendSandboxSavefileResult(const Want &want, int resultCode, 
                 continue;
             }
             Uri uri(uriStr);
-            auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(uri,
+            std::vector<Uri> uriList(1, uri);
+            auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(uriList,
                 Want::FLAG_AUTH_WRITE_URI_PERMISSION, abilityInfo_.bundleName, 0, appIndex_));
             if (ret != ERR_OK) {
                 HILOG_WARN("GrantUriPermission failed");
@@ -2659,8 +2660,9 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
             flag &= (~Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION);
         }
         int autoremove = 1;
+        std::vector<Uri> uriList(1, uri);
         auto ret = IN_PROCESS_CALL(
-            AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, flag,
+            AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(uriList, flag,
                 targetBundleName, autoremove, appIndex_));
         if (ret == 0) {
             isGrantedUriPermission_ = true;
@@ -2700,8 +2702,9 @@ void AbilityRecord::GrantDmsUriPermission(Want &want, std::string targetBundleNa
             continue;
         }
         int autoremove = 1;
+        std::vector<Uri> uriList(1, uri);
         auto ret = IN_PROCESS_CALL(
-            AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, want.GetFlags(),
+            AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(uriList, want.GetFlags(),
                 targetBundleName, autoremove));
         if (ret == 0) {
             isGrantedUriPermission_ = true;

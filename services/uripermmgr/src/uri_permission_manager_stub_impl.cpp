@@ -252,7 +252,8 @@ int UriPermissionManagerStubImpl::GrantUriPermissionImpl(const Uri &uri, unsigne
         return INNER_ERR;
     }
     auto uriStr = uri.ToString();
-    auto ret = storageManager_->CreateShareFile(uriStr, targetTokenId, flag);
+    std::vector<std::string> uriList(1, uriStr);
+    auto ret = storageManager_->CreateShareFile(uriList, targetTokenId, flag);
     if (ret != 0 && ret != -EEXIST) {
         HILOG_ERROR("failed to CreateShareFile.");
         return INNER_ERR;

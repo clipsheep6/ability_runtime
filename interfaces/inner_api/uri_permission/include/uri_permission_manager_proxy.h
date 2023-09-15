@@ -26,7 +26,7 @@ public:
     explicit UriPermissionManagerProxy(const sptr<IRemoteObject> &impl);
     virtual ~UriPermissionManagerProxy() = default;
 
-    virtual int GrantUriPermission(const Uri &uri, unsigned int flag,
+    virtual int GrantUriPermission(const std::vector<Uri> &uriList, unsigned int flag,
         const std::string targetBundleName, int autoremove, int32_t appIndex = 0) override;
 
     virtual void RevokeUriPermission(const Security::AccessToken::AccessTokenID tokenId) override;
