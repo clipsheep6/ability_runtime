@@ -103,7 +103,7 @@ ErrCode FormExtensionContext::DisconnectAbility(
 {
     HILOG_INFO("Call");
     ErrCode ret =
-        ConnectionManager::GetInstance().DisconnectAbility(token_, want.GetElement(), connectCallback);
+        ConnectionManager::GetInstance().DisconnectAbility(token_, want, connectCallback);
     if (ret != ERR_OK) {
         HILOG_ERROR("DisconnectAbility error, ret=%{public}d", ret);
     }

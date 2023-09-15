@@ -183,7 +183,7 @@ ErrCode ServiceExtensionContext::DisconnectAbility(
 {
     HILOG_INFO("%{public}s begin.", __func__);
     ErrCode ret =
-        ConnectionManager::GetInstance().DisconnectAbility(token_, want.GetElement(), connectCallback);
+        ConnectionManager::GetInstance().DisconnectAbility(token_, want, connectCallback);
     if (ret != ERR_OK) {
         HILOG_ERROR("%{public}s end DisconnectAbility error, ret=%{public}d", __func__, ret);
     }

@@ -367,7 +367,7 @@ void AbilityContextImpl::DisconnectAbility(const AAFwk::Want& want,
     HILOG_DEBUG("DisconnectAbility begin, caller:%{public}s.",
         abilityInfo_ == nullptr ? "" : abilityInfo_->name.c_str());
     ErrCode ret =
-        ConnectionManager::GetInstance().DisconnectAbility(token_, want.GetElement(), connectCallback);
+        ConnectionManager::GetInstance().DisconnectAbility(token_, want, connectCallback);
     if (ret != ERR_OK) {
         HILOG_ERROR("error, ret=%{public}d", ret);
     }

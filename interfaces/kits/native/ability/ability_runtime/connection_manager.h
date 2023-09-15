@@ -121,6 +121,17 @@ public:
         const AppExecFwk::ElementName &connectReceiver, const sptr<AbilityConnectCallback> &connectCallback);
 
     /**
+     * @brief disconnect ability connection.
+     *
+     * @param connectCaller The connection caller.
+     * @param connectReceiver The connection receiver.
+     * @param connectCallback The connection callback.
+     * @return Returns the result of disconnecting ability connection.
+     */
+    ErrCode DisconnectAbility(const sptr<IRemoteObject> &connectCaller,
+        const AAFwk::Want &connectReceiver, const sptr<AbilityConnectCallback> &connectCallback);
+
+    /**
      * @brief check the ability connection of caller is disconnect.
      *
      * @param connectCaller The connection caller.

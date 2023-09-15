@@ -130,20 +130,26 @@ ErrCode ConnectionManager::CreateConnection(const sptr<IRemoteObject>& connectCa
 ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject>& connectCaller,
     const AppExecFwk::ElementName& connectReceiver, const sptr<AbilityConnectCallback>& connectCallback)
 {
+    AAFwk::Want wantReceiver;
+    wantReceiver.SetElement(connectReceiver);
+    return DisconnectAbility(connectCaller, wantReceiver, connectCallback);
+}
+
+ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject>& connectCaller,
+    const AAFwk::Want& connectReceiver, const sptr<AbilityConnectCallback>& connectCallback)
+{
     if (connectCaller == nullptr || connectCallback == nullptr) {
         HILOG_ERROR("connectCaller or connectCallback is nullptr.");
         return AAFwk::ERR_INVALID_CALLER;
     }
 
+    auto element = connectReceiver.GetElement();
     HILOG_DEBUG("connectReceiver: %{public}s.",
-        (connectReceiver.GetBundleName() + ":" + connectReceiver.GetAbilityName()).c_str());
+        (element.GetBundleName() + ":" + element.GetAbilityName()).c_str());
     std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
     auto item = std::find_if(abilityConnections_.begin(), abilityConnections_.end(),
-        [&connectCaller, &connectReceiver](
-            const std::map<ConnectionInfo, std::vector<sptr<AbilityConnectCallback>>>::value_type& obj) {
-                return connectCaller == obj.first.connectCaller &&
-                    connectReceiver.GetBundleName() == obj.first.connectReceiver.GetBundleName() &&
-                    connectReceiver.GetAbilityName() == obj.first.connectReceiver.GetAbilityName();
+        [&connectCaller, &connectReceiver, this](const auto& obj) {
+                return MatchConnection(connectCaller, connectReceiver, obj);
         });
     if (item != abilityConnections_.end()) {
         HILOG_DEBUG("remove callback, Size:%{public}zu.", item->second.size());
@@ -165,7 +171,7 @@ ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject>& connectC
             HILOG_DEBUG("no callback left, so disconnectAbility.");
             return AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(abilityConnection);
         } else {
-            connectCallback->OnAbilityDisconnectDone(connectReceiver, ERR_OK);
+            connectCallback->OnAbilityDisconnectDone(element, ERR_OK);
             abilityConnection->RemoveConnectCallback(connectCallback);
             HILOG_DEBUG("callbacks is not empty, do not need disconnectAbility.");
             return ERR_OK;
