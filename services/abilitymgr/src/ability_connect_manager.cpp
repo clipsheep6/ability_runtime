@@ -38,6 +38,8 @@ constexpr char EVENT_KEY_PID[] = "PID";
 constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
+const std::string BUNDLE_NAME_DIALOG = "com.ohos.amsdialog";
+const std::string ABILITY_NAME_DIALOG = "SwitchUserDialog";
 #ifdef SUPPORT_ASAN
 const int LOAD_TIMEOUT_MULTIPLE = 150;
 const int CONNECT_TIMEOUT_MULTIPLE = 45;
@@ -48,8 +50,6 @@ const int LOAD_TIMEOUT_MULTIPLE = 10;
 const int CONNECT_TIMEOUT_MULTIPLE = 3;
 const int COMMAND_TIMEOUT_MULTIPLE = 5;
 const int COMMAND_WINDOW_TIMEOUT_MULTIPLE = 5;
-const std::string BUNDLE_NAME_DIALOG = "com.ohos.amsdialog";
-const std::string ABILITY_NAME_DIALOG = "SwitchUserDialog";
 #endif
 }
 
