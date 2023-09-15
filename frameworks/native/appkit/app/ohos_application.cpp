@@ -176,6 +176,15 @@ void OHOSApplication::SetApplicationContext(
         return;
     }
     abilityRuntimeContext_ = abilityRuntimeContext;
+    auto application = std::static_pointer_cast<OHOSApplication>(shared_from_this());
+    std::weak_ptr<OHOSApplication> applicationWptr = application;
+    abilityRuntimeContext_->RegisterAppConfigUpdateObserver([applicationWptr](const Configuration &config) {
+        std::shared_ptr<OHOSApplication> applicationSptr = applicationWptr.lock();
+        if (applicationSptr == nullptr) {
+            return;
+        }
+        applicationSptr->OnConfigurationUpdated(config);
+    });
 }
 
 /**
@@ -405,11 +414,34 @@ void OHOSApplication::OnConfigurationUpdated(const Configuration &config)
         HILOG_DEBUG("abilityRecordMgr_ or configuration_ is null");
         return;
     }
-
-    // Update own object configuration_
+    std::string language = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
+    std::string colorMode = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
+    std::string languageIsSetByApp = config.GetItem(AAFwk::GlobalConfigurationKey::LANGUAGE_IS_SET_BY_APP);
+    std::string colorModeIsSetByApp = config.GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP);
+    std::string globalColorMode = configuration_->GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
+    std::string globalLanguageIsSetByApp = configuration_->GetItem(AAFwk::GlobalConfigurationKey::LANGUAGE_IS_SET_BY_APP);
+    std::string globalColorModeIsSetByApp = configuration_->GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP);
+    if (colorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) == 0) {
+        HILOG_DEBUG("colorMode is auto");
+        configuration_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, ConfigurationInner::COLOR_MODE_AUTO);
+        return;
+    }
+    if (!colorMode.empty() && colorModeIsSetByApp.empty()) {
+        if (!globalColorModeIsSetByApp.empty() && globalColorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) != 0) {
+            HILOG_DEBUG("colormode has been set by app");
+            return;
+        }
+    }
+    if (!language.empty() && languageIsSetByApp.empty() && !globalLanguageIsSetByApp.empty()) {
+        HILOG_DEBUG("language has been set by app");
+        return;
+    }
     std::vector<std::string> changeKeyV;
     configuration_->CompareDifferent(changeKeyV, config);
     configuration_->Merge(changeKeyV, config);
+    if (globalColorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) == 0 && colorModeIsSetByApp.empty()) {
+        configuration_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, ConfigurationInner::COLOR_MODE_AUTO);
+    }
 
     // Notify all abilities
     HILOG_INFO(

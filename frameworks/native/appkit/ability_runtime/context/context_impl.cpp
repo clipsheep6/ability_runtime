@@ -357,7 +357,7 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
         }
         appContext->InitHapModuleInfo(*info);
     }
-    
+
     appContext->SetConfiguration(config_);
     InitResourceManager(bundleInfo, appContext, GetBundleName() == bundleName, moduleName);
     appContext->SetApplicationInfo(std::make_shared<AppExecFwk::ApplicationInfo>(bundleInfo.applicationInfo));
@@ -902,7 +902,7 @@ void ContextImpl::OnOverlayChanged(const EventFwk::CommonEventData &data,
     if (res != ERR_OK) {
         return;
     }
-    
+
     // 2.add/remove overlay hapPath
     if (loadPath.empty() || overlayModuleInfos.size() == 0) {
         HILOG_WARN("There is not any hapPath in overlayModuleInfo");

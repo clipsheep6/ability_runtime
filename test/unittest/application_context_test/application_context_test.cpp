@@ -21,6 +21,7 @@
 #include "mock_application_state_change_callback.h"
 #include "mock_context_impl.h"
 #include "running_process_info.h"
+#include "configuration_convertor.h"
 using namespace testing::ext;
 
 namespace OHOS {
@@ -920,6 +921,34 @@ HWTEST_F(ApplicationContextTest, SetApplicationInfo_0100, TestSize.Level1)
     std::shared_ptr<AppExecFwk::ApplicationInfo> info = nullptr;
     context_->SetApplicationInfo(info);
     GTEST_LOG_(INFO) << "SetApplicationInfo_0100 end";
+}
+
+/**
+ * @tc.number: SetColorMode_0100
+ * @tc.name: SetColorMode
+ * @tc.desc: SetColorMode
+ */
+HWTEST_F(ApplicationContextTest, SetColorMode_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "SetColorMode_0100 start";
+    EXPECT_NE(context_, nullptr);
+    int32_t colorMode = 1;
+    context_->SetColorMode(colorMode);
+    GTEST_LOG_(INFO) << "SetColorMode_0100 end";
+}
+
+/**
+ * @tc.number: SetLanguage_0100
+ * @tc.name: SetLanguage
+ * @tc.desc: SetLanguage
+ */
+HWTEST_F(ApplicationContextTest, SetLanguage_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "SetLanguage_0100 start";
+    EXPECT_NE(context_, nullptr);
+    std::string language = "zh-cn";
+    context_->SetLanguage(language);
+    GTEST_LOG_(INFO) << "SetLanguage_0100 end";
 }
 
 /**

@@ -36,8 +36,7 @@ class ApplicationImpl;
 class Configuration;
 class AbilityRecordMgr;
 class OHOSApplication : public AppContext,
-                        public AbilityLifecycleCallbacks,
-                        public std::enable_shared_from_this<OHOSApplication> {
+                        public AbilityLifecycleCallbacks {
 public:
     OHOSApplication();
     virtual ~OHOSApplication();

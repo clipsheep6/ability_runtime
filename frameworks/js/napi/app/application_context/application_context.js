@@ -141,6 +141,14 @@ class ApplicationContext {
     return this.__context_impl__.getProcessRunningInformation(callback);
   }
 
+  setColorMode(colorMode) {
+    return this.__context_impl__.setColorMode(colorMode);
+  }
+
+  setLanguage(language) {
+    return this.__context_impl__.setLanguage(language);
+  }
+
   set area(mode) {
     return this.__context_impl__.switchArea(mode);
   }

@@ -24,9 +24,9 @@
 #include "context.h"
 #include "context_impl.h"
 #include "environment_callback.h"
-
 namespace OHOS {
 namespace AbilityRuntime {
+using AppConfigUpdateCallback = std::function<void(const AppExecFwk::Configuration &config)>;
 class ApplicationContext : public Context {
 public:
     ApplicationContext() = default;
@@ -79,6 +79,8 @@ public:
     sptr<IRemoteObject> GetToken() override;
     void SetToken(const sptr<IRemoteObject> &token) override;
     void SwitchArea(int mode) override;
+    void SetColorMode(int32_t colorMode);
+    void SetLanguage(const std::string &language);
     int GetArea() override;
     std::shared_ptr<AppExecFwk::Configuration> GetConfiguration() const override;
     std::string GetBaseDir() const override;
@@ -95,6 +97,7 @@ public:
 
     bool GetApplicationInfoUpdateFlag() const;
     void SetApplicationInfoUpdateFlag(bool flag);
+    void RegisterAppConfigUpdateObserver(AppConfigUpdateCallback appConfigChangeCallback);
 
 private:
     std::shared_ptr<ContextImpl> contextImpl_;
@@ -103,6 +106,7 @@ private:
     static std::weak_ptr<ApplicationStateChangeCallback> applicationStateCallback_;
     std::mutex callbackLock_;
     bool applicationInfoUpdateFlag_ = false;
+    AppConfigUpdateCallback appConfigChangeCallback_ = nullptr;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

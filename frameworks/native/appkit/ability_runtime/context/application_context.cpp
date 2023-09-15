@@ -17,6 +17,7 @@
 
 #include <algorithm>
 
+#include "configuration_convertor.h"
 #include "hilog_wrapper.h"
 #include "running_process_info.h"
 
@@ -421,6 +422,35 @@ void ApplicationContext::SwitchArea(int mode)
     }
 }
 
+void ApplicationContext::SetColorMode(int32_t colorMode)
+{
+    HILOG_DEBUG("colorMode:%{public}d.", colorMode);
+    if (colorMode < -1 || colorMode > 1) {
+        HILOG_ERROR("colorMode is invalid.");
+        return;
+    }
+    AppExecFwk::Configuration config;
+    config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, AppExecFwk::GetColorModeStr(colorMode));
+    config.AddItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP,
+        AppExecFwk::ConfigurationInner::IS_SET_BY_APP);
+    if (appConfigChangeCallback_ != nullptr) {
+        appConfigChangeCallback_(config);
+    }
+}
+
+void ApplicationContext::SetLanguage(const std::string &language)
+{
+    HILOG_DEBUG("language:%{public}s.", language.c_str());
+    AppExecFwk::Configuration config;
+    config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, language);
+    config.AddItem(AAFwk::GlobalConfigurationKey::LANGUAGE_IS_SET_BY_APP,
+        AppExecFwk::ConfigurationInner::IS_SET_BY_APP);
+    if (appConfigChangeCallback_ != nullptr) {
+        appConfigChangeCallback_(config);
+    }
+}
+
+
 int ApplicationContext::GetArea()
 {
     if (contextImpl_ == nullptr) {
@@ -443,6 +473,11 @@ std::string ApplicationContext::GetBaseDir() const
 Global::Resource::DeviceType ApplicationContext::GetDeviceType() const
 {
     return (contextImpl_ != nullptr) ? contextImpl_->GetDeviceType() : Global::Resource::DeviceType::DEVICE_PHONE;
+}
+
+void ApplicationContext::RegisterAppConfigUpdateObserver(AppConfigUpdateCallback appConfigChangeCallback)
+{
+    appConfigChangeCallback_ = appConfigChangeCallback;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

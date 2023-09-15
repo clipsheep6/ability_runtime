@@ -135,6 +135,20 @@ public:
     void SwitchArea(int mode) override;
 
     /**
+     * @brief Set color mode
+     *
+     * @param colorMode color mode.
+     */
+    void SetColorMode(int colorMode);
+
+    /**
+     * @brief Set color mode
+     *
+     * @param colorMode color mode.
+     */
+    void SetLanguage(std::string language);
+
+    /**
      * @brief Creates a Context object for a hap with the given module name.
      *
      * @param moduleName Indicates the module name of the hap.
@@ -340,7 +354,7 @@ private:
     void OnOverlayChanged(const EventFwk::CommonEventData &data,
         const std::shared_ptr<Global::Resource::ResourceManager> &resourceManager, const std::string &bundleName,
         const std::string &moduleName, const std::string &loadPath);
-    
+
     std::vector<std::string> GetAddOverlayPaths(
         const std::vector<AppExecFwk::OverlayModuleInfo> &overlayModuleInfos);
 

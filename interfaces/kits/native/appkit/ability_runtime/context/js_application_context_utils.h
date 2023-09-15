@@ -84,6 +84,8 @@ public:
     NativeValue* OnGetBundleCodeDir(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnKillProcessBySelf(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnGetRunningProcessInformation(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnSetColorMode(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnSetLanguage(NativeEngine &engine, NativeCallbackInfo &info);
 
     static NativeValue* GetCacheDir(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* GetTempDir(NativeEngine *engine, NativeCallbackInfo *info);
@@ -95,6 +97,8 @@ public:
     static NativeValue* GetBundleCodeDir(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* GetApplicationContext(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* KillProcessBySelf(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* SetColorMode(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* SetLanguage(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* GetRunningProcessInformation(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* CreateJsApplicationContext(NativeEngine &engine);
 
