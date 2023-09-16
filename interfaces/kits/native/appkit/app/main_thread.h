@@ -269,6 +269,15 @@ public:
 
     int32_t ScheduleNotifyAppFault(const FaultData &faultData) override;
 
+    /**
+     * @brief Notify NativeEngine GC of status change.
+     *
+     * @param state GC state
+     *
+     * @return Is the status change completed.
+     */
+    int32_t ScheduleOnGcStateChange(int32_t state) override;
+
 private:
     /**
      *
@@ -522,6 +531,8 @@ private:
     std::vector<std::string> GetAddOverlayPaths(const std::vector<OverlayModuleInfo> &overlayModuleInfos);
 
     std::vector<std::string> GetRemoveOverlayPaths(const std::vector<OverlayModuleInfo> &overlayModuleInfos);
+
+    int32_t OnGcStateChange(int32_t state);
 
     class MainHandler : public EventHandler {
     public:

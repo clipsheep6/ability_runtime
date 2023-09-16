@@ -448,6 +448,9 @@ public:
 
     void AllowCrossThreadExecution() const override
     {}
+
+    void NotifyForceExpandState(int32_t value) override
+    {}
 };
 
 #endif /* MOCK_JS_NATIVE_ENGINE_H */

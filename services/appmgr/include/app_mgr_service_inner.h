@@ -717,6 +717,16 @@ public:
      * @return
      */
     void FreeFocusListener();
+
+    /**
+     * @brief Notify NativeEngine GC of status change.
+     *
+     * @param state GC state
+     * @param pid pid
+     *
+     * @return Is the status change completed.
+     */
+    int32_t OnGcStateChange(pid_t pid, int32_t state);
 private:
 
     std::string FaultTypeToString(FaultDataType type);

@@ -174,6 +174,8 @@ public:
 
     int32_t ScheduleNotifyAppFault(const FaultData &faultData) override;
 
+    virtual int32_t ScheduleOnGcStateChange(int32_t state) override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     void ScheduleMemoryCommon(const int32_t level, const uint32_t operation);

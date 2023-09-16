@@ -462,6 +462,15 @@ public:
      */
     void SetAbilityForegroundingFlagToAppRecord(const pid_t pid) const;
 
+    /**
+     * @brief Notify NativeEngine GC of status change.
+     *
+     * @param state GC state
+     * @param pid pid
+     * @return Is the status change completed..
+     */
+    int32_t OnGcStateChange(pid_t pid, int32_t state);
+
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);
     /**

@@ -1618,5 +1618,15 @@ ProcessType AppRunningRecord::GetProcessType() const
 {
     return processType_;
 }
+
+int32_t AppRunningRecord::OnGcStateChange(const int32_t state)
+{
+    HILOG_DEBUG("called.");
+    if (appLifeCycleDeal_ == nullptr) {
+        HILOG_ERROR("appLifeCycleDeal_ is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    return appLifeCycleDeal_->OnGcStateChange(state);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
