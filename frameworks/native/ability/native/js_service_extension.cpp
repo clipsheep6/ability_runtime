@@ -543,8 +543,8 @@ bool JsServiceExtension::CallPromise(NativeValue *result, AppExecFwk::AbilityTra
         callbackInfo);
     NativeValue *argv[1] = { promiseCallback };
     nativeEngine.CallFunction(result, then, argv, 1);
-    return true;
     HILOG_DEBUG("end");
+    return true;
 }
 
 void JsServiceExtension::OnConfigurationUpdated(const AppExecFwk::Configuration& configuration)
