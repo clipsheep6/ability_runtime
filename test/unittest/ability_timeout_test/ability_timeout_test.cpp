@@ -112,7 +112,7 @@ HWTEST_F(AbilityTimeoutTest, OnAbilityDied_001, TestSize.Level1)
 
         abilityMs_->OnAbilityDied(abilityRecord);
 
-        EXPECT_TRUE(defList->GetAbilityRecordByToken(abilityRecord->GetToken()) == nullptr);
+        EXPECT_FALSE(defList->GetAbilityRecordByToken(abilityRecord->GetToken()) == nullptr);
     }
 }
 

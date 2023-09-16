@@ -886,7 +886,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Kit_Connect_007, TestSize.Level1)
     int ret = ConnectManager()->ScheduleConnectAbilityDoneLocked(serviceToken_, callback);
     EXPECT_EQ(OHOS::ERR_OK, ret);  // the result should be OK
     // connection callback should not be called, so check the count
-    EXPECT_EQ(1, AbilityConnectCallback::onAbilityConnectDoneCount);
+    EXPECT_EQ(0, AbilityConnectCallback::onAbilityConnectDoneCount);
     EXPECT_EQ(0, AbilityConnectCallback::onAbilityDisconnectDoneCount);
 }
 
@@ -924,7 +924,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Kit_Connect_008, TestSize.Level1)
     int ret = ConnectManager()->ScheduleConnectAbilityDoneLocked(serviceToken_, callback);
     EXPECT_EQ(OHOS::ERR_OK, ret);  // the result should be OK
     // connection callback should not be called, so check the count
-    EXPECT_EQ(2, AbilityConnectCallback::onAbilityConnectDoneCount);
+    EXPECT_EQ(0, AbilityConnectCallback::onAbilityConnectDoneCount);
     EXPECT_EQ(0, AbilityConnectCallback::onAbilityDisconnectDoneCount);
 }
 

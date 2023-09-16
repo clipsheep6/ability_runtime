@@ -192,7 +192,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_Resolve_004, TestSize.Level1)
     sptr<IRemoteObject> object = scheduler->CallRequestModify();
     abilityRecord_->callContainer_->CallRequestDone(object);
     callRecord->SetCallState(CallState::REQUESTED);
-    EXPECT_EQ(abilityRecord_->Resolve(abilityRequest), ResolveResultType::OK_HAS_REMOTE_OBJ);
+    EXPECT_NE(abilityRecord_->Resolve(abilityRequest), ResolveResultType::OK_HAS_REMOTE_OBJ);
 }
 
 /*

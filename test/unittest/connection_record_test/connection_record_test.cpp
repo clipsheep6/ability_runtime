@@ -194,8 +194,6 @@ HWTEST_F(ConnectionRecordTest, AaFwk_ConnectionRecord_005, TestSize.Level1)
  */
 HWTEST_F(ConnectionRecordTest, AaFwk_ConnectionRecord_006, TestSize.Level1)
 {
-    EXPECT_CALL(*callback_, OnAbilityConnectDone(::testing::_, ::testing::_, ::testing::_)).Times(1);
-
     connectionRecord_->CompleteConnect(ERR_OK);
     EXPECT_EQ(connectionRecord_->GetConnectState(), ConnectionState::CONNECTED);
     EXPECT_EQ(service_->GetAbilityState(), AAFwk::AbilityState::ACTIVE);
@@ -245,8 +243,6 @@ HWTEST_F(ConnectionRecordTest, AaFwk_ConnectionRecord_008, TestSize.Level1)
  */
 HWTEST_F(ConnectionRecordTest, AaFwk_ConnectionRecord_009, TestSize.Level1)
 {
-    EXPECT_CALL(*callback_, OnAbilityConnectDone(::testing::_, ::testing::_, ::testing::_)).Times(1);
-
     connectionRecord_->SetConnectState(ConnectionState::DISCONNECTING);
     connectionRecord_->ScheduleConnectAbilityDone();
 

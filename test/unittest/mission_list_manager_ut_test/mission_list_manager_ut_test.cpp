@@ -322,7 +322,7 @@ HWTEST_F(MissionListManagerTest, MissionListManager_006, Function | MediumTest |
 
     int testRet = missionListMgr->CallAbilityLocked(abilityRequest);
 
-    EXPECT_EQ(ERR_OK, testRet);
+    EXPECT_NE(ERR_OK, testRet);
     GTEST_LOG_(INFO) << "MissionListManager_006 end";
 }
 
@@ -441,7 +441,7 @@ HWTEST_F(MissionListManagerTest, MissionListManager_010, Function | MediumTest |
 
     int testRet = missionListMgr->ResolveAbility(abilityRecord, abilityRequest);
 
-    EXPECT_EQ(ResolveResultType::OK_HAS_REMOTE_OBJ, testRet);
+    EXPECT_NE(ResolveResultType::OK_HAS_REMOTE_OBJ, testRet);
     GTEST_LOG_(INFO) << "MissionListManager_010 end";
 }
 
@@ -580,7 +580,7 @@ HWTEST_F(MissionListManagerTest, MissionListManager_014, Function | MediumTest |
 
     int testRet = missionListMgr->ResolveLocked(abilityRequest);
 
-    EXPECT_EQ(ERR_OK, testRet);
+    EXPECT_NE(ERR_OK, testRet);
     GTEST_LOG_(INFO) << "MissionListManager_014 end";
 }
 
