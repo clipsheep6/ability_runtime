@@ -46,6 +46,7 @@ public:
 private:
     void HandleUpdatedModuleInfo(const std::string &bundleName, int32_t uid);
     void HandleAppUpgradeCompleted(const std::string &bundleName, int32_t uid);
+    void HandleRemoveUriPermission(uint32_t tokenId);
 
     DISALLOW_COPY_AND_MOVE(AbilityBundleEventCallback);
     AbilityEventUtil abilityEventHelper_;
