@@ -21,6 +21,7 @@
 #include <sstream>
 #include <type_traits>
 
+#include "napi/native_api.h"
 #include "native_engine/native_engine.h"
 
 #include "js_runtime.h"
@@ -198,34 +199,6 @@ inline constexpr size_t ArraySize(T (&)[N]) noexcept
     return N;
 }
 
-template<class T>
-inline napi_value CreateJsValue(napi_env env, const T& value)
-{
-    using ValueType = std::remove_cv_t<std::remove_reference_t<T>>;
-    napi_value result = nullptr;
-    if constexpr (std::is_same_v<ValueType, bool>) {
-        napi_get_boolean(env, value, &result);
-    } else if constexpr (std::is_same_v<ValueType, int32_t>) {
-        napi_create_int32(env, value, &result);
-    } else if constexpr (std::is_same_v<ValueType, uint32_t>) {
-        napi_create_uint32(env, value, &result);
-    } else if constexpr (std::is_same_v<ValueType, int64_t>) {
-        napi_create_int64(env, value, &result);
-    } else if constexpr (std::is_same_v<ValueType, double>) {
-        napi_create_double(env, value, &result);
-    } else if constexpr (std::is_same_v<ValueType, std::string>) {
-        napi_create_string_utf8(env, value.c_str(), value.length(), &result);
-    } else if constexpr (std::is_enum_v<ValueType>) {
-        napi_create_int64(env, static_cast<int64_t>(value), &result);
-    } else if constexpr (std::is_same_v<ValueType, const char*>) {
-        (value != nullptr) ? napi_create_string_utf8(env, value, strlen(value), &result) :
-            napi_get_undefined(env, &result);
-    } else {
-        napi_get_undefined(env, &result);
-    }
-    return result;
-}
-
 inline napi_value CreateJsUndefined(napi_env env)
 {
     napi_value result = nullptr;
@@ -240,31 +213,109 @@ inline napi_value CreateJsNull(napi_env env)
     return result;
 }
 
+inline napi_value CreateJsNumber(napi_env env, int32_t value)
+{
+    napi_value result = nullptr;
+    napi_create_int32(env, value, &result);
+    return result;
+}
+
+inline napi_value CreateJsNumber(napi_env env, uint32_t value)
+{
+    napi_value result = nullptr;
+    napi_create_uint32(env, value, &result);
+    return result;
+}
+
+inline napi_value CreateJsNumber(napi_env env, int64_t value)
+{
+    napi_value result = nullptr;
+    napi_create_int64(env, value, &result);
+    return result;
+}
+
+inline napi_value CreateJsNumber(napi_env env, double value)
+{
+    napi_value result = nullptr;
+    napi_create_double(env, value, &result);
+    return result;
+}
+
+template<class T>
+inline napi_value CreateJsValue(napi_env env, const T& value)
+{
+    using ValueType = std::remove_cv_t<std::remove_reference_t<T>>;
+    napi_value result = nullptr;
+    if constexpr (std::is_same_v<ValueType, bool>) {
+        napi_get_boolean(env, value, &result);
+        return result;
+    } else if constexpr (std::is_arithmetic_v<ValueType>) {
+        return CreateJsNumber(env, value);
+    } else if constexpr (std::is_same_v<ValueType, std::string>) {
+        napi_create_string_utf8(env, value.c_str(), value.length(), &result);
+        return result;
+    } else if constexpr (std::is_enum_v<ValueType>) {
+        return CreateJsNumber(env, static_cast<std::make_signed_t<ValueType>>(value));
+    } else if constexpr (std::is_same_v<ValueType, const char*>) {
+        (value != nullptr) ? napi_create_string_utf8(env, value, strlen(value), &result) :
+            napi_get_undefined(env, &result);
+        return result;
+    }
+}
+
+inline bool ConvertFromJsNumber(napi_env env, napi_value jsValue, int32_t& value)
+{
+    NAPI_CALL_NO_THROW(napi_get_value_int32(env, jsValue, &value), false);
+    return true;
+}
+
+inline bool ConvertFromJsNumber(napi_env env, napi_value jsValue, uint32_t& value)
+{
+    NAPI_CALL_NO_THROW(napi_get_value_uint32(env, jsValue, &value), false);
+    return true;
+}
+
+inline bool ConvertFromJsNumber(napi_env env, napi_value jsValue, int64_t& value)
+{
+    NAPI_CALL_NO_THROW(napi_get_value_int64(env, jsValue, &value), false);
+    return true;
+}
+
+inline bool ConvertFromJsNumber(napi_env env, napi_value jsValue, double& value)
+{
+    NAPI_CALL_NO_THROW(napi_get_value_double(env, jsValue, &value), false);
+    return true;
+}
+
 template<class T>
 inline bool ConvertFromJsValue(napi_env env, napi_value jsValue, T& value)
 {
+    if (jsValue == nullptr) {
+        return false;
+    }
+
     using ValueType = std::remove_cv_t<std::remove_reference_t<T>>;
     if constexpr (std::is_same_v<ValueType, bool>) {
         NAPI_CALL_NO_THROW(napi_get_value_bool(env, jsValue, &value), false);
-    } else if constexpr (std::is_same_v<ValueType, int32_t>) {
-        NAPI_CALL_NO_THROW(napi_get_value_int32(env, jsValue, &value), false);
-    } else if constexpr (std::is_same_v<ValueType, uint32_t>) {
-        NAPI_CALL_NO_THROW(napi_get_value_uint32(env, jsValue, &value), false);
-    } else if constexpr (std::is_same_v<ValueType, int64_t>) {
-        NAPI_CALL_NO_THROW(napi_get_value_int64(env, jsValue, &value), false);
-    } else if constexpr (std::is_same_v<ValueType, double>) {
-        NAPI_CALL_NO_THROW(napi_get_value_double(env, jsValue, &value), false);
+        return true;
+    } else if constexpr (std::is_arithmetic_v<ValueType>) {
+        return ConvertFromJsNumber(env, jsValue, value);
     } else if constexpr (std::is_same_v<ValueType, std::string>) {
         size_t len = 0;
         NAPI_CALL_NO_THROW(napi_get_value_string_utf8(env, jsValue, nullptr, 0, &len), false);
         auto buffer = std::make_unique<char[]>(len + 1);
-        NAPI_CALL_NO_THROW(napi_get_value_string_utf8(env, jsValue, buffer.get(), len + 1, &value), false);
+        size_t strLength = 0;
+        NAPI_CALL_NO_THROW(napi_get_value_string_utf8(env, jsValue, buffer.get(), len + 1, &strLength), false);
+        value = buffer.get();
+        return true;
     } else if constexpr (std::is_enum_v<ValueType>) {
-        int64_t retValue = 0;
-        NAPI_CALL_NO_THROW(napi_get_value_int64(env, jsValue, &retValue), false);
-        value = static_cast<ValueType>(retValue);
+        std::make_signed_t<ValueType> numberValue = 0;
+        if (!ConvertFromJsNumber(env, jsValue, numberValue)) {
+            return false;
+        }
+        value = static_cast<ValueType>(numberValue);
+        return true;
     }
-    return true;
 }
 
 template<class T>

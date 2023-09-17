@@ -505,7 +505,10 @@ void NapiAsyncTask::ScheduleWithDefaultQos(const std::string &name, napi_env env
 
 bool NapiAsyncTask::StartWithDefaultQos(const std::string &name, napi_env env)
 {
-    napi_delete_async_work(env, work_);
+    if (work_) {
+        napi_delete_async_work(env, work_);
+        work_ = nullptr;
+    }
     napi_create_async_work(env, nullptr, CreateJsValue(env, name), Execute, Complete, this, &work_);
     napi_queue_async_work_with_qos(env, work_, napi_qos_default);
     return true;
@@ -514,68 +517,103 @@ bool NapiAsyncTask::StartWithDefaultQos(const std::string &name, napi_env env)
 void NapiAsyncTask::Resolve(napi_env env, napi_value value)
 {
     HILOG_DEBUG("NapiAsyncTask::Resolve is called");
-    napi_resolve_deferred(env, deferred_, value);
-    napi_value argv[] = {
-        CreateJsError(env, 0),
-        value,
-    };
-    napi_value func = nullptr;
-    napi_get_reference_value(env, callbackRef_, &func);
-    napi_call_function(env, CreateJsUndefined(env), func, ArraySize(argv), argv, nullptr);
+    if (deferred_) {
+        napi_resolve_deferred(env, deferred_, value);
+        deferred_ = nullptr;
+    }
+    if (callbackRef_) {
+        napi_value argv[] = {
+            CreateJsError(env, 0),
+            value,
+        };
+        napi_value func = nullptr;
+        napi_get_reference_value(env, callbackRef_, &func);
+        napi_call_function(env, CreateJsUndefined(env), func, ArraySize(argv), argv, nullptr);
+        napi_delete_reference(env, callbackRef_);
+        callbackRef_ = nullptr;
+    }
     HILOG_DEBUG("NapiAsyncTask::Resolve is called end.");
 }
 
 void NapiAsyncTask::ResolveWithNoError(napi_env env, napi_value value)
 {
     HILOG_DEBUG("NapiAsyncTask::Resolve is called");
-    napi_resolve_deferred(env, deferred_, value);
-    napi_value argv[] = {
-        CreateJsNull(env),
-        value,
-    };
-    napi_value func = nullptr;
-    napi_get_reference_value(env, callbackRef_, &func);
-    napi_call_function(env, CreateJsUndefined(env), func, ArraySize(argv), argv, nullptr);
+    if (deferred_) {
+        napi_resolve_deferred(env, deferred_, value);
+        deferred_ = nullptr;
+    }
+    if (callbackRef_) {
+        napi_value argv[] = {
+            CreateJsNull(env),
+            value,
+        };
+        napi_value func = nullptr;
+        napi_get_reference_value(env, callbackRef_, &func);
+        napi_call_function(env, CreateJsUndefined(env), func, ArraySize(argv), argv, nullptr);
+        napi_delete_reference(env, callbackRef_);
+        callbackRef_ = nullptr;
+    }
     HILOG_DEBUG("NapiAsyncTask::Resolve is called end.");
 }
 
 void NapiAsyncTask::Reject(napi_env env, napi_value error)
 {
-    napi_reject_deferred(env, deferred_, error);
-    napi_value argv[] = {
-        error,
-        CreateJsUndefined(env),
-    };
-    napi_value func = nullptr;
-    napi_get_reference_value(env, callbackRef_, &func);
-    napi_call_function(env, CreateJsUndefined(env), func, ArraySize(argv), argv, nullptr);
+    if (deferred_) {
+        napi_reject_deferred(env, deferred_, error);
+        deferred_ = nullptr;
+    }
+    if (callbackRef_) {
+        napi_value argv[] = {
+            error,
+            CreateJsUndefined(env),
+        };
+        napi_value func = nullptr;
+        napi_get_reference_value(env, callbackRef_, &func);
+        napi_call_function(env, CreateJsUndefined(env), func, ArraySize(argv), argv, nullptr);
+        napi_delete_reference(env, callbackRef_);
+        callbackRef_ = nullptr;
+    }
 }
 
 void NapiAsyncTask::ResolveWithCustomize(napi_env env, napi_value error, napi_value value)
 {
     HILOG_DEBUG("NapiAsyncTask::ResolveWithCustomize is called");
-    napi_resolve_deferred(env, deferred_, value);
-    napi_value argv[] = {
-        error,
-        value,
-    };
-    napi_value func = nullptr;
-    napi_get_reference_value(env, callbackRef_, &func);
-    napi_call_function(env, CreateJsUndefined(env), func, ArraySize(argv), argv, nullptr);
+    if (deferred_) {
+        napi_resolve_deferred(env, deferred_, value);
+        deferred_ = nullptr;
+    }
+    if (callbackRef_) {
+        napi_value argv[] = {
+            error,
+            value,
+        };
+        napi_value func = nullptr;
+        napi_get_reference_value(env, callbackRef_, &func);
+        napi_call_function(env, CreateJsUndefined(env), func, ArraySize(argv), argv, nullptr);
+        napi_delete_reference(env, callbackRef_);
+        callbackRef_ = nullptr;
+    }
     HILOG_DEBUG("NapiAsyncTask::ResolveWithCustomize is called end.");
 }
 
 void NapiAsyncTask::RejectWithCustomize(napi_env env, napi_value error, napi_value value)
 {
     HILOG_DEBUG("NapiAsyncTask::RejectWithCustomize is called");
-    napi_reject_deferred(env, deferred_, error);
-    napi_value argv[] = {
-        error,
-        value,
-    };
-    napi_value func = nullptr;
-    napi_get_reference_value(env, callbackRef_, &func);
-    napi_call_function(env, CreateJsUndefined(env), func, ArraySize(argv), argv, nullptr);
+    if (deferred_) {
+        napi_reject_deferred(env, deferred_, error);
+        deferred_ = nullptr;
+    }
+    if (callbackRef_) {
+        napi_value argv[] = {
+            error,
+            value,
+        };
+        napi_value func = nullptr;
+        napi_get_reference_value(env, callbackRef_, &func);
+        napi_call_function(env, CreateJsUndefined(env), func, ArraySize(argv), argv, nullptr);
+        napi_delete_reference(env, callbackRef_);
+        callbackRef_ = nullptr;
+    }
     HILOG_DEBUG("NapiAsyncTask::RejectWithCustomize is called end.");
 }
 
@@ -604,7 +642,10 @@ void NapiAsyncTask::Complete(napi_env env, napi_status status, void* data)
 
 bool NapiAsyncTask::Start(const std::string &name, napi_env env)
 {
-    napi_delete_async_work(env, work_);
+    if (work_) {
+        napi_delete_async_work(env, work_);
+        work_ = nullptr;
+    }
     napi_create_async_work(env, nullptr, CreateJsValue(env, name), Execute, Complete, this, &work_);
     napi_queue_async_work(env, work_);
     return true;
@@ -612,7 +653,10 @@ bool NapiAsyncTask::Start(const std::string &name, napi_env env)
 
 bool NapiAsyncTask::StartHighQos(const std::string &name, napi_env env)
 {
-    napi_delete_async_work(env, work_);
+    if (work_) {
+        napi_delete_async_work(env, work_);
+        work_ = nullptr;
+    }
     napi_create_async_work(env, nullptr, CreateJsValue(env, name), Execute, Complete, this, &work_);
     napi_queue_async_work_with_qos(env, work_, napi_qos_user_initiated);
     return true;
@@ -620,7 +664,10 @@ bool NapiAsyncTask::StartHighQos(const std::string &name, napi_env env)
 
 bool NapiAsyncTask::StartLowQos(const std::string &name, napi_env env)
 {
-    napi_delete_async_work(env, work_);
+    if (work_) {
+        napi_delete_async_work(env, work_);
+        work_ = nullptr;
+    }
     napi_create_async_work(env, nullptr, CreateJsValue(env, name), Execute, Complete, this, &work_);
     napi_queue_async_work_with_qos(env, work_, napi_qos_utility);
     return true;
