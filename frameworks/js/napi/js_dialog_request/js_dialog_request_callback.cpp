@@ -31,69 +31,64 @@ public:
 
     virtual ~JsDialogRequestCallback() = default;
 
-    static void Finalizer(NativeEngine* engine, void* data, void* hint)
+    static void Finalizer(napi_env env, void* data, void* hint)
     {
         HILOG_DEBUG("JsDialogRequestCallback::Finalizer is called.");
         std::unique_ptr<JsDialogRequestCallback>(static_cast<JsDialogRequestCallback*>(data));
     }
 
-    static NativeValue* SetRequestResult(NativeEngine* engine, NativeCallbackInfo* info)
+    static napi_value SetRequestResult(napi_env env, napi_callback_info info)
     {
-        if (engine == nullptr || info == nullptr) {
-            HILOG_ERROR("input parameters %{public}s is nullptr", ((engine == nullptr) ? "engine" : "info"));
+        if (env == nullptr || info == nullptr) {
+            HILOG_ERROR("input parameters %{public}s is nullptr", ((env == nullptr) ? "env" : "info"));
             return nullptr;
         }
 
-        auto object = CheckParamsAndGetThis<JsDialogRequestCallback>(engine, info);
-        if (object == nullptr) {
-            HILOG_ERROR("CheckParamsAndGetThis return nullptr");
-            return nullptr;
-        }
-
-        return object->OnSetRequestResult(*engine, *info);
+        GET_NAPI_INFO_AND_CALL(env, info, JsDialogRequestCallback, OnSetRequestResult);
     }
 
 private:
-    NativeValue* OnSetRequestResult(NativeEngine& engine, NativeCallbackInfo& info)
+    napi_value OnSetRequestResult(napi_env env, NapiCallbackInfo& info)
     {
         HILOG_INFO("function called");
         if (info.argc < 1) {
             HILOG_ERROR("Params not match");
-            ThrowTooFewParametersError(engine);
-            return engine.CreateUndefined();
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
         }
 
-        if (info.argv[0]->TypeOf() != NativeValueType::NATIVE_OBJECT) {
+        if (!CheckTypeForNapiValue(env, info.argv[0], napi_object)) {
             HILOG_ERROR("param type mismatch!");
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-            return engine.CreateUndefined();
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
         }
 
-        NativeObject* paramObject = ConvertNativeValueTo<NativeObject>(info.argv[0]);
-        NativeValue* resultCode = paramObject->GetProperty("result");
+        napi_value resultCode = nullptr;
+        napi_get_named_property(env, info.argv[0], "result", &resultCode);
         int32_t resultCodeValue = 0;
-        if (!ConvertFromJsValue(engine, resultCode, resultCodeValue)) {
+        if (!ConvertFromJsValue(env, resultCode, resultCodeValue)) {
             HILOG_ERROR("Convert result failed!");
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-            return engine.CreateUndefined();
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
         }
 
         AAFwk::Want wantValue;
-        NativeValue* jWant = paramObject->GetProperty("want");
-        if (jWant != nullptr && jWant->TypeOf() == NativeValueType::NATIVE_OBJECT) {
-            AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(jWant), wantValue);
+        napi_value jWant = nullptr;
+        napi_get_named_property(env, info.argv[0], "want", &jWant);
+        if (jWant != nullptr && !CheckTypeForNapiValue(env, jWant, napi_object)) {
+            AppExecFwk::UnwrapWant(env, jWant, wantValue);
         } else {
             HILOG_WARN("jWant is invalid data!");
         }
 
         if (callback_ == nullptr) {
             HILOG_ERROR("JsDialogRequestCallback::%{public}s, callback_ is nullptr", __func__);
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
-            return engine.CreateUndefined();
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+            return CreateJsUndefined(env);
         }
         callback_->SendResult(resultCodeValue, wantValue);
         HILOG_INFO("function called end.");
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
 
 private:
@@ -101,25 +96,25 @@ private:
 };
 } // nameless
 
-NativeValue* CreateJsDialogRequestCallback(NativeEngine &engine, const sptr<IDialogRequestCallback> &remoteObj)
+napi_value CreateJsDialogRequestCallback(napi_env env, const sptr<IDialogRequestCallback> &remoteObj)
 {
     HILOG_INFO("CreateJsDialogRequestCallback");
     if (!remoteObj) {
         HILOG_ERROR("remoteObj is invalid.");
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
 
-    NativeValue* objValue = engine.CreateObject();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
-    if (object == nullptr) {
+    napi_value objValue = nullptr;
+    napi_create_object(env, &objValue);
+    if (objValue == nullptr) {
         HILOG_ERROR("object is invalid.");
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
 
     auto jsDialogRequestCallback = std::make_unique<JsDialogRequestCallback>(remoteObj);
-    object->SetNativePointer(jsDialogRequestCallback.release(), JsDialogRequestCallback::Finalizer, nullptr);
+    napi_wrap(env, objValue, jsDialogRequestCallback.release(), JsDialogRequestCallback::Finalizer, nullptr, nullptr);
     const char *moduleName = "JsDialogRequestCallback";
-    BindNativeFunction(engine, *object, "setRequestResult", moduleName, JsDialogRequestCallback::SetRequestResult);
+    BindNativeFunction(env, objValue, "setRequestResult", moduleName, JsDialogRequestCallback::SetRequestResult);
 
     HILOG_INFO("CreateJsDialogRequestCallback end");
     return objValue;

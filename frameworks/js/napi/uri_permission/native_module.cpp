@@ -16,15 +16,14 @@
 #include "js_uri_perm_mgr.h"
 #include "native_engine/native_engine.h"
 
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_modname = "application.uriPermissionManager",
+    .nm_filename = "application/liburipermissionmanager_napi.so/uripermissionmanager.js",
+    .nm_register_func = OHOS::AbilityRuntime::CreateJsUriPermMgr,
+};
 extern "C" __attribute__((constructor))
 void NAPI_application_uripermissionmanager_AutoRegister()
 {
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-        .name = "application.uriPermissionManager",
-        .fileName = "application/liburipermissionmanager_napi.so/uripermissionmanager.js",
-        .registerCallback = OHOS::AbilityRuntime::CreateJsUriPermMgr,
-    };
-
-    moduleManager->Register(&newModuleInfo);
+    napi_module_register(&_module);
 }

@@ -753,8 +753,8 @@ struct OnRequestPermissionsData {
     std::vector<std::string> permissions;
     std::vector<int> grantResults;
     uv_work_t uvWork{};
-    AsyncTask *asyncTask = nullptr;
-    NativeEngine *engine = nullptr;
+    NapiAsyncTask *asyncTask = nullptr;
+    napi_env env = nullptr;
 
     ~OnRequestPermissionsData()
     {
@@ -780,8 +780,8 @@ struct OnRequestPermissionsData {
             return;
         }
         std::unique_ptr<OnRequestPermissionsData> data{static_cast<OnRequestPermissionsData *>(work->data)};
-        auto &engine = *(data->engine);
-        NativeScopeManager* scopeManager = engine.GetScopeManager();
+        auto &env = *(data->env);
+        NativeScopeManager* scopeManager = env.GetScopeManager();
         if (scopeManager == nullptr) {
             HILOG_ERROR("Get scope manager failed");
             return;
@@ -792,12 +792,12 @@ struct OnRequestPermissionsData {
             return;
         }
 
-        NativeValue *objValue = engine.CreateObject();
+        napi_value objValue = env.CreateObject();
         NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
-        object->SetProperty("requestCode", CreateJsValue(engine, data->requestCode));
-        object->SetProperty("permissions", CreateNativeArray(engine, data->permissions));
-        object->SetProperty("authResults", CreateNativeArray(engine, data->grantResults));
-        data->asyncTask->Resolve(engine, objValue);
+        object->SetProperty("requestCode", CreateJsValue(env, data->requestCode));
+        object->SetProperty("permissions", CreateNativeArray(env, data->permissions));
+        object->SetProperty("authResults", CreateNativeArray(env, data->grantResults));
+        data->asyncTask->Resolve(env, objValue);
 
         scopeManager->Close(scope);
     }
@@ -816,8 +816,8 @@ void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<s
         HILOG_ERROR("%{public}s, the size of permissions not equal the size of grantResults.", __func__);
         return;
     }
-    if (callbackInfo.engine == nullptr) {
-        HILOG_ERROR("CallOnRequestPermissionsFromUserResult callbackInfo.engine is nullptr.");
+    if (callbackInfo.env == nullptr) {
+        HILOG_ERROR("CallOnRequestPermissionsFromUserResult callbackInfo.env is nullptr.");
         return;
     }
     if (callbackInfo.asyncTask == nullptr) {
@@ -826,7 +826,7 @@ void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<s
     }
 
     uv_loop_t *loop = nullptr;
-    loop = callbackInfo.engine->GetUVLoop();
+    loop = callbackInfo.env->GetUVLoop();
     if (loop == nullptr) {
         HILOG_ERROR("CallOnRequestPermissionsFromUserResult loop is nullptr.");
         return;
@@ -836,7 +836,7 @@ void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<s
     reqData->permissions = permissions;
     reqData->grantResults = grantResults;
     reqData->requestCode = requestCode;
-    reqData->engine = callbackInfo.engine;
+    reqData->env = callbackInfo.env;
     reqData->asyncTask = callbackInfo.asyncTask;
     reqData->uvWork.data = static_cast<void *>(reqData.get());
 
@@ -2778,57 +2778,57 @@ public:
     NapiJsContext() = default;
     virtual ~NapiJsContext() = default;
 
-    static void Finalizer(NativeEngine *engine, void *data, void *hint)
+    static void Finalizer(napi_env env, void *data, void *hint)
     {
         HILOG_DEBUG("called.");
         std::unique_ptr<NapiJsContext>(static_cast<NapiJsContext*>(data));
     };
 
-    static NativeValue* JsRequestPermissionsFromUser(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* JsGetBundleName(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* JsVerifyPermission(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* JsGetApplicationInfo(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* JsGetProcessInfo(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* JsGetElementName(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* JsGetProcessName(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* JsGetCallingBundle(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* JsGetOrCreateLocalDir(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* JsGetFilesDir(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* JsIsUpdatingConfigurations(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* JsPrintDrawnCompleted(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* JsGetCacheDir(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* JsGetCtxAppType(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* JsGetCtxHapModuleInfo(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* JsGetAppVersionInfo(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* JsGetApplicationContext(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* JsGetCtxAbilityInfo(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* JsSetShowOnLockScreen(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* JsGetOrCreateDistributedDir(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* JsSetWakeUpScreen(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* JsSetDisplayOrientation(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* JsGetDisplayOrientation(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* JsGetExternalCacheDir(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue* JsRequestPermissionsFromUser(napi_env env, NativeCallbackInfo *info);
+    static NativeValue* JsGetBundleName(napi_env env, NativeCallbackInfo *info);
+    static NativeValue* JsVerifyPermission(napi_env env, NativeCallbackInfo *info);
+    static NativeValue* JsGetApplicationInfo(napi_env env, NativeCallbackInfo *info);
+    static NativeValue* JsGetProcessInfo(napi_env env, NativeCallbackInfo *info);
+    static NativeValue* JsGetElementName(napi_env env, NativeCallbackInfo *info);
+    static NativeValue* JsGetProcessName(napi_env env, NativeCallbackInfo *info);
+    static NativeValue* JsGetCallingBundle(napi_env env, NativeCallbackInfo *info);
+    static NativeValue* JsGetOrCreateLocalDir(napi_env env, NativeCallbackInfo *info);
+    static NativeValue* JsGetFilesDir(napi_env env, NativeCallbackInfo *info);
+    static NativeValue* JsIsUpdatingConfigurations(napi_env env, NativeCallbackInfo *info);
+    static NativeValue* JsPrintDrawnCompleted(napi_env env, NativeCallbackInfo *info);
+    static NativeValue* JsGetCacheDir(napi_env env, NativeCallbackInfo *info);
+    static NativeValue* JsGetCtxAppType(napi_env env, NativeCallbackInfo *info);
+    static NativeValue* JsGetCtxHapModuleInfo(napi_env env, NativeCallbackInfo *info);
+    static NativeValue* JsGetAppVersionInfo(napi_env env, NativeCallbackInfo *info);
+    static NativeValue* JsGetApplicationContext(napi_env env, NativeCallbackInfo *info);
+    static NativeValue* JsGetCtxAbilityInfo(napi_env env, NativeCallbackInfo *info);
+    static NativeValue* JsSetShowOnLockScreen(napi_env env, NativeCallbackInfo *info);
+    static NativeValue* JsGetOrCreateDistributedDir(napi_env env, NativeCallbackInfo *info);
+    static NativeValue* JsSetWakeUpScreen(napi_env env, NativeCallbackInfo *info);
+    static NativeValue* JsSetDisplayOrientation(napi_env env, NativeCallbackInfo *info);
+    static NativeValue* JsGetDisplayOrientation(napi_env env, NativeCallbackInfo *info);
+    static NativeValue* JsGetExternalCacheDir(napi_env env, NativeCallbackInfo *info);
 
-    bool DataInit(NativeEngine &engine);
+    bool DataInit(napi_env env);
 
 private:
-    NativeValue* OnRequestPermissionsFromUser(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetBundleName(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnVerifyPermission(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetApplicationInfo(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetProcessInfo(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetElementName(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetProcessName(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetCallingBundle(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetOrCreateLocalDir(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnRequestPermissionsFromUser(napi_env env, NativeCallbackInfo &info);
+    NativeValue* OnGetBundleName(napi_env env, NativeCallbackInfo &info);
+    NativeValue* OnVerifyPermission(napi_env env, NativeCallbackInfo &info);
+    NativeValue* OnGetApplicationInfo(napi_env env, NativeCallbackInfo &info);
+    NativeValue* OnGetProcessInfo(napi_env env, NativeCallbackInfo &info);
+    NativeValue* OnGetElementName(napi_env env, NativeCallbackInfo &info);
+    NativeValue* OnGetProcessName(napi_env env, NativeCallbackInfo &info);
+    NativeValue* OnGetCallingBundle(napi_env env, NativeCallbackInfo &info);
+    NativeValue* OnGetOrCreateLocalDir(napi_env env, NativeCallbackInfo &info);
 #ifdef SUPPORT_GRAPHICS
-    NativeValue* OnSetShowOnLockScreen(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnSetWakeUpScreen(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnSetDisplayOrientation(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue* OnSetShowOnLockScreen(napi_env env, NativeCallbackInfo &info);
+    NativeValue* OnSetWakeUpScreen(napi_env env, NativeCallbackInfo &info);
+    NativeValue* OnSetDisplayOrientation(napi_env env, NativeCallbackInfo &info);
 #endif
 };
 
-static bool BindNapiJSContextFunction(NativeEngine &engine, NativeObject* object)
+static bool BindNapiJSContextFunction(napi_env env, NativeObject* object)
 {
     HILOG_DEBUG("called");
     if (object == nullptr) {
@@ -2837,40 +2837,40 @@ static bool BindNapiJSContextFunction(NativeEngine &engine, NativeObject* object
     }
     const char* moduleName = "context";
     BindNativeFunction(
-        engine, *object, "requestPermissionsFromUser", moduleName, NapiJsContext::JsRequestPermissionsFromUser);
-    BindNativeFunction(engine, *object, "getBundleName", moduleName, NapiJsContext::JsGetBundleName);
-    BindNativeFunction(engine, *object, "verifyPermission", moduleName, NapiJsContext::JsVerifyPermission);
-    BindNativeFunction(engine, *object, "getApplicationInfo", moduleName, NapiJsContext::JsGetApplicationInfo);
-    BindNativeFunction(engine, *object, "getProcessInfo", moduleName, NapiJsContext::JsGetProcessInfo);
-    BindNativeFunction(engine, *object, "getElementName", moduleName, NapiJsContext::JsGetElementName);
-    BindNativeFunction(engine, *object, "getProcessName", moduleName, NapiJsContext::JsGetProcessName);
-    BindNativeFunction(engine, *object, "getCallingBundle", moduleName, NapiJsContext::JsGetCallingBundle);
-    BindNativeFunction(engine, *object, "getOrCreateLocalDir", moduleName, NapiJsContext::JsGetOrCreateLocalDir);
-    BindNativeFunction(engine, *object, "getFilesDir", moduleName, NapiJsContext::JsGetFilesDir);
-    BindNativeFunction(engine, *object, "isUpdatingConfigurations", moduleName,
+        env, *object, "requestPermissionsFromUser", moduleName, NapiJsContext::JsRequestPermissionsFromUser);
+    BindNativeFunction(env, *object, "getBundleName", moduleName, NapiJsContext::JsGetBundleName);
+    BindNativeFunction(env, *object, "verifyPermission", moduleName, NapiJsContext::JsVerifyPermission);
+    BindNativeFunction(env, *object, "getApplicationInfo", moduleName, NapiJsContext::JsGetApplicationInfo);
+    BindNativeFunction(env, *object, "getProcessInfo", moduleName, NapiJsContext::JsGetProcessInfo);
+    BindNativeFunction(env, *object, "getElementName", moduleName, NapiJsContext::JsGetElementName);
+    BindNativeFunction(env, *object, "getProcessName", moduleName, NapiJsContext::JsGetProcessName);
+    BindNativeFunction(env, *object, "getCallingBundle", moduleName, NapiJsContext::JsGetCallingBundle);
+    BindNativeFunction(env, *object, "getOrCreateLocalDir", moduleName, NapiJsContext::JsGetOrCreateLocalDir);
+    BindNativeFunction(env, *object, "getFilesDir", moduleName, NapiJsContext::JsGetFilesDir);
+    BindNativeFunction(env, *object, "isUpdatingConfigurations", moduleName,
         NapiJsContext::JsIsUpdatingConfigurations);
-    BindNativeFunction(engine, *object, "printDrawnCompleted", moduleName, NapiJsContext::JsPrintDrawnCompleted);
-    BindNativeFunction(engine, *object, "getCacheDir", moduleName, NapiJsContext::JsGetCacheDir);
-    BindNativeFunction(engine, *object, "getAppType", moduleName, NapiJsContext::JsGetCtxAppType);
-    BindNativeFunction(engine, *object, "getHapModuleInfo", moduleName, NapiJsContext::JsGetCtxHapModuleInfo);
-    BindNativeFunction(engine, *object, "getAppVersionInfo", moduleName, NapiJsContext::JsGetAppVersionInfo);
-    BindNativeFunction(engine, *object, "getApplicationContext", moduleName, NapiJsContext::JsGetApplicationContext);
-    BindNativeFunction(engine, *object, "getAbilityInfo", moduleName, NapiJsContext::JsGetCtxAbilityInfo);
-    BindNativeFunction(engine, *object, "setShowOnLockScreen", moduleName, NapiJsContext::JsSetShowOnLockScreen);
-    BindNativeFunction(engine, *object, "getOrCreateDistributedDir", moduleName,
+    BindNativeFunction(env, *object, "printDrawnCompleted", moduleName, NapiJsContext::JsPrintDrawnCompleted);
+    BindNativeFunction(env, *object, "getCacheDir", moduleName, NapiJsContext::JsGetCacheDir);
+    BindNativeFunction(env, *object, "getAppType", moduleName, NapiJsContext::JsGetCtxAppType);
+    BindNativeFunction(env, *object, "getHapModuleInfo", moduleName, NapiJsContext::JsGetCtxHapModuleInfo);
+    BindNativeFunction(env, *object, "getAppVersionInfo", moduleName, NapiJsContext::JsGetAppVersionInfo);
+    BindNativeFunction(env, *object, "getApplicationContext", moduleName, NapiJsContext::JsGetApplicationContext);
+    BindNativeFunction(env, *object, "getAbilityInfo", moduleName, NapiJsContext::JsGetCtxAbilityInfo);
+    BindNativeFunction(env, *object, "setShowOnLockScreen", moduleName, NapiJsContext::JsSetShowOnLockScreen);
+    BindNativeFunction(env, *object, "getOrCreateDistributedDir", moduleName,
         NapiJsContext::JsGetOrCreateDistributedDir);
-    BindNativeFunction(engine, *object, "setWakeUpScreen", moduleName, NapiJsContext::JsSetWakeUpScreen);
-    BindNativeFunction(engine, *object, "setDisplayOrientation", moduleName, NapiJsContext::JsSetDisplayOrientation);
-    BindNativeFunction(engine, *object, "getDisplayOrientation", moduleName, NapiJsContext::JsGetDisplayOrientation);
-    BindNativeFunction(engine, *object, "getExternalCacheDir", moduleName, NapiJsContext::JsGetExternalCacheDir);
+    BindNativeFunction(env, *object, "setWakeUpScreen", moduleName, NapiJsContext::JsSetWakeUpScreen);
+    BindNativeFunction(env, *object, "setDisplayOrientation", moduleName, NapiJsContext::JsSetDisplayOrientation);
+    BindNativeFunction(env, *object, "getDisplayOrientation", moduleName, NapiJsContext::JsGetDisplayOrientation);
+    BindNativeFunction(env, *object, "getExternalCacheDir", moduleName, NapiJsContext::JsGetExternalCacheDir);
 
     return true;
 }
 
-static NativeValue* ConstructNapiJSContext(NativeEngine &engine)
+static NativeValue* ConstructNapiJSContext(napi_env env)
 {
     HILOG_DEBUG("called");
-    auto objContext = engine.CreateObject();
+    auto objContext = env.CreateObject();
     if (objContext == nullptr) {
         HILOG_ERROR("CreateObject failed");
         return nullptr;
@@ -2881,13 +2881,13 @@ static NativeValue* ConstructNapiJSContext(NativeEngine &engine)
         return nullptr;
     }
     auto jsCalss = std::make_unique<NapiJsContext>();
-    if (!jsCalss->DataInit(engine)) {
+    if (!jsCalss->DataInit(env)) {
         HILOG_ERROR("NapiJsContext init failed");
         return nullptr;
     }
     object->SetNativePointer(jsCalss.release(), NapiJsContext::Finalizer, nullptr);
-    object->SetProperty("stageMode", engine.CreateBoolean(false));
-    if (!BindNapiJSContextFunction(engine, object)) {
+    object->SetProperty("stageMode", env.CreateBoolean(false));
+    if (!BindNapiJSContextFunction(env, object)) {
         HILOG_ERROR("bind func failed");
         return nullptr;
     }
@@ -2895,304 +2895,304 @@ static NativeValue* ConstructNapiJSContext(NativeEngine &engine)
     return objContext;
 }
 
-NativeValue* CreateNapiJSContext(NativeEngine &engine)
+NativeValue* CreateNapiJSContext(napi_env env)
 {
     HILOG_DEBUG("called");
-    auto jsObj = ConstructNapiJSContext(engine);
+    auto jsObj = ConstructNapiJSContext(env);
     if (jsObj == nullptr) {
         HILOG_ERROR("Construct Context failed");
-        return engine.CreateUndefined();
+        return env.CreateUndefined();
     }
 
     return jsObj;
 }
 
-NativeValue* NapiJsContext::JsRequestPermissionsFromUser(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsRequestPermissionsFromUser(napi_env env, NativeCallbackInfo *info)
 {
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->OnRequestPermissionsFromUser(*engine, *info);
+    return object->OnRequestPermissionsFromUser(*env, *info);
 }
 
-NativeValue* NapiJsContext::JsGetBundleName(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsGetBundleName(napi_env env, NativeCallbackInfo *info)
 {
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->OnGetBundleName(*engine, *info);
+    return object->OnGetBundleName(*env, *info);
 }
 
-NativeValue* NapiJsContext::JsVerifyPermission(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsVerifyPermission(napi_env env, NativeCallbackInfo *info)
 {
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->OnVerifyPermission(*engine, *info);
+    return object->OnVerifyPermission(*env, *info);
 }
 
-NativeValue* NapiJsContext::JsGetApplicationInfo(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsGetApplicationInfo(napi_env env, NativeCallbackInfo *info)
 {
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->OnGetApplicationInfo(*engine, *info);
+    return object->OnGetApplicationInfo(*env, *info);
 }
 
-NativeValue* NapiJsContext::JsGetProcessInfo(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsGetProcessInfo(napi_env env, NativeCallbackInfo *info)
 {
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->OnGetProcessInfo(*engine, *info);
+    return object->OnGetProcessInfo(*env, *info);
 }
 
-NativeValue* NapiJsContext::JsGetElementName(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsGetElementName(napi_env env, NativeCallbackInfo *info)
 {
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->OnGetElementName(*engine, *info);
+    return object->OnGetElementName(*env, *info);
 }
 
-NativeValue* NapiJsContext::JsGetProcessName(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsGetProcessName(napi_env env, NativeCallbackInfo *info)
 {
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->OnGetProcessName(*engine, *info);
+    return object->OnGetProcessName(*env, *info);
 }
 
-NativeValue* NapiJsContext::JsGetCallingBundle(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsGetCallingBundle(napi_env env, NativeCallbackInfo *info)
 {
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->OnGetCallingBundle(*engine, *info);
+    return object->OnGetCallingBundle(*env, *info);
 }
 
-NativeValue* NapiJsContext::JsGetOrCreateLocalDir(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsGetOrCreateLocalDir(napi_env env, NativeCallbackInfo *info)
 {
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->OnGetOrCreateLocalDir(*engine, *info);
+    return object->OnGetOrCreateLocalDir(*env, *info);
 }
 
-NativeValue* NapiJsContext::JsGetFilesDir(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsGetFilesDir(napi_env env, NativeCallbackInfo *info)
 {
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->JsNapiCommon::JsGetFilesDir(*engine, *info, AbilityType::PAGE);
+    return object->JsNapiCommon::JsGetFilesDir(*env, *info, AbilityType::PAGE);
 }
 
-NativeValue* NapiJsContext::JsIsUpdatingConfigurations(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsIsUpdatingConfigurations(napi_env env, NativeCallbackInfo *info)
 {
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->JsNapiCommon::JsIsUpdatingConfigurations(*engine, *info, AbilityType::PAGE);
+    return object->JsNapiCommon::JsIsUpdatingConfigurations(*env, *info, AbilityType::PAGE);
 }
 
-NativeValue* NapiJsContext::JsPrintDrawnCompleted(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsPrintDrawnCompleted(napi_env env, NativeCallbackInfo *info)
 {
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->JsNapiCommon::JsPrintDrawnCompleted(*engine, *info, AbilityType::PAGE);
+    return object->JsNapiCommon::JsPrintDrawnCompleted(*env, *info, AbilityType::PAGE);
 }
 
-NativeValue* NapiJsContext::JsGetCacheDir(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsGetCacheDir(napi_env env, NativeCallbackInfo *info)
 {
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->JsNapiCommon::JsGetCacheDir(*engine, *info, AbilityType::PAGE);
+    return object->JsNapiCommon::JsGetCacheDir(*env, *info, AbilityType::PAGE);
 }
 
-NativeValue* NapiJsContext::JsGetCtxAppType(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsGetCtxAppType(napi_env env, NativeCallbackInfo *info)
 {
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->JsNapiCommon::JsGetCtxAppType(*engine, *info, AbilityType::PAGE);
+    return object->JsNapiCommon::JsGetCtxAppType(*env, *info, AbilityType::PAGE);
 }
 
-NativeValue* NapiJsContext::JsGetCtxHapModuleInfo(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsGetCtxHapModuleInfo(napi_env env, NativeCallbackInfo *info)
 {
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->JsNapiCommon::JsGetCtxHapModuleInfo(*engine, *info, AbilityType::PAGE);
+    return object->JsNapiCommon::JsGetCtxHapModuleInfo(*env, *info, AbilityType::PAGE);
 }
 
-NativeValue* NapiJsContext::JsGetAppVersionInfo(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsGetAppVersionInfo(napi_env env, NativeCallbackInfo *info)
 {
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->JsNapiCommon::JsGetAppVersionInfo(*engine, *info, AbilityType::PAGE);
+    return object->JsNapiCommon::JsGetAppVersionInfo(*env, *info, AbilityType::PAGE);
 }
 
-NativeValue* NapiJsContext::JsGetApplicationContext(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsGetApplicationContext(napi_env env, NativeCallbackInfo *info)
 {
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->JsNapiCommon::JsGetContext(*engine, *info, AbilityType::PAGE);
+    return object->JsNapiCommon::JsGetContext(*env, *info, AbilityType::PAGE);
 }
 
-NativeValue* NapiJsContext::JsGetCtxAbilityInfo(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsGetCtxAbilityInfo(napi_env env, NativeCallbackInfo *info)
 {
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->JsNapiCommon::JsGetCtxAbilityInfo(*engine, *info, AbilityType::PAGE);
+    return object->JsNapiCommon::JsGetCtxAbilityInfo(*env, *info, AbilityType::PAGE);
 }
 
-NativeValue* NapiJsContext::JsSetShowOnLockScreen(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsSetShowOnLockScreen(napi_env env, NativeCallbackInfo *info)
 {
 #ifdef SUPPORT_GRAPHICS
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->OnSetShowOnLockScreen(*engine, *info);
+    return object->OnSetShowOnLockScreen(*env, *info);
 #else
    return nullptr;
 #endif
 }
 
-NativeValue* NapiJsContext::JsGetOrCreateDistributedDir(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsGetOrCreateDistributedDir(napi_env env, NativeCallbackInfo *info)
 {
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->JsNapiCommon::JsGetOrCreateDistributedDir(*engine, *info, AbilityType::PAGE);
+    return object->JsNapiCommon::JsGetOrCreateDistributedDir(*env, *info, AbilityType::PAGE);
 }
 
-NativeValue* NapiJsContext::JsSetWakeUpScreen(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsSetWakeUpScreen(napi_env env, NativeCallbackInfo *info)
 {
 #ifdef SUPPORT_GRAPHICS
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->OnSetWakeUpScreen(*engine, *info);
+    return object->OnSetWakeUpScreen(*env, *info);
 #else
    return nullptr;
 #endif
 }
 
-NativeValue* NapiJsContext::JsSetDisplayOrientation(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsSetDisplayOrientation(napi_env env, NativeCallbackInfo *info)
 {
 #ifdef SUPPORT_GRAPHICS
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->OnSetDisplayOrientation(*engine, *info);
+    return object->OnSetDisplayOrientation(*env, *info);
 #else
    return nullptr;
 #endif
 }
 
-NativeValue* NapiJsContext::JsGetDisplayOrientation(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsGetDisplayOrientation(napi_env env, NativeCallbackInfo *info)
 {
 #ifdef SUPPORT_GRAPHICS
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->JsNapiCommon::JsGetDisplayOrientation(*engine, *info, AbilityType::PAGE);
+    return object->JsNapiCommon::JsGetDisplayOrientation(*env, *info, AbilityType::PAGE);
 #else
    return nullptr;
 #endif
 }
 
-NativeValue* NapiJsContext::JsGetExternalCacheDir(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue* NapiJsContext::JsGetExternalCacheDir(napi_env env, NativeCallbackInfo *info)
 {
-    CHECK_POINTER_AND_RETURN_LOG(engine, nullptr, "but input parameters engine is nullptr");
+    CHECK_POINTER_AND_RETURN_LOG(env, nullptr, "but input parameters env is nullptr");
     CHECK_POINTER_AND_RETURN_LOG(info, nullptr, "but input parameters info is nullptr");
 
-    auto object = CheckParamsAndGetThis<NapiJsContext>(engine, info);
-    CHECK_POINTER_AND_RETURN_LOG(object, engine->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
+    auto object = CheckParamsAndGetThis<NapiJsContext>(env, info);
+    CHECK_POINTER_AND_RETURN_LOG(object, env->CreateUndefined(), "CheckParamsAndGetThis return nullptr");
 
-    return object->JsNapiCommon::JsGetExternalCacheDir(*engine, *info, AbilityType::PAGE);
+    return object->JsNapiCommon::JsGetExternalCacheDir(*env, *info, AbilityType::PAGE);
 }
 
-bool NapiJsContext::DataInit(NativeEngine &engine)
+bool NapiJsContext::DataInit(napi_env env)
 {
     HILOG_DEBUG("called");
     napi_value global = nullptr;
     napi_value abilityObj = nullptr;
-    auto env = reinterpret_cast<napi_env>(&engine);
+    auto env = reinterpret_cast<napi_env>(&env);
     HILOG_INFO("Get Ability to start");
     NAPI_CALL_BASE(env, napi_get_global(env, &global), false);
     NAPI_CALL_BASE(env, napi_get_named_property(env, global, "ability", &abilityObj), false);
@@ -3205,29 +3205,29 @@ bool NapiJsContext::DataInit(NativeEngine &engine)
     return true;
 }
 
-NativeValue* NapiJsContext::OnRequestPermissionsFromUser(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue* NapiJsContext::OnRequestPermissionsFromUser(napi_env env, NativeCallbackInfo &info)
 {
     HILOG_DEBUG("OnRequestPermissionsFromUser called");
     if (info.argc == ARGS_ZERO || info.argc > ARGS_THREE) {
         HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
-        return engine.CreateUndefined();
+        return env.CreateUndefined();
     }
     CallAbilityPermissionParam permissionParam;
-    if (!GetStringsValue(engine, info.argv[PARAM0], permissionParam.permission_list)) {
+    if (!GetStringsValue(env, info.argv[PARAM0], permissionParam.permission_list)) {
         HILOG_ERROR("input params string error");
-        return engine.CreateUndefined();
+        return env.CreateUndefined();
     }
 
-    if (!ConvertFromJsValue(engine, info.argv[PARAM1], permissionParam.requestCode)) {
+    if (!ConvertFromJsValue(env, info.argv[PARAM1], permissionParam.requestCode)) {
         HILOG_ERROR("input params int error");
-        return engine.CreateUndefined();
+        return env.CreateUndefined();
     }
 
     auto callback = info.argc == ARGS_THREE ? info.argv[PARAM2] : nullptr;
-    NativeValue *result = nullptr;
+    napi_value result = nullptr;
 
     auto asyncTask =
-        AbilityRuntime::CreateAsyncTaskWithLastParam(engine, callback, nullptr, nullptr, &result).release();
+        AbilityRuntime::CreateAsyncTaskWithLastParam(env, callback, nullptr, nullptr, &result).release();
 
     int32_t errorCode = NAPI_ERR_NO_ERROR;
     if (ability_ == nullptr) {
@@ -3241,12 +3241,12 @@ NativeValue* NapiJsContext::OnRequestPermissionsFromUser(NativeEngine &engine, N
     }
 
     if (errorCode != NAPI_ERR_NO_ERROR) {
-        asyncTask->Reject(engine, CreateJsError(engine, errorCode, ConvertErrorCode(errorCode)));
+        asyncTask->Reject(env, CreateJsError(env, errorCode, ConvertErrorCode(errorCode)));
         delete asyncTask;
         asyncTask = nullptr;
     } else {
         CallbackInfo callbackInfo;
-        callbackInfo.engine = &engine;
+        callbackInfo.env = &env;
         callbackInfo.asyncTask = asyncTask;
         AbilityProcess::GetInstance()->RequestPermissionsFromUser(ability_, permissionParam, callbackInfo);
     }
@@ -3254,12 +3254,12 @@ NativeValue* NapiJsContext::OnRequestPermissionsFromUser(NativeEngine &engine, N
     return result;
 }
 
-NativeValue* NapiJsContext::OnGetBundleName(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue* NapiJsContext::OnGetBundleName(napi_env env, NativeCallbackInfo &info)
 {
     HILOG_DEBUG("called");
     if (info.argc > ARGS_ONE) {
         HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
-        return engine.CreateNull();
+        return env.CreateNull();
     }
 
     auto errorVal = std::make_shared<int32_t>(static_cast<int32_t>(NAPI_ERR_NO_ERROR));
@@ -3278,40 +3278,40 @@ NativeValue* NapiJsContext::OnGetBundleName(NativeEngine &engine, NativeCallback
         name->name = obj->ability_->GetBundleName();
     };
     auto complete = [obj = this, name = bundleName, value = errorVal]
-        (NativeEngine &engine, AsyncTask &task, int32_t status) {
+        (napi_env env, NapiAsyncTask &task, int32_t status) {
         if (*value != static_cast<int32_t>(NAPI_ERR_NO_ERROR) || name == nullptr) {
             auto ecode = name == nullptr ? static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID) : *value;
-            task.Reject(engine, CreateJsError(engine, ecode, obj->ConvertErrorCode(ecode)));
+            task.Reject(env, CreateJsError(env, ecode, obj->ConvertErrorCode(ecode)));
             HILOG_DEBUG("task execute error, name is nullptr or NAPI_ERR_ABILITY_CALL_INVALID");
             return;
         }
-        task.Resolve(engine, CreateJsValue(engine, name->name));
+        task.Resolve(env, CreateJsValue(env, name->name));
     };
 
     auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
-    NativeValue *result = nullptr;
-    AsyncTask::ScheduleHighQos("NapiJsContext::OnGetBundleName",
-        engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("NapiJsContext::OnGetBundleName",
+        env, CreateAsyncTaskWithLastParam(env, callback, std::move(execute), std::move(complete), &result));
 
     return result;
 }
 
-NativeValue* NapiJsContext::OnVerifyPermission(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue* NapiJsContext::OnVerifyPermission(napi_env env, NativeCallbackInfo &info)
 {
     HILOG_DEBUG("called");
     if (info.argc == ARGS_ZERO || info.argc > ARGS_THREE) {
         HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
-        return engine.CreateNull();
+        return env.CreateNull();
     }
 
     auto errorVal = std::make_shared<int32_t>(static_cast<int32_t>(NAPI_ERR_NO_ERROR));
     std::string permission("");
-    if (!ConvertFromJsValue(engine, info.argv[PARAM0], permission)) {
+    if (!ConvertFromJsValue(env, info.argv[PARAM0], permission)) {
         HILOG_ERROR("input params string error");
-        return engine.CreateNull();
+        return env.CreateNull();
     }
     JsPermissionOptions options;
-    bool flagCall = UnwarpVerifyPermissionParams(engine, info, options);
+    bool flagCall = UnwarpVerifyPermissionParams(env, info, options);
     auto execute = [obj = this, permission, options, value = errorVal] () {
         if (obj->ability_ == nullptr) {
             *value = static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
@@ -3324,30 +3324,30 @@ NativeValue* NapiJsContext::OnVerifyPermission(NativeEngine &engine, NativeCallb
             *value = obj->ability_->VerifySelfPermission(permission);
         }
     };
-    auto complete = [obj = this, value = errorVal] (NativeEngine &engine, AsyncTask &task, int32_t status) {
+    auto complete = [obj = this, value = errorVal] (napi_env env, NapiAsyncTask &task, int32_t status) {
         if (*value == static_cast<int32_t>(NAPI_ERR_ACE_ABILITY)) {
-            task.Reject(engine, CreateJsError( engine, *value, obj->ConvertErrorCode(*value)));
+            task.Reject(env, CreateJsError( env, *value, obj->ConvertErrorCode(*value)));
             return;
         }
-        task.Resolve(engine, CreateJsValue(engine, *value));
+        task.Resolve(env, CreateJsValue(env, *value));
     };
 
     auto callback = flagCall ?
         ((info.argc == ARGS_TWO) ? info.argv[PARAM1] : info.argv[PARAM2]) :
         nullptr;
-    NativeValue *result = nullptr;
-    AsyncTask::ScheduleHighQos("NapiJsContext::OnGetBundleName",
-        engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("NapiJsContext::OnGetBundleName",
+        env, CreateAsyncTaskWithLastParam(env, callback, std::move(execute), std::move(complete), &result));
 
     return result;
 }
 
-NativeValue* NapiJsContext::OnGetApplicationInfo(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue* NapiJsContext::OnGetApplicationInfo(napi_env env, NativeCallbackInfo &info)
 {
     HILOG_DEBUG("called");
     if (info.argc > ARGS_ONE) {
         HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
-        return engine.CreateUndefined();
+        return env.CreateUndefined();
     }
 
     auto errorVal = std::make_shared<int32_t>(static_cast<int32_t>(NAPI_ERR_NO_ERROR));
@@ -3367,29 +3367,29 @@ NativeValue* NapiJsContext::OnGetApplicationInfo(NativeEngine &engine, NativeCal
         }
     };
     auto complete = [obj = this, info = infoData, value = errorVal]
-        (NativeEngine &engine, AsyncTask &task, int32_t status) {
+        (napi_env env, NapiAsyncTask &task, int32_t status) {
         if (*value != static_cast<int32_t>(NAPI_ERR_NO_ERROR) || info == nullptr) {
             auto ecode = info == nullptr ? static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID) : *value;
-            task.Reject(engine, CreateJsError(engine, ecode, obj->ConvertErrorCode(ecode)));
+            task.Reject(env, CreateJsError(env, ecode, obj->ConvertErrorCode(ecode)));
             return;
         }
-        task.Resolve(engine, obj->CreateAppInfo(engine, info->appInfo));
+        task.Resolve(env, obj->CreateAppInfo(env, info->appInfo));
     };
 
     auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
-    NativeValue *result = nullptr;
-    AsyncTask::ScheduleHighQos("NapiJsContext::OnGetApplicationInfo",
-        engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("NapiJsContext::OnGetApplicationInfo",
+        env, CreateAsyncTaskWithLastParam(env, callback, std::move(execute), std::move(complete), &result));
 
     return result;
 }
 
-NativeValue* NapiJsContext::OnGetProcessInfo(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue* NapiJsContext::OnGetProcessInfo(napi_env env, NativeCallbackInfo &info)
 {
     HILOG_DEBUG("called");
     if (info.argc > ARGS_ONE) {
         HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
-        return engine.CreateUndefined();
+        return env.CreateUndefined();
     }
 
     auto errorVal = std::make_shared<int32_t>(static_cast<int32_t>(NAPI_ERR_NO_ERROR));
@@ -3410,29 +3410,29 @@ NativeValue* NapiJsContext::OnGetProcessInfo(NativeEngine &engine, NativeCallbac
         }
     };
     auto complete = [obj = this, info = processInfo, value = errorVal]
-        (NativeEngine &engine, AsyncTask &task, int32_t status) {
+        (napi_env env, NapiAsyncTask &task, int32_t status) {
         if (*value != static_cast<int32_t>(NAPI_ERR_NO_ERROR) || info == nullptr) {
             auto ecode = info == nullptr ? (NAPI_ERR_ABILITY_CALL_INVALID) : *value;
-            task.Reject(engine, CreateJsError(engine, ecode, obj->ConvertErrorCode(ecode)));
+            task.Reject(env, CreateJsError(env, ecode, obj->ConvertErrorCode(ecode)));
             return;
         }
-        task.Resolve(engine, obj->CreateProcessInfo(engine, info));
+        task.Resolve(env, obj->CreateProcessInfo(env, info));
     };
 
     auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
-    NativeValue *result = nullptr;
-    AsyncTask::ScheduleHighQos("NapiJsContext::OnGetProcessInfo",
-        engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("NapiJsContext::OnGetProcessInfo",
+        env, CreateAsyncTaskWithLastParam(env, callback, std::move(execute), std::move(complete), &result));
 
     return result;
 }
 
-NativeValue* NapiJsContext::OnGetElementName(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue* NapiJsContext::OnGetElementName(napi_env env, NativeCallbackInfo &info)
 {
     HILOG_DEBUG("called");
     if (info.argc > ARGS_ONE) {
         HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
-        return engine.CreateUndefined();
+        return env.CreateUndefined();
     }
 
     auto errorVal = std::make_shared<int32_t>(static_cast<int32_t>(NAPI_ERR_NO_ERROR));
@@ -3456,29 +3456,29 @@ NativeValue* NapiJsContext::OnGetElementName(NativeEngine &engine, NativeCallbac
         }
     };
     auto complete = [obj = this, ename = elementName, value = errorVal]
-        (NativeEngine &engine, AsyncTask &task, int32_t status) {
+        (napi_env env, NapiAsyncTask &task, int32_t status) {
         if (*value != static_cast<int32_t>(NAPI_ERR_NO_ERROR) || ename == nullptr) {
             auto ecode = ename == nullptr ? static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID) : *value;
-            task.Reject(engine, CreateJsError(engine, ecode, obj->ConvertErrorCode(ecode)));
+            task.Reject(env, CreateJsError(env, ecode, obj->ConvertErrorCode(ecode)));
             return;
         }
-        task.Resolve(engine, obj->CreateElementName(engine, ename));
+        task.Resolve(env, obj->CreateElementName(env, ename));
     };
 
     auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
-    NativeValue *result = nullptr;
-    AsyncTask::ScheduleHighQos("NapiJsContext::OnGetElementName",
-        engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("NapiJsContext::OnGetElementName",
+        env, CreateAsyncTaskWithLastParam(env, callback, std::move(execute), std::move(complete), &result));
 
     return result;
 }
 
-NativeValue* NapiJsContext::OnGetProcessName(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue* NapiJsContext::OnGetProcessName(napi_env env, NativeCallbackInfo &info)
 {
     HILOG_DEBUG("called");
     if (info.argc > ARGS_ONE) {
         HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
-        return engine.CreateUndefined();
+        return env.CreateUndefined();
     }
 
     auto errorVal = std::make_shared<int32_t>(static_cast<int32_t>(NAPI_ERR_NO_ERROR));
@@ -3497,30 +3497,30 @@ NativeValue* NapiJsContext::OnGetProcessName(NativeEngine &engine, NativeCallbac
         name->name = obj->ability_->GetProcessName();
     };
     auto complete = [obj = this, name = processName, value = errorVal]
-        (NativeEngine &engine, AsyncTask &task, int32_t status) {
+        (napi_env env, NapiAsyncTask &task, int32_t status) {
         if (*value != static_cast<int32_t>(NAPI_ERR_NO_ERROR) || name == nullptr) {
             auto ecode = name == nullptr ? static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID) : *value;
-            task.Reject(engine, CreateJsError(engine, ecode, obj->ConvertErrorCode(ecode)));
+            task.Reject(env, CreateJsError(env, ecode, obj->ConvertErrorCode(ecode)));
             HILOG_DEBUG("task execute error, name is nullptr or NAPI_ERR_ABILITY_CALL_INVALID.");
             return;
         }
-        task.Resolve(engine, CreateJsValue(engine, name->name));
+        task.Resolve(env, CreateJsValue(env, name->name));
     };
 
     auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
-    NativeValue *result = nullptr;
-    AsyncTask::ScheduleHighQos("NapiJsContext::OnGetProcessName",
-        engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("NapiJsContext::OnGetProcessName",
+        env, CreateAsyncTaskWithLastParam(env, callback, std::move(execute), std::move(complete), &result));
 
     return result;
 }
 
-NativeValue* NapiJsContext::OnGetCallingBundle(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue* NapiJsContext::OnGetCallingBundle(napi_env env, NativeCallbackInfo &info)
 {
     HILOG_DEBUG("called");
     if (info.argc > ARGS_ONE) {
         HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
-        return engine.CreateUndefined();
+        return env.CreateUndefined();
     }
 
     auto errorVal = std::make_shared<int32_t>(static_cast<int32_t>(NAPI_ERR_NO_ERROR));
@@ -3539,29 +3539,29 @@ NativeValue* NapiJsContext::OnGetCallingBundle(NativeEngine &engine, NativeCallb
         name->name = obj->ability_->GetCallingBundle();
     };
     auto complete = [obj = this, name = callingBundleName, value = errorVal]
-        (NativeEngine &engine, AsyncTask &task, int32_t status) {
+        (napi_env env, NapiAsyncTask &task, int32_t status) {
         if (*value != static_cast<int32_t>(NAPI_ERR_NO_ERROR) || name == nullptr) {
             auto ecode = name == nullptr ? static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID) : *value;
-            task.Reject(engine, CreateJsError(engine, ecode, obj->ConvertErrorCode(ecode)));
+            task.Reject(env, CreateJsError(env, ecode, obj->ConvertErrorCode(ecode)));
             return;
         }
-        task.Resolve(engine, CreateJsValue(engine, name->name));
+        task.Resolve(env, CreateJsValue(env, name->name));
     };
 
     auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
-    NativeValue *result = nullptr;
-    AsyncTask::ScheduleHighQos("NapiJsContext::OnGetCallingBundle",
-        engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("NapiJsContext::OnGetCallingBundle",
+        env, CreateAsyncTaskWithLastParam(env, callback, std::move(execute), std::move(complete), &result));
 
     return result;
 }
 
-NativeValue* NapiJsContext::OnGetOrCreateLocalDir(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue* NapiJsContext::OnGetOrCreateLocalDir(napi_env env, NativeCallbackInfo &info)
 {
     HILOG_DEBUG("called");
     if (info.argc > ARGS_ONE) {
         HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
-        return engine.CreateUndefined();
+        return env.CreateUndefined();
     }
 
     auto errorVal = std::make_shared<int32_t>(static_cast<int32_t>(NAPI_ERR_NO_ERROR));
@@ -3586,122 +3586,122 @@ NativeValue* NapiJsContext::OnGetOrCreateLocalDir(NativeEngine &engine, NativeCa
         }
     };
     auto complete = [obj = this, dir = createDir, value = errorVal]
-        (NativeEngine &engine, AsyncTask &task, int32_t status) {
+        (napi_env env, NapiAsyncTask &task, int32_t status) {
         if (*value != static_cast<int32_t>(NAPI_ERR_NO_ERROR) || dir == nullptr) {
             auto ecode = dir == nullptr ? static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID) : *value;
-            task.Reject(engine, CreateJsError(engine, ecode, obj->ConvertErrorCode(ecode)));
+            task.Reject(env, CreateJsError(env, ecode, obj->ConvertErrorCode(ecode)));
             return;
         }
-        task.Resolve(engine, CreateJsValue(engine, dir->name));
+        task.Resolve(env, CreateJsValue(env, dir->name));
     };
     auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
-    NativeValue *result = nullptr;
-    AsyncTask::Schedule("NapiJsContext::OnGetOrCreateLocalDir",
-        engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
+    napi_value result = nullptr;
+    NapiAsyncTask::Schedule("NapiJsContext::OnGetOrCreateLocalDir",
+        env, CreateAsyncTaskWithLastParam(env, callback, std::move(execute), std::move(complete), &result));
 
     return result;
 }
 
 #ifdef SUPPORT_GRAPHICS
-NativeValue* NapiJsContext::OnSetShowOnLockScreen(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue* NapiJsContext::OnSetShowOnLockScreen(napi_env env, NativeCallbackInfo &info)
 {
     HILOG_DEBUG("called");
     if (info.argc == ARGS_ZERO || info.argc > ARGS_TWO) {
         HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
-        return engine.CreateUndefined();
+        return env.CreateUndefined();
     }
 
     auto errorVal = std::make_shared<int32_t>(static_cast<int32_t>(NAPI_ERR_NO_ERROR));
     bool isShow = false;
-    if (!ConvertFromJsValue(engine, info.argv[PARAM0], isShow)) {
+    if (!ConvertFromJsValue(env, info.argv[PARAM0], isShow)) {
         HILOG_ERROR("input params int error");
-        return engine.CreateUndefined();
+        return env.CreateUndefined();
     }
     auto complete = [obj = this, isShow, value = errorVal]
-        (NativeEngine &engine, AsyncTask &task, int32_t status) {
+        (napi_env env, NapiAsyncTask &task, int32_t status) {
         if (obj->ability_ == nullptr) {
-            task.Reject(engine,
-                CreateJsError(engine, static_cast<int32_t>(NAPI_ERR_ACE_ABILITY), "get ability error"));
+            task.Reject(env,
+                CreateJsError(env, static_cast<int32_t>(NAPI_ERR_ACE_ABILITY), "get ability error"));
             return;
         }
         obj->ability_->SetShowOnLockScreen(isShow);
-        task.Resolve(engine, engine.CreateUndefined());
+        task.Resolve(env, env.CreateUndefined());
     };
 
     auto callback = info.argc == ARGS_ONE ? nullptr : info.argv[PARAM1];
-    NativeValue *result = nullptr;
-    AsyncTask::Schedule("NapiJsContext::OnSetShowOnLockScreen",
-        engine, CreateAsyncTaskWithLastParam(engine, callback, nullptr, std::move(complete), &result));
+    napi_value result = nullptr;
+    NapiAsyncTask::Schedule("NapiJsContext::OnSetShowOnLockScreen",
+        env, CreateAsyncTaskWithLastParam(env, callback, nullptr, std::move(complete), &result));
 
     return result;
 }
 
-NativeValue* NapiJsContext::OnSetWakeUpScreen(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue* NapiJsContext::OnSetWakeUpScreen(napi_env env, NativeCallbackInfo &info)
 {
     HILOG_DEBUG("called");
     if (info.argc == ARGS_ZERO || info.argc > ARGS_TWO) {
         HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
-        return engine.CreateUndefined();
+        return env.CreateUndefined();
     }
 
     bool wakeUp = false;
-    if (!ConvertFromJsValue(engine, info.argv[PARAM0], wakeUp)) {
+    if (!ConvertFromJsValue(env, info.argv[PARAM0], wakeUp)) {
         HILOG_ERROR("input params int error");
-        return engine.CreateUndefined();
+        return env.CreateUndefined();
     }
     auto complete = [obj = this, wakeUp]
-        (NativeEngine &engine, AsyncTask &task, int32_t status) {
+        (napi_env env, NapiAsyncTask &task, int32_t status) {
         if (obj->ability_ == nullptr) {
-            task.Reject(engine,
-                CreateJsError(engine, static_cast<int32_t>(NAPI_ERR_ACE_ABILITY), "get ability error"));
+            task.Reject(env,
+                CreateJsError(env, static_cast<int32_t>(NAPI_ERR_ACE_ABILITY), "get ability error"));
             return;
         }
         obj->ability_->SetWakeUpScreen(wakeUp);
-        task.Resolve(engine, engine.CreateUndefined());
+        task.Resolve(env, env.CreateUndefined());
     };
 
     auto callback = info.argc == ARGS_ONE ? nullptr : info.argv[PARAM1];
-    NativeValue *result = nullptr;
-    AsyncTask::Schedule("NapiJsContext::OnSetWakeUpScreen",
-        engine, CreateAsyncTaskWithLastParam(engine, callback, nullptr, std::move(complete), &result));
+    napi_value result = nullptr;
+    NapiAsyncTask::Schedule("NapiJsContext::OnSetWakeUpScreen",
+        env, CreateAsyncTaskWithLastParam(env, callback, nullptr, std::move(complete), &result));
 
     return result;
 }
 
-NativeValue* NapiJsContext::OnSetDisplayOrientation(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue* NapiJsContext::OnSetDisplayOrientation(napi_env env, NativeCallbackInfo &info)
 {
     HILOG_DEBUG("called");
     if (info.argc == ARGS_ZERO || info.argc > ARGS_TWO) {
         HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
-        return engine.CreateUndefined();
+        return env.CreateUndefined();
     }
 
     int32_t orientation = 0;
-    if (!ConvertFromJsValue(engine, info.argv[PARAM0], orientation)) {
+    if (!ConvertFromJsValue(env, info.argv[PARAM0], orientation)) {
         HILOG_ERROR("input params int error");
-        return engine.CreateUndefined();
+        return env.CreateUndefined();
     }
 
     int32_t maxRange = 3;
     if (orientation < 0 || orientation > maxRange) {
         HILOG_ERROR("wrong parameter orientation : %{public}d", orientation);
-        return engine.CreateNull();
+        return env.CreateNull();
     }
     auto complete = [obj = this, orientationData = orientation]
-        (NativeEngine &engine, AsyncTask &task, int32_t status) {
+        (napi_env env, NapiAsyncTask &task, int32_t status) {
         if (obj->ability_ == nullptr) {
-            task.Reject(engine,
-                CreateJsError(engine, static_cast<int32_t>(NAPI_ERR_ACE_ABILITY), "get ability error"));
+            task.Reject(env,
+                CreateJsError(env, static_cast<int32_t>(NAPI_ERR_ACE_ABILITY), "get ability error"));
             return;
         }
         obj->ability_->SetDisplayOrientation(orientationData);
-        task.Resolve(engine, engine.CreateUndefined());
+        task.Resolve(env, env.CreateUndefined());
     };
 
     auto callback = info.argc == ARGS_ONE ? nullptr : info.argv[PARAM1];
-    NativeValue *result = nullptr;
-    AsyncTask::ScheduleHighQos("NapiJsContext::SetDisplayOrientation",
-        engine, CreateAsyncTaskWithLastParam(engine, callback, nullptr, std::move(complete), &result));
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("NapiJsContext::SetDisplayOrientation",
+        env, CreateAsyncTaskWithLastParam(env, callback, nullptr, std::move(complete), &result));
 
     return result;
 }

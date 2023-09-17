@@ -21,16 +21,15 @@ extern const char _binary_service_extension_ability_abc_start[];
 extern const char _binary_service_extension_ability_abc_end[];
 
 #ifdef ENABLE_ERRCODE
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_modname = "app.ability.ServiceExtensionAbility",
+    .nm_filename = "app/ability/libserviceextensionability.so/service_extension_ability.js",
+};
 extern "C" __attribute__((constructor))
 void NAPI_app_ability_ServiceExtensionAbility_AutoRegister()
 {
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-        .name = "app.ability.ServiceExtensionAbility",
-        .fileName = "app/ability/libserviceextensionability.so/service_extension_ability.js",
-    };
-
-    moduleManager->Register(&newModuleInfo);
+    napi_module_register(&_module);
 }
 
 extern "C" __attribute__((visibility("default")))
@@ -56,16 +55,15 @@ void NAPI_app_ability_ServiceExtensionAbility_GetABCCode(const char **buf, int *
     }
 }
 #else
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_modname = "application.ServiceExtensionAbility",
+    .nm_filename = "application/libserviceextensionability_napi.so/service_extension_ability.js",
+};
 extern "C" __attribute__((constructor))
 void NAPI_application_ServiceExtensionAbility_AutoRegister()
 {
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-        .name = "application.ServiceExtensionAbility",
-        .fileName = "application/libserviceextensionability_napi.so/service_extension_ability.js",
-    };
-
-    moduleManager->Register(&newModuleInfo);
+    napi_module_register(&_module);
 }
 
 extern "C" __attribute__((visibility("default")))

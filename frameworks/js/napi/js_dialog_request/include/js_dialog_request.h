@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue* JsDialogRequestInit(NativeEngine* engine, NativeValue* exportObj);
+napi_value JsDialogRequestInit(napi_env env, napi_value exportObj);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_JS_DIALOG_REQUEST_H

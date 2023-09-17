@@ -25,7 +25,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue* InitAppRecoveryApiModule(NativeEngine *engine, NativeValue *exportObj);
+napi_value InitAppRecoveryApiModule(napi_env env, napi_value exportObj);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_APP_RECOVERY_API_H

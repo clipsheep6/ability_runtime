@@ -43,8 +43,8 @@ enum class AbilityLifecycleState {
     DESTROY,
 };
 
-NativeValue *JsAbilityDelegatorRegistryInit(NativeEngine *engine, NativeValue *exportObj);
-NativeValue *AbilityLifecycleStateInit(NativeEngine *engine);
+napi_value JsAbilityDelegatorRegistryInit(napi_env env, napi_value exportObj);
+napi_value AbilityLifecycleStateInit(napi_env env);
 }  // namespace AbilityDelegatorJs
 }  // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_JS_ABILITY_DELEGATOR_REGISTRY_H

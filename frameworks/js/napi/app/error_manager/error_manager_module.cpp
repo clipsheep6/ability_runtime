@@ -16,29 +16,26 @@
 #include "js_error_manager.h"
 #include "native_engine/native_engine.h"
 
-extern "C" __attribute__((constructor))
 #ifdef ENABLE_ERRCODE
-void NAPI_app_ability_ErrorManager_AutoRegister()
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_modname = "app.ability.errorManager",
+    .nm_filename = "app/ability/errormanager_napi.so/error_manager.js",
+    .nm_register_func = OHOS::AbilityRuntime::JsErrorManagerInit,
+};
+extern "C" __attribute__((constructor)) void NAPI_app_ability_ErrorManager_AutoRegister()
 {
-    NativeModule newModuleInfo = {
-        .name = "app.ability.errorManager",
-        .fileName = "app/ability/errormanager_napi.so/error_manager.js",
-        .registerCallback = OHOS::AbilityRuntime::JsErrorManagerInit,
-    };
-
-    auto moduleManager = NativeModuleManager::GetInstance();
-    moduleManager->Register(&newModuleInfo);
+    napi_module_register(&_module);
 }
 #else
-void NAPI_application_ErrorManager_AutoRegister()
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_modname = "application.errorManager",
+    .nm_filename = "application/errormanager_napi.so/error_manager.js",
+    .nm_register_func = OHOS::AbilityRuntime::JsErrorManagerInit,
+};
+extern "C" __attribute__((constructor)) void NAPI_app_ability_ErrorManager_AutoRegister()
 {
-    NativeModule newModuleInfo = {
-        .name = "application.errorManager",
-        .fileName = "application/errormanager_napi.so/error_manager.js",
-        .registerCallback = OHOS::AbilityRuntime::JsErrorManagerInit,
-    };
-
-    auto moduleManager = NativeModuleManager::GetInstance();
-    moduleManager->Register(&newModuleInfo);
+    napi_module_register(&_module);
 }
 #endif
