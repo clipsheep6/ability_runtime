@@ -139,5 +139,67 @@ NativeValue* CreateJsRunningProcessInfo(NativeEngine &engine, const RunningProce
     object->SetProperty("isFocused", CreateJsValue(engine, info.isFocused));
     return objValue;
 }
+
+NativeValue *ApplicationStateInit(NativeEngine *engine)
+{
+    HILOG_INFO("enter");
+
+    if (engine == nullptr) {
+        HILOG_ERROR("Invalid input parameters");
+        return nullptr;
+    }
+
+    NativeValue *objValue = engine->CreateObject();
+    NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
+
+    if (object == nullptr) {
+        HILOG_ERROR("Failed to get object");
+        return nullptr;
+    }
+
+    object->SetProperty("STATE_CREATE",
+        CreateJsValue(*engine, static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_CREATE)));
+    object->SetProperty("STATE_FOREGROUND",
+        CreateJsValue(*engine, static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_FOREGROUND)));
+    object->SetProperty("STATE_ACTIVE",
+        CreateJsValue(*engine, static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_FOCUS)));
+    object->SetProperty("STATE_BACKGROUND",
+        CreateJsValue(*engine, static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_BACKGROUND)));
+    object->SetProperty("STATE_DESTROY",
+        CreateJsValue(*engine, static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_TERMINATED)));
+
+    return objValue;
+}
+
+NativeValue *ProcessStateInit(NativeEngine *engine)
+{
+    HILOG_INFO("enter");
+
+    if (engine == nullptr) {
+        HILOG_ERROR("Invalid input parameters");
+        return nullptr;
+    }
+
+    NativeValue *objValue = engine->CreateObject();
+    NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
+
+    if (object == nullptr) {
+        HILOG_ERROR("Failed to get object");
+        return nullptr;
+    }
+
+    object->SetProperty("STATE_CREATE",
+        CreateJsValue(*engine, static_cast<int32_t>(AppExecFwk::AppProcessState::APP_STATE_CREATE)));
+    object->SetProperty("STATE_FOREGROUND",
+        CreateJsValue(*engine, static_cast<int32_t>(AppExecFwk::AppProcessState::APP_STATE_FOREGROUND)));
+    object->SetProperty("STATE_ACTIVE",
+        CreateJsValue(*engine, static_cast<int32_t>(AppExecFwk::AppProcessState::APP_STATE_FOCUS)));
+    object->SetProperty("STATE_BACKGROUND",
+        CreateJsValue(*engine, static_cast<int32_t>(AppExecFwk::AppProcessState::APP_STATE_BACKGROUND)));
+    object->SetProperty("STATE_DESTROY",
+        CreateJsValue(*engine, static_cast<int32_t>(AppExecFwk::AppProcessState::APP_STATE_TERMINATED)));
+
+    return objValue;
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

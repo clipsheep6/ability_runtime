@@ -795,6 +795,9 @@ NativeValue* JsAppManagerInit(NativeEngine* engine, NativeValue* exportObj)
         std::make_unique<JsAppManager>(GetAppManagerInstance(), GetAbilityManagerInstance());
     object->SetNativePointer(jsAppManager.release(), JsAppManager::Finalizer, nullptr);
 
+    object->SetProperty("ApplicationState", ApplicationStateInit(engine));
+    object->SetProperty("ProcessState", ProcessStateInit(engine));
+
     const char *moduleName = "AppManager";
     BindNativeFunction(*engine, *object, "on", moduleName, JsAppManager::On);
     BindNativeFunction(*engine, *object, "off", moduleName, JsAppManager::Off);
