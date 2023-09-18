@@ -103,12 +103,16 @@ public:
      */
     virtual void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData);
 
+    virtual int GenerateCurRequestCode();
+
     using SelfType = UIExtensionContext;
     static const size_t CONTEXT_TYPE_ID;
 
 private:
     static int ILLEGAL_REQUEST_CODE;
     std::map<int, RuntimeTask> resultCallbacks_;
+
+    int curRequestCode_ = 0;
 
     /**
      * @brief Get Current Ability Type
