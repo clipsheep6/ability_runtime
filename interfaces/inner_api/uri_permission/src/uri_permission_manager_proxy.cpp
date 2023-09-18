@@ -24,7 +24,7 @@ namespace AAFwk {
 UriPermissionManagerProxy::UriPermissionManagerProxy(const sptr<IRemoteObject> &impl)
     : IRemoteProxy<IUriPermissionManager>(impl) {}
 
-int UriPermissionManagerProxy::GrantUriPermission(const Uri &uri, unsigned int flag,
+int UriPermissionManagerProxy::GrantUriPermission(const std::vector<Uri> &uriList, unsigned int flag,
     const std::string targetBundleName, int autoremove, int32_t appIndex)
 {
     HILOG_DEBUG("UriPermissionManagerProxy::GrantUriPermission is called.");
@@ -33,9 +33,11 @@ int UriPermissionManagerProxy::GrantUriPermission(const Uri &uri, unsigned int f
         HILOG_ERROR("Write interface token failed.");
         return INNER_ERR;
     }
-    if (!data.WriteParcelable(&uri)) {
-        HILOG_ERROR("Write uri failed.");
-        return INNER_ERR;
+    for(const auto &uri : uriList){
+        if (!data.WriteParcelable(&uri)) {
+            HILOG_ERROR("Write uri failed.");
+            return INNER_ERR;
+        }
     }
     if (!data.WriteInt32(flag)) {
         HILOG_ERROR("Write flag failed.");

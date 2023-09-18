@@ -97,7 +97,8 @@ private:
         AsyncTask::CompleteCallback complete =
         [uriStr, flag, targetBundleName](NativeEngine& engine, AsyncTask& task, int32_t status) {
             Uri uri(uriStr);
-            auto errCode = AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, flag,
+            std::vector<Uri> uriList(1, uri);
+            auto errCode = AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(uriList, flag,
                 targetBundleName, 0);
             if (errCode == ERR_OK) {
                 task.ResolveWithNoError(engine, engine.CreateUndefined());
