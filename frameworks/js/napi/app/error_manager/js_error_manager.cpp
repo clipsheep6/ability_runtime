@@ -35,7 +35,6 @@ constexpr int32_t INDEX_TWO = 2;
 constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
 constexpr const char* ON_OFF_TYPE = "error";
-constexpr const char* ON_OFF_TYPE_SYNC = "errorEvent";
 
 class JsErrorManager final {
 public:
@@ -64,10 +63,6 @@ private:
     NativeValue* OnOn(NativeEngine& engine, const NativeCallbackInfo& info)
     {
         HILOG_DEBUG("called.");
-        std::string type = ParseParamType(engine, info);
-        if (type == ON_OFF_TYPE_SYNC) {
-            return OnOnNew(engine, info);
-        }
         return OnOnOld(engine, info);
     }
 
@@ -136,10 +131,6 @@ private:
     NativeValue* OnOff(NativeEngine& engine, NativeCallbackInfo& info)
     {
         HILOG_DEBUG("called.");
-        std::string type = ParseParamType(engine, info);
-        if (type == ON_OFF_TYPE_SYNC) {
-            return OnOffNew(engine, info);
-        }
         return OnOffOld(engine, info);
     }
 
