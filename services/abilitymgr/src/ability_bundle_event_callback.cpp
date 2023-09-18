@@ -16,9 +16,13 @@
 #include "ability_bundle_event_callback.h"
 
 #include "ability_manager_service.h"
+#include "uri_permission_manager_client.h"
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+const std::string KEY_TOKEN = "accessTokenId";
+}
 AbilityBundleEventCallback::AbilityBundleEventCallback(std::shared_ptr<TaskHandlerWrap> taskHandler)
     : taskHandler_(taskHandler) {}
 
@@ -33,6 +37,7 @@ void AbilityBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData 
     // action contains the change type of haps.
     std::string action = want.GetAction();
     std::string bundleName = want.GetElement().GetBundleName();
+    auto tokenId = static_cast<uint32_t>(want.GetIntParam(KEY_TOKEN, 0));
     int uid = want.GetIntParam(KEY_UID, 0);
     // verify data
     if (action.empty() || bundleName.empty()) {
@@ -41,13 +46,25 @@ void AbilityBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData 
     }
     HILOG_DEBUG("OnReceiveEvent, action:%{public}s.", action.c_str());
 
-    if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED ||
-        action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
+    if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
+        // uninstall bundle
+        HandleRemoveUriPermission(tokenId);
+        HandleUpdatedModuleInfo(bundleName, uid);
+    } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED) {
         // install or uninstall module/bundle
         HandleUpdatedModuleInfo(bundleName, uid);
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED) {
         HandleUpdatedModuleInfo(bundleName, uid);
         HandleAppUpgradeCompleted(bundleName, uid);
+    }
+}
+
+void AbilityBundleEventCallback::HandleRemoveUriPermission(uint32_t tokenId)
+{
+    HILOG_DEBUG("HandleRemoveUriPermission: %{public}i", tokenId);
+    auto ret = AAFwk::UriPermissionManagerClient::GetInstance().RevokeAllUriPermissions(tokenId);
+    if (!ret) {
+        HILOG_ERROR("Revoke all uri permissions failed.");
     }
 }
 

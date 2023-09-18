@@ -34,6 +34,13 @@ public:
 
 private:
     DISALLOW_COPY_AND_MOVE(UriPermissionManagerStub);
+
+    int HandleRevokeUriPermission(MessageParcel &data, MessageParcel &reply);
+    int HandleRevokeAllUriPermission(MessageParcel &data, MessageParcel &reply);
+    int HandleGrantUriPermission(MessageParcel &data, MessageParcel &reply);
+    int HandleRevokeUriPermissionManually(MessageParcel &data, MessageParcel &reply);
+    int HandleCheckPerSiSTableUriPermissionProxy(MessageParcel &data, MessageParcel &reply);
+    int HandleVerifyUriPermission(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

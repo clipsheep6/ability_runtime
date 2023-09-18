@@ -4714,7 +4714,6 @@ int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t u
     if (ret != ERR_OK) {
         return UNINSTALL_APP_FAILED;
     }
-
     DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->DeleteAppExitReason(bundleName);
     return ERR_OK;
 }
