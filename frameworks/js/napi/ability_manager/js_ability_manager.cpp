@@ -38,7 +38,6 @@
 #include "napi_common_util.h"
 #include "napi_common_want.h"
 #include "tokenid_kit.h"
-#include "js_api_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -276,8 +275,7 @@ private:
                 asyncTask->Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(resultCode)));
                 return;
             }
-            // to do
-            napi_value abilityResult = (napi_value)AppExecFwk::CreateJsWantParams(*(NativeEngine*)env, wantParam);
+            napi_value abilityResult = AppExecFwk::WrapWantParams(env, wantParam);
             if (abilityResult == nullptr) {
                 asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
             } else {
@@ -317,8 +315,7 @@ private:
 
             AppExecFwk::Want want;
             int resultCode = ERR_OK;
-            // to do
-            if (!JsApiUtils::UnWrapAbilityResult(*(NativeEngine*)env, (NativeValue*)argv[0], resultCode, want)) {
+            if (!AppExecFwk::UnWrapAbilityResult(env, argv[0], resultCode, want)) {
                 HILOG_ERROR("Unrwrap abilityResult param error");
                 ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
                 break;

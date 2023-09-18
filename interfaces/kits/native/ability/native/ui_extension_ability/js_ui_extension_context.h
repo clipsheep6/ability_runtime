@@ -27,38 +27,35 @@ class JsUIExtensionContext {
 public:
     explicit JsUIExtensionContext(const std::shared_ptr<UIExtensionContext>& context) : context_(context) {}
     virtual ~JsUIExtensionContext() = default;
-    static void Finalizer(NativeEngine* engine, void* data, void* hint);
-    static NativeValue* StartAbility(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* TerminateSelf(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* TerminateSelfWithResult(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* CreateJsUIExtensionContext(NativeEngine& engine, std::shared_ptr<UIExtensionContext> context);
-    static NativeValue* StartAbilityForResult(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* ConnectAbility(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* DisconnectAbility(NativeEngine* engine, NativeCallbackInfo* info);
+    static void Finalizer(napi_env env, void* data, void* hint);
+    static napi_value StartAbility(napi_env env, napi_callback_info info);
+    static napi_value TerminateSelf(napi_env env, napi_callback_info info);
+    static napi_value TerminateSelfWithResult(napi_env env, napi_callback_info info);
+    static napi_value CreateJsUIExtensionContext(napi_env env, std::shared_ptr<UIExtensionContext> context);
+    static napi_value StartAbilityForResult(napi_env env, napi_callback_info info);
+    static napi_value ConnectAbility(napi_env env, napi_callback_info info);
+    static napi_value DisconnectAbility(napi_env env, napi_callback_info info);
 
+    // to do
+    static NativeValue* CreateJsUIExtensionContext(NativeEngine& engine, std::shared_ptr<UIExtensionContext> context);
 protected:
-    virtual NativeValue* OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info);
-    virtual NativeValue* OnTerminateSelf(NativeEngine& engine, const NativeCallbackInfo& info);
-    virtual NativeValue* OnTerminateSelfWithResult(NativeEngine& engine, const NativeCallbackInfo& info);
-    virtual NativeValue* OnStartAbilityForResult(NativeEngine& engine, NativeCallbackInfo& info);
-    virtual NativeValue* OnConnectAbility(NativeEngine& engine, NativeCallbackInfo& info);
-    virtual NativeValue* OnDisconnectAbility(NativeEngine& engine, NativeCallbackInfo& info);
+    virtual napi_value OnStartAbility(napi_env env, size_t argc, napi_value* argv);
+    virtual napi_value OnTerminateSelf(napi_env env, size_t argc, napi_value* argv);
+    virtual napi_value OnTerminateSelfWithResult(napi_env env, size_t argc, napi_value* argv);
+    virtual napi_value OnStartAbilityForResult(napi_env env, size_t argc, napi_value* argv);
+    virtual napi_value OnConnectAbility(napi_env env, size_t argc, napi_value* argv);
+    virtual napi_value OnDisconnectAbility(napi_env env, size_t argc, napi_value* argv);
 
 private:
     std::weak_ptr<UIExtensionContext> context_;
 
-    bool CheckStartAbilityInputParam(NativeEngine& engine, NativeCallbackInfo& info, AAFwk::Want& want,
+    bool CheckStartAbilityInputParam(napi_env env, size_t argc, napi_value* argv, AAFwk::Want& want,
         AAFwk::StartOptions& startOptions, size_t& unwrapArgc) const;
-    bool CheckWantParam(NativeEngine& engine, NativeValue* value, AAFwk::Want& want) const;
-    static bool UnWrapWant(NativeEngine& engine, NativeValue* argv, AAFwk::Want& want);
-    static bool UnWrapAbilityResult(NativeEngine& engine, NativeValue* argv, int& resultCode, AAFwk::Want& want);
-    static NativeValue* WrapAbilityResult(NativeEngine& engine, const int& resultCode, const AAFwk::Want& want);
-    static NativeValue* WrapWant(NativeEngine& engine, const AAFwk::Want& want);
 };
 
 class JSUIExtensionConnection : public AbilityConnectCallback {
 public:
-    explicit JSUIExtensionConnection(NativeEngine& engine);
+    explicit JSUIExtensionConnection(napi_env env);
     ~JSUIExtensionConnection();
     void OnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
@@ -66,13 +63,13 @@ public:
     void HandleOnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode);
     void HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode);
-    void SetJsConnectionObject(NativeValue* jsConnectionObject);
+    void SetJsConnectionObject(napi_value jsConnectionObject);
     void RemoveConnectionObject();
     void CallJsFailed(int32_t errorCode);
     void SetConnectionId(int64_t id);
     int64_t GetConnectionId();
 private:
-    NativeEngine& engine_;
+    napi_env env_ = nullptr;
     std::unique_ptr<NativeReference> jsConnectionObject_ = nullptr;
     int64_t connectionId_ = -1;
 };

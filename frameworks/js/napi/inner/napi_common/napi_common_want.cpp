@@ -1167,6 +1167,43 @@ bool UnwrapWant(napi_env env, napi_value param, Want &want)
     return true;
 }
 
+napi_value WrapAbilityResult(napi_env env, const int &resultCode, const AAFwk::Want &want)
+{
+    napi_value jsObject = nullptr;
+    napi_value jsValue = nullptr;
+
+    NAPI_CALL(env, napi_create_object(env, &jsObject));
+
+    jsValue = WrapInt32ToJS(env, resultCode);
+    SetPropertyValueByPropertyName(env, jsObject, "resultCode", jsValue);
+
+    jsValue = nullptr;
+    jsValue = WrapWant(env, want);
+    SetPropertyValueByPropertyName(env, jsObject, "want", jsValue);
+
+    return jsObject;
+}
+
+bool UnWrapAbilityResult(napi_env env, napi_value param, int &resultCode, AAFwk::Want &want)
+{
+    if (!IsTypeForNapiValue(env, param, napi_object)) {
+        return false;
+    }
+
+    if (!UnwrapInt32ByPropertyName(env, param, "resultCode", resultCode)) {
+        return false;
+    }
+
+    napi_value jsWant = GetPropertyValueByPropertyName(env, param, "want", napi_object);
+    if (jsWant == nullptr) {
+        return false;
+    }
+    if (!UnwrapWant(env, jsWant, want)) {
+        return false;
+    }
+    return true;
+}
+
 NativeValue* CreateJsWant(NativeEngine &engine, const Want &want)
 {
     NativeValue* objValue = engine.CreateObject();

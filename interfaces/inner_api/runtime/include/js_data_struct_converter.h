@@ -20,6 +20,7 @@
 #include "application_info.h"
 #include "launch_param.h"
 #include "hap_module_info.h"
+#include "napi/native_api.h"
 #include "want.h"
 #include "configuration.h"
 
@@ -28,6 +29,15 @@ class NativeValue;
 
 namespace OHOS {
 namespace AbilityRuntime {
+napi_value CreateJsWantObject(napi_env env, const AAFwk::Want& want);
+napi_value CreateJsAbilityInfo(napi_env env, const AppExecFwk::AbilityInfo& abilityInfo);
+napi_value CreateJsApplicationInfo(napi_env env, const AppExecFwk::ApplicationInfo &applicationInfo);
+napi_value CreateJsLaunchParam(napi_env env, const AAFwk::LaunchParam& launchParam);
+napi_value CreateJsConfiguration(napi_env env, const AppExecFwk::Configuration& configuration);
+napi_value CreateJsExtensionAbilityInfo(napi_env env, const AppExecFwk::ExtensionAbilityInfo& info);
+napi_value CreateJsHapModuleInfo(napi_env env, const AppExecFwk::HapModuleInfo& hapModuleInfo);
+
+// to do
 NativeValue* CreateJsWantObject(NativeEngine& engine, const AAFwk::Want& want);
 NativeValue* CreateJsAbilityInfo(NativeEngine& engine, const AppExecFwk::AbilityInfo& abilityInfo);
 NativeValue* CreateJsApplicationInfo(NativeEngine& engine, const AppExecFwk::ApplicationInfo &applicationInfo);

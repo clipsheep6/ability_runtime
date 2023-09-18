@@ -26,7 +26,6 @@ template("abilitymanager") {
       "ability_manager_module.cpp",
       "js_ability_manager.cpp",
       "js_ability_manager_utils.cpp",
-      "js_api_utils.cpp",
     ]
 
     include_dirs = [

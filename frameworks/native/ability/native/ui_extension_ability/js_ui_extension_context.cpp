@@ -62,20 +62,7 @@ void RemoveConnection(int64_t connectId)
     }
 }
 
-bool CheckOnDisconnectAbilityParam(NativeEngine& engine, NativeCallbackInfo& info, int64_t& connectId)
-{
-    // Check input connection is number type
-    if (!AppExecFwk::UnwrapInt64FromJS2(
-        reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), connectId)) {
-        HILOG_ERROR("The input connection id is not number type.");
-        return false;
-    }
-    return true;
-}
-
-void FindConnection(
-    NativeEngine& engine, NativeCallbackInfo& info,
-    AAFwk::Want& want, sptr<JSUIExtensionConnection>& connection, int64_t& connectId)
+void FindConnection(AAFwk::Want& want, sptr<JSUIExtensionConnection>& connection, int64_t& connectId)
 {
     HILOG_DEBUG("Disconnect ability begin, connection:%{public}d.", static_cast<int32_t>(connectId));
     auto item = std::find_if(g_connects.begin(),
@@ -92,11 +79,9 @@ void FindConnection(
     return;
 }
 
-bool CheckConnectionParam(
-    NativeEngine& engine, NativeValue* value,
-    sptr<JSUIExtensionConnection>& connection, AAFwk::Want& want)
+bool CheckConnectionParam(napi_env env, napi_value value, sptr<JSUIExtensionConnection>& connection, AAFwk::Want& want)
 {
-    if (ConvertNativeValueTo<NativeObject>(value) == nullptr) {
+    if (!AppExecFwk::IsTypeForNapiValue(env, value, napi_object)) {
         HILOG_ERROR("Failed to get connection object");
         return false;
     }
@@ -115,74 +100,68 @@ bool CheckConnectionParam(
     return true;
 }
 
-void JsUIExtensionContext::Finalizer(NativeEngine* engine, void* data, void* hint)
+void JsUIExtensionContext::Finalizer(napi_env env, void* data, void* hint)
 {
     HILOG_DEBUG("JsUIExtensionContext Finalizer is called");
     std::unique_ptr<JsUIExtensionContext>(static_cast<JsUIExtensionContext*>(data));
 }
 
-NativeValue *JsUIExtensionContext::StartAbility(NativeEngine* engine, NativeCallbackInfo* info)
+napi_value JsUIExtensionContext::StartAbility(napi_env env, napi_callback_info info)
 {
-    JsUIExtensionContext* me = CheckParamsAndGetThis<JsUIExtensionContext>(engine, info);
-    return (me != nullptr) ? me->OnStartAbility(*engine, *info) : nullptr;
+    GET_CB_INFO_AND_CALL(env, info, JsUIExtensionContext, OnStartAbility);
 }
 
-NativeValue *JsUIExtensionContext::TerminateSelf(NativeEngine* engine, NativeCallbackInfo* info)
+napi_value JsUIExtensionContext::TerminateSelf(napi_env env, napi_callback_info info)
 {
-    JsUIExtensionContext* me = CheckParamsAndGetThis<JsUIExtensionContext>(engine, info);
-    return (me != nullptr) ? me->OnTerminateSelf(*engine, *info) : nullptr;
+    GET_CB_INFO_AND_CALL(env, info, JsUIExtensionContext, OnTerminateSelf);
 }
 
-NativeValue *JsUIExtensionContext::StartAbilityForResult(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsUIExtensionContext::StartAbilityForResult(napi_env env, napi_callback_info info)
 {
-    JsUIExtensionContext *me = CheckParamsAndGetThis<JsUIExtensionContext>(engine, info);
-    return (me != nullptr) ? me->OnStartAbilityForResult(*engine, *info) : nullptr;
+    GET_CB_INFO_AND_CALL(env, info, JsUIExtensionContext, OnStartAbilityForResult);
 }
 
-NativeValue* JsUIExtensionContext::TerminateSelfWithResult(NativeEngine* engine, NativeCallbackInfo* info)
+napi_value JsUIExtensionContext::TerminateSelfWithResult(napi_env env, napi_callback_info info)
 {
-    JsUIExtensionContext* me = CheckParamsAndGetThis<JsUIExtensionContext>(engine, info);
-    return (me != nullptr) ? me->OnTerminateSelfWithResult(*engine, *info) : nullptr;
+    GET_CB_INFO_AND_CALL(env, info, JsUIExtensionContext, OnTerminateSelfWithResult);
 }
 
-NativeValue* JsUIExtensionContext::ConnectAbility(NativeEngine* engine, NativeCallbackInfo* info)
+napi_value JsUIExtensionContext::ConnectAbility(napi_env env, napi_callback_info info)
 {
-    JsUIExtensionContext* me = CheckParamsAndGetThis<JsUIExtensionContext>(engine, info);
-    return (me != nullptr) ? me->OnConnectAbility(*engine, *info) : nullptr;
+    GET_CB_INFO_AND_CALL(env, info, JsUIExtensionContext, OnConnectAbility);
 }
 
-NativeValue* JsUIExtensionContext::DisconnectAbility(NativeEngine* engine, NativeCallbackInfo* info)
+napi_value JsUIExtensionContext::DisconnectAbility(napi_env env, napi_callback_info info)
 {
-    JsUIExtensionContext* me = CheckParamsAndGetThis<JsUIExtensionContext>(engine, info);
-    return (me != nullptr) ? me->OnDisconnectAbility(*engine, *info) : nullptr;
+    GET_CB_INFO_AND_CALL(env, info, JsUIExtensionContext, OnDisconnectAbility);
 }
 
-NativeValue *JsUIExtensionContext::OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info)
+napi_value JsUIExtensionContext::OnStartAbility(napi_env env, size_t argc, napi_value* argv)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("OnStartAbility is called");
-    if (info.argc < ARGC_ONE) {
+    if (argc < ARGC_ONE) {
         HILOG_ERROR("Start ability failed, not enough params.");
-        ThrowTooFewParametersError(engine);
-        return engine.CreateUndefined();
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
     }
 
     size_t unwrapArgc = 0;
     AAFwk::Want want;
     AAFwk::StartOptions startOptions;
-    if (!CheckStartAbilityInputParam(engine, info, want, startOptions, unwrapArgc)) {
+    if (!CheckStartAbilityInputParam(env, argc, argv, want, startOptions, unwrapArgc)) {
         HILOG_DEBUG("Failed, input param type invalid");
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-        return engine.CreateUndefined();
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
     }
 
-    AsyncTask::CompleteCallback complete =
-        [weak = context_, want, startOptions, unwrapArgc](NativeEngine& engine, AsyncTask& task, int32_t status) {
+    NapiAsyncTask::CompleteCallback complete =
+        [weak = context_, want, startOptions, unwrapArgc](napi_env env, NapiAsyncTask& task, int32_t status) {
             HILOG_DEBUG("startAbility begin");
             auto context = weak.lock();
             if (!context) {
                 HILOG_ERROR("context is released");
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                 return;
             }
 
@@ -190,83 +169,83 @@ NativeValue *JsUIExtensionContext::OnStartAbility(NativeEngine& engine, NativeCa
             (unwrapArgc == 1) ? innerErrorCode = context->StartAbility(want) :
                 innerErrorCode = context->StartAbility(want, startOptions);
             if (innerErrorCode == 0) {
-                task.Resolve(engine, engine.CreateUndefined());
+                task.Resolve(env, CreateJsUndefined(env));
             } else {
-                task.Reject(engine, CreateJsErrorByNativeErr(engine, innerErrorCode));
+                task.Reject(env, CreateJsErrorByNativeErr(env, innerErrorCode));
             }
         };
 
-    NativeValue* lastParam = (info.argc == unwrapArgc) ? nullptr : info.argv[unwrapArgc];
-    NativeValue* result = nullptr;
-    AsyncTask::ScheduleHighQos("JSUIExtensionContext OnStartAbility",
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    napi_value lastParam = (argc == unwrapArgc) ? nullptr : argv[unwrapArgc];
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JSUIExtensionContext OnStartAbility",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
-NativeValue *JsUIExtensionContext::OnTerminateSelf(NativeEngine& engine, const NativeCallbackInfo& info)
+napi_value JsUIExtensionContext::OnTerminateSelf(napi_env env, size_t argc, napi_value* argv)
 {
     HILOG_DEBUG("OnTerminateSelf is called");
-    AsyncTask::CompleteCallback complete =
-        [weak = context_](NativeEngine& engine, AsyncTask& task, int32_t status) {
+    NapiAsyncTask::CompleteCallback complete =
+        [weak = context_](napi_env env, NapiAsyncTask& task, int32_t status) {
             auto context = weak.lock();
             if (!context) {
                 HILOG_ERROR("context is released");
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                 return;
             }
 
             ErrCode innerErrorCode = context->TerminateSelf();
             if (innerErrorCode == 0) {
-                task.Resolve(engine, engine.CreateUndefined());
+                task.Resolve(env, CreateJsUndefined(env));
             } else {
-                task.Reject(engine, CreateJsErrorByNativeErr(engine, innerErrorCode));
+                task.Reject(env, CreateJsErrorByNativeErr(env, innerErrorCode));
             }
         };
 
-    NativeValue* lastParam = (info.argc == ARGC_ZERO) ? nullptr : info.argv[INDEX_ZERO];
-    NativeValue* result = nullptr;
-    AsyncTask::ScheduleHighQos("JSUIExtensionContext OnTerminateSelf",
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    napi_value lastParam = (argc == ARGC_ZERO) ? nullptr : argv[INDEX_ZERO];
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JSUIExtensionContext OnTerminateSelf",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
-NativeValue *JsUIExtensionContext::OnStartAbilityForResult(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JsUIExtensionContext::OnStartAbilityForResult(napi_env env, size_t argc, napi_value* argv)
 {
     HILOG_DEBUG("called.");
-    if (info.argc == ARGC_ZERO) {
-        ThrowTooFewParametersError(engine);
-        return engine.CreateUndefined();
+    if (argc == ARGC_ZERO) {
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
     }
     size_t unwrapArgc = 0;
     AAFwk::Want want;
     AAFwk::StartOptions startOptions;
-    if (!CheckStartAbilityInputParam(engine, info, want, startOptions, unwrapArgc)) {
+    if (!CheckStartAbilityInputParam(env, argc, argv, want, startOptions, unwrapArgc)) {
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         HILOG_DEBUG("input param type invalid");
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
-    NativeValue *lastParam = info.argc > unwrapArgc ? info.argv[unwrapArgc] : nullptr;
-    NativeValue *result = nullptr;
-    std::unique_ptr<AsyncTask> uasyncTask = CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, nullptr, &result);
-    std::shared_ptr<AsyncTask> asyncTask = std::move(uasyncTask);
-    RuntimeTask task = [&engine, asyncTask](int resultCode, const AAFwk::Want &want, bool isInner) {
+    napi_value lastParam = argc > unwrapArgc ? argv[unwrapArgc] : nullptr;
+    napi_value result = nullptr;
+    std::unique_ptr<NapiAsyncTask> uasyncTask = CreateAsyncTaskWithLastParam(env, lastParam, nullptr, nullptr, &result);
+    std::shared_ptr<NapiAsyncTask> asyncTask = std::move(uasyncTask);
+    RuntimeTask task = [env, asyncTask](int resultCode, const AAFwk::Want &want, bool isInner) {
         HILOG_INFO("async callback is called.");
-        NativeValue *abilityResult = WrapAbilityResult(engine, resultCode, want);
+        napi_value abilityResult = AppExecFwk::WrapAbilityResult(env, resultCode, want);
         if (abilityResult == nullptr) {
             HILOG_WARN("wrap abilityResult failed.");
-            asyncTask->Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+            asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
             return;
         }
         if (isInner) {
-            asyncTask->Reject(engine, CreateJsErrorByNativeErr(engine, resultCode));
+            asyncTask->Reject(env, CreateJsErrorByNativeErr(env, resultCode));
             return;
         }
-        asyncTask->Resolve(engine, abilityResult);
+        asyncTask->Resolve(env, abilityResult);
     };
     auto context = context_.lock();
     if (context == nullptr) {
         HILOG_WARN("context is released.");
-        asyncTask->Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+        asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
         return result;
     }
     want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
@@ -277,73 +256,73 @@ NativeValue *JsUIExtensionContext::OnStartAbilityForResult(NativeEngine &engine,
     return result;
 }
 
-NativeValue* JsUIExtensionContext::OnTerminateSelfWithResult(NativeEngine& engine, const NativeCallbackInfo& info)
+napi_value JsUIExtensionContext::OnTerminateSelfWithResult(napi_env env, size_t argc, napi_value* argv)
 {
     HILOG_DEBUG("OnTerminateSelfWithResult is called");
 
-    if (info.argc == 0) {
+    if (argc == 0) {
         HILOG_ERROR("Not enough params");
-        ThrowTooFewParametersError(engine);
-        return engine.CreateUndefined();
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
     }
 
     int resultCode = 0;
     AAFwk::Want want;
-    if (!JsUIExtensionContext::UnWrapAbilityResult(engine, info.argv[0], resultCode, want)) {
+    if (!AppExecFwk::UnWrapAbilityResult(env, argv[0], resultCode, want)) {
         HILOG_ERROR("OnTerminateSelfWithResult Failed to parse ability result!");
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-        return engine.CreateUndefined();
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
     }
 
-    AsyncTask::CompleteCallback complete =
-        [weak = context_, want, resultCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
+    NapiAsyncTask::CompleteCallback complete =
+        [weak = context_, want, resultCode](napi_env env, NapiAsyncTask& task, int32_t status) {
             auto context = weak.lock();
             if (!context) {
                 HILOG_WARN("context is released");
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                 return;
             }
 
             auto errorCode = context->TerminateSelf();
             if (errorCode == 0) {
-                task.Resolve(engine, engine.CreateUndefined());
+                task.Resolve(env, CreateJsUndefined(env));
             } else {
-                task.Reject(engine, CreateJsErrorByNativeErr(engine, errorCode));
+                task.Reject(env, CreateJsErrorByNativeErr(env, errorCode));
             }
         };
 
-    NativeValue* lastParam = (info.argc > ARGC_ONE) ? info.argv[1] : nullptr;
-    NativeValue* result = nullptr;
-    AsyncTask::ScheduleHighQos("JsUIExtensionContext::OnTerminateSelfWithResult",
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    napi_value lastParam = (argc > ARGC_ONE) ? argv[1] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JsUIExtensionContext::OnTerminateSelfWithResult",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     HILOG_DEBUG("OnTerminateSelfWithResult is called end");
     return result;
 }
 
-NativeValue* JsUIExtensionContext::OnConnectAbility(NativeEngine& engine, NativeCallbackInfo& info)
+napi_value JsUIExtensionContext::OnConnectAbility(napi_env env, size_t argc, napi_value* argv)
 {
     HILOG_DEBUG("ConnectAbility called.");
     // Check params count
-    if (info.argc < ARGC_TWO) {
+    if (argc < ARGC_TWO) {
         HILOG_ERROR("Connect ability failed, not enough params.");
-        ThrowTooFewParametersError(engine);
-        return engine.CreateUndefined();
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
     }
     // Unwrap want and connection
     AAFwk::Want want;
-    sptr<JSUIExtensionConnection> connection = new JSUIExtensionConnection(engine);
-    if (!CheckWantParam(engine, info.argv[0], want) ||
-        !CheckConnectionParam(engine, info.argv[1], connection, want)) {
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-        return engine.CreateUndefined();
+    sptr<JSUIExtensionConnection> connection = new JSUIExtensionConnection(env);
+    if (!AppExecFwk::UnwrapWant(env, argv[0], want) ||
+        !CheckConnectionParam(env, argv[1], connection, want)) {
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
     }
     int64_t connectId = connection->GetConnectionId();
-    AsyncTask::CompleteCallback complete =
-        [weak = context_, want, connection, connectId](NativeEngine& engine, AsyncTask& task, int32_t status) {
+    NapiAsyncTask::CompleteCallback complete =
+        [weak = context_, want, connection, connectId](napi_env env, NapiAsyncTask& task, int32_t status) {
             auto context = weak.lock();
             if (!context) {
                 HILOG_ERROR("context is released");
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                 RemoveConnection(connectId);
                 return;
             }
@@ -354,63 +333,64 @@ NativeValue* JsUIExtensionContext::OnConnectAbility(NativeEngine& engine, Native
                 connection->CallJsFailed(errcode);
                 RemoveConnection(connectId);
             }
-            task.Resolve(engine, engine.CreateUndefined());
+            task.Resolve(env, CreateJsUndefined(env));
         };
-    NativeValue* result = nullptr;
-    AsyncTask::ScheduleHighQos("JSUIExtensionConnection::OnConnectAbility",
-        engine, CreateAsyncTaskWithLastParam(engine, nullptr, nullptr, std::move(complete), &result));
-    return engine.CreateNumber(connectId);
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JSUIExtensionConnection::OnConnectAbility",
+        env, CreateAsyncTaskWithLastParam(env, nullptr, nullptr, std::move(complete), &result));
+    return CreateJsValue(env, connectId);
 }
 
-NativeValue* JsUIExtensionContext::OnDisconnectAbility(NativeEngine& engine, NativeCallbackInfo& info)
+napi_value JsUIExtensionContext::OnDisconnectAbility(napi_env env, size_t argc, napi_value* argv)
 {
     HILOG_DEBUG("DisconnectAbility");
-    if (info.argc < ARGC_ONE) {
+    if (argc < ARGC_ONE) {
         HILOG_ERROR("Disconnect ability failed, not enough params.");
-        ThrowTooFewParametersError(engine);
-        return engine.CreateUndefined();
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
     }
     int64_t connectId = -1;
-    if (!CheckOnDisconnectAbilityParam(engine, info, connectId)) {
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-        return engine.CreateUndefined();
+    if (!AppExecFwk::UnwrapInt64FromJS2(env, argv[INDEX_ZERO], connectId)) {
+        HILOG_ERROR("Invalid connectId");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
     }
 
     AAFwk::Want want;
     sptr<JSUIExtensionConnection> connection = nullptr;
-    FindConnection(engine, info, want, connection, connectId);
+    FindConnection(want, connection, connectId);
     // begin disconnect
-    AsyncTask::CompleteCallback complete =
+    NapiAsyncTask::CompleteCallback complete =
         [weak = context_, want, connection](
-            NativeEngine& engine, AsyncTask& task, int32_t status) {
+            napi_env env, NapiAsyncTask& task, int32_t status) {
             auto context = weak.lock();
             if (!context) {
                 HILOG_WARN("context is released");
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                 return;
             }
             if (connection == nullptr) {
                 HILOG_WARN("connection nullptr");
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
                 return;
             }
             HILOG_DEBUG("context->DisconnectAbility");
             auto innerErrorCode = context->DisconnectAbility(want, connection);
             if (innerErrorCode == 0) {
-                task.Resolve(engine, engine.CreateUndefined());
+                task.Resolve(env, CreateJsUndefined(env));
             } else {
-                task.Reject(engine, CreateJsErrorByNativeErr(engine, innerErrorCode));
+                task.Reject(env, CreateJsErrorByNativeErr(env, innerErrorCode));
             }
         };
 
-    NativeValue* lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[INDEX_ONE];
-    NativeValue* result = nullptr;
-    AsyncTask::Schedule("JSUIExtensionConnection::OnDisconnectAbility",
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    napi_value lastParam = (argc == ARGC_ONE) ? nullptr : argv[INDEX_ONE];
+    napi_value result = nullptr;
+    NapiAsyncTask::Schedule("JSUIExtensionConnection::OnDisconnectAbility",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
-NativeValue *JsUIExtensionContext::CreateJsUIExtensionContext(NativeEngine& engine,
+napi_value JsUIExtensionContext::CreateJsUIExtensionContext(napi_env env,
     std::shared_ptr<UIExtensionContext> context)
 {
     HILOG_DEBUG("CreateJsUIExtensionContext begin");
@@ -418,117 +398,52 @@ NativeValue *JsUIExtensionContext::CreateJsUIExtensionContext(NativeEngine& engi
     if (context) {
         abilityInfo = context->GetAbilityInfo();
     }
-    NativeValue* objValue = CreateJsExtensionContext(engine, context, abilityInfo);
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+    napi_value objValue = CreateJsExtensionContext(env, context, abilityInfo);
 
     std::unique_ptr<JsUIExtensionContext> jsContext = std::make_unique<JsUIExtensionContext>(context);
-    object->SetNativePointer(jsContext.release(), Finalizer, nullptr);
+    napi_wrap(env, objValue, jsContext.release(), Finalizer, nullptr, nullptr);
 
     const char *moduleName = "JsUIExtensionContext";
-    BindNativeFunction(engine, *object, "startAbility", moduleName, StartAbility);
-    BindNativeFunction(engine, *object, "terminateSelf", moduleName, TerminateSelf);
-    BindNativeFunction(engine, *object, "startAbilityForResult", moduleName, StartAbilityForResult);
-    BindNativeFunction(engine, *object, "terminateSelfWithResult", moduleName, TerminateSelfWithResult);
-    BindNativeFunction(engine, *object, "connectServiceExtensionAbility", moduleName, ConnectAbility);
-    BindNativeFunction(engine, *object, "disconnectServiceExtensionAbility", moduleName, DisconnectAbility);
+    BindNativeFunction(env, objValue, "startAbility", moduleName, StartAbility);
+    BindNativeFunction(env, objValue, "terminateSelf", moduleName, TerminateSelf);
+    BindNativeFunction(env, objValue, "startAbilityForResult", moduleName, StartAbilityForResult);
+    BindNativeFunction(env, objValue, "terminateSelfWithResult", moduleName, TerminateSelfWithResult);
+    BindNativeFunction(env, objValue, "connectServiceExtensionAbility", moduleName, ConnectAbility);
+    BindNativeFunction(env, objValue, "disconnectServiceExtensionAbility", moduleName, DisconnectAbility);
 
     return objValue;
 }
 
-bool JsUIExtensionContext::CheckStartAbilityInputParam(NativeEngine& engine, NativeCallbackInfo& info,
+// to do
+NativeValue* JsUIExtensionContext::CreateJsUIExtensionContext(
+    NativeEngine& engine, std::shared_ptr<UIExtensionContext> context)
+{
+    return reinterpret_cast<NativeValue*>(CreateJsUIExtensionContext(reinterpret_cast<napi_env>(&engine), context));
+}
+
+bool JsUIExtensionContext::CheckStartAbilityInputParam(napi_env env, size_t argc, napi_value* argv,
     AAFwk::Want& want, AAFwk::StartOptions& startOptions, size_t& unwrapArgc) const
 {
-    if (info.argc < ARGC_ONE) {
+    if (argc < ARGC_ONE) {
         return false;
     }
     unwrapArgc = ARGC_ZERO;
     // Check input want
-    if (!CheckWantParam(engine, info.argv[INDEX_ZERO], want)) {
+    if (!AppExecFwk::UnwrapWant(env, argv[INDEX_ZERO], want)) {
         return false;
     }
     if (!want.HasParameter(Want::PARAM_BACK_TO_OTHER_MISSION_STACK)) {
         want.SetParam(Want::PARAM_BACK_TO_OTHER_MISSION_STACK, true);
     }
     ++unwrapArgc;
-    if (info.argc > ARGC_ONE && info.argv[1]->TypeOf() == NATIVE_OBJECT) {
-        AppExecFwk::UnwrapStartOptions(reinterpret_cast<napi_env>(&engine),
-            reinterpret_cast<napi_value>(info.argv[1]), startOptions);
+    if (argc > ARGC_ONE && AppExecFwk::IsTypeForNapiValue(env, argv[1], napi_object)) {
+        AppExecFwk::UnwrapStartOptions(env, argv[1], startOptions);
         unwrapArgc++;
     }
     return true;
 }
 
-bool JsUIExtensionContext::CheckWantParam(NativeEngine& engine, NativeValue* value, AAFwk::Want& want) const
-{
-    if (!OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine),
-        reinterpret_cast<napi_value>(value), want)) {
-        HILOG_ERROR("The input want is invalid.");
-        return false;
-    }
-    HILOG_DEBUG("UnwrapWant, BundleName: %{public}s, AbilityName: %{public}s.", want.GetBundle().c_str(),
-        want.GetElement().GetAbilityName().c_str());
-    return true;
-}
-
-bool JsUIExtensionContext::UnWrapWant(NativeEngine& engine, NativeValue* argv, AAFwk::Want& want)
-{
-    if (argv == nullptr) {
-        HILOG_WARN("UnWrapWant argv == nullptr!");
-        return false;
-    }
-    return AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(argv), want);
-}
-
-bool JsUIExtensionContext::UnWrapAbilityResult(NativeEngine& engine, NativeValue* argv, int& resultCode,
-    AAFwk::Want& want)
-{
-    if (argv == nullptr) {
-        HILOG_WARN("UnWrapAbilityResult argv == nullptr!");
-        return false;
-    }
-    if (argv->TypeOf() != NativeValueType::NATIVE_OBJECT) {
-        HILOG_WARN("UnWrapAbilityResult invalid type of abilityResult!");
-        return false;
-    }
-    NativeObject* jObj = ConvertNativeValueTo<NativeObject>(argv);
-    NativeValue* jResultCode = jObj->GetProperty("resultCode");
-    if (jResultCode == nullptr) {
-        HILOG_WARN("UnWrapAbilityResult jResultCode == nullptr!");
-        return false;
-    }
-    if (jResultCode->TypeOf() != NativeValueType::NATIVE_NUMBER) {
-        HILOG_WARN("UnWrapAbilityResult invalid type of resultCode!");
-        return false;
-    }
-    resultCode = int64_t(*ConvertNativeValueTo<NativeNumber>(jObj->GetProperty("resultCode")));
-    NativeValue* jWant = jObj->GetProperty("want");
-    if (jWant == nullptr) {
-        HILOG_WARN("UnWrapAbilityResult jWant == nullptr!");
-        return false;
-    }
-    if (jWant->TypeOf() != NativeValueType::NATIVE_OBJECT) {
-        HILOG_WARN("UnWrapAbilityResult invalid type of want!");
-        return false;
-    }
-    return JsUIExtensionContext::UnWrapWant(engine, jWant, want);
-}
-
-NativeValue *JsUIExtensionContext::WrapAbilityResult(
-    NativeEngine &engine, const int &resultCode, const AAFwk::Want &want)
-{
-    NativeValue *jAbilityResult = engine.CreateObject();
-    NativeObject *abilityResult = ConvertNativeValueTo<NativeObject>(jAbilityResult);
-    abilityResult->SetProperty("resultCode", engine.CreateNumber(resultCode));
-    abilityResult->SetProperty("want", JsUIExtensionContext::WrapWant(engine, want));
-    return jAbilityResult;
-}
-
-NativeValue *JsUIExtensionContext::WrapWant(NativeEngine &engine, const AAFwk::Want &want)
-{
-    return reinterpret_cast<NativeValue *>(AppExecFwk::WrapWant(reinterpret_cast<napi_env>(&engine), want));
-}
-
-JSUIExtensionConnection::JSUIExtensionConnection(NativeEngine& engine) : engine_(engine) {}
+JSUIExtensionConnection::JSUIExtensionConnection(napi_env env) : env_(env) {}
 
 JSUIExtensionConnection::~JSUIExtensionConnection()
 {
@@ -536,7 +451,8 @@ JSUIExtensionConnection::~JSUIExtensionConnection()
         return;
     }
 
-    uv_loop_t *loop = engine_.GetUVLoop();
+    uv_loop_t *loop = nullptr;
+    napi_get_uv_event_loop(env_, &loop);
     if (loop == nullptr) {
         return;
     }
@@ -584,8 +500,8 @@ void JSUIExtensionConnection::OnAbilityConnectDone(const AppExecFwk::ElementName
 {
     HILOG_DEBUG("OnAbilityConnectDone, resultCode:%{public}d", resultCode);
     wptr<JSUIExtensionConnection> connection = this;
-    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
-        ([connection, element, remoteObject, resultCode](NativeEngine &engine, AsyncTask &task, int32_t status) {
+    std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
+        ([connection, element, remoteObject, resultCode](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSUIExtensionConnection> connectionSptr = connection.promote();
             if (!connectionSptr) {
                 HILOG_ERROR("connectionSptr nullptr");
@@ -594,10 +510,10 @@ void JSUIExtensionConnection::OnAbilityConnectDone(const AppExecFwk::ElementName
             connectionSptr->HandleOnAbilityConnectDone(element, remoteObject, resultCode);
         });
 
-    NativeReference* callback = nullptr;
-    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
-    AsyncTask::ScheduleHighQos("JSUIExtensionConnection::OnAbilityConnectDone",
-        engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
+    napi_ref callback = nullptr;
+    std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JSUIExtensionConnection::OnAbilityConnectDone",
+        env_, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
 void JSUIExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::ElementName &element,
@@ -605,38 +521,35 @@ void JSUIExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::Eleme
 {
     HILOG_DEBUG("HandleOnAbilityConnectDone start, resultCode:%{public}d", resultCode);
     // wrap ElementName
-    napi_value napiElementName = OHOS::AppExecFwk::WrapElementName(reinterpret_cast<napi_env>(&engine_), element);
-    NativeValue* nativeElementName = reinterpret_cast<NativeValue*>(napiElementName);
+    napi_value napiElementName = OHOS::AppExecFwk::WrapElementName(env_, element);
 
     // wrap RemoteObject
-    napi_value napiRemoteObject = NAPI_ohos_rpc_CreateJsRemoteObject(
-        reinterpret_cast<napi_env>(&engine_), remoteObject);
-    NativeValue* nativeRemoteObject = reinterpret_cast<NativeValue*>(napiRemoteObject);
-    NativeValue* argv[] = {nativeElementName, nativeRemoteObject};
+    napi_value napiRemoteObject = NAPI_ohos_rpc_CreateJsRemoteObject(env_, remoteObject);
+    napi_value argv[] = {napiElementName, napiRemoteObject};
     if (jsConnectionObject_ == nullptr) {
         HILOG_ERROR("jsConnectionObject_ null");
         return;
     }
-    NativeValue* value = jsConnectionObject_->Get();
-    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
-    if (obj == nullptr) {
+    napi_value obj = reinterpret_cast<napi_value>(jsConnectionObject_->Get());
+    if (!AppExecFwk::IsTypeForNapiValue(env_, obj, napi_object)) {
         HILOG_ERROR("Failed to get object");
         return;
     }
-    NativeValue* methodOnConnect = obj->GetProperty("onConnect");
+    napi_value methodOnConnect = nullptr;
+    napi_get_named_property(env_, obj, "onConnect", &methodOnConnect);
     if (methodOnConnect == nullptr) {
         HILOG_ERROR("Failed to get onConnect from object");
         return;
     }
-    engine_.CallFunction(value, methodOnConnect, argv, ARGC_TWO);
+    napi_call_function(env_, obj, methodOnConnect, ARGC_TWO, argv, nullptr);
 }
 
 void JSUIExtensionConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
 {
     HILOG_DEBUG("OnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
     wptr<JSUIExtensionConnection> connection = this;
-    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
-        ([connection, element, resultCode](NativeEngine &engine, AsyncTask &task, int32_t status) {
+    std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
+        ([connection, element, resultCode](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSUIExtensionConnection> connectionSptr = connection.promote();
             if (!connectionSptr) {
                 HILOG_INFO("connectionSptr nullptr");
@@ -644,31 +557,29 @@ void JSUIExtensionConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementN
             }
             connectionSptr->HandleOnAbilityDisconnectDone(element, resultCode);
         });
-    NativeReference* callback = nullptr;
-    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
-    AsyncTask::Schedule("JSUIExtensionConnection::OnAbilityDisconnectDone",
-        engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
+    napi_ref callback = nullptr;
+    std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
+    NapiAsyncTask::Schedule("JSUIExtensionConnection::OnAbilityDisconnectDone",
+        env_, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
 void JSUIExtensionConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
     int resultCode)
 {
     HILOG_DEBUG("HandleOnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
-    napi_value napiElementName = OHOS::AppExecFwk::WrapElementName(reinterpret_cast<napi_env>(&engine_), element);
-    NativeValue* nativeElementName = reinterpret_cast<NativeValue*>(napiElementName);
-    NativeValue* argv[] = {nativeElementName};
+    napi_value napiElementName = OHOS::AppExecFwk::WrapElementName(env_, element);
+    napi_value argv[] = {napiElementName};
     if (jsConnectionObject_ == nullptr) {
         HILOG_ERROR("jsConnectionObject_ nullptr");
         return;
     }
-    NativeValue* value = jsConnectionObject_->Get();
-    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
-    if (obj == nullptr) {
+    napi_value obj = reinterpret_cast<napi_value>(jsConnectionObject_->Get());
+    if (!AppExecFwk::IsTypeForNapiValue(env_, obj, napi_object)) {
         HILOG_ERROR("Failed to get object");
         return;
     }
-
-    NativeValue* method = obj->GetProperty("onDisconnect");
+    napi_value method = nullptr;
+    napi_get_named_property(env_, obj, "onDisconnect", &method);
     if (method == nullptr) {
         HILOG_ERROR("Failed to get onDisconnect from object");
         return;
@@ -676,12 +587,14 @@ void JSUIExtensionConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::El
 
     // release connect
     RemoveConnection(connectionId_);
-    engine_.CallFunction(value, method, argv, ARGC_ONE);
+    napi_call_function(env_, obj, method, ARGC_ONE, argv, nullptr);
 }
 
-void JSUIExtensionConnection::SetJsConnectionObject(NativeValue* jsConnectionObject)
+void JSUIExtensionConnection::SetJsConnectionObject(napi_value jsConnectionObject)
 {
-    jsConnectionObject_ = std::unique_ptr<NativeReference>(engine_.CreateReference(jsConnectionObject, 1));
+    napi_ref value = nullptr;
+    napi_create_reference(env_, jsConnectionObject, 1, &value);
+    jsConnectionObject_ = std::unique_ptr<NativeReference>(reinterpret_cast<NativeReference*>(value));
 }
 
 void JSUIExtensionConnection::RemoveConnectionObject()
@@ -696,20 +609,20 @@ void JSUIExtensionConnection::CallJsFailed(int32_t errorCode)
         HILOG_ERROR("jsConnectionObject_ nullptr");
         return;
     }
-    NativeValue* value = jsConnectionObject_->Get();
-    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
-    if (obj == nullptr) {
+    napi_value obj = reinterpret_cast<napi_value>(jsConnectionObject_->Get());
+    if (!AppExecFwk::IsTypeForNapiValue(env_, obj, napi_object)) {
         HILOG_ERROR("Failed to get object");
         return;
     }
 
-    NativeValue* method = obj->GetProperty("onFailed");
+    napi_value method = nullptr;
+    napi_get_named_property(env_, obj, "onFailed", &method);
     if (method == nullptr) {
         HILOG_ERROR("Failed to get onFailed from object");
         return;
     }
-    NativeValue* argv[] = {engine_.CreateNumber(errorCode)};
-    engine_.CallFunction(value, method, argv, ARGC_ONE);
+    napi_value argv[] = { CreateJsValue(env_, errorCode) };
+    napi_call_function(env_, obj, method, ARGC_ONE, argv, nullptr);
     HILOG_DEBUG("CallJsFailed end");
 }
 

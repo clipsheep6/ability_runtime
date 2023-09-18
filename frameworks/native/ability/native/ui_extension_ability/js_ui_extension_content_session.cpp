@@ -25,6 +25,7 @@
 #include "js_runtime_utils.h"
 #include "js_ui_extension_context.h"
 #include "napi_common_start_options.h"
+#include "napi_common_util.h"
 #include "napi_common_want.h"
 #include "native_engine.h"
 #include "native_value.h"
@@ -47,8 +48,8 @@ do {                                                                            
     auto selfToken = IPCSkeleton::GetSelfTokenID();                                     \
     if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {      \
         HILOG_ERROR("This application is not system-app, can not use system-api");      \
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);                \
-        return engine.CreateUndefined();                                                \
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);                   \
+        return CreateJsUndefined(env);                                                  \
     }                                                                                   \
 } while(0)
 
@@ -89,10 +90,10 @@ void UISessionAbilityResultListener::SaveResultCallbacks(int requestCode, Runtim
 }
 
 JsUIExtensionContentSession::JsUIExtensionContentSession(
-    NativeEngine& engine, sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow,
+    sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow,
     std::weak_ptr<AbilityRuntime::Context> &context,
     std::shared_ptr<AbilityResultListeners>& abilityResultListeners)
-    : engine_(engine), sessionInfo_(sessionInfo), uiWindow_(uiWindow), context_(context)
+    : sessionInfo_(sessionInfo), uiWindow_(uiWindow), context_(context)
 {
     listener_ = std::make_shared<UISessionAbilityResultListener>();
     if (abilityResultListeners == nullptr) {
@@ -105,126 +106,116 @@ JsUIExtensionContentSession::JsUIExtensionContentSession(
 }
 
 JsUIExtensionContentSession::JsUIExtensionContentSession(
-    NativeEngine& engine, sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow)
-    : engine_(engine), sessionInfo_(sessionInfo), uiWindow_(uiWindow) {}
+    sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow)
+    : sessionInfo_(sessionInfo), uiWindow_(uiWindow) {}
 
-void JsUIExtensionContentSession::Finalizer(NativeEngine* engine, void* data, void* hint)
+void JsUIExtensionContentSession::Finalizer(napi_env env, void* data, void* hint)
 {
     HILOG_DEBUG("JsUIExtensionContentSession Finalizer is called");
     std::unique_ptr<JsUIExtensionContentSession>(static_cast<JsUIExtensionContentSession*>(data));
 }
 
-NativeValue* JsUIExtensionContentSession::StartAbility(NativeEngine* engine, NativeCallbackInfo* info)
+napi_value JsUIExtensionContentSession::StartAbility(napi_env env, napi_callback_info info)
 {
-    JsUIExtensionContentSession* me = CheckParamsAndGetThis<JsUIExtensionContentSession>(engine, info);
-    return (me != nullptr) ? me->OnStartAbility(*engine, *info) : nullptr;
+    GET_CB_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnStartAbility);
 }
 
-NativeValue* JsUIExtensionContentSession::StartAbilityForResult(NativeEngine* engine, NativeCallbackInfo* info)
+napi_value JsUIExtensionContentSession::StartAbilityForResult(napi_env env, napi_callback_info info)
 {
-    JsUIExtensionContentSession* me = CheckParamsAndGetThis<JsUIExtensionContentSession>(engine, info);
-    return (me != nullptr) ? me->OnStartAbilityForResult(*engine, *info) : nullptr;
+    GET_CB_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnStartAbilityForResult);
 }
 
-NativeValue *JsUIExtensionContentSession::TerminateSelf(NativeEngine* engine, NativeCallbackInfo* info)
+napi_value JsUIExtensionContentSession::TerminateSelf(napi_env env, napi_callback_info info)
 {
-    JsUIExtensionContentSession* me = CheckParamsAndGetThis<JsUIExtensionContentSession>(engine, info);
-    return (me != nullptr) ? me->OnTerminateSelf(*engine, *info) : nullptr;
+    GET_CB_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnTerminateSelf);
 }
 
-NativeValue *JsUIExtensionContentSession::TerminateSelfWithResult(NativeEngine* engine, NativeCallbackInfo* info)
+napi_value JsUIExtensionContentSession::TerminateSelfWithResult(napi_env env, napi_callback_info info)
 {
-    JsUIExtensionContentSession* me = CheckParamsAndGetThis<JsUIExtensionContentSession>(engine, info);
-    return (me != nullptr) ? me->OnTerminateSelfWithResult(*engine, *info) : nullptr;
+    GET_CB_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnTerminateSelfWithResult);
 }
 
-NativeValue *JsUIExtensionContentSession::SendData(NativeEngine* engine, NativeCallbackInfo* info)
+napi_value JsUIExtensionContentSession::SendData(napi_env env, napi_callback_info info)
 {
-    JsUIExtensionContentSession* me = CheckParamsAndGetThis<JsUIExtensionContentSession>(engine, info);
-    return (me != nullptr) ? me->OnSendData(*engine, *info) : nullptr;
+    GET_CB_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnSendData);
 }
 
-NativeValue *JsUIExtensionContentSession::SetReceiveDataCallback(NativeEngine* engine, NativeCallbackInfo* info)
+napi_value JsUIExtensionContentSession::SetReceiveDataCallback(napi_env env, napi_callback_info info)
 {
-    JsUIExtensionContentSession* me = CheckParamsAndGetThis<JsUIExtensionContentSession>(engine, info);
-    return (me != nullptr) ? me->OnSetReceiveDataCallback(*engine, *info) : nullptr;
+    GET_CB_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnSetReceiveDataCallback);
 }
 
-NativeValue *JsUIExtensionContentSession::LoadContent(NativeEngine* engine, NativeCallbackInfo* info)
+napi_value JsUIExtensionContentSession::LoadContent(napi_env env, napi_callback_info info)
 {
-    JsUIExtensionContentSession* me = CheckParamsAndGetThis<JsUIExtensionContentSession>(engine, info);
-    return (me != nullptr) ? me->OnLoadContent(*engine, *info) : nullptr;
+    GET_CB_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnLoadContent);
 }
 
-NativeValue *JsUIExtensionContentSession::SetWindowBackgroundColor(NativeEngine* engine, NativeCallbackInfo* info)
+napi_value JsUIExtensionContentSession::SetWindowBackgroundColor(napi_env env, napi_callback_info info)
 {
-    JsUIExtensionContentSession* me = CheckParamsAndGetThis<JsUIExtensionContentSession>(engine, info);
-    return (me != nullptr) ? me->OnSetWindowBackgroundColor(*engine, *info) : nullptr;
+    GET_CB_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnSetWindowBackgroundColor);
 }
 
-NativeValue *JsUIExtensionContentSession::SetWindowPrivacyMode(NativeEngine* engine, NativeCallbackInfo* info)
+napi_value JsUIExtensionContentSession::SetWindowPrivacyMode(napi_env env, napi_callback_info info)
 {
-    JsUIExtensionContentSession* me = CheckParamsAndGetThis<JsUIExtensionContentSession>(engine, info);
-    return (me != nullptr) ? me->OnSetWindowPrivacyMode(*engine, *info) : nullptr;
+    GET_CB_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnSetWindowPrivacyMode);
 }
 
-NativeValue *JsUIExtensionContentSession::OnStartAbility(NativeEngine& engine, NativeCallbackInfo &info)
+napi_value JsUIExtensionContentSession::OnStartAbility(napi_env env, size_t argc, napi_value* argv)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("OnStartAbility is called");
     CHECK_IS_SYSTEM_APP;
 
-    if (info.argc == ARGC_ZERO) {
+    if (argc == ARGC_ZERO) {
         HILOG_ERROR("Not enough params");
-        ThrowTooFewParametersError(engine);
-        return engine.CreateUndefined();
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
     }
 
     AAFwk::Want want;
     size_t unwrapArgc = 1;
-    if (!OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine),
-        reinterpret_cast<napi_value>(info.argv[0]), want)) {
+    if (!OHOS::AppExecFwk::UnwrapWant(env, argv[0], want)) {
         HILOG_ERROR("Failed to parse want!");
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-        return engine.CreateUndefined();
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
     }
     if (!want.HasParameter(Want::PARAM_BACK_TO_OTHER_MISSION_STACK)) {
         want.SetParam(Want::PARAM_BACK_TO_OTHER_MISSION_STACK, true);
     }
     HILOG_INFO("StartAbility, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
     auto innerErrorCode = std::make_shared<int>(ERR_OK);
-    AsyncTask::ExecuteCallback execute = StartAbilityExecuteCallback(want, unwrapArgc, engine, info, innerErrorCode);
+    NapiAsyncTask::ExecuteCallback execute = StartAbilityExecuteCallback(
+        want, unwrapArgc, env, argc, argv, innerErrorCode);
 
-    AsyncTask::CompleteCallback complete = [innerErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
+    NapiAsyncTask::CompleteCallback complete = [innerErrorCode](napi_env env, NapiAsyncTask& task, int32_t status) {
         if (*innerErrorCode == 0) {
-            task.ResolveWithNoError(engine, engine.CreateUndefined());
+            task.ResolveWithNoError(env, CreateJsUndefined(env));
         } else {
-            task.Reject(engine, CreateJsErrorByNativeErr(engine, *innerErrorCode));
+            task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
         }
     };
 
-    NativeValue* lastParam = (info.argc > unwrapArgc) ? info.argv[unwrapArgc] : nullptr;
-    NativeValue* result = nullptr;
+    napi_value lastParam = (argc > unwrapArgc) ? argv[unwrapArgc] : nullptr;
+    napi_value result = nullptr;
     if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
-        AddFreeInstallObserver(engine, want, lastParam);
-        AsyncTask::Schedule("JsUIExtensionContentSession::OnStartAbility", engine,
-            CreateAsyncTaskWithLastParam(engine, nullptr, std::move(execute), nullptr, &result));
+        AddFreeInstallObserver(env, want, lastParam);
+        NapiAsyncTask::Schedule("JsUIExtensionContentSession::OnStartAbility", env,
+            CreateAsyncTaskWithLastParam(env, nullptr, std::move(execute), nullptr, &result));
     } else {
-        AsyncTask::Schedule("JsUIExtensionContentSession::OnStartAbility", engine,
-            CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
+        NapiAsyncTask::Schedule("JsUIExtensionContentSession::OnStartAbility", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
     }
     HILOG_DEBUG("OnStartAbility is called end");
     return result;
 }
 
-AsyncTask::ExecuteCallback JsUIExtensionContentSession::StartAbilityExecuteCallback(AAFwk::Want& want,
-    size_t& unwrapArgc, NativeEngine& engine, NativeCallbackInfo &info, std::shared_ptr<int> &innerErrorCode)
+NapiAsyncTask::ExecuteCallback JsUIExtensionContentSession::StartAbilityExecuteCallback(AAFwk::Want& want,
+    size_t& unwrapArgc, napi_env env, size_t argc, napi_value* argv, std::shared_ptr<int> &innerErrorCode)
 {
     AAFwk::StartOptions startOptions;
-    if (info.argc > ARGC_ONE && info.argv[1]->TypeOf() == NATIVE_OBJECT) {
+    if (argc > ARGC_ONE && AppExecFwk::IsTypeForNapiValue(env, argv[1], napi_object)) {
         HILOG_DEBUG("OnStartAbility start options is used.");
-        AppExecFwk::UnwrapStartOptions(reinterpret_cast<napi_env>(&engine),
-            reinterpret_cast<napi_value>(info.argv[1]), startOptions);
+        AppExecFwk::UnwrapStartOptions(env, argv[1], startOptions);
         unwrapArgc++;
     }
 
@@ -233,7 +224,7 @@ AsyncTask::ExecuteCallback JsUIExtensionContentSession::StartAbilityExecuteCallb
             system_clock::now().time_since_epoch()).count());
         want.SetParam(Want::PARAM_RESV_START_TIME, startTime);
     }
-    AsyncTask::ExecuteCallback execute = [weak = context_, want, startOptions, unwrapArgc,
+    NapiAsyncTask::ExecuteCallback execute = [weak = context_, want, startOptions, unwrapArgc,
         sessionInfo = sessionInfo_, &observer = freeInstallObserver_, innerErrorCode]() {
         auto context = weak.lock();
         if (!context) {
@@ -258,66 +249,65 @@ AsyncTask::ExecuteCallback JsUIExtensionContentSession::StartAbilityExecuteCallb
     return execute;
 }
 
-NativeValue *JsUIExtensionContentSession::OnStartAbilityForResult(NativeEngine& engine, NativeCallbackInfo &info)
+napi_value JsUIExtensionContentSession::OnStartAbilityForResult(napi_env env, size_t argc, napi_value* argv)
 {
     CHECK_IS_SYSTEM_APP;
-    if (info.argc == ARGC_ZERO) {
-        ThrowTooFewParametersError(engine);
-        return engine.CreateUndefined();
+    if (argc == ARGC_ZERO) {
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
     }
 
     AAFwk::Want want;
-    if (!UnWrapWant(engine, info.argv[0], want)) {
+    if (!AppExecFwk::UnwrapWant(env, argv[0], want)) {
         HILOG_ERROR("Failed to parse want!");
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-        return engine.CreateUndefined();
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
     }
     if (!want.HasParameter(Want::PARAM_BACK_TO_OTHER_MISSION_STACK)) {
         want.SetParam(Want::PARAM_BACK_TO_OTHER_MISSION_STACK, true);
     }
     size_t unwrapArgc = 1;
     AAFwk::StartOptions startOptions;
-    if (info.argc > ARGC_ONE && info.argv[1]->TypeOf() == NATIVE_OBJECT) {
+    if (argc > ARGC_ONE && AppExecFwk::IsTypeForNapiValue(env, argv[1], napi_object)) {
         HILOG_DEBUG("OnStartAbilityForResult start options is used.");
-        AppExecFwk::UnwrapStartOptions(reinterpret_cast<napi_env>(&engine),
-            reinterpret_cast<napi_value>(info.argv[1]), startOptions);
+        AppExecFwk::UnwrapStartOptions(env, argv[1], startOptions);
         unwrapArgc++;
     }
 
-    NativeValue* lastParam = info.argc > unwrapArgc ? info.argv[unwrapArgc] : nullptr;
-    NativeValue* result = nullptr;
+    napi_value lastParam = argc > unwrapArgc ? argv[unwrapArgc] : nullptr;
+    napi_value result = nullptr;
     if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
         std::string startTime = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
             system_clock::now().time_since_epoch()).count());
         want.SetParam(Want::PARAM_RESV_START_TIME, startTime);
-        AddFreeInstallObserver(engine, want, lastParam, true);
+        AddFreeInstallObserver(env, want, lastParam, true);
     }
-    std::unique_ptr<AsyncTask> uasyncTask =
-        CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, nullptr, &result);
-    std::shared_ptr<AsyncTask> asyncTask = std::move(uasyncTask);
+    std::unique_ptr<NapiAsyncTask> uasyncTask =
+        CreateAsyncTaskWithLastParam(env, lastParam, nullptr, nullptr, &result);
+    std::shared_ptr<NapiAsyncTask> asyncTask = std::move(uasyncTask);
     if (asyncTask == nullptr) {
         HILOG_ERROR("asyncTask is nullptr");
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
     if (listener_ == nullptr) {
         HILOG_ERROR("listener_ is nullptr");
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
-    StartAbilityForResultRuntimeTask(engine, want, asyncTask, unwrapArgc, startOptions);
+    StartAbilityForResultRuntimeTask(env, want, asyncTask, unwrapArgc, startOptions);
     return result;
 }
 
-void JsUIExtensionContentSession::StartAbilityForResultRuntimeTask(NativeEngine& engine,
-    AAFwk::Want &want, std::shared_ptr<AsyncTask> asyncTask, size_t& unwrapArgc,
+void JsUIExtensionContentSession::StartAbilityForResultRuntimeTask(napi_env env,
+    AAFwk::Want &want, std::shared_ptr<NapiAsyncTask> asyncTask, size_t& unwrapArgc,
     AAFwk::StartOptions startOptions)
 {
-    RuntimeTask task = [&engine, asyncTask, &observer = freeInstallObserver_](int resultCode,
+    RuntimeTask task = [env, asyncTask, &observer = freeInstallObserver_](int resultCode,
         const AAFwk::Want& want, bool isInner) {
         HILOG_DEBUG("OnStartAbilityForResult async callback is called");
-        NativeValue* abilityResult = WrapAbilityResult(engine, resultCode, want);
+        napi_value abilityResult = AppExecFwk::WrapAbilityResult(env, resultCode, want);
         if (abilityResult == nullptr) {
             HILOG_WARN("wrap abilityResult failed");
-            asyncTask->Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+            asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
         } else {
             if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND &&
                 resultCode != 0 && observer != nullptr) {
@@ -327,16 +317,16 @@ void JsUIExtensionContentSession::StartAbilityForResultRuntimeTask(NativeEngine&
                 observer->OnInstallFinished(bundleName, abilityName, startTime,
                     static_cast<int>(GetJsErrorCodeByNativeError(resultCode)));
             } else if (isInner) {
-                asyncTask->Reject(engine, CreateJsErrorByNativeErr(engine, resultCode));
+                asyncTask->Reject(env, CreateJsErrorByNativeErr(env, resultCode));
             } else {
-                asyncTask->ResolveWithNoError(engine, abilityResult);
+                asyncTask->ResolveWithNoError(env, abilityResult);
             }
         }
     };
     auto context = context_.lock();
     if (context == nullptr) {
         HILOG_WARN("context is released");
-        asyncTask->Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+        asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
     } else {
         want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
         int curRequestCode = reinterpret_cast<UIExtensionContext*>(context.get())->GenerateCurRequestCode();
@@ -353,95 +343,94 @@ void JsUIExtensionContentSession::StartAbilityForResultRuntimeTask(NativeEngine&
     }
 }
 
-NativeValue *JsUIExtensionContentSession::OnTerminateSelf(NativeEngine& engine, NativeCallbackInfo& info)
+napi_value JsUIExtensionContentSession::OnTerminateSelf(napi_env env, size_t argc, napi_value* argv)
 {
     HILOG_DEBUG("called");
-    AsyncTask::CompleteCallback complete =
-        [sessionInfo = sessionInfo_](NativeEngine& engine, AsyncTask& task, int32_t status) {
+    NapiAsyncTask::CompleteCallback complete =
+        [sessionInfo = sessionInfo_](napi_env env, NapiAsyncTask& task, int32_t status) {
             if (sessionInfo == nullptr) {
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
                 return;
             }
             auto errorCode = AAFwk::AbilityManagerClient::GetInstance()->TerminateUIExtensionAbility(sessionInfo);
             if (errorCode == 0) {
-                task.ResolveWithNoError(engine, engine.CreateUndefined());
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
             } else {
-                task.Reject(engine, CreateJsErrorByNativeErr(engine, errorCode));
+                task.Reject(env, CreateJsErrorByNativeErr(env, errorCode));
             }
         };
 
-    NativeValue* lastParam = (info.argc > ARGC_ZERO) ? info.argv[INDEX_ZERO] : nullptr;
-    NativeValue* result = nullptr;
-    AsyncTask::ScheduleHighQos("JsUIExtensionContentSession::OnTerminateSelf",
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    napi_value lastParam = (argc > ARGC_ZERO) ? argv[INDEX_ZERO] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JsUIExtensionContentSession::OnTerminateSelf",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
-NativeValue *JsUIExtensionContentSession::OnTerminateSelfWithResult(NativeEngine& engine, NativeCallbackInfo& info)
+napi_value JsUIExtensionContentSession::OnTerminateSelfWithResult(napi_env env, size_t argc, napi_value* argv)
 {
     HILOG_DEBUG("called");
-    if (info.argc < ARGC_ONE) {
+    if (argc < ARGC_ONE) {
         HILOG_ERROR("invalid param");
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-        return engine.CreateUndefined();
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
     }
     int resultCode = 0;
     AAFwk::Want want;
-    if (!UnWrapAbilityResult(engine, info.argv[INDEX_ZERO], resultCode, want)) {
+    if (!AppExecFwk::UnWrapAbilityResult(env, argv[INDEX_ZERO], resultCode, want)) {
         HILOG_ERROR("OnTerminateSelfWithResult Failed to parse ability result!");
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-        return engine.CreateUndefined();
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
     }
 
-    AsyncTask::CompleteCallback complete =
-        [uiWindow = uiWindow_, sessionInfo = sessionInfo_, want, resultCode](NativeEngine& engine,
-            AsyncTask& task, int32_t status) {
+    NapiAsyncTask::CompleteCallback complete =
+        [uiWindow = uiWindow_, sessionInfo = sessionInfo_, want, resultCode](napi_env env,
+            NapiAsyncTask& task, int32_t status) {
             if (uiWindow == nullptr) {
                 HILOG_ERROR("uiWindow is nullptr");
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
                 return;
             }
             auto ret = uiWindow->TransferAbilityResult(resultCode, want);
             if (ret != Rosen::WMError::WM_OK) {
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
                 return;
             }
             auto errorCode = AAFwk::AbilityManagerClient::GetInstance()->TerminateUIExtensionAbility(sessionInfo);
             if (errorCode == 0) {
-                task.ResolveWithNoError(engine, engine.CreateUndefined());
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
             } else {
-                task.Reject(engine, CreateJsErrorByNativeErr(engine, errorCode));
+                task.Reject(env, CreateJsErrorByNativeErr(env, errorCode));
             }
         };
 
-    NativeValue* lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
-    NativeValue* result = nullptr;
-    AsyncTask::ScheduleHighQos("JsUIExtensionContentSession::OnTerminateSelfWithResult",
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    napi_value lastParam = (argc > ARGC_ONE) ? argv[INDEX_ONE] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JsUIExtensionContentSession::OnTerminateSelfWithResult",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
-NativeValue *JsUIExtensionContentSession::OnSendData(NativeEngine& engine, NativeCallbackInfo& info)
+napi_value JsUIExtensionContentSession::OnSendData(napi_env env, size_t argc, napi_value* argv)
 {
     HILOG_DEBUG("called");
     CHECK_IS_SYSTEM_APP;
-    if (info.argc < ARGC_ONE) {
+    if (argc < ARGC_ONE) {
         HILOG_ERROR("invalid param");
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-        return engine.CreateUndefined();
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
     }
     AAFwk::WantParams params;
-    if (!AppExecFwk::UnwrapWantParams(reinterpret_cast<napi_env>(&engine),
-        reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), params)) {
+    if (!AppExecFwk::UnwrapWantParams(env, argv[INDEX_ZERO], params)) {
         HILOG_ERROR("OnSendData Failed to parse param!");
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-        return engine.CreateUndefined();
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
     }
 
     if (uiWindow_ == nullptr) {
         HILOG_ERROR("uiWindow_ is nullptr");
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
-        return engine.CreateUndefined();
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+        return CreateJsUndefined(env);
     }
 
     Rosen::WMError ret = uiWindow_->TransferExtensionData(params);
@@ -449,202 +438,223 @@ NativeValue *JsUIExtensionContentSession::OnSendData(NativeEngine& engine, Nativ
         HILOG_DEBUG("TransferExtensionData success");
     } else {
         HILOG_ERROR("TransferExtensionData failed, ret=%{public}d", ret);
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
     }
-    return engine.CreateUndefined();
+    return CreateJsUndefined(env);
 }
 
-NativeValue *JsUIExtensionContentSession::OnSetReceiveDataCallback(NativeEngine& engine, NativeCallbackInfo& info)
+napi_value JsUIExtensionContentSession::OnSetReceiveDataCallback(napi_env env, size_t argc, napi_value* argv)
 {
     HILOG_DEBUG("called");
     CHECK_IS_SYSTEM_APP;
-    if (info.argc < ARGC_ONE || info.argv[INDEX_ZERO]->TypeOf() != NATIVE_FUNCTION) {
+    if (argc < ARGC_ONE || !AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ZERO], napi_function)) {
         HILOG_ERROR("invalid param");
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-        return engine.CreateUndefined();
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
     }
 
     if (!isRegistered) {
         if (uiWindow_ == nullptr) {
             HILOG_ERROR("uiWindow_ is nullptr");
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
-            return engine.CreateUndefined();
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+            return CreateJsUndefined(env);
         }
         receiveDataCallback_ = std::make_shared<CallbackWrapper>();
         std::weak_ptr<CallbackWrapper> weakCallback(receiveDataCallback_);
         auto handler = std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
-        uiWindow_->RegisterTransferComponentDataListener([&engine = engine_, handler, weakCallback](
+        uiWindow_->RegisterTransferComponentDataListener([env, handler, weakCallback](
             const AAFwk::WantParams& wantParams) {
             if (handler) {
-                handler->PostTask([&engine, weakCallback, wantParams]() {
-                    JsUIExtensionContentSession::CallReceiveDataCallback(engine, weakCallback, wantParams);
+                handler->PostTask([env, weakCallback, wantParams]() {
+                    JsUIExtensionContentSession::CallReceiveDataCallback(env, weakCallback, wantParams);
                 });
             }
         });
         isRegistered = true;
     }
 
-    NativeValue* callback = info.argv[INDEX_ZERO];
+    napi_value callback = argv[INDEX_ZERO];
     if (receiveDataCallback_ == nullptr) {
         HILOG_ERROR("uiWindow_ is nullptr");
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
-        return engine.CreateUndefined();
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+        return CreateJsUndefined(env);
     }
-    receiveDataCallback_->ResetCallback(std::shared_ptr<NativeReference>(engine.CreateReference(callback, 1)));
-    return engine.CreateUndefined();
+    napi_ref ref = nullptr;
+    napi_create_reference(env, callback, 1, &ref);
+    receiveDataCallback_->ResetCallback(std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
+    return CreateJsUndefined(env);
 }
 
-NativeValue *JsUIExtensionContentSession::OnLoadContent(NativeEngine& engine, NativeCallbackInfo& info)
+napi_value JsUIExtensionContentSession::OnLoadContent(napi_env env, size_t argc, napi_value* argv)
 {
     HILOG_DEBUG("called");
     std::string contextPath;
-    if (info.argc < ARGC_ONE || !ConvertFromJsValue(engine, info.argv[INDEX_ZERO], contextPath)) {
+    if (argc < ARGC_ONE || !ConvertFromJsValue(env, argv[INDEX_ZERO], contextPath)) {
         HILOG_ERROR("invalid param");
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-        return engine.CreateUndefined();
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
     }
     HILOG_DEBUG("contextPath: %{public}s", contextPath.c_str());
-    NativeValue* storage = nullptr;
-    if (info.argc > ARGC_ONE && info.argv[INDEX_ONE]->TypeOf() == NATIVE_OBJECT) {
-        storage = info.argv[INDEX_ONE];
+    napi_value storage = nullptr;
+    if (argc > ARGC_ONE && AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
+        storage = argv[INDEX_ONE];
     }
     if (uiWindow_ == nullptr) {
         HILOG_ERROR("uiWindow_ is nullptr");
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
-        return engine.CreateUndefined();
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+        return CreateJsUndefined(env);
     }
-    Rosen::WMError ret = uiWindow_->SetUIContent(contextPath, &engine, storage);
+    // to do
+    Rosen::WMError ret = uiWindow_->SetUIContent(
+        contextPath, reinterpret_cast<NativeEngine*>(env), reinterpret_cast<NativeValue*>(storage));
     if (ret == Rosen::WMError::WM_OK) {
         HILOG_DEBUG("SetUIContent success");
     } else {
         HILOG_ERROR("SetUIContent failed, ret=%{public}d", ret);
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
     }
-    return engine.CreateUndefined();
+    return CreateJsUndefined(env);
 }
 
-NativeValue *JsUIExtensionContentSession::OnSetWindowBackgroundColor(NativeEngine& engine, NativeCallbackInfo& info)
+napi_value JsUIExtensionContentSession::OnSetWindowBackgroundColor(napi_env env, size_t argc, napi_value* argv)
 {
     HILOG_DEBUG("called");
     CHECK_IS_SYSTEM_APP;
     std::string color;
-    if (info.argc < ARGC_ONE || !ConvertFromJsValue(engine, info.argv[INDEX_ZERO], color)) {
+    if (argc < ARGC_ONE || !ConvertFromJsValue(env, argv[INDEX_ZERO], color)) {
         HILOG_ERROR("invalid param");
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-        return engine.CreateUndefined();
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
     }
 
     if (uiWindow_ == nullptr) {
         HILOG_ERROR("uiWindow_ is nullptr");
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
-        return engine.CreateUndefined();
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+        return CreateJsUndefined(env);
     }
     Rosen::WMError ret = uiWindow_->SetBackgroundColor(color);
     if (ret == Rosen::WMError::WM_OK) {
         HILOG_DEBUG("SetBackgroundColor success");
     } else {
         HILOG_ERROR("SetBackgroundColor failed, ret=%{public}d", ret);
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
     }
-    return engine.CreateUndefined();
+    return CreateJsUndefined(env);
 }
 
-NativeValue *JsUIExtensionContentSession::OnSetWindowPrivacyMode(NativeEngine& engine, NativeCallbackInfo& info)
+napi_value JsUIExtensionContentSession::OnSetWindowPrivacyMode(napi_env env, size_t argc, napi_value* argv)
 {
     HILOG_DEBUG("called");
     bool isPrivacyMode = false;
-    if (info.argc < ARGC_ONE || !ConvertFromJsValue(engine, info.argv[INDEX_ZERO], isPrivacyMode)) {
+    if (argc < ARGC_ONE || !ConvertFromJsValue(env, argv[INDEX_ZERO], isPrivacyMode)) {
         HILOG_ERROR("invalid param");
-        ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-        return engine.CreateUndefined();
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
     }
     auto selfToken = IPCSkeleton::GetSelfTokenID();
     int ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(selfToken, PERMISSION_PRIVACY_WINDOW);
     if (ret != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
-        ThrowNoPermissionError(engine, PERMISSION_PRIVACY_WINDOW);
-        return engine.CreateUndefined();
+        ThrowNoPermissionError(env, PERMISSION_PRIVACY_WINDOW);
+        return CreateJsUndefined(env);
     }
 
-    AsyncTask::CompleteCallback complete =
-        [uiWindow = uiWindow_, isPrivacyMode](NativeEngine& engine, AsyncTask& task, int32_t status) {
+    NapiAsyncTask::CompleteCallback complete =
+        [uiWindow = uiWindow_, isPrivacyMode](napi_env env, NapiAsyncTask& task, int32_t status) {
             if (uiWindow == nullptr) {
                 HILOG_ERROR("uiWindow is nullptr");
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
                 return;
             }
             auto ret = uiWindow->SetPrivacyMode(isPrivacyMode);
             if (ret == Rosen::WMError::WM_OK) {
-                task.ResolveWithNoError(engine, engine.CreateUndefined());
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
             } else {
-                task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
             }
         };
-    NativeValue* lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
-    NativeValue* result = nullptr;
-    AsyncTask::Schedule("JsUIExtensionContentSession::OnSetWindowPrivacyMode",
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    napi_value lastParam = (argc > ARGC_ONE) ? argv[INDEX_ONE] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::Schedule("JsUIExtensionContentSession::OnSetWindowPrivacyMode",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
-NativeValue *JsUIExtensionContentSession::CreateJsUIExtensionContentSession(NativeEngine& engine,
+napi_value JsUIExtensionContentSession::CreateJsUIExtensionContentSession(napi_env env,
     sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow,
     std::weak_ptr<AbilityRuntime::Context> context,
     std::shared_ptr<AbilityResultListeners>& abilityResultListeners)
 {
     HILOG_DEBUG("begin");
-    NativeValue* objValue = engine.CreateObject();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
     if (object == nullptr) {
         HILOG_ERROR("object is nullptr");
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
 
     std::unique_ptr<JsUIExtensionContentSession> jsSession =
-        std::make_unique<JsUIExtensionContentSession>(engine, sessionInfo, uiWindow, context, abilityResultListeners);
-    object->SetNativePointer(jsSession.release(), Finalizer, nullptr);
+        std::make_unique<JsUIExtensionContentSession>(sessionInfo, uiWindow, context, abilityResultListeners);
+    napi_wrap(env, object, jsSession.release(), Finalizer, nullptr, nullptr);
 
     const char *moduleName = "JsUIExtensionContentSession";
-    BindNativeFunction(engine, *object, "terminateSelf", moduleName, TerminateSelf);
-    BindNativeFunction(engine, *object, "terminateSelfWithResult", moduleName, TerminateSelfWithResult);
-    BindNativeFunction(engine, *object, "sendData", moduleName, SendData);
-    BindNativeFunction(engine, *object, "setReceiveDataCallback", moduleName, SetReceiveDataCallback);
-    BindNativeFunction(engine, *object, "loadContent", moduleName, LoadContent);
-    BindNativeFunction(engine, *object, "setWindowBackgroundColor", moduleName, SetWindowBackgroundColor);
-    BindNativeFunction(engine, *object, "setWindowPrivacyMode", moduleName, SetWindowPrivacyMode);
-    BindNativeFunction(engine, *object, "startAbility", moduleName, StartAbility);
-    BindNativeFunction(engine, *object, "startAbilityForResult", moduleName, StartAbilityForResult);
-    return objValue;
+    BindNativeFunction(env, object, "terminateSelf", moduleName, TerminateSelf);
+    BindNativeFunction(env, object, "terminateSelfWithResult", moduleName, TerminateSelfWithResult);
+    BindNativeFunction(env, object, "sendData", moduleName, SendData);
+    BindNativeFunction(env, object, "setReceiveDataCallback", moduleName, SetReceiveDataCallback);
+    BindNativeFunction(env, object, "loadContent", moduleName, LoadContent);
+    BindNativeFunction(env, object, "setWindowBackgroundColor", moduleName, SetWindowBackgroundColor);
+    BindNativeFunction(env, object, "setWindowPrivacyMode", moduleName, SetWindowPrivacyMode);
+    BindNativeFunction(env, object, "startAbility", moduleName, StartAbility);
+    BindNativeFunction(env, object, "startAbilityForResult", moduleName, StartAbilityForResult);
+    return object;
 }
 
-NativeValue *JsUIExtensionContentSession::CreateJsUIExtensionContentSession(NativeEngine& engine,
+napi_value JsUIExtensionContentSession::CreateJsUIExtensionContentSession(napi_env env,
     sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow)
 {
     HILOG_DEBUG("begin");
-    NativeValue* objValue = engine.CreateObject();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
     if (object == nullptr) {
         HILOG_ERROR("object is nullptr");
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
 
     std::unique_ptr<JsUIExtensionContentSession> jsSession =
-        std::make_unique<JsUIExtensionContentSession>(engine, sessionInfo, uiWindow);
-    object->SetNativePointer(jsSession.release(), Finalizer, nullptr);
+        std::make_unique<JsUIExtensionContentSession>(sessionInfo, uiWindow);
+    napi_wrap(env, object, jsSession.release(), Finalizer, nullptr, nullptr);
 
     const char *moduleName = "JsUIExtensionContentSession";
-    BindNativeFunction(engine, *object, "terminateSelf", moduleName, TerminateSelf);
-    BindNativeFunction(engine, *object, "terminateSelfWithResult", moduleName, TerminateSelfWithResult);
-    BindNativeFunction(engine, *object, "sendData", moduleName, SendData);
-    BindNativeFunction(engine, *object, "setReceiveDataCallback", moduleName, SetReceiveDataCallback);
-    BindNativeFunction(engine, *object, "loadContent", moduleName, LoadContent);
-    BindNativeFunction(engine, *object, "setWindowBackgroundColor", moduleName, SetWindowBackgroundColor);
-    BindNativeFunction(engine, *object, "setWindowPrivacyMode", moduleName, SetWindowPrivacyMode);
-    BindNativeFunction(engine, *object, "startAbility", moduleName, StartAbility);
-    BindNativeFunction(engine, *object, "startAbilityForResult", moduleName, StartAbilityForResult);
-    return objValue;
+    BindNativeFunction(env, object, "terminateSelf", moduleName, TerminateSelf);
+    BindNativeFunction(env, object, "terminateSelfWithResult", moduleName, TerminateSelfWithResult);
+    BindNativeFunction(env, object, "sendData", moduleName, SendData);
+    BindNativeFunction(env, object, "setReceiveDataCallback", moduleName, SetReceiveDataCallback);
+    BindNativeFunction(env, object, "loadContent", moduleName, LoadContent);
+    BindNativeFunction(env, object, "setWindowBackgroundColor", moduleName, SetWindowBackgroundColor);
+    BindNativeFunction(env, object, "setWindowPrivacyMode", moduleName, SetWindowPrivacyMode);
+    BindNativeFunction(env, object, "startAbility", moduleName, StartAbility);
+    BindNativeFunction(env, object, "startAbilityForResult", moduleName, StartAbilityForResult);
+    return object;
 }
 
-void JsUIExtensionContentSession::CallReceiveDataCallback(NativeEngine& engine,
+// to do
+NativeValue* JsUIExtensionContentSession::CreateJsUIExtensionContentSession(NativeEngine& engine,
+        sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow,
+        std::weak_ptr<AbilityRuntime::Context> context,
+        std::shared_ptr<AbilityResultListeners>& abilityResultListeners)
+{
+    return reinterpret_cast<NativeValue*>(CreateJsUIExtensionContentSession(
+        reinterpret_cast<napi_env>(&engine), sessionInfo, uiWindow, context, abilityResultListeners));
+}
+
+NativeValue* JsUIExtensionContentSession::CreateJsUIExtensionContentSession(NativeEngine& engine,
+    sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow)
+{
+    return reinterpret_cast<NativeValue*>(CreateJsUIExtensionContentSession(
+        reinterpret_cast<napi_env>(&engine), sessionInfo, uiWindow));
+}
+
+void JsUIExtensionContentSession::CallReceiveDataCallback(napi_env env,
     std::weak_ptr<CallbackWrapper> weakCallback, const AAFwk::WantParams& wantParams)
 {
     auto cbWrapper = weakCallback.lock();
@@ -657,90 +667,31 @@ void JsUIExtensionContentSession::CallReceiveDataCallback(NativeEngine& engine,
         HILOG_WARN("callback is nullptr");
         return;
     }
-    NativeValue* method = callback->Get();
+    napi_value method = reinterpret_cast<napi_value>(callback->Get());
     if (method == nullptr) {
         HILOG_WARN("method is nullptr");
         return;
     }
-    HandleScope handleScope(engine);
-    NativeValue* nativeWantParams = AppExecFwk::CreateJsWantParams(engine, wantParams);
-    if (nativeWantParams == nullptr) {
-        HILOG_ERROR("nativeWantParams is nullptr");
+    HandleScope handleScope(env);
+    napi_value napiWantParams = AppExecFwk::WrapWantParams(env, wantParams);
+    if (napiWantParams == nullptr) {
+        HILOG_ERROR("napiWantParams is nullptr");
         return;
     }
-    NativeValue* argv[] = {nativeWantParams};
-    engine.CallFunction(engine.GetGlobal(), method, argv, ARGC_ONE);
+    napi_value argv[] = {napiWantParams};
+    napi_value global = nullptr;
+    napi_get_global(env, &global);
+    napi_call_function(env, global, method, ARGC_ONE, argv, nullptr);
 }
 
-bool JsUIExtensionContentSession::UnWrapAbilityResult(NativeEngine& engine, NativeValue* argv, int& resultCode,
-    AAFwk::Want& want)
-{
-    if (argv == nullptr) {
-        HILOG_WARN("UnWrapAbilityResult argv == nullptr!");
-        return false;
-    }
-    if (argv->TypeOf() != NativeValueType::NATIVE_OBJECT) {
-        HILOG_WARN("UnWrapAbilityResult invalid type of abilityResult!");
-        return false;
-    }
-    NativeObject* jObj = ConvertNativeValueTo<NativeObject>(argv);
-    NativeValue* jResultCode = jObj->GetProperty("resultCode");
-    if (jResultCode == nullptr) {
-        HILOG_WARN("UnWrapAbilityResult jResultCode == nullptr!");
-        return false;
-    }
-    if (jResultCode->TypeOf() != NativeValueType::NATIVE_NUMBER) {
-        HILOG_WARN("UnWrapAbilityResult invalid type of resultCode!");
-        return false;
-    }
-    resultCode = int64_t(*ConvertNativeValueTo<NativeNumber>(jObj->GetProperty("resultCode")));
-    NativeValue* jWant = jObj->GetProperty("want");
-    if (jWant == nullptr) {
-        HILOG_WARN("UnWrapAbilityResult jWant == nullptr!");
-        return false;
-    }
-    if (jWant->TypeOf() != NativeValueType::NATIVE_OBJECT) {
-        HILOG_WARN("UnWrapAbilityResult invalid type of want!");
-        return false;
-    }
-    return AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(jWant), want);
-}
-
-NativeValue* JsUIExtensionContentSession::WrapAbilityResult(NativeEngine& engine,
-    const int& resultCode, const AAFwk::Want& want)
-{
-    NativeValue* jAbilityResult = engine.CreateObject();
-    NativeObject* abilityResult = ConvertNativeValueTo<NativeObject>(jAbilityResult);
-    if (abilityResult == nullptr) {
-        HILOG_ERROR("abilityResult is nullptr");
-        return engine.CreateUndefined();
-    }
-    abilityResult->SetProperty("resultCode", engine.CreateNumber(resultCode));
-    abilityResult->SetProperty("want", WrapWant(engine, want));
-    return jAbilityResult;
-}
-
-NativeValue* JsUIExtensionContentSession::WrapWant(NativeEngine& engine, const AAFwk::Want& want)
-{
-    return reinterpret_cast<NativeValue*>(AppExecFwk::WrapWant(reinterpret_cast<napi_env>(&engine), want));
-}
-
-bool JsUIExtensionContentSession::UnWrapWant(NativeEngine& engine, NativeValue* argv, AAFwk::Want& want)
-{
-    if (argv == nullptr) {
-        HILOG_WARN("argv == null");
-        return false;
-    }
-    return AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(argv), want);
-}
-
-void JsUIExtensionContentSession::AddFreeInstallObserver(NativeEngine& engine,
-    const AAFwk::Want &want, NativeValue* callback, bool isAbilityResult)
+void JsUIExtensionContentSession::AddFreeInstallObserver(napi_env env,
+    const AAFwk::Want &want, napi_value callback, bool isAbilityResult)
 {
     // adapter free install async return install and start result
     int ret = 0;
     if (freeInstallObserver_ == nullptr) {
-        freeInstallObserver_ = new JsFreeInstallObserver(engine);
+        // to do
+        freeInstallObserver_ = new JsFreeInstallObserver(*reinterpret_cast<NativeEngine*>(env));
         ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(freeInstallObserver_);
     }
 
@@ -752,7 +703,9 @@ void JsUIExtensionContentSession::AddFreeInstallObserver(NativeEngine& engine,
         std::string bundleName = want.GetElement().GetBundleName();
         std::string abilityName = want.GetElement().GetAbilityName();
         std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
-        freeInstallObserver_->AddJsObserverObject(bundleName, abilityName, startTime, callback, isAbilityResult);
+        // to do
+        freeInstallObserver_->AddJsObserverObject(
+            bundleName, abilityName, startTime, reinterpret_cast<NativeValue*>(callback), isAbilityResult);
     }
 }
 }  // namespace AbilityRuntime

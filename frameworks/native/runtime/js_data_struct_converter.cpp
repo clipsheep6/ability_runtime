@@ -24,122 +24,150 @@
 namespace OHOS {
 namespace AbilityRuntime {
 using namespace OHOS::AppExecFwk;
-NativeValue* CreateJsWantObject(NativeEngine& engine, const AAFwk::Want& want)
+napi_value CreateJsWantObject(napi_env env, const AAFwk::Want& want)
 {
-    NativeValue* objValue = engine.CreateObject();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
     if (object == nullptr) {
         HILOG_ERROR("Native object is nullptr.");
-        return objValue;
+        return nullptr;
+    }
+    napi_set_named_property(env, object, "deviceId", CreateJsValue(env, want.GetOperation().GetDeviceId()));
+    napi_set_named_property(env, object, "bundleName", CreateJsValue(env, want.GetBundle()));
+    napi_set_named_property(env, object, "abilityName", CreateJsValue(env, want.GetOperation().GetAbilityName()));
+    napi_set_named_property(env, object, "uri", CreateJsValue(env, want.GetUriString()));
+    napi_set_named_property(env, object, "type", CreateJsValue(env, want.GetType()));
+    napi_set_named_property(env, object, "flags", CreateJsValue(env, want.GetFlags()));
+    napi_set_named_property(env, object, "action", CreateJsValue(env, want.GetAction()));
+    napi_set_named_property(env, object, "entities", CreateNativeArray(env, want.GetEntities()));
+    return object;
+}
+
+napi_value CreateJsAbilityInfo(napi_env env, const AppExecFwk::AbilityInfo& abilityInfo)
+{
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
+    if (object == nullptr) {
+        HILOG_ERROR("Create object failed.");
+        return nullptr;
+    }
+    AppExecFwk::CommonFunc::ConvertAbilityInfo(env, abilityInfo, object);
+    return object;
+}
+
+napi_value CreateJsApplicationInfo(napi_env env, const AppExecFwk::ApplicationInfo &applicationInfo)
+{
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
+    if (object == nullptr) {
+        HILOG_ERROR("Create object failed.");
+        return nullptr;
+    }
+    AppExecFwk::CommonFunc::ConvertApplicationInfo(env, object, applicationInfo);
+    return object;
+}
+
+napi_value CreateJsLaunchParam(napi_env env, const AAFwk::LaunchParam& launchParam)
+{
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
+    if (object == nullptr) {
+        HILOG_ERROR("Native object is nullptr.");
+        return nullptr;
+    }
+    napi_set_named_property(env, object, "launchReason", CreateJsValue(env, launchParam.launchReason));
+    napi_set_named_property(env, object, "lastExitReason", CreateJsValue(env, launchParam.lastExitReason));
+    return object;
+}
+
+napi_value CreateJsConfiguration(napi_env env, const AppExecFwk::Configuration& configuration)
+{
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
+    if (object == nullptr) {
+        HILOG_ERROR("Native object is nullptr.");
+        return nullptr;
     }
 
-    object->SetProperty("deviceId", CreateJsValue(engine, want.GetOperation().GetDeviceId()));
-    object->SetProperty("bundleName", CreateJsValue(engine, want.GetBundle()));
-    object->SetProperty("abilityName", CreateJsValue(engine, want.GetOperation().GetAbilityName()));
-    object->SetProperty("uri", CreateJsValue(engine, want.GetUriString()));
-    object->SetProperty("type", CreateJsValue(engine, want.GetType()));
-    object->SetProperty("flags", CreateJsValue(engine, want.GetFlags()));
-    object->SetProperty("action", CreateJsValue(engine, want.GetAction()));
-    object->SetProperty("entities", CreateNativeArray(engine, want.GetEntities()));
-    return objValue;
+    napi_set_named_property(env, object, "language", CreateJsValue(env,
+        configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE)));
+    napi_set_named_property(env, object, "colorMode", CreateJsValue(env,
+        ConvertColorMode(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE))));
+
+    int32_t displayId = ConvertDisplayId(configuration.GetItem(ConfigurationInner::APPLICATION_DISPLAYID));
+    std::string direction = configuration.GetItem(displayId, ConfigurationInner::APPLICATION_DIRECTION);
+    napi_set_named_property(env, object, "direction", CreateJsValue(env, ConvertDirection(direction)));
+
+    std::string density = configuration.GetItem(displayId, ConfigurationInner::APPLICATION_DENSITYDPI);
+    napi_set_named_property(env, object, "screenDensity", CreateJsValue(env, ConvertDensity(density)));
+    napi_set_named_property(env, object, "displayId", CreateJsValue(env, displayId));
+
+    std::string hasPointerDevice = configuration.GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
+    napi_set_named_property(env, object, "hasPointerDevice",
+        CreateJsValue(env, hasPointerDevice == "true" ? true : false));
+    return object;
+}
+
+napi_value CreateJsExtensionAbilityInfo(napi_env env, const AppExecFwk::ExtensionAbilityInfo& info)
+{
+    HILOG_DEBUG("CreateJsExtensionAbilityInfo begin");
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
+    if (object == nullptr) {
+        HILOG_ERROR("Create object failed.");
+        return nullptr;
+    }
+    AppExecFwk::CommonFunc::ConvertExtensionInfo(env, info, object);
+    return object;
+}
+
+napi_value CreateJsHapModuleInfo(napi_env env, const AppExecFwk::HapModuleInfo& hapModuleInfo)
+{
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
+    if (object == nullptr) {
+        HILOG_ERROR("Create object failed.");
+        return nullptr;
+    }
+    AppExecFwk::CommonFunc::ConvertHapModuleInfo(env, hapModuleInfo, object);
+    return object;
+}
+
+// to do
+NativeValue* CreateJsWantObject(NativeEngine& engine, const AAFwk::Want& want)
+{
+    return reinterpret_cast<NativeValue*>(CreateJsWantObject(reinterpret_cast<napi_env>(&engine), want));
 }
 
 NativeValue* CreateJsAbilityInfo(NativeEngine& engine, const AppExecFwk::AbilityInfo& abilityInfo)
 {
-    NativeValue* objValue = engine.CreateObject();
-    if (objValue == nullptr) {
-        HILOG_ERROR("Create object failed.");
-        return nullptr;
-    }
-
-    AppExecFwk::CommonFunc::ConvertAbilityInfo(reinterpret_cast<napi_env>(&engine), abilityInfo,
-        reinterpret_cast<napi_value>(objValue));
-    return objValue;
+    return reinterpret_cast<NativeValue*>(CreateJsAbilityInfo(reinterpret_cast<napi_env>(&engine), abilityInfo));
 }
 
 NativeValue* CreateJsApplicationInfo(NativeEngine& engine, const AppExecFwk::ApplicationInfo &applicationInfo)
 {
-    NativeValue* objValue = engine.CreateObject();
-    if (objValue == nullptr) {
-        HILOG_ERROR("Create object failed.");
-        return nullptr;
-    }
-
-    AppExecFwk::CommonFunc::ConvertApplicationInfo(reinterpret_cast<napi_env>(&engine),
-        reinterpret_cast<napi_value>(objValue), applicationInfo);
-    return objValue;
+    return reinterpret_cast<NativeValue*>(
+        CreateJsApplicationInfo(reinterpret_cast<napi_env>(&engine), applicationInfo));
 }
 
 NativeValue* CreateJsLaunchParam(NativeEngine& engine, const AAFwk::LaunchParam& launchParam)
 {
-    NativeValue *objValue = engine.CreateObject();
-    NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
-    if (object == nullptr) {
-        HILOG_ERROR("Native object is nullptr.");
-        return objValue;
-    }
-
-    object->SetProperty("launchReason", CreateJsValue(engine, launchParam.launchReason));
-    object->SetProperty("lastExitReason", CreateJsValue(engine, launchParam.lastExitReason));
-
-    return objValue;
+    return reinterpret_cast<NativeValue*>(CreateJsLaunchParam(reinterpret_cast<napi_env>(&engine), launchParam));
 }
 
 NativeValue* CreateJsConfiguration(NativeEngine& engine, const AppExecFwk::Configuration& configuration)
 {
-    NativeValue* objValue = engine.CreateObject();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
-    if (object == nullptr) {
-        HILOG_ERROR("Native object is nullptr.");
-        return objValue;
-    }
-
-    object->SetProperty("language", CreateJsValue(engine,
-        configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE)));
-    object->SetProperty("colorMode", CreateJsValue(engine,
-        ConvertColorMode(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE))));
-
-    int32_t displayId = ConvertDisplayId(configuration.GetItem(ConfigurationInner::APPLICATION_DISPLAYID));
-
-    std::string direction = configuration.GetItem(displayId, ConfigurationInner::APPLICATION_DIRECTION);
-    object->SetProperty("direction", CreateJsValue(engine, ConvertDirection(direction)));
-
-    std::string density = configuration.GetItem(displayId, ConfigurationInner::APPLICATION_DENSITYDPI);
-    object->SetProperty("screenDensity", CreateJsValue(engine, ConvertDensity(density)));
-
-    object->SetProperty("displayId", CreateJsValue(engine, displayId));
-
-    std::string hasPointerDevice = configuration.GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
-    object->SetProperty("hasPointerDevice", CreateJsValue(engine, hasPointerDevice == "true" ? true : false));
-
-    return objValue;
+    return reinterpret_cast<NativeValue*>(CreateJsConfiguration(reinterpret_cast<napi_env>(&engine), configuration));
 }
 
 NativeValue* CreateJsExtensionAbilityInfo(NativeEngine& engine, const AppExecFwk::ExtensionAbilityInfo& info)
 {
-    HILOG_DEBUG("CreateJsExtensionAbilityInfo begin");
-    NativeValue* objValue = engine.CreateObject();
-    if (objValue == nullptr) {
-        HILOG_ERROR("Create object failed.");
-        return nullptr;
-    }
-
-    AppExecFwk::CommonFunc::ConvertExtensionInfo(reinterpret_cast<napi_env>(&engine), info,
-        reinterpret_cast<napi_value>(objValue));
-    return objValue;
+    return reinterpret_cast<NativeValue*>(CreateJsExtensionAbilityInfo(reinterpret_cast<napi_env>(&engine), info));
 }
 
 NativeValue* CreateJsHapModuleInfo(NativeEngine& engine, const AppExecFwk::HapModuleInfo& hapModuleInfo)
 {
-    NativeValue* objValue = engine.CreateObject();
-    if (objValue == nullptr) {
-        HILOG_ERROR("Create object failed.");
-        return nullptr;
-    }
-
-    AppExecFwk::CommonFunc::ConvertHapModuleInfo(reinterpret_cast<napi_env>(&engine), hapModuleInfo,
-        reinterpret_cast<napi_value>(objValue));
-    return objValue;
+    return reinterpret_cast<NativeValue*>(CreateJsHapModuleInfo(reinterpret_cast<napi_env>(&engine), hapModuleInfo));
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

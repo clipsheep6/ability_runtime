@@ -23,48 +23,57 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-void JsExtensionContext::ConfigurationUpdated(NativeEngine* engine, const std::shared_ptr<NativeReference>& jsContext,
-    const std::shared_ptr<AppExecFwk::Configuration>& config)
+void JsExtensionContext::ConfigurationUpdated(napi_env env, napi_ref jsContext,
+        const std::shared_ptr<AppExecFwk::Configuration> &config)
 {
-    if (engine == nullptr || jsContext == nullptr || config == nullptr) {
+    if (env == nullptr || jsContext == nullptr || config == nullptr) {
         HILOG_ERROR("engine or jsContext or config is nullptr.");
         return;
     }
 
-    NativeValue* value = jsContext->Get();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(value);
+    napi_value object = nullptr;
+    napi_get_reference_value(env, jsContext, &object);
     if (object == nullptr) {
         HILOG_ERROR("object is nullptr.");
         return;
     }
 
-    NativeValue* method = object->GetProperty("onUpdateConfiguration");
+    napi_value method = nullptr;
+    napi_get_named_property(env, object, "onUpdateConfiguration", &method);
     if (method == nullptr) {
         HILOG_ERROR("Failed to get onUpdateConfiguration from object");
         return;
     }
 
     HILOG_INFO("JsExtensionContext call onUpdateConfiguration.");
-    NativeValue* argv[] = { CreateJsConfiguration(*engine, *config) };
-    engine->CallFunction(value, method, argv, 1);
+    napi_value argv[] = { CreateJsConfiguration(env, *config) };
+    napi_call_function(env, object, method, 1, argv, nullptr);
 }
 
-NativeValue* CreateJsExtensionContext(NativeEngine& engine, const std::shared_ptr<ExtensionContext>& context,
+// to do
+void JsExtensionContext::ConfigurationUpdated(NativeEngine* engine, const std::shared_ptr<NativeReference>& jsContext,
+    const std::shared_ptr<AppExecFwk::Configuration>& config)
+{
+    ConfigurationUpdated(reinterpret_cast<napi_env>(engine), reinterpret_cast<napi_ref>(jsContext.get()), config);
+}
+
+napi_value CreateJsExtensionContext(napi_env env, const std::shared_ptr<ExtensionContext>& context,
     std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo)
 {
-    NativeValue* objValue = CreateJsBaseContext(engine, context);
     if (context == nullptr) {
         HILOG_ERROR("Failed to CreateJsExtensionContext, context is nullptr.");
-        return objValue;
+        return nullptr;
     }
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+    // to do
+    napi_value object = reinterpret_cast<napi_value>(
+        CreateJsBaseContext(*reinterpret_cast<NativeEngine*>(env), context));
     if (object == nullptr) {
         HILOG_ERROR("Failed to CreateJsExtensionContext, object is nullptr.");
-        return objValue;
+        return nullptr;
     }
     auto configuration = context->GetConfiguration();
     if (configuration != nullptr) {
-        object->SetProperty("config", CreateJsConfiguration(engine, *configuration));
+        napi_set_named_property(env, object, "config", CreateJsConfiguration(env, *configuration));
     }
 
     auto hapModuleInfo = context->GetHapModuleInfo();
@@ -78,11 +87,19 @@ NativeValue* CreateJsExtensionContext(NativeEngine& engine, const std::shared_pt
         if (infoIter == hapModuleInfo->extensionInfos.end()) {
             HILOG_ERROR("Set extensionAbilityInfo fail.");
         } else {
-            object->SetProperty("extensionAbilityInfo", CreateJsExtensionAbilityInfo(engine, *infoIter));
+            napi_set_named_property(env, object, "extensionAbilityInfo", CreateJsExtensionAbilityInfo(env, *infoIter));
         }
     }
 
-    return objValue;
+    return object;
+}
+
+// to do
+NativeValue* CreateJsExtensionContext(NativeEngine& engine, const std::shared_ptr<ExtensionContext>& context,
+    std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo)
+{
+    return reinterpret_cast<NativeValue*>(
+        CreateJsExtensionContext(reinterpret_cast<napi_env>(&engine), context, abilityInfo));
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

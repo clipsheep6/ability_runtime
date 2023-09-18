@@ -38,6 +38,9 @@ bool BlackListFilter(const std::string &strProName);
 napi_value WrapWant(napi_env env, const AAFwk::Want &want);
 bool UnwrapWant(napi_env env, napi_value param, AAFwk::Want &want);
 
+napi_value WrapAbilityResult(napi_env env, const int &resultCode, const AAFwk::Want &want);
+bool UnWrapAbilityResult(napi_env env, napi_value param, int &resultCode, AAFwk::Want &want);
+
 void HandleNapiObject(napi_env env, napi_value param, napi_value jsProValue, std::string &strProName,
     AAFwk::WantParams &wantParams);
 

@@ -24,7 +24,6 @@
 #include "start_options.h"
 #include "window.h"
 
-
 namespace OHOS {
 namespace AbilityRuntime {
 using RuntimeTask = std::function<void(int, const AAFwk::Want&, bool)>;
@@ -45,13 +44,20 @@ class JsUIExtensionContentSession {
 private:
     class CallbackWrapper;
 public:
-    JsUIExtensionContentSession(NativeEngine& engine, sptr<AAFwk::SessionInfo> sessionInfo,
+    JsUIExtensionContentSession(sptr<AAFwk::SessionInfo> sessionInfo,
         sptr<Rosen::Window> uiWindow, std::weak_ptr<AbilityRuntime::Context>& context,
         std::shared_ptr<AbilityResultListeners>& abilityResultListeners);
-    JsUIExtensionContentSession(NativeEngine& engine, sptr<AAFwk::SessionInfo> sessionInfo,
+    JsUIExtensionContentSession(sptr<AAFwk::SessionInfo> sessionInfo,
         sptr<Rosen::Window> uiWindow);
     virtual ~JsUIExtensionContentSession() = default;
-    static void Finalizer(NativeEngine* engine, void* data, void* hint);
+    static void Finalizer(napi_env env, void* data, void* hint);
+    static napi_value CreateJsUIExtensionContentSession(napi_env env,
+        sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow,
+        std::weak_ptr<AbilityRuntime::Context> context,
+        std::shared_ptr<AbilityResultListeners>& abilityResultListeners);
+    static napi_value CreateJsUIExtensionContentSession(napi_env env,
+        sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow);
+    // to do
     static NativeValue* CreateJsUIExtensionContentSession(NativeEngine& engine,
         sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow,
         std::weak_ptr<AbilityRuntime::Context> context,
@@ -59,42 +65,37 @@ public:
     static NativeValue* CreateJsUIExtensionContentSession(NativeEngine& engine,
         sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow);
 
-    static NativeValue* StartAbility(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StartAbilityForResult(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* TerminateSelf(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* TerminateSelfWithResult(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* SendData(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* SetReceiveDataCallback(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* LoadContent(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* SetWindowBackgroundColor(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* SetWindowPrivacyMode(NativeEngine* engine, NativeCallbackInfo* info);
+    static napi_value StartAbility(napi_env env, napi_callback_info info);
+    static napi_value StartAbilityForResult(napi_env env, napi_callback_info info);
+    static napi_value TerminateSelf(napi_env env, napi_callback_info info);
+    static napi_value TerminateSelfWithResult(napi_env env, napi_callback_info info);
+    static napi_value SendData(napi_env env, napi_callback_info info);
+    static napi_value SetReceiveDataCallback(napi_env env, napi_callback_info info);
+    static napi_value LoadContent(napi_env env, napi_callback_info info);
+    static napi_value SetWindowBackgroundColor(napi_env env, napi_callback_info info);
+    static napi_value SetWindowPrivacyMode(napi_env env, napi_callback_info info);
 
 protected:
-    NativeValue* OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnStartAbilityForResult(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnTerminateSelf(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnTerminateSelfWithResult(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnSendData(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnSetReceiveDataCallback(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnLoadContent(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnSetWindowBackgroundColor(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnSetWindowPrivacyMode(NativeEngine& engine, NativeCallbackInfo& info);
+    napi_value OnStartAbility(napi_env env, size_t argc, napi_value* argv);
+    napi_value OnStartAbilityForResult(napi_env env, size_t argc, napi_value* argv);
+    napi_value OnTerminateSelf(napi_env env, size_t argc, napi_value* argv);
+    napi_value OnTerminateSelfWithResult(napi_env env, size_t argc, napi_value* argv);
+    napi_value OnSendData(napi_env env, size_t argc, napi_value* argv);
+    napi_value OnSetReceiveDataCallback(napi_env env, size_t argc, napi_value* argv);
+    napi_value OnLoadContent(napi_env env, size_t argc, napi_value* argv);
+    napi_value OnSetWindowBackgroundColor(napi_env env, size_t argc, napi_value* argv);
+    napi_value OnSetWindowPrivacyMode(napi_env env, size_t argc, napi_value* argv);
 
-    static void CallReceiveDataCallback(NativeEngine& engine, std::weak_ptr<CallbackWrapper> weakCallback,
+    static void CallReceiveDataCallback(napi_env env, std::weak_ptr<CallbackWrapper> weakCallback,
         const AAFwk::WantParams& wantParams);
-    static bool UnWrapAbilityResult(NativeEngine& engine, NativeValue* argv, int& resultCode, AAFwk::Want& want);
-    static NativeValue* WrapAbilityResult(NativeEngine& engine, const int& resultCode, const AAFwk::Want& want);
-    static NativeValue* WrapWant(NativeEngine& engine, const AAFwk::Want& want);
-    static bool UnWrapWant(NativeEngine& engine, NativeValue* argv, AAFwk::Want& want);
-    void AddFreeInstallObserver(NativeEngine& engine, const AAFwk::Want &want, NativeValue* callback,
+    void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback,
         bool isAbilityResult = false);
-    AsyncTask::ExecuteCallback StartAbilityExecuteCallback(AAFwk::Want& want, size_t& unwrapArgc,
-        NativeEngine& engine, NativeCallbackInfo &info, std::shared_ptr<int> &innerErrorCode);
-    void StartAbilityForResultRuntimeTask(NativeEngine& engine, AAFwk::Want &want,
-        std::shared_ptr<AsyncTask> asyncTask, size_t& unwrapArgc, AAFwk::StartOptions startOptions);
+    NapiAsyncTask::ExecuteCallback StartAbilityExecuteCallback(AAFwk::Want& want, size_t& unwrapArgc,
+        napi_env env, size_t argc, napi_value* argv, std::shared_ptr<int> &innerErrorCode);
+    void StartAbilityForResultRuntimeTask(napi_env env, AAFwk::Want &want,
+        std::shared_ptr<NapiAsyncTask> asyncTask, size_t& unwrapArgc, AAFwk::StartOptions startOptions);
     
 private:
-    NativeEngine& engine_;
     sptr<AAFwk::SessionInfo> sessionInfo_;
     sptr<Rosen::Window> uiWindow_;
     std::weak_ptr<AbilityRuntime::Context> context_;
