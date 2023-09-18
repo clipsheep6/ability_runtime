@@ -171,13 +171,12 @@ private:
                     task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
                     return;
                 }
-                bool isEmpty = false;
-                if (observer && observer->RemoveJsObserverObject(observerId, isEmpty)) {
+                if (observer && observer->RemoveJsObserverObject(observerId)) {
                     task.ResolveWithNoError(engine, engine.CreateUndefined());
                 } else {
                     task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_ID));
                 }
-                if (isEmpty) {
+                if (observer && observer->IsEmpty()) {
                     AppExecFwk::ApplicationDataManager::GetInstance().RemoveErrorObserver();
                     observer = nullptr;
                 }
@@ -209,14 +208,13 @@ private:
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
             return engine.CreateUndefined();
         }
-        bool isEmpty = false;
-        if (observer_->RemoveJsObserverObject(observerId, isEmpty, true)) {
+        if (observer_->RemoveJsObserverObject(observerId, true)) {
             HILOG_DEBUG("RemoveJsObserverObject success");
         } else {
             HILOG_ERROR("RemoveJsObserverObject failed");
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_ID);
         }
-        if (isEmpty) {
+        if (observer_->IsEmpty()) {
             AppExecFwk::ApplicationDataManager::GetInstance().RemoveErrorObserver();
             observer_ = nullptr;
         }
