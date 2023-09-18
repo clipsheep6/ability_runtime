@@ -121,10 +121,11 @@ public:
      * @param abilityRecord, the ability to close.
      * @param resultCode, the resultCode of the ability to terminate.
      * @param resultWant, the Want of the ability to return.
+     * @param isClearSession Indicates whether to close UIAbility because the session is cleared.
      * @return Returns ERR_OK on success, others on failure.
      */
     int CloseUIAbility(const std::shared_ptr<AbilityRecord> &abilityRecord,
-        int resultCode, const Want *resultWant);
+        int resultCode, const Want *resultWant, bool isClearSession);
 
     /**
      * Set rootSceneSession by SCB.

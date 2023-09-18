@@ -809,7 +809,7 @@ void UIAbilityLifecycleManager::CompleteBackground(const std::shared_ptr<Ability
 }
 
 int UIAbilityLifecycleManager::CloseUIAbility(const std::shared_ptr<AbilityRecord> &abilityRecord,
-    int resultCode, const Want *resultWant)
+    int resultCode, const Want *resultWant, bool isClearSession)
 {
     HILOG_DEBUG("call");
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -823,6 +823,7 @@ int UIAbilityLifecycleManager::CloseUIAbility(const std::shared_ptr<AbilityRecor
     }
 
     abilityRecord->SetTerminatingState();
+    abilityRecord->SetClearMissionFlag(isClearSession);
     // save result to caller AbilityRecord
     if (resultWant != nullptr) {
         abilityRecord->SaveResultToCallers(resultCode, resultWant);
