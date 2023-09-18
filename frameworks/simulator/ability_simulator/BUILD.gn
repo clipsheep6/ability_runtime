@@ -42,6 +42,7 @@ gen_obj("js_mock_abc") {
 
 config("ability_simulator_public_config") {
   include_dirs = [ "include" ]
+  cflags_cc = [ "-Wno-unused-variable" ]
 }
 
 ohos_shared_library("ability_simulator_inner") {
@@ -115,7 +116,6 @@ ohos_shared_library("ability_simulator_inner") {
       "ets_runtime:libark_jsruntime",
       "hilog:libhilog",
       "napi:ace_napi",
-      "napi:ace_napi_ark",
       "previewer:ide_extension",
       "window_manager:previewer_window",
       "window_manager:previewer_window_napi",

@@ -101,7 +101,6 @@ ohos_shared_library("runtime") {
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "napi:ace_napi_ark",
     "resource_management:global_resmgr",
     "samgr:samgr_proxy",
   ]

@@ -117,9 +117,9 @@ ohos_copy("copy_ability_simulator") {
   sources +=
       [ out_path + "/ability/ability_base/libstring_utils" + dylib_suffix ]
 
-  deps += [ "${arkui_path}/napi:ace_napi_ark" ]
-  out_path = get_label_info("${arkui_path}/napi:ace_napi_ark", "root_out_dir")
-  sources += [ out_path + "/arkui/napi/libace_napi_ark" + dylib_suffix ]
+  deps += [ "${arkui_path}/napi:ace_napi" ]
+  out_path = get_label_info("${arkui_path}/napi:ace_napi", "root_out_dir")
+  sources += [ out_path + "/arkui/napi/libace_napi" + dylib_suffix ]
 
   deps += [ "//arkcompiler/ets_runtime:libark_jsruntime" ]
   out_path = get_label_info("//arkcompiler/ets_runtime:libark_jsruntime",

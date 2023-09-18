@@ -45,7 +45,6 @@ ohos_shared_library("js_environment") {
     "ets_utils:console",
     "eventhandler:libeventhandler",
     "napi:ace_napi",
-    "napi:ace_napi_ark",
   ]
 
   subsystem_name = "ability"
