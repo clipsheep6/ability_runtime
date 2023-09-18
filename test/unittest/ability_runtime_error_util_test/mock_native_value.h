@@ -206,5 +206,10 @@ public:
     {
         return NativeValueType::NATIVE_UNDEFINED;
     }
+
+    NativeEngine* GetEngine() override
+    {
+        return nullptr;
+    }
 };
 #endif // FOUNDATION_ABILITY_RUNTIME_MOCK_NATIVE_VALUE_H
