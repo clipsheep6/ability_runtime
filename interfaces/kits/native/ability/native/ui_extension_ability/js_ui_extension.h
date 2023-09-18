@@ -30,7 +30,7 @@ class JsRuntime;
 /**
  * @brief Basic ui extension components.
  */
-class JsUIExtension : public UIExtension, public std::enable_shared_from_this<JsUIExtension> {
+class JsUIExtension : public UIExtension {
 public:
     explicit JsUIExtension(JsRuntime& jsRuntime);
     virtual ~JsUIExtension() override;
@@ -110,6 +110,11 @@ public:
      * You can override this function to implement your own processing logic.
      */
     virtual void OnStop() override;
+    virtual void OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback) override;
+    /**
+     * @brief The callback of OnStop.
+     */
+    virtual void OnStopCallBack() override;
 
     /**
      * @brief Called when the system configuration is updated.
@@ -159,7 +164,10 @@ public:
 private:
     virtual void BindContext(NativeEngine& engine, NativeObject* obj);
 
-    NativeValue* CallObjectMethod(const char* name, NativeValue* const *argv = nullptr, size_t argc = 0);
+    NativeValue *CallObjectMethod(const char *name, NativeValue *const *argv = nullptr, size_t argc = 0,
+        bool withResult = false);
+    bool CheckPromise(NativeValue* result);
+    bool CallPromise(NativeValue* result, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo);
 
     NativeValue* CallOnConnect(const AAFwk::Want &want);
 

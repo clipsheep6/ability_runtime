@@ -14,9 +14,13 @@
  */
 
 #include "js_ui_extension.h"
-
+#include "ability_context.h"
+#include "ability_delegator_registry.h"
 #include "ability_info.h"
 #include "ability_manager_client.h"
+#include "ability_start_setting.h"
+#include "connection_manager.h"
+#include "context.h"
 #include "hitrace_meter.h"
 #include "hilog_wrapper.h"
 #include "js_extension_common.h"
@@ -190,7 +194,109 @@ void JsUIExtension::OnStop()
     HILOG_DEBUG("JsUIExtension OnStop begin.");
     HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onDestroy");
+    OnStopCallBack();
     HILOG_DEBUG("JsUIExtension OnStop end.");
+}
+void JsUIExtension::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback)
+{
+    if (callbackInfo == nullptr) {
+        isAsyncCallback = false;
+        OnStop();
+        return;
+    }
+    HILOG_DEBUG("OnStop begin.");
+    UIExtension::OnStop();
+    HandleScope handleScope(jsRuntime_);
+    NativeValue *result = CallObjectMethod("onDestroy", nullptr, 0, true);
+    if (!CheckPromise(result)) {
+        OnStopCallBack();
+        isAsyncCallback = false;
+        return;
+    }
+
+    std::weak_ptr<Extension> weakPtr = shared_from_this();
+    auto asyncCallback = [extensionWeakPtr = weakPtr]() {
+        auto jsUIExtension = extensionWeakPtr.lock();
+        if (jsUIExtension == nullptr) {
+            HILOG_ERROR("extension is nullptr.");
+            return;
+        }
+        jsUIExtension->OnStopCallBack();
+    };
+    callbackInfo->Push(asyncCallback);
+    isAsyncCallback = CallPromise(result, callbackInfo);
+    if (!isAsyncCallback) {
+        HILOG_ERROR("Failed to call promise.");
+        OnStopCallBack();
+    }
+    HILOG_DEBUG("OnStop end.");
+}
+
+void JsUIExtension::OnStopCallBack()
+{
+    bool ret = ConnectionManager::GetInstance().DisconnectCaller(GetContext()->GetToken());
+    if (ret) {
+        ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());
+        HILOG_DEBUG("The service connection is not disconnected.");
+    }
+
+    auto applicationContext = Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        std::shared_ptr<NativeReference> sharedJsObj = std::move(jsObj_);
+        applicationContext->DispatchOnAbilityDestroy(sharedJsObj);
+    }
+}
+
+bool JsUIExtension::CheckPromise(NativeValue *result)
+{
+    if (result == nullptr) {
+        HILOG_DEBUG("result is null, no need to call promise.");
+        return false;
+    }
+    if (!result->IsPromise()) {
+        HILOG_DEBUG("result is not promise, no need to call promise.");
+        return false;
+    }
+    return true;
+}
+
+NativeValue *PromiseCallback(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    if (info == nullptr || info->functionInfo == nullptr || info->functionInfo->data == nullptr) {
+        HILOG_ERROR("Invalid input info.");
+        return nullptr;
+    }
+    void *data = info->functionInfo->data;
+    auto *callbackInfo = static_cast<AppExecFwk::AbilityTransactionCallbackInfo<> *>(data);
+    callbackInfo->Call();
+    AppExecFwk::AbilityTransactionCallbackInfo<>::Destroy(callbackInfo);
+    info->functionInfo->data = nullptr;
+    return nullptr;
+}
+
+bool JsUIExtension::CallPromise(NativeValue *result, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo)
+{
+    auto *retObj = ConvertNativeValueTo<NativeObject>(result);
+    if (retObj == nullptr) {
+        HILOG_ERROR("Failed to convert native value to NativeObject.");
+        return false;
+    }
+    NativeValue *then = retObj->GetProperty("then");
+    if (then == nullptr) {
+        HILOG_ERROR("Failed to get property: then.");
+        return false;
+    }
+    if (!then->IsCallable()) {
+        HILOG_ERROR("property then is not callable.");
+        return false;
+    }
+    HandleScope handleScope(jsRuntime_);
+    auto &nativeEngine = jsRuntime_.GetNativeEngine();
+    auto promiseCallback = nativeEngine.CreateFunction("promiseCallback", strlen("promiseCallback"), PromiseCallback,
+        callbackInfo);
+    NativeValue *argv[1] = { promiseCallback };
+    nativeEngine.CallFunction(result, then, argv, 1);
+    return true;
 }
 
 sptr<IRemoteObject> JsUIExtension::OnConnect(const AAFwk::Want &want)
@@ -387,7 +493,7 @@ void JsUIExtension::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
     HILOG_DEBUG("end.");
 }
 
-NativeValue* JsUIExtension::CallObjectMethod(const char* name, NativeValue* const* argv, size_t argc)
+NativeValue *JsUIExtension::CallObjectMethod(const char *name, NativeValue *const *argv, size_t argc, bool withResult)
 {
     HILOG_DEBUG("JsUIExtension CallObjectMethod(%{public}s), begin", name);
 
@@ -396,21 +502,27 @@ NativeValue* JsUIExtension::CallObjectMethod(const char* name, NativeValue* cons
         return nullptr;
     }
 
-    auto& nativeEngine = jsRuntime_.GetNativeEngine();
-    NativeValue* value = jsObj_->Get();
-    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
+    HandleEscape handleEscape(jsRuntime_);
+    auto &nativeEngine = jsRuntime_.GetNativeEngine();
+
+    NativeValue *value = jsObj_->Get();
+    NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
         HILOG_ERROR("Failed to get UIExtension object");
         return nullptr;
     }
 
-    NativeValue* method = obj->GetProperty(name);
-    if (method == nullptr || method->TypeOf() != NATIVE_FUNCTION) {
+    NativeValue *methodOnCreate = obj->GetProperty(name);
+    if (methodOnCreate == nullptr || methodOnCreate->TypeOf() != NATIVE_FUNCTION) {
         HILOG_ERROR("Failed to get '%{public}s' from UIExtension object", name);
         return nullptr;
     }
+    if (withResult) {
+        return handleEscape.Escape(nativeEngine.CallFunction(value, methodOnCreate, argv, argc));
+    }
     HILOG_DEBUG("JsUIExtension CallFunction(%{public}s), success", name);
-    return nativeEngine.CallFunction(value, method, argv, argc);
+    nativeEngine.CallFunction(value, methodOnCreate, argv, argc);
+    return nullptr;
 }
 
 NativeValue *JsUIExtension::CallOnConnect(const AAFwk::Want &want)

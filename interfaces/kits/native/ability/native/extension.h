@@ -165,12 +165,28 @@ public:
      * You can override this function to implement your own processing logic.
      */
     virtual void OnStop();
+    /**
+     * @brief Called when this extension enters the <b>STATE_STOP</b> state.
+     *
+     * The ability in the <b>STATE_STOP</b> is being destroyed.
+     * You can override this function to implement your own processing logic.
+     *
+     * @param callbackInfo Indicates the lifecycle transaction callback information
+     * @param isAsyncCallback Indicates whether it is an asynchronous lifecycle callback
+     */
+    virtual void OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback);
 
     /**
      * @brief Called when the system configuration is updated.
      *
      * @param configuration Indicates the updated configuration information.
      */
+    
+    /**
+     * @brief The callback of OnStop.
+     */
+    virtual void OnStopCallBack();
+    
     virtual void OnConfigurationUpdated(const AppExecFwk::Configuration& configuration);
 
     /**
