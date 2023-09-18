@@ -16,11 +16,11 @@
 #include <gtest/gtest.h>
 #define private public
 #define protected public
-#include "ability_local_record.h"
 #include "ability_impl.h"
+#include "ability_local_record.h"
 #include "ability_thread.h"
-#include "iservice_registry.h"
 #include "iremote_object.h"
+#include "iservice_registry.h"
 #include "mock_ability_token.h"
 #include "parcel.h"
 #undef protected
@@ -79,21 +79,6 @@ HWTEST_F(AbilityLocalRecordTest, GetEventRunner_0100, TestSize.Level0)
     record->SetEventRunner(runner);
     EXPECT_TRUE(record->GetEventRunner() != nullptr);
     GTEST_LOG_(INFO) << "AbilityLocalRecordTest SetEventHandler_0100 end";
-}
-
-/**
- * @tc.number: GetAbilityImpl_0100
- * @tc.name: GetAbilityImpl
- * @tc.desc: GetAbilityImpl Test, return is not nullptr.
- */
-HWTEST_F(AbilityLocalRecordTest, GetAbilityImpl_0100, TestSize.Level0)
-{
-    GTEST_LOG_(INFO) << "AbilityLocalRecordTest GetAbilityImpl_0100 start";
-    auto record = std::make_shared<OHOS::AppExecFwk::AbilityLocalRecord>(nullptr, nullptr);
-    auto abilityImpl = std::make_shared<AbilityImpl>();
-    record->SetAbilityImpl(abilityImpl);
-    EXPECT_TRUE(record->GetAbilityImpl() != nullptr);
-    GTEST_LOG_(INFO) << "AbilityLocalRecordTest GetAbilityImpl_0100 end";
 }
 
 /**

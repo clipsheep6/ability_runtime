@@ -406,8 +406,10 @@ ohos_shared_library("ability_thread") {
   include_dirs =
       [ "${ability_runtime_path}/interfaces/kits/native/ability/native" ]
 
-  sources =
-      [ "${ability_runtime_native_path}/ability/native/ability_thread.cpp" ]
+  sources = [
+    "${ability_runtime_native_path}/ability/native/ability_thread.cpp",
+    "${ability_runtime_native_path}/ability/native/fa_ability_thread.cpp",
+  ]
 
   deps = [
     ":abilitykit_native",

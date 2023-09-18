@@ -893,7 +893,7 @@ bool FAAbilityThread::SchedulePrepareTerminateAbility()
             HILOG_ERROR("abilityThread is nullptr");
             return false;
         }
-        return abilityThread->isPrepareTerminateAbilityDone_;
+        return abilityThread->isPrepareTerminateAbilityDone_.load();
     };
     if (!cv_.wait_for(lock, std::chrono::milliseconds(PREPARE_TO_TERMINATE_TIMEOUT_MILLISECONDS), condition)) {
         HILOG_WARN("Wait timeout");

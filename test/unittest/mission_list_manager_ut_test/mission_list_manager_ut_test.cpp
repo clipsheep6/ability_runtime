@@ -12,22 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
-
+#include <gtest/gtest.h>
 #include <iremote_object.h>
 #include <iremote_stub.h>
 
 #include "ability_connect_callback_interface.h"
 #include "ability_loader.h"
 #include "ability_thread.h"
+#include "fa_ability_thread.h"
 #define private public
 #define protected public
 #include "ability_record.h"
 #include "call_record.h"
-#include "mission_list.h"
 #include "mission.h"
 #include "mission_info_mgr.h"
+#include "mission_list.h"
 #include "mission_list_manager.h"
 
 namespace OHOS {
@@ -83,7 +83,7 @@ public:
     virtual void OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int resultCode) {};
 };
 
-class MissionListManagerTestAbilityThreadStub : public AppExecFwk::AbilityThread {
+class MissionListManagerTestAbilityThreadStub : public AbilityRuntime::FAAbilityThread {
 public:
     MissionListManagerTestAbilityThreadStub() {};
     ~MissionListManagerTestAbilityThreadStub() {};
