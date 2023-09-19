@@ -60,6 +60,7 @@ struct ProcessData : public Parcelable {
     std::string processName;
     ProcessType processType = ProcessType::NORMAL;
     ExtensionAbilityType extensionType = ExtensionAbilityType::UNSPECIFIED;
+    uint32_t accessTokenId = 0;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

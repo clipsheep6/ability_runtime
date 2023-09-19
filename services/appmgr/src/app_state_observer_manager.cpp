@@ -508,6 +508,10 @@ ProcessData AppStateObserverManager::WrapProcessData(const std::shared_ptr<AppRu
     processData.bundleName = appRecord->GetBundleName();
     processData.pid = appRecord->GetPriorityObject()->GetPid();
     processData.uid = appRecord->GetUid();
+    auto applicationInfo = appRecord->GetApplicationInfo();
+    if (applicationInfo) {
+        processData.accessTokenId = applicationInfo->accessTokenId;
+    }
     processData.state = static_cast<AppProcessState>(appRecord->GetState());
     processData.isContinuousTask = appRecord->IsContinuousTask();
     processData.isKeepAlive = appRecord->IsKeepAliveApp();
