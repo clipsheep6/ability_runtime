@@ -123,6 +123,7 @@ private:
     void FinishPreload() override;
 
     bool Initialize(const Options& options);
+    void SubscribeArkProfileEvent(const std::string &bundleName, const std::string &moduleName);
     void Deinitialize();
 
     NativeValue* LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk = false);

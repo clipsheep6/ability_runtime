@@ -18,6 +18,7 @@
 #include <cerrno>
 #include <climits>
 #include <cstdlib>
+#include <memory>
 #include <regex>
 
 #include <atomic>
@@ -25,6 +26,8 @@
 #include <unistd.h>
 
 #include "accesstoken_kit.h"
+#include "common_event_manager.h"
+#include "common_event_subscribe_info.h"
 #include "constants.h"
 #include "connect_server_manager.h"
 #include "ecmascript/napi/include/jsnapi.h"
@@ -35,6 +38,7 @@
 #include "hitrace_meter.h"
 #include "hot_reloader.h"
 #include "ipc_skeleton.h"
+#include "js_ark_profile_monitor.h"
 #include "js_environment.h"
 #include "js_module_reader.h"
 #include "js_module_searcher.h"
@@ -42,6 +46,7 @@
 #include "js_runtime_utils.h"
 #include "js_utils.h"
 #include "js_worker.h"
+#include "matching_skills.h"
 #include "module_checker_delegate.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
 #include "ohos_js_env_logger.h"
@@ -457,6 +462,19 @@ void JsRuntime::FinishPreload()
     panda::JSNApi::PreFork(vm);
 }
 
+void JsRuntime::SubscribeArkProfileEvent(const std::string &bundleName, const std::string &moduleName)
+{
+    std::string eventString = bundleName + "." + moduleName + ".SAVEPROFILE";
+    HILOG_ERROR("###ZZB### SubscribeArkProfileEvent: %{public}s", eventString.c_str());
+    EventFwk::MatchingSkills skills;
+    skills.AddEvent(eventString);
+    EventFwk::CommonEventSubscribeInfo info(skills);
+    std::shared_ptr<ArkProfileMonitor> subscriberPtr = std::make_shared<ArkProfileMonitor>(info);
+    if (!EventFwk::CommonEventManager::SubscribeCommonEvent(subscriberPtr)) {
+        HILOG_ERROR("###ZZB### Failed to subscribeArkProfileEvent: %{public}s", eventString.c_str());
+    }
+}
+
 bool JsRuntime::Initialize(const Options& options)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
@@ -490,6 +508,9 @@ bool JsRuntime::Initialize(const Options& options)
                 postOption.SetAnDir(sandBoxAnFilePath);
             }
             bool profileEnabled = OHOS::system::GetBoolParameter("ark.profile", false);
+            if (profileEnabled) {
+                SubscribeArkProfileEvent(options.bundleName, options.moduleName);
+            }
             postOption.SetEnableProfile(profileEnabled);
             panda::JSNApi::PostFork(vm, postOption);
             nativeEngine->ReinitUVLoop();
