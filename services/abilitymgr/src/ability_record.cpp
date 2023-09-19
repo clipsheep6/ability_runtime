@@ -1493,6 +1493,7 @@ void AbilityRecord::RestoreAbilityState()
 
 void AbilityRecord::SetWant(const Want &want)
 {
+    std::lock_guard<ffrt::mutex> guard(lock_);
     want_ = want;
 }
 
@@ -1614,6 +1615,7 @@ void AbilityRecord::SaveResultToCallers(const int resultCode, const Want *result
 
 void AbilityRecord::SaveResult(int resultCode, const Want *resultWant, std::shared_ptr<CallerRecord> caller)
 {
+    std::lock_guard<ffrt::mutex> guard(lock_);
     std::shared_ptr<AbilityRecord> callerAbilityRecord = caller->GetCaller();
     if (callerAbilityRecord != nullptr) {
         callerAbilityRecord->SetResult(
@@ -2110,9 +2112,14 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
         abilityManagerService->OnAbilityDied(ability);
     };
     handler->SubmitTask(task);
-    auto uriTask = [want = want_, ability = shared_from_this()]() {
-        ability->SaveResultToCallers(-1, &want);
-        ability->SendResultToCallers(true);
+    auto uriTask = [want = want_, ability = weak_from_this()]() {
+        auto me = ability.lock();
+        if (me == nullptr) {
+            HILOG_ERROR("ability is nullptr.");
+            return;
+        }
+        me->SaveResultToCallers(-1, &want);
+        me->SendResultToCallers(true);
     };
     handler->SubmitTask(uriTask);
 #ifdef SUPPORT_GRAPHICS
