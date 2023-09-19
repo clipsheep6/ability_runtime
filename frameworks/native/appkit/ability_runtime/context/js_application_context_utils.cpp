@@ -556,9 +556,6 @@ NativeValue *JsApplicationContextUtils::OnGetRunningProcessInformation(NativeEng
             object->SetProperty("bundleNames", CreateNativeArray(engine, processInfo.bundleNames));
             object->SetProperty(
                 "state", CreateJsValue(engine, ConvertToJsAppProcessState(processInfo.state_, processInfo.isFocused)));
-            object->SetProperty("isContinuousTask", CreateJsValue(engine, processInfo.isContinuousTask));
-            object->SetProperty("isKeepAlive", CreateJsValue(engine, processInfo.isKeepAlive));
-            object->SetProperty("isFocused", CreateJsValue(engine, processInfo.isFocused));
             NativeValue* arrayValue = engine.CreateArray(1);
             NativeArray* array = ConvertNativeValueTo<NativeArray>(arrayValue);
             if (array == nullptr) {
