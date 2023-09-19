@@ -75,7 +75,6 @@
 #include "application_anr_listener.h"
 #include "display_manager.h"
 #include "input_manager.h"
-#include "png.h"
 #endif
 
 #ifdef EFFICIENCY_MANAGER_ENABLE
