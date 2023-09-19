@@ -692,10 +692,7 @@ ohos_unittest("ability_thread_test") {
 ohos_unittest("extension_ability_thread_test") {
   module_out_path = module_output_path
 
-  sources = [
-    # "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
-    "extension_ability_thread_test.cpp",
-  ]
+  sources = [ "extension_ability_thread_test.cpp" ]
 
   configs = [ ":module_private_config" ]
 

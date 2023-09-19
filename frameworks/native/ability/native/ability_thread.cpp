@@ -41,7 +41,7 @@ void AbilityThread::AbilityThreadMain(std::shared_ptr<OHOSApplication> &applicat
         return;
     }
     if (abilityInfo->type == AbilityType::EXTENSION) {
-		sptr<AbilityThread> thread(new (std::nothrow) AbilityRuntime::ExtensionAbilityThread());
+        sptr<AbilityThread> thread(new (std::nothrow) AbilityRuntime::ExtensionAbilityThread());
         if (thread == nullptr) {
             HILOG_ERROR("thread is nullptr.");
             return;
@@ -76,7 +76,7 @@ void AbilityThread::AbilityThreadMain(std::shared_ptr<OHOSApplication> &applicat
     }
 
     if (abilityInfo->type == AbilityType::EXTENSION) {
-		sptr<AbilityThread> thread(new (std::nothrow) AbilityRuntime::ExtensionAbilityThread());
+        sptr<AbilityThread> thread(new (std::nothrow) AbilityRuntime::ExtensionAbilityThread());
         if (thread == nullptr) {
             HILOG_ERROR("thread is nullptr");
             return;
