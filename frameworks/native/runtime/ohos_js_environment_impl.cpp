@@ -86,6 +86,7 @@ void OHOSJsEnvironmentImpl::InitConsoleModule(NativeEngine* engine)
 bool OHOSJsEnvironmentImpl::InitLoop(NativeEngine* engine)
 {
     HILOG_DEBUG("called");
+    CHECK_POINTER_AND_RETURN(engine, false);
     auto uvLoop = engine->GetUVLoop();
     auto fd = uvLoop != nullptr ? uv_backend_fd(uvLoop) : -1;
     if (fd < 0) {
@@ -104,6 +105,7 @@ bool OHOSJsEnvironmentImpl::InitLoop(NativeEngine* engine)
 
 void OHOSJsEnvironmentImpl::DeInitLoop(NativeEngine* engine)
 {
+    CHECK_POINTER(engine);
     auto uvLoop = engine->GetUVLoop();
     auto fd = uvLoop != nullptr ? uv_backend_fd(uvLoop) : -1;
     if (fd >= 0 && eventHandler_ != nullptr) {
@@ -112,16 +114,17 @@ void OHOSJsEnvironmentImpl::DeInitLoop(NativeEngine* engine)
     RemoveTask(TIMER_TASK);
 }
 
-void OHOSJsEnvironmentImpl::InitWorkerModule(NativeEngine& engine, std::shared_ptr<JsEnv::WorkerInfo> workerInfo)
+void OHOSJsEnvironmentImpl::InitWorkerModule(NativeEngine* engine, std::shared_ptr<JsEnv::WorkerInfo> workerInfo)
 {
     HILOG_DEBUG("called");
-    engine.SetInitWorkerFunc(InitWorkerFunc);
-    engine.SetOffWorkerFunc(OffWorkerFunc);
-    engine.SetGetAssetFunc(AssetHelper(workerInfo));
+    CHECK_POINTER(engine);
+    engine->SetInitWorkerFunc(InitWorkerFunc);
+    engine->SetOffWorkerFunc(OffWorkerFunc);
+    engine->SetGetAssetFunc(AssetHelper(workerInfo));
 
-    engine.SetGetContainerScopeIdFunc(GetContainerId);
-    engine.SetInitContainerScopeFunc(UpdateContainerScope);
-    engine.SetFinishContainerScopeFunc(RestoreContainerScope);
+    engine->SetGetContainerScopeIdFunc(GetContainerId);
+    engine->SetInitContainerScopeFunc(UpdateContainerScope);
+    engine->SetFinishContainerScopeFunc(RestoreContainerScope);
 }
 
 void OHOSJsEnvironmentImpl::InitSyscapModule()

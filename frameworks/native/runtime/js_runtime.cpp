@@ -141,7 +141,7 @@ JsRuntime::JsRuntime()
 
 JsRuntime::~JsRuntime()
 {
-    HILOG_DEBUG("JsRuntime destructor.");
+    HILOG_INFO("JsRuntime destructor.");
     Deinitialize();
     StopDebugMode();
 }
@@ -181,7 +181,6 @@ void JsRuntime::StartDebugMode(bool needBreakPoint)
         HILOG_INFO("Already in debug mode");
         return;
     }
-    CHECK_POINTER(jsEnv_);
     // Set instance id to tid after the first instance.
     if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
         instanceId_ = static_cast<uint32_t>(gettid());
@@ -415,7 +414,7 @@ bool JsRuntime::LoadScript(const std::string& path, std::vector<uint8_t>* buffer
     return jsEnv_->LoadScript(path, buffer, isBundle);
 }
 
-bool JsRuntime::LoadScript(const std::string& path, uint8_t *buffer, size_t len, bool isBundle)
+bool JsRuntime::LoadScript(const std::string& path, uint8_t* buffer, size_t len, bool isBundle)
 {
     HILOG_DEBUG("function called.");
     CHECK_POINTER_AND_RETURN(jsEnv_, false);
@@ -425,9 +424,9 @@ bool JsRuntime::LoadScript(const std::string& path, uint8_t *buffer, size_t len,
 std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(NativeEngine* engine,
     const std::string& moduleName, NativeValue* const* argv, size_t argc)
 {
-    HILOG_DEBUG("JsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
+    HILOG_DEBUG("Load system module %{public}s.", moduleName.c_str());
     if (engine == nullptr) {
-        HILOG_INFO("JsRuntime::LoadSystemModule: invalid engine.");
+        HILOG_INFO("Invalid engine.");
         return std::unique_ptr<NativeReference>();
     }
 
@@ -457,6 +456,41 @@ void JsRuntime::FinishPreload()
     panda::JSNApi::PreFork(vm);
 }
 
+void JsRuntime::PostPreload(const Options& options)
+{
+    auto vm = GetEcmaVm();
+    CHECK_POINTER(vm);
+    auto nativeEngine = GetNativeEnginePointer();
+    CHECK_POINTER(nativeEngine);
+    panda::RuntimeOption postOption;
+    postOption.SetBundleName(options.bundleName);
+    if (!options.arkNativeFilePath.empty()) {
+        std::string sandBoxAnFilePath = SANDBOX_ARK_CACHE_PATH + options.arkNativeFilePath;
+        postOption.SetAnDir(sandBoxAnFilePath);
+    }
+    bool profileEnabled = OHOS::system::GetBoolParameter("ark.profile", false);
+    postOption.SetEnableProfile(profileEnabled);
+    panda::JSNApi::PostFork(vm, postOption);
+    nativeEngine->ReinitUVLoop();
+    panda::JSNApi::SetLoop(vm, nativeEngine->GetUVLoop());
+}
+
+void JsRuntime::LoadAotFile(const Options& options)
+{
+    auto vm = GetEcmaVm();
+    CHECK_POINTER(vm);
+    if (options.hapPath.empty()) {
+        return;
+    }
+
+    bool newCreate = false;
+    std::string loadPath = ExtractorUtil::GetLoadFilePath(options.hapPath);
+    std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate, true);
+    if (extractor != nullptr && newCreate) {
+        panda::JSNApi::LoadAotFile(vm, options.moduleName);
+    }
+}
+
 bool JsRuntime::Initialize(const Options& options)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
@@ -483,17 +517,7 @@ bool JsRuntime::Initialize(const Options& options)
         CHECK_POINTER_AND_RETURN(vm, false);
 
         if (preloaded_) {
-            panda::RuntimeOption postOption;
-            postOption.SetBundleName(options.bundleName);
-            if (!options.arkNativeFilePath.empty()) {
-                std::string sandBoxAnFilePath = SANDBOX_ARK_CACHE_PATH + options.arkNativeFilePath;
-                postOption.SetAnDir(sandBoxAnFilePath);
-            }
-            bool profileEnabled = OHOS::system::GetBoolParameter("ark.profile", false);
-            postOption.SetEnableProfile(profileEnabled);
-            panda::JSNApi::PostFork(vm, postOption);
-            nativeEngine->ReinitUVLoop();
-            panda::JSNApi::SetLoop(vm, nativeEngine->GetUVLoop());
+            PostPreload(options);
         }
 
         NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine->GetGlobal());
@@ -524,19 +548,7 @@ bool JsRuntime::Initialize(const Options& options)
             bundleName_ = options.bundleName;
             codePath_ = options.codePath;
             ReInitJsEnvImpl(options);
-
-            if (!options.hapPath.empty()) {
-                bool newCreate = false;
-                std::string loadPath = ExtractorUtil::GetLoadFilePath(options.hapPath);
-                std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate, true);
-                if (!extractor) {
-                    HILOG_ERROR("Get extractor failed. hapPath[%{private}s]", options.hapPath.c_str());
-                    return false;
-                }
-                if (newCreate) {
-                    panda::JSNApi::LoadAotFile(vm, options.moduleName);
-                }
-            }
+            LoadAotFile(options);
 
             panda::JSNApi::SetBundle(vm, options.isBundle);
             panda::JSNApi::SetBundleName(vm, options.bundleName);
@@ -751,7 +763,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& module
     const std::string& hapPath, bool esmodule, bool useCommonChunk)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("JsRuntime::LoadModule(%{public}s, %{private}s, %{private}s, %{public}s)",
+    HILOG_DEBUG("Load module(%{public}s, %{private}s, %{private}s, %{public}s)",
         moduleName.c_str(), modulePath.c_str(), hapPath.c_str(), esmodule ? "true" : "false");
     auto nativeEngine = GetNativeEnginePointer();
     CHECK_POINTER_AND_RETURN(nativeEngine, std::unique_ptr<NativeReference>());
@@ -823,8 +835,6 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModule(
 bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath, bool useCommonChunk)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER_AND_RETURN(nativeEngine, false);
     auto vm = GetEcmaVm();
     CHECK_POINTER_AND_RETURN(vm, false);
 
@@ -1031,7 +1041,7 @@ void JsRuntime::UpdateModuleNameAndAssetPath(const std::string& moduleName)
     panda::JSNApi::SetModuleName(vm, moduleName_);
 }
 
-void JsRuntime::RegisterUncaughtExceptionHandler(JsEnv::UncaughtExceptionInfo uncaughtExceptionInfo)
+void JsRuntime::RegisterUncaughtExceptionHandler(const JsEnv::UncaughtExceptionInfo& uncaughtExceptionInfo)
 {
     CHECK_POINTER(jsEnv_);
     jsEnv_->RegisterUncaughtExceptionHandler(uncaughtExceptionInfo);
@@ -1040,9 +1050,8 @@ void JsRuntime::RegisterUncaughtExceptionHandler(JsEnv::UncaughtExceptionInfo un
 void JsRuntime::RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath)
 {
     auto vm = GetEcmaVm();
-    if (vm != nullptr) {
-        panda::JSNApi::RegisterQuickFixQueryFunc(vm, JsQuickfixCallback(moduleAndPath));
-    }
+    CHECK_POINTER(vm);
+    panda::JSNApi::RegisterQuickFixQueryFunc(vm, JsQuickfixCallback(moduleAndPath));
 }
 
 bool JsRuntime::ReadSourceMapData(const std::string& hapPath, const std::string& sourceMapPath, std::string& content)
@@ -1175,5 +1184,5 @@ void JsRuntime::SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate
     CHECK_POINTER(jsEnv_);
     jsEnv_->SetModuleLoadChecker(moduleCheckerDelegate);
 }
-}  // namespace AbilityRuntime
-}  // namespace OHOS
+} // namespace AbilityRuntime
+} // namespace OHOS

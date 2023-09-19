@@ -97,11 +97,11 @@ public:
     bool LoadRepairPatch(const std::string& hqfFile, const std::string& hapPath) override;
     bool UnLoadRepairPatch(const std::string& hqfFile) override;
     bool NotifyHotReloadPage() override;
-    void RegisterUncaughtExceptionHandler(JsEnv::UncaughtExceptionInfo uncaughtExceptionInfo);
+    void RegisterUncaughtExceptionHandler(const JsEnv::UncaughtExceptionInfo& uncaughtExceptionInfo);
     bool LoadScript(const std::string& path, std::vector<uint8_t>* buffer = nullptr, bool isBundle = false);
+    bool LoadScript(const std::string& path, uint8_t* buffer, size_t len, bool isBundle);
     bool StartDebugger(bool needBreakPoint, uint32_t instanceId);
     void StopDebugger();
-    bool LoadScript(const std::string& path, uint8_t *buffer, size_t len, bool isBundle);
 
     NativeEngine* GetNativeEnginePointer() const;
     panda::ecmascript::EcmaVM* GetEcmaVm() const;
@@ -154,8 +154,9 @@ private:
     void InitTimerModule();
     void InitWorkerModule(const Options& options);
     void ReInitJsEnvImpl(const Options& options);
+    void PostPreload(const Options& options);
+    void LoadAotFile(const Options& options);
 };
-}  // namespace AbilityRuntime
-}  // namespace OHOS
-
-#endif  // OHOS_ABILITY_RUNTIME_JS_RUNTIME_H
+} // namespace AbilityRuntime
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_JS_RUNTIME_H

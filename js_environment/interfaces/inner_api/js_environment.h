@@ -64,7 +64,8 @@ public:
 
     void RemoveTask(const std::string& name);
 
-    void RegisterUncaughtExceptionHandler(const JsEnv::UncaughtExceptionInfo uncaughtExceptionInfo);
+    void RegisterUncaughtExceptionHandler(const JsEnv::UncaughtExceptionInfo& uncaughtExceptionInfo);
+
     bool LoadScript(const std::string& path, std::vector<uint8_t>* buffer = nullptr, bool isBundle = false);
 
     bool StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId);
@@ -77,7 +78,7 @@ public:
 
     void DeInitLoop();
 
-    bool LoadScript(const std::string& path, uint8_t *buffer, size_t len, bool isBundle);
+    bool LoadScript(const std::string& path, uint8_t* buffer, size_t len, bool isBundle);
 
     void StartProfiler(const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler, int32_t interval);
 

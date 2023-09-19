@@ -80,8 +80,13 @@ void JsEnvironment::InitTimerModule()
 
 void JsEnvironment::InitWorkerModule(std::shared_ptr<WorkerInfo> workerInfo)
 {
-    if (impl_ != nullptr && engine_ != nullptr) {
-        impl_->InitWorkerModule(*engine_, workerInfo);
+    if (engine_ == nullptr) {
+        JSENV_LOG_E("Invalid native engine.");
+        return;
+    }
+
+    if (impl_ != nullptr) {
+        impl_->InitWorkerModule(engine_, workerInfo);
     }
 }
 
@@ -120,17 +125,19 @@ void JsEnvironment::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator
         JSENV_LOG_E("Invalid Native Engine.");
         return;
     }
+
     auto translateBySourceMapFunc = [&](const std::string& rawStack) {
         return sourceMapOperator_->TranslateBySourceMap(rawStack);
     };
     engine_->RegisterTranslateBySourceMap(translateBySourceMapFunc);
+
     auto translateUrlBySourceMapFunc = [&](std::string& url, int& line, int& column) {
         return sourceMapOperator_->TranslateUrlPositionBySourceMap(url, line, column);
     };
     engine_->RegisterSourceMapTranslateCallback(translateUrlBySourceMapFunc);
 }
 
-void JsEnvironment::RegisterUncaughtExceptionHandler(JsEnv::UncaughtExceptionInfo uncaughtExceptionInfo)
+void JsEnvironment::RegisterUncaughtExceptionHandler(const JsEnv::UncaughtExceptionInfo& uncaughtExceptionInfo)
 {
     if (engine_ == nullptr) {
         JSENV_LOG_E("Invalid Native Engine.");
@@ -157,26 +164,31 @@ bool JsEnvironment::LoadScript(const std::string& path, std::vector<uint8_t>* bu
 
 bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId)
 {
-    if (vm_ != nullptr) {
-        panda::JSNApi::DebugOption debugOption = {libraryPath, needBreakPoint};
-        auto debuggerPostTask = [weak = weak_from_this()](std::function<void()>&& task) {
-            auto jsEnv = weak.lock();
-            if (jsEnv == nullptr) {
-                JSENV_LOG_E("JsEnv is invalid.");
-                return;
-            }
-            jsEnv->PostTask(task);
-        };
-        return panda::JSNApi::StartDebugger(vm_, debugOption, instanceId, debuggerPostTask);
+    if (vm_ == nullptr) {
+        JSENV_LOG_E("Invalid vm.");
+        return false;
     }
-    return false;
+
+    panda::JSNApi::DebugOption debugOption = {libraryPath, needBreakPoint};
+    auto debuggerPostTask = [weak = weak_from_this()](std::function<void()>&& task) {
+        auto jsEnv = weak.lock();
+        if (jsEnv == nullptr) {
+            JSENV_LOG_E("JsEnv is invalid.");
+            return;
+        }
+        jsEnv->PostTask(task);
+    };
+    return panda::JSNApi::StartDebugger(vm_, debugOption, instanceId, debuggerPostTask);
 }
 
 void JsEnvironment::StopDebugger()
 {
-    if (vm_ != nullptr) {
-        (void)panda::JSNApi::StopDebugger(vm_);
+    if (vm_ == nullptr) {
+        JSENV_LOG_E("Invalid vm.");
+        return;
     }
+
+    (void)panda::JSNApi::StopDebugger(vm_);
 }
 
 void JsEnvironment::InitConsoleModule()
@@ -216,9 +228,14 @@ void JsEnvironment::DeInitLoop()
     }
 }
 
-bool JsEnvironment::LoadScript(const std::string& path, uint8_t *buffer, size_t len, bool isBundle)
+bool JsEnvironment::LoadScript(const std::string& path, uint8_t* buffer, size_t len, bool isBundle)
 {
-    return engine_->RunScriptBuffer(path.c_str(), buffer, len, isBundle);
+    if (engine_ == nullptr) {
+        JSENV_LOG_E("Invalid Native Engine.");
+        return false;
+    }
+
+    return engine_->RunScriptBuffer(path, buffer, len, isBundle);
 }
 
 void JsEnvironment::StartProfiler(const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler,
@@ -228,6 +245,7 @@ void JsEnvironment::StartProfiler(const char* libraryPath, uint32_t instanceId, 
         JSENV_LOG_E("Invalid vm.");
         return;
     }
+
     auto debuggerPostTask = [weak = weak_from_this()](std::function<void()>&& task) {
         auto jsEnv = weak.lock();
         if (jsEnv == nullptr) {
@@ -254,9 +272,10 @@ void JsEnvironment::ReInitJsEnvImpl(std::unique_ptr<JsEnvironmentImpl> impl)
 void JsEnvironment::SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate)
 {
     if (engine_ == nullptr) {
-        JSENV_LOG_E("SetModuleLoadChecker failed, engine_ is null");
+        JSENV_LOG_E("Invalid native engine.");
         return;
     }
+
     engine_->SetModuleLoadChecker(moduleCheckerDelegate);
 }
 } // namespace JsEnv

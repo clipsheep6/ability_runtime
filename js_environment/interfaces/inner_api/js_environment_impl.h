@@ -33,6 +33,7 @@ struct WorkerInfo {
     std::string hapPath;
     bool isStageModel = true;
 };
+
 class JsEnvironmentImpl {
 public:
     JsEnvironmentImpl() {}
@@ -46,13 +47,13 @@ public:
 
     virtual void InitTimerModule(NativeEngine* engine) = 0;
 
-    virtual void InitConsoleModule(NativeEngine *engine) = 0;
+    virtual void InitConsoleModule(NativeEngine* engine) = 0;
 
-    virtual bool InitLoop(NativeEngine *engine) = 0;
+    virtual bool InitLoop(NativeEngine* engine) = 0;
 
-    virtual void DeInitLoop(NativeEngine *engine) = 0;
+    virtual void DeInitLoop(NativeEngine* engine) = 0;
 
-    virtual void InitWorkerModule(NativeEngine& engine, std::shared_ptr<WorkerInfo> workerInfo) = 0;
+    virtual void InitWorkerModule(NativeEngine* engine, std::shared_ptr<WorkerInfo> workerInfo) = 0;
 
     virtual void InitSyscapModule() = 0;
 };
