@@ -109,6 +109,7 @@ private:
     NativeValue *CreateJsLaunchParam(NativeEngine &engine);
     bool ParseBundleAndModuleInfo();
     bool ParseAbilityInfo(const std::string &abilitySrcPath);
+    bool LoadRuntimeEnv(NativeEngine &nativeEngine, NativeObject &globalObject);
 
     panda::ecmascript::EcmaVM *CreateJSVM();
     Options options_;
@@ -332,7 +333,6 @@ int64_t SimulatorImpl::StartAbility(const std::string &abilitySrcPath, Terminate
     InitJsAbilityContext(instanceValue);
     DispatchStartLifecycle(instanceValue);
     abilities_.emplace(currentId_, nativeEngine_->CreateReference(instanceValue, 1));
-
     return currentId_;
 }
 
@@ -659,29 +659,46 @@ bool SimulatorImpl::OnInit()
         std::bind(&DebuggerTask::OnPostTask, &debuggerTask_, std::placeholders::_1));
 
     auto nativeEngine = std::make_unique<ArkNativeEngine>(vm_, nullptr);
-
+    if (nativeEngine == nullptr) {
+        HILOG_ERROR("nativeEngine is nullptr");
+        return false;
+    }
     NativeObject *globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine->GetGlobal());
     if (globalObj == nullptr) {
         HILOG_ERROR("Failed to get global object");
         return false;
     }
 
-    InitConsoleLogModule(*nativeEngine, *globalObj);
-    InitTimer(*nativeEngine, *globalObj);
+    if (!LoadRuntimeEnv(*nativeEngine, *globalObj)) {
+        HILOG_ERROR("Load runtime env failed.");
+        return false;
+    }
 
-    globalObj->SetProperty("group", nativeEngine->CreateObject());
+    panda::JSNApi::SetBundle(vm_, false);
+    panda::JSNApi::SetBundleName(vm_, options_.bundleName);
+    panda::JSNApi::SetModuleName(vm_, options_.moduleName);
+    panda::JSNApi::SetAssetPath(vm_, options_.modulePath);
+
+    nativeEngine_ = std::move(nativeEngine);
+    return true;
+}
+
+bool SimulatorImpl::LoadRuntimeEnv(NativeEngine &nativeEngine, NativeObject &globalObj)
+{
+    InitConsoleLogModule(nativeEngine, globalObj);
+    InitTimer(nativeEngine, globalObj);
+    globalObj.SetProperty("group", nativeEngine.CreateObject());
 
     uintptr_t bufferStart = reinterpret_cast<uintptr_t>(_binary_jsMockSystemPlugin_abc_start);
     uintptr_t bufferEnd = reinterpret_cast<uintptr_t>(_binary_jsMockSystemPlugin_abc_end);
     const uint8_t *buffer = reinterpret_cast<const uint8_t*>(bufferStart);
     size_t size = bufferEnd - bufferStart;
-
     panda::JSNApi::Execute(vm_, buffer, size, "_GLOBAL::func_main_0");
 
-    NativeValue *mockRequireNapi = globalObj->GetProperty("requireNapi");
-    globalObj->SetProperty("mockRequireNapi", mockRequireNapi);
+    NativeValue *mockRequireNapi = globalObj.GetProperty("requireNapi");
+    globalObj.SetProperty("mockRequireNapi", mockRequireNapi);
 
-    auto* moduleManager = nativeEngine->GetModuleManager();
+    auto* moduleManager = nativeEngine.GetModuleManager();
     if (moduleManager != nullptr) {
         HILOG_DEBUG("moduleManager SetPreviewSearchPath: %{public}s", options_.containerSdkPath.c_str());
         moduleManager->SetPreviewSearchPath(options_.containerSdkPath);
@@ -692,6 +709,7 @@ bool SimulatorImpl::OnInit()
     if (pos == std::string::npos) {
         fileSeparator = "\\";
     }
+
     std::string fileName = options_.containerSdkPath + fileSeparator + "apiMock" + fileSeparator + "jsMockHmos.abc";
     HILOG_DEBUG("file name: %{public}s", fileName.c_str());
     if (!fileName.empty() && AbilityStageContext::Access(fileName)) {
@@ -699,7 +717,7 @@ bool SimulatorImpl::OnInit()
     }
 
     const char *moduleName = "SimulatorImpl";
-    BindNativeFunction(*nativeEngine, *globalObj, "requireNapi", moduleName,
+    BindNativeFunction(nativeEngine, globalObj, "requireNapi", moduleName,
         [](NativeEngine *engine, NativeCallbackInfo *info) {
         NativeObject *globalObj = ConvertNativeValueTo<NativeObject>(engine->GetGlobal());
         NativeValue *requireNapi = globalObj->GetProperty("requireNapiPreview");
@@ -712,13 +730,6 @@ bool SimulatorImpl::OnInit()
         NativeValue *mockRequireNapi = globalObj->GetProperty("mockRequireNapi");
         return engine->CallFunction(engine->CreateUndefined(), mockRequireNapi, info->argv, info->argc);
     });
-
-    panda::JSNApi::SetBundle(vm_, false);
-    panda::JSNApi::SetBundleName(vm_, options_.bundleName);
-    panda::JSNApi::SetModuleName(vm_, options_.moduleName);
-    panda::JSNApi::SetAssetPath(vm_, options_.modulePath);
-
-    nativeEngine_ = std::move(nativeEngine);
     return true;
 }
 

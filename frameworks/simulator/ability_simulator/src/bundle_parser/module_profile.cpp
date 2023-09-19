@@ -1717,7 +1717,7 @@ void SetInstallationFree(InnerModuleInfo &innerModuleInfo, BundleType bundleType
 }
 
 bool ParseExtensionInfo(const Profile::ModuleJson &moduleJson, InnerBundleInfo &innerBundleInfo,
-    TransformParam &transformParam, InnerModuleInfo &innerModuleInfo)
+    const TransformParam &transformParam, InnerModuleInfo &innerModuleInfo)
 {
     for (const Profile::Extension &extension : moduleJson.module.extensionAbilities) {
         ExtensionAbilityInfo extensionInfo;
@@ -1757,7 +1757,6 @@ bool ToInnerBundleInfo(const Profile::ModuleJson &moduleJson, InnerBundleInfo &i
     InnerModuleInfo innerModuleInfo;
     ToInnerModuleInfo(moduleJson, transformParam, innerModuleInfo);
     SetInstallationFree(innerModuleInfo, applicationInfo.bundleType);
-    bool findEntry = false;
     for (const Profile::Ability &ability : moduleJson.module.abilities) {
         AbilityInfo abilityInfo;
         ToAbilityInfo(moduleJson, ability, transformParam, abilityInfo);
@@ -1772,14 +1771,11 @@ bool ToInnerBundleInfo(const Profile::ModuleJson &moduleJson, InnerBundleInfo &i
             .append(moduleJson.module.name).append(".").append(abilityInfo.name);
         innerModuleInfo.abilityKeys.emplace_back(key);
         innerBundleInfo.InsertAbilitiesInfo(key, abilityInfo);
-        if (findEntry) {
-            continue;
-        }
     }
     if (!ParseExtensionInfo(moduleJson, innerBundleInfo, transformParam, innerModuleInfo)) {
         return false;
     }
-    if (!findEntry && !transformParam.isPreInstallApp &&
+    if (!transformParam.isPreInstallApp &&
         innerModuleInfo.distro.moduleType != Profile::MODULE_TYPE_SHARED) {
         applicationInfo.needAppDetail = true;
         applicationInfo.appDetailAbilityLibraryPath = Profile::APP_DETAIL_ABILITY_LIBRARY_PATH;
