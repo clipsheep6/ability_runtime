@@ -408,11 +408,13 @@ ohos_shared_library("ability_thread") {
 
   sources = [
     "${ability_runtime_native_path}/ability/native/ability_thread.cpp",
+    "${ability_runtime_native_path}/ability/native/extension_ability_thread.cpp",
     "${ability_runtime_native_path}/ability/native/fa_ability_thread.cpp",
   ]
 
   deps = [
     ":abilitykit_native",
+    ":extensionkit_native",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
     "${ability_runtime_native_path}/ability:ability_context_native",
