@@ -348,11 +348,6 @@ public:
         return true;
     }
 
-    bool IsExceptionPending() const override
-    {
-        return false;
-    }
-
     NativeValue* GetAndClearLastException() override
     {
         return nullptr;
