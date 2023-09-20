@@ -45,7 +45,6 @@ constexpr int32_t INDEX_TWO = 2;
 constexpr size_t ARGC_ONE = 1;
 constexpr int32_t ARG_COUNT_TWO = 2;
 constexpr const char* ON_OFF_TYPE = "mission";
-constexpr const char* ON_OFF_TYPE_SYNC = "missionEvent";
 }
 class JsMissionManager {
 public:
@@ -140,10 +139,6 @@ private:
     NativeValue* OnOn(NativeEngine &engine, NativeCallbackInfo &info)
     {
         HILOG_DEBUG("called");
-        std::string type = ParseParamType(engine, info);
-        if (type == ON_OFF_TYPE_SYNC) {
-            return OnOnNew(engine, info);
-        }
         return OnOnOld(engine, info);
     }
 
@@ -224,10 +219,6 @@ private:
     NativeValue* OnOff(NativeEngine &engine, NativeCallbackInfo &info)
     {
         HILOG_DEBUG("called");
-        std::string type = ParseParamType(engine, info);
-        if (type == ON_OFF_TYPE_SYNC) {
-            return OnOffNew(engine, info);
-        }
         return OnOffOld(engine, info);
     }
 
