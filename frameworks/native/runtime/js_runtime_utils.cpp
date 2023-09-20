@@ -307,7 +307,8 @@ std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, Na
 
 namespace {
 std::unique_ptr<NapiAsyncTask> CreateAsyncTaskWithLastParam(napi_env env, napi_value lastParam,
-    std::unique_ptr<NapiAsyncTask::ExecuteCallback>&& execute, std::unique_ptr<NapiAsyncTask::CompleteCallback>&& complete,
+    std::unique_ptr<NapiAsyncTask::ExecuteCallback>&& execute,
+    std::unique_ptr<NapiAsyncTask::CompleteCallback>&& complete,
     napi_value* result)
 {
     napi_valuetype type = napi_undefined;
@@ -381,6 +382,19 @@ void* GetCbInfoFromCallbackInfo(napi_env env, napi_callback_info info, size_t* a
     return result;
 }
 
+void* GetNapiCallbackInfoAndThis(napi_env env, napi_callback_info info, NapiCallbackInfo& napiInfo, const char* name)
+{
+    NAPI_CALL_NO_THROW(napi_get_cb_info(
+        env, info, &napiInfo.argc, napiInfo.argv, &napiInfo.thisVar, nullptr), nullptr);
+    napi_value value = napiInfo.thisVar;
+    if (name != nullptr) {
+        napi_get_named_property(env, value, name, &value);
+    }
+    void* result = nullptr;
+    NAPI_CALL_NO_THROW(napi_unwrap(env, value, &result), nullptr);
+    return result;
+}
+
 void SetNamedNativePointer(napi_env env, napi_value object, const char* name, void* ptr, napi_finalize func)
 {
     napi_value objValue = nullptr;
@@ -396,6 +410,15 @@ void* GetNamedNativePointer(napi_env env, napi_value object, const char* name)
     void* result = nullptr;
     napi_unwrap(env, proValue, &result);
     return result;
+}
+
+bool CheckTypeForNapiValue(napi_env env, napi_value param, napi_valuetype expectType)
+{
+    napi_valuetype valueType = napi_undefined;
+    if (napi_typeof(env, param, &valueType) != napi_ok) {
+        return false;
+    }
+    return valueType == expectType;
 }
 
 // Handle Scope

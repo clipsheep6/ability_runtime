@@ -26,11 +26,11 @@ namespace OHOS {
 namespace AbilityRuntime {
 using ReleaseCallFunc = std::function<ErrCode(std::shared_ptr<CallerCallBack>&)>;
 
-NativeValue* CreateJsCallerComplex(
-    NativeEngine& engine, ReleaseCallFunc releaseCallFunc, sptr<IRemoteObject> callee,
+napi_value CreateJsCallerComplex(
+    napi_env env, ReleaseCallFunc releaseCallFunc, sptr<IRemoteObject> callee,
     std::shared_ptr<CallerCallBack> callerCallBack);
 
-NativeValue* CreateJsCalleeRemoteObject(NativeEngine& engine, sptr<IRemoteObject> callee);
+napi_value CreateJsCalleeRemoteObject(napi_env env, sptr<IRemoteObject> callee);
 } // AbilityRuntime
 } // OHOS
 #endif  // OHOS_ABILITY_RUNTIME_JS_CALLER_COMPLEX_H

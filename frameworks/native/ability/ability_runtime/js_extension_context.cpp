@@ -24,7 +24,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 void JsExtensionContext::ConfigurationUpdated(napi_env env, napi_ref jsContext,
-        const std::shared_ptr<AppExecFwk::Configuration> &config)
+    const std::shared_ptr<AppExecFwk::Configuration> &config)
 {
     if (env == nullptr || jsContext == nullptr || config == nullptr) {
         HILOG_ERROR("engine or jsContext or config is nullptr.");

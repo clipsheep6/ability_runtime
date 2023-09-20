@@ -26,41 +26,45 @@
 #include "js_runtime.h"
 #include "event_handler.h"
 
-class NativeObject;
 class NativeReference;
 class NativeValue;
 
 namespace OHOS {
 namespace AbilityRuntime {
+struct NapiCallbackInfo;
 class JsAbilityContext final {
 public:
     explicit JsAbilityContext(const std::shared_ptr<AbilityContext>& context) : context_(context) {}
     ~JsAbilityContext() = default;
 
-    static void Finalizer(NativeEngine* engine, void* data, void* hint);
+    static void Finalizer(napi_env env, void* data, void* hint);
 
-    static NativeValue* StartAbility(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StartAbilityAsCaller(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StartRecentAbility(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StartAbilityWithAccount(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StartAbilityByCall(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StartAbilityForResult(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StartAbilityForResultWithAccount(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StartServiceExtensionAbility(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StartServiceExtensionAbilityWithAccount(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StopServiceExtensionAbility(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StopServiceExtensionAbilityWithAccount(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* ConnectAbility(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* ConnectAbilityWithAccount(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* DisconnectAbility(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* TerminateSelf(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* TerminateSelfWithResult(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* RestoreWindowStage(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* RequestDialogService(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* IsTerminating(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* ReportDrawnCompleted(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* SetMissionContinueState(NativeEngine* engine, NativeCallbackInfo* info);
+    static napi_value StartAbility(napi_env env, napi_callback_info info);
+    static napi_value StartAbilityAsCaller(napi_env env, napi_callback_info info);
+    static napi_value StartRecentAbility(napi_env env, napi_callback_info info);
+    static napi_value StartAbilityWithAccount(napi_env env, napi_callback_info info);
+    static napi_value StartAbilityByCall(napi_env env, napi_callback_info info);
+    static napi_value StartAbilityForResult(napi_env env, napi_callback_info info);
+    static napi_value StartAbilityForResultWithAccount(napi_env env, napi_callback_info info);
+    static napi_value StartServiceExtensionAbility(napi_env env, napi_callback_info info);
+    static napi_value StartServiceExtensionAbilityWithAccount(napi_env env, napi_callback_info info);
+    static napi_value StopServiceExtensionAbility(napi_env env, napi_callback_info info);
+    static napi_value StopServiceExtensionAbilityWithAccount(napi_env env, napi_callback_info info);
+    static napi_value ConnectAbility(napi_env env, napi_callback_info info);
+    static napi_value ConnectAbilityWithAccount(napi_env env, napi_callback_info info);
+    static napi_value DisconnectAbility(napi_env env, napi_callback_info info);
+    static napi_value TerminateSelf(napi_env env, napi_callback_info info);
+    static napi_value TerminateSelfWithResult(napi_env env, napi_callback_info info);
+    static napi_value RestoreWindowStage(napi_env env, napi_callback_info info);
+    static napi_value RequestDialogService(napi_env env, napi_callback_info info);
+    static napi_value IsTerminating(napi_env env, napi_callback_info info);
+    static napi_value ReportDrawnCompleted(napi_env env, napi_callback_info info);
+    static napi_value SetMissionContinueState(napi_env env, napi_callback_info info);
 
+    static void ConfigurationUpdated(napi_env env, std::shared_ptr<NativeReference> &jsContext,
+        const std::shared_ptr<AppExecFwk::Configuration> &config);
+
+    // to do
     static void ConfigurationUpdated(NativeEngine* engine, std::shared_ptr<NativeReference> &jsContext,
         const std::shared_ptr<AppExecFwk::Configuration> &config);
 
@@ -71,45 +75,46 @@ public:
 
 #ifdef SUPPORT_GRAPHICS
 public:
-    static NativeValue* SetMissionLabel(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* SetMissionIcon(NativeEngine* engine, NativeCallbackInfo* info);
+    static napi_value SetMissionLabel(napi_env env, napi_callback_info info);
+    static napi_value SetMissionIcon(napi_env env, napi_callback_info info);
 
 private:
-    NativeValue* OnSetMissionLabel(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnSetMissionIcon(NativeEngine& engine, NativeCallbackInfo& info);
+    napi_value OnSetMissionLabel(napi_env env, NapiCallbackInfo& info);
+    napi_value OnSetMissionIcon(napi_env env, NapiCallbackInfo& info);
 #endif
 
 private:
     static void ClearFailedCallConnection(
         const std::weak_ptr<AbilityContext>& abilityContext, const std::shared_ptr<CallerCallBack> &callback);
-    NativeValue* OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info, bool isStartRecent = false);
-    NativeValue* OnStartAbilityAsCaller(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnStartAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnStartAbilityByCall(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnStartAbilityForResult(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnStartAbilityForResultWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnStartExtensionAbility(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnStartExtensionAbilityWithAccount(NativeEngine& engine, const NativeCallbackInfo& info);
-    NativeValue* OnStopExtensionAbility(NativeEngine& engine, const NativeCallbackInfo& info);
-    NativeValue* OnStopExtensionAbilityWithAccount(NativeEngine& engine, const NativeCallbackInfo& info);
-    NativeValue* OnTerminateSelfWithResult(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnConnectAbility(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnConnectAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnDisconnectAbility(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnTerminateSelf(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnRestoreWindowStage(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnRequestDialogService(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnIsTerminating(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnReportDrawnCompleted(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnSetMissionContinueState(NativeEngine& engine, NativeCallbackInfo& info);
+    napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info, bool isStartRecent = false);
+    napi_value OnStartAbilityAsCaller(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStartRecentAbility(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStartAbilityWithAccount(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStartAbilityByCall(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStartAbilityForResult(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStartAbilityForResultWithAccount(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStartExtensionAbility(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStartExtensionAbilityWithAccount(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStopExtensionAbility(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStopExtensionAbilityWithAccount(napi_env env, NapiCallbackInfo& info);
+    napi_value OnTerminateSelfWithResult(napi_env env, NapiCallbackInfo& info);
+    napi_value OnConnectAbility(napi_env env, NapiCallbackInfo& info);
+    napi_value OnConnectAbilityWithAccount(napi_env env, NapiCallbackInfo& info);
+    napi_value OnDisconnectAbility(napi_env env, NapiCallbackInfo& info);
+    napi_value OnTerminateSelf(napi_env env, NapiCallbackInfo& info);
+    napi_value OnRestoreWindowStage(napi_env env, NapiCallbackInfo& info);
+    napi_value OnRequestDialogService(napi_env env, NapiCallbackInfo& info);
+    napi_value OnIsTerminating(napi_env env, NapiCallbackInfo& info);
+    napi_value OnReportDrawnCompleted(napi_env env, NapiCallbackInfo& info);
+    napi_value OnSetMissionContinueState(napi_env env, NapiCallbackInfo& info);
 
-    static bool UnWrapWant(NativeEngine& engine, NativeValue* argv, AAFwk::Want& want);
-    static NativeValue* WrapWant(NativeEngine& engine, const AAFwk::Want& want);
-    static bool UnWrapAbilityResult(NativeEngine& engine, NativeValue* argv, int& resultCode, AAFwk::Want& want);
-    static NativeValue* WrapAbilityResult(NativeEngine& engine, const int& resultCode, const AAFwk::Want& want);
+    static bool UnWrapWant(napi_env env, napi_value argv, AAFwk::Want& want);
+    static napi_value WrapWant(napi_env env, const AAFwk::Want& want);
+    static bool UnWrapAbilityResult(napi_env env, napi_value argv, int& resultCode, AAFwk::Want& want);
+    static napi_value WrapAbilityResult(napi_env env, const int& resultCode, const AAFwk::Want& want);
     void InheritWindowMode(AAFwk::Want &want);
-    static NativeValue* WrapRequestDialogResult(NativeEngine& engine, int32_t resultCode, const AAFwk::Want& want);
-    void AddFreeInstallObserver(NativeEngine& engine, const AAFwk::Want &want, NativeValue* callback,
+    static napi_value WrapRequestDialogResult(napi_env env, int32_t resultCode, const AAFwk::Want& want);
+    void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback,
         bool isAbilityResult = false);
 
     std::weak_ptr<AbilityContext> context_;
@@ -117,6 +122,8 @@ private:
     sptr<JsFreeInstallObserver> freeInstallObserver_ = nullptr;
 };
 
+napi_value CreateJsAbilityContext(napi_env env, std::shared_ptr<AbilityContext> context);
+// to do
 NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<AbilityContext> context);
 
 struct ConnectCallback {
@@ -125,7 +132,7 @@ struct ConnectCallback {
 
 class JSAbilityConnection : public AbilityConnectCallback {
 public:
-    explicit JSAbilityConnection(NativeEngine& engine);
+    explicit JSAbilityConnection(napi_env env);
     ~JSAbilityConnection();
     void OnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
@@ -133,13 +140,13 @@ public:
     void HandleOnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode);
     void HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode);
-    void SetJsConnectionObject(NativeValue* jsConnectionObject);
+    void SetJsConnectionObject(napi_value jsConnectionObject);
     void RemoveConnectionObject();
     void CallJsFailed(int32_t errorCode);
     void SetConnectionId(int64_t id);
 private:
-    NativeValue* ConvertElement(const AppExecFwk::ElementName &element);
-    NativeEngine& engine_;
+    napi_value ConvertElement(const AppExecFwk::ElementName &element);
+    napi_env env_;
     std::unique_ptr<NativeReference> jsConnectionObject_ = nullptr;
     int64_t connectionId_ = -1;
 };

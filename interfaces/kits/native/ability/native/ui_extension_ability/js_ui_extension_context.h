@@ -23,6 +23,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+struct NapiCallbackInfo;
 class JsUIExtensionContext {
 public:
     explicit JsUIExtensionContext(const std::shared_ptr<UIExtensionContext>& context) : context_(context) {}
@@ -39,17 +40,17 @@ public:
     // to do
     static NativeValue* CreateJsUIExtensionContext(NativeEngine& engine, std::shared_ptr<UIExtensionContext> context);
 protected:
-    virtual napi_value OnStartAbility(napi_env env, size_t argc, napi_value* argv);
-    virtual napi_value OnTerminateSelf(napi_env env, size_t argc, napi_value* argv);
-    virtual napi_value OnTerminateSelfWithResult(napi_env env, size_t argc, napi_value* argv);
-    virtual napi_value OnStartAbilityForResult(napi_env env, size_t argc, napi_value* argv);
-    virtual napi_value OnConnectAbility(napi_env env, size_t argc, napi_value* argv);
-    virtual napi_value OnDisconnectAbility(napi_env env, size_t argc, napi_value* argv);
+    virtual napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info);
+    virtual napi_value OnTerminateSelf(napi_env env, NapiCallbackInfo& info);
+    virtual napi_value OnTerminateSelfWithResult(napi_env env, NapiCallbackInfo& info);
+    virtual napi_value OnStartAbilityForResult(napi_env env, NapiCallbackInfo& info);
+    virtual napi_value OnConnectAbility(napi_env env, NapiCallbackInfo& info);
+    virtual napi_value OnDisconnectAbility(napi_env env, NapiCallbackInfo& info);
 
 private:
     std::weak_ptr<UIExtensionContext> context_;
 
-    bool CheckStartAbilityInputParam(napi_env env, size_t argc, napi_value* argv, AAFwk::Want& want,
+    bool CheckStartAbilityInputParam(napi_env env, NapiCallbackInfo& info, AAFwk::Want& want,
         AAFwk::StartOptions& startOptions, size_t& unwrapArgc) const;
 };
 

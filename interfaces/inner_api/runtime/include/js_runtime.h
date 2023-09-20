@@ -54,6 +54,11 @@ inline void *DetachCallbackFunc(NativeEngine *engine, void *value, void *)
     return value;
 }
 
+inline void *DetachCallbackFunc(napi_env env, void *value, void *)
+{
+    return value;
+}
+
 class JsRuntime : public Runtime {
 public:
     static std::unique_ptr<JsRuntime> Create(const Options& options);

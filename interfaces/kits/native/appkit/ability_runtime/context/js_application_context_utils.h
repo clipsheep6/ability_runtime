@@ -27,6 +27,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+struct NapiCallbackInfo;
 namespace {
 enum JsAppProcessState {
     STATE_CREATE,
@@ -43,76 +44,75 @@ public:
     {
     }
     virtual ~JsApplicationContextUtils() = default;
-    static void Finalizer(NativeEngine *engine, void *data, void *hint);
-    static NativeValue* RegisterAbilityLifecycleCallback(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* UnregisterAbilityLifecycleCallback(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* RegisterEnvironmentCallback(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* UnregisterEnvironmentCallback(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* On(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* Off(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* CreateBundleContext(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* SwitchArea(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* GetArea(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* CreateModuleContext(NativeEngine* engine, NativeCallbackInfo* info);
+    static void Finalizer(napi_env env, void *data, void *hint);
+    static napi_value RegisterAbilityLifecycleCallback(napi_env env, napi_callback_info info);
+    static napi_value UnregisterAbilityLifecycleCallback(napi_env env, napi_callback_info info);
+    static napi_value RegisterEnvironmentCallback(napi_env env, napi_callback_info info);
+    static napi_value UnregisterEnvironmentCallback(napi_env env, napi_callback_info info);
+    static napi_value On(napi_env env, napi_callback_info info);
+    static napi_value Off(napi_env env, napi_callback_info info);
+    static napi_value CreateBundleContext(napi_env env, napi_callback_info info);
+    static napi_value SwitchArea(napi_env env, napi_callback_info info);
+    static napi_value GetArea(napi_env env, napi_callback_info info);
+    static napi_value CreateModuleContext(napi_env env, napi_callback_info info);
 
-    NativeValue* OnRegisterAbilityLifecycleCallback(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnUnregisterAbilityLifecycleCallback(NativeEngine &engine, NativeCallbackInfo &info);
+    napi_value OnRegisterAbilityLifecycleCallback(napi_env env, NapiCallbackInfo& info);
+    napi_value OnUnregisterAbilityLifecycleCallback(napi_env env, NapiCallbackInfo& info);
 
-    NativeValue* OnRegisterEnvironmentCallback(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnUnregisterEnvironmentCallback(NativeEngine &engine, NativeCallbackInfo &info);
+    napi_value OnRegisterEnvironmentCallback(napi_env env, NapiCallbackInfo& info);
+    napi_value OnUnregisterEnvironmentCallback(napi_env env, NapiCallbackInfo& info);
 
-    NativeValue* OnOn(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnOff(NativeEngine &engine, const NativeCallbackInfo &info);
-    NativeValue* OnOnAbilityLifecycle(NativeEngine &engine, NativeCallbackInfo &info, bool isSync);
-    NativeValue* OnOffAbilityLifecycle(NativeEngine &engine, const NativeCallbackInfo &info, int32_t callbackId);
-    NativeValue* OnOffAbilityLifecycleEventSync(NativeEngine &engine,
-        const NativeCallbackInfo &info, int32_t callbackId);
-    NativeValue* OnOnEnvironment(NativeEngine &engine, NativeCallbackInfo &info, bool isSync);
-    NativeValue* OnOffEnvironment(NativeEngine &engine, const NativeCallbackInfo &info, int32_t callbackId);
-    NativeValue* OnOffEnvironmentEventSync(
-        NativeEngine &engine, const NativeCallbackInfo &info, int32_t callbackId);
-    NativeValue* OnOnApplicationStateChange(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnOffApplicationStateChange(NativeEngine &engine, const NativeCallbackInfo &info);
+    napi_value OnOn(napi_env env, NapiCallbackInfo& info);
+    napi_value OnOff(napi_env env, NapiCallbackInfo& info);
+    napi_value OnOnAbilityLifecycle(napi_env env, NapiCallbackInfo& info, bool isSync);
+    napi_value OnOffAbilityLifecycle(napi_env env, NapiCallbackInfo& info, int32_t callbackId);
+    napi_value OnOffAbilityLifecycleEventSync(napi_env env, NapiCallbackInfo& info, int32_t callbackId);
+    napi_value OnOnEnvironment(napi_env env, NapiCallbackInfo& info, bool isSync);
+    napi_value OnOffEnvironment(napi_env env, NapiCallbackInfo& info, int32_t callbackId);
+    napi_value OnOffEnvironmentEventSync(
+        napi_env env, NapiCallbackInfo& info, int32_t callbackId);
+    napi_value OnOnApplicationStateChange(napi_env env, NapiCallbackInfo& info);
+    napi_value OnOffApplicationStateChange(napi_env env, NapiCallbackInfo& info);
 
-    NativeValue* OnGetCacheDir(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetTempDir(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetFilesDir(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetDistributedFilesDir(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetDatabaseDir(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetPreferencesDir(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetGroupDir(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetBundleCodeDir(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnKillProcessBySelf(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetRunningProcessInformation(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnSetColorMode(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnSetLanguage(NativeEngine &engine, NativeCallbackInfo &info);
+    napi_value OnGetCacheDir(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetTempDir(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetFilesDir(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetDistributedFilesDir(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetDatabaseDir(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetPreferencesDir(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetGroupDir(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetBundleCodeDir(napi_env env, NapiCallbackInfo& info);
+    napi_value OnKillProcessBySelf(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetRunningProcessInformation(napi_env env, NapiCallbackInfo& info);
+    napi_value OnSetColorMode(napi_env env, NapiCallbackInfo& info);
+    napi_value OnSetLanguage(napi_env env, NapiCallbackInfo& info);
 
-    static NativeValue* GetCacheDir(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* GetTempDir(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* GetFilesDir(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* GetDistributedFilesDir(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* GetDatabaseDir(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* GetPreferencesDir(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* GetGroupDir(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* GetBundleCodeDir(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* GetApplicationContext(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* KillProcessBySelf(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* SetColorMode(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* SetLanguage(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* GetRunningProcessInformation(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* CreateJsApplicationContext(NativeEngine &engine);
+    static napi_value GetCacheDir(napi_env env, napi_callback_info info);
+    static napi_value GetTempDir(napi_env env, napi_callback_info info);
+    static napi_value GetFilesDir(napi_env env, napi_callback_info info);
+    static napi_value GetDistributedFilesDir(napi_env env, napi_callback_info info);
+    static napi_value GetDatabaseDir(napi_env env, napi_callback_info info);
+    static napi_value GetPreferencesDir(napi_env env, napi_callback_info info);
+    static napi_value GetGroupDir(napi_env env, napi_callback_info info);
+    static napi_value GetBundleCodeDir(napi_env env, napi_callback_info info);
+    static napi_value GetApplicationContext(napi_env env, napi_callback_info info);
+    static napi_value KillProcessBySelf(napi_env env, napi_callback_info info);
+    static napi_value SetColorMode(napi_env env, napi_callback_info info);
+    static napi_value SetLanguage(napi_env env, napi_callback_info info);
+    static napi_value GetRunningProcessInformation(napi_env env, napi_callback_info info);
+    static napi_value CreateJsApplicationContext(napi_env env);
 
 protected:
     std::weak_ptr<ApplicationContext> applicationContext_;
 
 private:
-    NativeValue* OnCreateBundleContext(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnSwitchArea(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetArea(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnCreateModuleContext(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnGetApplicationContext(NativeEngine& engine, NativeCallbackInfo& info);
+    napi_value OnCreateBundleContext(napi_env env, NapiCallbackInfo& info);
+    napi_value OnSwitchArea(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetArea(napi_env env, NapiCallbackInfo& info);
+    napi_value OnCreateModuleContext(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetApplicationContext(napi_env env, NapiCallbackInfo& info);
     bool CheckCallerIsSystemApp();
-    static void BindNativeApplicationContext(NativeEngine &engine, NativeObject* object);
+    static void BindNativeApplicationContext(napi_env env, napi_value object);
     static JsAppProcessState ConvertToJsAppProcessState(
         const AppExecFwk::AppProcessState &appProcessState, const bool &isFocused);
     std::shared_ptr<JsAbilityLifecycleCallback> callback_;

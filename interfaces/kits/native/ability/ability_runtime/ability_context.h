@@ -159,7 +159,7 @@ public:
 
     virtual ErrCode TerminateAbilityWithResult(const AAFwk::Want &want, int resultCode) = 0;
 
-    virtual ErrCode RestoreWindowStage(NativeEngine& engine, NativeValue* contentStorage) = 0;
+    virtual ErrCode RestoreWindowStage(napi_env env, napi_value contentStorage) = 0;
 
     virtual void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData) = 0;
 
@@ -274,12 +274,12 @@ public:
      * This method is called for dialog request. This is an asynchronous method. When it is executed,
      * the task will be called back.
      *
-     * @param engine js native engine.
+     * @param env js env.
      * @param want Indicates the dialog service to be requested.
      * @param task The callback or promise fo js interface.
      * @return Returns ERR_OK if success.
      */
-    virtual ErrCode RequestDialogService(NativeEngine &engine, AAFwk::Want &want, RequestDialogResultTask &&task) = 0;
+    virtual ErrCode RequestDialogService(napi_env env, AAFwk::Want &want, RequestDialogResultTask &&task) = 0;
 
     /**
      * @brief Report drawn completed.
