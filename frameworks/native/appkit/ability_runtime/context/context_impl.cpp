@@ -844,7 +844,7 @@ std::vector<std::string> ContextImpl::GetAddOverlayPaths(
         if ((iter != overlayModuleInfos_.end()) && (it.state == AppExecFwk::OverlayState::OVERLAY_ENABLE)) {
             iter->state = it.state;
             ChangeToLocalPath(iter->bundleName, iter->hapPath, iter->hapPath);
-            HILOG_DEBUG("add path:%{public}s.", iter->hapPath.c_str());
+            HILOG_DEBUG("add path:%{public}s", iter->hapPath.c_str());
             addPaths.emplace_back(iter->hapPath);
         }
     }
@@ -864,7 +864,7 @@ std::vector<std::string> ContextImpl::GetRemoveOverlayPaths(
         if ((iter != overlayModuleInfos_.end()) && (it.state != AppExecFwk::OverlayState::OVERLAY_ENABLE)) {
             iter->state = it.state;
             ChangeToLocalPath(iter->bundleName, iter->hapPath, iter->hapPath);
-            HILOG_DEBUG("remove path:%{public}s.", iter->hapPath.c_str());
+            HILOG_DEBUG("remove path:%{public}s", iter->hapPath.c_str());
             removePaths.emplace_back(iter->hapPath);
         }
     }
@@ -905,17 +905,17 @@ void ContextImpl::OnOverlayChanged(const EventFwk::CommonEventData &data,
 
     // 2.add/remove overlay hapPath
     if (loadPath.empty() || overlayModuleInfos.size() == 0) {
-        HILOG_WARN("There is not any hapPath in overlayModuleInfo");
+        HILOG_WARN("There is not any hapPath in overlayModuleInfo.");
     } else {
         if (isEnable) {
             std::vector<std::string> overlayPaths = GetAddOverlayPaths(overlayModuleInfos);
             if (!resourceManager->AddResource(loadPath, overlayPaths)) {
-                HILOG_ERROR("AddResource failed");
+                HILOG_ERROR("AddResource error");
             }
         } else {
             std::vector<std::string> overlayPaths = GetRemoveOverlayPaths(overlayModuleInfos);
             if (!resourceManager->RemoveResource(loadPath, overlayPaths)) {
-                HILOG_ERROR("RemoveResource failed");
+                HILOG_ERROR("RemoveResource error");
             }
         }
     }

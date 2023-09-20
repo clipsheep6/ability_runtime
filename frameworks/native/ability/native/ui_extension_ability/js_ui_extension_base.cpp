@@ -224,7 +224,7 @@ void JsUIExtensionBase::OnCommandWindow(
             break;
     }
     if (context_ == nullptr) {
-        HILOG_ERROR("Failed to get context");
+        HILOG_ERROR("Error to get context");
         return;
     }
     AAFwk::AbilityCommand abilityCmd;

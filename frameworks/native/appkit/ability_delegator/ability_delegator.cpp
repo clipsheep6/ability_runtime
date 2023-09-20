@@ -425,7 +425,7 @@ void AbilityDelegator::PostPerformScenceCreated(const std::shared_ptr<ADelegator
 
     std::unique_lock<std::mutex> lck(mutexMonitor_);
     if (abilityMonitors_.empty()) {
-        HILOG_WARN("Empty abilityMonitors");
+        HILOG_WARN("Empty abilityMonitors.");
         return;
     }
 
@@ -453,7 +453,7 @@ void AbilityDelegator::PostPerformScenceRestored(const std::shared_ptr<ADelegato
 
     std::unique_lock<std::mutex> lck(mutexMonitor_);
     if (abilityMonitors_.empty()) {
-        HILOG_WARN("Empty abilityMonitors");
+        HILOG_WARN("abilityMonitors is Empty");
         return;
     }
 
@@ -481,7 +481,7 @@ void AbilityDelegator::PostPerformScenceDestroyed(const std::shared_ptr<ADelegat
 
     std::unique_lock<std::mutex> lck(mutexMonitor_);
     if (abilityMonitors_.empty()) {
-        HILOG_WARN("Empty abilityMonitors");
+        HILOG_WARN("abilityMonitors is empty");
         return;
     }
 
@@ -509,7 +509,7 @@ void AbilityDelegator::PostPerformForeground(const std::shared_ptr<ADelegatorAbi
 
     std::unique_lock<std::mutex> lck(mutexMonitor_);
     if (abilityMonitors_.empty()) {
-        HILOG_WARN("Empty abilityMonitors");
+        HILOG_WARN("abilityMonitors is Empty.");
         return;
     }
 
@@ -537,7 +537,7 @@ void AbilityDelegator::PostPerformBackground(const std::shared_ptr<ADelegatorAbi
 
     std::unique_lock<std::mutex> lck(mutexMonitor_);
     if (abilityMonitors_.empty()) {
-        HILOG_WARN("Empty abilityMonitors");
+        HILOG_WARN("abilityMonitors is empty.");
         return;
     }
 

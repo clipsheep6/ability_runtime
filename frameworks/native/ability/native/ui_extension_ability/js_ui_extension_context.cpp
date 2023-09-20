@@ -64,7 +64,7 @@ void RemoveConnection(int64_t connectId)
 
 void FindConnection(AAFwk::Want& want, sptr<JSUIExtensionConnection>& connection, int64_t& connectId)
 {
-    HILOG_DEBUG("Disconnect ability begin, connection:%{public}d.", static_cast<int32_t>(connectId));
+    HILOG_DEBUG("Disconnect ability enter, connection:%{public}d.", static_cast<int32_t>(connectId));
     auto item = std::find_if(g_connects.begin(),
         g_connects.end(),
         [&connectId](const auto &obj) {
@@ -96,7 +96,7 @@ bool CheckConnectionParam(napi_env env, napi_value value, sptr<JSUIExtensionConn
     } else {
         g_serialNumber = 0;
     }
-    HILOG_DEBUG("not find connection, make new one");
+    HILOG_DEBUG("not find connection, create a new connection");
     return true;
 }
 
@@ -211,7 +211,7 @@ napi_value JsUIExtensionContext::OnTerminateSelf(napi_env env, size_t argc, napi
 
 napi_value JsUIExtensionContext::OnStartAbilityForResult(napi_env env, size_t argc, napi_value* argv)
 {
-    HILOG_DEBUG("called.");
+    HILOG_DEBUG("OnStartAbilityForResult called.");
     if (argc == ARGC_ZERO) {
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
@@ -252,13 +252,13 @@ napi_value JsUIExtensionContext::OnStartAbilityForResult(napi_env env, size_t ar
     int curRequestCode = context->GenerateCurRequestCode();
     (unwrapArgc == INDEX_ONE) ? context->StartAbilityForResult(want, curRequestCode, std::move(task))
                               : context->StartAbilityForResult(want, startOptions, curRequestCode, std::move(task));
-    HILOG_DEBUG("end.");
+    HILOG_DEBUG("OnStartAbilityForResult end.");
     return result;
 }
 
 napi_value JsUIExtensionContext::OnTerminateSelfWithResult(napi_env env, size_t argc, napi_value* argv)
 {
-    HILOG_DEBUG("OnTerminateSelfWithResult is called");
+    HILOG_DEBUG("OnTerminateSelfWithResult is start");
 
     if (argc == 0) {
         HILOG_ERROR("Not enough params");
@@ -343,9 +343,9 @@ napi_value JsUIExtensionContext::OnConnectAbility(napi_env env, size_t argc, nap
 
 napi_value JsUIExtensionContext::OnDisconnectAbility(napi_env env, size_t argc, napi_value* argv)
 {
-    HILOG_DEBUG("DisconnectAbility");
+    HILOG_DEBUG("DisconnectAbility start");
     if (argc < ARGC_ONE) {
-        HILOG_ERROR("Disconnect ability failed, not enough params.");
+        HILOG_ERROR("Disconnect ability error, not enough params.");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
@@ -365,7 +365,7 @@ napi_value JsUIExtensionContext::OnDisconnectAbility(napi_env env, size_t argc, 
             napi_env env, NapiAsyncTask& task, int32_t status) {
             auto context = weak.lock();
             if (!context) {
-                HILOG_WARN("context is released");
+                HILOG_WARN("context is released.");
                 task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                 return;
             }
@@ -374,7 +374,7 @@ napi_value JsUIExtensionContext::OnDisconnectAbility(napi_env env, size_t argc, 
                 task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
                 return;
             }
-            HILOG_DEBUG("context->DisconnectAbility");
+            HILOG_DEBUG("context->DisconnectAbility.");
             auto innerErrorCode = context->DisconnectAbility(want, connection);
             if (innerErrorCode == 0) {
                 task.Resolve(env, CreateJsUndefined(env));
@@ -538,7 +538,7 @@ void JSUIExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::Eleme
     napi_value methodOnConnect = nullptr;
     napi_get_named_property(env_, obj, "onConnect", &methodOnConnect);
     if (methodOnConnect == nullptr) {
-        HILOG_ERROR("Failed to get onConnect from object");
+        HILOG_ERROR("Failed to get onConnect from object.");
         return;
     }
     napi_call_function(env_, obj, methodOnConnect, ARGC_TWO, argv, nullptr);
@@ -604,14 +604,14 @@ void JSUIExtensionConnection::RemoveConnectionObject()
 
 void JSUIExtensionConnection::CallJsFailed(int32_t errorCode)
 {
-    HILOG_DEBUG("CallJsFailed begin");
+    HILOG_DEBUG("CallJsFailed enter");
     if (jsConnectionObject_ == nullptr) {
-        HILOG_ERROR("jsConnectionObject_ nullptr");
+        HILOG_ERROR("jsConnectionObject_ nullptr.");
         return;
     }
     napi_value obj = reinterpret_cast<napi_value>(jsConnectionObject_->Get());
     if (!AppExecFwk::IsTypeForNapiValue(env_, obj, napi_object)) {
-        HILOG_ERROR("Failed to get object");
+        HILOG_ERROR("wrong to get object");
         return;
     }
 

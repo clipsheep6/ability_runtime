@@ -62,6 +62,7 @@ static int64_t g_serialNumber = 0;
 
 void RemoveConnection(int64_t connectId)
 {
+    HILOG_DEBUG("enter");
     auto item = std::find_if(g_connects.begin(), g_connects.end(),
     [&connectId](const auto &obj) {
         return connectId == obj.first.id;
@@ -744,15 +745,15 @@ private:
         } else {
             g_serialNumber = 0;
         }
-        HILOG_DEBUG("not find connection, make new one");
+        HILOG_DEBUG("Unable to find connection, make new one");
         return true;
     }
 
     NativeValue* OnDisconnectAbility(NativeEngine& engine, NativeCallbackInfo& info)
     {
-        HILOG_INFO("DisconnectAbility");
+        HILOG_INFO("DisconnectAbility start");
         if (info.argc < ARGC_ONE) {
-            HILOG_ERROR("Disconnect ability failed, not enough params.");
+            HILOG_ERROR("Disconnect ability error, not enough params.");
             ThrowTooFewParametersError(engine);
             return engine.CreateUndefined();
         }
@@ -867,7 +868,7 @@ private:
     {
         HILOG_INFO("StartExtensionAbilityWithAccount");
         if (info.argc < ARGC_TWO) {
-            HILOG_ERROR("Stop extension failed, not enough params.");
+            HILOG_ERROR("Stop extension error, not enough params.");
             ThrowTooFewParametersError(engine);
             return engine.CreateUndefined();
         }
@@ -951,7 +952,7 @@ private:
         int32_t accountId = -1;
         if (!CheckWantParam(engine, info.argv[INDEX_ZERO], want) ||
             !CheckAccountIdParam(engine, info.argv[INDEX_ONE], accountId)) {
-            HILOG_DEBUG("Failed, input param type invalid");
+            HILOG_DEBUG("Failed, input parameter type invalid");
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return engine.CreateUndefined();
         }
@@ -1215,7 +1216,7 @@ void JSServiceExtensionConnection::CallJsFailed(int32_t errorCode)
     NativeValue* value = jsConnectionObject_->Get();
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
-        HILOG_ERROR("Failed to get object");
+        HILOG_ERROR("Wrong to get object");
         return;
     }
 

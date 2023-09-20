@@ -252,7 +252,7 @@ NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallba
     }
 
     if (isStartRecent) {
-        HILOG_DEBUG("OnStartRecentAbility is called");
+        HILOG_DEBUG("OnStartRecentAbility is enter");
         want.SetParam(Want::PARAM_RESV_START_RECENT, true);
     }
 
@@ -285,6 +285,7 @@ NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallba
 
     AsyncTask::CompleteCallback complete = [innerErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
         if (*innerErrorCode == 0) {
+            HILOG_DEBUG("StartAbility success.");
             task.Resolve(engine, engine.CreateUndefined());
         } else {
             task.Reject(engine, CreateJsErrorByNativeErr(engine, *innerErrorCode));
@@ -582,7 +583,7 @@ NativeValue* JsAbilityContext::OnStartAbilityForResult(NativeEngine& engine, Nat
     decltype(info.argc) unwrapArgc = 1;
     AAFwk::StartOptions startOptions;
     if (info.argc > ARGC_ONE && info.argv[1]->TypeOf() == NATIVE_OBJECT) {
-        HILOG_DEBUG("OnStartAbilityForResult start options is used.");
+        HILOG_DEBUG("OnStartAbilityForResult begin options is used.");
         AppExecFwk::UnwrapStartOptions(reinterpret_cast<napi_env>(&engine),
             reinterpret_cast<napi_value>(info.argv[1]), startOptions);
         unwrapArgc++;
@@ -601,10 +602,10 @@ NativeValue* JsAbilityContext::OnStartAbilityForResult(NativeEngine& engine, Nat
     std::shared_ptr<AsyncTask> asyncTask = std::move(uasyncTask);
     RuntimeTask task = [&engine, asyncTask, &observer = freeInstallObserver_](int resultCode, const AAFwk::Want& want,
         bool isInner) {
-        HILOG_DEBUG("OnStartAbilityForResult async callback is called");
+        HILOG_DEBUG("OnStartAbilityForResult async callback is begin");
         NativeValue* abilityResult = JsAbilityContext::WrapAbilityResult(engine, resultCode, want);
         if (abilityResult == nullptr) {
-            HILOG_WARN("wrap abilityResult failed");
+            HILOG_WARN("wrap abilityResult error");
             asyncTask->Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
         } else {
             if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND &&
@@ -780,7 +781,7 @@ NativeValue* JsAbilityContext::OnStartExtensionAbilityWithAccount(NativeEngine& 
         [weak = context_, want, accountId](NativeEngine& engine, AsyncTask& task, int32_t status) {
             auto context = weak.lock();
             if (!context) {
-                HILOG_WARN("context is released");
+                HILOG_WARN("context has been released");
                 task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                 return;
             }
@@ -1588,13 +1589,13 @@ void JSAbilityConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::Elemen
     NativeValue* value = jsConnectionObject_->Get();
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
-        HILOG_ERROR("Failed to get object");
+        HILOG_ERROR("Wrong to get object");
         return;
     }
 
     NativeValue* method = obj->GetProperty("onDisconnect");
     if (method == nullptr) {
-        HILOG_ERROR("Failed to get onDisconnect from object");
+        HILOG_ERROR("Wrong to get onDisconnect from object");
         return;
     }
 

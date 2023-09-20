@@ -162,11 +162,11 @@ void JsActionExtension::Dump(const std::vector<std::string> &params, std::vector
 
 void JsActionExtension::OnAbilityResult(int32_t requestCode, int32_t resultCode, const Want &resultData)
 {
-    HILOG_DEBUG("called.");
+    HILOG_DEBUG("OnAbilityResult called.");
     Extension::OnAbilityResult(requestCode, resultCode, resultData);
 
     if (jsUIExtensionBase_ == nullptr) {
-        HILOG_ERROR("jsUIExtensionBase_ is nullptr");
+        HILOG_ERROR("jsUIExtensionBase_ is null");
         return;
     }
     jsUIExtensionBase_->OnAbilityResult(requestCode, resultCode, resultData);

@@ -384,6 +384,7 @@ std::string AbilityRecovery::GetSavedPageStack(StateReason reason)
 
 bool AbilityRecovery::IsSaveAbilityState(StateReason reason)
 {
+    HILOG_DEBUG("IsSaveAbilityState enter");
     bool ret = false;
     switch (reason) {
         case StateReason::DEVELOPER_REQUEST:

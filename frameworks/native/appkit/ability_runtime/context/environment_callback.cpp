@@ -124,6 +124,7 @@ void JsEnvironmentCallback::OnMemoryLevel(const int level)
 
 int32_t JsEnvironmentCallback::Register(NativeValue *jsCallback, bool isSync)
 {
+    HILOG_DEBUG("start");
     if (engine_ == nullptr) {
         return -1;
     }
@@ -138,6 +139,7 @@ int32_t JsEnvironmentCallback::Register(NativeValue *jsCallback, bool isSync)
     } else {
         callbacks_.emplace(callbackId, std::shared_ptr<NativeReference>(engine_->CreateReference(jsCallback, 1)));
     }
+    HILOG_DEBUG("end");
     return callbackId;
 }
 

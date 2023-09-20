@@ -53,13 +53,13 @@ NativeValue *JsApplicationContextUtils::CreateBundleContext(NativeEngine *engine
 NativeValue *JsApplicationContextUtils::OnCreateBundleContext(NativeEngine &engine, NativeCallbackInfo &info)
 {
     if (!CheckCallerIsSystemApp()) {
-        HILOG_ERROR("This application is not system-app, can not use system-api");
+        HILOG_ERROR("This application is not system-app, can not use system-api.");
         AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_NOT_SYSTEM_APP);
         return engine.CreateUndefined();
     }
 
     if (info.argc == 0) {
-        HILOG_ERROR("Not enough params");
+        HILOG_ERROR("Not enough arguments");
         AbilityRuntimeErrorUtil::Throw(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return engine.CreateUndefined();
     }
@@ -143,7 +143,7 @@ NativeValue *JsApplicationContextUtils::OnSwitchArea(NativeEngine &engine, Nativ
     NativeValue *thisVar = info.thisVar;
     NativeObject *object = ConvertNativeValueTo<NativeObject>(thisVar);
     if (object == nullptr) {
-        HILOG_ERROR("object is nullptr");
+        HILOG_ERROR("object is nullptr.");
         return engine.CreateUndefined();
     }
     BindNativeProperty(*object, "cacheDir", GetCacheDir);

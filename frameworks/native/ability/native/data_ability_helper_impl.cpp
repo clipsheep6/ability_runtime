@@ -144,25 +144,25 @@ std::shared_ptr<DataAbilityHelperImpl> DataAbilityHelperImpl::Creator(
     const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri, const bool tryBind)
 {
     if (context == nullptr) {
-        HILOG_ERROR("Input param invalid, context is nullptr.");
+        HILOG_ERROR("Input param invalid, context is null.");
         return nullptr;
     }
 
     if (!CheckUri(uri)) {
-        HILOG_ERROR("uri is invalid.");
+        HILOG_ERROR("uri is invalid");
         return nullptr;
     }
 
     sptr<IAbilityScheduler> dataAbilityProxy =
         AbilityManagerClient::GetInstance()->AcquireDataAbility(*uri.get(), tryBind, context->GetToken());
     if (dataAbilityProxy == nullptr) {
-        HILOG_ERROR("Acquire data ability failed.");
+        HILOG_ERROR("Acquire data ability error.");
         return nullptr;
     }
 
     auto ptrDataAbilityHelperImpl = new (std::nothrow) DataAbilityHelperImpl(context, uri, dataAbilityProxy, tryBind);
     if (ptrDataAbilityHelperImpl == nullptr) {
-        HILOG_ERROR("New DataAbilityHelperImpl failed.");
+        HILOG_ERROR("New DataAbilityHelperImpl error.");
         return nullptr;
     }
 

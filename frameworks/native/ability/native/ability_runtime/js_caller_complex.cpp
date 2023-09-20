@@ -389,10 +389,10 @@ private:
 
     NativeValue* SetOnReleaseCallBackInner(NativeEngine& engine, NativeCallbackInfo& info)
     {
-        HILOG_DEBUG("JsCallerComplex::%{public}s, begin", __func__);
+        HILOG_DEBUG("JsCallerComplex::%{public}s, start", __func__);
         constexpr size_t argcOne = 1;
         if (info.argc < argcOne) {
-            HILOG_ERROR("JsCallerComplex::%{public}s, Invalid input params", __func__);
+            HILOG_ERROR("JsCallerComplex::%{public}s, Invalid input parameters", __func__);
             ThrowTooFewParametersError(engine);
         }
         if (!info.argv[0]->IsCallable()) {
@@ -402,13 +402,13 @@ private:
         }
 
         if (callerCallBackObj_ == nullptr) {
-            HILOG_ERROR("JsCallerComplex::%{public}s, CallBacker is nullptr", __func__);
+            HILOG_ERROR("JsCallerComplex::%{public}s, CallBacker is null", __func__);
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
         }
 
         auto param1 = info.argv[0];
         if (param1 == nullptr) {
-            HILOG_ERROR("JsCallerComplex::%{public}s, param1 is nullptr", __func__);
+            HILOG_ERROR("JsCallerComplex::%{public}s, param1 is null", __func__);
             ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
         }
 

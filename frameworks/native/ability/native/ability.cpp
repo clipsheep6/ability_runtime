@@ -311,18 +311,18 @@ void Ability::OnActive()
     bWindowFocus_ = true;
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
-        HILOG_ERROR("abilityLifecycleExecutor_ is nullptr.");
+        HILOG_ERROR("abilityLifecycleExecutor_ is null.");
         return;
     }
     abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::ACTIVE);
 
     if (lifecycle_ == nullptr) {
-        HILOG_ERROR("lifecycle_ is nullptr.");
+        HILOG_ERROR("lifecycle_ is null.");
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_ACTIVE);
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("abilityInfo_ is nullptr.");
+        HILOG_ERROR("abilityInfo_ is null.");
         return;
     }
     AAFwk::EventInfo eventInfo;
@@ -458,9 +458,9 @@ void Ability::OnDisconnect(const Want &want)
 
 ErrCode Ability::StartAbilityForResult(const Want &want, int requestCode)
 {
-    HILOG_DEBUG("called");
+    HILOG_DEBUG("start");
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("abilityInfo_ is nullptr");
+        HILOG_ERROR("abilityInfo_ is null");
         return ERR_NULL_OBJECT;
     }
     HILOG_DEBUG("Ability type is %{public}d", abilityInfo_->type);
@@ -1962,7 +1962,7 @@ void Ability::OnChange(Rosen::DisplayId displayId)
             resConfig->SetScreenDensity(density);
             resConfig->SetDirection(ConvertDirection(height, width));
             resourceManager->UpdateResConfig(*resConfig);
-            HILOG_INFO("Notify ResourceManager, Density: %{public}f, Direction: %{public}d.",
+            HILOG_INFO("Notify ResourceManager, Density: %{public}f, Direction: %{public}d",
                 resConfig->GetScreenDensity(), resConfig->GetDirection());
         }
     }

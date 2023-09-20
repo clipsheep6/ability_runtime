@@ -259,7 +259,7 @@ napi_value JsUIExtensionContentSession::OnStartAbilityForResult(napi_env env, si
 
     AAFwk::Want want;
     if (!AppExecFwk::UnwrapWant(env, argv[0], want)) {
-        HILOG_ERROR("Failed to parse want!");
+        HILOG_ERROR("Error to parse want!");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
     }
@@ -303,10 +303,10 @@ void JsUIExtensionContentSession::StartAbilityForResultRuntimeTask(napi_env env,
 {
     RuntimeTask task = [env, asyncTask, &observer = freeInstallObserver_](int resultCode,
         const AAFwk::Want& want, bool isInner) {
-        HILOG_DEBUG("OnStartAbilityForResult async callback is called");
+        HILOG_DEBUG("OnStartAbilityForResult async callback is enter");
         napi_value abilityResult = AppExecFwk::WrapAbilityResult(env, resultCode, want);
         if (abilityResult == nullptr) {
-            HILOG_WARN("wrap abilityResult failed");
+            HILOG_WARN("wrap abilityResult wrong");
             asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
         } else {
             if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND &&
@@ -337,7 +337,7 @@ void JsUIExtensionContentSession::StartAbilityForResultRuntimeTask(napi_env env,
             AAFwk::AbilityManagerClient::GetInstance()->StartAbilityByUIContentSession(want,
                 startOptions, context->GetToken(), sessionInfo_, curRequestCode, -1);
         if (err != ERR_OK && err != AAFwk::START_ABILITY_WAITING) {
-            HILOG_ERROR("StartAbilityForResult. ret=%{public}d", err);
+            HILOG_ERROR("StartAbilityForResult. ret:%{public}d", err);
             listener_->OnAbilityResultInner(curRequestCode, err, want);
         }
     }
@@ -345,7 +345,7 @@ void JsUIExtensionContentSession::StartAbilityForResultRuntimeTask(napi_env env,
 
 napi_value JsUIExtensionContentSession::OnTerminateSelf(napi_env env, size_t argc, napi_value* argv)
 {
-    HILOG_DEBUG("called");
+    HILOG_DEBUG("OnTerminateSelf called");
     NapiAsyncTask::CompleteCallback complete =
         [sessionInfo = sessionInfo_](napi_env env, NapiAsyncTask& task, int32_t status) {
             if (sessionInfo == nullptr) {
@@ -561,7 +561,7 @@ napi_value JsUIExtensionContentSession::OnSetWindowPrivacyMode(napi_env env, siz
     NapiAsyncTask::CompleteCallback complete =
         [uiWindow = uiWindow_, isPrivacyMode](napi_env env, NapiAsyncTask& task, int32_t status) {
             if (uiWindow == nullptr) {
-                HILOG_ERROR("uiWindow is nullptr");
+                HILOG_ERROR("uiWindow is null");
                 task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
                 return;
             }
@@ -584,11 +584,11 @@ napi_value JsUIExtensionContentSession::CreateJsUIExtensionContentSession(napi_e
     std::weak_ptr<AbilityRuntime::Context> context,
     std::shared_ptr<AbilityResultListeners>& abilityResultListeners)
 {
-    HILOG_DEBUG("begin");
+    HILOG_DEBUG("start");
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {
-        HILOG_ERROR("object is nullptr");
+        HILOG_ERROR("object is null");
         return CreateJsUndefined(env);
     }
 
