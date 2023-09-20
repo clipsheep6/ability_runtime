@@ -2258,6 +2258,7 @@ group("unittest") {
     ":data_ability_result_test",
     ":data_uri_utils_test",
     ":distributed_client_test",
+    ":extension_ability_thread_test",
     ":extension_impl_test",
     ":extension_test",
     ":form_extension_test",
