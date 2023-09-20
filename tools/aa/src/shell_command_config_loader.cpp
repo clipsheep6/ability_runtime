@@ -76,7 +76,7 @@ bool ShellCommandConfigLoder::ReadConfig(const std::string &filePath)
     
     std::lock_guard<std::mutex> lock(mtxRead_);
     for (size_t i = 0; i < aaJson[AA_TOOL_COMMAND_LIST].size(); i++) {
-        if (aaJson[AA_TOOL_COMMAND_LIST][i].is_null() || !aaJson[AA_TOOL_COMMAND_LIST][i].is_string()) {
+        if (aaJson[AA_TOOL_COMMAND_LIST][i] == nullptr || !aaJson[AA_TOOL_COMMAND_LIST][i].is_string()) {
             continue;
         }
         std::string cmd = aaJson[AA_TOOL_COMMAND_LIST][i].get<std::string>();
