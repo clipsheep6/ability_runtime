@@ -1484,6 +1484,7 @@ void AbilityRecord::RestoreAbilityState()
 
 void AbilityRecord::SetWant(const Want &want)
 {
+    std::lock_guard<ffrt::mutex> guard(lock_);
     want_ = want;
 }
 
@@ -1605,6 +1606,7 @@ void AbilityRecord::SaveResultToCallers(const int resultCode, const Want *result
 
 void AbilityRecord::SaveResult(int resultCode, const Want *resultWant, std::shared_ptr<CallerRecord> caller)
 {
+    std::lock_guard<ffrt::mutex> guard(lock_);
     std::shared_ptr<AbilityRecord> callerAbilityRecord = caller->GetCaller();
     if (callerAbilityRecord != nullptr) {
         callerAbilityRecord->SetResult(
