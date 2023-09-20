@@ -1216,6 +1216,7 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(con
         if (want->GetBoolParam(COLD_START, false)) {
             appRecord->SetDebugApp(true);
         }
+        appRecord->SetPerfCmd(want->GetStringParam(PERF_CMD));
         appRecord->SetAppIndex(want->GetIntParam(DLP_PARAMS_INDEX, 0));
         appRecord->SetSecurityFlag(want->GetBoolParam(DLP_PARAMS_SECURITY_FLAG, false));
         appRecord->SetRequestProcCode(want->GetIntParam(Want::PARAM_RESV_REQUEST_PROC_CODE, 0));
@@ -2818,6 +2819,12 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
             appRecord->SetCallerPid(wantPtr->GetIntParam(Want::PARAM_RESV_CALLER_PID, -1));
             appRecord->SetCallerUid(wantPtr->GetIntParam(Want::PARAM_RESV_CALLER_UID, -1));
             appRecord->SetCallerTokenId(wantPtr->GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, -1));
+            appRecord->SetDebugApp(wantPtr->GetBoolParam("debugApp", false));
+            appRecord->SetNativeDebug(wantPtr->GetBoolParam("nativeDebug", false));
+            if (wantPtr->GetBoolParam(COLD_START, false)) {
+                appRecord->SetDebugApp(true);
+            }
+            appRecord->SetPerfCmd(wantPtr->GetStringParam(PERF_CMD));
         }
         appRecord->SetProcessAndExtensionType(abilityInfoPtr);
         appRecord->SetTaskHandler(taskHandler_);

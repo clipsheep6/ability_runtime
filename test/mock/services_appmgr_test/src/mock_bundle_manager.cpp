@@ -27,6 +27,15 @@ const int32_t HQF_VERSION_CODE = 1000;
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
+std::string g_CurrentBundleName;
+}
+
+void MockSetCurrentBundleName(const std::string& bundleName)
+{
+    g_CurrentBundleName = bundleName;
+}
+
+namespace {
 void ConstructHqfInfo(BundleInfo& bundleInfo)
 {
     std::vector<HqfInfo> hqfInfos;
@@ -53,6 +62,7 @@ void ConstructHqfInfo(BundleInfo& bundleInfo)
     HapModuleInfo moduleInfo1;
     moduleInfo1.name = "entry1";
     moduleInfo1.moduleName = "entry1";
+    moduleInfo1.moduleType = AppExecFwk::ModuleType::ENTRY;
     moduleInfo1.hapPath = "/data/app/el1/bundle/public/com.ohos.hotreload/entry1";
     moduleInfo1.hqfInfo = hqfInfo1;
     moduleInfo1.process = "test_quickfix";
@@ -373,6 +383,10 @@ ErrCode BundleMgrService::GetBundleInfoForSelf(int32_t flags, BundleInfo &bundle
 {
     HapModuleInfo hapModuleInfo;
     bundleInfo.hapModuleInfos.push_back(hapModuleInfo);
+    if (g_CurrentBundleName == "com.ohos.quickfix") {
+        HILOG_INFO("GetBundleInfo of [com.ohos.quickfix].");
+        ConstructHqfInfo(bundleInfo);
+    }
     return ERR_OK;
 }
 

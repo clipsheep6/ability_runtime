@@ -411,6 +411,8 @@ void AppRunningRecord::LaunchApplication(const Configuration &config)
     launchData.SetUId(mainUid_);
     launchData.SetUserTestInfo(userTestRecord_);
     launchData.SetAppIndex(appIndex_);
+    launchData.SetDebugApp(isDebugApp_);
+    launchData.SetPerfCmd(perfCmd_);
     HILOG_INFO("Schedule launch application, app is %{public}s.", GetName().c_str());
     appLifeCycleDeal_->LaunchApplication(launchData, config);
 }
@@ -1472,6 +1474,11 @@ void AppRunningRecord::SetNativeDebug(bool isNativeDebug)
 {
     HILOG_DEBUG("SetNativeDebug, value is %{public}d", isNativeDebug);
     isNativeDebug_ = isNativeDebug;
+}
+
+void AppRunningRecord::SetPerfCmd(const std::string &perfCmd)
+{
+    perfCmd_ = perfCmd;
 }
 
 void AppRunningRecord::SetAppIndex(const int32_t appIndex)

@@ -152,6 +152,26 @@ public:
         return appIndex_;
     }
 
+    inline void SetDebugApp(bool debugApp)
+    {
+        debugApp_ = debugApp;
+    }
+
+    inline bool GetDebugApp() const
+    {
+        return debugApp_;
+    }
+
+    inline void SetPerfCmd(const std::string &perfCmd)
+    {
+        perfCmd_ = perfCmd;
+    }
+
+    inline std::string GetPerfCmd() const
+    {
+        return perfCmd_;
+    }
+
     /**
      * @brief read this Sequenceable object from a Parcel.
      *
@@ -182,6 +202,8 @@ private:
     int32_t uId_ = 0;
     int32_t appIndex_ = 0;
     std::shared_ptr<UserTestRecord> userTestRecord_ = nullptr;
+    bool debugApp_ = false;
+    std::string perfCmd_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
