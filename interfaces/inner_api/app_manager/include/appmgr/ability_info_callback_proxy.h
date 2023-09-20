@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -59,6 +59,7 @@ public:
     virtual void NotifyStartAbilityResult(const Want &want, int result) override;
 
 private:
+    bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
     bool WriteInterfaceToken(MessageParcel &data);
     void SetExtraParam(const sptr<Want> &want, sptr<Want> &extraParam);
     static inline BrokerDelegator<AbilityInfoCallbackProxy> delegator_;

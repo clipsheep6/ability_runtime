@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -47,15 +47,9 @@ void StartSpecifiedAbilityResponseProxy::OnAcceptWantResponse(
         return;
     }
 
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
+    if (!SendRequest(IStartSpecifiedAbilityResponse::Message::ON_ACCEPT_WANT_RESPONSE, data, reply, option)) {
+        HILOG_ERROR("SendRequest failed");
         return;
-    }
-    int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IStartSpecifiedAbilityResponse::Message::ON_ACCEPT_WANT_RESPONSE), data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -73,16 +67,28 @@ void StartSpecifiedAbilityResponseProxy::OnTimeoutResponse(const AAFwk::Want &wa
         return;
     }
 
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
+    if (!SendRequest(IStartSpecifiedAbilityResponse::Message::ON_TIMEOUT_RESPONSE, data, reply, option)) {
+        HILOG_ERROR("SendRequest failed");
         return;
     }
-    int32_t ret = remote->SendRequest(static_cast<uint32_t>(
-        IStartSpecifiedAbilityResponse::Message::ON_TIMEOUT_RESPONSE), data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
-    }
 }
+
+bool StartSpecifiedAbilityResponseProxy::SendRequest(IStartSpecifiedAbilityResponse::Message code,
+    MessageParcel &data, MessageParcel &reply, MessageOption &option)
+{
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote object is nullptr.");
+        return false;
+    }
+
+    int32_t ret = remote->SendRequest(static_cast<uint32_t>(code), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
+        return false;
+    }
+    return true;
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

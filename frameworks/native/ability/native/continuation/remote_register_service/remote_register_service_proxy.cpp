@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -34,12 +34,6 @@ int RemoteRegisterServiceProxy::Register(const std::string &bundleName, const sp
         return ERR_INVALID_DATA;
     }
 
-    auto remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("%{public}s remote is null", __func__);
-        return ERR_NULL_OBJECT;
-    }
-
     MessageParcel data;
     if (!data.WriteInterfaceToken(IRemoteRegisterService::GetDescriptor()) || !data.WriteString(bundleName) ||
         !data.WriteRemoteObject(token) || !data.WriteInt32(1) || !extras.Marshalling(data) ||
@@ -50,12 +44,11 @@ int RemoteRegisterServiceProxy::Register(const std::string &bundleName, const sp
 
     MessageParcel reply;
     MessageOption option;
-    int result = remote->SendRequest(COMMAND_REGISTER, data, reply, option);
-    if (result == ERR_NONE) {
-        HILOG_INFO("%{public}s SendRequest ok", __func__);
+    if (SendRequest(COMMAND_REGISTER, data, reply, option)) {
+        HILOG_INFO("SendRequest success");
         return reply.ReadInt32();
     } else {
-        HILOG_ERROR("%{public}s SendRequest error, result=%{public}d", __func__, result);
+        HILOG_ERROR("SendRequest failed" );
         return IPC_INVOKER_TRANSLATE_ERR;
     }
 }
@@ -69,12 +62,6 @@ bool RemoteRegisterServiceProxy::Unregister(int registerToken)
 {
     HILOG_INFO("%{public}s called", __func__);
 
-    auto remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("%{public}s remote is null", __func__);
-        return false;
-    }
-
     MessageParcel data;
     if (!data.WriteInterfaceToken(IRemoteRegisterService::GetDescriptor()) || !data.WriteInt32(registerToken)) {
         HILOG_ERROR("%{public}s Failed to write transfer data.", __func__);
@@ -83,12 +70,11 @@ bool RemoteRegisterServiceProxy::Unregister(int registerToken)
 
     MessageParcel reply;
     MessageOption option;
-    int32_t result = remote->SendRequest(COMMAND_UNREGISTER, data, reply, option);
-    if (result == ERR_NONE) {
-        HILOG_INFO("%{public}s SendRequest ok", __func__);
+    if (SendRequest(COMMAND_UNREGISTER, data, reply, option)) {
+        HILOG_INFO("SendRequest success");
         return reply.ReadInt32() == ERR_NONE;
     } else {
-        HILOG_ERROR("%{public}s SendRequest error, result=%{public}d", __func__, result);
+        HILOG_INFO("SendRequest failed");
         return false;
     }
 }
@@ -104,12 +90,6 @@ bool RemoteRegisterServiceProxy::UpdateConnectStatus(int registerToken, const st
 {
     HILOG_INFO("%{public}s called", __func__);
 
-    auto remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("%{public}s remote is null", __func__);
-        return false;
-    }
-
     MessageParcel data;
     if (!data.WriteInterfaceToken(IRemoteRegisterService::GetDescriptor()) || !data.WriteInt32(registerToken) ||
         !data.WriteString(deviceId) || !data.WriteInt32(status)) {
@@ -119,12 +99,11 @@ bool RemoteRegisterServiceProxy::UpdateConnectStatus(int registerToken, const st
 
     MessageParcel reply;
     MessageOption option;
-    int32_t result = remote->SendRequest(COMMAND_UPDATE_CONNECT_STATUS, data, reply, option);
-    if (result == ERR_NONE) {
-        HILOG_INFO("%{public}s SendRequest ok", __func__);
+    if (SendRequest(COMMAND_UPDATE_CONNECT_STATUS, data, reply, option)) {
+        HILOG_INFO("SendRequest success");
         return reply.ReadInt32() == ERR_NONE;
     } else {
-        HILOG_ERROR("%{public}s SendRequest error, result=%{public}d", __func__, result);
+        HILOG_INFO("SendRequest failed");
         return false;
     }
 }
@@ -139,12 +118,6 @@ bool RemoteRegisterServiceProxy::ShowDeviceList(int registerToken, const ExtraPa
 {
     HILOG_INFO("%{public}s called", __func__);
 
-    auto remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("%{public}s remote is null", __func__);
-        return false;
-    }
-
     MessageParcel data;
     if (!data.WriteInterfaceToken(IRemoteRegisterService::GetDescriptor()) || !data.WriteInt32(registerToken) ||
         !data.WriteInt32(1) || !extras.Marshalling(data)) {
@@ -154,14 +127,30 @@ bool RemoteRegisterServiceProxy::ShowDeviceList(int registerToken, const ExtraPa
 
     MessageParcel reply;
     MessageOption option;
-    int32_t result = remote->SendRequest(COMMAND_SHOW_DEVICE_LIST, data, reply, option);
-    if (result == ERR_NONE) {
-        HILOG_INFO("%{public}s SendRequest ok", __func__);
+    if (SendRequest(COMMAND_SHOW_DEVICE_LIST, data, reply, option)) {
+        HILOG_INFO("SendRequest success");
         return reply.ReadInt32() == ERR_NONE;
     } else {
-        HILOG_ERROR("%{public}s SendRequest error, result=%{public}d", __func__, result);
+        HILOG_INFO("SendRequest failed");
         return false;
     }
+}
+
+bool RemoteRegisterServiceProxy::SendRequest(uint32_t code, MessageParcel &data,
+                                             MessageParcel &reply, MessageOption &option)
+{
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote object is nullptr.");
+        return false;
+    }
+
+    int32_t ret = remote->SendRequest(static_cast<int32_t>(code), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
+        return false;
+    }
+    return true;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -55,9 +55,8 @@ int UriPermissionManagerProxy::GrantUriPermission(const Uri &uri, unsigned int f
     }
     MessageParcel reply;
     MessageOption option;
-    int error = Remote()->SendRequest(UriPermMgrCmd::ON_GRANT_URI_PERMISSION, data, reply, option);
-    if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fial, error: %{public}d", error);
+    if (!SendRequest(UriPermMgrCmd::ON_GRANT_URI_PERMISSION, data, reply, option)) {
+        HILOG_ERROR("SendRequest failed");
         return INNER_ERR;
     }
     return reply.ReadInt32();
@@ -77,9 +76,9 @@ void UriPermissionManagerProxy::RevokeUriPermission(const Security::AccessToken:
     }
     MessageParcel reply;
     MessageOption option;
-    int error = Remote()->SendRequest(UriPermMgrCmd::ON_REVOKE_URI_PERMISSION, data, reply, option);
-    if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+    if (!SendRequest(UriPermMgrCmd::ON_REVOKE_URI_PERMISSION, data, reply, option)) {
+        HILOG_ERROR("SendRequest faild.");
+        return;
     }
 }
 
@@ -97,9 +96,8 @@ int UriPermissionManagerProxy::RevokeAllUriPermissions(const Security::AccessTok
     }
     MessageParcel reply;
     MessageOption option;
-    int error = Remote()->SendRequest(UriPermMgrCmd::ON_REVOKE_ALL_URI_PERMISSION, data, reply, option);
-    if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+    if (!SendRequest(UriPermMgrCmd::ON_REVOKE_ALL_URI_PERMISSION, data, reply, option)) {
+        HILOG_ERROR("SendRequest faild");
         return INNER_ERR;
     }
     return ERR_OK;
@@ -123,9 +121,8 @@ int UriPermissionManagerProxy::RevokeUriPermissionManually(const Uri &uri, const
     }
     MessageParcel reply;
     MessageOption option;
-    int error = Remote()->SendRequest(UriPermMgrCmd::ON_REVOKE_URI_PERMISSION_MANUALLY, data, reply, option);
-    if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+    if (!SendRequest(UriPermMgrCmd::ON_REVOKE_URI_PERMISSION_MANUALLY, data, reply, option)) {
+        HILOG_ERROR("SendRequest faild.");
         return INNER_ERR;
     }
     return reply.ReadInt32();
@@ -153,9 +150,8 @@ bool UriPermissionManagerProxy::CheckPersistableUriPermissionProxy(const Uri& ur
     }
     MessageParcel reply;
     MessageOption option;
-    int error = Remote()->SendRequest(UriPermMgrCmd::ON_CHECK_PERSISTABLE_URIPERMISSION_PROXY, data, reply, option);
-    if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+    if (!SendRequest(UriPermMgrCmd::ON_CHECK_PERSISTABLE_URIPERMISSION_PROXY, data, reply, option)) {
+        HILOG_ERROR("SendRequest failed");
         return false;
     }
     return reply.ReadBool();
@@ -183,12 +179,28 @@ bool UriPermissionManagerProxy::VerifyUriPermission(const Uri& uri, uint32_t fla
     }
     MessageParcel reply;
     MessageOption option;
-    int error = Remote()->SendRequest(UriPermMgrCmd::ON_VERIFY_URI_PERMISSION, data, reply, option);
-    if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+    if (!SendRequest(UriPermMgrCmd::ON_VERIFY_URI_PERMISSION, data, reply, option)) {
+        HILOG_ERROR("SendRequest failed.");
         return false;
     }
     return reply.ReadBool();
+}
+
+bool UriPermissionManagerProxy::SendRequest(uint32_t code, MessageParcel &data,
+                                            MessageParcel &reply, MessageOption &option)
+{
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote object is nullptr.");
+        return false;
+    }
+
+    int32_t ret = remote->SendRequest(code, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
+        return false;
+    }
+    return true;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

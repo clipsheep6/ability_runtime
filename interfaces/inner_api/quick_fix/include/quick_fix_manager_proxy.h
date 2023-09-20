@@ -54,6 +54,7 @@ public:
 
 private:
     static inline BrokerDelegator<QuickFixManagerProxy> delegator_;
+    bool SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
 };
 } // namespace AAFwk
 } // namespace OHOS

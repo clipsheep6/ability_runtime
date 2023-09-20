@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -40,12 +40,6 @@ void TestObserverProxy::TestStatus(const std::string& msg, const int64_t& result
         return;
     }
 
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Failed to send cmd to service due to remote object is null");
-        return;
-    }
-
     if (!data.WriteString(msg)) {
         HILOG_ERROR("Failed to write string msg");
         return;
@@ -56,10 +50,8 @@ void TestObserverProxy::TestStatus(const std::string& msg, const int64_t& result
         return;
     }
 
-    int32_t result = remote->SendRequest(
-        static_cast<uint32_t>(ITestObserver::Message::AA_TEST_STATUS), data, reply, option);
-    if (result != OHOS::NO_ERROR) {
-        HILOG_ERROR("Failed to SendRequest, error code: %{public}d", result);
+    if (!SendRequest(ITestObserver::Message::AA_TEST_STATUS, data, reply, option)) {
+        HILOG_ERROR("Failed to SendRequest");
         return;
     }
 }
@@ -76,12 +68,6 @@ void TestObserverProxy::TestFinished(const std::string& msg, const int64_t& resu
         return;
     }
 
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Failed to send cmd to service due to remote object is null");
-        return;
-    }
-
     if (!data.WriteString(msg)) {
         HILOG_ERROR("Failed to write string msg");
         return;
@@ -92,10 +78,8 @@ void TestObserverProxy::TestFinished(const std::string& msg, const int64_t& resu
         return;
     }
 
-    int32_t result = remote->SendRequest(
-        static_cast<uint32_t>(ITestObserver::Message::AA_TEST_FINISHED), data, reply, option);
-    if (result != OHOS::NO_ERROR) {
-        HILOG_ERROR("Failed to SendRequest, error code: %{public}d", result);
+    if (!SendRequest(ITestObserver::Message::AA_TEST_FINISHED, data, reply, option)) {
+        HILOG_ERROR("Failed to SendRequest");
         return;
     }
 }
@@ -114,12 +98,6 @@ ShellCommandResult TestObserverProxy::ExecuteShellCommand(
         return result;
     }
 
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Failed to send cmd to service due to remote object is null");
-        return result;
-    }
-
     if (!data.WriteString(cmd)) {
         HILOG_ERROR("Failed to write string cmd");
         return result;
@@ -130,10 +108,8 @@ ShellCommandResult TestObserverProxy::ExecuteShellCommand(
         return result;
     }
 
-    int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(ITestObserver::Message::AA_EXECUTE_SHELL_COMMAND), data, reply, option);
-    if (ret != OHOS::NO_ERROR) {
-        HILOG_ERROR("Failed to SendRequest, error code: %{public}d", ret);
+    if (!SendRequest(ITestObserver::Message::AA_EXECUTE_SHELL_COMMAND, data, reply, option)) {
+        HILOG_ERROR("Failed to SendRequest");
         return result;
     }
     ShellCommandResult* resultPtr = reply.ReadParcelable<ShellCommandResult>();
@@ -146,6 +122,23 @@ ShellCommandResult TestObserverProxy::ExecuteShellCommand(
         delete resultPtr;
     }
     return result;
+}
+
+bool TestObserverProxy::SendRequest(ITestObserver::Message code, MessageParcel &data,
+                                    MessageParcel &reply, MessageOption &option)
+{
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote object is nullptr.");
+        return false;
+    }
+
+    int32_t ret = remote->SendRequest(static_cast<int32_t>(code), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
+        return false;
+    }
+    return true;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

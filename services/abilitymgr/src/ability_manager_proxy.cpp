@@ -2549,11 +2549,7 @@ int AbilityManagerProxy::SetMissionContinueState(const sptr<IRemoteObject> &toke
         HILOG_ERROR("SetMissionContinueState write state failed.");
         return ERR_INVALID_VALUE;
     }
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return INNER_ERR;
-    }
+
     auto error = SendRequest(AbilityManagerInterfaceCode::SET_MISSION_CONTINUE_STATE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("SetMissionContinueState Send request error: %{public}d", error);
@@ -3252,11 +3248,6 @@ int AbilityManagerProxy::CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId, 
         return ERR_INVALID_VALUE;
     }
 
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return INNER_ERR;
-    }
     auto error = SendRequest(AbilityManagerInterfaceCode::CHECK_UI_EXTENSION_IS_FOCUSED, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
@@ -3708,11 +3699,6 @@ int32_t AbilityManagerProxy::ReportDrawnCompleted(const sptr<IRemoteObject> &cal
         return INNER_ERR;
     }
 
-    auto remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("remote is nullptr.");
-        return INNER_ERR;
-    }
     auto error = SendRequest(AbilityManagerInterfaceCode::REPORT_DRAWN_COMPLETED, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
@@ -3941,12 +3927,6 @@ int32_t AbilityManagerProxy::NotifySaveAsResult(const Want &want, int resultCode
 
     if (!data.WriteInt32(requestCode)) {
         HILOG_ERROR("requestCode write failed.");
-        return INNER_ERR;
-    }
-
-    auto remote = Remote();
-    if (!remote) {
-        HILOG_ERROR("remote object is nullptr.");
         return INNER_ERR;
     }
 
