@@ -28,7 +28,7 @@ using OHOS::AppExecFwk::AbilityStateData;
 using OHOS::AppExecFwk::ProcessData;
 class JSAppStateObserver : public ApplicationStateObserverStub {
 public:
-    explicit JSAppStateObserver(NativeEngine& engine);
+    explicit JSAppStateObserver(napi_env engine);
     ~JSAppStateObserver();
     void OnForegroundApplicationChanged(const AppStateData &appStateData) override;
     void OnAbilityStateChanged(const AbilityStateData &abilityStateData) override;
@@ -42,15 +42,15 @@ public:
     void HandleOnProcessCreated(const ProcessData &processData);
     void HandleOnProcessStateChanged(const ProcessData &processData);
     void HandleOnProcessDied(const ProcessData &processData);
-    void CallJsFunction(NativeValue* value, const char *methodName, NativeValue *const *argv, size_t argc);
-    void AddJsObserverObject(const int32_t observerId, NativeValue* jsObserverObject);
+    void CallJsFunction(napi_value value, const char *methodName, napi_value* argv, size_t argc);
+    void AddJsObserverObject(const int32_t observerId, napi_value jsObserverObject);
     bool RemoveJsObserverObject(const int32_t observerId);
     bool FindObserverByObserverId(const int32_t observerId);
     size_t GetJsObserverMapSize();
     void SetValid(const bool valid);
 
 private:
-    NativeEngine& engine_;
+    napi_env env_;
     volatile bool valid_ = true;
     std::map<int32_t, std::shared_ptr<NativeReference>> jsObserverObjectMap_;
 };

@@ -16,15 +16,14 @@
 #include "native_engine/native_engine.h"
 #include "js_app_manager.h"
 
-extern "C" __attribute__((constructor))
-void NAPI_application_AppManager_AutoRegister()
-{
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-        .name = "application.appManager",
-        .fileName = "application/appmanager_napi.so/app_manager.js",
-        .registerCallback = OHOS::AbilityRuntime::JsAppManagerInit,
-    };
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_modname = "application.appManager",
+    .nm_filename = "application/appmanager_napi.so/app_manager.js",
+    .nm_register_func = OHOS::AbilityRuntime::JsAppManagerInit,
+};
 
-    moduleManager->Register(&newModuleInfo);
+extern "C" __attribute__((constructor)) void NAPI_application_AppManager_AutoRegister(void)
+{
+    napi_module_register(&_module);
 }

@@ -26,12 +26,12 @@ using OHOS::AppExecFwk::AppStateData;
 using OHOS::AppExecFwk::AbilityStateData;
 using OHOS::AppExecFwk::ProcessData;
 using OHOS::AppExecFwk::RunningProcessInfo;
-NativeValue* CreateJsAppStateData(NativeEngine &engine, const AppStateData &appStateData);
-NativeValue* CreateJsAbilityStateData(NativeEngine &engine, const AbilityStateData &abilityStateData);
-NativeValue* CreateJsProcessData(NativeEngine &engine, const ProcessData &processData);
-NativeValue* CreateJsAppStateDataArray(NativeEngine &engine, const std::vector<AppStateData> &appStateDatas);
-NativeValue* CreateJsProcessRunningInfoArray(NativeEngine &engine, const std::vector<RunningProcessInfo> &infos);
-NativeValue* CreateJsProcessRunningInfo(NativeEngine &engine, const RunningProcessInfo &info);
+napi_value CreateJsAppStateData(napi_env env, const AppStateData &appStateData);
+napi_value CreateJsAbilityStateData(napi_env env, const AbilityStateData &abilityStateData);
+napi_value CreateJsProcessData(napi_env env, const ProcessData &processData);
+napi_value CreateJsAppStateDataArray(napi_env env, const std::vector<AppStateData> &appStateDatas);
+napi_value CreateJsProcessRunningInfoArray(napi_env env, const std::vector<RunningProcessInfo> &infos);
+napi_value CreateJsProcessRunningInfo(napi_env env, const RunningProcessInfo &info);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_JS_APP_MANAGER_UTILS_H
