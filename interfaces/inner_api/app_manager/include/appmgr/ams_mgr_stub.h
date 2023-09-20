@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -42,6 +42,7 @@ public:
      */
     virtual void UpdateExtensionState(const sptr<IRemoteObject> &token, const ExtensionState state) override;
 private:
+    void CreateMemberFuncMap();
     int32_t HandleLoadAbility(MessageParcel &data, MessageParcel &reply);
     int32_t HandleTerminateAbility(MessageParcel &data, MessageParcel &reply);
     int32_t HandleUpdateAbilityState(MessageParcel &data, MessageParcel &reply);
@@ -66,6 +67,12 @@ private:
     int32_t HandleUpdateApplicationInfoInstalled(MessageParcel &data, MessageParcel &reply);
     int32_t HandleSetCurrentUserId(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetBundleNameByPid(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleRegisterAppDebugListener(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleUnregisterAppDebugListener(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleAttachAppDebug(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleDetachAppDebug(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleRegisterAbilityDebugResponse(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleIsAttachDebug(MessageParcel &data, MessageParcel &reply);
 
     using AmsMgrFunc = int32_t (AmsMgrStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, AmsMgrFunc> memberFuncMap_;

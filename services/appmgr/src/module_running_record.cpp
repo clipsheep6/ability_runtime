@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -241,8 +241,10 @@ void ModuleRunningRecord::TerminateAbility(const std::shared_ptr<AppRunningRecor
     }
 
     if (appLifeCycleDeal_) {
-        SendEvent(
-            AMSEventHandler::TERMINATE_ABILITY_TIMEOUT_MSG, AMSEventHandler::TERMINATE_ABILITY_TIMEOUT, abilityRecord);
+        if (!(appRecord->IsDebugApp() || appRecord->isAttachDebug())) {
+            SendEvent(AMSEventHandler::TERMINATE_ABILITY_TIMEOUT_MSG,
+                AMSEventHandler::TERMINATE_ABILITY_TIMEOUT, abilityRecord);
+        }
         appLifeCycleDeal_->ScheduleCleanAbility(token);
     } else {
         HILOG_WARN("appLifeCycleDeal_ is null");

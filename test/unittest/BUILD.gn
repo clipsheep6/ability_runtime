@@ -107,6 +107,7 @@ ohos_source_set("abilityms_test_source") {
     "${ability_runtime_services_path}/abilitymgr/src/ability_bundle_event_callback.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_connect_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_debug_deal.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_event_handler.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_event_util.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_interceptor.cpp",

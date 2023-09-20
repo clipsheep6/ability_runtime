@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -881,6 +881,83 @@ bool AppRunningManager::IsApplicationUnfocused(const std::string &bundleName)
         }
     }
     return true;
+}
+
+void AppRunningManager::AttachAppDebug(const std::string &bundleName)
+{
+    HILOG_DEBUG("Called.");
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord->GetBundleName() == bundleName) {
+            HILOG_DEBUG("The application: %{public}s will be set debug mode.", bundleName.c_str());
+            appRecord->SetAttachDebug(true);
+        }
+    }
+}
+
+void AppRunningManager::DetachAppDebug(const std::string &bundleName)
+{
+    HILOG_DEBUG("Called.");
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord->GetBundleName() == bundleName) {
+            HILOG_DEBUG("The application: %{public}s will be cancel debug mode.", bundleName.c_str());
+            appRecord->SetAttachDebug(false);
+        }
+    }
+}
+
+void AppRunningManager::GetAppDebugInfoByBundleName(
+    const std::string &bundleName, std::vector<AppDebugInfo> &debugInfos, const bool &isDetachDebug)
+{
+    HILOG_DEBUG("Called.");
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord == nullptr) {
+            continue;
+        }
+        if (appRecord->GetBundleName() != bundleName) {
+            continue;
+        }
+
+        auto isDebug = appRecord->IsDebugApp();
+        if (isDetachDebug && isDebug) {
+            continue;
+        }
+
+        AppDebugInfo debugInfo;
+        debugInfo.bundleName = bundleName;
+        auto priorityObject = appRecord->GetPriorityObject();
+        if (priorityObject) {
+            debugInfo.pid = priorityObject->GetPid();
+        }
+        debugInfo.uid = appRecord->GetUid();
+        debugInfo.isDebugStart = isDebug;
+        debugInfos.emplace_back(debugInfo);
+    }
+}
+
+void AppRunningManager::GetAbilityTokensByBundleName(
+    const std::string &bundleName, std::vector<sptr<IRemoteObject>> &abilityTokens)
+{
+    HILOG_DEBUG("Called.");
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord == nullptr) {
+            continue;
+        }
+        if (appRecord->GetBundleName() != bundleName) {
+            continue;
+        }
+
+        for (const auto &token : appRecord->GetAbilities()) {
+            abilityTokens.emplace_back(token.first);
+        }
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

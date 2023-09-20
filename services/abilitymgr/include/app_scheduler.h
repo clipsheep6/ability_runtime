@@ -19,18 +19,20 @@
 #include <memory>
 #include <unordered_set>
 
+#include "ability_debug_response_interface.h"
 #include "ability_info.h"
+#include "app_debug_listener_interface.h"
+#include "application_info.h"
 #include "appmgr/app_mgr_client.h"
 #include "appmgr/app_state_callback_host.h"
 #include "appmgr/start_specified_ability_response_stub.h"
-#include "application_info.h"
 #include "bundle_info.h"
 #include "fault_data.h"
 #include "iremote_object.h"
 #include "refbase.h"
+#include "running_process_info.h"
 #include "singleton.h"
 #include "system_memory_attr.h"
-#include "running_process_info.h"
 #include "want.h"
 
 namespace OHOS {
@@ -345,6 +347,48 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t NotifyFault(const AppExecFwk::FaultData &faultData);
+
+    /**
+     * @brief Register app debug listener.
+     * @param listener App debug listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener);
+    
+    /**
+     * @brief Unregister app debug listener.
+     * @param listener App debug listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener);
+    
+    /**
+     * @brief Attach app debug.
+     * @param bundleName The application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t AttachAppDebug(const std::string &bundleName);
+
+    /**
+     * @brief Detach app debug.
+     * @param bundleName The application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t DetachAppDebug(const std::string &bundleName);
+
+    /**
+     * @brief Register ability debug response to set debug mode.
+     * @param bundleName The application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAbilityDebugResponse(const sptr<AppExecFwk::IAbilityDebugResponse> &response);
+
+    /**
+     * @brief Determine whether it is an attachment debug application based on the bundle name.
+     * @param bundleName The application bundle name.
+     * @return Returns true if it is an attach debug application, otherwise it returns false.
+     */
+    bool IsAttachDebug(const std::string &bundleName);
 
 protected:
     /**

@@ -645,6 +645,10 @@ public:
     {
         return isSpawned_.load();
     }
+
+    void SetAttachDebug(const bool &isAttachDebug);
+    bool isAttachDebug() const;
+
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -748,6 +752,7 @@ private:
     std::string moduleName_;
     bool isDebugApp_ = false;
     bool isNativeDebug_ = false;
+    bool isAttachDebug_ = false;
     int64_t startTimeMillis_ = 0;   // The time of app start(CLOCK_MONOTONIC)
     int64_t restartTimeMillis_ = 0; // The time of last trying app restart
 

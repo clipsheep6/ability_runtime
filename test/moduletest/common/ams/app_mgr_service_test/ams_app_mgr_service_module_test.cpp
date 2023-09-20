@@ -93,6 +93,10 @@ public:
     {
         return 0;
     }
+
+    void AttachAppDebug() override {}
+
+    void DetachAppDebug() override {}
 };
 class AppMgrServiceModuleTest : public testing::Test {
 public:

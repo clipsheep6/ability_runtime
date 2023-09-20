@@ -403,6 +403,26 @@ public:
         return 0;
     }
 
+    int32_t RegisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener) override
+    {
+        return 0;
+    }
+
+    int32_t UnregisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener) override
+    {
+        return 0;
+    }
+
+    int32_t AttachAppDebug(const std::string &bundleName) override
+    {
+        return 0;
+    }
+
+    int32_t DetachAppDebug(const std::string &bundleName) override
+    {
+        return 0;
+    }
+
 #ifdef ABILITY_COMMAND_FOR_TEST
     int ForceTimeoutForTest(const std::string& abilityName, const std::string& state) override
     {

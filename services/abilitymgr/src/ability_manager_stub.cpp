@@ -147,6 +147,14 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::MoveMissionToBackgroundInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_MISSION)] =
         &AbilityManagerStub::TerminateMissionInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_APP_DEBUG_LISTENER)] =
+        &AbilityManagerStub::RegisterAppDebugListenerInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_APP_DEBUG_LISTENER)] =
+        &AbilityManagerStub::UnregisterAppDebugListenerInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ATTACH_APP_DEBUG)] =
+        &AbilityManagerStub::AttachAppDebugInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DETACH_APP_DEBUG)] =
+        &AbilityManagerStub::DetachAppDebugInner;
 }
 
 void AbilityManagerStub::SecondStepInit()
@@ -2500,6 +2508,62 @@ int AbilityManagerStub::RegisterSessionHandlerInner(MessageParcel &data, Message
     }
     int32_t result = RegisterSessionHandler(handler);
     reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::RegisterAppDebugListenerInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    auto appDebugLister = iface_cast<AppExecFwk::IAppDebugListener>(data.ReadRemoteObject());
+    if (appDebugLister == nullptr) {
+        HILOG_ERROR("App debug lister is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto result = RegisterAppDebugListener(appDebugLister);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::UnregisterAppDebugListenerInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    auto appDebugLister = iface_cast<AppExecFwk::IAppDebugListener>(data.ReadRemoteObject());
+    if (appDebugLister == nullptr) {
+        HILOG_ERROR("App debug lister is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto result = UnregisterAppDebugListener(appDebugLister);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::AttachAppDebugInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto bundleName = data.ReadString();
+    auto result = AttachAppDebug(bundleName);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::DetachAppDebugInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto bundleName = data.ReadString();
+    auto result = DetachAppDebug(bundleName);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 }  // namespace AAFwk

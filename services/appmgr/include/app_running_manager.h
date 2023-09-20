@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,19 +19,19 @@
 #include <map>
 #include <mutex>
 #include <regex>
-#include "cpp/mutex.h"
 
-#include "iremote_object.h"
-#include "refbase.h"
-
-#include "app_running_record.h"
 #include "ability_info.h"
-#include "application_info.h"
-#include "app_state_data.h"
-#include "record_query_result.h"
-#include "running_process_info.h"
-#include "bundle_info.h"
+#include "app_debug_listener_interface.h"
 #include "app_malloc_info.h"
+#include "app_running_record.h"
+#include "app_state_data.h"
+#include "application_info.h"
+#include "bundle_info.h"
+#include "cpp/mutex.h"
+#include "iremote_object.h"
+#include "record_query_result.h"
+#include "refbase.h"
+#include "running_process_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -209,6 +209,35 @@ public:
     bool IsApplicationBackground(const std::string &bundleName);
     bool IsApplicationFirstFocused(const AppRunningRecord &foregroundingRecord);
     bool IsApplicationUnfocused(const std::string &bundleName);
+
+    /**
+     * @brief Attach app debug.
+     * @param bundleName The application bundle name.
+     */
+    void AttachAppDebug(const std::string &bundleName);
+
+    /**
+     * @brief Detach app debug.
+     * @param bundleName The application bundle name.
+     */
+    void DetachAppDebug(const std::string &bundleName);
+
+    /**
+     * @brief Obtain app information through bundleName.
+     * @param bundleName The application bundle name.
+     * @param debugInfos Specify the stored app information based on bundle name output.
+     * @param isDetachDebug Determine if it is a Detach.
+     */
+    void GetAppDebugInfoByBundleName(
+        const std::string &bundleName, std::vector<AppDebugInfo> &debugInfos, const bool &isDetachDebug);
+
+    /**
+     * @brief Obtain ability token through bundleName.
+     * @param bundleName The application bundle name.
+     * @param abilityTokens Specify the stored ability token based on bundle name output.
+     */
+    void GetAbilityTokensByBundleName(const std::string &bundleName, std::vector<sptr<IRemoteObject>> &abilityTokens);
+ 
 private:
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId);
     void AssignRunningProcessInfoByAppRecord(

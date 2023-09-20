@@ -183,6 +183,9 @@ public:
 
     int32_t NotifyAppFault(const FaultData &faultData);
 
+    int32_t AttachAppDebug();
+    int32_t DetachAppDebug();
+
 private:
     sptr<IAppScheduler> appThread_ = nullptr;
 };
