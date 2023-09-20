@@ -23,8 +23,8 @@
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "istorage_manager.h"
 #include "uri.h"
-#include "uri_bundle_event_callback.h"
 #include "uri_permission_manager_stub.h"
+#include "uri_permission_rdb.h"
 
 namespace OHOS::AAFwk {
 namespace {
@@ -44,14 +44,17 @@ public:
     UriPermissionManagerStubImpl() = default;
     virtual ~UriPermissionManagerStubImpl() = default;
     void Init();
-    void Stop() const;
 
     int GrantUriPermission(const Uri &uri, unsigned int flag,
         const std::string targetBundleName, int autoremove, int32_t appIndex = 0) override;
-
     void RevokeUriPermission(const TokenId tokenId) override;
-    void RevokeAllUriPermissions(uint32_t tokenId);
+    int RevokeAllUriPermissions(uint32_t tokenId) override;
     int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) override;
+
+    bool CheckPersistableUriPermissionProxy(const Uri &uri, uint32_t flag, uint32_t tokenId) override;
+    bool VerifyUriPermission(const Uri &uri, uint32_t flag, uint32_t tokenId) override;
+    
+    uint32_t GetTokenIdByBundleName(const std::string bundleName, int32_t appIndex);
 
 private:
     template<typename T>
@@ -59,7 +62,14 @@ private:
     int32_t GetCurrentAccountId() const;
     int GrantUriPermissionImpl(const Uri &uri, unsigned int flag,
         TokenId fromTokenId, TokenId targetTokenId, int autoremove);
-    uint32_t GetTokenIdByBundleName(const std::string bundleName, int32_t appIndex);
+    int GetUriPermissionFlag(const Uri &uri, unsigned int flag, uint32_t fromTokenId,
+        uint32_t targetTokenId, unsigned int &newFlag);
+    int AddTempUriPermission(const std::string &uri, unsigned int flag, TokenId fromTokenId,
+        TokenId targetTokenId, int autoremove);
+    int DeletTempUriPermission(const std::string &uri, uint32_t flag, uint32_t targetTokenId);
+    int DeletTempUriPermissionAndShareFile(const std::string &uri, uint32_t targetTokenId);
+
+    void InitPersistableUriPermissionConfig();
 
     class ProxyDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
@@ -78,7 +88,8 @@ private:
     sptr<AppExecFwk::IAppMgr> appMgr_ = nullptr;
     sptr<AppExecFwk::IBundleMgr> bundleManager_ = nullptr;
     sptr<StorageManager::IStorageManager> storageManager_ = nullptr;
-    sptr<AppExecFwk::IBundleEventCallback> uriBundleEventCallback_ = nullptr;
+    std::shared_ptr<UriPermissionRdb> uriPermissionRdb_;
+    bool isGrantPersistableUriPermissionEnable_ = false;
 };
 }  // namespace OHOS::AAFwk
 #endif  // OHOS_ABILITY_RUNTIME_URI_PERMISSION_MANAGER_STUB_IMPL_H
