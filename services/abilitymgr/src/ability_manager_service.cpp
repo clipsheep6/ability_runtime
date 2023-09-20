@@ -390,7 +390,6 @@ void AbilityManagerService::OnStop()
             HILOG_ERROR("unsubscribe bgtask failed, err:%{public}d.", ret);
         }
     }
-    bgtaskObserver_.reset();
 #endif
     if (abilityBundleEventCallback_) {
         auto bms = GetBundleManager();
@@ -1669,13 +1668,11 @@ void AbilityManagerService::SubscribeBackgroundTask()
 {
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     std::unique_lock<ffrt::mutex> lock(bgtaskObserverMutex_);
-    if (bgtaskObserver_) {
-        return;
+    if (!bgtaskObserver_) {
+        bgtaskObserver_ = std::make_shared<BackgroundTaskObserver>();
     }
-    bgtaskObserver_ = std::make_shared<BackgroundTaskObserver>();
     int ret = BackgroundTaskMgrHelper::SubscribeBackgroundTask(*bgtaskObserver_);
     if (ret != ERR_OK) {
-        bgtaskObserver_ = nullptr;
         HILOG_ERROR("%{public}s failed, err:%{public}d.", __func__, ret);
         return;
     }
@@ -1691,7 +1688,6 @@ void AbilityManagerService::UnSubscribeBackgroundTask()
     if (!bgtaskObserver_) {
         return;
     }
-    bgtaskObserver_ = nullptr;
     HILOG_INFO("%{public}s success.", __func__);
 #endif
 }
@@ -4442,7 +4438,7 @@ int AbilityManagerService::GenerateAbilityRequest(
             HILOG_ERROR("collaborator: notify broker start ability failed");
             return ERR_COLLABORATOR_NOTIFY_FAILED;
         }
-        
+
         IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(request.want, abilityInfoFlag, userId, request.abilityInfo));
 
         if (request.want.GetBoolParam(KEY_VISIBLE_ID, false) && !request.abilityInfo.visible) {
@@ -6748,7 +6744,7 @@ int AbilityManagerService::SetMissionContinueState(const sptr<IRemoteObject> &to
         HILOG_ERROR("SetMissionContinueState failed to get missionId. State: %{public}d", state);
         return ERR_INVALID_VALUE;
     }
-   
+
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     if (!abilityRecord) {
         HILOG_ERROR("SetMissionContinueState: No such ability record. Mission id: %{public}d, state: %{public}d",
@@ -6771,7 +6767,7 @@ int AbilityManagerService::SetMissionContinueState(const sptr<IRemoteObject> &to
             missionId, state);
         return -1;
     }
- 
+
     auto setResult = missionListManager->SetMissionContinueState(token, missionId, state);
     if (setResult != ERR_OK) {
         HILOG_ERROR("missionListManager set failed, result: %{public}d, mission id: %{public}d, state: %{public}d",
