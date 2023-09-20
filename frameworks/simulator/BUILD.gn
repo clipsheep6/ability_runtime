@@ -167,6 +167,10 @@ ohos_copy("copy_ability_simulator") {
   sources += [ out_path + "/thirdparty/bounds_checking_function/libsec_shared" +
                dylib_suffix ]
 
+  deps += [ "//commonlibrary/ets_utils/js_sys_module/timer:timer" ]
+  out_path = get_label_info("//commonlibrary/ets_utils/js_sys_module/timer:timer", "root_out_dir")
+  sources += [ out_path + "/commonlibrary/ets_utils/libtimer" + dylib_suffix ]
+
   outputs = [ target_out_dir + "/bin/{{source_file_part}}" ]
   module_source_dir = target_out_dir + "/bin"
   module_install_name = ""
