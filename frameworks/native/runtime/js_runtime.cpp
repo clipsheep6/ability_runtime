@@ -43,7 +43,9 @@
 #include "js_utils.h"
 #include "js_worker.h"
 #include "module_checker_delegate.h"
+#include "napi/native_api.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
+#include "native_engine/native_engine.h"
 #include "ohos_js_env_logger.h"
 #include "ohos_js_environment_impl.h"
 #include "parameters.h"
@@ -92,37 +94,42 @@ static auto PermissionCheckFunc = []() {
     }
 };
 
-NativeValue* CanIUse(NativeEngine* engine, NativeCallbackInfo* info)
+napi_value CanIUse(napi_env env, napi_callback_info info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("get syscap failed since engine or callback info is nullptr.");
+    if (env == nullptr || info == nullptr) {
+        HILOG_ERROR("get syscap failed since env or callback info is nullptr.");
         return nullptr;
     }
+    napi_value undefined = CreateJsUndefined(env);
 
-    if (info->argc != 1 || info->argv[0]->TypeOf() != NATIVE_STRING) {
+    size_t argc = 1;
+    napi_value argv[1] = { nullptr };
+    napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
+    if (argc != 1) {
         HILOG_ERROR("Get syscap failed with invalid parameter.");
-        return engine->CreateUndefined();
+        return undefined;
+    }
+
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, argv[0], &valueType);
+    if (valueType != napi_string) {
+        HILOG_INFO("%{public}s called. Params is invalid.", __func__);
+        return undefined;
     }
 
     char syscap[SYSCAP_MAX_SIZE] = { 0 };
 
-    NativeString* str = ConvertNativeValueTo<NativeString>(info->argv[0]);
-    if (str == nullptr) {
-        HILOG_ERROR("Convert to NativeString failed.");
-        return engine->CreateUndefined();
-    }
-    size_t bufferLen = str->GetLength();
     size_t strLen = 0;
-    str->GetCString(syscap, bufferLen + 1, &strLen);
+    napi_get_value_string_utf8(env, argv[0], syscap, sizeof(syscap), &strLen);
 
     bool ret = HasSystemCapability(syscap);
-    return engine->CreateBoolean(ret);
+    return CreateJsValue(env, ret);
 }
 
-void InitSyscapModule(NativeEngine& engine, NativeObject& globalObject)
+void InitSyscapModule(napi_env env, napi_value globalObject)
 {
     const char *moduleName = "JsRuntime";
-    BindNativeFunction(engine, globalObject, "canIUse", moduleName, CanIUse);
+    BindNativeFunction(env, globalObject, "canIUse", moduleName, CanIUse);
 }
 
 int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char* message)
@@ -424,29 +431,49 @@ bool JsRuntime::LoadScript(const std::string& path, uint8_t* buffer, size_t len,
 std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(NativeEngine* engine,
     const std::string& moduleName, NativeValue* const* argv, size_t argc)
 {
-    HILOG_DEBUG("Load system module %{public}s.", moduleName.c_str());
-    if (engine == nullptr) {
-        HILOG_INFO("Invalid engine.");
+    return LoadSystemModuleByEngine(
+        reinterpret_cast<napi_env>(engine), moduleName, reinterpret_cast<const napi_value*>(argv), argc);
+}
+
+std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(
+    napi_env env, const std::string& moduleName, const napi_value* argv, size_t argc)
+{
+    HILOG_DEBUG("JsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
+    if (env == nullptr) {
+        HILOG_INFO("JsRuntime::LoadSystemModule: invalid engine.");
         return std::unique_ptr<NativeReference>();
     }
 
-    NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(engine->GetGlobal());
+    napi_value globalObj = nullptr;
+    napi_get_global(env, &globalObj);
+    napi_value propertyValue = nullptr;
+    napi_get_named_property(env, globalObj, "requireNapi", &propertyValue);
+
     std::unique_ptr<NativeReference> methodRequireNapiRef_;
-    methodRequireNapiRef_.reset(engine->CreateReference(globalObj->GetProperty("requireNapi"), 1));
+    napi_ref tmpRef = nullptr;
+    napi_create_reference(env, propertyValue, 1, &tmpRef);
+    methodRequireNapiRef_.reset(reinterpret_cast<NativeReference*>(tmpRef));
     if (!methodRequireNapiRef_) {
         HILOG_ERROR("Failed to create reference for global.requireNapi");
         return nullptr;
     }
-    NativeValue* className = engine->CreateString(moduleName.c_str(), moduleName.length());
-    NativeValue* classValue =
-        engine->CallFunction(engine->GetGlobal(), methodRequireNapiRef_->Get(), &className, 1);
-    NativeValue* instanceValue = engine->CreateInstance(classValue, argv, argc);
+
+    napi_value className = nullptr;
+    napi_create_string_utf8(env, moduleName.c_str(), moduleName.length(), &className);
+    auto refValue = methodRequireNapiRef_->GetNapiValue();
+    napi_value args[1] = { className };
+    napi_value classValue = nullptr;
+    napi_call_function(env, globalObj, refValue, 1, args, &classValue);
+    napi_value instanceValue = nullptr;
+    napi_new_instance(env, classValue, argc, argv, &instanceValue);
     if (instanceValue == nullptr) {
         HILOG_ERROR("Failed to create object instance");
         return std::unique_ptr<NativeReference>();
     }
 
-    return std::unique_ptr<NativeReference>(engine->CreateReference(instanceValue, 1));
+    napi_ref resultRef = nullptr;
+    napi_create_reference(env, instanceValue, 1, &resultRef);
+    return std::unique_ptr<NativeReference>(reinterpret_cast<NativeReference*>(resultRef));
 }
 
 void JsRuntime::FinishPreload()
@@ -510,7 +537,8 @@ bool JsRuntime::Initialize(const Options& options)
     bool isModular = false;
     if (IsUseAbilityRuntime(options)) {
         HandleScope handleScope(*this);
-        auto nativeEngine = GetNativeEnginePointer();
+        auto env = GetNapiEnv();
+        auto nativeEngine = reinterpret_cast<NativeEngine*>(env);
         CHECK_POINTER_AND_RETURN(nativeEngine, false);
 
         auto vm = GetEcmaVm();
@@ -518,22 +546,40 @@ bool JsRuntime::Initialize(const Options& options)
 
         if (preloaded_) {
             PostPreload(options);
+            panda::RuntimeOption postOption;
+            postOption.SetBundleName(options.bundleName);
+            if (!options.arkNativeFilePath.empty()) {
+                std::string sandBoxAnFilePath = SANDBOX_ARK_CACHE_PATH + options.arkNativeFilePath;
+                postOption.SetAnDir(sandBoxAnFilePath);
+            }
+            bool profileEnabled = OHOS::system::GetBoolParameter("ark.profile", false);
+            postOption.SetEnableProfile(profileEnabled);
+            panda::JSNApi::PostFork(vm, postOption);
+            nativeEngine->ReinitUVLoop();
+            uv_loop_s* loop = nullptr;
+            napi_get_uv_event_loop(env, &loop);
+            panda::JSNApi::SetLoop(vm, loop);
         }
 
-        NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine->GetGlobal());
+        napi_value globalObj = nullptr;
+        napi_get_global(env, &globalObj);
         CHECK_POINTER_AND_RETURN(globalObj, false);
 
         if (!preloaded_) {
-            InitSyscapModule(*nativeEngine, *globalObj);
+            InitSyscapModule(env, globalObj);
 
             // Simple hook function 'isSystemplugin'
             const char* moduleName = "JsRuntime";
-            BindNativeFunction(*nativeEngine, *globalObj, "isSystemplugin", moduleName,
-                [](NativeEngine* engine, NativeCallbackInfo* info) -> NativeValue* {
-                    return engine->CreateUndefined();
+            BindNativeFunction(env, globalObj, "isSystemplugin", moduleName,
+                [](napi_env env, napi_callback_info cbinfo) -> napi_value {
+                    return CreateJsUndefined(env);
                 });
 
-            methodRequireNapiRef_.reset(nativeEngine->CreateReference(globalObj->GetProperty("requireNapi"), 1));
+            napi_value propertyValue = nullptr;
+            napi_get_named_property(env, globalObj, "requireNapi", &propertyValue);
+            napi_ref tmpRef = nullptr;
+            napi_create_reference(env, propertyValue, 1, &tmpRef);
+            methodRequireNapiRef_.reset(reinterpret_cast<NativeReference*>(tmpRef));
             if (!methodRequireNapiRef_) {
                 HILOG_ERROR("Failed to create reference for global.requireNapi");
                 return false;
@@ -709,27 +755,31 @@ void JsRuntime::Deinitialize()
     jsEnv_->DeInitLoop();
 }
 
-NativeValue* JsRuntime::LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk)
+napi_value JsRuntime::LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER_AND_RETURN(nativeEngine, nullptr);
-    NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine->GetGlobal());
-    NativeValue* exports = nativeEngine->CreateObject();
-    globalObj->SetProperty("exports", exports);
+    auto env = GetNapiEnv();
+    CHECK_POINTER_AND_RETURN(env, nullptr);
+    napi_value globalObj = nullptr;
+    napi_get_global(env, &globalObj);
+    napi_value exports = nullptr;
+    napi_create_object(env, &exports);
+    napi_set_named_property(env, globalObj, "exports", exports);
 
     if (!RunScript(path, hapPath, useCommonChunk)) {
         HILOG_ERROR("Failed to run script: %{private}s", path.c_str());
         return nullptr;
     }
 
-    NativeObject* exportsObj = ConvertNativeValueTo<NativeObject>(globalObj->GetProperty("exports"));
+    napi_value exportsObj = nullptr;
+    napi_get_named_property(env, globalObj, "exports", &exportsObj);
     if (exportsObj == nullptr) {
         HILOG_ERROR("Failed to get exports objcect: %{private}s", path.c_str());
         return nullptr;
     }
 
-    NativeValue* exportObj = exportsObj->GetProperty("default");
+    napi_value exportObj = nullptr;
+    napi_get_named_property(env, exportsObj, "default", &exportObj);
     if (exportObj == nullptr) {
         HILOG_ERROR("Failed to get default objcect: %{private}s", path.c_str());
         return nullptr;
@@ -738,7 +788,7 @@ NativeValue* JsRuntime::LoadJsBundle(const std::string& path, const std::string&
     return exportObj;
 }
 
-NativeValue* JsRuntime::LoadJsModule(const std::string& path, const std::string& hapPath)
+napi_value JsRuntime::LoadJsModule(const std::string& path, const std::string& hapPath)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (!RunScript(path, hapPath, false)) {
@@ -756,7 +806,8 @@ NativeValue* JsRuntime::LoadJsModule(const std::string& path, const std::string&
 
     auto nativeEngine = GetNativeEnginePointer();
     CHECK_POINTER_AND_RETURN(nativeEngine, nullptr);
-    return ArkNativeEngine::ArkValueToNativeValue(static_cast<ArkNativeEngine*>(nativeEngine), exportObj);
+    auto nativeValue = ArkNativeEngine::ArkValueToNativeValue(static_cast<ArkNativeEngine*>(nativeEngine), exportObj);
+    return reinterpret_cast<napi_value>(nativeValue);
 }
 
 std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& moduleName, const std::string& modulePath,
@@ -765,8 +816,8 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& module
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Load module(%{public}s, %{private}s, %{private}s, %{public}s)",
         moduleName.c_str(), modulePath.c_str(), hapPath.c_str(), esmodule ? "true" : "false");
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER_AND_RETURN(nativeEngine, std::unique_ptr<NativeReference>());
+    auto env = GetNapiEnv();
+    CHECK_POINTER_AND_RETURN(env, std::unique_ptr<NativeReference>());
 
     HandleScope handleScope(*this);
 
@@ -777,11 +828,11 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& module
         moduleName_ = path;
     }
 
-    NativeValue* classValue = nullptr;
+    napi_value classValue = nullptr;
 
     auto it = modules_.find(modulePath);
     if (it != modules_.end()) {
-        classValue = it->second->Get();
+        classValue = it->second->GetNapiValue();
     } else {
         std::string fileName;
         if (!hapPath.empty()) {
@@ -799,37 +850,56 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& module
             return std::unique_ptr<NativeReference>();
         }
 
-        modules_.emplace(modulePath, nativeEngine->CreateReference(classValue, 1));
+        napi_ref tmpRef = nullptr;
+        napi_create_reference(env, classValue, 1, &tmpRef);
+        modules_.emplace(modulePath, reinterpret_cast<NativeReference*>(tmpRef));
     }
 
-    NativeValue* instanceValue = nativeEngine->CreateInstance(classValue, nullptr, 0);
+    napi_value instanceValue = nullptr;
+    napi_new_instance(env, classValue, 0, nullptr, &instanceValue);
     if (instanceValue == nullptr) {
         HILOG_ERROR("Failed to create object instance");
         return std::unique_ptr<NativeReference>();
     }
 
-    return std::unique_ptr<NativeReference>(nativeEngine->CreateReference(instanceValue, 1));
+    napi_ref resultRef = nullptr;
+    napi_create_reference(env, instanceValue, 1, &resultRef);
+    return std::unique_ptr<NativeReference>(reinterpret_cast<NativeReference*>(resultRef));
 }
 
 std::unique_ptr<NativeReference> JsRuntime::LoadSystemModule(
     const std::string& moduleName, NativeValue* const* argv, size_t argc)
 {
+    return LoadSystemModule(moduleName, reinterpret_cast<const napi_value*>(argv), argc);
+}
+
+std::unique_ptr<NativeReference> JsRuntime::LoadSystemModule(
+    const std::string& moduleName, const napi_value* argv, size_t argc)
+{
     HILOG_INFO("JsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER_AND_RETURN(nativeEngine, std::unique_ptr<NativeReference>());
+    napi_env env = GetNapiEnv();
+    CHECK_POINTER_AND_RETURN(env, std::unique_ptr<NativeReference>());
 
     HandleScope handleScope(*this);
 
-    NativeValue* className = nativeEngine->CreateString(moduleName.c_str(), moduleName.length());
-    NativeValue* classValue =
-        nativeEngine->CallFunction(nativeEngine->GetGlobal(), methodRequireNapiRef_->Get(), &className, 1);
-    NativeValue* instanceValue = nativeEngine->CreateInstance(classValue, argv, argc);
+    napi_value className = nullptr;
+    napi_create_string_utf8(env, moduleName.c_str(), moduleName.length(), &className);
+    napi_value globalObj = nullptr;
+    napi_get_global(env, &globalObj);
+    napi_value refValue = methodRequireNapiRef_->GetNapiValue();
+    napi_value args[1] = { className };
+    napi_value classValue = nullptr;
+    napi_call_function(env, globalObj, refValue, 1, args, &classValue);
+    napi_value instanceValue = nullptr;
+    napi_new_instance(env, classValue, argc, argv, &instanceValue);
     if (instanceValue == nullptr) {
         HILOG_ERROR("Failed to create object instance");
         return std::unique_ptr<NativeReference>();
     }
 
-    return std::unique_ptr<NativeReference>(nativeEngine->CreateReference(instanceValue, 1));
+    napi_ref resultRef = nullptr;
+    napi_create_reference(env, instanceValue, 1, &resultRef);
+    return std::unique_ptr<NativeReference>(reinterpret_cast<NativeReference*>(resultRef));
 }
 
 bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath, bool useCommonChunk)
@@ -995,15 +1065,25 @@ void JsRuntime::ResumeVM(uint32_t tid)
 void JsRuntime::PreloadSystemModule(const std::string& moduleName)
 {
     HandleScope handleScope(*this);
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER(nativeEngine);
-    NativeValue* className = nativeEngine->CreateString(moduleName.c_str(), moduleName.length());
-    nativeEngine->CallFunction(nativeEngine->GetGlobal(), methodRequireNapiRef_->Get(), &className, 1);
+    auto env = GetNapiEnv();
+    CHECK_POINTER(env);
+    napi_value className = nullptr;
+    napi_create_string_utf8(env, moduleName.c_str(), moduleName.length(), &className);
+    napi_value globalObj = nullptr;
+    napi_get_global(env, &globalObj);
+    napi_value refValue = methodRequireNapiRef_->GetNapiValue();
+    napi_value args[1] = { className };
+    napi_call_function(env, globalObj, refValue, 1, args, nullptr);
 }
 
 NativeEngine& JsRuntime::GetNativeEngine() const
 {
     return *GetNativeEnginePointer();
+}
+
+napi_env JsRuntime::GetNapiEnv() const
+{
+    return reinterpret_cast<napi_env>(GetNativeEnginePointer());
 }
 
 NativeEngine* JsRuntime::GetNativeEnginePointer() const

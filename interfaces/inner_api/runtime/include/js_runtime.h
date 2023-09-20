@@ -69,14 +69,13 @@ public:
     ~JsRuntime() override;
 
     NativeEngine& GetNativeEngine() const;
+    napi_env GetNapiEnv() const;
 
     Language GetLanguage() const override
     {
         return Language::JS;
     }
 
-    std::unique_ptr<NativeReference> LoadModule(const std::string& moduleName, const std::string& modulePath,
-        const std::string& hapPath, bool esmodule = false, bool useCommonChunk = false);
     std::unique_ptr<NativeReference> LoadSystemModule(
         const std::string& moduleName, NativeValue* const* argv = nullptr, size_t argc = 0);
     void PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime);
@@ -119,15 +118,23 @@ public:
     void DoCleanWorkAfterStageCleaned() override;
     void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate) const override;
 
+    static std::unique_ptr<NativeReference> LoadSystemModuleByEngine(napi_env env,
+        const std::string& moduleName, const napi_value* argv, size_t argc);
+    std::unique_ptr<NativeReference> LoadModule(const std::string& moduleName, const std::string& modulePath,
+        const std::string& hapPath, bool esmodule = false, bool useCommonChunk = false);
+    std::unique_ptr<NativeReference> LoadSystemModule(
+        const std::string& moduleName, const napi_value* argv = nullptr, size_t argc = 0);
+
 private:
     void FinishPreload() override;
 
     bool Initialize(const Options& options);
     void Deinitialize();
 
-    NativeValue* LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk = false);
-    NativeValue* LoadJsModule(const std::string& path, const std::string& hapPath);
     int32_t JsperfProfilerCommandParse(const std::string &command, int32_t defaultValue);
+
+    napi_value LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk = false);
+    napi_value LoadJsModule(const std::string& path, const std::string& hapPath);
 
     bool debugMode_ = false;
     bool preloaded_ = false;
