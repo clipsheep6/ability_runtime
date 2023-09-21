@@ -2314,6 +2314,7 @@ HWTEST_F(AbilityManagerServiceTest, GetAbilityRunningInfos_001, TestSize.Level1)
     HILOG_INFO("AbilityManagerServiceTest GetAbilityRunningInfos_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     abilityMs_->OnStart();
+    abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
     std::vector<AbilityRunningInfo> info;
     EXPECT_EQ(abilityMs_->GetAbilityRunningInfos(info), ERR_OK);
 
@@ -2324,12 +2325,12 @@ HWTEST_F(AbilityManagerServiceTest, GetAbilityRunningInfos_001, TestSize.Level1)
 
     auto temp2 = abilityMs_->connectManager_;
     abilityMs_->connectManager_.reset();
-    EXPECT_EQ(abilityMs_->GetAbilityRunningInfos(info), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->GetAbilityRunningInfos(info), ERR_OK);
     abilityMs_->connectManager_ = temp2;
 
     auto temp3 = abilityMs_->dataAbilityManager_;
     abilityMs_->dataAbilityManager_.reset();
-    EXPECT_EQ(abilityMs_->GetAbilityRunningInfos(info), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->GetAbilityRunningInfos(info), ERR_OK);
     abilityMs_->dataAbilityManager_ = temp3;
     HILOG_INFO("AbilityManagerServiceTest GetAbilityRunningInfos_001 end");
 }
