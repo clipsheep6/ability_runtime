@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,17 +15,17 @@
 
 #include "ams_mgr_stub.h"
 
-#include "ipc_skeleton.h"
-#include "ipc_types.h"
-#include "iremote_object.h"
-
 #include "ability_info.h"
+#include "app_debug_listener_interface.h"
 #include "app_mgr_proxy.h"
 #include "app_scheduler_interface.h"
 #include "appexecfwk_errors.h"
-#include "hitrace_meter.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "iapp_state_callback.h"
+#include "ipc_skeleton.h"
+#include "ipc_types.h"
+#include "iremote_object.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -75,11 +75,28 @@ AmsMgrStub::AmsMgrStub()
         &AmsMgrStub::HandleSetCurrentUserId;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::Get_BUNDLE_NAME_BY_PID)] =
         &AmsMgrStub::HandleGetBundleNameByPid;
+    CreateMemberFuncMap();
 }
 
 AmsMgrStub::~AmsMgrStub()
 {
     memberFuncMap_.clear();
+}
+
+void AmsMgrStub::CreateMemberFuncMap()
+{
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::REGISTER_APP_DEBUG_LISTENER)] =
+        &AmsMgrStub::HandleRegisterAppDebugListener;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::UNREGISTER_APP_DEBUG_LISTENER)] =
+        &AmsMgrStub::HandleUnregisterAppDebugListener;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::ATTACH_APP_DEBUG)] =
+        &AmsMgrStub::HandleAttachAppDebug;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::DETACH_APP_DEBUG)] =
+        &AmsMgrStub::HandleDetachAppDebug;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::REGISTER_ABILITY_DEBUG_RESPONSE)] =
+        &AmsMgrStub::HandleRegisterAbilityDebugResponse;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::IS_ATTACH_DEBUG)] =
+        &AmsMgrStub::HandleIsAttachDebug;
 }
 
 int AmsMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -382,6 +399,108 @@ int32_t AmsMgrStub::HandleGetBundleNameByPid(MessageParcel &data, MessageParcel 
 
     reply.WriteString(bundleName);
     reply.WriteInt32(uid);
+    return NO_ERROR;
+}
+
+int32_t AmsMgrStub::HandleRegisterAppDebugListener(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    auto appDebugLister = iface_cast<IAppDebugListener>(data.ReadRemoteObject());
+    if (appDebugLister == nullptr) {
+        HILOG_ERROR("App debug lister is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto result = RegisterAppDebugListener(appDebugLister);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AmsMgrStub::HandleUnregisterAppDebugListener(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    auto appDebugLister = iface_cast<IAppDebugListener>(data.ReadRemoteObject());
+    if (appDebugLister == nullptr) {
+        HILOG_ERROR("App debug lister is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto result = UnregisterAppDebugListener(appDebugLister);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AmsMgrStub::HandleAttachAppDebug(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    auto bundleName = data.ReadString();
+    if (bundleName.empty()) {
+        HILOG_ERROR("Bundle name is empty.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto result = AttachAppDebug(bundleName);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AmsMgrStub::HandleDetachAppDebug(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    auto bundleName = data.ReadString();
+    if (bundleName.empty()) {
+        HILOG_ERROR("Bundle name is empty.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto result = DetachAppDebug(bundleName);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AmsMgrStub::HandleRegisterAbilityDebugResponse(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    auto response = iface_cast<IAbilityDebugResponse>(data.ReadRemoteObject());
+    if (response == nullptr) {
+        HILOG_ERROR("Response is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto result = RegisterAbilityDebugResponse(response);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AmsMgrStub::HandleIsAttachDebug(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    auto bundleName = data.ReadString();
+    if (bundleName.empty()) {
+        HILOG_ERROR("Bundle name is empty.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto result = IsAttachDebug(bundleName);
+    if (!reply.WriteBool(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -763,5 +763,191 @@ int32_t AmsMgrProxy::GetBundleNameByPid(const int pid, std::string &bundleName, 
     uid = reply.ReadInt32();
     return NO_ERROR;
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
+
+int32_t AmsMgrProxy::RegisterAppDebugListener(const sptr<IAppDebugListener> &listener)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (listener == nullptr || !data.WriteRemoteObject(listener->AsObject())) {
+        HILOG_ERROR("Write listener failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    auto ret = remote->SendRequest(static_cast<uint32_t>(IAmsMgr::Message::REGISTER_APP_DEBUG_LISTENER),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed, err: %{public}d", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t AmsMgrProxy::UnregisterAppDebugListener(const sptr<IAppDebugListener> &listener)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (listener == nullptr || !data.WriteRemoteObject(listener->AsObject())) {
+        HILOG_ERROR("Write listener failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    auto ret = remote->SendRequest(static_cast<uint32_t>(IAmsMgr::Message::UNREGISTER_APP_DEBUG_LISTENER),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed, err: %{public}d", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t AmsMgrProxy::AttachAppDebug(const std::string &bundleName)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (bundleName.empty() || !data.WriteString(bundleName)) {
+        HILOG_ERROR("Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    auto ret = remote->SendRequest(static_cast<uint32_t>(IAmsMgr::Message::ATTACH_APP_DEBUG),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed, err: %{public}d", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t AmsMgrProxy::DetachAppDebug(const std::string &bundleName)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (bundleName.empty() || !data.WriteString(bundleName)) {
+        HILOG_ERROR("Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    auto ret = remote->SendRequest(static_cast<uint32_t>(IAmsMgr::Message::DETACH_APP_DEBUG),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed, err: %{public}d", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t AmsMgrProxy::RegisterAbilityDebugResponse(const sptr<IAbilityDebugResponse> &response)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+    
+    if (response == nullptr || !data.WriteRemoteObject(response->AsObject())) {
+        HILOG_ERROR("Failed to write remote object.");
+        return ERR_INVALID_DATA;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    int32_t ret = remote->SendRequest(
+        static_cast<uint32_t>(IAmsMgr::Message::REGISTER_ABILITY_DEBUG_RESPONSE), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("SendRequest is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
+
+bool AmsMgrProxy::IsAttachDebug(const std::string &bundleName)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return false;
+    }
+
+    if (bundleName.empty() || !data.WriteString(bundleName)) {
+        HILOG_ERROR("Write bundle name failed.");
+        return false;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return false;
+    }
+
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    auto ret = remote->SendRequest(static_cast<uint32_t>(IAmsMgr::Message::IS_ATTACH_DEBUG),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed, err: %{public}d", ret);
+        return false;
+    }
+    return reply.ReadBool();
+}
+} // namespace AppExecFwk
+} // namespace OHOS

@@ -748,5 +748,74 @@ int32_t AppMgrClient::OnGcStateChange(pid_t pid, int32_t state)
     }
     return service->OnGcStateChange(pid, state);
 }
+
+int32_t AppMgrClient::RegisterAppDebugListener(const sptr<IAppDebugListener> &listener)
+{
+    if (!IsAmsServiceReady()) {
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return amsService_->RegisterAppDebugListener(listener);
+}
+
+int32_t AppMgrClient::UnregisterAppDebugListener(const sptr<IAppDebugListener> &listener)
+{
+    if (!IsAmsServiceReady()) {
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return amsService_->UnregisterAppDebugListener(listener);
+}
+
+int32_t AppMgrClient::AttachAppDebug(const std::string &bundleName)
+{
+    if (!IsAmsServiceReady()) {
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return amsService_->AttachAppDebug(bundleName);
+}
+
+int32_t AppMgrClient::DetachAppDebug(const std::string &bundleName)
+{
+    if (!IsAmsServiceReady()) {
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return amsService_->DetachAppDebug(bundleName);
+}
+
+int32_t AppMgrClient::RegisterAbilityDebugResponse(const sptr<IAbilityDebugResponse> &response)
+{
+    if (!IsAmsServiceReady()) {
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return amsService_->RegisterAbilityDebugResponse(response);
+}
+
+bool AppMgrClient::IsAttachDebug(const std::string &bundleName)
+{
+    if (!IsAmsServiceReady()) {
+        return false;
+    }
+    return amsService_->IsAttachDebug(bundleName);
+}
+
+bool AppMgrClient::IsAmsServiceReady()
+{
+    if (mgrHolder_ == nullptr) {
+        HILOG_ERROR("mgrHolder_ is nullptr.");
+        return false;
+    }
+
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        HILOG_ERROR("App manager service is nullptr.");
+        return false;
+    }
+
+    amsService_ = service->GetAmsMgr();
+    if (amsService_ == nullptr) {
+        HILOG_ERROR("amsService_ is nullptr.");
+        return false;
+    }
+    return true;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
