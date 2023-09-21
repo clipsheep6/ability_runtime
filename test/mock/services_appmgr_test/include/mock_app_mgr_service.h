@@ -171,6 +171,11 @@ public:
 
     int code_;
 
+    virtual int32_t OnGcStateChange(pid_t pid, int32_t state)
+    {
+        return 0;
+    }
+
 private:
     Semaphore sem_;
     std::string data_;

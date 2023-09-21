@@ -1371,5 +1371,37 @@ int32_t AppMgrProxy::GetRunningProcessInformation(
     int result = reply.ReadInt32();
     return result;
 }
+
+int32_t AppMgrProxy::OnGcStateChange(pid_t pid, int32_t state)
+{
+    HILOG_DEBUG("called.");
+    MessageParcel data;
+    MessageParcel reply;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!data.WriteInt32(pid)) {
+        HILOG_ERROR("Pid write failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteInt32(state)) {
+        HILOG_ERROR("State write failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return ERR_NULL_OBJECT;
+    }
+    int32_t ret = remote->SendRequest(
+        static_cast<uint32_t>(AppMgrInterfaceCode::APP_ON_GC_STATE_CHANGE), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    return NO_ERROR;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

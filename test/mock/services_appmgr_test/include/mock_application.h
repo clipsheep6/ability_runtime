@@ -111,6 +111,11 @@ public:
         return (profile.GetName() == profile_.GetName());
     }
 
+    int32_t ScheduleOnGcStateChange(int32_t state) override
+    {
+        return 0;
+    }
+
 private:
     Semaphore lock_;
     volatile int shrinkLevel_ = 0;

@@ -77,6 +77,12 @@ public:
         state_ = APP_STATE_TERMINATED;
     }
 
+    virtual int32_t ScheduleOnGcStateChange(int32_t state)
+    {
+        GTEST_LOG_(INFO) << "MockApplication::ScheduleOnGcStateChange called";
+        return 0;
+    }
+
     int state_ = APP_STATE_CREATE;
     bool onMemoryLevelCalled_ = false;
     bool onConfigurationUpdatedCalled_ = false;

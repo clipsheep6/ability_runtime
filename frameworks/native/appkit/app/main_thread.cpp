@@ -2661,5 +2661,44 @@ std::vector<std::string> MainThread::GetRemoveOverlayPaths(const std::vector<Ove
 
     return removePaths;
 }
+
+
+int32_t MainThread::ScheduleOnGcStateChange(int32_t state)
+{
+    HILOG_DEBUG("called.");
+    if (mainHandler_ == nullptr) {
+        HILOG_ERROR("mainHandler is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    wptr<MainThread> weak = this;
+    auto task = [weak, state] {
+        auto appThread = weak.promote();
+        if (appThread == nullptr) {
+            HILOG_ERROR("appThread is nullptr, OnGcStateChange failed.");
+            return;
+        }
+        appThread->OnGcStateChange(state);
+    };
+    mainHandler_->PostTask(task);
+    return NO_ERROR;
+}
+        
+int32_t MainThread::OnGcStateChange(int32_t state)
+{
+    HILOG_DEBUG("called.");
+    if (application_ == nullptr) {
+        HILOG_ERROR("application_ is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    auto &runtime = application_->GetRuntime();
+    if (runtime == nullptr) {
+        HILOG_ERROR("runtime is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    auto& nativeEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEngine();
+    nativeEngine.NotifyForceExpandState(state);
+    return NO_ERROR;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

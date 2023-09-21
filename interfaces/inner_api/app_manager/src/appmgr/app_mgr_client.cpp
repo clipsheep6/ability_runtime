@@ -736,5 +736,17 @@ int32_t AppMgrClient::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
     }
     return service->NotifyAppFaultBySA(faultData);
 }
+
+int32_t AppMgrClient::OnGcStateChange(pid_t pid, int32_t state)
+{
+    if (mgrHolder_ == nullptr) {
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return service->OnGcStateChange(pid, state);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

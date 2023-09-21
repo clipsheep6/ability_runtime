@@ -229,5 +229,15 @@ int32_t AppLifeCycleDeal::NotifyAppFault(const FaultData &faultData)
     }
     return appThread_->ScheduleNotifyAppFault(faultData);
 }
+
+int32_t AppLifeCycleDeal::OnGcStateChange(int32_t state)
+{
+    HILOG_DEBUG("called.");
+    if (appThread_ == nullptr) {
+        HILOG_ERROR("appThread_ is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    return appThread_->ScheduleOnGcStateChange(state);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

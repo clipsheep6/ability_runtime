@@ -128,6 +128,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleGetProcessMemoryByPid;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::GET_PIDS_BY_BUNDLENAME)] =
         &AppMgrStub::HandleGetRunningProcessInformation;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_ON_GC_STATE_CHANGE)] =
+            &AppMgrStub::HandleOnGcStateChange;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -775,6 +777,16 @@ int32_t AppMgrStub::HandleGetRunningProcessInformation(MessageParcel &data, Mess
         HILOG_ERROR("fail to write result.");
         return ERR_INVALID_VALUE;
     }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleOnGcStateChange(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    int32_t pid = data.ReadInt32();
+    int32_t state = data.ReadInt32();
+    int32_t ret = OnGcStateChange(pid, state);
+    reply.WriteInt32(ret);
     return NO_ERROR;
 }
 }  // namespace AppExecFwk
