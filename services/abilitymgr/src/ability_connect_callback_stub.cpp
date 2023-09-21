@@ -36,7 +36,6 @@ void AbilityConnectionProxy::OnAbilityConnectDone(
     const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
     HILOG_DEBUG("OnAbilityConnectDone resultCode: %{public}d", resultCode);
-    int error;
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
@@ -61,9 +60,8 @@ void AbilityConnectionProxy::OnAbilityConnectDone(
         return;
     }
 
-    error = Remote()->SendRequest(IAbilityConnection::ON_ABILITY_CONNECT_DONE, data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("Connect done fail, error: %{public}d", error);
+    if (!SendRequest(IAbilityConnection::ON_ABILITY_CONNECT_DONE, data, reply, option)) {
+        HILOG_ERROR("SendRequest failed");
         return;
     }
 }
@@ -71,7 +69,6 @@ void AbilityConnectionProxy::OnAbilityConnectDone(
 void AbilityConnectionProxy::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
 {
     HILOG_DEBUG("OnAbilityDisconnectDone resultCode: %{public}d", resultCode);
-    int error;
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
@@ -85,9 +82,8 @@ void AbilityConnectionProxy::OnAbilityDisconnectDone(const AppExecFwk::ElementNa
         return;
     }
 
-    error = Remote()->SendRequest(IAbilityConnection::ON_ABILITY_DISCONNECT_DONE, data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("Disconnect done fail, error: %d", error);
+    if (!SendRequest(IAbilityConnection::ON_ABILITY_DISCONNECT_DONE, data, reply, option)) {
+        HILOG_ERROR("SendRequest failed");
         return;
     }
 }
@@ -160,6 +156,23 @@ void AbilityConnectCallbackRecipient::OnRemoteDied(const wptr<IRemoteObject> &__
     if (handler_) {
         handler_(remote);
     }
+}
+
+bool AbilityConnectionProxy::SendRequest(uint32_t code, MessageParcel &data,
+                                                  MessageParcel &reply, MessageOption &option)
+{
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote object is nullptr.");
+        return false;
+    }
+
+    int32_t ret = remote->SendRequest(code, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
+        return false;
+    }
+    return true;
 }
 
 AbilityConnectCallbackRecipient::AbilityConnectCallbackRecipient(RemoteDiedHandler handler) : handler_(handler)

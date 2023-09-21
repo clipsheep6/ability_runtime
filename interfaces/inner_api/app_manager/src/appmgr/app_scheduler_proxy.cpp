@@ -42,18 +42,11 @@ void AppSchedulerProxy::ScheduleForegroundApplication()
     if (!WriteInterfaceToken(data)) {
         return;
     }
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
+
+    IAppScheduler::Message code(IAppScheduler::Message::SCHEDULE_FOREGROUND_APPLICATION_TRANSACTION);
+    if (SendRequest(code, data, reply, option) != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed");
         return;
-    }
-    int32_t ret =
-        remote->SendRequest(static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_FOREGROUND_APPLICATION_TRANSACTION),
-            data,
-            reply,
-            option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -65,18 +58,11 @@ void AppSchedulerProxy::ScheduleBackgroundApplication()
     if (!WriteInterfaceToken(data)) {
         return;
     }
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
+
+    IAppScheduler::Message code(IAppScheduler::Message::SCHEDULE_BACKGROUND_APPLICATION_TRANSACTION);
+    if (SendRequest(code, data, reply, option) != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed");
         return;
-    }
-    int32_t ret =
-        remote->SendRequest(static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_BACKGROUND_APPLICATION_TRANSACTION),
-            data,
-            reply,
-            option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -88,15 +74,11 @@ void AppSchedulerProxy::ScheduleTerminateApplication()
     if (!WriteInterfaceToken(data)) {
         return;
     }
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
+
+    IAppScheduler::Message code(IAppScheduler::Message::SCHEDULE_TERMINATE_APPLICATION_TRANSACTION);
+    if (SendRequest(code, data, reply, option) != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed");
         return;
-    }
-    int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_TERMINATE_APPLICATION_TRANSACTION), data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -108,27 +90,21 @@ void AppSchedulerProxy::ScheduleLowMemory()
     if (!WriteInterfaceToken(data)) {
         return;
     }
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
+
+    IAppScheduler::Message code(IAppScheduler::Message::SCHEDULE_LOWMEMORY_APPLICATION_TRANSACTION);
+    if (SendRequest(code, data, reply, option) != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed");
         return;
-    }
-    int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_LOWMEMORY_APPLICATION_TRANSACTION), data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
 void AppSchedulerProxy::ScheduleMemoryLevel(int32_t level)
 {
-    uint32_t operation = static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_MEMORYLEVEL_APPLICATION_TRANSACTION);
-    ScheduleMemoryCommon(level, operation);
+    ScheduleMemoryCommon(IAppScheduler::Message::SCHEDULE_MEMORYLEVEL_APPLICATION_TRANSACTION, level);
 }
 
 void AppSchedulerProxy::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
 {
-    uint32_t operation = static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_HEAPMEMORY_APPLICATION_TRANSACTION);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
@@ -137,14 +113,9 @@ void AppSchedulerProxy::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::
         return;
     }
     data.WriteInt32(pid);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return;
-    }
-    int32_t ret = remote->SendRequest(operation, data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_ERROR("SendRequest is failed, error code: %{public}d", ret);
+    IAppScheduler::Message code(IAppScheduler::Message::SCHEDULE_HEAPMEMORY_APPLICATION_TRANSACTION);
+    if (SendRequest(code, data, reply, option) != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed");
         return;
     }
 
@@ -158,11 +129,10 @@ void AppSchedulerProxy::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::
 
 void AppSchedulerProxy::ScheduleShrinkMemory(const int32_t level)
 {
-    uint32_t operation = static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_SHRINK_MEMORY_APPLICATION_TRANSACTION);
-    ScheduleMemoryCommon(level, operation);
+    ScheduleMemoryCommon(IAppScheduler::Message::SCHEDULE_SHRINK_MEMORY_APPLICATION_TRANSACTION, level);
 }
 
-void AppSchedulerProxy::ScheduleMemoryCommon(const int32_t level, const uint32_t operation)
+void AppSchedulerProxy::ScheduleMemoryCommon(IAppScheduler::Message code, const int32_t level)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -171,14 +141,9 @@ void AppSchedulerProxy::ScheduleMemoryCommon(const int32_t level, const uint32_t
         return;
     }
     data.WriteInt32(level);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
+    if (SendRequest(code, data, reply, option) != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed");
         return;
-    }
-    int32_t ret = remote->SendRequest(operation, data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -209,15 +174,11 @@ void AppSchedulerProxy::ScheduleLaunchAbility(const AbilityInfo &info, const spt
         HILOG_ERROR("write want fail.");
         return;
     }
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
+
+    IAppScheduler::Message code(IAppScheduler::Message::SCHEDULE_LAUNCH_ABILITY_TRANSACTION);
+    if (SendRequest(code, data, reply, option) != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed");
         return;
-    }
-    int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_LAUNCH_ABILITY_TRANSACTION), data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -233,15 +194,10 @@ void AppSchedulerProxy::ScheduleCleanAbility(const sptr<IRemoteObject> &token)
         HILOG_ERROR("Failed to write token");
         return;
     }
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
+    IAppScheduler::Message code(IAppScheduler::Message::SCHEDULE_CLEAN_ABILITY_TRANSACTION);
+    if (SendRequest(code, data, reply, option) != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed");
         return;
-    }
-    int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_CLEAN_ABILITY_TRANSACTION), data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -265,15 +221,10 @@ void AppSchedulerProxy::ScheduleLaunchApplication(const AppLaunchData &launchDat
         return ;
     }
 
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
+    IAppScheduler::Message code(IAppScheduler::Message::SCHEDULE_LAUNCH_APPLICATION_TRANSACTION);
+    if (SendRequest(code, data, reply, option) != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed");
         return;
-    }
-    int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_LAUNCH_APPLICATION_TRANSACTION), data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -287,17 +238,12 @@ void AppSchedulerProxy::ScheduleUpdateApplicationInfoInstalled(const Application
     if (!data.WriteParcelable(&appInfo)) {
         return ;
     }
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return;
-    }
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
-    int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_UPDATE_APPLICATION_INFO_INSTALLED), data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+    IAppScheduler::Message code(IAppScheduler::Message::SCHEDULE_UPDATE_APPLICATION_INFO_INSTALLED);
+    if (SendRequest(code, data, reply, option) != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed");
+        return;
     }
     HILOG_INFO("AppSchedulerProxy ScheduleUpdateApplicationInfoInstalled end");
 }
@@ -331,18 +277,11 @@ void AppSchedulerProxy::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
         return ;
     }
 
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return;
-    }
-
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
-    int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ABILITY_STAGE_INFO), data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+    if (SendRequest(IAppScheduler::Message::SCHEDULE_ABILITY_STAGE_INFO, data, reply, option) != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed");
+        return;
     }
     HILOG_INFO("AppSchedulerProxy ScheduleAbilityStage end");
 }
@@ -356,15 +295,10 @@ void AppSchedulerProxy::ScheduleProfileChanged(const Profile &profile)
         return;
     }
     data.WriteParcelable(&profile);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
+    IAppScheduler::Message code(IAppScheduler::Message::SCHEDULE_PROFILE_CHANGED_TRANSACTION);
+    if (SendRequest(code, data, reply, option) != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed");
         return;
-    }
-    int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_PROFILE_CHANGED_TRANSACTION), data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -377,15 +311,9 @@ void AppSchedulerProxy::ScheduleConfigurationUpdated(const Configuration &config
         return;
     }
     data.WriteParcelable(&config);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
+    if (SendRequest(IAppScheduler::Message::SCHEDULE_CONFIGURATION_UPDATED, data, reply, option) != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed");
         return;
-    }
-    int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_CONFIGURATION_UPDATED), data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -397,15 +325,10 @@ void AppSchedulerProxy::ScheduleProcessSecurityExit()
     if (!WriteInterfaceToken(data)) {
         return;
     }
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
+    IAppScheduler::Message code(IAppScheduler::Message::SCHEDULE_PROCESS_SECURITY_EXIT_TRANSACTION);
+    if (SendRequest(code, data, reply, option) != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed");
         return;
-    }
-    int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_PROCESS_SECURITY_EXIT_TRANSACTION), data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -421,15 +344,10 @@ void AppSchedulerProxy::ScheduleAcceptWant(const AAFwk::Want &want, const std::s
     if (!data.WriteParcelable(&want) || !data.WriteString(moduleName)) {
         return;
     }
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
+
+    if (!SendRequest(IAppScheduler::Message::SCHEDULE_ACCEPT_WANT, data, reply, option)) {
+        HILOG_ERROR("SendRequest failed");
         return;
-    }
-    int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ACCEPT_WANT), data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -458,18 +376,11 @@ int32_t AppSchedulerProxy::ScheduleNotifyLoadRepairPatch(const std::string &bund
         return ERR_INVALID_DATA;
     }
 
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("ScheduleNotifyLoadRepairPatch, Remote is nullptr");
-        return ERR_NULL_OBJECT;
-    }
-
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = remote->SendRequest(static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_LOAD_REPAIR_PATCH),
-        data, reply, option);
-    if (ret != 0) {
-        HILOG_ERROR("ScheduleNotifyLoadRepairPatch, Send request failed with errno %{public}d.", ret);
+    int32_t ret = SendRequest(IAppScheduler::Message::SCHEDULE_NOTIFY_LOAD_REPAIR_PATCH, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed");
         return ret;
     }
 
@@ -495,18 +406,11 @@ int32_t AppSchedulerProxy::ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallb
         return ERR_INVALID_DATA;
     }
 
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr");
-        return ERR_NULL_OBJECT;
-    }
-
     MessageParcel reply;
     MessageOption option;
-    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_HOT_RELOAD_PAGE),
-        data, reply, option);
-    if (ret != 0) {
-        HILOG_ERROR("Send request failed with errno %{public}d.", ret);
+    int32_t ret = SendRequest(IAppScheduler::Message::SCHEDULE_NOTIFY_HOT_RELOAD_PAGE, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed");
         return ret;
     }
 
@@ -538,18 +442,11 @@ int32_t AppSchedulerProxy::ScheduleNotifyUnLoadRepairPatch(const std::string &bu
         return ERR_INVALID_DATA;
     }
 
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Schedule notify unload patch, Remote is nullptr");
-        return ERR_NULL_OBJECT;
-    }
-
     MessageParcel reply;
     MessageOption option;
-    int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_UNLOAD_REPAIR_PATCH), data, reply, option);
-    if (ret != 0) {
-        HILOG_ERROR("Schedule notify unload patch, Send request failed with errno %{public}d.", ret);
+    int32_t ret = SendRequest(IAppScheduler::Message::SCHEDULE_NOTIFY_UNLOAD_REPAIR_PATCH, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed");
         return ret;
     }
 
@@ -570,22 +467,32 @@ int32_t AppSchedulerProxy::ScheduleNotifyAppFault(const FaultData &faultData)
         return ERR_FLATTEN_OBJECT;
     }
 
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
-        return ERR_NULL_OBJECT;
-    }
-
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
-    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_FAULT),
-        data, reply, option);
+    int32_t ret = SendRequest(IAppScheduler::Message::SCHEDULE_NOTIFY_FAULT, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request failed with error code %{public}d.", ret);
+        HILOG_ERROR("SendRequest failed");
         return ret;
     }
 
     return reply.ReadInt32();
+}
+
+int32_t AppSchedulerProxy::SendRequest(IAppScheduler::Message code, MessageParcel &data,
+                                       MessageParcel &reply, MessageOption &option)
+{
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote object is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    int32_t ret = remote->SendRequest(static_cast<uint32_t>(code), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
+        return ret;
+    }
+    return NO_ERROR;
 }
 
 int32_t AppSchedulerProxy::ScheduleOnGcStateChange(int32_t state)

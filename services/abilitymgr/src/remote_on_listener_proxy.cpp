@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,9 +43,14 @@ void RemoteOnListenerProxy::OnCallback(const uint32_t continueState, const std::
         HILOG_ERROR("NotifyOnsChanged Write bundleName failed.");
         return;
     }
-    int result = Remote()->SendRequest(IRemoteOnListener::ON_CALLBACK, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return;
+    }
+    int result = remote->SendRequest(IRemoteOnListener::ON_CALLBACK, data, reply, option);
     if (result != NO_ERROR) {
-        HILOG_ERROR("NotifyMissionsChanged SendRequest fail, error: %{public}d", result);
+        HILOG_ERROR("SendRequest failed. ret is %{public}d.", result);
         return;
     }
 }

@@ -1,6 +1,5 @@
-
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -35,10 +34,8 @@ void RemoteMissionListenerProxy::NotifyMissionsChanged(const std::string& device
         HILOG_ERROR("NotifyMissionsChanged Write deviceId failed.");
         return;
     }
-    int result = Remote()->SendRequest(IRemoteMissionListener::NOTIFY_MISSION_CHANGED, data, reply, option);
-    if (result != NO_ERROR) {
-        HILOG_ERROR("NotifyMissionsChanged SendRequest fail, error: %{public}d", result);
-        return;
+    if (!SendRequest(IRemoteMissionListener::NOTIFY_MISSION_CHANGED, data, reply, option)) {
+        HILOG_ERROR("SendRequest failed.");
     }
 }
 
@@ -59,10 +56,8 @@ void RemoteMissionListenerProxy::NotifySnapshot(const std::string& deviceId, int
         HILOG_ERROR("NotifySnapshot Write missionId failed.");
         return;
     }
-    int result = Remote()->SendRequest(IRemoteMissionListener::NOTIFY_SNAPSHOT, data, reply, option);
-    if (result != NO_ERROR) {
-        HILOG_ERROR("NotifySnapshot SendRequest fail, error: %{public}d", result);
-        return;
+    if (!SendRequest(IRemoteMissionListener::NOTIFY_SNAPSHOT, data, reply, option)) {
+        HILOG_ERROR("SendRequest failed.");
     }
 }
 
@@ -83,11 +78,27 @@ void RemoteMissionListenerProxy::NotifyNetDisconnect(const std::string& deviceId
         HILOG_ERROR("NotifyNetDisconnect Write missionId failed.");
         return;
     }
-    int result = Remote()->SendRequest(IRemoteMissionListener::NOTIFY_NET_DISCONNECT, data, reply, option);
-    if (result != NO_ERROR) {
-        HILOG_ERROR("NotifyNetDisconnect SendRequest fail, error: %{public}d", result);
-        return;
+    if (!SendRequest(IRemoteMissionListener::NOTIFY_NET_DISCONNECT, data, reply, option)) {
+        HILOG_ERROR("SendRequest failed.");
     }
 }
+
+bool RemoteMissionListenerProxy::SendRequest(uint32_t code, MessageParcel &data,
+                                             MessageParcel &reply, MessageOption &option)
+{
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote object is nullptr.");
+        return false;
+    }
+
+    int32_t err = remote->SendRequest(code, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed. code is %{public}d, err is %{public}d.", code, err);
+        return false;
+    }
+    return true;
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS

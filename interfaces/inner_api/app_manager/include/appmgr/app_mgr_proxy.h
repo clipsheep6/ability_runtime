@@ -364,7 +364,7 @@ public:
     virtual int32_t OnGcStateChange(pid_t pid, int32_t state) override;
 
 private:
-    bool SendTransactCmd(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply);
+    int SendTransactCmd(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
     bool WriteInterfaceToken(MessageParcel &data);
     template<typename T>
     int GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos);

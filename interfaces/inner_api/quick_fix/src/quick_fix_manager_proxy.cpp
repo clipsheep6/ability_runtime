@@ -54,17 +54,10 @@ int32_t QuickFixManagerProxy::ApplyQuickFix(const std::vector<std::string> &quic
         return QUICK_FIX_WRITE_PARCEL_FAILED;
     }
 
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
-        return QUICK_FIX_CONNECT_FAILED;
-    }
-
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    auto ret = remote->SendRequest(QuickFixMgrCmd::ON_APPLY_QUICK_FIX, data, reply, option);
-    if (ret != 0) {
-        HILOG_ERROR("Send request failed with error %{public}d.", ret);
+    if (!SendRequest(QuickFixMgrCmd::ON_APPLY_QUICK_FIX, data, reply, option)) {
+        HILOG_ERROR("Send request failed");
         return QUICK_FIX_SEND_REQUEST_FAILED;
     }
 
@@ -89,17 +82,10 @@ int32_t QuickFixManagerProxy::GetApplyedQuickFixInfo(const std::string &bundleNa
         return QUICK_FIX_WRITE_PARCEL_FAILED;
     }
 
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("GetApplyedQuickFixInfo, Remote is nullptr.");
-        return QUICK_FIX_CONNECT_FAILED;
-    }
-
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-    auto ret = remote->SendRequest(QuickFixMgrCmd::ON_GET_APPLYED_QUICK_FIX_INFO, data, reply, option);
-    if (ret != 0) {
-        HILOG_ERROR("GetApplyedQuickFixInfo, Send request failed with error %{public}d.", ret);
+    if (!SendRequest(QuickFixMgrCmd::ON_GET_APPLYED_QUICK_FIX_INFO, data, reply, option)) {
+        HILOG_ERROR("Send request failed.");
         return QUICK_FIX_SEND_REQUEST_FAILED;
     }
 
@@ -130,23 +116,33 @@ int32_t QuickFixManagerProxy::RevokeQuickFix(const std::string &bundleName)
         return QUICK_FIX_WRITE_PARCEL_FAILED;
     }
 
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
-        return QUICK_FIX_CONNECT_FAILED;
-    }
-
     MessageParcel reply;
     MessageOption option;
-    auto ret = remote->SendRequest(QuickFixMgrCmd::ON_REVOKE_QUICK_FIX, data, reply, option);
-    if (ret != 0) {
-        HILOG_ERROR("Send request failed with error %{public}d.", ret);
+    if (!SendRequest(QuickFixMgrCmd::ON_REVOKE_QUICK_FIX, data, reply, option)) {
+        HILOG_ERROR("Send request failed.");
         return QUICK_FIX_SEND_REQUEST_FAILED;
     }
 
     auto retval = reply.ReadInt32();
     HILOG_DEBUG("Finished with %{public}d.", retval);
     return retval;
+}
+
+bool QuickFixManagerProxy::SendRequest(uint32_t code, MessageParcel &data,
+                                       MessageParcel &reply, MessageOption &option)
+{
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote object is nullptr.");
+        return false;
+    }
+
+    int32_t ret = remote->SendRequest(static_cast<int32_t>(code), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
+        return false;
+    }
+    return true;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -54,16 +54,8 @@ bool ComponentInterceptionProxy::AllowComponentStart(const Want &want, const spt
 
     data.WriteInt32(requestCode);
     data.WriteInt32(componentStatus);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return true;
-    }
-    int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IComponentInterception::Message::TRANSACT_ON_ALLOW_COMPONENT_START),
-        data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+    if (!SendRequest(IComponentInterception::Message::TRANSACT_ON_ALLOW_COMPONENT_START, data, reply, option)) {
+        HILOG_WARN("SendRequest failed");
         return true;
     }
 
@@ -112,16 +104,9 @@ void ComponentInterceptionProxy::NotifyHandleAbilityStateChange(const sptr<IRemo
         data.WriteRemoteObject(abilityToken);
     }
     data.WriteInt32(opCode);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
+    if (!SendRequest(IComponentInterception::Message::TRANSACT_ON_HANDLE_MOVE_ABILITY, data, reply, option)) {
+        HILOG_ERROR("SendRequest failed");
         return;
-    }
-    int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IComponentInterception::Message::TRANSACT_ON_HANDLE_MOVE_ABILITY),
-        data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -137,16 +122,8 @@ bool ComponentInterceptionProxy::ReleaseCallInterception(const sptr<IRemoteObjec
 
     data.WriteRemoteObject(connect);
     data.WriteParcelable(&element);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return false;
-    }
-    int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IComponentInterception::Message::TRANSACT_ON_RELEASE_CALL),
-        data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+    if (!SendRequest(IComponentInterception::Message::TRANSACT_ON_RELEASE_CALL, data, reply, option)) {
+        HILOG_ERROR("SendRequest failed");
         return false;
     }
 
@@ -158,6 +135,23 @@ bool ComponentInterceptionProxy::ReleaseCallInterception(const sptr<IRemoteObjec
         }
     }
     return reply.ReadBool();
+}
+
+bool ComponentInterceptionProxy::SendRequest(IComponentInterception::Message code, MessageParcel &data,
+                                             MessageParcel &reply, MessageOption &option)
+{
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote object is nullptr.");
+        return false;
+    }
+
+    int32_t ret = remote->SendRequest(static_cast<uint32_t>(code), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
+        return false;
+    }
+    return true;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

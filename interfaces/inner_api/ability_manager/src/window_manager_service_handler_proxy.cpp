@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -48,9 +48,8 @@ void WindowManagerServiceHandlerProxy::NotifyWindowTransition(sptr<AbilityTransi
     }
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
-    int error = Remote()->SendRequest(WMSCmd::ON_NOTIFY_WINDOW_TRANSITION, data, reply, option);
-    if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+    if (!SendRequest(WMSCmd::ON_NOTIFY_WINDOW_TRANSITION, data, reply, option)) {
+        HILOG_ERROR("SendRequest failed.");
     }
     animaEnabled = reply.ReadBool();
 }
@@ -66,9 +65,8 @@ int32_t WindowManagerServiceHandlerProxy::GetFocusWindow(sptr<IRemoteObject>& ab
 
     MessageParcel reply;
     MessageOption option;
-    int error = Remote()->SendRequest(WMSCmd::ON_GET_FOCUS_ABILITY, data, reply, option);
-    if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+    if (!SendRequest(WMSCmd::ON_GET_FOCUS_ABILITY, data, reply, option)) {
+        HILOG_ERROR("SendRequest failed.");
         return ERR_AAFWK_PARCEL_FAIL;
     }
     auto ret = reply.ReadInt32();
@@ -101,9 +99,9 @@ void WindowManagerServiceHandlerProxy::StartingWindow(sptr<AbilityTransitionInfo
     }
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
-    int error = Remote()->SendRequest(WMSCmd::ON_COLD_STARTING_WINDOW, data, reply, option);
-    if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+    if (!SendRequest(WMSCmd::ON_COLD_STARTING_WINDOW, data, reply, option)) {
+        HILOG_ERROR("SendRequest failed");
+        return;
     }
 }
 
@@ -126,9 +124,9 @@ void WindowManagerServiceHandlerProxy::StartingWindow(sptr<AbilityTransitionInfo
     }
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
-    int error = Remote()->SendRequest(WMSCmd::ON_HOT_STARTING_WINDOW, data, reply, option);
-    if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+    if (!SendRequest(WMSCmd::ON_HOT_STARTING_WINDOW, data, reply, option)) {
+        HILOG_ERROR("SendRequest failed");
+        return;
     }
 }
 
@@ -157,9 +155,9 @@ void WindowManagerServiceHandlerProxy::CancelStartingWindow(sptr<IRemoteObject> 
     }
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
-    int error = Remote()->SendRequest(WMSCmd::ON_CANCEL_STARTING_WINDOW, data, reply, option);
-    if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+    if (!SendRequest(WMSCmd::ON_CANCEL_STARTING_WINDOW, data, reply, option)) {
+        HILOG_ERROR("SendRequest failed.");
+        return;
     }
 }
 
@@ -177,9 +175,9 @@ void WindowManagerServiceHandlerProxy::NotifyAnimationAbilityDied(sptr<AbilityTr
     }
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
-    int error = Remote()->SendRequest(WMSCmd::ON_NOTIFY_ANIMATION_ABILITY_DIED, data, reply, option);
-    if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+    if (!SendRequest(WMSCmd::ON_NOTIFY_ANIMATION_ABILITY_DIED, data, reply, option)) {
+        HILOG_ERROR("SendRequest failed");
+        return;
     }
 }
 
@@ -206,14 +204,8 @@ int32_t WindowManagerServiceHandlerProxy::MoveMissionsToForeground(const std::ve
         return ERR_AAFWK_PARCEL_FAIL;
     }
 
-    auto remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("remote is nullptr.");
-        return ERR_INVALID_CONTINUATION_FLAG;
-    }
-    int error = remote->SendRequest(WMSCmd::ON_MOVE_MISSINONS_TO_FOREGROUND, data, reply, option);
-    if (error != ERR_NONE) {
-        HILOG_ERROR("SendoRequest failed, error: %{public}d", error);
+    if (!SendRequest(WMSCmd::ON_MOVE_MISSINONS_TO_FOREGROUND, data, reply, option)) {
+        HILOG_ERROR("SendoRequest failed.");
         return ERR_AAFWK_PARCEL_FAIL;
     }
     return reply.ReadInt32();
@@ -237,16 +229,11 @@ int32_t WindowManagerServiceHandlerProxy::MoveMissionsToBackground(const std::ve
         return ERR_AAFWK_PARCEL_FAIL;
     }
 
-    auto remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("remote is nullptr.");
-        return ERR_INVALID_CONTINUATION_FLAG;
-    }
-    int error = remote->SendRequest(WMSCmd::ON_MOVE_MISSIONS_TO_BACKGROUND, data, reply, option);
-    if (error != ERR_NONE) {
-        HILOG_ERROR("SendoRequest failed, error: %{public}d", error);
+    if (!SendRequest(WMSCmd::ON_MOVE_MISSIONS_TO_BACKGROUND, data, reply, option)) {
+        HILOG_ERROR("SendRequest failed");
         return ERR_AAFWK_PARCEL_FAIL;
     }
+
     if (!reply.ReadInt32Vector(&result)) {
         HILOG_ERROR("Read hide result failed");
         return ERR_AAFWK_PARCEL_FAIL;
@@ -254,6 +241,22 @@ int32_t WindowManagerServiceHandlerProxy::MoveMissionsToBackground(const std::ve
     return reply.ReadInt32();
 }
 
+bool WindowManagerServiceHandlerProxy::SendRequest(uint32_t code, MessageParcel &data,
+                                                   MessageParcel &reply, MessageOption &option)
+{
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote object is nullptr.");
+        return false;
+    }
+
+    int32_t ret = remote->SendRequest(code, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
+        return false;
+    }
+    return true;
+}
 }  // namespace AAFwk
 }  // namespace OHOS
 #endif
