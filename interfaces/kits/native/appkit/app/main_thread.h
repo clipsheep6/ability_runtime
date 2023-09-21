@@ -278,6 +278,9 @@ public:
      */
     int32_t ScheduleOnGcStateChange(int32_t state) override;
 
+    void AttachAppDebug() override;
+    void DetachAppDebug() override;
+
 private:
     /**
      *

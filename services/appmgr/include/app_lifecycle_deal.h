@@ -192,6 +192,9 @@ public:
      */
     int32_t OnGcStateChange(int32_t state);
 
+    int32_t AttachAppDebug();
+    int32_t DetachAppDebug();
+
 private:
     sptr<IAppScheduler> appThread_ = nullptr;
 };

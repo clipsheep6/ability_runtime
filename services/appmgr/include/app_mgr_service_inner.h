@@ -18,41 +18,43 @@
 
 #include <list>
 #include <map>
-#include <vector>
 #include <regex>
 #include <unordered_map>
 #include <unordered_set>
-#include "cpp/mutex.h"
+#include <vector>
 
-#include "iremote_object.h"
-#include "refbase.h"
-#include "task_handler_wrap.h"
+#include "ability_debug_response_interface.h"
 #include "ability_info.h"
-#include "appexecfwk_errors.h"
 #include "app_death_recipient.h"
+#include "app_debug_listener_interface.h"
+#include "app_debug_manager.h"
+#include "app_malloc_info.h"
 #include "app_mgr_constants.h"
+#include "app_process_manager.h"
 #include "app_record_id.h"
+#include "app_running_manager.h"
 #include "app_running_record.h"
 #include "app_scheduler_interface.h"
 #include "app_spawn_client.h"
 #include "app_task_info.h"
+#include "appexecfwk_errors.h"
+#include "bundle_info.h"
+#include "cpp/mutex.h"
 #include "fault_data.h"
 #include "iapp_state_callback.h"
 #include "iapplication_state_observer.h"
 #include "iconfiguration_observer.h"
-#include "app_process_manager.h"
-#include "remote_client_manager.h"
-#include "app_running_manager.h"
+#include "iremote_object.h"
+#include "istart_specified_ability_response.h"
 #include "record_query_result.h"
+#include "refbase.h"
+#include "remote_client_manager.h"
 #include "render_process_info.h"
 #include "running_process_info.h"
-#include "bundle_info.h"
-#include "istart_specified_ability_response.h"
 #include "shared/base_shared_bundle_info.h"
-
+#include "task_handler_wrap.h"
 #include "want.h"
 #include "window_focus_changed_listener.h"
-#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -727,6 +729,49 @@ public:
      * @return Is the status change completed.
      */
     int32_t OnGcStateChange(pid_t pid, int32_t state);
+
+    /**
+     * @brief Register app debug listener.
+     * @param listener App debug listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAppDebugListener(const sptr<IAppDebugListener> &listener);
+
+    /**
+     * @brief Unregister app debug listener.
+     * @param listener App debug listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAppDebugListener(const sptr<IAppDebugListener> &listener);
+
+    /**
+     * @brief Attach app debug.
+     * @param bundleName The application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t AttachAppDebug(const std::string &bundleName);
+
+    /**
+     * @brief Detach app debug.
+     * @param bundleName The application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t DetachAppDebug(const std::string &bundleName);
+
+    /**
+     * @brief Registering ability debug mode response.
+     * @param response Response for ability debug object.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAbilityDebugResponse(const sptr<IAbilityDebugResponse> &response);
+
+    /**
+     * @brief Determine whether it is an attachment debug application based on the bundle name.
+     * @param bundleName The application bundle name.
+     * @return Returns true if it is an attach debug application, otherwise it returns false.
+     */
+    bool IsAttachDebug(const std::string &bundleName);
+
 private:
 
     std::string FaultTypeToString(FaultDataType type);
@@ -930,6 +975,9 @@ private:
 
     int VerifyProcessPermission(const std::string &bundleName) const;
 
+    void ApplicationTerminatedSendProcessEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void ClearAppRunningDataForKeepAlive(const std::shared_ptr<AppRunningRecord> &appRecord);
+
 private:
     /**
      * ClearUpApplicationData, clear the application data.
@@ -974,6 +1022,10 @@ private:
 
     void AppRecoveryNotifyApp(int32_t pid, const std::string& bundleName,
         FaultDataType faultType, const std::string& markers);
+
+    void ProcessAppDebug(const std::shared_ptr<AppRunningRecord> &appRecord, const bool &isDebugStart);
+    AppDebugInfo MakeAppDebugInfo(const std::shared_ptr<AppRunningRecord> &appRecord, const bool &isDebugStart);
+    int32_t NotifyAbilitysDebugChange(const std::string &bundleName, const bool &isAppDebug);
 private:
     /**
      * Notify application status.
@@ -1013,6 +1065,8 @@ private:
     std::string deviceType_ {"default"};
     int32_t currentUserId_ = 0;
     int32_t lastRenderUid_ = Constants::START_UID_FOR_RENDER_PROCESS;
+    sptr<IAbilityDebugResponse> abilityDebugResponse_;
+    std::shared_ptr<AppDebugManager> appDebugManager_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

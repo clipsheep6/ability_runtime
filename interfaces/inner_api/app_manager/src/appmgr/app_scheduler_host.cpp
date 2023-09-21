@@ -66,6 +66,10 @@ AppSchedulerHost::AppSchedulerHost()
         &AppSchedulerHost::HandleNotifyAppFault;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::APP_ON_GC_STATE_CHANGE)] =
         &AppSchedulerHost::HandleOnGcStateChange;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ATTACH_APP_DEBUG)] =
+        &AppSchedulerHost::HandleAttachAppDebug;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DETACH_APP_DEBUG)] =
+        &AppSchedulerHost::HandleDetachAppDebug;
 }
 
 AppSchedulerHost::~AppSchedulerHost()
@@ -316,6 +320,20 @@ int32_t AppSchedulerHost::HandleOnGcStateChange(MessageParcel &data, MessageParc
         HILOG_ERROR("reply write failed.");
         return ERR_INVALID_VALUE;
     }
+    return NO_ERROR;
+}
+
+int32_t AppSchedulerHost::HandleAttachAppDebug(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    AttachAppDebug();
+    return NO_ERROR;
+}
+
+int32_t AppSchedulerHost::HandleDetachAppDebug(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    DetachAppDebug();
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

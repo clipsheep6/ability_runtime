@@ -991,6 +991,15 @@ void AppRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
         HILOG_ERROR("AbilityTerminated error, can not find module record");
         return;
     }
+
+    bool isExtensionDebug = false;
+    auto abilityRecord = moduleRecord->GetAbilityByTerminateLists(token);
+    if (abilityRecord != nullptr && abilityRecord->GetAbilityInfo() != nullptr) {
+        isExtensionDebug = (abilityRecord->GetAbilityInfo()->type == AppExecFwk::AbilityType::EXTENSION) &&
+                           (isAttachDebug_ || isDebugApp_);
+    }
+    HILOG_DEBUG("Extension debug is [%{public}s]", isExtensionDebug ? "true" : "false");
+
     moduleRecord->AbilityTerminated(token);
 
     if (moduleRecord->GetAbilities().empty() && !IsKeepAliveApp()) {
@@ -998,7 +1007,7 @@ void AppRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
     }
 
     auto moduleRecordList = GetAllModuleRecord();
-    if (moduleRecordList.empty() && !IsKeepAliveApp()) {
+    if (moduleRecordList.empty() && !IsKeepAliveApp() && !isExtensionDebug) {
         ScheduleTerminate();
     }
 }
@@ -1122,7 +1131,7 @@ void AppRunningRecord::SendEvent(uint32_t msg, int64_t timeOut)
         return;
     }
 
-    if (isDebugApp_ || isNativeDebug_) {
+    if (isDebugApp_ || isNativeDebug_ || isAttachDebug_) {
         HILOG_INFO("Is debug mode, no need to handle time out.");
         return;
     }
@@ -1636,6 +1645,23 @@ int32_t AppRunningRecord::OnGcStateChange(const int32_t state)
         return ERR_INVALID_VALUE;
     }
     return appLifeCycleDeal_->OnGcStateChange(state);
+}
+
+void AppRunningRecord::SetAttachDebug(const bool &isAttachDebug)
+{
+    HILOG_DEBUG("Called.");
+    isAttachDebug_ = isAttachDebug;
+
+    if (appLifeCycleDeal_ == nullptr) {
+        HILOG_ERROR("appLifeCycleDeal_ is nullptr.");
+        return;
+    }
+    isAttachDebug_ ? appLifeCycleDeal_->AttachAppDebug() : appLifeCycleDeal_->DetachAppDebug();
+}
+
+bool AppRunningRecord::isAttachDebug() const
+{
+    return isAttachDebug_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

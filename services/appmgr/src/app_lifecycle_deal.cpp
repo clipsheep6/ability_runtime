@@ -239,5 +239,27 @@ int32_t AppLifeCycleDeal::OnGcStateChange(int32_t state)
     }
     return appThread_->ScheduleOnGcStateChange(state);
 }
+
+int32_t AppLifeCycleDeal::AttachAppDebug()
+{
+    HILOG_DEBUG("Called.");
+    if (appThread_ == nullptr) {
+        HILOG_ERROR("appThread_ is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    appThread_->AttachAppDebug();
+    return ERR_OK;
+}
+
+int32_t AppLifeCycleDeal::DetachAppDebug()
+{
+    HILOG_DEBUG("Called.");
+    if (appThread_ == nullptr) {
+        HILOG_ERROR("appThread_ is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    appThread_->DetachAppDebug();
+    return ERR_OK;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

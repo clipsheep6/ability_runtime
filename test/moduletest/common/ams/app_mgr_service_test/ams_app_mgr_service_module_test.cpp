@@ -93,10 +93,17 @@ public:
     {
         return 0;
     }
+
     int32_t ScheduleOnGcStateChange(int32_t state) override
     {
         return 0;
     }
+
+    void AttachAppDebug() override
+    {}
+
+    void DetachAppDebug() override
+    {}
 };
 class AppMgrServiceModuleTest : public testing::Test {
 public:
