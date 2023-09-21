@@ -232,6 +232,7 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
     PerfProfile::GetInstance().SetAbilityLoadEndTime(GetTickCount());
     PerfProfile::GetInstance().Dump();
     PerfProfile::GetInstance().Reset();
+    UpdateAbilityState(token, AbilityState::ABILITY_STATE_CREATE);
 }
 
 bool AppMgrServiceInner::CheckLoadAbilityConditions(const sptr<IRemoteObject> &token,

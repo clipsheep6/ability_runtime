@@ -800,6 +800,8 @@ void AppRunningRecord::UpdateAbilityState(const sptr<IRemoteObject> &token, cons
         AbilityForeground(abilityRecord);
     } else if (state == AbilityState::ABILITY_STATE_BACKGROUND) {
         AbilityBackground(abilityRecord);
+    } else if (state == AbilityState::ABILITY_STATE_CREATE) {
+        StateChangedNotifyObserver(abilityRecord, static_cast<int32_t>(AbilityState::ABILITY_STATE_CREATE), true);
     } else {
         HILOG_WARN("wrong state");
     }
