@@ -16,6 +16,7 @@
 #include <cstdint>
 #include <fstream>
 #include <iostream>
+#include <map>
 
 #include "options.h"
 #include "simulator.h"
@@ -92,6 +93,13 @@ int32_t main(int32_t argc, const char *argv[])
         std::cout << "Create Simulator failed." << std::endl;
         return 1;
     }
+    std::map<std::string, std::string> mockList {};
+    simulator->SetMockList(mockList);
+    mockList.emplace("test1", "1");
+    mockList.emplace("test2", "2");
+    mockList.emplace("test3", "!@#$%^&*(){}[]:\";',./<>?\\|");
+    mockList.emplace("test4", "中文测试");
+    simulator->SetMockList(mockList);
 
     std::string abilitySrcPath {argv[PARAM_EIGHTEEN]};
     int64_t id = simulator->StartAbility(abilitySrcPath, [](int64_t abilityId) {});

@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_SIMULATOR_H
 
 #include <functional>
+#include <map>
 #include <memory>
 #include <string>
 
@@ -47,6 +48,7 @@ public:
     virtual int64_t StartAbility(const std::string &abilitySrcPath, TerminateCallback callback) = 0;
     virtual void TerminateAbility(int64_t abilityId) = 0;
     virtual void UpdateConfiguration(const AppExecFwk::Configuration &config) = 0;
+    virtual void SetMockList(const std::map<std::string, std::string> &mockList) = 0;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
