@@ -24,7 +24,9 @@ AppLifeCycleDeal::AppLifeCycleDeal()
 {}
 
 AppLifeCycleDeal::~AppLifeCycleDeal()
-{}
+{
+    HILOG_INFO("AppLifeCycleDeal deconstructor");
+}
 
 void AppLifeCycleDeal::LaunchApplication(const AppLaunchData &launchData, const Configuration &config)
 {
