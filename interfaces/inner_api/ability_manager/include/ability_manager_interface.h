@@ -16,10 +16,9 @@
 #ifndef OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_INTERFACE_H
 #define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_INTERFACE_H
 
-#include <vector>
-
 #include <ipc_types.h>
 #include <iremote_broker.h>
+#include <vector>
 
 #include "ability_connect_callback_interface.h"
 #include "ability_manager_ipc_interface_code.h"
@@ -27,6 +26,7 @@
 #include "ability_scheduler_interface.h"
 #include "ability_start_setting.h"
 #include "ability_state.h"
+#include "app_debug_listener_interface.h"
 #include "extension_running_info.h"
 #include "free_install_observer_interface.h"
 #include "iability_controller.h"
@@ -34,8 +34,8 @@
 #include "iacquire_share_data_callback_interface.h"
 #include "icomponent_interception.h"
 #include "iprepare_terminate_callback_interface.h"
-#include "mission_listener_interface.h"
 #include "mission_info.h"
+#include "mission_listener_interface.h"
 #include "mission_snapshot.h"
 #include "remote_mission_listener_interface.h"
 #include "remote_on_listener_interface.h"
@@ -1149,6 +1149,34 @@ public:
     {
         return 0;
     }
+
+    /**
+     * @brief Register app debug listener.
+     * @param listener App debug listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener) = 0;
+
+    /**
+     * @brief Unregister app debug listener.
+     * @param listener App debug listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UnregisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener) = 0;
+
+    /**
+     * @brief Attach app debug.
+     * @param bundleName The application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t AttachAppDebug(const std::string &bundleName) = 0;
+
+    /**
+     * @brief Detach app debug.
+     * @param bundleName The application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t DetachAppDebug(const std::string &bundleName) = 0;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

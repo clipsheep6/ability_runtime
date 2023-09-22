@@ -100,6 +100,12 @@ constexpr struct option LONG_OPTIONS_PROCESS[] = {
     {"debug", required_argument, nullptr, 'D'},
     {nullptr, 0, nullptr, 0},
 };
+const std::string SHORT_OPTIONS_ATTACH = "hb:";
+constexpr struct option LONG_OPTIONS_ATTACH[] = {
+    {"help", no_argument, nullptr, 'h'},
+    {"bundle", required_argument, nullptr, 'b'},
+    {nullptr, 0, nullptr, 0},
+};
 }  // namespace
 
 AbilityManagerShellCommand::AbilityManagerShellCommand(int argc, char* argv[]) : ShellCommand(argc, argv, TOOL_NAME)
@@ -120,6 +126,8 @@ ErrCode AbilityManagerShellCommand::CreateCommandMap()
         {"force-stop", std::bind(&AbilityManagerShellCommand::RunAsForceStop, this)},
         {"test", std::bind(&AbilityManagerShellCommand::RunAsTestCommand, this)},
         {"process", std::bind(&AbilityManagerShellCommand::RunAsProcessCommand, this)},
+        {"attach", std::bind(&AbilityManagerShellCommand::RunAsAttachDebugCommand, this)},
+        {"detach", std::bind(&AbilityManagerShellCommand::RunAsDetachDebugCommand, this)},
 #ifdef ABILITY_COMMAND_FOR_TEST
         {"force-timeout", std::bind(&AbilityManagerShellCommand::RunForceTimeoutForTest, this)},
         {"ApplicationNotResponding", std::bind(&AbilityManagerShellCommand::RunAsSendAppNotRespondingProcessID, this)},
@@ -680,6 +688,48 @@ ErrCode AbilityManagerShellCommand::RunAsForceStop()
     return result;
 }
 
+ErrCode AbilityManagerShellCommand::RunAsAttachDebugCommand()
+{
+    HILOG_DEBUG("Called.");
+    std::string bundleName = "";
+    ParseBundleName(bundleName);
+    if (bundleName.empty()) {
+        resultReceiver_.append(HELP_MSG_ATTACH_APP_DEBUG + "\n");
+        return OHOS::ERR_INVALID_VALUE;
+    }
+
+    auto result = AbilityManagerClient::GetInstance()->AttachAppDebug(bundleName);
+    if (result == OHOS::ERR_OK) {
+        resultReceiver_.append(STRING_ATTACH_APP_DEBUG_OK + "\n");
+        return result;
+    }
+
+    HILOG_DEBUG("%{public}s result = %{public}d", STRING_ATTACH_APP_DEBUG_NG.c_str(), result);
+    resultReceiver_.append(STRING_ATTACH_APP_DEBUG_NG + "\n");
+    return result;
+}
+
+ErrCode AbilityManagerShellCommand::RunAsDetachDebugCommand()
+{
+    HILOG_DEBUG("Called.");
+    std::string bundleName = "";
+    ParseBundleName(bundleName);
+    if (bundleName.empty()) {
+        resultReceiver_.append(HELP_MSG_DETACH_APP_DEBUG + "\n");
+        return OHOS::ERR_INVALID_VALUE;
+    }
+
+    auto result = AbilityManagerClient::GetInstance()->DetachAppDebug(bundleName);
+    if (result == OHOS::ERR_OK) {
+        resultReceiver_.append(STRING_DETACH_APP_DEBUG_OK + "\n");
+        return result;
+    }
+
+    HILOG_DEBUG("%{public}s result = %{public}d", STRING_DETACH_APP_DEBUG_NG.c_str(), result);
+    resultReceiver_.append(STRING_DETACH_APP_DEBUG_NG + "\n");
+    return result;
+}
+
 ErrCode AbilityManagerShellCommand::RunAsProcessCommand()
 {
     Want want;
@@ -969,6 +1019,55 @@ ErrCode AbilityManagerShellCommand::MakeWantForProcess(Want& want)
     }
 
     return result;
+}
+
+void AbilityManagerShellCommand::ParseBundleName(std::string &bundleName)
+{
+    int option = -1;
+    int counter = 0;
+
+    while (true) {
+        counter++;
+        option = getopt_long(argc_, argv_, SHORT_OPTIONS_ATTACH.c_str(), LONG_OPTIONS_ATTACH, nullptr);
+        HILOG_DEBUG("getopt_long option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
+
+        if (optind < 0 || optind > argc_) {
+            break;
+        }
+
+        if (option == -1) {
+            // aa command without option
+            if (counter == 1 && strcmp(argv_[optind], cmd_.c_str()) == 0) {
+                resultReceiver_.append(HELP_MSG_NO_OPTION + "\n");
+            }
+            break;
+        }
+
+        if (option == '?') {
+            switch (optopt) {
+                case 'b':
+                case 'h':
+                    break;
+                default: {
+                    // 'aa attach/detach' with an unknown option
+                    std::string unknownOption = "";
+                    std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
+                    resultReceiver_.append(unknownOptionMsg);
+                    break;
+                }
+            }
+            break;
+        }
+
+        switch (option) {
+            case 'b': {
+                bundleName = optarg;
+                break;
+            }
+            default:
+                break;
+        }
+    }
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST

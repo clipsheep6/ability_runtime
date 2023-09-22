@@ -17,49 +17,51 @@
 #define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_SERVICE_H
 
 #include <future>
+#include <map>
 #include <memory>
 #include <shared_mutex>
 #include <singleton.h>
 #include <thread_ex.h>
 #include <unordered_map>
-#include <map>
 
 #include "ability_bundle_event_callback.h"
+#include "ability_config.h"
 #include "ability_connect_manager.h"
-#include "task_handler_wrap.h"
+#include "ability_debug_deal.h"
 #include "ability_event_handler.h"
 #include "ability_interceptor_executer.h"
 #include "ability_manager_stub.h"
+#include "ams_configuration_parameter.h"
+#include "app_debug_listener_interface.h"
 #include "app_mgr_interface.h"
 #include "app_scheduler.h"
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 #include "background_task_observer.h"
 #endif
-#include "bundlemgr/bundle_mgr_interface.h"
 #include "bundle_constants.h"
+#include "bundlemgr/bundle_mgr_interface.h"
 #include "data_ability_manager.h"
+#include "event_report.h"
 #include "free_install_manager.h"
 #include "hilog_wrapper.h"
+#include "iacquire_share_data_callback_interface.h"
 #include "iremote_object.h"
 #include "mission_list_manager.h"
-#include "permission_verification.h"
-#include "system_ability.h"
-#include "uri.h"
-#include "ability_config.h"
 #include "parameter.h"
 #include "pending_want_manager.h"
-#include "ams_configuration_parameter.h"
-#include "scene_board/ui_ability_lifecycle_manager.h"
-#include "user_controller.h"
+#include "permission_verification.h"
 #include "resident_process_manager.h"
+#include "scene_board/ui_ability_lifecycle_manager.h"
 #include "start_ability_handler.h"
+#include "system_ability.h"
+#include "task_handler_wrap.h"
+#include "uri.h"
+#include "user_controller.h"
 #ifdef SUPPORT_GRAPHICS
 #include "implicit_start_processor.h"
 #include "system_dialog_scheduler.h"
 #include "window_focus_changed_listener.h"
 #endif
-#include "event_report.h"
-#include "iacquire_share_data_callback_interface.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -1215,6 +1217,34 @@ public:
      */
     virtual int PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isTerminate) override;
 
+    /**
+     * @brief Register app debug listener.
+     * @param listener App debug listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener) override;
+	    
+    /**
+     * @brief Unregister app debug listener.
+     * @param listener App debug listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener) override;
+
+    /**
+     * @brief Attach app debug.
+     * @param bundleName The application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t AttachAppDebug(const std::string &bundleName) override;
+
+    /**
+     * @brief Detach app debug.
+     * @param bundleName The application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t DetachAppDebug(const std::string &bundleName) override;
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -1692,6 +1722,8 @@ private:
 
     ffrt::mutex collaboratorMapLock_;
     std::unordered_map<int32_t, sptr<IAbilityManagerCollaborator>> collaboratorMap_;
+
+    std::shared_ptr<AbilityDebugDeal> abilityDebugDeal_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

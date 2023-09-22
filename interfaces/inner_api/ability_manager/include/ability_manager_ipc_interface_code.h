@@ -212,6 +212,18 @@ enum class AbilityManagerInterfaceCode {
     // ipc id for set session locked state (67)
     SET_SESSION_LOCKED_STATE = 67,
 
+    // Register the app debug mode listener (68)
+    REGISTER_APP_DEBUG_LISTENER = 68,
+
+    // Cancel register the app debug mode listener (69)
+    UNREGISTER_APP_DEBUG_LISTENER = 69,
+
+    // Attach app debug (70)
+    ATTACH_APP_DEBUG = 70,
+
+    // Deatch app debug (71)
+    DETACH_APP_DEBUG = 71,
+
     // ipc id 1001-2000 for DMS
     // ipc id for starting ability (1001)
     START_ABILITY = 1001,

@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <unordered_set>
 
+#include "ability_debug_deal.h"
 #include "ability_info.h"
 #include "ability_interceptor.h"
 #include "ability_manager_errors.h"
@@ -70,7 +71,6 @@
 #include "ui_extension_utils.h"
 #include "uri_permission_manager_client.h"
 #include "xcollie/watchdog.h"
-
 #ifdef SUPPORT_GRAPHICS
 #include "application_anr_listener.h"
 #include "display_manager.h"
@@ -130,6 +130,8 @@ constexpr char TOKEN_KEY[] = "ohos.ability.params.token";
 // Broker params key
 const std::string KEY_VISIBLE_ID = "ohos.anco.param.visible";
 const std::string START_ABILITY_TYPE = "ABILITY_INNER_START_WITH_ACCOUNT";
+
+const std::string DEBUG_APP = "debugApp";
 
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
 
@@ -4658,6 +4660,12 @@ int AbilityManagerService::GenerateAbilityRequest(
         abilityRecord->GetApplicationInfo().bundleName == want.GetElement().GetBundleName()) {
         (const_cast<Want &>(want)).SetParam(DLP_INDEX, abilityRecord->GetAppIndex());
     }
+
+    if (abilityRecord != nullptr) {
+        auto isDebug = abilityRecord->GetWant().GetBoolParam(DEBUG_APP, false);
+        (const_cast<Want &>(want)).SetParam(DEBUG_APP, isDebug);
+    }
+
     request.want = want;
     request.requestCode = requestCode;
     request.callerToken = callerToken;
@@ -8307,6 +8315,54 @@ bool AbilityManagerService::CheckUserIdActive(int32_t userId)
         return false;
     }
     return true;
+}
+
+int32_t AbilityManagerService::RegisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener)
+{
+    HILOG_DEBUG("Called.");
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("Permission verification failed.");
+        return CHECK_PERMISSION_FAILED;
+    }
+    return DelayedSingleton<AppScheduler>::GetInstance()->RegisterAppDebugListener(listener);
+}
+
+int32_t AbilityManagerService::UnregisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener)
+{
+    HILOG_DEBUG("Called.");
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("Permission verification failed.");
+        return CHECK_PERMISSION_FAILED;
+    }
+    return DelayedSingleton<AppScheduler>::GetInstance()->UnregisterAppDebugListener(listener);
+}
+
+int32_t AbilityManagerService::AttachAppDebug(const std::string &bundleName)
+{
+    HILOG_DEBUG("Called.");
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall() &&
+        !AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+        HILOG_ERROR("Permission verification failed.");
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    if (abilityDebugDeal_ == nullptr) {
+        HILOG_DEBUG("Creat ability debug deal object.");
+        abilityDebugDeal_ = std::make_shared<AbilityDebugDeal>();
+    }
+    return DelayedSingleton<AppScheduler>::GetInstance()->AttachAppDebug(bundleName);
+}
+
+int32_t AbilityManagerService::DetachAppDebug(const std::string &bundleName)
+{
+    HILOG_DEBUG("Called.");
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall() &&
+        !AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+        HILOG_ERROR("Permission verification failed.");
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    return DelayedSingleton<AppScheduler>::GetInstance()->DetachAppDebug(bundleName);
 }
 }  // namespace AAFwk
 }  // namespace OHOS
