@@ -33,7 +33,8 @@ const std::unordered_set<AppExecFwk::ExtensionAbilityType> UI_EXTENSION_SET = {
     AppExecFwk::ExtensionAbilityType::SYSDIALOG_ATOMICSERVICEPANEL,
     AppExecFwk::ExtensionAbilityType::SYSDIALOG_POWER,
     AppExecFwk::ExtensionAbilityType::SYSPICKER_SHARE,
-    AppExecFwk::ExtensionAbilityType::HMS_ACCOUNT
+    AppExecFwk::ExtensionAbilityType::HMS_ACCOUNT,
+    AppExecFwk::ExtensionAbilityType::SYS_COMMON_UI
 };
 
 inline bool IsUIExtension(const AppExecFwk::ExtensionAbilityType type)
