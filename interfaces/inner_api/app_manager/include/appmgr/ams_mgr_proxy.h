@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,9 +16,9 @@
 #ifndef OHOS_ABILITY_RUNTIME_AMS_MGR_PROXY_H
 #define OHOS_ABILITY_RUNTIME_AMS_MGR_PROXY_H
 
-#include "iremote_proxy.h"
-
 #include "ams_mgr_interface.h"
+#include "app_debug_listener_interface.h"
+#include "iremote_proxy.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -173,6 +173,49 @@ public:
     virtual void SetCurrentUserId(const int32_t userId) override;
 
     virtual int32_t GetBundleNameByPid(const int pid, std::string &bundleName, int32_t &uid) override;
+
+    /**
+     * @brief Register app debug listener.
+     * @param listener App debug listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAppDebugListener(const sptr<IAppDebugListener> &listener) override;
+
+    /**
+     * @brief Unregister app debug listener.
+     * @param listener App debug listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAppDebugListener(const sptr<IAppDebugListener> &listener) override;
+
+    /**
+     * @brief Attach app debug.
+     * @param bundleName The application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t AttachAppDebug(const std::string &bundleName) override;
+
+    /**
+     * @brief Detach app debug.
+     * @param bundleName The application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t DetachAppDebug(const std::string &bundleName) override;
+
+    /**
+     * @brief Registering ability debug mode response.
+     * @param response Response for ability debug object.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAbilityDebugResponse(const sptr<IAbilityDebugResponse> &response) override;
+
+    /**
+     * @brief Determine whether it is an attachment debug application based on the bundle name.
+     * @param bundleName The application bundle name.
+     * @return Returns true if it is an attach debug application, otherwise it returns false.
+     */
+    bool IsAttachDebug(const std::string &bundleName) override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
 

@@ -48,7 +48,7 @@ public:
 private:
     int GenerateAbilityRequestByAction(int32_t userId, AbilityRequest &request,
         std::vector<DialogAppInfo> &dialogAppInfos, std::string &deviceType, bool isMoreHapList);
-
+    std::string MatchTypeAndUri(const AAFwk::Want &want);
     sptr<AppExecFwk::IBundleMgr> GetBundleManager();
 
     using StartAbilityClosure = std::function<int32_t()>;

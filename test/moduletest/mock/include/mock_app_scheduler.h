@@ -45,6 +45,7 @@ public:
     MOCK_METHOD2(ScheduleHeapMemory, void(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo));
     MOCK_METHOD0(ScheduleLowMemory, void());
     MOCK_METHOD1(ScheduleNotifyAppFault, int32_t(const FaultData &));
+    MOCK_METHOD1(ScheduleOnGcStateChange, int32_t(int32_t state));
 };
 }  // namespace AAFwk
 }  // namespace OHOS

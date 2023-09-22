@@ -76,22 +76,22 @@ public:
     static napi_value SetWindowPrivacyMode(napi_env env, napi_callback_info info);
 
 protected:
-    napi_value OnStartAbility(napi_env env, size_t argc, napi_value* argv);
-    napi_value OnStartAbilityForResult(napi_env env, size_t argc, napi_value* argv);
-    napi_value OnTerminateSelf(napi_env env, size_t argc, napi_value* argv);
-    napi_value OnTerminateSelfWithResult(napi_env env, size_t argc, napi_value* argv);
-    napi_value OnSendData(napi_env env, size_t argc, napi_value* argv);
-    napi_value OnSetReceiveDataCallback(napi_env env, size_t argc, napi_value* argv);
-    napi_value OnLoadContent(napi_env env, size_t argc, napi_value* argv);
-    napi_value OnSetWindowBackgroundColor(napi_env env, size_t argc, napi_value* argv);
-    napi_value OnSetWindowPrivacyMode(napi_env env, size_t argc, napi_value* argv);
+    napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStartAbilityForResult(napi_env env, NapiCallbackInfo& info);
+    napi_value OnTerminateSelf(napi_env env, NapiCallbackInfo& info);
+    napi_value OnTerminateSelfWithResult(napi_env env, NapiCallbackInfo& info);
+    napi_value OnSendData(napi_env env, NapiCallbackInfo& info);
+    napi_value OnSetReceiveDataCallback(napi_env env, NapiCallbackInfo& info);
+    napi_value OnLoadContent(napi_env env, NapiCallbackInfo& info);
+    napi_value OnSetWindowBackgroundColor(napi_env env, NapiCallbackInfo& info);
+    napi_value OnSetWindowPrivacyMode(napi_env env, NapiCallbackInfo& info);
 
     static void CallReceiveDataCallback(napi_env env, std::weak_ptr<CallbackWrapper> weakCallback,
         const AAFwk::WantParams& wantParams);
     void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback,
         bool isAbilityResult = false);
     NapiAsyncTask::ExecuteCallback StartAbilityExecuteCallback(AAFwk::Want& want, size_t& unwrapArgc,
-        napi_env env, size_t argc, napi_value* argv, std::shared_ptr<int> &innerErrorCode);
+        napi_env env, NapiCallbackInfo& info, std::shared_ptr<int> &innerErrorCode);
     void StartAbilityForResultRuntimeTask(napi_env env, AAFwk::Want &want,
         std::shared_ptr<NapiAsyncTask> asyncTask, size_t& unwrapArgc, AAFwk::StartOptions startOptions);
     

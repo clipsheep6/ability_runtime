@@ -16,9 +16,11 @@
 #include <gtest/gtest.h>
 
 #include "ability_runtime_error_util.h"
+#include "ecmascript/napi/include/jsnapi.h"
 #include "errors.h"
-#include "mock_native_engine.h"
-#include "mock_native_value.h"
+#include "hilog_wrapper.h"
+#include "native_engine/impl/ark/ark_native_engine.h"
+#include "native_engine/native_engine.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -31,6 +33,9 @@ public:
     static void TearDownTestCase();
     void SetUp() override;
     void TearDown() override;
+
+    NativeEngine* engine_ = nullptr;
+    panda::ecmascript::EcmaVM* vm_ = nullptr;
 };
 
 void AbilityRuntimeErrorUtilTest::SetUpTestCase()
@@ -40,55 +45,28 @@ void AbilityRuntimeErrorUtilTest::TearDownTestCase()
 {}
 
 void AbilityRuntimeErrorUtilTest::SetUp()
-{}
+{
+    panda::RuntimeOption pandaOption;
+    vm_ = panda::JSNApi::CreateJSVM(pandaOption);
+    if (vm_ == nullptr) {
+        HILOG_ERROR("Create vm failed.");
+        return;
+    }
+
+    engine_ = new ArkNativeEngine(vm_, nullptr);
+}
 
 void AbilityRuntimeErrorUtilTest::TearDown()
-{}
-
-/**
- * @tc.name: Throw_0100
- * @tc.desc: Throw_0100 Test
- * @tc.type: FUNC
- * @tc.require: issueI581SE
- */
-HWTEST_F(AbilityRuntimeErrorUtilTest, Throw_0100, TestSize.Level0)
 {
-    MockNativeEngine engine;
-    MockNativeValue error;
-    EXPECT_CALL(engine, CreateError(_, _)).WillOnce(DoAll(Return(&error)));
-    EXPECT_CALL(engine, Throw(_)).WillOnce(DoAll(Return(true)));
-    bool result = AbilityRuntimeErrorUtil::Throw(engine, ERR_OK);
-    EXPECT_TRUE(result);
-}
+    if (engine_ != nullptr) {
+        delete engine_;
+        engine_ = nullptr;
+    }
 
-/**
- * @tc.name: Throw_0200
- * @tc.desc: Throw_0200 Test
- * @tc.type: FUNC
- * @tc.require: issueI581SE
- */
-HWTEST_F(AbilityRuntimeErrorUtilTest, Throw_0200, TestSize.Level0)
-{
-    MockNativeEngine engine;
-    EXPECT_CALL(engine, CreateError(_, _)).WillOnce(DoAll(Return(nullptr)));
-    bool result = AbilityRuntimeErrorUtil::Throw(engine, ERR_OK);
-    EXPECT_FALSE(result);
-}
-
-/**
- * @tc.name: ThrowByInternalErrCode_0100
- * @tc.desc: ThrowByInternalErrCode_0100 Test
- * @tc.type: FUNC
- * @tc.require: issueI581SE
- */
-HWTEST_F(AbilityRuntimeErrorUtilTest, ThrowByInternalErrCode_0100, TestSize.Level0)
-{
-    MockNativeEngine engine;
-    MockNativeValue error;
-    EXPECT_CALL(engine, CreateError(_, _)).WillOnce(DoAll(Return(&error)));
-    EXPECT_CALL(engine, Throw(_)).WillOnce(DoAll(Return(true)));
-    bool result = AbilityRuntimeErrorUtil::ThrowByInternalErrCode(engine, ERR_OK);
-    EXPECT_TRUE(result);
+    if (vm_ != nullptr) {
+        panda::JSNApi::DestroyJSVM(vm_);
+        vm_ = nullptr;
+    }
 }
 
 /**
@@ -99,8 +77,8 @@ HWTEST_F(AbilityRuntimeErrorUtilTest, ThrowByInternalErrCode_0100, TestSize.Leve
  */
 HWTEST_F(AbilityRuntimeErrorUtilTest, ThrowByInternalErrCode_0200, TestSize.Level0)
 {
-    MockNativeEngine engine;
-    bool result = AbilityRuntimeErrorUtil::ThrowByInternalErrCode(engine, 1);
+    ASSERT_NE(engine_, nullptr);
+    bool result = AbilityRuntimeErrorUtil::ThrowByInternalErrCode(*engine_, 1);
     EXPECT_FALSE(result);
 }
 
@@ -112,9 +90,9 @@ HWTEST_F(AbilityRuntimeErrorUtilTest, ThrowByInternalErrCode_0200, TestSize.Leve
  */
 HWTEST_F(AbilityRuntimeErrorUtilTest, CreateErrorByInternalErrCode_0100, TestSize.Level0)
 {
-    MockNativeEngine engine;
-    NativeValue* result = AbilityRuntimeErrorUtil::CreateErrorByInternalErrCode(engine, ERR_OK);
-    EXPECT_EQ(result, nullptr);
+    ASSERT_NE(engine_, nullptr);
+    NativeValue* result = AbilityRuntimeErrorUtil::CreateErrorByInternalErrCode(*engine_, ERR_OK);
+    EXPECT_NE(result, nullptr);
 }
 
 /**
@@ -125,8 +103,8 @@ HWTEST_F(AbilityRuntimeErrorUtilTest, CreateErrorByInternalErrCode_0100, TestSiz
  */
 HWTEST_F(AbilityRuntimeErrorUtilTest, CreateErrorByInternalErrCode_0200, TestSize.Level0)
 {
-    MockNativeEngine engine;
-    NativeValue* result = AbilityRuntimeErrorUtil::CreateErrorByInternalErrCode(engine, 1);
+    ASSERT_NE(engine_, nullptr);
+    NativeValue* result = AbilityRuntimeErrorUtil::CreateErrorByInternalErrCode(*engine_, 1);
     EXPECT_EQ(result, nullptr);
 }
 

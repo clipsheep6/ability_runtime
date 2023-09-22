@@ -139,6 +139,7 @@ int32_t DistributedClient::ContinueMission(const std::string& srcDeviceId, const
     }
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
+        HILOG_DEBUG("write interface token failed.");
         HILOG_ERROR("ContinueMission remote service null");
         return INVALID_PARAMETERS_ERR;
     }
@@ -166,6 +167,7 @@ int32_t DistributedClient::StartContinuation(const OHOS::AAFwk::Want& want, int3
     }
     MessageParcel data;
     if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        HILOG_DEBUG("write interface token failed.");
         return ERR_FLATTEN_OBJECT;
     }
     PARCEL_WRITE_HELPER(data, Parcelable, &want);
@@ -215,10 +217,10 @@ ErrCode DistributedClient::NotifyCompleteContinuation(
 
 int32_t DistributedClient::StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag)
 {
-    HILOG_INFO("called");
+    HILOG_INFO("StartSyncRemoteMissions called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        HILOG_ERROR("remote system abiity is null");
+        HILOG_ERROR("remote system abiity is nullptr");
         return INVALID_PARAMETERS_ERR;
     }
 
@@ -235,7 +237,7 @@ int32_t DistributedClient::StartSyncRemoteMissions(const std::string& devId, boo
 
 int32_t DistributedClient::StopSyncRemoteMissions(const std::string& devId)
 {
-    HILOG_INFO("called");
+    HILOG_INFO("StopSyncRemoteMissions called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("remote system abiity is null");
@@ -253,10 +255,10 @@ int32_t DistributedClient::StopSyncRemoteMissions(const std::string& devId)
 int32_t DistributedClient::RegisterMissionListener(const std::u16string& devId,
     const sptr<IRemoteObject>& obj)
 {
-    HILOG_INFO("called");
+    HILOG_INFO("RegisterMissionListener called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        HILOG_ERROR("remote system ablity is null");
+        HILOG_ERROR("remote system ablity is nullptr.");
         return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
@@ -272,10 +274,10 @@ int32_t DistributedClient::RegisterMissionListener(const std::u16string& devId,
 int32_t DistributedClient::RegisterOnListener(const std::string& type,
     const sptr<IRemoteObject>& obj)
 {
-    HILOG_INFO("called");
+    HILOG_INFO("RegisterOnListener called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        HILOG_ERROR("remote system ablity is null");
+        HILOG_ERROR("remote system ablity is nullptr");
         return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
@@ -291,7 +293,7 @@ int32_t DistributedClient::RegisterOnListener(const std::string& type,
 int32_t DistributedClient::RegisterOffListener(const std::string& type,
     const sptr<IRemoteObject>& obj)
 {
-    HILOG_INFO("called");
+    HILOG_INFO("RegisterOffListener called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         HILOG_ERROR("remote system ablity is null");
@@ -300,6 +302,7 @@ int32_t DistributedClient::RegisterOffListener(const std::string& type,
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        HILOG_DEBUG("write interface token failed.");
         return ERR_FLATTEN_OBJECT;
     }
     PARCEL_WRITE_HELPER(data, String, type);
@@ -340,6 +343,7 @@ int32_t DistributedClient::GetMissionInfos(const std::string& deviceId, int32_t 
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        HILOG_DEBUG("write interface token failed.");
         return ERR_FLATTEN_OBJECT;
     }
     PARCEL_WRITE_HELPER(data, String16, Str8ToStr16(deviceId));

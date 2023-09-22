@@ -51,9 +51,9 @@ public:
     };
 
     explicit JsCallerComplex(
-        NativeEngine& engine, ReleaseCallFunc releaseCallFunc, sptr<IRemoteObject> callee,
+        napi_env env, ReleaseCallFunc releaseCallFunc, sptr<IRemoteObject> callee,
         std::shared_ptr<CallerCallBack> callerCallBack) : releaseCallFunc_(releaseCallFunc),
-        callee_(callee), releaseCallBackEngine_(engine), remoteStateChanegdEngine_(engine),
+        callee_(callee), releaseCallBackEngine_(env), remoteStateChanegdEngine_(env),
         callerCallBackObj_(callerCallBack), jsReleaseCallBackObj_(nullptr), jsRemoteStateChangedObj_(nullptr)
     {
         AddJsCallerComplex(this);
@@ -97,7 +97,7 @@ public:
         return true;
     }
 
-    static void Finalizer(NativeEngine* engine, void* data, void* hint)
+    static void Finalizer(napi_env env, void* data, void* hint)
     {
         HILOG_DEBUG("JsCallerComplex::%{public}s begin.", __func__);
         if (data == nullptr) {
@@ -115,58 +115,37 @@ public:
         HILOG_DEBUG("JsCallerComplex::%{public}s end.", __func__);
     }
 
-    static NativeValue* JsReleaseCall(NativeEngine* engine, NativeCallbackInfo* info)
+    static napi_value JsReleaseCall(napi_env env, napi_callback_info info)
     {
-        if (engine == nullptr || info == nullptr) {
+        if (env == nullptr || info == nullptr) {
             HILOG_ERROR("JsCallerComplex::%{public}s is called, but input parameters %{public}s is nullptr",
                 __func__,
-                ((engine == nullptr) ? "engine" : "info"));
+                ((env == nullptr) ? "env" : "info"));
             return nullptr;
         }
-
-        auto object = CheckParamsAndGetThis<JsCallerComplex>(engine, info);
-        if (object == nullptr) {
-            HILOG_ERROR("JsCallerComplex::%{public}s is called, CheckParamsAndGetThis return nullptr", __func__);
-            return nullptr;
-        }
-
-        return object->ReleaseCallInner(*engine, *info);
+        GET_NAPI_INFO_AND_CALL(env, info, JsCallerComplex, ReleaseCallInner);
     }
 
-    static NativeValue* JsSetOnReleaseCallBack(NativeEngine* engine, NativeCallbackInfo* info)
+    static napi_value JsSetOnReleaseCallBack(napi_env env, napi_callback_info info)
     {
-        if (engine == nullptr || info == nullptr) {
+        if (env == nullptr || info == nullptr) {
             HILOG_ERROR("JsCallerComplex::%{public}s is called, but input parameters %{public}s is nullptr",
                 __func__,
-                ((engine == nullptr) ? "engine" : "info"));
+                ((env == nullptr) ? "env" : "info"));
             return nullptr;
         }
-
-        auto object = CheckParamsAndGetThis<JsCallerComplex>(engine, info);
-        if (object == nullptr) {
-            HILOG_ERROR("JsCallerComplex::%{public}s is called, CheckParamsAndGetThis return nullptr", __func__);
-            return nullptr;
-        }
-
-        return object->SetOnReleaseCallBackInner(*engine, *info);
+        GET_NAPI_INFO_AND_CALL(env, info, JsCallerComplex, SetOnReleaseCallBackInner);
     }
 
-    static NativeValue* JsSetOnRemoteStateChanged(NativeEngine* engine, NativeCallbackInfo* info)
+    static napi_value JsSetOnRemoteStateChanged(napi_env env, napi_callback_info info)
     {
-        if (engine == nullptr || info == nullptr) {
+        if (env == nullptr || info == nullptr) {
             HILOG_ERROR("JsCallerComplex::%{public}s is called, but input parameters %{public}s is nullptr",
                 __func__,
-                ((engine == nullptr) ? "engine" : "info"));
+                ((env == nullptr) ? "env" : "info"));
             return nullptr;
         }
-
-        auto object = CheckParamsAndGetThis<JsCallerComplex>(engine, info);
-        if (object == nullptr) {
-            HILOG_ERROR("JsCallerComplex::%{public}s is called, CheckParamsAndGetThis return nullptr", __func__);
-            return nullptr;
-        }
-
-        return object->SetOnRemoteStateChangedInner(*engine, *info);
+        GET_NAPI_INFO_AND_CALL(env, info, JsCallerComplex, SetOnRemoteStateChangedInner);
     }
 
     static bool AddJsCallerComplex(JsCallerComplex* ptr)
@@ -319,10 +298,10 @@ private:
             return;
         }
 
-        NativeValue* value = jsReleaseCallBackObj_->Get();
-        NativeValue* callback = jsReleaseCallBackObj_->Get();
-        NativeValue* args[] = { CreateJsValue(releaseCallBackEngine_, str) };
-        releaseCallBackEngine_.CallFunction(value, callback, args, 1);
+        napi_value value = jsReleaseCallBackObj_->GetNapiValue();
+        napi_value callback = jsReleaseCallBackObj_->GetNapiValue();
+        napi_value args[] = { CreateJsValue(releaseCallBackEngine_, str) };
+        napi_call_function(releaseCallBackEngine_, value, callback, 1, args, nullptr);
         HILOG_DEBUG("OnReleaseNotifyTask CallFunction call done");
         callee_ = nullptr;
         StateReset();
@@ -356,63 +335,67 @@ private:
             return;
         }
 
-        NativeValue* value = jsRemoteStateChangedObj_->Get();
-        NativeValue* callback = jsRemoteStateChangedObj_->Get();
-        NativeValue* args[] = { CreateJsValue(remoteStateChanegdEngine_, str) };
-        remoteStateChanegdEngine_.CallFunction(value, callback, args, 1);
+        napi_value value = jsRemoteStateChangedObj_->GetNapiValue();
+        napi_value callback = jsRemoteStateChangedObj_->GetNapiValue();
+        napi_value args[] = { CreateJsValue(remoteStateChanegdEngine_, str) };
+        napi_call_function(remoteStateChanegdEngine_, value, callback, 1, args, nullptr);
         HILOG_DEBUG("OnRemoteStateChangedNotifyTask CallFunction call done");
         StateReset();
         HILOG_DEBUG("OnRemoteStateChangedNotifyTask end");
     }
 
-    NativeValue* ReleaseCallInner(NativeEngine& engine, NativeCallbackInfo& info)
+    napi_value ReleaseCallInner(napi_env env, NapiCallbackInfo& info)
     {
         HILOG_DEBUG("JsCallerComplex::%{public}s, called", __func__);
         if (callerCallBackObj_ == nullptr) {
             HILOG_ERROR("JsCallerComplex::%{public}s, CallBacker is nullptr", __func__);
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         }
 
         if (!releaseCallFunc_) {
             HILOG_ERROR("JsCallerComplex::%{public}s, releaseFunc is nullptr", __func__);
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         }
         int32_t innerErrorCode = releaseCallFunc_(callerCallBackObj_);
         if (innerErrorCode != ERR_OK) {
             HILOG_ERROR("JsCallerComplex::%{public}s, ReleaseAbility failed %{public}d",
                 __func__, static_cast<int>(innerErrorCode));
-            ThrowError(engine, innerErrorCode);
+            ThrowError(env, innerErrorCode);
         }
 
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
 
-    NativeValue* SetOnReleaseCallBackInner(NativeEngine& engine, NativeCallbackInfo& info)
+    napi_value SetOnReleaseCallBackInner(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_DEBUG("JsCallerComplex::%{public}s, begin", __func__);
+        HILOG_DEBUG("JsCallerComplex::%{public}s, start", __func__);
         constexpr size_t argcOne = 1;
         if (info.argc < argcOne) {
-            HILOG_ERROR("JsCallerComplex::%{public}s, Invalid input params", __func__);
-            ThrowTooFewParametersError(engine);
+            HILOG_ERROR("JsCallerComplex::%{public}s, Invalid input parameters", __func__);
+            ThrowTooFewParametersError(env);
         }
-        if (!info.argv[0]->IsCallable()) {
+        bool isCallable = false;
+        napi_is_callable(env, info.argv[0], &isCallable);
+        if (!isCallable) {
             HILOG_ERROR("JsCallerComplex::%{public}s, IsCallable is %{public}s.",
-                __func__, ((info.argv[0]->IsCallable()) ? "true" : "false"));
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+                __func__, isCallable ? "true" : "false");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         }
 
         if (callerCallBackObj_ == nullptr) {
-            HILOG_ERROR("JsCallerComplex::%{public}s, CallBacker is nullptr", __func__);
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
+            HILOG_ERROR("JsCallerComplex::%{public}s, CallBacker is null", __func__);
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         }
 
         auto param1 = info.argv[0];
         if (param1 == nullptr) {
-            HILOG_ERROR("JsCallerComplex::%{public}s, param1 is nullptr", __func__);
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
+            HILOG_ERROR("JsCallerComplex::%{public}s, param1 is null", __func__);
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         }
 
-        jsReleaseCallBackObj_.reset(releaseCallBackEngine_.CreateReference(param1, 1));
+        napi_ref ref = nullptr;
+        napi_create_reference(releaseCallBackEngine_, param1, 1, &ref);
+        jsReleaseCallBackObj_.reset(reinterpret_cast<NativeReference*>(ref));
         auto task = [notify = this] (const std::string &str) {
             if (!FindJsCallerComplexAndChangeState(notify, OBJSTATE::OBJ_EXECUTION)) {
                 HILOG_ERROR("ptr not found, address error");
@@ -422,35 +405,39 @@ private:
         };
         callerCallBackObj_->SetOnRelease(task);
         HILOG_DEBUG("JsCallerComplex::%{public}s, end", __func__);
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
 
-    NativeValue* SetOnRemoteStateChangedInner(NativeEngine& engine, NativeCallbackInfo& info)
+    napi_value SetOnRemoteStateChangedInner(napi_env env, NapiCallbackInfo& info)
     {
         HILOG_DEBUG("JsCallerComplex::%{public}s, begin", __func__);
         constexpr size_t argcOne = 1;
         if (info.argc < argcOne) {
             HILOG_ERROR("JsCallerComplex::%{public}s, Invalid input params", __func__);
-            ThrowTooFewParametersError(engine);
+            ThrowTooFewParametersError(env);
         }
-        if (!info.argv[0]->IsCallable()) {
+        bool isCallable = false;
+        napi_is_callable(env, info.argv[0], &isCallable);
+        if (!isCallable) {
             HILOG_ERROR("JsCallerComplex::%{public}s, IsCallable is %{public}s.",
-                __func__, ((info.argv[0]->IsCallable()) ? "true" : "false"));
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+                __func__, isCallable ? "true" : "false");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         }
 
         if (callerCallBackObj_ == nullptr) {
             HILOG_ERROR("JsCallerComplex::%{public}s, CallBacker is nullptr", __func__);
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         }
 
         auto param1 = info.argv[0];
         if (param1 == nullptr) {
             HILOG_ERROR("JsCallerComplex::%{public}s, param1 is nullptr", __func__);
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         }
 
-        jsRemoteStateChangedObj_.reset(remoteStateChanegdEngine_.CreateReference(param1, 1));
+        napi_ref ref = nullptr;
+        napi_create_reference(remoteStateChanegdEngine_, param1, 1, &ref);
+        jsRemoteStateChangedObj_.reset(reinterpret_cast<NativeReference*>(ref));
         auto task = [notify = this] (const std::string &str) {
             HILOG_INFO("state changed");
             if (!FindJsCallerComplexAndChangeState(notify, OBJSTATE::OBJ_EXECUTION)) {
@@ -461,14 +448,14 @@ private:
         };
         callerCallBackObj_->SetOnRemoteStateChanged(task);
         HILOG_DEBUG("JsCallerComplex::%{public}s, end", __func__);
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
 
 private:
     ReleaseCallFunc releaseCallFunc_;
     sptr<IRemoteObject> callee_;
-    NativeEngine& releaseCallBackEngine_;
-    NativeEngine& remoteStateChanegdEngine_;
+    napi_env releaseCallBackEngine_;
+    napi_env remoteStateChanegdEngine_;
     std::shared_ptr<CallerCallBack> callerCallBackObj_;
     std::unique_ptr<NativeReference> jsReleaseCallBackObj_;
     std::unique_ptr<NativeReference> jsRemoteStateChangedObj_;
@@ -484,8 +471,8 @@ std::set<JsCallerComplex*> JsCallerComplex::jsCallerComplexManagerList;
 std::mutex JsCallerComplex::jsCallerComplexMutex;
 } // nameless
 
-NativeValue* CreateJsCallerComplex(
-    NativeEngine& engine, ReleaseCallFunc releaseCallFunc, sptr<IRemoteObject> callee,
+napi_value CreateJsCallerComplex(
+    napi_env env, ReleaseCallFunc releaseCallFunc, sptr<IRemoteObject> callee,
     std::shared_ptr<CallerCallBack> callerCallBack)
 {
     HILOG_DEBUG("JsCallerComplex::%{public}s, begin", __func__);
@@ -493,45 +480,40 @@ NativeValue* CreateJsCallerComplex(
         HILOG_ERROR("%{public}s is called, input params error. %{public}s is nullptr", __func__,
             (callee == nullptr) ? ("callee") :
             ((releaseCallFunc == nullptr) ? ("releaseCallFunc") : ("callerCallBack")));
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
 
-    NativeValue* objValue = engine.CreateObject();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
-
-    auto jsCaller = std::make_unique<JsCallerComplex>(engine, releaseCallFunc, callee, callerCallBack);
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
+    auto jsCaller = std::make_unique<JsCallerComplex>(env, releaseCallFunc, callee, callerCallBack);
     auto remoteObj = jsCaller->GetRemoteObject();
     if (remoteObj == nullptr) {
         HILOG_ERROR("%{public}s is called,remoteObj is nullptr", __func__);
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
 
-    object->SetNativePointer(jsCaller.release(), JsCallerComplex::Finalizer, nullptr);
-    object->SetProperty("callee", CreateJsCalleeRemoteObject(engine, remoteObj));
+    napi_wrap(env, object, jsCaller.release(), JsCallerComplex::Finalizer, nullptr, nullptr);
+    napi_set_named_property(env, object, "callee", CreateJsCalleeRemoteObject(env, remoteObj));
     const char *moduleName = "JsCallerComplex";
-    BindNativeFunction(engine, *object, "release", moduleName, JsCallerComplex::JsReleaseCall);
-    BindNativeFunction(engine, *object, "onRelease", moduleName, JsCallerComplex::JsSetOnReleaseCallBack);
-    BindNativeFunction(engine, *object, "onRemoteStateChange", moduleName, JsCallerComplex::JsSetOnRemoteStateChanged);
+    BindNativeFunction(env, object, "release", moduleName, JsCallerComplex::JsReleaseCall);
+    BindNativeFunction(env, object, "onRelease", moduleName, JsCallerComplex::JsSetOnReleaseCallBack);
+    BindNativeFunction(env, object, "onRemoteStateChange", moduleName, JsCallerComplex::JsSetOnRemoteStateChanged);
 
     HILOG_DEBUG("JsCallerComplex::%{public}s, end", __func__);
-    return objValue;
+    return object;
 }
 
-NativeValue* CreateJsCalleeRemoteObject(NativeEngine& engine, sptr<IRemoteObject> callee)
+napi_value CreateJsCalleeRemoteObject(napi_env env, sptr<IRemoteObject> callee)
 {
     if (callee == nullptr) {
         HILOG_ERROR("%{public}s is called, input params is nullptr", __func__);
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
-    napi_value napiRemoteObject = NAPI_ohos_rpc_CreateJsRemoteObject(
-        reinterpret_cast<napi_env>(&engine), callee);
-    NativeValue* nativeRemoteObject = reinterpret_cast<NativeValue*>(napiRemoteObject);
-
-    if (nativeRemoteObject == nullptr) {
+    napi_value napiRemoteObject = NAPI_ohos_rpc_CreateJsRemoteObject(env, callee);
+    if (napiRemoteObject == nullptr) {
         HILOG_ERROR("%{public}s is called, but remoteObj is nullptr", __func__);
     }
-
-    return nativeRemoteObject;
+    return napiRemoteObject;
 }
 } // AbilityRuntime
 } // OHOS

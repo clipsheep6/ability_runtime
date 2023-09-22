@@ -19,7 +19,6 @@
 #include <gtest/gtest.h>
 
 #include "js_runtime.h"
-#include "mock_js_native_engine.h"
 
 namespace OHOS {
 namespace AbilityRuntime {

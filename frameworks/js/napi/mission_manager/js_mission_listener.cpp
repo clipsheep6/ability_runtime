@@ -15,6 +15,7 @@
 
 #include "js_mission_listener.h"
 
+
 #include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
 
@@ -54,10 +55,12 @@ void JsMissionListener::OnMissionLabelUpdated(int32_t missionId)
     CallJsMethod("onMissionLabelUpdated", missionId);
 }
 
-void JsMissionListener::AddJsListenerObject(int32_t listenerId, NativeValue* jsListenerObject)
+void JsMissionListener::AddJsListenerObject(int32_t listenerId, napi_value jsListenerObject)
 {
+    napi_ref ref = nullptr;
+    napi_create_reference(env_, jsListenerObject, 1, &ref);
     jsListenerObjectMap_.emplace(
-        listenerId, std::shared_ptr<NativeReference>(engine_->CreateReference(jsListenerObject, 1)));
+        listenerId, std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
 }
 
 bool JsMissionListener::RemoveJsListenerObject(int32_t listenerId)
@@ -77,43 +80,45 @@ bool JsMissionListener::IsEmpty()
 void JsMissionListener::CallJsMethod(const std::string &methodName, int32_t missionId)
 {
     HILOG_INFO("methodName = %{public}s", methodName.c_str());
-    if (engine_ == nullptr) {
-        HILOG_ERROR("engine_ null");
+    if (env_ == nullptr) {
+        HILOG_ERROR("env_ null");
         return;
     }
 
     // js callback should run in js thread
-    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
-        ([jsMissionListener = this, methodName, missionId](NativeEngine &engine, AsyncTask &task, int32_t status) {
-            if (jsMissionListener) {
+    wptr<JsMissionListener> jsMissionListener = this;
+    std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
+        ([jsMissionListener, methodName, missionId](napi_env env, NapiAsyncTask &task, int32_t status) {
+            sptr<JsMissionListener> jsMissionListenerSptr = jsMissionListener.promote();
+            if (jsMissionListener != nullptr) {
                 jsMissionListener->CallJsMethodInner(methodName, missionId);
             }
         });
-    NativeReference* callback = nullptr;
-    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
-    AsyncTask::Schedule("JsMissionListener::CallJsMethod:" + methodName,
-        *engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
+    napi_ref callback = nullptr;
+    std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
+    NapiAsyncTask::Schedule("JsMissionListener::CallJsMethod:" + methodName,
+        env_, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
 void JsMissionListener::CallJsMethodInner(const std::string &methodName, int32_t missionId)
 {
-    // jsListenerObjectMap_ may be changed in engine_->CallFunction()
-    HILOG_DEBUG("CallJsMethodInner enter");
     auto tmpMap = jsListenerObjectMap_;
     for (auto &item : tmpMap) {
-        NativeValue* value = (item.second)->Get();
-        NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
+        napi_value obj = (item.second)->GetNapiValue();
         if (obj == nullptr) {
             HILOG_ERROR("Failed to get object");
             continue;
         }
-        NativeValue* method = obj->GetProperty(methodName.c_str());
-        if (method == nullptr || method->TypeOf() == NATIVE_UNDEFINED) {
+        napi_value method = nullptr;
+        napi_get_named_property(env_, obj, methodName.c_str(), &method);
+        if (method == nullptr || AppExecFwk::IsTypeForNapiValue(env_, method, napi_undefined)
+            || AppExecFwk::IsTypeForNapiValue(env_, method, napi_null)) {
             HILOG_ERROR("Failed to get %{public}s from object", methodName.c_str());
             continue;
         }
-        NativeValue* argv[] = { CreateJsValue(*engine_, missionId) };
-        engine_->CallFunction(value, method, argv, ArraySize(argv));
+        napi_value argv[] = { CreateJsValue(env_, missionId) };
+        napi_value callResult = nullptr;
+        napi_call_function(env_, nullptr, method, ArraySize(argv), argv, &callResult);
     }
 }
 
@@ -121,8 +126,8 @@ void JsMissionListener::CallJsMethodInner(const std::string &methodName, int32_t
 void JsMissionListener::OnMissionIconUpdated(int32_t missionId, const std::shared_ptr<Media::PixelMap> &icon)
 {
     HILOG_INFO("OnMissionIconUpdated, missionId = %{public}d.", missionId);
-    if (engine_ == nullptr) {
-        HILOG_ERROR("engine_ is null");
+    if (env_ == nullptr) {
+        HILOG_ERROR("env_ is null");
         return;
     }
 
@@ -132,45 +137,48 @@ void JsMissionListener::OnMissionIconUpdated(int32_t missionId, const std::share
     }
 
     // js callback must run in js thread
-    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
-        ([jsMissionListener = this, missionId, icon](NativeEngine &engine, AsyncTask &task, int32_t status) {
-            if (jsMissionListener) {
+    wptr<JsMissionListener> jsMissionListener = this;
+    std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
+        ([jsMissionListener, missionId, icon](napi_env env, NapiAsyncTask &task, int32_t status) {
+            sptr<JsMissionListener> jsMissionListenerSptr = jsMissionListener.promote();
+            if (jsMissionListener != nullptr) {
                 jsMissionListener->CallJsMissionIconUpdated(missionId, icon);
             }
         });
-    NativeReference* callback = nullptr;
-    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
-    AsyncTask::Schedule("JsMissionListener::OnMissionIconUpdated", *engine_,
-        std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
+    napi_ref callback = nullptr;
+    std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
+    NapiAsyncTask::Schedule("JsMissionListener::OnMissionIconUpdated", env_,
+        std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
 void JsMissionListener::CallJsMissionIconUpdated(int32_t missionId, const std::shared_ptr<Media::PixelMap> &icon)
 {
-    if (engine_ == nullptr) {
-        HILOG_ERROR("engine_ is null, not call js mission updated.");
+    if (env_ == nullptr) {
+        HILOG_ERROR("env_ is null, not call js mission updated.");
         return;
     }
 
-    NativeValue* nativeMissionId = CreateJsValue(*engine_, missionId);
-    auto nativeIcon = reinterpret_cast<NativeValue*>(
-        Media::PixelMapNapi::CreatePixelMap(reinterpret_cast<napi_env>(engine_), icon));
+    napi_value nativeMissionId = CreateJsValue(env_, missionId);
+    auto nativeIcon = Media::PixelMapNapi::CreatePixelMap(env_, icon);
 
     auto tmpMap = jsListenerObjectMap_;
     for (auto &item : tmpMap) {
-        NativeValue* value = (item.second)->Get();
-        NativeObject* listenerObj = ConvertNativeValueTo<NativeObject>(value);
-        if (listenerObj == nullptr) {
-            HILOG_ERROR("error to get js object");
+        napi_value obj = (item.second)->GetNapiValue();
+        if (obj == nullptr) {
+            HILOG_ERROR("Failed to get js object");
             continue;
         }
-        NativeValue* method = listenerObj->GetProperty("onMissionIconUpdated");
-        if (method == nullptr || method->TypeOf() == NATIVE_UNDEFINED) {
-            HILOG_ERROR("error to get onMissionIconUpdated method from object");
+        napi_value method = nullptr;
+        napi_get_named_property(env_, obj, "onMissionIconUpdated", &method);
+        if (method == nullptr || AppExecFwk::IsTypeForNapiValue(env_, method, napi_undefined)
+            || AppExecFwk::IsTypeForNapiValue(env_, method, napi_null)) {
+            HILOG_ERROR("Failed to get onMissionIconUpdated method from object");
             continue;
         }
 
-        NativeValue* argv[] = { nativeMissionId, nativeIcon };
-        engine_->CallFunction(value, method, argv, ArraySize(argv));
+        napi_value argv[] = { nativeMissionId, nativeIcon };
+        napi_value callResult = nullptr;
+        napi_call_function(env_, nullptr, method, ArraySize(argv), argv, &callResult);
     }
 }
 #endif

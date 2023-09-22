@@ -2112,14 +2112,9 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
         abilityManagerService->OnAbilityDied(ability);
     };
     handler->SubmitTask(task);
-    auto uriTask = [want = want_, ability = weak_from_this()]() {
-        auto me = ability.lock();
-        if (me == nullptr) {
-            HILOG_ERROR("ability is nullptr.");
-            return;
-        }
-        me->SaveResultToCallers(-1, &want);
-        me->SendResultToCallers(true);
+    auto uriTask = [want = want_, ability = shared_from_this()]() {
+        ability->SaveResultToCallers(-1, &want);
+        ability->SendResultToCallers(true);
     };
     handler->SubmitTask(uriTask);
 #ifdef SUPPORT_GRAPHICS

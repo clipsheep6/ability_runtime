@@ -46,7 +46,7 @@ NativeValue *JsApplicationContextUtils::OnSwitchArea(NativeEngine &engine, Nativ
     NativeValue *thisVar = info.thisVar;
     NativeObject *object = ConvertNativeValueTo<NativeObject>(thisVar);
     if (object == nullptr) {
-        HILOG_ERROR("object is nullptr");
+        HILOG_ERROR("object is null");
         return engine.CreateUndefined();
     }
     BindNativeProperty(*object, "cacheDir", GetCacheDir);

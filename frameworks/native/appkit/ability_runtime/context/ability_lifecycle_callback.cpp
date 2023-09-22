@@ -173,6 +173,7 @@ void JsAbilityLifecycleCallback::OnAbilityContinue(const std::shared_ptr<NativeR
 
 int32_t JsAbilityLifecycleCallback::Register(NativeValue *jsCallback, bool isSync)
 {
+    HILOG_DEBUG("enter");
     if (engine_ == nullptr) {
         return -1;
     }

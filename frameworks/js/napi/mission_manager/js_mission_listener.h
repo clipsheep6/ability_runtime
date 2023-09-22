@@ -22,12 +22,13 @@
 #include "event_handler.h"
 #include "mission_listener_stub.h"
 #include "native_engine/native_engine.h"
+#include "napi_common_util.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 class JsMissionListener : public AAFwk::MissionListenerStub {
 public:
-    explicit JsMissionListener(NativeEngine* engine) : engine_(engine) {}
+    explicit JsMissionListener(napi_env env) : env_(env) {}
     virtual ~JsMissionListener() = default;
 
     void OnMissionCreated(int32_t missionId) override;
@@ -37,7 +38,7 @@ public:
     void OnMissionClosed(int32_t missionId) override;
     void OnMissionLabelUpdated(int32_t missionId) override;
 
-    void AddJsListenerObject(int32_t listenerId, NativeValue* jsListenerObject);
+    void AddJsListenerObject(int32_t listenerId, napi_value jsListenerObject);
     bool RemoveJsListenerObject(int32_t listenerId);
     bool IsEmpty();
 
@@ -53,7 +54,7 @@ private:
     void CallJsMethod(const std::string &methodName, int32_t missionId);
     void CallJsMethodInner(const std::string &methodName, int32_t missionId);
 
-    NativeEngine* engine_ = nullptr;
+    napi_env env_ = nullptr;
     std::map<int32_t, std::shared_ptr<NativeReference>> jsListenerObjectMap_;
     std::shared_ptr<OHOS::AppExecFwk::EventHandler> mainHandler_;
 };

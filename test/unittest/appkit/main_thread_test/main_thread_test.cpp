@@ -1723,6 +1723,41 @@ HWTEST_F(MainThreadTest, HandleLaunchApplication_0400, TestSize.Level1)
 }
 
 /**
+ * @tc.name: HandleLaunchApplication_0500
+ * @tc.desc: Handle launch application.
+ * @tc.type: FUNC
+ * @tc.require: issueI7W6C8
+ */
+extern void MockSetCurrentBundleName(const std::string& bundleName);
+HWTEST_F(MainThreadTest, HandleLaunchApplication_0500, TestSize.Level1)
+{
+    Configuration config;
+    AppLaunchData launchData;
+    ProcessInfo processInfo("test_quickfix", 9999);
+    ApplicationInfo appInfo;
+    appInfo.name = "MainAbility";
+    appInfo.bundleName = "com.ohos.quickfix";
+    launchData.SetApplicationInfo(appInfo);
+    launchData.SetProcessInfo(processInfo);
+
+    // check perf cmd
+    std::string perfCmd = "profile jsperf 100";
+    launchData.SetPerfCmd(perfCmd);
+    EXPECT_EQ(launchData.GetPerfCmd(), perfCmd);
+
+    // check debug app
+    bool appDebug = true;
+    launchData.SetDebugApp(appDebug);
+    EXPECT_EQ(launchData.GetDebugApp(), appDebug);
+
+    // check runtime has created and basic callback has registered.
+    MockSetCurrentBundleName("com.ohos.quickfix");
+    mainThread_->HandleLaunchApplication(launchData, config);
+    ASSERT_NE(mainThread_->application_, nullptr);
+    MockSetCurrentBundleName("");
+}
+
+/**
  * @tc.name: OnRemoteDied_0100
  * @tc.desc: remote Object OnRemoteDied callde.
  * @tc.type: FUNC

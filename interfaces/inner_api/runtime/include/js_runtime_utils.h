@@ -175,6 +175,8 @@ std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, Na
     nullptr_t, nullptr_t, NativeValue** result);
 // ----------above going to delete----------
 
+constexpr size_t ARGC_MAX_COUNT = 10;
+
 #define NAPI_CALL_NO_THROW(theCall, retVal)      \
     do {                                         \
         if ((theCall) != napi_ok) {              \
@@ -184,14 +186,30 @@ std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, Na
 
 #define GET_CB_INFO_AND_CALL(env, info, T, func)                                       \
     do {                                                                               \
-        if (env == nullptr || info == nullptr) {                                       \
-            return nullptr;                                                            \
-        }                                                                              \
-        size_t argc = ARGS_MAX_COUNT;                                                  \
-        napi_value argv[ARGS_MAX_COUNT] = {nullptr};                                   \
+        size_t argc = ARGC_MAX_COUNT;                                                  \
+        napi_value argv[ARGC_MAX_COUNT] = {nullptr};                                   \
         T* me = static_cast<T*>(GetCbInfoFromCallbackInfo(env, info, &argc, argv));    \
         return (me != nullptr) ? me->func(env, argc, argv) : nullptr;                  \
     } while (0)
+
+struct NapiCallbackInfo {
+    size_t argc = ARGC_MAX_COUNT;
+    napi_value argv[ARGC_MAX_COUNT] = {nullptr};
+    napi_value thisVar = nullptr;
+};
+
+#define GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, T, func, name)                         \
+    do {                                                                                   \
+        NapiCallbackInfo napiInfo;                                                         \
+        T* me = static_cast<T*>(GetNapiCallbackInfoAndThis(env, info, napiInfo, name));    \
+        return (me != nullptr) ? me->func(env, napiInfo) : nullptr;                        \
+    } while (0)
+
+#define GET_NAPI_INFO_AND_CALL(env, info, T, func)                                         \
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, T, func, nullptr)
+
+void* GetNapiCallbackInfoAndThis(
+    napi_env env, napi_callback_info info, NapiCallbackInfo& napiInfo, const char* name = nullptr);
 
 template<typename T, size_t N>
 inline constexpr size_t ArraySize(T (&)[N]) noexcept
@@ -340,6 +358,8 @@ void* GetCbInfoFromCallbackInfo(napi_env env, napi_callback_info info, size_t* a
 void SetNamedNativePointer(
     napi_env env, napi_value object, const char* name, void* ptr, napi_finalize func);
 void* GetNamedNativePointer(napi_env env, napi_value object, const char* name);
+
+bool CheckTypeForNapiValue(napi_env env, napi_value param, napi_valuetype expectType);
 
 template<class T>
 T* CheckParamsAndGetThis(napi_env env, napi_callback_info info, const char* name = nullptr)

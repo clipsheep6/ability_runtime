@@ -107,13 +107,13 @@ void JsFormExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     jsObj_ = jsRuntime_.LoadModule(
         moduleName, srcPath, abilityInfo_->hapPath, abilityInfo_->compileMode == CompileMode::ES_MODULE);
     if (jsObj_ == nullptr) {
-        HILOG_ERROR("Failed to get jsObj_");
+        HILOG_ERROR("Error to get jsObj_");
         return;
     }
 
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(jsObj_->Get());
     if (obj == nullptr) {
-        HILOG_ERROR("Failed to get JsFormExtension object");
+        HILOG_ERROR("Error to get JsFormExtension object");
         return;
     }
 

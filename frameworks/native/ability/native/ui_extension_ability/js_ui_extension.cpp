@@ -501,14 +501,14 @@ void JsUIExtension::BackgroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo
 
 void JsUIExtension::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
 {
-    HILOG_DEBUG("begin.");
+    HILOG_DEBUG("DestroyWindow begin.");
     if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
         HILOG_ERROR("Invalid sessionInfo.");
         return;
     }
     auto obj = sessionInfo->sessionToken;
     if (uiWindowMap_.find(obj) == uiWindowMap_.end()) {
-        HILOG_ERROR("Fail to find uiWindow");
+        HILOG_ERROR("Wrong to find uiWindow");
         return;
     }
     if (contentSessions_.find(obj) != contentSessions_.end() && contentSessions_[obj] != nullptr) {
@@ -693,13 +693,13 @@ void JsUIExtension::Dump(const std::vector<std::string> &params, std::vector<std
     }
     NativeArray* dumpInfoNative = ConvertNativeValueTo<NativeArray>(dumpInfo);
     if (dumpInfoNative == nullptr) {
-        HILOG_ERROR("dumpInfoNative is nullptr.");
+        HILOG_ERROR("dumpInfoNative is null.");
         return;
     }
     for (uint32_t i = 0; i < dumpInfoNative->GetLength(); i++) {
         std::string dumpInfoStr;
         if (!ConvertFromJsValue(nativeEngine, dumpInfoNative->GetElement(i), dumpInfoStr)) {
-            HILOG_ERROR("Parse dumpInfoStr error.");
+            HILOG_ERROR("Parse dumpInfoStr fail.");
             return;
         }
         info.push_back(dumpInfoStr);

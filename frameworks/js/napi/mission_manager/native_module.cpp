@@ -16,15 +16,14 @@
 #include "mission_manager.h"
 #include "native_engine/native_engine.h"
 
-extern "C" __attribute__((constructor))
-void NAPI_application_missionmanager_AutoRegister()
-{
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-        .name = "application.missionManager",
-        .fileName = "application/libmissionmanager_napi.so/missionmanager.js",
-        .registerCallback = OHOS::AbilityRuntime::JsMissionManagerInit,
-    };
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_modname = "application.missionManager",
+    .nm_filename = "application/libmissionmanager_napi.so/missionmanager.js",
+    .nm_register_func = OHOS::AbilityRuntime::JsMissionManagerInit,
+};
 
-    moduleManager->Register(&newModuleInfo);
+extern "C" __attribute__((constructor)) void NAPI_application_missionmanager_AutoRegister(void)
+{
+    napi_module_register(&_module);
 }

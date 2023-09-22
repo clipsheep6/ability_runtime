@@ -16,16 +16,17 @@
 #ifndef OHOS_ABILITY_RUNTIME_AMS_MGR_INTERFACE_H
 #define OHOS_ABILITY_RUNTIME_AMS_MGR_INTERFACE_H
 
+#include "ability_debug_response_interface.h"
+#include "ability_info.h"
+#include "app_debug_listener_interface.h"
+#include "app_record_id.h"
+#include "application_info.h"
+#include "configuration.h"
+#include "iapp_state_callback.h"
 #include "iremote_broker.h"
 #include "iremote_object.h"
-
-#include "ability_info.h"
-#include "application_info.h"
-#include "app_record_id.h"
-#include "iapp_state_callback.h"
-#include "running_process_info.h"
 #include "istart_specified_ability_response.h"
-#include "configuration.h"
+#include "running_process_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -196,6 +197,48 @@ public:
      */
     virtual int32_t GetBundleNameByPid(const int pid, std::string &bundleName, int32_t &uid) = 0;
 
+    /**
+     * @brief Register app debug listener.
+     * @param listener App debug listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterAppDebugListener(const sptr<IAppDebugListener> &listener) = 0;
+
+    /**
+     * @brief Unregister app debug listener.
+     * @param listener App debug listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UnregisterAppDebugListener(const sptr<IAppDebugListener> &listener) = 0;
+
+    /**
+     * @brief Attach app debug.
+     * @param bundleName The application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t AttachAppDebug(const std::string &bundleName) = 0;
+
+    /**
+     * @brief Detach app debug.
+     * @param bundleName The application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t DetachAppDebug(const std::string &bundleName) = 0;
+
+    /**
+     * @brief Registering ability debug mode response.
+     * @param response Response for ability debug object.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterAbilityDebugResponse(const sptr<IAbilityDebugResponse> &response) = 0;
+
+    /**
+     * @brief Determine whether it is an attachment debug application based on the bundle name.
+     * @param bundleName The application bundle name.
+     * @return Returns true if it is an attach debug application, otherwise it returns false.
+     */
+    virtual bool IsAttachDebug(const std::string &bundleName) = 0;
+
     enum class Message {
         LOAD_ABILITY = 0,
         TERMINATE_ABILITY,
@@ -221,7 +264,13 @@ public:
         UPDATE_APPLICATION_INFO_INSTALLED,
         SET_CURRENT_USER_ID,
         Get_BUNDLE_NAME_BY_PID,
-        SET_ABILITY_FOREGROUNDING_FLAG
+        SET_ABILITY_FOREGROUNDING_FLAG,
+        REGISTER_APP_DEBUG_LISTENER,
+        UNREGISTER_APP_DEBUG_LISTENER,
+        ATTACH_APP_DEBUG,
+        DETACH_APP_DEBUG,
+        REGISTER_ABILITY_DEBUG_RESPONSE,
+        IS_ATTACH_DEBUG,
     };
 };
 }  // namespace AppExecFwk

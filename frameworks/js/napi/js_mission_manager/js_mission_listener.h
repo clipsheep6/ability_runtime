@@ -22,12 +22,13 @@
 #include "event_handler.h"
 #include "mission_listener_stub.h"
 #include "native_engine/native_engine.h"
+#include "napi_common_util.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 class JsMissionListener : public AAFwk::MissionListenerStub {
 public:
-    explicit JsMissionListener(NativeEngine* engine) : engine_(engine) {}
+    explicit JsMissionListener(napi_env env) : env_(env) {}
     virtual ~JsMissionListener() = default;
 
     void OnMissionCreated(int32_t missionId) override;
@@ -37,7 +38,7 @@ public:
     void OnMissionClosed(int32_t missionId) override;
     void OnMissionLabelUpdated(int32_t missionId) override;
 
-    void AddJsListenerObject(int32_t listenerId, NativeValue* jsListenerObject, bool isSync = false);
+    void AddJsListenerObject(int32_t listenerId, napi_value jsListenerObject, bool isSync = false);
     bool RemoveJsListenerObject(int32_t listenerId, bool isSync = false);
     bool IsEmpty();
 
@@ -52,9 +53,9 @@ private:
 private:
     void CallJsMethod(const std::string &methodName, int32_t missionId);
     void CallJsMethodInner(const std::string &methodName, int32_t missionId);
-    void CallJsFunction(NativeValue* value, const char* methodName, NativeValue* const *argv, size_t argc);
+    void CallJsFunction(napi_value value, const char* methodName, napi_value *argv, size_t argc);
 
-    NativeEngine* engine_ = nullptr;
+    napi_env env_ = nullptr;
     std::map<int32_t, std::shared_ptr<NativeReference>> jsListenerObjectMap_;
     std::map<int32_t, std::shared_ptr<NativeReference>> jsListenerObjectMapSync_;
     std::shared_ptr<OHOS::AppExecFwk::EventHandler> mainHandler_;

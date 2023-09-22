@@ -34,14 +34,13 @@ ApplicationContextManager& ApplicationContextManager::GetApplicationContextManag
     return applicationContextManager;
 }
 
-void ApplicationContextManager::AddGlobalObject(NativeEngine &engine,
+void ApplicationContextManager::AddGlobalObject(napi_env env,
     std::shared_ptr<NativeReference> applicationContextObj)
 {
     std::lock_guard<std::mutex> lock(applicationContextMutex_);
-    auto key = reinterpret_cast<napi_env>(&engine);
-    auto iter = applicationContextMap_.find(key);
+    auto iter = applicationContextMap_.find(env);
     if (iter == applicationContextMap_.end()) {
-        applicationContextMap_[key] = applicationContextObj;
+        applicationContextMap_[env] = applicationContextObj;
         return;
     }
     if (iter->second != nullptr) {
@@ -51,11 +50,10 @@ void ApplicationContextManager::AddGlobalObject(NativeEngine &engine,
     iter->second = applicationContextObj;
 }
 
-std::shared_ptr<NativeReference> ApplicationContextManager::GetGlobalObject(NativeEngine &engine)
+std::shared_ptr<NativeReference> ApplicationContextManager::GetGlobalObject(napi_env env)
 {
     std::lock_guard<std::mutex> lock(applicationContextMutex_);
-    auto key = reinterpret_cast<napi_env>(&engine);
-    return applicationContextMap_[key];
+    return applicationContextMap_[env];
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

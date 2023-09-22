@@ -31,9 +31,9 @@ public:
 
     static ApplicationContextManager& GetApplicationContextManager();
 
-    void AddGlobalObject(NativeEngine &engine, std::shared_ptr<NativeReference> applicationContextObj);
+    void AddGlobalObject(napi_env env, std::shared_ptr<NativeReference> applicationContextObj);
 
-    std::shared_ptr<NativeReference> GetGlobalObject(NativeEngine &engine);
+    std::shared_ptr<NativeReference> GetGlobalObject(napi_env env);
 
 private:
     ApplicationContextManager();

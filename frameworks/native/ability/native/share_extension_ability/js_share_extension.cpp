@@ -125,10 +125,10 @@ void JsShareExtension::OnForeground(const Want &want)
 
 void JsShareExtension::OnBackground()
 {
-    HILOG_DEBUG("called.");
+    HILOG_DEBUG("OnBackground called.");
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (jsUIExtensionBase_ == nullptr) {
-        HILOG_ERROR("jsUIExtensionBase_ is nullptr");
+        HILOG_ERROR("jsUIExtensionBase_ is nullptr.");
         return;
     }
     jsUIExtensionBase_->OnBackground();

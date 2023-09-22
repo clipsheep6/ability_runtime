@@ -143,7 +143,6 @@ static napi_value InitOnSaveResultEnum(napi_env env)
 // AbilityConstant.StateType
 static napi_value InitStateTypeEnum(napi_env env)
 {
-    
     HILOG_DEBUG("start");
     napi_value object;
     NAPI_CALL(env, napi_create_object(env, &object));

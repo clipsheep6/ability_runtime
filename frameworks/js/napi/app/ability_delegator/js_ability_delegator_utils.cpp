@@ -65,6 +65,7 @@ NativeValue *CreateJsAbilityDelegator(NativeEngine &engine)
                        JSAbilityDelegator::RemoveAbilityMonitorSync);
     BindNativeFunction(engine, *object, "removeAbilityStageMonitorSync",
                        moduleName, JSAbilityDelegator::RemoveAbilityStageMonitorSync);
+    BindNativeFunction(engine, *object, "setMockList", moduleName, JSAbilityDelegator::SetMockList);
     return objValue;
 }
 

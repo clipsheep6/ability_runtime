@@ -28,34 +28,34 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue* CreateJsMissionInfo(NativeEngine &engine, const AAFwk::MissionInfo &missionInfo);
-NativeValue* CreateJsWant(NativeEngine &engine, const AAFwk::Want &want);
-NativeValue* CreateJsWantParams(NativeEngine &engine, const AAFwk::WantParams &wantParams);
-NativeValue* CreateJsMissionInfoArray(NativeEngine &engine, const std::vector<AAFwk::MissionInfo> &missionInfos);
+napi_value CreateJsMissionInfo(napi_env env, const AAFwk::MissionInfo &missionInfo);
+napi_value CreateJsWant(napi_env env, const AAFwk::Want &want);
+napi_value CreateJsWantParams(napi_env env, const AAFwk::WantParams &wantParams);
+napi_value CreateJsMissionInfoArray(napi_env env, const std::vector<AAFwk::MissionInfo> &missionInfos);
 
 template<class TBase, class T, class NativeT>
 bool InnerWrapJsWantParams(
-    NativeEngine &engine, NativeObject* object, const std::string &key, const AAFwk::WantParams &wantParams)
+    napi_env env, napi_value object, const std::string &key, const AAFwk::WantParams &wantParams)
 {
     auto value = wantParams.GetParam(key);
     TBase *ao = TBase::Query(value);
     if (ao != nullptr) {
         NativeT natValue = T::Unbox(ao);
-        object->SetProperty(key.c_str(), CreateJsValue(engine, natValue));
+        napi_set_named_property(env, object, key.c_str(), CreateJsValue(env, natValue));
         return true;
     }
     return false;
 }
 
 bool InnerWrapJsWantParamsWantParams(
-    NativeEngine &engine, NativeObject* object, const std::string &key, const AAFwk::WantParams &wantParams);
+    napi_env env, napi_value object, const std::string &key, const AAFwk::WantParams &wantParams);
 
 bool WrapJsWantParamsArray(
-    NativeEngine &engine, NativeObject* object, const std::string &key, sptr<AAFwk::IArray> &ao);
+    napi_env env, napi_value object, const std::string &key, sptr<AAFwk::IArray> &ao);
 
 template<class TBase, class T, class NativeT>
 bool InnerWrapWantParamsArray(
-    NativeEngine &engine, NativeObject* object, const std::string &key, sptr<AAFwk::IArray> &ao)
+    napi_env env, napi_value object, const std::string &key, sptr<AAFwk::IArray> &ao)
 {
     long size = 0;
     if (ao->GetLength(size) != ERR_OK) {
@@ -71,7 +71,7 @@ bool InnerWrapWantParamsArray(
             }
         }
     }
-    object->SetProperty(key.c_str(), CreateNativeArray(engine, natArray));
+    napi_set_named_property(env, object, key.c_str(), CreateNativeArray(env, natArray));
     return true;
 }
 }  // namespace AbilityRuntime

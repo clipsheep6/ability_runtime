@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -51,6 +51,12 @@ public:
     MOCK_METHOD3(GetApplicationInfoByProcessID, int(const int pid, AppExecFwk::ApplicationInfo& application,
         bool& debug));
     MOCK_METHOD3(GetBundleNameByPid, int32_t(const int pid, std::string &bundleName, int32_t &uid));
+    MOCK_METHOD1(RegisterAppDebugListener, int32_t(const sptr<IAppDebugListener> &listener));
+    MOCK_METHOD1(UnregisterAppDebugListener, int32_t(const sptr<IAppDebugListener> &listener));
+    MOCK_METHOD1(AttachAppDebug, int32_t(const std::string &bundleName));
+    MOCK_METHOD1(DetachAppDebug, int32_t(const std::string &bundleName));
+    MOCK_METHOD1(RegisterAbilityDebugResponse, int32_t(const sptr<IAbilityDebugResponse> &response));
+    MOCK_METHOD1(IsAttachDebug, bool(const std::string &bundleName));
 
     MockAmsMgrScheduler() : AmsMgrStub() {};
     virtual ~MockAmsMgrScheduler() {};

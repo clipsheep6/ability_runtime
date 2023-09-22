@@ -71,36 +71,36 @@ public:
 
     static napi_value GetAbilityRunningInfos(napi_env env, napi_callback_info info)
     {
-        GET_CB_INFO_AND_CALL(env, info, JsAbilityManager, OnGetAbilityRunningInfos);
+        GET_NAPI_INFO_AND_CALL(env, info, JsAbilityManager, OnGetAbilityRunningInfos);
     }
 
     static napi_value GetExtensionRunningInfos(napi_env env, napi_callback_info info)
     {
-        GET_CB_INFO_AND_CALL(env, info, JsAbilityManager, OnGetExtensionRunningInfos);
+        GET_NAPI_INFO_AND_CALL(env, info, JsAbilityManager, OnGetExtensionRunningInfos);
     }
 
     static napi_value UpdateConfiguration(napi_env env, napi_callback_info info)
     {
-        GET_CB_INFO_AND_CALL(env, info, JsAbilityManager, OnUpdateConfiguration);
+        GET_NAPI_INFO_AND_CALL(env, info, JsAbilityManager, OnUpdateConfiguration);
     }
 
     static napi_value GetTopAbility(napi_env env, napi_callback_info info)
     {
-        GET_CB_INFO_AND_CALL(env, info, JsAbilityManager, OnGetTopAbility);
+        GET_NAPI_INFO_AND_CALL(env, info, JsAbilityManager, OnGetTopAbility);
     }
 
     static napi_value AcquireShareData(napi_env env, napi_callback_info info)
     {
-        GET_CB_INFO_AND_CALL(env, info, JsAbilityManager, OnAcquireShareData);
+        GET_NAPI_INFO_AND_CALL(env, info, JsAbilityManager, OnAcquireShareData);
     }
 
     static napi_value NotifySaveAsResult(napi_env env, napi_callback_info info)
     {
-        GET_CB_INFO_AND_CALL(env, info, JsAbilityManager, OnNotifySaveAsResult);
+        GET_NAPI_INFO_AND_CALL(env, info, JsAbilityManager, OnNotifySaveAsResult);
     }
 
 private:
-    napi_value OnGetAbilityRunningInfos(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnGetAbilityRunningInfos(napi_env env, NapiCallbackInfo& info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
         NapiAsyncTask::CompleteCallback complete =
@@ -120,17 +120,17 @@ private:
                 }
             };
 
-        napi_value lastParam = (argc == 0) ? nullptr : argv[0];
+        napi_value lastParam = (info.argc == 0) ? nullptr : info.argv[0];
         napi_value result = nullptr;
         NapiAsyncTask::ScheduleHighQos("JsAbilityManager::OnGetAbilityRunningInfos",
             env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
-    napi_value OnGetExtensionRunningInfos(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnGetExtensionRunningInfos(napi_env env, NapiCallbackInfo& info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
-        if (argc == 0) {
+        if (info.argc == 0) {
             HILOG_ERROR("Not enough params");
 #ifdef ENABLE_ERRCODE
             ThrowTooFewParametersError(env);
@@ -138,7 +138,7 @@ private:
             return CreateJsUndefined(env);
         }
         int upperLimit = -1;
-        if (!ConvertFromJsValue(env, argv[0], upperLimit)) {
+        if (!ConvertFromJsValue(env, info.argv[0], upperLimit)) {
 #ifdef ENABLE_ERRCODE
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
 #endif
@@ -162,7 +162,7 @@ private:
                 }
             };
 
-        napi_value lastParam = (argc == 1) ? nullptr : argv[1];
+        napi_value lastParam = (info.argc == 1) ? nullptr : info.argv[1];
         napi_value result = nullptr;
         NapiAsyncTask::ScheduleHighQos("JsAbilityManager::OnGetExtensionRunningInfos",
             env, CreateAsyncTaskWithLastParam(env,
@@ -170,13 +170,13 @@ private:
         return result;
     }
 
-    napi_value OnUpdateConfiguration(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnUpdateConfiguration(napi_env env, NapiCallbackInfo& info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
         NapiAsyncTask::CompleteCallback complete;
 
         do {
-            if (argc == 0) {
+            if (info.argc == 0) {
                 HILOG_ERROR("Not enough params");
 #ifdef ENABLE_ERRCODE
                 ThrowTooFewParametersError(env);
@@ -189,7 +189,7 @@ private:
             }
 
             AppExecFwk::Configuration changeConfig;
-            if (!UnwrapConfiguration(env, argv[0], changeConfig)) {
+            if (!UnwrapConfiguration(env, info.argv[0], changeConfig)) {
 #ifdef ENABLE_ERRCODE
                 ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
 #else
@@ -216,7 +216,7 @@ private:
             };
         } while (0);
 
-        napi_value lastParam = (argc == 1) ? nullptr : argv[1];
+        napi_value lastParam = (info.argc == 1) ? nullptr : info.argv[1];
         napi_value result = nullptr;
         NapiAsyncTask::ScheduleHighQos("JsAbilityManager::OnGetExtensionRunningInfos",
             env, CreateAsyncTaskWithLastParam(env,
@@ -224,7 +224,7 @@ private:
         return result;
     }
 
-    napi_value OnGetTopAbility(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnGetTopAbility(napi_env env, NapiCallbackInfo& info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
 #ifdef ENABLE_ERRCODE
@@ -245,26 +245,26 @@ private:
 #endif
             };
 
-        napi_value lastParam = (argc == 0) ? nullptr : argv[0];
+        napi_value lastParam = (info.argc == 0) ? nullptr : info.argv[0];
         napi_value result = nullptr;
         NapiAsyncTask::ScheduleHighQos("JsAbilityManager::OnGetTopAbility",
             env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
-    napi_value OnAcquireShareData(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnAcquireShareData(napi_env env, NapiCallbackInfo& info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
-        if (argc < ARGC_ONE) {
+        if (info.argc < ARGC_ONE) {
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
         int32_t missionId = -1;
-        if (!ConvertFromJsValue(env, argv[INDEX_ZERO], missionId)) {
+        if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], missionId)) {
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
-        napi_value lastParam = argc > ARGC_ONE  ? argv[INDEX_ONE] : nullptr;
+        napi_value lastParam = info.argc > ARGC_ONE  ? info.argv[INDEX_ONE] : nullptr;
         napi_value result = nullptr;
         std::unique_ptr<NapiAsyncTask> uasyncTask = CreateAsyncTaskWithLastParam(
             env, lastParam, nullptr, nullptr, &result);
@@ -293,21 +293,21 @@ private:
         return result;
     }
 
-    napi_value OnNotifySaveAsResult(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnNotifySaveAsResult(napi_env env, NapiCallbackInfo& info)
     {
         HILOG_INFO("called");
         NapiAsyncTask::CompleteCallback complete;
         NapiAsyncTask::ExecuteCallback execute;
 
         do {
-            if (argc < ARGC_TWO) {
+            if (info.argc < ARGC_TWO) {
                 HILOG_ERROR("Not enough params");
                 ThrowTooFewParametersError(env);
                 break;
             }
 
             int reqCode = 0;
-            if (!ConvertFromJsValue(env, argv[1], reqCode)) {
+            if (!ConvertFromJsValue(env, info.argv[1], reqCode)) {
                 HILOG_ERROR("Get requestCode param error");
                 ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
                 break;
@@ -315,7 +315,7 @@ private:
 
             AppExecFwk::Want want;
             int resultCode = ERR_OK;
-            if (!AppExecFwk::UnWrapAbilityResult(env, argv[0], resultCode, want)) {
+            if (!AppExecFwk::UnWrapAbilityResult(env, info.argv[0], resultCode, want)) {
                 HILOG_ERROR("Unrwrap abilityResult param error");
                 ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
                 break;
@@ -335,7 +335,7 @@ private:
             };
         } while (0);
 
-        napi_value lastParam = (argc == ARGC_TWO) ? nullptr : argv[ARGC_TWO];
+        napi_value lastParam = (info.argc == ARGC_TWO) ? nullptr : info.argv[ARGC_TWO];
         napi_value result = nullptr;
         NapiAsyncTask::ScheduleHighQos("JsAbilityManager::OnNotifySaveAsResult",
             env, CreateAsyncTaskWithLastParam(env,

@@ -221,7 +221,7 @@ private:
             [weak = context_, want, connection, connectId](NativeEngine& engine, AsyncTask& task, int32_t status) {
                 auto context = weak.lock();
                 if (!context) {
-                    HILOG_ERROR("context is released");
+                    HILOG_ERROR("context is free");
                     task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                     RemoveConnection(connectId);
                     return;
@@ -245,7 +245,7 @@ private:
     {
         HILOG_INFO("DisconnectAbility");
         if (info.argc < ARGC_ONE) {
-            HILOG_ERROR("Disconnect ability failed, not enough params.");
+            HILOG_ERROR("Disconnect ability failed, not enough parameters.");
             ThrowTooFewParametersError(engine);
             return engine.CreateUndefined();
         }
@@ -264,16 +264,16 @@ private:
                 NativeEngine& engine, AsyncTask& task, int32_t status) {
                 auto context = weak.lock();
                 if (!context) {
-                    HILOG_WARN("context is released");
+                    HILOG_WARN("release context");
                     task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                     return;
                 }
                 if (connection == nullptr) {
-                    HILOG_WARN("connection nullptr");
+                    HILOG_WARN("connection null");
                     task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INNER));
                     return;
                 }
-                HILOG_DEBUG("context->DisconnectAbility");
+                HILOG_DEBUG("context->DisconnectAbility.");
                 auto innerErrorCode = context->DisconnectAbility(want, connection);
                 if (innerErrorCode == 0) {
                     task.Resolve(engine, engine.CreateUndefined());
@@ -293,10 +293,10 @@ private:
     {
         if (!OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine),
             reinterpret_cast<napi_value>(value), want)) {
-            HILOG_ERROR("The input want is invalid.");
+            HILOG_ERROR("The input want is invalid");
             return false;
         }
-        HILOG_INFO("UnwrapWant, BundleName: %{public}s, AbilityName: %{public}s.",
+        HILOG_INFO("UnwrapWant, BundleName: %{public}s, AbilityName: %{public}s",
             want.GetBundle().c_str(),
             want.GetElement().GetAbilityName().c_str());
         return true;
@@ -321,7 +321,7 @@ private:
         } else {
             g_serialNumber = 0;
         }
-        HILOG_DEBUG("not find connection, make new one");
+        HILOG_DEBUG("make new one, not find connection");
         return true;
     }
 
@@ -479,7 +479,7 @@ void JSFormExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::Ele
     }
     NativeValue* methodOnConnect = obj->GetProperty("onConnect");
     if (methodOnConnect == nullptr) {
-        HILOG_ERROR("Failed to get onConnect from object");
+        HILOG_ERROR("Error to get onConnect from object");
         return;
     }
     engine_.CallFunction(value, methodOnConnect, argv, ARGC_TWO);
@@ -512,24 +512,24 @@ void JSFormExtensionConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::
     NativeValue* nativeElementName = reinterpret_cast<NativeValue*>(napiElementName);
     NativeValue* argv[] = {nativeElementName};
     if (jsConnectionObject_ == nullptr) {
-        HILOG_ERROR("jsConnectionObject_ nullptr");
+        HILOG_ERROR("jsConnectionObject_ null");
         return;
     }
     NativeValue* value = jsConnectionObject_->Get();
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
-        HILOG_ERROR("Failed to get object");
+        HILOG_ERROR("get object fail");
         return;
     }
 
     NativeValue* method = obj->GetProperty("onDisconnect");
     if (method == nullptr) {
-        HILOG_ERROR("Failed to get onDisconnect from object");
+        HILOG_ERROR("Error to get onDisconnect from object");
         return;
     }
 
     // release connect
-    HILOG_DEBUG("OnAbilityDisconnectDone g_connects.size:%{public}zu", g_connects.size());
+    HILOG_DEBUG("OnAbilityDisconnectDone g_connects.size:%{public}zu.", g_connects.size());
     std::string bundleName = element.GetBundleName();
     std::string abilityName = element.GetAbilityName();
     auto item = std::find_if(g_connects.begin(),
@@ -543,7 +543,7 @@ void JSFormExtensionConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::
     if (item != g_connects.end()) {
         // match bundleName && abilityName
         g_connects.erase(item);
-        HILOG_DEBUG("OnAbilityDisconnectDone erase g_connects.size:%{public}zu", g_connects.size());
+        HILOG_DEBUG("OnAbilityDisconnectDone erase g_connects.size:%{public}zu.", g_connects.size());
     }
     engine_.CallFunction(value, method, argv, ARGC_ONE);
 }
@@ -560,26 +560,26 @@ void JSFormExtensionConnection::RemoveConnectionObject()
 
 void JSFormExtensionConnection::CallJsFailed(int32_t errorCode)
 {
-    HILOG_DEBUG("CallJsFailed begin");
+    HILOG_DEBUG("CallJsFailed start");
     if (jsConnectionObject_ == nullptr) {
-        HILOG_ERROR("jsConnectionObject_ nullptr");
+        HILOG_ERROR("jsConnectionObject_ null");
         return;
     }
     NativeValue* value = jsConnectionObject_->Get();
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
-        HILOG_ERROR("Failed to get object");
+        HILOG_ERROR("Error to get object");
         return;
     }
 
     NativeValue* method = obj->GetProperty("onFailed");
     if (method == nullptr) {
-        HILOG_ERROR("Failed to get onFailed from object");
+        HILOG_ERROR("Error to get onFailed from object");
         return;
     }
     NativeValue* argv[] = {engine_.CreateNumber(errorCode)};
     engine_.CallFunction(value, method, argv, ARGC_ONE);
-    HILOG_DEBUG("CallJsFailed end");
+    HILOG_DEBUG("CallJsFailed exit");
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

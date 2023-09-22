@@ -391,7 +391,8 @@ HWTEST_F(JsRuntimeTest, JsRuntimeLoadSystemModulesTest_0100, TestSize.Level0)
     EXPECT_TRUE(jsRuntime != nullptr);
 
     std::string moduleName = "PreloadSystemModuleTest";
-    std::unique_ptr<NativeReference> ref = jsRuntime->LoadSystemModule(moduleName, nullptr, 0);
+    napi_value object = nullptr;
+    std::unique_ptr<NativeReference> ref = jsRuntime->LoadSystemModule(moduleName, &object, 0);
     EXPECT_EQ(ref, nullptr);
 
     HILOG_INFO("LoadSystemModule end");

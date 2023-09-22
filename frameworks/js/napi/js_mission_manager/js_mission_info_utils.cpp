@@ -32,139 +32,141 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue* CreateJsMissionInfo(NativeEngine &engine, const AAFwk::MissionInfo &missionInfo)
+napi_value CreateJsMissionInfo(napi_env env, const AAFwk::MissionInfo &missionInfo)
 {
-    NativeValue* objValue = engine.CreateObject();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
-    object->SetProperty("missionId", CreateJsValue(engine, missionInfo.id));
-    object->SetProperty("runningState", CreateJsValue(engine, missionInfo.runningState));
-    object->SetProperty("lockedState", CreateJsValue(engine, missionInfo.lockedState));
-    object->SetProperty("continuable", CreateJsValue(engine, missionInfo.continuable));
-    object->SetProperty("timestamp", CreateJsValue(engine, missionInfo.time));
-    object->SetProperty("want", CreateJsWant(engine, missionInfo.want));
-    object->SetProperty("label", CreateJsValue(engine, missionInfo.label));
-    object->SetProperty("iconPath", CreateJsValue(engine, missionInfo.iconPath));
-    object->SetProperty("abilityState", CreateJsValue(engine, missionInfo.abilityState));
-    object->SetProperty("unclearable", CreateJsValue(engine, missionInfo.unclearable));
+    napi_value objValue = nullptr;
+    napi_create_object(env, &objValue);
+
+    napi_set_named_property(env, objValue, "missionId", CreateJsValue(env, missionInfo.id));
+    napi_set_named_property(env, objValue, "runningState", CreateJsValue(env, missionInfo.runningState));
+    napi_set_named_property(env, objValue, "lockedState", CreateJsValue(env, missionInfo.lockedState));
+    napi_set_named_property(env, objValue, "continuable", CreateJsValue(env, missionInfo.continuable));
+    napi_set_named_property(env, objValue, "timestamp", CreateJsValue(env, missionInfo.time));
+    napi_set_named_property(env, objValue, "want", CreateJsWant(env, missionInfo.want));
+    napi_set_named_property(env, objValue, "label", CreateJsValue(env, missionInfo.label));
+    napi_set_named_property(env, objValue, "iconPath", CreateJsValue(env, missionInfo.iconPath));
+    napi_set_named_property(env, objValue, "abilityState", CreateJsValue(env, missionInfo.abilityState));
+    napi_set_named_property(env, objValue, "unclearable", CreateJsValue(env, missionInfo.unclearable));
     return objValue;
 }
 
-NativeValue* CreateJsWant(NativeEngine &engine, const AAFwk::Want &want)
+napi_value CreateJsWant(napi_env env, const AAFwk::Want &want)
 {
-    NativeValue* objValue = engine.CreateObject();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
-    object->SetProperty("deviceId", CreateJsValue(engine, want.GetElement().GetDeviceID()));
-    object->SetProperty("bundleName", CreateJsValue(engine, want.GetElement().GetBundleName()));
-    object->SetProperty("abilityName", CreateJsValue(engine, want.GetElement().GetAbilityName()));
-    object->SetProperty("uri", CreateJsValue(engine, want.GetUriString()));
-    object->SetProperty("type", CreateJsValue(engine, want.GetType()));
-    object->SetProperty("flags", CreateJsValue(engine, want.GetFlags()));
-    object->SetProperty("action", CreateJsValue(engine, want.GetAction()));
-    object->SetProperty("parameters", CreateJsWantParams(engine, want.GetParams()));
-    object->SetProperty("entities", CreateNativeArray(engine, want.GetEntities()));
+    napi_value objValue = nullptr;
+    napi_create_object(env, &objValue);
+
+    napi_set_named_property(env, objValue, "deviceId", CreateJsValue(env, want.GetElement().GetDeviceID()));
+    napi_set_named_property(env, objValue, "bundleName", CreateJsValue(env, want.GetElement().GetBundleName()));
+    napi_set_named_property(env, objValue, "abilityName", CreateJsValue(env, want.GetElement().GetAbilityName()));
+    napi_set_named_property(env, objValue, "uri", CreateJsValue(env, want.GetUriString()));
+    napi_set_named_property(env, objValue, "type", CreateJsValue(env, want.GetType()));
+    napi_set_named_property(env, objValue, "flags", CreateJsValue(env, want.GetFlags()));
+    napi_set_named_property(env, objValue, "action", CreateJsValue(env, want.GetAction()));
+    napi_set_named_property(env, objValue, "parameters", CreateJsWantParams(env, want.GetParams()));
+    napi_set_named_property(env, objValue, "entities", CreateNativeArray(env, want.GetEntities()));
     return objValue;
 }
 
-NativeValue* CreateJsWantParams(NativeEngine &engine, const AAFwk::WantParams &wantParams)
+napi_value CreateJsWantParams(napi_env env, const AAFwk::WantParams &wantParams)
 {
-    NativeValue* objValue = engine.CreateObject();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
     const std::map<std::string, sptr<AAFwk::IInterface>> paramList = wantParams.GetParams();
     for (auto iter = paramList.begin(); iter != paramList.end(); iter++) {
         if (AAFwk::IString::Query(iter->second) != nullptr) {
             InnerWrapJsWantParams<AAFwk::IString, AAFwk::String, std::string>(
-                engine, object, iter->first, wantParams);
+                env, object, iter->first, wantParams);
         } else if (AAFwk::IBoolean::Query(iter->second) != nullptr) {
             InnerWrapJsWantParams<AAFwk::IBoolean, AAFwk::Boolean, bool>(
-                engine, object, iter->first, wantParams);
+                env, object, iter->first, wantParams);
         } else if (AAFwk::IShort::Query(iter->second) != nullptr) {
             InnerWrapJsWantParams<AAFwk::IShort, AAFwk::Short, short>(
-                engine, object, iter->first, wantParams);
+                env, object, iter->first, wantParams);
         } else if (AAFwk::IInteger::Query(iter->second) != nullptr) {
             InnerWrapJsWantParams<AAFwk::IInteger, AAFwk::Integer, int>(
-                engine, object, iter->first, wantParams);
+                env, object, iter->first, wantParams);
         } else if (AAFwk::ILong::Query(iter->second) != nullptr) {
             InnerWrapJsWantParams<AAFwk::ILong, AAFwk::Long, int64_t>(
-                engine, object, iter->first, wantParams);
+                env, object, iter->first, wantParams);
         } else if (AAFwk::IFloat::Query(iter->second) != nullptr) {
             InnerWrapJsWantParams<AAFwk::IFloat, AAFwk::Float, float>(
-                engine, object, iter->first, wantParams);
+                env, object, iter->first, wantParams);
         } else if (AAFwk::IDouble::Query(iter->second) != nullptr) {
             InnerWrapJsWantParams<AAFwk::IDouble, AAFwk::Double, double>(
-                engine, object, iter->first, wantParams);
+                env, object, iter->first, wantParams);
         } else if (AAFwk::IChar::Query(iter->second) != nullptr) {
             InnerWrapJsWantParams<AAFwk::IChar, AAFwk::Char, char>(
-                engine, object, iter->first, wantParams);
+                env, object, iter->first, wantParams);
         } else if (AAFwk::IByte::Query(iter->second) != nullptr) {
             InnerWrapJsWantParams<AAFwk::IByte, AAFwk::Byte, int>(
-                engine, object, iter->first, wantParams);
+                env, object, iter->first, wantParams);
         } else if (AAFwk::IArray::Query(iter->second) != nullptr) {
             AAFwk::IArray *ao = AAFwk::IArray::Query(iter->second);
             if (ao != nullptr) {
                 sptr<AAFwk::IArray> array(ao);
-                WrapJsWantParamsArray(engine, object, iter->first, array);
+                WrapJsWantParamsArray(env, object, iter->first, array);
             }
         } else if (AAFwk::IWantParams::Query(iter->second) != nullptr) {
-            InnerWrapJsWantParamsWantParams(engine, object, iter->first, wantParams);
+            InnerWrapJsWantParamsWantParams(env, object, iter->first, wantParams);
         }
     }
-    return objValue;
+    return object;
 }
 
-NativeValue* CreateJsMissionInfoArray(NativeEngine &engine, const std::vector<AAFwk::MissionInfo> &missionInfos)
+napi_value CreateJsMissionInfoArray(napi_env env, const std::vector<AAFwk::MissionInfo> &missionInfos)
 {
-    NativeValue* arrayValue = engine.CreateArray(missionInfos.size());
-    NativeArray* array = ConvertNativeValueTo<NativeArray>(arrayValue);
+    napi_value arrayValue = nullptr;
+    napi_create_array_with_length(env, missionInfos.size(), &arrayValue);
     uint32_t index = 0;
     for (const auto &missionInfo : missionInfos) {
-        array->SetElement(index++, CreateJsMissionInfo(engine, missionInfo));
+        napi_set_element(env, arrayValue, index++, CreateJsMissionInfo(env, missionInfo));
     }
     return arrayValue;
 }
 
 bool InnerWrapJsWantParamsWantParams(
-    NativeEngine &engine, NativeObject* object, const std::string &key, const AAFwk::WantParams &wantParams)
+    napi_env env, napi_value object, const std::string &key, const AAFwk::WantParams &wantParams)
 {
     auto value = wantParams.GetParam(key);
     AAFwk::IWantParams *o = AAFwk::IWantParams::Query(value);
     if (o != nullptr) {
         AAFwk::WantParams wp = AAFwk::WantParamWrapper::Unbox(o);
-        object->SetProperty(key.c_str(), CreateJsWantParams(engine, wp));
+        napi_set_named_property(env, object, key.c_str(), CreateJsWantParams(env, wp));
         return true;
     }
     return false;
 }
 
-bool WrapJsWantParamsArray(NativeEngine &engine, NativeObject* object, const std::string &key, sptr<AAFwk::IArray> &ao)
+bool WrapJsWantParamsArray(napi_env env, napi_value object, const std::string &key, sptr<AAFwk::IArray> &ao)
 {
-    HILOG_INFO("%{public}s called. key=%{public}s", __func__, key.c_str());
+    HILOG_INFO("called. key=%{public}s", key.c_str());
     if (AAFwk::Array::IsStringArray(ao)) {
         return InnerWrapWantParamsArray<AAFwk::IString, AAFwk::String, std::string>(
-            engine, object, key, ao);
+            env, object, key, ao);
     } else if (AAFwk::Array::IsBooleanArray(ao)) {
         return InnerWrapWantParamsArray<AAFwk::IBoolean, AAFwk::Boolean, bool>(
-            engine, object, key, ao);
+            env, object, key, ao);
     } else if (AAFwk::Array::IsShortArray(ao)) {
         return InnerWrapWantParamsArray<AAFwk::IShort, AAFwk::Short, short>(
-            engine, object, key, ao);
+            env, object, key, ao);
     } else if (AAFwk::Array::IsIntegerArray(ao)) {
         return InnerWrapWantParamsArray<AAFwk::IInteger, AAFwk::Integer, int>(
-            engine, object, key, ao);
+            env, object, key, ao);
     } else if (AAFwk::Array::IsLongArray(ao)) {
         return InnerWrapWantParamsArray<AAFwk::ILong, AAFwk::Long, int64_t>(
-            engine, object, key, ao);
+            env, object, key, ao);
     } else if (AAFwk::Array::IsFloatArray(ao)) {
         return InnerWrapWantParamsArray<AAFwk::IFloat, AAFwk::Float, float>(
-            engine, object, key, ao);
+            env, object, key, ao);
     } else if (AAFwk::Array::IsByteArray(ao)) {
         return InnerWrapWantParamsArray<AAFwk::IByte, AAFwk::Byte, int>(
-            engine, object, key, ao);
+            env, object, key, ao);
     } else if (AAFwk::Array::IsCharArray(ao)) {
         return InnerWrapWantParamsArray<AAFwk::IChar, AAFwk::Char, char>(
-            engine, object, key, ao);
+            env, object, key, ao);
     } else if (AAFwk::Array::IsDoubleArray(ao)) {
         return InnerWrapWantParamsArray<AAFwk::IDouble, AAFwk::Double, double>(
-            engine, object, key, ao);
+            env, object, key, ao);
     } else {
         return false;
     }

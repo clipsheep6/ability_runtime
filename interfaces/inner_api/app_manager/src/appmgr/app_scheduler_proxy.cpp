@@ -587,5 +587,68 @@ int32_t AppSchedulerProxy::ScheduleNotifyAppFault(const FaultData &faultData)
 
     return reply.ReadInt32();
 }
+
+int32_t AppSchedulerProxy::ScheduleOnGcStateChange(int32_t state)
+{
+    MessageParcel data;
+
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+    
+    data.WriteInt32(state);
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppScheduler::Message::APP_ON_GC_STATE_CHANGE),
+                                   data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed with error code %{public}d.", ret);
+        return ret;
+    }
+
+    return NO_ERROR;
+}
+
+void AppSchedulerProxy::AttachAppDebug()
+{
+    HILOG_DEBUG("Called.");
+    SendRequest(IAppScheduler::Message::SCHEDULE_ATTACH_APP_DEBUG);
+}
+
+void AppSchedulerProxy::DetachAppDebug()
+{
+    HILOG_DEBUG("Called.");
+    SendRequest(IAppScheduler::Message::SCHEDULE_DETACH_APP_DEBUG);
+}
+
+void AppSchedulerProxy::SendRequest(const IAppScheduler::Message &message)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return;
+    }
+
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    auto ret = remote->SendRequest(static_cast<uint32_t>(message), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed with error code: %{public}d", ret);
+    }
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

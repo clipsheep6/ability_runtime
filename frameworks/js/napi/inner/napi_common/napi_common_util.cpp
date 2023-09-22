@@ -345,7 +345,6 @@ bool UnwrapArrayLongFromJS(napi_env env, napi_value param, std::vector<long> &va
     if (!IsArrayForNapiValue(env, param, arraySize)) {
         HILOG_DEBUG("Expanding ArrayInt32 from JS failed.");
         return false;
-
     }
 
     value.clear();

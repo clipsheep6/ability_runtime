@@ -446,6 +446,11 @@ void MainThread::ScheduleForegroundApplication()
     if (!mainHandler_->PostTask(task)) {
         HILOG_ERROR("PostTask task failed");
     }
+
+    if (watchdog_ == nullptr) {
+        HILOG_ERROR("Watch dog is nullptr.");
+        return;
+    }
     watchdog_->SetBackgroundStatus(false);
 }
 
@@ -468,6 +473,11 @@ void MainThread::ScheduleBackgroundApplication()
     };
     if (!mainHandler_->PostTask(task)) {
         HILOG_ERROR("MainThread::ScheduleBackgroundApplication PostTask task failed");
+    }
+    
+    if (watchdog_ == nullptr) {
+        HILOG_ERROR("Watch dog is nullptr.");
+        return;
     }
     watchdog_->SetBackgroundStatus(true);
 }
@@ -1154,6 +1164,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         return;
     }
 
+    if (appLaunchData.GetDebugApp() && watchdog_ != nullptr && !watchdog_->IsStopWatchdog()) {
+        watchdog_->Stop();
+        watchdog_.reset();
+    }
+
     auto appInfo = appLaunchData.GetApplicationInfo();
     ProcessInfo processInfo = appLaunchData.GetProcessInfo();
     HILOG_DEBUG("MainThread handle launch application, InitCreate Start.");
@@ -1278,6 +1293,29 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             HILOG_ERROR("Failed to create runtime");
             return;
         }
+
+        if (appInfo.debug) {
+            auto perfCmd = appLaunchData.GetPerfCmd();
+            if (perfCmd.find(PERFCMD_PROFILE) != std::string::npos ||
+                perfCmd.find(PERFCMD_DUMPHEAP) != std::string::npos) {
+                HILOG_DEBUG("perfCmd is %{public}s", perfCmd.c_str());
+                runtime->StartProfiler(perfCmd);
+            } else {
+                runtime->StartDebugMode(appLaunchData.GetDebugApp());
+            }
+        }
+
+        std::vector<HqfInfo> hqfInfos = appInfo.appQuickFix.deployedAppqfInfo.hqfInfos;
+        std::map<std::string, std::string> modulePaths;
+        if (!hqfInfos.empty()) {
+            for (auto it = hqfInfos.begin(); it != hqfInfos.end(); it++) {
+                HILOG_INFO("moudelName: %{private}s, hqfFilePath: %{private}s.",
+                    it->moduleName.c_str(), it->hqfFilePath.c_str());
+                modulePaths.insert(std::make_pair(it->moduleName, it->hqfFilePath));
+            }
+            runtime->RegisterQuickFixQueryFunc(modulePaths);
+        }
+
         auto& jsEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEngine();
         auto bundleName = appInfo.bundleName;
         auto versionCode = appInfo.versionCode;
@@ -1709,35 +1747,6 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
     }
 
     auto& runtime = application_->GetRuntime();
-    auto appInfo = application_->GetApplicationInfo();
-    auto want = abilityRecord->GetWant();
-    if (appInfo == nullptr) {
-        HILOG_ERROR("appInfo is nullptr");
-        return;
-    }
-
-    if (runtime && want && appInfo->debug) {
-        auto perfCmd = want->GetStringParam("perfCmd");
-        if (perfCmd.find(PERFCMD_PROFILE) != std::string::npos ||
-            perfCmd.find(PERFCMD_DUMPHEAP) != std::string::npos) {
-            HILOG_DEBUG("perfCmd is %{public}s", perfCmd.c_str());
-            runtime->StartProfiler(perfCmd);
-        } else {
-            runtime->StartDebugMode(want->GetBoolParam("debugApp", false));
-        }
-    }
-
-    std::vector<HqfInfo> hqfInfos = appInfo->appQuickFix.deployedAppqfInfo.hqfInfos;
-    std::map<std::string, std::string> modulePaths;
-    if (runtime && !hqfInfos.empty()) {
-        for (auto it = hqfInfos.begin(); it != hqfInfos.end(); it++) {
-            HILOG_INFO("moudelName: %{private}s, hqfFilePath: %{private}s.",
-                it->moduleName.c_str(), it->hqfFilePath.c_str());
-            modulePaths.insert(std::make_pair(it->moduleName, it->hqfFilePath));
-        }
-        runtime->RegisterQuickFixQueryFunc(modulePaths);
-    }
-
     mainThreadState_ = MainThreadState::RUNNING;
     std::shared_ptr<AbilityRuntime::Context> stageContext = application_->AddAbilityStage(abilityRecord);
     SetProcessExtensionType(abilityRecord);
@@ -2389,6 +2398,11 @@ void MainThread::ScheduleAcceptWant(const AAFwk::Want &want, const std::string &
 
 void MainThread::CheckMainThreadIsAlive()
 {
+    if (watchdog_ == nullptr) {
+        HILOG_ERROR("Watch dog is nullptr.");
+        return;
+    }
+
     watchdog_->SetAppMainThreadState(true);
     watchdog_->AllowReportEvent();
 }
@@ -2660,6 +2674,72 @@ std::vector<std::string> MainThread::GetRemoveOverlayPaths(const std::vector<Ove
     }
 
     return removePaths;
+}
+
+int32_t MainThread::ScheduleOnGcStateChange(int32_t state)
+{
+    HILOG_DEBUG("called.");
+    if (mainHandler_ == nullptr) {
+        HILOG_ERROR("mainHandler is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    wptr<MainThread> weak = this;
+    auto task = [weak, state] {
+        auto appThread = weak.promote();
+        if (appThread == nullptr) {
+            HILOG_ERROR("appThread is nullptr, OnGcStateChange failed.");
+            return;
+        }
+        appThread->OnGcStateChange(state);
+    };
+    mainHandler_->PostTask(task);
+    return NO_ERROR;
+}
+        
+int32_t MainThread::OnGcStateChange(int32_t state)
+{
+    HILOG_DEBUG("called.");
+    if (application_ == nullptr) {
+        HILOG_ERROR("application_ is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    auto &runtime = application_->GetRuntime();
+    if (runtime == nullptr) {
+        HILOG_ERROR("runtime is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    auto& nativeEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEngine();
+    nativeEngine.NotifyForceExpandState(state);
+    return NO_ERROR;
+}
+
+void MainThread::AttachAppDebug()
+{
+    HILOG_DEBUG("Called.");
+    if (watchdog_ == nullptr || watchdog_->IsStopWatchdog()) {
+        HILOG_ERROR("Watch dog is stoped.");
+        return;
+    }
+
+    watchdog_->Stop();
+    watchdog_.reset();
+}
+
+void MainThread::DetachAppDebug()
+{
+    HILOG_DEBUG("Called.");
+    if (watchdog_ == nullptr) {
+        watchdog_ = std::make_shared<Watchdog>();
+        if (watchdog_ != nullptr) {
+            watchdog_->Init(mainHandler_);
+        }
+        return;
+    }
+
+    if (watchdog_->IsStopWatchdog()) {
+        watchdog_->Init(mainHandler_);
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

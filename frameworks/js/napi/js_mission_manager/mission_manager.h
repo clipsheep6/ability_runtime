@@ -21,7 +21,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue* JsMissionManagerInit(NativeEngine* engine, NativeValue* exportObj);
+napi_value JsMissionManagerInit(napi_env env, napi_value exportObj);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_MISSION_MANAGER_H

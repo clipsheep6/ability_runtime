@@ -94,7 +94,7 @@ public:
 
     sptr<IRemoteObject> GetToken() override;
 
-    ErrCode RestoreWindowStage(NativeEngine& engine, NativeValue* contentStorage) override;
+    ErrCode RestoreWindowStage(napi_env env, napi_value contentStorage) override;
 
     void SetStageContext(const std::shared_ptr<AbilityRuntime::Context> &stageContext);
 
@@ -188,7 +188,7 @@ public:
         isTerminating_ = state;
     }
 
-    ErrCode RequestDialogService(NativeEngine &engine, AAFwk::Want &want, RequestDialogResultTask &&task) override;
+    ErrCode RequestDialogService(napi_env env, AAFwk::Want &want, RequestDialogResultTask &&task) override;
 
     ErrCode ReportDrawnCompleted() override;
 

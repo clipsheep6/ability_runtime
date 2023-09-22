@@ -516,10 +516,12 @@ sptr<IRemoteObject> AbilityContextImpl::GetToken()
     return token_;
 }
 
-ErrCode AbilityContextImpl::RestoreWindowStage(NativeEngine& engine, NativeValue* contentStorage)
+ErrCode AbilityContextImpl::RestoreWindowStage(napi_env env, napi_value contentStorage)
 {
     HILOG_INFO("call");
-    contentStorage_ = std::unique_ptr<NativeReference>(engine.CreateReference(contentStorage, 1));
+    napi_ref value = nullptr;
+    napi_create_reference(env, contentStorage, 1, &value);
+    contentStorage_ = std::unique_ptr<NativeReference>(reinterpret_cast<NativeReference*>(value));
     return ERR_OK;
 }
 
@@ -564,8 +566,7 @@ void AbilityContextImpl::RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbil
     abilityCallback_ = abilityCallback;
 }
 
-ErrCode AbilityContextImpl::RequestDialogService(NativeEngine &engine,
-    AAFwk::Want &want, RequestDialogResultTask &&task)
+ErrCode AbilityContextImpl::RequestDialogService(napi_env env, AAFwk::Want &want, RequestDialogResultTask &&task)
 {
     want.SetParam(RequestConstants::REQUEST_TOKEN_KEY, token_);
     int32_t left, top, width, height;
@@ -575,13 +576,14 @@ ErrCode AbilityContextImpl::RequestDialogService(NativeEngine &engine,
     want.SetParam(RequestConstants::WINDOW_RECTANGLE_WIDTH_KEY, width);
     want.SetParam(RequestConstants::WINDOW_RECTANGLE_HEIGHT_KEY, height);
     auto resultTask =
-        [&engine, outTask = std::move(task)](int32_t resultCode, const AAFwk::Want &resultWant) {
+        [env, outTask = std::move(task)](int32_t resultCode, const AAFwk::Want &resultWant) {
         auto retData = new RequestResult();
         retData->resultCode = resultCode;
         retData->resultWant = resultWant;
         retData->task = std::move(outTask);
 
-        auto loop = engine.GetUVLoop();
+        uv_loop_s* loop = nullptr;
+        napi_get_uv_event_loop(env, &loop);
         if (loop == nullptr) {
             HILOG_ERROR("RequestDialogService, fail to get uv loop.");
             return;
