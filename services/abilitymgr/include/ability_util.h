@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,6 +24,7 @@
 #include "ability_manager_client.h"
 #include "app_jump_control_rule.h"
 #include "bundlemgr/bundle_mgr_interface.h"
+#include "bundle_mgr_client.h"
 #ifndef SUPPORT_ERMS
 #include "erms_mgr_interface.h"
 #endif

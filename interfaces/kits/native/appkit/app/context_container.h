@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_CONTEXT_CONTAINER_H
 #define OHOS_ABILITY_RUNTIME_CONTEXT_CONTAINER_H
 
+#include "bundle_mgr_client.h"
 #include "context_deal.h"
 
 namespace OHOS {
@@ -93,12 +94,12 @@ public:
     std::shared_ptr<Context> GetContext() override;
 
     /**
-     * @brief Obtains an IBundleMgr instance.
+     * @brief Obtains an BundleMgrClient instance.
      * You can use this instance to obtain information about the application bundle.
      *
-     * @return Returns an IBundleMgr instance.
+     * @return Returns a BundleMgrClient instance.
      */
-    sptr<IBundleMgr> GetBundleManager() const override;
+    std::shared_ptr<BundleMgrClient> GetBundleManager() const override;
 
     /**
      * @brief Obtains a resource manager.
