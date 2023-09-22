@@ -168,6 +168,7 @@ private:
     void ReInitJsEnvImpl(const Options& options);
     void PostPreload(const Options& options);
     void LoadAotFile(const Options& options);
+    void SetRequestAotCallback();
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
