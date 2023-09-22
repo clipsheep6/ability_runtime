@@ -1149,6 +1149,18 @@ public:
     {
         return 0;
     }
+
+    /**
+     * Is user a stability test.
+     *
+     * @param want Want information.
+     * @param bundleName Target bundleName.
+     * @return Returns true on success, others on false.
+     */
+    virtual bool IsAbilityControllerStart(const Want &want, const std::string &bundleName)
+    {
+        return true;
+    }
 };
 }  // namespace AAFwk
 }  // namespace OHOS

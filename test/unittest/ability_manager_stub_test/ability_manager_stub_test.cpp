@@ -2407,5 +2407,39 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartSpecifiedAbilityBySCBIn
     data.WriteParcelable(&want);
     EXPECT_EQ(stub_->StartSpecifiedAbilityBySCBInner(data, reply), NO_ERROR);
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: IsAbilityControllerStartInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService IsAbilityControllerStartInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function IsAbilityControllerStartInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_IsAbilityControllerStartInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->IsAbilityControllerStartInner(data, reply);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: IsAbilityControllerStartInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService IsAbilityControllerStartInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function IsAbilityControllerStartInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_IsAbilityControllerStartInner_002, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    Want want;
+    data.WriteParcelable(&want);
+    auto res = stub_->IsAbilityControllerStartInner(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

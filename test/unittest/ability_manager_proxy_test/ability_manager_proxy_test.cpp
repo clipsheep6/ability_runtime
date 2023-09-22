@@ -2378,5 +2378,40 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartSpecifiedAbilityBySCB
     Want want;
     proxy_->StartSpecifiedAbilityBySCB(want);
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: IsAbilityControllerStart
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService IsAbilityControllerStart
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of IsAbilityControllerStart
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsAbilityControllerStart_001, TestSize.Level1)
+{
+    proxy_ = std::make_shared<AbilityManagerProxy>(nullptr);
+    Want want;
+    std::string bundleName = "bundleName";
+    bool res = proxy_->IsAbilityControllerStart(want, bundleName);
+    EXPECT_EQ(res, false);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: IsAbilityControllerStart
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService IsAbilityControllerStart
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of IsAbilityControllerStart
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsAbilityControllerStart_002, TestSize.Level1)
+{
+    proxy_ = std::make_shared<AbilityManagerProxy>(mock_);
+    Want want;
+    std::string bundleName = "bundleName";
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _)).Times(1).WillOnce(Return(NO_ERROR));
+    bool res = proxy_->IsAbilityControllerStart(want, bundleName);
+    EXPECT_EQ(res, false);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

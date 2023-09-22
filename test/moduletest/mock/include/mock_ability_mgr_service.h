@@ -254,6 +254,7 @@ public:
     }
 #endif
     MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionValidResult>&));
+    MOCK_METHOD2(IsAbilityControllerStart, bool(const Want &, const std::string &));
 
 private:
     Semaphore sem_;

@@ -416,6 +416,7 @@ enum class AbilityManagerInterfaceCode {
 
     // ipc id for register session handler
     REGISTER_SESSION_HANDLER = 6010,
+    IS_ABILITY_CONTROLLER_START,
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -918,6 +918,7 @@ public:
      */
     virtual int PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isPrepareTerminate) override;
     virtual int RegisterSessionHandler(const sptr<IRemoteObject> &object) override;
+    virtual bool IsAbilityControllerStart(const Want &want, const std::string &bundleName) override;
 
 private:
     template <typename T>

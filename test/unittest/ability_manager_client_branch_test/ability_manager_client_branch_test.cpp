@@ -1667,5 +1667,19 @@ HWTEST_F(AbilityManagerClientBranchTest, StartSpecifiedAbilityBySCB_0100, TestSi
     Want want;
     client_->StartSpecifiedAbilityBySCB(want);
 }
+
+/**
+ * @tc.name: AbilityManagerClient_IsAbilityControllerStart_0100
+ * @tc.desc: IsAbilityControllerStart
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, IsAbilityControllerStart_0100, TestSize.Level1)
+{
+    EXPECT_TRUE(client_ != nullptr);
+    Want want;
+    std::string bundleName = "bundleName";
+    auto res = client_->IsAbilityControllerStart(want, bundleName);
+    EXPECT_FALSE(res);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

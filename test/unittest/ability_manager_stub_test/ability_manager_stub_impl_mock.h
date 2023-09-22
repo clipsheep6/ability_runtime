@@ -393,6 +393,7 @@ public:
 #endif
     MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionValidResult>&));
     MOCK_METHOD2(PrepareTerminateAbilityBySCB, int32_t(const sptr<SessionInfo> &sessionInfo, bool &isPrepareTerminate));
+    MOCK_METHOD2(IsAbilityControllerStart, bool(const Want &, const std::string &));
 };
 }  // namespace AAFwk
 }  // namespace OHOS
