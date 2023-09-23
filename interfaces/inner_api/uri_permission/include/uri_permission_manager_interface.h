@@ -15,7 +15,7 @@
 
 #ifndef OHOS_ABILITY_RUNTIME_URI_PERMISSION_MANAGER_INTERFACE_H
 #define OHOS_ABILITY_RUNTIME_URI_PERMISSION_MANAGER_INTERFACE_H
-
+#include <vector>
 #include "base/security/access_token/interfaces/innerkits/accesstoken/include/access_token.h"
 #include "iremote_broker.h"
 #include "uri.h"
@@ -36,6 +36,18 @@ public:
      * @return Returns true if the authorization is successful, otherwise returns false.
      */
     virtual int GrantUriPermission(const Uri &uri, unsigned int flag,
+        const std::string targetBundleName, int autoremove, int32_t appIndex = 0) = 0;
+
+    /**
+     * @brief Authorize the uri permission to targetBundleName.
+     *
+     * @param uriVec The file urilist.
+     * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
+     * @param targetBundleName The user of uri.
+     * @param autoremove the uri is temperarily or not
+     * @return Returns true if the authorization is successful, otherwise returns false.
+     */
+    virtual int GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
         const std::string targetBundleName, int autoremove, int32_t appIndex = 0) = 0;
 
     /**
@@ -98,6 +110,9 @@ public:
 
         // ipc id for VerifyUriPermission
         ON_VERIFY_URI_PERMISSION,
+
+        // ipc id for BatchGrantUriPermission
+        ON_BATCH_GRANT_URI_PERMISSION,
     };
 };
 }  // namespace AAFwk

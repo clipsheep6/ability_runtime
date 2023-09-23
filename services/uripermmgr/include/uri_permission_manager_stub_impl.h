@@ -18,6 +18,7 @@
 
 #include <functional>
 #include <map>
+#include <vector>
 
 #include "app_mgr_interface.h"
 #include "bundlemgr/bundle_mgr_interface.h"
@@ -47,6 +48,8 @@ public:
 
     int GrantUriPermission(const Uri &uri, unsigned int flag,
         const std::string targetBundleName, int autoremove, int32_t appIndex = 0) override;
+    int GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
+        const std::string targetBundleName, int autoremove, int32_t appIndex = 0) override;
     void RevokeUriPermission(const TokenId tokenId) override;
     int RevokeAllUriPermissions(uint32_t tokenId) override;
     int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) override;
@@ -68,6 +71,17 @@ private:
         TokenId targetTokenId, int autoremove);
     int DeletTempUriPermission(const std::string &uri, uint32_t flag, uint32_t targetTokenId);
     int DeletTempUriPermissionAndShareFile(const std::string &uri, uint32_t targetTokenId);
+
+    void GetUriPermissionBatchFlag(const std::vector<Uri> &uriVec,
+        unsigned int flag, uint32_t targetTokenId,
+        std::unordered_map<uint32_t, std::vector<std::string>> &uriVecMap,
+        std::unordered_map<uint32_t, std::vector<uint32_t>> &fromTokenIdVecMap);
+
+    int GrantBatchUriPermissionImpl(const std::vector<std::string> &uriVec, unsigned int flag,
+        std::vector<uint32_t> &fromTokenIdVec, TokenId targetTokenId, int autoremove);
+
+    int GrantSingleUriPermission(const Uri &uri, unsigned int flag,
+        const std::string &targetBundleName, int autoremove, int32_t appIndex);
 
     void InitPersistableUriPermissionConfig();
 

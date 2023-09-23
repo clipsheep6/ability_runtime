@@ -17,6 +17,7 @@
 
 #include <singleton.h>
 #include <vector>
+#include <unordered_map>
 
 #include "constants.h"
 #include "ability_event_handler.h"
@@ -84,6 +85,7 @@ const int VECTOR_SIZE = 2;
 const int LOAD_TIMEOUT_ASANENABLED = 150;
 const int TERMINATE_TIMEOUT_ASANENABLED = 150;
 const int HALF_TIMEOUT = 2;
+const int MAX_URI_COUNT = 500;
 #ifdef SUPPORT_ASAN
 const int COLDSTART_TIMEOUT_MULTIPLE = 15000;
 const int LOAD_TIMEOUT_MULTIPLE = 15000;
@@ -384,6 +386,8 @@ void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("name:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
+    // grant uri permission
+    GrantUriPermission(want_, applicationInfo_.bundleName, false, 0);
 
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (handler && task) {
@@ -2608,8 +2612,17 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
     std::vector<std::string> uriVec;
     std::string uriStr = want.GetUri().ToString();
     uriVec = want.GetStringArrayParam(AbilityConfig::PARAMS_STREAM);
-    uriVec.emplace_back(uriStr);
+    if (!uriStr.empty()) {
+        uriVec.emplace_back(uriStr);
+    }
     HILOG_DEBUG("GrantUriPermission uriVec size: %{public}zu", uriVec.size());
+    if (uriVec.size() == 0) {
+        return;
+    }
+    if (uriVec.size() > MAX_URI_COUNT) {
+        HILOG_ERROR("size of uriVec is more than %{public}i", MAX_URI_COUNT);
+        return;
+    }
     auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
     uint32_t fromTokenId = 0;
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
@@ -2623,6 +2636,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         PermissionVerification::GetInstance()->VerifyPermissionByTokenId(tokenId, PERMISSION_PROXY_AUTHORIZATION_URI);
     auto userId = GetCurrentAccountId();
     auto callerTokenId = static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, -1));
+    std::unordered_map<uint32_t, std::vector<Uri>> uriVecMap; // flag, vector
     for (auto&& str : uriVec) {
         Uri uri(str);
         auto&& scheme = uri.GetScheme();
@@ -2668,11 +2682,18 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
             }
             flag &= (~Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION);
         }
-        int autoremove = 1;
+        if (uriVecMap.find(flag) == uriVecMap.end()) {
+            std::vector<Uri> uriVec;
+            uriVecMap.emplace(flag, uriVec);
+        }
+        uriVecMap[flag].emplace_back(uri);
+    }
+    int autoremove = 1;
+    for (const auto &item : uriVecMap) {
         auto ret = IN_PROCESS_CALL(
-            AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, flag,
+            AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(item.second, item.first,
                 targetBundleName, autoremove, appIndex_));
-        if (ret == 0) {
+        if (ret == ERR_OK) {
             isGrantedUriPermission_ = true;
         }
     }

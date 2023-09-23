@@ -212,15 +212,22 @@ public:
         return E_OK;
     }
 
-    virtual int32_t CreateShareFile(std::string uri, uint32_t tokenId, uint32_t flag) override
+    virtual std::vector<int32_t> CreateShareFile(const std::vector<std::string> &uriList,
+        uint32_t tokenId, uint32_t flag) override
     {
-        if (isZero) {
-            return E_OK;
+        int size = uriList.size();
+        if (size <= 0) {
+            return { -1 };
         }
-        return -1;
+        if (isZero) {
+            std::vector<int32_t> retVec(size, ERR_OK);
+            return retVec;
+        }
+        std::vector<int32_t> retVec(size, -1);
+        return retVec;
     }
-
-    virtual int32_t DeleteShareFile(uint32_t tokenId, std::vector<std::string>sharePathList) override
+    
+    virtual int32_t DeleteShareFile(uint32_t tokenId, const std::vector<std::string> &sharePathList) override
     {
         return E_OK;
     }

@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_URI_PERMISSION_MANAGER_PROXY_H
 #define OHOS_ABILITY_RUNTIME_URI_PERMISSION_MANAGER_PROXY_H
 
+#include<vector>
 #include "iremote_proxy.h"
 #include "uri_permission_manager_interface.h"
 
@@ -27,6 +28,9 @@ public:
     virtual ~UriPermissionManagerProxy() = default;
 
     virtual int GrantUriPermission(const Uri &uri, unsigned int flag,
+        const std::string targetBundleName, int autoremove, int32_t appIndex = 0) override;
+
+    virtual int GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
         const std::string targetBundleName, int autoremove, int32_t appIndex = 0) override;
 
     virtual void RevokeUriPermission(const Security::AccessToken::AccessTokenID tokenId) override;

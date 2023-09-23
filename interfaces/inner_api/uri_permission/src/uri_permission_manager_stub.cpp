@@ -19,6 +19,9 @@
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+const int MAX_URI_COUNT = 500;
+}
 int UriPermissionManagerStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -30,6 +33,9 @@ int UriPermissionManagerStub::OnRemoteRequest(
     switch (code) {
         case UriPermMgrCmd::ON_GRANT_URI_PERMISSION : {
             return HandleGrantUriPermission(data, reply);
+        }
+        case UriPermMgrCmd::ON_BATCH_GRANT_URI_PERMISSION : {
+            return HandleBatchGrantUriPermission(data, reply);
         }
         case UriPermMgrCmd::ON_REVOKE_URI_PERMISSION : {
             return HandleRevokeUriPermission(data, reply);
@@ -79,6 +85,31 @@ int UriPermissionManagerStub::HandleGrantUriPermission(MessageParcel &data, Mess
     auto autoremove = data.ReadInt32();
     auto appIndex = data.ReadInt32();
     int result = GrantUriPermission(*uri, flag, targetBundleName, autoremove, appIndex);
+    reply.WriteInt32(result);
+    return ERR_OK;
+}
+
+int UriPermissionManagerStub::HandleBatchGrantUriPermission(MessageParcel &data, MessageParcel &reply)
+{
+    auto size = data.ReadUint32();
+    if (size <= 0 || size > MAX_URI_COUNT) {
+        HILOG_ERROR("size is invalid.");
+        return ERR_DEAD_OBJECT;
+    }
+    std::vector<Uri> uriVec;
+    for (auto i = 0; i < size; i++) {
+        std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
+        if (!uri) {
+            HILOG_ERROR("To read uri failed.");
+            return ERR_DEAD_OBJECT;
+        }
+        uriVec.emplace_back(*uri);
+    }
+    auto flag = data.ReadInt32();
+    auto targetBundleName = data.ReadString();
+    auto autoremove = data.ReadInt32();
+    auto appIndex = data.ReadInt32();
+    int result = GrantUriPermission(uriVec, flag, targetBundleName, autoremove, appIndex);
     reply.WriteInt32(result);
     return ERR_OK;
 }
