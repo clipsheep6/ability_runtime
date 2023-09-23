@@ -6444,6 +6444,7 @@ int32_t AbilityManagerService::InitAbilityInfoFromExtension(AppExecFwk::Extensio
     abilityInfo.metadata = extensionInfo.metadata;
     abilityInfo.compileMode = extensionInfo.compileMode;
     abilityInfo.type = AppExecFwk::AbilityType::EXTENSION;
+    abilityInfo.extensionTypeName = extensionInfo.extensionTypeName;
     if (!extensionInfo.hapPath.empty()) {
         abilityInfo.hapPath = extensionInfo.hapPath;
     }

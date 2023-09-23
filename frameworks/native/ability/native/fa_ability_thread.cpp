@@ -54,6 +54,7 @@ constexpr static char ACE_ABILITY_NAME[] = "AceAbility";
 constexpr static char ACE_FORM_ABILITY_NAME[] = "AceFormAbility";
 constexpr static char FORM_EXTENSION[] = "FormExtension";
 constexpr static char UI_EXTENSION[] = "UIExtensionAbility";
+constexpr static char CUSTOM_EXTENSION[] = "ExtensionAbility";
 constexpr static char MEDIA_CONTROL_EXTENSION[] = "MediaControlExtensionAbility";
 constexpr static char USER_AUTH_EXTENSION[] = "UserAuthExtensionAbility";
 constexpr static char ACTION_EXTENSION[] = "ActionExtensionAbility";
@@ -211,6 +212,10 @@ void FAAbilityThread::CreateExtensionAbilityNameSupportGraphics(
     }
     if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SYSPICKER_MEDIACONTROL) {
         abilityName = MEDIA_CONTROL_EXTENSION;
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::UNSPECIFIED &&
+        abilityInfo->type == AppExecFwk::AbilityType::EXTENSION) {
+        abilityName = abilityInfo->extensionTypeName + CUSTOM_EXTENSION;
     }
 }
 

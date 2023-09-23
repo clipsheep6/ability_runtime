@@ -98,6 +98,12 @@ void ExtensionPluginInfo::ParseExtensions(const std::vector<std::string>& extens
         item.extensionType = type;
         item.extensionName = extensionName;
         item.extensionLibFile = file;
+        auto findTask = [extensionName](ExtensionPluginItem &item) {
+            return item.extensionName == extensionName;
+        };
+        if (find_if(extensionPlugins_.begin(), extensionPlugins_.end(), findTask) != extensionPlugins_.end()) {
+            continue;
+        }
         extensionPlugins_.emplace_back(item);
         HILOG_DEBUG("Success load extension type: %{public}d, name:%{public}s", type, extensionName.c_str());
     }
