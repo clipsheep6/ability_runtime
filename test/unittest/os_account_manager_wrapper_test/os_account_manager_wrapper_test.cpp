@@ -86,6 +86,8 @@ HWTEST_F(OsAccountManagerWrapperTest, IsOsAccountExists_0100, TestSize.Level0)
     EXPECT_EQ(isOsAccountExists, false);
 }
 
+#ifndef OS_ACCOUNT_PART_ENABLED
+#define OS_ACCOUNT_PART_ENABLED
 /**
  * @tc.name: CreateOsAccount_0100
  * @tc.desc: Create os account.
@@ -110,5 +112,6 @@ HWTEST_F(OsAccountManagerWrapperTest, RemoveOsAccount_0100, TestSize.Level0)
     ret = DelayedSingleton<OsAccountManagerWrapper>::GetInstance()->RemoveOsAccount(account);
     EXPECT_EQ(ret, RESULT_OK);
 }
+#endif // OS_ACCOUNT_PART_ENABLED
 }  // namespace AAFwk
 }  // namespace OHOS
