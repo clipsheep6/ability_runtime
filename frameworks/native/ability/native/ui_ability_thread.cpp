@@ -72,7 +72,7 @@ std::string UIAbilityThread::CreateAbilityName(const std::shared_ptr<AppExecFwk:
 }
 
 std::shared_ptr<AppExecFwk::ContextDeal> UIAbilityThread::CreateAndInitContextDeal(
-    std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+    const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
     const std::shared_ptr<AppExecFwk::AbilityContext> &abilityObject)
 {
@@ -105,7 +105,7 @@ std::shared_ptr<AppExecFwk::ContextDeal> UIAbilityThread::CreateAndInitContextDe
     return contextDeal;
 }
 
-void UIAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+void UIAbilityThread::Attach(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
     const std::shared_ptr<AppExecFwk::EventRunner> &mainRunner,
     const std::shared_ptr<Context> &stageContext)
@@ -152,7 +152,7 @@ void UIAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
     AttachInner(application, abilityRecord, stageContext);
 }
 
-void UIAbilityThread::AttachInner(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+void UIAbilityThread::AttachInner(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
     const std::shared_ptr<Context> &stageContext)
 {
@@ -172,7 +172,7 @@ void UIAbilityThread::AttachInner(std::shared_ptr<AppExecFwk::OHOSApplication> &
     }
 }
 
-void UIAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+void UIAbilityThread::Attach(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
     const std::shared_ptr<Context> &stageContext)
 {

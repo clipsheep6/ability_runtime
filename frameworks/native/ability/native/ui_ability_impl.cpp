@@ -26,7 +26,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-void UIAbilityImpl::Init(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+void UIAbilityImpl::Init(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &record, std::shared_ptr<UIAbility> &ability,
     std::shared_ptr<AppExecFwk::AbilityHandler> &handler, const sptr<IRemoteObject> &token)
 {
