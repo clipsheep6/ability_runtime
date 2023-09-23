@@ -95,7 +95,7 @@ FAAbilityThread::~FAAbilityThread()
 }
 
 std::string FAAbilityThread::CreateAbilityName(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
-    std::shared_ptr<AppExecFwk::OHOSApplication> &application)
+    const std::shared_ptr<AppExecFwk::OHOSApplication> &application)
 {
     std::string abilityName;
     if (abilityRecord == nullptr || application == nullptr) {
@@ -215,7 +215,7 @@ void FAAbilityThread::CreateExtensionAbilityNameSupportGraphics(
 }
 
 std::shared_ptr<AppExecFwk::ContextDeal> FAAbilityThread::CreateAndInitContextDeal(
-    std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+    const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
     const std::shared_ptr<AppExecFwk::AbilityContext> &abilityObject)
 {
@@ -239,7 +239,7 @@ std::shared_ptr<AppExecFwk::ContextDeal> FAAbilityThread::CreateAndInitContextDe
     return contextDeal;
 }
 
-void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+void FAAbilityThread::Attach(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
     const std::shared_ptr<AppExecFwk::EventRunner> &mainRunner, const std::shared_ptr<Context> &stageContext)
 {
@@ -290,7 +290,7 @@ void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &appli
     AttachInner(application, abilityRecord, stageContext);
 }
 
-void FAAbilityThread::AttachInner(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+void FAAbilityThread::AttachInner(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
     const std::shared_ptr<Context> &stageContext)
 {
@@ -309,7 +309,7 @@ void FAAbilityThread::AttachInner(std::shared_ptr<AppExecFwk::OHOSApplication> &
     }
 }
 
-void FAAbilityThread::AttachExtension(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+void FAAbilityThread::AttachExtension(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
     const std::shared_ptr<AppExecFwk::EventRunner> &mainRunner)
 {
@@ -358,7 +358,7 @@ void FAAbilityThread::AttachExtension(std::shared_ptr<AppExecFwk::OHOSApplicatio
     }
 }
 
-void FAAbilityThread::AttachExtension(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+void FAAbilityThread::AttachExtension(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -409,7 +409,7 @@ void FAAbilityThread::AttachExtension(std::shared_ptr<AppExecFwk::OHOSApplicatio
     HILOG_DEBUG("end");
 }
 
-void FAAbilityThread::Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+void FAAbilityThread::Attach(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord, const std::shared_ptr<Context> &stageContext)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);

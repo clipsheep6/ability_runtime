@@ -25,7 +25,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-void ExtensionImpl::Init(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+void ExtensionImpl::Init(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &record,
     std::shared_ptr<Extension> &extension,
     std::shared_ptr<AppExecFwk::AbilityHandler> &handler,

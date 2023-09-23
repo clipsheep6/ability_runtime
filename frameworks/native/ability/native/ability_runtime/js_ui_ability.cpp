@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,32 +13,37 @@
  * limitations under the License.
  */
 
+#include "js_ui_ability.h"
+
 #include <cstdlib>
 #include <regex>
 
-#include "system_ability_definition.h"
-#include "if_system_ability_manager.h"
 #include "ability_delegator_registry.h"
-#include "ability_runtime/js_ability.h"
-
-#include "ability_runtime/js_ability_context.h"
+#include "ability_recovery.h"
 #include "ability_start_setting.h"
+#include "app_recovery.h"
 #include "connection_manager.h"
+#include "context/application_context.h"
+#include "context/context.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
+#include "if_system_ability_manager.h"
+#include "js_ability_context.h"
 #include "js_data_struct_converter.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
-#include "napi_common_configuration.h"
 #ifdef SUPPORT_GRAPHICS
 #include "js_window_stage.h"
 #endif
+#include "napi_common_configuration.h"
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
 #include "scene_board_judgement.h"
 #include "string_wrapper.h"
-#include "context/context.h"
-#include "context/application_context.h"
-#include "hitrace_meter.h"
+#include "system_ability_definition.h"
+#ifdef SUPPORT_GRAPHICS
+#include "js_window_stage.h"
+#endif
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -46,7 +51,7 @@ namespace {
 NativeValue *PromiseCallback(NativeEngine *engine, NativeCallbackInfo *info)
 {
     if (info == nullptr || info->functionInfo == nullptr || info->functionInfo->data == nullptr) {
-        HILOG_ERROR("Invalid input info.");
+        HILOG_ERROR("Invalid input info");
         return nullptr;
     }
     void *data = info->functionInfo->data;
@@ -56,48 +61,57 @@ NativeValue *PromiseCallback(NativeEngine *engine, NativeCallbackInfo *info)
     info->functionInfo->data = nullptr;
     return nullptr;
 }
-}
+} // namespace
 
 NativeValue *AttachJsAbilityContext(NativeEngine *engine, void *value, void *)
 {
-    HILOG_DEBUG("AttachJsAbilityContext");
+    HILOG_DEBUG("begin");
     if (value == nullptr) {
-        HILOG_WARN("invalid parameter.");
+        HILOG_ERROR("invalid parameter");
         return nullptr;
     }
-    auto ptr = reinterpret_cast<std::weak_ptr<AbilityRuntime::AbilityContext>*>(value)->lock();
+    auto ptr = reinterpret_cast<std::weak_ptr<AbilityRuntime::AbilityContext> *>(value)->lock();
     if (ptr == nullptr) {
-        HILOG_WARN("invalid context.");
+        HILOG_ERROR("invalid context");
         return nullptr;
     }
     NativeValue *object = CreateJsAbilityContext(*engine, ptr);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(engine, "application.AbilityContext", &object, 1);
     if (systemModule == nullptr) {
-        HILOG_WARN("invalid systemModule.");
+        HILOG_ERROR("invalid systemModule");
         return nullptr;
     }
     auto contextObj = systemModule->Get();
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    if (nObject == nullptr) {
+        HILOG_ERROR("invalid nObject");
+        return nullptr;
+    }
     nObject->ConvertToNativeBindingObject(engine, DetachCallbackFunc, AttachJsAbilityContext, value, nullptr);
     auto workContext = new (std::nothrow) std::weak_ptr<AbilityRuntime::AbilityContext>(ptr);
-    nObject->SetNativePointer(workContext,
-        [](NativeEngine *, void * data, void *) {
-            HILOG_DEBUG("Finalizer for weak_ptr ability context is called");
+    nObject->SetNativePointer(
+        workContext,
+        [](NativeEngine *, void *data, void *) {
+            HILOG_DEBUG("ability context is called");
             delete static_cast<std::weak_ptr<AbilityRuntime::AbilityContext> *>(data);
-        }, nullptr);
+        },
+        nullptr);
     return contextObj;
 }
 
-Ability *JsAbility::Create(const std::unique_ptr<Runtime> &runtime)
+UIAbility *JsUIAbility::Create(const std::unique_ptr<Runtime> &runtime)
 {
-    return new JsAbility(static_cast<JsRuntime &>(*runtime));
+    return new JsUIAbility(static_cast<JsRuntime &>(*runtime));
 }
 
-JsAbility::JsAbility(JsRuntime &jsRuntime) : jsRuntime_(jsRuntime)
-{}
-JsAbility::~JsAbility()
+JsUIAbility::JsUIAbility(JsRuntime &jsRuntime) : jsRuntime_(jsRuntime)
 {
-    HILOG_DEBUG("Js ability destructor.");
+    HILOG_DEBUG("called");
+}
+
+JsUIAbility::~JsUIAbility()
+{
+    HILOG_DEBUG("called");
     auto context = GetAbilityContext();
     if (context) {
         context->Unbind();
@@ -110,17 +124,23 @@ JsAbility::~JsAbility()
 #endif
 }
 
-void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
+void JsUIAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     const std::shared_ptr<OHOSApplication> application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    Ability::Init(abilityInfo, application, handler, token);
+    UIAbility::Init(abilityInfo, application, handler, token);
 
     if (!abilityInfo) {
         HILOG_ERROR("abilityInfo is nullptr");
         return;
     }
+#ifdef SUPPORT_GRAPHICS
+    if (abilityContext_ != nullptr) {
+        AppExecFwk::AppRecovery::GetInstance().AddAbility(
+            shared_from_this(), abilityContext_->GetAbilityInfo(), abilityContext_->GetToken());
+    }
+#endif
     std::string srcPath(abilityInfo->package);
     if (!abilityInfo->isModuleJson) {
         /* temporary compatibility api8 + config.json */
@@ -131,7 +151,7 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
         srcPath.append("/").append(abilityInfo->name).append(".abc");
     } else {
         if (abilityInfo->srcEntrance.empty()) {
-            HILOG_ERROR("abilityInfo srcEntrance is empty");
+            HILOG_ERROR("srcEntrance is empty");
             return;
         }
         srcPath.append("/");
@@ -144,26 +164,38 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     std::string moduleName(abilityInfo->moduleName);
     moduleName.append("::").append(abilityInfo->name);
 
+    SetAbilityContext(abilityInfo, moduleName, srcPath);
+}
+
+void JsUIAbility::SetAbilityContext(
+    const std::shared_ptr<AbilityInfo> &abilityInfo, const std::string &moduleName, const std::string &srcPath)
+{
     HandleScope handleScope(jsRuntime_);
     auto &engine = jsRuntime_.GetNativeEngine();
-
     jsAbilityObj_ = jsRuntime_.LoadModule(
         moduleName, srcPath, abilityInfo->hapPath, abilityInfo->compileMode == AppExecFwk::CompileMode::ES_MODULE);
     if (jsAbilityObj_ == nullptr) {
         HILOG_ERROR("Failed to get AbilityStage object");
         return;
     }
-
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(jsAbilityObj_->Get());
     if (obj == nullptr) {
         HILOG_ERROR("Failed to convert AbilityStage object");
         return;
     }
-
     auto context = GetAbilityContext();
+    if (context == nullptr) {
+        HILOG_ERROR("invalid context");
+        return;
+    }
+
     NativeValue *contextObj = CreateJsAbilityContext(engine, context);
     shellContextRef_ = std::shared_ptr<NativeReference>(
         JsRuntime::LoadSystemModuleByEngine(&engine, "application.AbilityContext", &contextObj, 1).release());
+    if (shellContextRef_ == nullptr) {
+        HILOG_ERROR("shellContextRef_ is nullptr");
+        return;
+    }
     contextObj = shellContextRef_->Get();
     auto nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
     if (nativeObj == nullptr) {
@@ -171,29 +203,30 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
         return;
     }
     auto workContext = new (std::nothrow) std::weak_ptr<AbilityRuntime::AbilityContext>(context);
-    nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachJsAbilityContext,
-        workContext, nullptr);
+    nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachJsAbilityContext, workContext, nullptr);
     context->Bind(jsRuntime_, shellContextRef_.get());
     obj->SetProperty("context", contextObj);
-    HILOG_DEBUG("Set ability context");
+    if (abilityRecovery_ != nullptr) {
+        abilityRecovery_->SetJsAbility(reinterpret_cast<uintptr_t>(workContext));
+    }
 
     nativeObj->SetNativePointer(
         workContext,
         [](NativeEngine *, void *data, void *) {
-            HILOG_DEBUG("Finalizer for weak_ptr ability context is called");
+            HILOG_DEBUG("ability context is called");
             delete static_cast<std::weak_ptr<AbilityRuntime::AbilityContext> *>(data);
         },
         nullptr);
 }
 
-void JsAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
+void JsUIAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("OnStart begin, ability is %{public}s.", GetAbilityName().c_str());
-    Ability::OnStart(want, sessionInfo);
+    HILOG_DEBUG("begin ability is %{public}s", GetAbilityName().c_str());
+    UIAbility::OnStart(want, sessionInfo);
 
     if (!jsAbilityObj_) {
-        HILOG_WARN("Not found Ability.js");
+        HILOG_ERROR("Not found Ability.js");
         return;
     }
     auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
@@ -207,14 +240,14 @@ void JsAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     NativeValue *value = jsAbilityObj_->Get();
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
-        HILOG_ERROR("Error to get Ability object");
+        HILOG_ERROR("Failed to get Ability object");
         return;
     }
 
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(&nativeEngine), want);
     NativeValue *jsWant = reinterpret_cast<NativeValue *>(napiWant);
     if (jsWant == nullptr) {
-        HILOG_ERROR("jsWant is null");
+        HILOG_ERROR("jsWant is nullptr");
         return;
     }
 
@@ -229,15 +262,15 @@ void JsAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
-        HILOG_DEBUG("Call AbilityDelegator::PostPerformStart");
+        HILOG_DEBUG("Call PostPerformStart");
         delegator->PostPerformStart(CreateADelegatorAbilityProperty());
     }
-    HILOG_DEBUG("OnStart end, ability is %{public}s.", GetAbilityName().c_str());
+    HILOG_DEBUG("end ability is %{public}s", GetAbilityName().c_str());
 }
 
-int32_t JsAbility::OnShare(WantParams &wantParam)
+int32_t JsUIAbility::OnShare(WantParams &wantParam)
 {
-    HILOG_DEBUG("%{public}s begin", __func__);
+    HILOG_DEBUG("begin");
     HandleScope handleScope(jsRuntime_);
     auto &nativeEngine = jsRuntime_.GetNativeEngine();
     if (jsAbilityObj_ == nullptr) {
@@ -259,25 +292,25 @@ int32_t JsAbility::OnShare(WantParams &wantParam)
     CallObjectMethod("onShare", argv, ArraySize(argv));
     napi_value new_napiWantParams = reinterpret_cast<napi_value>(jsWantParams);
     OHOS::AppExecFwk::UnwrapWantParams(reinterpret_cast<napi_env>(&nativeEngine), new_napiWantParams, wantParam);
-    HILOG_DEBUG("%{public}s end", __func__);
+    HILOG_DEBUG("end");
     return ERR_OK;
 }
 
-void JsAbility::OnStop()
+void JsUIAbility::OnStop()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("OnStop begin.");
+    HILOG_DEBUG("begin");
     if (abilityContext_) {
-        HILOG_DEBUG("OnStop, set terminating true.");
+        HILOG_DEBUG("set terminating true");
         abilityContext_->SetTerminating(true);
     }
-    Ability::OnStop();
+    UIAbility::OnStop();
     CallObjectMethod("onDestroy");
     OnStopCallback();
-    HILOG_DEBUG("OnStop end.");
+    HILOG_DEBUG("end");
 }
 
-void JsAbility::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback)
+void JsUIAbility::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback)
 {
     if (callbackInfo == nullptr) {
         isAsyncCallback = false;
@@ -286,13 +319,13 @@ void JsAbility::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInf
     }
 
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("OnStop begin.");
+    HILOG_DEBUG("begin");
     if (abilityContext_) {
-        HILOG_DEBUG("OnStop, set terminating true.");
+        HILOG_DEBUG("set terminating true");
         abilityContext_->SetTerminating(true);
     }
 
-    Ability::OnStop();
+    UIAbility::OnStop();
 
     HandleScope handleScope(jsRuntime_);
     NativeValue *result = CallObjectMethod("onDestroy", nullptr, 0, true);
@@ -302,11 +335,11 @@ void JsAbility::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInf
         return;
     }
 
-    std::weak_ptr<Ability> weakPtr = shared_from_this();
+    std::weak_ptr<UIAbility> weakPtr = shared_from_this();
     auto asyncCallback = [abilityWeakPtr = weakPtr]() {
         auto ability = abilityWeakPtr.lock();
         if (ability == nullptr) {
-            HILOG_ERROR("ability is nullptr.");
+            HILOG_ERROR("ability is nullptr");
             return;
         }
         ability->OnStopCallback();
@@ -314,24 +347,24 @@ void JsAbility::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInf
     callbackInfo->Push(asyncCallback);
     isAsyncCallback = CallPromise(result, callbackInfo);
     if (!isAsyncCallback) {
-        HILOG_ERROR("Failed to call promise.");
+        HILOG_ERROR("Failed to call promise");
         OnStopCallback();
     }
-    HILOG_DEBUG("OnStop end.");
+    HILOG_DEBUG("end");
 }
 
-void JsAbility::OnStopCallback()
+void JsUIAbility::OnStopCallback()
 {
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
-        HILOG_DEBUG("Call AbilityDelegator::PostPerformStop");
+        HILOG_DEBUG("Call PostPerformStop");
         delegator->PostPerformStop(CreateADelegatorAbilityProperty());
     }
 
     bool ret = ConnectionManager::GetInstance().DisconnectCaller(AbilityContext::token_);
     if (ret) {
         ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());
-        HILOG_DEBUG("The service connection is not disconnected.");
+        HILOG_DEBUG("The service connection is not disconnected");
     }
 
     auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
@@ -344,27 +377,24 @@ void JsAbility::OnStopCallback()
 const std::string PAGE_STACK_PROPERTY_NAME = "pageStack";
 const std::string SUPPORT_CONTINUE_PAGE_STACK_PROPERTY_NAME = "ohos.extra.param.key.supportContinuePageStack";
 
-void JsAbility::OnSceneCreated()
+void JsUIAbility::OnSceneCreated()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("OnSceneCreated begin, ability is %{public}s.", GetAbilityName().c_str());
-    Ability::OnSceneCreated();
+    HILOG_DEBUG("begin ability is %{public}s", GetAbilityName().c_str());
+    UIAbility::OnSceneCreated();
     auto jsAppWindowStage = CreateAppWindowStage();
     if (jsAppWindowStage == nullptr) {
-        HILOG_ERROR("Failed to create jsAppWindowStage object by LoadSystemModule");
+        HILOG_ERROR("jsAppWindowStage is nullptr");
         return;
     }
 
     HandleScope handleScope(jsRuntime_);
-    NativeValue *argv[] = {jsAppWindowStage->Get()};
-    {
-        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "onWindowStageCreate");
-        CallObjectMethod("onWindowStageCreate", argv, ArraySize(argv));
-    }
+    NativeValue *argv[] = { jsAppWindowStage->Get() };
+    CallObjectMethod("onWindowStageCreate", argv, ArraySize(argv));
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
-        HILOG_DEBUG("Call AbilityDelegator::PostPerformScenceCreated");
+        HILOG_DEBUG("Call PostPerformScenceCreated");
         delegator->PostPerformScenceCreated(CreateADelegatorAbilityProperty());
     }
 
@@ -374,34 +404,34 @@ void JsAbility::OnSceneCreated()
         applicationContext->DispatchOnWindowStageCreate(jsAbilityObj_, jsWindowStageObj_);
     }
 
-    HILOG_DEBUG("OnSceneCreated end, ability is %{public}s.", GetAbilityName().c_str());
+    HILOG_DEBUG("end ability is %{public}s", GetAbilityName().c_str());
 }
 
-void JsAbility::OnSceneRestored()
+void JsUIAbility::OnSceneRestored()
 {
-    Ability::OnSceneRestored();
-    HILOG_DEBUG("OnSceneRestored");
+    UIAbility::OnSceneRestored();
+    HILOG_DEBUG("called");
     auto jsAppWindowStage = CreateAppWindowStage();
     if (jsAppWindowStage == nullptr) {
-        HILOG_ERROR("Failed to create jsAppWindowStage object by LoadSystemModule");
+        HILOG_ERROR("jsAppWindowStage is nullptr");
         return;
     }
-    NativeValue *argv[] = {jsAppWindowStage->Get()};
+    NativeValue *argv[] = { jsAppWindowStage->Get() };
     CallObjectMethod("onWindowStageRestore", argv, ArraySize(argv));
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
-        HILOG_DEBUG("Call AbilityDelegator::PostPerformScenceRestored");
+        HILOG_DEBUG("call PostPerformScenceRestored");
         delegator->PostPerformScenceRestored(CreateADelegatorAbilityProperty());
     }
 
     jsWindowStageObj_ = std::shared_ptr<NativeReference>(jsAppWindowStage.release());
 }
 
-void JsAbility::onSceneDestroyed()
+void JsUIAbility::onSceneDestroyed()
 {
-    HILOG_DEBUG("onSceneDestroyed begin, ability is %{public}s.", GetAbilityName().c_str());
-    Ability::onSceneDestroyed();
+    HILOG_DEBUG("begin ability is %{public}s", GetAbilityName().c_str());
+    UIAbility::onSceneDestroyed();
 
     CallObjectMethod("onWindowStageDestroy");
 
@@ -415,7 +445,7 @@ void JsAbility::onSceneDestroyed()
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
-        HILOG_DEBUG("Call AbilityDelegator::PostPerformScenceDestroyed");
+        HILOG_DEBUG("call PostPerformScenceDestroyed");
         delegator->PostPerformScenceDestroyed(CreateADelegatorAbilityProperty());
     }
 
@@ -423,35 +453,35 @@ void JsAbility::onSceneDestroyed()
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnWindowStageDestroy(jsAbilityObj_, jsWindowStageObj_);
     }
-    HILOG_DEBUG("onSceneDestroyed end, ability is %{public}s.", GetAbilityName().c_str());
+    HILOG_DEBUG("end ability is %{public}s", GetAbilityName().c_str());
 }
 
-void JsAbility::OnForeground(const Want &want)
+void JsUIAbility::OnForeground(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("OnForeground begin, ability is %{public}s.", GetAbilityName().c_str());
+    HILOG_DEBUG("begin ability is %{public}s", GetAbilityName().c_str());
     if (abilityInfo_) {
         jsRuntime_.UpdateModuleNameAndAssetPath(abilityInfo_->moduleName);
     }
 
-    Ability::OnForeground(want);
+    UIAbility::OnForeground(want);
 
     HandleScope handleScope(jsRuntime_);
     auto &nativeEngine = jsRuntime_.GetNativeEngine();
     if (jsAbilityObj_ == nullptr) {
-        HILOG_ERROR("Failed to get AbilityStage object");
+        HILOG_ERROR("jsAbilityObj_ is nullptr");
         return;
     }
     NativeValue *value = jsAbilityObj_->Get();
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
-        HILOG_ERROR("Failed to get Ability object");
+        HILOG_ERROR("obj is nullptr");
         return;
     }
 
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(&nativeEngine), want);
     NativeValue *jsWant = reinterpret_cast<NativeValue *>(napiWant);
-    if(jsWant == nullptr) {
+    if (jsWant == nullptr) {
         HILOG_ERROR("jsWant is nullptr");
         return;
     }
@@ -462,7 +492,7 @@ void JsAbility::OnForeground(const Want &want)
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
-        HILOG_DEBUG("Call AbilityDelegator::PostPerformForeground");
+        HILOG_DEBUG("Call PostPerformForeground");
         delegator->PostPerformForeground(CreateADelegatorAbilityProperty());
     }
 
@@ -470,20 +500,20 @@ void JsAbility::OnForeground(const Want &want)
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityForeground(jsAbilityObj_);
     }
-    HILOG_DEBUG("OnForeground end, ability is %{public}s.", GetAbilityName().c_str());
+    HILOG_DEBUG("end ability is %{public}s", GetAbilityName().c_str());
 }
 
-void JsAbility::OnBackground()
+void JsUIAbility::OnBackground()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("OnBackground begin, ability is %{public}s.", GetAbilityName().c_str());
+    HILOG_DEBUG("begin ability is %{public}s", GetAbilityName().c_str());
     CallObjectMethod("onBackground");
 
-    Ability::OnBackground();
+    UIAbility::OnBackground();
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
-        HILOG_DEBUG("Call AbilityDelegator::PostPerformBackground");
+        HILOG_DEBUG("Call PostPerformBackground");
         delegator->PostPerformBackground(CreateADelegatorAbilityProperty());
     }
 
@@ -491,44 +521,44 @@ void JsAbility::OnBackground()
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityBackground(jsAbilityObj_);
     }
-    HILOG_DEBUG("OnBackground end, ability is %{public}s.", GetAbilityName().c_str());
+    HILOG_DEBUG("end ability is %{public}s", GetAbilityName().c_str());
 }
 
-bool JsAbility::OnBackPress()
+bool JsUIAbility::OnBackPress()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("call, ability: %{public}s.", GetAbilityName().c_str());
-    Ability::OnBackPress();
+    HILOG_DEBUG("begin ability: %{public}s", GetAbilityName().c_str());
+    UIAbility::OnBackPress();
 
     NativeValue *jsValue = CallObjectMethod("onBackPressed", nullptr, 0, true);
     auto numberValue = ConvertNativeValueTo<NativeBoolean>(jsValue);
     if (numberValue == nullptr) {
-        HILOG_ERROR("numberValue is nullptr.");
+        HILOG_ERROR("numberValue is nullptr");
         return false;
     }
-    bool ret = (bool)(*numberValue);
-    HILOG_DEBUG("end, ret = %{public}d", ret);
+    bool ret = static_cast<bool>(*numberValue);
+    HILOG_DEBUG("end ret is %{public}d", ret);
     return ret;
 }
 
-bool JsAbility::OnPrepareTerminate()
+bool JsUIAbility::OnPrepareTerminate()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("call, ability: %{public}s.", GetAbilityName().c_str());
-    Ability::OnPrepareTerminate();
+    HILOG_DEBUG("begin ability: %{public}s", GetAbilityName().c_str());
+    UIAbility::OnPrepareTerminate();
 
     NativeValue *jsValue = CallObjectMethod("onPrepareToTerminate", nullptr, 0, true);
     auto numberValue = ConvertNativeValueTo<NativeBoolean>(jsValue);
     if (numberValue == nullptr) {
-        HILOG_ERROR("numberValue is nullptr.");
+        HILOG_ERROR("numberValue is nullptr");
         return false;
     }
-    bool ret = (bool)(*numberValue);
-    HILOG_DEBUG("end, ret = %{public}d", ret);
+    bool ret = static_cast<bool>(*numberValue);
+    HILOG_DEBUG("end ret is %{public}d", ret);
     return ret;
 }
 
-std::unique_ptr<NativeReference> JsAbility::CreateAppWindowStage()
+std::unique_ptr<NativeReference> JsUIAbility::CreateAppWindowStage()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HandleScope handleScope(jsRuntime_);
@@ -541,7 +571,7 @@ std::unique_ptr<NativeReference> JsAbility::CreateAppWindowStage()
     return JsRuntime::LoadSystemModuleByEngine(&engine, "application.WindowStage", &jsWindowStage, 1);
 }
 
-void JsAbility::GetPageStackFromWant(const Want &want, std::string &pageStack)
+void JsUIAbility::GetPageStackFromWant(const Want &want, std::string &pageStack)
 {
     auto stringObj = AAFwk::IString::Query(want.GetParams().GetParam(PAGE_STACK_PROPERTY_NAME));
     if (stringObj != nullptr) {
@@ -549,12 +579,12 @@ void JsAbility::GetPageStackFromWant(const Want &want, std::string &pageStack)
     }
 }
 
-bool JsAbility::IsRestorePageStack(const Want &want)
+bool JsUIAbility::IsRestorePageStack(const Want &want)
 {
     return want.GetBoolParam(SUPPORT_CONTINUE_PAGE_STACK_PROPERTY_NAME, true);
 }
 
-void JsAbility::RestorePageStack(const Want &want)
+void JsUIAbility::RestorePageStack(const Want &want)
 {
     if (IsRestorePageStack(want)) {
         std::string pageStack;
@@ -562,81 +592,55 @@ void JsAbility::RestorePageStack(const Want &want)
         HandleScope handleScope(jsRuntime_);
         auto &engine = jsRuntime_.GetNativeEngine();
         if (abilityContext_->GetContentStorage()) {
-            scene_->GetMainWindow()->SetUIContent(pageStack, &engine,
-                abilityContext_->GetContentStorage()->Get(), true);
+            scene_->GetMainWindow()->SetUIContent(
+                pageStack, &engine, abilityContext_->GetContentStorage()->Get(), true);
         } else {
-            HILOG_ERROR("restore: content storage is nullptr");
+            HILOG_ERROR("content storage is nullptr");
         }
     }
 }
 
-void JsAbility::AbilityContinuationOrRecover(const Want &want)
+void JsUIAbility::AbilityContinuationOrRecover(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     // multi-instance ability continuation
-    HILOG_DEBUG("launch reason = %{public}d", launchParam_.launchReason);
+    HILOG_DEBUG("launch reason is %{public}d", launchParam_.launchReason);
     if (IsRestoredInContinuation()) {
         RestorePageStack(want);
         OnSceneRestored();
         NotifyContinuationResult(want, true);
     } else if (ShouldRecoverState(want)) {
+        std::string pageStack = abilityRecovery_->GetSavedPageStack(AppExecFwk::StateReason::DEVELOPER_REQUEST);
+        HandleScope handleScope(jsRuntime_);
+        auto &engine = jsRuntime_.GetNativeEngine();
+        auto mainWindow = scene_->GetMainWindow();
+        if (mainWindow != nullptr) {
+            mainWindow->SetUIContent(pageStack, &engine, abilityContext_->GetContentStorage()->Get(), true);
+        } else {
+            HILOG_ERROR("mainWindow is nullptr");
+        }
         OnSceneRestored();
     } else {
         OnSceneCreated();
     }
 }
 
-void JsAbility::DoOnForeground(const Want &want)
+void JsUIAbility::DoOnForeground(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (scene_ == nullptr) {
         if ((abilityContext_ == nullptr) || (sceneListener_ == nullptr)) {
-            HILOG_ERROR("Ability::OnForeground error. abilityContext_ or sceneListener_ is nullptr!");
+            HILOG_ERROR("abilityContext_ or sceneListener_ is nullptr");
             return;
         }
-        scene_ = std::make_shared<Rosen::WindowScene>();
-        int32_t displayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
-        if (setting_ != nullptr) {
-            std::string strDisplayId =
-                setting_->GetProperty(OHOS::AppExecFwk::AbilityStartSetting::WINDOW_DISPLAY_ID_KEY);
-            std::regex formatRegex("[0-9]{0,9}$");
-            std::smatch sm;
-            bool flag = std::regex_match(strDisplayId, sm, formatRegex);
-            if (flag && !strDisplayId.empty()) {
-                int base = 10; // Numerical base (radix) that determines the valid characters and their interpretation.
-                displayId = strtol(strDisplayId.c_str(), nullptr, base);
-                HILOG_DEBUG("%{public}s success. displayId is %{public}d", __func__, displayId);
-            } else {
-                HILOG_WARN("%{public}s failed to formatRegex:[%{public}s]", __func__, strDisplayId.c_str());
-            }
-        }
-        auto option = GetWindowOption(want);
-        Rosen::WMError ret = Rosen::WMError::WM_OK;
-        if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && sessionInfo_ != nullptr) {
-            abilityContext_->SetWeakSessionToken(sessionInfo_->sessionToken);
-            ret = scene_->Init(displayId, abilityContext_, sceneListener_, option, sessionInfo_->sessionToken);
-        } else {
-            ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);
-        }
-        if (ret != Rosen::WMError::WM_OK) {
-            HILOG_ERROR("%{public}s error. failed to init window scene!", __func__);
-            return;
-        }
-
-        AbilityContinuationOrRecover(want);
-        auto window = scene_->GetMainWindow();
-        if (window) {
-            HILOG_DEBUG("Call RegisterDisplayMoveListener, windowId: %{public}d", window->GetWindowId());
-            abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weak_from_this());
-            window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
-        }
+        DoOnForegroundForSceneIsNull(want);
     } else {
         auto window = scene_->GetMainWindow();
         if (window != nullptr && want.HasParameter(Want::PARAM_RESV_WINDOW_MODE)) {
-            auto windowMode = want.GetIntParam(Want::PARAM_RESV_WINDOW_MODE,
-                AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
+            auto windowMode = want.GetIntParam(
+                Want::PARAM_RESV_WINDOW_MODE, AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
             window->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
-            HILOG_DEBUG("set window mode = %{public}d.", windowMode);
+            HILOG_DEBUG("set window mode is %{public}d", windowMode);
         }
     }
 
@@ -645,31 +649,72 @@ void JsAbility::DoOnForeground(const Want &want)
         window->SetSystemPrivacyMode(true);
     }
 
-    HILOG_DEBUG("%{public}s begin scene_->GoForeground, sceneFlag_:%{public}d.", __func__, Ability::sceneFlag_);
-    scene_->GoForeground(Ability::sceneFlag_);
-    HILOG_DEBUG("%{public}s end scene_->GoForeground.", __func__);
+    HILOG_DEBUG("begin sceneFlag_: %{public}d", UIAbility::sceneFlag_);
+    scene_->GoForeground(UIAbility::sceneFlag_);
+    HILOG_DEBUG("end");
 }
 
-void JsAbility::RequestFocus(const Want &want)
+void JsUIAbility::DoOnForegroundForSceneIsNull(const Want &want)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    scene_ = std::make_shared<Rosen::WindowScene>();
+    int32_t displayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
+    if (setting_ != nullptr) {
+        std::string strDisplayId = setting_->GetProperty(OHOS::AppExecFwk::AbilityStartSetting::WINDOW_DISPLAY_ID_KEY);
+        std::regex formatRegex("[0-9]{0,9}$");
+        std::smatch sm;
+        bool flag = std::regex_match(strDisplayId, sm, formatRegex);
+        if (flag && !strDisplayId.empty()) {
+            int base = 10; // Numerical base (radix) that determines the valid characters and their interpretation.
+            displayId = strtol(strDisplayId.c_str(), nullptr, base);
+            HILOG_DEBUG("Success displayId is %{public}d", displayId);
+        } else {
+            HILOG_ERROR("Failed to formatRegex: [%{public}s]", strDisplayId.c_str());
+        }
+    }
+    auto option = GetWindowOption(want);
+    Rosen::WMError ret = Rosen::WMError::WM_OK;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && sessionInfo_ != nullptr) {
+        abilityContext_->SetWeakSessionToken(sessionInfo_->sessionToken);
+        ret = scene_->Init(displayId, abilityContext_, sceneListener_, option, sessionInfo_->sessionToken);
+    } else {
+        ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);
+    }
+    if (ret != Rosen::WMError::WM_OK) {
+        HILOG_ERROR("Failed to init window scene");
+        return;
+    }
+
+    AbilityContinuationOrRecover(want);
+    auto window = scene_->GetMainWindow();
+    if (window) {
+        HILOG_DEBUG("Call RegisterDisplayMoveListener, windowId: %{public}d", window->GetWindowId());
+        abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weak_from_this());
+        window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
+    }
+}
+
+void JsUIAbility::RequestFocus(const Want &want)
+{
+    HILOG_DEBUG("called");
     if (scene_ == nullptr) {
+        HILOG_ERROR("scene_ is nullptr");
         return;
     }
     auto window = scene_->GetMainWindow();
     if (window != nullptr && want.HasParameter(Want::PARAM_RESV_WINDOW_MODE)) {
-        auto windowMode = want.GetIntParam(Want::PARAM_RESV_WINDOW_MODE,
-            AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
+        auto windowMode = want.GetIntParam(
+            Want::PARAM_RESV_WINDOW_MODE, AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
         window->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
-        HILOG_DEBUG("set window mode = %{public}d.", windowMode);
+        HILOG_DEBUG("set window mode is %{public}d", windowMode);
     }
-    scene_->GoForeground(Ability::sceneFlag_);
+    scene_->GoForeground(UIAbility::sceneFlag_);
 }
 
-void JsAbility::ContinuationRestore(const Want &want)
+void JsUIAbility::ContinuationRestore(const Want &want)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called");
     if (!IsRestoredInContinuation() || scene_ == nullptr) {
+        HILOG_ERROR("Is not in continuation or scene_ is nullptr");
         return;
     }
     RestorePageStack(want);
@@ -677,41 +722,40 @@ void JsAbility::ContinuationRestore(const Want &want)
     NotifyContinuationResult(want, true);
 }
 
-std::shared_ptr<NativeReference> JsAbility::GetJsWindowStage()
+std::shared_ptr<NativeReference> JsUIAbility::GetJsWindowStage()
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called");
     if (jsWindowStageObj_ == nullptr) {
         HILOG_ERROR("jsWindowSatge is nullptr");
     }
     return jsWindowStageObj_;
 }
 
-const JsRuntime& JsAbility::GetJsRuntime()
+const JsRuntime &JsUIAbility::GetJsRuntime()
 {
     return jsRuntime_;
 }
-
 #endif
 
-int32_t JsAbility::OnContinue(WantParams &wantParams)
+int32_t JsUIAbility::OnContinue(WantParams &wantParams)
 {
     HandleScope handleScope(jsRuntime_);
     auto &nativeEngine = jsRuntime_.GetNativeEngine();
     if (jsAbilityObj_ == nullptr) {
         HILOG_ERROR("Failed to get AbilityStage object");
-        return AppExecFwk::ContinuationManager::OnContinueResult::REJECT;
+        return AppExecFwk::ContinuationManagerStage::OnContinueResult::REJECT;
     }
     NativeValue *value = jsAbilityObj_->Get();
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
         HILOG_ERROR("Failed to get Ability object");
-        return AppExecFwk::ContinuationManager::OnContinueResult::REJECT;
+        return AppExecFwk::ContinuationManagerStage::OnContinueResult::REJECT;
     }
 
     NativeValue *methodOnCreate = obj->GetProperty("onContinue");
     if (methodOnCreate == nullptr) {
         HILOG_ERROR("Failed to get 'onContinue' from Ability object");
-        return AppExecFwk::ContinuationManager::OnContinueResult::REJECT;
+        return AppExecFwk::ContinuationManagerStage::OnContinueResult::REJECT;
     }
 
     napi_value napiWantParams = OHOS::AppExecFwk::WrapWantParams(reinterpret_cast<napi_env>(&nativeEngine), wantParams);
@@ -725,7 +769,7 @@ int32_t JsAbility::OnContinue(WantParams &wantParams)
     NativeNumber *numberResult = ConvertNativeValueTo<NativeNumber>(result);
     if (numberResult == nullptr) {
         HILOG_ERROR("'onContinue' is not implemented");
-        return AppExecFwk::ContinuationManager::OnContinueResult::REJECT;
+        return AppExecFwk::ContinuationManagerStage::OnContinueResult::REJECT;
     }
 
     auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
@@ -736,7 +780,7 @@ int32_t JsAbility::OnContinue(WantParams &wantParams)
     return *numberResult;
 }
 
-int32_t JsAbility::OnSaveState(int32_t reason, WantParams &wantParams)
+int32_t JsUIAbility::OnSaveState(int32_t reason, WantParams &wantParams)
 {
     HandleScope handleScope(jsRuntime_);
     auto &nativeEngine = jsRuntime_.GetNativeEngine();
@@ -758,10 +802,10 @@ int32_t JsAbility::OnSaveState(int32_t reason, WantParams &wantParams)
     }
 
     napi_value napiWantParams = OHOS::AppExecFwk::WrapWantParams(reinterpret_cast<napi_env>(&nativeEngine), wantParams);
-    NativeValue* jsReason = CreateJsValue(nativeEngine, reason);
-    NativeValue* jsWantParams = reinterpret_cast<NativeValue *>(napiWantParams);
-    NativeValue* args[] = { jsReason, jsWantParams };
-    NativeValue* result = nativeEngine.CallFunction(value, methodOnSaveState, args, 2); // 2:args size
+    NativeValue *jsReason = CreateJsValue(nativeEngine, reason);
+    NativeValue *jsWantParams = reinterpret_cast<NativeValue *>(napiWantParams);
+    NativeValue *args[] = { jsReason, jsWantParams };
+    NativeValue *result = nativeEngine.CallFunction(value, methodOnSaveState, args, 2); // 2:args size
     napi_value newNapiWantParams = reinterpret_cast<napi_value>(jsWantParams);
     OHOS::AppExecFwk::UnwrapWantParams(reinterpret_cast<napi_env>(&nativeEngine), newNapiWantParams, wantParams);
 
@@ -773,31 +817,31 @@ int32_t JsAbility::OnSaveState(int32_t reason, WantParams &wantParams)
     return *numberResult;
 }
 
-void JsAbility::OnConfigurationUpdated(const Configuration &configuration)
+void JsUIAbility::OnConfigurationUpdated(const Configuration &configuration)
 {
-    Ability::OnConfigurationUpdated(configuration);
-    HILOG_DEBUG("%{public}s called.", __func__);
+    UIAbility::OnConfigurationUpdated(configuration);
+    HILOG_DEBUG("called");
 
     HandleScope handleScope(jsRuntime_);
-    auto& nativeEngine = jsRuntime_.GetNativeEngine();
+    auto &nativeEngine = jsRuntime_.GetNativeEngine();
     auto fullConfig = GetAbilityContext()->GetConfiguration();
     if (!fullConfig) {
-        HILOG_ERROR("configuration is nullptr.");
+        HILOG_ERROR("configuration is nullptr");
         return;
     }
 
-    napi_value napiConfiguration = OHOS::AppExecFwk::WrapConfiguration(
-        reinterpret_cast<napi_env>(&nativeEngine), configuration);
-    NativeValue* jsConfiguration = reinterpret_cast<NativeValue*>(napiConfiguration);
+    napi_value napiConfiguration =
+        OHOS::AppExecFwk::WrapConfiguration(reinterpret_cast<napi_env>(&nativeEngine), configuration);
+    NativeValue *jsConfiguration = reinterpret_cast<NativeValue *>(napiConfiguration);
     CallObjectMethod("onConfigurationUpdated", &jsConfiguration, 1);
     CallObjectMethod("onConfigurationUpdate", &jsConfiguration, 1);
     JsAbilityContext::ConfigurationUpdated(&nativeEngine, shellContextRef_, fullConfig);
 }
 
-void JsAbility::OnMemoryLevel(int level)
+void JsUIAbility::OnMemoryLevel(int level)
 {
-    Ability::OnMemoryLevel(level);
-    HILOG_DEBUG("%{public}s called.", __func__);
+    UIAbility::OnMemoryLevel(level);
+    HILOG_DEBUG("called");
 
     HandleScope handleScope(jsRuntime_);
     auto &nativeEngine = jsRuntime_.GetNativeEngine();
@@ -819,18 +863,18 @@ void JsAbility::OnMemoryLevel(int level)
     CallObjectMethod("onMemoryLevel", argv, ArraySize(argv));
 }
 
-void JsAbility::UpdateContextConfiguration()
+void JsUIAbility::UpdateContextConfiguration()
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called");
     HandleScope handleScope(jsRuntime_);
-    auto& nativeEngine = jsRuntime_.GetNativeEngine();
+    auto &nativeEngine = jsRuntime_.GetNativeEngine();
     JsAbilityContext::ConfigurationUpdated(&nativeEngine, shellContextRef_, GetAbilityContext()->GetConfiguration());
 }
 
-void JsAbility::OnNewWant(const Want &want)
+void JsUIAbility::OnNewWant(const Want &want)
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
-    Ability::OnNewWant(want);
+    HILOG_DEBUG("begin");
+    UIAbility::OnNewWant(want);
 
 #ifdef SUPPORT_GRAPHICS
     if (scene_) {
@@ -865,75 +909,73 @@ void JsAbility::OnNewWant(const Want &want)
         CreateJsLaunchParam(nativeEngine, GetLaunchParam()),
     };
     CallObjectMethod("onNewWant", argv, ArraySize(argv));
-
-    HILOG_DEBUG("%{public}s end.", __func__);
+    HILOG_DEBUG("end");
 }
 
-void JsAbility::OnAbilityResult(int requestCode, int resultCode, const Want &resultData)
+void JsUIAbility::OnAbilityResult(int requestCode, int resultCode, const Want &resultData)
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
-    Ability::OnAbilityResult(requestCode, resultCode, resultData);
+    HILOG_DEBUG("begin");
+    UIAbility::OnAbilityResult(requestCode, resultCode, resultData);
     std::shared_ptr<AbilityRuntime::AbilityContext> context = GetAbilityContext();
     if (context == nullptr) {
-        HILOG_WARN("JsAbility not attached to any runtime context!");
+        HILOG_ERROR("JsUIAbility not attached to any runtime context");
         return;
     }
     context->OnAbilityResult(requestCode, resultCode, resultData);
-    HILOG_DEBUG("%{public}s end.", __func__);
+    HILOG_DEBUG("end");
 }
 
-sptr<IRemoteObject> JsAbility::CallRequest()
+sptr<IRemoteObject> JsUIAbility::CallRequest()
 {
-    HILOG_DEBUG("JsAbility::CallRequest begin.");
+    HILOG_DEBUG("begin");
     if (jsAbilityObj_ == nullptr) {
-        HILOG_WARN("JsAbility::CallRequest Obj is nullptr");
+        HILOG_ERROR("Obj is nullptr");
         return nullptr;
     }
 
     if (remoteCallee_ != nullptr) {
-        HILOG_DEBUG("JsAbility::CallRequest get Callee remoteObj.");
+        HILOG_ERROR("remoteCallee_ is nullptr");
         return remoteCallee_;
     }
 
     HandleScope handleScope(jsRuntime_);
-    HILOG_DEBUG("JsAbility::CallRequest set runtime scope.");
+    HILOG_DEBUG("set runtime scope");
     auto &nativeEngine = jsRuntime_.GetNativeEngine();
     auto value = jsAbilityObj_->Get();
     if (value == nullptr) {
-        HILOG_ERROR("JsAbility::CallRequest value is nullptr");
+        HILOG_ERROR("value is nullptr");
         return nullptr;
     }
 
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
-        HILOG_ERROR("JsAbility::CallRequest obj is nullptr");
+        HILOG_ERROR("obj is nullptr");
         return nullptr;
     }
 
     auto method = obj->GetProperty("onCallRequest");
     if (method == nullptr || !method->IsCallable()) {
-        HILOG_ERROR("JsAbility::CallRequest method is %{public}s", method == nullptr ? "nullptr" : "not func");
+        HILOG_ERROR("Method is %{public}s", method == nullptr ? "nullptr" : "not func");
         return nullptr;
     }
 
     auto remoteJsObj = nativeEngine.CallFunction(value, method, nullptr, 0);
     if (remoteJsObj == nullptr) {
-        HILOG_ERROR("JsAbility::CallRequest JsObj is nullptr");
+        HILOG_ERROR("JsObj is nullptr");
         return nullptr;
     }
 
     remoteCallee_ = SetNewRuleFlagToCallee(nativeEngine, remoteJsObj);
-    HILOG_DEBUG("JsAbility::CallRequest end.");
+    HILOG_DEBUG("end");
     return remoteCallee_;
 }
 
-NativeValue *JsAbility::CallObjectMethod(const char *name, NativeValue *const *argv, size_t argc, bool withResult)
+NativeValue *JsUIAbility::CallObjectMethod(const char *name, NativeValue *const *argv, size_t argc, bool withResult)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("JsAbility::CallObjectMethod(%{public}s", name);
-
+    HILOG_DEBUG("CallObjectMethod(%{public}s", name);
     if (!jsAbilityObj_) {
-        HILOG_WARN("Not found Ability.js");
+        HILOG_ERROR("Not found Ability.js");
         return nullptr;
     }
 
@@ -959,29 +1001,29 @@ NativeValue *JsAbility::CallObjectMethod(const char *name, NativeValue *const *a
     return nullptr;
 }
 
-bool JsAbility::CheckPromise(NativeValue *result)
+bool JsUIAbility::CheckPromise(NativeValue *result)
 {
     if (result == nullptr) {
-        HILOG_DEBUG("result is nullptr, no need to call promise.");
+        HILOG_DEBUG("result is null");
         return false;
     }
     if (!result->IsPromise()) {
-        HILOG_DEBUG("result is not promise, no need to call promise.");
+        HILOG_DEBUG("result is not promise");
         return false;
     }
     return true;
 }
 
-bool JsAbility::CallPromise(NativeValue *result, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo)
+bool JsUIAbility::CallPromise(NativeValue *result, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo)
 {
     auto *retObj = ConvertNativeValueTo<NativeObject>(result);
     if (retObj == nullptr) {
-        HILOG_ERROR("Error to convert native value to NativeObject.");
+        HILOG_ERROR("Failed to convert native value to NativeObject");
         return false;
     }
     NativeValue *then = retObj->GetProperty("then");
     if (then == nullptr) {
-        HILOG_ERROR("Error to get property: then.");
+        HILOG_ERROR("Failed to get property: then");
         return false;
     }
     if (!then->IsCallable()) {
@@ -990,20 +1032,18 @@ bool JsAbility::CallPromise(NativeValue *result, AppExecFwk::AbilityTransactionC
     }
     HandleScope handleScope(jsRuntime_);
     auto &nativeEngine = jsRuntime_.GetNativeEngine();
-    auto promiseCallback = nativeEngine.CreateFunction("promiseCallback", strlen("promiseCallback"), PromiseCallback,
-        callbackInfo);
+    auto promiseCallback =
+        nativeEngine.CreateFunction("promiseCallback", strlen("promiseCallback"), PromiseCallback, callbackInfo);
     NativeValue *argv[1] = { promiseCallback };
     nativeEngine.CallFunction(result, then, argv, 1);
-    HILOG_DEBUG("CallPromise complete");
     return true;
 }
 
-std::shared_ptr<AppExecFwk::ADelegatorAbilityProperty> JsAbility::CreateADelegatorAbilityProperty()
+std::shared_ptr<AppExecFwk::ADelegatorAbilityProperty> JsUIAbility::CreateADelegatorAbilityProperty()
 {
     auto property = std::make_shared<AppExecFwk::ADelegatorAbilityProperty>();
-    property->token_          = GetAbilityContext()->GetToken();
-    property->name_           = GetAbilityName();
-    property->moduleName_     = GetModuleName();
+    property->token_ = GetAbilityContext()->GetToken();
+    property->name_ = GetAbilityName();
     if (GetApplicationInfo() == nullptr || GetApplicationInfo()->bundleName.empty()) {
         property->fullName_ = GetAbilityName();
     } else {
@@ -1015,51 +1055,57 @@ std::shared_ptr<AppExecFwk::ADelegatorAbilityProperty> JsAbility::CreateADelegat
         }
     }
     property->lifecycleState_ = GetState();
-    property->object_         = jsAbilityObj_;
-
+    property->object_ = jsAbilityObj_;
     return property;
 }
 
-void JsAbility::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
+void JsUIAbility::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
-    Ability::Dump(params, info);
-    HILOG_DEBUG("%{public}s called.", __func__);
+    UIAbility::Dump(params, info);
+    HILOG_DEBUG("called");
     HandleScope handleScope(jsRuntime_);
-    auto& nativeEngine = jsRuntime_.GetNativeEngine();
+    auto &nativeEngine = jsRuntime_.GetNativeEngine();
     // create js array object of params
-    NativeValue* argv[] = { CreateNativeArray(nativeEngine, params) };
+    NativeValue *argv[] = { CreateNativeArray(nativeEngine, params) };
 
     if (!jsAbilityObj_) {
         HILOG_WARN("Not found .js");
         return;
     }
 
-    NativeValue* value = jsAbilityObj_->Get();
-    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
+    NativeValue *value = jsAbilityObj_->Get();
+    NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
         HILOG_ERROR("Failed to get object");
         return;
     }
 
-    NativeValue* method = obj->GetProperty("dump");
-    NativeValue* onDumpMethod = obj->GetProperty("onDump");
+    NativeValue *method = obj->GetProperty("dump");
+    NativeValue *onDumpMethod = obj->GetProperty("onDump");
 
-    NativeValue* dumpInfo = nullptr;
+    NativeValue *dumpInfo = nullptr;
     if (method != nullptr) {
         dumpInfo = nativeEngine.CallFunction(value, method, argv, 1);
     }
 
-    NativeValue* onDumpInfo = nullptr;
+    NativeValue *onDumpInfo = nullptr;
     if (onDumpMethod != nullptr) {
         onDumpInfo = nativeEngine.CallFunction(value, onDumpMethod, argv, 1);
     }
 
-    NativeArray* dumpInfoNative = nullptr;
+    GetDumpInfo(nativeEngine, dumpInfo, onDumpInfo, info);
+    HILOG_DEBUG("Dump info size: %{public}zu", info.size());
+}
+
+void JsUIAbility::GetDumpInfo(
+    NativeEngine &nativeEngine, NativeValue *dumpInfo, NativeValue *onDumpInfo, std::vector<std::string> &info)
+{
+    NativeArray *dumpInfoNative = nullptr;
     if (dumpInfo != nullptr) {
         dumpInfoNative = ConvertNativeValueTo<NativeArray>(dumpInfo);
     }
 
-    NativeArray* onDumpInfoNative = nullptr;
+    NativeArray *onDumpInfoNative = nullptr;
     if (onDumpInfo != nullptr) {
         onDumpInfoNative = ConvertNativeValueTo<NativeArray>(onDumpInfo);
     }
@@ -1085,30 +1131,27 @@ void JsAbility::Dump(const std::vector<std::string> &params, std::vector<std::st
             info.push_back(dumpInfoStr);
         }
     }
-
-    HILOG_DEBUG("Dump info size: %{public}zu", info.size());
 }
 
-std::shared_ptr<NativeReference> JsAbility::GetJsAbility()
+std::shared_ptr<NativeReference> JsUIAbility::GetJsAbility()
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called");
     if (jsAbilityObj_ == nullptr) {
         HILOG_ERROR("jsAbility object is nullptr");
     }
     return jsAbilityObj_;
 }
 
-sptr<IRemoteObject> JsAbility::SetNewRuleFlagToCallee(NativeEngine &nativeEngine, NativeValue* remoteJsObj)
+sptr<IRemoteObject> JsUIAbility::SetNewRuleFlagToCallee(NativeEngine &nativeEngine, NativeValue *remoteJsObj)
 {
-    NativeObject* calleeObj = ConvertNativeValueTo<NativeObject>(remoteJsObj);
+    NativeObject *calleeObj = ConvertNativeValueTo<NativeObject>(remoteJsObj);
     if (calleeObj == nullptr) {
-        HILOG_ERROR("JsAbility::SetNewRuleFlagToCallee calleeObj is nullptr");
+        HILOG_ERROR("calleeObj is nullptr");
         return nullptr;
     }
     auto setFlagMethod = calleeObj->GetProperty("setNewRuleFlag");
     if (setFlagMethod == nullptr || !setFlagMethod->IsCallable()) {
-        HILOG_ERROR("JsAbility::SetNewRuleFlagToCallee setFlagMethod is %{public}s",
-            setFlagMethod == nullptr ? "nullptr" : "not func");
+        HILOG_ERROR("setFlagMethod is %{public}s", setFlagMethod == nullptr ? "nullptr" : "not func");
         return nullptr;
     }
     auto flag = nativeEngine.CreateBoolean(IsUseNewStartUpRule());
@@ -1118,10 +1161,10 @@ sptr<IRemoteObject> JsAbility::SetNewRuleFlagToCallee(NativeEngine &nativeEngine
     auto remoteObj = NAPI_ohos_rpc_getNativeRemoteObject(
         reinterpret_cast<napi_env>(&nativeEngine), reinterpret_cast<napi_value>(remoteJsObj));
     if (remoteObj == nullptr) {
-        HILOG_ERROR("JsAbility::CallRequest obj is nullptr");
+        HILOG_ERROR("obj is nullptr");
         return nullptr;
     }
     return remoteObj;
 }
-}  // namespace AbilityRuntime
-}  // namespace OHOS
+} // namespace AbilityRuntime
+} // namespace OHOS
