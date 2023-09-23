@@ -86,6 +86,8 @@ HWTEST_F(OsAccountManagerWrapperTest, IsOsAccountExists_0100, TestSize.Level0)
     EXPECT_EQ(isOsAccountExists, false);
 }
 
+#ifndef OS_ACCOUNT_PART_ENABLED
+#define OS_ACCOUNT_PART_ENABLED
 /**
  * @tc.name: CreateOsAccount_0100
  * @tc.desc: Create os account.
@@ -98,7 +100,6 @@ HWTEST_F(OsAccountManagerWrapperTest, CreateOsAccount_0100, TestSize.Level0)
     EXPECT_EQ(ret, RESULT_OK);
 }
 
-#ifndef OS_ACCOUNT_PART_ENABLED
 /**
  * @tc.name: RemoveOsAccount_0100
  * @tc.desc: Remove os account.
