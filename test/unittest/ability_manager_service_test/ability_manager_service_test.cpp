@@ -1042,6 +1042,26 @@ HWTEST_F(AbilityManagerServiceTest, GetDlpConnectionInfos_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
+ * Function: GetConnectionData
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService GetConnectionData
+ */
+HWTEST_F(AbilityManagerServiceTest, GetConnectionData_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest GetConnectionData_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    std::vector<AbilityRuntime::ConnectionData> connectionData;
+    EXPECT_EQ(abilityMs_->GetConnectionData(connectionData), CHECK_PERMISSION_FAILED);
+
+    MyFlag::flag_ = 1;
+    EXPECT_EQ(abilityMs_->GetConnectionData(connectionData), ERR_OK);
+
+    MyFlag::flag_ = 0;
+    HILOG_INFO("AbilityManagerServiceTest GetConnectionData_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: RegisterMissionListener
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService RegisterMissionListener

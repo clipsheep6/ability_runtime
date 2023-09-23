@@ -36,6 +36,7 @@ AbilityManagerStub::AbilityManagerStub()
     FirstStepInit();
     SecondStepInit();
     ThirdStepInit();
+    FourthStepInit();
 }
 
 AbilityManagerStub::~AbilityManagerStub()
@@ -349,6 +350,12 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::NotifySaveAsResultInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_SESSIONMANAGERSERVICE)] =
         &AbilityManagerStub::SetSessionManagerServiceInner;
+}
+
+void AbilityManagerStub::FourthStepInit()
+{
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_CONNECTION_DATA)] =
+        &AbilityManagerStub::GetConnectionDataInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -1943,6 +1950,12 @@ int AbilityManagerStub::GetDlpConnectionInfos(std::vector<AbilityRuntime::DlpCon
     return NO_ERROR;
 }
 
+int AbilityManagerStub::GetConnectionData(std::vector<AbilityRuntime::ConnectionData> &infos)
+{
+    // should implement in child
+    return NO_ERROR;
+}
+
 #ifdef ABILITY_COMMAND_FOR_TEST
 int AbilityManagerStub::ForceTimeoutForTestInner(MessageParcel &data, MessageParcel &reply)
 {
@@ -2212,6 +2225,30 @@ int AbilityManagerStub::GetDlpConnectionInfosInner(MessageParcel &data, MessageP
     }
 
     for (auto &item : infos) {
+        if (!reply.WriteParcelable(&item)) {
+            HILOG_ERROR("write info item failed");
+            return ERR_INVALID_VALUE;
+        }
+    }
+
+    return ERR_OK;
+}
+
+int AbilityManagerStub::GetConnectionDataInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::vector<AbilityRuntime::ConnectionData> connectionData;
+    auto result = GetConnectionData(connectionData);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("write result failed");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!reply.WriteInt32(connectionData.size())) {
+        HILOG_ERROR("write infos size failed");
+        return ERR_INVALID_VALUE;
+    }
+
+    for (auto &item : connectionData) {
         if (!reply.WriteParcelable(&item)) {
             HILOG_ERROR("write info item failed");
             return ERR_INVALID_VALUE;

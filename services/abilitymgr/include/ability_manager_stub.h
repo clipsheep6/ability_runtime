@@ -62,10 +62,13 @@ public:
 
     virtual int GetDlpConnectionInfos(std::vector<AbilityRuntime::DlpConnectionInfo> &infos);
 
+    virtual int GetConnectionData(std::vector<AbilityRuntime::ConnectionData> &connectionData);
+
 private:
     void FirstStepInit();
     void SecondStepInit();
     void ThirdStepInit();
+    void FourthStepInit();
     int TerminateAbilityInner(MessageParcel &data, MessageParcel &reply);
     int TerminateUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
     int CloseUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
@@ -185,6 +188,7 @@ private:
     int RegisterConnectionObserverInner(MessageParcel &data, MessageParcel &reply);
     int UnregisterConnectionObserverInner(MessageParcel &data, MessageParcel &reply);
     int GetDlpConnectionInfosInner(MessageParcel &data, MessageParcel &reply);
+    int GetConnectionDataInner(MessageParcel &data, MessageParcel &reply);
     int MoveAbilityToBackgroundInner(MessageParcel &data, MessageParcel &reply);
     int SetMissionContinueStateInner(MessageParcel &data, MessageParcel &reply);
 #ifdef SUPPORT_GRAPHICS

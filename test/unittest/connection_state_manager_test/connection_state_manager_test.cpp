@@ -579,6 +579,23 @@ HWTEST_F(ConnectionStateManagerTest, GetDlpConnectionInfos_001, TestSize.Level1)
 
 /*
  * Feature: ConnectionStateManager
+ * Function: GetConnectionData
+ * SubFunction: NA
+ * FunctionPoints: ConnectionStateManager GetConnectionData
+ * EnvConditions: NA
+ * CaseDescription: Verify GetConnectionData
+ */
+HWTEST_F(ConnectionStateManagerTest, GetConnectionData_001, TestSize.Level1)
+{
+    EXPECT_NE(manager_, nullptr);
+    std::vector<ConnectionData> connectionData;
+    manager_->connectionStates_[0] = nullptr;
+    manager_->connectionStates_[1] = nullptr;
+    manager_->GetConnectionData(connectionData);
+}
+
+/*
+ * Feature: ConnectionStateManager
  * Function: AddConnectionInner
  * SubFunction: NA
  * FunctionPoints: ConnectionStateManager AddConnectionInner

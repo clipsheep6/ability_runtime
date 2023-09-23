@@ -63,11 +63,22 @@ int32_t ConnectionObserverClientImpl::GetDlpConnectionInfos(std::vector<DlpConne
 {
     auto proxy = GetServiceProxy();
     if (!proxy) {
-        HILOG_ERROR("unregister, observer is invalid.");
+        HILOG_ERROR("GetDlpConnectionInfos, observer is invalid.");
         return ERR_NO_PROXY;
     }
 
     return proxy->GetDlpConnectionInfos(infos);
+}
+
+int32_t ConnectionObserverClientImpl::GetConnectionData(std::vector<ConnectionData> &connectionData)
+{
+    auto proxy = GetServiceProxy();
+    if (!proxy) {
+        HILOG_ERROR("GetConnectionData, observer is invalid.");
+        return ERR_NO_PROXY;
+    }
+
+    return proxy->GetConnectionData(connectionData);
 }
 
 void ConnectionObserverClientImpl::HandleExtensionConnected(const ConnectionData &data)

@@ -304,6 +304,22 @@ void ConnectionStateManager::GetDlpConnectionInfos(std::vector<AbilityRuntime::D
     }
 }
 
+void ConnectionStateManager::GetConnectionData(std::vector<AbilityRuntime::ConnectionData> &connectionData)
+{
+    std::lock_guard guard(stateLock_);
+    for (const auto &stateItem : connectionStates_) {
+        if (!stateItem.second) {
+            HILOG_WARN("Unexpected null");
+            continue;
+        }
+
+        std::vector<AbilityRuntime::ConnectionData> allConnectionData;
+        stateItem.second->GenerateAllConnectionData(allConnectionData);
+        connectionData.insert(connectionData.end(), allConnectionData.begin(), allConnectionData.end());
+    }
+    HILOG_DEBUG("GetConnectionData: %{public}zu", connectionData.size());
+}
+
 bool ConnectionStateManager::AddConnectionInner(const std::shared_ptr<ConnectionRecord> &connectionRecord,
     AbilityRuntime::ConnectionData &data)
 {

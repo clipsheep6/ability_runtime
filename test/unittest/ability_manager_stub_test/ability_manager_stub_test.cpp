@@ -1998,6 +1998,21 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_GetDlpConnectionInfos_001, T
     EXPECT_EQ(res, NO_ERROR);
 }
 
+/*
+ * Feature: AbilityManagerService
+ * Function: GetConnectionData
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService GetConnectionData
+ * EnvConditions: NA
+ * CaseDescription: Verify the function GetConnectionData is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_GetConnectionData_001, TestSize.Level1)
+{
+    std::vector<AbilityRuntime::ConnectionData> connectionData;
+    auto res = stub_->GetConnectionData(connectionData);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
 #ifdef ABILITY_COMMAND_FOR_TEST
 /*
  * Feature: AbilityManagerService

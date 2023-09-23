@@ -3136,6 +3136,17 @@ int AbilityManagerService::GetDlpConnectionInfos(std::vector<AbilityRuntime::Dlp
     return ERR_OK;
 }
 
+int AbilityManagerService::GetConnectionData(std::vector<AbilityRuntime::ConnectionData> &connectionData)
+{
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("can not get connection data if caller is not sa.");
+        return CHECK_PERMISSION_FAILED;
+    }
+    DelayedSingleton<ConnectionStateManager>::GetInstance()->GetConnectionData(connectionData);
+
+    return ERR_OK;
+}
+
 int AbilityManagerService::RegisterMissionListener(const std::string &deviceId,
     const sptr<IRemoteMissionListener> &listener)
 {
