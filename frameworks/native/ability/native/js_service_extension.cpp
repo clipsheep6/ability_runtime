@@ -688,7 +688,7 @@ void JsServiceExtension::OnChange(Rosen::DisplayId displayId)
             }
         };
         if (handler_ != nullptr) {
-            handler_->PostTask(task);
+            handler_->PostTask(task, "JsServiceExtension:OnChange");
         }
     }
 

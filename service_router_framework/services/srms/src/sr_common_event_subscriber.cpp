@@ -58,7 +58,7 @@ void SrCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &ev
                 ServiceRouterDataMgr::GetInstance().LoadAllBundleInfos();
             }
         };
-        eventHandler_->PostTask(task);
+        eventHandler_->PostTask(task, "SrCommonEventSubscriber:LoadAllBundleInfos");
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED ||
         action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED) {
         auto task = [weakThis, bundleName]() {
@@ -68,7 +68,7 @@ void SrCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &ev
                 ServiceRouterDataMgr::GetInstance().LoadBundleInfo(bundleName);
             }
         };
-        eventHandler_->PostTask(task);
+        eventHandler_->PostTask(task, "SrCommonEventSubscriber:LoadBundleInfo");
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
         auto task = [weakThis, bundleName]() {
             APP_LOGI("bundle remove, bundleName: %{public}s", bundleName.c_str());
@@ -77,7 +77,7 @@ void SrCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &ev
                 ServiceRouterDataMgr::GetInstance().DeleteBundleInfo(bundleName);
             }
         };
-        eventHandler_->PostTask(task);
+        eventHandler_->PostTask(task, "SrCommonEventSubscriber:DeleteBundleInfo");
     } else {
         APP_LOGW("%{public}s warnning, invalid action.", __func__);
     }

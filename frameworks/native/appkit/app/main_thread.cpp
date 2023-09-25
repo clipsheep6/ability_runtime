@@ -443,7 +443,7 @@ void MainThread::ScheduleForegroundApplication()
         }
         appThread->HandleForegroundApplication();
     };
-    if (!mainHandler_->PostTask(task)) {
+    if (!mainHandler_->PostTask(task, "MainThread:ForegroundApplication")) {
         HILOG_ERROR("PostTask task failed");
     }
 
@@ -471,7 +471,7 @@ void MainThread::ScheduleBackgroundApplication()
         }
         appThread->HandleBackgroundApplication();
     };
-    if (!mainHandler_->PostTask(task)) {
+    if (!mainHandler_->PostTask(task, "MainThread:BackgroundApplication")) {
         HILOG_ERROR("MainThread::ScheduleBackgroundApplication PostTask task failed");
     }
     
@@ -499,7 +499,7 @@ void MainThread::ScheduleTerminateApplication()
         }
         appThread->HandleTerminateApplication();
     };
-    if (!mainHandler_->PostTask(task)) {
+    if (!mainHandler_->PostTask(task, "MainThread:TerminateApplication")) {
         HILOG_ERROR("MainThread::ScheduleTerminateApplication PostTask task failed");
     }
 }
@@ -522,7 +522,7 @@ void MainThread::ScheduleShrinkMemory(const int level)
         }
         appThread->HandleShrinkMemory(level);
     };
-    if (!mainHandler_->PostTask(task)) {
+    if (!mainHandler_->PostTask(task, "MainThread:ShrinkMemory")) {
         HILOG_ERROR("MainThread::ScheduleShrinkMemory PostTask task failed");
     }
 }
@@ -545,7 +545,7 @@ void MainThread::ScheduleMemoryLevel(const int level)
         }
         appThread->HandleMemoryLevel(level);
     };
-    if (!mainHandler_->PostTask(task)) {
+    if (!mainHandler_->PostTask(task, "MainThread:MemoryLevel")) {
         HILOG_ERROR("MainThread::ScheduleMemoryLevel PostTask task failed");
     }
 }
@@ -587,7 +587,7 @@ void MainThread::ScheduleProcessSecurityExit()
         }
         appThread->HandleProcessSecurityExit();
     };
-    bool result = mainHandler_->PostTask(task);
+    bool result = mainHandler_->PostTask(task, "MainThread:ProcessSecurityExit");
     if (!result) {
         HILOG_ERROR("ScheduleProcessSecurityExit post task failed");
     }
@@ -623,7 +623,7 @@ void MainThread::ScheduleLaunchApplication(const AppLaunchData &data, const Conf
         }
         appThread->HandleLaunchApplication(data, config);
     };
-    if (!mainHandler_->PostTask(task)) {
+    if (!mainHandler_->PostTask(task, "MainThread:LaunchApplication")) {
         HILOG_ERROR("MainThread::ScheduleLaunchApplication PostTask task failed");
     }
 }
@@ -647,7 +647,7 @@ void MainThread::ScheduleUpdateApplicationInfoInstalled(const ApplicationInfo &a
         }
         appThread->HandleUpdateApplicationInfoInstalled(appInfo);
     };
-    if (!mainHandler_->PostTask(task)) {
+    if (!mainHandler_->PostTask(task, "MainThread:UpdateApplicationInfoInstalled")) {
         HILOG_ERROR("MainThread::ScheduleUpdateApplicationInfoInstalled PostTask task failed");
     }
 }
@@ -664,7 +664,7 @@ void MainThread::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
         }
         appThread->HandleAbilityStage(abilityStage);
     };
-    if (!mainHandler_->PostTask(task)) {
+    if (!mainHandler_->PostTask(task, "MainThread:AbilityStage")) {
         HILOG_ERROR("MainThread::ScheduleAbilityStageInfo PostTask task failed");
     }
 }
@@ -690,7 +690,7 @@ void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemo
         }
         appThread->HandleLaunchAbility(abilityRecord);
     };
-    if (!mainHandler_->PostTask(task)) {
+    if (!mainHandler_->PostTask(task, "MainThread:LaunchAbility")) {
         HILOG_ERROR("MainThread::ScheduleLaunchAbility PostTask task failed");
     }
 }
@@ -714,7 +714,7 @@ void MainThread::ScheduleCleanAbility(const sptr<IRemoteObject> &token)
         }
         appThread->HandleCleanAbility(token);
     };
-    if (!mainHandler_->PostTask(task)) {
+    if (!mainHandler_->PostTask(task, "MainThread:CleanAbility")) {
         HILOG_ERROR("MainThread::ScheduleCleanAbility PostTask task failed");
     }
 }
@@ -750,7 +750,7 @@ void MainThread::ScheduleConfigurationUpdated(const Configuration &config)
         }
         appThread->HandleConfigurationUpdated(config);
     };
-    if (!mainHandler_->PostTask(task)) {
+    if (!mainHandler_->PostTask(task, "MainThread:ConfigurationUpdated")) {
         HILOG_ERROR("MainThread::ScheduleConfigurationUpdated PostTask task failed");
     }
 }
@@ -1034,8 +1034,8 @@ void MainThread::OnOverlayChanged(const EventFwk::CommonEventData &data,
         }
         appThread->HandleOnOverlayChanged(data, resourceManager, bundleName, moduleName, loadPath);
     };
-    if (!mainHandler_->PostTask(task)) {
-        HILOG_ERROR("MainThread::ScheduleConfigurationUpdated PostTask task failed");
+    if (!mainHandler_->PostTask(task, "MainThread:OnOverlayChanged")) {
+        HILOG_ERROR("MainThread::OnOverlayChanged PostTask task failed");
     }
 }
 
@@ -2057,7 +2057,7 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner)
         }
         appThread->SetRunnerStarted(true);
     };
-    if (!mainHandler_->PostTask(task)) {
+    if (!mainHandler_->PostTask(task, "MainThread:SetRunnerStarted")) {
         HILOG_ERROR("MainThread::Init PostTask task failed");
     }
     TaskTimeoutDetected(runner);
@@ -2072,12 +2072,12 @@ void MainThread::HandleSignal(int signal)
     switch (signal) {
         case SIGNAL_JS_HEAP: {
             auto heapFunc = std::bind(&MainThread::HandleDumpHeap, false);
-            signalHandler_->PostTask(heapFunc);
+            signalHandler_->PostTask(heapFunc, "MainThread::SIGNAL_JS_HEAP");
             break;
         }
         case SIGNAL_JS_HEAP_PRIV: {
             auto privateHeapFunc = std::bind(&MainThread::HandleDumpHeap, true);
-            signalHandler_->PostTask(privateHeapFunc);
+            signalHandler_->PostTask(privateHeapFunc, "MainThread:SIGNAL_JS_HEAP_PRIV");
             break;
         }
         default:
@@ -2101,7 +2101,7 @@ void MainThread::HandleDumpHeap(bool isPrivate)
         }
         app->GetRuntime()->DumpHeapSnapshot(isPrivate);
     };
-    mainHandler_->PostTask(task);
+    mainHandler_->PostTask(task, "MainThread:DumpHeap");
 }
 
 void MainThread::Start()
@@ -2391,7 +2391,7 @@ void MainThread::ScheduleAcceptWant(const AAFwk::Want &want, const std::string &
         }
         appThread->HandleScheduleAcceptWant(want, moduleName);
     };
-    if (!mainHandler_->PostTask(task)) {
+    if (!mainHandler_->PostTask(task, "MainThread:AcceptWant")) {
         HILOG_ERROR("PostTask task failed");
     }
 }
@@ -2435,7 +2435,7 @@ int32_t MainThread::ScheduleNotifyLoadRepairPatch(const std::string &bundleName,
 
         callback->OnLoadPatchDone(ret ? NO_ERROR : ERR_INVALID_OPERATION, recordId);
     };
-    if (mainHandler_ == nullptr || !mainHandler_->PostTask(task)) {
+    if (mainHandler_ == nullptr || !mainHandler_->PostTask(task, "MainThread:NotifyLoadRepairPatch")) {
         HILOG_ERROR("ScheduleNotifyLoadRepairPatch, Post task failed.");
         return ERR_INVALID_VALUE;
     }
@@ -2457,7 +2457,7 @@ int32_t MainThread::ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback> &c
         auto ret = appThread->application_->NotifyHotReloadPage();
         callback->OnReloadPageDone(ret ? NO_ERROR : ERR_INVALID_OPERATION, recordId);
     };
-    if (mainHandler_ == nullptr || !mainHandler_->PostTask(task)) {
+    if (mainHandler_ == nullptr || !mainHandler_->PostTask(task, "MainThread:NotifyHotReloadPage")) {
         HILOG_ERROR("Post task failed.");
         return ERR_INVALID_VALUE;
     }
@@ -2535,7 +2535,7 @@ int32_t MainThread::ScheduleNotifyUnLoadRepairPatch(const std::string &bundleNam
 
         callback->OnUnloadPatchDone(ret ? NO_ERROR : ERR_INVALID_OPERATION, recordId);
     };
-    if (mainHandler_ == nullptr || !mainHandler_->PostTask(task)) {
+    if (mainHandler_ == nullptr || !mainHandler_->PostTask(task, "MainThread:NotifyUnLoadRepairPatch")) {
         HILOG_ERROR("ScheduleNotifyUnLoadRepairPatch, Post task failed.");
         return ERR_INVALID_VALUE;
     }
@@ -2563,7 +2563,7 @@ int32_t MainThread::ScheduleNotifyAppFault(const FaultData &faultData)
         }
         appThread->NotifyAppFault(faultData);
     };
-    mainHandler_->PostTask(task);
+    mainHandler_->PostTask(task, "MainThread:NotifyAppFault");
     return NO_ERROR;
 }
 
@@ -2699,7 +2699,7 @@ int32_t MainThread::ScheduleOnGcStateChange(int32_t state)
         }
         appThread->OnGcStateChange(state);
     };
-    mainHandler_->PostTask(task);
+    mainHandler_->PostTask(task, "MainThread:OnGcStateChange");
     return NO_ERROR;
 }
         

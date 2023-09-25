@@ -82,7 +82,7 @@ bool MixStackDumper::Dump_SignalHandler(int sig, siginfo_t *si, void *context)
         return ret;
     }
     g_targetDumpTid = si->si_value.sival_int;
-    handler->PostTask(&MixStackDumper::HandleMixDumpRequest);
+    handler->PostTask(&MixStackDumper::HandleMixDumpRequest, "MixStackDumper::MixDump");
     return ret;
 }
 

@@ -136,7 +136,7 @@ bool AppRecovery::AddAbility(std::shared_ptr<Ability> ability,
         auto task = []() {
             AppRecovery::GetInstance().DeleteInValidMissionFiles();
         };
-        if (!handler->PostTask(task, DELAY_TIME)) {
+        if (!handler->PostTask(task, "AppRecovery:AddAbility", DELAY_TIME)) {
             HILOG_ERROR("Failed to DeleteInValidMissionFiles.");
         }
     }
@@ -207,7 +207,7 @@ bool AppRecovery::ScheduleSaveAppState(StateReason reason, uintptr_t ability)
     auto task = [reason, ability]() {
         AppRecovery::GetInstance().DoSaveAppState(reason, ability);
     };
-    if (!handler->PostTask(task)) {
+    if (!handler->PostTask(task, "AppRecovery:SaveAppState")) {
         HILOG_ERROR("Failed to schedule save app state.");
         return false;
     }
@@ -261,7 +261,7 @@ bool AppRecovery::ScheduleRecoverApp(StateReason reason)
     auto task = [reason]() {
         AppRecovery::GetInstance().DoRecoverApp(reason);
     };
-    if (!handler->PostTask(task)) {
+    if (!handler->PostTask(task, "AppRecovery:RecoverApp")) {
         HILOG_ERROR("Failed to schedule save app state.");
     }
 

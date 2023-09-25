@@ -617,7 +617,7 @@ void AbilityImpl::AfterFocusedCommon(bool isFocused)
     };
 
     if (handler_) {
-        handler_->PostTask(task);
+        handler_->PostTask(task, "AbilityImpl:AfterFocusedCommon");
     }
     HILOG_DEBUG("end.");
 }

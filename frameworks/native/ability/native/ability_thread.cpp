@@ -245,7 +245,7 @@ int AbilityThread::BlockAbility()
                 std::this_thread::sleep_for(BLOCK_ABILITY_TIME * 1s);
             }
         };
-        abilityHandler_->PostTask(task);
+        abilityHandler_->PostTask(task, "AbilityThread:BlockAbility");
         HILOG_DEBUG("end");
         return ERR_OK;
     }

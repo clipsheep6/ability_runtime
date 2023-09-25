@@ -1991,7 +1991,7 @@ void Ability::OnChange(Rosen::DisplayId displayId)
         auto task = [ability = shared_from_this(), configuration = *configuration]() {
             ability->OnConfigurationUpdated(configuration);
         };
-        handler_->PostTask(task);
+        handler_->PostTask(task, "Ability:OnChange");
 
         auto diffConfiguration = std::make_shared<AppExecFwk::Configuration>(newConfig);
         HILOG_INFO("Update display config %{public}s for all windows.", diffConfiguration->GetName().c_str());
@@ -2052,7 +2052,7 @@ void Ability::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
         auto task = [ability = shared_from_this(), configuration = *configuration]() {
             ability->OnConfigurationUpdated(configuration);
         };
-        handler_->PostTask(task);
+        handler_->PostTask(task, "Ability:OnDisplayMove");
     }
 }
 

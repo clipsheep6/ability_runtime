@@ -176,7 +176,7 @@ bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, 
             JSENV_LOG_E("JsEnv is invalid.");
             return;
         }
-        jsEnv->PostTask(task);
+        jsEnv->PostTask(task, "JsEnvironment:StartDebugger");
     };
     return panda::JSNApi::StartDebugger(vm_, debugOption, instanceId, debuggerPostTask);
 }
@@ -252,7 +252,7 @@ void JsEnvironment::StartProfiler(const char* libraryPath, uint32_t instanceId, 
             JSENV_LOG_E("JsEnv is invalid.");
             return;
         }
-        jsEnv->PostTask(task);
+        jsEnv->PostTask(task, "JsEnvironment::StartProfiler");
     };
 
     panda::DFXJSNApi::ProfilerOption option;

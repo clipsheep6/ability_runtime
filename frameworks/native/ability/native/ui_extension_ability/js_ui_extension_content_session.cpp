@@ -467,7 +467,7 @@ napi_value JsUIExtensionContentSession::OnSetReceiveDataCallback(napi_env env, N
             if (handler) {
                 handler->PostTask([env, weakCallback, wantParams]() {
                     JsUIExtensionContentSession::CallReceiveDataCallback(env, weakCallback, wantParams);
-                });
+                    }, "JsUIExtensionContentSession:OnSetReceiveDataCallback");
             }
         });
         isRegistered = true;
