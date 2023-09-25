@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -126,6 +126,8 @@ private:
 
 private:
     std::string bundleName_;
+
+    mutable std::mutex paramsMutex_;
     std::map<std::string, std::string> params_;
 };
 }  // namespace AppExecFwk

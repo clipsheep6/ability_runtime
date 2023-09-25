@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -193,7 +193,7 @@ AbilityDelegator::AbilityState AbilityDelegator::GetAbilityState(const sptr<IRem
     }
 
     std::unique_lock<std::mutex> lck(mutexAbilityProperties_);
-    auto existedProperty = FindPropertyByToken(token);
+    auto existedProperty = FindPropertyByTokenLocked(token);
     if (!existedProperty) {
         HILOG_WARN("Unknown ability token");
         return AbilityDelegator::AbilityState::UNINITIALIZED;
@@ -621,7 +621,7 @@ void AbilityDelegator::ProcessAbilityProperties(const std::shared_ptr<ADelegator
         ability->name_.data(), ability->lifecycleState_);
 
     std::unique_lock<std::mutex> lck(mutexAbilityProperties_);
-    auto existedProperty = FindPropertyByToken(ability->token_);
+    auto existedProperty = FindPropertyByTokenLocked(ability->token_);
     if (existedProperty) {
         // update
         existedProperty->lifecycleState_ = ability->lifecycleState_;
@@ -649,7 +649,7 @@ void AbilityDelegator::RemoveAbilityProperty(const std::shared_ptr<ADelegatorAbi
     });
 }
 
-std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::FindPropertyByToken(const sptr<IRemoteObject> &token)
+std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::FindPropertyByTokenLocked(const sptr<IRemoteObject> &token)
 {
     HILOG_INFO("Enter");
 
@@ -673,7 +673,7 @@ std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::FindPropertyByToken
     return {};
 }
 
-std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::FindPropertyByName(const std::string &name)
+std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::FindPropertyByNameLocked(const std::string &naame)
 {
     HILOG_INFO("Find property by %{public}s.", name.c_str());
 

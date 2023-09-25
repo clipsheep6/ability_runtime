@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,12 +13,13 @@
  * limitations under the License.
  */
 
+#include "runner_runtime/js_test_runner.h"
+
 #include <regex>
 
 #include "ability_delegator_registry.h"
 #include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
-#include "runner_runtime/js_test_runner.h"
 
 extern const char _binary_delegator_mgmt_abc_start[];
 extern const char _binary_delegator_mgmt_abc_end[];

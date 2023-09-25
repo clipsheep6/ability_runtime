@@ -324,11 +324,12 @@ public:
     void RegisterClearFunc(ClearFunc func);
 
 private:
-    AbilityDelegator::AbilityState ConvertAbilityState(const AbilityLifecycleExecutor::LifecycleState lifecycleState);
+    AbilityDelegator::AbilityState ConvertAbilityState(
+        const AbilityLifecycleExecutor::LifecycleState lifecycleState);
     void ProcessAbilityProperties(const std::shared_ptr<ADelegatorAbilityProperty> &ability);
     void RemoveAbilityProperty(const std::shared_ptr<ADelegatorAbilityProperty> &ability);
-    std::shared_ptr<ADelegatorAbilityProperty> FindPropertyByToken(const sptr<IRemoteObject> &token);
-    std::shared_ptr<ADelegatorAbilityProperty> FindPropertyByName(const std::string &name);
+    std::shared_ptr<ADelegatorAbilityProperty> FindPropertyByTokenLocked(const sptr<IRemoteObject> &token);
+    std::shared_ptr<ADelegatorAbilityProperty> FindPropertyByNameLocked(const std::string &name);
     inline void CallClearFunc(const std::shared_ptr<ADelegatorAbilityProperty> &ability);
 
 private:
