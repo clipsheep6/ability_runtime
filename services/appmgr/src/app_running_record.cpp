@@ -1002,12 +1002,14 @@ void AppRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
 
     moduleRecord->AbilityTerminated(token);
 
-    if (moduleRecord->GetAbilities().empty() && !IsKeepAliveApp()) {
+    if (moduleRecord->GetAbilities().empty() && (!IsKeepAliveApp()
+        || AAFwk::UIExtensionUtils::IsUIExtension(GetExtensionType()))) {
         RemoveModuleRecord(moduleRecord);
     }
 
     auto moduleRecordList = GetAllModuleRecord();
-    if (moduleRecordList.empty() && !IsKeepAliveApp() && !isExtensionDebug) {
+    if (moduleRecordList.empty() && (!IsKeepAliveApp()
+        || AAFwk::UIExtensionUtils::IsUIExtension(GetExtensionType())) && !isExtensionDebug) {
         ScheduleTerminate();
     }
 }
