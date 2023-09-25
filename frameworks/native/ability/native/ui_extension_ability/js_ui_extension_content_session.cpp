@@ -301,6 +301,10 @@ void JsUIExtensionContentSession::StartAbilityForResultRuntimeTask(napi_env env,
     AAFwk::Want &want, std::shared_ptr<NapiAsyncTask> asyncTask, size_t& unwrapArgc,
     AAFwk::StartOptions startOptions)
 {
+    if (asyncTask == nullptr) {
+        HILOG_ERROR("asyncTask is nullptr");
+        return;
+    }
     RuntimeTask task = [env, asyncTask, &observer = freeInstallObserver_](int resultCode,
         const AAFwk::Want& want, bool isInner) {
         HILOG_DEBUG("OnStartAbilityForResult async callback is enter");
@@ -330,6 +334,10 @@ void JsUIExtensionContentSession::StartAbilityForResultRuntimeTask(napi_env env,
     } else {
         want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
         int curRequestCode = reinterpret_cast<UIExtensionContext*>(context.get())->GenerateCurRequestCode();
+        if (listener_ == nullptr) {
+            HILOG_ERROR("listener_ is nullptr");
+            return;
+        }
         listener_->SaveResultCallbacks(curRequestCode, std::move(task));
         ErrCode err = (unwrapArgc == 1) ?
             AAFwk::AbilityManagerClient::GetInstance()->StartAbilityByUIContentSession(want,
