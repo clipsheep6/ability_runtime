@@ -41,6 +41,7 @@ protected:
     int PushRecord(int reqCode, const std::shared_ptr<AbilityRecord> &caller);
     bool ContainRecord(int reqCode);
 
+    int StartAbility(StartAbilityParams &params, int requestCode);
 private:
     std::mutex recordsMutex_;
     std::unordered_map<int, SaveFileRecord> fileSavingRecords_;
