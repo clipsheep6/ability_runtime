@@ -16,15 +16,14 @@
 #include "js_dialog_request.h"
 #include "native_engine/native_engine.h"
 
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_modname = "app.ability.dialogRequest",
+    .nm_filename = "app/ability/libdialogrequest.so/dialogrequest.js",
+    .nm_register_func = OHOS::AbilityRuntime::JsDialogRequestInit,
+};
 extern "C" __attribute__((constructor))
 void NAPI_app_ability_dialogrequest_AutoRegister()
 {
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-        .name = "app.ability.dialogRequest",
-        .fileName = "app/ability/libdialogrequest.so/dialogrequest.js",
-        .registerCallback = OHOS::AbilityRuntime::JsDialogRequestInit,
-    };
-
-    moduleManager->Register(&newModuleInfo);
+    napi_module_register(&_module);
 }

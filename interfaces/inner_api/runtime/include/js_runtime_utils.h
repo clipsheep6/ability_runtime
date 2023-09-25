@@ -28,6 +28,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+#define ARGS_MAX_COUNT 10
 template<class T>
 inline T* ConvertNativeValueTo(NativeValue* value)
 {

@@ -20,16 +20,16 @@ extern const char _binary_context_js_end[];
 extern const char _binary_context_abc_start[];
 extern const char _binary_context_abc_end[];
 
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_modname = "application.Context",
+    .nm_filename = "application/libcontext_napi.so/context.js",
+};
+
 extern "C" __attribute__((constructor))
 void NAPI_application_Context_AutoRegister()
 {
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-        .name = "application.Context",
-        .fileName = "application/libcontext_napi.so/context.js",
-    };
-
-    moduleManager->Register(&newModuleInfo);
+    napi_module_register(&_module);
 }
 
 extern "C" __attribute__((visibility("default")))

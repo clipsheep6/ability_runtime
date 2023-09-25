@@ -21,7 +21,6 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-#define ARGS_MAX_COUNT 10
 namespace {
 std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, NativeValue* lastParam,
     std::unique_ptr<AsyncTask::ExecuteCallback>&& execute, std::unique_ptr<AsyncTask::CompleteCallback>&& complete,

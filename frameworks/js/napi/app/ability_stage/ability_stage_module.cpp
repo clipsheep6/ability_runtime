@@ -27,19 +27,19 @@ void NAPI_app_ability_AbilityStage_AutoRegister()
 void NAPI_application_AbilityStage_AutoRegister()
 #endif
 {
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-#ifdef ENABLE_ERRCODE
-        .name = "app.ability.AbilityStage",
-        .fileName = "app/ability/libabilitystage.so/ability_stage.js",
-#else
-        .name = "application.AbilityStage",
-        .fileName = "application/libabilitystage_napi.so/ability_stage.js",
-#endif
-    };
-
-    moduleManager->Register(&newModuleInfo);
+    napi_module_register(&_module);
 }
+static napi_module _module = {
+#ifdef ENABLE_ERRCODE
+    .nm_version = 0,
+    .nm_modname = "app.ability.AbilityStage",
+    .nm_filename = "app/ability/libabilitystage.so/ability_stage.js",
+#else
+    .nm_version = 0,
+    .nm_modname = "application.AbilityStage",
+    .nm_filename = "application/libabilitystage_napi.so/ability_stage.js",
+#endif
+};
 
 extern "C" __attribute__((visibility("default")))
 #ifdef ENABLE_ERRCODE
