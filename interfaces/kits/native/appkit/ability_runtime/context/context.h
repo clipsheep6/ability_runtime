@@ -32,7 +32,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 class ApplicationContext;
 
-class Context : public Bindable {
+class Context : public Bindable, public std::enable_shared_from_this<Context> {
 public:
     Context() = default;
     ~Context() override = default;
