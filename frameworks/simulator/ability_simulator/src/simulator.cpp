@@ -498,6 +498,7 @@ void SimulatorImpl::UpdateConfiguration(const AppExecFwk::Configuration &config)
 void SimulatorImpl::SetMockList(const std::map<std::string, std::string> &mockList)
 {
     HILOG_DEBUG("called. mockList size: %{public}zu", mockList.size());
+    panda::JSNApi::SetMockModuleList(vm_, mockList);
 }
 
 void SimulatorImpl::InitResourceMgr()

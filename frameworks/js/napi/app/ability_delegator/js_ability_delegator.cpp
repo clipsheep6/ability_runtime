@@ -943,6 +943,7 @@ NativeValue *JSAbilityDelegator::OnSetMockList(NativeEngine &engine, NativeCallb
         return ThrowJsError(engine, INCORRECT_PARAMETERS);
     }
 
+    engine.SetMockModuleList(mockList);
     return engine.CreateNull();
 }
 
