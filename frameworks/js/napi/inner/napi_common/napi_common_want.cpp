@@ -1194,12 +1194,17 @@ bool UnWrapAbilityResult(napi_env env, napi_value param, int &resultCode, AAFwk:
         return false;
     }
 
-    napi_value jsWant = GetPropertyValueByPropertyName(env, param, "want", napi_object);
-    if (jsWant == nullptr) {
-        return false;
-    }
-    if (!UnwrapWant(env, jsWant, want)) {
-        return false;
+    if (IsExistsByPropertyName(env, param, "want")) {
+        napi_value jsWant = nullptr;
+        if (napi_get_named_property(env, param, "want", &jsWant) != napi_ok) {
+            return false;
+        }
+        if (IsTypeForNapiValue(env, jsWant, napi_undefined)) {
+            return true;
+        }
+        if (!UnwrapWant(env, jsWant, want)) {
+            return false;
+        }
     }
     return true;
 }
