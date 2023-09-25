@@ -47,8 +47,20 @@ public:
     static int32_t GetCurrentActiveUserId();
 
 private:
+    class BmsDeathRecipient : public IRemoteObject::DeathRecipient {
+    public:
+        BmsDeathRecipient() = default;
+        virtual ~BmsDeathRecipient() = default;
+
+        void OnRemoteDied(const wptr<IRemoteObject>& remote) override;
+    };
+
+    void ConnectBundleMgrLocked();
+    void ResetProxy(const wptr<IRemoteObject> &remote);
+
     std::mutex bundleMgrMutex_;
     sptr<IBundleMgr> iBundleMgr_ = nullptr;
+    sptr<IRemoteObject::DeathRecipient> deathRecipient_; // bms death recipient.
 };
 } // namespace AbilityRuntime
 }  // namespace OHOS

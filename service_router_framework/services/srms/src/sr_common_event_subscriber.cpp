@@ -39,15 +39,15 @@ void SrCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &ev
     std::string action = want.GetAction();
     std::string bundleName = want.GetElement().GetBundleName();
     if (action.empty() || eventHandler_ == nullptr) {
-        APP_LOGE("%{public}s failed, empty action: %{public}s, or invalid event handler", __func__, action.c_str());
+        APP_LOGE("failed, empty action: %{public}s, or invalid event handler", action.c_str());
         return;
     }
     if (bundleName.empty() && action != EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED) {
-        APP_LOGE("%{public}s failed, invalid param, action: %{public}s, bundleName: %{public}s",
-            __func__, action.c_str(), bundleName.c_str());
+        APP_LOGE("failed, invalid param, action: %{public}s, bundleName: %{public}s",
+            action.c_str(), bundleName.c_str());
         return;
     }
-    APP_LOGI("%{public}s, action:%{public}s.", __func__, action.c_str());
+    APP_LOGI("action:%{public}s.", action.c_str());
     std::weak_ptr<SrCommonEventSubscriber> weakThis = shared_from_this();
     if (action == EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED) {
         int32_t userId = eventData.GetCode();
@@ -79,7 +79,7 @@ void SrCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &ev
         };
         eventHandler_->PostTask(task, "SrCommonEventSubscriber:DeleteBundleInfo");
     } else {
-        APP_LOGW("%{public}s warnning, invalid action.", __func__);
+        APP_LOGW("warnning, invalid action.");
     }
 }
 } // AbilityRuntime
