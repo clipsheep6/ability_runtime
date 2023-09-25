@@ -20,12 +20,25 @@
 #include "ability_util.h"
 #include "ability_manager_service.h"
 
-
 namespace OHOS {
 namespace AAFwk {
 namespace {
 const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
 const std::string DLP_ABILITY_NAME = "SaveAsAbility";
+const std::string DLP_INDEX = "ohos.dlp.params.index";
+
+class EmptyConnection : public IRemoteStub<IAbilityConnection> {
+public:
+    void OnAbilityConnectDone(const AppExecFwk::ElementName &element,
+        const sptr<IRemoteObject> &remoteObject, int resultCode) override
+    {
+        HILOG_DEBUG("OnAbilityConnectDone");
+    }
+    void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override
+    {
+        HILOG_DEBUG("OnAbilityDisconnectDone");
+    }
+};
 }
 const std::string StartAbilitySandboxSavefile::handlerName_ = "start_ability_snadbox_savefile";
 
@@ -64,13 +77,33 @@ int StartAbilitySandboxSavefile::HandleStartRequest(StartAbilityParams &params)
     want.SetParam("requestCode", reqCode);
     want.SetParam("startMode", std::string("save_redirect"));
 
+    return StartAbility(params, reqCode);
+}
+
+int StartAbilitySandboxSavefile::StartAbility(StartAbilityParams &params, int requestCode)
+{
+    AbilityRequest abilityRequest;
+    abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
+    abilityRequest.callerUid = IPCSkeleton::GetCallingUid();
+    abilityRequest.callerToken = params.callerToken;
+    abilityRequest.startSetting = nullptr;
+    abilityRequest.want = params.want;
+    abilityRequest.connect = sptr<IAbilityConnection>(new EmptyConnection());
+
     auto abilityMs = DelayedSingleton<AbilityManagerService>::GetInstance();
-    if (params.startOptions) {
-        return abilityMs->StartAbilityForOptionInner(want, *params.startOptions, params.callerToken, params.userId,
-            reqCode, params.isStartAsCaller);
+    auto ret = abilityMs->GenerateAbilityRequest(params.want, requestCode,
+        abilityRequest, params.callerToken, params.GetValidUserId());
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Generate ability request error.");
+        return ret;
     }
-    return abilityMs->StartAbilityInner(want, params.callerToken, reqCode, params.userId,
-        params.isStartAsCaller);
+
+    if (params.startOptions) {
+        abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, params.startOptions->GetDisplayID());
+        abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, params.startOptions->GetWindowMode());
+    }
+
+    return abilityMs->StartAbilityJust(abilityRequest, params.GetValidUserId());
 }
 
 std::string StartAbilitySandboxSavefile::GetHandlerName()

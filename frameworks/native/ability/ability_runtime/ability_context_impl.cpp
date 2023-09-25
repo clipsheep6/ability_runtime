@@ -474,12 +474,12 @@ ErrCode AbilityContextImpl::TerminateSelf()
 {
     HILOG_DEBUG("TerminateSelf");
     isTerminating_ = true;
+    auto sessionToken = sessionToken_.promote();
+    if (sessionToken == nullptr) {
+        HILOG_WARN("sessionToken is null");
+    }
 
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto sessionToken = sessionToken_.promote();
-        if (sessionToken == nullptr) {
-            return ERR_INVALID_VALUE;
-        }
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && sessionToken) {
         HILOG_INFO("TerminateSelf. SCB");
         AAFwk::Want resultWant;
         sptr<AAFwk::SessionInfo> info = new AAFwk::SessionInfo();
