@@ -30,6 +30,7 @@ namespace {
 #ifdef SUPPORT_GRAPHICS
 constexpr static char FORM_EXTENSION[] = "FormExtension";
 constexpr static char UI_EXTENSION[] = "UIExtensionAbility";
+constexpr static char CUSTOM_EXTENSION[] = "ExtensionAbility";
 constexpr static char MEDIA_CONTROL_EXTENSION[] = "MediaControlExtensionAbility";
 constexpr static char USER_AUTH_EXTENSION[] = "UserAuthExtensionAbility";
 constexpr static char ACTION_EXTENSION[] = "ActionExtensionAbility";
@@ -90,6 +91,15 @@ std::string ExtensionAbilityThread::CreateAbilityName(
         abilityName = FORM_EXTENSION;
     }
 #endif
+    if (AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo->extensionAbilityType)) {
+        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SHARE) {
+            abilityName = SHARE_EXTENSION;
+        } else if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ACTION) {
+            abilityName = ACTION_EXTENSION;
+        } else {
+            abilityName = UI_EXTENSION;
+        }
+    }
     CreateExtensionAbilityName(abilityInfo, abilityName);
     HILOG_DEBUG("Ability name is %{public}s.", abilityName.c_str());
     return abilityName;
@@ -125,15 +135,6 @@ void ExtensionAbilityThread::CreateExtensionAbilityName(
     if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::INPUTMETHOD) {
         abilityName = INPUTMETHOD_EXTENSION;
     }
-    if (AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo->extensionAbilityType)) {
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SHARE) {
-            abilityName = SHARE_EXTENSION;
-        } else if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ACTION) {
-            abilityName = ACTION_EXTENSION;
-        } else {
-            abilityName = UI_EXTENSION;
-        }
-    }
     if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SYSPICKER_MEDIACONTROL) {
         abilityName = MEDIA_CONTROL_EXTENSION;
     }
@@ -142,6 +143,10 @@ void ExtensionAbilityThread::CreateExtensionAbilityName(
     }
     if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SYSDIALOG_USERAUTH) {
         abilityName = USER_AUTH_EXTENSION;
+    }
+    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::UNSPECIFIED &&
+        abilityInfo->type == AppExecFwk::AbilityType::EXTENSION) {
+        abilityName = abilityInfo->extensionTypeName + CUSTOM_EXTENSION;
     }
 }
 
