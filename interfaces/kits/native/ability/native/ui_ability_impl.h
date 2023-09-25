@@ -40,7 +40,7 @@ public:
      * @param handler the UIability EventHandler object
      * @param token the remote token
      */
-    void Init(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+    void Init(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &record, std::shared_ptr<UIAbility> &ability,
         std::shared_ptr<AppExecFwk::AbilityHandler> &handler, const sptr<IRemoteObject> &token);
 
