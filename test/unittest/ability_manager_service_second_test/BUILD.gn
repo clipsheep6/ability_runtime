@@ -16,25 +16,17 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/abilitymgr"
 
-ohos_unittest("ability_manager_service_test") {
+ohos_unittest("ability_manager_service_second_test") {
   module_out_path = module_output_path
 
   include_dirs = [
-    "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/ability_runtime/",
     "${ability_runtime_path}/interfaces/inner_api/ability_manager/include",
-    "${ability_runtime_test_path}/mock/ability_manager_collaborator",
-    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
-    "${ability_runtime_test_path}/mock/prepare_terminate_callback",
-    "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/aakit/include",
-    "mock/include",
   ]
 
   sources = [
     "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
-    "ability_manager_service_test.cpp",
-    "mock/src/mock_my_flag.cpp",
-    "mock/src/mock_permission_verification.cpp",
+    "ability_manager_service_second_test.cpp",
   ]
 
   configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
@@ -46,7 +38,6 @@ ohos_unittest("ability_manager_service_test") {
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${ability_runtime_services_path}/common:perm_verification",
-    "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/aakit:aakit_mock",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -72,5 +63,5 @@ ohos_unittest("ability_manager_service_test") {
 
 group("unittest") {
   testonly = true
-  deps = [ ":ability_manager_service_test" ]
+  deps = [ ":ability_manager_service_second_test" ]
 }
