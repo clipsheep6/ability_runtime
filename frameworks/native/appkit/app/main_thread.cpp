@@ -446,6 +446,11 @@ void MainThread::ScheduleForegroundApplication()
     if (!mainHandler_->PostTask(task)) {
         HILOG_ERROR("PostTask task failed");
     }
+
+    if (watchdog_ == nullptr) {
+        HILOG_ERROR("Watch dog is nullptr.");
+        return;
+    }
     watchdog_->SetBackgroundStatus(false);
 }
 
@@ -468,6 +473,11 @@ void MainThread::ScheduleBackgroundApplication()
     };
     if (!mainHandler_->PostTask(task)) {
         HILOG_ERROR("MainThread::ScheduleBackgroundApplication PostTask task failed");
+    }
+    
+    if (watchdog_ == nullptr) {
+        HILOG_ERROR("Watch dog is nullptr.");
+        return;
     }
     watchdog_->SetBackgroundStatus(true);
 }
@@ -1152,6 +1162,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     if (!CheckForHandleLaunchApplication(appLaunchData)) {
         HILOG_ERROR("MainThread::handleLaunchApplication CheckForHandleLaunchApplication failed");
         return;
+    }
+
+    if (appLaunchData.GetDebugApp() && watchdog_ != nullptr && !watchdog_->IsStopWatchdog()) {
+        watchdog_->Stop();
+        watchdog_.reset();
     }
 
     auto appInfo = appLaunchData.GetApplicationInfo();
@@ -2383,6 +2398,11 @@ void MainThread::ScheduleAcceptWant(const AAFwk::Want &want, const std::string &
 
 void MainThread::CheckMainThreadIsAlive()
 {
+    if (watchdog_ == nullptr) {
+        HILOG_ERROR("Watch dog is nullptr.");
+        return;
+    }
+
     watchdog_->SetAppMainThreadState(true);
     watchdog_->AllowReportEvent();
 }
@@ -2660,6 +2680,72 @@ std::vector<std::string> MainThread::GetRemoveOverlayPaths(const std::vector<Ove
     }
 
     return removePaths;
+}
+
+int32_t MainThread::ScheduleOnGcStateChange(int32_t state)
+{
+    HILOG_DEBUG("called.");
+    if (mainHandler_ == nullptr) {
+        HILOG_ERROR("mainHandler is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    wptr<MainThread> weak = this;
+    auto task = [weak, state] {
+        auto appThread = weak.promote();
+        if (appThread == nullptr) {
+            HILOG_ERROR("appThread is nullptr, OnGcStateChange failed.");
+            return;
+        }
+        appThread->OnGcStateChange(state);
+    };
+    mainHandler_->PostTask(task);
+    return NO_ERROR;
+}
+        
+int32_t MainThread::OnGcStateChange(int32_t state)
+{
+    HILOG_DEBUG("called.");
+    if (application_ == nullptr) {
+        HILOG_ERROR("application_ is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    auto &runtime = application_->GetRuntime();
+    if (runtime == nullptr) {
+        HILOG_ERROR("runtime is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    auto& nativeEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEngine();
+    nativeEngine.NotifyForceExpandState(state);
+    return NO_ERROR;
+}
+
+void MainThread::AttachAppDebug()
+{
+    HILOG_DEBUG("Called.");
+    if (watchdog_ == nullptr || watchdog_->IsStopWatchdog()) {
+        HILOG_ERROR("Watch dog is stoped.");
+        return;
+    }
+
+    watchdog_->Stop();
+    watchdog_.reset();
+}
+
+void MainThread::DetachAppDebug()
+{
+    HILOG_DEBUG("Called.");
+    if (watchdog_ == nullptr) {
+        watchdog_ = std::make_shared<Watchdog>();
+        if (watchdog_ != nullptr) {
+            watchdog_->Init(mainHandler_);
+        }
+        return;
+    }
+
+    if (watchdog_->IsStopWatchdog()) {
+        watchdog_->Init(mainHandler_);
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

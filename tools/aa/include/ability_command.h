@@ -34,6 +34,8 @@ const std::string HELP_MSG = "usage: aa <command> <options>\n"
     "  dump                        dump the ability info\n"
     "  force-stop <bundle-name>    force stop the process with bundle name\n"
     "  process                     debug ability with options\n"
+    "  attach                      attach application to enter debug mdoe\n"
+    "  detach                      detach application to exit debug mode\n"
 #ifdef ABILITY_COMMAND_FOR_TEST
     "  test                        start the test framework with options\n"
     "  ApplicationNotResponding     Pass in pid with options\n"
@@ -115,6 +117,17 @@ const std::string HELP_MSG_TEST =
     "                  [-w <wait-time>]\n"
     "                  [-D]\n";
 
+const std::string HELP_MSG_ATTACH_APP_DEBUG =
+    "usage: aa attach <options>\n"
+    "options list:\n"
+    "  -h, --help                                             list available commands\n"
+    "  -b <bundle-name>                                       let application enter debug mode by bundle name\n";
+const std::string HELP_MSG_DETACH_APP_DEBUG =
+    "usage: aa detach <options>\n"
+    "options list:\n"
+    "  -h, --help                                             list available commands\n"
+    "  -b <bundle-name>                                       let application exit debug mode by bundle name\n";
+
 const std::string HELP_MSG_FORCE_STOP = "usage: aa force-stop <bundle-name>\n";
 const std::string HELP_MSG_BLOCK_ABILITY = "usage: aa block-ability <abilityrecordid>\n";
 const std::string HELP_MSG_FORCE_TIMEOUT =
@@ -133,6 +146,12 @@ const std::string STRING_STOP_SERVICE_ABILITY_NG = "error: failed to stop servic
 
 const std::string STRING_FORCE_STOP_OK = "force stop process successfully.";
 const std::string STRING_FORCE_STOP_NG = "error: failed to force stop process.";
+
+const std::string STRING_ATTACH_APP_DEBUG_OK = "attach app debug successfully.";
+const std::string STRING_ATTACH_APP_DEBUG_NG = "error: failed to attach app debug.";
+
+const std::string STRING_DETACH_APP_DEBUG_OK = "detach app debug successfully.";
+const std::string STRING_DETACH_APP_DEBUG_NG = "error: failed to detach app debug.";
 
 const std::string STRING_START_USER_TEST_NG = "error: failed to start user test.";
 const std::string STRING_USER_TEST_STARTED = "user test started.";
@@ -188,6 +207,8 @@ private:
     ErrCode RunAsDumpsysCommand();
     ErrCode RunAsForceStop();
     ErrCode RunAsProcessCommand();
+    ErrCode RunAsAttachDebugCommand();
+    ErrCode RunAsDetachDebugCommand();
 #ifdef ABILITY_COMMAND_FOR_TEST
     ErrCode RunForceTimeoutForTest();
     ErrCode RunAsSendAppNotRespondingProcessID();
@@ -209,6 +230,7 @@ private:
     ErrCode TestCommandError(const std::string& info);
     bool MatchOrderString(const std::regex &r, const std::string &orderCmd);
     bool CheckPerfCmdString(const char* optarg, const size_t paramLength, std::string &perfCmd);
+    void ParseBundleName(std::string &bundleName);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

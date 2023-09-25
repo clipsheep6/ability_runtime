@@ -63,6 +63,51 @@ int UriPermissionManagerProxy::GrantUriPermission(const Uri &uri, unsigned int f
     return reply.ReadInt32();
 }
 
+int UriPermissionManagerProxy::GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
+    const std::string targetBundleName, int autoremove, int32_t appIndex)
+{
+    HILOG_DEBUG("UriPermissionManagerProxy::GrantUriPermission is called.");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
+        HILOG_ERROR("Write interface token failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteUint32(uriVec.size())) {
+        HILOG_ERROR("Write size of uriVec failed.");
+        return INNER_ERR;
+    }
+    for (const auto &uri : uriVec) {
+        if (!data.WriteParcelable(&uri)) {
+            HILOG_ERROR("Write uri failed.");
+            return INNER_ERR;
+        }
+    }
+    if (!data.WriteInt32(flag)) {
+        HILOG_ERROR("Write flag failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteString(targetBundleName)) {
+        HILOG_ERROR("Write targetBundleName failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(autoremove)) {
+        HILOG_ERROR("Write autoremove failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(appIndex)) {
+        HILOG_ERROR("Write appIndex failed.");
+        return INNER_ERR;
+    }
+    MessageParcel reply;
+    MessageOption option;
+    int error = Remote()->SendRequest(UriPermMgrCmd::ON_BATCH_GRANT_URI_PERMISSION, data, reply, option);
+    if (error != ERR_OK) {
+        HILOG_ERROR("SendRequest fial, error: %{public}d", error);
+        return INNER_ERR;
+    }
+    return reply.ReadInt32();
+}
+
 void UriPermissionManagerProxy::RevokeUriPermission(const Security::AccessToken::AccessTokenID tokenId)
 {
     HILOG_DEBUG("UriPermissionManagerProxy::RevokeUriPermission is called.");

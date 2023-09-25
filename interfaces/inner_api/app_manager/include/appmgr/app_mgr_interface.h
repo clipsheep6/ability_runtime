@@ -401,6 +401,16 @@ public:
     virtual int32_t GetRunningProcessInformation(
         const std::string &bundleName, int32_t userId, std::vector<RunningProcessInfo> &info) = 0;
 
+    /**
+     * @brief Notify NativeEngine GC of status change.
+     *
+     * @param state GC state
+     * @param pid pid
+     *
+     * @return Is the status change completed.
+     */
+    virtual int32_t OnGcStateChange(pid_t pid, int32_t state) = 0;
+
     // please add new message item to the bottom in order to prevent some unexpected BUG
     enum class Message {
         APP_ATTACH_APPLICATION = 0,

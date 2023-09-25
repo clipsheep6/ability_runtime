@@ -1187,6 +1187,34 @@ public:
     */
     ErrCode RegisterSessionHandler(const sptr<IRemoteObject> &object);
 
+    /**
+     * @brief Register app debug listener.
+     * @param listener App debug listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode RegisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener);
+
+    /**
+     * @brief Unregistering app debug listener.
+     * @param listener App debug listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode UnregisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener);
+
+    /**
+     * @brief Attach app debug.
+     * @param bundleName The application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode AttachAppDebug(const std::string &bundleName);
+
+    /**
+     * @brief Detach app debug.
+     * @param bundleName The application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode DetachAppDebug(const std::string &bundleName);
+
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:

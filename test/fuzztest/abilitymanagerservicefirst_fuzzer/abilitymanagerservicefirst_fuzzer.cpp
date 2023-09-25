@@ -132,6 +132,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->UnregisterObserver(observer);
     std::vector<AbilityRuntime::DlpConnectionInfo> infos;
     abilityms->GetDlpConnectionInfos(infos);
+    std::vector<AbilityRuntime::ConnectionData> connectionData;
+    abilityms->GetConnectionData(connectionData);
 
     sptr<SessionInfo> extensionSessionInfo;
     abilityms->StartUIExtensionAbility(extensionSessionInfo, int32Param);

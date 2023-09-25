@@ -278,5 +278,15 @@ void JsEnvironment::SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDele
 
     engine_->SetModuleLoadChecker(moduleCheckerDelegate);
 }
+
+void JsEnvironment::SetRequestAotCallback(const RequestAotCallback& cb)
+{
+    if (vm_ == nullptr) {
+        JSENV_LOG_E("Invalid vm.");
+        return;
+    }
+
+    panda::JSNApi::SetRequestAotCallback(vm_, cb);
+}
 } // namespace JsEnv
 } // namespace OHOS

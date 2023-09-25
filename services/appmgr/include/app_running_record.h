@@ -646,6 +646,19 @@ public:
     {
         return isSpawned_.load();
     }
+
+    /**
+     * @brief Notify NativeEngine GC of status change.
+     *
+     * @param state GC state
+     *
+     * @return Is the status change completed.
+     */
+    int32_t OnGcStateChange(const int32_t state);
+
+    void SetAttachDebug(const bool &isAttachDebug);
+    bool isAttachDebug() const;
+
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -749,6 +762,7 @@ private:
     std::string moduleName_;
     bool isDebugApp_ = false;
     bool isNativeDebug_ = false;
+    bool isAttachDebug_ = false;
     std::string perfCmd_;
     int64_t startTimeMillis_ = 0;   // The time of app start(CLOCK_MONOTONIC)
     int64_t restartTimeMillis_ = 0; // The time of last trying app restart

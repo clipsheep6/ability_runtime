@@ -315,6 +315,10 @@ public:
         commonMockResultFlag_ = flag;
     }
     MOCK_METHOD2(IsValidMissionIds, int32_t(const std::vector<int32_t>&, std::vector<MissionValidResult>&));
+    MOCK_METHOD1(RegisterAppDebugListener, int32_t(const sptr<AppExecFwk::IAppDebugListener> &listener));
+    MOCK_METHOD1(UnregisterAppDebugListener, int32_t(const sptr<AppExecFwk::IAppDebugListener> &listener));
+    MOCK_METHOD1(AttachAppDebug, int32_t(const std::string &bundleName));
+    MOCK_METHOD1(DetachAppDebug, int32_t(const std::string &bundleName));
 
     sptr<IAbilityScheduler> abilityScheduler_ = nullptr;  // kit interface used to schedule ability life
     Want want_;

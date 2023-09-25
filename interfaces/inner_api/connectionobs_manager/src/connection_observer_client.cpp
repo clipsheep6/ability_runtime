@@ -61,5 +61,15 @@ int32_t ConnectionObserverClient::GetDlpConnectionInfos(std::vector<DlpConnectio
 
     return clientImpl_->GetDlpConnectionInfos(infos);
 }
+
+int32_t ConnectionObserverClient::GetConnectionData(std::vector<ConnectionData> &connectionData)
+{
+    if (!clientImpl_) {
+        HILOG_ERROR("ConnectionObserverClient::GetConnectionData impl is nullptr.");
+        return ERR_NO_CLIENT_IMPL;
+    }
+
+    return clientImpl_->GetConnectionData(connectionData);
+}
 }
 }

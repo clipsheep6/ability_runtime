@@ -63,6 +63,10 @@ void AbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName& e
         mutex_.unlock();
         return;
     }
+
+    std::vector<sptr<AbilityConnectCallback>> callbacks = GetCallbackList();
+    mutex_.unlock();
+    
     // if resultCode < 0 that means the service is dead
     if (resultCode == DIED) {
         sptr<AbilityConnection> connection(this);
@@ -73,9 +77,6 @@ void AbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName& e
         }
         resultCode = DIED + 1;
     }
-
-    std::vector<sptr<AbilityConnectCallback>> callbacks = GetCallbackList();
-    mutex_.unlock();
 
     auto item = callbacks.begin();
     while (item != callbacks.end()) {

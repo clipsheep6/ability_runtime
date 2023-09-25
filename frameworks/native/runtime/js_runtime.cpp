@@ -35,6 +35,7 @@
 #include "hitrace_meter.h"
 #include "hot_reloader.h"
 #include "ipc_skeleton.h"
+#include "iservice_registry.h"
 #include "js_environment.h"
 #include "js_module_reader.h"
 #include "js_module_searcher.h"
@@ -50,6 +51,7 @@
 #include "ohos_js_environment_impl.h"
 #include "parameters.h"
 #include "extractor.h"
+#include "system_ability_definition.h"
 #include "systemcapability.h"
 #include "source_map.h"
 #include "source_map_operator.h"
@@ -620,6 +622,7 @@ bool JsRuntime::Initialize(const Options& options)
 
         InitWorkerModule(options);
         SetModuleLoadChecker(options.moduleCheckerDelegate);
+        SetRequestAotCallback();
 
         if (!InitLoop()) {
             HILOG_ERROR("Initialize loop failed.");
@@ -1263,6 +1266,36 @@ void JsRuntime::SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate
 {
     CHECK_POINTER(jsEnv_);
     jsEnv_->SetModuleLoadChecker(moduleCheckerDelegate);
+}
+
+void JsRuntime::SetRequestAotCallback()
+{
+    CHECK_POINTER(jsEnv_);
+    auto callback = [](const std::string& bundleName, const std::string& moduleName, int32_t triggerMode) -> int32_t {
+        auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        if (systemAbilityMgr == nullptr) {
+            HILOG_ERROR("Failed to get system ability manager.");
+            return ERR_INVALID_VALUE;
+        }
+
+        auto remoteObj = systemAbilityMgr->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+        if (remoteObj == nullptr) {
+            HILOG_ERROR("Remote object is nullptr.");
+            return ERR_INVALID_VALUE;
+        }
+
+        auto bundleMgr = iface_cast<AppExecFwk::IBundleMgr>(remoteObj);
+        if (bundleMgr == nullptr) {
+            HILOG_ERROR("Failed to get bundle manager.");
+            return ERR_INVALID_VALUE;
+        }
+
+        HILOG_DEBUG("Reset compile status, bundleName: %{public}s, moduleName: %{public}s, triggerMode: %{public}d.",
+            bundleName.c_str(), moduleName.c_str(), triggerMode);
+        return bundleMgr->ResetAOTCompileStatus(bundleName, moduleName, triggerMode);
+    };
+
+    jsEnv_->SetRequestAotCallback(callback);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

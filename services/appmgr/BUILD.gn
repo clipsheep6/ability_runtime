@@ -35,6 +35,7 @@ ohos_shared_library("libappms") {
     "src/ability_running_record.cpp",
     "src/ams_mgr_scheduler.cpp",
     "src/app_death_recipient.cpp",
+    "src/app_debug_manager.cpp",
     "src/app_lifecycle_deal.cpp",
     "src/app_mgr_service.cpp",
     "src/app_mgr_service_event_handler.cpp",

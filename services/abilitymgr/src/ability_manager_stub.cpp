@@ -36,6 +36,7 @@ AbilityManagerStub::AbilityManagerStub()
     FirstStepInit();
     SecondStepInit();
     ThirdStepInit();
+    FourthStepInit();
 }
 
 AbilityManagerStub::~AbilityManagerStub()
@@ -147,6 +148,14 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::MoveMissionToBackgroundInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_MISSION)] =
         &AbilityManagerStub::TerminateMissionInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_APP_DEBUG_LISTENER)] =
+        &AbilityManagerStub::RegisterAppDebugListenerInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_APP_DEBUG_LISTENER)] =
+        &AbilityManagerStub::UnregisterAppDebugListenerInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ATTACH_APP_DEBUG)] =
+        &AbilityManagerStub::AttachAppDebugInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DETACH_APP_DEBUG)] =
+        &AbilityManagerStub::DetachAppDebugInner;
 }
 
 void AbilityManagerStub::SecondStepInit()
@@ -341,6 +350,12 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::NotifySaveAsResultInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_SESSIONMANAGERSERVICE)] =
         &AbilityManagerStub::SetSessionManagerServiceInner;
+}
+
+void AbilityManagerStub::FourthStepInit()
+{
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_CONNECTION_DATA)] =
+        &AbilityManagerStub::GetConnectionDataInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -1935,6 +1950,12 @@ int AbilityManagerStub::GetDlpConnectionInfos(std::vector<AbilityRuntime::DlpCon
     return NO_ERROR;
 }
 
+int AbilityManagerStub::GetConnectionData(std::vector<AbilityRuntime::ConnectionData> &infos)
+{
+    // should implement in child
+    return NO_ERROR;
+}
+
 #ifdef ABILITY_COMMAND_FOR_TEST
 int AbilityManagerStub::ForceTimeoutForTestInner(MessageParcel &data, MessageParcel &reply)
 {
@@ -2204,6 +2225,30 @@ int AbilityManagerStub::GetDlpConnectionInfosInner(MessageParcel &data, MessageP
     }
 
     for (auto &item : infos) {
+        if (!reply.WriteParcelable(&item)) {
+            HILOG_ERROR("write info item failed");
+            return ERR_INVALID_VALUE;
+        }
+    }
+
+    return ERR_OK;
+}
+
+int AbilityManagerStub::GetConnectionDataInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::vector<AbilityRuntime::ConnectionData> connectionData;
+    auto result = GetConnectionData(connectionData);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("write result failed");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!reply.WriteInt32(connectionData.size())) {
+        HILOG_ERROR("write infos size failed");
+        return ERR_INVALID_VALUE;
+    }
+
+    for (auto &item : connectionData) {
         if (!reply.WriteParcelable(&item)) {
             HILOG_ERROR("write info item failed");
             return ERR_INVALID_VALUE;
@@ -2500,6 +2545,72 @@ int AbilityManagerStub::RegisterSessionHandlerInner(MessageParcel &data, Message
     }
     int32_t result = RegisterSessionHandler(handler);
     reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::RegisterAppDebugListenerInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    auto appDebugLister = iface_cast<AppExecFwk::IAppDebugListener>(data.ReadRemoteObject());
+    if (appDebugLister == nullptr) {
+        HILOG_ERROR("App debug lister is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto result = RegisterAppDebugListener(appDebugLister);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::UnregisterAppDebugListenerInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    auto appDebugLister = iface_cast<AppExecFwk::IAppDebugListener>(data.ReadRemoteObject());
+    if (appDebugLister == nullptr) {
+        HILOG_ERROR("App debug lister is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto result = UnregisterAppDebugListener(appDebugLister);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::AttachAppDebugInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto bundleName = data.ReadString();
+    if (bundleName.empty()) {
+        HILOG_ERROR("Bundle name is empty.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto result = AttachAppDebug(bundleName);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::DetachAppDebugInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto bundleName = data.ReadString();
+    if (bundleName.empty()) {
+        HILOG_ERROR("Bundle name is empty.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto result = DetachAppDebug(bundleName);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 }  // namespace AAFwk

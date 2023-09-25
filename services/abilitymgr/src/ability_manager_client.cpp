@@ -1483,5 +1483,37 @@ ErrCode AbilityManagerClient::RegisterSessionHandler(const sptr<IRemoteObject> &
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->RegisterSessionHandler(object);
 }
+
+ErrCode AbilityManagerClient::RegisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->RegisterAppDebugListener(listener);
+}
+
+ErrCode AbilityManagerClient::UnregisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->UnregisterAppDebugListener(listener);
+}
+
+ErrCode AbilityManagerClient::AttachAppDebug(const std::string &bundleName)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->AttachAppDebug(bundleName);
+}
+
+ErrCode AbilityManagerClient::DetachAppDebug(const std::string &bundleName)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->DetachAppDebug(bundleName);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -350,6 +350,60 @@ int32_t AmsMgrScheduler::GetBundleNameByPid(const int pid, std::string &bundleNa
         return ERR_INVALID_OPERATION;
     }
     return amsMgrServiceInner_->GetBundleNameByPid(pid, bundleName, uid);
+}
+
+int32_t AmsMgrScheduler::RegisterAppDebugListener(const sptr<IAppDebugListener> &listener)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AmsMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return amsMgrServiceInner_->RegisterAppDebugListener(listener);
+}
+
+int32_t AmsMgrScheduler::UnregisterAppDebugListener(const sptr<IAppDebugListener> &listener)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AmsMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return amsMgrServiceInner_->UnregisterAppDebugListener(listener);
+}
+
+int32_t AmsMgrScheduler::AttachAppDebug(const std::string &bundleName)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AmsMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return amsMgrServiceInner_->AttachAppDebug(bundleName);
+}
+
+int32_t AmsMgrScheduler::DetachAppDebug(const std::string &bundleName)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AmsMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return amsMgrServiceInner_->DetachAppDebug(bundleName);
+}
+
+int32_t AmsMgrScheduler::RegisterAbilityDebugResponse(const sptr<IAbilityDebugResponse> &response)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AmsMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return amsMgrServiceInner_->RegisterAbilityDebugResponse(response);
+}
+
+bool AmsMgrScheduler::IsAttachDebug(const std::string &bundleName)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AmsMgrService is not ready.");
+        return false;
+    }
+    return amsMgrServiceInner_->IsAttachDebug(bundleName);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

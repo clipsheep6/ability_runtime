@@ -155,6 +155,13 @@ public:
      */
     void GetDlpConnectionInfos(std::vector<AbilityRuntime::DlpConnectionInfo> &infos);
 
+    /**
+     * Get exist connection data including Extension and Data connection.
+     *
+     * @param infos output connection result.
+     */
+    void GetConnectionData(std::vector<AbilityRuntime::ConnectionData> &connectionData);
+
 private:
     bool CheckDataAbilityConnectionParams(const DataAbilityCaller &caller,
         const std::shared_ptr<DataAbilityRecord> &record) const;

@@ -270,6 +270,12 @@ NativeValue *JSAbilityDelegator::FinishTest(NativeEngine *engine, NativeCallback
     return (me != nullptr) ? me->OnFinishTest(*engine, *info) : nullptr;
 }
 
+NativeValue *JSAbilityDelegator::SetMockList(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
+    return (me != nullptr) ? me->OnSetMockList(*engine, *info) : nullptr;
+}
+
 NativeValue *JSAbilityDelegator::OnAddAbilityMonitor(NativeEngine &engine, NativeCallbackInfo &info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
@@ -927,6 +933,19 @@ NativeValue *JSAbilityDelegator::OnFinishTest(NativeEngine &engine, NativeCallba
     return result;
 }
 
+NativeValue *JSAbilityDelegator::OnSetMockList(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+
+    std::map<std::string, std::string> mockList;
+    if (!ParseMockListPara(engine, info, mockList)) {
+        HILOG_ERROR("Parse setMockList parameters failed");
+        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+    }
+
+    return engine.CreateNull();
+}
+
 NativeValue *JSAbilityDelegator::ParseMonitorPara(
     NativeEngine &engine, NativeValue *value, std::shared_ptr<AbilityMonitor> &monitor)
 {
@@ -1352,6 +1371,91 @@ NativeValue *JSAbilityDelegator::ParseFinishTestPara(
         }
     }
     return engine.CreateNull();
+}
+
+bool JSAbilityDelegator::ParseMockListPara(
+    NativeEngine &engine, NativeCallbackInfo &info, std::map<std::string, std::string> &mockList)
+{
+    HILOG_DEBUG("enter");
+    if (info.argc != ARGC_ONE) {
+        HILOG_ERROR("Incorrect number of parameters");
+        return false;
+    }
+
+    NativeValue *value = info.argv[INDEX_ZERO];
+    if (value == nullptr) {
+        HILOG_ERROR("The arg[0] is nullptr.");
+        return false;
+    }
+
+    NativeValueType type = value->TypeOf();
+    if (type != NativeValueType::NATIVE_OBJECT) {
+        HILOG_ERROR("The type of arg[0] is %{public}d.", static_cast<int32_t>(type));
+        return false;
+    }
+
+    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
+    if (obj == nullptr) {
+        HILOG_ERROR("Failed to get object");
+        return false;
+    }
+
+    std::vector<std::string> propNames;
+    if (!ParseArrayStringValue(engine, obj->GetPropertyNames(), propNames)) {
+        HILOG_ERROR("Failed to property names.");
+        return false;
+    }
+
+    for (const auto &propName : propNames) {
+        auto prop = obj->GetProperty(propName.c_str());
+        if (prop == nullptr) {
+            HILOG_WARN("Prop is null: %{public}s", propName.c_str());
+            continue;
+        }
+        if (prop->TypeOf() != NativeValueType::NATIVE_STRING) {
+            HILOG_WARN("Prop is not string: %{public}s", propName.c_str());
+            continue;
+        }
+        std::string valName;
+        if (!ConvertFromJsValue(engine, prop, valName)) {
+            HILOG_WARN("Failed to ConvertFromJsValue: %{public}s", propName.c_str());
+            continue;
+        }
+        HILOG_DEBUG("add mock list: key: %{public}s, value: %{public}s", propName.c_str(), valName.c_str());
+        mockList.emplace(propName, valName);
+    }
+    return true;
+}
+
+bool JSAbilityDelegator::ParseArrayStringValue(
+    NativeEngine &engine, NativeValue* array, std::vector<std::string> &vector)
+{
+    if (array == nullptr) {
+        HILOG_ERROR("array is nullptr!");
+        return false;
+    }
+    if (!array->IsArray()) {
+        HILOG_ERROR("not array!");
+        return false;
+    }
+
+    auto nativeArray = ConvertNativeValueTo<NativeArray>(array);
+    auto arrayLen = nativeArray->GetLength();
+    if (arrayLen == 0) {
+        return true;
+    }
+
+    vector.reserve(arrayLen);
+    for (uint32_t i = 0; i < arrayLen; i++) {
+        std::string strItem;
+        NativeValue *value = nativeArray->GetElement(i);
+        if (!ConvertFromJsValue(engine, value, strItem)) {
+            HILOG_WARN("Failed to ConvertFromJsValue, index: %{public}u", i);
+            continue;
+        }
+        vector.emplace_back(std::move(strItem));
+    }
+    return true;
 }
 
 void JSAbilityDelegator::AddStageMonitorRecord(

@@ -79,6 +79,7 @@ ohos_unittest("js_runtime_test") {
   sources = [
     # add mock file
     "js_runtime_test.cpp",
+    "mock_jsnapi.cpp",
   ]
 
   configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]

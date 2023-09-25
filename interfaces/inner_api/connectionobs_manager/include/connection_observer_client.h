@@ -60,6 +60,14 @@ public:
      */
     int32_t GetDlpConnectionInfos(std::vector<DlpConnectionInfo> &infos);
 
+    /**
+     * Get exist connection data including Extension and Data connection.
+     *
+     * @param connectionData output connection result.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t GetConnectionData(std::vector<ConnectionData> &connectionData);
+
 private:
     ConnectionObserverClient();
     ConnectionObserverClient(const ConnectionObserverClient&) = delete;

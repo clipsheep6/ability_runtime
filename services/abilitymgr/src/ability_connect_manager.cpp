@@ -1286,6 +1286,7 @@ void AbilityConnectManager::TerminateDone(const std::shared_ptr<AbilityRecord> &
             "Transition life state error. expect %{public}s, actual %{public}s", expect.c_str(), actual.c_str());
         return;
     }
+    IN_PROCESS_CALL_WITHOUT_RET(abilityRecord->RevokeUriPermission());
     abilityRecord->RemoveAbilityDeathRecipient();
     DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(abilityRecord->GetToken(), false);
     RemoveServiceAbility(abilityRecord);

@@ -199,6 +199,26 @@ public:
      */
     virtual int32_t ScheduleNotifyAppFault(const FaultData &faultData) = 0;
 
+    /**
+     * @brief Notify NativeEngine GC of status change.
+     *
+     * @param state GC state
+     * @param pid pid
+     *
+     * @return Is the status change completed.
+     */
+    virtual int32_t ScheduleOnGcStateChange(int32_t state) = 0;
+
+    /**
+     * @brief Attach app debug.
+     */
+    virtual void AttachAppDebug() = 0;
+
+    /**
+     * @brief Detach app debug.
+     */
+    virtual void DetachAppDebug() = 0;
+
     enum class Message {
         SCHEDULE_FOREGROUND_APPLICATION_TRANSACTION = 0,
         SCHEDULE_BACKGROUND_APPLICATION_TRANSACTION,
@@ -219,7 +239,10 @@ public:
         SCHEDULE_NOTIFY_UNLOAD_REPAIR_PATCH,
         SCHEDULE_UPDATE_APPLICATION_INFO_INSTALLED,
         SCHEDULE_HEAPMEMORY_APPLICATION_TRANSACTION,
-        SCHEDULE_NOTIFY_FAULT
+        SCHEDULE_NOTIFY_FAULT,
+        APP_ON_GC_STATE_CHANGE,
+        SCHEDULE_ATTACH_APP_DEBUG,
+        SCHEDULE_DETACH_APP_DEBUG,
     };
 };
 }  // namespace AppExecFwk

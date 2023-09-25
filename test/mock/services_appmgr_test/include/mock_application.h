@@ -47,6 +47,8 @@ public:
     MOCK_METHOD3(ScheduleNotifyUnLoadRepairPatch, int32_t(const std::string& bundleName,
         const sptr<IQuickFixCallback>& callback, const int32_t recordId));
     MOCK_METHOD1(ScheduleNotifyAppFault, int32_t(const FaultData &faultData));
+    MOCK_METHOD0(AttachAppDebug, void());
+    MOCK_METHOD0(DetachAppDebug, void());
 
     void Post()
     {
@@ -109,6 +111,11 @@ public:
     bool CompareProfile(const Profile& profile) const
     {
         return (profile.GetName() == profile_.GetName());
+    }
+
+    int32_t ScheduleOnGcStateChange(int32_t state) override
+    {
+        return 0;
     }
 
 private:

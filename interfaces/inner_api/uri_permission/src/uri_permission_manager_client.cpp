@@ -26,6 +26,7 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 const int LOAD_SA_TIMEOUT_MS = 4 * 1000;
+const int MAX_URI_COUNT = 500;
 } // namespace
 UriPermissionManagerClient& UriPermissionManagerClient::GetInstance()
 {
@@ -41,7 +42,21 @@ int UriPermissionManagerClient::GrantUriPermission(const Uri &uri, unsigned int 
     if (uriPermMgr) {
         return uriPermMgr->GrantUriPermission(uri, flag, targetBundleName, autoremove, appIndex);
     }
-    
+    return INNER_ERR;
+}
+
+int UriPermissionManagerClient::GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
+    const std::string targetBundleName, int autoremove, int32_t appIndex)
+{
+    HILOG_DEBUG("targetBundleName: %{public}s, uriVec size: %{public}zu", targetBundleName.c_str(), uriVec.size());
+    if (uriVec.size() == 0 || uriVec.size() > MAX_URI_COUNT) {
+        HILOG_ERROR("The size of uriVec should be between 1 and %{public}i.", MAX_URI_COUNT);
+        return INNER_ERR;
+    }
+    auto uriPermMgr = ConnectUriPermService();
+    if (uriPermMgr) {
+        return uriPermMgr->GrantUriPermission(uriVec, flag, targetBundleName, autoremove, appIndex);
+    }
     return INNER_ERR;
 }
 

@@ -16,24 +16,26 @@
 #ifndef OHOS_ABILITY_RUNTIME_APP_MGR_CLIENT_H
 #define OHOS_ABILITY_RUNTIME_APP_MGR_CLIENT_H
 
-#include "iremote_object.h"
-#include "refbase.h"
-#include "want.h"
-
+#include "ability_debug_response_interface.h"
 #include "ability_info.h"
-#include "application_info.h"
+#include "app_debug_listener_interface.h"
+#include "app_malloc_info.h"
+#include "app_mem_info.h"
 #include "app_mgr_constants.h"
+#include "app_mgr_interface.h"
+#include "application_info.h"
 #include "bundle_info.h"
+#include "fault_data.h"
 #include "iapp_state_callback.h"
+#include "iconfiguration_observer.h"
+#include "iremote_object.h"
 #include "irender_scheduler.h"
+#include "istart_specified_ability_response.h"
+#include "refbase.h"
 #include "render_process_info.h"
 #include "running_process_info.h"
 #include "system_memory_attr.h"
-#include "istart_specified_ability_response.h"
-#include "iconfiguration_observer.h"
-#include "app_mem_info.h"
-#include "app_malloc_info.h"
-#include "fault_data.h"
+#include "want.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -462,6 +464,57 @@ public:
      */
     void SetAbilityForegroundingFlagToAppRecord(const pid_t pid) const;
 
+    /**
+     * @brief Notify NativeEngine GC of status change.
+     *
+     * @param state GC state
+     * @param pid pid
+     * @return Is the status change completed..
+     */
+    int32_t OnGcStateChange(pid_t pid, int32_t state);
+
+     /**
+     * @brief Register app debug listener.
+     * @param listener App debug listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAppDebugListener(const sptr<IAppDebugListener> &listener);
+
+    /**
+     * @brief Unregister app debug listener.
+     * @param listener App debug listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAppDebugListener(const sptr<IAppDebugListener> &listener);
+
+    /**
+     * @brief Attach app debug.
+     * @param bundleName The application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t AttachAppDebug(const std::string &bundleName);
+
+    /**
+     * @brief Detach app debug.
+     * @param bundleName The application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t DetachAppDebug(const std::string &bundleName);
+
+    /**
+     * @brief Registering ability Debug Mode response.
+     * @param abilityResponse Response of ability debug object.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAbilityDebugResponse(const sptr<IAbilityDebugResponse> &response);
+
+    /**
+     * @brief Determine whether it is an attachment debug application based on the bundle name.
+     * @param bundleName The application bundle name.
+     * @return Returns true if it is an attach debug application, otherwise it returns false.
+     */
+    bool IsAttachDebug(const std::string &bundleName);
+
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);
     /**
@@ -471,8 +524,11 @@ private:
      */
     sptr<IRemoteObject> GetRemoteObject();
 
+    bool IsAmsServiceReady();
+
 private:
     std::shared_ptr<AppMgrRemoteHolder> mgrHolder_;
+    sptr<IAmsMgr> amsService_ {};
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

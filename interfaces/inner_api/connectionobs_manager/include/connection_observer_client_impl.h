@@ -37,6 +37,7 @@ public:
     int32_t RegisterObserver(const std::shared_ptr<ConnectionObserver> &observer);
     int32_t UnregisterObserver(const std::shared_ptr<ConnectionObserver> &observer);
     int32_t GetDlpConnectionInfos(std::vector<DlpConnectionInfo> &infos);
+    int32_t GetConnectionData(std::vector<ConnectionData> &infos);
     void HandleExtensionConnected(const ConnectionData &data);
     void HandleExtensionDisconnected(const ConnectionData &data);
     void HandleDlpAbilityOpened(const DlpStateData &data);

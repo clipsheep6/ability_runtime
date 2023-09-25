@@ -357,5 +357,23 @@ HWTEST_F(JsEnvironmentTest, PostSyncTask_0100, TestSize.Level0)
     jsEnv->PostSyncTask(task, taskName);
     EXPECT_EQ(taskExecuted, true);
 }
-}  // namespace JsEnv
-}  // namespace OHOS
+
+/**
+ * @tc.name: SetRequestAotCallback_0100
+ * @tc.desc: Js environment SetRequestAotCallback.
+ * @tc.type: FUNC
+ * @tc.require: issueI82L1A
+ */
+HWTEST_F(JsEnvironmentTest, SetRequestAotCallback_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+
+    auto callback = [](const std::string& bundleName, const std::string& moduleName, int32_t triggerMode) -> int32_t {
+        JSENV_LOG_I("set request aot callback.");
+        return 0;
+    };
+    jsEnv->SetRequestAotCallback(callback);
+}
+} // namespace JsEnv
+} // namespace OHOS

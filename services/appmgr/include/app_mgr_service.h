@@ -364,6 +364,16 @@ public:
      */
     virtual void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
 
+    /**
+     * @brief Notify NativeEngine GC of status change.
+     *
+     * @param state GC state
+     * @param pid pid
+     *
+     * @return Is the status change completed.
+     */
+    virtual int32_t OnGcStateChange(pid_t pid, int32_t state) override;
+
 private:
     /**
      * Init, Initialize application services.

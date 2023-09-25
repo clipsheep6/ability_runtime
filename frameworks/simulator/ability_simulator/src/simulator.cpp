@@ -95,6 +95,7 @@ public:
     int64_t StartAbility(const std::string &abilityName, TerminateCallback callback) override;
     void TerminateAbility(int64_t abilityId) override;
     void UpdateConfiguration(const AppExecFwk::Configuration &config) override;
+    void SetMockList(const std::map<std::string, std::string> &mockList) override;
 private:
     bool OnInit();
     void Run();
@@ -492,6 +493,11 @@ void SimulatorImpl::UpdateConfiguration(const AppExecFwk::Configuration &config)
         CallObjectMethod(*nativeEngine_, ability, "onConfigurationUpdate", configArgv, ArraySize(configArgv));
         JsAbilityContext::ConfigurationUpdated(nativeEngine_.get(), iter->second, configuration);
     }
+}
+
+void SimulatorImpl::SetMockList(const std::map<std::string, std::string> &mockList)
+{
+    HILOG_DEBUG("called. mockList size: %{public}zu", mockList.size());
 }
 
 void SimulatorImpl::InitResourceMgr()

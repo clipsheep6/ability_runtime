@@ -26,6 +26,7 @@
 #undef protected
 #include "event_runner.h"
 #include "mock_js_runtime.h"
+#include "mock_jsnapi.h"
 #include "hilog_wrapper.h"
 
 using namespace testing;
@@ -932,5 +933,26 @@ HWTEST_F(JsRuntimeTest, ReloadFormComponent_0100, TestSize.Level0)
     jsRuntime->ReloadFormComponent();
     HILOG_INFO("ReloadFormComponent_0100 end");
 }
-}  // namespace AbilityRuntime
-}  // namespace OHOS
+
+/**
+ * @tc.name: SetRequestAotCallback_0100
+ * @tc.desc: JsRuntime test for SetRequestAotCallback.
+ * @tc.type: FUNC
+ * @tc.require: issueI82L1A
+ */
+HWTEST_F(JsRuntimeTest, SetRequestAotCallback_0100, TestSize.Level0)
+{
+    HILOG_INFO("start");
+
+    AbilityRuntime::Runtime::Options options;
+    options.preload = true;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+    ASSERT_NE(jsRuntime, nullptr);
+
+    jsRuntime->SetRequestAotCallback();
+    auto ret = panda::MockJSNApi::GetInstance()->RequestAot("bundleName", "moduleName", 0);
+    EXPECT_NE(ret, -1);
+    HILOG_INFO("finish");
+}
+} // namespace AbilityRuntime
+} // namespace OHOS

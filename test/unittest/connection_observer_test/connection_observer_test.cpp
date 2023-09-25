@@ -19,11 +19,13 @@
 #define private public
 #define protected public
 
+#include "ability_manager_errors.h"
 #include "connection_data.h"
 #include "connection_observer_client.h"
 #include "connection_observer_client_impl.h"
 #include "dlp_state_data.h"
 #include "hilog_wrapper.h"
+#include "mock_native_token.h"
 #include "parcel.h"
 
 using namespace testing::ext;
@@ -238,7 +240,12 @@ HWTEST_F(ConnectionObserverTest, ConnectionObserver_Observer_0100, TestSize.Leve
     EXPECT_TRUE(clientImpl);
 
     std::vector<DlpConnectionInfo> infos;
-    ConnectionObserverClient::GetInstance().GetDlpConnectionInfos(infos);
+    auto result = ConnectionObserverClient::GetInstance().GetDlpConnectionInfos(infos);
+    EXPECT_EQ(result, AAFwk::CHECK_PERMISSION_FAILED);
+
+    std::vector<ConnectionData> connectionDatas;
+    result = ConnectionObserverClient::GetInstance().GetConnectionData(connectionDatas);
+    EXPECT_EQ(result, AAFwk::CHECK_PERMISSION_FAILED);
 
     std::shared_ptr<MyConnectionObserver> myObserver = std::make_shared<MyConnectionObserver>();
     clientImpl->userObservers_.emplace(myObserver);
@@ -262,6 +269,34 @@ HWTEST_F(ConnectionObserverTest, ConnectionObserver_Observer_0100, TestSize.Leve
     ConnectionObserverClient::GetInstance().UnregisterObserver(myObserver);
 
     HILOG_INFO("ConnectionObserver_Observer_0100 end");
+}
+
+/**
+ * @tc.name: ConnectionObserver_Observer_0200
+ * @tc.desc: test observer callback.
+ * @tc.type: FUNC
+ * @tc.require: issueI58213
+ */
+HWTEST_F(ConnectionObserverTest, ConnectionObserver_Observer_0200, TestSize.Level1)
+{
+    HILOG_INFO("ConnectionObserver_Observer_0200 start");
+
+    auto currentID = GetSelfTokenID();
+    AppExecFwk::MockNativeToken::SetNativeToken();
+
+    auto clientImpl = ConnectionObserverClient::GetInstance().clientImpl_;
+    EXPECT_TRUE(clientImpl);
+
+    std::vector<DlpConnectionInfo> infos;
+    auto result = ConnectionObserverClient::GetInstance().GetDlpConnectionInfos(infos);
+    EXPECT_EQ(result, ERR_OK);
+
+    std::vector<ConnectionData> connectionDatas;
+    result = ConnectionObserverClient::GetInstance().GetConnectionData(connectionDatas);
+    EXPECT_EQ(result, ERR_OK);
+
+    SetSelfTokenID(currentID);
+    HILOG_INFO("ConnectionObserver_Observer_0200 end");
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

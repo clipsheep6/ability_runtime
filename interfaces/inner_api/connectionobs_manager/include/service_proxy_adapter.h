@@ -41,6 +41,8 @@ public:
 
     int32_t GetDlpConnectionInfos(std::vector<DlpConnectionInfo> &infos);
 
+    int32_t GetConnectionData(std::vector<ConnectionData> &infos);
+
     sptr<IRemoteObject> GetProxyObject() const;
 
 private:

@@ -232,6 +232,15 @@ public:
      */
     static NativeValue *FinishTest(NativeEngine *engine, NativeCallbackInfo *info);
 
+    /**
+     * Set mock list.
+     *
+     * @param engine Indicates the native engine.
+     * @param info Indicates the parameters from js.
+     * @return exec result.
+     */
+    static NativeValue *SetMockList(NativeEngine *engine, NativeCallbackInfo *info);
+
 private:
     NativeValue *OnAddAbilityMonitor(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnAddAbilityMonitorSync(NativeEngine &engine, NativeCallbackInfo &info);
@@ -253,6 +262,7 @@ private:
     NativeValue *OnDoAbilityForeground(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnDoAbilityBackground(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnFinishTest(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue *OnSetMockList(NativeEngine &engine, NativeCallbackInfo &info);
 
 private:
     NativeValue *CreateAbilityObject(NativeEngine &engine, const sptr<IRemoteObject> &remoteObject);
@@ -280,6 +290,9 @@ private:
     NativeValue *ParseStartAbilityPara(
         NativeEngine &engine, NativeCallbackInfo &info, AAFwk::Want &want);
     NativeValue *ParseFinishTestPara(NativeEngine &engine, NativeCallbackInfo &info, std::string &msg, int64_t &code);
+    bool ParseMockListPara(
+        NativeEngine &engine, NativeCallbackInfo &info, std::map<std::string, std::string> &mockList);
+    bool ParseArrayStringValue(NativeEngine &engine, NativeValue* param, std::vector<std::string> &value);
     void AddStageMonitorRecord(
         NativeEngine &engine, NativeValue *value, const std::shared_ptr<AbilityStageMonitor> &monitor);
     void RemoveStageMonitorRecord(NativeValue *value);

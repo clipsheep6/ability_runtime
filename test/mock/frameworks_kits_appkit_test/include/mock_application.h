@@ -56,7 +56,8 @@ public:
     virtual void OnBackground();
     virtual void OnStart();
     virtual void OnTerminate();
-
+    virtual int32_t ScheduleOnGcStateChange(int32_t state);
+    
 private:
     std::shared_ptr<ElementsCallback> elementCallBack_ = nullptr;
     std::shared_ptr<AbilityLifecycleCallbacks> lifecycleCallBack_ = nullptr;
