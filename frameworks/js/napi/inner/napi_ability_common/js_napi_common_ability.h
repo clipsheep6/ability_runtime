@@ -83,54 +83,54 @@ public:
         Want want;
     };
 
-    NativeValue* JsConnectAbility(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
-    NativeValue* JsDisConnectAbility(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
-    NativeValue* JsGetContext(NativeEngine &engine, const NativeCallbackInfo &info, const AbilityType abilityType);
-    NativeValue* JsGetFilesDir(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
-    NativeValue* JsIsUpdatingConfigurations(
-        NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
-    NativeValue* JsPrintDrawnCompleted(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
-    NativeValue* JsGetCacheDir(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
-    NativeValue* JsGetCtxAppType(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
-    NativeValue* JsGetCtxHapModuleInfo(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
-    NativeValue* JsGetAppVersionInfo(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
-    NativeValue* JsGetApplicationContext(
-        NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
-    NativeValue* JsGetCtxAbilityInfo(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
-    NativeValue* JsGetOrCreateDistributedDir(
-        NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
-#ifdef SUPPORT_GRAPHICS
-    NativeValue* JsGetDisplayOrientation(
-        NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
-#endif
-    NativeValue* JsGetWant(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
-    NativeValue* JsTerminateAbility(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* JsStartAbility(NativeEngine &engine, NativeCallbackInfo &info, AbilityType abilityType);
-    NativeValue* JsGetExternalCacheDir(NativeEngine &engine, NativeCallbackInfo &info, AbilityType abilityType);
-
-    NativeValue* CreateProcessInfo(NativeEngine &engine, const std::shared_ptr<JsProcessInfo> &processInfo);
-    NativeValue* CreateElementName(NativeEngine &engine, const std::shared_ptr<JsElementName> &elementName);
-    NativeValue* CreateHapModuleInfo(NativeEngine &engine, const std::shared_ptr<JsHapModuleInfo> &hapModInfo);
-    NativeValue* CreateModuleInfo(NativeEngine &engine, const ModuleInfo &modInfo);
-    NativeValue* CreateModuleInfos(NativeEngine &engine, const std::vector<ModuleInfo> &moduleInfos);
-    NativeValue* CreateAppInfo(NativeEngine &engine, const ApplicationInfo &appInfo);
-    NativeValue* CreateAppInfo(NativeEngine &engine, const std::shared_ptr<JsApplicationInfo> &appInfo);
-    NativeValue* CreateAbilityInfo(NativeEngine &engine, const AbilityInfo &abilityInfo);
-    NativeValue* CreateAbilityInfo(NativeEngine &engine, const std::shared_ptr<JsAbilityInfoInfo> &abilityInfo);
-    NativeValue* CreateAbilityInfos(NativeEngine &engine, const std::vector<AbilityInfo> &abilityInfos);
-    NativeValue* CreateAppVersionInfo(NativeEngine &engine, const std::shared_ptr<JsApplicationInfo> &appInfo);
-    NativeValue* CreateWant(NativeEngine &engine, const std::shared_ptr<JsWant> &want);
     bool CheckAbilityType(const AbilityType typeWant);
-    bool UnwarpVerifyPermissionParams(NativeEngine &engine, NativeCallbackInfo &info, JsPermissionOptions &options);
-    bool GetStringsValue(NativeEngine &engine, NativeValue *object, std::vector<std::string> &strList);
-    bool GetPermissionOptions(NativeEngine &engine, NativeValue *object, JsPermissionOptions &options);
     std::string ConvertErrorCode(int32_t errCode);
-    void AddFreeInstallObserver(NativeEngine& engine, const AAFwk::Want &want, NativeValue* callback);
     sptr<NAPIAbilityConnection> FindConnectionLocked(const Want &want, int64_t &id);
     void RemoveAllCallbacksLocked();
     bool CreateConnectionAndConnectAbilityLocked(
         std::shared_ptr<ConnectionCallback> callback, const Want &want, int64_t &id);
     void RemoveConnectionLocked(const Want &want);
+
+    napi_value JsConnectAbility(napi_env env, napi_callback_info info, const AbilityType abilityType);
+    napi_value JsDisConnectAbility(napi_env env, napi_callback_info info, const AbilityType abilityType);
+    napi_value JsGetContext(napi_env env, const napi_callback_info info, const AbilityType abilityType);
+    napi_value JsGetFilesDir(napi_env env, napi_callback_info info, const AbilityType abilityType);
+    napi_value JsIsUpdatingConfigurations(napi_env env, napi_callback_info info, const AbilityType abilityType);
+    napi_value JsPrintDrawnCompleted(napi_env env, napi_callback_info info, const AbilityType abilityType);
+    napi_value JsGetCacheDir(napi_env env, napi_callback_info info, const AbilityType abilityType);
+    napi_value JsGetCtxAppType(napi_env env, napi_callback_info info, const AbilityType abilityType);
+    napi_value JsGetCtxHapModuleInfo(napi_env env, napi_callback_info info, const AbilityType abilityType);
+    napi_value JsGetAppVersionInfo(napi_env env, napi_callback_info info, const AbilityType abilityType);
+    napi_value JsGetApplicationContext(
+        napi_env env, napi_callback_info info, const AbilityType abilityType);
+    napi_value JsGetCtxAbilityInfo(napi_env env, napi_callback_info info, const AbilityType abilityType);
+    napi_value JsGetOrCreateDistributedDir(
+        napi_env env, napi_callback_info info, const AbilityType abilityType);
+#ifdef SUPPORT_GRAPHICS
+    napi_value JsGetDisplayOrientation(
+        napi_env env, napi_callback_info info, const AbilityType abilityType);
+#endif
+    napi_value JsGetWant(napi_env env, napi_callback_info info, const AbilityType abilityType);
+    napi_value JsTerminateAbility(napi_env env, AbilityRuntime::NapiCallbackInfo& info);
+    napi_value JsStartAbility(napi_env env, napi_callback_info info, AbilityType abilityType);
+    napi_value JsGetExternalCacheDir(napi_env env, napi_callback_info info, AbilityType abilityType);
+
+    napi_value CreateProcessInfo(napi_env env, const std::shared_ptr<JsProcessInfo> &processInfo);
+    napi_value CreateElementName(napi_env env, const std::shared_ptr<JsElementName> &elementName);
+    napi_value CreateHapModuleInfo(napi_env env, const std::shared_ptr<JsHapModuleInfo> &hapModInfo);
+    napi_value CreateModuleInfo(napi_env env, const ModuleInfo &modInfo);
+    napi_value CreateModuleInfos(napi_env env, const std::vector<ModuleInfo> &moduleInfos);
+    napi_value CreateAppInfo(napi_env env, const ApplicationInfo &appInfo);
+    napi_value CreateAppInfo(napi_env env, const std::shared_ptr<JsApplicationInfo> &appInfo);
+    napi_value CreateAbilityInfo(napi_env env, const AbilityInfo &abilityInfo);
+    napi_value CreateAbilityInfo(napi_env env, const std::shared_ptr<JsAbilityInfoInfo> &abilityInfo);
+    napi_value CreateAbilityInfos(napi_env env, const std::vector<AbilityInfo> &abilityInfos);
+    napi_value CreateAppVersionInfo(napi_env env, const std::shared_ptr<JsApplicationInfo> &appInfo);
+    napi_value CreateWant(napi_env env, const std::shared_ptr<JsWant> &want);
+    bool UnwarpVerifyPermissionParams(napi_env env, napi_callback_info info, JsPermissionOptions &options);
+    bool GetStringsValue(napi_env env, napi_value object, std::vector<std::string> &strList);
+    bool GetPermissionOptions(napi_env env, napi_value object, JsPermissionOptions &options);
+    void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback);
     Ability *ability_;
     sptr<AbilityRuntime::JsFreeInstallObserver> freeInstallObserver_ = nullptr;
 };

@@ -34,52 +34,49 @@ EXTERN_C_START
  * function for module exports
  */
 
-NativeValue* JsNapiWantAgentInit(NativeEngine* engine, NativeValue* exportObj)
+napi_value JsNapiWantAgentInit(napi_env env, napi_value exportObj)
 {
     HILOG_DEBUG("JsNapiWantAgentInit is called");
 
-    if (engine == nullptr || exportObj == nullptr) {
-        HILOG_ERROR("engine or exportObj nullptr");
+    if (env == nullptr || exportObj == nullptr) {
+        HILOG_ERROR("env or exportObj nullptr");
         return nullptr;
     }
-
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(exportObj);
-    if (object == nullptr) {
+    if (!CheckTypeForNapiValue(env, exportObj, napi_object)) {
         HILOG_ERROR("object nullptr");
         return nullptr;
     }
 
     std::unique_ptr<JsWantAgent> jsWantAgent = std::make_unique<JsWantAgent>();
-    object->SetNativePointer(jsWantAgent.release(), JsWantAgent::Finalizer, nullptr);
+    napi_wrap(env, exportObj, jsWantAgent.release(), JsWantAgent::Finalizer, nullptr, nullptr);
 
-    object->SetProperty("WantAgentFlags", WantAgentFlagsInit(engine));
-    object->SetProperty("OperationType", WantAgentOperationTypeInit(engine));
+    napi_set_named_property(env, exportObj, "WantAgentFlags", WantAgentFlagsInit(env));
+    napi_set_named_property(env, exportObj, "OperationType", WantAgentOperationTypeInit(env));
 
     HILOG_DEBUG("JsNapiWantAgentInit BindNativeFunction called");
     const char *moduleName = "JsWantAgent";
-    BindNativeFunction(*engine, *object, "equal", moduleName, JsWantAgent::Equal);
-    BindNativeFunction(*engine, *object, "getBundleName", moduleName, JsWantAgent::GetBundleName);
-    BindNativeFunction(*engine, *object, "getUid", moduleName, JsWantAgent::GetUid);
-    BindNativeFunction(*engine, *object, "cancel", moduleName, JsWantAgent::Cancel);
-    BindNativeFunction(*engine, *object, "trigger", moduleName, JsWantAgent::NapiTrigger);
-    BindNativeFunction(*engine, *object, "getWant", moduleName, JsWantAgent::NapiGetWant);
-    BindNativeFunction(*engine, *object, "getWantAgent", moduleName, JsWantAgent::NapiGetWantAgent);
-    BindNativeFunction(*engine, *object, "getOperationType", moduleName, JsWantAgent::NapiGetOperationType);
+    BindNativeFunction(env, exportObj, "equal", moduleName, JsWantAgent::Equal);
+    BindNativeFunction(env, exportObj, "getBundleName", moduleName, JsWantAgent::GetBundleName);
+    BindNativeFunction(env, exportObj, "getUid", moduleName, JsWantAgent::GetUid);
+    BindNativeFunction(env, exportObj, "cancel", moduleName, JsWantAgent::Cancel);
+    BindNativeFunction(env, exportObj, "trigger", moduleName, JsWantAgent::NapiTrigger);
+    BindNativeFunction(env, exportObj, "getWant", moduleName, JsWantAgent::NapiGetWant);
+    BindNativeFunction(env, exportObj, "getWantAgent", moduleName, JsWantAgent::NapiGetWantAgent);
+    BindNativeFunction(env, exportObj, "getOperationType", moduleName, JsWantAgent::NapiGetOperationType);
     HILOG_DEBUG("JsNapiWantAgentInit end");
     return exportObj;
 }
 EXTERN_C_END
 
+static napi_module _module = {
+    .nm_modname = "app.ability.wantAgent",
+    .nm_filename = "app/ability/wantagent_napi.so/want_agent.js",
+    .nm_register_func = OHOS::JsNapiWantAgentInit,
+};
+
 extern "C" __attribute__((constructor))
 void NAPI_app_ability_WantAgent_AutoRegister()
 {
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-        .name = "app.ability.wantAgent",
-        .fileName = "app/ability/wantagent_napi.so/want_agent.js",
-        .registerCallback = OHOS::JsNapiWantAgentInit,
-    };
-
-    moduleManager->Register(&newModuleInfo);
+    napi_module_register(&_module);
 }
 }  // namespace OHOS

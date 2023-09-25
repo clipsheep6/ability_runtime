@@ -37,14 +37,14 @@ public:
     JsParticleAbility() = default;
     ~JsParticleAbility() = default;
     Ability* GetAbility(napi_env env);
-    static void Finalizer(NativeEngine *engine, void *data, void *hint);
-    static NativeValue* PAConnectAbility(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* PADisConnectAbility(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* PAStartAbility(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue* PATerminateAbility(NativeEngine *engine, NativeCallbackInfo *info);
+    static void Finalizer(napi_env env, void *data, void *hint);
+    static napi_value PAConnectAbility(napi_env env, napi_callback_info info);
+    static napi_value PADisConnectAbility(napi_env env, napi_callback_info info);
+    static napi_value PAStartAbility(napi_env env, napi_callback_info info);
+    static napi_value PATerminateAbility(napi_env env, napi_callback_info info);
 };
 
-NativeValue* JsParticleAbilityInit(NativeEngine *engine, NativeValue *exportObj);
+napi_value JsParticleAbilityInit(napi_env env, napi_value exportObj);
 napi_value ParticleAbilityInit(napi_env env, napi_value exports);
 }  // namespace AppExecFwk
 }  // namespace OHOS

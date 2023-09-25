@@ -16,15 +16,14 @@
 #include "native_engine/native_engine.h"
 #include "napi_want_agent.h"
 
+static napi_module _module = {
+    .nm_modname = "wantAgent",
+    .nm_filename = "application/wantAgent.so/want_agent.js",
+    .nm_register_func = OHOS::JsWantAgentInit,
+};
+
 extern "C" __attribute__((constructor))
 void NAPI_application_WantAgent_AutoRegister()
 {
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-        .name = "wantAgent",
-        .fileName = "application/wantAgent.so/want_agent.js",
-        .registerCallback = OHOS::JsWantAgentInit,
-    };
-
-    moduleManager->Register(&newModuleInfo);
+    napi_module_register(&_module);
 }

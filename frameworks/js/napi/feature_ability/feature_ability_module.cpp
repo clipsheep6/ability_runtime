@@ -16,14 +16,13 @@
 #include "native_engine/native_engine.h"
 #include "js_feature_ability.h"
 
+static napi_module _module = {
+    .nm_modname = "FeatureAbility",
+    .nm_filename = "libfeatureability_napi.so/featureAbility.js",
+    .nm_register_func = OHOS::AbilityRuntime::JsFeatureAbilityInit,
+};
+
 extern "C" __attribute__((constructor)) void NAPI_application_formInfo_AutoRegister()
 {
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-        .name = "FeatureAbility",
-        .fileName = "libfeatureability_napi.so/featureAbility.js",
-        .registerCallback = OHOS::AbilityRuntime::JsFeatureAbilityInit,
-    };
-
-    moduleManager->Register(&newModuleInfo);
+    napi_module_register(&_module);
 }

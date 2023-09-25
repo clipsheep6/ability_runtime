@@ -18,6 +18,7 @@
 
 #include "ability.h"
 #include "distribute_req_param.h"
+#include "js_runtime_utils.h"
 #include "native_engine/native_engine.h"
 #include "want.h"
 #include "uri.h"
@@ -34,42 +35,42 @@ public:
     JsFeatureAbility() = default;
     ~JsFeatureAbility() = default;
 
-    static void Finalizer(NativeEngine* engine, void* data, void* hint);
-    static NativeValue* CreateJsFeatureAbility(NativeEngine &engine);
-    static NativeValue* StartAbility(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StartAbilityForResult(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* FinishWithResult(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* GetDeviceList(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* CallAbility(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* ContinueAbility(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* SubscribeAbilityEvent(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* UnsubscribeAbilityEvent(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* SendMsg(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* SubscribeMsg(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* UnsubscribeMsg(NativeEngine* engine, NativeCallbackInfo* info);
+    static void Finalizer(napi_env env, void* data, void* hint);
+    static napi_value CreateJsFeatureAbility(napi_env env);
+    static napi_value StartAbility(napi_env env, napi_callback_info info);
+    static napi_value StartAbilityForResult(napi_env env, napi_callback_info info);
+    static napi_value FinishWithResult(napi_env env, napi_callback_info info);
+    static napi_value GetDeviceList(napi_env env, napi_callback_info info);
+    static napi_value CallAbility(napi_env env, napi_callback_info info);
+    static napi_value ContinueAbility(napi_env env, napi_callback_info info);
+    static napi_value SubscribeAbilityEvent(napi_env env, napi_callback_info info);
+    static napi_value UnsubscribeAbilityEvent(napi_env env, napi_callback_info info);
+    static napi_value SendMsg(napi_env env, napi_callback_info info);
+    static napi_value SubscribeMsg(napi_env env, napi_callback_info info);
+    static napi_value UnsubscribeMsg(napi_env env, napi_callback_info info);
 private:
     Ability* GetAbility(napi_env env);
     Want GetWant(DistributeReqParam &requestParam);
     bool CheckThenGetDeepLinkUri(const DistributeReqParam &requestParam, Uri &uri);
     bool UnWrapRequestParams(napi_env env, napi_value param, DistributeReqParam &requestParam);
-    static NativeValue* CreateJsResult(NativeEngine &engine, int32_t errCode, const std::string &message);
+    static napi_value CreateJsResult(napi_env env, int32_t errCode, const std::string &message);
     void GetExtraParams(const DistributeReqParam &requestParam, const Want &want);
-    NativeValue* OnStartAbility(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnStartAbilityForResult(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnFinishWithResult(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue* OnGetDeviceList(NativeEngine &engine, const NativeCallbackInfo &info);
-    NativeValue* OnCallAbility(NativeEngine &engine, const NativeCallbackInfo &info);
-    NativeValue* OnContinueAbility(NativeEngine &engine, const NativeCallbackInfo &info);
-    NativeValue* OnSubscribeAbilityEvent(NativeEngine &engine, const NativeCallbackInfo &info);
-    NativeValue* OnUnsubscribeAbilityEvent(NativeEngine &engine, const NativeCallbackInfo &info);
-    NativeValue* OnSendMsg(NativeEngine &engine, const NativeCallbackInfo &info);
-    NativeValue* OnSubscribeMsg(NativeEngine &engine, const NativeCallbackInfo &info);
-    NativeValue* OnUnsubscribeMsg(NativeEngine &engine, const NativeCallbackInfo &info);
+    napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStartAbilityForResult(napi_env env, NapiCallbackInfo& info);
+    napi_value OnFinishWithResult(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetDeviceList(napi_env env, const NapiCallbackInfo& info);
+    napi_value OnCallAbility(napi_env env, const NapiCallbackInfo& info);
+    napi_value OnContinueAbility(napi_env env, const NapiCallbackInfo& info);
+    napi_value OnSubscribeAbilityEvent(napi_env env, const NapiCallbackInfo& info);
+    napi_value OnUnsubscribeAbilityEvent(napi_env env, const NapiCallbackInfo& info);
+    napi_value OnSendMsg(napi_env env, const NapiCallbackInfo& info);
+    napi_value OnSubscribeMsg(napi_env env, const NapiCallbackInfo& info);
+    napi_value OnUnsubscribeMsg(napi_env env, const NapiCallbackInfo& info);
 
     int requestCode_ = 0;
 };
 
-NativeValue* JsFeatureAbilityInit(NativeEngine* engine, NativeValue* exports);
+napi_value JsFeatureAbilityInit(napi_env env, napi_value exports);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_JS_FEATURE_ABILITY_H
