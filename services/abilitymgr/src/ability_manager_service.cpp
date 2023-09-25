@@ -595,6 +595,7 @@ bool AbilityManagerService::StartAbilityInChain(StartAbilityParams &params, int 
     for (const auto &item : startAbilityChain_) {
         if (item.second->MatchStartRequest(params)) {
             reqHandler = item.second;
+            break;
         }
     }
 
@@ -622,6 +623,7 @@ int AbilityManagerService::StartAbilityWrap(const Want &want, const sptr<IRemote
     startParams.userId = userId;
     startParams.requestCode = requestCode;
     startParams.isStartAsCaller = isStartAsCaller;
+    startParams.SetValidUserId(GetValidUserId(userId));
 
     int result = ERR_OK;
     if (StartAbilityInChain(startParams, result)) {
@@ -850,6 +852,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     startParams.callerToken = callerToken;
     startParams.userId = userId;
     startParams.requestCode = requestCode;
+    startParams.SetValidUserId(GetValidUserId(userId));
 
     int result = ERR_OK;
     if (StartAbilityInChain(startParams, result)) {
@@ -1052,6 +1055,7 @@ int AbilityManagerService::StartAbilityForOptionWrap(const Want &want, const Sta
     startParams.requestCode = requestCode;
     startParams.isStartAsCaller = isStartAsCaller;
     startParams.startOptions = &startOptions;
+    startParams.SetValidUserId(GetValidUserId(userId));
 
     int result = ERR_OK;
     if (StartAbilityInChain(startParams, result)) {
@@ -2312,12 +2316,15 @@ int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &t
 
     auto ownerUserId = abilityRecord->GetOwnerMissionUserId();
     auto missionListManager = GetListManagerByUserId(ownerUserId);
-    if (missionListManager == nullptr) {
-        HILOG_ERROR("missionListManager is Null. ownerUserId=%{public}d", ownerUserId);
-        return ERR_INVALID_VALUE;
+    if (missionListManager) {
+        NotifyHandleAbilityStateChange(token, TERMINATE_ABILITY_CODE);
+        return missionListManager->TerminateAbility(abilityRecord, resultCode, resultWant, flag);
     }
-    NotifyHandleAbilityStateChange(token, TERMINATE_ABILITY_CODE);
-    return missionListManager->TerminateAbility(abilityRecord, resultCode, resultWant, flag);
+    HILOG_WARN("missionListManager is Null. ownerUserId=%{public}d", ownerUserId);
+    if (uiAbilityLifecycleManager_ && Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        return uiAbilityLifecycleManager_->CloseUIAbility(abilityRecord, resultCode, resultWant, false);
+    }
+    return ERR_INVALID_VALUE;
 }
 
 int AbilityManagerService::TerminateUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo, int resultCode,
@@ -5625,6 +5632,25 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
     return missionListMgr->ResolveLocked(abilityRequest);
 }
 
+int AbilityManagerService::StartAbilityJust(AbilityRequest &abilityRequest, int32_t validUserId)
+{
+    HILOG_DEBUG("call");
+    UpdateCallerInfo(abilityRequest.want, abilityRequest.callerToken);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        ReportEventToSuspendManager(abilityRequest.abilityInfo);
+        return uiAbilityLifecycleManager_->ResolveLocked(abilityRequest, validUserId);
+    }
+
+    auto missionListMgr = GetListManagerByUserId(validUserId);
+    if (missionListMgr == nullptr) {
+        HILOG_ERROR("missionListMgr is Null. Designated User Id=%{public}d", validUserId);
+        return ERR_INVALID_VALUE;
+    }
+    ReportEventToSuspendManager(abilityRequest.abilityInfo);
+
+    return missionListMgr->ResolveLocked(abilityRequest);
+}
+
 int AbilityManagerService::ReleaseCall(
     const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element)
 {
@@ -6537,7 +6563,7 @@ int AbilityManagerService::DelegatorDoAbilityForeground(const sptr<IRemoteObject
         CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
         auto&& want = abilityRecord->GetWant();
         if (!IsAbilityControllerStart(want, want.GetBundle())) {
-            HILOG_ERROR("SecneBoard IsAbilityControllerStart failed: %{public}s", want.GetBundle().c_str());
+            HILOG_ERROR("SceneBoard IsAbilityControllerStart failed: %{public}s", want.GetBundle().c_str());
             return ERR_WOULD_BLOCK;
         }
         return ERR_OK;

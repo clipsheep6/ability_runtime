@@ -722,6 +722,14 @@ public:
         const sptr<IRemoteObject> &callerToken, int32_t accountId = DEFAULT_INVAL_VALUE) override;
 
     /**
+     * As abilityRequest is prepared, just execute starting ability procedure.
+     * By now, this is only used by start_ability_sandbox_savefile.
+     * @param abilityRequest, Prepared with all info for starting a ability.
+     * @param validUserId, Valid user id.
+     */
+    int StartAbilityJust(AbilityRequest &abilityRequest, int32_t validUserId);
+
+    /**
      * CallRequestDone, after invoke callRequest, ability will call this interface to return callee.
      *
      * @param token, ability's token.
