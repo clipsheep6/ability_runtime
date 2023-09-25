@@ -25,7 +25,7 @@ namespace AbilityRuntime {
 const size_t ServiceExtensionContext::CONTEXT_TYPE_ID(std::hash<const char*> {} ("ServiceExtensionContext"));
 const std::string START_ABILITY_TYPE = "ABILITY_INNER_START_WITH_ACCOUNT";
 
-int ServiceExtensionContext::ILLEGAL_REQUEST_CODE(-1);
+int32_t ServiceExtensionContext::ILLEGAL_REQUEST_CODE(-1);
 
 ErrCode ServiceExtensionContext::StartAbility(const AAFwk::Want &want) const
 {
@@ -118,7 +118,7 @@ ErrCode ServiceExtensionContext::ConnectAbility(
     return ret;
 }
 
-ErrCode ServiceExtensionContext::StartAbilityWithAccount(const AAFwk::Want &want, int accountId) const
+ErrCode ServiceExtensionContext::StartAbilityWithAccount(const AAFwk::Want &want, int32_t accountId) const
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     HILOG_INFO("%{public}d accountId:", accountId);
@@ -133,7 +133,7 @@ ErrCode ServiceExtensionContext::StartAbilityWithAccount(const AAFwk::Want &want
 }
 
 ErrCode ServiceExtensionContext::StartAbilityWithAccount(
-    const AAFwk::Want &want, int accountId, const AAFwk::StartOptions &startOptions) const
+    const AAFwk::Want &want, int32_t accountId, const AAFwk::StartOptions &startOptions) const
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     (const_cast<Want &>(want)).SetParam(START_ABILITY_TYPE, true);
@@ -169,7 +169,7 @@ ErrCode ServiceExtensionContext::StopServiceExtensionAbility(const AAFwk::Want& 
 }
 
 ErrCode ServiceExtensionContext::ConnectAbilityWithAccount(
-    const AAFwk::Want &want, int accountId, const sptr<AbilityConnectCallback> &connectCallback) const
+    const AAFwk::Want &want, int32_t accountId, const sptr<AbilityConnectCallback> &connectCallback) const
 {
     HILOG_INFO("%{public}s begin.", __func__);
     ErrCode ret =
