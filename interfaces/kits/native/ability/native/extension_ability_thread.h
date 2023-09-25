@@ -42,7 +42,7 @@ public:
      * @param mainRunner The runner which main_thread holds.
      * @param appContext the AbilityRuntime context
      */
-    void Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+    void Attach(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
         const std::shared_ptr<AppExecFwk::EventRunner> &mainRunner,
         [[maybe_unused]] const std::shared_ptr<Context> &appContext) override;
@@ -53,7 +53,7 @@ public:
      * @param abilityRecord current running ability record
      * @param appContext the AbilityRuntime context
      */
-    void Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+    void Attach(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
         [[maybe_unused]] const std::shared_ptr<Context> &appContext) override;
 
@@ -151,7 +151,7 @@ private:
      * @return Returns the abilityname.
      */
     std::string CreateAbilityName(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
-        std::shared_ptr<AppExecFwk::OHOSApplication> &application);
+        const std::shared_ptr<AppExecFwk::OHOSApplication> &application);
 
     /**
      * @brief Create the extension abilityname.
@@ -207,6 +207,13 @@ private:
      * @param config Indicates the updated configuration information
      */
     void HandleExtensionUpdateConfiguration(const AppExecFwk::Configuration &config);
+
+    void HandleAttach(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+        const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
+        const std::shared_ptr<AppExecFwk::EventRunner> &mainRunner);
+
+    void HandleAttachInner(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+        const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord);
 
     std::shared_ptr<ExtensionImpl> extensionImpl_ = nullptr;
     std::shared_ptr<Extension> currentExtension_ = nullptr;
