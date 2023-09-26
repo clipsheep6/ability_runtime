@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_MOCK_BUNDLE_MANAGER_SERVICE_H
-#define OHOS_ABILITY_RUNTIME_MOCK_BUNDLE_MANAGER_SERVICE_H
+#ifndef OHOS_MOCK_BUNDLE_MANAGER_SERVICE_H
+#define OHOS_MOCK_BUNDLE_MANAGER_SERVICE_H
 
 #include "bundle_installer_interface.h"
 #include "bundle_mgr_interface.h"
@@ -24,7 +24,7 @@
 #include "mock_overlay_manager.h"
 
 namespace OHOS {
-const int32_t BASE_USER_RANGE = 200000;
+constexpr int32_t BASE_USER_RANGE = 200000;
 class MockBundleManagerService : public IRemoteStub<AppExecFwk::IBundleMgr> {
 public:
     MockBundleManagerService() {};
@@ -102,4 +102,4 @@ public:
     }
 };
 } // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_MOCK_BUNDLE_MANAGER_SERVICE_H
+#endif // OHOS_MOCK_BUNDLE_MANAGER_SERVICE_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_MOCK_SERVICE_ABILITY_MANAGER_H
-#define OHOS_ABILITY_RUNTIME_MOCK_SERVICE_ABILITY_MANAGER_H
+#ifndef OHOS_APPEXECFWk_MOCK_SYSTEM_ABILITY_MANAGER_H
+#define OHOS_APPEXECFWk_MOCK_SYSTEM_ABILITY_MANAGER_H
 
 #include "gmock/gmock.h"
 #include "if_system_ability_manager.h"
@@ -56,4 +56,4 @@ public:
 };
 } // namespace AppExecFwk
 } // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_MOCK_SERVICE_ABILITY_MANAGER_H
+#endif // OHOS_APPEXECFWk_MOCK_SYSTEM_ABILITY_MANAGER_H
