@@ -441,6 +441,7 @@ int AbilityManagerStub::TerminateAbilityInner(MessageParcel &data, MessageParcel
 
 int AbilityManagerStub::TerminateUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
+#ifdef SUPPORT_GRAPHICS
     sptr<SessionInfo> extensionSessionInfo = nullptr;
     if (data.ReadBool()) {
         extensionSessionInfo = data.ReadParcelable<SessionInfo>();
@@ -452,6 +453,7 @@ int AbilityManagerStub::TerminateUIExtensionAbilityInner(MessageParcel &data, Me
     if (resultWant != nullptr) {
         delete resultWant;
     }
+#endif
     return NO_ERROR;
 }
 
@@ -483,6 +485,7 @@ int AbilityManagerStub::MinimizeAbilityInner(MessageParcel &data, MessageParcel 
 
 int AbilityManagerStub::MinimizeUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
+#ifdef SUPPORT_GRAPHICS
     sptr<SessionInfo> extensionSessionInfo = nullptr;
     if (data.ReadBool()) {
         extensionSessionInfo = data.ReadParcelable<SessionInfo>();
@@ -490,11 +493,13 @@ int AbilityManagerStub::MinimizeUIExtensionAbilityInner(MessageParcel &data, Mes
     auto fromUser = data.ReadBool();
     int32_t result = MinimizeUIExtensionAbility(extensionSessionInfo, fromUser);
     reply.WriteInt32(result);
+#endif
     return NO_ERROR;
 }
 
 int AbilityManagerStub::MinimizeUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply)
 {
+#ifdef SUPPORT_GRAPHICS
     sptr<SessionInfo> sessionInfo = nullptr;
     if (data.ReadBool()) {
         sessionInfo = data.ReadParcelable<SessionInfo>();
@@ -502,6 +507,7 @@ int AbilityManagerStub::MinimizeUIAbilityBySCBInner(MessageParcel &data, Message
     bool fromUser = data.ReadBool();
     int32_t result = MinimizeUIAbilityBySCB(sessionInfo, fromUser);
     reply.WriteInt32(result);
+#endif
     return NO_ERROR;
 }
 
@@ -561,6 +567,7 @@ int AbilityManagerStub::ScheduleCommandAbilityDoneInner(MessageParcel &data, Mes
 
 int AbilityManagerStub::ScheduleCommandAbilityWindowDoneInner(MessageParcel &data, MessageParcel &reply)
 {
+#ifdef SUPPORT_GRAPHICS
     sptr<IRemoteObject> token = data.ReadRemoteObject();
     sptr<SessionInfo> sessionInfo = data.ReadParcelable<SessionInfo>();
     int32_t winCmd = data.ReadInt32();
@@ -568,6 +575,7 @@ int AbilityManagerStub::ScheduleCommandAbilityWindowDoneInner(MessageParcel &dat
     int32_t result = ScheduleCommandAbilityWindowDone(token, sessionInfo,
         static_cast<WindowCommand>(winCmd), static_cast<AbilityCommand>(abilityCmd));
     reply.WriteInt32(result);
+#endif
     return NO_ERROR;
 }
 
@@ -647,6 +655,7 @@ int AbilityManagerStub::StartAbilityInner(MessageParcel &data, MessageParcel &re
 
 int AbilityManagerStub::StartAbilityByUIContentSessionAddCallerInner(MessageParcel &data, MessageParcel &reply)
 {
+#ifdef SUPPORT_GRAPHICS
     std::unique_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         HILOG_ERROR("want is nullptr");
@@ -675,11 +684,13 @@ int AbilityManagerStub::StartAbilityByUIContentSessionAddCallerInner(MessageParc
     int requestCode = data.ReadInt32();
     int32_t result = StartAbilityByUIContentSession(*want, callerToken, sessionInfo, userId, requestCode);
     reply.WriteInt32(result);
+#endif
     return NO_ERROR;
 }
 
 int AbilityManagerStub::StartAbilityByUIContentSessionForOptionsInner(MessageParcel &data, MessageParcel &reply)
 {
+#ifdef SUPPORT_GRAPHICS
     std::unique_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         HILOG_ERROR("want is nullptr");
@@ -711,6 +722,7 @@ int AbilityManagerStub::StartAbilityByUIContentSessionForOptionsInner(MessagePar
     int32_t result = StartAbilityByUIContentSession(*want, *startOptions,
         callerToken, sessionInfo, userId, requestCode);
     reply.WriteInt32(result);
+#endif
     return NO_ERROR;
 }
 
@@ -736,6 +748,7 @@ int AbilityManagerStub::StartExtensionAbilityInner(MessageParcel &data, MessageP
 
 int AbilityManagerStub::StartUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
+#ifdef SUPPORT_GRAPHICS
     sptr<SessionInfo> extensionSessionInfo = nullptr;
     if (data.ReadBool()) {
         extensionSessionInfo = data.ReadParcelable<SessionInfo>();
@@ -745,6 +758,7 @@ int AbilityManagerStub::StartUIExtensionAbilityInner(MessageParcel &data, Messag
 
     int32_t result = StartUIExtensionAbility(extensionSessionInfo, userId);
     reply.WriteInt32(result);
+#endif
     return NO_ERROR;
 }
 
@@ -888,6 +902,7 @@ int AbilityManagerStub::ConnectAbilityWithTypeInner(MessageParcel &data, Message
 
 int AbilityManagerStub::ConnectUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
+#ifdef SUPPORT_GRAPHICS
     Want *want = data.ReadParcelable<Want>();
     if (want == nullptr) {
         HILOG_ERROR("%{public}s, want is nullptr", __func__);
@@ -907,6 +922,7 @@ int AbilityManagerStub::ConnectUIExtensionAbilityInner(MessageParcel &data, Mess
     if (want != nullptr) {
         delete want;
     }
+#endif
     return NO_ERROR;
 }
 
@@ -1029,12 +1045,14 @@ int AbilityManagerStub::StartAbilityForOptionsInner(MessageParcel &data, Message
 
 int AbilityManagerStub::CloseUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply)
 {
+#ifdef SUPPORT_GRAPHICS
     sptr<SessionInfo> sessionInfo = nullptr;
     if (data.ReadBool()) {
         sessionInfo = data.ReadParcelable<SessionInfo>();
     }
     int32_t result = CloseUIAbilityBySCB(sessionInfo);
     reply.WriteInt32(result);
+#endif
     return NO_ERROR;
 }
 
@@ -1545,12 +1563,14 @@ int AbilityManagerStub::StartAbilityByCallInner(MessageParcel &data, MessageParc
 
 int AbilityManagerStub::StartUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply)
 {
+#ifdef SUPPORT_GRAPHICS
     sptr<SessionInfo> sessionInfo = nullptr;
     if (data.ReadBool()) {
         sessionInfo = data.ReadParcelable<SessionInfo>();
     }
     int32_t result = StartUIAbilityBySCB(sessionInfo);
     reply.WriteInt32(result);
+#endif
     return NO_ERROR;
 }
 
@@ -2071,6 +2091,7 @@ int AbilityManagerStub::DumpAbilityInfoDoneInner(MessageParcel &data, MessagePar
 
 int AbilityManagerStub::UpdateMissionSnapShotFromWMSInner(MessageParcel &data, MessageParcel &reply)
 {
+#ifdef SUPPORT_GRAPHICS
     sptr<IRemoteObject> token = data.ReadRemoteObject();
     if (token == nullptr) {
         HILOG_ERROR("read ability token failed.");
@@ -2083,6 +2104,7 @@ int AbilityManagerStub::UpdateMissionSnapShotFromWMSInner(MessageParcel &data, M
         return ERR_NULL_OBJECT;
     }
     UpdateMissionSnapShot(token, pixelMap);
+#endif
     return NO_ERROR;
 }
 
@@ -2454,11 +2476,13 @@ int AbilityManagerStub::SetRootSceneSessionInner(MessageParcel &data, MessagePar
 int AbilityManagerStub::CallUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply)
 {
     HILOG_DEBUG("Call.");
+#ifdef SUPPORT_GRAPHICS
     sptr<SessionInfo> sessionInfo = nullptr;
     if (data.ReadBool()) {
         sessionInfo = data.ReadParcelable<SessionInfo>();
     }
     CallUIAbilityBySCB(sessionInfo);
+#endif
     return NO_ERROR;
 }
 
@@ -2539,6 +2563,7 @@ int32_t AbilityManagerStub::TerminateMissionInner(MessageParcel &data, MessagePa
 int AbilityManagerStub::PrepareTerminateAbilityBySCBInner(MessageParcel &data, MessageParcel &reply)
 {
     HILOG_DEBUG("Call.");
+#ifdef SUPPORT_GRAPHICS
     sptr<SessionInfo> sessionInfo = nullptr;
     if (data.ReadBool()) {
         sessionInfo = data.ReadParcelable<SessionInfo>();
@@ -2552,6 +2577,8 @@ int AbilityManagerStub::PrepareTerminateAbilityBySCBInner(MessageParcel &data, M
         }
     }
     return result;
+#endif
+    return NO_ERROR;
 }
 
 int AbilityManagerStub::RegisterSessionHandlerInner(MessageParcel &data, MessageParcel &reply)

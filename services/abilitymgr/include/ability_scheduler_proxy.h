@@ -41,6 +41,7 @@ public:
     virtual ~AbilitySchedulerProxy()
     {}
 
+#ifdef SUPPORT_GRAPHICS
     /*
      * ScheduleAbilityTransaction,  schedule ability to transform life state.
      *
@@ -49,6 +50,7 @@ public:
      */
     void ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &stateInfo,
         sptr<SessionInfo> sessionInfo = nullptr) override;
+#endif
 
     /*
      * ScheduleShareData,  schedule ability to transform life state and share data with orgin ability.
@@ -85,8 +87,10 @@ public:
      */
     void ScheduleCommandAbility(const Want &want, bool restart, int startId) override;
 
+#ifdef SUPPORT_GRAPHICS
     void ScheduleCommandAbilityWindow(const Want &want, const sptr<SessionInfo> &sessionInfo,
         WindowCommand winCmd) override;
+#endif
 
     /*
      * SchedulePrepareTerminateAbility, schedule service ability to prepare terminate.

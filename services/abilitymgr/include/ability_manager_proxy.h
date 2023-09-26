@@ -128,6 +128,7 @@ public:
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE) override;
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * Start ui session ability with extension session info, send session info to ability manager service.
      *
@@ -163,6 +164,7 @@ public:
         const sptr<SessionInfo> &sessionInfo,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE) override;
+#endif
 
     /**
      * Start extension ability with want, send want to ability manager service.
@@ -179,6 +181,7 @@ public:
         int32_t userId = DEFAULT_INVAL_VALUE,
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED) override;
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * Start ui extension ability with extension session info, send extension session info to ability manager service.
      *
@@ -197,6 +200,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo) override;
+#endif
 
     /**
      * Stop extension ability with want, send want to ability manager service.
@@ -223,6 +227,7 @@ public:
     virtual int TerminateAbility(
         const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant = nullptr) override;
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * TerminateUIExtensionAbility, terminate the special ui extension ability.
      *
@@ -241,6 +246,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int CloseUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo) override;
+#endif
 
     /**
      * SendResultToAbility with want, return want from ability manager service.(Only used for dms)
@@ -280,6 +286,7 @@ public:
      */
     virtual int MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser = false) override;
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * MinimizeUIExtensionAbility, minimize the special ui extension ability.
      *
@@ -298,6 +305,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool fromUser = false) override;
+#endif
 
     /**
      * ConnectAbility, connect session with service ability.
@@ -322,11 +330,13 @@ public:
         int32_t userId = DEFAULT_INVAL_VALUE,
         bool isQueryExtensionOnly = false) override;
 
+#ifdef SUPPORT_GRAPHICS
     virtual int ConnectUIExtensionAbility(
         const Want &want,
         const sptr<IAbilityConnection> &connect,
         const sptr<SessionInfo> &sessionInfo,
         int32_t userId = DEFAULT_INVAL_VALUE) override;
+#endif
 
     /**
      * DisconnectAbility, connect session with service ability.
@@ -403,11 +413,13 @@ public:
      */
     virtual int ScheduleCommandAbilityDone(const sptr<IRemoteObject> &token) override;
 
+#ifdef SUPPORT_GRAPHICS
     virtual int ScheduleCommandAbilityWindowDone(
         const sptr<IRemoteObject> &token,
         const sptr<SessionInfo> &sessionInfo,
         WindowCommand winCmd,
         AbilityCommand abilityCmd) override;
+#endif
 
     /**
      * dump ability stack info, about userID, mission stack info,
@@ -780,6 +792,7 @@ public:
      */
     virtual int DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken) override;
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * Called to update mission snapshot.
      * @param token The target ability.
@@ -787,6 +800,7 @@ public:
      */
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
         const std::shared_ptr<Media::PixelMap> &pixelMap) override;
+#endif
 
     virtual void EnableRecoverAbility(const sptr<IRemoteObject>& token) override;
     virtual void ScheduleRecoverAbility(const sptr<IRemoteObject> &token, int32_t reason,
@@ -848,12 +862,14 @@ public:
      */
     virtual void SetRootSceneSession(const sptr<IRemoteObject> &rootSceneSession) override;
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * Call UIAbility by SCB.
      *
      * @param sessionInfo the session info of the ability to be called.
      */
     virtual void CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo) override;
+#endif
 
     /**
      * Start specified ability by SCB.
@@ -909,6 +925,7 @@ public:
     */
     virtual int32_t TerminateMission(int32_t missionId) override;
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * PrepareTerminateAbilityBySCB, prepare to terminate ability by scb.
      *
@@ -917,6 +934,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isPrepareTerminate) override;
+#endif
     virtual int RegisterSessionHandler(const sptr<IRemoteObject> &object) override;
 
     /**
@@ -962,8 +980,10 @@ private:
     int TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant, bool flag);
     ErrCode SendRequest(AbilityManagerInterfaceCode code, MessageParcel &data, MessageParcel &reply,
         MessageOption& option);
+#ifdef SUPPORT_GRAPHICS
     int CheckUISessionParams(MessageParcel &data, const sptr<IRemoteObject> &callerToken,
         const sptr<SessionInfo> &sessionInfo, int32_t userId, int requestCode);
+#endif
 
 private:
     static inline BrokerDelegator<AbilityManagerProxy> delegator_;

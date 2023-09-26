@@ -38,6 +38,7 @@ bool AbilitySchedulerProxy::WriteInterfaceToken(MessageParcel &data)
     return true;
 }
 
+#ifdef SUPPORT_GRAPHICS
 void AbilitySchedulerProxy::ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &stateInfo,
     sptr<SessionInfo> sessionInfo)
 {
@@ -63,6 +64,7 @@ void AbilitySchedulerProxy::ScheduleAbilityTransaction(const Want &want, const L
         HILOG_ERROR("ScheduleAbilityTransaction fail to SendRequest. err: %{public}d", err);
     }
 }
+#endif
 
 void AbilitySchedulerProxy::ScheduleShareData(const int32_t &uniqueId)
 {
@@ -197,6 +199,7 @@ bool AbilitySchedulerProxy::SchedulePrepareTerminateAbility()
     return reply.ReadBool();
 }
 
+#ifdef SUPPORT_GRAPHICS
 void AbilitySchedulerProxy::ScheduleCommandAbilityWindow(const Want &want, const sptr<SessionInfo> &sessionInfo,
     WindowCommand winCmd)
 {
@@ -224,6 +227,7 @@ void AbilitySchedulerProxy::ScheduleCommandAbilityWindow(const Want &want, const
         HILOG_ERROR("fail to SendRequest. err: %{public}d", err);
     }
 }
+#endif
 
 void AbilitySchedulerProxy::ScheduleSaveAbilityState()
 {

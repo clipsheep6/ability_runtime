@@ -346,6 +346,7 @@ int AbilityManagerProxy::StartAbilityAsCaller(const Want &want, const StartOptio
     return reply.ReadInt32();
 }
 
+#ifdef SUPPORT_GRAPHICS
 int AbilityManagerProxy::CheckUISessionParams(MessageParcel &data, const sptr<IRemoteObject> &callerToken,
     const sptr<SessionInfo> &sessionInfo, int32_t userId, int requestCode)
 {
@@ -381,6 +382,7 @@ int AbilityManagerProxy::CheckUISessionParams(MessageParcel &data, const sptr<IR
     }
     return ERR_OK;
 }
+#endif
 
 int AbilityManagerProxy::StartAbilityByUIContentSession(const Want &want,
     const sptr<IRemoteObject> &callerToken, const sptr<SessionInfo> &sessionInfo,
@@ -479,6 +481,7 @@ int AbilityManagerProxy::StartExtensionAbility(const Want &want, const sptr<IRem
     return reply.ReadInt32();
 }
 
+#ifdef SUPPORT_GRAPHICS
 int AbilityManagerProxy::StartUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo, int32_t userId)
 {
     int error;
@@ -515,6 +518,7 @@ int AbilityManagerProxy::StartUIExtensionAbility(const sptr<SessionInfo> &extens
     }
     return reply.ReadInt32();
 }
+#endif
 
 int AbilityManagerProxy::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
 {
@@ -627,6 +631,7 @@ int AbilityManagerProxy::TerminateAbility(const sptr<IRemoteObject> &token,
     return reply.ReadInt32();
 }
 
+#ifdef SUPPORT_GRAPHICS
 int AbilityManagerProxy::TerminateUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo, int resultCode,
     const Want *resultWant)
 {
@@ -696,6 +701,7 @@ int AbilityManagerProxy::CloseUIAbilityBySCB(const sptr<SessionInfo> &sessionInf
     }
     return reply.ReadInt32();
 }
+#endif
 
 int AbilityManagerProxy::SendResultToAbility(int32_t requestCode, int32_t resultCode, Want& resultWant)
 {
@@ -821,6 +827,7 @@ int AbilityManagerProxy::ConnectAbilityCommon(
     return reply.ReadInt32();
 }
 
+#ifdef SUPPORT_GRAPHICS
 int AbilityManagerProxy::ConnectUIExtensionAbility(const Want &want, const sptr<IAbilityConnection> &connect,
     const sptr<SessionInfo> &sessionInfo, int32_t userId)
 {
@@ -870,6 +877,7 @@ int AbilityManagerProxy::ConnectUIExtensionAbility(const Want &want, const sptr<
     }
     return reply.ReadInt32();
 }
+#endif
 
 int AbilityManagerProxy::DisconnectAbility(const sptr<IAbilityConnection> &connect)
 {
@@ -1095,6 +1103,7 @@ int AbilityManagerProxy::ScheduleCommandAbilityDone(const sptr<IRemoteObject> &t
     return reply.ReadInt32();
 }
 
+#ifdef SUPPORT_GRAPHICS
 int AbilityManagerProxy::ScheduleCommandAbilityWindowDone(
     const sptr<IRemoteObject> &token,
     const sptr<SessionInfo> &sessionInfo,
@@ -1133,6 +1142,7 @@ int AbilityManagerProxy::ScheduleCommandAbilityWindowDone(
     }
     return reply.ReadInt32();
 }
+#endif
 
 void AbilityManagerProxy::DumpSysState(
     const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserId, int UserId)
@@ -1223,6 +1233,7 @@ int AbilityManagerProxy::MinimizeAbility(const sptr<IRemoteObject> &token, bool 
     return reply.ReadInt32();
 }
 
+#ifdef SUPPORT_GRAPHICS
 int AbilityManagerProxy::MinimizeUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo,
     bool fromUser)
 {
@@ -1293,6 +1304,7 @@ int AbilityManagerProxy::MinimizeUIAbilityBySCB(const sptr<SessionInfo> &session
     }
     return reply.ReadInt32();
 }
+#endif
 
 int AbilityManagerProxy::StopServiceAbility(const Want &want, int32_t userId, const sptr<IRemoteObject> &token)
 {
@@ -1389,6 +1401,7 @@ int AbilityManagerProxy::GetMissionSnapshot(const std::string& deviceId, int32_t
     return reply.ReadInt32();
 }
 
+#ifdef SUPPORT_GRAPHICS
 void AbilityManagerProxy::UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
     const std::shared_ptr<Media::PixelMap> &pixelMap)
 {
@@ -1413,6 +1426,7 @@ void AbilityManagerProxy::UpdateMissionSnapShot(const sptr<IRemoteObject> &token
         HILOG_ERROR("Send request error: %{public}d", error);
     }
 }
+#endif
 
 void AbilityManagerProxy::EnableRecoverAbility(const sptr<IRemoteObject>& token)
 {
@@ -3874,6 +3888,7 @@ void AbilityManagerProxy::SetRootSceneSession(const sptr<IRemoteObject> &rootSce
     }
 }
 
+#ifdef SUPPORT_GRAPHICS
 void AbilityManagerProxy::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo)
 {
     MessageParcel data;
@@ -3900,6 +3915,7 @@ void AbilityManagerProxy::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInf
         HILOG_ERROR("Send request error: %{public}d", error);
     }
 }
+#endif
 
 void AbilityManagerProxy::StartSpecifiedAbilityBySCB(const Want &want)
 {
@@ -4087,6 +4103,7 @@ int32_t AbilityManagerProxy::TerminateMission(int32_t missionId)
     return reply.ReadInt32();
 }
 
+#ifdef SUPPORT_GRAPHICS
 int AbilityManagerProxy::PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isPrepareTerminate)
 {
     MessageParcel data;
@@ -4119,6 +4136,7 @@ int AbilityManagerProxy::PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &s
     isPrepareTerminate = reply.ReadBool();
     return NO_ERROR;
 }
+#endif
 
 int32_t AbilityManagerProxy::RegisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener)
 {

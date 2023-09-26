@@ -101,6 +101,7 @@ int32_t AbilityManagerCollaboratorProxy::NotifyMissionCreated(int32_t missionId,
     return NO_ERROR;
 }
 
+#ifdef SUPPORT_GRAPHICS
 int32_t AbilityManagerCollaboratorProxy::NotifyMissionCreated(const sptr<SessionInfo> &sessionInfo)
 {
     MessageParcel data;
@@ -134,6 +135,7 @@ int32_t AbilityManagerCollaboratorProxy::NotifyMissionCreated(const sptr<Session
     }
     return NO_ERROR;
 }
+#endif
 
 int32_t AbilityManagerCollaboratorProxy::NotifyLoadAbility(
     const AppExecFwk::AbilityInfo &abilityInfo, int32_t missionId, const Want &want)
@@ -171,6 +173,7 @@ int32_t AbilityManagerCollaboratorProxy::NotifyLoadAbility(
     return NO_ERROR;
 }
 
+#ifdef SUPPORT_GRAPHICS
 int32_t AbilityManagerCollaboratorProxy::NotifyLoadAbility(
     const AppExecFwk::AbilityInfo &abilityInfo, const sptr<SessionInfo> &sessionInfo)
 {
@@ -209,6 +212,7 @@ int32_t AbilityManagerCollaboratorProxy::NotifyLoadAbility(
     }
     return NO_ERROR;
 }
+#endif
 
 int32_t AbilityManagerCollaboratorProxy::NotifyMoveMissionToBackground(int32_t missionId)
 {
@@ -394,6 +398,7 @@ void AbilityManagerCollaboratorProxy::UpdateMissionInfo(InnerMissionInfoDto &inf
     return;
 }
 
+#ifdef SUPPORT_GRAPHICS
 void AbilityManagerCollaboratorProxy::UpdateMissionInfo(sptr<SessionInfo> &sessionInfo)
 {
     MessageParcel data;
@@ -431,5 +436,6 @@ void AbilityManagerCollaboratorProxy::UpdateMissionInfo(sptr<SessionInfo> &sessi
     sessionInfo = reply.ReadParcelable<SessionInfo>();
     return;
 }
+#endif
 }   // namespace AAFwk
 }   // namespace OHOS
