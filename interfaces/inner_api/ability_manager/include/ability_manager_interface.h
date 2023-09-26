@@ -1177,6 +1177,16 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t DetachAppDebug(const std::string &bundleName) = 0;
+
+    /**
+     * @brief Check if ability controller can start.
+     * @param want The want of ability to start.
+     * @return Return true to allow ability to start, or false to reject.
+     */
+    virtual bool IsAbilityControllerStart(const Want &want)
+    {
+        return true;
+    }
 };
 }  // namespace AAFwk
 }  // namespace OHOS

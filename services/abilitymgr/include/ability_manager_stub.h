@@ -252,6 +252,8 @@ private:
     int32_t UnregisterAppDebugListenerInner(MessageParcel &data, MessageParcel &reply);
     int32_t AttachAppDebugInner(MessageParcel &data, MessageParcel &reply);
     int32_t DetachAppDebugInner(MessageParcel &data, MessageParcel &reply);
+
+    int32_t IsAbilityControllerStartInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

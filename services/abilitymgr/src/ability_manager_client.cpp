@@ -1515,5 +1515,16 @@ ErrCode AbilityManagerClient::DetachAppDebug(const std::string &bundleName)
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->DetachAppDebug(bundleName);
 }
+
+bool AbilityManagerClient::IsAbilityControllerStart(const Want &want)
+{
+    HILOG_DEBUG("call");
+    auto abms = GetAbilityManager();
+    if (abms == nullptr) {
+        HILOG_ERROR("abms is nullptr.");
+        return true;
+    }
+    return abms->IsAbilityControllerStart(want);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

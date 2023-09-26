@@ -1067,5 +1067,18 @@ HWTEST_F(AbilityManagerServiceThirdTest, RegisterSessionHandler_002, TestSize.Le
     EXPECT_EQ(abilityMs_->RegisterSessionHandler(nullptr), ERR_WRONG_INTERFACE_CALL);
     HILOG_INFO("AbilityManagerServiceThirdTest RegisterSessionHandler_002 end");
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: IsAbilityControllerStart
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService IsAbilityControllerStart
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, IsAbilityControllerStart_003, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    Want want;
+    EXPECT_TRUE(abilityMs_->IsAbilityControllerStart(want));
+}
 }  // namespace AAFwk
 }  // namespace OHOS
