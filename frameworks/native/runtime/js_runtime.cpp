@@ -489,8 +489,8 @@ void JsRuntime::PostPreload(const Options& options)
 {
     auto vm = GetEcmaVm();
     CHECK_POINTER(vm);
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER(nativeEngine);
+    auto env = GetNapiEnv();
+    CHECK_POINTER(env);
     panda::RuntimeOption postOption;
     postOption.SetBundleName(options.bundleName);
     if (!options.arkNativeFilePath.empty()) {
@@ -500,8 +500,10 @@ void JsRuntime::PostPreload(const Options& options)
     bool profileEnabled = OHOS::system::GetBoolParameter("ark.profile", false);
     postOption.SetEnableProfile(profileEnabled);
     panda::JSNApi::PostFork(vm, postOption);
-    nativeEngine->ReinitUVLoop();
-    panda::JSNApi::SetLoop(vm, nativeEngine->GetUVLoop());
+    reinterpret_cast<NativeEngine*>(env)->ReinitUVLoop();
+    uv_loop_s* loop = nullptr;
+    napi_get_uv_event_loop(env, &loop);
+    panda::JSNApi::SetLoop(vm, loop);
 }
 
 void JsRuntime::LoadAotFile(const Options& options)
@@ -548,19 +550,6 @@ bool JsRuntime::Initialize(const Options& options)
 
         if (preloaded_) {
             PostPreload(options);
-            panda::RuntimeOption postOption;
-            postOption.SetBundleName(options.bundleName);
-            if (!options.arkNativeFilePath.empty()) {
-                std::string sandBoxAnFilePath = SANDBOX_ARK_CACHE_PATH + options.arkNativeFilePath;
-                postOption.SetAnDir(sandBoxAnFilePath);
-            }
-            bool profileEnabled = OHOS::system::GetBoolParameter("ark.profile", false);
-            postOption.SetEnableProfile(profileEnabled);
-            panda::JSNApi::PostFork(vm, postOption);
-            nativeEngine->ReinitUVLoop();
-            uv_loop_s* loop = nullptr;
-            napi_get_uv_event_loop(env, &loop);
-            panda::JSNApi::SetLoop(vm, loop);
         }
 
         napi_value globalObj = nullptr;
