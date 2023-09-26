@@ -134,7 +134,7 @@ napi_value ApplicationStateInit(napi_env env)
         return nullptr;
     }
 
-    napi_set_named_property(env, object, "STATE_FOREGROUND",
+    napi_set_named_property(env, object, "STATE_CREATE",
         CreateJsValue(env, static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_CREATE)));
     napi_set_named_property(env, object, "STATE_FOREGROUND",
         CreateJsValue(env, static_cast<int32_t>(AppExecFwk::ApplicationState::APP_STATE_FOREGROUND)));

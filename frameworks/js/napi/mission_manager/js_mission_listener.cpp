@@ -118,7 +118,7 @@ void JsMissionListener::CallJsMethodInner(const std::string &methodName, int32_t
         }
         napi_value argv[] = { CreateJsValue(env_, missionId) };
         napi_value callResult = nullptr;
-        napi_call_function(env_, nullptr, method, ArraySize(argv), argv, &callResult);
+        napi_call_function(env_, obj, method, ArraySize(argv), argv, &callResult);
     }
 }
 
@@ -178,7 +178,7 @@ void JsMissionListener::CallJsMissionIconUpdated(int32_t missionId, const std::s
 
         napi_value argv[] = { nativeMissionId, nativeIcon };
         napi_value callResult = nullptr;
-        napi_call_function(env_, nullptr, method, ArraySize(argv), argv, &callResult);
+        napi_call_function(env_, obj, method, ArraySize(argv), argv, &callResult);
     }
 }
 #endif

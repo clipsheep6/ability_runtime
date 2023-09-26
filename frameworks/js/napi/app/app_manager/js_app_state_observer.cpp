@@ -225,7 +225,7 @@ void JSAppStateObserver::CallJsFunction(
         return;
     }
     napi_value callResult = nullptr;
-    napi_call_function(env_, nullptr, method, argc, argv, &callResult);
+    napi_call_function(env_, value, method, argc, argv, &callResult);
     HILOG_INFO("CallJsFunction end");
 }
 
