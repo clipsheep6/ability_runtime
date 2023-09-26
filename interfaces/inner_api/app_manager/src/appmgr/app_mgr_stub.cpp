@@ -124,9 +124,9 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleGetBundleNameByPid;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_ALL_RENDER_PROCESSES)] =
         &AppMgrStub::HandleGetAllRenderProcesses;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::GET_PROCESS_MEMORY_BY_PID)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_PROCESS_MEMORY_BY_PID)] =
         &AppMgrStub::HandleGetProcessMemoryByPid;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::GET_PIDS_BY_BUNDLENAME)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_PIDS_BY_BUNDLENAME)] =
         &AppMgrStub::HandleGetRunningProcessInformation;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_ON_GC_STATE_CHANGE)] =
             &AppMgrStub::HandleOnGcStateChange;

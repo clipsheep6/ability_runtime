@@ -251,7 +251,7 @@ HWTEST_F(AppMgrProxyTest, GetProcessMemoryByPid_001, TestSize.Level0)
     int32_t pid = 0;
     int32_t memorySize = 0;
     appMgrProxy_->GetProcessMemoryByPid(pid, memorySize);
-    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::GET_PROCESS_MEMORY_BY_PID));
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::GET_PROCESS_MEMORY_BY_PID));
 
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -274,7 +274,7 @@ HWTEST_F(AppMgrProxyTest, GetRunningProcessInformation_001, TestSize.Level0)
     int32_t userId = USER_ID;
     std::vector<RunningProcessInfo> info;
     appMgrProxy_->GetRunningProcessInformation(bundleName, userId, info);
-    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::GET_PIDS_BY_BUNDLENAME));
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::GET_PIDS_BY_BUNDLENAME));
 
     HILOG_INFO("%{public}s end.", __func__);
 }

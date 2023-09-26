@@ -1318,7 +1318,7 @@ int32_t AppMgrProxy::GetProcessMemoryByPid(const int32_t pid, int32_t &memorySiz
         return ERR_NULL_OBJECT;
     }
 
-    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::GET_PROCESS_MEMORY_BY_PID),
+    auto ret = remote->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::GET_PROCESS_MEMORY_BY_PID),
         data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("Send request failed with error code %{public}d.", ret);
@@ -1356,7 +1356,7 @@ int32_t AppMgrProxy::GetRunningProcessInformation(
         return ERR_NULL_OBJECT;
     }
 
-    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::GET_PIDS_BY_BUNDLENAME),
+    auto ret = remote->SendRequest(static_cast<uint32_t>(AppMgrInterfaceCode::GET_PIDS_BY_BUNDLENAME),
         data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("Send request failed with error code %{public}d.", ret);

@@ -456,8 +456,6 @@ public:
         JUDGE_SANDBOX_BY_PID,
         GET_BUNDLE_NAME_BY_PID,
         APP_GET_ALL_RENDER_PROCESSES,
-        GET_PROCESS_MEMORY_BY_PID,
-        GET_PIDS_BY_BUNDLENAME,
     };
 };
 }  // namespace AppExecFwk
