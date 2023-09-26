@@ -126,7 +126,7 @@ HWTEST_F(AaCommandDumpTest, Aa_Command_Dump_0300, Function | MediumTest | Level1
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
     AbilityManagerShellCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), "error: unknown option.\n" + HELP_MSG_DUMPSYS);
+    EXPECT_EQ(cmd.ExecCommand(), "fail: unknown option.\n" + HELP_MSG_DUMPSYS);
 }
 
 /**
@@ -145,7 +145,7 @@ HWTEST_F(AaCommandDumpTest, Aa_Command_Dump_0400, Function | MediumTest | Level1
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
     AbilityManagerShellCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), "error: unknown option.\n" + HELP_MSG_DUMPSYS);
+    EXPECT_EQ(cmd.ExecCommand(), "fail: unknown option.\n" + HELP_MSG_DUMPSYS);
 }
 
 /**
@@ -164,7 +164,7 @@ HWTEST_F(AaCommandDumpTest, Aa_Command_Dump_0500, Function | MediumTest | Level1
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
     AbilityManagerShellCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), "error: unknown option.\n" + HELP_MSG_DUMPSYS);
+    EXPECT_EQ(cmd.ExecCommand(), "fail: unknown option.\n" + HELP_MSG_DUMPSYS);
 }
 
 /**
@@ -183,7 +183,7 @@ HWTEST_F(AaCommandDumpTest, Aa_Command_Dump_0600, Function | MediumTest | Level1
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
     AbilityManagerShellCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), "error: unknown option.\n" + HELP_MSG_DUMPSYS);
+    EXPECT_EQ(cmd.ExecCommand(), "fail: unknown option.\n" + HELP_MSG_DUMPSYS);
 }
 
 /**
