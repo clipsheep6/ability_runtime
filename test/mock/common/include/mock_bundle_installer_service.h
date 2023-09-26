@@ -13,13 +13,14 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_MOCK_BUNDLE_INSTALLER_SERVICE_H
-#define OHOS_ABILITY_RUNTIME_MOCK_BUNDLE_INSTALLER_SERVICE_H
+#ifndef OHOS_MOCK_BUNDLE_INSTALLER_SERVICE_H
+#define OHOS_MOCK_BUNDLE_INSTALLER_SERVICE_H
 
 #include "bundle_installer_interface.h"
 #include "gmock/gmock.h"
 #include "iremote_object.h"
 #include "iremote_stub.h"
+
 namespace OHOS {
 class MockBundleInstallerService : public IRemoteStub<AppExecFwk::IBundleInstaller> {
 public:
@@ -46,4 +47,4 @@ public:
                                     const sptr<AppExecFwk::IStatusReceiver> &));
 };
 } // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_MOCK_BUNDLE_INSTALLER_SERVICE_H
+#endif // OHOS_MOCK_BUNDLE_INSTALLER_SERVICE_H

@@ -100,14 +100,14 @@ int32_t QuickFixManagerService::GetApplyedQuickFixInfo(const std::string &bundle
         return QUICK_FIX_VERIFY_PERMISSION_FAILED;
     }
 
-    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
-    if (client == nullptr) {
+    auto bundleMgrClient = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    if (bundleMgrClient == nullptr) {
         HILOG_ERROR("Failed to get bundle manager client.");
         return QUICK_FIX_CONNECT_FAILED;
     }
 
     AppExecFwk::BundleInfo bundleInfo;
-    if (!client->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo,
+    if (!bundleMgrClient->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo,
         AppExecFwk::Constants::ANY_USERID)) {
         HILOG_ERROR("Get bundle info failed.");
         return QUICK_FIX_GET_BUNDLE_INFO_FAILED;
@@ -141,14 +141,14 @@ int32_t QuickFixManagerService::RevokeQuickFix(const std::string &bundleName)
         return QUICK_FIX_DEPLOYING_TASK;
     }
 
-    std::shared_ptr<AppExecFwk::BundleMgrClient> client = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
-    if (client == nullptr) {
-        HILOG_ERROR("Fail to get BundleMgrClient");
+    auto bundleMgrClient = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    if (bundleMgrClient == nullptr) {
+        HILOG_ERROR("Fail to get bundle manager client.");
         return QUICK_FIX_CONNECT_FAILED;
     }
 
     AppExecFwk::BundleInfo bundleInfo;
-    if (!client->GetBundleInfo(
+    if (!bundleMgrClient->GetBundleInfo(
             bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, AppExecFwk::Constants::ANY_USERID)) {
         HILOG_ERROR("Get bundle info failed.");
         return QUICK_FIX_GET_BUNDLE_INFO_FAILED;
