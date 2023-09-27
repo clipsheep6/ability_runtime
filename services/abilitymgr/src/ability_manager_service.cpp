@@ -3257,18 +3257,18 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
         HILOG_INFO("App bundleName: %{public}s, uid: %{public}d", bundleName.c_str(), appUid);
     }
 
-    std::string apl;
+    bool isSystemApp = false;
     if (!wantSenderInfo.bundleName.empty()) {
         AppExecFwk::BundleInfo bundleInfo;
         bundleMgrResult = IN_PROCESS_CALL(bms->GetBundleInfo(wantSenderInfo.bundleName,
             AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
         if (bundleMgrResult) {
-            apl = bundleInfo.applicationInfo.appPrivilegeLevel;
+            isSystemApp = bundleInfo.applicationInfo.isSystemApp;
         }
     }
 
     HILOG_INFO("AbilityManagerService::GetWantSender: bundleName = %{public}s", wantSenderInfo.bundleName.c_str());
-    return pendingWantManager_->GetWantSender(callerUid, appUid, apl, wantSenderInfo, callerToken);
+    return pendingWantManager_->GetWantSender(callerUid, appUid, isSystemApp, wantSenderInfo, callerToken);
 }
 
 int AbilityManagerService::SendWantSender(const sptr<IWantSender> &target, const SenderInfo &senderInfo)
@@ -3297,7 +3297,7 @@ void AbilityManagerService::CancelWantSender(const sptr<IWantSender> &sender)
         HILOG_ERROR("GetOsAccountLocalIdFromUid failed. uid=%{public}d", callerUid);
         return;
     }
-    std::string apl;
+    bool isSystemApp = false;
     if (record->GetKey() != nullptr && !record->GetKey()->GetBundleName().empty()) {
         AppExecFwk::BundleInfo bundleInfo;
         bool bundleMgrResult = IN_PROCESS_CALL(bms->GetBundleInfo(record->GetKey()->GetBundleName(),
@@ -3306,10 +3306,10 @@ void AbilityManagerService::CancelWantSender(const sptr<IWantSender> &sender)
             HILOG_ERROR("GetBundleInfo is fail.");
             return;
         }
-        apl = bundleInfo.applicationInfo.appPrivilegeLevel;
+        isSystemApp = bundleInfo.applicationInfo.isSystemApp;
     }
 
-    pendingWantManager_->CancelWantSender(apl, sender);
+    pendingWantManager_->CancelWantSender(isSystemApp, sender);
 }
 
 int AbilityManagerService::GetPendingWantUid(const sptr<IWantSender> &target)
