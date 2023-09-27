@@ -20,10 +20,11 @@ ohos_unittest("ability_manager_stub_test") {
   module_out_path = module_output_path
 
   include_dirs = [
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/system_ability_mock",
+    "${ability_runtime_test_path}/unittest/app_debug_listener_proxy_test",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "${distributedschedule_path}/samgr/utils/native/include/",
-    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
   ]
 
   sources = [

@@ -22,9 +22,10 @@ ohos_unittest("app_scheduler_test") {
   module_out_path = module_output_path
 
   include_dirs = [
-    "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/system_ability_mock",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "${ability_runtime_services_path}/abilitymgr/include",
+    "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/system_ability_mock",
+    "${ability_runtime_test_path}/unittest/app_debug_listener_proxy_test",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
   ]
 
   sources = [ "app_scheduler_test.cpp" ]

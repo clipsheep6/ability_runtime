@@ -2553,5 +2553,31 @@ HWTEST_F(AbilityRecordTest, NotifyTerminateMission_001, TestSize.Level1)
     abilityRecord_->collaboratorType_ = 1;
     abilityRecord_->SetAbilityStateInner(AbilityState::TERMINATING);
 }
+
+/**
+ * @tc.name: AbilityRecord_SetAttachDebug_001
+ * @tc.desc: Test the correct value status of SetAttachDebug
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SetAttachDebug_001, TestSize.Level1)
+{
+    EXPECT_NE(abilityRecord_, nullptr);
+    bool isAttachDebug = true;
+    abilityRecord_->SetAttachDebug(isAttachDebug);
+    EXPECT_EQ(abilityRecord_->isAttachDebug_, true);
+}
+
+/**
+ * @tc.name: AbilityRecord_SetAttachDebug_002
+ * @tc.desc: Test the error value status of SetAttachDebug
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_SetAttachDebug_002, TestSize.Level1)
+{
+    EXPECT_NE(abilityRecord_, nullptr);
+    bool isAttachDebug = false;
+    abilityRecord_->SetAttachDebug(isAttachDebug);
+    EXPECT_EQ(abilityRecord_->isAttachDebug_, false);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

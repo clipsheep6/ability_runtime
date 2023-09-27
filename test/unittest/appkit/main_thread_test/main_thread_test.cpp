@@ -2437,5 +2437,97 @@ HWTEST_F(MainThreadTest, GetNativeLibPath_0400, TestSize.Level1)
     EXPECT_EQ(appLibPaths["com.ohos.myapplication/library"][0],
         "/data/storage/el1/bundle/com.ohos.myapplication/library/library.hsp!/libs/armeabi-v7a");
 }
+
+/**
+ * @tc.name: AttachAppDebug_0100
+ * @tc.desc: Set Watchdog_ Not empty Calling the Init interface for initialization.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, AttachAppDebug_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AttachAppDebug_0100 called";
+    EXPECT_TRUE(mainThread_ != nullptr);
+    mainThread_->watchdog_  = std::make_shared<Watchdog>();
+    EXPECT_TRUE(mainThread_->watchdog_ != nullptr);
+    EXPECT_TRUE(mainThread_->mainHandler_ != nullptr);
+    mainThread_->watchdog_->Init(mainThread_->mainHandler_);
+    mainThread_->AttachAppDebug();
+    EXPECT_TRUE(mainThread_->watchdog_ == nullptr);
+}
+
+/**
+ * @tc.name: AttachAppDebug_0200
+ * @tc.desc: Set Watchdog_ Is empty Attach App Debug does not execute.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, AttachAppDebug_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AttachAppDebug_0200 called";
+    EXPECT_TRUE(mainThread_ != nullptr);
+    mainThread_->watchdog_ = nullptr;
+    mainThread_->AttachAppDebug();
+    EXPECT_TRUE(mainThread_->watchdog_ == nullptr);
+}
+
+/**
+ * @tc.name: AttachAppDebug_0300
+ * @tc.desc: Set Watchdog_ Not empty Attach App Debug.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, AttachAppDebug_0300, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AttachAppDebug_0300 called";
+    EXPECT_TRUE(mainThread_ != nullptr);
+    mainThread_->watchdog_ = std::make_shared<Watchdog>();
+    EXPECT_TRUE(mainThread_->watchdog_ != nullptr);
+    mainThread_->AttachAppDebug();
+    EXPECT_TRUE(mainThread_->watchdog_ == nullptr);
+}
+
+/**
+ * @tc.name: DetachAppDebug_0100
+ * @tc.desc: Set Watchdog_ Is empty Detach App Debug does not execute.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, DetachAppDebug_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DetachAppDebug_0100 called";
+    EXPECT_TRUE(mainThread_ != nullptr);
+    mainThread_->watchdog_ = nullptr;
+    mainThread_->DetachAppDebug();
+    EXPECT_TRUE(mainThread_->watchdog_ != nullptr);
+}
+
+/**
+ * @tc.name: DetachAppDebug_0200
+ * @tc.desc: Set Watchdog_ Not empty Calling the Init interface for initialization.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, DetachAppDebug_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DetachAppDebug_0100 called";
+    EXPECT_TRUE(mainThread_ != nullptr);
+    mainThread_->watchdog_ = std::make_shared<Watchdog>();
+    EXPECT_TRUE(mainThread_->watchdog_ != nullptr);
+    EXPECT_TRUE(mainThread_->mainHandler_!= nullptr);
+    mainThread_->watchdog_->Init(mainThread_->mainHandler_);
+    mainThread_->DetachAppDebug();
+    EXPECT_TRUE(mainThread_->watchdog_ != nullptr);
+}
+
+/**
+ * @tc.name: DetachAppDebug_0300
+ * @tc.desc: Set Watchdog_ Not empty Detach App Debug.
+ * @tc.type: FUNC
+ */
+HWTEST_F(MainThreadTest, DetachAppDebug_0300, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DetachAppDebug_0300 called";
+    EXPECT_TRUE(mainThread_ != nullptr);
+    mainThread_->watchdog_ = std::make_shared<Watchdog>();
+    EXPECT_TRUE(mainThread_->watchdog_ != nullptr);
+    mainThread_->DetachAppDebug();
+    EXPECT_TRUE(mainThread_->watchdog_ != nullptr);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

@@ -24,6 +24,7 @@
 
 #include "hilog_wrapper.h"
 #include "mock_ability_connect_callback.h"
+#include "mock_app_debug_listener_stub.h"
 #include "session/host/include/session.h"
 #include "scene_board_judgement.h"
 
@@ -1678,6 +1679,66 @@ HWTEST_F(AbilityManagerClientBranchTest, IsAbilityControllerStart_0100, TestSize
     Want want;
     bool result = client_->IsAbilityControllerStart(want);
     EXPECT_TRUE(result);
+}
+
+/**
+ * @tc.name: AbilityManagerClientBranchTest_RegisterAppDebugListener_0100
+ * @tc.desc: Verify the RegisterAppDebugListener call normal
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, RegisterAppDebugListener_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "RegisterAppDebugListener_0100 start";
+    auto listener = new (std::nothrow) MockAppDebugListenerStub();
+    EXPECT_NE(client_, nullptr);
+    auto result = client_->RegisterAppDebugListener(listener);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "RegisterAppDebugListener_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClientBranchTest_UnregisterAppDebugListener_0100
+ * @tc.desc: Verify the UnregisterAppDebugListener call normal
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, UnregisterAppDebugListener_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "UnregisterAppDebugListener_0100 start";
+    auto listener = new (std::nothrow) MockAppDebugListenerStub();
+    EXPECT_NE(client_, nullptr);
+    auto result = client_->UnregisterAppDebugListener(listener);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "UnregisterAppDebugListener_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClientBranchTest_AttachAppDebug_0100
+ * @tc.desc: Verify the AttachAppDebug call normal
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AttachAppDebug_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AttachAppDebug_0100 start";
+    std::string bundleName;
+    EXPECT_NE(client_, nullptr);
+    auto result = client_->AttachAppDebug(bundleName);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "AttachAppDebug_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClientBranchTest_DetachAppDebug_0100
+ * @tc.desc: Verify the DetachAppDebug call normal
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, DetachAppDebug_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DetachAppDebug_0100 start";
+    std::string bundleName;
+    EXPECT_NE(client_, nullptr);
+    auto result = client_->DetachAppDebug(bundleName);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "DetachAppDebug_0100 end";
 }
 }  // namespace AAFwk
 }  // namespace OHOS
