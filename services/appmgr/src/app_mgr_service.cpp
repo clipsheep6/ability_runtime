@@ -27,6 +27,7 @@
 
 #include "app_death_recipient.h"
 #include "app_mgr_constants.h"
+#include "bundle_mgr_client.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "perf_profile.h"
@@ -433,15 +434,14 @@ int AppMgrService::FinishUserTest(const std::string &msg, const int64_t &resultC
         HILOG_ERROR("not ready");
         return ERR_INVALID_OPERATION;
     }
-    std::shared_ptr<RemoteClientManager> remoteClientManager = std::make_shared<RemoteClientManager>();
-    auto bundleMgr = remoteClientManager->GetBundleManager();
-    if (bundleMgr == nullptr) {
-        HILOG_ERROR("AppMgrService::FinishUserTest GetBundleManager is nullptr");
+    auto bundleMgrClient = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    if (bundleMgrClient == nullptr) {
+        HILOG_ERROR("Fail to get bundle manager client.");
         return ERR_INVALID_OPERATION;
     }
     int32_t callingUid = IPCSkeleton::GetCallingUid();
     std::string callerBundleName;
-    auto result = IN_PROCESS_CALL(bundleMgr->GetNameForUid(callingUid, callerBundleName));
+    auto result = IN_PROCESS_CALL(bundleMgrClient->GetNameForUid(callingUid, callerBundleName));
     if (result == ERR_OK) {
         HILOG_INFO("FinishUserTest callingPid_ is %{public}s", callerBundleName.c_str());
         if (bundleName != callerBundleName) {

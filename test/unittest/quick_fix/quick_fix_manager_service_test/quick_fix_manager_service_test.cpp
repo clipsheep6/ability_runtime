@@ -24,7 +24,7 @@
 #include "mock_system_ability_manager.h"
 #include "permission_verification.h"
 #include "quick_fix_error_utils.h"
-
+#include "mock_bundle_manager_service.h"
 #define private public
 #include "iservice_registry.h"
 #include "quick_fix_manager_service.h"
