@@ -22,8 +22,11 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-void AbilityImpl::Init(std::shared_ptr<OHOSApplication>& application, const std::shared_ptr<AbilityLocalRecord>& record,
-    std::shared_ptr<Ability>& ability, std::shared_ptr<AbilityHandler>& handler, const sptr<IRemoteObject>& token)
+void AbilityImpl::Init(const std::shared_ptr<OHOSApplication> &application,
+                       const std::shared_ptr<AbilityLocalRecord> &record,
+                       std::shared_ptr<Ability> &ability,
+                       std::shared_ptr<AbilityHandler> &handler,
+                       const sptr<IRemoteObject> &token)
 {
     HILOG_INFO("AbilityImpl::init begin");
 

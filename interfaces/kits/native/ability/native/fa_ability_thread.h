@@ -50,7 +50,7 @@ public:
      * @param mainRunner The runner which main_thread holds.
      * @param appContext the AbilityRuntime context
      */
-    void Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+    void Attach(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
         const std::shared_ptr<AppExecFwk::EventRunner> &mainRunner,
         const std::shared_ptr<Context> &appContext) override;
@@ -61,7 +61,7 @@ public:
      * @param abilityRecord current running ability record
      * @param appContext the AbilityRuntime context
      */
-    void Attach(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+    void Attach(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
         const std::shared_ptr<Context> &appContext) override;
 
@@ -352,7 +352,7 @@ private:
      * @param abilityRecord current running ability record
      * @param mainRunner The runner which main_thread holds.
      */
-    void AttachExtension(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+    void AttachExtension(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
         const std::shared_ptr<AppExecFwk::EventRunner> &mainRunner);
 
@@ -367,7 +367,7 @@ private:
      * @param application Indicates the main process.
      * @param abilityRecord current running ability record
      */
-    void AttachExtension(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+    void AttachExtension(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord);
 
     /**
@@ -376,7 +376,7 @@ private:
      * @param abilityRecord current running ability record
      * @param stageContext the AbilityRuntime context
      */
-    void AttachInner(std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+    void AttachInner(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
         const std::shared_ptr<Context> &stageContext);
 
@@ -387,7 +387,7 @@ private:
      * @return Returns the abilityname.
      */
     std::string CreateAbilityName(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
-        std::shared_ptr<AppExecFwk::OHOSApplication> &application);
+        const std::shared_ptr<AppExecFwk::OHOSApplication> &application);
 
     /**
      * @brief Create the extension abilityname.
@@ -414,7 +414,7 @@ private:
      * @return Returns the contextDeal.
      */
     std::shared_ptr<AppExecFwk::ContextDeal> CreateAndInitContextDeal(
-        std::shared_ptr<AppExecFwk::OHOSApplication> &application,
+        const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
         const std::shared_ptr<AppExecFwk::AbilityContext> &abilityObject);
 

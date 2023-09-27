@@ -40,7 +40,7 @@ public:
      * @param mainRunner The runner which main_thread holds.
      * @param appContext the AbilityRuntime context
      */
-    static void AbilityThreadMain(std::shared_ptr<OHOSApplication> &application,
+    static void AbilityThreadMain(const std::shared_ptr<OHOSApplication> &application,
         const std::shared_ptr<AbilityLocalRecord> &abilityRecord, const std::shared_ptr<EventRunner> &mainRunner,
         const std::shared_ptr<AbilityRuntime::Context> &appContext);
 
@@ -50,7 +50,7 @@ public:
      * @param abilityRecord Indicates the abilityRecord.
      * @param appContext the AbilityRuntime context
      */
-    static void AbilityThreadMain(std::shared_ptr<OHOSApplication> &application,
+    static void AbilityThreadMain(const std::shared_ptr<OHOSApplication> &application,
         const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
         const std::shared_ptr<AbilityRuntime::Context> &appContext);
 
@@ -61,7 +61,7 @@ public:
      * @param mainRunner The runner which main_thread holds.
      * @param appContext the AbilityRuntime context
      */
-    virtual void Attach(std::shared_ptr<OHOSApplication> &application,
+    virtual void Attach(const std::shared_ptr<OHOSApplication> &application,
         const std::shared_ptr<AbilityLocalRecord> &abilityRecord, const std::shared_ptr<EventRunner> &mainRunner,
         const std::shared_ptr<AbilityRuntime::Context> &appContext) = 0;
 
@@ -71,7 +71,7 @@ public:
      * @param abilityRecord Indicates the abilityRecord.
      * @param appContext the AbilityRuntime context
      */
-    virtual void Attach(std::shared_ptr<OHOSApplication> &application,
+    virtual void Attach(const std::shared_ptr<OHOSApplication> &application,
         const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
         const std::shared_ptr<AbilityRuntime::Context> &appContext) = 0;
 

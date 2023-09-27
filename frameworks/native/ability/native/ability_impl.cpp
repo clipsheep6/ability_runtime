@@ -31,8 +31,11 @@ const std::string PERMISSION_KEY = "ohos.user.grant.permission";
 const std::string GRANTED_RESULT_KEY = "ohos.user.grant.permission.result";
 }
 
-void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &record,
-    std::shared_ptr<Ability> &ability, std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token)
+void AbilityImpl::Init(const std::shared_ptr<OHOSApplication> &application,
+                       const std::shared_ptr<AbilityLocalRecord> &record,
+                       std::shared_ptr<Ability> &ability,
+                       std::shared_ptr<AbilityHandler> &handler,
+                       const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("AbilityImpl::init begin");
