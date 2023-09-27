@@ -67,6 +67,8 @@ enum class AppMgrInterfaceCode {
     GET_PROCESS_MEMORY_BY_PID,
     GET_PIDS_BY_BUNDLENAME,
     APP_ON_GC_STATE_CHANGE,
+    NOTIFY_PAGE_SHOW,
+    NOTIFY_PAGE_HIDE
 };
 } // AppExecFwk
 } // OHOS

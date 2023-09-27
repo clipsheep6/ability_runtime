@@ -292,7 +292,7 @@ HWTEST_F(AppMgrProxyTest, NotifyAppFault_001, TestSize.Level1)
         .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
     FaultData faultData;
     appMgrProxy_->NotifyAppFault(faultData);
-    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::NOTIFY_APP_FAULT));
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_APP_FAULT));
 }
 
 /**
@@ -308,7 +308,7 @@ HWTEST_F(AppMgrProxyTest, NotifyAppFaultBySA_001, TestSize.Level1)
         .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
     AppFaultDataBySA faultData;
     appMgrProxy_->NotifyAppFaultBySA(faultData);
-    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::NOTIFY_APP_FAULT_BY_SA));
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_APP_FAULT_BY_SA));
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

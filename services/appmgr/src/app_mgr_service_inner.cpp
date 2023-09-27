@@ -234,7 +234,7 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
     PerfProfile::GetInstance().SetAbilityLoadEndTime(GetTickCount());
     PerfProfile::GetInstance().Dump();
     PerfProfile::GetInstance().Reset();
-    UpdateAbilityState(token, AbilityState::ABILITY_STATE_CREATE);
+    appRecord->UpdateAbilityState(token, AbilityState::ABILITY_STATE_CREATE);
 }
 
 bool AppMgrServiceInner::CheckLoadAbilityConditions(const sptr<IRemoteObject> &token,
@@ -4407,6 +4407,56 @@ void AppMgrServiceInner::ClearAppRunningDataForKeepAlive(const std::shared_ptr<A
             taskHandler_->SubmitTask(restartProcess, "RestartResidentProcessDelayTask", RESTART_INTERVAL_TIME);
         }
     }
+}
+
+int32_t AppMgrServiceInner::NotifyPageShow(const sptr<IRemoteObject> &token, const PageStateData &pageStateData)
+{
+    if (!JudgeSelfCalledByToken(token, pageStateData)) {
+        return ERR_PERMISSION_DENIED;
+    }
+
+    DelayedSingleton<AppStateObserverManager>::GetInstance()->OnPageShow(pageStateData);
+    return ERR_OK;
+}
+
+int32_t AppMgrServiceInner::NotifyPageHide(const sptr<IRemoteObject> &token, const PageStateData &pageStateData)
+{
+    if (!JudgeSelfCalledByToken(token, pageStateData)) {
+        return ERR_PERMISSION_DENIED;
+    }
+
+    DelayedSingleton<AppStateObserverManager>::GetInstance()->OnPageHide(pageStateData);
+    return ERR_OK;
+}
+
+bool AppMgrServiceInner::JudgeSelfCalledByToken(const sptr<IRemoteObject> &token, const PageStateData &pageStateData)
+{
+    if (!token) {
+        HILOG_ERROR("token is null.");
+        return false;
+    }
+    auto appRecord = GetAppRunningRecordByAbilityToken(token);
+    if (!appRecord) {
+        HILOG_ERROR("app is not exist!");
+        return false;
+    }
+    auto callingTokenId = IPCSkeleton::GetCallingTokenID();
+    if (appRecord == nullptr || ((appRecord->GetApplicationInfo())->accessTokenId) != callingTokenId) {
+        HILOG_ERROR("Is not self, not enabled");
+        return false;
+    }
+    auto abilityRecord = appRecord->GetAbilityRunningRecordByToken(token);
+    if (!abilityRecord) {
+        HILOG_ERROR("can not find ability record");
+        return false;
+    }
+    if (abilityRecord->GetBundleName() != pageStateData.bundleName ||
+        abilityRecord->GetModuleName() != pageStateData.moduleName ||
+        abilityRecord->GetName() != pageStateData.abilityName) {
+        HILOG_ERROR("can not map the ability");
+        return false;
+    }
+    return true;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

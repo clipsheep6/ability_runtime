@@ -29,6 +29,16 @@ const std::string &AbilityRunningRecord::GetName() const
     return info_->name;
 }
 
+const std::string &AbilityRunningRecord::GetBundleName() const
+{
+    return info_->bundleName;
+}
+
+const std::string &AbilityRunningRecord::GetModuleName() const
+{
+    return info_->moduleName;
+}
+
 const std::shared_ptr<AbilityInfo> &AbilityRunningRecord::GetAbilityInfo() const
 {
     return info_;

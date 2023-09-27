@@ -791,6 +791,10 @@ void AppRunningRecord::UpdateAbilityState(const sptr<IRemoteObject> &token, cons
         HILOG_ERROR("can not find ability record");
         return;
     }
+    if (state == AbilityState::ABILITY_STATE_CREATE) {
+        StateChangedNotifyObserver(abilityRecord, static_cast<int32_t>(AbilityState::ABILITY_STATE_CREATE), true);
+        return;
+    }
     if (state == abilityRecord->GetState()) {
         HILOG_ERROR("current state is already, no need update");
         return;
@@ -800,8 +804,6 @@ void AppRunningRecord::UpdateAbilityState(const sptr<IRemoteObject> &token, cons
         AbilityForeground(abilityRecord);
     } else if (state == AbilityState::ABILITY_STATE_BACKGROUND) {
         AbilityBackground(abilityRecord);
-    } else if (state == AbilityState::ABILITY_STATE_CREATE) {
-        StateChangedNotifyObserver(abilityRecord, static_cast<int32_t>(AbilityState::ABILITY_STATE_CREATE), true);
     } else {
         HILOG_WARN("wrong state");
     }
