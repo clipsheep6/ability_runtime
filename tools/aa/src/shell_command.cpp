@@ -83,8 +83,8 @@ std::string ShellCommand::ExecCommand()
         resultReceiver_ = "error: failed to execute your command.\n";
     }
 
-    return resultReceiver_;
     HILOG_DEBUG("end");
+    return resultReceiver_;
 }
 
 std::string ShellCommand::GetCommandErrorMsg() const
