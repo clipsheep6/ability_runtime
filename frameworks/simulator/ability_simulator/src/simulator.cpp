@@ -245,7 +245,6 @@ bool SimulatorImpl::ParseBundleAndModuleInfo()
     options_.targetVersion = appInfo_->apiTargetVersion;
     options_.releaseType = appInfo_->apiReleaseType;
     options_.compileMode = "esmodule";
-    options_.enablePartialUpdate = false;
 
     if (appInfo_->moduleInfos.empty()) {
         HILOG_ERROR("module name is not exist");
@@ -264,6 +263,13 @@ bool SimulatorImpl::ParseBundleAndModuleInfo()
     std::cout << "moduleInfo : " << moduleInfoJson.dump() << std::endl;
 
     options_.pageProfile = moduleInfo_->pages;
+    options_.enablePartialUpdate = true;
+    for (auto iter : moduleInfo_->metadata) {
+        if (iter.name == "ArkTSPartialUpdate" && iter.value == "false") {
+            options_.enablePartialUpdate = false;
+            break;
+        }
+    }
     return true;
 }
 
