@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,6 +29,7 @@
 #include "mock_ability_token.h"
 #include "mock_app_scheduler.h"
 #include "mock_app_spawn_client.h"
+#include "singleton.h"
 
 using namespace testing::ext;
 using testing::_;
@@ -75,6 +76,7 @@ protected:
     std::shared_ptr<AppMgrServiceInner> serviceInner_ = nullptr;
     std::shared_ptr<AMSEventHandler> handler_ = nullptr;
     sptr<BundleMgrService> mockBundleMgr_{ nullptr };
+    std::shared_ptr<AppExecFwk::BundleMgrClient> bundleMgrClient_ {nullptr};
 };
 
 void AmsAppServiceFlowModuleTest::SetUpTestCase()
@@ -93,7 +95,8 @@ void AmsAppServiceFlowModuleTest::SetUp()
     serviceInner_->SetTaskHandler(taskHandler);
     serviceInner_->SetEventHandler(handler_);
     mockBundleMgr_ = new (std::nothrow) BundleMgrService();
-    serviceInner_->SetBundleManager(mockBundleMgr_);
+    bundleMgrClient_ = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    serviceInner_->SetBundleManagerClient(bundleMgrClient_);
 }
 
 void AmsAppServiceFlowModuleTest::TearDown()

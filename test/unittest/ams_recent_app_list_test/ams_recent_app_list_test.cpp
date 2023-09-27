@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,19 +13,25 @@
  * limitations under the License.
  */
 
+#include <gtest/gtest.h>
+#include <unistd.h>
+
 #define private public
-#include "app_running_record.h"
 #include "app_mgr_service_inner.h"
+#include "app_running_record.h"
+#include "iservice_registry.h"
 #undef private
 
-#include <unistd.h>
-#include <gtest/gtest.h>
+#include "bundle_mgr_interface.h"
+#include "hilog_wrapper.h"
 #include "iremote_object.h"
-#include "refbase.h"
-#include "mock_bundle_manager.h"
 #include "mock_ability_token.h"
 #include "mock_app_scheduler.h"
 #include "mock_app_spawn_client.h"
+#include "mock_bundle_installer_service.h"
+#include "mock_bundle_manager_service.h"
+#include "mock_system_ability_manager.h"
+#include "refbase.h"
 
 using namespace testing::ext;
 using testing::_;
@@ -40,13 +46,20 @@ const int32_t INDEX_NUM_1 = 1;
 const int32_t INDEX_NUM_2 = 2;
 const int32_t INDEX_NUM_3 = 3;
 const int32_t PID_MAX = 0x8000;
-}  // namespace
+constexpr int32_t BUNDLE_MGR_SERVICE_SYS_ABILITY_ID = 401;
+sptr<MockBundleInstallerService> mockBundleInstaller = new (std::nothrow) MockBundleInstallerService();
+sptr<MockBundleManagerService> mockBundleMgr = new (std::nothrow) MockBundleManagerService();
+} // namespace
 class AmsRecentAppListTest : public testing::Test {
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
+    void MockBundleInstallerAndSA();
+    void MockBundleInstaller();
+    sptr<ISystemAbilityManager> iSystemAbilityMgr_ = nullptr;
+    sptr<AppExecFwk::MockSystemAbilityManager> mockSystemAbility_ = nullptr;
 
 protected:
     const std::shared_ptr<AbilityInfo> GetAbilityInfoByIndex(const int32_t index) const;
@@ -56,7 +69,6 @@ protected:
 
     std::shared_ptr<AppMgrServiceInner> serviceInner_;
     sptr<MockAbilityToken> mockToken_;
-    sptr<BundleMgrService> mockBundleMgr;
 };
 
 void AmsRecentAppListTest::SetUpTestCase()
@@ -69,12 +81,37 @@ void AmsRecentAppListTest::SetUp()
 {
     serviceInner_.reset(new (std::nothrow) AppMgrServiceInner());
     serviceInner_->Init();
-    mockBundleMgr = new (std::nothrow) BundleMgrService();
-    serviceInner_->SetBundleManager(mockBundleMgr);
+    mockSystemAbility_ = new (std::nothrow) AppExecFwk::MockSystemAbilityManager();
+    iSystemAbilityMgr_ = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = mockSystemAbility_;
 }
 
 void AmsRecentAppListTest::TearDown()
-{}
+{
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = iSystemAbilityMgr_;
+}
+
+void AmsRecentAppListTest::MockBundleInstallerAndSA()
+{
+    auto mockGetBundleInstaller = []() { return mockBundleInstaller; };
+    auto mockGetSystemAbility = [&](int32_t systemAbilityId) {
+        if (systemAbilityId == BUNDLE_MGR_SERVICE_SYS_ABILITY_ID) {
+            return mockBundleMgr->AsObject();
+        } else {
+            return iSystemAbilityMgr_->GetSystemAbility(systemAbilityId);
+        }
+    };
+    EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
+    EXPECT_CALL(*mockSystemAbility_, GetSystemAbility(testing::_))
+        .WillOnce(testing::Invoke(mockGetSystemAbility))
+        .WillRepeatedly(testing::Invoke(mockGetSystemAbility));
+}
+
+void AmsRecentAppListTest::MockBundleInstaller()
+{
+    auto mockGetBundleInstaller = []() { return mockBundleInstaller; };
+    EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
+}
 
 const std::shared_ptr<AbilityInfo> AmsRecentAppListTest::GetAbilityInfoByIndex(const int32_t index) const
 {
@@ -133,6 +170,10 @@ void AmsRecentAppListTest::StartProcessSuccess(const int32_t index) const
  */
 HWTEST_F(AmsRecentAppListTest, Create_001, TestSize.Level1)
 {
+    MockBundleInstallerAndSA();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     // get the recent app list before test.
     EXPECT_TRUE(serviceInner_->GetRecentAppList().empty());
 
@@ -152,6 +193,10 @@ HWTEST_F(AmsRecentAppListTest, Create_001, TestSize.Level1)
  */
 HWTEST_F(AmsRecentAppListTest, Create_002, TestSize.Level1)
 {
+    MockBundleInstaller();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     auto abilityInfo = GetAbilityInfoByIndex(1);
     auto appInfo = GetApplicationByIndex(INDEX_NUM_1);
     sptr<IRemoteObject> token = new (std::nothrow) MockAbilityToken();
@@ -177,6 +222,10 @@ HWTEST_F(AmsRecentAppListTest, Create_002, TestSize.Level1)
  */
 HWTEST_F(AmsRecentAppListTest, Create_003, TestSize.Level1)
 {
+    MockBundleInstaller();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     EXPECT_TRUE(serviceInner_->GetRecentAppList().empty());
 
     pid_t pid = INDEX_NUM_1;
@@ -208,6 +257,10 @@ HWTEST_F(AmsRecentAppListTest, Create_003, TestSize.Level1)
  */
 HWTEST_F(AmsRecentAppListTest, Update_001, TestSize.Level1)
 {
+    MockBundleInstaller();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     StartProcessSuccess(INDEX_NUM_1);
     EXPECT_EQ(INDEX_NUM_1, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
     auto appRecord = GetAppRunningRecordByIndex(INDEX_NUM_1);
@@ -229,6 +282,10 @@ HWTEST_F(AmsRecentAppListTest, Update_001, TestSize.Level1)
  */
 HWTEST_F(AmsRecentAppListTest, Update_002, TestSize.Level1)
 {
+    MockBundleInstaller();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     StartProcessSuccess(INDEX_NUM_1);
     EXPECT_EQ(INDEX_NUM_1, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
     auto appRecord = GetAppRunningRecordByIndex(INDEX_NUM_1);
@@ -252,6 +309,10 @@ HWTEST_F(AmsRecentAppListTest, Update_002, TestSize.Level1)
  */
 HWTEST_F(AmsRecentAppListTest, Update_003, TestSize.Level1)
 {
+    MockBundleInstaller();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     for (int32_t index = INDEX_NUM_1; index <= INDEX_NUM_3; index++) {
         StartProcessSuccess(index);
         EXPECT_EQ(index, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
@@ -277,6 +338,10 @@ HWTEST_F(AmsRecentAppListTest, Update_003, TestSize.Level1)
  */
 HWTEST_F(AmsRecentAppListTest, Remove_001, TestSize.Level1)
 {
+    MockBundleInstaller();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     StartProcessSuccess(INDEX_NUM_1);
     EXPECT_EQ(INDEX_NUM_1, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
     auto appInfo = GetApplicationByIndex(INDEX_NUM_1);
@@ -301,6 +366,10 @@ HWTEST_F(AmsRecentAppListTest, Remove_001, TestSize.Level1)
  */
 HWTEST_F(AmsRecentAppListTest, Remove_002, TestSize.Level1)
 {
+    MockBundleInstaller();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     StartProcessSuccess(INDEX_NUM_1);
     EXPECT_EQ(INDEX_NUM_1, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
 
@@ -319,6 +388,10 @@ HWTEST_F(AmsRecentAppListTest, Remove_002, TestSize.Level1)
  */
 HWTEST_F(AmsRecentAppListTest, Remove_003, TestSize.Level1)
 {
+    MockBundleInstaller();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     StartProcessSuccess(INDEX_NUM_1);
     EXPECT_EQ(INDEX_NUM_1, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
 
@@ -336,6 +409,10 @@ HWTEST_F(AmsRecentAppListTest, Remove_003, TestSize.Level1)
  */
 HWTEST_F(AmsRecentAppListTest, Clear_001, TestSize.Level1)
 {
+    MockBundleInstaller();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     StartProcessSuccess(INDEX_NUM_1);
     EXPECT_EQ(INDEX_NUM_1, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
 

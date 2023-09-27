@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,6 +32,7 @@
 #include "mock_app_scheduler.h"
 #include "mock_app_spawn_client.h"
 #include "mock_native_token.h"
+#include "singleton.h"
 
 using namespace testing::ext;
 using OHOS::iface_cast;
@@ -129,7 +130,7 @@ protected:
     }
 
     std::unique_ptr<AppMgrServiceInner> service_{ nullptr };
-    sptr<BundleMgrService> mockBundleMgr_{ nullptr };
+    std::shared_ptr<AppExecFwk::BundleMgrClient> bundleMgrClient_{ nullptr };
 
     sptr<MockAbilityToken> GetMockToken() const
     {
@@ -166,8 +167,8 @@ void AppRunningProcessesInfoModuleTest::SetUp()
 {
     service_.reset(new (std::nothrow) AppMgrServiceInner());
     mockToken_ = new (std::nothrow) MockAbilityToken();
-    mockBundleMgr_ = new (std::nothrow) BundleMgrService();
-    service_->SetBundleManager(mockBundleMgr_);
+    bundleMgrClient_ = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    service_->SetBundleManagerClient(bundleMgrClient_);
 }
 
 void AppRunningProcessesInfoModuleTest::TearDown()
