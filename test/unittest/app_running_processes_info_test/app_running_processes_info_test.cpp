@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,28 +13,36 @@
  * limitations under the License.
  */
 
+#include <gtest/gtest.h>
+#include <limits>
+
 #define private public
 #include "app_mgr_service_inner.h"
+#include "iservice_registry.h"
 #undef private
 
-#include <limits>
-#include <gtest/gtest.h>
-#include "iremote_object.h"
-#include "refbase.h"
-#include "application_info.h"
-#include "app_record_id.h"
-#include "app_scheduler_host.h"
 #include "ability_info.h"
 #include "ability_running_record.h"
+#include "app_record_id.h"
+#include "app_scheduler_host.h"
+#include "application_info.h"
+#include "bundle_mgr_interface.h"
 #include "hilog_wrapper.h"
-#include "mock_app_scheduler.h"
+#include "iremote_object.h"
 #include "mock_ability_token.h"
-#include "mock_app_spawn_client.h"
 #include "mock_app_mgr_service_inner.h"
-#include "mock_iapp_state_callback.h"
-#include "mock_bundle_manager.h"
+#include "mock_app_scheduler.h"
+#include "mock_app_spawn_client.h"
 #include "mock_application.h"
+#include "mock_bundle_installer_service.h"
+#include "mock_bundle_manager.h"
+#include "mock_bundle_manager_service.h"
+#include "mock_iapp_state_callback.h"
 #include "mock_native_token.h"
+#include "mock_system_ability_manager.h"
+#include "permission_verification.h"
+#include "refbase.h"
+#include "system_ability_definition.h"
 
 using namespace testing::ext;
 using OHOS::iface_cast;
@@ -49,12 +57,19 @@ using ::testing::DoAll;
 
 namespace OHOS {
 namespace AppExecFwk {
+sptr<MockBundleInstallerService> mockBundleInstaller = new (std::nothrow) MockBundleInstallerService();
+sptr<BundleMgrService> mockBundleMgr = new (std::nothrow) BundleMgrService();
 class AppRunningProcessesInfoTest : public testing::Test {
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
+    void MockBundleInstaller();
+    sptr<ISystemAbilityManager> iSystemAbilityMgr_ = nullptr;
+    sptr<AppExecFwk::MockSystemAbilityManager> mockSystemAbility_ = nullptr;
+    std::shared_ptr<AppExecFwk::BundleMgrClient> bundleMgrClient =
+        DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
 
 protected:
     static const std::string GetTestProcessName()
@@ -93,7 +108,6 @@ protected:
     std::shared_ptr<AppRunningRecord> testAppRecord_;
     std::unique_ptr<AppMgrServiceInner> service_;
     sptr<MockAbilityToken> mock_token_;
-    sptr<BundleMgrService> mockBundleMgr;
 };
 
 void AppRunningProcessesInfoTest::SetUpTestCase()
@@ -110,14 +124,33 @@ void AppRunningProcessesInfoTest::SetUp()
     service_.reset(new (std::nothrow) AppMgrServiceInner());
     mock_token_ = new (std::nothrow) MockAbilityToken();
     client_ = iface_cast<IAppScheduler>(mockAppSchedulerClient_.GetRefPtr());
-    mockBundleMgr = new (std::nothrow) BundleMgrService();
-    service_->SetBundleManager(mockBundleMgr);
+    mockSystemAbility_ = new (std::nothrow) AppExecFwk::MockSystemAbilityManager();
+    iSystemAbilityMgr_ = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = mockSystemAbility_;
+    service_->SetBundleManagerClient(bundleMgrClient);
 }
 
 void AppRunningProcessesInfoTest::TearDown()
 {
     testAbilityRecord_.reset();
     testAppRecord_.reset();
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = iSystemAbilityMgr_;
+}
+
+void AppRunningProcessesInfoTest::MockBundleInstaller()
+{
+    auto mockGetBundleInstaller = [] () {
+        return mockBundleInstaller;
+    };
+    auto mockGetSystemAbility = [&] (int32_t systemAbilityId) {
+        if (systemAbilityId == BUNDLE_MGR_SERVICE_SYS_ABILITY_ID) {// 3503 ACCESS_TOKEN_MANAGER_SERVICE_ID
+            return mockBundleMgr->AsObject();
+        } else {
+            return iSystemAbilityMgr_->GetSystemAbility(systemAbilityId);
+        }
+    };
+    EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).Times(1).WillOnce(testing::Invoke(mockGetBundleInstaller));
+    EXPECT_CALL(*mockSystemAbility_, GetSystemAbility(testing::_)).WillOnce(testing::Invoke(mockGetSystemAbility));
 }
 
 sptr<IAppScheduler> AppRunningProcessesInfoTest::GetMockedAppSchedulerClient() const
@@ -208,6 +241,7 @@ HWTEST_F(AppRunningProcessesInfoTest, UpdateAppRunningRecord_001, TestSize.Level
  */
 HWTEST_F(AppRunningProcessesInfoTest, UpdateAppRunningRecord_002, TestSize.Level1)
 {
+    MockBundleInstaller();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     int uid = 0;
     abilityInfo->name = GetTestAbilityName();
@@ -222,10 +256,8 @@ HWTEST_F(AppRunningProcessesInfoTest, UpdateAppRunningRecord_002, TestSize.Level
     auto record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
     EXPECT_TRUE(record != nullptr);
-
     record->SetUid(uid);
     EXPECT_TRUE(record != nullptr) << ",create apprunningrecord fail!";
-
     sptr<MockApplication> mockApplication(new MockApplication());
     sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockApplication);
     record->SetApplicationClient(client);
@@ -235,14 +267,12 @@ HWTEST_F(AppRunningProcessesInfoTest, UpdateAppRunningRecord_002, TestSize.Level
     Configuration config;
     record->LaunchApplication(config);
     mockApplication->Wait();
-
     EXPECT_CALL(*mockApplication, ScheduleForegroundApplication())
         .Times(1)
         .WillOnce(InvokeWithoutArgs(mockApplication.GetRefPtr(), &MockApplication::Post));
     // application enter in foreground and check the result
     record->ScheduleForegroundRunning();
     mockApplication->Wait();
-
     // update application state and check the state
     record->SetState(ApplicationState::APP_STATE_FOREGROUND);
     auto newRecord = service_->appRunningManager_->CheckAppRunningRecordIsExist(
@@ -251,7 +281,6 @@ HWTEST_F(AppRunningProcessesInfoTest, UpdateAppRunningRecord_002, TestSize.Level
     newRecord->SetUid(uid);
     auto stateFromRec = newRecord->GetState();
     EXPECT_EQ(stateFromRec, ApplicationState::APP_STATE_FOREGROUND);
-
     std::vector<RunningProcessInfo> info;
     size_t infoCount{ 1 };
     record->SetSpawned();
