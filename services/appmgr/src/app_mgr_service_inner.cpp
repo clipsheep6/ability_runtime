@@ -59,7 +59,7 @@
 #include "ui_extension_utils.h"
 #include "uri_permission_manager_client.h"
 #ifdef APP_MGR_SERVICE_APPMS
-#include "socket_permission.h"
+#include "net_conn_client.h"
 #endif
 #include "application_info.h"
 #include "meminfo.h"
@@ -1780,10 +1780,10 @@ void AppMgrServiceInner::StartProcessVerifyPermission(const BundleInfo &bundleIn
             setAllowInternet = 1;
             allowInternet = 0;
     #ifdef APP_MGR_SERVICE_APPMS
-            auto ret = SetInternetPermission(bundleInfo.uid, 0);
+            auto ret = OHOS::NetManagerStandard::NetConnClient::GetInstance().SetInternetPermission(bundleInfo.uid, 0);
             HILOG_DEBUG("SetInternetPermission, ret = %{public}d", ret);
         } else {
-            auto ret = SetInternetPermission(bundleInfo.uid, 1);
+            auto ret = OHOS::NetManagerStandard::NetConnClient::GetInstance().SetInternetPermission(bundleInfo.uid, 1);
             HILOG_DEBUG("SetInternetPermission, ret = %{public}d", ret);
             gids.push_back(NETSYS_SOCKET_GROUPID);
     #endif
