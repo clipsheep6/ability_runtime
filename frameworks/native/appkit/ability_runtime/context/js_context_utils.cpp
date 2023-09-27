@@ -121,7 +121,7 @@ napi_value JsBaseContext::OnSwitchArea(napi_env env, NapiCallbackInfo& info)
     context->SwitchArea(mode);
 
     napi_value object = info.thisVar;
-    if (CheckTypeForNapiValue(env, object, napi_object)) {
+    if (!CheckTypeForNapiValue(env, object, napi_object)) {
         HILOG_ERROR("Check type failed");
         return CreateJsUndefined(env);
     }
@@ -183,9 +183,8 @@ napi_value JsBaseContext::OnCreateModuleContext(napi_env env, NapiCallbackInfo& 
         return CreateJsUndefined(env);
     }
 
-    NativeValue* value = reinterpret_cast<NativeValue*>(CreateJsBaseContext(env, moduleContext, true));
-    auto systemModule = JsRuntime::LoadSystemModuleByEngine(
-        reinterpret_cast<NativeEngine*>(env), "application.Context", &value, 1);
+    napi_value value = CreateJsBaseContext(env, moduleContext, true);
+    auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.Context", &value, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("invalid systemModule.");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
@@ -420,9 +419,8 @@ napi_value JsBaseContext::OnCreateBundleContext(napi_env env, NapiCallbackInfo& 
         return CreateJsUndefined(env);
     }
 
-    NativeValue* value = reinterpret_cast<NativeValue*>(CreateJsBaseContext(env, bundleContext, true));
-    auto systemModule = JsRuntime::LoadSystemModuleByEngine(
-        reinterpret_cast<NativeEngine*>(env), "application.Context", &value, 1);
+    napi_value value = CreateJsBaseContext(env, bundleContext, true);
+    auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.Context", &value, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("OnCreateBundleContext, invalid systemModule.");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
@@ -471,9 +469,8 @@ napi_value JsBaseContext::OnGetApplicationContext(napi_env env, NapiCallbackInfo
         }
     }
 
-    NativeValue* value = reinterpret_cast<NativeValue*>(JsApplicationContextUtils::CreateJsApplicationContext(env));
-    auto systemModule = JsRuntime::LoadSystemModuleByEngine(reinterpret_cast<NativeEngine*>(env),
-        "application.ApplicationContext", &value, 1);
+    napi_value value = JsApplicationContextUtils::CreateJsApplicationContext(env);
+    auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.ApplicationContext", &value, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("OnGetApplicationContext, invalid systemModule.");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
@@ -524,9 +521,8 @@ napi_value AttachBaseContext(napi_env env, void* value, void* hint)
         HILOG_WARN("invalid context.");
         return nullptr;
     }
-    NativeValue* object = reinterpret_cast<NativeValue*>(CreateJsBaseContext(env, ptr, true));
-    auto systemModule = JsRuntime::LoadSystemModuleByEngine(reinterpret_cast<NativeEngine*>(env),
-        "application.Context", &object, 1);
+    napi_value object = CreateJsBaseContext(env, ptr, true);
+    auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.Context", &object, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("AttachBaseContext, invalid systemModule.");
         return nullptr;
@@ -560,9 +556,8 @@ napi_value AttachApplicationContext(napi_env env, void* value, void* hint)
         HILOG_WARN("invalid context.");
         return nullptr;
     }
-    NativeValue* object = reinterpret_cast<NativeValue*>(JsApplicationContextUtils::CreateJsApplicationContext(env));
-    auto systemModule = JsRuntime::LoadSystemModuleByEngine(reinterpret_cast<NativeEngine*>(env),
-        "application.ApplicationContext", &object, 1);
+    napi_value object = JsApplicationContextUtils::CreateJsApplicationContext(env);
+    auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.ApplicationContext", &object, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("invalid systemModule.");
         return nullptr;

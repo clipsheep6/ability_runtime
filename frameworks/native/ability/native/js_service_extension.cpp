@@ -44,44 +44,39 @@ constexpr size_t ARGC_TWO = 2;
 }
 
 namespace {
-NativeValue *PromiseCallback(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value PromiseCallback(napi_env env, napi_callback_info info)
 {
-    if (info == nullptr || info->functionInfo == nullptr || info->functionInfo->data == nullptr) {
-        HILOG_ERROR("PromiseCallback, error input info.");
-        return nullptr;
-    }
-    void *data = info->functionInfo->data;
+    void *data = nullptr;
+    NAPI_CALL_NO_THROW(napi_get_cb_info(env, info, nullptr, nullptr, nullptr, &data), nullptr);
     auto *callbackInfo = static_cast<AppExecFwk::AbilityTransactionCallbackInfo<> *>(data);
     callbackInfo->Call();
     AppExecFwk::AbilityTransactionCallbackInfo<>::Destroy(callbackInfo);
-    info->functionInfo->data = nullptr;
+    data = nullptr;
     return nullptr;
 }
 
-NativeValue *OnConnectPromiseCallback(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value OnConnectPromiseCallback(napi_env env, napi_callback_info info)
 {
     HILOG_DEBUG("enter");
-    if (info == nullptr || info->functionInfo == nullptr || info->functionInfo->data == nullptr) {
-        HILOG_ERROR("PromiseCallback, error input info.");
-        return nullptr;
-    }
-    void *data = info->functionInfo->data;
+    void *data = nullptr;
+    size_t argc = ARGC_MAX_COUNT;
+    napi_value argv[ARGC_MAX_COUNT] = {nullptr};
+    NAPI_CALL_NO_THROW(napi_get_cb_info(env, info, &argc, argv, nullptr, &data), nullptr);
     auto *callbackInfo = static_cast<AppExecFwk::AbilityTransactionCallbackInfo<sptr<IRemoteObject>> *>(data);
     sptr<IRemoteObject> service = nullptr;
-    if (info->argc > 0) {
-        service = NAPI_ohos_rpc_getNativeRemoteObject(reinterpret_cast<napi_env>(engine),
-            reinterpret_cast<napi_value>(info->argv[0]));
+    if (argc > 0) {
+        service = NAPI_ohos_rpc_getNativeRemoteObject(env, argv[0]);
     }
     callbackInfo->Call(service);
     AppExecFwk::AbilityTransactionCallbackInfo<sptr<IRemoteObject>>::Destroy(callbackInfo);
-    info->functionInfo->data = nullptr;
+    data = nullptr;
     return nullptr;
 }
 }
 
 using namespace OHOS::AppExecFwk;
 
-NativeValue *AttachServiceExtensionContext(NativeEngine *engine, void *value, void *)
+napi_value AttachServiceExtensionContext(napi_env env, void *value, void *)
 {
     HILOG_INFO("call");
     if (value == nullptr) {
@@ -93,18 +88,18 @@ NativeValue *AttachServiceExtensionContext(NativeEngine *engine, void *value, vo
         HILOG_WARN("invalid context.");
         return nullptr;
     }
-    NativeValue *object = CreateJsServiceExtensionContext(*engine, ptr);
-    auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine,
-        "application.ServiceExtensionContext", &object, 1)->Get();
-    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
-    nObject->ConvertToNativeBindingObject(engine, DetachCallbackFunc, AttachServiceExtensionContext,
-        value, nullptr);
+    napi_value object = CreateJsServiceExtensionContext(env, ptr);
+    auto contextObj = JsRuntime::LoadSystemModuleByEngine(env,
+        "application.ServiceExtensionContext", &object, 1)->GetNapiValue();
+    napi_coerce_to_native_binding_object(
+        env, contextObj, DetachCallbackFunc, AttachServiceExtensionContext, value, nullptr);
     auto workContext = new (std::nothrow) std::weak_ptr<ServiceExtensionContext>(ptr);
-    nObject->SetNativePointer(workContext,
-        [](NativeEngine *, void *data, void *) {
+    napi_wrap(env, contextObj, workContext,
+        [](napi_env, void *data, void *) {
             HILOG_INFO("Finalizer for weak_ptr service extension context is called");
             delete static_cast<std::weak_ptr<ServiceExtensionContext> *>(data);
-        }, nullptr);
+        },
+        nullptr, nullptr);
     return contextObj;
 }
 
@@ -143,7 +138,7 @@ void JsServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     HILOG_DEBUG("JsServiceExtension::Init moduleName:%{public}s,srcPath:%{public}s.",
         moduleName.c_str(), srcPath.c_str());
     HandleScope handleScope(jsRuntime_);
-    auto& engine = jsRuntime_.GetNativeEngine();
+    auto env = jsRuntime_.GetNapiEnv();
 
     jsObj_ = jsRuntime_.LoadModule(
         moduleName, srcPath, abilityInfo_->hapPath, abilityInfo_->compileMode == CompileMode::ES_MODULE);
@@ -153,13 +148,13 @@ void JsServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     }
 
     HILOG_INFO("JsServiceExtension::Init ConvertNativeValueTo.");
-    NativeObject* obj = ConvertNativeValueTo<NativeObject>(jsObj_->Get());
-    if (obj == nullptr) {
+    napi_value obj = jsObj_->GetNapiValue();
+    if (!CheckTypeForNapiValue(env, obj, napi_object)) {
         HILOG_ERROR("Failed to get JsServiceExtension object");
         return;
     }
 
-    BindContext(engine, obj);
+    BindContext(env, obj);
 
     SetExtensionCommon(JsExtensionCommon::Create(jsRuntime_, static_cast<NativeReference&>(*jsObj_), shellContextRef_));
 
@@ -204,7 +199,7 @@ void JsServiceExtension::SystemAbilityStatusChangeListener::OnAddSystemAbility(i
     }
 }
 
-void JsServiceExtension::BindContext(NativeEngine& engine, NativeObject* obj)
+void JsServiceExtension::BindContext(napi_env env, napi_value obj)
 {
     auto context = GetContext();
     if (context == nullptr) {
@@ -212,29 +207,29 @@ void JsServiceExtension::BindContext(NativeEngine& engine, NativeObject* obj)
         return;
     }
     HILOG_INFO("call");
-    NativeValue* contextObj = CreateJsServiceExtensionContext(engine, context);
-    shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(&engine, "application.ServiceExtensionContext",
+    napi_value contextObj = CreateJsServiceExtensionContext(env, context);
+    shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(env, "application.ServiceExtensionContext",
         &contextObj, ARGC_ONE);
-    contextObj = shellContextRef_->Get();
-    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
-    if (nativeObj == nullptr) {
+    contextObj = shellContextRef_->GetNapiValue();
+    if (!CheckTypeForNapiValue(env, contextObj, napi_object)) {
         HILOG_ERROR("Failed to get context native object");
         return;
     }
     auto workContext = new (std::nothrow) std::weak_ptr<ServiceExtensionContext>(context);
-    nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachServiceExtensionContext,
-        workContext, nullptr);
+    napi_coerce_to_native_binding_object(
+        env, contextObj, DetachCallbackFunc, AttachServiceExtensionContext, workContext, nullptr);
     HILOG_INFO("JsServiceExtension::Init Bind.");
     context->Bind(jsRuntime_, shellContextRef_.get());
     HILOG_INFO("JsServiceExtension::SetProperty.");
-    obj->SetProperty("context", contextObj);
+    napi_set_named_property(env, obj, "context", contextObj);
     HILOG_INFO("Set service extension context");
 
-    nativeObj->SetNativePointer(workContext,
-        [](NativeEngine*, void* data, void*) {
+    napi_wrap(env, contextObj, workContext,
+        [](napi_env, void* data, void*) {
             HILOG_INFO("Finalizer for weak_ptr service extension context is called");
             delete static_cast<std::weak_ptr<ServiceExtensionContext>*>(data);
-        }, nullptr);
+        },
+        nullptr, nullptr);
 
     HILOG_INFO("JsServiceExtension::Init end.");
 }
@@ -252,14 +247,13 @@ void JsServiceExtension::OnStart(const AAFwk::Want &want)
     }
 
     HandleScope handleScope(jsRuntime_);
-    NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
+    napi_env env = jsRuntime_.GetNapiEnv();
 
     // display config has changed, need update context.config
-    JsExtensionContext::ConfigurationUpdated(nativeEngine, shellContextRef_, context->GetConfiguration());
+    JsExtensionContext::ConfigurationUpdated(env, shellContextRef_, context->GetConfiguration());
 
-    napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
-    NativeValue* nativeWant = reinterpret_cast<NativeValue*>(napiWant);
-    NativeValue* argv[] = {nativeWant};
+    napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
+    napi_value argv[] = {napiWant};
     CallObjectMethod("onCreate", argv, ARGC_ONE);
     HILOG_INFO("ok");
 }
@@ -281,10 +275,9 @@ void JsServiceExtension::OnStop()
 sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want)
 {
     HandleScope handleScope(jsRuntime_);
-    NativeValue *result = CallOnConnect(want);
-    NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
-    auto remoteObj = NAPI_ohos_rpc_getNativeRemoteObject(
-        reinterpret_cast<napi_env>(nativeEngine), reinterpret_cast<napi_value>(result));
+    napi_value result = CallOnConnect(want);
+    napi_env env = jsRuntime_.GetNapiEnv();
+    auto remoteObj = NAPI_ohos_rpc_getNativeRemoteObject(env, result);
     if (remoteObj == nullptr) {
         HILOG_ERROR("remoteObj null.");
     }
@@ -295,13 +288,12 @@ sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want,
     AppExecFwk::AbilityTransactionCallbackInfo<sptr<IRemoteObject>> *callbackInfo, bool &isAsyncCallback)
 {
     HandleScope handleScope(jsRuntime_);
-    NativeEngine *nativeEngine = &jsRuntime_.GetNativeEngine();
-    NativeValue *result = CallOnConnect(want);
+    napi_env env = jsRuntime_.GetNapiEnv();
+    napi_value result = CallOnConnect(want);
     bool isPromise = CheckPromise(result);
     if (!isPromise) {
         isAsyncCallback = false;
-        sptr<IRemoteObject> remoteObj = NAPI_ohos_rpc_getNativeRemoteObject(reinterpret_cast<napi_env>(nativeEngine),
-            reinterpret_cast<napi_value>(result));
+        sptr<IRemoteObject> remoteObj = NAPI_ohos_rpc_getNativeRemoteObject(env, result);
         if (remoteObj == nullptr) {
             HILOG_ERROR("remoteObj null.");
         }
@@ -310,24 +302,27 @@ sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want,
 
     bool callResult = false;
     do {
-        auto *retObj = ConvertNativeValueTo<NativeObject>(result);
-        if (retObj == nullptr) {
+        if (!CheckTypeForNapiValue(env, result, napi_object)) {
             HILOG_ERROR("CallPromise, error to convert native value to NativeObject.");
             break;
         }
-        NativeValue *then = retObj->GetProperty("then");
+        napi_value then = nullptr;
+        napi_get_named_property(env, result, "then", &then);
         if (then == nullptr) {
             HILOG_ERROR("CallPromise, error to get property: then.");
             break;
         }
-        if (!then->IsCallable()) {
+        bool isCallable = false;
+        napi_is_callable(env, then, &isCallable);
+        if (!isCallable) {
             HILOG_ERROR("CallPromise, property then is not callable");
             break;
         }
-        auto promiseCallback = nativeEngine->CreateFunction("promiseCallback", strlen("promiseCallback"),
-            OnConnectPromiseCallback, callbackInfo);
-        NativeValue *argv[1] = { promiseCallback };
-        nativeEngine->CallFunction(result, then, argv, 1);
+        napi_value promiseCallback = nullptr;
+        napi_create_function(env, "promiseCallback", strlen("promiseCallback"),
+            OnConnectPromiseCallback, callbackInfo, &promiseCallback);
+        napi_value argv[1] = { promiseCallback };
+        napi_call_function(env, result, then, 1, argv, nullptr);
         callResult = true;
     } while (false);
 
@@ -355,7 +350,7 @@ void JsServiceExtension::OnDisconnect(const AAFwk::Want &want,
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     Extension::OnDisconnect(want);
     HILOG_DEBUG("%{public}s start.", __func__);
-    NativeValue *result = CallOnDisconnect(want, true);
+    napi_value result = CallOnDisconnect(want, true);
     bool isPromise = CheckPromise(result);
     if (!isPromise) {
         isAsyncCallback = false;
@@ -380,19 +375,17 @@ void JsServiceExtension::OnCommand(const AAFwk::Want &want, bool restart, int st
         startId);
     // wrap want
     HandleScope handleScope(jsRuntime_);
-    NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
-    napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
-    NativeValue* nativeWant = reinterpret_cast<NativeValue*>(napiWant);
+    napi_env env = jsRuntime_.GetNapiEnv();
+    napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
     // wrap startId
     napi_value napiStartId = nullptr;
-    napi_create_int32(reinterpret_cast<napi_env>(nativeEngine), startId, &napiStartId);
-    NativeValue* nativeStartId = reinterpret_cast<NativeValue*>(napiStartId);
-    NativeValue* argv[] = {nativeWant, nativeStartId};
+    napi_create_int32(env, startId, &napiStartId);
+    napi_value argv[] = {napiWant, napiStartId};
     CallObjectMethod("onRequest", argv, ARGC_TWO);
     HILOG_INFO("ok");
 }
 
-NativeValue* JsServiceExtension::CallObjectMethod(const char* name, NativeValue* const* argv, size_t argc)
+napi_value JsServiceExtension::CallObjectMethod(const char* name, napi_value const* argv, size_t argc)
 {
     HILOG_INFO("CallObjectMethod(%{public}s)", name);
 
@@ -402,22 +395,24 @@ NativeValue* JsServiceExtension::CallObjectMethod(const char* name, NativeValue*
     }
 
     HandleScope handleScope(jsRuntime_);
-    auto& nativeEngine = jsRuntime_.GetNativeEngine();
+    napi_env env = jsRuntime_.GetNapiEnv();
 
-    NativeValue* value = jsObj_->Get();
-    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
-    if (obj == nullptr) {
+    napi_value obj = jsObj_->GetNapiValue();
+    if (!CheckTypeForNapiValue(env, obj, napi_object)) {
         HILOG_ERROR("Failed to get ServiceExtension object");
         return nullptr;
     }
 
-    NativeValue* method = obj->GetProperty(name);
-    if (method == nullptr || method->TypeOf() != NATIVE_FUNCTION) {
+    napi_value method = nullptr;
+    napi_get_named_property(env, obj, name, &method);
+    if (!CheckTypeForNapiValue(env, method, napi_function)) {
         HILOG_ERROR("Failed to get '%{public}s' from ServiceExtension object", name);
         return nullptr;
     }
     HILOG_INFO("CallFunction(%{public}s) ok", name);
-    return nativeEngine.CallFunction(value, method, argv, argc);
+    napi_value result = nullptr;
+    napi_call_function(env, obj, method, argc, argv, &result);
+    return result;
 }
 
 void JsServiceExtension::GetSrcPath(std::string &srcPath)
@@ -441,33 +436,33 @@ void JsServiceExtension::GetSrcPath(std::string &srcPath)
     }
 }
 
-NativeValue *JsServiceExtension::CallOnConnect(const AAFwk::Want &want)
+napi_value JsServiceExtension::CallOnConnect(const AAFwk::Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     Extension::OnConnect(want);
     HILOG_DEBUG("call");
-    NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
-    napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
-    auto* nativeWant = reinterpret_cast<NativeValue*>(napiWant);
-    NativeValue* argv[] = {nativeWant};
+    napi_env env = jsRuntime_.GetNapiEnv();
+    napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
+    napi_value argv[] = {napiWant};
     if (!jsObj_) {
         HILOG_WARN("Not found ServiceExtension.js");
         return nullptr;
     }
 
-    NativeValue* value = jsObj_->Get();
-    auto* obj = ConvertNativeValueTo<NativeObject>(value);
-    if (obj == nullptr) {
+    napi_value obj = jsObj_->GetNapiValue();
+    if (!CheckTypeForNapiValue(env, obj, napi_object)) {
         HILOG_ERROR("Failed to get ServiceExtension object");
         return nullptr;
     }
 
-    NativeValue* method = obj->GetProperty("onConnect");
+    napi_value method = nullptr;
+    napi_get_named_property(env, obj, "onConnect", &method);
     if (method == nullptr) {
         HILOG_ERROR("Failed to get onConnect from ServiceExtension object");
         return nullptr;
     }
-    NativeValue* remoteNative = nativeEngine->CallFunction(value, method, argv, ARGC_ONE);
+    napi_value remoteNative = nullptr;
+    napi_call_function(env, obj, method, ARGC_ONE, argv, &remoteNative);
     if (remoteNative == nullptr) {
         HILOG_ERROR("remoteNative nullptr.");
     }
@@ -475,76 +470,83 @@ NativeValue *JsServiceExtension::CallOnConnect(const AAFwk::Want &want)
     return remoteNative;
 }
 
-NativeValue *JsServiceExtension::CallOnDisconnect(const AAFwk::Want &want, bool withResult)
+napi_value JsServiceExtension::CallOnDisconnect(const AAFwk::Want &want, bool withResult)
 {
     HandleEscape handleEscape(jsRuntime_);
-    NativeEngine *nativeEngine = &jsRuntime_.GetNativeEngine();
-    napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
-    NativeValue *nativeWant = reinterpret_cast<NativeValue *>(napiWant);
-    NativeValue *argv[] = { nativeWant };
+    napi_env env = jsRuntime_.GetNapiEnv();
+    napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
+    napi_value argv[] = { napiWant };
     if (!jsObj_) {
         HILOG_WARN("Not found ServiceExtension.js");
         return nullptr;
     }
 
-    NativeValue *value = jsObj_->Get();
-    NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
-    if (obj == nullptr) {
+    napi_value obj = jsObj_->GetNapiValue();
+    if (!CheckTypeForNapiValue(env, obj, napi_object)) {
         HILOG_ERROR("Failed to get ServiceExtension object");
         return nullptr;
     }
 
-    NativeValue *method = obj->GetProperty("onDisconnect");
+    napi_value method = nullptr;
+    napi_get_named_property(env, obj, "onDisconnect", &method);
     if (method == nullptr) {
         HILOG_ERROR("Failed to get onDisconnect from ServiceExtension object");
         return nullptr;
     }
 
     if (withResult) {
-        return handleEscape.Escape(nativeEngine->CallFunction(value, method, argv, ARGC_ONE));
+        napi_value result = nullptr;
+        napi_call_function(env, obj, method, ARGC_ONE, argv, &result);
+        return handleEscape.Escape(result);
     } else {
-        nativeEngine->CallFunction(value, method, argv, ARGC_ONE);
+        napi_call_function(env, obj, method, ARGC_ONE, argv, nullptr);
         return nullptr;
     }
 }
 
-bool JsServiceExtension::CheckPromise(NativeValue *result)
+bool JsServiceExtension::CheckPromise(napi_value result)
 {
     if (result == nullptr) {
         HILOG_DEBUG("CheckPromise, result is nullptr, no need to call promise.");
         return false;
     }
-    if (!result->IsPromise()) {
+    napi_env env = jsRuntime_.GetNapiEnv();
+    bool isPromise = false;
+    napi_is_promise(env, result, &isPromise);
+    if (!isPromise) {
         HILOG_DEBUG("CheckPromise, result is not promise, no need to call promise.");
         return false;
     }
     return true;
 }
 
-bool JsServiceExtension::CallPromise(NativeValue *result, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo)
+bool JsServiceExtension::CallPromise(napi_value result, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo)
 {
-    auto *retObj = ConvertNativeValueTo<NativeObject>(result);
-    if (retObj == nullptr) {
+    napi_env env = jsRuntime_.GetNapiEnv();
+    if (!CheckTypeForNapiValue(env, result, napi_object)) {
         HILOG_ERROR("CallPromise, Error to convert native value to NativeObject.");
         return false;
     }
-    NativeValue *then = retObj->GetProperty("then");
+    napi_value then = nullptr;
+    napi_get_named_property(env, result, "then", &then);
     if (then == nullptr) {
         HILOG_ERROR("CallPromise, Error to get property: then.");
         return false;
     }
-    if (!then->IsCallable()) {
+    bool isCallable = false;
+    napi_is_callable(env, then, &isCallable);
+    if (!isCallable) {
         HILOG_ERROR("CallPromise, property then is not callable.");
         return false;
     }
     HandleScope handleScope(jsRuntime_);
-    auto &nativeEngine = jsRuntime_.GetNativeEngine();
-    auto promiseCallback = nativeEngine.CreateFunction("promiseCallback", strlen("promiseCallback"), PromiseCallback,
-        callbackInfo);
-    NativeValue *argv[1] = { promiseCallback };
-    nativeEngine.CallFunction(result, then, argv, 1);
-    return true;
+    napi_value promiseCallback = nullptr;
+    napi_create_function(env, "promiseCallback", strlen("promiseCallback"), PromiseCallback,
+        callbackInfo, &promiseCallback);
+    napi_value argv[1] = { promiseCallback };
+    napi_call_function(env, result, then, 1, argv, nullptr);
     HILOG_DEBUG("end");
+    return true;
 }
 
 void JsServiceExtension::OnConfigurationUpdated(const AppExecFwk::Configuration& configuration)
@@ -574,7 +576,7 @@ void JsServiceExtension::ConfigurationUpdated()
 {
     HILOG_DEBUG("called.");
     HandleScope handleScope(jsRuntime_);
-    auto& nativeEngine = jsRuntime_.GetNativeEngine();
+    napi_env env = jsRuntime_.GetNapiEnv();
 
     // Notify extension context
     auto fullConfig = GetContext()->GetConfiguration();
@@ -583,12 +585,10 @@ void JsServiceExtension::ConfigurationUpdated()
         return;
     }
 
-    napi_value napiConfiguration = OHOS::AppExecFwk::WrapConfiguration(
-        reinterpret_cast<napi_env>(&nativeEngine), *fullConfig);
-    NativeValue* jsConfiguration = reinterpret_cast<NativeValue*>(napiConfiguration);
-    CallObjectMethod("onConfigurationUpdated", &jsConfiguration, ARGC_ONE);
-    CallObjectMethod("onConfigurationUpdate", &jsConfiguration, ARGC_ONE);
-    JsExtensionContext::ConfigurationUpdated(&nativeEngine, shellContextRef_, fullConfig);
+    napi_value napiConfiguration = OHOS::AppExecFwk::WrapConfiguration(env, *fullConfig);
+    CallObjectMethod("onConfigurationUpdated", &napiConfiguration, ARGC_ONE);
+    CallObjectMethod("onConfigurationUpdate", &napiConfiguration, ARGC_ONE);
+    JsExtensionContext::ConfigurationUpdated(env, shellContextRef_, fullConfig);
 }
 
 void JsServiceExtension::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
@@ -596,50 +596,45 @@ void JsServiceExtension::Dump(const std::vector<std::string> &params, std::vecto
     Extension::Dump(params, info);
     HILOG_INFO("call");
     HandleScope handleScope(jsRuntime_);
-    auto& nativeEngine = jsRuntime_.GetNativeEngine();
+    napi_env env = jsRuntime_.GetNapiEnv();
     // create js array object of params
-    NativeValue* arrayValue = nativeEngine.CreateArray(params.size());
-    NativeArray* array = ConvertNativeValueTo<NativeArray>(arrayValue);
-    uint32_t index = 0;
-    for (const auto &param : params) {
-        array->SetElement(index++, CreateJsValue(nativeEngine, param));
-    }
-    NativeValue* argv[] = { arrayValue };
+    napi_value argv[] = { CreateNativeArray(env, params) };
 
     if (!jsObj_) {
         HILOG_WARN("Not found ServiceExtension.js");
         return;
     }
 
-    NativeValue* value = jsObj_->Get();
-    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
-    if (obj == nullptr) {
+    napi_value obj = jsObj_->GetNapiValue();
+    if (!CheckTypeForNapiValue(env, obj, napi_object)) {
         HILOG_ERROR("Failed to get ServiceExtension object");
         return;
     }
 
-    NativeValue* method = obj->GetProperty("onDump");
-    if (method == nullptr || method->TypeOf() != NATIVE_FUNCTION) {
-        method = obj->GetProperty("dump");
-        if (method == nullptr || method->TypeOf() != NATIVE_FUNCTION) {
+    napi_value method = nullptr;
+    napi_get_named_property(env, obj, "onDump", &method);
+    if (!CheckTypeForNapiValue(env, method, napi_function)) {
+        method = nullptr;
+        napi_get_named_property(env, obj, "dump", &method);
+        if (!CheckTypeForNapiValue(env, method, napi_function)) {
             HILOG_ERROR("Failed to get onConnect from ServiceExtension object");
             return;
         }
     }
     HILOG_INFO("JsServiceExtension::CallFunction onConnect, success");
-    NativeValue* dumpInfo = nativeEngine.CallFunction(value, method, argv, ARGC_ONE);
+    napi_value dumpInfo = nullptr;
+    napi_call_function(env, obj, method, ARGC_ONE, argv, &dumpInfo);
     if (dumpInfo == nullptr) {
         HILOG_ERROR("dumpInfo nullptr.");
         return;
     }
-    NativeArray* dumpInfoNative = ConvertNativeValueTo<NativeArray>(dumpInfo);
-    if (dumpInfoNative == nullptr) {
-        HILOG_ERROR("dumpInfoNative nullptr.");
-        return;
-    }
-    for (uint32_t i = 0; i < dumpInfoNative->GetLength(); i++) {
+    uint32_t len = 0;
+    napi_get_array_length(env, dumpInfo, &len);
+    for (uint32_t i = 0; i < len; i++) {
         std::string dumpInfoStr;
-        if (!ConvertFromJsValue(nativeEngine, dumpInfoNative->GetElement(i), dumpInfoStr)) {
+        napi_value element = nullptr;
+        napi_get_element(env, dumpInfo, i, &element);
+        if (!ConvertFromJsValue(env, element, dumpInfoStr)) {
             HILOG_ERROR("Parse dumpInfoStr failed.");
             return;
         }

@@ -21,8 +21,6 @@
 #include <unordered_set>
 
 class NativeReference;
-class NativeValue;
-class NativeObject;
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -185,16 +183,16 @@ public:
     void OnAbilityResult(int requestCode, int resultCode, const Want &resultData) override;
 
 private:
-    virtual void BindContext(NativeEngine& engine, NativeObject* obj);
+    virtual void BindContext(napi_env env, napi_value obj);
 
-    NativeValue *CallObjectMethod(const char *name, NativeValue *const *argv = nullptr, size_t argc = 0,
+    napi_value CallObjectMethod(const char *name, napi_value const *argv = nullptr, size_t argc = 0,
         bool withResult = false);
-    bool CheckPromise(NativeValue* result);
-    bool CallPromise(NativeValue* result, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo);
+    bool CheckPromise(napi_value result);
+    bool CallPromise(napi_value result, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo);
 
-    NativeValue* CallOnConnect(const AAFwk::Want &want);
+    napi_value CallOnConnect(const AAFwk::Want &want);
 
-    NativeValue* CallOnDisconnect(const AAFwk::Want &want, bool withResult = false);
+    napi_value CallOnDisconnect(const AAFwk::Want &want, bool withResult = false);
 
     void ForegroundWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo);
     void BackgroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo);

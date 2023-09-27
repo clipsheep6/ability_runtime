@@ -20,8 +20,6 @@
 #include "service_extension.h"
 
 class NativeReference;
-class NativeValue;
-class NativeObject;
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -63,7 +61,7 @@ public:
     virtual void OnMemoryLevel(int level) override;
 
 private:
-    NativeValue* CallObjectMethod(const char* name, NativeValue* const * argv, size_t argc);
+    napi_value CallObjectMethod(const char* name, napi_value const * argv, size_t argc);
 
 private:
     JsRuntime& jsRuntime_;

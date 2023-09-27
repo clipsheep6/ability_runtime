@@ -24,8 +24,6 @@
 #include "service_extension.h"
 
 class NativeReference;
-class NativeValue;
-class NativeObject;
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -155,19 +153,19 @@ public:
     virtual void Dump(const std::vector<std::string> &params, std::vector<std::string> &info) override;
 
 private:
-    NativeValue* CallObjectMethod(const char* name, NativeValue* const* argv = nullptr, size_t argc = 0);
+    napi_value CallObjectMethod(const char* name, napi_value const* argv = nullptr, size_t argc = 0);
 
-    void BindContext(NativeEngine& engine, NativeObject* obj);
+    void BindContext(napi_env env, napi_value obj);
 
     void GetSrcPath(std::string &srcPath);
 
-    NativeValue *CallOnConnect(const AAFwk::Want &want);
+    napi_value CallOnConnect(const AAFwk::Want &want);
 
-    NativeValue *CallOnDisconnect(const AAFwk::Want &want, bool withResult = false);
+    napi_value CallOnDisconnect(const AAFwk::Want &want, bool withResult = false);
 
-    bool CheckPromise(NativeValue *result);
+    bool CheckPromise(napi_value result);
 
-    bool CallPromise(NativeValue *result, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo);
+    bool CallPromise(napi_value result, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo);
 
     void ListenWMS();
 

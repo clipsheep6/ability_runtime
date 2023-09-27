@@ -84,9 +84,8 @@ napi_value JsApplicationContextUtils::OnCreateBundleContext(napi_env env, NapiCa
         return CreateJsUndefined(env);
     }
 
-    NativeValue* value = reinterpret_cast<NativeValue*>(CreateJsBaseContext(env, bundleContext, true));
-    auto systemModule = JsRuntime::LoadSystemModuleByEngine(
-        reinterpret_cast<NativeEngine*>(env), "application.Context", &value, 1);
+    napi_value value = CreateJsBaseContext(env, bundleContext, true);
+    auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.Context", &value, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("invalid systemModule.");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
@@ -137,7 +136,7 @@ napi_value JsApplicationContextUtils::OnSwitchArea(napi_env env, NapiCallbackInf
     applicationContext->SwitchArea(mode);
 
     napi_value object = info.thisVar;
-    if (CheckTypeForNapiValue(env, object, napi_object)) {
+    if (!CheckTypeForNapiValue(env, object, napi_object)) {
         HILOG_ERROR("Check type failed");
         return CreateJsUndefined(env);
     }
@@ -199,9 +198,8 @@ napi_value JsApplicationContextUtils::OnCreateModuleContext(napi_env env, NapiCa
         return CreateJsUndefined(env);
     }
 
-    NativeValue* value = reinterpret_cast<NativeValue*>(CreateJsBaseContext(env, moduleContext, true));
-    auto systemModule = JsRuntime::LoadSystemModuleByEngine(
-        reinterpret_cast<NativeEngine*>(env), "application.Context", &value, 1);
+    napi_value value = CreateJsBaseContext(env, moduleContext, true);
+    auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.Context", &value, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("invalid systemModule.");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
@@ -1085,9 +1083,8 @@ napi_value JsApplicationContextUtils::OnGetApplicationContext(napi_env env, Napi
         return CreateJsUndefined(env);
     }
 
-    NativeValue* value = reinterpret_cast<NativeValue*>(CreateJsApplicationContext(env));
-    auto systemModule = JsRuntime::LoadSystemModuleByEngine(
-        reinterpret_cast<NativeEngine*>(env), "application.ApplicationContext", &value, 1);
+    napi_value value = CreateJsApplicationContext(env);
+    auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.ApplicationContext", &value, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("OnGetApplicationContext, invalid systemModule.");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);

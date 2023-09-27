@@ -98,13 +98,13 @@ private:
 #endif
 
 private:
-    NativeValue *CallObjectMethod(const char *name, NativeValue *const *argv = nullptr, size_t argc = 0,
+    napi_value CallObjectMethod(const char *name, napi_value const *argv = nullptr, size_t argc = 0,
         bool withResult = false);
-    bool CheckPromise(NativeValue* result);
-    bool CallPromise(NativeValue* result, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo);
+    bool CheckPromise(napi_value result);
+    bool CallPromise(napi_value result, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo);
     std::unique_ptr<NativeReference> CreateAppWindowStage();
     std::shared_ptr<AppExecFwk::ADelegatorAbilityProperty> CreateADelegatorAbilityProperty();
-    sptr<IRemoteObject> SetNewRuleFlagToCallee(NativeEngine &nativeEngine, NativeValue *remoteJsObj);
+    sptr<IRemoteObject> SetNewRuleFlagToCallee(napi_env env, napi_value remoteJsObj);
 
     JsRuntime &jsRuntime_;
     std::shared_ptr<NativeReference> shellContextRef_;

@@ -56,13 +56,11 @@ void JsExtensionCommon::OnConfigurationUpdated(const std::shared_ptr<AppExecFwk:
     }
 
     HandleScope handleScope(jsRuntime_);
-    auto& nativeEngine = jsRuntime_.GetNativeEngine();
-    JsExtensionContext::ConfigurationUpdated(&nativeEngine, shellContextRef_, fullConfig);
+    auto env = jsRuntime_.GetNapiEnv();
+    JsExtensionContext::ConfigurationUpdated(env, shellContextRef_, fullConfig);
 
-    napi_value napiConfiguration = OHOS::AppExecFwk::WrapConfiguration(
-        reinterpret_cast<napi_env>(&nativeEngine), *fullConfig);
-    NativeValue* jsConfiguration = reinterpret_cast<NativeValue*>(napiConfiguration);
-    CallObjectMethod("onConfigurationUpdate", &jsConfiguration, ARGC_ONE);
+    napi_value napiConfiguration = OHOS::AppExecFwk::WrapConfiguration(env, *fullConfig);
+    CallObjectMethod("onConfigurationUpdate", &napiConfiguration, ARGC_ONE);
 }
 
 void JsExtensionCommon::OnMemoryLevel(int level)
@@ -70,42 +68,43 @@ void JsExtensionCommon::OnMemoryLevel(int level)
     HILOG_DEBUG("%{public}s called.", __func__);
 
     HandleScope handleScope(jsRuntime_);
-    auto &nativeEngine = jsRuntime_.GetNativeEngine();
+    auto env = jsRuntime_.GetNapiEnv();
 
-    NativeValue *value = jsObj_.Get();
-    NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
-    if (obj == nullptr) {
+    napi_value obj = jsObj_.GetNapiValue();
+    if (!CheckTypeForNapiValue(env, obj, napi_object)) {
         HILOG_ERROR("Failed to get js instance object");
         return;
     }
 
-    NativeValue *jslevel = CreateJsValue(nativeEngine, level);
-    NativeValue *argv[] = {
+    napi_value jslevel = CreateJsValue(env, level);
+    napi_value argv[] = {
         jslevel,
     };
     CallObjectMethod("onMemoryLevel", argv, ArraySize(argv));
 }
 
-NativeValue* JsExtensionCommon::CallObjectMethod(const char* name, NativeValue* const* argv, size_t argc)
+napi_value JsExtensionCommon::CallObjectMethod(const char* name, napi_value const* argv, size_t argc)
 {
     HILOG_INFO("JsExtensionCommon::CallObjectMethod(%{public}s), begin", name);
 
     HandleScope handleScope(jsRuntime_);
-    auto& nativeEngine = jsRuntime_.GetNativeEngine();
-    NativeValue* value = jsObj_.Get();
-    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
-    if (obj == nullptr) {
+    auto env = jsRuntime_.GetNapiEnv();
+    napi_value obj = jsObj_.GetNapiValue();
+    if (!CheckTypeForNapiValue(env, obj, napi_object)) {
         HILOG_ERROR("Failed to get js instance object");
         return nullptr;
     }
 
-    NativeValue* method = obj->GetProperty(name);
-    if (method == nullptr || method->TypeOf() != NATIVE_FUNCTION) {
+    napi_value method = nullptr;
+    napi_get_named_property(env, obj, name, &method);
+    if (!CheckTypeForNapiValue(env, obj, napi_function)) {
         HILOG_ERROR("Failed to get '%{public}s' from js object", name);
         return nullptr;
     }
     HILOG_INFO("JsExtensionCommon::CallFunction(%{public}s), success", name);
-    return nativeEngine.CallFunction(value, method, argv, argc);
+    napi_value result = nullptr;
+    napi_call_function(env, obj, method, argc, argv, &result);
+    return result;
 }
 }
 }
