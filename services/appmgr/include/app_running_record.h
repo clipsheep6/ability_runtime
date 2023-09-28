@@ -566,6 +566,8 @@ public:
     void RemoveRenderRecord(const std::shared_ptr<RenderRecord> &record);
     std::shared_ptr<RenderRecord> GetRenderRecordByPid(const pid_t pid);
     std::map<int32_t, std::shared_ptr<RenderRecord>> GetRenderRecordMap();
+    void SetRenderIndex(const int32_t renderIndex);
+    int32_t GetRenderIndex() const;
     void SetStartMsg(const AppSpawnStartMsg &msg);
     AppSpawnStartMsg GetStartMsg();
 
@@ -775,6 +777,7 @@ private:
 
     // render record
     std::map<int32_t, std::shared_ptr<RenderRecord>> renderRecordMap_;
+    int32_t renderIndex_ = 0;
     ffrt::mutex renderRecordMapLock_;
     AppSpawnStartMsg startMsg_;
     int32_t appIndex_ = 0;

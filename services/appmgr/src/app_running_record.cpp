@@ -59,7 +59,12 @@ std::shared_ptr<RenderRecord> RenderRecord::CreateRenderRecord(
         hostPid, renderParam, ipcFd, sharedFd, crashFd, host);
     renderRecord->SetHostUid(host->GetUid());
     renderRecord->SetHostBundleName(host->GetBundleName());
-    renderRecord->SetProcessName(host->GetProcessName());
+    std::string processName = host->GetProcessName();
+    processName.append("_render_");
+    auto renderIndex = host->GetRenderIndex() + 1;
+    processName.append(std::to_string(renderIndex));
+    renderRecord->SetProcessName(processName);
+    host->SetRenderIndex(renderIndex);
     return renderRecord;
 }
 
@@ -1462,6 +1467,16 @@ std::map<int32_t, std::shared_ptr<RenderRecord>> AppRunningRecord::GetRenderReco
 {
     std::lock_guard renderRecordMapLock(renderRecordMapLock_);
     return renderRecordMap_;
+}
+
+void AppRunningRecord::SetRenderIndex(const int32_t renderIndex)
+{
+    renderIndex_ = renderIndex;
+}
+
+int32_t AppRunningRecord::GetRenderIndex() const
+{
+    return renderIndex_;
 }
 
 void AppRunningRecord::SetStartMsg(const AppSpawnStartMsg &msg)
