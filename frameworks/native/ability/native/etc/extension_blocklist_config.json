@@ -156,7 +156,11 @@
             "application.formBindingData",
             "application.formHost",
             "application.formInfo",
-            "application.formProvider"
+            "application.formProvider",
+            "prompt",
+            "promptAction",
+            "window",
+            "system.prompt"
         ],
         "DriverExtension": [
             "abilityAccessCtrl",
@@ -257,6 +261,47 @@
             "wifiManager",
             "wifiManagerExt",
             "window"
+        ],
+        "RemoteNotificationExtension": [
+            "notification",
+            "notificationManager",
+            "app.form.formProvider",
+            "app.form.formInfo",
+            "app.form.formHost",
+            "app.form.formBindingData",
+            "app.form.FormExtensionAbility",
+            "application.formBindingData",
+            "application.formHost",
+            "application.formInfo",
+            "application.formProvider",
+            "prompt",
+            "promptAction",
+            "window",
+            "system.prompt"
+        ],
+        "RemoteLocationExtension": [
+            "notification",
+            "notificationManager",
+            "app.form.formProvider",
+            "app.form.formInfo",
+            "app.form.formHost",
+            "app.form.formBindingData",
+            "app.form.FormExtensionAbility",
+            "application.formBindingData",
+            "application.formHost",
+            "application.formInfo",
+            "application.formProvider"
+        ],
+        "VoIPExtension": [
+            "app.form.formProvider",
+            "app.form.formInfo",
+            "app.form.formHost",
+            "app.form.formBindingData",
+            "app.form.FormExtensionAbility",
+            "application.formBindingData",
+            "application.formHost",
+            "application.formInfo",
+            "application.formProvider"
         ]
     }
 }
