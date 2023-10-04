@@ -19,6 +19,7 @@ ohos_unittest("AmsRecentAppListTest") {
   module_out_path = module_output_path
   cflags_cc = []
   include_dirs = [
+    "${ability_runtime_test_path}/mock/common/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include/",
     "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
   ]
@@ -57,6 +58,8 @@ ohos_unittest("AmsRecentAppListTest") {
     "${ability_runtime_services_path}/common:task_handler_wrap",
     "${ability_runtime_test_path}/unittest:appmgr_test_source",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
@@ -64,6 +67,7 @@ ohos_unittest("AmsRecentAppListTest") {
     "ability_runtime:ability_deps_wrapper",
     "access_token:libaccesstoken_sdk",
     "appspawn:appspawn_socket_client",
+    "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "common_event_service:cesfwk_innerkits",
     "ffrt:libffrt",

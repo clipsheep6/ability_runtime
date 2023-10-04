@@ -37,6 +37,7 @@
 #include "app_scheduler_interface.h"
 #include "app_spawn_client.h"
 #include "app_task_info.h"
+#include "bundle_mgr_client.h"
 #include "appexecfwk_errors.h"
 #include "bundle_info.h"
 #include "cpp/mutex.h"
@@ -945,7 +946,7 @@ private:
     int64_t SystemTimeMillisecond();
 
     // Test add the bundle manager instance.
-    void SetBundleManager(sptr<IBundleMgr> bundleManager);
+    void SetBundleManagerClient(std::shared_ptr<AppExecFwk::BundleMgrClient> bundleMgrClient);
 
     void HandleTerminateApplicationTimeOut(const int64_t eventId);
 

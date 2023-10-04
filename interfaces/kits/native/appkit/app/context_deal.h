@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_CONTEXT_DEAL_H
 #define OHOS_ABILITY_RUNTIME_CONTEXT_DEAL_H
 
+#include "bundle_mgr_client.h"
 #include "context.h"
 #include "lifecycle_state_info.h"
 
@@ -101,12 +102,12 @@ public:
     void SetContext(const std::shared_ptr<Context> &context);
 
     /**
-     * @brief Obtains an IBundleMgr instance.
+     * @brief Obtains an BundleMgrClient instance.
      * You can use this instance to obtain information about the application bundle.
      *
-     * @return Returns an IBundleMgr instance.
+     * @return Returns a BundleMgrClient instance.
      */
-    sptr<IBundleMgr> GetBundleManager() const;
+    std::shared_ptr<BundleMgrClient> GetBundleManager() const;
 
     /**
      * @brief Obtains a resource manager.

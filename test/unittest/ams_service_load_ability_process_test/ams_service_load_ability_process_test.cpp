@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,21 +15,26 @@
 
 #define private public
 #include "app_mgr_service_inner.h"
+#include "iservice_registry.h"
 #undef private
 
 #include <limits>
-#include "gtest/gtest.h"
+
+#include "ability_info.h"
 #include "ability_running_record.h"
 #include "app_mgr_service.h"
-#include "app_running_record.h"
 #include "app_record_id.h"
-#include "ability_info.h"
+#include "app_running_record.h"
 #include "application_info.h"
+#include "bundle_mgr_interface.h"
+#include "gtest/gtest.h"
 #include "hilog_wrapper.h"
 #include "mock_app_scheduler.h"
-#include "mock_bundle_manager.h"
 #include "mock_ability_token.h"
 #include "mock_app_spawn_client.h"
+#include "mock_bundle_installer_service.h"
+#include "mock_bundle_manager_service.h"
+#include "mock_system_ability_manager.h"
 
 using namespace testing::ext;
 using testing::_;
@@ -39,6 +44,12 @@ using ::testing::DoAll;
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+const int32_t BUNDLE_MGR_SERVICE_SYS_ABILITY_ID = 401;
+sptr<MockBundleInstallerService> mockBundleInstaller = new (std::nothrow) MockBundleInstallerService();
+sptr<MockBundleManagerService> mockBundleMgr = new (std::nothrow) MockBundleManagerService();
+} // namespace
+
 #define CHECK_POINTER_IS_NULLPTR(object) \
     do {                                 \
         if (object == nullptr) {         \
@@ -52,6 +63,10 @@ public:
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
+    void MockBundleInstallerAndSA();
+    void MockBundleInstaller();
+    sptr<ISystemAbilityManager> iSystemAbilityMgr_ = nullptr;
+    sptr<AppExecFwk::MockSystemAbilityManager> mockSystemAbility_ = nullptr;
 
 protected:
     static const std::string GetTestAppName()
@@ -75,7 +90,6 @@ protected:
 protected:
     std::shared_ptr<AppMgrServiceInner> service_;
     sptr<MockAbilityToken> mock_token_;
-    sptr<BundleMgrService> bundleMgr_;
 };
 
 void AmsServiceLoadAbilityProcessTest::SetUpTestCase()
@@ -86,17 +100,40 @@ void AmsServiceLoadAbilityProcessTest::TearDownTestCase()
 
 void AmsServiceLoadAbilityProcessTest::SetUp()
 {
-    bundleMgr_ = new (std::nothrow) BundleMgrService();
     service_.reset(new (std::nothrow) AppMgrServiceInner());
     service_->Init();
     mock_token_ = new (std::nothrow) MockAbilityToken();
-    if (service_) {
-        service_->SetBundleManager(bundleMgr_.GetRefPtr());
-    }
+    mockSystemAbility_ = new (std::nothrow) AppExecFwk::MockSystemAbilityManager();
+    iSystemAbilityMgr_ = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = mockSystemAbility_;
 }
 
 void AmsServiceLoadAbilityProcessTest::TearDown()
-{}
+{
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = iSystemAbilityMgr_;
+}
+
+void AmsServiceLoadAbilityProcessTest::MockBundleInstallerAndSA()
+{
+    auto mockGetBundleInstaller = []() { return mockBundleInstaller; };
+    auto mockGetSystemAbility = [&](int32_t systemAbilityId) {
+        if (systemAbilityId == BUNDLE_MGR_SERVICE_SYS_ABILITY_ID) {
+            return mockBundleMgr->AsObject();
+        } else {
+            return iSystemAbilityMgr_->GetSystemAbility(systemAbilityId);
+        }
+    };
+    EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
+    EXPECT_CALL(*mockSystemAbility_, GetSystemAbility(testing::_))
+        .WillOnce(testing::Invoke(mockGetSystemAbility))
+        .WillRepeatedly(testing::Invoke(mockGetSystemAbility));
+}
+
+void AmsServiceLoadAbilityProcessTest::MockBundleInstaller()
+{
+    auto mockGetBundleInstaller = []() { return mockBundleInstaller; };
+    EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
+}
 
 std::shared_ptr<AppRunningRecord> AmsServiceLoadAbilityProcessTest::StartLoadAbility(const sptr<IRemoteObject>& token,
     const sptr<IRemoteObject>& preToken, const std::shared_ptr<AbilityInfo>& abilityInfo,
@@ -127,6 +164,10 @@ std::shared_ptr<AppRunningRecord> AmsServiceLoadAbilityProcessTest::StartLoadAbi
 HWTEST_F(AmsServiceLoadAbilityProcessTest, LoadAbility_001, TestSize.Level1)
 {
     HILOG_INFO("AmsServiceLoadAbilityProcessTest LoadAbility_001 start");
+    MockBundleInstallerAndSA();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     abilityInfo->applicationName = GetTestAppName();
@@ -170,7 +211,10 @@ HWTEST_F(AmsServiceLoadAbilityProcessTest, LoadAbility_001, TestSize.Level1)
 HWTEST_F(AmsServiceLoadAbilityProcessTest, LoadAbility_002, TestSize.Level1)
 {
     HILOG_INFO("AmsServiceLoadAbilityProcessTest LoadAbility_002 start");
-
+    MockBundleInstaller();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     EXPECT_TRUE(service_ != nullptr);
     service_->ClearRecentAppList();
 
@@ -369,6 +413,10 @@ HWTEST_F(AmsServiceLoadAbilityProcessTest, LoadAbility_006, TestSize.Level1)
 HWTEST_F(AmsServiceLoadAbilityProcessTest, LoadAbility_007, TestSize.Level1)
 {
     HILOG_INFO("AmsServiceLoadAbilityProcessTest LoadAbility_007 start");
+    MockBundleInstaller();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     sptr<IRemoteObject> token = GetMockToken();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
@@ -424,6 +472,10 @@ HWTEST_F(AmsServiceLoadAbilityProcessTest, LoadAbility_007, TestSize.Level1)
 HWTEST_F(AmsServiceLoadAbilityProcessTest, LoadAbility_008, TestSize.Level1)
 {
     HILOG_INFO("AmsServiceLoadAbilityProcessTest LoadAbility_008 start");
+    MockBundleInstaller();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     sptr<IRemoteObject> token = GetMockToken();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
@@ -639,6 +691,10 @@ HWTEST_F(AmsServiceLoadAbilityProcessTest, SavePid_002, TestSize.Level1)
 HWTEST_F(AmsServiceLoadAbilityProcessTest, LaunchMode_001, TestSize.Level1)
 {
     HILOG_INFO("AmsServiceLoadAbilityProcessTest LaunchMode_001 start");
+    MockBundleInstaller();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     abilityInfo->applicationName = GetTestAppName();
@@ -682,6 +738,10 @@ HWTEST_F(AmsServiceLoadAbilityProcessTest, LaunchMode_001, TestSize.Level1)
 HWTEST_F(AmsServiceLoadAbilityProcessTest, LaunchMode_002, TestSize.Level1)
 {
     HILOG_INFO("AmsServiceLoadAbilityProcessTest LaunchMode_002 start");
+    MockBundleInstaller();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     sptr<IRemoteObject> token = GetMockToken();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
@@ -738,6 +798,10 @@ HWTEST_F(AmsServiceLoadAbilityProcessTest, LaunchMode_002, TestSize.Level1)
 HWTEST_F(AmsServiceLoadAbilityProcessTest, StartAbility_001, TestSize.Level1)
 {
     HILOG_INFO("AmsServiceLoadAbilityProcessTest StartAbility_001 start");
+    MockBundleInstaller();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     sptr<IRemoteObject> token = GetMockToken();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
@@ -805,6 +869,10 @@ HWTEST_F(AmsServiceLoadAbilityProcessTest, StartAbility_001, TestSize.Level1)
 HWTEST_F(AmsServiceLoadAbilityProcessTest, StartAbility_002, TestSize.Level1)
 {
     HILOG_INFO("AmsServiceLoadAbilityProcessTest StartAbility_002 start");
+    MockBundleInstaller();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     sptr<IRemoteObject> token = GetMockToken();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
@@ -867,6 +935,10 @@ HWTEST_F(AmsServiceLoadAbilityProcessTest, StartAbility_002, TestSize.Level1)
 HWTEST_F(AmsServiceLoadAbilityProcessTest, StartAbility_003, TestSize.Level1)
 {
     HILOG_INFO("AmsServiceLoadAbilityProcessTest StartAbility_003 start");
+    MockBundleInstaller();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     sptr<IRemoteObject> token = GetMockToken();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
@@ -933,6 +1005,10 @@ HWTEST_F(AmsServiceLoadAbilityProcessTest, StartAbility_003, TestSize.Level1)
 HWTEST_F(AmsServiceLoadAbilityProcessTest, StartAbility_004, TestSize.Level1)
 {
     HILOG_INFO("AmsServiceLoadAbilityProcessTest StartAbility_004 start");
+    MockBundleInstaller();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     sptr<IRemoteObject> token = GetMockToken();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
@@ -993,6 +1069,10 @@ HWTEST_F(AmsServiceLoadAbilityProcessTest, StartAbility_004, TestSize.Level1)
 HWTEST_F(AmsServiceLoadAbilityProcessTest, StartAbility_005, TestSize.Level1)
 {
     HILOG_INFO("AmsServiceLoadAbilityProcessTest StartAbility_005 start");
+    MockBundleInstaller();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     sptr<IRemoteObject> token = GetMockToken();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
@@ -1059,6 +1139,10 @@ HWTEST_F(AmsServiceLoadAbilityProcessTest, StartAbility_005, TestSize.Level1)
 HWTEST_F(AmsServiceLoadAbilityProcessTest, StartAbility_006, TestSize.Level1)
 {
     HILOG_INFO("AmsServiceLoadAbilityProcessTest StartAbility_006 start");
+    MockBundleInstaller();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     sptr<IRemoteObject> token = GetMockToken();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();

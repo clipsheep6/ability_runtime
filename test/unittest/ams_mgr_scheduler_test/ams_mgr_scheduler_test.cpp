@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,11 +20,12 @@
 #undef private
 
 #include "app_state_callback_host.h"
+#include "application_state_observer_stub.h"
 #include "hilog_wrapper.h"
 #include "mock_ability_token.h"
 #include "mock_app_mgr_service_inner.h"
 #include "mock_bundle_manager.h"
-#include "application_state_observer_stub.h"
+#include "singleton.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -782,9 +783,9 @@ HWTEST_F(AmsMgrSchedulerTest, GetRunningProcessInfoByPid_001, TestSize.Level0)
  */
 HWTEST_F(AmsMgrSchedulerTest, StartSpecifiedAbility_001, TestSize.Level0)
 {
-    auto mockBundleMgr = new (std::nothrow) BundleMgrService();
+    auto bundleMgrClient = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
     auto remoteClientManager = std::make_shared<RemoteClientManager>();
-    remoteClientManager->SetBundleManager(mockBundleMgr);
+    remoteClientManager->SetBundleManagerClient(bundleMgrClient);
     auto amsMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     amsMgrServiceInner->remoteClientManager_ = remoteClientManager;
     auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(amsMgrServiceInner, nullptr);

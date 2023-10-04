@@ -247,7 +247,10 @@ ohos_unittest("ability_context_test") {
     "ability_context_test.cpp",
   ]
 
-  include_dirs = [ "${ability_runtime_napi_path}/inner/napi_common" ]
+  include_dirs = [
+    "${ability_runtime_napi_path}/inner/napi_common",
+    "${ability_runtime_test_path}/mock/common/include",
+  ]
 
   configs = [ ":module_ability_context_config" ]
 
@@ -267,6 +270,7 @@ ohos_unittest("ability_context_test") {
     "ability_base:session_info",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
@@ -667,6 +671,7 @@ ohos_unittest("ability_thread_test") {
     "ability_runtime:ability_deps_wrapper",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
@@ -939,6 +944,7 @@ ohos_unittest("ability_thread_call_request_test") {
     "ability_base:zuri",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
@@ -1043,6 +1049,7 @@ ohos_unittest("data_ability_impl_test") {
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "data_share:datashare_common",
@@ -1103,6 +1110,7 @@ ohos_unittest("data_ability_impl_file_secondpart_test") {
     "ability_runtime:ability_deps_wrapper",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
@@ -1157,6 +1165,7 @@ ohos_unittest("data_ability_impl_file_test") {
     "ability_runtime:ability_deps_wrapper",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
@@ -1213,6 +1222,7 @@ ohos_unittest("ability_thread_dataability_test") {
     "ability_runtime:ability_deps_wrapper",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",

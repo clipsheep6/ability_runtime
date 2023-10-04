@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -86,14 +86,14 @@ public:
     ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
 
 private:
-    bool CheckControl(sptr<AppExecFwk::IBundleMgr> &bms, const Want &want, int32_t userId,
+    bool CheckControl(std::shared_ptr<AppExecFwk::BundleMgrClient> &client, const Want &want, int32_t userId,
         AppExecFwk::AppJumpControlRule &controlRule);
-    bool CheckIfJumpExempt(sptr<AppExecFwk::IBundleMgr> &bms, AppExecFwk::AppJumpControlRule &controlRule,
-        int32_t userId);
-    bool CheckIfExemptByBundleName(sptr<AppExecFwk::IBundleMgr> &bms, const std::string &bundleName,
-        const std::string &permission, int32_t userId);
-    bool LoadAppLabelInfo(sptr<AppExecFwk::IBundleMgr> &bms, Want &want, AppExecFwk::AppJumpControlRule &controlRule,
-        int32_t userId);
+    bool CheckIfJumpExempt(std::shared_ptr<AppExecFwk::BundleMgrClient> &client,
+    AppExecFwk::AppJumpControlRule &controlRule, int32_t userId);
+    bool CheckIfExemptByBundleName(std::shared_ptr<AppExecFwk::BundleMgrClient> &client,
+        const std::string &bundleName, const std::string &permission, int32_t userId);
+    bool LoadAppLabelInfo(std::shared_ptr<AppExecFwk::BundleMgrClient> &client, Want &want,
+        AppExecFwk::AppJumpControlRule &controlRule, int32_t userId);
 };
 } // namespace AAFwk
 } // namespace OHOS

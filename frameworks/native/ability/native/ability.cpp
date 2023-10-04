@@ -22,6 +22,7 @@
 #include "ability_recovery.h"
 #include "ability_runtime/js_ability.h"
 #include "abs_shared_result_set.h"
+#include "bundle_mgr_client.h"
 #include "configuration_convertor.h"
 #include "connection_manager.h"
 #include "continuation_manager.h"
@@ -42,6 +43,7 @@
 #include "reverse_continuation_scheduler_replica_handler_interface.h"
 #include "runtime.h"
 #include "scene_board_judgement.h"
+#include "singleton.h"
 #include "system_ability_definition.h"
 #include "task_handler_client.h"
 #include "values_bucket.h"
@@ -1052,13 +1054,13 @@ std::shared_ptr<AbilityPostEventTimeout> Ability::CreatePostEventTimeouter(std::
 int Ability::StartBackgroundRunning(const AbilityRuntime::WantAgent::WantAgent &wantAgent)
 {
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
-    auto bundleMgr = GetBundleMgr();
+    std::shared_ptr<BundleMgrClient> bundleMgr = DelayedSingleton<BundleMgrClient>::GetInstance();
     if (bundleMgr == nullptr) {
-        HILOG_ERROR("Ability::GetBundleMgr failed");
+        HILOG_ERROR("Failed to get BundleMgrClient.");
         return ERR_NULL_OBJECT;
     }
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("ability info is null");
+        HILOG_ERROR("Ability info is null");
         return ERR_INVALID_VALUE;
     }
     Want want;
@@ -1084,35 +1086,6 @@ int Ability::StopBackgroundRunning()
 #else
     return ERR_INVALID_OPERATION;
 #endif
-}
-
-sptr<IBundleMgr> Ability::GetBundleMgr()
-{
-    HILOG_DEBUG("called");
-    if (iBundleMgr_ == nullptr) {
-        sptr<ISystemAbilityManager> systemAbilityManager =
-            SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObject = systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-        if (remoteObject == nullptr) {
-            HILOG_ERROR("Failed to get bundle manager service.");
-            return nullptr;
-        }
-
-        iBundleMgr_ = iface_cast<IBundleMgr>(remoteObject);
-        if (iBundleMgr_ == nullptr) {
-            HILOG_ERROR("Failed to get remote object.");
-            return nullptr;
-        }
-    }
-
-    return iBundleMgr_;
-}
-
-void Ability::SetBundleManager(const sptr<IBundleMgr> &bundleManager)
-{
-    HILOG_DEBUG("called");
-
-    iBundleMgr_ = bundleManager;
 }
 
 void Ability::SetStartAbilitySetting(std::shared_ptr<AbilityStartSetting> setting)
