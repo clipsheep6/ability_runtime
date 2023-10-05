@@ -112,7 +112,7 @@ std::shared_ptr<Context> ContextContainer::GetContext()
     }
 }
 
-sptr<IBundleMgr> ContextContainer::GetBundleManager() const
+std::shared_ptr<BundleMgrClient> ContextContainer::GetBundleManager() const
 {
     if (baseContext_ != nullptr) {
         return baseContext_->GetBundleManager();
@@ -247,7 +247,7 @@ std::shared_ptr<Context> ContextContainer::CreateBundleContext(std::string bundl
         return GetApplicationContext();
     }
 
-    sptr<IBundleMgr> bundleMgr = GetBundleManager();
+    std::shared_ptr<BundleMgrClient> bundleMgr = GetBundleManager();
     if (bundleMgr == nullptr) {
         HILOG_ERROR("ContextContainer::CreateBundleContext GetBundleManager is nullptr");
         return nullptr;
@@ -305,7 +305,7 @@ void ContextContainer::InitResourceManager(BundleInfo &bundleInfo, std::shared_p
         std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager(
             bundleInfo.name, moduleName, hapPath, overlayPaths, *resConfig, appType));
         if (resourceManager == nullptr) {
-            HILOG_ERROR("ContextImpl::InitResourceManager failed to create resourceManager");
+            HILOG_ERROR("ContextImpl::InitResourceManager create resourceManager failed");
             return;
         }
         deal->initResourceManager(resourceManager);

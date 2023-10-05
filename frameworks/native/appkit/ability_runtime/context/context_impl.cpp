@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -619,19 +619,12 @@ ErrCode ContextImpl::GetBundleManager()
         return ERR_OK;
     }
 
-    auto instance = OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance();
-    if (instance == nullptr) {
-        HILOG_ERROR("failed to get SysMrgClient instance");
+    bundleMgr_ = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    if (bundleMgr_ == nullptr) {
+        HILOG_ERROR("Failed to get BundleMgrClient.");
         return ERR_NULL_OBJECT;
     }
-    auto bundleObj = instance->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    if (bundleObj == nullptr) {
-        HILOG_ERROR("failed to get bundle manager service");
-        return ERR_NULL_OBJECT;
-    }
-
-    bundleMgr_ = iface_cast<AppExecFwk::IBundleMgr>(bundleObj);
-    HILOG_DEBUG("ContextImpl::GetBundleManager success");
+    HILOG_DEBUG("Success");
     return ERR_OK;
 }
 

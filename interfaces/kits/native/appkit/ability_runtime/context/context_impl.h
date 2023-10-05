@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,10 +16,9 @@
 #ifndef OHOS_ABILITY_RUNTIME_CONTEXT_IMPL_H
 #define OHOS_ABILITY_RUNTIME_CONTEXT_IMPL_H
 
-#include "context.h"
-
+#include "bundle_mgr_client.h"
 #include "configuration.h"
-#include "bundle_mgr_interface.h"
+#include "context.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -383,7 +382,7 @@ private:
     std::mutex checkedDirSetLock_;
 
     std::mutex bundleManagerMutex_;
-    sptr<AppExecFwk::IBundleMgr> bundleMgr_;
+    std::shared_ptr<AppExecFwk::BundleMgrClient> bundleMgr_;
 
     // True: need to get a new fms remote object,
     // False: no need to get a new fms remote object.

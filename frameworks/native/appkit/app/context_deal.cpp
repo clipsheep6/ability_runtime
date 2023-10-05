@@ -124,16 +124,14 @@ void ContextDeal::SetContext(const std::shared_ptr<Context> &context)
     abilityContext_ = context;
 }
 
-sptr<IBundleMgr> ContextDeal::GetBundleManager() const
+std::shared_ptr<BundleMgrClient> ContextDeal::GetBundleManager() const
 {
-    auto bundleObj =
-        OHOS::DelayedSingleton<SysMrgClient>::GetInstance()->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    if (bundleObj == nullptr) {
-        HILOG_ERROR("failed to get bundle manager service");
+    std::shared_ptr<BundleMgrClient> bundleMgr = DelayedSingleton<BundleMgrClient>::GetInstance();
+    if (bundleMgr == nullptr) {
+        HILOG_ERROR("Failed to get BundleMgrClient.");
         return nullptr;
     }
-    sptr<IBundleMgr> bms = iface_cast<IBundleMgr>(bundleObj);
-    return bms;
+    return bundleMgr;
 }
 
 std::shared_ptr<Global::Resource::ResourceManager> ContextDeal::GetResourceManager() const
@@ -220,7 +218,7 @@ sptr<AAFwk::IAbilityManager> ContextDeal::GetAbilityManager()
 
 std::string ContextDeal::GetAppType()
 {
-    sptr<IBundleMgr> ptr = GetBundleManager();
+    std::shared_ptr<BundleMgrClient> ptr = GetBundleManager();
     if (ptr == nullptr) {
         HILOG_ERROR("GetAppType failed to get bundle manager service");
         return "";
@@ -454,7 +452,7 @@ int ContextDeal::GetColorMode()
 
 bool ContextDeal::HapModuleInfoRequestInit()
 {
-    sptr<IBundleMgr> ptr = GetBundleManager();
+    std::shared_ptr<BundleMgrClient> ptr = GetBundleManager();
     if (ptr == nullptr) {
         HILOG_ERROR("GetHapModuleInfo failed to get bundle manager service");
         return false;
