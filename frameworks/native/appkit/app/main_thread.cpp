@@ -1113,7 +1113,7 @@ bool IsNeedLoadLibrary(const std::string &bundleName)
     return false;
 }
 
-bool GetBundleForLaunchApplication(sptr<IBundleMgr> bundleMgr, const std::string &bundleName,
+bool GetBundleForLaunchApplication(std::shared_ptr<BundleMgrClient> bundleMgr, const std::string &bundleName,
     int32_t appIndex, BundleInfo &bundleInfo)
 {
     bool queryResult;
@@ -1162,7 +1162,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         HILOG_ERROR("MainThread::handleLaunchApplication InitCreate failed");
         return;
     }
-    sptr<IBundleMgr> bundleMgr = contextDeal->GetBundleManager();
+    auto bundleMgr = contextDeal->GetBundleManager();
     if (bundleMgr == nullptr) {
         HILOG_ERROR("MainThread::handleLaunchApplication GetBundleManager is nullptr");
         return;
@@ -2455,15 +2455,9 @@ bool MainThread::GetHqfFileAndHapPath(const std::string &bundleName,
     std::vector<std::pair<std::string, std::string>> &fileMap)
 {
     HILOG_DEBUG("function called.");
-    auto bundleObj = DelayedSingleton<SysMrgClient>::GetInstance()->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    if (bundleObj == nullptr) {
-        HILOG_ERROR("Failed to get bundle manager service.");
-        return false;
-    }
-
-    sptr<IBundleMgr> bundleMgr = iface_cast<IBundleMgr>(bundleObj);
+    std::shared_ptr<BundleMgrClient> bundleMgr = DelayedSingleton<BundleMgrClient>::GetInstance();
     if (bundleMgr == nullptr) {
-        HILOG_ERROR("Bundle manager is nullptr.");
+        HILOG_ERROR("Failed to get BundleMgrClient.");
         return false;
     }
 
@@ -2606,9 +2600,9 @@ void MainThread::UpdateRuntimeModuleChecker(const std::unique_ptr<AbilityRuntime
 int MainThread::GetOverlayModuleInfos(const std::string &bundleName, const std::string &moduleName,
     std::vector<OverlayModuleInfo> &overlayModuleInfos) const
 {
-    sptr<AppExecFwk::IBundleMgr> bundleMgr = AAFwk::AbilityUtil::GetBundleManager();
+    std::shared_ptr<BundleMgrClient> bundleMgr = DelayedSingleton<BundleMgrClient>::GetInstance();
     if (bundleMgr == nullptr) {
-        HILOG_ERROR("ContextImpl::CreateBundleContext GetBundleManager is nullptr");
+        HILOG_ERROR("Failed to get BundleMgrClient.");
         return ERR_INVALID_VALUE;
     }
 

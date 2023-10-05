@@ -18,13 +18,14 @@
 
 #include <memory>
 
-#include "bundle_mgr_interface.h"
-#include "ability_manager_interface.h"
 #include "ability_info.h"
-#include "process_info.h"
-#include "resource_manager.h"
+#include "ability_manager_interface.h"
+#include "bundle_mgr_client.h"
+#include "bundle_mgr_interface.h"
 #include "dummy_hap_module_info.h"
 #include "hap_module_info.h"
+#include "process_info.h"
+#include "resource_manager.h"
 #include "task/task_priority.h"
 
 namespace OHOS {
@@ -109,12 +110,12 @@ public:
     virtual std::shared_ptr<Context> GetContext() = 0;
 
     /**
-     * @brief Obtains an IBundleMgr instance.
+     * @brief Obtains an BundleMgrClient instance.
      * You can use this instance to obtain information about the application bundle.
      *
-     * @return Returns an IBundleMgr instance.
+     * @return Returns a BundleMgrClient instance.
      */
-    virtual sptr<IBundleMgr> GetBundleManager() const = 0;
+    virtual std::shared_ptr<BundleMgrClient> GetBundleManager() const = 0;
 
     /**
      * @brief Obtains a resource manager.

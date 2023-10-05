@@ -87,7 +87,10 @@ ohos_unittest("context_deal_interface_test") {
 ohos_unittest("application_test") {
   module_out_path = module_output_path
 
-  include_dirs = [ "${resource_management_path}/frameworks/resmgr/include" ]
+  include_dirs = [
+    "${ability_runtime_test_path}/mock/common/include",
+    "${resource_management_path}/frameworks/resmgr/include",
+  ]
 
   sources = [
     "${ability_runtime_native_path}/appkit/app/app_context.cpp",
@@ -112,6 +115,7 @@ ohos_unittest("application_test") {
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
 
@@ -180,8 +184,47 @@ ohos_unittest("context_container_test") {
   }
 }
 
+ohos_unittest("context_container_by_mock_bms_test") {
+  include_dirs = [ "${ability_runtime_test_path}/mock/common/include" ]
+  module_out_path = module_output_path
+  sources = [ "context_container_by_mock_bms_test.cpp" ]
+
+  configs = [ ":module_context_config" ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_native_path}/ability/native:ability_thread",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:runtime",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+}
+
 ohos_unittest("context_deal_test") {
   module_out_path = module_output_path
+
+  include_dirs = [
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
+    "${ability_runtime_test_path}/mock/common/include",
+  ]
+
   sources = [
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
     "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
@@ -216,6 +259,7 @@ ohos_unittest("context_deal_test") {
     "ability_base:zuri",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
@@ -258,6 +302,7 @@ ohos_unittest("application_impl_test") {
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
 
@@ -381,6 +426,9 @@ ohos_unittest("mix_stack_dumper_test") {
 
 ohos_unittest("ability_stage_test") {
   module_out_path = module_output_path
+
+  include_dirs = [ "${ability_runtime_test_path}/mock/common/include" ]
+
   sources = [
     "${ability_runtime_native_path}/appkit/app/app_context.cpp",
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
@@ -404,6 +452,7 @@ ohos_unittest("ability_stage_test") {
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
 
@@ -545,6 +594,7 @@ group("unittest") {
     ":appfreeze_inner_test",
     ":application_impl_test",
     ":application_test",
+    ":context_container_by_mock_bms_test",
     ":context_container_test",
     ":context_deal_test",
     ":form_extension_context_test",
