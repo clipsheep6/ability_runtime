@@ -46,5 +46,5 @@ std::unique_ptr<Runtime> Runtime::GetPreloaded()
 {
     return std::move(g_preloadedInstance);
 }
-}  // namespace AbilityRuntime
-}  // namespace OHOS
+} // namespace AbilityRuntime
+} // namespace OHOS

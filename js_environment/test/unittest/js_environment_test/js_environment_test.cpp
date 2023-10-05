@@ -232,6 +232,23 @@ HWTEST_F(JsEnvironmentTest, InitSyscapModule_0100, TestSize.Level0)
 }
 
 /**
+ * @tc.name: InitSyscapModule_0200
+ * @tc.desc: InitSyscapModule
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(JsEnvironmentTest, InitSyscapModule_0200, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+
+    panda::RuntimeOption pandaOption;
+    auto ret = jsEnv->Initialize(pandaOption, static_cast<void*>(this));
+    ASSERT_EQ(ret, true);
+    jsEnv->InitSyscapModule();
+}
+
+/**
  * @tc.name: RegisterUncaughtExceptionHandler_0100
  * @tc.desc: RegisterUncaughtExceptionHandler
  * @tc.type: FUNC
@@ -374,6 +391,78 @@ HWTEST_F(JsEnvironmentTest, SetRequestAotCallback_0100, TestSize.Level0)
         return 0;
     };
     jsEnv->SetRequestAotCallback(callback);
+}
+
+/**
+ * @tc.name: BuildJsStackInfoList_0100
+ * @tc.desc: Js environment BuildJsStackInfoList.
+ * @tc.type: FUNC
+ * @tc.require: issueI85IXS
+ */
+HWTEST_F(JsEnvironmentTest, BuildJsStackInfoList_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+    panda::RuntimeOption pandaOption;
+    ASSERT_EQ(jsEnv->Initialize(pandaOption, static_cast<void*>(this)), true);
+
+    uint32_t tid = gettid();
+    std::vector<JsFrameInfo> jsFrameInfo = {};
+    (void)jsEnv->BuildJsStackInfoList(tid, jsFrameInfo);
+}
+
+/**
+ * @tc.name: DumpHeapSnapshot_0100
+ * @tc.desc: Js environment DumpHeapSnapshot.
+ * @tc.type: FUNC
+ * @tc.require: issueI85IXS
+ */
+HWTEST_F(JsEnvironmentTest, DumpHeapSnapshot_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+    panda::RuntimeOption pandaOption;
+    ASSERT_EQ(jsEnv->Initialize(pandaOption, static_cast<void*>(this)), true);
+
+    bool isVmMode = true;
+    DumpFormat dumpFormat = DumpFormat::JSON;
+    bool isPrivate = false;
+    jsEnv->DumpHeapSnapshot(isVmMode, dumpFormat, isPrivate);
+}
+
+/**
+ * @tc.name: NotifyApplicationState_0100
+ * @tc.desc: Js environment NotifyApplicationState.
+ * @tc.type: FUNC
+ * @tc.require: issueI85IXS
+ */
+HWTEST_F(JsEnvironmentTest, NotifyApplicationState_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+    panda::RuntimeOption pandaOption;
+    ASSERT_EQ(jsEnv->Initialize(pandaOption, static_cast<void*>(this)), true);
+
+    bool isBackground = true;
+    jsEnv->NotifyApplicationState(isBackground);
+}
+
+/**
+ * @tc.name: SuspendVM_0100
+ * @tc.desc: Js environment SuspendVM.
+ * @tc.type: FUNC
+ * @tc.require: issueI85IXS
+ */
+HWTEST_F(JsEnvironmentTest, SuspendVM_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+    panda::RuntimeOption pandaOption;
+    ASSERT_EQ(jsEnv->Initialize(pandaOption, static_cast<void*>(this)), true);
+
+    auto ret = jsEnv->SuspendVM(gettid());
+    EXPECT_EQ(ret, true);
+    jsEnv->ResumeVM(gettid());
 }
 } // namespace JsEnv
 } // namespace OHOS

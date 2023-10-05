@@ -52,7 +52,6 @@
 #include "parameters.h"
 #include "extractor.h"
 #include "system_ability_definition.h"
-#include "systemcapability.h"
 #include "source_map.h"
 #include "source_map_operator.h"
 
@@ -68,7 +67,6 @@ namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr size_t PARAM_TWO = 2;
-constexpr uint8_t SYSCAP_MAX_SIZE = 64;
 constexpr int64_t DEFAULT_GC_POOL_SIZE = 0x10000000; // 256MB
 constexpr int32_t DEFAULT_INTER_VAL = 500;
 constexpr int32_t TRIGGER_GC_AFTER_CLEAR_STAGE_MS = 3000;
@@ -85,54 +83,11 @@ constexpr char MERGE_ABC_PATH[] = "/ets/modules.abc";
 constexpr char BUNDLE_INSTALL_PATH[] = "/data/storage/el1/bundle/";
 constexpr const char* PERMISSION_RUN_ANY_CODE = "ohos.permission.RUN_ANY_CODE";
 
-static auto PermissionCheckFunc = []() {
+static auto PermissionCheckFunc = []() -> bool {
     Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
-
     int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, PERMISSION_RUN_ANY_CODE);
-    if (result == Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
-        return true;
-    } else {
-        return false;
-    }
+    return result == Security::AccessToken::PermissionState::PERMISSION_GRANTED ? true : false;
 };
-
-napi_value CanIUse(napi_env env, napi_callback_info info)
-{
-    if (env == nullptr || info == nullptr) {
-        HILOG_ERROR("get syscap failed since env or callback info is nullptr.");
-        return nullptr;
-    }
-    napi_value undefined = CreateJsUndefined(env);
-
-    size_t argc = 1;
-    napi_value argv[1] = { nullptr };
-    napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    if (argc != 1) {
-        HILOG_ERROR("Get syscap failed with invalid parameter.");
-        return undefined;
-    }
-
-    napi_valuetype valueType = napi_undefined;
-    napi_typeof(env, argv[0], &valueType);
-    if (valueType != napi_string) {
-        HILOG_INFO("%{public}s called. Params is invalid.", __func__);
-        return undefined;
-    }
-
-    char syscap[SYSCAP_MAX_SIZE] = { 0 };
-
-    size_t strLen = 0;
-    napi_get_value_string_utf8(env, argv[0], syscap, sizeof(syscap), &strLen);
-
-    bool ret = HasSystemCapability(syscap);
-    return CreateJsValue(env, ret);
-}
-
-void InitSyscapModule(napi_env env, napi_value globalObject)
-{
-    const char *moduleName = "JsRuntime";
-    BindNativeFunction(env, globalObject, "canIUse", moduleName, CanIUse);
-}
 
 int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char* message)
 {
@@ -190,6 +145,7 @@ void JsRuntime::StartDebugMode(bool needBreakPoint)
         HILOG_INFO("Already in debug mode");
         return;
     }
+
     // Set instance id to tid after the first instance.
     if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
         instanceId_ = static_cast<uint32_t>(gettid());
@@ -248,7 +204,7 @@ int32_t JsRuntime::JsperfProfilerCommandParse(const std::string &command, int32_
         return defaultValue;
     }
 
-    // get match resuflt
+    // get match result
     std::string jsperfResuflt;
     constexpr size_t matchResultIndex = 1;
     if (matchResults.size() < PARAM_TWO) {
@@ -536,48 +492,23 @@ bool JsRuntime::Initialize(const Options& options)
             return false;
         }
     }
+
     apiTargetVersion_ = options.apiTargetVersion;
     HILOG_INFO("Initialize: %{public}d.", apiTargetVersion_);
     bool isModular = false;
     if (IsUseAbilityRuntime(options)) {
-        HandleScope handleScope(*this);
-        auto env = GetNapiEnv();
-        auto nativeEngine = reinterpret_cast<NativeEngine*>(env);
-        CHECK_POINTER_AND_RETURN(nativeEngine, false);
-
-        auto vm = GetEcmaVm();
-        CHECK_POINTER_AND_RETURN(vm, false);
-
         if (preloaded_) {
             PostPreload(options);
         }
 
-        napi_value globalObj = nullptr;
-        napi_get_global(env, &globalObj);
-        CHECK_POINTER_AND_RETURN(globalObj, false);
-
         if (!preloaded_) {
-            InitSyscapModule(env, globalObj);
-
-            // Simple hook function 'isSystemplugin'
-            const char* moduleName = "JsRuntime";
-            BindNativeFunction(env, globalObj, "isSystemplugin", moduleName,
-                [](napi_env env, napi_callback_info cbinfo) -> napi_value {
-                    return CreateJsUndefined(env);
-                });
-
-            napi_value propertyValue = nullptr;
-            napi_get_named_property(env, globalObj, "requireNapi", &propertyValue);
-            napi_ref tmpRef = nullptr;
-            napi_create_reference(env, propertyValue, 1, &tmpRef);
-            methodRequireNapiRef_.reset(reinterpret_cast<NativeReference*>(tmpRef));
-            if (!methodRequireNapiRef_) {
-                HILOG_ERROR("Failed to create reference for global.requireNapi");
+            InitSyscapModule();
+            if (!BindBaseNativeFunc()) {
                 return false;
             }
 
             PreloadAce(options);
-            nativeEngine->RegisterPermissionCheck(PermissionCheckFunc);
+            RegisterPermissionCheck();
         }
 
         if (!options.preload) {
@@ -587,6 +518,8 @@ bool JsRuntime::Initialize(const Options& options)
             ReInitJsEnvImpl(options);
             LoadAotFile(options);
 
+            auto vm = GetEcmaVm();
+            CHECK_POINTER_AND_RETURN(vm, false);
             panda::JSNApi::SetBundle(vm, options.isBundle);
             panda::JSNApi::SetBundleName(vm, options.bundleName);
             panda::JSNApi::SetHostResolveBufferTracker(
@@ -600,15 +533,8 @@ bool JsRuntime::Initialize(const Options& options)
     }
 
     if (!options.preload) {
-        auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>(options.hapPath, isModular);
-        InitSourceMap(operatorObj);
-
-        if (options.isUnique) {
-            HILOG_INFO("Not supported TimerModule when form render");
-        } else {
-            InitTimerModule();
-        }
-
+        InitSourceMap(std::make_shared<JsEnv::SourceMapOperator>(options.hapPath, isModular));
+        InitTimerModule(options.isUnique);
         InitWorkerModule(options);
         SetModuleLoadChecker(options.moduleCheckerDelegate);
         SetRequestAotCallback();
@@ -874,18 +800,22 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModule(
 
     HandleScope handleScope(*this);
 
-    napi_value className = nullptr;
-    napi_create_string_utf8(env, moduleName.c_str(), moduleName.length(), &className);
+    // Get global object
     napi_value globalObj = nullptr;
     napi_get_global(env, &globalObj);
+    CHECK_POINTER_AND_RETURN(globalObj, std::unique_ptr<NativeReference>());
+
+    napi_value className = nullptr;
+    napi_create_string_utf8(env, moduleName.c_str(), moduleName.length(), &className);
     napi_value refValue = methodRequireNapiRef_->GetNapiValue();
     napi_value args[1] = { className };
     napi_value classValue = nullptr;
     napi_call_function(env, globalObj, refValue, 1, args, &classValue);
+
     napi_value instanceValue = nullptr;
     napi_new_instance(env, classValue, argc, argv, &instanceValue);
     if (instanceValue == nullptr) {
-        HILOG_ERROR("Failed to create object instance");
+        HILOG_ERROR("Failed to create instance, moduleName: %{public}s.", moduleName.c_str());
         return std::unique_ptr<NativeReference>();
     }
 
@@ -899,7 +829,6 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     auto vm = GetEcmaVm();
     CHECK_POINTER_AND_RETURN(vm, false);
-
     std::string commonsPath = std::string(Constants::LOCAL_CODE_PATH) + "/" + moduleName_ + "/ets/commons.abc";
     std::string vendorsPath = std::string(Constants::LOCAL_CODE_PATH) + "/" + moduleName_ + "/ets/vendors.abc";
     if (hapPath.empty()) {
@@ -910,19 +839,9 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
         return LoadScript(srcPath);
     }
 
-    bool newCreate = false;
-    std::string loadPath = ExtractorUtil::GetLoadFilePath(hapPath);
-    std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate, true);
-    if (!extractor) {
-        HILOG_ERROR("Get extractor failed. hapPath[%{private}s]", hapPath.c_str());
+    std::shared_ptr<Extractor> extractor = GetExtractorAndAddSource(hapPath);
+    if (extractor == nullptr) {
         return false;
-    }
-    if (newCreate) {
-        panda::JSNApi::LoadAotFile(vm, moduleName_);
-        auto resourceManager = AbilityBase::ExtractResourceManager::GetExtractResourceManager().GetGlobalObject();
-        if (resourceManager) {
-            resourceManager->AddResource(loadPath.c_str());
-        }
     }
 
     auto func = [&](std::string modulePath, const std::string abcPath) {
@@ -1007,20 +926,20 @@ void JsRuntime::RemoveTask(const std::string& name)
 
 void JsRuntime::DumpHeapSnapshot(bool isPrivate)
 {
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER(nativeEngine);
-    nativeEngine->DumpHeapSnapshot(true, DumpFormat::JSON, isPrivate);
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->DumpHeapSnapshot(true, DumpFormat::JSON, isPrivate);
 }
 
 bool JsRuntime::BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames)
 {
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER_AND_RETURN(nativeEngine, false);
+    CHECK_POINTER_AND_RETURN(jsEnv_, false);
     std::vector<JsFrameInfo> jsFrameInfo;
-    bool ret = nativeEngine->BuildJsStackInfoList(tid, jsFrameInfo);
+    auto ret = jsEnv_->BuildJsStackInfoList(tid, jsFrameInfo);
     if (!ret) {
-        return ret;
+        HILOG_ERROR("Get js stack info failed.");
+        return false;
     }
+
     for (auto jf : jsFrameInfo) {
         struct JsFrames jsFrame;
         jsFrame.functionName = jf.functionName;
@@ -1029,29 +948,26 @@ bool JsRuntime::BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFram
         jsFrame.nativePointer = jf.nativePointer;
         jsFrames.emplace_back(jsFrame);
     }
-    return ret;
+    return true;
 }
 
 void JsRuntime::NotifyApplicationState(bool isBackground)
 {
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER(nativeEngine);
-    nativeEngine->NotifyApplicationState(isBackground);
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->NotifyApplicationState(isBackground);
     HILOG_INFO("NotifyApplicationState, isBackground %{public}d.", isBackground);
 }
 
 bool JsRuntime::SuspendVM(uint32_t tid)
 {
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER_AND_RETURN(nativeEngine, false);
-    return nativeEngine->SuspendVMById(tid);
+    CHECK_POINTER_AND_RETURN(jsEnv_, false);
+    return jsEnv_->SuspendVM(tid);
 }
 
 void JsRuntime::ResumeVM(uint32_t tid)
 {
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER(nativeEngine);
-    nativeEngine->ResumeVMById(tid);
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->ResumeVM(tid);
 }
 
 void JsRuntime::PreloadSystemModule(const std::string& moduleName)
@@ -1128,25 +1044,27 @@ void JsRuntime::RegisterQuickFixQueryFunc(const std::map<std::string, std::strin
 
 bool JsRuntime::ReadSourceMapData(const std::string& hapPath, const std::string& sourceMapPath, std::string& content)
 {
-    // Source map relative path, FA: "/assets/js", Stage: "/ets"
     if (hapPath.empty()) {
-        HILOG_ERROR("hapPath is empty");
+        HILOG_ERROR("Invalid hap path.");
         return false;
     }
+
     bool newCreate = false;
     std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(
         ExtractorUtil::GetLoadFilePath(hapPath), newCreate);
     if (extractor == nullptr) {
-        HILOG_ERROR("hap's path: %{public}s, get extractor failed", hapPath.c_str());
+        HILOG_ERROR("Get extractor failed, hap path: %{private}s.", hapPath.c_str());
         return false;
     }
+
+    // Source map relative path, FA: "/assets/js", Stage: "/ets"
     std::unique_ptr<uint8_t[]> dataPtr = nullptr;
     size_t len = 0;
     if (!extractor->ExtractToBufByName(sourceMapPath, dataPtr, len)) {
-        HILOG_DEBUG("can't find source map, and switch to stage model.");
+        HILOG_DEBUG("Can't find sourcemap, switch to stage model.");
         std::string tempPath = std::regex_replace(sourceMapPath, std::regex("ets"), "assets/js");
         if (!extractor->ExtractToBufByName(tempPath, dataPtr, len)) {
-            HILOG_ERROR("get mergeSourceMapData fileBuffer failed, map path: %{private}s", tempPath.c_str());
+            HILOG_ERROR("Get merged sourcemap failed, map path: %{private}s.", tempPath.c_str());
             return false;
         }
     }
@@ -1222,8 +1140,13 @@ void JsRuntime::FreeNativeReference(std::unique_ptr<NativeReference> uniqueNativ
     }
 }
 
-void JsRuntime::InitTimerModule()
+void JsRuntime::InitTimerModule(bool isUnique)
 {
+    if (isUnique) {
+        HILOG_INFO("Not supported TimerModule when form render");
+        return;
+    }
+
     CHECK_POINTER(jsEnv_);
     jsEnv_->InitTimerModule();
 }
@@ -1243,6 +1166,12 @@ void JsRuntime::InitWorkerModule(const Options& options)
         SetJsFramework();
     }
     jsEnv_->InitWorkerModule(workerInfo);
+}
+
+void JsRuntime::InitSyscapModule()
+{
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->InitSyscapModule();
 }
 
 void JsRuntime::ReInitJsEnvImpl(const Options& options)
@@ -1285,6 +1214,68 @@ void JsRuntime::SetRequestAotCallback()
     };
 
     jsEnv_->SetRequestAotCallback(callback);
+}
+
+void JsRuntime::RegisterPermissionCheck()
+{
+    auto nativeEngine = GetNativeEnginePointer();
+    CHECK_POINTER(nativeEngine);
+    nativeEngine->RegisterPermissionCheck(PermissionCheckFunc);
+}
+
+bool JsRuntime::BindBaseNativeFunc()
+{
+    auto env = GetNapiEnv();
+    CHECK_POINTER_AND_RETURN(env, false);
+
+    HandleScope handleScope(*this);
+
+    napi_value globalObj = nullptr;
+    napi_get_global(env, &globalObj);
+    CHECK_POINTER_AND_RETURN(globalObj, false);
+
+    // Simple hook function 'isSystemplugin'
+    const char* moduleName = "JsRuntime";
+    BindNativeFunction(env, globalObj, "isSystemplugin", moduleName,
+        [](napi_env env, napi_callback_info cbinfo) -> napi_value {
+            return CreateJsUndefined(env);
+        });
+
+    napi_value propertyValue = nullptr;
+    napi_get_named_property(env, globalObj, "requireNapi", &propertyValue);
+    napi_ref tmpRef = nullptr;
+    napi_create_reference(env, propertyValue, 1, &tmpRef);
+    methodRequireNapiRef_.reset(reinterpret_cast<NativeReference*>(tmpRef));
+    if (!methodRequireNapiRef_) {
+        HILOG_ERROR("Failed to create reference for global.requireNapi");
+        return false;
+    }
+
+    return true;
+}
+
+std::shared_ptr<Extractor> JsRuntime::GetExtractorAndAddSource(const std::string& hapPath) const
+{
+    auto vm = GetEcmaVm();
+    CHECK_POINTER_AND_RETURN(vm, nullptr);
+
+    bool newCreate = false;
+    std::string loadPath = ExtractorUtil::GetLoadFilePath(hapPath);
+    std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate, true);
+    if (extractor == nullptr) {
+        HILOG_ERROR("Get extractor failed. hapPath[%{private}s]", hapPath.c_str());
+        return nullptr;
+    }
+
+    if (newCreate) {
+        panda::JSNApi::LoadAotFile(vm, moduleName_);
+        auto resourceManager = ExtractResourceManager::GetExtractResourceManager().GetGlobalObject();
+        if (resourceManager) {
+            resourceManager->AddResource(loadPath.c_str());
+        }
+    }
+
+    return extractor;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
