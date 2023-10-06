@@ -18,6 +18,7 @@
 
 #include "ability_manager_service.h"
 #include "ability_util.h"
+#include "bundle_mgr_client.h"
 #include "default_app_interface.h"
 #include "errors.h"
 #include "event_report.h"
@@ -164,18 +165,18 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
 int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     AbilityRequest &request, std::vector<DialogAppInfo> &dialogAppInfos, std::string &deviceType, bool isMoreHapList)
 {
-    HILOG_DEBUG("%{public}s", __func__);
-    // get abilityinfos from bms
-    auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
+    HILOG_DEBUG("Called.");
+    auto bundleMgrClient = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    CHECK_POINTER_AND_RETURN(bundleMgrClient, GET_BUNDLE_MANAGER_SERVICE_FAILED);
     auto abilityInfoFlag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
         | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL_URI;
     std::vector<AppExecFwk::AbilityInfo> abilityInfos;
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
     bool withDefault = false;
     withDefault = request.want.GetBoolParam(SHOW_DEFAULT_PICKER_FLAG, withDefault) ? false : true;
-    IN_PROCESS_CALL_WITHOUT_RET(bms->ImplicitQueryInfos(
-        request.want, abilityInfoFlag, userId, withDefault, abilityInfos, extensionInfos));
+    IN_PROCESS_CALL_WITHOUT_RET(
+        bundleMgrClient->ImplicitQueryInfos(
+            request.want, abilityInfoFlag, userId, withDefault, abilityInfos, extensionInfos));
 
     HILOG_INFO("ImplicitQueryInfos, abilityInfo size : %{public}zu, extensionInfos size: %{public}zu",
         abilityInfos.size(), extensionInfos.size());
@@ -197,8 +198,8 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     std::vector<AppExecFwk::ExtensionAbilityInfo> implicitExtensionInfos;
     std::vector<std::string> infoNames;
     if (deviceType != STR_PHONE && deviceType != STR_DEFAULT) {
-        IN_PROCESS_CALL_WITHOUT_RET(bms->ImplicitQueryInfos(implicitwant, abilityInfoFlag, userId,
-            withDefault, implicitAbilityInfos, implicitExtensionInfos));
+        IN_PROCESS_CALL_WITHOUT_RET(bundleMgrClient->ImplicitQueryInfos(
+            implicitwant, abilityInfoFlag, userId, withDefault, implicitAbilityInfos, implicitExtensionInfos));
         if (implicitAbilityInfos.size() != 0 && request.want.GetType() != TYPE_ONLY_MATCH_WILDCARD) {
             for (auto implicitAbilityInfo : implicitAbilityInfos) {
                 infoNames.emplace_back(implicitAbilityInfo.bundleName + "#" +
@@ -219,10 +220,10 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
                     IN_PROCESS_CALL(defaultMgr->GetDefaultApplication(userId, request.want.GetType(), bundleInfo));
                 if (ret == ERR_OK) {
                     if (bundleInfo.abilityInfos.size() == 1) {
-                        HILOG_INFO("find default ability.");
+                        HILOG_INFO("Find default ability.");
                         isDefaultFlag = true;
                     } else if (bundleInfo.extensionInfos.size() == 1) {
-                        HILOG_INFO("find default extension.");
+                        HILOG_INFO("Find default extension.");
                         isDefaultFlag = true;
                     } else {
                         HILOG_INFO("GetDefaultApplication failed.");
@@ -337,20 +338,12 @@ int ImplicitStartProcessor::CallStartAbilityInner(int32_t userId,
     return ret;
 }
 
-sptr<AppExecFwk::IBundleMgr> ImplicitStartProcessor::GetBundleManager()
-{
-    if (iBundleManager_ == nullptr) {
-        iBundleManager_ = AbilityUtil::GetBundleManager();
-    }
-    return iBundleManager_;
-}
-
 sptr<AppExecFwk::IDefaultApp> ImplicitStartProcessor::GetDefaultAppProxy()
 {
-    auto bundleMgr = GetBundleManager();
-    auto defaultAppProxy = bundleMgr->GetDefaultAppProxy();
+    auto bundleMgrClient = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    auto defaultAppProxy = bundleMgrClient->GetDefaultAppProxy();
     if (defaultAppProxy == nullptr) {
-        HILOG_ERROR("GetDefaultAppProxy failed.");
+        HILOG_ERROR("Get default app proxy failed.");
         return nullptr;
     }
     return defaultAppProxy;
@@ -390,47 +383,47 @@ void ImplicitStartProcessor::GetEcologicalCallerInfo(const Want &want, ErmsCalle
     callerInfo.targetAppType = TYPE_HARMONY_INVALID;
     callerInfo.callerAppType = TYPE_HARMONY_INVALID;
 
-    auto bms = AbilityUtil::GetBundleManager();
-    if (!bms) {
-        HILOG_ERROR("GetBundleManager failed");
-        return;
+    auto bundleMgrClient = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    if (bundleMgrClient == nullptr) {
+        HILOG_ERROR("Failed to get bundle manager client.");
+        return GET_ABILITY_SERVICE_FAILED;
     }
 
     std::string targetBundleName = want.GetBundle();
     AppExecFwk::ApplicationInfo targetAppInfo;
-    bool getTargetResult = IN_PROCESS_CALL(bms->GetApplicationInfo(targetBundleName,
-        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, targetAppInfo));
+    bool getTargetResult = IN_PROCESS_CALL(bundleMgrClient->GetApplicationInfo(
+        targetBundleName, AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, targetAppInfo));
     if (!getTargetResult) {
         HILOG_ERROR("Get targetAppInfo failed.");
     } else if (targetAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
-        HILOG_DEBUG("the target type  is atomic service");
+        HILOG_DEBUG("The target type  is atomic service.");
         callerInfo.targetAppType = TYPE_HARMONY_SERVICE;
     } else if (targetAppInfo.bundleType == AppExecFwk::BundleType::APP) {
-        HILOG_DEBUG("the target type is app");
+        HILOG_DEBUG("The target type is app.");
         callerInfo.targetAppType = TYPE_HARMONY_APP;
     } else {
-        HILOG_DEBUG("the target type is invalid type");
+        HILOG_DEBUG("The target type is invalid type.");
     }
 
     std::string callerBundleName;
-    ErrCode err = IN_PROCESS_CALL(bms->GetNameForUid(callerInfo.uid, callerBundleName));
+    ErrCode err = IN_PROCESS_CALL(bundleMgrClient->GetNameForUid(callerInfo.uid, callerBundleName));
     if (err != ERR_OK) {
         HILOG_ERROR("Get callerBundleName failed.");
         return;
     }
     AppExecFwk::ApplicationInfo callerAppInfo;
-    bool getCallerResult = IN_PROCESS_CALL(bms->GetApplicationInfo(callerBundleName,
-        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, callerAppInfo));
+    bool getCallerResult = IN_PROCESS_CALL(bundleMgrClient->GetApplicationInfo(
+        callerBundleName, AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, callerAppInfo));
     if (!getCallerResult) {
         HILOG_DEBUG("Get callerAppInfo failed.");
     } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
-        HILOG_DEBUG("the caller type  is atomic service");
+        HILOG_DEBUG("The caller type  is atomic service.");
         callerInfo.callerAppType = TYPE_HARMONY_SERVICE;
     } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::APP) {
-        HILOG_DEBUG("the caller type is app");
+        HILOG_DEBUG("The caller type is app.");
         callerInfo.callerAppType = TYPE_HARMONY_APP;
     } else {
-        HILOG_DEBUG("the caller type is invalid type");
+        HILOG_DEBUG("The caller type is invalid type.");
     }
 }
 #endif

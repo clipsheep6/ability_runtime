@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 #include <memory>
 
 #define private public
+#include "iservice_registry.h"
 #define protected public
 #include "ability_connect_manager.h"
 #undef private
@@ -26,8 +27,12 @@
 #include "ability_manager_errors.h"
 #include "ability_scheduler.h"
 #include "ability_util.h"
-#include "bundlemgr/mock_bundle_manager.h"
+#include "bundle_mgr_interface.h"
 #include "mock_ability_connect_callback.h"
+#include "mock_bundle_installer_service.h"
+#include "mock_bundle_manager_service.h"
+#include "mock_system_ability_manager.h"
+#include "permission_verification.h"
 #include "sa_mgr_client.h"
 #include "system_ability_definition.h"
 
@@ -36,6 +41,8 @@ using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace AAFwk {
+sptr<MockBundleInstallerService> mockBundleInstaller = new (std::nothrow) MockBundleInstallerService();
+sptr<MockBundleManagerService> mockBundleMgr = new (std::nothrow) MockBundleManagerService();
 template<typename F>
 static void WaitUntilTaskCalled(const F& f, const std::shared_ptr<TaskHandlerWrap>& handler,
     std::atomic<bool>& taskCalled)
@@ -80,6 +87,9 @@ public:
 
     sptr<SessionInfo> MockSessionInfo(int32_t persistentId);
     std::shared_ptr<AbilityRecord> InitAbilityRecord();
+    void MockBundleInstaller();
+    sptr<ISystemAbilityManager> iSystemAbilityMgr_ = nullptr;
+    sptr<AppExecFwk::MockSystemAbilityManager> mockSystemAbility_ = nullptr;
 
 protected:
     AbilityRequest abilityRequest_{};
@@ -186,9 +196,9 @@ void AbilityConnectManagerTest::SetUp(void)
     serviceToken1_ = serviceRecord_->GetToken();
     callbackA_ = new AbilityConnectCallback();
     callbackB_ = new AbilityConnectCallback();
-    // mock bms
-    OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
-        OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, new BundleMgrService());
+    mockSystemAbility_ = new (std::nothrow) AppExecFwk::MockSystemAbilityManager();
+    iSystemAbilityMgr_ = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = mockSystemAbility_;
 }
 
 void AbilityConnectManagerTest::TearDown(void)
@@ -197,6 +207,7 @@ void AbilityConnectManagerTest::TearDown(void)
     AbilityConnectCallback::onAbilityConnectDoneCount = 0;
     AbilityConnectCallback::onAbilityDisconnectDoneCount = 0;
     serviceRecord_ = nullptr;
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = iSystemAbilityMgr_;
 }
 
 AbilityConnectManager* AbilityConnectManagerTest::ConnectManager() const
@@ -212,6 +223,22 @@ std::shared_ptr<TaskHandlerWrap> AbilityConnectManagerTest::TaskHandler() const
 std::shared_ptr<EventHandlerWrap> AbilityConnectManagerTest::EventHandler() const
 {
     return eventHandler_;
+}
+
+void AbilityConnectManagerTest::MockBundleInstaller()
+{
+    auto mockGetBundleInstaller = [] () {
+        return mockBundleInstaller;
+    };
+    auto mockGetSystemAbility = [&] (int32_t systemAbilityId) {
+        if (systemAbilityId == BUNDLE_MGR_SERVICE_SYS_ABILITY_ID) {
+            return mockBundleMgr->AsObject();
+        } else {
+            return iSystemAbilityMgr_->GetSystemAbility(systemAbilityId);
+        }
+    };
+    EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
+    EXPECT_CALL(*mockSystemAbility_, GetSystemAbility(testing::_)).WillOnce(testing::Invoke(mockGetSystemAbility));
 }
 
 /*
@@ -2283,6 +2310,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_StopAllExtensions_001, TestS
  */
 HWTEST_F(AbilityConnectManagerTest, AAFWK_IsAbilityNeedKeepAlive_001, TestSize.Level1)
 {
+    MockBundleInstaller();
     ConnectManager()->SetTaskHandler(TaskHandler());
     ConnectManager()->SetEventHandler(EventHandler());
 
