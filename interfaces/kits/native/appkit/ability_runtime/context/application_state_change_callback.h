@@ -19,10 +19,9 @@
 #include <memory>
 #include <set>
 
-class NativeEngine;
-class NativeValue;
 class NativeReference;
-struct NativeCallbackInfo;
+typedef struct napi_env__* napi_env;
+typedef struct napi_value__* napi_value;
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -50,11 +49,11 @@ public:
 class JsApplicationStateChangeCallback : public ApplicationStateChangeCallback,
     public std::enable_shared_from_this<JsApplicationStateChangeCallback> {
 public:
-    explicit JsApplicationStateChangeCallback(NativeEngine* engine);
+    explicit JsApplicationStateChangeCallback(napi_env env);
     virtual ~JsApplicationStateChangeCallback() = default;
     void NotifyApplicationForeground() override;
     void NotifyApplicationBackground() override;
-    void Register(NativeValue *jsCallback);
+    void Register(napi_value jsCallback);
 
     /**
      * @brief Unregister application state change callback.
@@ -62,14 +61,14 @@ public:
      *                    or if jscallback is specified, delete prescribed jscallback.
      * @return Returns true on unregister success, others return false.
      */
-    bool UnRegister(NativeValue *jsCallback = nullptr);
+    bool UnRegister(napi_value jsCallback = nullptr);
     bool IsEmpty() const;
 private:
     void CallJsMethodInnerCommon(
         const std::string &methodName, const std::set<std::shared_ptr<NativeReference>> callbacks);
     void CallJsMethod(const std::string &methodName);
     void CallApplicationForegroundInner(const std::string &methodName);
-    NativeEngine* engine_ = nullptr;
+    napi_env env_ = nullptr;
     std::set<std::shared_ptr<NativeReference>> callbacks_;
 };
 } // namespace AbilityRuntime

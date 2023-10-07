@@ -26,7 +26,8 @@ namespace OHOS {
 namespace AbilityRuntime {
 constexpr size_t ARGC_ONE = 1;
 
-JsFreeInstallObserver::JsFreeInstallObserver(NativeEngine& engine) : engine_(engine) {}
+JsFreeInstallObserver::JsFreeInstallObserver(napi_env env) : env_(env) {}
+JsFreeInstallObserver::JsFreeInstallObserver(NativeEngine& engine) : env_(reinterpret_cast<napi_env>(&engine)) {}
 
 JsFreeInstallObserver::~JsFreeInstallObserver() = default;
 
@@ -35,17 +36,17 @@ void JsFreeInstallObserver::OnInstallFinished(const std::string &bundleName, con
 {
     HILOG_DEBUG("OnInstallFinished come.");
     wptr<JsFreeInstallObserver> jsObserver = this;
-    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
-        ([jsObserver, bundleName, abilityName, startTime, resultCode](NativeEngine &engine, AsyncTask &task,
+    std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
+        ([jsObserver, bundleName, abilityName, startTime, resultCode](napi_env env, NapiAsyncTask &task,
             int32_t status) {
             sptr<JsFreeInstallObserver> jsObserverSptr = jsObserver.promote();
             if (jsObserverSptr) {
                 jsObserverSptr->HandleOnInstallFinished(bundleName, abilityName, startTime, resultCode);
             }
         });
-    NativeReference* callback = nullptr;
-    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
-    AsyncTask::Schedule("JsFreeInstallObserver::OnInstallFinished", engine_, std::make_unique<AsyncTask>(callback,
+    napi_ref callback = nullptr;
+    std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
+    NapiAsyncTask::Schedule("JsFreeInstallObserver::OnInstallFinished", env_, std::make_unique<NapiAsyncTask>(callback,
         std::move(execute), std::move(complete)));
 }
 
@@ -63,8 +64,8 @@ void JsFreeInstallObserver::HandleOnInstallFinished(const std::string &bundleNam
                 continue;
             }
             FinishAsyncTrace(HITRACE_TAG_ABILITY_MANAGER, "StartFreeInstall", atoi(startTime.c_str()));
-            NativeValue* value = (it->callback)->Get();
-            NativeValue* argv[] = { CreateJsErrorByNativeErr(engine_, resultCode) };
+            napi_value value = (it->callback)->GetNapiValue();
+            napi_value argv[] = { CreateJsErrorByNativeErr(env_, resultCode) };
             CallJsFunction(value, argv, ARGC_ONE);
             it = jsObserverObjectList_.erase(it);
             HILOG_DEBUG("the size of jsObserverObjectList_:%{public}zu", jsObserverObjectList_.size());
@@ -74,18 +75,18 @@ void JsFreeInstallObserver::HandleOnInstallFinished(const std::string &bundleNam
     }
 }
 
-void JsFreeInstallObserver::CallJsFunction(NativeValue* value, NativeValue* const* argv, size_t argc)
+void JsFreeInstallObserver::CallJsFunction(napi_value value, napi_value const* argv, size_t argc)
 {
     HILOG_INFO("CallJsFunction begin");
     if (value == nullptr) {
         HILOG_ERROR("value is nullptr.");
         return;
     }
-    engine_.CallFunction(value, value, argv, argc);
+    napi_call_function(env_, value, value, argc, argv, nullptr);
 }
 
 void JsFreeInstallObserver::AddJsObserverObject(const std::string &bundleName, const std::string &abilityName,
-    const std::string &startTime, NativeValue* jsObserverObject, bool isAbilityResult)
+    const std::string &startTime, napi_value jsObserverObject, bool isAbilityResult)
 {
     HILOG_INFO("AddJsObserverObject begin.");
     if (jsObserverObject == nullptr) {
@@ -105,9 +106,18 @@ void JsFreeInstallObserver::AddJsObserverObject(const std::string &bundleName, c
     object.bundleName = bundleName;
     object.abilityName = abilityName;
     object.startTime = startTime;
-    object.callback = std::shared_ptr<NativeReference>(engine_.CreateReference(jsObserverObject, 1));
+    napi_ref ref = nullptr;
+    napi_create_reference(env_, jsObserverObject, 1, &ref);
+    object.callback = std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref));
     object.isAbilityResult = isAbilityResult;
     jsObserverObjectList_.emplace_back(object);
+}
+
+void JsFreeInstallObserver::AddJsObserverObject(const std::string &bundleName, const std::string &abilityName,
+    const std::string &startTime, NativeValue* jsObserverObject, bool isAbilityResult)
+{
+    AddJsObserverObject(
+        bundleName, abilityName, startTime, reinterpret_cast<napi_value>(jsObserverObject), isAbilityResult);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

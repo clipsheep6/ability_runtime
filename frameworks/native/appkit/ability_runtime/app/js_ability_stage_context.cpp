@@ -24,7 +24,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-void JsAbilityStageContext::ConfigurationUpdated(NativeEngine* engine, std::shared_ptr<NativeReference> &jsContext,
+void JsAbilityStageContext::ConfigurationUpdated(napi_env env, std::shared_ptr<NativeReference> &jsContext,
     const std::shared_ptr<AppExecFwk::Configuration> &config)
 {
     HILOG_INFO("%{public}s called.", __func__);
@@ -33,37 +33,36 @@ void JsAbilityStageContext::ConfigurationUpdated(NativeEngine* engine, std::shar
         return;
     }
 
-    NativeValue* value = jsContext->Get();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(value);
-    if (!object) {
+    napi_value object = jsContext->GetNapiValue();
+    if (!CheckTypeForNapiValue(env, object, napi_object)) {
         HILOG_INFO("object is nullptr.");
         return;
     }
 
-    NativeValue* method = object->GetProperty("onUpdateConfiguration");
+    napi_value method = nullptr;
+    napi_get_named_property(env, object, "onUpdateConfiguration", &method);
     if (!method) {
         HILOG_ERROR("Failed to get onUpdateConfiguration from object");
         return;
     }
 
     HILOG_INFO("JsAbilityStageContext call onUpdateConfiguration.");
-    NativeValue* argv[] = { CreateJsConfiguration(*engine, *config) };
-    engine->CallFunction(value, method, argv, 1);
+    napi_value argv[] = { CreateJsConfiguration(env, *config) };
+    napi_call_function(env, object, method, 1, argv, nullptr);
 }
 
-NativeValue* CreateJsAbilityStageContext(NativeEngine& engine,
+napi_value CreateJsAbilityStageContext(napi_env env,
     std::shared_ptr<AbilityRuntime::Context> context, DetachCallback detach, AttachCallback attach)
 {
     HILOG_INFO("%{public}s called.", __func__);
-    NativeValue* objValue = CreateJsBaseContext(engine, context);
+    napi_value objValue = CreateJsBaseContext(env, context);
     if (context == nullptr) {
         return objValue;
     }
 
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
     auto configuration = context->GetConfiguration();
-    if (configuration != nullptr && object != nullptr) {
-        object->SetProperty("config", CreateJsConfiguration(engine, *configuration));
+    if (configuration != nullptr && CheckTypeForNapiValue(env, objValue, napi_object)) {
+        napi_set_named_property(env, objValue, "config", CreateJsConfiguration(env, *configuration));
     }
     return objValue;
 }

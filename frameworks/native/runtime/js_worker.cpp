@@ -68,7 +68,8 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
         return;
     }
 
-    NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine->GetGlobal());
+    napi_value globalObj = nullptr;
+    napi_get_global(reinterpret_cast<napi_env>(nativeEngine), &globalObj);
     if (globalObj == nullptr) {
         HILOG_ERROR("Failed to get global object");
         return;

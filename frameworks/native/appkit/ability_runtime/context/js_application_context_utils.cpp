@@ -585,11 +585,10 @@ napi_value JsApplicationContextUtils::OnRegisterAbilityLifecycleCallback(
     }
     if (callback_ != nullptr) {
         HILOG_DEBUG("callback_ is not nullptr.");
-        return CreateJsValue(env, callback_->Register(reinterpret_cast<NativeValue*>(info.argv[0])));
+        return CreateJsValue(env, callback_->Register(info.argv[0]));
     }
-    // to do
-    callback_ = std::make_shared<JsAbilityLifecycleCallback>(reinterpret_cast<NativeEngine*>(env));
-    int32_t callbackId = callback_->Register(reinterpret_cast<NativeValue*>(info.argv[INDEX_ZERO]));
+    callback_ = std::make_shared<JsAbilityLifecycleCallback>(env);
+    int32_t callbackId = callback_->Register(info.argv[INDEX_ZERO]);
     applicationContext->RegisterAbilityLifecycleCallback(callback_);
     HILOG_INFO("OnRegisterAbilityLifecycleCallback is end");
     return CreateJsValue(env, callbackId);
@@ -673,10 +672,10 @@ napi_value JsApplicationContextUtils::OnRegisterEnvironmentCallback(
     }
     if (envCallback_ != nullptr) {
         HILOG_DEBUG("envCallback_ is not nullptr.");
-        return CreateJsValue(env, envCallback_->Register(reinterpret_cast<NativeValue*>(info.argv[0])));
+        return CreateJsValue(env, envCallback_->Register(info.argv[0]));
     }
-    envCallback_ = std::make_shared<JsEnvironmentCallback>(reinterpret_cast<NativeEngine*>(env));
-    int32_t callbackId = envCallback_->Register(reinterpret_cast<NativeValue*>(info.argv[INDEX_ZERO]));
+    envCallback_ = std::make_shared<JsEnvironmentCallback>(env);
+    int32_t callbackId = envCallback_->Register(info.argv[INDEX_ZERO]);
     applicationContext->RegisterEnvironmentCallback(envCallback_);
     HILOG_DEBUG("OnRegisterEnvironmentCallback is end");
     return CreateJsValue(env, callbackId);
@@ -850,10 +849,10 @@ napi_value JsApplicationContextUtils::OnOnAbilityLifecycle(
 
     if (callback_ != nullptr) {
         HILOG_DEBUG("callback_ is not nullptr.");
-        return CreateJsValue(env, callback_->Register(reinterpret_cast<NativeValue*>(info.argv[1]), isSync));
+        return CreateJsValue(env, callback_->Register(info.argv[1], isSync));
     }
-    callback_ = std::make_shared<JsAbilityLifecycleCallback>(reinterpret_cast<NativeEngine*>(env));
-    int32_t callbackId = callback_->Register(reinterpret_cast<NativeValue*>(info.argv[1]), isSync);
+    callback_ = std::make_shared<JsAbilityLifecycleCallback>(env);
+    int32_t callbackId = callback_->Register(info.argv[1], isSync);
     applicationContext->RegisterAbilityLifecycleCallback(callback_);
     HILOG_INFO("OnOnAbilityLifecycle is end");
     return CreateJsValue(env, callbackId);
@@ -937,10 +936,10 @@ napi_value JsApplicationContextUtils::OnOnEnvironment(
 
     if (envCallback_ != nullptr) {
         HILOG_DEBUG("envCallback_ is not nullptr.");
-        return CreateJsValue(env, envCallback_->Register(reinterpret_cast<NativeValue*>(info.argv[1]), isSync));
+        return CreateJsValue(env, envCallback_->Register(info.argv[1], isSync));
     }
-    envCallback_ = std::make_shared<JsEnvironmentCallback>(reinterpret_cast<NativeEngine*>(env));
-    int32_t callbackId = envCallback_->Register(reinterpret_cast<NativeValue*>(info.argv[1]), isSync);
+    envCallback_ = std::make_shared<JsEnvironmentCallback>(env);
+    int32_t callbackId = envCallback_->Register(info.argv[1], isSync);
     applicationContext->RegisterEnvironmentCallback(envCallback_);
     HILOG_DEBUG("OnOnEnvironment is end");
     return CreateJsValue(env, callbackId);
@@ -1024,13 +1023,12 @@ napi_value JsApplicationContextUtils::OnOnApplicationStateChange(
 
     std::lock_guard<std::mutex> lock(applicationStateCallbackLock_);
     if (applicationStateCallback_ != nullptr) {
-        applicationStateCallback_->Register(reinterpret_cast<NativeValue*>(info.argv[INDEX_ONE]));
+        applicationStateCallback_->Register(info.argv[INDEX_ONE]);
         return CreateJsUndefined(env);
     }
 
-    applicationStateCallback_ =
-        std::make_shared<JsApplicationStateChangeCallback>(reinterpret_cast<NativeEngine*>(env));
-    applicationStateCallback_->Register(reinterpret_cast<NativeValue*>(info.argv[INDEX_ONE]));
+    applicationStateCallback_ = std::make_shared<JsApplicationStateChangeCallback>(env);
+    applicationStateCallback_->Register(info.argv[INDEX_ONE]);
     applicationContext->RegisterApplicationStateChangeCallback(applicationStateCallback_);
     return CreateJsUndefined(env);
 }
@@ -1055,7 +1053,7 @@ napi_value JsApplicationContextUtils::OnOffApplicationStateChange(
 
     if (info.argc == ARGC_ONE || !CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
         applicationStateCallback_->UnRegister();
-    } else if (!applicationStateCallback_->UnRegister(reinterpret_cast<NativeValue*>(info.argv[INDEX_ONE]))) {
+    } else if (!applicationStateCallback_->UnRegister(info.argv[INDEX_ONE])) {
         HILOG_ERROR("call UnRegister failed!");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);

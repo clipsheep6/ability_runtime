@@ -698,8 +698,7 @@ void JsUIExtensionContentSession::AddFreeInstallObserver(napi_env env,
     // adapter free install async return install and start result
     int ret = 0;
     if (freeInstallObserver_ == nullptr) {
-        // to do
-        freeInstallObserver_ = new JsFreeInstallObserver(*reinterpret_cast<NativeEngine*>(env));
+        freeInstallObserver_ = new JsFreeInstallObserver(env);
         ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(freeInstallObserver_);
     }
 
@@ -711,9 +710,8 @@ void JsUIExtensionContentSession::AddFreeInstallObserver(napi_env env,
         std::string bundleName = want.GetElement().GetBundleName();
         std::string abilityName = want.GetElement().GetAbilityName();
         std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
-        // to do
         freeInstallObserver_->AddJsObserverObject(
-            bundleName, abilityName, startTime, reinterpret_cast<NativeValue*>(callback), isAbilityResult);
+            bundleName, abilityName, startTime, callback, isAbilityResult);
     }
 }
 }  // namespace AbilityRuntime

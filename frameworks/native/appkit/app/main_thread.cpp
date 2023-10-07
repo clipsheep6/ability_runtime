@@ -1079,32 +1079,7 @@ void MainThread::HandleOnOverlayChanged(const EventFwk::CommonEventData &data,
         }
     }
 }
-[[maybe_unused]] static std::string GetNativeStrFromJsTaggedObj(NativeObject* obj, const char* key)
-{
-    if (obj == nullptr) {
-        HILOG_ERROR("Failed to get value from key:%{public}s, Null NativeObject", key);
-        return "";
-    }
 
-    NativeValue* value = obj->GetProperty(key);
-    NativeString* valueStr = AbilityRuntime::ConvertNativeValueTo<NativeString>(value);
-    if (valueStr == nullptr) {
-        HILOG_ERROR("Failed to convert value from key:%{public}s", key);
-        return "";
-    }
-    size_t valueStrBufLength = valueStr->GetLength();
-    size_t valueStrLength = 0;
-    char* valueCStr = new (std::nothrow) char[valueStrBufLength + 1];
-    if (valueCStr == nullptr) {
-        HILOG_ERROR("Failed to new valueCStr");
-        return "";
-    }
-    valueStr->GetCString(valueCStr, valueStrBufLength + 1, &valueStrLength);
-    std::string ret(valueCStr, valueStrLength);
-    delete []valueCStr;
-    HILOG_DEBUG("GetNativeStrFromJsTaggedObj Success %{public}s:%{public}s", key, ret.c_str());
-    return ret;
-}
 bool IsNeedLoadLibrary(const std::string &bundleName)
 {
     std::vector<std::string> needLoadLibraryBundleNames{

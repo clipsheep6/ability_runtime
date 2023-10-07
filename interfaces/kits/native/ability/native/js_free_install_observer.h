@@ -35,6 +35,7 @@ struct JsFreeInstallObserverObject {
 
 class JsFreeInstallObserver : public FreeInstallObserverStub {
 public:
+    explicit JsFreeInstallObserver(napi_env env);
     explicit JsFreeInstallObserver(NativeEngine& engine);
     ~JsFreeInstallObserver();
 
@@ -58,12 +59,16 @@ public:
      * @param jsObserverObject The js object instance.
      */
     void AddJsObserverObject(const std::string &bundleName, const std::string &abilityName,
+        const std::string &startTime, napi_value jsObserverObject, bool isAbilityResult = false);
+
+    // to do
+    void AddJsObserverObject(const std::string &bundleName, const std::string &abilityName,
         const std::string &startTime, NativeValue* jsObserverObject, bool isAbilityResult = false);
 private:
-    void CallJsFunction(NativeValue* value, NativeValue* const *argv, size_t argc);
+    void CallJsFunction(napi_value value, napi_value const *argv, size_t argc);
     void HandleOnInstallFinished(const std::string &bundleName, const std::string &abilityName,
         const std::string &startTime, const int &resultCode);
-    NativeEngine& engine_;
+    napi_env env_;
     std::vector<JsFreeInstallObserverObject> jsObserverObjectList_;
 };
 } // namespace AbilityRuntime
