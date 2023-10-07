@@ -186,7 +186,7 @@ int PermissionVerification::VerifyAppStateObserverPermission() const
 
 int32_t PermissionVerification::VerifyUpdateConfigurationPerm() const
 {
-    if (IsSACall() || VerifyCallingPermission(PermissionConstants::PERMISSION_UPDATE_CONFIGURATION)) {
+    if (VerifyCallingPermission(PermissionConstants::PERMISSION_UPDATE_CONFIGURATION)) {
         HILOG_INFO("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_UPDATE_CONFIGURATION);
         return ERR_OK;
     }
