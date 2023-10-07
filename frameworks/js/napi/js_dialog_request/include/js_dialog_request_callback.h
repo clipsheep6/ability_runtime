@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue* CreateJsDialogRequestCallback(NativeEngine &engine, const sptr<IDialogRequestCallback> &remoteObj);
+napi_value CreateJsDialogRequestCallback(napi_env env, const sptr<IDialogRequestCallback> &remoteObj);
 } // AbilityRuntime
 } // OHOS
 #endif  // OHOS_ABILITY_RUNTIME_DIALOG_REQUEST_CALLBACK_H

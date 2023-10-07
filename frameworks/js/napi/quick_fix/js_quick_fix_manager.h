@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue *CreateJsQuickFixManager(NativeEngine *engine, NativeValue *exportObj);
+napi_value CreateJsQuickFixManager(napi_env env, napi_value exportObj);
 } // namespace AbilityRuntime
 } // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_JS_QUICK_FIX_MANAGER_H

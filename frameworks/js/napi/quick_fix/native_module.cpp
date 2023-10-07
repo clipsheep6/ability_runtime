@@ -16,14 +16,14 @@
 #include "js_quick_fix_manager.h"
 #include "native_engine/native_engine.h"
 
-extern "C" __attribute__((constructor)) void NAPI_app_ability_quickfixmanager_AutoRegister()
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_modname = "app.ability.quickFixManager",
+    .nm_filename = "app/ability/libquickfixmanager_napi.so/quickfixmanager.js",
+    .nm_register_func = OHOS::AbilityRuntime::CreateJsQuickFixManager,
+};
+extern "C" __attribute__((constructor))
+void NAPI_app_ability_quickfixmanager_AutoRegister()
 {
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-        .name = "app.ability.quickFixManager",
-        .fileName = "app/ability/libquickfixmanager_napi.so/quickfixmanager.js",
-        .registerCallback = OHOS::AbilityRuntime::CreateJsQuickFixManager,
-    };
-
-    moduleManager->Register(&newModuleInfo);
+    napi_module_register(&_module);
 }

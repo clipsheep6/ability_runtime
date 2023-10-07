@@ -20,16 +20,15 @@ extern const char _binary_ability_context_js_end[];
 extern const char _binary_ability_context_abc_start[];
 extern const char _binary_ability_context_abc_end[];
 
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_modname = "application.AbilityContext",
+    .nm_filename = "application/libabilitycontext_napi.so/ability_context.js",
+};
 extern "C" __attribute__((constructor))
 void NAPI_application_AbilityContext_AutoRegister()
 {
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-        .name = "application.AbilityContext",
-        .fileName = "application/libabilitycontext_napi.so/ability_context.js",
-    };
-
-    moduleManager->Register(&newModuleInfo);
+    napi_module_register(&_module);
 }
 
 extern "C" __attribute__((visibility("default")))

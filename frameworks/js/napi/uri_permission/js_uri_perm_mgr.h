@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue* CreateJsUriPermMgr(NativeEngine* engine, NativeValue* exportObj);
+napi_value CreateJsUriPermMgr(napi_env env, napi_value exportObj);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_JS_URI_PERM_MGR_H

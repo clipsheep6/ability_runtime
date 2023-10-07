@@ -36,131 +36,126 @@ public:
     JsQuickFixManager() = default;
     ~JsQuickFixManager() = default;
 
-    static void Finalizer(NativeEngine *engine, void *data, void *hint)
+    static void Finalizer(napi_env env, void *data, void *hint)
     {
         HILOG_DEBUG("function called.");
         std::unique_ptr<JsQuickFixManager>(static_cast<JsQuickFixManager*>(data));
     }
 
-    static NativeValue *ApplyQuickFix(NativeEngine *engine, NativeCallbackInfo *info)
+    static napi_value ApplyQuickFix(napi_env env, napi_callback_info info)
     {
-        JsQuickFixManager *me = CheckParamsAndGetThis<JsQuickFixManager>(engine, info);
-        return (me != nullptr) ? me->OnApplyQuickFix(*engine, *info) : nullptr;
+        GET_NAPI_INFO_AND_CALL(env, info, JsQuickFixManager, OnApplyQuickFix);
     }
 
-    static NativeValue *GetApplyedQuickFixInfo(NativeEngine *engine, NativeCallbackInfo *info)
+    static napi_value GetApplyedQuickFixInfo(napi_env env, napi_callback_info info)
     {
-        JsQuickFixManager *me = CheckParamsAndGetThis<JsQuickFixManager>(engine, info);
-        return (me != nullptr) ? me->OnGetApplyedQuickFixInfo(*engine, *info) : nullptr;
+        GET_NAPI_INFO_AND_CALL(env, info, JsQuickFixManager, OnGetApplyedQuickFixInfo);
     }
 
-    static NativeValue *RevokeQuickFix(NativeEngine *engine, NativeCallbackInfo *info)
+    static napi_value RevokeQuickFix(napi_env env, napi_callback_info info)
     {
-        JsQuickFixManager *me = CheckParamsAndGetThis<JsQuickFixManager>(engine, info);
-        return (me != nullptr) ? me->OnRevokeQuickFix(*engine, *info) : nullptr;
+        GET_NAPI_INFO_AND_CALL(env, info, JsQuickFixManager, OnRevokeQuickFix);
     }
 
-    static bool Throw(NativeEngine &engine, int32_t errCode)
+    static void Throw(napi_env env, int32_t errCode)
     {
         auto externalErrCode = AAFwk::QuickFixErrorUtil::GetErrorCode(errCode);
         auto errMsg = AAFwk::QuickFixErrorUtil::GetErrorMessage(errCode);
-        NativeValue *error = engine.CreateError(CreateJsValue(engine, externalErrCode), CreateJsValue(engine, errMsg));
-        return engine.Throw(error);
+        napi_value error = CreateJsError(env, externalErrCode, errMsg);
+        napi_throw(env, error);
     }
 
-    static NativeValue *CreateJsErrorByErrorCode(NativeEngine &engine, int32_t errCode)
+    static napi_value CreateJsErrorByErrorCode(napi_env env, int32_t errCode)
     {
         auto externalErrCode = AAFwk::QuickFixErrorUtil::GetErrorCode(errCode);
         auto errMsg = AAFwk::QuickFixErrorUtil::GetErrorMessage(errCode);
-        return CreateJsError(engine, externalErrCode, errMsg);
+        return CreateJsError(env, externalErrCode, errMsg);
     }
 
 private:
-    NativeValue *OnGetApplyedQuickFixInfo(NativeEngine &engine, NativeCallbackInfo &info)
+    napi_value OnGetApplyedQuickFixInfo(napi_env env, NapiCallbackInfo &info)
     {
         HILOG_DEBUG("function called.");
         if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
             HILOG_ERROR("The number of parameter is invalid.");
-            Throw(engine, AAFwk::ERR_QUICKFIX_PARAM_INVALID);
-            return engine.CreateUndefined();
+            Throw(env, AAFwk::ERR_QUICKFIX_PARAM_INVALID);
+            return CreateJsUndefined(env);
         }
 
         std::string bundleName;
-        if (!OHOS::AppExecFwk::UnwrapStringFromJS2(reinterpret_cast<napi_env>(&engine),
-            reinterpret_cast<napi_value>(info.argv[0]), bundleName)) {
+        if (!OHOS::AppExecFwk::UnwrapStringFromJS2(env, info.argv[0], bundleName)) {
             HILOG_ERROR("The bundleName is invalid.");
-            Throw(engine, AAFwk::ERR_QUICKFIX_PARAM_INVALID);
-            return engine.CreateUndefined();
+            Throw(env, AAFwk::ERR_QUICKFIX_PARAM_INVALID);
+            return CreateJsUndefined(env);
         }
 
-        auto complete = [bundleName](NativeEngine &engine, AsyncTask &task, int32_t status) {
+        auto complete = [bundleName](napi_env env, NapiAsyncTask &task, int32_t status) {
             AppExecFwk::ApplicationQuickFixInfo quickFixInfo;
             auto errCode = DelayedSingleton<AAFwk::QuickFixManagerClient>::GetInstance()->GetApplyedQuickFixInfo(
                 bundleName, quickFixInfo);
             if (errCode == 0) {
-                task.ResolveWithNoError(engine, CreateJsApplicationQuickFixInfo(engine, quickFixInfo));
+                task.ResolveWithNoError(env, CreateJsApplicationQuickFixInfo(env, quickFixInfo));
             } else {
-                task.Reject(engine, CreateJsErrorByErrorCode(engine, errCode));
+                task.Reject(env, CreateJsErrorByErrorCode(env, errCode));
             }
         };
 
-        NativeValue *lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[1];
-        NativeValue *result = nullptr;
-        AsyncTask::Schedule("JsQuickFixManager::OnGetApplyedQuickFixInfo", engine,
-            CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        napi_value lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[1];
+        napi_value result = nullptr;
+        NapiAsyncTask::Schedule("JsQuickFixManager::OnGetApplyedQuickFixInfo", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         HILOG_DEBUG("function finished.");
         return result;
     }
 
-    NativeValue *OnApplyQuickFix(NativeEngine &engine, NativeCallbackInfo &info)
+    napi_value OnApplyQuickFix(napi_env env, NapiCallbackInfo &info)
     {
         HILOG_DEBUG("function called.");
         if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
             HILOG_ERROR("The number of parameter is invalid.");
-            Throw(engine, AAFwk::ERR_QUICKFIX_PARAM_INVALID);
-            return engine.CreateUndefined();
+            Throw(env, AAFwk::ERR_QUICKFIX_PARAM_INVALID);
+            return CreateJsUndefined(env);
         }
 
         std::vector<std::string> hapQuickFixFiles;
-        if (!OHOS::AppExecFwk::UnwrapArrayStringFromJS(reinterpret_cast<napi_env>(&engine),
-            reinterpret_cast<napi_value>(info.argv[0]), hapQuickFixFiles)) {
+        if (!OHOS::AppExecFwk::UnwrapArrayStringFromJS(env, info.argv[0], hapQuickFixFiles)) {
             HILOG_ERROR("Hap quick fix files is invalid.");
-            Throw(engine, AAFwk::ERR_QUICKFIX_PARAM_INVALID);
-            return engine.CreateUndefined();
+            Throw(env, AAFwk::ERR_QUICKFIX_PARAM_INVALID);
+            return CreateJsUndefined(env);
         }
 
-        auto complete = [hapQuickFixFiles](NativeEngine &engine, AsyncTask &task, int32_t status) {
+        auto complete = [hapQuickFixFiles](napi_env env, NapiAsyncTask &task, int32_t status) {
             auto errcode = DelayedSingleton<AAFwk::QuickFixManagerClient>::GetInstance()->ApplyQuickFix(
                 hapQuickFixFiles);
             if (errcode == 0) {
-                task.ResolveWithNoError(engine, engine.CreateUndefined());
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
             } else {
-                task.Reject(engine, CreateJsErrorByErrorCode(engine, errcode));
+                task.Reject(env, CreateJsErrorByErrorCode(env, errcode));
             }
         };
 
-        NativeValue *lastParam = (info.argc == 1) ? nullptr : info.argv[1];
-        NativeValue *result = nullptr;
-        AsyncTask::Schedule("JsQuickFixManager::OnApplyQuickFix", engine,
-            CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        napi_value lastParam = (info.argc == 1) ? nullptr : info.argv[1];
+        napi_value result = nullptr;
+        NapiAsyncTask::Schedule("JsQuickFixManager::OnApplyQuickFix", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         HILOG_DEBUG("function finished.");
         return result;
     }
 
-    NativeValue *OnRevokeQuickFix(NativeEngine &engine, NativeCallbackInfo &info)
+    napi_value OnRevokeQuickFix(napi_env env, NapiCallbackInfo &info)
     {
         HILOG_DEBUG("called.");
         if (info.argc == ARGC_ZERO) {
             HILOG_ERROR("The number of parameter is invalid.");
-            Throw(engine, AAFwk::ERR_QUICKFIX_PARAM_INVALID);
-            return engine.CreateUndefined();
+            Throw(env, AAFwk::ERR_QUICKFIX_PARAM_INVALID);
+            return CreateJsUndefined(env);
         }
 
         std::string bundleName;
-        if (!ConvertFromJsValue(engine, info.argv[ARGC_ZERO], bundleName)) {
+        if (!ConvertFromJsValue(env, info.argv[ARGC_ZERO], bundleName)) {
             HILOG_ERROR("The bundleName is invalid.");
-            Throw(engine, AAFwk::ERR_QUICKFIX_PARAM_INVALID);
-            return engine.CreateUndefined();
+            Throw(env, AAFwk::ERR_QUICKFIX_PARAM_INVALID);
+            return CreateJsUndefined(env);
         }
 
         std::shared_ptr<int32_t> errCode = std::make_shared<int32_t>(AAFwk::ERR_OK);
@@ -176,48 +171,42 @@ private:
             HILOG_DEBUG("Revoke quick fix execute retval is {%{public}d}.", *retval);
         };
 
-        auto complete = [retval = errCode](NativeEngine &engine, AsyncTask &task, int32_t status) {
+        auto complete = [retval = errCode](napi_env env, NapiAsyncTask &task, int32_t status) {
             HILOG_DEBUG("Revoke quick fix complete called.");
             if (*retval != AAFwk::ERR_OK) {
                 HILOG_ERROR("Revoke quick fix execution failed. retval is %{public}d", *retval);
-                task.Reject(engine, CreateJsErrorByErrorCode(engine, *retval));
+                task.Reject(env, CreateJsErrorByErrorCode(env, *retval));
                 return;
             }
             HILOG_DEBUG("Revoke quick fix complete called ok.");
-            task.ResolveWithNoError(engine, engine.CreateUndefined());
+            task.ResolveWithNoError(env, CreateJsUndefined(env));
         };
 
-        NativeValue *lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[ARGC_ONE];
-        NativeValue *result = nullptr;
-        AsyncTask::Schedule("JsQuickFixManager::OnRevokeQuickFix", engine,
-            CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
+        napi_value lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[ARGC_ONE];
+        napi_value result = nullptr;
+        NapiAsyncTask::Schedule("JsQuickFixManager::OnRevokeQuickFix", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
         HILOG_DEBUG("Function finished.");
         return result;
     }
 };
 
-NativeValue *CreateJsQuickFixManager(NativeEngine *engine, NativeValue *exportObj)
+napi_value CreateJsQuickFixManager(napi_env env, napi_value exportObj)
 {
     HILOG_DEBUG("function called.");
-    if (engine == nullptr || exportObj == nullptr) {
+    if (env == nullptr || exportObj == nullptr) {
         HILOG_ERROR("Input parameter is invalid.");
         return nullptr;
     }
 
-    NativeObject *object = ConvertNativeValueTo<NativeObject>(exportObj);
-    if (object == nullptr) {
-        HILOG_ERROR("object is nullptr.");
-        return nullptr;
-    }
-
     std::unique_ptr<JsQuickFixManager> quickFixManager = std::make_unique<JsQuickFixManager>();
-    object->SetNativePointer(quickFixManager.release(), JsQuickFixManager::Finalizer, nullptr);
+    napi_wrap(env, exportObj, quickFixManager.release(), JsQuickFixManager::Finalizer, nullptr, nullptr);
 
-    BindNativeFunction(*engine, *object, "applyQuickFix", QUICK_FIX_MANAGER_NAME, JsQuickFixManager::ApplyQuickFix);
-    BindNativeFunction(*engine, *object, "getApplicationQuickFixInfo", QUICK_FIX_MANAGER_NAME,
+    BindNativeFunction(env, exportObj, "applyQuickFix", QUICK_FIX_MANAGER_NAME, JsQuickFixManager::ApplyQuickFix);
+    BindNativeFunction(env, exportObj, "getApplicationQuickFixInfo", QUICK_FIX_MANAGER_NAME,
         JsQuickFixManager::GetApplyedQuickFixInfo);
-    BindNativeFunction(*engine, *object, "revokeQuickFix", QUICK_FIX_MANAGER_NAME, JsQuickFixManager::RevokeQuickFix);
-    return engine->CreateUndefined();
+    BindNativeFunction(env, exportObj, "revokeQuickFix", QUICK_FIX_MANAGER_NAME, JsQuickFixManager::RevokeQuickFix);
+    return CreateJsUndefined(env);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
