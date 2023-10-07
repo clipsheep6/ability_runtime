@@ -634,17 +634,17 @@ void AppStateObserverManager::OnPageShow(const PageStateData pageStateData)
 {
     HILOG_DEBUG("call");
     if (handler_ == nullptr) {
-        HILOG_ERROR("handler is nullptr, OnProcessCreated failed.");
+        HILOG_ERROR("handler is nullptr, OnPageShow failed.");
         return;
     }
 
     auto task = [weak = weak_from_this(), pageStateData]() {
         auto self = weak.lock();
         if (self == nullptr) {
-            HILOG_ERROR("self is nullptr, OnProcessCreated failed.");
+            HILOG_ERROR("self is nullptr, OnPageShow failed.");
             return;
         }
-        HILOG_DEBUG("OnProcessCreated come.");
+        HILOG_DEBUG("OnPageShow come.");
         self->HandleOnPageShow(pageStateData);
     };
     handler_->SubmitTask(task);
@@ -654,17 +654,17 @@ void AppStateObserverManager::OnPageHide(const PageStateData pageStateData)
 {
     HILOG_DEBUG("call");
     if (handler_ == nullptr) {
-        HILOG_ERROR("handler is nullptr, OnProcessCreated failed.");
+        HILOG_ERROR("handler is nullptr, OnPageHide failed.");
         return;
     }
 
     auto task = [weak = weak_from_this(), pageStateData]() {
         auto self = weak.lock();
         if (self == nullptr) {
-            HILOG_ERROR("self is nullptr, OnProcessCreated failed.");
+            HILOG_ERROR("self is nullptr, OnPageHide failed.");
             return;
         }
-        HILOG_DEBUG("OnProcessCreated come.");
+        HILOG_DEBUG("OnPageHide come.");
         self->HandleOnPageHide(pageStateData);
     };
     handler_->SubmitTask(task);
