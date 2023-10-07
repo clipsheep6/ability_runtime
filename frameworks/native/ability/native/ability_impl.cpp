@@ -62,6 +62,7 @@ void AbilityImpl::Init(const std::shared_ptr<OHOSApplication> &application,
     HILOG_DEBUG("AbilityImpl::init end");
 }
 
+#ifdef SUPPORT_GRAPHICS
 void AbilityImpl::Start(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -101,6 +102,7 @@ void AbilityImpl::Start(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     abilityLifecycleCallbacks_->OnAbilityStart(ability_);
     HILOG_DEBUG("%{public}s end.", __func__);
 }
+#endif
 
 void AbilityImpl::Stop()
 {
@@ -253,9 +255,11 @@ void AbilityImpl::DispatchRestoreAbilityState(const PacMap &inState)
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
+#ifdef SUPPORT_GRAPHICS
 void AbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
     sptr<AAFwk::SessionInfo> sessionInfo)
 {}
+#endif
 
 void AbilityImpl::HandleShareData(const int32_t &requestCode)
 {}
@@ -308,9 +312,12 @@ bool AbilityImpl::PrepareTerminateAbility()
         HILOG_ERROR("ability_ is nullptr.");
         return false;
     }
+#ifdef SUPPORT_GRAPHICS
     bool ret = ability_->OnPrepareTerminate();
     HILOG_DEBUG("end, ret = %{public}d", ret);
     return ret;
+#endif
+    return true;
 }
 
 int AbilityImpl::GetCurrentState()

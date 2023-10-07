@@ -38,6 +38,7 @@ public:
      */
     ~DataAbilityImpl() = default;
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * @brief Handling the life cycle switching of PageAbility.
      *
@@ -48,6 +49,7 @@ public:
      */
     void HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
         sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
+#endif
 
     /**
      * @brief Obtains the MIME types of files supported.

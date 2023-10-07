@@ -86,11 +86,13 @@ void AbilityThread::AbilityThreadMain(const std::shared_ptr<OHOSApplication> &ap
     HILOG_DEBUG("end");
 }
 
+#ifdef SUPPORT_GRAPHICS
 void AbilityThread::ScheduleAbilityTransaction(
     const Want &want, const LifeCycleStateInfo &targetState, sptr<SessionInfo> sessionInfo)
 {
     HILOG_DEBUG("called");
 }
+#endif
 
 void AbilityThread::ScheduleShareData(const int32_t &requestCode)
 {
@@ -112,11 +114,13 @@ void AbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int s
     HILOG_DEBUG("called");
 }
 
+#ifdef SUPPORT_GRAPHICS
 void AbilityThread::ScheduleCommandAbilityWindow(
     const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
 {
     HILOG_DEBUG("called");
 }
+#endif
 
 bool AbilityThread::SchedulePrepareTerminateAbility()
 {

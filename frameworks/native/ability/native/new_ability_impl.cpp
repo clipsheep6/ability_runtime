@@ -21,6 +21,7 @@
 namespace OHOS {
 namespace AppExecFwk {
 using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
+#ifdef SUPPORT_GRAPHICS
 /**
  * @brief Handling the life cycle switching of NewAbility.
  *
@@ -68,6 +69,7 @@ void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Lif
         AbilityTransactionCallback(targetState.state);
     }
 }
+#endif
 
 void NewAbilityImpl::HandleShareData(const int32_t &uniqueId)
 {

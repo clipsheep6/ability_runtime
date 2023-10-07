@@ -180,6 +180,7 @@ public:
 
     void AttachAbilityContext(const std::shared_ptr<AbilityRuntime::AbilityContext> &abilityContext);
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * @brief Called when this ability is started. You must override this function if you want to perform some
      *        initialization operations during ability startup.
@@ -189,6 +190,7 @@ public:
      * @param sessionInfo  Indicates the sessionInfo.
      */
     virtual void OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
+#endif
 
     /**
      * @brief Called when this ability enters the <b>STATE_STOP</b> state.

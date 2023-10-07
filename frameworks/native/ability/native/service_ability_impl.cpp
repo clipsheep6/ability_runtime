@@ -19,6 +19,7 @@
 namespace OHOS {
 namespace AppExecFwk {
 using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
+#ifdef SUPPORT_GRAPHICS
 void ServiceAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
     sptr<AAFwk::SessionInfo> sessionInfo)
 {
@@ -63,6 +64,7 @@ void ServiceAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk:
         AbilityTransactionCallback(targetState.state);
     }
 }
+#endif
 
 void ServiceAbilityImpl::AbilityTransactionCallback(const AbilityLifeCycleState &state)
 {

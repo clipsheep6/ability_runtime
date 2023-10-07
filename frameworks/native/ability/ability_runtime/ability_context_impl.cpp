@@ -456,7 +456,9 @@ ErrCode AbilityContextImpl::OnBackPressedCallBack(bool &needMoveToBackground)
         HILOG_ERROR("abilityCallback is nullptr.");
         return ERR_INVALID_VALUE;
     }
+#ifdef SUPPORT_GRAPHICS
     needMoveToBackground = abilityCallback->OnBackPress();
+#endif
     return ERR_OK;
 }
 
@@ -569,12 +571,14 @@ void AbilityContextImpl::RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbil
 ErrCode AbilityContextImpl::RequestDialogService(napi_env env, AAFwk::Want &want, RequestDialogResultTask &&task)
 {
     want.SetParam(RequestConstants::REQUEST_TOKEN_KEY, token_);
+#ifdef SUPPORT_GRAPHICS
     int32_t left, top, width, height;
     GetWindowRect(left, top, width, height);
     want.SetParam(RequestConstants::WINDOW_RECTANGLE_LEFT_KEY, left);
     want.SetParam(RequestConstants::WINDOW_RECTANGLE_TOP_KEY, top);
     want.SetParam(RequestConstants::WINDOW_RECTANGLE_WIDTH_KEY, width);
     want.SetParam(RequestConstants::WINDOW_RECTANGLE_HEIGHT_KEY, height);
+#endif
     auto resultTask =
         [env, outTask = std::move(task)](int32_t resultCode, const AAFwk::Want &resultWant) {
         auto retData = new RequestResult();
@@ -673,6 +677,7 @@ ErrCode AbilityContextImpl::SetMissionContinueState(const AAFwk::ContinueState &
     return err;
 }
 
+#ifdef SUPPORT_GRAPHICS
 void AbilityContextImpl::GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t &height)
 {
     HILOG_DEBUG("call");
@@ -681,6 +686,7 @@ void AbilityContextImpl::GetWindowRect(int32_t &left, int32_t &top, int32_t &wid
         abilityCallback->GetWindowRect(left, top, width, height);
     }
 }
+#endif
 
 #ifdef SUPPORT_GRAPHICS
 ErrCode AbilityContextImpl::SetMissionLabel(const std::string& label)

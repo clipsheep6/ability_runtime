@@ -31,6 +31,7 @@ const std::string WRITE = "w";
 }
 using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
 using OHOS::Security::AccessToken::AccessTokenKit;
+#ifdef SUPPORT_GRAPHICS
 void DataAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
     sptr<AAFwk::SessionInfo> sessionInfo)
 {
@@ -62,6 +63,7 @@ void DataAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
 
     AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, GetRestoreData());
 }
+#endif
 
 /**
  * @brief Obtains the MIME types of files supported.

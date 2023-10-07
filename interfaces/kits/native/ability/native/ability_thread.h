@@ -87,6 +87,7 @@ public:
      */
     virtual void NotifyMemoryLevel(int32_t level) = 0;
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * @brief  Provide operating system AbilityTransaction information to the observer
      * @param want Indicates the structure containing Transaction information about the ability.
@@ -95,6 +96,7 @@ public:
      */
     void ScheduleAbilityTransaction(
         const Want &want, const LifeCycleStateInfo &targetState, sptr<SessionInfo> sessionInfo = nullptr) override;
+#endif
 
     /**
      * @brief Provide operating system ShareData information to the observer
@@ -125,6 +127,7 @@ public:
      */
     void ScheduleCommandAbility(const Want &want, bool restart, int startId) override;
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * @brief Schedule Command AbilityWindow
      * @param want The Want object to command to.
@@ -133,6 +136,7 @@ public:
      */
     void ScheduleCommandAbilityWindow(
         const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd) override;
+#endif
 
     /**
      * @brief Provide operating system PrepareTerminateAbility information to the observer

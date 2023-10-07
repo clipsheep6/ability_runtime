@@ -197,7 +197,6 @@ void FAAbilityThread::CreateExtensionAbilityNameSupportGraphics(
     if (abilityInfo->formEnabled || abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::FORM) {
         abilityName = FORM_EXTENSION;
     }
-#endif
     if (AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo->extensionAbilityType)) {
         if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SHARE) {
             abilityName = SHARE_EXTENSION;
@@ -217,6 +216,7 @@ void FAAbilityThread::CreateExtensionAbilityNameSupportGraphics(
         abilityInfo->type == AppExecFwk::AbilityType::EXTENSION) {
         abilityName = abilityInfo->extensionTypeName + CUSTOM_EXTENSION;
     }
+#endif
 }
 
 std::shared_ptr<AppExecFwk::ContextDeal> FAAbilityThread::CreateAndInitContextDeal(
@@ -466,6 +466,7 @@ void FAAbilityThread::Attach(const std::shared_ptr<AppExecFwk::OHOSApplication> 
     HILOG_DEBUG("end");
 }
 
+#ifdef SUPPORT_GRAPHICS
 void FAAbilityThread::HandleAbilityTransaction(
     const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AppExecFwk::SessionInfo> sessionInfo)
 {
@@ -483,6 +484,7 @@ void FAAbilityThread::HandleAbilityTransaction(
     abilityImpl_->HandleAbilityTransaction(want, lifeCycleStateInfo, sessionInfo);
     HILOG_DEBUG("end");
 }
+#endif
 
 void FAAbilityThread::HandleShareData(const int32_t &uniqueId)
 {
@@ -495,6 +497,7 @@ void FAAbilityThread::HandleShareData(const int32_t &uniqueId)
     HILOG_DEBUG("end");
 }
 
+#ifdef SUPPORT_GRAPHICS
 void FAAbilityThread::HandleExtensionTransaction(
     const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AppExecFwk::SessionInfo> sessionInfo)
 {
@@ -507,6 +510,7 @@ void FAAbilityThread::HandleExtensionTransaction(
     extensionImpl_->HandleExtensionTransaction(want, lifeCycleStateInfo, sessionInfo);
     HILOG_DEBUG("end");
 }
+#endif
 
 void FAAbilityThread::HandleConnectAbility(const Want &want)
 {
@@ -606,6 +610,7 @@ void FAAbilityThread::HandleCommandExtension(const Want &want, bool restart, int
     HILOG_DEBUG("end");
 }
 
+#ifdef SUPPORT_GRAPHICS
 void FAAbilityThread::HandleCommandExtensionWindow(
     const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
 {
@@ -618,6 +623,7 @@ void FAAbilityThread::HandleCommandExtensionWindow(
     extensionImpl_->CommandExtensionWindow(want, sessionInfo, winCmd);
     HILOG_DEBUG("end");
 }
+#endif
 
 void FAAbilityThread::HandleRestoreAbilityState(const AppExecFwk::PacMap &state)
 {
@@ -706,6 +712,7 @@ void FAAbilityThread::HandleExtensionUpdateConfiguration(const AppExecFwk::Confi
     HILOG_DEBUG("end");
 }
 
+#ifdef SUPPORT_GRAPHICS
 void FAAbilityThread::ScheduleAbilityTransaction(
     const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AppExecFwk::SessionInfo> sessionInfo)
 {
@@ -743,6 +750,7 @@ void FAAbilityThread::ScheduleAbilityTransaction(
         HILOG_ERROR("PostTask error");
     }
 }
+#endif
 
 void FAAbilityThread::ScheduleShareData(const int32_t &uniqueId)
 {
@@ -907,6 +915,7 @@ bool FAAbilityThread::SchedulePrepareTerminateAbility()
     return isPrepareTerminate_;
 }
 
+#ifdef SUPPORT_GRAPHICS
 void FAAbilityThread::ScheduleCommandAbilityWindow(
     const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
 {
@@ -930,6 +939,7 @@ void FAAbilityThread::ScheduleCommandAbilityWindow(
     }
     HILOG_DEBUG("end");
 }
+#endif
 
 void FAAbilityThread::SendResult(int requestCode, int resultCode, const Want &want)
 {

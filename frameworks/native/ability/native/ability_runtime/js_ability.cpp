@@ -193,6 +193,7 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
         nullptr, nullptr);
 }
 
+#ifdef SUPPORT_GRAPHICS
 void JsAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -239,6 +240,7 @@ void JsAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     }
     HILOG_DEBUG("OnStart end, ability is %{public}s.", GetAbilityName().c_str());
 }
+#endif
 
 int32_t JsAbility::OnShare(WantParams &wantParam)
 {

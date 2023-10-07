@@ -65,6 +65,7 @@ public:
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
         const std::shared_ptr<Context> &appContext) override;
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * @brief Provide operating system AbilityTransaction information to the observer
      * @param want Indicates the structure containing Transaction information about the ability.
@@ -73,6 +74,7 @@ public:
      */
     void ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &targetState,
         sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr) override;
+#endif
 
     /**
      * @brief Provide operating system ShareData information to the observer
@@ -103,6 +105,7 @@ public:
      */
     void ScheduleCommandAbility(const Want &want, bool restart, int startId) override;
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * @brief Schedule Command AbilityWindow
      * @param want The Want object to command to.
@@ -111,6 +114,7 @@ public:
      */
     void ScheduleCommandAbilityWindow(
         const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd) override;
+#endif
 
     /**
      * @brief Provide operating system PrepareTerminateAbility information to the observer
@@ -418,6 +422,7 @@ private:
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
         const std::shared_ptr<AppExecFwk::AbilityContext> &abilityObject);
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * @brief Handle the life cycle of Ability.
      * @param want Indicates the structure containing lifecycle information about the ability.
@@ -435,6 +440,7 @@ private:
      */
     void HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
         sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr);
+#endif
 
     /**
      * @brief Handle the current connection of Ability.
@@ -482,6 +488,7 @@ private:
      */
     void HandleCommandExtension(const Want &want, bool restart, int32_t startId);
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * @brief Handle Command Extension Window
      * @param want The Want object to command to.
@@ -490,6 +497,7 @@ private:
      */
     void HandleCommandExtensionWindow(
         const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd);
+#endif
 
     /**
      * @brief Handle the restoreAbility state.
