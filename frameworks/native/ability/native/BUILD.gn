@@ -285,14 +285,10 @@ ohos_shared_library("abilitykit_native") {
     defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
   }
 
-  if (purgeable_ashmem_enable) {
+  if (purgeable_ashmem_enable && defined(global_parts_info) &&
+      defined(global_parts_info.resourceschedule_memmgr_plugin)) {
     defines += [ "IMAGE_PURGEABLE_PIXELMAP" ]
-    if (defined(global_parts_info) &&
-        defined(global_parts_info.resourceschedule_memmgr_plugin)) {
-      external_deps += [ "memmgr_plugin:libpurgeablemem_plugin" ]
-    } else {
-      external_deps += [ "memory_utils:libpurgeablemem" ]
-    }
+    external_deps += [ "memmgr_plugin:libpurgeablemem_plugin" ]
   }
 
   if (efficiency_manager) {
