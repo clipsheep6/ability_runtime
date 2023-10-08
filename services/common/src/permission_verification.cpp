@@ -207,7 +207,7 @@ bool PermissionVerification::VerifyInstallBundlePermission() const
 
 bool PermissionVerification::VerifyGetBundleInfoPrivilegedPermission() const
 {
-    if (IsSACall() || VerifyCallingPermission(PermissionConstants::PERMISSION_GET_BUNDLE_INFO_PRIVILEGED)) {
+    if (VerifyCallingPermission(PermissionConstants::PERMISSION_GET_BUNDLE_INFO_PRIVILEGED)) {
         HILOG_INFO("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_GET_BUNDLE_INFO_PRIVILEGED);
         return true;
     }
