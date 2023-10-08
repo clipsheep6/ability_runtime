@@ -15,6 +15,7 @@
 
 #include "ability_record.h"
 
+#include <filesystem>
 #include <singleton.h>
 #include <vector>
 #include <unordered_map>
@@ -77,6 +78,7 @@ const std::string SHELL_ASSISTANT_DIEREASON = "crash_die";
 const char* GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_PARAMETER = "persist.sys.prepare_terminate";
 constexpr int32_t GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_SIZE = 6;
 const std::string PARAM_MISSION_AFFINITY_KEY = "ohos.anco.param.missionAffinity";
+const std::string DISTRIBUTED_FILES_PATH = "/data/storage/el2/distributedfiles/";
 const int32_t SHELL_ASSISTANT_DIETYPE = 0;
 int64_t AbilityRecord::abilityRecordId = 0;
 const int32_t DEFAULT_USER_ID = 0;
@@ -2728,6 +2730,26 @@ void AbilityRecord::GrantDmsUriPermission(Want &want, std::string targetBundleNa
         // only support file scheme
         if (scheme != "file") {
             HILOG_WARN("only support file uri.");
+            continue;
+        }
+        std::string srcPath = uri.GetPath();
+        if (std::filesystem::exists(srcPath) && std::filesystem::is_symlink(srcPath)) {
+            HILOG_ERROR("soft links are not allowed.");
+            continue;
+        }
+        std::string absolutePath;
+        if (uri.IsRelative()) {
+            char path[PATH_MAX] = {0};
+            if (realpath(srcPath.c_str(), path) == nullptr) {
+                HILOG_ERROR("realpath get failed, errno is %{public}d", errno);
+                continue;
+            }
+            absolutePath = path;
+        } else {
+            absolutePath = srcPath;
+        }
+        if (absolutePath.compare(0, DISTRIBUTED_FILES_PATH.size(), DISTRIBUTED_FILES_PATH) != 0) {
+            HILOG_ERROR("uri is not distributed path");
             continue;
         }
         int autoremove = 1;
