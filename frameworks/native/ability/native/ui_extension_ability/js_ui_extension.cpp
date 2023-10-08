@@ -104,7 +104,7 @@ void AbilityResultListeners::OnAbilityResult(int requestCode, int resultCode, co
 
 JsUIExtension* JsUIExtension::Create(const std::unique_ptr<Runtime>& runtime)
 {
-    return new JsUIExtension(static_cast<JsRuntime&>(*runtime));
+    return new (std::nothrow) JsUIExtension(static_cast<JsRuntime&>(*runtime));
 }
 
 JsUIExtension::JsUIExtension(JsRuntime& jsRuntime) : jsRuntime_(jsRuntime)
@@ -134,8 +134,8 @@ void JsUIExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
 {
     HILOG_DEBUG("JsUIExtension begin init");
     UIExtension::Init(record, application, handler, token);
-    if (Extension::abilityInfo_->srcEntrance.empty()) {
-        HILOG_ERROR("JsUIExtension Init abilityInfo srcEntrance is empty");
+    if (Extension::abilityInfo_ == nullptr || Extension::abilityInfo_->srcEntrance.empty()) {
+        HILOG_ERROR("JsUIExtension Init abilityInfo error");
         return;
     }
     std::string srcPath(Extension::abilityInfo_->moduleName + "/");
@@ -183,6 +183,10 @@ void JsUIExtension::BindContext(napi_env env, napi_value obj)
 
     shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(env, "application.UIExtensionContext",
         &contextObj, ARGC_ONE);
+    if (shellContextRef_ == nullptr) {
+        HILOG_ERROR("Failed to get LoadSystemModuleByEngine");
+        return;
+    }
     contextObj = shellContextRef_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, contextObj, napi_object)) {
         HILOG_ERROR("Failed to get context native object");
@@ -261,7 +265,12 @@ void JsUIExtension::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbac
 
 void JsUIExtension::OnStopCallBack()
 {
-    bool ret = ConnectionManager::GetInstance().DisconnectCaller(GetContext()->GetToken());
+    auto context = GetContext();
+    if (context == nullptr) {
+        HILOG_ERROR("Failed to get context");
+        return;
+    }
+    bool ret = ConnectionManager::GetInstance().DisconnectCaller(context->GetToken());
     if (ret) {
         ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());
         HILOG_DEBUG("The service connection is not disconnected.");
@@ -295,6 +304,10 @@ napi_value PromiseCallback(napi_env env, napi_callback_info info)
     void *data = nullptr;
     NAPI_CALL_NO_THROW(napi_get_cb_info(env, info, nullptr, nullptr, nullptr, &data), nullptr);
     auto *callbackInfo = static_cast<AppExecFwk::AbilityTransactionCallbackInfo<> *>(data);
+    if (callbackInfo == nullptr) {
+        HILOG_DEBUG("Invalid input info.");
+        return nullptr;
+    }
     callbackInfo->Call();
     AppExecFwk::AbilityTransactionCallbackInfo<>::Destroy(callbackInfo);
     data = nullptr;
@@ -638,7 +651,12 @@ void JsUIExtension::OnConfigurationUpdated(const AppExecFwk::Configuration& conf
     napi_env env = jsRuntime_.GetNapiEnv();
 
     // Notify extension context
-    auto fullConfig = GetContext()->GetConfiguration();
+    auto context = GetContext();
+    if (context == nullptr) {
+        HILOG_ERROR("Failed to get context");
+        return;
+    }
+    auto fullConfig = context->GetConfiguration();
     if (!fullConfig) {
         HILOG_ERROR("configuration is nullptr.");
         return;
