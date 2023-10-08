@@ -984,6 +984,7 @@ void AbilityConnectManager::PostRestartResidentTask(const AbilityRequest &abilit
 void AbilityConnectManager::HandleRestartResidentTask(const AbilityRequest &abilityRequest)
 {
     HILOG_INFO("HandleRestartResidentTask start.");
+    std::lock_guard guard(Lock_);
     auto findRestartResidentTask = [abilityRequest](const AbilityRequest &requestInfo) {
         return (requestInfo.want.GetElement().GetBundleName() == abilityRequest.want.GetElement().GetBundleName() &&
             requestInfo.want.GetElement().GetModuleName() == abilityRequest.want.GetElement().GetModuleName() &&
