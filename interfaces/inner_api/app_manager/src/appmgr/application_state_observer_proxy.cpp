@@ -280,5 +280,50 @@ void ApplicationStateObserverProxy::OnAppStopped(const AppStateData &appStateDat
     }
 }
 
+void ApplicationStateObserverProxy::OnPageShow(const PageStateData &pageStateData)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("OnPageShow, WriteInterfaceToken failed");
+        return;
+    }
+    data.WriteParcelable(&pageStateData);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("OnPageShow, Remote() is NULL");
+        return;
+    }
+    int32_t ret = remote->SendRequest(
+        static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_PAGE_SHOW),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("OnPageShow, SendRequest is failed, error code: %{public}d", ret);
+    }
+}
+
+void ApplicationStateObserverProxy::OnPageHide(const PageStateData &pageStateData)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("OnPageHide, WriteInterfaceToken failed");
+        return;
+    }
+    data.WriteParcelable(&pageStateData);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("OnPageHide, Remote() is NULL");
+        return;
+    }
+    int32_t ret = remote->SendRequest(
+        static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_PAGE_HIDE),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("OnPageHide, SendRequest is failed, error code: %{public}d", ret);
+    }
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

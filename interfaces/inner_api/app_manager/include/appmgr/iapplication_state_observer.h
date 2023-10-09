@@ -101,14 +101,14 @@ public:
      *
      * @param pageStateData Page state data.
      */
-    virtual void OnPageShow(const PageStateData &PageStateData) {};
+    virtual void OnPageShow(const PageStateData &pageStateData) {};
 
     /**
      * Will be called whe page hide.
      *
      * @param pageStateData Page state data.
      */
-    virtual void OnPageHide(const PageStateData &PageStateData) {};
+    virtual void OnPageHide(const PageStateData &pageStateData) {};
 
     enum class Message {
         TRANSACT_ON_FOREGROUND_APPLICATION_CHANGED = 0,

@@ -95,6 +95,20 @@ public:
      */
     virtual void OnAppStopped(const AppStateData &appStateData) override;
 
+    /**
+     * Will be called when page show.
+     *
+     * @param pageStateData Page state data.
+     */
+    virtual void OnPageShow(const PageStateData &pageStateData) override;
+
+    /**
+     * Will be called whe page hide.
+     *
+     * @param pageStateData Page state data.
+     */
+    virtual void OnPageHide(const PageStateData &pageStateData) override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     static inline BrokerDelegator<ApplicationStateObserverProxy> delegator_;

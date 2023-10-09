@@ -102,6 +102,20 @@ public:
      */
     virtual void OnAppStopped(const AppStateData &appStateData) override;
 
+    /**
+     * Will be called when page show.
+     *
+     * @param pageStateData Page state data.
+     */
+    virtual void OnPageShow(const PageStateData &pageStateData) override;
+
+    /**
+     * Will be called whe page hide.
+     *
+     * @param pageStateData Page state data.
+     */
+    virtual void OnPageHide(const PageStateData &pageStateData) override;
+
 private:
     int32_t HandleOnForegroundApplicationChanged(MessageParcel &data, MessageParcel &reply);
 
@@ -124,6 +138,10 @@ private:
     int32_t HandleOnAppStarted(MessageParcel &data, MessageParcel &reply);
 
     int32_t HandleOnAppStopped(MessageParcel &data, MessageParcel &reply);
+
+    int32_t HandleOnPageShow(MessageParcel &data, MessageParcel &reply);
+
+    int32_t HandleOnPageHide(MessageParcel &data, MessageParcel &reply);
 
     using ApplicationStateObserverFunc = int32_t (ApplicationStateObserverStub::*)(MessageParcel &data,
         MessageParcel &reply);
