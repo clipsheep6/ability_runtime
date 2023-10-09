@@ -196,7 +196,7 @@ int32_t PermissionVerification::VerifyUpdateConfigurationPerm() const
 
 bool PermissionVerification::VerifyInstallBundlePermission() const
 {
-    if (IsSACall() || VerifyCallingPermission(PermissionConstants::PERMISSION_INSTALL_BUNDLE)) {
+    if (VerifyCallingPermission(PermissionConstants::PERMISSION_INSTALL_BUNDLE)) {
         HILOG_INFO("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_INSTALL_BUNDLE);
         return true;
     }
