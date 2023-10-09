@@ -31,6 +31,7 @@ ohos_unittest("AppDebugManagerTest") {
   ]
 
   deps = [
+    "${ability_runtime_innerkits_path}/app_manager:app_manager", 
     "${ability_runtime_services_path}/appmgr:libappms",
     "${ability_runtime_services_path}/common:task_handler_wrap",
     "//third_party/googletest:gmock_main",
@@ -38,7 +39,6 @@ ohos_unittest("AppDebugManagerTest") {
   ]
 
   external_deps = [
-    "ability_runtime:app_manager",
     "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
