@@ -814,6 +814,8 @@ private:
 
     bool CheckIsolationMode(const HapModuleInfo &hapModuleInfo) const;
 
+    bool IsMainProcess(const std::shared_ptr<ApplicationInfo> &appInfo, const HapModuleInfo &hapModuleInfo) const;
+
     /**
      * StartAbility, load the ability that needed to be started(Start on the basis of the original process).
      *  Start on a new boot process

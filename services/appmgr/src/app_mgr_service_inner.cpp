@@ -209,6 +209,10 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
             HILOG_ERROR("CreateAppRunningRecord failed, appRecord is nullptr");
             return;
         }
+        if (hapModuleInfo.isStageBasedModel && !IsMainProcess(appInfo, hapModuleInfo)) {
+            appRecord->SetKeepAliveAppState(false, false);
+            HILOG_DEBUG("The process %{public}s will not keepalive", hapModuleInfo.process.c_str());
+        }
         SendAppStartupTypeEvent(appRecord, abilityInfo, AppStartType::COLD);
         auto callRecord = GetAppRunningRecordByAbilityToken(preToken);
         if (callRecord != nullptr) {
@@ -299,6 +303,26 @@ void AppMgrServiceInner::MakeProcessName(
         return;
     }
     processName = appInfo->bundleName;
+}
+
+bool AppMgrServiceInner::IsMainProcess(const std::shared_ptr<ApplicationInfo> &appInfo, const HapModuleInfo &hapModuleInfo) const
+{
+    if (!appInfo) {
+        return true;
+    }
+    if(hapModuleInfo.process.empty()) {
+        return true;
+    }
+    if(!appInfo->process.empty()) {
+        if(hapModuleInfo.process == appInfo->process) {
+            return true;
+        }
+    } else {
+        if(hapModuleInfo.process == appInfo->bundleName) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool AppMgrServiceInner::CheckIsolationMode(const HapModuleInfo &hapModuleInfo) const
@@ -2851,6 +2875,10 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
         if (!appRecord) {
             HILOG_ERROR("start process [%{public}s] failed!", processName.c_str());
             return;
+        }
+        if (hapModuleInfo.isStageBasedModel && !IsMainProcess(appInfo, hapModuleInfo)) {
+            appRecord->SetKeepAliveAppState(false, false);
+            HILOG_DEBUG("The process %{public}s will not keepalive", hapModuleInfo.process.c_str());
         }
         auto wantPtr = std::make_shared<AAFwk::Want>(want);
         if (wantPtr != nullptr) {
