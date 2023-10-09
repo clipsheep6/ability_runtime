@@ -270,10 +270,6 @@ int PermissionVerification::CheckCallServiceExtensionPermission(const Verificati
 
 int PermissionVerification::CheckStartByCallPermission(const VerificationInfo &verificationInfo) const
 {
-    if (IsSACall()) {
-        return ERR_OK;
-    }
-
     if (IsCallFromSameAccessToken(verificationInfo.accessTokenId)) {
         HILOG_ERROR("Not remote call, Caller is from same APP, StartAbilityByCall reject");
         return CHECK_PERMISSION_FAILED;
