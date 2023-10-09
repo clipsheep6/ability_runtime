@@ -1630,8 +1630,6 @@ void UIAbilityLifecycleManager::UninstallApp(const std::string &bundleName, int3
             (targetUserId == DEFAULT_USER_ID || it->second->GetOwnerMissionUserId() == targetUserId)) {
             (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
                 DeleteAbilityRecoverInfo(abilityInfo.bundleName, abilityInfo.moduleName, abilityInfo.name);
-            sessionAbilityMap_.erase(it++);
-            continue;
         }
         it++;
     }
