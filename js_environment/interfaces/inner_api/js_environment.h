@@ -88,7 +88,7 @@ public:
 
     void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate);
 
-    void SetRequestAotCallback(const RequestAotCallback& cb);
+    void SetRequestAotCallback(const RequestAotCallback cb);
 
 private:
     std::unique_ptr<JsEnvironmentImpl> impl_ = nullptr;

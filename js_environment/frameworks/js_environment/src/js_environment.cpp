@@ -279,7 +279,7 @@ void JsEnvironment::SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDele
     engine_->SetModuleLoadChecker(moduleCheckerDelegate);
 }
 
-void JsEnvironment::SetRequestAotCallback(const RequestAotCallback& cb)
+void JsEnvironment::SetRequestAotCallback(const RequestAotCallback cb)
 {
     if (vm_ == nullptr) {
         JSENV_LOG_E("Invalid vm.");
