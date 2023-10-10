@@ -42,6 +42,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 using namespace OHOS::AbilityBase::Constants;
+using HspList = std::vector<AppExecFwk::BaseSharedBundleInfo>;
 
 const std::string PATTERN_VERSION = std::string(FILE_SEPARATOR) + "v\\d+" + FILE_SEPARATOR;
 
@@ -343,7 +344,8 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
             return nullptr;
         }
     }
-
+    HspList hspList;
+    bundleMgr_->GetBaseSharedBundleInfos(bundleName, hspList);
     std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();
     if (bundleInfo.applicationInfo.codePath != std::to_string(TYPE_RESERVE) &&
         bundleInfo.applicationInfo.codePath != std::to_string(TYPE_OTHERS)) {
@@ -351,7 +353,11 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
             [&moduleName](const AppExecFwk::HapModuleInfo &hapModuleInfo) {
                 return hapModuleInfo.moduleName == moduleName;
             });
-        if (info == bundleInfo.hapModuleInfos.end()) {
+        auto hspInfo = std::find_if(hspList.begin(), hspList.end(),
+            [&moduleName](const AppExecFwk::BaseSharedBundleInfo &hspInfo) {
+                return hspInfo.moduleName == moduleName;
+            });
+        if (info == bundleInfo.hapModuleInfos.end() && hspInfo == hspList.end()) {
             HILOG_ERROR("ContextImpl::CreateModuleContext moduleName is error.");
             return nullptr;
         }
