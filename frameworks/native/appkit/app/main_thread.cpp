@@ -43,6 +43,7 @@
 #include "extension_plugin_info.h"
 #include "extract_resource_manager.h"
 #include "file_path_utils.h"
+#include "freeze_util.h"
 #include "hilog_wrapper.h"
 #ifdef SUPPORT_GRAPHICS
 #include "locale_config.h"
@@ -62,6 +63,7 @@
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
 #include "task_handler_client.h"
+#include "time_util.h"
 #include "uncaught_exception_callback.h"
 #include "hisysevent.h"
 #include "js_runtime_utils.h"
@@ -83,6 +85,7 @@
 #include <dlfcn.h>
 #endif
 namespace OHOS {
+using AbilityRuntime::FreezeUtil;
 namespace AppExecFwk {
 using namespace OHOS::AbilityBase::Constants;
 std::weak_ptr<OHOSApplication> MainThread::applicationForDump_;
@@ -372,6 +375,7 @@ bool MainThread::ConnectToAppMgr()
         HILOG_ERROR("failed to iface_cast object to appMgr_");
         return false;
     }
+    HILOG_INFO("LoadLifecycle: attach to appMGR.");
     appMgr_->AttachApplication(this);
     HILOG_DEBUG("MainThread::connectToAppMgr end");
     return true;
@@ -613,7 +617,7 @@ void MainThread::ScheduleLowMemory()
 void MainThread::ScheduleLaunchApplication(const AppLaunchData &data, const Configuration &config)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("MainThread schedule launch application start.");
+    HILOG_INFO("LoadLifecycle: schedule launch application start.");
     wptr<MainThread> weak = this;
     auto task = [weak, data, config]() {
         auto appThread = weak.promote();
@@ -673,13 +677,18 @@ void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemo
     const std::shared_ptr<AAFwk::Want> &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("schedule launch ability %{public}s, type is %{public}d.", info.name.c_str(), info.type);
+    HILOG_INFO("LoadLifecycle: schedule launch ability %{public}s, type is %{public}d.", info.name.c_str(), info.type);
 
     AAFwk::Want newWant(*want);
     newWant.CloseAllFd();
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>(info);
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     abilityRecord->SetWant(want);
+
+    FreezeUtil::LifecycleFlow flow = { token, FreezeUtil::TimeoutState::LOAD };
+    std::string entry = std::to_string(AbilityRuntime::TimeUtil::SystemTimeMillisecond()) +
+        "; MainThread::ScheduleLaunchAbility; the load lifecycle.";
+    FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
 
     wptr<MainThread> weak = this;
     auto task = [weak, abilityRecord]() {
@@ -1133,7 +1142,7 @@ bool GetBundleForLaunchApplication(sptr<IBundleMgr> bundleMgr, const std::string
 void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, const Configuration &config)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("MainThread handle launch application start.");
+    HILOG_INFO("LoadLifecycle: handle launch application start.");
     if (!CheckForHandleLaunchApplication(appLaunchData)) {
         HILOG_ERROR("MainThread::handleLaunchApplication CheckForHandleLaunchApplication failed");
         return;
@@ -1692,6 +1701,7 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
  */
 void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &abilityRecord)
 {
+    HILOG_INFO("LoadLifecycle: called.");
     CHECK_POINTER_LOG(abilityRecord, "MainThread::HandleLaunchAbility parameter(abilityRecord) is null");
     std::string connector = "##";
     std::string traceName = __PRETTY_FUNCTION__ + connector;
@@ -1701,12 +1711,15 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
         HILOG_ERROR("Want is nullptr, cant not get abilityName.");
     }
     HITRACE_METER_NAME(HITRACE_TAG_APP, traceName);
-    HILOG_DEBUG("HandleLaunchAbility called start.");
     CHECK_POINTER_LOG(applicationImpl_, "MainThread::HandleLaunchAbility applicationImpl_ is null");
     CHECK_POINTER_LOG(abilityRecordMgr_, "MainThread::HandleLaunchAbility abilityRecordMgr_ is null");
 
     auto abilityToken = abilityRecord->GetToken();
     CHECK_POINTER_LOG(abilityToken, "MainThread::HandleLaunchAbility failed. abilityRecord->GetToken failed");
+    FreezeUtil::LifecycleFlow flow = { abilityToken, FreezeUtil::TimeoutState::LOAD };
+    std::string entry = std::to_string(AbilityRuntime::TimeUtil::SystemTimeMillisecond()) +
+        "; MainThread::HandleLaunchAbility; the load lifecycle.";
+    FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
 
     abilityRecordMgr_->SetToken(abilityToken);
     abilityRecordMgr_->AddAbilityRecord(abilityToken, abilityRecord);
@@ -2082,7 +2095,7 @@ void MainThread::HandleDumpHeap(bool isPrivate)
 void MainThread::Start()
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("MainThread start come.");
+    HILOG_INFO("LoadLifecycle: MainThread start come.");
     std::shared_ptr<EventRunner> runner = EventRunner::GetMainEventRunner();
     if (runner == nullptr) {
         HILOG_ERROR("MainThread::main failed, runner is nullptr");

@@ -16,7 +16,6 @@
 #include "js_ability_delegator_utils.h"
 
 #include <map>
-#include "ability_runtime/js_ability.h"
 #include "hilog_wrapper.h"
 #include "js_ability_monitor.h"
 #include "napi/native_common.h"

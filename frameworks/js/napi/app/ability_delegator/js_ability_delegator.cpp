@@ -17,7 +17,6 @@
 
 #include <mutex>
 #include "ability_delegator_registry.h"
-#include "ability_runtime/js_ability.h"
 #include "hilog_wrapper.h"
 #include "js_ability_delegator_utils.h"
 #include "js_context_utils.h"

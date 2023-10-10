@@ -928,6 +928,7 @@ private:
     {
         callerAccessTokenId_ = callerAccessTokenId;
     }
+    bool IsDebug() const;
 
 #ifdef SUPPORT_GRAPHICS
     std::shared_ptr<Want> GetWantFromMission() const;

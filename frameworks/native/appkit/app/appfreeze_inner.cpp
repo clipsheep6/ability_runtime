@@ -19,6 +19,7 @@
 #include "ability_manager_client.h"
 #include "ability_state.h"
 #include "app_recovery.h"
+#include "freeze_util.h"
 #include "hilog_wrapper.h"
 #include "hisysevent.h"
 #include "mix_stack_dumper.h"
@@ -26,6 +27,7 @@
 #include "xcollie/watchdog.h"
 
 namespace OHOS {
+using AbilityRuntime::FreezeUtil;
 namespace AppExecFwk {
 namespace {
 constexpr char EVENT_UID[] = "UID";
@@ -136,6 +138,10 @@ int AppfreezeInner::AcquireStack(const FaultData& faultInfo, bool onlyMainThread
 
     HILOG_DEBUG("Start dump MainHandler message.");
     std::string msgContent = faultInfo.errorObject.message + "\n";
+    if (faultInfo.state != 0) {
+        FreezeUtil::LifecycleFlow flow = { faultInfo.token, static_cast<FreezeUtil::TimeoutState>(faultInfo.state) };
+        msgContent = msgContent + "client:\n" + FreezeUtil::GetInstance().GetLifecycleEvent(flow) + "\n";
+    }
 
     auto mainHandler = appMainHandler_.lock();
     if (mainHandler == nullptr) {

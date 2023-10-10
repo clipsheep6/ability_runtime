@@ -38,6 +38,7 @@
 #include "napi_remote_object.h"
 #include "scene_board_judgement.h"
 #include "string_wrapper.h"
+#include "time_util.h"
 #include "context/context.h"
 #include "context/application_context.h"
 #include "hitrace_meter.h"
@@ -230,7 +231,10 @@ void JsAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
         jsWant,
         CreateJsLaunchParam(env, GetLaunchParam()),
     };
+    std::string methodName = "OnStart";
+    AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
     CallObjectMethod("onCreate", argv, ArraySize(argv));
+    AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
@@ -238,6 +242,22 @@ void JsAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
         delegator->PostPerformStart(CreateADelegatorAbilityProperty());
     }
     HILOG_DEBUG("OnStart end, ability is %{public}s.", GetAbilityName().c_str());
+}
+
+void JsAbility::AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState state, const std::string &methodName) const
+{
+    FreezeUtil::LifecycleFlow flow = { AbilityContext::token_, state };
+    auto entry = std::to_string(TimeUtil::SystemTimeMillisecond()) + "; JsAbility::" + methodName +
+        "; the " + methodName + " begin.";
+    FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
+}
+
+void JsAbility::AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState state, const std::string &methodName) const
+{
+    FreezeUtil::LifecycleFlow flow = { AbilityContext::token_, state };
+    auto entry = std::to_string(TimeUtil::SystemTimeMillisecond()) + "; JsAbility::" + methodName +
+        "; the " + methodName + " end.";
+    FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
 }
 
 int32_t JsAbility::OnShare(WantParams &wantParam)
@@ -361,7 +381,10 @@ void JsAbility::OnSceneCreated()
     napi_value argv[] = {jsAppWindowStage->GetNapiValue()};
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "onWindowStageCreate");
+        std::string methodName = "OnSceneCreated";
+        AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
         CallObjectMethod("onWindowStageCreate", argv, ArraySize(argv));
+        AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
     }
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
@@ -457,8 +480,10 @@ void JsAbility::OnForeground(const Want &want)
     }
 
     napi_set_named_property(env, obj, "lastRequestWant", jsWant);
-
+    std::string methodName = "OnForeground";
+    AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
     CallObjectMethod("onForeground", &jsWant, 1);
+    AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
@@ -477,7 +502,10 @@ void JsAbility::OnBackground()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("OnBackground begin, ability is %{public}s.", GetAbilityName().c_str());
+    std::string methodName = "OnBackground";
+    AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::BACKGROUND, methodName);
     CallObjectMethod("onBackground");
+    AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState::BACKGROUND, methodName);
 
     Ability::OnBackground();
 
@@ -655,15 +683,16 @@ void JsAbility::DoOnForeground(const Want &want)
         window->SetSystemPrivacyMode(true);
     }
 
-    HILOG_DEBUG("%{public}s begin scene_->GoForeground, sceneFlag_:%{public}d.", __func__, Ability::sceneFlag_);
+    HILOG_INFO("Move scene to foreground, sceneFlag_:%{public}d.", Ability::sceneFlag_);
     scene_->GoForeground(Ability::sceneFlag_);
     HILOG_DEBUG("%{public}s end scene_->GoForeground.", __func__);
 }
 
 void JsAbility::RequestFocus(const Want &want)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_INFO("Lifecycle: begin.");
     if (scene_ == nullptr) {
+        HILOG_ERROR("scene_ is nullptr.");
         return;
     }
     auto window = scene_->GetMainWindow();
@@ -673,7 +702,11 @@ void JsAbility::RequestFocus(const Want &want)
         window->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
         HILOG_DEBUG("set window mode = %{public}d.", windowMode);
     }
+    std::string methodName = "RequestFocus";
+    AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
     scene_->GoForeground(Ability::sceneFlag_);
+    AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
+    HILOG_INFO("Lifecycle: end.");
 }
 
 void JsAbility::ContinuationRestore(const Want &want)
@@ -866,7 +899,10 @@ void JsAbility::OnNewWant(const Want &want)
         jsWant,
         CreateJsLaunchParam(env, GetLaunchParam()),
     };
+    std::string methodName = "OnNewWant";
+    AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
     CallObjectMethod("onNewWant", argv, ArraySize(argv));
+    AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
 
     HILOG_DEBUG("%{public}s end.", __func__);
 }
@@ -930,7 +966,7 @@ sptr<IRemoteObject> JsAbility::CallRequest()
 napi_value JsAbility::CallObjectMethod(const char *name, napi_value const *argv, size_t argc, bool withResult)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("JsAbility::CallObjectMethod(%{public}s", name);
+    HILOG_INFO("Lifecycle: the begin of %{public}s", name);
 
     if (!jsAbilityObj_) {
         HILOG_WARN("Not found Ability.js");
@@ -958,6 +994,7 @@ napi_value JsAbility::CallObjectMethod(const char *name, napi_value const *argv,
         return handleEscape.Escape(result);
     }
     napi_call_function(env, obj, methodOnCreate, argc, argv, nullptr);
+    HILOG_INFO("Lifecycle: the end of %{public}s", name);
     return nullptr;
 }
 

@@ -108,7 +108,7 @@ ohos_shared_library("app_manager") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  deps = []
+  deps = [ "${ability_runtime_path}/utils/global/freeze:freeze_util" ]
 
   external_deps = [
     "ability_base:configuration",

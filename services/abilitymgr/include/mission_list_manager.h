@@ -517,6 +517,7 @@ private:
 
     void NotifyCollaboratorMissionCreated(const AbilityRequest &abilityRequest,
         const std::shared_ptr<Mission> &targetMission, InnerMissionInfo &info);
+    bool GetContentAndTypeId(uint32_t msgId, std::string &msgContent, int &typeId) const;
 
     int userId_;
     mutable ffrt::mutex managerLock_;

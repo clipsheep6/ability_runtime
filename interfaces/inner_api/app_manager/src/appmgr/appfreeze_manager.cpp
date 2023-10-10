@@ -130,29 +130,32 @@ int AppfreezeManager::AppfreezeHandleWithStack(const FaultData& faultData, const
     return AppfreezeHandle(faultNotifyData, appInfo);
 }
 
-int AppfreezeManager::LifecycleTimeoutHandle(int typeId, int32_t pid,
-    const std::string& eventName, const std::string& bundleName, const std::string& msg)
+int AppfreezeManager::LifecycleTimeoutHandle(const ParamInfo& info, std::unique_ptr<FreezeUtil::LifecycleFlow> flow)
 {
-    if (typeId != AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT) {
+    if (info.typeId != AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT) {
         return -1;
     }
-    if (!IsHandleAppfreeze(bundleName)) {
+    if (!IsHandleAppfreeze(info.bundleName)) {
         return -1;
     }
-    if (eventName != AppFreezeType::LIFECYCLE_TIMEOUT &&
-        eventName != AppFreezeType::LIFECYCLE_HALF_TIMEOUT) {
+    if (info.eventName != AppFreezeType::LIFECYCLE_TIMEOUT &&
+        info.eventName != AppFreezeType::LIFECYCLE_HALF_TIMEOUT) {
         return -1;
     }
     HILOG_DEBUG("LifecycleTimeoutHandle called %{public}s, name_ %{public}s",
-        bundleName.c_str(), name_.c_str());
+        info.bundleName.c_str(), name_.c_str());
     AppFaultDataBySA faultDataSA;
-    faultDataSA.errorObject.name = eventName;
-    faultDataSA.errorObject.message = msg;
+    faultDataSA.errorObject.name = info.eventName;
+    faultDataSA.errorObject.message = info.msg;
     faultDataSA.faultType = FaultDataType::APP_FREEZE;
     faultDataSA.timeoutMarkers = "notifyFault" +
-                                 std::to_string(pid) +
+                                 std::to_string(info.pid) +
                                  "-" + std::to_string(GetMilliseconds());
-    faultDataSA.pid = pid;
+    faultDataSA.pid = info.pid;
+    if (flow != nullptr && flow->state != AbilityRuntime::FreezeUtil::TimeoutState::UNKNOWN) {
+        faultDataSA.token = flow->token;
+        faultDataSA.state = static_cast<uint32_t>(flow->state);
+    }
     DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFaultBySA(faultDataSA);
     return 0;
 }

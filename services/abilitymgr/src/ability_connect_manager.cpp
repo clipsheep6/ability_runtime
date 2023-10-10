@@ -1920,13 +1920,18 @@ void AbilityConnectManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord>
         default:
             return;
     }
-    std::string eventName = AppExecFwk::AppFreezeType::LIFECYCLE_TIMEOUT;
 
     HILOG_WARN("LIFECYCLE_TIMEOUT: uid: %{public}d, pid: %{public}d, bundleName: %{public}s, abilityName: %{public}s,"
         "msg: %{public}s", processInfo.uid_, processInfo.pid_, ability->GetAbilityInfo().bundleName.c_str(),
         ability->GetAbilityInfo().name.c_str(), msgContent.c_str());
-    AppExecFwk::AppfreezeManager::GetInstance()->LifecycleTimeoutHandle(
-        typeId, processInfo.pid_, eventName, ability->GetAbilityInfo().bundleName, msgContent);
+    AppExecFwk::AppfreezeManager::ParamInfo info = {
+        .typeId = typeId,
+        .pid = processInfo.pid_,
+        .eventName = AppExecFwk::AppFreezeType::LIFECYCLE_TIMEOUT,
+        .bundleName = ability->GetAbilityInfo().bundleName,
+        .msg = msgContent
+    };
+    AppExecFwk::AppfreezeManager::GetInstance()->LifecycleTimeoutHandle(info);
 }
 
 void AbilityConnectManager::MoveToTerminatingMap(const std::shared_ptr<AbilityRecord>& abilityRecord)

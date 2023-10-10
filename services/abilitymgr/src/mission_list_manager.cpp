@@ -30,6 +30,7 @@
 #include "in_process_call_wrapper.h"
 
 namespace OHOS {
+using AbilityRuntime::FreezeUtil;
 namespace AAFwk {
 namespace {
 constexpr uint32_t DELAY_NOTIFY_LABEL_TIME = 30; // 30ms
@@ -67,6 +68,17 @@ std::string GetCurrentTime()
         static_cast<uint64_t>(tn.tv_nsec);
     return std::to_string(uTime);
 }
+const std::unordered_map<uint32_t, FreezeUtil::TimeoutState> stateMap = {
+    { AbilityManagerService::LOAD_TIMEOUT_MSG, FreezeUtil::TimeoutState::LOAD },
+    { AbilityManagerService::FOREGROUND_TIMEOUT_MSG, FreezeUtil::TimeoutState::FOREGROUND },
+    { AbilityManagerService::BACKGROUND_TIMEOUT_MSG, FreezeUtil::TimeoutState::BACKGROUND }
+};
+
+auto g_deleteLifecycleEventTask = [](const sptr<Token> &token, FreezeUtil::TimeoutState state) {
+    CHECK_POINTER_LOG(token, "token is nullptr.");
+    FreezeUtil::LifecycleFlow flow = { token->AsObject(), state };
+    FreezeUtil::GetInstance().DeleteLifecycleEvent(flow);
+};
 } // namespace
 
 MissionListManager::MissionListManager(int userId) : userId_(userId) {}
@@ -990,6 +1002,8 @@ int MissionListManager::AttachAbilityThread(const sptr<IAbilityScheduler> &sched
     auto eventHandler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     CHECK_POINTER_AND_RETURN_LOG(eventHandler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
     eventHandler->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
+    FreezeUtil::LifecycleFlow flow = { token, FreezeUtil::TimeoutState::LOAD };
+    FreezeUtil::GetInstance().DeleteLifecycleEvent(flow);
 
     abilityRecord->SetScheduler(scheduler);
 
@@ -1220,6 +1234,7 @@ int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> 
     auto eventHandler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     CHECK_POINTER_AND_RETURN_LOG(eventHandler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
     eventHandler->RemoveEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
+    g_deleteLifecycleEventTask(abilityRecord->GetToken(), FreezeUtil::TimeoutState::FOREGROUND);
     auto self(weak_from_this());
     auto taskHandler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     CHECK_POINTER_AND_RETURN_LOG(taskHandler, ERR_INVALID_VALUE, "Fail to get AbilityTaskHandler.");
@@ -1350,6 +1365,7 @@ int MissionListManager::DispatchBackground(const std::shared_ptr<AbilityRecord> 
 
     // remove background timeout task.
     handler->CancelTask("background_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+    g_deleteLifecycleEventTask(abilityRecord->GetToken(), FreezeUtil::TimeoutState::BACKGROUND);
     auto self(shared_from_this());
     auto task = [self, abilityRecord]() { self->CompleteBackground(abilityRecord); };
     handler->SubmitTask(task);
@@ -2074,6 +2090,48 @@ void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &a
     }
     int typeId = AppExecFwk::AppfreezeManager::TypeAttribute::NORMAL_TIMEOUT;
     std::string msgContent = "ability:" + ability->GetAbilityInfo().name + " ";
+    FreezeUtil::TimeoutState state = FreezeUtil::TimeoutState::UNKNOWN;
+    auto search = stateMap.find(msgId);
+    if (search != stateMap.end()) {
+        state = search->second;
+    }
+    if (!GetContentAndTypeId(msgId, msgContent, typeId)) {
+        HILOG_WARN("msgId is invalid.");
+        return;
+    }
+
+    std::string eventName = isHalf ?
+        AppExecFwk::AppFreezeType::LIFECYCLE_HALF_TIMEOUT : AppExecFwk::AppFreezeType::LIFECYCLE_TIMEOUT;
+    HILOG_WARN("%{public}s: uid: %{public}d, pid: %{public}d, bundleName: %{public}s, abilityName: %{public}s,"
+        "msg: %{public}s", eventName.c_str(),
+        processInfo.uid_, processInfo.pid_, ability->GetAbilityInfo().bundleName.c_str(),
+        ability->GetAbilityInfo().name.c_str(), msgContent.c_str());
+
+    AppExecFwk::AppfreezeManager::ParamInfo info = {
+        .typeId = typeId,
+        .pid = processInfo.pid_,
+        .eventName = eventName,
+        .bundleName = ability->GetAbilityInfo().bundleName,
+    };
+    if (state != FreezeUtil::TimeoutState::UNKNOWN) {
+        auto flow = std::make_unique<FreezeUtil::LifecycleFlow>();
+        if (ability->GetToken() != nullptr) {
+            flow->token = ability->GetToken()->AsObject();
+            flow->state = state;
+        }
+        info.msg = msgContent + "\nserver:\n" + FreezeUtil::GetInstance().GetLifecycleEvent(*flow);
+        if (!isHalf) {
+            FreezeUtil::GetInstance().DeleteLifecycleEvent(*flow);
+        }
+        AppExecFwk::AppfreezeManager::GetInstance()->LifecycleTimeoutHandle(info, std::move(flow));
+    } else {
+        info.msg = msgContent;
+        AppExecFwk::AppfreezeManager::GetInstance()->LifecycleTimeoutHandle(info);
+    }
+}
+
+bool MissionListManager::GetContentAndTypeId(uint32_t msgId, std::string &msgContent, int &typeId) const
+{
     switch (msgId) {
         case AbilityManagerService::LOAD_TIMEOUT_MSG:
             msgContent += "load timeout";
@@ -2096,18 +2154,9 @@ void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &a
             msgContent += "terminate timeout";
             break;
         default:
-            return;
+            return false;
     }
-
-    std::string eventName = isHalf ?
-        AppExecFwk::AppFreezeType::LIFECYCLE_HALF_TIMEOUT : AppExecFwk::AppFreezeType::LIFECYCLE_TIMEOUT;
-    HILOG_WARN("%{public}s: uid: %{public}d, pid: %{public}d, bundleName: %{public}s, abilityName: %{public}s,"
-        "msg: %{public}s", eventName.c_str(),
-        processInfo.uid_, processInfo.pid_, ability->GetAbilityInfo().bundleName.c_str(),
-        ability->GetAbilityInfo().name.c_str(), msgContent.c_str());
-
-    AppExecFwk::AppfreezeManager::GetInstance()->LifecycleTimeoutHandle(
-        typeId, processInfo.pid_, eventName, ability->GetAbilityInfo().bundleName, msgContent);
+    return true;
 }
 
 void MissionListManager::UpdateMissionSnapshot(const std::shared_ptr<AbilityRecord>& abilityRecord) const

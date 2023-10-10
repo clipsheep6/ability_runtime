@@ -52,6 +52,10 @@ bool FaultData::ReadFromParcel(Parcel &parcel)
     waitSaveState = parcel.ReadBool();
     notifyApp = parcel.ReadBool();
     forceExit = parcel.ReadBool();
+    state = parcel.ReadUint32();
+    if (parcel.ReadBool()) {
+        token = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
+    }
     return true;
 }
 
@@ -98,6 +102,20 @@ bool FaultData::Marshalling(Parcel &parcel) const
     if (!parcel.WriteBool(forceExit)) {
         return false;
     }
+
+    if (!parcel.WriteUint32(state)) {
+        return false;
+    }
+
+    if (token == nullptr) {
+        if (!parcel.WriteBool(false)) {
+            return false;
+        }
+    } else {
+        if (!parcel.WriteBool(true) || !(static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(token)) {
+            return false;
+        }
+    }
     return true;
 }
 
@@ -137,6 +155,10 @@ bool AppFaultDataBySA::ReadFromParcel(Parcel &parcel)
     waitSaveState = parcel.ReadBool();
     notifyApp = parcel.ReadBool();
     forceExit = parcel.ReadBool();
+    state = parcel.ReadUint32();
+    if (parcel.ReadBool()) {
+        token = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
+    }
     return true;
 }
 
@@ -186,6 +208,20 @@ bool AppFaultDataBySA::Marshalling(Parcel &parcel) const
 
     if (!parcel.WriteBool(forceExit)) {
         return false;
+    }
+
+    if (!parcel.WriteUint32(state)) {
+        return false;
+    }
+
+    if (token == nullptr) {
+        if (!parcel.WriteBool(false)) {
+            return false;
+        }
+    } else {
+        if (!parcel.WriteBool(true) || !(static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(token)) {
+            return false;
+        }
     }
     return true;
 }

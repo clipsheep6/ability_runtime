@@ -43,6 +43,7 @@
 #include "distributed_client.h"
 #include "dlp_utils.h"
 #include "errors.h"
+#include "freeze_util.h"
 #include "hilog_wrapper.h"
 #include "hisysevent.h"
 #include "hitrace_meter.h"
@@ -90,6 +91,7 @@ using OHOS::AppExecFwk::ElementName;
 using OHOS::Security::AccessToken::AccessTokenKit;
 
 namespace OHOS {
+using AbilityRuntime::FreezeUtil;
 namespace AAFwk {
 namespace {
 #define CHECK_CALLER_IS_SYSTEM_APP                                                             \
@@ -3807,7 +3809,7 @@ int AbilityManagerService::AttachAbilityThread(
     const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Attach ability thread.");
+    HILOG_INFO("LoadLifecycle: Attach ability thread.");
     CHECK_POINTER_AND_RETURN(scheduler, ERR_INVALID_VALUE);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && !VerificationAllToken(token)) {
         return ERR_INVALID_VALUE;
@@ -3823,39 +3825,39 @@ int AbilityManagerService::AttachAbilityThread(
     auto type = abilityInfo.type;
     // force timeout ability for test
     if (IsNeedTimeoutForTest(abilityInfo.name, AbilityRecord::ConvertAbilityState(AbilityState::INITIAL))) {
-        HILOG_WARN("force timeout ability for test, state:INITIAL, ability: %{public}s",
-            abilityInfo.name.c_str());
+        HILOG_WARN("force timeout ability for test, state:INITIAL, ability: %{public}s", abilityInfo.name.c_str());
         return ERR_OK;
     }
-    int returnCode = -1;
     if (type == AppExecFwk::AbilityType::SERVICE || type == AppExecFwk::AbilityType::EXTENSION) {
         auto connectManager = GetConnectManagerByUserId(userId);
         if (!connectManager) {
             HILOG_ERROR("connectManager is nullptr. userId=%{public}d", userId);
             return ERR_INVALID_VALUE;
         }
-        returnCode = connectManager->AttachAbilityThreadLocked(scheduler, token);
+        return connectManager->AttachAbilityThreadLocked(scheduler, token);
     } else if (type == AppExecFwk::AbilityType::DATA) {
         auto dataAbilityManager = GetDataAbilityManagerByUserId(userId);
         if (!dataAbilityManager) {
             HILOG_ERROR("dataAbilityManager is Null. userId=%{public}d", userId);
             return ERR_INVALID_VALUE;
         }
-        returnCode = dataAbilityManager->AttachAbilityThread(scheduler, token);
+        return dataAbilityManager->AttachAbilityThread(scheduler, token);
     } else {
+        FreezeUtil::LifecycleFlow flow = { token, FreezeUtil::TimeoutState::LOAD };
+        auto entry = std::to_string(AbilityUtil::SystemTimeMillis()) + "; AbilityManagerService::AttachAbilityThread;" +
+            " the end of load lifecycle.";
+        FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
         if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-            returnCode = uiAbilityLifecycleManager_->AttachAbilityThread(scheduler, token);
-        } else {
-            int32_t ownerMissionUserId = abilityRecord->GetOwnerMissionUserId();
-            auto missionListManager = GetListManagerByUserId(ownerMissionUserId);
-            if (!missionListManager) {
-                HILOG_ERROR("missionListManager is Null. userId=%{public}d", ownerMissionUserId);
-                return ERR_INVALID_VALUE;
-            }
-            returnCode = missionListManager->AttachAbilityThread(scheduler, token);
+            return uiAbilityLifecycleManager_->AttachAbilityThread(scheduler, token);
         }
+        int32_t ownerMissionUserId = abilityRecord->GetOwnerMissionUserId();
+        auto missionListManager = GetListManagerByUserId(ownerMissionUserId);
+        if (!missionListManager) {
+            HILOG_ERROR("missionListManager is Null. userId=%{public}d", ownerMissionUserId);
+            return ERR_INVALID_VALUE;
+        }
+        return missionListManager->AttachAbilityThread(scheduler, token);
     }
-    return returnCode;
 }
 
 void AbilityManagerService::DumpFuncInit()
@@ -4340,7 +4342,7 @@ void AbilityManagerService::DumpSysState(
 int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &token, int state, const PacMap &saveData)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Ability transition done come, state:%{public}d.", state);
+    HILOG_INFO("Lifecycle: state:%{public}d.", state);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && !VerificationAllToken(token)) {
         return ERR_INVALID_VALUE;
     }
@@ -4351,7 +4353,8 @@ int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &toke
     }
 
     auto abilityInfo = abilityRecord->GetAbilityInfo();
-    HILOG_DEBUG("Ability transition done come, state:%{public}d, name:%{public}s", state, abilityInfo.name.c_str());
+    HILOG_INFO("Lifecycle: bundle: %{public}s, ability: %{public}s.", abilityInfo.bundleName.c_str(),
+        abilityInfo.name.c_str());
     auto type = abilityInfo.type;
     auto userId = abilityRecord->GetApplicationInfo().uid / BASE_USER_RANGE;
     // force timeout ability for test
@@ -4381,6 +4384,20 @@ int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &toke
         }
         return dataAbilityManager->AbilityTransitionDone(token, state);
     }
+
+    if (targetState == AbilityState::BACKGROUND) {
+        FreezeUtil::LifecycleFlow flow = { token, FreezeUtil::TimeoutState::BACKGROUND };
+        auto entry = std::to_string(AbilityUtil::SystemTimeMillis()) +
+            "; AbilityManagerService::AbilityTransitionDone; the end of background lifecycle.";
+        FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
+    } else if (targetState != AbilityState::INITIAL) {
+        FreezeUtil::LifecycleFlow flow = { token, FreezeUtil::TimeoutState::FOREGROUND };
+        auto entry = std::to_string(AbilityUtil::SystemTimeMillis()) +
+            "; AbilityManagerService::AbilityTransitionDone; the end of foreground lifecycle.";
+        entry += " the end of foreground lifecycle.";
+        FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
+    }
+
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         return uiAbilityLifecycleManager_->AbilityTransactionDone(token, state, saveData);
     } else {
