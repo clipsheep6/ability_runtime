@@ -5089,9 +5089,7 @@ bool JsNapiCommon::GetStringsValue(napi_env env, napi_value object, std::vector<
 
 bool JsNapiCommon::GetPermissionOptions(napi_env env, napi_value object, JsPermissionOptions &options)
 {
-    bool isArray = false;
-    napi_is_array(env, object, &isArray);
-    if (object == nullptr || !isArray) {
+    if (object == nullptr || !CheckTypeForNapiValue(env, object, napi_object)) {
         HILOG_ERROR("input params error");
         return false;
     }
