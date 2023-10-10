@@ -87,9 +87,9 @@ public:
 
     void ProcessEvent(const EventWrap &event);
 
-    int32_t GetFreezingLastUserId() const;
+    int32_t GetFreezingNewUserId() const;
 
-    void SetFreezingLastUserId(int32_t userId);
+    void SetFreezingNewUserId(int32_t userId);
 
 private:
     bool IsCurrentUser(int32_t userId);
@@ -129,7 +129,7 @@ private:
     int32_t currentUserId_ = USER_ID_NO_HEAD;
     std::unordered_map<int32_t, std::shared_ptr<UserItem>> userItems_;
     std::shared_ptr<UserEventHandler> eventHandler_;
-    int32_t freezingLastUserId_ = -1;
+    int32_t freezingNewUserId_ = -1;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

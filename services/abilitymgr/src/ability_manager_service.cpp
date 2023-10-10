@@ -2175,7 +2175,7 @@ void AbilityManagerService::StopSwitchUserDialog()
         return;
     }
 
-    if (userController_ == nullptr || userController_->GetFreezingLastUserId() == DEFAULT_INVAL_VALUE) {
+    if (userController_ == nullptr || userController_->GetFreezingNewUserId() == DEFAULT_INVAL_VALUE) {
         HILOG_ERROR("Get last userId error.");
         return;
     }
@@ -2192,8 +2192,8 @@ void AbilityManagerService::StopSwitchUserDialog()
     }
 
     Want stopWant = sysDialog->GetSwitchUserDialogWant();
-    StopSwitchUserDialogInner(stopWant, userController_->GetFreezingLastUserId());
-    userController_->SetFreezingLastUserId(DEFAULT_INVAL_VALUE);
+    StopSwitchUserDialogInner(stopWant, userController_->GetFreezingNewUserId());
+    userController_->SetFreezingNewUserId(DEFAULT_INVAL_VALUE);
     return;
 }
 
@@ -2214,9 +2214,8 @@ void AbilityManagerService::StopSwitchUserDialogInner(const Want &want, const in
     }
 
     auto abilityInfo = abilityRequest.abilityInfo;
-    int32_t stopUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : lastUserId;
-    result = CheckOptExtensionAbility(want, abilityRequest, stopUserId,
-        AppExecFwk::ExtensionAbilityType::SERVICE);
+    auto stopUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : lastUserId;
+    result = CheckOptExtensionAbility(want, abilityRequest, stopUserId, AppExecFwk::ExtensionAbilityType::SERVICE);
     if (result != ERR_OK) {
         HILOG_ERROR("Check extensionAbility type error.");
         eventInfo.errCode = result;
@@ -2225,7 +2224,7 @@ void AbilityManagerService::StopSwitchUserDialogInner(const Want &want, const in
     }
 
     auto connectManager = GetConnectManagerByUserId(stopUserId);
-    if (!connectManager) {
+    if (connectManager == nullptr) {
         HILOG_ERROR("ConnectManager is nullptr. userId:%{public}d", stopUserId);
         eventInfo.errCode = ERR_INVALID_VALUE;
         EventReport::SendExtensionEvent(EventName::STOP_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
@@ -2237,7 +2236,6 @@ void AbilityManagerService::StopSwitchUserDialogInner(const Want &want, const in
         HILOG_ERROR("EventInfo errCode is %{public}d", eventInfo.errCode);
         EventReport::SendExtensionEvent(EventName::STOP_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
     }
-    return;
 }
 
 int AbilityManagerService::MoveAbilityToBackground(const sptr<IRemoteObject> &token)
@@ -6150,11 +6148,51 @@ void AbilityManagerService::StartSwitchUserDialog()
     }
 
     Want dialogWant = sysDialog->GetSwitchUserDialogWant();
-    userController_->SetFreezingLastUserId(userController_->GetCurrentUserId());
-    auto result =
-        StartExtensionAbility(dialogWant, nullptr, DEFAULT_INVAL_VALUE, AppExecFwk::ExtensionAbilityType::SERVICE);
+    StartSwitchUserDialogInner(dialogWant, userController_->GetFreezingNewUserId());
+}
+
+
+void AbilityManagerService::StartSwitchUserDialogInner(const Want &want, int32_t lastUserId)
+{
+    HILOG_DEBUG("Start switch user dialog inner come");
+    EventInfo eventInfo = BuildEventInfo(want, lastUserId);
+    eventInfo.extensionType = static_cast<int32_t>(AppExecFwk::ExtensionAbilityType::SERVICE);
+    EventReport::SendExtensionEvent(EventName::START_SERVICE, HiSysEventType::BEHAVIOR, eventInfo);
+    AbilityRequest abilityRequest;
+    auto result = GenerateExtensionAbilityRequest(want, abilityRequest, nullptr, lastUserId);
     if (result != ERR_OK) {
-        HILOG_ERROR("Start extensionAbility error %{public}d.", result);
+        HILOG_ERROR("Generate ability request local error.");
+        eventInfo.errCode = result;
+        EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        return;
+    }
+
+    auto abilityInfo = abilityRequest.abilityInfo;
+    auto startUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : lastUserId;
+    result = CheckOptExtensionAbility(want, abilityRequest, startUserId, AppExecFwk::ExtensionAbilityType::SERVICE);
+    if (result != ERR_OK) {
+        HILOG_ERROR("Check extensionAbility type error.");
+        eventInfo.errCode = result;
+        EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        return;
+    }
+
+    auto connectManager = GetConnectManagerByUserId(startUserId);
+    if (connectManager == nullptr) {
+        InitConnectManager(startUserId, false);
+        connectManager = GetConnectManagerByUserId(startUserId);
+        if (connectManager == nullptr) {
+            HILOG_ERROR("ConnectManager is nullptr. userId=%{public}d", startUserId);
+            eventInfo.errCode = ERR_INVALID_VALUE;
+            EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+            return;
+        }
+    }
+
+    eventInfo.errCode = connectManager->StartAbility(abilityRequest);
+    if (eventInfo.errCode != ERR_OK) {
+        HILOG_ERROR("EventInfo errCode is %{public}d", eventInfo.errCode);
+        EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
     }
 }
 

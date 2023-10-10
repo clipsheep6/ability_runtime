@@ -1643,12 +1643,20 @@ private:
     void StartSwitchUserDialog();
 
     /**
+     * Start switch user dialog inner.
+     * @param want, The want of the dialog box to start.
+     * @param startUserId, The userId who wants to start the dialog box.
+     */
+    void StartSwitchUserDialogInner(const Want &want, int32_t startUserId);
+
+    /**
      * Stop switch user dialog Extension ability.
      */
     void StopSwitchUserDialog();
 
     /**
      * Stop switch user dialog inner.
+     * @param want, The want of the dialog box to stop.
      * @param stopUserId, The userId who wants to stop the dialog box.
      */
     void StopSwitchUserDialogInner(const Want &want, const int32_t stopUserId);
