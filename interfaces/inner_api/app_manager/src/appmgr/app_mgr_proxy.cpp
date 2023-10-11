@@ -1148,12 +1148,6 @@ int32_t AppMgrProxy::GetProcessMemoryByPid(const int32_t pid, int32_t &memorySiz
         return ERR_INVALID_DATA;
     }
 
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
-        return ERR_NULL_OBJECT;
-    }
-
     auto ret = SendRequest(AppMgrInterfaceCode::GET_PROCESS_MEMORY_BY_PID,
         data, reply, option);
     if (ret != NO_ERROR) {
@@ -1185,13 +1179,8 @@ int32_t AppMgrProxy::GetRunningProcessInformation(
         HILOG_ERROR("write userId failed.");
         return ERR_INVALID_DATA;
     }
-    MessageOption option(MessageOption::TF_SYNC);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
-        return ERR_NULL_OBJECT;
-    }
 
+    MessageOption option(MessageOption::TF_SYNC);
     auto ret = SendRequest(AppMgrInterfaceCode::GET_PIDS_BY_BUNDLENAME,
         data, reply, option);
     if (ret != NO_ERROR) {
@@ -1225,11 +1214,6 @@ int32_t AppMgrProxy::ChangeAppGcState(pid_t pid, int32_t state)
     if (!data.WriteInt32(state)) {
         HILOG_ERROR("State write failed.");
         return ERR_FLATTEN_OBJECT;
-    }
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return ERR_NULL_OBJECT;
     }
     int32_t ret = SendRequest(AppMgrInterfaceCode::CHANGE_APP_GC_STATE, data, reply, option);
     if (ret != NO_ERROR) {

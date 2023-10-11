@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -53,7 +53,7 @@ void AtomicServiceStatusCallbackProxy::OnInstallFinished(int resultCode, const W
         return;
     }
 
-    int error = Remote()->SendRequest(IAtomicServiceStatusCallbackCmd::ON_FREE_INSTALL_DONE, data,
+    int32_t error = SendTransactCmd(IAtomicServiceStatusCallbackCmd::ON_FREE_INSTALL_DONE, data,
         reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("OnFinished fail, error: %{public}d", error);
@@ -87,13 +87,7 @@ void AtomicServiceStatusCallbackProxy::OnRemoteInstallFinished(int resultCode, c
         return;
     }
 
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return;
-    }
-
-    int error = remote->SendRequest(ON_REMOTE_FREE_INSTALL_DONE, data, reply, option);
+    int32_t error = SendTransactCmd(ON_REMOTE_FREE_INSTALL_DONE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("OnFinished fail, error: %{public}d", error);
         return;
@@ -116,17 +110,28 @@ void AtomicServiceStatusCallbackProxy::OnRemoveTimeoutTask(const Want &want)
         return;
     }
 
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return;
-    }
-
-    int error = remote->SendRequest(ON_REMOVE_TIMEOUT_TASK, data, reply, option);
+    int32_t error = SendTransactCmd(ON_REMOVE_TIMEOUT_TASK, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("OnFinished fail, error: %{public}d", error);
         return;
     }
+}
+
+int32_t AtomicServiceStatusCallbackProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote object is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    int32_t ret = remote->SendRequest(code, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
+        return ret;
+    }
+    return NO_ERROR;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
