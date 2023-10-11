@@ -264,6 +264,11 @@ class MockAppMgrStub : public AppMgrStub {
     {
         return 0;
     }
+
+    int32_t ChangeAppGcState(pid_t pid, int32_t state) override
+    {
+        return 0;
+    }
 };
 
 /*
@@ -2436,6 +2441,18 @@ HWTEST_F(MainThreadTest, GetNativeLibPath_0400, TestSize.Level1)
     ASSERT_EQ(appLibPaths["com.ohos.myapplication/library"].size(), size_t(1));
     EXPECT_EQ(appLibPaths["com.ohos.myapplication/library"][0],
         "/data/storage/el1/bundle/com.ohos.myapplication/library/library.hsp!/libs/armeabi-v7a");
+}
+
+/**
+ * @tc.name: ScheduleChangeAppGcState_0100
+ * @tc.desc: Schedule Gc state chage.
+ * @tc.type: FUNC
+ * @tc.require: issuesI85VVU
+ */
+HWTEST_F(MainThreadTest, ScheduleChangeAppGcState_0100, TestSize.Level1)
+{
+    auto ret = mainThread_->ScheduleChangeAppGcState(0);
+    EXPECT_EQ(ret, NO_ERROR);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

@@ -62,5 +62,18 @@ HWTEST_F(AppSchedulerProxyTest, ScheduleNotifyAppFault_001, TestSize.Level1)
     int32_t result = appSchedulerProxy->ScheduleNotifyAppFault(faultData);
     EXPECT_EQ(result, ERR_NULL_OBJECT);
 }
+
+/**
+ * @tc.name: ScheduleChangeAppGcState_001
+ * @tc.desc: Verify that the ScheduleChangeAppGcState interface calls normally
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerProxyTest, ScheduleChangeAppGcState_001, TestSize.Level1)
+{
+    sptr<IRemoteObject> impl;
+    sptr<AppSchedulerProxy> appSchedulerProxy = new (std::nothrow) AppSchedulerProxy(impl);
+    int32_t result = appSchedulerProxy->ScheduleChangeAppGcState(0);
+    EXPECT_EQ(result, ERR_NULL_OBJECT);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

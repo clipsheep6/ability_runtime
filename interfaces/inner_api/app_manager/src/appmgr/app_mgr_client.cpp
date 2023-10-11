@@ -737,7 +737,7 @@ int32_t AppMgrClient::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
     return service->NotifyAppFaultBySA(faultData);
 }
 
-int32_t AppMgrClient::OnGcStateChange(pid_t pid, int32_t state)
+int32_t AppMgrClient::ChangeAppGcState(pid_t pid, int32_t state)
 {
     if (mgrHolder_ == nullptr) {
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
@@ -746,7 +746,7 @@ int32_t AppMgrClient::OnGcStateChange(pid_t pid, int32_t state)
     if (service == nullptr) {
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
-    return service->OnGcStateChange(pid, state);
+    return service->ChangeAppGcState(pid, state);
 }
 
 int32_t AppMgrClient::RegisterAppDebugListener(const sptr<IAppDebugListener> &listener)

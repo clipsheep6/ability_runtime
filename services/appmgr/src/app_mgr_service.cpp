@@ -824,13 +824,13 @@ void AppMgrService::OnRemoveSystemAbility(int32_t systemAbilityId, const std::st
     appMgrServiceInner_->FreeFocusListener();
 }
 
-int32_t AppMgrService::OnGcStateChange(pid_t pid, int32_t state)
+int32_t AppMgrService::ChangeAppGcState(pid_t pid, int32_t state)
 {
     HILOG_DEBUG("called.");
     if (!appMgrServiceInner_) {
         return ERR_INVALID_VALUE;
     }
-    return appMgrServiceInner_->OnGcStateChange(pid, state);
+    return appMgrServiceInner_->ChangeAppGcState(pid, state);
 }
 
 int32_t AppMgrService::NotifyPageShow(const sptr<IRemoteObject> &token, const PageStateData &pageStateData)

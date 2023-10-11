@@ -588,7 +588,7 @@ int32_t AppSchedulerProxy::ScheduleNotifyAppFault(const FaultData &faultData)
     return reply.ReadInt32();
 }
 
-int32_t AppSchedulerProxy::ScheduleOnGcStateChange(int32_t state)
+int32_t AppSchedulerProxy::ScheduleChangeAppGcState(int32_t state)
 {
     MessageParcel data;
 
@@ -606,7 +606,7 @@ int32_t AppSchedulerProxy::ScheduleOnGcStateChange(int32_t state)
     data.WriteInt32(state);
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
-    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppScheduler::Message::APP_ON_GC_STATE_CHANGE),
+    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppScheduler::Message::APP_GC_STATE_CHANGE),
                                    data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("Send request failed with error code %{public}d.", ret);

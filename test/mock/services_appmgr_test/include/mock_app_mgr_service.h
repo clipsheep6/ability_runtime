@@ -171,7 +171,7 @@ public:
 
     int code_;
 
-    virtual int32_t OnGcStateChange(pid_t pid, int32_t state)
+    virtual int32_t ChangeAppGcState(pid_t pid, int32_t state)
     {
         return 0;
     }

@@ -2891,5 +2891,39 @@ HWTEST_F(AmsAppRunningRecordTest, NotifyAppFault_002, TestSize.Level1)
     EXPECT_EQ(ERR_INVALID_VALUE, record->NotifyAppFault(faultData));
     HILOG_DEBUG("NotifyAppFault_002 end.");
 }
+
+/*
+ * Feature: AMS
+ * Function: ChangeAppGcState
+ * SubFunction: ChangeAppGcState_001
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Change app Gc state
+ */
+HWTEST_F(AmsAppRunningRecordTest, ChangeAppGcState_001, TestSize.Level1)
+{
+    HILOG_DEBUG("ChangeAppGcState_001 start.");
+    auto record = GetTestAppRunningRecord();
+    record->appLifeCycleDeal_ = nullptr;
+    EXPECT_EQ(ERR_INVALID_VALUE, record->ChangeAppGcState(0));
+    HILOG_DEBUG("ChangeAppGcState_001 end.");
+}
+
+/*
+ * Feature: AMS
+ * Function: ChangeAppGcState
+ * SubFunction: ChangeAppGcState_002
+ * FunctionPoints: check params
+ * EnvConditions: Mobile that can run ohos test framework
+ * CaseDescription: Change app Gc state
+ */
+HWTEST_F(AmsAppRunningRecordTest, ChangeAppGcState_002, TestSize.Level1)
+{
+    HILOG_DEBUG("ChangeAppGcState_002 start.");
+    auto record = GetTestAppRunningRecord();
+    record->appLifeCycleDeal_ = std::make_shared<AppLifeCycleDeal>();
+    EXPECT_EQ(ERR_INVALID_VALUE, record->ChangeAppGcState(0));
+    HILOG_DEBUG("ChangeAppGcState_002 end.");
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

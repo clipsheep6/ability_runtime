@@ -1208,7 +1208,7 @@ int32_t AppMgrProxy::GetRunningProcessInformation(
     return result;
 }
 
-int32_t AppMgrProxy::OnGcStateChange(pid_t pid, int32_t state)
+int32_t AppMgrProxy::ChangeAppGcState(pid_t pid, int32_t state)
 {
     HILOG_DEBUG("called.");
     MessageParcel data;
@@ -1231,7 +1231,7 @@ int32_t AppMgrProxy::OnGcStateChange(pid_t pid, int32_t state)
         HILOG_ERROR("Remote() is NULL");
         return ERR_NULL_OBJECT;
     }
-    int32_t ret = SendRequest(AppMgrInterfaceCode::APP_ON_GC_STATE_CHANGE, data, reply, option);
+    int32_t ret = SendRequest(AppMgrInterfaceCode::CHANGE_APP_GC_STATE, data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
         return ret;

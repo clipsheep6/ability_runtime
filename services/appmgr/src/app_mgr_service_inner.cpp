@@ -4280,7 +4280,7 @@ int32_t AppMgrServiceInner::GetRunningProcessInformation(
     return ERR_OK;
 }
 
-int32_t AppMgrServiceInner::OnGcStateChange(pid_t pid, int32_t state)
+int32_t AppMgrServiceInner::ChangeAppGcState(pid_t pid, int32_t state)
 {
     HILOG_DEBUG("called.");
     auto appRecord = GetAppRunningRecordByPid(pid);
@@ -4288,7 +4288,7 @@ int32_t AppMgrServiceInner::OnGcStateChange(pid_t pid, int32_t state)
         HILOG_ERROR("no such appRecord");
         return ERR_INVALID_VALUE;
     }
-    return appRecord->OnGcStateChange(state);
+    return appRecord->ChangeAppGcState(state);
 }
 
 int32_t AppMgrServiceInner::RegisterAppDebugListener(const sptr<IAppDebugListener> &listener)

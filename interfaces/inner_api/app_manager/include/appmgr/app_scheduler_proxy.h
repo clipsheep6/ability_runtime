@@ -174,7 +174,7 @@ public:
 
     int32_t ScheduleNotifyAppFault(const FaultData &faultData) override;
 
-    virtual int32_t ScheduleOnGcStateChange(int32_t state) override;
+    virtual int32_t ScheduleChangeAppGcState(int32_t state) override;
 
     void AttachAppDebug() override;
     void DetachAppDebug() override;

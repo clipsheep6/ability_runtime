@@ -186,7 +186,7 @@ void MockModuleLifecycleCallbacks::OnAbilitySaveState(const PacMap& outState)
     GTEST_LOG_(INFO) << "MockModuleLifecycleCallbacks::OnAbilitySaveState called";
 }
 
-int32_t MockApplication::ScheduleOnGcStateChange(int32_t state)
+int32_t MockApplication::ScheduleChangeAppGcState(int32_t state)
 {
     GTEST_LOG_(INFO) << "MockModuleLifecycleCallbacks::OnAbilitySaveState called";
     return 0;

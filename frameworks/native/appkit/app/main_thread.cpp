@@ -2670,7 +2670,7 @@ std::vector<std::string> MainThread::GetRemoveOverlayPaths(const std::vector<Ove
     return removePaths;
 }
 
-int32_t MainThread::ScheduleOnGcStateChange(int32_t state)
+int32_t MainThread::ScheduleChangeAppGcState(int32_t state)
 {
     HILOG_DEBUG("called.");
     if (mainHandler_ == nullptr) {
@@ -2682,16 +2682,16 @@ int32_t MainThread::ScheduleOnGcStateChange(int32_t state)
     auto task = [weak, state] {
         auto appThread = weak.promote();
         if (appThread == nullptr) {
-            HILOG_ERROR("appThread is nullptr, OnGcStateChange failed.");
+            HILOG_ERROR("appThread is nullptr, ChangeAppGcState failed.");
             return;
         }
-        appThread->OnGcStateChange(state);
+        appThread->ChangeAppGcState(state);
     };
-    mainHandler_->PostTask(task, "MainThread:OnGcStateChange");
+    mainHandler_->PostTask(task, "MainThread:ChangeAppGcState");
     return NO_ERROR;
 }
         
-int32_t MainThread::OnGcStateChange(int32_t state)
+int32_t MainThread::ChangeAppGcState(int32_t state)
 {
     HILOG_DEBUG("called.");
     if (application_ == nullptr) {

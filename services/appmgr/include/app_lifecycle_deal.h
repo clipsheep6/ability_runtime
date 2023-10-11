@@ -190,7 +190,7 @@ public:
      *
      * @return Is the status change completed.
      */
-    int32_t OnGcStateChange(int32_t state);
+    int32_t ChangeAppGcState(int32_t state);
 
     int32_t AttachAppDebug();
     int32_t DetachAppDebug();

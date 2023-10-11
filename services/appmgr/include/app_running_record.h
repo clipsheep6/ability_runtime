@@ -654,7 +654,7 @@ public:
      *
      * @return Is the status change completed.
      */
-    int32_t OnGcStateChange(const int32_t state);
+    int32_t ChangeAppGcState(const int32_t state);
 
     void SetAttachDebug(const bool &isAttachDebug);
     bool isAttachDebug() const;

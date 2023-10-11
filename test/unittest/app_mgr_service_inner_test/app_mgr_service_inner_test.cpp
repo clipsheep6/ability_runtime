@@ -3382,5 +3382,22 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyAppFaultBySA_001, TestSize.Level1)
     EXPECT_EQ(ret, ERR_INVALID_VALUE);
     HILOG_INFO("NotifyAppFaultBySA_001 end");
 }
+
+/**
+ * @tc.name: ChangeAppGcState_001
+ * @tc.desc: Change app Gc state
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, ChangeAppGcState_001, TestSize.Level1)
+{
+    HILOG_INFO("ChangeAppGcState_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    int32_t pid = 0;
+    int32_t state = 0;
+    int32_t ret = appMgrServiceInner->ChangeAppGcState(pid, state);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    HILOG_INFO("ChangeAppGcState_001 end");
+}
 } // namespace AppExecFwk
 } // namespace OHOS
