@@ -214,6 +214,10 @@ AbilityRecord::AbilityRecord(const Want &want, const AppExecFwk::AbilityInfo &ab
     }
     restartCount_ = restartMax_;
     appIndex_ = want.GetIntParam(DLP_INDEX, 0);
+    isAppAutoStartup_ = want_.GetBoolParam(Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON, false);
+    if (want_.HasParameter(Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON)) {
+        want_.RemoveParam(Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON);
+    }
 }
 
 AbilityRecord::~AbilityRecord()
@@ -2325,6 +2329,10 @@ AppState AbilityRecord::GetAppState() const
 
 void AbilityRecord::SetLaunchReason(const LaunchReason &reason)
 {
+    if (isAppAutoStartup_) {
+        lifeCycleStateInfo_.launchParam.launchReason = LaunchReason::LAUNCHREASON_AUTO_STARTUP;
+        return;
+    }
     lifeCycleStateInfo_.launchParam.launchReason = reason;
 }
 

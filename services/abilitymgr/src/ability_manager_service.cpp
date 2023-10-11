@@ -93,6 +93,7 @@ using OHOS::Security::AccessToken::AccessTokenKit;
 namespace OHOS {
 using AbilityRuntime::FreezeUtil;
 namespace AAFwk {
+using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
 namespace {
 #define CHECK_CALLER_IS_SYSTEM_APP                                                             \
     if (!AAFwk::PermissionVerification::GetInstance()->JudgeCallerIsAllowedToUseSystemAPI()) { \
@@ -362,6 +363,8 @@ bool AbilityManagerService::Init()
         HILOG_INFO("App jump intercetor disabled");
     }
     InitStartAbilityChain();
+
+    abilityAutoStartupService_ = std::make_shared<AbilityRuntime::AbilityAutoStartupService>();
 
     auto startResidentAppsTask = [aams = shared_from_this()]() { aams->StartResidentApps(); };
     taskHandler_->SubmitTask(startResidentAppsTask, "StartResidentApps");
@@ -1795,7 +1798,8 @@ void AbilityManagerService::SubscribeBundleEventCallback()
     }
 
     // Register abilityBundleEventCallback to receive hap updates
-    abilityBundleEventCallback_ = new (std::nothrow) AbilityBundleEventCallback(taskHandler_);
+    abilityBundleEventCallback_ =
+        new (std::nothrow) AbilityBundleEventCallback(taskHandler_, abilityAutoStartupService_);
     auto bms = GetBundleManager();
     if (bms) {
         bool ret = IN_PROCESS_CALL(bms->RegisterBundleEventCallback(abilityBundleEventCallback_));
@@ -4690,6 +4694,11 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
 
     /* note: OOBE APP need disable itself, otherwise, it will be started when restart system everytime */
     (void)StartAbility(abilityWant, userId, DEFAULT_INVAL_VALUE);
+
+    if (isBoot) {
+        auto startAutoStartupAppsTask = [aams = shared_from_this()]() { aams->StartAutoStartupApps(); };
+        taskHandler_->SubmitTask(startAutoStartupAppsTask, "StartAutoStartupApps");
+    }
 }
 
 int AbilityManagerService::GenerateAbilityRequest(
@@ -5409,6 +5418,32 @@ void AbilityManagerService::StartResidentApps()
             AmsConfigurationParameter::GetInstance().GetBootAnimationTimeoutTime());
 #endif
         DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcess(bundleInfos);
+    }
+}
+
+void AbilityManagerService::StartAutoStartupApps()
+{
+    HILOG_DEBUG("Called.");
+    ConnectBmsService();
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return;
+    }
+    std::vector<AutoStartupInfo> infoList;
+    int32_t result = abilityAutoStartupService_->QueryAllAutoStartupApplicationsWithoutPermission(infoList);
+    if (result != ERR_OK) {
+        HILOG_ERROR("Failed to query data.");
+        return;
+    }
+    for (auto info : infoList) {
+        AppExecFwk::ElementName element;
+        element.SetBundleName(info.bundleName);
+        element.SetAbilityName(info.abilityName);
+        element.SetModuleName(info.moduleName);
+        Want want;
+        want.SetElement(element);
+        want.SetParam(Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON, true);
+        StartAbility(want);
     }
 }
 
@@ -8358,6 +8393,96 @@ void AbilityManagerService::GetConnectManagerAndUIExtensionBySessionInfo(const s
             HILOG_WARN("connectManager is nullptr, userId: 0");
         }
     }
+}
+
+int32_t AbilityManagerService::RegisterAutoStartupSystemCallback(const sptr<IRemoteObject> &callback)
+{
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return ERR_NO_INIT;
+    }
+    return abilityAutoStartupService_->RegisterAutoStartupSystemCallback(callback);
+}
+
+int32_t AbilityManagerService::UnregisterAutoStartupSystemCallback(const sptr<IRemoteObject> &callback)
+{
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return ERR_NO_INIT;
+    }
+    return abilityAutoStartupService_->UnregisterAutoStartupSystemCallback(callback);
+}
+
+int32_t AbilityManagerService::SetApplicationAutoStartup(const AutoStartupInfo &info)
+{
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return ERR_NO_INIT;
+    }
+    return abilityAutoStartupService_->SetApplicationAutoStartup(info);
+}
+
+int32_t AbilityManagerService::CancelApplicationAutoStartup(const AutoStartupInfo &info)
+{
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return ERR_NO_INIT;
+    }
+    return abilityAutoStartupService_->CancelApplicationAutoStartup(info);
+}
+
+int32_t AbilityManagerService::QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList)
+{
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return ERR_NO_INIT;
+    }
+    return abilityAutoStartupService_->QueryAllAutoStartupApplications(infoList);
+}
+
+int32_t AbilityManagerService::RegisterAutoStartupCallback(const sptr<IRemoteObject> &callback)
+{
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return ERR_NO_INIT;
+    }
+    return abilityAutoStartupService_->RegisterAutoStartupCallback(callback);
+}
+
+int32_t AbilityManagerService::UnregisterAutoStartupCallback(const sptr<IRemoteObject> &callback)
+{
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return ERR_NO_INIT;
+    }
+    return abilityAutoStartupService_->UnregisterAutoStartupCallback(callback);
+}
+
+int32_t AbilityManagerService::SetAutoStartup(const AutoStartupInfo &info)
+{
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return ERR_NO_INIT;
+    }
+    return abilityAutoStartupService_->SetAutoStartup(info);
+}
+
+int32_t AbilityManagerService::CancelAutoStartup(const AutoStartupInfo &info)
+{
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return ERR_NO_INIT;
+    }
+    return abilityAutoStartupService_->CancelAutoStartup(info);
+}
+
+int32_t AbilityManagerService::IsAutoStartup(const AutoStartupInfo &info, bool &isAutoStartup)
+{
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return ERR_NO_INIT;
+    }
+    return abilityAutoStartupService_->IsAutoStartup(info, isAutoStartup);
 }
 
 int AbilityManagerService::PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isTerminate)

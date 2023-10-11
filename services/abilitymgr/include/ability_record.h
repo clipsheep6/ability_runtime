@@ -1077,6 +1077,7 @@ private:
     std::string missionAffinity_ = "";
     bool lockedState_ = false;
     bool isAttachDebug_ = false;
+    bool isAppAutoStartup_ = false;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

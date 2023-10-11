@@ -261,6 +261,7 @@ ohos_shared_library("app_context") {
 # build so
 ohos_shared_library("app_context_utils") {
   include_dirs = [
+    "${ability_runtime_napi_path}/ability_auto_startup_callback",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/app",
   ]
@@ -270,6 +271,7 @@ ohos_shared_library("app_context_utils") {
   public_configs = [ ":appkit_public_config" ]
 
   sources = [
+    "ability_runtime/context/js_application_context_auto_startup_manager.cpp",
     "ability_runtime/context/js_application_context_utils.cpp",
     "ability_runtime/context/js_context_utils.cpp",
     "ability_runtime/context/js_resource_manager_utils.cpp",
@@ -279,9 +281,14 @@ ohos_shared_library("app_context_utils") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/error_utils:ability_runtime_error_util",
     "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${ability_runtime_napi_path}/ability_auto_startup_callback:autostartupcallback",
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
+    "${ability_runtime_native_path}/ability/native:ability_business_error",
+    "${ability_runtime_native_path}/ability/native:auto_startup_callback",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:application_context_manager",
   ]
