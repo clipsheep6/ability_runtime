@@ -72,7 +72,6 @@
 #if defined(NWEB)
 #include <thread>
 #include "app_mgr_client.h"
-#include "nweb_pre_dns_adapter.h"
 #include "nweb_helper.h"
 #endif
 
@@ -1429,9 +1428,6 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     }
 
 #if defined(NWEB)
-    // pre dns for nweb
-    std::thread(&OHOS::NWeb::PreDnsInThread).detach();
-
     // start nwebspawn process
     std::weak_ptr<OHOSApplication> weakApp = application_;
     wptr<IAppMgr> weakMgr = appMgr_;
