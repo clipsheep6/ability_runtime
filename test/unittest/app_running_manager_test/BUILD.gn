@@ -23,7 +23,8 @@ ohos_unittest("app_running_manager_test") {
 
   configs = [ "${ability_runtime_services_path}/appmgr:appmgr_config" ]
 
-  sources = [ "app_running_manager_test.cpp" ]
+  sources = [ "${ability_runtime_services_path}/appmgr/src/window_visibility_changed_listener.cpp" ]
+  sources += [ "app_running_manager_test.cpp" ]
 
   deps = [
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
@@ -58,6 +59,7 @@ ohos_unittest("app_running_manager_test") {
     "memory_utils:libmeminfo",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "window_manager:libwm",
     "window_manager:libwsutils",
   ]
 }

@@ -854,6 +854,24 @@ bool AppRunningManager::IsApplicationBackground(const std::string &bundleName)
     return true;
 }
 
+void AppRunningManager::OnWindowVisibilityChanged(
+    const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos)
+{
+    HILOG_DEBUG("Called.");
+    for (const auto &info : windowVisibilityInfos) {
+        if (info == nullptr) {
+            HILOG_ERROR("Window visibility info is nullptr.");
+            continue;
+        }
+        auto appRecord = GetAppRunningRecordByPidInner(info->pid_);
+        if (appRecord == nullptr) {
+            HILOG_ERROR("App running record is nullptr.");
+            return;
+        }
+        appRecord->OnWindowVisibilityChanged(windowVisibilityInfos);
+    }
+}
+
 bool AppRunningManager::IsApplicationFirstFocused(const AppRunningRecord &focusedRecord)
 {
     HILOG_DEBUG("check focus function called.");

@@ -38,6 +38,7 @@ ohos_unittest("AMSEventHandlerTest") {
     "${ability_runtime_services_path}/appmgr/src/module_running_record.cpp",
     "${ability_runtime_services_path}/appmgr/src/remote_client_manager.cpp",
     "${ability_runtime_services_path}/appmgr/src/window_focus_changed_listener.cpp",
+    "${ability_runtime_services_path}/appmgr/src/window_visibility_changed_listener.cpp",
   ]
 
   sources += [ "app_mgr_service_event_handler_test.cpp" ]
