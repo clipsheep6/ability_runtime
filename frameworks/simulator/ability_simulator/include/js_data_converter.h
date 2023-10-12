@@ -20,6 +20,7 @@
 #include "application_info.h"
 #include "hap_module_info.h"
 #include "configuration.h"
+#include "native_engine/native_engine.h"
 #include "res_common.h"
 
 class NativeEngine;
@@ -31,10 +32,10 @@ Global::Resource::Direction ConvertDirection(const std::string &direction);
 Global::Resource::ScreenDensity ConvertDensity(const std::string &density);
 int32_t ConvertDisplayId(const std::string &displayId);
 std::string GetDensityStr(float density);
-NativeValue *CreateJsConfiguration(NativeEngine &engine, const AppExecFwk::Configuration &configuration);
-NativeValue *CreateJsApplicationInfo(NativeEngine &engine, const AppExecFwk::ApplicationInfo &applicationInfo);
-NativeValue *CreateJsHapModuleInfo(NativeEngine &engine, const AppExecFwk::HapModuleInfo &hapModuleInfo);
-NativeValue *CreateJsAbilityInfo(NativeEngine &engine, const AppExecFwk::AbilityInfo &abilityInfo);
+napi_value CreateJsConfiguration(napi_env env, const AppExecFwk::Configuration &configuration);
+napi_value CreateJsApplicationInfo(napi_env env, const AppExecFwk::ApplicationInfo &applicationInfo);
+napi_value CreateJsHapModuleInfo(napi_env env, const AppExecFwk::HapModuleInfo &hapModuleInfo);
+napi_value CreateJsAbilityInfo(napi_env env, const AppExecFwk::AbilityInfo &abilityInfo);
 } // namespace AbilityRuntime
 } // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_SIMULATOR_JS_DATA_CONVERTER_H

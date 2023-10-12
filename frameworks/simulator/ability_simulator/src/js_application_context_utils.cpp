@@ -29,312 +29,287 @@ constexpr char APPLICATION_CONTEXT_NAME[] = "__application_context_ptr__";
 const char *MD_NAME = "JsApplicationContextUtils";
 } // namespace
 
-NativeValue *JsApplicationContextUtils::CreateBundleContext(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsApplicationContextUtils::CreateBundleContext(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsApplicationContextUtils::SwitchArea(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsApplicationContextUtils::SwitchArea(napi_env env, napi_callback_info info)
 {
-    JsApplicationContextUtils *me =
-        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
-    return me != nullptr ? me->OnSwitchArea(*engine, *info) : nullptr;
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnSwitchArea, APPLICATION_CONTEXT_NAME);
 }
 
-NativeValue *JsApplicationContextUtils::OnSwitchArea(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JsApplicationContextUtils::OnSwitchArea(napi_env env, NapiCallbackInfo &info)
 {
-    NativeValue *thisVar = info.thisVar;
-    NativeObject *object = ConvertNativeValueTo<NativeObject>(thisVar);
+    napi_value object = info.thisVar;
     if (object == nullptr) {
         HILOG_ERROR("object is null");
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
-    BindNativeProperty(*object, "cacheDir", GetCacheDir);
-    BindNativeProperty(*object, "tempDir", GetTempDir);
-    BindNativeProperty(*object, "filesDir", GetFilesDir);
-    BindNativeProperty(*object, "distributedFilesDir", GetDistributedFilesDir);
-    BindNativeProperty(*object, "databaseDir", GetDatabaseDir);
-    BindNativeProperty(*object, "preferencesDir", GetPreferencesDir);
-    BindNativeProperty(*object, "bundleCodeDir", GetBundleCodeDir);
-    return engine.CreateUndefined();
+    BindNativeProperty(env, object, "cacheDir", GetCacheDir);
+    BindNativeProperty(env, object, "tempDir", GetTempDir);
+    BindNativeProperty(env, object, "filesDir", GetFilesDir);
+    BindNativeProperty(env, object, "distributedFilesDir", GetDistributedFilesDir);
+    BindNativeProperty(env, object, "databaseDir", GetDatabaseDir);
+    BindNativeProperty(env, object, "preferencesDir", GetPreferencesDir);
+    BindNativeProperty(env, object, "bundleCodeDir", GetBundleCodeDir);
+    return CreateJsUndefined(env);
 }
 
 
-NativeValue *JsApplicationContextUtils::CreateModuleContext(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsApplicationContextUtils::CreateModuleContext(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsApplicationContextUtils::GetTempDir(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsApplicationContextUtils::GetTempDir(napi_env env, napi_callback_info info)
 {
-    HILOG_DEBUG("called");
-    JsApplicationContextUtils *me =
-        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
-    return me != nullptr ? me->OnGetTempDir(*engine, *info) : nullptr;
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnGetTempDir, APPLICATION_CONTEXT_NAME);
 }
 
-NativeValue *JsApplicationContextUtils::OnGetTempDir(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JsApplicationContextUtils::OnGetTempDir(napi_env env, NapiCallbackInfo &info)
 {
     auto context = context_.lock();
     if (!context) {
         HILOG_WARN("context is already released");
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
     std::string path = context->GetTempDir();
-    return engine.CreateString(path.c_str(), path.length());
+    return CreateJsValue(env, path);
 }
 
-NativeValue *JsApplicationContextUtils::GetArea(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsApplicationContextUtils::GetArea(napi_env env, napi_callback_info info)
 {
-    HILOG_DEBUG("called");
-    JsApplicationContextUtils *me =
-        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
-    return me != nullptr ? me->OnGetArea(*engine, *info) : nullptr;
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnGetArea, APPLICATION_CONTEXT_NAME);
 }
 
-NativeValue *JsApplicationContextUtils::OnGetArea(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JsApplicationContextUtils::OnGetArea(napi_env env, NapiCallbackInfo &info)
 {
     auto context = context_.lock();
     if (!context) {
         HILOG_WARN("context is already released");
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
     int area = context->GetArea();
-    return engine.CreateNumber(area);
+    return CreateJsValue(env, area);
 }
 
-NativeValue *JsApplicationContextUtils::GetCacheDir(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsApplicationContextUtils::GetCacheDir(napi_env env, napi_callback_info info)
 {
-    HILOG_DEBUG("called");
-    JsApplicationContextUtils *me =
-        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
-    return me != nullptr ? me->OnGetCacheDir(*engine, *info) : nullptr;
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnGetCacheDir, APPLICATION_CONTEXT_NAME);
 }
 
-NativeValue *JsApplicationContextUtils::OnGetCacheDir(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JsApplicationContextUtils::OnGetCacheDir(napi_env env, NapiCallbackInfo &info)
 {
     auto context = context_.lock();
     if (!context) {
         HILOG_WARN("context is already released");
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
     std::string path = context->GetCacheDir();
-    return engine.CreateString(path.c_str(), path.length());
+    return CreateJsValue(env, path);
 }
 
-NativeValue *JsApplicationContextUtils::GetFilesDir(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsApplicationContextUtils::GetFilesDir(napi_env env, napi_callback_info info)
 {
-    HILOG_DEBUG("called");
-    JsApplicationContextUtils *me =
-        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
-    return me != nullptr ? me->OnGetFilesDir(*engine, *info) : nullptr;
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnGetFilesDir, APPLICATION_CONTEXT_NAME);
 }
 
-NativeValue *JsApplicationContextUtils::OnGetFilesDir(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JsApplicationContextUtils::OnGetFilesDir(napi_env env, NapiCallbackInfo &info)
 {
     auto context = context_.lock();
     if (!context) {
         HILOG_WARN("context is already released");
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
     std::string path = context->GetFilesDir();
-    return engine.CreateString(path.c_str(), path.length());
+    return CreateJsValue(env, path);
 }
 
-NativeValue *JsApplicationContextUtils::GetDistributedFilesDir(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsApplicationContextUtils::GetDistributedFilesDir(napi_env env, napi_callback_info info)
 {
-    HILOG_DEBUG("called");
-    JsApplicationContextUtils *me =
-        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
-    return me != nullptr ? me->OnGetDistributedFilesDir(*engine, *info) : nullptr;
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils,
+        OnGetDistributedFilesDir, APPLICATION_CONTEXT_NAME);
 }
 
-NativeValue *JsApplicationContextUtils::OnGetDistributedFilesDir(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JsApplicationContextUtils::OnGetDistributedFilesDir(napi_env env, NapiCallbackInfo &info)
 {
     auto context = context_.lock();
     if (!context) {
         HILOG_WARN("context is already released");
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
     std::string path = context->GetDistributedFilesDir();
-    return engine.CreateString(path.c_str(), path.length());
+    return CreateJsValue(env, path);
 }
 
-NativeValue *JsApplicationContextUtils::GetDatabaseDir(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsApplicationContextUtils::GetDatabaseDir(napi_env env, napi_callback_info info)
 {
-    HILOG_DEBUG("called");
-    JsApplicationContextUtils *me =
-        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
-    return me != nullptr ? me->OnGetDatabaseDir(*engine, *info) : nullptr;
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnGetDatabaseDir, APPLICATION_CONTEXT_NAME);
 }
 
-NativeValue *JsApplicationContextUtils::OnGetDatabaseDir(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JsApplicationContextUtils::OnGetDatabaseDir(napi_env env, NapiCallbackInfo &info)
 {
     auto context = context_.lock();
     if (!context) {
         HILOG_WARN("context is already released");
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
     std::string path = context->GetDatabaseDir();
-    return engine.CreateString(path.c_str(), path.length());
+    return CreateJsValue(env, path);
 }
 
-NativeValue *JsApplicationContextUtils::GetPreferencesDir(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsApplicationContextUtils::GetPreferencesDir(napi_env env, napi_callback_info info)
 {
-    HILOG_DEBUG("called");
-    JsApplicationContextUtils *me =
-        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
-    return me != nullptr ? me->OnGetPreferencesDir(*engine, *info) : nullptr;
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env,
+        info, JsApplicationContextUtils, OnGetPreferencesDir, APPLICATION_CONTEXT_NAME);
 }
 
-NativeValue *JsApplicationContextUtils::OnGetPreferencesDir(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JsApplicationContextUtils::OnGetPreferencesDir(napi_env env, NapiCallbackInfo &info)
 {
     auto context = context_.lock();
     if (!context) {
         HILOG_WARN("context is already released");
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
     std::string path = context->GetPreferencesDir();
-    return engine.CreateString(path.c_str(), path.length());
+    return CreateJsValue(env, path);
 }
 
-NativeValue *JsApplicationContextUtils::GetBundleCodeDir(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsApplicationContextUtils::GetBundleCodeDir(napi_env env, napi_callback_info info)
 {
-    HILOG_DEBUG("called");
-    JsApplicationContextUtils *me =
-        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
-    return me != nullptr ? me->OnGetBundleCodeDir(*engine, *info) : nullptr;
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env,
+        info, JsApplicationContextUtils, OnGetBundleCodeDir, APPLICATION_CONTEXT_NAME);
 }
 
-NativeValue *JsApplicationContextUtils::OnGetBundleCodeDir(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JsApplicationContextUtils::OnGetBundleCodeDir(napi_env env, NapiCallbackInfo &info)
 {
     auto context = context_.lock();
     if (!context) {
         HILOG_WARN("context is already released");
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
     std::string path = context->GetBundleCodeDir();
-    return engine.CreateString(path.c_str(), path.length());
+    return CreateJsValue(env, path);
 }
 
-NativeValue *JsApplicationContextUtils::KillProcessBySelf(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsApplicationContextUtils::KillProcessBySelf(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsApplicationContextUtils::GetRunningProcessInformation(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsApplicationContextUtils::GetRunningProcessInformation(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-void JsApplicationContextUtils::Finalizer(NativeEngine *engine, void *data, void *hint)
+void JsApplicationContextUtils::Finalizer(napi_env env, void *data, void *hint)
 {
     std::unique_ptr<JsApplicationContextUtils>(static_cast<JsApplicationContextUtils *>(data));
 }
 
-NativeValue *JsApplicationContextUtils::RegisterAbilityLifecycleCallback(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsApplicationContextUtils::RegisterAbilityLifecycleCallback(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsApplicationContextUtils::UnregisterAbilityLifecycleCallback(
-    NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsApplicationContextUtils::UnregisterAbilityLifecycleCallback(
+    napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsApplicationContextUtils::RegisterEnvironmentCallback(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsApplicationContextUtils::RegisterEnvironmentCallback(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsApplicationContextUtils::UnregisterEnvironmentCallback(
-    NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsApplicationContextUtils::UnregisterEnvironmentCallback(
+    napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsApplicationContextUtils::On(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsApplicationContextUtils::On(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsApplicationContextUtils::Off(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsApplicationContextUtils::Off(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsApplicationContextUtils::GetApplicationContext(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsApplicationContextUtils::GetApplicationContext(napi_env env, napi_callback_info info)
 {
-    JsApplicationContextUtils *me =
-        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
-    return me != nullptr ? me->OnGetApplicationContext(*engine, *info) : nullptr;
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils,
+        OnGetApplicationContext, APPLICATION_CONTEXT_NAME);
 }
 
-NativeValue *JsApplicationContextUtils::OnGetApplicationContext(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JsApplicationContextUtils::OnGetApplicationContext(napi_env env, NapiCallbackInfo &info)
 {
-    NativeValue *value = CreateJsApplicationContext(engine, context_.lock());
-    auto systemModule = JsRuntime::LoadSystemModuleByEngine(&engine, "application.ApplicationContext", &value, 1);
+    napi_value value = CreateJsApplicationContext(env, context_.lock());
+    auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.ApplicationContext", &value, 1);
     if (systemModule == nullptr) {
         HILOG_WARN("OnGetApplicationContext, invalid systemModule.");
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
-    return systemModule->Get();
+    return systemModule->GetNapiValue();
 }
 
-NativeValue *JsApplicationContextUtils::CreateJsApplicationContext(
-    NativeEngine &engine, const std::shared_ptr<Context> &context)
+napi_value JsApplicationContextUtils::CreateJsApplicationContext(
+    napi_env env, const std::shared_ptr<Context> &context)
 {
     HILOG_DEBUG("called");
-    NativeValue *objValue = engine.CreateObject();
-    NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
     if (object == nullptr) {
-        return objValue;
+        return object;
     }
 
     auto jsApplicationContextUtils = std::make_unique<JsApplicationContextUtils>(context);
-    SetNamedNativePointer(engine, *object, APPLICATION_CONTEXT_NAME, jsApplicationContextUtils.release(),
+    SetNamedNativePointer(env, object, APPLICATION_CONTEXT_NAME, jsApplicationContextUtils.release(),
         JsApplicationContextUtils::Finalizer);
 
     auto appInfo = context->GetApplicationInfo();
     if (appInfo != nullptr) {
-        object->SetProperty("applicationInfo", CreateJsApplicationInfo(engine, *appInfo));
+        napi_set_named_property(env, object, "applicationInfo", CreateJsApplicationInfo(env, *appInfo));
     }
 
-    BindNativeApplicationContext(engine, object);
+    BindNativeApplicationContext(env, object);
 
-    return objValue;
+    return object;
 }
 
-void JsApplicationContextUtils::BindNativeApplicationContext(NativeEngine &engine, NativeObject *object)
+void JsApplicationContextUtils::BindNativeApplicationContext(napi_env env, napi_value object)
 {
-    BindNativeProperty(*object, "cacheDir", JsApplicationContextUtils::GetCacheDir);
-    BindNativeProperty(*object, "tempDir", JsApplicationContextUtils::GetTempDir);
-    BindNativeProperty(*object, "filesDir", JsApplicationContextUtils::GetFilesDir);
-    BindNativeProperty(*object, "distributedFilesDir", JsApplicationContextUtils::GetDistributedFilesDir);
-    BindNativeProperty(*object, "databaseDir", JsApplicationContextUtils::GetDatabaseDir);
-    BindNativeProperty(*object, "preferencesDir", JsApplicationContextUtils::GetPreferencesDir);
-    BindNativeProperty(*object, "bundleCodeDir", JsApplicationContextUtils::GetBundleCodeDir);
-    BindNativeFunction(engine, *object, "registerAbilityLifecycleCallback", MD_NAME,
+    BindNativeProperty(env, object, "cacheDir", JsApplicationContextUtils::GetCacheDir);
+    BindNativeProperty(env, object, "tempDir", JsApplicationContextUtils::GetTempDir);
+    BindNativeProperty(env, object, "filesDir", JsApplicationContextUtils::GetFilesDir);
+    BindNativeProperty(env, object, "distributedFilesDir", JsApplicationContextUtils::GetDistributedFilesDir);
+    BindNativeProperty(env, object, "databaseDir", JsApplicationContextUtils::GetDatabaseDir);
+    BindNativeProperty(env, object, "preferencesDir", JsApplicationContextUtils::GetPreferencesDir);
+    BindNativeProperty(env, object, "bundleCodeDir", JsApplicationContextUtils::GetBundleCodeDir);
+    BindNativeFunction(env, object, "registerAbilityLifecycleCallback", MD_NAME,
         JsApplicationContextUtils::RegisterAbilityLifecycleCallback);
-    BindNativeFunction(engine, *object, "unregisterAbilityLifecycleCallback", MD_NAME,
+    BindNativeFunction(env, object, "unregisterAbilityLifecycleCallback", MD_NAME,
         JsApplicationContextUtils::UnregisterAbilityLifecycleCallback);
-    BindNativeFunction(engine, *object, "registerEnvironmentCallback", MD_NAME,
+    BindNativeFunction(env, object, "registerEnvironmentCallback", MD_NAME,
         JsApplicationContextUtils::RegisterEnvironmentCallback);
-    BindNativeFunction(engine, *object, "unregisterEnvironmentCallback", MD_NAME,
+    BindNativeFunction(env, object, "unregisterEnvironmentCallback", MD_NAME,
         JsApplicationContextUtils::UnregisterEnvironmentCallback);
-    BindNativeFunction(engine, *object, "createBundleContext", MD_NAME, JsApplicationContextUtils::CreateBundleContext);
-    BindNativeFunction(engine, *object, "switchArea", MD_NAME, JsApplicationContextUtils::SwitchArea);
-    BindNativeFunction(engine, *object, "getArea", MD_NAME, JsApplicationContextUtils::GetArea);
-    BindNativeFunction(engine, *object, "createModuleContext", MD_NAME, JsApplicationContextUtils::CreateModuleContext);
-    BindNativeFunction(engine, *object, "on", MD_NAME, JsApplicationContextUtils::On);
-    BindNativeFunction(engine, *object, "off", MD_NAME, JsApplicationContextUtils::Off);
-    BindNativeFunction(engine, *object, "getApplicationContext", MD_NAME,
+    BindNativeFunction(env, object, "createBundleContext", MD_NAME, JsApplicationContextUtils::CreateBundleContext);
+    BindNativeFunction(env, object, "switchArea", MD_NAME, JsApplicationContextUtils::SwitchArea);
+    BindNativeFunction(env, object, "getArea", MD_NAME, JsApplicationContextUtils::GetArea);
+    BindNativeFunction(env, object, "createModuleContext", MD_NAME, JsApplicationContextUtils::CreateModuleContext);
+    BindNativeFunction(env, object, "on", MD_NAME, JsApplicationContextUtils::On);
+    BindNativeFunction(env, object, "off", MD_NAME, JsApplicationContextUtils::Off);
+    BindNativeFunction(env, object, "getApplicationContext", MD_NAME,
         JsApplicationContextUtils::GetApplicationContext);
-    BindNativeFunction(engine, *object, "killAllProcesses", MD_NAME, JsApplicationContextUtils::KillProcessBySelf);
-    BindNativeFunction(engine, *object, "getProcessRunningInformation", MD_NAME,
+    BindNativeFunction(env, object, "killAllProcesses", MD_NAME, JsApplicationContextUtils::KillProcessBySelf);
+    BindNativeFunction(env, object, "getProcessRunningInformation", MD_NAME,
         JsApplicationContextUtils::GetRunningProcessInformation);
-    BindNativeFunction(engine, *object, "getRunningProcessInformation", MD_NAME,
+    BindNativeFunction(env, object, "getRunningProcessInformation", MD_NAME,
         JsApplicationContextUtils::GetRunningProcessInformation);
 }
 } // namespace AbilityRuntime
