@@ -538,12 +538,12 @@ ErrCode AbilityManagerClient::ForceTimeoutForTest(const std::string &abilityName
 }
 #endif
 
-ErrCode AbilityManagerClient::ClearUpApplicationData(const std::string &bundleName)
+ErrCode AbilityManagerClient::ClearUpApplicationData(const std::string &bundleName, const int userId)
 {
     HILOG_INFO("call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->ClearUpApplicationData(bundleName);
+    return abms->ClearUpApplicationData(bundleName, userId);
 }
 
 ErrCode AbilityManagerClient::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
