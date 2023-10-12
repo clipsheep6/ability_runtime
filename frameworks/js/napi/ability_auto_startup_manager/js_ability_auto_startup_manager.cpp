@@ -67,7 +67,8 @@ NativeValue *JsAbilityAutoStartupManager::CancelApplicationAutoStartup(NativeEng
     return (me != nullptr) ? me->OnCancelApplicationAutoStartup(*engine, *info) : nullptr;
 }
 
-NativeValue *JsAbilityAutoStartupManager::QueryAllAutoStartupApplications(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue *JsAbilityAutoStartupManager::QueryAllAutoStartupApplications(
+    NativeEngine *engine, NativeCallbackInfo *info)
 {
     JsAbilityAutoStartupManager *me = CheckParamsAndGetThis<JsAbilityAutoStartupManager>(engine, info);
     return (me != nullptr) ? me->OnQueryAllAutoStartupApplications(*engine, *info) : nullptr;
@@ -104,7 +105,8 @@ NativeValue *JsAbilityAutoStartupManager::OnRegisterAutoStartupCallback(
             return engine.CreateUndefined();
         }
 
-        auto ret = AbilityManagerClient::GetInstance()->RegisterAutoStartupSystemCallback(jsAutoStartupCallback_->AsObject());
+        auto ret =
+            AbilityManagerClient::GetInstance()->RegisterAutoStartupSystemCallback(jsAutoStartupCallback_->AsObject());
         if (ret != ERR_OK) {
             HILOG_ERROR("Register auto start up listener error[%{public}d].", ret);
             if (ret == CHECK_PERMISSION_FAILED) {
@@ -117,7 +119,6 @@ NativeValue *JsAbilityAutoStartupManager::OnRegisterAutoStartupCallback(
 
     jsAutoStartupCallback_->Register(info.argv[INDEX_ONE]);
     return engine.CreateUndefined();
-
 }
 
 NativeValue *JsAbilityAutoStartupManager::OnUnregisterAutoStartupCallback(

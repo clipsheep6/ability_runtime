@@ -291,7 +291,7 @@ int32_t AbilityAutoStartupDataManager::QueryAllAutoStartupApplications(std::vect
             infoList.emplace_back(ConvertAutoStartupInfoFromKeyAndValue(item.key, item.value));
         }
     }
-    HILOG_DEBUG("InfoList.size: %{public}d ", infoList.size());
+    HILOG_DEBUG("InfoList.size: %{public}zu.", infoList.size());
     return ERR_OK;
 }
 
@@ -319,7 +319,7 @@ int32_t AbilityAutoStartupDataManager::GetCurrentAppAutoStartupData(
             infoList.emplace_back(ConvertAutoStartupInfoFromKeyAndValue(item.key, item.value));
         }
     }
-    HILOG_DEBUG("InfoList.size: %{public}d ", infoList.size());
+    HILOG_DEBUG("InfoList.size: %{public}zu.", infoList.size());
     return ERR_OK;
 }
 

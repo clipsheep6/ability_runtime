@@ -35,7 +35,7 @@ namespace AbilityRuntime {
  */
 class JsAbilityAutoStartupCallBack : public AutoStartupCallBackStub {
 public:
-    JsAbilityAutoStartupCallBack(NativeEngine &engine);
+    explicit JsAbilityAutoStartupCallBack(NativeEngine &engine);
     virtual ~JsAbilityAutoStartupCallBack();
     void Register(NativeValue *jsCallback);
     void UnRegister(NativeValue *jsCallback);

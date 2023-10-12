@@ -2627,7 +2627,6 @@ int32_t AbilityManagerStub::QueryAllAutoStartupApplicationsInner(MessageParcel &
 {
     std::vector<AutoStartupInfo> infoList;
     auto result = QueryAllAutoStartupApplications(infoList);
-
     if (!reply.WriteInt32(result)) {
         return ERR_INVALID_VALUE;
     }
