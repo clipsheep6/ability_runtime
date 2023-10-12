@@ -29,6 +29,7 @@ void WindowManagerServiceHandlerProxy::NotifyWindowTransition(sptr<AbilityTransi
     sptr<AbilityTransitionInfo> toInfo, bool& animaEnabled)
 {
     HILOG_DEBUG("%{public}s is called.", __func__);
+    HILOG_DEBUG("%{public}s is called.", __func__);
     MessageParcel data;
     if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
         HILOG_ERROR("Write interface token failed.");
