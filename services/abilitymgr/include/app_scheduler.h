@@ -238,7 +238,7 @@ public:
      *
      * @param bundleName.
      */
-    int ClearUpApplicationData(const std::string &bundleName);
+    int ClearUpApplicationData(const std::string &bundleName, const int userId = 0);
 
     void AttachTimeOut(const sptr<IRemoteObject> &token);
 

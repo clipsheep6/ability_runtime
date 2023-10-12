@@ -170,7 +170,7 @@ public:
 
     int UninstallApp(const std::string& bundleName, int32_t uid) override;
 
-    int ClearUpApplicationData(const std::string& bundleName) override
+    int ClearUpApplicationData(const std::string& bundleName, const int userId = 0) override
     {
         return 0;
     }
