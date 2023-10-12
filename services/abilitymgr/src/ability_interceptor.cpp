@@ -132,7 +132,7 @@ ErrCode ControlInterceptor::DoProcess(const Want &want, int requestCode, int32_t
 #ifdef SUPPORT_GRAPHICS
         if (isForeground && controlRule.controlWant != nullptr) {
             int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*controlRule.controlWant,
-                userId, requestCode));
+                requestCode, userId));
             if (ret != ERR_OK) {
                 HILOG_ERROR("Control implicit start appgallery failed.");
                 return ret;
@@ -209,7 +209,7 @@ ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, 
 #ifdef SUPPORT_GRAPHICS
     if (isForeground && (rule.replaceWant != nullptr)) {
         int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*rule.replaceWant,
-            userId, requestCode));
+            requestCode, userId));
         if (ret != ERR_OK) {
             HILOG_ERROR("ecological start replace want failed.");
             return ret;
@@ -331,7 +331,7 @@ ErrCode AbilityJumpInterceptor::DoProcess(const Want &want, int requestCode, int
         AbilityUtil::ParseJumpInterceptorWant(dialogWant, controlRule.callerPkg);
         LoadAppLabelInfo(bms, dialogWant, controlRule, userId);
         int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(dialogWant,
-            userId, requestCode));
+            requestCode, userId));
         if (ret != ERR_OK) {
             HILOG_INFO("AppInterceptor Dialog StartAbility error, ret:%{public}d", ret);
             return ret;

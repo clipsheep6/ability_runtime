@@ -303,7 +303,7 @@ inline int StartAppgallery(const int requestCode, const int32_t userId, const st
     Want want;
     want.SetElementName(MARKET_BUNDLE_NAME, "");
     want.SetAction(action);
-    return AbilityManagerClient::GetInstance()->StartAbility(want, userId, requestCode);
+    return AbilityManagerClient::GetInstance()->StartAbility(want, requestCode, userId);
 }
 }  // namespace AbilityUtil
 }  // namespace AAFwk
