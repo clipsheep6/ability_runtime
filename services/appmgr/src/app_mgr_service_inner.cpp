@@ -313,20 +313,21 @@ void AppMgrServiceInner::MakeProcessName(
     processName = appInfo->bundleName;
 }
 
-bool AppMgrServiceInner::IsMainProcess(const std::shared_ptr<ApplicationInfo> &appInfo, const HapModuleInfo &hapModuleInfo) const
+bool AppMgrServiceInner::IsMainProcess(const std::shared_ptr<ApplicationInfo> &appInfo,
+    const HapModuleInfo &hapModuleInfo) const
 {
     if (!appInfo) {
         return true;
     }
-    if(hapModuleInfo.process.empty()) {
+    if (hapModuleInfo.process.empty()) {
         return true;
     }
-    if(!appInfo->process.empty()) {
-        if(hapModuleInfo.process == appInfo->process) {
+    if (!appInfo->process.empty()) {
+        if (hapModuleInfo.process == appInfo->process) {
             return true;
         }
     } else {
-        if(hapModuleInfo.process == appInfo->bundleName) {
+        if (hapModuleInfo.process == appInfo->bundleName) {
             return true;
         }
     }
