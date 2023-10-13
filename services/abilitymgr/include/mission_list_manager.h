@@ -519,6 +519,8 @@ private:
         const std::shared_ptr<Mission> &targetMission, InnerMissionInfo &info);
     bool GetContentAndTypeId(uint32_t msgId, std::string &msgContent, int &typeId) const;
 
+    void SendKeyEvent(const AbilityRequest &abilityRequest);
+
     int userId_;
     mutable ffrt::mutex managerLock_;
     // launcher list is also in currentMissionLists_

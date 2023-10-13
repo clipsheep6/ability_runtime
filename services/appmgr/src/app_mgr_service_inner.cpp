@@ -37,10 +37,8 @@
 #include "common_event_support.h"
 #include "datetime_ex.h"
 #include "distributed_data_mgr.h"
-#include "event_report.h"
 #include "freeze_util.h"
 #include "hilog_wrapper.h"
-#include "hisysevent.h"
 #include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
@@ -482,6 +480,13 @@ void AppMgrServiceInner::LaunchApplication(const std::shared_ptr<AppRunningRecor
     auto callerRecord = GetAppRunningRecordByPid(callerPid);
     if (callerRecord != nullptr) {
         eventInfo.callerBundleName = callerRecord->GetBundleName();
+        eventInfo.callerUid = callerRecord->GetUid();
+        eventInfo.callerState = static_cast<int32_t>(callerRecord->GetState());
+        auto applicationInfo = callerRecord->GetApplicationInfo();
+        if (applicationInfo != nullptr) {
+            eventInfo.callerVersionName = applicationInfo->versionName;
+            eventInfo.callerVersionCode = applicationInfo->versionCode;
+        }
     } else {
         HILOG_ERROR("callerRecord is nullptr, can not get callerBundleName.");
     }
@@ -1135,6 +1140,11 @@ int32_t AppMgrServiceInner::KillProcessByPid(const pid_t pid) const
         eventInfo.bundleName = applicationInfo->name;
         eventInfo.versionName = applicationInfo->versionName;
         eventInfo.versionCode = applicationInfo->versionCode;
+    }
+    if (ret >= 0) {
+        int64_t killTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
+            system_clock::now().time_since_epoch()).count();
+        killedPorcessMap_.emplace(killTime, appRecord->GetProcessName());
     }
     eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
     eventInfo.processName = appRecord->GetProcessName();
@@ -2085,6 +2095,7 @@ bool AppMgrServiceInner::SendProcessStartEvent(const std::shared_ptr<AppRunningR
         uid : %{public}d, process : %{public}s",
         __func__, eventInfo.time, eventInfo.abilityType, eventInfo.callerBundleName.c_str(), eventInfo.callerUid,
         eventInfo.callerProcessName.c_str());
+    SendReStartProcessEvent(eventInfo, appRecord);
 
     return true;
 }
@@ -4561,6 +4572,40 @@ bool AppMgrServiceInner::JudgeSelfCalledByToken(const sptr<IRemoteObject> &token
         return false;
     }
     return true;
+}
+
+void AppMgrServiceInner::SendReStartProcessEvent(const AAFwk::EventInfo &eventInfo,
+    const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    HILOG_DEBUG("Called.");
+    if (!appRecord) {
+        HILOG_ERROR("appRecord is nullptr");
+        return;
+    }
+    std::lock_guard<ffrt::mutex> lock(killpedProcessMapLock_);
+    int64_t restartTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
+        system_clock::now().time_since_epoch()).count();
+    for (auto iter = killedPorcessMap_.begin(); iter != killedPorcessMap_.end();) {
+        int64_t killTime = iter->first;
+        if (restartTime - killTime > 2000) {
+            killedPorcessMap_.erase(iter++);
+            continue;
+        }
+        AAFwk::EventInfo currentEventInfo;
+        currentEventInfo = eventInfo;
+        currentEventInfo.time = restartTime;
+        std::string processName = appRecord->GetProcessName();
+        currentEventInfo.appUid = appRecord->GetUid();
+        if (currentEventInfo.bundleName == currentEventInfo.callerBundleName &&
+            processName != currentEventInfo.callerProcessName) {
+            currentEventInfo.processName = processName;
+            AAFwk::EventReport::SendKeyEvent(AAFwk::EventName::RESTART_PROCESS_BY_SAME_APP,
+                HiSysEventType::BEHAVIOR, eventInfo);
+            killedPorcessMap_.erase(iter++);
+            continue;
+        }
+        iter++;
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

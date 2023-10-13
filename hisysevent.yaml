@@ -218,7 +218,11 @@ APP_LAUNCH:
   VERSION_NAME: {type: STRING, desc: version name}
   PROCESS_NAME: {type: STRING, desc: process name}
   BUNDLE_NAME: {type: STRING, desc: bundle name}
-  CALLER_BUNDLE_NAME: {type: STRING, desc: bundle name}
+  CALLER_BUNDLE_NAME: {type: STRING, desc: caller bundle name}
+  CALLER_VERSION_NAME: {type: STRING, desc: caller version name}
+  CALLER_VERSION_CODE: {type: UINT32, desc: caller version code}
+  CALLER_UID: {type: INT32, desc: caller app uid}
+  CALLER_STATE: {type: INT32, desc: caller app state}
 
 APP_FOREGROUND:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: PowerStats, desc: foreground app}
@@ -288,3 +292,29 @@ DRAWN_COMPLETED:
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
+
+FA_SHOW_ON_LOCK:
+  __BASE: {type: BEHAVIOR, level: MINOR, desc: fa show on lock}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+
+GRANT_URI_PERMISSION:
+  __BASE: {type: BEHAVIOR, level: MINOR, desc: grant uri permission form SA to third-party app}
+  BUNDLE_NAME: {type: STRING, desc: callee bundle name}
+  CALLER_BUNDLE_NAME: {type: STRING, desc: caller bundle name}
+  URI: {type: STRING, desc: uri information}
+
+START_PRIVATE_ABILITY:
+  __BASE: {type: BEHAVIOR, level: MINOR, desc: start private ability}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  
+RESTART_PROCESS_BY_SAME_APP:
+  __BASE: {type: BEHAVIOR, level: MINOR, desc: reStart process by different processes from the same app}
+  RESTART_TIME: {type: STRING, desc: process reStart time}
+  APP_UID: {type: INT32, desc: app uid}
+  CALLER_PROCESS_NAME: {type: STRING, desc: caller process name}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}

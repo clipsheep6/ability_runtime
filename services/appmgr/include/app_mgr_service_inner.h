@@ -40,7 +40,9 @@
 #include "appexecfwk_errors.h"
 #include "bundle_info.h"
 #include "cpp/mutex.h"
+#include "event_report.h"
 #include "fault_data.h"
+#include "hisysevent.h"
 #include "iapp_state_callback.h"
 #include "iapplication_state_observer.h"
 #include "iconfiguration_observer.h"
@@ -1062,6 +1064,9 @@ private:
     int32_t NotifyAbilitysDebugChange(const std::string &bundleName, const bool &isAppDebug);
 
     bool JudgeSelfCalledByToken(const sptr<IRemoteObject> &token, const PageStateData &pageStateData);
+
+    void SendReStartProcessEvent(const AAFwk::EventInfo &eventInfo,
+        const std::shared_ptr<AppRunningRecord> &appRecord);
 private:
     /**
      * Notify application status.
@@ -1104,6 +1109,8 @@ private:
     int32_t lastRenderUid_ = Constants::START_UID_FOR_RENDER_PROCESS;
     sptr<IAbilityDebugResponse> abilityDebugResponse_;
     std::shared_ptr<AppDebugManager> appDebugManager_;
+    ffrt::mutex killpedProcessMapLock_;
+    mutable std::map<int64_t, std::string> killedPorcessMap_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

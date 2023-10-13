@@ -136,6 +136,14 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
         uiAbilityRecord->SetSpecifiedFlag(specifiedInfo.flag);
         specifiedAbilityMap_.emplace(specifiedInfo, uiAbilityRecord);
     }
+    auto abilityInfo = abilityRequest.abilityInfo;
+    if (abilityInfo.visible == false) {
+        EventInfo eventInfo;
+        eventInfo.abilityName = abilityInfo.name;
+        eventInfo.bundleName = abilityInfo.bundleName;
+        eventInfo.moduleName = abilityInfo.moduleName;
+        EventReport::SendKeyEvent(EventName::START_PRIVATE_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
+    }
     return ERR_OK;
 }
 

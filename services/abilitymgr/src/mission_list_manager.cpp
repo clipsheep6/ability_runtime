@@ -172,6 +172,9 @@ int MissionListManager::StartAbility(AbilityRequest &abilityRequest)
 
     abilityRequest.callerAccessTokenId = IPCSkeleton::GetCallingTokenID();
     int ret = StartAbility(currentTopAbility, callerAbility, abilityRequest);
+    if (ret == 0 && !abilityRequest.abilityInfo.visible) {
+        SendKeyEvent(abilityRequest);
+    }
     NotifyStartAbilityResult(abilityRequest, ret);
     return ret;
 }
@@ -326,7 +329,9 @@ void MissionListManager::StartWaitingAbility()
         HILOG_INFO("name:%{public}s", abilityRequest.abilityInfo.name.c_str());
         waitingAbilityQueue_.pop();
         auto callerAbility = GetAbilityRecordByTokenInner(abilityRequest.callerToken);
-        StartAbility(topAbility, callerAbility, abilityRequest);
+        if (StartAbility(topAbility, callerAbility, abilityRequest) == 0 && !abilityRequest.abilityInfo.visible) {
+            SendKeyEvent(abilityRequest);
+        }
         return;
     }
 }
@@ -3402,7 +3407,9 @@ void MissionListManager::OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Wan
 
     auto currentTopAbility = GetCurrentTopAbilityLocked();
     auto callerAbility = GetAbilityRecordByTokenInner(abilityRequest.callerToken);
-    StartAbility(currentTopAbility, callerAbility, abilityRequest);
+    if (StartAbility(currentTopAbility, callerAbility, abilityRequest) == 0 && !abilityRequest.abilityInfo.visible) {
+        SendKeyEvent(abilityRequest);
+    }
 }
 
 std::shared_ptr<Mission> MissionListManager::GetMissionBySpecifiedFlag(
@@ -4127,6 +4134,16 @@ int32_t MissionListManager::TerminateMission(int32_t missionId)
     }
     std::lock_guard guard(managerLock_);
     return TerminateAbilityInner(abilityRecord, DEFAULT_INVAL_VALUE, nullptr, true);
+}
+
+void MissionListManager::SendKeyEvent(const AbilityRequest &abilityRequest)
+{
+    auto abilityInfo = abilityRequest.abilityInfo;
+    EventInfo eventInfo;
+    eventInfo.abilityName = abilityInfo.name;
+    eventInfo.bundleName = abilityInfo.bundleName;
+    eventInfo.moduleName = abilityInfo.moduleName;
+    EventReport::SendKeyEvent(EventName::START_PRIVATE_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

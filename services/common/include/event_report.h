@@ -44,6 +44,11 @@ struct EventInfo {
     int32_t exitResult = -1;
     int32_t bundleType = -1;
     int32_t startType = 0;
+    int32_t appUid = -1;
+    int32_t callerState = -1;
+    uint32_t callerVersionCode = -1;
+    std::string callerVersionName;
+    std::string uri;
 };
 
 enum class EventName {
@@ -82,6 +87,12 @@ enum class EventName {
     PROCESS_EXIT,
     DRAWN_COMPLETED,
     APP_STARTUP_TYPE,
+
+    // key behavior event
+    GRANT_URI_PERMISSION,
+    FA_SHOW_ON_LOCK,
+    START_PRIVATE_ABILITY,
+    RESTART_PROCESS_BY_SAME_APP,
 };
 
 class EventReport {
@@ -89,6 +100,7 @@ public:
     static void SendAppEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
     static void SendAbilityEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
     static void SendExtensionEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
+    static void SendKeyEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
 
 private:
     static std::string ConvertEventName(const EventName &eventName);
