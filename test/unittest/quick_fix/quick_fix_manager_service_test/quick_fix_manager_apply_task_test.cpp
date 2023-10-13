@@ -20,12 +20,14 @@
 #include "iservice_registry.h"
 #include "mock_bundle_manager.h"
 #include "mock_quick_fix_util.h"
+#include "nativetoken_kit.h"
 #include "quick_fix_error_utils.h"
 #define private public
 #include "quick_fix_manager_service.h"
 #undef private
 #include "quick_fix_result_info.h"
 #include "system_ability_definition.h"
+#include "token_setproc.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -57,6 +59,27 @@ static void WaitUntilTaskDone(const std::shared_ptr<AppExecFwk::EventHandler>& h
     std::atomic<bool> taskCalled(false);
     auto f = [&taskCalled]() { taskCalled.store(true); };
     WaitUntilTaskCalled(f, handler, taskCalled);
+}
+
+static void SetPermission()
+{
+    uint64_t tokenId;
+    const char **perms = new const char *[1];
+    perms[0] = "ohos.permission.RUNNING_STATE_OBSERVER";
+    NativeTokenInfoParams infoInstance = {
+        .dcapsNum = 0,
+        .permsNum = 1,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = perms,
+        .acls = nullptr,
+        .aplStr = "system_basic",
+    };
+
+    infoInstance.processName = "SetUpTestCase";
+    tokenId = GetAccessTokenId(&infoInstance);
+    SetSelfTokenID(tokenId);
+    delete[] perms;
 }
 } // namespace
 
@@ -453,6 +476,7 @@ HWTEST_F(QuickFixManagerApplyTaskTest, PostNotifyHotReloadPageTask_0200, TestSiz
 HWTEST_F(QuickFixManagerApplyTaskTest, RegAppStateObserver_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    SetPermission();
     auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
         quickFixMs_->eventHandler_, quickFixMs_);
     ASSERT_NE(applyTask, nullptr);
@@ -469,6 +493,7 @@ HWTEST_F(QuickFixManagerApplyTaskTest, RegAppStateObserver_0100, TestSize.Level1
 HWTEST_F(QuickFixManagerApplyTaskTest, RegAppStateObserver_0200, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
+    SetPermission();
     auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, nullptr,
         quickFixMs_->eventHandler_, quickFixMs_);
     ASSERT_NE(applyTask, nullptr);
