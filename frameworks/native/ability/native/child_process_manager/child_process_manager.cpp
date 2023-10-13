@@ -20,6 +20,7 @@
 #include <string>
 #include <sys/prctl.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 #include "application_info.h"
@@ -41,13 +42,33 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
-    constexpr pid_t INVALID_PID = -1;
-    const std::string SYS_PARAM_MULTI_PROCESS_MODEL = "persist.sys.multi_process_model";
+constexpr pid_t INVALID_PID = -1;
+const std::string SYS_PARAM_MULTI_PROCESS_MODEL = "persist.sys.multi_process_model";
 }
+
+bool ChildProcessManager::signalRegistered_ = false;
 
 ChildProcessManager::ChildProcessManager()
 {
+    HILOG_DEBUG("ChildProcessManager constructor called");
     multiProcessModelEnabled_ = OHOS::system::GetBoolParameter(SYS_PARAM_MULTI_PROCESS_MODEL, false);
+    if (!signalRegistered_) {
+        signalRegistered_ = true;
+        HILOG_DEBUG("Register signal");
+        signal(SIGCHLD, ChildProcessManager::HandleSigChild);
+    }
+}
+
+ChildProcessManager::~ChildProcessManager()
+{
+    HILOG_DEBUG("ChildProcessManager deconstructor called");
+}
+
+void ChildProcessManager::HandleSigChild(int32_t signo)
+{
+    while (waitpid(-1, NULL, WNOHANG) > 0) {
+        continue;
+    }
 }
 
 pid_t ChildProcessManager::StartChildProcessBySelfFork(const std::string &srcEntry)
@@ -73,7 +94,7 @@ pid_t ChildProcessManager::StartChildProcessBySelfFork(const std::string &srcEnt
         isChildProcess_ = true;
         HandleChildProcess(srcEntry, hapModuleInfo);
         HILOG_DEBUG("Child process end");
-        kill(getpid(), SIGQUIT);
+        exit(0);
     }
     return pid;
 }

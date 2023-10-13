@@ -103,7 +103,7 @@ private:
 
     AbilityErrorCode preCheck()
     {
-        auto mgr = ChildProcessManager::GetInstance();
+        auto &mgr = ChildProcessManager::GetInstance();
         if (!mgr.MultiProcessModelEnabled()) {
             HILOG_ERROR("Starting child process is not supported");
             return AbilityErrorCode::ERROR_CODE_OPERATION_NOT_SUPPORTED;

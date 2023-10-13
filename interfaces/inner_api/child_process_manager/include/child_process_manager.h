@@ -31,8 +31,9 @@ public:
         static ChildProcessManager instance;
         return instance;
     }
-    ~ChildProcessManager() = default;
-    
+    ~ChildProcessManager();
+
+    static void HandleSigChild(int32_t signo);
     pid_t StartChildProcessBySelfFork(const std::string &srcEntry);
     bool MultiProcessModelEnabled();
     bool IsChildProcess();
@@ -46,8 +47,11 @@ private:
                           const std::string &moduleName, AppExecFwk::HapModuleInfo &hapModuleInfo);
     std::unique_ptr<AbilityRuntime::Runtime> CreateRuntime(AppExecFwk::HapModuleInfo &hapModuleInfo);
 
+    static bool signalRegistered_;
     bool multiProcessModelEnabled_ = false;
     bool isChildProcess_ = false;
+    
+    DISALLOW_COPY_AND_MOVE(ChildProcessManager);
 };
 } // namespace AAFwk
 } // namespace OHOS
