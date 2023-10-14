@@ -22,6 +22,7 @@
 #include "application_context_manager.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
+#include "js_application_context_auto_startup_manager.h"
 #include "js_context_utils.h"
 #include "js_data_struct_converter.h"
 #include "js_resource_manager_utils.h"
@@ -1144,7 +1145,8 @@ napi_value JsApplicationContextUtils::CreateJsApplicationContext(napi_env env)
     }
 
     BindNativeApplicationContext(env, object);
-    return object;
+    return reinterpret_cast<napi_value>(JsApplicationContextAutoStartupManagerInit(
+        reinterpret_cast<NativeEngine *>(env), reinterpret_cast<NativeValue *>(object)));
 }
 
 void JsApplicationContextUtils::BindNativeApplicationContext(napi_env env, napi_value object)
@@ -1208,6 +1210,39 @@ JsAppProcessState JsApplicationContextUtils::ConvertToJsAppProcessState(
             break;
     }
     return processState;
+}
+NativeValue *JsApplicationContextUtils::JsApplicationContextAutoStartupManagerInit(
+    NativeEngine *engine, NativeValue *exports)
+{
+    HILOG_DEBUG("Called.");
+    if (engine == nullptr || exports == nullptr) {
+        HILOG_ERROR("Invalid input parameters.");
+        return nullptr;
+    }
+
+    NativeObject *object = OHOS::AbilityRuntime::ConvertNativeValueTo<NativeObject>(exports);
+    if (object == nullptr) {
+        HILOG_ERROR("object is nullptr");
+        return nullptr;
+    }
+
+    std::unique_ptr<JsApplicationContextAutoStartupManager> jsApplicationContextAutoStartupManager =
+        std::make_unique<JsApplicationContextAutoStartupManager>();
+    object->SetNativePointer(
+        jsApplicationContextAutoStartupManager.release(), JsApplicationContextAutoStartupManager::Finalizer, nullptr);
+
+    BindNativeFunction(
+        *engine, *object, "on", MD_NAME, JsApplicationContextAutoStartupManager::RegisterAutoStartupCallback);
+    BindNativeFunction(
+        *engine, *object, "off", MD_NAME, JsApplicationContextAutoStartupManager::UnregisterAutoStartupCallback);
+    BindNativeFunction(
+        *engine, *object, "setAutoStartup", MD_NAME, JsApplicationContextAutoStartupManager::SetAutoStartup);
+    BindNativeFunction(
+        *engine, *object, "cancelAutoStartup", MD_NAME, JsApplicationContextAutoStartupManager::CancelAutoStartup);
+    BindNativeFunction(
+        *engine, *object, "isAutoStartup", MD_NAME, JsApplicationContextAutoStartupManager::IsAutoStartup);
+
+    return exports;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

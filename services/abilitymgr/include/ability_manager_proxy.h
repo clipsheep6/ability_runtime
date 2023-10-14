@@ -17,12 +17,14 @@
 #define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_PROXY_H
 
 #include "ability_manager_interface.h"
+#include "auto_startup_info.h"
 #include "hilog_wrapper.h"
 #include "iremote_proxy.h"
 #include "mission_info.h"
 
 namespace OHOS {
 namespace AAFwk {
+using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
 /**
  * @class AbilityManagerProxy
  * AbilityManagerProxy.
@@ -908,6 +910,77 @@ public:
      * @return 0 or else.
     */
     virtual int32_t TerminateMission(int32_t missionId) override;
+
+    /**
+     * @brief Register auto start up callback for system api.
+     * @param callback The point of JsAbilityAutoStartupCallBack.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterAutoStartupSystemCallback(const sptr<IRemoteObject> &callback) override;
+
+    /**
+     * @brief Unregister auto start up callback for system api.
+     * @param callback The point of JsAbilityAutoStartupCallBack.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UnregisterAutoStartupSystemCallback(const sptr<IRemoteObject> &callback) override;
+
+    /**
+     * @brief Set every application auto start up state.
+     * @param info The auto startup info,include bundle name, module name, ability name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t SetApplicationAutoStartup(const AutoStartupInfo &info) override;
+
+    /**
+     * @brief Cancel every application auto start up .
+     * @param info The auto startup info,include bundle name, module name, ability name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t CancelApplicationAutoStartup(const AutoStartupInfo &info) override;
+
+    /**
+     * @brief Query auto startup state all application.
+     * @param infoList Output parameters, return auto startup info list.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList) override;
+
+    /**
+     * @brief Register auto start up callback.
+     * @param callback The point of JsAbilityAutoStartupCallBack.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterAutoStartupCallback(const sptr<IRemoteObject> &callback) override;
+
+    /**
+     * @brief Unregister auto start up callback.
+     * @param callback The point of JsAbilityAutoStartupCallBack.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UnregisterAutoStartupCallback(const sptr<IRemoteObject> &callback) override;
+
+    /**
+     * @brief Set current application auto start up state.
+     * @param info The auto startup info,include bundle name, module name, ability name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t SetAutoStartup(const AutoStartupInfo &info) override;
+
+    /**
+     * @brief Cancel current application auto start up state.
+     * @param info The auto startup info, include bundle name, module name, ability name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t CancelAutoStartup(const AutoStartupInfo &info) override;
+
+    /**
+     * @brief Check current application auto start up state.
+     * @param info The auto startup info, include bundle name, module name, ability name.
+     * @param isAutoStartup Output parameters, return auto start up state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t IsAutoStartup(const AutoStartupInfo &info, bool &isAutoStartup) override;
 
     /**
      * PrepareTerminateAbilityBySCB, prepare to terminate ability by scb.

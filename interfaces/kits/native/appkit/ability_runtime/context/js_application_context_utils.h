@@ -101,6 +101,7 @@ public:
     static napi_value SetLanguage(napi_env env, napi_callback_info info);
     static napi_value GetRunningProcessInformation(napi_env env, napi_callback_info info);
     static napi_value CreateJsApplicationContext(napi_env env);
+    static NativeValue *JsApplicationContextAutoStartupManagerInit(NativeEngine *engine, NativeValue *exports);
 
 protected:
     std::weak_ptr<ApplicationContext> applicationContext_;

@@ -25,6 +25,8 @@ ohos_unittest("specified_mission_list_test") {
   ]
 
   sources = [
+    "${ability_runtime_services_path}/abilitymgr/src/ability_auto_startup_data_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_auto_startup_service.cpp",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp",
     "specified_mission_list_test.cpp",  # add mock file
   ]
@@ -59,6 +61,7 @@ ohos_unittest("specified_mission_list_test") {
     "hilog:libhilog",
     "init:libbeget_proxy",
     "ipc:ipc_core",
+    "kv_store:distributeddata_inner",
     "napi:ace_napi",
   ]
 
