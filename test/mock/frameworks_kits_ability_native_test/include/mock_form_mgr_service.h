@@ -197,13 +197,13 @@ public:
             return ERR_INVALID_VALUE;
         }
     }
-    ErrCode GetRunningFormInfos(bool isUnusedInclude, std::vector<RunningFormInfo> &runningFormInfos)
+    ErrCode GetRunningFormInfos(bool isUnusedIncluded, std::vector<RunningFormInfo> &runningFormInfos)
     {
         return ERR_OK;
     }
 
     ErrCode GetRunningFormInfosByBundleName(
-        const std::string &bundleName, bool isUnusedInclude, std::vector<RunningFormInfo> &runningFormInfos)
+        const std::string &bundleName, bool isUnusedIncluded, std::vector<RunningFormInfo> &runningFormInfos)
     {
         return ERR_OK;
     }
