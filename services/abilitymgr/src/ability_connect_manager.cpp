@@ -108,6 +108,7 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
     }
 
     if (!isLoadedAbility) {
+        HILOG_INFO("Target service has not been loaded.");
         LoadAbility(targetService);
     } else if (targetService->IsAbilityState(AbilityState::ACTIVE)) {
         // It may have been started through connect

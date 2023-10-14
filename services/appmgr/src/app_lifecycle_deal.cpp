@@ -63,16 +63,22 @@ void AppLifeCycleDeal::AddAbilityStage(const HapModuleInfo &abilityStage)
 void AppLifeCycleDeal::LaunchAbility(const std::shared_ptr<AbilityRunningRecord> &ability)
 {
     if (appThread_ && ability) {
-        auto &abilityInfo = ability->GetAbilityInfo();
-        if (abilityInfo != nullptr && abilityInfo->type == AbilityType::PAGE) {
+        auto abilityInfo = ability->GetAbilityInfo();
+        if (abilityInfo == nullptr) {
+            HILOG_WARN("LoadLifecycle: abilityInfo null.");
+            return;
+        }
+        if (abilityInfo->type == AbilityType::PAGE) {
             FreezeUtil::LifecycleFlow flow = {ability->GetToken(), FreezeUtil::TimeoutState::LOAD};
             auto entry = std::to_string(AbilityRuntime::TimeUtil::SystemTimeMillisecond()) +
                 "; AppLifeCycleDeal::LaunchAbility; the LoadAbility lifecycle.";
             FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
         }
         HILOG_INFO("LoadLifecycle: Launch ability.");
-        appThread_->ScheduleLaunchAbility(*(ability->GetAbilityInfo()), ability->GetToken(),
+        appThread_->ScheduleLaunchAbility(*abilityInfo, ability->GetToken(),
             ability->GetWant());
+    } else {
+        HILOG_WARN("LoadLifecycle.");
     }
 }
 

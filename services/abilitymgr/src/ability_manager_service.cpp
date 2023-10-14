@@ -828,7 +828,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             HILOG_ERROR("connectManager is nullptr. userId=%{public}d", validUserId);
             return ERR_INVALID_VALUE;
         }
-        HILOG_DEBUG("Start service or extension, name is %{public}s.", abilityInfo.name.c_str());
+        HILOG_INFO("Start service or extension, name is %{public}s.", abilityInfo.name.c_str());
         ReportEventToSuspendManager(abilityInfo);
         return connectManager->StartAbility(abilityRequest);
     }
