@@ -19,6 +19,7 @@
 
 #include "display_info.h"
 #include "constants.h"
+#include "ability_record.h"
 #include "ability_util.h"
 #include "app_scheduler.h"
 #include "dm_common.h"
@@ -29,6 +30,7 @@
 #include "locale_config.h"
 #include "parameters.h"
 #include "resource_manager.h"
+#include "ui_extension_utils.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -396,8 +398,13 @@ Want SystemDialogScheduler::GetPcSelectorDialogWant(const std::vector<DialogAppI
     targetWant.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_SELECTOR_DIALOG);
     targetWant.SetParam(DIALOG_POSITION, GetDialogPositionParams(position));
     targetWant.SetParam(DIALOG_PARAMS, params);
-    targetWant.SetParam(CALLER_TOKEN, callerToken);
-
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord && UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
+        // SelectorDialog can't bind to the window of UIExtension, so set CALLER_TOKEN to null.
+        targetWant.RemoveParam(CALLER_TOKEN);
+    } else {
+        targetWant.SetParam(CALLER_TOKEN, callerToken);
+    }
     return targetWant;
 }
 
