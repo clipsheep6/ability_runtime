@@ -23,6 +23,9 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+const int32_t UNSPECIFIED_USER_ID = -2;
+}
 class AppControlProxy : public IRemoteProxy<IAppControlMgr> {
 public:
     using Want = OHOS::AAFwk::Want;
@@ -59,9 +62,12 @@ public:
     virtual ErrCode GetAppJumpControlRule(const std::string &callerBundleName, const std::string &targetBundleName,
         int32_t userId, AppJumpControlRule &controlRule) override;
 
-    virtual ErrCode SetDisposedStatus(const std::string& appId, const Want& want) override;
-    virtual ErrCode DeleteDisposedStatus(const std::string& appId) override;
-    virtual ErrCode GetDisposedStatus(const std::string& appId, Want& want) override;
+    virtual ErrCode SetDisposedStatus(
+        const std::string& appId, const Want& want, int32_t userId = UNSPECIFIED_USER_ID) override;
+    virtual ErrCode DeleteDisposedStatus(
+        const std::string& appId, int32_t userId = UNSPECIFIED_USER_ID) override;
+    virtual ErrCode GetDisposedStatus(
+        const std::string& appId, Want& want, int32_t userId = UNSPECIFIED_USER_ID) override;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
