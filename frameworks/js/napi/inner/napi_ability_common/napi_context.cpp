@@ -3309,14 +3309,18 @@ napi_value NapiJsContext::OnVerifyPermission(napi_env env, napi_callback_info in
     auto execute = [obj = this, permission, options, value = errorVal] () {
         if (obj->ability_ == nullptr) {
             *value = static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
-            HILOG_ERROR("task execute error, the ability is nullptr");
+            HILOG_ERROR("[Macro] task execute error, the ability is nullptr");
             return;
         }
+        HILOG_ERROR("[Macro] VerifyPermission begin");
         if (options.uidFlag) {
+            HILOG_ERROR("[Macro] VerifyPermission begin");
             *value = obj->ability_->VerifyPermission(permission, options.pid, options.uid);
         } else {
+            HILOG_ERROR("[Macro] VerifySelfPermission begin");
             *value = obj->ability_->VerifySelfPermission(permission);
         }
+        HILOG_ERROR("[Macro] VerifyPermission res: %{public}d", *value);
     };
     auto complete = [obj = this, value = errorVal] (napi_env env, NapiAsyncTask &task, int32_t status) {
         if (*value == static_cast<int32_t>(NAPI_ERR_ACE_ABILITY)) {
