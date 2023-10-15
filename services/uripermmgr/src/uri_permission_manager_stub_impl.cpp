@@ -148,18 +148,7 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uri
             targetTokenId, autoremove);
         if (tempRet == ERR_OK) {
             ret = ERR_OK;
-            auto isSaCall = PermissionVerification::GetInstance()->IsSACall();
-            auto calleeTokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(targetTokenId);
-            if (isSaCall && calleeTokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
-                EventInfo eventInfo;
-                Uri uri_inner = uriVec[0];
-                eventInfo.bundleName = targetBundleName;
-                eventInfo.callerBundleName = uri_inner.GetAuthority();
-                eventInfo.uri = uri_inner.ToString();
-                EventReport::SendKeyEvent(EventName::GRANT_URI_PERMISSION, HiSysEventType::BEHAVIOR, eventInfo);
-            } else {
-                HILOG_INFO("caller is not SA or callee is SA");
-            }
+            SendEvent(uriVec[0], targetBundleName, targetTokenId);
         }
     }
     return ret;
@@ -677,6 +666,23 @@ void UriPermissionManagerStubImpl::InitPersistableUriPermissionConfig()
         GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_PARAMETER, value);
     if (retSysParam > 0 && !std::strcmp(value, "true")) {
         isGrantPersistableUriPermissionEnable_ = true;
+    }
+}
+
+void UriPermissionManagerStubImpl::SendEvent(const Uri &uri, const std::string &targetBundleName,
+    uint32_t targetTokenId)
+{
+    auto isSaCall = PermissionVerification::GetInstance()->IsSACall();
+    auto calleeTokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(targetTokenId);
+    if (isSaCall && calleeTokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
+        EventInfo eventInfo;
+        Uri uri_inner = uri;
+        eventInfo.bundleName = targetBundleName;
+        eventInfo.callerBundleName = uri_inner.GetAuthority();
+        eventInfo.uri = uri_inner.ToString();
+        EventReport::SendKeyEvent(EventName::GRANT_URI_PERMISSION, HiSysEventType::BEHAVIOR, eventInfo);
+    } else {
+        HILOG_INFO("caller is not SA or callee is SA");
     }
 }
 }  // namespace AAFwk

@@ -85,6 +85,8 @@ private:
 
     void InitPersistableUriPermissionConfig();
 
+    void SendEvent(const Uri &uri, const std::string &targetBundleName, uint32_t targetTokenId);
+
     class ProxyDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
         explicit ProxyDeathRecipient(ClearProxyCallback&& proxy) : proxy_(proxy) {}

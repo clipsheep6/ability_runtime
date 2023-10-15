@@ -313,7 +313,7 @@ START_PRIVATE_ABILITY:
   
 RESTART_PROCESS_BY_SAME_APP:
   __BASE: {type: BEHAVIOR, level: MINOR, desc: reStart process by different processes from the same app}
-  RESTART_TIME: {type: STRING, desc: process reStart time}
+  RESTART_TIME: {type: INT64, desc: process reStart time}
   APP_UID: {type: INT32, desc: app uid}
   CALLER_PROCESS_NAME: {type: STRING, desc: caller process name}
   PROCESS_NAME: {type: STRING, desc: process name}
