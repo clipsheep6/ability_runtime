@@ -561,8 +561,7 @@ std::unique_ptr<NativeReference> JsAbility::CreateAppWindowStage()
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
-    napi_value jsWindowStage = reinterpret_cast<napi_value>(Rosen::CreateJsWindowStage(
-        *reinterpret_cast<NativeEngine*>(env), GetScene()));
+    napi_value jsWindowStage = Rosen::CreateJsWindowStage(env, GetScene());
     if (jsWindowStage == nullptr) {
         HILOG_ERROR("Failed to create jsWindowSatge object");
         return nullptr;
