@@ -5095,10 +5095,10 @@ bool JsNapiCommon::GetPermissionOptions(napi_env env, napi_value object, JsPermi
     }
     napi_value uidValue = nullptr;
     napi_get_named_property(env, object, "uid", &uidValue);
-    napi_get_value_bool(env, uidValue, &options.uidFlag);
     napi_value pidValue = nullptr;
     napi_get_named_property(env, object, "pid", &pidValue);
-    napi_get_value_bool(env, pidValue, &options.pidFlag);
+    options.uidFlag = ConvertFromJsValue(env, uidValue, options.uid);
+    options.pidFlag = ConvertFromJsValue(env, pidValue, options.pid);
 
     return true;
 }
