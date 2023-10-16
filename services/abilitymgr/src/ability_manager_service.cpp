@@ -5325,7 +5325,7 @@ std::shared_ptr<DataAbilityManager> AbilityManagerService::GetDataAbilityManager
     return nullptr;
 }
 
-std::shared_ptr<MissionListManager> AbilityManagerService::GetListManagerByUserId(int32_t userId)
+std::shared_ptr<MissionListManager> AbilityManagerService:: GetListManagerByUserId(int32_t userId)
 {
     std::lock_guard<ffrt::mutex> lock(managersMutex_);
     auto it = missionListManagers_.find(userId);
@@ -6707,7 +6707,7 @@ int AbilityManagerService::DelegatorMoveMissionToFront(int32_t missionId)
 
     return currentMissionListManager_->MoveMissionToFront(missionId);
 }
-
+//代码提交测试
 void AbilityManagerService::UpdateCallerInfo(Want& want, const sptr<IRemoteObject> &callerToken)
 {
     int32_t tokenId = static_cast<int32_t>(IPCSkeleton::GetCallingTokenID());
