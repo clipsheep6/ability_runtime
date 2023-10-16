@@ -27,7 +27,6 @@ namespace AbilityRuntime {
 constexpr size_t ARGC_ONE = 1;
 
 JsFreeInstallObserver::JsFreeInstallObserver(napi_env env) : env_(env) {}
-JsFreeInstallObserver::JsFreeInstallObserver(NativeEngine& engine) : env_(reinterpret_cast<napi_env>(&engine)) {}
 
 JsFreeInstallObserver::~JsFreeInstallObserver() = default;
 
@@ -111,13 +110,6 @@ void JsFreeInstallObserver::AddJsObserverObject(const std::string &bundleName, c
     object.callback = std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref));
     object.isAbilityResult = isAbilityResult;
     jsObserverObjectList_.emplace_back(object);
-}
-
-void JsFreeInstallObserver::AddJsObserverObject(const std::string &bundleName, const std::string &abilityName,
-    const std::string &startTime, NativeValue* jsObserverObject, bool isAbilityResult)
-{
-    AddJsObserverObject(
-        bundleName, abilityName, startTime, reinterpret_cast<napi_value>(jsObserverObject), isAbilityResult);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

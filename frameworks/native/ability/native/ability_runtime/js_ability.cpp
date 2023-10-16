@@ -589,10 +589,10 @@ void JsAbility::RestorePageStack(const Want &want)
         std::string pageStack;
         GetPageStackFromWant(want, pageStack);
         HandleScope handleScope(jsRuntime_);
-        auto &engine = jsRuntime_.GetNativeEngine();
+        auto env = jsRuntime_.GetNapiEnv();
         if (abilityContext_->GetContentStorage()) {
-            scene_->GetMainWindow()->SetUIContent(pageStack, &engine,
-                abilityContext_->GetContentStorage()->Get(), true);
+            scene_->GetMainWindow()->NapiSetUIContent(pageStack, env,
+                abilityContext_->GetContentStorage()->GetNapiValue(), true);
         } else {
             HILOG_ERROR("restore: content storage is nullptr");
         }
@@ -611,10 +611,10 @@ void JsAbility::AbilityContinuationOrRecover(const Want &want)
     } else if (ShouldRecoverState(want)) {
         std::string pageStack = abilityRecovery_->GetSavedPageStack(AppExecFwk::StateReason::DEVELOPER_REQUEST);
         HandleScope handleScope(jsRuntime_);
-        auto &engine = jsRuntime_.GetNativeEngine();
+        auto env = jsRuntime_.GetNapiEnv();
         auto mainWindow = scene_->GetMainWindow();
         if (mainWindow != nullptr) {
-            mainWindow->SetUIContent(pageStack, &engine, abilityContext_->GetContentStorage()->Get(), true);
+            mainWindow->NapiSetUIContent(pageStack, env, abilityContext_->GetContentStorage()->GetNapiValue(), true);
         } else {
             HILOG_ERROR("AppRecovery:AbilityContinuationOrRecover mainWindow nullptr");
         }

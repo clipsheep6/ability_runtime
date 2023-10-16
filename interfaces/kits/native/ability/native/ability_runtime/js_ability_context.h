@@ -27,7 +27,6 @@
 #include "event_handler.h"
 
 class NativeReference;
-class NativeValue;
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -62,10 +61,6 @@ public:
     static napi_value SetMissionContinueState(napi_env env, napi_callback_info info);
 
     static void ConfigurationUpdated(napi_env env, std::shared_ptr<NativeReference> &jsContext,
-        const std::shared_ptr<AppExecFwk::Configuration> &config);
-
-    // to do
-    static void ConfigurationUpdated(NativeEngine* engine, std::shared_ptr<NativeReference> &jsContext,
         const std::shared_ptr<AppExecFwk::Configuration> &config);
 
     std::shared_ptr<AbilityContext> GetAbilityContext()
@@ -123,8 +118,6 @@ private:
 };
 
 napi_value CreateJsAbilityContext(napi_env env, std::shared_ptr<AbilityContext> context);
-// to do
-NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<AbilityContext> context);
 
 struct ConnectCallback {
     std::unique_ptr<NativeReference> jsConnectionObject_ = nullptr;

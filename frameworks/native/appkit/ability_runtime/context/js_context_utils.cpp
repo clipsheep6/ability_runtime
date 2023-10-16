@@ -625,12 +625,5 @@ napi_value CreateJsBaseContext(napi_env env, std::shared_ptr<Context> context, b
     BindNativeFunction(env, object, "getGroupDir", moduleName, JsBaseContext::GetGroupDir);
     return object;
 }
-
-// to do
-NativeValue* CreateJsBaseContext(NativeEngine& engine, std::shared_ptr<Context> context, bool keepContext)
-{
-    return reinterpret_cast<NativeValue*>(
-        CreateJsBaseContext(reinterpret_cast<napi_env>(&engine), context, keepContext));
-}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

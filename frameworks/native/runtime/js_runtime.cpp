@@ -432,13 +432,6 @@ bool JsRuntime::LoadScript(const std::string& path, uint8_t* buffer, size_t len,
     return jsEnv_->LoadScript(path, buffer, len, isBundle);
 }
 
-std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(NativeEngine* engine,
-    const std::string& moduleName, NativeValue* const* argv, size_t argc)
-{
-    return LoadSystemModuleByEngine(
-        reinterpret_cast<napi_env>(engine), moduleName, reinterpret_cast<const napi_value*>(argv), argc);
-}
-
 std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(
     napi_env env, const std::string& moduleName, const napi_value* argv, size_t argc)
 {
@@ -859,12 +852,6 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& module
     napi_ref resultRef = nullptr;
     napi_create_reference(env, instanceValue, 1, &resultRef);
     return std::unique_ptr<NativeReference>(reinterpret_cast<NativeReference*>(resultRef));
-}
-
-std::unique_ptr<NativeReference> JsRuntime::LoadSystemModule(
-    const std::string& moduleName, NativeValue* const* argv, size_t argc)
-{
-    return LoadSystemModule(moduleName, reinterpret_cast<const napi_value*>(argv), argc);
 }
 
 std::unique_ptr<NativeReference> JsRuntime::LoadSystemModule(

@@ -49,11 +49,6 @@ using AppLibPathMap = std::map<std::string, std::vector<std::string>>;
 namespace AbilityRuntime {
 class TimerTask;
 
-inline void *DetachCallbackFunc(NativeEngine *engine, void *value, void *)
-{
-    return value;
-}
-
 inline void *DetachCallbackFunc(napi_env env, void *value, void *)
 {
     return value;
@@ -62,9 +57,6 @@ inline void *DetachCallbackFunc(napi_env env, void *value, void *)
 class JsRuntime : public Runtime {
 public:
     static std::unique_ptr<JsRuntime> Create(const Options& options);
-
-    static std::unique_ptr<NativeReference> LoadSystemModuleByEngine(NativeEngine* engine,
-        const std::string& moduleName, NativeValue* const* argv, size_t argc);
 
     static void SetAppLibPath(const AppLibPathMap& appLibPaths, const bool& isSystemApp = false);
 
@@ -81,8 +73,6 @@ public:
         return Language::JS;
     }
 
-    std::unique_ptr<NativeReference> LoadSystemModule(
-        const std::string& moduleName, NativeValue* const* argv = nullptr, size_t argc = 0);
     void PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime);
     void PostSyncTask(const std::function<void()>& task, const std::string& name);
     void RemoveTask(const std::string& name);

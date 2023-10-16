@@ -29,7 +29,7 @@ public:
     /**
      * @brief Wrap request info to native value.
      *
-     * @param engine NativeEngine.
+     * @param env napi_env.
      * @param request Request information.
      * @return Native value wrapped from request.
      */
@@ -38,8 +38,8 @@ public:
     /**
      * @brief Unwrap native value to request information.
      *
-     * @param engine NativeEngine.
-     * @param jsParam NativeValue.
+     * @param env napi_env.
+     * @param jsParam napi_value.
      * @return Request information unwrapped from native value.
      */
     static std::shared_ptr<RequestInfo> UnwrapRequestInfo(napi_env env, napi_value jsParam);
@@ -54,7 +54,7 @@ public:
     /**
      * @brief Create JsWindowRect.
      *
-     * @param engine NativeEngine.
+     * @param env napi_env.
      * @param the left position of WindowRect.
      * @param the top position of WindowRect.
      * @param the width position of WindowRect.

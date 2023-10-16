@@ -5347,8 +5347,7 @@ void JsNapiCommon::AddFreeInstallObserver(napi_env env, const AAFwk::Want &want,
     // adapter free install async return install and start result
     int ret = 0;
     if (freeInstallObserver_ == nullptr) {
-        auto engine = reinterpret_cast<NativeEngine*>(env);
-        freeInstallObserver_ = new JsFreeInstallObserver(*engine);
+        freeInstallObserver_ = new JsFreeInstallObserver(env);
         ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(freeInstallObserver_);
     }
 
@@ -5360,8 +5359,7 @@ void JsNapiCommon::AddFreeInstallObserver(napi_env env, const AAFwk::Want &want,
         std::string bundleName = want.GetElement().GetBundleName();
         std::string abilityName = want.GetElement().GetAbilityName();
         std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
-        freeInstallObserver_->AddJsObserverObject(
-            bundleName, abilityName, startTime, reinterpret_cast<NativeValue*>(callback));
+        freeInstallObserver_->AddJsObserverObject(bundleName, abilityName, startTime, callback);
     }
 }
 }  // namespace AppExecFwk

@@ -27,9 +27,6 @@ napi_value AttachBaseContext(napi_env env, void* value, void* hint);
 napi_value AttachApplicationContext(napi_env env, void* value, void* hint);
 
 napi_value CreateJsBaseContext(napi_env env, std::shared_ptr<Context> context, bool keepContext = false);
-
-// to do
-NativeValue* CreateJsBaseContext(NativeEngine& engine, std::shared_ptr<Context> context, bool keepContext = false);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_JS_CONTEXT_UTILS_H

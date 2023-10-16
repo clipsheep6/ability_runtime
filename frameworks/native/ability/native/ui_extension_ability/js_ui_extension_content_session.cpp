@@ -512,13 +512,11 @@ napi_value JsUIExtensionContentSession::OnLoadContent(napi_env env, NapiCallback
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         return CreateJsUndefined(env);
     }
-    // to do
-    Rosen::WMError ret = uiWindow_->SetUIContent(
-        contextPath, reinterpret_cast<NativeEngine*>(env), reinterpret_cast<NativeValue*>(storage));
+    Rosen::WMError ret = uiWindow_->NapiSetUIContent(contextPath, env, storage);
     if (ret == Rosen::WMError::WM_OK) {
-        HILOG_DEBUG("SetUIContent success");
+        HILOG_DEBUG("NapiSetUIContent success");
     } else {
-        HILOG_ERROR("SetUIContent failed, ret=%{public}d", ret);
+        HILOG_ERROR("NapiSetUIContent failed, ret=%{public}d", ret);
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
     }
     return CreateJsUndefined(env);
@@ -643,23 +641,6 @@ napi_value JsUIExtensionContentSession::CreateJsUIExtensionContentSession(napi_e
     BindNativeFunction(env, object, "startAbility", moduleName, StartAbility);
     BindNativeFunction(env, object, "startAbilityForResult", moduleName, StartAbilityForResult);
     return object;
-}
-
-// to do
-NativeValue* JsUIExtensionContentSession::CreateJsUIExtensionContentSession(NativeEngine& engine,
-    sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow,
-    std::weak_ptr<AbilityRuntime::Context> context,
-    std::shared_ptr<AbilityResultListeners>& abilityResultListeners)
-{
-    return reinterpret_cast<NativeValue*>(CreateJsUIExtensionContentSession(
-        reinterpret_cast<napi_env>(&engine), sessionInfo, uiWindow, context, abilityResultListeners));
-}
-
-NativeValue* JsUIExtensionContentSession::CreateJsUIExtensionContentSession(NativeEngine& engine,
-    sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow)
-{
-    return reinterpret_cast<NativeValue*>(CreateJsUIExtensionContentSession(
-        reinterpret_cast<napi_env>(&engine), sessionInfo, uiWindow));
 }
 
 void JsUIExtensionContentSession::CallReceiveDataCallback(napi_env env,

@@ -21,7 +21,6 @@
 #include "freeze_util.h"
 
 class NativeReference;
-class NativeValue;
 
 namespace OHOS {
 namespace AbilityRuntime {

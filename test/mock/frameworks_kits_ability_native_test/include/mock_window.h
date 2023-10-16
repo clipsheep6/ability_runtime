@@ -152,6 +152,8 @@ public:
     virtual void SetAceAbilityHandler(const sptr<IAceAbilityHandler>& handler) {}
     virtual WMError SetUIContent(const std::string& contentInfo, NativeEngine* engine, NativeValue* storage,
         bool isDistributed = false, AppExecFwk::Ability* ability = nullptr) {return WMError::WM_OK;}
+    virtual WMError NapiSetUIContent(const std::string& contentInfo, napi_env env, napi_value storage,
+        bool isDistributed = false, AppExecFwk::Ability* ability = nullptr) {return WMError::WM_OK;}
     virtual std::string GetContentInfo() {return "";}
     virtual Ace::UIContent* GetUIContent() const {return nullptr;}
     virtual void OnNewWant(const AAFwk::Want& want) {}

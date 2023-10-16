@@ -414,13 +414,6 @@ napi_value JsUIExtensionContext::CreateJsUIExtensionContext(napi_env env,
     return objValue;
 }
 
-// to do
-NativeValue* JsUIExtensionContext::CreateJsUIExtensionContext(
-    NativeEngine& engine, std::shared_ptr<UIExtensionContext> context)
-{
-    return reinterpret_cast<NativeValue*>(CreateJsUIExtensionContext(reinterpret_cast<napi_env>(&engine), context));
-}
-
 bool JsUIExtensionContext::CheckStartAbilityInputParam(napi_env env, NapiCallbackInfo& info,
     AAFwk::Want& want, AAFwk::StartOptions& startOptions, size_t& unwrapArgc) const
 {

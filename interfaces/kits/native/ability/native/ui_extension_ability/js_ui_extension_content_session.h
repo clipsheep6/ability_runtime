@@ -57,13 +57,6 @@ public:
         std::shared_ptr<AbilityResultListeners>& abilityResultListeners);
     static napi_value CreateJsUIExtensionContentSession(napi_env env,
         sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow);
-    // to do
-    static NativeValue* CreateJsUIExtensionContentSession(NativeEngine& engine,
-        sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow,
-        std::weak_ptr<AbilityRuntime::Context> context,
-        std::shared_ptr<AbilityResultListeners>& abilityResultListeners);
-    static NativeValue* CreateJsUIExtensionContentSession(NativeEngine& engine,
-        sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow);
 
     static napi_value StartAbility(napi_env env, napi_callback_info info);
     static napi_value StartAbilityForResult(napi_env env, napi_callback_info info);

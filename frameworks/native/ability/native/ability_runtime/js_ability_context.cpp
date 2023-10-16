@@ -1271,12 +1271,6 @@ void JsAbilityContext::ConfigurationUpdated(napi_env env, std::shared_ptr<Native
     napi_call_function(env, object, method, ARGC_ONE, argv, nullptr);
 }
 
-void JsAbilityContext::ConfigurationUpdated(NativeEngine* engine, std::shared_ptr<NativeReference> &jsContext,
-    const std::shared_ptr<AppExecFwk::Configuration> &config)
-{
-    ConfigurationUpdated(reinterpret_cast<napi_env>(engine), jsContext, config);
-}
-
 void JsAbilityContext::AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback,
     bool isAbilityResult)
 {
@@ -1362,12 +1356,6 @@ napi_value CreateJsAbilityContext(napi_env env, std::shared_ptr<AbilityContext> 
     BindNativeFunction(env, object, "setMissionIcon", moduleName, JsAbilityContext::SetMissionIcon);
 #endif
     return object;
-}
-
-// to do
-NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<AbilityContext> context)
-{
-    return reinterpret_cast<NativeValue*>(CreateJsAbilityContext(reinterpret_cast<napi_env>(&engine), context));
 }
 
 JSAbilityConnection::JSAbilityConnection(napi_env env) : env_(env) {}
