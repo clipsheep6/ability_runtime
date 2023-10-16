@@ -25,6 +25,8 @@ namespace OHOS {
 namespace AbilityRuntime {
 #ifdef APP_USE_ARM
 constexpr char FORM_EXTENSION_MODULE_LIB_PATH[] = "/system/lib/extensionability/libform_extension_module.z.so";
+#elif defined(APP_USE_X86_64)
+constexpr char FORM_EXTENSION_MODULE_LIB_PATH[] = "/system/lib64/extensionability/libform_extension_module.z.so";
 #else
 constexpr char FORM_EXTENSION_MODULE_LIB_PATH[] = "/system/lib64/extensionability/libform_extension_module.z.so";
 #endif

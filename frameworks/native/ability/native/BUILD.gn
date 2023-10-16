@@ -62,6 +62,8 @@ config("ability_config") {
     defines += [ "APP_USE_ARM64" ]
   } else if (target_cpu == "arm") {
     defines += [ "APP_USE_ARM" ]
+  } else if (target_cpu == "x86_64") {
+    defines += [ "APP_USE_X86_64" ]
   }
 
   if (ability_runtime_graphics) {
