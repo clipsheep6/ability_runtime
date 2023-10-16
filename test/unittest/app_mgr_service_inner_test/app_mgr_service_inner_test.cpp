@@ -3399,5 +3399,56 @@ HWTEST_F(AppMgrServiceInnerTest, ChangeAppGcState_001, TestSize.Level1)
     EXPECT_EQ(ret, ERR_INVALID_VALUE);
     HILOG_INFO("ChangeAppGcState_001 end");
 }
+
+/**
+ * @tc.name: InitWindowVisibilityChangedListener_001
+ * @tc.desc: init windowVisibilityChangedListener
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, InitWindowVisibilityChangedListener_001, TestSize.Level1)
+{
+    HILOG_DEBUG("InitWindowVisibilityChangedListener_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    appMgrServiceInner->InitWindowVisibilityChangedListener();
+    EXPECT_NE(appMgrServiceInner->windowVisibilityChangedListener_, nullptr);
+
+    HILOG_DEBUG("InitWindowVisibilityChangedListener_001 end");
+}
+
+/**
+ * @tc.name: FreeWindowVisibilityChangedListener_001
+ * @tc.desc: free windowVisibilityChangedListener
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, FreeWindowVisibilityChangedListener_001, TestSize.Level1)
+{
+    HILOG_DEBUG("FreeWindowVisibilityChangedListener_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    appMgrServiceInner->FreeWindowVisibilityChangedListener();
+    EXPECT_EQ(appMgrServiceInner->windowVisibilityChangedListener_, nullptr);
+
+    HILOG_DEBUG("FreeWindowVisibilityChangedListener_001 end");
+}
+
+/**
+ * @tc.name: HandleWindowVisibilityChanged_001
+ * @tc.desc: handle window visibility changed
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, HandleWindowVisibilityChanged_001, TestSize.Level1)
+{
+    HILOG_DEBUG("HandleWindowVisibilityChanged_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    std::vector<sptr<Rosen::WindowVisibilityInfo>> visibilityInfos;
+    appMgrServiceInner->HandleWindowVisibilityChanged(visibilityInfos);
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    HILOG_DEBUG("HandleWindowVisibilityChanged_001 end");
+}
 } // namespace AppExecFwk
 } // namespace OHOS

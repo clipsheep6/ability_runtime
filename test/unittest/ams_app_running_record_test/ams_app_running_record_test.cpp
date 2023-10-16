@@ -38,6 +38,7 @@
 #include "mock_bundle_manager.h"
 #include "mock_render_scheduler.h"
 #include "ui_extension_utils.h"
+#include "window_visibility_info.h"
 
 using namespace testing::ext;
 using testing::_;
@@ -2924,6 +2925,133 @@ HWTEST_F(AmsAppRunningRecordTest, ChangeAppGcState_002, TestSize.Level1)
     record->appLifeCycleDeal_ = std::make_shared<AppLifeCycleDeal>();
     EXPECT_EQ(ERR_INVALID_VALUE, record->ChangeAppGcState(0));
     HILOG_DEBUG("ChangeAppGcState_002 end.");
+}
+
+/**
+ * @tc.name: IsAbilitiesBackgrounded_0100
+ * @tc.desc: verify that ModuleRunningRecord correctly judges Abilitiesbackground
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsAppRunningRecordTest, IsAbilitiesBackgrounded_0100, TestSize.Level1)
+{
+    HILOG_DEBUG("IsAbilitiesBackgrounded_0100 start.");
+
+    // 1. create AppInfo and AbilityInfo
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    EXPECT_NE(appInfo, nullptr);
+    appInfo->name = GetTestAppName();
+    appInfo->bundleName = GetTestAppName();
+
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    EXPECT_NE(abilityInfo, nullptr);
+    abilityInfo->name = GetTestAbilityName();
+    abilityInfo->type = AbilityType::PAGE;
+
+    // 2. create ModuleRunningRecord
+    std::shared_ptr<ModuleRunningRecord> moduleRecord = std::make_shared<ModuleRunningRecord>(appInfo, nullptr);;
+    EXPECT_NE(moduleRecord, nullptr);
+
+    // 3. create AbilityRecord with AbilityInfo, add the record into ModuleRunningRecord
+    auto abilityRecord = std::make_shared<AbilityRunningRecord>(abilityInfo, GetMockToken());
+    EXPECT_NE(abilityRecord, nullptr);
+    moduleRecord->abilities_.emplace(GetMockToken(), abilityRecord);
+
+    // 4. verify function
+    EXPECT_EQ(abilityRecord->state_, AbilityState::ABILITY_STATE_CREATE);
+    EXPECT_FALSE(moduleRecord->IsAbilitiesBackgrounded());
+
+    moduleRecord->abilities_.clear();
+    abilityRecord->state_ = AbilityState::ABILITY_STATE_BACKGROUND;
+    moduleRecord->abilities_.emplace(GetMockToken(), abilityRecord);
+    EXPECT_TRUE(moduleRecord->IsAbilitiesBackgrounded());
+    HILOG_DEBUG("IsAbilitiesBackgrounded_0100 end.");
+}
+
+/**
+ * @tc.name: IsAbilitytiesBackground_0100
+ * @tc.desc: verify that AppRunningRecord correctly judges Abilitytiesbackground
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsAppRunningRecordTest, IsAbilitytiesBackground_0100, TestSize.Level1)
+{
+    HILOG_DEBUG("IsAbilitytiesBackground_0100 start.");
+    // 1. create AppRunningRecord and verify default status
+    auto record = GetTestAppRunningRecord();
+    EXPECT_NE(record, nullptr);
+    EXPECT_TRUE(record->IsAbilitytiesBackground());
+
+    // 2. create AbilityInfo and AppInfo, and construct ModuleRunningRecord
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    EXPECT_NE(appInfo, nullptr);
+    appInfo->name = GetTestAppName();
+    appInfo->bundleName = GetTestAppName();
+    auto abilityInfo = std::make_shared<AbilityInfo>();
+    EXPECT_NE(abilityInfo, nullptr);
+    abilityInfo->name = GetTestAbilityName();
+    abilityInfo->type = AbilityType::PAGE;
+    auto abilityRecord = std::make_shared<AbilityRunningRecord>(abilityInfo, GetMockToken());
+    EXPECT_NE(abilityRecord, nullptr);
+
+    std::shared_ptr<ModuleRunningRecord> moduleRecord = std::make_shared<ModuleRunningRecord>(appInfo, nullptr);;
+    EXPECT_NE(moduleRecord, nullptr);
+    moduleRecord->abilities_.emplace(GetMockToken(), abilityRecord);
+    std::vector<std::shared_ptr<ModuleRunningRecord>> moduleRecords;
+    moduleRecords.push_back(moduleRecord);
+    const std::string bundleName = "bundleName";
+
+    // 3. add ModuleRunningRecord into hapModules_ of AppRunningRecord
+    record->hapModules_.emplace(bundleName, moduleRecords);
+
+    // 4. verify function
+    EXPECT_FALSE(record->IsAbilitytiesBackground());
+
+    moduleRecord->abilities_.clear();
+    abilityRecord->state_ = AbilityState::ABILITY_STATE_BACKGROUND;
+    moduleRecord->abilities_.emplace(GetMockToken(), abilityRecord);
+    moduleRecords.clear();
+    moduleRecords.push_back(moduleRecord);
+    record->hapModules_.emplace(bundleName, moduleRecords);
+    EXPECT_TRUE(record->IsAbilitytiesBackground());
+    HILOG_DEBUG("IsAbilitytiesBackground_0100 end.");
+}
+
+/**
+ * @tc.name: AppRunningRecord_OnWindowVisibilityChanged_0100
+ * @tc.desc: verify that AppRunningRecord correctly handle window visibility change event
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsAppRunningRecordTest, OnWindowVisibilityChanged_0100, TestSize.Level1)
+{
+    HILOG_DEBUG("OnWindowVisibilityChanged_0100 start.");
+    // 1. create AppRunningRecord, set state and windowIds_
+    auto record = GetTestAppRunningRecord();
+    EXPECT_NE(record, nullptr);
+    uint32_t windowId = 123456;
+    record->windowIds_.insert(windowId);
+    record->curState_ = ApplicationState::APP_STATE_FOREGROUND;
+
+    // 2. construct WindowVisibilityInfos
+    std::vector<sptr<Rosen::WindowVisibilityInfo>> windowVisibilityInfos;
+    auto info = new (std::nothrow) Rosen::WindowVisibilityInfo();
+    EXPECT_NE(info, nullptr);
+    info->isVisible_ = false;
+    info->windowId_ = windowId;
+    windowVisibilityInfos.emplace_back(info);
+
+    //3. verify function
+    record->OnWindowVisibilityChanged(windowVisibilityInfos);
+    EXPECT_TRUE(record->isUpdateStateFromService_);
+    EXPECT_TRUE(record->windowIds_.empty());
+
+    info->isVisible_ = true;
+    windowVisibilityInfos.clear();
+    windowVisibilityInfos.emplace_back(info);
+    record->isUpdateStateFromService_ = false;
+    record->curState_ = ApplicationState::APP_STATE_BACKGROUND;
+    record->OnWindowVisibilityChanged(windowVisibilityInfos);
+    EXPECT_FALSE(record->windowIds_.empty());
+    EXPECT_TRUE(record->isUpdateStateFromService_);
+    HILOG_DEBUG("OnWindowVisibilityChanged_0100 end.");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -23,7 +23,10 @@ ohos_unittest("app_running_manager_test") {
 
   configs = [ "${ability_runtime_services_path}/appmgr:appmgr_config" ]
 
-  sources = [ "${ability_runtime_services_path}/appmgr/src/window_visibility_changed_listener.cpp" ]
+  sources = [
+    "${ability_runtime_services_path}/appmgr/src/window_visibility_changed_listener.cpp",
+    "${windowmanager_path}/utils/src/window_visibility_info.cpp",
+  ]
   sources += [ "app_running_manager_test.cpp" ]
 
   deps = [
