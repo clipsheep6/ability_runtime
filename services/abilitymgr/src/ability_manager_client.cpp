@@ -1467,6 +1467,86 @@ ErrCode AbilityManagerClient::TerminateMission(int32_t missionId)
     return abms->TerminateMission(missionId);
 }
 
+ErrCode AbilityManagerClient::RegisterAutoStartupSystemCallback(const sptr<IRemoteObject> &callback)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->RegisterAutoStartupSystemCallback(callback);
+}
+
+ErrCode AbilityManagerClient::UnregisterAutoStartupSystemCallback(const sptr<IRemoteObject> &callback)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->UnregisterAutoStartupSystemCallback(callback);
+}
+
+ErrCode AbilityManagerClient::SetApplicationAutoStartup(const AutoStartupInfo &info)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->SetApplicationAutoStartup(info);
+}
+
+ErrCode AbilityManagerClient::CancelApplicationAutoStartup(const AutoStartupInfo &info)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->CancelApplicationAutoStartup(info);
+}
+
+ErrCode AbilityManagerClient::QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->QueryAllAutoStartupApplications(infoList);
+}
+
+ErrCode AbilityManagerClient::RegisterAutoStartupCallback(const sptr<IRemoteObject> &callback)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->RegisterAutoStartupCallback(callback);
+}
+
+ErrCode AbilityManagerClient::UnregisterAutoStartupCallback(const sptr<IRemoteObject> &callback)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->UnregisterAutoStartupCallback(callback);
+}
+
+ErrCode AbilityManagerClient::SetAutoStartup(const AutoStartupInfo &info)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->SetAutoStartup(info);
+}
+
+ErrCode AbilityManagerClient::CancelAutoStartup(const AutoStartupInfo &info)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->CancelAutoStartup(info);
+}
+
+ErrCode AbilityManagerClient::IsAutoStartup(const AutoStartupInfo &info, bool &isAutoStartup)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->IsAutoStartup(info, isAutoStartup);
+}
+
 ErrCode AbilityManagerClient::PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &sessionInfo,
     bool &isPrepareTerminate)
 {

@@ -428,6 +428,33 @@ enum class AbilityManagerInterfaceCode {
     FORCE_EXIT_APP = 6001,
     RECORD_APP_EXIT_REASON = 6002,
 
+    // ipc id for register auto startup system callback
+    REGISTER_AUTO_STARTUP_SYSTEM_CALLBACK = 6101,
+    // ipc id for unregister auto startup system callback
+    UNREGISTER_AUTO_STARTUP_SYSTEM_CALLBACK = 6102,
+    // ipc id for set application auto startup
+    SET_APPLICATION_AUTO_STARTUP = 6103,
+    // ipc id for cancel application auto startup
+    CANCEL_APPLICATION_AUTO_STARTUP = 6104,
+    // ipc id for auery all auto startup application
+    QUERY_ALL_AUTO_STARTUP_APPLICATION = 6105,
+
+    // ipc id for register auto startup callback
+    REGISTER_AUTO_STARTUP_CALLBACK = 6106,
+    // ipc id for unregister auto startup callback
+    UNREGISTER_AUTO_STARTUP_CALLBACK = 6107,
+    // ipc id for set auto startup
+    SET_AUTO_STARTUP = 6108,
+    // ipc id for cancel auto startup
+    CANCEL_AUTO_STARTUP = 6109,
+    // ipc id for is auto startup
+    IS_AUTO_STARTUP = 6110,
+
+    // ipc id for on auto starup on
+    ON_AUTO_STARTUP_ON = 6111,
+    // ipc id for on auto starup off
+    ON_AUTO_STARTUP_OFF = 6112,
+
     // ipc id for register session handler
     REGISTER_SESSION_HANDLER = 6010,
 };
