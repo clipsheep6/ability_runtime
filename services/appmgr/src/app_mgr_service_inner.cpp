@@ -892,10 +892,12 @@ int32_t AppMgrServiceInner::KillApplicationByUserIdLocked(const std::string &bun
     return result;
 }
 
-void AppMgrServiceInner::ClearUpApplicationData(const std::string &bundleName, int32_t callerUid, pid_t callerPid)
+void AppMgrServiceInner::ClearUpApplicationData(const std::string &bundleName, int32_t callerUid, pid_t callerPid, const int userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    auto userId = GetUserIdByUid(callerUid);
+    if (userId == 0) {
+        auto userId = GetUserIdByUid(callerUid);
+    }
     HILOG_INFO("userId:%{public}d", userId);
     ClearUpApplicationDataByUserId(bundleName, callerUid, callerPid, userId);
 }

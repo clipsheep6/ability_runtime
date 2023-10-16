@@ -476,7 +476,7 @@ public:
      * @param bundleName, bundle name in Application record.
      * @return
      */
-    virtual int ClearUpApplicationData(const std::string &bundleName) override;
+    virtual int ClearUpApplicationData(const std::string &bundleName, const int userId = 0) override;
 
     /**
      * Uninstall app
