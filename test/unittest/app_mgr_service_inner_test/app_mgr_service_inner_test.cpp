@@ -3407,14 +3407,13 @@ HWTEST_F(AppMgrServiceInnerTest, ChangeAppGcState_001, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceInnerTest, InitWindowVisibilityChangedListener_001, TestSize.Level1)
 {
-    HILOG_DEBUG("InitWindowVisibilityChangedListener_001 start");
+    GTEST_LOG_(INFO) << "InitWindowVisibilityChangedListener_001 start" ;
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     appMgrServiceInner->InitWindowVisibilityChangedListener();
     EXPECT_NE(appMgrServiceInner->windowVisibilityChangedListener_, nullptr);
-
-    HILOG_DEBUG("InitWindowVisibilityChangedListener_001 end");
+    GTEST_LOG_(INFO) << "InitWindowVisibilityChangedListener_001 end";
 }
 
 /**
@@ -3424,14 +3423,13 @@ HWTEST_F(AppMgrServiceInnerTest, InitWindowVisibilityChangedListener_001, TestSi
  */
 HWTEST_F(AppMgrServiceInnerTest, FreeWindowVisibilityChangedListener_001, TestSize.Level1)
 {
-    HILOG_DEBUG("FreeWindowVisibilityChangedListener_001 start");
+    GTEST_LOG_(INFO) << "FreeWindowVisibilityChangedListener_001 start";
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     appMgrServiceInner->FreeWindowVisibilityChangedListener();
     EXPECT_EQ(appMgrServiceInner->windowVisibilityChangedListener_, nullptr);
-
-    HILOG_DEBUG("FreeWindowVisibilityChangedListener_001 end");
+    GTEST_LOG_(INFO) << "FreeWindowVisibilityChangedListener_001 end";
 }
 
 /**
@@ -3448,7 +3446,7 @@ HWTEST_F(AppMgrServiceInnerTest, HandleWindowVisibilityChanged_001, TestSize.Lev
     std::vector<sptr<Rosen::WindowVisibilityInfo>> visibilityInfos;
     appMgrServiceInner->HandleWindowVisibilityChanged(visibilityInfos);
     EXPECT_NE(appMgrServiceInner, nullptr);
-    HILOG_DEBUG("HandleWindowVisibilityChanged_001 end");
+    GTEST_LOG_(INFO) << "HandleWindowVisibilityChanged_001 end";
 }
 } // namespace AppExecFwk
 } // namespace OHOS

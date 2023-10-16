@@ -28,9 +28,8 @@ ohos_unittest("AmsAppRunningRecordTest") {
   sources = [
     "${ability_runtime_test_path}/mock/services_appmgr_test/src/mock_bundle_manager.cpp",
     "${ability_runtime_test_path}/mock/services_appmgr_test/src/mock_overlay_manager.cpp",
-    "${windowmanager_path}/utils/src/window_visibility_info.cpp",
+    "ams_app_running_record_test.cpp",
   ]
-  sources += [ "ams_app_running_record_test.cpp" ]
 
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
 
@@ -42,6 +41,7 @@ ohos_unittest("AmsAppRunningRecordTest") {
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_services_path}/appmgr:libappms",
     "${ability_runtime_services_path}/common:task_handler_wrap",
+    "${windowmanager_path}/utils:libwmutil_static",
     "//third_party/googletest:gmock_main",
   ]
 

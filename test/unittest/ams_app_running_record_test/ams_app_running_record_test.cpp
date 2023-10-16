@@ -2928,13 +2928,13 @@ HWTEST_F(AmsAppRunningRecordTest, ChangeAppGcState_002, TestSize.Level1)
 }
 
 /**
- * @tc.name: IsAbilitiesBackgrounded_0100
+ * @tc.name: IsAbilitiesBackgrounded_001
  * @tc.desc: verify that ModuleRunningRecord correctly judges Abilitiesbackground
  * @tc.type: FUNC
  */
-HWTEST_F(AmsAppRunningRecordTest, IsAbilitiesBackgrounded_0100, TestSize.Level1)
+HWTEST_F(AmsAppRunningRecordTest, IsAbilitiesBackgrounded_001, TestSize.Level1)
 {
-    HILOG_DEBUG("IsAbilitiesBackgrounded_0100 start.");
+    GTEST_LOG_(INFO) << "IsAbilitiesBackgrounded_001 start.";
 
     // 1. create AppInfo and AbilityInfo
     std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
@@ -2964,17 +2964,17 @@ HWTEST_F(AmsAppRunningRecordTest, IsAbilitiesBackgrounded_0100, TestSize.Level1)
     abilityRecord->state_ = AbilityState::ABILITY_STATE_BACKGROUND;
     moduleRecord->abilities_.emplace(GetMockToken(), abilityRecord);
     EXPECT_TRUE(moduleRecord->IsAbilitiesBackgrounded());
-    HILOG_DEBUG("IsAbilitiesBackgrounded_0100 end.");
+    GTEST_LOG_(INFO) << "IsAbilitiesBackgrounded_001 end.";
 }
 
 /**
- * @tc.name: IsAbilitytiesBackground_0100
+ * @tc.name: IsAbilitytiesBackground_001
  * @tc.desc: verify that AppRunningRecord correctly judges Abilitytiesbackground
  * @tc.type: FUNC
  */
-HWTEST_F(AmsAppRunningRecordTest, IsAbilitytiesBackground_0100, TestSize.Level1)
+HWTEST_F(AmsAppRunningRecordTest, IsAbilitytiesBackground_001, TestSize.Level1)
 {
-    HILOG_DEBUG("IsAbilitytiesBackground_0100 start.");
+    GTEST_LOG_(INFO) << "IsAbilitytiesBackground_001 start.";
     // 1. create AppRunningRecord and verify default status
     auto record = GetTestAppRunningRecord();
     EXPECT_NE(record, nullptr);
@@ -3012,17 +3012,17 @@ HWTEST_F(AmsAppRunningRecordTest, IsAbilitytiesBackground_0100, TestSize.Level1)
     moduleRecords.push_back(moduleRecord);
     record->hapModules_.emplace(bundleName, moduleRecords);
     EXPECT_TRUE(record->IsAbilitytiesBackground());
-    HILOG_DEBUG("IsAbilitytiesBackground_0100 end.");
+    GTEST_LOG_(INFO) << "IsAbilitytiesBackground_001 end.";
 }
 
 /**
- * @tc.name: AppRunningRecord_OnWindowVisibilityChanged_0100
+ * @tc.name: AppRunningRecord_OnWindowVisibilityChanged_001
  * @tc.desc: verify that AppRunningRecord correctly handle window visibility change event
  * @tc.type: FUNC
  */
-HWTEST_F(AmsAppRunningRecordTest, OnWindowVisibilityChanged_0100, TestSize.Level1)
+HWTEST_F(AmsAppRunningRecordTest, OnWindowVisibilityChanged_001, TestSize.Level1)
 {
-    HILOG_DEBUG("OnWindowVisibilityChanged_0100 start.");
+    GTEST_LOG_(INFO) << "OnWindowVisibilityChanged_001 start.";
     // 1. create AppRunningRecord, set state and windowIds_
     auto record = GetTestAppRunningRecord();
     EXPECT_NE(record, nullptr);
@@ -3051,7 +3051,7 @@ HWTEST_F(AmsAppRunningRecordTest, OnWindowVisibilityChanged_0100, TestSize.Level
     record->OnWindowVisibilityChanged(windowVisibilityInfos);
     EXPECT_FALSE(record->windowIds_.empty());
     EXPECT_TRUE(record->isUpdateStateFromService_);
-    HILOG_DEBUG("OnWindowVisibilityChanged_0100 end.");
+    GTEST_LOG_(INFO) << "OnWindowVisibilityChanged_001 end.";
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
