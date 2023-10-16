@@ -188,7 +188,9 @@ protected:
     std::string callingAbilityName_;
     std::string callingModuleName_;
     std::map<sptr<AAFwk::IAbilityConnection>, sptr<IRemoteObject>> abilityConnectionMap_;
+#ifdef SUPPORT_GRAPHICS
     sptr<AAFwk::SessionInfo> sessionInfo_;
+#endif
 
 private:
     /**

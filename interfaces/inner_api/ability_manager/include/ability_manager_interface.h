@@ -169,6 +169,7 @@ public:
         return 0;
     }
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * Start ui session ability with extension session info, send session info to ability manager service.
      *
@@ -210,6 +211,7 @@ public:
     {
         return 0;
     }
+#endif
 
     /**
      * Start extension ability with want, send want to ability manager service.
@@ -229,6 +231,7 @@ public:
         return 0;
     }
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * Start ui extension ability with extension session info, send extension session info to ability manager service.
      *
@@ -253,6 +256,7 @@ public:
     {
         return 0;
     }
+#endif
 
     /**
      * Stop extension ability with want, send want to ability manager service.
@@ -304,6 +308,7 @@ public:
     virtual int TerminateAbility(
         const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant = nullptr) = 0;
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * TerminateUIExtensionAbility, terminate the special ui extension ability.
      *
@@ -328,6 +333,7 @@ public:
     {
         return 0;
     }
+#endif
 
     /**
      * SendResultToAbility, send the result to ability.
@@ -372,6 +378,7 @@ public:
      */
     virtual int MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser = false) = 0;
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * MinimizeUIExtensionAbility, minimize the special ui extension ability.
      *
@@ -396,6 +403,7 @@ public:
     {
         return 0;
     };
+#endif
 
     /**
      * ConnectAbility, connect session with service ability.
@@ -433,6 +441,7 @@ public:
         return 0;
     }
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * Connect ui extension ability.
      *
@@ -447,6 +456,7 @@ public:
     {
         return 0;
     }
+#endif
 
     /**
      * DisconnectAbility, disconnect session with service ability.
@@ -522,11 +532,13 @@ public:
      */
     virtual int ScheduleCommandAbilityDone(const sptr<IRemoteObject> &token) = 0;
 
+#ifdef SUPPORT_GRAPHICS
     virtual int ScheduleCommandAbilityWindowDone(
         const sptr<IRemoteObject> &token,
         const sptr<AAFwk::SessionInfo> &sessionInfo,
         AAFwk::WindowCommand winCmd,
         AAFwk::AbilityCommand abilityCmd) = 0;
+#endif
 
     /**
      * dump ability stack info, about userID, mission stack info,
@@ -1060,12 +1072,14 @@ public:
      */
     virtual void SetRootSceneSession(const sptr<IRemoteObject> &rootSceneSession) {}
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * Call UIAbility by SCB.
      *
      * @param sessionInfo the session info of the ability to be called.
      */
     virtual void CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo) {}
+#endif
 
     /**
      * Start specified ability by SCB.
@@ -1138,6 +1152,7 @@ public:
         return 0;
     }
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * PrepareTerminateAbilityBySCB, prepare to terminate ability by scb.
      *
@@ -1149,6 +1164,7 @@ public:
     {
         return 0;
     }
+#endif
 
     /**
      * @brief Register app debug listener.

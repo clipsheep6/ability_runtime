@@ -98,6 +98,7 @@ int AbilitySchedulerStub::OnRemoteRequest(
 
 int AbilitySchedulerStub::AbilityTransactionInner(MessageParcel &data, MessageParcel &reply)
 {
+#ifdef SUPPORT_GRAPHICS
     std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         HILOG_ERROR("AbilitySchedulerStub want is nullptr");
@@ -113,6 +114,7 @@ int AbilitySchedulerStub::AbilityTransactionInner(MessageParcel &data, MessagePa
         sessionInfo = data.ReadParcelable<SessionInfo>();
     }
     ScheduleAbilityTransaction(*want, *stateInfo, sessionInfo);
+#endif
     return NO_ERROR;
 }
 
@@ -185,6 +187,7 @@ int AbilitySchedulerStub::PrepareTerminateAbilityInner(MessageParcel &data, Mess
 
 int AbilitySchedulerStub::CommandAbilityWindowInner(MessageParcel &data, MessageParcel &reply)
 {
+#ifdef SUPPORT_GRAPHICS
     std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         HILOG_ERROR("want is nullptr");
@@ -193,6 +196,7 @@ int AbilitySchedulerStub::CommandAbilityWindowInner(MessageParcel &data, Message
     sptr<SessionInfo> sessionInfo(data.ReadParcelable<SessionInfo>());
     int32_t winCmd = data.ReadInt32();
     ScheduleCommandAbilityWindow(*want, sessionInfo, static_cast<WindowCommand>(winCmd));
+#endif
     return NO_ERROR;
 }
 

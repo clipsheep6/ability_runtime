@@ -28,7 +28,9 @@
 #include "hitrace_meter.h"
 #include "remote_object_wrapper.h"
 #include "scene_board_judgement.h"
+#ifdef SUPPORT_GRAPHICS
 #include "session/host/include/zidl/session_interface.h"
+#endif
 #include "session_info.h"
 #include "string_wrapper.h"
 #include "want_params_wrapper.h"
@@ -85,6 +87,7 @@ ErrCode AbilityContext::TerminateAbility()
         case AppExecFwk::AbilityType::PAGE:
             HILOG_DEBUG("Terminate ability begin, type is page, ability is %{public}s.", info->name.c_str());
             if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+#ifdef SUPPORT_GRAPHICS
                 if (sessionInfo_ == nullptr) {
                     HILOG_ERROR("sessionInfo_ is nullptr.");
                     return ERR_INVALID_VALUE;
@@ -102,6 +105,7 @@ ErrCode AbilityContext::TerminateAbility()
                 auto err = ifaceSessionToken->TerminateSession(sessionInfo);
                 HILOG_INFO("FA TerminateAbility. ret=%{public}d", err);
                 return static_cast<int32_t>(err);
+#endif
             } else {
                 err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, resultCode_, &resultWant_);
             }

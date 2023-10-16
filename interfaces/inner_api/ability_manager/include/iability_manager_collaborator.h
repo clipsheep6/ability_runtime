@@ -20,12 +20,16 @@
 #include "iremote_broker.h"
 #include "iremote_object.h"
 #include "mission_info.h"
+#ifdef SUPPORT_GRAPHICS
 #include "session_info.h"
+#endif
 #include "want.h"
 
 namespace OHOS {
 namespace AAFwk {
+#ifdef SUPPORT_GRAPHICS
 class SessionInfo;
+#endif
 
 class IAbilityManagerCollaborator : public IRemoteBroker {
 public:
@@ -50,12 +54,14 @@ public:
      */
     virtual int32_t NotifyMissionCreated(int32_t missionId, const Want &want) = 0;
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * @brief Notify when mission is created.
      * @param sessionInfo sessionInfo.
      * @return 0 when notify mission created success or else failed.
      */
     virtual int32_t NotifyMissionCreated(const sptr<SessionInfo> &sessionInfo) = 0;
+#endif
 
     /**
      * @brief Notify when start loading ability record.
@@ -67,6 +73,7 @@ public:
     virtual int32_t NotifyLoadAbility(
         const AppExecFwk::AbilityInfo &abilityInfo, int32_t missionId, const Want &want) = 0;
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * @brief Notify when start loading ability record.
      * @param AbilityInfo ability info from bms.
@@ -75,6 +82,7 @@ public:
     */
     virtual int32_t NotifyLoadAbility(
         const AppExecFwk::AbilityInfo &abilityInfo, const sptr<SessionInfo> &sessionInfo) = 0;
+#endif
 
     /**
      * @brief Notify when notify app to background.
@@ -119,11 +127,13 @@ public:
      */
     virtual void UpdateMissionInfo(InnerMissionInfoDto &info) = 0;
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * @brief Update mission info to real element by broker.
      * @param sessionInfo sessionInfo.
      */
     virtual void UpdateMissionInfo(sptr<SessionInfo> &sessionInfo) = 0;
+#endif
 
     enum {
         NOTIFY_START_ABILITY = 1,
