@@ -3213,7 +3213,7 @@ napi_value NapiJsContext::OnRequestPermissionsFromUser(napi_env env, napi_callba
 
     auto callback = argc == ARGS_THREE ? argv[PARAM2] : nullptr;
     napi_value result = nullptr;
-    auto napiAsyncTask = 
+    auto napiAsyncTask =
         AbilityRuntime::CreateAsyncTaskWithLastParam(env, callback, nullptr, nullptr, &result).release();
 
     int32_t errorCode = NAPI_ERR_NO_ERROR;
@@ -3320,7 +3320,7 @@ napi_value NapiJsContext::OnVerifyPermission(napi_env env, napi_callback_info in
     };
     auto complete = [obj = this, value = errorVal] (napi_env env, NapiAsyncTask &task, int32_t status) {
         if (*value == static_cast<int32_t>(NAPI_ERR_ACE_ABILITY)) {
-            task.Reject(env, CreateJsError( env, *value, obj->ConvertErrorCode(*value)));
+            task.Reject(env, CreateJsError(env, *value, obj->ConvertErrorCode(*value)));
             return;
         }
         task.Resolve(env, CreateJsValue(env, *value));

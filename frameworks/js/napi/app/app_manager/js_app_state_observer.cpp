@@ -239,8 +239,8 @@ void JSAppStateObserver::AddJsObserverObject(const int32_t observerId, napi_valu
 bool JSAppStateObserver::RemoveJsObserverObject(const int32_t observerId)
 {
     bool result = (jsObserverObjectMap_.erase(observerId) == 1);
-    return result;
     HILOG_DEBUG("RemoveJsObserverObject end");
+    return result;
 }
 
 bool JSAppStateObserver::FindObserverByObserverId(const int32_t observerId)
