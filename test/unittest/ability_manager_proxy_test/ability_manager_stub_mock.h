@@ -215,7 +215,7 @@ public:
         return;
     }
 
-    int ClearUpApplicationData(const std::string& bundleName) override
+    int ClearUpApplicationData(const std::string& bundleName, const int userId = 0) override
     {
         return 0;
     }

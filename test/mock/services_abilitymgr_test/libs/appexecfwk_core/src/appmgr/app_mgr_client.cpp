@@ -81,7 +81,7 @@ AppMgrResultCode AppMgrClient::KillApplication(const std::string& bundleName)
     return AppMgrResultCode::RESULT_OK;
 }
 
-AppMgrResultCode AppMgrClient::ClearUpApplicationData(const std::string& bundleName)
+AppMgrResultCode AppMgrClient::ClearUpApplicationData(const std::string& bundleName, const int userId)
 {
     return AppMgrResultCode::RESULT_OK;
 }
