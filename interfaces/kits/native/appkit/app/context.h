@@ -208,7 +208,7 @@ public:
      */
     virtual int VerifySelfPermission(const std::string &permission)
     {
-        return 0;
+        return 999;
     }
 
     /**
