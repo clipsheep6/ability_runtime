@@ -23,8 +23,8 @@ extern const char _binary_service_extension_ability_abc_end[];
 #ifdef ENABLE_ERRCODE
 static napi_module _module = {
     .nm_version = 0,
-    .nm_modname = "app.ability.ServiceExtensionAbility",
     .nm_filename = "app/ability/libserviceextensionability.so/service_extension_ability.js",
+    .nm_modname = "app.ability.ServiceExtensionAbility",
 };
 extern "C" __attribute__((constructor))
 void NAPI_app_ability_ServiceExtensionAbility_AutoRegister()
@@ -57,8 +57,8 @@ void NAPI_app_ability_ServiceExtensionAbility_GetABCCode(const char **buf, int *
 #else
 static napi_module _module = {
     .nm_version = 0,
-    .nm_modname = "application.ServiceExtensionAbility",
     .nm_filename = "application/libserviceextensionability_napi.so/service_extension_ability.js",
+    .nm_modname = "application.ServiceExtensionAbility",
 };
 extern "C" __attribute__((constructor))
 void NAPI_application_ServiceExtensionAbility_AutoRegister()

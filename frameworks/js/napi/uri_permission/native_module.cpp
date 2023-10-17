@@ -18,8 +18,8 @@
 
 static napi_module _module = {
     .nm_version = 0,
-    .nm_modname = "application.uriPermissionManager",
     .nm_filename = "application/liburipermissionmanager_napi.so/uripermissionmanager.js",
+    .nm_modname = "application.uriPermissionManager",
     .nm_register_func = OHOS::AbilityRuntime::CreateJsUriPermMgr,
 };
 extern "C" __attribute__((constructor))

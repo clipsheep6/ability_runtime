@@ -18,8 +18,8 @@
 
 static napi_module _module = {
     .nm_version = 0,
-    .nm_modname = "app.ability.childProcessManager",
     .nm_filename = "app/ability/libchildprocessmanager_napi.so/childprocessmanager.js",
+    .nm_modname = "app.ability.childProcessManager",
     .nm_register_func = OHOS::AbilityRuntime::JsChildProcessManagerInit,
 };
 

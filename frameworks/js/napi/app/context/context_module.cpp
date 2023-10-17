@@ -22,8 +22,8 @@ extern const char _binary_context_abc_end[];
 
 static napi_module _module = {
     .nm_version = 0,
-    .nm_modname = "application.Context",
     .nm_filename = "application/libcontext_napi.so/context.js",
+    .nm_modname = "application.Context",
 };
 
 extern "C" __attribute__((constructor))

@@ -23,8 +23,8 @@ extern const char _binary_ability_abc_end[];
 #ifdef ENABLE_ERRCODE
 static napi_module _module = {
     .nm_version = 0,
-    .nm_modname = "app.ability.UIAbility",
     .nm_filename = "app/ability/libability.so/ability.js",
+    .nm_modname = "app.ability.UIAbility",
 };
 extern "C" __attribute__((constructor)) void NAPI_app_ability_UIAbility_AutoRegister(void)
 {
@@ -57,8 +57,8 @@ void NAPI_app_ability_UIAbility_GetABCCode(const char **buf, int *buflen)
 #else
 static napi_module _module = {
     .nm_version = 0,
-    .nm_modname = "application.Ability",
     .nm_filename = "application/libability_napi.so/ability.js",
+    .nm_modname = "application.Ability",
 };
 extern "C" __attribute__((constructor))
 void NAPI_application_Ability_AutoRegister()
