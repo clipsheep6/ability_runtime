@@ -791,10 +791,9 @@ napi_value JsRuntime::LoadJsModule(const std::string& path, const std::string& h
         return nullptr;
     }
 
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER_AND_RETURN(nativeEngine, nullptr);
-    auto nativeValue = ArkNativeEngine::ArkValueToNativeValue(static_cast<ArkNativeEngine*>(nativeEngine), exportObj);
-    return reinterpret_cast<napi_value>(nativeValue);
+    auto env = GetNapiEnv();
+    CHECK_POINTER_AND_RETURN(env, nullptr);
+    return ArkNativeEngine::ArkValueToNapiValue(env, exportObj);
 }
 
 std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& moduleName, const std::string& modulePath,

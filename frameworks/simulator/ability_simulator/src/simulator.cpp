@@ -626,8 +626,7 @@ void SimulatorImpl::DispatchStartLifecycle(napi_value instanceValue)
 std::unique_ptr<NativeReference> SimulatorImpl::CreateJsWindowStage(
     const std::shared_ptr<Rosen::WindowScene> &windowScene)
 {
-    auto engine = reinterpret_cast<NativeEngine*>(nativeEngine_);
-    napi_value jsWindowStage = reinterpret_cast<napi_value>(Rosen::CreateJsWindowStage(*engine, windowScene));
+    napi_value jsWindowStage = Rosen::CreateJsWindowStage(nativeEngine_, windowScene);
     if (jsWindowStage == nullptr) {
         HILOG_ERROR("Failed to create jsWindowSatge object");
         return nullptr;

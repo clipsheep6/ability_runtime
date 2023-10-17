@@ -417,8 +417,7 @@ napi_value JsFeatureAbility::OnGetWindow(napi_env env, napi_callback_info info)
             return;
         }
         auto window = obj->ability_->GetWindow();
-        auto engine = reinterpret_cast<NativeEngine*>(env);
-        task.Resolve(env, reinterpret_cast<napi_value>(OHOS::Rosen::CreateJsWindowObject(*engine, window)));
+        task.Resolve(env, OHOS::Rosen::CreateJsWindowObject(env, window));
     };
 
     auto callback = argc == ARGS_ZERO ? nullptr : argv[PARAM0];

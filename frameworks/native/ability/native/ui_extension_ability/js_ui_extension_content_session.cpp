@@ -656,7 +656,7 @@ void JsUIExtensionContentSession::CallReceiveDataCallback(napi_env env,
         HILOG_WARN("callback is nullptr");
         return;
     }
-    napi_value method = reinterpret_cast<napi_value>(callback->Get());
+    napi_value method = callback->GetNapiValue();
     if (method == nullptr) {
         HILOG_WARN("method is nullptr");
         return;

@@ -523,7 +523,7 @@ void JSUIExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::Eleme
         HILOG_ERROR("jsConnectionObject_ null");
         return;
     }
-    napi_value obj = reinterpret_cast<napi_value>(jsConnectionObject_->Get());
+    napi_value obj = jsConnectionObject_->GetNapiValue();
     if (!CheckTypeForNapiValue(env_, obj, napi_object)) {
         HILOG_ERROR("Failed to get object");
         return;
@@ -566,7 +566,7 @@ void JSUIExtensionConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::El
         HILOG_ERROR("jsConnectionObject_ nullptr");
         return;
     }
-    napi_value obj = reinterpret_cast<napi_value>(jsConnectionObject_->Get());
+    napi_value obj = jsConnectionObject_->GetNapiValue();
     if (!CheckTypeForNapiValue(env_, obj, napi_object)) {
         HILOG_ERROR("Failed to get object");
         return;
@@ -602,7 +602,7 @@ void JSUIExtensionConnection::CallJsFailed(int32_t errorCode)
         HILOG_ERROR("jsConnectionObject_ nullptr.");
         return;
     }
-    napi_value obj = reinterpret_cast<napi_value>(jsConnectionObject_->Get());
+    napi_value obj = jsConnectionObject_->GetNapiValue();
     if (!CheckTypeForNapiValue(env_, obj, napi_object)) {
         HILOG_ERROR("wrong to get object");
         return;
