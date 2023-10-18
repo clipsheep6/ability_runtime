@@ -81,6 +81,7 @@ public:
     void SwitchArea(int mode) override;
     void SetColorMode(int32_t colorMode);
     void SetLanguage(const std::string &language);
+    void ClearUpApplicationData();
     int GetArea() override;
     std::shared_ptr<AppExecFwk::Configuration> GetConfiguration() const override;
     std::string GetBaseDir() const override;
