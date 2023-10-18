@@ -568,11 +568,14 @@ void MainThread::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocI
     int usmblks = mi.usmblks; // 当前从分配器中分配的总的堆内存大小
     int uordblks = mi.uordblks; // 当前已释放给分配器，分配缓存了未释放给系统的内存大小
     int fordblks = mi.fordblks; // 当前未释放的大小
+    int hblkhd = mi.hblkhd; // 堆内存的总共占用大小
     HILOG_DEBUG("The pid of the app we want to dump memory allocation information is: %{public}i", pid);
-    HILOG_DEBUG("usmblks: %{public}i, uordblks: %{public}i, fordblks: %{public}i", usmblks, uordblks, fordblks);
+    HILOG_DEBUG("usmblks: %{public}i, uordblks: %{public}i, fordblks: %{public}i, hblkhd: %{public}i"
+        , usmblks, uordblks, fordblks, hblkhd);
     mallocInfo.usmblks = usmblks;
     mallocInfo.uordblks = uordblks;
     mallocInfo.fordblks = fordblks;
+    mallocInfo.hblkhd = hblkhd;
 }
 
 /**
