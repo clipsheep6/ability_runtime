@@ -467,17 +467,15 @@ void AppMgrServiceInner::LaunchApplication(const std::shared_ptr<AppRunningRecor
         HILOG_ERROR("appRecord is null");
         return;
     }
-    AAFwk::EventInfo eventInfo;
     auto applicationInfo = appRecord->GetApplicationInfo();
+    std::string bundleName = "";
     if (!applicationInfo) {
         HILOG_ERROR("applicationInfo is nullptr, can not get app informations");
     } else {
-        eventInfo.bundleName = applicationInfo->name;
-        eventInfo.versionName = applicationInfo->versionName;
-        eventInfo.versionCode = applicationInfo->versionCode;
+        bundleName = applicationInfo->name;
     }
     std::string connector = "##";
-    std::string traceName = __PRETTY_FUNCTION__ + connector + eventInfo.bundleName;
+    std::string traceName = __PRETTY_FUNCTION__ + connector + bundleName;
     HITRACE_METER_NAME(HITRACE_TAG_APP, traceName);
 
     if (!configuration_) {
@@ -508,23 +506,7 @@ void AppMgrServiceInner::LaunchApplication(const std::shared_ptr<AppRunningRecor
         return;
     }
     appRecord->LaunchPendingAbilities();
-    eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
-    eventInfo.processName = appRecord->GetProcessName();
-    int32_t callerPid = appRecord->GetCallerPid() == -1 ? IPCSkeleton::GetCallingPid() : appRecord->GetCallerPid();
-    auto callerRecord = GetAppRunningRecordByPid(callerPid);
-    if (callerRecord != nullptr) {
-        eventInfo.callerBundleName = callerRecord->GetBundleName();
-        eventInfo.callerUid = callerRecord->GetUid();
-        eventInfo.callerState = static_cast<int32_t>(callerRecord->GetState());
-        auto applicationInfo = callerRecord->GetApplicationInfo();
-        if (applicationInfo != nullptr) {
-            eventInfo.callerVersionName = applicationInfo->versionName;
-            eventInfo.callerVersionCode = applicationInfo->versionCode;
-        }
-    } else {
-        HILOG_ERROR("callerRecord is nullptr, can not get callerBundleName.");
-    }
-    AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_LAUNCH, HiSysEventType::BEHAVIOR, eventInfo);
+    SendAppLaunchEvent(appRecord);
 }
 
 void AppMgrServiceInner::AddAbilityStageDone(const int32_t recordId)
@@ -4645,6 +4627,42 @@ void AppMgrServiceInner::SendReStartProcessEvent(const AAFwk::EventInfo &eventIn
         }
         iter++;
     }
+}
+
+void AppMgrServiceInner::SendAppLaunchEvent(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    if (!appRecord) {
+        HILOG_ERROR("appRecord is null");
+        return;
+    }
+    AAFwk::EventInfo eventInfo;
+    auto applicationInfo = appRecord->GetApplicationInfo();
+    if (!applicationInfo) {
+        HILOG_ERROR("applicationInfo is nullptr, can not get app informations");
+    } else {
+        eventInfo.bundleName = applicationInfo->name;
+        eventInfo.versionName = applicationInfo->versionName;
+        eventInfo.versionCode = applicationInfo->versionCode;
+    }
+    if ( appRecord->GetPriorityObject() != nullptr) {
+        eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
+    }
+    eventInfo.processName = appRecord->GetProcessName();
+    int32_t callerPid = appRecord->GetCallerPid() == -1 ? IPCSkeleton::GetCallingPid() : appRecord->GetCallerPid();
+    auto callerRecord = GetAppRunningRecordByPid(callerPid);
+    if (callerRecord != nullptr) {
+        eventInfo.callerBundleName = callerRecord->GetBundleName();
+        eventInfo.callerUid = callerRecord->GetUid();
+        eventInfo.callerState = static_cast<int32_t>(callerRecord->GetState());
+        auto callerApplicationInfo = callerRecord->GetApplicationInfo();
+        if (callerApplicationInfo != nullptr) {
+            eventInfo.callerVersionName = callerApplicationInfo->versionName;
+            eventInfo.callerVersionCode = callerApplicationInfo->versionCode;
+        }
+    } else {
+        HILOG_ERROR("callerRecord is nullptr, can not get callerBundleName.");
+    }
+    AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_LAUNCH, HiSysEventType::BEHAVIOR, eventInfo);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -1064,9 +1064,6 @@ private:
     int32_t NotifyAbilitysDebugChange(const std::string &bundleName, const bool &isAppDebug);
 
     bool JudgeSelfCalledByToken(const sptr<IRemoteObject> &token, const PageStateData &pageStateData);
-
-    void SendReStartProcessEvent(const AAFwk::EventInfo &eventInfo,
-        const std::shared_ptr<AppRunningRecord> &appRecord);
 private:
     /**
      * Notify application status.
@@ -1084,6 +1081,9 @@ private:
     int FinishUserTestLocked(
         const std::string &msg, const int64_t &resultCode, const std::shared_ptr<AppRunningRecord> &appRecord);
     int32_t GetCurrentAccountId() const;
+    void SendReStartProcessEvent(const AAFwk::EventInfo &eventInfo,
+        const std::shared_ptr<AppRunningRecord> &appRecord);
+    void SendAppLaunchEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
     std::vector<const sptr<IAppStateCallback>> appStateCallbacks_;
     std::shared_ptr<AppProcessManager> appProcessManager_;
