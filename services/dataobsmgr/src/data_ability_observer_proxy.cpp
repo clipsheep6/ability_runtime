@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,12 +31,6 @@ DataAbilityObserverProxy::~DataAbilityObserverProxy()
  */
 void DataAbilityObserverProxy::OnChange()
 {
-    auto remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("remote is nullptr");
-        return;
-    }
-
     OHOS::MessageParcel data;
     OHOS::MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
@@ -46,7 +40,7 @@ void DataAbilityObserverProxy::OnChange()
         return;
     }
 
-    int result = remote->SendRequest(IDataAbilityObserver::DATA_ABILITY_OBSERVER_CHANGE, data, reply, option);
+    int result = SendTransactCmd(IDataAbilityObserver::DATA_ABILITY_OBSERVER_CHANGE, data, reply, option);
     if (result != ERR_NONE) {
         HILOG_ERROR("SendRequest error, result=%{public}d", result);
     }
@@ -59,12 +53,6 @@ void DataAbilityObserverProxy::OnChange()
  */
 void DataAbilityObserverProxy::OnChangeExt(const ChangeInfo &changeInfo)
 {
-    auto remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("remote is nullptr");
-        return;
-    }
-
     OHOS::MessageParcel data;
     OHOS::MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
@@ -79,7 +67,7 @@ void DataAbilityObserverProxy::OnChangeExt(const ChangeInfo &changeInfo)
         return;
     }
 
-    int result = remote->SendRequest(IDataAbilityObserver::DATA_ABILITY_OBSERVER_CHANGE_EXT, data, reply, option);
+    int result = SendTransactCmd(IDataAbilityObserver::DATA_ABILITY_OBSERVER_CHANGE_EXT, data, reply, option);
     if (result != ERR_NONE) {
         HILOG_ERROR("SendRequest error, result=%{public}d", result);
     }
@@ -92,12 +80,6 @@ void DataAbilityObserverProxy::OnChangeExt(const ChangeInfo &changeInfo)
  */
 void DataAbilityObserverProxy::OnChangePreferences(const std::string &key)
 {
-    auto remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("remote is nullptr");
-        return;
-    }
-
     OHOS::MessageParcel data;
     OHOS::MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
@@ -113,10 +95,22 @@ void DataAbilityObserverProxy::OnChangePreferences(const std::string &key)
     }
 
     int result =
-        remote->SendRequest(IDataAbilityObserver::DATA_ABILITY_OBSERVER_CHANGE_PREFERENCES, data, reply, option);
+        SendTransactCmd(IDataAbilityObserver::DATA_ABILITY_OBSERVER_CHANGE_PREFERENCES, data, reply, option);
     if (result != ERR_NONE) {
         HILOG_ERROR("SendRequest error, result=%{public}d", result);
     }
+}
+
+int32_t DataAbilityObserverProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    return remote->SendRequest(code, data, reply, option);
 }
 
 }  // namespace AAFwk

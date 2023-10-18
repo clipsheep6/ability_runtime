@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -44,12 +44,7 @@ bool AbilityControllerProxy::AllowAbilityStart(const Want &want, const std::stri
     }
     data.WriteParcelable(&want);
     data.WriteString(bundleName);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return true;
-    }
-    int32_t ret = remote->SendRequest(
+    int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IAbilityController::Message::TRANSACT_ON_ALLOW_ABILITY_START),
         data, reply, option);
     if (ret != NO_ERROR) {
@@ -68,12 +63,7 @@ bool AbilityControllerProxy::AllowAbilityBackground(const std::string &bundleNam
         return true;
     }
     data.WriteString(bundleName);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return true;
-    }
-    int32_t ret = remote->SendRequest(
+    int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IAbilityController::Message::TRANSACT_ON_ALLOW_ABILITY_BACKGROUND),
         data, reply, option);
     if (ret != NO_ERROR) {
@@ -81,6 +71,18 @@ bool AbilityControllerProxy::AllowAbilityBackground(const std::string &bundleNam
         return true;
     }
     return reply.ReadBool();
+}
+
+int32_t AbilityControllerProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    return remote->SendRequest(code, data, reply, option);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

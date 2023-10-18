@@ -122,6 +122,7 @@ public:
     virtual void UpdateMissionInfo(sptr<SessionInfo> &sessionInfo) override;
 private:
     static inline BrokerDelegator<AbilityManagerCollaboratorProxy> delegator_;
+    int32_t SendTransactCmd(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
 };
 }   // namespace AAFWK
 }   // namespace OHOS
