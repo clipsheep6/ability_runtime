@@ -22,9 +22,10 @@
 #include <thread>
 #include <unordered_map>
 
+#include "EventHandler.h"
+#include "StageContext.h"
 #include "ability_context.h"
 #include "ability_stage_context.h"
-#include "EventHandler.h"
 #include "hilog_wrapper.h"
 #include "js_ability_context.h"
 #include "js_ability_stage_context.h"
@@ -551,6 +552,24 @@ bool SimulatorImpl::OnInit()
         return false;
     }
 
+    panda::JSNApi::SetHostResolveBufferTracker(vm_,
+        [](const std::string &inputPath, uint8_t **buff, size_t *buffSize) -> bool {
+            if (inputPath.empty() || buff == nullptr || buffSize == nullptr) {
+                HILOG_ERROR("Param invalid.");
+                return false;
+            }
+
+            HILOG_DEBUG("Get module buffer, input path: %{public}s.", inputPath.c_str());
+            auto data = Ide::StageContext::GetInstance().GetModuleBuffer(inputPath);
+            if (data == nullptr) {
+                HILOG_ERROR("Get module buffer failed, input path: %{public}s.", inputPath.c_str());
+                return false;
+            }
+
+            *buff = data->data();
+            *buffSize = data->size();
+            return true;
+        });
     panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, (options_.debugPort != 0), options_.debugPort};
     panda::JSNApi::StartDebugger(vm_, debugOption, 0,
         std::bind(&DebuggerTask::OnPostTask, &debuggerTask_, std::placeholders::_1));
