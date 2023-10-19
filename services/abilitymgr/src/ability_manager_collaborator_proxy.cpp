@@ -208,6 +208,34 @@ int32_t AbilityManagerCollaboratorProxy::NotifyMoveMissionToBackground(int32_t m
     return NO_ERROR;
 }
 
+int32_t AbilityManagerCollaboratorProxy::NotifyPreloadAbility(const std::string &bundleName)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+
+    if (!data.WriteInterfaceToken(AbilityManagerCollaboratorProxy::GetDescriptor())) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_OPERATION;
+    }
+    if (!data.WriteString16(Str8ToStr16(bundleName))) {
+        HILOG_ERROR("bundleName write failed.");
+        return ERR_INVALID_OPERATION;
+    }
+    auto remote = Remote();
+    if (!remote) {
+        HILOG_ERROR("remote is nullptr");
+        return ERR_INVALID_OPERATION;
+    }
+    int32_t ret = remote->SendRequest(
+        IAbilityManagerCollaborator::NOTIFY_PRELOAD_ABILITY, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", ret);
+        return ret;
+    }
+    return NO_ERROR;
+}
+
 int32_t AbilityManagerCollaboratorProxy::NotifyMoveMissionToForeground(int32_t missionId)
 {
     MessageParcel data;
