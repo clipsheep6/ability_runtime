@@ -4028,10 +4028,13 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
     std::string bundleName = appRecord->GetBundleName();
 
     if (faultData.faultType == FaultDataType::APP_FREEZE) {
-        if (faultData.timeoutMarkers != "") {
-            if (!taskHandler_->CancelTask(faultData.timeoutMarkers)) {
-                return ERR_OK;
-            }
+        if (faultData.timeoutMarkers != "" &&
+            !taskHandler_->CancelTask(faultData.timeoutMarkers)) {
+            return ERR_OK;
+        }
+
+        if (appRecord->IsDebugApp()) {
+            return ERR_OK;
         }
 
         if (faultData.waitSaveState) {
@@ -4047,11 +4050,7 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
                 .bundleName = bundleName,
                 .processName = bundleName,
             };
-            auto appfreezeManager = AppExecFwk::AppfreezeManager::GetInstance();
-            if (!appfreezeManager->IsHandleAppfreeze(bundleName)) {
-                return;
-            }
-            appfreezeManager->AppfreezeHandle(faultData, info);
+            AppExecFwk::AppfreezeManager::GetInstance()->AppfreezeHandle(faultData, info);
         }
 
         HILOG_WARN("FaultData is: name: %{public}s, faultType: %{public}d, uid: %{public}d, pid: %{public}d,"
@@ -4087,7 +4086,6 @@ void AppMgrServiceInner::TimeoutNotifyApp(int32_t pid, int32_t uid,
 
 int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
 {
-    HILOG_DEBUG("called");
     std::string callerBundleName;
     if (auto bundleMgr = remoteClientManager_->GetBundleManager(); bundleMgr != nullptr) {
         int32_t callingUid = IPCSkeleton::GetCallingUid();
@@ -4107,7 +4105,6 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
             return ERR_INVALID_VALUE;
         }
 
-        int64_t time = SystemTimeMillisecond();
         FaultData transformedFaultData = ConvertDataTypes(faultData);
         int32_t uid = appRecord->GetUid();
         std::string bundleName = appRecord->GetBundleName();
@@ -4118,11 +4115,13 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
         }
 
         if (transformedFaultData.timeoutMarkers.empty()) {
-            transformedFaultData.timeoutMarkers = "notifyFault" + std::to_string(pid) + "-" + std::to_string(time);
+            transformedFaultData.timeoutMarkers = "notifyFault:" + transformedFaultData.errorObject.name +
+                std::to_string(pid) + "-" + std::to_string(SystemTimeMillisecond());
         }
-        const int64_t timeout = 3000;
+        const int64_t timeout = 11000;
         if (faultData.faultType == FaultDataType::APP_FREEZE) {
-            if (!AppExecFwk::AppfreezeManager::GetInstance()->IsHandleAppfreeze(bundleName)) {
+            if (!AppExecFwk::AppfreezeManager::GetInstance()->IsHandleAppfreeze(bundleName) ||
+                appRecord->IsDebugApp()) {
                 return ERR_OK;
             }
             auto timeoutNotifyApp = std::bind(&AppMgrServiceInner::TimeoutNotifyApp, this,
@@ -4144,7 +4143,11 @@ FaultData AppMgrServiceInner::ConvertDataTypes(const AppFaultDataBySA &faultData
 {
     FaultData newfaultData;
     newfaultData.faultType = faultData.faultType;
-    newfaultData.errorObject = faultData.errorObject;
+    newfaultData.errorObject.message =
+        "\nFault time:" + AbilityRuntime::TimeUtil::FormatTime("%Y/%m/%d-%H:%M:%S") + "\n";
+    newfaultData.errorObject.message += faultData.errorObject.message;
+    newfaultData.errorObject.name = faultData.errorObject.name;
+    newfaultData.errorObject.stack = faultData.errorObject.stack;
     newfaultData.timeoutMarkers = faultData.timeoutMarkers;
     newfaultData.waitSaveState = faultData.waitSaveState;
     newfaultData.notifyApp = faultData.notifyApp;

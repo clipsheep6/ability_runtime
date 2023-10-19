@@ -26,6 +26,7 @@
 #include "dfx_dump_catcher.h"
 #include "directory_ex.h"
 #include "hisysevent.h"
+#include "hitrace_meter.h"
 #include "parameter.h"
 #include "singleton.h"
 
@@ -87,16 +88,7 @@ bool AppfreezeManager::IsHandleAppfreeze(const std::string& bundleName)
     if (bundleName.empty()) {
         return true;
     }
-    const int buffSize = 128;
-    char paramOutBuff[buffSize] = {0};
-    GetParameter("hiviewdfx.appfreeze.filter_bundle_name", "", paramOutBuff, buffSize - 1);
-
-    std::string str(paramOutBuff);
-    if (str.find(bundleName) != std::string::npos) {
-        HILOG_WARN("appfreeze filtration %{public}s.", bundleName.c_str());
-        return false;
-    }
-    return true;
+    return !DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->IsAttachDebug(bundleName);
 }
 
 int AppfreezeManager::AppfreezeHandle(const FaultData& faultData, const AppfreezeManager::AppInfo& appInfo)
@@ -106,6 +98,8 @@ int AppfreezeManager::AppfreezeHandle(const FaultData& faultData, const Appfreez
     if (!IsHandleAppfreeze(appInfo.bundleName)) {
         return -1;
     }
+    HITRACE_METER_FMT(HITRACE_TAG_APP, "AppfreezeHandler:%{public}s bundleName:%{public}s",
+        faultData.errorObject.name.c_str(), appInfo.bundleName.c_str());
     if (faultData.errorObject.name == AppFreezeType::APP_INPUT_BLOCK) {
         AcquireStack(faultData, appInfo);
     } else {
@@ -126,8 +120,17 @@ int AppfreezeManager::AppfreezeHandleWithStack(const FaultData& faultData, const
     faultNotifyData.errorObject.message = faultData.errorObject.message;
     faultNotifyData.errorObject.stack = faultData.errorObject.stack + "\n";
     faultNotifyData.faultType = FaultDataType::APP_FREEZE;
+
+    HITRACE_METER_FMT(HITRACE_TAG_APP, "AppfreezeHandleWithStack pid:%d-name:%s",
+        appInfo.pid, faultData.errorObject.name.c_str());
     faultNotifyData.errorObject.stack += CatcherStacktrace(appInfo.pid);
-    return AppfreezeHandle(faultNotifyData, appInfo);
+
+    if (faultNotifyData.errorObject.name == AppFreezeType::APP_INPUT_BLOCK) {
+        AcquireStack(faultNotifyData, appInfo);
+    } else {
+        NotifyANR(faultNotifyData, appInfo);
+    }
+    return 0;
 }
 
 int AppfreezeManager::LifecycleTimeoutHandle(const ParamInfo& info, std::unique_ptr<FreezeUtil::LifecycleFlow> flow)
@@ -144,6 +147,8 @@ int AppfreezeManager::LifecycleTimeoutHandle(const ParamInfo& info, std::unique_
     }
     HILOG_DEBUG("LifecycleTimeoutHandle called %{public}s, name_ %{public}s",
         info.bundleName.c_str(), name_.c_str());
+    HITRACE_METER_FMT(HITRACE_TAG_APP, "LifecycleTimeoutHandle:%{public}s bundleName:%{public}s",
+        info.eventName.c_str(), info.bundleName.c_str());
     AppFaultDataBySA faultDataSA;
     faultDataSA.errorObject.name = info.eventName;
     faultDataSA.errorObject.message = info.msg;
@@ -307,6 +312,7 @@ void AppfreezeManager::ParseBinderPids(const std::map<int, std::set<int>>& binde
 
 std::string AppfreezeManager::CatcherStacktrace(int pid) const
 {
+    HITRACE_METER_FMT(HITRACE_TAG_APP, "CatcherStacktrace pid:%d", pid);
     HiviewDFX::DfxDumpCatcher dumplog;
     std::string ret;
     std::string msg;
