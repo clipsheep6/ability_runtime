@@ -24,12 +24,14 @@
 #include "js_error_utils.h"
 #include "js_runtime_utils.h"
 #include "js_ui_extension_context.h"
+#include "string_wrapper.h"
 #include "napi_common_start_options.h"
 #include "napi_common_util.h"
 #include "napi_common_want.h"
 #include "native_engine.h"
 #include "native_value.h"
 #include "tokenid_kit.h"
+#include "ui_content.h"
 #include "want.h"
 #include "window.h"
 
@@ -38,9 +40,13 @@ namespace AbilityRuntime {
 namespace {
 constexpr int32_t INDEX_ZERO = 0;
 constexpr int32_t INDEX_ONE = 1;
+constexpr int32_t INDEX_TWO = 2;
+constexpr int32_t INDEX_THREE = 3;
 constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
+constexpr size_t ARGC_THREE = 3;
 constexpr const char* PERMISSION_PRIVACY_WINDOW = "ohos.permission.PRIVACY_WINDOW";
+const std::string UIEXTENSION_TARGET_TYPE_KEY = "ability.want.params.uiExtensionTargetType";
 } // namespace
 
 #define CHECK_IS_SYSTEM_APP                                                             \
@@ -158,6 +164,11 @@ napi_value JsUIExtensionContentSession::SetWindowBackgroundColor(napi_env env, n
 napi_value JsUIExtensionContentSession::SetWindowPrivacyMode(napi_env env, napi_callback_info info)
 {
     GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnSetWindowPrivacyMode);
+}
+
+napi_value JsUIExtensionContentSession::StartAbilityByType(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnStartAbilityByType);
 }
 
 napi_value JsUIExtensionContentSession::OnStartAbility(napi_env env, NapiCallbackInfo& info)
@@ -585,6 +596,61 @@ napi_value JsUIExtensionContentSession::OnSetWindowPrivacyMode(napi_env env, Nap
     return result;
 }
 
+napi_value JsUIExtensionContentSession::OnStartAbilityByType(napi_env env, NapiCallbackInfo& info)
+{
+    HILOG_INFO("called");
+    if (info.argc < ARGC_THREE) {
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    std::string type;
+    if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], type)) {
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+
+    AAFwk::WantParams wantParam;
+    if (!AppExecFwk::UnwrapWantParams(env, info.argv[INDEX_ONE], wantParam)) {
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+
+    wantParam.SetParam(UIEXTENSION_TARGET_TYPE_KEY, AAFwk::String::Box(type));
+    AAFwk::Want want;
+    want.SetParams(wantParam);
+    std::shared_ptr<JsUIExtensionCallback> uiExtensionCallback = std::make_shared<JsUIExtensionCallback>(env);
+    uiExtensionCallback->SetJsCallbackObject(info.argv[INDEX_TWO]);
+    NapiAsyncTask::CompleteCallback complete = [uiWindow = uiWindow_, type, want, uiExtensionCallback]
+        (napi_env env, NapiAsyncTask& task, int32_t status) {
+            if (uiWindow == nullptr) {
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            auto uiContent = uiWindow->GetUIContent();
+            if (uiContent == nullptr) {
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            Ace::ModalUIExtensionCallbacks callback;
+            callback.onError = std::bind(&JsUIExtensionCallback::OnError, uiExtensionCallback, std::placeholders::_1);
+            Ace::ModalUIExtensionConfig config;
+            config.isProhibitBack = true;
+            int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
+            if (sessionId == 0) {
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+            } else {
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
+            }
+        };
+
+    napi_value lastParam = (info.argc > ARGC_THREE) ? info.argv[INDEX_THREE] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JsUIExtensionContentSession::OnStartAbilityByType",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
 napi_value JsUIExtensionContentSession::CreateJsUIExtensionContentSession(napi_env env,
     sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow,
     std::weak_ptr<AbilityRuntime::Context> context,
@@ -612,6 +678,7 @@ napi_value JsUIExtensionContentSession::CreateJsUIExtensionContentSession(napi_e
     BindNativeFunction(env, object, "setWindowPrivacyMode", moduleName, SetWindowPrivacyMode);
     BindNativeFunction(env, object, "startAbility", moduleName, StartAbility);
     BindNativeFunction(env, object, "startAbilityForResult", moduleName, StartAbilityForResult);
+    BindNativeFunction(env, object, "startAbilityByType", moduleName, StartAbilityByType);
     return object;
 }
 
@@ -640,6 +707,7 @@ napi_value JsUIExtensionContentSession::CreateJsUIExtensionContentSession(napi_e
     BindNativeFunction(env, object, "setWindowPrivacyMode", moduleName, SetWindowPrivacyMode);
     BindNativeFunction(env, object, "startAbility", moduleName, StartAbility);
     BindNativeFunction(env, object, "startAbilityForResult", moduleName, StartAbilityForResult);
+    BindNativeFunction(env, object, "startAbilityByType", moduleName, StartAbilityByType);
     return object;
 }
 

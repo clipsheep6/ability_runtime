@@ -67,6 +67,7 @@ public:
     static napi_value LoadContent(napi_env env, napi_callback_info info);
     static napi_value SetWindowBackgroundColor(napi_env env, napi_callback_info info);
     static napi_value SetWindowPrivacyMode(napi_env env, napi_callback_info info);
+    static napi_value StartAbilityByType(napi_env env, napi_callback_info info);
 
 protected:
     napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info);
@@ -78,6 +79,7 @@ protected:
     napi_value OnLoadContent(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetWindowBackgroundColor(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetWindowPrivacyMode(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStartAbilityByType(napi_env env, NapiCallbackInfo& info);
 
     static void CallReceiveDataCallback(napi_env env, std::weak_ptr<CallbackWrapper> weakCallback,
         const AAFwk::WantParams& wantParams);

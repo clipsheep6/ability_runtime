@@ -67,6 +67,7 @@
 #include "start_ability_handler/start_ability_sandbox_savefile.h"
 #include "start_options.h"
 #include "string_ex.h"
+#include "string_wrapper.h"
 #include "system_ability_definition.h"
 #include "system_ability_token_callback.h"
 #include "ui_extension_utils.h"
@@ -124,6 +125,7 @@ const char* PREPARE_TERMINATE_ENABLE_PARAMETER = "persist.sys.prepare_terminate"
 const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
 // UIExtension type
 const std::string UIEXTENSION_TYPE_KEY = "ability.want.params.uiExtensionType";
+const std::string UIEXTENSION_TARGET_TYPE_KEY = "ability.want.params.uiExtensionTargetType";
 // Share picker params
 constexpr char SHARE_PICKER_DIALOG_BUNDLE_NAME_KEY[] = "const.system.sharePicker.bundleName";
 constexpr char SHARE_PICKER_DIALOG_ABILITY_NAME_KEY[] = "const.system.sharePicker.abilityName";
@@ -1973,10 +1975,41 @@ int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sp
     return eventInfo.errCode;
 }
 
+void AbilityManagerService::SetPickerElementName(const sptr<SessionInfo> &extensionSessionInfo)
+{
+    std::string targetType = extensionSessionInfo->want.GetStringParam(UIEXTENSION_TARGET_TYPE_KEY);
+    if (extensionSessionInfo->want.GetElement().GetBundleName().empty() &&
+        extensionSessionInfo->want.GetElement().GetAbilityName().empty() && !targetType.empty()) {
+        nlohmann::json jsonObject = AmsConfigurationParameter::GetInstance().GetPickerJsonObject();
+        std::string abilityName;
+        std::string bundleName;
+        std::string pickerType;
+        if (jsonObject.contains(targetType) &&
+            jsonObject.at(targetType).contains(AmsConfig::ABILITY_NAME) &&
+            jsonObject.at(targetType).at(AmsConfig::ABILITY_NAME).is_string()) {
+            abilityName = jsonObject.at(targetType).at(AmsConfig::ABILITY_NAME).get<std::string>();
+        }
+        if (jsonObject.contains(targetType) &&
+            jsonObject.at(targetType).contains(AmsConfig::BUNDLE_NAME) &&
+            jsonObject.at(targetType).at(AmsConfig::BUNDLE_NAME).is_string()) {
+            bundleName = jsonObject.at(targetType).at(AmsConfig::BUNDLE_NAME).get<std::string>();
+        }
+        if (jsonObject.contains(targetType) &&
+            jsonObject.at(targetType).contains(AmsConfig::PICKER_TYPE) &&
+            jsonObject.at(targetType).at(AmsConfig::PICKER_TYPE).is_string()) {
+            pickerType = jsonObject.at(targetType).at(AmsConfig::PICKER_TYPE).get<std::string>();
+        }
+        extensionSessionInfo->want.SetElementName(bundleName, abilityName);
+        WantParams &parameters = const_cast<WantParams &>(extensionSessionInfo->want.GetParams());
+        parameters.SetParam(UIEXTENSION_TYPE_KEY, AAFwk::String::Box(pickerType));
+        extensionSessionInfo->want.SetParams(parameters);
+    }
+}
 int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo, int32_t userId)
 {
     HILOG_DEBUG("Start ui extension ability come");
     CHECK_POINTER_AND_RETURN(extensionSessionInfo, ERR_INVALID_VALUE);
+    SetPickerElementName(extensionSessionInfo);
     std::string extensionTypeStr = extensionSessionInfo->want.GetStringParam(UIEXTENSION_TYPE_KEY);
     AppExecFwk::ExtensionAbilityType extensionType = extensionTypeStr.empty() ?
         AppExecFwk::ExtensionAbilityType::UI : AppExecFwk::ConvertToExtensionAbilityType(extensionTypeStr);

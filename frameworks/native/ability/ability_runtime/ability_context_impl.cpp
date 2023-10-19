@@ -28,12 +28,14 @@
 #include "session/host/include/zidl/session_interface.h"
 #include "session_info.h"
 #include "string_wrapper.h"
+#include "ui_content.h"
 #include "want_params_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 const size_t AbilityContext::CONTEXT_TYPE_ID(std::hash<const char*> {} ("AbilityContext"));
 const std::string START_ABILITY_TYPE = "ABILITY_INNER_START_WITH_ACCOUNT";
+const std::string UIEXTENSION_TARGET_TYPE_KEY = "ability.want.params.uiExtensionTargetType";
 
 struct RequestResult {
     int32_t resultCode {0};
@@ -731,6 +733,30 @@ Ace::UIContent* AbilityContextImpl::GetUIContent()
     }
 
     return abilityCallback->GetUIContent();
+}
+
+ErrCode AbilityContextImpl::StartAbilityByType(const std::string &type,
+    AAFwk::WantParams &wantParams, const std::shared_ptr<JsUIExtensionCallback> &uiExtensionCallbacks)
+{
+    HILOG_DEBUG("call");
+    auto uiContent = GetUIContent();
+    if (uiContent == nullptr) {
+        HILOG_ERROR("uiContent is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    wantParams.SetParam(UIEXTENSION_TARGET_TYPE_KEY, AAFwk::String::Box(type));
+    AAFwk::Want want;
+    want.SetParams(wantParams);
+    Ace::ModalUIExtensionCallbacks callback;
+    callback.onError = std::bind(&JsUIExtensionCallback::OnError, uiExtensionCallbacks, std::placeholders::_1);
+    Ace::ModalUIExtensionConfig config;
+    config.isProhibitBack = true;
+    int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
+    if (sessionId == 0) {
+        HILOG_ERROR("CreateModalUIExtension is failed");
+        return ERR_INVALID_VALUE;
+    }
+    return ERR_OK;
 }
 #endif
 } // namespace AbilityRuntime

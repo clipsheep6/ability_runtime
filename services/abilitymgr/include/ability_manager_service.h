@@ -1737,6 +1737,8 @@ private:
      */
     void StopSwitchUserDialogInner(const Want &want, const int32_t stopUserId);
 
+    void SetPickerElementName(const sptr<SessionInfo> &extensionSessionInfo);
+
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 

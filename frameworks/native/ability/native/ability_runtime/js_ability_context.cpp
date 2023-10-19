@@ -45,7 +45,10 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+constexpr int32_t INDEX_ZERO = 0;
+constexpr int32_t INDEX_ONE = 1;
 constexpr int32_t INDEX_TWO = 2;
+constexpr int32_t INDEX_THREE = 3;
 constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
@@ -192,6 +195,11 @@ napi_value JsAbilityContext::ReportDrawnCompleted(napi_env env, napi_callback_in
 napi_value JsAbilityContext::IsTerminating(napi_env env, napi_callback_info info)
 {
     GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnIsTerminating);
+}
+
+napi_value JsAbilityContext::StartAbilityByType(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnStartAbilityByType);
 }
 
 void JsAbilityContext::ClearFailedCallConnection(
@@ -1350,6 +1358,8 @@ napi_value CreateJsAbilityContext(napi_env env, std::shared_ptr<AbilityContext> 
         JsAbilityContext::ReportDrawnCompleted);
     BindNativeFunction(env, object, "setMissionContinueState", moduleName,
         JsAbilityContext::SetMissionContinueState);
+    BindNativeFunction(env, object, "startAbilityByType", moduleName,
+        JsAbilityContext::StartAbilityByType);
 
 #ifdef SUPPORT_GRAPHICS
     BindNativeFunction(env, object, "setMissionLabel", moduleName, JsAbilityContext::SetMissionLabel);
@@ -1714,5 +1724,54 @@ napi_value JsAbilityContext::OnSetMissionIcon(napi_env env, NapiCallbackInfo& in
     return result;
 }
 #endif
+
+napi_value JsAbilityContext::OnStartAbilityByType(napi_env env, NapiCallbackInfo& info)
+{
+    HILOG_INFO("call");
+    if (info.argc < ARGC_THREE) {
+        HILOG_ERROR("OnStartAbilityByType, Not enough params");
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    std::string type;
+    if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], type)) {
+        HILOG_ERROR("OnStartAbilityByType, parse type failed.");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+
+    AAFwk::WantParams wantParam;
+    if (!AppExecFwk::UnwrapWantParams(env, info.argv[INDEX_ONE], wantParam)) {
+        HILOG_ERROR("OnStartAbilityByType, parse wantParam failed.");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+
+    std::shared_ptr<JsUIExtensionCallback> callback = std::make_shared<JsUIExtensionCallback>(env);
+    callback->SetJsCallbackObject(info.argv[INDEX_TWO]);
+    NapiAsyncTask::CompleteCallback complete =
+        [weak = context_, type, wantParam, callback](napi_env env, NapiAsyncTask& task, int32_t status) mutable {
+            auto context = weak.lock();
+            if (!context) {
+                HILOG_WARN("OnStartAbilityByType context is released");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                return;
+            }
+
+            auto errcode = context->StartAbilityByType(type, wantParam, callback);
+            if (errcode != 0) {
+                task.Reject(env, CreateJsErrorByNativeErr(env, errcode));
+            } else {
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
+            }
+        };
+
+    napi_value lastParam = (info.argc > ARGC_THREE) ? info.argv[INDEX_THREE] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnStartAbilityByType",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS
