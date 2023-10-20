@@ -19,6 +19,7 @@
 #include "mock_native_token.h"
 #include "system_ability_definition.h"
 #include "system_ability_manager_client.h"
+#include "tokenid_kit.h"
 #define private public
 #include "uri_permission_manager_stub_impl.h"
 #undef private

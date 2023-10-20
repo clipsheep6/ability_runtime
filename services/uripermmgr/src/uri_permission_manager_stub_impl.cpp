@@ -30,6 +30,7 @@
 #include "permission_constants.h"
 #include "permission_verification.h"
 #include "system_ability_definition.h"
+#include "tokenid_kit.h"
 #include "want.h"
 
 namespace OHOS {
@@ -676,9 +677,9 @@ void UriPermissionManagerStubImpl::InitPersistableUriPermissionConfig()
 void UriPermissionManagerStubImpl::SendEvent(const Uri &uri, const std::string &targetBundleName,
     uint32_t targetTokenId, const std::vector<std::string> &uriVec)
 {
-    auto isSaCall = PermissionVerification::GetInstance()->IsSACall();
-    auto calleeTokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(targetTokenId);
-    if (isSaCall && calleeTokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
+    auto isSystemAppCall = PermissionVerification::GetInstance()->IsSystemAppCall();
+    auto targetIsSystemApp = Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(targetTokenId);
+    if (isSystemAppCall && !targetIsSystemApp) {
         EventInfo eventInfo;
         Uri uri_inner = uri;
         eventInfo.bundleName = targetBundleName;
