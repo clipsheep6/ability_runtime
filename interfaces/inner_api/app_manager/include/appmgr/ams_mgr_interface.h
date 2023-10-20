@@ -176,8 +176,6 @@ public:
 
     virtual void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response) = 0;
 
-    virtual void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo) = 0;
-
     virtual int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application, bool &debug) = 0;
 
     /**
@@ -273,7 +271,6 @@ public:
         DETACH_APP_DEBUG,
         REGISTER_ABILITY_DEBUG_RESPONSE,
         IS_ATTACH_DEBUG,
-        START_SPECIFIED_PROCESS,
     };
 };
 }  // namespace AppExecFwk

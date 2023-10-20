@@ -320,21 +320,6 @@ void AmsMgrScheduler::StartSpecifiedAbility(const AAFwk::Want &want, const AppEx
     amsHandler_->SubmitTask(task);
 }
 
-void AmsMgrScheduler::StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
-{
-    HILOG_DEBUG("TempLog: AmsMgrScheduler::StartSpecifiedProcess");
-    if (!IsReady()) {
-        return;
-    }
-
-    if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
-        HILOG_ERROR("Permission verification failed.");
-        return;
-    }
-    auto task = [=]() { amsMgrServiceInner_->StartSpecifiedProcess(want, abilityInfo); };
-    amsHandler_->SubmitTask(task);
-}
-
 void AmsMgrScheduler::RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response)
 {
     if (!IsReady()) {

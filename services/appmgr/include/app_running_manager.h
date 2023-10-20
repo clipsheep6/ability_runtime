@@ -66,8 +66,6 @@ public:
     std::shared_ptr<AppRunningRecord> CheckAppRunningRecordIsExist(const std::string &appName,
         const std::string &processName, const int uid, const BundleInfo &bundleInfo);
 
-    std::shared_ptr<AppRunningRecord> FindFirstAppRunningRecordByBundleName(const std::string &appName);
-
     /**
      * CheckAppRunningRecordIsExistByBundleName, Check whether the process of the application exists.
      *

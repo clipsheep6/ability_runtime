@@ -182,23 +182,11 @@ int MissionListManager::StartAbility(AbilityRequest &abilityRequest)
 int MissionListManager::StartAbility(const std::shared_ptr<AbilityRecord> &currentTopAbility,
     const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest)
 {
-    // 是否运行在指定进程
-    auto abilityInfo = abilityRequest.abilityInfo;
-    bool isUIAbility = (abilityInfo.type == AppExecFwk::AbilityType::PAGE && abilityInfo.isStageBasedModel);
-    bool isPc = true; 
-    bool isStartSpecifiedProcess = (abilityInfo.bundleName == "com.example.specificprocess2" && abilityInfo.name != "EntryAbility");
-    if (isPc && isUIAbility && isStartSpecifiedProcess) {
-        HILOG_DEBUG("TempLog: StartSpecifiedProcess");
-        EnqueueWaitingAbilityToFront(abilityRequest);
-        DelayedSingleton<AppScheduler>::GetInstance()->StartSpecifiedProcess(abilityRequest.want, abilityInfo);
-        return 0;
-    }
-    // 指定实例运行
-    auto isSpecified = (abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED);
+    auto isSpecified = (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED);
     if (isSpecified) {
         EnqueueWaitingAbilityToFront(abilityRequest);
         DelayedSingleton<AppScheduler>::GetInstance()->StartSpecifiedAbility(
-            abilityRequest.want, abilityInfo);
+            abilityRequest.want, abilityRequest.abilityInfo);
         return 0;
     }
 
@@ -3325,52 +3313,6 @@ void MissionListManager::OnCallConnectDied(const std::shared_ptr<CallRecord> &ca
     CHECK_POINTER(abilityRecord);
     abilityRecord->ReleaseCall(callRecord->GetConCallBack());
 }
-
-void MissionListManager::OnStartSpecifiedProcessResponse(const AAFwk::Want &want, const std::string &flag)
-{
-    HILOG_DEBUG("TempLog: OnStartSpecifiedProcessResponse, flag = %{public}s", flag.c_str());
-    std::lock_guard guard(managerLock_);
-    if (waitingAbilityQueue_.empty()) {
-        return;
-    }
-    AbilityRequest abilityRequest = waitingAbilityQueue_.front();
-    waitingAbilityQueue_.pop();
-    abilityRequest.abilityInfo.specifiedProcessFlag = flag;
-    auto currentTopAbility = GetCurrentTopAbilityLocked();
-    auto callerAbility = GetAbilityRecordByTokenInner(abilityRequest.callerToken);
-    auto isSpecified = (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED);
-    if (isSpecified) {
-        HILOG_DEBUG("TempLog: isSpecified");
-        EnqueueWaitingAbilityToFront(abilityRequest);
-        DelayedSingleton<AppScheduler>::GetInstance()->StartSpecifiedAbility(
-            abilityRequest.want, abilityRequest.abilityInfo);
-        return;
-    }
-    StartAbilityLocked(currentTopAbility, callerAbility, abilityRequest);
-}
-
-void MissionListManager::OnStartSpecifiedProcessTimeoutResponse(const AAFwk::Want &want)
-{
-    HILOG_DEBUG("TempLog %{public}s called.", __func__);
-    std::lock_guard guard(managerLock_);
-    if (waitingAbilityQueue_.empty()) {
-        return;
-    }
-    waitingAbilityQueue_.pop();
-
-    if (waitingAbilityQueue_.empty()) {
-        return;
-    }
-    AbilityRequest abilityRequest = waitingAbilityQueue_.front();
-    waitingAbilityQueue_.pop();
-
-    auto currentTopAbility = GetCurrentTopAbilityLocked();
-    auto callerAbility = GetAbilityRecordByTokenInner(abilityRequest.callerToken);
-    if (StartAbility(currentTopAbility, callerAbility, abilityRequest) == 0 && !abilityRequest.abilityInfo.visible) {
-        SendKeyEvent(abilityRequest);
-    }
-}
-
 void MissionListManager::OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag)
 {
     std::lock_guard guard(managerLock_);
@@ -3380,7 +3322,6 @@ void MissionListManager::OnAcceptWantResponse(const AAFwk::Want &want, const std
 
     AbilityRequest abilityRequest = waitingAbilityQueue_.front();
     waitingAbilityQueue_.pop();
-    HILOG_DEBUG("TempLog: specifiedProcessFlag = %{public}s", abilityRequest.abilityInfo.specifiedProcessFlag.c_str());
 
     auto currentTopAbility = GetCurrentTopAbilityLocked();
     auto callerAbility = GetAbilityRecordByTokenInner(abilityRequest.callerToken);

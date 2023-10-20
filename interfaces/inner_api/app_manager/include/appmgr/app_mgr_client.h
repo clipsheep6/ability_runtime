@@ -348,23 +348,6 @@ public:
     virtual void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response);
 
     /**
-     * Start specified process.
-     *
-     * @param want Want contains information wish to start.
-     * @param abilityInfo Ability information.
-     */
-    virtual void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
-
-    /**
-     * Schedule accept want done.
-     *
-     * @param recordId Application record.
-     * @param want Want.
-     * @param flag flag get from StartSpecifiedProcess.
-     */
-    virtual void ScheduleStartSpecifiedProcessDone(const int32_t recordId, const AAFwk::Want &want, const std::string &flag);
-
-    /**
      * Schedule accept want done.
      *
      * @param recordId Application record.

@@ -77,7 +77,6 @@ private:
     int32_t HandleStartUserTestProcess(MessageParcel &data, MessageParcel &reply);
     int32_t HandleFinishUserTest(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleAcceptWantDone(MessageParcel &data, MessageParcel &reply);
-    int32_t HandleScheduleStartSpecifiedProcessDone(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetAbilityRecordsByProcessID(MessageParcel &data, MessageParcel &reply);
     int32_t HandlePreStartNWebSpawnProcess(MessageParcel &data, MessageParcel &reply);
     int32_t HandleStartRenderProcess(MessageParcel &data, MessageParcel &reply);

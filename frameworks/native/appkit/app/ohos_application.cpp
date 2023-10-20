@@ -729,18 +729,6 @@ void OHOSApplication::ScheduleAcceptWant(const AAFwk::Want &want, const std::str
     }
 }
 
-void OHOSApplication::ScheduleStartSpecifiedProcess(const AAFwk::Want &want, const std::string &moduleName, std::string &flag)
-{
-    HILOG_DEBUG("TempLog: OHOSApplication::ScheduleStartSpecifiedProcess: called");
-    auto iter = abilityStages_.find(moduleName);
-    if (iter != abilityStages_.end()) {
-        auto abilityStage = iter->second;
-        if (abilityStage) {
-            flag = abilityStage->OnStartSpecifiedProcess(want);
-        }
-    }
-}
-
 std::shared_ptr<Configuration> OHOSApplication::GetConfiguration()
 {
     return configuration_;

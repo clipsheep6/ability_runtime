@@ -270,8 +270,6 @@ public:
 
     void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName, std::string &flag);
 
-    void ScheduleStartSpecifiedProcess(const AAFwk::Want &want, const std::string &moduleName, std::string &flag);
-
     virtual std::shared_ptr<Configuration> GetConfiguration();
 
     void GetExtensionNameByType(int32_t type, std::string &name)
