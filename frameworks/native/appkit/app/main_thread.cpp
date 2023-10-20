@@ -2382,6 +2382,42 @@ void MainThread::ScheduleAcceptWant(const AAFwk::Want &want, const std::string &
     }
 }
 
+void MainThread::HandleScheduleStartSpecifiedProcess(const AAFwk::Want &want, const std::string &moduleName)
+{
+    HILOG_DEBUG("TempLog: MainThread::HandleScheduleStartSpecifiedProcess");
+    if (!application_) {
+        HILOG_ERROR("application_ is nullptr");
+        return;
+    }
+
+    std::string specifiedProcessFlag;
+    application_->ScheduleStartSpecifiedProcess(want, moduleName, specifiedProcessFlag);
+
+    if (!appMgr_ || !applicationImpl_) {
+        HILOG_ERROR("appMgr_ is nullptr");
+        return;
+    }
+
+    appMgr_->ScheduleStartSpecifiedProcessDone(applicationImpl_->GetRecordId(), want, specifiedProcessFlag);
+}
+
+void MainThread::ScheduleStartSpecifiedProcess(const AAFwk::Want &want, const std::string &moduleName)
+{
+    HILOG_DEBUG("TempLog: start");
+    wptr<MainThread> weak = this;
+    auto task = [weak, want, moduleName]() {
+        auto appThread = weak.promote();
+        if (appThread == nullptr) {
+            HILOG_ERROR("abilityThread is nullptr, HandleSchedulStartSpecifiedProcess failed.");
+            return;
+        }
+        appThread->HandleScheduleStartSpecifiedProcess(want, moduleName);
+    };
+    if (!mainHandler_->PostTask(task, "MainThread:StartSpecifiedProcess")) {
+        HILOG_ERROR("PostTask task failed");
+    }
+}
+
 void MainThread::CheckMainThreadIsAlive()
 {
     if (watchdog_ == nullptr) {

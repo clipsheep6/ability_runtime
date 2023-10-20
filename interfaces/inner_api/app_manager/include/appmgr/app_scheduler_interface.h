@@ -163,6 +163,8 @@ public:
 
     virtual void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) = 0;
 
+    virtual void ScheduleStartSpecifiedProcess(const AAFwk::Want &want, const std::string &moduleName) = 0;
+
     /**
      * @brief Notify application load patch.
      *
@@ -243,6 +245,7 @@ public:
         APP_GC_STATE_CHANGE,
         SCHEDULE_ATTACH_APP_DEBUG,
         SCHEDULE_DETACH_APP_DEBUG,
+        SCHEDULE_START_SPECIFIED_PROCESS,
     };
 };
 }  // namespace AppExecFwk

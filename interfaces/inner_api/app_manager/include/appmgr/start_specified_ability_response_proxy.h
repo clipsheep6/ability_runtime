@@ -29,6 +29,10 @@ public:
 
     virtual void OnTimeoutResponse(const AAFwk::Want &want) override;
 
+    virtual void OnStartSpecifiedProcessResponse(const AAFwk::Want &want, const std::string &flag) override;
+    
+    virtual void OnStartSpecifiedProcessTimeoutResponse(const AAFwk::Want &want) override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     static inline BrokerDelegator<StartSpecifiedAbilityResponseProxy> delegator_;

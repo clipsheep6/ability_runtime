@@ -127,6 +127,7 @@ constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 const std::string EVENT_MESSAGE_TERMINATE_ABILITY_TIMEOUT = "Terminate Ability TimeOut!";
 const std::string EVENT_MESSAGE_TERMINATE_APPLICATION_TIMEOUT = "Terminate Application TimeOut!";
 const std::string EVENT_MESSAGE_ADD_ABILITY_STAGE_INFO_TIMEOUT = "Add Ability Stage TimeOut!";
+const std::string EVENT_MESSAGE_START_SPECIFIED_PROCESS_TIMEOUT = "Start Specified Process Timeout!";
 const std::string EVENT_MESSAGE_START_SPECIFIED_ABILITY_TIMEOUT = "Start Specified Ability TimeOut!";
 const std::string EVENT_MESSAGE_START_PROCESS_SPECIFIED_ABILITY_TIMEOUT = "Start Process Specified Ability TimeOut!";
 const std::string EVENT_MESSAGE_DEFAULT = "AppMgrServiceInner HandleTimeOut!";
@@ -204,6 +205,33 @@ void AppMgrServiceInner::Init()
 AppMgrServiceInner::~AppMgrServiceInner()
 {}
 
+void AppMgrServiceInner::StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo) {
+    HILOG_DEBUG("TempLog: StartSpecifiedProcess call.");
+    BundleInfo bundleInfo;
+    HapModuleInfo hapModuleInfo;
+    auto appInfo = std::make_shared<ApplicationInfo>(abilityInfo.applicationInfo);
+
+    int32_t appIndex = want.GetIntParam(DLP_PARAMS_INDEX, 0);
+    if (!GetBundleAndHapInfo(abilityInfo, appInfo, bundleInfo, hapModuleInfo, appIndex)) {
+        return;
+    }
+
+    std::vector<HapModuleInfo> hapModules;
+    hapModules.emplace_back(hapModuleInfo);
+    auto mainAppRecord = appRunningManager_->FindFirstAppRunningRecordByBundleName(bundleInfo.name);
+    if (mainAppRecord == nullptr) {
+        HILOG_DEBUG("TempLog: main process do not exists.");
+        if (startSpecifiedAbilityResponse_) {
+            startSpecifiedAbilityResponse_->OnStartSpecifiedProcessResponse(want, "");
+        }
+    } else {
+        HILOG_DEBUG("TempLog: main process exists.");
+        // 回调SpecifiedFlag
+        mainAppRecord->SetSpecifiedAbilityFlagAndWant(false, want, hapModuleInfo.moduleName);
+        mainAppRecord->ScheduleStartSpecifiedProcess(want, hapModuleInfo.moduleName);
+    }
+}
+
 void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
     const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
     const std::shared_ptr<AAFwk::Want> &want)
@@ -233,10 +261,15 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
         HILOG_ERROR("GetBundleAndHapInfo failed");
         return;
     }
-
+    // 同步方法回调SpecifiedProcess，获取Flag，用于创建主进程。
+    // getSpecifiedProcessFlag: 方法
     std::string processName;
+    HILOG_DEBUG("TempLog: specifiedProcessFlag = %{public}s", abilityInfo->specifiedProcessFlag.c_str());
     MakeProcessName(abilityInfo, appInfo, hapModuleInfo, appIndex, processName);
-
+    if (!abilityInfo->specifiedProcessFlag.empty()) {
+        processName += ":" + abilityInfo->specifiedProcessFlag;
+    }
+    HILOG_DEBUG("TempLog: processName = %{public}s", processName.c_str());
     auto appRecord =
         appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name, processName, appInfo->uid, bundleInfo);
     if (!appRecord) {
@@ -311,6 +344,7 @@ void AppMgrServiceInner::MakeProcessName(const std::shared_ptr<AbilityInfo> &abi
         HILOG_INFO("Process not null");
         processName = abilityInfo->process;
         return;
+
     }
     MakeProcessName(appInfo, hapModuleInfo, processName);
     if (appIndex != 0) {
@@ -2345,6 +2379,10 @@ void AppMgrServiceInner::HandleTimeOut(const AAFwk::EventWrap &event)
             SendHiSysEvent(event.GetEventId(), event.GetParam());
             HandleTerminateApplicationTimeOut(event.GetParam());
             break;
+        case AMSEventHandler::START_SPECIFIED_PROCESS_TIMEOUT_MSG:
+            SendHiSysEvent(event.GetEventId(), event.GetParam());
+            HandleStartSpecifiedProcessTimeout(event.GetParam());
+            break;
         case AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG:
         case AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG:
             SendHiSysEvent(event.GetEventId(), event.GetParam());
@@ -2449,6 +2487,9 @@ void AppMgrServiceInner::HandleAddAbilityStageTimeOut(const int64_t eventId)
     if (appRecord->IsStartSpecifiedAbility() && startSpecifiedAbilityResponse_) {
         startSpecifiedAbilityResponse_->OnTimeoutResponse(appRecord->GetSpecifiedWant());
     }
+
+    auto pid = appRecord->GetPriorityObject()->GetPid();
+    HILOG_DEBUG("TempLog: pid = %{public}i", pid);
 
     KillApplicationByRecord(appRecord);
 }
@@ -2908,7 +2949,9 @@ int AppMgrServiceInner::FinishUserTestLocked(
 
 void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
 {
+    // 指定实例模式
     HILOG_DEBUG("Start specified ability.");
+    HILOG_DEBUG("TempLog: abilityInfo.specifiedProcessFlag = %{public}s", abilityInfo.specifiedProcessFlag.c_str());
     if (!CheckRemoteClient()) {
         return;
     }
@@ -2922,6 +2965,8 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
         return;
     }
 
+    // 同步方法回调SpecifiedProcess，获取Flag，用于创建主进程。
+    // getSpecifiedProcessFlag: 方法
     std::string processName;
     auto abilityInfoPtr = std::make_shared<AbilityInfo>(abilityInfo);
     MakeProcessName(abilityInfoPtr, appInfo, hapModuleInfo, appIndex, processName);
@@ -2985,6 +3030,7 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
             appRecord->AddAbilityStageBySpecifiedAbility(appInfo->bundleName);
         } else {
             HILOG_DEBUG("schedule accept want");
+            // 回调AcceptWant方法
             appRecord->ScheduleAcceptWant(hapModuleInfo.moduleName);
         }
     }
@@ -3024,6 +3070,23 @@ void AppMgrServiceInner::ScheduleAcceptWantDone(
     }
 }
 
+void AppMgrServiceInner::ScheduleStartSpecifiedProcessDone(
+    const int32_t recordId, const AAFwk::Want &want, const std::string &flag)
+{
+    HILOG_DEBUG("TempLog: Schedule start specified process done, flag: %{public}s", flag.c_str());
+
+    auto appRecord = GetAppRunningRecordByAppRecordId(recordId);
+    if (!appRecord) {
+        HILOG_ERROR("Get app record failed.");
+        return;
+    }
+    appRecord->ScheduleStartSpecifiedProcessDone();
+
+    if (startSpecifiedAbilityResponse_) {
+        startSpecifiedAbilityResponse_->OnStartSpecifiedProcessResponse(want, flag);
+    }
+}
+
 void AppMgrServiceInner::HandleStartSpecifiedAbilityTimeOut(const int64_t eventId)
 {
     HILOG_DEBUG("called start specified ability time out!");
@@ -3040,6 +3103,28 @@ void AppMgrServiceInner::HandleStartSpecifiedAbilityTimeOut(const int64_t eventI
 
     if (appRecord->IsStartSpecifiedAbility() && startSpecifiedAbilityResponse_) {
         startSpecifiedAbilityResponse_->OnTimeoutResponse(appRecord->GetSpecifiedWant());
+    }
+
+    KillApplicationByRecord(appRecord);
+}
+
+void AppMgrServiceInner::HandleStartSpecifiedProcessTimeout(const int64_t eventId)
+{
+    // 处理超时事件
+    HILOG_DEBUG("TempLog: called start specified process time out!");
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager_ is nullptr");
+        return;
+    }
+
+    auto appRecord = appRunningManager_->GetAppRunningRecord(eventId);
+    if (!appRecord) {
+        HILOG_ERROR("appRecord is nullptr");
+        return;
+    }
+
+    if (startSpecifiedAbilityResponse_) {
+        startSpecifiedAbilityResponse_->OnStartSpecifiedProcessTimeoutResponse(appRecord->GetSpecifiedWant());
     }
 
     KillApplicationByRecord(appRecord);
@@ -3191,7 +3276,7 @@ void AppMgrServiceInner::KillApplicationByRecord(const std::shared_ptr<AppRunnin
 
 void AppMgrServiceInner::SendHiSysEvent(const int32_t innerEventId, const int64_t eventId)
 {
-    HILOG_DEBUG("called AppMgrServiceInner SendHiSysEvent!");
+    HILOG_DEBUG("TempLog: called AppMgrServiceInner SendHiSysEvent!");
     if (!appRunningManager_) {
         HILOG_ERROR("appRunningManager_ is nullptr");
         return;
@@ -3236,6 +3321,10 @@ void AppMgrServiceInner::SendHiSysEvent(const int32_t innerEventId, const int64_
             break;
         case AMSEventHandler::START_SPECIFIED_ABILITY_TIMEOUT_MSG:
             msg += EVENT_MESSAGE_START_SPECIFIED_ABILITY_TIMEOUT;
+            typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
+            break;
+        case AMSEventHandler::START_SPECIFIED_PROCESS_TIMEOUT_MSG:
+            msg += EVENT_MESSAGE_START_SPECIFIED_PROCESS_TIMEOUT;
             typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
             break;
         default:
