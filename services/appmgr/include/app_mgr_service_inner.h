@@ -585,9 +585,13 @@ public:
 
     void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
 
+    void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
+
     void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response);
 
     void ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Want &want, const std::string &flag);
+
+    void ScheduleStartSpecifiedProcessDone(const int32_t recordId, const AAFwk::Want &want, const std::string &flag);
 
     /**
      *  Get the token of ability records by process ID.
@@ -986,6 +990,8 @@ private:
         const std::string &processName, const int userId);
 
     void HandleStartSpecifiedAbilityTimeOut(const int64_t eventId);
+
+    void HandleStartSpecifiedProcessTimeout(const int64_t eventId);
 
     void InitGlobalConfiguration();
 

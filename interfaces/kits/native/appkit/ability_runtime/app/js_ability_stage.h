@@ -40,6 +40,8 @@ public:
 
     std::string OnAcceptWant(const AAFwk::Want &want) override;
 
+    std::string OnStartSpecifiedProcess(const AAFwk::Want &want) override;
+
     void OnConfigurationUpdated(const AppExecFwk::Configuration& configuration) override;
 
     void OnMemoryLevel(int32_t level) override;

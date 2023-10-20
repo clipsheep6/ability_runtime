@@ -1395,6 +1395,31 @@ void AppRunningRecord::ScheduleAcceptWantDone()
     eventHandler_->RemoveEvent(AMSEventHandler::START_SPECIFIED_ABILITY_TIMEOUT_MSG, eventId_);
 }
 
+void AppRunningRecord::ScheduleStartSpecifiedProcess(const AAFwk::Want &want , const std::string &moduleName)
+{
+    HILOG_DEBUG("TempLog: ScheduleStartSpecifiedProcess call.");
+    SendEvent(
+        AMSEventHandler::START_SPECIFIED_PROCESS_TIMEOUT_MSG, AMSEventHandler::START_SPECIFIED_PROCESS_TIMEOUT);
+    if (appLifeCycleDeal_ == nullptr) {
+        HILOG_WARN("appLifeCycleDeal_ is null");
+        return;
+    }
+    appLifeCycleDeal_->ScheduleStartSpecifiedProcess(want, moduleName);
+}
+
+void AppRunningRecord::ScheduleStartSpecifiedProcessDone()
+{
+    HILOG_INFO("TempLog: Schedule start specified process done. bundle %{public}s and eventId %{public}d", mainBundleName_.c_str(),
+        static_cast<int>(eventId_));
+
+    if (!eventHandler_) {
+        HILOG_ERROR("eventHandler_ is nullptr");
+        return;
+    }
+
+    eventHandler_->RemoveEvent(AMSEventHandler::START_SPECIFIED_PROCESS_TIMEOUT_MSG, eventId_);
+}
+
 void AppRunningRecord::ApplicationTerminated()
 {
     HILOG_DEBUG("Application terminated bundle %{public}s and eventId %{public}d", mainBundleName_.c_str(),

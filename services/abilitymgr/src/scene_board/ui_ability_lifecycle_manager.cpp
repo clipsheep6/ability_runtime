@@ -226,6 +226,18 @@ int UIAbilityLifecycleManager::NotifySCBToStartUIAbility(const AbilityRequest &a
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    // 指定进程
+    auto abilityInfo = abilityRequest.abilityInfo;
+    bool isUIAbility = (abilityInfo.type == AppExecFwk::AbilityType::PAGE && abilityInfo.isStageBasedModel);
+    bool isPc = true; 
+    bool isStartSpecifiedProcess = (abilityInfo.bundleName == "com.example.specificprocess2" && abilityInfo.name != "EntryAbility");
+    if (isPc && isUIAbility && isStartSpecifiedProcess) {
+        HILOG_DEBUG("TempLog: StartSpecifiedProcess");
+        EnqueueAbilityToFront(abilityRequest);
+        DelayedSingleton<AppScheduler>::GetInstance()->StartSpecifiedProcess(abilityRequest.want, abilityInfo);
+        return 0;
+    }
+    // 指定实例
     auto isSpecified = (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED);
     if (isSpecified) {
         EnqueueAbilityToFront(abilityRequest);
@@ -1211,6 +1223,7 @@ void UIAbilityLifecycleManager::OnAcceptWantResponse(const AAFwk::Want &want, co
     if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::SPECIFIED) {
         return;
     }
+    HILOG_DEBUG("TempLog: specifiedProcessFlag = %{public}s", abilityRequest.abilityInfo.specifiedProcessFlag.c_str());
     auto callerAbility = GetAbilityRecordByToken(abilityRequest.callerToken);
     if (!flag.empty()) {
         abilityRequest.specifiedFlag = flag;
@@ -1235,6 +1248,35 @@ void UIAbilityLifecycleManager::OnAcceptWantResponse(const AAFwk::Want &want, co
     }
     NotifyStartSpecifiedAbility(abilityRequest, want);
     StartAbilityBySpecifed(abilityRequest, callerAbility);
+}
+
+void UIAbilityLifecycleManager::OnStartSpecifiedProcessResponse(const AAFwk::Want &want, const std::string &flag)
+{
+    HILOG_DEBUG("TempLog: OnStartSpecifiedProcessResponse call.");
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    if (abilityQueue_.empty()) {
+        return;
+    }
+
+    AbilityRequest abilityRequest = abilityQueue_.front();
+    abilityQueue_.pop();
+    abilityRequest.abilityInfo.specifiedProcessFlag = flag;
+    // 指定实例
+    auto isSpecified = (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED);
+    if (isSpecified) {
+        EnqueueAbilityToFront(abilityRequest);
+        DelayedSingleton<AppScheduler>::GetInstance()->StartSpecifiedAbility(
+            abilityRequest.want, abilityRequest.abilityInfo);
+        return;
+    }
+    // 原来流程
+    auto sessionInfo = CreateSessionInfo(abilityRequest);
+    sessionInfo->requestCode = abilityRequest.requestCode;
+    sessionInfo->persistentId = GetPersistentIdByAbilityRequest(abilityRequest, sessionInfo->reuse, abilityRequest.userId);
+    sessionInfo->userId = abilityRequest.userId;
+    HILOG_INFO("Reused sessionId: %{public}d, userId: %{public}d.", sessionInfo->persistentId, abilityRequest.userId);
+    NotifySCBPendingActivation(sessionInfo, abilityRequest);
 }
 
 void UIAbilityLifecycleManager::StartSpecifiedAbilityBySCB(const Want &want, int32_t userId)

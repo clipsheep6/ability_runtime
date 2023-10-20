@@ -557,6 +557,8 @@ public:
     bool IsStartSpecifiedAbility() const;
     void ScheduleAcceptWant(const std::string &moduleName);
     void ScheduleAcceptWantDone();
+    void ScheduleStartSpecifiedProcess(const AAFwk::Want &want , const std::string &moduleName);
+    void ScheduleStartSpecifiedProcessDone();
     void ApplicationTerminated();
     const AAFwk::Want &GetSpecifiedWant() const;
     void SetDebugApp(bool isDebugApp);

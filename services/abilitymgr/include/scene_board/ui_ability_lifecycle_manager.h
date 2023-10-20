@@ -176,6 +176,14 @@ public:
     void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag);
 
     /**
+     * OnStartSpecifiedProcessResponse.
+     *
+     * @param want the want of the ability to start.
+     * @param abilityRequest target ability request.
+     */
+    void OnStartSpecifiedProcessResponse(const AAFwk::Want &want, const std::string &flag);
+
+    /**
      * Start specified ability by SCB.
      *
      * @param want Want information.

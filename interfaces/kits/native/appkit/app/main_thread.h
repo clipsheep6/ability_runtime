@@ -252,6 +252,8 @@ public:
 
     void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) override;
 
+    void ScheduleStartSpecifiedProcess(const AAFwk::Want &want, const std::string &moduleName) override;
+
     /**
      *
      * @brief Check the App main thread state.
@@ -290,6 +292,8 @@ private:
     void HandleTerminateApplicationLocal();
 
     void HandleScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName);
+
+    void HandleScheduleStartSpecifiedProcess(const AAFwk::Want &want, const std::string &moduleName);
 
     /**
      *
