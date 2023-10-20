@@ -1163,5 +1163,18 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_SetWeakSessionToken_0100, 
     context_->SetWeakSessionToken(nullptr);
     EXPECT_EQ(context_->sessionToken_, nullptr);
 }
+
+/**
+ * @tc.number: Ability_Context_Impl_StartAbilityByType_0100
+ * @tc.name: StartAbilityByType
+ * @tc.desc: start UIAbility or UIExtensionAbility by type
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbilityByType_0100, Function | MediumTest | Level1)
+{
+    AAFwk::WantParams wantParams;
+    const std::string type = "share";
+    ErrCode ret = context_->StartAbilityByType(type, wantParams, nullptr);
+    EXPECT_TRUE(ret == ERR_INVALID_VALUE);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

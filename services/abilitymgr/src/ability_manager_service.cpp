@@ -1977,6 +1977,7 @@ int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sp
 
 void AbilityManagerService::SetPickerElementName(const sptr<SessionInfo> &extensionSessionInfo)
 {
+    CHECK_POINTER_IS_NULLPTR(extensionSessionInfo);
     std::string targetType = extensionSessionInfo->want.GetStringParam(UIEXTENSION_TARGET_TYPE_KEY);
     if (extensionSessionInfo->want.GetElement().GetBundleName().empty() &&
         extensionSessionInfo->want.GetElement().GetAbilityName().empty() && !targetType.empty()) {

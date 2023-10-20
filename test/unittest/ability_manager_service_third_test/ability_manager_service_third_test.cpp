@@ -1080,5 +1080,70 @@ HWTEST_F(AbilityManagerServiceThirdTest, IsAbilityControllerStart_003, TestSize.
     Want want;
     EXPECT_TRUE(abilityMs_->IsAbilityControllerStart(want));
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: SetPickerElementName
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService SetPickerElementName
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, SetPickerElementName_001, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs_, nullptr);
+    abilityMs_->SetPickerElementName(nullptr);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: SetPickerElementName
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService SetPickerElementName
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, SetPickerElementName_002, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs_, nullptr);
+    sptr<SessionInfo> sessionInfo = new SessionInfo();
+    const sptr<SessionInfo> extensionSessionInfo = sessionInfo;
+    abilityMs_->SetPickerElementName(extensionSessionInfo);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: SetPickerElementName
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService SetPickerElementName
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, SetPickerElementName_003, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs_, nullptr);
+    sptr<SessionInfo> sessionInfo = new SessionInfo();
+    Want want;
+    const std::string type = "share";
+    want.SetParam("ability.want.params.uiExtensionTargetType", type);
+    sessionInfo->want = want;
+    const sptr<SessionInfo> extensionSessionInfo = sessionInfo;
+    abilityMs_->SetPickerElementName(extensionSessionInfo);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: SetPickerElementName
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService SetPickerElementName
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, SetPickerElementName_004, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs_, nullptr);
+    sptr<SessionInfo> sessionInfo = new SessionInfo();
+    Want want;
+    want.SetElementName("com.example.share", "ShareUIExtensionAbility");
+    sessionInfo->want = want;
+    const sptr<SessionInfo> extensionSessionInfo = sessionInfo;
+    abilityMs_->SetPickerElementName(extensionSessionInfo);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
