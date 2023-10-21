@@ -111,7 +111,8 @@ public:
     /**
      * @brief Determine whether to continue the continuous management phase of the page stack
      * @param wantParams Indicates the user data.
-     * @return If you want to continue the continuous management phase of the page stack, return true, otherwise return false
+     * @return If you want to continue the continuous management phase of the
+     * page stack, return true, otherwise return false
      */
     bool IsContinuePageStack(const WantParams &wantParams);
 
@@ -146,7 +147,8 @@ public:
      * @param reverseScheduler A remote object for reverse scheduling
      */
     void NotifyCompleteContinuation(
-        const std::string &originDeviceId, int sessionId, bool success, [[maybe_unused]]const sptr<IRemoteObject> &reverseScheduler);
+        const std::string &originDeviceId, int sessionId, bool success,
+        [[maybe_unused]] const sptr<IRemoteObject> &reverseScheduler);
 
     /**
      * @brief complete the continuation process
