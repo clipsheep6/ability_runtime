@@ -135,7 +135,7 @@ HWTEST_F(AaCommandStopServiceTest, Aa_Command_StopService_0300, Function | Mediu
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
     AbilityManagerShellCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), "error: unknown option.\n" + HELP_MSG_STOP_SERVICE);
+    EXPECT_EQ(cmd.ExecCommand(), "fail: unknown option.\n" + HELP_MSG_STOP_SERVICE);
 }
 
 /**
@@ -154,7 +154,7 @@ HWTEST_F(AaCommandStopServiceTest, Aa_Command_StopService_0400, Function | Mediu
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
     AbilityManagerShellCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), "error: unknown option.\n" + HELP_MSG_STOP_SERVICE);
+    EXPECT_EQ(cmd.ExecCommand(), "fail: unknown option.\n" + HELP_MSG_STOP_SERVICE);
 }
 
 /**
@@ -173,7 +173,7 @@ HWTEST_F(AaCommandStopServiceTest, Aa_Command_StopService_0500, Function | Mediu
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
     AbilityManagerShellCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), "error: unknown option.\n" + HELP_MSG_STOP_SERVICE);
+    EXPECT_EQ(cmd.ExecCommand(), "fail: unknown option.\n" + HELP_MSG_STOP_SERVICE);
 }
 
 /**
@@ -192,7 +192,7 @@ HWTEST_F(AaCommandStopServiceTest, Aa_Command_StopService_0600, Function | Mediu
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
     AbilityManagerShellCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), "error: unknown option.\n" + HELP_MSG_STOP_SERVICE);
+    EXPECT_EQ(cmd.ExecCommand(), "fail: unknown option.\n" + HELP_MSG_STOP_SERVICE);
 }
 
 /**

@@ -55,7 +55,7 @@ private:
     int32_t HandleScheduleUpdateApplicationInfoInstalled(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleHeapMemory(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyAppFault(MessageParcel &data, MessageParcel &reply);
-    int32_t HandleOnGcStateChange(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleScheduleChangeAppGcState(MessageParcel &data, MessageParcel &reply);
     int32_t HandleAttachAppDebug(MessageParcel &data, MessageParcel &reply);
     int32_t HandleDetachAppDebug(MessageParcel &data, MessageParcel &reply);
 

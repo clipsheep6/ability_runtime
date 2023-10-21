@@ -737,7 +737,7 @@ int32_t AppMgrClient::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
     return service->NotifyAppFaultBySA(faultData);
 }
 
-int32_t AppMgrClient::OnGcStateChange(pid_t pid, int32_t state)
+int32_t AppMgrClient::ChangeAppGcState(pid_t pid, int32_t state)
 {
     if (mgrHolder_ == nullptr) {
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
@@ -746,7 +746,7 @@ int32_t AppMgrClient::OnGcStateChange(pid_t pid, int32_t state)
     if (service == nullptr) {
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
-    return service->OnGcStateChange(pid, state);
+    return service->ChangeAppGcState(pid, state);
 }
 
 int32_t AppMgrClient::RegisterAppDebugListener(const sptr<IAppDebugListener> &listener)
@@ -816,6 +816,43 @@ bool AppMgrClient::IsAmsServiceReady()
         return false;
     }
     return true;
+}
+
+int32_t AppMgrClient::RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
+    const std::vector<std::string> &bundleNameList)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return service->RegisterApplicationStateObserver(observer, bundleNameList);
+}
+
+int32_t AppMgrClient::UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return service->UnregisterApplicationStateObserver(observer);
+}
+
+int32_t AppMgrClient::NotifyPageShow(const sptr<IRemoteObject> &token, const PageStateData &pageStateData)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return service->NotifyPageShow(token, pageStateData);
+}
+
+int32_t AppMgrClient::NotifyPageHide(const sptr<IRemoteObject> &token, const PageStateData &pageStateData)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return service->NotifyPageHide(token, pageStateData);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -20,11 +20,11 @@ namespace OHOS {
 namespace AbilityRuntime {
 class RequestInfo {
 public:
-    static NativeValue* WrapRequestInfo(NativeEngine &engine, RequestInfo *request)
+    static napi_value WrapRequestInfo(napi_env env, RequestInfo *request)
     {
         return nullptr;
     };
-    static std::shared_ptr<RequestInfo> UnwrapRequestInfo(NativeEngine &engine, NativeValue *jsParam)
+    static std::shared_ptr<RequestInfo> UnwrapRequestInfo(napi_env env, napi_value jsParam)
     {
         return nullptr;
     };

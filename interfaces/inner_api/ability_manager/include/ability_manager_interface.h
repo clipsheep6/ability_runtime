@@ -27,6 +27,7 @@
 #include "ability_start_setting.h"
 #include "ability_state.h"
 #include "app_debug_listener_interface.h"
+#include "auto_startup_info.h"
 #include "extension_running_info.h"
 #include "free_install_observer_interface.h"
 #include "iability_controller.h"
@@ -57,6 +58,7 @@
 
 namespace OHOS {
 namespace AAFwk {
+using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
 constexpr const char* ABILITY_MANAGER_SERVICE_NAME = "AbilityManagerService";
 const int DEFAULT_INVAL_VALUE = -1;
 const int DELAY_LOCAL_FREE_INSTALL_TIMEOUT = 40000;
@@ -1139,6 +1141,107 @@ public:
     }
 
     /**
+     * @brief Register auto start up callback for system api.
+     * @param callback The point of JsAbilityAutoStartupCallBack.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterAutoStartupSystemCallback(const sptr<IRemoteObject> &callback)
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Unregister auto start up callback for system api.
+     * @param callback The point of JsAbilityAutoStartupCallBack.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UnregisterAutoStartupSystemCallback(const sptr<IRemoteObject> &callback)
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Set every application auto start up state.
+     * @param info The auto startup info,include bundle name, module name, ability name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t SetApplicationAutoStartup(const AutoStartupInfo &info)
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Cancel every application auto start up .
+     * @param info The auto startup info,include bundle name, module name, ability name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t CancelApplicationAutoStartup(const AutoStartupInfo &info)
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Query auto startup state all application.
+     * @param infoList Output parameters, return auto startup info list.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList)
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Register auto start up callback.
+     * @param callback The point of JsAbilityAutoStartupCallBack.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterAutoStartupCallback(const sptr<IRemoteObject> &callback)
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Unregister auto start up callback.
+     * @param callback The point of JsAbilityAutoStartupCallBack.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UnregisterAutoStartupCallback(const sptr<IRemoteObject> &callback)
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Set current application auto start up state.
+     * @param info The auto startup info,include bundle name, module name, ability name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t SetAutoStartup(const AutoStartupInfo &info)
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Cancel current application auto start up state.
+     * @param info The auto startup info, include bundle name, module name, ability name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t CancelAutoStartup(const AutoStartupInfo &info)
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Check current application auto start up state.
+     * @param info The auto startup info, include bundle name, module name, ability name.
+     * @param isAutoStartup Output parameters, return auto start up state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t IsAutoStartup(const AutoStartupInfo &info, bool &isAutoStartup)
+    {
+        return 0;
+    }
+
+    /**
      * PrepareTerminateAbilityBySCB, prepare to terminate ability by scb.
      *
      * @param sessionInfo the session info of the ability to start.
@@ -1177,6 +1280,16 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t DetachAppDebug(const std::string &bundleName) = 0;
+
+    /**
+     * @brief Check if ability controller can start.
+     * @param want The want of ability to start.
+     * @return Return true to allow ability to start, or false to reject.
+     */
+    virtual bool IsAbilityControllerStart(const Want &want)
+    {
+        return true;
+    }
 };
 }  // namespace AAFwk
 }  // namespace OHOS

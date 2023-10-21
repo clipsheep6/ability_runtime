@@ -41,32 +41,20 @@ void AbilityThread::AbilityThreadMain(const std::shared_ptr<OHOSApplication> &ap
         HILOG_ERROR("abilityInfo is nullptr");
         return;
     }
-	
-	if (abilityInfo->type == AbilityType::PAGE && abilityInfo->isStageBasedModel) {
-	    HILOG_DEBUG("start stage model ability");
-        sptr<AbilityThread> thread(new (std::nothrow) AbilityRuntime::UIAbilityThread());
-        if (thread == nullptr) {
-            HILOG_ERROR("thread is nullptr");
-            return;
-        }
-        thread->Attach(application, abilityRecord, mainRunner, stageContext);
+
+    sptr<AbilityThread> thread = nullptr;
+    if (abilityInfo->type == AbilityType::PAGE && abilityInfo->isStageBasedModel) {
+        thread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
     } else if (abilityInfo->type == AbilityType::EXTENSION) {
-        HILOG_DEBUG("start extension ability");
-        sptr<AbilityThread> thread(new (std::nothrow) AbilityRuntime::ExtensionAbilityThread());
-        if (thread == nullptr) {
-            HILOG_ERROR("thread is nullptr");
-            return;
-        }
-        thread->Attach(application, abilityRecord, mainRunner, stageContext);
+        thread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     } else {
-	    HILOG_DEBUG("start fa model ability");
-        sptr<AbilityThread> thread(new (std::nothrow) AbilityRuntime::FAAbilityThread());
-        if (thread == nullptr) {
-            HILOG_ERROR("thread is nullptr");
-            return;
-        }
-        thread->Attach(application, abilityRecord, mainRunner, stageContext);
+        thread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     }
+    if (thread == nullptr) {
+        HILOG_ERROR("thread is nullptr");
+        return;
+    }
+    thread->Attach(application, abilityRecord, mainRunner, stageContext);
     HILOG_DEBUG("end");
 }
 
@@ -87,29 +75,19 @@ void AbilityThread::AbilityThreadMain(const std::shared_ptr<OHOSApplication> &ap
         return;
     }
 
-	if (abilityInfo->type == AbilityType::PAGE && abilityInfo->isStageBasedModel) {
-	    HILOG_DEBUG("start stage model ability");
-        sptr<AbilityThread> thread(new (std::nothrow) AbilityRuntime::UIAbilityThread());
-        if (thread == nullptr) {
-            HILOG_ERROR("thread is nullptr");
-            return;
-        }
-        thread->Attach(application, abilityRecord, stageContext);
+    sptr<AbilityThread> thread = nullptr;
+    if (abilityInfo->type == AbilityType::PAGE && abilityInfo->isStageBasedModel) {
+        thread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
     } else if (abilityInfo->type == AbilityType::EXTENSION) {
-        sptr<AbilityThread> thread(new (std::nothrow) AbilityRuntime::ExtensionAbilityThread());
-        if (thread == nullptr) {
-            HILOG_ERROR("thread is nullptr");
-            return;
-        }
-        thread->Attach(application, abilityRecord, stageContext);
+        thread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     } else {
-        sptr<AbilityThread> thread(new (std::nothrow) AbilityRuntime::FAAbilityThread());
-        if (thread == nullptr) {
-            HILOG_ERROR("thread is nullptr");
-            return;
-        }
-        thread->Attach(application, abilityRecord, stageContext);
+        thread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     }
+    if (thread == nullptr) {
+        HILOG_ERROR("thread is nullptr");
+        return;
+    }
+    thread->Attach(application, abilityRecord, stageContext);
     HILOG_DEBUG("end");
 }
 
@@ -304,7 +282,7 @@ int AbilityThread::BlockAbility()
                 std::this_thread::sleep_for(BLOCK_ABILITY_TIME * 1s);
             }
         };
-        abilityHandler_->PostTask(task);
+        abilityHandler_->PostTask(task, "AbilityThread:BlockAbility");
         HILOG_DEBUG("end");
         return ERR_OK;
     }

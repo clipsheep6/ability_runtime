@@ -43,12 +43,7 @@ void ApplicationStateObserverProxy::OnForegroundApplicationChanged(const AppStat
         return;
     }
     data.WriteParcelable(&appStateData);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return;
-    }
-    int32_t ret = remote->SendRequest(
+    int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_FOREGROUND_APPLICATION_CHANGED),
         data, reply, option);
     if (ret != NO_ERROR) {
@@ -65,12 +60,7 @@ void ApplicationStateObserverProxy::OnAbilityStateChanged(const AbilityStateData
         return;
     }
     data.WriteParcelable(&abilityStateData);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return;
-    }
-    int32_t ret = remote->SendRequest(
+    int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_ABILITY_STATE_CHANGED),
         data, reply, option);
     if (ret != NO_ERROR) {
@@ -87,12 +77,7 @@ void ApplicationStateObserverProxy::OnExtensionStateChanged(const AbilityStateDa
         return;
     }
     data.WriteParcelable(&abilityStateData);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return;
-    }
-    int32_t ret = remote->SendRequest(
+    int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_EXTENSION_STATE_CHANGED),
         data, reply, option);
     if (ret != NO_ERROR) {
@@ -109,12 +94,7 @@ void ApplicationStateObserverProxy::OnProcessCreated(const ProcessData &processD
         return;
     }
     data.WriteParcelable(&processData);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return;
-    }
-    int32_t ret = remote->SendRequest(
+    int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_PROCESS_CREATED),
         data, reply, option);
     if (ret != NO_ERROR) {
@@ -131,12 +111,7 @@ void ApplicationStateObserverProxy::OnProcessReused(const ProcessData &processDa
         return;
     }
     data.WriteParcelable(&processData);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return;
-    }
-    int32_t ret = remote->SendRequest(
+    int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_PROCESS_REUSED),
         data, reply, option);
     if (ret != NO_ERROR) {
@@ -153,12 +128,7 @@ void ApplicationStateObserverProxy::OnProcessStateChanged(const ProcessData &pro
         return;
     }
     data.WriteParcelable(&processData);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return;
-    }
-    int32_t ret = remote->SendRequest(
+    int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_PROCESS_STATE_CHANGED),
         data, reply, option);
     if (ret != NO_ERROR) {
@@ -175,12 +145,7 @@ void ApplicationStateObserverProxy::OnProcessDied(const ProcessData &processData
         return;
     }
     data.WriteParcelable(&processData);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return;
-    }
-    int32_t ret = remote->SendRequest(
+    int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_PROCESS_DIED),
         data, reply, option);
     if (ret != NO_ERROR) {
@@ -198,12 +163,7 @@ void ApplicationStateObserverProxy::OnApplicationStateChanged(const AppStateData
         return;
     }
     data.WriteParcelable(&appStateData);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("OnApplicationStateChanged, Remote() is NULL");
-        return;
-    }
-    int32_t ret = remote->SendRequest(
+    int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_APPLICATION_STATE_CHANGED),
         data, reply, option);
     if (ret != NO_ERROR) {
@@ -221,12 +181,7 @@ void ApplicationStateObserverProxy::OnAppStateChanged(const AppStateData &appSta
         return;
     }
     data.WriteParcelable(&appStateData);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("OnAppStateChanged, Remote() is NULL");
-        return;
-    }
-    int32_t ret = remote->SendRequest(
+    int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_APP_STATE_CHANGED),
         data, reply, option);
     if (ret != NO_ERROR) {
@@ -244,12 +199,7 @@ void ApplicationStateObserverProxy::OnAppStarted(const AppStateData &appStateDat
         return;
     }
     data.WriteParcelable(&appStateData);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("OnAppStarted, Remote() is NULL");
-        return;
-    }
-    int32_t ret = remote->SendRequest(
+    int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_APP_STARTED),
         data, reply, option);
     if (ret != NO_ERROR) {
@@ -267,12 +217,7 @@ void ApplicationStateObserverProxy::OnAppStopped(const AppStateData &appStateDat
         return;
     }
     data.WriteParcelable(&appStateData);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("OnAppStopped, Remote() is NULL");
-        return;
-    }
-    int32_t ret = remote->SendRequest(
+    int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_APP_STOPPED),
         data, reply, option);
     if (ret != NO_ERROR) {
@@ -280,5 +225,57 @@ void ApplicationStateObserverProxy::OnAppStopped(const AppStateData &appStateDat
     }
 }
 
+void ApplicationStateObserverProxy::OnPageShow(const PageStateData &pageStateData)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("OnPageShow, WriteInterfaceToken failed");
+        return;
+    }
+    data.WriteParcelable(&pageStateData);
+    int32_t ret = SendTransactCmd(
+        static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_PAGE_SHOW),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("OnPageShow, SendRequest is failed, error code: %{public}d", ret);
+    }
+}
+
+void ApplicationStateObserverProxy::OnPageHide(const PageStateData &pageStateData)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("OnPageHide, WriteInterfaceToken failed");
+        return;
+    }
+    data.WriteParcelable(&pageStateData);
+    int32_t ret = SendTransactCmd(
+        static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_PAGE_HIDE),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("OnPageHide, SendRequest is failed, error code: %{public}d", ret);
+    }
+}
+
+int32_t ApplicationStateObserverProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    auto ret = remote->SendRequest(code, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed with error code: %{public}d", ret);
+        return ret;
+    }
+    return ret;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

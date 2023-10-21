@@ -92,73 +92,74 @@ Global::Resource::Direction ConvertDirection(const std::string &direction)
     return resolution;
 }
 
-NativeValue *CreateJsConfiguration(NativeEngine &engine, const AppExecFwk::Configuration &configuration)
+napi_value CreateJsConfiguration(napi_env env, const AppExecFwk::Configuration &configuration)
 {
-    NativeValue *objValue = engine.CreateObject();
-    NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
     if (object == nullptr) {
         HILOG_ERROR("Native object is nullptr.");
-        return objValue;
+        return object;
     }
 
-    object->SetProperty("language", CreateJsValue(engine,
+    napi_set_named_property(env, object, "language", CreateJsValue(env,
         configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE)));
-
-    object->SetProperty("colorMode", CreateJsValue(engine,
+    
+    napi_set_named_property(env, object, "colorMode", CreateJsValue(env,
         ConvertColorMode(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE))));
 
     std::string direction = configuration.GetItem(AppExecFwk::ConfigurationInner::APPLICATION_DIRECTION);
-    object->SetProperty("direction", CreateJsValue(engine, ConvertDirection(direction)));
+    napi_set_named_property(env, object, "direction", CreateJsValue(env, ConvertDirection(direction)));
 
     std::string density = configuration.GetItem(AppExecFwk::ConfigurationInner::APPLICATION_DENSITYDPI);
-    object->SetProperty("screenDensity", CreateJsValue(engine, ConvertDensity(density)));
+    napi_set_named_property(env, object, "screenDensity", CreateJsValue(env, ConvertDensity(density)));
 
     int32_t displayId = ConvertDisplayId(configuration.GetItem(AppExecFwk::ConfigurationInner::APPLICATION_DISPLAYID));
-    object->SetProperty("displayId", CreateJsValue(engine, displayId));
+    napi_set_named_property(env, object, "displayId", CreateJsValue(env, displayId));
 
     std::string hasPointerDevice = configuration.GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
-    object->SetProperty("hasPointerDevice", CreateJsValue(engine, hasPointerDevice == "true" ? true : false));
+    napi_set_named_property(
+        env, object, "hasPointerDevice", CreateJsValue(env, hasPointerDevice == "true" ? true : false));
 
-    return objValue;
+    return object;
 }
 
-NativeValue *CreateJsApplicationInfo(NativeEngine &engine, const AppExecFwk::ApplicationInfo &applicationInfo)
+napi_value CreateJsApplicationInfo(napi_env env, const AppExecFwk::ApplicationInfo &applicationInfo)
 {
-    NativeValue *objValue = engine.CreateObject();
-    if (objValue == nullptr) {
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
+    if (object == nullptr) {
         HILOG_ERROR("Create object failed.");
         return nullptr;
     }
 
-    AppExecFwk::CommonFunc::ConvertApplicationInfo(reinterpret_cast<napi_env>(&engine),
-        reinterpret_cast<napi_value>(objValue), applicationInfo);
-    return objValue;
+    AppExecFwk::CommonFunc::ConvertApplicationInfo(env, object, applicationInfo);
+    return object;
 }
 
-NativeValue *CreateJsHapModuleInfo(NativeEngine &engine, const AppExecFwk::HapModuleInfo &hapModuleInfo)
+napi_value CreateJsHapModuleInfo(napi_env env, const AppExecFwk::HapModuleInfo &hapModuleInfo)
 {
-    NativeValue *objValue = engine.CreateObject();
-    if (objValue == nullptr) {
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
+    if (object == nullptr) {
         HILOG_ERROR("Create object failed.");
         return nullptr;
     }
 
-    AppExecFwk::CommonFunc::ConvertHapModuleInfo(reinterpret_cast<napi_env>(&engine), hapModuleInfo,
-        reinterpret_cast<napi_value>(objValue));
-    return objValue;
+    AppExecFwk::CommonFunc::ConvertHapModuleInfo(env, hapModuleInfo, object);
+    return object;
 }
 
-NativeValue *CreateJsAbilityInfo(NativeEngine &engine, const AppExecFwk::AbilityInfo &abilityInfo)
+napi_value CreateJsAbilityInfo(napi_env env, const AppExecFwk::AbilityInfo &abilityInfo)
 {
-    NativeValue *objValue = engine.CreateObject();
-    if (objValue == nullptr) {
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
+    if (object == nullptr) {
         HILOG_ERROR("Create object failed.");
         return nullptr;
     }
 
-    AppExecFwk::CommonFunc::ConvertAbilityInfo(reinterpret_cast<napi_env>(&engine), abilityInfo,
-        reinterpret_cast<napi_value>(objValue));
-    return objValue;
+    AppExecFwk::CommonFunc::ConvertAbilityInfo(env, abilityInfo, object);
+    return object;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

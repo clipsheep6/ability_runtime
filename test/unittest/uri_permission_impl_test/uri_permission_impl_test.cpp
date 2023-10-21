@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include "event_report.h"
 #include "mock_native_token.h"
 #include "system_ability_definition.h"
 #include "system_ability_manager_client.h"

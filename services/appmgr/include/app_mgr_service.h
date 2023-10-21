@@ -372,7 +372,7 @@ public:
      *
      * @return Is the status change completed.
      */
-    virtual int32_t OnGcStateChange(pid_t pid, int32_t state) override;
+    virtual int32_t ChangeAppGcState(pid_t pid, int32_t state) override;
 
 private:
     /**
@@ -447,6 +447,22 @@ private:
     void ShowHelp(std::string& result) const;
 
     bool JudgeSelfCalledByRecordId(int32_t recordId);
+
+    /**
+     * @brief Notify AbilityManagerService the page show.
+     * @param token Ability identify.
+     * @param pageStateData The data of ability's page state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyPageShow(const sptr<IRemoteObject> &token, const PageStateData &pageStateData) override;
+
+    /**
+     * @brief Notify AbilityManagerService the page hide.
+     * @param token Ability identify.
+     * @param pageStateData The data of ability's page state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyPageHide(const sptr<IRemoteObject> &token, const PageStateData &pageStateData) override;
 
 private:
     std::shared_ptr<AppMgrServiceInner> appMgrServiceInner_;

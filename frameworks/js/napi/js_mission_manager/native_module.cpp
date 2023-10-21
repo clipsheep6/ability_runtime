@@ -18,8 +18,8 @@
 
 static napi_module _module = {
     .nm_version = 0,
-    .nm_modname = "app.ability.missionManager",
     .nm_filename = "app/ability/libmissionmanager_napi.so/missionmanager.js",
+    .nm_modname = "app.ability.missionManager",
     .nm_register_func = OHOS::AbilityRuntime::JsMissionManagerInit,
 };
 

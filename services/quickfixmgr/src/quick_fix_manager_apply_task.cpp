@@ -412,7 +412,7 @@ void QuickFixManagerApplyTask::PostDeployQuickFixTask(const std::vector<std::str
             return;
         }
     };
-    if (eventHandler_ == nullptr || !eventHandler_->PostTask(deployTask)) {
+    if (eventHandler_ == nullptr || !eventHandler_->PostTask(deployTask, "QuickFixManager:deployTask")) {
         HILOG_ERROR("Post deploy task failed.");
     }
     PostTimeOutTask();
@@ -445,7 +445,7 @@ void QuickFixManagerApplyTask::PostSwitchQuickFixTask()
             return;
         }
     };
-    if (eventHandler_ == nullptr || !eventHandler_->PostTask(switchTask)) {
+    if (eventHandler_ == nullptr || !eventHandler_->PostTask(switchTask, "QuickFixManager:switchTask")) {
         HILOG_ERROR("Post switch task failed.");
     }
     PostTimeOutTask();
@@ -481,7 +481,7 @@ void QuickFixManagerApplyTask::PostDeleteQuickFixTask()
             return;
         }
     };
-    if (eventHandler_ == nullptr || !eventHandler_->PostTask(deleteTask)) {
+    if (eventHandler_ == nullptr || !eventHandler_->PostTask(deleteTask, "QuickFixManager:deleteTask")) {
         HILOG_ERROR("Post delete task failed.");
     }
     PostTimeOutTask();
@@ -645,7 +645,7 @@ void QuickFixManagerApplyTask::PostNotifyLoadRepairPatchTask()
             applyTask->RemoveSelf();
         }
     };
-    if (eventHandler_ == nullptr || !eventHandler_->PostTask(loadPatchTask)) {
+    if (eventHandler_ == nullptr || !eventHandler_->PostTask(loadPatchTask, "QuickFixManager:loadPatchTask")) {
         HILOG_ERROR("Post delete task failed.");
     }
     PostTimeOutTask();
@@ -676,7 +676,7 @@ void QuickFixManagerApplyTask::PostNotifyUnloadRepairPatchTask()
             applyTask->RemoveSelf();
         }
     };
-    if (eventHandler_ == nullptr || !eventHandler_->PostTask(unloadPatchTask)) {
+    if (eventHandler_ == nullptr || !eventHandler_->PostTask(unloadPatchTask, "QuickFixManager:unloadPatchTask")) {
         HILOG_ERROR("Post delete task failed.");
     }
     PostTimeOutTask();
@@ -707,7 +707,7 @@ void QuickFixManagerApplyTask::PostNotifyHotReloadPageTask()
             applyTask->RemoveSelf();
         }
     };
-    if (eventHandler_ == nullptr || !eventHandler_->PostTask(reloadPageTask)) {
+    if (eventHandler_ == nullptr || !eventHandler_->PostTask(reloadPageTask, "QuickFixManager:reloadPageTask")) {
         HILOG_ERROR("Post delete task failed.");
     }
     PostTimeOutTask();
@@ -791,7 +791,7 @@ void QuickFixManagerApplyTask::PostRevokeQuickFixTask()
         applyTask->HandleRevokeQuickFixAppStop();
     };
 
-    if (eventHandler_ == nullptr || !eventHandler_->PostTask(revokeTask)) {
+    if (eventHandler_ == nullptr || !eventHandler_->PostTask(revokeTask, "QuickFixManager:revokeTask")) {
         HILOG_ERROR("Post revoke task failed.");
     }
     PostTimeOutTask();

@@ -39,6 +39,7 @@
 #include "wants_info.h"
 #include "want_params.h"
 #include "want_receiver_stub.h"
+#include "want_agent_client.h"
 #include "want_agent_helper.h"
 #include "want_sender_info.h"
 #include "want_sender_stub.h"
@@ -1243,7 +1244,8 @@ HWTEST_F(PendingWantTest, PendingWant_6700, Function | MediumTest | Level1)
     sptr<AAFwk::IWantSender> target = nullptr;
     std::shared_ptr<PendingWant> pendingWant = std::make_shared<PendingWant>();
     ErrCode err = pendingWant->Cancel(target);
-    EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
+    ErrCode err1 = WantAgentClient::GetInstance().CancelWantSender(target);
+    EXPECT_EQ(err, err1);
     HILOG_INFO("PendingWant_6700 end.");
 }
 

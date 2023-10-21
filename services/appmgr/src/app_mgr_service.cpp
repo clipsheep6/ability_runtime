@@ -165,6 +165,7 @@ int32_t AppMgrService::CheckPermission(
 
 void AppMgrService::AttachApplication(const sptr<IRemoteObject> &app)
 {
+    HILOG_INFO("LoadLifecycle: appMGR receives a binding request.");
     if (!IsReady()) {
         HILOG_ERROR("AttachApplication failed, not ready.");
         return;
@@ -806,6 +807,7 @@ void AppMgrService::OnAddSystemAbility(int32_t systemAbilityId, const std::strin
     }
 
     appMgrServiceInner_->InitFocusListener();
+    appMgrServiceInner_->InitWindowVisibilityChangedListener();
 }
 
 void AppMgrService::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
@@ -821,15 +823,40 @@ void AppMgrService::OnRemoveSystemAbility(int32_t systemAbilityId, const std::st
     }
 
     appMgrServiceInner_->FreeFocusListener();
+    appMgrServiceInner_->FreeWindowVisibilityChangedListener();
 }
 
-int32_t AppMgrService::OnGcStateChange(pid_t pid, int32_t state)
+int32_t AppMgrService::ChangeAppGcState(pid_t pid, int32_t state)
 {
     HILOG_DEBUG("called.");
     if (!appMgrServiceInner_) {
         return ERR_INVALID_VALUE;
     }
-    return appMgrServiceInner_->OnGcStateChange(pid, state);
+    return appMgrServiceInner_->ChangeAppGcState(pid, state);
+}
+
+int32_t AppMgrService::NotifyPageShow(const sptr<IRemoteObject> &token, const PageStateData &pageStateData)
+{
+    HILOG_DEBUG("bundleName: %{public}s, moduelName: %{public}s, abilityName: %{public}s, pageName: %{public}s",
+        pageStateData.bundleName.c_str(), pageStateData.moduleName.c_str(), pageStateData.abilityName.c_str(),
+        pageStateData.pageName.c_str());
+    if (!IsReady()) {
+        HILOG_ERROR("AppMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->NotifyPageShow(token, pageStateData);
+}
+
+int32_t AppMgrService::NotifyPageHide(const sptr<IRemoteObject> &token, const PageStateData &pageStateData)
+{
+    HILOG_DEBUG("bundleName: %{public}s, moduelName: %{public}s, abilityName: %{public}s, pageName: %{public}s",
+        pageStateData.bundleName.c_str(), pageStateData.moduleName.c_str(), pageStateData.abilityName.c_str(),
+        pageStateData.pageName.c_str());
+    if (!IsReady()) {
+        HILOG_ERROR("AppMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->NotifyPageHide(token, pageStateData);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

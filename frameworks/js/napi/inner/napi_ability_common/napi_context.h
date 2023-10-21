@@ -199,7 +199,7 @@ napi_value NAPI_GetDisplayOrientation(napi_env env, napi_callback_info info);
  *
  * @return The return value from C++ to JS for the module.
  */
-NativeValue* CreateNapiJSContext(NativeEngine &engine);
+napi_value CreateNapiJSContext(napi_env env);
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif /* OHOS_ABILITY_RUNTIME_NAPI_CONTEXT_H */

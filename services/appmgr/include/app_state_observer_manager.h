@@ -26,6 +26,7 @@
 #include "app_state_data.h"
 #include "iapp_state_callback.h"
 #include "iapplication_state_observer.h"
+#include "page_state_data.h"
 #include "permission_constants.h"
 #include "permission_verification.h"
 #include "singleton.h"
@@ -52,6 +53,8 @@ public:
     void OnProcessDied(const std::shared_ptr<AppRunningRecord> &appRecord);
     void OnRenderProcessDied(const std::shared_ptr<RenderRecord> &renderRecord);
     void OnProcessReused(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void OnPageShow(const PageStateData pageStateData);
+    void OnPageHide(const PageStateData pageStateData);
 private:
     void HandleAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
         bool needNotifyApp);
@@ -74,6 +77,8 @@ private:
     void HandleOnProcessStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord);
     void HandleOnProcessDied(const ProcessData &data);
     void HandleOnProcessResued(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void HandleOnPageShow(const PageStateData pageStateData);
+    void HandleOnPageHide(const PageStateData pageStateData);
 
 private:
     std::shared_ptr<AAFwk::TaskHandlerWrap> handler_;

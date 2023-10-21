@@ -20,16 +20,16 @@ extern const char _binary_ability_stage_context_js_end[];
 extern const char _binary_ability_stage_context_abc_start[];
 extern const char _binary_ability_stage_context_abc_end[];
 
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_filename = "application/libabilitystagecontext_napi.so/ability_stage_context.js",
+    .nm_modname = "application.AbilityStageContext",
+};
+
 extern "C" __attribute__((constructor))
 void NAPI_application_AbilityStageContext_AutoRegister()
 {
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-        .name = "application.AbilityStageContext",
-        .fileName = "application/libabilitystagecontext_napi.so/ability_stage_context.js",
-    };
-
-    moduleManager->Register(&newModuleInfo);
+    napi_module_register(&_module);
 }
 
 extern "C" __attribute__((visibility("default")))

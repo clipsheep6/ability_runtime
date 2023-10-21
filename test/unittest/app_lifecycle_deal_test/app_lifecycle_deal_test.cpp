@@ -72,5 +72,77 @@ HWTEST_F(AppLifecycleDealTest, NotifyAppFault_002, TestSize.Level1)
     auto retsult = appLifeCycle->NotifyAppFault(faultData);
     EXPECT_EQ(ERR_OK, retsult);
 }
+
+/**
+ * @tc.name: AttachAppDebug_001
+ * @tc.desc: Test the normal state of AttachAppDebug
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppLifecycleDealTest, AttachAppDebug_001, TestSize.Level1)
+{
+    auto appLifeCycle = std::make_shared<AppLifeCycleDeal>();
+    EXPECT_NE(appLifeCycle, nullptr);
+    auto result = appLifeCycle->AttachAppDebug();
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AttachAppDebug_002
+ * @tc.desc: Test the abnormal state of AttachAppDebug
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppLifecycleDealTest, AttachAppDebug_002, TestSize.Level1)
+{
+    auto appLifeCycle = std::make_shared<AppLifeCycleDeal>();
+    EXPECT_NE(appLifeCycle, nullptr);
+    sptr<MockAppScheduler> mockAppScheduler = new (std::nothrow) MockAppScheduler();
+    appLifeCycle->SetApplicationClient(mockAppScheduler);
+    auto result = appLifeCycle->AttachAppDebug();
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
+ * @tc.name: DetachAppDebug_001
+ * @tc.desc: Test the abnormal state of DetachAppDebug
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppLifecycleDealTest, DetachAppDebug_001, TestSize.Level1)
+{
+    auto appLifeCycle = std::make_shared<AppLifeCycleDeal>();
+    EXPECT_NE(appLifeCycle, nullptr);
+    auto result = appLifeCycle->DetachAppDebug();
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: DetachAppDebug_002
+ * @tc.desc: Test the normal state of DetachAppDebug
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppLifecycleDealTest, DetachAppDebug_002, TestSize.Level1)
+{
+    auto appLifeCycle = std::make_shared<AppLifeCycleDeal>();
+    EXPECT_NE(appLifeCycle, nullptr);
+    sptr<MockAppScheduler> mockAppScheduler = new (std::nothrow) MockAppScheduler();
+    appLifeCycle->SetApplicationClient(mockAppScheduler);
+    auto result = appLifeCycle->DetachAppDebug();
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
+ * @tc.name: ChangeAppGcState_001
+ * @tc.desc: Verify that the ChangeAppGcState interface calls normally
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppLifecycleDealTest, ChangeAppGcState_001, TestSize.Level1)
+{
+    auto appLifeCycle = std::make_shared<AppLifeCycleDeal>();
+    int32_t result = appLifeCycle->ChangeAppGcState(0);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    sptr<MockAppScheduler> mockAppScheduler = new (std::nothrow) MockAppScheduler();
+    appLifeCycle->SetApplicationClient(mockAppScheduler);
+    int32_t result1 = appLifeCycle->ChangeAppGcState(0);
+    EXPECT_EQ(ERR_OK, result1);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

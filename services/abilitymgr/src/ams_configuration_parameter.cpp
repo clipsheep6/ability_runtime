@@ -87,6 +87,18 @@ int AmsConfigurationParameter::GetAppStartTimeoutTime() const
     return timeoutUnitTime_;
 }
 
+void AmsConfigurationParameter::SetPickerJsonObject(nlohmann::json Object)
+{
+    if (Object.contains(AmsConfig::PICKER_CONFIGURATION)) {
+        pickerJsonObject_ = Object.at(AmsConfig::PICKER_CONFIGURATION);
+    }
+}
+
+nlohmann::json AmsConfigurationParameter::GetPickerJsonObject() const
+{
+    return pickerJsonObject_;
+}
+
 int AmsConfigurationParameter::LoadAmsConfiguration(const std::string &filePath)
 {
     HILOG_DEBUG("%{public}s", __func__);
@@ -119,6 +131,7 @@ int AmsConfigurationParameter::LoadAmsConfiguration(const std::string &filePath)
     }
 
     LoadSystemConfiguration(amsJson);
+    SetPickerJsonObject(amsJson);
     amsJson.clear();
     inFile.close();
 

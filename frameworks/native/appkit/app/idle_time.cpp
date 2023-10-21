@@ -70,7 +70,7 @@ void IdleTime::OnVSync(int64_t timestamp, void* client)
             }
             idleTime->RequestVSync();
         };
-        eventHandler_->PostTask(task, timeOut);
+        eventHandler_->PostTask(task, "IdleTime:OnVSync", timeOut);
         if (successCount_ > TRY_COUNT_MAX) {
             period_ = (period & lastPeriod) + ((period ^ lastPeriod) >> 1); // average
         } else {
@@ -160,7 +160,7 @@ void IdleTime::PostTask()
         }
         idleTime->EventTask();
     };
-    eventHandler_->PostTask(task, EventQueue::Priority::IDLE);
+    eventHandler_->PostTask(task, "IdleTime:PostTask", 0, EventQueue::Priority::IDLE);
 }
 
 void IdleTime::Start()

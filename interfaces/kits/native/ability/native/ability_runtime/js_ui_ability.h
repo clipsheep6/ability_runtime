@@ -17,10 +17,10 @@
 #define OHOS_ABILITY_RUNTIME_JS_UI_ABILITY_H
 
 #include "ability_delegator_infos.h"
+#include "freeze_util.h"
 #include "ui_ability.h"
 
 class NativeReference;
-class NativeValue;
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -150,17 +150,17 @@ public:
     void Dump(const std::vector<std::string> &params, std::vector<std::string> &info) override;
 
     /**
+     * @brief Get JsAbility
+     * @return Return the JsAbility
+     */
+    std::shared_ptr<NativeReference> GetJsAbility();
+
+    /**
      * @brief Callback when the ability is shared.You can override this function to implement your own sharing logic.
      * @param wantParams Indicates the user data to be saved.
      * @return the result of OnShare
      */
     int32_t OnShare(WantParams &wantParams) override;
-
-    /**
-     * @brief Get JsAbility
-     * @return Return the JsAbility
-     */
-    std::shared_ptr<NativeReference> GetJsAbility();
 
 #ifdef SUPPORT_GRAPHICS
 public:
@@ -234,19 +234,20 @@ private:
 #endif
 
 private:
-    NativeValue *CallObjectMethod(
-        const char *name, NativeValue *const *argv = nullptr, size_t argc = 0, bool withResult = false);
-    bool CheckPromise(NativeValue *result);
-    bool CallPromise(NativeValue *result, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo);
+    napi_value CallObjectMethod(const char *name, napi_value const *argv = nullptr, size_t argc = 0,
+        bool withResult = false);
+    bool CheckPromise(napi_value result);
+    bool CallPromise(napi_value result, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo);
     std::unique_ptr<NativeReference> CreateAppWindowStage();
     std::shared_ptr<AppExecFwk::ADelegatorAbilityProperty> CreateADelegatorAbilityProperty();
-    sptr<IRemoteObject> SetNewRuleFlagToCallee(NativeEngine &nativeEngine, NativeValue *remoteJsObj);
+    sptr<IRemoteObject> SetNewRuleFlagToCallee(napi_env env, napi_value remoteJsObj);
     void SetAbilityContext(
         const std::shared_ptr<AbilityInfo> &abilityInfo, const std::string &moduleName, const std::string &srcPath);
     void DoOnForegroundForSceneIsNull(const Want &want);
     void GetDumpInfo(
-        NativeEngine &nativeEngine, NativeValue *dumpInfo, NativeValue *onDumpInfo, std::vector<std::string> &info);
-
+        napi_env env, napi_value dumpInfo, napi_value onDumpInfo, std::vector<std::string> &info);
+    void AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState state, const std::string &methodName) const;
+    void AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState state, const std::string &methodName) const;
     JsRuntime &jsRuntime_;
     std::shared_ptr<NativeReference> shellContextRef_;
     std::shared_ptr<NativeReference> jsAbilityObj_;

@@ -39,6 +39,20 @@ public:
     const std::string &GetName() const;
 
     /**
+     * @brief Obtains the bundle name of the ability.
+     *
+     * @return Returns the bundle name.
+     */
+    const std::string &GetBundleName() const;
+
+    /**
+     * @brief Obtains the module name of the ability.
+     *
+     * @return Returns the module name.
+     */
+    const std::string &GetModuleName() const;
+
+    /**
      * @brief Obtains the info of the ability.
      *
      * @return Returns the ability info.

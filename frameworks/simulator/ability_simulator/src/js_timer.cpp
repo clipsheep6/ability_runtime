@@ -37,10 +37,16 @@ std::unordered_map<uint32_t, std::shared_ptr<JsTimer>> g_timerTable;
 
 class JsTimer final {
 public:
-    JsTimer(NativeEngine &nativeEngine, const std::shared_ptr<NativeReference> &jsFunction, uint32_t id)
-        : nativeEngine_(nativeEngine), jsFunction_(jsFunction), id_(id)
+    JsTimer(napi_env env, const std::shared_ptr<NativeReference> &jsFunction, uint32_t id)
+        : env_(env), jsFunction_(jsFunction), id_(id)
     {
-        uv_timer_init(nativeEngine.GetUVLoop(), &timerReq_);
+        uv_loop_s* loop = nullptr;
+        napi_get_uv_event_loop(env_, &loop);
+        if (loop == nullptr) {
+            HILOG_ERROR("loop == nullptr.");
+            return;
+        }
+        uv_timer_init(loop, &timerReq_);
         timerReq_.data = this;
     }
 
@@ -59,12 +65,14 @@ public:
 
     void OnTimeout()
     {
-        std::vector<NativeValue*> args;
+        std::vector<napi_value> args;
         args.reserve(jsArgs_.size());
         for (auto arg : jsArgs_) {
-            args.emplace_back(arg->Get());
+            args.emplace_back(arg->GetNapiValue());
         }
-        nativeEngine_.CallFunction(nativeEngine_.CreateUndefined(), jsFunction_->Get(), args.data(), args.size());
+        napi_value res = nullptr;
+        napi_call_function(env_, CreateJsUndefined(env_),
+            jsFunction_->GetNapiValue(), args.size(), args.data(), &res);
 
         if (uv_timer_get_repeat(&timerReq_) == 0) {
             std::lock_guard<std::mutex> lock(g_mutex);
@@ -78,34 +86,44 @@ public:
     }
 
 private:
-    NativeEngine& nativeEngine_;
+    napi_env env_;
     std::shared_ptr<NativeReference> jsFunction_;
     std::vector<std::shared_ptr<NativeReference>> jsArgs_;
     uv_timer_t timerReq_;
     uint32_t id_ = 0;
 };
 
-NativeValue *StartTimeoutOrInterval(NativeEngine *engine, NativeCallbackInfo *info, bool isInterval)
+napi_value StartTimeoutOrInterval(napi_env env, napi_callback_info info, bool isInterval)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("Start timeout or interval failed with engine or callback info is nullptr.");
+    if (env == nullptr || info == nullptr) {
+        HILOG_ERROR("Start timeout or interval failed with env or callback info is nullptr.");
         return nullptr;
     }
+    size_t argc = ARGC_MAX_COUNT;
+    napi_value argv[ARGC_MAX_COUNT] = {nullptr};
+    napi_value thisVar = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
 
     // parameter check, must have at least 2 params
-    if (info->argc < 2 || info->argv[0]->TypeOf() != NATIVE_FUNCTION || info->argv[1]->TypeOf() != NATIVE_NUMBER) {
+    if (argc < 2 ||!CheckTypeForNapiValue(env, argv[0], napi_function)
+        || !CheckTypeForNapiValue(env, argv[1], napi_number)) {
         HILOG_ERROR("Set callback timer failed with invalid parameter.");
-        return engine->CreateUndefined();
+        return CreateJsUndefined(env);
     }
 
     // parse parameter
-    std::shared_ptr<NativeReference> jsFunction(engine->CreateReference(info->argv[0], 1));
-    int64_t delayTime = *ConvertNativeValueTo<NativeNumber>(info->argv[1]);
+    napi_ref ref = nullptr;
+    napi_create_reference(env, argv[0], 1, &ref);
+    std::shared_ptr<NativeReference> jsFunction(reinterpret_cast<NativeReference*>(ref));
+    int64_t delayTime = 0;
+    napi_get_value_int64(env, argv[1], &delayTime);
     uint32_t callbackId = g_callbackId.fetch_add(1, std::memory_order_relaxed);
 
-    auto task = std::make_shared<JsTimer>(*engine, jsFunction, callbackId);
-    for (size_t index = 2; index < info->argc; ++index) {
-        task->PushArgs(std::shared_ptr<NativeReference>(engine->CreateReference(info->argv[index], 1)));
+    auto task = std::make_shared<JsTimer>(env, jsFunction, callbackId);
+    for (size_t index = 2; index < argc; ++index) {
+        napi_ref taskRef = nullptr;
+        napi_create_reference(env, argv[index], 1, &taskRef);
+        task->PushArgs(std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(taskRef)));
     }
 
     // if setInterval is called, interval must not be zero for repeat, so set to 1ms
@@ -120,48 +138,52 @@ NativeValue *StartTimeoutOrInterval(NativeEngine *engine, NativeCallbackInfo *in
         g_timerTable.emplace(callbackId, task);
     }
 
-    return engine->CreateNumber(callbackId);
+    return CreateJsValue(env, callbackId);
 }
 
-NativeValue *StartTimeout(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value StartTimeout(napi_env env, napi_callback_info info)
 {
-    return StartTimeoutOrInterval(engine, info, false);
+    return StartTimeoutOrInterval(env, info, false);
 }
 
-NativeValue *StartInterval(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value StartInterval(napi_env env, napi_callback_info info)
 {
-    return StartTimeoutOrInterval(engine, info, true);
+    return StartTimeoutOrInterval(env, info, true);
 }
 
-NativeValue *StopTimeoutOrInterval(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value StopTimeoutOrInterval(napi_env env, napi_callback_info info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("Stop timeout or interval failed with engine or callback info is nullptr.");
+    if (env == nullptr || info == nullptr) {
+        HILOG_ERROR("Stop timeout or interval failed with env or callback info is nullptr.");
         return nullptr;
     }
+    size_t argc = ARGC_MAX_COUNT;
+    napi_value argv[ARGC_MAX_COUNT] = {nullptr};
+    napi_value thisVar = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
 
     // parameter check, must have at least 1 param
-    if (info->argc < 1 || info->argv[0]->TypeOf() != NATIVE_NUMBER) {
+    if (argc < 1 || !CheckTypeForNapiValue(env, argv[0], napi_number)) {
         HILOG_ERROR("Clear callback timer failed with invalid parameter.");
-        return engine->CreateUndefined();
+        return CreateJsUndefined(env);
     }
-
-    uint32_t callbackId = *ConvertNativeValueTo<NativeNumber>(info->argv[0]);
+    uint32_t callbackId = 0;
+    napi_get_value_uint32(env, argv[0], &callbackId);
     {
         std::lock_guard<std::mutex> lock(g_mutex);
         g_timerTable.erase(callbackId);
     }
-    return engine->CreateUndefined();
+    return CreateJsUndefined(env);
 }
 }
 
-void InitTimer(NativeEngine &engine, NativeObject &globalObject)
+void InitTimer(napi_env env, napi_value globalObject)
 {
     const char *moduleName = "AsJsTimer";
-    BindNativeFunction(engine, globalObject, "setTimeout", moduleName, StartTimeout);
-    BindNativeFunction(engine, globalObject, "setInterval", moduleName, StartInterval);
-    BindNativeFunction(engine, globalObject, "clearTimeout", moduleName, StopTimeoutOrInterval);
-    BindNativeFunction(engine, globalObject, "clearInterval", moduleName, StopTimeoutOrInterval);
+    BindNativeFunction(env, globalObject, "setTimeout", moduleName, StartTimeout);
+    BindNativeFunction(env, globalObject, "setInterval", moduleName, StartInterval);
+    BindNativeFunction(env, globalObject, "clearTimeout", moduleName, StopTimeoutOrInterval);
+    BindNativeFunction(env, globalObject, "clearInterval", moduleName, StopTimeoutOrInterval);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

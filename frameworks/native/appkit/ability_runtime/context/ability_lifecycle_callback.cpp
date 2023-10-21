@@ -20,8 +20,8 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-JsAbilityLifecycleCallback::JsAbilityLifecycleCallback(NativeEngine* engine)
-    : engine_(engine)
+JsAbilityLifecycleCallback::JsAbilityLifecycleCallback(napi_env env)
+    : env_(env)
 {
 }
 
@@ -31,15 +31,15 @@ void JsAbilityLifecycleCallback::CallJsMethodInnerCommon(const std::string &meth
     const std::shared_ptr<NativeReference> &ability, const std::shared_ptr<NativeReference> &windowStage,
     const std::map<int32_t, std::shared_ptr<NativeReference>> callbacks)
 {
-    auto nativeAbilityObj = engine_->CreateNull();
+    auto nativeAbilityObj = CreateJsNull(env_);
     if (ability != nullptr) {
-        nativeAbilityObj = ability->Get();
+        nativeAbilityObj = ability->GetNapiValue();
     }
 
     bool isWindowStage = false;
-    auto nativeWindowStageObj = engine_->CreateNull();
+    auto nativeWindowStageObj = CreateJsNull(env_);
     if (windowStage != nullptr) {
-        nativeWindowStageObj = windowStage->Get();
+        nativeWindowStageObj = windowStage->GetNapiValue();
         isWindowStage = true;
     }
 
@@ -49,25 +49,25 @@ void JsAbilityLifecycleCallback::CallJsMethodInnerCommon(const std::string &meth
             return;
         }
 
-        auto value = callback.second->Get();
-        auto obj = ConvertNativeValueTo<NativeObject>(value);
-        if (obj == nullptr) {
+        auto obj = callback.second->GetNapiValue();
+        if (!CheckTypeForNapiValue(env_, obj, napi_object)) {
             HILOG_ERROR("CallJsMethodInnerCommon, Failed to get object");
             return;
         }
 
-        auto method = obj->GetProperty(methodName.data());
+        napi_value method = nullptr;
+        napi_get_named_property(env_, obj, methodName.data(), &method);
         if (method == nullptr) {
             HILOG_ERROR("CallJsMethodInnerCommon, Failed to get %{public}s from object", methodName.data());
             return;
         }
 
         if (!isWindowStage) {
-            NativeValue *argv[] = { nativeAbilityObj };
-            engine_->CallFunction(value, method, argv, ArraySize(argv));
+            napi_value argv[] = { nativeAbilityObj };
+            napi_call_function(env_, obj, method, ArraySize(argv), argv, nullptr);
         } else {
-            NativeValue *argv[] = { nativeAbilityObj, nativeWindowStageObj };
-            engine_->CallFunction(value, method, argv, ArraySize(argv));
+            napi_value argv[] = { nativeAbilityObj, nativeWindowStageObj };
+            napi_call_function(env_, obj, method, ArraySize(argv), argv, nullptr);
         }
     }
 }
@@ -81,9 +81,9 @@ void JsAbilityLifecycleCallback::CallJsMethod(
         return;
     }
     std::weak_ptr<JsAbilityLifecycleCallback> thisWeakPtr(shared_from_this());
-    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>(
+    std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>(
         [thisWeakPtr, methodName, ability, callbacks = callbacks_, callbacksSync = callbacksSync_]
-        (NativeEngine &engine, AsyncTask &task, int32_t status) {
+        (napi_env env, NapiAsyncTask &task, int32_t status) {
             std::shared_ptr<JsAbilityLifecycleCallback> jsCallback = thisWeakPtr.lock();
             if (jsCallback) {
                 jsCallback->CallJsMethodInnerCommon(methodName, ability, nullptr, callbacks);
@@ -91,10 +91,10 @@ void JsAbilityLifecycleCallback::CallJsMethod(
             }
         }
     );
-    NativeReference *callback = nullptr;
-    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
-    AsyncTask::Schedule("JsAbilityLifecycleCallback::CallJsMethod:" + methodName,
-        *engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
+    napi_ref callback = nullptr;
+    std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
+    NapiAsyncTask::Schedule("JsAbilityLifecycleCallback::CallJsMethod:" + methodName,
+        env_, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
 void JsAbilityLifecycleCallback::CallWindowStageJsMethod(const std::string &methodName,
@@ -106,9 +106,9 @@ void JsAbilityLifecycleCallback::CallWindowStageJsMethod(const std::string &meth
         return;
     }
     std::weak_ptr<JsAbilityLifecycleCallback> thisWeakPtr(shared_from_this());
-    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>(
+    std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>(
         [thisWeakPtr, methodName, ability, windowStage, callbacks = callbacks_, callbacksSync = callbacksSync_]
-        (NativeEngine &engine, AsyncTask &task, int32_t status) {
+        (napi_env env, NapiAsyncTask &task, int32_t status) {
             std::shared_ptr<JsAbilityLifecycleCallback> jsCallback = thisWeakPtr.lock();
             if (jsCallback) {
                 jsCallback->CallJsMethodInnerCommon(methodName, ability, windowStage, callbacks);
@@ -116,10 +116,10 @@ void JsAbilityLifecycleCallback::CallWindowStageJsMethod(const std::string &meth
             }
         }
     );
-    NativeReference *callback = nullptr;
-    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
-    AsyncTask::Schedule("JsAbilityLifecycleCallback::CallWindowStageJsMethod:" + methodName,
-        *engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
+    napi_ref callback = nullptr;
+    std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
+    NapiAsyncTask::Schedule("JsAbilityLifecycleCallback::CallWindowStageJsMethod:" + methodName,
+        env_, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
 void JsAbilityLifecycleCallback::OnAbilityCreate(const std::shared_ptr<NativeReference> &ability)
@@ -171,10 +171,10 @@ void JsAbilityLifecycleCallback::OnAbilityContinue(const std::shared_ptr<NativeR
     CallJsMethod("onAbilityContinue", ability);
 }
 
-int32_t JsAbilityLifecycleCallback::Register(NativeValue *jsCallback, bool isSync)
+int32_t JsAbilityLifecycleCallback::Register(napi_value jsCallback, bool isSync)
 {
     HILOG_DEBUG("enter");
-    if (engine_ == nullptr) {
+    if (env_ == nullptr) {
         return -1;
     }
     int32_t callbackId = serialNumber_;
@@ -183,10 +183,12 @@ int32_t JsAbilityLifecycleCallback::Register(NativeValue *jsCallback, bool isSyn
     } else {
         serialNumber_ = 0;
     }
+    napi_ref ref = nullptr;
+    napi_create_reference(env_, jsCallback, 1, &ref);
     if (isSync) {
-        callbacksSync_.emplace(callbackId, std::shared_ptr<NativeReference>(engine_->CreateReference(jsCallback, 1)));
+        callbacksSync_.emplace(callbackId, std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
     } else {
-        callbacks_.emplace(callbackId, std::shared_ptr<NativeReference>(engine_->CreateReference(jsCallback, 1)));
+        callbacks_.emplace(callbackId, std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
     }
     return callbackId;
 }

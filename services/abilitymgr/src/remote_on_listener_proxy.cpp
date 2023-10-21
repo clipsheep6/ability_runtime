@@ -44,7 +44,12 @@ void RemoteOnListenerProxy::OnCallback(const uint32_t continueState, const std::
         HILOG_ERROR("NotifyOnsChanged Write bundleName failed.");
         return;
     }
-    int result = Remote()->SendRequest(IRemoteOnListener::ON_CALLBACK, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote object is nullptr.");
+        return;
+    }
+    int result = remote->SendRequest(IRemoteOnListener::ON_CALLBACK, data, reply, option);
     if (result != NO_ERROR) {
         HILOG_ERROR("NotifyMissionsChanged SendRequest fail, error: %{public}d", result);
         return;

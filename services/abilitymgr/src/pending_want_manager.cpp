@@ -42,17 +42,16 @@ PendingWantManager::~PendingWantManager()
     HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
 }
 
-sptr<IWantSender> PendingWantManager::GetWantSender(int32_t callingUid, int32_t uid, const std::string &apl,
+sptr<IWantSender> PendingWantManager::GetWantSender(int32_t callingUid, int32_t uid, const bool isSystemApp,
     const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken)
 {
     HILOG_INFO("PendingWantManager::GetWantSender begin.");
     if (wantSenderInfo.type != static_cast<int32_t>(OperationType::SEND_COMMON_EVENT)) {
-        auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-        if (!isSaCall && apl != AbilityUtil::SYSTEM_BASIC && apl != AbilityUtil::SYSTEM_CORE) {
-            if (callingUid != uid) {
-                HILOG_ERROR("is not allowed to send");
-                return nullptr;
-            }
+        if (callingUid != uid &&
+            !isSystemApp &&
+            !AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+            HILOG_ERROR("is not allowed to send");
+            return nullptr;
         }
     }
 
@@ -185,7 +184,7 @@ int32_t PendingWantManager::SendWantSender(const sptr<IWantSender> &target, cons
     return record->SenderInner(info);
 }
 
-void PendingWantManager::CancelWantSender(std::string &apl, const sptr<IWantSender> &sender)
+void PendingWantManager::CancelWantSender(const bool isSystemApp, const sptr<IWantSender> &sender)
 {
     HILOG_INFO("begin");
 
@@ -196,7 +195,7 @@ void PendingWantManager::CancelWantSender(std::string &apl, const sptr<IWantSend
 
     std::lock_guard<ffrt::mutex> locker(mutex_);
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall && apl != AbilityUtil::SYSTEM_BASIC && apl != AbilityUtil::SYSTEM_CORE) {
+    if (!isSaCall && !isSystemApp) {
         HILOG_ERROR("is not allowed to send");
         return;
     }

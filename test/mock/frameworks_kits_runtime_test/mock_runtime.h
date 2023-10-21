@@ -77,11 +77,11 @@ public:
         return true;
     }
     void Deinitialize() {}
-    NativeValue* LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk = false)
+    napi_value LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk = false)
     {
         return nullptr;
     }
-    NativeValue* LoadJsModule(const std::string& path, const std::string& hapPath)
+    napi_value LoadJsModule(const std::string& path, const std::string& hapPath)
     {
         return nullptr;
     }

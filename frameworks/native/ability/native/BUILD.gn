@@ -62,6 +62,8 @@ config("ability_config") {
     defines += [ "APP_USE_ARM64" ]
   } else if (target_cpu == "arm") {
     defines += [ "APP_USE_ARM" ]
+  } else if (target_cpu == "x86_64") {
+    defines += [ "APP_USE_X86_64" ]
   }
 
   if (ability_runtime_graphics) {
@@ -186,6 +188,7 @@ ohos_shared_library("abilitykit_utils") {
 ohos_shared_library("abilitykit_native") {
   include_dirs = [
     "${ability_base_kits_path}/extractortool/include",
+    "${ability_runtime_path}/utils/global/time/include",
     "${relational_store_napi_path}/rdb/include",
     "${relational_store_napi_path}/common/include",
     "${relational_store_napi_path}/dataability/include",
@@ -246,6 +249,7 @@ ohos_shared_library("abilitykit_native") {
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:app_context_utils",
     "${ability_runtime_native_path}/appkit:appkit_delegator",
+    "${ability_runtime_path}/utils/global/freeze:freeze_util",
     "${ability_runtime_services_path}/common:event_report",
   ]
 
@@ -282,14 +286,10 @@ ohos_shared_library("abilitykit_native") {
     defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
   }
 
-  if (purgeable_ashmem_enable) {
+  if (purgeable_ashmem_enable && defined(global_parts_info) &&
+      defined(global_parts_info.resourceschedule_memmgr_plugin)) {
     defines += [ "IMAGE_PURGEABLE_PIXELMAP" ]
-    if (defined(global_parts_info) &&
-        defined(global_parts_info.resourceschedule_memmgr_plugin)) {
-      external_deps += [ "memmgr_plugin:libpurgeablemem_plugin" ]
-    } else {
-      external_deps += [ "memory_utils:libpurgeablemem" ]
-    }
+    external_deps += [ "memmgr_plugin:libpurgeablemem_plugin" ]
   }
 
   if (efficiency_manager) {
@@ -440,6 +440,7 @@ ohos_shared_library("uiabilitykit_native") {
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_runtime",
+    "${ability_runtime_path}/utils/global/time/include",
   ]
 
   sources = [
@@ -465,6 +466,7 @@ ohos_shared_library("uiabilitykit_native") {
     "${ability_runtime_native_path}/ability:ability_context_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_delegator",
+    "${ability_runtime_path}/utils/global/freeze:freeze_util",
     "${ability_runtime_services_path}/common:event_report",
   ]
 
@@ -501,8 +503,10 @@ ohos_shared_library("uiabilitykit_native") {
 }
 
 ohos_shared_library("ability_thread") {
-  include_dirs =
-      [ "${ability_runtime_path}/interfaces/kits/native/ability/native" ]
+  include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_path}/utils/global/time/include",
+  ]
 
   sources = [
     "${ability_runtime_native_path}/ability/native/ability_thread.cpp",
@@ -519,6 +523,7 @@ ohos_shared_library("ability_thread") {
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
     "${ability_runtime_native_path}/ability:ability_context_native",
     "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_path}/utils/global/freeze:freeze_util",
   ]
 
   external_deps = [
@@ -897,9 +902,11 @@ ohos_shared_library("ui_extension") {
   ]
 
   external_deps = [
+    "ability_base:base",
     "ability_base:want",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
+    "ace_engine:ace_uicontent",
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
@@ -1050,6 +1057,31 @@ ohos_shared_library("share_extension_module") {
   ]
 
   relative_install_dir = "extensionability/"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_shared_library("auto_startup_callback") {
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_business_error" ]
+
+  sources = [
+    "${ability_runtime_native_path}/ability/native/auto_startup_callback_proxy.cpp",
+    "${ability_runtime_native_path}/ability/native/auto_startup_callback_stub.cpp",
+  ]
+
+  deps = [ "${ability_runtime_innerkits_path}/ability_manager:ability_manager" ]
+
+  configs = [ "${ability_runtime_services_path}/common:common_config" ]
+
+  external_deps = [
+    "ability_base:want",
+    "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

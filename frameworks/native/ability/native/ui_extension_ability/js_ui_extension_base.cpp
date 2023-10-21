@@ -42,7 +42,7 @@ namespace {
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 } // namespace
-NativeValue *AttachUIExtensionBaseContext(NativeEngine *engine, void *value, void*)
+napi_value AttachUIExtensionBaseContext(napi_env env, void *value, void*)
 {
     HILOG_DEBUG("called");
     if (value == nullptr) {
@@ -55,27 +55,26 @@ NativeValue *AttachUIExtensionBaseContext(NativeEngine *engine, void *value, voi
         HILOG_ERROR("invalid context.");
         return nullptr;
     }
-    NativeValue *object = JsUIExtensionContext::CreateJsUIExtensionContext(*engine, ptr);
+    napi_value object = JsUIExtensionContext::CreateJsUIExtensionContext(env, ptr);
     if (object == nullptr) {
         HILOG_ERROR("create context error.");
         return nullptr;
     }
-    auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine, "application.UIExtensionContext", &object, 1)->Get();
+    auto contextObj = JsRuntime::LoadSystemModuleByEngine(
+        env, "application.UIExtensionContext", &object, 1)->GetNapiValue();
     if (contextObj == nullptr) {
         HILOG_ERROR("load context error.");
         return nullptr;
     }
-    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
-    if (nObject == nullptr) {
-        HILOG_ERROR("convert context error.");
+    if (!CheckTypeForNapiValue(env, contextObj, napi_object)) {
+        HILOG_ERROR("not object.");
         return nullptr;
     }
-    nObject->ConvertToNativeBindingObject(engine, DetachCallbackFunc, AttachUIExtensionBaseContext, value, nullptr);
-
+    napi_coerce_to_native_binding_object(
+        env, contextObj, DetachCallbackFunc, AttachUIExtensionBaseContext, value, nullptr);
     auto workContext = new (std::nothrow) std::weak_ptr<UIExtensionContext>(ptr);
-    nObject->SetNativePointer(
-        workContext,
-        [](NativeEngine*, void *data, void*) {
+    napi_wrap(env, contextObj, workContext,
+        [](napi_env, void *data, void*) {
             HILOG_DEBUG("Finalizer for weak_ptr ui extension context is called");
             if (data == nullptr) {
                 HILOG_ERROR("Finalizer for weak_ptr is nullptr");
@@ -83,7 +82,7 @@ NativeValue *AttachUIExtensionBaseContext(NativeEngine *engine, void *value, voi
             }
             delete static_cast<std::weak_ptr<UIExtensionContext>*>(data);
         },
-        nullptr);
+        nullptr, nullptr);
     return contextObj;
 }
 
@@ -123,7 +122,7 @@ std::shared_ptr<JsExtensionCommon> JsUIExtensionBase::Init(const std::shared_ptr
     std::string moduleName(abilityInfo_->moduleName);
     moduleName.append("::").append(abilityInfo_->name);
     HandleScope handleScope(jsRuntime_);
-    auto &engine = jsRuntime_.GetNativeEngine();
+    napi_env env = jsRuntime_.GetNapiEnv();
 
     jsObj_ = jsRuntime_.LoadModule(
         moduleName, srcPath, abilityInfo_->hapPath, abilityInfo_->compileMode == CompileMode::ES_MODULE);
@@ -132,18 +131,18 @@ std::shared_ptr<JsExtensionCommon> JsUIExtensionBase::Init(const std::shared_ptr
         return nullptr;
     }
 
-    NativeObject *obj = ConvertNativeValueTo<NativeObject>(jsObj_->Get());
-    if (obj == nullptr) {
-        HILOG_ERROR("obj is nullptr");
+    napi_value obj = jsObj_->GetNapiValue();
+    if (!CheckTypeForNapiValue(env, obj, napi_object)) {
+        HILOG_ERROR("obj is not object");
         return nullptr;
     }
 
-    BindContext(engine, obj);
+    BindContext(env, obj);
 
     return JsExtensionCommon::Create(jsRuntime_, static_cast<NativeReference&>(*jsObj_), shellContextRef_);
 }
 
-void JsUIExtensionBase::BindContext(NativeEngine &engine, NativeObject *obj)
+void JsUIExtensionBase::BindContext(napi_env env, napi_value obj)
 {
     if (context_ == nullptr) {
         HILOG_ERROR("context_ is nullptr");
@@ -154,29 +153,26 @@ void JsUIExtensionBase::BindContext(NativeEngine &engine, NativeObject *obj)
         return;
     }
     HILOG_DEBUG("BindContext CreateJsUIExtensionContext.");
-    NativeValue *contextObj = JsUIExtensionContext::CreateJsUIExtensionContext(engine, context_);
+    napi_value contextObj = JsUIExtensionContext::CreateJsUIExtensionContext(env, context_);
     if (contextObj == nullptr) {
         HILOG_ERROR("Create js ui extension context error.");
         return;
     }
 
     shellContextRef_ =
-        JsRuntime::LoadSystemModuleByEngine(&engine, "application.UIExtensionContext", &contextObj, ARGC_ONE);
-    contextObj = shellContextRef_->Get();
-    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
-    if (nativeObj == nullptr) {
+        JsRuntime::LoadSystemModuleByEngine(env, "application.UIExtensionContext", &contextObj, ARGC_ONE);
+    contextObj = shellContextRef_->GetNapiValue();
+    if (!CheckTypeForNapiValue(env, contextObj, napi_object)) {
         HILOG_ERROR("Failed to get context native object");
         return;
     }
     auto workContext = new (std::nothrow) std::weak_ptr<UIExtensionContext>(context_);
-    nativeObj->ConvertToNativeBindingObject(
-        &engine, DetachCallbackFunc, AttachUIExtensionBaseContext, workContext, nullptr);
+    napi_coerce_to_native_binding_object(
+        env, contextObj, DetachCallbackFunc, AttachUIExtensionBaseContext, workContext, nullptr);
     context_->Bind(jsRuntime_, shellContextRef_.get());
-    obj->SetProperty("context", contextObj);
-
-    nativeObj->SetNativePointer(
-        workContext,
-        [](NativeEngine*, void *data, void*) {
+    napi_set_named_property(env, obj, "context", contextObj);
+    napi_wrap(env, contextObj, workContext,
+        [](napi_env, void *data, void*) {
             HILOG_DEBUG("Finalizer for weak_ptr ui extension context is called");
             if (data == nullptr) {
                 HILOG_ERROR("Finalizer for weak_ptr is nullptr");
@@ -184,7 +180,7 @@ void JsUIExtensionBase::BindContext(NativeEngine &engine, NativeObject *obj)
             }
             delete static_cast<std::weak_ptr<UIExtensionContext>*>(data);
         },
-        nullptr);
+        nullptr, nullptr);
 }
 
 void JsUIExtensionBase::OnStart(const AAFwk::Want &want)
@@ -243,25 +239,23 @@ void JsUIExtensionBase::OnCommand(const AAFwk::Want &want, bool restart, int32_t
 {
     HILOG_DEBUG("called");
     HandleScope handleScope(jsRuntime_);
-    NativeEngine *nativeEngine = &jsRuntime_.GetNativeEngine();
-    if (nativeEngine == nullptr) {
-        HILOG_ERROR("NativeEngine is nullptr.");
+    napi_env env = jsRuntime_.GetNapiEnv();
+    if (env == nullptr) {
+        HILOG_ERROR("env is nullptr.");
         return;
     }
-    napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
-    NativeValue *nativeWant = reinterpret_cast<NativeValue*>(napiWant);
-    if (nativeWant == nullptr) {
+    napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
+    if (napiWant == nullptr) {
         HILOG_ERROR("Failed to get want");
         return;
     }
     napi_value napiStartId = nullptr;
-    napi_create_int32(reinterpret_cast<napi_env>(nativeEngine), startId, &napiStartId);
-    NativeValue *nativeStartId = reinterpret_cast<NativeValue*>(napiStartId);
-    if (nativeStartId == nullptr) {
+    napi_create_int32(env, startId, &napiStartId);
+    if (napiStartId == nullptr) {
         HILOG_ERROR("Failed to get startId");
         return;
     }
-    NativeValue *argv[] = { nativeWant, nativeStartId };
+    napi_value argv[] = { napiWant, napiStartId };
     CallObjectMethod("onRequest", argv, ARGC_TWO);
 }
 
@@ -283,26 +277,27 @@ bool JsUIExtensionBase::CallJsOnSessionCreate(const AAFwk::Want &want, const spt
     const sptr<Rosen::Window> &uiWindow, const sptr<IRemoteObject> &sessionToken)
 {
     HandleScope handleScope(jsRuntime_);
-    NativeEngine *nativeEngine = &jsRuntime_.GetNativeEngine();
-    if (nativeEngine == nullptr) {
-        HILOG_ERROR("NativeEngine is nullptr.");
+    napi_env env = jsRuntime_.GetNapiEnv();
+    if (env == nullptr) {
+        HILOG_ERROR("env is nullptr.");
         return false;
     }
-    napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
-    NativeValue *nativeWant = reinterpret_cast<NativeValue*>(napiWant);
-    if (nativeWant == nullptr) {
+    napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
+    if (napiWant == nullptr) {
         HILOG_ERROR("Failed to get want");
         return false;
     }
-    NativeValue *nativeContentSession =
-        JsUIExtensionContentSession::CreateJsUIExtensionContentSession(*nativeEngine, sessionInfo, uiWindow);
+    napi_value nativeContentSession =
+        JsUIExtensionContentSession::CreateJsUIExtensionContentSession(env, sessionInfo, uiWindow);
     if (nativeContentSession == nullptr) {
         HILOG_ERROR("Failed to get contentSession");
         return false;
     }
+    napi_ref ref = nullptr;
+    napi_create_reference(env, nativeContentSession, 1, &ref);
     contentSessions_.emplace(
-        sessionToken, std::shared_ptr<NativeReference>(nativeEngine->CreateReference(nativeContentSession, 1)));
-    NativeValue *argv[] = { nativeWant, nativeContentSession };
+        sessionToken, std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
+    napi_value argv[] = { napiWant, nativeContentSession };
     CallObjectMethod("onSessionCreate", argv, ARGC_TWO);
     return true;
 }
@@ -375,7 +370,7 @@ void JsUIExtensionBase::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInf
     }
     if (contentSessions_.find(obj) != contentSessions_.end() && contentSessions_[obj] != nullptr) {
         HandleScope handleScope(jsRuntime_);
-        NativeValue *argv[] = { contentSessions_[obj]->Get() };
+        napi_value argv[] = { contentSessions_[obj]->GetNapiValue() };
         CallObjectMethod("onSessionDestroy", argv, ARGC_ONE);
     }
     auto &uiWindow = uiWindowMap_[obj];
@@ -387,28 +382,30 @@ void JsUIExtensionBase::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInf
     contentSessions_.erase(obj);
 }
 
-NativeValue *JsUIExtensionBase::CallObjectMethod(const char *name, NativeValue *const *argv, size_t argc)
+napi_value JsUIExtensionBase::CallObjectMethod(const char *name, napi_value const *argv, size_t argc)
 {
     HILOG_DEBUG("CallObjectMethod(%{public}s), begin", name);
     if (!jsObj_) {
         HILOG_ERROR("Not found .js file");
         return nullptr;
     }
-    auto &nativeEngine = jsRuntime_.GetNativeEngine();
-    NativeValue *value = jsObj_->Get();
-    NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
-    if (obj == nullptr) {
+    napi_env env = jsRuntime_.GetNapiEnv();
+    napi_value obj = jsObj_->GetNapiValue();
+    if (!CheckTypeForNapiValue(env, obj, napi_object)) {
         HILOG_ERROR("Failed to get object");
         return nullptr;
     }
 
-    NativeValue *method = obj->GetProperty(name);
-    if (method == nullptr || method->TypeOf() != NATIVE_FUNCTION) {
+    napi_value method = nullptr;
+    napi_get_named_property(env, obj, name, &method);
+    if (!CheckTypeForNapiValue(env, method, napi_function)) {
         HILOG_ERROR("Failed to get '%{public}s' object", name);
         return nullptr;
     }
     HILOG_DEBUG("CallFunction(%{public}s), success", name);
-    return nativeEngine.CallFunction(value, method, argv, argc);
+    napi_value result = nullptr;
+    napi_call_function(env, obj, method, argc, argv, &result);
+    return result;
 }
 
 void JsUIExtensionBase::OnConfigurationUpdated(const AppExecFwk::Configuration &configuration)
@@ -424,92 +421,58 @@ void JsUIExtensionBase::OnConfigurationUpdated(const AppExecFwk::Configuration &
         HILOG_ERROR("configuration is nullptr.");
         return;
     }
-    auto &nativeEngine = jsRuntime_.GetNativeEngine();
-    JsExtensionContext::ConfigurationUpdated(&nativeEngine, shellContextRef_, fullConfig);
+    napi_env env = jsRuntime_.GetNapiEnv();
+    JsExtensionContext::ConfigurationUpdated(env, shellContextRef_, fullConfig);
 
     napi_value napiConfiguration =
-        OHOS::AppExecFwk::WrapConfiguration(reinterpret_cast<napi_env>(&nativeEngine), *fullConfig);
-    NativeValue *jsConfiguration = reinterpret_cast<NativeValue*>(napiConfiguration);
-    if (jsConfiguration == nullptr) {
+        OHOS::AppExecFwk::WrapConfiguration(env, *fullConfig);
+    if (napiConfiguration == nullptr) {
         HILOG_ERROR("Failed to get configuration.");
         return;
     }
-    CallObjectMethod("onConfigurationUpdate", &jsConfiguration, ARGC_ONE);
-}
-
-bool JsUIExtensionBase::ParseDumpParams(
-    const std::vector<std::string> &params, NativeValue *method, NativeValue *arrayValue, NativeValue *value)
-{
-    HandleScope handleScope(jsRuntime_);
-    auto &nativeEngine = jsRuntime_.GetNativeEngine();
-    *arrayValue = nativeEngine.CreateArray(params.size());
-    if (arrayValue == nullptr) {
-        HILOG_ERROR("create array failed");
-        return false;
-    }
-    NativeArray *array = ConvertNativeValueTo<NativeArray>(arrayValue);
-    if (array == nullptr) {
-        HILOG_ERROR("convert array failed");
-        return false;
-    }
-    uint32_t index = 0;
-    for (const auto &param : params) {
-        array->SetElement(index++, CreateJsValue(nativeEngine, param));
-    }
-
-    if (!jsObj_) {
-        HILOG_ERROR("Not found .js file");
-        return false;
-    }
-
-    *value = jsObj_->Get();
-    NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
-    if (obj == nullptr) {
-        HILOG_ERROR("Failed to get object");
-        return false;
-    }
-
-    *method = obj->GetProperty("onDump");
-    if (method == nullptr || method->TypeOf() != NATIVE_FUNCTION) {
-        method = obj->GetProperty("dump");
-        if (method == nullptr || method->TypeOf() != NATIVE_FUNCTION) {
-            HILOG_ERROR("Failed to get onDump");
-            return false;
-        }
-    }
-    return true;
+    CallObjectMethod("onConfigurationUpdate", &napiConfiguration, ARGC_ONE);
 }
 
 void JsUIExtensionBase::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
     HILOG_DEBUG("called");
     HandleScope handleScope(jsRuntime_);
-    auto &nativeEngine = jsRuntime_.GetNativeEngine();
-    NativeValue *method = nullptr;
-    NativeValue *arrayValue = nullptr;
-    NativeValue *value = nullptr;
-    if (!ParseDumpParams(params, method, arrayValue, value)) {
-        HILOG_ERROR("parse dump params failed");
+    napi_env env = jsRuntime_.GetNapiEnv();
+    napi_value argv[] = { CreateNativeArray(env, params) };
+
+    if (!jsObj_) {
+        HILOG_ERROR("Not found .js file");
         return;
     }
-    if (method == nullptr || arrayValue == nullptr || value == nullptr) {
-        HILOG_ERROR("parse dump params failed");
+    napi_value obj = jsObj_->GetNapiValue();
+    if (!CheckTypeForNapiValue(env, obj, napi_object)) {
+        HILOG_ERROR("Failed to get object");
         return;
     }
-    NativeValue *argv[] = { arrayValue };
-    NativeValue *dumpInfo = nativeEngine.CallFunction(value, method, argv, ARGC_ONE);
+
+    napi_value method = nullptr;
+    napi_get_named_property(env, obj, "onDump", &method);
+    if (!CheckTypeForNapiValue(env, method, napi_function)) {
+        method = nullptr;
+        napi_get_named_property(env, obj, "dump", &method);
+        if (!CheckTypeForNapiValue(env, method, napi_function)) {
+            HILOG_ERROR("Failed to get onDump");
+            return;
+        }
+    }
+    napi_value dumpInfo = nullptr;
+    napi_call_function(env, obj, method, ARGC_ONE, argv, &dumpInfo);
     if (dumpInfo == nullptr) {
         HILOG_ERROR("dumpInfo is nullptr.");
         return;
     }
-    NativeArray *dumpInfoNative = ConvertNativeValueTo<NativeArray>(dumpInfo);
-    if (dumpInfoNative == nullptr) {
-        HILOG_ERROR("dumpInfoNative is nullptr.");
-        return;
-    }
-    for (uint32_t i = 0; i < dumpInfoNative->GetLength(); i++) {
+    uint32_t len = 0;
+    napi_get_array_length(env, dumpInfo, &len);
+    for (uint32_t i = 0; i < len; i++) {
         std::string dumpInfoStr;
-        if (!ConvertFromJsValue(nativeEngine, dumpInfoNative->GetElement(i), dumpInfoStr)) {
+        napi_value element = nullptr;
+        napi_get_element(env, dumpInfo, i, &element);
+        if (!ConvertFromJsValue(env, element, dumpInfoStr)) {
             HILOG_ERROR("Parse dumpInfoStr error");
             return;
         }

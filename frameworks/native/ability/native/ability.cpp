@@ -1672,6 +1672,15 @@ void Ability::SetShowOnLockScreen(bool showOnLockScreen)
     HILOG_DEBUG("SetShowOnLockScreen come, addWindowFlag, showOnLockScreen is %{public}d", showOnLockScreen);
     if (showOnLockScreen) {
         window->AddWindowFlag(Rosen::WindowFlag::WINDOW_FLAG_SHOW_WHEN_LOCKED);
+        if (abilityInfo_ == nullptr) {
+            HILOG_ERROR("Ability::SetShowOnLockScreen abilityInfo_ == nullptr");
+            return;
+        }
+        AAFwk::EventInfo eventInfo;
+        eventInfo.bundleName = abilityInfo_->bundleName;
+        eventInfo.moduleName = abilityInfo_->moduleName;
+        eventInfo.abilityName = abilityInfo_->name;
+        AAFwk::EventReport::SendKeyEvent(AAFwk::EventName::FA_SHOW_ON_LOCK, HiSysEventType::BEHAVIOR, eventInfo);
     } else {
         window->RemoveWindowFlag(Rosen::WindowFlag::WINDOW_FLAG_SHOW_WHEN_LOCKED);
     }
@@ -1972,7 +1981,7 @@ void Ability::OnChange(Rosen::DisplayId displayId)
         auto task = [ability = shared_from_this(), configuration = *configuration]() {
             ability->OnConfigurationUpdated(configuration);
         };
-        handler_->PostTask(task);
+        handler_->PostTask(task, "Ability:OnChange");
 
         auto diffConfiguration = std::make_shared<AppExecFwk::Configuration>(newConfig);
         HILOG_INFO("Update display config %{public}s for all windows.", diffConfiguration->GetName().c_str());
@@ -2033,7 +2042,7 @@ void Ability::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
         auto task = [ability = shared_from_this(), configuration = *configuration]() {
             ability->OnConfigurationUpdated(configuration);
         };
-        handler_->PostTask(task);
+        handler_->PostTask(task, "Ability:OnDisplayMove");
     }
 }
 

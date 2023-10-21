@@ -53,12 +53,6 @@ public:
     bool LoadBundleInfo(const std::string &bundleName);
 
     /**
-     * @brief update BundleInfo.
-     * @param bundleInfo Indicates the bundle info.
-     */
-    void UpdateBundleInfo(const BundleInfo &bundleInfo);
-
-    /**
      * @brief Delete bundle info from an exist BundleInfo.
      * @param bundleName Indicates the bundle name.
      */
@@ -84,7 +78,15 @@ public:
         std::vector<PurposeInfo> &purposeInfos) const;
 
 private:
+    /**
+     * @brief update BundleInfo.
+     * @param bundleInfo Indicates the bundle info.
+     */
+    void UpdateBundleInfoLocked(const BundleInfo &bundleInfo);
+
     BusinessType GetBusinessType(const BusinessAbilityFilter &filter) const;
+
+    void ClearAllBundleInfos();
 
 private:
     mutable std::mutex bundleInfoMutex_;

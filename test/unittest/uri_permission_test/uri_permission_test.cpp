@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include "event_report.h"
 #include "istorage_manager.h"
 #include "storage_manager_proxy.h"
 #include "system_ability_definition.h"

@@ -29,8 +29,6 @@
 #include "window.h"
 
 class NativeReference;
-class NativeValue;
-class NativeObject;
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -150,15 +148,13 @@ public:
     void SetContext(const std::shared_ptr<UIExtensionContext> &context);
 
 private:
-    void BindContext(NativeEngine &engine, NativeObject *obj);
-    NativeValue *CallObjectMethod(const char *name, NativeValue *const *argv = nullptr, size_t argc = 0);
+    void BindContext(napi_env env, napi_value obj);
+    napi_value CallObjectMethod(const char *name, napi_value const *argv = nullptr, size_t argc = 0);
     void ForegroundWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo);
     void BackgroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo);
     void DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo);
     bool CallJsOnSessionCreate(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
         const sptr<Rosen::Window> &uiWindow, const sptr<IRemoteObject> &sessionToken);
-    bool ParseDumpParams(
-        const std::vector<std::string> &params, NativeValue *method, NativeValue *arrayValue, NativeValue *value);
 
     JsRuntime &jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;

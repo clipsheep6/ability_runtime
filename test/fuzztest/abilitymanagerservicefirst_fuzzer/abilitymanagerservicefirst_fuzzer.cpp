@@ -72,6 +72,74 @@ sptr<Token> GetFuzzAbilityToken()
     return token;
 }
 
+void DoSomethingInterestingWithMyAPI1(AbilityManagerService &abilityms, Want& want,
+    sptr<IRemoteObject> token)
+{
+    sptr<IAbilityConnection> connect(new MyAbilityConnection());
+    abilityms.InitStartupFlag();
+    abilityms.QueryServiceState();
+    AbilityRequest abilityRequest;
+    AppExecFwk::ExtensionAbilityType extensionType = ExtensionAbilityType::SERVICE;
+    abilityms.CheckOptExtensionAbility(want, abilityRequest, int32Param, extensionType);
+    AppExecFwk::AbilityInfo abilityInfo;
+    abilityms.ReportAbilitStartInfoToRSS(abilityInfo);
+    abilityms.ReportEventToSuspendManager(abilityInfo);
+    abilityms.StartExtensionAbility(want, token, int32Param, extensionType);
+    abilityms.StopExtensionAbility(want, token, int32Param, extensionType);
+    abilityms.TerminateAbility(token, intParam, want);
+    abilityms.CloseAbility(token, intParam, want);
+    abilityms.TerminateAbilityWithFlag(token, intParam, &want, boolParam);
+    abilityms.SendResultToAbility(intParam, intParam, want);
+    abilityms.StartRemoteAbility(want, intParam, int32Param, token);
+    abilityms.CheckIfOperateRemote(want);
+    abilityms.AnonymizeDeviceId(stringParam);
+    abilityms.MinimizeAbility(token, boolParam);
+    abilityms.ConnectAbility(want, connect, token, int32Param);
+    abilityms.ConnectAbilityCommon(want, connect, token, extensionType, int32Param);
+    abilityms.BuildEventInfo(want, int32Param);
+    abilityms.DisconnectAbility(connect);
+    abilityms.ConnectLocalAbility(want, int32Param, connect, token, extensionType);
+    abilityms.ConnectRemoteAbility(want, token, token);
+    abilityms.DisconnectLocalAbility(connect);
+    abilityms.DisconnectRemoteAbility(token);
+    AAFwk::WantParams wantParams;
+    abilityms.ContinueMission(stringParam, stringParam, int32Param, token, wantParams);
+    abilityms.ContinueAbility(stringParam, int32Param, uint32Param);
+    abilityms.StartContinuation(want, token, int32Param);
+    abilityms.NotifyCompleteContinuation(stringParam, int32Param, boolParam);
+    abilityms.NotifyContinuationResult(int32Param, int32Param);
+    abilityms.StartSyncRemoteMissions(stringParam, boolParam, int64Param);
+    abilityms.StopSyncRemoteMissions(stringParam);
+}
+
+void DoSomethingInterestingWithMyAPI2(AbilityManagerService &abilityms, Want& want,
+    sptr<IRemoteObject> token)
+{
+    sptr<AbilityRuntime::IConnectionObserver> observer;
+    abilityms.RegisterObserver(observer);
+    abilityms.UnregisterObserver(observer);
+    std::vector<AbilityRuntime::DlpConnectionInfo> infos;
+    abilityms.GetDlpConnectionInfos(infos);
+    std::vector<AbilityRuntime::ConnectionData> connectionData;
+    abilityms.GetConnectionData(connectionData);
+
+    sptr<SessionInfo> extensionSessionInfo;
+    abilityms.StartUIExtensionAbility(extensionSessionInfo, int32Param);
+    extensionSessionInfo = sptr<SessionInfo>(new (std::nothrow) SessionInfo());
+    extensionSessionInfo->sessionToken = token;
+    extensionSessionInfo->callerToken = token;
+    extensionSessionInfo->persistentId = int32Param;
+    extensionSessionInfo->resultCode = int32Param;
+    extensionSessionInfo->requestCode = int32Param;
+    extensionSessionInfo->errorReason = stringParam;
+    extensionSessionInfo->errorCode = int32Param;
+    extensionSessionInfo->uiAbilityId = int64Param;
+    extensionSessionInfo->userId = int32Param;
+    extensionSessionInfo->state = CallToState::FOREGROUND;
+    extensionSessionInfo->want = want;
+    abilityms.StartUIExtensionAbility(extensionSessionInfo, int32Param);
+}
+
 bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
 {
     bool boolParam = *data % ENABLE;
@@ -89,68 +157,11 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
         }
     }
     sptr<IRemoteObject> token = GetFuzzAbilityToken();
-    sptr<IAbilityConnection> connect = new MyAbilityConnection();
 
     // fuzz for AbilityManagerService
     auto abilityms = std::make_shared<AbilityManagerService>();
-    abilityms->InitStartupFlag();
-    abilityms->QueryServiceState();
-    AbilityRequest abilityRequest;
-    AppExecFwk::ExtensionAbilityType extensionType = ExtensionAbilityType::SERVICE;
-    abilityms->CheckOptExtensionAbility(*want, abilityRequest, int32Param, extensionType);
-    AppExecFwk::AbilityInfo abilityInfo;
-    abilityms->ReportAbilitStartInfoToRSS(abilityInfo);
-    abilityms->ReportEventToSuspendManager(abilityInfo);
-    abilityms->StartExtensionAbility(*want, token, int32Param, extensionType);
-    abilityms->StopExtensionAbility(*want, token, int32Param, extensionType);
-    abilityms->TerminateAbility(token, intParam, want);
-    abilityms->CloseAbility(token, intParam, want);
-    abilityms->TerminateAbilityWithFlag(token, intParam, want, boolParam);
-    abilityms->SendResultToAbility(intParam, intParam, *want);
-    abilityms->StartRemoteAbility(*want, intParam, int32Param, token);
-    abilityms->CheckIfOperateRemote(*want);
-    abilityms->AnonymizeDeviceId(stringParam);
-    abilityms->MinimizeAbility(token, boolParam);
-    abilityms->ConnectAbility(*want, connect, token, int32Param);
-    abilityms->ConnectAbilityCommon(*want, connect, token, extensionType, int32Param);
-    abilityms->BuildEventInfo(*want, int32Param);
-    abilityms->DisconnectAbility(connect);
-    abilityms->ConnectLocalAbility(*want, int32Param, connect, token, extensionType);
-    abilityms->ConnectRemoteAbility(*want, token, token);
-    abilityms->DisconnectLocalAbility(connect);
-    abilityms->DisconnectRemoteAbility(token);
-    AAFwk::WantParams wantParams;
-    abilityms->ContinueMission(stringParam, stringParam, int32Param, token, wantParams);
-    abilityms->ContinueAbility(stringParam, int32Param, uint32Param);
-    abilityms->StartContinuation(*want, token, int32Param);
-    abilityms->NotifyCompleteContinuation(stringParam, int32Param, boolParam);
-    abilityms->NotifyContinuationResult(int32Param, int32Param);
-    abilityms->StartSyncRemoteMissions(stringParam, boolParam, int64Param);
-    abilityms->StopSyncRemoteMissions(stringParam);
-    sptr<AbilityRuntime::IConnectionObserver> observer;
-    abilityms->RegisterObserver(observer);
-    abilityms->UnregisterObserver(observer);
-    std::vector<AbilityRuntime::DlpConnectionInfo> infos;
-    abilityms->GetDlpConnectionInfos(infos);
-    std::vector<AbilityRuntime::ConnectionData> connectionData;
-    abilityms->GetConnectionData(connectionData);
-
-    sptr<SessionInfo> extensionSessionInfo;
-    abilityms->StartUIExtensionAbility(extensionSessionInfo, int32Param);
-    extensionSessionInfo = new (std::nothrow) SessionInfo();
-    extensionSessionInfo->sessionToken = token;
-    extensionSessionInfo->callerToken = token;
-    extensionSessionInfo->persistentId = int32Param;
-    extensionSessionInfo->resultCode = int32Param;
-    extensionSessionInfo->requestCode = int32Param;
-    extensionSessionInfo->errorReason = stringParam;
-    extensionSessionInfo->errorCode = int32Param;
-    extensionSessionInfo->uiAbilityId = int64Param;
-    extensionSessionInfo->userId = int32Param;
-    extensionSessionInfo->state = CallToState::FOREGROUND;
-    extensionSessionInfo->want = *want;
-    abilityms->StartUIExtensionAbility(extensionSessionInfo, int32Param);
-
+    DoSomethingInterestingWithMyAPI1(*abilityms, *want, token);
+    DoSomethingInterestingWithMyAPI2(*abilityms, *want, token);
     if (!want) {
         delete want;
         want = nullptr;

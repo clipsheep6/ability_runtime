@@ -551,12 +551,15 @@ private:
     std::shared_ptr<AbilityContext> BuildAbilityContext(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
         const std::shared_ptr<AppExecFwk::OHOSApplication> &application, const sptr<IRemoteObject> &token,
         const std::shared_ptr<Context> &stageContext);
+    
+    void AddLifecycleEvent(uint32_t state, std::string &methodName) const;
 
     std::shared_ptr<AppExecFwk::AbilityImpl> abilityImpl_;
     std::shared_ptr<AppExecFwk::Ability> currentAbility_;
     std::shared_ptr<ExtensionImpl> extensionImpl_;
     std::shared_ptr<Extension> currentExtension_;
     bool isExtension_ = false;
+    bool isUIAbility_ = false;
     bool isPrepareTerminate_ = false;
     std::atomic_bool isPrepareTerminateAbilityDone_ = false;
     std::mutex mutex_;

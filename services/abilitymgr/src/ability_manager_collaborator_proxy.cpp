@@ -46,12 +46,7 @@ int32_t AbilityManagerCollaboratorProxy::NotifyStartAbility(
         HILOG_ERROR("accessTokenIDEx write failed.");
         return ERR_INVALID_OPERATION;
     }
-    auto remote = Remote();
-    if (!remote) {
-        HILOG_ERROR("remote is nullptr");
-        return ERR_INVALID_OPERATION;
-    }
-    int32_t ret = remote->SendRequest(IAbilityManagerCollaborator::NOTIFY_START_ABILITY, data, reply, option);
+    int32_t ret = SendTransactCmd(IAbilityManagerCollaborator::NOTIFY_START_ABILITY, data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", ret);
         return ret;
@@ -88,12 +83,7 @@ int32_t AbilityManagerCollaboratorProxy::NotifyMissionCreated(int32_t missionId,
         HILOG_ERROR("want write failed.");
         return ERR_INVALID_OPERATION;
     }
-    auto remote = Remote();
-    if (!remote) {
-        HILOG_ERROR("remote is nullptr");
-        return ERR_INVALID_OPERATION;
-    }
-    int32_t ret = remote->SendRequest(IAbilityManagerCollaborator::NOTIFY_MISSION_CREATED, data, reply, option);
+    int32_t ret = SendTransactCmd(IAbilityManagerCollaborator::NOTIFY_MISSION_CREATED, data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", ret);
         return ret;
@@ -122,12 +112,7 @@ int32_t AbilityManagerCollaboratorProxy::NotifyMissionCreated(const sptr<Session
             return ERR_INVALID_OPERATION;
         }
     }
-    auto remote = Remote();
-    if (!remote) {
-        HILOG_ERROR("remote is nullptr");
-        return ERR_INVALID_OPERATION;
-    }
-    int32_t ret = remote->SendRequest(IAbilityManagerCollaborator::NOTIFY_MISSION_CREATED_BY_SCB, data, reply, option);
+    int32_t ret = SendTransactCmd(IAbilityManagerCollaborator::NOTIFY_MISSION_CREATED_BY_SCB, data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", ret);
         return ret;
@@ -158,12 +143,7 @@ int32_t AbilityManagerCollaboratorProxy::NotifyLoadAbility(
         HILOG_ERROR("want write failed.");
         return ERR_INVALID_OPERATION;
     }
-    auto remote = Remote();
-    if (!remote) {
-        HILOG_ERROR("remote is nullptr");
-        return ERR_INVALID_OPERATION;
-    }
-    int32_t ret = remote->SendRequest(IAbilityManagerCollaborator::NOTIFY_LOAD_ABILITY, data, reply, option);
+    int32_t ret = SendTransactCmd(IAbilityManagerCollaborator::NOTIFY_LOAD_ABILITY, data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", ret);
         return ret;
@@ -197,12 +177,7 @@ int32_t AbilityManagerCollaboratorProxy::NotifyLoadAbility(
             return ERR_INVALID_OPERATION;
         }
     }
-    auto remote = Remote();
-    if (!remote) {
-        HILOG_ERROR("remote is nullptr");
-        return ERR_INVALID_OPERATION;
-    }
-    int32_t ret = remote->SendRequest(IAbilityManagerCollaborator::NOTIFY_LOAD_ABILITY_BY_SCB, data, reply, option);
+    int32_t ret = SendTransactCmd(IAbilityManagerCollaborator::NOTIFY_LOAD_ABILITY_BY_SCB, data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", ret);
         return ret;
@@ -224,13 +199,36 @@ int32_t AbilityManagerCollaboratorProxy::NotifyMoveMissionToBackground(int32_t m
         HILOG_ERROR("missionId write failed.");
         return ERR_INVALID_OPERATION;
     }
+    int32_t ret = SendTransactCmd(
+        IAbilityManagerCollaborator::NOTIFY_MOVE_MISSION_TO_BACKGROUND, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", ret);
+        return ret;
+    }
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerCollaboratorProxy::NotifyPreloadAbility(const std::string &bundleName)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+
+    if (!data.WriteInterfaceToken(AbilityManagerCollaboratorProxy::GetDescriptor())) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_OPERATION;
+    }
+    if (!data.WriteString16(Str8ToStr16(bundleName))) {
+        HILOG_ERROR("bundleName write failed.");
+        return ERR_INVALID_OPERATION;
+    }
     auto remote = Remote();
     if (!remote) {
         HILOG_ERROR("remote is nullptr");
         return ERR_INVALID_OPERATION;
     }
     int32_t ret = remote->SendRequest(
-        IAbilityManagerCollaborator::NOTIFY_MOVE_MISSION_TO_BACKGROUND, data, reply, option);
+        IAbilityManagerCollaborator::NOTIFY_PRELOAD_ABILITY, data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", ret);
         return ret;
@@ -252,12 +250,7 @@ int32_t AbilityManagerCollaboratorProxy::NotifyMoveMissionToForeground(int32_t m
         HILOG_ERROR("missionId write failed.");
         return ERR_INVALID_OPERATION;
     }
-    auto remote = Remote();
-    if (!remote) {
-        HILOG_ERROR("remote is nullptr");
-        return ERR_INVALID_OPERATION;
-    }
-    int32_t ret = remote->SendRequest(
+    int32_t ret = SendTransactCmd(
         IAbilityManagerCollaborator::NOTIFY_MOVE_MISSION_TO_FOREGROUND, data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", ret);
@@ -280,12 +273,7 @@ int32_t AbilityManagerCollaboratorProxy::NotifyTerminateMission(int32_t missionI
         HILOG_ERROR("missionId write failed.");
         return ERR_INVALID_OPERATION;
     }
-    auto remote = Remote();
-    if (!remote) {
-        HILOG_ERROR("remote is nullptr");
-        return ERR_INVALID_OPERATION;
-    }
-    int32_t ret = remote->SendRequest(
+    int32_t ret = SendTransactCmd(
         IAbilityManagerCollaborator::NOTIFY_TERMINATE_MISSION, data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", ret);
@@ -308,12 +296,7 @@ int32_t AbilityManagerCollaboratorProxy::NotifyClearMission(int32_t missionId)
         HILOG_ERROR("missionId write failed.");
         return ERR_INVALID_OPERATION;
     }
-    auto remote = Remote();
-    if (!remote) {
-        HILOG_ERROR("remote is nullptr");
-        return ERR_INVALID_OPERATION;
-    }
-    int32_t ret = remote->SendRequest(
+    int32_t ret = SendTransactCmd(
         IAbilityManagerCollaborator::NOTIFY_CLEAR_MISSION, data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", ret);
@@ -344,12 +327,7 @@ int32_t AbilityManagerCollaboratorProxy::NotifyRemoveShellProcess(int32_t pid, i
         HILOG_ERROR("reason write failed.");
         return ERR_INVALID_OPERATION;
     }
-    auto remote = Remote();
-    if (!remote) {
-        HILOG_ERROR("remote is nullptr");
-        return ERR_INVALID_OPERATION;
-    }
-    int32_t ret = remote->SendRequest(
+    int32_t ret = SendTransactCmd(
         IAbilityManagerCollaborator::NOTIFY_REMOVE_SHELL_PROCESS, data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", ret);
@@ -374,12 +352,7 @@ void AbilityManagerCollaboratorProxy::UpdateMissionInfo(InnerMissionInfoDto &inf
         return;
     }
 
-    auto remote = Remote();
-    if (!remote) {
-        HILOG_ERROR("remote is nullptr");
-        return;
-    }
-    int32_t ret = remote->SendRequest(IAbilityManagerCollaborator::UPDATE_MISSION_INFO, data, reply, option);
+    int32_t ret = SendTransactCmd(IAbilityManagerCollaborator::UPDATE_MISSION_INFO, data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", ret);
         return;
@@ -417,12 +390,7 @@ void AbilityManagerCollaboratorProxy::UpdateMissionInfo(sptr<SessionInfo> &sessi
         }
     }
 
-    auto remote = Remote();
-    if (!remote) {
-        HILOG_ERROR("remote is nullptr");
-        return;
-    }
-    int32_t ret = remote->SendRequest(IAbilityManagerCollaborator::UPDATE_MISSION_INFO_BY_SCB, data, reply, option);
+    int32_t ret = SendTransactCmd(IAbilityManagerCollaborator::UPDATE_MISSION_INFO_BY_SCB, data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", ret);
         return;
@@ -430,6 +398,18 @@ void AbilityManagerCollaboratorProxy::UpdateMissionInfo(sptr<SessionInfo> &sessi
 
     sessionInfo = reply.ReadParcelable<SessionInfo>();
     return;
+}
+
+int32_t AbilityManagerCollaboratorProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    return remote->SendRequest(code, data, reply, option);
 }
 }   // namespace AAFwk
 }   // namespace OHOS

@@ -20,8 +20,6 @@
 #include "form_extension.h"
 
 class NativeReference;
-class NativeValue;
-class NativeObject;
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -67,17 +65,17 @@ public:
     void OnStop() override;
 
 private:
-    NativeValue* CallObjectMethod(const char* name, const char* bakName, NativeValue* const * argv = nullptr,
+    napi_value CallObjectMethod(const char* name, const char* bakName, napi_value const * argv = nullptr,
         size_t argc = 0);
 
-    void BindContext(NativeEngine& engine, NativeObject* obj);
+    void BindContext(napi_env env, napi_value obj);
 
     void GetSrcPath(std::string &srcPath);
 
-    bool ConvertFromDataProxies(NativeEngine& engine, NativeValue* jsValue,
+    bool ConvertFromDataProxies(napi_env env, napi_value jsValue,
         std::vector<FormDataProxy> &formDataProxies);
 
-    bool ConvertFormDataProxy(NativeEngine& engine, NativeValue* jsValue, FormDataProxy &formDataProxy);
+    bool ConvertFormDataProxy(napi_env env, napi_value jsValue, FormDataProxy &formDataProxy);
 
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;

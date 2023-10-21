@@ -28,89 +28,88 @@ namespace {
 constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
 }
-void JsAbilityContext::Finalizer(NativeEngine *engine, void *data, void *hint)
+void JsAbilityContext::Finalizer(napi_env env, void *data, void *hint)
 {
     HILOG_DEBUG("called");
     std::unique_ptr<JsAbilityContext>(static_cast<JsAbilityContext*>(data));
 }
 
-NativeValue *JsAbilityContext::StartAbility(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsAbilityContext::StartAbility(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsAbilityContext::StartAbilityAsCaller(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsAbilityContext::StartAbilityAsCaller(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsAbilityContext::StartRecentAbility(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsAbilityContext::StartRecentAbility(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsAbilityContext::StartAbilityWithAccount(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsAbilityContext::StartAbilityWithAccount(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsAbilityContext::StartAbilityByCall(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsAbilityContext::StartAbilityByCall(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsAbilityContext::StartAbilityForResult(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsAbilityContext::StartAbilityForResult(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsAbilityContext::StartAbilityForResultWithAccount(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsAbilityContext::StartAbilityForResultWithAccount(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsAbilityContext::StartServiceExtensionAbility(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsAbilityContext::StartServiceExtensionAbility(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsAbilityContext::StartServiceExtensionAbilityWithAccount(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsAbilityContext::StartServiceExtensionAbilityWithAccount(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsAbilityContext::StopServiceExtensionAbility(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsAbilityContext::StopServiceExtensionAbility(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsAbilityContext::StopServiceExtensionAbilityWithAccount(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsAbilityContext::StopServiceExtensionAbilityWithAccount(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsAbilityContext::ConnectAbility(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsAbilityContext::ConnectAbility(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsAbilityContext::ConnectAbilityWithAccount(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsAbilityContext::ConnectAbilityWithAccount(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsAbilityContext::DisconnectAbility(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsAbilityContext::DisconnectAbility(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsAbilityContext::TerminateSelf(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsAbilityContext::TerminateSelf(napi_env env, napi_callback_info info)
 {
-    JsAbilityContext *me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
-    return (me != nullptr) ? me->OnTerminateSelf(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnTerminateSelf);
 }
 
-NativeValue *JsAbilityContext::OnTerminateSelf(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JsAbilityContext::OnTerminateSelf(napi_env env, NapiCallbackInfo &info)
 {
     HILOG_DEBUG("TerminateSelf");
     auto abilityContext = context_.lock();
@@ -119,30 +118,29 @@ NativeValue *JsAbilityContext::OnTerminateSelf(NativeEngine &engine, NativeCallb
     }
     abilityContext->SetTerminating(true);
 
-    NativeValue *lastParam = (info.argc > ARGC_ZERO) ? info.argv[ARGC_ZERO] : nullptr;
-    NativeValue *result = nullptr;
-    auto task = CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, nullptr, &result);
+    napi_value lastParam = (info.argc > ARGC_ZERO) ? info.argv[ARGC_ZERO] : nullptr;
+    napi_value result = nullptr;
+    auto task = CreateAsyncTaskWithLastParam(env, lastParam, nullptr, nullptr, &result);
     if (task == nullptr) {
         return nullptr;
     }
 
     auto errcode = abilityContext->TerminateSelf();
     if (errcode == 0) {
-        task->Resolve(engine, engine.CreateUndefined());
+        task->Resolve(env, CreateJsUndefined(env));
     } else {
-        task->Reject(engine, CreateJsErrorByNativeErr(engine, errcode));
+        task->Reject(env, CreateJsErrorByNativeErr(env, errcode));
     }
 
     return result;
 }
 
-NativeValue *JsAbilityContext::TerminateSelfWithResult(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsAbilityContext::TerminateSelfWithResult(napi_env env, napi_callback_info info)
 {
-    JsAbilityContext *me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
-    return (me != nullptr) ? me->OnTerminateSelfWithResult(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnTerminateSelfWithResult);
 }
 
-NativeValue *JsAbilityContext::OnTerminateSelfWithResult(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JsAbilityContext::OnTerminateSelfWithResult(napi_env env, NapiCallbackInfo &info)
 {
     HILOG_DEBUG("called.");
     auto abilityContext = context_.lock();
@@ -151,59 +149,58 @@ NativeValue *JsAbilityContext::OnTerminateSelfWithResult(NativeEngine &engine, N
     }
     abilityContext->SetTerminating(true);
 
-    NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[ARGC_ONE] : nullptr;
-    NativeValue *result = nullptr;
-    auto task = CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, nullptr, &result);
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[ARGC_ONE] : nullptr;
+    napi_value result = nullptr;
+    auto task = CreateAsyncTaskWithLastParam(env, lastParam, nullptr, nullptr, &result);
     if (task == nullptr) {
         return nullptr;
     }
 
     auto errcode = abilityContext->TerminateSelf();
     if (errcode == 0) {
-        task->Resolve(engine, engine.CreateUndefined());
+        task->Resolve(env, CreateJsUndefined(env));
     } else {
-        task->Reject(engine, CreateJsErrorByNativeErr(engine, errcode));
+        task->Reject(env, CreateJsErrorByNativeErr(env, errcode));
     }
 
     return result;
 }
 
-NativeValue *JsAbilityContext::RestoreWindowStage(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsAbilityContext::RestoreWindowStage(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsAbilityContext::RequestDialogService(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsAbilityContext::RequestDialogService(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
 
-NativeValue *JsAbilityContext::IsTerminating(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JsAbilityContext::IsTerminating(napi_env env, napi_callback_info info)
 {
-    JsAbilityContext *me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
-    return (me != nullptr) ? me->OnIsTerminating(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnIsTerminating);
 }
 
-NativeValue *JsAbilityContext::OnIsTerminating(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JsAbilityContext::OnIsTerminating(napi_env env, NapiCallbackInfo &info)
 {
     HILOG_DEBUG("IsTerminating");
     auto context = context_.lock();
     if (context == nullptr) {
         HILOG_ERROR("OnIsTerminating context is nullptr");
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
-    return engine.CreateBoolean(context->IsTerminating());
+    return CreateJsValue(env, context->IsTerminating());
 }
 
-NativeValue *CreateJsErrorByNativeErr(NativeEngine &engine, int32_t err, const std::string &permission)
+napi_value CreateJsErrorByNativeErr(napi_env env, int32_t err, const std::string &permission)
 {
     auto errCode = GetJsErrorCodeByNativeError(err);
     auto errMsg = (errCode == AbilityErrorCode::ERROR_CODE_PERMISSION_DENIED && !permission.empty()) ?
         GetNoPermissionErrorMsg(permission) : GetErrorMsg(errCode);
-    return CreateJsError(engine, static_cast<int32_t>(errCode), errMsg);
+    return CreateJsError(env, static_cast<int32_t>(errCode), errMsg);
 }
 
-void JsAbilityContext::ConfigurationUpdated(NativeEngine *engine, std::shared_ptr<NativeReference> &jsContext,
+void JsAbilityContext::ConfigurationUpdated(napi_env env, std::shared_ptr<NativeReference> &jsContext,
     const std::shared_ptr<AppExecFwk::Configuration> &config)
 {
     HILOG_DEBUG("called.");
@@ -212,83 +209,86 @@ void JsAbilityContext::ConfigurationUpdated(NativeEngine *engine, std::shared_pt
         return;
     }
 
-    NativeValue *value = jsContext->Get();
-    NativeObject *object = ConvertNativeValueTo<NativeObject>(value);
-    if (object == nullptr) {
-        HILOG_ERROR("object is nullptr.");
+    napi_value value = jsContext->GetNapiValue();
+    if (value == nullptr) {
+        HILOG_ERROR("value is nullptr.");
         return;
     }
 
-    NativeValue *method = object->GetProperty("onUpdateConfiguration");
+    napi_value method = nullptr;
+    napi_get_named_property(env, value, "onUpdateConfiguration", &method);
     if (method == nullptr) {
         HILOG_ERROR("Failed to get onUpdateConfiguration from object");
         return;
     }
 
-    NativeValue *argv[] = { CreateJsConfiguration(*engine, *config) };
-    engine->CallFunction(value, method, argv, 1);
+    napi_value argv[] = { CreateJsConfiguration(env, *config) };
+    napi_value callResult = nullptr;
+    napi_call_function(env, nullptr, method, 1, argv, &callResult);
 }
 
-NativeValue *CreateJsAbilityContext(NativeEngine &engine, const std::shared_ptr<AbilityContext> &context)
+napi_value CreateJsAbilityContext(napi_env env, const std::shared_ptr<AbilityContext> &context)
 {
-    NativeValue *objValue = CreateJsBaseContext(engine, context);
-    NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
+    napi_value object = CreateJsBaseContext(env, context);
 
     std::unique_ptr<JsAbilityContext> jsContext = std::make_unique<JsAbilityContext>(context);
-    object->SetNativePointer(jsContext.release(), JsAbilityContext::Finalizer, nullptr);
+    napi_wrap(env, object, jsContext.release(), JsAbilityContext::Finalizer, nullptr, nullptr);
 
     auto resourceManager = context->GetResourceManager();
     if (resourceManager != nullptr) {
-        object->SetProperty("resourceManager", CreateJsResourceManager(engine, resourceManager, context));
+        napi_set_named_property(env, object, "resourceManager",
+            CreateJsResourceManager(env, resourceManager, context));
     }
 
     auto abilityInfo = context->GetAbilityInfo();
     if (abilityInfo != nullptr) {
-        object->SetProperty("abilityInfo", CreateJsAbilityInfo(engine, *abilityInfo));
+        napi_set_named_property(
+            env, object, "abilityInfo", CreateJsAbilityInfo(env, *abilityInfo));
     }
 
     auto configuration = context->GetConfiguration();
     if (configuration != nullptr) {
-        object->SetProperty("config", CreateJsConfiguration(engine, *configuration));
+        napi_set_named_property(
+            env, object, "config", CreateJsConfiguration(env, *configuration));
     }
 
     const char *moduleName = "JsAbilityContext";
-    BindNativeFunction(engine, *object, "startAbility", moduleName, JsAbilityContext::StartAbility);
-    BindNativeFunction(engine, *object, "startAbilityAsCaller", moduleName, JsAbilityContext::StartAbilityAsCaller);
-    BindNativeFunction(engine, *object, "startAbilityWithAccount", moduleName,
+    BindNativeFunction(env, object, "startAbility", moduleName, JsAbilityContext::StartAbility);
+    BindNativeFunction(env, object, "startAbilityAsCaller", moduleName, JsAbilityContext::StartAbilityAsCaller);
+    BindNativeFunction(env, object, "startAbilityWithAccount", moduleName,
         JsAbilityContext::StartAbilityWithAccount);
-    BindNativeFunction(engine, *object, "startAbilityByCall", moduleName, JsAbilityContext::StartAbilityByCall);
-    BindNativeFunction(engine, *object, "startAbilityForResult", moduleName, JsAbilityContext::StartAbilityForResult);
-    BindNativeFunction(engine, *object, "startAbilityForResultWithAccount", moduleName,
+    BindNativeFunction(env, object, "startAbilityByCall", moduleName, JsAbilityContext::StartAbilityByCall);
+    BindNativeFunction(env, object, "startAbilityForResult", moduleName, JsAbilityContext::StartAbilityForResult);
+    BindNativeFunction(env, object, "startAbilityForResultWithAccount", moduleName,
         JsAbilityContext::StartAbilityForResultWithAccount);
-    BindNativeFunction(engine, *object, "startServiceExtensionAbility", moduleName,
+    BindNativeFunction(env, object, "startServiceExtensionAbility", moduleName,
         JsAbilityContext::StartServiceExtensionAbility);
-    BindNativeFunction(engine, *object, "startServiceExtensionAbilityWithAccount", moduleName,
+    BindNativeFunction(env, object, "startServiceExtensionAbilityWithAccount", moduleName,
         JsAbilityContext::StartServiceExtensionAbilityWithAccount);
-    BindNativeFunction(engine, *object, "stopServiceExtensionAbility", moduleName,
+    BindNativeFunction(env, object, "stopServiceExtensionAbility", moduleName,
         JsAbilityContext::StopServiceExtensionAbility);
-    BindNativeFunction(engine, *object, "stopServiceExtensionAbilityWithAccount", moduleName,
+    BindNativeFunction(env, object, "stopServiceExtensionAbilityWithAccount", moduleName,
         JsAbilityContext::StopServiceExtensionAbilityWithAccount);
-    BindNativeFunction(engine, *object, "connectAbility", moduleName, JsAbilityContext::ConnectAbility);
-    BindNativeFunction(engine, *object, "connectServiceExtensionAbility", moduleName, JsAbilityContext::ConnectAbility);
-    BindNativeFunction(engine, *object, "connectAbilityWithAccount", moduleName,
+    BindNativeFunction(env, object, "connectAbility", moduleName, JsAbilityContext::ConnectAbility);
+    BindNativeFunction(env, object, "connectServiceExtensionAbility", moduleName, JsAbilityContext::ConnectAbility);
+    BindNativeFunction(env, object, "connectAbilityWithAccount", moduleName,
         JsAbilityContext::ConnectAbilityWithAccount);
-    BindNativeFunction(engine, *object, "connectServiceExtensionAbilityWithAccount", moduleName,
+    BindNativeFunction(env, object, "connectServiceExtensionAbilityWithAccount", moduleName,
         JsAbilityContext::ConnectAbilityWithAccount);
-    BindNativeFunction(engine, *object, "disconnectAbility", moduleName, JsAbilityContext::DisconnectAbility);
+    BindNativeFunction(env, object, "disconnectAbility", moduleName, JsAbilityContext::DisconnectAbility);
     BindNativeFunction(
-        engine, *object, "disconnectServiceExtensionAbility", moduleName, JsAbilityContext::DisconnectAbility);
-    BindNativeFunction(engine, *object, "terminateSelf", moduleName, JsAbilityContext::TerminateSelf);
-    BindNativeFunction(engine, *object, "terminateSelfWithResult", moduleName,
+        env, object, "disconnectServiceExtensionAbility", moduleName, JsAbilityContext::DisconnectAbility);
+    BindNativeFunction(env, object, "terminateSelf", moduleName, JsAbilityContext::TerminateSelf);
+    BindNativeFunction(env, object, "terminateSelfWithResult", moduleName,
         JsAbilityContext::TerminateSelfWithResult);
-    BindNativeFunction(engine, *object, "restoreWindowStage", moduleName, JsAbilityContext::RestoreWindowStage);
-    BindNativeFunction(engine, *object, "isTerminating", moduleName, JsAbilityContext::IsTerminating);
-    BindNativeFunction(engine, *object, "startRecentAbility", moduleName,
+    BindNativeFunction(env, object, "restoreWindowStage", moduleName, JsAbilityContext::RestoreWindowStage);
+    BindNativeFunction(env, object, "isTerminating", moduleName, JsAbilityContext::IsTerminating);
+    BindNativeFunction(env, object, "startRecentAbility", moduleName,
         JsAbilityContext::StartRecentAbility);
-    BindNativeFunction(engine, *object, "requestDialogService", moduleName,
+    BindNativeFunction(env, object, "requestDialogService", moduleName,
         JsAbilityContext::RequestDialogService);
 
-    return objValue;
+    return object;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

@@ -40,165 +40,152 @@ public:
     JsUriPermMgr() = default;
     ~JsUriPermMgr() = default;
 
-    static void Finalizer(NativeEngine* engine, void* data, void* hint)
+    static void Finalizer(napi_env env, void* data, void* hint)
     {
         HILOG_INFO("JsUriPermMgr::Finalizer is called");
         std::unique_ptr<JsUriPermMgr>(static_cast<JsUriPermMgr*>(data));
     }
 
-    static NativeValue* GrantUriPermission(NativeEngine* engine, NativeCallbackInfo* info)
+    static napi_value GrantUriPermission(napi_env env, napi_callback_info info)
     {
-        JsUriPermMgr* me = CheckParamsAndGetThis<JsUriPermMgr>(engine, info);
-        return (me != nullptr) ? me->OnGrantUriPermission(*engine, *info) : nullptr;
+        GET_NAPI_INFO_AND_CALL(env, info, JsUriPermMgr, OnGrantUriPermission);
     }
 
-    static NativeValue* RevokeUriPermission(NativeEngine* engine, NativeCallbackInfo* info)
+    static napi_value RevokeUriPermission(napi_env env, napi_callback_info info)
     {
-        JsUriPermMgr* me = CheckParamsAndGetThis<JsUriPermMgr>(engine, info);
-        return (me != nullptr) ? me->OnRevokeUriPermission(*engine, *info) : nullptr;
+        GET_NAPI_INFO_AND_CALL(env, info, JsUriPermMgr, OnRevokeUriPermission);
     }
 
 private:
-    NativeValue* OnGrantUriPermission(NativeEngine& engine, NativeCallbackInfo& info)
+    napi_value OnGrantUriPermission(napi_env env, NapiCallbackInfo& info)
     {
         HILOG_DEBUG("Grant Uri Permission start");
         if (info.argc != argCountThree && info.argc != argCountFour) {
             HILOG_ERROR("The number of parameter is invalid.");
-            ThrowTooFewParametersError(engine);
-            return engine.CreateUndefined();
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
         }
         std::string uriStr;
-        if (!OHOS::AppExecFwk::UnwrapStringFromJS2(reinterpret_cast<napi_env>(&engine),
-            reinterpret_cast<napi_value>(info.argv[0]), uriStr)) {
+        if (!OHOS::AppExecFwk::UnwrapStringFromJS2(env, info.argv[0], uriStr)) {
             HILOG_ERROR("The uriStr is invalid.");
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-            return engine.CreateUndefined();
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
         }
         int flag = 0;
-        if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(reinterpret_cast<napi_env>(&engine),
-            reinterpret_cast<napi_value>(info.argv[1]), flag)) {
+        if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(env, info.argv[1], flag)) {
             HILOG_ERROR("The flag is invalid.");
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-            return engine.CreateUndefined();
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
         }
         std::string targetBundleName;
-        if (!OHOS::AppExecFwk::UnwrapStringFromJS2(reinterpret_cast<napi_env>(&engine),
-            reinterpret_cast<napi_value>(info.argv[argCountTwo]), targetBundleName)) {
+        if (!OHOS::AppExecFwk::UnwrapStringFromJS2(env, info.argv[argCountTwo], targetBundleName)) {
             HILOG_ERROR("The targetBundleName is invalid.");
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-            return engine.CreateUndefined();
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
         }
         auto selfToken = IPCSkeleton::GetSelfTokenID();
         if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
             HILOG_ERROR("This application is not system-app, can not use system-api.");
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
-            return engine.CreateUndefined();
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
+            return CreateJsUndefined(env);
         }
-        AsyncTask::CompleteCallback complete =
-        [uriStr, flag, targetBundleName](NativeEngine& engine, AsyncTask& task, int32_t status) {
+        NapiAsyncTask::CompleteCallback complete =
+        [uriStr, flag, targetBundleName](napi_env env, NapiAsyncTask& task, int32_t status) {
             Uri uri(uriStr);
             auto errCode = AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, flag,
                 targetBundleName, 0);
             if (errCode == ERR_OK) {
-                task.ResolveWithNoError(engine, engine.CreateUndefined());
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
             } else if (errCode ==  AAFwk::CHECK_PERMISSION_FAILED) {
-                task.Reject(engine, CreateNoPermissionError(engine, "ohos.permission.PROXY_AUTHORIZATION_URI"));
+                task.Reject(env, CreateNoPermissionError(env, "ohos.permission.PROXY_AUTHORIZATION_URI"));
             } else if (errCode == AAFwk::ERR_CODE_INVALID_URI_FLAG) {
-                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_FLAG,
+                task.Reject(env, CreateJsError(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_FLAG,
                 "Invalid URI flag."));
             } else if (errCode == AAFwk::ERR_CODE_INVALID_URI_TYPE) {
-                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_TYPE,
+                task.Reject(env, CreateJsError(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_TYPE,
                 "Only support file URI."));
             } else if (errCode == AAFwk::ERR_CODE_GRANT_URI_PERMISSION) {
-                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_GRANT_URI_PERMISSION,
+                task.Reject(env, CreateJsError(env, ERR_ABILITY_RUNTIME_EXTERNAL_GRANT_URI_PERMISSION,
                 "Sandbox application can not grant URI permission."));
             } else {
-                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR,
+                task.Reject(env, CreateJsError(env, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR,
                 "Internal Error."));
             }
         };
-        NativeValue* lastParam = (info.argc == argCountFour) ? info.argv[argCountThree] : nullptr;
-        NativeValue* result = nullptr;
-        AsyncTask::ScheduleHighQos("JsUriPermMgr::OnGrantUriPermission",
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        napi_value lastParam = (info.argc == argCountFour) ? info.argv[argCountThree] : nullptr;
+        napi_value result = nullptr;
+        NapiAsyncTask::ScheduleHighQos("JsUriPermMgr::OnGrantUriPermission",
+            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
-    NativeValue* OnRevokeUriPermission(NativeEngine& engine, NativeCallbackInfo& info)
+    napi_value OnRevokeUriPermission(napi_env env, NapiCallbackInfo& info)
     {
         // only support 2 or 3 params (2 parameter and 1 optional callback)
         if (info.argc != argCountThree && info.argc != argCountTwo) {
             HILOG_ERROR("Invalid arguments");
-            ThrowTooFewParametersError(engine);
-            return engine.CreateUndefined();
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
         }
         std::string uriStr;
-        if (!OHOS::AppExecFwk::UnwrapStringFromJS2(reinterpret_cast<napi_env>(&engine),
-            reinterpret_cast<napi_value>(info.argv[0]), uriStr)) {
+        if (!OHOS::AppExecFwk::UnwrapStringFromJS2(env, info.argv[0], uriStr)) {
             HILOG_ERROR("invalid of the uriStr.");
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-            return engine.CreateUndefined();
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
         }
         std::string bundleName;
-        if (!OHOS::AppExecFwk::UnwrapStringFromJS2(reinterpret_cast<napi_env>(&engine),
-            reinterpret_cast<napi_value>(info.argv[1]), bundleName)) {
+        if (!OHOS::AppExecFwk::UnwrapStringFromJS2(env, info.argv[1], bundleName)) {
             HILOG_ERROR("The bundleName is invalid.");
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-            return engine.CreateUndefined();
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
         }
         auto selfToken = IPCSkeleton::GetSelfTokenID();
         if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
             HILOG_ERROR("can not use system-api, this application is not system-app.");
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
-            return engine.CreateUndefined();
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
+            return CreateJsUndefined(env);
         }
-        AsyncTask::CompleteCallback complete =
-        [uriStr, bundleName](NativeEngine& engine, AsyncTask& task, int32_t status) {
+        NapiAsyncTask::CompleteCallback complete =
+        [uriStr, bundleName](napi_env env, NapiAsyncTask& task, int32_t status) {
             Uri uri(uriStr);
             auto errCode = AAFwk::UriPermissionManagerClient::GetInstance().RevokeUriPermissionManually(uri,
                 bundleName);
             if (errCode == ERR_OK) {
-                task.ResolveWithNoError(engine, engine.CreateUndefined());
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
             } else if (errCode == AAFwk::CHECK_PERMISSION_FAILED) {
-                task.Reject(engine, CreateNoPermissionError(engine,
+                task.Reject(env, CreateNoPermissionError(env,
                     "Do not have permission ohos.permission.PROXY_AUTHORIZATION_URI"));
             } else if (errCode == AAFwk::ERR_CODE_INVALID_URI_TYPE) {
-                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_TYPE,
+                task.Reject(env, CreateJsError(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_TYPE,
                 "Only support file URI."));
             } else {
-                task.Reject(engine, CreateJsError(engine, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR,
+                task.Reject(env, CreateJsError(env, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR,
                 "Internal Error."));
             }
         };
-        NativeValue* lastParam = (info.argc == argCountThree) ? info.argv[argCountTwo] : nullptr;
-        NativeValue* result = nullptr;
-        AsyncTask::ScheduleHighQos("JsUriPermMgr::OnRevokeUriPermission",
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        napi_value lastParam = (info.argc == argCountThree) ? info.argv[argCountTwo] : nullptr;
+        napi_value result = nullptr;
+        NapiAsyncTask::ScheduleHighQos("JsUriPermMgr::OnRevokeUriPermission",
+            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 };
 
-NativeValue* CreateJsUriPermMgr(NativeEngine* engine, NativeValue* exportObj)
+napi_value CreateJsUriPermMgr(napi_env env, napi_value exportObj)
 {
     HILOG_INFO("CreateJsUriPermMgr is called");
-    if (engine == nullptr || exportObj == nullptr) {
+    if (env == nullptr || exportObj == nullptr) {
         HILOG_INFO("Invalid input parameters");
         return nullptr;
     }
 
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(exportObj);
-    if (object == nullptr) {
-        HILOG_INFO("object is nullptr");
-        return nullptr;
-    }
-
     std::unique_ptr<JsUriPermMgr> jsUriPermMgr = std::make_unique<JsUriPermMgr>();
-    object->SetNativePointer(jsUriPermMgr.release(), JsUriPermMgr::Finalizer, nullptr);
+    napi_wrap(env, exportObj, jsUriPermMgr.release(), JsUriPermMgr::Finalizer, nullptr, nullptr);
 
     const char *moduleName = "JsUriPermMgr";
-    BindNativeFunction(*engine, *object, "grantUriPermission", moduleName, JsUriPermMgr::GrantUriPermission);
-    BindNativeFunction(*engine, *object, "revokeUriPermission", moduleName, JsUriPermMgr::RevokeUriPermission);
-    return engine->CreateUndefined();
+    BindNativeFunction(env, exportObj, "grantUriPermission", moduleName, JsUriPermMgr::GrantUriPermission);
+    BindNativeFunction(env, exportObj, "revokeUriPermission", moduleName, JsUriPermMgr::RevokeUriPermission);
+    return CreateJsUndefined(env);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

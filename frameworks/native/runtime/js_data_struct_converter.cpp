@@ -132,42 +132,5 @@ napi_value CreateJsHapModuleInfo(napi_env env, const AppExecFwk::HapModuleInfo& 
     AppExecFwk::CommonFunc::ConvertHapModuleInfo(env, hapModuleInfo, object);
     return object;
 }
-
-// to do
-NativeValue* CreateJsWantObject(NativeEngine& engine, const AAFwk::Want& want)
-{
-    return reinterpret_cast<NativeValue*>(CreateJsWantObject(reinterpret_cast<napi_env>(&engine), want));
-}
-
-NativeValue* CreateJsAbilityInfo(NativeEngine& engine, const AppExecFwk::AbilityInfo& abilityInfo)
-{
-    return reinterpret_cast<NativeValue*>(CreateJsAbilityInfo(reinterpret_cast<napi_env>(&engine), abilityInfo));
-}
-
-NativeValue* CreateJsApplicationInfo(NativeEngine& engine, const AppExecFwk::ApplicationInfo &applicationInfo)
-{
-    return reinterpret_cast<NativeValue*>(
-        CreateJsApplicationInfo(reinterpret_cast<napi_env>(&engine), applicationInfo));
-}
-
-NativeValue* CreateJsLaunchParam(NativeEngine& engine, const AAFwk::LaunchParam& launchParam)
-{
-    return reinterpret_cast<NativeValue*>(CreateJsLaunchParam(reinterpret_cast<napi_env>(&engine), launchParam));
-}
-
-NativeValue* CreateJsConfiguration(NativeEngine& engine, const AppExecFwk::Configuration& configuration)
-{
-    return reinterpret_cast<NativeValue*>(CreateJsConfiguration(reinterpret_cast<napi_env>(&engine), configuration));
-}
-
-NativeValue* CreateJsExtensionAbilityInfo(NativeEngine& engine, const AppExecFwk::ExtensionAbilityInfo& info)
-{
-    return reinterpret_cast<NativeValue*>(CreateJsExtensionAbilityInfo(reinterpret_cast<napi_env>(&engine), info));
-}
-
-NativeValue* CreateJsHapModuleInfo(NativeEngine& engine, const AppExecFwk::HapModuleInfo& hapModuleInfo)
-{
-    return reinterpret_cast<NativeValue*>(CreateJsHapModuleInfo(reinterpret_cast<napi_env>(&engine), hapModuleInfo));
-}
 } // namespace AbilityRuntime
 } // namespace OHOS

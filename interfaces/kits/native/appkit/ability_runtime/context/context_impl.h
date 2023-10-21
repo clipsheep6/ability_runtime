@@ -149,6 +149,11 @@ public:
     void SetLanguage(std::string language);
 
     /**
+     * @brief clear the application data by app self
+     */
+    void ClearUpApplicationData();
+
+    /**
      * @brief Creates a Context object for a hap with the given module name.
      *
      * @param moduleName Indicates the module name of the hap.

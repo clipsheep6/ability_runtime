@@ -57,13 +57,6 @@ public:
         std::shared_ptr<AbilityResultListeners>& abilityResultListeners);
     static napi_value CreateJsUIExtensionContentSession(napi_env env,
         sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow);
-    // to do
-    static NativeValue* CreateJsUIExtensionContentSession(NativeEngine& engine,
-        sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow,
-        std::weak_ptr<AbilityRuntime::Context> context,
-        std::shared_ptr<AbilityResultListeners>& abilityResultListeners);
-    static NativeValue* CreateJsUIExtensionContentSession(NativeEngine& engine,
-        sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow);
 
     static napi_value StartAbility(napi_env env, napi_callback_info info);
     static napi_value StartAbilityForResult(napi_env env, napi_callback_info info);
@@ -74,6 +67,7 @@ public:
     static napi_value LoadContent(napi_env env, napi_callback_info info);
     static napi_value SetWindowBackgroundColor(napi_env env, napi_callback_info info);
     static napi_value SetWindowPrivacyMode(napi_env env, napi_callback_info info);
+    static napi_value StartAbilityByType(napi_env env, napi_callback_info info);
 
 protected:
     napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info);
@@ -85,6 +79,7 @@ protected:
     napi_value OnLoadContent(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetWindowBackgroundColor(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetWindowPrivacyMode(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStartAbilityByType(napi_env env, NapiCallbackInfo& info);
 
     static void CallReceiveDataCallback(napi_env env, std::weak_ptr<CallbackWrapper> weakCallback,
         const AAFwk::WantParams& wantParams);

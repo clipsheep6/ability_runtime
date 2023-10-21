@@ -31,16 +31,19 @@
 #ifdef WITH_DLP
 #include "dlp_file_kits.h"
 #endif // WITH_DLP
+#include "freeze_util.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ohos_application.h"
 #ifdef SUPPORT_GRAPHICS
 #include "page_ability_impl.h"
 #endif
+#include "time_util.h"
 #include "ui_extension_utils.h"
 #include "values_bucket.h"
 
 namespace OHOS {
+using AbilityRuntime::FreezeUtil;
 namespace AbilityRuntime {
 using namespace std::chrono_literals;
 using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
@@ -308,10 +311,17 @@ void FAAbilityThread::AttachInner(const std::shared_ptr<AppExecFwk::OHOSApplicat
     }
     abilityImpl_->Init(application, abilityRecord, currentAbility_, abilityHandler_, token_);
     // 4. ability attach : ipc
+    HILOG_INFO("LoadLifecycle: Attach ability.");
+    FreezeUtil::LifecycleFlow flow = { token_, FreezeUtil::TimeoutState::LOAD };
+    std::string entry = std::to_string(AbilityRuntime::TimeUtil::SystemTimeMillisecond()) +
+        "; AbilityThread::Attach; the load lifecycle.";
+    FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
     ErrCode err = AbilityManagerClient::GetInstance()->AttachAbilityThread(this, token_);
     if (err != ERR_OK) {
         HILOG_ERROR("err = %{public}d", err);
+        return;
     }
+    FreezeUtil::GetInstance().DeleteLifecycleEvent(flow);
 }
 
 void FAAbilityThread::AttachExtension(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
@@ -472,16 +482,37 @@ void FAAbilityThread::HandleAbilityTransaction(
     std::string connector = "##";
     std::string traceName = __PRETTY_FUNCTION__ + connector + want.GetElement().GetAbilityName();
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, traceName);
-    HILOG_DEBUG("begin, name is %{public}s", want.GetElement().GetAbilityName().c_str());
+    HILOG_INFO("Lifecycle: name is %{public}s.", want.GetElement().GetAbilityName().c_str());
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("abilityImpl_ is nullptr");
         return;
     }
+    std::string methodName = "HandleAbilityTransaction";
+    AddLifecycleEvent(lifeCycleStateInfo.state, methodName);
 
     abilityImpl_->SetCallingContext(lifeCycleStateInfo.caller.deviceId, lifeCycleStateInfo.caller.bundleName,
         lifeCycleStateInfo.caller.abilityName, lifeCycleStateInfo.caller.moduleName);
     abilityImpl_->HandleAbilityTransaction(want, lifeCycleStateInfo, sessionInfo);
     HILOG_DEBUG("end");
+}
+
+void FAAbilityThread::AddLifecycleEvent(uint32_t state, std::string &methodName) const
+{
+    if (!isUIAbility_) {
+        return;
+    }
+    if (state == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
+        FreezeUtil::LifecycleFlow flow = { token_, FreezeUtil::TimeoutState::FOREGROUND };
+        std::string entry = std::to_string(AbilityRuntime::TimeUtil::SystemTimeMillisecond()) +
+            "; AbilityThread::" + methodName + "; the foreground lifecycle.";
+        FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
+    }
+    if (state == AAFwk::ABILITY_STATE_BACKGROUND_NEW) {
+        FreezeUtil::LifecycleFlow flow = { token_, FreezeUtil::TimeoutState::BACKGROUND };
+        std::string entry = std::to_string(AbilityRuntime::TimeUtil::SystemTimeMillisecond()) +
+            "; AbilityThread::" + methodName + "; the background lifecycle.";
+        FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
+    }
 }
 
 void FAAbilityThread::HandleShareData(const int32_t &uniqueId)
@@ -675,7 +706,7 @@ void FAAbilityThread::ScheduleUpdateConfiguration(const AppExecFwk::Configuratio
             abilityThread->HandleUpdateConfiguration(config);
         }
     };
-    bool ret = abilityHandler_->PostTask(task);
+    bool ret = abilityHandler_->PostTask(task, "FAAbilityThread:UpdateConfiguration");
     if (!ret) {
         HILOG_ERROR("PostTask error");
     }
@@ -710,10 +741,12 @@ void FAAbilityThread::ScheduleAbilityTransaction(
     const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AppExecFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("name:%{public}s,targeState:%{public}d,isNewWant:%{public}d",
+    HILOG_INFO("Lifecycle: name:%{public}s,targeState:%{public}d,isNewWant:%{public}d",
         want.GetElement().GetAbilityName().c_str(),
         lifeCycleStateInfo.state,
         lifeCycleStateInfo.isNewWant);
+    std::string methodName = "ScheduleAbilityTransaction";
+    AddLifecycleEvent(lifeCycleStateInfo.state, methodName);
 
     if (token_ == nullptr) {
         HILOG_ERROR("token_ is nullptr");
@@ -738,7 +771,7 @@ void FAAbilityThread::ScheduleAbilityTransaction(
             abilityThread->HandleAbilityTransaction(want, lifeCycleStateInfo, sessionInfo);
         }
     };
-    bool ret = abilityHandler_->PostTask(task);
+    bool ret = abilityHandler_->PostTask(task, "FAAbilityThread:AbilityTransaction");
     if (!ret) {
         HILOG_ERROR("PostTask error");
     }
@@ -764,7 +797,7 @@ void FAAbilityThread::ScheduleShareData(const int32_t &uniqueId)
         }
         abilityThread->HandleShareData(uniqueId);
     };
-    bool ret = abilityHandler_->PostTask(task);
+    bool ret = abilityHandler_->PostTask(task, "FAAbilityThread:ShareData");
     if (!ret) {
         HILOG_ERROR("postTask error");
     }
@@ -790,7 +823,7 @@ void FAAbilityThread::ScheduleConnectAbility(const Want &want)
             abilityThread->HandleConnectAbility(want);
         }
     };
-    bool ret = abilityHandler_->PostTask(task);
+    bool ret = abilityHandler_->PostTask(task, "FAAbilityThread:ConnectAbility");
     if (!ret) {
         HILOG_ERROR("PostTask error");
     }
@@ -818,7 +851,7 @@ void FAAbilityThread::ScheduleDisconnectAbility(const Want &want)
             abilityThread->HandleDisconnectAbility(want);
         }
     };
-    bool ret = abilityHandler_->PostTask(task);
+    bool ret = abilityHandler_->PostTask(task, "FAAbilityThread:DisconnectAbility");
     if (!ret) {
         HILOG_ERROR("PostTask error");
     }
@@ -853,7 +886,7 @@ void FAAbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int
             abilityThread->HandleCommandAbility(want, restart, startId);
         }
     };
-    bool ret = abilityHandler_->PostTask(task);
+    bool ret = abilityHandler_->PostTask(task, "FAAbilityThread:CommandAbility");
     if (!ret) {
         HILOG_ERROR("PostTask error");
     }
@@ -885,7 +918,7 @@ bool FAAbilityThread::SchedulePrepareTerminateAbility()
         }
         abilityThread->HandlePrepareTermianteAbility();
     };
-    bool ret = abilityHandler_->PostTask(task);
+    bool ret = abilityHandler_->PostTask(task, "FAAbilityThread:PrepareTerminateAbility");
     if (!ret) {
         HILOG_ERROR("PostTask error");
         return false;
@@ -924,7 +957,7 @@ void FAAbilityThread::ScheduleCommandAbilityWindow(
         }
         abilityThread->HandleCommandExtensionWindow(want, sessionInfo, winCmd);
     };
-    bool ret = abilityHandler_->PostTask(task);
+    bool ret = abilityHandler_->PostTask(task, "FAAbilityThread:CommandAbilityWindow");
     if (!ret) {
         HILOG_ERROR("PostTask error");
     }
@@ -959,7 +992,7 @@ void FAAbilityThread::SendResult(int requestCode, int resultCode, const Want &wa
         }
         HILOG_ERROR("%{public}s impl is nullptr", abilityThread->isExtension_ ? "extension" : "ability");
     };
-    bool ret = abilityHandler_->PostTask(task);
+    bool ret = abilityHandler_->PostTask(task, "FAAbilityThread:SendResult");
     if (!ret) {
         HILOG_ERROR("PostTask error");
     }
@@ -1148,6 +1181,10 @@ void FAAbilityThread::InitExtensionFlag(const std::shared_ptr<AppExecFwk::Abilit
     } else {
         isExtension_ = false;
     }
+    if (abilityInfo->type == AppExecFwk::AbilityType::PAGE) {
+        HILOG_DEBUG("isUIAbility_ is assigned true");
+        isUIAbility_ = true;
+    }
 }
 
 Uri FAAbilityThread::NormalizeUri(const Uri &uri)
@@ -1242,7 +1279,7 @@ bool FAAbilityThread::ScheduleRegisterObserver(const Uri &uri, const sptr<AAFwk:
         }
         abilityThread->HandleRegisterObserver(uri, dataObserver);
     };
-    bool ret = abilityHandler_->PostTask(task);
+    bool ret = abilityHandler_->PostTask(task, "FAAbilityThread:RegisterObserver");
     if (!ret) {
         HILOG_ERROR("PostTask error");
     }
@@ -1265,7 +1302,7 @@ bool FAAbilityThread::ScheduleUnregisterObserver(const Uri &uri, const sptr<AAFw
         }
         abilityThread->HandleUnregisterObserver(uri, dataObserver);
     };
-    bool ret = abilityHandler_->PostSyncTask(task);
+    bool ret = abilityHandler_->PostSyncTask(task, "FAAbilityThread:UnregisterObserver");
     if (!ret) {
         HILOG_ERROR("PostTask error");
     }
@@ -1288,7 +1325,7 @@ bool FAAbilityThread::ScheduleNotifyChange(const Uri &uri)
         }
         abilityThread->HandleNotifyChange(uri);
     };
-    bool ret = abilityHandler_->PostTask(task);
+    bool ret = abilityHandler_->PostTask(task, "FAAbilityThread:NotifyChange");
     if (!ret) {
         HILOG_ERROR("PostTask error");
     }
@@ -1352,7 +1389,7 @@ void FAAbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, st
             HILOG_ERROR("failed = %{public}d", err);
         }
     };
-    abilityHandler_->PostTask(task);
+    abilityHandler_->PostTask(task, "FAAbilityThread:DumpAbilityInfo");
 }
 
 #ifdef SUPPORT_GRAPHICS
@@ -1457,7 +1494,7 @@ void FAAbilityThread::CallRequest()
 
         retval = currentAbility->CallRequest();
     };
-    abilityHandler_->PostSyncTask(syncTask);
+    abilityHandler_->PostSyncTask(syncTask, "FAAbilityThread:CallRequest");
     AbilityManagerClient::GetInstance()->CallRequestDone(token_, retval);
     HILOG_DEBUG("end");
 }

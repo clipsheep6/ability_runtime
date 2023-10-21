@@ -240,7 +240,7 @@ void GetDataAbilityHelperPromiseCompleteCB(napi_env env, napi_status status, voi
  */
 napi_value NAPI_FAContinueAbility(napi_env env, napi_callback_info info);
 
-NativeValue* JsFeatureAbilityInit(NativeEngine *engine, NativeValue *exports);
+napi_value JsFeatureAbilityInit(napi_env env, napi_value exports);
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif /* OHOS_ABILITY_RUNTIME_FEATURE_ABILITY_H */

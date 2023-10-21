@@ -114,6 +114,8 @@ ohos_shared_library("ability_simulator_inner") {
     external_deps = [
       "ability_base:string_utils",
       "ets_runtime:libark_jsruntime",
+      "ets_utils:console",
+      "ets_utils:timer",
       "hilog:libhilog",
       "napi:ace_napi",
       "previewer:ide_extension",

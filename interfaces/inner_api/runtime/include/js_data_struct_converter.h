@@ -24,9 +24,6 @@
 #include "want.h"
 #include "configuration.h"
 
-class NativeEngine;
-class NativeValue;
-
 namespace OHOS {
 namespace AbilityRuntime {
 napi_value CreateJsWantObject(napi_env env, const AAFwk::Want& want);
@@ -36,15 +33,6 @@ napi_value CreateJsLaunchParam(napi_env env, const AAFwk::LaunchParam& launchPar
 napi_value CreateJsConfiguration(napi_env env, const AppExecFwk::Configuration& configuration);
 napi_value CreateJsExtensionAbilityInfo(napi_env env, const AppExecFwk::ExtensionAbilityInfo& info);
 napi_value CreateJsHapModuleInfo(napi_env env, const AppExecFwk::HapModuleInfo& hapModuleInfo);
-
-// to do
-NativeValue* CreateJsWantObject(NativeEngine& engine, const AAFwk::Want& want);
-NativeValue* CreateJsAbilityInfo(NativeEngine& engine, const AppExecFwk::AbilityInfo& abilityInfo);
-NativeValue* CreateJsApplicationInfo(NativeEngine& engine, const AppExecFwk::ApplicationInfo &applicationInfo);
-NativeValue* CreateJsLaunchParam(NativeEngine& engine, const AAFwk::LaunchParam& launchParam);
-NativeValue* CreateJsConfiguration(NativeEngine& engine, const AppExecFwk::Configuration& configuration);
-NativeValue* CreateJsExtensionAbilityInfo(NativeEngine& engine, const AppExecFwk::ExtensionAbilityInfo& info);
-NativeValue* CreateJsHapModuleInfo(NativeEngine& engine, const AppExecFwk::HapModuleInfo& hapModuleInfo);
 } // namespace AbilityRuntime
 } // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_JS_DATA_STRUCT_CONVERTER_H

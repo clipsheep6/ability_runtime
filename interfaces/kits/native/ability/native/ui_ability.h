@@ -161,6 +161,12 @@ public:
     std::string GetAbilityName();
 
     /**
+     * @brief Obtains the module name in this ability name, without the prefixed bundle name.
+     * @return Returns the module name of this ability.
+     */
+    std::string GetModuleName();
+
+    /**
      * @brief Called when startAbilityForResult(ohos.aafwk.content.Want,int) is called to start an ability and the
      * result is returned. This method is called only on Page abilities. You can start a new ability to perform some
      * calculations and use setResult (int,ohos.aafwk.content.Want) to return the calculation result. Then the system
@@ -326,9 +332,9 @@ private:
     std::shared_ptr<AAFwk::Want> setWant_ = nullptr;
     sptr<IRemoteObject> reverseContinuationSchedulerReplica_ = nullptr;
     // Keep consistent with DMS defines. Used to callback to DMS.
-    static const char *DMS_SESSION_ID;
+    static const std::string DMS_SESSION_ID;
     // The originating deviceId passed by DMS using want param.
-    static const char *DMS_ORIGIN_DEVICE_ID;
+    static const std::string DMS_ORIGIN_DEVICE_ID;
     // If session id cannot get from want, assign it as default.
     static const int32_t DEFAULT_DMS_SESSION_ID;
     bool isNewRuleFlagSetted_ = false;

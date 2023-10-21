@@ -25,7 +25,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 constexpr size_t ARGC_ONE = 1;
-JsErrorObserver::JsErrorObserver(NativeEngine &engine) : engine_(engine) {}
+JsErrorObserver::JsErrorObserver(napi_env env) : env_(env) {}
 
 JsErrorObserver::~JsErrorObserver() = default;
 
@@ -33,17 +33,17 @@ void JsErrorObserver::OnUnhandledException(const std::string errMsg)
 {
     HILOG_DEBUG("OnUnhandledException come.");
     std::weak_ptr<JsErrorObserver> thisWeakPtr(shared_from_this());
-    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
-        ([thisWeakPtr, errMsg](NativeEngine &engine, AsyncTask &task, int32_t status) {
+    std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
+        ([thisWeakPtr, errMsg](napi_env env, NapiAsyncTask &task, int32_t status) {
             std::shared_ptr<JsErrorObserver> jsObserver = thisWeakPtr.lock();
             if (jsObserver) {
                 jsObserver->HandleOnUnhandledException(errMsg);
             }
         });
-    NativeReference* callback = nullptr;
-    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
-    AsyncTask::Schedule("JsErrorObserver::OnUnhandledException",
-        engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
+    napi_ref callback = nullptr;
+    std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
+    NapiAsyncTask::Schedule("JsErrorObserver::OnUnhandledException",
+        env_, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
 void JsErrorObserver::HandleOnUnhandledException(const std::string &errMsg)
@@ -51,43 +51,46 @@ void JsErrorObserver::HandleOnUnhandledException(const std::string &errMsg)
     HILOG_DEBUG("HandleOnUnhandledException come.");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
-        NativeValue* value = (item.second)->Get();
-        NativeValue* argv[] = { CreateJsValue(engine_, errMsg) };
+        napi_value value = (item.second)->GetNapiValue();
+        napi_value argv[] = { CreateJsValue(env_, errMsg) };
         CallJsFunction(value, "onUnhandledException", argv, ARGC_ONE);
     }
     tmpMap = jsObserverObjectMapSync_;
     for (auto &item : tmpMap) {
-        NativeValue* value = (item.second)->Get();
-        NativeValue* argv[] = { CreateJsValue(engine_, errMsg) };
+        napi_value value = (item.second)->GetNapiValue();
+        napi_value argv[] = { CreateJsValue(env_, errMsg) };
         CallJsFunction(value, "onUnhandledException", argv, ARGC_ONE);
     }
 }
 
-void JsErrorObserver::CallJsFunction(NativeValue* value, const char* methodName, NativeValue* const* argv, size_t argc)
+void JsErrorObserver::CallJsFunction(napi_value obj, const char* methodName, napi_value const* argv, size_t argc)
 {
     HILOG_INFO("CallJsFunction begin, method:%{public}s", methodName);
-    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
         HILOG_ERROR("Failed to get object");
         return;
     }
 
-    NativeValue* method = obj->GetProperty(methodName);
+    napi_value method = nullptr;
+    napi_get_named_property(env_, obj, methodName, &method);
     if (method == nullptr) {
         HILOG_ERROR("Failed to get method");
         return;
     }
-    engine_.CallFunction(value, method, argv, argc);
+    napi_value callResult = nullptr;
+    napi_call_function(env_, obj, method, argc, argv, &callResult);
 }
 
-void JsErrorObserver::AddJsObserverObject(const int32_t observerId, NativeValue* jsObserverObject, bool isSync)
+void JsErrorObserver::AddJsObserverObject(const int32_t observerId, napi_value jsObserverObject, bool isSync)
 {
+    napi_ref ref = nullptr;
+    napi_create_reference(env_, jsObserverObject, 1, &ref);
     if (isSync) {
         jsObserverObjectMapSync_.emplace(
-            observerId, std::shared_ptr<NativeReference>(engine_.CreateReference(jsObserverObject, 1)));
+            observerId, std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
     } else {
         jsObserverObjectMap_.emplace(
-            observerId, std::shared_ptr<NativeReference>(engine_.CreateReference(jsObserverObject, 1)));
+            observerId, std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
     }
 }
 
@@ -112,17 +115,17 @@ void JsErrorObserver::OnExceptionObject(const AppExecFwk::ErrorObject &errorObj)
 {
     HILOG_DEBUG("OnExceptionObject come.");
     std::weak_ptr<JsErrorObserver> thisWeakPtr(shared_from_this());
-    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
-        ([thisWeakPtr, errorObj](NativeEngine &engine, AsyncTask &task, int32_t status) {
+    std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
+        ([thisWeakPtr, errorObj](napi_env env, NapiAsyncTask &task, int32_t status) {
             std::shared_ptr<JsErrorObserver> jsObserver = thisWeakPtr.lock();
             if (jsObserver) {
                 jsObserver->HandleException(errorObj);
             }
         });
-    NativeReference* callback = nullptr;
-    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
-    AsyncTask::Schedule("JsErrorObserver::OnExceptionObject",
-        engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
+    napi_ref callback = nullptr;
+    std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
+    NapiAsyncTask::Schedule("JsErrorObserver::OnExceptionObject",
+        env_, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
 void JsErrorObserver::HandleException(const AppExecFwk::ErrorObject &errorObj)
@@ -130,31 +133,30 @@ void JsErrorObserver::HandleException(const AppExecFwk::ErrorObject &errorObj)
     HILOG_DEBUG("HandleException come.");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
-        NativeValue* jsObj = (item.second)->Get();
-        NativeValue* jsValue[] = { CreateJsErrorObject(engine_, errorObj) };
+        napi_value jsObj = (item.second)->GetNapiValue();
+        napi_value jsValue[] = { CreateJsErrorObject(env_, errorObj) };
         CallJsFunction(jsObj, "onException", jsValue, ARGC_ONE);
     }
     tmpMap = jsObserverObjectMapSync_;
     for (auto &item : tmpMap) {
-        NativeValue* jsObj = (item.second)->Get();
-        NativeValue* jsValue[] = { CreateJsErrorObject(engine_, errorObj) };
+        napi_value jsObj = (item.second)->GetNapiValue();
+        napi_value jsValue[] = { CreateJsErrorObject(env_, errorObj) };
         CallJsFunction(jsObj, "onException", jsValue, ARGC_ONE);
     }
 }
 
-NativeValue* JsErrorObserver::CreateJsErrorObject(NativeEngine &engine, const AppExecFwk::ErrorObject &errorObj)
+napi_value JsErrorObserver::CreateJsErrorObject(napi_env env, const AppExecFwk::ErrorObject &errorObj)
 {
-    NativeValue* objValue = engine.CreateObject();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
-    if (object == nullptr) {
+    napi_value objValue = nullptr;
+    napi_create_object(env, &objValue);
+    if (objValue == nullptr) {
         HILOG_WARN("invalid object.");
         return objValue;
     }
-
-    object->SetProperty("name", CreateJsValue(engine, errorObj.name));
-    object->SetProperty("message", CreateJsValue(engine, errorObj.message));
+    napi_set_named_property(env, objValue, "name", CreateJsValue(env, errorObj.name));
+    napi_set_named_property(env, objValue, "message", CreateJsValue(env, errorObj.message));
     if (!errorObj.stack.empty()) {
-        object->SetProperty("stack", CreateJsValue(engine, errorObj.stack));
+        napi_set_named_property(env, objValue, "stack", CreateJsValue(env, errorObj.stack));
     }
 
     return objValue;

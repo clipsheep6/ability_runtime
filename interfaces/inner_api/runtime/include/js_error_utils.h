@@ -31,18 +31,6 @@ void ThrowErrorByNativeErr(napi_env env, int32_t err);
 napi_value CreateJsError(napi_env env, const AbilityErrorCode& err);
 napi_value CreateNoPermissionError(napi_env env, const std::string& permission);
 napi_value CreateJsErrorByNativeErr(napi_env env, int32_t err, const std::string& permission = "");
-
-// ---About to be deleted
-void ThrowError(NativeEngine& engine, int32_t errCode, const std::string& errorMsg = "");
-void ThrowError(NativeEngine& engine, const AbilityErrorCode& err);
-void ThrowTooFewParametersError(NativeEngine& engine);
-void ThrowNoPermissionError(NativeEngine& engine, const std::string& permission);
-void ThrowErrorByNativeErr(NativeEngine& engine, int32_t err);
-
-NativeValue* CreateJsError(NativeEngine& engine, const AbilityErrorCode& err);
-NativeValue* CreateNoPermissionError(NativeEngine& engine, const std::string& permission);
-NativeValue* CreateJsErrorByNativeErr(NativeEngine& engine, int32_t err, const std::string& permission = "");
-// ---
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 

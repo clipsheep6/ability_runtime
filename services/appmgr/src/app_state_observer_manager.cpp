@@ -629,5 +629,69 @@ AppStateData AppStateObserverManager::WrapAppStateData(const std::shared_ptr<App
     }
     return appStateData;
 }
+
+void AppStateObserverManager::OnPageShow(const PageStateData pageStateData)
+{
+    HILOG_DEBUG("call");
+    if (handler_ == nullptr) {
+        HILOG_ERROR("handler is nullptr, OnProcessCreated failed.");
+        return;
+    }
+
+    auto task = [weak = weak_from_this(), pageStateData]() {
+        auto self = weak.lock();
+        if (self == nullptr) {
+            HILOG_ERROR("self is nullptr, OnProcessCreated failed.");
+            return;
+        }
+        HILOG_DEBUG("OnProcessCreated come.");
+        self->HandleOnPageShow(pageStateData);
+    };
+    handler_->SubmitTask(task);
+}
+
+void AppStateObserverManager::OnPageHide(const PageStateData pageStateData)
+{
+    HILOG_DEBUG("call");
+    if (handler_ == nullptr) {
+        HILOG_ERROR("handler is nullptr, OnProcessCreated failed.");
+        return;
+    }
+
+    auto task = [weak = weak_from_this(), pageStateData]() {
+        auto self = weak.lock();
+        if (self == nullptr) {
+            HILOG_ERROR("self is nullptr, OnProcessCreated failed.");
+            return;
+        }
+        HILOG_DEBUG("OnProcessCreated come.");
+        self->HandleOnPageHide(pageStateData);
+    };
+    handler_->SubmitTask(task);
+}
+
+void AppStateObserverManager::HandleOnPageShow(const PageStateData pageStateData)
+{
+    std::lock_guard<ffrt::mutex> lockNotify(observerLock_);
+    for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+        std::vector<std::string>::iterator iter = std::find(it->second.begin(),
+            it->second.end(), pageStateData.bundleName);
+        if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
+            it->first->OnPageShow(pageStateData);
+        }
+    }
+}
+
+void AppStateObserverManager::HandleOnPageHide(const PageStateData pageStateData)
+{
+    std::lock_guard<ffrt::mutex> lockNotify(observerLock_);
+    for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+        std::vector<std::string>::iterator iter = std::find(it->second.begin(),
+            it->second.end(), pageStateData.bundleName);
+        if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
+            it->first->OnPageHide(pageStateData);
+        }
+    }
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

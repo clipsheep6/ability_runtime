@@ -81,6 +81,7 @@ ohos_shared_library("app_manager") {
     "src/appmgr/configuration_observer_proxy.cpp",
     "src/appmgr/configuration_observer_stub.cpp",
     "src/appmgr/fault_data.cpp",
+    "src/appmgr/page_state_data.cpp",
     "src/appmgr/priority_object.cpp",
     "src/appmgr/process_data.cpp",
     "src/appmgr/process_info.cpp",
@@ -107,7 +108,7 @@ ohos_shared_library("app_manager") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  deps = []
+  deps = [ "${ability_runtime_path}/utils/global/freeze:freeze_util" ]
 
   external_deps = [
     "ability_base:configuration",

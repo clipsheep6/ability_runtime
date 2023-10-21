@@ -19,7 +19,6 @@
 #include "app_log_wrapper.h"
 #include "application_info.h"
 #include "bundle_info.h"
-#include "nocopyable.h"
 #include "service_info.h"
 #include "want.h"
 
@@ -44,7 +43,7 @@ public:
      * @brief Find purposeInfo by purposeName.
      * @param purposeName Indicates the purposeName.
      * @param purposeInfos Indicates the PurposeInfos to be find.
-     * @return Returns the PurposeInfo object if find it; returns null otherwise.
+     * @return
      */
     void FindPurposeInfos(const std::string &purposeName, std::vector<PurposeInfo> &purposeInfos) const;
 

@@ -30,7 +30,7 @@ using namespace OHOS::AAFwk;
 
 namespace {
 const std::string STRING_USER_ID = "100";
-const std::string UNKNOWN_OPTION_MSG = "error: unknown option.\n";
+const std::string UNKNOWN_OPTION_MSG = "fail: unknown option.\n";
 }  // namespace
 
 class AaCommandDumpsysTest : public ::testing::Test {

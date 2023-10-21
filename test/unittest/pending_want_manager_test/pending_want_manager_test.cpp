@@ -73,7 +73,7 @@ public:
 
 public:
     std::shared_ptr<PendingWantManager> pendingManager_{ nullptr };
-    std::string test_apl = "";
+    bool isSystemApp = false;
 };
 
 int PendingWantManagerTest::CancelReceiver::performReceiveCount = 0;
@@ -182,7 +182,7 @@ HWTEST_F(PendingWantManagerTest, PendingWantManagerTest_0100, TestSize.Level1)
     wantSenderInfo.flags = 0;
     pendingManager_ = std::make_shared<PendingWantManager>();
     EXPECT_NE(pendingManager_, nullptr);
-    EXPECT_NE(pendingManager_->GetWantSender(callingUid, uid, test_apl, wantSenderInfo, nullptr), nullptr);
+    EXPECT_NE(pendingManager_->GetWantSender(callingUid, uid, isSystemApp, wantSenderInfo, nullptr), nullptr);
 }
 
 /*
@@ -198,7 +198,7 @@ HWTEST_F(PendingWantManagerTest, PendingWantManagerTest_0300, TestSize.Level1)
     wantSenderInfo.flags = 0;
     pendingManager_ = std::make_shared<PendingWantManager>();
     EXPECT_NE(pendingManager_, nullptr);
-    EXPECT_NE(pendingManager_->GetWantSender(callingUid, uid, test_apl, wantSenderInfo, nullptr), nullptr);
+    EXPECT_NE(pendingManager_->GetWantSender(callingUid, uid, isSystemApp, wantSenderInfo, nullptr), nullptr);
 }
 
 /*
@@ -214,7 +214,7 @@ HWTEST_F(PendingWantManagerTest, PendingWantManagerTest_0400, TestSize.Level1)
     wantSenderInfo.flags = 0;
     pendingManager_ = std::make_shared<PendingWantManager>();
     EXPECT_NE(pendingManager_, nullptr);
-    EXPECT_NE(pendingManager_->GetWantSender(callingUid, uid, test_apl, wantSenderInfo, nullptr), nullptr);
+    EXPECT_NE(pendingManager_->GetWantSender(callingUid, uid, isSystemApp, wantSenderInfo, nullptr), nullptr);
 }
 
 /*
@@ -789,8 +789,8 @@ HWTEST_F(PendingWantManagerTest, PendingWantManagerTest_3100, TestSize.Level1)
         pendingManager_->GetWantSenderLocked(1, 1, wantSenderInfo.userId, wantSenderInfo, nullptr)->AsObject());
     EXPECT_NE(pendingRecord, nullptr);
     pendingManager_->RegisterCancelListener(pendingRecord, cance);
-    std::string testApl = "";
-    pendingManager_->CancelWantSender(testApl, pendingRecord);
+    bool isSystemApp = false;
+    pendingManager_->CancelWantSender(isSystemApp, pendingRecord);
     EXPECT_TRUE(CancelReceiver::sendCount == 100);
     EXPECT_TRUE((int)pendingManager_->wantRecords_.size() == 0);
 }

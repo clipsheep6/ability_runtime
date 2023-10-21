@@ -71,7 +71,7 @@ public:
 
 private:
     static void ResolveAbilityInfos(const std::vector<AbilityInfo> &abilityInfos,
-        std::vector<PurposeInfo> &purposeInfos, const AppInfo appInfo)
+        std::vector<PurposeInfo> &purposeInfos, const AppInfo &appInfo)
     {
         if (abilityInfos.empty()) {
             return;
@@ -83,7 +83,7 @@ private:
 
     static void ResolveExtAbilityInfos(const std::vector<ExtensionAbilityInfo> &extensionInfos,
         std::vector<PurposeInfo> &purposeInfos, std::vector<BusinessAbilityInfo> &businessAbilityInfos,
-        const AppInfo appInfo)
+        const AppInfo &appInfo)
     {
         if (extensionInfos.empty()) {
             return;
@@ -95,7 +95,7 @@ private:
     }
 
     static void ConvertAbilityToPurposes(const AbilityInfo &abilityInfo, std::vector<PurposeInfo> &purposeInfos,
-        const AppInfo appInfo)
+        const AppInfo &appInfo)
     {
         std::string supportPurpose = GetAbilityMetadataValue(abilityInfo, SrConstants::METADATA_SUPPORT_PURPOSE_KEY);
         if (supportPurpose.empty()) {
@@ -118,7 +118,7 @@ private:
     }
 
     static void ConvertExtAbilityToPurposes(const ExtensionAbilityInfo &extAbilityInfo,
-        std::vector<PurposeInfo> &purposeInfos, const AppInfo appInfo)
+        std::vector<PurposeInfo> &purposeInfos, const AppInfo &appInfo)
     {
         if (extAbilityInfo.type != ExtensionAbilityType::FORM && extAbilityInfo.type != ExtensionAbilityType::UI) {
             return;
@@ -161,7 +161,7 @@ private:
     }
 
     static void ConvertExtAbilityToService(const ExtensionAbilityInfo &extAbilityInfo,
-        std::vector<BusinessAbilityInfo> &businessAbilityInfos, const AppInfo appInfo)
+        std::vector<BusinessAbilityInfo> &businessAbilityInfos, const AppInfo &appInfo)
     {
         if (extAbilityInfo.type != ExtensionAbilityType::UI) {
             return;

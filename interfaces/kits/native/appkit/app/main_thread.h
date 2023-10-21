@@ -276,7 +276,7 @@ public:
      *
      * @return Is the status change completed.
      */
-    int32_t ScheduleOnGcStateChange(int32_t state) override;
+    int32_t ScheduleChangeAppGcState(int32_t state) override;
 
     void AttachAppDebug() override;
     void DetachAppDebug() override;
@@ -535,7 +535,7 @@ private:
 
     std::vector<std::string> GetRemoveOverlayPaths(const std::vector<OverlayModuleInfo> &overlayModuleInfos);
 
-    int32_t OnGcStateChange(int32_t state);
+    int32_t ChangeAppGcState(int32_t state);
 
     class MainHandler : public EventHandler {
     public:

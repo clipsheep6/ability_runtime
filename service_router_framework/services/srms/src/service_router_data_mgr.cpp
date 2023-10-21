@@ -25,13 +25,14 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
-    const std::string SCHEME_SEPARATOR = "://";
-    const std::string SCHEME_SERVICE_ROUTER = "servicerouter";
+const std::string SCHEME_SEPARATOR = "://";
+const std::string SCHEME_SERVICE_ROUTER = "servicerouter";
 }
 
 bool ServiceRouterDataMgr::LoadAllBundleInfos()
 {
     APP_LOGD("SRDM LoadAllBundleInfos");
+    ClearAllBundleInfos();
     auto bms = SrSamgrHelper::GetInstance().GetBundleMgr();
     if (bms == nullptr) {
         APP_LOGE("SRDM GetBundleMgr return null");
@@ -39,17 +40,16 @@ bool ServiceRouterDataMgr::LoadAllBundleInfos()
     }
     auto flags = (BundleFlag::GET_BUNDLE_WITH_ABILITIES | BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO);
     std::vector<BundleInfo> bundleInfos;
-    bool ret = bms->GetBundleInfos(flags, bundleInfos, SrSamgrHelper::GetCurrentActiveUserId());
-    if (!ret) {
+    if (!bms->GetBundleInfos(flags, bundleInfos, SrSamgrHelper::GetCurrentActiveUserId())) {
         APP_LOGE("SRDM bms->GetBundleInfos return false");
+        return false;
     }
-    if (!innerServiceInfos_.empty()) {
-        innerServiceInfos_.clear();
-    }
+
+    std::lock_guard<std::mutex> lock(bundleInfoMutex_);
     for (const auto &bundleInfo : bundleInfos) {
-        UpdateBundleInfo(bundleInfo);
+        UpdateBundleInfoLocked(bundleInfo);
     }
-    return ret;
+    return true;
 }
 
 bool ServiceRouterDataMgr::LoadBundleInfo(const std::string &bundleName)
@@ -62,15 +62,17 @@ bool ServiceRouterDataMgr::LoadBundleInfo(const std::string &bundleName)
     }
     BundleInfo bundleInfo;
     auto flags = (BundleFlag::GET_BUNDLE_WITH_ABILITIES | BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO);
-    bool ret = bms->GetBundleInfo(bundleName, flags, bundleInfo, SrSamgrHelper::GetCurrentActiveUserId());
-    if (!ret) {
+    if (!bms->GetBundleInfo(bundleName, flags, bundleInfo, SrSamgrHelper::GetCurrentActiveUserId())) {
         APP_LOGE("SRDM bms->GetBundleInfos return false");
+        return false;
     }
-    UpdateBundleInfo(bundleInfo);
-    return ret;
+
+    std::lock_guard<std::mutex> lock(bundleInfoMutex_);
+    UpdateBundleInfoLocked(bundleInfo);
+    return true;
 }
 
-void ServiceRouterDataMgr::UpdateBundleInfo(const BundleInfo &bundleInfo)
+void ServiceRouterDataMgr::UpdateBundleInfoLocked(const BundleInfo &bundleInfo)
 {
     APP_LOGD("SRDM UpdateBundleInfo");
     InnerServiceInfo innerServiceInfo;
@@ -84,7 +86,6 @@ void ServiceRouterDataMgr::UpdateBundleInfo(const BundleInfo &bundleInfo)
     std::vector<BusinessAbilityInfo> businessAbilityInfos;
     if (BundleInfoResolveUtil::ResolveBundleInfo(bundleInfo, purposeInfos, businessAbilityInfos,
         innerServiceInfo.GetAppInfo())) {
-        std::lock_guard<std::mutex> lock(bundleInfoMutex_);
         innerServiceInfo.UpdateInnerServiceInfo(purposeInfos, businessAbilityInfos);
         innerServiceInfos_.try_emplace(bundleInfo.name, innerServiceInfo);
     }
@@ -112,6 +113,7 @@ int32_t ServiceRouterDataMgr::QueryBusinessAbilityInfos(const BusinessAbilityFil
         return ERR_BUNDLE_MANAGER_PARAM_ERROR;
     }
 
+    std::lock_guard<std::mutex> lock(bundleInfoMutex_);
     for (const auto &item : innerServiceInfos_) {
         item.second.FindBusinessAbilityInfos(validType, businessAbilityInfos);
     }
@@ -127,6 +129,7 @@ int32_t ServiceRouterDataMgr::QueryPurposeInfos(const Want &want, const std::str
         return ERR_BUNDLE_MANAGER_PARAM_ERROR;
     }
 
+    std::lock_guard<std::mutex> lock(bundleInfoMutex_);
     ElementName element = want.GetElement();
     std::string bundleName = element.GetBundleName();
     if (bundleName.empty()) {
@@ -160,6 +163,14 @@ BusinessType ServiceRouterDataMgr::GetBusinessType(const BusinessAbilityFilter &
         return BusinessType::UNSPECIFIED;
     }
     return BundleInfoResolveUtil::findBusinessType(uri.GetHost());
+}
+
+void ServiceRouterDataMgr::ClearAllBundleInfos()
+{
+    std::lock_guard<std::mutex> lock(bundleInfoMutex_);
+    if (!innerServiceInfos_.empty()) {
+        innerServiceInfos_.clear();
+    }
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -124,12 +124,16 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleGetBundleNameByPid;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_ALL_RENDER_PROCESSES)] =
         &AppMgrStub::HandleGetAllRenderProcesses;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::GET_PROCESS_MEMORY_BY_PID)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_PROCESS_MEMORY_BY_PID)] =
         &AppMgrStub::HandleGetProcessMemoryByPid;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::GET_PIDS_BY_BUNDLENAME)] =
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_PIDS_BY_BUNDLENAME)] =
         &AppMgrStub::HandleGetRunningProcessInformation;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_ON_GC_STATE_CHANGE)] =
-            &AppMgrStub::HandleOnGcStateChange;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::CHANGE_APP_GC_STATE)] =
+            &AppMgrStub::HandleChangeAppGcState;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_PAGE_SHOW)] =
+        &AppMgrStub::HandleNotifyPageShow;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_PAGE_HIDE)] =
+        &AppMgrStub::HandleNotifyPageHide;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -780,13 +784,47 @@ int32_t AppMgrStub::HandleGetRunningProcessInformation(MessageParcel &data, Mess
     return NO_ERROR;
 }
 
-int32_t AppMgrStub::HandleOnGcStateChange(MessageParcel &data, MessageParcel &reply)
+int32_t AppMgrStub::HandleChangeAppGcState(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER(HITRACE_TAG_APP);
     int32_t pid = data.ReadInt32();
     int32_t state = data.ReadInt32();
-    int32_t ret = OnGcStateChange(pid, state);
+    int32_t ret = ChangeAppGcState(pid, state);
     reply.WriteInt32(ret);
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleNotifyPageShow(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    std::unique_ptr<PageStateData> pageStateData(data.ReadParcelable<PageStateData>());
+    if (token == nullptr || pageStateData == nullptr) {
+        HILOG_ERROR("read data failed");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto result = NotifyPageShow(token, *pageStateData);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleNotifyPageHide(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    std::unique_ptr<PageStateData> pageStateData(data.ReadParcelable<PageStateData>());
+    if (token == nullptr || pageStateData == nullptr) {
+        HILOG_ERROR("read data failed");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto result = NotifyPageHide(token, *pageStateData);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

@@ -49,6 +49,8 @@ enum {
     ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_FLAG = 16000058,
     ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_TYPE = 16000059,
     ERR_ABILITY_RUNTIME_EXTERNAL_GRANT_URI_PERMISSION = 16000060,
+    ERR_ABILITY_RUNTIME_OPERATION_NOT_SUPPORTED = 16000061,
+    ERR_ABILITY_RUNTIME_CHILD_PROCESS_NUMBER_EXCEEDS_UPPER_BOUND = 16000062,
     ERR_ABILITY_RUNTIME_EXTERNAL_EXECUTE_SHELL_COMMAND_FAILED = 16000101,
     ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT = 16000151,
     ERR_ABILITY_RUNTIME_EXTERNAL_WANTAGENT_NOT_FOUND = 16000152,
@@ -91,7 +93,6 @@ public:
      * @param errMessage error msg.
      * @return true if success.
      */
-    static bool Throw(NativeEngine &engine, int32_t errCode, const std::string &errMessage = "");
     static bool Throw(napi_env env, int32_t errCode, const std::string &errMessage = "");
 
     /**
@@ -101,7 +102,6 @@ public:
      * @param errCode internal errorcode.
      * @return true if success.
      */
-    static bool ThrowByInternalErrCode(NativeEngine &engine, int32_t errCode);
     static bool ThrowByInternalErrCode(napi_env env, int32_t errCode);
 
     /**
@@ -111,7 +111,6 @@ public:
      * @param errCode internal errorcode.
      * @return js error object.
      */
-    static NativeValue *CreateErrorByInternalErrCode(NativeEngine &engine, int32_t errCode);
     static napi_value CreateErrorByInternalErrCode(napi_env env, int32_t errCode);
 
     /**

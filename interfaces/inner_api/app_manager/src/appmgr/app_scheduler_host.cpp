@@ -64,8 +64,8 @@ AppSchedulerHost::AppSchedulerHost()
         &AppSchedulerHost::HandleScheduleHeapMemory;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_FAULT)] =
         &AppSchedulerHost::HandleNotifyAppFault;
-    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::APP_ON_GC_STATE_CHANGE)] =
-        &AppSchedulerHost::HandleOnGcStateChange;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::APP_GC_STATE_CHANGE)] =
+        &AppSchedulerHost::HandleScheduleChangeAppGcState;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ATTACH_APP_DEBUG)] =
         &AppSchedulerHost::HandleAttachAppDebug;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DETACH_APP_DEBUG)] =
@@ -312,10 +312,10 @@ int32_t AppSchedulerHost::HandleNotifyAppFault(MessageParcel &data, MessageParce
     return NO_ERROR;
 }
 
-int32_t AppSchedulerHost::HandleOnGcStateChange(MessageParcel &data, MessageParcel &reply)
+int32_t AppSchedulerHost::HandleScheduleChangeAppGcState(MessageParcel &data, MessageParcel &reply)
 {
     int32_t state = data.ReadInt32();
-    int32_t result = ScheduleOnGcStateChange(state);
+    int32_t result = ScheduleChangeAppGcState(state);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("reply write failed.");
         return ERR_INVALID_VALUE;

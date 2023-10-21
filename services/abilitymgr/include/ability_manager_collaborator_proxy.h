@@ -37,7 +37,14 @@ public:
      */
     virtual int32_t NotifyStartAbility(const AppExecFwk::AbilityInfo &abilityInfo,
         int32_t userId, Want &want, uint64_t accessTokenIDEx) override;
-    
+
+    /**
+     * @brief Notify collaborator to app preload.
+     * @param bundleName bundlName.
+     * @return 0 means success or else failed.
+     */
+    virtual int32_t NotifyPreloadAbility(const std::string &bundleName) override;
+
     /**
      * @brief Notify when mission is created.
      * @param missionId missionId.
@@ -122,6 +129,7 @@ public:
     virtual void UpdateMissionInfo(sptr<SessionInfo> &sessionInfo) override;
 private:
     static inline BrokerDelegator<AbilityManagerCollaboratorProxy> delegator_;
+    int32_t SendTransactCmd(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
 };
 }   // namespace AAFWK
 }   // namespace OHOS

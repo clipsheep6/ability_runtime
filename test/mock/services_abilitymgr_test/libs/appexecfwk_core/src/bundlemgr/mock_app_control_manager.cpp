@@ -122,17 +122,17 @@ ErrCode AppControlProxy::GetAppJumpControlRule(const std::string &callerBundleNa
     return ERR_OK;
 }
 
-ErrCode AppControlProxy::SetDisposedStatus(const std::string& appId, const Want& want)
+ErrCode AppControlProxy::SetDisposedStatus(const std::string& appId, const Want& want, int32_t userId)
 {
     return ERR_OK;
 }
 
-ErrCode AppControlProxy::DeleteDisposedStatus(const std::string& appId)
+ErrCode AppControlProxy::DeleteDisposedStatus(const std::string& appId, int32_t userId)
 {
     return ERR_OK;
 }
 
-ErrCode AppControlProxy::GetDisposedStatus(const std::string& appId, Want& want)
+ErrCode AppControlProxy::GetDisposedStatus(const std::string& appId, Want& want, int32_t userId)
 {
     return ERR_OK;
 }

@@ -20,6 +20,17 @@ extern const char _binary_ability_stage_js_end[];
 extern const char _binary_ability_stage_abc_start[];
 extern const char _binary_ability_stage_abc_end[];
 
+static napi_module _module = {
+#ifdef ENABLE_ERRCODE
+    .nm_version = 0,
+    .nm_filename = "app/ability/libabilitystage.so/ability_stage.js",
+    .nm_modname = "app.ability.AbilityStage",
+#else
+    .nm_version = 0,
+    .nm_filename = "application/libabilitystage_napi.so/ability_stage.js",
+    .nm_modname = "application.AbilityStage",
+#endif
+};
 extern "C" __attribute__((constructor))
 #ifdef ENABLE_ERRCODE
 void NAPI_app_ability_AbilityStage_AutoRegister()
@@ -27,18 +38,7 @@ void NAPI_app_ability_AbilityStage_AutoRegister()
 void NAPI_application_AbilityStage_AutoRegister()
 #endif
 {
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-#ifdef ENABLE_ERRCODE
-        .name = "app.ability.AbilityStage",
-        .fileName = "app/ability/libabilitystage.so/ability_stage.js",
-#else
-        .name = "application.AbilityStage",
-        .fileName = "application/libabilitystage_napi.so/ability_stage.js",
-#endif
-    };
-
-    moduleManager->Register(&newModuleInfo);
+    napi_module_register(&_module);
 }
 
 extern "C" __attribute__((visibility("default")))

@@ -100,6 +100,8 @@ ohos_unittest("ability_record_test_call") {
   ]
 
   sources = [
+    "${ability_runtime_services_path}/abilitymgr/src/ability_auto_startup_data_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_auto_startup_service.cpp",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp",
     "ability_record_test_call.cpp",  # add mock file
   ]
@@ -136,6 +138,7 @@ ohos_unittest("ability_record_test_call") {
     "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "kv_store:distributeddata_inner",
     "napi:ace_napi",
   ]
 

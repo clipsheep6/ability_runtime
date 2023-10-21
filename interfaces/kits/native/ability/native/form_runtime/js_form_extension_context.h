@@ -25,11 +25,11 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue* CreateJsFormExtensionContext(NativeEngine& engine, std::shared_ptr<FormExtensionContext> context);
+napi_value CreateJsFormExtensionContext(napi_env env, std::shared_ptr<FormExtensionContext> context);
 
 class JSFormExtensionConnection : public AbilityConnectCallback {
 public:
-    explicit JSFormExtensionConnection(NativeEngine& engine);
+    explicit JSFormExtensionConnection(napi_env env);
     ~JSFormExtensionConnection();
     void OnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
@@ -37,13 +37,13 @@ public:
     void HandleOnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode);
     void HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode);
-    void SetJsConnectionObject(NativeValue* jsConnectionObject);
+    void SetJsConnectionObject(napi_value jsConnectionObject);
     void RemoveConnectionObject();
     void CallJsFailed(int32_t errorCode);
     void SetConnectionId(int64_t id);
     int64_t GetConnectionId();
 private:
-    NativeEngine& engine_;
+    napi_env env_;
     std::unique_ptr<NativeReference> jsConnectionObject_ = nullptr;
     int64_t connectionId_ = -1;
 };

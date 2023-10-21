@@ -353,6 +353,11 @@ enum {
      * Result(2097218) for collaborator is empty.
      */
     ERR_COLLABORATOR_NOTIFY_FAILED,
+
+    /**
+     * Result(2097219) for prouct application boot setting.
+     */
+    ERR_NOT_SUPPORTED_PRODUCT_TYPE,
 };
 
 enum {

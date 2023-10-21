@@ -69,16 +69,14 @@ int ServiceRouterMgrStub::HandleQueryBusinessAbilityInfos(MessageParcel &data, M
         APP_LOGE("verify GET_BUNDLE_INFO_PRIVILEGED failed");
         return ERR_BUNDLE_MANAGER_PERMISSION_DENIED;
     }
-    BusinessAbilityFilter *filter = data.ReadParcelable<BusinessAbilityFilter>();
+
+    std::unique_ptr<BusinessAbilityFilter> filter(data.ReadParcelable<BusinessAbilityFilter>());
     if (filter == nullptr) {
         APP_LOGE("ReadParcelable<filter> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
     std::vector<BusinessAbilityInfo> infos;
     int ret = QueryBusinessAbilityInfos(*filter, infos);
-    if (filter != nullptr) {
-        delete filter;
-    }
     if (!reply.WriteInt32(ret)) {
         APP_LOGE("write ret failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
@@ -99,7 +97,7 @@ int ServiceRouterMgrStub::HandleQueryPurposeInfos(MessageParcel &data, MessagePa
         APP_LOGE("verify GET_BUNDLE_INFO_PRIVILEGED failed");
         return ERR_BUNDLE_MANAGER_PERMISSION_DENIED;
     }
-    Want *want = data.ReadParcelable<Want>();
+    std::unique_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         APP_LOGE("ReadParcelable<want> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
@@ -107,9 +105,6 @@ int ServiceRouterMgrStub::HandleQueryPurposeInfos(MessageParcel &data, MessagePa
     std::string purposeName = data.ReadString();
     std::vector<PurposeInfo> infos;
     int ret = QueryPurposeInfos(*want, purposeName, infos);
-    if (want != nullptr) {
-        delete want;
-    }
     if (!reply.WriteInt32(ret)) {
         APP_LOGE("write ret failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;

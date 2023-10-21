@@ -353,6 +353,22 @@ public:
      */
     virtual int32_t GetRunningProcessInformation(
         const std::string &bundleName, int32_t userId, std::vector<RunningProcessInfo> &info) override;
+    
+    /**
+     * @brief Notify AbilityManagerService the page show.
+     * @param token Ability identify.
+     * @param pageStateData The data of ability's page state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyPageShow(const sptr<IRemoteObject> &token, const PageStateData &pageStateData) override;
+
+    /**
+     * @brief Notify AbilityManagerService the page hide.
+     * @param token Ability identify.
+     * @param pageStateData The data of ability's page state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyPageHide(const sptr<IRemoteObject> &token, const PageStateData &pageStateData) override;
 
     /**
      * @brief Notify NativeEngine GC of status change.
@@ -361,11 +377,13 @@ public:
      * @param pid pid
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t OnGcStateChange(pid_t pid, int32_t state) override;
+    virtual int32_t ChangeAppGcState(pid_t pid, int32_t state) override;
 
 private:
     bool SendTransactCmd(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply);
     bool WriteInterfaceToken(MessageParcel &data);
+    int32_t SendRequest(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply,
+        MessageOption& option);
     template<typename T>
     int GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos);
     static inline BrokerDelegator<AppMgrProxy> delegator_;

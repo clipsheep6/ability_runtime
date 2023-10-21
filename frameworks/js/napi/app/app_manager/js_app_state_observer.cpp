@@ -225,7 +225,7 @@ void JSAppStateObserver::CallJsFunction(
         return;
     }
     napi_value callResult = nullptr;
-    napi_call_function(env_, nullptr, method, argc, argv, &callResult);
+    napi_call_function(env_, value, method, argc, argv, &callResult);
     HILOG_INFO("CallJsFunction end");
 }
 
@@ -240,7 +240,6 @@ bool JSAppStateObserver::RemoveJsObserverObject(const int32_t observerId)
 {
     bool result = (jsObserverObjectMap_.erase(observerId) == 1);
     return result;
-    HILOG_DEBUG("RemoveJsObserverObject end");
 }
 
 bool JSAppStateObserver::FindObserverByObserverId(const int32_t observerId)

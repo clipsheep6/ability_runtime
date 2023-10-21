@@ -105,7 +105,9 @@ private:
     int32_t HandleGetBundleNameByPid(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetProcessMemoryByPid(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetRunningProcessInformation(MessageParcel &data, MessageParcel &reply);
-    int32_t HandleOnGcStateChange(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleChangeAppGcState(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleNotifyPageShow(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleNotifyPageHide(MessageParcel &data, MessageParcel &reply);
 
     using AppMgrFunc = int32_t (AppMgrStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, AppMgrFunc> memberFuncMap_;

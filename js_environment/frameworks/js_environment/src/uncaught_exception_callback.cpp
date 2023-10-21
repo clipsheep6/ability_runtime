@@ -21,33 +21,34 @@
 
 namespace OHOS {
 namespace JsEnv {
-std::string UncaughtExceptionCallback::GetNativeStrFromJsTaggedObj(NativeObject* obj, const char* key)
+std::string NapiUncaughtExceptionCallback::GetNativeStrFromJsTaggedObj(napi_value obj, const char* key)
 {
     if (obj == nullptr) {
         JSENV_LOG_E("Failed to get value from key.");
         return "";
     }
 
-    NativeValue* value = obj->GetProperty(key);
-    NativeString* valueStr = JsEnv::ConvertNativeValueTo<NativeString>(value);
-    if (valueStr == nullptr) {
+    napi_value valueStr = nullptr;
+    napi_get_named_property(env_, obj, key, &valueStr);
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(env_, valueStr, &valueType);
+    if (valueType != napi_string) {
         JSENV_LOG_E("Failed to convert value from key.");
         return "";
     }
 
-    size_t valueStrBufLength = valueStr->GetLength();
-    size_t valueStrLength = 0;
+    size_t valueStrBufLength = 0;
+    napi_get_value_string_utf8(env_, valueStr, nullptr, 0, &valueStrBufLength);
     auto valueCStr = std::make_unique<char[]>(valueStrBufLength + 1);
-
-    valueStr->GetCString(valueCStr.get(), valueStrBufLength + 1, &valueStrLength);
+    size_t valueStrLength = 0;
+    napi_get_value_string_utf8(env_, valueStr, valueCStr.get(), valueStrBufLength + 1, &valueStrLength);
     std::string ret(valueCStr.get(), valueStrLength);
     JSENV_LOG_D("GetNativeStrFromJsTaggedObj Success.");
     return ret;
 }
 
-void UncaughtExceptionCallback::operator()(NativeValue* value)
+void NapiUncaughtExceptionCallback::operator()(napi_value obj)
 {
-    NativeObject* obj = JsEnv::ConvertNativeValueTo<NativeObject>(value);
     std::string errorMsg = GetNativeStrFromJsTaggedObj(obj, "message");
     std::string errorName = GetNativeStrFromJsTaggedObj(obj, "name");
     std::string errorStack = GetNativeStrFromJsTaggedObj(obj, "stack");
@@ -57,7 +58,9 @@ void UncaughtExceptionCallback::operator()(NativeValue* value)
         .message = errorMsg,
         .stack = errorStack
     };
-    if (obj != nullptr && obj->HasProperty("code")) {
+    bool hasProperty = false;
+    napi_has_named_property(env_, obj, "code", &hasProperty);
+    if (hasProperty) {
         std::string errorCode = GetNativeStrFromJsTaggedObj(obj, "code");
         summary += "Error code:" + errorCode + "\n";
     }
@@ -68,10 +71,12 @@ void UncaughtExceptionCallback::operator()(NativeValue* value)
     auto errorPos = SourceMap::GetErrorPos(errorStack);
     std::string error;
     if (obj != nullptr) {
-        NativeValue* value = obj->GetProperty("errorfunc");
-        NativeFunction* fuc = JsEnv::ConvertNativeValueTo<NativeFunction>(value);
-        if (fuc != nullptr) {
-            error = fuc->GetSourceCodeInfo(errorPos);
+        napi_value fuc = nullptr;
+        napi_get_named_property(env_, obj, "errorfunc", &fuc);
+        napi_valuetype valueType = napi_undefined;
+        napi_typeof(env_, fuc, &valueType);
+        if (valueType == napi_function) {
+            error = reinterpret_cast<NativeEngine*>(env_)->GetSourceCodeInfo(fuc, errorPos);
         }
     }
     if (sourceMapOperator_ == nullptr) {

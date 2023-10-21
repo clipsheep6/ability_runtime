@@ -17,14 +17,12 @@
 #define OHOS_ABILITY_RUNTIME_JS_RESOURCE_MANAGER_UTILS_H
 
 #include "context.h"
+#include "native_engine/native_engine.h"
 #include "resource_manager.h"
-
-class NativeEngine;
-class NativeValue;
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue *CreateJsResourceManager(NativeEngine &engine,
+napi_value CreateJsResourceManager(napi_env env,
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager, std::shared_ptr<Context> context);
 } // namespace AbilityRuntime
 } // namespace OHOS

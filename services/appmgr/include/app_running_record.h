@@ -42,6 +42,7 @@
 #include "module_running_record.h"
 #include "app_spawn_msg_wrapper.h"
 #include "app_malloc_info.h"
+#include "window_visibility_changed_listener.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -627,6 +628,10 @@ public:
 
     int32_t NotifyAppFault(const FaultData &faultData);
 
+    void OnWindowVisibilityChanged(const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos);
+
+    bool IsAbilitytiesBackground();
+
     inline void SetAbilityForegroundingFlag()
     {
         isAbilityForegrounding_.store(true);
@@ -654,7 +659,7 @@ public:
      *
      * @return Is the status change completed.
      */
-    int32_t OnGcStateChange(const int32_t state);
+    int32_t ChangeAppGcState(const int32_t state);
 
     void SetAttachDebug(const bool &isAttachDebug);
     bool isAttachDebug() const;
@@ -788,6 +793,8 @@ private:
     int32_t callerTokenId_ = -1;
     ProcessType processType_ = ProcessType::NORMAL;
     ExtensionAbilityType extensionType_ = ExtensionAbilityType::UNSPECIFIED;
+
+    std::set<uint32_t> windowIds_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

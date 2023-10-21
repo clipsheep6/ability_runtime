@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -79,7 +79,12 @@ void MissionListenerProxy::OnMissionIconUpdated(int32_t missionId, const std::sh
         return;
     }
 
-    int error = Remote()->SendRequest(IMissionListener::ON_MISSION_ICON_UPDATED, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote object is nullptr.");
+        return;
+    }
+    int error = remote->SendRequest(IMissionListener::ON_MISSION_ICON_UPDATED, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("SendRequest icon updated fail, error: %{public}d", error);
         return;
@@ -114,7 +119,12 @@ void MissionListenerProxy::SendRequestCommon(int32_t missionId, IMissionListener
         return;
     }
 
-    int error = Remote()->SendRequest(cmd, data, reply, option);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote object is nullptr.");
+        return;
+    }
+    int error = remote->SendRequest(cmd, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("OnMissionCreated fail, error: %{public}d", error);
         return;

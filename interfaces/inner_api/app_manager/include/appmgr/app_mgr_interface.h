@@ -28,6 +28,7 @@
 #include "fault_data.h"
 #include "iapp_state_callback.h"
 #include "ams_mgr_interface.h"
+#include "page_state_data.h"
 #include "render_process_info.h"
 #include "running_process_info.h"
 #include "system_memory_attr.h"
@@ -400,6 +401,28 @@ public:
      */
     virtual int32_t GetRunningProcessInformation(
         const std::string &bundleName, int32_t userId, std::vector<RunningProcessInfo> &info) = 0;
+    
+    /**
+     * @brief Notify AbilityManagerService the page show.
+     * @param token Ability identify.
+     * @param pageStateData The data of ability's page state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyPageShow(const sptr<IRemoteObject> &token, const PageStateData &pageStateData)
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Notify AbilityManagerService the page hide.
+     * @param token Ability identify.
+     * @param pageStateData The data of ability's page state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyPageHide(const sptr<IRemoteObject> &token, const PageStateData &pageStateData)
+    {
+        return 0;
+    }
 
     /**
      * @brief Notify NativeEngine GC of status change.
@@ -409,7 +432,7 @@ public:
      *
      * @return Is the status change completed.
      */
-    virtual int32_t OnGcStateChange(pid_t pid, int32_t state) = 0;
+    virtual int32_t ChangeAppGcState(pid_t pid, int32_t state) = 0;
 
     // please add new message item to the bottom in order to prevent some unexpected BUG
     enum class Message {
@@ -458,6 +481,9 @@ public:
         APP_GET_ALL_RENDER_PROCESSES,
         GET_PROCESS_MEMORY_BY_PID,
         GET_PIDS_BY_BUNDLENAME,
+        CHANGE_APP_GC_STATE,
+        NOTIFY_PAGE_SHOW,
+        NOTIFY_PAGE_HIDE
     };
 };
 }  // namespace AppExecFwk

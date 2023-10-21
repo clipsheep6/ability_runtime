@@ -397,6 +397,7 @@ public:
     MOCK_METHOD1(UnregisterAppDebugListener, int32_t(const sptr<AppExecFwk::IAppDebugListener> &listener));
     MOCK_METHOD1(AttachAppDebug, int32_t(const std::string &bundleName));
     MOCK_METHOD1(DetachAppDebug, int32_t(const std::string &bundleName));
+    MOCK_METHOD1(IsAbilityControllerStart, bool(const Want& want));
 };
 }  // namespace AAFwk
 }  // namespace OHOS

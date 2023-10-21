@@ -15,10 +15,13 @@
 
 #include "app_lifecycle_deal.h"
 
+#include "freeze_util.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "time_util.h"
 
 namespace OHOS {
+using AbilityRuntime::FreezeUtil;
 namespace AppExecFwk {
 AppLifeCycleDeal::AppLifeCycleDeal()
 {}
@@ -31,7 +34,7 @@ AppLifeCycleDeal::~AppLifeCycleDeal()
 void AppLifeCycleDeal::LaunchApplication(const AppLaunchData &launchData, const Configuration &config)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("AppLifeCycleDeal ScheduleLaunchApplication");
+    HILOG_INFO("LoadLifecycle: Launch application");
     if (appThread_) {
         appThread_->ScheduleLaunchApplication(launchData, config);
     }
@@ -60,8 +63,22 @@ void AppLifeCycleDeal::AddAbilityStage(const HapModuleInfo &abilityStage)
 void AppLifeCycleDeal::LaunchAbility(const std::shared_ptr<AbilityRunningRecord> &ability)
 {
     if (appThread_ && ability) {
-        appThread_->ScheduleLaunchAbility(*(ability->GetAbilityInfo()), ability->GetToken(),
+        auto abilityInfo = ability->GetAbilityInfo();
+        if (abilityInfo == nullptr) {
+            HILOG_WARN("LoadLifecycle: abilityInfo null.");
+            return;
+        }
+        if (abilityInfo->type == AbilityType::PAGE) {
+            FreezeUtil::LifecycleFlow flow = {ability->GetToken(), FreezeUtil::TimeoutState::LOAD};
+            auto entry = std::to_string(AbilityRuntime::TimeUtil::SystemTimeMillisecond()) +
+                "; AppLifeCycleDeal::LaunchAbility; the LoadAbility lifecycle.";
+            FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
+        }
+        HILOG_INFO("LoadLifecycle: Launch ability.");
+        appThread_->ScheduleLaunchAbility(*abilityInfo, ability->GetToken(),
             ability->GetWant());
+    } else {
+        HILOG_WARN("LoadLifecycle.");
     }
 }
 
@@ -230,14 +247,14 @@ int32_t AppLifeCycleDeal::NotifyAppFault(const FaultData &faultData)
     return appThread_->ScheduleNotifyAppFault(faultData);
 }
 
-int32_t AppLifeCycleDeal::OnGcStateChange(int32_t state)
+int32_t AppLifeCycleDeal::ChangeAppGcState(int32_t state)
 {
     HILOG_DEBUG("called.");
     if (appThread_ == nullptr) {
         HILOG_ERROR("appThread_ is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    return appThread_->ScheduleOnGcStateChange(state);
+    return appThread_->ScheduleChangeAppGcState(state);
 }
 
 int32_t AppLifeCycleDeal::AttachAppDebug()

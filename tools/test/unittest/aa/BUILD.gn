@@ -269,6 +269,31 @@ ohos_unittest("aa_command_test_test") {
   ]
 }
 
+ohos_unittest("aa_command_attach_test") {
+  module_out_path = module_output_path
+
+  sources = [ "aa_command_attach_test.cpp" ]
+
+  configs = [ ":tools_aa_config_mock" ]
+
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+
+  deps = [
+    "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "bundle_framework:appexecfwk_base",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+}
+
 print("accessibility_enable = ", accessibility_enable)
 if (accessibility_enable) {
   ohos_unittest("accessibility_ability_utils_test") {
@@ -306,6 +331,7 @@ group("unittest") {
   testonly = true
 
   deps = [
+    ":aa_command_attach_test",
     ":aa_command_dump_test",
     ":aa_command_dumpsys_test",
     ":aa_command_force_stop_test",

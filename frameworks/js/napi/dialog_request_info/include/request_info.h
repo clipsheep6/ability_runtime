@@ -29,20 +29,20 @@ public:
     /**
      * @brief Wrap request info to native value.
      *
-     * @param engine NativeEngine.
+     * @param env napi_env.
      * @param request Request information.
      * @return Native value wrapped from request.
      */
-    static NativeValue* WrapRequestInfo(NativeEngine &engine, RequestInfo *request);
+    static napi_value WrapRequestInfo(napi_env env, RequestInfo *request);
 
     /**
      * @brief Unwrap native value to request information.
      *
-     * @param engine NativeEngine.
-     * @param jsParam NativeValue.
+     * @param env napi_env.
+     * @param jsParam napi_value.
      * @return Request information unwrapped from native value.
      */
-    static std::shared_ptr<RequestInfo> UnwrapRequestInfo(NativeEngine &engine, NativeValue *jsParam);
+    static std::shared_ptr<RequestInfo> UnwrapRequestInfo(napi_env env, napi_value jsParam);
 
     /**
      * @brief Get caller token.
@@ -54,15 +54,15 @@ public:
     /**
      * @brief Create JsWindowRect.
      *
-     * @param engine NativeEngine.
+     * @param env napi_env.
      * @param the left position of WindowRect.
      * @param the top position of WindowRect.
      * @param the width position of WindowRect.
      * @param the height position of WindowRect.
      * @return Native value Created from left, top, width, height.
      */
-    static NativeValue* CreateJsWindowRect(
-        NativeEngine& engine, int32_t left, int32_t top, int32_t width, int32_t height);
+    static napi_value CreateJsWindowRect(
+        napi_env env, int32_t left, int32_t top, int32_t width, int32_t height);
 private:
     sptr<IRemoteObject> callerToken_;
     int32_t left_ = 0;

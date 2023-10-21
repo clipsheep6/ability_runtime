@@ -26,6 +26,7 @@
 #include "application_info.h"
 #include "bundle_info.h"
 #include "fault_data.h"
+#include "iapplication_state_observer.h"
 #include "iapp_state_callback.h"
 #include "iconfiguration_observer.h"
 #include "iremote_object.h"
@@ -471,7 +472,7 @@ public:
      * @param pid pid
      * @return Is the status change completed..
      */
-    int32_t OnGcStateChange(pid_t pid, int32_t state);
+    int32_t ChangeAppGcState(pid_t pid, int32_t state);
 
      /**
      * @brief Register app debug listener.
@@ -514,6 +515,37 @@ public:
      * @return Returns true if it is an attach debug application, otherwise it returns false.
      */
     bool IsAttachDebug(const std::string &bundleName);
+
+    /**
+     * Register application or process state observer.
+     * @param observer, ability token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
+        const std::vector<std::string> &bundleNameList = {});
+
+    /**
+     * Unregister application or process state observer.
+     * @param observer, ability token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer);
+
+    /**
+     * @brief Notify AbilityManagerService the page show.
+     * @param token Ability identify.
+     * @param pageStateData The data of ability's page state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t NotifyPageShow(const sptr<IRemoteObject> &token, const PageStateData &pageStateData);
+
+    /**
+     * @brief Notify AbilityManagerService the page hide.
+     * @param token Ability identify.
+     * @param pageStateData The data of ability's page state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t NotifyPageHide(const sptr<IRemoteObject> &token, const PageStateData &pageStateData);
 
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);

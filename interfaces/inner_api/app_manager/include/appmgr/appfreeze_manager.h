@@ -28,8 +28,10 @@
 #include "cpp/mutex.h"
 #include "cpp/condition_variable.h"
 #include "fault_data.h"
+#include "freeze_util.h"
 
 namespace OHOS {
+using AbilityRuntime::FreezeUtil;
 namespace AppExecFwk {
 class AppfreezeManager : public std::enable_shared_from_this<AppfreezeManager> {
 public:
@@ -45,6 +47,14 @@ public:
         CRITICAL_TIMEOUT = 1,
     };
 
+    struct ParamInfo {
+        int typeId = TypeAttribute::NORMAL_TIMEOUT;
+        int32_t pid = 0;
+        std::string eventName;
+        std::string bundleName;
+        std::string msg;
+    };
+
     AppfreezeManager();
     ~AppfreezeManager();
 
@@ -52,8 +62,7 @@ public:
     static void DestroyInstance();
     int AppfreezeHandle(const FaultData& faultData, const AppfreezeManager::AppInfo& appInfo);
     int AppfreezeHandleWithStack(const FaultData& faultData, const AppfreezeManager::AppInfo& appInfo);
-    int LifecycleTimeoutHandle(int typeId, int32_t pid, const std::string& eventName,
-        const std::string& bundleName, const std::string& msg);
+    int LifecycleTimeoutHandle(const ParamInfo& info, std::unique_ptr<FreezeUtil::LifecycleFlow> flow = nullptr);
     bool IsHandleAppfreeze(const std::string& bundleName);
 
 private:

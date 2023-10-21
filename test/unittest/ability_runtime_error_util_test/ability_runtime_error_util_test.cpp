@@ -34,7 +34,7 @@ public:
     void SetUp() override;
     void TearDown() override;
 
-    NativeEngine* engine_ = nullptr;
+    napi_env env_ = nullptr;
     panda::ecmascript::EcmaVM* vm_ = nullptr;
 };
 
@@ -53,14 +53,14 @@ void AbilityRuntimeErrorUtilTest::SetUp()
         return;
     }
 
-    engine_ = new ArkNativeEngine(vm_, nullptr);
+    env_ = reinterpret_cast<napi_env>(new ArkNativeEngine(vm_, nullptr));
 }
 
 void AbilityRuntimeErrorUtilTest::TearDown()
 {
-    if (engine_ != nullptr) {
-        delete engine_;
-        engine_ = nullptr;
+    if (env_ != nullptr) {
+        delete reinterpret_cast<NativeEngine*>(env_);
+        env_ = nullptr;
     }
 
     if (vm_ != nullptr) {
@@ -77,8 +77,8 @@ void AbilityRuntimeErrorUtilTest::TearDown()
  */
 HWTEST_F(AbilityRuntimeErrorUtilTest, ThrowByInternalErrCode_0200, TestSize.Level0)
 {
-    ASSERT_NE(engine_, nullptr);
-    bool result = AbilityRuntimeErrorUtil::ThrowByInternalErrCode(*engine_, 1);
+    ASSERT_NE(env_, nullptr);
+    bool result = AbilityRuntimeErrorUtil::ThrowByInternalErrCode(env_, 1);
     EXPECT_FALSE(result);
 }
 
@@ -90,8 +90,8 @@ HWTEST_F(AbilityRuntimeErrorUtilTest, ThrowByInternalErrCode_0200, TestSize.Leve
  */
 HWTEST_F(AbilityRuntimeErrorUtilTest, CreateErrorByInternalErrCode_0100, TestSize.Level0)
 {
-    ASSERT_NE(engine_, nullptr);
-    NativeValue* result = AbilityRuntimeErrorUtil::CreateErrorByInternalErrCode(*engine_, ERR_OK);
+    ASSERT_NE(env_, nullptr);
+    napi_value result = AbilityRuntimeErrorUtil::CreateErrorByInternalErrCode(env_, ERR_OK);
     EXPECT_NE(result, nullptr);
 }
 
@@ -103,8 +103,8 @@ HWTEST_F(AbilityRuntimeErrorUtilTest, CreateErrorByInternalErrCode_0100, TestSiz
  */
 HWTEST_F(AbilityRuntimeErrorUtilTest, CreateErrorByInternalErrCode_0200, TestSize.Level0)
 {
-    ASSERT_NE(engine_, nullptr);
-    NativeValue* result = AbilityRuntimeErrorUtil::CreateErrorByInternalErrCode(*engine_, 1);
+    ASSERT_NE(env_, nullptr);
+    napi_value result = AbilityRuntimeErrorUtil::CreateErrorByInternalErrCode(env_, 1);
     EXPECT_EQ(result, nullptr);
 }
 

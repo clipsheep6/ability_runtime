@@ -19,6 +19,7 @@
 #include <string>
 
 #include "ierror_observer.h"
+#include "iremote_object.h"
 #include "parcel.h"
 
 namespace OHOS {
@@ -61,6 +62,8 @@ struct FaultData : public Parcelable {
     bool waitSaveState = false;
     bool notifyApp = false;
     bool forceExit = false;
+    uint32_t state = 0;
+    sptr<IRemoteObject> token = nullptr;
 };
 
 /**
@@ -79,6 +82,8 @@ struct AppFaultDataBySA : public Parcelable {
     bool waitSaveState = false;
     bool notifyApp = false;
     bool forceExit = false;
+    uint32_t state = 0;
+    sptr<IRemoteObject> token = nullptr;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

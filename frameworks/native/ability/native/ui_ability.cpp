@@ -28,9 +28,9 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-const char *UIAbility::DMS_SESSION_ID = "sessionId";
-const char *UIAbility::DMS_ORIGIN_DEVICE_ID = "deviceId";
-constexpr int32_t UIAbility::DEFAULT_DMS_SESSION_ID = 0;
+const std::string UIAbility::DMS_SESSION_ID("sessionId");
+const std::string UIAbility::DMS_ORIGIN_DEVICE_ID("deviceId");
+const int32_t UIAbility::DEFAULT_DMS_SESSION_ID(0);
 constexpr char LAUNCHER_BUNDLE_NAME[] = "com.ohos.launcher";
 constexpr char LAUNCHER_ABILITY_NAME[] = "com.ohos.launcher.MainAbility";
 constexpr char SHOW_ON_LOCK_SCREEN[] = "ShowOnLockScreen";

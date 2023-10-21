@@ -108,6 +108,7 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
     }
 
     if (!isLoadedAbility) {
+        HILOG_INFO("Target service has not been loaded.");
         LoadAbility(targetService);
     } else if (targetService->IsAbilityState(AbilityState::ACTIVE)) {
         // It may have been started through connect
@@ -984,6 +985,7 @@ void AbilityConnectManager::PostRestartResidentTask(const AbilityRequest &abilit
 void AbilityConnectManager::HandleRestartResidentTask(const AbilityRequest &abilityRequest)
 {
     HILOG_INFO("HandleRestartResidentTask start.");
+    std::lock_guard guard(Lock_);
     auto findRestartResidentTask = [abilityRequest](const AbilityRequest &requestInfo) {
         return (requestInfo.want.GetElement().GetBundleName() == abilityRequest.want.GetElement().GetBundleName() &&
             requestInfo.want.GetElement().GetModuleName() == abilityRequest.want.GetElement().GetModuleName() &&
@@ -1919,13 +1921,18 @@ void AbilityConnectManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord>
         default:
             return;
     }
-    std::string eventName = AppExecFwk::AppFreezeType::LIFECYCLE_TIMEOUT;
 
     HILOG_WARN("LIFECYCLE_TIMEOUT: uid: %{public}d, pid: %{public}d, bundleName: %{public}s, abilityName: %{public}s,"
         "msg: %{public}s", processInfo.uid_, processInfo.pid_, ability->GetAbilityInfo().bundleName.c_str(),
         ability->GetAbilityInfo().name.c_str(), msgContent.c_str());
-    AppExecFwk::AppfreezeManager::GetInstance()->LifecycleTimeoutHandle(
-        typeId, processInfo.pid_, eventName, ability->GetAbilityInfo().bundleName, msgContent);
+    AppExecFwk::AppfreezeManager::ParamInfo info = {
+        .typeId = typeId,
+        .pid = processInfo.pid_,
+        .eventName = AppExecFwk::AppFreezeType::LIFECYCLE_TIMEOUT,
+        .bundleName = ability->GetAbilityInfo().bundleName,
+        .msg = msgContent
+    };
+    AppExecFwk::AppfreezeManager::GetInstance()->LifecycleTimeoutHandle(info);
 }
 
 void AbilityConnectManager::MoveToTerminatingMap(const std::shared_ptr<AbilityRecord>& abilityRecord)

@@ -41,7 +41,7 @@ bool DelegatorThread::Run(const DTask &task)
         return false;
     }
 
-    return handler_->PostTask(task);
+    return handler_->PostTask(task, "DelegatorThread::Run");
 }
 
 std::string DelegatorThread::GetThreadName() const

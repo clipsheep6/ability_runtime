@@ -186,7 +186,7 @@ int PermissionVerification::VerifyAppStateObserverPermission() const
 
 int32_t PermissionVerification::VerifyUpdateConfigurationPerm() const
 {
-    if (IsSACall() || VerifyCallingPermission(PermissionConstants::PERMISSION_UPDATE_CONFIGURATION)) {
+    if (VerifyCallingPermission(PermissionConstants::PERMISSION_UPDATE_CONFIGURATION)) {
         HILOG_INFO("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_UPDATE_CONFIGURATION);
         return ERR_OK;
     }
@@ -196,7 +196,7 @@ int32_t PermissionVerification::VerifyUpdateConfigurationPerm() const
 
 bool PermissionVerification::VerifyInstallBundlePermission() const
 {
-    if (IsSACall() || VerifyCallingPermission(PermissionConstants::PERMISSION_INSTALL_BUNDLE)) {
+    if (VerifyCallingPermission(PermissionConstants::PERMISSION_INSTALL_BUNDLE)) {
         HILOG_INFO("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_INSTALL_BUNDLE);
         return true;
     }
@@ -207,7 +207,7 @@ bool PermissionVerification::VerifyInstallBundlePermission() const
 
 bool PermissionVerification::VerifyGetBundleInfoPrivilegedPermission() const
 {
-    if (IsSACall() || VerifyCallingPermission(PermissionConstants::PERMISSION_GET_BUNDLE_INFO_PRIVILEGED)) {
+    if (VerifyCallingPermission(PermissionConstants::PERMISSION_GET_BUNDLE_INFO_PRIVILEGED)) {
         HILOG_INFO("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_GET_BUNDLE_INFO_PRIVILEGED);
         return true;
     }
@@ -270,10 +270,6 @@ int PermissionVerification::CheckCallServiceExtensionPermission(const Verificati
 
 int PermissionVerification::CheckStartByCallPermission(const VerificationInfo &verificationInfo) const
 {
-    if (IsSACall()) {
-        return ERR_OK;
-    }
-
     if (IsCallFromSameAccessToken(verificationInfo.accessTokenId)) {
         HILOG_ERROR("Not remote call, Caller is from same APP, StartAbilityByCall reject");
         return CHECK_PERMISSION_FAILED;

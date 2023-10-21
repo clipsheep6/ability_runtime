@@ -39,19 +39,7 @@ sptr<IBundleMgr> SrSamgrHelper::GetBundleMgr()
     APP_LOGI("GetBundleMgr called.");
     std::lock_guard<std::mutex> lock(bundleMgrMutex_);
     if (iBundleMgr_ == nullptr) {
-        sptr<ISystemAbilityManager> saManager =
-            SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObj = saManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-        if (remoteObj == nullptr) {
-            APP_LOGE("%{public}s error, failed to get bms remoteObj.", __func__);
-            return nullptr;
-        }
-
-        iBundleMgr_ = iface_cast<IBundleMgr>(remoteObj);
-        if (iBundleMgr_ == nullptr) {
-            APP_LOGE("%{public}s error, failed to get bms", __func__);
-            return nullptr;
-        }
+        ConnectBundleMgrLocked();
     }
     return iBundleMgr_;
 }
@@ -75,6 +63,59 @@ int32_t SrSamgrHelper::GetCurrentActiveUserId()
     APP_LOGI("ACCOUNT_ENABLE is false");
     return 0;
 #endif
+}
+
+void SrSamgrHelper::ConnectBundleMgrLocked()
+{
+    if (iBundleMgr_ != nullptr) {
+        return;
+    }
+    sptr<ISystemAbilityManager> saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (saManager == nullptr) {
+        APP_LOGE("failed to get bms saManager.");
+        return;
+    }
+
+    sptr<IRemoteObject> remoteObj = saManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (remoteObj == nullptr) {
+        APP_LOGE("failed to get bms remoteObj.");
+        return;
+    }
+
+    deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new (std::nothrow) BmsDeathRecipient());
+    if (deathRecipient_ == nullptr) {
+        APP_LOGE("Failed to create BmsDeathRecipient!");
+        return;
+    }
+    if ((remoteObj->IsProxyObject()) && (!remoteObj->AddDeathRecipient(deathRecipient_))) {
+        APP_LOGE("Add death recipient to bms failed.");
+        return;
+    }
+    iBundleMgr_ = iface_cast<IBundleMgr>(remoteObj);
+    if (iBundleMgr_ == nullptr) {
+        APP_LOGE("iface_cast failed, failed to get bms");
+    }
+}
+
+void SrSamgrHelper::ResetProxy(const wptr<IRemoteObject> &remote)
+{
+    std::lock_guard<std::mutex> lock(bundleMgrMutex_);
+    if (iBundleMgr_ == nullptr) {
+        return;
+    }
+
+    auto serviceRemote = iBundleMgr_->AsObject();
+    if ((serviceRemote != nullptr) && (serviceRemote == remote.promote())) {
+        APP_LOGD("To remove death recipient.");
+        serviceRemote->RemoveDeathRecipient(deathRecipient_);
+        iBundleMgr_ = nullptr;
+    }
+}
+
+void SrSamgrHelper::BmsDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    APP_LOGI("BmsDeathRecipient handle remote abilityms died.");
+    SrSamgrHelper::GetInstance().ResetProxy(remote);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

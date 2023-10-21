@@ -83,5 +83,23 @@ HWTEST_F(AppSchedulerHostTest, HandleNotifyAppFault_001, TestSize.Level1)
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_FAULT), data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
 }
+
+/**
+ * @tc.name: ScheduleChangeAppGcState_001
+ * @tc.desc: Verify that the ScheduleChangeAppGcState interface calls normally
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerHostTest, ScheduleChangeAppGcState_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    WriteInterfaceToken(data);
+    data.WriteInt32(0);
+    EXPECT_CALL(*mockAppScheduler_, ScheduleChangeAppGcState(_)).Times(1);
+    auto result = mockAppScheduler_->OnRemoteRequest(
+            static_cast<uint32_t>(IAppScheduler::Message::APP_GC_STATE_CHANGE), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

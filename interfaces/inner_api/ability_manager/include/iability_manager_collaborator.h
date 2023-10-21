@@ -41,7 +41,17 @@ public:
      */
     virtual int32_t NotifyStartAbility(const AppExecFwk::AbilityInfo &abilityInfo,
         int32_t userId, Want &want, uint64_t accessTokenIDEx) = 0;
-    
+
+    /**
+     * @brief Notify collaborator to app preload.
+     * @param bundleName bundlName.
+     * @return 0 means success or else failed.
+     */
+    virtual int32_t NotifyPreloadAbility(const std::string &bundleName)
+    {
+        return 0;
+    }
+
     /**
      * @brief Notify when mission is created.
      * @param missionId missionId.
@@ -138,6 +148,7 @@ public:
         NOTIFY_MISSION_CREATED_BY_SCB,
         NOTIFY_LOAD_ABILITY_BY_SCB,
         UPDATE_MISSION_INFO_BY_SCB,
+        NOTIFY_PRELOAD_ABILITY,
     };
 };
 }  // namespace AAFwk

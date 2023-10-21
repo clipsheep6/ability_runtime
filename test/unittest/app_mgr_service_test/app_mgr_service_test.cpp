@@ -1338,5 +1338,21 @@ HWTEST_F(AppMgrServiceTest, NotifyAppFault_003, TestSize.Level1)
     res = appMgrService->NotifyAppFaultBySA(faultData);
     EXPECT_EQ(ERR_INVALID_OPERATION, res);
 }
+
+/**
+ * @tc.name: ChangeAppGcState_001
+ * @tc.desc: Change app Gc state
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, ChangeAppGcState_001, TestSize.Level1)
+{
+    sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
+    int32_t res = appMgrService->ChangeAppGcState(0, 0);
+    EXPECT_EQ(ERR_INVALID_VALUE, res);
+    appMgrService->appMgrServiceInner_ = nullptr;
+}
 } // namespace AppExecFwk
 } // namespace OHOS

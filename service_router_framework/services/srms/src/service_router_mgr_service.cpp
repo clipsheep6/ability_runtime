@@ -86,11 +86,11 @@ void ServiceRouterMgrService::DelayUnloadTask()
         APP_LOGI("DelayUnloadTask, handler_ is nullptr");
         return;
     }
-    
+
     std::lock_guard<std::mutex> lock(delayTaskMutex_);
     handler_->RemoveTask(TASK_NAME);
     auto task = [this]() {
-        APP_LOGE("UnloadSA start.");
+        APP_LOGI("UnloadSA start.");
         sptr<ISystemAbilityManager> saManager =
             OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         if (saManager == nullptr) {
@@ -110,9 +110,9 @@ void ServiceRouterMgrService::DelayUnloadTask()
 bool ServiceRouterMgrService::LoadAllBundleInfos()
 {
     APP_LOGD("LoadAllBundleInfos start");
-    ServiceRouterDataMgr::GetInstance().LoadAllBundleInfos();
+    bool ret = ServiceRouterDataMgr::GetInstance().LoadAllBundleInfos();
     APP_LOGD("LoadAllBundleInfos end");
-    return true;
+    return ret;
 }
 
 bool ServiceRouterMgrService::InitEventRunnerAndHandler()
@@ -158,7 +158,7 @@ bool ServiceRouterMgrService::ServiceRouterMgrService::SubscribeCommonEvent()
 int32_t ServiceRouterMgrService::QueryBusinessAbilityInfos(const BusinessAbilityFilter &filter,
     std::vector< BusinessAbilityInfo> &businessAbilityInfos)
 {
-    APP_LOGD("%{public}s coldStart:", __func__);
+    APP_LOGD("coldStart:");
     DelayUnloadTask();
     return ServiceRouterDataMgr::GetInstance().QueryBusinessAbilityInfos(filter, businessAbilityInfos);
 }
@@ -166,7 +166,7 @@ int32_t ServiceRouterMgrService::QueryBusinessAbilityInfos(const BusinessAbility
 int32_t ServiceRouterMgrService::QueryPurposeInfos(const Want &want, const std::string purposeName,
     std::vector<PurposeInfo> &purposeInfos)
 {
-    APP_LOGD("%{public}s coldStart:", __func__);
+    APP_LOGD("coldStart:");
     DelayUnloadTask();
     return ServiceRouterDataMgr::GetInstance().QueryPurposeInfos(want, purposeName, purposeInfos);
 }

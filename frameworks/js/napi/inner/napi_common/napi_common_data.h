@@ -64,8 +64,7 @@ struct CallbackInfo {
     napi_ref callback = nullptr;
     napi_deferred deferred;
     int errCode = 0;
-    NativeEngine *engine = nullptr;
-    AbilityRuntime::AsyncTask *asyncTask = nullptr;
+    AbilityRuntime::NapiAsyncTask *napiAsyncTask = nullptr;
 };
 
 struct CallAbilityParamData {

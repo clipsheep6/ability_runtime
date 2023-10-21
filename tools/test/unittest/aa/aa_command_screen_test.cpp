@@ -121,7 +121,7 @@ HWTEST_F(AaCommandScreenTest, Aa_Command_Screen_0300, Function | MediumTest | Le
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
     AbilityManagerShellCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), "error: unknown option.\n" + HELP_MSG_SCREEN);
+    EXPECT_EQ(cmd.ExecCommand(), "fail: unknown option.\n" + HELP_MSG_SCREEN);
 }
 
 /**
@@ -140,7 +140,7 @@ HWTEST_F(AaCommandScreenTest, Aa_Command_Screen_0400, Function | MediumTest | Le
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
     AbilityManagerShellCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), "error: unknown option.\n" + HELP_MSG_SCREEN);
+    EXPECT_EQ(cmd.ExecCommand(), "fail: unknown option.\n" + HELP_MSG_SCREEN);
 }
 
 /**
@@ -159,7 +159,7 @@ HWTEST_F(AaCommandScreenTest, Aa_Command_Screen_0500, Function | MediumTest | Le
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
     AbilityManagerShellCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), "error: unknown option.\n" + HELP_MSG_SCREEN);
+    EXPECT_EQ(cmd.ExecCommand(), "fail: unknown option.\n" + HELP_MSG_SCREEN);
 }
 
 /**
@@ -178,7 +178,7 @@ HWTEST_F(AaCommandScreenTest, Aa_Command_Screen_0600, Function | MediumTest | Le
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
     AbilityManagerShellCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), "error: unknown option.\n" + HELP_MSG_SCREEN);
+    EXPECT_EQ(cmd.ExecCommand(), "fail: unknown option.\n" + HELP_MSG_SCREEN);
 }
 
 /**
@@ -197,7 +197,7 @@ HWTEST_F(AaCommandScreenTest, Aa_Command_Screen_0700, Function | MediumTest | Le
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
     AbilityManagerShellCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), "error: unknown option.\n" + HELP_MSG_SCREEN);
+    EXPECT_EQ(cmd.ExecCommand(), "fail: unknown option.\n" + HELP_MSG_SCREEN);
 }
 
 /**

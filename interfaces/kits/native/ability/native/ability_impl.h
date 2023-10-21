@@ -39,8 +39,11 @@ class AbilityImpl : public std::enable_shared_from_this<AbilityImpl> {
 public:
     AbilityImpl() = default;
     virtual ~AbilityImpl() = default;
-    virtual void Init(const std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &record,
-        std::shared_ptr<Ability> &ability, std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token);
+    virtual void Init(const std::shared_ptr<OHOSApplication> &application,
+                      const std::shared_ptr<AbilityLocalRecord> &record,
+                      std::shared_ptr<Ability> &ability,
+                      std::shared_ptr<AbilityHandler> &handler,
+                      const sptr<IRemoteObject> &token);
 
     /**
      * @brief Connect the ability. and Calling information back to Ability.
