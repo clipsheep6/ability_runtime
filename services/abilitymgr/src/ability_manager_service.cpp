@@ -8655,16 +8655,12 @@ int32_t AbilityManagerService::DetachAppDebug(const std::string &bundleName)
 
 bool AbilityManagerService::IsAbilityControllerStart(const Want &want)
 {
-    bool isSCBCall = CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD, U0_USER_ID);
-    if (isSCBCall) {
-        return IsAbilityControllerStart(want, want.GetBundle());
-    }
     auto callingUid = IPCSkeleton::GetCallingUid();
     bool isBrokerCall = (callingUid == BROKER_UID || callingUid == BROKER_RESERVE_UID);
     if (isBrokerCall) {
         return IsAbilityControllerStart(want, want.GetBundle());
     }
-    HILOG_ERROR("The interface only support for broker and WMS");
+    HILOG_ERROR("The interface only support for broker");
     return true;
 }
 }  // namespace AAFwk
