@@ -937,6 +937,33 @@ HWTEST_F(AppMgrServiceInnerTest, KillProcessByPid_001, TestSize.Level0)
 }
 
 /**
+ * @tc.name: KillProcessByPid_002
+ * @tc.desc: kill process by pid.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, KillProcessByPid_002, TestSize.Level0)
+{
+    HILOG_INFO("KillProcessByPid_002 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    int pid = 0;
+    std::string processName = "test_processName";
+    std::shared_ptr<AppRunningRecord> appRecord =
+        std::make_shared<AppRunningRecord>(applicationInfo_, ++recordId_, processName);
+    auto appRunningManager = std::make_shared<AppRunningManager>();
+    auto priorityObject = std::make_shared<PriorityObject>();
+    priorityObject->SetPid(0);
+    appRecord->priorityObject_ = priorityObject;
+    appRunningManager->appRunningRecordMap_.emplace(recordId_, appRecord);
+
+    int result = appMgrServiceInner->KillProcessByPid(pid);
+    EXPECT_EQ(result, -1);
+
+    HILOG_INFO("KillProcessByPid_002 end");
+}
+
+/**
  * @tc.name: GetAllPids_001
  * @tc.desc: get all pids.
  * @tc.type: FUNC
@@ -3398,6 +3425,155 @@ HWTEST_F(AppMgrServiceInnerTest, ChangeAppGcState_001, TestSize.Level1)
     int32_t ret = appMgrServiceInner->ChangeAppGcState(pid, state);
     EXPECT_EQ(ret, ERR_INVALID_VALUE);
     HILOG_INFO("ChangeAppGcState_001 end");
+}
+
+/**
+ * @tc.name: SendReStartProcessEvent_001
+ * @tc.desc: Change app Gc state
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_001, TestSize.Level1)
+{
+    HILOG_INFO("SendReStartProcessEvent_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    AAFwk::EventInfo eventInfo;
+    appMgrServiceInner->SendReStartProcessEvent(eventInfo, nullptr);
+    HILOG_INFO("SendReStartProcessEvent_001 end");
+}
+
+/**
+ * @tc.name: SendReStartProcessEvent_002
+ * @tc.desc: Change app Gc state
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_002, TestSize.Level1)
+{
+    HILOG_INFO("SendReStartProcessEvent_002 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    AAFwk::EventInfo eventInfo;
+    BundleInfo info;
+    std::string processName = "test_processName";
+    auto record = appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
+    recordId_ += 1;
+    int64_t restartTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
+        system_clock::now().time_since_epoch()).count();
+    int64_t killedTime = restartTime - 3000;
+    appMgrServiceInner->killedPorcessMap_.emplace(killedTime, processName);
+    appMgrServiceInner->SendReStartProcessEvent(eventInfo, record);
+    HILOG_INFO("SendReStartProcessEvent_002 end");
+}
+
+/**
+ * @tc.name: SendReStartProcessEvent_003
+ * @tc.desc: Change app Gc state
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_003, TestSize.Level1)
+{
+    HILOG_INFO("SendReStartProcessEvent_003 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    AAFwk::EventInfo eventInfo;
+    eventInfo.bundleName = "bundleName";
+    eventInfo.callerBundleName = "callerBundleName";
+    BundleInfo info;
+    std::string processName = "test_processName";
+    auto record = appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
+    recordId_ += 1;
+    int64_t restartTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
+        system_clock::now().time_since_epoch()).count();
+    int64_t killedTime = restartTime - 1000;
+    appMgrServiceInner->killedPorcessMap_.emplace(killedTime, processName);
+    appMgrServiceInner->SendReStartProcessEvent(eventInfo, record);
+    HILOG_INFO("SendReStartProcessEvent_003 end");
+}
+
+/**
+ * @tc.name: SendReStartProcessEvent_004
+ * @tc.desc: Change app Gc state
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_004, TestSize.Level1)
+{
+    HILOG_INFO("SendReStartProcessEvent_004 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    AAFwk::EventInfo eventInfo;
+    BundleInfo info;
+    std::string processName = "test_processName";
+    eventInfo.bundleName = "bundleName";
+    eventInfo.callerBundleName = "bundleName";
+    eventInfo.callerProcessName = processName;
+    auto record = appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
+    recordId_ += 1;
+    int64_t restartTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
+        system_clock::now().time_since_epoch()).count();
+    int64_t killedTime = restartTime - 1000;
+    appMgrServiceInner->killedPorcessMap_.emplace(killedTime, processName);
+    appMgrServiceInner->SendReStartProcessEvent(eventInfo, record);
+    HILOG_INFO("SendReStartProcessEvent_004 end");
+}
+
+/**
+ * @tc.name: SendReStartProcessEvent_005
+ * @tc.desc: Change app Gc state
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_005, TestSize.Level1)
+{
+    HILOG_INFO("SendReStartProcessEvent_005 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    AAFwk::EventInfo eventInfo;
+    BundleInfo info;
+    std::string processName = "test_processName";
+    eventInfo.bundleName = "bundleName";
+    eventInfo.callerBundleName = "bundleName";
+    eventInfo.callerProcessName = "processName";
+    auto record = appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
+    recordId_ += 1;
+    int64_t restartTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
+        system_clock::now().time_since_epoch()).count();
+    int64_t killedTime = restartTime - 1000;
+    appMgrServiceInner->killedPorcessMap_.emplace(killedTime, processName);
+    appMgrServiceInner->SendReStartProcessEvent(eventInfo, record);
+    HILOG_INFO("SendReStartProcessEvent_005 end");
+}
+
+/**
+ * @tc.name: SendAppLaunchEvent_001
+ * @tc.desc: launch application.
+ * @tc.type: FUNC
+ * @tc.require: issueI5W4S7
+ */
+HWTEST_F(AppMgrServiceInnerTest, SendAppLaunchEvent_001, TestSize.Level0)
+{
+    HILOG_INFO("SendAppLaunchEvent_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    appMgrServiceInner->SendAppLaunchEvent(nullptr);
+    BundleInfo info;
+    std::string processName = "test_processName";
+    std::shared_ptr<AppRunningRecord> appRecord =
+        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
+    recordId_ += 1;
+    std::shared_ptr<AppRunningRecord> appRecord2 =
+        appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
+    recordId_ += 1;
+    appRecord->SetState(ApplicationState::APP_STATE_CREATE);
+    appRecord->SetKeepAliveAppState(false, false);
+    Want want;
+    appRecord->SetSpecifiedAbilityFlagAndWant(false, want, "");
+    appMgrServiceInner->SendAppLaunchEvent(appRecord);
+    appRecord->SetCallerPid(appRecord2->GetPriorityObject()->GetPid());
+    appMgrServiceInner->SendAppLaunchEvent(appRecord);
+    appRecord->appInfo_ = nullptr;
+    appRecord2->appInfo_ = nullptr;
+    appMgrServiceInner->SendAppLaunchEvent(appRecord);
+    HILOG_INFO("SendAppLaunchEvent_001 end");
 }
 } // namespace AppExecFwk
 } // namespace OHOS

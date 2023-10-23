@@ -277,5 +277,22 @@ HWTEST_F(UriPermissionImplTest, Upms_ConnectManager_002, TestSize.Level1)
     MockSystemAbilityManager::isNullptr = false;
     ASSERT_EQ(storageManager, nullptr);
 }
+
+/*
+ * Feature: URIPermissionManagerService
+ * Function: ConnectManager
+ * SubFunction: NA
+ * FunctionPoints: URIPermissionManagerService SendEvent
+ */
+HWTEST_F(UriPermissionImplTest, Upms_SendEvent_001, TestSize.Level1)
+{
+    auto upms = std::make_unique<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
+    Uri uri("test");
+    std::string targetBundleName = "bundleName";
+    uint32_t targetTokenId = 0;
+    std::vector<std::string> uriVec;
+    upms->SendEvent(uri, targetBundleName, targetTokenId, uriVec);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
