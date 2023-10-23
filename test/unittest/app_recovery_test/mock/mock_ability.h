@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,14 +15,14 @@
 
 #ifndef MOCK_OHOS_ABILITY_RECOVERY_TEST_H
 #define MOCK_OHOS_ABILITY_RECOVERY_TEST_H
-#include "ability.h"
 #include "ability_loader.h"
-#include "want.h"
 #include "recovery_param.h"
+#include "ui_ability.h"
+#include "want.h"
 
 namespace OHOS {
 namespace AppExecFwk {
-class MockAbility : public Ability {
+class MockAbility : public AbilityRuntime::UIAbility {
 protected:
     int32_t OnSaveState(int32_t reason, WantParams &wantParams) override
     {

@@ -80,6 +80,7 @@ class AbilityWindow;
 #endif
 class ILifeCycle;
 class ContinuationManager;
+class ContinuationHandler;
 class AbilityRecovery;
 class ContinuationRegisterManager;
 class Ability : public IAbilityEvent,
@@ -1273,7 +1274,6 @@ protected:
 
     std::shared_ptr<AbilityRuntime::AbilityContext> abilityContext_ = nullptr;
     std::shared_ptr<AbilityStartSetting> setting_ = nullptr;
-    std::shared_ptr<AbilityRecovery> abilityRecovery_ = nullptr;
     std::shared_ptr<AbilityInfo> abilityInfo_ = nullptr;
     LaunchParam launchParam_;
     int32_t appIndex_ = 0;
