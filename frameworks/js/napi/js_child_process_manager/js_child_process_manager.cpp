@@ -18,6 +18,7 @@
 #include <unistd.h>
 
 #include "child_process_manager.h"
+#include "child_process_manager_error_utils.h"
 #include "hilog_wrapper.h"
 #include "js_error_utils.h"
 #include "js_runtime_utils.h"
@@ -55,9 +56,9 @@ private:
     napi_value OnStartChildProcess(napi_env env, size_t argc, napi_value* argv)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
-        AbilityErrorCode errCode = preCheck();
-        if (errCode != AbilityErrorCode::ERROR_OK) {
-            ThrowError(env, errCode);
+        if (ChildProcessManager::GetInstance().IsChildProcess()) {
+            HILOG_ERROR("Already in child process");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_OPERATION_NOT_SUPPORTED);
             return CreateJsUndefined(env);
         }
         if (argc < ARGC_TWO) {
@@ -78,7 +79,11 @@ private:
             return CreateJsUndefined(env);
         }
         HILOG_DEBUG("StartMode: %{public}d", startMode);
-
+        if (startMode != MODE_SELF_FORK) {
+            HILOG_ERROR("Not supported StartMode");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
         NapiAsyncTask::CompleteCallback complete = [srcEntry, startMode](napi_env env, NapiAsyncTask &task,
                                                                          int32_t status) {
             switch (startMode) {
@@ -93,7 +98,6 @@ private:
                 }
             }
         };
-
         napi_value lastParam = (argc <= ARGC_TWO) ? nullptr : argv[ARGC_TWO];
         napi_value result = nullptr;
         NapiAsyncTask::Schedule("JsChildProcessManager::OnStartChildProcess",
@@ -101,27 +105,15 @@ private:
         return result;
     }
 
-    AbilityErrorCode preCheck()
-    {
-        auto &mgr = ChildProcessManager::GetInstance();
-        if (!mgr.MultiProcessModelEnabled()) {
-            HILOG_ERROR("Starting child process is not supported");
-            return AbilityErrorCode::ERROR_CODE_OPERATION_NOT_SUPPORTED;
-        }
-        if (mgr.IsChildProcess()) {
-            HILOG_ERROR("Starting child process in child process is not supported");
-            return AbilityErrorCode::ERROR_CODE_OPERATION_NOT_SUPPORTED;
-        }
-        return AbilityErrorCode::ERROR_OK;
-    }
-
     static void SelfForkProcess(napi_env env, NapiAsyncTask &task, const std::string &srcEntry)
     {
-        pid_t pid = ChildProcessManager::GetInstance().StartChildProcessBySelfFork(srcEntry);
-        if (pid >= 0) {
+        pid_t pid;
+        ChildProcessManagerErrorCode errorCode =
+            ChildProcessManager::GetInstance().StartChildProcessBySelfFork(srcEntry, pid);
+        if (errorCode == ChildProcessManagerErrorCode::ERR_OK) {
             task.ResolveWithNoError(env, CreateJsValue(env, pid));
         } else {
-            task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+            task.Reject(env, CreateJsError(env, ChildProcessManagerErrorUtil::GetAbilityErrorCode(errorCode)));
         }
     }
 };
