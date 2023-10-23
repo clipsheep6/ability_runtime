@@ -266,6 +266,9 @@ private:
     int32_t DetachAppDebugInner(MessageParcel &data, MessageParcel &reply);
 
     int32_t IsAbilityControllerStartInner(MessageParcel &data, MessageParcel &reply);
+
+    //insight intent related
+    int32_t StartAbilityByInsightIntentInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

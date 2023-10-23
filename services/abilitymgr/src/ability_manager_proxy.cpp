@@ -216,6 +216,50 @@ int AbilityManagerProxy::StartAbility(
     return reply.ReadInt32();
 }
 
+int32_t AbilityManagerProxy::StartAbilityByInsightIntent(const Want &want, const sptr<IRemoteObject> &callerToken,
+    uint64_t intentId, int32_t userId)
+{
+    MessageParcel data;
+    if (callerToken == nullptr) {
+        HILOG_ERROR("invalid callertoken.");
+        return INNER_ERR;
+    }
+
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("want write failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("want write failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
+        HILOG_ERROR("callerToken and flag write failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteUint64(intentId)) {
+        HILOG_ERROR("intentId write failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteInt32(userId)) {
+        HILOG_ERROR("userId write failed.");
+        return INNER_ERR;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int32_t error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY_BY_INSIGHT_INTENT, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("failed to start ability err: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 int AbilityManagerProxy::StartAbility(const Want &want, const StartOptions &startOptions,
     const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode)
 {

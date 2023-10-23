@@ -474,6 +474,34 @@ int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObje
     return ret;
 }
 
+int32_t AbilityManagerService::StartAbilityByInsightIntent(const Want &want, const sptr<IRemoteObject> &callerToken,
+    uint64_t intentId, int32_t userId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    // verify bundleName code below will be uncommentted after dependency ready
+    /*std::string bundleNameFromWant = want.GetElement().GetBundleName();
+    std::string bundleNameFromIntentMgr = "";
+    if (DelayedSingleton<InsightIntentExecuteManager>::GetInstance()->
+        GetBundleName(intentId, bundleNameFromIntentMgr) != ERR_OK) {
+        HILOG_ERROR("no such bundle matched intentId");
+        return ERR_INVALID_VALUE;
+    }
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("no such bundle matched token");
+        return ERR_INVALID_VALUE;
+    }
+    std::string bundleNameFromAbilityRecord = abilityRecord->GetAbilityInfo().bundleName;
+
+    if (!bundleNameFromWant.empty() && bundleNameFromWant == bundleNameFromIntentMgr &&
+        bundleNameFromWant == bundleNameFromAbilityRecord) {
+        HILOG_INFO("bundleName match");
+        return StartAbility(want, callerToken, userId, -1);
+    }*/
+    HILOG_ERROR("bundleName not match");
+    return ERR_INSIGHT_INTENT_START_INVALID_COMPONENT;
+}
+
 int AbilityManagerService::StartAbilityByUIContentSession(const Want &want, const sptr<IRemoteObject> &callerToken,
     const sptr<SessionInfo> &sessionInfo, int32_t userId, int requestCode)
 {

@@ -83,6 +83,8 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::StartAbilityByUIContentSessionAddCallerInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_UI_SESSION_ABILITY_FOR_OPTIONS)] =
         &AbilityManagerStub::StartAbilityByUIContentSessionForOptionsInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_BY_INSIGHT_INTENT)] =
+        &AbilityManagerStub::StartAbilityByInsightIntentInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CONNECT_ABILITY)] =
         &AbilityManagerStub::ConnectAbilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::DISCONNECT_ABILITY)] =
@@ -2789,6 +2791,27 @@ int32_t AbilityManagerStub::IsAbilityControllerStartInner(MessageParcel &data, M
     }
     bool result = IsAbilityControllerStart(*want);
     reply.WriteBool(result);
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::StartAbilityByInsightIntentInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<Want> want(data.ReadParcelable<Want>());
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (!data.ReadBool()) {
+        HILOG_ERROR("invalid caller token");
+        return ERR_INVALID_VALUE;
+    }
+    callerToken = data.ReadRemoteObject();
+    uint64_t intentId = data.ReadUint64();
+    int32_t userId = data.ReadInt32();
+    int32_t result = StartAbilityByInsightIntent(*want, callerToken, intentId, userId);
+    reply.WriteInt32(result);
     return NO_ERROR;
 }
 }  // namespace AAFwk

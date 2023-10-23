@@ -153,6 +153,18 @@ ErrCode AbilityManagerClient::StartAbility(
     return abms->StartAbility(want, callerToken, userId, requestCode);
 }
 
+ErrCode AbilityManagerClient::StartAbilityByInsightIntent(
+    const Want &want, const sptr<IRemoteObject> &callerToken, uint64_t intentId, int32_t userId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_DEBUG("ability:%{public}s, bundle:%{public}s, intentId:%{public}llu",
+        want.GetElement().GetAbilityName().c_str(), want.GetElement().GetBundleName().c_str(), intentId);
+    HandleDlpApp(const_cast<Want &>(want));
+    return abms->StartAbilityByInsightIntent(want, callerToken, intentId, userId);
+}
+
 ErrCode AbilityManagerClient::StartAbility(const Want &want, const AbilityStartSetting &abilityStartSetting,
     const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
 {

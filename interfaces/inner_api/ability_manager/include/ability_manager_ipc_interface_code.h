@@ -347,6 +347,9 @@ enum class AbilityManagerInterfaceCode {
 
     START_UI_SESSION_ABILITY_FOR_OPTIONS = 1052,
 
+    // start ability by insigt intent
+    START_ABILITY_BY_INSIGHT_INTENT = 1053,
+
     // ipc id for continue ability(1101)
     START_CONTINUATION = 1101,
 
