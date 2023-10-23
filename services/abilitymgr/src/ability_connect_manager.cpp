@@ -221,6 +221,9 @@ void AbilityConnectManager::GetOrCreateServiceRecord(const AbilityRequest &abili
     AppExecFwk::ElementName element(abilityRequest.abilityInfo.deviceId, abilityRequest.abilityInfo.bundleName,
         abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName);
     auto serviceMapIter = serviceMap_.find(element.GetURI());
+    if (noReuse && serviceMapIter != serviceMap_.end()) {
+        serviceMap_.erase(element.GetURI());
+    }
     if (noReuse || serviceMapIter == serviceMap_.end()) {
         targetService = AbilityRecord::CreateAbilityRecord(abilityRequest);
         if (targetService) {
