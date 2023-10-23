@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+# Copyright (c) 2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -16,20 +16,15 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/appmgrservice"
 
-ohos_unittest("AmsMgrStubTest") {
+ohos_unittest("AppDebugListenerStubTest") {
   module_out_path = module_output_path
 
-  include_dirs = [
-    "${ability_runtime_services_path}/abilitymgr/include",
-    "${ability_runtime_services_path}/appmgr/include",
-    "${ability_runtime_test_path}/mock/services_appmgr_test/include",
-    "${ability_runtime_test_path}/unittest/ability_debug_response_stub_test",
-    "${ability_runtime_test_path}/unittest/app_debug_listener_stub_test",
-  ]
+  include_dirs = [ "${ability_runtime_services_path}/appmgr/include" ]
 
-  sources = [ "ams_mgr_stub_test.cpp" ]
+  sources = [ "app_debug_listener_stub_test.cpp" ]
 
   deps = [
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_services_path}/appmgr:libappms",
     "${ability_runtime_services_path}/common:task_handler_wrap",
     "//third_party/googletest:gmock_main",
@@ -38,7 +33,6 @@ ohos_unittest("AmsMgrStubTest") {
 
   external_deps = [
     "ability_base:want",
-    "ability_runtime:app_manager",
     "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -53,5 +47,5 @@ ohos_unittest("AmsMgrStubTest") {
 group("unittest") {
   testonly = true
 
-  deps = [ ":AmsMgrStubTest" ]
+  deps = [ ":AppDebugListenerStubTest" ]
 }
