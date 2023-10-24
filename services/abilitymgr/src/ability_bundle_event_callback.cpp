@@ -23,8 +23,9 @@ namespace AAFwk {
 namespace {
 const std::string KEY_TOKEN = "accessTokenId";
 }
-AbilityBundleEventCallback::AbilityBundleEventCallback(std::shared_ptr<TaskHandlerWrap> taskHandler)
-    : taskHandler_(taskHandler) {}
+AbilityBundleEventCallback::AbilityBundleEventCallback(
+    std::shared_ptr<TaskHandlerWrap> taskHandler, std::shared_ptr<AbilityAutoStartupService> abilityAutoStartupService)
+    : taskHandler_(taskHandler), abilityAutoStartupService_(abilityAutoStartupService) {}
 
 void AbilityBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData eventData)
 {
@@ -50,12 +51,22 @@ void AbilityBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData 
         // uninstall bundle
         HandleRemoveUriPermission(tokenId);
         HandleUpdatedModuleInfo(bundleName, uid);
+        if (abilityAutoStartupService_ == nullptr) {
+            HILOG_ERROR("OnReceiveEvent failed, abilityAutoStartupService is nullptr");
+            return;
+        }
+        abilityAutoStartupService_->DeleteAutoStartupData(bundleName);
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED) {
         // install or uninstall module/bundle
         HandleUpdatedModuleInfo(bundleName, uid);
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED) {
         HandleUpdatedModuleInfo(bundleName, uid);
         HandleAppUpgradeCompleted(bundleName, uid);
+        if (abilityAutoStartupService_ == nullptr) {
+            HILOG_ERROR("OnReceiveEvent failed, abilityAutoStartupService is nullptr");
+            return;
+        }
+        abilityAutoStartupService_->CheckAutoStartupData(bundleName, uid);
     }
 }
 

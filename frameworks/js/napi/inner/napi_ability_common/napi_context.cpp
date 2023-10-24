@@ -3213,7 +3213,7 @@ napi_value NapiJsContext::OnRequestPermissionsFromUser(napi_env env, napi_callba
 
     auto callback = argc == ARGS_THREE ? argv[PARAM2] : nullptr;
     napi_value result = nullptr;
-    auto napiAsyncTask = 
+    auto napiAsyncTask =
         AbilityRuntime::CreateAsyncTaskWithLastParam(env, callback, nullptr, nullptr, &result).release();
 
     int32_t errorCode = NAPI_ERR_NO_ERROR;
@@ -3295,14 +3295,14 @@ napi_value NapiJsContext::OnVerifyPermission(napi_env env, napi_callback_info in
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (argc == ARGS_ZERO || argc > ARGS_THREE) {
         HILOG_ERROR("input params count error, argc=%{public}zu", argc);
-        return CreateJsUndefined(env);
+        return CreateJsNull(env);
     }
 
     auto errorVal = std::make_shared<int32_t>(static_cast<int32_t>(NAPI_ERR_NO_ERROR));
     std::string permission("");
     if (!ConvertFromJsValue(env, argv[PARAM0], permission)) {
         HILOG_ERROR("input params string error");
-        return CreateJsUndefined(env);
+        return CreateJsNull(env);
     }
     JsPermissionOptions options;
     bool flagCall = UnwarpVerifyPermissionParams(env, info, options);
@@ -3320,7 +3320,7 @@ napi_value NapiJsContext::OnVerifyPermission(napi_env env, napi_callback_info in
     };
     auto complete = [obj = this, value = errorVal] (napi_env env, NapiAsyncTask &task, int32_t status) {
         if (*value == static_cast<int32_t>(NAPI_ERR_ACE_ABILITY)) {
-            task.Reject(env, CreateJsError( env, *value, obj->ConvertErrorCode(*value)));
+            task.Reject(env, CreateJsError(env, *value, obj->ConvertErrorCode(*value)));
             return;
         }
         task.Resolve(env, CreateJsValue(env, *value));
@@ -3701,7 +3701,7 @@ napi_value NapiJsContext::OnSetDisplayOrientation(napi_env env, napi_callback_in
     int32_t maxRange = 3;
     if (orientation < 0 || orientation > maxRange) {
         HILOG_ERROR("wrong parameter orientation : %{public}d", orientation);
-        return CreateJsUndefined(env);
+        return CreateJsNull(env);
     }
     auto complete = [obj = this, orientationData = orientation]
         (napi_env env, NapiAsyncTask &task, int32_t status) {

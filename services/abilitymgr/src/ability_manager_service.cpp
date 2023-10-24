@@ -67,6 +67,7 @@
 #include "start_ability_handler/start_ability_sandbox_savefile.h"
 #include "start_options.h"
 #include "string_ex.h"
+#include "string_wrapper.h"
 #include "system_ability_definition.h"
 #include "system_ability_token_callback.h"
 #include "ui_extension_utils.h"
@@ -93,6 +94,7 @@ using OHOS::Security::AccessToken::AccessTokenKit;
 namespace OHOS {
 using AbilityRuntime::FreezeUtil;
 namespace AAFwk {
+using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
 namespace {
 #define CHECK_CALLER_IS_SYSTEM_APP                                                             \
     if (!AAFwk::PermissionVerification::GetInstance()->JudgeCallerIsAllowedToUseSystemAPI()) { \
@@ -123,6 +125,7 @@ const char* PREPARE_TERMINATE_ENABLE_PARAMETER = "persist.sys.prepare_terminate"
 const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
 // UIExtension type
 const std::string UIEXTENSION_TYPE_KEY = "ability.want.params.uiExtensionType";
+const std::string UIEXTENSION_TARGET_TYPE_KEY = "ability.want.params.uiExtensionTargetType";
 // Share picker params
 constexpr char SHARE_PICKER_DIALOG_BUNDLE_NAME_KEY[] = "const.system.sharePicker.bundleName";
 constexpr char SHARE_PICKER_DIALOG_ABILITY_NAME_KEY[] = "const.system.sharePicker.abilityName";
@@ -363,6 +366,8 @@ bool AbilityManagerService::Init()
     }
     InitStartAbilityChain();
 
+    abilityAutoStartupService_ = std::make_shared<AbilityRuntime::AbilityAutoStartupService>();
+
     auto startResidentAppsTask = [aams = shared_from_this()]() { aams->StartResidentApps(); };
     taskHandler_->SubmitTask(startResidentAppsTask, "StartResidentApps");
 
@@ -467,6 +472,34 @@ int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObje
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
     }
     return ret;
+}
+
+int32_t AbilityManagerService::StartAbilityByInsightIntent(const Want &want, const sptr<IRemoteObject> &callerToken,
+    uint64_t intentId, int32_t userId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    // verify bundleName code below will be uncommentted after dependency ready
+    /*std::string bundleNameFromWant = want.GetElement().GetBundleName();
+    std::string bundleNameFromIntentMgr = "";
+    if (DelayedSingleton<InsightIntentExecuteManager>::GetInstance()->
+        GetBundleName(intentId, bundleNameFromIntentMgr) != ERR_OK) {
+        HILOG_ERROR("no such bundle matched intentId");
+        return ERR_INVALID_VALUE;
+    }
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("no such bundle matched token");
+        return ERR_INVALID_VALUE;
+    }
+    std::string bundleNameFromAbilityRecord = abilityRecord->GetAbilityInfo().bundleName;
+
+    if (!bundleNameFromWant.empty() && bundleNameFromWant == bundleNameFromIntentMgr &&
+        bundleNameFromWant == bundleNameFromAbilityRecord) {
+        HILOG_INFO("bundleName match");
+        return StartAbility(want, callerToken, userId, -1);
+    }*/
+    HILOG_ERROR("bundleName not match");
+    return ERR_INSIGHT_INTENT_START_INVALID_COMPONENT;
 }
 
 int AbilityManagerService::StartAbilityByUIContentSession(const Want &want, const sptr<IRemoteObject> &callerToken,
@@ -1795,7 +1828,8 @@ void AbilityManagerService::SubscribeBundleEventCallback()
     }
 
     // Register abilityBundleEventCallback to receive hap updates
-    abilityBundleEventCallback_ = new (std::nothrow) AbilityBundleEventCallback(taskHandler_);
+    abilityBundleEventCallback_ =
+        new (std::nothrow) AbilityBundleEventCallback(taskHandler_, abilityAutoStartupService_);
     auto bms = GetBundleManager();
     if (bms) {
         bool ret = IN_PROCESS_CALL(bms->RegisterBundleEventCallback(abilityBundleEventCallback_));
@@ -1969,10 +2003,42 @@ int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sp
     return eventInfo.errCode;
 }
 
+void AbilityManagerService::SetPickerElementName(const sptr<SessionInfo> &extensionSessionInfo)
+{
+    CHECK_POINTER_IS_NULLPTR(extensionSessionInfo);
+    std::string targetType = extensionSessionInfo->want.GetStringParam(UIEXTENSION_TARGET_TYPE_KEY);
+    if (extensionSessionInfo->want.GetElement().GetBundleName().empty() &&
+        extensionSessionInfo->want.GetElement().GetAbilityName().empty() && !targetType.empty()) {
+        nlohmann::json jsonObject = AmsConfigurationParameter::GetInstance().GetPickerJsonObject();
+        std::string abilityName;
+        std::string bundleName;
+        std::string pickerType;
+        if (jsonObject.contains(targetType) &&
+            jsonObject.at(targetType).contains(AmsConfig::ABILITY_NAME) &&
+            jsonObject.at(targetType).at(AmsConfig::ABILITY_NAME).is_string()) {
+            abilityName = jsonObject.at(targetType).at(AmsConfig::ABILITY_NAME).get<std::string>();
+        }
+        if (jsonObject.contains(targetType) &&
+            jsonObject.at(targetType).contains(AmsConfig::BUNDLE_NAME) &&
+            jsonObject.at(targetType).at(AmsConfig::BUNDLE_NAME).is_string()) {
+            bundleName = jsonObject.at(targetType).at(AmsConfig::BUNDLE_NAME).get<std::string>();
+        }
+        if (jsonObject.contains(targetType) &&
+            jsonObject.at(targetType).contains(AmsConfig::PICKER_TYPE) &&
+            jsonObject.at(targetType).at(AmsConfig::PICKER_TYPE).is_string()) {
+            pickerType = jsonObject.at(targetType).at(AmsConfig::PICKER_TYPE).get<std::string>();
+        }
+        extensionSessionInfo->want.SetElementName(bundleName, abilityName);
+        WantParams &parameters = const_cast<WantParams &>(extensionSessionInfo->want.GetParams());
+        parameters.SetParam(UIEXTENSION_TYPE_KEY, AAFwk::String::Box(pickerType));
+        extensionSessionInfo->want.SetParams(parameters);
+    }
+}
 int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &extensionSessionInfo, int32_t userId)
 {
     HILOG_DEBUG("Start ui extension ability come");
     CHECK_POINTER_AND_RETURN(extensionSessionInfo, ERR_INVALID_VALUE);
+    SetPickerElementName(extensionSessionInfo);
     std::string extensionTypeStr = extensionSessionInfo->want.GetStringParam(UIEXTENSION_TYPE_KEY);
     AppExecFwk::ExtensionAbilityType extensionType = extensionTypeStr.empty() ?
         AppExecFwk::ExtensionAbilityType::UI : AppExecFwk::ConvertToExtensionAbilityType(extensionTypeStr);
@@ -4690,6 +4756,11 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
 
     /* note: OOBE APP need disable itself, otherwise, it will be started when restart system everytime */
     (void)StartAbility(abilityWant, userId, DEFAULT_INVAL_VALUE);
+
+    if (isBoot) {
+        auto startAutoStartupAppsTask = [aams = shared_from_this()]() { aams->StartAutoStartupApps(); };
+        taskHandler_->SubmitTask(startAutoStartupAppsTask, "StartAutoStartupApps");
+    }
 }
 
 int AbilityManagerService::GenerateAbilityRequest(
@@ -5409,6 +5480,32 @@ void AbilityManagerService::StartResidentApps()
             AmsConfigurationParameter::GetInstance().GetBootAnimationTimeoutTime());
 #endif
         DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcess(bundleInfos);
+    }
+}
+
+void AbilityManagerService::StartAutoStartupApps()
+{
+    HILOG_DEBUG("Called.");
+    ConnectBmsService();
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return;
+    }
+    std::vector<AutoStartupInfo> infoList;
+    int32_t result = abilityAutoStartupService_->QueryAllAutoStartupApplicationsWithoutPermission(infoList);
+    if (result != ERR_OK) {
+        HILOG_ERROR("Failed to query data.");
+        return;
+    }
+    for (auto info : infoList) {
+        AppExecFwk::ElementName element;
+        element.SetBundleName(info.bundleName);
+        element.SetAbilityName(info.abilityName);
+        element.SetModuleName(info.moduleName);
+        Want want;
+        want.SetElement(element);
+        want.SetParam(Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON, true);
+        StartAbility(want);
     }
 }
 
@@ -8360,6 +8457,96 @@ void AbilityManagerService::GetConnectManagerAndUIExtensionBySessionInfo(const s
     }
 }
 
+int32_t AbilityManagerService::RegisterAutoStartupSystemCallback(const sptr<IRemoteObject> &callback)
+{
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return ERR_NO_INIT;
+    }
+    return abilityAutoStartupService_->RegisterAutoStartupSystemCallback(callback);
+}
+
+int32_t AbilityManagerService::UnregisterAutoStartupSystemCallback(const sptr<IRemoteObject> &callback)
+{
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return ERR_NO_INIT;
+    }
+    return abilityAutoStartupService_->UnregisterAutoStartupSystemCallback(callback);
+}
+
+int32_t AbilityManagerService::SetApplicationAutoStartup(const AutoStartupInfo &info)
+{
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return ERR_NO_INIT;
+    }
+    return abilityAutoStartupService_->SetApplicationAutoStartup(info);
+}
+
+int32_t AbilityManagerService::CancelApplicationAutoStartup(const AutoStartupInfo &info)
+{
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return ERR_NO_INIT;
+    }
+    return abilityAutoStartupService_->CancelApplicationAutoStartup(info);
+}
+
+int32_t AbilityManagerService::QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList)
+{
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return ERR_NO_INIT;
+    }
+    return abilityAutoStartupService_->QueryAllAutoStartupApplications(infoList);
+}
+
+int32_t AbilityManagerService::RegisterAutoStartupCallback(const sptr<IRemoteObject> &callback)
+{
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return ERR_NO_INIT;
+    }
+    return abilityAutoStartupService_->RegisterAutoStartupCallback(callback);
+}
+
+int32_t AbilityManagerService::UnregisterAutoStartupCallback(const sptr<IRemoteObject> &callback)
+{
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return ERR_NO_INIT;
+    }
+    return abilityAutoStartupService_->UnregisterAutoStartupCallback(callback);
+}
+
+int32_t AbilityManagerService::SetAutoStartup(const AutoStartupInfo &info)
+{
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return ERR_NO_INIT;
+    }
+    return abilityAutoStartupService_->SetAutoStartup(info);
+}
+
+int32_t AbilityManagerService::CancelAutoStartup(const AutoStartupInfo &info)
+{
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return ERR_NO_INIT;
+    }
+    return abilityAutoStartupService_->CancelAutoStartup(info);
+}
+
+int32_t AbilityManagerService::IsAutoStartup(const AutoStartupInfo &info, bool &isAutoStartup)
+{
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return ERR_NO_INIT;
+    }
+    return abilityAutoStartupService_->IsAutoStartup(info, isAutoStartup);
+}
+
 int AbilityManagerService::PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isTerminate)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -8468,16 +8655,12 @@ int32_t AbilityManagerService::DetachAppDebug(const std::string &bundleName)
 
 bool AbilityManagerService::IsAbilityControllerStart(const Want &want)
 {
-    bool isSCBCall = CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD, U0_USER_ID);
-    if (isSCBCall) {
-        return IsAbilityControllerStart(want, want.GetBundle());
-    }
     auto callingUid = IPCSkeleton::GetCallingUid();
     bool isBrokerCall = (callingUid == BROKER_UID || callingUid == BROKER_RESERVE_UID);
     if (isBrokerCall) {
         return IsAbilityControllerStart(want, want.GetBundle());
     }
-    HILOG_ERROR("The interface only support for broker and WMS");
+    HILOG_ERROR("The interface only support for broker");
     return true;
 }
 }  // namespace AAFwk

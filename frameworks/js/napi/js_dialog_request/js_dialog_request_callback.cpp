@@ -75,7 +75,7 @@ private:
         AAFwk::Want wantValue;
         napi_value jWant = nullptr;
         napi_get_named_property(env, info.argv[0], "want", &jWant);
-        if (jWant != nullptr && !CheckTypeForNapiValue(env, jWant, napi_object)) {
+        if (jWant != nullptr && CheckTypeForNapiValue(env, jWant, napi_object)) {
             AppExecFwk::UnwrapWant(env, jWant, wantValue);
         } else {
             HILOG_WARN("jWant is invalid data!");

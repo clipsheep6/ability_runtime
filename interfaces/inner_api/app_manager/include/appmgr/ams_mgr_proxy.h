@@ -218,6 +218,7 @@ public:
 
 private:
     bool WriteInterfaceToken(MessageParcel &data);
+    int32_t SendTransactCmd(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
 
 private:
     static inline BrokerDelegator<AmsMgrProxy> delegator_;

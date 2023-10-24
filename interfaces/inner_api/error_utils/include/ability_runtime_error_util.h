@@ -93,7 +93,6 @@ public:
      * @param errMessage error msg.
      * @return true if success.
      */
-    static bool Throw(NativeEngine &engine, int32_t errCode, const std::string &errMessage = "");
     static bool Throw(napi_env env, int32_t errCode, const std::string &errMessage = "");
 
     /**
@@ -103,7 +102,6 @@ public:
      * @param errCode internal errorcode.
      * @return true if success.
      */
-    static bool ThrowByInternalErrCode(NativeEngine &engine, int32_t errCode);
     static bool ThrowByInternalErrCode(napi_env env, int32_t errCode);
 
     /**
@@ -113,7 +111,6 @@ public:
      * @param errCode internal errorcode.
      * @return js error object.
      */
-    static NativeValue *CreateErrorByInternalErrCode(NativeEngine &engine, int32_t errCode);
     static napi_value CreateErrorByInternalErrCode(napi_env env, int32_t errCode);
 
     /**

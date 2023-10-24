@@ -23,6 +23,7 @@
 #include "caller_callback.h"
 #include "configuration.h"
 #include "iability_callback.h"
+#include "js_ui_extension_callback.h"
 #include "mission_info.h"
 #include "native_engine/native_reference.h"
 #include "native_engine/native_value.h"
@@ -333,6 +334,8 @@ public:
      * @return UIContent object of ACE.
      */
     virtual Ace::UIContent* GetUIContent() = 0;
+    virtual ErrCode StartAbilityByType(const std::string &type, AAFwk::WantParams &wantParam,
+        const std::shared_ptr<JsUIExtensionCallback> &uiExtensionCallbacks) = 0;
 #endif
     virtual bool IsTerminating() = 0;
     virtual void SetTerminating(bool state) = 0;

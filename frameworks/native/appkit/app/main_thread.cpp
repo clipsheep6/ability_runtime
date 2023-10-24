@@ -96,6 +96,8 @@ const std::string PERFCMD_DUMPHEAP = "dumpheap";
 namespace {
 #ifdef APP_USE_ARM
 constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib/libformrender.z.so";
+#elif defined(APP_USE_X86_64)
+constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib64/libformrender.z.so";
 #else
 constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib64/libformrender.z.so";
 #endif
@@ -566,11 +568,14 @@ void MainThread::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocI
     int usmblks = mi.usmblks; // 当前从分配器中分配的总的堆内存大小
     int uordblks = mi.uordblks; // 当前已释放给分配器，分配缓存了未释放给系统的内存大小
     int fordblks = mi.fordblks; // 当前未释放的大小
+    int hblkhd = mi.hblkhd; // 堆内存的总共占用大小
     HILOG_DEBUG("The pid of the app we want to dump memory allocation information is: %{public}i", pid);
-    HILOG_DEBUG("usmblks: %{public}i, uordblks: %{public}i, fordblks: %{public}i", usmblks, uordblks, fordblks);
+    HILOG_DEBUG("usmblks: %{public}i, uordblks: %{public}i, fordblks: %{public}i, hblkhd: %{public}i",
+        usmblks, uordblks, fordblks, hblkhd);
     mallocInfo.usmblks = usmblks;
     mallocInfo.uordblks = uordblks;
     mallocInfo.fordblks = fordblks;
+    mallocInfo.hblkhd = hblkhd;
 }
 
 /**
@@ -1148,6 +1153,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     }
 
     if (appLaunchData.GetDebugApp() && watchdog_ != nullptr && !watchdog_->IsStopWatchdog()) {
+        AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(true);
         watchdog_->Stop();
         watchdog_.reset();
     }
@@ -2707,29 +2713,13 @@ int32_t MainThread::ChangeAppGcState(int32_t state)
 void MainThread::AttachAppDebug()
 {
     HILOG_DEBUG("Called.");
-    if (watchdog_ == nullptr || watchdog_->IsStopWatchdog()) {
-        HILOG_ERROR("Watch dog is stoped.");
-        return;
-    }
-
-    watchdog_->Stop();
-    watchdog_.reset();
+    AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(true);
 }
 
 void MainThread::DetachAppDebug()
 {
     HILOG_DEBUG("Called.");
-    if (watchdog_ == nullptr) {
-        watchdog_ = std::make_shared<Watchdog>();
-        if (watchdog_ != nullptr) {
-            watchdog_->Init(mainHandler_);
-        }
-        return;
-    }
-
-    if (watchdog_->IsStopWatchdog()) {
-        watchdog_->Init(mainHandler_);
-    }
+    AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(false);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

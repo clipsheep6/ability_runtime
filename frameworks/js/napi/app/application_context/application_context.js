@@ -109,6 +109,10 @@ class ApplicationContext {
     return this.__context_impl__.off(type, callbackId, callback);
   }
 
+  off(type, callback) {
+    return this.__context_impl__.off(type, callback);
+  }
+
   createBundleContext(bundleName) {
     return this.__context_impl__.createBundleContext(bundleName);
   }
@@ -147,6 +151,26 @@ class ApplicationContext {
 
   setLanguage(language) {
     return this.__context_impl__.setLanguage(language);
+  }
+
+  setAutoStartup(info, callback) {
+    return this.__context_impl__.setAutoStartup(info, callback);
+  }
+
+  cancelAutoStartup(info, callback) {
+    return this.__context_impl__.cancelAutoStartup(info, callback);
+  }
+
+  isAutoStartup(info, callback) {
+    return this.__context_impl__.isAutoStartup(info, callback);
+  }
+
+  clearUpApplicationData() {
+    return this.__context_impl__.clearUpApplicationData();
+  }
+
+  clearUpApplicationData(callback) {
+    return this.__context_impl__.clearUpApplicationData(callback);
   }
 
   set area(mode) {

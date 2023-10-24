@@ -981,13 +981,6 @@ napi_value CreateJsServiceExtensionContext(napi_env env, std::shared_ptr<Service
     return object;
 }
 
-// to do
-NativeValue* CreateJsServiceExtensionContext(NativeEngine& engine, std::shared_ptr<ServiceExtensionContext> context)
-{
-    return reinterpret_cast<NativeValue*>(CreateJsServiceExtensionContext(
-        reinterpret_cast<napi_env>(&engine), context));
-}
-
 JSServiceExtensionConnection::JSServiceExtensionConnection(napi_env env) : env_(env) {}
 
 JSServiceExtensionConnection::~JSServiceExtensionConnection()

@@ -26,6 +26,8 @@ namespace TimeUtil {
 constexpr int64_t NANOSECONDS = 1000000000;
 // MICROSECONDS mean 10^6 milli second
 constexpr int64_t MICROSECONDS = 1000000;
+constexpr int64_t SEC_TO_MILLISEC = 1000;
+constexpr int64_t MAX_TIME_BUFF = 64; // 64 : for example 2021-05-27-01-01-01
 
 [[maybe_unused]] static int64_t SystemTimeMillisecond()
 {
@@ -34,6 +36,18 @@ constexpr int64_t MICROSECONDS = 1000000;
     t.tv_nsec = 0;
     clock_gettime(CLOCK_MONOTONIC, &t);
     return (int64_t)((t.tv_sec) * NANOSECONDS + t.tv_nsec) / MICROSECONDS;
+}
+
+[[maybe_unused]] static std::string FormatTime(const std::string &format)
+{
+    auto now = std::chrono::system_clock::now();
+    auto millisecs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+    auto timestamp = millisecs.count();
+    std::time_t tt = static_cast<std::time_t>(timestamp / SEC_TO_MILLISEC);
+    std::tm t = *std::localtime(&tt);
+    char buffer[MAX_TIME_BUFF] = {0};
+    std::strftime(buffer, sizeof(buffer), format.c_str(), &t);
+    return std::string(buffer);
 }
 }  // namespace TimeUtil
 }  // namespace OHOS::AbilityRuntime

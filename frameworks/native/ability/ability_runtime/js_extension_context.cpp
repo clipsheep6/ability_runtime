@@ -49,13 +49,6 @@ void JsExtensionContext::ConfigurationUpdated(napi_env env, const std::shared_pt
     napi_call_function(env, object, method, 1, argv, nullptr);
 }
 
-// to do
-void JsExtensionContext::ConfigurationUpdated(NativeEngine* engine, const std::shared_ptr<NativeReference>& jsContext,
-    const std::shared_ptr<AppExecFwk::Configuration>& config)
-{
-    ConfigurationUpdated(reinterpret_cast<napi_env>(engine), jsContext, config);
-}
-
 napi_value CreateJsExtensionContext(napi_env env, const std::shared_ptr<ExtensionContext>& context,
     std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo)
 {
@@ -89,14 +82,6 @@ napi_value CreateJsExtensionContext(napi_env env, const std::shared_ptr<Extensio
     }
 
     return object;
-}
-
-// to do
-NativeValue* CreateJsExtensionContext(NativeEngine& engine, const std::shared_ptr<ExtensionContext>& context,
-    std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo)
-{
-    return reinterpret_cast<NativeValue*>(
-        CreateJsExtensionContext(reinterpret_cast<napi_env>(&engine), context, abilityInfo));
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

@@ -36,6 +36,10 @@ constexpr const char* RESIDENT_RESTART_MAX = "resident_restart_max";
 constexpr const char* RESTART_INTERVAL_TIME = "restart_interval_time";
 constexpr const char* BOOT_ANIMATION_TIMEOUT_TIME = "boot_animation_timeout_time";
 constexpr const char* TIMEOUT_UNIT_TIME = "timeout_unit_time";
+constexpr const char* ABILITY_NAME = "ability_name";
+constexpr const char* BUNDLE_NAME = "bundle_name";
+constexpr const char* PICKER_CONFIGURATION = "picker_configuration";
+constexpr const char* PICKER_TYPE = "picker_type";
 }  // namespace AmsConfig
 
 enum class SatrtUiMode { STATUSBAR = 1, NAVIGATIONBAR = 2, STARTUIBOTH = 3 };
@@ -107,6 +111,16 @@ public:
      */
     int GetAppStartTimeoutTime() const;
 
+    /**
+     * set picker json object.
+     */
+    void SetPickerJsonObject(nlohmann::json jsonObject);
+
+    /**
+     * get picker json object.
+     */
+    nlohmann::json GetPickerJsonObject() const;
+
     enum { READ_OK = 0, READ_FAIL = 1, READ_JSON_FAIL = 2 };
 
 private:
@@ -121,9 +135,11 @@ private:
     int LoadAppConfigurationForStartUpService(nlohmann::json& Object);
     int LoadAppConfigurationForMemoryThreshold(nlohmann::json& Object);
     int LoadSystemConfiguration(nlohmann::json& Object);
+    void LoadPickerConfiguration(nlohmann::json& Object);
     bool CheckServiceConfigEnable(nlohmann::json& Object, const std::string &configName, JsonValueType type);
     void UpdateStartUpServiceConfigInteger(nlohmann::json& Object, const std::string &configName, int32_t &value);
     void UpdateStartUpServiceConfigString(nlohmann::json& Object, const std::string &configName, std::string &value);
+    void UpdatePickerConfigurationString(nlohmann::json& Object, const std::string &configName, std::string &value);
 
 private:
     bool nonConfigFile_ {false};
@@ -137,6 +153,10 @@ private:
     int bootAnimationTime_ {5};
     std::string deviceType_ {""};
     int timeoutUnitTime_ {1000};
+    std::string bundleName_ {""};
+    std::string abilityName_ {""};
+    std::string pickerType_ {""};
+    nlohmann::json pickerJsonObject_ = nlohmann::json::object();
 };
 }  // namespace AAFwk
 }  // namespace OHOS

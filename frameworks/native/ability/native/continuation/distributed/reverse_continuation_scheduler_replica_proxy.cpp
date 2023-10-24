@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,6 +29,7 @@ sptr<IRemoteObject> ReverseContinuationSchedulerReplicaProxy::AsObject()
 
     return remoteObject;
 }
+
 void ReverseContinuationSchedulerReplicaProxy::PassPrimary(const sptr<IRemoteObject> &primary)
 {
     HILOG_INFO("%{public}s called begin", __func__);
@@ -52,17 +53,14 @@ void ReverseContinuationSchedulerReplicaProxy::PassPrimary(const sptr<IRemoteObj
         }
     }
 
-    sptr<IRemoteObject> remoteObject = Remote();
-    if (remoteObject == nullptr) {
-        HILOG_ERROR("ReverseContinuationSchedulerReplicaProxy::PassPrimary Remote() is NULL");
-        return;
-    }
-    if (!remoteObject->SendRequest(
-        static_cast<uint32_t>(IReverseContinuationSchedulerReplica::Message::PASS_PRIMARY), data, reply, option)) {
+    int32_t ret = SendTransactCmd(
+        static_cast<uint32_t>(IReverseContinuationSchedulerReplica::Message::PASS_PRIMARY), data, reply, option);
+    if (ret != NO_ERROR) {
         HILOG_ERROR("ReverseContinuationSchedulerReplicaProxy::PassPrimary SendRequest return false");
     }
     HILOG_INFO("%{public}s called end", __func__);
 }
+
 bool ReverseContinuationSchedulerReplicaProxy::ReverseContinuation()
 {
     HILOG_INFO("%{public}s called begin", __func__);
@@ -73,22 +71,19 @@ bool ReverseContinuationSchedulerReplicaProxy::ReverseContinuation()
         HILOG_ERROR("ReverseContinuationSchedulerReplicaProxy::ReverseContinuation write interface token failed");
         return false;
     }
-    sptr<IRemoteObject> remoteObject = Remote();
-    if (remoteObject == nullptr) {
-        HILOG_ERROR("ReverseContinuationSchedulerReplicaProxy::ReverseContinuation Remote() is nullptr");
-        return false;
-    }
-    if (!remoteObject->SendRequest(
+
+    if (SendTransactCmd(
         static_cast<uint32_t>(IReverseContinuationSchedulerReplica::Message::REVERSE_CONTINUATION),
         data,
         reply,
-        option)) {
+        option) != NO_ERROR) {
         HILOG_ERROR("ReverseContinuationSchedulerReplicaProxy::ReverseContinuation SendRequest return false");
         return false;
     }
     HILOG_INFO("%{public}s called end", __func__);
     return true;
 }
+
 void ReverseContinuationSchedulerReplicaProxy::NotifyReverseResult(int reverseResult)
 {
     HILOG_INFO("%{public}s called begin", __func__);
@@ -103,19 +98,26 @@ void ReverseContinuationSchedulerReplicaProxy::NotifyReverseResult(int reverseRe
         HILOG_ERROR("ReverseContinuationSchedulerReplicaProxy::NotifyReverseResult write parcel flags failed");
         return;
     }
-    sptr<IRemoteObject> remoteObject = Remote();
-    if (remoteObject == nullptr) {
-        HILOG_ERROR("ReverseContinuationSchedulerReplicaProxy::NotifyReverseResult Remote() is NULL");
-        return;
-    }
-    if (!remoteObject->SendRequest(
+    if (SendTransactCmd(
         static_cast<uint32_t>(IReverseContinuationSchedulerReplica::Message::NOTIFY_REVERSE_RESULT),
         data,
         reply,
-        option)) {
+        option) != NO_ERROR) {
         HILOG_ERROR("ReverseContinuationSchedulerReplicaProxy::NotifyReverseResult SendRequest return false");
     }
     HILOG_INFO("%{public}s called end", __func__);
+}
+
+int32_t ReverseContinuationSchedulerReplicaProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    return remote->SendRequest(code, data, reply, option);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

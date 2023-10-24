@@ -23,8 +23,6 @@
 #include "native_engine/native_engine.h"
 #include "res_common.h"
 
-class NativeEngine;
-class NativeValue;
 namespace OHOS {
 namespace AbilityRuntime {
 Global::Resource::ColorMode ConvertColorMode(const std::string &colormode);

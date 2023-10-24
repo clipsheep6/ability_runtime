@@ -476,6 +476,7 @@ ohos_unittest("appfreeze_inner_test") {
 
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
+    "${ability_runtime_path}/utils/global/time/include",
     "//third_party/json/include",
   ]
 

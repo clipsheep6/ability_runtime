@@ -56,6 +56,26 @@ unsigned int WantAgentHelper::FlagsTransformer(const std::vector<WantAgentConsta
             case WantAgentConstant::Flags::CONSTANT_FLAG:
                 wantFlags |= static_cast<unsigned int>(FLAG_IMMUTABLE);
                 break;
+            case WantAgentConstant::Flags::REPLACE_ELEMENT:
+                wantFlags |= static_cast<unsigned int>(FLAG_UPDATE_CURRENT);
+                WANT_AGENT_LOGE("Invalid flag:REPLACE_ELEMENT.");
+                break;
+            case WantAgentConstant::Flags::REPLACE_ACTION:
+                wantFlags |= static_cast<unsigned int>(FLAG_UPDATE_CURRENT);
+                WANT_AGENT_LOGE("Invalid flag:REPLACE_ACTION.");
+                break;
+            case WantAgentConstant::Flags::REPLACE_URI:
+                wantFlags |= static_cast<unsigned int>(FLAG_UPDATE_CURRENT);
+                WANT_AGENT_LOGE("Invalid flag:REPLACE_URI.");
+                break;
+            case WantAgentConstant::Flags::REPLACE_ENTITIES:
+                wantFlags |= static_cast<unsigned int>(FLAG_UPDATE_CURRENT);
+                WANT_AGENT_LOGE("Invalid flag:REPLACE_ENTITIES.");
+                break;
+            case WantAgentConstant::Flags::REPLACE_BUNDLE:
+                wantFlags |= static_cast<unsigned int>(FLAG_UPDATE_CURRENT);
+                WANT_AGENT_LOGE("Invalid flag:REPLACE_BUNDLE.");
+                break;
             default:
                 WANT_AGENT_LOGE("WantAgentHelper::flags is error.");
                 break;

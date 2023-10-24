@@ -19,6 +19,7 @@
 #include <string>
 #include <sys/types.h>
 
+#include "child_process_manager_error_utils.h"
 #include "hap_module_info.h"
 #include "runtime.h"
 
@@ -34,17 +35,16 @@ public:
     ~ChildProcessManager();
 
     static void HandleSigChild(int32_t signo);
-    pid_t StartChildProcessBySelfFork(const std::string &srcEntry);
-    bool MultiProcessModelEnabled();
     bool IsChildProcess();
+    ChildProcessManagerErrorCode StartChildProcessBySelfFork(const std::string &srcEntry, pid_t &pid);
 
 private:
     ChildProcessManager();
 
+    ChildProcessManagerErrorCode PreCheck();
+    bool MultiProcessModelEnabled();
     void HandleChildProcess(const std::string &srcEntry, AppExecFwk::HapModuleInfo &hapModuleInfo);
-    std::string GetModuleNameFromSrcEntry(const std::string &srcEntry);
-    bool GetHapModuleInfo(const std::string &bundleName,
-                          const std::string &moduleName, AppExecFwk::HapModuleInfo &hapModuleInfo);
+    bool GetHapModuleInfo(const std::string &bundleName, AppExecFwk::HapModuleInfo &hapModuleInfo);
     std::unique_ptr<AbilityRuntime::Runtime> CreateRuntime(AppExecFwk::HapModuleInfo &hapModuleInfo);
 
     static bool signalRegistered_;

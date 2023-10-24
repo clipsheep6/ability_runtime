@@ -240,7 +240,6 @@ bool JSAppStateObserver::RemoveJsObserverObject(const int32_t observerId)
 {
     bool result = (jsObserverObjectMap_.erase(observerId) == 1);
     return result;
-    HILOG_DEBUG("RemoveJsObserverObject end");
 }
 
 bool JSAppStateObserver::FindObserverByObserverId(const int32_t observerId)

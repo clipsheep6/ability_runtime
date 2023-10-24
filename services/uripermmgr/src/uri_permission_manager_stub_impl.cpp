@@ -30,6 +30,7 @@
 #include "permission_constants.h"
 #include "permission_verification.h"
 #include "system_ability_definition.h"
+#include "tokenid_kit.h"
 #include "want.h"
 
 namespace OHOS {
@@ -133,7 +134,11 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uri
     }
     // reserve origin process
     if (uriVec.size() == 1) {
-        return GrantSingleUriPermission(uriVec[0], flag, targetBundleName, autoremove, appIndex);
+        auto singleRet =  GrantSingleUriPermission(uriVec[0], flag, targetBundleName, autoremove, appIndex);
+        if (singleRet == ERR_OK) {
+            SendEvent(uriVec[0], targetBundleName, targetTokenId);
+        }
+        return singleRet;
     }
     std::unordered_map<uint32_t, std::vector<std::string>> uriVecMap;
     std::unordered_map<uint32_t, std::vector<uint32_t>> fromTokenIdVecMap;
@@ -148,18 +153,7 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uri
             targetTokenId, autoremove);
         if (tempRet == ERR_OK) {
             ret = ERR_OK;
-            auto isSaCall = PermissionVerification::GetInstance()->IsSACall();
-            auto calleeTokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(targetTokenId);
-            if (isSaCall && calleeTokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
-                EventInfo eventInfo;
-                Uri uri_inner = uriVec[0];
-                eventInfo.bundleName = targetBundleName;
-                eventInfo.callerBundleName = uri_inner.GetAuthority();
-                eventInfo.uri = uri_inner.ToString();
-                EventReport::SendKeyEvent(EventName::GRANT_URI_PERMISSION, HiSysEventType::BEHAVIOR, eventInfo);
-            } else {
-                HILOG_INFO("caller is not SA or callee is SA");
-            }
+            SendEvent(uriVec[0], targetBundleName, targetTokenId, item.second);
         }
     }
     return ret;
@@ -677,6 +671,30 @@ void UriPermissionManagerStubImpl::InitPersistableUriPermissionConfig()
         GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_PARAMETER, value);
     if (retSysParam > 0 && !std::strcmp(value, "true")) {
         isGrantPersistableUriPermissionEnable_ = true;
+    }
+}
+
+void UriPermissionManagerStubImpl::SendEvent(const Uri &uri, const std::string &targetBundleName,
+    uint32_t targetTokenId, const std::vector<std::string> &uriVec)
+{
+    auto isSystemAppCall = PermissionVerification::GetInstance()->IsSystemAppCall();
+    auto targetIsSystemApp = Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(targetTokenId);
+    if (isSystemAppCall && !targetIsSystemApp) {
+        EventInfo eventInfo;
+        Uri uri_inner = uri;
+        eventInfo.bundleName = targetBundleName;
+        eventInfo.callerBundleName = uri_inner.GetAuthority();
+        if (uriVec.size() != 0) {
+            for (const auto &item : uriVec) {
+                eventInfo.uri = item;
+                EventReport::SendKeyEvent(EventName::GRANT_URI_PERMISSION, HiSysEventType::BEHAVIOR, eventInfo);
+            }
+        } else {
+            eventInfo.uri = uri_inner.ToString();
+            EventReport::SendKeyEvent(EventName::GRANT_URI_PERMISSION, HiSysEventType::BEHAVIOR, eventInfo);
+        }
+    } else {
+        HILOG_INFO("caller is not SA or callee is SA");
     }
 }
 }  // namespace AAFwk

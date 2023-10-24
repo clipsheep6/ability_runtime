@@ -19,6 +19,7 @@
 #include "mock_native_token.h"
 #include "system_ability_definition.h"
 #include "system_ability_manager_client.h"
+#include "tokenid_kit.h"
 #define private public
 #include "uri_permission_manager_stub_impl.h"
 #undef private
@@ -275,6 +276,23 @@ HWTEST_F(UriPermissionImplTest, Upms_ConnectManager_002, TestSize.Level1)
     upms->ConnectManager(storageManager, STORAGE_MANAGER_MANAGER_ID);
     MockSystemAbilityManager::isNullptr = false;
     ASSERT_EQ(storageManager, nullptr);
+}
+
+/*
+ * Feature: URIPermissionManagerService
+ * Function: ConnectManager
+ * SubFunction: NA
+ * FunctionPoints: URIPermissionManagerService SendEvent
+ */
+HWTEST_F(UriPermissionImplTest, Upms_SendEvent_001, TestSize.Level1)
+{
+    auto upms = std::make_unique<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
+    Uri uri("test");
+    std::string targetBundleName = "bundleName";
+    uint32_t targetTokenId = 0;
+    std::vector<std::string> uriVec;
+    upms->SendEvent(uri, targetBundleName, targetTokenId, uriVec);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

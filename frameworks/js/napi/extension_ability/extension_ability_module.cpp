@@ -22,8 +22,8 @@ extern const char _binary_extension_ability_abc_end[];
 
 static napi_module _module = {
     .nm_version = 0,
-    .nm_modname = "app.ability.ExtensionAbility",
     .nm_filename = "app/ability/libextensionability_napi.so/extension_ability.js",
+    .nm_modname = "app.ability.ExtensionAbility",
 };
 extern "C" __attribute__((constructor))
 void NAPI_app_ability_ExtensionAbility_AutoRegister()

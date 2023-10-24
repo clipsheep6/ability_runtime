@@ -18,15 +18,15 @@
 #ifdef ENABLE_ERRCODE
 static napi_module _module = {
     .nm_version = 0,
-    .nm_modname = "app.ability.abilityDelegatorRegistry",
     .nm_filename = "app/ability/libabilitydelegator_napi.so/ability_delegator_registry.js",
+    .nm_modname = "app.ability.abilityDelegatorRegistry",
     .nm_register_func = OHOS::AbilityDelegatorJs::JsAbilityDelegatorRegistryInit,
 };
 #else
 static napi_module _module = {
     .nm_version = 0,
-    .nm_modname = "application.abilityDelegatorRegistry",
     .nm_filename = "application/libabilitydelegator_napi.so/ability_delegator_registry.js",
+    .nm_modname = "application.abilityDelegatorRegistry",
     .nm_register_func = OHOS::AbilityDelegatorJs::JsAbilityDelegatorRegistryInit,
 };
 #endif

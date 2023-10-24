@@ -18,8 +18,8 @@
 
 static napi_module _module = {
     .nm_version = 0,
-    .nm_modname = "app.ability.dialogRequest",
     .nm_filename = "app/ability/libdialogrequest.so/dialogrequest.js",
+    .nm_modname = "app.ability.dialogRequest",
     .nm_register_func = OHOS::AbilityRuntime::JsDialogRequestInit,
 };
 extern "C" __attribute__((constructor))

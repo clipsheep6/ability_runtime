@@ -28,6 +28,7 @@
 #include "bundle_info.h"
 #include "bundle_mgr_interface.h"
 #include "child_process.h"
+#include "child_process_manager_error_utils.h"
 #include "child_process_start_info.h"
 #include "constants.h"
 #include "event_runner.h"
@@ -42,7 +43,6 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
-constexpr pid_t INVALID_PID = -1;
 const std::string SYS_PARAM_MULTI_PROCESS_MODEL = "persist.sys.multi_process_model";
 }
 
@@ -71,23 +71,26 @@ void ChildProcessManager::HandleSigChild(int32_t signo)
     }
 }
 
-pid_t ChildProcessManager::StartChildProcessBySelfFork(const std::string &srcEntry)
+ChildProcessManagerErrorCode ChildProcessManager::StartChildProcessBySelfFork(const std::string &srcEntry, pid_t &pid)
 {
     HILOG_DEBUG("StartChildProcessBySelfFork called");
+    ChildProcessManagerErrorCode errorCode = PreCheck();
+    if (errorCode != ChildProcessManagerErrorCode::ERR_OK) {
+        return errorCode;
+    }
     std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
         AbilityRuntime::ApplicationContext::GetInstance();
     std::string bundleName = applicationContext->GetBundleName();
-    std::string moduleName = GetModuleNameFromSrcEntry(srcEntry);
     AppExecFwk::HapModuleInfo hapModuleInfo;
-    if (!GetHapModuleInfo(bundleName, moduleName, hapModuleInfo)) {
+    if (!GetHapModuleInfo(bundleName, hapModuleInfo)) {
         HILOG_ERROR("GetHapModuleInfo failed");
-        return INVALID_PID;
+        return ChildProcessManagerErrorCode::ERR_GET_HAP_INFO_FAILED;
     }
 
-    pid_t pid = fork();
+    pid = fork();
     if (pid < 0) {
         HILOG_ERROR("Fork process failed");
-        return pid;
+        return ChildProcessManagerErrorCode::ERR_FORK_FAILED;
     }
     if (pid == 0) {
         HILOG_DEBUG("Child process start");
@@ -96,7 +99,20 @@ pid_t ChildProcessManager::StartChildProcessBySelfFork(const std::string &srcEnt
         HILOG_DEBUG("Child process end");
         exit(0);
     }
-    return pid;
+    return ChildProcessManagerErrorCode::ERR_OK;
+}
+
+ChildProcessManagerErrorCode ChildProcessManager::PreCheck()
+{
+    if (!MultiProcessModelEnabled()) {
+        HILOG_ERROR("Multi process model is not enabled");
+        return ChildProcessManagerErrorCode::ERR_MULTI_PROCESS_MODEL_DISABLED;
+    }
+    if (IsChildProcess()) {
+        HILOG_ERROR("Already in child process");
+        return ChildProcessManagerErrorCode::ERR_ALREADY_IN_CHILD_PROCESS;
+    }
+    return ChildProcessManagerErrorCode::ERR_OK;
 }
 
 bool ChildProcessManager::MultiProcessModelEnabled()
@@ -133,21 +149,7 @@ void ChildProcessManager::HandleChildProcess(const std::string &srcEntry, AppExe
     process->OnStart();
 }
 
-std::string ChildProcessManager::GetModuleNameFromSrcEntry(const std::string &srcEntry)
-{
-    std::string::size_type iPos = srcEntry.find_first_of('/');
-    if (iPos == std::string::npos) {
-        return "";
-    }
-    std::string moduleName = srcEntry.substr(0, iPos);
-    if (moduleName == ".") {
-        return "";
-    }
-    return moduleName;
-}
-
-bool ChildProcessManager::GetHapModuleInfo(const std::string &bundleName,
-                                           const std::string &moduleName, AppExecFwk::HapModuleInfo &hapModuleInfo)
+bool ChildProcessManager::GetHapModuleInfo(const std::string &bundleName, AppExecFwk::HapModuleInfo &hapModuleInfo)
 {
     auto bundleObj =
         DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
@@ -176,19 +178,13 @@ bool ChildProcessManager::GetHapModuleInfo(const std::string &bundleName,
         return false;
     }
     if (bundleInfo.hapModuleInfos.empty()) {
+        HILOG_ERROR("hapModuleInfos empty!");
         return false;
     }
     HILOG_DEBUG("hapModueInfos size: %{public}zu", bundleInfo.hapModuleInfos.size());
     bool result = false;
-    const bool moduleNameExist = moduleName.length() > 0;
     for (auto info : bundleInfo.hapModuleInfos) {
-        if (moduleNameExist) {
-            if (info.moduleName == moduleName) {
-                result = true;
-                hapModuleInfo = info;
-                break;
-            }
-        } else if (info.moduleType == AppExecFwk::ModuleType::ENTRY) {
+        if (info.moduleType == AppExecFwk::ModuleType::ENTRY) {
             result = true;
             hapModuleInfo = info;
             break;

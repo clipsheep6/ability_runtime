@@ -22,8 +22,8 @@ extern const char _binary_ability_stage_context_abc_end[];
 
 static napi_module _module = {
     .nm_version = 0,
-    .nm_modname = "application.AbilityStageContext",
     .nm_filename = "application/libabilitystagecontext_napi.so/ability_stage_context.js",
+    .nm_modname = "application.AbilityStageContext",
 };
 
 extern "C" __attribute__((constructor))

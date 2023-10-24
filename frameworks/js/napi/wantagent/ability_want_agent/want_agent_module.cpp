@@ -69,8 +69,8 @@ napi_value JsNapiWantAgentInit(napi_env env, napi_value exportObj)
 EXTERN_C_END
 
 static napi_module _module = {
-    .nm_modname = "app.ability.wantAgent",
     .nm_filename = "app/ability/wantagent_napi.so/want_agent.js",
+    .nm_modname = "app.ability.wantAgent",
     .nm_register_func = OHOS::JsNapiWantAgentInit,
 };
 

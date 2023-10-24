@@ -90,7 +90,7 @@ napi_value JsAbilityAutoStartupManager::OnRegisterAutoStartupCallback(napi_env e
     std::string type;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], type) || type != ON_OFF_TYPE_SYSTEM) {
         HILOG_ERROR("The param is invalid.");
-        ThrowTooFewParametersError(env);
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
     }
 
@@ -204,7 +204,7 @@ napi_value JsAbilityAutoStartupManager::OnSetApplicationAutoStartup(napi_env env
         task.ResolveWithNoError(env, CreateJsUndefined(env));
     };
 
-    napi_value lastParam = (info.argc == ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
+    napi_value lastParam = (info.argc >= ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsAbilityAutoStartupManager::OnSetApplicationAutoStartup", env,
         CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
@@ -254,7 +254,7 @@ napi_value JsAbilityAutoStartupManager::OnCancelApplicationAutoStartup(napi_env 
         task.ResolveWithNoError(env, CreateJsUndefined(env));
     };
 
-    napi_value lastParam = (info.argc == ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
+    napi_value lastParam = (info.argc >= ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
     napi_value result = nullptr;
     NapiAsyncTask::Schedule("JsAbilityAutoStartupManager::OnCancelApplicationAutoStartup", env,
         CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
@@ -279,7 +279,8 @@ napi_value JsAbilityAutoStartupManager::OnQueryAllAutoStartupApplications(napi_e
         *ret = AbilityManagerClient::GetInstance()->QueryAllAutoStartupApplications(*infos);
     };
 
-    NapiAsyncTask::CompleteCallback complete = [infos = infoList, ret = retVal] (napi_env env, NapiAsyncTask &task, int32_t status) {
+    NapiAsyncTask::CompleteCallback complete = [infos = infoList, ret = retVal](
+                                                   napi_env env, NapiAsyncTask &task, int32_t status) {
         if (ret == nullptr || infos == nullptr) {
             HILOG_ERROR("The param is invalid.");
             task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(INNER_ERR)));
@@ -293,9 +294,9 @@ napi_value JsAbilityAutoStartupManager::OnQueryAllAutoStartupApplications(napi_e
         task.ResolveWithNoError(env, CreateJsAutoStartupInfoArray(env, *infos));
     };
 
-    napi_value lastParam = (info.argc == ARGC_TWO) ? info.argv[INDEX_ONE] : nullptr;
+    napi_value lastParam = (info.argc >= ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
     napi_value result = nullptr;
-    NapiAsyncTask::Schedule("JsAbilityAutoStartupManager::OnCancelApplicationAutoStartup", env,
+    NapiAsyncTask::Schedule("JsAbilityAutoStartupManager::OnQueryAllAutoStartupApplications", env,
         CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
     return result;
 }

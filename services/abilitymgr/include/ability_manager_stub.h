@@ -27,6 +27,7 @@
 
 namespace OHOS {
 namespace AAFwk {
+using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
 /**
  * @class AbilityManagerStub
  * AbilityManagerStub.
@@ -245,6 +246,17 @@ private:
     int32_t MoveMissionToBackgroundInner(MessageParcel &data, MessageParcel &reply);
     int32_t TerminateMissionInner(MessageParcel &data, MessageParcel &reply);
 
+    int32_t RegisterAutoStartupSystemCallbackInner(MessageParcel &data, MessageParcel &reply);
+    int32_t UnregisterAutoStartupSystemCallbackInner(MessageParcel &data, MessageParcel &reply);
+    int32_t SetApplicationAutoStartupInner(MessageParcel &data, MessageParcel &reply);
+    int32_t CancelApplicationAutoStartupInner(MessageParcel &data, MessageParcel &reply);
+    int32_t QueryAllAutoStartupApplicationsInner(MessageParcel &data, MessageParcel &reply);
+    int32_t RegisterAutoStartupCallbackInner(MessageParcel &data, MessageParcel &reply);
+    int32_t UnregisterAutoStartupCallbackInner(MessageParcel &data, MessageParcel &reply);
+    int32_t SetAutoStartupInner(MessageParcel &data, MessageParcel &reply);
+    int32_t CancelAutoStartupInner(MessageParcel &data, MessageParcel &reply);
+    int32_t IsAutoStartupInner(MessageParcel &data, MessageParcel &reply);
+
     int PrepareTerminateAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
     int RegisterSessionHandlerInner(MessageParcel &data, MessageParcel &reply);
 
@@ -254,6 +266,9 @@ private:
     int32_t DetachAppDebugInner(MessageParcel &data, MessageParcel &reply);
 
     int32_t IsAbilityControllerStartInner(MessageParcel &data, MessageParcel &reply);
+
+    //insight intent related
+    int32_t StartAbilityByInsightIntentInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

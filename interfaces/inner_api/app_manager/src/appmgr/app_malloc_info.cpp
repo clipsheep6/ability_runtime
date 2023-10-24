@@ -20,7 +20,7 @@ namespace AppExecFwk {
 bool MallocInfo::Marshalling(Parcel &parcel) const
 {
     return (parcel.WriteInt32(usmblks) && parcel.WriteInt32(uordblks)
-        && parcel.WriteInt32(fordblks));
+        && parcel.WriteInt32(fordblks) && parcel.WriteInt32(hblkhd));
 }
 
 MallocInfo *MallocInfo::Unmarshalling(Parcel &parcel)
@@ -32,6 +32,7 @@ MallocInfo *MallocInfo::Unmarshalling(Parcel &parcel)
     mallocInfo->usmblks = parcel.ReadInt32();
     mallocInfo->uordblks = parcel.ReadInt32();
     mallocInfo->fordblks = parcel.ReadInt32();
+    mallocInfo->hblkhd = parcel.ReadInt32();
     return mallocInfo;
 }
 }  // namespace AppExecFwk

@@ -23,9 +23,6 @@
 #include "want.h"
 #include "uri.h"
 
-class NativeEngine;
-class NativeValue;
-
 namespace OHOS {
 namespace AbilityRuntime {
 using namespace OHOS::AppExecFwk;

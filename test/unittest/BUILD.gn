@@ -336,6 +336,8 @@ group("unittest") {
     "ams_service_load_ability_process_test:unittest",
     "ams_service_startup_test:unittest",
     "app_debug_info_test:unittest",
+    "app_debug_listener_proxy_test:unittest",
+    "app_debug_listener_stub_test:unittest",
     "app_exit_reason_data_manager_test:unittest",
     "app_launch_data_test:unittest",
     "app_lifecycle_deal_test:unittest",
