@@ -24,8 +24,7 @@
 using OHOS::AAFwk::WantParams;
 namespace OHOS {
 namespace AppExecFwk {
-namespace
-{
+namespace {
 const std::string ORIGINAL_DEVICE_ID("deviceId");
 const std::string VERSION_CODE_KEY = "version";
 }
