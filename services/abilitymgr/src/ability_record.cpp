@@ -87,8 +87,8 @@ int64_t AbilityRecord::abilityRecordId = 0;
 const int32_t DEFAULT_USER_ID = 0;
 const int32_t SEND_RESULT_CANCELED = -1;
 const int VECTOR_SIZE = 2;
-const int LOAD_TIMEOUT_ASANENABLED = 150;
-const int TERMINATE_TIMEOUT_ASANENABLED = 150;
+const int LOAD_TIMEOUT_ASANENABLED = 15000;
+const int TERMINATE_TIMEOUT_ASANENABLED = 15000;
 const int HALF_TIMEOUT = 2;
 const int MAX_URI_COUNT = 500;
 #ifdef SUPPORT_ASAN
