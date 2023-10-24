@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_PENDING_WANT_KEY_H
 #define OHOS_ABILITY_RUNTIME_PENDING_WANT_KEY_H
 
+#include <mutex>
 #include <vector>
 #include <string>
 
@@ -64,6 +65,7 @@ private:
     int32_t flags_ = {};
     int32_t code_ = {};
     int32_t userId_ = {};
+    std::mutex wantsInfosMutex_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
