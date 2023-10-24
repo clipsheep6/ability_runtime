@@ -66,6 +66,7 @@ public:
         sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow);
 
     static napi_value StartAbility(napi_env env, napi_callback_info info);
+    static napi_value StartAbilityAsCaller(napi_env env, napi_callback_info info);
     static napi_value StartAbilityForResult(napi_env env, napi_callback_info info);
     static napi_value TerminateSelf(napi_env env, napi_callback_info info);
     static napi_value TerminateSelfWithResult(napi_env env, napi_callback_info info);
@@ -77,6 +78,7 @@ public:
 
 protected:
     napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStartAbilityAsCaller(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartAbilityForResult(napi_env env, NapiCallbackInfo& info);
     napi_value OnTerminateSelf(napi_env env, NapiCallbackInfo& info);
     napi_value OnTerminateSelfWithResult(napi_env env, NapiCallbackInfo& info);
@@ -95,8 +97,8 @@ protected:
     void StartAbilityForResultRuntimeTask(napi_env env, AAFwk::Want &want,
         std::shared_ptr<NapiAsyncTask> asyncTask, size_t& unwrapArgc, AAFwk::StartOptions startOptions);
     
-private:
     sptr<AAFwk::SessionInfo> sessionInfo_;
+private:
     sptr<Rosen::Window> uiWindow_;
     std::weak_ptr<AbilityRuntime::Context> context_;
     std::shared_ptr<CallbackWrapper> receiveDataCallback_;

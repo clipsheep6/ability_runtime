@@ -120,6 +120,11 @@ napi_value JsUIExtensionContentSession::StartAbility(napi_env env, napi_callback
     GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnStartAbility);
 }
 
+napi_value JsUIExtensionContentSession::StartAbilityAsCaller(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnStartAbilityAsCaller);
+}
+
 napi_value JsUIExtensionContentSession::StartAbilityForResult(napi_env env, napi_callback_info info)
 {
     GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnStartAbilityForResult);
@@ -206,6 +211,44 @@ napi_value JsUIExtensionContentSession::OnStartAbility(napi_env env, NapiCallbac
             CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
     }
     HILOG_DEBUG("OnStartAbility is called end");
+    return result;
+}
+
+napi_value JsUIExtensionContentSession::OnStartAbilityAsCaller(napi_env env, NapiCallbackInfo& info)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+
+    if (info.argc == ARGC_ZERO) {
+        HILOG_ERROR("Not enough params");
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    AAFwk::Want want;
+    OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want);
+    InheritWindowMode(want);
+    decltype(info.argc) unwrapArgc = 1;
+    HILOG_INFO("StartAbilityAsCaller, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
+    AAFwk::StartOptions startOptions;
+    if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[1], napi_object)) {
+        HILOG_DEBUG("OnStartAbilityAsCaller start options is used.");
+        AppExecFwk::UnwrapStartOptions(env, info.argv[1], startOptions);
+        unwrapArgc++;
+    }
+
+    auto context = context_.lock();
+    auto innerErrorCode = (unwrapArgc == 1) ?
+                OHOS::AAFwk::AbilityManagerClient::GetInstance()::StartAbilityAsCaller(want, sessionInfo_.sessionToken, context->GetToken(), -1,-1) : OHOS::AAFwk::AbilityManagerClient::GetInstance()::StartAbilityAsCaller(want, startOptions, sessionInfo_.sessionToken, context->GetToken(), -1,-1);
+            if (innerErrorCode == 0) {
+                task.Resolve(env, CreateJsUndefined(env));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, innerErrorCode));
+            }
+    
+    napi_value lastParam = (info.argc > unwrapArgc) ? info.argv[unwrapArgc] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnStartAbilityAsCaller",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 

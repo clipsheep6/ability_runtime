@@ -2410,7 +2410,7 @@ void AppMgrServiceInner::HandleAddAbilityStageTimeOut(const int64_t eventId)
         HILOG_ERROR("appRecord is nullptr");
         return;
     }
-
+startAbilityAsGetRunningProcessInfoByToken
     if (appRecord->IsStartSpecifiedAbility() && startSpecifiedAbilityResponse_) {
         startSpecifiedAbilityResponse_->OnTimeoutResponse(appRecord->GetSpecifiedWant());
     }
