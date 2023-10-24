@@ -103,8 +103,6 @@ const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
 const std::string SUPPORT_ISOLATION_MODE = "persist.bms.supportIsolationMode";
 const std::string SCENE_BOARD_BUNDLE_NAME = "com.ohos.sceneboard";
 const std::string DEBUG_APP = "debugApp";
-const std::string SERVICE_EXTENSION = ":ServiceExtension";
-const std::string KEEP_ALIVE = ":KeepAlive";
 const int32_t SIGNAL_KILL = 9;
 constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
@@ -315,12 +313,6 @@ void AppMgrServiceInner::MakeProcessName(const std::shared_ptr<AbilityInfo> &abi
         return;
     }
     MakeProcessName(appInfo, hapModuleInfo, processName);
-    if (processName == appInfo->bundleName && abilityInfo->extensionAbilityType == ExtensionAbilityType::SERVICE) {
-        processName += SERVICE_EXTENSION;
-        if (appInfo->keepAlive) {
-            processName += KEEP_ALIVE;
-        }
-    }
     if (appIndex != 0) {
         processName += std::to_string(appIndex);
     }
