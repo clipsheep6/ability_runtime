@@ -187,6 +187,23 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_006, TestSize.Level1)
 }
 
 /**
+ * @tc.name: UIAbilityLifecycleManager_StartUIAbility_0700
+ * @tc.desc: StartUIAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_007, TestSize.Level1)
+{
+    auto mgr = std::make_unique<UIAbilityLifecycleManager>();
+    AbilityRequest abilityRequest;
+    abilityRequest.abilityInfo.visible = true;
+    abilityRequest.abilityInfoCallback = new MockAbilityInfoCallbackStub();
+    Rosen::SessionInfo info;
+    sptr<SessionInfo> sessionInfo(new SessionInfo());
+    sessionInfo->sessionToken = new Rosen::Session(info);
+    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo), ERR_OK);
+}
+
+/**
  * @tc.name: UIAbilityLifecycleManager_CreateSessionInfo_0100
  * @tc.desc: CreateSessionInfo
  * @tc.type: FUNC

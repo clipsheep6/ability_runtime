@@ -22,7 +22,7 @@
 namespace OHOS {
 namespace JsEnv {
 using namespace testing::ext;
-class UncaughtExceptionCallbackTest : public testing::Test {
+class NapiUncaughtExceptionCallbackTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
@@ -30,174 +30,183 @@ public:
     void TearDown();
 };
 
-void UncaughtExceptionCallbackTest::SetUpTestCase(void)
+void NapiUncaughtExceptionCallbackTest::SetUpTestCase(void)
 {
 }
 
-void UncaughtExceptionCallbackTest::TearDownTestCase(void)
+void NapiUncaughtExceptionCallbackTest::TearDownTestCase(void)
 {
 }
 
-void UncaughtExceptionCallbackTest::SetUp(void)
+void NapiUncaughtExceptionCallbackTest::SetUp(void)
 {
 }
 
-void UncaughtExceptionCallbackTest::TearDown(void)
+void NapiUncaughtExceptionCallbackTest::TearDown(void)
 {
 }
 
 /**
- * @tc.name: UncaughtExceptionCallbackTest_0100
+ * @tc.name: NapiUncaughtExceptionCallbackTest_0100
  * @tc.type: FUNC
- * @tc.desc: Test UncaughtExceptionCallback GetNativeStrFromJsTaggedObj.
+ * @tc.desc: Test NapiNapiUncaughtExceptionCallback GetNativeStrFromJsTaggedObj.
  * @tc.require: #I6T4K1
  */
-HWTEST_F(UncaughtExceptionCallbackTest, UncaughtExceptionCallbackTest_0100, TestSize.Level1)
+HWTEST_F(NapiUncaughtExceptionCallbackTest, NapiUncaughtExceptionCallbackTest_0100, TestSize.Level1)
 {
     AbilityRuntime::Runtime::Options options;
     options.preload = false;
     auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
-
     ASSERT_NE(jsRuntime, nullptr);
+    auto env = jsRuntime->GetNapiEnv();
+    EXPECT_NE(env, nullptr);
+
     // Test with null object
     auto task = [](std::string summary, const JsEnv::ErrorObject errorObj) {
         summary += "test";
     };
-    UncaughtExceptionCallback callback(task, nullptr);
+    NapiUncaughtExceptionCallback callback(task, nullptr, env);
     ASSERT_EQ(callback.GetNativeStrFromJsTaggedObj(nullptr, "key"), "");
 
     // Test with invalid object
-    auto engine = jsRuntime->GetNativeEnginePointer();
-    EXPECT_NE(engine, nullptr);
-    NativeValue* objValue = engine->CreateObject();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
-    UncaughtExceptionCallback callback2(task, nullptr);
-    ASSERT_EQ(callback2.GetNativeStrFromJsTaggedObj(ConvertNativeValueTo<NativeObject>(objValue), "key"), "");
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
+    NapiUncaughtExceptionCallback callback2(task, nullptr, env);
+    ASSERT_EQ(callback2.GetNativeStrFromJsTaggedObj(object, "key"), "");
 
     // Test with valid object
     std::string errorMsg = "This is an error message.";
     std::string errorName = "TypeError";
     std::string errorStack = "TypeError: This is a stack trace.";
-    NativeValue* nativeErrorMsg = engine->CreateString(errorMsg.c_str(), errorMsg.length());
-    NativeValue* nativeErrorName = engine->CreateString(errorName.c_str(), errorName.length());
-    NativeValue* nativeErrorStack = engine->CreateString(errorStack.c_str(), errorStack.length());
+    napi_value nativeErrorMsg = nullptr;
+    napi_value nativeErrorName = nullptr;
+    napi_value nativeErrorStack = nullptr;
+    napi_create_string_utf8(env, errorMsg.c_str(), errorMsg.length(), &nativeErrorMsg);
+    napi_create_string_utf8(env, errorName.c_str(), errorName.length(), &nativeErrorName);
+    napi_create_string_utf8(env, errorStack.c_str(), errorStack.length(), &nativeErrorStack);
 
-    object->SetProperty("message", nativeErrorMsg);
-    object->SetProperty("name", nativeErrorName);
-    object->SetProperty("stack", nativeErrorStack);
-    UncaughtExceptionCallback callback3(task, nullptr);
+    napi_set_named_property(env, object, "message", nativeErrorMsg);
+    napi_set_named_property(env, object, "name", nativeErrorName);
+    napi_set_named_property(env, object, "stack", nativeErrorStack);
+    NapiUncaughtExceptionCallback callback3(task, nullptr, env);
     ASSERT_EQ(callback3.GetNativeStrFromJsTaggedObj(object, "message"), errorMsg);
     ASSERT_EQ(callback3.GetNativeStrFromJsTaggedObj(object, "name"), errorName);
     ASSERT_EQ(callback3.GetNativeStrFromJsTaggedObj(object, "stack"), errorStack);
 }
 
 /**
- * @tc.name: UncaughtExceptionCallbackTest_0200
+ * @tc.name: NapiUncaughtExceptionCallbackTest_0200
  * @tc.type: FUNC
- * @tc.desc: Test UncaughtExceptionCallback operator().
+ * @tc.desc: Test NapiUncaughtExceptionCallback operator().
  * @tc.require: #I6T4K1
  */
-HWTEST_F(UncaughtExceptionCallbackTest, UncaughtExceptionCallbackTest_0200, TestSize.Level1)
+HWTEST_F(NapiUncaughtExceptionCallbackTest, NapiUncaughtExceptionCallbackTest_0200, TestSize.Level1)
 {
     AbilityRuntime::Runtime::Options options;
     options.preload = false;
     auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
-    auto engine = jsRuntime->GetNativeEnginePointer();
-
     ASSERT_NE(jsRuntime, nullptr);
+    auto env = jsRuntime->GetNapiEnv();
+    EXPECT_NE(env, nullptr);
     // Test with null object
     auto task = [](std::string summary, const JsEnv::ErrorObject errorObj) {
         summary += "test";
     };
-    NativeValue* nullValue = engine->CreateUndefined();
-    UncaughtExceptionCallback callback(task, nullptr);
+    napi_value nullValue = nullptr;
+    napi_get_undefined(env, &nullValue);
+    NapiUncaughtExceptionCallback callback(task, nullptr, env);
     callback(nullValue);
 
     // Test with valid code, and errorStack is empty
-    EXPECT_NE(engine, nullptr);
-    NativeValue* objValue = engine->CreateObject();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
 
     std::string errorCode = "This is an error code.";
-    NativeValue* nativeErrorCode = engine->CreateString(errorCode.c_str(), errorCode.length());
-    object->SetProperty("code", nativeErrorCode);
+    napi_value nativeErrorCode =nullptr;
+    napi_create_string_utf8(env, errorCode.c_str(), errorCode.length(), &nativeErrorCode);
+    napi_set_named_property(env, object, "code", nativeErrorCode);
 
-    UncaughtExceptionCallback callback1(task, nullptr);
-    callback1(objValue);
+    NapiUncaughtExceptionCallback callback1(task, nullptr, env);
+    callback1(object);
 }
 
 /**
- * @tc.name: UncaughtExceptionCallbackTest_0300
+ * @tc.name: NapiUncaughtExceptionCallbackTest_0300
  * @tc.type: FUNC
- * @tc.desc: Test UncaughtExceptionCallback operator().
+ * @tc.desc: Test NapiUncaughtExceptionCallback operator().
  * @tc.require: #I6T4K1
  */
-HWTEST_F(UncaughtExceptionCallbackTest, UncaughtExceptionCallbackTest_0300, TestSize.Level1)
+HWTEST_F(NapiUncaughtExceptionCallbackTest, NapiUncaughtExceptionCallbackTest_0300, TestSize.Level1)
 {
     AbilityRuntime::Runtime::Options options;
     options.preload = false;
     auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
-
     ASSERT_NE(jsRuntime, nullptr);
+    auto env = jsRuntime->GetNapiEnv();
+    EXPECT_NE(env, nullptr);
 
     // Test with valid code, and errorStack is not empty
-    auto engine = jsRuntime->GetNativeEnginePointer();
-    EXPECT_NE(engine, nullptr);
-    NativeValue* objValue = engine->CreateObject();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
 
     std::string errorCode = "This is an error code.";
     std::string errorStack = "TypeError: This is a stack trace.";
-    NativeValue* nativeErrorCode = engine->CreateString(errorCode.c_str(), errorCode.length());
-    NativeValue* nativeErrorStack = engine->CreateString(errorStack.c_str(), errorStack.length());
-    object->SetProperty("code", nativeErrorCode);
-    object->SetProperty("stack", nativeErrorStack);
+    napi_value nativeErrorCode = nullptr;
+    napi_value nativeErrorStack = nullptr;
+    napi_create_string_utf8(env, errorCode.c_str(), errorCode.length(), &nativeErrorCode);
+    napi_create_string_utf8(env, errorStack.c_str(), errorStack.length(), &nativeErrorStack);
+    napi_set_named_property(env, object, "code", nativeErrorCode);
+    napi_set_named_property(env, object, "stack", nativeErrorStack);
     auto task = [](std::string summary, const JsEnv::ErrorObject errorObj) {
         summary += "test";
     };
-    UncaughtExceptionCallback callback(task, nullptr);
-    callback(objValue);
+    NapiUncaughtExceptionCallback callback(task, nullptr, env);
+    callback(object);
 }
 
 /**
- * @tc.name: UncaughtExceptionCallbackTest_0400
+ * @tc.name: NapiUncaughtExceptionCallbackTest_0400
  * @tc.type: FUNC
- * @tc.desc: Test UncaughtExceptionCallback operator().
+ * @tc.desc: Test NapiUncaughtExceptionCallback operator().
  * @tc.require: #I6T4K1
  */
-HWTEST_F(UncaughtExceptionCallbackTest, UncaughtExceptionCallbackTest_0400, TestSize.Level1)
+HWTEST_F(NapiUncaughtExceptionCallbackTest, NapiUncaughtExceptionCallbackTest_0400, TestSize.Level1)
 {
     AbilityRuntime::Runtime::Options options;
     options.preload = false;
     auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
-
     ASSERT_NE(jsRuntime, nullptr);
+    auto env = jsRuntime->GetNapiEnv();
+    EXPECT_NE(env, nullptr);
 
     // Test with valid code, errorStack is not empty, fuc is not empty.
-    auto engine = jsRuntime->GetNativeEnginePointer();
-    EXPECT_NE(engine, nullptr);
-    NativeValue* objValue = engine->CreateObject();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
 
     std::string errorCode = "This is an error code.";
     std::string errorStack = "TypeError: This is a stack trace.";
     std::string errorFunc = "This is an error func.";
-    NativeCallback func = [](NativeEngine* engine, NativeCallbackInfo* info) -> NativeValue* {
-        return info->thisVar;
+    napi_callback func = [](napi_env env, napi_callback_info info) -> napi_value {
+        napi_value thisVar = nullptr;
+        napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, nullptr);
+        return thisVar;
     };
 
     auto task = [](std::string summary, const JsEnv::ErrorObject errorObj) {
         summary += "test";
     };
-    NativeValue* nativeErrorCode = engine->CreateString(errorCode.c_str(), errorCode.length());
-    NativeValue* nativeErrorStack = engine->CreateString(errorStack.c_str(), errorStack.length());
-    NativeValue* nativeErrorFunc = engine->CreateFunction(errorFunc.c_str(), errorFunc.length(), func, nullptr);
-    object->SetProperty("code", nativeErrorCode);
-    object->SetProperty("stack", nativeErrorStack);
-    object->SetProperty("errorfunc", nativeErrorFunc);
+    napi_value nativeErrorCode = nullptr;
+    napi_value nativeErrorStack = nullptr;
+    napi_value nativeErrorFunc = nullptr;
+    napi_create_string_utf8(env, errorCode.c_str(), errorCode.length(), &nativeErrorCode);
+    napi_create_string_utf8(env, errorStack.c_str(), errorStack.length(), &nativeErrorStack);
+    napi_create_function(env, errorFunc.c_str(), errorFunc.length(), func, nullptr, &nativeErrorFunc);
+    napi_set_named_property(env, object, "code", nativeErrorCode);
+    napi_set_named_property(env, object, "stack", nativeErrorStack);
+    napi_set_named_property(env, object, "errorfunc", nativeErrorFunc);
 
-    UncaughtExceptionCallback callback(task, nullptr);
-    callback(objValue);
+    NapiUncaughtExceptionCallback callback(task, nullptr, env);
+    callback(object);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

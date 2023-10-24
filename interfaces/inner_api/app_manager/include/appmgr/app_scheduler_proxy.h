@@ -174,7 +174,7 @@ public:
 
     int32_t ScheduleNotifyAppFault(const FaultData &faultData) override;
 
-    virtual int32_t ScheduleOnGcStateChange(int32_t state) override;
+    virtual int32_t ScheduleChangeAppGcState(int32_t state) override;
 
     void AttachAppDebug() override;
     void DetachAppDebug() override;
@@ -182,7 +182,7 @@ public:
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     void ScheduleMemoryCommon(const int32_t level, const uint32_t operation);
-    void SendRequest(const IAppScheduler::Message &message);
+    int32_t SendTransactCmd(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
     static inline BrokerDelegator<AppSchedulerProxy> delegator_;
 };
 }  // namespace AppExecFwk

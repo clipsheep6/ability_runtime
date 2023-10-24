@@ -25,10 +25,10 @@
 
 namespace OHOS {
 namespace AbilityDelegatorJs {
-NativeValue *CreateJsAbilityDelegator(NativeEngine &engine);
-NativeValue *CreateJsAbilityDelegatorArguments(
-    NativeEngine &engine, const std::shared_ptr<AbilityDelegatorArgs> &abilityDelegatorArgs);
-NativeValue *CreateJsShellCmdResult(NativeEngine &engine, std::unique_ptr<ShellCmdResult> &shellResult);
+napi_value CreateJsAbilityDelegator(napi_env env);
+napi_value CreateJsAbilityDelegatorArguments(
+    napi_env env, const std::shared_ptr<AbilityDelegatorArgs> &abilityDelegatorArgs);
+napi_value CreateJsShellCmdResult(napi_env env, std::unique_ptr<ShellCmdResult> &shellResult);
 }  // namespace AbilityDelegatorJs
 }  // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_JS_ABILITY_DELEGATOR_UTILS_H

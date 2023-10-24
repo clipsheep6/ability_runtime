@@ -77,6 +77,8 @@ const std::string SANDBOX_ARK_CACHE_PATH = "/data/storage/ark-cache/";
 const std::string SANDBOX_ARK_PROIFILE_PATH = "/data/storage/ark-profile";
 #ifdef APP_USE_ARM
 constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/libark_debugger.z.so";
+#elif defined(APP_USE_X86_64)
+constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
 #else
 constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
 #endif
@@ -428,13 +430,6 @@ bool JsRuntime::LoadScript(const std::string& path, uint8_t* buffer, size_t len,
     HILOG_DEBUG("function called.");
     CHECK_POINTER_AND_RETURN(jsEnv_, false);
     return jsEnv_->LoadScript(path, buffer, len, isBundle);
-}
-
-std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(NativeEngine* engine,
-    const std::string& moduleName, NativeValue* const* argv, size_t argc)
-{
-    return LoadSystemModuleByEngine(
-        reinterpret_cast<napi_env>(engine), moduleName, reinterpret_cast<const napi_value*>(argv), argc);
 }
 
 std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(
@@ -796,10 +791,9 @@ napi_value JsRuntime::LoadJsModule(const std::string& path, const std::string& h
         return nullptr;
     }
 
-    auto nativeEngine = GetNativeEnginePointer();
-    CHECK_POINTER_AND_RETURN(nativeEngine, nullptr);
-    auto nativeValue = ArkNativeEngine::ArkValueToNativeValue(static_cast<ArkNativeEngine*>(nativeEngine), exportObj);
-    return reinterpret_cast<napi_value>(nativeValue);
+    auto env = GetNapiEnv();
+    CHECK_POINTER_AND_RETURN(env, nullptr);
+    return ArkNativeEngine::ArkValueToNapiValue(env, exportObj);
 }
 
 std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& moduleName, const std::string& modulePath,
@@ -857,12 +851,6 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& module
     napi_ref resultRef = nullptr;
     napi_create_reference(env, instanceValue, 1, &resultRef);
     return std::unique_ptr<NativeReference>(reinterpret_cast<NativeReference*>(resultRef));
-}
-
-std::unique_ptr<NativeReference> JsRuntime::LoadSystemModule(
-    const std::string& moduleName, NativeValue* const* argv, size_t argc)
-{
-    return LoadSystemModule(moduleName, reinterpret_cast<const napi_value*>(argv), argc);
 }
 
 std::unique_ptr<NativeReference> JsRuntime::LoadSystemModule(

@@ -51,8 +51,6 @@ bool HandleFdObject(napi_env env, napi_value param, std::string &strProName, AAF
 
 bool HandleRemoteObject(napi_env env, napi_value param, std::string &strProName, AAFwk::WantParams &wantParams);
 
-NativeValue* CreateJsWant(NativeEngine &engine, const AAFwk::Want &want);
-NativeValue* CreateJsWantParams(NativeEngine &engine, const AAFwk::WantParams &wantParams);
 napi_value CreateJsWant(napi_env env, const AAFwk::Want &want);
 napi_value CreateJsWantParams(napi_env env, const AAFwk::WantParams &wantParams);
 

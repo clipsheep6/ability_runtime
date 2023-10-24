@@ -432,7 +432,7 @@ public:
      *
      * @return Is the status change completed.
      */
-    virtual int32_t OnGcStateChange(pid_t pid, int32_t state) = 0;
+    virtual int32_t ChangeAppGcState(pid_t pid, int32_t state) = 0;
 
     // please add new message item to the bottom in order to prevent some unexpected BUG
     enum class Message {
@@ -481,7 +481,7 @@ public:
         APP_GET_ALL_RENDER_PROCESSES,
         GET_PROCESS_MEMORY_BY_PID,
         GET_PIDS_BY_BUNDLENAME,
-        APP_ON_GC_STATE_CHANGE,
+        CHANGE_APP_GC_STATE,
         NOTIFY_PAGE_SHOW,
         NOTIFY_PAGE_HIDE
     };

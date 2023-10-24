@@ -73,7 +73,8 @@ public:
         const sptr<SessionInfo> &sessionInfo, int32_t userId = DEFAULT_INVAL_VALUE) override;
 
 private:
-    int32_t SendRequest(IServiceRouterManager::Message code, MessageParcel &data, MessageParcel &reply);
+    int32_t SendRequest(IServiceRouterManager::Message code, MessageParcel &data,
+        MessageParcel &reply, MessageOption &option);
 
     template <typename T>
     int32_t GetParcelableInfos(IServiceRouterManager::Message code, MessageParcel &data,

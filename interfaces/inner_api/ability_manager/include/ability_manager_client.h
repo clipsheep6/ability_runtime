@@ -22,6 +22,7 @@
 #include "ability_manager_errors.h"
 #include "ability_scheduler_interface.h"
 #include "ability_manager_interface.h"
+#include "auto_startup_info.h"
 #include "mission_info.h"
 #include "snapshot.h"
 #include "want.h"
@@ -32,6 +33,7 @@
 
 namespace OHOS {
 namespace AAFwk {
+using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
 /**
  * @class AbilityManagerClient
  * AbilityManagerClient is used to access ability manager services.
@@ -130,6 +132,21 @@ public:
         const Want &want,
         const sptr<IRemoteObject> &callerToken,
         int requestCode = DEFAULT_INVAL_VALUE,
+        int32_t userId = DEFAULT_INVAL_VALUE);
+
+    /**
+     * StartAbility by insight intent, send want to ability manager service.
+     *
+     * @param want Ability want.
+     * @param callerToken caller ability token.
+     * @param intentId insight intent id.
+     * @param userId userId of target ability.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartAbilityByInsightIntent(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        uint64_t intentId,
         int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**
@@ -836,6 +853,77 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode PrepareTerminateAbility(const sptr<IRemoteObject> &token, sptr<IPrepareTerminateCallback> &callback);
+
+    /**
+     * @brief Register auto start up callback for system api.
+     * @param callback The point of JsAbilityAutoStartupCallBack.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode RegisterAutoStartupSystemCallback(const sptr<IRemoteObject> &callback);
+
+    /**
+     * @brief Unregister auto start up callback for system api.
+     * @param callback The point of JsAbilityAutoStartupCallBack.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode UnregisterAutoStartupSystemCallback(const sptr<IRemoteObject> &callback);
+
+    /**
+     * @brief Set every application auto start up state.
+     * @param info The auto startup info,include bundle name, module name, ability name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode SetApplicationAutoStartup(const AutoStartupInfo &info);
+
+    /**
+     * @brief Cancel every application auto start up .
+     * @param info The auto startup info,include bundle name, module name, ability name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode CancelApplicationAutoStartup(const AutoStartupInfo &info);
+
+    /**
+     * @brief Query auto startup state all application.
+     * @param infoList Output parameters, return auto startup info list.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList);
+
+    /**
+     * @brief Register auto start up callback.
+     * @param callback The point of JsAbilityAutoStartupCallBack.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode RegisterAutoStartupCallback(const sptr<IRemoteObject> &callback);
+
+    /**
+     * @brief Unregister auto start up callback.
+     * @param callback The point of JsAbilityAutoStartupCallBack.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode UnregisterAutoStartupCallback(const sptr<IRemoteObject> &callback);
+
+    /**
+     * @brief Set current application auto start up state.
+     * @param info The auto startup info,include bundle name, module name, ability name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode SetAutoStartup(const AutoStartupInfo &info);
+
+    /**
+     * @brief Cancel current application auto start up state.
+     * @param info The auto startup info, include bundle name, module name, ability name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode CancelAutoStartup(const AutoStartupInfo &info);
+
+    /**
+     * @brief Check current application auto start up state.
+     * @param info The auto startup info, include bundle name, module name, ability name.
+     * @param isAutoStartup Output parameters, return auto start up state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode IsAutoStartup(const AutoStartupInfo &info, bool &isAutoStartup);
 
     /**
      * PrepareTerminateAbilityBySCB, prepare to terminate ability by scb.

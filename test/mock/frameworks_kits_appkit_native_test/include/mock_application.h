@@ -77,9 +77,9 @@ public:
         state_ = APP_STATE_TERMINATED;
     }
 
-    virtual int32_t ScheduleOnGcStateChange(int32_t state)
+    virtual int32_t ScheduleChangeAppGcState(int32_t state)
     {
-        GTEST_LOG_(INFO) << "MockApplication::ScheduleOnGcStateChange called";
+        GTEST_LOG_(INFO) << "MockApplication::ScheduleChangeAppGcState called";
         return 0;
     }
 

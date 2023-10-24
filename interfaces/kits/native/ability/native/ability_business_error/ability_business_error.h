@@ -111,6 +111,12 @@ enum class AbilityErrorCode {
     // Sandbox application can not grant URI permission.
     ERROR_CODE_GRANT_URI_PERMISSION = 16000060,
 
+    // Operation not supported.
+    ERROR_CODE_OPERATION_NOT_SUPPORTED = 16000061,
+
+    // The number of child process exceeds upper bound.
+    ERROR_CODE_CHILD_PROCESS_NUMBER_EXCEEDS_UPPER_BOUND = 16000062,
+
     // invalid caller.
     ERROR_CODE_INVALID_CALLER = 16200001,
 

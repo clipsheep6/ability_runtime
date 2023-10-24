@@ -22,8 +22,8 @@
  */
 static napi_module _module = {
     .nm_version = 0,
-    .nm_modname = "app.ability.abilityManager",
     .nm_filename = "app/ability/abilitymanager_napi.so/ability_manager.js",
+    .nm_modname = "app.ability.abilityManager",
     .nm_register_func = OHOS::AbilityRuntime::JsAbilityManagerInit,
 };
 
@@ -40,8 +40,8 @@ extern "C" __attribute__((constructor)) void NAPI_application_AbilityManager_Aut
  */
 static napi_module _module = {
     .nm_version = 0,
-    .nm_modname = "application.abilityManager",
     .nm_filename = "application/abilitymanager_napi.so/ability_manager.js",
+    .nm_modname = "application.abilityManager",
     .nm_register_func = OHOS::AbilityRuntime::JsAbilityManagerInit,
 };
 

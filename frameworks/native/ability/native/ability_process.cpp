@@ -31,6 +31,8 @@ static void *g_handle = nullptr;
 #ifdef SUPPORT_GRAPHICS
 #ifdef APP_USE_ARM
 constexpr char SHARED_LIBRARY_FEATURE_ABILITY[] = "/system/lib/module/ability/libfeatureability.z.so";
+#elif defined(APP_USE_X86_64)
+constexpr char SHARED_LIBRARY_FEATURE_ABILITY[] = "/system/lib64/module/ability/libfeatureability.z.so";
 #else
 constexpr char SHARED_LIBRARY_FEATURE_ABILITY[] = "/system/lib64/module/ability/libfeatureability.z.so";
 #endif

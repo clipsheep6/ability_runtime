@@ -105,7 +105,7 @@ private:
     int32_t HandleGetBundleNameByPid(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetProcessMemoryByPid(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetRunningProcessInformation(MessageParcel &data, MessageParcel &reply);
-    int32_t HandleOnGcStateChange(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleChangeAppGcState(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyPageShow(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyPageHide(MessageParcel &data, MessageParcel &reply);
 

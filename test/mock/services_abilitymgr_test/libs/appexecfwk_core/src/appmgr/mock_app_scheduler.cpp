@@ -189,5 +189,30 @@ int AppScheduler::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<I
 {
     return 0;
 }
+
+int32_t AppScheduler::RegisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener)
+{
+    return 0;
+}
+
+int32_t AppScheduler::UnregisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener)
+{
+    return 0;
+}
+    
+int32_t AppScheduler::AttachAppDebug(const std::string &bundleName)
+{
+    return 0;
+}
+
+int32_t AppScheduler::DetachAppDebug(const std::string &bundleName)
+{
+    return 0;
+}
+
+int32_t AppScheduler::RegisterAbilityDebugResponse(const sptr<AppExecFwk::IAbilityDebugResponse> &response)
+{
+    return 0;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

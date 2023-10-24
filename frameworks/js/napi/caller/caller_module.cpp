@@ -20,16 +20,15 @@ extern const char _binary_caller_js_end[];
 extern const char _binary_caller_abc_start[];
 extern const char _binary_caller_abc_end[];
 
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_filename = "application/libcaller_napi.so/caller.js",
+    .nm_modname = "application.Caller",
+};
 extern "C" __attribute__((constructor))
 void NAPI_application_Caller_AutoRegister()
 {
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-        .name = "application.Caller",
-        .fileName = "application/libcaller_napi.so/caller.js",
-    };
-
-    moduleManager->Register(&newModuleInfo);
+    napi_module_register(&_module);
 }
 
 extern "C" __attribute__((visibility("default")))

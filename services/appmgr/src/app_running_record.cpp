@@ -886,7 +886,7 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
 
 
         // Then schedule application background when all ability is not foreground.
-        if (foregroundSize == 0 && mainBundleName_ != LAUNCHER_NAME) {
+        if (foregroundSize == 0 && mainBundleName_ != LAUNCHER_NAME && windowIds_.empty()) {
             ScheduleBackgroundRunning();
         }
     } else {
@@ -1581,6 +1581,62 @@ int32_t AppRunningRecord::NotifyAppFault(const FaultData &faultData)
     return appLifeCycleDeal_->NotifyAppFault(faultData);
 }
 
+bool AppRunningRecord::IsAbilitytiesBackground()
+{
+    std::lock_guard<ffrt::mutex> hapModulesLock(hapModulesLock_);
+    for (const auto &iter : hapModules_) {
+        for (const auto &moduleRecord : iter.second) {
+            if (moduleRecord == nullptr) {
+                HILOG_ERROR("Module record is nullptr.");
+                continue;
+            }
+            if (!moduleRecord->IsAbilitiesBackgrounded()) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void AppRunningRecord::OnWindowVisibilityChanged(
+    const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos)
+{
+    HILOG_DEBUG("Called.");
+    if (windowVisibilityInfos.empty()) {
+        HILOG_WARN("Window visibility info is empty.");
+        return;
+    }
+
+    for (const auto &info : windowVisibilityInfos) {
+        if (info == nullptr) {
+            HILOG_ERROR("Window visibility info is nullptr.");
+            continue;
+        }
+        if (info->pid_ != GetPriorityObject()->GetPid()) {
+            continue;
+        }
+        auto iter = windowIds_.find(info->windowId_);
+        if (iter != windowIds_.end() && !info->isVisible_) {
+            windowIds_.erase(iter);
+            continue;
+        }
+        if (iter == windowIds_.end() && info->isVisible_) {
+            windowIds_.emplace(info->windowId_);
+        }
+    }
+
+    if (!windowIds_.empty() && curState_ != ApplicationState::APP_STATE_FOREGROUND) {
+        SetUpdateStateFromService(true);
+        ScheduleForegroundRunning();
+        return;
+    }
+
+    if (windowIds_.empty() && IsAbilitytiesBackground() && curState_ == ApplicationState::APP_STATE_FOREGROUND) {
+        SetUpdateStateFromService(true);
+        ScheduleBackgroundRunning();
+    }
+}
+
 bool AppRunningRecord::IsContinuousTask()
 {
     return isContinuousTask_;
@@ -1641,14 +1697,14 @@ ProcessType AppRunningRecord::GetProcessType() const
     return processType_;
 }
 
-int32_t AppRunningRecord::OnGcStateChange(const int32_t state)
+int32_t AppRunningRecord::ChangeAppGcState(const int32_t state)
 {
     HILOG_DEBUG("called.");
     if (appLifeCycleDeal_ == nullptr) {
         HILOG_ERROR("appLifeCycleDeal_ is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    return appLifeCycleDeal_->OnGcStateChange(state);
+    return appLifeCycleDeal_->ChangeAppGcState(state);
 }
 
 void AppRunningRecord::SetAttachDebug(const bool &isAttachDebug)

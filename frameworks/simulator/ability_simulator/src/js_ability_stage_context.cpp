@@ -22,23 +22,22 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue *CreateJsAbilityStageContext(NativeEngine &engine, const std::shared_ptr<AbilityRuntime::Context> &context)
+napi_value CreateJsAbilityStageContext(napi_env env, const std::shared_ptr<AbilityRuntime::Context> &context)
 {
     HILOG_DEBUG("called.");
-    NativeValue *objValue = CreateJsBaseContext(engine, context);
+    napi_value objValue = CreateJsBaseContext(env, context);
     if (context == nullptr) {
         return objValue;
     }
-
-    NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
     auto configuration = context->GetConfiguration();
-    if (configuration != nullptr && object != nullptr) {
-        object->SetProperty("config", CreateJsConfiguration(engine, *configuration));
+    if (configuration != nullptr && objValue != nullptr) {
+        napi_set_named_property(env, objValue, "config",
+            CreateJsConfiguration(env, *configuration));
     }
     return objValue;
 }
 
-void JsAbilityStageContext::ConfigurationUpdated(NativeEngine *engine, std::shared_ptr<NativeReference> &jsContext,
+void JsAbilityStageContext::ConfigurationUpdated(napi_env env, std::shared_ptr<NativeReference> &jsContext,
     const std::shared_ptr<AppExecFwk::Configuration> &config)
 {
     HILOG_DEBUG("called.");
@@ -47,22 +46,23 @@ void JsAbilityStageContext::ConfigurationUpdated(NativeEngine *engine, std::shar
         return;
     }
 
-    NativeValue *value = jsContext->Get();
-    NativeObject *object = ConvertNativeValueTo<NativeObject>(value);
-    if (!object) {
-        HILOG_ERROR("object is nullptr.");
+    napi_value value = jsContext->GetNapiValue();
+    if (value == nullptr) {
+        HILOG_ERROR("value is nullptr.");
         return;
     }
 
-    NativeValue *method = object->GetProperty("onUpdateConfiguration");
+    napi_value method = nullptr;
+    napi_get_named_property(env, value, "onUpdateConfiguration", &method);
     if (!method) {
         HILOG_ERROR("Failed to get onUpdateConfiguration from object");
         return;
     }
 
     HILOG_DEBUG("JsAbilityStageContext call onUpdateConfiguration.");
-    NativeValue *argv[] = { CreateJsConfiguration(*engine, *config) };
-    engine->CallFunction(value, method, argv, 1);
+    napi_value argv[] = { CreateJsConfiguration(env, *config) };
+    napi_value callResult = nullptr;
+    napi_call_function(env, value, method, 1, argv, &callResult);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -414,13 +414,6 @@ napi_value JsUIExtensionContext::CreateJsUIExtensionContext(napi_env env,
     return objValue;
 }
 
-// to do
-NativeValue* JsUIExtensionContext::CreateJsUIExtensionContext(
-    NativeEngine& engine, std::shared_ptr<UIExtensionContext> context)
-{
-    return reinterpret_cast<NativeValue*>(CreateJsUIExtensionContext(reinterpret_cast<napi_env>(&engine), context));
-}
-
 bool JsUIExtensionContext::CheckStartAbilityInputParam(napi_env env, NapiCallbackInfo& info,
     AAFwk::Want& want, AAFwk::StartOptions& startOptions, size_t& unwrapArgc) const
 {
@@ -530,7 +523,7 @@ void JSUIExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::Eleme
         HILOG_ERROR("jsConnectionObject_ null");
         return;
     }
-    napi_value obj = reinterpret_cast<napi_value>(jsConnectionObject_->Get());
+    napi_value obj = jsConnectionObject_->GetNapiValue();
     if (!CheckTypeForNapiValue(env_, obj, napi_object)) {
         HILOG_ERROR("Failed to get object");
         return;
@@ -573,7 +566,7 @@ void JSUIExtensionConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::El
         HILOG_ERROR("jsConnectionObject_ nullptr");
         return;
     }
-    napi_value obj = reinterpret_cast<napi_value>(jsConnectionObject_->Get());
+    napi_value obj = jsConnectionObject_->GetNapiValue();
     if (!CheckTypeForNapiValue(env_, obj, napi_object)) {
         HILOG_ERROR("Failed to get object");
         return;
@@ -609,7 +602,7 @@ void JSUIExtensionConnection::CallJsFailed(int32_t errorCode)
         HILOG_ERROR("jsConnectionObject_ nullptr.");
         return;
     }
-    napi_value obj = reinterpret_cast<napi_value>(jsConnectionObject_->Get());
+    napi_value obj = jsConnectionObject_->GetNapiValue();
     if (!CheckTypeForNapiValue(env_, obj, napi_object)) {
         HILOG_ERROR("wrong to get object");
         return;

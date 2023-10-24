@@ -35,29 +35,24 @@ struct UncaughtExceptionInfo {
     std::function<void(std::string summary, const JsEnv::ErrorObject errorObj)> uncaughtTask;
 };
 
-template<class T>
-inline T* ConvertNativeValueTo(NativeValue* value)
-{
-    return (value != nullptr) ? static_cast<T*>(value->GetInterface(T::INTERFACE_ID)) : nullptr;
-}
-
-class UncaughtExceptionCallback final {
+class NapiUncaughtExceptionCallback final {
 public:
-    UncaughtExceptionCallback(
+    NapiUncaughtExceptionCallback(
         std::function<void(const std::string summary, const JsEnv::ErrorObject errorObj)> uncaughtTask,
-        std::shared_ptr<SourceMapOperator> sourceMapOperator)
-        : uncaughtTask_(uncaughtTask), sourceMapOperator_(sourceMapOperator)
+        std::shared_ptr<SourceMapOperator> sourceMapOperator, napi_env env)
+        : uncaughtTask_(uncaughtTask), sourceMapOperator_(sourceMapOperator), env_(env)
     {}
 
-    ~UncaughtExceptionCallback() = default;
+    ~NapiUncaughtExceptionCallback() = default;
 
-    void operator()(NativeValue* value);
+    void operator()(napi_value obj);
 
-    std::string GetNativeStrFromJsTaggedObj(NativeObject* obj, const char* key);
+    std::string GetNativeStrFromJsTaggedObj(napi_value obj, const char* key);
 
 private:
     std::function<void(std::string summary, const JsEnv::ErrorObject errorObj)> uncaughtTask_;
     std::shared_ptr<SourceMapOperator> sourceMapOperator_ = nullptr;
+    napi_env env_ = nullptr;
 };
 } // namespace JsEnv
 } // namespace OHOS

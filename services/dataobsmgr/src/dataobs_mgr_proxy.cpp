@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -64,7 +64,7 @@ int32_t DataObsManagerProxy::RegisterObserver(const Uri &uri, sptr<IDataAbilityO
         return INVALID_PARAM;
     }
 
-    auto error = Remote()->SendRequest(IDataObsMgr::REGISTER_OBSERVER, data, reply, option);
+    auto error = SendTransactCmd(IDataObsMgr::REGISTER_OBSERVER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("failed, SendRequest error: %{public}d, uri: %{public}s", error,
             CommonUtils::Anonymous(uri.ToString()).c_str());
@@ -89,8 +89,8 @@ int32_t DataObsManagerProxy::UnregisterObserver(const Uri &uri, sptr<IDataAbilit
         return INVALID_PARAM;
     }
 
-    auto error = Remote()->SendRequest(IDataObsMgr::UNREGISTER_OBSERVER, data, reply, option);
-    if (error != 0) {
+    auto error = SendTransactCmd(IDataObsMgr::UNREGISTER_OBSERVER, data, reply, option);
+    if (error != NO_ERROR) {
         HILOG_ERROR("failed, SendRequest error: %{public}d, uri: %{public}s", error,
             CommonUtils::Anonymous(uri.ToString()).c_str());
         return error;
@@ -112,8 +112,8 @@ int32_t DataObsManagerProxy::NotifyChange(const Uri &uri)
         HILOG_ERROR("failed, write uri error, uri: %{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
         return INVALID_PARAM;
     }
-    auto error = Remote()->SendRequest(IDataObsMgr::NOTIFY_CHANGE, data, reply, option);
-    if (error != 0) {
+    auto error = SendTransactCmd(IDataObsMgr::NOTIFY_CHANGE, data, reply, option);
+    if (error != NO_ERROR) {
         HILOG_ERROR("failed, SendRequest error: %{public}d, uri: %{public}s", error,
             CommonUtils::Anonymous(uri.ToString()).c_str());
         return IPC_ERROR;
@@ -144,8 +144,8 @@ Status DataObsManagerProxy::RegisterObserverExt(const Uri &uri, sptr<IDataAbilit
         return INVALID_PARAM;
     }
 
-    auto error = Remote()->SendRequest(IDataObsMgr::REGISTER_OBSERVER_EXT, data, reply, option);
-    if (error != 0) {
+    auto error = SendTransactCmd(IDataObsMgr::REGISTER_OBSERVER_EXT, data, reply, option);
+    if (error != NO_ERROR) {
         HILOG_ERROR("failed, SendRequest error: %{public}d, uri: %{public}s, isDescendants: %{public}d", error,
             CommonUtils::Anonymous(uri.ToString()).c_str(), isDescendants);
         return IPC_ERROR;
@@ -168,8 +168,8 @@ Status DataObsManagerProxy::UnregisterObserverExt(const Uri &uri, sptr<IDataAbil
         return INVALID_PARAM;
     }
 
-    auto error = Remote()->SendRequest(IDataObsMgr::UNREGISTER_OBSERVER_EXT, data, reply, option);
-    if (error != 0) {
+    auto error = SendTransactCmd(IDataObsMgr::UNREGISTER_OBSERVER_EXT, data, reply, option);
+    if (error != NO_ERROR) {
         HILOG_ERROR("failed, SendRequest error: %{public}d, uri: %{public}s", error,
             CommonUtils::Anonymous(uri.ToString()).c_str());
         return IPC_ERROR;
@@ -198,8 +198,8 @@ Status DataObsManagerProxy::UnregisterObserverExt(sptr<IDataAbilityObserver> dat
         return INVALID_PARAM;
     }
 
-    auto error = Remote()->SendRequest(IDataObsMgr::UNREGISTER_OBSERVER_ALL_EXT, data, reply, option);
-    if (error != 0) {
+    auto error = SendTransactCmd(IDataObsMgr::UNREGISTER_OBSERVER_ALL_EXT, data, reply, option);
+    if (error != NO_ERROR) {
         HILOG_ERROR("failed, SendRequest error: %{public}d", error);
         return IPC_ERROR;
     }
@@ -224,8 +224,8 @@ Status DataObsManagerProxy::NotifyChangeExt(const ChangeInfo &changeInfo)
         return INVALID_PARAM;
     }
 
-    auto error = Remote()->SendRequest(IDataObsMgr::NOTIFY_CHANGE_EXT, data, reply, option);
-    if (error != 0) {
+    auto error = SendTransactCmd(IDataObsMgr::NOTIFY_CHANGE_EXT, data, reply, option);
+    if (error != NO_ERROR) {
         HILOG_ERROR("failed, SendRequest error: %{public}d, changeType:%{public}ud, num of uris:%{public}zu, data is "
                     "nullptr:%{public}d, size:%{public}ud",
             error, changeInfo.changeType_, changeInfo.uris_.size(), changeInfo.data_ == nullptr, changeInfo.size_);
@@ -233,6 +233,23 @@ Status DataObsManagerProxy::NotifyChangeExt(const ChangeInfo &changeInfo)
     }
     int32_t res = IPC_ERROR;
     return reply.ReadInt32(res) ? static_cast<Status>(res) : IPC_ERROR;
+}
+
+int32_t DataObsManagerProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote object is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    int32_t ret = remote->SendRequest(code, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
+        return ret;
+    }
+    return NO_ERROR;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

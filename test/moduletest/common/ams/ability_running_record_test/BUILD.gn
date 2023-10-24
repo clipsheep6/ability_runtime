@@ -34,6 +34,8 @@ ohos_moduletest("AmsAbilityRunningRecordModuleTest") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
+    "window_manager:libwm",
+    "window_manager:libwsutils",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

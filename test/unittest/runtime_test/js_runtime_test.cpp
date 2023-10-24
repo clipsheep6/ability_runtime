@@ -144,22 +144,24 @@ HWTEST_F(JsRuntimeTest, JsRuntimeTest_0200, TestSize.Level0)
 HWTEST_F(JsRuntimeTest, JsRuntimeUtilsTest_0100, TestSize.Level0)
 {
     auto runtime = AbilityRuntime::Runtime::Create(options_);
-    auto& jsEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEngine();
+    auto env = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNapiEnv();
 
-    NativeReference* callbackRef = jsEngine.CreateReference(jsEngine.CreateUndefined(), 1);
-    std::unique_ptr<AsyncTask> task = std::make_unique<AsyncTask>(callbackRef, nullptr, nullptr);
-    task->ResolveWithNoError(jsEngine, jsEngine.CreateUndefined());
+    napi_ref callbackRef = nullptr;
+    napi_create_reference(env, CreateJsUndefined(env), 1, &callbackRef);
+    std::unique_ptr<NapiAsyncTask> task = std::make_unique<NapiAsyncTask>(callbackRef, nullptr, nullptr);
+    task->ResolveWithNoError(env, CreateJsUndefined(env));
     EXPECT_TRUE(task->callbackRef_ == nullptr);
 
-    NativeDeferred* nativeDeferred = nullptr;
-    jsEngine.CreatePromise(&nativeDeferred);
-    task = std::make_unique<AsyncTask>(nativeDeferred, nullptr, nullptr);
-    task->ResolveWithNoError(jsEngine, jsEngine.CreateUndefined());
+    napi_deferred nativeDeferred = nullptr;
+    napi_value result;
+    napi_create_promise(env, &nativeDeferred, &result);
+    task = std::make_unique<NapiAsyncTask>(nativeDeferred, nullptr, nullptr);
+    task->ResolveWithNoError(env, CreateJsUndefined(env));
     EXPECT_TRUE(task->deferred_ == nullptr);
 
     task->deferred_ = nullptr;
     task->callbackRef_ = nullptr;
-    task->ResolveWithNoError(jsEngine, jsEngine.CreateUndefined());
+    task->ResolveWithNoError(env, CreateJsUndefined(env));
     EXPECT_TRUE(task->deferred_ == nullptr);
     EXPECT_TRUE(task->callbackRef_ == nullptr);
 }
@@ -298,11 +300,11 @@ HWTEST_F(JsRuntimeTest, JsRuntimeLoadSystemModuleByEngineTest_0100, TestSize.Lev
     HILOG_INFO("LoadSystemModuleByEngine start");
 
     auto runtime = AbilityRuntime::JsRuntime::Create(options_);
-    auto& jsEngine = (static_cast<AbilityRuntime::MockJsRuntime&>(*runtime)).GetNativeEngine();
+    auto env = (static_cast<AbilityRuntime::MockJsRuntime&>(*runtime)).GetNapiEnv();
 
     std::string moduleName = "";
-    std::unique_ptr<NativeReference> ref = MockJsRuntime::LoadSystemModuleByEngine(&jsEngine, moduleName, nullptr, 0);
-    EXPECT_NE(ref, nullptr);
+    std::unique_ptr<NativeReference> ref = MockJsRuntime::LoadSystemModuleByEngine(env, moduleName, nullptr, 0);
+    EXPECT_EQ(ref, nullptr);
 
     HILOG_INFO("LoadSystemModuleByEngine end");
 }
@@ -370,10 +372,10 @@ HWTEST_F(JsRuntimeTest, JsRuntimeDetachCallbackFuncTest_0100, TestSize.Level0)
     HILOG_INFO("DetachCallbackFunc start");
 
     auto runtime = AbilityRuntime::JsRuntime::Create(options_);
-    auto& jsEngine = (static_cast<AbilityRuntime::MockJsRuntime&>(*runtime)).GetNativeEngine();
+    auto env = (static_cast<AbilityRuntime::MockJsRuntime&>(*runtime)).GetNapiEnv();
     int32_t value = 1;
     int32_t number = 1;
-    auto result = AbilityRuntime::DetachCallbackFunc(&jsEngine, &value, &number);
+    auto result = AbilityRuntime::DetachCallbackFunc(env, &value, &number);
     EXPECT_EQ(result, &value);
 
     HILOG_INFO("DetachCallbackFunc end");

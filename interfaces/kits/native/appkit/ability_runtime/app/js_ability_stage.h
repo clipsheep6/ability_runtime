@@ -45,7 +45,7 @@ public:
     void OnMemoryLevel(int32_t level) override;
 
 private:
-    NativeValue* CallObjectMethod(const char* name, NativeValue * const * argv = nullptr, size_t argc = 0);
+    napi_value CallObjectMethod(const char* name, napi_value const * argv = nullptr, size_t argc = 0);
 
     std::shared_ptr<AppExecFwk::DelegatorAbilityStageProperty> CreateStageProperty() const;
 

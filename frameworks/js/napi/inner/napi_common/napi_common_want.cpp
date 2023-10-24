@@ -1209,11 +1209,6 @@ bool UnWrapAbilityResult(napi_env env, napi_value param, int &resultCode, AAFwk:
     return true;
 }
 
-NativeValue* CreateJsWant(NativeEngine &engine, const Want &want)
-{
-    return reinterpret_cast<NativeValue*>(CreateJsWant(reinterpret_cast<napi_env>(&engine), want));
-}
-
 napi_value CreateJsWant(napi_env env, const Want &want)
 {
     napi_value object = nullptr;
@@ -1230,11 +1225,6 @@ napi_value CreateJsWant(napi_env env, const Want &want)
     napi_set_named_property(env, object, "parameters", CreateJsWantParams(env, want.GetParams()));
     napi_set_named_property(env, object, "entities", CreateNativeArray(env, want.GetEntities()));
     return object;
-}
-
-NativeValue* CreateJsWantParams(NativeEngine &engine, const AAFwk::WantParams &wantParams)
-{
-    return reinterpret_cast<NativeValue*>(CreateJsWantParams(reinterpret_cast<napi_env>(&engine), wantParams));
 }
 
 napi_value CreateJsWantParams(napi_env env, const AAFwk::WantParams &wantParams)

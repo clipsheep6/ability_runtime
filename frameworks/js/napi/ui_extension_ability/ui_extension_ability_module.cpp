@@ -20,16 +20,15 @@ extern const char _binary_ui_extension_ability_js_end[];
 extern const char _binary_ui_extension_ability_abc_start[];
 extern const char _binary_ui_extension_ability_abc_end[];
 
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_filename = "app/ability/libuiextensionability_napi.so/ui_extension_ability.js",
+    .nm_modname = "app.ability.UIExtensionAbility",
+};
 extern "C" __attribute__((constructor))
 void NAPI_app_ability_UIExtensionAbility_AutoRegister()
 {
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-        .name = "app.ability.UIExtensionAbility",
-        .fileName = "app/ability/libuiextensionability_napi.so/ui_extension_ability.js",
-    };
-
-    moduleManager->Register(&newModuleInfo);
+    napi_module_register(&_module);
 }
 
 extern "C" __attribute__((visibility("default")))

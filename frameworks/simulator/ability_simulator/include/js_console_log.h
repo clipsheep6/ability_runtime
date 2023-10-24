@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-void InitConsoleLogModule(NativeEngine &engine, NativeObject &globalObject);
+void InitConsoleLogModule(napi_env env, napi_value globalObject);
 } // namespace AbilityRuntime
 } // namespace OHOS
 

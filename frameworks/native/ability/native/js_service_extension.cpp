@@ -180,9 +180,20 @@ void JsServiceExtension::ListenWMS()
         HILOG_ERROR("Failed to get SaMgr.");
         return;
     }
+
     auto jsServiceExtension = std::static_pointer_cast<JsServiceExtension>(shared_from_this());
-    displayListener_ = new JsServiceExtensionDisplayListener(jsServiceExtension);
-    sptr<ISystemAbilityStatusChange> listener = new SystemAbilityStatusChangeListener(displayListener_);
+    displayListener_ = sptr<JsServiceExtensionDisplayListener>::MakeSptr(jsServiceExtension);
+    if (displayListener_ == nullptr) {
+        HILOG_ERROR("Failed to create display listener.");
+        return;
+    }
+
+    auto listener = sptr<SystemAbilityStatusChangeListener>::MakeSptr(displayListener_);
+    if (listener == nullptr) {
+        HILOG_ERROR("Failed to create status change listener.");
+        return;
+    }
+
     auto ret = abilityManager->SubscribeSystemAbility(WINDOW_MANAGER_SERVICE_ID, listener);
     if (ret != 0) {
         HILOG_ERROR("subscribe system ability failed, ret = %{public}d.", ret);

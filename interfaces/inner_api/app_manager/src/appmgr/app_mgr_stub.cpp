@@ -128,8 +128,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleGetProcessMemoryByPid;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_PIDS_BY_BUNDLENAME)] =
         &AppMgrStub::HandleGetRunningProcessInformation;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_ON_GC_STATE_CHANGE)] =
-            &AppMgrStub::HandleOnGcStateChange;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::CHANGE_APP_GC_STATE)] =
+            &AppMgrStub::HandleChangeAppGcState;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_PAGE_SHOW)] =
         &AppMgrStub::HandleNotifyPageShow;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_PAGE_HIDE)] =
@@ -784,12 +784,12 @@ int32_t AppMgrStub::HandleGetRunningProcessInformation(MessageParcel &data, Mess
     return NO_ERROR;
 }
 
-int32_t AppMgrStub::HandleOnGcStateChange(MessageParcel &data, MessageParcel &reply)
+int32_t AppMgrStub::HandleChangeAppGcState(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER(HITRACE_TAG_APP);
     int32_t pid = data.ReadInt32();
     int32_t state = data.ReadInt32();
-    int32_t ret = OnGcStateChange(pid, state);
+    int32_t ret = ChangeAppGcState(pid, state);
     reply.WriteInt32(ret);
     return NO_ERROR;
 }

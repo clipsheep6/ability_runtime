@@ -175,7 +175,7 @@ private:
         // adapter free install async return install and start result
         int ret = 0;
         if (freeInstallObserver_ == nullptr) {
-            freeInstallObserver_ = new JsFreeInstallObserver(*reinterpret_cast<NativeEngine*>(env));
+            freeInstallObserver_ = new JsFreeInstallObserver(env);
             ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(freeInstallObserver_);
         }
 
@@ -187,7 +187,7 @@ private:
             std::string abilityName = want.GetElement().GetAbilityName();
             std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
             freeInstallObserver_->AddJsObserverObject(
-                bundleName, abilityName, startTime, reinterpret_cast<NativeValue*>(callback));
+                bundleName, abilityName, startTime, callback);
         }
     }
 
@@ -979,13 +979,6 @@ napi_value CreateJsServiceExtensionContext(napi_env env, std::shared_ptr<Service
         JsServiceExtensionContext::StartRecentAbility);
 
     return object;
-}
-
-// to do
-NativeValue* CreateJsServiceExtensionContext(NativeEngine& engine, std::shared_ptr<ServiceExtensionContext> context)
-{
-    return reinterpret_cast<NativeValue*>(CreateJsServiceExtensionContext(
-        reinterpret_cast<napi_env>(&engine), context));
 }
 
 JSServiceExtensionConnection::JSServiceExtensionConnection(napi_env env) : env_(env) {}

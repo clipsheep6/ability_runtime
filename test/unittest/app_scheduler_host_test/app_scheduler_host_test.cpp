@@ -83,5 +83,98 @@ HWTEST_F(AppSchedulerHostTest, HandleNotifyAppFault_001, TestSize.Level1)
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_FAULT), data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
 }
+
+/**
+ * @tc.name: ScheduleChangeAppGcState_001
+ * @tc.desc: Verify that the ScheduleChangeAppGcState interface calls normally
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerHostTest, ScheduleChangeAppGcState_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    WriteInterfaceToken(data);
+    data.WriteInt32(0);
+    EXPECT_CALL(*mockAppScheduler_, ScheduleChangeAppGcState(_)).Times(1);
+    auto result = mockAppScheduler_->OnRemoteRequest(
+            static_cast<uint32_t>(IAppScheduler::Message::APP_GC_STATE_CHANGE), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: HandleAttachAppDebug_001
+ * @tc.desc: Verify that HandleAttachAppDebug interface calls normally.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerHostTest, HandleAttachAppDebug_001, TestSize.Level1)
+{
+    EXPECT_NE(mockAppScheduler_, nullptr);
+    EXPECT_CALL(*mockAppScheduler_, AttachAppDebug()).Times(1);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    WriteInterfaceToken(data);
+
+    auto result = mockAppScheduler_->OnRemoteRequest(
+        static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ATTACH_APP_DEBUG), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: HandleAttachAppDebug_002
+ * @tc.desc: Check null descriptor.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerHostTest, HandleAttachAppDebug_002, TestSize.Level1)
+{
+    EXPECT_NE(mockAppScheduler_, nullptr);
+    EXPECT_CALL(*mockAppScheduler_, AttachAppDebug()).Times(0);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    auto result = mockAppScheduler_->OnRemoteRequest(
+        static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ATTACH_APP_DEBUG), data, reply, option);
+    EXPECT_EQ(result, ERR_INVALID_STATE);
+}
+
+/**
+ * @tc.name: HandleDetachAppDebug_001
+ * @tc.desc: Verify that HandleDetachAppDebug interface calls normally.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerHostTest, HandleDetachAppDebug_001, TestSize.Level1)
+{
+    EXPECT_NE(mockAppScheduler_, nullptr);
+    EXPECT_CALL(*mockAppScheduler_, DetachAppDebug()).Times(1);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    WriteInterfaceToken(data);
+
+    auto result = mockAppScheduler_->OnRemoteRequest(
+        static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DETACH_APP_DEBUG), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: HandleDetachAppDebug_002
+ * @tc.desc: Check unnown message code.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerHostTest, HandleDetachAppDebug_002, TestSize.Level1)
+{
+    EXPECT_NE(mockAppScheduler_, nullptr);
+    EXPECT_CALL(*mockAppScheduler_, DetachAppDebug()).Times(0);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    WriteInterfaceToken(data);
+    uint32_t UNKNOWN_CODE = -1;
+
+    auto result = mockAppScheduler_->OnRemoteRequest(UNKNOWN_CODE, data, reply, option);
+    EXPECT_EQ(result, IPC_STUB_UNKNOW_TRANS_ERR);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

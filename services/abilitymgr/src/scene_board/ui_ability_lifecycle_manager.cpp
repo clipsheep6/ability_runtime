@@ -28,6 +28,7 @@
 #include "session_info.h"
 
 namespace OHOS {
+using AbilityRuntime::FreezeUtil;
 namespace AAFwk {
 namespace {
 constexpr char EVENT_KEY_UID[] = "UID";
@@ -47,7 +48,19 @@ const int KILL_TIMEOUT_MULTIPLE = 45;
 const int KILL_TIMEOUT_MULTIPLE = 3;
 #endif
 constexpr int32_t DEFAULT_USER_ID = 0;
+const std::unordered_map<uint32_t, FreezeUtil::TimeoutState> stateMap = {
+    { AbilityManagerService::LOAD_TIMEOUT_MSG, FreezeUtil::TimeoutState::LOAD },
+    { AbilityManagerService::FOREGROUND_TIMEOUT_MSG, FreezeUtil::TimeoutState::FOREGROUND },
+    { AbilityManagerService::BACKGROUND_TIMEOUT_MSG, FreezeUtil::TimeoutState::BACKGROUND }
+};
+
+auto g_deleteLifecycleEventTask = [](const sptr<Token> &token, FreezeUtil::TimeoutState state) {
+    CHECK_POINTER_LOG(token, "token is nullptr.");
+    FreezeUtil::LifecycleFlow flow = { token->AsObject(), state };
+    FreezeUtil::GetInstance().DeleteLifecycleEvent(flow);
+};
 }
+
 int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sptr<SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -123,6 +136,14 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
         uiAbilityRecord->SetSpecifiedFlag(specifiedInfo.flag);
         specifiedAbilityMap_.emplace(specifiedInfo, uiAbilityRecord);
     }
+    auto abilityInfo = abilityRequest.abilityInfo;
+    if (abilityInfo.visible == false) {
+        EventInfo eventInfo;
+        eventInfo.abilityName = abilityInfo.name;
+        eventInfo.bundleName = abilityInfo.bundleName;
+        eventInfo.moduleName = abilityInfo.moduleName;
+        EventReport::SendKeyEvent(EventName::START_PRIVATE_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
+    }
     return ERR_OK;
 }
 
@@ -136,11 +157,13 @@ int UIAbilityLifecycleManager::AttachAbilityThread(const sptr<IAbilityScheduler>
     }
     auto&& abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    HILOG_DEBUG("AbilityMS attach abilityThread, name is %{public}s.", abilityRecord->GetAbilityInfo().name.c_str());
+    HILOG_INFO("Lifecycle: name is %{public}s.", abilityRecord->GetAbilityInfo().name.c_str());
 
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
     handler->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
+    FreezeUtil::LifecycleFlow flow = {token, FreezeUtil::TimeoutState::LOAD};
+    FreezeUtil::GetInstance().DeleteLifecycleEvent(flow);
 
     abilityRecord->SetScheduler(scheduler);
     if (abilityRecord->IsStartedByCall()) {
@@ -257,7 +280,9 @@ int UIAbilityLifecycleManager::DispatchForeground(const std::shared_ptr<AbilityR
         return ERR_INVALID_VALUE;
     }
 
+    HILOG_INFO("ForegroundLifecycle: end.");
     handler->RemoveEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
+    g_deleteLifecycleEventTask(abilityRecord->GetToken(), FreezeUtil::TimeoutState::FOREGROUND);
     auto self(weak_from_this());
     if (success) {
         HILOG_INFO("foreground succeeded.");
@@ -303,8 +328,10 @@ int UIAbilityLifecycleManager::DispatchBackground(const std::shared_ptr<AbilityR
         return ERR_INVALID_VALUE;
     }
 
+    HILOG_INFO("BackgroundLifecycle: end.");
     // remove background timeout task.
     handler->CancelTask("background_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+    g_deleteLifecycleEventTask(abilityRecord->GetToken(), FreezeUtil::TimeoutState::BACKGROUND);
     auto self(shared_from_this());
     auto task = [self, abilityRecord]() { self->CompleteBackground(abilityRecord); };
     handler->SubmitTask(task);
@@ -656,8 +683,8 @@ sptr<SessionInfo> UIAbilityLifecycleManager::CreateSessionInfo(const AbilityRequ
     if (abilityRequest.startSetting != nullptr) {
         sessionInfo->startSetting = abilityRequest.startSetting;
     }
-    sessionInfo->callingTokenId = abilityRequest.want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN,
-        IPCSkeleton::GetCallingTokenID());
+    sessionInfo->callingTokenId = static_cast<uint32_t>(abilityRequest.want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN,
+        IPCSkeleton::GetCallingTokenID()));
     return sessionInfo;
 }
 
@@ -738,6 +765,48 @@ void UIAbilityLifecycleManager::PrintTimeOutLog(const std::shared_ptr<AbilityRec
     }
     int typeId = AppExecFwk::AppfreezeManager::TypeAttribute::NORMAL_TIMEOUT;
     std::string msgContent = "ability:" + ability->GetAbilityInfo().name + " ";
+    FreezeUtil::TimeoutState state = FreezeUtil::TimeoutState::UNKNOWN;
+    auto search = stateMap.find(msgId);
+    if (search != stateMap.end()) {
+        state = search->second;
+    }
+    if (!GetContentAndTypeId(msgId, msgContent, typeId)) {
+        HILOG_WARN("msgId is invalid.");
+        return;
+    }
+
+    std::string eventName = isHalf ?
+        AppExecFwk::AppFreezeType::LIFECYCLE_HALF_TIMEOUT : AppExecFwk::AppFreezeType::LIFECYCLE_TIMEOUT;
+    HILOG_WARN("%{public}s: uid: %{public}d, pid: %{public}d, bundleName: %{public}s, abilityName: %{public}s,"
+        "msg: %{public}s", eventName.c_str(),
+        processInfo.uid_, processInfo.pid_, ability->GetAbilityInfo().bundleName.c_str(),
+        ability->GetAbilityInfo().name.c_str(), msgContent.c_str());
+
+    AppExecFwk::AppfreezeManager::ParamInfo info = {
+        .typeId = typeId,
+        .pid = processInfo.pid_,
+        .eventName = eventName,
+        .bundleName = ability->GetAbilityInfo().bundleName,
+    };
+    if (state != FreezeUtil::TimeoutState::UNKNOWN) {
+        auto flow = std::make_unique<FreezeUtil::LifecycleFlow>();
+        if (ability->GetToken() != nullptr) {
+            flow->token = ability->GetToken()->AsObject();
+            flow->state = state;
+        }
+        info.msg = msgContent + "\nserver:\n" + FreezeUtil::GetInstance().GetLifecycleEvent(*flow);
+        if (!isHalf) {
+            FreezeUtil::GetInstance().DeleteLifecycleEvent(*flow);
+        }
+        AppExecFwk::AppfreezeManager::GetInstance()->LifecycleTimeoutHandle(info, std::move(flow));
+    } else {
+        info.msg = msgContent;
+        AppExecFwk::AppfreezeManager::GetInstance()->LifecycleTimeoutHandle(info);
+    }
+}
+
+bool UIAbilityLifecycleManager::GetContentAndTypeId(uint32_t msgId, std::string &msgContent, int &typeId) const
+{
     switch (msgId) {
         case AbilityManagerService::LOAD_TIMEOUT_MSG:
             msgContent += "load timeout";
@@ -754,18 +823,9 @@ void UIAbilityLifecycleManager::PrintTimeOutLog(const std::shared_ptr<AbilityRec
             msgContent += "terminate timeout";
             break;
         default:
-            return;
+            return false;
     }
-
-    std::string eventName = isHalf ?
-        AppExecFwk::AppFreezeType::LIFECYCLE_HALF_TIMEOUT : AppExecFwk::AppFreezeType::LIFECYCLE_TIMEOUT;
-    HILOG_WARN("%{public}s: uid: %{public}d, pid: %{public}d, bundleName: %{public}s, abilityName: %{public}s,"
-        "msg: %{public}s", eventName.c_str(),
-        processInfo.uid_, processInfo.pid_, ability->GetAbilityInfo().bundleName.c_str(),
-        ability->GetAbilityInfo().name.c_str(), msgContent.c_str());
-
-    AppExecFwk::AppfreezeManager::GetInstance()->LifecycleTimeoutHandle(
-        typeId, processInfo.pid_, eventName, ability->GetAbilityInfo().bundleName, msgContent);
+    return true;
 }
 
 void UIAbilityLifecycleManager::CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord)
@@ -1630,8 +1690,6 @@ void UIAbilityLifecycleManager::UninstallApp(const std::string &bundleName, int3
             (targetUserId == DEFAULT_USER_ID || it->second->GetOwnerMissionUserId() == targetUserId)) {
             (void)DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->
                 DeleteAbilityRecoverInfo(abilityInfo.bundleName, abilityInfo.moduleName, abilityInfo.name);
-            sessionAbilityMap_.erase(it++);
-            continue;
         }
         it++;
     }

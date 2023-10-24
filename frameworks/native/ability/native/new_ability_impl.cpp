@@ -14,11 +14,14 @@
  */
 
 #include "new_ability_impl.h"
+
+#include "freeze_util.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "scene_board_judgement.h"
 
 namespace OHOS {
+using AbilityRuntime::FreezeUtil;
 namespace AppExecFwk {
 using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
 /**
@@ -33,12 +36,8 @@ void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Lif
     sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("NewAbilityImpl::HandleAbilityTransaction begin sourceState:%{public}d; targetState: %{public}d; "
-             "isNewWant: %{public}d, sceneFlag: %{public}d",
-        lifecycleState_,
-        targetState.state,
-        targetState.isNewWant,
-        targetState.sceneFlag);
+    HILOG_INFO("Lifecycle: srcState:%{public}d; targetState: %{public}d; isNewWant: %{public}d, sceneFlag: %{public}d",
+        lifecycleState_, targetState.state, targetState.isNewWant, targetState.sceneFlag);
 #ifdef SUPPORT_GRAPHICS
     if (ability_ != nullptr) {
         ability_->sceneFlag_ = targetState.sceneFlag;
@@ -80,8 +79,12 @@ void NewAbilityImpl::HandleShareData(const int32_t &uniqueId)
 
 void NewAbilityImpl::AbilityTransactionCallback(const AbilityLifeCycleState &state)
 {
-    HILOG_INFO("Handle ability transaction done, notify ability manager service.");
-    AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, state, GetRestoreData());
+    HILOG_INFO("Lifecycle: notify ability manager service.");
+    auto ret = AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, state, GetRestoreData());
+    if (ret == ERR_OK && state == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
+        FreezeUtil::LifecycleFlow flow = { token_, FreezeUtil::TimeoutState::FOREGROUND };
+        FreezeUtil::GetInstance().DeleteLifecycleEvent(flow);
+    }
 }
 
 /**

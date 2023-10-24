@@ -15,22 +15,22 @@
 #include "native_engine/native_engine.h"
 #include "js_ability_delegator_registry.h"
 
-extern "C" __attribute__((constructor)) void NAPI_application_AbilityDelegatorRegistry_AutoRegister()
-{
 #ifdef ENABLE_ERRCODE
-    NativeModule newModuleInfo = {
-        .name = "app.ability.abilityDelegatorRegistry",
-        .fileName = "app/ability/libabilitydelegator_napi.so/ability_delegator_registry.js",
-        .registerCallback = OHOS::AbilityDelegatorJs::JsAbilityDelegatorRegistryInit,
-    };
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_filename = "app/ability/libabilitydelegator_napi.so/ability_delegator_registry.js",
+    .nm_modname = "app.ability.abilityDelegatorRegistry",
+    .nm_register_func = OHOS::AbilityDelegatorJs::JsAbilityDelegatorRegistryInit,
+};
 #else
-    NativeModule newModuleInfo = {
-        .name = "application.abilityDelegatorRegistry",
-        .fileName = "application/libabilitydelegator_napi.so/ability_delegator_registry.js",
-        .registerCallback = OHOS::AbilityDelegatorJs::JsAbilityDelegatorRegistryInit,
-    };
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_filename = "application/libabilitydelegator_napi.so/ability_delegator_registry.js",
+    .nm_modname = "application.abilityDelegatorRegistry",
+    .nm_register_func = OHOS::AbilityDelegatorJs::JsAbilityDelegatorRegistryInit,
+};
 #endif
-
-    auto moduleManager = NativeModuleManager::GetInstance();
-    moduleManager->Register(&newModuleInfo);
+extern "C" __attribute__((constructor)) void NAPI_application_AbilityDelegatorRegistry_AutoRegister(void)
+{
+    napi_module_register(&_module);
 }

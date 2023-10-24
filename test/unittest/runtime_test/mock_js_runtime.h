@@ -57,12 +57,12 @@ public:
     }
     void Deinitialize()
     {}
-    NativeValue* LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk = false)
+    napi_value LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk = false)
     {
         GTEST_LOG_(INFO) << "MockJsRuntime::LoadJsBundle called";
         return nullptr;
     }
-    NativeValue* LoadJsModule(const std::string& path, const std::string& hapPath)
+    napi_value LoadJsModule(const std::string& path, const std::string& hapPath)
     {
         GTEST_LOG_(INFO) << "MockJsRuntime::LoadJsModule called";
         return nullptr;
@@ -78,7 +78,7 @@ public:
         return nullptr;
     }
     std::unique_ptr<NativeReference> LoadSystemModule(
-        const std::string& moduleName, NativeValue* const* argv = nullptr, size_t argc = 0)
+        const std::string& moduleName, napi_value const* argv = nullptr, size_t argc = 0)
     {
         GTEST_LOG_(INFO) << "MockJsRuntime::LoadSystemModule called";
         return nullptr;

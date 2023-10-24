@@ -51,6 +51,8 @@ config("appkit_config") {
     defines += [ "APP_USE_ARM64" ]
   } else if (target_cpu == "arm") {
     defines += [ "APP_USE_ARM" ]
+  } else if (target_cpu == "x86_64") {
+    defines += [ "APP_USE_X86_64" ]
   }
 
   include_dirs = [
@@ -90,6 +92,7 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_services_path}/common/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/recovery",
+    "${ability_runtime_path}/utils/global/time/include",
     "${ability_runtime_services_path}/abilitymgr/include",
     "${ability_runtime_napi_path}/inner/napi_common",
   ]
@@ -137,6 +140,7 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:app_context_utils",
     "${ability_runtime_path}/js_environment/frameworks/js_environment:js_environment",
+    "${ability_runtime_path}/utils/global/freeze:freeze_util",
   ]
 
   external_deps = [
@@ -188,14 +192,10 @@ ohos_shared_library("appkit_native") {
     defines += [ "NWEB" ]
   }
 
-  if (purgeable_ashmem_enable) {
+  if (purgeable_ashmem_enable && defined(global_parts_info) &&
+      defined(global_parts_info.resourceschedule_memmgr_plugin)) {
     defines += [ "IMAGE_PURGEABLE_PIXELMAP" ]
-    if (defined(global_parts_info) &&
-        defined(global_parts_info.resourceschedule_memmgr_plugin)) {
-      external_deps += [ "memmgr_plugin:libpurgeablemem_plugin" ]
-    } else {
-      external_deps += [ "memory_utils:libpurgeablemem" ]
-    }
+    external_deps += [ "memmgr_plugin:libpurgeablemem_plugin" ]
   }
 
   innerapi_tags = [ "platformsdk" ]
@@ -263,6 +263,7 @@ ohos_shared_library("app_context") {
 # build so
 ohos_shared_library("app_context_utils") {
   include_dirs = [
+    "${ability_runtime_napi_path}/ability_auto_startup_callback",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/app",
   ]
@@ -281,9 +282,14 @@ ohos_shared_library("app_context_utils") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/error_utils:ability_runtime_error_util",
     "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${ability_runtime_napi_path}/ability_auto_startup_callback:autostartupcallback",
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
+    "${ability_runtime_native_path}/ability/native:ability_business_error",
+    "${ability_runtime_native_path}/ability/native:auto_startup_callback",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:application_context_manager",
   ]

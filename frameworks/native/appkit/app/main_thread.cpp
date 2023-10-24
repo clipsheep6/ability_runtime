@@ -43,6 +43,7 @@
 #include "extension_plugin_info.h"
 #include "extract_resource_manager.h"
 #include "file_path_utils.h"
+#include "freeze_util.h"
 #include "hilog_wrapper.h"
 #ifdef SUPPORT_GRAPHICS
 #include "locale_config.h"
@@ -62,6 +63,7 @@
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
 #include "task_handler_client.h"
+#include "time_util.h"
 #include "uncaught_exception_callback.h"
 #include "hisysevent.h"
 #include "js_runtime_utils.h"
@@ -70,7 +72,6 @@
 #if defined(NWEB)
 #include <thread>
 #include "app_mgr_client.h"
-#include "nweb_pre_dns_adapter.h"
 #include "nweb_helper.h"
 #endif
 
@@ -83,6 +84,7 @@
 #include <dlfcn.h>
 #endif
 namespace OHOS {
+using AbilityRuntime::FreezeUtil;
 namespace AppExecFwk {
 using namespace OHOS::AbilityBase::Constants;
 std::weak_ptr<OHOSApplication> MainThread::applicationForDump_;
@@ -94,6 +96,8 @@ const std::string PERFCMD_DUMPHEAP = "dumpheap";
 namespace {
 #ifdef APP_USE_ARM
 constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib/libformrender.z.so";
+#elif defined(APP_USE_X86_64)
+constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib64/libformrender.z.so";
 #else
 constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib64/libformrender.z.so";
 #endif
@@ -372,6 +376,7 @@ bool MainThread::ConnectToAppMgr()
         HILOG_ERROR("failed to iface_cast object to appMgr_");
         return false;
     }
+    HILOG_INFO("LoadLifecycle: attach to appMGR.");
     appMgr_->AttachApplication(this);
     HILOG_DEBUG("MainThread::connectToAppMgr end");
     return true;
@@ -563,11 +568,14 @@ void MainThread::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocI
     int usmblks = mi.usmblks; // 当前从分配器中分配的总的堆内存大小
     int uordblks = mi.uordblks; // 当前已释放给分配器，分配缓存了未释放给系统的内存大小
     int fordblks = mi.fordblks; // 当前未释放的大小
+    int hblkhd = mi.hblkhd; // 堆内存的总共占用大小
     HILOG_DEBUG("The pid of the app we want to dump memory allocation information is: %{public}i", pid);
-    HILOG_DEBUG("usmblks: %{public}i, uordblks: %{public}i, fordblks: %{public}i", usmblks, uordblks, fordblks);
+    HILOG_DEBUG("usmblks: %{public}i, uordblks: %{public}i, fordblks: %{public}i, hblkhd: %{public}i",
+        usmblks, uordblks, fordblks, hblkhd);
     mallocInfo.usmblks = usmblks;
     mallocInfo.uordblks = uordblks;
     mallocInfo.fordblks = fordblks;
+    mallocInfo.hblkhd = hblkhd;
 }
 
 /**
@@ -613,7 +621,7 @@ void MainThread::ScheduleLowMemory()
 void MainThread::ScheduleLaunchApplication(const AppLaunchData &data, const Configuration &config)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("MainThread schedule launch application start.");
+    HILOG_INFO("LoadLifecycle: schedule launch application start.");
     wptr<MainThread> weak = this;
     auto task = [weak, data, config]() {
         auto appThread = weak.promote();
@@ -673,13 +681,18 @@ void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemo
     const std::shared_ptr<AAFwk::Want> &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("schedule launch ability %{public}s, type is %{public}d.", info.name.c_str(), info.type);
+    HILOG_INFO("LoadLifecycle: schedule launch ability %{public}s, type is %{public}d.", info.name.c_str(), info.type);
 
     AAFwk::Want newWant(*want);
     newWant.CloseAllFd();
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>(info);
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     abilityRecord->SetWant(want);
+
+    FreezeUtil::LifecycleFlow flow = { token, FreezeUtil::TimeoutState::LOAD };
+    std::string entry = std::to_string(AbilityRuntime::TimeUtil::SystemTimeMillisecond()) +
+        "; MainThread::ScheduleLaunchAbility; the load lifecycle.";
+    FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
 
     wptr<MainThread> weak = this;
     auto task = [weak, abilityRecord]() {
@@ -1079,32 +1092,7 @@ void MainThread::HandleOnOverlayChanged(const EventFwk::CommonEventData &data,
         }
     }
 }
-[[maybe_unused]] static std::string GetNativeStrFromJsTaggedObj(NativeObject* obj, const char* key)
-{
-    if (obj == nullptr) {
-        HILOG_ERROR("Failed to get value from key:%{public}s, Null NativeObject", key);
-        return "";
-    }
 
-    NativeValue* value = obj->GetProperty(key);
-    NativeString* valueStr = AbilityRuntime::ConvertNativeValueTo<NativeString>(value);
-    if (valueStr == nullptr) {
-        HILOG_ERROR("Failed to convert value from key:%{public}s", key);
-        return "";
-    }
-    size_t valueStrBufLength = valueStr->GetLength();
-    size_t valueStrLength = 0;
-    char* valueCStr = new (std::nothrow) char[valueStrBufLength + 1];
-    if (valueCStr == nullptr) {
-        HILOG_ERROR("Failed to new valueCStr");
-        return "";
-    }
-    valueStr->GetCString(valueCStr, valueStrBufLength + 1, &valueStrLength);
-    std::string ret(valueCStr, valueStrLength);
-    delete []valueCStr;
-    HILOG_DEBUG("GetNativeStrFromJsTaggedObj Success %{public}s:%{public}s", key, ret.c_str());
-    return ret;
-}
 bool IsNeedLoadLibrary(const std::string &bundleName)
 {
     std::vector<std::string> needLoadLibraryBundleNames{
@@ -1158,13 +1146,14 @@ bool GetBundleForLaunchApplication(sptr<IBundleMgr> bundleMgr, const std::string
 void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, const Configuration &config)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("MainThread handle launch application start.");
+    HILOG_INFO("LoadLifecycle: handle launch application start.");
     if (!CheckForHandleLaunchApplication(appLaunchData)) {
         HILOG_ERROR("MainThread::handleLaunchApplication CheckForHandleLaunchApplication failed");
         return;
     }
 
     if (appLaunchData.GetDebugApp() && watchdog_ != nullptr && !watchdog_->IsStopWatchdog()) {
+        AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(true);
         watchdog_->Stop();
         watchdog_.reset();
     }
@@ -1445,9 +1434,6 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     }
 
 #if defined(NWEB)
-    // pre dns for nweb
-    std::thread(&OHOS::NWeb::PreDnsInThread).detach();
-
     // start nwebspawn process
     std::weak_ptr<OHOSApplication> weakApp = application_;
     wptr<IAppMgr> weakMgr = appMgr_;
@@ -1717,6 +1703,7 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
  */
 void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &abilityRecord)
 {
+    HILOG_INFO("LoadLifecycle: called.");
     CHECK_POINTER_LOG(abilityRecord, "MainThread::HandleLaunchAbility parameter(abilityRecord) is null");
     std::string connector = "##";
     std::string traceName = __PRETTY_FUNCTION__ + connector;
@@ -1726,12 +1713,15 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
         HILOG_ERROR("Want is nullptr, cant not get abilityName.");
     }
     HITRACE_METER_NAME(HITRACE_TAG_APP, traceName);
-    HILOG_DEBUG("HandleLaunchAbility called start.");
     CHECK_POINTER_LOG(applicationImpl_, "MainThread::HandleLaunchAbility applicationImpl_ is null");
     CHECK_POINTER_LOG(abilityRecordMgr_, "MainThread::HandleLaunchAbility abilityRecordMgr_ is null");
 
     auto abilityToken = abilityRecord->GetToken();
     CHECK_POINTER_LOG(abilityToken, "MainThread::HandleLaunchAbility failed. abilityRecord->GetToken failed");
+    FreezeUtil::LifecycleFlow flow = { abilityToken, FreezeUtil::TimeoutState::LOAD };
+    std::string entry = std::to_string(AbilityRuntime::TimeUtil::SystemTimeMillisecond()) +
+        "; MainThread::HandleLaunchAbility; the load lifecycle.";
+    FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
 
     abilityRecordMgr_->SetToken(abilityToken);
     abilityRecordMgr_->AddAbilityRecord(abilityToken, abilityRecord);
@@ -2107,7 +2097,7 @@ void MainThread::HandleDumpHeap(bool isPrivate)
 void MainThread::Start()
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("MainThread start come.");
+    HILOG_INFO("LoadLifecycle: MainThread start come.");
     std::shared_ptr<EventRunner> runner = EventRunner::GetMainEventRunner();
     if (runner == nullptr) {
         HILOG_ERROR("MainThread::main failed, runner is nullptr");
@@ -2682,7 +2672,7 @@ std::vector<std::string> MainThread::GetRemoveOverlayPaths(const std::vector<Ove
     return removePaths;
 }
 
-int32_t MainThread::ScheduleOnGcStateChange(int32_t state)
+int32_t MainThread::ScheduleChangeAppGcState(int32_t state)
 {
     HILOG_DEBUG("called.");
     if (mainHandler_ == nullptr) {
@@ -2694,16 +2684,16 @@ int32_t MainThread::ScheduleOnGcStateChange(int32_t state)
     auto task = [weak, state] {
         auto appThread = weak.promote();
         if (appThread == nullptr) {
-            HILOG_ERROR("appThread is nullptr, OnGcStateChange failed.");
+            HILOG_ERROR("appThread is nullptr, ChangeAppGcState failed.");
             return;
         }
-        appThread->OnGcStateChange(state);
+        appThread->ChangeAppGcState(state);
     };
-    mainHandler_->PostTask(task, "MainThread:OnGcStateChange");
+    mainHandler_->PostTask(task, "MainThread:ChangeAppGcState");
     return NO_ERROR;
 }
         
-int32_t MainThread::OnGcStateChange(int32_t state)
+int32_t MainThread::ChangeAppGcState(int32_t state)
 {
     HILOG_DEBUG("called.");
     if (application_ == nullptr) {
@@ -2723,29 +2713,13 @@ int32_t MainThread::OnGcStateChange(int32_t state)
 void MainThread::AttachAppDebug()
 {
     HILOG_DEBUG("Called.");
-    if (watchdog_ == nullptr || watchdog_->IsStopWatchdog()) {
-        HILOG_ERROR("Watch dog is stoped.");
-        return;
-    }
-
-    watchdog_->Stop();
-    watchdog_.reset();
+    AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(true);
 }
 
 void MainThread::DetachAppDebug()
 {
     HILOG_DEBUG("Called.");
-    if (watchdog_ == nullptr) {
-        watchdog_ = std::make_shared<Watchdog>();
-        if (watchdog_ != nullptr) {
-            watchdog_->Init(mainHandler_);
-        }
-        return;
-    }
-
-    if (watchdog_->IsStopWatchdog()) {
-        watchdog_->Init(mainHandler_);
-    }
+    AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(false);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

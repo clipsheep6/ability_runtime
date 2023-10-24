@@ -19,33 +19,37 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue *CreateJsApplicationQuickFixInfo(
-    NativeEngine &engine, const AAFwk::ApplicationQuickFixInfo &appQuickFixInfo)
+napi_value CreateJsApplicationQuickFixInfo(
+    napi_env env, const AAFwk::ApplicationQuickFixInfo &appQuickFixInfo)
 {
-    NativeValue *objValue = engine.CreateObject();
-    NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
-    object->SetProperty("bundleName", CreateJsValue(engine, appQuickFixInfo.bundleName));
-    object->SetProperty("bundleVersionCode", CreateJsValue(engine, appQuickFixInfo.bundleVersionCode));
-    object->SetProperty("bundleVersionName", CreateJsValue(engine, appQuickFixInfo.bundleVersionName));
-    object->SetProperty("quickFixVersionCode", CreateJsValue(engine, appQuickFixInfo.appqfInfo.versionCode));
-    object->SetProperty("quickFixVersionName", CreateJsValue(engine, appQuickFixInfo.appqfInfo.versionName));
-    object->SetProperty(
-        "hapModuleQuickFixInfo", CreateJsHapModuleQuickFixInfoArray(engine, appQuickFixInfo.appqfInfo.hqfInfos));
+    napi_value objValue = nullptr;
+    napi_create_object(env, &objValue);
+    napi_set_named_property(env, objValue, "bundleName", CreateJsValue(env, appQuickFixInfo.bundleName));
+    napi_set_named_property(env, objValue, "bundleVersionCode",
+        CreateJsValue(env, appQuickFixInfo.bundleVersionCode));
+    napi_set_named_property(env, objValue, "bundleVersionName",
+        CreateJsValue(env, appQuickFixInfo.bundleVersionName));
+    napi_set_named_property(env, objValue, "quickFixVersionCode",
+        CreateJsValue(env, appQuickFixInfo.appqfInfo.versionCode));
+    napi_set_named_property(env, objValue, "quickFixVersionName",
+        CreateJsValue(env, appQuickFixInfo.appqfInfo.versionName));
+    napi_set_named_property(env, objValue, "hapModuleQuickFixInfo",
+        CreateJsHapModuleQuickFixInfoArray(env, appQuickFixInfo.appqfInfo.hqfInfos));
     return objValue;
 }
 
-NativeValue *CreateJsHapModuleQuickFixInfoArray(NativeEngine &engine, const std::vector<AppExecFwk::HqfInfo> &hqfInfos)
+napi_value CreateJsHapModuleQuickFixInfoArray(napi_env env, const std::vector<AppExecFwk::HqfInfo> &hqfInfos)
 {
-    NativeValue *arrayValue = engine.CreateArray(hqfInfos.size());
-    NativeArray *array = ConvertNativeValueTo<NativeArray>(arrayValue);
+    napi_value arrayValue = nullptr;
+    napi_create_array_with_length(env, hqfInfos.size(), &arrayValue);
     uint32_t index = 0;
     for (const auto &hqfInfo : hqfInfos) {
-        NativeValue *objValue = engine.CreateObject();
-        NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
-        object->SetProperty("moduleName", CreateJsValue(engine, hqfInfo.moduleName));
-        object->SetProperty("originHapHash", CreateJsValue(engine, hqfInfo.hapSha256));
-        object->SetProperty("quickFixFilePath", CreateJsValue(engine, hqfInfo.hqfFilePath));
-        array->SetElement(index++, objValue);
+        napi_value objValue = nullptr;
+        napi_create_object(env, &objValue);
+        napi_set_named_property(env, objValue, "moduleName", CreateJsValue(env, hqfInfo.moduleName));
+        napi_set_named_property(env, objValue, "originHapHash", CreateJsValue(env, hqfInfo.hapSha256));
+        napi_set_named_property(env, objValue, "quickFixFilePath", CreateJsValue(env, hqfInfo.hqfFilePath));
+        napi_set_element(env, arrayValue, index++, objValue);
     }
     return arrayValue;
 }

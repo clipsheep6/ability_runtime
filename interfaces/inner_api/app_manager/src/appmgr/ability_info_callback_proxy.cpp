@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -44,12 +44,7 @@ void AbilityInfoCallbackProxy::NotifyAbilityToken(const sptr<IRemoteObject> toke
 
     data.WriteRemoteObject(token);
     data.WriteParcelable(&want);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return;
-    }
-    int32_t ret = remote->SendRequest(IAbilityInfoCallback::Notify_ABILITY_TOKEN, data, reply, option);
+    int32_t ret = SendTransactCmd(IAbilityInfoCallback::Notify_ABILITY_TOKEN, data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
         return;
@@ -66,12 +61,7 @@ void AbilityInfoCallbackProxy::NotifyRestartSpecifiedAbility(const sptr<IRemoteO
     }
 
     data.WriteRemoteObject(token);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return;
-    }
-    int32_t ret = remote->SendRequest(IAbilityInfoCallback::Notify_RESTART_SPECIFIED_ABILITY, data, reply, option);
+    int32_t ret = SendTransactCmd(IAbilityInfoCallback::Notify_RESTART_SPECIFIED_ABILITY, data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
@@ -90,12 +80,7 @@ void AbilityInfoCallbackProxy::NotifyStartSpecifiedAbility(const sptr<IRemoteObj
     data.WriteRemoteObject(callerToken);
     data.WriteParcelable(&want);
     data.WriteInt32(requestCode);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return;
-    }
-    int32_t ret = remote->SendRequest(IAbilityInfoCallback::Notify_START_SPECIFIED_ABILITY, data, reply, option);
+    int32_t ret = SendTransactCmd(IAbilityInfoCallback::Notify_START_SPECIFIED_ABILITY, data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
         return;
@@ -135,16 +120,23 @@ void AbilityInfoCallbackProxy::NotifyStartAbilityResult(const Want &want, int re
 
     data.WriteParcelable(&want);
     data.WriteInt32(result);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return;
-    }
-    int32_t ret = remote->SendRequest(IAbilityInfoCallback::Notify_START_ABILITY_RESULT, data, reply, option);
+    int32_t ret = SendTransactCmd(IAbilityInfoCallback::Notify_START_ABILITY_RESULT, data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("NotifyStartAbilityResult is failed, error code: %{public}d", ret);
         return;
     }
+}
+
+int32_t AbilityInfoCallbackProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    return remote->SendRequest(code, data, reply, option);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

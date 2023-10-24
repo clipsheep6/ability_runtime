@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -57,12 +57,7 @@ void AppStateCallbackProxy::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
 
     int32_t abilityState = static_cast<int32_t>(state);
     data.WriteInt32(abilityState);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return;
-    }
-    int32_t ret = remote->SendRequest(
+    int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IAppStateCallback::Message::TRANSACT_ON_ABILITY_REQUEST_DONE), data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
@@ -80,17 +75,29 @@ void AppStateCallbackProxy::OnAppStateChanged(const AppProcessData &appProcessDa
         return;
     }
     data.WriteParcelable(&appProcessData);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
-        return;
-    }
-    int32_t ret = remote->SendRequest(
+    int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IAppStateCallback::Message::TRANSACT_ON_APP_STATE_CHANGED), data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
     HILOG_DEBUG("end");
+}
+
+int32_t AppStateCallbackProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    auto ret = remote->SendRequest(code, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed with error code: %{public}d", ret);
+        return ret;
+    }
+    return ret;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -61,7 +61,7 @@ void AbilityConnectionProxy::OnAbilityConnectDone(
         return;
     }
 
-    error = Remote()->SendRequest(IAbilityConnection::ON_ABILITY_CONNECT_DONE, data, reply, option);
+    error = SendTransactCmd(IAbilityConnection::ON_ABILITY_CONNECT_DONE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Connect done fail, error: %{public}d", error);
         return;
@@ -85,11 +85,28 @@ void AbilityConnectionProxy::OnAbilityDisconnectDone(const AppExecFwk::ElementNa
         return;
     }
 
-    error = Remote()->SendRequest(IAbilityConnection::ON_ABILITY_DISCONNECT_DONE, data, reply, option);
+    error = SendTransactCmd(IAbilityConnection::ON_ABILITY_DISCONNECT_DONE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Disconnect done fail, error: %d", error);
         return;
     }
+}
+
+int32_t AbilityConnectionProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
+    MessageParcel &reply, MessageOption &option)
+{
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("remote object is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    int32_t ret = remote->SendRequest(code, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
+        return ret;
+    }
+    return NO_ERROR;
 }
 
 AbilityConnectionStub::AbilityConnectionStub()

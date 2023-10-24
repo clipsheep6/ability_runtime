@@ -24,12 +24,14 @@
 #include "js_error_utils.h"
 #include "js_runtime_utils.h"
 #include "js_ui_extension_context.h"
+#include "string_wrapper.h"
 #include "napi_common_start_options.h"
 #include "napi_common_util.h"
 #include "napi_common_want.h"
 #include "native_engine.h"
 #include "native_value.h"
 #include "tokenid_kit.h"
+#include "ui_content.h"
 #include "want.h"
 #include "window.h"
 
@@ -38,9 +40,13 @@ namespace AbilityRuntime {
 namespace {
 constexpr int32_t INDEX_ZERO = 0;
 constexpr int32_t INDEX_ONE = 1;
+constexpr int32_t INDEX_TWO = 2;
+constexpr int32_t INDEX_THREE = 3;
 constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
+constexpr size_t ARGC_THREE = 3;
 constexpr const char* PERMISSION_PRIVACY_WINDOW = "ohos.permission.PRIVACY_WINDOW";
+const std::string UIEXTENSION_TARGET_TYPE_KEY = "ability.want.params.uiExtensionTargetType";
 } // namespace
 
 #define CHECK_IS_SYSTEM_APP                                                             \
@@ -158,6 +164,11 @@ napi_value JsUIExtensionContentSession::SetWindowBackgroundColor(napi_env env, n
 napi_value JsUIExtensionContentSession::SetWindowPrivacyMode(napi_env env, napi_callback_info info)
 {
     GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnSetWindowPrivacyMode);
+}
+
+napi_value JsUIExtensionContentSession::StartAbilityByType(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnStartAbilityByType);
 }
 
 napi_value JsUIExtensionContentSession::OnStartAbility(napi_env env, NapiCallbackInfo& info)
@@ -512,13 +523,11 @@ napi_value JsUIExtensionContentSession::OnLoadContent(napi_env env, NapiCallback
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         return CreateJsUndefined(env);
     }
-    // to do
-    Rosen::WMError ret = uiWindow_->SetUIContent(
-        contextPath, reinterpret_cast<NativeEngine*>(env), reinterpret_cast<NativeValue*>(storage));
+    Rosen::WMError ret = uiWindow_->NapiSetUIContent(contextPath, env, storage);
     if (ret == Rosen::WMError::WM_OK) {
-        HILOG_DEBUG("SetUIContent success");
+        HILOG_DEBUG("NapiSetUIContent success");
     } else {
-        HILOG_ERROR("SetUIContent failed, ret=%{public}d", ret);
+        HILOG_ERROR("NapiSetUIContent failed, ret=%{public}d", ret);
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
     }
     return CreateJsUndefined(env);
@@ -587,6 +596,61 @@ napi_value JsUIExtensionContentSession::OnSetWindowPrivacyMode(napi_env env, Nap
     return result;
 }
 
+napi_value JsUIExtensionContentSession::OnStartAbilityByType(napi_env env, NapiCallbackInfo& info)
+{
+    HILOG_INFO("called");
+    if (info.argc < ARGC_THREE) {
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    std::string type;
+    if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], type)) {
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+
+    AAFwk::WantParams wantParam;
+    if (!AppExecFwk::UnwrapWantParams(env, info.argv[INDEX_ONE], wantParam)) {
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+
+    wantParam.SetParam(UIEXTENSION_TARGET_TYPE_KEY, AAFwk::String::Box(type));
+    AAFwk::Want want;
+    want.SetParams(wantParam);
+    std::shared_ptr<JsUIExtensionCallback> uiExtensionCallback = std::make_shared<JsUIExtensionCallback>(env);
+    uiExtensionCallback->SetJsCallbackObject(info.argv[INDEX_TWO]);
+    NapiAsyncTask::CompleteCallback complete = [uiWindow = uiWindow_, type, want, uiExtensionCallback]
+        (napi_env env, NapiAsyncTask& task, int32_t status) {
+            if (uiWindow == nullptr) {
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            auto uiContent = uiWindow->GetUIContent();
+            if (uiContent == nullptr) {
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            Ace::ModalUIExtensionCallbacks callback;
+            callback.onError = std::bind(&JsUIExtensionCallback::OnError, uiExtensionCallback, std::placeholders::_1);
+            Ace::ModalUIExtensionConfig config;
+            config.isProhibitBack = true;
+            int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
+            if (sessionId == 0) {
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+            } else {
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
+            }
+        };
+
+    napi_value lastParam = (info.argc > ARGC_THREE) ? info.argv[INDEX_THREE] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JsUIExtensionContentSession::OnStartAbilityByType",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
 napi_value JsUIExtensionContentSession::CreateJsUIExtensionContentSession(napi_env env,
     sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow,
     std::weak_ptr<AbilityRuntime::Context> context,
@@ -614,6 +678,7 @@ napi_value JsUIExtensionContentSession::CreateJsUIExtensionContentSession(napi_e
     BindNativeFunction(env, object, "setWindowPrivacyMode", moduleName, SetWindowPrivacyMode);
     BindNativeFunction(env, object, "startAbility", moduleName, StartAbility);
     BindNativeFunction(env, object, "startAbilityForResult", moduleName, StartAbilityForResult);
+    BindNativeFunction(env, object, "startAbilityByType", moduleName, StartAbilityByType);
     return object;
 }
 
@@ -642,24 +707,8 @@ napi_value JsUIExtensionContentSession::CreateJsUIExtensionContentSession(napi_e
     BindNativeFunction(env, object, "setWindowPrivacyMode", moduleName, SetWindowPrivacyMode);
     BindNativeFunction(env, object, "startAbility", moduleName, StartAbility);
     BindNativeFunction(env, object, "startAbilityForResult", moduleName, StartAbilityForResult);
+    BindNativeFunction(env, object, "startAbilityByType", moduleName, StartAbilityByType);
     return object;
-}
-
-// to do
-NativeValue* JsUIExtensionContentSession::CreateJsUIExtensionContentSession(NativeEngine& engine,
-    sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow,
-    std::weak_ptr<AbilityRuntime::Context> context,
-    std::shared_ptr<AbilityResultListeners>& abilityResultListeners)
-{
-    return reinterpret_cast<NativeValue*>(CreateJsUIExtensionContentSession(
-        reinterpret_cast<napi_env>(&engine), sessionInfo, uiWindow, context, abilityResultListeners));
-}
-
-NativeValue* JsUIExtensionContentSession::CreateJsUIExtensionContentSession(NativeEngine& engine,
-    sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow)
-{
-    return reinterpret_cast<NativeValue*>(CreateJsUIExtensionContentSession(
-        reinterpret_cast<napi_env>(&engine), sessionInfo, uiWindow));
 }
 
 void JsUIExtensionContentSession::CallReceiveDataCallback(napi_env env,
@@ -675,7 +724,7 @@ void JsUIExtensionContentSession::CallReceiveDataCallback(napi_env env,
         HILOG_WARN("callback is nullptr");
         return;
     }
-    napi_value method = reinterpret_cast<napi_value>(callback->Get());
+    napi_value method = callback->GetNapiValue();
     if (method == nullptr) {
         HILOG_WARN("method is nullptr");
         return;
@@ -698,8 +747,7 @@ void JsUIExtensionContentSession::AddFreeInstallObserver(napi_env env,
     // adapter free install async return install and start result
     int ret = 0;
     if (freeInstallObserver_ == nullptr) {
-        // to do
-        freeInstallObserver_ = new JsFreeInstallObserver(*reinterpret_cast<NativeEngine*>(env));
+        freeInstallObserver_ = new JsFreeInstallObserver(env);
         ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(freeInstallObserver_);
     }
 
@@ -711,9 +759,8 @@ void JsUIExtensionContentSession::AddFreeInstallObserver(napi_env env,
         std::string bundleName = want.GetElement().GetBundleName();
         std::string abilityName = want.GetElement().GetAbilityName();
         std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
-        // to do
         freeInstallObserver_->AddJsObserverObject(
-            bundleName, abilityName, startTime, reinterpret_cast<NativeValue*>(callback), isAbilityResult);
+            bundleName, abilityName, startTime, callback, isAbilityResult);
     }
 }
 }  // namespace AbilityRuntime

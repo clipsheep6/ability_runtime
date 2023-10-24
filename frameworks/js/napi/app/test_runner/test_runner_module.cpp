@@ -20,15 +20,15 @@ extern const char _binary_test_runner_js_end[];
 extern const char _binary_test_runner_abc_start[];
 extern const char _binary_test_runner_abc_end[];
 
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_filename = "application/libtestrunner_napi.so/test_runner.js",
+    .nm_modname = "application.testRunner",
+};
+
 extern "C" __attribute__((constructor)) void NAPI_application_testRunner_AutoRegister()
 {
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-        .name = "application.testRunner",
-        .fileName = "application/libtestrunner_napi.so/test_runner.js",
-    };
-
-    moduleManager->Register(&newModuleInfo);
+    napi_module_register(&_module);
 }
 
 extern "C" __attribute__((visibility("default"))) void NAPI_application_testRunner_GetJSCode(

@@ -21,9 +21,9 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue *CreateJsApplicationQuickFixInfo(
-    NativeEngine &engine, const AAFwk::ApplicationQuickFixInfo &appQuickFixInfo);
-NativeValue *CreateJsHapModuleQuickFixInfoArray(NativeEngine &engine, const std::vector<AppExecFwk::HqfInfo> &hqfInfos);
+napi_value CreateJsApplicationQuickFixInfo(
+    napi_env env, const AAFwk::ApplicationQuickFixInfo &appQuickFixInfo);
+napi_value CreateJsHapModuleQuickFixInfoArray(napi_env env, const std::vector<AppExecFwk::HqfInfo> &hqfInfos);
 } // namespace AbilityRuntime
 } // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_JS_APPLICATION_QUICK_FIX_INFO_H

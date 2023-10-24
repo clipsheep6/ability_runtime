@@ -20,16 +20,15 @@ extern const char _binary_callee_js_end[];
 extern const char _binary_callee_abc_start[];
 extern const char _binary_callee_abc_end[];
 
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_filename = "application/libcallee_napi.so/callee.js",
+    .nm_modname = "application.Callee",
+};
 extern "C" __attribute__((constructor))
 void NAPI_application_Callee_AutoRegister()
 {
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-        .name = "application.Callee",
-        .fileName = "application/libcallee_napi.so/callee.js",
-    };
-
-    moduleManager->Register(&newModuleInfo);
+    napi_module_register(&_module);
 }
 
 extern "C" __attribute__((visibility("default")))

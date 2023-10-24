@@ -21,10 +21,9 @@
 #include <native_engine/native_value.h>
 #include "ability_context.h"
 #include "configuration.h"
+#include "js_runtime_utils.h"
 
-class NativeObject;
 class NativeReference;
-class NativeValue;
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -33,40 +32,40 @@ public:
     explicit JsAbilityContext(const std::shared_ptr<AbilityContext> &context) : context_(context) {}
     ~JsAbilityContext() = default;
 
-    static void Finalizer(NativeEngine *engine, void *data, void *hint);
+    static void Finalizer(napi_env env, void *data, void *hint);
 
-    static NativeValue *StartAbility(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue *StartAbilityAsCaller(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue *StartRecentAbility(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue *StartAbilityWithAccount(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue *StartAbilityByCall(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue *StartAbilityForResult(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue *StartAbilityForResultWithAccount(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue *StartServiceExtensionAbility(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue *StartServiceExtensionAbilityWithAccount(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue *StopServiceExtensionAbility(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue *StopServiceExtensionAbilityWithAccount(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue *ConnectAbility(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue *ConnectAbilityWithAccount(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue *DisconnectAbility(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue *TerminateSelf(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue *TerminateSelfWithResult(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue *RestoreWindowStage(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue *RequestDialogService(NativeEngine *engine, NativeCallbackInfo *info);
-    static NativeValue *IsTerminating(NativeEngine *engine, NativeCallbackInfo *info);
+    static napi_value StartAbility(napi_env env, napi_callback_info info);
+    static napi_value StartAbilityAsCaller(napi_env env, napi_callback_info info);
+    static napi_value StartRecentAbility(napi_env env, napi_callback_info info);
+    static napi_value StartAbilityWithAccount(napi_env env, napi_callback_info info);
+    static napi_value StartAbilityByCall(napi_env env, napi_callback_info info);
+    static napi_value StartAbilityForResult(napi_env env, napi_callback_info info);
+    static napi_value StartAbilityForResultWithAccount(napi_env env, napi_callback_info info);
+    static napi_value StartServiceExtensionAbility(napi_env env, napi_callback_info info);
+    static napi_value StartServiceExtensionAbilityWithAccount(napi_env env, napi_callback_info info);
+    static napi_value StopServiceExtensionAbility(napi_env env, napi_callback_info info);
+    static napi_value StopServiceExtensionAbilityWithAccount(napi_env env, napi_callback_info info);
+    static napi_value ConnectAbility(napi_env env, napi_callback_info info);
+    static napi_value ConnectAbilityWithAccount(napi_env env, napi_callback_info info);
+    static napi_value DisconnectAbility(napi_env env, napi_callback_info info);
+    static napi_value TerminateSelf(napi_env env, napi_callback_info info);
+    static napi_value TerminateSelfWithResult(napi_env env, napi_callback_info info);
+    static napi_value RestoreWindowStage(napi_env env, napi_callback_info info);
+    static napi_value RequestDialogService(napi_env env, napi_callback_info info);
+    static napi_value IsTerminating(napi_env env, napi_callback_info info);
 
-    static void ConfigurationUpdated(NativeEngine *engine, std::shared_ptr<NativeReference> &jsContext,
+    static void ConfigurationUpdated(napi_env env, std::shared_ptr<NativeReference> &jsContext,
         const std::shared_ptr<AppExecFwk::Configuration> &config);
 
 private:
-    NativeValue *OnTerminateSelf(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue *OnIsTerminating(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue *OnTerminateSelfWithResult(NativeEngine &engine, NativeCallbackInfo &info);
+    napi_value OnTerminateSelf(napi_env env, NapiCallbackInfo &info);
+    napi_value OnIsTerminating(napi_env env, NapiCallbackInfo &info);
+    napi_value OnTerminateSelfWithResult(napi_env env, NapiCallbackInfo &info);
 
     std::weak_ptr<AbilityContext> context_;
 };
-NativeValue *CreateJsAbilityContext(NativeEngine &engine, const std::shared_ptr<AbilityContext> &context);
-NativeValue *CreateJsErrorByNativeErr(NativeEngine &engine, int32_t err, const std::string &permission = "");
+napi_value CreateJsAbilityContext(napi_env env, const std::shared_ptr<AbilityContext> &context);
+napi_value CreateJsErrorByNativeErr(napi_env env, int32_t err, const std::string &permission = "");
 } // namespace AbilityRuntime
 } // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_SIMULATOR_JS_ABILITY_CONTEXT_H

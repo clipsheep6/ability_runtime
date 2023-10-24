@@ -15,9 +15,11 @@
 
 #include <gtest/gtest.h>
 
+#include "event_report.h"
 #include "istorage_manager.h"
 #include "storage_manager_proxy.h"
 #include "system_ability_definition.h"
+#include "tokenid_kit.h"
 #define private public
 #include "uri_permission_manager_stub_impl.h"
 #undef private

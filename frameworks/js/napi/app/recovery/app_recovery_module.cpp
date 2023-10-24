@@ -16,14 +16,13 @@
 #include "app_recovery_api.h"
 #include "native_engine/native_engine.h"
 
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_filename = "app/ability/apprecovery_napi.so/app_recovery.js",
+    .nm_modname = "app.ability.appRecovery",
+    .nm_register_func = OHOS::AbilityRuntime::InitAppRecoveryApiModule,
+};
 extern "C" __attribute__((constructor)) void NAPI_app_ability_AppRecovery_AutoRegister()
 {
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-        .name = "app.ability.appRecovery",
-        .fileName = "app/ability/apprecovery_napi.so/app_recovery.js",
-        .registerCallback = OHOS::AbilityRuntime::InitAppRecoveryApiModule,
-    };
-
-    moduleManager->Register(&newModuleInfo);
+    napi_module_register(&_module);
 }

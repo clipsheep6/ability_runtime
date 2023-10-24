@@ -25,6 +25,7 @@ struct MallocInfo : public Parcelable {
     int32_t usmblks;
     int32_t uordblks;
     int32_t fordblks;
+    int32_t hblkhd;
 
     virtual bool Marshalling(Parcel &parcel) const override;
     static MallocInfo *Unmarshalling(Parcel &parcel);

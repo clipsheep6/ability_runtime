@@ -144,8 +144,8 @@ void JsEnvironment::RegisterUncaughtExceptionHandler(const JsEnv::UncaughtExcept
         return;
     }
 
-    engine_->RegisterUncaughtExceptionHandler(UncaughtExceptionCallback(uncaughtExceptionInfo.uncaughtTask,
-        sourceMapOperator_));
+    engine_->RegisterNapiUncaughtExceptionHandler(NapiUncaughtExceptionCallback(uncaughtExceptionInfo.uncaughtTask,
+        sourceMapOperator_, reinterpret_cast<napi_env>(engine_)));
 }
 
 bool JsEnvironment::LoadScript(const std::string& path, std::vector<uint8_t>* buffer, bool isBundle)

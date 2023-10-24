@@ -17,12 +17,12 @@
 
 #include <mutex>
 #include "ability_delegator_registry.h"
-#include "ability_runtime/js_ability.h"
 #include "hilog_wrapper.h"
 #include "js_ability_delegator_utils.h"
 #include "js_context_utils.h"
-#include "js_runtime_utils.h"
+#include "js_error_utils.h"
 #include "napi_common_want.h"
+#include "napi_common_util.h"
 #include "napi_remote_object.h"
 #include "shell_cmd_result.h"
 
@@ -66,33 +66,33 @@ constexpr int COMMON_FAILED = 16000100;
 constexpr int COMMON_FAILED = -1;
 #endif
 
-NativeValue *ThrowJsError(NativeEngine& engine, int32_t errCode)
+napi_value ThrowJsError(napi_env env, int32_t errCode)
 {
 #ifdef ENABLE_ERRCODE
-    NativeValue *error = CreateJsError(engine, errCode, errorMap[errCode]);
-    engine.Throw(error);
+    napi_value error = CreateJsError(env, errCode, errorMap[errCode]);
+    napi_throw(env, error);
 #endif
-    return engine.CreateUndefined();
+    return CreateJsUndefined(env);
 }
 
-void ResolveWithNoError(NativeEngine &engine, AsyncTask &task, NativeValue *value = nullptr)
+void ResolveWithNoError(napi_env env, NapiAsyncTask &task, napi_value value = nullptr)
 {
 #ifdef ENABLE_ERRCODE
     if (value == nullptr) {
-        task.ResolveWithNoError(engine, engine.CreateUndefined());
+        task.ResolveWithNoError(env, CreateJsUndefined(env));
     } else {
-        task.ResolveWithNoError(engine, value);
+        task.ResolveWithNoError(env, value);
     }
 #else
     if (value == nullptr) {
-        task.Resolve(engine, engine.CreateNull());
+        task.Resolve(env, CreateJsNull(env));
     } else {
-        task.Resolve(engine, value);
+        task.Resolve(env, value);
     }
 #endif
 }
 
-NativeValue *AttachAppContext(NativeEngine *engine, void *value, void *)
+napi_value AttachAppContext(napi_env env, void *value, void *)
 {
     HILOG_INFO("AttachAppContext");
     if (value == nullptr) {
@@ -105,17 +105,14 @@ NativeValue *AttachAppContext(NativeEngine *engine, void *value, void *)
         return nullptr;
     }
 
-    NativeValue *object = CreateJsBaseContext(*engine, ptr, true);
-    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(object);
-    nObject->ConvertToNativeBindingObject(engine, DetachCallbackFunc, AttachAppContext, value, nullptr);
+    napi_value object = CreateJsBaseContext(env, ptr, true);
+    napi_coerce_to_native_binding_object(env, object, DetachCallbackFunc, AttachAppContext, value, nullptr);
     auto workContext = new (std::nothrow) std::weak_ptr<AbilityRuntime::Context>(ptr);
-    nObject->SetNativePointer(
-        workContext,
-        [](NativeEngine *, void *data, void *) {
+    napi_wrap(env, object, workContext,
+        [](napi_env, void *data, void *) {
             HILOG_INFO("Finalizer for weak_ptr app context is called");
             delete static_cast<std::weak_ptr<AbilityRuntime::Context> *>(data);
-        },
-        nullptr);
+        }, nullptr, nullptr);
     return object;
 }
 
@@ -144,271 +141,252 @@ JSAbilityDelegator::JSAbilityDelegator()
     }
 }
 
-void JSAbilityDelegator::Finalizer(NativeEngine *engine, void *data, void *hint)
+void JSAbilityDelegator::Finalizer(napi_env env, void *data, void *hint)
 {
     HILOG_INFO("enter");
     std::unique_ptr<JSAbilityDelegator>(static_cast<JSAbilityDelegator *>(data));
 }
 
-NativeValue *JSAbilityDelegator::AddAbilityMonitor(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JSAbilityDelegator::AddAbilityMonitor(napi_env env, napi_callback_info info)
 {
-    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
-    return (me != nullptr) ? me->OnAddAbilityMonitor(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JSAbilityDelegator, OnAddAbilityMonitor);
 }
 
-NativeValue *JSAbilityDelegator::AddAbilityMonitorSync(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JSAbilityDelegator::AddAbilityMonitorSync(napi_env env, napi_callback_info info)
 {
-    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
-    return (me != nullptr) ? me->OnAddAbilityMonitorSync(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JSAbilityDelegator, OnAddAbilityMonitorSync);
 }
 
-NativeValue *JSAbilityDelegator::RemoveAbilityMonitor(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JSAbilityDelegator::RemoveAbilityMonitor(napi_env env, napi_callback_info info)
 {
-    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
-    return (me != nullptr) ? me->OnRemoveAbilityMonitor(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JSAbilityDelegator, OnRemoveAbilityMonitor);
 }
 
-NativeValue *JSAbilityDelegator::RemoveAbilityMonitorSync(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JSAbilityDelegator::RemoveAbilityMonitorSync(napi_env env, napi_callback_info info)
 {
-    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
-    return (me != nullptr) ? me->OnRemoveAbilityMonitorSync(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JSAbilityDelegator, OnRemoveAbilityMonitorSync);
 }
 
-NativeValue *JSAbilityDelegator::WaitAbilityMonitor(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JSAbilityDelegator::WaitAbilityMonitor(napi_env env, napi_callback_info info)
 {
-    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
-    return (me != nullptr) ? me->OnWaitAbilityMonitor(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JSAbilityDelegator, OnWaitAbilityMonitor);
 }
 
-NativeValue *JSAbilityDelegator::AddAbilityStageMonitor(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JSAbilityDelegator::AddAbilityStageMonitor(napi_env env, napi_callback_info info)
 {
-    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
-    return (me != nullptr) ? me->OnAddAbilityStageMonitor(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JSAbilityDelegator, OnAddAbilityStageMonitor);
 }
 
-NativeValue *JSAbilityDelegator::AddAbilityStageMonitorSync(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JSAbilityDelegator::AddAbilityStageMonitorSync(napi_env env, napi_callback_info info)
 {
-    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
-    return (me != nullptr) ? me->OnAddAbilityStageMonitorSync(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JSAbilityDelegator, OnAddAbilityStageMonitorSync);
 }
 
-NativeValue *JSAbilityDelegator::RemoveAbilityStageMonitor(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JSAbilityDelegator::RemoveAbilityStageMonitor(napi_env env, napi_callback_info info)
 {
-    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
-    return (me != nullptr) ? me->OnRemoveAbilityStageMonitor(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JSAbilityDelegator, OnRemoveAbilityStageMonitor);
 }
 
-NativeValue *JSAbilityDelegator::RemoveAbilityStageMonitorSync(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JSAbilityDelegator::RemoveAbilityStageMonitorSync(napi_env env, napi_callback_info info)
 {
-    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
-    return (me != nullptr) ? me->OnRemoveAbilityStageMonitorSync(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JSAbilityDelegator, OnRemoveAbilityStageMonitorSync);
 }
 
-NativeValue *JSAbilityDelegator::WaitAbilityStageMonitor(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JSAbilityDelegator::WaitAbilityStageMonitor(napi_env env, napi_callback_info info)
 {
-    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
-    return (me != nullptr) ? me->OnWaitAbilityStageMonitor(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JSAbilityDelegator, OnWaitAbilityStageMonitor);
 }
 
-NativeValue *JSAbilityDelegator::GetAppContext(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JSAbilityDelegator::GetAppContext(napi_env env, napi_callback_info info)
 {
-    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
-    return (me != nullptr) ? me->OnGetAppContext(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JSAbilityDelegator, OnGetAppContext);
 }
 
-NativeValue *JSAbilityDelegator::GetAbilityState(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JSAbilityDelegator::GetAbilityState(napi_env env, napi_callback_info info)
 {
-    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
-    return (me != nullptr) ? me->OnGetAbilityState(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JSAbilityDelegator, OnGetAbilityState);
 }
 
-NativeValue *JSAbilityDelegator::GetCurrentTopAbility(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JSAbilityDelegator::GetCurrentTopAbility(napi_env env, napi_callback_info info)
 {
-    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
-    return (me != nullptr) ? me->OnGetCurrentTopAbility(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JSAbilityDelegator, OnGetCurrentTopAbility);
 }
 
-NativeValue *JSAbilityDelegator::StartAbility(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JSAbilityDelegator::StartAbility(napi_env env, napi_callback_info info)
 {
-    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
-    return (me != nullptr) ? me->OnStartAbility(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JSAbilityDelegator, OnStartAbility);
 }
 
-NativeValue *JSAbilityDelegator::DoAbilityForeground(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JSAbilityDelegator::DoAbilityForeground(napi_env env, napi_callback_info info)
 {
-    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
-    return (me != nullptr) ? me->OnDoAbilityForeground(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JSAbilityDelegator, OnDoAbilityForeground);
 }
 
-NativeValue *JSAbilityDelegator::DoAbilityBackground(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JSAbilityDelegator::DoAbilityBackground(napi_env env, napi_callback_info info)
 {
-    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
-    return (me != nullptr) ? me->OnDoAbilityBackground(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JSAbilityDelegator, OnDoAbilityBackground);
 }
 
-NativeValue *JSAbilityDelegator::Print(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JSAbilityDelegator::Print(napi_env env, napi_callback_info info)
 {
-    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
-    return (me != nullptr) ? me->OnPrint(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JSAbilityDelegator, OnPrint);
 }
 
-NativeValue *JSAbilityDelegator::PrintSync(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JSAbilityDelegator::PrintSync(napi_env env, napi_callback_info info)
 {
-    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
-    return (me != nullptr) ? me->OnPrintSync(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JSAbilityDelegator, OnPrintSync);
 }
 
-NativeValue *JSAbilityDelegator::ExecuteShellCommand(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JSAbilityDelegator::ExecuteShellCommand(napi_env env, napi_callback_info info)
 {
-    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
-    return (me != nullptr) ? me->OnExecuteShellCommand(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JSAbilityDelegator, OnExecuteShellCommand);
 }
 
-NativeValue *JSAbilityDelegator::FinishTest(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JSAbilityDelegator::FinishTest(napi_env env, napi_callback_info info)
 {
-    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
-    return (me != nullptr) ? me->OnFinishTest(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JSAbilityDelegator, OnFinishTest);
 }
 
-NativeValue *JSAbilityDelegator::SetMockList(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value JSAbilityDelegator::SetMockList(napi_env env, napi_callback_info info)
 {
-    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
-    return (me != nullptr) ? me->OnSetMockList(*engine, *info) : nullptr;
+    GET_NAPI_INFO_AND_CALL(env, info, JSAbilityDelegator, OnSetMockList);
 }
 
-NativeValue *JSAbilityDelegator::OnAddAbilityMonitor(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JSAbilityDelegator::OnAddAbilityMonitor(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::shared_ptr<AbilityMonitor> monitor = nullptr;
-    if (!ParseAbilityMonitorPara(engine, info, monitor, false)) {
+    if (!ParseAbilityMonitorPara(env, info, monitor, false)) {
         HILOG_ERROR("Parse addAbilityMonitor parameters failed");
-        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+        return ThrowJsError(env, INCORRECT_PARAMETERS);
     }
 
-    AsyncTask::CompleteCallback complete = [monitor](NativeEngine &engine, AsyncTask &task, int32_t status) {
-        HILOG_INFO("OnAddAbilityMonitor AsyncTask is called");
+    NapiAsyncTask::CompleteCallback complete = [monitor](napi_env env, NapiAsyncTask &task, int32_t status) {
+        HILOG_INFO("OnAddAbilityMonitor NapiAsyncTask is called");
         auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
         if (!delegator) {
-            task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "addAbilityMonitor failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "addAbilityMonitor failed."));
             return;
         }
         delegator->AddAbilityMonitor(monitor);
-        ResolveWithNoError(engine, task);
+        ResolveWithNoError(env, task);
     };
 
-    NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
-    NativeValue *result = nullptr;
-    AsyncTask::Schedule("JSAbilityDelegator::OnAddAbilityMonitor",
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::Schedule("JSAbilityDelegator::OnAddAbilityMonitor",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
-NativeValue *JSAbilityDelegator::OnAddAbilityMonitorSync(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JSAbilityDelegator::OnAddAbilityMonitorSync(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::shared_ptr<AbilityMonitor> monitor = nullptr;
-    if (!ParseAbilityMonitorPara(engine, info, monitor, true)) {
+    if (!ParseAbilityMonitorPara(env, info, monitor, true)) {
         HILOG_ERROR("Parse addAbilityMonitorSync parameters failed");
-        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+        return ThrowJsError(env, INCORRECT_PARAMETERS);
     }
     auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
         delegator->AddAbilityMonitor(monitor);
     } else {
-        engine.Throw(CreateJsError(engine, COMMON_FAILED, "addAbilityMonitor failed."));
+        ThrowError(env, COMMON_FAILED, "addAbilityMonitor failed.");
     }
-    return engine.CreateUndefined();
+    return CreateJsUndefined(env);
 }
 
-NativeValue *JSAbilityDelegator::OnAddAbilityStageMonitor(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JSAbilityDelegator::OnAddAbilityStageMonitor(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     bool isExisted = false;
     std::shared_ptr<AbilityStageMonitor> monitor = nullptr;
-    if (!ParseAbilityStageMonitorPara(engine, info, monitor, isExisted, false)) {
+    if (!ParseAbilityStageMonitorPara(env, info, monitor, isExisted, false)) {
         HILOG_ERROR("Parse addAbilityStageMonitor parameters failed");
-        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+        return ThrowJsError(env, INCORRECT_PARAMETERS);
     }
 
-    AsyncTask::CompleteCallback complete = [monitor](NativeEngine &engine, AsyncTask &task, int32_t status) {
-        HILOG_INFO("OnAddAbilityStageMonitor AsyncTask is called");
+    NapiAsyncTask::CompleteCallback complete = [monitor](napi_env env, NapiAsyncTask &task, int32_t status) {
+        HILOG_INFO("OnAddAbilityStageMonitor NapiAsyncTask is called");
         auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
         if (!delegator) {
-            task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "addAbilityStageMonitor failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "addAbilityStageMonitor failed."));
             return;
         }
         delegator->AddAbilityStageMonitor(monitor);
-        ResolveWithNoError(engine, task);
+        ResolveWithNoError(env, task);
     };
 
-    NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
-    NativeValue *result = nullptr;
-    AsyncTask::Schedule("JSAbilityDelegator::OnAddAbilityStageMonitor",
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::Schedule("JSAbilityDelegator::OnAddAbilityStageMonitor",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
 
     if (!isExisted) {
-        AddStageMonitorRecord(engine, info.argv[INDEX_ZERO], monitor);
+        AddStageMonitorRecord(env, info.argv[INDEX_ZERO], monitor);
     }
     return result;
 }
 
-NativeValue *JSAbilityDelegator::OnAddAbilityStageMonitorSync(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JSAbilityDelegator::OnAddAbilityStageMonitorSync(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     bool isExisted = false;
     std::shared_ptr<AbilityStageMonitor> monitor = nullptr;
-    if (!ParseAbilityStageMonitorPara(engine, info, monitor, isExisted, true)) {
+    if (!ParseAbilityStageMonitorPara(env, info, monitor, isExisted, true)) {
         HILOG_ERROR("Parse addAbilityStageMonitorSync parameters failed");
-        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+        return ThrowJsError(env, INCORRECT_PARAMETERS);
     }
     auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
     if (!delegator) {
-        engine.Throw(CreateJsError(engine, COMMON_FAILED, "addAbilityStageMonitor failed."));
-        return engine.CreateUndefined();
+        ThrowError(env, COMMON_FAILED, "addAbilityStageMonitor failed.");
+        return CreateJsUndefined(env);
     }
     delegator->AddAbilityStageMonitor(monitor);
     if (!isExisted) {
-        AddStageMonitorRecord(engine, info.argv[INDEX_ZERO], monitor);
+        AddStageMonitorRecord(env, info.argv[INDEX_ZERO], monitor);
     }
-    return engine.CreateUndefined();
+    return CreateJsUndefined(env);
 }
 
-NativeValue *JSAbilityDelegator::OnRemoveAbilityMonitor(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JSAbilityDelegator::OnRemoveAbilityMonitor(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::shared_ptr<AbilityMonitor> monitor = nullptr;
-    if (!ParseAbilityMonitorPara(engine, info, monitor, false)) {
+    if (!ParseAbilityMonitorPara(env, info, monitor, false)) {
         HILOG_ERROR("Parse removeAbilityMonitor parameters failed");
-        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+        return ThrowJsError(env, INCORRECT_PARAMETERS);
     }
 
-    AsyncTask::CompleteCallback complete =
-        [monitor](NativeEngine &engine, AsyncTask &task, int32_t status) mutable {
-        HILOG_INFO("OnRemoveAbilityMonitor AsyncTask is called");
+    NapiAsyncTask::CompleteCallback complete =
+        [monitor](napi_env env, NapiAsyncTask &task, int32_t status) mutable {
+        HILOG_INFO("OnRemoveAbilityMonitor NapiAsyncTask is called");
         auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
         if (!delegator) {
-            task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "removeAbilityMonitor failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "removeAbilityMonitor failed."));
             return;
         }
         delegator->RemoveAbilityMonitor(monitor);
-        ResolveWithNoError(engine, task);
+        ResolveWithNoError(env, task);
     };
 
-    NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
-    NativeValue *result = nullptr;
-    AsyncTask::Schedule("JSAbilityDelegator::OnRemoveAbilityMonitor",
-        engine, CreateAsyncTaskWithLastParam(engine,
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::Schedule("JSAbilityDelegator::OnRemoveAbilityMonitor",
+        env, CreateAsyncTaskWithLastParam(env,
         lastParam, nullptr, std::move(complete), &result));
 
     if (AbilityDelegatorRegistry::GetAbilityDelegator()) {
         for (auto iter = g_monitorRecord.begin(); iter != g_monitorRecord.end(); ++iter) {
             std::shared_ptr<NativeReference> jsMonitor = iter->first;
-            if ((info.argv[INDEX_ZERO])->StrictEquals(jsMonitor->Get())) {
+            bool isEquals = false;
+            napi_strict_equals(env, (info.argv[INDEX_ZERO]), jsMonitor->GetNapiValue(), &isEquals);
+            if (isEquals) {
                 g_monitorRecord.erase(iter);
                 break;
             }
@@ -418,112 +396,114 @@ NativeValue *JSAbilityDelegator::OnRemoveAbilityMonitor(NativeEngine &engine, Na
 }
 
 
-NativeValue *JSAbilityDelegator::OnRemoveAbilityMonitorSync(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JSAbilityDelegator::OnRemoveAbilityMonitorSync(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::shared_ptr<AbilityMonitor> monitor = nullptr;
-    if (!ParseAbilityMonitorPara(engine, info, monitor, true)) {
+    if (!ParseAbilityMonitorPara(env, info, monitor, true)) {
         HILOG_ERROR("Parse removeAbilityMonitorSync parameters failed");
-        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+        return ThrowJsError(env, INCORRECT_PARAMETERS);
     }
     auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
     if (!delegator) {
-        engine.Throw(CreateJsError(engine, COMMON_FAILED, "removeAbilityMonitor failed."));
-        return engine.CreateUndefined();
+        ThrowError(env, COMMON_FAILED, "removeAbilityMonitor failed.");
+        return CreateJsUndefined(env);
     }
     delegator->RemoveAbilityMonitor(monitor);
     for (auto iter = g_monitorRecord.begin(); iter != g_monitorRecord.end(); ++iter) {
         std::shared_ptr<NativeReference> jsMonitor = iter->first;
-        if ((info.argv[INDEX_ZERO])->StrictEquals(jsMonitor->Get())) {
+        bool isEquals = false;
+        napi_strict_equals(env, (info.argv[INDEX_ZERO]), jsMonitor->GetNapiValue(), &isEquals);
+        if (isEquals) {
             g_monitorRecord.erase(iter);
             break;
         }
     }
-    return engine.CreateUndefined();
+    return CreateJsUndefined(env);
 }
 
-NativeValue *JSAbilityDelegator::OnRemoveAbilityStageMonitor(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JSAbilityDelegator::OnRemoveAbilityStageMonitor(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     bool isExisted = false;
     std::shared_ptr<AbilityStageMonitor> monitor = nullptr;
-    if (!ParseAbilityStageMonitorPara(engine, info, monitor, isExisted, false)) {
+    if (!ParseAbilityStageMonitorPara(env, info, monitor, isExisted, false)) {
         HILOG_ERROR("Parse removeAbilityStageMonitor parameters failed");
-        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+        return ThrowJsError(env, INCORRECT_PARAMETERS);
     }
 
-    AsyncTask::CompleteCallback complete =
-        [monitor](NativeEngine &engine, AsyncTask &task, int32_t status) {
-        HILOG_INFO("OnRemoveAbilityStageMonitor AsyncTask is called");
+    NapiAsyncTask::CompleteCallback complete =
+        [monitor](napi_env env, NapiAsyncTask &task, int32_t status) {
+        HILOG_INFO("OnRemoveAbilityStageMonitor NapiAsyncTask is called");
 
         auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
         if (!delegator) {
-            task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "removeAbilityStageMonitor failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "removeAbilityStageMonitor failed."));
             return;
         }
         delegator->RemoveAbilityStageMonitor(monitor);
-        ResolveWithNoError(engine, task);
+        ResolveWithNoError(env, task);
     };
 
-    NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
-    NativeValue *result = nullptr;
-    AsyncTask::Schedule("JSAbilityDelegator::OnRemoveAbilityStageMonitor", engine,
-        CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::Schedule("JSAbilityDelegator::OnRemoveAbilityStageMonitor", env,
+        CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
 
     if (isExisted) {
-        RemoveStageMonitorRecord(info.argv[INDEX_ZERO]);
+        RemoveStageMonitorRecord(env, info.argv[INDEX_ZERO]);
     }
     return result;
 }
 
-NativeValue *JSAbilityDelegator::OnRemoveAbilityStageMonitorSync(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JSAbilityDelegator::OnRemoveAbilityStageMonitorSync(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     bool isExisted = false;
     std::shared_ptr<AbilityStageMonitor> monitor = nullptr;
-    if (!ParseAbilityStageMonitorPara(engine, info, monitor, isExisted, true)) {
+    if (!ParseAbilityStageMonitorPara(env, info, monitor, isExisted, true)) {
         HILOG_ERROR("Parse removeAbilityStageMonitorSync parameters failed");
-        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+        return ThrowJsError(env, INCORRECT_PARAMETERS);
     }
 
     auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
     if (!delegator) {
-        engine.Throw(CreateJsError(engine, COMMON_FAILED, "removeAbilityStageMonitor failed."));
-        return engine.CreateUndefined();
+        ThrowError(env, COMMON_FAILED, "removeAbilityStageMonitor failed.");
+        return CreateJsUndefined(env);
     }
     delegator->RemoveAbilityStageMonitor(monitor);
     if (isExisted) {
-        RemoveStageMonitorRecord(info.argv[INDEX_ZERO]);
+        RemoveStageMonitorRecord(env, info.argv[INDEX_ZERO]);
     }
-    return engine.CreateUndefined();
+    return CreateJsUndefined(env);
 }
 
-NativeValue *JSAbilityDelegator::OnWaitAbilityMonitor(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JSAbilityDelegator::OnWaitAbilityMonitor(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::shared_ptr<AbilityMonitor> monitor = nullptr;
     TimeoutCallback opt {false, false};
     int64_t timeout = 0;
-    if (!ParseWaitAbilityMonitorPara(engine, info, monitor, opt, timeout)) {
+    if (!ParseWaitAbilityMonitorPara(env, info, monitor, opt, timeout)) {
         HILOG_ERROR("Parse waitAbilityMonitor parameters failed");
-        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+        return ThrowJsError(env, INCORRECT_PARAMETERS);
     }
 
     auto abilityObjectBox = std::make_shared<AbilityObjectBox>();
-    AsyncTask::ExecuteCallback execute = [monitor, timeout, opt, abilityObjectBox]() {
-        HILOG_INFO("OnWaitAbilityMonitor AsyncTask ExecuteCallback is called");
+    NapiAsyncTask::ExecuteCallback execute = [monitor, timeout, opt, abilityObjectBox]() {
+        HILOG_INFO("OnWaitAbilityMonitor NapiAsyncTask ExecuteCallback is called");
         if (!abilityObjectBox) {
-            HILOG_ERROR("OnWaitAbilityMonitor AsyncTask ExecuteCallback, Invalid abilityObjectBox");
+            HILOG_ERROR("OnWaitAbilityMonitor NapiAsyncTask ExecuteCallback, Invalid abilityObjectBox");
             return;
         }
 
         auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
         if (!delegator) {
-            HILOG_ERROR("OnWaitAbilityMonitor AsyncTask ExecuteCallback, Invalid delegator");
+            HILOG_ERROR("OnWaitAbilityMonitor NapiAsyncTask ExecuteCallback, Invalid delegator");
             return;
         }
 
@@ -539,48 +519,48 @@ NativeValue *JSAbilityDelegator::OnWaitAbilityMonitor(NativeEngine &engine, Nati
         g_abilityRecord.emplace(property->object_, property->token_);
     };
 
-    AsyncTask::CompleteCallback complete = [abilityObjectBox](NativeEngine &engine, AsyncTask &task, int32_t status) {
-        HILOG_INFO("OnWaitAbilityMonitor AsyncTask CompleteCallback is called");
+    NapiAsyncTask::CompleteCallback complete = [abilityObjectBox](napi_env env, NapiAsyncTask &task, int32_t status) {
+        HILOG_INFO("OnWaitAbilityMonitor NapiAsyncTask CompleteCallback is called");
         if (abilityObjectBox && !abilityObjectBox->object_.expired()) {
-            ResolveWithNoError(engine, task, abilityObjectBox->object_.lock()->Get());
+            ResolveWithNoError(env, task, abilityObjectBox->object_.lock()->GetNapiValue());
         } else {
-            task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "waitAbilityMonitor failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "waitAbilityMonitor failed."));
         }
     };
 
-    NativeValue *lastParam = nullptr;
+    napi_value lastParam = nullptr;
     if (opt.hasCallbackPara) {
         lastParam = opt.hasTimeoutPara ? info.argv[INDEX_TWO] : info.argv[INDEX_ONE];
     }
 
-    NativeValue *result = nullptr;
-    AsyncTask::Schedule("JSAbilityDelegator::OnWaitAbilityMonitor",
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
+    napi_value result = nullptr;
+    NapiAsyncTask::Schedule("JSAbilityDelegator::OnWaitAbilityMonitor",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
     return result;
 }
 
-NativeValue *JSAbilityDelegator::OnWaitAbilityStageMonitor(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JSAbilityDelegator::OnWaitAbilityStageMonitor(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::shared_ptr<AbilityStageMonitor> monitor = nullptr;
     TimeoutCallback opt {false, false};
     int64_t timeout = 0;
-    if (!ParseWaitAbilityStageMonitorPara(engine, info, monitor, opt, timeout)) {
+    if (!ParseWaitAbilityStageMonitorPara(env, info, monitor, opt, timeout)) {
         HILOG_ERROR("Parse waitAbilityStageMonitor parameters failed");
-        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+        return ThrowJsError(env, INCORRECT_PARAMETERS);
     }
 
     auto abilityStageObjBox = std::make_shared<AbilityStageObjBox>();
-    AsyncTask::ExecuteCallback execute = [monitor, timeout, opt, abilityStageObjBox]() {
-        HILOG_INFO("OnWaitAbilityStageMonitor AsyncTask ExecuteCallback is called");
+    NapiAsyncTask::ExecuteCallback execute = [monitor, timeout, opt, abilityStageObjBox]() {
+        HILOG_INFO("OnWaitAbilityStageMonitor NapiAsyncTask ExecuteCallback is called");
         if (!abilityStageObjBox) {
-            HILOG_ERROR("OnWaitAbilityStageMonitor AsyncTask ExecuteCallback, Invalid abilityStageObjBox");
+            HILOG_ERROR("OnWaitAbilityStageMonitor NapiAsyncTask ExecuteCallback, Invalid abilityStageObjBox");
             return;
         }
         auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
         if (!delegator) {
-            HILOG_ERROR("OnWaitAbilityMonitor AsyncTask ExecuteCallback, Invalid delegator");
+            HILOG_ERROR("OnWaitAbilityMonitor NapiAsyncTask ExecuteCallback, Invalid delegator");
             return;
         }
         std::shared_ptr<DelegatorAbilityStageProperty> result;
@@ -593,394 +573,389 @@ NativeValue *JSAbilityDelegator::OnWaitAbilityStageMonitor(NativeEngine &engine,
         abilityStageObjBox->object_ = result->object_;
     };
 
-    AsyncTask::CompleteCallback complete = [abilityStageObjBox](NativeEngine &engine, AsyncTask &task, int32_t status) {
-        HILOG_INFO("OnWaitAbilityMonitor AsyncTask CompleteCallback is called");
+    NapiAsyncTask::CompleteCallback complete = [abilityStageObjBox](napi_env env, NapiAsyncTask &task, int32_t status) {
+        HILOG_INFO("OnWaitAbilityMonitor NapiAsyncTask CompleteCallback is called");
         if (abilityStageObjBox && !abilityStageObjBox->object_.expired()) {
-            ResolveWithNoError(engine, task, abilityStageObjBox->object_.lock()->Get());
+            ResolveWithNoError(env, task, abilityStageObjBox->object_.lock()->GetNapiValue());
         } else {
-            task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "waitAbilityStageMonitor failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "waitAbilityStageMonitor failed."));
         }
     };
-    NativeValue *lastParam = nullptr;
+    napi_value lastParam = nullptr;
     if (opt.hasCallbackPara) {
         lastParam = opt.hasTimeoutPara ? info.argv[INDEX_TWO] : info.argv[INDEX_ONE];
     }
-    NativeValue *result = nullptr;
-    AsyncTask::Schedule("JSAbilityDelegator::OnWaitAbilityStageMonitor",
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
+    napi_value result = nullptr;
+    NapiAsyncTask::Schedule("JSAbilityDelegator::OnWaitAbilityStageMonitor",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
     return result;
 }
 
-NativeValue *JSAbilityDelegator::OnPrint(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JSAbilityDelegator::OnPrint(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::string msg;
-    if (!ParsePrintPara(engine, info, msg)) {
+    if (!ParsePrintPara(env, info, msg)) {
         HILOG_ERROR("Parse print parameters failed");
-        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+        return ThrowJsError(env, INCORRECT_PARAMETERS);
     }
 
-    AsyncTask::CompleteCallback complete = [msg](NativeEngine &engine, AsyncTask &task, int32_t status) {
-        HILOG_INFO("OnPrint AsyncTask is called");
+    NapiAsyncTask::CompleteCallback complete = [msg](napi_env env, NapiAsyncTask &task, int32_t status) {
+        HILOG_INFO("OnPrint NapiAsyncTask is called");
         auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
         if (!delegator) {
-            task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "print failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "print failed."));
             return;
         }
         delegator->Print(msg);
-        ResolveWithNoError(engine, task);
+        ResolveWithNoError(env, task);
     };
 
-    NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
-    NativeValue *result = nullptr;
-    AsyncTask::Schedule("JSAbilityDelegator::OnPrint",
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::Schedule("JSAbilityDelegator::OnPrint",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
-NativeValue *JSAbilityDelegator::OnPrintSync(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JSAbilityDelegator::OnPrintSync(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::string msg;
-    if (!ParsePrintPara(engine, info, msg)) {
+    if (!ParsePrintPara(env, info, msg)) {
         HILOG_ERROR("Parse print parameters failed");
-        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+        return ThrowJsError(env, INCORRECT_PARAMETERS);
     }
 
     auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
     if (!delegator) {
         HILOG_ERROR("Invalid delegator");
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
 
     delegator->Print(msg);
-    return engine.CreateNull();
+    return CreateJsNull(env);
 }
 
-NativeValue *JSAbilityDelegator::OnExecuteShellCommand(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JSAbilityDelegator::OnExecuteShellCommand(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::string cmd;
     TimeoutCallback opt {false, false};
     int64_t timeoutSecs = 0;
-    if (!ParseExecuteShellCommandPara(engine, info, cmd, opt, timeoutSecs)) {
+    if (!ParseExecuteShellCommandPara(env, info, cmd, opt, timeoutSecs)) {
         HILOG_ERROR("Parse executeShellCommand parameters failed");
-        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+        return ThrowJsError(env, INCORRECT_PARAMETERS);
     }
 
     auto shellCmdResultBox = std::make_shared<ShellCmdResultBox>();
-    AsyncTask::ExecuteCallback execute = [cmd, timeoutSecs, shellCmdResultBox]() {
-        HILOG_INFO("OnExecuteShellCommand AsyncTask ExecuteCallback is called");
+    NapiAsyncTask::ExecuteCallback execute = [cmd, timeoutSecs, shellCmdResultBox]() {
+        HILOG_INFO("OnExecuteShellCommand NapiAsyncTask ExecuteCallback is called");
         if (!shellCmdResultBox) {
-            HILOG_ERROR("OnExecuteShellCommand AsyncTask ExecuteCallback, Invalid shellCmdResultBox");
+            HILOG_ERROR("OnExecuteShellCommand NapiAsyncTask ExecuteCallback, Invalid shellCmdResultBox");
             return;
         }
 
         auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
         if (!delegator) {
-            HILOG_ERROR("OnExecuteShellCommand AsyncTask ExecuteCallback, Invalid delegator");
+            HILOG_ERROR("OnExecuteShellCommand NapiAsyncTask ExecuteCallback, Invalid delegator");
             return;
         }
 
         shellCmdResultBox->shellCmdResult_ = delegator->ExecuteShellCommand(cmd, timeoutSecs);
     };
 
-    AsyncTask::CompleteCallback complete = [shellCmdResultBox](NativeEngine &engine, AsyncTask &task, int32_t status) {
-        HILOG_INFO("OnExecuteShellCommand AsyncTask CompleteCallback is called");
+    NapiAsyncTask::CompleteCallback complete = [shellCmdResultBox](napi_env env, NapiAsyncTask &task, int32_t status) {
+        HILOG_INFO("OnExecuteShellCommand NapiAsyncTask CompleteCallback is called");
         if (!shellCmdResultBox) {
-            HILOG_ERROR("OnExecuteShellCommand AsyncTask CompleteCallback, Invalid shellCmdResultBox");
-            task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "executeShellCommand failed."));
+            HILOG_ERROR("OnExecuteShellCommand NapiAsyncTask CompleteCallback, Invalid shellCmdResultBox");
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "executeShellCommand failed."));
             return;
         }
 
-        NativeValue *result = CreateJsShellCmdResult(engine, shellCmdResultBox->shellCmdResult_);
+        napi_value result = CreateJsShellCmdResult(env, shellCmdResultBox->shellCmdResult_);
         if (result) {
-            ResolveWithNoError(engine, task, result);
+            ResolveWithNoError(env, task, result);
         } else {
-            task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "executeShellCommand failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "executeShellCommand failed."));
         }
     };
 
-    NativeValue *lastParam = nullptr;
+    napi_value lastParam = nullptr;
     if (opt.hasCallbackPara) {
         lastParam = opt.hasTimeoutPara ? info.argv[INDEX_TWO] : info.argv[INDEX_ONE];
     }
 
-    NativeValue *result = nullptr;
-    AsyncTask::Schedule("JSAbilityDelegator::OnExecuteShellCommand:" + cmd,
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
+    napi_value result = nullptr;
+    NapiAsyncTask::Schedule("JSAbilityDelegator::OnExecuteShellCommand:" + cmd,
+        env, CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
     return result;
 }
 
-NativeValue *JSAbilityDelegator::OnGetAppContext(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JSAbilityDelegator::OnGetAppContext(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
     if (!delegator) {
         HILOG_ERROR("delegator is null");
-        return engine.CreateNull();
+        return CreateJsNull(env);
     }
     std::shared_ptr<AbilityRuntime::Context> context = delegator->GetAppContext();
     if (!context) {
         HILOG_ERROR("context is null");
-        return engine.CreateNull();
+        return CreateJsNull(env);
     }
-    NativeValue *value = CreateJsBaseContext(engine, context, false);
-    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(value);
-    if (nativeObj == nullptr) {
-        HILOG_ERROR("Failed to get context native object");
-        return engine.CreateNull();
-    }
+    napi_value value = CreateJsBaseContext(env, context, false);
     auto workContext = new (std::nothrow) std::weak_ptr<AbilityRuntime::Context>(context);
-    nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachAppContext, workContext, nullptr);
-    nativeObj->SetNativePointer(
-        workContext,
-        [](NativeEngine *, void *data, void *) {
+    if (workContext == nullptr) {
+        HILOG_ERROR("invalid workContext");
+        return CreateJsNull(env);
+    }
+    napi_coerce_to_native_binding_object(env, value, DetachCallbackFunc, AttachAppContext, workContext, nullptr);
+    napi_wrap(env, value, workContext,
+        [](napi_env, void *data, void *) {
             HILOG_INFO("Finalizer for weak_ptr app context is called");
             delete static_cast<std::weak_ptr<AbilityRuntime::Context> *>(data);
-        },
-        nullptr);
+        }, nullptr, nullptr);
     return value;
 }
 
-NativeValue *JSAbilityDelegator::OnGetAbilityState(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JSAbilityDelegator::OnGetAbilityState(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     if (info.argc < ARGC_ONE) {
         HILOG_ERROR("Incorrect number of parameters");
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
 
     sptr<OHOS::IRemoteObject> remoteObject = nullptr;
-    if (!ParseAbilityPara(engine, info.argv[INDEX_ZERO], remoteObject)) {
+    if (!ParseAbilityPara(env, info.argv[INDEX_ZERO], remoteObject)) {
         HILOG_ERROR("Parse ability parameter failed");
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
 
     auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
     if (!delegator) {
         HILOG_ERROR("delegator is null");
-        return engine.CreateNull();
+        return CreateJsNull(env);
     }
     AbilityDelegator::AbilityState lifeState = delegator->GetAbilityState(remoteObject);
     AbilityLifecycleState abilityLifeState = AbilityLifecycleState::UNINITIALIZED;
     AbilityLifecycleStateToJs(lifeState, abilityLifeState);
-    return engine.CreateNumber(static_cast<int>(abilityLifeState));
+    return CreateJsValue(env, static_cast<int>(abilityLifeState));
 }
 
-NativeValue *JSAbilityDelegator::OnGetCurrentTopAbility(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JSAbilityDelegator::OnGetCurrentTopAbility(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
-    if (info.argc >= ARGC_ONE && info.argv[INDEX_ZERO]->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
+    if (info.argc >= ARGC_ONE && !AppExecFwk::IsTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_function)) {
         HILOG_ERROR("Parse getCurrentTopAbility parameter failed");
-        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+        return ThrowJsError(env, INCORRECT_PARAMETERS);
     }
 
-    AsyncTask::CompleteCallback complete = [this](NativeEngine &engine, AsyncTask &task, int32_t status) {
-        HILOG_INFO("OnGetCurrentTopAbility AsyncTask is called");
+    NapiAsyncTask::CompleteCallback complete = [this](napi_env env, NapiAsyncTask &task, int32_t status) {
+        HILOG_INFO("OnGetCurrentTopAbility NapiAsyncTask is called");
         auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
         if (!delegator) {
             HILOG_ERROR("Invalid delegator");
-            task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "getCurrentTopAbility failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "getCurrentTopAbility failed."));
             return;
         }
 
         auto property = delegator->GetCurrentTopAbility();
         if (!property || property->object_.expired()) {
             HILOG_ERROR("Invalid property");
-            task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "getCurrentTopAbility failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "getCurrentTopAbility failed."));
         } else {
             {
                 std::unique_lock<std::mutex> lck(g_mutexAbilityRecord);
                 g_abilityRecord.emplace(property->object_, property->token_);
             }
-            ResolveWithNoError(engine, task, property->object_.lock()->Get());
+            ResolveWithNoError(env, task, property->object_.lock()->GetNapiValue());
         }
     };
 
-    NativeValue *lastParam = (info.argc >= ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
-    NativeValue *result = nullptr;
-    AsyncTask::ScheduleHighQos("JSAbilityDelegator::OnGetCurrentTopAbility",
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    napi_value lastParam = (info.argc >= ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JSAbilityDelegator::OnGetCurrentTopAbility",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
-NativeValue *JSAbilityDelegator::OnStartAbility(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JSAbilityDelegator::OnStartAbility(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     AAFwk::Want want;
-    if (!ParseStartAbilityPara(engine, info, want)) {
+    if (!ParseStartAbilityPara(env, info, want)) {
         HILOG_ERROR("Parse startAbility parameters failed");
-        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+        return ThrowJsError(env, INCORRECT_PARAMETERS);
     }
 
-    AsyncTask::CompleteCallback complete = [want](NativeEngine &engine, AsyncTask &task, int32_t status) {
-        HILOG_INFO("OnStartAbility AsyncTask is called");
+    NapiAsyncTask::CompleteCallback complete = [want](napi_env env, NapiAsyncTask &task, int32_t status) {
+        HILOG_INFO("OnStartAbility NapiAsyncTask is called");
         auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
         if (!delegator) {
-            task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "startAbility failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "startAbility failed."));
             return;
         }
         int result = delegator->StartAbility(want);
         if (result) {
-            task.Reject(engine, CreateJsError(engine, result, "startAbility failed."));
+            task.Reject(env, CreateJsError(env, result, "startAbility failed."));
         } else {
-            ResolveWithNoError(engine, task);
+            ResolveWithNoError(env, task);
         }
     };
 
-    NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
-    NativeValue *result = nullptr;
-    AsyncTask::ScheduleHighQos("JSAbilityDelegator::OnStartAbility",
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JSAbilityDelegator::OnStartAbility",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
-NativeValue *JSAbilityDelegator::OnDoAbilityForeground(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JSAbilityDelegator::OnDoAbilityForeground(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     sptr<OHOS::IRemoteObject> remoteObject = nullptr;
-    if (!ParseAbilityCommonPara(engine, info, remoteObject)) {
+    if (!ParseAbilityCommonPara(env, info, remoteObject)) {
         HILOG_ERROR("Parse doAbilityForeground parameters failed");
-        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+        return ThrowJsError(env, INCORRECT_PARAMETERS);
     }
 
-    AsyncTask::CompleteCallback complete = [remoteObject](NativeEngine &engine, AsyncTask &task, int32_t status) {
-        HILOG_INFO("OnDoAbilityForeground AsyncTask is called");
+    NapiAsyncTask::CompleteCallback complete = [remoteObject](napi_env env, NapiAsyncTask &task, int32_t status) {
+        HILOG_INFO("OnDoAbilityForeground NapiAsyncTask is called");
         auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
         if (!delegator) {
-            task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "doAbilityForeground failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "doAbilityForeground failed."));
             return;
         }
         if (delegator->DoAbilityForeground(remoteObject)) {
-            ResolveWithNoError(engine, task, engine.CreateNull());
+            ResolveWithNoError(env, task, CreateJsNull(env));
         } else {
-            task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "doAbilityForeground failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "doAbilityForeground failed."));
         }
     };
 
-    NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
-    NativeValue *result = nullptr;
-    AsyncTask::ScheduleHighQos("JSAbilityDelegator::OnDoAbilityForeground",
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JSAbilityDelegator::OnDoAbilityForeground",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
-NativeValue *JSAbilityDelegator::OnDoAbilityBackground(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JSAbilityDelegator::OnDoAbilityBackground(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     sptr<OHOS::IRemoteObject> remoteObject = nullptr;
-    if (!ParseAbilityCommonPara(engine, info, remoteObject)) {
+    if (!ParseAbilityCommonPara(env, info, remoteObject)) {
         HILOG_ERROR("Parse doAbilityBackground parameters failed");
-        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+        return ThrowJsError(env, INCORRECT_PARAMETERS);
     }
 
-    AsyncTask::CompleteCallback complete = [remoteObject](NativeEngine &engine, AsyncTask &task, int32_t status) {
-        HILOG_INFO("OnDoAbilityBackground AsyncTask is called");
+    NapiAsyncTask::CompleteCallback complete = [remoteObject](napi_env env, NapiAsyncTask &task, int32_t status) {
+        HILOG_INFO("OnDoAbilityBackground NapiAsyncTask is called");
         auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
         if (!delegator) {
-            task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "doAbilityBackground failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "doAbilityBackground failed."));
             return;
         }
         if (delegator->DoAbilityBackground(remoteObject)) {
-            ResolveWithNoError(engine, task, engine.CreateNull());
+            ResolveWithNoError(env, task, CreateJsNull(env));
         } else {
-            task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "doAbilityBackground failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "doAbilityBackground failed."));
         }
     };
 
-    NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
-    NativeValue *result = nullptr;
-    AsyncTask::ScheduleHighQos("JSAbilityDelegator::OnDoAbilityBackground",
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JSAbilityDelegator::OnDoAbilityBackground",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
-NativeValue *JSAbilityDelegator::OnFinishTest(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JSAbilityDelegator::OnFinishTest(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::string msg;
     int64_t code = 0;
-    if (!ParseFinishTestPara(engine, info, msg, code)) {
+    if (!ParseFinishTestPara(env, info, msg, code)) {
         HILOG_ERROR("Parse finishTest parameters failed");
-        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+        return ThrowJsError(env, INCORRECT_PARAMETERS);
     }
 
-    AsyncTask::CompleteCallback complete = [msg, code](NativeEngine &engine, AsyncTask &task, int32_t status) {
-        HILOG_INFO("OnFinishTest AsyncTask is called");
+    NapiAsyncTask::CompleteCallback complete = [msg, code](napi_env env, NapiAsyncTask &task, int32_t status) {
+        HILOG_INFO("OnFinishTest NapiAsyncTask is called");
         auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
         if (!delegator) {
-            task.Reject(engine, CreateJsError(engine, COMMON_FAILED, "finishTest failed."));
+            task.Reject(env, CreateJsError(env, COMMON_FAILED, "finishTest failed."));
             return;
         }
         delegator->FinishUserTest(msg, code);
-        ResolveWithNoError(engine, task);
+        ResolveWithNoError(env, task);
     };
-    NativeValue *lastParam = (info.argc > ARGC_TWO) ? info.argv[INDEX_TWO] : nullptr;
-    NativeValue *result = nullptr;
-    AsyncTask::Schedule("JSAbilityDelegator::OnFinishTest",
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    napi_value lastParam = (info.argc > ARGC_TWO) ? info.argv[INDEX_TWO] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::Schedule("JSAbilityDelegator::OnFinishTest",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
-NativeValue *JSAbilityDelegator::OnSetMockList(NativeEngine &engine, NativeCallbackInfo &info)
+napi_value JSAbilityDelegator::OnSetMockList(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
 
     std::map<std::string, std::string> mockList;
-    if (!ParseMockListPara(engine, info, mockList)) {
+    if (!ParseMockListPara(env, info, mockList)) {
         HILOG_ERROR("Parse setMockList parameters failed");
-        return ThrowJsError(engine, INCORRECT_PARAMETERS);
+        return ThrowJsError(env, INCORRECT_PARAMETERS);
     }
-
-    engine.SetMockModuleList(mockList);
-    return engine.CreateNull();
+    auto engine = reinterpret_cast<NativeEngine*>(env);
+    engine->SetMockModuleList(mockList);
+    return CreateJsNull(env);
 }
 
-NativeValue *JSAbilityDelegator::ParseMonitorPara(
-    NativeEngine &engine, NativeValue *value, std::shared_ptr<AbilityMonitor> &monitor)
+napi_value JSAbilityDelegator::ParseMonitorPara(
+    napi_env env, napi_value value, std::shared_ptr<AbilityMonitor> &monitor)
 {
     HILOG_INFO("enter, monitorRecord size = %{public}zu", g_monitorRecord.size());
 
     for (auto iter = g_monitorRecord.begin(); iter != g_monitorRecord.end(); ++iter) {
         std::shared_ptr<NativeReference> jsMonitor = iter->first;
-        if (value->StrictEquals(jsMonitor->Get())) {
+        bool isEquals = false;
+        napi_strict_equals(env, value, jsMonitor->GetNapiValue(), &isEquals);
+        if (isEquals) {
             HILOG_ERROR("monitor existed");
             monitor = iter->second;
-            return monitor ? engine.CreateNull() : nullptr;
+            return monitor ? CreateJsNull(env) : nullptr;
         }
     }
 
-    NativeObject *object = ConvertNativeValueTo<NativeObject>(value);
-    if (object == nullptr) {
-        HILOG_ERROR("Failed to get object");
-        return nullptr;
-    }
-
-    auto abilityNameValue = object->GetProperty("abilityName");
+    napi_value abilityNameValue = nullptr;
+    napi_get_named_property(env, value, "abilityName", &abilityNameValue);
     if (abilityNameValue == nullptr) {
         HILOG_ERROR("Failed to get property abilityName");
         return nullptr;
     }
 
     std::string abilityName;
-    if (!ConvertFromJsValue(engine, abilityNameValue, abilityName)) {
+    if (!ConvertFromJsValue(env, abilityNameValue, abilityName)) {
         return nullptr;
     }
 
     std::string moduleName = "";
-    auto moduleNameValue = object->GetProperty("moduleName");
-    if (moduleNameValue != nullptr && !ConvertFromJsValue(engine, moduleNameValue, moduleName)) {
+    napi_value moduleNameValue = nullptr;
+    napi_get_named_property(env, value, "moduleName", &moduleNameValue);
+    if (moduleNameValue != nullptr && !ConvertFromJsValue(env, moduleNameValue, moduleName)) {
         HILOG_WARN("Failed to get property moduleName");
         moduleName = "";
     }
@@ -988,70 +963,72 @@ NativeValue *JSAbilityDelegator::ParseMonitorPara(
     std::shared_ptr<JSAbilityMonitor> abilityMonitor = nullptr;
     if (moduleName.empty()) {
         abilityMonitor = std::make_shared<JSAbilityMonitor>(abilityName);
-        abilityMonitor->SetJsAbilityMonitorEnv(&engine);
+        abilityMonitor->SetJsAbilityMonitorEnv(env);
         abilityMonitor->SetJsAbilityMonitor(value);
         monitor = std::make_shared<AbilityMonitor>(abilityName, abilityMonitor);
     } else {
         abilityMonitor = std::make_shared<JSAbilityMonitor>(abilityName, moduleName);
-        abilityMonitor->SetJsAbilityMonitorEnv(&engine);
+        abilityMonitor->SetJsAbilityMonitorEnv(env);
         abilityMonitor->SetJsAbilityMonitor(value);
         monitor = std::make_shared<AbilityMonitor>(abilityName, moduleName, abilityMonitor);
     }
 
     std::shared_ptr<NativeReference> reference = nullptr;
-    reference.reset(engine.CreateReference(value, 1));
+    napi_ref ref = nullptr;
+    napi_create_reference(env, value, 1, &ref);
+    reference.reset(reinterpret_cast<NativeReference*>(ref));
     g_monitorRecord.emplace(reference, monitor);
 
-    return engine.CreateNull();
+    return CreateJsNull(env);
 }
 
-NativeValue *JSAbilityDelegator::ParseStageMonitorPara(
-    NativeEngine &engine, NativeValue *value, std::shared_ptr<AbilityStageMonitor> &monitor, bool &isExisted)
+napi_value JSAbilityDelegator::ParseStageMonitorPara(
+    napi_env env, napi_value value, std::shared_ptr<AbilityStageMonitor> &monitor, bool &isExisted)
 {
     HILOG_INFO("enter, stageMonitorRecord size = %{public}zu", g_stageMonitorRecord.size());
 
     isExisted = false;
     for (auto iter = g_stageMonitorRecord.begin(); iter != g_stageMonitorRecord.end(); ++iter) {
         std::shared_ptr<NativeReference> jsMonitor = iter->first;
-        if (value->StrictEquals(jsMonitor->Get())) {
+        bool isEquals = false;
+        napi_strict_equals(env, value, jsMonitor->GetNapiValue(), &isEquals);
+        if (isEquals) {
             HILOG_WARN("AbilityStage monitor existed");
             isExisted = true;
             monitor = iter->second;
-            return monitor ? engine.CreateNull() : nullptr;
+            return monitor ? CreateJsNull(env) : nullptr;
         }
     }
-    NativeObject *object = ConvertNativeValueTo<NativeObject>(value);
-    if (object == nullptr) {
-        HILOG_ERROR("Failed to get object");
-        return nullptr;
-    }
-    auto moduleNameValue = object->GetProperty("moduleName");
+
+    napi_value moduleNameValue = nullptr;
+    napi_get_named_property(env, value, "moduleName", &moduleNameValue);
     if (moduleNameValue == nullptr) {
         HILOG_ERROR("Failed to get property moduleName");
         return nullptr;
     }
     std::string moduleName;
-    if (!ConvertFromJsValue(engine, moduleNameValue, moduleName)) {
+    if (!ConvertFromJsValue(env, moduleNameValue, moduleName)) {
         HILOG_ERROR("Failed to get moduleName from JsValue");
         return nullptr;
     }
-    auto srcEntranceValue = object->GetProperty("srcEntrance");
+    napi_value srcEntranceValue = nullptr;
+    napi_get_named_property(env, value, "srcEntrance", &srcEntranceValue);
     if (srcEntranceValue == nullptr) {
         HILOG_ERROR("Failed to get property srcEntrance");
         return nullptr;
     }
     std::string srcEntrance;
-    if (!ConvertFromJsValue(engine, srcEntranceValue, srcEntrance)) {
+    if (!ConvertFromJsValue(env, srcEntranceValue, srcEntrance)) {
         HILOG_ERROR("Failed to get srcEntrance from JsValue");
         return nullptr;
     }
 
     monitor = std::make_shared<AbilityStageMonitor>(moduleName, srcEntrance);
-    return engine.CreateNull();
+    return CreateJsNull(env);
 }
 
-NativeValue *JSAbilityDelegator::ParseAbilityPara(
-    NativeEngine &engine, NativeValue *value, sptr<OHOS::IRemoteObject> &remoteObject)
+napi_value JSAbilityDelegator::ParseAbilityPara(
+    napi_env env, napi_value value, sptr<OHOS::IRemoteObject> &remoteObject)
 {
     HILOG_INFO("enter");
 
@@ -1062,10 +1039,12 @@ NativeValue *JSAbilityDelegator::ParseAbilityPara(
             continue;
         }
 
-        if (value->StrictEquals(iter->first.lock()->Get())) {
+        bool isEquals = false;
+        napi_strict_equals(env, value, iter->first.lock()->GetNapiValue(), &isEquals);
+        if (isEquals) {
             remoteObject = iter->second;
             HILOG_INFO("Ability exist");
-            return remoteObject ? engine.CreateNull() : nullptr;
+            return remoteObject ? CreateJsNull(env) : nullptr;
         }
 
         ++iter;
@@ -1076,7 +1055,7 @@ NativeValue *JSAbilityDelegator::ParseAbilityPara(
     return nullptr;
 }
 
-NativeValue *JSAbilityDelegator::CreateAbilityObject(NativeEngine &engine, const sptr<IRemoteObject> &remoteObject)
+napi_value JSAbilityDelegator::CreateAbilityObject(napi_env env, const sptr<IRemoteObject> &remoteObject)
 {
     HILOG_INFO("enter");
 
@@ -1084,15 +1063,17 @@ NativeValue *JSAbilityDelegator::CreateAbilityObject(NativeEngine &engine, const
         return nullptr;
     }
 
-    NativeValue *objValue = engine.CreateObject();
-    NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
-    if (object == nullptr) {
+    napi_value objValue = nullptr;
+    napi_create_object(env, &objValue);
+    if (objValue == nullptr) {
         HILOG_ERROR("Failed to get object");
         return nullptr;
     }
 
     std::shared_ptr<NativeReference> reference = nullptr;
-    reference.reset(engine.CreateReference(objValue, 1));
+    napi_ref ref = nullptr;
+    napi_create_reference(env, objValue, 1, &ref);
+    reference.reset(reinterpret_cast<NativeReference*>(ref));
 
     std::unique_lock<std::mutex> lck(g_mutexAbilityRecord);
     g_abilityRecord[reference] = remoteObject;
@@ -1122,8 +1103,8 @@ void JSAbilityDelegator::AbilityLifecycleStateToJs(
     }
 }
 
-NativeValue *JSAbilityDelegator::ParseAbilityMonitorPara(
-    NativeEngine &engine, NativeCallbackInfo &info, std::shared_ptr<AbilityMonitor> &monitor, bool isSync)
+napi_value JSAbilityDelegator::ParseAbilityMonitorPara(
+    napi_env env, NapiCallbackInfo& info, std::shared_ptr<AbilityMonitor> &monitor, bool isSync)
 {
     HILOG_INFO("enter");
     if (info.argc < ARGC_ONE) {
@@ -1131,25 +1112,25 @@ NativeValue *JSAbilityDelegator::ParseAbilityMonitorPara(
         return nullptr;
     }
 
-    if (!ParseMonitorPara(engine, info.argv[INDEX_ZERO], monitor)) {
+    if (!ParseMonitorPara(env, info.argv[INDEX_ZERO], monitor)) {
         HILOG_ERROR("Parse monitor parameters failed");
         return nullptr;
     }
     
     if (isSync) {
-        return engine.CreateNull();
+        return CreateJsNull(env);
     }
 
     if (info.argc > ARGC_ONE) {
-        if (info.argv[INDEX_ONE]->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
+        if (!AppExecFwk::IsTypeForNapiValue(env, info.argv[INDEX_ONE], napi_function)) {
             HILOG_ERROR("ParseAbilityMonitorPara, Parse callback parameters failed");
             return nullptr;
         }
     }
-    return engine.CreateNull();
+    return CreateJsNull(env);
 }
 
-NativeValue *JSAbilityDelegator::ParseAbilityStageMonitorPara(NativeEngine &engine, NativeCallbackInfo &info,
+napi_value JSAbilityDelegator::ParseAbilityStageMonitorPara(napi_env env, NapiCallbackInfo& info,
     std::shared_ptr<AbilityStageMonitor> &monitor, bool &isExisted, bool isSync)
 {
     HILOG_INFO("enter");
@@ -1158,25 +1139,25 @@ NativeValue *JSAbilityDelegator::ParseAbilityStageMonitorPara(NativeEngine &engi
         return nullptr;
     }
 
-    if (!ParseStageMonitorPara(engine, info.argv[INDEX_ZERO], monitor, isExisted)) {
+    if (!ParseStageMonitorPara(env, info.argv[INDEX_ZERO], monitor, isExisted)) {
         HILOG_ERROR("Parse stage monitor parameters failed");
         return nullptr;
     }
     
     if (isSync) {
-        return engine.CreateNull();
+        return CreateJsNull(env);
     }
 
     if (info.argc > ARGC_ONE) {
-        if (info.argv[INDEX_ONE]->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
+        if (!AppExecFwk::IsTypeForNapiValue(env, info.argv[INDEX_ONE], napi_function)) {
             HILOG_ERROR("ParseAbilityStageMonitorPara, Parse callback parameters failed");
             return nullptr;
         }
     }
-    return engine.CreateNull();
+    return CreateJsNull(env);
 }
 
-NativeValue *JSAbilityDelegator::ParseWaitAbilityMonitorPara(NativeEngine &engine, NativeCallbackInfo &info,
+napi_value JSAbilityDelegator::ParseWaitAbilityMonitorPara(napi_env env, NapiCallbackInfo& info,
     std::shared_ptr<AbilityMonitor> &monitor, TimeoutCallback &opt, int64_t &timeout)
 {
     HILOG_INFO("enter");
@@ -1185,19 +1166,19 @@ NativeValue *JSAbilityDelegator::ParseWaitAbilityMonitorPara(NativeEngine &engin
         return nullptr;
     }
 
-    if (!ParseMonitorPara(engine, info.argv[INDEX_ZERO], monitor)) {
+    if (!ParseMonitorPara(env, info.argv[INDEX_ZERO], monitor)) {
         HILOG_ERROR("Monitor parse parameters failed");
         return nullptr;
     }
 
-    if (!ParseTimeoutCallbackPara(engine, info, opt, timeout)) {
+    if (!ParseTimeoutCallbackPara(env, info, opt, timeout)) {
         HILOG_ERROR("TimeoutCallback parse parameters failed");
         return nullptr;
     }
-    return engine.CreateNull();
+    return CreateJsNull(env);
 }
 
-NativeValue *JSAbilityDelegator::ParseWaitAbilityStageMonitorPara(NativeEngine &engine, NativeCallbackInfo &info,
+napi_value JSAbilityDelegator::ParseWaitAbilityStageMonitorPara(napi_env env, NapiCallbackInfo& info,
     std::shared_ptr<AbilityStageMonitor> &monitor, TimeoutCallback &opt, int64_t &timeout)
 {
     HILOG_INFO("enter");
@@ -1207,22 +1188,22 @@ NativeValue *JSAbilityDelegator::ParseWaitAbilityStageMonitorPara(NativeEngine &
     }
 
     bool isExisted = false;
-    if (!ParseStageMonitorPara(engine, info.argv[INDEX_ZERO], monitor, isExisted)) {
+    if (!ParseStageMonitorPara(env, info.argv[INDEX_ZERO], monitor, isExisted)) {
         HILOG_ERROR("Stage monitor parse parameters failed");
         return nullptr;
     }
-    if (!ParseTimeoutCallbackPara(engine, info, opt, timeout)) {
+    if (!ParseTimeoutCallbackPara(env, info, opt, timeout)) {
         HILOG_ERROR("TimeoutCallback parse parameters failed");
         return nullptr;
     }
     if (!isExisted) {
-        AddStageMonitorRecord(engine, info.argv[INDEX_ZERO], monitor);
+        AddStageMonitorRecord(env, info.argv[INDEX_ZERO], monitor);
     }
-    return engine.CreateNull();
+    return CreateJsNull(env);
 }
 
-NativeValue *JSAbilityDelegator::ParseTimeoutCallbackPara(
-    NativeEngine &engine, NativeCallbackInfo &info, TimeoutCallback &opt, int64_t &timeout)
+napi_value JSAbilityDelegator::ParseTimeoutCallbackPara(
+    napi_env env, NapiCallbackInfo& info, TimeoutCallback &opt, int64_t &timeout)
 {
     HILOG_INFO("enter");
 
@@ -1230,34 +1211,34 @@ NativeValue *JSAbilityDelegator::ParseTimeoutCallbackPara(
     opt.hasTimeoutPara = false;
 
     if (info.argc >= ARGC_TWO) {
-        if (ConvertFromJsValue(engine, info.argv[INDEX_ONE], timeout)) {
+        if (ConvertFromJsValue(env, info.argv[INDEX_ONE], timeout)) {
             opt.hasTimeoutPara = true;
         } else {
             if (info.argv[INDEX_ONE] == nullptr) {
-                HILOG_WARN("argv[1] is null");
-            } else if (info.argv[INDEX_ONE]->TypeOf() == NativeValueType::NATIVE_FUNCTION) {
+                HILOG_WARN("info.argv[1] is null");
+            } else if (AppExecFwk::IsTypeForNapiValue(env, info.argv[INDEX_ONE], napi_function)) {
                 opt.hasCallbackPara = true;
-                return engine.CreateNull();
+                return CreateJsNull(env);
             } else {
                 return nullptr;
             }
         }
 
         if (info.argc > ARGC_TWO) {
-            if (info.argv[INDEX_TWO]->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
+            if (!AppExecFwk::IsTypeForNapiValue(env, info.argv[INDEX_TWO], napi_function)) {
                 if (info.argv[INDEX_TWO] == nullptr) {
-                    HILOG_WARN("argv[2] is null");
-                    return engine.CreateNull();
+                    HILOG_WARN("info.argv[2] is null");
+                    return CreateJsNull(env);
                 }
                 return nullptr;
             }
             opt.hasCallbackPara = true;
         }
     }
-    return engine.CreateNull();
+    return CreateJsNull(env);
 }
 
-NativeValue *JSAbilityDelegator::ParsePrintPara(NativeEngine &engine, NativeCallbackInfo &info, std::string &msg)
+napi_value JSAbilityDelegator::ParsePrintPara(napi_env env, NapiCallbackInfo& info, std::string &msg)
 {
     HILOG_INFO("enter");
     if (info.argc < ARGC_ONE) {
@@ -1265,22 +1246,22 @@ NativeValue *JSAbilityDelegator::ParsePrintPara(NativeEngine &engine, NativeCall
         return nullptr;
     }
 
-    if (!ConvertFromJsValue(engine, info.argv[INDEX_ZERO], msg)) {
+    if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], msg)) {
         HILOG_ERROR("Parse msg parameter failed");
         return nullptr;
     }
 
     if (info.argc > ARGC_ONE) {
-        if (info.argv[INDEX_ONE]->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
+        if (!AppExecFwk::IsTypeForNapiValue(env, info.argv[INDEX_ONE], napi_function)) {
             HILOG_ERROR("Parse callback parameter failed");
             return nullptr;
         }
     }
-    return engine.CreateNull();
+    return CreateJsNull(env);
 }
 
-NativeValue *JSAbilityDelegator::ParseExecuteShellCommandPara(
-    NativeEngine &engine, NativeCallbackInfo &info, std::string &cmd, TimeoutCallback &opt, int64_t &timeout)
+napi_value JSAbilityDelegator::ParseExecuteShellCommandPara(
+    napi_env env, NapiCallbackInfo& info, std::string &cmd, TimeoutCallback &opt, int64_t &timeout)
 {
     HILOG_INFO("enter");
     if (info.argc < ARGC_ONE) {
@@ -1288,19 +1269,19 @@ NativeValue *JSAbilityDelegator::ParseExecuteShellCommandPara(
         return nullptr;
     }
 
-    if (!ConvertFromJsValue(engine, info.argv[INDEX_ZERO], cmd)) {
+    if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], cmd)) {
         HILOG_ERROR("Parse cmd parameter failed");
         return nullptr;
     }
-    if (!ParseTimeoutCallbackPara(engine, info, opt, timeout)) {
+    if (!ParseTimeoutCallbackPara(env, info, opt, timeout)) {
         HILOG_ERROR("Parse timeOut callback parameters failed");
         return nullptr;
     }
-    return engine.CreateNull();
+    return CreateJsNull(env);
 }
 
-NativeValue *JSAbilityDelegator::ParseAbilityCommonPara(
-    NativeEngine &engine, NativeCallbackInfo &info, sptr<OHOS::IRemoteObject> &remoteObject)
+napi_value JSAbilityDelegator::ParseAbilityCommonPara(
+    napi_env env, NapiCallbackInfo& info, sptr<OHOS::IRemoteObject> &remoteObject)
 {
     HILOG_INFO("enter");
     if (info.argc < ARGC_ONE) {
@@ -1308,22 +1289,22 @@ NativeValue *JSAbilityDelegator::ParseAbilityCommonPara(
         return nullptr;
     }
 
-    if (!ParseAbilityPara(engine, info.argv[INDEX_ZERO], remoteObject)) {
+    if (!ParseAbilityPara(env, info.argv[INDEX_ZERO], remoteObject)) {
         HILOG_ERROR("Parse ability parameter failed");
         return nullptr;
     }
 
     if (info.argc > ARGC_ONE) {
-        if (info.argv[INDEX_ONE]->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
+        if (!AppExecFwk::IsTypeForNapiValue(env, info.argv[INDEX_ONE], napi_function)) {
             HILOG_ERROR("Parse ability callback parameters failed");
             return nullptr;
         }
     }
-    return engine.CreateNull();
+    return CreateJsNull(env);
 }
 
-NativeValue *JSAbilityDelegator::ParseStartAbilityPara(
-    NativeEngine &engine, NativeCallbackInfo &info, AAFwk::Want &want)
+napi_value JSAbilityDelegator::ParseStartAbilityPara(
+    napi_env env, NapiCallbackInfo& info, AAFwk::Want &want)
 {
     HILOG_INFO("enter");
     if (info.argc < ARGC_ONE) {
@@ -1331,23 +1312,22 @@ NativeValue *JSAbilityDelegator::ParseStartAbilityPara(
         return nullptr;
     }
 
-    if (!OHOS::AppExecFwk::UnwrapWant(
-        reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), want)) {
+    if (!OHOS::AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
         HILOG_ERROR("Parse want parameter failed");
         return nullptr;
     }
 
     if (info.argc > ARGC_ONE) {
-        if (info.argv[INDEX_ONE]->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
+        if (!AppExecFwk::IsTypeForNapiValue(env, info.argv[INDEX_ONE], napi_function)) {
             HILOG_ERROR("Parse StartAbility callback parameters failed");
             return nullptr;
         }
     }
-    return engine.CreateNull();
+    return CreateJsNull(env);
 }
 
-NativeValue *JSAbilityDelegator::ParseFinishTestPara(
-    NativeEngine &engine, NativeCallbackInfo &info, std::string &msg, int64_t &code)
+napi_value JSAbilityDelegator::ParseFinishTestPara(
+    napi_env env, NapiCallbackInfo& info, std::string &msg, int64_t &code)
 {
     HILOG_INFO("enter");
     if (info.argc < ARGC_TWO) {
@@ -1355,27 +1335,27 @@ NativeValue *JSAbilityDelegator::ParseFinishTestPara(
         return nullptr;
     }
 
-    if (!ConvertFromJsValue(engine, info.argv[INDEX_ZERO], msg)) {
+    if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], msg)) {
         HILOG_ERROR("Parse msg parameter failed");
         return nullptr;
     }
 
-    if (!ConvertFromJsValue(engine, info.argv[INDEX_ONE], code)) {
+    if (!ConvertFromJsValue(env, info.argv[INDEX_ONE], code)) {
         HILOG_ERROR("Parse code para parameter failed");
         return nullptr;
     }
 
     if (info.argc > ARGC_TWO) {
-        if ((info.argv[INDEX_TWO])->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
+        if (!AppExecFwk::IsTypeForNapiValue(env, info.argv[INDEX_TWO], napi_function)) {
             HILOG_ERROR("Incorrect Callback Function type");
             return nullptr;
         }
     }
-    return engine.CreateNull();
+    return CreateJsNull(env);
 }
 
 bool JSAbilityDelegator::ParseMockListPara(
-    NativeEngine &engine, NativeCallbackInfo &info, std::map<std::string, std::string> &mockList)
+    napi_env env, NapiCallbackInfo& info, std::map<std::string, std::string> &mockList)
 {
     HILOG_DEBUG("enter");
     if (info.argc != ARGC_ONE) {
@@ -1383,42 +1363,38 @@ bool JSAbilityDelegator::ParseMockListPara(
         return false;
     }
 
-    NativeValue *value = info.argv[INDEX_ZERO];
+    napi_value value = info.argv[INDEX_ZERO];
     if (value == nullptr) {
         HILOG_ERROR("The arg[0] is nullptr.");
         return false;
     }
 
-    NativeValueType type = value->TypeOf();
-    if (type != NativeValueType::NATIVE_OBJECT) {
-        HILOG_ERROR("The type of arg[0] is %{public}d.", static_cast<int32_t>(type));
-        return false;
-    }
-
-    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
-    if (obj == nullptr) {
-        HILOG_ERROR("Failed to get object");
+    if (!CheckTypeForNapiValue(env, value, napi_object)) {
+        HILOG_ERROR("The type of arg[0] is not napi_object.");
         return false;
     }
 
     std::vector<std::string> propNames;
-    if (!ParseArrayStringValue(engine, obj->GetPropertyNames(), propNames)) {
+    napi_value array = nullptr;
+    napi_get_property_names(env, value, &array);
+    if (!ParseArrayStringValue(env, array, propNames)) {
         HILOG_ERROR("Failed to property names.");
         return false;
     }
 
     for (const auto &propName : propNames) {
-        auto prop = obj->GetProperty(propName.c_str());
+        napi_value prop = nullptr;
+        napi_get_named_property(env, value, propName.c_str(), &prop);
         if (prop == nullptr) {
             HILOG_WARN("Prop is null: %{public}s", propName.c_str());
             continue;
         }
-        if (prop->TypeOf() != NativeValueType::NATIVE_STRING) {
+        if (!CheckTypeForNapiValue(env, prop, napi_string)) {
             HILOG_WARN("Prop is not string: %{public}s", propName.c_str());
             continue;
         }
         std::string valName;
-        if (!ConvertFromJsValue(engine, prop, valName)) {
+        if (!ConvertFromJsValue(env, prop, valName)) {
             HILOG_WARN("Failed to ConvertFromJsValue: %{public}s", propName.c_str());
             continue;
         }
@@ -1429,28 +1405,29 @@ bool JSAbilityDelegator::ParseMockListPara(
 }
 
 bool JSAbilityDelegator::ParseArrayStringValue(
-    NativeEngine &engine, NativeValue* array, std::vector<std::string> &vector)
+    napi_env env, napi_value array, std::vector<std::string> &vector)
 {
     if (array == nullptr) {
         HILOG_ERROR("array is nullptr!");
         return false;
     }
-    if (!array->IsArray()) {
+    bool isArray = false;
+    if (napi_is_array(env, array, &isArray) != napi_ok || isArray == false) {
         HILOG_ERROR("not array!");
         return false;
     }
 
-    auto nativeArray = ConvertNativeValueTo<NativeArray>(array);
-    auto arrayLen = nativeArray->GetLength();
+    uint32_t arrayLen = 0;
+    napi_get_array_length(env, array, &arrayLen);
     if (arrayLen == 0) {
         return true;
     }
-
     vector.reserve(arrayLen);
     for (uint32_t i = 0; i < arrayLen; i++) {
         std::string strItem;
-        NativeValue *value = nativeArray->GetElement(i);
-        if (!ConvertFromJsValue(engine, value, strItem)) {
+        napi_value jsValue = nullptr;
+        napi_get_element(env, array, i, &jsValue);
+        if (!ConvertFromJsValue(env, jsValue, strItem)) {
             HILOG_WARN("Failed to ConvertFromJsValue, index: %{public}u", i);
             continue;
         }
@@ -1460,7 +1437,7 @@ bool JSAbilityDelegator::ParseArrayStringValue(
 }
 
 void JSAbilityDelegator::AddStageMonitorRecord(
-    NativeEngine &engine, NativeValue *value, const std::shared_ptr<AbilityStageMonitor> &monitor)
+    napi_env env, napi_value value, const std::shared_ptr<AbilityStageMonitor> &monitor)
 {
     if (!value) {
         HILOG_ERROR("UpdateStageMonitorRecord value is empty");
@@ -1471,7 +1448,9 @@ void JSAbilityDelegator::AddStageMonitorRecord(
         return;
     }
     std::shared_ptr<NativeReference> reference = nullptr;
-    reference.reset(engine.CreateReference(value, 1));
+    napi_ref ref = nullptr;
+    napi_create_reference(env, value, 1, &ref);
+    reference.reset(reinterpret_cast<NativeReference*>(ref));
     {
         std::unique_lock<std::mutex> lck(g_mtxStageMonitorRecord);
         g_stageMonitorRecord.emplace(reference, monitor);
@@ -1479,7 +1458,7 @@ void JSAbilityDelegator::AddStageMonitorRecord(
     HILOG_INFO("g_stageMonitorRecord added, size = %{public}zu", g_stageMonitorRecord.size());
 }
 
-void JSAbilityDelegator::RemoveStageMonitorRecord(NativeValue *value)
+void JSAbilityDelegator::RemoveStageMonitorRecord(napi_env env, napi_value value)
 {
     if (!value) {
         HILOG_ERROR("UpdateStageMonitorRecord value is empty");
@@ -1492,7 +1471,9 @@ void JSAbilityDelegator::RemoveStageMonitorRecord(NativeValue *value)
     std::unique_lock<std::mutex> lck(g_mtxStageMonitorRecord);
     for (auto iter = g_stageMonitorRecord.begin(); iter != g_stageMonitorRecord.end(); ++iter) {
         std::shared_ptr<NativeReference> jsMonitor = iter->first;
-        if (value->StrictEquals(jsMonitor->Get())) {
+        bool isEquals = false;
+        napi_strict_equals(env, value, jsMonitor->GetNapiValue(), &isEquals);
+        if (isEquals) {
             g_stageMonitorRecord.erase(iter);
             HILOG_INFO("g_stageMonitorRecord removed, size = %{public}zu", g_stageMonitorRecord.size());
             break;

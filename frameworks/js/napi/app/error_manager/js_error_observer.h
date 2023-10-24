@@ -26,22 +26,22 @@ namespace AbilityRuntime {
 class JsErrorObserver : public AppExecFwk::IErrorObserver,
                         public std::enable_shared_from_this<JsErrorObserver> {
 public:
-    explicit JsErrorObserver(NativeEngine &engine);
+    explicit JsErrorObserver(napi_env env);
     virtual ~JsErrorObserver();
     void OnExceptionObject(const AppExecFwk::ErrorObject &errorObj) override;
     void OnUnhandledException(const std::string errMsg) override;
-    void AddJsObserverObject(const int32_t observerId, NativeValue* jsObserverObject, bool isSync = false);
+    void AddJsObserverObject(const int32_t observerId, napi_value jsObserverObject, bool isSync = false);
     bool RemoveJsObserverObject(const int32_t observerId, bool isSync = false);
     bool IsEmpty();
 
 private:
-    void CallJsFunction(NativeValue* value, const char* methodName, NativeValue* const* argv, size_t argc);
+    void CallJsFunction(napi_value value, const char* methodName, napi_value const* argv, size_t argc);
     void HandleOnUnhandledException(const std::string &errMsg);
     void HandleException(const AppExecFwk::ErrorObject &errorObj);
-    NativeValue* CreateJsErrorObject(NativeEngine &engine, const AppExecFwk::ErrorObject &errorObj);
+    napi_value CreateJsErrorObject(napi_env env, const AppExecFwk::ErrorObject &errorObj);
 
 private:
-    NativeEngine &engine_;
+    napi_env env_;
     std::map<int32_t, std::shared_ptr<NativeReference>> jsObserverObjectMap_;
     std::map<int32_t, std::shared_ptr<NativeReference>> jsObserverObjectMapSync_;
 };

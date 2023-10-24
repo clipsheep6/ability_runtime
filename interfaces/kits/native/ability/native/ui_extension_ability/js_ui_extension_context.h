@@ -37,8 +37,6 @@ public:
     static napi_value ConnectAbility(napi_env env, napi_callback_info info);
     static napi_value DisconnectAbility(napi_env env, napi_callback_info info);
 
-    // to do
-    static NativeValue* CreateJsUIExtensionContext(NativeEngine& engine, std::shared_ptr<UIExtensionContext> context);
 protected:
     virtual napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info);
     virtual napi_value OnTerminateSelf(napi_env env, NapiCallbackInfo& info);

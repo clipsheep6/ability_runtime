@@ -17,8 +17,8 @@
 #include "napi_want_agent.h"
 
 static napi_module _module = {
-    .nm_modname = "wantAgent",
     .nm_filename = "application/wantAgent.so/want_agent.js",
+    .nm_modname = "wantAgent",
     .nm_register_func = OHOS::JsWantAgentInit,
 };
 

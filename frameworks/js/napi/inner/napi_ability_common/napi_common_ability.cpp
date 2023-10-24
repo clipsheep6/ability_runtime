@@ -5089,18 +5089,16 @@ bool JsNapiCommon::GetStringsValue(napi_env env, napi_value object, std::vector<
 
 bool JsNapiCommon::GetPermissionOptions(napi_env env, napi_value object, JsPermissionOptions &options)
 {
-    bool isArray = false;
-    napi_is_array(env, object, &isArray);
-    if (object == nullptr || !isArray) {
+    if (object == nullptr || !CheckTypeForNapiValue(env, object, napi_object)) {
         HILOG_ERROR("input params error");
         return false;
     }
     napi_value uidValue = nullptr;
     napi_get_named_property(env, object, "uid", &uidValue);
-    napi_get_value_bool(env, uidValue, &options.uidFlag);
     napi_value pidValue = nullptr;
     napi_get_named_property(env, object, "pid", &pidValue);
-    napi_get_value_bool(env, pidValue, &options.pidFlag);
+    options.uidFlag = ConvertFromJsValue(env, uidValue, options.uid);
+    options.pidFlag = ConvertFromJsValue(env, pidValue, options.pid);
 
     return true;
 }
@@ -5349,8 +5347,7 @@ void JsNapiCommon::AddFreeInstallObserver(napi_env env, const AAFwk::Want &want,
     // adapter free install async return install and start result
     int ret = 0;
     if (freeInstallObserver_ == nullptr) {
-        auto engine = reinterpret_cast<NativeEngine*>(env);
-        freeInstallObserver_ = new JsFreeInstallObserver(*engine);
+        freeInstallObserver_ = new JsFreeInstallObserver(env);
         ret = AAFwk::AbilityManagerClient::GetInstance()->AddFreeInstallObserver(freeInstallObserver_);
     }
 
@@ -5362,8 +5359,7 @@ void JsNapiCommon::AddFreeInstallObserver(napi_env env, const AAFwk::Want &want,
         std::string bundleName = want.GetElement().GetBundleName();
         std::string abilityName = want.GetElement().GetAbilityName();
         std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
-        freeInstallObserver_->AddJsObserverObject(
-            bundleName, abilityName, startTime, reinterpret_cast<NativeValue*>(callback));
+        freeInstallObserver_->AddJsObserverObject(bundleName, abilityName, startTime, callback);
     }
 }
 }  // namespace AppExecFwk

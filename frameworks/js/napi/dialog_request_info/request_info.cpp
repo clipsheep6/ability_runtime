@@ -39,7 +39,7 @@ sptr<IRemoteObject> RequestInfo::GetToken()
     return callerToken_;
 }
 
-NativeValue* RequestInfo::WrapRequestInfo(NativeEngine &engine, RequestInfo *request)
+napi_value RequestInfo::WrapRequestInfo(napi_env env, RequestInfo *request)
 {
     HILOG_DEBUG("WrapRequestInfo called.");
     if (request == nullptr) {
@@ -47,24 +47,28 @@ NativeValue* RequestInfo::WrapRequestInfo(NativeEngine &engine, RequestInfo *req
         return nullptr;
     }
 
-    NativeCallback callback = [](NativeEngine* engine, NativeCallbackInfo* info) -> NativeValue* {
-        return info->thisVar;
+    auto callback = [](napi_env env, napi_callback_info info) -> napi_value {
+        napi_value thisVar = nullptr;
+        napi_get_cb_info(env, info, nullptr, nullptr, &thisVar, nullptr);
+        return thisVar;
     };
 
-    NativeValue* requestInfoClass = engine.DefineClass("RequestInfoClass", callback, nullptr, nullptr, 0);
-    NativeValue* result = engine.CreateInstance(requestInfoClass, nullptr, 0);
+    napi_value requestInfoClass = nullptr;
+    napi_define_class(
+        env, "RequestInfoClass", NAPI_AUTO_LENGTH, callback, nullptr, 0, nullptr, &requestInfoClass);
+    napi_value result = nullptr;
+    napi_new_instance(env, requestInfoClass, 0, nullptr, &result);
     if (result == nullptr) {
         HILOG_ERROR("create instance failed.");
         return nullptr;
     }
 
-    NativeObject* nativeObject = reinterpret_cast<NativeObject*>(result->GetInterface(NativeObject::INTERFACE_ID));
-    if (nativeObject == nullptr) {
-        HILOG_ERROR("get nativeObject failed.");
+    if (!CheckTypeForNapiValue(env, result, napi_object)) {
+        HILOG_ERROR("UnwrapRequestInfo result type error!");
         return nullptr;
     }
 
-    NativeFinalize nativeFinalize = [](NativeEngine* engine, void* data, void* hint) {
+    auto nativeFinalize = [](napi_env env, void* data, void* hint) {
         HILOG_INFO("Js RequestInfo finalizer is called");
         auto requestInfo = static_cast<RequestInfo*>(data);
         if (requestInfo) {
@@ -72,32 +76,31 @@ NativeValue* RequestInfo::WrapRequestInfo(NativeEngine &engine, RequestInfo *req
             requestInfo = nullptr;
         }
     };
-
-    nativeObject->SetNativePointer(reinterpret_cast<void*>(request), nativeFinalize, nullptr);
-    nativeObject->SetProperty("windowRect",
-        CreateJsWindowRect(engine, request->left_, request->top_, request->width_, request->height_));
+    napi_wrap(env, result, request, nativeFinalize, nullptr, nullptr);
+    napi_set_named_property(env, result, "windowRect",
+        CreateJsWindowRect(env, request->left_, request->top_, request->width_, request->height_));
     return result;
 }
 
-NativeValue* RequestInfo::CreateJsWindowRect(
-    NativeEngine& engine, int32_t left, int32_t top, int32_t width, int32_t height)
+napi_value RequestInfo::CreateJsWindowRect(
+    napi_env env, int32_t left, int32_t top, int32_t width, int32_t height)
 {
     HILOG_DEBUG("left: %{public}d, top: %{public}d, width: %{public}d, height: %{public}d",
         left, top, width, height);
-    NativeValue* objValue = engine.CreateObject();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
-    if (object == nullptr) {
+    napi_value objValue = nullptr;
+    napi_create_object(env, &objValue);
+    if (objValue == nullptr) {
         HILOG_ERROR("Native object is nullptr.");
         return objValue;
     }
-    object->SetProperty("left", CreateJsValue(engine, left));
-    object->SetProperty("top", CreateJsValue(engine, top));
-    object->SetProperty("width", CreateJsValue(engine, width));
-    object->SetProperty("height", CreateJsValue(engine, height));
+    napi_set_named_property(env, objValue, "left", CreateJsValue(env, left));
+    napi_set_named_property(env, objValue, "top", CreateJsValue(env, top));
+    napi_set_named_property(env, objValue, "width", CreateJsValue(env, width));
+    napi_set_named_property(env, objValue, "height", CreateJsValue(env, height));
     return objValue;
 }
 
-std::shared_ptr<RequestInfo> RequestInfo::UnwrapRequestInfo(NativeEngine &engine, NativeValue *jsParam)
+std::shared_ptr<RequestInfo> RequestInfo::UnwrapRequestInfo(napi_env env, napi_value jsParam)
 {
     HILOG_INFO("UnwrapRequestInfo called.");
     if (jsParam == nullptr) {
@@ -105,19 +108,13 @@ std::shared_ptr<RequestInfo> RequestInfo::UnwrapRequestInfo(NativeEngine &engine
         return nullptr;
     }
 
-    if (jsParam->TypeOf() != NATIVE_OBJECT) {
+    if (!CheckTypeForNapiValue(env, jsParam, napi_object)) {
         HILOG_ERROR("UnwrapRequestInfo jsParam type error!");
         return nullptr;
     }
-
-    NativeObject *nativeObject = reinterpret_cast<NativeObject*>(jsParam->GetInterface(NativeObject::INTERFACE_ID));
-    if (nativeObject == nullptr) {
-        HILOG_ERROR("UnwrapRequestInfo reinterpret_cast failed!");
-        return nullptr;
-    }
-    HILOG_INFO("UnwrapRequestInfo success.");
-
-    RequestInfo *info = static_cast<RequestInfo*>(nativeObject->GetNativePointer());
+    void* result = nullptr;
+    napi_unwrap(env, jsParam, &result);
+    RequestInfo *info = static_cast<RequestInfo*>(result);
     return std::make_shared<RequestInfo>(*info);
 }
 

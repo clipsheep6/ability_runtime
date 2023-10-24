@@ -934,5 +934,19 @@ void ContextImpl::ChangeToLocalPath(const std::string &bundleName,
         localPath = std::regex_replace(localPath, std::regex(ABS_CODE_PATH), LOCAL_BUNDLES);
     }
 }
+
+void ContextImpl::ClearUpApplicationData()
+{
+    std::string bundleName = GetBundleName();
+    if (bundleName.empty()) {
+        HILOG_ERROR("Can not get bundle name");
+        return;
+    }
+    int errCode = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->ClearUpApplicationData(bundleName);
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("Delete bundle side user data is fail, bundleName: %{public}s.", bundleName.c_str());
+        return;
+    }
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

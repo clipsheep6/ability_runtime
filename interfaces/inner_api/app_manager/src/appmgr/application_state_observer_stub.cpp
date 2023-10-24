@@ -58,6 +58,12 @@ ApplicationStateObserverStub::ApplicationStateObserverStub()
     memberFuncMap_[static_cast<uint32_t>(
         IApplicationStateObserver::Message::TRANSACT_ON_APP_STOPPED)] =
         &ApplicationStateObserverStub::HandleOnAppStopped;
+    memberFuncMap_[static_cast<uint32_t>(
+        IApplicationStateObserver::Message::TRANSACT_ON_PAGE_SHOW)] =
+        &ApplicationStateObserverStub::HandleOnPageShow;
+    memberFuncMap_[static_cast<uint32_t>(
+        IApplicationStateObserver::Message::TRANSACT_ON_PAGE_HIDE)] =
+        &ApplicationStateObserverStub::HandleOnPageHide;
 }
 
 ApplicationStateObserverStub::~ApplicationStateObserverStub()
@@ -118,6 +124,12 @@ void ApplicationStateObserverStub::OnAppStarted(const AppStateData &appStateData
 {}
 
 void ApplicationStateObserverStub::OnAppStopped(const AppStateData &appStateData)
+{}
+
+void ApplicationStateObserverStub::OnPageShow(const PageStateData &pageStateData)
+{}
+
+void ApplicationStateObserverStub::OnPageHide(const PageStateData &pageStateData)
 {}
 
 int32_t ApplicationStateObserverStub::HandleOnForegroundApplicationChanged(MessageParcel &data, MessageParcel &reply)
@@ -273,6 +285,30 @@ int32_t ApplicationStateObserverStub::HandleOnAppStopped(MessageParcel &data, Me
     }
 
     OnAppStopped(*processData);
+    return NO_ERROR;
+}
+
+int32_t ApplicationStateObserverStub::HandleOnPageShow(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<PageStateData> pageStateData(data.ReadParcelable<PageStateData>());
+    if (!pageStateData) {
+        HILOG_ERROR("ReadParcelable<pageStateData> failed");
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
+
+    OnPageShow(*pageStateData);
+    return NO_ERROR;
+}
+
+int32_t ApplicationStateObserverStub::HandleOnPageHide(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<PageStateData> pageStateData(data.ReadParcelable<PageStateData>());
+    if (!pageStateData) {
+        HILOG_ERROR("ReadParcelable<pageStateData> failed");
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
+
+    OnPageHide(*pageStateData);
     return NO_ERROR;
 }
 

@@ -21,7 +21,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue* JsErrorManagerInit(NativeEngine* engine, NativeValue* exportObj);
+napi_value JsErrorManagerInit(napi_env env, napi_value exportObj);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_JS_ERROR_MANAGER_H

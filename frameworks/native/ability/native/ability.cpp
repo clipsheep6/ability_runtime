@@ -1691,6 +1691,15 @@ void Ability::SetShowOnLockScreen(bool showOnLockScreen)
     HILOG_DEBUG("SetShowOnLockScreen come, addWindowFlag, showOnLockScreen is %{public}d", showOnLockScreen);
     if (showOnLockScreen) {
         window->AddWindowFlag(Rosen::WindowFlag::WINDOW_FLAG_SHOW_WHEN_LOCKED);
+        if (abilityInfo_ == nullptr) {
+            HILOG_ERROR("Ability::SetShowOnLockScreen abilityInfo_ == nullptr");
+            return;
+        }
+        AAFwk::EventInfo eventInfo;
+        eventInfo.bundleName = abilityInfo_->bundleName;
+        eventInfo.moduleName = abilityInfo_->moduleName;
+        eventInfo.abilityName = abilityInfo_->name;
+        AAFwk::EventReport::SendKeyEvent(AAFwk::EventName::FA_SHOW_ON_LOCK, HiSysEventType::BEHAVIOR, eventInfo);
     } else {
         window->RemoveWindowFlag(Rosen::WindowFlag::WINDOW_FLAG_SHOW_WHEN_LOCKED);
     }

@@ -31,16 +31,19 @@
 #ifdef WITH_DLP
 #include "dlp_file_kits.h"
 #endif // WITH_DLP
+#include "freeze_util.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ohos_application.h"
 #ifdef SUPPORT_GRAPHICS
 #include "page_ability_impl.h"
 #endif
+#include "time_util.h"
 #include "ui_extension_utils.h"
 #include "values_bucket.h"
 
 namespace OHOS {
+using AbilityRuntime::FreezeUtil;
 namespace AbilityRuntime {
 using namespace std::chrono_literals;
 using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
@@ -308,10 +311,17 @@ void FAAbilityThread::AttachInner(const std::shared_ptr<AppExecFwk::OHOSApplicat
     }
     abilityImpl_->Init(application, abilityRecord, currentAbility_, abilityHandler_, token_);
     // 4. ability attach : ipc
+    HILOG_INFO("LoadLifecycle: Attach ability.");
+    FreezeUtil::LifecycleFlow flow = { token_, FreezeUtil::TimeoutState::LOAD };
+    std::string entry = std::to_string(AbilityRuntime::TimeUtil::SystemTimeMillisecond()) +
+        "; AbilityThread::Attach; the load lifecycle.";
+    FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
     ErrCode err = AbilityManagerClient::GetInstance()->AttachAbilityThread(this, token_);
     if (err != ERR_OK) {
         HILOG_ERROR("err = %{public}d", err);
+        return;
     }
+    FreezeUtil::GetInstance().DeleteLifecycleEvent(flow);
 }
 
 void FAAbilityThread::AttachExtension(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
@@ -472,16 +482,37 @@ void FAAbilityThread::HandleAbilityTransaction(
     std::string connector = "##";
     std::string traceName = __PRETTY_FUNCTION__ + connector + want.GetElement().GetAbilityName();
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, traceName);
-    HILOG_DEBUG("begin, name is %{public}s", want.GetElement().GetAbilityName().c_str());
+    HILOG_INFO("Lifecycle: name is %{public}s.", want.GetElement().GetAbilityName().c_str());
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("abilityImpl_ is nullptr");
         return;
     }
+    std::string methodName = "HandleAbilityTransaction";
+    AddLifecycleEvent(lifeCycleStateInfo.state, methodName);
 
     abilityImpl_->SetCallingContext(lifeCycleStateInfo.caller.deviceId, lifeCycleStateInfo.caller.bundleName,
         lifeCycleStateInfo.caller.abilityName, lifeCycleStateInfo.caller.moduleName);
     abilityImpl_->HandleAbilityTransaction(want, lifeCycleStateInfo, sessionInfo);
     HILOG_DEBUG("end");
+}
+
+void FAAbilityThread::AddLifecycleEvent(uint32_t state, std::string &methodName) const
+{
+    if (!isUIAbility_) {
+        return;
+    }
+    if (state == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
+        FreezeUtil::LifecycleFlow flow = { token_, FreezeUtil::TimeoutState::FOREGROUND };
+        std::string entry = std::to_string(AbilityRuntime::TimeUtil::SystemTimeMillisecond()) +
+            "; AbilityThread::" + methodName + "; the foreground lifecycle.";
+        FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
+    }
+    if (state == AAFwk::ABILITY_STATE_BACKGROUND_NEW) {
+        FreezeUtil::LifecycleFlow flow = { token_, FreezeUtil::TimeoutState::BACKGROUND };
+        std::string entry = std::to_string(AbilityRuntime::TimeUtil::SystemTimeMillisecond()) +
+            "; AbilityThread::" + methodName + "; the background lifecycle.";
+        FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
+    }
 }
 
 void FAAbilityThread::HandleShareData(const int32_t &uniqueId)
@@ -710,10 +741,12 @@ void FAAbilityThread::ScheduleAbilityTransaction(
     const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AppExecFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("name:%{public}s,targeState:%{public}d,isNewWant:%{public}d",
+    HILOG_INFO("Lifecycle: name:%{public}s,targeState:%{public}d,isNewWant:%{public}d",
         want.GetElement().GetAbilityName().c_str(),
         lifeCycleStateInfo.state,
         lifeCycleStateInfo.isNewWant);
+    std::string methodName = "ScheduleAbilityTransaction";
+    AddLifecycleEvent(lifeCycleStateInfo.state, methodName);
 
     if (token_ == nullptr) {
         HILOG_ERROR("token_ is nullptr");
@@ -1147,6 +1180,10 @@ void FAAbilityThread::InitExtensionFlag(const std::shared_ptr<AppExecFwk::Abilit
         isExtension_ = true;
     } else {
         isExtension_ = false;
+    }
+    if (abilityInfo->type == AppExecFwk::AbilityType::PAGE) {
+        HILOG_DEBUG("isUIAbility_ is assigned true");
+        isUIAbility_ = true;
     }
 }
 

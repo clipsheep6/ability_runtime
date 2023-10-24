@@ -27,24 +27,29 @@ constexpr uint32_t JS_CONSOLE_LOG_MAX_LOG_LEN = 1024;
 constexpr uint32_t JS_CONSOLE_LOG_DOMAIN = 0xFEFE;
 constexpr char JS_CONSOLE_LOG_TAG[] = "JsApp";
 
-std::string MakeLogContent(NativeCallbackInfo &info)
+std::string MakeLogContent(napi_env env, napi_callback_info info)
 {
     std::string content;
 
-    for (size_t i = 0; i < info.argc; i++) {
-        NativeValue *value = info.argv[i];
-        if (value->TypeOf() != NATIVE_STRING) {
-            value = value->ToString();
+    size_t argc = ARGC_MAX_COUNT;
+    napi_value argv[ARGC_MAX_COUNT] = {nullptr};
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
+    for (size_t i = 0; i < argc; i++) {
+        napi_value value = argv[i];
+        if (!CheckTypeForNapiValue(env, value, napi_string)) {
+            napi_value resultStr = nullptr;
+            napi_coerce_to_string(env, value, &resultStr);
+            value = resultStr;
         }
 
-        NativeString *str = ConvertNativeValueTo<NativeString>(value);
-        if (str == nullptr) {
+        if (value == nullptr) {
             HILOG_ERROR("Failed to convert to string object");
             continue;
         }
 
-        size_t bufferLen = str->GetLength();
-        if (bufferLen >= JS_CONSOLE_LOG_MAX_LOG_LEN) {
+        size_t bufferLen = 0;
+        napi_status status = napi_get_value_string_utf8(env, value, nullptr, 0, &bufferLen);
+        if (status != napi_ok || bufferLen == 0 || bufferLen >= JS_CONSOLE_LOG_MAX_LOG_LEN) {
             HILOG_DEBUG("Log length exceeds maximum");
             return content;
         }
@@ -56,7 +61,7 @@ std::string MakeLogContent(NativeCallbackInfo &info)
         }
 
         size_t strLen = 0;
-        str->GetCString(buff, bufferLen + 1, &strLen);
+        napi_get_value_string_utf8(env, value, buff, bufferLen + 1, &strLen);
         if (!content.empty()) {
             content.append(" ");
         }
@@ -68,37 +73,37 @@ std::string MakeLogContent(NativeCallbackInfo &info)
 }
 
 template<LogLevel LEVEL>
-NativeValue *ConsoleLog(NativeEngine *engine, NativeCallbackInfo *info)
+napi_value ConsoleLog(napi_env env, napi_callback_info info)
 {
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("engine or callback info is nullptr");
+    if (env == nullptr || info == nullptr) {
+        HILOG_ERROR("env or callback info is nullptr");
         return nullptr;
     }
 
-    std::string content = MakeLogContent(*info);
+    std::string content = MakeLogContent(env, info);
     HiLogPrint(LOG_APP, LEVEL, JS_CONSOLE_LOG_DOMAIN, JS_CONSOLE_LOG_TAG, "%{public}s", content.c_str());
 
-    return engine->CreateUndefined();
+    return CreateJsUndefined(env);
 }
 }
 
-void InitConsoleLogModule(NativeEngine &engine, NativeObject &globalObject)
+void InitConsoleLogModule(napi_env env, napi_value globalObject)
 {
-    NativeValue *consoleValue = engine.CreateObject();
-    NativeObject *consoleObj = ConvertNativeValueTo<NativeObject>(consoleValue);
+    napi_value consoleObj = nullptr;
+    napi_create_object(env, &consoleObj);
     if (consoleObj == nullptr) {
         HILOG_ERROR("Failed to create console object");
         return;
     }
     const char *moduleName = "console";
-    BindNativeFunction(engine, *consoleObj, "log", moduleName, ConsoleLog<LOG_INFO>);
-    BindNativeFunction(engine, *consoleObj, "debug", moduleName, ConsoleLog<LOG_DEBUG>);
-    BindNativeFunction(engine, *consoleObj, "info", moduleName, ConsoleLog<LOG_INFO>);
-    BindNativeFunction(engine, *consoleObj, "warn", moduleName, ConsoleLog<LOG_WARN>);
-    BindNativeFunction(engine, *consoleObj, "error", moduleName, ConsoleLog<LOG_ERROR>);
-    BindNativeFunction(engine, *consoleObj, "fatal", moduleName, ConsoleLog<LOG_FATAL>);
+    BindNativeFunction(env, consoleObj, "log", moduleName, ConsoleLog<LOG_INFO>);
+    BindNativeFunction(env, consoleObj, "debug", moduleName, ConsoleLog<LOG_DEBUG>);
+    BindNativeFunction(env, consoleObj, "info", moduleName, ConsoleLog<LOG_INFO>);
+    BindNativeFunction(env, consoleObj, "warn", moduleName, ConsoleLog<LOG_WARN>);
+    BindNativeFunction(env, consoleObj, "error", moduleName, ConsoleLog<LOG_ERROR>);
+    BindNativeFunction(env, consoleObj, "fatal", moduleName, ConsoleLog<LOG_FATAL>);
 
-    globalObject.SetProperty("console", consoleValue);
+    napi_set_named_property(env, globalObject, "console", consoleObj);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

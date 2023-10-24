@@ -21,8 +21,8 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-JsEnvironmentCallback::JsEnvironmentCallback(NativeEngine* engine)
-    : engine_(engine)
+JsEnvironmentCallback::JsEnvironmentCallback(napi_env env)
+    : env_(env)
 {
 }
 
@@ -38,30 +38,30 @@ void JsEnvironmentCallback::CallConfigurationUpdatedInner(const std::string &met
             return;
         }
 
-        auto value = callback.second->Get();
-        auto obj = ConvertNativeValueTo<NativeObject>(value);
-        if (obj == nullptr) {
+        auto obj = callback.second->GetNapiValue();
+        if (!CheckTypeForNapiValue(env_, obj, napi_object)) {
             HILOG_ERROR("CallConfigurationUpdatedInner, Failed to get object");
             return;
         }
 
-        auto method = obj->GetProperty(methodName.data());
+        napi_value method = nullptr;
+        napi_get_named_property(env_, obj, methodName.data(), &method);
         if (method == nullptr) {
             HILOG_ERROR("CallConfigurationUpdatedInner, Failed to get %{public}s from object", methodName.data());
             return;
         }
 
-        NativeValue *argv[] = { CreateJsConfiguration(*engine_, config) };
-        engine_->CallFunction(value, method, argv, ArraySize(argv));
+        napi_value argv[] = { CreateJsConfiguration(env_, config) };
+        napi_call_function(env_, obj, method, ArraySize(argv), argv, nullptr);
     }
 }
 
 void JsEnvironmentCallback::OnConfigurationUpdated(const AppExecFwk::Configuration &config)
 {
     std::weak_ptr<JsEnvironmentCallback> thisWeakPtr(shared_from_this());
-    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>(
+    std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>(
         [thisWeakPtr, config, callbacks = callbacks_, callbacksSync = callbacksSync_]
-        (NativeEngine &engine, AsyncTask &task, int32_t status) {
+        (napi_env env, NapiAsyncTask &task, int32_t status) {
             std::shared_ptr<JsEnvironmentCallback> jsEnvCallback = thisWeakPtr.lock();
             if (jsEnvCallback) {
                 jsEnvCallback->CallConfigurationUpdatedInner("onConfigurationUpdated", config, callbacks);
@@ -69,10 +69,10 @@ void JsEnvironmentCallback::OnConfigurationUpdated(const AppExecFwk::Configurati
             }
         }
     );
-    NativeReference *callback = nullptr;
-    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
-    AsyncTask::Schedule("JsEnvironmentCallback::OnConfigurationUpdated",
-        *engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
+    napi_ref callback = nullptr;
+    std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
+    NapiAsyncTask::Schedule("JsEnvironmentCallback::OnConfigurationUpdated",
+        env_, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
 void JsEnvironmentCallback::CallMemoryLevelInner(const std::string &methodName, const int level,
@@ -85,30 +85,30 @@ void JsEnvironmentCallback::CallMemoryLevelInner(const std::string &methodName, 
             return;
         }
 
-        auto value = callback.second->Get();
-        auto obj = ConvertNativeValueTo<NativeObject>(value);
-        if (obj == nullptr) {
+        auto obj = callback.second->GetNapiValue();
+        if (!CheckTypeForNapiValue(env_, obj, napi_object)) {
             HILOG_ERROR("CallMemoryLevelInner, Failed to get object");
             return;
         }
 
-        auto method = obj->GetProperty(methodName.data());
+        napi_value method = nullptr;
+        napi_get_named_property(env_, obj, methodName.data(), &method);
         if (method == nullptr) {
             HILOG_ERROR("CallMemoryLevelInner, Failed to get %{public}s from object", methodName.data());
             return;
         }
 
-        NativeValue *argv[] = { CreateJsValue(*engine_, level) };
-        engine_->CallFunction(value, method, argv, ArraySize(argv));
+        napi_value argv[] = { CreateJsValue(env_, level) };
+        napi_call_function(env_, obj, method, ArraySize(argv), argv, nullptr);
     }
 }
 
 void JsEnvironmentCallback::OnMemoryLevel(const int level)
 {
     std::weak_ptr<JsEnvironmentCallback> thisWeakPtr(shared_from_this());
-    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>(
+    std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>(
         [thisWeakPtr, level, callbacks = callbacks_, callbacksSync = callbacksSync_]
-        (NativeEngine &engine, AsyncTask &task, int32_t status) {
+        (napi_env env, NapiAsyncTask &task, int32_t status) {
             std::shared_ptr<JsEnvironmentCallback> jsEnvCallback = thisWeakPtr.lock();
             if (jsEnvCallback) {
                 jsEnvCallback->CallMemoryLevelInner("onMemoryLevel", level, callbacks);
@@ -116,16 +116,16 @@ void JsEnvironmentCallback::OnMemoryLevel(const int level)
             }
         }
     );
-    NativeReference *callback = nullptr;
-    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
-    AsyncTask::Schedule("JsEnvironmentCallback::OnMemoryLevel",
-        *engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
+    napi_ref callback = nullptr;
+    std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
+    NapiAsyncTask::Schedule("JsEnvironmentCallback::OnMemoryLevel",
+        env_, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
-int32_t JsEnvironmentCallback::Register(NativeValue *jsCallback, bool isSync)
+int32_t JsEnvironmentCallback::Register(napi_value jsCallback, bool isSync)
 {
     HILOG_DEBUG("start");
-    if (engine_ == nullptr) {
+    if (env_ == nullptr) {
         return -1;
     }
     int32_t callbackId = serialNumber_;
@@ -134,10 +134,12 @@ int32_t JsEnvironmentCallback::Register(NativeValue *jsCallback, bool isSync)
     } else {
         serialNumber_ = 0;
     }
+    napi_ref ref = nullptr;
+    napi_create_reference(env_, jsCallback, 1, &ref);
     if (isSync) {
-        callbacksSync_.emplace(callbackId, std::shared_ptr<NativeReference>(engine_->CreateReference(jsCallback, 1)));
+        callbacksSync_.emplace(callbackId, std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
     } else {
-        callbacks_.emplace(callbackId, std::shared_ptr<NativeReference>(engine_->CreateReference(jsCallback, 1)));
+        callbacks_.emplace(callbackId, std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
     }
     HILOG_DEBUG("end");
     return callbackId;

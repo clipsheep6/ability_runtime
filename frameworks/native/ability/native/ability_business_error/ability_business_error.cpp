@@ -54,6 +54,9 @@ constexpr const char* ERROR_MSG_FREE_INSTALL_CROSS_DEVICE = "Cross-device instal
 constexpr const char* ERROR_MSG_INVALID_URI_FLAG = "Invalid URI flag.";
 constexpr const char* ERROR_MSG_INVALID_URI_TYPE = "Invalid URI type, only support file Uri.";
 constexpr const char* ERROR_MSG_GRANT_URI_PERMISSION = "Sandbox application can not grant URI permission.";
+constexpr const char* ERROR_MSG_OPERATION_NOT_SUPPORTED = "Operation not supported.";
+constexpr const char* ERROR_MSG_CHILD_PROCESS_NUMBER_EXCEEDS_UPPER_BOUND =
+    "The number of child process exceeds upper bound.";
 constexpr const char* ERROR_MSG_INVALID_CALLER = "The caller has been released.";
 constexpr const char* ERROR_MSG_NO_MISSION_ID = "The specified mission does not exist.";
 constexpr const char* ERROR_MSG_NO_MISSION_LISTENER = "Input error. The specified mission listener does not exist.";
@@ -90,6 +93,9 @@ static std::unordered_map<AbilityErrorCode, const char*> ERR_CODE_MAP = {
     { AbilityErrorCode::ERROR_CODE_INVALID_URI_FLAG, ERROR_MSG_INVALID_URI_FLAG },
     { AbilityErrorCode::ERROR_CODE_INVALID_URI_TYPE, ERROR_MSG_INVALID_URI_TYPE },
     { AbilityErrorCode::ERROR_CODE_GRANT_URI_PERMISSION, ERROR_MSG_GRANT_URI_PERMISSION },
+    { AbilityErrorCode::ERROR_CODE_OPERATION_NOT_SUPPORTED, ERROR_MSG_OPERATION_NOT_SUPPORTED },
+    { AbilityErrorCode::ERROR_CODE_CHILD_PROCESS_NUMBER_EXCEEDS_UPPER_BOUND,
+        ERROR_MSG_CHILD_PROCESS_NUMBER_EXCEEDS_UPPER_BOUND },
     { AbilityErrorCode::ERROR_CODE_INVALID_CALLER, ERROR_MSG_INVALID_CALLER },
     { AbilityErrorCode::ERROR_CODE_NO_MISSION_ID, ERROR_MSG_NO_MISSION_ID },
     { AbilityErrorCode::ERROR_CODE_NO_MISSION_LISTENER, ERROR_MSG_NO_MISSION_LISTENER },
@@ -134,7 +140,8 @@ static std::unordered_map<int32_t, AbilityErrorCode> INNER_TO_JS_ERROR_CODE_MAP 
     {DMS_ACCOUNT_ACCESS_PERMISSION_DENIED, AbilityErrorCode::ERROR_CODE_PERMISSION_DENIED},
     {START_ABILITY_WAITING, AbilityErrorCode::ERROR_START_ABILITY_WAITTING},
     {ERR_APP_CONTROLLED, AbilityErrorCode::ERROR_CODE_CONTROLLED},
-    {ERR_EDM_APP_CONTROLLED, AbilityErrorCode::ERROR_CODE_EDM_CONTROLLED}
+    {ERR_EDM_APP_CONTROLLED, AbilityErrorCode::ERROR_CODE_EDM_CONTROLLED},
+    {ERR_INSIGHT_INTENT_START_INVALID_COMPONENT, AbilityErrorCode::ERROR_CODE_OPERATION_NOT_SUPPORTED},
 };
 }
 

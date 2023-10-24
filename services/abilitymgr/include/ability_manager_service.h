@@ -24,6 +24,7 @@
 #include <thread_ex.h>
 #include <unordered_map>
 
+#include "ability_auto_startup_service.h"
 #include "ability_bundle_event_callback.h"
 #include "ability_config.h"
 #include "ability_connect_manager.h"
@@ -35,6 +36,7 @@
 #include "app_debug_listener_interface.h"
 #include "app_mgr_interface.h"
 #include "app_scheduler.h"
+#include "auto_startup_info.h"
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 #include "background_task_observer.h"
 #endif
@@ -65,6 +67,7 @@
 
 namespace OHOS {
 namespace AAFwk {
+using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
 enum class ServiceRunningState { STATE_NOT_START, STATE_RUNNING };
 constexpr int32_t BASE_USER_RANGE = 200000;
 constexpr int32_t U0_USER_ID = 0;
@@ -116,6 +119,21 @@ public:
         const sptr<IRemoteObject> &callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE) override;
+
+    /**
+     * StartAbility by insight intent, send want to ability manager service.
+     *
+     * @param want Ability want.
+     * @param callerToken caller ability token.
+     * @param intentId insight intent id.
+     * @param userId userId of target ability.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t StartAbilityByInsightIntent(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        uint64_t intentId,
+        int32_t userId = DEFAULT_INVAL_VALUE) override;
 
     /**
      * Starts a new ability with specific start settings.
@@ -1219,6 +1237,77 @@ public:
     int32_t GetUserId() const;
 
     /**
+     * @brief Register auto start up callback for system api.
+     * @param callback The point of JsAbilityAutoStartupCallBack.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterAutoStartupSystemCallback(const sptr<IRemoteObject> &callback) override;
+
+    /**
+     * @brief Unregister auto start up callback for system api.
+     * @param callback The point of JsAbilityAutoStartupCallBack.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UnregisterAutoStartupSystemCallback(const sptr<IRemoteObject> &callback) override;
+
+    /**
+     * @brief Set every application auto start up state.
+     * @param info The auto startup info,include bundle name, module name, ability name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t SetApplicationAutoStartup(const AutoStartupInfo &info) override;
+
+    /**
+     * @brief Cancel every application auto start up .
+     * @param info The auto startup info,include bundle name, module name, ability name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t CancelApplicationAutoStartup(const AutoStartupInfo &info) override;
+
+    /**
+     * @brief Query auto startup state all application.
+     * @param infoList Output parameters, return auto startup info list.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList) override;
+
+    /**
+     * @brief Register auto start up callback.
+     * @param callback The point of JsAbilityAutoStartupCallBack.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterAutoStartupCallback(const sptr<IRemoteObject> &callback) override;
+
+    /**
+     * @brief Unregister auto start up callback.
+     * @param callback The point of JsAbilityAutoStartupCallBack.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UnregisterAutoStartupCallback(const sptr<IRemoteObject> &callback) override;
+
+    /**
+     * @brief Set current application auto start up state.
+     * @param info The auto startup info,include bundle name, module name, ability name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t SetAutoStartup(const AutoStartupInfo &info) override;
+
+    /**
+     * @brief Cancel current application auto start up state.
+     * @param info The auto startup info, include bundle name, module name, ability name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t CancelAutoStartup(const AutoStartupInfo &info) override;
+
+    /**
+     * @brief Check current application auto start up state.
+     * @param info The auto startup info, include bundle name, module name, ability name.
+     * @param isAutoStartup Output parameters, return auto start up state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t IsAutoStartup(const AutoStartupInfo &info, bool &isAutoStartup) override;
+
+    /**
      * PrepareTerminateAbilityBySCB, prepare to terminate ability by scb.
      *
      * @param sessionInfo the session info of the ability to start.
@@ -1474,6 +1563,8 @@ private:
 
     void StartResidentApps();
 
+    void StartAutoStartupApps();
+
     int VerifyAccountPermission(int32_t userId);
 
     using DumpFuncType = void (AbilityManagerService::*)(const std::string &args, std::vector<std::string> &info);
@@ -1643,15 +1734,25 @@ private:
     void StartSwitchUserDialog();
 
     /**
+     * Start switch user dialog inner.
+     * @param want, The want of the dialog box to start.
+     * @param startUserId, The userId who wants to start the dialog box.
+     */
+    void StartSwitchUserDialogInner(const Want &want, int32_t startUserId);
+
+    /**
      * Stop switch user dialog Extension ability.
      */
     void StopSwitchUserDialog();
 
     /**
      * Stop switch user dialog inner.
+     * @param want, The want of the dialog box to stop.
      * @param stopUserId, The userId who wants to stop the dialog box.
      */
     void StopSwitchUserDialogInner(const Want &want, const int32_t stopUserId);
+
+    void SetPickerElementName(const sptr<SessionInfo> &extensionSessionInfo);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
@@ -1713,6 +1814,8 @@ private:
      *  FALSE: white list unable.
      */
     bool whiteListassociatedWakeUpFlag_ = true;
+
+    std::shared_ptr<AbilityAutoStartupService> abilityAutoStartupService_;
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     std::shared_ptr<BackgroundTaskObserver> bgtaskObserver_;

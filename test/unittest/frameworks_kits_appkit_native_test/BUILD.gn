@@ -476,6 +476,7 @@ ohos_unittest("appfreeze_inner_test") {
 
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
+    "${ability_runtime_path}/utils/global/time/include",
     "//third_party/json/include",
   ]
 
@@ -502,6 +503,7 @@ ohos_unittest("appfreeze_inner_test") {
     "${ability_runtime_native_path}/appkit:app_context_utils",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "${ability_runtime_path}/js_environment/frameworks/js_environment:js_environment",
+    "${ability_runtime_path}/utils/global/freeze:freeze_util",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]

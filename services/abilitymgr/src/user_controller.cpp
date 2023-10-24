@@ -94,6 +94,7 @@ int32_t UserController::StartUser(int32_t userId, bool isForeground)
 
     if (isForeground && GetCurrentUserId() != USER_ID_NO_HEAD && !Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         // start freezing screen
+        SetFreezingNewUserId(userId);
         DelayedSingleton<AbilityManagerService>::GetInstance()->StartFreezingScreen();
     }
 
@@ -462,14 +463,14 @@ void UserController::HandleUserSwitchDone(int32_t userId)
     // notify user switch observers.
 }
 
-int32_t UserController::GetFreezingLastUserId() const
+int32_t UserController::GetFreezingNewUserId() const
 {
-    return freezingLastUserId_;
+    return freezingNewUserId_;
 }
 
-void UserController::SetFreezingLastUserId(int32_t userId)
+void UserController::SetFreezingNewUserId(int32_t userId)
 {
-    freezingLastUserId_ = userId;
+    freezingNewUserId_ = userId;
 }
 }
 }

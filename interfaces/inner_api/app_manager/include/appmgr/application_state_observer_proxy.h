@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -95,9 +95,24 @@ public:
      */
     virtual void OnAppStopped(const AppStateData &appStateData) override;
 
+    /**
+     * Will be called when page show.
+     *
+     * @param pageStateData Page state data.
+     */
+    virtual void OnPageShow(const PageStateData &pageStateData) override;
+
+    /**
+     * Will be called whe page hide.
+     *
+     * @param pageStateData Page state data.
+     */
+    virtual void OnPageHide(const PageStateData &pageStateData) override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     static inline BrokerDelegator<ApplicationStateObserverProxy> delegator_;
+    int32_t SendTransactCmd(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

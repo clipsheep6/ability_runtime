@@ -22,6 +22,7 @@
 #include "ability_lifecycle_callback.h"
 #include "application_context.h"
 #include "application_state_change_callback.h"
+#include "js_ability_auto_startup_callback.h"
 #include "native_engine/native_engine.h"
 #include "running_process_info.h"
 
@@ -55,6 +56,9 @@ public:
     static napi_value SwitchArea(napi_env env, napi_callback_info info);
     static napi_value GetArea(napi_env env, napi_callback_info info);
     static napi_value CreateModuleContext(napi_env env, napi_callback_info info);
+    static napi_value SetAutoStartup(napi_env env, napi_callback_info info);
+    static napi_value CancelAutoStartup(napi_env env, napi_callback_info info);
+    static napi_value IsAutoStartup(napi_env env, napi_callback_info info);
 
     napi_value OnRegisterAbilityLifecycleCallback(napi_env env, NapiCallbackInfo& info);
     napi_value OnUnregisterAbilityLifecycleCallback(napi_env env, NapiCallbackInfo& info);
@@ -86,6 +90,12 @@ public:
     napi_value OnGetRunningProcessInformation(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetColorMode(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetLanguage(napi_env env, NapiCallbackInfo& info);
+    napi_value OnRegisterAutoStartupCallback(napi_env env, NapiCallbackInfo &info);
+    napi_value OnUnregisterAutoStartupCallback(napi_env env, NapiCallbackInfo &info);
+    napi_value OnSetAutoStartup(napi_env env, NapiCallbackInfo &info);
+    napi_value OnCancelAutoStartup(napi_env env, NapiCallbackInfo &info);
+    napi_value OnIsAutoStartup(napi_env env, NapiCallbackInfo &info);
+    napi_value OnClearUpApplicationData(napi_env env, NapiCallbackInfo& info);
 
     static napi_value GetCacheDir(napi_env env, napi_callback_info info);
     static napi_value GetTempDir(napi_env env, napi_callback_info info);
@@ -99,6 +109,7 @@ public:
     static napi_value KillProcessBySelf(napi_env env, napi_callback_info info);
     static napi_value SetColorMode(napi_env env, napi_callback_info info);
     static napi_value SetLanguage(napi_env env, napi_callback_info info);
+    static napi_value ClearUpApplicationData(napi_env env, napi_callback_info info);
     static napi_value GetRunningProcessInformation(napi_env env, napi_callback_info info);
     static napi_value CreateJsApplicationContext(napi_env env);
 
@@ -119,6 +130,7 @@ private:
     std::shared_ptr<JsEnvironmentCallback> envCallback_;
     std::shared_ptr<JsApplicationStateChangeCallback> applicationStateCallback_;
     std::mutex applicationStateCallbackLock_;
+    sptr<JsAbilityAutoStartupCallBack> jsAutoStartupCallback_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

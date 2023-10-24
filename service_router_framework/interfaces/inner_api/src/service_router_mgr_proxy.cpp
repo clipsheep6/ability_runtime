@@ -105,18 +105,8 @@ int32_t ServiceRouterMgrProxy::StartUIExtensionAbility(const sptr<SessionInfo> &
         APP_LOGE("StartExtensionAbility, userId write failed.");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
-    if (!Remote()) {
-        APP_LOGE("StartExtensionAbility, Remote error.");
-        return ERR_APPEXECFWK_PARCEL_ERROR;
-    }
 
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        APP_LOGE("StartExtensionAbility, Remote() is NULL");
-        return ERR_APPEXECFWK_PARCEL_ERROR;
-    }
-
-    int32_t error = remote->SendRequest(ServiceRouterMgrProxy::Message::START_UI_EXTENSION, data, reply, option);
+    int32_t error = SendRequest(ServiceRouterMgrProxy::Message::START_UI_EXTENSION, data, reply, option);
     if (error != NO_ERROR) {
         APP_LOGE("StartExtensionAbility, Send request error: %{public}d", error);
         return error;
@@ -167,11 +157,7 @@ int32_t ServiceRouterMgrProxy::ConnectUIExtensionAbility(const Want &want, const
         APP_LOGE("%{public}s, userId write failed.", __func__);
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
-    if (!Remote()) {
-        APP_LOGE("connect ability fail, remote is nullptr");
-        return ERR_APPEXECFWK_PARCEL_ERROR;
-    }
-    int32_t error = Remote()->SendRequest(ServiceRouterMgrProxy::Message::CONNECT_UI_EXTENSION, data, reply, option);
+    int32_t error = SendRequest(ServiceRouterMgrProxy::Message::CONNECT_UI_EXTENSION, data, reply, option);
     if (error != NO_ERROR) {
         APP_LOGE("%{public}s, Send request error: %{public}d", __func__, error);
         return error;
@@ -180,17 +166,16 @@ int32_t ServiceRouterMgrProxy::ConnectUIExtensionAbility(const Want &want, const
 }
 
 int32_t ServiceRouterMgrProxy::SendRequest(ServiceRouterMgrProxy::Message code, MessageParcel &data,
-    MessageParcel &reply)
+    MessageParcel &reply, MessageOption &option)
 {
     APP_LOGI("ServiceRouterMgrProxy SendRequest");
     sptr<IRemoteObject> remote = Remote();
-    MessageOption option(MessageOption::TF_SYNC);
     if (remote == nullptr) {
         APP_LOGE("fail to send %{public}d cmd to service, remote object is null", code);
         return ERR_APPEXECFWK_FAILED_GET_REMOTE_PROXY;
     }
     int32_t result = remote->SendRequest(static_cast<uint32_t>(code), data, reply, option);
-    if (result != OHOS::NO_ERROR) {
+    if (result != NO_ERROR) {
         APP_LOGE("fail to send %{public}d cmd to service, transact error:%{public}d", code, result);
     }
     return result;
@@ -201,7 +186,8 @@ int32_t ServiceRouterMgrProxy::GetParcelableInfos(
     ServiceRouterMgrProxy::Message code, MessageParcel &data, std::vector<T> &parcelableInfos)
 {
     MessageParcel reply;
-    int32_t result = SendRequest(code, data, reply);
+    MessageOption option(MessageOption::TF_SYNC);
+    int32_t result = SendRequest(code, data, reply, option);
     if (result != OHOS::NO_ERROR) {
         APP_LOGE("SendRequest result false");
         return result;

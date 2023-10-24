@@ -18,13 +18,16 @@
 #include "ability_runtime/js_ability.h"
 #include "ability_transaction_callback_info.h"
 #include "data_ability_predicates.h"
+#include "freeze_util.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ohos_application.h"
 #include "scene_board_judgement.h"
+#include "time_util.h"
 #include "values_bucket.h"
 
 namespace OHOS {
+using AbilityRuntime::FreezeUtil;
 namespace AppExecFwk {
 namespace {
 const std::string PERMISSION_KEY = "ohos.user.grant.permission";
@@ -628,12 +631,17 @@ void AbilityImpl::AfterFocusedCommon(bool isFocused)
 void AbilityImpl::WindowLifeCycleImpl::AfterForeground()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Call.");
+    HILOG_INFO("Lifecycle: Call.");
     auto owner = owner_.lock();
     if (owner == nullptr || !owner->IsStageBasedModel()) {
         HILOG_ERROR("Not stage mode ability or abilityImpl is nullptr.");
         return;
     }
+    FreezeUtil::LifecycleFlow flow = { token_, FreezeUtil::TimeoutState::FOREGROUND };
+    std::string entry = std::to_string(AbilityRuntime::TimeUtil::SystemTimeMillisecond()) +
+        "; AbilityImpl::WindowLifeCycleImpl::AfterForeground; the foreground lifecycle.";
+    FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
+
     bool needNotifyAMS = false;
     {
         std::lock_guard<std::mutex> lock(owner->notifyForegroundLock_);
@@ -647,27 +655,36 @@ void AbilityImpl::WindowLifeCycleImpl::AfterForeground()
     }
 
     if (needNotifyAMS) {
-        HILOG_INFO("Stage mode ability, window after foreground, notify ability manager service.");
+        HILOG_INFO("Lifecycle: window notify ability manager service.");
         PacMap restoreData;
-        AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
+        auto ret = AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
             AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_NEW, restoreData);
+        if (ret == ERR_OK) {
+            FreezeUtil::GetInstance().DeleteLifecycleEvent(flow);
+        }
     }
 }
 
 void AbilityImpl::WindowLifeCycleImpl::AfterBackground()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Call.");
     auto owner = owner_.lock();
     if (owner && !owner->IsStageBasedModel()) {
         HILOG_WARN("Not stage.");
         return;
     }
+    FreezeUtil::LifecycleFlow flow = { token_, FreezeUtil::TimeoutState::BACKGROUND };
+    std::string entry = std::to_string(AbilityRuntime::TimeUtil::SystemTimeMillisecond()) +
+        "; AbilityImpl::WindowLifeCycleImpl::AfterBackground; the background lifecycle.";
+    FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
 
-    HILOG_INFO("UIAbility, window after background.");
+    HILOG_INFO("Lifecycle: window after background.");
     PacMap restoreData;
-    AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
+    auto ret = AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
         AbilityLifeCycleState::ABILITY_STATE_BACKGROUND_NEW, restoreData);
+    if (ret == ERR_OK) {
+        FreezeUtil::GetInstance().DeleteLifecycleEvent(flow);
+    }
 }
 
 void AbilityImpl::WindowLifeCycleImpl::AfterFocused()

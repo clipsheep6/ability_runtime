@@ -134,7 +134,11 @@ const std::map<int32_t, std::string> ERROR_MSG_MAP = {
     { ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_URI_TYPE,
         "Invalid URI type, only support file uri" },
     { ERR_ABILITY_RUNTIME_EXTERNAL_GRANT_URI_PERMISSION,
-        "Sandbox application can not grant URI permission." }
+        "Sandbox application can not grant URI permission." },
+    { ERR_ABILITY_RUNTIME_OPERATION_NOT_SUPPORTED,
+        "Operation not supported." },
+    { ERR_ABILITY_RUNTIME_CHILD_PROCESS_NUMBER_EXCEEDS_UPPER_BOUND,
+        "The number of child process exceeds upper bound." }
 };
 }
 
@@ -171,40 +175,6 @@ napi_value AbilityRuntimeErrorUtil::CreateErrorByInternalErrCode(napi_env env, i
     }
     int32_t externalErrCode = ERROR_CODE_MAP.at(errCode);
     return CreateJsError(env, externalErrCode, ERROR_MSG_MAP.at(externalErrCode));
-}
-
-// to do
-bool AbilityRuntimeErrorUtil::Throw(NativeEngine &engine, int32_t errCode, const std::string &errMessage)
-{
-    std::string eMes = errMessage;
-    if (eMes.empty()) {
-        eMes = ERROR_MSG_MAP.at(errCode);
-    }
-    NativeValue *error = engine.CreateError(CreateJsValue(engine, errCode), CreateJsValue(engine, eMes));
-    if (error == nullptr) {
-        HILOG_ERROR("Failed to create error.");
-        return false;
-    }
-    return engine.Throw(error);
-}
-
-bool AbilityRuntimeErrorUtil::ThrowByInternalErrCode(NativeEngine &engine, int32_t errCode)
-{
-    if (ERROR_CODE_MAP.find(errCode) == ERROR_CODE_MAP.end()) {
-        HILOG_ERROR("Invalid inner errCode, check ERROR_CODE_MAP");
-        return false;
-    }
-    return Throw(engine, ERROR_CODE_MAP.at(errCode));
-}
-
-NativeValue *AbilityRuntimeErrorUtil::CreateErrorByInternalErrCode(NativeEngine &engine, int32_t errCode)
-{
-    if (ERROR_CODE_MAP.find(errCode) == ERROR_CODE_MAP.end()) {
-        HILOG_ERROR("Invalid inner errCode, check ERROR_CODE_MAP");
-        return nullptr;
-    }
-    int32_t externalErrCode = ERROR_CODE_MAP.at(errCode);
-    return CreateJsError(engine, externalErrCode, ERROR_MSG_MAP.at(externalErrCode));
 }
 
 std::string AbilityRuntimeErrorUtil::GetErrMessage(int32_t errCode)

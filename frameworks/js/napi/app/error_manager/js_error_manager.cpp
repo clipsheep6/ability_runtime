@@ -42,49 +42,47 @@ public:
     JsErrorManager() {}
     ~JsErrorManager() = default;
 
-    static void Finalizer(NativeEngine* engine, void* data, void* hint)
+    static void Finalizer(napi_env env, void* data, void* hint)
     {
         HILOG_INFO("JsErrorManager Finalizer is called");
         std::unique_ptr<JsErrorManager>(static_cast<JsErrorManager*>(data));
     }
 
-    static NativeValue* On(NativeEngine* engine, NativeCallbackInfo* info)
+    static napi_value On(napi_env env, napi_callback_info info)
     {
-        JsErrorManager* me = CheckParamsAndGetThis<JsErrorManager>(engine, info);
-        return (me != nullptr) ? me->OnOn(*engine, *info) : nullptr;
+        GET_CB_INFO_AND_CALL(env, info, JsErrorManager, OnOn);
     }
 
-    static NativeValue* Off(NativeEngine* engine, NativeCallbackInfo* info)
+    static napi_value Off(napi_env env, napi_callback_info info)
     {
-        JsErrorManager* me = CheckParamsAndGetThis<JsErrorManager>(engine, info);
-        return (me != nullptr) ? me->OnOff(*engine, *info) : nullptr;
+        GET_CB_INFO_AND_CALL(env, info, JsErrorManager, OnOff);
     }
 
 private:
-    NativeValue* OnOn(NativeEngine& engine, const NativeCallbackInfo& info)
+    napi_value OnOn(napi_env env, const size_t argc, napi_value* argv)
     {
         HILOG_DEBUG("called.");
-        std::string type = ParseParamType(engine, info);
+        std::string type = ParseParamType(env, argc, argv);
         if (type == ON_OFF_TYPE_SYNC) {
-            return OnOnNew(engine, info);
+            return OnOnNew(env, argc, argv);
         }
-        return OnOnOld(engine, info);
+        return OnOnOld(env, argc, argv);
     }
 
-    NativeValue* OnOnOld(NativeEngine& engine, const NativeCallbackInfo& info)
+    napi_value OnOnOld(napi_env env, const size_t argc, napi_value* argv)
     {
         HILOG_DEBUG("called.");
-        if (info.argc != ARGC_TWO) {
+        if (argc != ARGC_TWO) {
             HILOG_ERROR("The param is invalid, observers need.");
-            ThrowTooFewParametersError(engine);
-            return engine.CreateUndefined();
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
         }
 
         std::string type;
-        if (!ConvertFromJsValue(engine, info.argv[INDEX_ZERO], type) || type != ON_OFF_TYPE) {
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        if (!ConvertFromJsValue(env, argv[INDEX_ZERO], type) || type != ON_OFF_TYPE) {
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             HILOG_ERROR("Parse type failed");
-            return engine.CreateUndefined();
+            return CreateJsUndefined(env);
         }
         int32_t observerId = serialNumber_;
         if (serialNumber_ < INT32_MAX) {
@@ -95,26 +93,26 @@ private:
 
         if (observer_ == nullptr) {
             // create observer
-            observer_ = std::make_shared<JsErrorObserver>(engine);
+            observer_ = std::make_shared<JsErrorObserver>(env);
             AppExecFwk::ApplicationDataManager::GetInstance().AddErrorObserver(observer_);
         }
-        observer_->AddJsObserverObject(observerId, info.argv[INDEX_ONE]);
-        return engine.CreateNumber(observerId);
+        observer_->AddJsObserverObject(observerId, argv[INDEX_ONE]);
+        return CreateJsValue(env, observerId);
     }
 
-    NativeValue* OnOnNew(NativeEngine& engine, const NativeCallbackInfo& info)
+    napi_value OnOnNew(napi_env env, const size_t argc, napi_value* argv)
     {
         HILOG_DEBUG("called.");
-        if (info.argc < ARGC_TWO) {
+        if (argc < ARGC_TWO) {
             HILOG_ERROR("The param is invalid, observers need.");
-            ThrowTooFewParametersError(engine);
-            return engine.CreateUndefined();
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
         }
 
-        if (info.argv[INDEX_ONE]->TypeOf() != NativeValueType::NATIVE_OBJECT) {
+        if (!CheckTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
             HILOG_ERROR("Invalid param");
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-            return engine.CreateUndefined();
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
         }
 
         int32_t observerId = serialNumber_;
@@ -126,55 +124,54 @@ private:
 
         if (observer_ == nullptr) {
             // create observer
-            observer_ = std::make_shared<JsErrorObserver>(engine);
+            observer_ = std::make_shared<JsErrorObserver>(env);
             AppExecFwk::ApplicationDataManager::GetInstance().AddErrorObserver(observer_);
         }
-        observer_->AddJsObserverObject(observerId, info.argv[INDEX_ONE], true);
-        return engine.CreateNumber(observerId);
+        observer_->AddJsObserverObject(observerId, argv[INDEX_ONE], true);
+        return CreateJsValue(env, observerId);
     }
 
-    NativeValue* OnOff(NativeEngine& engine, NativeCallbackInfo& info)
+    napi_value OnOff(napi_env env, size_t argc, napi_value* argv)
     {
         HILOG_DEBUG("called.");
-        std::string type = ParseParamType(engine, info);
+        std::string type = ParseParamType(env, argc, argv);
         if (type == ON_OFF_TYPE_SYNC) {
-            return OnOffNew(engine, info);
+            return OnOffNew(env, argc, argv);
         }
-        return OnOffOld(engine, info);
+        return OnOffOld(env, argc, argv);
     }
 
-    NativeValue* OnOffOld(NativeEngine& engine, NativeCallbackInfo& info)
+    napi_value OnOffOld(napi_env env, size_t argc, napi_value* argv)
     {
         HILOG_DEBUG("called.");
         int32_t observerId = -1;
-        if (info.argc != ARGC_TWO && info.argc != ARGC_THREE) {
-            ThrowTooFewParametersError(engine);
+        if (argc != ARGC_TWO && argc != ARGC_THREE) {
+            ThrowTooFewParametersError(env);
             HILOG_ERROR("unregister errorObserver error, not enough params.");
         } else {
-            napi_get_value_int32(reinterpret_cast<napi_env>(&engine),
-                reinterpret_cast<napi_value>(info.argv[INDEX_ONE]), &observerId);
+            napi_get_value_int32(env, argv[INDEX_ONE], &observerId);
             HILOG_INFO("unregister errorObserver called, observer:%{public}d", observerId);
         }
 
         std::string type;
-        if (!ConvertFromJsValue(engine, info.argv[INDEX_ZERO], type) || type != ON_OFF_TYPE) {
+        if (!ConvertFromJsValue(env, argv[INDEX_ZERO], type) || type != ON_OFF_TYPE) {
             HILOG_ERROR("Parse type failed");
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-            return engine.CreateUndefined();
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
         }
 
-        AsyncTask::CompleteCallback complete =
+        NapiAsyncTask::CompleteCallback complete =
             [&observer = observer_, observerId](
-                NativeEngine& engine, AsyncTask& task, int32_t status) {
+                napi_env env, NapiAsyncTask& task, int32_t status) {
             HILOG_INFO("Unregister errorObserver called.");
                 if (observerId == -1) {
-                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
+                    task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
                     return;
                 }
                 if (observer && observer->RemoveJsObserverObject(observerId)) {
-                    task.ResolveWithNoError(engine, engine.CreateUndefined());
+                    task.ResolveWithNoError(env, CreateJsUndefined(env));
                 } else {
-                    task.Reject(engine, CreateJsError(engine, AbilityErrorCode::ERROR_CODE_INVALID_ID));
+                    task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_ID));
                 }
                 if (observer && observer->IsEmpty()) {
                     AppExecFwk::ApplicationDataManager::GetInstance().RemoveErrorObserver();
@@ -182,49 +179,49 @@ private:
                 }
             };
 
-        NativeValue* lastParam = (info.argc <= ARGC_TWO) ? nullptr : info.argv[INDEX_TWO];
-        NativeValue* result = nullptr;
-        AsyncTask::Schedule("JSErrorManager::OnUnregisterErrorObserver",
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        napi_value lastParam = (argc <= ARGC_TWO) ? nullptr : argv[INDEX_TWO];
+        napi_value result = nullptr;
+        NapiAsyncTask::Schedule("JSErrorManager::OnUnregisterErrorObserver",
+            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
-    NativeValue* OnOffNew(NativeEngine& engine, NativeCallbackInfo& info)
+    napi_value OnOffNew(napi_env env, size_t argc, napi_value* argv)
     {
         HILOG_DEBUG("called.");
-        if (info.argc < ARGC_TWO) {
-            ThrowTooFewParametersError(engine);
+        if (argc < ARGC_TWO) {
+            ThrowTooFewParametersError(env);
             HILOG_ERROR("unregister errorObserver error, not enough params.");
-            return engine.CreateUndefined();
+            return CreateJsUndefined(env);
         }
         int32_t observerId = -1;
-        if (!ConvertFromJsValue(engine, info.argv[INDEX_ONE], observerId)) {
+        if (!ConvertFromJsValue(env, argv[INDEX_ONE], observerId)) {
             HILOG_ERROR("Parse observerId failed");
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-            return engine.CreateUndefined();
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
         }
         if (observer_ == nullptr) {
             HILOG_ERROR("observer is nullptr");
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INNER);
-            return engine.CreateUndefined();
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+            return CreateJsUndefined(env);
         }
         if (observer_->RemoveJsObserverObject(observerId, true)) {
             HILOG_DEBUG("RemoveJsObserverObject success");
         } else {
             HILOG_ERROR("RemoveJsObserverObject failed");
-            ThrowError(engine, AbilityErrorCode::ERROR_CODE_INVALID_ID);
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_ID);
         }
         if (observer_->IsEmpty()) {
             AppExecFwk::ApplicationDataManager::GetInstance().RemoveErrorObserver();
             observer_ = nullptr;
         }
-        return engine.CreateUndefined();
+        return CreateJsUndefined(env);
     }
 
-    std::string ParseParamType(NativeEngine& engine, const NativeCallbackInfo& info)
+    std::string ParseParamType(napi_env env, const size_t argc, napi_value* argv)
     {
         std::string type;
-        if (info.argc > INDEX_ZERO && ConvertFromJsValue(engine, info.argv[INDEX_ZERO], type)) {
+        if (argc > INDEX_ZERO && ConvertFromJsValue(env, argv[INDEX_ZERO], type)) {
             return type;
         }
         return "";
@@ -235,28 +232,21 @@ private:
 };
 } // namespace
 
-NativeValue* JsErrorManagerInit(NativeEngine* engine, NativeValue* exportObj)
+napi_value JsErrorManagerInit(napi_env env, napi_value exportObj)
 {
     HILOG_INFO("Js error manager Init.");
-    if (engine == nullptr || exportObj == nullptr) {
-        HILOG_INFO("engine or exportObj null");
+    if (env == nullptr || exportObj == nullptr) {
+        HILOG_INFO("env or exportObj null");
         return nullptr;
     }
-
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(exportObj);
-    if (object == nullptr) {
-        HILOG_INFO("object is nullptr");
-        return nullptr;
-    }
-
     std::unique_ptr<JsErrorManager> jsErrorManager = std::make_unique<JsErrorManager>();
-    object->SetNativePointer(jsErrorManager.release(), JsErrorManager::Finalizer, nullptr);
+    napi_wrap(env, exportObj, jsErrorManager.release(), JsErrorManager::Finalizer, nullptr, nullptr);
 
     HILOG_INFO("JsErrorManager BindNativeFunction called");
     const char *moduleName = "JsErrorManager";
-    BindNativeFunction(*engine, *object, "on", moduleName, JsErrorManager::On);
-    BindNativeFunction(*engine, *object, "off", moduleName, JsErrorManager::Off);
-    return engine->CreateUndefined();
+    BindNativeFunction(env, exportObj, "on", moduleName, JsErrorManager::On);
+    BindNativeFunction(env, exportObj, "off", moduleName, JsErrorManager::Off);
+    return CreateJsUndefined(env);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -20,15 +20,14 @@ extern const char _binary_action_extension_ability_js_end[];
 extern const char _binary_action_extension_ability_abc_start[];
 extern const char _binary_action_extension_ability_abc_end[];
 
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_filename = "app/ability/libactionextensionability_napi.so/action_extension_ability.js",
+    .nm_modname = "app.ability.ActionExtensionAbility",
+};
 extern "C" __attribute__((constructor)) void NAPI_app_ability_ActionExtensionAbility_AutoRegister()
 {
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-        .name = "app.ability.ActionExtensionAbility",
-        .fileName = "app/ability/libactionextensionability_napi.so/action_extension_ability.js",
-    };
-
-    moduleManager->Register(&newModuleInfo);
+    napi_module_register(&_module);
 }
 
 extern "C" __attribute__((visibility("default"))) void NAPI_app_ability_ActionExtensionAbility_GetJSCode(

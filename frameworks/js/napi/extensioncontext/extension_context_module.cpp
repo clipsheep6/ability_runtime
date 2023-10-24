@@ -20,16 +20,15 @@ extern const char _binary_extension_context_js_end[];
 extern const char _binary_extension_context_abc_start[];
 extern const char _binary_extension_context_abc_end[];
 
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_filename = "application/libextensioncontext_napi.so/ExtensionContext.js",
+    .nm_modname = "application.ExtensionContext",
+};
 extern "C" __attribute__((constructor))
 void NAPI_application_ExtensionContext_AutoRegister()
 {
-    auto moduleManager = NativeModuleManager::GetInstance();
-    NativeModule newModuleInfo = {
-        .name = "application.ExtensionContext",
-        .fileName = "application/libextensioncontext_napi.so/ExtensionContext.js",
-    };
-
-    moduleManager->Register(&newModuleInfo);
+    napi_module_register(&_module);
 }
 
 extern "C" __attribute__((visibility("default")))

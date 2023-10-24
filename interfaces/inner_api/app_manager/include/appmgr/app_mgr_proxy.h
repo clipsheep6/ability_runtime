@@ -377,7 +377,7 @@ public:
      * @param pid pid
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t OnGcStateChange(pid_t pid, int32_t state) override;
+    virtual int32_t ChangeAppGcState(pid_t pid, int32_t state) override;
 
 private:
     bool SendTransactCmd(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply);

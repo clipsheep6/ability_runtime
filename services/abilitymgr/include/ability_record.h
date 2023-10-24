@@ -928,6 +928,7 @@ private:
     {
         callerAccessTokenId_ = callerAccessTokenId;
     }
+    bool IsDebug() const;
 
 #ifdef SUPPORT_GRAPHICS
     std::shared_ptr<Want> GetWantFromMission() const;
@@ -1076,6 +1077,7 @@ private:
     std::string missionAffinity_ = "";
     bool lockedState_ = false;
     bool isAttachDebug_ = false;
+    bool isAppAutoStartup_ = false;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -39,6 +39,7 @@ ohos_unittest("uri_permission_persistable_test") {
 
   deps = [
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/uripermmgr:libupms_static",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
@@ -48,6 +49,7 @@ ohos_unittest("uri_permission_persistable_test") {
     "ability_base:zuri",
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
+    "access_token:libtokenid_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",

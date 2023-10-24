@@ -101,25 +101,26 @@ public:
 private:
     bool OnInit();
     void Run();
-    NativeValue *LoadScript(const std::string &srcPath);
+    napi_value LoadScript(const std::string &srcPath);
     void InitResourceMgr();
-    void InitJsAbilityContext(NativeValue *instanceValue);
-    void DispatchStartLifecycle(NativeValue *instanceValue);
+    void InitJsAbilityContext(napi_env env, napi_value instanceValue);
+    void DispatchStartLifecycle(napi_value instanceValue);
     std::unique_ptr<NativeReference> CreateJsWindowStage(const std::shared_ptr<Rosen::WindowScene> &windowScene);
-    NativeValue *CreateJsWant(NativeEngine &engine);
+    napi_value CreateJsWant(napi_env env);
     bool LoadAbilityStage(uint8_t *buffer, size_t len);
-    void InitJsAbilityStageContext(NativeValue *instanceValue);
-    NativeValue *CreateJsLaunchParam(NativeEngine &engine);
+    void InitJsAbilityStageContext(napi_value instanceValue);
+    napi_value CreateJsLaunchParam(napi_env env);
     bool ParseBundleAndModuleInfo();
     bool ParseAbilityInfo(const std::string &abilitySrcPath);
-    bool LoadRuntimeEnv(NativeEngine &nativeEngine, NativeObject &globalObject);
+    bool LoadRuntimeEnv(napi_env env, napi_value globalObject);
+    static napi_value RequireNapi(napi_env env, napi_callback_info info);
 
     panda::ecmascript::EcmaVM *CreateJSVM();
     Options options_;
     std::string abilityPath_;
     panda::ecmascript::EcmaVM *vm_ = nullptr;
     DebuggerTask debuggerTask_;
-    std::unique_ptr<NativeEngine> nativeEngine_;
+    napi_env nativeEngine_ = nullptr;
 
     int64_t currentId_ = 0;
     std::unordered_map<int64_t, std::shared_ptr<NativeReference>> abilities_;
@@ -159,11 +160,12 @@ SimulatorImpl::~SimulatorImpl()
 {
     if (nativeEngine_) {
         uv_close(reinterpret_cast<uv_handle_t*>(&debuggerTask_.onPostTaskSignal), nullptr);
-        uv_loop_t *uvLoop = nativeEngine_->GetUVLoop();
+        uv_loop_t* uvLoop = nullptr;
+        napi_get_uv_event_loop(nativeEngine_, &uvLoop);
         if (uvLoop != nullptr) {
             uv_work_t work;
             uv_queue_work(uvLoop, &work, [](uv_work_t*) {}, [](uv_work_t *work, int32_t status) {
-                HILOG_DEBUG("Simulator stop uv loop");
+                HILOG_ERROR("Simulator stop uv loop");
                 uv_stop(work->loop);
             });
         }
@@ -172,7 +174,7 @@ SimulatorImpl::~SimulatorImpl()
     panda::JSNApi::StopDebugger(vm_);
 
     abilities_.clear();
-    nativeEngine_.reset();
+    nativeEngine_ = nullptr;
     panda::JSNApi::DestroyJSVM(vm_);
     vm_ = nullptr;
 }
@@ -180,7 +182,7 @@ SimulatorImpl::~SimulatorImpl()
 bool SimulatorImpl::Initialize(const Options &options)
 {
     if (nativeEngine_) {
-        HILOG_DEBUG("Simulator is already initialized");
+        HILOG_ERROR("Simulator is already initialized");
         return true;
     }
 
@@ -189,7 +191,8 @@ bool SimulatorImpl::Initialize(const Options &options)
         return false;
     }
 
-    uv_loop_t *uvLoop = nativeEngine_->GetUVLoop();
+    uv_loop_t* uvLoop = nullptr;
+    napi_get_uv_event_loop(nativeEngine_, &uvLoop);
     if (uvLoop == nullptr) {
         return false;
     }
@@ -201,23 +204,25 @@ bool SimulatorImpl::Initialize(const Options &options)
     return true;
 }
 
-void CallObjectMethod(NativeEngine &engine, NativeValue *value, const char *name, NativeValue *const *argv, size_t argc)
+void CallObjectMethod(napi_env env, napi_value obj, const char *name, napi_value const *argv, size_t argc)
 {
-    NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
         HILOG_ERROR("%{public}s, Failed to get Ability object", __func__);
         return;
     }
-
-    NativeValue *methodOnCreate = obj->GetProperty(name);
+    napi_value methodOnCreate = nullptr;
+    napi_get_named_property(env, obj, name, &methodOnCreate);
     if (methodOnCreate == nullptr) {
         HILOG_ERROR("Failed to get '%{public}s' from Ability object", name);
         return;
     }
-    engine.CallFunction(value, methodOnCreate, argv, argc);
+    napi_status status = napi_call_function(env, obj, methodOnCreate, argc, argv, nullptr);
+    if (status != napi_ok) {
+        HILOG_ERROR("Failed to napi call function");
+    }
 }
 
-NativeValue *SimulatorImpl::LoadScript(const std::string &srcPath)
+napi_value SimulatorImpl::LoadScript(const std::string &srcPath)
 {
     panda::Local<panda::ObjectRef> objRef = panda::JSNApi::GetExportObject(vm_, srcPath, "default");
     if (objRef->IsNull()) {
@@ -225,8 +230,10 @@ NativeValue *SimulatorImpl::LoadScript(const std::string &srcPath)
         return nullptr;
     }
 
-    auto obj = ArkNativeEngine::ArkValueToNativeValue(static_cast<ArkNativeEngine*>(nativeEngine_.get()), objRef);
-    return nativeEngine_->CreateInstance(obj, nullptr, 0);
+    auto obj = ArkNativeEngine::ArkValueToNapiValue(nativeEngine_, objRef);
+    napi_value instanceValue = nullptr;
+    napi_new_instance(nativeEngine_, obj, 0, nullptr, &instanceValue);
+    return instanceValue;
 }
 
 bool SimulatorImpl::ParseBundleAndModuleInfo()
@@ -326,12 +333,12 @@ int64_t SimulatorImpl::StartAbility(const std::string &abilitySrcPath, Terminate
     }
 
     abilityPath_ = BUNDLE_INSTALL_PATH + options_.moduleName + "/" + abilitySrcPath;
-    if (!nativeEngine_->RunScriptBuffer(abilityPath_, buf, len, false)) {
+    if (!reinterpret_cast<NativeEngine*>(nativeEngine_)->RunScriptBuffer(abilityPath_, buf, len, false)) {
         HILOG_ERROR("Failed to run script: %{public}s", abilityPath_.c_str());
         return -1;
     }
 
-    NativeValue *instanceValue = LoadScript(abilityPath_);
+    napi_value instanceValue = LoadScript(abilityPath_);
     if (instanceValue == nullptr) {
         HILOG_ERROR("Failed to create object instance");
         return -1;
@@ -339,9 +346,11 @@ int64_t SimulatorImpl::StartAbility(const std::string &abilitySrcPath, Terminate
 
     ++currentId_;
     InitResourceMgr();
-    InitJsAbilityContext(instanceValue);
+    InitJsAbilityContext(nativeEngine_, instanceValue);
     DispatchStartLifecycle(instanceValue);
-    abilities_.emplace(currentId_, nativeEngine_->CreateReference(instanceValue, 1));
+    napi_ref ref = nullptr;
+    napi_create_reference(nativeEngine_, instanceValue, 1, &ref);
+    abilities_.emplace(currentId_, std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
     return currentId_;
 }
 
@@ -368,56 +377,56 @@ bool SimulatorImpl::LoadAbilityStage(uint8_t *buffer, size_t len)
 
     auto moduleSrcPath = BUNDLE_INSTALL_PATH + options_.moduleName + "/" + srcEntrance;
     HILOG_DEBUG("moduleSrcPath is %{public}s", moduleSrcPath.c_str());
-    if (!nativeEngine_->RunScriptBuffer(moduleSrcPath, buffer, len, false)) {
+    if (!reinterpret_cast<NativeEngine*>(nativeEngine_)->RunScriptBuffer(moduleSrcPath, buffer, len, false)) {
         HILOG_ERROR("Failed to run ability stage script: %{public}s", moduleSrcPath.c_str());
         return false;
     }
 
-    NativeValue *instanceValue = LoadScript(moduleSrcPath);
+    napi_value instanceValue = LoadScript(moduleSrcPath);
     if (instanceValue == nullptr) {
         HILOG_ERROR("Failed to create ability stage instance");
         return false;
     }
 
     InitJsAbilityStageContext(instanceValue);
+    CallObjectMethod(nativeEngine_, instanceValue, "onCreate", nullptr, 0);
 
-    CallObjectMethod(*nativeEngine_, instanceValue, "onCreate", nullptr, 0);
-    NativeValue *wantArgv[] = {
-        CreateJsWant(*nativeEngine_)
+    napi_value wantArgv[] = {
+        CreateJsWant(nativeEngine_)
     };
-    CallObjectMethod(*nativeEngine_, instanceValue, "onAcceptWant", wantArgv, ArraySize(wantArgv));
-
-    abilityStage_ = std::shared_ptr<NativeReference>(nativeEngine_->CreateReference(instanceValue, 1));
+    CallObjectMethod(nativeEngine_, instanceValue, "onAcceptWant", wantArgv, ArraySize(wantArgv));
+    napi_ref ref = nullptr;
+    napi_create_reference(nativeEngine_, instanceValue, 1, &ref);
+    abilityStage_ = std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref));
     return true;
 }
 
-void SimulatorImpl::InitJsAbilityStageContext(NativeValue *instanceValue)
+void SimulatorImpl::InitJsAbilityStageContext(napi_value obj)
 {
-    NativeValue *contextObj = CreateJsAbilityStageContext(*nativeEngine_, stageContext_);
+    napi_value contextObj = CreateJsAbilityStageContext(nativeEngine_, stageContext_);
     if (contextObj == nullptr) {
         HILOG_ERROR("contextObj is nullptr");
         return;
     }
 
     jsStageContext_ = std::shared_ptr<NativeReference>(
-        JsRuntime::LoadSystemModuleByEngine(nativeEngine_.get(), "application.AbilityStageContext", &contextObj, 1));
+        JsRuntime::LoadSystemModuleByEngine(nativeEngine_, "application.AbilityStageContext", &contextObj, 1));
     if (jsStageContext_ == nullptr) {
         HILOG_ERROR("Failed to get LoadSystemModuleByEngine");
         return;
     }
 
-    contextObj = jsStageContext_->Get();
+    contextObj = jsStageContext_->GetNapiValue();
     if (contextObj == nullptr) {
         HILOG_ERROR("contextObj is nullptr.");
         return;
     }
 
-    NativeObject *obj = ConvertNativeValueTo<NativeObject>(instanceValue);
     if (obj == nullptr) {
         HILOG_ERROR("obj is nullptr");
         return;
     }
-    obj->SetProperty("context", contextObj);
+    napi_set_named_property(nativeEngine_, obj, "context", contextObj);
 }
 
 void SimulatorImpl::TerminateAbility(int64_t abilityId)
@@ -435,14 +444,14 @@ void SimulatorImpl::TerminateAbility(int64_t abilityId)
     std::shared_ptr<NativeReference> ref = it->second;
     abilities_.erase(it);
 
-    auto instanceValue = ref->Get();
+    auto instanceValue = ref->GetNapiValue();
     if (instanceValue == nullptr) {
         return;
     }
 
-    CallObjectMethod(*nativeEngine_, instanceValue, "onBackground", nullptr, 0);
-    CallObjectMethod(*nativeEngine_, instanceValue, "onWindowStageDestroy", nullptr, 0);
-    CallObjectMethod(*nativeEngine_, instanceValue, "onDestroy", nullptr, 0);
+    CallObjectMethod(nativeEngine_, instanceValue, "onBackground", nullptr, 0);
+    CallObjectMethod(nativeEngine_, instanceValue, "onWindowStageDestroy", nullptr, 0);
+    CallObjectMethod(nativeEngine_, instanceValue, "onDestroy", nullptr, 0);
 
     auto windowSceneIter = windowScenes_.find(abilityId);
     if (windowSceneIter != windowScenes_.end()) {
@@ -477,29 +486,29 @@ void SimulatorImpl::UpdateConfiguration(const AppExecFwk::Configuration &config)
         stageContext_->SetConfiguration(configuration);
     }
 
-    NativeValue *configArgv[] = {
-        CreateJsConfiguration(*nativeEngine_, config)
+    napi_value configArgv[] = {
+        CreateJsConfiguration(nativeEngine_, config)
     };
 
-    auto abilityStage = abilityStage_->Get();
+    auto abilityStage = abilityStage_->GetNapiValue();
     if (abilityStage == nullptr) {
         HILOG_ERROR("abilityStage is nullptr");
         return;
     }
-    CallObjectMethod(*nativeEngine_, abilityStage, "onConfigurationUpdated", configArgv, ArraySize(configArgv));
-    CallObjectMethod(*nativeEngine_, abilityStage, "onConfigurationUpdate", configArgv, ArraySize(configArgv));
-    JsAbilityStageContext::ConfigurationUpdated(nativeEngine_.get(), jsStageContext_, configuration);
+    CallObjectMethod(nativeEngine_, abilityStage, "onConfigurationUpdated", configArgv, ArraySize(configArgv));
+    CallObjectMethod(nativeEngine_, abilityStage, "onConfigurationUpdate", configArgv, ArraySize(configArgv));
+    JsAbilityStageContext::ConfigurationUpdated(nativeEngine_, jsStageContext_, configuration);
 
     for (auto iter = abilities_.begin(); iter != abilities_.end(); iter++) {
-        auto ability = iter->second->Get();
+        auto ability = iter->second->GetNapiValue();
         if (ability == nullptr) {
             HILOG_ERROR("ability is nullptr");
             continue;
         }
 
-        CallObjectMethod(*nativeEngine_, ability, "onConfigurationUpdated", configArgv, ArraySize(configArgv));
-        CallObjectMethod(*nativeEngine_, ability, "onConfigurationUpdate", configArgv, ArraySize(configArgv));
-        JsAbilityContext::ConfigurationUpdated(nativeEngine_.get(), iter->second, configuration);
+        CallObjectMethod(nativeEngine_, ability, "onConfigurationUpdated", configArgv, ArraySize(configArgv));
+        CallObjectMethod(nativeEngine_, ability, "onConfigurationUpdate", configArgv, ArraySize(configArgv));
+        JsAbilityContext::ConfigurationUpdated(nativeEngine_, iter->second, configuration);
     }
 }
 
@@ -524,7 +533,7 @@ void SimulatorImpl::InitResourceMgr()
     HILOG_DEBUG("Add resource success.");
 }
 
-void SimulatorImpl::InitJsAbilityContext(NativeValue *instanceValue)
+void SimulatorImpl::InitJsAbilityContext(napi_env env, napi_value obj)
 {
     if (context_ == nullptr) {
         context_ = std::make_shared<AbilityContext>();
@@ -534,66 +543,67 @@ void SimulatorImpl::InitJsAbilityContext(NativeValue *instanceValue)
         context_->SetResourceManager(resourceMgr_);
         context_->SetAbilityInfo(abilityInfo_);
     }
-    NativeValue *contextObj = CreateJsAbilityContext(*nativeEngine_, context_);
+    napi_value contextObj = CreateJsAbilityContext(nativeEngine_, context_);
     auto systemModule = std::shared_ptr<NativeReference>(
-        JsRuntime::LoadSystemModuleByEngine(nativeEngine_.get(), "application.AbilityContext", &contextObj, 1));
+        JsRuntime::LoadSystemModuleByEngine(nativeEngine_, "application.AbilityContext", &contextObj, 1));
     if (systemModule == nullptr) {
         HILOG_ERROR("systemModule is nullptr.");
         return;
     }
-
-    contextObj = systemModule->Get();
+    contextObj = systemModule->GetNapiValue();
     if (contextObj == nullptr) {
         HILOG_ERROR("contextObj is nullptr.");
         return;
     }
 
-    NativeObject *obj = ConvertNativeValueTo<NativeObject>(instanceValue);
     if (obj == nullptr) {
         HILOG_ERROR("obj is nullptr");
         return;
     }
-    obj->SetProperty("context", contextObj);
+    napi_set_named_property(env, obj, "context", contextObj);
     jsContexts_.emplace(currentId_, systemModule);
 }
 
-NativeValue *SimulatorImpl::CreateJsWant(NativeEngine &engine)
+napi_value SimulatorImpl::CreateJsWant(napi_env env)
 {
-    NativeValue *objValue = engine.CreateObject();
-    NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
-
-    object->SetProperty("deviceId", CreateJsValue(engine, ""));
-    object->SetProperty("bundleName", CreateJsValue(engine, options_.bundleName));
+    napi_value objValue = nullptr;
+    napi_create_object(env, &objValue);
+    napi_set_named_property(env, objValue, "deviceId", CreateJsValue(env, std::string("")));
+    napi_set_named_property(env, objValue, "bundleName", CreateJsValue(env, options_.bundleName));
     if (abilityInfo_) {
-        object->SetProperty("abilityName", CreateJsValue(engine, abilityInfo_->name));
+        napi_set_named_property(env, objValue, "abilityName", CreateJsValue(env, abilityInfo_->name));
     }
-    object->SetProperty("moduleName", CreateJsValue(engine, options_.moduleName));
-    object->SetProperty("uri", CreateJsValue(engine, ""));
-    object->SetProperty("type", CreateJsValue(engine, ""));
-    object->SetProperty("flags", CreateJsValue(engine, 0));
-    object->SetProperty("action", CreateJsValue(engine, ""));
-    object->SetProperty("parameters", engine.CreateObject());
-    object->SetProperty("entities", engine.CreateArray(0));
+    napi_set_named_property(env, objValue, "moduleName", CreateJsValue(env, options_.moduleName));
+
+    napi_set_named_property(env, objValue, "uri", CreateJsValue(env, std::string("")));
+    napi_set_named_property(env, objValue, "type", CreateJsValue(env, std::string("")));
+    napi_set_named_property(env, objValue, "flags", CreateJsValue(env, 0));
+    napi_set_named_property(env, objValue, "type", CreateJsValue(env, std::string("")));
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
+    napi_set_named_property(env, objValue, "parameters", object);
+    napi_value array = nullptr;
+    napi_create_array_with_length(env, 0, &array);
+    napi_set_named_property(env, objValue, "entities", array);
     return objValue;
 }
 
-NativeValue *SimulatorImpl::CreateJsLaunchParam(NativeEngine &engine)
+napi_value SimulatorImpl::CreateJsLaunchParam(napi_env env)
 {
-    NativeValue *objValue = engine.CreateObject();
-    NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
-    object->SetProperty("launchReason", CreateJsValue(engine, AAFwk::LAUNCHREASON_UNKNOWN));
-    object->SetProperty("lastExitReason", CreateJsValue(engine, AAFwk::LASTEXITREASON_UNKNOWN));
+    napi_value objValue = nullptr;
+    napi_create_object(env, &objValue);
+    napi_set_named_property(env, objValue, "launchReason", CreateJsValue(env, AAFwk::LAUNCHREASON_UNKNOWN));
+    napi_set_named_property(env, objValue, "lastExitReason", CreateJsValue(env, AAFwk::LASTEXITREASON_UNKNOWN));
     return objValue;
 }
 
-void SimulatorImpl::DispatchStartLifecycle(NativeValue *instanceValue)
+void SimulatorImpl::DispatchStartLifecycle(napi_value instanceValue)
 {
-    NativeValue *wantArgv[] = {
-        CreateJsWant(*nativeEngine_),
-        CreateJsLaunchParam(*nativeEngine_)
+    napi_value wantArgv[] = {
+        CreateJsWant(nativeEngine_),
+        CreateJsLaunchParam(nativeEngine_)
     };
-    CallObjectMethod(*nativeEngine_, instanceValue, "onCreate", wantArgv, ArraySize(wantArgv));
-
+    CallObjectMethod(nativeEngine_, instanceValue, "onCreate", wantArgv, ArraySize(wantArgv));
     auto windowScene = std::make_shared<Rosen::WindowScene>();
     if (windowScene == nullptr) {
         return;
@@ -604,10 +614,10 @@ void SimulatorImpl::DispatchStartLifecycle(NativeValue *instanceValue)
     if (jsWindowStage == nullptr) {
         return;
     }
-    NativeValue *argv[] = { jsWindowStage->Get() };
-    CallObjectMethod(*nativeEngine_, instanceValue, "onWindowStageCreate", argv, ArraySize(argv));
+    napi_value argv[] = { jsWindowStage->GetNapiValue() };
+    CallObjectMethod(nativeEngine_, instanceValue, "onWindowStageCreate", argv, ArraySize(argv));
 
-    CallObjectMethod(*nativeEngine_, instanceValue, "onForeground", nullptr, 0);
+    CallObjectMethod(nativeEngine_, instanceValue, "onForeground", nullptr, 0);
 
     windowScenes_.emplace(currentId_, windowScene);
     jsWindowStages_.emplace(currentId_, std::shared_ptr<NativeReference>(jsWindowStage.release()));
@@ -616,12 +626,12 @@ void SimulatorImpl::DispatchStartLifecycle(NativeValue *instanceValue)
 std::unique_ptr<NativeReference> SimulatorImpl::CreateJsWindowStage(
     const std::shared_ptr<Rosen::WindowScene> &windowScene)
 {
-    NativeValue *jsWindowStage = Rosen::CreateJsWindowStage(*nativeEngine_, windowScene);
+    napi_value jsWindowStage = Rosen::CreateJsWindowStage(nativeEngine_, windowScene);
     if (jsWindowStage == nullptr) {
         HILOG_ERROR("Failed to create jsWindowSatge object");
         return nullptr;
     }
-    return JsRuntime::LoadSystemModuleByEngine(nativeEngine_.get(), "application.WindowStage", &jsWindowStage, 1);
+    return JsRuntime::LoadSystemModuleByEngine(nativeEngine_, "application.WindowStage", &jsWindowStage, 1);
 }
 
 panda::ecmascript::EcmaVM *SimulatorImpl::CreateJSVM()
@@ -673,18 +683,23 @@ bool SimulatorImpl::OnInit()
     panda::JSNApi::StartDebugger(vm_, debugOption, 0,
         std::bind(&DebuggerTask::OnPostTask, &debuggerTask_, std::placeholders::_1));
 
-    auto nativeEngine = std::make_unique<ArkNativeEngine>(vm_, nullptr);
+    auto nativeEngine = new (std::nothrow) ArkNativeEngine(vm_, nullptr);
     if (nativeEngine == nullptr) {
         HILOG_ERROR("nativeEngine is nullptr");
         return false;
     }
-    NativeObject *globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine->GetGlobal());
+    napi_env env = reinterpret_cast<napi_env>(nativeEngine);
+
+    napi_value globalObj;
+    napi_get_global(env, &globalObj);
     if (globalObj == nullptr) {
+        delete nativeEngine;
         HILOG_ERROR("Failed to get global object");
         return false;
     }
 
-    if (!LoadRuntimeEnv(*nativeEngine, *globalObj)) {
+    if (!LoadRuntimeEnv(env, globalObj)) {
+        delete nativeEngine;
         HILOG_ERROR("Load runtime env failed.");
         return false;
     }
@@ -694,18 +709,40 @@ bool SimulatorImpl::OnInit()
     panda::JSNApi::SetModuleName(vm_, options_.moduleName);
     panda::JSNApi::SetAssetPath(vm_, options_.modulePath);
 
-    nativeEngine_ = std::move(nativeEngine);
+    nativeEngine_ = env;
     return true;
 }
 
-bool SimulatorImpl::LoadRuntimeEnv(NativeEngine &nativeEngine, NativeObject &globalObj)
+napi_value SimulatorImpl::RequireNapi(napi_env env, napi_callback_info info)
 {
-    JsSysModule::Console::InitConsoleModule(reinterpret_cast<napi_env>(&nativeEngine));
-    auto ret = JsSysModule::Timer::RegisterTime(reinterpret_cast<napi_env>(&nativeEngine));
+    napi_value globalObj;
+    napi_get_global(env, &globalObj);
+    napi_value requireNapi = nullptr;
+    napi_get_named_property(env, globalObj, "requireNapiPreview", &requireNapi);
+    size_t argc = ARGC_MAX_COUNT;
+    napi_value argv[ARGC_MAX_COUNT] = {nullptr};
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
+    napi_value result = nullptr;
+    napi_call_function(env, CreateJsUndefined(env), requireNapi, argc, argv, &result);
+    if (!CheckTypeForNapiValue(env, result, napi_undefined)) {
+        return result;
+    }
+    napi_value mockRequireNapi = nullptr;
+    napi_get_named_property(env, globalObj, "mockRequireNapi", &mockRequireNapi);
+    napi_call_function(env, CreateJsUndefined(env), mockRequireNapi, argc, argv, &result);
+    return result;
+}
+
+bool SimulatorImpl::LoadRuntimeEnv(napi_env env, napi_value globalObj)
+{
+    JsSysModule::Console::InitConsoleModule(env);
+    auto ret = JsSysModule::Timer::RegisterTime(env);
     if (!ret) {
         HILOG_ERROR("Register timer failed");
     }
-    globalObj.SetProperty("group", nativeEngine.CreateObject());
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
+    napi_set_named_property(env, globalObj, "group", object);
 
     uintptr_t bufferStart = reinterpret_cast<uintptr_t>(_binary_jsMockSystemPlugin_abc_start);
     uintptr_t bufferEnd = reinterpret_cast<uintptr_t>(_binary_jsMockSystemPlugin_abc_end);
@@ -713,12 +750,12 @@ bool SimulatorImpl::LoadRuntimeEnv(NativeEngine &nativeEngine, NativeObject &glo
     size_t size = bufferEnd - bufferStart;
     panda::JSNApi::Execute(vm_, buffer, size, "_GLOBAL::func_main_0");
 
-    NativeValue *mockRequireNapi = globalObj.GetProperty("requireNapi");
-    globalObj.SetProperty("mockRequireNapi", mockRequireNapi);
-
-    auto* moduleManager = nativeEngine.GetModuleManager();
+    napi_value mockRequireNapi = nullptr;
+    napi_get_named_property(env, globalObj, "requireNapi", &mockRequireNapi);
+    napi_set_named_property(env, globalObj, "mockRequireNapi", mockRequireNapi);
+    auto* moduleManager = reinterpret_cast<NativeEngine*>(env)->GetModuleManager();
     if (moduleManager != nullptr) {
-        HILOG_DEBUG("moduleManager SetPreviewSearchPath: %{public}s", options_.containerSdkPath.c_str());
+        HILOG_ERROR("moduleManager SetPreviewSearchPath: %{public}s", options_.containerSdkPath.c_str());
         moduleManager->SetPreviewSearchPath(options_.containerSdkPath);
     }
 
@@ -735,25 +772,14 @@ bool SimulatorImpl::LoadRuntimeEnv(NativeEngine &nativeEngine, NativeObject &glo
     }
 
     const char *moduleName = "SimulatorImpl";
-    BindNativeFunction(nativeEngine, globalObj, "requireNapi", moduleName,
-        [](NativeEngine *engine, NativeCallbackInfo *info) {
-        NativeObject *globalObj = ConvertNativeValueTo<NativeObject>(engine->GetGlobal());
-        NativeValue *requireNapi = globalObj->GetProperty("requireNapiPreview");
-
-        NativeValue *result = engine->CallFunction(engine->CreateUndefined(), requireNapi, info->argv, info->argc);
-        if (result->TypeOf() != NATIVE_UNDEFINED) {
-            return result;
-        }
-
-        NativeValue *mockRequireNapi = globalObj->GetProperty("mockRequireNapi");
-        return engine->CallFunction(engine->CreateUndefined(), mockRequireNapi, info->argv, info->argc);
-    });
+    BindNativeFunction(env, globalObj, "requireNapi", moduleName, SimulatorImpl::RequireNapi);
     return true;
 }
 
 void SimulatorImpl::Run()
 {
-    uv_loop_t *uvLoop = nativeEngine_->GetUVLoop();
+    uv_loop_t* uvLoop = nullptr;
+    napi_get_uv_event_loop(nativeEngine_, &uvLoop);
     if (uvLoop != nullptr) {
         uv_run(uvLoop, UV_RUN_NOWAIT);
     }

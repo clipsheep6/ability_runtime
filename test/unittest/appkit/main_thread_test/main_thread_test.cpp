@@ -264,6 +264,11 @@ class MockAppMgrStub : public AppMgrStub {
     {
         return 0;
     }
+
+    int32_t ChangeAppGcState(pid_t pid, int32_t state) override
+    {
+        return 0;
+    }
 };
 
 /*
@@ -2528,6 +2533,18 @@ HWTEST_F(MainThreadTest, DetachAppDebug_0300, TestSize.Level1)
     EXPECT_TRUE(mainThread_->watchdog_ != nullptr);
     mainThread_->DetachAppDebug();
     EXPECT_TRUE(mainThread_->watchdog_ != nullptr);
+}
+
+/**
+ * @tc.name: ScheduleChangeAppGcState_0100
+ * @tc.desc: Schedule Gc state chage.
+ * @tc.type: FUNC
+ * @tc.require: issuesI85VVU
+ */
+HWTEST_F(MainThreadTest, ScheduleChangeAppGcState_0100, TestSize.Level1)
+{
+    auto ret = mainThread_->ScheduleChangeAppGcState(0);
+    EXPECT_EQ(ret, NO_ERROR);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

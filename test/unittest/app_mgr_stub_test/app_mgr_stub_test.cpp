@@ -321,5 +321,24 @@ HWTEST_F(AppMgrStubTest, HandleNotifyFaultBySA_001, TestSize.Level1)
         static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_APP_FAULT_BY_SA), data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
 }
+
+/**
+ * @tc.name: HandleChangeAppGcState_001
+ * @tc.desc: Handle change app Gc state.
+ * @tc.type: FUNC
+ * @tc.require: issuesI85VVU
+ */
+HWTEST_F(AppMgrStubTest, HandleChangeAppGcState_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    WriteInterfaceToken(data);
+    data.WriteInt32(0);
+    data.WriteInt32(0);
+    auto result = mockAppMgrService_->OnRemoteRequest(
+            static_cast<uint32_t>(AppMgrInterfaceCode::CHANGE_APP_GC_STATE), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

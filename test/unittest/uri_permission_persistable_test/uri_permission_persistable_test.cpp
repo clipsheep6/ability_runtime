@@ -15,10 +15,12 @@
 
 #include <gtest/gtest.h>
 #include "ability_manager_errors.h"
+#include "event_report.h"
 #include "mock_permission_verification.h"
 #include "mock_native_token.h"
 #include "system_ability_definition.h"
 #include "system_ability_manager_client.h"
+#include "tokenid_kit.h"
 #define private public
 #include "uri_permission_manager_stub_impl.h"
 #undef private

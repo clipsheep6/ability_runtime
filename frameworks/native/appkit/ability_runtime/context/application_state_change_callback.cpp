@@ -21,8 +21,8 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-JsApplicationStateChangeCallback::JsApplicationStateChangeCallback(NativeEngine* engine)
-    : engine_(engine)
+JsApplicationStateChangeCallback::JsApplicationStateChangeCallback(napi_env env)
+    : env_(env)
 {
 }
 
@@ -35,19 +35,19 @@ void JsApplicationStateChangeCallback::CallJsMethodInnerCommon(
             continue;
         }
 
-        auto value = callback->Get();
-        auto obj = ConvertNativeValueTo<NativeObject>(value);
-        if (obj == nullptr) {
+        auto obj = callback->GetNapiValue();
+        if (!CheckTypeForNapiValue(env_, obj, napi_object)) {
             HILOG_ERROR("Failed to get object");
             continue;
         }
 
-        auto method = obj->GetProperty(methodName.data());
+        napi_value method = nullptr;
+        napi_get_named_property(env_, obj, methodName.data(), &method);
         if (method == nullptr) {
             HILOG_ERROR("Failed to get %{public}s from object", methodName.data());
             continue;
         }
-        engine_->CallFunction(value, method, nullptr, 0);
+        napi_call_function(env_, obj, method, 0, nullptr, nullptr);
     }
 }
 
@@ -55,19 +55,19 @@ void JsApplicationStateChangeCallback::CallJsMethod(const std::string &methodNam
 {
     HILOG_DEBUG("MethodName = %{public}s", methodName.c_str());
     std::weak_ptr<JsApplicationStateChangeCallback> thisWeakPtr(shared_from_this());
-    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>(
+    std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>(
         [thisWeakPtr, methodName, callbacks = callbacks_]
-        (NativeEngine &engine, AsyncTask &task, int32_t status) {
+        (napi_env env, NapiAsyncTask &task, int32_t status) {
             std::shared_ptr<JsApplicationStateChangeCallback> jsCallback = thisWeakPtr.lock();
             if (jsCallback) {
                 jsCallback->CallJsMethodInnerCommon(methodName, callbacks);
             }
         }
     );
-    NativeReference *callback = nullptr;
-    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
-    AsyncTask::Schedule("JsApplicationStateChangeCallback::CallJsMethod:" + methodName,
-        *engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
+    napi_ref callback = nullptr;
+    std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
+    NapiAsyncTask::Schedule("JsApplicationStateChangeCallback::CallJsMethod:" + methodName,
+        env_, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
 void JsApplicationStateChangeCallback::NotifyApplicationForeground()
@@ -80,16 +80,18 @@ void JsApplicationStateChangeCallback::NotifyApplicationBackground()
     CallJsMethod("onApplicationBackground");
 }
 
-void JsApplicationStateChangeCallback::Register(NativeValue *jsCallback)
+void JsApplicationStateChangeCallback::Register(napi_value jsCallback)
 {
-    if (engine_ == nullptr || jsCallback == nullptr) {
-        HILOG_ERROR("Engine or jsCallback is nullptr");
+    if (env_ == nullptr || jsCallback == nullptr) {
+        HILOG_ERROR("env or jsCallback is nullptr");
         return;
     }
-    callbacks_.emplace(std::shared_ptr<NativeReference>(engine_->CreateReference(jsCallback, 1)));
+    napi_ref ref = nullptr;
+    napi_create_reference(env_, jsCallback, 1, &ref);
+    callbacks_.emplace(std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
 }
 
-bool JsApplicationStateChangeCallback::UnRegister(NativeValue *jsCallback)
+bool JsApplicationStateChangeCallback::UnRegister(napi_value jsCallback)
 {
     if (jsCallback == nullptr) {
         HILOG_INFO("jsCallback is nullptr, delete all callback.");
@@ -103,13 +105,15 @@ bool JsApplicationStateChangeCallback::UnRegister(NativeValue *jsCallback)
             continue;
         }
 
-        NativeValue *value = callback->Get();
+        napi_value value = callback->GetNapiValue();
         if (value == nullptr) {
             HILOG_ERROR("Failed to get object");
             continue;
         }
 
-        if (value->StrictEquals(jsCallback)) {
+        bool isEqual = false;
+        napi_strict_equals(env_, value, jsCallback, &isEqual);
+        if (isEqual) {
             return callbacks_.erase(callback) == 1;
         }
     }
