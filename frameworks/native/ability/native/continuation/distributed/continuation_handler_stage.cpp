@@ -30,8 +30,8 @@ const std::string VERSION_CODE_KEY = "version";
 }
 
 ContinuationHandlerStage::ContinuationHandlerStage(
-    std::weak_ptr<ContinuationManagerStage> &continuationManager,
-    std::weak_ptr<AbilityRuntime::UIAbility> &uiAbility)
+    const std::weak_ptr<ContinuationManagerStage> &continuationManager,
+    const std::weak_ptr<AbilityRuntime::UIAbility> &uiAbility)
     : ability_(uiAbility), continuationManager_(continuationManager) {}
 
 bool ContinuationHandlerStage::HandleStartContinuationWithStack(
