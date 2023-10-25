@@ -87,11 +87,13 @@ public:
      */
     ErrCode ScheduleCommandAbilityDone(const sptr<IRemoteObject> &token);
 
+#ifdef SUPPORT_GRAPHICS
     ErrCode ScheduleCommandAbilityWindowDone(
         const sptr<IRemoteObject> &token,
         const sptr<SessionInfo> &sessionInfo,
         WindowCommand winCmd,
         AbilityCommand abilityCmd);
+#endif
 
     /**
      * Get top ability.
@@ -210,6 +212,7 @@ public:
             int requestCode = DEFAULT_INVAL_VALUE,
             int32_t userId = DEFAULT_INVAL_VALUE);
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * Start ui session ability with extension session info, send session info to ability manager service.
      *
@@ -243,6 +246,7 @@ public:
         const sptr<AAFwk::SessionInfo> &sessionInfo,
         int requestCode = DEFAULT_INVAL_VALUE,
         int32_t userId = DEFAULT_INVAL_VALUE);
+#endif
 
     /**
      * Start extension ability with want, send want to ability manager service.
@@ -259,6 +263,7 @@ public:
         int32_t userId = DEFAULT_INVAL_VALUE,
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED);
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * Start ui extension ability with extension session info, send extension session info to ability manager service.
      *
@@ -277,6 +282,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo);
+#endif
 
     /**
      * Stop extension ability with want, send want to ability manager service.
@@ -303,6 +309,7 @@ public:
      */
     ErrCode TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant);
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * TerminateUIExtensionAbility with want, return want from ability manager service.
      *
@@ -321,6 +328,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode CloseUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo);
+#endif
 
     /**
      * SendResultToAbility with want, return resultWant from ability manager service.
@@ -360,6 +368,7 @@ public:
      */
     ErrCode MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser = false);
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * MinimizeUIExtensionAbility, minimize the special ui extension ability.
      *
@@ -377,6 +386,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode MinimizeUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool fromUser = false);
+#endif
 
     /**
      * ConnectAbility, connect session with service ability.
@@ -423,6 +433,7 @@ public:
     ErrCode ConnectExtensionAbility(const Want &want, const sptr<IAbilityConnection> &connect,
         int32_t userId = DEFAULT_INVAL_VALUE);
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * Connect ui extension ability.
      *
@@ -434,6 +445,7 @@ public:
      */
     ErrCode ConnectUIExtensionAbility(const Want &want, const sptr<IAbilityConnection> &connect,
         const sptr<SessionInfo> &sessionInfo, int32_t userId = DEFAULT_INVAL_VALUE);
+#endif
 
     /**
      * DisconnectAbility, disconnect session with service ability.
@@ -854,6 +866,7 @@ public:
      */
     ErrCode PrepareTerminateAbility(const sptr<IRemoteObject> &token, sptr<IPrepareTerminateCallback> &callback);
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * @brief Register auto start up callback for system api.
      * @param callback The point of JsAbilityAutoStartupCallBack.
@@ -933,6 +946,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isPrepareTerminate);
+#endif
 
     /**
      * Set mission continue state of this ability.
@@ -1204,12 +1218,14 @@ public:
      */
     void SetRootSceneSession(const sptr<IRemoteObject> &rootSceneSession);
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * Call UIAbility by SCB.
      *
      * @param sessionInfo the session info of the ability to be called.
      */
     void CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInfo);
+#endif
 
     /**
      * Start specified ability by SCB.

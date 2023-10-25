@@ -38,6 +38,7 @@ public:
      */
     ~NewAbilityImpl() = default;
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * @brief Handling the life cycle switching of NewAbility.
      *
@@ -48,6 +49,7 @@ public:
      */
     void HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
         sptr<AAFwk::SessionInfo> sessionInfo = nullptr) override;
+#endif
 
     /**
      * @brief The life cycle callback of NewAbility.

@@ -159,6 +159,7 @@ bool Ability::IsUpdatingConfigurations()
     return AbilityContext::IsUpdatingConfigurations();
 }
 
+#ifdef SUPPORT_GRAPHICS
 void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -247,6 +248,7 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_START, want);
     HILOG_DEBUG("end");
 }
+#endif
 
 void Ability::OnStop()
 {
@@ -596,11 +598,13 @@ void Ability::InitConfigurationProperties(const Configuration& changeConfigurati
 void Ability::OnMemoryLevel(int level)
 {
     HILOG_INFO("called");
+#ifdef SUPPORT_GRAPHICS
     if (scene_ == nullptr) {
         HILOG_DEBUG("WindowScene is null");
         return;
     }
     scene_->NotifyMemoryLevel(level);
+#endif
 }
 
 int Ability::OpenRawFile(const Uri &uri, const std::string &mode)

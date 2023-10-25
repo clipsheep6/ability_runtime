@@ -102,9 +102,11 @@ public:
      */
     void DispatchRestoreAbilityState(const PacMap &inState);
 
+#ifdef SUPPORT_GRAPHICS
     // Page Service Ability has different AbilityTransaction
     virtual void HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
         sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
+#endif
 
     /**
      * @brief The life cycle callback.
@@ -399,6 +401,7 @@ protected:
 #endif
 
 protected:
+#ifdef SUPPORT_GRAPHICS
     /**
      * @brief Toggles the lifecycle status of Ability to AAFwk::ABILITY_STATE_INACTIVE. And notifies the application
      * that it belongs to of the lifecycle status.
@@ -407,6 +410,7 @@ protected:
      * @param sessionInfo  Indicates the sessionInfo.
      */
     void Start(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
+#endif
 
     /**
      * @brief Toggles the lifecycle status of Ability to AAFwk::ABILITY_STATE_INITIAL. And notifies the application
