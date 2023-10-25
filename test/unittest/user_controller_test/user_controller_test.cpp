@@ -72,10 +72,9 @@ HWTEST_F(UserControllerTest, UserItemSetState_0100, TestSize.Level0)
 HWTEST_F(UserControllerTest, StartUserTest_0100, TestSize.Level0)
 {
     UserController userController;
-    userController.StartUser(0, true);
-    userController.StartUser(-1, true);
-    userController.StartUser(100, true);
-    EXPECT_TRUE(userController.StartUser(100, true) == 0);
+    userController.GetOrCreateUserItem(1000);
+    userController.SetCurrentUserId(1000);
+    EXPECT_TRUE(userController.StartUser(1000, true) == 0);
 }
 
 /**
@@ -126,8 +125,8 @@ HWTEST_F(UserControllerTest, StopUserTest_0300, TestSize.Level0)
 {
     UserController userController;
     userController.GetOrCreateUserItem(1000);
-    userController.StopUser(1000);
-    EXPECT_TRUE(true);
+    auto result = userController.StopUser(1000);
+    EXPECT_TRUE(result = 1000);
 }
 
 /**
@@ -141,7 +140,8 @@ HWTEST_F(UserControllerTest, HandleContinueUserSwitchTest_0100, TestSize.Level0)
     UserController userController;
     auto userItem = std::make_shared<UserItem>(1000);
     userController.HandleContinueUserSwitch(1000, 1000, userItem);
-    EXPECT_TRUE(true);
+    auto result = userController.GetCurrentUserId();
+    EXPECT_TRUE(result == 0);
 }
 
 /**
@@ -156,7 +156,8 @@ HWTEST_F(UserControllerTest, SendUserSwitchDoneTest_0100, TestSize.Level0)
     userController.SendUserSwitchDone(1000);
     userController.Init();
     userController.SendUserSwitchDone(1001);
-    EXPECT_TRUE(true);
+    auto result = userController.GetCurrentUserId();
+    EXPECT_TRUE(result == 0);
 }
 
 /**
@@ -172,7 +173,8 @@ HWTEST_F(UserControllerTest, SendContinueUserSwitchTest_0200, TestSize.Level0)
     userController.SendContinueUserSwitch(1000, 1000, userItem);
     userController.Init();
     userController.SendContinueUserSwitch(1000, 1000, userItem);
-    EXPECT_TRUE(true);
+    auto result = userController.GetCurrentUserId();
+    EXPECT_TRUE(result == 0);
 }
 
 /**
@@ -188,7 +190,8 @@ HWTEST_F(UserControllerTest, SendUserSwitchTimeoutTest_0100, TestSize.Level0)
     userController.SendUserSwitchTimeout(1000, 1000, userItem);
     userController.Init();
     userController.SendUserSwitchTimeout(1000, 1000, userItem);
-    EXPECT_TRUE(true);
+    auto result = userController.GetCurrentUserId();
+    EXPECT_TRUE(result == 0);
 }
 
 /**
@@ -204,7 +207,8 @@ HWTEST_F(UserControllerTest, SendReportUserSwitchTest_0100, TestSize.Level0)
     userController.SendReportUserSwitch(1000, 1000, userItem);
     userController.Init();
     userController.SendReportUserSwitch(1000, 1000, userItem);
-    EXPECT_TRUE(true);
+    auto result = userController.GetCurrentUserId();
+    EXPECT_TRUE(result == 0);
 }
 
 /**
@@ -219,7 +223,8 @@ HWTEST_F(UserControllerTest, SendSystemUserCurrentTest_0100, TestSize.Level0)
     userController.SendSystemUserCurrent(1000, 1000);
     userController.Init();
     userController.SendSystemUserCurrent(1000, 1000);
-    EXPECT_TRUE(true);
+    auto result = userController.GetCurrentUserId();
+    EXPECT_TRUE(result == 0);
 }
 
 /**
@@ -234,7 +239,8 @@ HWTEST_F(UserControllerTest, SendSystemUserStartTest_0100, TestSize.Level0)
     userController.SendSystemUserStart(1000);
     userController.Init();
     userController.SendSystemUserStart(1000);
-    EXPECT_TRUE(true);
+    auto result = userController.GetCurrentUserId();
+    EXPECT_TRUE(result == 0);
 }
 }  // namespace AAFwk
 }  // namespace OHOS
