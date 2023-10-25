@@ -973,6 +973,7 @@ HWTEST_F(ApplicationContextTest, ClearUpApplicationData_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "ClearUpApplicationData_0100 start";
     EXPECT_NE(context_, nullptr);
+    context_->AttachContextImpl(mock_);
     context_->ClearUpApplicationData();
     GTEST_LOG_(INFO) << "ClearUpApplicationData_0100 end";
 }
