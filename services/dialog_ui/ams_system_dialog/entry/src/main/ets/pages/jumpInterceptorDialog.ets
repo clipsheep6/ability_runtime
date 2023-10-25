@@ -27,7 +27,7 @@ struct JumpInterceptorDialog {
   aboutToAppear() {
     console.log(this.TAG, "dialog page appears");
     this.deviceType = globalThis.params.deviceType
-    if (this.deviceType == "pc") {
+    if (this.deviceType == "pc" || this.deviceType == "2in1") {
       this.btn.color = "#F2F2F2";
     }
   }
