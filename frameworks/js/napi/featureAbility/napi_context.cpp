@@ -846,7 +846,7 @@ void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<s
             napi_set_named_property(onRequestPermissionCB->cb.env, result[PARAM1], "authResults", grantArray);
 
             // call CB function
-            if (onRequestPermissionCB->cb.callback != nullptr) {
+            if (onRequestPermissionCB->cb.callback != nullptr && onRequestPermissionCB->cb.env != nullptr) {
                 HILOG_DEBUG("%{public}s call callback function.", __func__);
                 napi_value callback = 0;
                 napi_value undefined = 0;
