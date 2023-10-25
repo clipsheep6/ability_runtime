@@ -34,6 +34,8 @@
 #include "iability_manager_collaborator.h"
 #include "iacquire_share_data_callback_interface.h"
 #include "icomponent_interception.h"
+#include "insight_intent_execute_param.h"
+#include "insight_intent_execute_result.h"
 #include "iprepare_terminate_callback_interface.h"
 #include "mission_info.h"
 #include "mission_listener_interface.h"
@@ -59,6 +61,7 @@
 namespace OHOS {
 namespace AAFwk {
 using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
+using InsightIntentExecuteParam = AppExecFwk::InsightIntentExecuteParam;
 constexpr const char* ABILITY_MANAGER_SERVICE_NAME = "AbilityManagerService";
 const int DEFAULT_INVAL_VALUE = -1;
 const int DELAY_LOCAL_FREE_INSTALL_TIMEOUT = 40000;
@@ -1295,6 +1298,16 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t DetachAppDebug(const std::string &bundleName) = 0;
+
+    /**
+     * @brief Execute intent.
+     * @param key The key of intent executing client.
+     * @param callerToken Caller ability token.
+     * @param param The Intent execute param.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t ExecuteIntent(uint64_t key, const sptr<IRemoteObject> &callerToken,
+        const InsightIntentExecuteParam &param) = 0;
 
     /**
      * @brief Check if ability controller can start.

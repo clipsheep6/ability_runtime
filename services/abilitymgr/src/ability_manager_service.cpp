@@ -49,6 +49,7 @@
 #include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
 #include "in_process_call_wrapper.h"
+#include "insight_intent_execute_callback_proxy.h"
 #include "ipc_skeleton.h"
 #include "ipc_types.h"
 #include "iservice_registry.h"
@@ -8651,6 +8652,13 @@ int32_t AbilityManagerService::DetachAppDebug(const std::string &bundleName)
     }
 
     return DelayedSingleton<AppScheduler>::GetInstance()->DetachAppDebug(bundleName);
+}
+
+int32_t AbilityManagerService::ExecuteIntent(uint64_t key, const sptr<IRemoteObject> &callerToken,
+    const InsightIntentExecuteParam &param)
+{
+    HILOG_DEBUG("Called.");
+    return ERR_OK;
 }
 
 bool AbilityManagerService::IsAbilityControllerStart(const Want &want)

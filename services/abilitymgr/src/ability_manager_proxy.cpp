@@ -4489,6 +4489,42 @@ int32_t AbilityManagerProxy::DetachAppDebug(const std::string &bundleName)
     return reply.ReadInt32();
 }
 
+int32_t AbilityManagerProxy::ExecuteIntent(uint64_t key,  const sptr<IRemoteObject> &callerToken,
+    const InsightIntentExecuteParam &param)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteUint64(key)) {
+        HILOG_ERROR("Write key failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteRemoteObject(callerToken)) {
+        HILOG_ERROR("failed to write callerToken.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteParcelable(&param)) {
+        HILOG_ERROR("Write param failed.");
+        return INNER_ERR;
+    }
+
+    int32_t error = SendRequest(AbilityManagerInterfaceCode::EXECUTE_INTENT, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request failed, err: %{public}d", error);
+        return error;
+    }
+
+    return reply.ReadInt32();
+}
+
 bool AbilityManagerProxy::IsAbilityControllerStart(const Want &want)
 {
     MessageParcel data;

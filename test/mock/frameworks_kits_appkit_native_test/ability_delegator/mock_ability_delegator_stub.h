@@ -176,6 +176,8 @@ public:
     MOCK_METHOD1(UnregisterAppDebugListener, int32_t(const sptr<AppExecFwk::IAppDebugListener> &listener));
     MOCK_METHOD1(AttachAppDebug, int32_t(const std::string &bundleName));
     MOCK_METHOD1(DetachAppDebug, int32_t(const std::string &bundleName));
+    MOCK_METHOD3(ExecuteIntent, int32_t(uint64_t key, const sptr<IRemoteObject> &callerToken,
+        const InsightIntentExecuteParam &param));
 public:
     std::string powerState_;
     static bool finishFlag_;
@@ -338,6 +340,8 @@ public:
     MOCK_METHOD1(UnregisterAppDebugListener, int32_t(const sptr<AppExecFwk::IAppDebugListener> &listener));
     MOCK_METHOD1(AttachAppDebug, int32_t(const std::string &bundleName));
     MOCK_METHOD1(DetachAppDebug, int32_t(const std::string &bundleName));
+    MOCK_METHOD3(ExecuteIntent, int32_t(uint64_t key, const sptr<IRemoteObject> &callerToken,
+        const InsightIntentExecuteParam &param));
 public:
     std::string powerState_;
     static bool finishFlag_;

@@ -161,6 +161,8 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::DetachAppDebugInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_ABILITY_CONTROLLER_START)] =
         &AbilityManagerStub::IsAbilityControllerStartInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::EXECUTE_INTENT)] =
+        &AbilityManagerStub::ExecuteIntentInner;
 }
 
 void AbilityManagerStub::SecondStepInit()
@@ -2791,6 +2793,27 @@ int32_t AbilityManagerStub::IsAbilityControllerStartInner(MessageParcel &data, M
     }
     bool result = IsAbilityControllerStart(*want);
     reply.WriteBool(result);
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::ExecuteIntentInner(MessageParcel &data, MessageParcel &reply)
+{
+    uint64_t key = data.ReadUint64();
+    sptr<IRemoteObject> callerToken = data.ReadRemoteObject();
+    if (callerToken == nullptr) {
+        HILOG_ERROR("failed to get remote object.");
+        return ERR_INVALID_VALUE;
+    }
+    std::unique_ptr<InsightIntentExecuteParam> param(data.ReadParcelable<InsightIntentExecuteParam>());
+    if (param == nullptr) {
+        HILOG_ERROR("param is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    auto result = ExecuteIntent(key, callerToken, *param);
+    if (result != NO_ERROR) {
+        HILOG_ERROR("ExecuteIntent is failed");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 

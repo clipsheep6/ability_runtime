@@ -224,6 +224,9 @@ enum class AbilityManagerInterfaceCode {
     // Deatch app debug (71)
     DETACH_APP_DEBUG = 71,
 
+    // Execute intent (72)
+    EXECUTE_INTENT = 72,
+
     // ipc id 1001-2000 for DMS
     // ipc id for starting ability (1001)
     START_ABILITY = 1001,

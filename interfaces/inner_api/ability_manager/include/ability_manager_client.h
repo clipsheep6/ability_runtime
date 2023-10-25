@@ -1310,6 +1310,16 @@ public:
      */
     bool IsAbilityControllerStart(const Want &want);
 
+    /**
+     * @brief Execute intent.
+     * @param key The key of intent executing client.
+     * @param callerToken Caller ability token.
+     * @param param The Intent execute param.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode ExecuteIntent(uint64_t key, const sptr<IRemoteObject> &callerToken,
+        const InsightIntentExecuteParam &param);
+
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:

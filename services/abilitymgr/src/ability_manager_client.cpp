@@ -1608,6 +1608,15 @@ ErrCode AbilityManagerClient::DetachAppDebug(const std::string &bundleName)
     return abms->DetachAppDebug(bundleName);
 }
 
+ErrCode AbilityManagerClient::ExecuteIntent(uint64_t key, const sptr<IRemoteObject> &callerToken,
+    const InsightIntentExecuteParam &param)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->ExecuteIntent(key, callerToken, param);
+}
+
 bool AbilityManagerClient::IsAbilityControllerStart(const Want &want)
 {
     HILOG_DEBUG("call");

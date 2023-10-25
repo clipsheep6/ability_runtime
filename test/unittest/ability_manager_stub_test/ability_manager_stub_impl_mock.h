@@ -400,6 +400,8 @@ public:
     MOCK_METHOD1(AttachAppDebug, int32_t(const std::string &bundleName));
     MOCK_METHOD1(DetachAppDebug, int32_t(const std::string &bundleName));
     MOCK_METHOD1(IsAbilityControllerStart, bool(const Want& want));
+    MOCK_METHOD3(ExecuteIntent, int32_t(uint64_t key, const sptr<IRemoteObject> &callerToken,
+        const InsightIntentExecuteParam &param));
 };
 }  // namespace AAFwk
 }  // namespace OHOS

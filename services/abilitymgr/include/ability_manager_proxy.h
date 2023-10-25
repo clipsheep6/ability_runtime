@@ -1036,6 +1036,16 @@ public:
     int32_t DetachAppDebug(const std::string &bundleName) override;
 
     /**
+     * @brief Execute intent.
+     * @param key The key of intent executing client.
+     * @param callerToken Caller ability token.
+     * @param param The Intent execute param.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t ExecuteIntent(uint64_t key, const sptr<IRemoteObject> &callerToken,
+        const InsightIntentExecuteParam &param) override;
+
+    /**
      * @brief Check if ability controller can start.
      * @param want The want of ability to start.
      * @return Return true to allow ability to start, or false to reject.
