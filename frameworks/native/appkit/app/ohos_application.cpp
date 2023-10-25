@@ -19,6 +19,7 @@
 #include "ability_record_mgr.h"
 #include "ability_thread.h"
 #include "app_loader.h"
+#include "application_context.h"
 #include "application_impl.h"
 #include "context_impl.h"
 #include "hilog_wrapper.h"
@@ -26,6 +27,7 @@
 #include "iservice_registry.h"
 #include "runtime.h"
 #include "system_ability_definition.h"
+#include "ui_ability.h"
 #ifdef SUPPORT_GRAPHICS
 #include "window.h"
 #endif
@@ -246,7 +248,7 @@ void OHOSApplication::UnregisterAbilityLifecycleCallbacks(const std::shared_ptr<
  *
  * @param Ability Indicates the ability object that calls the onStart() method.
  */
-void OHOSApplication::OnAbilityStart(const std::shared_ptr<Ability> &ability)
+void OHOSApplication::OnAbilityStart(const std::shared_ptr<AbilityRuntime::UIAbility> &ability)
 {
     if (ability == nullptr) {
         HILOG_ERROR("ContextDeal::OnAbilityStart failed, ability is nullptr");
@@ -267,7 +269,7 @@ void OHOSApplication::OnAbilityStart(const std::shared_ptr<Ability> &ability)
  *
  * @param Ability Indicates the Ability object that calls the onInactive() method.
  */
-void OHOSApplication::OnAbilityInactive(const std::shared_ptr<Ability> &ability)
+void OHOSApplication::OnAbilityInactive(const std::shared_ptr<AbilityRuntime::UIAbility> &ability)
 {
     if (ability == nullptr) {
         HILOG_ERROR("ContextDeal::OnAbilityInactive failed, ability is nullptr");
@@ -288,7 +290,7 @@ void OHOSApplication::OnAbilityInactive(const std::shared_ptr<Ability> &ability)
  *
  * @param Ability Indicates the Ability object that calls the onBackground() method.
  */
-void OHOSApplication::OnAbilityBackground(const std::shared_ptr<Ability> &ability)
+void OHOSApplication::OnAbilityBackground(const std::shared_ptr<AbilityRuntime::UIAbility> &ability)
 {
     if (ability == nullptr) {
         HILOG_ERROR("ContextDeal::OnAbilityBackground failed, ability is nullptr");
@@ -309,7 +311,7 @@ void OHOSApplication::OnAbilityBackground(const std::shared_ptr<Ability> &abilit
  *
  * @param Ability Indicates the Ability object that calls the onForeground() method.
  */
-void OHOSApplication::OnAbilityForeground(const std::shared_ptr<Ability> &ability)
+void OHOSApplication::OnAbilityForeground(const std::shared_ptr<AbilityRuntime::UIAbility> &ability)
 {
     if (ability == nullptr) {
         HILOG_ERROR("ContextDeal::OnAbilityForeground failed, ability is nullptr");
@@ -330,7 +332,7 @@ void OHOSApplication::OnAbilityForeground(const std::shared_ptr<Ability> &abilit
  *
  * @param Ability Indicates the Ability object that calls the onActive() method.
  */
-void OHOSApplication::OnAbilityActive(const std::shared_ptr<Ability> &ability)
+void OHOSApplication::OnAbilityActive(const std::shared_ptr<AbilityRuntime::UIAbility> &ability)
 {
     if (ability == nullptr) {
         HILOG_ERROR("ContextDeal::OnAbilityActive failed, ability is nullptr");
@@ -351,7 +353,7 @@ void OHOSApplication::OnAbilityActive(const std::shared_ptr<Ability> &ability)
  *
  * @param Ability Indicates the Ability object that calls the onStop() method.
  */
-void OHOSApplication::OnAbilityStop(const std::shared_ptr<Ability> &ability)
+void OHOSApplication::OnAbilityStop(const std::shared_ptr<AbilityRuntime::UIAbility> &ability)
 {
     if (ability == nullptr) {
         HILOG_ERROR("ContextDeal::OnAbilityStop failed, ability is nullptr");
