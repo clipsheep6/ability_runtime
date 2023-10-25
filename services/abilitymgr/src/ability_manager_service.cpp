@@ -567,7 +567,7 @@ int AbilityManagerService::StartAbilityByUIContentSession(const Want &want, cons
 }
 
 int AbilityManagerService::StartAbilityAsCaller(const Want &want, const sptr<IRemoteObject> &callerToken,
-    int32_t userId, int requestCode)
+    const stpr<IRemoteObject> &asCallerSoureToken, int32_t userId, int requestCode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_CALLER_IS_SYSTEM_APP;
@@ -579,6 +579,11 @@ int AbilityManagerService::StartAbilityAsCaller(const Want &want, const sptr<IRe
         eventInfo.errCode = ERR_INVALID_VALUE;
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_CONTINUATION_FLAG;
+    }
+
+    if(asCallerSoureToken != null){
+        HILOG_DEBUG("start as caller, UpdateCallerInfo");
+        UpdateAsCallerSourceInfo(want, asCallerSoureToken);
     }
 
     HILOG_INFO("Start ability come, ability is %{public}s, userId is %{public}d",
@@ -1082,10 +1087,16 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
 }
 
 int AbilityManagerService::StartAbilityAsCaller(const Want &want, const StartOptions &startOptions,
-    const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode)
+    const sptr<IRemoteObject> &callerToken, const stpr<IRemoteObject> &asCallerSoureToken, int32_t userId, int requestCode)
 {
     HILOG_DEBUG("Start ability as caller with startOptions.");
     CHECK_CALLER_IS_SYSTEM_APP;
+
+    if(asCallerSoureToken != null){
+        HILOG_DEBUG("start as caller, UpdateCallerInfo");
+        UpdateCallerInfo(want, asCallerSoureToken);
+    }
+
     return StartAbilityForOptionWrap(want, startOptions, callerToken, userId, requestCode, true);
 }
 
@@ -5396,7 +5407,7 @@ std::shared_ptr<DataAbilityManager> AbilityManagerService::GetDataAbilityManager
     return nullptr;
 }
 
-std::shared_ptr<MissionListManager> AbilityManagerService::GetListManagerByUserId(int32_t userId)
+std::shared_ptr<MissionListManager> AbilityManagerService:: GetListManagerByUserId(int32_t userId)
 {
     std::lock_guard<ffrt::mutex> lock(managersMutex_);
     auto it = missionListManagers_.find(userId);
@@ -6818,6 +6829,38 @@ void AbilityManagerService::UpdateCallerInfo(Want& want, const sptr<IRemoteObjec
     want.SetParam(Want::PARAM_RESV_CALLER_PID, callerPid);
 
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (!abilityRecord) {
+        HILOG_WARN("%{public}s caller abilityRecord is null.", __func__);
+        want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+        want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, std::string(""));
+        want.RemoveParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
+        want.SetParam(Want::PARAM_RESV_CALLER_ABILITY_NAME, std::string(""));
+    } else {
+        std::string callerBundleName = abilityRecord->GetAbilityInfo().bundleName;
+        want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+        want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerBundleName);
+        std::string callerAbilityName = abilityRecord->GetAbilityInfo().name;
+        want.RemoveParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
+        want.SetParam(Want::PARAM_RESV_CALLER_ABILITY_NAME, callerAbilityName);
+    }
+}
+
+void AbilityManagerService::UpdateAsCallerSourceInfo(Want& want, const sptr<IRemoteObject> &asCallerSourceToken)
+{
+    AppExecFwk::RunningProcessInfo info;
+    AAFwk::AppMgrServiceInner::GetInstance()->GetRunningProcessInfoByToken(asCallerSourceToken,info)
+
+    int32_t tokenId = static_cast<int32_t>(IPCSkeleton::GetCallingTokenID());
+    if(info != nullptr){
+        want.RemoveParam(Want::PARAM_RESV_CALLER_TOKEN);
+        want.SetParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId);
+        want.RemoveParam(Want::PARAM_RESV_CALLER_UID);
+        want.SetParam(Want::PARAM_RESV_CALLER_UID, info.uid_);
+        want.RemoveParam(Want::PARAM_RESV_CALLER_PID);
+        want.SetParam(Want::PARAM_RESV_CALLER_PID, info.pid_);
+    }
+
+    auto abilityRecord = Token::GetAbilityRecordByToken(asCallerSourceToken);
     if (!abilityRecord) {
         HILOG_WARN("%{public}s caller abilityRecord is null.", __func__);
         want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);

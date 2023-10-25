@@ -187,7 +187,7 @@ ErrCode AbilityManagerClient::StartAbility(const Want &want, const StartOptions 
 }
 
 ErrCode AbilityManagerClient::StartAbilityAsCaller(
-    const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
+    const Want &want, const stpr<IRemoteObject> &asCallerSoureToken, const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
@@ -195,18 +195,18 @@ ErrCode AbilityManagerClient::StartAbilityAsCaller(
     HILOG_INFO("ability:%{public}s, userId:%{public}d.",
                want.GetElement().GetAbilityName().c_str(), userId);
     HandleDlpApp(const_cast<Want &>(want));
-    return abms->StartAbilityAsCaller(want, callerToken, userId, requestCode);
+    return abms->StartAbilityAsCaller(want, asCallerSoureToken, callerToken, userId, requestCode);
 }
 
 ErrCode AbilityManagerClient::StartAbilityAsCaller(const Want &want, const StartOptions &startOptions,
-    const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
+    const stpr<IRemoteObject> &asCallerSoureToken, const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     HILOG_INFO("abilityName:%{public}s, userId:%{public}d", want.GetElement().GetAbilityName().c_str(), userId);
     HandleDlpApp(const_cast<Want &>(want));
-    return abms->StartAbilityAsCaller(want, startOptions, callerToken, userId, requestCode);
+    return abms->StartAbilityAsCaller(want, asCallerSoureToken, startOptions, callerToken, userId, requestCode);
 }
 
 ErrCode AbilityManagerClient::StartAbilityByUIContentSession(const Want &want, const StartOptions &startOptions,

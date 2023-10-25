@@ -190,6 +190,7 @@ public:
      */
     ErrCode StartAbilityAsCaller(
             const Want &want,
+            const stpr<IRemoteObject> &asCallerSoureToken,
             const sptr<IRemoteObject> &callerToken,
             int requestCode = DEFAULT_INVAL_VALUE,
             int32_t userId = DEFAULT_INVAL_VALUE);
@@ -206,6 +207,7 @@ public:
     ErrCode StartAbilityAsCaller(
             const Want &want,
             const StartOptions &startOptions,
+            const stpr<IRemoteObject> &asCallerSoureToken,
             const sptr<IRemoteObject> &callerToken,
             int requestCode = DEFAULT_INVAL_VALUE,
             int32_t userId = DEFAULT_INVAL_VALUE);

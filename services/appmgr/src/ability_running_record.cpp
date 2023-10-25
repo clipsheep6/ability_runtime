@@ -17,6 +17,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+    
 AbilityRunningRecord::AbilityRunningRecord(const std::shared_ptr<AbilityInfo> &info, const sptr<IRemoteObject> &token)
     : info_(info), token_(token)
 {}
