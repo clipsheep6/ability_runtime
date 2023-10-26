@@ -1858,7 +1858,6 @@ void UIAbilityLifecycleManager::DumpMissionListByRecordId(std::vector<std::strin
         dumpInfo += "  mission affinity #[" + abilityRecord->GetMissionAffinity() + "]";
         info.push_back(dumpInfo);
 
-        std::vector<std::string> params;
         abilityRecord->DumpAbilityState(info, isClient, params);
 
         dumpInfo = " }";
