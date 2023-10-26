@@ -19,8 +19,8 @@
 static napi_module _module = {
     .nm_version = 0,
     .nm_filename = "app/ability/libchildprocessmanager_napi.so/childprocessmanager.js",
-    .nm_modname = "app.ability.childProcessManager",
     .nm_register_func = OHOS::AbilityRuntime::JsChildProcessManagerInit,
+    .nm_modname = "app.ability.childProcessManager",
 };
 
 extern "C" __attribute__((constructor)) void NAPI_app_ability_childprocessmanager_AutoRegister(void)

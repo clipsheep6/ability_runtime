@@ -1463,7 +1463,7 @@ napi_value JsApplicationContextUtils::OnIsAutoStartup(napi_env env, NapiCallback
         *ret = AAFwk::AbilityManagerClient::GetInstance()->IsAutoStartup(autoStartupInfo, *isFlag);
     };
 
-    NapiAsyncTask::CompleteCallback complete = 
+    NapiAsyncTask::CompleteCallback complete =
         [ret = retVal, isFlag = isAutoStartup](napi_env env, NapiAsyncTask &task, int32_t status) {
         if (ret == nullptr || isFlag == nullptr) {
             HILOG_ERROR("The param is invalid.");

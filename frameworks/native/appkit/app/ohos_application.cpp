@@ -419,13 +419,16 @@ void OHOSApplication::OnConfigurationUpdated(const Configuration &config)
     }
     std::string language = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
     std::string colorMode = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
-    std::string languageIsSetByApp = config.GetItem(AAFwk::GlobalConfigurationKey::LANGUAGE_IS_SET_BY_APP);
-    std::string colorModeIsSetByApp = config.GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP);
-    std::string globalColorMode = configuration_->GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
+    std::string languageIsSetByApp =
+        config.GetItem(AAFwk::GlobalConfigurationKey::LANGUAGE_IS_SET_BY_APP);
+    std::string colorModeIsSetByApp =
+        config.GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP);
+    std::string globalColorMode =
+        configuration_->GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
     std::string globalLanguageIsSetByApp =
-                configuration_->GetItem(AAFwk::GlobalConfigurationKey::LANGUAGE_IS_SET_BY_APP);
+        configuration_->GetItem(AAFwk::GlobalConfigurationKey::LANGUAGE_IS_SET_BY_APP);
     std::string globalColorModeIsSetByApp =
-                configuration_->GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP);
+        configuration_->GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP);
     if (colorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) == 0) {
         HILOG_DEBUG("colorMode is auto");
         configuration_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, ConfigurationInner::COLOR_MODE_AUTO);
