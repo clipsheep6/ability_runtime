@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,6 +36,7 @@ AbilityDelegatorArgs::AbilityDelegatorArgs(const AAFwk::Want &want)
         wantParams.Remove("debugApp");
     }
 
+    std::lock_guard<std::mutex> lock(paramsMutex_); 
     std::set<std::string> keys = wantParams.KeySet();
     for (auto key : keys) {
         params_[key] = want.GetStringParam(key);
@@ -69,11 +70,13 @@ std::string AbilityDelegatorArgs::GetTestCaseName() const
 
 std::map<std::string, std::string> AbilityDelegatorArgs::GetTestParam() const
 {
+    std::lock_guard<std::mutex> lock(paramsMutex_); 
     return params_;
 }
 
 bool AbilityDelegatorArgs::FindDebugFlag() const
 {
+    std::lock_guard<std::mutex> lock(paramsMutex_); 
     auto pos = params_.find(KEY_TEST_DEBUG);
     if (pos == params_.end()) {
         return false;
@@ -84,6 +87,7 @@ bool AbilityDelegatorArgs::FindDebugFlag() const
 
 std::string AbilityDelegatorArgs::GetParamValue(const std::string &key) const
 {
+    std::lock_guard<std::mutex> lock(paramsMutex_); 
     auto target = params_.find(key);
     return (target != params_.end()) ? target->second : std::string();
 }
