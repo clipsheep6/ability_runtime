@@ -664,6 +664,9 @@ public:
     void SetAttachDebug(const bool &isAttachDebug);
     bool isAttachDebug() const;
 
+    void SetApplicationPendingState(ApplicationPendingState pendingState);
+    ApplicationPendingState GetApplicationPendingState() const;
+
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -729,6 +732,7 @@ private:
     bool isEmptyKeepAliveApp_ = false;  // Only empty resident processes can be set to true, please choose carefully
     bool isStageBasedModel_ = false;
     ApplicationState curState_ = ApplicationState::APP_STATE_CREATE;  // current state of this process
+    ApplicationPendingState pendingState_ = ApplicationPendingState::READY;
     bool isFocused_ = false; // if process is focused.
     /**
      * If there is an ability is foregrounding, this flag will be true,

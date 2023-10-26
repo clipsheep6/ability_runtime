@@ -531,7 +531,8 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     auto appRecord = GetAppRunningRecordByAppRecordId(recordId);
-    if (!appRecord || !appRecord->IsUpdateStateFromService()) {
+    if (!appRecord || (!appRecord->IsUpdateStateFromService()
+        && appRecord->GetApplicationPendingState() != ApplicationPendingState::FOREGROUNDING)) {
         HILOG_ERROR("get app record failed");
         return;
     }
@@ -547,6 +548,7 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
             appRecord->GetName().c_str(), static_cast<ApplicationState>(appState));
     }
     appRecord->SetUpdateStateFromService(false);
+    appRecord->SetApplicationPendingState(ApplicationPendingState::READY);
 
     // push the foregrounded app front of RecentAppList.
     PushAppFront(recordId);
@@ -593,6 +595,9 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
             appRecord->GetName().c_str(), static_cast<ApplicationState>(appRecord->GetState()));
     }
     appRecord->SetUpdateStateFromService(false);
+    if (appRecord->GetApplicationPendingState() == ApplicationPendingState::BACKGROUNDING) {
+        appRecord->SetApplicationPendingState(ApplicationPendingState::READY);
+    }
 
     HILOG_INFO("application is backgrounded");
     AAFwk::EventInfo eventInfo;
