@@ -20,6 +20,7 @@ namespace AppExecFwk {
 using WantParams = OHOS::AAFwk::WantParams;
 bool InsightIntentExecuteResult::ReadFromParcel(Parcel &parcel)
 {
+    innerErr = parcel.ReadInt32();
     code = parcel.ReadInt32();
     result = std::shared_ptr<WantParams>(parcel.ReadParcelable<WantParams>());
     return true;
@@ -27,6 +28,9 @@ bool InsightIntentExecuteResult::ReadFromParcel(Parcel &parcel)
 
 bool InsightIntentExecuteResult::Marshalling(Parcel &parcel) const
 {
+    if (!parcel.WriteInt32(innerErr)) {
+        return false;
+    }
     if (!parcel.WriteInt32(code)) {
         return false;
     }

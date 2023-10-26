@@ -29,6 +29,10 @@ bool UnwrapExecuteResult(napi_env env, napi_value param, InsightIntentExecuteRes
 {
     HILOG_DEBUG("called.");
 
+    if (!IsTypeForNapiValue(env, param, napi_valuetype::napi_object)) {
+        HILOG_ERROR("UnwrapExecuteResult not object");
+        return false;
+    }
     int32_t code = 0;
     if (!UnwrapInt32ByPropertyName(env, param, "code", code)) {
         HILOG_ERROR("Intent result must contian a code.");

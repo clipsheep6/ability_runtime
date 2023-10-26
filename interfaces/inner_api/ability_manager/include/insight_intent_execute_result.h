@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_INSIGHT_INTENT_EXECUTE_RESULT_H
 #define OHOS_ABILITY_RUNTIME_INSIGHT_INTENT_EXECUTE_RESULT_H
 
+#include "insight_intent_constant.h"
 #include "parcel.h"
 #include "want_params.h"
 
@@ -28,14 +29,15 @@ using WantParams = OHOS::AAFwk::WantParams;
  */
 struct InsightIntentExecuteResult : public Parcelable {
 public:
+    int32_t innerErr = AbilityRuntime::InsightIntentInnerErr::INSIGHT_INTENT_ERR_OK;
+    int32_t code = 0;
+    std::shared_ptr<WantParams> result = nullptr;
+
     bool ReadFromParcel(Parcel &parcel);
     bool Marshalling(Parcel &parcel) const override;
     static InsightIntentExecuteResult *Unmarshalling(Parcel &parcel);
     // Check result returned by intent executor
     static bool CheckResult(std::shared_ptr<const WantParams> result);
-
-    int32_t code = 0;
-    std::shared_ptr<WantParams> result = nullptr;
 };
 } // namespace AppExecFwk
 } // namespace OHOS

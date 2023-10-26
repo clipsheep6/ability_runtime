@@ -405,6 +405,43 @@ ohos_shared_library("extensionkit_native") {
   part_name = "ability_runtime"
 }
 
+config("insight_intent_executor_public_config") {
+  visibility = [ ":*" ]
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/insight_intent_executor" ]
+}
+
+ohos_shared_library("insight_intent_executor") {
+  sources = [
+    "${ability_runtime_native_path}/ability/native/insight_intent_executor/insight_intent_executor.cpp",
+    "${ability_runtime_native_path}/ability/native/insight_intent_executor/js_insight_intent_executor.cpp",
+  ]
+
+  public_configs = [ ":insight_intent_executor_public_config" ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
+    "${ability_runtime_native_path}/ability/native:ability_business_error",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libtokenid_sdk",
+    "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "ipc:ipc_core",
+    "ipc:ipc_napi_common",
+    "napi:ace_napi",
+  ]
+
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
 config("uiability_config") {
   visibility = [ ":*" ]
   include_dirs = [
