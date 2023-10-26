@@ -823,11 +823,26 @@ int32_t JsWantAgent::GetWantAgentParam(napi_env env, napi_callback_info info, Wa
         paras.wants.emplace_back(want);
     }
 
-    napi_value jsOperationType = nullptr;
-    napi_get_named_property(env, argv[0], "operationType", &jsOperationType);
-    if (!ConvertFromJsValue(env, jsOperationType, paras.operationType)) {
-        HILOG_ERROR("Convert operationType failed!");
-        return PARAMETER_ERROR;
+    bool hasActionType = false;
+    napi_has_named_property(env, argv[0], "actionType", &hasActionType);
+    if (hasActionType) {
+        napi_value jsActionType = nullptr;
+        napi_get_named_property(env, argv[0], "actionType", &jsActionType);
+        if (!ConvertFromJsValue(env, jsActionType, paras.operationType)) {
+            HILOG_ERROR("Convert actionType failed!");
+            return PARAMETER_ERROR;
+        }
+    }
+
+    bool hasOperationType = false;
+    napi_has_named_property(env, argv[0], "operationType", &hasOperationType);
+    if (!hasActionType && hasOperationType) {
+        napi_value jsOperationType = nullptr;
+        napi_get_named_property(env, argv[0], "operationType", &jsOperationType);
+        if (!ConvertFromJsValue(env, jsOperationType, paras.operationType)) {
+            HILOG_ERROR("Convert operationType failed!");
+            return PARAMETER_ERROR;
+        }
     }
 
     napi_value jsRequestCode = nullptr;
@@ -837,9 +852,39 @@ int32_t JsWantAgent::GetWantAgentParam(napi_env env, napi_callback_info info, Wa
         return PARAMETER_ERROR;
     }
 
+    bool hasActionFlags = false;
+    napi_has_named_property(env, argv[0], "actionFlags", &hasActionFlags);
+    if (hasActionFlags) {
+        napi_value jsActionFlags = nullptr;
+        napi_get_named_property(env, argv[0], "actionFlags", &jsActionFlags);
+        bool jsActionFlagsIsArray = false;
+        napi_is_array(env, jsActionFlags, &jsActionFlagsIsArray);
+        if (!jsActionFlagsIsArray) {
+            HILOG_ERROR("actionFlags is not array!");
+            return PARAMETER_ERROR;
+        }
+
+        uint32_t jsActionFlagsLen = 0;
+        napi_get_array_length(env, jsActionFlags, &jsActionFlagsLen);
+        for (uint32_t i = 0; i < jsActionFlagsLen; i++) {
+            napi_value jsActionFlag = nullptr;
+            napi_get_element(env, jsActionFlags, i, &jsActionFlag);
+            if (!CheckTypeForNapiValue(env, jsActionFlag, napi_number)) {
+                HILOG_ERROR("ActionFlag type error!");
+                return PARAMETER_ERROR;
+            }
+            int32_t actionFlag = 0;
+            if (!ConvertFromJsValue(env, jsActionFlag, actionFlag)) {
+                HILOG_ERROR("Convert actionFlag failed!");
+                return PARAMETER_ERROR;
+            }
+            paras.wantAgentFlags.emplace_back(static_cast<WantAgentConstant::Flags>(actionFlag));
+        }
+    }
+
     bool hasWantAgentFlags = false;
     napi_has_named_property(env, argv[0], "wantAgentFlags", &hasWantAgentFlags);
-    if (hasWantAgentFlags) {
+    if (!hasActionFlags && hasWantAgentFlags) {
         napi_value jsWantAgentFlags = nullptr;
         napi_get_named_property(env, argv[0], "wantAgentFlags", &jsWantAgentFlags);
         bool jsWantAgentFlagsIsArray = false;
