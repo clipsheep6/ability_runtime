@@ -24,7 +24,7 @@
 class NativeReference;
 
 namespace OHOS::AbilityRuntime {
-using InsightIntentExecuteParam = AAFwk::InsightIntentExecuteParam;
+using InsightIntentExecuteParam = AppExecFwk::InsightIntentExecuteParam;
 struct InsightIntentExecutorInfo {
     std::string srcEntry;
     std::string hapPath;

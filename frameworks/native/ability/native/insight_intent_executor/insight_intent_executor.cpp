@@ -32,4 +32,22 @@ std::shared_ptr<InsightIntentExecutor> InsightIntentExecutor::Create(Runtime& ru
             return nullptr;
     }
 }
+
+bool InsightIntentExecutor::Init(const InsightIntentExecutorInfo& intentInfo)
+{
+    auto executeParam = intentInfo.executeParam;
+    if (executeParam == nullptr) {
+        HILOG_ERROR("Execute param invalid.");
+        return false;
+    }
+
+    context_ = std::make_shared<InsightIntentContext>(intentInfo.token, executeParam->bundleName_,
+        intentInfo.windowMode, executeParam->insightIntentId_);
+    return true;
+}
+
+std::shared_ptr<InsightIntentContext> InsightIntentExecutor::GetContext()
+{
+    return context_;
+}
 } // namespace OHOS::AbilityRuntime

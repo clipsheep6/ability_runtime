@@ -55,7 +55,7 @@ public:
      * @param executeResult, the execute result.
      */
     void OnExecuteDone(uint64_t key, int32_t resultCode,
-        AppExecFwk::InsightIntentExecuteResult &executeResult) override;
+        const AppExecFwk::InsightIntentExecuteResult &executeResult) override;
 
 private:
     static std::mutex instanceMutex_;

@@ -22,7 +22,7 @@
 namespace OHOS {
 namespace AAFwk {
 void InsightIntentExecuteCallbackProxy::OnExecuteDone(uint64_t key, int32_t resultCode,
-    AppExecFwk::InsightIntentExecuteResult &executeResult)
+    const AppExecFwk::InsightIntentExecuteResult &executeResult)
 {
     HILOG_DEBUG("call");
     MessageParcel data;

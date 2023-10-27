@@ -79,7 +79,8 @@ public:
 
     int32_t RemoveExecuteIntent(uint64_t intentId);
 
-    int32_t ExecuteIntentDone(uint64_t intentId, int32_t resultCode, AppExecFwk::InsightIntentExecuteResult &result);
+    int32_t ExecuteIntentDone(uint64_t intentId, int32_t resultCode,
+        const AppExecFwk::InsightIntentExecuteResult &result);
 
     int32_t RemoteDied(uint64_t intentId);
 

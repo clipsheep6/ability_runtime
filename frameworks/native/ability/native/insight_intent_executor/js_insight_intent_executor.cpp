@@ -21,6 +21,7 @@
 #include "hilog_wrapper.h"
 #include "insight_intent_constant.h"
 #include "insight_intent_execute_result.h"
+#include "js_insight_intent_context.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "napi_common_execute_result.h"
@@ -58,11 +59,40 @@ bool JsInsightIntentExecutor::Init(const InsightIntentExecutorInfo& insightInten
     HILOG_DEBUG("enter");
     STATE_PATTERN_NAIVE_ACCEPT(State::CREATED, false);
     state_ = State::INITIALIZED;
+    InsightIntentExecutor::Init(insightIntentInfo);
 
     HandleScope handleScope(runtime_);
     jsObj_ = JsInsightIntentExecutor::LoadJsCode(insightIntentInfo, runtime_);
     if (jsObj_ == nullptr) {
         HILOG_ERROR("LoadJsCode failed.");
+        STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
+    }
+
+    auto env = runtime_.GetNapiEnv();
+    if (env == nullptr) {
+        HILOG_ERROR("Napi env invalid.");
+        STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
+    }
+
+    auto context = GetContext();
+    if (context == nullptr) {
+        HILOG_ERROR("Context invalid.");
+        STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
+    }
+
+    napi_value contextObj = CreateJsInsightIntentContext(env, context);
+    contextObj_ = JsRuntime::LoadSystemModuleByEngine(env, "app.ability.InsightIntentContext", &contextObj, 1);
+    if (contextObj_ == nullptr) {
+        HILOG_ERROR("Load system module failed.");
+        STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
+    }
+
+    auto executorNapiVal = jsObj_->GetNapiValue();
+    auto contextNapiVal = contextObj_->GetNapiValue();
+    if (!CheckTypeForNapiValue(env, executorNapiVal, napi_object) ||
+        !CheckTypeForNapiValue(env, contextNapiVal, napi_object) ||
+        napi_set_named_property(env, executorNapiVal, "context", contextNapiVal) != napi_ok) {
+        HILOG_ERROR("Set property failed.");
         STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
     }
 
@@ -204,12 +234,12 @@ bool JsInsightIntentExecutor::CallJsFunctionWithResultInner(
         result);
 }
 
-std::shared_ptr<AAFwk::IntentExecuteResult> JsInsightIntentExecutor::GetResultFromJs(
+std::shared_ptr<AppExecFwk::InsightIntentExecuteResult> JsInsightIntentExecutor::GetResultFromJs(
     napi_env env, napi_value resultJs)
 {
     HILOG_DEBUG("enter");
-    auto resultCpp = std::make_shared<AAFwk::IntentExecuteResult>();
-    if (!AppExecFwk::UnwrapExecuteResult(env, resultJs, *resultCpp)) {
+    auto resultCpp = std::make_shared<AppExecFwk::InsightIntentExecuteResult>();
+    if (!UnwrapExecuteResult(env, resultJs, *resultCpp)) {
         return nullptr;
     }
     return resultCpp;
@@ -229,7 +259,7 @@ napi_value JsInsightIntentExecutor::ResolveCbCpp(napi_env env, napi_callback_inf
         JsInsightIntentExecutor::ReplyFailed(callback);
         return nullptr;
     }
-    std::shared_ptr<AAFwk::IntentExecuteResult> resultCpp =
+    std::shared_ptr<AppExecFwk::InsightIntentExecuteResult> resultCpp =
         JsInsightIntentExecutor::GetResultFromJs(env, resultJs);
     JsInsightIntentExecutor::ReplySucceeded(callback, resultCpp);
     return nullptr;
@@ -251,14 +281,14 @@ void JsInsightIntentExecutor::ReplyFailed(InsightIntentExecutorAsyncCallback* ca
     if (callback == nullptr) {
         return;
     }
-    AAFwk::IntentExecuteResult errorResult{};
+    AppExecFwk::InsightIntentExecuteResult errorResult{};
     errorResult.innerErr = innerErr;
     callback->Call(errorResult);
     delete callback;
 }
 
 void JsInsightIntentExecutor::ReplySucceeded(InsightIntentExecutorAsyncCallback* callback,
-    std::shared_ptr<AAFwk::IntentExecuteResult> resultCpp)
+    std::shared_ptr<AppExecFwk::InsightIntentExecuteResult> resultCpp)
 {
     HILOG_DEBUG("enter");
     if (callback == nullptr) {
@@ -281,7 +311,7 @@ void JsInsightIntentExecutor::ReplyFailedInner(InsightIntentInnerErr innerErr)
     JsInsightIntentExecutor::ReplyFailed(callback, innerErr);
 }
 
-void JsInsightIntentExecutor::ReplySucceededInner(std::shared_ptr<AAFwk::IntentExecuteResult> resultCpp)
+void JsInsightIntentExecutor::ReplySucceededInner(std::shared_ptr<AppExecFwk::InsightIntentExecuteResult> resultCpp)
 {
     HILOG_DEBUG("enter");
     state_ = JsInsightIntentExecutor::State::EXECUTATION_DONE;
@@ -325,7 +355,7 @@ bool JsInsightIntentExecutor::HandleResultReturnedFromJsFunc(napi_value resultJs
         napi_call_function(env, resultJs, promiseCatch, argcCatch, argvCatch, nullptr);
     } else {
         HILOG_INFO("Not promise");
-        std::shared_ptr<AAFwk::IntentExecuteResult> resultCpp = JsInsightIntentExecutor::GetResultFromJs(env, resultJs);
+        auto resultCpp = JsInsightIntentExecutor::GetResultFromJs(env, resultJs);
         if (resultCpp == nullptr) {
             HILOG_ERROR("Result invalid");
             ReplyFailedInner();

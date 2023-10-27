@@ -11,38 +11,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
 import("//build/ohos.gni")
-import("//foundation/ability/ability_runtime/ability_runtime.gni")
+
+es2abc_gen_abc("gen_insight_intent_context_abc") {
+  src_js = rebase_path("insight_intent_context.js")
+  dst_file = rebase_path(target_out_dir + "/insight_intent_context.abc")
+  in_puts = [ "insight_intent_context.js" ]
+  out_puts = [ target_out_dir + "/insight_intent_context.abc" ]
+  extra_args = [ "--module" ]
+}
+
+gen_js_obj("insight_intent_context_js") {
+  input = "insight_intent_context.js"
+  output = target_out_dir + "/insight_intent_context.o"
+}
+
+gen_js_obj("insight_intent_context_abc") {
+  input = get_label_info(":gen_insight_intent_context_abc", "target_out_dir") +
+          "/insight_intent_context.abc"
+  output = target_out_dir + "/insight_intent_context_abc.o"
+  dep = ":gen_insight_intent_context_abc"
+}
 
 ohos_shared_library("insightintentcontext_napi") {
-  include_dirs = [
-    "./",
-    "${ability_runtime_innerkits_path}/insight_intent/insight_intent_context",
-    "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_business_error",
-  ]
-
-  sources = [
-    "insight_intent_context_module.cpp",
-    "js_insight_intent_context.cpp",
-  ]
-
-  defines = [ "AMS_LOG_TAG = \"InsigtIntent\"" ]
-  defines += [ "AMS_LOG_DOMAIN = 0xD001308" ]
+  sources = [ "insight_intent_context_module.cpp" ]
 
   deps = [
-    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
-    "${ability_runtime_native_path}/ability/native:ability_business_error",
-    "${ability_runtime_native_path}/insight_intent/insight_intent_context:insightintentcontext",
+    ":insight_intent_context_abc",
+    ":insight_intent_context_js",
   ]
 
-  external_deps = [
-    "ability_base:want",
-    "c_utils:utils",
-    "hilog:libhilog",
-    "hitrace:hitrace_meter",
-    "ipc:ipc_single",
-    "napi:ace_napi",
-  ]
+  external_deps = [ "napi:ace_napi" ]
 
   relative_install_dir = "module/app/ability"
   subsystem_name = "ability"

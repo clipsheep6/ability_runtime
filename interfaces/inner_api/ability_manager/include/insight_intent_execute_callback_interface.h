@@ -37,7 +37,7 @@ public:
      * @param executeResult, the execute result.
      */
     virtual void OnExecuteDone(uint64_t key, int32_t resultCode,
-        AppExecFwk::InsightIntentExecuteResult &executeResult) = 0;
+        const AppExecFwk::InsightIntentExecuteResult &executeResult) = 0;
 
     enum {
         // ipc id for OnExecuteDone

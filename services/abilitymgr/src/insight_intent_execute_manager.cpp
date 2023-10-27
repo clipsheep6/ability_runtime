@@ -16,9 +16,11 @@
 #include "insight_intent_execute_manager.h"
 
 #include <cinttypes>
-#include "insight_intent_execute_callback_interface.h"
-#include "hilog_wrapper.h"
+
 #include "ability_manager_errors.h"
+#include "hilog_wrapper.h"
+#include "insight_intent_execute_callback_interface.h"
+#include "insight_intent_utils.h"
 #include "permission_verification.h"
 #include "want_params_wrapper.h"
 
@@ -124,7 +126,7 @@ int32_t InsightIntentExecuteManager::RemoveExecuteIntent(uint64_t intentId)
 }
 
 int32_t InsightIntentExecuteManager::ExecuteIntentDone(uint64_t intentId, int32_t resultCode,
-    AppExecFwk::InsightIntentExecuteResult &result)
+    const AppExecFwk::InsightIntentExecuteResult &result)
 {
     std::lock_guard<ffrt::mutex> lock(mutex_);
     auto findResult = records_.find(intentId);
@@ -209,6 +211,15 @@ int32_t InsightIntentExecuteManager::GenerateWant(
             want.SetParams(wantParams);
         }
     }
+
+    auto srcEntry = AbilityRuntime::InsightIntentUtils::GetSrcEntry(param->bundleName_, param->moduleName_,
+        param->insightIntentName_);
+    if (srcEntry.empty()) {
+        HILOG_ERROR("Insight intent srcEntry invalid.");
+        return ERR_INVALID_VALUE;
+    }
+    want.SetParam(INSIGHT_INTENT_SRC_ENTRY, srcEntry);
+
     want.SetParam(INSIGHT_INTENT_EXECUTE_PARAM_NAME, param->insightIntentName_);
     want.SetParam(INSIGHT_INTENT_EXECUTE_PARAM_MODE, param->executeMode_);
     want.SetParam(INSIGHT_INTENT_EXECUTE_PARAM_ID, std::to_string(param->insightIntentId_));

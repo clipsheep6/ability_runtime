@@ -23,8 +23,8 @@
 class NativeReference;
 
 namespace OHOS {
-namespace AAFwk {
-    struct IntentExecuteResult;
+namespace AppExecFwk {
+    struct InsightIntentExecuteResult;
 } // namespace AAFwk
 namespace AbilityRuntime {
 class JsRuntime;
@@ -107,7 +107,7 @@ private:
         napi_value& result
     );
 
-    static std::shared_ptr<AAFwk::IntentExecuteResult> GetResultFromJs(napi_env env,
+    static std::shared_ptr<AppExecFwk::InsightIntentExecuteResult> GetResultFromJs(napi_env env,
         napi_value resultJs);
 
     static napi_value ResolveCbCpp(napi_env env, napi_callback_info info);
@@ -116,9 +116,9 @@ private:
     static void ReplyFailed(InsightIntentExecutorAsyncCallback* callback,
         InsightIntentInnerErr innerErr = InsightIntentInnerErr::INSIGHT_INTENT_INTERNAL_ERROR);
     static void ReplySucceeded(InsightIntentExecutorAsyncCallback* callback,
-        std::shared_ptr<AAFwk::IntentExecuteResult> resultCpp);
+        std::shared_ptr<AppExecFwk::InsightIntentExecuteResult> resultCpp);
     void ReplyFailedInner(InsightIntentInnerErr innerErr = InsightIntentInnerErr::INSIGHT_INTENT_INTERNAL_ERROR);
-    void ReplySucceededInner(std::shared_ptr<AAFwk::IntentExecuteResult> resultCpp);
+    void ReplySucceededInner(std::shared_ptr<AppExecFwk::InsightIntentExecuteResult> resultCpp);
 
     bool HandleResultReturnedFromJsFunc(napi_value resultJs);
 
@@ -147,6 +147,7 @@ private:
     JsRuntime& runtime_;
     State state_ = State::CREATED;
     std::unique_ptr<NativeReference> jsObj_ = nullptr;
+    std::unique_ptr<NativeReference> contextObj_ = nullptr;
     std::unique_ptr<InsightIntentExecutorAsyncCallback> callback_;
     bool isAsync_ = false;
 };

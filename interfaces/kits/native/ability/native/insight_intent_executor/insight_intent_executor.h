@@ -20,20 +20,21 @@
 #include <napi/native_api.h>
 #include <string>
 #include "insight_intent_constant.h"
+#include "insight_intent_context.h"
 #include "insight_intent_executor_info.h"
 
 namespace OHOS {
 namespace AAFwk {
-    struct InsightIntentExecuteResult;
     class WantParams;
 } // namespace AAFwk
 namespace AppExecFwk {
+    struct InsightIntentExecuteResult;
     template <typename> class AbilityTransactionCallbackInfo;
 } // namespace AppExecFwk
 namespace AbilityRuntime {
 class Runtime;
 using InsightIntentExecutorAsyncCallback =
-    AppExecFwk::AbilityTransactionCallbackInfo<AAFwk::InsightIntentExecuteResult>;
+    AppExecFwk::AbilityTransactionCallbackInfo<AppExecFwk::InsightIntentExecuteResult>;
 class InsightIntentExecutor {
 public:
     static std::shared_ptr<InsightIntentExecutor> Create(Runtime& runtime);
@@ -66,8 +67,17 @@ public:
         const std::shared_ptr<NativeReference>& pageLoader,
         std::unique_ptr<InsightIntentExecutorAsyncCallback> callback,
         bool& isAsync) = 0;
+
+    /**
+     * @brief Get current insight intent context.
+     *
+     * @return std::shared_ptr<InsightIntentContext>
+     */
+    std::shared_ptr<InsightIntentContext> GetContext();
+
+private:
+    std::shared_ptr<InsightIntentContext> context_ = nullptr;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
-
 #endif // OHOS_ABILITY_RUNTIME_INSIGHT_INTENT_EXECUTOR_H

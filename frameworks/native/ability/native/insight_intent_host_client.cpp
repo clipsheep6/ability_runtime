@@ -54,7 +54,7 @@ void InsightIntentHostClient::RemoveInsightIntentExecute(uint64_t key)
 }
 
 void InsightIntentHostClient::OnExecuteDone(uint64_t key, int32_t resultCode,
-    AppExecFwk::InsightIntentExecuteResult &executeResult)
+    const AppExecFwk::InsightIntentExecuteResult &executeResult)
 {
     HILOG_DEBUG("called.");
 
