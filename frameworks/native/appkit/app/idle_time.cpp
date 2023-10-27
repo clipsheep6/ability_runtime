@@ -55,12 +55,11 @@ void IdleTime::InitVSyncReceiver()
 
 void IdleTime::EventTask()
 {
-     if(receiver_ == nullptr) {
+     if (receiver_ == nullptr) {
         HILOG_ERROR("no VSyncReceiver.");
         return;
     }
-
-    if(callback_ == nullptr) {
+    if (callback_ == nullptr) {
         HILOG_ERROR("no callback_.");
         return;
     }
@@ -69,7 +68,7 @@ void IdleTime::EventTask()
     int64_t lastVSyncTime = 0;
     VsyncError err = receiver_->GetVSyncPeriodAndLastTimeStamp(period, lastVSyncTime);
     int64_t occurTimestamp = GetSysTimeNs();
-    if(GSERROR_OK == err && period > 0 && lastVSyncTime > 0 && occurTimestamp > lastVSyncTime) {
+    if (GSERROR_OK == err && period > 0 && lastVSyncTime > 0 && occurTimestamp > lastVSyncTime) {
         int64_t elapsedTime = occurTimestamp - lastVSyncTime;
         int64_t idleTime = period - elapsedTime;
         if(idleTime > 0)
