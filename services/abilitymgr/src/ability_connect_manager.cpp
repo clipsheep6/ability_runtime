@@ -291,9 +291,11 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
     targetService->SetSessionInfo(sessionInfo);
     connectRecordList.push_back(connectRecord);
     if (isCallbackConnected) {
+        HILOG_INFO("callbackConnected remove connect");
         RemoveConnectDeathRecipient(connect);
         connectMap_.erase(connectMap_.find(connect->AsObject()));
     }
+    HILOG_INFO("insert connect");
     AddConnectDeathRecipient(connect);
     connectMap_.emplace(connect->AsObject(), connectRecordList);
     targetService->SetLaunchReason(LaunchReason::LAUNCHREASON_CONNECT_EXTENSION);

@@ -198,16 +198,6 @@ public:
     }
 
     /**
-     * GetConnectMap.
-     *
-     * @return Returns connection record list.
-     */
-    inline const ConnectMapType &GetConnectMap() const
-    {
-        return connectMap_;
-    }
-
-    /**
      * GetServiceMap.
      *
      * @return Returns service ability record map.

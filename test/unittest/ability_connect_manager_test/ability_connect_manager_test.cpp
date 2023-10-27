@@ -446,7 +446,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_008, TestSize.Level1)
     int result = ConnectManager()->ConnectAbilityLocked(abilityRequest_, callbackA_, nullptr);
     EXPECT_EQ(0, result);
 
-    auto connectMap = ConnectManager()->GetConnectMap();
+    auto connectMap = ConnectManager()->connectMap_;
     auto connectRecordList = connectMap.at(callbackA_->AsObject());
     EXPECT_EQ(1, static_cast<int>(connectRecordList.size()));
 
@@ -473,12 +473,12 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_009, TestSize.Level1)
     int result = ConnectManager()->ConnectAbilityLocked(abilityRequest_, callbackA_, nullptr);
     EXPECT_EQ(0, result);
 
-    auto connectMap = ConnectManager()->GetConnectMap();
+    auto connectMap = ConnectManager()->connectMap_;
     EXPECT_EQ(1, static_cast<int>(connectMap.size()));
     WaitUntilTaskDone(TaskHandler());
     usleep(TEST_WAIT_TIME);
 
-    connectMap = ConnectManager()->GetConnectMap();
+    connectMap = ConnectManager()->connectMap_;
     EXPECT_EQ(1, static_cast<int>(connectMap.size()));
 }
 
@@ -498,7 +498,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_010, TestSize.Level1)
     result = ConnectManager()->ConnectAbilityLocked(abilityRequest_, callbackB_, nullptr);
     EXPECT_EQ(0, result);
 
-    auto connectMap = ConnectManager()->GetConnectMap();
+    auto connectMap = ConnectManager()->connectMap_;
     auto connectRecordList = connectMap.at(callbackA_->AsObject());
     EXPECT_EQ(1, static_cast<int>(connectRecordList.size()));
 
@@ -533,7 +533,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_011, TestSize.Level1)
     auto abilityRecord = serviceMap.at(elementNameUri);
     auto token = abilityRecord->GetToken();
 
-    auto connectMap = ConnectManager()->GetConnectMap();
+    auto connectMap = ConnectManager()->connectMap_;
     EXPECT_EQ(1, static_cast<int>(connectMap.size()));
 
     auto scheduler = new AbilityScheduler();
@@ -542,7 +542,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_011, TestSize.Level1)
 
     WaitUntilTaskDone(TaskHandler());
     usleep(TEST_WAIT_TIME);
-    connectMap = ConnectManager()->GetConnectMap();
+    connectMap = ConnectManager()->connectMap_;
     EXPECT_EQ(0, result);
     EXPECT_EQ(1, static_cast<int>(connectMap.size()));
 }
@@ -563,7 +563,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_012, TestSize.Level1)
     result = ConnectManager()->ConnectAbilityLocked(abilityRequest_, callbackA_, nullptr);
     EXPECT_EQ(0, result);
 
-    auto connectMap = ConnectManager()->GetConnectMap();
+    auto connectMap = ConnectManager()->connectMap_;
     auto connectRecordList = connectMap.at(callbackA_->AsObject());
     EXPECT_EQ(1, static_cast<int>(connectRecordList.size()));
 
@@ -597,7 +597,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_013, TestSize.Level1)
     result = ConnectManager()->ConnectAbilityLocked(abilityRequestB, callbackA_, nullptr);
     EXPECT_EQ(0, result);
 
-    auto connectMap = ConnectManager()->GetConnectMap();
+    auto connectMap = ConnectManager()->connectMap_;
     auto connectRecordList = connectMap.at(callbackA_->AsObject());
     EXPECT_EQ(2, static_cast<int>(connectRecordList.size()));
 
@@ -638,7 +638,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_014, TestSize.Level1)
     EXPECT_EQ(0, result);
 
     ConnectManager()->ConnectAbilityLocked(abilityRequest_, callbackB_, nullptr);
-    auto connectMap = ConnectManager()->GetConnectMap();
+    auto connectMap = ConnectManager()->connectMap_;
     auto connectRecordList = connectMap.at(callbackB_->AsObject());
     EXPECT_EQ(2, static_cast<int>(connectRecordList.size()));
 
@@ -1010,7 +1010,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Kit_Disconnect_002, TestSize.Level1)
     auto serviceMap = ConnectManager()->GetServiceMap();
     EXPECT_EQ(static_cast<int>(serviceMap.size()), 2);
 
-    auto connectMap = ConnectManager()->GetConnectMap();
+    auto connectMap = ConnectManager()->connectMap_;
     EXPECT_EQ(static_cast<int>(connectMap.size()), 1);
     for (auto& it : connectMap) {
         EXPECT_EQ(static_cast<int>(it.second.size()), 2);
@@ -1358,7 +1358,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_029, TestSize.Level1)
 
     ConnectManager()->OnCallBackDied(nullptr);
     WaitUntilTaskDone(TaskHandler());
-    auto connectMap = ConnectManager()->GetConnectMap();
+    auto connectMap = ConnectManager()->connectMap_;
     auto connectRecordList = connectMap.at(callbackA_->AsObject());
     EXPECT_EQ(1, static_cast<int>(connectRecordList.size()));
     for (auto& it : connectRecordList) {
@@ -1367,7 +1367,6 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_029, TestSize.Level1)
 
     ConnectManager()->OnCallBackDied(callbackA_->AsObject());
     WaitUntilTaskDone(TaskHandler());
-    auto cMap = ConnectManager()->GetConnectMap();
     connectRecordList = connectMap.at(callbackA_->AsObject());
     EXPECT_EQ(1, static_cast<int>(connectMap.size()));
     for (auto& it : connectRecordList) {
