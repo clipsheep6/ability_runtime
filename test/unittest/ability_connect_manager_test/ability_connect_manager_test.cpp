@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -2252,27 +2252,6 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_GetExtensionRunningInfo_001,
 
 /*
  * Feature: AbilityConnectManager
- * Function: StopAllExtensions
- * SubFunction: StopAllExtensions
- * FunctionPoints: NA
- * EnvConditions: NA
- * CaseDescription: Verify AbilityConnectManager StopAllExtensions
- */
-HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_StopAllExtensions_001, TestSize.Level1)
-{
-    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
-    ASSERT_NE(connectManager, nullptr);
-    std::shared_ptr<AbilityRecord> abilityRecord1 = serviceRecord_;
-    std::shared_ptr<AbilityRecord> abilityRecord2 = serviceRecord_;
-    abilityRecord1->abilityInfo_.type = AbilityType::EXTENSION;
-    abilityRecord2->abilityInfo_.type = AbilityType::PAGE;
-    connectManager->serviceMap_.emplace("first", abilityRecord1);
-    connectManager->serviceMap_.emplace("second", abilityRecord2);
-    connectManager->StopAllExtensions();
-}
-
-/*
- * Feature: AbilityConnectManager
  * Function: IsAbilityNeedKeepAlive
  * SubFunction:
  * FunctionPoints: IsAbilityNeedKeepAlive
@@ -3112,6 +3091,29 @@ HWTEST_F(AbilityConnectManagerTest, IsUIExtensionFocused_001, TestSize.Level1)
         serviceRecord_->GetApplicationInfo().accessTokenId, serviceRecord1_->GetToken());
     EXPECT_EQ(isFocused, true);
     connectManager.reset();
+}
+
+/*
+ * Feature: AbilityConnectManager
+ * Function: PauseExtensions
+ * SubFunction: PauseExtensions
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityConnectManager PauseExtensions
+ */
+HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_PauseExtensions_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
+    std::shared_ptr<AbilityRecord> abilityRecord1 = serviceRecord_;
+    abilityRecord1->abilityInfo_.type = AbilityType::PAGE;
+    connectManager->serviceMap_.emplace("first", abilityRecord1);
+    std::shared_ptr<AbilityRecord> abilityRecord2 = AbilityRecord::CreateAbilityRecord(abilityRequest_);
+    abilityRecord2->abilityInfo_.type = AbilityType::EXTENSION;
+    abilityRecord2->abilityInfo_.name = AbilityConfig::LAUNCHER_ABILITY_NAME;
+    abilityRecord2->abilityInfo_.bundleName = AbilityConfig::LAUNCHER_BUNDLE_NAME;
+    connectManager->serviceMap_.emplace("second", abilityRecord2);
+    connectManager->PauseExtensions();
 }
 }  // namespace AAFwk
 }  // namespace OHOS

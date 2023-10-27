@@ -38,8 +38,6 @@ constexpr char EVENT_KEY_PID[] = "PID";
 constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
-const std::string BUNDLE_NAME_DIALOG = "com.ohos.amsdialog";
-const std::string ABILITY_NAME_DIALOG = "SwitchUserDialog";
 #ifdef SUPPORT_ASAN
 const int LOAD_TIMEOUT_MULTIPLE = 150;
 const int CONNECT_TIMEOUT_MULTIPLE = 45;
@@ -1797,17 +1795,18 @@ void AbilityConnectManager::GetExtensionRunningInfo(std::shared_ptr<AbilityRecor
     info.emplace_back(extensionInfo);
 }
 
-void AbilityConnectManager::StopAllExtensions()
+void AbilityConnectManager::PauseExtensions()
 {
-    HILOG_INFO("StopAllExtensions begin.");
+    HILOG_DEBUG("begin.");
     std::lock_guard guard(Lock_);
     for (auto it = serviceMap_.begin(); it != serviceMap_.end();) {
         auto targetExtension = it->second;
         if (targetExtension != nullptr && targetExtension->GetAbilityInfo().type == AbilityType::EXTENSION &&
-            targetExtension->GetAbilityInfo().bundleName != BUNDLE_NAME_DIALOG &&
-            targetExtension->GetAbilityInfo().name != ABILITY_NAME_DIALOG) {
+            targetExtension->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME &&
+            targetExtension->GetAbilityInfo().bundleName == AbilityConfig::LAUNCHER_BUNDLE_NAME) {
             terminatingExtensionMap_.emplace(it->first, it->second);
             serviceMap_.erase(it++);
+            HILOG_INFO("terminate ability:%{public}s.", targetExtension->GetAbilityInfo().name.c_str());
             TerminateAbilityLocked(targetExtension->GetToken());
         } else {
             it++;
