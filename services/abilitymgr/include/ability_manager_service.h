@@ -1354,6 +1354,9 @@ public:
     int32_t ExecuteIntent(uint64_t key, const sptr<IRemoteObject> &callerToken,
         const InsightIntentExecuteParam &param) override;
 
+    int32_t StartAbilityWithInsightIntent(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE);
+
     /**
      * @brief Check if ability controller can start.
      * @param want The want of ability to start.

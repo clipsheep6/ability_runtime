@@ -103,7 +103,7 @@ abilityms_files = [
   "src/ability_auto_startup_data_manager.cpp",
   "src/ability_auto_startup_service.cpp",
   "src/auto_startup_info.cpp",
-  "src/insight_intent_execute_param.cpp",
+  "src/insight_intent_execute_manager.cpp",
   "src/insight_intent_execute_result.cpp",
 ]
 

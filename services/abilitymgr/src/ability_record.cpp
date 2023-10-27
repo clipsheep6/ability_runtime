@@ -396,6 +396,7 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
     lifecycleDeal_->ForegroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
     lifeCycleStateInfo_.sceneFlag = 0;
     lifeCycleStateInfo_.sceneFlagBak = 0;
+    InsightIntentExecuteParam::RemoveInsightIntent(want_);
 
     // update ability state to appMgr service when restart
     if (IsNewWant()) {
@@ -433,6 +434,7 @@ void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
     lifecycleDeal_->ForegroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
     lifeCycleStateInfo_.sceneFlag = 0;
     lifeCycleStateInfo_.sceneFlagBak = 0;
+    InsightIntentExecuteParam::RemoveInsightIntent(want_);
 
     // update ability state to appMgr service when restart
     if (IsNewWant()) {

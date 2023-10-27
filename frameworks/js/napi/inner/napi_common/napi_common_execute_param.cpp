@@ -59,7 +59,7 @@ bool UnwrapExecuteParam(napi_env env, napi_value param, InsightIntentExecutePara
 
     napi_value napiIntentParam = nullptr;
     napi_get_named_property(env, param, "insightIntentParam", &napiIntentParam);
-    if (napiIntentParam != nullptr) {
+    if (napiIntentParam == nullptr) {
         HILOG_ERROR("Wrong argument type insightIntentParam.");
         return false;
     }

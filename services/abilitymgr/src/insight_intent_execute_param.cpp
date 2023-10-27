@@ -30,6 +30,7 @@ bool InsightIntentExecuteParam::ReadFromParcel(Parcel &parcel)
     }
     insightIntentParam_ = wantParams;
     executeMode_ = parcel.ReadInt32();
+    insightIntentId_ = parcel.ReadUint64();
     return true;
 }
 
@@ -55,6 +56,51 @@ bool InsightIntentExecuteParam::Marshalling(Parcel &parcel) const
     parcel.WriteString16(Str8ToStr16(insightIntentName_));
     parcel.WriteParcelable(insightIntentParam_.get());
     parcel.WriteInt32(executeMode_);
+    parcel.WriteUint64(insightIntentId_);
+    return true;
+}
+
+bool InsightIntentExecuteParam::IsInsightIntentExecute(const AAFwk::Want& want)
+{
+    if (want.HasParameter(INSIGHT_INTENT_EXECUTE_PARAM_NAME)) {
+        return true;
+    }
+    return false;
+}
+bool InsightIntentExecuteParam::GenerateFromWant(const AAFwk::Want& want,
+    InsightIntentExecuteParam& executeParam)
+{
+    const WantParams &wantParams = want.GetParams();
+    if (!wantParams.HasParam(INSIGHT_INTENT_EXECUTE_PARAM_NAME)) {
+        return false;
+    }
+
+    AppExecFwk::ElementName elementName = want.GetElement();
+    executeParam.bundleName_ = elementName.GetBundleName();
+    executeParam.moduleName_ = elementName.GetModuleName();
+    executeParam.abilityName_ = elementName.GetAbilityName();
+    executeParam.insightIntentName_ = wantParams.GetStringParam(INSIGHT_INTENT_EXECUTE_PARAM_NAME);
+    executeParam.insightIntentId_ = std::stoull(wantParams.GetStringParam(INSIGHT_INTENT_EXECUTE_PARAM_ID));
+    executeParam.executeMode_ = wantParams.GetIntParam(INSIGHT_INTENT_EXECUTE_PARAM_MODE, 0);
+    executeParam.insightIntentParam_ =
+        std::make_shared<WantParams>(wantParams.GetWantParams(INSIGHT_INTENT_EXECUTE_PARAM_PARAM));
+    return true;
+}
+
+bool InsightIntentExecuteParam::RemoveInsightIntent(AAFwk::Want &want)
+{
+    if (want.HasParameter(INSIGHT_INTENT_EXECUTE_PARAM_NAME)) {
+        want.RemoveParam(INSIGHT_INTENT_EXECUTE_PARAM_NAME);
+    }
+    if (want.HasParameter(INSIGHT_INTENT_EXECUTE_PARAM_ID)) {
+        want.RemoveParam(INSIGHT_INTENT_EXECUTE_PARAM_ID);
+    }
+    if (want.HasParameter(INSIGHT_INTENT_EXECUTE_PARAM_MODE)) {
+        want.RemoveParam(INSIGHT_INTENT_EXECUTE_PARAM_MODE);
+    }
+    if (want.HasParameter(INSIGHT_INTENT_EXECUTE_PARAM_PARAM)) {
+        want.RemoveParam(INSIGHT_INTENT_EXECUTE_PARAM_PARAM);
+    }
     return true;
 }
 } // namespace AppExecFwk

@@ -48,6 +48,7 @@
 #include "hisysevent.h"
 #include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
+#include "insight_intent_execute_manager.h"
 #include "in_process_call_wrapper.h"
 #include "insight_intent_execute_callback_proxy.h"
 #include "ipc_skeleton.h"
@@ -435,6 +436,7 @@ int AbilityManagerService::StartAbility(const Want &want, int32_t userId, int re
         (const_cast<Want &>(want)).RemoveParam(START_ABILITY_TYPE);
         CHECK_CALLER_IS_SYSTEM_APP;
     }
+    InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
     EventInfo eventInfo = BuildEventInfo(want, userId);
     EventReport::SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
     int32_t ret = StartAbilityWrap(want, nullptr, requestCode, userId);
@@ -454,6 +456,7 @@ int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObje
         (const_cast<Want &>(want)).RemoveParam(START_ABILITY_TYPE);
         CHECK_CALLER_IS_SYSTEM_APP;
     }
+    InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
     auto flags = want.GetFlags();
     EventInfo eventInfo = BuildEventInfo(want, userId);
     EventReport::SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
@@ -1118,6 +1121,7 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         (const_cast<Want &>(want)).RemoveParam(START_ABILITY_TYPE);
         CHECK_CALLER_IS_SYSTEM_APP;
     }
+    InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
     EventInfo eventInfo = BuildEventInfo(want, userId);
     EventReport::SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
 
@@ -2046,6 +2050,14 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
     EventInfo eventInfo = BuildEventInfo(extensionSessionInfo->want, userId);
     eventInfo.extensionType = static_cast<int32_t>(extensionType);
     EventReport::SendExtensionEvent(EventName::START_SERVICE, HiSysEventType::BEHAVIOR, eventInfo);
+
+    if (InsightIntentExecuteParam::IsInsightIntentExecute(extensionSessionInfo->want)) {
+        int32_t result = DelayedSingleton<InsightIntentExecuteManager>::GetInstance()->CheckAndUpdateWant(
+            extensionSessionInfo->want, ExecuteMode::UI_EXTENSION_ABILITY);
+        if (result != ERR_OK) {
+            return result;
+        }
+    }
 
     sptr<IRemoteObject> callerToken = extensionSessionInfo->callerToken;
 
@@ -8661,7 +8673,66 @@ int32_t AbilityManagerService::ExecuteIntent(uint64_t key, const sptr<IRemoteObj
     const InsightIntentExecuteParam &param)
 {
     HILOG_DEBUG("Called.");
-    return ERR_OK;
+    auto paramPtr = std::make_shared<InsightIntentExecuteParam>(param);
+    int32_t ret = DelayedSingleton<InsightIntentExecuteManager>::GetInstance()->CheckAndUpdateParam(key, callerToken,
+        paramPtr);
+    if (ret != ERR_OK) {
+        return ret;
+    }
+
+    Want want;
+    ret = InsightIntentExecuteManager::GenerateWant(paramPtr, want);
+    if (ret != ERR_OK) {
+        return ret;
+    }
+
+    switch (param.executeMode_) {
+        case ExecuteMode::UI_ABILITY_FOREGROUND:
+            HILOG_DEBUG("ExecuteMode UI_ABILITY_FOREGROUND.");
+            ret = StartAbilityWithInsightIntent(want);
+            break;
+        case ExecuteMode::UI_ABILITY_BACKGROUND: {
+            HILOG_WARN("ExecuteMode UI_ABILITY_BACKGROUND not supported.");
+            ret = ERR_INVALID_OPERATION;
+            break;
+        }
+        case ExecuteMode::UI_EXTENSION_ABILITY:
+            HILOG_WARN("ExecuteMode UI_EXTENSION_ABILITY not supported.");
+            ret = ERR_INVALID_OPERATION;
+            break;
+        default:
+            HILOG_ERROR("Invalid ExecuteMode.");
+            ret = ERR_INVALID_OPERATION;
+            break;
+    }
+    if (ret == START_ABILITY_WAITING) {
+        HILOG_DEBUG("Top ability is foregrounding. The intent will be queued for execution");
+        ret = ERR_OK;
+    }
+    if (ret != ERR_OK) {
+        DelayedSingleton<InsightIntentExecuteManager>::GetInstance()->RemoveExecuteIntent(paramPtr->insightIntentId_);
+    }
+
+    HILOG_DEBUG("ExecuteIntent done, ret: %{public}d.", ret);
+    return ret;
+}
+
+int32_t AbilityManagerService::StartAbilityWithInsightIntent(const Want &want, int32_t userId, int requestCode)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    bool startWithAccount = want.GetBoolParam(START_ABILITY_TYPE, false);
+    if (startWithAccount || IsCrossUserCall(userId)) {
+        (const_cast<Want &>(want)).RemoveParam(START_ABILITY_TYPE);
+        CHECK_CALLER_IS_SYSTEM_APP;
+    }
+    EventInfo eventInfo = BuildEventInfo(want, userId);
+    EventReport::SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
+    int32_t ret = StartAbilityWrap(want, nullptr, requestCode, userId);
+    if (ret != ERR_OK) {
+        eventInfo.errCode = ret;
+        EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
+    }
+    return ret;
 }
 
 bool AbilityManagerService::IsAbilityControllerStart(const Want &want)

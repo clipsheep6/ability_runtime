@@ -13,14 +13,15 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_INTENT_EXECUTE_PARAM_H
-#define OHOS_ABILITY_RUNTIME_INTENT_EXECUTE_PARAM_H
+#ifndef OHOS_ABILITY_RUNTIME_INSIGHT_INTENT_EXECUTE_PARAM_H
+#define OHOS_ABILITY_RUNTIME_INSIGHT_INTENT_EXECUTE_PARAM_H
 
 #include <string>
 #include <vector>
 
 #include "parcel.h"
-#include "want_params.h"
+#include "want.h"
+
 namespace OHOS {
 namespace AppExecFwk {
 using WantParams = OHOS::AAFwk::WantParams;
@@ -29,10 +30,15 @@ using WantParams = OHOS::AAFwk::WantParams;
  * ExecuteMode defines the supported execute mode.
  */
 enum ExecuteMode {
-    UIABLITY_FOREGROUND = 0,
-    UIABLITY_BACKGROUND,
-    UIEXTENSIONABLITY
+    UI_ABILITY_FOREGROUND = 0,
+    UI_ABILITY_BACKGROUND,
+    UI_EXTENSION_ABILITY
 };
+
+constexpr char INSIGHT_INTENT_EXECUTE_PARAM_NAME[] = "ohos.insightIntent.executeParam.name";
+constexpr char INSIGHT_INTENT_EXECUTE_PARAM_PARAM[] = "ohos.insightIntent.executeParam.param";
+constexpr char INSIGHT_INTENT_EXECUTE_PARAM_MODE[] = "ohos.insightIntent.executeParam.mode";
+constexpr char INSIGHT_INTENT_EXECUTE_PARAM_ID[] = "ohos.insightIntent.executeParam.id";
 
 class InsightIntentExecuteParam : public Parcelable {
 public:
@@ -42,6 +48,9 @@ public:
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;
     static InsightIntentExecuteParam *Unmarshalling(Parcel &parcel);
+    static bool IsInsightIntentExecute(const AAFwk::Want& want);
+    static bool GenerateFromWant(const AAFwk::Want& want, InsightIntentExecuteParam& executeParam);
+    static bool RemoveInsightIntent(AAFwk::Want &want);
 
     std::string bundleName_;
     std::string moduleName_;
@@ -49,7 +58,8 @@ public:
     std::string insightIntentName_;
     std::shared_ptr<WantParams> insightIntentParam_;
     int32_t executeMode_ = -1;
+    uint64_t insightIntentId_ = 0;
 };
 } // namespace AppExecFwk
 } // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_INTENT_EXECUTE_PARAM_H
+#endif  // OHOS_ABILITY_RUNTIME_INSIGHT_INTENT_EXECUTE_PARAM_H

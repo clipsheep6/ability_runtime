@@ -159,7 +159,7 @@ ErrCode AbilityManagerClient::StartAbilityByInsightIntent(
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_DEBUG("ability:%{public}s, bundle:%{public}s, intentId:%{public}llu",
+    HILOG_DEBUG("ability:%{public}s, bundle:%{public}s, intentId:%{public}" PRIu64,
         want.GetElement().GetAbilityName().c_str(), want.GetElement().GetBundleName().c_str(), intentId);
     HandleDlpApp(const_cast<Want &>(want));
     return abms->StartAbilityByInsightIntent(want, callerToken, intentId, userId);

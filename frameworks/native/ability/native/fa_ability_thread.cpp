@@ -745,6 +745,18 @@ void FAAbilityThread::ScheduleAbilityTransaction(
         want.GetElement().GetAbilityName().c_str(),
         lifeCycleStateInfo.state,
         lifeCycleStateInfo.isNewWant);
+    if (AppExecFwk::InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
+        auto param = std::make_shared<AppExecFwk::InsightIntentExecuteParam>();
+        bool success = AppExecFwk::InsightIntentExecuteParam::GenerateFromWant(want, *param);
+        if (success) {
+            HILOG_DEBUG("InsightIntentExecuteParam, bundleName: %{public}s", param->bundleName_.c_str());
+            HILOG_DEBUG("InsightIntentExecuteParam, moduleName: %{public}s", param->moduleName_.c_str());
+            HILOG_DEBUG("InsightIntentExecuteParam, abilityName: %{public}s", param->abilityName_.c_str());
+            HILOG_DEBUG("InsightIntentExecuteParam, insightIntentName: %{public}s", param->insightIntentName_.c_str());
+            HILOG_DEBUG("InsightIntentExecuteParam, executeMode: %{public}d", param->executeMode_);
+            HILOG_DEBUG("InsightIntentExecuteParam, insightIntentId: %{public}" PRIu64, param->insightIntentId_);
+        }
+    }
     std::string methodName = "ScheduleAbilityTransaction";
     AddLifecycleEvent(lifeCycleStateInfo.state, methodName);
 
