@@ -1138,7 +1138,13 @@ int AbilityManagerStub::GetPendingWantUserIdInner(MessageParcel &data, MessagePa
 
 int AbilityManagerStub::GetPendingWantBundleNameInner(MessageParcel &data, MessageParcel &reply)
 {
-    sptr<IWantSender> wantSender = iface_cast<IWantSender>(data.ReadRemoteObject());
+    auto remote = data.ReadRemoteObject();
+    if (remote == nullptr) {
+        HILOG_ERROR("ReadRemoteObject is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    sptr<IWantSender> wantSender = iface_cast<IWantSender>(remote);
     if (wantSender == nullptr) {
         HILOG_ERROR("wantSender is nullptr");
         return ERR_INVALID_VALUE;
