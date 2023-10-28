@@ -480,7 +480,7 @@ napi_value NAPI_SetResult(napi_env env, napi_callback_info info)
  */
 napi_value SetResultWrap(napi_env env, napi_callback_info info, AsyncCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s,called", __func__);
+    HILOG_INFO("%{public}s, called", __func__);
     size_t argcAsync = 2;
     const size_t argcPromise = 1;
     const size_t argCountWithAsync = argcPromise + ARGS_ASYNC_COUNT;
@@ -505,7 +505,7 @@ napi_value SetResultWrap(napi_env env, napi_callback_info info, AsyncCallbackInf
     } else {
         ret = SetResultPromise(env, asyncCallbackInfo);
     }
-    HILOG_INFO("%{public}s,end", __func__);
+    HILOG_INFO("%{public}s, end", __func__);
     return ret;
 }
 
@@ -711,7 +711,7 @@ void CallOnAbilityResult(int requestCode, int resultCode, const Want &resultData
             work = nullptr;
         }
     }
-    HILOG_INFO("%{public}s,end", __func__);
+    HILOG_INFO("%{public}s, end", __func__);
 }
 EXTERN_C_END
 

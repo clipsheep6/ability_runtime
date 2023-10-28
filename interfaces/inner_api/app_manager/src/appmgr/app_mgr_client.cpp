@@ -130,6 +130,7 @@ AppMgrClient::~AppMgrClient()
 AppMgrResultCode AppMgrClient::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
     const AbilityInfo &abilityInfo, const ApplicationInfo &appInfo, const AAFwk::Want &want)
 {
+    HILOG_INFO("%{public}s start", __func__);
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service != nullptr) {
         sptr<IAmsMgr> amsService = service->GetAmsMgr();
