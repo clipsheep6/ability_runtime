@@ -100,7 +100,7 @@ AppExecFwk::ElementName AbilityManagerProxy::GetTopAbility(bool isNeedLocalDevic
     return result;
 }
 
-AppExecFwk::ElementName AbilityManagerProxy::GetElementNameByToken(const sptr<IRemoteObject> &token,
+AppExecFwk::ElementName AbilityManagerProxy::GetElementNameByToken(sptr<IRemoteObject> token,
     bool isNeedLocalDeviceId)
 {
     MessageParcel data;
@@ -116,6 +116,7 @@ AppExecFwk::ElementName AbilityManagerProxy::GetElementNameByToken(const sptr<IR
         return {};
     }
     int error = SendRequest(AbilityManagerInterfaceCode::GET_ELEMENT_NAME_BY_TOKEN, data, reply, option);
+    HILOG_INFO("sptr count: %{public}d", token ? token->GetSptrRefCount() : 0);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return {};
@@ -2182,7 +2183,7 @@ void AbilityManagerProxy::SetLockedState(int32_t sessionId, bool lockedState)
         HILOG_ERROR("WriteBool fail.");
         return;
     }
-    
+
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     auto error = SendRequest(AbilityManagerInterfaceCode::SET_SESSION_LOCKED_STATE, data, reply, option);
@@ -4539,7 +4540,7 @@ bool AbilityManagerProxy::IsAbilityControllerStart(const Want &want)
         HILOG_ERROR("WriteWantObject failed.");
         return true;
     }
-    
+
     auto error = SendRequest(AbilityManagerInterfaceCode::IS_ABILITY_CONTROLLER_START,
         data, reply, option);
     if (error != NO_ERROR) {

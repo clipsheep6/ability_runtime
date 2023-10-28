@@ -108,7 +108,7 @@ public:
      * @param isNeedLocalDeviceId is need local device id.
      * @return Returns front desk focus ability elementName by token.
      */
-    AppExecFwk::ElementName GetElementNameByToken(const sptr<IRemoteObject> &token, bool isNeedLocalDeviceId = true);
+    AppExecFwk::ElementName GetElementNameByToken(sptr<IRemoteObject> token, bool isNeedLocalDeviceId = true);
 
     /**
      * StartAbility with want, send want to ability manager service.
