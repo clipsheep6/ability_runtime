@@ -2640,6 +2640,10 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         HILOG_ERROR("Sandbox can not grant uriPermission by terminate self with result.");
         return;
     }
+    if (targetBundleName == SHELL_ASSISTANT_BUNDLENAME) {
+        HILOG_DEBUG("reject shell application to grant uri permission");
+        return;
+    }
 
     if ((want.GetFlags() & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
         HILOG_WARN("Do not call uriPermissionMgr.");
