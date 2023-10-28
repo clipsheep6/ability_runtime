@@ -24,7 +24,6 @@
 #include "iremote_object.h"
 #include "singleton.h"
 
-
 namespace OHOS {
 namespace AAFwk {
 enum class InsightIntentExecuteState {

@@ -84,12 +84,21 @@ int32_t InsightIntentExecuteManager::CheckAndUpdateWant(Want &want, ExecuteMode 
         return result;
     }
     uint64_t intentId = 0;
+    ElementName elementName = want.GetElement();
     result = AddRecord(0, nullptr, want.GetBundle(), intentId);
     if (result != ERR_OK) {
         return result;
     }
+    auto srcEntry = AbilityRuntime::InsightIntentUtils::GetSrcEntry(elementName.GetBundleName(),
+        elementName.GetModuleName(), want.GetStringParam(INSIGHT_INTENT_EXECUTE_PARAM_NAME));
+    if (srcEntry.empty()) {
+        HILOG_ERROR("Insight intent srcEntry invalid.");
+        return ERR_INVALID_VALUE;
+    }
+    want.SetParam(INSIGHT_INTENT_SRC_ENTRY, srcEntry);
     want.SetParam(INSIGHT_INTENT_EXECUTE_PARAM_ID, std::to_string(intentId));
     want.SetParam(INSIGHT_INTENT_EXECUTE_PARAM_MODE, executeMode);
+    HILOG_DEBUG("check done. insightIntentId: %{public}" PRIu64, intentId);
     return ERR_OK;
 }
 

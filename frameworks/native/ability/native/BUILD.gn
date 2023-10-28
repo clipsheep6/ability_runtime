@@ -918,7 +918,11 @@ group("extension_module") {
 
 config("ui_extension_public_config") {
   visibility = [ ":*" ]
-  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_extension_ability" ]
+  include_dirs = [
+    "${ability_runtime_path}/interfaces/inner_api/insight_intent/insight_intent_context",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/insight_intent_executor",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_extension_ability",
+  ]
 }
 
 ohos_shared_library("ui_extension") {
@@ -940,6 +944,7 @@ ohos_shared_library("ui_extension") {
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/ability:ability_context_native",
     "${ability_runtime_native_path}/ability/native:ability_business_error",
+    "${ability_runtime_native_path}/ability/native:insight_intent_executor",
     "${ability_runtime_native_path}/appkit:app_context",
   ]
 

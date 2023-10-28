@@ -49,8 +49,8 @@ public:
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;
     static InsightIntentExecuteParam *Unmarshalling(Parcel &parcel);
-    static bool IsInsightIntentExecute(const AAFwk::Want& want);
-    static bool GenerateFromWant(const AAFwk::Want& want, InsightIntentExecuteParam& executeParam);
+    static bool IsInsightIntentExecute(const AAFwk::Want &want);
+    static bool GenerateFromWant(const AAFwk::Want &want, InsightIntentExecuteParam &executeParam);
     static bool RemoveInsightIntent(AAFwk::Want &want);
 
     std::string bundleName_;

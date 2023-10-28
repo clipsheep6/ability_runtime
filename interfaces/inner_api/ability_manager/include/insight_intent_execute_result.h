@@ -23,6 +23,9 @@
 namespace OHOS {
 namespace AppExecFwk {
 using WantParams = OHOS::AAFwk::WantParams;
+constexpr char INSIGHT_INTENT_EXECUTE_RESULT_CODE[] = "ohos.insightIntent.executeResultCode";
+constexpr char INSIGHT_INTENT_EXECUTE_RESULT[] = "ohos.insightIntent.executeResult";
+
 /**
  * @struct InsightIntentExecuteResult
  * InsightIntentExecuteResult is used to save information about execute result.
