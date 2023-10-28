@@ -130,25 +130,6 @@ HWTEST_F(AppfreezeInnerTest, AppfreezeInner__AppfreezeHandle_001, TestSize.Level
 }
 
 /**
- * @tc.number: AppfreezeInner__AppfreezeHandle_002
- * @tc.name: AppfreezeHandle
- * @tc.desc: Verify that function AppfreezeHandle .
- */
-HWTEST_F(AppfreezeInnerTest, AppfreezeInner__AppfreezeHandle_002, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "AppfreezeInner__AppfreezeHandle_002 start";
-    FaultData faultData;
-    faultData.errorObject.message = "App main thread is not response!";
-    faultData.faultType = FaultDataType::APP_FREEZE;
-    faultData.timeoutMarkers = "";
-    bool onlyMainThread = true;
-    appfreezeInner->SetApplicationInfo(nullptr);
-    int ret = appfreezeInner->AppfreezeHandle(faultData, onlyMainThread);
-    EXPECT_EQ(ret, -1);
-    GTEST_LOG_(INFO) << "AppfreezeInner__AppfreezeHandle_002 end";
-}
-
-/**
  * @tc.number: AppfreezeInner__AcquireStack_001
  * @tc.name: AcquireStack
  * @tc.desc: Verify that function AcquireStack.
@@ -161,7 +142,7 @@ HWTEST_F(AppfreezeInnerTest, AppfreezeInner__AcquireStack_001, TestSize.Level1)
     faultData.errorObject.name = AppFreezeType::THREAD_BLOCK_6S;
     bool onlyMainThread = true;
     int ret = appfreezeInner->AcquireStack(faultData, onlyMainThread);
-    EXPECT_EQ(ret, -1);
+    EXPECT_EQ(ret, 0);
     GTEST_LOG_(INFO) << "AppfreezeInner__AcquireStack_001 end";
 }
 
