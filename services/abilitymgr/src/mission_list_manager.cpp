@@ -1513,12 +1513,12 @@ void MissionListManager::RemoveBackgroundingAbility(const std::shared_ptr<Abilit
     }
 
     AppExecFwk::ElementName elementName = needTopAbility->GetWant().GetElement();
-    HILOG_DEBUG("Next top ability is %{public}s, state is %{public}d, minimizeReason is %{public}d.",
+    HILOG_DEBUG("Next top ability is %{public}s, state is %{public}d, minimizeReason is %{public}d!",
         elementName.GetURI().c_str(), needTopAbility->GetAbilityState(), needTopAbility->IsMinimizeFromUser());
 
     if (elementName.GetBundleName() == AbilityConfig::LAUNCHER_BUNDLE_NAME &&
         elementName.GetAbilityName() == AbilityConfig::LAUNCHER_RECENT_ABILITY_NAME) {
-        HILOG_DEBUG("Next to need is recent, just to launcher.");
+        HILOG_DEBUG("Next to need is recent, just to launcher!");
         needTopAbility = launcherList_->GetLauncherRoot();
     }
 
@@ -2101,14 +2101,14 @@ void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &a
         state = search->second;
     }
     if (!GetContentAndTypeId(msgId, msgContent, typeId)) {
-        HILOG_WARN("msgId is invalid.");
+        HILOG_WARN("msgId is invalid!");
         return;
     }
 
     std::string eventName = isHalf ?
         AppExecFwk::AppFreezeType::LIFECYCLE_HALF_TIMEOUT : AppExecFwk::AppFreezeType::LIFECYCLE_TIMEOUT;
     HILOG_WARN("%{public}s: uid: %{public}d, pid: %{public}d, bundleName: %{public}s, abilityName: %{public}s,"
-        "msg: %{public}s", eventName.c_str(),
+        "msg: %{public}s!", eventName.c_str(),
         processInfo.uid_, processInfo.pid_, ability->GetAbilityInfo().bundleName.c_str(),
         ability->GetAbilityInfo().name.c_str(), msgContent.c_str());
 
@@ -2481,7 +2481,7 @@ void MissionListManager::OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRec
     }
 
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    CHECK_POINTER_LOG(handler, "Fail to get AbilityEventHandler.");
+    CHECK_POINTER_LOG(handler, "Get AbilityEventHandler failed.");
     if (abilityRecord->GetAbilityState() == AbilityState::INITIAL) {
         handler->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
     }
@@ -3201,14 +3201,14 @@ int MissionListManager::ReleaseCallLocked(
     };
     auto findRecord = std::find_if(abilityRecords.begin(), abilityRecords.end(), isExist);
     if (findRecord == abilityRecords.end()) {
-        HILOG_ERROR("not found ability record by callback");
+        HILOG_ERROR("not found ability record by callback!");
         return RELEASE_CALL_ABILITY_INNER_ERR;
     }
     auto abilityRecord = *findRecord;
     CHECK_POINTER_AND_RETURN(abilityRecord, RELEASE_CALL_ABILITY_INNER_ERR);
 
     if (!abilityRecord->ReleaseCall(connect)) {
-        HILOG_ERROR("ability release call record failed.");
+        HILOG_ERROR("ability release call record failed!");
         return RELEASE_CALL_ABILITY_INNER_ERR;
     }
     return ERR_OK;

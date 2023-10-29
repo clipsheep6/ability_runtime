@@ -306,7 +306,7 @@ ErrCode AbilityManagerShellCommand::RunAsScreenCommand()
             if (counter == 1 && strcmp(argv_[optind], cmd_.c_str()) == 0) {
                 // 'aa screen' with no option: aa screen
                 // 'aa screen' with a wrong argument: aa screen xxx
-                HILOG_INFO("'aa %{public}s' %{public}s", HELP_MSG_NO_OPTION.c_str(), cmd_.c_str());
+                HILOG_INFO("'aa %{public}s' %{public}s.", HELP_MSG_NO_OPTION.c_str(), cmd_.c_str());
                 resultReceiver_.append(HELP_MSG_NO_OPTION + "\n");
                 result = OHOS::ERR_INVALID_VALUE;
             }
@@ -837,7 +837,7 @@ ErrCode AbilityManagerShellCommand::MakeWantForProcess(Want& want)
             if (counter == 1 && strcmp(argv_[optind], cmd_.c_str()) == 0) {
                 // 'aa process' with no option: aa process
                 // 'aa process' with a wrong argument: aa process xxx
-                HILOG_INFO("'aa %{public}s' %{public}s", HELP_MSG_NO_OPTION.c_str(), cmd_.c_str());
+                HILOG_INFO("'aa %{public}s' %{public}s!", HELP_MSG_NO_OPTION.c_str(), cmd_.c_str());
 
                 resultReceiver_.append(HELP_MSG_NO_OPTION + "\n");
                 result = OHOS::ERR_INVALID_VALUE;

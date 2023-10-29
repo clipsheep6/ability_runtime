@@ -4218,12 +4218,12 @@ int32_t AppMgrServiceInner::StartNativeProcessForDebugger(const AAFwk::Want &wan
 {
     auto&& bundleMgr = remoteClientManager_->GetBundleManager();
     if (bundleMgr == nullptr) {
-        HILOG_ERROR("GetBundleManager fail");
+        HILOG_ERROR("GetBundleManager error.");
         return ERR_INVALID_OPERATION;
     }
 
     if (appRunningManager_ == nullptr) {
-        HILOG_ERROR("appRunningManager_ is nullptr");
+        HILOG_ERROR("appRunningManager_ is nullptr.");
         return ERR_INVALID_OPERATION;
     }
     HILOG_INFO("debuggablePipe bundleName:%{public}s", want.GetElement().GetBundleName().c_str());

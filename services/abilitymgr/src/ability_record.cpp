@@ -390,7 +390,7 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
     }
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
-    // earlier than above actions.
+    // earlier than above actions
     SetAbilityStateInner(AbilityState::FOREGROUNDING);
     lifeCycleStateInfo_.sceneFlag = sceneFlag;
     lifecycleDeal_->ForegroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
@@ -398,7 +398,7 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
     lifeCycleStateInfo_.sceneFlagBak = 0;
     InsightIntentExecuteParam::RemoveInsightIntent(want_);
 
-    // update ability state to appMgr service when restart
+    // update ability state to appMgr service when restart.
     if (IsNewWant()) {
         sptr<Token> preToken = nullptr;
         if (GetPreAbilityRecord()) {

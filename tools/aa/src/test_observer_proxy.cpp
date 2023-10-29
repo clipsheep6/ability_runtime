@@ -30,7 +30,7 @@ TestObserverProxy::~TestObserverProxy()
 
 void TestObserverProxy::TestStatus(const std::string& msg, const int64_t& resultCode)
 {
-    HILOG_INFO("start");
+    HILOG_INFO("TestStatus start");
 
     MessageParcel data;
     MessageParcel reply;
@@ -41,26 +41,26 @@ void TestObserverProxy::TestStatus(const std::string& msg, const int64_t& result
     }
 
     if (!data.WriteString(msg)) {
-        HILOG_ERROR("Failed to write string msg");
+        HILOG_ERROR("Write string msg failed");
         return;
     }
 
     if (!data.WriteInt64(resultCode)) {
-        HILOG_ERROR("Failed to write resultCode");
+        HILOG_ERROR("Write resultCode failed");
         return;
     }
 
     int32_t result = SendTransactCmd(
         static_cast<uint32_t>(ITestObserver::Message::AA_TEST_STATUS), data, reply, option);
     if (result != OHOS::NO_ERROR) {
-        HILOG_ERROR("Failed to SendRequest, error code: %{public}d", result);
+        HILOG_ERROR("SendRequest failed, error code: %{public}d", result);
         return;
     }
 }
 
 void TestObserverProxy::TestFinished(const std::string& msg, const int64_t& resultCode)
 {
-    HILOG_INFO("start");
+    HILOG_INFO("TestFinished start");
 
     MessageParcel data;
     MessageParcel reply;

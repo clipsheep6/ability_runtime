@@ -86,7 +86,7 @@ int32_t AppExitReasonDataManager::SetAppExitReason(
     const std::string &bundleName, const std::vector<std::string> &abilityList, const AAFwk::Reason &reason)
 {
     if (bundleName.empty()) {
-        HILOG_WARN("invalid value!");
+        HILOG_WARN("invalid value");
         return ERR_INVALID_VALUE;
     }
 
@@ -117,15 +117,15 @@ int32_t AppExitReasonDataManager::SetAppExitReason(
 int32_t AppExitReasonDataManager::DeleteAppExitReason(const std::string &bundleName)
 {
     if (bundleName.empty()) {
-        HILOG_WARN("invalid value!");
+        HILOG_WARN("invalid value.");
         return ERR_INVALID_VALUE;
     }
 
-    HILOG_DEBUG("bundleName: %{public}s", bundleName.c_str());
+    HILOG_DEBUG("bundleName: %{public}s.", bundleName.c_str());
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {
-            HILOG_ERROR("kvStore is nullptr");
+            HILOG_ERROR("kvStore is nullptr.");
             return ERR_NO_INIT;
         }
     }
@@ -152,11 +152,11 @@ int32_t AppExitReasonDataManager::GetAppExitReason(
         return ERR_INVALID_VALUE;
     }
 
-    HILOG_DEBUG("bundleName: %{public}s", bundleName.c_str());
+    HILOG_DEBUG("bundleName: %{public}s!", bundleName.c_str());
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {
-            HILOG_ERROR("kvStore is nullptr");
+            HILOG_ERROR("kvStore is nullptr!");
             return ERR_NO_INIT;
         }
     }
@@ -197,7 +197,7 @@ void AppExitReasonDataManager::UpdateAppExitReason(
     const std::string &bundleName, const std::vector<std::string> &abilityList, const AAFwk::Reason &reason)
 {
     if (kvStorePtr_ == nullptr) {
-        HILOG_ERROR("kvStore is nullptr");
+        HILOG_ERROR("kvStore is nullptr.");
         return;
     }
 
@@ -208,7 +208,7 @@ void AppExitReasonDataManager::UpdateAppExitReason(
         status = kvStorePtr_->Delete(key);
     }
     if (status != DistributedKv::Status::SUCCESS) {
-        HILOG_ERROR("delete data from kvStore error: %{public}d", status);
+        HILOG_ERROR("delete data from kvStore error: %{public}d.", status);
         return;
     }
 
@@ -341,7 +341,7 @@ int32_t AppExitReasonDataManager::DeleteAbilityRecoverInfo(
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {
-            HILOG_ERROR("kvStore is nullptr");
+            HILOG_ERROR("kvStore is nullptr.");
             return ERR_NO_INIT;
         }
     }
@@ -385,7 +385,7 @@ int32_t AppExitReasonDataManager::GetAbilityRecoverInfo(
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {
-            HILOG_ERROR("kvStore is nullptr");
+            HILOG_ERROR("kvStore is nullptr!");
             return ERR_NO_INIT;
         }
     }
@@ -395,9 +395,9 @@ int32_t AppExitReasonDataManager::GetAbilityRecoverInfo(
     DistributedKv::Status status = kvStorePtr_->Get(key, value);
     if (status != DistributedKv::Status::SUCCESS) {
         if (status == DistributedKv::Status::KEY_NOT_FOUND) {
-            HILOG_WARN("GetAbilityRecoverInfo KEY_NOT_FOUND");
+            HILOG_WARN("GetAbilityRecoverInfo KEY_NOT_FOUND.");
         } else {
-            HILOG_ERROR("GetAbilityRecoverInfo error: %{public}d", status);
+            HILOG_ERROR("GetAbilityRecoverInfo error: %{public}d.", status);
         }
         return ERR_INVALID_VALUE;
     }
@@ -423,7 +423,7 @@ int32_t AppExitReasonDataManager::GetAbilitySessionId(const std::string &bundleN
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {
-            HILOG_ERROR("kvStore is nullptr");
+            HILOG_ERROR("the kvStore is nullptr.");
             return ERR_NO_INIT;
         }
     }
@@ -457,7 +457,7 @@ void AppExitReasonDataManager::UpdateAbilityRecoverInfo(const std::string &bundl
     const std::vector<std::string> &recoverInfoList, const std::vector<int> &sessionIdList)
 {
     if (kvStorePtr_ == nullptr) {
-        HILOG_ERROR("kvStore is nullptr");
+        HILOG_ERROR("kvStore is nullptr.");
         return;
     }
 
@@ -478,7 +478,7 @@ void AppExitReasonDataManager::UpdateAbilityRecoverInfo(const std::string &bundl
         status = kvStorePtr_->Put(key, value);
     }
     if (status != DistributedKv::Status::SUCCESS) {
-        HILOG_ERROR("insert data to kvStore error: %{public}d", status);
+        HILOG_ERROR("insert data to kvStore failed: %{public}d", status);
     }
 }
 

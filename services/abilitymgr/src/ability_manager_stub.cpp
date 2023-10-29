@@ -777,7 +777,7 @@ int AbilityManagerStub::StopExtensionAbilityInner(MessageParcel& data, MessagePa
 {
     Want* want = data.ReadParcelable<Want>();
     if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
+        HILOG_ERROR("want is nullptr.");
         return ERR_INVALID_VALUE;
     }
     sptr<IRemoteObject> callerToken = nullptr;
@@ -797,7 +797,7 @@ int AbilityManagerStub::StartAbilityAddCallerInner(MessageParcel &data, MessageP
 {
     Want *want = data.ReadParcelable<Want>();
     if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
+        HILOG_ERROR("want is nullptr.");
         return ERR_INVALID_VALUE;
     }
 
@@ -818,7 +818,7 @@ int AbilityManagerStub::StartAbilityAsCallerByTokenInner(MessageParcel &data, Me
 {
     Want *want = data.ReadParcelable<Want>();
     if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
+        HILOG_ERROR("want is nullptr!");
         return ERR_INVALID_VALUE;
     }
 
@@ -865,7 +865,7 @@ int AbilityManagerStub::ConnectAbilityInner(MessageParcel &data, MessageParcel &
 {
     Want *want = data.ReadParcelable<Want>();
     if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
+        HILOG_ERROR("want is nullptr.");
         return ERR_INVALID_VALUE;
     }
     sptr<IAbilityConnection> callback = nullptr;
@@ -889,7 +889,7 @@ int AbilityManagerStub::ConnectAbilityWithTypeInner(MessageParcel &data, Message
 {
     Want *want = data.ReadParcelable<Want>();
     if (want == nullptr) {
-        HILOG_ERROR("%{public}s, want is nullptr", __func__);
+        HILOG_ERROR("%{public}s, want is nullptr!", __func__);
         return ERR_INVALID_VALUE;
     }
     sptr<IAbilityConnection> callback = nullptr;
@@ -1030,12 +1030,12 @@ int AbilityManagerStub::StartAbilityForOptionsInner(MessageParcel &data, Message
 {
     Want *want = data.ReadParcelable<Want>();
     if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
+        HILOG_ERROR("want is nullptr.");
         return ERR_INVALID_VALUE;
     }
     StartOptions *startOptions = data.ReadParcelable<StartOptions>();
     if (startOptions == nullptr) {
-        HILOG_ERROR("startOptions is nullptr");
+        HILOG_ERROR("startOptions is nullptr.");
         delete want;
         return ERR_INVALID_VALUE;
     }
@@ -1172,7 +1172,7 @@ int AbilityManagerStub::GetPendingWantTypeInner(MessageParcel &data, MessageParc
 {
     sptr<IWantSender> wantSender = iface_cast<IWantSender>(data.ReadRemoteObject());
     if (wantSender == nullptr) {
-        HILOG_ERROR("wantSender is nullptr");
+        HILOG_ERROR("wantSender is nullptr.");
         return ERR_INVALID_VALUE;
     }
 
@@ -1278,22 +1278,22 @@ int AbilityManagerStub::ContinueMissionInner(MessageParcel &data, MessageParcel 
     int32_t missionId = data.ReadInt32();
     sptr<IRemoteObject> callback = data.ReadRemoteObject();
     if (callback == nullptr) {
-        HILOG_ERROR("ContinueMissionInner callback readParcelable failed!");
+        HILOG_ERROR("ContinueMissionInner callback readParcelable failed.");
         return ERR_NULL_OBJECT;
     }
     std::unique_ptr<WantParams> wantParams(data.ReadParcelable<WantParams>());
     if (wantParams == nullptr) {
-        HILOG_ERROR("ContinueMissionInner wantParams readParcelable failed!");
+        HILOG_ERROR("ContinueMissionInner wantParams readParcelable failed.");
         return ERR_NULL_OBJECT;
     }
     int32_t result = ContinueMission(srcDeviceId, dstDeviceId, missionId, callback, *wantParams);
-    HILOG_INFO("ContinueMissionInner result = %{public}d", result);
+    HILOG_INFO("ContinueMissionInner result = %{public}d.", result);
     return result;
 }
 
 int AbilityManagerStub::ContinueMissionOfBundleNameInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("amsStub %{public}s called.", __func__);
+    HILOG_INFO("amsStub %{public}s called!", __func__);
     std::string srcDeviceId = data.ReadString();
     std::string dstDeviceId = data.ReadString();
     std::string bundleName = data.ReadString();

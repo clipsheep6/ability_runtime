@@ -101,14 +101,14 @@ int32_t QuickFixManagerService::GetApplyedQuickFixInfo(const std::string &bundle
 
     auto bundleMgr = QuickFixUtil::GetBundleManagerProxy();
     if (bundleMgr == nullptr) {
-        HILOG_ERROR("Failed to get bundle manager.");
+        HILOG_ERROR("Failed to get bundle manager!");
         return QUICK_FIX_CONNECT_FAILED;
     }
 
     AppExecFwk::BundleInfo bundleInfo;
     if (!bundleMgr->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo,
         AppExecFwk::Constants::ANY_USERID)) {
-        HILOG_ERROR("Get bundle info failed.");
+        HILOG_ERROR("Get bundle info failed!");
         return QUICK_FIX_GET_BUNDLE_INFO_FAILED;
     }
 
