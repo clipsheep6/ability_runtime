@@ -2651,7 +2651,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
     }
     auto bms = AbilityUtil::GetBundleManager();
     CHECK_POINTER_IS_NULLPTR(bms);
-    if (IsDmsCall()) {
+    if (IsDmsCall(want)) {
         GrantDmsUriPermission(want, targetBundleName);
         return;
     }
@@ -2745,9 +2745,9 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
     }
 }
 
-bool AbilityRecord::IsDmsCall()
+bool AbilityRecord::IsDmsCall(Want &want)
 {
-    auto fromTokenId = IPCSkeleton::GetCallingTokenID();
+    auto fromTokenId = static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, -1));
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(fromTokenId);
     bool isNativeCall = tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE;
     if (!isNativeCall) {
