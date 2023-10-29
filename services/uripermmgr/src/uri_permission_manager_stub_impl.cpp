@@ -19,6 +19,7 @@
 
 #include "ability_manager_errors.h"
 #include "accesstoken_kit.h"
+#include "bundle_mgr_client.h"
 #include "event_report.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
@@ -614,21 +615,22 @@ void UriPermissionManagerStubImpl::ConnectManager(sptr<T> &mgr, int32_t serviceI
 
 uint32_t UriPermissionManagerStubImpl::GetTokenIdByBundleName(const std::string bundleName, int32_t appIndex)
 {
-    ConnectManager(bundleManager_, BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    if (bundleManager_ == nullptr) {
-        HILOG_WARN("Failed to get bms.");
+    auto bundleMgrClient = DelayedSingleton<AppExecFwk::BundleMgrClient>::GetInstance();
+    if (bundleMgrClient == nullptr) {
+        HILOG_ERROR("Fail to get bundle manager client.");
         return GET_BUNDLE_MANAGER_SERVICE_FAILED;
     }
     auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
     AppExecFwk::BundleInfo bundleInfo;
     auto userId = GetCurrentAccountId();
     if (appIndex == 0) {
-        if (!IN_PROCESS_CALL(bundleManager_->GetBundleInfo(bundleName, bundleFlag, bundleInfo, userId))) {
+        if (!IN_PROCESS_CALL(bundleMgrClient->GetBundleInfo(bundleName, bundleFlag, bundleInfo, userId))) {
             HILOG_WARN("Failed to get bundle info according to uri.");
             return GET_BUNDLE_INFO_FAILED;
         }
     } else {
-        if (IN_PROCESS_CALL(bundleManager_->GetSandboxBundleInfo(bundleName, appIndex, userId, bundleInfo) != ERR_OK)) {
+        if (IN_PROCESS_CALL(bundleMgrClient->GetSandboxBundleInfo(bundleName, appIndex, userId, bundleInfo) != ERR_OK))
+        {
             HILOG_WARN("Failed to get bundle info according to appIndex.");
             return GET_BUNDLE_INFO_FAILED;
         }
