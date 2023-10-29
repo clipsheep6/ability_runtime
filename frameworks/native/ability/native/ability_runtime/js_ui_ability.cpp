@@ -18,6 +18,7 @@
 #include <cstdlib>
 #include <regex>
 
+#include "ability_business_error.h"
 #include "ability_delegator_registry.h"
 #include "ability_recovery.h"
 #include "ability_start_setting.h"
@@ -28,6 +29,9 @@
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
+#include "insight_intent_executor_info.h"
+#include "insight_intent_executor_mgr.h"
+#include "insight_intent_execute_param.h"
 #include "js_ability_context.h"
 #include "js_data_struct_converter.h"
 #include "js_runtime.h"
@@ -475,7 +479,11 @@ void JsUIAbility::OnForeground(const Want &want)
     }
 
     UIAbility::OnForeground(want);
+    CallOnForegroundFunc(want);
+}
 
+void JsUIAbility::CallOnForegroundFunc(const Want &want)
+{
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
     if (jsAbilityObj_ == nullptr) {
@@ -653,6 +661,7 @@ void JsUIAbility::DoOnForeground(const Want &want)
             auto windowMode = want.GetIntParam(
                 Want::PARAM_RESV_WINDOW_MODE, AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
             window->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
+            windowMode_ = windowMode;
             HILOG_DEBUG("Set window mode is %{public}d.", windowMode);
         }
     }
@@ -754,6 +763,113 @@ std::shared_ptr<NativeReference> JsUIAbility::GetJsWindowStage()
 const JsRuntime &JsUIAbility::GetJsRuntime()
 {
     return jsRuntime_;
+}
+
+void JsUIAbility::ExecuteInsightIntentRepeateForeground(const Want &want,
+    const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+    std::unique_ptr<InsightIntentExecutorAsyncCallback> callback)
+{
+    HILOG_DEBUG("called.");
+    if (executeParam == nullptr) {
+        HILOG_WARN("Intent execute param invalid.");
+        RequestFocus(want);
+        InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback), ERR_OK);
+        return;
+    }
+
+    auto asyncCallback = [weak = weak_from_this(), want](InsightIntentExecuteResult result) {
+        HILOG_DEBUG("Begin request focus.");
+        auto ability = weak.lock();
+        if (ability == nullptr) {
+            HILOG_ERROR("ability is nullptr.");
+            return;
+        }
+        ability->RequestFocus(want);
+    };
+    callback->Push(asyncCallback);
+
+    InsightIntentExecutorInfo executeInfo;
+    auto ret = GetInsightIntentExecutorInfo(want, executeParam, executeInfo);
+    if (!ret) {
+        HILOG_ERROR("Get Intent executor failed.");
+        InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback),
+            static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
+        return;
+    }
+
+    ret = DelayedSingleton<InsightIntentExecutorMgr>::GetInstance()->ExecuteInsightIntent(
+        jsRuntime_, executeInfo, std::move(callback));
+    if (!ret) {
+        // callback has removed, release in insight intent executor.
+        HILOG_ERROR("Execute insight intent failed.");
+    }
+}
+
+void JsUIAbility::ExecuteInsightIntentMoveToForeground(const Want &want,
+    const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+    std::unique_ptr<InsightIntentExecutorAsyncCallback> callback)
+{
+    HILOG_DEBUG("called.");
+    if (executeParam == nullptr) {
+        HILOG_WARN("Intent execute param invalid.");
+        OnForeground(want);
+        InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback), ERR_OK);
+        return;
+    }
+
+    if (abilityInfo_) {
+        jsRuntime_.UpdateModuleNameAndAssetPath(abilityInfo_->moduleName);
+    }
+    UIAbility::OnForeground(want);
+
+    auto asyncCallback = [weak = weak_from_this(), want](InsightIntentExecuteResult result) {
+        HILOG_DEBUG("Begin call onForeground.");
+        auto ability = weak.lock();
+        if (ability == nullptr) {
+            HILOG_ERROR("ability is nullptr.");
+            return;
+        }
+        ability->CallOnForegroundFunc(want);
+    };
+    callback->Push(asyncCallback);
+
+    InsightIntentExecutorInfo executeInfo;
+    auto ret = GetInsightIntentExecutorInfo(want, executeParam, executeInfo);
+    if (!ret) {
+        HILOG_ERROR("Get Intent executor failed.");
+        InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback),
+            static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
+        return;
+    }
+
+    ret = DelayedSingleton<InsightIntentExecutorMgr>::GetInstance()->ExecuteInsightIntent(
+        jsRuntime_, executeInfo, std::move(callback));
+    if (!ret) {
+        // callback has removed, release in insight intent executor.
+        HILOG_ERROR("Execute insight intent failed.");
+    }
+}
+
+bool JsUIAbility::GetInsightIntentExecutorInfo(const Want &want,
+    const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+    InsightIntentExecutorInfo& executeInfo)
+{
+    HILOG_DEBUG("called.");
+    auto context = GetAbilityContext();
+    if (executeParam == nullptr || context == nullptr || abilityInfo_ == nullptr || jsWindowStageObj_ == nullptr) {
+        HILOG_ERROR("Param invalid.");
+        return false;
+    }
+
+    const WantParams &wantParams = want.GetParams();
+    executeInfo.srcEntry = wantParams.GetStringParam("ohos.insightIntent.srcEntry");
+    executeInfo.hapPath = abilityInfo_->hapPath;
+    executeInfo.esmodule = abilityInfo_->compileMode == AppExecFwk::CompileMode::ES_MODULE;
+    executeInfo.windowMode = windowMode_;
+    executeInfo.token = context->GetToken();
+    executeInfo.pageLoader = jsWindowStageObj_;
+    executeInfo.executeParam = executeParam;
+    return true;
 }
 #endif
 

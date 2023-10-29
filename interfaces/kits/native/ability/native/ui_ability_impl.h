@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_UI_ABILITY_IMPL_H
 #define OHOS_ABILITY_RUNTIME_UI_ABILITY_IMPL_H
 
+#include "insight_intent_execute_result.h"
 #include "ui_ability.h"
 
 namespace OHOS {
@@ -77,6 +78,14 @@ public:
      * @param state The life cycle state to switch to.
      */
     void AbilityTransactionCallback(const AAFwk::AbilityLifeCycleState &state);
+
+    /**
+     * @brief Execute insight intent done, similar to AbilityTransactionCallback.
+     *
+     * @param intentId insight intent id.
+     * @param result insight intent execute result.
+     */
+    void ExecuteInsightIntentDone(uint64_t intentId, const AppExecFwk::InsightIntentExecuteResult &result);
 
     /**
      * @brief Handling the life cycle switching of NewAbility in switch.
@@ -159,6 +168,12 @@ public:
      */
     void AfterFocused();
 
+    /**
+     * @brief Post action when insight intent has executed.
+     *
+     */
+    void PostForegroundInsightIntent();
+
 protected:
     /**
      * @brief Toggles the lifecycle status of Ability to AAFwk::ABILITY_STATE_INACTIVE. And notifies the application
@@ -204,6 +219,13 @@ private:
 #ifdef SUPPORT_GRAPHICS
 private:
     void HandleForegroundNewState(const AAFwk::Want &want, bool &bFlag);
+    void HandleExecuteInsightIntentForeground(const AAFwk::Want &want, bool &bflag);
+    inline void ExecuteInsightIntentRepeateForeground(const Want &want,
+        const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+        std::unique_ptr<InsightIntentExecutorAsyncCallback> callback);
+    inline void ExecuteInsightIntentMoveToForeground(const Want &want,
+        const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+        std::unique_ptr<InsightIntentExecutorAsyncCallback> callback);
 
     class WindowLifeCycleImpl : public Rosen::IWindowLifeCycle {
     public:

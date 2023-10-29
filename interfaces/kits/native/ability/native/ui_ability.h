@@ -41,9 +41,15 @@ class OHOSApplication;
 class LifeCycle;
 class ContinuationHandlerStage;
 class ContinuationManagerStage;
+class InsightIntentExecuteParam;
+struct InsightIntentExecuteResult;
+using InsightIntentExecutorAsyncCallback = AbilityTransactionCallbackInfo<InsightIntentExecuteResult>;
 } // namespace AppExecFwk
 namespace AbilityRuntime {
 class Runtime;
+using InsightIntentExecuteResult = AppExecFwk::InsightIntentExecuteResult;
+using InsightIntentExecuteParam = AppExecFwk::InsightIntentExecuteParam;
+using InsightIntentExecutorAsyncCallback = AppExecFwk::InsightIntentExecutorAsyncCallback;
 class UIAbility : public AppExecFwk::AbilityContext,
                   public AppExecFwk::ILifeCycle,
                   public AppExecFwk::IAbilityCallback,
@@ -441,6 +447,42 @@ public:
      */
     Ace::UIContent *GetUIContent() override;
 
+    /**
+     * @brief Call "onForeground" js function barely.
+     *
+     * @param want Want
+     */
+    virtual void CallOnForegroundFunc(const AAFwk::Want &want);
+
+    /**
+     * @brief Request focus for current window, can be override.
+     *
+     * @param want Want
+     */
+    virtual void RequestFocus(const AAFwk::Want &want);
+
+    /**
+     * @brief Execute insight intent when an ability is in foreground, schedule it to foreground repeatly.
+     *
+     * @param want Want.
+     * @param executeParam insight intent execute param.
+     * @param callback insight intent async callback.
+     */
+    virtual void ExecuteInsightIntentRepeateForeground(const AAFwk::Want &want,
+        const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+        std::unique_ptr<InsightIntentExecutorAsyncCallback> callback);
+
+    /**
+     * @brief Execute insight intent when an ability didn't started or in background, schedule it to foreground.
+     *
+     * @param want Want.
+     * @param executeParam insight intent execute param.
+     * @param callback insight intent async callback.
+     */
+    virtual void ExecuteInsightIntentMoveToForeground(const AAFwk::Want &want,
+        const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+        std::unique_ptr<InsightIntentExecutorAsyncCallback> callback);
+
 protected:
     class UIAbilityDisplayListener : public OHOS::Rosen::DisplayManager::IDisplayListener {
     public:
@@ -499,7 +541,6 @@ protected:
 
     void OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to);
     virtual void DoOnForeground(const AAFwk::Want &want);
-    virtual void RequestFocus(const AAFwk::Want &want);
     sptr<Rosen::WindowOption> GetWindowOption(const AAFwk::Want &want);
     virtual void ContinuationRestore(const AAFwk::Want &want);
 

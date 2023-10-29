@@ -402,6 +402,8 @@ public:
     MOCK_METHOD1(IsAbilityControllerStart, bool(const Want& want));
     MOCK_METHOD3(ExecuteIntent, int32_t(uint64_t key, const sptr<IRemoteObject> &callerToken,
         const InsightIntentExecuteParam &param));
+    MOCK_METHOD3(ExecuteInsightIntentDone, int32_t(const sptr<IRemoteObject> &token, uint64_t intentId,
+        const InsightIntentExecuteResult &result));
 };
 }  // namespace AAFwk
 }  // namespace OHOS

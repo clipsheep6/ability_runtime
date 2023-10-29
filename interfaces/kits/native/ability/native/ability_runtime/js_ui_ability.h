@@ -25,12 +25,16 @@ class NativeReference;
 namespace OHOS {
 namespace AbilityRuntime {
 class JsRuntime;
+struct InsightIntentExecutorInfo;
 using AbilityHandler = AppExecFwk::AbilityHandler;
 using AbilityInfo = AppExecFwk::AbilityInfo;
 using OHOSApplication = AppExecFwk::OHOSApplication;
 using Want = AppExecFwk::Want;
 using AbilityStartSetting = AppExecFwk::AbilityStartSetting;
 using Configuration = AppExecFwk::Configuration;
+using InsightIntentExecuteResult = AppExecFwk::InsightIntentExecuteResult;
+using InsightIntentExecuteParam = AppExecFwk::InsightIntentExecuteParam;
+using InsightIntentExecutorAsyncCallback = AppExecFwk::InsightIntentExecutorAsyncCallback;
 
 class JsUIAbility : public UIAbility {
 public:
@@ -190,6 +194,20 @@ public:
     void OnForeground(const Want &want) override;
 
     /**
+     * @brief Call "onForeground" js function barely.
+     *
+     * @param want Want
+     */
+    void CallOnForegroundFunc(const Want &want) override;
+
+    /**
+     * @brief Request focus for current window, can be override.
+     *
+     * @param want Want
+     */
+    void RequestFocus(const Want &want) override;
+
+    /**
      * @brief Called when this ability enters the <b>STATE_BACKGROUND</b> state.
      * The ability in the <b>STATE_BACKGROUND</b> state is invisible.
      * You can override this function to implement your own processing logic.
@@ -220,9 +238,30 @@ public:
      */
     const JsRuntime &GetJsRuntime();
 
+    /**
+     * @brief Execute insight intent when an ability is in foreground, schedule it to foreground repeatly.
+     *
+     * @param want Want.
+     * @param executeParam insight intent execute param.
+     * @param callback insight intent async callback.
+     */
+    void ExecuteInsightIntentRepeateForeground(const Want &want,
+        const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+        std::unique_ptr<InsightIntentExecutorAsyncCallback> callback) override;
+
+    /**
+     * @brief Execute insight intent when an ability didn't started or in background, schedule it to foreground.
+     *
+     * @param want Want.
+     * @param executeParam insight intent execute param.
+     * @param callback insight intent async callback.
+     */
+    void ExecuteInsightIntentMoveToForeground(const Want &want,
+        const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+        std::unique_ptr<InsightIntentExecutorAsyncCallback> callback) override;
+
 protected:
     void DoOnForeground(const Want &want) override;
-    void RequestFocus(const Want &want) override;
     void ContinuationRestore(const Want &want) override;
 
 private:
@@ -230,7 +269,12 @@ private:
     void RestorePageStack(const Want &want);
     void GetPageStackFromWant(const Want &want, std::string &pageStack);
     void AbilityContinuationOrRecover(const Want &want);
+    inline bool GetInsightIntentExecutorInfo(const Want &want,
+        const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+        InsightIntentExecutorInfo& executeInfo);
+
     std::shared_ptr<NativeReference> jsWindowStageObj_;
+    int32_t windowMode_ = 0;
 #endif
 
 private:

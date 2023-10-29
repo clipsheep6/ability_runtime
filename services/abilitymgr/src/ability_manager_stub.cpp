@@ -163,6 +163,8 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::IsAbilityControllerStartInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::EXECUTE_INTENT)] =
         &AbilityManagerStub::ExecuteIntentInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::EXECUTE_INSIGHT_INTENT_DONE)] =
+        &AbilityManagerStub::ExecuteInsightIntentDoneInner;
 }
 
 void AbilityManagerStub::SecondStepInit()
@@ -2840,6 +2842,27 @@ int32_t AbilityManagerStub::StartAbilityByInsightIntentInner(MessageParcel &data
     uint64_t intentId = data.ReadUint64();
     int32_t userId = data.ReadInt32();
     int32_t result = StartAbilityByInsightIntent(*want, callerToken, intentId, userId);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::ExecuteInsightIntentDoneInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    auto token = data.ReadRemoteObject();
+    if (token == nullptr) {
+        HILOG_ERROR("Failed to get remote object.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto intentId = data.ReadInt64();
+    std::unique_ptr<InsightIntentExecuteResult> executeResult(data.ReadParcelable<InsightIntentExecuteResult>());
+    if (!executeResult) {
+        HILOG_ERROR("Execute result is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    int32_t result = ExecuteInsightIntentDone(token, intentId, *executeResult);
     reply.WriteInt32(result);
     return NO_ERROR;
 }

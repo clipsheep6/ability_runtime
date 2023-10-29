@@ -21,6 +21,7 @@
 #include "insight_intent_profile.h"
 #include "iservice_registry.h"
 #include "module_info.h"
+#include "os_account_manager_wrapper.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
@@ -65,7 +66,8 @@ std::string InsightIntentUtils::GetSrcEntry(const std::string &bundleName, const
 
     // Get json profile firstly
     std::string profile;
-    auto ret = IN_PROCESS_CALL(bundleMgr->GetJsonProfile(AppExecFwk::INTENT_PROFILE, bundleName, moduleName, profile));
+    auto ret = IN_PROCESS_CALL(bundleMgr->GetJsonProfile(AppExecFwk::INTENT_PROFILE, bundleName, moduleName, profile,
+        AppExecFwk::OsAccountManagerWrapper::GetCurrentActiveAccountId()));
     if (ret != ERR_OK) {
         HILOG_ERROR("Get json profile failed, error code: %{public}d.", ret);
         return std::string("");

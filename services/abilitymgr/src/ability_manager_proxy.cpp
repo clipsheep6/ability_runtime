@@ -4550,6 +4550,36 @@ bool AbilityManagerProxy::IsAbilityControllerStart(const Want &want)
     return reply.ReadBool();
 }
 
+int32_t AbilityManagerProxy::ExecuteInsightIntentDone(const sptr<IRemoteObject> &token, uint64_t intentId,
+    const InsightIntentExecuteResult &result)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write remote object failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteRemoteObject(token)) {
+        HILOG_ERROR("Write token failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteInt64(intentId) || !data.WriteParcelable(&result)) {
+        HILOG_ERROR("Write insight intent params failed.");
+        return INNER_ERR;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(AbilityManagerInterfaceCode::EXECUTE_INSIGHT_INTENT_DONE, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed with %{public}d", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
+
 ErrCode AbilityManagerProxy::SendRequest(AbilityManagerInterfaceCode code, MessageParcel &data, MessageParcel &reply,
     MessageOption& option)
 {

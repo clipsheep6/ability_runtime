@@ -1627,5 +1627,14 @@ bool AbilityManagerClient::IsAbilityControllerStart(const Want &want)
     }
     return abms->IsAbilityControllerStart(want);
 }
-}  // namespace AAFwk
-}  // namespace OHOS
+
+ErrCode AbilityManagerClient::ExecuteInsightIntentDone(const sptr<IRemoteObject> &token, uint64_t intentId,
+    const InsightIntentExecuteResult &result)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->ExecuteInsightIntentDone(token, intentId, result);
+}
+} // namespace AAFwk
+} // namespace OHOS

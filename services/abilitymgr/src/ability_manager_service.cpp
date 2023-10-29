@@ -492,8 +492,7 @@ int32_t AbilityManagerService::StartAbilityByInsightIntent(const Want &want, con
     uint64_t intentId, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    // verify bundleName code below will be uncommentted after dependency ready
-    /*std::string bundleNameFromWant = want.GetElement().GetBundleName();
+    std::string bundleNameFromWant = want.GetElement().GetBundleName();
     std::string bundleNameFromIntentMgr = "";
     if (DelayedSingleton<InsightIntentExecuteManager>::GetInstance()->
         GetBundleName(intentId, bundleNameFromIntentMgr) != ERR_OK) {
@@ -511,7 +510,7 @@ int32_t AbilityManagerService::StartAbilityByInsightIntent(const Want &want, con
         bundleNameFromWant == bundleNameFromAbilityRecord) {
         HILOG_INFO("bundleName match");
         return StartAbility(want, callerToken, userId, -1);
-    }*/
+    }
     HILOG_ERROR("bundleName not match");
     return ERR_INSIGHT_INTENT_START_INVALID_COMPONENT;
 }
@@ -8773,6 +8772,34 @@ bool AbilityManagerService::IsAbilityControllerStart(const Want &want)
     }
     HILOG_ERROR("The interface only support for broker");
     return true;
+}
+
+int32_t AbilityManagerService::ExecuteInsightIntentDone(const sptr<IRemoteObject> &token, uint64_t intentId,
+    const InsightIntentExecuteResult &result)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    CHECK_POINTER_AND_RETURN_LOG(abilityRecord, ERR_INVALID_VALUE, "Ability record is nullptr.");
+    if (!JudgeSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    // check send by same bundleName.
+    std::string bundleNameStored = "";
+    auto ret = DelayedSingleton<InsightIntentExecuteManager>::GetInstance()->GetBundleName(intentId, bundleNameStored);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Get matched bundleName failed, intentId: %{public}" PRIu64"", intentId);
+        return ERR_INVALID_VALUE;
+    }
+
+    std::string bundleName = abilityRecord->GetAbilityInfo().bundleName;
+    if (bundleNameStored != bundleName) {
+        HILOG_ERROR("BundleName %{public}s and %{public}s mismatch.", bundleName.c_str(), bundleNameStored.c_str());
+        return ERR_INVALID_VALUE;
+    }
+
+    return DelayedSingleton<InsightIntentExecuteManager>::GetInstance()->ExecuteIntentDone(
+        intentId, result.innerErr, result);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

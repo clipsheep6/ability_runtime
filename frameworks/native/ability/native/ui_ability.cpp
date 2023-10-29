@@ -973,6 +973,25 @@ void UIAbility::OnChangeForUpdateConfiguration(const AppExecFwk::Configuration &
         Rosen::Window::UpdateConfigurationForAll(diffConfiguration);
     }
 }
+
+void UIAbility::CallOnForegroundFunc(const AAFwk::Want &want)
+{
+    HILOG_DEBUG("called");
+}
+
+void UIAbility::ExecuteInsightIntentRepeateForeground(const AAFwk::Want &want,
+    const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+    std::unique_ptr<InsightIntentExecutorAsyncCallback> callback)
+{
+    HILOG_DEBUG("called");
+}
+
+void UIAbility::ExecuteInsightIntentMoveToForeground(const AAFwk::Want &want,
+    const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+    std::unique_ptr<InsightIntentExecutorAsyncCallback> callback)
+{
+    HILOG_DEBUG("called");
+}
 #endif
 } // namespace AbilityRuntime
 } // namespace OHOS

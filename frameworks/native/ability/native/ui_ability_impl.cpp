@@ -217,6 +217,15 @@ void UIAbilityImpl::AbilityTransactionCallback(const AAFwk::AbilityLifeCycleStat
     }
 }
 
+void UIAbilityImpl::ExecuteInsightIntentDone(uint64_t intentId, const InsightIntentExecuteResult &result)
+{
+    HILOG_INFO("Notify execute done, intentId %{public}" PRIu64"", intentId);
+    auto ret = AAFwk::AbilityManagerClient::GetInstance()->ExecuteInsightIntentDone(token_, intentId, result);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Notify execute done faild.");
+    }
+}
+
 bool UIAbilityImpl::PrepareTerminateAbility()
 {
     HILOG_DEBUG("Begin.");
@@ -562,7 +571,11 @@ bool UIAbilityImpl::AbilityTransaction(const AAFwk::Want &want, const AAFwk::Lif
                 NewWant(want);
             }
 #ifdef SUPPORT_GRAPHICS
-            HandleForegroundNewState(want, ret);
+            if (!InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
+                HandleForegroundNewState(want, ret);
+            } else {
+                HandleExecuteInsightIntentForeground(want, ret);
+            }
 #endif
             break;
         }
@@ -604,6 +617,120 @@ void UIAbilityImpl::HandleForegroundNewState(const AAFwk::Want &want, bool &bfla
             notifyForegroundByWindow_ = false;
             notifyForegroundByAbility_ = false;
         }
+    }
+}
+
+void UIAbilityImpl::HandleExecuteInsightIntentForeground(const AAFwk::Want &want, bool &bflag)
+{
+    HILOG_INFO("Execute insight intent in foreground mode.");
+    auto executeParam = std::make_shared<InsightIntentExecuteParam>();
+    auto ret = InsightIntentExecuteParam::GenerateFromWant(want, *executeParam);
+    if (!ret) {
+        HILOG_ERROR("Generate execute param failed.");
+        HandleForegroundNewState(want, bflag);
+        return;
+    }
+
+    HILOG_DEBUG("Insight intent bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s"
+        "insightIntentName: %{public}s, executeMode: %{public}d, intentId: %{public}" PRIu64"",
+        executeParam->bundleName_.c_str(), executeParam->moduleName_.c_str(), executeParam->abilityName_.c_str(),
+        executeParam->insightIntentName_.c_str(), executeParam->executeMode_, executeParam->insightIntentId_);
+    auto intentCb = std::make_unique<InsightIntentExecutorAsyncCallback>();
+    intentCb.reset(InsightIntentExecutorAsyncCallback::Create());
+    if (intentCb == nullptr) {
+        HILOG_ERROR("Create async callback failed.");
+        HandleForegroundNewState(want, bflag);
+        return;
+    }
+
+    if (lifecycleState_ == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
+        ExecuteInsightIntentRepeateForeground(want, executeParam, std::move(intentCb));
+    } else {
+        ExecuteInsightIntentMoveToForeground(want, executeParam, std::move(intentCb));
+    }
+
+    bflag = false;
+}
+
+void UIAbilityImpl::ExecuteInsightIntentRepeateForeground(const Want &want,
+    const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+    std::unique_ptr<InsightIntentExecutorAsyncCallback> callback)
+{
+    HILOG_DEBUG("called.");
+    auto asyncCallback =
+        [weak = weak_from_this(), intentId = executeParam->insightIntentId_](InsightIntentExecuteResult result) {
+            HILOG_DEBUG("Execute insight intent finshed, intentId %{public}" PRIu64"", intentId);
+            auto abilityImpl = weak.lock();
+            if (abilityImpl == nullptr) {
+                HILOG_ERROR("Ability impl is nullptr.");
+                return;
+            }
+            abilityImpl->ExecuteInsightIntentDone(intentId, result);
+            abilityImpl->AbilityTransactionCallback(AAFwk::ABILITY_STATE_FOREGROUND_NEW);
+        };
+    callback->Push(asyncCallback);
+
+    // private function, no need check ability_ validity.
+    ability_->ExecuteInsightIntentRepeateForeground(want, executeParam, std::move(callback));
+}
+
+void UIAbilityImpl::ExecuteInsightIntentMoveToForeground(const Want &want,
+    const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+    std::unique_ptr<InsightIntentExecutorAsyncCallback> callback)
+{
+    HILOG_DEBUG("called.");
+
+    {
+        std::lock_guard<std::mutex> lock(notifyForegroundLock_);
+        notifyForegroundByWindow_ = false;
+    }
+
+    auto asyncCallback =
+        [weak = weak_from_this(), intentId = executeParam->insightIntentId_](InsightIntentExecuteResult result) {
+            HILOG_DEBUG("Execute insight intent finshed, intentId %{public}" PRIu64"", intentId);
+            auto abilityImpl = weak.lock();
+            if (abilityImpl == nullptr) {
+                HILOG_ERROR("Ability impl is nullptr.");
+                return;
+            }
+            abilityImpl->ExecuteInsightIntentDone(intentId, result);
+            abilityImpl->PostForegroundInsightIntent();
+        };
+    callback->Push(asyncCallback);
+
+    // private function, no need check ability_ validity.
+    ability_->ExecuteInsightIntentMoveToForeground(want, executeParam, std::move(callback));
+}
+
+void UIAbilityImpl::PostForegroundInsightIntent()
+{
+    HILOG_DEBUG("called");
+    if (ability_ == nullptr || abilityLifecycleCallbacks_ == nullptr) {
+        HILOG_ERROR("Ability params invalid.");
+        return;
+    }
+
+    lifecycleState_ = AAFwk::ABILITY_STATE_FOREGROUND_NEW;
+
+    {
+        std::lock_guard<std::mutex> lock(notifyForegroundLock_);
+        notifyForegroundByAbility_ = true;
+    }
+
+    abilityLifecycleCallbacks_->OnAbilityForeground(ability_);
+
+    bool flag = true;
+    {
+        std::lock_guard<std::mutex> lock(notifyForegroundLock_);
+        flag = notifyForegroundByWindow_;
+        if (flag) {
+            notifyForegroundByWindow_ = false;
+            notifyForegroundByAbility_ = false;
+        }
+    }
+
+    if (flag) {
+        AbilityTransactionCallback(AAFwk::ABILITY_STATE_FOREGROUND_NEW);
     }
 }
 #endif

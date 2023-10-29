@@ -227,6 +227,9 @@ enum class AbilityManagerInterfaceCode {
     // Execute intent (72)
     EXECUTE_INTENT = 72,
 
+    // execute insight intent done with result (73)
+    EXECUTE_INSIGHT_INTENT_DONE = 73,
+
     // ipc id 1001-2000 for DMS
     // ipc id for starting ability (1001)
     START_ABILITY = 1001,
