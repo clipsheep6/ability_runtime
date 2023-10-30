@@ -392,7 +392,7 @@ int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Mess
     std::u16string abilityDescriptor = AbilityManagerStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (abilityDescriptor != remoteDescriptor && extensionDescriptor != remoteDescriptor) {
-        HILOG_ERROR("local descriptor is not equal to remote");
+        HILOG_ERROR("local descriptor is unequal to remote");
         return ERR_INVALID_STATE;
     }
 
@@ -2737,7 +2737,7 @@ int32_t AbilityManagerStub::RegisterAppDebugListenerInner(MessageParcel &data, M
 
     auto result = RegisterAppDebugListener(appDebugLister);
     if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("Fail to write result.");
+        HILOG_ERROR("Failed to write result.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

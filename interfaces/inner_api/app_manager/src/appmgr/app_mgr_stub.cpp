@@ -158,6 +158,7 @@ int AppMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParce
             return (this->*memberFunc)(data, reply);
         }
     }
+    HILOG_DEBUG("AppMgrStub::OnRemoteRequest end");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
@@ -267,6 +268,7 @@ int32_t AppMgrStub::HandleGetProcessRunningInfosByUserId(MessageParcel &data, Me
     if (!reply.WriteInt32(result)) {
         return ERR_INVALID_VALUE;
     }
+    HILOG_DEBUG("AppMgrStub::HandleGetAllRunningProcesses end");
     return NO_ERROR;
 }
 

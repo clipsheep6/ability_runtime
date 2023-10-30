@@ -793,7 +793,7 @@ int AbilityManagerProxy::MoveAbilityToBackground(const sptr<IRemoteObject> &toke
     }
     error = SendRequest(AbilityManagerInterfaceCode::MOVE_ABILITY_TO_BACKGROUND, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        HILOG_ERROR("Send request error: %{public}d.", error);
         return error;
     }
     return reply.ReadInt32();

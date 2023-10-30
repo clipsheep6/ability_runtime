@@ -95,6 +95,7 @@ int AppSchedulerHost::OnRemoteRequest(uint32_t code, MessageParcel &data, Messag
             return (this->*memberFunc)(data, reply);
         }
     }
+    HILOG_DEBUG("AppSchedulerHost::OnRemoteRequest end");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 

@@ -56,6 +56,7 @@ int AppStateCallbackHost::OnRemoteRequest(
             return (this->*memberFunc)(data, reply);
         }
     }
+    HILOG_DEBUG("AppStateCallbackHost::OnRemoteRequest end");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 

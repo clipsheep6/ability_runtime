@@ -66,6 +66,7 @@ DistributedKv::Status AppExitReasonDataManager::GetKvStore()
 
 bool AppExitReasonDataManager::CheckKvStore()
 {
+    HILOG_DEBUG("AppExitReasonDataManager::CheckKvStore start");
     if (kvStorePtr_ != nullptr) {
         return true;
     }

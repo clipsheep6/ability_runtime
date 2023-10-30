@@ -1255,7 +1255,7 @@ int32_t AppMgrProxy::NotifyPageShow(const sptr<IRemoteObject> &token, const Page
 
 int32_t AppMgrProxy::NotifyPageHide(const sptr<IRemoteObject> &token, const PageStateData &pageStateData)
 {
-    HILOG_DEBUG("call");
+    HILOG_DEBUG("called");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
@@ -1286,6 +1286,7 @@ int32_t AppMgrProxy::NotifyPageHide(const sptr<IRemoteObject> &token, const Page
 int32_t AppMgrProxy::SendRequest(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply,
     MessageOption& option)
 {
+    HILOG_DEBUG("AppMgrProxy::SendRequest start");
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         HILOG_ERROR("Remote() is NULL");
