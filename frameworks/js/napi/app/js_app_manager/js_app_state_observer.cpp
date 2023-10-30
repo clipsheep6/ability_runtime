@@ -210,7 +210,7 @@ void JSAppStateObserver::OnProcessDied(const ProcessData &processData)
         ([jsObserver, processData](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
             if (!jsObserverSptr) {
-                HILOG_WARN("jsObserverSptr nullptr");
+                HILOG_WARN("jsObserverSptr nullptr.");
                 return;
             }
             jsObserverSptr->HandleOnProcessDied(processData);

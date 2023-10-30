@@ -1276,7 +1276,7 @@ napi_value JsApplicationContextUtils::IsAutoStartup(napi_env env, napi_callback_
 
 napi_value JsApplicationContextUtils::OnRegisterAutoStartupCallback(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("Called.");
+    HILOG_DEBUG("OnRegisterAutoStartupCallback Called.");
     if (info.argc < ARGC_TWO) {
         HILOG_ERROR("The param is invalid.");
         ThrowTooFewParametersError(env);

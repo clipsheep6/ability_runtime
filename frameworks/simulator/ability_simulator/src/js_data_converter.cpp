@@ -52,6 +52,7 @@ int32_t ConvertDisplayId(const std::string &displayId)
 
 Global::Resource::ScreenDensity ConvertDensity(const std::string &density)
 {
+    HILOG_DEBUG("ConvertDensity is called");
     auto resolution = Global::Resource::ScreenDensity::SCREEN_DENSITY_NOT_SET;
 
     static const std::vector<std::pair<std::string, Global::Resource::ScreenDensity>> resolutions = {

@@ -900,7 +900,7 @@ int32_t JsWantAgent::GetWantAgentParam(napi_env env, napi_callback_info info, Wa
             napi_value jsWantAgentFlag = nullptr;
             napi_get_element(env, jsWantAgentFlags, i, &jsWantAgentFlag);
             if (!CheckTypeForNapiValue(env, jsWantAgentFlag, napi_number)) {
-                HILOG_ERROR("WantAgentFlag type error!");
+                HILOG_ERROR("WantAgentFlag type failed!");
                 return PARAMETER_ERROR;
             }
             int32_t wantAgentFlag = 0;

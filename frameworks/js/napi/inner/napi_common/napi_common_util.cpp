@@ -25,9 +25,11 @@ namespace OHOS {
 namespace AppExecFwk {
 bool IsTypeForNapiValue(napi_env env, napi_value param, napi_valuetype expectType)
 {
+    HILOG_DEBUG("IsTypeForNapiValue start.");
     napi_valuetype valueType = napi_undefined;
 
     if (param == nullptr) {
+        HILOG_DEBUG("param is nullptr");
         return false;
     }
 
@@ -40,6 +42,7 @@ bool IsTypeForNapiValue(napi_env env, napi_value param, napi_valuetype expectTyp
 
 bool IsArrayForNapiValue(napi_env env, napi_value param, uint32_t &arraySize)
 {
+    HILOG_DEBUG("IsArrayForNapiValue start.");
     bool isArray = false;
     arraySize = 0;
 
@@ -48,6 +51,7 @@ bool IsArrayForNapiValue(napi_env env, napi_value param, uint32_t &arraySize)
     }
 
     if (napi_get_array_length(env, param, &arraySize) != napi_ok) {
+        HILOG_DEBUG("napi_get_array_length is 0");
         return false;
     }
     return true;
@@ -215,7 +219,7 @@ napi_value WrapStringToJS(napi_env env, const std::string &value)
 
 std::string UnwrapStringFromJS(napi_env env, napi_value param, const std::string &defaultValue)
 {
-    HILOG_DEBUG("enter");
+    HILOG_DEBUG("UnwrapStringFromJS enter");
     size_t size = 0;
     if (napi_get_value_string_utf8(env, param, nullptr, 0, &size) != napi_ok) {
         return defaultValue;
@@ -223,11 +227,13 @@ std::string UnwrapStringFromJS(napi_env env, napi_value param, const std::string
 
     std::string value("");
     if (size == 0) {
+        HILOG_DEBUG("size is 0");
         return defaultValue;
     }
 
     char *buf = new (std::nothrow) char[size + 1];
     if (buf == nullptr) {
+        HILOG_DEBUG("buf is nullptr");
         return value;
     }
     (void)memset_s(buf, size + 1, 0, size + 1);
@@ -273,6 +279,7 @@ bool UnwrapStringFromJS2(napi_env env, napi_value param, std::string &value)
 
 napi_value WrapArrayInt32ToJS(napi_env env, const std::vector<int> &value)
 {
+    HILOG_DEBUG("WrapArrayInt32ToJS start.");
     napi_value jsArray = nullptr;
     napi_value jsValue = nullptr;
     uint32_t index = 0;
