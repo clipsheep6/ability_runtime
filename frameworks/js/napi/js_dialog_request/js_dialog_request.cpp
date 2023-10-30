@@ -33,7 +33,7 @@ constexpr int32_t RESULT_CANCEL = 1;
 
 napi_value ResultCodeInit(napi_env env)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    HILOG_INFO("called");
     if (env == nullptr) {
         HILOG_ERROR("Invalid input parameters");
         return nullptr;
@@ -59,7 +59,7 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        HILOG_INFO("JsDialogRequest::Finalizer is called");
+        HILOG_INFO("called");
         std::unique_ptr<JsDialogRequest>(static_cast<JsDialogRequest*>(data));
     }
 
@@ -76,7 +76,7 @@ public:
 private:
     napi_value OnGetRequestInfo(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        HILOG_INFO("called");
         if (info.argc < ARGC_ONE) {
             HILOG_ERROR("Params not match");
             ThrowTooFewParametersError(env);
@@ -101,7 +101,12 @@ private:
         int32_t width = want.GetIntParam(RequestConstants::WINDOW_RECTANGLE_WIDTH_KEY, 0);
         int32_t height = want.GetIntParam(RequestConstants::WINDOW_RECTANGLE_HEIGHT_KEY, 0);
 
-        auto requestInfo = new RequestInfo(callerToken, left, top, width, height);
+        auto requestInfo = new (std::nothrow) RequestInfo(callerToken, left, top, width, height);
+        if (requestInfo == nullptr) {
+            HILOG_ERROR("failed to create requestInfo.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+            return CreateJsUndefined(env);
+        }
         auto jsRequestInfo = RequestInfo::WrapRequestInfo(env, requestInfo);
         if (jsRequestInfo == nullptr) {
             HILOG_ERROR("Can not wrap requestinfo from target request.");
@@ -114,7 +119,7 @@ private:
 
     napi_value OnGetRequestCallback(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        HILOG_INFO("called");
         if (info.argc < ARGC_ONE) {
             HILOG_ERROR("Params is not match");
             ThrowTooFewParametersError(env);
@@ -148,7 +153,7 @@ private:
 
 napi_value JsDialogRequestInit(napi_env env, napi_value exportObj)
 {
-    HILOG_INFO("JsDialogRequestInit is called");
+    HILOG_INFO("called");
     if (env == nullptr || exportObj == nullptr) {
         HILOG_INFO("Invalid input parameters");
         return nullptr;

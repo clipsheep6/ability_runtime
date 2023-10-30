@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,12 +13,16 @@
  * limitations under the License.
  */
 
-#include "distribute_constants.h"
+#ifndef MOCK_OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_STUB_H
+#define MOCK_OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_STUB_H
+
+#include <iremote_object.h>
+#include <iremote_stub.h>
 
 namespace OHOS {
-namespace AppExecFwk {
-const std::string DistributeConstants::START_ABILITY_PARAMS_KEY = "__startParams";
-const std::string DistributeConstants::START_ABILITY_URL_KEY = "url";
-const std::string DistributeConstants::DEEP_LINK_ACTION_NAME = "ohos.want.action.viewData";
-}  // namespace AppExecFwk
+namespace AAFwk {
+class AbilityManagerStub {
+};
+}  // namespace AAFwk
 }  // namespace OHOS
+#endif  // MOCK_OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_STUB_H
