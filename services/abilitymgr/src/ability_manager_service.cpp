@@ -137,6 +137,7 @@ constexpr char TOKEN_KEY[] = "ohos.ability.params.token";
 // Broker params key
 const std::string KEY_VISIBLE_ID = "ohos.anco.param.visible";
 const std::string START_ABILITY_TYPE = "ABILITY_INNER_START_WITH_ACCOUNT";
+const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 
 const std::string DEBUG_APP = "debugApp";
 
@@ -839,6 +840,19 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         if (result != ERR_OK) {
             HILOG_ERROR("Check permission failed");
             return result;
+        }
+    } else if (callerBundleName == SHELL_ASSISTANT_BUNDLENAME &&
+        abilityRequest.collaboratorType == CollaboratorType::RESERVE_TYPE) {
+        HILOG_DEBUG("Check call service or extension permission, name is %{public}s.", abilityInfo.name.c_str());
+        auto collaborator = GetCollaborator(CollaboratorType::RESERVE_TYPE);
+        if (collaborator == nullptr) {
+            HILOG_ERROR("Collaborator is nullptr.");
+            return CHECK_PERMISSION_FAILED;
+        }
+        result = collaborator->CheckCallAbilityPermission(abilityRequest.want);
+        if (result != ERR_OK) {
+            HILOG_ERROR("Check permission failed from broker.");
+            return CHECK_PERMISSION_FAILED;
         }
     } else {
         HILOG_DEBUG("Check call ability permission, name is %{public}s.", abilityInfo.name.c_str());
