@@ -24,6 +24,7 @@
 
 #include "hilog_wrapper.h"
 #include "mock_ability_connect_callback.h"
+#include "mock_ability_manager_collaborator.h"
 #include "session/host/include/session.h"
 #include "scene_board_judgement.h"
 
@@ -1678,6 +1679,176 @@ HWTEST_F(AbilityManagerClientBranchTest, IsAbilityControllerStart_0100, TestSize
     Want want;
     bool result = client_->IsAbilityControllerStart(want);
     EXPECT_TRUE(result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_RegisterAutoStartupSystemCallback_0100
+ * @tc.desc: RegisterAutoStartupSystemCallback
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, RegisterAutoStartupSystemCallback_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> callback = nullptr;
+    auto result = client_->RegisterAutoStartupSystemCallback(callback);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_UnregisterAutoStartupSystemCallback_0100
+ * @tc.desc: UnregisterAutoStartupSystemCallback
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, UnregisterAutoStartupSystemCallback_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> callback = nullptr;
+    auto result = client_->UnregisterAutoStartupSystemCallback(callback);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_SetApplicationAutoStartup_0100
+ * @tc.desc: SetApplicationAutoStartup
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, SetApplicationAutoStartup_0100, TestSize.Level1)
+{
+    AutoStartupInfo info;
+    auto result = client_->SetApplicationAutoStartup(info);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_CancelApplicationAutoStartup_0100
+ * @tc.desc: CancelApplicationAutoStartup
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, CancelApplicationAutoStartup_0100, TestSize.Level1)
+{
+    AutoStartupInfo info;
+    auto result = client_->CancelApplicationAutoStartup(info);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_QueryAllAutoStartupApplications_0100
+ * @tc.desc: QueryAllAutoStartupApplications
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, QueryAllAutoStartupApplications_0100, TestSize.Level1)
+{
+    std::vector<AutoStartupInfo> infoList;
+    auto result = client_->QueryAllAutoStartupApplications(infoList);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_RegisterAutoStartupCallback_0100
+ * @tc.desc: RegisterAutoStartupCallback
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, RegisterAutoStartupCallback_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> callback = nullptr;
+    auto result = client_->RegisterAutoStartupCallback(callback);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_UnregisterAutoStartupCallback_0100
+ * @tc.desc: UnregisterAutoStartupCallback
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, UnregisterAutoStartupCallback_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> callback = nullptr;
+    auto result = client_->UnregisterAutoStartupCallback(callback);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_SetAutoStartup_0100
+ * @tc.desc: SetAutoStartup
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, SetAutoStartup_0100, TestSize.Level1)
+{
+    AutoStartupInfo info;
+    auto result = client_->SetAutoStartup(info);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_CancelAutoStartup_0100
+ * @tc.desc: CancelAutoStartup
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, CancelAutoStartup_0100, TestSize.Level1)
+{
+    AutoStartupInfo info;
+    auto result = client_->CancelAutoStartup(info);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_IsAutoStartup_0100
+ * @tc.desc: IsAutoStartup
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, IsAutoStartup_0100, TestSize.Level1)
+{
+    AutoStartupInfo info;
+    bool isAutoStartup = true;
+    auto result = client_->IsAutoStartup(info, isAutoStartup);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_RegisterIAbilityManagerCollaborator_0100
+ * @tc.desc: RegisterIAbilityManagerCollaborator
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, RegisterIAbilityManagerCollaborator_0100, TestSize.Level1)
+{
+    int32_t type = CollaboratorType::RESERVE_TYPE;
+    sptr<IAbilityManagerCollaborator> impl = new (std::nothrow) MockAbilityManagerCollaborator();
+    auto result = client_->RegisterIAbilityManagerCollaborator(type, impl);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_UnregisterIAbilityManagerCollaborator_0100
+ * @tc.desc: UnregisterIAbilityManagerCollaborator
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, UnregisterIAbilityManagerCollaborator_0100, TestSize.Level1)
+{
+    int32_t type = CollaboratorType::RESERVE_TYPE;
+    auto result = client_->UnregisterIAbilityManagerCollaborator(type);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_MoveMissionToBackground_0100
+ * @tc.desc: MoveMissionToBackground
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, MoveMissionToBackground_0100, TestSize.Level1)
+{
+    int32_t missionId = 0;
+    auto result = client_->MoveMissionToBackground(missionId);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_TerminateMission_0100
+ * @tc.desc: TerminateMission
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, TerminateMission_0100, TestSize.Level1)
+{
+    int32_t missionId = 0;
+    auto result = client_->TerminateMission(missionId);
+    EXPECT_EQ(result, ERR_OK);
 }
 }  // namespace AAFwk
 }  // namespace OHOS
