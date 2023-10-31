@@ -3911,7 +3911,7 @@ void AppMgrServiceInner::PointerDeviceEventCallback(const char *key, const char 
     }
 
     HILOG_DEBUG("update config %{public}s to %{public}s", key, value);
-    auto result = appMgrServiceInner->UpdateConfiguration(changeConfig);
+    auto result = IN_PROCESS_CALL(appMgrServiceInner->UpdateConfiguration(changeConfig));
     if (result != 0) {
         HILOG_ERROR("update config failed with %{public}d, key: %{public}s, value: %{public}s.", result, key, value);
         return;
