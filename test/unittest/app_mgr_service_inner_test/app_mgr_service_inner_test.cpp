@@ -3671,5 +3671,28 @@ HWTEST_F(AppMgrServiceInnerTest, SendAppLaunchEvent_001, TestSize.Level0)
     appMgrServiceInner->SendAppLaunchEvent(appRecord);
     HILOG_INFO("SendAppLaunchEvent_001 end");
 }
+HWTEST_F(AppMgrServiceInnerTest, IsMainProcess_001, TestSize.Level0)
+{
+    HILOG_INFO("IsMainProcess_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    HapModuleInfo hapModuleInfo;
+    hapModuleInfo.moduleName = "module123";
+    applicationInfo_->process = "";
+    EXPECT_EQ(appMgrServiceInner->IsMainProcess(nullptr, hapModuleInfo), true);
+    EXPECT_EQ(appMgrServiceInner->IsMainProcess(applicationInfo_, hapModuleInfo), true);
+    hapModuleInfo.process = "processName1";
+    EXPECT_EQ(appMgrServiceInner->IsMainProcess(applicationInfo_, hapModuleInfo), false);
+    hapModuleInfo.process = applicationInfo_->bundleName;
+    EXPECT_EQ(appMgrServiceInner->IsMainProcess(applicationInfo_, hapModuleInfo), true);
+    applicationInfo_->process = "processName2";
+    EXPECT_EQ(appMgrServiceInner->IsMainProcess(applicationInfo_, hapModuleInfo), false);
+    hapModuleInfo.process = "processName2";
+    EXPECT_EQ(appMgrServiceInner->IsMainProcess(applicationInfo_, hapModuleInfo), true);
+    applicationInfo_->process = "";
+    
+    HILOG_INFO("IsMainProcess_001 end");
+}
 } // namespace AppExecFwk
 } // namespace OHOS
