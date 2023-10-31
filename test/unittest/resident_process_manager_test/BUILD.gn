@@ -25,6 +25,7 @@ ohos_unittest("resident_process_manager_test") {
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/system_ability_mock",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "${ability_runtime_services_path}/abilitymgr/include",
+    "${accessibility_path}/interfaces/innerkits/common/include/",
   ]
 
   sources = [ "resident_process_manager_test.cpp" ]
@@ -52,6 +53,7 @@ ohos_unittest("resident_process_manager_test") {
     "ability_base:want",
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
+    "accessibility:accessibility_common",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "ffrt:libffrt",
