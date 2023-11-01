@@ -37,6 +37,7 @@ std::unique_ptr<NapiAsyncTask> CreateAsyncTaskWithLastParam(napi_env env, napi_v
         napi_get_undefined(env, result);
         napi_ref callbackRef = nullptr;
         napi_create_reference(env, lastParam, 1, &callbackRef);
+        HILOG_INFO("TTTTTTTTTTTTTTTTTTTTTTTTT CreateAsyncTaskWithLastParam callbackRef = %{public}p", callbackRef);
         return std::make_unique<NapiAsyncTask>(callbackRef, std::move(execute), std::move(complete));
     }
 }
@@ -245,6 +246,7 @@ void NapiAsyncTask::Resolve(napi_env env, napi_value value)
         napi_resolve_deferred(env, deferred_, value);
         deferred_ = nullptr;
     }
+    HILOG_INFO("TTTTTTTTTTTTTTTTTTTTTTTTT Resolve  callbackRef_ = %{public}p", callbackRef_);
     if (callbackRef_) {
         napi_value argv[] = {
             CreateJsError(env, 0),
@@ -263,20 +265,28 @@ void NapiAsyncTask::ResolveWithNoError(napi_env env, napi_value value)
 {
     HILOG_DEBUG("NapiAsyncTask::Resolve is called");
     if (deferred_) {
+        HILOG_INFO("TTTTTTTTTTTTTTTTTTTTTTTTT ResolveWithNoError  c1");
         napi_resolve_deferred(env, deferred_, value);
         deferred_ = nullptr;
     }
+    HILOG_INFO("TTTTTTTTTTTTTTTTTTTTTTTTT ResolveWithNoError  c2");
     if (callbackRef_) {
+        HILOG_INFO("TTTTTTTTTTTTTTTTTTTTTTTTT ResolveWithNoError  callbackRef_ = %{public}p", callbackRef_);
         napi_value argv[] = {
             CreateJsNull(env),
             value,
         };
+        HILOG_INFO("TTTTTTTTTTTTTTTTTTTTTTTTT ResolveWithNoError  c3");
         napi_value func = nullptr;
         napi_get_reference_value(env, callbackRef_, &func);
+        HILOG_INFO("TTTTTTTTTTTTTTTTTTTTTTTTT ResolveWithNoError  c4");
         napi_call_function(env, CreateJsUndefined(env), func, ArraySize(argv), argv, nullptr);
+        HILOG_INFO("TTTTTTTTTTTTTTTTTTTTTTTTT ResolveWithNoError  c5");
         napi_delete_reference(env, callbackRef_);
+        HILOG_INFO("TTTTTTTTTTTTTTTTTTTTTTTTT ResolveWithNoError  c6");
         callbackRef_ = nullptr;
     }
+    HILOG_INFO("TTTTTTTTTTTTTTTTTTTTTTTTT ResolveWithNoError  c7");
     HILOG_DEBUG("NapiAsyncTask::Resolve is called end.");
 }
 
