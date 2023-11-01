@@ -17,6 +17,7 @@
 
 #include "extension_ability_thread.h"
 #include "fa_ability_thread.h"
+#include "ui_ability_thread.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 
@@ -42,7 +43,9 @@ void AbilityThread::AbilityThreadMain(const std::shared_ptr<OHOSApplication> &ap
     }
 
     sptr<AbilityThread> thread = nullptr;
-    if (abilityInfo->type == AbilityType::EXTENSION) {
+    if (abilityInfo->type == AbilityType::PAGE && abilityInfo->isStageBasedModel) {
+        thread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
+    } else if (abilityInfo->type == AbilityType::EXTENSION) {
         thread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     } else {
         thread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
@@ -73,7 +76,9 @@ void AbilityThread::AbilityThreadMain(const std::shared_ptr<OHOSApplication> &ap
     }
 
     sptr<AbilityThread> thread = nullptr;
-    if (abilityInfo->type == AbilityType::EXTENSION) {
+    if (abilityInfo->type == AbilityType::PAGE && abilityInfo->isStageBasedModel) {
+        thread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
+    } else if (abilityInfo->type == AbilityType::EXTENSION) {
         thread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     } else {
         thread = new (std::nothrow) AbilityRuntime::FAAbilityThread();

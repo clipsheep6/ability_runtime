@@ -97,7 +97,7 @@ int UriPermissionManagerStub::HandleBatchGrantUriPermission(MessageParcel &data,
         return ERR_DEAD_OBJECT;
     }
     std::vector<Uri> uriVec;
-    for (auto i = 0; i < size; i++) {
+    for (uint32_t i = 0; i < size; i++) {
         std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
         if (!uri) {
             HILOG_ERROR("To read uri failed.");

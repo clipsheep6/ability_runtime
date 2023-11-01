@@ -112,7 +112,7 @@ napi_value AbilityLifecycleStateInit(napi_env env)
     HILOG_INFO("enter");
 
     if (env == nullptr) {
-        HILOG_ERROR("Invalid input parameters");
+        HILOG_ERROR("Invalid input arguments");
         return nullptr;
     }
 

@@ -22,9 +22,7 @@
 #include "ability_runtime/js_ability.h"
 
 #include "ability_runtime/js_ability_context.h"
-#include "ability_recovery.h"
 #include "ability_start_setting.h"
-#include "app_recovery.h"
 #include "connection_manager.h"
 #include "hilog_wrapper.h"
 #include "js_data_struct_converter.h"
@@ -121,13 +119,6 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
         HILOG_ERROR("abilityInfo is nullptr");
         return;
     }
-#ifdef SUPPORT_GRAPHICS
-    if (abilityInfo->type == AppExecFwk::AbilityType::PAGE && abilityInfo->isStageBasedModel &&
-        abilityContext_ != nullptr) {
-            AppExecFwk::AppRecovery::GetInstance().AddAbility(shared_from_this(), abilityContext_->GetAbilityInfo(),
-                abilityContext_->GetToken());
-    }
-#endif
     std::string srcPath(abilityInfo->package);
     if (!abilityInfo->isModuleJson) {
         /* temporary compatibility api8 + config.json */
@@ -183,9 +174,6 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     napi_set_named_property(env, obj, "context", contextObj);
     HILOG_DEBUG("Set ability context");
 
-    if (abilityRecovery_ != nullptr) {
-        abilityRecovery_->SetJsAbility(reinterpret_cast<uintptr_t>(workContext));
-    }
     napi_wrap(env, contextObj, workContext,
         [](napi_env, void *data, void *) {
             HILOG_DEBUG("Finalizer for weak_ptr ability context is called");
@@ -608,15 +596,6 @@ void JsAbility::AbilityContinuationOrRecover(const Want &want)
         OnSceneRestored();
         NotifyContinuationResult(want, true);
     } else if (ShouldRecoverState(want)) {
-        std::string pageStack = abilityRecovery_->GetSavedPageStack(AppExecFwk::StateReason::DEVELOPER_REQUEST);
-        HandleScope handleScope(jsRuntime_);
-        auto env = jsRuntime_.GetNapiEnv();
-        auto mainWindow = scene_->GetMainWindow();
-        if (mainWindow != nullptr) {
-            mainWindow->NapiSetUIContent(pageStack, env, abilityContext_->GetContentStorage()->GetNapiValue(), true);
-        } else {
-            HILOG_ERROR("AppRecovery:AbilityContinuationOrRecover mainWindow nullptr");
-        }
         OnSceneRestored();
     } else {
         OnSceneCreated();

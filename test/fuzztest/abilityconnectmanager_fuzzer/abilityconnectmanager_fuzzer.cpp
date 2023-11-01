@@ -153,7 +153,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     std::vector<AbilityRunningInfo> abilityRunningInfo;
     abilityConnectManager->GetAbilityRunningInfos(abilityRunningInfo, boolParam);
     abilityConnectManager->GetExtensionRunningInfo(abilityRecord, int32Param, extensionRunningInfo);
-    abilityConnectManager->StopAllExtensions();
+    abilityConnectManager->PauseExtensions();
     return true;
 }
 }

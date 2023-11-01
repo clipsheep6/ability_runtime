@@ -36,6 +36,7 @@ bool AppSchedulerProxy::WriteInterfaceToken(MessageParcel &data)
 
 void AppSchedulerProxy::ScheduleForegroundApplication()
 {
+    HILOG_DEBUG("AppSchedulerProxy::ScheduleForegroundApplication start");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
@@ -66,7 +67,7 @@ void AppSchedulerProxy::ScheduleBackgroundApplication()
             reply,
             option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        HILOG_WARN("SendRequest is wrong, error code: %{public}d", ret);
     }
 }
 
@@ -81,12 +82,13 @@ void AppSchedulerProxy::ScheduleTerminateApplication()
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_TERMINATE_APPLICATION_TRANSACTION), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        HILOG_WARN("SendRequest is unsuccessful, error code: %{public}d", ret);
     }
 }
 
 void AppSchedulerProxy::ScheduleLowMemory()
 {
+    HILOG_DEBUG("AppSchedulerProxy::ScheduleLowMemory begin");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
@@ -108,6 +110,7 @@ void AppSchedulerProxy::ScheduleMemoryLevel(int32_t level)
 
 void AppSchedulerProxy::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
 {
+    HILOG_DEBUG("AppSchedulerProxy::ScheduleHeapMemory start");
     uint32_t operation = static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_HEAPMEMORY_APPLICATION_TRANSACTION);
     MessageParcel data;
     MessageParcel reply;
@@ -234,7 +237,7 @@ void AppSchedulerProxy::ScheduleLaunchApplication(const AppLaunchData &launchDat
 
 void AppSchedulerProxy::ScheduleUpdateApplicationInfoInstalled(const ApplicationInfo &appInfo)
 {
-    HILOG_INFO("AppSchedulerProxy ScheduleUpdateApplicationInfoInstalled start");
+    HILOG_INFO("AppSchedulerProxy ScheduleUpdateApplicationInfoInstalled begin");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         return;
@@ -399,7 +402,7 @@ int32_t AppSchedulerProxy::ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallb
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        HILOG_ERROR("Write interface token failed!");
         return ERR_INVALID_DATA;
     }
 
@@ -493,7 +496,7 @@ int32_t AppSchedulerProxy::ScheduleChangeAppGcState(int32_t state)
     MessageParcel data;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        HILOG_ERROR("Write interface token failed");
         return ERR_INVALID_DATA;
     }
 
@@ -524,7 +527,7 @@ void AppSchedulerProxy::AttachAppDebug()
     auto ret = SendTransactCmd(
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ATTACH_APP_DEBUG), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request failed with error code: %{public}d", ret);
+        HILOG_ERROR("Failed to send request with error code: %{public}d", ret);
     }
 }
 

@@ -1,0 +1,560 @@
+/*
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef OHOS_ABILITY_RUNTIME_UI_ABILITY_H
+#define OHOS_ABILITY_RUNTIME_UI_ABILITY_H
+
+#include "ability_context.h"
+#include "ability_continuation_interface.h"
+#include "ability_lifecycle_executor.h"
+#include "ability_lifecycle_interface.h"
+#include "ability_transaction_callback_info.h"
+#include "configuration.h"
+#include "context.h"
+#include "continuation_handler_stage.h"
+#include "foundation/ability/ability_runtime/interfaces/kits/native/ability/ability_runtime/ability_context.h"
+#include "iability_callback.h"
+#include "want.h"
+#ifdef SUPPORT_GRAPHICS
+#include "display_manager.h"
+#include "session_info.h"
+#include "window_scene.h"
+#endif
+
+namespace OHOS {
+namespace AppExecFwk {
+class AbilityHandler;
+class AbilityRecovery;
+class OHOSApplication;
+class LifeCycle;
+class ContinuationHandlerStage;
+class ContinuationManagerStage;
+class InsightIntentExecuteParam;
+struct InsightIntentExecuteResult;
+using InsightIntentExecutorAsyncCallback = AbilityTransactionCallbackInfo<InsightIntentExecuteResult>;
+} // namespace AppExecFwk
+namespace AbilityRuntime {
+class Runtime;
+using InsightIntentExecuteResult = AppExecFwk::InsightIntentExecuteResult;
+using InsightIntentExecuteParam = AppExecFwk::InsightIntentExecuteParam;
+using InsightIntentExecutorAsyncCallback = AppExecFwk::InsightIntentExecutorAsyncCallback;
+class UIAbility : public AppExecFwk::AbilityContext,
+                  public AppExecFwk::ILifeCycle,
+                  public AppExecFwk::IAbilityCallback,
+                  public AppExecFwk::IAbilityContinuation,
+                  public std::enable_shared_from_this<UIAbility> {
+public:
+    UIAbility() = default;
+    virtual ~UIAbility() = default;
+
+    /**
+     * @brief Create a UIAbility instance through the singleton pattern
+     * @param runtime the runtime pointer
+     * @return Returns the UIAbility object of the ability
+     */
+    static UIAbility *Create(const std::unique_ptr<Runtime> &runtime);
+
+    /**
+     * @brief Obtains the Lifecycle object of the current ability
+     * @return Returns the Lifecycle object.
+     */
+    std::shared_ptr<AppExecFwk::LifeCycle> GetLifecycle() override final;
+
+    /**
+     * @brief Obtains the AbilityContext object of the ability.
+     * @return Returns the AbilityContext object of the ability.
+     */
+    std::shared_ptr<AbilityRuntime::AbilityContext> GetAbilityContext();
+
+    /**
+     * @brief Obtains the Want object that starts this ability.
+     * @return Returns the Want object that starts this ability.
+     */
+    std::shared_ptr<AAFwk::Want> GetWant();
+
+    /**
+     * @brief Init the UIability
+     * @param abilityInfo Indicate the Ability information
+     * @param application Indicates the main process
+     * @param handler the UIability EventHandler object
+     * @param token the remote token
+     */
+    virtual void Init(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
+        const std::shared_ptr<AppExecFwk::OHOSApplication> application,
+        std::shared_ptr<AppExecFwk::AbilityHandler> &handler, const sptr<IRemoteObject> &token);
+
+    /**
+     * @brief Attach Ability Context
+     * @param abilityContext Indicate the AbilityContext
+     */
+    void AttachAbilityContext(const std::shared_ptr<AbilityRuntime::AbilityContext> &abilityContext);
+
+    /**
+     * @brief Called when this ability is started. You must override this function if you want to perform some
+     * initialization operations during ability startup.
+     * This function can be called only once in the entire lifecycle of an ability.
+     * @param Want Indicates the {@link Want} structure containing startup information about the ability.
+     * @param sessionInfo Indicates the sessionInfo.
+     */
+    virtual void OnStart(const AAFwk::Want &want, sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr);
+
+    /**
+     * @brief Called when this ability enters the <b>STATE_STOP</b> state.
+     * The ability in the <b>STATE_STOP</b> is being destroyed.
+     * You can override this function to implement your own processing logic.
+     */
+    virtual void OnStop();
+
+    /**
+     * @brief Called when this ability enters the <b>STATE_STOP</b> state.
+     * The ability in the <b>STATE_STOP</b> is being destroyed.
+     * You can override this function to implement your own processing logic.
+     * @param callbackInfo Indicates the lifecycle transaction callback information
+     * @param isAsyncCallback Indicates whether it is an asynchronous lifecycle callback
+     */
+    virtual void OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback);
+
+    /**
+     * @brief The callback of OnStop.
+     */
+    virtual void OnStopCallback();
+
+    /**
+     * @brief request a remote object of callee from this ability.
+     * @return Returns the remote object of callee.
+     */
+    virtual sptr<IRemoteObject> CallRequest();
+
+    /**
+     * @brief Called when the system configuration is updated.
+     * @param configuration Indicates the updated configuration information.
+     */
+    void OnConfigurationUpdatedNotify(const AppExecFwk::Configuration &configuration);
+
+    /**
+     * @brief Update context.config when configuration is updated.
+     */
+    virtual void UpdateContextConfiguration() {}
+
+    /**
+     * @brief Called when the system configuration is updated.
+     * @param level Indicates the memory trim level, which shows the current memory usage status.
+     */
+    virtual void OnMemoryLevel(int level);
+
+    /**
+     * @brief Obtains the class name in this ability name, without the prefixed bundle name.
+     * @return Returns the class name of this ability.
+     */
+    std::string GetAbilityName();
+
+    /**
+     * @brief Obtains the module name in this ability name, without the prefixed bundle name.
+     * @return Returns the module name of this ability.
+     */
+    std::string GetModuleName();
+
+    /**
+     * @brief Called when startAbilityForResult(ohos.aafwk.content.Want,int) is called to start an ability and the
+     * result is returned. This method is called only on Page abilities. You can start a new ability to perform some
+     * calculations and use setResult (int,ohos.aafwk.content.Want) to return the calculation result. Then the system
+     * calls back the current method to use the returned data to execute its own logic.
+     * @param requestCode Indicates the request code returned after the ability is started. You can define the request
+     * code to identify the results returned by abilities. The value ranges from 0 to 65535.
+     * @param resultCode Indicates the result code returned after the ability is started. You can define the result code
+     * to identify an error.
+     * @param want Indicates the data returned after the ability is started. You can define the data returned. The
+     * value can be null.
+     */
+    virtual void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &want);
+
+    /**
+     * @brief Called when the launch mode of an ability is set to singleInstance. This happens when you re-launch an
+     * ability that has been at the top of the ability stack.
+     * @param want Indicates the new Want containing information about the ability.
+     */
+    virtual void OnNewWant(const AAFwk::Want &want);
+
+    /**
+     * @brief Restores data and states of an ability when it is restored by the system. This method should be
+     * implemented by a Page ability. This method is called if an ability was destroyed at a certain time due to
+     * resource reclaim or was unexpectedly destroyed and the onSaveAbilityState(ohos.utils.PacMap) method was called to
+     * save its user data and states. Generally, this method is called after the onStart(ohos.aafwk.content.Want)
+     * method.
+     * @param inState Indicates the PacMap object used for storing data and states. This parameter can not be null.
+     */
+    virtual void OnRestoreAbilityState(const AppExecFwk::PacMap &inState);
+
+    /**
+     * @brief Sets the want object that can be obtained by calling getWant().
+     * @param Want information of other ability
+     */
+    void SetWant(const AAFwk::Want &want);
+
+    /**
+     * @brief dump ability info
+     * @param params dump params that indicate different dump targets
+     * @param info dump ability info
+     */
+    virtual void Dump(const std::vector<std::string> &params, std::vector<std::string> &info);
+
+    /**
+     * @brief Save user data of local Ability generated at runtime.
+     * @param saveData Indicates the user data to be saved.
+     * @return If the data is saved successfully, it returns true; otherwise, it returns false.
+     */
+    bool OnSaveData(AAFwk::WantParams &saveData) override;
+
+    /**
+     * @brief After creating the Ability on the remote device,
+     * immediately restore the user data saved during the migration of the Ability on the remote device.
+     * @param restoreData Indicates the user data to be restored.
+     * @return If the data is restored successfully, it returns true; otherwise, it returns false .
+     */
+    bool OnRestoreData(AAFwk::WantParams &restoreData) override;
+
+    /**
+     * @brief Obtains the lifecycle state of this ability.
+     * @return Returns the lifecycle state of this ability.
+     */
+    virtual AppExecFwk::AbilityLifecycleExecutor::LifecycleState GetState() final;
+
+    /**
+     * @brief Release the ability instance.
+     */
+    void DestroyInstance();
+
+    /**
+     * @brief Update configuration
+     * @param configuration Indicates the updated configuration information.
+     */
+    virtual void OnConfigurationUpdated(const AppExecFwk::Configuration &configuration);
+
+    /**
+     * @brief Prepare user data of local Ability.
+     * @param wantParams Indicates the user data to be saved.
+     * @return If the ability is willing to continue and data saved successfully, it returns 0;
+     * otherwise, it returns errcode.
+     */
+    virtual int32_t OnContinue(AAFwk::WantParams &wantParams);
+
+    /**
+     * @brief Migrates this ability to the given device on the same distributed network. The ability to migrate and its
+     * ability slices must implement the IAbilityContinuation interface.
+     * @param deviceId Indicates the ID of the target device where this ability will be migrated to.
+     * @param versionCode Target bundle version.
+     */
+    virtual void ContinueAbilityWithStack(const std::string &deviceId, uint32_t versionCode) final;
+
+    /**
+     * @brief Callback function to ask the user whether to start the migration .
+     * @return If the user allows migration, it returns true; otherwise, it returns false.
+     */
+    bool OnStartContinuation() override;
+
+    /**
+     * @brief This function can be used to implement the processing logic after the migration is completed.
+     * @param result Migration result code. 0 means the migration was successful, -1 means the migration failed.
+     * @return None.
+     */
+    void OnCompleteContinuation(int result) override;
+
+    /**
+     * @brief Used to notify the local Ability that the remote Ability has been destroyed.
+     * @return None.
+     */
+    void OnRemoteTerminated() override;
+
+    /**
+     * @brief Prepare user data of local Ability.
+     * @param reason the reason why framework invoke this function
+     * @param wantParams Indicates the user data to be saved.
+     * @return result code defined in abilityConstants
+     */
+    virtual int32_t OnSaveState(int32_t reason, AAFwk::WantParams &wantParams);
+
+    /**
+     * @brief enable ability recovery.
+     * @param abilityRecovery shared_ptr of abilityRecovery
+     */
+    void EnableAbilityRecovery(const std::shared_ptr<AppExecFwk::AbilityRecovery> &abilityRecovery);
+
+    /**
+     * @brief Callback when the ability is shared.You can override this function to implement your own sharing logic.
+     * @param wantParams Indicates the user data to be saved.
+     * @return the result of OnShare
+     */
+    virtual int32_t OnShare(AAFwk::WantParams &wantParams);
+
+protected:
+    const AAFwk::LaunchParam &GetLaunchParam() const;
+    bool IsRestoredInContinuation() const;
+    void NotifyContinuationResult(const AAFwk::Want &want, bool success);
+    bool ShouldRecoverState(const AAFwk::Want &want);
+    bool IsUseNewStartUpRule();
+
+    std::shared_ptr<AbilityRuntime::AbilityContext> abilityContext_ = nullptr;
+    std::shared_ptr<AppExecFwk::AbilityStartSetting> setting_ = nullptr;
+    std::shared_ptr<AppExecFwk::AbilityRecovery> abilityRecovery_ = nullptr;
+    std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_ = nullptr;
+    AAFwk::LaunchParam launchParam_;
+    int32_t appIndex_ = 0;
+    bool securityFlag_ = false;
+
+private:
+    friend class UIAbilityImpl;
+    void DispatchLifecycleOnForeground(const AAFwk::Want &want);
+    void HandleCreateAsRecovery(const AAFwk::Want &want);
+    void SetStartAbilitySetting(std::shared_ptr<AppExecFwk::AbilityStartSetting> setting);
+    void SetLaunchParam(const AAFwk::LaunchParam &launchParam);
+    void InitConfigurationProperties(const AppExecFwk::Configuration &changeConfiguration, std::string &language,
+        std::string &colormode, std::string &hasPointerDevice);
+
+    std::shared_ptr<AppExecFwk::ContinuationHandlerStage> continuationHandler_ = nullptr;
+    std::shared_ptr<AppExecFwk::ContinuationManagerStage> continuationManager_ = nullptr;
+    std::shared_ptr<AppExecFwk::AbilityHandler> handler_ = nullptr;
+    std::shared_ptr<AppExecFwk::LifeCycle> lifecycle_ = nullptr;
+    std::shared_ptr<AppExecFwk::AbilityLifecycleExecutor> abilityLifecycleExecutor_ = nullptr;
+    std::shared_ptr<AppExecFwk::OHOSApplication> application_ = nullptr;
+    std::shared_ptr<AAFwk::Want> setWant_ = nullptr;
+    sptr<IRemoteObject> reverseContinuationSchedulerReplica_ = nullptr;
+    bool isNewRuleFlagSetted_ = false;
+    bool startUpNewRule_ = false;
+
+#ifdef SUPPORT_GRAPHICS
+public:
+    uint32_t sceneFlag_ = 0;
+
+    /**
+     * @brief Called after instantiating WindowScene.
+     * You can override this function to implement your own processing logic.
+     */
+    virtual void OnSceneCreated();
+
+    /**
+     * @brief Called after ability stoped.
+     * You can override this function to implement your own processing logic.
+     */
+    virtual void onSceneDestroyed();
+
+    /**
+     * @brief Called after ability restored.
+     * You can override this function to implement your own processing logic.
+     */
+    virtual void OnSceneRestored();
+
+    /**
+     * @brief Called when this ability enters the <b>STATE_FOREGROUND</b> state.
+     * The ability in the <b>STATE_FOREGROUND</b> state is visible.
+     * You can override this function to implement your own processing logic.
+     */
+    virtual void OnForeground(const AAFwk::Want &want);
+
+    /**
+     * @brief Called when this ability enters the <b>STATE_BACKGROUND</b> state.
+     * The ability in the <b>STATE_BACKGROUND</b> state is invisible.
+     * You can override this function to implement your own processing logic.
+     */
+    virtual void OnBackground();
+
+    /**
+     * @brief Called when ability prepare terminate.
+     * @return Return true if ability need to stop terminating; return false if ability need to terminate.
+     */
+    virtual bool OnPrepareTerminate();
+
+    /**
+     * @brief Inflates UI controls by using windowOption.
+     * @param windowOption Indicates the window option defined by the user.
+     */
+    virtual void InitWindow(int32_t displayId, sptr<Rosen::WindowOption> option);
+
+    /**
+     * @brief Get the window belong to the ability.
+     * @return Returns a Window object pointer.
+     */
+    virtual const sptr<Rosen::Window> GetWindow();
+
+    /**
+     * @brief get the scene belong to the ability.
+     * @return Returns a WindowScene object pointer.
+     */
+    std::shared_ptr<Rosen::WindowScene> GetScene();
+
+    /**
+     * @brief Called when this ability is about to leave the foreground and enter the background due to a user
+     * operation, for example, when the user touches the Home key.
+     */
+    virtual void OnLeaveForeground();
+
+    /**
+     * @brief Get page ability stack info.
+     * @return A string represents page ability stack info, empty if failed;
+     */
+    virtual std::string GetContentInfo();
+
+    /**
+     * @brief Set WindowScene listener
+     * @param listener WindowScene listener
+     * @return None.
+     */
+    void SetSceneListener(const sptr<Rosen::IWindowLifeCycle> &listener);
+
+    /**
+     * @brief Called back at ability context.
+     * @return current window mode of the ability.
+     */
+    int GetCurrentWindowMode() override;
+
+    /**
+     * @brief Set mission label of this ability.
+     * @param label the label of this ability.
+     * @return Returns ERR_OK if success.
+     */
+    ErrCode SetMissionLabel(const std::string &label) override;
+
+    /**
+     * @brief Set mission icon of this ability.
+     * @param icon the icon of this ability.
+     * @return Returns ERR_OK if success.
+     */
+    ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon) override;
+
+    /**
+     * @brief Get window rectangle of this ability.
+     * @param left the left position of window rectangle.
+     * @param top the top position of window rectangle.
+     * @param width the width position of window rectangle.
+     * @param height the height position of window rectangle.
+     */
+    void GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t &height) override;
+
+    /**
+     * @brief Get ui content object.
+     * @return UIContent object of ACE.
+     */
+    Ace::UIContent *GetUIContent() override;
+
+    /**
+     * @brief Call "onForeground" js function barely.
+     *
+     * @param want Want
+     */
+    virtual void CallOnForegroundFunc(const AAFwk::Want &want);
+
+    /**
+     * @brief Request focus for current window, can be override.
+     *
+     * @param want Want
+     */
+    virtual void RequestFocus(const AAFwk::Want &want);
+
+    /**
+     * @brief Execute insight intent when an ability is in foreground, schedule it to foreground repeatly.
+     *
+     * @param want Want.
+     * @param executeParam insight intent execute param.
+     * @param callback insight intent async callback.
+     */
+    virtual void ExecuteInsightIntentRepeateForeground(const AAFwk::Want &want,
+        const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+        std::unique_ptr<InsightIntentExecutorAsyncCallback> callback);
+
+    /**
+     * @brief Execute insight intent when an ability didn't started or in background, schedule it to foreground.
+     *
+     * @param want Want.
+     * @param executeParam insight intent execute param.
+     * @param callback insight intent async callback.
+     */
+    virtual void ExecuteInsightIntentMoveToForeground(const AAFwk::Want &want,
+        const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+        std::unique_ptr<InsightIntentExecutorAsyncCallback> callback);
+
+protected:
+    class UIAbilityDisplayListener : public OHOS::Rosen::DisplayManager::IDisplayListener {
+    public:
+        explicit UIAbilityDisplayListener(const std::weak_ptr<UIAbility> &ability)
+        {
+            ability_ = ability;
+        }
+
+        void OnCreate(Rosen::DisplayId displayId) override
+        {
+            auto sptr = ability_.lock();
+            if (sptr != nullptr) {
+                sptr->OnCreate(displayId);
+            }
+        }
+
+        void OnDestroy(Rosen::DisplayId displayId) override
+        {
+            auto sptr = ability_.lock();
+            if (sptr != nullptr) {
+                sptr->OnDestroy(displayId);
+            }
+        }
+
+        void OnChange(Rosen::DisplayId displayId) override
+        {
+            auto sptr = ability_.lock();
+            if (sptr != nullptr) {
+                sptr->OnChange(displayId);
+            }
+        }
+
+    private:
+        std::weak_ptr<UIAbility> ability_;
+    };
+
+    void OnCreate(Rosen::DisplayId displayId);
+    void OnDestroy(Rosen::DisplayId displayId);
+    void OnChange(Rosen::DisplayId displayId);
+
+    class AbilityDisplayMoveListener : public OHOS::Rosen::IDisplayMoveListener {
+    public:
+        explicit AbilityDisplayMoveListener(std::weak_ptr<UIAbility> &&ability) : ability_(ability) {}
+
+        void OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to) override
+        {
+            auto sptr = ability_.lock();
+            if (sptr != nullptr) {
+                sptr->OnDisplayMove(from, to);
+            }
+        }
+
+    private:
+        std::weak_ptr<UIAbility> ability_;
+    };
+
+    void OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to);
+    virtual void DoOnForeground(const AAFwk::Want &want);
+    sptr<Rosen::WindowOption> GetWindowOption(const AAFwk::Want &want);
+    virtual void ContinuationRestore(const AAFwk::Want &want);
+
+    std::shared_ptr<Rosen::WindowScene> scene_ = nullptr;
+    sptr<Rosen::IWindowLifeCycle> sceneListener_ = nullptr;
+    sptr<UIAbilityDisplayListener> abilityDisplayListener_ = nullptr;
+    sptr<Rosen::IDisplayMoveListener> abilityDisplayMoveListener_ = nullptr;
+private:
+    void OnStartForSupportGraphics(const AAFwk::Want &want);
+    void OnChangeForUpdateConfiguration(const AppExecFwk::Configuration &newConfig);
+
+    bool showOnLockScreen_ = false;
+#endif
+};
+} // namespace AbilityRuntime
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_UI_ABILITY_H

@@ -39,7 +39,7 @@ int AbilityInfoCallbackStub::OnRemoteRequest(
     std::u16string descriptor = AbilityInfoCallbackStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_ERROR("local descriptor is not equal to remote");
+        HILOG_ERROR("local descriptor is not equal to remote.");
         return ERR_INVALID_STATE;
     }
 
@@ -50,6 +50,7 @@ int AbilityInfoCallbackStub::OnRemoteRequest(
             return (this->*memberFunc)(data, reply);
         }
     }
+    HILOG_INFO("AbilityInfoCallbackStub::OnReceived end");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 

@@ -809,18 +809,18 @@ bool UIAbilityLifecycleManager::GetContentAndTypeId(uint32_t msgId, std::string 
 {
     switch (msgId) {
         case AbilityManagerService::LOAD_TIMEOUT_MSG:
-            msgContent += "load timeout";
+            msgContent += "load timeout.";
             typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
             break;
         case AbilityManagerService::FOREGROUND_TIMEOUT_MSG:
-            msgContent += "foreground timeout";
+            msgContent += "foreground timeout.";
             typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
             break;
         case AbilityManagerService::BACKGROUND_TIMEOUT_MSG:
-            msgContent += "background timeout";
+            msgContent += "background timeout.";
             break;
         case AbilityManagerService::TERMINATE_TIMEOUT_MSG:
-            msgContent += "terminate timeout";
+            msgContent += "terminate timeout.";
             break;
         default:
             return false;
@@ -923,7 +923,7 @@ void UIAbilityLifecycleManager::DelayCompleteTerminate(const std::shared_ptr<Abi
     PrintTimeOutLog(abilityRecord, AbilityManagerService::TERMINATE_TIMEOUT_MSG);
 
     auto timeoutTask = [self = shared_from_this(), abilityRecord]() {
-        HILOG_INFO("emit delay complete terminate task.");
+        HILOG_INFO("emit delay complete terminate task!");
         self->CompleteTerminate(abilityRecord);
     };
     int killTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * KILL_TIMEOUT_MULTIPLE;
@@ -1183,7 +1183,7 @@ void UIAbilityLifecycleManager::OnAbilityDied(std::shared_ptr<AbilityRecord> abi
         handler->RemoveEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
     }
     auto taskHandler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
-    CHECK_POINTER_LOG(taskHandler, "Fail to get AbilityTaskHandler.");
+    CHECK_POINTER_LOG(taskHandler, "Get AbilityTaskHandler failed.");
     if (abilityRecord->GetAbilityState() == AbilityState::BACKGROUNDING) {
         taskHandler->CancelTask("background_" + std::to_string(abilityRecord->GetAbilityRecordId()));
     }
@@ -1403,7 +1403,7 @@ int UIAbilityLifecycleManager::ReleaseCallLocked(
     };
     auto findRecord = std::find_if(abilityRecords.begin(), abilityRecords.end(), isExist);
     if (findRecord == abilityRecords.end()) {
-        HILOG_ERROR("not found ability record by callback");
+        HILOG_ERROR("not found ability record by callback.");
         return RELEASE_CALL_ABILITY_INNER_ERR;
     }
     auto abilityRecord = *findRecord;
@@ -1651,7 +1651,7 @@ void UIAbilityLifecycleManager::OnAppStateChanged(const AppInfo &info, int32_t t
     if (info.state == AppState::TERMINATED || info.state == AppState::END) {
         for (const auto& abilityRecord : terminateAbilityList_) {
             if (abilityRecord == nullptr) {
-                HILOG_WARN("abilityRecord is nullptr.");
+                HILOG_WARN("the abilityRecord is nullptr.");
                 continue;
             }
             if ((info.processName == abilityRecord->GetAbilityInfo().process ||
@@ -1741,7 +1741,7 @@ int UIAbilityLifecycleManager::BlockAbility(int32_t abilityRecordId, int32_t tar
 
 void UIAbilityLifecycleManager::Dump(std::vector<std::string> &info)
 {
-    HILOG_INFO("Call.");
+    HILOG_INFO("Call begin.");
     std::unordered_map<int32_t, std::shared_ptr<AbilityRecord>> sessionAbilityMapLocked;
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -1785,7 +1785,7 @@ void UIAbilityLifecycleManager::Dump(std::vector<std::string> &info)
 void UIAbilityLifecycleManager::DumpMissionList(
     std::vector<std::string> &info, bool isClient, int userId, const std::string &args)
 {
-    HILOG_INFO("Call.");
+    HILOG_INFO("Call start.");
     std::unordered_map<int32_t, std::shared_ptr<AbilityRecord>> sessionAbilityMapLocked;
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -1858,7 +1858,6 @@ void UIAbilityLifecycleManager::DumpMissionListByRecordId(std::vector<std::strin
         dumpInfo += "  mission affinity #[" + abilityRecord->GetMissionAffinity() + "]";
         info.push_back(dumpInfo);
 
-        std::vector<std::string> params;
         abilityRecord->DumpAbilityState(info, isClient, params);
 
         dumpInfo = " }";

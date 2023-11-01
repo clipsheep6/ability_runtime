@@ -80,16 +80,19 @@ public:
 
     static napi_value IsRunningInStabilityTest(napi_env env, napi_callback_info info)
     {
+        HILOG_DEBUG("IsRunningInStabilityTest start.");
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnIsRunningInStabilityTest);
     }
 
     static napi_value KillProcessWithAccount(napi_env env, napi_callback_info info)
     {
+        HILOG_DEBUG("KillProcessWithAccount start.");
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnKillProcessWithAccount);
     }
 
     static napi_value KillProcessesByBundleName(napi_env env, napi_callback_info info)
     {
+        HILOG_DEBUG("KillProcessesByBundleName start.");
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnkillProcessByBundleName);
     }
 

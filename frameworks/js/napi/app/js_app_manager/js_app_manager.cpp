@@ -140,7 +140,7 @@ private:
 
     napi_value OnOn(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_DEBUG("called");
+        HILOG_DEBUG("OnOn called");
         std::string type = ParseParamType(env, argc, argv);
         if (type == ON_OFF_TYPE_SYNC) {
             return OnOnNew(env, argc, argv);
@@ -150,7 +150,7 @@ private:
 
     napi_value OnOnOld(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_DEBUG("called");
+        HILOG_DEBUG("OnOnOld called");
         if (argc < ARGC_TWO) { // support 2 or 3 params, if > 3 params, ignore other params
             HILOG_ERROR("Not enough params");
             ThrowTooFewParametersError(env);

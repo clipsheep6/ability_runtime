@@ -43,8 +43,8 @@ public:
     /**
      * @brief constructed function
      */
-    ContinuationHandlerStage(std::weak_ptr<ContinuationManagerStage> &continuationManager,
-        std::weak_ptr<AbilityRuntime::UIAbility> &uiAbility);
+    ContinuationHandlerStage(const std::weak_ptr<ContinuationManagerStage> &continuationManager,
+        const std::weak_ptr<AbilityRuntime::UIAbility> &uiAbility);
     virtual ~ContinuationHandlerStage() = default;
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,9 +16,9 @@
 #include <gtest/gtest.h>
 
 #include "ohos_application.h"
-#include "ability.h"
 #include "mock_ability_lifecycle_callbacks.h"
 #include "mock_element_callback.h"
+#include "ui_ability.h"
 
 using namespace testing::ext;
 using namespace OHOS;
@@ -67,7 +67,7 @@ HWTEST_F(ApplicationTest, AppExecFwk_Application_RegisterAbilityLifecycleCallbac
         std::shared_ptr<MockAbilityLifecycleCallbacks> callback = std::make_shared<MockAbilityLifecycleCallbacks>();
         ApplicationTest_->RegisterAbilityLifecycleCallbacks(callback);
 
-        std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+        std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
         ApplicationTest_->OnAbilityActive(ability);
 
         ApplicationTest_->UnregisterAbilityLifecycleCallbacks(callback);
@@ -88,7 +88,7 @@ HWTEST_F(ApplicationTest, AppExecFwk_Application_RegisterAbilityLifecycleCallbac
     if (ApplicationTest_ != nullptr) {
         ApplicationTest_->RegisterAbilityLifecycleCallbacks(nullptr);
 
-        std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+        std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
         ApplicationTest_->OnAbilityActive(ability);
     }
     GTEST_LOG_(INFO) << "AppExecFwk_Application_RegisterAbilityLifecycleCallbacks_0200 end";
@@ -110,7 +110,7 @@ HWTEST_F(
         ApplicationTest_->RegisterAbilityLifecycleCallbacks(callback);
         ApplicationTest_->UnregisterAbilityLifecycleCallbacks(callback);
 
-        std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+        std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
         ApplicationTest_->OnAbilityActive(ability);
     }
     GTEST_LOG_(INFO) << "AppExecFwk_Application_UnregisterAbilityLifecycleCallbacks_0100 end";
@@ -132,7 +132,7 @@ HWTEST_F(
         ApplicationTest_->RegisterAbilityLifecycleCallbacks(callback);
         ApplicationTest_->UnregisterAbilityLifecycleCallbacks(nullptr);
 
-        std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+        std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
         ApplicationTest_->OnAbilityActive(ability);
 
         ApplicationTest_->UnregisterAbilityLifecycleCallbacks(callback);
@@ -154,7 +154,7 @@ HWTEST_F(ApplicationTest, AppExecFwk_Application_OnAbilityStart_0100, Function |
         std::shared_ptr<MockAbilityLifecycleCallbacks> callback = std::make_shared<MockAbilityLifecycleCallbacks>();
         ApplicationTest_->RegisterAbilityLifecycleCallbacks(callback);
 
-        std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+        std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
         ApplicationTest_->OnAbilityStart(ability);
 
         ApplicationTest_->UnregisterAbilityLifecycleCallbacks(callback);
@@ -176,7 +176,7 @@ HWTEST_F(ApplicationTest, AppExecFwk_Application_OnAbilityInactive_0100, Functio
         std::shared_ptr<MockAbilityLifecycleCallbacks> callback = std::make_shared<MockAbilityLifecycleCallbacks>();
         ApplicationTest_->RegisterAbilityLifecycleCallbacks(callback);
 
-        std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+        std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
         ApplicationTest_->OnAbilityInactive(ability);
 
         ApplicationTest_->UnregisterAbilityLifecycleCallbacks(callback);
@@ -198,7 +198,7 @@ HWTEST_F(ApplicationTest, AppExecFwk_Application_OnAbilityBackground_0100, Funct
         std::shared_ptr<MockAbilityLifecycleCallbacks> callback = std::make_shared<MockAbilityLifecycleCallbacks>();
         ApplicationTest_->RegisterAbilityLifecycleCallbacks(callback);
 
-        std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+        std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
         ApplicationTest_->OnAbilityBackground(ability);
 
         ApplicationTest_->UnregisterAbilityLifecycleCallbacks(callback);
@@ -220,7 +220,7 @@ HWTEST_F(ApplicationTest, AppExecFwk_Application_OnAbilityForeground_0100, Funct
         std::shared_ptr<MockAbilityLifecycleCallbacks> callback = std::make_shared<MockAbilityLifecycleCallbacks>();
         ApplicationTest_->RegisterAbilityLifecycleCallbacks(callback);
 
-        std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+        std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
         ApplicationTest_->OnAbilityForeground(ability);
 
         ApplicationTest_->UnregisterAbilityLifecycleCallbacks(callback);
@@ -242,7 +242,7 @@ HWTEST_F(ApplicationTest, AppExecFwk_Application_OnAbilityActive_0100, Function 
         std::shared_ptr<MockAbilityLifecycleCallbacks> callback = std::make_shared<MockAbilityLifecycleCallbacks>();
         ApplicationTest_->RegisterAbilityLifecycleCallbacks(callback);
 
-        std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+        std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
         ApplicationTest_->OnAbilityActive(ability);
 
         ApplicationTest_->UnregisterAbilityLifecycleCallbacks(callback);
@@ -264,7 +264,7 @@ HWTEST_F(ApplicationTest, AppExecFwk_Application_OnAbilityStop_0100, Function | 
         std::shared_ptr<MockAbilityLifecycleCallbacks> callback = std::make_shared<MockAbilityLifecycleCallbacks>();
         ApplicationTest_->RegisterAbilityLifecycleCallbacks(callback);
 
-        std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+        std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
         ApplicationTest_->OnAbilityStop(ability);
 
         ApplicationTest_->UnregisterAbilityLifecycleCallbacks(callback);

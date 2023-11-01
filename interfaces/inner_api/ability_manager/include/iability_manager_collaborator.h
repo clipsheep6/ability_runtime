@@ -135,6 +135,15 @@ public:
      */
     virtual void UpdateMissionInfo(sptr<SessionInfo> &sessionInfo) = 0;
 
+    /**
+     * @brief Check the call permission from shell assistant.
+     * @param want target info.
+     */
+    virtual int32_t CheckCallAbilityPermission(const Want &want)
+    {
+        return -1;
+    }
+
     enum {
         NOTIFY_START_ABILITY = 1,
         NOTIFY_MISSION_CREATED,
@@ -149,6 +158,7 @@ public:
         NOTIFY_LOAD_ABILITY_BY_SCB,
         UPDATE_MISSION_INFO_BY_SCB,
         NOTIFY_PRELOAD_ABILITY,
+        CHECK_CALL_ABILITY_PERMISSION,
     };
 };
 }  // namespace AAFwk

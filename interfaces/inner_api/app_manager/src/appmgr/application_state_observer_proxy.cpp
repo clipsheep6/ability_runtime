@@ -64,7 +64,7 @@ void ApplicationStateObserverProxy::OnAbilityStateChanged(const AbilityStateData
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_ABILITY_STATE_CHANGED),
         data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        HILOG_WARN("SendRequest is wrong, error code: %{public}d.", ret);
     }
 }
 
@@ -81,7 +81,7 @@ void ApplicationStateObserverProxy::OnExtensionStateChanged(const AbilityStateDa
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_EXTENSION_STATE_CHANGED),
         data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        HILOG_WARN("SendRequest is wrong, error code: %{public}d", ret);
     }
 }
 
@@ -104,6 +104,7 @@ void ApplicationStateObserverProxy::OnProcessCreated(const ProcessData &processD
 
 void ApplicationStateObserverProxy::OnProcessReused(const ProcessData &processData)
 {
+    HILOG_DEBUG("start");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
@@ -134,6 +135,7 @@ void ApplicationStateObserverProxy::OnProcessStateChanged(const ProcessData &pro
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
+    HILOG_DEBUG("end");
 }
 
 void ApplicationStateObserverProxy::OnProcessDied(const ProcessData &processData)

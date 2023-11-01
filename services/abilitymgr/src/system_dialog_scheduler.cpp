@@ -607,6 +607,7 @@ void SystemDialogScheduler::GetAppNameFromResource(int32_t labelId,
         std::string(AbilityBase::Constants::FILE_SEPARATOR) + bundleInfo.name);
     for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
         std::string loadPath;
+        HILOG_DEBUG("make a judgment");
         if (!hapModuleInfo.hapPath.empty()) {
             loadPath = hapModuleInfo.hapPath;
         } else {

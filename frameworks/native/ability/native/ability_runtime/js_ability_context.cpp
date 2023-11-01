@@ -1283,6 +1283,7 @@ void JsAbilityContext::AddFreeInstallObserver(napi_env env, const AAFwk::Want &w
     bool isAbilityResult)
 {
     // adapter free install async return install and start result
+    HILOG_DEBUG("ConvertWindowSize begin.");
     int ret = 0;
     if (freeInstallObserver_ == nullptr) {
         freeInstallObserver_ = new JsFreeInstallObserver(env);

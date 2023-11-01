@@ -108,7 +108,7 @@ public:
      * @param isNeedLocalDeviceId is need local device id.
      * @return Returns front desk focus ability elementName by token.
      */
-    AppExecFwk::ElementName GetElementNameByToken(const sptr<IRemoteObject> &token, bool isNeedLocalDeviceId = true);
+    AppExecFwk::ElementName GetElementNameByToken(sptr<IRemoteObject> token, bool isNeedLocalDeviceId = true);
 
     /**
      * StartAbility with want, send want to ability manager service.
@@ -1309,6 +1309,27 @@ public:
      * @return Return true to allow ability to start, or false to reject.
      */
     bool IsAbilityControllerStart(const Want &want);
+
+    /**
+     * @brief Execute intent.
+     * @param key The key of intent executing client.
+     * @param callerToken Caller ability token.
+     * @param param The Intent execute param.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode ExecuteIntent(uint64_t key, const sptr<IRemoteObject> &callerToken,
+        const InsightIntentExecuteParam &param);
+
+    /**
+     * @brief Called when insight intent execute finished.
+     *
+     * @param token ability's token.
+     * @param intentId insight intent id.
+     * @param result insight intent execute result.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode ExecuteInsightIntentDone(const sptr<IRemoteObject> &token, uint64_t intentId,
+        const InsightIntentExecuteResult &result);
 
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {

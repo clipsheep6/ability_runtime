@@ -187,7 +187,7 @@ void JSAppStateObserver::OnProcessDied(const ProcessData &processData)
         ([jsObserver, processData](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
             if (!jsObserverSptr) {
-                HILOG_WARN("jsObserverSptr nullptr");
+                HILOG_WARN("jsObserverSptr null");
                 return;
             }
             jsObserverSptr->HandleOnProcessDied(processData);
@@ -212,7 +212,7 @@ void JSAppStateObserver::HandleOnProcessDied(const ProcessData &processData)
 void JSAppStateObserver::CallJsFunction(
     napi_value value, const char *methodName, napi_value* argv, size_t argc)
 {
-    HILOG_INFO("CallJsFunction begin, method:%{public}s", methodName);
+    HILOG_INFO("CallJsFunction start, method:%{public}s", methodName);
     if (value == nullptr) {
         HILOG_ERROR("Failed to get object");
         return;
@@ -221,16 +221,17 @@ void JSAppStateObserver::CallJsFunction(
     napi_value method = nullptr;
     napi_get_named_property(env_, value, methodName, &method);
     if (method == nullptr) {
-        HILOG_ERROR("Failed to get from object");
+        HILOG_ERROR("Wrong to get from object");
         return;
     }
     napi_value callResult = nullptr;
     napi_call_function(env_, value, method, argc, argv, &callResult);
-    HILOG_INFO("CallJsFunction end");
+    HILOG_INFO("CallJsFunction finish");
 }
 
 void JSAppStateObserver::AddJsObserverObject(const int32_t observerId, napi_value jsObserverObject)
 {
+    HILOG_DEBUG("AddJsObserverObject start.");
     napi_ref ref = nullptr;
     napi_create_reference(env_, jsObserverObject, 1, &ref);
     jsObserverObjectMap_.emplace(observerId, std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
@@ -238,6 +239,7 @@ void JSAppStateObserver::AddJsObserverObject(const int32_t observerId, napi_valu
 
 bool JSAppStateObserver::RemoveJsObserverObject(const int32_t observerId)
 {
+    HILOG_DEBUG("RemoveJsObserverObject start.");
     bool result = (jsObserverObjectMap_.erase(observerId) == 1);
     return result;
 }

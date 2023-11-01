@@ -317,7 +317,7 @@ private:
     napi_value OnGetMissionInfos(napi_env env, size_t argc, napi_value* argv)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
-        if (argc < 2) { // at least 2 parameters.
+        if (argc < ARG_COUNT_TWO) {
             HILOG_ERROR("Not enough params");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);

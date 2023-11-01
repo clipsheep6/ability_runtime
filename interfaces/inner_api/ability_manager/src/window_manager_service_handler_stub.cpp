@@ -59,7 +59,7 @@ int WindowManagerServiceHandlerStub::OnRemoteRequest(
             return (this->*requestFunc)(data, reply);
         }
     }
-    HILOG_WARN("default case, need check.");
+    HILOG_WARN("default case, it needs to be checked.");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
@@ -114,13 +114,13 @@ int WindowManagerServiceHandlerStub::StartingWindowCold(MessageParcel &data, Mes
     HILOG_DEBUG("%{public}s is called.", __func__);
     sptr<AbilityTransitionInfo> info(data.ReadParcelable<AbilityTransitionInfo>());
     if (!info) {
-        HILOG_ERROR("To read info failed.");
+        HILOG_ERROR("To read info failed!");
         return ERR_AAFWK_PARCEL_FAIL;
     }
     std::shared_ptr<Media::PixelMap> pixelMap
         = std::shared_ptr<Media::PixelMap>(data.ReadParcelable<Media::PixelMap>());
     if (pixelMap == nullptr) {
-        HILOG_ERROR("To read pixelMap failed.");
+        HILOG_ERROR("To read pixelMap failed!");
         return ERR_AAFWK_PARCEL_FAIL;
     }
     auto bgColor = data.ReadUint32();
@@ -139,7 +139,7 @@ int WindowManagerServiceHandlerStub::StartingWindowHot(MessageParcel &data, Mess
     std::shared_ptr<Media::PixelMap> pixelMap
         = std::shared_ptr<Media::PixelMap>(data.ReadParcelable<Media::PixelMap>());
     if (pixelMap == nullptr) {
-        HILOG_ERROR("To read pixelMap failed.");
+        HILOG_ERROR("Failed to read pixelMap.");
         return ERR_AAFWK_PARCEL_FAIL;
     }
     StartingWindow(info, pixelMap);

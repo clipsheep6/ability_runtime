@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,8 +19,10 @@
 #include "pac_map.h"
 
 namespace OHOS {
+namespace AbilityRuntime {
+class UIAbility;
+}
 namespace AppExecFwk {
-class Ability;
 class AbilityLifecycleCallbacks {
 public:
     AbilityLifecycleCallbacks() = default;
@@ -32,7 +34,7 @@ public:
      *
      * @param Ability Indicates the ability object that calls the onStart() method.
      */
-    virtual void OnAbilityStart(const std::shared_ptr<Ability> &ability) = 0;
+    virtual void OnAbilityStart(const std::shared_ptr<AbilityRuntime::UIAbility> &ability) = 0;
 
     /**
      *
@@ -40,7 +42,7 @@ public:
      *
      * @param Ability Indicates the Ability object that calls the onInactive() method.
      */
-    virtual void OnAbilityInactive(const std::shared_ptr<Ability> &ability) = 0;
+    virtual void OnAbilityInactive(const std::shared_ptr<AbilityRuntime::UIAbility> &ability) = 0;
 
     /**
      *
@@ -48,7 +50,7 @@ public:
      *
      * @param Ability Indicates the Ability object that calls the onBackground() method.
      */
-    virtual void OnAbilityBackground(const std::shared_ptr<Ability> &ability) = 0;
+    virtual void OnAbilityBackground(const std::shared_ptr<AbilityRuntime::UIAbility> &ability) = 0;
 
     /**
      *
@@ -56,7 +58,7 @@ public:
      *
      * @param Ability Indicates the Ability object that calls the onForeground() method.
      */
-    virtual void OnAbilityForeground(const std::shared_ptr<Ability> &ability) = 0;
+    virtual void OnAbilityForeground(const std::shared_ptr<AbilityRuntime::UIAbility> &ability) = 0;
 
     /**
      *
@@ -64,7 +66,7 @@ public:
      *
      * @param Ability Indicates the Ability object that calls the onActive() method.
      */
-    virtual void OnAbilityActive(const std::shared_ptr<Ability> &ability) = 0;
+    virtual void OnAbilityActive(const std::shared_ptr<AbilityRuntime::UIAbility> &ability) = 0;
 
     /**
      *
@@ -72,7 +74,7 @@ public:
      *
      * @param Ability Indicates the Ability object that calls the onStop() method.
      */
-    virtual void OnAbilityStop(const std::shared_ptr<Ability> &ability) = 0;
+    virtual void OnAbilityStop(const std::shared_ptr<AbilityRuntime::UIAbility> &ability) = 0;
 
     /**
      *

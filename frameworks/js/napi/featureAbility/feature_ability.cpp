@@ -553,6 +553,7 @@ napi_value SetResultAsync(
             napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
 
             if (asyncCallbackInfo->cbInfo.callback != nullptr) {
+                HILOG_DEBUG("napi_delete_reference");
                 napi_delete_reference(env, asyncCallbackInfo->cbInfo.callback);
             }
             napi_delete_async_work(env, asyncCallbackInfo->asyncWork);

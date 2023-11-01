@@ -161,6 +161,10 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::DetachAppDebugInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_ABILITY_CONTROLLER_START)] =
         &AbilityManagerStub::IsAbilityControllerStartInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::EXECUTE_INTENT)] =
+        &AbilityManagerStub::ExecuteIntentInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::EXECUTE_INSIGHT_INTENT_DONE)] =
+        &AbilityManagerStub::ExecuteInsightIntentDoneInner;
 }
 
 void AbilityManagerStub::SecondStepInit()
@@ -388,7 +392,7 @@ int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Mess
     std::u16string abilityDescriptor = AbilityManagerStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (abilityDescriptor != remoteDescriptor && extensionDescriptor != remoteDescriptor) {
-        HILOG_ERROR("local descriptor is not equal to remote");
+        HILOG_ERROR("local descriptor is unequal to remote");
         return ERR_INVALID_STATE;
     }
 
@@ -775,7 +779,7 @@ int AbilityManagerStub::StopExtensionAbilityInner(MessageParcel& data, MessagePa
 {
     Want* want = data.ReadParcelable<Want>();
     if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
+        HILOG_ERROR("want is nullptr.");
         return ERR_INVALID_VALUE;
     }
     sptr<IRemoteObject> callerToken = nullptr;
@@ -795,7 +799,7 @@ int AbilityManagerStub::StartAbilityAddCallerInner(MessageParcel &data, MessageP
 {
     Want *want = data.ReadParcelable<Want>();
     if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
+        HILOG_ERROR("want is nullptr.");
         return ERR_INVALID_VALUE;
     }
 
@@ -816,7 +820,7 @@ int AbilityManagerStub::StartAbilityAsCallerByTokenInner(MessageParcel &data, Me
 {
     Want *want = data.ReadParcelable<Want>();
     if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
+        HILOG_ERROR("want is nullptr!");
         return ERR_INVALID_VALUE;
     }
 
@@ -863,7 +867,7 @@ int AbilityManagerStub::ConnectAbilityInner(MessageParcel &data, MessageParcel &
 {
     Want *want = data.ReadParcelable<Want>();
     if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
+        HILOG_ERROR("want is nullptr.");
         return ERR_INVALID_VALUE;
     }
     sptr<IAbilityConnection> callback = nullptr;
@@ -887,7 +891,7 @@ int AbilityManagerStub::ConnectAbilityWithTypeInner(MessageParcel &data, Message
 {
     Want *want = data.ReadParcelable<Want>();
     if (want == nullptr) {
-        HILOG_ERROR("%{public}s, want is nullptr", __func__);
+        HILOG_ERROR("%{public}s, want is nullptr!", __func__);
         return ERR_INVALID_VALUE;
     }
     sptr<IAbilityConnection> callback = nullptr;
@@ -1028,12 +1032,12 @@ int AbilityManagerStub::StartAbilityForOptionsInner(MessageParcel &data, Message
 {
     Want *want = data.ReadParcelable<Want>();
     if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
+        HILOG_ERROR("want is nullptr.");
         return ERR_INVALID_VALUE;
     }
     StartOptions *startOptions = data.ReadParcelable<StartOptions>();
     if (startOptions == nullptr) {
-        HILOG_ERROR("startOptions is nullptr");
+        HILOG_ERROR("startOptions is nullptr.");
         delete want;
         return ERR_INVALID_VALUE;
     }
@@ -1136,7 +1140,13 @@ int AbilityManagerStub::GetPendingWantUserIdInner(MessageParcel &data, MessagePa
 
 int AbilityManagerStub::GetPendingWantBundleNameInner(MessageParcel &data, MessageParcel &reply)
 {
-    sptr<IWantSender> wantSender = iface_cast<IWantSender>(data.ReadRemoteObject());
+    auto remote = data.ReadRemoteObject();
+    if (remote == nullptr) {
+        HILOG_ERROR("ReadRemoteObject is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    sptr<IWantSender> wantSender = iface_cast<IWantSender>(remote);
     if (wantSender == nullptr) {
         HILOG_ERROR("wantSender is nullptr");
         return ERR_INVALID_VALUE;
@@ -1164,7 +1174,7 @@ int AbilityManagerStub::GetPendingWantTypeInner(MessageParcel &data, MessageParc
 {
     sptr<IWantSender> wantSender = iface_cast<IWantSender>(data.ReadRemoteObject());
     if (wantSender == nullptr) {
-        HILOG_ERROR("wantSender is nullptr");
+        HILOG_ERROR("wantSender is nullptr.");
         return ERR_INVALID_VALUE;
     }
 
@@ -1270,22 +1280,22 @@ int AbilityManagerStub::ContinueMissionInner(MessageParcel &data, MessageParcel 
     int32_t missionId = data.ReadInt32();
     sptr<IRemoteObject> callback = data.ReadRemoteObject();
     if (callback == nullptr) {
-        HILOG_ERROR("ContinueMissionInner callback readParcelable failed!");
+        HILOG_ERROR("ContinueMissionInner callback readParcelable failed.");
         return ERR_NULL_OBJECT;
     }
     std::unique_ptr<WantParams> wantParams(data.ReadParcelable<WantParams>());
     if (wantParams == nullptr) {
-        HILOG_ERROR("ContinueMissionInner wantParams readParcelable failed!");
+        HILOG_ERROR("ContinueMissionInner wantParams readParcelable failed.");
         return ERR_NULL_OBJECT;
     }
     int32_t result = ContinueMission(srcDeviceId, dstDeviceId, missionId, callback, *wantParams);
-    HILOG_INFO("ContinueMissionInner result = %{public}d", result);
+    HILOG_INFO("ContinueMissionInner result = %{public}d.", result);
     return result;
 }
 
 int AbilityManagerStub::ContinueMissionOfBundleNameInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("amsStub %{public}s called.", __func__);
+    HILOG_INFO("amsStub %{public}s called!", __func__);
     std::string srcDeviceId = data.ReadString();
     std::string dstDeviceId = data.ReadString();
     std::string bundleName = data.ReadString();
@@ -2727,7 +2737,7 @@ int32_t AbilityManagerStub::RegisterAppDebugListenerInner(MessageParcel &data, M
 
     auto result = RegisterAppDebugListener(appDebugLister);
     if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("Fail to write result.");
+        HILOG_ERROR("Failed to write result.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -2794,6 +2804,27 @@ int32_t AbilityManagerStub::IsAbilityControllerStartInner(MessageParcel &data, M
     return NO_ERROR;
 }
 
+int32_t AbilityManagerStub::ExecuteIntentInner(MessageParcel &data, MessageParcel &reply)
+{
+    uint64_t key = data.ReadUint64();
+    sptr<IRemoteObject> callerToken = data.ReadRemoteObject();
+    if (callerToken == nullptr) {
+        HILOG_ERROR("failed to get remote object.");
+        return ERR_INVALID_VALUE;
+    }
+    std::unique_ptr<InsightIntentExecuteParam> param(data.ReadParcelable<InsightIntentExecuteParam>());
+    if (param == nullptr) {
+        HILOG_ERROR("param is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    auto result = ExecuteIntent(key, callerToken, *param);
+    if (result != NO_ERROR) {
+        HILOG_ERROR("ExecuteIntent is failed");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
 int32_t AbilityManagerStub::StartAbilityByInsightIntentInner(MessageParcel &data, MessageParcel &reply)
 {
     std::unique_ptr<Want> want(data.ReadParcelable<Want>());
@@ -2811,6 +2842,27 @@ int32_t AbilityManagerStub::StartAbilityByInsightIntentInner(MessageParcel &data
     uint64_t intentId = data.ReadUint64();
     int32_t userId = data.ReadInt32();
     int32_t result = StartAbilityByInsightIntent(*want, callerToken, intentId, userId);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::ExecuteInsightIntentDoneInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    auto token = data.ReadRemoteObject();
+    if (token == nullptr) {
+        HILOG_ERROR("Failed to get remote object.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto intentId = data.ReadInt64();
+    std::unique_ptr<InsightIntentExecuteResult> executeResult(data.ReadParcelable<InsightIntentExecuteResult>());
+    if (!executeResult) {
+        HILOG_ERROR("Execute result is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    int32_t result = ExecuteInsightIntentDone(token, intentId, *executeResult);
     reply.WriteInt32(result);
     return NO_ERROR;
 }

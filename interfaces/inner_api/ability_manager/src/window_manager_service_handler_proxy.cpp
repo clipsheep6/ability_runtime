@@ -75,6 +75,7 @@ int32_t WindowManagerServiceHandlerProxy::GetFocusWindow(sptr<IRemoteObject>& ab
     if (ret == 0 && reply.ReadBool()) {
         abilityToken = reply.ReadObject<IRemoteObject>();
     }
+    HILOG_DEBUG("ending");
     return ret;
 }
 
@@ -84,7 +85,7 @@ void WindowManagerServiceHandlerProxy::StartingWindow(sptr<AbilityTransitionInfo
     HILOG_DEBUG("%{public}s is called.", __func__);
     MessageParcel data;
     if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        HILOG_ERROR("Failed to write interface token.");
         return;
     }
     if (!data.WriteParcelable(info.GetRefPtr())) {
@@ -96,7 +97,7 @@ void WindowManagerServiceHandlerProxy::StartingWindow(sptr<AbilityTransitionInfo
         return;
     }
     if (!data.WriteUint32(bgColor)) {
-        HILOG_ERROR("Write bgColor failed.");
+        HILOG_ERROR("Failed to write bgColor.");
         return;
     }
     MessageParcel reply;
@@ -121,7 +122,7 @@ void WindowManagerServiceHandlerProxy::StartingWindow(sptr<AbilityTransitionInfo
         return;
     }
     if (!data.WriteParcelable(pixelMap.get())) {
-        HILOG_ERROR("Write pixelMap failed.");
+        HILOG_ERROR("Failed to write pixelMap.");
         return;
     }
     MessageParcel reply;
@@ -142,7 +143,7 @@ void WindowManagerServiceHandlerProxy::CancelStartingWindow(sptr<IRemoteObject> 
     }
     if (!abilityToken) {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("Write false failed.");
+            HILOG_ERROR("Failed to write false.");
             return;
         }
     } else {
@@ -172,7 +173,7 @@ void WindowManagerServiceHandlerProxy::NotifyAnimationAbilityDied(sptr<AbilityTr
         return;
     }
     if (!data.WriteParcelable(info.GetRefPtr())) {
-        HILOG_ERROR("Write info failed.");
+        HILOG_ERROR("Failed to write info.");
         return;
     }
     MessageParcel reply;
@@ -202,7 +203,7 @@ int32_t WindowManagerServiceHandlerProxy::MoveMissionsToForeground(const std::ve
     }
 
     if (!data.WriteInt32(topMissionId)) {
-        HILOG_ERROR("Write TopMissionId failed");
+        HILOG_ERROR("Failed to write TopMissionId");
         return ERR_AAFWK_PARCEL_FAIL;
     }
 

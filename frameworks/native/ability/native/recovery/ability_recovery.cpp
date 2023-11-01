@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,18 +18,17 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-
 #include <unistd.h>
-
-#include "file_ex.h"
-#include "napi/native_api.h"
-#include "napi/native_common.h"
-#include "js_runtime.h"
-#include "js_runtime_utils.h"
 
 #include "ability_manager_client.h"
 #include "app_recovery_parcel_allocator.h"
+#include "context/application_context.h"
+#include "file_ex.h"
 #include "hilog_wrapper.h"
+#include "js_runtime.h"
+#include "js_runtime_utils.h"
+#include "napi/native_api.h"
+#include "napi/native_common.h"
 #include "parcel.h"
 #include "recovery_param.h"
 #include "string_ex.h"
@@ -67,7 +66,7 @@ AbilityRecovery::~AbilityRecovery()
 {
 }
 
-bool AbilityRecovery::InitAbilityInfo(const std::shared_ptr<Ability> ability,
+bool AbilityRecovery::InitAbilityInfo(const std::shared_ptr<AbilityRuntime::UIAbility> ability,
     const std::shared_ptr<AbilityInfo>& abilityInfo, const sptr<IRemoteObject>& token)
 {
     isEnable_ = true;

@@ -96,6 +96,7 @@ ohos_unittest("ability_test") {
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:uiabilitykit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
@@ -623,6 +624,53 @@ ohos_unittest("ability_impl_test") {
   }
 }
 
+ohos_unittest("ui_ability_impl_test") {
+  module_out_path = module_output_path
+  sources = [
+    "${ability_runtime_native_path}/appkit/app/app_context.cpp",
+    "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
+    "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
+  ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/ability/native:ability_thread",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:uiabilitykit_native",
+    "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:configuration",
+    "ability_base:want",
+    "ability_runtime:runtime",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+
+  if (ability_runtime_graphics) {
+    sources += [ "ui_ability_impl_test.cpp" ]
+    deps += [ "${global_path}/i18n/frameworks/intl:intl_util" ]
+    external_deps += [
+      "input:libmmi-client",
+      "window_manager:libwm",
+    ]
+  }
+}
+
 ohos_unittest("ability_thread_test") {
   module_out_path = module_output_path
 
@@ -717,6 +765,59 @@ ohos_unittest("extension_ability_thread_test") {
     "napi:ace_napi",
     "relational_store:native_appdatafwk",
     "relational_store:native_rdb",
+    "resource_management:global_resmgr",
+  ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "ability_base:session_info",
+      "input:libmmi-client",
+      "window_manager:libwm",
+    ]
+  }
+}
+
+ohos_unittest("ui_ability_thread_test") {
+  module_out_path = module_output_path
+  sources = [
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/process_info.cpp",
+    "${ability_runtime_native_path}/appkit/app/app_context.cpp",
+    "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
+    "${ability_runtime_native_path}/appkit/app/context_container.cpp",
+    "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
+    "ui_ability_thread_test.cpp",
+  ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
+    "${ability_runtime_native_path}/ability/native:ability_thread",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:uiabilitykit_native",
+    "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "${ability_runtime_services_path}/dataobsmgr:dataobsms_static",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:configuration",
+    "ability_base:want",
+    "ability_runtime:ability_deps_wrapper",
+    "ability_runtime:runtime",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "ipc:ipc_core",
+    "napi:ace_napi",
     "resource_management:global_resmgr",
   ]
 
@@ -1407,6 +1508,60 @@ ohos_unittest("task_handler_client_test") {
   }
 }
 
+ohos_unittest("ui_ability_test") {
+  module_out_path = module_output_path
+  sources = [
+    "${ability_runtime_native_path}/appkit/app/ability_record_mgr.cpp",
+    "${ability_runtime_native_path}/appkit/app/app_context.cpp",
+    "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
+    "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
+    "ui_ability_test.cpp",
+  ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
+    "${ability_runtime_native_path}/ability/native:ability_thread",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:uiabilitykit_native",
+    "${ability_runtime_native_path}/appkit:app_context",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:configuration",
+    "ability_base:session_info",
+    "ability_base:want",
+    "ability_runtime:ability_context_native",
+    "ability_runtime:runtime",
+    "ability_runtime:wantagent_innerkits",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
+    "ffrt:libffrt",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+    "window_manager:scene_session",
+  ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "image_framework:image_native",
+      "input:libmmi-client",
+      "window_manager:libwm",
+    ]
+  }
+}
+
 ohos_unittest("ability_thread_for_ability_on_configuration_update") {
   module_out_path = module_output_path
 
@@ -1890,6 +2045,7 @@ ohos_unittest("ability_loader_test") {
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:uiabilitykit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
@@ -2275,6 +2431,9 @@ group("unittest") {
     ":share_extension_module_loader_test",
     ":share_extension_test",
     ":task_handler_client_test",
+    ":ui_ability_impl_test",
+    ":ui_ability_test",
+    ":ui_ability_thread_test",
   ]
 
   if (ability_runtime_graphics) {

@@ -211,6 +211,7 @@ std::map<int, std::set<int>> AppfreezeManager::BinderParser(std::ifstream& fin, 
     const int decimal = 10;
     std::string line;
     bool isBinderMatchup = false;
+    HILOG_INFO("start");
     stack += "BinderCatcher --\n\n";
     while (getline(fin, line)) {
         stack += line + "\n";

@@ -131,13 +131,13 @@ void AbilitySchedulerProxy::ScheduleDisconnectAbility(const Want &want)
         return;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("fail to WriteParcelable");
+        HILOG_ERROR("fail to WriteParcelable.");
         return;
     }
 
     int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_ABILITY_DISCONNECT, data, reply, option);
     if (err != NO_ERROR) {
-        HILOG_ERROR("ScheduleDisconnectAbility fail to SendRequest. err: %{public}d", err);
+        HILOG_ERROR("ScheduleDisconnectAbility fail to SendRequest. err: %{public}d.", err);
     }
 }
 
@@ -150,11 +150,11 @@ void AbilitySchedulerProxy::ScheduleCommandAbility(const Want &want, bool restar
         return;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("fail to WriteParcelable");
+        HILOG_ERROR("WriteParcelable failed");
         return;
     }
     if (!data.WriteBool(restart)) {
-        HILOG_ERROR("fail to WriteBool");
+        HILOG_ERROR("WriteBool failed");
         return;
     }
     HILOG_INFO("WriteInt32,startId:%{public}d", startId);
@@ -197,11 +197,11 @@ void AbilitySchedulerProxy::ScheduleCommandAbilityWindow(const Want &want, const
         return;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("fail to WriteParcelable");
+        HILOG_ERROR("WriteParcelable failed.");
         return;
     }
     if (!data.WriteParcelable(sessionInfo)) {
-        HILOG_ERROR("fail to WriteParcelable");
+        HILOG_ERROR("WriteParcelable failed.");
         return;
     }
     if (!data.WriteInt32(winCmd)) {

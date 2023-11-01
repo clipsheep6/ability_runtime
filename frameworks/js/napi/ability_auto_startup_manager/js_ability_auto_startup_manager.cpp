@@ -95,6 +95,7 @@ napi_value JsAbilityAutoStartupManager::OnRegisterAutoStartupCallback(napi_env e
     }
 
     if (!CheckCallerIsSystemApp()) {
+        HILOG_ERROR("Current app is not system app");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
         return CreateJsUndefined(env);
     }
@@ -111,7 +112,7 @@ napi_value JsAbilityAutoStartupManager::OnRegisterAutoStartupCallback(napi_env e
             AbilityManagerClient::GetInstance()->RegisterAutoStartupSystemCallback(jsAutoStartupCallback_->AsObject());
         if (ret != ERR_OK) {
             jsAutoStartupCallback_ = nullptr;
-            HILOG_ERROR("Register auto start up listener error[%{public}d].", ret);
+            HILOG_ERROR("Register auto start up listener wrong[%{public}d].", ret);
             ThrowError(env, GetJsErrorCodeByNativeError(ret));
             return CreateJsUndefined(env);
         }
@@ -164,9 +165,9 @@ napi_value JsAbilityAutoStartupManager::OnUnregisterAutoStartupCallback(napi_env
 
 napi_value JsAbilityAutoStartupManager::OnSetApplicationAutoStartup(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("Called.");
+    HILOG_DEBUG("OnSetApplicationAutoStartup Called.");
     if (info.argc < ARGC_ONE) {
-        HILOG_ERROR("The param is invalid.");
+        HILOG_ERROR("The argument is invalid.");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
@@ -213,7 +214,7 @@ napi_value JsAbilityAutoStartupManager::OnSetApplicationAutoStartup(napi_env env
 
 napi_value JsAbilityAutoStartupManager::OnCancelApplicationAutoStartup(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("Called.");
+    HILOG_DEBUG("OnCancelApplicationAutoStartup Called.");
     if (info.argc < ARGC_ONE) {
         HILOG_ERROR("The param is invalid.");
         ThrowTooFewParametersError(env);
@@ -221,6 +222,7 @@ napi_value JsAbilityAutoStartupManager::OnCancelApplicationAutoStartup(napi_env 
     }
 
     if (!CheckCallerIsSystemApp()) {
+        HILOG_ERROR("Current app is not system app.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
         return CreateJsUndefined(env);
     }

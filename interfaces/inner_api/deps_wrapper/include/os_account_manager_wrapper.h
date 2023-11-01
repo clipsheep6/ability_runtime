@@ -78,7 +78,14 @@ public:
      * @return error code, ERR_OK on success, others on failure.
      */
     ErrCode RemoveOsAccount(const int id);
+
+    /**
+     * @brief Get the current active user ID.
+     *
+     * @return int32_t user ID
+     */
+    static int32_t GetCurrentActiveAccountId();
 };
-}  // namespace AppExecFwk
-}  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_OS_ACCOUNT_MANAGER_WRAPPER_H
+} // namespace AppExecFwk
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_OS_ACCOUNT_MANAGER_WRAPPER_H

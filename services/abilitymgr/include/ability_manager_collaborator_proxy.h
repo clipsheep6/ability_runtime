@@ -127,6 +127,13 @@ public:
      * @param sessionInfo sessionInfo.
      */
     virtual void UpdateMissionInfo(sptr<SessionInfo> &sessionInfo) override;
+
+    /**
+     * @brief Check the call permission from shell assistant.
+     * @param want target info.
+     * @return 0 when check permission success or else failed.
+     */
+    virtual int32_t CheckCallAbilityPermission(const Want &want) override;
 private:
     static inline BrokerDelegator<AbilityManagerCollaboratorProxy> delegator_;
     int32_t SendTransactCmd(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
