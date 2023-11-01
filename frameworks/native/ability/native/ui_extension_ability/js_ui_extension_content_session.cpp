@@ -635,7 +635,6 @@ napi_value JsUIExtensionContentSession::OnStartAbilityByType(napi_env env, NapiC
             Ace::ModalUIExtensionCallbacks callback;
             callback.onError = std::bind(&JsUIExtensionCallback::OnError, uiExtensionCallback, std::placeholders::_1);
             Ace::ModalUIExtensionConfig config;
-            config.isProhibitBack = true;
             int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
             if (sessionId == 0) {
                 task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
