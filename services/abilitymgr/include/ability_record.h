@@ -1049,6 +1049,7 @@ private:
     int32_t restartMax_ = -1;
     std::string specifiedFlag_;
     ffrt::mutex lock_;
+    ffrt::mutex wantLock_;
     mutable ffrt::mutex dumpInfoLock_;
     mutable ffrt::mutex dumpLock_;
     mutable ffrt::condition_variable dumpCondition_;

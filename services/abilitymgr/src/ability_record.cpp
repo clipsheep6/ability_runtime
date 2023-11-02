@@ -288,6 +288,7 @@ int32_t AbilityRecord::GetPid()
 
 int AbilityRecord::LoadAbility()
 {
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("LoadLifecycle: abilityName:%{public}s.", abilityInfo_.name.c_str());
     startTime_ = AbilityUtil::SystemTimeMillis();
@@ -393,7 +394,10 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
     // earlier than above actions.
     SetAbilityStateInner(AbilityState::FOREGROUNDING);
     lifeCycleStateInfo_.sceneFlag = sceneFlag;
-    lifecycleDeal_->ForegroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
+    {
+        std::lock_guard<ffrt::mutex> guard(wantLock_);
+        lifecycleDeal_->ForegroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
+    }
     lifeCycleStateInfo_.sceneFlag = 0;
     lifeCycleStateInfo_.sceneFlagBak = 0;
 
@@ -416,23 +420,26 @@ void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
     GrantUriPermission(want_, applicationInfo_.bundleName, false, 0);
 
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
-    if (handler && task) {
-        if (!want_.GetBoolParam(DEBUG_APP, false) && !want_.GetBoolParam(NATIVE_DEBUG, false) && !isAttachDebug_) {
-            int foregroundTimeout =
-                AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
-            handler->SubmitTask(task, "foreground_" + std::to_string(recordId_), foregroundTimeout, false);
-        } else {
-            HILOG_INFO("Is debug mode, no need to handle time out.");
+    {
+        std::lock_guard<ffrt::mutex> guard(wantLock_);
+        if (handler && task) {
+            if (!want_.GetBoolParam(DEBUG_APP, false) && !want_.GetBoolParam(NATIVE_DEBUG, false) && !isAttachDebug_) {
+                int foregroundTimeout =
+                    AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
+                handler->SubmitTask(task, "foreground_" + std::to_string(recordId_), foregroundTimeout, false);
+            } else {
+                HILOG_INFO("Is debug mode, no need to handle time out.");
+            }
         }
-    }
 
-    // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
-    // earlier than above actions.
-    SetAbilityStateInner(AbilityState::FOREGROUNDING);
-    lifeCycleStateInfo_.sceneFlag = sceneFlag;
-    lifecycleDeal_->ForegroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
-    lifeCycleStateInfo_.sceneFlag = 0;
-    lifeCycleStateInfo_.sceneFlagBak = 0;
+        // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
+        // earlier than above actions.
+        SetAbilityStateInner(AbilityState::FOREGROUNDING);
+        lifeCycleStateInfo_.sceneFlag = sceneFlag;
+        lifecycleDeal_->ForegroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
+        lifeCycleStateInfo_.sceneFlag = 0;
+        lifeCycleStateInfo_.sceneFlagBak = 0;
+    }
 
     // update ability state to appMgr service when restart
     if (IsNewWant()) {
@@ -447,8 +454,12 @@ void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
 void AbilityRecord::ProcessForegroundAbility(uint32_t tokenId, uint32_t sceneFlag)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::string element = GetWant().GetElement().GetURI();
-    HILOG_DEBUG("ability record: %{public}s", element.c_str());
+    std::string element = "";
+    {
+        std::lock_guard<ffrt::mutex> guard(wantLock_);
+        element = GetWant().GetElement().GetURI();
+        HILOG_DEBUG("ability record: %{public}s", element.c_str());
+    }
     GrantUriPermission(want_, applicationInfo_.bundleName, false, tokenId);
 
     if (isReady_) {
@@ -506,7 +517,11 @@ void AbilityRecord::ProcessForegroundAbility(const std::shared_ptr<AbilityRecord
     uint32_t sceneFlag)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::string element = GetWant().GetElement().GetURI();
+    std::string element = "";
+    {
+        std::lock_guard<ffrt::mutex> guard(wantLock_);
+        element = GetWant().GetElement().GetURI();
+    }
     HILOG_DEBUG("SUPPORT_GRAPHICS: ability record: %{public}s", element.c_str());
 
     StartingWindowHot();
@@ -633,9 +648,13 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
     uint32_t sceneFlag)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::string element = GetWant().GetElement().GetURI();
+    
+    std::string element = "";
+    {
+        std::lock_guard<ffrt::mutex> guard(wantLock_);
+        element = GetWant().GetElement().GetURI();
+    }
     HILOG_DEBUG("SUPPORT_GRAPHICS: ability record: %{public}s", element.c_str());
-
     GrantUriPermission(want_, applicationInfo_.bundleName, false, 0);
 
     if (isReady_) {
@@ -1152,6 +1171,7 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
     // schedule background after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
     SetAbilityStateInner(AbilityState::BACKGROUNDING);
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     lifecycleDeal_->BackgroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
 }
 
@@ -1414,7 +1434,10 @@ void AbilityRecord::Activate()
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
     SetAbilityStateInner(AbilityState::ACTIVATING);
-    lifecycleDeal_->Activate(want_, lifeCycleStateInfo_);
+    {
+        std::lock_guard<ffrt::mutex> guard(wantLock_);
+        lifecycleDeal_->Activate(want_, lifeCycleStateInfo_);
+    }
 
     // update ability state to appMgr service when restart
     if (IsNewWant()) {
@@ -1441,6 +1464,7 @@ void AbilityRecord::Inactivate()
     // schedule inactive after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
     SetAbilityStateInner(AbilityState::INACTIVATING);
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     lifecycleDeal_->Inactivate(want_, lifeCycleStateInfo_, sessionInfo_);
 }
 
@@ -1468,6 +1492,7 @@ void AbilityRecord::Terminate(const Closure &task)
     // schedule background after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
     SetAbilityStateInner(AbilityState::TERMINATING);
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     lifecycleDeal_->Terminate(want_, lifeCycleStateInfo_);
 }
 
@@ -1488,6 +1513,7 @@ void AbilityRecord::ConnectAbility()
 {
     HILOG_INFO("Connect ability.");
     CHECK_POINTER(lifecycleDeal_);
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     lifecycleDeal_->ConnectAbility(want_);
 }
 
@@ -1496,6 +1522,7 @@ void AbilityRecord::DisconnectAbility()
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("ability:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     lifecycleDeal_->DisconnectAbility(want_);
 }
 
@@ -1503,12 +1530,14 @@ void AbilityRecord::CommandAbility()
 {
     HILOG_INFO("startId_:%{public}d.", startId_);
     CHECK_POINTER(lifecycleDeal_);
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     lifecycleDeal_->CommandAbility(want_, false, startId_);
 }
 
 void AbilityRecord::CommandAbilityWindow(const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd)
 {
     CHECK_POINTER(lifecycleDeal_);
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     lifecycleDeal_->CommandAbilityWindow(want_, sessionInfo, winCmd);
 }
 
@@ -1536,7 +1565,7 @@ void AbilityRecord::RestoreAbilityState()
 
 void AbilityRecord::SetWant(const Want &want)
 {
-    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     want_ = want;
 }
 
@@ -1658,7 +1687,6 @@ void AbilityRecord::SaveResultToCallers(const int resultCode, const Want *result
 
 void AbilityRecord::SaveResult(int resultCode, const Want *resultWant, std::shared_ptr<CallerRecord> caller)
 {
-    std::lock_guard<ffrt::mutex> guard(lock_);
     std::shared_ptr<AbilityRecord> callerAbilityRecord = caller->GetCaller();
     if (callerAbilityRecord != nullptr) {
         callerAbilityRecord->SetResult(
@@ -2365,8 +2393,11 @@ void AbilityRecord::SetMission(const std::shared_ptr<Mission> &mission)
         missionId_ = mission->GetMissionId();
         HILOG_DEBUG("SetMission come, missionId is %{public}d.", missionId_);
     }
-    want_.RemoveParam(KEY_MISSION_ID);
-    want_.SetParam(KEY_MISSION_ID, missionId_);
+    {
+        std::lock_guard<ffrt::mutex> guard(wantLock_);
+        want_.RemoveParam(KEY_MISSION_ID);
+        want_.SetParam(KEY_MISSION_ID, missionId_);
+    }
     mission_ = mission;
 }
 
@@ -2639,6 +2670,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         return;
     }
 
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     if ((want.GetFlags() & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
         HILOG_WARN("Do not call uriPermissionMgr.");
         return;
@@ -2869,11 +2901,13 @@ int32_t AbilityRecord::GetCurrentAccountId() const
 
 void AbilityRecord::SetWindowMode(int32_t windowMode)
 {
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     want_.SetParam(Want::PARAM_RESV_WINDOW_MODE, windowMode);
 }
 
 void AbilityRecord::RemoveWindowMode()
 {
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     want_.RemoveParam(Want::PARAM_RESV_WINDOW_MODE);
 }
 
@@ -2922,6 +2956,7 @@ void AbilityRecord::SetOtherMissionStackAbilityRecord(const std::shared_ptr<Abil
 void AbilityRecord::UpdateRecoveryInfo(bool hasRecoverInfo)
 {
     if (hasRecoverInfo) {
+        std::lock_guard<ffrt::mutex> guard(wantLock_);
         want_.SetParam(Want::PARAM_ABILITY_RECOVERY_RESTART, true);
         SetLaunchReason(LaunchReason::LAUNCHREASON_APP_RECOVERY);
     }
@@ -2929,6 +2964,7 @@ void AbilityRecord::UpdateRecoveryInfo(bool hasRecoverInfo)
 
 bool AbilityRecord::GetRecoveryInfo()
 {
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     return want_.GetBoolParam(Want::PARAM_ABILITY_RECOVERY_RESTART, false);
 }
 
