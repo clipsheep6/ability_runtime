@@ -83,6 +83,7 @@
 
 #ifdef EFFICIENCY_MANAGER_ENABLE
 #include "suspend_manager_client.h"
+#include "process_frozen_state_observer.h"
 #endif // EFFICIENCY_MANAGER_ENABLE
 
 #ifdef RESOURCE_SCHEDULE_SERVICE_ENABLE
@@ -389,6 +390,7 @@ bool AbilityManagerService::Init()
         obj->StartAutoStartupAppsInner();
     };
     taskHandler_->SubmitTask(startAutoStartupAppsTask, "StartAutoStartupApps");
+    ResiterSuspendObserver();
     HILOG_INFO("Init success.");
     return true;
 }
@@ -1918,6 +1920,19 @@ void AbilityManagerService::ReportEventToSuspendManager(const AppExecFwk::Abilit
     SuspendManager::SuspendManagerClient::GetInstance().ThawOneApplication(
         abilityInfo.applicationInfo.uid,
         abilityInfo.applicationInfo.bundleName, reason);
+#endif // EFFICIENCY_MANAGER_ENABLE
+}
+
+void AbilityManagerService::ResiterSuspendObserver()
+{
+#ifdef EFFICIENCY_MANAGER_ENABLE
+    if (!taskHandler_) {
+        HILOG_ERROR("taskhandler null");
+        return;
+    }
+    taskHandler_->SubmitTask([taskHandler = taskHandler_]() {
+            ProcessFrozenStateObserver::ResiterSuspendObserver(taskHandler);
+        });
 #endif // EFFICIENCY_MANAGER_ENABLE
 }
 
@@ -8814,6 +8829,19 @@ int32_t AbilityManagerService::ExecuteInsightIntentDone(const sptr<IRemoteObject
 
     return DelayedSingleton<InsightIntentExecuteManager>::GetInstance()->ExecuteIntentDone(
         intentId, result.innerErr, result);
+}
+
+void AbilityManagerService::HandleProcessFrozen(const std::vector<int32_t> &pidList, int32_t uid)
+{
+    HILOG_INFO("HandleProcessFrozen: %{public}d", uid);
+    std::unordered_set<int32_t> pidSet(pidList.begin(), pidList.end());
+    auto userId = uid / BASE_USER_RANGE;
+    auto connectManager = GetConnectManagerByUserId(userId);
+    if (connectManager == nullptr) {
+        HILOG_ERROR("can not find user connect manager");
+        return;
+    }
+    connectManager->HandleProcessFrozen(pidSet, uid);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

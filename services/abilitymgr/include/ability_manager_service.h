@@ -1364,6 +1364,8 @@ public:
      */
     virtual bool IsAbilityControllerStart(const Want &want) override;
 
+    void HandleProcessFrozen(const std::vector<int32_t> &pidList, int32_t uid);
+
     /**
      * @brief Called when insight intent execute finished.
      *
@@ -1620,6 +1622,7 @@ private:
     void ReportAbilitStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo);
 
     void ReportEventToSuspendManager(const AppExecFwk::AbilityInfo &abilityInfo);
+    void ResiterSuspendObserver();
 
     void ReportAppRecoverResult(const int32_t appId, const AppExecFwk::ApplicationInfo &appInfo,
         const std::string& abilityName, const std::string& result);

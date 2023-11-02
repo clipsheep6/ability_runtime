@@ -648,7 +648,7 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
         }
         auto taskName = std::to_string(missionId_) + "_hot";
         handler->CancelTask(taskName);
-        
+
         if (isWindowStarted_) {
             StartingWindowTask(isRecent, false, abilityRequest, startOptions);
             AnimationTask(isRecent, abilityRequest, startOptions, callerAbility);
@@ -1129,7 +1129,7 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
         HILOG_ERROR("Move the ability to background fail, lifecycleDeal_ is null.");
         return;
     }
-    
+
     if (!IsDebug()) {
         auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
         if (handler && task) {
@@ -2309,6 +2309,11 @@ void AbilityRecord::SetKeepAlive()
     isKeepAlive_ = true;
 }
 
+bool AbilityRecord::GetKeepAlive() const
+{
+    return isKeepAlive_;
+}
+
 int64_t AbilityRecord::GetRestartTime()
 {
     return restartTime_;
@@ -2703,7 +2708,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
                 continue;
             }
         }
-        
+
         if (authorityFlag && isGrantPersistableUriPermissionEnable_ && !permission) {
             if (!AAFwk::UriPermissionManagerClient::GetInstance().CheckPersistableUriPermissionProxy(
                 uri, flag, fromTokenId)) {

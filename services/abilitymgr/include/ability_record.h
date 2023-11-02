@@ -807,6 +807,7 @@ public:
     int32_t GetRestartCount() const;
     void SetRestartCount(int32_t restartCount);
     void SetKeepAlive();
+    bool GetKeepAlive() const;
     int64_t GetRestartTime();
     void SetRestartTime(const int64_t restartTime);
     void SetAppIndex(const int32_t appIndex);
