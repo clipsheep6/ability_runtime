@@ -2818,8 +2818,8 @@ int32_t AbilityManagerStub::ExecuteIntentInner(MessageParcel &data, MessageParce
         return ERR_INVALID_VALUE;
     }
     auto result = ExecuteIntent(key, callerToken, *param);
-    if (result != NO_ERROR) {
-        HILOG_ERROR("ExecuteIntent is failed");
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
