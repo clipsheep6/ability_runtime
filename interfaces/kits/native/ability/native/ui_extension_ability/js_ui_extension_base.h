@@ -37,7 +37,7 @@ class JsRuntime;
 /**
  * @brief Js ui extension base.
  */
-class JsUIExtensionBase {
+class JsUIExtensionBase : public std::enable_shared_from_this<JsUIExtensionBase> {
 public:
     explicit JsUIExtensionBase(const std::unique_ptr<Runtime> &runtime);
     virtual ~JsUIExtensionBase();
@@ -155,6 +155,11 @@ private:
     void DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo);
     bool CallJsOnSessionCreate(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
         const sptr<Rosen::Window> &uiWindow, const sptr<IRemoteObject> &sessionToken);
+    void OnCommandWindowDone(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd);
+    bool ForegroundWindowWithInsightIntent(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo);
+    bool HandleSessionCreate(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo);
+    void OnInsightIntentExecuteDone(const sptr<AAFwk::SessionInfo> &sessionInfo,
+        const AppExecFwk::InsightIntentExecuteResult &result);
 
     JsRuntime &jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;

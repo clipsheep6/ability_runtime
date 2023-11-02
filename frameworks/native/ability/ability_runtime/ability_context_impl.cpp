@@ -750,7 +750,6 @@ ErrCode AbilityContextImpl::StartAbilityByType(const std::string &type,
     Ace::ModalUIExtensionCallbacks callback;
     callback.onError = std::bind(&JsUIExtensionCallback::OnError, uiExtensionCallbacks, std::placeholders::_1);
     Ace::ModalUIExtensionConfig config;
-    config.isProhibitBack = true;
     int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
     if (sessionId == 0) {
         HILOG_ERROR("CreateModalUIExtension is failed");

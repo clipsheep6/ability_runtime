@@ -26,6 +26,9 @@ class AbilityTransactionCallbackInfo {
 public:
     using CallbackFunc = std::function<void(T&)>;
 
+    AbilityTransactionCallbackInfo() = default;
+    ~AbilityTransactionCallbackInfo() = default;
+
     static AbilityTransactionCallbackInfo *Create()
     {
         return new(std::nothrow) AbilityTransactionCallbackInfo();
@@ -50,11 +53,12 @@ public:
         }
     }
 
+    bool IsEmpty() const
+    {
+        return callbackStack_.empty();
+    }
+
 private:
-    AbilityTransactionCallbackInfo() = default;
-
-    ~AbilityTransactionCallbackInfo() = default;
-
     std::stack<CallbackFunc> callbackStack_ {};
 };
 
@@ -62,6 +66,9 @@ template<>
 class AbilityTransactionCallbackInfo<void> {
 public:
     using CallbackFunc = std::function<void()>;
+
+    AbilityTransactionCallbackInfo() = default;
+    ~AbilityTransactionCallbackInfo() = default;
 
     static AbilityTransactionCallbackInfo *Create()
     {
@@ -87,11 +94,12 @@ public:
         }
     }
 
+    bool IsEmpty() const
+    {
+        return callbackStack_.empty();
+    }
+
 private:
-    AbilityTransactionCallbackInfo() = default;
-
-    ~AbilityTransactionCallbackInfo() = default;
-
     std::stack<CallbackFunc> callbackStack_ {};
 };
 }  // namespace AppExecFwk

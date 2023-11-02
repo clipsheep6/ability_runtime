@@ -921,7 +921,7 @@ napi_value JsAbilityContext::OnConnectAbility(napi_env env, NapiCallbackInfo& in
     // unwrap want
     AAFwk::Want want;
     OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want);
-    HILOG_INFO("ConnectAbility, callee:%{public}s.%{public}s.",
+    HILOG_INFO("ConnectAbility, callee:%{public}s.%{public}s",
         want.GetBundle().c_str(),
         want.GetElement().GetAbilityName().c_str());
 
@@ -1283,6 +1283,7 @@ void JsAbilityContext::AddFreeInstallObserver(napi_env env, const AAFwk::Want &w
     bool isAbilityResult)
 {
     // adapter free install async return install and start result
+    HILOG_DEBUG("ConvertWindowSize begin.");
     int ret = 0;
     if (freeInstallObserver_ == nullptr) {
         freeInstallObserver_ = new JsFreeInstallObserver(env);

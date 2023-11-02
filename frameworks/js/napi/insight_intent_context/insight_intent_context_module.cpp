@@ -15,6 +15,11 @@
 
 #include "napi/native_api.h"
 
+extern const char _binary_insight_intent_context_js_start[];
+extern const char _binary_insight_intent_context_js_end[];
+extern const char _binary_insight_intent_context_abc_start[];
+extern const char _binary_insight_intent_context_abc_end[];
+
 /*
  * The insight intent context module definition.
  */
@@ -27,7 +32,30 @@ static napi_module _module = {
 /*
  * The insight intent context module registration.
  */
-extern "C" __attribute__((constructor)) void NAPI_Insight_Intent_Context_AutoRegister(void)
+extern "C" __attribute__((constructor)) void NAPI_app_ability_InsightIntentContext_AutoRegister(void)
 {
     napi_module_register(&_module);
+}
+
+extern "C" __attribute__((visibility("default")))
+void NAPI_app_ability_InsightIntentContext_GetJSCode(const char **buf, int *bufLen)
+{
+    if (buf != nullptr) {
+        *buf = _binary_insight_intent_context_js_start;
+    }
+
+    if (bufLen != nullptr) {
+        *bufLen = _binary_insight_intent_context_js_end - _binary_insight_intent_context_js_start;
+    }
+}
+
+extern "C" __attribute__((visibility("default")))
+void NAPI_app_ability_InsightIntentContext_GetABCCode(const char **buf, int *buflen)
+{
+    if (buf != nullptr) {
+        *buf = _binary_insight_intent_context_abc_start;
+    }
+    if (buflen != nullptr) {
+        *buflen = _binary_insight_intent_context_abc_end - _binary_insight_intent_context_abc_start;
+    }
 }

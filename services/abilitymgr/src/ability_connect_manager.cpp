@@ -38,8 +38,6 @@ constexpr char EVENT_KEY_PID[] = "PID";
 constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
-const std::string BUNDLE_NAME_DIALOG = "com.ohos.amsdialog";
-const std::string ABILITY_NAME_DIALOG = "SwitchUserDialog";
 #ifdef SUPPORT_ASAN
 const int LOAD_TIMEOUT_MULTIPLE = 150;
 const int CONNECT_TIMEOUT_MULTIPLE = 45;
@@ -291,9 +289,11 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
     targetService->SetSessionInfo(sessionInfo);
     connectRecordList.push_back(connectRecord);
     if (isCallbackConnected) {
+        HILOG_INFO("callbackConnected remove connect");
         RemoveConnectDeathRecipient(connect);
         connectMap_.erase(connectMap_.find(connect->AsObject()));
     }
+    HILOG_INFO("insert connect");
     AddConnectDeathRecipient(connect);
     connectMap_.emplace(connect->AsObject(), connectRecordList);
     targetService->SetLaunchReason(LaunchReason::LAUNCHREASON_CONNECT_EXTENSION);
@@ -1370,7 +1370,7 @@ void AbilityConnectManager::RemoveConnectDeathRecipient(const sptr<IAbilityConne
     CHECK_POINTER(connect);
     CHECK_POINTER(connect->AsObject());
     auto it = recipientMap_.find(connect->AsObject());
-    if (it != recipientMap_.end()) {
+    if (it != recipientMap_.end() && it->first != nullptr) {
         it->first->RemoveDeathRecipient(it->second);
         recipientMap_.erase(it);
         return;
@@ -1795,17 +1795,18 @@ void AbilityConnectManager::GetExtensionRunningInfo(std::shared_ptr<AbilityRecor
     info.emplace_back(extensionInfo);
 }
 
-void AbilityConnectManager::StopAllExtensions()
+void AbilityConnectManager::PauseExtensions()
 {
-    HILOG_INFO("StopAllExtensions begin.");
+    HILOG_DEBUG("begin.");
     std::lock_guard guard(Lock_);
     for (auto it = serviceMap_.begin(); it != serviceMap_.end();) {
         auto targetExtension = it->second;
         if (targetExtension != nullptr && targetExtension->GetAbilityInfo().type == AbilityType::EXTENSION &&
-            targetExtension->GetAbilityInfo().bundleName != BUNDLE_NAME_DIALOG &&
-            targetExtension->GetAbilityInfo().name != ABILITY_NAME_DIALOG) {
+            targetExtension->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME &&
+            targetExtension->GetAbilityInfo().bundleName == AbilityConfig::LAUNCHER_BUNDLE_NAME) {
             terminatingExtensionMap_.emplace(it->first, it->second);
             serviceMap_.erase(it++);
+            HILOG_INFO("terminate ability:%{public}s.", targetExtension->GetAbilityInfo().name.c_str());
             TerminateAbilityLocked(targetExtension->GetToken());
         } else {
             it++;
@@ -1975,7 +1976,7 @@ void AbilityConnectManager::RemoveUIExtWindowDeathRecipient(const sptr<IRemoteOb
 {
     CHECK_POINTER(session);
     auto it = uiExtRecipientMap_.find(session);
-    if (it != uiExtRecipientMap_.end()) {
+    if (it != uiExtRecipientMap_.end() && it->first != nullptr) {
         it->first->RemoveDeathRecipient(it->second);
         uiExtRecipientMap_.erase(it);
         return;

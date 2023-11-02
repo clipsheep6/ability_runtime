@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -446,7 +446,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_008, TestSize.Level1)
     int result = ConnectManager()->ConnectAbilityLocked(abilityRequest_, callbackA_, nullptr);
     EXPECT_EQ(0, result);
 
-    auto connectMap = ConnectManager()->GetConnectMap();
+    auto connectMap = ConnectManager()->connectMap_;
     auto connectRecordList = connectMap.at(callbackA_->AsObject());
     EXPECT_EQ(1, static_cast<int>(connectRecordList.size()));
 
@@ -473,12 +473,12 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_009, TestSize.Level1)
     int result = ConnectManager()->ConnectAbilityLocked(abilityRequest_, callbackA_, nullptr);
     EXPECT_EQ(0, result);
 
-    auto connectMap = ConnectManager()->GetConnectMap();
+    auto connectMap = ConnectManager()->connectMap_;
     EXPECT_EQ(1, static_cast<int>(connectMap.size()));
     WaitUntilTaskDone(TaskHandler());
     usleep(TEST_WAIT_TIME);
 
-    connectMap = ConnectManager()->GetConnectMap();
+    connectMap = ConnectManager()->connectMap_;
     EXPECT_EQ(1, static_cast<int>(connectMap.size()));
 }
 
@@ -498,7 +498,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_010, TestSize.Level1)
     result = ConnectManager()->ConnectAbilityLocked(abilityRequest_, callbackB_, nullptr);
     EXPECT_EQ(0, result);
 
-    auto connectMap = ConnectManager()->GetConnectMap();
+    auto connectMap = ConnectManager()->connectMap_;
     auto connectRecordList = connectMap.at(callbackA_->AsObject());
     EXPECT_EQ(1, static_cast<int>(connectRecordList.size()));
 
@@ -533,7 +533,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_011, TestSize.Level1)
     auto abilityRecord = serviceMap.at(elementNameUri);
     auto token = abilityRecord->GetToken();
 
-    auto connectMap = ConnectManager()->GetConnectMap();
+    auto connectMap = ConnectManager()->connectMap_;
     EXPECT_EQ(1, static_cast<int>(connectMap.size()));
 
     auto scheduler = new AbilityScheduler();
@@ -542,7 +542,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_011, TestSize.Level1)
 
     WaitUntilTaskDone(TaskHandler());
     usleep(TEST_WAIT_TIME);
-    connectMap = ConnectManager()->GetConnectMap();
+    connectMap = ConnectManager()->connectMap_;
     EXPECT_EQ(0, result);
     EXPECT_EQ(1, static_cast<int>(connectMap.size()));
 }
@@ -563,7 +563,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_012, TestSize.Level1)
     result = ConnectManager()->ConnectAbilityLocked(abilityRequest_, callbackA_, nullptr);
     EXPECT_EQ(0, result);
 
-    auto connectMap = ConnectManager()->GetConnectMap();
+    auto connectMap = ConnectManager()->connectMap_;
     auto connectRecordList = connectMap.at(callbackA_->AsObject());
     EXPECT_EQ(1, static_cast<int>(connectRecordList.size()));
 
@@ -597,7 +597,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_013, TestSize.Level1)
     result = ConnectManager()->ConnectAbilityLocked(abilityRequestB, callbackA_, nullptr);
     EXPECT_EQ(0, result);
 
-    auto connectMap = ConnectManager()->GetConnectMap();
+    auto connectMap = ConnectManager()->connectMap_;
     auto connectRecordList = connectMap.at(callbackA_->AsObject());
     EXPECT_EQ(2, static_cast<int>(connectRecordList.size()));
 
@@ -638,7 +638,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_014, TestSize.Level1)
     EXPECT_EQ(0, result);
 
     ConnectManager()->ConnectAbilityLocked(abilityRequest_, callbackB_, nullptr);
-    auto connectMap = ConnectManager()->GetConnectMap();
+    auto connectMap = ConnectManager()->connectMap_;
     auto connectRecordList = connectMap.at(callbackB_->AsObject());
     EXPECT_EQ(2, static_cast<int>(connectRecordList.size()));
 
@@ -1010,7 +1010,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Kit_Disconnect_002, TestSize.Level1)
     auto serviceMap = ConnectManager()->GetServiceMap();
     EXPECT_EQ(static_cast<int>(serviceMap.size()), 2);
 
-    auto connectMap = ConnectManager()->GetConnectMap();
+    auto connectMap = ConnectManager()->connectMap_;
     EXPECT_EQ(static_cast<int>(connectMap.size()), 1);
     for (auto& it : connectMap) {
         EXPECT_EQ(static_cast<int>(it.second.size()), 2);
@@ -1358,7 +1358,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_029, TestSize.Level1)
 
     ConnectManager()->OnCallBackDied(nullptr);
     WaitUntilTaskDone(TaskHandler());
-    auto connectMap = ConnectManager()->GetConnectMap();
+    auto connectMap = ConnectManager()->connectMap_;
     auto connectRecordList = connectMap.at(callbackA_->AsObject());
     EXPECT_EQ(1, static_cast<int>(connectRecordList.size()));
     for (auto& it : connectRecordList) {
@@ -1367,7 +1367,6 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_029, TestSize.Level1)
 
     ConnectManager()->OnCallBackDied(callbackA_->AsObject());
     WaitUntilTaskDone(TaskHandler());
-    auto cMap = ConnectManager()->GetConnectMap();
     connectRecordList = connectMap.at(callbackA_->AsObject());
     EXPECT_EQ(1, static_cast<int>(connectMap.size()));
     for (auto& it : connectRecordList) {
@@ -2253,27 +2252,6 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_GetExtensionRunningInfo_001,
 
 /*
  * Feature: AbilityConnectManager
- * Function: StopAllExtensions
- * SubFunction: StopAllExtensions
- * FunctionPoints: NA
- * EnvConditions: NA
- * CaseDescription: Verify AbilityConnectManager StopAllExtensions
- */
-HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_StopAllExtensions_001, TestSize.Level1)
-{
-    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
-    ASSERT_NE(connectManager, nullptr);
-    std::shared_ptr<AbilityRecord> abilityRecord1 = serviceRecord_;
-    std::shared_ptr<AbilityRecord> abilityRecord2 = serviceRecord_;
-    abilityRecord1->abilityInfo_.type = AbilityType::EXTENSION;
-    abilityRecord2->abilityInfo_.type = AbilityType::PAGE;
-    connectManager->serviceMap_.emplace("first", abilityRecord1);
-    connectManager->serviceMap_.emplace("second", abilityRecord2);
-    connectManager->StopAllExtensions();
-}
-
-/*
- * Feature: AbilityConnectManager
  * Function: IsAbilityNeedKeepAlive
  * SubFunction:
  * FunctionPoints: IsAbilityNeedKeepAlive
@@ -3113,6 +3091,29 @@ HWTEST_F(AbilityConnectManagerTest, IsUIExtensionFocused_001, TestSize.Level1)
         serviceRecord_->GetApplicationInfo().accessTokenId, serviceRecord1_->GetToken());
     EXPECT_EQ(isFocused, true);
     connectManager.reset();
+}
+
+/*
+ * Feature: AbilityConnectManager
+ * Function: PauseExtensions
+ * SubFunction: PauseExtensions
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityConnectManager PauseExtensions
+ */
+HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_PauseExtensions_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
+    std::shared_ptr<AbilityRecord> abilityRecord1 = serviceRecord_;
+    abilityRecord1->abilityInfo_.type = AbilityType::PAGE;
+    connectManager->serviceMap_.emplace("first", abilityRecord1);
+    std::shared_ptr<AbilityRecord> abilityRecord2 = AbilityRecord::CreateAbilityRecord(abilityRequest_);
+    abilityRecord2->abilityInfo_.type = AbilityType::EXTENSION;
+    abilityRecord2->abilityInfo_.name = AbilityConfig::LAUNCHER_ABILITY_NAME;
+    abilityRecord2->abilityInfo_.bundleName = AbilityConfig::LAUNCHER_BUNDLE_NAME;
+    connectManager->serviceMap_.emplace("second", abilityRecord2);
+    connectManager->PauseExtensions();
 }
 }  // namespace AAFwk
 }  // namespace OHOS

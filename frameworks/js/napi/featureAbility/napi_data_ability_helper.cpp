@@ -510,7 +510,7 @@ napi_value NotifyChangeWrap(napi_env env, napi_callback_info info, DAHelperNotif
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     if (argcAsync > argCountWithAsync) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, Wrong parameter count.", __func__);
         return nullptr;
     }
 
@@ -1387,7 +1387,7 @@ napi_value GetFileTypesWrap(napi_env env, napi_callback_info info, DAHelperGetFi
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, Wrong arguments count.", __func__);
         return nullptr;
     }
 
@@ -1764,7 +1764,7 @@ napi_value DenormalizeUriWrap(napi_env env, napi_callback_info info, DAHelperDen
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, Parameter count error", __func__);
         return nullptr;
     }
 
@@ -1963,7 +1963,7 @@ napi_value DeleteWrap(napi_env env, napi_callback_info info, DAHelperDeleteCB *d
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     if (argcAsync > argCountWithAsync) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, Error argument count.", __func__);
         return nullptr;
     }
 
@@ -2149,7 +2149,7 @@ napi_value UpdateWrap(napi_env env, napi_callback_info info, DAHelperUpdateCB *u
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, Parameter count error.", __func__);
         return nullptr;
     }
 
@@ -2752,7 +2752,7 @@ napi_value OpenFileWrap(napi_env env, napi_callback_info info, DAHelperOpenFileC
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, argument count error.", __func__);
         return nullptr;
     }
 
@@ -2984,7 +2984,7 @@ napi_value BatchInsertWrap(napi_env env, napi_callback_info info, DAHelperBatchI
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, Wrong argument count", __func__);
         return nullptr;
     }
 

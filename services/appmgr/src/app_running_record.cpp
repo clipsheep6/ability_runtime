@@ -694,6 +694,10 @@ void AppRunningRecord::StateChangedNotifyObserver(
     abilityStateData.token = ability->GetToken();
     abilityStateData.abilityType = static_cast<int32_t>(ability->GetAbilityInfo()->type);
     abilityStateData.isFocused = ability->GetFocusFlag();
+    if (ability->GetWant() != nullptr) {
+        abilityStateData.callerAbilityName = ability->GetWant()->GetStringParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
+        abilityStateData.callerBundleName = ability->GetWant()->GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+    }
 
     if (isAbility && ability->GetAbilityInfo()->type == AbilityType::EXTENSION) {
         HILOG_INFO("extension type, not notify any more.");
@@ -826,18 +830,8 @@ void AppRunningRecord::AbilityForeground(const std::shared_ptr<AbilityRunningRec
     HILOG_INFO("appState: %{public}d, bundle: %{public}s, ability: %{public}s",
         curState_, mainBundleName_.c_str(), ability->GetName().c_str());
     // We need schedule application to foregrounded when current application state is ready or background running.
-    if (curState_ == ApplicationState::APP_STATE_READY || curState_ == ApplicationState::APP_STATE_BACKGROUND) {
-        if (foregroundingAbilityTokens_.empty()) {
-            HILOG_INFO("application foregrounding.");
-            ScheduleForegroundRunning();
-        }
-        foregroundingAbilityTokens_.insert(ability->GetToken());
-        HILOG_INFO("foregroundingAbility size: %{public}d", static_cast<int32_t>(foregroundingAbilityTokens_.size()));
-        if (curState_ == ApplicationState::APP_STATE_BACKGROUND) {
-            SendAppStartupTypeEvent(ability, AppStartType::HOT);
-        }
-        return;
-    } else if (curState_ == ApplicationState::APP_STATE_FOREGROUND) {
+    if (curState_ == ApplicationState::APP_STATE_FOREGROUND
+        && pendingState_ != ApplicationPendingState::BACKGROUNDING) {
         // Just change ability to foreground if current application state is foreground or focus.
         auto moduleRecord = GetModuleRunningRecordByToken(ability->GetToken());
         moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_FOREGROUND);
@@ -845,6 +839,20 @@ void AppRunningRecord::AbilityForeground(const std::shared_ptr<AbilityRunningRec
         auto serviceInner = appMgrServiceInner_.lock();
         if (serviceInner) {
             serviceInner->OnAppStateChanged(shared_from_this(), curState_, false);
+        }
+        return;
+    }
+    if (curState_ == ApplicationState::APP_STATE_READY || curState_ == ApplicationState::APP_STATE_BACKGROUND
+        || curState_ == ApplicationState::APP_STATE_FOREGROUND) {
+        if (foregroundingAbilityTokens_.empty() || pendingState_ == ApplicationPendingState::BACKGROUNDING) {
+            HILOG_INFO("application foregrounding.");
+            SetApplicationPendingState(ApplicationPendingState::FOREGROUNDING);
+            ScheduleForegroundRunning();
+        }
+        foregroundingAbilityTokens_.insert(ability->GetToken());
+        HILOG_INFO("foregroundingAbility size: %{public}d", static_cast<int32_t>(foregroundingAbilityTokens_.size()));
+        if (curState_ == ApplicationState::APP_STATE_BACKGROUND) {
+            SendAppStartupTypeEvent(ability, AppStartType::HOT);
         }
     } else {
         HILOG_WARN("wrong application state");
@@ -887,6 +895,7 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
 
         // Then schedule application background when all ability is not foreground.
         if (foregroundSize == 0 && mainBundleName_ != LAUNCHER_NAME && windowIds_.empty()) {
+            SetApplicationPendingState(ApplicationPendingState::BACKGROUNDING);
             ScheduleBackgroundRunning();
         }
     } else {
@@ -1722,6 +1731,16 @@ void AppRunningRecord::SetAttachDebug(const bool &isAttachDebug)
 bool AppRunningRecord::isAttachDebug() const
 {
     return isAttachDebug_;
+}
+
+void AppRunningRecord::SetApplicationPendingState(ApplicationPendingState pendingState)
+{
+    pendingState_ = pendingState;
+}
+
+ApplicationPendingState AppRunningRecord::GetApplicationPendingState() const
+{
+    return pendingState_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

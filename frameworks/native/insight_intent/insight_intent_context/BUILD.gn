@@ -14,26 +14,40 @@
 import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
-ohos_shared_library("insightintentcontext") {
+config("insight_intent_context_public_config") {
+  visibility = [ ":*" ]
   include_dirs = [
     "${ability_runtime_innerkits_path}/insight_intent/insight_intent_context",
   ]
+}
 
-  sources = [ "insight_intent_context.cpp" ]
+ohos_shared_library("insightintentcontext") {
+  sources = [
+    "insight_intent_context.cpp",
+    "js_insight_intent_context.cpp",
+  ]
 
   defines = [ "AMS_LOG_TAG = \"InsigtIntent\"" ]
   defines += [ "AMS_LOG_DOMAIN = 0xD001308" ]
 
-  deps = [ "${ability_runtime_innerkits_path}/ability_manager:ability_manager" ]
+  public_configs = [ ":insight_intent_context_public_config" ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
+    "${ability_runtime_native_path}/ability/native:ability_business_error",
+  ]
 
   external_deps = [
     "ability_base:want",
     "c_utils:utils",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
+    "ipc:ipc_single",
+    "napi:ace_napi",
   ]
 
-  relative_install_dir = "insight_intent"
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

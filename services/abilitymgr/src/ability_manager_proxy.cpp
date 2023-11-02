@@ -100,7 +100,7 @@ AppExecFwk::ElementName AbilityManagerProxy::GetTopAbility(bool isNeedLocalDevic
     return result;
 }
 
-AppExecFwk::ElementName AbilityManagerProxy::GetElementNameByToken(const sptr<IRemoteObject> &token,
+AppExecFwk::ElementName AbilityManagerProxy::GetElementNameByToken(sptr<IRemoteObject> token,
     bool isNeedLocalDeviceId)
 {
     MessageParcel data;
@@ -116,6 +116,7 @@ AppExecFwk::ElementName AbilityManagerProxy::GetElementNameByToken(const sptr<IR
         return {};
     }
     int error = SendRequest(AbilityManagerInterfaceCode::GET_ELEMENT_NAME_BY_TOKEN, data, reply, option);
+    HILOG_INFO("sptr count: %{public}d", token ? token->GetSptrRefCount() : 0);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return {};
@@ -792,7 +793,7 @@ int AbilityManagerProxy::MoveAbilityToBackground(const sptr<IRemoteObject> &toke
     }
     error = SendRequest(AbilityManagerInterfaceCode::MOVE_ABILITY_TO_BACKGROUND, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        HILOG_ERROR("Send request error: %{public}d.", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2182,7 +2183,7 @@ void AbilityManagerProxy::SetLockedState(int32_t sessionId, bool lockedState)
         HILOG_ERROR("WriteBool fail.");
         return;
     }
-    
+
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     auto error = SendRequest(AbilityManagerInterfaceCode::SET_SESSION_LOCKED_STATE, data, reply, option);
@@ -4489,6 +4490,42 @@ int32_t AbilityManagerProxy::DetachAppDebug(const std::string &bundleName)
     return reply.ReadInt32();
 }
 
+int32_t AbilityManagerProxy::ExecuteIntent(uint64_t key,  const sptr<IRemoteObject> &callerToken,
+    const InsightIntentExecuteParam &param)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteUint64(key)) {
+        HILOG_ERROR("Write key failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteRemoteObject(callerToken)) {
+        HILOG_ERROR("failed to write callerToken.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteParcelable(&param)) {
+        HILOG_ERROR("Write param failed.");
+        return INNER_ERR;
+    }
+
+    int32_t error = SendRequest(AbilityManagerInterfaceCode::EXECUTE_INTENT, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request failed, err: %{public}d", error);
+        return error;
+    }
+
+    return reply.ReadInt32();
+}
+
 bool AbilityManagerProxy::IsAbilityControllerStart(const Want &want)
 {
     MessageParcel data;
@@ -4503,7 +4540,7 @@ bool AbilityManagerProxy::IsAbilityControllerStart(const Want &want)
         HILOG_ERROR("WriteWantObject failed.");
         return true;
     }
-    
+
     auto error = SendRequest(AbilityManagerInterfaceCode::IS_ABILITY_CONTROLLER_START,
         data, reply, option);
     if (error != NO_ERROR) {
@@ -4511,6 +4548,36 @@ bool AbilityManagerProxy::IsAbilityControllerStart(const Want &want)
         return true;
     }
     return reply.ReadBool();
+}
+
+int32_t AbilityManagerProxy::ExecuteInsightIntentDone(const sptr<IRemoteObject> &token, uint64_t intentId,
+    const InsightIntentExecuteResult &result)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write remote object failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteRemoteObject(token)) {
+        HILOG_ERROR("Write token failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteInt64(intentId) || !data.WriteParcelable(&result)) {
+        HILOG_ERROR("Write insight intent params failed.");
+        return INNER_ERR;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(AbilityManagerInterfaceCode::EXECUTE_INSIGHT_INTENT_DONE, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed with %{public}d", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
 }
 
 ErrCode AbilityManagerProxy::SendRequest(AbilityManagerInterfaceCode code, MessageParcel &data, MessageParcel &reply,

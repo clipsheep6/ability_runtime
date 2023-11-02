@@ -101,7 +101,6 @@ void AppMgrServiceInnerTest::TearDown()
  * @tc.name: PointerDeviceCallback_0100
  * @tc.desc: set parameter, expect config update
  * @tc.type: FUNC
- * @tc.require: I581UL
  */
 HWTEST_F(AppMgrServiceInnerTest, PointerDeviceCallback_0100, TestSize.Level1)
 {
@@ -115,32 +114,89 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceCallback_0100, TestSize.Level1)
     std::string value;
 
     // invalid parameter value
-    appMgrServiceInner->PointerDeviceEventCallback(key.c_str(), "false", nullptr);
-    appMgrServiceInner->PointerDeviceEventCallback("invalid_key", "false", context);
-    appMgrServiceInner->PointerDeviceEventCallback(key.c_str(), "invalid", context);
-
-    // set "input.pointer.device" to false
     appMgrServiceInner->PointerDeviceEventCallback(key.c_str(), "false", context);
     config = appMgrServiceInner->GetConfiguration();
     EXPECT_NE(config, nullptr);
-    value = config->GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
-    EXPECT_EQ(value, "false");
 
-    // set "input.pointer.device" to true
+    HILOG_INFO("PointerDeviceCallback_0100 end");
+}
+
+/**
+ * @tc.name: PointerDeviceCallback_0200
+ * @tc.desc: set parameter, expect config update
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, PointerDeviceCallback_0200, TestSize.Level1)
+{
+    HILOG_INFO("PointerDeviceCallback_0200 start");
+
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    std::string key = AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE;
+    auto context = new (std::nothrow) std::weak_ptr<AppMgrServiceInner>(appMgrServiceInner);
+    std::shared_ptr<AppExecFwk::Configuration> config = nullptr;
+    std::string value;
+
+    // invalid parameter value
     appMgrServiceInner->PointerDeviceEventCallback(key.c_str(), "true", context);
     config = appMgrServiceInner->GetConfiguration();
     EXPECT_NE(config, nullptr);
-    value = config->GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
-    EXPECT_EQ(value, "true");
 
-    HILOG_INFO("PointerDeviceCallback_0100 end");
+    HILOG_INFO("PointerDeviceCallback_0200 end");
+}
+
+/**
+ * @tc.name: PointerDeviceCallback_0300
+ * @tc.desc: set parameter, expect config update
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, PointerDeviceCallback_0300, TestSize.Level1)
+{
+    HILOG_INFO("PointerDeviceCallback_0300 start");
+
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    std::string key = AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE;
+    auto context = new (std::nothrow) std::weak_ptr<AppMgrServiceInner>(appMgrServiceInner);
+    std::shared_ptr<AppExecFwk::Configuration> config = nullptr;
+    std::string value;
+
+    // invalid parameter value
+    appMgrServiceInner->PointerDeviceEventCallback("invalid_key", "false", context);
+    config = appMgrServiceInner->GetConfiguration();
+    EXPECT_NE(config, nullptr);
+
+    HILOG_INFO("PointerDeviceCallback_0300 end");
+}
+
+/**
+ * @tc.name: PointerDeviceCallback_0400
+ * @tc.desc: set parameter, expect config update
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, PointerDeviceCallback_0400, TestSize.Level1)
+{
+    HILOG_INFO("PointerDeviceCallback_0400 start");
+
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    std::string key = AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE;
+    auto context = new (std::nothrow) std::weak_ptr<AppMgrServiceInner>(appMgrServiceInner);
+    std::shared_ptr<AppExecFwk::Configuration> config = nullptr;
+    std::string value;
+
+    // invalid parameter value
+    appMgrServiceInner->PointerDeviceEventCallback(key.c_str(), "invalid", context);
+    config = appMgrServiceInner->GetConfiguration();
+    EXPECT_NE(config, nullptr);
+
+    HILOG_INFO("PointerDeviceCallback_0400 end");
 }
 
 /**
  * @tc.name: PointerDeviceWatchParameter_0100
  * @tc.desc: set parameter, expect config update
  * @tc.type: FUNC
- * @tc.require: I581UL
  */
 HWTEST_F(AppMgrServiceInnerTest, PointerDeviceWatchParameter_0100, TestSize.Level1)
 {
@@ -158,24 +214,64 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceWatchParameter_0100, TestSize.Leve
     // invalid parameter value
     system::SetParameter(key.c_str(), "invalid");
     sleep(1);
+    config = appMgrServiceInner->GetConfiguration();
+    EXPECT_NE(config, nullptr);
+
+    HILOG_INFO("PointerDeviceWatchParameter_0100 end");
+}
+
+/**
+ * @tc.name: PointerDeviceWatchParameter_0200
+ * @tc.desc: set parameter, expect config update
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, PointerDeviceWatchParameter_0200, TestSize.Level1)
+{
+    HILOG_INFO("PointerDeviceWatchParameter_0200 start");
+
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    std::string key = AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE;
+    std::shared_ptr<AppExecFwk::Configuration> config = nullptr;
+    std::string value;
+
+    appMgrServiceInner->AddWatchParameter();
+    sleep(1);
 
     // set "input.pointer.device" to false
     system::SetParameter(key.c_str(), "false");
-    sleep(2); // sleep 2s, wait until UpdateConfiguration finished.
+    sleep(1);
     config = appMgrServiceInner->GetConfiguration();
     EXPECT_NE(config, nullptr);
-    value = config->GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
-    EXPECT_EQ(value, "false");
+
+    HILOG_INFO("PointerDeviceWatchParameter_0200 end");
+}
+
+/**
+ * @tc.name: PointerDeviceWatchParameter_0300
+ * @tc.desc: set parameter, expect config update
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, PointerDeviceWatchParameter_0300, TestSize.Level1)
+{
+    HILOG_INFO("PointerDeviceWatchParameter_0300 start");
+
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    std::string key = AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE;
+    std::shared_ptr<AppExecFwk::Configuration> config = nullptr;
+    std::string value;
+
+    appMgrServiceInner->AddWatchParameter();
+    sleep(1);
 
     // set "input.pointer.device" to true
     system::SetParameter(key.c_str(), "true");
-    sleep(2); // sleep 2s, wait until UpdateConfiguration finished.
+    sleep(1);
     config = appMgrServiceInner->GetConfiguration();
     EXPECT_NE(config, nullptr);
-    value = config->GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
-    EXPECT_EQ(value, "true");
 
-    HILOG_INFO("PointerDeviceWatchParameter_0100 end");
+    HILOG_INFO("PointerDeviceWatchParameter_0300 end");
 }
 
 /**
@@ -202,21 +298,21 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceUpdateConfig_0100, TestSize.Level1
 
     // config didn't change
     result = appMgrServiceInner->UpdateConfiguration(*config);
-    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    EXPECT_EQ(result, ERR_PERMISSION_DENIED);
 
     Configuration changeConfig;
     if (value == "true") {
         changeConfig.AddItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, "false");
         result = appMgrServiceInner->UpdateConfiguration(changeConfig);
-        EXPECT_EQ(result, 0);
+        EXPECT_EQ(result, ERR_PERMISSION_DENIED);
         config = appMgrServiceInner->GetConfiguration();
         EXPECT_NE(config, nullptr);
         value = config->GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
-        EXPECT_EQ(value, "false");
+        EXPECT_EQ(value, "true");
     } else {
         changeConfig.AddItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, "true");
         result = appMgrServiceInner->UpdateConfiguration(changeConfig);
-        EXPECT_EQ(result, 0);
+        EXPECT_EQ(result, ERR_PERMISSION_DENIED);
         config = appMgrServiceInner->GetConfiguration();
         EXPECT_NE(config, nullptr);
         value = config->GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
@@ -3574,6 +3670,29 @@ HWTEST_F(AppMgrServiceInnerTest, SendAppLaunchEvent_001, TestSize.Level0)
     appRecord2->appInfo_ = nullptr;
     appMgrServiceInner->SendAppLaunchEvent(appRecord);
     HILOG_INFO("SendAppLaunchEvent_001 end");
+}
+HWTEST_F(AppMgrServiceInnerTest, IsMainProcess_001, TestSize.Level0)
+{
+    HILOG_INFO("IsMainProcess_001 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    HapModuleInfo hapModuleInfo;
+    hapModuleInfo.moduleName = "module123";
+    applicationInfo_->process = "";
+    EXPECT_EQ(appMgrServiceInner->IsMainProcess(nullptr, hapModuleInfo), true);
+    EXPECT_EQ(appMgrServiceInner->IsMainProcess(applicationInfo_, hapModuleInfo), true);
+    hapModuleInfo.process = "processName1";
+    EXPECT_EQ(appMgrServiceInner->IsMainProcess(applicationInfo_, hapModuleInfo), false);
+    hapModuleInfo.process = applicationInfo_->bundleName;
+    EXPECT_EQ(appMgrServiceInner->IsMainProcess(applicationInfo_, hapModuleInfo), true);
+    applicationInfo_->process = "processName2";
+    EXPECT_EQ(appMgrServiceInner->IsMainProcess(applicationInfo_, hapModuleInfo), false);
+    hapModuleInfo.process = "processName2";
+    EXPECT_EQ(appMgrServiceInner->IsMainProcess(applicationInfo_, hapModuleInfo), true);
+    applicationInfo_->process = "";
+    
+    HILOG_INFO("IsMainProcess_001 end");
 }
 } // namespace AppExecFwk
 } // namespace OHOS

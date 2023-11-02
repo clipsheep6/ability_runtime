@@ -130,7 +130,7 @@ private:
             missionListener_->AddJsListenerObject(missionListenerId_, argv[0]);
             return CreateJsValue(env, missionListenerId_);
         } else {
-            HILOG_ERROR("RegisterMissionListener failed, ret = %{public}d", ret);
+            HILOG_ERROR("RegisterMissionListener error, ret = %{public}d", ret);
             missionListener_ = nullptr;
             if (ret == CHECK_PERMISSION_FAILED) {
                 ThrowNoPermissionError(env, PermissionConstants::PERMISSION_MANAGE_MISSION);

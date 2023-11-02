@@ -391,7 +391,7 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
     }
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
-    // earlier than above actions.
+    // earlier than above actions
     SetAbilityStateInner(AbilityState::FOREGROUNDING);
     lifeCycleStateInfo_.sceneFlag = sceneFlag;
     {
@@ -400,8 +400,9 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
     }
     lifeCycleStateInfo_.sceneFlag = 0;
     lifeCycleStateInfo_.sceneFlagBak = 0;
+    InsightIntentExecuteParam::RemoveInsightIntent(want_);
 
-    // update ability state to appMgr service when restart
+    // update ability state to appMgr service when restart.
     if (IsNewWant()) {
         sptr<Token> preToken = nullptr;
         if (GetPreAbilityRecord()) {
@@ -439,6 +440,7 @@ void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
         lifecycleDeal_->ForegroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
         lifeCycleStateInfo_.sceneFlag = 0;
         lifeCycleStateInfo_.sceneFlagBak = 0;
+        InsightIntentExecuteParam::RemoveInsightIntent(want_);
     }
 
     // update ability state to appMgr service when restart
@@ -2669,6 +2671,10 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         HILOG_ERROR("Sandbox can not grant uriPermission by terminate self with result.");
         return;
     }
+    if (targetBundleName == SHELL_ASSISTANT_BUNDLENAME) {
+        HILOG_DEBUG("reject shell application to grant uri permission");
+        return;
+    }
 
     std::lock_guard<ffrt::mutex> guard(wantLock_);
     if ((want.GetFlags() & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
@@ -2677,7 +2683,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
     }
     auto bms = AbilityUtil::GetBundleManager();
     CHECK_POINTER_IS_NULLPTR(bms);
-    if (IsDmsCall()) {
+    if (IsDmsCall(want)) {
         GrantDmsUriPermission(want, targetBundleName);
         return;
     }
@@ -2771,9 +2777,9 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
     }
 }
 
-bool AbilityRecord::IsDmsCall()
+bool AbilityRecord::IsDmsCall(Want &want)
 {
-    auto fromTokenId = IPCSkeleton::GetCallingTokenID();
+    auto fromTokenId = static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, -1));
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(fromTokenId);
     bool isNativeCall = tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE;
     if (!isNativeCall) {

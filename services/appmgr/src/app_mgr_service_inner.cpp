@@ -101,6 +101,7 @@ const std::string PERMISSION_ACCESS_BUNDLE_DIR = "ohos.permission.ACCESS_BUNDLE_
 const std::string PERMISSION_GET_BUNDLE_RESOURCES = "ohos.permission.GET_BUNDLE_RESOURCES";
 const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
 const std::string SUPPORT_ISOLATION_MODE = "persist.bms.supportIsolationMode";
+const std::string SUPPORT_SERVICE_EXT_MULTI_PROCESS = "component.startup.extension.multiprocess.enable";
 const std::string SCENE_BOARD_BUNDLE_NAME = "com.ohos.sceneboard";
 const std::string DEBUG_APP = "debugApp";
 const std::string SERVICE_EXTENSION = ":ServiceExtension";
@@ -199,6 +200,7 @@ void AppMgrServiceInner::Init()
     InitGlobalConfiguration();
     AddWatchParameter();
     supportIsolationMode_ = OHOS::system::GetParameter(SUPPORT_ISOLATION_MODE, "false");
+    supportServiceExtMultiProcess_ = OHOS::system::GetParameter(SUPPORT_SERVICE_EXT_MULTI_PROCESS, "false");
     deviceType_ = OHOS::system::GetDeviceType();
     DelayedSingleton<AppStateObserverManager>::GetInstance()->Init();
 }
@@ -315,11 +317,13 @@ void AppMgrServiceInner::MakeProcessName(const std::shared_ptr<AbilityInfo> &abi
         return;
     }
     MakeProcessName(appInfo, hapModuleInfo, processName);
-    if (processName == appInfo->bundleName && abilityInfo->extensionAbilityType == ExtensionAbilityType::SERVICE) {
-        processName += SERVICE_EXTENSION;
-        if (appInfo->keepAlive) {
-            processName += KEEP_ALIVE;
-        }
+    if (supportServiceExtMultiProcess_.compare("true") == 0) {
+        if (processName == appInfo->bundleName && abilityInfo->extensionAbilityType == ExtensionAbilityType::SERVICE) {
+            processName += SERVICE_EXTENSION;
+            if (appInfo->keepAlive) {
+                processName += KEEP_ALIVE;
+            }
+         }
     }
     if (appIndex != 0) {
         processName += std::to_string(appIndex);
@@ -531,7 +535,8 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     auto appRecord = GetAppRunningRecordByAppRecordId(recordId);
-    if (!appRecord || !appRecord->IsUpdateStateFromService()) {
+    if (!appRecord || (!appRecord->IsUpdateStateFromService()
+        && appRecord->GetApplicationPendingState() != ApplicationPendingState::FOREGROUNDING)) {
         HILOG_ERROR("get app record failed");
         return;
     }
@@ -547,6 +552,7 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
             appRecord->GetName().c_str(), static_cast<ApplicationState>(appState));
     }
     appRecord->SetUpdateStateFromService(false);
+    appRecord->SetApplicationPendingState(ApplicationPendingState::READY);
 
     // push the foregrounded app front of RecentAppList.
     PushAppFront(recordId);
@@ -593,6 +599,9 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
             appRecord->GetName().c_str(), static_cast<ApplicationState>(appRecord->GetState()));
     }
     appRecord->SetUpdateStateFromService(false);
+    if (appRecord->GetApplicationPendingState() == ApplicationPendingState::BACKGROUNDING) {
+        appRecord->SetApplicationPendingState(ApplicationPendingState::READY);
+    }
 
     HILOG_INFO("application is backgrounded");
     AAFwk::EventInfo eventInfo;
@@ -3902,7 +3911,7 @@ void AppMgrServiceInner::PointerDeviceEventCallback(const char *key, const char 
     }
 
     HILOG_DEBUG("update config %{public}s to %{public}s", key, value);
-    auto result = appMgrServiceInner->UpdateConfiguration(changeConfig);
+    auto result = IN_PROCESS_CALL(appMgrServiceInner->UpdateConfiguration(changeConfig));
     if (result != 0) {
         HILOG_ERROR("update config failed with %{public}d, key: %{public}s, value: %{public}s.", result, key, value);
         return;
@@ -4209,12 +4218,12 @@ int32_t AppMgrServiceInner::StartNativeProcessForDebugger(const AAFwk::Want &wan
 {
     auto&& bundleMgr = remoteClientManager_->GetBundleManager();
     if (bundleMgr == nullptr) {
-        HILOG_ERROR("GetBundleManager fail");
+        HILOG_ERROR("GetBundleManager error.");
         return ERR_INVALID_OPERATION;
     }
 
     if (appRunningManager_ == nullptr) {
-        HILOG_ERROR("appRunningManager_ is nullptr");
+        HILOG_ERROR("appRunningManager_ is nullptr.");
         return ERR_INVALID_OPERATION;
     }
     HILOG_INFO("debuggablePipe bundleName:%{public}s", want.GetElement().GetBundleName().c_str());
@@ -4655,7 +4664,7 @@ void AppMgrServiceInner::SendAppLaunchEvent(const std::shared_ptr<AppRunningReco
         eventInfo.versionName = applicationInfo->versionName;
         eventInfo.versionCode = applicationInfo->versionCode;
     }
-    if ( appRecord->GetPriorityObject() != nullptr) {
+    if (appRecord->GetPriorityObject() != nullptr) {
         eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
     }
     eventInfo.processName = appRecord->GetProcessName();

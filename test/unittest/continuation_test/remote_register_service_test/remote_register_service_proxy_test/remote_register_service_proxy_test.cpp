@@ -168,7 +168,7 @@ HWTEST_F(RemoteRegisterServiceProxyTest, AppExecFwk_RemoteRegisterServiceProxy_R
     sptr<IRemoteObject> token = new (std::nothrow) MockRegisterService();
     ExtraParams extras = {};
     sptr<MoclConnectCallback> callback = new (std::nothrow) MoclConnectCallback();
-    EXPECT_EQ(testProxy->Register(bundleName, token, extras, callback), ERR_NULL_OBJECT);
+    EXPECT_EQ(testProxy->Register(bundleName, token, extras, callback), IPC_INVOKER_TRANSLATE_ERR);
     GTEST_LOG_(INFO) << "AppExecFwk_RemoteRegisterServiceProxy_Register_003 end.";
 }
 

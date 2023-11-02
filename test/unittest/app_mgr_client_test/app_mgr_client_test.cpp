@@ -799,5 +799,82 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_DetachAppDebug_001, TestSize.Level1)
     auto resultCode = appMgrClient->DetachAppDebug(bundleName);
     EXPECT_EQ(resultCode, ERR_OK);
 }
+
+/**
+ * @tc.name: AppMgrClient_RegisterApplicationStateObserver_001
+ * @tc.desc: RegisterApplicationStateObserver.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_RegisterApplicationStateObserver_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    sptr<IApplicationStateObserver> observer = nullptr;
+    std::vector<std::string> bundleNameList;
+    auto result = appMgrClient->RegisterApplicationStateObserver(observer, bundleNameList);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AppMgrClient_UnregisterApplicationStateObserver_001
+ * @tc.desc: UnregisterApplicationStateObserver.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_UnregisterApplicationStateObserver_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    sptr<IApplicationStateObserver> observer = nullptr;
+    auto result = appMgrClient->UnregisterApplicationStateObserver(observer);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AppMgrClient_NotifyPageShow_001
+ * @tc.desc: NotifyPageShow.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_NotifyPageShow_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    std::string deviceName = "device";
+    std::string abilityName = "FirstAbility";
+    std::string appName = "FirstApp";
+    std::string bundleName = "com.ix.First.Test";
+    AppExecFwk::RunningProcessInfo info;
+    auto abilityReq = GenerateAbilityRequest(deviceName, abilityName, appName, bundleName);
+    auto record = AbilityRecord::CreateAbilityRecord(abilityReq);
+    auto token = record->GetToken();
+    PageStateData pageStateData;
+    auto result = appMgrClient->NotifyPageShow(token, pageStateData);
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+}
+
+/**
+ * @tc.name: AppMgrClient_NotifyPageHide_001
+ * @tc.desc: NotifyPageHide.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_NotifyPageHide_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    std::string deviceName = "device";
+    std::string abilityName = "FirstAbility";
+    std::string appName = "FirstApp";
+    std::string bundleName = "com.ix.First.Test";
+    AppExecFwk::RunningProcessInfo info;
+    auto abilityReq = GenerateAbilityRequest(deviceName, abilityName, appName, bundleName);
+    auto record = AbilityRecord::CreateAbilityRecord(abilityReq);
+    auto token = record->GetToken();
+    PageStateData pageStateData;
+    auto result = appMgrClient->NotifyPageHide(token, pageStateData);
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

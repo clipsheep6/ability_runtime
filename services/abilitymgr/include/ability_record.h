@@ -908,7 +908,7 @@ private:
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
     void GrantUriPermission(Want &want, std::string targetBundleName, bool isSandboxApp, uint32_t tokenId);
     void GrantDmsUriPermission(Want &want, std::string targetBundleName);
-    bool IsDmsCall();
+    bool IsDmsCall(Want &want);
     int32_t GetCurrentAccountId() const;
 
     /**

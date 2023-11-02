@@ -563,14 +563,14 @@ void AppRunningManager::HandleAddAbilityStageTimeOut(const int64_t eventId)
     HILOG_DEBUG("Handle add ability stage timeout.");
     auto abilityRecord = GetAbilityRunningRecord(eventId);
     if (!abilityRecord) {
-        HILOG_ERROR("abilityRecord is nullptr");
+        HILOG_ERROR("abilityRecord is nullptr.");
         return;
     }
 
     auto abilityToken = abilityRecord->GetToken();
     auto appRecord = GetTerminatingAppRunningRecord(abilityToken);
     if (!appRecord) {
-        HILOG_ERROR("appRecord is nullptr");
+        HILOG_ERROR("appRecord is nullptr.");
         return;
     }
 

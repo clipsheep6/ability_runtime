@@ -400,6 +400,30 @@ void AbilityManagerCollaboratorProxy::UpdateMissionInfo(sptr<SessionInfo> &sessi
     return;
 }
 
+int32_t AbilityManagerCollaboratorProxy::CheckCallAbilityPermission(const Want &want)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!data.WriteInterfaceToken(AbilityManagerCollaboratorProxy::GetDescriptor())) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("want write failed.");
+        return ERR_INVALID_OPERATION;
+    }
+    int32_t ret = SendTransactCmd(IAbilityManagerCollaborator::CHECK_CALL_ABILITY_PERMISSION,
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
+
 int32_t AbilityManagerCollaboratorProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {

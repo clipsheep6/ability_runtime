@@ -18,7 +18,6 @@
 #define private public
 #include "ability_recovery.h"
 #undef private
-#include "ability.h"
 #include "ability_info.h"
 #include "app_recovery_parcel_allocator.h"
 #include "event_handler.h"
@@ -27,6 +26,7 @@
 #include "mock_ability_token.h"
 #include "mock_app_ability.h"
 #include "recovery_param.h"
+#include "ui_ability.h"
 #include "want.h"
 #include "want_params.h"
 
@@ -40,9 +40,9 @@ public:
     void SetUp();
     void TearDown();
     std::shared_ptr<AbilityRecovery> abilityRecovery_ = std::make_shared<AbilityRecovery>();
-    std::shared_ptr<AppExecFwk::Ability> ability_ = std::make_shared<Ability>();
-    std::shared_ptr<AppExecFwk::Ability> mockAbility_ = std::make_shared<MockAbility>();
-    std::shared_ptr<AppExecFwk::Ability> mockAbility2_ = std::make_shared<MockAppAbility>();
+    std::shared_ptr<AbilityRuntime::UIAbility> ability_ = std::make_shared<AbilityRuntime::UIAbility>();
+    std::shared_ptr<AbilityRuntime::UIAbility> mockAbility_ = std::make_shared<MockAbility>();
+    std::shared_ptr<AbilityRuntime::UIAbility> mockAbility2_ = std::make_shared<MockAppAbility>();
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_ = std::make_shared<AbilityInfo>();
     std::shared_ptr<AppExecFwk::ApplicationInfo> applicationInfo_ = std::make_shared<ApplicationInfo>();
     sptr<IRemoteObject> token_ = new MockAbilityToken();

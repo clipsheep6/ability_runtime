@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,14 +22,14 @@
 #define private public
 #include "app_recovery.h"
 #undef private
-#include "ability.h"
 #include "ability_info.h"
-#include "ability_runtime/js_ability.h"
+#include "ability_runtime/js_ui_ability.h"
 #include "event_handler.h"
 #include "js_runtime.h"
 #include "mock_ability_context.h"
 #include "mock_ability_token.h"
 #include "recovery_param.h"
+#include "ui_ability.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -40,7 +40,7 @@ public:
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
-    std::shared_ptr<AppExecFwk::Ability> ability_ = std::make_shared<Ability>();
+    std::shared_ptr<AbilityRuntime::UIAbility> ability_ = std::make_shared<AbilityRuntime::UIAbility>();
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_ = std::make_shared<AbilityInfo>();
     std::shared_ptr<AppExecFwk::ApplicationInfo> applicationInfo_ = std::make_shared<ApplicationInfo>();
     std::shared_ptr<AppExecFwk::EventHandler> testHandler_ = std::make_shared<EventHandler>();
@@ -321,7 +321,7 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_003, TestSize.Level1)
     AbilityRuntime::Runtime::Options options;
     auto runtime = AbilityRuntime::JsRuntime::Create(options);
     auto jsRuntime = static_cast<AbilityRuntime::JsRuntime*>(runtime.get());
-    std::shared_ptr<AppExecFwk::Ability> ability = std::make_shared<AbilityRuntime::JsAbility>(*jsRuntime);
+    std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::JsUIAbility>(*jsRuntime);
     ability->AttachAbilityContext(constContext);
     AppRecovery::GetInstance().AddAbility(ability, abilityInfo_, token_);
     // this call will block main thread, thus call it in new thread
@@ -504,7 +504,7 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleRecoverApp_004, TestSize.Level1)
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_FILE);
     auto caseAbilityInfo = std::make_shared<AbilityInfo>();
-    auto ability = std::make_shared<Ability>();
+    auto ability = std::make_shared<AbilityRuntime::UIAbility>();
     sptr<IRemoteObject> token = new MockAbilityToken();
     EXPECT_TRUE(AppRecovery::GetInstance().AddAbility(ability_, abilityInfo_, token_));
     bool ret = AppRecovery::GetInstance().ScheduleRecoverApp(StateReason::APP_FREEZE);
@@ -522,7 +522,7 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleRecoverApp_005, TestSize.Level1)
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_FILE);
     auto caseAbilityInfo = std::make_shared<AbilityInfo>();
-    auto ability = std::make_shared<Ability>();
+    auto ability = std::make_shared<AbilityRuntime::UIAbility>();
     sptr<IRemoteObject> token = new MockAbilityToken();
     EXPECT_TRUE(AppRecovery::GetInstance().AddAbility(ability_, abilityInfo_, token_));
     AppRecovery::GetInstance().mainHandler_.reset();
@@ -541,7 +541,7 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleRecoverApp_006, TestSize.Level1)
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_FILE);
     auto caseAbilityInfo = std::make_shared<AbilityInfo>();
-    auto ability = std::make_shared<Ability>();
+    auto ability = std::make_shared<AbilityRuntime::UIAbility>();
     sptr<IRemoteObject> token = new MockAbilityToken();
     EXPECT_TRUE(AppRecovery::GetInstance().AddAbility(ability_, abilityInfo_, token_));
     bool ret = AppRecovery::GetInstance().ScheduleRecoverApp(StateReason::DEVELOPER_REQUEST);
@@ -571,7 +571,7 @@ HWTEST_F(AppRecoveryUnitTest, TryRecoverApp_002, TestSize.Level1)
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_FILE);
     auto caseAbilityInfo = std::make_shared<AbilityInfo>();
-    auto ability = std::make_shared<Ability>();
+    auto ability = std::make_shared<AbilityRuntime::UIAbility>();
     sptr<IRemoteObject> token = new MockAbilityToken();
     EXPECT_TRUE(AppRecovery::GetInstance().AddAbility(ability_, abilityInfo_, token_));
     bool ret = AppRecovery::GetInstance().TryRecoverApp(StateReason::APP_FREEZE);
@@ -615,7 +615,7 @@ HWTEST_F(AppRecoveryUnitTest, PersistAppState_003, TestSize.Level1)
     AppRecovery::GetInstance().EnableAppRecovery(RestartFlag::ALWAYS_RESTART, SaveOccasionFlag::SAVE_WHEN_ERROR,
         SaveModeFlag::SAVE_WITH_SHARED_MEMORY);
     auto constContext = std::static_pointer_cast<AbilityRuntime::AbilityContext>(context_);
-    std::shared_ptr<AppExecFwk::Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
     ability->AttachAbilityContext(constContext);
     AppRecovery::GetInstance().AddAbility(ability, abilityInfo_, token_);
     EXPECT_TRUE(AppRecovery::GetInstance().PersistAppState());

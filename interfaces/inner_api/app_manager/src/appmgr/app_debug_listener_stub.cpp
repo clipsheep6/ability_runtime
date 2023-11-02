@@ -56,6 +56,7 @@ int AppDebugListenerStub::OnRemoteRequest(
             return (this->*memberFunc)(data, reply);
         }
     }
+    HILOG_DEBUG("AppDebugListenerStub::OnRemoteRequest end");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 

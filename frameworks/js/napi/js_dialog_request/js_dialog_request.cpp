@@ -35,7 +35,7 @@ napi_value ResultCodeInit(napi_env env)
 {
     HILOG_INFO("%{public}s is called", __FUNCTION__);
     if (env == nullptr) {
-        HILOG_ERROR("Invalid input parameters");
+        HILOG_ERROR("Invalid input parameters.");
         return nullptr;
     }
 

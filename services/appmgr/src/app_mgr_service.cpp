@@ -282,8 +282,21 @@ sptr<IAmsMgr> AppMgrService::GetAmsMgr()
 
 int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName)
 {
+    std::shared_ptr<RemoteClientManager> remoteClientManager = std::make_shared<RemoteClientManager>();
+    auto bundleMgr = remoteClientManager->GetBundleManager();
+    if (bundleMgr == nullptr) {
+        HILOG_ERROR("GetBundleManager is nullptr");
+        return ERR_INVALID_OPERATION;
+    }
+    int32_t callingUid = IPCSkeleton::GetCallingUid();
+    std::string callerBundleName;
+    auto result = IN_PROCESS_CALL(bundleMgr->GetNameForUid(callingUid, callerBundleName));
+    if (result != ERR_OK) {
+        HILOG_ERROR("GetBundleName failed: %{public}d", result);
+        return ERR_INVALID_OPERATION;
+    }
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
+    if (!isSaCall && bundleName != callerBundleName) {
         auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
             AAFwk::PermissionConstants::PERMISSION_CLEAN_APPLICATION_DATA);
         if (!isCallingPerm) {

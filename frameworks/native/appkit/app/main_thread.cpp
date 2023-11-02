@@ -1352,11 +1352,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         application_->SetRuntime(std::move(runtime));
 
         std::weak_ptr<OHOSApplication> wpApplication = application_;
-        AbilityLoader::GetInstance().RegisterAbility("Ability",
-            [wpApplication]() -> Ability* {
+        AbilityLoader::GetInstance().RegisterUIAbility("UIAbility",
+            [wpApplication]() -> AbilityRuntime::UIAbility* {
             auto app = wpApplication.lock();
             if (app != nullptr) {
-                return Ability::Create(app->GetRuntime());
+                return AbilityRuntime::UIAbility::Create(app->GetRuntime());
             }
             HILOG_ERROR("AbilityLoader::GetAbilityByName failed.");
             return nullptr;

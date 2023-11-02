@@ -43,7 +43,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
-const std::string SYS_PARAM_MULTI_PROCESS_MODEL = "persist.sys.multi_process_model";
+const std::string SYS_PARAM_PRODUCT_DEVICE_TYPE = "const.product.devicetype";
 }
 
 bool ChildProcessManager::signalRegistered_ = false;
@@ -51,7 +51,8 @@ bool ChildProcessManager::signalRegistered_ = false;
 ChildProcessManager::ChildProcessManager()
 {
     HILOG_DEBUG("ChildProcessManager constructor called");
-    multiProcessModelEnabled_ = OHOS::system::GetBoolParameter(SYS_PARAM_MULTI_PROCESS_MODEL, false);
+    std::string deviceType = OHOS::system::GetParameter(SYS_PARAM_PRODUCT_DEVICE_TYPE, "");
+    multiProcessModelEnabled_ = deviceType == "2in1" || deviceType == "tablet";
     if (!signalRegistered_) {
         signalRegistered_ = true;
         HILOG_DEBUG("Register signal");

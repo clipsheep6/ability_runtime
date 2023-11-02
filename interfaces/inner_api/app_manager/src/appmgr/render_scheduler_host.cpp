@@ -38,7 +38,7 @@ int RenderSchedulerHost::OnRemoteRequest(uint32_t code, MessageParcel &data,
     std::u16string descriptor = RenderSchedulerHost::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_ERROR("local descriptor is not equal to remote");
+        HILOG_ERROR("A local descriptor is not equivalent to a remote");
         return ERR_INVALID_STATE;
     }
 
@@ -49,6 +49,7 @@ int RenderSchedulerHost::OnRemoteRequest(uint32_t code, MessageParcel &data,
             return (this->*memberFunc)(data, reply);
         }
     }
+    HILOG_INFO("RenderSchedulerHost::OnRemoteRequest end");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 

@@ -360,7 +360,13 @@ std::string PendingWantManager::GetPendingWantBundleName(const sptr<IWantSender>
         return "";
     }
 
-    sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(target->AsObject());
+    auto remote = target->AsObject();
+    if (remote == nullptr) {
+        HILOG_ERROR("%{public}s:target->AsObject() is nullptr.", __func__);
+        return "";
+    }
+
+    sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(remote);
     auto record = GetPendingWantRecordByCode(targetRecord->GetKey()->GetCode());
     if (record != nullptr) {
         return record->GetKey()->GetBundleName();

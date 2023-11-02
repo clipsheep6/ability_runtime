@@ -32,6 +32,12 @@ enum class ApplicationState {
     APP_STATE_END,
 };
 
+enum class ApplicationPendingState {
+    READY = 0,
+    FOREGROUNDING,
+    BACKGROUNDING,
+};
+
 enum class AbilityState {
     ABILITY_STATE_CREATE = 0,
     ABILITY_STATE_READY,

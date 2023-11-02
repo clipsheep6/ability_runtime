@@ -50,6 +50,7 @@ void PendingWantKey::SetRequestResolvedType(const std::string &requestResolvedTy
 
 void PendingWantKey::SetAllWantsInfos(const std::vector<WantsInfo> &allWantsInfos)
 {
+    std::lock_guard<std::mutex> lock(wantsInfosMutex_);
     allWantsInfos_ = allWantsInfos;
 }
 
@@ -105,6 +106,7 @@ std::string PendingWantKey::GetRequestResolvedType()
 
 std::vector<WantsInfo> PendingWantKey::GetAllWantsInfos()
 {
+    std::lock_guard<std::mutex> lock(wantsInfosMutex_);
     return allWantsInfos_;
 }
 
