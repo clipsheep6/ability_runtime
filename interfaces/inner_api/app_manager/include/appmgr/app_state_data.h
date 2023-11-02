@@ -19,8 +19,8 @@
 #include <sys/types.h>
 
 #include "ability_info.h"
-#include "parcel.h"
 #include "iremote_object.h"
+#include "parcel.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -55,7 +55,8 @@ struct AppStateData : public Parcelable {
     bool isFocused = false;
     ExtensionAbilityType extensionType = ExtensionAbilityType::UNSPECIFIED;
     std::vector<int32_t> renderPids;
+    int32_t windowMode = 0;
 };
-}  // namespace AppExecFwk
-}  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_APP_STATE_DATA_H
+} // namespace AppExecFwk
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_APP_STATE_DATA_H

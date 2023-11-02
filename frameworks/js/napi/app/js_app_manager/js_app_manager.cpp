@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,19 +21,20 @@
 #include "ability_manager_interface.h"
 #include "ability_runtime_error_util.h"
 #include "app_mgr_interface.h"
+#include "event_runner.h"
 #include "hilog_wrapper.h"
+#include "if_system_ability_manager.h"
+#include "ipc_skeleton.h"
+#include "iservice_registry.h"
+#include "js_app_foreground_state_observer.h"
+#include "js_app_manager_utils.h"
+#include "js_app_state_observer.h"
 #include "js_error_utils.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "napi/native_api.h"
-#include "if_system_ability_manager.h"
-#include "iservice_registry.h"
-#include "system_ability_definition.h"
-#include "js_app_manager_utils.h"
-#include "event_runner.h"
 #include "napi_common_util.h"
-#include "js_app_state_observer.h"
-#include "ipc_skeleton.h"
+#include "system_ability_definition.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -45,19 +46,23 @@ constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
-constexpr const char* ON_OFF_TYPE = "applicationState";
-constexpr const char* ON_OFF_TYPE_SYNC = "applicationStateEvent";
+constexpr const char *ON_OFF_TYPE = "applicationState";
+constexpr const char *ON_OFF_TYPE_SYNC = "applicationStateEvent";
+constexpr const char *ON_OFF_TYPE_APP_FOREGROUND_STATE = "appForegroundState";
 
 class JsAppManager final {
 public:
-    JsAppManager(sptr<OHOS::AppExecFwk::IAppMgr> appManager,
-        sptr<OHOS::AAFwk::IAbilityManager> abilityManager) : appManager_(appManager),
-        abilityManager_(abilityManager) {}
+    JsAppManager(sptr<OHOS::AppExecFwk::IAppMgr> appManager, sptr<OHOS::AAFwk::IAbilityManager> abilityManager)
+        : appManager_(appManager), abilityManager_(abilityManager)
+    {}
     ~JsAppManager()
     {
         if (observer_ != nullptr) {
             HILOG_INFO("Set valid false");
             observer_->SetValid(false);
+        }
+        if (observerForeground_ != nullptr) {
+            observerForeground_->SetValid(false);
         }
     }
 
@@ -131,11 +136,13 @@ public:
     {
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnGetRunningProcessInfoByBundleName);
     }
+
 private:
     sptr<OHOS::AppExecFwk::IAppMgr> appManager_ = nullptr;
     sptr<OHOS::AAFwk::IAbilityManager> abilityManager_ = nullptr;
     sptr<JSAppStateObserver> observer_ = nullptr;
     sptr<JSAppStateObserver> observerSync_ = nullptr;
+    sptr<JSAppForegroundStateObserver> observerForeground_ = nullptr;
     int32_t serialNumber_ = 0;
 
     napi_value OnOn(napi_env env, size_t argc, napi_value* argv)
@@ -144,7 +151,10 @@ private:
         std::string type = ParseParamType(env, argc, argv);
         if (type == ON_OFF_TYPE_SYNC) {
             return OnOnNew(env, argc, argv);
+        } else if (type == ON_OFF_TYPE_APP_FOREGROUND_STATE) {
+            return OnOnForeground(env, argc, argv);
         }
+
         return OnOnOld(env, argc, argv);
     }
 
@@ -194,7 +204,7 @@ private:
         }
     }
 
-    napi_value OnOnNew(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnOnNew(napi_env env, size_t argc, napi_value *argv)
     {
         HILOG_DEBUG("called");
         if (argc < ARGC_TWO) { // support 2 or 3 params, if > 3 params, ignore other params
@@ -237,13 +247,51 @@ private:
         }
     }
 
-    napi_value OnOff(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnOnForeground(napi_env env, size_t argc, napi_value *argv)
+    {
+        HILOG_DEBUG("Called.");
+        if (argc < ARGC_TWO) {
+            HILOG_ERROR("Not enough params.");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+        if (!AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
+            HILOG_ERROR("Invalid param.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+        if (observerForeground_ == nullptr) {
+            observerForeground_ = new (std::nothrow) JSAppForegroundStateObserver(env);
+        }
+
+        if (appManager_ == nullptr || observerForeground_ == nullptr) {
+            HILOG_ERROR("AppManager or observer is nullptr.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+            return CreateJsUndefined(env);
+        }
+
+        if (observerForeground_->isEmpty()) {
+            int32_t ret = appManager_->RegisterAppForegroundStateObserver(observerForeground_);
+            if (ret != NO_ERROR) {
+                HILOG_ERROR("Failed error: %{public}d.", ret);
+                ThrowErrorByNativeErr(env, ret);
+                return CreateJsUndefined(env);
+            }
+        }
+        observerForeground_->AddJsObserverObject(argv[INDEX_ONE]);
+        return CreateJsUndefined(env);
+    }
+
+    napi_value OnOff(napi_env env, size_t argc, napi_value *argv)
     {
         HILOG_DEBUG("called");
         std::string type = ParseParamType(env, argc, argv);
         if (type == ON_OFF_TYPE_SYNC) {
             return OnOffNew(env, argc, argv);
+        } else if (type == ON_OFF_TYPE_APP_FOREGROUND_STATE) {
+            return OnOffForeground(env, argc, argv);
         }
+
         return OnOffOld(env, argc, argv);
     }
 
@@ -274,29 +322,27 @@ private:
         }
         HILOG_DEBUG("find observer exist observer:%{public}d", static_cast<int32_t>(observerId));
 
-        NapiAsyncTask::CompleteCallback complete =
-            [appManager = appManager_, observer = observer_, observerId](
-                napi_env env, NapiAsyncTask& task, int32_t status) {
-                if (observer == nullptr || appManager == nullptr) {
-                    HILOG_ERROR("observer or appManager nullptr");
-                    task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
-                    return;
-                }
-                int32_t ret = appManager->UnregisterApplicationStateObserver(observer);
-                if (ret == 0 && observer->RemoveJsObserverObject(observerId)) {
-                    task.ResolveWithNoError(env, CreateJsUndefined(env));
-                    HILOG_DEBUG("success size:%{public}zu",
-                        observer->GetJsObserverMapSize());
-                } else {
-                    HILOG_ERROR("failed error:%{public}d", ret);
-                    task.Reject(env, CreateJsErrorByNativeErr(env, ret));
-                }
-            };
+        NapiAsyncTask::CompleteCallback complete = [appManager = appManager_, observer = observer_, observerId](
+                                                       napi_env env, NapiAsyncTask &task, int32_t status) {
+            if (observer == nullptr || appManager == nullptr) {
+                HILOG_ERROR("observer or appManager nullptr");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            int32_t ret = appManager->UnregisterApplicationStateObserver(observer);
+            if (ret == 0 && observer->RemoveJsObserverObject(observerId)) {
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
+                HILOG_DEBUG("success size:%{public}zu", observer->GetJsObserverMapSize());
+            } else {
+                HILOG_ERROR("failed error:%{public}d", ret);
+                task.Reject(env, CreateJsErrorByNativeErr(env, ret));
+            }
+        };
 
         napi_value lastParam = (argc > ARGC_TWO) ? argv[INDEX_TWO] : nullptr;
         napi_value result = nullptr;
-        NapiAsyncTask::Schedule("JSAppManager::OnUnregisterApplicationStateObserver",
-            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+        NapiAsyncTask::Schedule("JSAppManager::OnUnregisterApplicationStateObserver", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -336,7 +382,38 @@ private:
         }
     }
 
-    napi_value OnGetForegroundApplications(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnOffForeground(napi_env env, size_t argc, napi_value *argv)
+    {
+        HILOG_DEBUG("Called.");
+        if (argc < ARGC_TWO) {
+            HILOG_ERROR("Not enough params when off.");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+        if (!AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
+            HILOG_ERROR("Invalid param.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+        if (observerForeground_ == nullptr || appManager_ == nullptr) {
+            HILOG_ERROR("Observer or appManager nullptr.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+            return CreateJsUndefined(env);
+        }
+        observerForeground_->RemoveJsObserverObject(argv[INDEX_ONE]);
+
+        if (observerForeground_->isEmpty()) {
+            int32_t ret = appManager_->UnregisterAppForegroundStateObserver(observerForeground_);
+            if (ret != NO_ERROR) {
+                HILOG_ERROR("Failed error: %{public}d.", ret);
+                ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+                return CreateJsUndefined(env);
+            }
+        }
+        return CreateJsUndefined(env);
+    }
+
+    napi_value OnGetForegroundApplications(napi_env env, size_t argc, napi_value *argv)
     {
         HILOG_DEBUG("called");
         NapiAsyncTask::CompleteCallback complete =
@@ -808,5 +885,5 @@ napi_value JsAppManagerInit(napi_env env, napi_value exportObj)
     HILOG_DEBUG("end");
     return CreateJsUndefined(env);
 }
-}  // namespace AbilityRuntime
-}  // namespace OHOS
+} // namespace AbilityRuntime
+} // namespace OHOS

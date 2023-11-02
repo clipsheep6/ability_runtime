@@ -18,10 +18,10 @@
 
 #include <map>
 
+#include "app_mgr_interface.h"
 #include "iremote_stub.h"
 #include "nocopyable.h"
 #include "string_ex.h"
-#include "app_mgr_interface.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -108,12 +108,14 @@ private:
     int32_t HandleChangeAppGcState(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyPageShow(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyPageHide(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleRegisterAppForegroundStateObserver(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleUnregisterAppForegroundStateObserver(MessageParcel &data, MessageParcel &reply);
 
     using AppMgrFunc = int32_t (AppMgrStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, AppMgrFunc> memberFuncMap_;
 
     DISALLOW_COPY_AND_MOVE(AppMgrStub);
 };
-}  // namespace AppExecFwk
-}  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_APP_MGR_STUB_H
+} // namespace AppExecFwk
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_APP_MGR_STUB_H

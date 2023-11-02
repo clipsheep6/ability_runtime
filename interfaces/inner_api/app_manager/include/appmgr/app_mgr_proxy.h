@@ -16,12 +16,11 @@
 #ifndef OHOS_ABILITY_RUNTIME_APP_MGR_PROXY_H
 #define OHOS_ABILITY_RUNTIME_APP_MGR_PROXY_H
 
-#include "iremote_proxy.h"
-#include "want.h"
-
+#include "app_malloc_info.h"
 #include "app_mgr_interface.h"
 #include "bundle_info.h"
-#include "app_malloc_info.h"
+#include "iremote_proxy.h"
+#include "want.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -353,7 +352,7 @@ public:
      */
     virtual int32_t GetRunningProcessInformation(
         const std::string &bundleName, int32_t userId, std::vector<RunningProcessInfo> &info) override;
-    
+
     /**
      * @brief Notify AbilityManagerService the page show.
      * @param token Ability identify.
@@ -379,6 +378,20 @@ public:
      */
     virtual int32_t ChangeAppGcState(pid_t pid, int32_t state) override;
 
+    /**
+     * Register application foreground state observer.
+     * @param observer, app Is app foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) override;
+
+    /**
+     * Unregister application foreground state observer.
+     * @param observer, app Is app foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) override;
+
 private:
     bool SendTransactCmd(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply);
     bool WriteInterfaceToken(MessageParcel &data);
@@ -388,6 +401,6 @@ private:
     int GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos);
     static inline BrokerDelegator<AppMgrProxy> delegator_;
 };
-}  // namespace AppExecFwk
-}  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_APP_MGR_PROXY_H
+} // namespace AppExecFwk
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_APP_MGR_PROXY_H

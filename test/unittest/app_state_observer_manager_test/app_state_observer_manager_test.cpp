@@ -1155,8 +1155,8 @@ HWTEST_F(AppSpawnSocketTest, AddObserverDeathRecipient_001, TestSize.Level0)
 {
     auto manager = std::make_shared<AppStateObserverManager>();
     ASSERT_NE(manager, nullptr);
-    manager->AddObserverDeathRecipient(nullptr);
-    manager->AddObserverDeathRecipient(observer_);
+    manager->AddObserverDeathRecipient(nullptr, ObserverType::APPLICATION_STATE_OBSERVER);
+    manager->AddObserverDeathRecipient(observer_, ObserverType::APPLICATION_STATE_OBSERVER);
 }
 
 /*
@@ -1172,7 +1172,7 @@ HWTEST_F(AppSpawnSocketTest, RemoveObserverDeathRecipient_001, TestSize.Level0)
     auto manager = std::make_shared<AppStateObserverManager>();
     ASSERT_NE(manager, nullptr);
     manager->RemoveObserverDeathRecipient(nullptr);
-    manager->AddObserverDeathRecipient(observer_);
+    manager->AddObserverDeathRecipient(observer_, ObserverType::APPLICATION_STATE_OBSERVER);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
