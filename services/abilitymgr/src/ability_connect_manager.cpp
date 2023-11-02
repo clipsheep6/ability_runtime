@@ -1370,7 +1370,7 @@ void AbilityConnectManager::RemoveConnectDeathRecipient(const sptr<IAbilityConne
     CHECK_POINTER(connect);
     CHECK_POINTER(connect->AsObject());
     auto it = recipientMap_.find(connect->AsObject());
-    if (it != recipientMap_.end()) {
+    if (it != recipientMap_.end() && it->first != nullptr) {
         it->first->RemoveDeathRecipient(it->second);
         recipientMap_.erase(it);
         return;
