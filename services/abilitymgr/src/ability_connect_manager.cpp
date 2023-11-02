@@ -1370,7 +1370,7 @@ void AbilityConnectManager::RemoveConnectDeathRecipient(const sptr<IAbilityConne
     CHECK_POINTER(connect);
     CHECK_POINTER(connect->AsObject());
     auto it = recipientMap_.find(connect->AsObject());
-    if (it != recipientMap_.end()) {
+    if (it != recipientMap_.end() && it->first != nullptr) {
         it->first->RemoveDeathRecipient(it->second);
         recipientMap_.erase(it);
         return;
@@ -1976,7 +1976,7 @@ void AbilityConnectManager::RemoveUIExtWindowDeathRecipient(const sptr<IRemoteOb
 {
     CHECK_POINTER(session);
     auto it = uiExtRecipientMap_.find(session);
-    if (it != uiExtRecipientMap_.end()) {
+    if (it != uiExtRecipientMap_.end() && it->first != nullptr) {
         it->first->RemoveDeathRecipient(it->second);
         uiExtRecipientMap_.erase(it);
         return;
