@@ -694,6 +694,10 @@ void AppRunningRecord::StateChangedNotifyObserver(
     abilityStateData.token = ability->GetToken();
     abilityStateData.abilityType = static_cast<int32_t>(ability->GetAbilityInfo()->type);
     abilityStateData.isFocused = ability->GetFocusFlag();
+    if (ability->GetWant() != nullptr) {
+        abilityStateData.callerAbilityName = ability->GetWant()->GetStringParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
+        abilityStateData.callerBundleName = ability->GetWant()->GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+    }
 
     if (isAbility && ability->GetAbilityInfo()->type == AbilityType::EXTENSION) {
         HILOG_INFO("extension type, not notify any more.");

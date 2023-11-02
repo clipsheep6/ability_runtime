@@ -4664,7 +4664,7 @@ void AppMgrServiceInner::SendAppLaunchEvent(const std::shared_ptr<AppRunningReco
         eventInfo.versionName = applicationInfo->versionName;
         eventInfo.versionCode = applicationInfo->versionCode;
     }
-    if ( appRecord->GetPriorityObject() != nullptr) {
+    if (appRecord->GetPriorityObject() != nullptr) {
         eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
     }
     eventInfo.processName = appRecord->GetProcessName();

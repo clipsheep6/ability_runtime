@@ -55,6 +55,7 @@ struct AppStateData : public Parcelable {
     bool isFocused = false;
     ExtensionAbilityType extensionType = ExtensionAbilityType::UNSPECIFIED;
     std::vector<int32_t> renderPids;
+    std::string callerBundleName;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
