@@ -406,7 +406,7 @@ napi_value JsUIExtensionContentSession::OnTerminateSelfWithResult(napi_env env, 
         [uiWindow = uiWindow_, sessionInfo = sessionInfo_, want, resultCode](napi_env env,
             NapiAsyncTask& task, int32_t status) {
             if (uiWindow == nullptr) {
-                HILOG_ERROR("uiWindow is nullptr");
+                HILOG_ERROR("uiWindow is nullptr.");
                 task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
                 return;
             }
@@ -606,6 +606,7 @@ napi_value JsUIExtensionContentSession::OnStartAbilityByType(napi_env env, NapiC
 
     std::string type;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], type)) {
+        HILOG_ERROR("OnStartAbilityByType, parse type wrong.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
     }

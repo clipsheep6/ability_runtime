@@ -489,7 +489,7 @@ napi_value SetResultWrap(napi_env env, napi_callback_info info, AsyncCallbackInf
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, Fail argument count.", __func__);
         return nullptr;
     }
 

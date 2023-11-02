@@ -921,7 +921,7 @@ napi_value JsAbilityContext::OnConnectAbility(napi_env env, NapiCallbackInfo& in
     // unwrap want
     AAFwk::Want want;
     OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want);
-    HILOG_INFO("ConnectAbility, callee:%{public}s.%{public}s.",
+    HILOG_INFO("ConnectAbility, callee:%{public}s.%{public}s",
         want.GetBundle().c_str(),
         want.GetElement().GetAbilityName().c_str());
 
