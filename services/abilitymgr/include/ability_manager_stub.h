@@ -16,11 +16,10 @@
 #ifndef OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_STUB_H
 #define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_STUB_H
 
-#include "ability_manager_interface.h"
-
 #include <iremote_object.h>
 #include <iremote_stub.h>
 
+#include "ability_manager_interface.h"
 #include "dlp_connection_info.h"
 #include "hilog_wrapper.h"
 #include "iconnection_observer.h"
@@ -271,7 +270,8 @@ private:
     //insight intent related
     int32_t StartAbilityByInsightIntentInner(MessageParcel &data, MessageParcel &reply);
     int32_t ExecuteInsightIntentDoneInner(MessageParcel &data, MessageParcel &reply);
+    int32_t GetForegroundUIAbilitiesInner(MessageParcel &data, MessageParcel &reply);
 };
-}  // namespace AAFwk
-}  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_STUB_H
+} // namespace AAFwk
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_STUB_H

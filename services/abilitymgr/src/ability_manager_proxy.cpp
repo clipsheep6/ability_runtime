@@ -4580,8 +4580,32 @@ int32_t AbilityManagerProxy::ExecuteInsightIntentDone(const sptr<IRemoteObject> 
     return reply.ReadInt32();
 }
 
-ErrCode AbilityManagerProxy::SendRequest(AbilityManagerInterfaceCode code, MessageParcel &data, MessageParcel &reply,
-    MessageOption& option)
+int32_t AbilityManagerProxy::GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto error = SendRequest(AbilityManagerInterfaceCode::GET_FOREGROUND_UI_ABILITIES, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request failed, error: %{public}d.", error);
+        return error;
+    }
+    auto errorCode = GetParcelableInfos<AppExecFwk::AbilityStateData>(reply, list);
+    if (errorCode != NO_ERROR) {
+        HILOG_ERROR("GetMissionInfos error: %{public}d.", error);
+        return error;
+    }
+
+    return reply.ReadInt32();
+}
+
+ErrCode AbilityManagerProxy::SendRequest(
+    AbilityManagerInterfaceCode code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
@@ -4591,5 +4615,5 @@ ErrCode AbilityManagerProxy::SendRequest(AbilityManagerInterfaceCode code, Messa
 
     return remote->SendRequest(static_cast<uint32_t>(code), data, reply, option);
 }
-}  // namespace AAFwk
-}  // namespace OHOS
+} // namespace AAFwk
+} // namespace OHOS

@@ -17,16 +17,17 @@
 #define OHOS_ABILITY_RUNTIME_MISSION_LIST_MANAGER_H
 
 #include <list>
+#include <memory>
 #include <mutex>
 #include <queue>
-#include <memory>
-#include "cpp/mutex.h"
 
 #include "ability_running_info.h"
+#include "cpp/mutex.h"
 #include "foundation/distributedhardware/device_manager/interfaces/inner_kits/native_cpp/include/device_manager.h"
+#include "iability_info_callback.h"
+#include "mission_info.h"
 #include "mission_list.h"
 #include "mission_listener_controller.h"
-#include "mission_info.h"
 #include "mission_snapshot.h"
 #include "snapshot.h"
 #include "start_options.h"
@@ -343,11 +344,14 @@ public:
     void GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList);
 
     void CallRequestDone(const std::shared_ptr<AbilityRecord> &abilityRecord, const sptr<IRemoteObject> &callStub);
-  
-    int SetMissionContinueState(const sptr<IRemoteObject> &token, const int32_t missionId,
-        const AAFwk::ContinueState &state);
+
+    int SetMissionContinueState(
+        const sptr<IRemoteObject> &token, const int32_t missionId, const AAFwk::ContinueState &state);
 
     int32_t MoveMissionToBackground(int32_t missionId);
+
+    void GetAllForegroundAbilities(std::list<std::shared_ptr<AbilityRecord>> &foregroundList);
+
 #ifdef SUPPORT_GRAPHICS
 public:
     /**
@@ -443,9 +447,8 @@ private:
     void HandleAbilityDiedByDefault(std::shared_ptr<AbilityRecord> abilityRecord);
     void DelayedStartLauncher();
     void BackToLauncher();
-    void GetAllForegroundAbilities(std::list<std::shared_ptr<AbilityRecord>>& foregroundList);
-    void GetForegroundAbilities(const std::shared_ptr<MissionList>& missionList,
-        std::list<std::shared_ptr<AbilityRecord>>& foregroundList);
+    void GetForegroundAbilities(
+        const std::shared_ptr<MissionList> &missionList, std::list<std::shared_ptr<AbilityRecord>> &foregroundList);
     std::shared_ptr<Mission> GetMissionBySpecifiedFlag(const AAFwk::Want &want, const std::string &flag) const;
     bool IsReachToSingleLimitLocked(const int32_t uid) const;
     bool IsReachToLimitLocked() const;

@@ -22,12 +22,12 @@
 #include "ability_util.h"
 #include "app_exit_reason_data_manager.h"
 #include "appfreeze_manager.h"
-#include "hitrace_meter.h"
 #include "errors.h"
 #include "hilog_wrapper.h"
 #include "hisysevent.h"
-#include "mission_info_mgr.h"
+#include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
+#include "mission_info_mgr.h"
 
 namespace OHOS {
 using AbilityRuntime::FreezeUtil;
@@ -3667,8 +3667,8 @@ void MissionListManager::GetAllForegroundAbilities(std::list<std::shared_ptr<Abi
     GetForegroundAbilities(defaultStandardList_, foregroundList);
 }
 
-void MissionListManager::GetForegroundAbilities(const std::shared_ptr<MissionList>& missionList,
-    std::list<std::shared_ptr<AbilityRecord>>& foregroundList)
+void MissionListManager::GetForegroundAbilities(
+    const std::shared_ptr<MissionList> &missionList, std::list<std::shared_ptr<AbilityRecord>> &foregroundList)
 {
     if (!missionList || missionList->IsEmpty()) {
         return;
@@ -4145,5 +4145,5 @@ void MissionListManager::SendKeyEvent(const AbilityRequest &abilityRequest)
     eventInfo.moduleName = abilityInfo.moduleName;
     EventReport::SendKeyEvent(EventName::START_PRIVATE_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
 }
-}  // namespace AAFwk
-}  // namespace OHOS
+} // namespace AAFwk
+} // namespace OHOS

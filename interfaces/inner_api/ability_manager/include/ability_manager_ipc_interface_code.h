@@ -230,6 +230,9 @@ enum class AbilityManagerInterfaceCode {
     // execute insight intent done with result (73)
     EXECUTE_INSIGHT_INTENT_DONE = 73,
 
+    // Get forgeround UI abilities(72)
+    GET_FOREGROUND_UI_ABILITIES = 72,
+
     // ipc id 1001-2000 for DMS
     // ipc id for starting ability (1001)
     START_ABILITY = 1001,
@@ -467,6 +470,6 @@ enum class AbilityManagerInterfaceCode {
     // ipc id for register session handler
     REGISTER_SESSION_HANDLER = 6010,
 };
-}  // namespace AAFwk
-}  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_IPC_INTERFACE_CODE_H
+} // namespace AAFwk
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_IPC_INTERFACE_CODE_H

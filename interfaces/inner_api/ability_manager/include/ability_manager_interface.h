@@ -26,6 +26,7 @@
 #include "ability_scheduler_interface.h"
 #include "ability_start_setting.h"
 #include "ability_state.h"
+#include "ability_state_data.h"
 #include "app_debug_listener_interface.h"
 #include "auto_startup_info.h"
 #include "extension_running_info.h"
@@ -1328,9 +1329,16 @@ public:
      * @param result insight intent execute result.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t ExecuteInsightIntentDone(const sptr<IRemoteObject> &token, uint64_t intentId,
-        const InsightIntentExecuteResult &result) = 0;
+    virtual int32_t ExecuteInsightIntentDone(
+        const sptr<IRemoteObject> &token, uint64_t intentId, const InsightIntentExecuteResult &result) = 0;
+
+    /**
+     * @brief Get foreground UI abilities.
+     * @param list Foreground UI abilities.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list) = 0;
 };
-}  // namespace AAFwk
-}  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_INTERFACE_H
+} // namespace AAFwk
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_INTERFACE_H

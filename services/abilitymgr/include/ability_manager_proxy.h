@@ -1060,8 +1060,15 @@ public:
      * @param result insight intent execute result.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t ExecuteInsightIntentDone(const sptr<IRemoteObject> &token, uint64_t intentId,
-        const InsightIntentExecuteResult &result) override;
+    int32_t ExecuteInsightIntentDone(
+        const sptr<IRemoteObject> &token, uint64_t intentId, const InsightIntentExecuteResult &result) override;
+
+    /**
+     * @brief Get foreground UI abilities.
+     * @param list Foreground UI abilities.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list) override;
 
 private:
     template <typename T>
@@ -1077,6 +1084,6 @@ private:
 private:
     static inline BrokerDelegator<AbilityManagerProxy> delegator_;
 };
-}  // namespace AAFwk
-}  // namespace OHOS
+} // namespace AAFwk
+} // namespace OHOS
 #endif
