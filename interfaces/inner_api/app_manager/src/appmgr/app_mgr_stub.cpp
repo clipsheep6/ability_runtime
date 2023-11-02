@@ -128,9 +128,11 @@ AppMgrStub::AppMgrStub()
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_PIDS_BY_BUNDLENAME)] =
         &AppMgrStub::HandleGetRunningProcessInformation;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::CHANGE_APP_GC_STATE)] =
-        &AppMgrStub::HandleChangeAppGcState;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_PAGE_SHOW)] = &AppMgrStub::HandleNotifyPageShow;
-    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_PAGE_HIDE)] = &AppMgrStub::HandleNotifyPageHide;
+            &AppMgrStub::HandleChangeAppGcState;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_PAGE_SHOW)] =
+        &AppMgrStub::HandleNotifyPageShow;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_PAGE_HIDE)] =
+        &AppMgrStub::HandleNotifyPageHide;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_APP_FOREGROUND_STATE_OBSERVER)] =
         &AppMgrStub::HandleRegisterAppForegroundStateObserver;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_APP_FOREGROUND_STATE_OBSERVER)] =

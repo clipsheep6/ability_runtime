@@ -179,8 +179,8 @@ public:
      * @param observer, ability token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t RegisterApplicationStateObserver(
-        const sptr<IApplicationStateObserver> &observer, const std::vector<std::string> &bundleNameList = {}) override;
+    virtual int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
+        const std::vector<std::string> &bundleNameList = {}) override;
 
     /**
      * Unregister application or process state observer.
@@ -247,8 +247,9 @@ public:
      * @param renderPid, created render pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartRenderProcess(
-        const std::string &renderParam, int32_t ipcFd, int32_t sharedFd, int32_t crashFd, pid_t &renderPid) override;
+    virtual int StartRenderProcess(const std::string &renderParam,
+                                   int32_t ipcFd, int32_t sharedFd,
+                                   int32_t crashFd, pid_t &renderPid) override;
 
     /**
      * Render process call this to attach app manager service.
@@ -282,16 +283,16 @@ public:
      */
     virtual int32_t NotifyAppFaultBySA(const AppFaultDataBySA &faultData) override;
 
-#ifdef ABILITY_COMMAND_FOR_TEST
+    #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block app service.
      *
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int BlockAppService() override;
-#endif
+    #endif
 
-    virtual int32_t GetConfiguration(Configuration &config) override;
+    virtual int32_t GetConfiguration(Configuration& config) override;
 
     virtual int32_t UpdateConfiguration(const Configuration &config) override;
 
@@ -394,8 +395,10 @@ public:
 private:
     bool SendTransactCmd(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply);
     bool WriteInterfaceToken(MessageParcel &data);
-    int32_t SendRequest(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply, MessageOption &option);
-    template<typename T> int GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos);
+    int32_t SendRequest(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply,
+        MessageOption& option);
+    template<typename T>
+    int GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos);
     static inline BrokerDelegator<AppMgrProxy> delegator_;
 };
 } // namespace AppExecFwk

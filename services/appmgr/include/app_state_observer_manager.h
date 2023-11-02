@@ -44,14 +44,14 @@ class AppStateObserverManager : public std::enable_shared_from_this<AppStateObse
     DECLARE_DELAYED_SINGLETON(AppStateObserverManager)
 public:
     void Init();
-    int32_t RegisterApplicationStateObserver(
-        const sptr<IApplicationStateObserver> &observer, const std::vector<std::string> &bundleNameList = {});
+    int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
+        const std::vector<std::string> &bundleNameList = {});
     int32_t UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer);
     int32_t RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer);
     int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer);
     void StateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility);
-    void OnAppStateChanged(
-        const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state, bool needNotifyApp);
+    void OnAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
+        bool needNotifyApp);
     void OnAppStarted(const std::shared_ptr<AppRunningRecord> &appRecord);
     void OnAppStopped(const std::shared_ptr<AppRunningRecord> &appRecord);
     void OnProcessCreated(const std::shared_ptr<AppRunningRecord> &appRecord);
