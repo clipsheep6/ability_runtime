@@ -28,6 +28,7 @@
 #include "app_death_recipient.h"
 #include "app_debug_listener_interface.h"
 #include "app_debug_manager.h"
+#include "app_foreground_state_observer_interface.h"
 #include "app_malloc_info.h"
 #include "app_mgr_constants.h"
 #include "app_process_manager.h"
@@ -806,6 +807,21 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t NotifyPageHide(const sptr<IRemoteObject> &token, const PageStateData &pageStateData);
+
+    /**
+     * Register application foreground state observer.
+     * @param observer Is app foreground statue observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer);
+
+    /**
+     * Unregister application foreground state observer.
+     * @param observer Is app foreground statue observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer);
+
 private:
 
     std::string FaultTypeToString(FaultDataType type);
@@ -1113,6 +1129,6 @@ private:
     ffrt::mutex killpedProcessMapLock_;
     mutable std::map<int64_t, std::string> killedPorcessMap_;
 };
-}  // namespace AppExecFwk
-}  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_APP_MGR_SERVICE_INNER_H
+} // namespace AppExecFwk
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_APP_MGR_SERVICE_INNER_H

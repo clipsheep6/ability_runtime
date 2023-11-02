@@ -16,23 +16,20 @@
 #include "app_mgr_service.h"
 
 #include <chrono>
-#include <thread>
-
 #include <nlohmann/json.hpp>
 #include <sys/types.h>
-
-#include "datetime_ex.h"
-#include "ipc_skeleton.h"
-#include "system_ability_definition.h"
+#include <thread>
 
 #include "app_death_recipient.h"
 #include "app_mgr_constants.h"
+#include "datetime_ex.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
+#include "ipc_skeleton.h"
 #include "perf_profile.h"
-
 #include "permission_constants.h"
 #include "permission_verification.h"
+#include "system_ability_definition.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -54,7 +51,7 @@ const std::string TASK_ADD_ABILITY_STAGE_DONE = "AddAbilityStageDone";
 const std::string TASK_START_USER_TEST_PROCESS = "StartUserTestProcess";
 const std::string TASK_FINISH_USER_TEST = "FinishUserTest";
 const std::string TASK_ATTACH_RENDER_PROCESS = "AttachRenderTask";
-}  // namespace
+} // namespace
 
 REGISTER_SYSTEM_ABILITY_BY_ID(AppMgrService, APP_MGR_SERVICE_ID, true);
 
@@ -871,5 +868,25 @@ int32_t AppMgrService::NotifyPageHide(const sptr<IRemoteObject> &token, const Pa
     }
     return appMgrServiceInner_->NotifyPageHide(token, pageStateData);
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
+
+int32_t AppMgrService::RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer)
+{
+    HILOG_DEBUG("Called.");
+    if (!IsReady()) {
+        HILOG_ERROR("Not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->RegisterAppForegroundStateObserver(observer);
+}
+
+int32_t AppMgrService::UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer)
+{
+    HILOG_DEBUG("Called.");
+    if (!IsReady()) {
+        HILOG_ERROR("Not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->UnregisterAppForegroundStateObserver(observer);
+}
+} // namespace AppExecFwk
+} // namespace OHOS

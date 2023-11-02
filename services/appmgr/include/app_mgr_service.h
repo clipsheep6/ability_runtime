@@ -20,24 +20,23 @@
 #include <string>
 #include <vector>
 
+#include "ability_info.h"
+#include "ability_running_record.h"
+#include "ams_mgr_scheduler.h"
+#include "app_malloc_info.h"
+#include "app_mgr_constants.h"
+#include "app_mgr_service_event_handler.h"
+#include "app_mgr_service_inner.h"
+#include "app_mgr_stub.h"
+#include "app_record_id.h"
+#include "app_running_record.h"
+#include "app_scheduler_proxy.h"
+#include "appexecfwk_errors.h"
+#include "application_info.h"
 #include "if_system_ability_manager.h"
 #include "nocopyable.h"
 #include "system_ability.h"
 #include "task_handler_wrap.h"
-#include "ability_info.h"
-#include "ability_running_record.h"
-#include "appexecfwk_errors.h"
-#include "application_info.h"
-#include "app_mgr_constants.h"
-#include "app_mgr_stub.h"
-#include "app_mgr_service_event_handler.h"
-#include "app_mgr_service_inner.h"
-#include "app_record_id.h"
-#include "app_running_record.h"
-#include "app_scheduler_proxy.h"
-#include "ams_mgr_scheduler.h"
-#include "ams_mgr_scheduler.h"
-#include "app_malloc_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -374,6 +373,20 @@ public:
      */
     virtual int32_t ChangeAppGcState(pid_t pid, int32_t state) override;
 
+    /**
+     * Register application foreground state observer.
+     * @param observer Is App Foreground Statue Observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) override;
+
+    /**
+     * Unregister application foreground state observer.
+     * @param observer Is App Foreground Statue Observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) override;
+
 private:
     /**
      * Init, Initialize application services.
@@ -426,8 +439,8 @@ private:
      * @param observer, ability token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
-        const std::vector<std::string> &bundleNameList = {}) override;
+    virtual int32_t RegisterApplicationStateObserver(
+        const sptr<IApplicationStateObserver> &observer, const std::vector<std::string> &bundleNameList = {}) override;
 
     /**
      * Unregister application or process state observer.
@@ -474,6 +487,6 @@ private:
 
     DISALLOW_COPY_AND_MOVE(AppMgrService);
 };
-}  // namespace AppExecFwk
-}  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_APP_MGR_SERVICE_H
+} // namespace AppExecFwk
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_APP_MGR_SERVICE_H

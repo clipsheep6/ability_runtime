@@ -2682,6 +2682,18 @@ int32_t AppMgrServiceInner::UnregisterApplicationStateObserver(const sptr<IAppli
     return DelayedSingleton<AppStateObserverManager>::GetInstance()->UnregisterApplicationStateObserver(observer);
 }
 
+int32_t AppMgrServiceInner::RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer)
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
+    return DelayedSingleton<AppStateObserverManager>::GetInstance()->RegisterAppForegroundStateObserver(observer);
+}
+
+int32_t AppMgrServiceInner::UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer)
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
+    return DelayedSingleton<AppStateObserverManager>::GetInstance()->UnregisterAppForegroundStateObserver(observer);
+}
+
 int32_t AppMgrServiceInner::GetForegroundApplications(std::vector<AppStateData> &list)
 {
     HILOG_DEBUG("begin.");

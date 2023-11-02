@@ -16,26 +16,26 @@
 #ifndef OHOS_ABILITY_RUNTIME_APP_MGR_INTERFACE_H
 #define OHOS_ABILITY_RUNTIME_APP_MGR_INTERFACE_H
 
-#include "iremote_broker.h"
-#include "iremote_object.h"
-#include "want.h"
-
 #include "ability_info.h"
-#include "application_info.h"
+#include "ams_mgr_interface.h"
+#include "app_foreground_state_observer_interface.h"
+#include "app_malloc_info.h"
 #include "app_mgr_ipc_interface_code.h"
 #include "app_record_id.h"
+#include "application_info.h"
 #include "bundle_info.h"
 #include "fault_data.h"
 #include "iapp_state_callback.h"
-#include "ams_mgr_interface.h"
+#include "iapplication_state_observer.h"
+#include "iconfiguration_observer.h"
+#include "iquick_fix_callback.h"
+#include "iremote_broker.h"
+#include "iremote_object.h"
 #include "page_state_data.h"
 #include "render_process_info.h"
 #include "running_process_info.h"
 #include "system_memory_attr.h"
-#include "iapplication_state_observer.h"
-#include "iconfiguration_observer.h"
-#include "iquick_fix_callback.h"
-#include "app_malloc_info.h"
+#include "want.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -194,8 +194,8 @@ public:
      * @param observer, ability token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
-        const std::vector<std::string> &bundleNameList = {}) = 0;
+    virtual int32_t RegisterApplicationStateObserver(
+        const sptr<IApplicationStateObserver> &observer, const std::vector<std::string> &bundleNameList = {}) = 0;
 
     /**
      * Unregister application or process state observer.
@@ -242,14 +242,14 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens) = 0;
-    #ifdef ABILITY_COMMAND_FOR_TEST
+#ifdef ABILITY_COMMAND_FOR_TEST
     /**
      *  Block app service.
      *
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int BlockAppService() = 0;
-    #endif
+#endif
 
     /**
      * Prestart nwebspawn process.
@@ -268,9 +268,8 @@ public:
      * @param renderPid, created render pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartRenderProcess(const std::string &renderParam,
-                                   int32_t ipcFd, int32_t sharedFd,
-                                   int32_t crashFd, pid_t &renderPid) = 0;
+    virtual int StartRenderProcess(
+        const std::string &renderParam, int32_t ipcFd, int32_t sharedFd, int32_t crashFd, pid_t &renderPid) = 0;
 
     /**
      * Render process call this to attach app manager service.
@@ -288,7 +287,7 @@ public:
      */
     virtual int GetRenderProcessTerminationStatus(pid_t renderPid, int &status) = 0;
 
-    virtual int32_t GetConfiguration(Configuration& config) = 0;
+    virtual int32_t GetConfiguration(Configuration &config) = 0;
 
     virtual int32_t UpdateConfiguration(const Configuration &config) = 0;
 
@@ -401,7 +400,7 @@ public:
      */
     virtual int32_t GetRunningProcessInformation(
         const std::string &bundleName, int32_t userId, std::vector<RunningProcessInfo> &info) = 0;
-    
+
     /**
      * @brief Notify AbilityManagerService the page show.
      * @param token Ability identify.
@@ -433,6 +432,20 @@ public:
      * @return Is the status change completed.
      */
     virtual int32_t ChangeAppGcState(pid_t pid, int32_t state) = 0;
+
+    /**
+     * Register application foreground state observer.
+     * @param observer Is app foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) = 0;
+
+    /**
+     * Unregister application foreground state observer.
+     * @param observer Is app foreground state observer.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) = 0;
 
     // please add new message item to the bottom in order to prevent some unexpected BUG
     enum class Message {
@@ -486,7 +499,6 @@ public:
         NOTIFY_PAGE_HIDE
     };
 };
-}  // namespace AppExecFwk
-}  // namespace OHOS
-
-#endif  // OHOS_ABILITY_RUNTIME_APP_MGR_INTERFACE_H
+} // namespace AppExecFwk
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_APP_MGR_INTERFACE_H

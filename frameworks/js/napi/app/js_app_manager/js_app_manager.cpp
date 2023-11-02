@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,19 +21,20 @@
 #include "ability_manager_interface.h"
 #include "ability_runtime_error_util.h"
 #include "app_mgr_interface.h"
+#include "event_runner.h"
 #include "hilog_wrapper.h"
+#include "if_system_ability_manager.h"
+#include "ipc_skeleton.h"
+#include "iservice_registry.h"
+#include "js_app_foreground_state_observer.h"
+#include "js_app_manager_utils.h"
+#include "js_app_state_observer.h"
 #include "js_error_utils.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "napi/native_api.h"
-#include "if_system_ability_manager.h"
-#include "iservice_registry.h"
-#include "system_ability_definition.h"
-#include "js_app_manager_utils.h"
-#include "event_runner.h"
 #include "napi_common_util.h"
-#include "js_app_state_observer.h"
-#include "ipc_skeleton.h"
+#include "system_ability_definition.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -45,26 +46,30 @@ constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
-constexpr const char* ON_OFF_TYPE = "applicationState";
-constexpr const char* ON_OFF_TYPE_SYNC = "applicationStateEvent";
+constexpr const char *ON_OFF_TYPE = "applicationState";
+constexpr const char *ON_OFF_TYPE_SYNC = "applicationStateEvent";
+constexpr const char *ON_OFF_TYPE_APP_FOREGROUND_STATE = "appForegroundState";
 
 class JsAppManager final {
 public:
-    JsAppManager(sptr<OHOS::AppExecFwk::IAppMgr> appManager,
-        sptr<OHOS::AAFwk::IAbilityManager> abilityManager) : appManager_(appManager),
-        abilityManager_(abilityManager) {}
+    JsAppManager(sptr<OHOS::AppExecFwk::IAppMgr> appManager, sptr<OHOS::AAFwk::IAbilityManager> abilityManager)
+        : appManager_(appManager), abilityManager_(abilityManager)
+    {}
     ~JsAppManager()
     {
         if (observer_ != nullptr) {
             HILOG_INFO("Set valid false");
             observer_->SetValid(false);
         }
+        if (observerForeground_ != nullptr) {
+            observerForeground_->SetValid(false);
+        }
     }
 
-    static void Finalizer(napi_env env, void* data, void* hint)
+    static void Finalizer(napi_env env, void *data, void *hint)
     {
         HILOG_INFO("JsAbilityContext::Finalizer is called");
-        std::unique_ptr<JsAppManager>(static_cast<JsAppManager*>(data));
+        std::unique_ptr<JsAppManager>(static_cast<JsAppManager *>(data));
     }
 
     static napi_value On(napi_env env, napi_callback_info info)
@@ -131,24 +136,29 @@ public:
     {
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnGetRunningProcessInfoByBundleName);
     }
+
 private:
     sptr<OHOS::AppExecFwk::IAppMgr> appManager_ = nullptr;
     sptr<OHOS::AAFwk::IAbilityManager> abilityManager_ = nullptr;
     sptr<JSAppStateObserver> observer_ = nullptr;
     sptr<JSAppStateObserver> observerSync_ = nullptr;
+    sptr<JSAppForegroundStateObserver> observerForeground_ = nullptr;
     int32_t serialNumber_ = 0;
 
-    napi_value OnOn(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnOn(napi_env env, size_t argc, napi_value *argv)
     {
         HILOG_DEBUG("OnOn called");
         std::string type = ParseParamType(env, argc, argv);
         if (type == ON_OFF_TYPE_SYNC) {
             return OnOnNew(env, argc, argv);
+        } else if (type == ON_OFF_TYPE_APP_FOREGROUND_STATE) {
+            return OnOnForeground(env, argc, argv);
         }
+
         return OnOnOld(env, argc, argv);
     }
 
-    napi_value OnOnOld(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnOnOld(napi_env env, size_t argc, napi_value *argv)
     {
         HILOG_DEBUG("OnOnOld called");
         if (argc < ARGC_TWO) { // support 2 or 3 params, if > 3 params, ignore other params
@@ -194,7 +204,7 @@ private:
         }
     }
 
-    napi_value OnOnNew(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnOnNew(napi_env env, size_t argc, napi_value *argv)
     {
         HILOG_DEBUG("called");
         if (argc < ARGC_TWO) { // support 2 or 3 params, if > 3 params, ignore other params
@@ -237,17 +247,55 @@ private:
         }
     }
 
-    napi_value OnOff(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnOnForeground(napi_env env, size_t argc, napi_value *argv)
+    {
+        HILOG_DEBUG("Called.");
+        if (argc < ARGC_TWO) {
+            HILOG_ERROR("Not enough params.");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+        if (!AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
+            HILOG_ERROR("Invalid param.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+        if (observerForeground_ == nullptr) {
+            observerForeground_ = new (std::nothrow) JSAppForegroundStateObserver(env);
+        }
+
+        if (appManager_ == nullptr || observerForeground_ == nullptr) {
+            HILOG_ERROR("AppManager or observer is nullptr.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+            return CreateJsUndefined(env);
+        }
+
+        if (observerForeground_->isEmpty()) {
+            int32_t ret = appManager_->RegisterAppForegroundStateObserver(observerForeground_);
+            if (ret != NO_ERROR) {
+                HILOG_ERROR("Failed error: %{public}d.", ret);
+                ThrowErrorByNativeErr(env, ret);
+                return CreateJsUndefined(env);
+            }
+        }
+        observerForeground_->AddJsObserverObject(argv[INDEX_ONE]);
+        return CreateJsUndefined(env);
+    }
+
+    napi_value OnOff(napi_env env, size_t argc, napi_value *argv)
     {
         HILOG_DEBUG("called");
         std::string type = ParseParamType(env, argc, argv);
         if (type == ON_OFF_TYPE_SYNC) {
             return OnOffNew(env, argc, argv);
+        } else if (type == ON_OFF_TYPE_APP_FOREGROUND_STATE) {
+            return OnOffForeground(env, argc, argv);
         }
+
         return OnOffOld(env, argc, argv);
     }
 
-    napi_value OnOffOld(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnOffOld(napi_env env, size_t argc, napi_value *argv)
     {
         HILOG_DEBUG("called");
         if (argc < ARGC_TWO) {
@@ -274,33 +322,31 @@ private:
         }
         HILOG_DEBUG("find observer exist observer:%{public}d", static_cast<int32_t>(observerId));
 
-        NapiAsyncTask::CompleteCallback complete =
-            [appManager = appManager_, observer = observer_, observerId](
-                napi_env env, NapiAsyncTask& task, int32_t status) {
-                if (observer == nullptr || appManager == nullptr) {
-                    HILOG_ERROR("observer or appManager nullptr");
-                    task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
-                    return;
-                }
-                int32_t ret = appManager->UnregisterApplicationStateObserver(observer);
-                if (ret == 0 && observer->RemoveJsObserverObject(observerId)) {
-                    task.ResolveWithNoError(env, CreateJsUndefined(env));
-                    HILOG_DEBUG("success size:%{public}zu",
-                        observer->GetJsObserverMapSize());
-                } else {
-                    HILOG_ERROR("failed error:%{public}d", ret);
-                    task.Reject(env, CreateJsErrorByNativeErr(env, ret));
-                }
-            };
+        NapiAsyncTask::CompleteCallback complete = [appManager = appManager_, observer = observer_, observerId](
+                                                       napi_env env, NapiAsyncTask &task, int32_t status) {
+            if (observer == nullptr || appManager == nullptr) {
+                HILOG_ERROR("observer or appManager nullptr");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            int32_t ret = appManager->UnregisterApplicationStateObserver(observer);
+            if (ret == 0 && observer->RemoveJsObserverObject(observerId)) {
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
+                HILOG_DEBUG("success size:%{public}zu", observer->GetJsObserverMapSize());
+            } else {
+                HILOG_ERROR("failed error:%{public}d", ret);
+                task.Reject(env, CreateJsErrorByNativeErr(env, ret));
+            }
+        };
 
         napi_value lastParam = (argc > ARGC_TWO) ? argv[INDEX_TWO] : nullptr;
         napi_value result = nullptr;
-        NapiAsyncTask::Schedule("JSAppManager::OnUnregisterApplicationStateObserver",
-            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+        NapiAsyncTask::Schedule("JSAppManager::OnUnregisterApplicationStateObserver", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
-    napi_value OnOffNew(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnOffNew(napi_env env, size_t argc, napi_value *argv)
     {
         HILOG_DEBUG("called");
         if (argc < ARGC_TWO) {
@@ -336,83 +382,114 @@ private:
         }
     }
 
-    napi_value OnGetForegroundApplications(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnOffForeground(napi_env env, size_t argc, napi_value *argv)
+    {
+        HILOG_DEBUG("Called.");
+        if (argc < ARGC_TWO) {
+            HILOG_ERROR("Not enough params when off.");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+        if (!AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
+            HILOG_ERROR("Invalid param.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+        if (observerForeground_ == nullptr || appManager_ == nullptr) {
+            HILOG_ERROR("Observer or appManager nullptr.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+            return CreateJsUndefined(env);
+        }
+        observerForeground_->RemoveJsObserverObject(argv[INDEX_ONE]);
+
+        if (observerForeground_->isEmpty()) {
+            int32_t ret = appManager_->UnregisterAppForegroundStateObserver(observerForeground_);
+            if (ret != NO_ERROR) {
+                HILOG_ERROR("Failed error: %{public}d.", ret);
+                ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+                return CreateJsUndefined(env);
+            }
+        }
+        return CreateJsUndefined(env);
+    }
+
+    napi_value OnGetForegroundApplications(napi_env env, size_t argc, napi_value *argv)
     {
         HILOG_DEBUG("called");
-        NapiAsyncTask::CompleteCallback complete =
-            [appManager = appManager_](napi_env env, NapiAsyncTask& task, int32_t status) {
-                if (appManager == nullptr) {
-                    HILOG_ERROR("appManager nullptr");
-                    task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
-                    return;
-                }
-                std::vector<AppExecFwk::AppStateData> list;
-                int32_t ret = appManager->GetForegroundApplications(list);
-                if (ret == 0) {
-                    HILOG_DEBUG("success.");
-                    task.ResolveWithNoError(env, CreateJsAppStateDataArray(env, list));
-                } else {
-                    HILOG_ERROR("failed error:%{public}d", ret);
-                    task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(ret)));
-                }
-            };
+        NapiAsyncTask::CompleteCallback complete = [appManager = appManager_](
+                                                       napi_env env, NapiAsyncTask &task, int32_t status) {
+            if (appManager == nullptr) {
+                HILOG_ERROR("appManager nullptr");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            std::vector<AppExecFwk::AppStateData> list;
+            int32_t ret = appManager->GetForegroundApplications(list);
+            if (ret == 0) {
+                HILOG_DEBUG("success.");
+                task.ResolveWithNoError(env, CreateJsAppStateDataArray(env, list));
+            } else {
+                HILOG_ERROR("failed error:%{public}d", ret);
+                task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(ret)));
+            }
+        };
 
         napi_value lastParam = (argc > ARGC_ZERO) ? argv[INDEX_ZERO] : nullptr;
         napi_value result = nullptr;
-        NapiAsyncTask::Schedule("JSAppManager::OnGetForegroundApplications",
-            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+        NapiAsyncTask::Schedule("JSAppManager::OnGetForegroundApplications", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
-    napi_value OnGetRunningProcessInformation(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnGetRunningProcessInformation(napi_env env, size_t argc, napi_value *argv)
     {
         HILOG_DEBUG("called");
-        NapiAsyncTask::CompleteCallback complete =
-            [appManager = appManager_](napi_env env, NapiAsyncTask &task, int32_t status) {
-                if (appManager == nullptr) {
-                    HILOG_WARN("abilityManager nullptr");
-                    task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
-                    return;
-                }
-                std::vector<AppExecFwk::RunningProcessInfo> infos;
-                auto ret = appManager->GetAllRunningProcesses(infos);
-                if (ret == 0) {
-                    task.ResolveWithNoError(env, CreateJsRunningProcessInfoArray(env, infos));
-                } else {
-                    task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(ret)));
-                }
-            };
+        NapiAsyncTask::CompleteCallback complete = [appManager = appManager_](
+                                                       napi_env env, NapiAsyncTask &task, int32_t status) {
+            if (appManager == nullptr) {
+                HILOG_WARN("abilityManager nullptr");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            std::vector<AppExecFwk::RunningProcessInfo> infos;
+            auto ret = appManager->GetAllRunningProcesses(infos);
+            if (ret == 0) {
+                task.ResolveWithNoError(env, CreateJsRunningProcessInfoArray(env, infos));
+            } else {
+                task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(ret)));
+            }
+        };
 
         napi_value lastParam = (argc > ARGC_ZERO) ? argv[INDEX_ZERO] : nullptr;
         napi_value result = nullptr;
-        NapiAsyncTask::Schedule("JSAppManager::OnGetRunningProcessInformation",
-            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+        NapiAsyncTask::Schedule("JSAppManager::OnGetRunningProcessInformation", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
-    napi_value OnIsRunningInStabilityTest(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnIsRunningInStabilityTest(napi_env env, size_t argc, napi_value *argv)
     {
         HILOG_DEBUG("called");
-        NapiAsyncTask::CompleteCallback complete =
-            [abilityManager = abilityManager_](napi_env env, NapiAsyncTask& task, int32_t status) {
-                if (abilityManager == nullptr) {
-                    HILOG_WARN("abilityManager nullptr");
-                    task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
-                    return;
-                }
-                bool ret = abilityManager->IsRunningInStabilityTest();
-                HILOG_INFO("result:%{public}d", ret);
-                task.ResolveWithNoError(env, CreateJsValue(env, ret));
-            };
+        NapiAsyncTask::CompleteCallback complete = [abilityManager = abilityManager_](
+                                                       napi_env env, NapiAsyncTask &task, int32_t status) {
+            if (abilityManager == nullptr) {
+                HILOG_WARN("abilityManager nullptr");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            bool ret = abilityManager->IsRunningInStabilityTest();
+            HILOG_INFO("result:%{public}d", ret);
+            task.ResolveWithNoError(env, CreateJsValue(env, ret));
+        };
 
         napi_value lastParam = (argc > ARGC_ZERO) ? argv[INDEX_ZERO] : nullptr;
         napi_value result = nullptr;
-        NapiAsyncTask::Schedule("JSAppManager::OnIsRunningInStabilityTest",
-            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+        NapiAsyncTask::Schedule("JSAppManager::OnIsRunningInStabilityTest", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
-    napi_value OnkillProcessesByBundleName(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnkillProcessesByBundleName(napi_env env, size_t argc, napi_value *argv)
     {
         HILOG_DEBUG("called");
         if (argc < ARGC_ONE) {
@@ -429,8 +506,8 @@ private:
         }
 
         HILOG_INFO("kill process [%{public}s]", bundleName.c_str());
-        NapiAsyncTask::CompleteCallback complete =
-            [bundleName, abilityManager = abilityManager_](napi_env env, NapiAsyncTask& task, int32_t status) {
+        NapiAsyncTask::CompleteCallback complete = [bundleName, abilityManager = abilityManager_](
+                                                       napi_env env, NapiAsyncTask &task, int32_t status) {
             if (abilityManager == nullptr) {
                 HILOG_WARN("abilityManager nullptr");
                 task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
@@ -446,12 +523,12 @@ private:
 
         napi_value lastParam = (argc == ARGC_TWO) ? argv[INDEX_ONE] : nullptr;
         napi_value result = nullptr;
-        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnkillProcessesByBundleName",
-            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnkillProcessesByBundleName", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
-    napi_value OnClearUpApplicationData(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnClearUpApplicationData(napi_env env, size_t argc, napi_value *argv)
     {
         HILOG_DEBUG("called");
         if (argc < ARGC_ONE) {
@@ -467,8 +544,8 @@ private:
             return CreateJsUndefined(env);
         }
 
-        NapiAsyncTask::CompleteCallback complete =
-            [bundleName, abilityManager = abilityManager_](napi_env env, NapiAsyncTask& task, int32_t status) {
+        NapiAsyncTask::CompleteCallback complete = [bundleName, abilityManager = abilityManager_](
+                                                       napi_env env, NapiAsyncTask &task, int32_t status) {
             if (abilityManager == nullptr) {
                 HILOG_WARN("abilityManager nullptr");
                 task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
@@ -484,12 +561,12 @@ private:
 
         napi_value lastParam = (argc == ARGC_TWO) ? argv[INDEX_ONE] : nullptr;
         napi_value result = nullptr;
-        NapiAsyncTask::Schedule("JSAppManager::OnClearUpApplicationData",
-            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+        NapiAsyncTask::Schedule("JSAppManager::OnClearUpApplicationData", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
-    napi_value OnIsSharedBundleRunning(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnIsSharedBundleRunning(napi_env env, size_t argc, napi_value *argv)
     {
         HILOG_DEBUG("called");
         if (argc < ARGC_TWO) {
@@ -512,8 +589,8 @@ private:
             return CreateJsUndefined(env);
         }
 
-        NapiAsyncTask::CompleteCallback complete =
-            [bundleName, versionCode, appManager = appManager_](napi_env env, NapiAsyncTask& task, int32_t status) {
+        NapiAsyncTask::CompleteCallback complete = [bundleName, versionCode, appManager = appManager_](
+                                                       napi_env env, NapiAsyncTask &task, int32_t status) {
             if (appManager == nullptr) {
                 HILOG_WARN("appManager nullptr");
                 task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
@@ -526,12 +603,12 @@ private:
 
         napi_value lastParam = (argc == ARGC_THREE) ? argv[INDEX_TWO] : nullptr;
         napi_value result = nullptr;
-        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnIsSharedBundleRunning",
-            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnIsSharedBundleRunning", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
-    napi_value OnKillProcessWithAccount(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnKillProcessWithAccount(napi_env env, size_t argc, napi_value *argv)
     {
         HILOG_DEBUG("called");
         if (argc < ARGC_TWO) {
@@ -553,71 +630,71 @@ private:
             return CreateJsUndefined(env);
         }
 
-        NapiAsyncTask::CompleteCallback complete =
-            [appManager = appManager_, bundleName, accountId](napi_env env, NapiAsyncTask &task, int32_t status) {
-                if (appManager == nullptr || appManager->GetAmsMgr() == nullptr) {
-                    HILOG_WARN("appManager is nullptr or amsMgr is nullptr.");
-                    task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
-                    return;
-                }
-                auto ret = appManager->GetAmsMgr()->KillProcessWithAccount(bundleName, accountId);
-                if (ret == 0) {
-                    task.ResolveWithNoError(env, CreateJsUndefined(env));
-                } else {
-                    task.Reject(env, CreateJsErrorByNativeErr(env, ret, "Kill processes failed."));
-                }
-            };
+        NapiAsyncTask::CompleteCallback complete = [appManager = appManager_, bundleName, accountId](
+                                                       napi_env env, NapiAsyncTask &task, int32_t status) {
+            if (appManager == nullptr || appManager->GetAmsMgr() == nullptr) {
+                HILOG_WARN("appManager is nullptr or amsMgr is nullptr.");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            auto ret = appManager->GetAmsMgr()->KillProcessWithAccount(bundleName, accountId);
+            if (ret == 0) {
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, ret, "Kill processes failed."));
+            }
+        };
 
         napi_value lastParam = (argc == ARGC_THREE) ? argv[INDEX_TWO] : nullptr;
         napi_value result = nullptr;
-        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnKillProcessWithAccount",
-            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnKillProcessWithAccount", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
-    napi_value OnGetAppMemorySize(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnGetAppMemorySize(napi_env env, size_t argc, napi_value *argv)
     {
-        NapiAsyncTask::CompleteCallback complete =
-            [abilityManager = abilityManager_](napi_env env, NapiAsyncTask& task, int32_t status) {
-                if (abilityManager == nullptr) {
-                    HILOG_WARN("abilityManager nullptr");
-                    task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
-                    return;
-                }
-                int32_t memorySize = abilityManager->GetAppMemorySize();
-                HILOG_INFO("memorySize:%{public}d", memorySize);
-                task.ResolveWithNoError(env, CreateJsValue(env, memorySize));
-            };
+        NapiAsyncTask::CompleteCallback complete = [abilityManager = abilityManager_](
+                                                       napi_env env, NapiAsyncTask &task, int32_t status) {
+            if (abilityManager == nullptr) {
+                HILOG_WARN("abilityManager nullptr");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            int32_t memorySize = abilityManager->GetAppMemorySize();
+            HILOG_INFO("memorySize:%{public}d", memorySize);
+            task.ResolveWithNoError(env, CreateJsValue(env, memorySize));
+        };
 
         napi_value lastParam = (argc > ARGC_ZERO) ? argv[INDEX_ZERO] : nullptr;
         napi_value result = nullptr;
-        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnGetAppMemorySize",
-            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnGetAppMemorySize", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
-    napi_value OnIsRamConstrainedDevice(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnIsRamConstrainedDevice(napi_env env, size_t argc, napi_value *argv)
     {
-        NapiAsyncTask::CompleteCallback complete =
-            [abilityManager = abilityManager_](napi_env env, NapiAsyncTask& task, int32_t status) {
-                if (abilityManager == nullptr) {
-                    HILOG_WARN("abilityManager nullptr");
-                    task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
-                    return;
-                }
-                bool ret = abilityManager->IsRamConstrainedDevice();
-                HILOG_INFO("result:%{public}d", ret);
-                task.ResolveWithNoError(env, CreateJsValue(env, ret));
-            };
+        NapiAsyncTask::CompleteCallback complete = [abilityManager = abilityManager_](
+                                                       napi_env env, NapiAsyncTask &task, int32_t status) {
+            if (abilityManager == nullptr) {
+                HILOG_WARN("abilityManager nullptr");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            bool ret = abilityManager->IsRamConstrainedDevice();
+            HILOG_INFO("result:%{public}d", ret);
+            task.ResolveWithNoError(env, CreateJsValue(env, ret));
+        };
 
         napi_value lastParam = (argc > ARGC_ZERO) ? argv[INDEX_ZERO] : nullptr;
         napi_value result = nullptr;
-        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnIsRamConstrainedDevice",
-            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnIsRamConstrainedDevice", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
-    napi_value OnGetProcessMemoryByPid(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnGetProcessMemoryByPid(napi_env env, size_t argc, napi_value *argv)
     {
         HILOG_DEBUG("called");
         if (argc < ARGC_ONE) {
@@ -633,30 +710,30 @@ private:
             return CreateJsUndefined(env);
         }
 
-        NapiAsyncTask::CompleteCallback complete =
-            [pid, appManager = appManager_](napi_env env, NapiAsyncTask &task, int32_t status) {
-                if (appManager == nullptr) {
-                    HILOG_WARN("appManager is nullptr");
-                    task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
-                    return;
-                }
-                int32_t memSize = 0;
-                int32_t ret = appManager->GetProcessMemoryByPid(pid, memSize);
-                if (ret == 0) {
-                    task.ResolveWithNoError(env, CreateJsValue(env, memSize));
-                } else {
-                    task.Reject(env, CreateJsErrorByNativeErr(env, ret));
-                }
-            };
+        NapiAsyncTask::CompleteCallback complete = [pid, appManager = appManager_](
+                                                       napi_env env, NapiAsyncTask &task, int32_t status) {
+            if (appManager == nullptr) {
+                HILOG_WARN("appManager is nullptr");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            int32_t memSize = 0;
+            int32_t ret = appManager->GetProcessMemoryByPid(pid, memSize);
+            if (ret == 0) {
+                task.ResolveWithNoError(env, CreateJsValue(env, memSize));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, ret));
+            }
+        };
 
         napi_value lastParam = (argc == ARGC_TWO) ? argv[INDEX_ONE] : nullptr;
         napi_value result = nullptr;
-        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnGetProcessMemoryByPid",
-            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnGetProcessMemoryByPid", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
-    napi_value OnGetRunningProcessInfoByBundleName(napi_env env, size_t argc, napi_value* argv)
+    napi_value OnGetRunningProcessInfoByBundleName(napi_env env, size_t argc, napi_value *argv)
     {
         if (argc < ARGC_ONE) {
             ThrowTooFewParametersError(env);
@@ -688,8 +765,8 @@ private:
             return CreateJsUndefined(env);
         }
 
-        NapiAsyncTask::CompleteCallback complete =
-            [bundleName, userId, appManager = appManager_](napi_env env, NapiAsyncTask &task, int32_t status) {
+        NapiAsyncTask::CompleteCallback complete = [bundleName, userId, appManager = appManager_](
+                                                       napi_env env, NapiAsyncTask &task, int32_t status) {
             if (appManager == nullptr) {
                 task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
                 return;
@@ -704,12 +781,12 @@ private:
         };
         napi_value lastParam = isPromiseType ? nullptr : argv[argc - 1];
         napi_value result = nullptr;
-        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnGetRunningProcessInfoByBundleName",
-            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnGetRunningProcessInfoByBundleName", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
-    bool CheckOnOffType(napi_env env, size_t argc, napi_value* argv)
+    bool CheckOnOffType(napi_env env, size_t argc, napi_value *argv)
     {
         if (argc < ARGC_ONE) {
             return false;
@@ -733,7 +810,7 @@ private:
         return true;
     }
 
-    std::string ParseParamType(napi_env env, size_t argc, napi_value* argv)
+    std::string ParseParamType(napi_env env, size_t argc, napi_value *argv)
     {
         std::string type;
         if (argc > INDEX_ZERO && ConvertFromJsValue(env, argv[INDEX_ZERO], type)) {
@@ -769,8 +846,8 @@ napi_value JsAppManagerInit(napi_env env, napi_value exportObj)
         return nullptr;
     }
 
-    std::unique_ptr<JsAppManager> jsAppManager = std::make_unique<JsAppManager>(
-        GetAppManagerInstance(), GetAbilityManagerInstance());
+    std::unique_ptr<JsAppManager> jsAppManager =
+        std::make_unique<JsAppManager>(GetAppManagerInstance(), GetAbilityManagerInstance());
     napi_wrap(env, exportObj, jsAppManager.release(), JsAppManager::Finalizer, nullptr, nullptr);
 
     napi_set_named_property(env, exportObj, "ApplicationState", ApplicationStateInit(env));
@@ -779,34 +856,27 @@ napi_value JsAppManagerInit(napi_env env, napi_value exportObj)
     const char *moduleName = "AppManager";
     BindNativeFunction(env, exportObj, "on", moduleName, JsAppManager::On);
     BindNativeFunction(env, exportObj, "off", moduleName, JsAppManager::Off);
-    BindNativeFunction(env, exportObj, "getForegroundApplications", moduleName,
-        JsAppManager::GetForegroundApplications);
-    BindNativeFunction(env, exportObj, "getProcessRunningInfos", moduleName,
-        JsAppManager::GetRunningProcessInformation);
-    BindNativeFunction(env, exportObj, "getProcessRunningInformation", moduleName,
-        JsAppManager::GetRunningProcessInformation);
-    BindNativeFunction(env, exportObj, "getRunningProcessInformation", moduleName,
-        JsAppManager::GetRunningProcessInformation);
-    BindNativeFunction(env, exportObj, "isRunningInStabilityTest", moduleName,
-        JsAppManager::IsRunningInStabilityTest);
-    BindNativeFunction(env, exportObj, "killProcessWithAccount", moduleName,
-        JsAppManager::KillProcessWithAccount);
-    BindNativeFunction(env, exportObj, "killProcessesByBundleName", moduleName,
-        JsAppManager::KillProcessesByBundleName);
-    BindNativeFunction(env, exportObj, "clearUpApplicationData", moduleName,
-        JsAppManager::ClearUpApplicationData);
-    BindNativeFunction(env, exportObj, "getAppMemorySize", moduleName,
-        JsAppManager::GetAppMemorySize);
-    BindNativeFunction(env, exportObj, "isRamConstrainedDevice", moduleName,
-        JsAppManager::IsRamConstrainedDevice);
-    BindNativeFunction(env, exportObj, "isSharedBundleRunning", moduleName,
-        JsAppManager::IsSharedBundleRunning);
-    BindNativeFunction(env, exportObj, "getProcessMemoryByPid", moduleName,
-        JsAppManager::GetProcessMemoryByPid);
+    BindNativeFunction(
+        env, exportObj, "getForegroundApplications", moduleName, JsAppManager::GetForegroundApplications);
+    BindNativeFunction(
+        env, exportObj, "getProcessRunningInfos", moduleName, JsAppManager::GetRunningProcessInformation);
+    BindNativeFunction(
+        env, exportObj, "getProcessRunningInformation", moduleName, JsAppManager::GetRunningProcessInformation);
+    BindNativeFunction(
+        env, exportObj, "getRunningProcessInformation", moduleName, JsAppManager::GetRunningProcessInformation);
+    BindNativeFunction(env, exportObj, "isRunningInStabilityTest", moduleName, JsAppManager::IsRunningInStabilityTest);
+    BindNativeFunction(env, exportObj, "killProcessWithAccount", moduleName, JsAppManager::KillProcessWithAccount);
+    BindNativeFunction(
+        env, exportObj, "killProcessesByBundleName", moduleName, JsAppManager::KillProcessesByBundleName);
+    BindNativeFunction(env, exportObj, "clearUpApplicationData", moduleName, JsAppManager::ClearUpApplicationData);
+    BindNativeFunction(env, exportObj, "getAppMemorySize", moduleName, JsAppManager::GetAppMemorySize);
+    BindNativeFunction(env, exportObj, "isRamConstrainedDevice", moduleName, JsAppManager::IsRamConstrainedDevice);
+    BindNativeFunction(env, exportObj, "isSharedBundleRunning", moduleName, JsAppManager::IsSharedBundleRunning);
+    BindNativeFunction(env, exportObj, "getProcessMemoryByPid", moduleName, JsAppManager::GetProcessMemoryByPid);
     BindNativeFunction(env, exportObj, "getRunningProcessInfoByBundleName", moduleName,
         JsAppManager::GetRunningProcessInfoByBundleName);
     HILOG_DEBUG("end");
     return CreateJsUndefined(env);
 }
-}  // namespace AbilityRuntime
-}  // namespace OHOS
+} // namespace AbilityRuntime
+} // namespace OHOS
