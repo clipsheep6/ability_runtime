@@ -15,20 +15,19 @@
 
 #include "app_mgr_stub.h"
 
-#include "ipc_skeleton.h"
-#include "ipc_types.h"
-#include "iremote_object.h"
-
 #include "ability_info.h"
+#include "app_malloc_info.h"
 #include "app_mgr_proxy.h"
 #include "app_scheduler_interface.h"
 #include "appexecfwk_errors.h"
-#include "hitrace_meter.h"
-#include "hilog_wrapper.h"
-#include "iapp_state_callback.h"
-#include "want.h"
 #include "bundle_info.h"
-#include "app_malloc_info.h"
+#include "hilog_wrapper.h"
+#include "hitrace_meter.h"
+#include "iapp_state_callback.h"
+#include "ipc_skeleton.h"
+#include "ipc_types.h"
+#include "iremote_object.h"
+#include "want.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -134,6 +133,10 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleNotifyPageShow;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_PAGE_HIDE)] =
         &AppMgrStub::HandleNotifyPageHide;
+	memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_ABILITY_FOREGROUND_STATE_OBSERVER)] =
+        &AppMgrStub::HandleRegisterAbilityForegroundStateObserver;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_ABILITY_FOREGROUND_STATE_OBSERVER)] =
+        &AppMgrStub::HandleUnregisterAbilityForegroundStateObserver;
 }
 
 AppMgrStub::~AppMgrStub()

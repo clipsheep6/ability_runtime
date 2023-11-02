@@ -51,6 +51,8 @@ ohos_shared_library("app_manager") {
     "src/appmgr/ability_controller_stub.cpp",
     "src/appmgr/ability_debug_response_proxy.cpp",
     "src/appmgr/ability_debug_response_stub.cpp",
+    "src/appmgr/ability_foreground_state_observer_proxy.cpp",
+    "src/appmgr/ability_foreground_state_observer_stub.cpp",
     "src/appmgr/ability_info_callback_proxy.cpp",
     "src/appmgr/ability_info_callback_stub.cpp",
     "src/appmgr/ability_state_data.cpp",
