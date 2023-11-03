@@ -248,6 +248,9 @@ napi_value JsApplicationContextUtils::OnGetArea(napi_env env, NapiCallbackInfo& 
 napi_value JsApplicationContextUtils::GetCacheDir(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("JsApplicationContextUtils::GetCacheDir is called");
+    size_t argc = 0;
+    napi_get_cb_info(env, info, &argc, nullptr, nullptr, nullptr);
+    HILOG_INFO("TTTTTTTTTTTTTTTTTTTTTT GetCacheDir ,当前方法无参数，实际参数数量 info.argc = %{public}d", argc);
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnGetCacheDir, APPLICATION_CONTEXT_NAME);
 }
 
@@ -264,6 +267,9 @@ napi_value JsApplicationContextUtils::OnGetCacheDir(napi_env env, NapiCallbackIn
 
 napi_value JsApplicationContextUtils::GetTempDir(napi_env env, napi_callback_info info)
 {
+    size_t argc = 0;
+    napi_get_cb_info(env, info, &argc, nullptr, nullptr, nullptr);
+    HILOG_INFO("TTTTTTTTTTTTTTTTTTTTTT GetTempDir ,当前方法无参数，实际参数数量 info.argc = %{public}d", argc);
     HILOG_INFO("JsApplicationContextUtils::GetTempDir is called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnGetTempDir, APPLICATION_CONTEXT_NAME);
 }
@@ -282,6 +288,9 @@ napi_value JsApplicationContextUtils::OnGetTempDir(napi_env env, NapiCallbackInf
 napi_value JsApplicationContextUtils::GetFilesDir(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("JsApplicationContextUtils::GetFilesDir is called");
+    size_t argc = 0;
+    napi_get_cb_info(env, info, &argc, nullptr, nullptr, nullptr);
+    HILOG_INFO("TTTTTTTTTTTTTTTTTTTTTT GetFilesDir ,当前方法无参数，实际参数数量 info.argc = %{public}d", argc);
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnGetFilesDir, APPLICATION_CONTEXT_NAME);
 }
 
@@ -299,6 +308,9 @@ napi_value JsApplicationContextUtils::OnGetFilesDir(napi_env env, NapiCallbackIn
 napi_value JsApplicationContextUtils::GetDistributedFilesDir(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("JsApplicationContextUtils::GetDistributedFilesDir is called");
+    size_t argc = 0;
+    napi_get_cb_info(env, info, &argc, nullptr, nullptr, nullptr);
+    HILOG_INFO("TTTTTTTTTTTTTTTTTTTTTT GetDistributedFilesDir ,当前方法无参数，实际参数数量 info.argc = %{public}d", argc);
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils,
         OnGetDistributedFilesDir, APPLICATION_CONTEXT_NAME);
 }
@@ -410,6 +422,11 @@ napi_value JsApplicationContextUtils::OnGetBundleCodeDir(napi_env env, NapiCallb
 
 napi_value JsApplicationContextUtils::KillProcessBySelf(napi_env env, napi_callback_info info)
 {
+    size_t argc = 0;
+    napi_get_cb_info(env, info, &argc, nullptr, nullptr, nullptr);
+    HILOG_INFO("TTTTTTTTTTTTTTTTTTTTTT KillProcessBySelf 参数数量 info.argc = %{public}d", argc);
+    HILOG_INFO("TTTTTTTTTTTTTTTTTTTTTT KillProcessBySelf 加了abort 参数数量 info.argc = %{public}d", argc);
+    std::abort();
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils,
         OnKillProcessBySelf, APPLICATION_CONTEXT_NAME);
 }
@@ -472,6 +489,9 @@ napi_value JsApplicationContextUtils::OnSetColorMode(napi_env env, NapiCallbackI
 
 napi_value JsApplicationContextUtils::SetLanguage(napi_env env, napi_callback_info info)
 {
+    size_t argc = 0;
+    napi_get_cb_info(env, info, &argc, nullptr, nullptr, nullptr);
+    HILOG_INFO("TTTTTTTTTTTTTTTTTTTTTT SetLanguage 实际参数1， 参数数量 info.argc = %{public}d", argc);
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnSetLanguage, APPLICATION_CONTEXT_NAME);
 }
 
@@ -532,6 +552,9 @@ napi_value JsApplicationContextUtils::OnClearUpApplicationData(napi_env env, Nap
 
 napi_value JsApplicationContextUtils::GetRunningProcessInformation(napi_env env, napi_callback_info info)
 {
+    size_t argc = 0;
+    napi_get_cb_info(env, info, &argc, nullptr, nullptr, nullptr);
+    HILOG_INFO("TTTTTTTTTTTTTTTTTTTTTT GetCacheDir ,当前方法无参数，实际参数数量 info.argc = %{public}d", argc);
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils,
         OnGetRunningProcessInformation, APPLICATION_CONTEXT_NAME);
 }
@@ -773,6 +796,9 @@ napi_value JsApplicationContextUtils::On(napi_env env, napi_callback_info info)
 
 napi_value JsApplicationContextUtils::Off(napi_env env, napi_callback_info info)
 {
+    size_t argc = 0;
+    napi_get_cb_info(env, info, &argc, nullptr, nullptr, nullptr);
+    HILOG_INFO("TTTTTTTTTTTTTTTTTTTTTT JsApplicationContextUtils 传入 Off info.argc = %{public}d", argc);
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnOff, APPLICATION_CONTEXT_NAME);
 }
 
@@ -824,6 +850,7 @@ napi_value JsApplicationContextUtils::OnOn(napi_env env, NapiCallbackInfo& info)
 napi_value JsApplicationContextUtils::OnOff(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_INFO("OnOff is called");
+    HILOG_INFO("TTTTTTTTTTTTTTTTTTTTTTOnOff TTT info.argc = %{public}d", info.argc);
     if (info.argc < ARGC_ONE) {
         HILOG_ERROR("Not enough params");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
@@ -934,10 +961,12 @@ napi_value JsApplicationContextUtils::OnOffAbilityLifecycle(
 
             task.ResolveWithNoError(env, CreateJsUndefined(env));
         };
+    HILOG_INFO("TTTTTTTTTTTTTTTTTTTTTTTTT info.argc = %{public}d", info.argc);
     napi_value lastParam = (info.argc <= ARGC_TWO) ? nullptr : info.argv[INDEX_TWO];
     napi_value result = nullptr;
     NapiAsyncTask::Schedule("JsApplicationContextUtils::OnOffAbilityLifecycle", env,
         CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+    HILOG_INFO("TTTTTTTTTTTTTTTTTTTTTTTTT lastParam = %{public}p", lastParam);
     return result;
 }
 
