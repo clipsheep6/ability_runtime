@@ -27,6 +27,7 @@
 #include "event_handler_wrap.h"
 #include "ability_record.h"
 #include "ability_running_info.h"
+#include "extension_config.h"
 #include "extension_running_info.h"
 #include "connection_record.h"
 #include "element_name.h"
@@ -459,6 +460,21 @@ private:
     void OnUIExtWindowDied(const wptr<IRemoteObject> &remote);
     void HandleUIExtWindowDiedTask(const sptr<IRemoteObject> &remote);
 
+    /**
+     * Post an extension's disconnect task, auto disconnect when extension conected timeout.
+     */
+    void PostExtensionDelayDisconnectTask(const std::shared_ptr<ConnectionRecord> &connectRecord);
+
+    /**
+     * Remove the extension's disconnect task.
+     */
+    void RemoveExtensionDelayDisconnectTask(const std::shared_ptr<ConnectionRecord> &connectRecord);
+
+    /**
+     * Handle extension disconnect task.
+     */
+    void HandleExtensionDisconnectTask(const std::shared_ptr<ConnectionRecord> &connectRecord);
+
 private:
     void TerminateRecord(std::shared_ptr<AbilityRecord> abilityRecord);
     int DisconnectRecordNormal(ConnectListType &list, std::shared_ptr<ConnectionRecord> connectRecord) const;
@@ -486,6 +502,7 @@ private:
     ffrt::mutex startServiceReqListLock_;
     UIExtensionMapType uiExtensionMap_;
     WindowExtensionMapType windowExtensionMap_;
+    std::shared_ptr<ExtensionConfig> extensionConfig_;
 
     DISALLOW_COPY_AND_MOVE(AbilityConnectManager);
 };
