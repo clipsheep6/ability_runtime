@@ -605,14 +605,9 @@ napi_value JsUIExtensionContentSession::OnStartAbilityByType(napi_env env, NapiC
     }
 
     std::string type;
-    if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], type)) {
-        HILOG_ERROR("OnStartAbilityByType, parse type wrong.");
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-        return CreateJsUndefined(env);
-    }
-
     AAFwk::WantParams wantParam;
-    if (!AppExecFwk::UnwrapWantParams(env, info.argv[INDEX_ONE], wantParam)) {
+    if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], type) ||
+        !AppExecFwk::UnwrapWantParams(env, info.argv[INDEX_ONE], wantParam)) {
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
     }
@@ -635,11 +630,15 @@ napi_value JsUIExtensionContentSession::OnStartAbilityByType(napi_env env, NapiC
             }
             Ace::ModalUIExtensionCallbacks callback;
             callback.onError = std::bind(&JsUIExtensionCallback::OnError, uiExtensionCallback, std::placeholders::_1);
+            callback.onRelease = std::bind(&JsUIExtensionCallback::OnRelease,
+                uiExtensionCallback, std::placeholders::_1);
             Ace::ModalUIExtensionConfig config;
             int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
             if (sessionId == 0) {
                 task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
             } else {
+                uiExtensionCallback->SetUIContent(uiContent);
+                uiExtensionCallback->SetSessionId(sessionId);
                 task.ResolveWithNoError(env, CreateJsUndefined(env));
             }
         };
