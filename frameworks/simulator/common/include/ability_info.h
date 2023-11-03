@@ -99,6 +99,7 @@ struct AbilityInfo {
     std::string srcLanguage = "js";
     std::vector<std::string> permissions;
 
+    std::string specifiedProcessFlag;
     std::string process;
     std::vector<std::string> deviceTypes;
     std::vector<std::string> deviceCapabilities;

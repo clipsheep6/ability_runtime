@@ -246,6 +246,40 @@ std::string JsAbilityStage::OnAcceptWant(const AAFwk::Want &want)
     return AppExecFwk::UnwrapStringFromJS(env, flagNative);
 }
 
+
+std::string JsAbilityStage::OnStartSpecifiedProcess(const AAFwk::Want &want)
+{
+    HILOG_DEBUG("JsAbilityStage::OnStartSpecifiedProcess come");
+    AbilityStage::OnStartSpecifiedProcess(want);
+
+    if (!jsAbilityStageObj_) {
+        HILOG_WARN("Not found AbilityStage.js");
+        return "";
+    }
+
+    HandleScope handleScope(jsRuntime_);
+    auto env = jsRuntime_.GetNapiEnv();
+
+    napi_value obj = jsAbilityStageObj_->GetNapiValue();
+    if (!CheckTypeForNapiValue(env, obj, napi_object)) {
+        HILOG_ERROR("Failed to get AbilityStage object");
+        return "";
+    }
+
+    napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
+    napi_value methodOnStartSpecifiedProcess = nullptr;
+    napi_get_named_property(env, obj, "OnStartSpecifiedProcess", &methodOnStartSpecifiedProcess);
+    if (methodOnStartSpecifiedProcess == nullptr) {
+        HILOG_ERROR("Failed to get 'OnStartSpecifiedProcess' from AbilityStage object");
+        return "";
+    }
+
+    napi_value argv[] = { napiWant };
+    napi_value flagNative = nullptr;
+    napi_call_function(env, obj, methodOnStartSpecifiedProcess, 1, argv, &flagNative);
+    return AppExecFwk::UnwrapStringFromJS(env, flagNative);
+}
+
 void JsAbilityStage::OnConfigurationUpdated(const AppExecFwk::Configuration& configuration)
 {
     HILOG_DEBUG("%{public}s called.", __func__);

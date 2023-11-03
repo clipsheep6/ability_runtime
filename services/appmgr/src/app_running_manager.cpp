@@ -133,6 +133,20 @@ bool AppRunningManager::CheckAppRunningRecordIsExistByBundleName(const std::stri
     return false;
 }
 
+std::shared_ptr<AppRunningRecord> AppRunningManager::FindFirstAppRunningRecordByBundleName(const std::string &bundleName) {
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    if (appRunningRecordMap_.empty()) {
+        return nullptr;
+    }
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord && appRecord->GetBundleName() == bundleName) {
+            return appRecord;
+        }
+    }
+    return nullptr;
+}
+
 std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByPid(const pid_t pid)
 {
     std::lock_guard<ffrt::mutex> guard(lock_);

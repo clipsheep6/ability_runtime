@@ -52,6 +52,8 @@ AppSchedulerHost::AppSchedulerHost()
         &AppSchedulerHost::HandleScheduleAbilityStage;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ACCEPT_WANT)] =
         &AppSchedulerHost::HandleScheduleAcceptWant;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_START_SPECIFIED_PROCESS)] =
+        &AppSchedulerHost::HandleScheduleStartSpecifiedProcess;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_LOAD_REPAIR_PATCH)] =
         &AppSchedulerHost::HandleNotifyLoadRepairPatch;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_HOT_RELOAD_PAGE)] =
@@ -264,6 +266,21 @@ int32_t AppSchedulerHost::HandleScheduleAcceptWant(MessageParcel &data, MessageP
     }
     auto moduleName = data.ReadString();
     ScheduleAcceptWant(*want, moduleName);
+    delete want;
+    return NO_ERROR;
+}
+
+int32_t AppSchedulerHost::HandleScheduleStartSpecifiedProcess(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("TempLog: AppSchedulerHost::HandleScheduleStartSpecifiedProcess call.");
+    HITRACE_METER(HITRACE_TAG_APP);
+    AAFwk::Want *want = data.ReadParcelable<AAFwk::Want>();
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    auto moduleName = data.ReadString();
+    ScheduleStartSpecifiedProcess(*want, moduleName);
     delete want;
     return NO_ERROR;
 }

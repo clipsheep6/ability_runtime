@@ -305,16 +305,36 @@ void AppScheduler::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecF
     IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->StartSpecifiedAbility(want, abilityInfo));
 }
 
+void AppScheduler::StartSpecifiedProcess(
+    const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
+{
+    HILOG_DEBUG("TempLog: AppScheduler::StartSpecifiedProcess.");
+    CHECK_POINTER(appMgrClient_);
+    IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->StartSpecifiedProcess(want, abilityInfo));
+}
+
 void StartSpecifiedAbilityResponse::OnAcceptWantResponse(
     const AAFwk::Want &want, const std::string &flag)
 {
     DelayedSingleton<AbilityManagerService>::GetInstance()->OnAcceptWantResponse(want, flag);
 }
 
+void StartSpecifiedAbilityResponse::OnStartSpecifiedProcessResponse(
+    const AAFwk::Want &want, const std::string &flag)
+{
+    DelayedSingleton<AbilityManagerService>::GetInstance()->OnStartSpecifiedProcessResponse(want, flag);
+}
+
 void StartSpecifiedAbilityResponse::OnTimeoutResponse(const AAFwk::Want &want)
 {
     DelayedSingleton<AbilityManagerService>::GetInstance()->OnStartSpecifiedAbilityTimeoutResponse(want);
 }
+
+void StartSpecifiedAbilityResponse::OnStartSpecifiedProcessTimeoutResponse(const AAFwk::Want &want)
+{
+    DelayedSingleton<AbilityManagerService>::GetInstance()->OnStartSpecifiedProcessTimeoutResponse(want);
+}
+
 int AppScheduler::GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info)
 {
     CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);

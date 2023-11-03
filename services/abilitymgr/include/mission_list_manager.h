@@ -276,6 +276,10 @@ public:
 
     void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag);
 
+    void OnStartSpecifiedProcessResponse(const AAFwk::Want &want, const std::string &flag);
+
+    void OnStartSpecifiedProcessTimeoutResponse(const AAFwk::Want &want);
+
     void OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want);
     /**
      * resolve the call ipc of ability for scheduling oncall.
