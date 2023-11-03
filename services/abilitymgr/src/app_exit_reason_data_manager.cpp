@@ -51,6 +51,7 @@ DistributedKv::Status AppExitReasonDataManager::GetKvStore()
         .encrypt = false,
         .autoSync = true,
         .syncable = false,
+        .securityLevel = DistributedKv::SecurityLevel::S2,
         .area = DistributedKv::EL1,
         .kvStoreType = DistributedKv::KvStoreType::SINGLE_VERSION,
         .baseDir = APP_EXIT_REASON_STORAGE_DIR };
