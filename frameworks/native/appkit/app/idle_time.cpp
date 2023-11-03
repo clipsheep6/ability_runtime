@@ -22,7 +22,6 @@ namespace OHOS {
 namespace AppExecFwk {
 namespace {
 constexpr int64_t MS_PER_NS = 1000000;
-constexpr int64_t PERIOD = 11; // ns
 constexpr int32_t MAX_PERIOD_COUNT = 10;
 }
 
