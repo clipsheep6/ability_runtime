@@ -1796,12 +1796,12 @@ int32_t AppMgrServiceInner::StartPerfProcess(const std::shared_ptr<AppRunningRec
 
     AppSpawnStartMsg startMsg = appRecord->GetStartMsg();
     if (!perfCmd.empty()) {
-        HILOG_DEBUG("debuggablePipe perfCmd:%{public}s", perfCmd.c_str());
+        HILOG_INFO("debuggablePipe perfCmd:%{public}s", perfCmd.c_str());
     } else {
-        HILOG_DEBUG("debuggablePipe debugCmd:%{public}s", debugCmd.c_str());
+        HILOG_INFO("debuggablePipe debugCmd:%{public}s", debugCmd.c_str());
     }
     if (isSanboxApp) {
-        HILOG_DEBUG("debuggablePipe sandbox: true");
+        HILOG_INFO("debuggablePipe sandbox: true");
     }
     return ERR_OK;
 }
