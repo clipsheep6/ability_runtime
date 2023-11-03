@@ -271,6 +271,8 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
         bool isSanboxApp = (want == nullptr) ? false : want->GetBoolParam(ENTER_SANBOX, false);
         (void)StartPerfProcess(appRecord, perfCmd, "", isSanboxApp);
     } else {
+        HILOG_INFO("have apprecord");
+        SendAppStartupTypeEvent(appRecord, abilityInfo, AppStartType::MULTI_INSTANCE);
         int32_t requestProcCode = (want == nullptr) ? 0 : want->GetIntParam(Want::PARAM_RESV_REQUEST_PROC_CODE, 0);
         if (requestProcCode != 0 && appRecord->GetRequestProcCode() == 0) {
             appRecord->SetRequestProcCode(requestProcCode);
