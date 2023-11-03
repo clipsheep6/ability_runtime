@@ -68,7 +68,11 @@ enum class AppMgrInterfaceCode {
     GET_PIDS_BY_BUNDLENAME,
     CHANGE_APP_GC_STATE,
     NOTIFY_PAGE_SHOW,
-    NOTIFY_PAGE_HIDE
+    NOTIFY_PAGE_HIDE,
+    // Register an application to start listening
+    REGISTER_APP_RUNNING_STATUS_LISTENER,
+    // Unregister the app to start listening
+    UNREGISTER_APP_RUNNING_STATUS_LISTENER,
 };
 } // AppExecFwk
 } // OHOS

@@ -134,6 +134,10 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleNotifyPageShow;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_PAGE_HIDE)] =
         &AppMgrStub::HandleNotifyPageHide;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_APP_RUNNING_STATUS_LISTENER)] =
+        &AppMgrStub::HandleRegisterAppRunningStatusListener;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_APP_RUNNING_STATUS_LISTENER)] =
+        &AppMgrStub::HandleUnregisterAppRunningStatusListener;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -825,6 +829,38 @@ int32_t AppMgrStub::HandleNotifyPageHide(MessageParcel &data, MessageParcel &rep
     auto result = NotifyPageHide(token, *pageStateData);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleRegisterAppRunningStatusListener(MessageParcel &data, MessageParcel &reply)
+{
+    auto listener = data.ReadRemoteObject();
+    if (listener == nullptr) {
+        HILOG_ERROR("Read data failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto result = RegisterAppRunningStatusListener(listener);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleUnregisterAppRunningStatusListener(MessageParcel &data, MessageParcel &reply)
+{
+    auto listener = data.ReadRemoteObject();
+    if (listener == nullptr) {
+        HILOG_ERROR("Read data failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto result = UnregisterAppRunningStatusListener(listener);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

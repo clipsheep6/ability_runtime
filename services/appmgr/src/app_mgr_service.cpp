@@ -871,5 +871,25 @@ int32_t AppMgrService::NotifyPageHide(const sptr<IRemoteObject> &token, const Pa
     }
     return appMgrServiceInner_->NotifyPageHide(token, pageStateData);
 }
+
+int32_t AppMgrService::RegisterAppRunningStatusListener(const sptr<IRemoteObject> &listener)
+{
+    HILOG_DEBUG("Called.");
+    if (!IsReady()) {
+        HILOG_ERROR("Not ready");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->RegisterAppRunningStatusListener(listener);
+}
+
+int32_t AppMgrService::UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener)
+{
+    HILOG_DEBUG("Called.");
+    if (!IsReady()) {
+        HILOG_ERROR("Not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->UnregisterAppRunningStatusListener(listener);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -854,5 +854,35 @@ int32_t AppMgrClient::NotifyPageHide(const sptr<IRemoteObject> &token, const Pag
     }
     return service->NotifyPageHide(token, pageStateData);
 }
+
+int32_t AppMgrClient::RegisterAppRunningStatusListener(const sptr<IRemoteObject> &listener)
+{
+    if (listener == nullptr) {
+        HILOG_ERROR("Listener is nullptr.");
+        return ERR_INVALID_DATA;
+    }
+
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        HILOG_ERROR("Service is nullptr.");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return service->RegisterAppRunningStatusListener(listener);
+}
+
+int32_t AppMgrClient::UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener)
+{
+    if (listener == nullptr) {
+        HILOG_ERROR("Listener is nullptr.");
+        return ERR_INVALID_DATA;
+    }
+
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        HILOG_ERROR("Service is nullptr.");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return service->UnregisterAppRunningStatusListener(listener);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

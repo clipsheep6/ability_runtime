@@ -34,6 +34,8 @@
 #include "app_record_id.h"
 #include "app_running_manager.h"
 #include "app_running_record.h"
+#include "app_running_status_listener_interface.h"
+#include "app_running_status_module.h"
 #include "app_scheduler_interface.h"
 #include "app_spawn_client.h"
 #include "app_task_info.h"
@@ -806,6 +808,23 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t NotifyPageHide(const sptr<IRemoteObject> &token, const PageStateData &pageStateData);
+
+    /**
+     * Register appRunning status listener.
+     *
+     * @param listener Running status listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAppRunningStatusListener(const sptr<IRemoteObject> &listener);
+
+    /**
+     * Unregister appRunning status listener.
+     *
+     * @param listener Running status listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener);
+
 private:
 
     std::string FaultTypeToString(FaultDataType type);
@@ -1014,6 +1033,14 @@ private:
     void ApplicationTerminatedSendProcessEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
     void ClearAppRunningDataForKeepAlive(const std::shared_ptr<AppRunningRecord> &appRecord);
 
+    /**
+     * Check appRunning status listener permission.
+     *
+     * @param listener Running status listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t CheckPermission(const sptr<IRemoteObject> &listener);
+
 private:
     /**
      * ClearUpApplicationData, clear the application data.
@@ -1064,6 +1091,19 @@ private:
     int32_t NotifyAbilitysDebugChange(const std::string &bundleName, const bool &isAppDebug);
 
     bool JudgeSelfCalledByToken(const sptr<IRemoteObject> &token, const PageStateData &pageStateData);
+
+    /**
+     * Notify the app running status.
+     *
+     * @param bundle Bundle name in application record.
+     * @param uid Uid of bundle.
+     * @param runningStatus The app running status.
+     *
+     * @return
+     */
+    void NotifyAppRunningStatusEvent(
+        const std::string &bundle, int32_t uid, AbilityRuntime::RunningStatus runningStatus);
+
 private:
     /**
      * Notify application status.
@@ -1112,6 +1152,7 @@ private:
     std::shared_ptr<AppDebugManager> appDebugManager_;
     ffrt::mutex killpedProcessMapLock_;
     mutable std::map<int64_t, std::string> killedPorcessMap_;
+    std::shared_ptr<AbilityRuntime::AppRunningStatusModule> appRunningStatusModule_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
