@@ -18,12 +18,56 @@
 #include "commonlibrary/ets_utils/js_sys_module/console/console.h"
 #include "commonlibrary/ets_utils/js_sys_module/timer/timer.h"
 #include "hilog_wrapper.h"
+#include "js_runtime_utils.h"
 #include "js_utils.h"
 #include "js_worker.h"
 #include "ohos_loop_handler.h"
+#include "systemcapability.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
+namespace {
+constexpr uint8_t SYSCAP_MAX_SIZE = 64;
+
+napi_value CanIUse(napi_env env, napi_callback_info info)
+{
+    if (env == nullptr || info == nullptr) {
+        HILOG_ERROR("get syscap failed since env or callback info is nullptr.");
+        return nullptr;
+    }
+    napi_value undefined = CreateJsUndefined(env);
+
+    size_t argc = 1;
+    napi_value argv[1] = { nullptr };
+    napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
+    if (argc != 1) {
+        HILOG_ERROR("Get syscap failed with invalid parameter.");
+        return undefined;
+    }
+
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, argv[0], &valueType);
+    if (valueType != napi_string) {
+        HILOG_INFO("%{public}s called. Params is invalid.", __func__);
+        return undefined;
+    }
+
+    char syscap[SYSCAP_MAX_SIZE] = { 0 };
+
+    size_t strLen = 0;
+    napi_get_value_string_utf8(env, argv[0], syscap, sizeof(syscap), &strLen);
+
+    bool ret = HasSystemCapability(syscap);
+    return CreateJsValue(env, ret);
+}
+
+void InitSyscap(napi_env env, napi_value globalObject)
+{
+    const char *moduleName = "JsRuntime";
+    BindNativeFunction(env, globalObject, "canIUse", moduleName, CanIUse);
+}
+} // namespace
+
 OHOSJsEnvironmentImpl::OHOSJsEnvironmentImpl()
 {
     HILOG_DEBUG("called");
@@ -127,9 +171,17 @@ void OHOSJsEnvironmentImpl::InitWorkerModule(NativeEngine* engine, std::shared_p
     engine->SetFinishContainerScopeFunc(RestoreContainerScope);
 }
 
-void OHOSJsEnvironmentImpl::InitSyscapModule()
+void OHOSJsEnvironmentImpl::InitSyscapModule(NativeEngine* engine)
 {
     HILOG_DEBUG("called");
+    CHECK_POINTER(engine);
+    napi_env env = reinterpret_cast<napi_env>(engine);
+    CHECK_POINTER(env);
+
+    napi_value globalObj = nullptr;
+    napi_get_global(env, &globalObj);
+    CHECK_POINTER(globalObj);
+    InitSyscap(env, globalObj);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

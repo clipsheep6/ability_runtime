@@ -92,8 +92,13 @@ void JsEnvironment::InitWorkerModule(std::shared_ptr<WorkerInfo> workerInfo)
 
 void JsEnvironment::InitSyscapModule()
 {
+    if (engine_ == nullptr) {
+        JSENV_LOG_E("Invalid native engine.");
+        return;
+    }
+
     if (impl_ != nullptr) {
-        impl_->InitSyscapModule();
+        impl_->InitSyscapModule(engine_);
     }
 }
 
@@ -120,19 +125,35 @@ void JsEnvironment::RemoveTask(const std::string& name)
 
 void JsEnvironment::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorObj)
 {
-    sourceMapOperator_ = operatorObj;
     if (engine_ == nullptr) {
         JSENV_LOG_E("Invalid Native Engine.");
         return;
     }
 
-    auto translateBySourceMapFunc = [&](const std::string& rawStack) {
-        return sourceMapOperator_->TranslateBySourceMap(rawStack);
+    if (operatorObj == nullptr) {
+        JSENV_LOG_E("Invalid sourcemap operator.");
+        return;
+    }
+
+    sourceMapOperator_ = operatorObj;
+    std::weak_ptr<SourceMapOperator> weak = sourceMapOperator_;
+    auto translateBySourceMapFunc = [weak](const std::string& rawStack) {
+        auto sourceMapOperator = weak.lock();
+        if (sourceMapOperator == nullptr) {
+            JSENV_LOG_E("Invalid sourcemap operator.");
+            return std::string("");
+        }
+        return sourceMapOperator->TranslateBySourceMap(rawStack);
     };
     engine_->RegisterTranslateBySourceMap(translateBySourceMapFunc);
 
-    auto translateUrlBySourceMapFunc = [&](std::string& url, int& line, int& column) {
-        return sourceMapOperator_->TranslateUrlPositionBySourceMap(url, line, column);
+    auto translateUrlBySourceMapFunc = [weak](std::string& url, int& line, int& column) {
+        auto sourceMapOperator = weak.lock();
+        if (sourceMapOperator == nullptr) {
+            JSENV_LOG_E("Invalid sourcemap operator.");
+            return false;
+        }
+        return sourceMapOperator->TranslateUrlPositionBySourceMap(url, line, column);
     };
     engine_->RegisterSourceMapTranslateCallback(translateUrlBySourceMapFunc);
 }
@@ -287,6 +308,56 @@ void JsEnvironment::SetRequestAotCallback(const RequestAotCallback& cb)
     }
 
     panda::JSNApi::SetRequestAotCallback(vm_, cb);
+}
+
+bool JsEnvironment::BuildJsStackInfoList(uint32_t tid, std::vector<JsFrameInfo>& jsFrameInfo)
+{
+    if (engine_ == nullptr) {
+        JSENV_LOG_E("Invalid native engine.");
+        return false;
+    }
+
+    return engine_->BuildJsStackInfoList(tid, jsFrameInfo);
+}
+
+void JsEnvironment::DumpHeapSnapshot(bool isVmMode, DumpFormat dumpFormat, bool isPrivate)
+{
+    if (engine_ == nullptr) {
+        JSENV_LOG_E("Invalid native engine.");
+        return;
+    }
+
+    engine_->DumpHeapSnapshot(isVmMode, dumpFormat, isPrivate);
+}
+
+void JsEnvironment::NotifyApplicationState(bool isBackground)
+{
+    if (engine_ == nullptr) {
+        JSENV_LOG_E("Invalid native engine.");
+        return;
+    }
+
+    engine_->NotifyApplicationState(isBackground);
+}
+
+bool JsEnvironment::SuspendVM(uint32_t tid)
+{
+    if (engine_ == nullptr) {
+        JSENV_LOG_E("Invalid native engine.");
+        return false;
+    }
+
+    return engine_->SuspendVMById(tid);
+}
+
+void JsEnvironment::ResumeVM(uint32_t tid)
+{
+    if (engine_ == nullptr) {
+        JSENV_LOG_E("Invalid native engine.");
+        return;
+    }
+
+    engine_->ResumeVMById(tid);
 }
 } // namespace JsEnv
 } // namespace OHOS

@@ -126,10 +126,10 @@ private:
     bool Initialize(const Options& options);
     void Deinitialize();
 
-    int32_t JsperfProfilerCommandParse(const std::string &command, int32_t defaultValue);
-
     napi_value LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk = false);
     napi_value LoadJsModule(const std::string& path, const std::string& hapPath);
+
+    int32_t JsperfProfilerCommandParse(const std::string &command, int32_t defaultValue);
 
     bool debugMode_ = false;
     bool preloaded_ = false;
@@ -148,17 +148,21 @@ private:
 private:
     bool CreateJsEnv(const Options& options);
     void PreloadAce(const Options& options);
-    bool InitLoop();
+    inline bool InitLoop();
     inline bool IsUseAbilityRuntime(const Options& options) const;
     void FreeNativeReference(std::unique_ptr<NativeReference> uniqueNativeRef,
         std::shared_ptr<NativeReference>&& sharedNativeRef);
-    void InitConsoleModule();
-    void InitTimerModule();
-    void InitWorkerModule(const Options& options);
-    void ReInitJsEnvImpl(const Options& options);
-    void PostPreload(const Options& options);
-    void LoadAotFile(const Options& options);
-    void SetRequestAotCallback();
+    inline void InitConsoleModule();
+    inline void InitTimerModule(bool isUnique);
+    inline void InitWorkerModule(const Options& options);
+    inline void InitSyscapModule();
+    inline void ReInitJsEnvImpl(const Options& options);
+    inline void PostPreload(const Options& options);
+    inline void LoadAotFile(const Options& options);
+    inline void SetRequestAotCallback();
+    inline void RegisterPermissionCheck();
+    inline bool BindBaseNativeFunc();
+    inline std::shared_ptr<AbilityBase::Extractor> GetExtractorAndAddSource(const std::string& hapPath) const;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

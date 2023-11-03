@@ -42,7 +42,7 @@ public:
 
     void InitWorkerModule(NativeEngine* engine, std::shared_ptr<JsEnv::WorkerInfo> workerInfo) override;
 
-    void InitSyscapModule() override;
+    void InitSyscapModule(NativeEngine* engine) override;
 
 private:
     std::shared_ptr<AppExecFwk::EventHandler> eventHandler_;

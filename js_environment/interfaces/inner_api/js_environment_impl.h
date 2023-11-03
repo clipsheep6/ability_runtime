@@ -55,7 +55,7 @@ public:
 
     virtual void InitWorkerModule(NativeEngine* engine, std::shared_ptr<WorkerInfo> workerInfo) = 0;
 
-    virtual void InitSyscapModule() = 0;
+    virtual void InitSyscapModule(NativeEngine* engine) = 0;
 };
 } // namespace JsEnv
 } // namespace OHOS

@@ -21,6 +21,7 @@
 
 #include "hilog_wrapper.h"
 #include "js_runtime.h"
+#include "js_runtime_utils.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -147,7 +148,43 @@ HWTEST_F(OHOSJsEnvironmentTest, InitSyscapModule_0100, TestSize.Level0)
     auto jsEnvImpl = std::make_shared<OHOSJsEnvironmentImpl>();
     ASSERT_NE(jsEnvImpl, nullptr);
 
-    jsEnvImpl->InitSyscapModule();
+    jsEnvImpl->InitSyscapModule(nullptr);
+}
+
+/**
+ * @tc.name: InitSyscapModule_0200
+ * @tc.desc: Js environment init syscap.
+ * @tc.type: FUNC
+ * @tc.require: issueI6KODF
+ */
+HWTEST_F(OHOSJsEnvironmentTest, InitSyscapModule_0200, TestSize.Level0)
+{
+    auto jsEnvImpl = std::make_shared<OHOSJsEnvironmentImpl>();
+    ASSERT_NE(jsEnvImpl, nullptr);
+    AbilityRuntime::Runtime::Options options;
+    auto runtime = AbilityRuntime::JsRuntime::Create(options);
+    ASSERT_NE(runtime, nullptr);
+    auto jsEngine = runtime->GetNativeEnginePointer();
+    jsEnvImpl->InitSyscapModule(jsEngine);
+
+    napi_env env = reinterpret_cast<napi_env>(jsEngine);
+    napi_value globalObj = nullptr;
+    napi_get_global(env, &globalObj);
+    ASSERT_NE(globalObj, nullptr);
+
+    napi_value func = nullptr;
+    auto status = napi_get_named_property(env, globalObj, "canIUse", &func);
+    ASSERT_NE(status, napi_ok);
+    ASSERT_NE(func, nullptr);
+
+    napi_value ret;
+    std::string syscap = "SystemCapability.Ability.AbilityRuntime.Core";
+    napi_value argv[1] = { CreateJsValue(env, syscap) };
+    status = napi_call_function(env, globalObj, func, 1, argv, &ret);
+    EXPECT_EQ(status, napi_ok);
+    bool canIUse = false;
+    ConvertFromJsValue(env, ret, canIUse);
+    EXPECT_EQ(canIUse, true);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
