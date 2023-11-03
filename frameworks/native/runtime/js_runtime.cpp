@@ -570,8 +570,9 @@ bool JsRuntime::Initialize(const Options& options)
                 HILOG_ERROR("Failed to create reference for global.requireNapi");
                 return false;
             }
-
+            HILOG_INFO("PreloadAce start.");
             PreloadAce(options);
+            HILOG_INFO("PreloadAce end.");
             nativeEngine->RegisterPermissionCheck(PermissionCheckFunc);
         }
 
