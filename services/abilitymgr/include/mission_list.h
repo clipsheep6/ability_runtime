@@ -80,14 +80,6 @@ public:
     std::shared_ptr<Mission> GetRecentStandardMission(const std::string& missionName) const;
 
     /**
-     * Get recent standard mission by name.
-     *
-     * @param missionAffinity target mission uni-key.
-     * @return founded mission.
-     */
-    std::shared_ptr<Mission> GetRecentStandardMissionWithAffinity(const std::string& missionAffinity) const;
-
-    /**
      * Get top mission of this mission list.
      *
      * @return founded mission.
