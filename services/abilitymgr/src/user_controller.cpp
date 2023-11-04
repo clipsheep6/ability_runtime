@@ -182,6 +182,39 @@ int32_t UserController::StopUser(int32_t userId)
     return 0;
 }
 
+int32_t UserController::LogoutUser(int32_t userId)
+{
+    if (userId < 0 || userId == USER_ID_NO_HEAD) {
+        HILOG_ERROR("userId is invalid:%{public}d", userId);
+        return -1;
+    }
+
+    if (!IsExistOsAccount(userId)) {
+        HILOG_ERROR("not exist such account:%{public}d", userId);
+        return -1;
+    }
+
+    auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
+    if (!appScheduler) {
+        HILOG_ERROR("appScheduler is null");
+        return -1;
+    }
+    appScheduler->KillProcessesByUserId(userId);
+
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto taskDataPersistenceMgr = DelayedSingleton<TaskDataPersistenceMgr>::GetInstance();
+        if (!taskDataPersistenceMgr) {
+            HILOG_ERROR("taskDataPersistenceMgr is null");
+            return -1;
+        }
+        taskDataPersistenceMgr->RemoveUserDir(userId);
+    } else {
+        auto uiALM = std::make_shared<UIAbilityLifecycleManager>();
+        uiALM->ClearAbilityRecord(userId);
+    }
+    return 0;
+}
+
 int32_t UserController::GetCurrentUserId()
 {
     std::lock_guard<ffrt::mutex> guard(userLock_);

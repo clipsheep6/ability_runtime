@@ -724,6 +724,8 @@ public:
 
     virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) = 0;
 
+    virtual int LogoutUser(int userId) = 0;
+
     virtual int SetMissionContinueState(const sptr<IRemoteObject> &token, const AAFwk::ContinueState &state)
     {
         return 0;
