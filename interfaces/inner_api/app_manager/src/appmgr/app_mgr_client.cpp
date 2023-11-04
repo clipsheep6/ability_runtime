@@ -532,6 +532,20 @@ void AppMgrClient::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecF
     amsService->StartSpecifiedAbility(want, abilityInfo);
 }
 
+void AppMgrClient::StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
+{
+    HILOG_DEBUG("call.");
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        return;
+    }
+    sptr<IAmsMgr> amsService = service->GetAmsMgr();
+    if (amsService == nullptr) {
+        return;
+    }
+    amsService->StartSpecifiedProcess(want, abilityInfo);
+}
+
 void AppMgrClient::RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
@@ -554,6 +568,17 @@ void AppMgrClient::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::W
     }
 
     service->ScheduleAcceptWantDone(recordId, want, flag);
+}
+
+void AppMgrClient::ScheduleNewProcessRequest(const int32_t recordId, const AAFwk::Want &want, const std::string &flag)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        HILOG_ERROR("service is nullptr");
+        return;
+    }
+
+    service->ScheduleNewProcessRequestDone(recordId, want, flag);
 }
 
 AppMgrResultCode AppMgrClient::UpdateConfiguration(const Configuration &config)

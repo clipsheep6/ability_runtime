@@ -193,6 +193,20 @@ public:
     const std::string &GetProcessName() const;
 
     /**
+     * @brief Obtains the the flag of specified process.
+     *
+     * @return Returns the the flag of specified process.
+     */
+    const std::string &GetSpecifiedProcessFlag() const;
+
+    /**
+     * @brief Setting the the flag of specified process.
+     *
+     * @param flag, the the flag of specified process.
+     */
+    void SetSpecifiedProcessFlag(const std::string &flag);
+
+    /**
      * @brief Obtains the sign code.
      *
      * @return Returns the sign code.
@@ -557,6 +571,8 @@ public:
     bool IsStartSpecifiedAbility() const;
     void ScheduleAcceptWant(const std::string &moduleName);
     void ScheduleAcceptWantDone();
+    void ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName);
+    void ScheduleNewProcessRequestDone();
     void ApplicationTerminated();
     const AAFwk::Want &GetSpecifiedWant() const;
     void SetDebugApp(bool isDebugApp);
@@ -744,6 +760,7 @@ private:
     int32_t appRecordId_ = 0;
     std::string appName_;
     std::string processName_;  // the name of this process
+    std::string specifiedProcessFlag_; // the flag of specified Process
     int64_t eventId_ = 0;
     int64_t startProcessSpecifiedAbilityEventId_ = 0;
     int64_t addAbilityStageInfoEventId_ = 0;

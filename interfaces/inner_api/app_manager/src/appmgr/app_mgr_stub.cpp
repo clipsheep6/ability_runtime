@@ -72,6 +72,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleFinishUserTest;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SCHEDULE_ACCEPT_WANT_DONE)] =
         &AppMgrStub::HandleScheduleAcceptWantDone;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SCHEDULE_NEW_PROCESS_REQUEST_DONE)] =
+        &AppMgrStub::HandleScheduleNewProcessRequestDone;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_ABILITY_RECORDS_BY_PROCESS_ID)] =
         &AppMgrStub::HandleGetAbilityRecordsByProcessID;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::PRE_START_NWEBSPAWN_PROCESS)] =
@@ -466,6 +468,21 @@ int32_t AppMgrStub::HandleScheduleAcceptWantDone(MessageParcel &data, MessagePar
     auto flag = data.ReadString();
 
     ScheduleAcceptWantDone(recordId, *want, flag);
+    delete want;
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleScheduleNewProcessRequestDone(MessageParcel &data, MessageParcel &reply)
+{
+    auto recordId = data.ReadInt32();
+    AAFwk::Want *want = data.ReadParcelable<AAFwk::Want>();
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    auto flag = data.ReadString();
+
+    ScheduleNewProcessRequestDone(recordId, *want, flag);
     delete want;
     return NO_ERROR;
 }

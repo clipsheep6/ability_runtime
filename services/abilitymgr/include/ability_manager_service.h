@@ -828,6 +828,9 @@ public:
     void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag);
     void OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want);
 
+    void OnStartSpecifiedProcessResponse(const AAFwk::Want &want, const std::string &flag);
+    void OnStartSpecifiedProcessTimeoutResponse(const AAFwk::Want &want);
+
     virtual int GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info) override;
     virtual int GetExtensionRunningInfos(int upperLimit, std::vector<ExtensionRunningInfo> &info) override;
     virtual int GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info) override;

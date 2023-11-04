@@ -235,6 +235,9 @@ public:
 
     virtual void ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Want &want, const std::string &flag) = 0;
 
+    virtual void ScheduleNewProcessRequestDone(const int32_t recordId, const AAFwk::Want &want,
+        const std::string &flag) = 0;
+
     /**
      *  Get the token of ability records by process ID.
      *

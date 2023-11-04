@@ -253,6 +253,9 @@ public:
     virtual void ScheduleAcceptWantDone(
         const int32_t recordId, const AAFwk::Want &want, const std::string &flag) override;
 
+    virtual void ScheduleNewProcessRequestDone(
+        const int32_t recordId, const AAFwk::Want &want, const std::string &flag) override;
+
     virtual int GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens) override;
 
     virtual int PreStartNWebSpawnProcess() override;

@@ -332,6 +332,8 @@ bool AbilityManagerService::Init()
     HILOG_INFO("ams config parse");
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
+        std::string deviceType = OHOS::system::GetParameter("const.product.devicetype", "unknown");
+        uiAbilityLifecycleManager_->SetDevice(deviceType);
     } else {
         InitMissionListManager(MAIN_USER_ID, true);
     }
@@ -908,8 +910,10 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_ERROR("IsAbilityControllerStart failed: %{public}s.", abilityInfo.bundleName.c_str());
         return ERR_WOULD_BLOCK;
     }
+    // sceneboard
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         ReportEventToSuspendManager(abilityInfo);
+        abilityRequest.userId = oriValidUserId;
         return uiAbilityLifecycleManager_->NotifySCBToStartUIAbility(abilityRequest, oriValidUserId);
     }
     auto missionListManager = GetListManagerByUserId(oriValidUserId);
@@ -1091,6 +1095,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     }
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         UpdateCallerInfo(abilityRequest.want, callerToken);
+        abilityRequest.userId = oriValidUserId;
         return uiAbilityLifecycleManager_->NotifySCBToStartUIAbility(abilityRequest, oriValidUserId);
     }
     auto missionListManager = GetListManagerByUserId(oriValidUserId);
@@ -1320,6 +1325,7 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
     abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        abilityRequest.userId = oriValidUserId;
         return uiAbilityLifecycleManager_->NotifySCBToStartUIAbility(abilityRequest, oriValidUserId);
     }
     auto missionListManager = GetListManagerByUserId(oriValidUserId);
@@ -1485,6 +1491,7 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
     }
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         ReportEventToSuspendManager(abilityInfo);
+        abilityRequest.userId = oriValidUserId;
         return uiAbilityLifecycleManager_->NotifySCBToStartUIAbility(abilityRequest, oriValidUserId);
     }
     auto missionListManager = GetListManagerByUserId(oriValidUserId);
@@ -5964,11 +5971,31 @@ void AbilityManagerService::OnAcceptWantResponse(
 void AbilityManagerService::OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want)
 {
     HILOG_DEBUG("%{public}s called.", __func__);
+    if (uiAbilityLifecycleManager_ && Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        uiAbilityLifecycleManager_->OnStartSpecifiedAbilityTimeoutResponse(want);
+        return;
+    }
     if (!currentMissionListManager_) {
         return;
     }
-    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        currentMissionListManager_->OnStartSpecifiedAbilityTimeoutResponse(want);
+    currentMissionListManager_->OnStartSpecifiedAbilityTimeoutResponse(want);
+}
+
+void AbilityManagerService::OnStartSpecifiedProcessResponse(const AAFwk::Want &want, const std::string &flag)
+{
+    HILOG_DEBUG("flag = %{public}s", flag.c_str());
+    if (uiAbilityLifecycleManager_ && Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        uiAbilityLifecycleManager_->OnStartSpecifiedProcessResponse(want, flag);
+        return;
+    }
+}
+
+void AbilityManagerService::OnStartSpecifiedProcessTimeoutResponse(const AAFwk::Want &want)
+{
+    HILOG_DEBUG("%{public}s called.", __func__);
+    if (uiAbilityLifecycleManager_ && Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        uiAbilityLifecycleManager_->OnStartSpecifiedAbilityTimeoutResponse(want);
+        return;
     }
 }
 

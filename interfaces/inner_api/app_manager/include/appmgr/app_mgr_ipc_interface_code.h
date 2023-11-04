@@ -73,6 +73,7 @@ enum class AppMgrInterfaceCode {
     REGISTER_APP_RUNNING_STATUS_LISTENER,
     // Unregister the app to start listening
     UNREGISTER_APP_RUNNING_STATUS_LISTENER,
+    SCHEDULE_NEW_PROCESS_REQUEST_DONE
 };
 } // AppExecFwk
 } // OHOS

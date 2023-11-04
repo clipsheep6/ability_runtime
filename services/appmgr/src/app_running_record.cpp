@@ -283,6 +283,16 @@ const std::string &AppRunningRecord::GetProcessName() const
     return processName_;
 }
 
+void AppRunningRecord::SetSpecifiedProcessFlag(const std::string &flag)
+{
+    specifiedProcessFlag_ = flag;
+}
+
+const std::string &AppRunningRecord::GetSpecifiedProcessFlag() const
+{
+    return specifiedProcessFlag_;
+}
+
 int32_t AppRunningRecord::GetUid() const
 {
     return mainUid_;
@@ -1402,6 +1412,30 @@ void AppRunningRecord::ScheduleAcceptWantDone()
     }
 
     eventHandler_->RemoveEvent(AMSEventHandler::START_SPECIFIED_ABILITY_TIMEOUT_MSG, eventId_);
+}
+
+void AppRunningRecord::ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName)
+{
+    SendEvent(
+        AMSEventHandler::START_SPECIFIED_PROCESS_TIMEOUT_MSG, AMSEventHandler::START_SPECIFIED_PROCESS_TIMEOUT);
+    if (appLifeCycleDeal_ == nullptr) {
+        HILOG_WARN("appLifeCycleDeal_ is null");
+        return;
+    }
+    appLifeCycleDeal_->ScheduleNewProcessRequest(want, moduleName);
+}
+
+void AppRunningRecord::ScheduleNewProcessRequestDone()
+{
+    HILOG_INFO("ScheduleNewProcessRequestDone. bundle %{public}s and eventId %{public}d",
+        mainBundleName_.c_str(), static_cast<int>(eventId_));
+
+    if (!eventHandler_) {
+        HILOG_ERROR("eventHandler_ is nullptr");
+        return;
+    }
+
+    eventHandler_->RemoveEvent(AMSEventHandler::START_SPECIFIED_PROCESS_TIMEOUT_MSG, eventId_);
 }
 
 void AppRunningRecord::ApplicationTerminated()

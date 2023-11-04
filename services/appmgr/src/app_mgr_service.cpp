@@ -525,6 +525,20 @@ void AppMgrService::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::
     taskHandler_->SubmitTask(task);
 }
 
+void AppMgrService::ScheduleNewProcessRequestDone(const int32_t recordId, const AAFwk::Want &want,
+    const std::string &flag)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("not ready");
+        return;
+    }
+    if (!JudgeSelfCalledByRecordId(recordId)) {
+        return;
+    }
+    auto task = [=]() { appMgrServiceInner_->ScheduleNewProcessRequestDone(recordId, want, flag); };
+    taskHandler_->SubmitTask(task);
+}
+
 int AppMgrService::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens)
 {
     if (!IsReady()) {

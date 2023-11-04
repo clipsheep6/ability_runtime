@@ -61,6 +61,8 @@ public:
     MOCK_METHOD1(UnregisterApplicationStateObserver, int32_t(const sptr<IApplicationStateObserver>& observer));
     MOCK_METHOD3(ScheduleAcceptWantDone,
         void(const int32_t recordId, const AAFwk::Want& want, const std::string& flag));
+    MOCK_METHOD3(ScheduleNewProcessRequestDone,
+        void(const int32_t recordId, const AAFwk::Want& want, const std::string& flag));
     MOCK_METHOD2(GetAbilityRecordsByProcessID, int(const int pid, std::vector<sptr<IRemoteObject>>& tokens));
     MOCK_METHOD1(GetConfiguration, int32_t(Configuration& config));
     MOCK_METHOD1(UpdateConfiguration, int32_t(const Configuration& config));
