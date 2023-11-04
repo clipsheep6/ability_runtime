@@ -173,7 +173,8 @@ public:
      * Starts a new ability using the original caller information.
      *
      * @param want the want of the ability to start.
-     * @param callerToken caller ability token.
+     * @param callerToken current caller ability token.
+     * @param asCallerSoureToken source caller ability token
      * @param userId Designation User ID.
      * @param requestCode the resultCode of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
@@ -181,6 +182,7 @@ public:
     virtual int StartAbilityAsCaller(
             const Want &want,
             const sptr<IRemoteObject> &callerToken,
+            sptr<IRemoteObject> asCallerSoureToken,
             int32_t userId = DEFAULT_INVAL_VALUE,
             int requestCode = DEFAULT_INVAL_VALUE) override;
 
@@ -189,7 +191,8 @@ public:
      *
      * @param want the want of the ability to start.
      * @param startOptions Indicates the options used to start.
-     * @param callerToken caller ability token.
+     * @param callerToken current caller ability token.
+     * @param asCallerSoureToken source caller ability token
      * @param userId Designation User ID.
      * @param requestCode the resultCode of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
@@ -198,6 +201,7 @@ public:
         const Want &want,
         const StartOptions &startOptions,
         const sptr<IRemoteObject> &callerToken,
+        sptr<IRemoteObject> asCallerSoureToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE) override;
 
@@ -205,7 +209,7 @@ public:
      * Start ui session ability with extension session info, send session info to ability manager service.
      *
      * @param want, the want of the ability to start.
-     * @param callerToken, caller ability token.
+     * @param callerToken caller ability token.
      * @param sessionInfo the information of UIExtensionContentSession.
      * @param userId, Designation User ID.
      * @param requestCode, Ability request code.
@@ -1495,6 +1499,7 @@ private:
     int PreLoadAppDataAbilities(const std::string &bundleName, const int32_t userId);
     void UpdateCallerInfo(Want& want, const sptr<IRemoteObject> &callerToken);
     void UpdateCallerInfoFromToken(Want& want, const sptr<IRemoteObject> &token);
+    void UpdateAsCallerSourceInfo(Want& want, sptr<IRemoteObject> asCallerSourceToken);
     int StartAbilityPublicPrechainCheck(StartAbilityParams &params);
     int StartAbilityPrechainInterceptor(StartAbilityParams &params);
     bool StartAbilityInChain(StartAbilityParams &params, int &result);

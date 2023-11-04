@@ -184,13 +184,16 @@ public:
      * Starts a new ability using the original caller information.
      *
      * @param want Ability want.
-     * @param callerToken caller ability token.
+     * @param callerToken current caller ability token.
+     * @param asCallerSourceToken source caller ability token.
      * @param requestCode Ability request code.
+     * @param userId Ability userId
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode StartAbilityAsCaller(
             const Want &want,
             const sptr<IRemoteObject> &callerToken,
+            sptr<IRemoteObject> asCallerSourceToken,
             int requestCode = DEFAULT_INVAL_VALUE,
             int32_t userId = DEFAULT_INVAL_VALUE);
 
@@ -198,15 +201,18 @@ public:
      * Starts a new ability using the original caller information.
      *
      * @param want Indicates the ability to start.
-     * @param startOptions Indicates the options used to start.
+     * @param startOptions current Indicates the options used to start.
      * @param callerToken caller ability token.
+     * @param asCallerSourceToken source caller ability token.
      * @param requestCode the resultCode of the ability to start.
+     * @param userId Ability userId
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode StartAbilityAsCaller(
             const Want &want,
             const StartOptions &startOptions,
             const sptr<IRemoteObject> &callerToken,
+            sptr<IRemoteObject> asCallerSourceToken,
             int requestCode = DEFAULT_INVAL_VALUE,
             int32_t userId = DEFAULT_INVAL_VALUE);
 

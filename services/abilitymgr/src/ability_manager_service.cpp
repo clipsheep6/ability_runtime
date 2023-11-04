@@ -583,7 +583,7 @@ int AbilityManagerService::StartAbilityByUIContentSession(const Want &want, cons
 }
 
 int AbilityManagerService::StartAbilityAsCaller(const Want &want, const sptr<IRemoteObject> &callerToken,
-    int32_t userId, int requestCode)
+    sptr<IRemoteObject> asCallerSoureToken, int32_t userId, int requestCode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_CALLER_IS_SYSTEM_APP;
@@ -596,17 +596,23 @@ int AbilityManagerService::StartAbilityAsCaller(const Want &want, const sptr<IRe
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_CONTINUATION_FLAG;
     }
+    
+    AAFwk::Want newWant = want;
+    if (asCallerSoureToken != nullptr) {
+        HILOG_DEBUG("Start as caller, UpdateCallerInfo");
+        UpdateAsCallerSourceInfo(newWant, asCallerSoureToken);
+    }
 
     HILOG_INFO("Start ability come, ability is %{public}s, userId is %{public}d",
         want.GetElement().GetAbilityName().c_str(), userId);
     std::string callerPkg;
     std::string targetPkg;
-    if (AbilityUtil::CheckJumpInterceptorWant(want, callerPkg, targetPkg)) {
+    if (AbilityUtil::CheckJumpInterceptorWant(newWant, callerPkg, targetPkg)) {
         HILOG_INFO("the call is from interceptor dialog, callerPkg:%{public}s, targetPkg:%{public}s",
             callerPkg.c_str(), targetPkg.c_str());
         AbilityUtil::AddAbilityJumpRuleToBms(callerPkg, targetPkg, GetUserId());
     }
-    int32_t ret = StartAbilityWrap(want, callerToken, requestCode, userId, true);
+    int32_t ret = StartAbilityWrap(newWant, callerToken, requestCode, userId, true);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
@@ -1111,11 +1117,19 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
 }
 
 int AbilityManagerService::StartAbilityAsCaller(const Want &want, const StartOptions &startOptions,
-    const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode)
+    const sptr<IRemoteObject> &callerToken, sptr<IRemoteObject> asCallerSoureToken,
+    int32_t userId, int requestCode)
 {
     HILOG_DEBUG("Start ability as caller with startOptions.");
     CHECK_CALLER_IS_SYSTEM_APP;
-    return StartAbilityForOptionWrap(want, startOptions, callerToken, userId, requestCode, true);
+
+    AAFwk::Want newWant = want;
+    if (asCallerSoureToken != nullptr) {
+        HILOG_DEBUG("start as caller, UpdateCallerInfo");
+        UpdateAsCallerSourceInfo(newWant, asCallerSoureToken);
+    }
+
+    return StartAbilityForOptionWrap(newWant, startOptions, callerToken, userId, requestCode, true);
 }
 
 int AbilityManagerService::StartAbilityForOptionWrap(const Want &want, const StartOptions &startOptions,
@@ -6926,6 +6940,33 @@ void AbilityManagerService::UpdateCallerInfoFromToken(Want& want, const sptr<IRe
     want.SetParam(Want::PARAM_RESV_CALLER_UID, callerUid);
     want.RemoveParam(Want::PARAM_RESV_CALLER_PID);
     want.SetParam(Want::PARAM_RESV_CALLER_PID, callerPid);
+
+    std::string callerBundleName = abilityRecord->GetAbilityInfo().bundleName;
+    want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+    want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerBundleName);
+    std::string callerAbilityName = abilityRecord->GetAbilityInfo().name;
+    want.RemoveParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
+    want.SetParam(Want::PARAM_RESV_CALLER_ABILITY_NAME, callerAbilityName);
+}
+
+void AbilityManagerService::UpdateAsCallerSourceInfo(Want& want, sptr<IRemoteObject> asCallerSourceToken)
+{
+    AppExecFwk::RunningProcessInfo processInfo = {};
+    DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(asCallerSourceToken, processInfo);
+
+    auto abilityRecord = Token::GetAbilityRecordByToken(asCallerSourceToken);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("abilityRecord is nullptr");
+        return;
+    }
+    int32_t tokenId = abilityRecord->GetApplicationInfo().accessTokenId;
+
+    want.RemoveParam(Want::PARAM_RESV_CALLER_TOKEN);
+    want.SetParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId);
+    want.RemoveParam(Want::PARAM_RESV_CALLER_UID);
+    want.SetParam(Want::PARAM_RESV_CALLER_UID, processInfo.uid_);
+    want.RemoveParam(Want::PARAM_RESV_CALLER_PID);
+    want.SetParam(Want::PARAM_RESV_CALLER_PID, processInfo.pid_);
 
     std::string callerBundleName = abilityRecord->GetAbilityInfo().bundleName;
     want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);

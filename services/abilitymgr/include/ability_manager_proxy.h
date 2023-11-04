@@ -117,7 +117,8 @@ public:
      * Starts a new ability using the original caller information.
      *
      * @param want the want of the ability to start.
-     * @param callerToken caller ability token.
+     * @param callerToken current caller ability token.
+     * @param asCallerSourceToken source caller ability token.
      * @param userId Designation User ID.
      * @param requestCode the resultCode of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
@@ -125,6 +126,7 @@ public:
     virtual int StartAbilityAsCaller(
         const Want &want,
         const sptr<IRemoteObject> &callerToken,
+        sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE) override;
 
@@ -133,7 +135,8 @@ public:
      *
      * @param want the want of the ability to start.
      * @param startOptions Indicates the options used to start.
-     * @param callerToken caller ability token.
+     * @param callerToken current caller ability token.
+     * @param asCallerSourceToken source caller ability token.
      * @param userId Designation User ID.
      * @param requestCode the resultCode of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
@@ -142,6 +145,7 @@ public:
         const Want &want,
         const StartOptions &startOptions,
         const sptr<IRemoteObject> &callerToken,
+        sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE) override;
 
