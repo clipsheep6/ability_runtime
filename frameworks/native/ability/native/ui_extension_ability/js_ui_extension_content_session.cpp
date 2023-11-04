@@ -523,7 +523,8 @@ napi_value JsUIExtensionContentSession::OnLoadContent(napi_env env, NapiCallback
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         return CreateJsUndefined(env);
     }
-    Rosen::WMError ret = uiWindow_->NapiSetUIContent(contextPath, env, storage);
+    sptr<IRemoteObject> parentToken = sessionInfo_->parentToken;
+    Rosen::WMError ret = uiWindow_->NapiSetUIContent(contextPath, env, storage, false, parentToken);
     if (ret == Rosen::WMError::WM_OK) {
         HILOG_DEBUG("NapiSetUIContent success");
     } else {
