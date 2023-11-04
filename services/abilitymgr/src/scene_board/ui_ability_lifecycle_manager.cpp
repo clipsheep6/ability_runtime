@@ -1878,5 +1878,15 @@ int UIAbilityLifecycleManager::MoveMissionToFront(int32_t sessionId, std::shared
     HILOG_INFO("Call PendingSessionActivation by rootSceneSession.");
     return static_cast<int>(rootSceneSession_->PendingSessionActivation(sessionInfo));
 }
+
+void UIAbilityLifecycleManager::ClearAbilityRecord(int32_t userId)
+{
+    for (auto iter = sessionAbilityMap_.begin(); iter != sessionAbilityMap_.end(); ++iter) {
+        if ((iter->second != nullptr) && (iter->second->GetOwnerMissionUserId() == userId)) {
+            sessionAbilityMap_.erase(iter);
+            break;
+        }
+    }
+}
 }  // namespace AAFwk
 }  // namespace OHOS

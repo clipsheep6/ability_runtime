@@ -5928,6 +5928,22 @@ int AbilityManagerService::StopUser(int userId, const sptr<IStopUserCallback> &c
     return 0;
 }
 
+int AbilityManagerService::LogoutUser(int userId)
+{
+    HILOG_DEBUG("%{public}s", __func__);
+    if (IPCSkeleton::GetCallingUid() != ACCOUNT_MGR_SERVICE_UID) {
+        HILOG_ERROR("%{public}s: Permission verification failed, not account process", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    auto ret = -1;
+    if (userController_) {
+        ret = userController_->LogoutUser(userId);
+        HILOG_DEBUG("ret = %{public}d", ret);
+    }
+    return 0;
+}
+
 void AbilityManagerService::OnAcceptWantResponse(
     const AAFwk::Want &want, const std::string &flag)
 {
