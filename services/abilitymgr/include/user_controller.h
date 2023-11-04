@@ -80,6 +80,14 @@ public:
      * @return 0 if the user has been successfully started.
      */
     int32_t StopUser(int32_t userId);
+    
+    /**
+     * Logout user, if it is running..
+     *
+     * @param userId id of Logout user.
+     * @return 0 if the user has been successfully Logout.
+     */
+    int32_t LogoutUser(int32_t userId);
 
     int32_t GetCurrentUserId();
 

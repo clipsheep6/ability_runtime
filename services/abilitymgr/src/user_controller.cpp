@@ -82,11 +82,6 @@ int32_t UserController::StartUser(int32_t userId, bool isForeground)
         return -1;
     }
 
-    if (IsCurrentUser(userId)) {
-        HILOG_WARN("StartUser user is already current:%{public}d", userId);
-        return 0;
-    }
-
     if (!IsExistOsAccount(userId)) {
         HILOG_ERROR("StartUser not exist such account:%{public}d", userId);
         return -1;
@@ -179,6 +174,43 @@ int32_t UserController::StopUser(int32_t userId)
     abilityManagerService->ClearUserData(userId);
 
     BroadcastUserStopped(userId);
+    return 0;
+}
+
+int32_t UserController::LogoutUser(int32_t userId)
+{
+    if (userId < 0 || userId == USER_ID_NO_HEAD) {
+        HILOG_ERROR("userId is invalid:%{public}d", userId);
+        return INVALID_USERID_VALUE;
+    }
+
+    if (!IsExistOsAccount(userId)) {
+        HILOG_ERROR("not exist such account:%{public}d", userId);
+        return INVALID_USERID_VALUE;
+    }
+
+    auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
+    if (!appScheduler) {
+        HILOG_ERROR("appScheduler is null");
+        return INVALID_USERID_VALUE;
+    }
+    appScheduler->KillProcessesByUserId(userId);
+
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto taskDataPersistenceMgr = DelayedSingleton<TaskDataPersistenceMgr>::GetInstance();
+        if (!taskDataPersistenceMgr) {
+            HILOG_ERROR("taskDataPersistenceMgr is null");
+            return INVALID_USERID_VALUE;
+        }
+        taskDataPersistenceMgr->RemoveUserDir(userId);
+    } else {
+        auto abilityManagerService = DelayedSingleton<AbilityManagerService>::GetInstance();
+        if (!abilityManagerService) {
+            HILOG_ERROR("abilityManagerService is null");
+            return INVALID_USERID_VALUE;
+        }  
+        abilityManagerService->uiAbilityLifecycleManager_->ClearAbilityRecord(userId);
+    }
     return 0;
 }
 

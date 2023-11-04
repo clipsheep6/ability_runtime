@@ -143,7 +143,7 @@ const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 const std::string DEBUG_APP = "debugApp";
 
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
-
+constexpr int32_t ERR_OK = 0;
 std::atomic<bool> g_isDmsAlive = false;
 
 bool CheckCallerIsDlpManager(const sptr<AppExecFwk::IBundleMgr> &bundleManager)
@@ -5935,6 +5935,21 @@ int AbilityManagerService::StopUser(int userId, const sptr<IStopUserCallback> &c
         callback->OnStopUserDone(userId, ret);
     }
     return 0;
+}
+
+int AbilityManagerService::LogoutUser(int userId)
+{
+    HILOG_DEBUG("%{public}s", __func__);
+    if (IPCSkeleton::GetCallingUid() != ACCOUNT_MGR_SERVICE_UID) {
+        HILOG_ERROR("%{public}s: Permission verification failed, not account process", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    if (userController_) {
+        auto ret = userController_->LogoutUser(userId);
+        HILOG_DEBUG("ret = %{public}d", ret);
+    }
+    return ERR_OK;
 }
 
 void AbilityManagerService::OnAcceptWantResponse(

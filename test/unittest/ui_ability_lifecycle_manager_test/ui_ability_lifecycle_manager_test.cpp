@@ -2480,5 +2480,27 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartAbilityBySpecifed_001, TestSize.Lev
     uiAbilityLifecycleManager->StartAbilityBySpecifed(request, callerAbility);
     uiAbilityLifecycleManager.reset();
 }
+
+/**
+ * @tc.name: UIAbilityLifecycleManager_ClearAbilityRecord_0100
+ * @tc.desc: ClearAbilityRecord
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIAbilityLifecycleManagerTest, ClearAbilityRecord_001, TestSize.Level1)
+{
+    auto uiAbilityLifecycleManager = std::make_unique<UIAbilityLifecycleManager>();
+    EXPECT_NE(uiAbilityLifecycleManager, nullptr);
+
+    std::shared_ptr<AbilityRecord> abilityRecord1 = InitAbilityRecord();
+    abilityRecord1->SetOwnerMissionUserId(100);
+    std::shared_ptr<AbilityRecord> abilityRecord2 = InitAbilityRecord();
+    abilityRecord2->SetOwnerMissionUserId(101);
+
+    uiAbilityLifecycleManager->sessionAbilityMap_.emplace(1, abilityRecord1);
+    uiAbilityLifecycleManager->sessionAbilityMap_.emplace(2, abilityRecord2);
+    EXPECT_EQ(uiAbilityLifecycleManager->sessionAbilityMap_.size(), 2);
+    uiAbilityLifecycleManager->ClearAbilityRecord(100);
+    EXPECT_EQ(uiAbilityLifecycleManager->sessionAbilityMap_.size(), 1);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
