@@ -206,14 +206,12 @@ ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, 
         HILOG_ERROR("ecological rule is allow, keep going.");
         return ERR_OK;
     }
+
 #ifdef SUPPORT_GRAPHICS
-    if (isForeground && (rule.replaceWant != nullptr)) {
-        int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*rule.replaceWant,
-            requestCode, userId));
-        if (ret != ERR_OK) {
-            HILOG_ERROR("ecological start replace want failed.");
-            return ret;
-        }
+    if (isForeground && rule.replaceWant != nullptr) {
+        want = *rule.replaceWant;
+        want.setParm("isReplaceWantExist", true);
+        return ERR_ECOLOGICAL_CONTROL_STATUS;
     }
 #endif
     return ERR_ECOLOGICAL_CONTROL_STATUS;

@@ -864,15 +864,21 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             return result;
         }
     }
+    Want newWant = abilityRequest.want;
 
 #ifdef SUPPORT_ERMS
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(abilityRequest.want, requestCode, GetUserId(), true);
+        afterCheckExecuter_->DoProcess(newWant, requestCode, GetUserId(), true);
     if (result != ERR_OK) {
         HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
+        if (newWant.GetBoolParam("isReplaceWantExist", false)) {
+            newWant.RemoveParam("isReplaceWantExist");
+            CreateDialogByUIExtension(replaceWant, callerToken);
+        }
         return result;
     }
 #endif
+
 
     if (!AbilityUtil::IsSystemDialogAbility(abilityInfo.bundleName, abilityInfo.name)) {
         HILOG_DEBUG("PreLoadAppDataAbilities:%{public}s.", abilityInfo.bundleName.c_str());
@@ -1047,11 +1053,17 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         return ERR_WRONG_INTERFACE_CALL;
     }
 
+    Want newWant = abilityRequest.want;
+
 #ifdef SUPPORT_ERMS
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(abilityRequest.want, requestCode, GetUserId(), true);
+        afterCheckExecuter_->DoProcess(newWant, requestCode, GetUserId(), true);
     if (result != ERR_OK) {
         HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
+        if (newWant.GetBoolParam("isReplaceWantExist", false)) {
+            newWant.RemoveParam("isReplaceWantExist");
+            CreateDialogByUIExtension(replaceWant, callerToken);
+        }
         return result;
     }
 #endif
@@ -1268,11 +1280,16 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         return ERR_INVALID_VALUE;
     }
 
+    Want newWant = abilityRequest.want;
 #ifdef SUPPORT_ERMS
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(abilityRequest.want, requestCode, GetUserId(), true);
+        afterCheckExecuter_->DoProcess(newWant, requestCode, GetUserId(), true);
     if (result != ERR_OK) {
         HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
+        if (newWant.GetBoolParam("isReplaceWantExist", false)) {
+            newWant.RemoveParam("isReplaceWantExist");
+            CreateDialogByUIExtension(replaceWant, callerToken);
+        }
         return result;
     }
 #endif
@@ -1535,11 +1552,16 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
         return ERR_INVALID_VALUE;
     }
 
+    Want newWant = abilityRequest.want;
 #ifdef SUPPORT_ERMS
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
         afterCheckExecuter_->DoProcess(abilityRequest.want, requestCode, GetUserId(), true);
     if (result != ERR_OK) {
         HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
+        if (newWant.GetBoolParam("isReplaceWantExist", false)) {
+            newWant.RemoveParam("isReplaceWantExist");
+            CreateDialogByUIExtension(replaceWant, callerToken);
+        }
         return result;
     }
 #endif
@@ -8842,6 +8864,39 @@ void AbilityManagerService::HandleProcessFrozen(const std::vector<int32_t> &pidL
         return;
     }
     connectManager->HandleProcessFrozen(pidSet, uid);
+}
+
+void AbilityManagerService::CreateDialogByUIExtension(Want &replaceWant, const sptr<IRemoteObject> &callerToken)
+{
+    if (replaceWant == nullptr || callerToken == nullptr) {
+        HILOG_ERROR("want or callerToken is nullptr");
+        return;
+    }
+    replaceWant.RemoveParam("isReplaceWantExist");
+    auto callerRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (!callerRecord) {
+        HILOG_ERROR("callerRecord is nullptr.");
+        return;
+    }
+
+    if (callerRecord->GetAbilityInfo().type == AppExecFwk::AbilityType::Extension
+        && UIExtensionUtils::IsUIExtension(callerRecord->GetAbilityInfo().extensionAbilityType)) {
+        //CreateModalUIExtension(replaceWant);模系统
+    }
+
+    if (callerRecord->GetAbilityInfo().type == AppExecFwk::AbilityType::Page) {
+        sptr<IRemoteObject> token;
+        int ret = IN_PROCESS_CALL(GetTopAbility(token));
+        if (ret != ERR_OK || token == nullptr) {
+            HILOG_ERROR("token is nullptr");
+            return;
+        }
+
+        if (token != callerToken) {
+            //CreateModalUIExtension(replaceWant);模系统
+        }
+        //AbilityManagerClient::GetInstance()->CreateModalUIExtension(replaceWant, callerToken);模应用
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS
