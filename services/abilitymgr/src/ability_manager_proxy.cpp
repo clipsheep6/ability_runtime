@@ -307,7 +307,8 @@ int AbilityManagerProxy::StartAbility(const Want &want, const StartOptions &star
 }
 
 int AbilityManagerProxy::StartAbilityAsCaller(
-    const Want &want, const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode)
+    const Want &want, const sptr<IRemoteObject> &callerToken,
+    sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode)
 {
     int error;
     MessageParcel data;
@@ -324,6 +325,17 @@ int AbilityManagerProxy::StartAbilityAsCaller(
     if (callerToken) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
             HILOG_ERROR("callerToken and flag write failed.");
+            return INNER_ERR;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return INNER_ERR;
+        }
+    }
+    if (asCallerSourceToken) {
+        if (!data.WriteBool(true) || !data.WriteRemoteObject(asCallerSourceToken)) {
+            HILOG_ERROR("asCallerSourceToken and flag write failed.");
             return INNER_ERR;
         }
     } else {
@@ -349,7 +361,8 @@ int AbilityManagerProxy::StartAbilityAsCaller(
 }
 
 int AbilityManagerProxy::StartAbilityAsCaller(const Want &want, const StartOptions &startOptions,
-    const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode)
+    const sptr<IRemoteObject> &callerToken, sptr<IRemoteObject> asCallerSourceToken,
+    int32_t userId, int requestCode)
 {
     int error;
     MessageParcel data;
@@ -374,6 +387,17 @@ int AbilityManagerProxy::StartAbilityAsCaller(const Want &want, const StartOptio
     } else {
         if (!data.WriteBool(false)) {
             HILOG_ERROR("flag write failed.");
+            return INNER_ERR;
+        }
+    }
+    if (asCallerSourceToken) {
+        if (!data.WriteBool(true) || !data.WriteRemoteObject(asCallerSourceToken)) {
+            HILOG_ERROR("flag and asCallerSourceToken write failed.");
+            return INNER_ERR;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("asCallerSourceToken write failed.");
             return INNER_ERR;
         }
     }

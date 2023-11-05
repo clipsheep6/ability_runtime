@@ -126,6 +126,11 @@ napi_value JsUIExtensionContentSession::StartAbility(napi_env env, napi_callback
     GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnStartAbility);
 }
 
+napi_value JsUIExtensionContentSession::StartAbilityAsCaller(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnStartAbilityAsCaller);
+}
+
 napi_value JsUIExtensionContentSession::StartAbilityForResult(napi_env env, napi_callback_info info)
 {
     GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnStartAbilityForResult);
@@ -217,6 +222,60 @@ napi_value JsUIExtensionContentSession::OnStartAbility(napi_env env, NapiCallbac
             CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
     }
     HILOG_DEBUG("OnStartAbility is called end");
+    return result;
+}
+
+napi_value JsUIExtensionContentSession::OnStartAbilityAsCaller(napi_env env, NapiCallbackInfo& info)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (info.argc == ARGC_ZERO) {
+        HILOG_ERROR("Not enough params");
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+    AAFwk::Want want;
+    bool unWrapWantFlag = OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want);
+    if (!unWrapWantFlag) {
+        ThrowTooFewParametersError(env);
+    }
+    decltype(info.argc) unwrapArgc = 1;
+    HILOG_INFO("StartAbilityAsCaller, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
+    AAFwk::StartOptions startOptions;
+    if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
+        HILOG_DEBUG("OnStartAbilityAsCaller start options is used.");
+        bool unWrapStartOptionsFlag = AppExecFwk::UnwrapStartOptions(env, info.argv[INDEX_ONE], startOptions);
+        if (!unWrapStartOptionsFlag) {
+            ThrowTooFewParametersError(env);
+        }
+        unwrapArgc++;
+    }
+    NapiAsyncTask::CompleteCallback complete =
+        [weak = context_, want, startOptions, unwrapArgc, sessionInfo = sessionInfo_]
+        (napi_env env, NapiAsyncTask& task, int32_t status) {
+            auto context = weak.lock();
+            if (!context) {
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                return;
+            }
+            if (sessionInfo == nullptr) {
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                return;
+            }
+            auto innerErrorCode = (unwrapArgc == 1) ?
+                AAFwk::AbilityManagerClient::GetInstance()->
+                StartAbilityAsCaller(want, context->GetToken(), sessionInfo->callerToken) :
+                AAFwk::AbilityManagerClient::GetInstance()->
+                StartAbilityAsCaller(want, startOptions, context->GetToken(), sessionInfo->callerToken);
+            if (innerErrorCode == 0) {
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, innerErrorCode));
+            }
+        };
+    napi_value lastParam = (info.argc > unwrapArgc) ? info.argv[unwrapArgc] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JsUIExtensionContentSession::OnStartAbilityAsCaller",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
@@ -679,6 +738,7 @@ napi_value JsUIExtensionContentSession::CreateJsUIExtensionContentSession(napi_e
     BindNativeFunction(env, object, "startAbility", moduleName, StartAbility);
     BindNativeFunction(env, object, "startAbilityForResult", moduleName, StartAbilityForResult);
     BindNativeFunction(env, object, "startAbilityByType", moduleName, StartAbilityByType);
+    BindNativeFunction(env, object, "startAbilityAsCaller", moduleName, StartAbilityAsCaller);
     return object;
 }
 
@@ -708,6 +768,7 @@ napi_value JsUIExtensionContentSession::CreateJsUIExtensionContentSession(napi_e
     BindNativeFunction(env, object, "startAbility", moduleName, StartAbility);
     BindNativeFunction(env, object, "startAbilityForResult", moduleName, StartAbilityForResult);
     BindNativeFunction(env, object, "startAbilityByType", moduleName, StartAbilityByType);
+    BindNativeFunction(env, object, "startAbilityAsCaller", moduleName, StartAbilityAsCaller);
     return object;
 }
 
