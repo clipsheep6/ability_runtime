@@ -847,6 +847,9 @@ private:
 
     bool GenerateRenderUid(int32_t &renderUid);
 
+    void MakeServiceExtProcessName(const std::shared_ptr<AbilityInfo> &abilityInfo,
+        const std::shared_ptr<ApplicationInfo> &appInfo, std::string &processName) const;
+
     void MakeProcessName(const std::shared_ptr<AbilityInfo> &abilityInfo,
         const std::shared_ptr<ApplicationInfo> &appInfo,
         const HapModuleInfo &hapModuleInfo, int32_t appIndex, std::string &processName) const;
@@ -1098,6 +1101,8 @@ private:
 
     bool JudgeSelfCalledByToken(const sptr<IRemoteObject> &token, const PageStateData &pageStateData);
 
+    void ParseServiceExtMultiProcessWhiteList();
+
     /**
      * Notify the app running status.
      *
@@ -1159,6 +1164,7 @@ private:
     ffrt::mutex killpedProcessMapLock_;
     mutable std::map<int64_t, std::string> killedPorcessMap_;
     std::shared_ptr<AbilityRuntime::AppRunningStatusModule> appRunningStatusModule_;
+    std::vector<std::string> serviceExtensionWhiteList_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

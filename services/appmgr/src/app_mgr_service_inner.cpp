@@ -55,6 +55,7 @@
 #include "permission_constants.h"
 #include "permission_verification.h"
 #include "system_ability_definition.h"
+#include "string_ex.h"
 #include "time_util.h"
 #include "ui_extension_utils.h"
 #include "uri_permission_manager_client.h"
@@ -113,6 +114,7 @@ const std::string PERMISSION_GET_BUNDLE_RESOURCES = "ohos.permission.GET_BUNDLE_
 const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
 const std::string SUPPORT_ISOLATION_MODE = "persist.bms.supportIsolationMode";
 const std::string SUPPORT_SERVICE_EXT_MULTI_PROCESS = "component.startup.extension.multiprocess.enable";
+const std::string SERVICE_EXT_MULTI_PROCESS_WHITE_LIST = "component.startup.extension.multiprocess.whitelist";
 const std::string SCENE_BOARD_BUNDLE_NAME = "com.ohos.sceneboard";
 const std::string DEBUG_APP = "debugApp";
 const std::string SERVICE_EXTENSION = ":ServiceExtension";
@@ -215,6 +217,7 @@ void AppMgrServiceInner::Init()
     AddWatchParameter();
     supportIsolationMode_ = OHOS::system::GetParameter(SUPPORT_ISOLATION_MODE, "false");
     supportServiceExtMultiProcess_ = OHOS::system::GetParameter(SUPPORT_SERVICE_EXT_MULTI_PROCESS, "false");
+    ParseServiceExtMultiProcessWhiteList();
     deviceType_ = OHOS::system::GetDeviceType();
     DelayedSingleton<AppStateObserverManager>::GetInstance()->Init();
 }
@@ -367,6 +370,34 @@ bool AppMgrServiceInner::CheckLoadAbilityConditions(const sptr<IRemoteObject> &t
     return true;
 }
 
+void AppMgrServiceInner::MakeServiceExtProcessName(const std::shared_ptr<AbilityInfo> &abilityInfo,
+    const std::shared_ptr<ApplicationInfo> &appInfo, std::string &processName) const
+{
+    if (abilityInfo == nullptr || appInfo == nullptr) {
+        HILOG_ERROR("Ability info or app info is nullptr.");
+        return;
+    }
+
+    if (supportServiceExtMultiProcess_.compare("true") != 0) {
+        return;
+    }
+
+    if (processName == appInfo->bundleName &&
+        abilityInfo->extensionAbilityType == ExtensionAbilityType::SERVICE) {
+        auto iter = std::find(
+            serviceExtensionWhiteList_.begin(), serviceExtensionWhiteList_.end(), processName);
+        if (iter != serviceExtensionWhiteList_.end()) {
+            HILOG_DEBUG("Application is in whiteList, skipping!");
+            return;
+        }
+
+        processName += SERVICE_EXTENSION;
+        if (appInfo->keepAlive) {
+            processName += KEEP_ALIVE;
+        }
+    }
+}
+
 void AppMgrServiceInner::MakeProcessName(const std::shared_ptr<AbilityInfo> &abilityInfo,
     const std::shared_ptr<ApplicationInfo> &appInfo, const HapModuleInfo &hapModuleInfo, int32_t appIndex,
     std::string &processName) const
@@ -381,14 +412,7 @@ void AppMgrServiceInner::MakeProcessName(const std::shared_ptr<AbilityInfo> &abi
         return;
     }
     MakeProcessName(appInfo, hapModuleInfo, processName);
-    if (supportServiceExtMultiProcess_.compare("true") == 0) {
-        if (processName == appInfo->bundleName && abilityInfo->extensionAbilityType == ExtensionAbilityType::SERVICE) {
-            processName += SERVICE_EXTENSION;
-            if (appInfo->keepAlive) {
-                processName += KEEP_ALIVE;
-            }
-         }
-    }
+    MakeServiceExtProcessName(abilityInfo, appInfo, processName);
     if (appIndex != 0) {
         processName += std::to_string(appIndex);
     }
@@ -4838,6 +4862,17 @@ void AppMgrServiceInner::SendAppLaunchEvent(const std::shared_ptr<AppRunningReco
         HILOG_ERROR("callerRecord is nullptr, can not get callerBundleName.");
     }
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_LAUNCH, HiSysEventType::BEHAVIOR, eventInfo);
+}
+
+void AppMgrServiceInner::ParseServiceExtMultiProcessWhiteList()
+{
+    auto serviceExtMultiProcessWhiteList =
+        OHOS::system::GetParameter(SERVICE_EXT_MULTI_PROCESS_WHITE_LIST, "");
+    if (serviceExtMultiProcessWhiteList.empty()) {
+        HILOG_WARN("Service extension multi process white list is empty.");
+        return;
+    }
+    SplitStr(serviceExtMultiProcessWhiteList, ";", serviceExtensionWhiteList_);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
