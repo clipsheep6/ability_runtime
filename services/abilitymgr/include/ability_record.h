@@ -223,7 +223,6 @@ struct AbilityRequest {
     int callerUid = -1;
     AbilityCallType callType = AbilityCallType::INVALID_TYPE;
     sptr<IRemoteObject> callerToken = nullptr;
-    sptr<IRemoteObject> asCallerSoureToken = nullptr;
     uint32_t callerAccessTokenId = -1;
     sptr<IAbilityConnection> connect = nullptr;
 

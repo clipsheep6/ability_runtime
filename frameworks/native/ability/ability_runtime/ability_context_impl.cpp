@@ -149,7 +149,7 @@ ErrCode AbilityContextImpl::StartAbilityAsCaller(const AAFwk::Want &want, int re
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("StartAbilityAsCaller");
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityAsCaller(want, token_, nullptr, requestCode);
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityAsCaller(want, token_, requestCode);
     if (err != ERR_OK) {
         HILOG_ERROR("StartAbilityAsCaller. ret=%{public}d", err);
     }
@@ -185,7 +185,7 @@ ErrCode AbilityContextImpl::StartAbilityAsCaller(const AAFwk::Want &want, const 
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("StartAbilityAsCaller");
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityAsCaller(want,
-        startOptions, token_, nullptr, requestCode);
+        startOptions, token_, requestCode);
     if (err != ERR_OK) {
         HILOG_ERROR("StartAbilityAsCaller. ret=%{public}d", err);
     }
@@ -210,7 +210,7 @@ ErrCode AbilityContextImpl::StartAbilityForResult(const AAFwk::Want& want, int r
 {
     HILOG_DEBUG("StartAbilityForResult");
     resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode, -1);
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode);
     if (err != ERR_OK && err != AAFwk::START_ABILITY_WAITING) {
         HILOG_ERROR("StartAbilityForResult. ret=%{public}d", err);
         OnAbilityResultInner(requestCode, err, want);

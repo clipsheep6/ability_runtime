@@ -2027,7 +2027,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbilityAsCaller_001, 
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     const Want want;
     sptr<IRemoteObject> callerToken = nullptr;
-    auto res = proxy_->StartAbilityAsCaller(want, callerToken, nullptr);
+    auto res = proxy_->StartAbilityAsCaller(want, callerToken);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_BY_TOKEN), mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
@@ -2048,7 +2048,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbilityAsCaller_002, 
     const Want want;
     sptr<IRemoteObject> callerToken = nullptr;
     StartOptions startOptions;
-    auto res = proxy_->StartAbilityAsCaller(want, startOptions, callerToken, nullptr);
+    auto res = proxy_->StartAbilityAsCaller(want, startOptions, callerToken);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_FOR_OPTIONS), mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }

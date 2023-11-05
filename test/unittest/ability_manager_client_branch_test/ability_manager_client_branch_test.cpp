@@ -1133,7 +1133,7 @@ HWTEST_F(AbilityManagerClientBranchTest, StartAbilityAsCaller_0100, TestSize.Lev
     sptr<IRemoteObject> callerToken = nullptr;
     int requestCode = 1;
     int32_t userId = 2;
-    EXPECT_EQ(client_->StartAbilityAsCaller(want, callerToken, nullptr, requestCode, userId), ERR_OK);
+    EXPECT_EQ(client_->StartAbilityAsCaller(want, callerToken, requestCode, userId), ERR_OK);
     GTEST_LOG_(INFO) << "StartAbilityAsCaller_0100 end";
 }
 
@@ -1150,7 +1150,7 @@ HWTEST_F(AbilityManagerClientBranchTest, StartAbilityAsCaller_0200, TestSize.Lev
     sptr<IRemoteObject> callerToken = nullptr;
     int requestCode = 1;
     int32_t userId = 2;
-    EXPECT_EQ(client_->StartAbilityAsCaller(want, startOptions, callerToken, nullptr, requestCode, userId), ERR_OK);
+    EXPECT_EQ(client_->StartAbilityAsCaller(want, startOptions, callerToken, requestCode, userId), ERR_OK);
     GTEST_LOG_(INFO) << "StartAbilityAsCaller_0200 end";
 }
 

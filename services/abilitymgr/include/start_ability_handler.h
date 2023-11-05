@@ -30,7 +30,6 @@ struct StartAbilityParams {
     StartAbilityParams(Want &reqWant) : want(reqWant) {}
     Want &want;
     sptr<IRemoteObject> callerToken;
-    sptr<IRemoteObject> asCallerSoureToken;
     int32_t userId = -1;
     int requestCode = 0;
     bool isStartAsCaller = false;
