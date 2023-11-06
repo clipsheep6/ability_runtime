@@ -1283,7 +1283,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             return;
         }
 
-        if (appInfo.debug) {
+        // if (appInfo.debug) {
             auto perfCmd = appLaunchData.GetPerfCmd();
             if (perfCmd.find(PERFCMD_PROFILE) != std::string::npos ||
                 perfCmd.find(PERFCMD_DUMPHEAP) != std::string::npos) {
@@ -1292,7 +1292,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             } else {
                 runtime->StartDebugMode(appLaunchData.GetDebugApp());
             }
-        }
+        // }
 
         std::vector<HqfInfo> hqfInfos = appInfo.appQuickFix.deployedAppqfInfo.hqfInfos;
         std::map<std::string, std::string> modulePaths;
