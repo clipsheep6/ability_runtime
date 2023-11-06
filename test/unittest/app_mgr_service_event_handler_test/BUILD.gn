@@ -31,6 +31,7 @@ ohos_unittest("AMSEventHandlerTest") {
     "${ability_runtime_services_path}/appmgr/src/app_process_manager.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_running_manager.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_running_record.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_running_status_module.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_spawn_client.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_spawn_msg_wrapper.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_spawn_socket.cpp",

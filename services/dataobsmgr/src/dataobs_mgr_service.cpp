@@ -88,12 +88,12 @@ DataObsServiceRunningState DataObsMgrService::QueryServiceState() const
 int DataObsMgrService::RegisterObserver(const Uri &uri, sptr<IDataAbilityObserver> dataObserver)
 {
     if (dataObserver == nullptr) {
-        HILOG_ERROR("dataObserver is nullptr, uri:%{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
+        HILOG_ERROR("dataObserver is nullptr, uri:%{public}s.", CommonUtils::Anonymous(uri.ToString()).c_str());
         return DATA_OBSERVER_IS_NULL;
     }
 
     if (dataObsMgrInner_ == nullptr) {
-        HILOG_ERROR("dataObsMgrInner_ is nullptr, uri:%{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
+        HILOG_ERROR("dataObsMgrInner_ is nullptr, uri:%{public}s.", CommonUtils::Anonymous(uri.ToString()).c_str());
         return DATAOBS_SERVICE_INNER_IS_NULL;
     }
 

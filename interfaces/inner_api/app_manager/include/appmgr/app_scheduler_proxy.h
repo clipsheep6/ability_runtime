@@ -164,6 +164,8 @@ public:
 
     virtual void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) override;
 
+    virtual void ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName) override;
+
     int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName,
         const sptr<IQuickFixCallback> &callback, const int32_t recordId) override;
 

@@ -1352,11 +1352,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         application_->SetRuntime(std::move(runtime));
 
         std::weak_ptr<OHOSApplication> wpApplication = application_;
-        AbilityLoader::GetInstance().RegisterAbility("Ability",
-            [wpApplication]() -> Ability* {
+        AbilityLoader::GetInstance().RegisterUIAbility("UIAbility",
+            [wpApplication]() -> AbilityRuntime::UIAbility* {
             auto app = wpApplication.lock();
             if (app != nullptr) {
-                return Ability::Create(app->GetRuntime());
+                return AbilityRuntime::UIAbility::Create(app->GetRuntime());
             }
             HILOG_ERROR("AbilityLoader::GetAbilityByName failed.");
             return nullptr;
@@ -2382,6 +2382,42 @@ void MainThread::ScheduleAcceptWant(const AAFwk::Want &want, const std::string &
         appThread->HandleScheduleAcceptWant(want, moduleName);
     };
     if (!mainHandler_->PostTask(task, "MainThread:AcceptWant")) {
+        HILOG_ERROR("PostTask task failed");
+    }
+}
+
+void MainThread::HandleScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName)
+{
+    HILOG_DEBUG("MainThread::HandleScheduleNewProcessRequest");
+    if (!application_) {
+        HILOG_ERROR("application_ is nullptr");
+        return;
+    }
+
+    std::string specifiedProcessFlag;
+    application_->ScheduleNewProcessRequest(want, moduleName, specifiedProcessFlag);
+
+    if (!appMgr_ || !applicationImpl_) {
+        HILOG_ERROR("appMgr_ is nullptr");
+        return;
+    }
+
+    appMgr_->ScheduleNewProcessRequestDone(applicationImpl_->GetRecordId(), want, specifiedProcessFlag);
+}
+
+void MainThread::ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName)
+{
+    HILOG_DEBUG("start");
+    wptr<MainThread> weak = this;
+    auto task = [weak, want, moduleName]() {
+        auto appThread = weak.promote();
+        if (appThread == nullptr) {
+            HILOG_ERROR("abilityThread is nullptr, ScheduleNewProcessRequest failed.");
+            return;
+        }
+        appThread->HandleScheduleNewProcessRequest(want, moduleName);
+    };
+    if (!mainHandler_->PostTask(task, "MainThread:ScheduleNewProcessRequest")) {
         HILOG_ERROR("PostTask task failed");
     }
 }

@@ -70,8 +70,8 @@ EXTERN_C_END
 
 static napi_module _module = {
     .nm_filename = "app/ability/wantagent_napi.so/want_agent.js",
-    .nm_modname = "app.ability.wantAgent",
     .nm_register_func = OHOS::JsNapiWantAgentInit,
+    .nm_modname = "app.ability.wantAgent",
 };
 
 extern "C" __attribute__((constructor))

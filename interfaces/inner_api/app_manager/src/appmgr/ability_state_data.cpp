@@ -25,7 +25,8 @@ bool AbilityStateData::Marshalling(Parcel &parcel) const
         parcel.WriteString(abilityName) && parcel.WriteInt32(abilityState) &&
         parcel.WriteInt32(pid) && parcel.WriteInt32(uid) &&
         (static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(token) &&
-        parcel.WriteInt32(abilityType) && parcel.WriteBool(isFocused));
+        parcel.WriteInt32(abilityType) && parcel.WriteBool(isFocused) && parcel.WriteString(callerBundleName) &&
+        parcel.WriteString(callerAbilityName));
 }
 
 bool AbilityStateData::ReadFromParcel(Parcel &parcel)
@@ -47,6 +48,10 @@ bool AbilityStateData::ReadFromParcel(Parcel &parcel)
     abilityType = parcel.ReadInt32();
 
     isFocused = parcel.ReadBool();
+
+    callerBundleName = parcel.ReadString();
+
+    callerAbilityName = parcel.ReadString();
     return true;
 }
 

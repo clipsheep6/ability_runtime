@@ -353,7 +353,7 @@ ErrCode AccessibilityAbilityShellCommand::MakeEnableCommandArgumentFromCmd(Acces
 
         option = getopt_long(argc_, argv_, ENABLE_SHORT_OPTIONS.c_str(), ENABLE_LONG_OPTIONS, nullptr);
 
-        HILOG_INFO("option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
+        HILOG_INFO("option: %{public}d, optind: %{public}d, optopt: %{public}d", option, optind, optopt);
 
         if (optind < 0 || optind > argc_) {
             return OHOS::ERR_INVALID_VALUE;
@@ -624,23 +624,23 @@ ErrCode AccessibilityAbilityShellCommand::CheckEnableCommandArgument(const Acces
             resultMessage.append("and exist duplicated arguments");
         }
         if (argument.unknownArgumentNum > 0) {
-            resultMessage.append("and exist unknown arguments ");
+            resultMessage.append("and exist unknown arguments.");
             resultMessage.append(AccessibilityUtils::GetUnknownArgumentsMsg(argument.unknownArguments));
         }
         return OHOS::ERR_INVALID_VALUE;
     }
     if (argument.unknownArgumentNum > 0) {
-        resultMessage.append("unknown arguments ");
+        resultMessage.append("unknown arguments.");
         resultMessage.append(AccessibilityUtils::GetUnknownArgumentsMsg(argument.unknownArguments));
         return OHOS::ERR_INVALID_VALUE;
     }
     std::vector<Accessibility::AccessibilityAbilityInfo> installedAbilities = GetInstalledAbilities();
     if (!CheckAbilityArgument(argument, resultMessage)) {
-        HILOG_ERROR("abilityName = %{public}s is invalid", argument.abilityName.c_str());
+        HILOG_ERROR("abilityName = %{public}s is invalid.", argument.abilityName.c_str());
         return OHOS::ERR_INVALID_VALUE;
     }
     if (!CheckBundleArgument(argument, resultMessage)) {
-        HILOG_ERROR("bundleName = %{public}s is invalid", argument.bundleName.c_str());
+        HILOG_ERROR("bundleName = %{public}s is invalid.", argument.bundleName.c_str());
         return OHOS::ERR_INVALID_VALUE;
     }
     if (!CheckCapabilitiesArgument(argument, installedAbilities, resultMessage)) {
@@ -694,16 +694,16 @@ ErrCode AccessibilityAbilityShellCommand::CheckCommandArgument(const Accessibili
     if (totalArgumentNum > ACCESSIBILITY_DISABLE_COMMAND_ARGUMENT_NUM) {
         resultReceiver_.append(ACCESSIBILITY_ABILITY_TOO_MANY_ARGUMENT);
         if (argument.bundleArgumentNum > 1 || argument.abilityArgumentNum > 1) {
-            resultMessage.append("and exist duplicated arguments.");
+            resultMessage.append("and duplicated arguments exist.");
         }
         if (argument.unknownArgumentNum > 0) {
-            resultMessage.append("and exist unknown arguments ");
+            resultMessage.append("and unknown arguments exist.");
             resultMessage.append(AccessibilityUtils::GetUnknownArgumentsMsg(argument.unknownArguments));
         }
         return OHOS::ERR_INVALID_VALUE;
     }
     if (argument.unknownArgumentNum > 0) {
-        resultMessage.append("unknown arguments ");
+        resultMessage.append("unknown arguments exist.");
         resultMessage.append(AccessibilityUtils::GetUnknownArgumentsMsg(argument.unknownArguments));
         return OHOS::ERR_INVALID_VALUE;
     }
@@ -1198,7 +1198,7 @@ ErrCode AccessibilityAbilityShellCommand::MakeCommandArgumentFromCmd(Accessibili
         counter++;
         option = getopt_long(argc_, argv_, DISABLE_SHORT_OPTIONS.c_str(), DISABLE_LONG_OPTIONS, nullptr);
 
-        HILOG_INFO("option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
+        HILOG_INFO("optopt: %{public}d, option: %{public}d, optind: %{public}d", optopt, option, optind);
 
         if (optind < 0 || optind > argc_) {
             return OHOS::ERR_INVALID_VALUE;
@@ -1260,7 +1260,7 @@ ErrCode AccessibilityAbilityShellCommand::MakeSetCommandArgumentFromCmd(Accessib
 
         option = getopt_long(argc_, argv_, SET_SHORT_OPTIONS.c_str(), SET_LONG_OPTIONS, nullptr);
 
-        HILOG_INFO("option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
+        HILOG_INFO("optind: %{public}d, optopt: %{public}d, option: %{public}d", optind, optopt, option);
 
         if (optind < 0 || optind > argc_) {
             return OHOS::ERR_INVALID_VALUE;

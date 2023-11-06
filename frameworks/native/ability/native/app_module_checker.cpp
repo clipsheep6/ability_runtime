@@ -32,3 +32,8 @@ bool AppModuleChecker::CheckModuleLoadable(const char* moduleName)
     }
     return false;
 }
+
+bool AppModuleChecker::DiskCheckOnly()
+{
+    return false;
+}

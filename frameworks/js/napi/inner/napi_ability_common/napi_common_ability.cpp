@@ -535,7 +535,7 @@ void GetOrCreateDistributedDirExecuteCallback(napi_env, void *data)
 napi_value NAPI_GetOrCreateDistributedDirWrap(
     napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_INFO("%{public}s start", __func__);
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value jsthis = nullptr;
@@ -644,7 +644,7 @@ void GetCacheDirExecuteCallback(napi_env, void *data)
  */
 napi_value NAPI_GetCacheDirWrap(napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_INFO("%{public}s begin", __func__);
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value jsthis = nullptr;
@@ -653,13 +653,13 @@ napi_value NAPI_GetCacheDirWrap(napi_env env, napi_callback_info info, AsyncJSCa
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
 
     if (argc > ARGS_ONE) {
-        HILOG_ERROR("%{public}s called, parameters is invalid.", __func__);
+        HILOG_ERROR("%{public}s called, arguments is invalid.", __func__);
         return nullptr;
     }
 
     if (argc == ARGS_ONE) {
         if (!CreateAsyncCallback(env, args[PARAM0], asyncCallbackInfo)) {
-            HILOG_ERROR("%{public}s called, the first parameter is invalid.", __func__);
+            HILOG_ERROR("%{public}s called, the first argument is invalid.", __func__);
             return nullptr;
         }
     }
@@ -1152,7 +1152,7 @@ napi_value GetAppTypeWrap(napi_env env, napi_callback_info info, AppTypeCB *appT
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, Wrong arguments count.", __func__);
         return nullptr;
     }
 
@@ -1667,7 +1667,7 @@ napi_value GetAbilityInfoWrap(napi_env env, napi_callback_info info, AbilityInfo
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, Wrong parameter count.", __func__);
         return nullptr;
     }
 
@@ -1997,7 +1997,7 @@ napi_value GetHapModuleInfoWrap(napi_env env, napi_callback_info info, HapModule
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, Wrong parameters count.", __func__);
         return nullptr;
     }
 
@@ -2267,7 +2267,7 @@ napi_value GetAppVersionInfoWrap(napi_env env, napi_callback_info info, AppVersi
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, fail argument count.", __func__);
         return nullptr;
     }
 
@@ -2403,6 +2403,7 @@ napi_value GetContextAsync(
     napi_valuetype valuetype = napi_undefined;
     napi_typeof(env, args[argCallback], &valuetype);
     if (valuetype == napi_function) {
+        HILOG_DEBUG("napi_create_reference");
         napi_create_reference(env, args[argCallback], 1, &asyncCallbackInfo->cbInfo.callback);
     }
     napi_create_async_work(
@@ -2449,7 +2450,7 @@ napi_value GetContextPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
 {
     HILOG_INFO("%{public}s, promise.", __func__);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("%{public}s, param == nullptr", __func__);
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -2584,7 +2585,7 @@ napi_value GetWantAsync(napi_env env, napi_value *args, const size_t argCallback
 {
     HILOG_INFO("%{public}s, asyncCallback.", __func__);
     if (args == nullptr || asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("%{public}s, parameter == nullptr.", __func__);
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -2593,6 +2594,7 @@ napi_value GetWantAsync(napi_env env, napi_value *args, const size_t argCallback
     napi_valuetype valuetype = napi_undefined;
     napi_typeof(env, args[argCallback], &valuetype);
     if (valuetype == napi_function) {
+        HILOG_DEBUG("napi_create_reference.");
         napi_create_reference(env, args[argCallback], 1, &asyncCallbackInfo->cbInfo.callback);
     }
     napi_create_async_work(
@@ -2639,7 +2641,7 @@ napi_value GetWantPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
 {
     HILOG_INFO("%{public}s, promise.", __func__);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("%{public}s, parameter == nullptr.", __func__);
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -2702,7 +2704,7 @@ napi_value GetWantWrap(napi_env env, napi_callback_info info, AsyncCallbackInfo 
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, error argument count.", __func__);
         return nullptr;
     }
 
@@ -2978,7 +2980,7 @@ napi_value GetAbilityNameWrap(napi_env env, napi_callback_info info, AbilityName
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, argument count wrong.", __func__);
         return nullptr;
     }
 
@@ -3910,14 +3912,14 @@ napi_value NAPI_StartBackgroundRunningCommon(napi_env env, napi_callback_info in
     asyncCallbackInfo->errCode = NAPI_ERR_NO_ERROR;
     napi_value ret = StartBackgroundRunningWrap(env, info, asyncCallbackInfo);
     if (ret == nullptr) {
-        HILOG_ERROR("%{public}s ret == nullpter", __func__);
+        HILOG_ERROR("%{public}s ret == null", __func__);
         if (asyncCallbackInfo != nullptr) {
             delete asyncCallbackInfo;
             asyncCallbackInfo = nullptr;
         }
         ret = WrapVoidToJS(env);
     }
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("%{public}s finish.", __func__);
     return ret;
 }
 
@@ -3936,7 +3938,7 @@ napi_value CancelBackgroundRunningAsync(
 {
     HILOG_INFO("%{public}s, asyncCallback.", __func__);
     if (args == nullptr || asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("%{public}s, param == nullptr", __func__);
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -3967,7 +3969,7 @@ napi_value CancelBackgroundRunningPromise(napi_env env, AsyncCallbackInfo *async
 {
     HILOG_INFO("%{public}s, promise.", __func__);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("%{public}s, param == null.", __func__);
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -4467,6 +4469,7 @@ napi_value JsNapiCommon::JsGetCacheDir(napi_env env, napi_callback_info info, co
     auto complete = [obj = this, dir = cacheDir, value = errorVal]
         (napi_env env, NapiAsyncTask &task, int32_t status) {
         if (*value != static_cast<int32_t>(NAPI_ERR_NO_ERROR) || dir == nullptr) {
+            HILOG_DEBUG("JsCacheDir is null or errorVal is error");
             auto ecode = dir == nullptr ? static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID) : *value;
             task.Reject(env, CreateJsError(env, ecode, obj->ConvertErrorCode(ecode)));
             return;
@@ -4485,7 +4488,7 @@ napi_value JsNapiCommon::JsGetCacheDir(napi_env env, napi_callback_info info, co
 napi_value JsNapiCommon::JsGetCtxAppType(
     napi_env env, napi_callback_info info, const AbilityType abilityType)
 {
-    HILOG_DEBUG("called");
+    HILOG_DEBUG("JsGetCtxAppType called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
@@ -4533,7 +4536,7 @@ napi_value JsNapiCommon::JsGetCtxAppType(
 napi_value JsNapiCommon::JsGetCtxHapModuleInfo(
     napi_env env, napi_callback_info info, const AbilityType abilityType)
 {
-    HILOG_DEBUG("called");
+    HILOG_DEBUG("JsGetCtxHapModuleInfo called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
@@ -4565,6 +4568,7 @@ napi_value JsNapiCommon::JsGetCtxHapModuleInfo(
     auto complete = [obj = this, info = infoData, value = errorVal]
         (napi_env env, NapiAsyncTask &task, int32_t status) {
         if (*value != static_cast<int32_t>(NAPI_ERR_NO_ERROR) || info == nullptr) {
+            HILOG_DEBUG("JsHapModuleInfo is null or errorVal is 0.");
             auto ecode = info == nullptr ? static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID) : *value;
             task.Reject(env, CreateJsError(env, ecode, obj->ConvertErrorCode(ecode)));
             return;
@@ -4583,12 +4587,12 @@ napi_value JsNapiCommon::JsGetCtxHapModuleInfo(
 napi_value JsNapiCommon::JsGetAppVersionInfo(
     napi_env env, napi_callback_info info, const AbilityType abilityType)
 {
-    HILOG_DEBUG("called");
+    HILOG_DEBUG("JsGetAppVersionInfo called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (argc > ARGS_ONE) {
-        HILOG_ERROR("input params count error, argc=%{public}zu", argc);
+        HILOG_ERROR("input arguments count error, argc=%{public}zu", argc);
         return CreateJsUndefined(env);
     }
 
@@ -4597,7 +4601,7 @@ napi_value JsNapiCommon::JsGetAppVersionInfo(
     auto execute = [obj = this, appInfo = infoData, value = errorVal, abilityType] () {
         if (obj->ability_ == nullptr) {
             *value = static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
-            HILOG_ERROR("task execute error, the ability is nullptr");
+            HILOG_ERROR("task execute error, the ability is null");
             return;
         }
         if (!obj->CheckAbilityType(abilityType)) {
@@ -4614,6 +4618,7 @@ napi_value JsNapiCommon::JsGetAppVersionInfo(
     };
     auto complete = [obj = this, info = infoData, value = errorVal]
         (napi_env env, NapiAsyncTask &task, int32_t status) {
+            HILOG_DEBUG("JsHapModuleInfo is null or errorVal is 0");
         if (*value != static_cast<int32_t>(NAPI_ERR_NO_ERROR) || info == nullptr) {
             auto ecode = info == nullptr ? static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID) : *value;
             task.Reject(env, CreateJsError(env, ecode, obj->ConvertErrorCode(ecode)));
@@ -4633,7 +4638,7 @@ napi_value JsNapiCommon::JsGetAppVersionInfo(
 napi_value JsNapiCommon::JsGetCtxAbilityInfo(
     napi_env env, napi_callback_info info, const AbilityType abilityType)
 {
-    HILOG_DEBUG("called");
+    HILOG_DEBUG("JsGetCtxAbilityInfo called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
@@ -4665,6 +4670,7 @@ napi_value JsNapiCommon::JsGetCtxAbilityInfo(
     auto complete = [obj = this, info = infoData, value = errorVal]
         (napi_env env, NapiAsyncTask &task, int32_t status) {
         if (*value != static_cast<int32_t>(NAPI_ERR_NO_ERROR) || info == nullptr) {
+            HILOG_DEBUG("errorVal is 0 or JsHapModuleInfo is null.");
             auto ecode = info == nullptr ? static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID) : *value;
             task.Reject(env, CreateJsError(env, ecode, obj->ConvertErrorCode(ecode)));
             return;
@@ -4683,7 +4689,7 @@ napi_value JsNapiCommon::JsGetCtxAbilityInfo(
 napi_value JsNapiCommon::JsGetOrCreateDistributedDir(
     napi_env env, napi_callback_info info, const AbilityType abilityType)
 {
-    HILOG_DEBUG("called");
+    HILOG_DEBUG("JsGetOrCreateDistributedDir called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
@@ -4715,6 +4721,7 @@ napi_value JsNapiCommon::JsGetOrCreateDistributedDir(
     auto complete = [obj = this, dir = orCreateDistributedDir, value = errorVal]
         (napi_env env, NapiAsyncTask &task, int32_t status) {
         if (*value != static_cast<int32_t>(NAPI_ERR_NO_ERROR) || dir == nullptr) {
+            HILOG_DEBUG("errorVal is error or JsCacheDir is null");
             auto ecode = dir == nullptr ? static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID) : *value;
             task.Reject(env, CreateJsError(env, ecode, obj->ConvertErrorCode(ecode)));
             return;
@@ -4733,7 +4740,7 @@ napi_value JsNapiCommon::JsGetOrCreateDistributedDir(
 #ifdef SUPPORT_GRAPHICS
 napi_value JsNapiCommon::JsGetDisplayOrientation(napi_env env, napi_callback_info info, const AbilityType abilityType)
 {
-    HILOG_DEBUG("called");
+    HILOG_DEBUG("JsGetDisplayOrientation called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
@@ -5345,6 +5352,7 @@ napi_value JsNapiCommon::JsGetExternalCacheDir(napi_env env, napi_callback_info 
 void JsNapiCommon::AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback)
 {
     // adapter free install async return install and start result
+    HILOG_DEBUG("AddFreeInstallObserver start.");
     int ret = 0;
     if (freeInstallObserver_ == nullptr) {
         freeInstallObserver_ = new JsFreeInstallObserver(env);
@@ -5352,7 +5360,7 @@ void JsNapiCommon::AddFreeInstallObserver(napi_env env, const AAFwk::Want &want,
     }
 
     if (ret != ERR_OK) {
-        HILOG_ERROR("AddFreeInstallObserver error.");
+        HILOG_ERROR("AddFreeInstallObserver wrong.");
     } else {
         HILOG_INFO("AddJsObserverObject");
         // build a callback observer with last param

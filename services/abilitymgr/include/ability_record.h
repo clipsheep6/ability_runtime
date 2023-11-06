@@ -223,11 +223,14 @@ struct AbilityRequest {
     int callerUid = -1;
     AbilityCallType callType = AbilityCallType::INVALID_TYPE;
     sptr<IRemoteObject> callerToken = nullptr;
+    sptr<IRemoteObject> asCallerSoureToken = nullptr;
     uint32_t callerAccessTokenId = -1;
     sptr<IAbilityConnection> connect = nullptr;
 
     std::shared_ptr<AbilityStartSetting> startSetting = nullptr;
     std::string specifiedFlag;
+    int32_t userId = -1;
+    bool callSpecifiedFlagTimeout = false;
     sptr<IRemoteObject> abilityInfoCallback = nullptr;
 
     AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
@@ -807,6 +810,7 @@ public:
     int32_t GetRestartCount() const;
     void SetRestartCount(int32_t restartCount);
     void SetKeepAlive();
+    bool GetKeepAlive() const;
     int64_t GetRestartTime();
     void SetRestartTime(const int64_t restartTime);
     void SetAppIndex(const int32_t appIndex);
@@ -908,7 +912,7 @@ private:
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
     void GrantUriPermission(Want &want, std::string targetBundleName, bool isSandboxApp, uint32_t tokenId);
     void GrantDmsUriPermission(Want &want, std::string targetBundleName);
-    bool IsDmsCall();
+    bool IsDmsCall(Want &want);
     int32_t GetCurrentAccountId() const;
 
     /**

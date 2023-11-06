@@ -70,6 +70,7 @@ napi_value OnConnectPromiseCallback(napi_env env, napi_callback_info info)
     callbackInfo->Call(service);
     AppExecFwk::AbilityTransactionCallbackInfo<sptr<IRemoteObject>>::Destroy(callbackInfo);
     data = nullptr;
+    HILOG_DEBUG("end");
     return nullptr;
 }
 }
@@ -428,6 +429,7 @@ napi_value JsServiceExtension::CallObjectMethod(const char* name, napi_value con
 
 void JsServiceExtension::GetSrcPath(std::string &srcPath)
 {
+    HILOG_DEBUG("GetSrcPath start.");
     if (!Extension::abilityInfo_->isModuleJson) {
         /* temporary compatibility api8 + config.json */
         srcPath.append(Extension::abilityInfo_->package);
@@ -547,7 +549,7 @@ bool JsServiceExtension::CallPromise(napi_value result, AppExecFwk::AbilityTrans
     bool isCallable = false;
     napi_is_callable(env, then, &isCallable);
     if (!isCallable) {
-        HILOG_ERROR("CallPromise, property then is not callable.");
+        HILOG_ERROR("CallPromise, Property then is not callable.");
         return false;
     }
     HandleScope handleScope(jsRuntime_);

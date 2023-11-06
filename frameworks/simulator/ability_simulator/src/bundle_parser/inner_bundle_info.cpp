@@ -740,6 +740,7 @@ void from_json(const nlohmann::json &jsonObject, Dependency &dependency)
 
 void from_json(const nlohmann::json &jsonObject, Distro &distro)
 {
+    HILOG_DEBUG("from_json start.");
     const auto &jsonObjectEnd = jsonObject.end();
     int32_t parseResult = ERR_OK;
     GetValueIfFindKey<bool>(jsonObject,

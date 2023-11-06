@@ -41,19 +41,6 @@ private:
     std::mutex mutex_;
 };
 
-class NAPIDataAbilityHelperWrapper {
-public:
-    explicit NAPIDataAbilityHelperWrapper(std::weak_ptr<DataAbilityHelper>&& dataAbilityHelper)
-        : dataAbilityHelper_(dataAbilityHelper) {}
-    inline std::shared_ptr<DataAbilityHelper> GetDataAbilityHelper() const
-    {
-        return dataAbilityHelper_.lock();
-    }
-
-private:
-    std::weak_ptr<DataAbilityHelper> dataAbilityHelper_;
-};
-
 /**
  * @brief DataAbilityHelper NAPI module registration.
  *

@@ -18,8 +18,8 @@
 
 static napi_module _module = {
     .nm_filename = "libfeatureability_napi.so/featureAbility.js",
-    .nm_modname = "FeatureAbility",
     .nm_register_func = OHOS::AbilityRuntime::JsFeatureAbilityInit,
+    .nm_modname = "FeatureAbility",
 };
 
 extern "C" __attribute__((constructor)) void NAPI_application_formInfo_AutoRegister()

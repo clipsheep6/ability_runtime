@@ -167,6 +167,8 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, 
                 EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType);
             break;
         case EventName::DRAWN_COMPLETED:
+            HILOG_INFO("HiSysEvent name: DRAWN_COMPLETED, bundleName: %{public}s, abilityName: %{public}s",
+                eventInfo.bundleName.c_str(), eventInfo.abilityName.c_str());
             HiSysEventWrite(
                 HiSysEvent::Domain::AAFWK,
                 name,

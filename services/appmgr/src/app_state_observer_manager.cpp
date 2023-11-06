@@ -16,6 +16,8 @@
 #include "app_state_observer_manager.h"
 #include "application_state_observer_stub.h"
 #include "hilog_wrapper.h"
+#include "in_process_call_wrapper.h"
+#include "remote_client_manager.h"
 #include "ui_extension_utils.h"
 
 namespace OHOS {
@@ -371,10 +373,12 @@ void AppStateObserverManager::HandleStateChangedNotifyObserver(const AbilityStat
 {
     std::lock_guard<ffrt::mutex> lockNotify(observerLock_);
     HILOG_DEBUG("Handle state change, module:%{public}s, bundle:%{public}s, ability:%{public}s, state:%{public}d,"
-        "pid:%{public}d ,uid:%{public}d, abilityType:%{public}d, isAbility:%{public}d",
+        "pid:%{public}d ,uid:%{public}d, abilityType:%{public}d, isAbility:%{public}d, callerBundleName:%{public}s,"
+        "callerAbilityName:%{public}s",
         abilityStateData.moduleName.c_str(), abilityStateData.bundleName.c_str(),
         abilityStateData.abilityName.c_str(), abilityStateData.abilityState,
-        abilityStateData.pid, abilityStateData.uid, abilityStateData.abilityType, isAbility);
+        abilityStateData.pid, abilityStateData.uid, abilityStateData.abilityType, isAbility,
+        abilityStateData.callerBundleName.c_str(), abilityStateData.callerAbilityName.c_str());
     for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
         std::vector<std::string>::iterator iter = std::find(it->second.begin(),
             it->second.end(), abilityStateData.bundleName);
@@ -627,6 +631,20 @@ AppStateData AppStateObserverManager::WrapAppStateData(const std::shared_ptr<App
             }
         }
     }
+    std::shared_ptr<RemoteClientManager> remoteClientManager = std::make_shared<RemoteClientManager>();
+    auto bundleMgr = remoteClientManager->GetBundleManager();
+    std::string callerBundleName;
+    if (bundleMgr != nullptr &&
+        IN_PROCESS_CALL(bundleMgr->GetNameForUid(appRecord->GetCallerUid(), callerBundleName)) == ERR_OK) {
+        appStateData.callerBundleName = callerBundleName;
+    } else {
+        appStateData.callerBundleName = "";
+        HILOG_ERROR("Get caller bundleName failed.");
+    }
+    HILOG_DEBUG("Handle state change, bundle:%{public}s, state:%{public}d,"
+        "pid:%{public}d ,uid:%{public}d, isFocused:%{public}d, callerBUndleName: %{public}s",
+        appStateData.bundleName.c_str(), appStateData.state,
+        appStateData.pid, appStateData.uid, appStateData.isFocused, appStateData.callerBundleName.c_str());
     return appStateData;
 }
 

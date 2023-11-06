@@ -36,6 +36,7 @@ public:
     ~AppModuleChecker() override = default;
 
     bool CheckModuleLoadable(const char* moduleName) override;
+    bool DiskCheckOnly() override;
 protected:
     int32_t processExtensionType_{EXTENSION_TYPE_UNKNOWN};
     std::unordered_map<int32_t, std::unordered_set<std::string>> moduleBlocklist_;

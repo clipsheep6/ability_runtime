@@ -73,7 +73,7 @@ void AtomicServiceStatusCallbackProxy::OnRemoteInstallFinished(int resultCode, c
     }
 
     if (!data.WriteInt32(resultCode)) {
-        HILOG_ERROR("Write resultCode error.");
+        HILOG_ERROR("Write resultCode failed.");
         return;
     }
 
@@ -83,7 +83,7 @@ void AtomicServiceStatusCallbackProxy::OnRemoteInstallFinished(int resultCode, c
     }
 
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("Write userId error.");
+        HILOG_ERROR("Write userId failed.");
         return;
     }
 

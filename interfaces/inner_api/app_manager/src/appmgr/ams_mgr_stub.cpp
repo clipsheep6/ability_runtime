@@ -105,7 +105,7 @@ int AmsMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParce
     std::u16string descriptor = AmsMgrStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_ERROR("local descriptor is not equal to remote");
+        HILOG_ERROR("local descriptor is unequal to remote");
         return ERR_INVALID_STATE;
     }
 
@@ -116,6 +116,7 @@ int AmsMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParce
             return (this->*memberFunc)(data, reply);
         }
     }
+    HILOG_INFO("AmsMgrStub::OnRemoteRequest end");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
@@ -407,7 +408,7 @@ int32_t AmsMgrStub::HandleRegisterAppDebugListener(MessageParcel &data, MessageP
     HILOG_DEBUG("Called.");
     auto appDebugLister = iface_cast<IAppDebugListener>(data.ReadRemoteObject());
     if (appDebugLister == nullptr) {
-        HILOG_ERROR("App debug lister is nullptr.");
+        HILOG_ERROR("App debug lister is null.");
         return ERR_INVALID_VALUE;
     }
 

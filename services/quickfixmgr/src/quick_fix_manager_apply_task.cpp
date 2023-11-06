@@ -627,12 +627,12 @@ void QuickFixManagerApplyTask::PostNotifyLoadRepairPatchTask()
     auto loadPatchTask = [thisWeakPtr, callback]() {
         auto applyTask = thisWeakPtr.lock();
         if (applyTask == nullptr) {
-            HILOG_ERROR("Apply task is nullptr.");
+            HILOG_ERROR("Apply task is nullptr");
             return;
         }
 
         if (applyTask->appMgr_ == nullptr) {
-            HILOG_ERROR("Appmgr is nullptr.");
+            HILOG_ERROR("Appmgr is nullptr");
             applyTask->NotifyApplyStatus(QUICK_FIX_APPMGR_INVALID);
             applyTask->RemoveSelf();
             return;
@@ -689,12 +689,12 @@ void QuickFixManagerApplyTask::PostNotifyHotReloadPageTask()
     auto reloadPageTask = [thisWeakPtr, callback]() {
         auto applyTask = thisWeakPtr.lock();
         if (applyTask == nullptr) {
-            HILOG_ERROR("Apply task is nullptr.");
+            HILOG_ERROR("Apply task is nullptr!");
             return;
         }
 
         if (applyTask->appMgr_ == nullptr) {
-            HILOG_ERROR("Appmgr is nullptr.");
+            HILOG_ERROR("Appmgr is nullptr!");
             applyTask->NotifyApplyStatus(QUICK_FIX_APPMGR_INVALID);
             applyTask->RemoveSelf();
             return;

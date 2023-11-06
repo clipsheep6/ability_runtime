@@ -97,7 +97,7 @@ ErrCode ExtensionManagerClient::ConnectServiceExtensionAbility(const Want &want,
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetExtensionManager();
     if (abms == nullptr) {
-        HILOG_ERROR("Connect service failed, bundleName:%{public}s, abilityName:%{public}s",
+        HILOG_ERROR("Connect service failed, bundleName:%{public}s, abilityName:%{public}s.",
             want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str());
         return ABILITY_SERVICE_NOT_CONNECTED;
     }
@@ -113,7 +113,7 @@ ErrCode ExtensionManagerClient::ConnectServiceExtensionAbility(const Want &want,
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetExtensionManager();
     if (abms == nullptr) {
-        HILOG_ERROR("Connect service failed, bundleName:%{public}s, abilityName:%{public}s",
+        HILOG_ERROR("Connect service failed, bundleName:%{public}s, abilityName:%{public}s.",
             want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str());
         return ABILITY_SERVICE_NOT_CONNECTED;
     }

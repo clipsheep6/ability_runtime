@@ -30,6 +30,7 @@ enum class MemoryLevel {
 
 static napi_status SetEnumItem(napi_env env, napi_value object, const char* name, int32_t value)
 {
+    HILOG_DEBUG("SetEnumItem start");
     napi_status status;
     napi_value itemName;
     napi_value itemValue;
@@ -39,6 +40,7 @@ static napi_status SetEnumItem(napi_env env, napi_value object, const char* name
 
     NAPI_CALL_BASE(env, status = napi_set_property(env, object, itemName, itemValue), status);
     NAPI_CALL_BASE(env, status = napi_set_property(env, object, itemValue, itemName), status);
+    HILOG_DEBUG("SetEnumItem end");
 
     return napi_ok;
 }

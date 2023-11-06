@@ -159,7 +159,7 @@ ErrCode AbilityManagerClient::StartAbilityByInsightIntent(
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_DEBUG("ability:%{public}s, bundle:%{public}s, intentId:%{public}llu",
+    HILOG_DEBUG("ability:%{public}s, bundle:%{public}s, intentId:%{public}" PRIu64,
         want.GetElement().GetAbilityName().c_str(), want.GetElement().GetBundleName().c_str(), intentId);
     HandleDlpApp(const_cast<Want &>(want));
     return abms->StartAbilityByInsightIntent(want, callerToken, intentId, userId);
@@ -187,7 +187,8 @@ ErrCode AbilityManagerClient::StartAbility(const Want &want, const StartOptions 
 }
 
 ErrCode AbilityManagerClient::StartAbilityAsCaller(
-    const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
+    const Want &want, const sptr<IRemoteObject> &callerToken,
+    sptr<IRemoteObject> asCallerSoureToken, int requestCode, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
@@ -195,18 +196,19 @@ ErrCode AbilityManagerClient::StartAbilityAsCaller(
     HILOG_INFO("ability:%{public}s, userId:%{public}d.",
                want.GetElement().GetAbilityName().c_str(), userId);
     HandleDlpApp(const_cast<Want &>(want));
-    return abms->StartAbilityAsCaller(want, callerToken, userId, requestCode);
+    return abms->StartAbilityAsCaller(want, callerToken, asCallerSoureToken, userId, requestCode);
 }
 
 ErrCode AbilityManagerClient::StartAbilityAsCaller(const Want &want, const StartOptions &startOptions,
-    const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
+    const sptr<IRemoteObject> &callerToken, sptr<IRemoteObject> asCallerSourceToken,
+    int requestCode, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     HILOG_INFO("abilityName:%{public}s, userId:%{public}d", want.GetElement().GetAbilityName().c_str(), userId);
     HandleDlpApp(const_cast<Want &>(want));
-    return abms->StartAbilityAsCaller(want, startOptions, callerToken, userId, requestCode);
+    return abms->StartAbilityAsCaller(want, startOptions, callerToken, asCallerSourceToken, userId, requestCode);
 }
 
 ErrCode AbilityManagerClient::StartAbilityByUIContentSession(const Want &want, const StartOptions &startOptions,
@@ -1041,7 +1043,7 @@ ErrCode AbilityManagerClient::GetTopAbility(sptr<IRemoteObject> &token)
     return abms->GetTopAbility(token);
 }
 
-AppExecFwk::ElementName AbilityManagerClient::GetElementNameByToken(const sptr<IRemoteObject> &token,
+AppExecFwk::ElementName AbilityManagerClient::GetElementNameByToken(sptr<IRemoteObject> token,
     bool isNeedLocalDeviceId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -1608,6 +1610,15 @@ ErrCode AbilityManagerClient::DetachAppDebug(const std::string &bundleName)
     return abms->DetachAppDebug(bundleName);
 }
 
+ErrCode AbilityManagerClient::ExecuteIntent(uint64_t key, const sptr<IRemoteObject> &callerToken,
+    const InsightIntentExecuteParam &param)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->ExecuteIntent(key, callerToken, param);
+}
+
 bool AbilityManagerClient::IsAbilityControllerStart(const Want &want)
 {
     HILOG_DEBUG("call");
@@ -1618,5 +1629,14 @@ bool AbilityManagerClient::IsAbilityControllerStart(const Want &want)
     }
     return abms->IsAbilityControllerStart(want);
 }
-}  // namespace AAFwk
-}  // namespace OHOS
+
+ErrCode AbilityManagerClient::ExecuteInsightIntentDone(const sptr<IRemoteObject> &token, uint64_t intentId,
+    const InsightIntentExecuteResult &result)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->ExecuteInsightIntentDone(token, intentId, result);
+}
+} // namespace AAFwk
+} // namespace OHOS

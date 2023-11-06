@@ -45,7 +45,7 @@ int32_t PrepareTerminateCallbackStub::OnRemoteRequest(
             return (this->*requestFunc)(data, reply);
         }
     }
-    HILOG_WARN("default case, need check.");
+    HILOG_WARN("default case, needs to be checked.");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 

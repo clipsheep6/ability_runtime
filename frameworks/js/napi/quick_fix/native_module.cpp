@@ -19,8 +19,8 @@
 static napi_module _module = {
     .nm_version = 0,
     .nm_filename = "app/ability/libquickfixmanager_napi.so/quickfixmanager.js",
-    .nm_modname = "app.ability.quickFixManager",
     .nm_register_func = OHOS::AbilityRuntime::CreateJsQuickFixManager,
+    .nm_modname = "app.ability.quickFixManager",
 };
 extern "C" __attribute__((constructor))
 void NAPI_app_ability_quickfixmanager_AutoRegister()

@@ -49,7 +49,7 @@ int QuickFixManagerStub::OnRemoteRequest(
         }
     }
 
-    HILOG_WARN("default case, need check value of code.");
+    HILOG_WARN("default case, need check value of code");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 

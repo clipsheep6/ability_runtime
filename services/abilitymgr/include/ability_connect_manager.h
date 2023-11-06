@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -198,16 +198,6 @@ public:
     }
 
     /**
-     * GetConnectMap.
-     *
-     * @return Returns connection record list.
-     */
-    inline const ConnectMapType &GetConnectMap() const
-    {
-        return connectMap_;
-    }
-
-    /**
      * GetServiceMap.
      *
      * @return Returns service ability record map.
@@ -229,7 +219,7 @@ public:
     void DumpStateByUri(std::vector<std::string> &info, bool isClient, const std::string &args,
         std::vector<std::string> &params);
 
-    void StopAllExtensions();
+    void PauseExtensions();
 
     void StartRootLauncher(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void OnTimeOut(uint32_t msgId, int64_t abilityRecordId);
@@ -248,6 +238,8 @@ public:
     bool IsUIExtensionFocused(uint32_t uiExtensionTokenId, const sptr<IRemoteObject>& focusToken);
 
     bool IsWindowExtensionFocused(uint32_t extensionTokenId, const sptr<IRemoteObject>& focusToken);
+
+    void HandleProcessFrozen(const std::unordered_set<int32_t> &pidSet, int32_t uid);
 
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
