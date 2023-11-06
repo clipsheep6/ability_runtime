@@ -247,6 +247,8 @@ public:
      * @return UIContent object of ACE.
      */
     Ace::UIContent* GetUIContent() override;
+
+    ErrCode CreateModalUIExtension(const Want &want) override;
 #endif
 
 private:

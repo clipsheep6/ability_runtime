@@ -822,6 +822,8 @@ public:
      */
     virtual int32_t OnShare(WantParams &wantParams);
 
+    int CreateModalUIExtension(const Want &want);
+
 #ifdef SUPPORT_GRAPHICS
 public:
     friend class PageAbilityImpl;

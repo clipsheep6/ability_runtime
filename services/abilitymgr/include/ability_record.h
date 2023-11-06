@@ -894,6 +894,7 @@ public:
     bool GetLockedState();
 
     void SetAttachDebug(const bool isAttachDebug);
+    int32_t CreateModalUIExtension(const Want &want);
 
     AppExecFwk::ElementName GetElementName() const;
     bool IsDebugApp() const;

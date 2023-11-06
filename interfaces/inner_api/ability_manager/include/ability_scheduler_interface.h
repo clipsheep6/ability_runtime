@@ -21,6 +21,7 @@
 #include "pac_map.h"
 #include "ui_extension_window_command.h"
 #include "want.h"
+#include "dialog_session_info.h"
 
 namespace OHOS {
 namespace NativeRdb {
@@ -300,6 +301,7 @@ public:
     #endif
 
     virtual void CallRequest() = 0;
+    virtual int CreateModalUIExtension(const Want &want) = 0;
 
     enum {
         // ipc id for scheduling ability to a state of life cycle
@@ -396,6 +398,9 @@ public:
         SCHEDULE_ABILITY_PREPARE_TERMINATE,
 
         SCHEDULE_ONEXECUTE_INTENT,
+    
+        // ipc for create modal uiextension
+        CREATE_MODAL_UI_EXTENSION
     };
 };
 }  // namespace AAFwk

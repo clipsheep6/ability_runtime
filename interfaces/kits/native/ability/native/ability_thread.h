@@ -87,6 +87,8 @@ public:
      */
     virtual void NotifyMemoryLevel(int32_t level) = 0;
 
+    virtual int CreateModalUIExtension(const Want &want) override;
+
     /**
      * @brief  Provide operating system AbilityTransaction information to the observer
      * @param want Indicates the structure containing Transaction information about the ability.

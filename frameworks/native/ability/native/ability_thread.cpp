@@ -91,6 +91,12 @@ void AbilityThread::AbilityThreadMain(const std::shared_ptr<OHOSApplication> &ap
     HILOG_DEBUG("end");
 }
 
+int AbilityThread::CreateModalUIExtension(const Want &want)
+{
+    HILOG_DEBUG("called");
+    return ERR_OK;
+}
+
 void AbilityThread::ScheduleAbilityTransaction(
     const Want &want, const LifeCycleStateInfo &targetState, sptr<SessionInfo> sessionInfo)
 {

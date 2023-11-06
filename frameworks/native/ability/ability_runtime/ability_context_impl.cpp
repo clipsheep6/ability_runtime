@@ -766,6 +766,24 @@ ErrCode AbilityContextImpl::StartAbilityByType(const std::string &type,
     uiExtensionCallbacks->SetSessionId(sessionId);
     return ERR_OK;
 }
+
+ErrCode AbilityContextImpl::CreateModalUIExtension(const Want &want)
+{
+    HILOG_DEBUG("call");
+    auto uiContent = GetUIContent();
+    if (uiContent == nullptr) {
+        HILOG_ERROR("uiContent is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    Ace::ModalUIExtensionCallbacks callback;
+    Ace::ModalUIExtensionConfig config;
+    int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
+    if (sessionId == 0) {
+        HILOG_ERROR("CreateModalUIExtension is failed");
+        return ERR_INVALID_VALUE;
+    }
+    return ERR_OK;
+}
 #endif
 } // namespace AbilityRuntime
 } // namespace OHOS
