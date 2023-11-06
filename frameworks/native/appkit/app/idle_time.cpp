@@ -69,6 +69,7 @@ void IdleTime::EventTask()
     int64_t period = 0;
     int64_t lastVSyncTime = 0;
     VsyncError err = receiver_->GetVSyncPeriodAndLastTimeStamp(period, lastVSyncTime, true);
+    HILOG_DEBUG("EventTask Period %{public}lld, lastVSyncTime %{public}lld", period, lastVSyncTime);
     int64_t occurTimestamp = GetSysTimeNs();
     if (GSERROR_OK == err && period > 0 && lastVSyncTime > 0 && occurTimestamp > lastVSyncTime) {
         int64_t elapsedTime = occurTimestamp - lastVSyncTime;

@@ -24,7 +24,7 @@ class InsightIntentExecutor {
   }
 
   onExecuteInUIAbilityBackgroundMode(name, param) {
-    console.log(`onExecuteInUIAbilityForegroundMode $name$`);
+    console.log(`onExecuteInUIAbilityBackgroundMode $name$`);
     return {
       'code': 0
     };
