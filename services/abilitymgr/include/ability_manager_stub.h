@@ -267,6 +267,7 @@ private:
     int32_t ExecuteIntentInner(MessageParcel &data, MessageParcel &reply);
 
     int32_t IsAbilityControllerStartInner(MessageParcel &data, MessageParcel &reply);
+    int OpenFileInner(MessageParcel &data, MessageParcel &reply);
 
     //insight intent related
     int32_t StartAbilityByInsightIntentInner(MessageParcel &data, MessageParcel &reply);

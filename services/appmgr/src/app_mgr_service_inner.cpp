@@ -3216,6 +3216,7 @@ int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
     configuration_->Merge(changeKeyV, config);
     // all app
     int32_t result = appRunningManager_->UpdateConfiguration(config);
+    HandleConfigurationChange(config);
     if (result != ERR_OK) {
         HILOG_ERROR("update error, not notify");
         return result;
@@ -3228,6 +3229,16 @@ int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
         }
     }
     return result;
+}
+
+void AppMgrServiceInner::HandleConfigurationChange(const Configuration &config)
+{
+    std::lock_guard lock(appStateCallbacksLock_);
+    for (const auto &callback : appStateCallbacks_) {
+        if (callback != nullptr) {
+            callback->NotifyConfigurationChange(config, currentUserId_);
+        }
+    }
 }
 
 int32_t AppMgrServiceInner::RegisterConfigurationObserver(const sptr<IConfigurationObserver>& observer)

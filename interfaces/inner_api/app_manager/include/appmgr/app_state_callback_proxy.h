@@ -43,6 +43,13 @@ public:
      */
     virtual void OnAppStateChanged(const AppProcessData &appProcessData) override;
 
+    /**
+     * @brief Notify application update system environment changes.
+     * @param config System environment change parameters.
+     * @param userId userId Designation User ID.
+     */
+    virtual void NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId) override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     static inline BrokerDelegator<AppStateCallbackProxy> delegator_;

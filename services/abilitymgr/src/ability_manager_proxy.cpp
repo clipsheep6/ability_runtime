@@ -25,6 +25,7 @@
 #include "ability_scheduler_stub.h"
 #include "ability_util.h"
 #include "appexecfwk_errors.h"
+#include "configuration.h"
 #include "session_info.h"
 
 namespace OHOS {
@@ -4597,6 +4598,37 @@ int32_t AbilityManagerProxy::ExecuteInsightIntentDone(const sptr<IRemoteObject> 
     MessageParcel reply;
     MessageOption option;
     auto ret = SendRequest(AbilityManagerInterfaceCode::EXECUTE_INSIGHT_INTENT_DONE, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed with %{public}d", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::OpenFile(const Uri& uri, uint32_t flag, uint32_t tokenId)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return false;
+    }
+    if (!data.WriteParcelable(&uri)) {
+        HILOG_ERROR("Write uri failed.");
+        return false;
+    }
+    if (!data.WriteInt32(flag)) {
+        HILOG_ERROR("Write flag failed.");
+        return false;
+    }
+
+    if (!data.WriteInt32(tokenId)) {
+        HILOG_ERROR("Write tokenId failed.");
+        return false;
+    }
+    
+    auto ret = SendRequest(AbilityManagerInterfaceCode::OPEN_FILE, data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("Send request failed with %{public}d", ret);
         return ret;

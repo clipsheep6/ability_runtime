@@ -91,6 +91,7 @@ const int LOAD_TIMEOUT_ASANENABLED = 150;
 const int TERMINATE_TIMEOUT_ASANENABLED = 150;
 const int HALF_TIMEOUT = 2;
 const int MAX_URI_COUNT = 500;
+const int32_t BROKER_UID = 5557;
 #ifdef SUPPORT_ASAN
 const int COLDSTART_TIMEOUT_MULTIPLE = 15000;
 const int LOAD_TIMEOUT_MULTIPLE = 15000;
@@ -2674,6 +2675,12 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         HILOG_ERROR("size of uriVec is more than %{public}i", MAX_URI_COUNT);
         return;
     }
+
+    if (GrantPermissionToShell(uriVec, want.GetFlags(), targetBundleName)) {
+        HILOG_INFO("shell permission");
+        return;
+    }
+
     auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
     uint32_t fromTokenId = 0;
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
@@ -2747,6 +2754,37 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
             isGrantedUriPermission_ = true;
         }
     }
+}
+
+bool AbilityRecord::GrantPermissionToShell(const std::vector<std::string> &strUriVec, uint32_t flag,
+    std::string targetPkg)
+{
+    auto callingUid = IPCSkeleton::GetCallingUid();
+    if (callingUid != BROKER_UID) {
+        return false;
+    }
+    
+    std::vector<Uri> uriVec;
+    for (auto&& str : strUriVec) {
+        Uri uri(str);
+        auto&& scheme = uri.GetScheme();
+        if (scheme != "content") {
+            return false;
+        } else {
+            uriVec.emplace_back(uri);
+        }
+    }
+
+    int autoremove = 1;
+    for (auto&& uri : uriVec) {
+        auto ret = IN_PROCESS_CALL(
+            AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, flag,
+                targetPkg, autoremove, appIndex_));
+        if (ret == ERR_OK) {
+            isGrantedUriPermission_ = true;
+        }
+    }
+    return true;
 }
 
 bool AbilityRecord::IsDmsCall(Want &want)
