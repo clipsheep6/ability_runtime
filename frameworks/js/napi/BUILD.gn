@@ -27,6 +27,8 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/ability_manager:abilitymanager",
     "${ability_runtime_napi_path}/ability_manager:abilitymanager_napi",
     "${ability_runtime_napi_path}/action_extension_ability:actionextensionability_napi",
+    "${ability_runtime_napi_path}/auto_fill_extension_ability:autofillextensionability_napi",
+    "${ability_runtime_napi_path}/auto_fill_manager:autofillmanager_napi",
     "${ability_runtime_napi_path}/app/ability_delegator:abilitydelegatorregistry",
     "${ability_runtime_napi_path}/app/ability_delegator:abilitydelegatorregistry_napi",
     "${ability_runtime_napi_path}/app/ability_stage:abilitystage",

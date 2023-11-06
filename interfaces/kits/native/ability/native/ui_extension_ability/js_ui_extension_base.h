@@ -20,6 +20,8 @@
 #include "ability_local_record.h"
 #include "configuration.h"
 #include "js_extension_common.h"
+#include "js_fill_request_callback.h"
+#include "js_save_request_callback.h"
 #include "native_engine/native_engine.h"
 #include "ohos_application.h"
 #include "session_info.h"
@@ -27,6 +29,7 @@
 #include "ui_extension_window_command.h"
 #include "want.h"
 #include "window.h"
+#include "view_data.h"
 
 class NativeReference;
 
@@ -150,6 +153,7 @@ public:
 private:
     void BindContext(napi_env env, napi_value obj);
     napi_value CallObjectMethod(const char *name, napi_value const *argv = nullptr, size_t argc = 0);
+    void FillWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo);
     void ForegroundWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo);
     void BackgroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo);
     void DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo);
@@ -161,6 +165,10 @@ private:
     void OnInsightIntentExecuteDone(const sptr<AAFwk::SessionInfo> &sessionInfo,
         const AppExecFwk::InsightIntentExecuteResult &result);
 
+    void CallJsOnRequest(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
+        const sptr<Rosen::Window> &uiWindow);
+    napi_value CreateViewDataRef(const AAFwk::Want &want, napi_env env);
+
     JsRuntime &jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;
     std::shared_ptr<NativeReference> shellContextRef_;
@@ -169,6 +177,8 @@ private:
     std::map<sptr<IRemoteObject>, std::shared_ptr<NativeReference>> contentSessions_;
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_;
     std::shared_ptr<UIExtensionContext> context_;
+    std::map<sptr<IRemoteObject>, std::shared_ptr<NativeReference>> viewDatas_;
+    std::map<sptr<IRemoteObject>, std::shared_ptr<NativeReference>> callbacks_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
