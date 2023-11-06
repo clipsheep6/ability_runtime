@@ -122,6 +122,10 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
             return ret;
         }
         if (dialogAllAppInfos.size() == 0) {
+	    if (request.want.GetFlags() & Want::FLAG_START_WITH_NO_TIPS) {
+		    HILOG_INFO("hint dialog doesn't generate.");
+		    return ERR_IMPLICIT_START_ABILITY_FAIL;
+	    }
             Want dialogWant = sysDialogScheduler->GetTipsDialogWant(request.callerToken);
             abilityMgr->StartAbility(dialogWant);
             return ERR_IMPLICIT_START_ABILITY_FAIL;
