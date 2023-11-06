@@ -49,6 +49,7 @@ const std::string NOT_FOUNDMAP = "Cannot get SourceMap info, dump raw stack:\n";
 const std::string MEGER_SOURCE_MAP_PATH = "ets/sourceMaps.map";
 } // namespace
 ReadSourceMapCallback SourceMap::readSourceMapFunc_ = nullptr;
+GetHapPathCallback SourceMap::getHapPathFunc_ = nullptr;
 std::mutex SourceMap::sourceMapMutex_;
 
 int32_t StringToInt(const std::string& value)
@@ -551,6 +552,19 @@ bool SourceMap::GetLineAndColumnNumbers(int& line, int& column, SourceMapData& t
         column = mapInfo.col;
         return true;
     }
+}
+
+void SourceMap::RegisterGetHapPathCallback(GetHapPathCallback getFunc)
+{
+    getHapPathFunc_ = getFunc;
+}
+
+std::string SourceMap::GetHapPath(const std::string& inputPath, const std::string& bundleName)
+{
+    if (getHapPathFunc_) {
+        return getHapPathFunc_(inputPath, bundleName);
+    }
+    return inputPath;
 }
 }   // namespace JsEnv
 }   // namespace OHOS
