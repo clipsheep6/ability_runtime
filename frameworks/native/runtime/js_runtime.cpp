@@ -535,7 +535,6 @@ bool JsRuntime::Initialize(const Options& options)
     HILOG_INFO("Initialize: %{public}d.", apiTargetVersion_);
     bool isModular = false;
     if (IsUseAbilityRuntime(options)) {
-        HandleScope handleScope(*this);
         auto env = GetNapiEnv();
         auto nativeEngine = reinterpret_cast<NativeEngine*>(env);
         CHECK_POINTER_AND_RETURN(nativeEngine, false);
@@ -546,7 +545,7 @@ bool JsRuntime::Initialize(const Options& options)
         if (preloaded_) {
             PostPreload(options);
         }
-
+        HandleScope handleScope(*this);
         napi_value globalObj = nullptr;
         napi_get_global(env, &globalObj);
         CHECK_POINTER_AND_RETURN(globalObj, false);
