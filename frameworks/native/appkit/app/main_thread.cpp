@@ -988,6 +988,7 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
                 wptr<MainThread> weak = this;
                 auto callback = [weak, resourceManager, bundleName, moduleName = entryHapModuleInfo.moduleName,
                     loadPath](const EventFwk::CommonEventData &data) {
+                    HILOG_ERROR("wangkailong moduleName: %{public}s", loadPath.c_str());
                     HILOG_DEBUG("On overlay changed.");
                     auto appThread = weak.promote();
                     if (appThread == nullptr) {
