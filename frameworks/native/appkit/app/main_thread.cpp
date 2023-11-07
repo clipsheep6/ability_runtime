@@ -1328,7 +1328,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
                 EVENT_KEY_HAPPEN_TIME, timet,
                 EVENT_KEY_REASON, errorObj.name,
                 EVENT_KEY_JSVM, JSVM_TYPE,
-                EVENT_KEY_SUMMARY, summary);
+                EVENT_KEY_SUMMARY, summary,
+                EVENT_KEY_MESSAGE, errorObj.message,
+                EVENT_KEY_STACK, errorObj.stack);
             ErrorObject appExecErrorObj = {
                 .name = errorObj.name,
                 .message = errorObj.message,
