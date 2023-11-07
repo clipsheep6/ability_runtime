@@ -2996,7 +2996,8 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Connect local ability begin.");
-    if (!JudgeMultiUserConcurrency(userId)) {
+    bool isEnterpriseAdmin = AAFwk::UIExtensionUtils::IsEnterpriseAdmin(extensionType);
+    if (!isEnterpriseAdmin && !JudgeMultiUserConcurrency(userId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
         return ERR_CROSS_USER;
     }
@@ -3110,9 +3111,16 @@ int AbilityManagerService::DisconnectLocalAbility(const sptr<IAbilityConnection>
         return ERR_OK;
     }
     // If current connectManager_ does not exist connect, then try connectManagerU0
-    auto connectManagerU0 = GetConnectManagerByUserId(U0_USER_ID);
-    CHECK_POINTER_AND_RETURN(connectManagerU0, ERR_NO_INIT);
-    return connectManagerU0->DisconnectAbilityLocked(connect);
+    auto connectManager = GetConnectManagerByUserId(U0_USER_ID);
+    CHECK_POINTER_AND_RETURN(connectManager, ERR_NO_INIT);
+    if (connectManager->DisconnectAbilityLocked(connect) == ERR_OK) {
+        return ERR_OK;
+    }
+
+    // EnterpriseAdminExtensionAbility Scene
+    connectManager = GetConnectManagerByUserId(USER_ID_DEFAULT);
+    CHECK_POINTER_AND_RETURN(connectManager, ERR_NO_INIT);
+    return connectManager->DisconnectAbilityLocked(connect);
 }
 
 int AbilityManagerService::DisconnectRemoteAbility(const sptr<IRemoteObject> &connect)

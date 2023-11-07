@@ -17,7 +17,9 @@
 #define OHOS_AAFwk_UI_EXTENSION_UTILS_H
 
 #include <unordered_set>
+
 #include "extension_ability_info.h"
+#include "ipc_skeleton.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -42,10 +44,18 @@ const std::unordered_set<AppExecFwk::ExtensionAbilityType> UI_EXTENSION_SET = {
     AppExecFwk::ExtensionAbilityType::SYSPICKER_MEETIMECALLLOG,
     AppExecFwk::ExtensionAbilityType::SYS_COMMON_UI
 };
+const int EDM_SA_UID = 3057;
 
 inline bool IsUIExtension(const AppExecFwk::ExtensionAbilityType type)
 {
     return UI_EXTENSION_SET.find(type) != UI_EXTENSION_SET.end();
+}
+
+inline bool IsEnterpriseAdmin(const AppExecFwk::ExtensionAbilityType type)
+{
+    bool enterpriseAdminSa = (IPCSkeleton::GetCallingUid() == EDM_SA_UID);
+    bool isEnterpriseAdmin = (type == AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN);
+    return enterpriseAdminSa && isEnterpriseAdmin;
 }
 
 inline bool IsWindowExtension(const AppExecFwk::ExtensionAbilityType type)
