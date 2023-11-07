@@ -31,6 +31,7 @@
 #include "js_runtime_utils.h"
 #include "js_ui_extension_content_session.h"
 #include "js_ui_extension_context.h"
+#include "native_engine.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "napi_common_configuration.h"
@@ -45,6 +46,13 @@ namespace AbilityRuntime {
 namespace {
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
+constexpr size_t ARGC_THREE = 3;
+constexpr const char* AUTO_SAVE_VALUE = "autoSave";
+constexpr const char* NEW_PASSWORD_VALUE = "newPassword";
+const std::string WANT_PARAMS_AUTO_FILL_CMD_AUTOFILL = "autofill";
+const std::string WANT_PARAMS_VIEW_DATA = "ohos.ability.params.viewData";
+const std::string WANT_PARAMS_AUTO_FILL_CMD = "ohos.ability.params.autoFillCmd";
+const std::string WANT_PARAMS_EXTENSION_TYPE_KEY = "ability.want.params.ExtensionType";
 } // namespace
 napi_value AttachUIExtensionBaseContext(napi_env env, void *value, void*)
 {
@@ -103,6 +111,14 @@ JsUIExtensionBase::~JsUIExtensionBase()
         jsRuntime_.FreeNativeReference(std::move(item.second));
     }
     contentSessions_.clear();
+    for (auto &item : viewDatas_) {
+        jsRuntime_.FreeNativeReference(std::move(item.second));
+    }
+    viewDatas_.clear();
+    for (auto &item : callbacks_) {
+        jsRuntime_.FreeNativeReference(std::move(item.second));
+    }
+    callbacks_.clear();
 }
 
 std::shared_ptr<JsExtensionCommon> JsUIExtensionBase::Init(const std::shared_ptr<AbilityLocalRecord> &record,
@@ -217,7 +233,11 @@ void JsUIExtensionBase::OnCommandWindow(
     }
     switch (winCmd) {
         case AAFwk::WIN_CMD_FOREGROUND:
-            ForegroundWindow(want, sessionInfo);
+            if (want.HasParameter(WANT_PARAMS_AUTO_FILL_CMD_AUTOFILL)) {
+               FillWindow(want, sessionInfo);
+            }else{
+                ForegroundWindow(want, sessionInfo);
+            }
             break;
         case AAFwk::WIN_CMD_BACKGROUND:
             BackgroundWindow(sessionInfo);
@@ -431,6 +451,41 @@ bool JsUIExtensionBase::HandleSessionCreate(const AAFwk::Want &want, const sptr<
     return true;
 }
 
+void JsUIExtensionBase::FillWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo)
+{
+    HILOG_DEBUG("Called.");
+    if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
+        HILOG_ERROR("Invalid sessionInfo.");
+        return;
+    }
+    auto obj = sessionInfo->sessionToken;
+    if (uiWindowMap_.find(obj) == uiWindowMap_.end()) {
+        sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
+        if (context_ == nullptr || context_->GetAbilityInfo() == nullptr) {
+            HILOG_ERROR("Failed to get context.");
+            return;
+        }
+        option->SetWindowName(context_->GetBundleName() + context_->GetAbilityInfo()->name);
+        option->SetWindowType(Rosen::WindowType::WINDOW_TYPE_UI_EXTENSION);
+        option->SetWindowSessionType(Rosen::WindowSessionType::EXTENSION_SESSION);
+        option->SetParentId(sessionInfo->hostWindowId);
+        auto uiWindow = Rosen::Window::Create(option, context_, sessionInfo->sessionToken);
+        if (uiWindow == nullptr) {
+            HILOG_ERROR("Create ui window error.");
+            return;
+        }
+
+        CallJsOnRequest(want, sessionInfo, uiWindow);
+
+        uiWindowMap_[obj] = uiWindow;
+    }
+    auto &uiWindow = uiWindowMap_[obj];
+    if (uiWindow) {
+        uiWindow->Show();
+        foregroundWindows_.emplace(obj);
+    }
+}
+
 void JsUIExtensionBase::ForegroundWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo)
 {
     if (!HandleSessionCreate(want, sessionInfo)) {
@@ -488,6 +543,8 @@ void JsUIExtensionBase::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInf
     uiWindowMap_.erase(obj);
     foregroundWindows_.erase(obj);
     contentSessions_.erase(obj);
+    viewDatas_.erase(obj);
+    callbacks_.erase(obj);
 }
 
 napi_value JsUIExtensionBase::CallObjectMethod(const char *name, napi_value const *argv, size_t argc)
@@ -607,6 +664,87 @@ void JsUIExtensionBase::SetAbilityInfo(const std::shared_ptr<AppExecFwk::Ability
 void JsUIExtensionBase::SetContext(const std::shared_ptr<UIExtensionContext> &context)
 {
     context_ = context;
+}
+
+void JsUIExtensionBase::CallJsOnRequest(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
+        const sptr<Rosen::Window> &uiWindow)
+{
+    HILOG_DEBUG("Called.");
+    HandleScope handleScope(jsRuntime_);
+    napi_env env = jsRuntime_.GetNapiEnv();
+    if (env == nullptr) {
+        HILOG_ERROR("Env is nullptr.");
+        return;
+    }
+    napi_value nativeContentSession = JsUIExtensionContentSession::CreateJsUIExtensionContentSession(env, sessionInfo, uiWindow);
+    if (nativeContentSession == nullptr) {
+        HILOG_ERROR("Failed to create Session.");
+        return;
+    }
+    napi_ref ref = nullptr;
+    napi_create_reference(env, nativeContentSession, 1, &ref);
+    contentSessions_.emplace(
+        sessionInfo->sessionToken, std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
+    napi_value viewData = CreateViewDataRef(want, env);
+    if (viewData == nullptr) {
+        HILOG_ERROR("ViewData is null.");
+        return;
+    }
+    napi_ref viewDataRef = nullptr;
+    napi_create_reference(env, viewData, 1, &viewDataRef);
+    viewDatas_.emplace(sessionInfo->sessionToken,
+        std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(viewDataRef)));
+    napi_value callback = nullptr;
+    if (want.GetStringParam(WANT_PARAMS_AUTO_FILL_CMD) == AUTO_SAVE_VALUE) {
+        //callback = JsSaveRequestCallback::CreateJsFillRequestCallback(env, sessionInfo, uiWindow);
+    }else {
+        callback = JsFillRequestCallback::CreateJsFillRequestCallback(env, sessionInfo, uiWindow);
+    }
+    if (callback == nullptr) {
+        HILOG_ERROR("Failed to create callback.");
+        return;
+    }
+    napi_ref callbackRef = nullptr;
+    napi_create_reference(env, callback, 1, &callbackRef);
+    callbacks_.emplace(sessionInfo->sessionToken,
+        std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(callbackRef)));
+    napi_value argv[] = { nativeContentSession, viewData, callback };
+    auto cmdValue = want.GetStringParam(WANT_PARAMS_AUTO_FILL_CMD_AUTOFILL);
+    if (cmdValue == WANT_PARAMS_AUTO_FILL_CMD_AUTOFILL) {
+        CallObjectMethod("onFillRequest", argv, ARGC_THREE);
+    } else if (cmdValue == AUTO_SAVE_VALUE) {
+        CallObjectMethod("onSaveRequest", argv, ARGC_THREE);
+    }else if (cmdValue == NEW_PASSWORD_VALUE) {
+        CallObjectMethod("onNewPasswordRequest", argv, ARGC_THREE);
+    }
+}
+
+napi_value JsUIExtensionBase::CreateViewDataRef(const AAFwk::Want &want, napi_env env)
+{
+    napi_value object = nullptr;
+
+    if (want.HasParameter(WANT_PARAMS_VIEW_DATA)) {
+        std::string viewDataString = want.GetStringParam(WANT_PARAMS_VIEW_DATA);
+        if (viewDataString.empty()) {
+            HILOG_ERROR("viewData is null");
+            viewDataString = "test123";
+            // return object;
+        }
+        
+        napi_create_object(env, &object);
+        if (object == nullptr) {
+            HILOG_ERROR("Object is null");
+            return CreateJsUndefined(env);
+        }
+        napi_wrap(env, object, &viewDataString, [](napi_env env, void* data, void* hint)
+        {
+            HILOG_DEBUG("ViewData Finalizer is called.");
+        }, nullptr, nullptr);
+    } else {
+        HILOG_DEBUG("Want not have ViewData.");
+    }
+
+    return object;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
