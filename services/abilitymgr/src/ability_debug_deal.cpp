@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace AAFwk {
-AbilityDebugDeal::AbilityDebugDeal()
+void AbilityDebugDeal::RegisterAbilityDebugResponse()
 {
     abilityDebugResponse_ = new (std::nothrow) AbilityDebugResponse(weak_from_this());
     if (abilityDebugResponse_ == nullptr) {

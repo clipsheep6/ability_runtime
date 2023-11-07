@@ -8784,6 +8784,9 @@ int32_t AbilityManagerService::AttachAppDebug(const std::string &bundleName)
     if (abilityDebugDeal_ == nullptr) {
         HILOG_DEBUG("Creat ability debug deal object.");
         abilityDebugDeal_ = std::make_shared<AbilityDebugDeal>();
+        if (abilityDebugDeal_ != nullptr) {
+            abilityDebugDeal_->RegisterAbilityDebugResponse();
+        }
     }
     return DelayedSingleton<AppScheduler>::GetInstance()->AttachAppDebug(bundleName);
 }
