@@ -42,6 +42,7 @@ const std::string PARAM_MISSION_AFFINITY_KEY = "ohos.anco.param.missionAffinity"
 const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const int DEFAULT_DMS_MISSION_ID = -1;
+const std::string PARAM_SPECIFIED_PROCESS_FLAG = "ohoSpecifiedProcessFlag";
 #ifdef SUPPORT_ASAN
 const int KILL_TIMEOUT_MULTIPLE = 45;
 #else
@@ -226,6 +227,14 @@ int UIAbilityLifecycleManager::NotifySCBToStartUIAbility(const AbilityRequest &a
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    auto abilityInfo = abilityRequest.abilityInfo;
+    bool isUIAbility = (abilityInfo.type == AppExecFwk::AbilityType::PAGE && abilityInfo.isStageBasedModel);
+    if (abilityInfo.isolationProcess && isPcDevice_ && isUIAbility) {
+        HILOG_INFO("StartSpecifiedProcess");
+        EnqueueAbilityToFront(abilityRequest);
+        DelayedSingleton<AppScheduler>::GetInstance()->StartSpecifiedProcess(abilityRequest.want, abilityInfo);
+        return ERR_OK;
+    }
     auto isSpecified = (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED);
     if (isSpecified) {
         EnqueueAbilityToFront(abilityRequest);
@@ -1208,6 +1217,10 @@ void UIAbilityLifecycleManager::OnAcceptWantResponse(const AAFwk::Want &want, co
 
     AbilityRequest abilityRequest = abilityQueue_.front();
     abilityQueue_.pop();
+    if (abilityRequest.callSpecifiedFlagTimeout) {
+        HILOG_ERROR("The abilityRequest call onAcceptWant timeout.");
+        return;
+    }
     if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::SPECIFIED) {
         return;
     }
@@ -1235,6 +1248,61 @@ void UIAbilityLifecycleManager::OnAcceptWantResponse(const AAFwk::Want &want, co
     }
     NotifyStartSpecifiedAbility(abilityRequest, want);
     StartAbilityBySpecifed(abilityRequest, callerAbility);
+}
+
+void UIAbilityLifecycleManager::OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    if (abilityQueue_.empty()) {
+        return;
+    }
+    AbilityRequest &abilityRequest = abilityQueue_.front();
+    abilityRequest.callSpecifiedFlagTimeout = true;
+}
+
+void UIAbilityLifecycleManager::OnStartSpecifiedProcessResponse(const AAFwk::Want &want, const std::string &flag)
+{
+    HILOG_DEBUG("call.");
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    if (abilityQueue_.empty()) {
+        return;
+    }
+    AbilityRequest abilityRequest = abilityQueue_.front();
+    abilityQueue_.pop();
+    std::string specifiedProcessFlag = flag;
+    if (abilityRequest.callSpecifiedFlagTimeout) {
+        HILOG_ERROR("The abilityRequest call onNewProcessRequest timeout.");
+        specifiedProcessFlag = "";
+    }
+    abilityRequest.want.SetParam(PARAM_SPECIFIED_PROCESS_FLAG, specifiedProcessFlag);
+    auto isSpecified = (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED);
+    if (isSpecified) {
+        EnqueueAbilityToFront(abilityRequest);
+        DelayedSingleton<AppScheduler>::GetInstance()->StartSpecifiedAbility(
+            abilityRequest.want, abilityRequest.abilityInfo);
+        return;
+    }
+    auto sessionInfo = CreateSessionInfo(abilityRequest);
+    sessionInfo->requestCode = abilityRequest.requestCode;
+    sessionInfo->persistentId = GetPersistentIdByAbilityRequest(abilityRequest, sessionInfo->reuse,
+        abilityRequest.userId);
+    sessionInfo->userId = abilityRequest.userId;
+    HILOG_INFO("Reused sessionId: %{public}d, userId: %{public}d.", sessionInfo->persistentId, abilityRequest.userId);
+    NotifySCBPendingActivation(sessionInfo, abilityRequest);
+}
+
+void UIAbilityLifecycleManager::OnStartSpecifiedProcessTimeoutResponse(const AAFwk::Want &want)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    HILOG_DEBUG("abilityQueue_.size() = %{public}zu", abilityQueue_.size());
+    if (abilityQueue_.empty()) {
+        return;
+    }
+    AbilityRequest &abilityRequest = abilityQueue_.front();
+    abilityRequest.callSpecifiedFlagTimeout = true;
 }
 
 void UIAbilityLifecycleManager::StartSpecifiedAbilityBySCB(const Want &want, int32_t userId)
@@ -1877,6 +1945,11 @@ int UIAbilityLifecycleManager::MoveMissionToFront(int32_t sessionId, std::shared
     CHECK_POINTER_AND_RETURN(sessionInfo, ERR_INVALID_VALUE);
     HILOG_INFO("Call PendingSessionActivation by rootSceneSession.");
     return static_cast<int>(rootSceneSession_->PendingSessionActivation(sessionInfo));
+}
+
+void UIAbilityLifecycleManager::SetDevice(std::string deviceType)
+{
+    isPcDevice_ = (deviceType == "tablet" || deviceType == "pc" || deviceType == "2in1");
 }
 }  // namespace AAFwk
 }  // namespace OHOS

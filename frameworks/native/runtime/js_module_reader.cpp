@@ -108,7 +108,7 @@ std::string JsModuleReader::GetModuleName(const std::string& inputPath) const
 std::string JsModuleReader::GetCommonAppHspPath(const std::string& inputPath) const
 {
     std::string suffix = std::string(SHARED_FILE_SUFFIX);
-    std::string realHapPath = GetPresetAppHapPath(inputPath);
+    std::string realHapPath = GetPresetAppHapPath(inputPath, bundleName_);
     if ((realHapPath.find(ABS_DATA_CODE_PATH) == 0) || (realHapPath == inputPath)) {
         realHapPath = std::string(ABS_CODE_PATH) + inputPath + suffix;
     }
@@ -123,7 +123,7 @@ std::string JsModuleReader::GetCommonAppHspPath(const std::string& inputPath) co
     return realHapPath;
 }
 
-std::string JsModuleReader::GetPresetAppHapPath(const std::string& inputPath) const
+std::string JsModuleReader::GetPresetAppHapPath(const std::string& inputPath, const std::string& bundleName)
 {
     std::string presetAppHapPath = inputPath;
     std::string moduleName = inputPath.substr(inputPath.find_last_of("/") + 1);
@@ -158,7 +158,7 @@ std::string JsModuleReader::GetPresetAppHapPath(const std::string& inputPath) co
         }
     } else {
         std::vector<AppExecFwk::BaseSharedBundleInfo> baseSharedBundleInfos;
-        if (bundleMgrProxy->GetBaseSharedBundleInfos(bundleName_, baseSharedBundleInfos) != 0) {
+        if (bundleMgrProxy->GetBaseSharedBundleInfos(bundleName, baseSharedBundleInfos) != 0) {
             HILOG_ERROR("GetBaseSharedBundleInfos failed.");
             return presetAppHapPath;
         }

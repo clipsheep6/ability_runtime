@@ -52,7 +52,7 @@ void JsAbilityStageContext::ConfigurationUpdated(napi_env env, std::shared_ptr<N
 }
 
 napi_value CreateJsAbilityStageContext(napi_env env,
-    std::shared_ptr<AbilityRuntime::Context> context, DetachCallback detach, AttachCallback attach)
+    std::shared_ptr<AbilityRuntime::Context> context, DetachCallback detach, NapiAttachCallback attach)
 {
     HILOG_INFO("%{public}s called.", __func__);
     napi_value objValue = CreateJsBaseContext(env, context);

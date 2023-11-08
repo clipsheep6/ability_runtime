@@ -36,6 +36,7 @@
 #include "iconfiguration_observer.h"
 #include "iquick_fix_callback.h"
 #include "app_malloc_info.h"
+#include "app_running_status_listener_interface.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -233,6 +234,9 @@ public:
     virtual int FinishUserTest(const std::string &msg, const int64_t &resultCode, const std::string &bundleName) = 0;
 
     virtual void ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Want &want, const std::string &flag) = 0;
+
+    virtual void ScheduleNewProcessRequestDone(const int32_t recordId, const AAFwk::Want &want,
+        const std::string &flag) = 0;
 
     /**
      *  Get the token of ability records by process ID.
@@ -434,6 +438,22 @@ public:
      */
     virtual int32_t ChangeAppGcState(pid_t pid, int32_t state) = 0;
 
+    /**
+     * Register appRunning status listener.
+     *
+     * @param listener Running status listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterAppRunningStatusListener(const sptr<IRemoteObject> &listener) = 0;
+
+    /**
+     * Unregister appRunning status listener.
+     *
+     * @param listener Running status listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener) = 0;
+
     // please add new message item to the bottom in order to prevent some unexpected BUG
     enum class Message {
         APP_ATTACH_APPLICATION = 0,
@@ -483,7 +503,11 @@ public:
         GET_PIDS_BY_BUNDLENAME,
         CHANGE_APP_GC_STATE,
         NOTIFY_PAGE_SHOW,
-        NOTIFY_PAGE_HIDE
+        NOTIFY_PAGE_HIDE,
+        // Register an application to start listening.
+        REGISTER_APP_RUNNING_STATUS_LISTENER,
+        // Unregister the app to start listening.
+        UNREGISTER_APP_RUNNING_STATUS_LISTENER,
     };
 };
 }  // namespace AppExecFwk

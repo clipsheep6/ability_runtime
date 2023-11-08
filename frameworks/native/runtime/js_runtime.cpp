@@ -535,7 +535,6 @@ bool JsRuntime::Initialize(const Options& options)
     HILOG_INFO("Initialize: %{public}d.", apiTargetVersion_);
     bool isModular = false;
     if (IsUseAbilityRuntime(options)) {
-        HandleScope handleScope(*this);
         auto env = GetNapiEnv();
         auto nativeEngine = reinterpret_cast<NativeEngine*>(env);
         CHECK_POINTER_AND_RETURN(nativeEngine, false);
@@ -546,7 +545,7 @@ bool JsRuntime::Initialize(const Options& options)
         if (preloaded_) {
             PostPreload(options);
         }
-
+        HandleScope handleScope(*this);
         napi_value globalObj = nullptr;
         napi_get_global(env, &globalObj);
         CHECK_POINTER_AND_RETURN(globalObj, false);
@@ -570,8 +569,9 @@ bool JsRuntime::Initialize(const Options& options)
                 HILOG_ERROR("Failed to create reference for global.requireNapi");
                 return false;
             }
-
+            HILOG_INFO("PreloadAce start.");
             PreloadAce(options);
+            HILOG_INFO("PreloadAce end.");
             nativeEngine->RegisterPermissionCheck(PermissionCheckFunc);
         }
 
@@ -595,7 +595,7 @@ bool JsRuntime::Initialize(const Options& options)
     }
 
     if (!options.preload) {
-        auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>(options.hapPath, isModular);
+        auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>(options.bundleName, isModular);
         InitSourceMap(operatorObj);
 
         if (options.isUnique) {
@@ -726,6 +726,7 @@ void JsRuntime::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> op
     CHECK_POINTER(jsEnv_);
     jsEnv_->InitSourceMap(operatorObj);
     JsEnv::SourceMap::RegisterReadSourceMapCallback(JsRuntime::ReadSourceMapData);
+    JsEnv::SourceMap::RegisterGetHapPathCallback(JsModuleReader::GetPresetAppHapPath);
 }
 
 void JsRuntime::Deinitialize()

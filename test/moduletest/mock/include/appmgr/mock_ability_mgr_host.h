@@ -58,13 +58,14 @@ public:
     }
 
     virtual int StartAbilityAsCaller(const Want& want, const sptr<IRemoteObject>& callerToken,
-        int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = -1) override
+        const sptr<IRemoteObject>& asCallerSourceToken, int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = -1) override
     {
         return 0;
     }
     virtual int StartAbilityAsCaller(const Want& want, const StartOptions& startOptions,
-        const sptr<IRemoteObject>& callerToken, int32_t userId = DEFAULT_INVAL_VALUE,
-        int requestCode = DEFAULT_INVAL_VALUE) override
+        const sptr<IRemoteObject>& callerToken, const sptr<IRemoteObject>& asCallerSourceToken,
+        int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = DEFAULT_INVAL_VALUE) override
     {
         return 0;
     }

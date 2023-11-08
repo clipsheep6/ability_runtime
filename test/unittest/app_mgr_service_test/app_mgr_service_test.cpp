@@ -302,7 +302,7 @@ HWTEST_F(AppMgrServiceTest, ClearUpApplicationData_001, TestSize.Level0)
     appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
     appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
     int32_t res = appMgrService->ClearUpApplicationData(bundleName);
-    EXPECT_EQ(res, ERR_PERMISSION_DENIED);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
 }
 
 /*

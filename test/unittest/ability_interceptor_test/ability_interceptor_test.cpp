@@ -214,6 +214,101 @@ HWTEST_F(AbilityInterceptorTest, ControlInterceptor_005, TestSize.Level1)
     EXPECT_EQ(result, ERR_OK);
 }
 
+/**
+ * @tc.name: AbilityInterceptorTest_DisposedRuleInterceptor_001
+ * @tc.desc: DisposedRuleInterceptor
+ * @tc.type: FUNC
+ * @tc.require: issueI8D3OD
+ */
+HWTEST_F(AbilityInterceptorTest, DisposedRuleInterceptor_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityInterceptorExecuter> executer = std::make_shared<AbilityInterceptorExecuter>();
+    Want want;
+    ElementName element("", "com.acts.disposedrulehap", "ServiceAbility2", "entry");
+    want.SetElement(element);
+    int requestCode = 0;
+    int userId = 100;
+    executer->AddInterceptor(std::make_shared<DisposedRuleInterceptor>());
+    int result = executer->DoProcess(want, requestCode, userId, false);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityInterceptorTest_DisposedRuleInterceptor_002
+ * @tc.desc: DisposedRuleInterceptor
+ * @tc.type: FUNC
+ * @tc.require: issueI8D3OD
+ */
+HWTEST_F(AbilityInterceptorTest, DisposedRuleInterceptor_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityInterceptorExecuter> executer = std::make_shared<AbilityInterceptorExecuter>();
+    Want want;
+    ElementName element("", "com.acts.disposedrulehap", "MainAbility2", "entry");
+    want.SetElement(element);
+    int requestCode = 0;
+    int userId = 100;
+    executer->AddInterceptor(std::make_shared<DisposedRuleInterceptor>());
+    int result = executer->DoProcess(want, requestCode, userId, true);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityInterceptorTest_DisposedRuleInterceptor_003
+ * @tc.desc: DisposedRuleInterceptor
+ * @tc.type: FUNC
+ * @tc.require: issueI8D3OD
+ */
+HWTEST_F(AbilityInterceptorTest, DisposedRuleInterceptor_003, TestSize.Level1)
+{
+    std::shared_ptr<AbilityInterceptorExecuter> executer = std::make_shared<AbilityInterceptorExecuter>();
+    Want want;
+    ElementName element("", "com.acts.disposedrulehap", "MainAbility3", "entry");
+    want.SetElement(element);
+    int requestCode = 0;
+    int userId = 100;
+    executer->AddInterceptor(std::make_shared<DisposedRuleInterceptor>());
+    int result = executer->DoProcess(want, requestCode, userId, true);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityInterceptorTest_DisposedRuleInterceptor_004
+ * @tc.desc: DisposedRuleInterceptor
+ * @tc.type: FUNC
+ * @tc.require: issueI8D3OD
+ */
+HWTEST_F(AbilityInterceptorTest, DisposedRuleInterceptor_004, TestSize.Level1)
+{
+    std::shared_ptr<AbilityInterceptorExecuter> executer = std::make_shared<AbilityInterceptorExecuter>();
+    Want want;
+    ElementName element("", "com.acts.disposedrulehap", "MainAbility4", "entry");
+    want.SetElement(element);
+    int requestCode = 0;
+    int userId = 100;
+    executer->AddInterceptor(std::make_shared<DisposedRuleInterceptor>());
+    int result = executer->DoProcess(want, requestCode, userId, true);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityInterceptorTest_DisposedRuleInterceptor_005
+ * @tc.desc: DisposedRuleInterceptor
+ * @tc.type: FUNC
+ * @tc.require: issueI8D3OD
+ */
+HWTEST_F(AbilityInterceptorTest, DisposedRuleInterceptor_005, TestSize.Level1)
+{
+    std::shared_ptr<AbilityInterceptorExecuter> executer = std::make_shared<AbilityInterceptorExecuter>();
+    Want want;
+    ElementName element("", "com.test.disposedrule", "MainAbility", "entry");
+    want.SetElement(element);
+    int requestCode = 0;
+    int userId = 100;
+    executer->AddInterceptor(std::make_shared<DisposedRuleInterceptor>());
+    int result = executer->DoProcess(want, requestCode, userId, true);
+    EXPECT_EQ(result, ERR_OK);
+}
+
 #ifndef SUPPORT_ERMS
 /**
  * @tc.name: AbilityInterceptorTest_EcologicalRuleInterceptor_001

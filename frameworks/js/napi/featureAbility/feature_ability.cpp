@@ -489,7 +489,7 @@ napi_value SetResultWrap(napi_env env, napi_callback_info info, AsyncCallbackInf
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, Fail argument count.", __func__);
         return nullptr;
     }
 
@@ -530,6 +530,11 @@ napi_value SetResultAsync(
         [](napi_env env, void *data) {
             HILOG_INFO("NAPI_SetResult, worker pool thread enter.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
+            if (asyncCallbackInfo == nullptr) {
+                HILOG_ERROR("NAPI_SetResult, execute asyncCallbackInfo is nullptr");
+                return;
+            }
+
             if (asyncCallbackInfo->ability != nullptr) {
                 asyncCallbackInfo->ability->SetResult(
                     asyncCallbackInfo->param.requestCode, asyncCallbackInfo->param.want);
@@ -542,6 +547,10 @@ napi_value SetResultAsync(
         [](napi_env env, napi_status status, void *data) {
             HILOG_INFO("NAPI_SetResult, main event thread complete.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
+            if (asyncCallbackInfo == nullptr) {
+                HILOG_ERROR("NAPI_SetResult, complete asyncCallbackInfo is nullptr");
+                return;
+            }
             napi_value result[ARGS_TWO] = {nullptr};
             napi_value callback = nullptr;
             napi_value undefined = nullptr;
@@ -587,6 +596,11 @@ napi_value SetResultPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
         [](napi_env env, void *data) {
             HILOG_INFO("NAPI_SetResult, worker pool thread execute.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
+            if (asyncCallbackInfo == nullptr) {
+                HILOG_ERROR("NAPI_SetResult promise, execute asyncCallbackInfo is nullptr");
+                return;
+            }
+
             if (asyncCallbackInfo->ability != nullptr) {
                 asyncCallbackInfo->ability->SetResult(
                     asyncCallbackInfo->param.requestCode, asyncCallbackInfo->param.want);
@@ -599,6 +613,10 @@ napi_value SetResultPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
         [](napi_env env, napi_status status, void *data) {
             HILOG_INFO("NAPI_SetResult,  main event thread complete.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
+            if (asyncCallbackInfo == nullptr) {
+                HILOG_ERROR("NAPI_SetResult promise, execute asyncCallbackInfo is nullptr");
+                return;
+            }
             napi_value result = nullptr;
             napi_get_null(env, &result);
             napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
@@ -1072,6 +1090,11 @@ void GetDataAbilityHelperAsyncCompleteCB(napi_env env, napi_status status, void 
 {
     HILOG_INFO("NAPI_GetDataAbilityHelper, main event thread complete.");
     DataAbilityHelperCB *dataAbilityHelperCB = static_cast<DataAbilityHelperCB *>(data);
+    if (dataAbilityHelperCB == nullptr) {
+        HILOG_ERROR("GetDataAbilityHelperAsyncCompleteCB, dataAbilityHelperCB is nullptr");
+        return;
+    }
+
     std::unique_ptr<DataAbilityHelperCB> callbackPtr {dataAbilityHelperCB};
     napi_value uri = nullptr;
     napi_value callback = nullptr;
@@ -1104,6 +1127,11 @@ void GetDataAbilityHelperPromiseCompleteCB(napi_env env, napi_status status, voi
 {
     HILOG_INFO("NAPI_GetDataAbilityHelper,  main event thread complete.");
     DataAbilityHelperCB *dataAbilityHelperCB = static_cast<DataAbilityHelperCB *>(data);
+    if (dataAbilityHelperCB == nullptr) {
+        HILOG_INFO("GetDataAbilityHelperPromiseCompleteCB, dataAbilityHelperCB is nullptr.");
+        return;
+    }
+
     napi_value uri = nullptr;
     napi_value result = nullptr;
     napi_get_reference_value(env, dataAbilityHelperCB->uri, &uri);
@@ -1252,7 +1280,12 @@ napi_value ContinueAbilityAsync(napi_env env, napi_value *args, AsyncCallbackInf
     napi_create_async_work(env, nullptr, resourceName,
         [](napi_env env, void *data) {
             HILOG_INFO("NAPI_ContinueAbility, worker pool thread execute.");
-            AsyncCallbackInfo *asyncCallbackInfo = (AsyncCallbackInfo *)data;
+            AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
+            if (asyncCallbackInfo == nullptr) {
+                HILOG_ERROR("NAPI_ContinueAbility, asyncCallbackInfo is nullptr.");
+                return;
+            }
+
             if (asyncCallbackInfo->ability != nullptr) {
                 asyncCallbackInfo->ability->ContinueAbility(asyncCallbackInfo->optionInfo.deviceId);
             } else {
@@ -1262,7 +1295,11 @@ napi_value ContinueAbilityAsync(napi_env env, napi_value *args, AsyncCallbackInf
         },
         [](napi_env env, napi_status status, void *data) {
             HILOG_INFO("NAPI_ContinueAbility, main event thread end.");
-            AsyncCallbackInfo *asyncCallbackInfo = (AsyncCallbackInfo *)data;
+            AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
+            if (asyncCallbackInfo == nullptr) {
+                HILOG_ERROR("NAPI_ContinueAbility complete, asyncCallbackInfo is nullptr.");
+                return;
+            }
             napi_value callback = nullptr;
             napi_value undefined = nullptr;
             napi_value result[ARGS_TWO] = {nullptr};
@@ -1321,7 +1358,11 @@ napi_value ContinueAbilityPromise(napi_env env, napi_value *args, AsyncCallbackI
     napi_create_async_work(env, nullptr, resourceName,
         [](napi_env env, void *data) {
             HILOG_INFO("NAPI_ContinueAbility, worker pool thread execute.");
-            AsyncCallbackInfo *asyncCallbackInfo = (AsyncCallbackInfo *)data;
+            AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
+            if (asyncCallbackInfo == nullptr) {
+                HILOG_ERROR("NAPI_ContinueAbility, worker pool thread execute asyncCallbackInfo is nullptr.");
+                return;
+            }
             if (asyncCallbackInfo->ability != nullptr) {
                 asyncCallbackInfo->ability->ContinueAbility(asyncCallbackInfo->optionInfo.deviceId);
             } else {
@@ -1331,7 +1372,11 @@ napi_value ContinueAbilityPromise(napi_env env, napi_value *args, AsyncCallbackI
         },
         [](napi_env env, napi_status status, void *data) {
             HILOG_INFO("NAPI_ContinueAbility,  main event thread complete.");
-            AsyncCallbackInfo *asyncCallbackInfo = (AsyncCallbackInfo *)data;
+            AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
+            if (asyncCallbackInfo == nullptr) {
+                HILOG_ERROR("NAPI_ContinueAbility, main event thread complete asyncCallbackInfo is nullptr.");
+                return;
+            }
             napi_value result = nullptr;
             napi_get_null(env, &result);
             napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);

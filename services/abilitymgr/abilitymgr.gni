@@ -116,3 +116,7 @@ if (ability_runtime_graphics) {
     "src/system_dialog_scheduler.cpp",
   ]
 }
+
+if (efficiency_manager) {
+  abilityms_files += [ "src/process_frozen_state_observer.cpp" ]
+}

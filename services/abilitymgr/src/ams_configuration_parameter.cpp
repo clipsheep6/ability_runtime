@@ -23,6 +23,12 @@ const int LOAD_CONFIGURATION_FAILED = -1;
 const int LOAD_CONFIGURATION_SUCCESS = 0;
 }
 
+AmsConfigurationParameter::AmsConfigurationParameter()
+{
+    std::string deviceType = OHOS::system::GetParameter("const.product.devicetype", "unknown");
+    isPcDevice_ = (deviceType == "tablet" || deviceType == "pc" || deviceType == "2in1");
+}
+
 AmsConfigurationParameter &AmsConfigurationParameter::GetInstance()
 {
     static AmsConfigurationParameter amsConfiguration;
@@ -84,7 +90,11 @@ int AmsConfigurationParameter::GetBootAnimationTimeoutTime() const
 
 int AmsConfigurationParameter::GetAppStartTimeoutTime() const
 {
-    return timeoutUnitTime_;
+    int timeoutUnitTime = timeoutUnitTime_;
+    if (isPcDevice_) {
+        timeoutUnitTime *= 1000;
+    }
+    return timeoutUnitTime;
 }
 
 void AmsConfigurationParameter::SetPickerJsonObject(nlohmann::json Object)

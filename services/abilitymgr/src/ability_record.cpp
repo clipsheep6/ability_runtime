@@ -648,7 +648,7 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
         }
         auto taskName = std::to_string(missionId_) + "_hot";
         handler->CancelTask(taskName);
-        
+
         if (isWindowStarted_) {
             StartingWindowTask(isRecent, false, abilityRequest, startOptions);
             AnimationTask(isRecent, abilityRequest, startOptions, callerAbility);
@@ -1129,7 +1129,7 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
         HILOG_ERROR("Move the ability to background fail, lifecycleDeal_ is null.");
         return;
     }
-    
+
     if (!IsDebug()) {
         auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
         if (handler && task) {
@@ -1598,7 +1598,7 @@ void AbilityRecord::SendSandboxSavefileResult(const Want &want, int resultCode, 
             }
             Uri uri(uriStr);
             auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(uri,
-                Want::FLAG_AUTH_WRITE_URI_PERMISSION, abilityInfo_.bundleName, 0, appIndex_));
+                Want::FLAG_AUTH_WRITE_URI_PERMISSION, abilityInfo_.bundleName, appIndex_));
             if (ret != ERR_OK) {
                 HILOG_WARN("GrantUriPermission failed");
             }
@@ -2309,6 +2309,11 @@ void AbilityRecord::SetKeepAlive()
     isKeepAlive_ = true;
 }
 
+bool AbilityRecord::GetKeepAlive() const
+{
+    return isKeepAlive_;
+}
+
 int64_t AbilityRecord::GetRestartTime()
 {
     return restartTime_;
@@ -2703,7 +2708,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
                 continue;
             }
         }
-        
+
         if (authorityFlag && isGrantPersistableUriPermissionEnable_ && !permission) {
             if (!AAFwk::UriPermissionManagerClient::GetInstance().CheckPersistableUriPermissionProxy(
                 uri, flag, fromTokenId)) {
@@ -2734,11 +2739,10 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         }
         uriVecMap[flag].emplace_back(uri);
     }
-    int autoremove = 1;
     for (const auto &item : uriVecMap) {
         auto ret = IN_PROCESS_CALL(
             AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(item.second, item.first,
-                targetBundleName, autoremove, appIndex_));
+                targetBundleName, appIndex_));
         if (ret == ERR_OK) {
             isGrantedUriPermission_ = true;
         }
@@ -2796,10 +2800,8 @@ void AbilityRecord::GrantDmsUriPermission(Want &want, std::string targetBundleNa
             HILOG_ERROR("uri is not distributed path");
             continue;
         }
-        int autoremove = 1;
         auto ret = IN_PROCESS_CALL(
-            AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, want.GetFlags(),
-                targetBundleName, autoremove));
+            UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, want.GetFlags(), targetBundleName));
         if (ret == 0) {
             isGrantedUriPermission_ = true;
         }
@@ -2812,7 +2814,7 @@ void AbilityRecord::RevokeUriPermission()
 {
     if (isGrantedUriPermission_) {
         HILOG_DEBUG("To remove uri permission.");
-        AAFwk::UriPermissionManagerClient::GetInstance().RevokeUriPermission(applicationInfo_.accessTokenId);
+        UriPermissionManagerClient::GetInstance().RevokeUriPermission(applicationInfo_.accessTokenId);
         isGrantedUriPermission_ = false;
     }
 }

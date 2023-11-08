@@ -156,7 +156,7 @@ bool JsEnvironment::LoadScript(const std::string& path, std::vector<uint8_t>* bu
     }
 
     if (buffer == nullptr) {
-        return engine_->RunScriptPath(path.c_str()) != nullptr;
+        return engine_->RunScriptPath(path.c_str());
     }
 
     return engine_->RunScriptBuffer(path.c_str(), *buffer, isBundle) != nullptr;

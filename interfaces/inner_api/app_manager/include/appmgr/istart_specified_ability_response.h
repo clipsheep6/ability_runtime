@@ -30,9 +30,15 @@ public:
 
     virtual void OnTimeoutResponse(const AAFwk::Want &want) = 0;
 
+    virtual void OnNewProcessRequestResponse(const AAFwk::Want &want, const std::string &flag) = 0;
+
+    virtual void OnNewProcessRequestTimeoutResponse(const AAFwk::Want &want) = 0;
+
     enum class Message {
         ON_ACCEPT_WANT_RESPONSE = 0,
         ON_TIMEOUT_RESPONSE,
+        ON_NEW_PROCESS_REQUEST_RESPONSE,
+        ON_NEW_PROCESS_REQUEST_TIMEOUT_RESPONSE
     };
 };
 }  // namespace AppExecFwk

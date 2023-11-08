@@ -45,6 +45,7 @@ public:
     virtual void OnCreate(const AAFwk::Want &want) const;
     virtual void OnDestroy() const;
     virtual std::string OnAcceptWant(const AAFwk::Want &want);
+    virtual std::string OnNewProcessRequest(const AAFwk::Want &want);
     virtual void Init(const std::shared_ptr<Context> &context);
     std::shared_ptr<Context> GetContext() const;
     void AddAbility(const sptr<IRemoteObject> &token,

@@ -2042,5 +2042,36 @@ bool AbilityConnectManager::IsWindowExtensionFocused(uint32_t extensionTokenId, 
     }
     return false;
 }
+
+void AbilityConnectManager::HandleProcessFrozen(const std::unordered_set<int32_t> &pidSet, int32_t uid)
+{
+    auto taskHandler = taskHandler_;
+    if (!taskHandler) {
+        HILOG_ERROR("taskHandler null");
+        return;
+    }
+    HILOG_INFO("HandleProcessFrozen: %{public}d", uid);
+    std::lock_guard guard(Lock_);
+    auto weakthis = weak_from_this();
+    for (auto [key, abilityRecord] : serviceMap_) {
+        if (abilityRecord && abilityRecord->GetUid() == uid &&
+            pidSet.count(abilityRecord->GetPid()) > 0 &&
+            abilityRecord->IsConnectListEmpty() &&
+            !abilityRecord->GetKeepAlive() &&
+            abilityRecord->GetStartId() != 0) { // To be honest, this is expected to be true
+            HILOG_INFO("TerminateTask: %{public}s", abilityRecord->GetAbilityInfo().bundleName.c_str());
+            taskHandler->SubmitTask([weakthis, record = abilityRecord]() {
+                    auto connectManager = weakthis.lock();
+                    if (record && connectManager) {
+                        HILOG_INFO("TerminateRecord: %{public}s", record->GetAbilityInfo().bundleName.c_str());
+                        std::lock_guard guard(connectManager->Lock_);
+                        connectManager->TerminateRecord(record);
+                    } else {
+                        HILOG_ERROR("connectManager null");
+                    }
+                });
+        }
+    }
+}
 }  // namespace AAFwk
 }  // namespace OHOS

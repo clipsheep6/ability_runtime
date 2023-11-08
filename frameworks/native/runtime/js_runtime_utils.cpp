@@ -177,7 +177,7 @@ napi_value HandleEscape::Escape(napi_value value)
 {
     napi_value result = nullptr;
     napi_escape_handle(env_, scope_, value, &result);
-    return value;
+    return result;
 }
 
 // Async Task

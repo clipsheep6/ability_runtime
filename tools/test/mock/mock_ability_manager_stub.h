@@ -31,8 +31,8 @@ public:
 
     MOCK_METHOD4(StartAbility, int(const Want& want, const sptr<IRemoteObject>& callerToken,
         int32_t userId, int requestCode));
-    MOCK_METHOD4(StartAbilityAsCaller, int(const Want &want, const sptr<IRemoteObject> &callerToken,
-        int32_t userId, int requestCode));
+    MOCK_METHOD5(StartAbilityAsCaller, int(const Want &want, const sptr<IRemoteObject> &callerToken,
+        sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode));
     MOCK_METHOD3(TerminateAbility, int(const sptr<IRemoteObject>& token, int resultCode, const Want* resultWant));
     MOCK_METHOD3(TerminateUIExtensionAbility, int(const sptr<SessionInfo> &extensionSessionInfo, int resultCode,
         const Want* resultWant));
@@ -138,6 +138,7 @@ public:
         const Want& want,
         const StartOptions& startOptions,
         const sptr<IRemoteObject>& callerToken,
+        sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE)
     {

@@ -47,9 +47,9 @@ public:
     void Init();
 
     int GrantUriPermission(const Uri &uri, unsigned int flag,
-        const std::string targetBundleName, int autoremove, int32_t appIndex = 0) override;
+        const std::string targetBundleName, int32_t appIndex = 0) override;
     int GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
-        const std::string targetBundleName, int autoremove, int32_t appIndex = 0) override;
+        const std::string targetBundleName, int32_t appIndex = 0) override;
     void RevokeUriPermission(const TokenId tokenId) override;
     int RevokeAllUriPermissions(uint32_t tokenId) override;
     int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) override;
@@ -87,6 +87,8 @@ private:
 
     void SendEvent(const Uri &uri, const std::string &targetBundleName, uint32_t targetTokenId,
         const std::vector<std::string> &uriVec = {});
+
+    int CheckRule(unsigned int flag);
 
     class ProxyDeathRecipient : public IRemoteObject::DeathRecipient {
     public:

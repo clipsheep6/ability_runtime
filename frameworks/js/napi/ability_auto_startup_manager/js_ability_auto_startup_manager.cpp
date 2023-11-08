@@ -124,9 +124,9 @@ napi_value JsAbilityAutoStartupManager::OnRegisterAutoStartupCallback(napi_env e
 
 napi_value JsAbilityAutoStartupManager::OnUnregisterAutoStartupCallback(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("Called.");
+    HILOG_DEBUG("OnUnregisterAutoStartupCallback Called.");
     if (info.argc < ARGC_ONE) {
-        HILOG_ERROR("The param is invalid.");
+        HILOG_ERROR("The argument is invalid.");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
@@ -173,6 +173,7 @@ napi_value JsAbilityAutoStartupManager::OnSetApplicationAutoStartup(napi_env env
     }
 
     if (!CheckCallerIsSystemApp()) {
+        HILOG_ERROR("Current app is not system app");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
         return CreateJsUndefined(env);
     }
@@ -193,12 +194,12 @@ napi_value JsAbilityAutoStartupManager::OnSetApplicationAutoStartup(napi_env env
     };
     NapiAsyncTask::CompleteCallback complete = [ret = retVal](napi_env env, NapiAsyncTask &task, int32_t status) {
         if (ret == nullptr) {
-            HILOG_ERROR("The param is invalid.");
+            HILOG_ERROR("The argument is invalid.");
             task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(INNER_ERR)));
             return;
         }
         if (*ret != ERR_OK) {
-            HILOG_ERROR("Failed error:%{public}d.", *ret);
+            HILOG_ERROR("Wrong error:%{public}d.", *ret);
             task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(*ret)));
             return;
         }
@@ -244,7 +245,7 @@ napi_value JsAbilityAutoStartupManager::OnCancelApplicationAutoStartup(napi_env 
 
     NapiAsyncTask::CompleteCallback complete = [ret = retVal](napi_env env, NapiAsyncTask &task, int32_t status) {
         if (ret == nullptr) {
-            HILOG_ERROR("The param is invalid.");
+            HILOG_ERROR("The parameter is invalid.");
             task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(INNER_ERR)));
             return;
         }

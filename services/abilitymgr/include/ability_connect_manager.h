@@ -239,6 +239,8 @@ public:
 
     bool IsWindowExtensionFocused(uint32_t extensionTokenId, const sptr<IRemoteObject>& focusToken);
 
+    void HandleProcessFrozen(const std::unordered_set<int32_t> &pidSet, int32_t uid);
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t CONNECT_TIMEOUT_MSG = 1;

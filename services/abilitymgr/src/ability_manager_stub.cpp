@@ -827,13 +827,16 @@ int AbilityManagerStub::StartAbilityAsCallerByTokenInner(MessageParcel &data, Me
     }
 
     sptr<IRemoteObject> callerToken = nullptr;
+    sptr<IRemoteObject> asCallerSourceToken = nullptr;
     if (data.ReadBool()) {
         callerToken = data.ReadRemoteObject();
     }
-
+    if (data.ReadBool()) {
+        asCallerSourceToken =  data.ReadRemoteObject();
+    }
     int32_t userId = data.ReadInt32();
     int requestCode = data.ReadInt32();
-    int32_t result = StartAbilityAsCaller(*want, callerToken, userId, requestCode);
+    int32_t result = StartAbilityAsCaller(*want, callerToken, asCallerSourceToken, userId, requestCode);
     reply.WriteInt32(result);
     delete want;
     return NO_ERROR;
@@ -853,12 +856,16 @@ int AbilityManagerStub::StartAbilityAsCallerForOptionInner(MessageParcel &data, 
         return ERR_INVALID_VALUE;
     }
     sptr<IRemoteObject> callerToken = nullptr;
+    sptr<IRemoteObject> asCallerSourceToken = nullptr;
     if (data.ReadBool()) {
         callerToken = data.ReadRemoteObject();
     }
+    if (data.ReadBool()) {
+        asCallerSourceToken =  data.ReadRemoteObject();
+    }
     int32_t userId = data.ReadInt32();
     int requestCode = data.ReadInt32();
-    int32_t result = StartAbilityAsCaller(*want, *startOptions, callerToken, userId, requestCode);
+    int32_t result = StartAbilityAsCaller(*want, *startOptions, callerToken, asCallerSourceToken, userId, requestCode);
     reply.WriteInt32(result);
     delete want;
     delete startOptions;
@@ -2820,8 +2827,8 @@ int32_t AbilityManagerStub::ExecuteIntentInner(MessageParcel &data, MessageParce
         return ERR_INVALID_VALUE;
     }
     auto result = ExecuteIntent(key, callerToken, *param);
-    if (result != NO_ERROR) {
-        HILOG_ERROR("ExecuteIntent is failed");
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

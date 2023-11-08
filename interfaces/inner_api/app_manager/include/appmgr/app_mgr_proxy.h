@@ -19,6 +19,7 @@
 #include "iremote_proxy.h"
 #include "want.h"
 
+#include "app_running_status_listener_interface.h"
 #include "app_mgr_interface.h"
 #include "bundle_info.h"
 #include "app_malloc_info.h"
@@ -222,6 +223,9 @@ public:
     virtual void ScheduleAcceptWantDone(
         const int32_t recordId, const AAFwk::Want &want, const std::string &flag) override;
 
+    virtual void ScheduleNewProcessRequestDone(
+        const int32_t recordId, const AAFwk::Want &want, const std::string &flag) override;
+
     /**
      *  Get the token of ability records by process ID.
      *
@@ -378,6 +382,22 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t ChangeAppGcState(pid_t pid, int32_t state) override;
+
+    /**
+     * Register appRunning status listener.
+     *
+     * @param listener Running status listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAppRunningStatusListener(const sptr<IRemoteObject> &listener) override;
+
+    /**
+     * Unregister appRunning status listener.
+     *
+     * @param listener Running status listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener) override;
 
 private:
     bool SendTransactCmd(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply);

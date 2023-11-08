@@ -63,7 +63,7 @@ public:
 
 using ReadSourceMapCallback = std::function<bool(const std::string& hapPath,
     const std::string& sourceMapPath, std::string& content)>;
-
+using GetHapPathCallback = std::function<std::string(const std::string& inputPath, const std::string& bundleName)>;
 class SourceMap final {
 public:
     SourceMap() = default;
@@ -75,12 +75,14 @@ public:
     static ErrorPos GetErrorPos(const std::string& rawStack);
     static void RegisterReadSourceMapCallback(ReadSourceMapCallback readFunc);
     static bool ReadSourceMapData(const std::string& hapPath, const std::string& sourceMapPath, std::string& content);
+    static void RegisterGetHapPathCallback(GetHapPathCallback getFunc);
+    static std::string GetHapPath(const std::string& inputPath, const std::string& bundleName);
     bool GetLineAndColumnNumbers(int& line, int& column, SourceMapData& targetMap, std::string& key);
+    static void ExtractStackInfo(const std::string& stackStr, std::vector<std::string>& res);
 
 private:
     void SplitSourceMap(const std::string& sourceMapData);
     void ExtractSourceMapData(const std::string& sourceMapData, std::shared_ptr<SourceMapData>& curMapData);
-    void ExtractStackInfo(const std::string& stackStr, std::vector<std::string>& res);
     void ExtractKeyInfo(const std::string& sourceMap, std::vector<std::string>& sourceKeyInfo);
     std::vector<std::string> HandleMappings(const std::string& mapping);
     bool VlqRevCode(const std::string& vStr, std::vector<int32_t>& ans);
@@ -97,6 +99,7 @@ private:
     std::shared_ptr<SourceMapData> nonModularMap_;
     static ReadSourceMapCallback readSourceMapFunc_;
     static std::mutex sourceMapMutex_;
+    static GetHapPathCallback getHapPathFunc_;
 };
 } // namespace JsEnv
 } // namespace OHOS

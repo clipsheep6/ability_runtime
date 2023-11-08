@@ -179,8 +179,13 @@ int32_t PendingWantManager::SendWantSender(const sptr<IWantSender> &target, cons
         HILOG_ERROR("sender is nullptr.");
         return ERR_INVALID_VALUE;
     }
+    sptr<IRemoteObject> obj = target->AsObject();
+    if(obj == nullptr) {
+        HILOG_ERROR("target obj is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    sptr<PendingWantRecord> record = iface_cast<PendingWantRecord>(obj);
     SenderInfo info = senderInfo;
-    sptr<PendingWantRecord> record = iface_cast<PendingWantRecord>(target->AsObject());
     return record->SenderInner(info);
 }
 

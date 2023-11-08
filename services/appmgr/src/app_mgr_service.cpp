@@ -525,6 +525,20 @@ void AppMgrService::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::
     taskHandler_->SubmitTask(task);
 }
 
+void AppMgrService::ScheduleNewProcessRequestDone(const int32_t recordId, const AAFwk::Want &want,
+    const std::string &flag)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("not ready");
+        return;
+    }
+    if (!JudgeSelfCalledByRecordId(recordId)) {
+        return;
+    }
+    auto task = [=]() { appMgrServiceInner_->ScheduleNewProcessRequestDone(recordId, want, flag); };
+    taskHandler_->SubmitTask(task);
+}
+
 int AppMgrService::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens)
 {
     if (!IsReady()) {
@@ -870,6 +884,26 @@ int32_t AppMgrService::NotifyPageHide(const sptr<IRemoteObject> &token, const Pa
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->NotifyPageHide(token, pageStateData);
+}
+
+int32_t AppMgrService::RegisterAppRunningStatusListener(const sptr<IRemoteObject> &listener)
+{
+    HILOG_DEBUG("Called.");
+    if (!IsReady()) {
+        HILOG_ERROR("Not ready");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->RegisterAppRunningStatusListener(listener);
+}
+
+int32_t AppMgrService::UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener)
+{
+    HILOG_DEBUG("Called.");
+    if (!IsReady()) {
+        HILOG_ERROR("Not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->UnregisterAppRunningStatusListener(listener);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

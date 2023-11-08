@@ -122,6 +122,21 @@ ErrCode ExtensionManagerClient::ConnectServiceExtensionAbility(const Want &want,
     return abms->ConnectAbilityCommon(want, connect, callerToken, AppExecFwk::ExtensionAbilityType::SERVICE, userId, true);
 }
 
+ErrCode ExtensionManagerClient::ConnectEnterpriseAdminExtensionAbility(const Want &want,
+    const sptr<IRemoteObject> &connect, const sptr<IRemoteObject> &callerToken, int32_t userId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto abms = GetExtensionManager();
+    if (abms == nullptr) {
+        HILOG_ERROR("Connect service failed, bundleName:%{public}s, abilityName:%{public}s.",
+            want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str());
+        return ABILITY_SERVICE_NOT_CONNECTED;
+    }
+    HILOG_INFO("name:%{public}s %{public}s, userId:%{public}d.",
+        want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
+    return abms->ConnectAbilityCommon(want, connect, callerToken, AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN, userId, true);
+}
+
 ErrCode ExtensionManagerClient::ConnectExtensionAbility(const Want &want, const sptr<IRemoteObject> &connect,
     int32_t userId)
 {

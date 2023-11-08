@@ -283,6 +283,16 @@ const std::string &AppRunningRecord::GetProcessName() const
     return processName_;
 }
 
+void AppRunningRecord::SetSpecifiedProcessFlag(const std::string &flag)
+{
+    specifiedProcessFlag_ = flag;
+}
+
+const std::string &AppRunningRecord::GetSpecifiedProcessFlag() const
+{
+    return specifiedProcessFlag_;
+}
+
 int32_t AppRunningRecord::GetUid() const
 {
     return mainUid_;
@@ -694,6 +704,10 @@ void AppRunningRecord::StateChangedNotifyObserver(
     abilityStateData.token = ability->GetToken();
     abilityStateData.abilityType = static_cast<int32_t>(ability->GetAbilityInfo()->type);
     abilityStateData.isFocused = ability->GetFocusFlag();
+    if (ability->GetWant() != nullptr) {
+        abilityStateData.callerAbilityName = ability->GetWant()->GetStringParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
+        abilityStateData.callerBundleName = ability->GetWant()->GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+    }
 
     if (isAbility && ability->GetAbilityInfo()->type == AbilityType::EXTENSION) {
         HILOG_INFO("extension type, not notify any more.");
@@ -1398,6 +1412,30 @@ void AppRunningRecord::ScheduleAcceptWantDone()
     }
 
     eventHandler_->RemoveEvent(AMSEventHandler::START_SPECIFIED_ABILITY_TIMEOUT_MSG, eventId_);
+}
+
+void AppRunningRecord::ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName)
+{
+    SendEvent(
+        AMSEventHandler::START_SPECIFIED_PROCESS_TIMEOUT_MSG, AMSEventHandler::START_SPECIFIED_PROCESS_TIMEOUT);
+    if (appLifeCycleDeal_ == nullptr) {
+        HILOG_WARN("appLifeCycleDeal_ is null");
+        return;
+    }
+    appLifeCycleDeal_->ScheduleNewProcessRequest(want, moduleName);
+}
+
+void AppRunningRecord::ScheduleNewProcessRequestDone()
+{
+    HILOG_INFO("ScheduleNewProcessRequestDone. bundle %{public}s and eventId %{public}d",
+        mainBundleName_.c_str(), static_cast<int>(eventId_));
+
+    if (!eventHandler_) {
+        HILOG_ERROR("eventHandler_ is nullptr");
+        return;
+    }
+
+    eventHandler_->RemoveEvent(AMSEventHandler::START_SPECIFIED_PROCESS_TIMEOUT_MSG, eventId_);
 }
 
 void AppRunningRecord::ApplicationTerminated()

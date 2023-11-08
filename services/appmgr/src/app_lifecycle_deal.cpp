@@ -191,6 +191,16 @@ void AppLifeCycleDeal::ScheduleAcceptWant(const AAFwk::Want &want, const std::st
     appThread_->ScheduleAcceptWant(want, moduleName);
 }
 
+void AppLifeCycleDeal::ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName)
+{
+    if (!appThread_) {
+        HILOG_ERROR("appThread_ is nullptr");
+        return;
+    }
+
+    appThread_->ScheduleNewProcessRequest(want, moduleName);
+}
+
 int32_t AppLifeCycleDeal::UpdateConfiguration(const Configuration &config)
 {
     HILOG_DEBUG("call");

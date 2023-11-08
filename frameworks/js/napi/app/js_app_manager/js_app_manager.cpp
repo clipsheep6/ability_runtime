@@ -188,7 +188,7 @@ private:
             }
             return CreateJsValue(env, observerId);
         } else {
-            HILOG_ERROR("failed error:%{public}d.", ret);
+            HILOG_ERROR("wrong error:%{public}d.", ret);
             ThrowErrorByNativeErr(env, ret);
             return CreateJsUndefined(env);
         }
@@ -231,7 +231,7 @@ private:
             }
             return CreateJsValue(env, observerId);
         } else {
-            HILOG_ERROR("failed error:%{public}d.", ret);
+            HILOG_ERROR("Wrong error:%{public}d.", ret);
             ThrowErrorByNativeErr(env, ret);
             return CreateJsUndefined(env);
         }
@@ -414,7 +414,7 @@ private:
 
     napi_value OnkillProcessesByBundleName(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_DEBUG("called");
+        HILOG_DEBUG("OnkillProcessesByBundleName called");
         if (argc < ARGC_ONE) {
             HILOG_ERROR("Params not match");
             ThrowTooFewParametersError(env);
@@ -423,7 +423,7 @@ private:
 
         std::string bundleName;
         if (!ConvertFromJsValue(env, argv[0], bundleName)) {
-            HILOG_ERROR("get bundleName failed!");
+            HILOG_ERROR("get bundleName error!");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -453,9 +453,9 @@ private:
 
     napi_value OnClearUpApplicationData(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_DEBUG("called");
+        HILOG_DEBUG("OnClearUpApplicationData called");
         if (argc < ARGC_ONE) {
-            HILOG_ERROR("Params not match");
+            HILOG_ERROR("arguments not match");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -491,7 +491,7 @@ private:
 
     napi_value OnIsSharedBundleRunning(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_DEBUG("called");
+        HILOG_DEBUG("OnIsSharedBundleRunning called");
         if (argc < ARGC_TWO) {
             HILOG_ERROR("Params not match");
             ThrowTooFewParametersError(env);
@@ -500,7 +500,7 @@ private:
 
         std::string bundleName;
         if (!ConvertFromJsValue(env, argv[0], bundleName)) {
-            HILOG_ERROR("get bundleName failed!");
+            HILOG_ERROR("get bundleName wrong!");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }

@@ -571,6 +571,27 @@ void AppMgrProxy::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Wa
     }
 }
 
+void AppMgrProxy::ScheduleNewProcessRequestDone(const int32_t recordId, const AAFwk::Want &want,
+    const std::string &flag)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        return;
+    }
+
+    if (!data.WriteInt32(recordId) || !data.WriteParcelable(&want) || !data.WriteString(flag)) {
+        HILOG_ERROR("want write failed.");
+        return;
+    }
+
+    if (!SendTransactCmd(AppMgrInterfaceCode::SCHEDULE_NEW_PROCESS_REQUEST_DONE, data, reply)) {
+        HILOG_ERROR("SendTransactCmd failed");
+        return;
+    }
+}
+
 int AppMgrProxy::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens)
 {
     MessageParcel data;
@@ -1294,6 +1315,50 @@ int32_t AppMgrProxy::SendRequest(AppMgrInterfaceCode code, MessageParcel &data, 
     }
 
     return remote->SendRequest(static_cast<uint32_t>(code), data, reply, option);
+}
+
+int32_t AppMgrProxy::RegisterAppRunningStatusListener(const sptr<IRemoteObject> &listener)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (listener == nullptr || !data.WriteRemoteObject(listener)) {
+        HILOG_ERROR("Write listener failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto error = SendRequest(AppMgrInterfaceCode::REGISTER_APP_RUNNING_STATUS_LISTENER, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t AppMgrProxy::UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (listener == nullptr || !data.WriteRemoteObject(listener)) {
+        HILOG_ERROR("Write listener failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto error = SendRequest(AppMgrInterfaceCode::UNREGISTER_APP_RUNNING_STATUS_LISTENER, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

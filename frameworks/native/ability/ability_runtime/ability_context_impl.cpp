@@ -149,7 +149,7 @@ ErrCode AbilityContextImpl::StartAbilityAsCaller(const AAFwk::Want &want, int re
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("StartAbilityAsCaller");
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityAsCaller(want, token_, requestCode);
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityAsCaller(want, token_, nullptr, requestCode);
     if (err != ERR_OK) {
         HILOG_ERROR("StartAbilityAsCaller. ret=%{public}d", err);
     }
@@ -185,7 +185,7 @@ ErrCode AbilityContextImpl::StartAbilityAsCaller(const AAFwk::Want &want, const 
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("StartAbilityAsCaller");
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityAsCaller(want,
-        startOptions, token_, requestCode);
+        startOptions, token_, nullptr, requestCode);
     if (err != ERR_OK) {
         HILOG_ERROR("StartAbilityAsCaller. ret=%{public}d", err);
     }
@@ -210,7 +210,7 @@ ErrCode AbilityContextImpl::StartAbilityForResult(const AAFwk::Want& want, int r
 {
     HILOG_DEBUG("StartAbilityForResult");
     resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode);
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode, -1);
     if (err != ERR_OK && err != AAFwk::START_ABILITY_WAITING) {
         HILOG_ERROR("StartAbilityForResult. ret=%{public}d", err);
         OnAbilityResultInner(requestCode, err, want);
@@ -749,12 +749,15 @@ ErrCode AbilityContextImpl::StartAbilityByType(const std::string &type,
     want.SetParams(wantParams);
     Ace::ModalUIExtensionCallbacks callback;
     callback.onError = std::bind(&JsUIExtensionCallback::OnError, uiExtensionCallbacks, std::placeholders::_1);
+    callback.onRelease = std::bind(&JsUIExtensionCallback::OnRelease, uiExtensionCallbacks, std::placeholders::_1);
     Ace::ModalUIExtensionConfig config;
     int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
     if (sessionId == 0) {
         HILOG_ERROR("CreateModalUIExtension is failed");
         return ERR_INVALID_VALUE;
     }
+    uiExtensionCallbacks->SetUIContent(uiContent);
+    uiExtensionCallbacks->SetSessionId(sessionId);
     return ERR_OK;
 }
 #endif

@@ -64,7 +64,8 @@ public:
      * @return process record.
      */
     std::shared_ptr<AppRunningRecord> CheckAppRunningRecordIsExist(const std::string &appName,
-        const std::string &processName, const int uid, const BundleInfo &bundleInfo);
+        const std::string &processName, const int uid, const BundleInfo &bundleInfo,
+        const std::string &specifiedProcessFlag = "");
 
     /**
      * CheckAppRunningRecordIsExistByBundleName, Check whether the process of the application exists.
