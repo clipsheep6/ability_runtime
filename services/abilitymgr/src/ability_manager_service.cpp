@@ -8916,6 +8916,47 @@ int32_t AbilityManagerService::ExecuteInsightIntentDone(const sptr<IRemoteObject
         intentId, result.innerErr, result);
 }
 
+int32_t AbilityManagerService::GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
+{
+    HILOG_DEBUG("Called.");
+    CHECK_CALLER_IS_SYSTEM_APP;
+    if (currentMissionListManager_ == nullptr) {
+        HILOG_ERROR("CurrentMissionListManager_ is null.");
+        return ERR_NULL_OBJECT;
+    }
+    if (!AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm()) {
+        HILOG_ERROR("Permission verification failed.");
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    std::list<std::shared_ptr<AbilityRecord>> foregroundAbilities;
+    currentMissionListManager_->GetAllForegroundAbilities(foregroundAbilities);
+    if (foregroundAbilities.empty()) {
+        return ERR_OK;
+    }
+
+    for (auto &abilityRecord : foregroundAbilities) {
+        if (abilityRecord == nullptr) {
+            HILOG_ERROR("AppRecord is nullptr.");
+            continue;
+        }
+        if (abilityRecord->GetAbilityState() == AbilityState::FOREGROUND) {
+            continue;
+        }
+        AppExecFwk::AbilityStateData abilityData;
+        auto abilityInfo = abilityRecord->GetAbilityInfo();
+        abilityData.moduleName = abilityInfo.moduleName;
+        abilityData.bundleName = abilityInfo.bundleName;
+        abilityData.abilityName = abilityInfo.name;
+        abilityData.abilityState = static_cast<int32_t>(AbilityState::FOREGROUND);
+        abilityData.pid = abilityRecord->GetPid();
+        abilityData.uid = abilityInfo.uid;
+        abilityData.abilityType = static_cast<int32_t>(abilityInfo.type);
+        list.push_back(abilityData);
+    }
+    return ERR_OK;
+}
+
 void AbilityManagerService::HandleProcessFrozen(const std::vector<int32_t> &pidList, int32_t uid)
 {
     HILOG_INFO("HandleProcessFrozen: %{public}d", uid);
@@ -8928,5 +8969,5 @@ void AbilityManagerService::HandleProcessFrozen(const std::vector<int32_t> &pidL
     }
     connectManager->HandleProcessFrozen(pidSet, uid);
 }
-}  // namespace AAFwk
-}  // namespace OHOS
+} // namespace AAFwk
+} // namespace OHOS
