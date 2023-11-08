@@ -205,6 +205,25 @@ void JsRuntime::StartDebugMode(bool needBreakPoint)
     debugMode_ = StartDebugger(needBreakPoint, instanceId_);
 }
 
+void JsRuntime::StartDebugMode(bool needBreakPoint, bool isDebug)
+{
+    if (debugMode_) {
+        HILOG_INFO("Already in debug mode");
+        return;
+    }
+    // Set instance id to tid after the first instance.
+    if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
+        instanceId_ = static_cast<uint32_t>(gettid());
+    }
+
+    HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
+    StartDebuggerInWorkerModule();
+    HdcRegister::Get().StartHdcRegister(bundleName_);
+    ConnectServerManager::Get().StartConnectServer(bundleName_);
+    ConnectServerManager::Get().AddInstance(instanceId_);
+    debugMode_ = StartDebugger(needBreakPoint, instanceId_, isDebug);
+}
+
 void JsRuntime::StopDebugMode()
 {
     if (debugMode_) {
@@ -219,10 +238,10 @@ void JsRuntime::InitConsoleModule()
     jsEnv_->InitConsoleModule();
 }
 
-bool JsRuntime::StartDebugger(bool needBreakPoint, uint32_t instanceId)
+bool JsRuntime::StartDebugger(bool needBreakPoint, uint32_t instanceId, bool isDebug)
 {
     CHECK_POINTER_AND_RETURN(jsEnv_, false);
-    return jsEnv_->StartDebugger(ARK_DEBUGGER_LIB_PATH, needBreakPoint, instanceId);
+    return jsEnv_->StartDebugger(ARK_DEBUGGER_LIB_PATH, needBreakPoint, instanceId, isDebug);
 }
 
 void JsRuntime::StopDebugger()
@@ -285,6 +304,29 @@ int32_t JsRuntime::JsperfProfilerCommandParse(const std::string &command, int32_
 }
 
 void JsRuntime::StartProfiler(const std::string &perfCmd)
+{
+    CHECK_POINTER(jsEnv_);
+    if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
+        instanceId_ = static_cast<uint32_t>(gettid());
+    }
+
+    StartDebuggerInWorkerModule();
+    HdcRegister::Get().StartHdcRegister(bundleName_);
+    ConnectServerManager::Get().StartConnectServer(bundleName_);
+    ConnectServerManager::Get().AddInstance(instanceId_);
+    JsEnv::JsEnvironment::PROFILERTYPE profiler = JsEnv::JsEnvironment::PROFILERTYPE::PROFILERTYPE_HEAP;
+    int32_t interval = 0;
+    const std::string profilerCommand("profile");
+    if (perfCmd.find(profilerCommand) != std::string::npos) {
+        profiler = JsEnv::JsEnvironment::PROFILERTYPE::PROFILERTYPE_CPU;
+        interval = JsperfProfilerCommandParse(perfCmd, DEFAULT_INTER_VAL);
+    }
+
+    HILOG_DEBUG("profiler:%{public}d interval:%{public}d.", profiler, interval);
+    jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval);
+}
+
+void JsRuntime::StartProfiler(const std::string &perfCmd, bool isDebug)
 {
     CHECK_POINTER(jsEnv_);
     if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
