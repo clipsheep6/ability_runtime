@@ -584,7 +584,11 @@ bool UIAbilityImpl::AbilityTransaction(const AAFwk::Want &want, const AAFwk::Lif
                 ret = false;
             }
 #ifdef SUPPORT_GRAPHICS
-            Background();
+            if (!InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
+                Background();
+            } else {
+                HandleExecuteInsightIntentBackground(want);
+            }
 #endif
             break;
         }
@@ -732,6 +736,87 @@ void UIAbilityImpl::PostForegroundInsightIntent()
     if (flag) {
         AbilityTransactionCallback(AAFwk::ABILITY_STATE_FOREGROUND_NEW);
     }
+}
+
+void UIAbilityImpl::HandleExecuteInsightIntentBackground(const AAFwk::Want &want)
+{
+    HILOG_INFO("Execute insight intent in background mode.");
+    auto executeParam = std::make_shared<InsightIntentExecuteParam>();
+    auto ret = InsightIntentExecuteParam::GenerateFromWant(want, *executeParam);
+    if (!ret) {
+        HILOG_ERROR("Generate execute param failed.");
+        Background();
+        return;
+    }
+
+    HILOG_DEBUG("Insight intent bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s"
+        "insightIntentName: %{public}s, executeMode: %{public}d, intentId: %{public}" PRIu64"",
+        executeParam->bundleName_.c_str(), executeParam->moduleName_.c_str(), executeParam->abilityName_.c_str(),
+        executeParam->insightIntentName_.c_str(), executeParam->executeMode_, executeParam->insightIntentId_);
+
+    auto intentCb = std::make_unique<InsightIntentExecutorAsyncCallback>();
+    intentCb.reset(InsightIntentExecutorAsyncCallback::Create());
+    if (intentCb == nullptr) {
+        HILOG_ERROR("Create async callback failed.");
+        Background();
+        return;
+    }
+
+    if (lifecycleState_ == AAFwk::ABILITY_STATE_INITIAL
+        || lifecycleState_ == AAFwk::ABILITY_STATE_STARTED_NEW) {
+        //1.判断初始化状态，是则冷启动，需要走background
+        //否则直接执行意图
+        ExecuteInsightIntentBackgroundByColdBoot(want, executeParam, std::move(intentCb));
+    } else {
+        ExecuteInsightIntentBackgroundAlreadyStart(want, executeParam, std::move(intentCb));
+    }
+
+}
+
+void UIAbilityImpl::ExecuteInsightIntentBackgroundByColdBoot(const Want &want,
+    const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+    std::unique_ptr<InsightIntentExecutorAsyncCallback> callback)
+{
+    HILOG_DEBUG("called.");
+    auto asyncCallback =
+        [weak = weak_from_this(), intentId = executeParam->insightIntentId_](InsightIntentExecuteResult result) {
+            HILOG_DEBUG("Execute insight intent finshed, intentId %{public}" PRIu64"", intentId);
+            auto abilityImpl = weak.lock();
+            if (abilityImpl == nullptr) {
+                HILOG_ERROR("Ability impl is nullptr.");
+                return;
+            }
+            abilityImpl->Background();
+            abilityImpl->ExecuteInsightIntentDone(intentId, result);// 意图执行完成
+        };
+    callback->Push(asyncCallback);
+
+    // private function, no need check ability_ validity.
+
+    // 在uiability里执行意图
+    ability_->ExecuteInsightIntentBackground(want, executeParam, std::move(callback));
+}
+
+void UIAbilityImpl::ExecuteInsightIntentBackgroundAlreadyStart(const Want &want,
+    const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+    std::unique_ptr<InsightIntentExecutorAsyncCallback> callback)
+{
+    HILOG_DEBUG("called.");
+
+    auto asyncCallback =
+        [weak = weak_from_this(), intentId = executeParam->insightIntentId_](InsightIntentExecuteResult result) {
+            HILOG_DEBUG("Execute insight intent finshed, intentId %{public}" PRIu64"", intentId);
+            auto abilityImpl = weak.lock();
+            if (abilityImpl == nullptr) {
+                HILOG_ERROR("Ability impl is nullptr.");
+                return;
+            }
+            abilityImpl->ExecuteInsightIntentDone(intentId, result);
+        };
+    callback->Push(asyncCallback);
+
+    // private function, no need check ability_ validity.
+    ability_->ExecuteInsightIntentBackground(want, executeParam, std::move(callback));
 }
 #endif
 } // namespace AbilityRuntime

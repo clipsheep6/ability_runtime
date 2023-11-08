@@ -260,6 +260,28 @@ public:
         const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
         std::unique_ptr<InsightIntentExecutorAsyncCallback> callback) override;
 
+    /**
+     * @brief Execute insight intent when an ability didn't started, schedule it to background.
+     *
+     * @param want Want.
+     * @param executeParam insight intent execute param.
+     * @param callback insight intent async callback.
+     */
+    virtual void ExecuteInsightIntentBackground(const AAFwk::Want &want,
+        const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+        std::unique_ptr<InsightIntentExecutorAsyncCallback> callback) override;
+
+    // /**
+    //  * @brief Execute insight intent when an ability has started, not change the status
+    //  *
+    //  * @param want Want.
+    //  * @param executeParam insight intent execute param.
+    //  * @param callback insight intent async callback.
+    //  */
+    // virtual void ExecuteInsightIntentBackgroundAlreadyStart(const AAFwk::Want &want,
+    //     const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+    //     std::unique_ptr<InsightIntentExecutorAsyncCallback> callback);
+
 protected:
     void DoOnForeground(const Want &want) override;
     void ContinuationRestore(const Want &want) override;
