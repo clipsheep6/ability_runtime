@@ -220,10 +220,17 @@ private:
 private:
     void HandleForegroundNewState(const AAFwk::Want &want, bool &bFlag);
     void HandleExecuteInsightIntentForeground(const AAFwk::Want &want, bool &bflag);
+    void HandleExecuteInsightIntentBackground(const AAFwk::Want &want);
     inline void ExecuteInsightIntentRepeateForeground(const Want &want,
         const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
         std::unique_ptr<InsightIntentExecutorAsyncCallback> callback);
     inline void ExecuteInsightIntentMoveToForeground(const Want &want,
+        const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+        std::unique_ptr<InsightIntentExecutorAsyncCallback> callback);
+    inline void ExecuteInsightIntentBackgroundByColdBoot(const Want &want,
+        const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+        std::unique_ptr<InsightIntentExecutorAsyncCallback> callback);
+    inline void ExecuteInsightIntentBackgroundAlreadyStart(const Want &want,
         const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
         std::unique_ptr<InsightIntentExecutorAsyncCallback> callback);
 

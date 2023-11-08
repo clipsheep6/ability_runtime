@@ -850,6 +850,40 @@ void JsUIAbility::ExecuteInsightIntentMoveToForeground(const Want &want,
     }
 }
 
+void JsUIAbility::ExecuteInsightIntentBackground(const Want &want,
+    const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+    std::unique_ptr<InsightIntentExecutorAsyncCallback> callback)
+{
+    HILOG_DEBUG("called.");
+    if (executeParam == nullptr) {
+        HILOG_WARN("Intent execute param invalid.");
+        //TODO 错误码
+        InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback), ERR_OK);
+        return;
+    }
+
+    //TODO
+    if (abilityInfo_) {
+        jsRuntime_.UpdateModuleNameAndAssetPath(abilityInfo_->moduleName);
+    }
+
+    InsightIntentExecutorInfo executeInfo;
+    auto ret = GetInsightIntentExecutorInfo(want, executeParam, executeInfo);
+    if (!ret) {
+        HILOG_ERROR("Get Intent executor failed.");
+        InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback),
+            static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
+        return;
+    }
+
+    ret = DelayedSingleton<InsightIntentExecutorMgr>::GetInstance()->ExecuteInsightIntent(
+        jsRuntime_, executeInfo, std::move(callback));
+    if (!ret) {
+        // callback has removed, release in insight intent executor.
+        HILOG_ERROR("Execute insight intent failed.");
+    }
+}
+
 bool JsUIAbility::GetInsightIntentExecutorInfo(const Want &want,
     const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
     InsightIntentExecutorInfo& executeInfo)

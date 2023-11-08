@@ -1364,6 +1364,8 @@ public:
     int32_t StartAbilityWithInsightIntent(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE);
 
+    int32_t StartAbilityByCallWithInsightIntent(const Want &want, const sptr<IRemoteObject> &callerToken);
+
     /**
      * @brief Check if ability controller can start.
      * @param want The want of ability to start.

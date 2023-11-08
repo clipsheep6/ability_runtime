@@ -3162,7 +3162,7 @@ int MissionListManager::CallAbilityLocked(const AbilityRequest &abilityRequest)
         HILOG_DEBUG("target ability has been resolved.");
         if (targetAbilityRecord->GetWant().GetBoolParam(Want::PARAM_RESV_CALL_TO_FOREGROUND, false)) {
             HILOG_DEBUG("target ability needs to be switched to foreground.");
-            DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(targetAbilityRecord->GetToken());
+            DelayedSingleton<AppScheduler>::GetInstance()-> (targetAbilityRecord->GetToken());
         }
         return ERR_OK;
     } else if (ret == ResolveResultType::NG_INNER_ERROR) {
