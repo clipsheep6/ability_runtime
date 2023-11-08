@@ -3116,6 +3116,14 @@ int MissionListManager::ResolveLocked(const AbilityRequest &abilityRequest)
     return CallAbilityLocked(abilityRequest);
 }
 
+bool MissionListManager::IsAbilityStarted(AbilityRequest &abilityRequest,
+    std::shared_ptr<AbilityRecord> &targetRecord)
+{
+    std::shared_ptr<Mission> targetMission;
+
+    return HandleReusedMissionAndAbility(abilityRequest, targetMission, targetRecord);
+}
+
 int MissionListManager::CallAbilityLocked(const AbilityRequest &abilityRequest)
 {
     HILOG_INFO("call ability.");
