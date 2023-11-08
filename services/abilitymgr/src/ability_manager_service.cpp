@@ -42,6 +42,7 @@
 #include "connection_state_manager.h"
 #include "distributed_client.h"
 #include "dlp_utils.h"
+#include "extension_config.h"
 #include "errors.h"
 #include "freeze_util.h"
 #include "hilog_wrapper.h"
@@ -394,6 +395,11 @@ bool AbilityManagerService::Init()
     };
     taskHandler_->SubmitTask(startAutoStartupAppsTask, "StartAutoStartupApps");
     ResiterSuspendObserver();
+    
+    auto initExtensionConfigTask = []() {
+        DelayedSingleton<ExtensionConfig>::GetInstance()->LoadExtensionConfiguration();
+    };
+    taskHandler_->SubmitTask(initExtensionConfigTask, "InitExtensionConfigTask");
     HILOG_INFO("Init success.");
     return true;
 }
