@@ -162,7 +162,7 @@ bool JsEnvironment::LoadScript(const std::string& path, std::vector<uint8_t>* bu
     return engine_->RunScriptBuffer(path.c_str(), *buffer, isBundle) != nullptr;
 }
 
-bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId)
+bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId, bool isDebug)
 {
     if (vm_ == nullptr) {
         JSENV_LOG_E("Invalid vm.");
