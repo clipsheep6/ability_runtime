@@ -1951,5 +1951,22 @@ void UIAbilityLifecycleManager::SetDevice(std::string deviceType)
 {
     isPcDevice_ = (deviceType == "tablet" || deviceType == "pc" || deviceType == "2in1");
 }
+
+void UIAbilityLifecycleManager::ClearAbilityRecord(int32_t userId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+
+    auto iter = sessionAbilityMap_.begin();
+    while (iter != sessionAbilityMap_.end())  
+    {  
+        if ((iter->second != nullptr) && (iter->second->GetOwnerMissionUserId() == userId)) {  
+            iter = sessionAbilityMap_.erase(iter);  
+        }  
+        else {
+            iter++;
+        }
+    }
+}
 }  // namespace AAFwk
 }  // namespace OHOS

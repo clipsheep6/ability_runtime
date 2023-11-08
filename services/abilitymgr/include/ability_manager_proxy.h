@@ -615,6 +615,8 @@ public:
 
     virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override;
 
+    virtual int LogoutUser(int userId) override;
+
     virtual int SetMissionContinueState(const sptr<IRemoteObject> &token, const AAFwk::ContinueState &state) override;
 
 #ifdef SUPPORT_GRAPHICS
