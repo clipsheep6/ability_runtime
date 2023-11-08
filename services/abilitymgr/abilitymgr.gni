@@ -34,6 +34,7 @@ abilityms_files = [
   "src/data_ability_record.cpp",
   "src/lifecycle_deal.cpp",
   "src/ability_running_info.cpp",
+  "src/extension_config.cpp",
   "src/extension_running_info.cpp",
   "src/caller_info.cpp",
   "src/sender_info.cpp",
