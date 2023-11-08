@@ -20,42 +20,10 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-
-enum class AutoFillType {
-    UNSPECIFIED,
-    PASSWORD,
-    USER_NAME,
-    NEW_PASSWORD,
-};
-
 enum ResultCode {
-    INVALID_VALUE = 0,
-    FILL_SUCESS,
+    FILL_SUCESS = 0,
     FILL_FAILED,
-    FILL_CANCEL,
-    SAVE_SUCESS,
-    SAVE_FAILED,
-};
-
-struct PageNodeInfo {
-    int32_t id = -1;
-    int32_t depth = -1;
-    AutoFillType autoFillType = AutoFillType::UNSPECIFIED;
-    std::string tag;
-    std::string value;
-    std::string passwordRules;
-    bool enableAutoFill = true;
-};
-
-struct ViewData {
-    std::string ToJsonString() const;
-    ViewData ToJsValue(const std::string &strData) const;
-
-    std::string bundleName;
-    std::string abilityName;
-    std::string moduleName;
-    std::string pageName;
-    std::vector<PageNodeInfo> pageNodeInfos;
+    FILL_CANCEL
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

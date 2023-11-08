@@ -23,11 +23,8 @@ ohos_shared_library("auto_fill_manager") {
 
   sources = [
     "src/auto_fill_manager.cpp",
-    "src/ui_extension_callback.cpp",
-    "src/view_data.cpp",
+    "src/auto_fill_extension_callback.cpp",
   ]
-
-  public_configs = [ ]
 
   deps = [
     "${ability_runtime_native_path}/ability/native:ability_business_error",
@@ -36,6 +33,7 @@ ohos_shared_library("auto_fill_manager") {
 
   external_deps = [
     "ability_base:base",
+    "ability_base:view_data",
     "ability_base:want",
     "ace_engine:ace_uicontent",
     "c_utils:utils",

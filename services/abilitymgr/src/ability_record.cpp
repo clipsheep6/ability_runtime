@@ -1598,7 +1598,7 @@ void AbilityRecord::SendSandboxSavefileResult(const Want &want, int resultCode, 
             }
             Uri uri(uriStr);
             auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(uri,
-                Want::FLAG_AUTH_WRITE_URI_PERMISSION, abilityInfo_.bundleName, 0, appIndex_));
+                Want::FLAG_AUTH_WRITE_URI_PERMISSION, abilityInfo_.bundleName, appIndex_));
             if (ret != ERR_OK) {
                 HILOG_WARN("GrantUriPermission failed");
             }
@@ -2739,11 +2739,10 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         }
         uriVecMap[flag].emplace_back(uri);
     }
-    int autoremove = 1;
     for (const auto &item : uriVecMap) {
         auto ret = IN_PROCESS_CALL(
             AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(item.second, item.first,
-                targetBundleName, autoremove, appIndex_));
+                targetBundleName, appIndex_));
         if (ret == ERR_OK) {
             isGrantedUriPermission_ = true;
         }
@@ -2801,10 +2800,8 @@ void AbilityRecord::GrantDmsUriPermission(Want &want, std::string targetBundleNa
             HILOG_ERROR("uri is not distributed path");
             continue;
         }
-        int autoremove = 1;
         auto ret = IN_PROCESS_CALL(
-            AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, want.GetFlags(),
-                targetBundleName, autoremove));
+            UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, want.GetFlags(), targetBundleName));
         if (ret == 0) {
             isGrantedUriPermission_ = true;
         }
@@ -2817,7 +2814,7 @@ void AbilityRecord::RevokeUriPermission()
 {
     if (isGrantedUriPermission_) {
         HILOG_DEBUG("To remove uri permission.");
-        AAFwk::UriPermissionManagerClient::GetInstance().RevokeUriPermission(applicationInfo_.accessTokenId);
+        UriPermissionManagerClient::GetInstance().RevokeUriPermission(applicationInfo_.accessTokenId);
         isGrantedUriPermission_ = false;
     }
 }

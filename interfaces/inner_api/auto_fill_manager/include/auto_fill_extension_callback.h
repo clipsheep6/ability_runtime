@@ -13,33 +13,34 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_UI_EXTENSION_CALLBACK_H
-#define OHOS_ABILITY_RUNTIME_UI_EXTENSION_CALLBACK_H
+#ifndef OHOS_ABILITY_RUNTIME_AUTO_FILL_EXTENSION_CALLBACK_H
+#define OHOS_ABILITY_RUNTIME_AUTO_FILL_EXTENSION_CALLBACK_H
 
 #include <memory>
 #include <string>
 
-#include "auto_request_callback_interface.h"
+#include "fill_request_callback_interface.h"
 #include "save_request_callback_interface.h"
 #include "want.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-class UIExtensionCallback {
+class AutoFillExtensionCallback {
 public:
-    UIExtensionCallback(const std::string &autoFillType);
-    ~UIExtensionCallback() = default;
+    AutoFillExtensionCallback() = default;
+    ~AutoFillExtensionCallback() = default;
 
     void OnResult(int32_t number, const AAFwk::Want &want);
+    void OnRelease(int32_t number);
 
-    void SetAutoRequestCallback(const std::shared_ptr<IFillRequestCallback> &callback);
+    void SetFillRequestCallback(const std::shared_ptr<IFillRequestCallback> &callback);
     void SetSaveRequestCallback(const std::shared_ptr<ISaveRequestCallback> &callback);
 
 private:
-    std::string autoFillType_;
     std::weak_ptr<IFillRequestCallback> fillCallback_;
     std::weak_ptr<ISaveRequestCallback> saveCallback_;
+    bool isFillCallback_ = false;
 };
 } // AbilityRuntime
 } // OHOS
-#endif // OHOS_ABILITY_RUNTIME_UI_EXTENSION_CALLBACK_H
+#endif // OHOS_ABILITY_RUNTIME_AUTO_FILL_EXTENSION_CALLBACK_H

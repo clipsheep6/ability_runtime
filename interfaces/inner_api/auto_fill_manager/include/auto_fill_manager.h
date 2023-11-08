@@ -18,10 +18,10 @@
 
 #include <string>
 
-#include "auto_request_callback_interface.h"
+#include "fill_request_callback_interface.h"
+#include "foundation/ability/ability_base/interfaces/kits/native/view_data/include/view_data.h"
 #include "save_request_callback_interface.h"
 #include "ui_content.h"
-#include "view_data.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -31,15 +31,15 @@ public:
     static AutoFillManager& GetInstance();
 
     int32_t RequestAutoFill(
-        const std::string &autoFillType,
-        const std::shared_ptr<Ace::UIContent> &uiContent,
-        const ViewData &viewdata,
+        const AbilityBase::AutoFillType &autoFillType,
+        Ace::UIContent *uiContent,
+        const AbilityBase::ViewData &viewdata,
         const std::shared_ptr<IFillRequestCallback> &fillCallback);
 
     int32_t RequestAutoSave(
-        const std::string &autoFillType,
-        const std::shared_ptr<Ace::UIContent> &uiContent,
-        const ViewData &viewdata,
+        const AbilityBase::AutoFillType &autoFillType,
+        Ace::UIContent *uiContent,
+        const AbilityBase::ViewData &viewdata,
         const std::shared_ptr<ISaveRequestCallback> &saveCallback);
 };
 } // AbilityRuntime

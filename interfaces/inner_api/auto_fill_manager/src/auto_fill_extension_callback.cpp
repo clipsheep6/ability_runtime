@@ -13,8 +13,10 @@
  * limitations under the License.
  */
 
-#include "ui_extension_callback.h"
+#include "auto_fill_extension_callback.h"
 
+#include "auto_fill_error.h"
+#include "foundation/ability/ability_base/interfaces/kits/native/view_data/include/view_data.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -22,10 +24,7 @@ namespace AbilityRuntime {
 namespace {
 const std::string WANT_PARAMS_VIEW_DATA = "ohos.ability.params.viewData";
 } // namespace
-UIExtensionCallback::UIExtensionCallback(const std::string &autoFillType) : autoFillType_(autoFillType)
-{}
-
-void UIExtensionCallback::OnResult(int32_t number, const AAFwk::Want &want)
+void AutoFillExtensionCallback::OnResult(int32_t number, const AAFwk::Want &want)
 {
     HILOG_DEBUG("Called result code is %{public}d.", number);
     auto fillCallback = fillCallback_.lock();
@@ -35,62 +34,59 @@ void UIExtensionCallback::OnResult(int32_t number, const AAFwk::Want &want)
         return;
     }
 
-    switch (number)
-    {
-    case ResultCode::FILL_SUCESS:
-    {
-        if (fillCallback == nullptr){
+    if (isFillCallback_) {
+        if (fillCallback == nullptr) {
             HILOG_ERROR("sucess: fillCallback is nullptr.");
             return;
         }
         std::string dataStr = want.GetStringParam(WANT_PARAMS_VIEW_DATA);
-        ViewData viewData;
-        viewData = viewData.ToJsValue(dataStr.c_str());
+        AbilityBase::ViewData viewData;
+        viewData.FromJsonString(dataStr.c_str());
         fillCallback->OnFillRequestSuccess(viewData);
-        break;
+    } else {
+        if (saveCallback == nullptr) {
+            HILOG_ERROR("sucess: saveCallback is nullptr.");
+            return;
+        }
+        saveCallback->OnSaveRequestSuccess();
     }
-    case ResultCode::FILL_FAILED:
-    case ResultCode::FILL_CANCEL:
-    {
+}
+
+void AutoFillExtensionCallback::OnRelease(int32_t number)
+{
+    HILOG_DEBUG("Called result code is %{public}d.", number);
+    auto fillCallback = fillCallback_.lock();
+    auto saveCallback = saveCallback_.lock();
+    if (fillCallback != nullptr && saveCallback == nullptr) {
+        HILOG_ERROR("saveCallback and saveCallback is nullptr.");
+        return;
+    }
+
+    if (isFillCallback_) {
         if (fillCallback == nullptr){
             HILOG_ERROR("failed: fillCallback is nullptr.");
             return;
         }
         fillCallback->OnFillRequestFailed(number);
-        break;
-    }
-    case ResultCode::SAVE_SUCESS:
-    {
+    } else {
         if (saveCallback == nullptr){
-            HILOG_ERROR("sucess: saveCallback is nullptr.");
-            return;
-        }
-        saveCallback->OnSaveRequestSuccess();
-        break;
-    }
-    case ResultCode::SAVE_FAILED:
-    {
-        if (saveCallback == nullptr){
-            HILOG_ERROR("sucess: saveCallback is nullptr.");
+            HILOG_ERROR("failed: fillCallback is nullptr.");
             return;
         }
         saveCallback->OnSaveRequestFailed();
-        break;
-    }
-    default:
-        HILOG_ERROR("Result code is invalid.");
-        break;
     }
 }
 
-void UIExtensionCallback::SetAutoRequestCallback(const std::shared_ptr<IFillRequestCallback> &callback)
+void AutoFillExtensionCallback::SetFillRequestCallback(const std::shared_ptr<IFillRequestCallback> &callback)
 {
     fillCallback_ = callback;
+    isFillCallback_ = true;
 }
 
-void UIExtensionCallback::SetSaveRequestCallback(const std::shared_ptr<ISaveRequestCallback> &callback)
+void AutoFillExtensionCallback::SetSaveRequestCallback(const std::shared_ptr<ISaveRequestCallback> &callback)
 {
     saveCallback_ = callback;
+    isFillCallback_ = false;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

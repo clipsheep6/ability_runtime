@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,19 +13,20 @@
  * limitations under the License.
  */
 
-#include "view_data.h"
+#ifndef OHOS_ABILITY_RUNTIME_AUTO_REQUEST_CALLBACK_INTERFACE_H
+#define OHOS_ABILITY_RUNTIME_AUTO_REQUEST_CALLBACK_INTERFACE_H
+
+#include "foundation/ability/ability_base/interfaces/kits/native/view_data/include/view_data.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-std::string ViewData::ToJsonString() const
-{
-    return "";
-}
+class IFillRequestCallback {
+public:
+    virtual ~IFillRequestCallback() {}
 
-ViewData ViewData::ToJsValue(const std::string &strData) const
-{
-    ViewData data;
-    return data;
-}
-}
-}
+    virtual void OnFillRequestSuccess(const AbilityBase::ViewData &viewData) = 0;
+    virtual void OnFillRequestFailed(int32_t errCode) = 0;
+};
+} // AbilityRuntime
+} // OHOS
+#endif // OHOS_ABILITY_RUNTIME_AUTO_REQUEST_CALLBACK_INTERFACE_H

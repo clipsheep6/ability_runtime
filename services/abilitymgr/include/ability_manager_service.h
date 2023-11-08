@@ -1870,9 +1870,8 @@ private:
     sptr<IWindowManagerServiceHandler> wmsHandler_;
 #endif
     std::shared_ptr<AbilityInterceptorExecuter> interceptorExecuter_;
-#ifdef SUPPORT_ERMS
     std::shared_ptr<AbilityInterceptorExecuter> afterCheckExecuter_;
-#endif
+
     std::unordered_map<int32_t, int64_t> appRecoveryHistory_; // uid:time
     bool isPrepareTerminateEnable_ = false;
     std::multimap<int, std::shared_ptr<StartAbilityHandler>, std::greater<int>> startAbilityChain_;

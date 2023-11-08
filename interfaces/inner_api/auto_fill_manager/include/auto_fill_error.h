@@ -13,20 +13,16 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_AUTO_REQUEST_CALLBACK_INTERFACE_H
-#define OHOS_ABILITY_RUNTIME_AUTO_REQUEST_CALLBACK_INTERFACE_H
-
-#include "view_data.h"
+#ifndef OHOS_ABILITY_RUNTIME_AUTO_FILL_ERROR_H
+#define OHOS_ABILITY_RUNTIME_AUTO_FILL_ERROR_H
 
 namespace OHOS {
 namespace AbilityRuntime {
-class IFillRequestCallback {
-public:
-    virtual ~IFillRequestCallback() {}
-
-    virtual void OnFillRequestSuccess(const ViewData &viewData) = 0;
-    virtual void OnFillRequestFailed(int32_t errCode) = 0;
+enum {
+    ERR_SUCESS = 0,
+    ERR_FAILED,
+    ERR_CANCEL,
 };
-} // AbilityRuntime
-} // OHOS
-#endif // OHOS_ABILITY_RUNTIME_AUTO_REQUEST_CALLBACK_INTERFACE_H
+} // namespace AbilityRuntime
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_AUTO_FILL_ERROR_H

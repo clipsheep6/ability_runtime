@@ -69,12 +69,13 @@ void IdleTime::EventTask()
     int64_t period = 0;
     int64_t lastVSyncTime = 0;
     VsyncError err = receiver_->GetVSyncPeriodAndLastTimeStamp(period, lastVSyncTime, true);
+    HILOG_DEBUG("EventTask period %{public}" PRId64 ", lastVSyncTime is %{public}" PRId64, period, lastVSyncTime);
     int64_t occurTimestamp = GetSysTimeNs();
     if (GSERROR_OK == err && period > 0 && lastVSyncTime > 0 && occurTimestamp > lastVSyncTime) {
         int64_t elapsedTime = occurTimestamp - lastVSyncTime;
         int64_t idleTime = period - (elapsedTime % period) ;
         int64_t cycle = elapsedTime / period ;
-        HILOG_DEBUG("EventTask idleTime %{public}lld, cycle %{public}lld", idleTime, cycle);
+        HILOG_DEBUG("EventTask idleTime %{public}" PRId64 ", cycle is %{public}" PRId64, idleTime, cycle);
         if (idleTime > 0 && cycle < MAX_PERIOD_COUNT) {
             HILOG_DEBUG("callback_");
             callback_(idleTime / MS_PER_NS);

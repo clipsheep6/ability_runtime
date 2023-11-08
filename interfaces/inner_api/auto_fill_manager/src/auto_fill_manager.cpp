@@ -16,24 +16,27 @@
 #include "auto_fill_manager.h"
 
 #include "extension_ability_info.h"
+#include "foundation/ability/ability_base/interfaces/kits/native/view_data/include/view_data.h"
 #include "hilog_wrapper.h"
-#include "ui_extension_callback.h"
+#include "auto_fill_extension_callback.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr const char *TEMP_ABILITY_NAME = "com.ohos.launcher.MainAbility";
 constexpr const char *TEMP_BUNDLE_NAME = "com.ohos.launcher";
-const std::string WANT_PARAMS_AUTO_FILL_CMD_AUTOFILL = "autofill";
+const std::string WANT_PARAMS_AUTO_FILL_CMD_FILL = "fill";
+const std::string WANT_PARAMS_AUTO_FILL_CMD_SAVE = "save";
 const std::string WANT_PARAMS_VIEW_DATA = "ohos.ability.params.viewData";
 const std::string WANT_PARAMS_AUTO_FILL_CMD = "ohos.ability.params.autoFillCmd";
 const std::string WANT_PARAMS_EXTENSION_TYPE_KEY = "ability.want.params.ExtensionType";
+const std::string WANT_PARAMS_AUTO_FILL_TYPE_KEY = "ability.want.params.AutoFillType";
 } // namespace
 
 int32_t AutoFillManager::RequestAutoFill(
-    const std::string &autoFillType,
-    const std::shared_ptr<Ace::UIContent> &uiContent,
-    const ViewData &viewdata,
+    const AbilityBase::AutoFillType &autoFillType,
+    Ace::UIContent *uiContent,
+    const AbilityBase::ViewData &viewdata,
     const std::shared_ptr<IFillRequestCallback> &fillCallback)
 {
     HILOG_DEBUG("Called.");
@@ -41,24 +44,26 @@ int32_t AutoFillManager::RequestAutoFill(
         HILOG_ERROR("uiContent is nullptr.");
         return ERR_INVALID_VALUE;
     }
-
     AAFwk::Want want;
     AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::AUTOFILL;
     want.SetElementName(TEMP_BUNDLE_NAME, TEMP_ABILITY_NAME);
     want.SetParam(WANT_PARAMS_EXTENSION_TYPE_KEY, static_cast<int32_t>(extensionType));
-    want.SetParam(WANT_PARAMS_AUTO_FILL_CMD, WANT_PARAMS_AUTO_FILL_CMD_AUTOFILL);
+    want.SetParam(WANT_PARAMS_AUTO_FILL_TYPE_KEY, static_cast<int32_t>(autoFillType));
+    want.SetParam(WANT_PARAMS_AUTO_FILL_CMD, WANT_PARAMS_AUTO_FILL_CMD_FILL);
     want.SetParam(WANT_PARAMS_VIEW_DATA, viewdata.ToJsonString());
 
-    auto uiExtensionCallback = std::make_shared<UIExtensionCallback>("");
-    if (uiExtensionCallback == nullptr) {
-        HILOG_ERROR("uiExtensionCallback is nullptr.");
+    auto autoFillExtensionCallback = std::make_shared<AutoFillExtensionCallback>();
+    if (autoFillExtensionCallback == nullptr) {
+        HILOG_ERROR("autoFillExtensionCallback is nullptr.");
         return ERR_INVALID_OPERATION;
     }
-    uiExtensionCallback->SetAutoRequestCallback(fillCallback);
+    autoFillExtensionCallback->SetFillRequestCallback(fillCallback);
 
     Ace::ModalUIExtensionCallbacks callback;
     callback.onResult = std::bind(
-        &UIExtensionCallback::OnResult, uiExtensionCallback, std::placeholders::_1, std::placeholders::_2);
+        &AutoFillExtensionCallback::OnResult, autoFillExtensionCallback, std::placeholders::_1, std::placeholders::_2);
+    callback.onRelease = std::bind(
+        &AutoFillExtensionCallback::OnRelease, autoFillExtensionCallback, std::placeholders::_1);
 
     Ace::ModalUIExtensionConfig config;
     config.isProhibitBack = true;
@@ -71,9 +76,9 @@ int32_t AutoFillManager::RequestAutoFill(
 }
 
 int32_t AutoFillManager::RequestAutoSave(
-    const std::string &autoFillType,
-    const std::shared_ptr<Ace::UIContent> &uiContent,
-    const ViewData &viewdata,
+    const AbilityBase::AutoFillType &autoFillType,
+    Ace::UIContent *uiContent,
+    const AbilityBase::ViewData &viewdata,
     const std::shared_ptr<ISaveRequestCallback> &saveCallback)
 {
     HILOG_DEBUG("Called.");
@@ -86,19 +91,22 @@ int32_t AutoFillManager::RequestAutoSave(
     AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
     want.SetElementName(TEMP_BUNDLE_NAME, TEMP_ABILITY_NAME);
     want.SetParam(WANT_PARAMS_EXTENSION_TYPE_KEY, static_cast<int32_t>(extensionType));
-    want.SetParam(WANT_PARAMS_AUTO_FILL_CMD, WANT_PARAMS_AUTO_FILL_CMD_AUTOFILL);
+    want.SetParam(WANT_PARAMS_AUTO_FILL_TYPE_KEY, static_cast<int32_t>(autoFillType));
+    want.SetParam(WANT_PARAMS_AUTO_FILL_CMD, WANT_PARAMS_AUTO_FILL_CMD_SAVE);
     want.SetParam(WANT_PARAMS_VIEW_DATA, viewdata.ToJsonString());
 
-    auto uiExtensionCallback = std::make_shared<UIExtensionCallback>("");
-    if (uiExtensionCallback == nullptr) {
-        HILOG_ERROR("uiExtensionCallback is nullptr.");
+    auto autoFillExtensionCallback = std::make_shared<AutoFillExtensionCallback>();
+    if (autoFillExtensionCallback == nullptr) {
+        HILOG_ERROR("autoFillExtensionCallback is nullptr.");
         return ERR_INVALID_OPERATION;
     }
-    uiExtensionCallback->SetSaveRequestCallback(saveCallback);
+    autoFillExtensionCallback->SetSaveRequestCallback(saveCallback);
 
     Ace::ModalUIExtensionCallbacks callback;
     callback.onResult = std::bind(
-        &UIExtensionCallback::OnResult, uiExtensionCallback, std::placeholders::_1, std::placeholders::_2);
+        &AutoFillExtensionCallback::OnResult, autoFillExtensionCallback, std::placeholders::_1, std::placeholders::_2);
+    callback.onRelease = std::bind(
+        &AutoFillExtensionCallback::OnRelease, autoFillExtensionCallback, std::placeholders::_1);
 
     Ace::ModalUIExtensionConfig config;
     config.isProhibitBack = true;
