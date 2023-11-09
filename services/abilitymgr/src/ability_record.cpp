@@ -210,10 +210,12 @@ AbilityRecord::AbilityRecord(const Want &want, const AppExecFwk::AbilityInfo &ab
         bool isRootLauncher = (applicationInfo_.bundleName == LAUNCHER_BUNDLE_NAME);
         restartMax_ = AmsConfigurationParameter::GetInstance().GetMaxRestartNum(isRootLauncher);
         bool flag = abilityMgr->GetStartUpNewRuleFlag();
+        std::lock_guard<ffrt::mutex> guard(wantLock_);
         want_.SetParam(COMPONENT_STARTUP_NEW_RULES, flag);
     }
     restartCount_ = restartMax_;
     appIndex_ = want.GetIntParam(DLP_INDEX, 0);
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     isAppAutoStartup_ = want_.GetBoolParam(Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON, false);
     if (want_.HasParameter(Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON)) {
         want_.RemoveParam(Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON);
@@ -301,6 +303,7 @@ int AbilityRecord::LoadAbility()
         } else {
             int coldStartTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * COLDSTART_TIMEOUT_MULTIPLE;
+            std::lock_guard<ffrt::mutex> guard(wantLock_);
             auto delayTime = want_.GetBoolParam("coldStart", false) ? coldStartTimeout : loadTimeout;
             SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, delayTime / HALF_TIMEOUT);
         }
@@ -330,6 +333,7 @@ int AbilityRecord::LoadAbility()
             callerToken_ = caller->GetToken();
         }
     }
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     want_.SetParam(ABILITY_OWNER_USERID, ownerMissionUserId_);
     want_.SetParam("ohos.ability.launch.reason", static_cast<int>(lifeCycleStateInfo_.launchParam.launchReason));
     auto result = DelayedSingleton<AppScheduler>::GetInstance()->LoadAbility(
@@ -418,6 +422,7 @@ void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
 
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (handler && task) {
+        std::lock_guard<ffrt::mutex> guard(wantLock_);
         if (!want_.GetBoolParam(DEBUG_APP, false) && !want_.GetBoolParam(NATIVE_DEBUG, false) && !isAttachDebug_) {
             int foregroundTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
@@ -2250,6 +2255,7 @@ void AbilityRecord::SendEvent(uint32_t msg, uint32_t timeOut, int32_t param)
 
 bool AbilityRecord::IsDebug() const
 {
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     if (want_.GetBoolParam(DEBUG_APP, false) || want_.GetBoolParam(NATIVE_DEBUG, false) ||
         !want_.GetStringParam(PERF_CMD).empty() || isAttachDebug_) {
         HILOG_INFO("Is debug mode, no need to handle time out.");
@@ -2372,6 +2378,7 @@ void AbilityRecord::SetMission(const std::shared_ptr<Mission> &mission)
         missionId_ = mission->GetMissionId();
         HILOG_DEBUG("SetMission come, missionId is %{public}d.", missionId_);
     }
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     want_.RemoveParam(KEY_MISSION_ID);
     want_.SetParam(KEY_MISSION_ID, missionId_);
     mission_ = mission;
@@ -2877,11 +2884,13 @@ int32_t AbilityRecord::GetCurrentAccountId() const
 
 void AbilityRecord::SetWindowMode(int32_t windowMode)
 {
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     want_.SetParam(Want::PARAM_RESV_WINDOW_MODE, windowMode);
 }
 
 void AbilityRecord::RemoveWindowMode()
 {
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     want_.RemoveParam(Want::PARAM_RESV_WINDOW_MODE);
 }
 
@@ -2930,6 +2939,7 @@ void AbilityRecord::SetOtherMissionStackAbilityRecord(const std::shared_ptr<Abil
 void AbilityRecord::UpdateRecoveryInfo(bool hasRecoverInfo)
 {
     if (hasRecoverInfo) {
+        std::lock_guard<ffrt::mutex> guard(wantLock_);
         want_.SetParam(Want::PARAM_ABILITY_RECOVERY_RESTART, true);
         SetLaunchReason(LaunchReason::LAUNCHREASON_APP_RECOVERY);
     }
@@ -2937,6 +2947,7 @@ void AbilityRecord::UpdateRecoveryInfo(bool hasRecoverInfo)
 
 bool AbilityRecord::GetRecoveryInfo()
 {
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     return want_.GetBoolParam(Want::PARAM_ABILITY_RECOVERY_RESTART, false);
 }
 
