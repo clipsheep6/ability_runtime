@@ -15,6 +15,7 @@
 
 #include "quick_fix_manager_proxy.h"
 
+#include "app_log_wrapper.h"
 #include "appexecfwk_errors.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
@@ -24,7 +25,7 @@
 
 namespace OHOS {
 namespace AAFwk {
-int32_t QuickFixManagerProxy::ApplyQuickFix(const std::vector<std::string> &quickFixFiles)
+int32_t QuickFixManagerProxy::ApplyQuickFix(const std::vector<std::string> &quickFixFiles, bool isDebug)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -54,6 +55,15 @@ int32_t QuickFixManagerProxy::ApplyQuickFix(const std::vector<std::string> &quic
         return QUICK_FIX_WRITE_PARCEL_FAILED;
     }
 
+    if(!data.WriteBool(isDebug)){
+        HILOG_ERROR("Write quick fix debug failed.");
+        return QUICK_FIX_WRITE_PARCEL_FAILED;
+    }
+    if(isDebug == true){
+       HILOG_INFO("isDebug is true");
+    }else{
+       HILOG_INFO("isDebug is false");
+    }
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         HILOG_ERROR("Remote is nullptr.");
