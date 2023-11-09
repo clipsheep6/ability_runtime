@@ -90,6 +90,7 @@ config("ability_public_config") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/recovery/",
+    "${accessibility_path}/interfaces/innerkits/common/include/",
     "//third_party/libuv/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${ability_runtime_innerkits_path}/ability_manager/include/continuation",
