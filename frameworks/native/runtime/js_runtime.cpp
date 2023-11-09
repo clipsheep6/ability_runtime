@@ -33,7 +33,9 @@
 #include "hdc_register.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#ifdef SUPPORT_GRAPHICS
 #include "hot_reloader.h"
+#endif
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "js_environment.h"
@@ -414,7 +416,9 @@ bool JsRuntime::UnLoadRepairPatch(const std::string& hqfFile)
 bool JsRuntime::NotifyHotReloadPage()
 {
     HILOG_DEBUG("function called.");
+#ifdef SUPPORT_GRAPHICS
     Ace::HotReloader::HotReload();
+#endif
     return true;
 }
 
@@ -680,8 +684,10 @@ void JsRuntime::ReloadFormComponent()
     HILOG_DEBUG("Call.");
     auto nativeEngine = GetNativeEnginePointer();
     CHECK_POINTER(nativeEngine);
+#ifdef SUPPORT_GRAPHICS
     // ArkTsCard update condition, need to reload new component
     OHOS::Ace::DeclarativeModulePreloader::ReloadCard(*nativeEngine, bundleName_);
+#endif
 }
 
 void JsRuntime::DoCleanWorkAfterStageCleaned()

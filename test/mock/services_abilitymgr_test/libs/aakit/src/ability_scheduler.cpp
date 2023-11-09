@@ -25,12 +25,14 @@ AbilityScheduler::AbilityScheduler()
 AbilityScheduler::~AbilityScheduler()
 {}
 
+#ifdef SUPPORT_GRAPHICS
 void AbilityScheduler::ScheduleAbilityTransaction(const Want& want, const LifeCycleStateInfo& targetState,
     sptr<SessionInfo> sessionInfo)
 {
     HILOG_INFO("AbilityScheduler ScheduleAbilityTransaction %d", targetState.state);
     (void)want;
 }
+#endif
 
 void AbilityScheduler::ScheduleShareData(const int32_t &uniqueId)
 {}
@@ -62,9 +64,11 @@ bool AbilityScheduler::SchedulePrepareTerminateAbility()
 void AbilityScheduler::ScheduleCommandAbility(const Want& want, bool restart, int startId)
 {}
 
+#ifdef SUPPORT_GRAPHICS
 void AbilityScheduler::ScheduleCommandAbilityWindow(const Want &want, const sptr<SessionInfo> &sessionInfo,
     WindowCommand winCmd)
 {}
+#endif
 
 void AbilityScheduler::ScheduleSaveAbilityState()
 {}

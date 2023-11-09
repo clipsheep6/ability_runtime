@@ -51,6 +51,7 @@ void LifecycleDeal::Activate(const Want &want, LifeCycleStateInfo &stateInfo)
     abilityScheduler->ScheduleAbilityTransaction(want, stateInfo);
 }
 
+#ifdef SUPPORT_GRAPHICS
 void LifecycleDeal::Inactivate(const Want &want, LifeCycleStateInfo &stateInfo,
     sptr<SessionInfo> sessionInfo)
 {
@@ -60,6 +61,7 @@ void LifecycleDeal::Inactivate(const Want &want, LifeCycleStateInfo &stateInfo,
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_INACTIVE;
     abilityScheduler->ScheduleAbilityTransaction(want, stateInfo, sessionInfo);
 }
+#endif
 
 void LifecycleDeal::MoveToBackground(const Want &want, LifeCycleStateInfo &stateInfo)
 {
@@ -103,6 +105,7 @@ void LifecycleDeal::CommandAbility(const Want &want, bool reStart, int startId)
     abilityScheduler->ScheduleCommandAbility(want, reStart, startId);
 }
 
+#ifdef SUPPORT_GRAPHICS
 void LifecycleDeal::CommandAbilityWindow(const Want &want, const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd)
 {
     HILOG_INFO("call");
@@ -110,6 +113,7 @@ void LifecycleDeal::CommandAbilityWindow(const Want &want, const sptr<SessionInf
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->ScheduleCommandAbilityWindow(want, sessionInfo, winCmd);
 }
+#endif
 
 void LifecycleDeal::SaveAbilityState()
 {
@@ -127,6 +131,7 @@ void LifecycleDeal::RestoreAbilityState(const PacMap &inState)
     abilityScheduler->ScheduleRestoreAbilityState(inState);
 }
 
+#ifdef SUPPORT_GRAPHICS
 void LifecycleDeal::ForegroundNew(const Want &want, LifeCycleStateInfo &stateInfo,
     sptr<SessionInfo> sessionInfo)
 {
@@ -152,6 +157,7 @@ void LifecycleDeal::BackgroundNew(const Want &want, LifeCycleStateInfo &stateInf
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_BACKGROUND_NEW;
     abilityScheduler->ScheduleAbilityTransaction(want, stateInfo, sessionInfo);
 }
+#endif
 
 void LifecycleDeal::ContinueAbility(const std::string& deviceId, uint32_t versionCode)
 {
