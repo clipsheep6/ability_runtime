@@ -25,6 +25,7 @@ ohos_moduletest("mission_dump_test") {
     "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
+    "${accessibility_path}/interfaces/innerkits/common/include/",
   ]
 
   sources = [ "mission_dump_test.cpp" ]
@@ -55,6 +56,7 @@ ohos_moduletest("mission_dump_test") {
     "ability_base:want",
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
+    "accessibility:accessibility_common",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "dsoftbus:softbus_client",
