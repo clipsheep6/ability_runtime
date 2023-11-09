@@ -156,6 +156,11 @@ napi_value JsUIExtensionContentSession::SetReceiveDataCallback(napi_env env, nap
     GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnSetReceiveDataCallback);
 }
 
+napi_value JsUIExtensionContentSession::SetReceiveDataForResultCallback(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnSetReceiveDataForResultCallback);
+}
+
 napi_value JsUIExtensionContentSession::LoadContent(napi_env env, napi_callback_info info)
 {
     GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnLoadContent);
@@ -563,6 +568,51 @@ napi_value JsUIExtensionContentSession::OnSetReceiveDataCallback(napi_env env, N
     return CreateJsUndefined(env);
 }
 
+napi_value JsUIExtensionContentSession::OnSetReceiveDataForResultCallback(napi_env env, NapiCallbackInfo& info)
+{
+    HILOG_DEBUG("called");
+    CHECK_IS_SYSTEM_APP;
+    if (info.argc < ARGC_ONE || !CheckTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_function)) {
+        HILOG_ERROR("invalid param");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+
+    if (!isRegistered) {
+        if (uiWindow_ == nullptr) {
+            HILOG_ERROR("uiWindow_ is nullptr");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+            return CreateJsUndefined(env);
+        }
+        receiveDataCallback_ = std::make_shared<CallbackWrapper>();
+        std::weak_ptr<CallbackWrapper> weakCallback(receiveDataCallback_);
+        auto handler = std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
+        uiWindow_->RegisterTransferComponentDataForResultListener([env, handler, weakCallback] (
+            const AAFwk::WantParams& wantParams) -> AAFwk::WantParams {
+                AAFwk::WantParams retWantParams;
+                if (handler) {
+                    handler->PostSyncTask([env, weakCallback, wantParams, &retWantParams]() {
+                        JsUIExtensionContentSession::CallReceiveDataCallbackForResult(env, weakCallback,
+                            wantParams, retWantParams);
+                        }, "JsUIExtensionContentSession:OnSetReceiveDataForResultCallback");
+                }
+                return retWantParams;
+        });
+        isRegistered = true;
+    }
+    napi_value callback = info.argv[INDEX_ZERO];
+    if (receiveDataCallback_ == nullptr) {
+        HILOG_ERROR("receiveDataCallback_ is nullptr");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+        return CreateJsUndefined(env);
+    }
+    napi_ref ref = nullptr;
+    napi_create_reference(env, callback, 1, &ref);
+    receiveDataCallback_->ResetCallback(std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
+
+    return CreateJsUndefined(env);
+}
+
 napi_value JsUIExtensionContentSession::OnLoadContent(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_DEBUG("called");
@@ -732,6 +782,7 @@ napi_value JsUIExtensionContentSession::CreateJsUIExtensionContentSession(napi_e
     BindNativeFunction(env, object, "terminateSelfWithResult", moduleName, TerminateSelfWithResult);
     BindNativeFunction(env, object, "sendData", moduleName, SendData);
     BindNativeFunction(env, object, "setReceiveDataCallback", moduleName, SetReceiveDataCallback);
+    BindNativeFunction(env, object, "setReceiveDataForResultCallback", moduleName, SetReceiveDataForResultCallback);
     BindNativeFunction(env, object, "loadContent", moduleName, LoadContent);
     BindNativeFunction(env, object, "setWindowBackgroundColor", moduleName, SetWindowBackgroundColor);
     BindNativeFunction(env, object, "setWindowPrivacyMode", moduleName, SetWindowPrivacyMode);
@@ -762,6 +813,7 @@ napi_value JsUIExtensionContentSession::CreateJsUIExtensionContentSession(napi_e
     BindNativeFunction(env, object, "terminateSelfWithResult", moduleName, TerminateSelfWithResult);
     BindNativeFunction(env, object, "sendData", moduleName, SendData);
     BindNativeFunction(env, object, "setReceiveDataCallback", moduleName, SetReceiveDataCallback);
+    BindNativeFunction(env, object, "setReceiveDataForResultCallback", moduleName, SetReceiveDataForResultCallback);
     BindNativeFunction(env, object, "loadContent", moduleName, LoadContent);
     BindNativeFunction(env, object, "setWindowBackgroundColor", moduleName, SetWindowBackgroundColor);
     BindNativeFunction(env, object, "setWindowPrivacyMode", moduleName, SetWindowPrivacyMode);
@@ -800,6 +852,46 @@ void JsUIExtensionContentSession::CallReceiveDataCallback(napi_env env,
     napi_value global = nullptr;
     napi_get_global(env, &global);
     napi_call_function(env, global, method, ARGC_ONE, argv, nullptr);
+}
+
+void JsUIExtensionContentSession::CallReceiveDataCallbackForResult(napi_env env,
+    std::weak_ptr<CallbackWrapper> weakCallback, const AAFwk::WantParams& wantParams, AAFwk::WantParams& retWantParams)
+{
+    auto cbWrapper = weakCallback.lock();
+    if (cbWrapper == nullptr) {
+        HILOG_ERROR("cbWrapper is nullptr");
+        return;
+    }
+    auto callback = cbWrapper->GetCallback();
+    if (callback == nullptr) {
+        HILOG_ERROR("callback is nullptr");
+        return;
+    }
+    napi_value method = reinterpret_cast<napi_value>(callback->Get());
+    if (method == nullptr) {
+        HILOG_ERROR("method is nullptr");
+        return;
+    }
+    HandleScope handleScope(env);
+    napi_value napiWantParams = AppExecFwk::WrapWantParams(env, wantParams);
+    if (napiWantParams == nullptr) {
+        HILOG_ERROR("napiWantParams is nullptr");
+        return;
+    }
+    napi_value argv[] = {napiWantParams};
+    napi_value global = nullptr;
+    napi_get_global(env, &global);
+    napi_value ret = nullptr;
+    napi_call_function(env, global, method, ARGC_ONE, argv, &ret);
+    if (ret == nullptr) {
+        HILOG_ERROR("ret is nullptr");
+        return;
+    }
+
+    if (!AppExecFwk::UnwrapWantParams(env, ret, retWantParams)) {
+        HILOG_ERROR("Failed to parse param!");
+        return;
+    }
 }
 
 void JsUIExtensionContentSession::AddFreeInstallObserver(napi_env env,
