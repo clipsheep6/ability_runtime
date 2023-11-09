@@ -43,6 +43,7 @@
 #include "bundle_constants.h"
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "data_ability_manager.h"
+#include "dialog_session_record.h"
 #include "event_report.h"
 #include "free_install_manager.h"
 #include "hilog_wrapper.h"
@@ -1329,6 +1330,15 @@ public:
      */
     int32_t DetachAppDebug(const std::string &bundleName) override;
 
+    int GetDialogContext(const std::string dialogSessionId, sptr<DialogSessionInfo> dialogSessionInfo) const;
+
+    int GenerateDialogSessionRecord(AbilityRequest &abilityRequest, int32_t userId,
+        std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos);
+
+    void CreateDialogByUIExtension(const Want &replaceWant, const sptr<IRemoteObject> &callerToken, std::string &dialogSessionId);
+
+    int SetDialogResult(std::string &dialogSessionId, bool isAllowed, const Want &want);
+
     /**
      * @brief Check if ability controller can start.
      * @param want The want of ability to start.
@@ -1799,6 +1809,8 @@ private:
     bool whiteListassociatedWakeUpFlag_ = true;
 
     std::shared_ptr<AbilityAutoStartupService> abilityAutoStartupService_;
+
+    std::shared_ptr<DialogSessionRecord> dialogSessionRecord_;
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     std::shared_ptr<BackgroundTaskObserver> bgtaskObserver_;

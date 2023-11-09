@@ -146,6 +146,13 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     if (deviceType == STR_PHONE || deviceType == STR_DEFAULT) {
         HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose.");
         want = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want, request.callerToken);
+        if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+            std::string dialogSessionId;
+            if(abilityMgr->GenerateDialogSessionRecord(request, userId, dialogSessionId, dialogAppInfos)) {
+                abilityMgr->CreateDialogByUIExtension(want, request.callerToken, dialogSessionId);
+                return ERR_OK;
+            }
+        }
         ret = abilityMgr->StartAbilityAsCaller(want, request.callerToken);
         // reset calling indentity
         IPCSkeleton::SetCallingIdentity(identity);
@@ -156,6 +163,13 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     std::string type = MatchTypeAndUri(request.want);
 
     want = sysDialogScheduler->GetPcSelectorDialogWant(dialogAppInfos, request.want, type, userId, request.callerToken);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        std::string dialogSessionId;
+        if(abilityMgr->GenerateDialogSessionRecord(request, userId, dialogSessionId, dialogAppInfos)) {
+            abilityMgr->CreateDialogByUIExtension(want, request.callerToken, dialogSessionId);
+            return ERR_OK;
+        }
+    }
     ret = abilityMgr->StartAbilityAsCaller(want, request.callerToken);
     // reset calling indentity
     IPCSkeleton::SetCallingIdentity(identity);

@@ -196,9 +196,9 @@ ErrCode DisposedRuleInterceptor::DoProcess(const Want &want, int requestCode, in
             }
         }
 #endif
-        if (disposedRule.isEdm) {
-            return ERR_EDM_APP_CONTROLLED;
-        }
+        // if (disposedRule.isEdm) {
+        //     return ERR_EDM_APP_CONTROLLED;
+        // }
         return ERR_APP_CONTROLLED;
     }
     return ERR_OK;
@@ -292,13 +292,10 @@ ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, 
         return ERR_OK;
     }
 #ifdef SUPPORT_GRAPHICS
-    if (isForeground && (rule.replaceWant != nullptr)) {
-        int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*rule.replaceWant,
-            requestCode, userId));
-        if (ret != ERR_OK) {
-            HILOG_ERROR("ecological start replace want failed.");
-            return ret;
-        }
+    if (isForeground && rule.replaceWant != nullptr) {
+        (const_cast<Want &>(want)) = *rule.replaceWant;
+        (const_cast<Want &>(want)).SetParam("isReplaceWantExist", true);
+        return ERR_ECOLOGICAL_CONTROL_STATUS;
     }
 #endif
     return ERR_ECOLOGICAL_CONTROL_STATUS;

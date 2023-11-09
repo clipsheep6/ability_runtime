@@ -349,8 +349,7 @@ Want SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInf
     DialogPosition landscapePosition;
     GetSelectorDialogPositionAndSize(portraitPosition, landscapePosition, static_cast<int>(dialogAppInfos.size()));
     std::string params = GetSelectorParams(dialogAppInfos);
-
-    targetWant.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_SELECTOR_DIALOG);
+   
     targetWant.SetParam(DIALOG_POSITION, GetDialogPositionParams(portraitPosition));
     targetWant.SetParam(VERTICAL_SCREEN_DIALOG_POSITION, GetDialogPositionParams(landscapePosition));
     targetWant.SetParam(DIALOG_PARAMS, params);
@@ -358,7 +357,17 @@ Want SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInf
         HILOG_DEBUG("set callertoken to targetWant");
         targetWant.SetParam(CALLER_TOKEN, callerToken);
     }
-
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto bms = GetBundleManager();
+        std::string bundleName;
+        CHECK_POINTER(bms, targetWant);
+        auto ret = IN_PROCESS_CALL(bms->QueryAppGalleryBundleName(bundleName));
+        if (ret) {
+            targetWant.SetElementName(bundleName, ABILITY_NAME_SELECTOR_DIALOG);
+            return targetWant;
+        }
+    }
+    targetWant.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_SELECTOR_DIALOG);
     return targetWant;
 }
 
@@ -395,7 +404,6 @@ Want SystemDialogScheduler::GetPcSelectorDialogWant(const std::vector<DialogAppI
     GetDialogPositionAndSize(DialogType::DIALOG_SELECTOR, position, static_cast<int>(dialogAppInfos.size()));
 
     std::string params = GetPcSelectorParams(dialogAppInfos, type, userId, targetWant.GetAction());
-    targetWant.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_SELECTOR_DIALOG);
     targetWant.SetParam(DIALOG_POSITION, GetDialogPositionParams(position));
     targetWant.SetParam(DIALOG_PARAMS, params);
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
@@ -405,6 +413,17 @@ Want SystemDialogScheduler::GetPcSelectorDialogWant(const std::vector<DialogAppI
     } else {
         targetWant.SetParam(CALLER_TOKEN, callerToken);
     }
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto bms = GetBundleManager();
+        std::string bundleName;
+        CHECK_POINTER(bms, targetWant);
+        auto ret = IN_PROCESS_CALL(bms->QueryAppGalleryBundleName(bundleName));
+        if (ret) {
+            targetWant.SetElementName(bundleName, ABILITY_NAME_SELECTOR_DIALOG);
+            return targetWant;
+        }
+    }
+    targetWant.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_SELECTOR_DIALOG);
     return targetWant;
 }
 
