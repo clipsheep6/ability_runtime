@@ -21,6 +21,7 @@ namespace AAFwk {
 namespace {
 const int LOAD_CONFIGURATION_FAILED = -1;
 const int LOAD_CONFIGURATION_SUCCESS = 0;
+const int32_t TIME_OUT_UNIT_TIME_RATIO = 1000;
 }
 
 AmsConfigurationParameter::AmsConfigurationParameter()
@@ -90,11 +91,10 @@ int AmsConfigurationParameter::GetBootAnimationTimeoutTime() const
 
 int AmsConfigurationParameter::GetAppStartTimeoutTime() const
 {
-    int timeoutUnitTime = timeoutUnitTime_;
     if (isPcDevice_) {
-        timeoutUnitTime *= 1000;
+        return timeoutUnitTime_ * TIME_OUT_UNIT_TIME_RATIO;
     }
-    return timeoutUnitTime;
+    return timeoutUnitTime_;
 }
 
 void AmsConfigurationParameter::SetPickerJsonObject(nlohmann::json Object)
