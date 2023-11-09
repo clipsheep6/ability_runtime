@@ -298,25 +298,7 @@ struct ConnectionCallback {
     {
         Reset();
     }
-    void Reset()
-    {
-        if (env) {
-            if (connectCallbackRef) {
-                napi_delete_reference(env, connectCallbackRef);
-                connectCallbackRef = nullptr;
-            }
-            if (disconnectCallbackRef) {
-                napi_delete_reference(env, disconnectCallbackRef);
-                disconnectCallbackRef = nullptr;
-            }
-            if (failedCallbackRef) {
-                napi_delete_reference(env, failedCallbackRef);
-                failedCallbackRef = nullptr;
-            }
-            env = nullptr;
-        }
-        removeKey = nullptr;
-    }
+    void Reset();
 
     napi_env env = nullptr;
     napi_ref connectCallbackRef = nullptr;
