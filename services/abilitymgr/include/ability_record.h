@@ -901,7 +901,8 @@ protected:
     sptr<Token> token_ = {};                               // used to interact with kit and wms
     std::unique_ptr<LifecycleDeal> lifecycleDeal_ = {};    // life manager used to schedule life
     AbilityState currentState_ = AbilityState::INITIAL;    // current life state
-    Want want_ = {};                                       // want to start this ability
+
+    Want want_ = {};                                     // want to start this ability
 
 private:
     /**
@@ -1055,6 +1056,8 @@ private:
     ffrt::mutex lock_;
     mutable ffrt::mutex dumpInfoLock_;
     mutable ffrt::mutex dumpLock_;
+    mutable ffrt::mutex wantLock_;
+
     mutable ffrt::condition_variable dumpCondition_;
     mutable bool isDumpTimeout_ = false;
     std::vector<std::string> dumpInfos_;
