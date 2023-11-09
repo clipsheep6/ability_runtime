@@ -67,10 +67,11 @@ HWTEST_F(QuickFixManagerClientTest, ApplyQuickFix_0100, TestSize.Level1)
     HILOG_INFO("%{public}s start", __func__);
 
     quickFixClient_->quickFixMgr_ = mockQuickFixMgrService_;
-    EXPECT_CALL(*mockQuickFixMgrService_, ApplyQuickFix(_)).Times(1);
+    EXPECT_CALL(*mockQuickFixMgrService_, ApplyQuickFix(_, _)).Times(1);
 
     std::vector<std::string> quickfixFiles;
-    auto ret = quickFixClient_->ApplyQuickFix(quickfixFiles);
+    bool isDebug = false;
+    auto ret = quickFixClient_->ApplyQuickFix(quickfixFiles, isDebug);
     EXPECT_EQ(ret, QUICK_FIX_OK);
 
     HILOG_INFO("%{public}s end", __func__);
