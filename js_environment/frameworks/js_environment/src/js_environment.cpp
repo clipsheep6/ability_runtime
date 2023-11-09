@@ -181,6 +181,25 @@ bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, 
     return panda::JSNApi::StartDebugger(vm_, debugOption, instanceId, debuggerPostTask);
 }
 
+bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId, bool isDebug)
+{
+    if (vm_ == nullptr) {
+        JSENV_LOG_E("Invalid vm.");
+        return false;
+    }
+
+    panda::JSNApi::DebugOption debugOption = {libraryPath, needBreakPoint};
+    auto debuggerPostTask = [weak = weak_from_this()](std::function<void()>&& task) {
+        auto jsEnv = weak.lock();
+        if (jsEnv == nullptr) {
+            JSENV_LOG_E("JsEnv is invalid.");
+            return;
+        }
+        jsEnv->PostTask(task, "JsEnvironment:StartDebugger");
+    };
+    return panda::JSNApi::StartDebugger(vm_, debugOption, instanceId, debuggerPostTask);
+}
+
 void JsEnvironment::StopDebugger()
 {
     if (vm_ == nullptr) {
@@ -240,6 +259,31 @@ bool JsEnvironment::LoadScript(const std::string& path, uint8_t* buffer, size_t 
 
 void JsEnvironment::StartProfiler(const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler,
     int32_t interval)
+{
+    if (vm_ == nullptr) {
+        JSENV_LOG_E("Invalid vm.");
+        return;
+    }
+
+    auto debuggerPostTask = [weak = weak_from_this()](std::function<void()>&& task) {
+        auto jsEnv = weak.lock();
+        if (jsEnv == nullptr) {
+            JSENV_LOG_E("JsEnv is invalid.");
+            return;
+        }
+        jsEnv->PostTask(task, "JsEnvironment::StartProfiler");
+    };
+
+    panda::DFXJSNApi::ProfilerOption option;
+    option.libraryPath = libraryPath;
+    option.profilerType = ConvertProfilerType(profiler);
+    option.interval = interval;
+
+    panda::DFXJSNApi::StartProfiler(vm_, option, instanceId, debuggerPostTask);
+}
+
+void JsEnvironment::StartProfiler(const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler,
+      int32_t interval, bool isDebug)
 {
     if (vm_ == nullptr) {
         JSENV_LOG_E("Invalid vm.");

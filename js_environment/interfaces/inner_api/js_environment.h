@@ -72,6 +72,8 @@ public:
 
     bool StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId);
 
+    bool StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId, bool isDebug);
+
     void StopDebugger();
 
     void InitConsoleModule();
@@ -83,6 +85,8 @@ public:
     bool LoadScript(const std::string& path, uint8_t* buffer, size_t len, bool isBundle);
 
     void StartProfiler(const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler, int32_t interval);
+    void StartProfiler(const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler, int32_t interval,
+                       bool isDebug);
 
     void ReInitJsEnvImpl(std::unique_ptr<JsEnvironmentImpl> impl);
 
