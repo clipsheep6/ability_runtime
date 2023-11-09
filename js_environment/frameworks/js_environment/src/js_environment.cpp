@@ -181,6 +181,25 @@ bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, 
     return panda::JSNApi::StartDebugger(vm_, debugOption, instanceId, debuggerPostTask);
 }
 
+bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId, bool isDebug)
+{
+    if (vm_ == nullptr) {
+        JSENV_LOG_E("Invalid vm.");
+        return false;
+    }
+
+    panda::JSNApi::DebugOption debugOption = {libraryPath, needBreakPoint};
+    auto debuggerPostTask = [weak = weak_from_this()](std::function<void()>&& task) {
+        auto jsEnv = weak.lock();
+        if (jsEnv == nullptr) {
+            JSENV_LOG_E("JsEnv is invalid.");
+            return;
+        }
+        jsEnv->PostTask(task, "JsEnvironment:StartDebugger");
+    };
+    return panda::JSNApi::StartDebugger(vm_, debugOption, instanceId, debuggerPostTask);
+}
+
 void JsEnvironment::StopDebugger()
 {
     if (vm_ == nullptr) {

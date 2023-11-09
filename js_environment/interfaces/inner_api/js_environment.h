@@ -72,6 +72,8 @@ public:
 
     bool StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId);
 
+    bool StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId, bool isDebug);
+
     void StopDebugger();
 
     void InitConsoleModule();
