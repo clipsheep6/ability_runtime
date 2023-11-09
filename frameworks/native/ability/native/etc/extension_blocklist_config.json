@@ -1,6 +1,13 @@
 {
     "blocklist": {
         "ServiceExtension": [],
+        "AdsServiceExtension": [
+            "multimedia.camera",
+            "multimedia.mediaLibrary",
+            "telephony.sim",
+            "telephony.sms",
+            "contact"
+        ],
         "FormExtension": [
             "ability.particleAbility",
             "resourceschedule.backgroundTaskManager",
