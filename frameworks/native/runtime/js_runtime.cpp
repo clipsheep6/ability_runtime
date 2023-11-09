@@ -205,6 +205,25 @@ void JsRuntime::StartDebugMode(bool needBreakPoint)
     debugMode_ = StartDebugger(needBreakPoint, instanceId_);
 }
 
+void JsRuntime::StartDebugMode(bool needBreakPoint, bool isDebug)
+{
+    if (debugMode_) {
+        HILOG_INFO("Already in debug mode");
+        return;
+    }
+    // Set instance id to tid after the first instance.
+    if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
+        instanceId_ = static_cast<uint32_t>(gettid());
+    }
+
+    HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
+    StartDebuggerInWorkerModule();
+    HdcRegister::Get().StartHdcRegister(bundleName_);
+    ConnectServerManager::Get().StartConnectServer(bundleName_);
+    ConnectServerManager::Get().AddInstance(instanceId_);
+    debugMode_ = StartDebugger(needBreakPoint, instanceId_, isDebug);
+}
+
 void JsRuntime::StopDebugMode()
 {
     if (debugMode_) {
@@ -223,6 +242,12 @@ bool JsRuntime::StartDebugger(bool needBreakPoint, uint32_t instanceId)
 {
     CHECK_POINTER_AND_RETURN(jsEnv_, false);
     return jsEnv_->StartDebugger(ARK_DEBUGGER_LIB_PATH, needBreakPoint, instanceId);
+}
+
+bool JsRuntime::StartDebugger(bool needBreakPoint, uint32_t instanceId, bool isDebug)
+{
+    CHECK_POINTER_AND_RETURN(jsEnv_, false);
+    return jsEnv_->StartDebugger(ARK_DEBUGGER_LIB_PATH, needBreakPoint, instanceId, isDebug);
 }
 
 void JsRuntime::StopDebugger()
