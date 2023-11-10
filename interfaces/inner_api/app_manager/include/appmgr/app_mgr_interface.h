@@ -16,27 +16,26 @@
 #ifndef OHOS_ABILITY_RUNTIME_APP_MGR_INTERFACE_H
 #define OHOS_ABILITY_RUNTIME_APP_MGR_INTERFACE_H
 
-#include "iremote_broker.h"
-#include "iremote_object.h"
-#include "want.h"
-
+#include "ability_foreground_state_observer_interface.h"
 #include "ability_info.h"
-#include "application_info.h"
+#include "ams_mgr_interface.h"
+#include "app_malloc_info.h"
 #include "app_mgr_ipc_interface_code.h"
 #include "app_record_id.h"
+#include "application_info.h"
 #include "bundle_info.h"
 #include "fault_data.h"
 #include "iapp_state_callback.h"
-#include "ams_mgr_interface.h"
+#include "iapplication_state_observer.h"
+#include "iconfiguration_observer.h"
+#include "iquick_fix_callback.h"
+#include "iremote_broker.h"
+#include "iremote_object.h"
 #include "page_state_data.h"
 #include "render_process_info.h"
 #include "running_process_info.h"
 #include "system_memory_attr.h"
-#include "iapplication_state_observer.h"
-#include "iconfiguration_observer.h"
-#include "iquick_fix_callback.h"
-#include "app_malloc_info.h"
-#include "app_running_status_listener_interface.h"
+#include "want.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -204,6 +203,20 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer) = 0;
+
+    /**
+     * Register application or process state observer.
+     * @param observer Is ability foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer) = 0;
+
+    /**
+     * Unregister application or process state observer.
+     * @param observer Is ability foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UnregisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer) = 0;
 
     /**
      * Get foreground applications.

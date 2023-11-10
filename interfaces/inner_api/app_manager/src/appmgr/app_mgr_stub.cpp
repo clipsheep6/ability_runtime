@@ -15,20 +15,19 @@
 
 #include "app_mgr_stub.h"
 
-#include "ipc_skeleton.h"
-#include "ipc_types.h"
-#include "iremote_object.h"
-
 #include "ability_info.h"
+#include "app_malloc_info.h"
 #include "app_mgr_proxy.h"
 #include "app_scheduler_interface.h"
 #include "appexecfwk_errors.h"
-#include "hitrace_meter.h"
-#include "hilog_wrapper.h"
-#include "iapp_state_callback.h"
-#include "want.h"
 #include "bundle_info.h"
-#include "app_malloc_info.h"
+#include "hilog_wrapper.h"
+#include "hitrace_meter.h"
+#include "iapp_state_callback.h"
+#include "ipc_skeleton.h"
+#include "ipc_types.h"
+#include "iremote_object.h"
+#include "want.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -140,6 +139,10 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleRegisterAppRunningStatusListener;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_APP_RUNNING_STATUS_LISTENER)] =
         &AppMgrStub::HandleUnregisterAppRunningStatusListener;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_ABILITY_FOREGROUND_STATE_OBSERVER)] =
+        &AppMgrStub::HandleRegisterAbilityForegroundStateObserver;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_ABILITY_FOREGROUND_STATE_OBSERVER)] =
+        &AppMgrStub::HandleUnregisterAbilityForegroundStateObserver;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -395,6 +398,27 @@ int32_t AppMgrStub::HandleUnregisterApplicationStateObserver(MessageParcel &data
     return NO_ERROR;
 }
 
+int32_t AppMgrStub::HandleRegisterAbilityForegroundStateObserver(MessageParcel &data, MessageParcel &reply)
+{
+    auto callback = iface_cast<AppExecFwk::IAbilityForegroundStateObserver>(data.ReadRemoteObject());
+    int32_t result = RegisterAbilityForegroundStateObserver(callback);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleUnregisterAbilityForegroundStateObserver(MessageParcel &data, MessageParcel &reply)
+{
+    auto callback = iface_cast<AppExecFwk::IAbilityForegroundStateObserver>(data.ReadRemoteObject());
+    int32_t result = UnregisterAbilityForegroundStateObserver(callback);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
 
 int32_t AppMgrStub::HandleGetForegroundApplications(MessageParcel &data, MessageParcel &reply)
 {

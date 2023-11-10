@@ -24,6 +24,7 @@
 #include <vector>
 
 #include "ability_debug_response_interface.h"
+#include "ability_foreground_state_observer_interface.h"
 #include "ability_info.h"
 #include "app_death_recipient.h"
 #include "app_debug_listener_interface.h"
@@ -554,6 +555,20 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer);
+
+    /**
+     * Register application or process state observer.
+     * @param observer, Is ability foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer);
+
+    /**
+     * Unregister application or process state observer.
+     * @param observer, Is ability foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer);
 
     /**
      * Get Foreground Applications.

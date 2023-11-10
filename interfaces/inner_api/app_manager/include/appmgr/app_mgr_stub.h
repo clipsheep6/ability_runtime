@@ -18,10 +18,10 @@
 
 #include <map>
 
+#include "app_mgr_interface.h"
 #include "iremote_stub.h"
 #include "nocopyable.h"
 #include "string_ex.h"
-#include "app_mgr_interface.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -73,6 +73,8 @@ private:
     int32_t HandleStartupResidentProcess(MessageParcel &data, MessageParcel &reply);
     int32_t HandleRegisterApplicationStateObserver(MessageParcel &data, MessageParcel &reply);
     int32_t HandleUnregisterApplicationStateObserver(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleRegisterAbilityForegroundStateObserver(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleUnregisterAbilityForegroundStateObserver(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetForegroundApplications(MessageParcel &data, MessageParcel &reply);
     int32_t HandleStartUserTestProcess(MessageParcel &data, MessageParcel &reply);
     int32_t HandleFinishUserTest(MessageParcel &data, MessageParcel &reply);
