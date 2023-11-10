@@ -77,7 +77,10 @@ config("appkit_public_config") {
       "//third_party/icu/icu4c/source/common",
     ]
 
-    defines = [ "SUPPORT_GRAPHICS" ]
+    defines = [
+      "SUPPORT_GRAPHICS",
+      "SUPPORT_APP_PREFERRED_LANGUAGE",
+    ]
   }
 }
 
@@ -161,6 +164,7 @@ ohos_shared_library("appkit_native") {
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
+    "i18n:preferred_language",
     "init:libbegetutil",
     "ipc:ipc_core",
     "napi:ace_napi",
