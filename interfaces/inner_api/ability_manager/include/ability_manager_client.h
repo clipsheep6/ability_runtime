@@ -845,6 +845,14 @@ public:
     ErrCode StopUser(int accountId, const sptr<IStopUserCallback> &callback);
 
     /**
+     * @brief logout user.
+     * @param accountId accountId.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode LogoutUser(int32_t accountId);
+
+    /**
      * @brief Register the snapshot handler
      * @param handler snapshot handler
      * @return ErrCode Returns ERR_OK on success, others on failure.

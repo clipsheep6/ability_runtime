@@ -235,6 +235,8 @@ void AbilityManagerStub::SecondStepInit()
         &AbilityManagerStub::StartUserInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::STOP_USER)] =
         &AbilityManagerStub::StopUserInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::LOGOUT_USER)] =
+        &AbilityManagerStub::LogoutUserInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ABILITY_RUNNING_INFO)] =
         &AbilityManagerStub::GetAbilityRunningInfosInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_EXTENSION_RUNNING_INFO)] =
@@ -1645,6 +1647,17 @@ int AbilityManagerStub::StopUserInner(MessageParcel &data, MessageParcel &reply)
     int result = StopUser(userId, callback);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("StopUser failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::LogoutUserInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t userId = data.ReadInt32();
+    int result = LogoutUser(userId);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("LogoutUser failed.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

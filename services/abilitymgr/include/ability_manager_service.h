@@ -872,6 +872,8 @@ public:
 
     virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override;
 
+    virtual int LogoutUser(int32_t userId) override;
+
     /**
      * Called when client complete dump.
      *

@@ -127,6 +127,7 @@ public:
     MOCK_METHOD2(SetMissionContinueState, int(const sptr<IRemoteObject>& token, const AAFwk::ContinueState& state));
     int StartUser(int userId) override;
     int StopUser(int userId, const sptr<IStopUserCallback>& callback) override;
+    int LogoutUser(int32_t userId) override;
     int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override;
     int StopSyncRemoteMissions(const std::string& devId) override;
     int RegisterMissionListener(const std::string& deviceId,
@@ -292,6 +293,7 @@ public:
     MOCK_METHOD2(SetMissionContinueState, int(const sptr<IRemoteObject>& token, const AAFwk::ContinueState& state));
     int StartUser(int userId) override;
     int StopUser(int userId, const sptr<IStopUserCallback>& callback) override;
+    int LogoutUser(int32_t userId) override;
     int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override;
     int StopSyncRemoteMissions(const std::string& devId) override;
     int RegisterMissionListener(const std::string& deviceId,

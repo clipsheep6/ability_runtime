@@ -988,6 +988,13 @@ ErrCode AbilityManagerClient::StopUser(int accountId, const sptr<IStopUserCallba
     return abms->StopUser(accountId, callback);
 }
 
+ErrCode AbilityManagerClient::LogoutUser(int32_t accountId)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->LogoutUser(accountId);
+}
+
 ErrCode AbilityManagerClient::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
 {
     auto abms = GetAbilityManager();

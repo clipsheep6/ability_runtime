@@ -229,6 +229,10 @@ public:
     {
         return 0;
     }
+    int LogoutUser(int32_t userId) override
+    {
+        return 0;
+    }
     int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override
     {
         return 0;

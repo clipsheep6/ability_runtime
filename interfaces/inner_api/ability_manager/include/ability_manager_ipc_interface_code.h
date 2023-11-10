@@ -230,6 +230,9 @@ enum class AbilityManagerInterfaceCode {
     // execute insight intent done with result (73)
     EXECUTE_INSIGHT_INTENT_DONE = 73,
 
+    // ipc id for logout user (74)
+    LOGOUT_USER = 74,
+	
     // ipc id 1001-2000 for DMS
     // ipc id for starting ability (1001)
     START_ABILITY = 1001,

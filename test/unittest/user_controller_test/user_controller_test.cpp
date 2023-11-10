@@ -130,6 +130,46 @@ HWTEST_F(UserControllerTest, StopUserTest_0300, TestSize.Level0)
 }
 
 /**
+ * @tc.name: LogoutUserTest_0100
+ * @tc.desc: LogoutUser Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(UserControllerTest, LogoutUserTest_0100, TestSize.Level0)
+{
+    UserController userController;
+    userController.LogoutUser(-1);
+    userController.LogoutUser(0);
+    EXPECT_TRUE(userController.LogoutUser(100) == -1);
+}
+
+/**
+ * @tc.name: LogoutUserTest_0200
+ * @tc.desc: LogoutUser Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(UserControllerTest, LogoutUserTest_0200, TestSize.Level0)
+{
+    UserController userController;
+    EXPECT_TRUE(userController.LogoutUser(666) == -1);
+}
+
+/**
+ * @tc.name: LogoutUserTest_0300
+ * @tc.desc: LogoutUser Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(UserControllerTest, LogoutUserTest_0300, TestSize.Level0)
+{
+    UserController userController;
+    userController.GetOrCreateUserItem(1000);
+    auto result = userController.LogoutUser(1000);
+    EXPECT_TRUE(result = 1000);
+}
+
+/**
  * @tc.name: HandleContinueUserSwitchTest_0100
  * @tc.desc: HandleContinueUserSwitch Test
  * @tc.type: FUNC
