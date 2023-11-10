@@ -315,7 +315,7 @@ int UriPermissionManagerStubImpl::GrantSingleUriPermission(const Uri &uri, unsig
 {
     Uri uri_inner = uri;
     auto&& scheme = uri_inner.GetScheme();
-    if (scheme != "file") {
+    if (scheme != "file" && scheme != "content") {
         HILOG_WARN("only support file uri.");
         return ERR_CODE_INVALID_URI_TYPE;
     }
@@ -340,7 +340,7 @@ void UriPermissionManagerStubImpl::GetUriPermissionBatchFlag(const std::vector<U
     for (const auto &uri : uriVec) {
         Uri uri_inner = uri;
         auto&& scheme = uri_inner.GetScheme();
-        if (scheme != "file") {
+        if (scheme != "file" && scheme != "content") {
             HILOG_WARN("only support file uri.");
             continue;
         }
@@ -507,7 +507,7 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
     auto uriStr = uri.ToString();
     auto&& authority = uri_inner.GetAuthority();
     auto&& scheme = uri_inner.GetScheme();
-    if (scheme != "file") {
+    if (scheme != "file" && scheme != "content") {
         HILOG_WARN("only support file uri.");
         return ERR_CODE_INVALID_URI_TYPE;
     }

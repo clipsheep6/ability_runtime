@@ -121,6 +121,7 @@ ohos_shared_library("ability_manager") {
   ]
 
   external_deps = [
+    "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
     "c_utils:utils",

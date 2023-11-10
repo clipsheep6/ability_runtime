@@ -42,6 +42,7 @@ ohos_unittest("AmsAppStateCallbackTest") {
   ]
 
   external_deps = [
+    "ability_base:configuration",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hilog:libhilog",

@@ -1645,5 +1645,16 @@ ErrCode AbilityManagerClient::ExecuteInsightIntentDone(const sptr<IRemoteObject>
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->ExecuteInsightIntentDone(token, intentId, result);
 }
+
+int32_t AbilityManagerClient::OpenFile(const Uri& uri, uint32_t flag)
+{
+    HILOG_DEBUG("call OpenFile");
+    auto abms = GetAbilityManager();
+    if (abms == nullptr) {
+        HILOG_ERROR("abms is nullptr.");
+        return true;
+    }
+    return abms->OpenFile(uri, flag);
+}
 } // namespace AAFwk
 } // namespace OHOS

@@ -31,6 +31,9 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+    const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
+}
 AppRunningManager::AppRunningManager()
 {}
 AppRunningManager::~AppRunningManager()
@@ -609,12 +612,22 @@ int32_t AppRunningManager::UpdateConfiguration(const Configuration &config)
     int32_t result = ERR_OK;
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
-        if (appRecord) {
+        if (appRecord && !isCollaboratorReserveType(appRecord)) {
             HILOG_INFO("Notification app [%{public}s]", appRecord->GetName().c_str());
             result = appRecord->UpdateConfiguration(config);
         }
     }
     return result;
+}
+
+bool AppRunningManager::isCollaboratorReserveType(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    std::string bundleName = appRecord->GetApplicationInfo()->name;
+    bool isReserveType = bundleName == SHELL_ASSISTANT_BUNDLENAME;
+    if (isReserveType) {
+        HILOG_INFO("isReserveType app [%{public}s]", appRecord->GetName().c_str());
+    }
+    return isReserveType;
 }
 
 int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)

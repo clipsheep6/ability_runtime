@@ -1325,6 +1325,14 @@ public:
     bool IsAbilityControllerStart(const Want &want);
 
     /**
+     * @brief Open file by uri.
+     * @param uri The file uri.
+     * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
+     * @return int The file descriptor.
+     */
+    int32_t OpenFile(const Uri& uri, uint32_t flag);
+
+    /**
      * @brief Execute intent.
      * @param key The key of intent executing client.
      * @param callerToken Caller ability token.

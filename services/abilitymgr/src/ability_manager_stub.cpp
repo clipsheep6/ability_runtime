@@ -24,6 +24,7 @@
 #include "ability_manager_errors.h"
 #include "ability_scheduler_proxy.h"
 #include "ability_scheduler_stub.h"
+#include "configuration.h"
 #include "session_info.h"
 
 namespace OHOS {
@@ -165,6 +166,8 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::ExecuteIntentInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::EXECUTE_INSIGHT_INTENT_DONE)] =
         &AbilityManagerStub::ExecuteInsightIntentDoneInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::OPEN_FILE)] =
+        &AbilityManagerStub::OpenFileInner;
 }
 
 void AbilityManagerStub::SecondStepInit()
@@ -2885,6 +2888,19 @@ int32_t AbilityManagerStub::ExecuteInsightIntentDoneInner(MessageParcel &data, M
     int32_t result = ExecuteInsightIntentDone(token, intentId, *executeResult);
     reply.WriteInt32(result);
     return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::OpenFileInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
+    if (!uri) {
+        HILOG_ERROR("To read uri failed.");
+        return ERR_DEAD_OBJECT;
+    }
+    auto flag = data.ReadInt32();
+    int fd = OpenFile(*uri, flag);
+    reply.WriteFileDescriptor(fd);
+    return ERR_OK;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
