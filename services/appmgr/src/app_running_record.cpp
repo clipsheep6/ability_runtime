@@ -1659,11 +1659,13 @@ void AppRunningRecord::OnWindowVisibilityChanged(
             continue;
         }
         auto iter = windowIds_.find(info->windowId_);
-        if (iter != windowIds_.end() && !info->isVisible_) {
+        if (iter != windowIds_.end() &&
+            info->visibilityState_ == OHOS::Rosen::WindowVisibilityState::WINDOW_VISIBILITY_STATE_TOTALLY_OCCUSION) {
             windowIds_.erase(iter);
             continue;
         }
-        if (iter == windowIds_.end() && info->isVisible_) {
+        if (iter == windowIds_.end() &&
+            info->visibilityState_ < OHOS::Rosen::WindowVisibilityState::WINDOW_VISIBILITY_STATE_TOTALLY_OCCUSION) {
             windowIds_.emplace(info->windowId_);
         }
     }
