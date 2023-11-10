@@ -27,8 +27,8 @@ public:
     MockJsRuntime() = default;
     ~MockJsRuntime() = default;
 
-    void StartDebugMode(bool needBreakPoint)
-    {}
+    void StartDebugMode(bool needBreakPoint){}
+    void StartDebugMode(bool needBreakPoint, bool isDebug){}
     void FinishPreload()
     {
         GTEST_LOG_(INFO) << "MockJsRuntime::FinishPreload called";

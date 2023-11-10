@@ -260,7 +260,11 @@ HWTEST_F(JsEnvironmentTest, StartDebugger_0100, TestSize.Level0)
     const char* libraryPath = "LIBRARYPATH";
     bool needBreakPoint = true;
     uint32_t instanceId = 10;
-    bool result = jsEnv->StartDebugger(libraryPath, needBreakPoint, instanceId);
+    bool isDebug = false;
+    bool result = jsEnv->StartDebugger(libraryPath, needBreakPoint, instanceId, isDebug);
+    EXPECT_EQ(result, false);
+
+    result = jsEnv->StartDebugger(libraryPath, needBreakPoint, instanceId);
     EXPECT_EQ(result, false);
 }
 
@@ -308,7 +312,9 @@ HWTEST_F(JsEnvironmentTest, StartProfiler_0100, TestSize.Level1)
     auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
     ASSERT_NE(jsEnv, nullptr);
 
+    bool isDebug = false;
     const char* libraryPath = "LIBRARYPATH";
+    jsEnv->StartProfiler(libraryPath, 0, JsEnvironment::PROFILERTYPE::PROFILERTYPE_CPU, 0, isDebug);
     jsEnv->StartProfiler(libraryPath, 0, JsEnvironment::PROFILERTYPE::PROFILERTYPE_CPU, 0);
     ASSERT_EQ(jsEnv->GetVM(), nullptr);
 }
