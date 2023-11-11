@@ -188,6 +188,11 @@ std::unique_ptr<JsRuntime> JsRuntime::Create(const Options& options)
 
 void JsRuntime::StartDebugMode(bool needBreakPoint)
 {
+    StartDebugMode(needBreakPoint, true);
+}
+
+void JsRuntime::StartDebugMode(bool needBreakPoint, bool isDebug)
+{
     if (debugMode_) {
         HILOG_INFO("Already in debug mode");
         return;
@@ -202,7 +207,7 @@ void JsRuntime::StartDebugMode(bool needBreakPoint)
     HdcRegister::Get().StartHdcRegister(bundleName_);
     ConnectServerManager::Get().StartConnectServer(bundleName_);
     ConnectServerManager::Get().AddInstance(instanceId_);
-    debugMode_ = StartDebugger(needBreakPoint, instanceId_);
+    debugMode_ = StartDebugger(needBreakPoint, instanceId_, isDebug);
 }
 
 void JsRuntime::StopDebugMode()
@@ -221,8 +226,13 @@ void JsRuntime::InitConsoleModule()
 
 bool JsRuntime::StartDebugger(bool needBreakPoint, uint32_t instanceId)
 {
+    return StartDebugger(needBreakPoint, instanceId, true);
+}
+
+bool JsRuntime::StartDebugger(bool needBreakPoint, uint32_t instanceId, bool isDebug)
+{
     CHECK_POINTER_AND_RETURN(jsEnv_, false);
-    return jsEnv_->StartDebugger(ARK_DEBUGGER_LIB_PATH, needBreakPoint, instanceId);
+    return jsEnv_->StartDebugger(ARK_DEBUGGER_LIB_PATH, needBreakPoint, instanceId, isDebug);
 }
 
 void JsRuntime::StopDebugger()
@@ -286,6 +296,11 @@ int32_t JsRuntime::JsperfProfilerCommandParse(const std::string &command, int32_
 
 void JsRuntime::StartProfiler(const std::string &perfCmd)
 {
+    StartProfiler(perfCmd, true);
+}
+
+void JsRuntime::StartProfiler(const std::string &perfCmd, bool isDebug)
+{
     CHECK_POINTER(jsEnv_);
     if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
         instanceId_ = static_cast<uint32_t>(gettid());
@@ -304,7 +319,7 @@ void JsRuntime::StartProfiler(const std::string &perfCmd)
     }
 
     HILOG_DEBUG("profiler:%{public}d interval:%{public}d.", profiler, interval);
-    jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval);
+    jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval, isDebug);
 }
 
 bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer)

@@ -164,6 +164,11 @@ bool JsEnvironment::LoadScript(const std::string& path, std::vector<uint8_t>* bu
 
 bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId)
 {
+    return StartDebugger(libraryPath, needBreakPoint, instanceId, true);
+}
+
+bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId, bool isDebug)
+{
     if (vm_ == nullptr) {
         JSENV_LOG_E("Invalid vm.");
         return false;
@@ -240,6 +245,12 @@ bool JsEnvironment::LoadScript(const std::string& path, uint8_t* buffer, size_t 
 
 void JsEnvironment::StartProfiler(const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler,
     int32_t interval)
+{
+    StartProfiler(libraryPath, instanceId, profiler, interval, true);
+}
+
+void JsEnvironment::StartProfiler(const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler,
+    int32_t interval, bool isDebug)
 {
     if (vm_ == nullptr) {
         JSENV_LOG_E("Invalid vm.");

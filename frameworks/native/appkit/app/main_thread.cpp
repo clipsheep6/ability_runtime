@@ -482,7 +482,7 @@ void MainThread::ScheduleBackgroundApplication()
     if (!mainHandler_->PostTask(task, "MainThread:BackgroundApplication")) {
         HILOG_ERROR("MainThread::ScheduleBackgroundApplication PostTask task failed");
     }
-    
+
     if (watchdog_ == nullptr) {
         HILOG_ERROR("Watch dog is nullptr.");
         return;
@@ -1286,15 +1286,13 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             return;
         }
 
-        if (appInfo.debug) {
-            auto perfCmd = appLaunchData.GetPerfCmd();
-            if (perfCmd.find(PERFCMD_PROFILE) != std::string::npos ||
-                perfCmd.find(PERFCMD_DUMPHEAP) != std::string::npos) {
-                HILOG_DEBUG("perfCmd is %{public}s", perfCmd.c_str());
-                runtime->StartProfiler(perfCmd);
-            } else {
-                runtime->StartDebugMode(appLaunchData.GetDebugApp());
-            }
+        auto perfCmd = appLaunchData.GetPerfCmd();
+        if (perfCmd.find(PERFCMD_PROFILE) != std::string::npos ||
+            perfCmd.find(PERFCMD_DUMPHEAP) != std::string::npos) {
+            HILOG_DEBUG("perfCmd is %{public}s", perfCmd.c_str());
+            runtime->StartProfiler(perfCmd, appInfo.debug);
+        } else {
+            runtime->StartDebugMode(appLaunchData.GetDebugApp(), appInfo.debug);
         }
 
         std::vector<HqfInfo> hqfInfos = appInfo.appQuickFix.deployedAppqfInfo.hqfInfos;
@@ -2731,7 +2729,7 @@ int32_t MainThread::ScheduleChangeAppGcState(int32_t state)
     mainHandler_->PostTask(task, "MainThread:ChangeAppGcState");
     return NO_ERROR;
 }
-        
+
 int32_t MainThread::ChangeAppGcState(int32_t state)
 {
     HILOG_DEBUG("called.");
