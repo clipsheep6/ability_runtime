@@ -121,7 +121,7 @@ constexpr char EVENT_KEY_SUMMARY[] = "SUMMARY";
 
 const int32_t JSCRASH_TYPE = 3;
 const std::string JSVM_TYPE = "ARK";
-const std::string SIGNAL_HANDLER = "SignalHandler";
+const std::string SIGNAL_HANDLER = "OS_SignalHandler";
 
 constexpr uint32_t CHECK_MAIN_THREAD_IS_ALIVE = 1;
 
