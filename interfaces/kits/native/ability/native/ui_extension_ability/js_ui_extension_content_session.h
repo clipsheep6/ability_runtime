@@ -102,6 +102,8 @@ private:
     std::weak_ptr<AbilityRuntime::Context> context_;
     std::shared_ptr<CallbackWrapper> receiveDataCallback_;
     bool isRegistered = false;
+    std::shared_ptr<CallbackWrapper> receiveDataForResultCallback_;
+    bool isSyncRegistered = false;
     std::shared_ptr<UISessionAbilityResultListener> listener_;
     sptr<JsFreeInstallObserver> freeInstallObserver_ = nullptr;
 };

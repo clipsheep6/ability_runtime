@@ -578,14 +578,14 @@ napi_value JsUIExtensionContentSession::OnSetReceiveDataForResultCallback(napi_e
         return CreateJsUndefined(env);
     }
 
-    if (!isRegistered) {
+    if (!isSyncRegistered) {
         if (uiWindow_ == nullptr) {
             HILOG_ERROR("uiWindow_ is nullptr");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
             return CreateJsUndefined(env);
         }
-        receiveDataCallback_ = std::make_shared<CallbackWrapper>();
-        std::weak_ptr<CallbackWrapper> weakCallback(receiveDataCallback_);
+        receiveDataForResultCallback_ = std::make_shared<CallbackWrapper>();
+        std::weak_ptr<CallbackWrapper> weakCallback(receiveDataForResultCallback_);
         auto handler = std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
         uiWindow_->RegisterTransferComponentDataForResultListener([env, handler, weakCallback] (
             const AAFwk::WantParams& wantParams) -> AAFwk::WantParams {
@@ -598,17 +598,17 @@ napi_value JsUIExtensionContentSession::OnSetReceiveDataForResultCallback(napi_e
                 }
                 return retWantParams;
         });
-        isRegistered = true;
+        isSyncRegistered = true;
     }
     napi_value callback = info.argv[INDEX_ZERO];
-    if (receiveDataCallback_ == nullptr) {
-        HILOG_ERROR("receiveDataCallback_ is nullptr");
+    if (receiveDataForResultCallback_ == nullptr) {
+        HILOG_ERROR("receiveDataForResultCallback_ is nullptr");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         return CreateJsUndefined(env);
     }
     napi_ref ref = nullptr;
     napi_create_reference(env, callback, 1, &ref);
-    receiveDataCallback_->ResetCallback(std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
+    receiveDataForResultCallback_->ResetCallback(std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
 
     return CreateJsUndefined(env);
 }
