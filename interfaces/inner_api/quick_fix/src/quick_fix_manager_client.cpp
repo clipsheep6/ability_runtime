@@ -40,11 +40,9 @@ int32_t QuickFixManagerClient::ApplyQuickFix(const std::vector<std::string> &qui
         HILOG_ERROR("Get quick fix manager service failed.");
         return QUICK_FIX_CONNECT_FAILED;
     }
-    if(isDebug == true) {
-        HILOG_INFO("isDebug is true");
-    } else {
-        HILOG_INFO("isDebug is false");
-    }
+
+    HILOG_DEBUG("isDebug is %d", isDebug);
+    
     return quickFixMgr->ApplyQuickFix(quickFixFiles, isDebug);
 }
 

@@ -55,16 +55,12 @@ int32_t QuickFixManagerProxy::ApplyQuickFix(const std::vector<std::string> &quic
         return QUICK_FIX_WRITE_PARCEL_FAILED;
     }
 
-    if(!data.WriteBool(isDebug)) {
+    if (!data.WriteBool(isDebug)) {
         HILOG_ERROR("Write quick fix debug failed.");
         return QUICK_FIX_WRITE_PARCEL_FAILED;
     }
 
-    if(isDebug == true) {
-       HILOG_INFO("isDebug is true");
-    } else {
-       HILOG_INFO("isDebug is false");
-    }
+    HILOG_DEBUG("isDebug is %d", isDebug);
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {

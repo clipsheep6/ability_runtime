@@ -77,11 +77,9 @@ int32_t QuickFixManagerService::ApplyQuickFix(const std::vector<std::string> &qu
         HILOG_ERROR("App manager is nullptr.");
         return QUICK_FIX_CONNECT_FAILED;
     }
-   if(isDebug == true) {
-        HILOG_INFO("isDebug is true");
-    } else {
-        HILOG_INFO("isDebug is false");
-    }
+
+    HILOG_DEBUG("isDebug is %d", isDebug);
+    
     auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr, appMgr, eventHandler_, this);
     AddApplyTask(applyTask);
     applyTask->Run(quickFixFiles, isDebug);

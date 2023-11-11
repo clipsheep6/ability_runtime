@@ -403,11 +403,9 @@ void QuickFixManagerApplyTask::PostDeployQuickFixTask(const std::vector<std::str
             applyTask->RemoveSelf();
             return;
         }
-        if(isDebug == true) {
-            HILOG_INFO("isDebug is true");
-        } else {
-            HILOG_INFO("isDebug is false");
-        }
+
+        HILOG_DEBUG("isDebug is %d", isDebug);
+        
         auto ret = applyTask->bundleQfMgr_->DeployQuickFix(quickFixFiles, callback, isDebug);
         if (ret != 0) {
             HILOG_ERROR("PostDeployQuickFixTask, Deploy quick fix failed with %{public}d.", ret);
