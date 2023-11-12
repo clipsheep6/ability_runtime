@@ -1336,7 +1336,7 @@ public:
     int GenerateDialogSessionRecord(AbilityRequest &abilityRequest, int32_t userId,
         std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos);
 
-    void CreateDialogByUIExtension(const Want &replaceWant, const sptr<IRemoteObject> &callerToken, std::string &dialogSessionId);
+    int CreateDialogByUIExtension(const Want &replaceWant, const sptr<IRemoteObject> &callerToken, std::string &dialogSessionId);
 
     virtual int SendDialogResult(const Want &want, const std::string &dialogSessionId, bool isAllowed) override;
 

@@ -336,6 +336,12 @@ public:
     void CallRequest() override;
 
     /**
+     * @brief Create Modal UIExtension
+     * @param want The Want object.
+     */
+    int CreateModalUIExtension(const Want &want) override;
+
+    /**
      * @brief Execute Batch
      * @param operations Indicates the operations
      */

@@ -28,6 +28,7 @@
 #include "session/host/include/zidl/session_interface.h"
 #include "session_info.h"
 #include "string_wrapper.h"
+#include "ui_content.h"
 #include "want_params_wrapper.h"
 
 namespace OHOS {
@@ -720,6 +721,24 @@ int AbilityContextImpl::GetCurrentWindowMode()
         return AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED;
     }
     return abilityCallback->GetCurrentWindowMode();
+}
+
+ErrCode AbilityContextImpl::CreateModalUIExtension(const AAFwk::Want &want)
+{
+    HILOG_DEBUG("call");
+    auto uiContent = GetUIContent();
+    if (uiContent == nullptr) {
+        HILOG_ERROR("uiContent is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    Ace::ModalUIExtensionCallbacks callback;
+    Ace::ModalUIExtensionConfig config;
+    int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
+    if (sessionId == 0) {
+        HILOG_ERROR("CreateModalUIExtension is failed");
+        return ERR_INVALID_VALUE;
+    }
+    return ERR_OK;
 }
 
 Ace::UIContent* AbilityContextImpl::GetUIContent()

@@ -1511,6 +1511,18 @@ int32_t Ability::OnShare(WantParams &wantParams)
     return ERR_OK;
 }
 
+int Ability::CreateModalUIExtension(const Want &want)
+{
+    HILOG_DEBUG("call");
+    int ret = -1;
+    auto abilityContextImpl = GetAbilityContext();
+    if (abilityContextImpl == nullptr) {
+        HILOG_ERROR("nullptr");
+        return ret;
+    }
+    return abilityContextImpl->CreateModalUIExtension(want);
+}
+
 #ifdef SUPPORT_GRAPHICS
 bool Ability::PrintDrawnCompleted()
 {

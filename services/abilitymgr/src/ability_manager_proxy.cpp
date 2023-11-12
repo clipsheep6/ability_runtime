@@ -2751,7 +2751,7 @@ int AbilityManagerProxy::GetDialogSessionInfo(const std::string &dialogSessionId
         HILOG_ERROR("write dialogSessionId fail.");
         return ERR_INVALID_VALUE;
     }
-    auto error = SendRequest(AbilityManagerInterfaceCode::GET_PICKER_CONTEXT, data, reply, option);
+    auto error = SendRequest(AbilityManagerInterfaceCode::GET_DIALOG_SESSION_INFO, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Get extension running info failed., error: %{public}d", error);
         return error;
@@ -2785,7 +2785,7 @@ int AbilityManagerProxy::SendDialogResult(const Want &want, const std::string &d
         HILOG_ERROR("write dialogSessionId fail.");
         return INNER_ERR;
     }
-    auto error = SendRequest(AbilityManagerInterfaceCode::SEND_PICKER_CONTEXT, data, reply, option);
+    auto error = SendRequest(AbilityManagerInterfaceCode::SEND_DIALOG_RESULT, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Get extension running info failed., error: %{public}d", error);
         return error;

@@ -259,6 +259,12 @@ void AbilityThread::CallRequest()
     HILOG_DEBUG("called");
 }
 
+int AbilityThread::CreateModalUIExtension(const Want &want)
+{
+    HILOG_DEBUG("called");
+    return ERR_INVALID_VALUE;
+}
+
 std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> AbilityThread::ExecuteBatch(
     const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> &operations)
 {

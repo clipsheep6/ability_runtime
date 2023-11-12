@@ -17,6 +17,7 @@
 
 #include <random>
 #include <string>
+#include <chrono>
 #include "ability_record.h"
 #include "ability_util.h"
 #include "hilog_wrapper.h"
@@ -26,11 +27,13 @@ namespace OHOS {
 namespace AAFwk {
 std::string DialogSessionRecord::GenerateDialogSessionId()//123
 {
+    auto timestamp = std::chrono::system_clock::now().time_since_epoch();
+    auto time = std::chrono::duration_cast<std::chrono::seconds>(timestamp).count();
     std::random_device seed;
     std::mt19937 rng(seed());
     std::uniform_int_distribution<int> uni(0, INT_MAX);
-    int num = uni(rng);
-    return std::to_string(num) + "" + "";
+    int randomDigit = uni(rng);
+    return std::to_string(time) + "_" + std::to_string(randomDigit);
 }
 
 void DialogSessionRecord::SetDialogSessionInfo(const std::string dialogSessionId, sptr<DialogSessionInfo> &dilogSessionInfo,

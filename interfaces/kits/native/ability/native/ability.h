@@ -821,6 +821,8 @@ public:
      */
     virtual int32_t OnShare(WantParams &wantParams);
 
+    int CreateModalUIExtension(const Want &want);
+
 #ifdef SUPPORT_GRAPHICS
 public:
     friend class PageAbilityImpl;
@@ -1036,6 +1038,8 @@ public:
     virtual FormProviderInfo OnCreate(const Want &want);
 
     virtual bool OnShare(int64_t formId, AAFwk::WantParams &wantParams);
+
+
 
     /**
      * @brief Called to notify the form provider that a specified form has been deleted. Override this method if

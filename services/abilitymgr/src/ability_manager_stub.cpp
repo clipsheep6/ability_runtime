@@ -328,9 +328,9 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::ConnectUIExtensionAbilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::PREPARE_TERMINATE_ABILITY)] =
         &AbilityManagerStub::PrepareTerminateAbilityInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_PICKER_CONTEXT)] =
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_DIALOG_SESSION_INFO)] =
         &AbilityManagerStub::GetDialogSessionInfoInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_PICKER_CONTEXT)] =
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_DIALOG_RESULT)] =
         &AbilityManagerStub::SendDialogResultInner;
 #endif
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REQUEST_DIALOG_SERVICE)] =

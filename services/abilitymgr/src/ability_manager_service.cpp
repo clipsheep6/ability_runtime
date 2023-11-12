@@ -813,22 +813,24 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
 
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
         afterCheckExecuter_->DoProcess(newWant, requestCode, GetUserId(), true);
-    if (result != ERR_OK) {
-        if (newWant.GetBoolParam("isReplaceWantExist", false)) {
-            newWant.RemoveParam("isReplaceWantExist");
-            std::string dialogSessionId;
-            std::vector<DialogAppInfo> dialogAppInfos(1);
-            dialogAppInfos.front().bundleName = abilityInfo.bundleName;
-            dialogAppInfos.front().moduleName = abilityInfo.moduleName;
-            dialogAppInfos.front().abilityName = abilityInfo.name;
-            dialogAppInfos.front().iconId = abilityInfo.iconId;
-            dialogAppInfos.front().labelId = abilityInfo.labelId;
-            if(GenerateDialogSessionRecord(abilityRequest, GetUserId(), dialogSessionId, dialogAppInfos)) {
-                CreateDialogByUIExtension(newWant, callerToken, dialogSessionId);
-            }
-        }
-        HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
+    bool isReplaceWantExist = newWant.GetBoolParam("isReplaceWantExist", false);
+    if (result != ERR_OK && isReplaceWantExist == false) {
+        HILOG_INFO("afterCheckExecuter_ is nullptr or DoProcess return error");
         return result;
+    }
+    if (result != ERR_OK && isReplaceWantExist) {
+        newWant.RemoveParam("isReplaceWantExist");
+        std::string dialogSessionId;
+        std::vector<DialogAppInfo> dialogAppInfos(1);
+        dialogAppInfos.front().bundleName = abilityInfo.bundleName;
+        dialogAppInfos.front().moduleName = abilityInfo.moduleName;
+        dialogAppInfos.front().abilityName = abilityInfo.name;
+        dialogAppInfos.front().iconId = abilityInfo.iconId;
+        dialogAppInfos.front().labelId = abilityInfo.labelId;
+        if(GenerateDialogSessionRecord(abilityRequest, GetUserId(), dialogSessionId, dialogAppInfos)) {
+            HILOG_DEBUG("create dialog by ui extension");
+            return CreateDialogByUIExtension(newWant, callerToken, dialogSessionId);
+        }
     }
 
     if (!AbilityUtil::IsSystemDialogAbility(abilityInfo.bundleName, abilityInfo.name)) {
@@ -1004,11 +1006,28 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         return ERR_WRONG_INTERFACE_CALL;
     }
 
+    Want newWant = abilityRequest.want;
+
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(abilityRequest.want, requestCode, GetUserId(), true);
-    if (result != ERR_OK) {
-        HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
+        afterCheckExecuter_->DoProcess(newWant, requestCode, GetUserId(), true);
+    bool isReplaceWantExist = newWant.GetBoolParam("isReplaceWantExist", false);
+    if (result != ERR_OK && isReplaceWantExist == false) {
+        HILOG_INFO("afterCheckExecuter_ is nullptr or DoProcess return error");
         return result;
+    }
+    if (result != ERR_OK && isReplaceWantExist) {
+        newWant.RemoveParam("isReplaceWantExist");
+        std::string dialogSessionId;
+        std::vector<DialogAppInfo> dialogAppInfos(1);
+        dialogAppInfos.front().bundleName = abilityInfo.bundleName;
+        dialogAppInfos.front().moduleName = abilityInfo.moduleName;
+        dialogAppInfos.front().abilityName = abilityInfo.name;
+        dialogAppInfos.front().iconId = abilityInfo.iconId;
+        dialogAppInfos.front().labelId = abilityInfo.labelId;
+        if(GenerateDialogSessionRecord(abilityRequest, GetUserId(), dialogSessionId, dialogAppInfos)) {
+            HILOG_DEBUG("create dialog by ui extension");
+            return CreateDialogByUIExtension(newWant, callerToken, dialogSessionId);
+        }
     }
 
     if (!AbilityUtil::IsSystemDialogAbility(abilityInfo.bundleName, abilityInfo.name)) {
@@ -1222,11 +1241,28 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         return ERR_INVALID_VALUE;
     }
 
+    Want newWant = abilityRequest.want;
+
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(abilityRequest.want, requestCode, GetUserId(), true);
-    if (result != ERR_OK) {
-        HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
+        afterCheckExecuter_->DoProcess(newWant, requestCode, GetUserId(), true);
+    bool isReplaceWantExist = newWant.GetBoolParam("isReplaceWantExist", false);
+    if (result != ERR_OK && isReplaceWantExist == false) {
+        HILOG_INFO("afterCheckExecuter_ is nullptr or DoProcess return error");
         return result;
+    }
+    if (result != ERR_OK && isReplaceWantExist) {
+        newWant.RemoveParam("isReplaceWantExist");
+        std::string dialogSessionId;
+        std::vector<DialogAppInfo> dialogAppInfos(1);
+        dialogAppInfos.front().bundleName = abilityInfo.bundleName;
+        dialogAppInfos.front().moduleName = abilityInfo.moduleName;
+        dialogAppInfos.front().abilityName = abilityInfo.name;
+        dialogAppInfos.front().iconId = abilityInfo.iconId;
+        dialogAppInfos.front().labelId = abilityInfo.labelId;
+        if(GenerateDialogSessionRecord(abilityRequest, GetUserId(), dialogSessionId, dialogAppInfos)) {
+            HILOG_DEBUG("create dialog by ui extension");
+            return CreateDialogByUIExtension(newWant, callerToken, dialogSessionId);
+        }
     }
 
     if (!AbilityUtil::IsSystemDialogAbility(abilityInfo.bundleName, abilityInfo.name)) {
@@ -8616,31 +8652,33 @@ int AbilityManagerService::GenerateDialogSessionRecord(AbilityRequest &abilityRe
         dialogSessionId, dialogAppInfos, OHOS::system::GetDeviceType());
 }
 
-void AbilityManagerService::CreateDialogByUIExtension(const Want &replaceWant, const sptr<IRemoteObject> &callerToken, std::string &dialogSessionId)
+int AbilityManagerService::CreateDialogByUIExtension(const Want &replaceWant, const sptr<IRemoteObject> &callerToken, std::string &dialogSessionId)
 {
     if (callerToken == nullptr) {
         HILOG_ERROR("want or callerToken is nullptr");
-        return;
+        return ERR_INVALID_VALUE;
     }
     auto callerRecord = Token::GetAbilityRecordByToken(callerToken);
     if (!callerRecord) {
         HILOG_ERROR("callerRecord is nullptr.");
-        return;
+        return ERR_INVALID_VALUE;
     }
 
     sptr<IRemoteObject> token;
     int ret = IN_PROCESS_CALL(GetTopAbility(token));
     if (ret != ERR_OK || token == nullptr) {
         HILOG_ERROR("token is nullptr");
-        return;
+        return ERR_INVALID_VALUE;
     }
 
-    if (callerRecord->GetAbilityInfo().type == AppExecFwk::AbilityType::PAGE
-        && token == callerToken) {
-            
-            //AbilityManagerClient::GetInstance()->CreateModalUIExtension(replaceWant, callerToken, dialogSessionId);模应用
-        }
-    //CreateModalUIExtension(replaceWant, dialogSessionId);模系统
+    if (callerRecord->GetAbilityInfo().type == AppExecFwk::AbilityType::PAGE && token == callerToken) {
+        HILOG_DEBUG("create modal ui extension for application");
+        (const_cast<Want &>(replaceWant)).SetParam("dialogSessionId", dialogSessionId);
+        return callerRecord->CreateModalUIExtension(replaceWant);
+    }
+    HILOG_DEBUG("create modal ui extension for system");
+    // return CreateModalUIExtension(replaceWant, dialogSessionId);
+    return ERR_OK;
 }
 
 int AbilityManagerService::SendDialogResult(const Want &want, const std::string &dialogSessionId, bool isAllowed)
