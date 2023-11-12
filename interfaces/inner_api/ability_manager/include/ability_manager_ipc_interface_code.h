@@ -347,6 +347,12 @@ enum class AbilityManagerInterfaceCode {
 
     START_UI_SESSION_ABILITY_FOR_OPTIONS = 1052,
 
+     // get picker context
+    GET_PICKER_CONTEXT = 1054,
+
+    // send picker result
+    SEND_PICKER_CONTEXT = 1055,
+
     // ipc id for continue ability(1101)
     START_CONTINUATION = 1101,
 

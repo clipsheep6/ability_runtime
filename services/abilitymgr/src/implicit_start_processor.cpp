@@ -24,6 +24,7 @@
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "parameters.h"
+#include "scene_board_judgement.h"
 #include "want.h"
 #ifdef SUPPORT_ERMS
 #include "ecological_rule_mgr_service_client.h"

@@ -37,7 +37,7 @@ void DialogSessionRecord::SetDialogSessionInfo(const std::string dialogSessionId
     std::shared_ptr<DialogCallerInfo> &dialogCallerInfo)
 {
     dialogSessionInfoMap_[dialogSessionId] = dilogSessionInfo;
-    dialogCallerInfoMap_[doalogSessionId] = dialogCallerInfo;
+    dialogCallerInfoMap_[dialogSessionId] = dialogCallerInfo;
 }
 
 sptr<DialogSessionInfo> DialogSessionRecord::GetDialogContext(const std::string dialogSessionId) const
@@ -73,10 +73,29 @@ void DialogSessionRecord::ClearAllDialogContexts()
     dialogSessionInfoMap_.clear();
 }
 
+int DialogSessionRecord::QueryDialogAppInfo(DialogAbilityInfo &dialogAbilityInfo, int32_t userId)
+{
+    std::string bundleName = dialogAbilityInfo.bundleName;
+    auto bms = AbilityUtil::GetBundleManager();
+    CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
+    AppExecFwk::ApplicationInfo appInfo;
+    bool ret = IN_PROCESS_CALL(bms->GetApplicationInfo(bundleName,
+        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, appInfo));
+    if (ret != ERR_OK) {
+        HILOG_ERROR("get application info failed, err:%{public}d.", ret);
+        return ret;
+    }
+    dialogAbilityInfo.bundleIconId = appInfo.iconId;
+    dialogAbilityInfo.bundleLabelId = appInfo.labelId;
+    return ERR_OK;
+}
+
 int DialogSessionRecord::GenerateDialogSessionRecord(AbilityRequest &abilityRequest, int32_t userId,
-    std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos) {
+    std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos, const std::string &deviceType)
+{
     dialogSessionId = GenerateDialogSessionId();
-    std::shared_ptr<DialogSessionInfo> dialogSessionInfo = std::make_shared<DialogSessionInfo>();
+    DialogSessionInfo info;
+    sptr<DialogSessionInfo> dialogSessionInfo = &info;
     sptr<IRemoteObject> callerToken = abilityRequest.callerToken;
     CHECK_POINTER_AND_RETURN(callerToken, ERR_INVALID_VALUE);
     auto callerRecord = Token::GetAbilityRecordByToken(callerToken);
@@ -84,9 +103,15 @@ int DialogSessionRecord::GenerateDialogSessionRecord(AbilityRequest &abilityRequ
     dialogSessionInfo->callerAbilityInfo.bundleName = callerRecord->GetAbilityInfo().bundleName;
     dialogSessionInfo->callerAbilityInfo.moduleName = callerRecord->GetAbilityInfo().moduleName;
     dialogSessionInfo->callerAbilityInfo.abilityName = callerRecord->GetAbilityInfo().name;
-
+    dialogSessionInfo->callerAbilityInfo.abilityIconId = callerRecord->GetAbilityInfo().iconId;
+    dialogSessionInfo->callerAbilityInfo.abilityLabelId = callerRecord->GetAbilityInfo().labelId;
+    int ret = QueryDialogAppInfo(dialogSessionInfo->callerAbilityInfo, userId);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("query dialog app info failed");
+        return ret;
+    }
     dialogSessionInfo->paramsJson = nlohmann::json {
-        {"deviceType", OHOS::system::GetDeviceType()},
+        {"deviceType", deviceType},
         {"userId", std::to_string(userId)},
     };
 
@@ -97,25 +122,17 @@ int DialogSessionRecord::GenerateDialogSessionRecord(AbilityRequest &abilityRequ
         targetDialogAbilityInfo.abilityName = dialogAppInfo.abilityName;
         targetDialogAbilityInfo.abilityIconId = dialogAppInfo.iconId;
         targetDialogAbilityInfo.abilityLabelId = dialogAppInfo.labelId;
-        dialogSessionInfo->targetAbilityInfos.push_back(targetDialogAbilityInfo);
-    }
-    if (dialogAppInfos.size() == 1) {
-        auto bms = AbilityUtil::GetBundleManager();
-        CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
-        AppExecFwk::ApplicationInfo appInfo;
-        bool ret = IN_PROCESS_CALL(bms->GetApplicationInfo(dialogAppInfos.front().bundleName,
-            AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, appInfo));
+        int ret = QueryDialogAppInfo(targetDialogAbilityInfo, userId);
         if (ret != ERR_OK) {
-            HILOG_ERROR("get application info failed, err:%{public}d.", ret);
+            HILOG_ERROR("query dialog app info failed");
             return ret;
         }
-        dialogSessionInfo->targetAbilityInfos.front().bundleIconId = appInfo.iconId;
-        dialogSessionInfo->targetAbilityInfos.front().bundleLabelId = appInfo.labelId;
-    } else {
+        dialogSessionInfo->targetAbilityInfos.emplace_back(targetDialogAbilityInfo);
+    }
+    if (dialogAppInfos.size() > 1) {
         dialogSessionInfo->paramsJson["action", abilityRequest.want.GetAction()];
         dialogSessionInfo->paramsJson["wantType", abilityRequest.want.GetType()];
     }
-
     std::shared_ptr<DialogCallerInfo> dialogCallerInfo = std::make_shared<DialogCallerInfo>();
     dialogCallerInfo->callerToken = callerToken;
     dialogCallerInfo->requestCode = abilityRequest.requestCode;

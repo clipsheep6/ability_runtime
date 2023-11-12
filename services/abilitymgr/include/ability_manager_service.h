@@ -37,6 +37,7 @@
 #include "app_mgr_interface.h"
 #include "app_scheduler.h"
 #include "auto_startup_info.h"
+#include "dialog_session_info.h"
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 #include "background_task_observer.h"
 #endif
@@ -1330,14 +1331,14 @@ public:
      */
     int32_t DetachAppDebug(const std::string &bundleName) override;
 
-    int GetDialogContext(const std::string dialogSessionId, sptr<DialogSessionInfo> dialogSessionInfo) const;
+    virtual int GetDialogSessionInfo(const std::string &dialogSessionId, sptr<DialogSessionInfo> dialogSessionInfo) override;
 
     int GenerateDialogSessionRecord(AbilityRequest &abilityRequest, int32_t userId,
         std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos);
 
     void CreateDialogByUIExtension(const Want &replaceWant, const sptr<IRemoteObject> &callerToken, std::string &dialogSessionId);
 
-    int SetDialogResult(std::string &dialogSessionId, bool isAllowed, const Want &want);
+    virtual int SendDialogResult(const Want &want, const std::string &dialogSessionId, bool isAllowed) override;
 
     /**
      * @brief Check if ability controller can start.

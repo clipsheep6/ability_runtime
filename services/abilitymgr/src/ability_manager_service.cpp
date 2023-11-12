@@ -8598,7 +8598,7 @@ bool AbilityManagerService::IsAbilityControllerStart(const Want &want)
     return true;
 }
 
-int AbilityManagerService::GetDialogContext(const std::string dialogSessionId, sptr<DialogSessionInfo> dialogSessionInfo) const
+int AbilityManagerService::GetDialogSessionInfo(const std::string &dialogSessionId, sptr<DialogSessionInfo> dialogSessionInfo)
 {
     CHECK_POINTER_AND_RETURN(dialogSessionRecord_, ERR_INVALID_VALUE);
     dialogSessionInfo = dialogSessionRecord_->GetDialogContext(dialogSessionId);
@@ -8612,7 +8612,8 @@ int AbilityManagerService::GenerateDialogSessionRecord(AbilityRequest &abilityRe
     std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos)
 {
     CHECK_POINTER_AND_RETURN(dialogSessionRecord_, ERR_INVALID_VALUE);
-    return dialogSessionRecord_->GenerateDialogSessionRecord(abilityRequest, userId, dialogSessionId, dialogAppInfos);
+    return dialogSessionRecord_->GenerateDialogSessionRecord(abilityRequest, userId,
+        dialogSessionId, dialogAppInfos, OHOS::system::GetDeviceType());
 }
 
 void AbilityManagerService::CreateDialogByUIExtension(const Want &replaceWant, const sptr<IRemoteObject> &callerToken, std::string &dialogSessionId)
@@ -8642,7 +8643,7 @@ void AbilityManagerService::CreateDialogByUIExtension(const Want &replaceWant, c
     //CreateModalUIExtension(replaceWant, dialogSessionId);模系统
 }
 
-int AbilityManagerService::SetDialogResult(std::string &dialogSessionId, bool isAllowed, const Want &want)
+int AbilityManagerService::SendDialogResult(const Want &want, const std::string &dialogSessionId, bool isAllowed)
 {
     CHECK_POINTER_AND_RETURN(dialogSessionRecord_, ERR_INVALID_VALUE);
     std::shared_ptr<DialogCallerInfo> dialogCallerInfo = dialogSessionRecord_->GetDialogCallerInfo(dialogSessionId);

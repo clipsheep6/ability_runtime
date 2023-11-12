@@ -19,27 +19,14 @@
 #include <unordered_map>
 #include <string>
 #include "ability_record.h"
+#include "dialog_session_info.h"
 #include "json_serializer.h"
+#include "parcel.h"
 #include "system_dialog_scheduler.h"
+#include "refbase.h"
 
 namespace OHOS {
 namespace AAFwk {
-
-struct DialogAbilityInfo {
-    std::string bundleName;
-    std::string moduleName;
-    std::string abilityName;
-    std::string bundleIconId;
-    std::string bundleLabelId;
-    std::string abilityIconId;
-    std::string abilityLabelId;
-};
-
-struct DialogSessionInfo {
-    DialogAbilityInfo callerAbilityInfo;
-    std::list<DialogAbilityInfo> targetAbilityInfos; // get info form erms or bms
-    nlohmann::json paramsJson;
-};
 
 struct DialogCallerInfo {
     int32_t userId;
@@ -63,7 +50,9 @@ public:
     void ClearAllDialogContexts();
 
     int GenerateDialogSessionRecord(AbilityRequest &abilityRequest, int32_t userId,
-        std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos);
+        std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos, const std::string &deviceType);
+
+    int QueryDialogAppInfo(DialogAbilityInfo &dialogAbilityInfo, int32_t userId);
 
 
 private:
