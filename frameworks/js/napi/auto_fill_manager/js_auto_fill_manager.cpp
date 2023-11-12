@@ -1,0 +1,118 @@
+/*
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "js_auto_fill_manager.h"
+
+#include "ability_business_error.h"
+#include "auto_fill_manager.h"
+#include "hilog_wrapper.h"
+#include "ipc_skeleton.h"
+#include "js_error_utils.h"
+
+namespace OHOS {
+namespace AbilityRuntime {
+namespace {
+constexpr int32_t INDEX_ZERO = 0;
+constexpr int32_t INDEX_ONE = 1;
+constexpr size_t ARGC_ONE = 1;
+constexpr size_t ARGC_TWO = 2;
+} // namespace
+
+void JsAutoFillManager::Finalizer(napi_env env, void *data, void *hint)
+{
+    HILOG_DEBUG("Called.");
+    std::unique_ptr<JsAutoFillManager>(static_cast<JsAutoFillManager *>(data));
+}
+
+napi_value JsAutoFillManager::RequestAutoSave(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsAutoFillManager, OnRequestAutoSave);
+}
+
+napi_value JsAutoFillManager::OnRequestAutoSave(napi_env env, NapiCallbackInfo &info)
+{
+    HILOG_DEBUG("Called.");
+    if (info.argc < ARGC_ONE || info.argc > ARGC_TWO) {
+        HILOG_ERROR("The param is invalid.");
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    napi_value instanceIdValue = nullptr;
+    if (napi_get_named_property(env, info.argv[INDEX_ZERO], "instanceId_", &instanceIdValue) != napi_ok) {
+        HILOG_ERROR("Get function by name failed.");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+    int32_t instanceId = -1;
+    if (!ConvertFromJsValue(env, instanceIdValue, instanceId)) {
+        HILOG_ERROR("Failed to parse type.");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+
+    if (jsSaveRequestCallback_ == nullptr) {
+        jsSaveRequestCallback_ = std::make_shared<JsSaveRequestCallback>(env);
+        if (jsSaveRequestCallback_ == nullptr) {
+            HILOG_ERROR("jsSaveRequestCallback_ is nullptr.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+            return CreateJsUndefined(env);
+        }
+    }
+    if (info.argc == ARGC_TWO) {
+        jsSaveRequestCallback_->Register(info.argv[INDEX_ONE]);
+    }
+
+    auto uiContent = Ace::UIContent::GetUIContent(instanceId);
+    if (uiContent == nullptr) {
+        jsSaveRequestCallback_ = nullptr;
+        HILOG_ERROR("UIContent is nullptr.");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+        return CreateJsUndefined(env);
+    }
+    if (uiContent->CheckNeedAutoSave()) {
+        AbilityBase::ViewData viewData;
+        uiContent->DumpViewData(viewData);
+        auto ret = AutoFillManager::GetInstance().RequestAutoSave(uiContent, viewData, jsSaveRequestCallback_);
+        if (ret != ERR_OK) {
+            jsSaveRequestCallback_ = nullptr;
+            HILOG_ERROR("Request auto save error[%{public}d].", ret);
+            ThrowError(env, GetJsErrorCodeByNativeError(ret));
+            return CreateJsUndefined(env);
+        }
+    }
+
+    return CreateJsUndefined(env);
+}
+
+napi_value JsAutoFillManagerInit(napi_env env, napi_value exportObj)
+{
+    HILOG_DEBUG("Called.");
+    if (env == nullptr || exportObj == nullptr) {
+        HILOG_ERROR("Env or exportObj nullptr.");
+        return nullptr;
+    }
+
+    auto jsAbilityAutoFillManager = std::make_unique<JsAutoFillManager>();
+    napi_wrap(env, exportObj, jsAbilityAutoFillManager.release(),
+        JsAutoFillManager::Finalizer, nullptr, nullptr);
+
+    const char *moduleName = "JsAutoFillManager";
+    BindNativeFunction(env, exportObj, "requestAutoSave", moduleName, JsAutoFillManager::RequestAutoSave);
+
+    return CreateJsUndefined(env);
+}
+} // namespace AbilityRuntime
+} // namespace OHOS
