@@ -482,6 +482,26 @@ void AppRunningRecord::AddAbilityStageBySpecifiedAbility(const std::string &bund
     }
 }
 
+void AppRunningRecord::AddAbilityStageBySpecifiedProcess(const std::string &bundleName)
+{
+    HILOG_DEBUG("call.");
+    if (!eventHandler_) {
+        HILOG_ERROR("eventHandler_ is nullptr");
+        return;
+    }
+
+    HapModuleInfo hapModuleInfo;
+    if (GetTheModuleInfoNeedToUpdated(bundleName, hapModuleInfo)) {
+        SendEvent(AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG,
+            AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT);
+        if (appLifeCycleDeal_ == nullptr) {
+            HILOG_WARN("appLifeCycleDeal_ is null");
+            return;
+        }
+        appLifeCycleDeal_->AddAbilityStage(hapModuleInfo);
+    }
+}
+
 void AppRunningRecord::AddAbilityStageDone()
 {
     HILOG_INFO("Add ability stage done. bundle %{public}s and eventId %{public}d", mainBundleName_.c_str(),
@@ -506,6 +526,12 @@ void AppRunningRecord::AddAbilityStageDone()
 
     if (isSpecifiedAbility_) {
         ScheduleAcceptWant(moduleName_);
+        return;
+    }
+
+    if (isNewProcessRequest_) {
+        HILOG_DEBUG("ScheduleNewProcessRequest.");
+        ScheduleNewProcessRequest(newProcessRequestWant_, moduleName_);
         return;
     }
 
@@ -1385,6 +1411,19 @@ void AppRunningRecord::SetSpecifiedAbilityFlagAndWant(
     moduleName_ = moduleName;
 }
 
+void AppRunningRecord::SetScheduleNewProcessRequestState(
+    const bool isNewProcessRequest, const AAFwk::Want &want, const std::string &moduleName)
+{
+    isNewProcessRequest_ = isNewProcessRequest;
+    newProcessRequestWant_ = want;
+    moduleName_ = moduleName;
+}
+
+bool AppRunningRecord::IsNewProcessRequest() const
+{
+    return isNewProcessRequest_;
+}
+
 bool AppRunningRecord::IsStartSpecifiedAbility() const
 {
     return isSpecifiedAbility_;
@@ -1454,6 +1493,11 @@ void AppRunningRecord::ApplicationTerminated()
 const AAFwk::Want &AppRunningRecord::GetSpecifiedWant() const
 {
     return SpecifiedWant_;
+}
+
+const AAFwk::Want &AppRunningRecord::GetNewProcessRequestWant() const
+{
+    return newProcessRequestWant_;
 }
 
 int32_t AppRunningRecord::UpdateConfiguration(const Configuration &config)

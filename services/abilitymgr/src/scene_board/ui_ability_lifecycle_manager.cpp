@@ -1949,7 +1949,7 @@ int UIAbilityLifecycleManager::MoveMissionToFront(int32_t sessionId, std::shared
 
 void UIAbilityLifecycleManager::SetDevice(std::string deviceType)
 {
-    isPcDevice_ = (deviceType == "tablet" || deviceType == "pc" || deviceType == "2in1");
+    isPcDevice_ = (deviceType == "pc" || deviceType == "2in1");
 }
 }  // namespace AAFwk
 }  // namespace OHOS

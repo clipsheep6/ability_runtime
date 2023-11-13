@@ -332,7 +332,7 @@ bool AbilityManagerService::Init()
     HILOG_INFO("ams config parse");
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
-        std::string deviceType = OHOS::system::GetParameter("const.product.devicetype", "unknown");
+        std::string deviceType = OHOS::system::GetDeviceType();
         uiAbilityLifecycleManager_->SetDevice(deviceType);
     } else {
         InitMissionListManager(MAIN_USER_ID, true);

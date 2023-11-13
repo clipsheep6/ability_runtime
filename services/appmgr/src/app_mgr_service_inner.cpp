@@ -245,7 +245,16 @@ void AppMgrServiceInner::StartSpecifiedProcess(const AAFwk::Want &want, const Ap
         appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name, processName, appInfo->uid, bundleInfo);
     if (mainAppRecord != nullptr) {
         HILOG_DEBUG("main process exists.");
-        mainAppRecord->SetSpecifiedAbilityFlagAndWant(false, want, hapModuleInfo.moduleName);
+        mainAppRecord->SetScheduleNewProcessRequestState(true, want, hapModuleInfo.moduleName);
+        auto moduleRecord = mainAppRecord->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
+        if (!moduleRecord) {
+            HILOG_DEBUG("module record is nullptr, add modules");
+            std::vector<HapModuleInfo> hapModules = { hapModuleInfo };
+            mainAppRecord->AddModules(appInfo, hapModules);
+            mainAppRecord->AddAbilityStageBySpecifiedProcess(appInfo->bundleName);
+            return;
+        }
+        HILOG_DEBUG("schedule new process request.");
         mainAppRecord->ScheduleNewProcessRequest(want, hapModuleInfo.moduleName);
         return;
     }
@@ -292,12 +301,12 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
     std::shared_ptr<AppRunningRecord> appRecord;
     // for isolation process
     std::string specifiedProcessFlag = "";
-    bool isPcDevice = (deviceType_ == "tablet" || deviceType_ == "pc" || deviceType_ == "2ini1");
+    bool isPcDevice = (deviceType_ == "pc" || deviceType_ == "2in1");
     bool isUIAbility = (abilityInfo->type == AppExecFwk::AbilityType::PAGE && abilityInfo->isStageBasedModel);
     bool isSpecifiedProcess = abilityInfo->isolationProcess && isPcDevice && isUIAbility;
     if (isSpecifiedProcess) {
-        HILOG_DEBUG("specifiedProcessFlag = %{public}s", specifiedProcessFlag.c_str());
         specifiedProcessFlag = want->GetStringParam(PARAM_SPECIFIED_PROCESS_FLAG);
+        HILOG_INFO("specifiedProcessFlag = %{public}s", specifiedProcessFlag.c_str());
     }
     appRecord = appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name,
         processName, appInfo->uid, bundleInfo, specifiedProcessFlag);
@@ -314,7 +323,7 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
             HILOG_ERROR("CreateAppRunningRecord failed, appRecord is nullptr");
             return;
         }
-        if (isSpecifiedProcess) {
+        if (isSpecifiedProcess && !specifiedProcessFlag.empty()) {
             appRecord->SetSpecifiedProcessFlag(specifiedProcessFlag);
         }
         if (hapModuleInfo.isStageBasedModel && !IsMainProcess(appInfo, hapModuleInfo)) {
@@ -2550,6 +2559,10 @@ void AppMgrServiceInner::HandleAddAbilityStageTimeOut(const int64_t eventId)
         startSpecifiedAbilityResponse_->OnTimeoutResponse(appRecord->GetSpecifiedWant());
     }
 
+    if (appRecord->IsNewProcessRequest() && startSpecifiedAbilityResponse_) {
+        startSpecifiedAbilityResponse_->OnNewProcessRequestTimeoutResponse(appRecord->GetNewProcessRequestWant());
+    }
+
     KillApplicationByRecord(appRecord);
 }
 
@@ -3203,7 +3216,7 @@ void AppMgrServiceInner::HandleStartSpecifiedProcessTimeout(const int64_t eventI
     }
 
     if (startSpecifiedAbilityResponse_) {
-        startSpecifiedAbilityResponse_->OnNewProcessRequestTimeoutResponse(appRecord->GetSpecifiedWant());
+        startSpecifiedAbilityResponse_->OnNewProcessRequestTimeoutResponse(appRecord->GetNewProcessRequestWant());
     }
 }
 
