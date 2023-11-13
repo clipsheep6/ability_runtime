@@ -22,6 +22,7 @@
 #include <string>
 
 #include "ability_foreground_state_observer_interface.h"
+#include "app_foreground_state_observer_interface.h"
 #include "app_running_record.h"
 #include "app_state_data.h"
 #include "cpp/mutex.h"
@@ -48,6 +49,8 @@ public:
     int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
         const std::vector<std::string> &bundleNameList = {});
     int32_t UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer);
+    int32_t RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer);
+    int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer);
     int32_t RegisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer);
     int32_t UnregisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer);
     void StateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility);
@@ -74,12 +77,13 @@ private:
     void HandleOnAppProcessDied(const std::shared_ptr<AppRunningRecord> &appRecord);
     void HandleOnRenderProcessDied(const std::shared_ptr<RenderRecord> &RenderRecord);
     bool ObserverExist(const sptr<IRemoteBroker> &observer);
+    bool IsAppForegroundObserverExist(const sptr<IRemoteBroker> &observer);
     bool IsAbilityForegroundObserverExist(const sptr<IRemoteBroker> &observer);
-    void AddObserverDeathRecipient(const sptr<IRemoteBroker> &observer, const ObserverType type);
+    void AddObserverDeathRecipient(const sptr<IRemoteBroker> &observer, const ObserverType &type);
     void RemoveObserverDeathRecipient(const sptr<IRemoteBroker> &observer);
     ProcessData WrapProcessData(const std::shared_ptr<AppRunningRecord> &appRecord);
     ProcessData WrapRenderProcessData(const std::shared_ptr<RenderRecord> &renderRecord);
-    void OnObserverDied(const wptr<IRemoteObject> &remote, const ObserverType type);
+    void OnObserverDied(const wptr<IRemoteObject> &remote, const ObserverType &type);
     AppStateData WrapAppStateData(const std::shared_ptr<AppRunningRecord> &appRecord,
     const ApplicationState state);
     void HandleOnProcessCreated(const ProcessData &data);
@@ -94,6 +98,8 @@ private:
     ffrt::mutex observerLock_;
     std::map<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>> recipientMap_;
     std::map<sptr<IApplicationStateObserver>, std::vector<std::string>> appStateObserverMap_;
+    ffrt::mutex appForegroundObserverLock_;
+    std::set<sptr<IAppForegroundStateObserver>> appForegroundStateObserverSet_;
     ffrt::mutex abilityforegroundObserverLock_;
     std::set<sptr<IAbilityForegroundStateObserver>> abilityforegroundObserverSet_;
 };

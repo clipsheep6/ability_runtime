@@ -111,6 +111,16 @@ public:
         return 0;
     }
 
+    virtual int32_t RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer)
+    {
+        return 0;
+    }
+
+    virtual int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer)
+    {
+        return 0;
+    }
+
     virtual int32_t StartNativeProcessForDebugger(const AAFwk::Want &want) override
     {
         return 0;

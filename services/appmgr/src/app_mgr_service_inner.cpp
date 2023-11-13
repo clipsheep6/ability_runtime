@@ -23,6 +23,7 @@
 #include <unistd.h>
 
 #include "ability_manager_errors.h"
+#include "ability_window_configuration.h"
 #include "accesstoken_kit.h"
 #include "app_mem_info.h"
 #include "app_mgr_service.h"
@@ -2799,6 +2800,18 @@ int32_t AppMgrServiceInner::UnregisterApplicationStateObserver(const sptr<IAppli
 {
     CHECK_CALLER_IS_SYSTEM_APP;
     return DelayedSingleton<AppStateObserverManager>::GetInstance()->UnregisterApplicationStateObserver(observer);
+}
+
+int32_t AppMgrServiceInner::RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer)
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
+    return DelayedSingleton<AppStateObserverManager>::GetInstance()->RegisterAppForegroundStateObserver(observer);
+}
+
+int32_t AppMgrServiceInner::UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer)
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
+    return DelayedSingleton<AppStateObserverManager>::GetInstance()->UnregisterAppForegroundStateObserver(observer);
 }
 
 int32_t AppMgrServiceInner::RegisterAbilityForegroundStateObserver(

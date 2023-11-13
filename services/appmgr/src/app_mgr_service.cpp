@@ -922,5 +922,25 @@ int32_t AppMgrService::UnregisterAppRunningStatusListener(const sptr<IRemoteObje
     }
     return appMgrServiceInner_->UnregisterAppRunningStatusListener(listener);
 }
+
+int32_t AppMgrService::RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer)
+{
+    HILOG_DEBUG("Called.");
+    if (!IsReady()) {
+        HILOG_ERROR("Not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->RegisterAppForegroundStateObserver(observer);
+}
+
+int32_t AppMgrService::UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer)
+{
+    HILOG_DEBUG("Called.");
+    if (!IsReady()) {
+        HILOG_ERROR("Not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->UnregisterAppForegroundStateObserver(observer);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

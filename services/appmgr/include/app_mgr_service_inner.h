@@ -29,6 +29,7 @@
 #include "app_death_recipient.h"
 #include "app_debug_listener_interface.h"
 #include "app_debug_manager.h"
+#include "app_foreground_state_observer_interface.h"
 #include "app_malloc_info.h"
 #include "app_mgr_constants.h"
 #include "app_process_manager.h"
@@ -843,6 +844,20 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener);
+
+    /**
+     * Register application foreground state observer.
+     * @param observer Is app foreground statue observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer);
+
+    /**
+     * Unregister application foreground state observer.
+     * @param observer Is app foreground statue observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer);
 
 private:
 

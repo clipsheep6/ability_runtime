@@ -113,6 +113,8 @@ private:
     int32_t HandleNotifyPageHide(MessageParcel &data, MessageParcel &reply);
     int32_t HandleRegisterAppRunningStatusListener(MessageParcel &data, MessageParcel &reply);
     int32_t HandleUnregisterAppRunningStatusListener(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleRegisterAppForegroundStateObserver(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleUnregisterAppForegroundStateObserver(MessageParcel &data, MessageParcel &reply);
 
     using AppMgrFunc = int32_t (AppMgrStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, AppMgrFunc> memberFuncMap_;

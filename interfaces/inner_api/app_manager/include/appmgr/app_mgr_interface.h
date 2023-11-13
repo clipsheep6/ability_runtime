@@ -19,6 +19,7 @@
 #include "ability_foreground_state_observer_interface.h"
 #include "ability_info.h"
 #include "ams_mgr_interface.h"
+#include "app_foreground_state_observer_interface.h"
 #include "app_malloc_info.h"
 #include "app_mgr_ipc_interface_code.h"
 #include "app_record_id.h"
@@ -466,6 +467,20 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener) = 0;
+	
+	/**
+     * Register application foreground state observer.
+     * @param observer Is app foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) = 0;
+
+    /**
+     * Unregister application foreground state observer.
+     * @param observer Is app foreground state observer.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) = 0;
 
     // please add new message item to the bottom in order to prevent some unexpected BUG
     enum class Message {

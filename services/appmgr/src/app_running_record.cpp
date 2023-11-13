@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "ability_window_configuration.h"
 #include "app_running_record.h"
 #include "app_mgr_service_inner.h"
 #include "event_report.h"
@@ -1586,6 +1587,33 @@ void AppRunningRecord::SetPerfCmd(const std::string &perfCmd)
 void AppRunningRecord::SetAppIndex(const int32_t appIndex)
 {
     appIndex_ = appIndex;
+}
+
+void AppRunningRecord::GetSplitModeAndFloatingMode(bool &isSplitScreenMode, bool &isFloatingWindowMode)
+{
+    auto abilitiesMap = GetAbilities();
+    isSplitScreenMode = false;
+    isFloatingWindowMode = false;
+    for (const auto &item : abilitiesMap) {
+        const auto &abilityRecord = item.second;
+        if (abilityRecord == nullptr) {
+            continue;
+        }
+        const auto &abilityWant = abilityRecord->GetWant();
+        if (abilityWant != nullptr) {
+            int windowMode = abilityWant->GetIntParam(Want::PARAM_RESV_WINDOW_MODE, -1);
+            if (windowMode == AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING) {
+                isFloatingWindowMode = true;
+            }
+            if (windowMode == AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY ||
+                windowMode == AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY) {
+                isSplitScreenMode = true;
+            }
+        }
+        if (isFloatingWindowMode && isSplitScreenMode) {
+            break;
+        }
+    }
 }
 
 int32_t AppRunningRecord::GetAppIndex() const
