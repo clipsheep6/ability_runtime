@@ -4617,7 +4617,7 @@ int32_t AbilityManagerProxy::ExecuteInsightIntentDone(const sptr<IRemoteObject> 
     }
 
     MessageParcel reply;
-    MessageOption option;
+    MessageOption option(MessageOption::TF_ASYNC);
     auto ret = SendRequest(AbilityManagerInterfaceCode::EXECUTE_INSIGHT_INTENT_DONE, data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("Send request failed with %{public}d", ret);
