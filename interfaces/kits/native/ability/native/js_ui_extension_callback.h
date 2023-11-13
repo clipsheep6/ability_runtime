@@ -30,8 +30,8 @@ public:
     void SetJsCallbackObject(napi_value jsCallbackObject);
     void CallJsError(int32_t number);
 private:
-    napi_env env_ = nullptr;
-    std::unique_ptr<NativeReference> jsCallbackObject_ = nullptr;
+    napi_env env_{nullptr};
+    std::unique_ptr<NativeReference> jsCallbackObject_{nullptr};
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
