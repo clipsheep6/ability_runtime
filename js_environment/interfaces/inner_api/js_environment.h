@@ -94,6 +94,7 @@ public:
 
     void SetRequestAotCallback(const RequestAotCallback& cb);
 
+    void SetDeviceDisconnectCallback(const std::function<bool()> &cb);
 private:
     std::unique_ptr<JsEnvironmentImpl> impl_ = nullptr;
     NativeEngine* engine_ = nullptr;

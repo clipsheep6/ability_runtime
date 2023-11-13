@@ -1286,6 +1286,19 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             return;
         }
 
+        if (appInfo.debug && appLaunchData.GetDebugApp()) {
+            wptr<MainThread> weak = this;
+            auto cb = [weak]() {
+                auto appThread = weak.promote();
+                if (appThread == nullptr) {
+                    HILOG_ERROR("appThread is nullptr");
+                    return false;
+                }
+                return appThread->NotifyDeviceDisConnect();
+            };
+            runtime->SetDeviceDisconnectCallback(cb);
+        }
+
         auto perfCmd = appLaunchData.GetPerfCmd();
         if (perfCmd.find(PERFCMD_PROFILE) != std::string::npos ||
             perfCmd.find(PERFCMD_DUMPHEAP) != std::string::npos) {
@@ -2757,6 +2770,13 @@ void MainThread::DetachAppDebug()
 {
     HILOG_DEBUG("Called.");
     AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(false);
+}
+
+bool MainThread::NotifyDeviceDisConnect()
+{
+    HILOG_DEBUG("Called.");
+    ScheduleTerminateApplication();
+    return true;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

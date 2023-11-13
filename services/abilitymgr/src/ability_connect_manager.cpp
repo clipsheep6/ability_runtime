@@ -39,6 +39,7 @@ constexpr char EVENT_KEY_PID[] = "PID";
 constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
+const std::string DEBUG_APP = "debugApp";
 #ifdef SUPPORT_ASAN
 const int LOAD_TIMEOUT_MULTIPLE = 150;
 const int CONNECT_TIMEOUT_MULTIPLE = 45;
@@ -954,9 +955,11 @@ void AbilityConnectManager::LoadAbility(const std::shared_ptr<AbilityRecord> &ab
         RemoveServiceAbility(abilityRecord);
         return;
     }
-
-    PostTimeOutTask(abilityRecord, AbilityManagerService::LOAD_TIMEOUT_MSG);
-
+    bool isDebug = abilityRecord->GetWant().GetBoolParam(DEBUG_APP, false);
+    if (!isDebug) {
+        HILOG_DEBUG("IsDebug is false, here is not debug app");
+        PostTimeOutTask(abilityRecord, AbilityManagerService::LOAD_TIMEOUT_MSG);
+    }
     sptr<Token> token = abilityRecord->GetToken();
     sptr<Token> perToken = nullptr;
     if (abilityRecord->IsCreateByConnect()) {

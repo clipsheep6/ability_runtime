@@ -1290,5 +1290,12 @@ void JsRuntime::SetRequestAotCallback()
 
     jsEnv_->SetRequestAotCallback(callback);
 }
+
+void JsRuntime::SetDeviceDisconnectCallback(const std::function<bool()> &cb)
+{
+    HILOG_DEBUG("Start.");
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->SetDeviceDisconnectCallback(cb);
+}
 } // namespace AbilityRuntime
 } // namespace OHOS

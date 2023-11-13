@@ -282,7 +282,7 @@ public:
 
     void AttachAppDebug() override;
     void DetachAppDebug() override;
-
+    bool NotifyDeviceDisConnect();
 private:
     /**
      *

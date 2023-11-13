@@ -299,5 +299,14 @@ void JsEnvironment::SetRequestAotCallback(const RequestAotCallback& cb)
 
     panda::JSNApi::SetRequestAotCallback(vm_, cb);
 }
+
+void JsEnvironment::SetDeviceDisconnectCallback(const std::function<bool()> &cb)
+{
+    if (vm_ == nullptr) {
+        JSENV_LOG_E("Invalid vm.");
+        return;
+    }
+    panda::JSNApi::SetDeviceDisconnectCallback(vm_, std::move(cb));
+}
 } // namespace JsEnv
 } // namespace OHOS

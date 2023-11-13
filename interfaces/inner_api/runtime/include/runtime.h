@@ -92,7 +92,7 @@ public:
     virtual void StartProfiler(const std::string &perfCmd, bool isDebug) = 0;
     virtual void DoCleanWorkAfterStageCleaned() = 0;
     virtual void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate) const {}
-
+    virtual void SetDeviceDisconnectCallback(const std::function<bool()> &cb) = 0;
     Runtime(const Runtime&) = delete;
     Runtime(Runtime&&) = delete;
     Runtime& operator=(const Runtime&) = delete;

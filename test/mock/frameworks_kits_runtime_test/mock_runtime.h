@@ -94,6 +94,10 @@ public:
     {
         return;
     }
+    void SetDeviceDisconnectCallback(const std::function<bool()> &cb) override
+    {
+        return;
+    }
 
     void StartProfiler(const std::string &perfCmd) override {}
     void StartProfiler(const std::string &perfCmd, bool isDebug) override {}
