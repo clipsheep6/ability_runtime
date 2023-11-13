@@ -260,6 +260,7 @@ HWTEST_F(JsEnvironmentTest, StartDebugger_0100, TestSize.Level0)
     const char* libraryPath = "LIBRARYPATH";
     bool needBreakPoint = true;
     uint32_t instanceId = 10;
+
     bool result = jsEnv->StartDebugger(libraryPath, needBreakPoint, instanceId);
     EXPECT_EQ(result, false);
 }

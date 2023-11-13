@@ -194,7 +194,7 @@ int32_t PermissionVerification::VerifyUpdateConfigurationPerm() const
     return ERR_PERMISSION_DENIED;
 }
 
-bool PermissionVerification::VerifyInstallBundlePermission() const
+bool Verification::VerifyInstallBundlePermission() const
 {
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_INSTALL_BUNDLE)) {
         HILOG_INFO("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_INSTALL_BUNDLE);
