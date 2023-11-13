@@ -102,6 +102,19 @@ napi_value JsAutoFillManager::OnRequestAutoSave(napi_env env, NapiCallbackInfo &
     return CreateJsUndefined(env);
 }
 
+napi_value CreateJsAutoFillType(napi_env env)
+{
+    HILOG_DEBUG("Called.");
+    napi_value objValue = nullptr;
+    napi_create_object(env, &objValue);
+
+    napi_set_named_property(env, objValue, "UNSPECIFIED", CreateJsValue(env, AbilityBase::AutoFillType::UNSPECIFIED));
+    napi_set_named_property(env, objValue, "PASSWORD", CreateJsValue(env, AbilityBase::AutoFillType::PASSWORD));
+    napi_set_named_property(env, objValue, "USER_NAME", CreateJsValue(env, AbilityBase::AutoFillType::USER_NAME));
+    napi_set_named_property(env, objValue, "NEW_PASSWORD", CreateJsValue(env, AbilityBase::AutoFillType::NEW_PASSWORD));
+    return objValue;
+}
+
 napi_value JsAutoFillManagerInit(napi_env env, napi_value exportObj)
 {
     HILOG_DEBUG("Called.");
@@ -111,8 +124,9 @@ napi_value JsAutoFillManagerInit(napi_env env, napi_value exportObj)
     }
 
     auto jsAbilityAutoFillManager = std::make_unique<JsAutoFillManager>();
-    napi_wrap(env, exportObj, jsAbilityAutoFillManager.release(),
-        JsAutoFillManager::Finalizer, nullptr, nullptr);
+    napi_wrap(env, exportObj, jsAbilityAutoFillManager.release(), JsAutoFillManager::Finalizer, nullptr, nullptr);
+
+    napi_set_named_property(env, exportObj, "AutoFillType", CreateJsAutoFillType(env));
 
     const char *moduleName = "JsAutoFillManager";
     BindNativeFunction(env, exportObj, "requestAutoSave", moduleName, JsAutoFillManager::RequestAutoSave);
