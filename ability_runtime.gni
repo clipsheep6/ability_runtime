@@ -148,4 +148,11 @@ declare_args() {
   } else {
     ecologic_rule_enabled = false
   }
+
+  if (!defined(global_parts_info) ||
+      defined(global_parts_info.hiviewdfx_hichecker)) {
+    hichecker_enabled = true
+  } else {
+    hichecker_enabled = false
+  }
 }
