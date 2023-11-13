@@ -16,7 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_JS_FILL_REQUEST_CALLBACK_H
 #define OHOS_ABILITY_RUNTIME_JS_FILL_REQUEST_CALLBACK_H
 
-#include "js_auto_fill_extension_base.h"
+#include "js_auto_fill_extension_util.h"
 #include "js_runtime_utils.h"
 #include "session_info.h"
 #include "view_data.h"
@@ -45,7 +45,7 @@ private:
     napi_value OnFillRequestFailed(napi_env env, NapiCallbackInfo &info);
     napi_value OnFillRequestCanceled(napi_env env, NapiCallbackInfo &info);
     void SendResultCodeAndViewData(
-        const JsAutoFillExtensionBase::AutoFillResultCode &resultCode, const std::string &jsString);
+        const JsAutoFillExtensionUtil::AutoFillResultCode &resultCode, const std::string &jsString);
 
     sptr<AAFwk::SessionInfo> sessionInfo_;
     sptr<Rosen::Window> uiWindow_;

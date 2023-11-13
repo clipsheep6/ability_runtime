@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "js_auto_fill_extension_base.h"
+#include "js_auto_fill_extension_util.h"
 
 #include "hilog_wrapper.h"
 #include "napi_common_util.h"
@@ -27,6 +27,7 @@ constexpr const char *VIEW_DATA_ABILITY_NAME = "abilityName";
 constexpr const char *VIEW_DATA_PAGEURL = "pageUrl";
 constexpr const char *VIEW_DATA_PAGE_NODE_INFOS = "pageNodeInfos";
 constexpr const char *VIEW_DATA_VIEW_DATA = "viewData";
+constexpr const char *VIEW_DATA_TYPE = "type";
 constexpr const char *PAGE_INFO_ID = "id";
 constexpr const char *PAGE_INFO_DEPTH = "depth";
 constexpr const char *PAGE_INFO_AUTOFILLTYPE = "autoFillType";
@@ -35,31 +36,33 @@ constexpr const char *PAGE_INFO_VALUE = "value";
 constexpr const char *PAGE_INFO_PLACEHOLDER = "placeholder";
 constexpr const char *PAGE_INFO_PASSWORDRULES = "passwordRules";
 constexpr const char *PAGE_INFO_ENABLEAUTOFILL = "enableAutoFill";
+constexpr const char *WANT_PARAMS_VIEW_DATA = "ohos.ability.params.viewData";
+constexpr const char *WANT_PARAMS_AUTO_FILL_TYPE_KEY = "ability.want.params.AutoFillType";
 } // namespace
 
-napi_value JsAutoFillExtensionBase::WrapViewData(const napi_env env, std::unique_ptr<AbilityBase::ViewData> viewData)
+napi_value JsAutoFillExtensionUtil::WrapViewData(const napi_env env, const AbilityBase::ViewData &viewData)
 {
     HILOG_DEBUG("Called.");
     napi_value jsObject = nullptr;
     NAPI_CALL(env, napi_create_object(env, &jsObject));
     napi_value jsValue = nullptr;
-    jsValue = WrapStringToJS(env, viewData->bundleName);
+    jsValue = WrapStringToJS(env, viewData.bundleName);
     SetPropertyValueByPropertyName(env, jsObject, VIEW_DATA_BUNDLE_NAME, jsValue);
 
-    jsValue = WrapStringToJS(env, viewData->abilityName);
+    jsValue = WrapStringToJS(env, viewData.abilityName);
     SetPropertyValueByPropertyName(env, jsObject, VIEW_DATA_ABILITY_NAME, jsValue);
 
-    jsValue = WrapStringToJS(env, viewData->moduleName);
+    jsValue = WrapStringToJS(env, viewData.moduleName);
     SetPropertyValueByPropertyName(env, jsObject, VIEW_DATA_MODULE_NAME, jsValue);
 
-    jsValue = WrapStringToJS(env, viewData->pageUrl);
+    jsValue = WrapStringToJS(env, viewData.pageUrl);
     SetPropertyValueByPropertyName(env, jsObject, VIEW_DATA_PAGEURL, jsValue);
 
     napi_value jsArray = nullptr;
     NAPI_CALL(env, napi_create_array(env, &jsArray));
     napi_value jsSubValue = nullptr;
     uint32_t index = 0;
-    for (auto element : viewData->nodes) {
+    for (auto element : viewData.nodes) {
         jsSubValue = WrapPageNodeInfo(env, element);
         if (jsSubValue != nullptr && napi_set_element(env, jsArray, index, jsSubValue) == napi_ok) {
             index++;
@@ -72,7 +75,7 @@ napi_value JsAutoFillExtensionBase::WrapViewData(const napi_env env, std::unique
     return jsObject;
 }
 
-napi_value JsAutoFillExtensionBase::WrapPageNodeInfo(const napi_env env, const AbilityBase::PageNodeInfo &pageNodeInfo)
+napi_value JsAutoFillExtensionUtil::WrapPageNodeInfo(const napi_env env, const AbilityBase::PageNodeInfo &pageNodeInfo)
 {
     HILOG_DEBUG("Called.");
     napi_value jsObject = nullptr;
@@ -105,14 +108,13 @@ napi_value JsAutoFillExtensionBase::WrapPageNodeInfo(const napi_env env, const A
     return jsObject;
 }
 
-std::string JsAutoFillExtensionBase::UnwrapViewData(const napi_env env, const napi_value value)
+void JsAutoFillExtensionUtil::UnwrapViewData(const napi_env env, const napi_value value, AbilityBase::ViewData &viewData)
 {
     HILOG_DEBUG("Called.");
-    AbilityBase::ViewData viewData;
     napi_value jsViewData = GetPropertyValueByPropertyName(env, value, VIEW_DATA_VIEW_DATA, napi_object);
     if (jsViewData == nullptr) {
         HILOG_ERROR("Get ViewData from JS failed");
-        return "";
+        return;
     }
 
     napi_value jsValue = nullptr;
@@ -129,7 +131,7 @@ std::string JsAutoFillExtensionBase::UnwrapViewData(const napi_env env, const na
         uint32_t jsProCount = 0;
         if (!IsArrayForNapiValue(env, jsValue, jsProCount)) {
             HILOG_ERROR("Get PAGE_NODE_INFOS from JS failed.");
-            return "";
+            return;
         }
 
         for (uint32_t index = 0; index < jsProCount; index++) {
@@ -138,13 +140,14 @@ std::string JsAutoFillExtensionBase::UnwrapViewData(const napi_env env, const na
             AbilityBase::PageNodeInfo node;
             UnwrapPageNodeInfo(env, jsNode, node);
             viewData.nodes.emplace_back(node);
+            HILOG_DEBUG("PageNodeInfo. %{public}d,  %{public}d,  %{public}d, %{public}s, %{public}s, %{public}s, %{public}s",
+                node.id, node.depth, node.autoFillType,
+                node.tag.c_str(), node.value.c_str(), node.passwordRules.c_str(), node.placeholder.c_str());
         }
     }
-
-    return viewData.ToJsonString();
 }
 
-void JsAutoFillExtensionBase::UnwrapPageNodeInfo(
+void JsAutoFillExtensionUtil::UnwrapPageNodeInfo(
     const napi_env env, const napi_value jsNode, AbilityBase::PageNodeInfo &node)
 {
     HILOG_DEBUG("Called.");
@@ -155,10 +158,49 @@ void JsAutoFillExtensionBase::UnwrapPageNodeInfo(
     node.autoFillType = static_cast<AbilityBase::AutoFillType>(type);
     UnwrapStringByPropertyName(env, jsNode, PAGE_INFO_TAG, node.tag);
     UnwrapStringByPropertyName(env, jsNode, PAGE_INFO_VALUE, node.value);
-    UnwrapStringByPropertyName(env, jsNode, PAGE_INFO_VALUE, node.value);
     UnwrapStringByPropertyName(env, jsNode, PAGE_INFO_PASSWORDRULES, node.passwordRules);
     UnwrapStringByPropertyName(env, jsNode, PAGE_INFO_PLACEHOLDER, node.placeholder);
     UnwrapBooleanByPropertyName(env, jsNode, PAGE_INFO_ENABLEAUTOFILL, node.enableAutoFill);
+}
+
+napi_value JsAutoFillExtensionUtil::WrapFillRequest(const AAFwk::Want &want, const napi_env env)
+{
+    HILOG_DEBUG("Called.");
+    napi_value jsObject = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &jsObject));
+    if (jsObject == nullptr) {
+        HILOG_ERROR("Failed to create jsObject.");
+        return nullptr;
+    }
+
+    if (want.HasParameter(WANT_PARAMS_AUTO_FILL_TYPE_KEY)) {
+        auto type = want.GetIntParam(WANT_PARAMS_AUTO_FILL_TYPE_KEY, -1);
+        HILOG_DEBUG("Auto fill request type: %{public}d", type);
+
+        napi_value jsValue = AppExecFwk::WrapInt32ToJS(env, type);
+        SetPropertyValueByPropertyName(env, jsObject, VIEW_DATA_TYPE, jsValue);
+    }
+
+    if (want.HasParameter(WANT_PARAMS_VIEW_DATA)) {
+        std::string viewDataString = want.GetStringParam(WANT_PARAMS_VIEW_DATA);
+        HILOG_DEBUG("View data is : %{public}s", viewDataString.c_str());
+        if (viewDataString.empty()) {
+            HILOG_ERROR("View data is empty.");
+            return jsObject;
+        }
+
+        AbilityBase::ViewData viewData;
+        viewData.FromJsonString(viewDataString);
+        napi_value viewDataValue = WrapViewData(env, viewData);
+        SetPropertyValueByPropertyName(env, jsObject, VIEW_DATA_VIEW_DATA, viewDataValue);
+    }
+    return jsObject;
+}
+
+void JsAutoFillExtensionUtil::UnwrapFillResponse(const napi_env env, const napi_value value, FillResponse &response)
+{
+    HILOG_DEBUG("Called.");
+    UnwrapViewData(env, value, response.viewData);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

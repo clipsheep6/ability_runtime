@@ -18,7 +18,7 @@
 #include "ability_manager_client.h"
 #include "accesstoken_kit.h"
 #include "hilog_wrapper.h"
-#include "js_auto_fill_extension_base.h"
+#include "js_auto_fill_extension_util.h"
 #include "js_error_utils.h"
 #include "js_runtime_utils.h"
 #include "napi_common_util.h"
@@ -55,18 +55,18 @@ napi_value JsSaveRequestCallback::SaveRequestFailed(napi_env env, napi_callback_
 napi_value JsSaveRequestCallback::OnSaveRequestSuccess(napi_env env, NapiCallbackInfo &info)
 {
     HILOG_DEBUG("Called.");
-    SendResultCodeAndViewData(JsAutoFillExtensionBase::AutoFillResultCode::CALLBACK_SUCESS);
+    SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_SUCESS);
     return CreateJsUndefined(env);
 }
 
 napi_value JsSaveRequestCallback::OnSaveRequestFailed(napi_env env, NapiCallbackInfo &info)
 {
     HILOG_DEBUG("Called.");
-    SendResultCodeAndViewData(JsAutoFillExtensionBase::AutoFillResultCode::CALLBACK_FAILED);
+    SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED);
     return CreateJsUndefined(env);
 }
 
-void JsSaveRequestCallback::SendResultCodeAndViewData(const JsAutoFillExtensionBase::AutoFillResultCode &resultCode)
+void JsSaveRequestCallback::SendResultCodeAndViewData(const JsAutoFillExtensionUtil::AutoFillResultCode &resultCode)
 {
     HILOG_DEBUG("Called.");
     if (uiWindow_ == nullptr) {

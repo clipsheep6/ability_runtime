@@ -27,7 +27,7 @@
 #include "insight_intent_executor_info.h"
 #include "insight_intent_executor_mgr.h"
 #include "int_wrapper.h"
-#include "js_auto_fill_extension_base.h"
+#include "js_auto_fill_extension_util.h"
 #include "js_auto_fill_extension_context.h"
 #include "js_fill_request_callback.h"
 #include "js_save_request_callback.h"
@@ -52,9 +52,7 @@ constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
 constexpr const char *WANT_PARAMS_AUTO_FILL_CMD_AUTOSAVE = "save";
 constexpr const char *WANT_PARAMS_AUTO_FILL_CMD_AUTOFILL = "fill";
-constexpr const char *WANT_PARAMS_VIEW_DATA = "ohos.ability.params.viewData";
 constexpr const char *WANT_PARAMS_AUTO_FILL_CMD = "ohos.ability.params.autoFillCmd";
-constexpr const char *WANT_PARAMS_AUTO_FILL_TYPE_KEY = "ability.want.params.AutoFillType";
 }
 napi_value AttachAutoFillExtensionContext(napi_env env, void *value, void *)
 {
@@ -632,45 +630,6 @@ napi_value JsAutoFillExtension::CallObjectMethod(const char *name, napi_value co
     return nullptr;
 }
 
-napi_value JsAutoFillExtension::WrapFillRequest(const AAFwk::Want &want, const napi_env env)
-{
-    HILOG_DEBUG("Called.");
-    napi_value jsObject = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &jsObject));
-    if (jsObject == nullptr) {
-        HILOG_ERROR("Failed to create jsObject.");
-        return nullptr;
-    }
-
-    if (want.HasParameter(WANT_PARAMS_AUTO_FILL_TYPE_KEY)) {
-        auto type = want.GetIntParam(WANT_PARAMS_AUTO_FILL_TYPE_KEY, -1);
-        HILOG_DEBUG("Auto fill request type: %{public}d", type);
-
-        napi_value jsValue = AppExecFwk::WrapInt32ToJS(env, type);
-        SetPropertyValueByPropertyName(env, jsObject, "type", jsValue);
-    }
-
-    if (want.HasParameter(WANT_PARAMS_VIEW_DATA)) {
-        std::string viewDataString = want.GetStringParam(WANT_PARAMS_VIEW_DATA);
-        HILOG_DEBUG("View data is : %{public}s", viewDataString.c_str());
-        if (viewDataString.empty()) {
-            HILOG_ERROR("View data is empty.");
-            return jsObject;
-        }
-
-        std::unique_ptr<AbilityBase::ViewData> viewData = std::make_unique<AbilityBase::ViewData>();
-        if (viewData == nullptr) {
-            HILOG_ERROR("View data is nullptr.");
-            return jsObject;
-        }
-
-        viewData->FromJsonString(viewDataString);
-        napi_value viewDataValue = JsAutoFillExtensionBase::WrapViewData(env, std::move(viewData));
-        SetPropertyValueByPropertyName(env, jsObject, "viewData", viewDataValue);
-    }
-    return jsObject;
-}
-
 void JsAutoFillExtension::CallJsOnRequest(
     const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, const sptr<Rosen::Window> &uiWindow)
 {
@@ -692,7 +651,7 @@ void JsAutoFillExtension::CallJsOnRequest(
     contentSessions_.emplace(
         sessionInfo->sessionToken, std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
 
-    napi_value fillrequest = WrapFillRequest(want, env);
+    napi_value fillrequest = JsAutoFillExtensionUtil::WrapFillRequest(want, env);
     if (fillrequest == nullptr) {
         HILOG_ERROR("Fill request is nullptr.");
     }

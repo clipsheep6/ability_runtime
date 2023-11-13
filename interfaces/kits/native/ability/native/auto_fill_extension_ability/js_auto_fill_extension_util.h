@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_JS_AUTO_FILL_EXTENSION_BASE_H
-#define OHOS_ABILITY_RUNTIME_JS_AUTO_FILL_EXTENSION_BASE_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_AUTO_FILL_EXTENSION_UTIL_H
+#define OHOS_ABILITY_RUNTIME_JS_AUTO_FILL_EXTENSION_UTIL_H
 #include "js_extension_common.h"
 #include "native_engine/native_engine.h"
 #include "session_info.h"
@@ -24,17 +24,22 @@ namespace OHOS {
 namespace AbilityRuntime {
 using Want = OHOS::AAFwk::Want;
 class JsRuntime;
+struct FillResponse {
+    AbilityBase::ViewData viewData;
+};
 /**
  * @brief Js autofill extension base.
  */
-class JsAutoFillExtensionBase {
+class JsAutoFillExtensionUtil {
 public:
-    explicit JsAutoFillExtensionBase(const std::unique_ptr<Runtime> &runtime);
-    virtual ~JsAutoFillExtensionBase();
-    static napi_value WrapViewData(const napi_env env, std::unique_ptr<AbilityBase::ViewData> viewData);
+    explicit JsAutoFillExtensionUtil(const std::unique_ptr<Runtime> &runtime);
+    virtual ~JsAutoFillExtensionUtil();
+    static napi_value WrapFillRequest(const AAFwk::Want &want, const napi_env env);
+    static napi_value WrapViewData(const napi_env env, const AbilityBase::ViewData &viewData);
     static napi_value WrapPageNodeInfo(const napi_env env, const AbilityBase::PageNodeInfo &pageNodeInfo);
-    static std::string UnwrapViewData(const napi_env env, const napi_value value);
+    static void UnwrapViewData(const napi_env env, const napi_value value, AbilityBase::ViewData &viewData);
     static void UnwrapPageNodeInfo(const napi_env env, const napi_value jsProValue, AbilityBase::PageNodeInfo &node);
+    static void UnwrapFillResponse(const napi_env env, const napi_value value, FillResponse &response);
 
     enum AutoFillResultCode {
         CALLBACK_SUCESS = 0,
@@ -45,4 +50,4 @@ public:
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_JS_AUTO_FILL_EXTENSION_BASE_H
+#endif // OHOS_ABILITY_RUNTIME_JS_AUTO_FILL_EXTENSION_UTIL_H

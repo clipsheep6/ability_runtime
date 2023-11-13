@@ -27,7 +27,6 @@ namespace {
 constexpr int32_t INDEX_ZERO = 0;
 constexpr int32_t INDEX_ONE = 1;
 constexpr size_t ARGC_ONE = 1;
-constexpr size_t ARGC_TWO = 2;
 } // namespace
 
 void JsAutoFillManager::Finalizer(napi_env env, void *data, void *hint)
@@ -44,7 +43,7 @@ napi_value JsAutoFillManager::RequestAutoSave(napi_env env, napi_callback_info i
 napi_value JsAutoFillManager::OnRequestAutoSave(napi_env env, NapiCallbackInfo &info)
 {
     HILOG_DEBUG("Called.");
-    if (info.argc < ARGC_ONE || info.argc > ARGC_TWO) {
+    if (info.argc < ARGC_ONE) {
         HILOG_ERROR("The param is invalid.");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
@@ -71,7 +70,13 @@ napi_value JsAutoFillManager::OnRequestAutoSave(napi_env env, NapiCallbackInfo &
             return CreateJsUndefined(env);
         }
     }
-    if (info.argc == ARGC_TWO) {
+
+    if (info.argc != ARGC_ONE) {
+        if (!CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
+            HILOG_ERROR("Second input parameter error.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
         jsSaveRequestCallback_->Register(info.argv[INDEX_ONE]);
     }
 

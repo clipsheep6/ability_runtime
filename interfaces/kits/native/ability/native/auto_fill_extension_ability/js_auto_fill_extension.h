@@ -125,9 +125,6 @@ private:
         const AppExecFwk::InsightIntentExecuteResult &result) override;
     void CallJsOnRequest(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
         const sptr<Rosen::Window> &uiWindow);
-    napi_value WrapViewData(const napi_env env, std::unique_ptr<AbilityBase::ViewData> viewData);
-    napi_value WrapPageNodeInfo(const napi_env env, const AbilityBase::PageNodeInfo &pageNodeInfo);
-    napi_value WrapFillRequest(const AAFwk::Want &want, const napi_env env);
 
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;

@@ -70,39 +70,42 @@ napi_value JsFillRequestCallback::OnFillRequestSuccess(napi_env env, NapiCallbac
     if (info.argc < ARGC_ONE || !IsTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_object)) {
         HILOG_ERROR("Failed to parse viewData JsonString!");
         SendResultCodeAndViewData(
-            JsAutoFillExtensionBase::AutoFillResultCode::CALLBACK_FAILED_INVALID_PARAM, "");
+            JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED_INVALID_PARAM, "");
         return CreateJsUndefined(env);
     }
-    std::string jsonString = JsAutoFillExtensionBase::UnwrapViewData(env, info.argv[INDEX_ZERO]);
+
+    FillResponse response;
+    JsAutoFillExtensionUtil::UnwrapFillResponse(env, info.argv[INDEX_ZERO], response);
+    std::string jsonString = response.viewData.ToJsonString();
     HILOG_DEBUG("Unwrap view data: %{public}s", jsonString.c_str());
 
     if (jsonString.empty()) {
         HILOG_ERROR("JsonString is empty");
         SendResultCodeAndViewData(
-            JsAutoFillExtensionBase::AutoFillResultCode::CALLBACK_FAILED_INVALID_PARAM, "");
+            JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED_INVALID_PARAM, "");
         return CreateJsUndefined(env);
     }
 
-    SendResultCodeAndViewData(JsAutoFillExtensionBase::AutoFillResultCode::CALLBACK_SUCESS, jsonString);
+    SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_SUCESS, jsonString);
     return CreateJsUndefined(env);
 }
 
 napi_value JsFillRequestCallback::OnFillRequestFailed(napi_env env, NapiCallbackInfo &info)
 {
     HILOG_DEBUG("Called.");
-    SendResultCodeAndViewData(JsAutoFillExtensionBase::AutoFillResultCode::CALLBACK_FAILED, "");
+    SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED, "");
     return CreateJsUndefined(env);
 }
 
 napi_value JsFillRequestCallback::OnFillRequestCanceled(napi_env env, NapiCallbackInfo &info)
 {
     HILOG_DEBUG("Called.");
-    SendResultCodeAndViewData(JsAutoFillExtensionBase::AutoFillResultCode::CALLBACK_CANCEL, "");
+    SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_CANCEL, "");
     return CreateJsUndefined(env);
 }
 
 void JsFillRequestCallback::SendResultCodeAndViewData(
-    const JsAutoFillExtensionBase::AutoFillResultCode &resultCode, const std::string &jsString)
+    const JsAutoFillExtensionUtil::AutoFillResultCode &resultCode, const std::string &jsString)
 {
     HILOG_DEBUG("Called.");
     if (uiWindow_ == nullptr) {
@@ -111,7 +114,7 @@ void JsFillRequestCallback::SendResultCodeAndViewData(
     }
 
     AAFwk::Want want;
-    if (resultCode == JsAutoFillExtensionBase::AutoFillResultCode::CALLBACK_SUCESS) {
+    if (resultCode == JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_SUCESS) {
         want.SetParam(WANT_PARAMS_VIEW_DATA, jsString);
         want.SetParam(WANT_PARAMS_AUTO_FILL_CMD, WANT_PARAMS_AUTO_FILL_CMD_AUTOFILL);
     }
