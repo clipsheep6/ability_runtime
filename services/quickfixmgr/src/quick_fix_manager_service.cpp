@@ -14,7 +14,7 @@
  */
 
 #include "quick_fix_manager_service.h"
-
+#include "app_log_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "permission_verification.h"
@@ -54,7 +54,7 @@ bool QuickFixManagerService::Init()
     return true;
 }
 
-int32_t QuickFixManagerService::ApplyQuickFix(const std::vector<std::string> &quickFixFiles)
+int32_t QuickFixManagerService::ApplyQuickFix(const std::vector<std::string> &quickFixFiles, bool isDebug)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -78,9 +78,11 @@ int32_t QuickFixManagerService::ApplyQuickFix(const std::vector<std::string> &qu
         return QUICK_FIX_CONNECT_FAILED;
     }
 
+    HILOG_DEBUG("isDebug is %d", isDebug);
+    
     auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr, appMgr, eventHandler_, this);
     AddApplyTask(applyTask);
-    applyTask->Run(quickFixFiles);
+    applyTask->Run(quickFixFiles, isDebug);
 
     HILOG_DEBUG("function finished.");
     return QUICK_FIX_OK;

@@ -58,7 +58,7 @@ bool QuickFixManagerService::Init()
     return g_mockInitState;
 }
 
-int32_t QuickFixManagerService::ApplyQuickFix(const std::vector<std::string>& quickFixFiles)
+int32_t QuickFixManagerService::ApplyQuickFix(const std::vector<std::string>& quickFixFiles, bool isDebug)
 {
     return 0;
 }
