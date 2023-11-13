@@ -8942,7 +8942,7 @@ int AbilityManagerService::SendDialogResult(const Want &want, const std::string 
     int requestCode = dialogCallerInfo->requestCode;
     int32_t userId = dialogCallerInfo->userId;
     sptr<IRemoteObject> callerToken = dialogCallerInfo->callerToken;
-    int ret = StartAbilityAsCaller(want, callerToken, userId, requestCode);
+    int ret = StartAbilityAsCaller(want, callerToken, nullptr, userId, requestCode);
     return ret;
 }
 
