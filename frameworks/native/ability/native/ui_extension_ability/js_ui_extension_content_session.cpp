@@ -608,7 +608,8 @@ napi_value JsUIExtensionContentSession::OnSetReceiveDataForResultCallback(napi_e
     }
     napi_ref ref = nullptr;
     napi_create_reference(env, callback, 1, &ref);
-    receiveDataForResultCallback_->ResetCallback(std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
+    receiveDataForResultCallback_->ResetCallback(
+        std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
 
     return CreateJsUndefined(env);
 }
