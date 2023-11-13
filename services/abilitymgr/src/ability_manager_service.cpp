@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <unordered_set>
 
+#include "ability_background_connection.h"
 #include "ability_debug_deal.h"
 #include "ability_info.h"
 #include "ability_interceptor.h"
@@ -8854,8 +8855,8 @@ int32_t AbilityManagerService::ExecuteIntent(uint64_t key, const sptr<IRemoteObj
             ret = StartAbilityWithInsightIntent(want);
             break;
         case ExecuteMode::UI_ABILITY_BACKGROUND: {
-            HILOG_WARN("ExecuteMode UI_ABILITY_BACKGROUND not supported.");
-            ret = ERR_INVALID_OPERATION;
+            HILOG_DEBUG("ExecuteMode UI_ABILITY_BACKGROUND.");
+            ret = StartAbilityByCallWithInsightIntent(want, callerToken);
             break;
         }
         case ExecuteMode::UI_EXTENSION_ABILITY:
@@ -8895,6 +8896,19 @@ int32_t AbilityManagerService::StartAbilityWithInsightIntent(const Want &want, i
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
     }
     return ret;
+}
+
+int32_t AbilityManagerService::StartAbilityByCallWithInsightIntent(const Want &want, const sptr<IRemoteObject> &callerToken)
+{
+    HILOG_INFO("call StartAbilityByCallWithInsightIntent.");
+    sptr<IAbilityConnection> connect = new(std::nothrow) AbilityBackgroundConnection();
+    if (connect == nullptr) {
+        HILOG_ERROR("Invalid connect.");
+        return ERR_INVALID_VALUE;
+    }
+    //TODO 是否需要在StartAbilityByCall中删除want的excute参数
+    int ret = StartAbilityByCall(want, connect, callerToken);
+    return static_cast<int32_t>(ret);
 }
 
 bool AbilityManagerService::IsAbilityControllerStart(const Want &want)
