@@ -15,11 +15,17 @@
 
 #include "js_service_extension.h"
 
+#include "ability_business_error.h"
 #include "ability_handler.h"
 #include "ability_info.h"
+#include "ability_manager_client.h"
 #include "configuration_utils.h"
 #include "hitrace_meter.h"
 #include "hilog_wrapper.h"
+#include "insight_intent_execute_param.h"
+#include "insight_intent_execute_result.h"
+#include "insight_intent_executor_info.h"
+#include "insight_intent_executor_mgr.h"
 #include "js_extension_common.h"
 #include "js_extension_context.h"
 #include "js_runtime.h"
@@ -395,6 +401,100 @@ void JsServiceExtension::OnCommand(const AAFwk::Want &want, bool restart, int st
     napi_value argv[] = {napiWant, napiStartId};
     CallObjectMethod("onRequest", argv, ARGC_TWO);
     HILOG_INFO("ok");
+}
+
+bool JsServiceExtension::HandleInsightIntent(const AAFwk::Want &want)
+{
+    HILOG_DEBUG("called.");
+    auto callback = std::make_unique<InsightIntentExecutorAsyncCallback>();
+    callback.reset(InsightIntentExecutorAsyncCallback::Create());
+    if (callback == nullptr) {
+        HILOG_ERROR("Create async callback failed.");
+        return false;
+    }
+    auto executeParam = std::make_shared<AppExecFwk::InsightIntentExecuteParam>();
+    bool ret = AppExecFwk::InsightIntentExecuteParam::GenerateFromWant(want, *executeParam);
+    if (!ret) {
+        HILOG_ERROR("Generate execute param failed.");
+        InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback),
+            static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
+        return false;
+    }
+    HILOG_DEBUG("Insight intent bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s"
+        "insightIntentName: %{public}s, executeMode: %{public}d, intentId: %{public}" PRIu64"",
+        executeParam->bundleName_.c_str(), executeParam->moduleName_.c_str(), executeParam->abilityName_.c_str(),
+        executeParam->insightIntentName_.c_str(), executeParam->executeMode_, executeParam->insightIntentId_);
+    auto asyncCallback = [weak = weak_from_this(), intentId = executeParam->insightIntentId_]
+        (AppExecFwk::InsightIntentExecuteResult result) {
+        HILOG_DEBUG("Execute insight intent finshed, intentId %{public}" PRIu64"", intentId);
+        auto extension = weak.lock();
+        if (extension == nullptr) {
+            HILOG_ERROR("extension is nullptr.");
+            return;
+        }
+        auto ret = extension->OnInsightIntentExecuteDone(intentId, result);
+        if (!ret) {
+            HILOG_ERROR("OnInsightIntentExecuteDone failed.");
+        }
+    };
+    callback->Push(asyncCallback);
+    InsightIntentExecutorInfo executorInfo;
+    ret = GetInsightIntentExecutorInfo(want, executeParam, executorInfo);
+    if (!ret) {
+        HILOG_ERROR("Get Intent executor failed.");
+        InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback),
+            static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
+        return false;
+    }
+    ret = DelayedSingleton<InsightIntentExecutorMgr>::GetInstance()->ExecuteInsightIntent(
+        jsRuntime_, executorInfo, std::move(callback));
+    if (!ret) {
+        HILOG_ERROR("Execute insight intent failed.");
+        return false;
+    }
+    return true;
+}
+
+bool JsServiceExtension::GetInsightIntentExecutorInfo(const Want &want,
+    const std::shared_ptr<AppExecFwk::InsightIntentExecuteParam> &executeParam,
+    InsightIntentExecutorInfo &executorInfo)
+{
+    HILOG_DEBUG("called.");
+    auto context = GetContext();
+    if (executeParam == nullptr || context == nullptr || abilityInfo_ == nullptr) {
+        HILOG_ERROR("Param invalid.");
+        return false;
+    }
+
+    const WantParams &wantParams = want.GetParams();
+    executorInfo.srcEntry = wantParams.GetStringParam(AppExecFwk::INSIGHT_INTENT_SRC_ENTRY);
+    executorInfo.hapPath = abilityInfo_->hapPath;
+    executorInfo.esmodule = abilityInfo_->compileMode == AppExecFwk::CompileMode::ES_MODULE;
+    executorInfo.token = context->GetToken();
+    executorInfo.executeParam = executeParam;
+    return true;
+}
+
+bool JsServiceExtension::OnInsightIntentExecuteDone(uint64_t intentId,
+    const AppExecFwk::InsightIntentExecuteResult &result)
+{
+    HILOG_INFO("Notify execute done, intentId %{public}" PRIu64"", intentId);
+    auto context = GetContext();
+    if (context == nullptr) {
+        HILOG_ERROR("context is null.");
+        return false;
+    }
+    auto token = context->GetToken();
+    if (token == nullptr) {
+        HILOG_ERROR("token is null.");
+        return false;
+    }
+    auto ret = AAFwk::AbilityManagerClient::GetInstance()->ExecuteInsightIntentDone(token, intentId, result);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Notify execute done faild.");
+        return false;
+    }
+    return true;
 }
 
 napi_value JsServiceExtension::CallObjectMethod(const char* name, napi_value const* argv, size_t argc)

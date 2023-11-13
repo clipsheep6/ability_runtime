@@ -720,6 +720,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         }
 
         if (AbilityUtil::HandleDlpApp(const_cast<Want &>(want))) {
+            InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
             return StartExtensionAbilityInner(want, callerToken, userId,
                 AppExecFwk::ExtensionAbilityType::SERVICE, false);
         }
@@ -904,6 +905,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         }
         HILOG_INFO("Start service or extension, name is %{public}s.", abilityInfo.name.c_str());
         ReportEventToSuspendManager(abilityInfo);
+        InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
         return connectManager->StartAbility(abilityRequest);
     }
 
@@ -1956,6 +1958,7 @@ void AbilityManagerService::ResiterSuspendObserver()
 int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
     int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
 {
+    InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
     return StartExtensionAbilityInner(want, callerToken, userId, extensionType, true);
 }
 
@@ -8862,6 +8865,10 @@ int32_t AbilityManagerService::ExecuteIntent(uint64_t key, const sptr<IRemoteObj
             HILOG_WARN("ExecuteMode UI_EXTENSION_ABILITY not supported.");
             ret = ERR_INVALID_OPERATION;
             break;
+        case ExecuteMode::SERVICE_EXTENSION_ABILITY:
+            HILOG_DEBUG("ExecuteMode SERVICE_EXTENSION_ABILITY.");
+            ret = StartExtensionAbilityWithInsightIntent(want, ExtensionAbilityType::SERVICE);
+            break;
         default:
             HILOG_ERROR("Invalid ExecuteMode.");
             ret = ERR_INVALID_OPERATION;
@@ -8895,6 +8902,13 @@ int32_t AbilityManagerService::StartAbilityWithInsightIntent(const Want &want, i
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
     }
     return ret;
+}
+
+int32_t AbilityManagerService::StartExtensionAbilityWithInsightIntent(const Want &want,
+    AppExecFwk::ExtensionAbilityType extensionType)
+{
+    HILOG_DEBUG("called.");
+    return StartExtensionAbilityInner(want, nullptr, DEFAULT_INVAL_VALUE, extensionType, true);
 }
 
 bool AbilityManagerService::IsAbilityControllerStart(const Want &want)

@@ -1802,6 +1802,15 @@ private:
     void StopSwitchUserDialogInner(const Want &want, const int32_t stopUserId);
 
     void SetPickerElementName(const sptr<SessionInfo> &extensionSessionInfo);
+    
+    /**
+     * @brief Start extension ability with insight intent
+     * @param want, the want of the ability to start.
+     * @param extensionType If an ExtensionAbilityType is set, only extension of that type can be started.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t StartExtensionAbilityWithInsightIntent(const Want &want,
+        AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
