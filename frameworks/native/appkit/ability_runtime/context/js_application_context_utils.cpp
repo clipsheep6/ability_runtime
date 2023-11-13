@@ -870,9 +870,9 @@ napi_value JsApplicationContextUtils::OnOff(napi_env env, NapiCallbackInfo& info
     if (type == "environmentEvent") {
         return OnOffEnvironmentEventSync(env, info, callbackId);
     }
-    if (type == "abilityAutoStartup") {
-        return OnUnregisterAutoStartupCallback(env, info);
-    }
+    //if (type == "abilityAutoStartup") {
+      //  return OnUnregisterAutoStartupCallback(env, info);
+    //}
     HILOG_ERROR("off function type not match.");
     AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
     return CreateJsUndefined(env);
