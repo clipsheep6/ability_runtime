@@ -38,8 +38,6 @@ namespace AAFwk {
 namespace {
 constexpr int32_t DEFAULT_USER_ID = 0;
 constexpr int32_t ERR_OK = 0;
-const char* GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_PARAMETER = "persist.sys.prepare_terminate";
-constexpr int32_t GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_SIZE = 6;
 }
 
 void UriPermissionManagerStubImpl::Init()
@@ -100,13 +98,19 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned in
 int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
     const std::string targetBundleName, int32_t appIndex)
 {
-    HILOG_DEBUG("CALL: appIndex is %{public}d, uriVec size is %{public}zu", appIndex, uriVec.size());
+    HILOG_DEBUG("CALL: targetBundleName is %{public}s, appIndex is %{public}d, uriVec size is %{public}zu",
+        targetBundleName.c_str(), appIndex, uriVec.size());
     auto checkResult = CheckRule(flag);
     if (checkResult != ERR_OK) {
+        HILOG_ERROR("CheckRule failed.");
         return checkResult;
     }
     auto callerTokenId = IPCSkeleton::GetCallingTokenID();
     auto targetTokenId = GetTokenIdByBundleName(targetBundleName, appIndex);
+    if (targetTokenId == GET_BUNDLE_INFO_FAILED || targetTokenId == GET_BUNDLE_MANAGER_SERVICE_FAILED) {
+        HILOG_ERROR("get bundle info failed.");
+        return;
+    }
     Security::AccessToken::NativeTokenInfo nativeInfo;
     Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerTokenId, nativeInfo);
     // autoremove will be set to 1 if the process name is foundation.
@@ -321,7 +325,15 @@ int UriPermissionManagerStubImpl::GrantSingleUriPermission(const Uri &uri, unsig
     }
     auto&& authority = uri_inner.GetAuthority();
     auto fromTokenId = GetTokenIdByBundleName(authority, 0);
+    if (fromTokenId == GET_BUNDLE_INFO_FAILED || fromTokenId == GET_BUNDLE_MANAGER_SERVICE_FAILED) {
+        HILOG_ERROR("get bundle info failed.");
+        return;
+    }
     auto targetTokenId = GetTokenIdByBundleName(targetBundleName, appIndex);
+    if (targetTokenId == GET_BUNDLE_INFO_FAILED || targetTokenId == GET_BUNDLE_MANAGER_SERVICE_FAILED) {
+        HILOG_ERROR("get bundle info failed.");
+        return;
+    }
     unsigned int tmpFlag = 0;
     auto ret = GetUriPermissionFlag(uri, flag, fromTokenId, targetTokenId, tmpFlag);
     if (ret != ERR_OK || tmpFlag == 0) {
@@ -346,6 +358,10 @@ void UriPermissionManagerStubImpl::GetUriPermissionBatchFlag(const std::vector<U
         }
         auto&& authority = uri_inner.GetAuthority();
         auto fromTokenId = GetTokenIdByBundleName(authority, 0);
+        if (fromTokenId == GET_BUNDLE_INFO_FAILED || fromTokenId == GET_BUNDLE_MANAGER_SERVICE_FAILED) {
+            HILOG_ERROR("get bundle info failed.");
+            return;
+        }
         unsigned int tmpFlag = 0;
         auto ret = GetUriPermissionFlag(uri, flag, fromTokenId, targetTokenId, tmpFlag);
         if (ret != ERR_OK || tmpFlag == 0) {
@@ -512,7 +528,15 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
         return ERR_CODE_INVALID_URI_TYPE;
     }
     auto uriTokenId = GetTokenIdByBundleName(authority, 0);
+    if (uriTokenId == GET_BUNDLE_INFO_FAILED || uriTokenId == GET_BUNDLE_MANAGER_SERVICE_FAILED) {
+        HILOG_ERROR("get bundle info failed.");
+        return;
+    }
     auto tokenId = GetTokenIdByBundleName(bundleName, 0);
+    if (tokenId == GET_BUNDLE_INFO_FAILED || tokenId == GET_BUNDLE_MANAGER_SERVICE_FAILED) {
+        HILOG_ERROR("get bundle info failed.");
+        return;
+    }
     auto callerTokenId = IPCSkeleton::GetCallingTokenID();
     auto permission = PermissionVerification::GetInstance()->VerifyCallingPermission(
         AAFwk::PermissionConstants::PERMISSION_PROXY_AUTHORIZATION_URI);
@@ -673,14 +697,10 @@ int32_t UriPermissionManagerStubImpl::GetCurrentAccountId() const
 
 void UriPermissionManagerStubImpl::InitPersistableUriPermissionConfig()
 {
-    char value[GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_SIZE] = "false";
-    int retSysParam = GetParameter(GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_PARAMETER, "false", value,
-        GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_SIZE);
-    HILOG_INFO("GrantPersistableUriPermissionEnable, %{public}s value is %{public}s",
-        GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_PARAMETER, value);
-    if (retSysParam > 0 && !std::strcmp(value, "true")) {
-        isGrantPersistableUriPermissionEnable_ = true;
-    }
+    // only support pc and 2in1
+    std::string deviceType = OHOS::system::GetDeviceType();
+    isGrantPersistableUriPermissionEnable_ == (deviceType == "pc" || deviceType == "2in1");
+    HILOG_INFO("deviceType is %{public}s", deviceType.c_str());
 }
 
 void UriPermissionManagerStubImpl::SendEvent(const Uri &uri, const std::string &targetBundleName,
