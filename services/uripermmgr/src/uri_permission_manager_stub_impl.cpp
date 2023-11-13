@@ -26,7 +26,7 @@
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "os_account_manager_wrapper.h"
-#include "parameter.h"
+#include "parameters.h"
 #include "permission_constants.h"
 #include "permission_verification.h"
 #include "system_ability_definition.h"
@@ -38,8 +38,6 @@ namespace AAFwk {
 namespace {
 constexpr int32_t DEFAULT_USER_ID = 0;
 constexpr int32_t ERR_OK = 0;
-const char* GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_PARAMETER = "persist.sys.prepare_terminate";
-constexpr int32_t GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_SIZE = 6;
 }
 
 void UriPermissionManagerStubImpl::Init()
@@ -673,14 +671,9 @@ int32_t UriPermissionManagerStubImpl::GetCurrentAccountId() const
 
 void UriPermissionManagerStubImpl::InitPersistableUriPermissionConfig()
 {
-    char value[GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_SIZE] = "false";
-    int retSysParam = GetParameter(GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_PARAMETER, "false", value,
-        GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_SIZE);
-    HILOG_INFO("GrantPersistableUriPermissionEnable, %{public}s value is %{public}s",
-        GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_PARAMETER, value);
-    if (retSysParam > 0 && !std::strcmp(value, "true")) {
-        isGrantPersistableUriPermissionEnable_ = true;
-    }
+    std::string deviceType = OHOS::system::GetDeviceType();
+    isGrantPersistableUriPermissionEnable_ = (deviceType == "pc" || deviceType == "2in1");
+    HILOG_INFO("deviceType is %{public}s", deviceType.c_str());
 }
 
 void UriPermissionManagerStubImpl::SendEvent(const Uri &uri, const std::string &targetBundleName,
