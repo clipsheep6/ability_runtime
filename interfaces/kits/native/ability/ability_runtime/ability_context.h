@@ -329,6 +329,12 @@ public:
     virtual void GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t &height) = 0;
 
     /**
+     * @brief Create Modal UIExtension
+     * @param want The Want object.
+     */
+    virtual ErrCode CreateModalUIExtension(const AAFwk::Want &want) = 0;
+
+    /**
      * @brief Get ui content object.
      *
      * @return UIContent object of ACE.

@@ -1176,6 +1176,20 @@ ErrCode AbilityManagerClient::PrepareTerminateAbility(const sptr<IRemoteObject> 
     }
     return abms->PrepareTerminateAbility(token, callback);
 }
+
+ErrCode AbilityManagerClient::GetDialogSessionInfo(const std::string &dialogSessionId, sptr<DialogSessionInfo> info)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->GetDialogSessionInfo(dialogSessionId, info);
+}
+
+ErrCode AbilityManagerClient::SendDialogResult(const Want &want, const std::string &dialogSessionId, bool isAllow)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->SendDialogResult(want, dialogSessionId, isAllow);
+}
 #endif
 
 ErrCode AbilityManagerClient::DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag)

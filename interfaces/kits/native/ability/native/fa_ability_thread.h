@@ -325,6 +325,12 @@ public:
     void CallRequest() override;
 
     /**
+     * @brief Create Modal UIExtension
+     * @param want The Want object.
+     */
+    int CreateModalUIExtension(const Want &want) override;
+
+    /**
      * @brief Performs batch operations on the database
      * @param operations Indicates a list of database operations on the database.
      * @return Returns the result of each operation, in array.

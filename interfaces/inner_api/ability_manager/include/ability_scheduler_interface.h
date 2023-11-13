@@ -299,6 +299,8 @@ public:
 
     virtual void CallRequest() = 0;
 
+    virtual int32_t CreateModalUIExtension(const Want &want) = 0;
+
     enum {
         // ipc id for scheduling ability to a state of life cycle
         SCHEDULE_ABILITY_TRANSACTION = 0,
@@ -391,7 +393,10 @@ public:
         SCHEDULE_SHARE_DATA,
 
         // ipc id for scheduling service ability to prepare terminate (30)
-        SCHEDULE_ABILITY_PREPARE_TERMINATE
+        SCHEDULE_ABILITY_PREPARE_TERMINATE,
+
+        // ipc for create modal uiextension
+        CREATE_MODAL_UI_EXTENSION
     };
 };
 }  // namespace AAFwk
