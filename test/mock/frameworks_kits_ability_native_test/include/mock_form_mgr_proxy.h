@@ -43,9 +43,11 @@ public:
         int32_t &numFormsDeleted));
     MOCK_METHOD3(NotifyFormsEnableUpdate, int(const std::vector<int64_t> &formIds, bool isProtected,
         const sptr<IRemoteObject> &callerToken));
-    MOCK_METHOD1(GetAllFormsInfo, int(std::vector<FormInfo> &formInfos));
-    MOCK_METHOD2(GetFormsInfoByApp, int(std::string &bundleName, std::vector<FormInfo> &formInfos));
-    MOCK_METHOD3(GetFormsInfoByModule, int(std::string &bundleName, std::string &moduleName, std::vector<FormInfo> &formInfos));
+    MOCK_METHOD2(GetAllFormsInfo, int(const int32_t formSceneType, std::vector<FormInfo> &formInfos));
+    MOCK_METHOD3(GetFormsInfoByApp, int(std::string &bundleName,
+        const int32_t formSceneType, std::vector<FormInfo> &formInfos));
+    MOCK_METHOD4(GetFormsInfoByModule, int(std::string &bundleName, std::string &moduleName,
+        const int32_t formSceneType, std::vector<FormInfo> &formInfos));
     MOCK_METHOD2(DumpFormInfoByBundleName, int(const std::string &bundleName, std::string &formInfos));
     MOCK_METHOD3(AcquireFormState, int(const Want &want, const sptr<IRemoteObject> &callerToken, FormStateInfo &stateInfo));
     MOCK_METHOD0(CheckFMSReady, bool());

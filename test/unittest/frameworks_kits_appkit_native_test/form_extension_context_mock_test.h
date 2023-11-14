@@ -156,18 +156,19 @@ public:
         return 0;
     }
 
-    int GetAllFormsInfo(std::vector<FormInfo> &formInfos) override
+    int GetAllFormsInfo(const int32_t formSceneType, std::vector<FormInfo> &formInfos) override
     {
         return 0;
     }
 
-    int GetFormsInfoByApp(std::string &bundleName, std::vector<FormInfo> &formInfos) override
+    int GetFormsInfoByApp(std::string &bundleName, const int32_t formSceneType,
+        std::vector<FormInfo> &formInfos) override
     {
         return 0;
     }
 
-    int GetFormsInfoByModule(
-        std::string &bundleName, std::string &moduleName, std::vector<FormInfo> &formInfos) override
+    int GetFormsInfoByModule(std::string &bundleName, std::string &moduleName,
+        const int32_t formSceneType, std::vector<FormInfo> &formInfos) override
     {
         return 0;
     }
