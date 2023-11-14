@@ -55,7 +55,7 @@ public:
     int32_t UnregisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer);
     void StateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility);
     void OnAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
-        bool needNotifyApp);
+        bool needNotifyApp, bool isFromWindowFocusChanged);
     void OnAppStarted(const std::shared_ptr<AppRunningRecord> &appRecord);
     void OnAppStopped(const std::shared_ptr<AppRunningRecord> &appRecord);
     void OnProcessCreated(const std::shared_ptr<AppRunningRecord> &appRecord);
@@ -68,7 +68,7 @@ public:
     void OnPageHide(const PageStateData pageStateData);
 private:
     void HandleAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
-        bool needNotifyApp);
+        bool needNotifyApp, bool isFromWindowFocusChanged);
     void HandleOnAppStarted(const std::shared_ptr<AppRunningRecord> &appRecord);
     void HandleOnAppStopped(const std::shared_ptr<AppRunningRecord> &appRecord);
     void HandleStateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility);

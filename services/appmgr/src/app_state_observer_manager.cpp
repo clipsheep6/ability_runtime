@@ -228,21 +228,24 @@ void AppStateObserverManager::OnAppStopped(const std::shared_ptr<AppRunningRecor
 
 
 void AppStateObserverManager::OnAppStateChanged(
-    const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state, bool needNotifyApp)
+    const std::shared_ptr<AppRunningRecord> &appRecord,
+    const ApplicationState state,
+    bool needNotifyApp,
+    bool isFromWindowFocusChanged)
 {
     if (handler_ == nullptr) {
         HILOG_ERROR("handler is nullptr, OnAppStateChanged failed.");
         return;
     }
 
-    auto task = [weak = weak_from_this(), appRecord, state, needNotifyApp]() {
+    auto task = [weak = weak_from_this(), appRecord, state, needNotifyApp, isFromWindowFocusChanged]() {
         auto self = weak.lock();
         if (self == nullptr) {
             HILOG_ERROR("self is nullptr, OnAppStateChanged failed.");
             return;
         }
         HILOG_DEBUG("OnAppStateChanged come.");
-        self->HandleAppStateChanged(appRecord, state, needNotifyApp);
+        self->HandleAppStateChanged(appRecord, state, needNotifyApp, isFromWindowFocusChanged);
     };
     handler_->SubmitTask(task);
 }
@@ -421,13 +424,13 @@ void AppStateObserverManager::HandleOnAppStopped(const std::shared_ptr<AppRunnin
 }
 
 void AppStateObserverManager::HandleAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord,
-    const ApplicationState state, bool needNotifyApp)
+    const ApplicationState state, bool needNotifyApp, bool isFromWindowFocusChanged)
 {
     if (appRecord == nullptr) {
         return;
     }
     if (state == ApplicationState::APP_STATE_FOREGROUND || state == ApplicationState::APP_STATE_BACKGROUND) {
-        if (needNotifyApp && !appRecord->GetFocusFlag()) {
+        if (needNotifyApp && !isFromWindowFocusChanged) {
             AppStateData data = WrapAppStateData(appRecord, state);
             appRecord->GetSplitModeAndFloatingMode(data.isSplitScreenMode, data.isFloatingWindowMode);
             std::lock_guard<ffrt::mutex> lockForeground(appForegroundObserverLock_);

@@ -643,7 +643,7 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
     if (appState == ApplicationState::APP_STATE_READY || appState == ApplicationState::APP_STATE_BACKGROUND) {
         appRecord->SetState(ApplicationState::APP_STATE_FOREGROUND);
         bool needNotifyApp = appRunningManager_->IsApplicationFirstForeground(*appRecord);
-        OnAppStateChanged(appRecord, ApplicationState::APP_STATE_FOREGROUND, needNotifyApp);
+        OnAppStateChanged(appRecord, ApplicationState::APP_STATE_FOREGROUND, needNotifyApp, false);
         DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
     } else {
         HILOG_WARN("app name(%{public}s), app state(%{public}d)!",
@@ -690,7 +690,7 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
         bool needNotifyApp = !AAFwk::UIExtensionUtils::IsUIExtension(appRecord->GetExtensionType())
             && !AAFwk::UIExtensionUtils::IsWindowExtension(appRecord->GetExtensionType())
             && appRunningManager_->IsApplicationBackground(appRecord->GetBundleName());
-        OnAppStateChanged(appRecord, ApplicationState::APP_STATE_BACKGROUND, needNotifyApp);
+        OnAppStateChanged(appRecord, ApplicationState::APP_STATE_BACKGROUND, needNotifyApp, false);
         DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
     } else {
         HILOG_WARN("app name(%{public}s), app state(%{public}d)!",
@@ -744,7 +744,7 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
     appRecord->SetState(ApplicationState::APP_STATE_TERMINATED);
     appRecord->RemoveAppDeathRecipient();
     appRecord->SetProcessChangeReason(ProcessChangeReason::REASON_APP_TERMINATED);
-    OnAppStateChanged(appRecord, ApplicationState::APP_STATE_TERMINATED, false);
+    OnAppStateChanged(appRecord, ApplicationState::APP_STATE_TERMINATED, false, false);
     appRunningManager_->RemoveAppRunningRecordById(recordId);
     RemoveAppFromRecentListById(recordId);
     AAFwk::EventInfo eventInfo;
@@ -1775,7 +1775,10 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::GetAppRunningRecordByAppRe
 }
 
 void AppMgrServiceInner::OnAppStateChanged(
-    const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state, bool needNotifyApp)
+    const std::shared_ptr<AppRunningRecord> &appRecord,
+    const ApplicationState state,
+    bool needNotifyApp,
+    bool isFromWindowFocusChanged)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (!appRecord) {
@@ -1794,7 +1797,8 @@ void AppMgrServiceInner::OnAppStateChanged(
         }
     }
 
-    DelayedSingleton<AppStateObserverManager>::GetInstance()->OnAppStateChanged(appRecord, state, needNotifyApp);
+    DelayedSingleton<AppStateObserverManager>::GetInstance()->OnAppStateChanged(
+        appRecord, state, needNotifyApp, isFromWindowFocusChanged);
 }
 
 void AppMgrServiceInner::OnAppStarted(const std::shared_ptr<AppRunningRecord> &appRecord)
@@ -2113,7 +2117,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     appRecord->SetStartMsg(startMsg);
     appRecord->SetAppMgrServiceInner(weak_from_this());
     appRecord->SetSpawned();
-    OnAppStateChanged(appRecord, ApplicationState::APP_STATE_CREATE, false);
+    OnAppStateChanged(appRecord, ApplicationState::APP_STATE_CREATE, false, false);
     AddAppToRecentList(appName, appRecord->GetProcessName(), pid, appRecord->GetRecordId());
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessCreated(appRecord);
     if (!appExistFlag) {
@@ -2506,7 +2510,7 @@ void AppMgrServiceInner::TerminateApplication(const std::shared_ptr<AppRunningRe
     appRecord->SetState(ApplicationState::APP_STATE_TERMINATED);
     appRecord->RemoveAppDeathRecipient();
     appRecord->SetProcessChangeReason(ProcessChangeReason::REASON_APP_TERMINATED_TIMEOUT);
-    OnAppStateChanged(appRecord, ApplicationState::APP_STATE_TERMINATED, false);
+    OnAppStateChanged(appRecord, ApplicationState::APP_STATE_TERMINATED, false, false);
     pid_t pid = appRecord->GetPriorityObject()->GetPid();
     if (pid > 0) {
         auto timeoutTask = [pid, innerService = shared_from_this()]() {
@@ -3999,7 +4003,7 @@ void AppMgrServiceInner::HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> 
     }
 
     bool needNotifyApp = appRunningManager_->IsApplicationFirstFocused(*appRecord);
-    OnAppStateChanged(appRecord, appRecord->GetState(), needNotifyApp);
+    OnAppStateChanged(appRecord, appRecord->GetState(), needNotifyApp, true);
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
 }
 
@@ -4028,7 +4032,7 @@ void AppMgrServiceInner::HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo
     }
 
     bool needNotifyApp = appRunningManager_->IsApplicationUnfocused(appRecord->GetBundleName());
-    OnAppStateChanged(appRecord, appRecord->GetState(), needNotifyApp);
+    OnAppStateChanged(appRecord, appRecord->GetState(), needNotifyApp, true);
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
 }
 
