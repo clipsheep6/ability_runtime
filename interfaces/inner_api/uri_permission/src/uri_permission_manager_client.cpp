@@ -200,8 +200,12 @@ void UriPermissionManagerClient::OnLoadSystemAbilityFail()
 void UriPermissionManagerClient::ClearProxy()
 {
     HILOG_DEBUG("UriPermissionManagerClient::ClearProxy is called.");
-    std::lock_guard<std::mutex> lock(mutex_);
-    uriPermMgr_ = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        uriPermMgr_ = nullptr;
+    }
+    std::unique_lock<std::mutex> lock(saLoadMutex_);
+    saLoadFinished_ = false;
 }
 
 void UriPermissionManagerClient::UpmsDeathRecipient::OnRemoteDied([[maybe_unused]] const wptr<IRemoteObject>& remote)
