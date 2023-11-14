@@ -56,6 +56,7 @@ config("appkit_config") {
   }
 
   include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/appkit/dfr",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "//third_party/json/include",
   ]
@@ -68,6 +69,7 @@ config("appkit_public_config") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_delegator",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/app",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/dfr",
     "${global_path}/resource_management/interfaces/inner_api/include",
   ]
 
@@ -91,6 +93,7 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_path}/interfaces/kits/native/appkit",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/dfr",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app/task",
     "${ability_runtime_services_path}/common/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
@@ -114,7 +117,6 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_native_path}/appkit/app/ability_manager.cpp",
     "${ability_runtime_native_path}/appkit/app/ability_record_mgr.cpp",
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
-    "${ability_runtime_native_path}/appkit/app/appfreeze_inner.cpp",
     "${ability_runtime_native_path}/appkit/app/application_data_manager.cpp",
     "${ability_runtime_native_path}/appkit/app/application_env.cpp",
     "${ability_runtime_native_path}/appkit/app/application_env_impl.cpp",
@@ -124,7 +126,8 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_native_path}/appkit/app/main_thread.cpp",
     "${ability_runtime_native_path}/appkit/app/mix_stack_dumper.cpp",
     "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
-    "${ability_runtime_native_path}/appkit/app/watchdog.cpp",
+    "${ability_runtime_native_path}/appkit/dfr/appfreeze_inner.cpp",
+    "${ability_runtime_native_path}/appkit/dfr/watchdog.cpp",
   ]
   cflags = []
   if (target_cpu == "arm") {
