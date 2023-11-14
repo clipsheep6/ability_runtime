@@ -33,6 +33,7 @@ group("appms_target") {
 
 ohos_shared_library("libappms") {
   shlib_type = "sa"
+  include_dirs = [ "${ability_runtime_services_path}/appdfr/include" ]
   sources = [
     "src/ability_running_record.cpp",
     "src/ams_mgr_scheduler.cpp",
