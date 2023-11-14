@@ -100,11 +100,11 @@ void AutoFillExtensionCallback::SendAutoFillSucess(const AAFwk::Want &want)
 
 void AutoFillExtensionCallback::SendAutoFillFailed(int32_t errCode)
 {
-    if (fillCallback_ != nullptr){
+    if (fillCallback_ != nullptr) {
         fillCallback_->OnFillRequestFailed(errCode);
     }
 
-    if (saveCallback_ != nullptr){
+    if (saveCallback_ != nullptr) {
         saveCallback_->OnSaveRequestFailed();
     }
 }

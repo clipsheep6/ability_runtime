@@ -108,7 +108,8 @@ napi_value JsAutoFillExtensionUtil::WrapPageNodeInfo(const napi_env env, const A
     return jsObject;
 }
 
-void JsAutoFillExtensionUtil::UnwrapViewData(const napi_env env, const napi_value value, AbilityBase::ViewData &viewData)
+void JsAutoFillExtensionUtil::UnwrapViewData(
+    const napi_env env, const napi_value value, AbilityBase::ViewData &viewData)
 {
     HILOG_DEBUG("Called.");
     napi_value jsViewData = GetPropertyValueByPropertyName(env, value, VIEW_DATA_VIEW_DATA, napi_object);
@@ -140,9 +141,10 @@ void JsAutoFillExtensionUtil::UnwrapViewData(const napi_env env, const napi_valu
             AbilityBase::PageNodeInfo node;
             UnwrapPageNodeInfo(env, jsNode, node);
             viewData.nodes.emplace_back(node);
-            HILOG_DEBUG("PageNodeInfo. %{public}d,  %{public}d,  %{public}d, %{public}s, %{public}s, %{public}s, %{public}s",
-                node.id, node.depth, node.autoFillType,
-                node.tag.c_str(), node.value.c_str(), node.passwordRules.c_str(), node.placeholder.c_str());
+            HILOG_DEBUG("PageNodeInfo. %{public}d,  %{public}d,  %{public}d, "
+                        "%{public}s, %{public}s, %{public}s, %{public}s",
+                        node.id, node.depth, node.autoFillType, node.tag.c_str(), node.value.c_str(),
+                        node.passwordRules.c_str(), node.placeholder.c_str());
         }
     }
 }

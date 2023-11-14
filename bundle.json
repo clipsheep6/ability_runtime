@@ -18,6 +18,7 @@
         "SystemCapability.Ability.AbilityRuntime.AbilityCore",
         "SystemCapability.Ability.AbilityRuntime.Mission",
         "SystemCapability.Ability.AbilityRuntime.QuickFix",
+        "SystemCapability.Ability.AbilityRuntime.AutoFill",
         "SystemCapability.Ability.AbilityTools.AbilityAssistant"
       ],
       "features": [

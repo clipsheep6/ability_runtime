@@ -33,6 +33,7 @@ public:
 
 private:
     napi_value OnRequestAutoSave(napi_env env, NapiCallbackInfo &info);
+    void OnRequestAutoSaveInner(napi_env env, int32_t instanceId);
 
     std::shared_ptr<JsSaveRequestCallback> jsSaveRequestCallback_;
 };

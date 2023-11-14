@@ -26,14 +26,13 @@ static napi_module _module = {
     .nm_modname = "application.AutoFillExtensionContext",
 };
 
-extern "C" __attribute__((constructor))
-void NAPI_application_AutoFillExtensionContext_AutoRegister()
+extern "C" __attribute__((constructor)) void NAPI_application_AutoFillExtensionContext_AutoRegister()
 {
     napi_module_register(&_module);
 }
 
-extern "C" __attribute__((visibility("default")))
-void NAPI_application_AutoFillExtensionContext_GetJSCode(const char **buf, int *bufLen)
+extern "C" __attribute__((visibility("default"))) void NAPI_application_AutoFillExtensionContext_GetJSCode(
+    const char **buf, int *bufLen)
 {
     if (buf != nullptr) {
         *buf = _binary_auto_fill_extension_context_js_start;
@@ -44,8 +43,8 @@ void NAPI_application_AutoFillExtensionContext_GetJSCode(const char **buf, int *
     }
 }
 
-extern "C" __attribute__((visibility("default")))
-void NAPI_application_AutoFillExtensionContext_GetABCCode(const char **buf, int *buflen)
+extern "C" __attribute__((visibility("default"))) void NAPI_application_AutoFillExtensionContext_GetABCCode(
+    const char **buf, int *buflen)
 {
     if (buf != nullptr) {
         *buf = _binary_auto_fill_extension_context_abc_start;

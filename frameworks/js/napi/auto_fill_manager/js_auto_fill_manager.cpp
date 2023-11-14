@@ -79,13 +79,18 @@ napi_value JsAutoFillManager::OnRequestAutoSave(napi_env env, NapiCallbackInfo &
         }
         jsSaveRequestCallback_->Register(info.argv[INDEX_ONE]);
     }
+    OnRequestAutoSaveInner(env, instanceId);
+    return CreateJsUndefined(env);
+}
 
+void JsAutoFillManager::OnRequestAutoSaveInner(napi_env env, int32_t instanceId)
+{
     auto uiContent = Ace::UIContent::GetUIContent(instanceId);
     if (uiContent == nullptr) {
         jsSaveRequestCallback_ = nullptr;
         HILOG_ERROR("UIContent is nullptr.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
-        return CreateJsUndefined(env);
+        return;
     }
     if (uiContent->CheckNeedAutoSave()) {
         AbilityBase::ViewData viewData;
@@ -95,11 +100,9 @@ napi_value JsAutoFillManager::OnRequestAutoSave(napi_env env, NapiCallbackInfo &
             jsSaveRequestCallback_ = nullptr;
             HILOG_ERROR("Request auto save error[%{public}d].", ret);
             ThrowError(env, GetJsErrorCodeByNativeError(ret));
-            return CreateJsUndefined(env);
+            return;
         }
     }
-
-    return CreateJsUndefined(env);
 }
 
 napi_value CreateJsAutoFillType(napi_env env)
