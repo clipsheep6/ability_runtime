@@ -171,5 +171,28 @@ void Extension::OnAbilityResult(int requestCode, int resultCode, const Want &wan
 {
     HILOG_DEBUG("call.");
 }
+
+void Extension::OnCommandWindowDone(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
+{
+    HILOG_DEBUG("call.");
+}
+
+void Extension::OnInsightIntentExecuteDone(const sptr<AAFwk::SessionInfo> &sessionInfo,
+    const AppExecFwk::InsightIntentExecuteResult &result)
+{
+    HILOG_DEBUG("call.");
+}
+
+bool Extension::HandleInsightIntent(const AAFwk::Want &want)
+{
+    HILOG_DEBUG("call.");
+    return true;
+}
+
+bool Extension::OnInsightIntentExecuteDone(uint64_t intentId, const AppExecFwk::InsightIntentExecuteResult &result)
+{
+    HILOG_DEBUG("call.");
+    return true;
+}
 }
 }

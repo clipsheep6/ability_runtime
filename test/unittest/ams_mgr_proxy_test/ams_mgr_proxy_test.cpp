@@ -15,15 +15,20 @@
 
 #include <gtest/gtest.h>
 
-#include "mock_ams_mgr_scheduler.h"
 #include "ams_mgr_proxy.h"
+#include "mock_ability_debug_response_stub.h"
+#include "mock_ams_mgr_scheduler.h"
+#include "mock_app_debug_listener_stub.h"
 
 using namespace testing;
 using namespace testing::ext;
 
 namespace OHOS {
 namespace AppExecFwk {
-namespace {}  // namespace
+namespace {
+    const std::string STRING_BUNDLE_NAME = "bundleName";
+    const std::string EMPTY_BUNDLE_NAME = "";
+}  // namespace
 
 class AmsMgrProxyTest : public testing::Test {
 public:
@@ -34,6 +39,8 @@ public:
 
     sptr<MockAmsMgrScheduler> mockAmsMgrScheduler_;
     sptr<AmsMgrProxy> amsMgrProxy_;
+    sptr<MockAppDebugListenerStub> listener_;
+    sptr<MockAbilityDebugResponseStub> response_;
 };
 
 void AmsMgrProxyTest::SetUpTestCase(void)
@@ -48,9 +55,112 @@ void AmsMgrProxyTest::SetUp()
 
     mockAmsMgrScheduler_ = new MockAmsMgrScheduler();
     amsMgrProxy_ = new AmsMgrProxy(mockAmsMgrScheduler_);
+    listener_ = new MockAppDebugListenerStub();
+    response_ = new MockAbilityDebugResponseStub();
 }
 
 void AmsMgrProxyTest::TearDown()
 {}
+
+/**
+ * @tc.name: RegisterAppDebugListener_0100
+ * @tc.desc: Register app debug listener, check nullptr listener.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrProxyTest, RegisterAppDebugListener_0100, TestSize.Level1)
+{
+    EXPECT_NE(amsMgrProxy_, nullptr);
+    EXPECT_NE(listener_, nullptr);
+    EXPECT_CALL(*mockAmsMgrScheduler_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Return(0));
+    auto result = amsMgrProxy_->RegisterAppDebugListener(listener_);
+    EXPECT_EQ(result, NO_ERROR);
+
+    EXPECT_CALL(*mockAmsMgrScheduler_, SendRequest(_, _, _, _)).Times(0);
+    listener_ = nullptr;
+    result = amsMgrProxy_->RegisterAppDebugListener(listener_);
+    EXPECT_EQ(result, ERR_INVALID_DATA);
+}
+
+/**
+ * @tc.name: UnregisterAppDebugListener_0100
+ * @tc.desc: Unregister app debug listener, check nullptr listener.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrProxyTest, UnregisterAppDebugListener_0100, TestSize.Level1)
+{
+    EXPECT_NE(amsMgrProxy_, nullptr);
+    EXPECT_NE(listener_, nullptr);
+    EXPECT_CALL(*mockAmsMgrScheduler_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Return(0));
+    auto result = amsMgrProxy_->UnregisterAppDebugListener(listener_);
+    EXPECT_EQ(result, NO_ERROR);
+
+    EXPECT_CALL(*mockAmsMgrScheduler_, SendRequest(_, _, _, _)).Times(0);
+    listener_ = nullptr;
+    result = amsMgrProxy_->UnregisterAppDebugListener(listener_);
+    EXPECT_EQ(result, ERR_INVALID_DATA);
+}
+
+/**
+ * @tc.name: AttachAppDebug_0100
+ * @tc.desc: Attach app debug by bundle name, check empty bundle name.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrProxyTest, AttachAppDebug_0100, TestSize.Level1)
+{
+    EXPECT_NE(amsMgrProxy_, nullptr);
+    EXPECT_CALL(*mockAmsMgrScheduler_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Return(0));
+    auto result = amsMgrProxy_->AttachAppDebug(STRING_BUNDLE_NAME);
+    EXPECT_EQ(result, NO_ERROR);
+
+    EXPECT_CALL(*mockAmsMgrScheduler_, SendRequest(_, _, _, _)).Times(0);
+    result = amsMgrProxy_->AttachAppDebug(EMPTY_BUNDLE_NAME);
+    EXPECT_EQ(result, ERR_INVALID_DATA);
+}
+
+/**
+ * @tc.name: DetachAppDebug_0100
+ * @tc.desc: Detach app debug by bundleName, check empty bundle name.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrProxyTest, DetachAppDebug_0100, TestSize.Level1)
+{
+    EXPECT_NE(amsMgrProxy_, nullptr);
+    EXPECT_CALL(*mockAmsMgrScheduler_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Return(0));
+    auto result = amsMgrProxy_->DetachAppDebug(STRING_BUNDLE_NAME);
+    EXPECT_EQ(result, NO_ERROR);
+
+    EXPECT_CALL(*mockAmsMgrScheduler_, SendRequest(_, _, _, _)).Times(0);
+    result = amsMgrProxy_->DetachAppDebug(EMPTY_BUNDLE_NAME);
+    EXPECT_EQ(result, ERR_INVALID_DATA);
+}
+
+/**
+ * @tc.name: RegisterAbilityDebugResponse_0100
+ * @tc.desc: Register ability debug response, check nullptr response.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrProxyTest, RegisterAbilityDebugResponse_0100, TestSize.Level1)
+{
+    EXPECT_NE(amsMgrProxy_, nullptr);
+    EXPECT_NE(response_, nullptr);
+    EXPECT_CALL(*mockAmsMgrScheduler_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Return(0));
+    auto result = amsMgrProxy_->RegisterAbilityDebugResponse(response_);
+    EXPECT_EQ(result, NO_ERROR);
+
+    EXPECT_CALL(*mockAmsMgrScheduler_, SendRequest(_, _, _, _)).Times(0);
+    response_ = nullptr;
+    result = amsMgrProxy_->RegisterAbilityDebugResponse(response_);
+    EXPECT_EQ(result, ERR_INVALID_DATA);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -156,7 +156,7 @@ void MissionListenerController::HandleUnInstallApp(const std::list<int32_t> &mis
 void MissionListenerController::NotifyMissionSnapshotChanged(int32_t missionId)
 {
     if (!handler_) {
-        HILOG_ERROR("handler not init");
+        HILOG_ERROR("handler not init.");
         return;
     }
 
@@ -175,14 +175,14 @@ void MissionListenerController::NotifyMissionSnapshotChanged(int32_t missionId)
 void MissionListenerController::NotifyMissionMovedToFront(int32_t missionId)
 {
     if (!handler_) {
-        HILOG_ERROR("handler not init");
+        HILOG_ERROR("handler not init!");
         return;
     }
 
     auto task = [weak = weak_from_this(), missionId]() {
         auto self = weak.lock();
         if (self == nullptr) {
-            HILOG_ERROR("self is nullptr, NotifyMissionSnapshotChanged failed.");
+            HILOG_ERROR("self is nullptr, NotifyMissionSnapshotChanged failed!");
             return;
         }
         HILOG_INFO("notify listeners mission is moved to front, missionId:%{public}d.", missionId);
@@ -198,13 +198,13 @@ void MissionListenerController::NotifyMissionFocused(int32_t missionId)
     }
 
     if (!handler_) {
-        HILOG_ERROR("handler is null");
+        HILOG_ERROR("handler is null.");
         return;
     }
     auto task = [weak = weak_from_this(), missionId]() {
         auto self = weak.lock();
         if (self == nullptr) {
-            HILOG_ERROR("self is nullptr, NotifyMissionFocused failed");
+            HILOG_ERROR("self is nullptr, NotifyMissionFocused failed.");
             return;
         }
         HILOG_INFO("NotifyMissionFocused, missionId:%{public}d.", missionId);
@@ -220,13 +220,13 @@ void MissionListenerController::NotifyMissionUnfocused(int32_t missionId)
     }
 
     if (!handler_) {
-        HILOG_ERROR("handler is null");
+        HILOG_ERROR("handler is null!");
         return;
     }
     auto task = [weak = weak_from_this(), missionId]() {
         auto self = weak.lock();
         if (self == nullptr) {
-            HILOG_ERROR("self is nullptr, NotifyMissionUnfocused failed");
+            HILOG_ERROR("self is nullptr, NotifyMissionUnfocused failed!");
             return;
         }
         HILOG_INFO("NotifyMissionUnfocused, missionId:%{public}d.", missionId);

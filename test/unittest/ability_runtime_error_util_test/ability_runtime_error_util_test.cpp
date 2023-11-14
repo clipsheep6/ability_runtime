@@ -131,5 +131,18 @@ HWTEST_F(AbilityRuntimeErrorUtilTest, GetErrMessage_0200, TestSize.Level0)
     std::string errMsg = AbilityRuntimeErrorUtil::GetErrMessage(1);
     EXPECT_EQ(errMsg, "");
 }
+
+/**
+ * @tc.name: Throw_0100
+ * @tc.desc: Throw_0100 Test
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityRuntimeErrorUtilTest, Throw_0100, TestSize.Level0)
+{
+    ASSERT_NE(env_, nullptr);
+    std::string errMessage = nullptr;
+    bool result = AbilityRuntimeErrorUtil::Throw(env_, 1, errMessage);
+    EXPECT_FALSE(result);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

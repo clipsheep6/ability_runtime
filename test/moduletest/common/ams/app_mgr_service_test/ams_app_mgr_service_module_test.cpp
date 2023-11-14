@@ -75,6 +75,8 @@ public:
     {}
     void ScheduleAcceptWant(const AAFwk::Want& want, const std::string& moduleName) override
     {}
+    void ScheduleNewProcessRequest(const AAFwk::Want& want, const std::string& moduleName) override
+    {}
     int32_t ScheduleNotifyLoadRepairPatch(const std::string& bundleName,
         const sptr<IQuickFixCallback>& callback, const int32_t recordId) override
     {
@@ -306,28 +308,9 @@ HWTEST_F(AppMgrServiceModuleTest, ApplicationTerminated_001, TestSize.Level1)
 HWTEST_F(AppMgrServiceModuleTest, ClearUpApplicationData_001, TestSize.Level1)
 {
     EXPECT_TRUE(appMgrService_);
-    EXPECT_TRUE(mockAppMgrServiceInner_);
-
-    std::string testAppName("testApp");
-    bool testResult = false;
-    Semaphore sem(0);
-
-    auto mockHandler = [&testResult, testAppName, &sem](const std::string& appName, const int32_t, const pid_t) {
-        testResult = (appName == testAppName);
-        sem.Post();
-    };
-
-    for (int i = 0; i < COUNT; ++i) {
-        testResult = false;
-
-        EXPECT_CALL(*mockAppMgrServiceInner_, ClearUpApplicationData(_, _, _)).Times(1).WillOnce(Invoke(mockHandler));
-
-        appMgrService_->ClearUpApplicationData(testAppName);
-
-        sem.Wait();
-
-        EXPECT_TRUE(testResult);
-    }
+    std::string bundleName = "bundleName";
+    int32_t res = appMgrService_->ClearUpApplicationData(bundleName);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
 }
 
 /*

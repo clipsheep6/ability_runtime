@@ -79,7 +79,7 @@ int ApplicationStateObserverStub::OnRemoteRequest(
     std::u16string descriptor = ApplicationStateObserverStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_ERROR("local descriptor is not equal to remote");
+        HILOG_ERROR("local descriptor is not equal to remote.");
         return ERR_INVALID_STATE;
     }
 
@@ -90,6 +90,7 @@ int ApplicationStateObserverStub::OnRemoteRequest(
             return (this->*memberFunc)(data, reply);
         }
     }
+    HILOG_DEBUG("ApplicationStateObserverStub::OnRemoteRequest end");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 

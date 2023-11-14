@@ -30,6 +30,7 @@
 #include "permission_constants.h"
 #include "permission_verification.h"
 #include "system_ability_definition.h"
+#include "tokenid_kit.h"
 #include "want.h"
 
 namespace OHOS {
@@ -89,38 +90,20 @@ bool UriPermissionManagerStubImpl::VerifyUriPermission(const Uri &uri, uint32_t 
 }
 
 int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned int flag,
-    const std::string targetBundleName, int autoremove, int32_t appIndex)
+    const std::string targetBundleName, int32_t appIndex)
 {
     HILOG_DEBUG("CALL: appIndex is %{public}d.", appIndex);
     std::vector<Uri> uriVec = { uri };
-    return GrantUriPermission(uriVec, flag, targetBundleName, autoremove, appIndex);
+    return GrantUriPermission(uriVec, flag, targetBundleName, appIndex);
 }
 
 int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
-    const std::string targetBundleName, int autoremove, int32_t appIndex)
+    const std::string targetBundleName, int32_t appIndex)
 {
     HILOG_DEBUG("CALL: appIndex is %{public}d, uriVec size is %{public}zu", appIndex, uriVec.size());
-    // reject sandbox to grant uri permission
-    ConnectManager(appMgr_, APP_MGR_SERVICE_ID);
-    if (appMgr_ == nullptr) {
-        HILOG_ERROR("Get BundleManager failed!");
-        return INNER_ERR;
-    }
-    auto callerPid = IPCSkeleton::GetCallingPid();
-    bool isSandbox = false;
-    auto ret = appMgr_->JudgeSandboxByPid(callerPid, isSandbox);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("JudgeSandboxByPid failed.");
-        return INNER_ERR;
-    }
-    if (isSandbox) {
-        HILOG_ERROR("Sandbox application can not grant URI permission.");
-        return ERR_CODE_GRANT_URI_PERMISSION;
-    }
-
-    if ((flag & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
-        HILOG_WARN("UriPermissionManagerStubImpl::GrantUriPermission: The param flag is invalid.");
-        return ERR_CODE_INVALID_URI_FLAG;
+    auto checkResult = CheckRule(flag);
+    if (checkResult != ERR_OK) {
+        return checkResult;
     }
     auto callerTokenId = IPCSkeleton::GetCallingTokenID();
     auto targetTokenId = GetTokenIdByBundleName(targetBundleName, appIndex);
@@ -128,6 +111,7 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uri
     Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerTokenId, nativeInfo);
     // autoremove will be set to 1 if the process name is foundation.
     HILOG_DEBUG("callerprocessName : %{public}s", nativeInfo.processName.c_str());
+    int autoremove = 0;
     if (nativeInfo.processName == "foundation") {
         autoremove = 1;
     }
@@ -146,7 +130,7 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uri
         HILOG_DEBUG("uriVecMap is empty");
         return INNER_ERR;
     }
-    ret = INNER_ERR;
+    int ret = INNER_ERR;
     for (const auto &item : uriVecMap) {
         auto tempRet = GrantBatchUriPermissionImpl(item.second, item.first, fromTokenIdVecMap[item.first],
             targetTokenId, autoremove);
@@ -156,6 +140,32 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uri
         }
     }
     return ret;
+}
+
+int UriPermissionManagerStubImpl::CheckRule(unsigned int flag)
+{
+    // reject sandbox to grant uri permission
+    ConnectManager(appMgr_, APP_MGR_SERVICE_ID);
+    if (appMgr_ == nullptr) {
+        HILOG_ERROR("Get BundleManager failed!");
+        return INNER_ERR;
+    }
+    auto callerPid = IPCSkeleton::GetCallingPid();
+    bool isSandbox = false;
+    if (appMgr_->JudgeSandboxByPid(callerPid, isSandbox) != ERR_OK) {
+        HILOG_ERROR("JudgeSandboxByPid failed.");
+        return INNER_ERR;
+    }
+    if (isSandbox) {
+        HILOG_ERROR("Sandbox application can not grant URI permission.");
+        return ERR_CODE_GRANT_URI_PERMISSION;
+    }
+
+    if ((flag & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
+        HILOG_WARN("UriPermissionManagerStubImpl::GrantUriPermission: The param flag is invalid.");
+        return ERR_CODE_INVALID_URI_FLAG;
+    }
+    return ERR_OK;
 }
 
 int UriPermissionManagerStubImpl::GetUriPermissionFlag(const Uri &uri, unsigned int flag,
@@ -305,7 +315,7 @@ int UriPermissionManagerStubImpl::GrantSingleUriPermission(const Uri &uri, unsig
 {
     Uri uri_inner = uri;
     auto&& scheme = uri_inner.GetScheme();
-    if (scheme != "file") {
+    if (scheme != "file" && scheme != "content") {
         HILOG_WARN("only support file uri.");
         return ERR_CODE_INVALID_URI_TYPE;
     }
@@ -330,7 +340,7 @@ void UriPermissionManagerStubImpl::GetUriPermissionBatchFlag(const std::vector<U
     for (const auto &uri : uriVec) {
         Uri uri_inner = uri;
         auto&& scheme = uri_inner.GetScheme();
-        if (scheme != "file") {
+        if (scheme != "file" && scheme != "content") {
             HILOG_WARN("only support file uri.");
             continue;
         }
@@ -472,7 +482,7 @@ int UriPermissionManagerStubImpl::RevokeAllUriPermissions(uint32_t tokenId)
 
     ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
     if (storageManager_ == nullptr) {
-        HILOG_ERROR("ConnectStorageManager failed");
+        HILOG_ERROR("ConnectStorageManager failed.");
         return INNER_ERR;
     }
 
@@ -497,7 +507,7 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
     auto uriStr = uri.ToString();
     auto&& authority = uri_inner.GetAuthority();
     auto&& scheme = uri_inner.GetScheme();
-    if (scheme != "file") {
+    if (scheme != "file" && scheme != "content") {
         HILOG_WARN("only support file uri.");
         return ERR_CODE_INVALID_URI_TYPE;
     }
@@ -650,11 +660,11 @@ int32_t UriPermissionManagerStubImpl::GetCurrentAccountId() const
     auto ret = DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->
         QueryActiveOsAccountIds(osActiveAccountIds);
     if (ret != ERR_OK) {
-        HILOG_ERROR("QueryActiveOsAccountIds failed.");
+        HILOG_ERROR("QueryActiveOsAccountIds error.");
         return DEFAULT_USER_ID;
     }
     if (osActiveAccountIds.empty()) {
-        HILOG_ERROR("%{public}s, QueryActiveOsAccountIds is empty, no accounts.", __func__);
+        HILOG_ERROR("%{public}s, the QueryActiveOsAccountIds is empty, no accounts.", __func__);
         return DEFAULT_USER_ID;
     }
 
@@ -666,7 +676,7 @@ void UriPermissionManagerStubImpl::InitPersistableUriPermissionConfig()
     char value[GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_SIZE] = "false";
     int retSysParam = GetParameter(GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_PARAMETER, "false", value,
         GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_SIZE);
-    HILOG_INFO("GrantPersistableUriPermissionEnable, %{public}s value is %{public}s.",
+    HILOG_INFO("GrantPersistableUriPermissionEnable, %{public}s value is %{public}s",
         GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_PARAMETER, value);
     if (retSysParam > 0 && !std::strcmp(value, "true")) {
         isGrantPersistableUriPermissionEnable_ = true;
@@ -676,9 +686,9 @@ void UriPermissionManagerStubImpl::InitPersistableUriPermissionConfig()
 void UriPermissionManagerStubImpl::SendEvent(const Uri &uri, const std::string &targetBundleName,
     uint32_t targetTokenId, const std::vector<std::string> &uriVec)
 {
-    auto isSaCall = PermissionVerification::GetInstance()->IsSACall();
-    auto calleeTokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(targetTokenId);
-    if (isSaCall && calleeTokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
+    auto isSystemAppCall = PermissionVerification::GetInstance()->IsSystemAppCall();
+    auto targetIsSystemApp = Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(targetTokenId);
+    if (isSystemAppCall && !targetIsSystemApp) {
         EventInfo eventInfo;
         Uri uri_inner = uri;
         eventInfo.bundleName = targetBundleName;

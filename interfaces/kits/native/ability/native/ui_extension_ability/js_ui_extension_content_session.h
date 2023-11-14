@@ -59,11 +59,13 @@ public:
         sptr<AAFwk::SessionInfo> sessionInfo, sptr<Rosen::Window> uiWindow);
 
     static napi_value StartAbility(napi_env env, napi_callback_info info);
+    static napi_value StartAbilityAsCaller(napi_env env, napi_callback_info info);
     static napi_value StartAbilityForResult(napi_env env, napi_callback_info info);
     static napi_value TerminateSelf(napi_env env, napi_callback_info info);
     static napi_value TerminateSelfWithResult(napi_env env, napi_callback_info info);
     static napi_value SendData(napi_env env, napi_callback_info info);
     static napi_value SetReceiveDataCallback(napi_env env, napi_callback_info info);
+    static napi_value SetReceiveDataForResultCallback(napi_env env, napi_callback_info info);
     static napi_value LoadContent(napi_env env, napi_callback_info info);
     static napi_value SetWindowBackgroundColor(napi_env env, napi_callback_info info);
     static napi_value SetWindowPrivacyMode(napi_env env, napi_callback_info info);
@@ -71,11 +73,13 @@ public:
 
 protected:
     napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStartAbilityAsCaller(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartAbilityForResult(napi_env env, NapiCallbackInfo& info);
     napi_value OnTerminateSelf(napi_env env, NapiCallbackInfo& info);
     napi_value OnTerminateSelfWithResult(napi_env env, NapiCallbackInfo& info);
     napi_value OnSendData(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetReceiveDataCallback(napi_env env, NapiCallbackInfo& info);
+    napi_value OnSetReceiveDataForResultCallback(napi_env env, NapiCallbackInfo& info);
     napi_value OnLoadContent(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetWindowBackgroundColor(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetWindowPrivacyMode(napi_env env, NapiCallbackInfo& info);
@@ -83,6 +87,8 @@ protected:
 
     static void CallReceiveDataCallback(napi_env env, std::weak_ptr<CallbackWrapper> weakCallback,
         const AAFwk::WantParams& wantParams);
+    static void CallReceiveDataCallbackForResult(napi_env env, std::weak_ptr<CallbackWrapper> weakCallback,
+        const AAFwk::WantParams& wantParams, AAFwk::WantParams& retWantParams);
     void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback,
         bool isAbilityResult = false);
     NapiAsyncTask::ExecuteCallback StartAbilityExecuteCallback(AAFwk::Want& want, size_t& unwrapArgc,
@@ -96,6 +102,8 @@ private:
     std::weak_ptr<AbilityRuntime::Context> context_;
     std::shared_ptr<CallbackWrapper> receiveDataCallback_;
     bool isRegistered = false;
+    std::shared_ptr<CallbackWrapper> receiveDataForResultCallback_;
+    bool isSyncRegistered = false;
     std::shared_ptr<UISessionAbilityResultListener> listener_;
     sptr<JsFreeInstallObserver> freeInstallObserver_ = nullptr;
 };

@@ -18,8 +18,8 @@
 
 static napi_module _module = {
     .nm_filename = "application/wantAgent.so/want_agent.js",
-    .nm_modname = "wantAgent",
     .nm_register_func = OHOS::JsWantAgentInit,
+    .nm_modname = "wantAgent",
 };
 
 extern "C" __attribute__((constructor))

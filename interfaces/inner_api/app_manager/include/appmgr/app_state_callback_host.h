@@ -49,9 +49,17 @@ public:
      */
     virtual void OnAppStateChanged(const AppProcessData &) override;
 
+    /**
+     * @brief Notify application update system environment changes.
+     * @param config System environment change parameters.
+     * @param userId userId Designation User ID.
+     */
+    virtual void NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId) override;
+
 private:
     int32_t HandleOnAppStateChanged(MessageParcel &data, MessageParcel &reply);
     int32_t HandleOnAbilityRequestDone(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleNotifyConfigurationChange(MessageParcel &data, MessageParcel &reply);
 
     using AppStateCallbackFunc = int32_t (AppStateCallbackHost::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, AppStateCallbackFunc> memberFuncMap_;

@@ -498,6 +498,37 @@ napi_value JsApplicationContextUtils::OnSetLanguage(napi_env env, NapiCallbackIn
     return CreateJsUndefined(env);
 }
 
+napi_value JsApplicationContextUtils::ClearUpApplicationData(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(
+        env, info, JsApplicationContextUtils, OnClearUpApplicationData, APPLICATION_CONTEXT_NAME);
+}
+
+napi_value JsApplicationContextUtils::OnClearUpApplicationData(napi_env env, NapiCallbackInfo &info)
+{
+    // only support 0 or 1 params
+    if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
+        HILOG_ERROR("Not enough params");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return CreateJsUndefined(env);
+    }
+    NapiAsyncTask::CompleteCallback complete =
+        [applicationContext = applicationContext_](napi_env env, NapiAsyncTask& task, int32_t status) {
+            auto context = applicationContext.lock();
+            if (!context) {
+                task.Reject(env, CreateJsError(env, ERR_ABILITY_RUNTIME_EXTERNAL_CONTEXT_NOT_EXIST,
+                    "applicationContext if already released."));
+                return;
+            }
+            context->ClearUpApplicationData();
+            task.ResolveWithNoError(env, CreateJsUndefined(env));
+        };
+    napi_value lastParam = (info.argc == ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JsApplicationContextUtils::OnClearUpApplicationData",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
 
 napi_value JsApplicationContextUtils::GetRunningProcessInformation(napi_env env, napi_callback_info info)
 {
@@ -1187,6 +1218,8 @@ void JsApplicationContextUtils::BindNativeApplicationContext(napi_env env, napi_
     BindNativeFunction(env, object, "killAllProcesses", MD_NAME, JsApplicationContextUtils::KillProcessBySelf);
     BindNativeFunction(env, object, "setColorMode", MD_NAME, JsApplicationContextUtils::SetColorMode);
     BindNativeFunction(env, object, "setLanguage", MD_NAME, JsApplicationContextUtils::SetLanguage);
+    BindNativeFunction(env, object, "clearUpApplicationData", MD_NAME,
+        JsApplicationContextUtils::ClearUpApplicationData);
     BindNativeFunction(env, object, "getProcessRunningInformation", MD_NAME,
         JsApplicationContextUtils::GetRunningProcessInformation);
     BindNativeFunction(env, object, "getRunningProcessInformation", MD_NAME,
@@ -1243,7 +1276,7 @@ napi_value JsApplicationContextUtils::IsAutoStartup(napi_env env, napi_callback_
 
 napi_value JsApplicationContextUtils::OnRegisterAutoStartupCallback(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("Called.");
+    HILOG_DEBUG("OnRegisterAutoStartupCallback Called.");
     if (info.argc < ARGC_TWO) {
         HILOG_ERROR("The param is invalid.");
         ThrowTooFewParametersError(env);
@@ -1430,7 +1463,7 @@ napi_value JsApplicationContextUtils::OnIsAutoStartup(napi_env env, NapiCallback
         *ret = AAFwk::AbilityManagerClient::GetInstance()->IsAutoStartup(autoStartupInfo, *isFlag);
     };
 
-    NapiAsyncTask::CompleteCallback complete = 
+    NapiAsyncTask::CompleteCallback complete =
         [ret = retVal, isFlag = isAutoStartup](napi_env env, NapiAsyncTask &task, int32_t status) {
         if (ret == nullptr || isFlag == nullptr) {
             HILOG_ERROR("The param is invalid.");

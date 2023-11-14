@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "ability_window_configuration.h"
 #include "app_running_record.h"
 #include "app_mgr_service_inner.h"
 #include "event_report.h"
@@ -283,6 +284,16 @@ const std::string &AppRunningRecord::GetProcessName() const
     return processName_;
 }
 
+void AppRunningRecord::SetSpecifiedProcessFlag(const std::string &flag)
+{
+    specifiedProcessFlag_ = flag;
+}
+
+const std::string &AppRunningRecord::GetSpecifiedProcessFlag() const
+{
+    return specifiedProcessFlag_;
+}
+
 int32_t AppRunningRecord::GetUid() const
 {
     return mainUid_;
@@ -472,6 +483,26 @@ void AppRunningRecord::AddAbilityStageBySpecifiedAbility(const std::string &bund
     }
 }
 
+void AppRunningRecord::AddAbilityStageBySpecifiedProcess(const std::string &bundleName)
+{
+    HILOG_DEBUG("call.");
+    if (!eventHandler_) {
+        HILOG_ERROR("eventHandler_ is nullptr");
+        return;
+    }
+
+    HapModuleInfo hapModuleInfo;
+    if (GetTheModuleInfoNeedToUpdated(bundleName, hapModuleInfo)) {
+        SendEvent(AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG,
+            AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT);
+        if (appLifeCycleDeal_ == nullptr) {
+            HILOG_WARN("appLifeCycleDeal_ is null");
+            return;
+        }
+        appLifeCycleDeal_->AddAbilityStage(hapModuleInfo);
+    }
+}
+
 void AppRunningRecord::AddAbilityStageDone()
 {
     HILOG_INFO("Add ability stage done. bundle %{public}s and eventId %{public}d", mainBundleName_.c_str(),
@@ -496,6 +527,12 @@ void AppRunningRecord::AddAbilityStageDone()
 
     if (isSpecifiedAbility_) {
         ScheduleAcceptWant(moduleName_);
+        return;
+    }
+
+    if (isNewProcessRequest_) {
+        HILOG_DEBUG("ScheduleNewProcessRequest.");
+        ScheduleNewProcessRequest(newProcessRequestWant_, moduleName_);
         return;
     }
 
@@ -694,6 +731,10 @@ void AppRunningRecord::StateChangedNotifyObserver(
     abilityStateData.token = ability->GetToken();
     abilityStateData.abilityType = static_cast<int32_t>(ability->GetAbilityInfo()->type);
     abilityStateData.isFocused = ability->GetFocusFlag();
+    if (ability->GetWant() != nullptr) {
+        abilityStateData.callerAbilityName = ability->GetWant()->GetStringParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
+        abilityStateData.callerBundleName = ability->GetWant()->GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+    }
 
     if (isAbility && ability->GetAbilityInfo()->type == AbilityType::EXTENSION) {
         HILOG_INFO("extension type, not notify any more.");
@@ -826,18 +867,8 @@ void AppRunningRecord::AbilityForeground(const std::shared_ptr<AbilityRunningRec
     HILOG_INFO("appState: %{public}d, bundle: %{public}s, ability: %{public}s",
         curState_, mainBundleName_.c_str(), ability->GetName().c_str());
     // We need schedule application to foregrounded when current application state is ready or background running.
-    if (curState_ == ApplicationState::APP_STATE_READY || curState_ == ApplicationState::APP_STATE_BACKGROUND) {
-        if (foregroundingAbilityTokens_.empty()) {
-            HILOG_INFO("application foregrounding.");
-            ScheduleForegroundRunning();
-        }
-        foregroundingAbilityTokens_.insert(ability->GetToken());
-        HILOG_INFO("foregroundingAbility size: %{public}d", static_cast<int32_t>(foregroundingAbilityTokens_.size()));
-        if (curState_ == ApplicationState::APP_STATE_BACKGROUND) {
-            SendAppStartupTypeEvent(ability, AppStartType::HOT);
-        }
-        return;
-    } else if (curState_ == ApplicationState::APP_STATE_FOREGROUND) {
+    if (curState_ == ApplicationState::APP_STATE_FOREGROUND
+        && pendingState_ != ApplicationPendingState::BACKGROUNDING) {
         // Just change ability to foreground if current application state is foreground or focus.
         auto moduleRecord = GetModuleRunningRecordByToken(ability->GetToken());
         moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_FOREGROUND);
@@ -845,6 +876,20 @@ void AppRunningRecord::AbilityForeground(const std::shared_ptr<AbilityRunningRec
         auto serviceInner = appMgrServiceInner_.lock();
         if (serviceInner) {
             serviceInner->OnAppStateChanged(shared_from_this(), curState_, false);
+        }
+        return;
+    }
+    if (curState_ == ApplicationState::APP_STATE_READY || curState_ == ApplicationState::APP_STATE_BACKGROUND
+        || curState_ == ApplicationState::APP_STATE_FOREGROUND) {
+        if (foregroundingAbilityTokens_.empty() || pendingState_ == ApplicationPendingState::BACKGROUNDING) {
+            HILOG_INFO("application foregrounding.");
+            SetApplicationPendingState(ApplicationPendingState::FOREGROUNDING);
+            ScheduleForegroundRunning();
+        }
+        foregroundingAbilityTokens_.insert(ability->GetToken());
+        HILOG_INFO("foregroundingAbility size: %{public}d", static_cast<int32_t>(foregroundingAbilityTokens_.size()));
+        if (curState_ == ApplicationState::APP_STATE_BACKGROUND) {
+            SendAppStartupTypeEvent(ability, AppStartType::HOT);
         }
     } else {
         HILOG_WARN("wrong application state");
@@ -887,6 +932,7 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
 
         // Then schedule application background when all ability is not foreground.
         if (foregroundSize == 0 && mainBundleName_ != LAUNCHER_NAME && windowIds_.empty()) {
+            SetApplicationPendingState(ApplicationPendingState::BACKGROUNDING);
             ScheduleBackgroundRunning();
         }
     } else {
@@ -1366,6 +1412,19 @@ void AppRunningRecord::SetSpecifiedAbilityFlagAndWant(
     moduleName_ = moduleName;
 }
 
+void AppRunningRecord::SetScheduleNewProcessRequestState(
+    const bool isNewProcessRequest, const AAFwk::Want &want, const std::string &moduleName)
+{
+    isNewProcessRequest_ = isNewProcessRequest;
+    newProcessRequestWant_ = want;
+    moduleName_ = moduleName;
+}
+
+bool AppRunningRecord::IsNewProcessRequest() const
+{
+    return isNewProcessRequest_;
+}
+
 bool AppRunningRecord::IsStartSpecifiedAbility() const
 {
     return isSpecifiedAbility_;
@@ -1395,6 +1454,30 @@ void AppRunningRecord::ScheduleAcceptWantDone()
     eventHandler_->RemoveEvent(AMSEventHandler::START_SPECIFIED_ABILITY_TIMEOUT_MSG, eventId_);
 }
 
+void AppRunningRecord::ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName)
+{
+    SendEvent(
+        AMSEventHandler::START_SPECIFIED_PROCESS_TIMEOUT_MSG, AMSEventHandler::START_SPECIFIED_PROCESS_TIMEOUT);
+    if (appLifeCycleDeal_ == nullptr) {
+        HILOG_WARN("appLifeCycleDeal_ is null");
+        return;
+    }
+    appLifeCycleDeal_->ScheduleNewProcessRequest(want, moduleName);
+}
+
+void AppRunningRecord::ScheduleNewProcessRequestDone()
+{
+    HILOG_INFO("ScheduleNewProcessRequestDone. bundle %{public}s and eventId %{public}d",
+        mainBundleName_.c_str(), static_cast<int>(eventId_));
+
+    if (!eventHandler_) {
+        HILOG_ERROR("eventHandler_ is nullptr");
+        return;
+    }
+
+    eventHandler_->RemoveEvent(AMSEventHandler::START_SPECIFIED_PROCESS_TIMEOUT_MSG, eventId_);
+}
+
 void AppRunningRecord::ApplicationTerminated()
 {
     HILOG_DEBUG("Application terminated bundle %{public}s and eventId %{public}d", mainBundleName_.c_str(),
@@ -1411,6 +1494,11 @@ void AppRunningRecord::ApplicationTerminated()
 const AAFwk::Want &AppRunningRecord::GetSpecifiedWant() const
 {
     return SpecifiedWant_;
+}
+
+const AAFwk::Want &AppRunningRecord::GetNewProcessRequestWant() const
+{
+    return newProcessRequestWant_;
 }
 
 int32_t AppRunningRecord::UpdateConfiguration(const Configuration &config)
@@ -1499,6 +1587,33 @@ void AppRunningRecord::SetPerfCmd(const std::string &perfCmd)
 void AppRunningRecord::SetAppIndex(const int32_t appIndex)
 {
     appIndex_ = appIndex;
+}
+
+void AppRunningRecord::GetSplitModeAndFloatingMode(bool &isSplitScreenMode, bool &isFloatingWindowMode)
+{
+    auto abilitiesMap = GetAbilities();
+    isSplitScreenMode = false;
+    isFloatingWindowMode = false;
+    for (const auto &item : abilitiesMap) {
+        const auto &abilityRecord = item.second;
+        if (abilityRecord == nullptr) {
+            continue;
+        }
+        const auto &abilityWant = abilityRecord->GetWant();
+        if (abilityWant != nullptr) {
+            int windowMode = abilityWant->GetIntParam(Want::PARAM_RESV_WINDOW_MODE, -1);
+            if (windowMode == AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING) {
+                isFloatingWindowMode = true;
+            }
+            if (windowMode == AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY ||
+                windowMode == AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY) {
+                isSplitScreenMode = true;
+            }
+        }
+        if (isFloatingWindowMode && isSplitScreenMode) {
+            break;
+        }
+    }
 }
 
 int32_t AppRunningRecord::GetAppIndex() const
@@ -1616,11 +1731,13 @@ void AppRunningRecord::OnWindowVisibilityChanged(
             continue;
         }
         auto iter = windowIds_.find(info->windowId_);
-        if (iter != windowIds_.end() && !info->isVisible_) {
+        if (iter != windowIds_.end() &&
+            info->visibilityState_ == OHOS::Rosen::WindowVisibilityState::WINDOW_VISIBILITY_STATE_TOTALLY_OCCUSION) {
             windowIds_.erase(iter);
             continue;
         }
-        if (iter == windowIds_.end() && info->isVisible_) {
+        if (iter == windowIds_.end() &&
+            info->visibilityState_ < OHOS::Rosen::WindowVisibilityState::WINDOW_VISIBILITY_STATE_TOTALLY_OCCUSION) {
             windowIds_.emplace(info->windowId_);
         }
     }
@@ -1722,6 +1839,16 @@ void AppRunningRecord::SetAttachDebug(const bool &isAttachDebug)
 bool AppRunningRecord::isAttachDebug() const
 {
     return isAttachDebug_;
+}
+
+void AppRunningRecord::SetApplicationPendingState(ApplicationPendingState pendingState)
+{
+    pendingState_ = pendingState;
+}
+
+ApplicationPendingState AppRunningRecord::GetApplicationPendingState() const
+{
+    return pendingState_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

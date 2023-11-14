@@ -22,6 +22,8 @@
 #include "ability_record.h"
 #include "app_mgr_constants.h"
 #include "hilog_wrapper.h"
+#include "mock_ability_debug_response_stub.h"
+#include "mock_app_debug_listener_stub.h"
 #include "mock_native_token.h"
 #undef protected
 #undef private
@@ -691,6 +693,188 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_ChangeAppGcState_001, TestSize.Level1)
     int32_t state = 0;
     auto resultCode = appMgrClient->ChangeAppGcState(pid, state);
     EXPECT_EQ(resultCode, NO_ERROR);
+}
+
+/**
+ * @tc.name: AppMgrClient_RegisterAppDebugListener_001
+ * @tc.desc: Register app debug listener, check nullptr listener.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_RegisterAppDebugListener_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    sptr<MockAppDebugListenerStub> listener = new MockAppDebugListenerStub();
+    EXPECT_NE(listener, nullptr);
+    auto resultCode = appMgrClient->RegisterAppDebugListener(listener);
+    EXPECT_EQ(resultCode, ERR_OK);
+
+    listener = nullptr;
+    resultCode = appMgrClient->RegisterAppDebugListener(listener);
+    EXPECT_EQ(resultCode, ERR_INVALID_DATA);
+}
+
+/**
+ * @tc.name: AppMgrClient_UnregisterAppDebugListener_001
+ * @tc.desc: Unregister app debug listener, check nullptr listener.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_UnregisterAppDebugListener_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+    
+    sptr<MockAppDebugListenerStub> listener = new MockAppDebugListenerStub();
+    EXPECT_NE(listener, nullptr);
+    auto resultCode = appMgrClient->UnregisterAppDebugListener(listener);
+    EXPECT_EQ(resultCode, ERR_OK);
+
+    listener = nullptr;
+    resultCode = appMgrClient->UnregisterAppDebugListener(listener);
+    EXPECT_EQ(resultCode, ERR_INVALID_DATA);
+}
+
+/**
+ * @tc.name: AppMgrClient_RegisterAbilityDebugResponse_001
+ * @tc.desc: Register ability debug response, check nullptr response.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_RegisterAbilityDebugResponse_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    sptr<MockAbilityDebugResponseStub> response = nullptr;
+    auto resultCode = appMgrClient->RegisterAbilityDebugResponse(response);
+    EXPECT_EQ(resultCode, ERR_INVALID_DATA);
+
+    response = new MockAbilityDebugResponseStub();
+    EXPECT_NE(response, nullptr);
+    resultCode = appMgrClient->RegisterAbilityDebugResponse(response);
+    EXPECT_EQ(resultCode, NO_ERROR);
+}
+
+/**
+ * @tc.name: AppMgrClient_AttachAppDebug_001
+ * @tc.desc: Attach app, begin debug.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_AttachAppDebug_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+    
+    std::string bundleName = "bundleName";
+    auto resultCode = appMgrClient->AttachAppDebug(bundleName);
+    EXPECT_EQ(resultCode, ERR_OK);
+}
+
+/**
+ * @tc.name: AppMgrClient_DetachAppDebug_001
+ * @tc.desc: Detach app, end debug.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_DetachAppDebug_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    std::string bundleName = "bundleName";
+    auto resultCode = appMgrClient->DetachAppDebug(bundleName);
+    EXPECT_EQ(resultCode, ERR_OK);
+}
+
+/**
+ * @tc.name: AppMgrClient_RegisterApplicationStateObserver_001
+ * @tc.desc: RegisterApplicationStateObserver.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_RegisterApplicationStateObserver_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    sptr<IApplicationStateObserver> observer = nullptr;
+    std::vector<std::string> bundleNameList;
+    auto result = appMgrClient->RegisterApplicationStateObserver(observer, bundleNameList);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AppMgrClient_UnregisterApplicationStateObserver_001
+ * @tc.desc: UnregisterApplicationStateObserver.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_UnregisterApplicationStateObserver_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    sptr<IApplicationStateObserver> observer = nullptr;
+    auto result = appMgrClient->UnregisterApplicationStateObserver(observer);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AppMgrClient_NotifyPageShow_001
+ * @tc.desc: NotifyPageShow.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_NotifyPageShow_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    std::string deviceName = "device";
+    std::string abilityName = "FirstAbility";
+    std::string appName = "FirstApp";
+    std::string bundleName = "com.ix.First.Test";
+    AppExecFwk::RunningProcessInfo info;
+    auto abilityReq = GenerateAbilityRequest(deviceName, abilityName, appName, bundleName);
+    auto record = AbilityRecord::CreateAbilityRecord(abilityReq);
+    auto token = record->GetToken();
+    PageStateData pageStateData;
+    auto result = appMgrClient->NotifyPageShow(token, pageStateData);
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+}
+
+/**
+ * @tc.name: AppMgrClient_NotifyPageHide_001
+ * @tc.desc: NotifyPageHide.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_NotifyPageHide_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    std::string deviceName = "device";
+    std::string abilityName = "FirstAbility";
+    std::string appName = "FirstApp";
+    std::string bundleName = "com.ix.First.Test";
+    AppExecFwk::RunningProcessInfo info;
+    auto abilityReq = GenerateAbilityRequest(deviceName, abilityName, appName, bundleName);
+    auto record = AbilityRecord::CreateAbilityRecord(abilityReq);
+    auto token = record->GetToken();
+    PageStateData pageStateData;
+    auto result = appMgrClient->NotifyPageHide(token, pageStateData);
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

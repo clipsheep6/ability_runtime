@@ -450,6 +450,12 @@ void ApplicationContext::SetLanguage(const std::string &language)
     }
 }
 
+void ApplicationContext::ClearUpApplicationData()
+{
+    if (contextImpl_ != nullptr) {
+        contextImpl_->ClearUpApplicationData();
+    }
+}
 
 int ApplicationContext::GetArea()
 {

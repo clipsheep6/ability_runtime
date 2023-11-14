@@ -109,6 +109,10 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     AAFwk::Want want;
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     if (dialogAppInfos.size() == 0 && (deviceType == STR_PHONE || deviceType == STR_DEFAULT)) {
+        if ((request.want.GetFlags() & Want::FLAG_START_WITHOUT_TIPS) == Want::FLAG_START_WITHOUT_TIPS) {
+            HILOG_INFO("hint dialog doesn't generate.");
+            return ERR_IMPLICIT_START_ABILITY_FAIL;
+        }
         HILOG_ERROR("implicit query ability infos failed, show tips dialog.");
         want = sysDialogScheduler->GetTipsDialogWant(request.callerToken);
         abilityMgr->StartAbility(want);
@@ -122,6 +126,10 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
             return ret;
         }
         if (dialogAllAppInfos.size() == 0) {
+            if ((request.want.GetFlags() & Want::FLAG_START_WITHOUT_TIPS) == Want::FLAG_START_WITHOUT_TIPS) {
+                HILOG_INFO("hint dialog doesn't generate.");
+                return ERR_IMPLICIT_START_ABILITY_FAIL;
+            }
             Want dialogWant = sysDialogScheduler->GetTipsDialogWant(request.callerToken);
             abilityMgr->StartAbility(dialogWant);
             return ERR_IMPLICIT_START_ABILITY_FAIL;
@@ -146,7 +154,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     if (deviceType == STR_PHONE || deviceType == STR_DEFAULT) {
         HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose.");
         want = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want, request.callerToken);
-        ret = abilityMgr->StartAbilityAsCaller(want, request.callerToken);
+        ret = abilityMgr->StartAbilityAsCaller(want, request.callerToken, nullptr);
         // reset calling indentity
         IPCSkeleton::SetCallingIdentity(identity);
         return ret;
@@ -156,7 +164,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     std::string type = MatchTypeAndUri(request.want);
 
     want = sysDialogScheduler->GetPcSelectorDialogWant(dialogAppInfos, request.want, type, userId, request.callerToken);
-    ret = abilityMgr->StartAbilityAsCaller(want, request.callerToken);
+    ret = abilityMgr->StartAbilityAsCaller(want, request.callerToken, nullptr);
     // reset calling indentity
     IPCSkeleton::SetCallingIdentity(identity);
     return ret;

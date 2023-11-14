@@ -121,6 +121,21 @@ public:
         int requestCode = DEFAULT_INVAL_VALUE) override;
 
     /**
+     * StartAbility by insight intent, send want to ability manager service.
+     *
+     * @param want Ability want.
+     * @param callerToken caller ability token.
+     * @param intentId insight intent id.
+     * @param userId userId of target ability.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t StartAbilityByInsightIntent(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        uint64_t intentId,
+        int32_t userId = DEFAULT_INVAL_VALUE) override;
+
+    /**
      * Starts a new ability with specific start settings.
      *
      * @param want Indicates the ability to start.
@@ -158,7 +173,8 @@ public:
      * Starts a new ability using the original caller information.
      *
      * @param want the want of the ability to start.
-     * @param callerToken caller ability token.
+     * @param callerToken current caller ability token.
+     * @param asCallerSoureToken source caller ability token
      * @param userId Designation User ID.
      * @param requestCode the resultCode of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
@@ -166,6 +182,7 @@ public:
     virtual int StartAbilityAsCaller(
             const Want &want,
             const sptr<IRemoteObject> &callerToken,
+            sptr<IRemoteObject> asCallerSoureToken,
             int32_t userId = DEFAULT_INVAL_VALUE,
             int requestCode = DEFAULT_INVAL_VALUE) override;
 
@@ -174,7 +191,8 @@ public:
      *
      * @param want the want of the ability to start.
      * @param startOptions Indicates the options used to start.
-     * @param callerToken caller ability token.
+     * @param callerToken current caller ability token.
+     * @param asCallerSoureToken source caller ability token
      * @param userId Designation User ID.
      * @param requestCode the resultCode of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
@@ -183,6 +201,7 @@ public:
         const Want &want,
         const StartOptions &startOptions,
         const sptr<IRemoteObject> &callerToken,
+        sptr<IRemoteObject> asCallerSoureToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE) override;
 
@@ -190,7 +209,7 @@ public:
      * Start ui session ability with extension session info, send session info to ability manager service.
      *
      * @param want, the want of the ability to start.
-     * @param callerToken, caller ability token.
+     * @param callerToken caller ability token.
      * @param sessionInfo the information of UIExtensionContentSession.
      * @param userId, Designation User ID.
      * @param requestCode, Ability request code.
@@ -809,6 +828,9 @@ public:
     void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag);
     void OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want);
 
+    void OnStartSpecifiedProcessResponse(const AAFwk::Want &want, const std::string &flag);
+    void OnStartSpecifiedProcessTimeoutResponse(const AAFwk::Want &want);
+
     virtual int GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info) override;
     virtual int GetExtensionRunningInfos(int upperLimit, std::vector<ExtensionRunningInfo> &info) override;
     virtual int GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info) override;
@@ -849,6 +871,8 @@ public:
     virtual int StartUser(int userId) override;
 
     virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override;
+
+    virtual int LogoutUser(int32_t userId) override;
 
     /**
      * Called when client complete dump.
@@ -1018,7 +1042,7 @@ public:
 
     virtual AppExecFwk::ElementName GetTopAbility(bool isNeedLocalDeviceId = true) override;
 
-    virtual AppExecFwk::ElementName GetElementNameByToken(const sptr<IRemoteObject> &token,
+    virtual AppExecFwk::ElementName GetElementNameByToken(sptr<IRemoteObject> token,
         bool isNeedLocalDeviceId = true) override;
 
     /**
@@ -1307,7 +1331,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t RegisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener) override;
-	    
+
     /**
      * @brief Unregister app debug listener.
      * @param listener App debug listener.
@@ -1330,11 +1354,45 @@ public:
     int32_t DetachAppDebug(const std::string &bundleName) override;
 
     /**
+     * @brief Execute intent.
+     * @param key The key of intent executing client.
+     * @param callerToken Caller ability token.
+     * @param param The Intent execute param.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t ExecuteIntent(uint64_t key, const sptr<IRemoteObject> &callerToken,
+        const InsightIntentExecuteParam &param) override;
+
+    int32_t StartAbilityWithInsightIntent(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE);
+
+    /**
      * @brief Check if ability controller can start.
      * @param want The want of ability to start.
      * @return Return true to allow ability to start, or false to reject.
      */
     virtual bool IsAbilityControllerStart(const Want &want) override;
+
+    void HandleProcessFrozen(const std::vector<int32_t> &pidList, int32_t uid);
+
+    /**
+     * @brief Called when insight intent execute finished.
+     *
+     * @param token ability's token.
+     * @param intentId insight intent id.
+     * @param result insight intent execute result.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t ExecuteInsightIntentDone(const sptr<IRemoteObject> &token, uint64_t intentId,
+        const InsightIntentExecuteResult &result) override;	
+
+    /**
+     * @brief Open file by uri.
+     * @param uri The file uri.
+     * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
+     * @return int The file descriptor.
+     */
+    virtual int32_t OpenFile(const Uri& uri, uint32_t flag) override;
 
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
@@ -1398,6 +1456,8 @@ protected:
 
     void OnAppStateChanged(const AppInfo &info) override;
 
+    void NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId) override;
+
 private:
     int TerminateAbilityWithFlag(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
         const Want *resultWant = nullptr, bool flag = true);
@@ -1452,7 +1512,9 @@ private:
     int ConnectRemoteAbility(Want &want, const sptr<IRemoteObject> &callerToken, const sptr<IRemoteObject> &connect);
     int DisconnectRemoteAbility(const sptr<IRemoteObject> &connect);
     int PreLoadAppDataAbilities(const std::string &bundleName, const int32_t userId);
+    void UpdateAsCallerSourceInfo(Want& want, sptr<IRemoteObject> asCallerSourceToken);
     void UpdateCallerInfo(Want& want, const sptr<IRemoteObject> &callerToken);
+    void UpdateCallerInfoFromToken(Want& want, const sptr<IRemoteObject> &token);
     int StartAbilityPublicPrechainCheck(StartAbilityParams &params);
     int StartAbilityPrechainInterceptor(StartAbilityParams &params);
     bool StartAbilityInChain(StartAbilityParams &params, int &result);
@@ -1548,7 +1610,8 @@ private:
 
     void StartResidentApps();
 
-    void StartAutoStartupApps();
+    void StartAutoStartupAppsInner();
+    void RetryStartAutoStartupApps(const std::vector<AutoStartupInfo> &infoList, int32_t retryCount);
 
     int VerifyAccountPermission(int32_t userId);
 
@@ -1580,6 +1643,7 @@ private:
     void ReportAbilitStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo);
 
     void ReportEventToSuspendManager(const AppExecFwk::AbilityInfo &abilityInfo);
+    void ResiterSuspendObserver();
 
     void ReportAppRecoverResult(const int32_t appId, const AppExecFwk::ApplicationInfo &appInfo,
         const std::string& abilityName, const std::string& result);
@@ -1738,6 +1802,15 @@ private:
     void StopSwitchUserDialogInner(const Want &want, const int32_t stopUserId);
 
     void SetPickerElementName(const sptr<SessionInfo> &extensionSessionInfo);
+    
+    /**
+     * @brief Start extension ability with insight intent
+     * @param want, the want of the ability to start.
+     * @param extensionType If an ExtensionAbilityType is set, only extension of that type can be started.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t StartExtensionAbilityWithInsightIntent(const Want &want,
+        AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
@@ -1818,9 +1891,8 @@ private:
     sptr<IWindowManagerServiceHandler> wmsHandler_;
 #endif
     std::shared_ptr<AbilityInterceptorExecuter> interceptorExecuter_;
-#ifdef SUPPORT_ERMS
     std::shared_ptr<AbilityInterceptorExecuter> afterCheckExecuter_;
-#endif
+
     std::unordered_map<int32_t, int64_t> appRecoveryHistory_; // uid:time
     bool isPrepareTerminateEnable_ = false;
     std::multimap<int, std::shared_ptr<StartAbilityHandler>, std::greater<int>> startAbilityChain_;

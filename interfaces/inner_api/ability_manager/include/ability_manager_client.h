@@ -108,7 +108,7 @@ public:
      * @param isNeedLocalDeviceId is need local device id.
      * @return Returns front desk focus ability elementName by token.
      */
-    AppExecFwk::ElementName GetElementNameByToken(const sptr<IRemoteObject> &token, bool isNeedLocalDeviceId = true);
+    AppExecFwk::ElementName GetElementNameByToken(sptr<IRemoteObject> token, bool isNeedLocalDeviceId = true);
 
     /**
      * StartAbility with want, send want to ability manager service.
@@ -132,6 +132,21 @@ public:
         const Want &want,
         const sptr<IRemoteObject> &callerToken,
         int requestCode = DEFAULT_INVAL_VALUE,
+        int32_t userId = DEFAULT_INVAL_VALUE);
+
+    /**
+     * StartAbility by insight intent, send want to ability manager service.
+     *
+     * @param want Ability want.
+     * @param callerToken caller ability token.
+     * @param intentId insight intent id.
+     * @param userId userId of target ability.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartAbilityByInsightIntent(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        uint64_t intentId,
         int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**
@@ -169,13 +184,16 @@ public:
      * Starts a new ability using the original caller information.
      *
      * @param want Ability want.
-     * @param callerToken caller ability token.
+     * @param callerToken current caller ability token.
+     * @param asCallerSourceToken source caller ability token.
      * @param requestCode Ability request code.
+     * @param userId Ability userId
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode StartAbilityAsCaller(
             const Want &want,
             const sptr<IRemoteObject> &callerToken,
+            sptr<IRemoteObject> asCallerSourceToken,
             int requestCode = DEFAULT_INVAL_VALUE,
             int32_t userId = DEFAULT_INVAL_VALUE);
 
@@ -183,15 +201,18 @@ public:
      * Starts a new ability using the original caller information.
      *
      * @param want Indicates the ability to start.
-     * @param startOptions Indicates the options used to start.
+     * @param startOptions current Indicates the options used to start.
      * @param callerToken caller ability token.
+     * @param asCallerSourceToken source caller ability token.
      * @param requestCode the resultCode of the ability to start.
+     * @param userId Ability userId
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode StartAbilityAsCaller(
             const Want &want,
             const StartOptions &startOptions,
             const sptr<IRemoteObject> &callerToken,
+            sptr<IRemoteObject> asCallerSourceToken,
             int requestCode = DEFAULT_INVAL_VALUE,
             int32_t userId = DEFAULT_INVAL_VALUE);
 
@@ -824,6 +845,14 @@ public:
     ErrCode StopUser(int accountId, const sptr<IStopUserCallback> &callback);
 
     /**
+     * @brief logout user.
+     * @param accountId accountId.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode LogoutUser(int32_t accountId);
+
+    /**
      * @brief Register the snapshot handler
      * @param handler snapshot handler
      * @return ErrCode Returns ERR_OK on success, others on failure.
@@ -1294,6 +1323,35 @@ public:
      * @return Return true to allow ability to start, or false to reject.
      */
     bool IsAbilityControllerStart(const Want &want);
+
+    /**
+     * @brief Open file by uri.
+     * @param uri The file uri.
+     * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
+     * @return int The file descriptor.
+     */
+    int32_t OpenFile(const Uri& uri, uint32_t flag);
+
+    /**
+     * @brief Execute intent.
+     * @param key The key of intent executing client.
+     * @param callerToken Caller ability token.
+     * @param param The Intent execute param.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode ExecuteIntent(uint64_t key, const sptr<IRemoteObject> &callerToken,
+        const InsightIntentExecuteParam &param);
+
+    /**
+     * @brief Called when insight intent execute finished.
+     *
+     * @param token ability's token.
+     * @param intentId insight intent id.
+     * @param result insight intent execute result.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode ExecuteInsightIntentDone(const sptr<IRemoteObject> &token, uint64_t intentId,
+        const InsightIntentExecuteResult &result);
 
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {

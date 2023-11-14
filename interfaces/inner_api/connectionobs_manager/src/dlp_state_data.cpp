@@ -54,6 +54,7 @@ bool DlpStateData::Marshalling(Parcel &parcel) const
         return false;
     }
 
+    HILOG_DEBUG("end");
     return true;
 }
 

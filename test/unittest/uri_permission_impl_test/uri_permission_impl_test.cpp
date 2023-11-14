@@ -19,6 +19,7 @@
 #include "mock_native_token.h"
 #include "system_ability_definition.h"
 #include "system_ability_manager_client.h"
+#include "tokenid_kit.h"
 #define private public
 #include "uri_permission_manager_stub_impl.h"
 #undef private
@@ -61,8 +62,7 @@ HWTEST_F(UriPermissionImplTest, Upms_GrantUriPermission_001, TestSize.Level1)
     Uri uri(uriStr);
     unsigned int flag = 0;
     std::string targetBundleName = "name2";
-    int autoremove = 1;
-    upms->GrantUriPermission(uri, flag, targetBundleName, autoremove);
+    upms->GrantUriPermission(uri, flag, targetBundleName);
 }
 
 /*
@@ -79,8 +79,7 @@ HWTEST_F(UriPermissionImplTest, Upms_GrantUriPermission_002, TestSize.Level1)
     Uri uri(uriStr);
     unsigned int flag = 1;
     std::string targetBundleName = "name2";
-    int autoremove = 1;
-    upms->GrantUriPermission(uri, flag, targetBundleName, autoremove);
+    upms->GrantUriPermission(uri, flag, targetBundleName);
 }
 
 /*
@@ -98,8 +97,7 @@ HWTEST_F(UriPermissionImplTest, Upms_GrantUriPermission_003, TestSize.Level1)
     unsigned int flag = 2;
     MockSystemAbilityManager::isNullptr = false;
     std::string targetBundleName = "name2";
-    int autoremove = 1;
-    upms->GrantUriPermission(uri, flag, targetBundleName, autoremove);
+    upms->GrantUriPermission(uri, flag, targetBundleName);
     MockSystemAbilityManager::isNullptr = true;
 }
 
@@ -117,10 +115,9 @@ HWTEST_F(UriPermissionImplTest, Upms_GrantUriPermission_004, TestSize.Level1)
     Uri uri(uriStr);
     unsigned int flag = 2;
     std::string targetBundleName = "name2";
-    int autoremove = 1;
     MockSystemAbilityManager::isNullptr = false;
     StorageManager::StorageManagerServiceMock::isZero = false;
-    upms->GrantUriPermission(uri, flag, targetBundleName, autoremove);
+    upms->GrantUriPermission(uri, flag, targetBundleName);
     MockSystemAbilityManager::isNullptr = true;
     StorageManager::StorageManagerServiceMock::isZero = true;
 }
@@ -146,7 +143,7 @@ HWTEST_F(UriPermissionImplTest, Upms_GrantUriPermission_005, TestSize.Level1)
     upms->uriMap_.emplace(uriStr, infoList);
     Uri uri(uriStr);
     MockSystemAbilityManager::isNullptr = false;
-    upms->GrantUriPermission(uri, tmpFlag, targetBundleName, autoremove);
+    upms->GrantUriPermission(uri, tmpFlag, targetBundleName);
     MockSystemAbilityManager::isNullptr = true;
 }
 
@@ -172,7 +169,7 @@ HWTEST_F(UriPermissionImplTest, Upms_GrantUriPermission_006, TestSize.Level1)
     Uri uri(uriStr);
     MockSystemAbilityManager::isNullptr = false;
     unsigned int flag = 2;
-    upms->GrantUriPermission(uri, flag, targetBundleName, autoremove);
+    upms->GrantUriPermission(uri, flag, targetBundleName);
     MockSystemAbilityManager::isNullptr = true;
 }
 
@@ -198,7 +195,7 @@ HWTEST_F(UriPermissionImplTest, Upms_GrantUriPermission_007, TestSize.Level1)
     Uri uri(uriStr);
     MockSystemAbilityManager::isNullptr = false;
     unsigned int flag = 2;
-    upms->GrantUriPermission(uri, flag, targetBundleName, autoremove);
+    upms->GrantUriPermission(uri, flag, targetBundleName);
     MockSystemAbilityManager::isNullptr = true;
 }
 
@@ -275,6 +272,23 @@ HWTEST_F(UriPermissionImplTest, Upms_ConnectManager_002, TestSize.Level1)
     upms->ConnectManager(storageManager, STORAGE_MANAGER_MANAGER_ID);
     MockSystemAbilityManager::isNullptr = false;
     ASSERT_EQ(storageManager, nullptr);
+}
+
+/*
+ * Feature: URIPermissionManagerService
+ * Function: ConnectManager
+ * SubFunction: NA
+ * FunctionPoints: URIPermissionManagerService SendEvent
+ */
+HWTEST_F(UriPermissionImplTest, Upms_SendEvent_001, TestSize.Level1)
+{
+    auto upms = std::make_unique<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
+    Uri uri("test");
+    std::string targetBundleName = "bundleName";
+    uint32_t targetTokenId = 0;
+    std::vector<std::string> uriVec;
+    upms->SendEvent(uri, targetBundleName, targetTokenId, uriVec);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

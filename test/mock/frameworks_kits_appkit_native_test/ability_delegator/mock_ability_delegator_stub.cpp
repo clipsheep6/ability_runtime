@@ -43,7 +43,8 @@ int MockAbilityDelegatorStub::StartAbility(const Want& want, const StartOptions&
 }
 
 int MockAbilityDelegatorStub::StartAbilityAsCaller(const Want& want, const StartOptions& startOptions,
-    const sptr<IRemoteObject>& callerToken, int requestCode, int32_t userId)
+    const sptr<IRemoteObject>& callerToken, sptr<IRemoteObject> asCallerSourceToken,
+    int requestCode, int32_t userId)
 {
     return 0;
 }
@@ -64,6 +65,11 @@ int MockAbilityDelegatorStub::StartUser(int userId)
 }
 
 int MockAbilityDelegatorStub::StopUser(int userId, const sptr<IStopUserCallback>& callback)
+{
+    return 0;
+}
+
+int MockAbilityDelegatorStub::LogoutUser(int32_t userId)
 {
     return 0;
 }
@@ -240,7 +246,8 @@ int MockAbilityDelegatorStub2::StartAbility(const Want& want, const StartOptions
 }
 
 int MockAbilityDelegatorStub2::StartAbilityAsCaller(const Want& want, const StartOptions& startOptions,
-    const sptr<IRemoteObject>& callerToken, int requestCode, int32_t userId)
+    const sptr<IRemoteObject>& callerToken, sptr<IRemoteObject> asCallerSourceToken,
+    int requestCode, int32_t userId)
 {
     return 0;
 }
@@ -271,6 +278,11 @@ int MockAbilityDelegatorStub2::StartUser(int userId)
 }
 
 int MockAbilityDelegatorStub2::StopUser(int userId, const sptr<IStopUserCallback>& callback)
+{
+    return 0;
+}
+
+int MockAbilityDelegatorStub2::LogoutUser(int32_t userId)
 {
     return 0;
 }

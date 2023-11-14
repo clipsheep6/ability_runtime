@@ -36,6 +36,8 @@ napi_value CreateJsAppStateData(napi_env env, const AppStateData &appStateData)
     napi_set_named_property(env, object, "bundleName", CreateJsValue(env, appStateData.bundleName));
     napi_set_named_property(env, object, "uid", CreateJsValue(env, appStateData.uid));
     napi_set_named_property(env, object, "state", CreateJsValue(env, appStateData.state));
+    napi_set_named_property(env, object, "isSplitScreenMode", CreateJsValue(env, appStateData.isSplitScreenMode));
+    napi_set_named_property(env, object, "isFloatingWindowMode", CreateJsValue(env, appStateData.isFloatingWindowMode));
     HILOG_DEBUG("end.");
     return object;
 }
@@ -120,7 +122,7 @@ napi_value CreateJsRunningProcessInfo(napi_env env, const RunningProcessInfo &in
 
 napi_value ApplicationStateInit(napi_env env)
 {
-    HILOG_DEBUG("enter");
+    HILOG_DEBUG("ApplicationStateInit enter");
 
     if (env == nullptr) {
         HILOG_ERROR("Invalid input parameters");
@@ -130,7 +132,7 @@ napi_value ApplicationStateInit(napi_env env)
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {
-        HILOG_ERROR("Failed to get object");
+        HILOG_ERROR("Wrong to get object");
         return nullptr;
     }
 
@@ -150,10 +152,10 @@ napi_value ApplicationStateInit(napi_env env)
 
 napi_value ProcessStateInit(napi_env env)
 {
-    HILOG_DEBUG("enter");
+    HILOG_DEBUG("ProcessStateInit enter");
 
     if (env == nullptr) {
-        HILOG_ERROR("Invalid input parameters");
+        HILOG_ERROR("Invalid input arguments");
         return nullptr;
     }
 

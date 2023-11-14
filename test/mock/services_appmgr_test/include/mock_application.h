@@ -41,6 +41,7 @@ public:
     MOCK_METHOD1(ScheduleAbilityStage, void(const HapModuleInfo&));
     MOCK_METHOD1(ScheduleUpdateApplicationInfoInstalled, void(const ApplicationInfo&));
     MOCK_METHOD2(ScheduleAcceptWant, void(const AAFwk::Want& want, const std::string& moduleName));
+    MOCK_METHOD2(ScheduleNewProcessRequest, void(const AAFwk::Want& want, const std::string& moduleName));
     MOCK_METHOD3(ScheduleNotifyLoadRepairPatch, int32_t(const std::string& bundleName,
         const sptr<IQuickFixCallback>& callback, const int32_t recordId));
     MOCK_METHOD2(ScheduleNotifyHotReloadPage, int32_t(const sptr<IQuickFixCallback>& callback, const int32_t recordId));

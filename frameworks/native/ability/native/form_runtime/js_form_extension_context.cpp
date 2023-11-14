@@ -344,7 +344,7 @@ napi_value CreateJsFormExtensionContext(napi_env env, std::shared_ptr<FormExtens
     BindNativeFunction(env, object, "disconnectServiceExtensionAbility",
         moduleName, JsFormExtensionContext::DisconnectAbility);
 
-    HILOG_DEBUG("Create finished.");
+    HILOG_DEBUG("Create end.");
     return object;
 }
 

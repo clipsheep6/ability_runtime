@@ -458,6 +458,58 @@ int AppMgrProxy::UnregisterApplicationStateObserver(
     return reply.ReadInt32();
 }
 
+int32_t AppMgrProxy::RegisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer)
+{
+    HILOG_DEBUG("Called.");
+    if (observer == nullptr) {
+        HILOG_ERROR("Observer is null.");
+        return ERR_INVALID_VALUE;
+    }
+
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteRemoteObject(observer->AsObject())) {
+        HILOG_ERROR("Observer write failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    MessageParcel reply;
+    MessageOption option;
+    auto error = SendRequest(AppMgrInterfaceCode::REGISTER_ABILITY_FOREGROUND_STATE_OBSERVER, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t AppMgrProxy::UnregisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer)
+{
+    HILOG_DEBUG("Called.");
+    if (observer == nullptr) {
+        HILOG_ERROR("Observer is null.");
+        return ERR_INVALID_VALUE;
+    }
+
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteRemoteObject(observer->AsObject())) {
+        HILOG_ERROR("Observer write failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    MessageParcel reply;
+    MessageOption option;
+    auto error = SendRequest(AppMgrInterfaceCode::UNREGISTER_ABILITY_FOREGROUND_STATE_OBSERVER, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d.", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 int AppMgrProxy::GetForegroundApplications(std::vector<AppStateData> &list)
 {
     MessageParcel data;
@@ -566,6 +618,27 @@ void AppMgrProxy::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Wa
     }
 
     if (!SendTransactCmd(AppMgrInterfaceCode::SCHEDULE_ACCEPT_WANT_DONE, data, reply)) {
+        HILOG_ERROR("SendTransactCmd failed");
+        return;
+    }
+}
+
+void AppMgrProxy::ScheduleNewProcessRequestDone(const int32_t recordId, const AAFwk::Want &want,
+    const std::string &flag)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        return;
+    }
+
+    if (!data.WriteInt32(recordId) || !data.WriteParcelable(&want) || !data.WriteString(flag)) {
+        HILOG_ERROR("want write failed.");
+        return;
+    }
+
+    if (!SendTransactCmd(AppMgrInterfaceCode::SCHEDULE_NEW_PROCESS_REQUEST_DONE, data, reply)) {
         HILOG_ERROR("SendTransactCmd failed");
         return;
     }
@@ -1255,7 +1328,7 @@ int32_t AppMgrProxy::NotifyPageShow(const sptr<IRemoteObject> &token, const Page
 
 int32_t AppMgrProxy::NotifyPageHide(const sptr<IRemoteObject> &token, const PageStateData &pageStateData)
 {
-    HILOG_DEBUG("call");
+    HILOG_DEBUG("called");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
@@ -1286,6 +1359,7 @@ int32_t AppMgrProxy::NotifyPageHide(const sptr<IRemoteObject> &token, const Page
 int32_t AppMgrProxy::SendRequest(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply,
     MessageOption& option)
 {
+    HILOG_DEBUG("AppMgrProxy::SendRequest start");
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         HILOG_ERROR("Remote() is NULL");
@@ -1293,6 +1367,105 @@ int32_t AppMgrProxy::SendRequest(AppMgrInterfaceCode code, MessageParcel &data, 
     }
 
     return remote->SendRequest(static_cast<uint32_t>(code), data, reply, option);
+}
+
+int32_t AppMgrProxy::RegisterAppRunningStatusListener(const sptr<IRemoteObject> &listener)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (listener == nullptr || !data.WriteRemoteObject(listener)) {
+        HILOG_ERROR("Write listener failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto error = SendRequest(AppMgrInterfaceCode::REGISTER_APP_RUNNING_STATUS_LISTENER, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t AppMgrProxy::UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (listener == nullptr || !data.WriteRemoteObject(listener)) {
+        HILOG_ERROR("Write listener failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto error = SendRequest(AppMgrInterfaceCode::UNREGISTER_APP_RUNNING_STATUS_LISTENER, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t AppMgrProxy::RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (observer == nullptr || !data.WriteRemoteObject(observer->AsObject())) {
+        HILOG_ERROR("Observer is null or Write Remote failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    MessageParcel reply;
+    MessageOption option;
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+    auto error = remote->SendRequest(
+        static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_APP_FOREGROUND_STATE_OBSERVER), data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d.", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t AppMgrProxy::UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (observer == nullptr || !data.WriteRemoteObject(observer->AsObject())) {
+        HILOG_ERROR("Observer is null or Write Remote failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+    auto error = remote->SendRequest(
+        static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_APP_FOREGROUND_STATE_OBSERVER), data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

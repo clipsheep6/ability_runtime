@@ -159,6 +159,7 @@ private:
     int ReleaseCallInner(MessageParcel &data, MessageParcel &reply);
     int StartUserInner(MessageParcel &data, MessageParcel &reply);
     int StopUserInner(MessageParcel &data, MessageParcel &reply);
+    int LogoutUserInner(MessageParcel &data, MessageParcel &reply);
     int GetAbilityRunningInfosInner(MessageParcel &data, MessageParcel &reply);
     int GetExtensionRunningInfosInner(MessageParcel &data, MessageParcel &reply);
     int GetProcessRunningInfosInner(MessageParcel &data, MessageParcel &reply);
@@ -264,8 +265,14 @@ private:
     int32_t UnregisterAppDebugListenerInner(MessageParcel &data, MessageParcel &reply);
     int32_t AttachAppDebugInner(MessageParcel &data, MessageParcel &reply);
     int32_t DetachAppDebugInner(MessageParcel &data, MessageParcel &reply);
+    int32_t ExecuteIntentInner(MessageParcel &data, MessageParcel &reply);
 
     int32_t IsAbilityControllerStartInner(MessageParcel &data, MessageParcel &reply);
+    int32_t OpenFileInner(MessageParcel &data, MessageParcel &reply);
+
+    //insight intent related
+    int32_t StartAbilityByInsightIntentInner(MessageParcel &data, MessageParcel &reply);
+    int32_t ExecuteInsightIntentDoneInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -34,6 +34,8 @@
 #include "iability_manager_collaborator.h"
 #include "iacquire_share_data_callback_interface.h"
 #include "icomponent_interception.h"
+#include "insight_intent_execute_param.h"
+#include "insight_intent_execute_result.h"
 #include "iprepare_terminate_callback_interface.h"
 #include "mission_info.h"
 #include "mission_listener_interface.h"
@@ -59,6 +61,8 @@
 namespace OHOS {
 namespace AAFwk {
 using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
+using InsightIntentExecuteParam = AppExecFwk::InsightIntentExecuteParam;
+using InsightIntentExecuteResult = AppExecFwk::InsightIntentExecuteResult;
 constexpr const char* ABILITY_MANAGER_SERVICE_NAME = "AbilityManagerService";
 const int DEFAULT_INVAL_VALUE = -1;
 const int DELAY_LOCAL_FREE_INSTALL_TIMEOUT = 40000;
@@ -101,6 +105,21 @@ public:
         int requestCode = DEFAULT_INVAL_VALUE) = 0;
 
     /**
+     * StartAbility by insight intent, send want to ability manager service.
+     *
+     * @param want Ability want.
+     * @param callerToken caller ability token.
+     * @param intentId insight intent id.
+     * @param userId userId of target ability.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t StartAbilityByInsightIntent(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        uint64_t intentId,
+        int32_t userId = DEFAULT_INVAL_VALUE) = 0;
+
+    /**
      * Starts a new ability with specific start settings.
      *
      * @param want Indicates the ability to start.
@@ -138,6 +157,7 @@ public:
      *
      * @param want the want of the ability to start.
      * @param callerToken caller ability token.
+     * @param asCallerSourceToken source caller ability token.
      * @param userId Designation User ID.
      * @param requestCode the resultCode of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
@@ -145,6 +165,7 @@ public:
     virtual int StartAbilityAsCaller(
         const Want &want,
         const sptr<IRemoteObject> &callerToken,
+        sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE)
     {
@@ -157,6 +178,7 @@ public:
      * @param want the want of the ability to start.
      * @param startOptions Indicates the options used to start.
      * @param callerToken caller ability token.
+     * @param asCallerSourceToken source caller ability token.
      * @param userId Designation User ID.
      * @param requestCode the resultCode of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
@@ -165,6 +187,7 @@ public:
         const Want &want,
         const StartOptions &startOptions,
         const sptr<IRemoteObject> &callerToken,
+        sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE)
     {
@@ -289,7 +312,7 @@ public:
         return {};
     }
 
-    virtual AppExecFwk::ElementName GetElementNameByToken(const sptr<IRemoteObject> &token,
+    virtual AppExecFwk::ElementName GetElementNameByToken(sptr<IRemoteObject> token,
         bool isNeedLocalDeviceId = true)
     {
         return {};
@@ -490,10 +513,10 @@ public:
     virtual int AttachAbilityThread(const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &token) = 0;
 
     /**
-     * AbilityTransitionDone, ability call this interface after lift cycle was changed.
+     * AbilityTransitionDone, ability call this interface after life cycle was changed.
      *
      * @param token,.ability's token.
-     * @param state,.the state of ability lift cycle.
+     * @param state,.the state of ability life cycle.
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int AbilityTransitionDone(const sptr<IRemoteObject> &token, int state, const PacMap &saveData) = 0;
@@ -704,6 +727,11 @@ public:
     virtual int StartUser(int userId) = 0;
 
     virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) = 0;
+
+    virtual int LogoutUser(int32_t userId)
+    {
+        return 0;
+    }
 
     virtual int SetMissionContinueState(const sptr<IRemoteObject> &token, const AAFwk::ContinueState &state)
     {
@@ -1282,6 +1310,16 @@ public:
     virtual int32_t DetachAppDebug(const std::string &bundleName) = 0;
 
     /**
+     * @brief Execute intent.
+     * @param key The key of intent executing client.
+     * @param callerToken Caller ability token.
+     * @param param The Intent execute param.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t ExecuteIntent(uint64_t key, const sptr<IRemoteObject> &callerToken,
+        const InsightIntentExecuteParam &param) = 0;
+
+    /**
      * @brief Check if ability controller can start.
      * @param want The want of ability to start.
      * @return Return true to allow ability to start, or false to reject.
@@ -1289,6 +1327,28 @@ public:
     virtual bool IsAbilityControllerStart(const Want &want)
     {
         return true;
+    }
+
+    /**
+     * @brief Called when insight intent execute finished.
+     *
+     * @param token ability's token.
+     * @param intentId insight intent id.
+     * @param result insight intent execute result.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t ExecuteInsightIntentDone(const sptr<IRemoteObject> &token, uint64_t intentId,
+        const InsightIntentExecuteResult &result) = 0;
+
+    /**
+     * @brief Open file by uri.
+     * @param uri The file uri.
+     * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
+     * @return int The file descriptor.
+     */
+    virtual int32_t OpenFile(const Uri& uri, uint32_t flag)
+    {
+        return 0;
     }
 };
 }  // namespace AAFwk

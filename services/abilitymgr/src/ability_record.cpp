@@ -91,6 +91,7 @@ const int LOAD_TIMEOUT_ASANENABLED = 150;
 const int TERMINATE_TIMEOUT_ASANENABLED = 150;
 const int HALF_TIMEOUT = 2;
 const int MAX_URI_COUNT = 500;
+const int32_t BROKER_UID = 5557;
 #ifdef SUPPORT_ASAN
 const int COLDSTART_TIMEOUT_MULTIPLE = 15000;
 const int LOAD_TIMEOUT_MULTIPLE = 15000;
@@ -210,10 +211,12 @@ AbilityRecord::AbilityRecord(const Want &want, const AppExecFwk::AbilityInfo &ab
         bool isRootLauncher = (applicationInfo_.bundleName == LAUNCHER_BUNDLE_NAME);
         restartMax_ = AmsConfigurationParameter::GetInstance().GetMaxRestartNum(isRootLauncher);
         bool flag = abilityMgr->GetStartUpNewRuleFlag();
+        std::lock_guard<ffrt::mutex> guard(wantLock_);
         want_.SetParam(COMPONENT_STARTUP_NEW_RULES, flag);
     }
     restartCount_ = restartMax_;
     appIndex_ = want.GetIntParam(DLP_INDEX, 0);
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     isAppAutoStartup_ = want_.GetBoolParam(Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON, false);
     if (want_.HasParameter(Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON)) {
         want_.RemoveParam(Want::PARAM_APP_AUTO_STARTUP_LAUNCH_REASON);
@@ -301,6 +304,7 @@ int AbilityRecord::LoadAbility()
         } else {
             int coldStartTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * COLDSTART_TIMEOUT_MULTIPLE;
+            std::lock_guard<ffrt::mutex> guard(wantLock_);
             auto delayTime = want_.GetBoolParam("coldStart", false) ? coldStartTimeout : loadTimeout;
             SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, delayTime / HALF_TIMEOUT);
         }
@@ -330,6 +334,7 @@ int AbilityRecord::LoadAbility()
             callerToken_ = caller->GetToken();
         }
     }
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     want_.SetParam(ABILITY_OWNER_USERID, ownerMissionUserId_);
     want_.SetParam("ohos.ability.launch.reason", static_cast<int>(lifeCycleStateInfo_.launchParam.launchReason));
     auto result = DelayedSingleton<AppScheduler>::GetInstance()->LoadAbility(
@@ -390,14 +395,15 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
     }
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
-    // earlier than above actions.
+    // earlier than above actions
     SetAbilityStateInner(AbilityState::FOREGROUNDING);
     lifeCycleStateInfo_.sceneFlag = sceneFlag;
     lifecycleDeal_->ForegroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
     lifeCycleStateInfo_.sceneFlag = 0;
     lifeCycleStateInfo_.sceneFlagBak = 0;
+    InsightIntentExecuteParam::RemoveInsightIntent(want_);
 
-    // update ability state to appMgr service when restart
+    // update ability state to appMgr service when restart.
     if (IsNewWant()) {
         sptr<Token> preToken = nullptr;
         if (GetPreAbilityRecord()) {
@@ -417,6 +423,7 @@ void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
 
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (handler && task) {
+        std::lock_guard<ffrt::mutex> guard(wantLock_);
         if (!want_.GetBoolParam(DEBUG_APP, false) && !want_.GetBoolParam(NATIVE_DEBUG, false) && !isAttachDebug_) {
             int foregroundTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
@@ -433,6 +440,7 @@ void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
     lifecycleDeal_->ForegroundNew(want_, lifeCycleStateInfo_, sessionInfo_);
     lifeCycleStateInfo_.sceneFlag = 0;
     lifeCycleStateInfo_.sceneFlagBak = 0;
+    InsightIntentExecuteParam::RemoveInsightIntent(want_);
 
     // update ability state to appMgr service when restart
     if (IsNewWant()) {
@@ -646,7 +654,7 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
         }
         auto taskName = std::to_string(missionId_) + "_hot";
         handler->CancelTask(taskName);
-        
+
         if (isWindowStarted_) {
             StartingWindowTask(isRecent, false, abilityRequest, startOptions);
             AnimationTask(isRecent, abilityRequest, startOptions, callerAbility);
@@ -1127,7 +1135,7 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
         HILOG_ERROR("Move the ability to background fail, lifecycleDeal_ is null.");
         return;
     }
-    
+
     if (!IsDebug()) {
         auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
         if (handler && task) {
@@ -1596,7 +1604,7 @@ void AbilityRecord::SendSandboxSavefileResult(const Want &want, int resultCode, 
             }
             Uri uri(uriStr);
             auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(uri,
-                Want::FLAG_AUTH_WRITE_URI_PERMISSION, abilityInfo_.bundleName, 0, appIndex_));
+                Want::FLAG_AUTH_WRITE_URI_PERMISSION, abilityInfo_.bundleName, appIndex_));
             if (ret != ERR_OK) {
                 HILOG_WARN("GrantUriPermission failed");
             }
@@ -2248,6 +2256,7 @@ void AbilityRecord::SendEvent(uint32_t msg, uint32_t timeOut, int32_t param)
 
 bool AbilityRecord::IsDebug() const
 {
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     if (want_.GetBoolParam(DEBUG_APP, false) || want_.GetBoolParam(NATIVE_DEBUG, false) ||
         !want_.GetStringParam(PERF_CMD).empty() || isAttachDebug_) {
         HILOG_INFO("Is debug mode, no need to handle time out.");
@@ -2305,6 +2314,11 @@ bool AbilityRecord::IsRestarting() const
 void AbilityRecord::SetKeepAlive()
 {
     isKeepAlive_ = true;
+}
+
+bool AbilityRecord::GetKeepAlive() const
+{
+    return isKeepAlive_;
 }
 
 int64_t AbilityRecord::GetRestartTime()
@@ -2365,6 +2379,7 @@ void AbilityRecord::SetMission(const std::shared_ptr<Mission> &mission)
         missionId_ = mission->GetMissionId();
         HILOG_DEBUG("SetMission come, missionId is %{public}d.", missionId_);
     }
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     want_.RemoveParam(KEY_MISSION_ID);
     want_.SetParam(KEY_MISSION_ID, missionId_);
     mission_ = mission;
@@ -2638,6 +2653,10 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         HILOG_ERROR("Sandbox can not grant uriPermission by terminate self with result.");
         return;
     }
+    if (targetBundleName == SHELL_ASSISTANT_BUNDLENAME && collaboratorType_ == CollaboratorType::OTHERS_TYPE) {
+        HILOG_DEBUG("reject shell application to grant uri permission");
+        return;
+    }
 
     if ((want.GetFlags() & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
         HILOG_WARN("Do not call uriPermissionMgr.");
@@ -2645,7 +2664,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
     }
     auto bms = AbilityUtil::GetBundleManager();
     CHECK_POINTER_IS_NULLPTR(bms);
-    if (IsDmsCall()) {
+    if (IsDmsCall(want)) {
         GrantDmsUriPermission(want, targetBundleName);
         return;
     }
@@ -2663,6 +2682,14 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         HILOG_ERROR("size of uriVec is more than %{public}i", MAX_URI_COUNT);
         return;
     }
+
+    auto callerPkg = want.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+    if (callerPkg == SHELL_ASSISTANT_BUNDLENAME
+        && GrantPermissionToShell(uriVec, want.GetFlags(), targetBundleName)) {
+        HILOG_INFO("permission to shell");
+        return;
+    }
+
     auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
     uint32_t fromTokenId = 0;
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
@@ -2697,7 +2724,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
                 continue;
             }
         }
-        
+
         if (authorityFlag && isGrantPersistableUriPermissionEnable_ && !permission) {
             if (!AAFwk::UriPermissionManagerClient::GetInstance().CheckPersistableUriPermissionProxy(
                 uri, flag, fromTokenId)) {
@@ -2728,20 +2755,43 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         }
         uriVecMap[flag].emplace_back(uri);
     }
-    int autoremove = 1;
     for (const auto &item : uriVecMap) {
         auto ret = IN_PROCESS_CALL(
             AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(item.second, item.first,
-                targetBundleName, autoremove, appIndex_));
+                targetBundleName, appIndex_));
         if (ret == ERR_OK) {
             isGrantedUriPermission_ = true;
         }
     }
 }
 
-bool AbilityRecord::IsDmsCall()
+bool AbilityRecord::GrantPermissionToShell(const std::vector<std::string> &strUriVec, uint32_t flag,
+    std::string targetPkg)
 {
-    auto fromTokenId = IPCSkeleton::GetCallingTokenID();
+    std::vector<Uri> uriVec;
+    for (auto&& str : strUriVec) {
+        Uri uri(str);
+        auto&& scheme = uri.GetScheme();
+        if (scheme != "content") {
+            return false;
+        } else {
+            uriVec.emplace_back(uri);
+        }
+    }
+
+    for (auto&& uri : uriVec) {
+        auto ret = IN_PROCESS_CALL(
+            AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, flag, targetPkg, appIndex_));
+        if (ret == ERR_OK) {
+            isGrantedUriPermission_ = true;
+        }
+    }
+    return true;
+}
+
+bool AbilityRecord::IsDmsCall(Want &want)
+{
+    auto fromTokenId = static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, -1));
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(fromTokenId);
     bool isNativeCall = tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE;
     if (!isNativeCall) {
@@ -2790,10 +2840,8 @@ void AbilityRecord::GrantDmsUriPermission(Want &want, std::string targetBundleNa
             HILOG_ERROR("uri is not distributed path");
             continue;
         }
-        int autoremove = 1;
         auto ret = IN_PROCESS_CALL(
-            AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, want.GetFlags(),
-                targetBundleName, autoremove));
+            UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, want.GetFlags(), targetBundleName));
         if (ret == 0) {
             isGrantedUriPermission_ = true;
         }
@@ -2806,7 +2854,7 @@ void AbilityRecord::RevokeUriPermission()
 {
     if (isGrantedUriPermission_) {
         HILOG_DEBUG("To remove uri permission.");
-        AAFwk::UriPermissionManagerClient::GetInstance().RevokeUriPermission(applicationInfo_.accessTokenId);
+        UriPermissionManagerClient::GetInstance().RevokeUriPermission(applicationInfo_.accessTokenId);
         isGrantedUriPermission_ = false;
     }
 }
@@ -2869,11 +2917,13 @@ int32_t AbilityRecord::GetCurrentAccountId() const
 
 void AbilityRecord::SetWindowMode(int32_t windowMode)
 {
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     want_.SetParam(Want::PARAM_RESV_WINDOW_MODE, windowMode);
 }
 
 void AbilityRecord::RemoveWindowMode()
 {
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     want_.RemoveParam(Want::PARAM_RESV_WINDOW_MODE);
 }
 
@@ -2922,6 +2972,7 @@ void AbilityRecord::SetOtherMissionStackAbilityRecord(const std::shared_ptr<Abil
 void AbilityRecord::UpdateRecoveryInfo(bool hasRecoverInfo)
 {
     if (hasRecoverInfo) {
+        std::lock_guard<ffrt::mutex> guard(wantLock_);
         want_.SetParam(Want::PARAM_ABILITY_RECOVERY_RESTART, true);
         SetLaunchReason(LaunchReason::LAUNCHREASON_APP_RECOVERY);
     }
@@ -2929,6 +2980,7 @@ void AbilityRecord::UpdateRecoveryInfo(bool hasRecoverInfo)
 
 bool AbilityRecord::GetRecoveryInfo()
 {
+    std::lock_guard<ffrt::mutex> guard(wantLock_);
     return want_.GetBoolParam(Want::PARAM_ABILITY_RECOVERY_RESTART, false);
 }
 

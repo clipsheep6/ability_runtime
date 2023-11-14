@@ -105,10 +105,13 @@ public:
     MOCK_METHOD2(GetPendingRequestWant, int(const sptr<IWantSender>& target, std::shared_ptr<Want>& want));
     MOCK_METHOD5(StartAbility, int(const Want& want, const AbilityStartSetting& abilityStartSetting,
         const sptr<IRemoteObject>& callerToken, int32_t userId, int requestCode));
-    MOCK_METHOD4(StartAbilityAsCaller, int(const Want& want, const sptr<IRemoteObject>& callerToken,
+    MOCK_METHOD4(StartAbilityByInsightIntent, int32_t(const Want& want, const sptr<IRemoteObject>& callerToken,
+        uint64_t intentId, int32_t userId));
+    MOCK_METHOD5(StartAbilityAsCaller, int(const Want& want, const sptr<IRemoteObject>& callerToken,
+        sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode));
+    MOCK_METHOD6(StartAbilityAsCaller, int(const Want &want, const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken, sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId, int requestCode));
-    MOCK_METHOD5(StartAbilityAsCaller, int(const Want &want, const StartOptions &startOptions,
-        const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode));
     MOCK_METHOD1(GetPendinTerminateAbilityTestgRequestWant, void(int id));
     MOCK_METHOD3(StartContinuation, int(const Want& want, const sptr<IRemoteObject>& abilityToken, int32_t status));
     MOCK_METHOD2(NotifyContinuationResult, int(int32_t missionId, int32_t result));
@@ -162,6 +165,11 @@ public:
     }
 
     int StopUser(int userId, const sptr<IStopUserCallback>& callback) override
+    {
+        return 0;
+    }
+
+    int LogoutUser(int32_t userId) override
     {
         return 0;
     }
@@ -267,6 +275,10 @@ public:
     MOCK_METHOD1(UnregisterAppDebugListener, int32_t(const sptr<AppExecFwk::IAppDebugListener> &listener));
     MOCK_METHOD1(AttachAppDebug, int32_t(const std::string &bundleName));
     MOCK_METHOD1(DetachAppDebug, int32_t(const std::string &bundleName));
+    MOCK_METHOD3(ExecuteIntent, int32_t(uint64_t key, const sptr<IRemoteObject> &callerToken,
+        const InsightIntentExecuteParam &param));
+    MOCK_METHOD3(ExecuteInsightIntentDone, int32_t(const sptr<IRemoteObject> &token, uint64_t intentId,
+        const InsightIntentExecuteResult &result));
 
     AbilityLifeCycleState curstate_ = AbilityLifeCycleState::ABILITY_STATE_INITIAL;
     sptr<IAbilityScheduler> abilityScheduler_;  // kit interface used to schedule ability life

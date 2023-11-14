@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,7 +32,7 @@ public:
      * @param config Indicates the new Configuration object.
      * @param ability Indicates the new Ability object.
      */
-    virtual void OnConfigurationUpdated(const std::shared_ptr<Ability> &ability, const Configuration &config) = 0;
+    virtual void OnConfigurationUpdated(const std::shared_ptr<AbilityRuntime::UIAbility> &ability, const Configuration &config) = 0;
 
     /**
      *

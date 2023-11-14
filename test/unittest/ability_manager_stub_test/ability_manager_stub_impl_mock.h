@@ -34,8 +34,10 @@ public:
 
     MOCK_METHOD4(StartAbility, int(const Want& want, const sptr<IRemoteObject>& callerToken,
         int32_t userId, int requestCode));
-    MOCK_METHOD4(StartAbilityAsCaller, int(const Want &want, const sptr<IRemoteObject> &callerToken,
-            int32_t userId, int requestCode));
+    MOCK_METHOD4(StartAbilityByInsightIntent, int32_t(const Want& want, const sptr<IRemoteObject>& callerToken,
+        uint64_t intentId, int32_t userId));
+    MOCK_METHOD5(StartAbilityAsCaller, int(const Want &want, const sptr<IRemoteObject> &callerToken,
+            sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode));
     MOCK_METHOD2(
         GetWantSender, sptr<IWantSender>(const WantSenderInfo& wantSenderInfo, const sptr<IRemoteObject>& callerToken));
     MOCK_METHOD2(SendWantSender, int(const sptr<IWantSender>& target, const SenderInfo& senderInfo));
@@ -115,6 +117,7 @@ public:
         const Want& want,
         const StartOptions& startOptions,
         const sptr<IRemoteObject>& callerToken,
+        sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE)
     {
@@ -293,6 +296,12 @@ public:
     {
         return 0;
     }
+
+    int LogoutUser(int32_t userId) override
+    {
+        return 0;
+    }
+
     int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override
     {
         return 0;
@@ -398,6 +407,10 @@ public:
     MOCK_METHOD1(AttachAppDebug, int32_t(const std::string &bundleName));
     MOCK_METHOD1(DetachAppDebug, int32_t(const std::string &bundleName));
     MOCK_METHOD1(IsAbilityControllerStart, bool(const Want& want));
+    MOCK_METHOD3(ExecuteIntent, int32_t(uint64_t key, const sptr<IRemoteObject> &callerToken,
+        const InsightIntentExecuteParam &param));
+    MOCK_METHOD3(ExecuteInsightIntentDone, int32_t(const sptr<IRemoteObject> &token, uint64_t intentId,
+        const InsightIntentExecuteResult &result));
 };
 }  // namespace AAFwk
 }  // namespace OHOS

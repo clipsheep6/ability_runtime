@@ -24,6 +24,12 @@
 #include "want.h"
 
 namespace OHOS {
+namespace AppExecFwk {
+    class Configuration;
+}
+}
+
+namespace OHOS {
 namespace AAFwk {
 class SessionInfo;
 
@@ -41,7 +47,17 @@ public:
      */
     virtual int32_t NotifyStartAbility(const AppExecFwk::AbilityInfo &abilityInfo,
         int32_t userId, Want &want, uint64_t accessTokenIDEx) = 0;
-    
+
+    /**
+     * @brief Notify collaborator to app preload.
+     * @param bundleName bundlName.
+     * @return 0 means success or else failed.
+     */
+    virtual int32_t NotifyPreloadAbility(const std::string &bundleName)
+    {
+        return 0;
+    }
+
     /**
      * @brief Notify when mission is created.
      * @param missionId missionId.
@@ -125,6 +141,37 @@ public:
      */
     virtual void UpdateMissionInfo(sptr<SessionInfo> &sessionInfo) = 0;
 
+    /**
+     * @brief Check the call permission from shell assistant.
+     * @param want target info.
+     */
+    virtual int32_t CheckCallAbilityPermission(const Want &want)
+    {
+        return -1;
+    }
+
+    /**
+     * @brief Notify application update system environment changes.
+     * @param config System environment change parameters.
+     * @param userId userId Designation User ID.
+     * @return Return true to notify changes successfully, or false to failed.
+     */
+    virtual bool UpdateConfiguration(const AppExecFwk::Configuration &config, int32_t userId)
+    {
+        return true;
+    }
+
+    /**
+     * @brief Open file by uri.
+     * @param uri The file uri.
+     * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
+     * @return int The file descriptor.
+     */
+    virtual int32_t OpenFile(const Uri& uri, uint32_t flag)
+    {
+        return -1;
+    }
+
     enum {
         NOTIFY_START_ABILITY = 1,
         NOTIFY_MISSION_CREATED,
@@ -138,6 +185,10 @@ public:
         NOTIFY_MISSION_CREATED_BY_SCB,
         NOTIFY_LOAD_ABILITY_BY_SCB,
         UPDATE_MISSION_INFO_BY_SCB,
+        NOTIFY_PRELOAD_ABILITY,
+        CHECK_CALL_ABILITY_PERMISSION,
+        UPDATE_CONFIGURATION,
+        OPEN_FILE,
     };
 };
 }  // namespace AAFwk

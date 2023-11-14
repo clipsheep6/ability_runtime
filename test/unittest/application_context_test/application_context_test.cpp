@@ -965,6 +965,20 @@ HWTEST_F(ApplicationContextTest, KillProcessBySelf_0100, TestSize.Level1)
 }
 
 /**
+ * @tc.number: ClearUpApplicationData_0100
+ * @tc.name: ClearUpApplicationData
+ * @tc.desc: ClearUpApplicationData
+ */
+HWTEST_F(ApplicationContextTest, ClearUpApplicationData_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "ClearUpApplicationData_0100 start";
+    EXPECT_NE(context_, nullptr);
+    context_->AttachContextImpl(mock_);
+    context_->ClearUpApplicationData();
+    GTEST_LOG_(INFO) << "ClearUpApplicationData_0100 end";
+}
+
+/**
  * @tc.number: GetProcessRunningInformation_0100
  * @tc.name: GetProcessRunningInformation
  * @tc.desc: GetProcessRunningInformation

@@ -104,5 +104,28 @@ ErrCode OsAccountManagerWrapper::RemoveOsAccount(const int id)
     return AccountSA::OsAccountManager::RemoveOsAccount(id);
 #endif // OS_ACCOUNT_PART_ENABLED
 }
+
+int32_t OsAccountManagerWrapper::GetCurrentActiveAccountId()
+{
+    std::vector<int32_t> accountIds;
+    auto instance = DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance();
+    if (instance == nullptr) {
+        HILOG_ERROR("Failed to get OsAccountManager instance.");
+        return 0;
+    }
+
+    ErrCode ret = instance->QueryActiveOsAccountIds(accountIds);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Query active account id failed.");
+        return 0;
+    }
+
+    if (accountIds.empty()) {
+        HILOG_ERROR("No active account.");
+        return 0;
+    }
+
+    return accountIds[0];
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -165,6 +165,14 @@ class ApplicationContext {
     return this.__context_impl__.isAutoStartup(info, callback);
   }
 
+  clearUpApplicationData() {
+    return this.__context_impl__.clearUpApplicationData();
+  }
+
+  clearUpApplicationData(callback) {
+    return this.__context_impl__.clearUpApplicationData(callback);
+  }
+
   set area(mode) {
     return this.__context_impl__.switchArea(mode);
   }

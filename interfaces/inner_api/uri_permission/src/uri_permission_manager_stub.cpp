@@ -82,9 +82,8 @@ int UriPermissionManagerStub::HandleGrantUriPermission(MessageParcel &data, Mess
     }
     auto flag = data.ReadInt32();
     auto targetBundleName = data.ReadString();
-    auto autoremove = data.ReadInt32();
     auto appIndex = data.ReadInt32();
-    int result = GrantUriPermission(*uri, flag, targetBundleName, autoremove, appIndex);
+    int result = GrantUriPermission(*uri, flag, targetBundleName, appIndex);
     reply.WriteInt32(result);
     return ERR_OK;
 }
@@ -97,7 +96,7 @@ int UriPermissionManagerStub::HandleBatchGrantUriPermission(MessageParcel &data,
         return ERR_DEAD_OBJECT;
     }
     std::vector<Uri> uriVec;
-    for (auto i = 0; i < size; i++) {
+    for (uint32_t i = 0; i < size; i++) {
         std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
         if (!uri) {
             HILOG_ERROR("To read uri failed.");
@@ -107,9 +106,8 @@ int UriPermissionManagerStub::HandleBatchGrantUriPermission(MessageParcel &data,
     }
     auto flag = data.ReadInt32();
     auto targetBundleName = data.ReadString();
-    auto autoremove = data.ReadInt32();
     auto appIndex = data.ReadInt32();
-    int result = GrantUriPermission(uriVec, flag, targetBundleName, autoremove, appIndex);
+    int result = GrantUriPermission(uriVec, flag, targetBundleName, appIndex);
     reply.WriteInt32(result);
     return ERR_OK;
 }

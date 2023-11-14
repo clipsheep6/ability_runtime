@@ -56,6 +56,7 @@ const std::unordered_map<std::string, ExtensionAbilityType> EXTENSION_TYPE_MAP =
 
 ExtensionAbilityType ConvertToExtensionAbilityType(const std::string &type)
 {
+    HILOG_DEBUG("ConvertToExtensionAbilityType start");
     if (EXTENSION_TYPE_MAP.find(type) != EXTENSION_TYPE_MAP.end()) {
         return EXTENSION_TYPE_MAP.at(type);
     }
@@ -65,6 +66,7 @@ ExtensionAbilityType ConvertToExtensionAbilityType(const std::string &type)
 
 std::string ConvertToExtensionTypeName(ExtensionAbilityType type)
 {
+    HILOG_DEBUG("ConvertToExtensionTypeName start");
     for (const auto &[key, val] : EXTENSION_TYPE_MAP) {
         if (val == type) {
             return key;

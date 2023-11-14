@@ -92,6 +92,7 @@ private:
         }
 
         if (observer_ == nullptr) {
+            HILOG_DEBUG("observer_ is null.");
             // create observer
             observer_ = std::make_shared<JsErrorObserver>(env);
             AppExecFwk::ApplicationDataManager::GetInstance().AddErrorObserver(observer_);

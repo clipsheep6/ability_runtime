@@ -252,6 +252,8 @@ public:
 
     void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) override;
 
+    void ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName) override;
+
     /**
      *
      * @brief Check the App main thread state.
@@ -280,7 +282,7 @@ public:
 
     void AttachAppDebug() override;
     void DetachAppDebug() override;
-
+    bool NotifyDeviceDisConnect();
 private:
     /**
      *
@@ -290,6 +292,8 @@ private:
     void HandleTerminateApplicationLocal();
 
     void HandleScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName);
+
+    void HandleScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName);
 
     /**
      *

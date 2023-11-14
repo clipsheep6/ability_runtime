@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,13 +19,13 @@
 #include <memory>
 #include <mutex>
 
-#include "ability.h"
 #include "ability_info.h"
 #include "application_info.h"
 #include "event_handler.h"
 #include "iremote_object.h"
 #include "parcel.h"
 #include "recovery_param.h"
+#include "ui_ability.h"
 #include "want.h"
 #include "want_params.h"
 
@@ -36,8 +36,8 @@ public:
     AbilityRecovery();
     virtual ~AbilityRecovery();
     void EnableAbilityRecovery(uint16_t restartFlag, uint16_t saveFlag, uint16_t saveMode);
-    bool InitAbilityInfo(const std::shared_ptr<Ability> ability,
-        const std::shared_ptr<AbilityInfo>& abilityInfo, const sptr<IRemoteObject>& token);
+    bool InitAbilityInfo(const std::shared_ptr<AbilityRuntime::UIAbility> ability,
+        const std::shared_ptr<AbilityInfo> &abilityInfo, const sptr<IRemoteObject> &token);
     bool ScheduleSaveAbilityState(StateReason reason);
     bool ScheduleRecoverAbility(StateReason reason, const Want *want = nullptr);
     bool ScheduleRestoreAbilityState(StateReason reason, const Want &want);
@@ -67,7 +67,7 @@ private:
     uint16_t restartFlag_;
     uint16_t saveOccasion_;
     uint16_t saveMode_;
-    std::weak_ptr<AppExecFwk::Ability> ability_;
+    std::weak_ptr<AbilityRuntime::UIAbility> ability_;
     std::weak_ptr<AppExecFwk::AbilityInfo> abilityInfo_;
     uintptr_t jsAbilityPtr_;
     wptr<IRemoteObject> token_;

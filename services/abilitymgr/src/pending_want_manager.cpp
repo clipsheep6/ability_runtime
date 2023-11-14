@@ -179,8 +179,13 @@ int32_t PendingWantManager::SendWantSender(const sptr<IWantSender> &target, cons
         HILOG_ERROR("sender is nullptr.");
         return ERR_INVALID_VALUE;
     }
+    sptr<IRemoteObject> obj = target->AsObject();
+    if(obj == nullptr) {
+        HILOG_ERROR("target obj is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    sptr<PendingWantRecord> record = iface_cast<PendingWantRecord>(obj);
     SenderInfo info = senderInfo;
-    sptr<PendingWantRecord> record = iface_cast<PendingWantRecord>(target->AsObject());
     return record->SenderInner(info);
 }
 
@@ -360,7 +365,13 @@ std::string PendingWantManager::GetPendingWantBundleName(const sptr<IWantSender>
         return "";
     }
 
-    sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(target->AsObject());
+    auto remote = target->AsObject();
+    if (remote == nullptr) {
+        HILOG_ERROR("%{public}s:target->AsObject() is nullptr.", __func__);
+        return "";
+    }
+
+    sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(remote);
     auto record = GetPendingWantRecordByCode(targetRecord->GetKey()->GetCode());
     if (record != nullptr) {
         return record->GetKey()->GetBundleName();

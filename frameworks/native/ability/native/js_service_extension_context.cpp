@@ -742,7 +742,7 @@ private:
                     return;
                 }
                 if (connection == nullptr) {
-                    HILOG_WARN("connection nullptr");
+                    HILOG_WARN("connection null");
                     task.Reject(env, CreateJsError(env, ERROR_CODE_TWO, "not found connection"));
                     return;
                 }

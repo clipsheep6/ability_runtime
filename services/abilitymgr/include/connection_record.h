@@ -18,6 +18,7 @@
 
 #include "ability_connect_callback_interface.h"
 #include "ability_record.h"
+#include "extension_config.h"
 #include "nocopyable.h"
 
 namespace OHOS {

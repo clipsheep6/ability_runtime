@@ -198,6 +198,12 @@ private:
     void BackgroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo);
     void DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo);
 
+    void OnCommandWindowDone(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd) override;
+    bool ForegroundWindowWithInsightIntent(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo);
+    bool HandleSessionCreate(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo);
+    void OnInsightIntentExecuteDone(const sptr<AAFwk::SessionInfo> &sessionInfo,
+        const AppExecFwk::InsightIntentExecuteResult &result) override;
+
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;
     std::shared_ptr<NativeReference> shellContextRef_ = nullptr;

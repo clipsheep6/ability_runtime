@@ -77,7 +77,10 @@ config("appkit_public_config") {
       "//third_party/icu/icu4c/source/common",
     ]
 
-    defines = [ "SUPPORT_GRAPHICS" ]
+    defines = [
+      "SUPPORT_GRAPHICS",
+      "SUPPORT_APP_PREFERRED_LANGUAGE",
+    ]
   }
 }
 
@@ -137,6 +140,7 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:uiabilitykit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:app_context_utils",
     "${ability_runtime_path}/js_environment/frameworks/js_environment:js_environment",
@@ -160,6 +164,7 @@ ohos_shared_library("appkit_native") {
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
+    "i18n:preferred_language",
     "init:libbegetutil",
     "ipc:ipc_core",
     "napi:ace_napi",

@@ -173,6 +173,91 @@ bool ControlInterceptor::CheckControl(const Want &want, int32_t userId,
     return true;
 }
 
+DisposedRuleInterceptor::DisposedRuleInterceptor()
+{}
+
+DisposedRuleInterceptor::~DisposedRuleInterceptor()
+{}
+
+ErrCode DisposedRuleInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground)
+{
+    AppExecFwk::DisposedRule disposedRule;
+    if (CheckControl(want, userId, disposedRule)) {
+        HILOG_INFO("The target ability is intercpted.");
+#ifdef SUPPORT_GRAPHICS
+        if (isForeground && disposedRule.want != nullptr
+            && disposedRule.disposedType != AppExecFwk::DisposedType::NON_BLOCK
+            && disposedRule.componentType == AppExecFwk::ComponentType::UI_ABILITY) {
+            int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*disposedRule.want,
+                requestCode, userId));
+            if (ret != ERR_OK) {
+                HILOG_ERROR("DisposedRuleInterceptor start ability failed.");
+                return ret;
+            }
+        }
+#endif
+        if (disposedRule.isEdm) {
+            return ERR_EDM_APP_CONTROLLED;
+        }
+        return ERR_APP_CONTROLLED;
+    }
+    return ERR_OK;
+}
+
+bool DisposedRuleInterceptor::CheckControl(const Want &want, int32_t userId,
+    AppExecFwk::DisposedRule &disposedRule)
+{
+    // get bms
+    auto bms = AbilityUtil::GetBundleManager();
+    if (!bms) {
+        HILOG_ERROR("GetBundleManager failed");
+        return false;
+    }
+
+    // get disposed status
+    std::string bundleName = want.GetBundle();
+    auto appControlMgr = bms->GetAppControlProxy();
+    if (appControlMgr == nullptr) {
+        HILOG_ERROR("Get appControlMgr failed");
+        return false;
+    }
+    std::vector<AppExecFwk::DisposedRule> disposedRuleList;
+
+    auto ret = IN_PROCESS_CALL(appControlMgr->GetAbilityRunningControlRule(bundleName,
+        userId, disposedRuleList));
+    if (ret != ERR_OK || disposedRuleList.empty()) {
+        HILOG_DEBUG("Get No DisposedRule");
+        return false;
+    }
+
+    for (auto &rule:disposedRuleList) {
+        if (CheckDisposedRule(want, rule)) {
+            disposedRule = rule;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool DisposedRuleInterceptor::CheckDisposedRule(const Want &want, AppExecFwk::DisposedRule &disposedRule)
+{
+    bool isAllowed = disposedRule.controlType == AppExecFwk::ControlType::ALLOWED_LIST;
+    if (disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION) {
+        return !isAllowed;
+    }
+
+    std::string moduleName = want.GetElement().GetModuleName();
+    std::string abilityName = want.GetElement().GetAbilityName();
+
+    for (auto elementName : disposedRule.elementList) {
+        if (moduleName == elementName.GetModuleName()
+            && abilityName == elementName.GetAbilityName()) {
+            return !isAllowed;
+        }
+    }
+    return isAllowed;
+}
+
 EcologicalRuleInterceptor::EcologicalRuleInterceptor()
 {}
 

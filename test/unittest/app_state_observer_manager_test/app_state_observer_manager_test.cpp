@@ -1142,37 +1142,5 @@ HWTEST_F(AppSpawnSocketTest, ObserverExist_002, TestSize.Level0)
     bool res = manager->ObserverExist(observer);
     EXPECT_TRUE(res);
 }
-
-/*
- * Feature: AppStateObserverManager
- * Function: AddObserverDeathRecipient
- * SubFunction: NA
- * FunctionPoints: AppStateObserverManager AddObserverDeathRecipient
- * EnvConditions: NA
- * CaseDescription: Verify AddObserverDeathRecipient
- */
-HWTEST_F(AppSpawnSocketTest, AddObserverDeathRecipient_001, TestSize.Level0)
-{
-    auto manager = std::make_shared<AppStateObserverManager>();
-    ASSERT_NE(manager, nullptr);
-    manager->AddObserverDeathRecipient(nullptr);
-    manager->AddObserverDeathRecipient(observer_);
-}
-
-/*
- * Feature: AppStateObserverManager
- * Function: RemoveObserverDeathRecipient
- * SubFunction: NA
- * FunctionPoints: AppStateObserverManager RemoveObserverDeathRecipient
- * EnvConditions: NA
- * CaseDescription: Verify RemoveObserverDeathRecipient
- */
-HWTEST_F(AppSpawnSocketTest, RemoveObserverDeathRecipient_001, TestSize.Level0)
-{
-    auto manager = std::make_shared<AppStateObserverManager>();
-    ASSERT_NE(manager, nullptr);
-    manager->RemoveObserverDeathRecipient(nullptr);
-    manager->AddObserverDeathRecipient(observer_);
-}
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -138,7 +138,7 @@ void AmsMgrProxy::UpdateAbilityState(const sptr<IRemoteObject> &token, const Abi
 
 void AmsMgrProxy::UpdateExtensionState(const sptr<IRemoteObject> &token, const ExtensionState state)
 {
-    HILOG_DEBUG("UpdateExtensionState start");
+    HILOG_DEBUG("UpdateExtensionState begin");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
@@ -160,7 +160,7 @@ void AmsMgrProxy::UpdateExtensionState(const sptr<IRemoteObject> &token, const E
 
 void AmsMgrProxy::RegisterAppStateCallback(const sptr<IAppStateCallback> &callback)
 {
-    HILOG_DEBUG("start");
+    HILOG_DEBUG("begin");
     if (!callback) {
         HILOG_ERROR("callback is nullptr");
         return;
@@ -271,7 +271,7 @@ void AmsMgrProxy::KillProcessesByUserId(int32_t userId)
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
-    HILOG_DEBUG("end");
+    HILOG_DEBUG("ending");
 }
 
 int32_t AmsMgrProxy::KillProcessWithAccount(const std::string &bundleName, const int accountId)
@@ -317,13 +317,13 @@ int32_t AmsMgrProxy::KillApplication(const std::string &bundleName)
         return ERR_INVALID_DATA;
     }
     if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("parcel WriteString failed");
+        HILOG_ERROR("parcel WriteString failed.");
         return ERR_FLATTEN_OBJECT;
     }
     int32_t ret =
         SendTransactCmd(static_cast<uint32_t>(IAmsMgr::Message::KILL_APPLICATION), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        HILOG_WARN("SendRequest is failed, error code: %{public}d.", ret);
         return ret;
     }
     return reply.ReadInt32();
@@ -331,7 +331,7 @@ int32_t AmsMgrProxy::KillApplication(const std::string &bundleName)
 
 int32_t AmsMgrProxy::UpdateApplicationInfoInstalled(const std::string &bundleName, const int uid)
 {
-    HILOG_DEBUG("start");
+    HILOG_DEBUG("start.");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
@@ -370,7 +370,7 @@ int32_t AmsMgrProxy::KillApplicationByUid(const std::string &bundleName, const i
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteInt32(uid)) {
-        HILOG_ERROR("uid write failed.");
+        HILOG_ERROR("Failed to write uid.");
         return ERR_FLATTEN_OBJECT;
     }
     int32_t ret =
@@ -393,7 +393,7 @@ int32_t AmsMgrProxy::KillApplicationSelf()
     int32_t ret =
         SendTransactCmd(static_cast<uint32_t>(IAmsMgr::Message::KILL_APPLICATION_SELF), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("SendRequest is failed, error code: %{public}d", ret);
+        HILOG_ERROR("SendRequest is wrong, error code: %{public}d", ret);
         return ret;
     }
     return reply.ReadInt32();
@@ -401,7 +401,7 @@ int32_t AmsMgrProxy::KillApplicationSelf()
 
 void AmsMgrProxy::AbilityAttachTimeOut(const sptr<IRemoteObject> &token)
 {
-    HILOG_DEBUG("start");
+    HILOG_DEBUG("beginning");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
@@ -474,6 +474,7 @@ void AmsMgrProxy::GetRunningProcessInfoByToken(
 
 void AmsMgrProxy::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo &info)
 {
+    HILOG_DEBUG("start");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
@@ -482,7 +483,7 @@ void AmsMgrProxy::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::
     }
 
     if (!data.WriteInt32(static_cast<int32_t>(pid))) {
-        HILOG_ERROR("parcel WriteInt32 failed");
+        HILOG_ERROR("parcel WriteInt32 failed.");
         return;
     }
 
@@ -495,7 +496,7 @@ void AmsMgrProxy::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::
 
     std::unique_ptr<AppExecFwk::RunningProcessInfo> processInfo(reply.ReadParcelable<AppExecFwk::RunningProcessInfo>());
     if (processInfo == nullptr) {
-        HILOG_ERROR("recv process info faild");
+        HILOG_ERROR("recv process info failded");
         return;
     }
 
@@ -504,6 +505,7 @@ void AmsMgrProxy::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::
 
 void AmsMgrProxy::SetAbilityForegroundingFlagToAppRecord(const pid_t pid)
 {
+    HILOG_DEBUG("calling");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
@@ -545,11 +547,39 @@ void AmsMgrProxy::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFw
     }
 }
 
+void AmsMgrProxy::StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
+
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write data failed.");
+        return;
+    }
+
+    if (!data.WriteParcelable(&want) || !data.WriteParcelable(&abilityInfo)) {
+        HILOG_ERROR("Write data failed.");
+        return;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return;
+    }
+    auto ret = remote->SendRequest(
+        static_cast<uint32_t>(IAmsMgr::Message::START_SPECIFIED_PROCESS), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+    }
+}
+
 void AmsMgrProxy::RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response)
 {
     HILOG_DEBUG("Register multi instances response by proxy.");
     if (!response) {
-        HILOG_ERROR("response is nullptr");
+        HILOG_ERROR("response is null");
         return;
     }
 
@@ -584,7 +614,7 @@ int AmsMgrProxy::GetApplicationInfoByProcessID(const int pid, AppExecFwk::Applic
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IAmsMgr::Message::GET_APPLICATION_INFO_BY_PROCESS_ID), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("send request fail.");
+        HILOG_ERROR("send request fail");
         return ret;
     }
     auto result = reply.ReadInt32();
@@ -783,7 +813,7 @@ bool AmsMgrProxy::IsAttachDebug(const std::string &bundleName)
     }
 
     if (bundleName.empty() || !data.WriteString(bundleName)) {
-        HILOG_ERROR("Write bundle name failed.");
+        HILOG_ERROR("Write bundle name fail.");
         return false;
     }
 
@@ -809,7 +839,7 @@ int32_t AmsMgrProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
 
     int32_t ret = remote->SendRequest(code, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
+        HILOG_ERROR("SendRequest error. code is %{public}d, ret is %{public}d.", code, ret);
         return ret;
     }
     return ret;

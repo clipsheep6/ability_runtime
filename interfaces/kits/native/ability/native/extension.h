@@ -33,6 +33,7 @@ class OHOSApplication;
 class AbilityHandler;
 class AbilityLocalRecord;
 class Configuration;
+struct InsightIntentExecuteResult;
 }
 namespace AbilityRuntime {
 using Want = OHOS::AAFwk::Want;
@@ -235,6 +236,15 @@ public:
      * value can be null.
      */
     virtual void OnAbilityResult(int requestCode, int resultCode, const Want &want);
+
+    virtual void OnCommandWindowDone(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd);
+
+    virtual void OnInsightIntentExecuteDone(const sptr<AAFwk::SessionInfo> &sessionInfo,
+        const AppExecFwk::InsightIntentExecuteResult &result);
+        
+    virtual bool HandleInsightIntent(const AAFwk::Want &want);
+
+    virtual bool OnInsightIntentExecuteDone(uint64_t intentId, const AppExecFwk::InsightIntentExecuteResult &result);
 
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_ = nullptr;
 protected:

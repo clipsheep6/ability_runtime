@@ -209,6 +209,13 @@ void AppScheduler::OnAbilityRequestDone(const sptr<IRemoteObject> &token, const 
     callback->OnAbilityRequestDone(token, static_cast<int32_t>(state));
 }
 
+void AppScheduler::NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId)
+{
+    auto callback = callback_.lock();
+    CHECK_POINTER(callback);
+    callback->NotifyConfigurationChange(config, userId);
+}
+
 int AppScheduler::KillApplication(const std::string &bundleName)
 {
     HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
@@ -315,6 +322,25 @@ void StartSpecifiedAbilityResponse::OnTimeoutResponse(const AAFwk::Want &want)
 {
     DelayedSingleton<AbilityManagerService>::GetInstance()->OnStartSpecifiedAbilityTimeoutResponse(want);
 }
+
+void AppScheduler::StartSpecifiedProcess(
+    const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
+{
+    CHECK_POINTER(appMgrClient_);
+    IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->StartSpecifiedProcess(want, abilityInfo));
+}
+
+void StartSpecifiedAbilityResponse::OnNewProcessRequestResponse(
+    const AAFwk::Want &want, const std::string &flag)
+{
+    DelayedSingleton<AbilityManagerService>::GetInstance()->OnStartSpecifiedProcessResponse(want, flag);
+}
+
+void StartSpecifiedAbilityResponse::OnNewProcessRequestTimeoutResponse(const AAFwk::Want &want)
+{
+    DelayedSingleton<AbilityManagerService>::GetInstance()->OnStartSpecifiedProcessTimeoutResponse(want);
+}
+
 int AppScheduler::GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info)
 {
     CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);

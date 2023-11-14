@@ -49,6 +49,9 @@
 #include "locale_config.h"
 #include "ace_forward_compatibility.h"
 #include "form_constants.h"
+#ifdef SUPPORT_APP_PREFERRED_LANGUAGE
+#include "preferred_language.h"
+#endif
 #endif
 #include "app_mgr_client.h"
 #include "if_system_ability_manager.h"
@@ -118,7 +121,7 @@ constexpr char EVENT_KEY_SUMMARY[] = "SUMMARY";
 
 const int32_t JSCRASH_TYPE = 3;
 const std::string JSVM_TYPE = "ARK";
-const std::string SIGNAL_HANDLER = "SignalHandler";
+const std::string SIGNAL_HANDLER = "OS_SignalHandler";
 
 constexpr uint32_t CHECK_MAIN_THREAD_IS_ALIVE = 1;
 
@@ -479,7 +482,7 @@ void MainThread::ScheduleBackgroundApplication()
     if (!mainHandler_->PostTask(task, "MainThread:BackgroundApplication")) {
         HILOG_ERROR("MainThread::ScheduleBackgroundApplication PostTask task failed");
     }
-    
+
     if (watchdog_ == nullptr) {
         HILOG_ERROR("Watch dog is nullptr.");
         return;
@@ -1004,9 +1007,9 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     }
 
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
-#ifdef SUPPORT_GRAPHICS
+#if defined(SUPPORT_GRAPHICS) && defined(SUPPORT_APP_PREFERRED_LANGUAGE)
     UErrorCode status = U_ZERO_ERROR;
-    icu::Locale locale = icu::Locale::forLanguageTag(Global::I18n::LocaleConfig::GetSystemLanguage(), status);
+    icu::Locale locale = icu::Locale::forLanguageTag(Global::I18n::PreferredLanguage::GetAppPreferredLanguage(), status);
     resConfig->SetLocaleInfo(locale);
     const icu::Locale *localeInfo = resConfig->GetLocaleInfo();
     if (localeInfo != nullptr) {
@@ -1153,6 +1156,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     }
 
     if (appLaunchData.GetDebugApp() && watchdog_ != nullptr && !watchdog_->IsStopWatchdog()) {
+        AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(true);
         watchdog_->Stop();
         watchdog_.reset();
     }
@@ -1282,15 +1286,26 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             return;
         }
 
-        if (appInfo.debug) {
-            auto perfCmd = appLaunchData.GetPerfCmd();
-            if (perfCmd.find(PERFCMD_PROFILE) != std::string::npos ||
-                perfCmd.find(PERFCMD_DUMPHEAP) != std::string::npos) {
-                HILOG_DEBUG("perfCmd is %{public}s", perfCmd.c_str());
-                runtime->StartProfiler(perfCmd);
-            } else {
-                runtime->StartDebugMode(appLaunchData.GetDebugApp());
-            }
+        if (appInfo.debug && appLaunchData.GetDebugApp()) {
+            wptr<MainThread> weak = this;
+            auto cb = [weak]() {
+                auto appThread = weak.promote();
+                if (appThread == nullptr) {
+                    HILOG_ERROR("appThread is nullptr");
+                    return false;
+                }
+                return appThread->NotifyDeviceDisConnect();
+            };
+            runtime->SetDeviceDisconnectCallback(cb);
+        }
+
+        auto perfCmd = appLaunchData.GetPerfCmd();
+        if (perfCmd.find(PERFCMD_PROFILE) != std::string::npos ||
+            perfCmd.find(PERFCMD_DUMPHEAP) != std::string::npos) {
+            HILOG_DEBUG("perfCmd is %{public}s", perfCmd.c_str());
+            runtime->StartProfiler(perfCmd, appInfo.debug);
+        } else {
+            runtime->StartDebugMode(appLaunchData.GetDebugApp(), appInfo.debug);
         }
 
         std::vector<HqfInfo> hqfInfos = appInfo.appQuickFix.deployedAppqfInfo.hqfInfos;
@@ -1351,11 +1366,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         application_->SetRuntime(std::move(runtime));
 
         std::weak_ptr<OHOSApplication> wpApplication = application_;
-        AbilityLoader::GetInstance().RegisterAbility("Ability",
-            [wpApplication]() -> Ability* {
+        AbilityLoader::GetInstance().RegisterUIAbility("UIAbility",
+            [wpApplication]() -> AbilityRuntime::UIAbility* {
             auto app = wpApplication.lock();
             if (app != nullptr) {
-                return Ability::Create(app->GetRuntime());
+                return AbilityRuntime::UIAbility::Create(app->GetRuntime());
             }
             HILOG_ERROR("AbilityLoader::GetAbilityByName failed.");
             return nullptr;
@@ -2385,6 +2400,42 @@ void MainThread::ScheduleAcceptWant(const AAFwk::Want &want, const std::string &
     }
 }
 
+void MainThread::HandleScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName)
+{
+    HILOG_DEBUG("MainThread::HandleScheduleNewProcessRequest");
+    if (!application_) {
+        HILOG_ERROR("application_ is nullptr");
+        return;
+    }
+
+    std::string specifiedProcessFlag;
+    application_->ScheduleNewProcessRequest(want, moduleName, specifiedProcessFlag);
+
+    if (!appMgr_ || !applicationImpl_) {
+        HILOG_ERROR("appMgr_ is nullptr");
+        return;
+    }
+
+    appMgr_->ScheduleNewProcessRequestDone(applicationImpl_->GetRecordId(), want, specifiedProcessFlag);
+}
+
+void MainThread::ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName)
+{
+    HILOG_DEBUG("start");
+    wptr<MainThread> weak = this;
+    auto task = [weak, want, moduleName]() {
+        auto appThread = weak.promote();
+        if (appThread == nullptr) {
+            HILOG_ERROR("abilityThread is nullptr, ScheduleNewProcessRequest failed.");
+            return;
+        }
+        appThread->HandleScheduleNewProcessRequest(want, moduleName);
+    };
+    if (!mainHandler_->PostTask(task, "MainThread:ScheduleNewProcessRequest")) {
+        HILOG_ERROR("PostTask task failed");
+    }
+}
+
 void MainThread::CheckMainThreadIsAlive()
 {
     if (watchdog_ == nullptr) {
@@ -2691,7 +2742,7 @@ int32_t MainThread::ScheduleChangeAppGcState(int32_t state)
     mainHandler_->PostTask(task, "MainThread:ChangeAppGcState");
     return NO_ERROR;
 }
-        
+
 int32_t MainThread::ChangeAppGcState(int32_t state)
 {
     HILOG_DEBUG("called.");
@@ -2712,29 +2763,20 @@ int32_t MainThread::ChangeAppGcState(int32_t state)
 void MainThread::AttachAppDebug()
 {
     HILOG_DEBUG("Called.");
-    if (watchdog_ == nullptr || watchdog_->IsStopWatchdog()) {
-        HILOG_ERROR("Watch dog is stoped.");
-        return;
-    }
-
-    watchdog_->Stop();
-    watchdog_.reset();
+    AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(true);
 }
 
 void MainThread::DetachAppDebug()
 {
     HILOG_DEBUG("Called.");
-    if (watchdog_ == nullptr) {
-        watchdog_ = std::make_shared<Watchdog>();
-        if (watchdog_ != nullptr) {
-            watchdog_->Init(mainHandler_);
-        }
-        return;
-    }
+    AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(false);
+}
 
-    if (watchdog_->IsStopWatchdog()) {
-        watchdog_->Init(mainHandler_);
-    }
+bool MainThread::NotifyDeviceDisConnect()
+{
+    HILOG_DEBUG("Called.");
+    ScheduleTerminateApplication();
+    return true;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

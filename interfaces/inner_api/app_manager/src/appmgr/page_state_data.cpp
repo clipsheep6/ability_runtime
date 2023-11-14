@@ -26,6 +26,8 @@ bool PageStateData::ReadFromParcel(Parcel &parcel)
     moduleName = parcel.ReadString();
     abilityName = parcel.ReadString();
     pageName = parcel.ReadString();
+    targetBundleName = parcel.ReadString();
+    targetModuleName = parcel.ReadString();
 
     return true;
 }
@@ -35,7 +37,9 @@ bool PageStateData::Marshalling(Parcel &parcel) const
     return (parcel.WriteString(bundleName) &&
         parcel.WriteString(moduleName) &&
         parcel.WriteString(abilityName) &&
-        parcel.WriteString(pageName));
+        parcel.WriteString(pageName) &&
+        parcel.WriteString(targetBundleName) &&
+        parcel.WriteString(targetModuleName));
 }
 
 PageStateData *PageStateData::Unmarshalling(Parcel &parcel)

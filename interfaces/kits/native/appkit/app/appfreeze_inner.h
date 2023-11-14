@@ -43,6 +43,7 @@ public:
     void ThreadBlock(std::atomic_bool& isSixSecondEvent);
     int AppfreezeHandle(const FaultData& faultInfo, bool onlyMainThread);
     int AcquireStack(const FaultData& faultInfo, bool onlyMainThread);
+    void SetAppDebug(bool isAppDebug);
 private:
     static std::weak_ptr<EventHandler> appMainHandler_;
     std::weak_ptr<ApplicationInfo> applicationInfo_;
@@ -53,6 +54,9 @@ private:
 
     static std::mutex singletonMutex_;
     static std::shared_ptr<AppfreezeInner> instance_;
+    bool isAppDebug_ = false;
+    std::mutex handlingMutex_;
+    std::list<FaultData> handlinglist_;
 };
 
 class MainHandlerDumper : public Dumper {

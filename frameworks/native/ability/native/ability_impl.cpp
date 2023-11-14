@@ -101,7 +101,6 @@ void AbilityImpl::Start(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     }
 #endif
 
-    abilityLifecycleCallbacks_->OnAbilityStart(ability_);
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
@@ -171,7 +170,6 @@ void AbilityImpl::StopCallback()
 #ifdef SUPPORT_GRAPHICS
     }
 #endif
-    abilityLifecycleCallbacks_->OnAbilityStop(ability_);
     ability_->DestroyInstance(); // Release window and ability.
 }
 
@@ -191,7 +189,6 @@ void AbilityImpl::Active()
     }
 #endif
     lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
-    abilityLifecycleCallbacks_->OnAbilityActive(ability_);
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
@@ -211,7 +208,6 @@ void AbilityImpl::Inactive()
     }
 #endif
     lifecycleState_ = AAFwk::ABILITY_STATE_INACTIVE;
-    abilityLifecycleCallbacks_->OnAbilityInactive(ability_);
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
@@ -275,7 +271,6 @@ sptr<IRemoteObject> AbilityImpl::ConnectAbility(const Want &want)
     }
     sptr<IRemoteObject> object = ability_->OnConnect(want);
     lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
-    abilityLifecycleCallbacks_->OnAbilityActive(ability_);
     HILOG_DEBUG("%{public}s end.", __func__);
 
     return object;
@@ -300,7 +295,6 @@ void AbilityImpl::CommandAbility(const Want &want, bool restart, int startId)
     }
     ability_->OnCommand(want, restart, startId);
     lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
-    abilityLifecycleCallbacks_->OnAbilityActive(ability_);
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
@@ -471,7 +465,6 @@ bool AbilityImpl::CheckAndSave()
     }
 
     ability_->OnSaveAbilityState(restoreData_);
-    abilityLifecycleCallbacks_->OnAbilitySaveState(restoreData_);
 
     needSaveDate_ = false;
 
@@ -763,7 +756,6 @@ void AbilityImpl::Foreground(const Want &want)
         std::lock_guard<std::mutex> lock(notifyForegroundLock_);
         notifyForegroundByAbility_ = true;
     }
-    abilityLifecycleCallbacks_->OnAbilityForeground(ability_);
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -792,7 +784,6 @@ void AbilityImpl::Background()
     } else {
         lifecycleState_ = AAFwk::ABILITY_STATE_BACKGROUND;
     }
-    abilityLifecycleCallbacks_->OnAbilityBackground(ability_);
     HILOG_INFO("%{public}s end.", __func__);
 }
 

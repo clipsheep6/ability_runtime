@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,6 +29,7 @@ using namespace testing;
 using namespace testing::ext;
 using CreateAblity = std::function<Ability *(void)>;
 using CreateExtension = std::function<AbilityRuntime::Extension *(void)>;
+using CreateUIAblity = std::function<AbilityRuntime::UIAbility *(void)>;
 
 class AbilityLoaderTest : public testing::Test {
 public:
@@ -158,4 +159,59 @@ HWTEST_F(AbilityLoaderTest, GetExtensionByName_0200, TestSize.Level1)
     AbilityLoader::GetInstance().extensions_.clear();
     EXPECT_FALSE(AbilityLoader::GetInstance().GetExtensionByName(abilityName) != nullptr);
     GTEST_LOG_(INFO) << "AbilityLoaderTest GetExtensionByName_0200 end";
+}
+
+/**
+ * @tc.number: RegisterUIAbility_0100
+ * @tc.name: RegisterUIAbility
+ * @tc.desc: RegisterUIAbility Test, return true.
+ */
+HWTEST_F(AbilityLoaderTest, RegisterUIAbility_0100, TestSize.Level0)
+{
+    GTEST_LOG_(INFO) << "AbilityLoaderTest RegisterUIAbility_0100 start";
+    auto loader = std::make_shared<OHOS::AppExecFwk::AbilityLoader>();
+    std::string abilityName;
+    CreateUIAblity createFunc;
+    loader->RegisterUIAbility(abilityName, createFunc);
+    bool result = false;
+    auto it = loader->uiAbilities_.find(abilityName);
+    if (it != loader->uiAbilities_.end()) {
+        result = true;
+    }
+    EXPECT_TRUE(result);
+    GTEST_LOG_(INFO) << "AbilityLoaderTest RegisterUIAbility_0100 end";
+}
+
+/**
+ * @tc.number: GetUIAbilityByName_0100
+ * @tc.name: GetUIAbilityByName
+ * @tc.desc: GetUIAbilityByName Test When UIAbility is not nullptr.
+ */
+HWTEST_F(AbilityLoaderTest, GetUIAbilityByName_0100, TestSize.Level0)
+{
+    GTEST_LOG_(INFO) << "AbilityLoaderTest GetUIAbilityByName_0100 start";
+    std::string abilityName = "UIAbility";
+    CreateAblity createFunc;
+    auto createAblity = []() -> AbilityRuntime::UIAbility *{
+        AbilityRuntime::UIAbility *callBack = new (std::nothrow) AbilityRuntime::UIAbility;
+        return callBack;
+    };
+    AbilityLoader::GetInstance().uiAbilities_.clear();
+    AbilityLoader::GetInstance().RegisterUIAbility(abilityName, createAblity);
+    EXPECT_TRUE(AbilityLoader::GetInstance().GetUIAbilityByName(abilityName) != nullptr);
+    GTEST_LOG_(INFO) << "AbilityLoaderTest GetUIAbilityByName_0100 end";
+}
+
+/**
+ * @tc.number: GetUIAbilityByName_0200
+ * @tc.name: GetUIAbilityByName
+ * @tc.desc: GetUIAbilityByName Test When UIAbility is nullptr.
+ */
+HWTEST_F(AbilityLoaderTest, GetUIAbilityByName_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityLoaderTest GetAbilityByName_0200 start";
+    std::string abilityName = "UIAbilityName";
+    AbilityLoader::GetInstance().abilities_.clear();
+    EXPECT_FALSE(AbilityLoader::GetInstance().GetUIAbilityByName(abilityName) != nullptr);
+    GTEST_LOG_(INFO) << "AbilityLoaderTest GetUIAbilityByName_0200 start";
 }
