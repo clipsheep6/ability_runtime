@@ -285,6 +285,7 @@ config("ability_start_setting_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/dfr",
     "${c_utils_base_path}/include",
     "${ability_runtime_innerkits_path}/ability_manager/include",
   ]
@@ -318,6 +319,7 @@ ohos_unittest("watchdog_test") {
 
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/dfr",
     "${ability_runtime_test_path}/mock/frameworks_kits_appkit_test/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/app",
     "//third_party/json/include",
@@ -477,7 +479,7 @@ ohos_unittest("appfreeze_inner_test") {
   module_out_path = module_output_path
 
   include_dirs = [
-    "${ability_runtime_path}/interfaces/kits/native/appkit/app",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/dfr",
     "${ability_runtime_path}/utils/global/time/include",
     "//third_party/json/include",
   ]
@@ -488,7 +490,7 @@ ohos_unittest("appfreeze_inner_test") {
   ]
 
   sources = [
-    "${ability_runtime_native_path}/appkit/app/appfreeze_inner.cpp",
+    "${ability_runtime_native_path}/appkit/dfr/appfreeze_inner.cpp",
     "appfreeze_inner_test.cpp",
   ]
 
