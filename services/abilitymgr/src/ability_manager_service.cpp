@@ -7814,7 +7814,12 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
         return ERR_OK;
     }
     if (extensionType == AppExecFwk::ExtensionAbilityType::AUTO_FILL_PASSWORD) {
-        CHECK_CALLER_IS_SYSTEM_APP;
+        if (abilityRequest.appInfo.isSystemApp) {
+            HILOG_DEBUG("Is system app.");
+            return ERR_OK;
+        }
+        HILOG_ERROR("The application requesting the call is a non system application.");
+        return CHECK_PERMISSION_FAILED;
     }
     if (AAFwk::UIExtensionUtils::IsUIExtension(extensionType)) {
         return ERR_OK;
