@@ -585,9 +585,6 @@ void UIAbility::OnBackground()
         HILOG_ERROR("lifecycle_ is nullptr.");
         return;
     }
-#ifdef IMAGE_PURGEABLE_PIXELMAP
-    PurgeableMem::PurgeableResourceManager::GetInstance().EndAccessPurgeableMem();
-#endif
     lifecycle_->DispatchLifecycle(AppExecFwk::LifeCycle::Event::ON_BACKGROUND);
     HILOG_DEBUG("End.");
     AAFwk::EventInfo eventInfo;
