@@ -292,8 +292,7 @@ int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName)
         HILOG_ERROR("GetBundleName failed: %{public}d", result);
         return ERR_INVALID_OPERATION;
     }
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall && bundleName != callerBundleName) {
+    if (bundleName != callerBundleName) {
         auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
             AAFwk::PermissionConstants::PERMISSION_CLEAN_APPLICATION_DATA);
         if (!isCallingPerm) {
@@ -562,9 +561,8 @@ int AppMgrService::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<
         HILOG_ERROR("not ready");
         return ERR_INVALID_OPERATION;
     }
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
-        HILOG_ERROR("Not SA call.");
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("Not sa call");
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->GetAbilityRecordsByProcessID(pid, tokens);
@@ -688,8 +686,8 @@ int32_t AppMgrService::NotifyLoadRepairPatch(const std::string &bundleName, cons
         HILOG_ERROR("AppMgrService is not ready.");
         return ERR_INVALID_OPERATION;
     }
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("Not sa call");
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->NotifyLoadRepairPatch(bundleName, callback);
@@ -701,8 +699,8 @@ int32_t AppMgrService::NotifyHotReloadPage(const std::string &bundleName, const 
         HILOG_ERROR("AppMgrService is not ready.");
         return ERR_INVALID_OPERATION;
     }
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("Not sa call");
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->NotifyHotReloadPage(bundleName, callback);
@@ -726,8 +724,8 @@ int32_t AppMgrService::NotifyUnLoadRepairPatch(const std::string &bundleName, co
         HILOG_ERROR("AppMgrService is not ready.");
         return ERR_INVALID_OPERATION;
     }
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("Not sa call");
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->NotifyUnLoadRepairPatch(bundleName, callback);
@@ -735,8 +733,8 @@ int32_t AppMgrService::NotifyUnLoadRepairPatch(const std::string &bundleName, co
 
 bool AppMgrService::JudgeSelfCalledByRecordId(int32_t recordId)
 {
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (isSaCall) {
+    if (AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_DEBUG("Is sa call");
         return true;
     }
 
