@@ -1177,8 +1177,8 @@ ohos_shared_library("auto_fill_extension") {
   sources = [
     "${ability_runtime_native_path}/ability/native/auto_fill_extension_ability/auto_fill_extension.cpp",
     "${ability_runtime_native_path}/ability/native/auto_fill_extension_ability/js_auto_fill_extension.cpp",
-    "${ability_runtime_native_path}/ability/native/auto_fill_extension_ability/js_auto_fill_extension_util.cpp",
     "${ability_runtime_native_path}/ability/native/auto_fill_extension_ability/js_auto_fill_extension_context.cpp",
+    "${ability_runtime_native_path}/ability/native/auto_fill_extension_ability/js_auto_fill_extension_util.cpp",
     "${ability_runtime_native_path}/ability/native/auto_fill_extension_ability/js_fill_request_callback.cpp",
     "${ability_runtime_native_path}/ability/native/auto_fill_extension_ability/js_save_request_callback.cpp",
   ]
