@@ -414,8 +414,6 @@ HWTEST_F(JsRuntimeTest, JsRuntimeStartDebugModeTest_0100, TestSize.Level0)
     EXPECT_TRUE(jsRuntime != nullptr);
 
     bool needBreakPoint = true;
-    bool isDebug = false;
-    jsRuntime->StartDebugMode(needBreakPoint, isDebug);
     jsRuntime->StartDebugMode(needBreakPoint);
     jsRuntime->StopDebugMode();
 
@@ -821,11 +819,9 @@ HWTEST_F(JsRuntimeTest, JsRuntimeStartProfilerTest_0100, TestSize.Level1)
 
     bool needBreakPoint = false;
     uint32_t instanceId = 1;
-    bool isDebug = false;
     jsRuntime->StartDebugger(needBreakPoint, instanceId);
 
     std::string perfCmd = "profile jsperf 100";
-    jsRuntime->StartProfiler(perfCmd, isDebug);
     jsRuntime->StartProfiler(perfCmd);
     ASSERT_NE(jsRuntime, nullptr);
 }

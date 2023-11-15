@@ -162,11 +162,6 @@ bool JsEnvironment::LoadScript(const std::string& path, std::vector<uint8_t>* bu
     return engine_->RunScriptBuffer(path.c_str(), *buffer, isBundle) != nullptr;
 }
 
-bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId)
-{
-    return StartDebugger(libraryPath, needBreakPoint, instanceId, true);
-}
-
 bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId, bool isDebug)
 {
     if (vm_ == nullptr) {
@@ -241,12 +236,6 @@ bool JsEnvironment::LoadScript(const std::string& path, uint8_t* buffer, size_t 
     }
 
     return engine_->RunScriptBuffer(path, buffer, len, isBundle);
-}
-
-void JsEnvironment::StartProfiler(const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler,
-    int32_t interval)
-{
-    StartProfiler(libraryPath, instanceId, profiler, interval, true);
 }
 
 void JsEnvironment::StartProfiler(const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler,

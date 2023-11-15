@@ -186,11 +186,6 @@ std::unique_ptr<JsRuntime> JsRuntime::Create(const Options& options)
     return instance;
 }
 
-void JsRuntime::StartDebugMode(bool needBreakPoint)
-{
-    StartDebugMode(needBreakPoint, true);
-}
-
 void JsRuntime::StartDebugMode(bool needBreakPoint, bool isDebug)
 {
     if (debugMode_) {
@@ -222,11 +217,6 @@ void JsRuntime::InitConsoleModule()
 {
     CHECK_POINTER(jsEnv_);
     jsEnv_->InitConsoleModule();
-}
-
-bool JsRuntime::StartDebugger(bool needBreakPoint, uint32_t instanceId)
-{
-    return StartDebugger(needBreakPoint, instanceId, true);
 }
 
 bool JsRuntime::StartDebugger(bool needBreakPoint, uint32_t instanceId, bool isDebug)
@@ -292,11 +282,6 @@ int32_t JsRuntime::JsperfProfilerCommandParse(const std::string &command, int32_
     }
 
     return std::stoi(interval);
-}
-
-void JsRuntime::StartProfiler(const std::string &perfCmd)
-{
-    StartProfiler(perfCmd, true);
 }
 
 void JsRuntime::StartProfiler(const std::string &perfCmd, bool isDebug)
