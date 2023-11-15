@@ -61,8 +61,8 @@ int32_t QuickFixManagerStub::ApplyQuickFixInner(MessageParcel &data, MessageParc
         HILOG_ERROR("Read quick fix files failed.");
         return QUICK_FIX_READ_PARCEL_FAILED;
     }
-
-    auto ret = ApplyQuickFix(hapQuickFixFiles);
+    bool isDebug = data.ReadBool();
+    auto ret = ApplyQuickFix(hapQuickFixFiles, isDebug);
     reply.WriteInt32(ret);
     return QUICK_FIX_OK;
 }

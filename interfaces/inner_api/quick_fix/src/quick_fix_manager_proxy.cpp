@@ -24,7 +24,7 @@
 
 namespace OHOS {
 namespace AAFwk {
-int32_t QuickFixManagerProxy::ApplyQuickFix(const std::vector<std::string> &quickFixFiles)
+int32_t QuickFixManagerProxy::ApplyQuickFix(const std::vector<std::string> &quickFixFiles, bool isDebug)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -51,6 +51,11 @@ int32_t QuickFixManagerProxy::ApplyQuickFix(const std::vector<std::string> &quic
 
     if (!data.WriteStringVector(destFiles)) {
         HILOG_ERROR("Write quick fix files failed.");
+        return QUICK_FIX_WRITE_PARCEL_FAILED;
+    }
+
+    if (!data.WriteBool(isDebug)) {
+        HILOG_ERROR("Write quick fix debug failed.");
         return QUICK_FIX_WRITE_PARCEL_FAILED;
     }
 

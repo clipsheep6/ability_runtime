@@ -30,7 +30,7 @@ namespace {
 const int LOAD_SA_TIMEOUT_MS = 4 * 1000;
 } // namespace
 
-int32_t QuickFixManagerClient::ApplyQuickFix(const std::vector<std::string> &quickFixFiles)
+int32_t QuickFixManagerClient::ApplyQuickFix(const std::vector<std::string> &quickFixFiles, bool isDebug)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
@@ -40,8 +40,7 @@ int32_t QuickFixManagerClient::ApplyQuickFix(const std::vector<std::string> &qui
         HILOG_ERROR("Get quick fix manager service failed.");
         return QUICK_FIX_CONNECT_FAILED;
     }
-
-    return quickFixMgr->ApplyQuickFix(quickFixFiles);
+    return quickFixMgr->ApplyQuickFix(quickFixFiles, isDebug);
 }
 
 int32_t QuickFixManagerClient::GetApplyedQuickFixInfo(const std::string &bundleName,
