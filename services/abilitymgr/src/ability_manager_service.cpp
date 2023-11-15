@@ -843,8 +843,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             HILOG_ERROR("Cannot start extension by start ability, use startServiceExtensionAbility.");
             return ERR_WRONG_INTERFACE_CALL;
         }
-
-        if (isSystemAppCall || isToPermissionMgr) {
+        if (!isGatewayCall) {
             result = CheckCallServicePermission(abilityRequest);
             if (result != ERR_OK) {
                 HILOG_ERROR("Check permission failed");
@@ -4805,27 +4804,28 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
     }
 
     Want abilityWant; // donot use 'want' here, because the entity of 'want' is not empty
-    if (!abilityInfo.name.empty()) {
-        /* highest priority ability */
-        HILOG_INFO("Start the highest priority ability. bundleName: %{public}s, ability:%{public}s",
-            abilityInfo.bundleName.c_str(), abilityInfo.name.c_str());
-        abilityWant.SetElementName(abilityInfo.bundleName, abilityInfo.name);
-    } else {
-        /* highest priority extension ability */
-        HILOG_INFO("Start the highest priority extension ability. bundleName: %{public}s, ability:%{public}s",
-            extensionAbilityInfo.bundleName.c_str(), extensionAbilityInfo.name.c_str());
-        abilityWant.SetElementName(extensionAbilityInfo.bundleName, extensionAbilityInfo.name);
-    }
-
 #ifdef SUPPORT_GRAPHICS
     abilityWant.SetParam(NEED_STARTINGWINDOW, false);
     // wait BOOT_ANIMATION_STARTED to start LAUNCHER
     WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED.c_str(), "true",
         AmsConfigurationParameter::GetInstance().GetBootAnimationTimeoutTime());
 #endif
-
-    /* note: OOBE APP need disable itself, otherwise, it will be started when restart system everytime */
-    (void)StartAbility(abilityWant, userId, DEFAULT_INVAL_VALUE);
+    if (!abilityInfo.name.empty()) {
+        /* highest priority ability */
+        HILOG_INFO("Start the highest priority ability. bundleName: %{public}s, ability:%{public}s",
+            abilityInfo.bundleName.c_str(), abilityInfo.name.c_str());
+        abilityWant.SetElementName(abilityInfo.bundleName, abilityInfo.name);
+        /* note: OOBE APP need disable itself, otherwise, it will be started when restart system everytime */
+        (void)StartAbility(abilityWant, userId, DEFAULT_INVAL_VALUE);
+    } else {
+        /* highest priority extension ability */
+        HILOG_INFO("Start the highest priority extension ability. bundleName: %{public}s, ability:%{public}s",
+            extensionAbilityInfo.bundleName.c_str(), extensionAbilityInfo.name.c_str());
+        abilityWant.SetElementName(extensionAbilityInfo.bundleName, extensionAbilityInfo.name);
+        // accountMgr StartUser, it doesn't perceive abilityMgr to start LAUNCHER
+        IN_PROCESS_CALL_WITHOUT_RET(
+            (void)StartExtensionAbility(abilityWant, nullptr, userId, extensionAbilityInfo.type));
+    }
 }
 
 int AbilityManagerService::GenerateAbilityRequest(
@@ -5904,6 +5904,7 @@ int AbilityManagerService::JudgeAbilityVisibleControl(const AppExecFwk::AbilityI
         PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY) == AppExecFwk::Constants::PERMISSION_GRANTED) {
         return ERR_OK;
     }
+    // allow gateway to start invisible ability when it has no permission
     if (AAFwk::PermissionVerification::GetInstance()->IsGatewayCall()) {
         return ERR_OK;
     }
@@ -6091,10 +6092,9 @@ void AbilityManagerService::ClearUserData(int32_t userId)
 
 int AbilityManagerService::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
 {
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
-        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
-        return 0;
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("Not sa call");
+        return ERR_INVALID_OPERATION;
     }
 
     if (!currentMissionListManager_) {
@@ -6642,7 +6642,7 @@ int AbilityManagerService::SendANRProcessID(int pid)
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
     if (!isSaCall && !isShellCall) {
-        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        HILOG_ERROR("Not sa or shell call");
         return CHECK_PERMISSION_FAILED;
     }
 
@@ -6804,9 +6804,8 @@ int AbilityManagerService::FinishUserTest(
 
 int AbilityManagerService::GetTopAbility(sptr<IRemoteObject> &token)
 {
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
-        HILOG_ERROR("Permission verification failed");
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("Not sa call");
         return CHECK_PERMISSION_FAILED;
     }
 #ifdef SUPPORT_GRAPHICS
@@ -7551,7 +7550,7 @@ int AbilityManagerService::RegisterWindowManagerServiceHandler(const sptr<IWindo
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     auto isGatewayCall = AAFwk::PermissionVerification::GetInstance()->IsGatewayCall();
     if (!isSaCall && !isGatewayCall) {
-        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        HILOG_ERROR("Not sa or gateway call");
         return CHECK_PERMISSION_FAILED;
     }
     wmsHandler_ = handler;
@@ -7827,7 +7826,6 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
         AAFwk::PermissionVerification::GetInstance()->IsGatewayCall()) {
         return ERR_OK;
     }
-
     auto extensionType = abilityRequest.abilityInfo.extensionAbilityType;
     HILOG_DEBUG("OtherExtension type: %{public}d.", static_cast<int32_t>(extensionType));
     if (extensionType == AppExecFwk::ExtensionAbilityType::WINDOW) {
@@ -8074,6 +8072,7 @@ int AbilityManagerService::AddStartControlParam(Want &want, const sptr<IRemoteOb
 {
     if (AAFwk::PermissionVerification::GetInstance()->IsSACall() ||
         AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+        HILOG_DEBUG("sa or shell call");
         return ERR_OK;
     }
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
@@ -8110,8 +8109,8 @@ int AbilityManagerService::CheckDlpForExtension(
 
 bool AbilityManagerService::JudgeSelfCalled(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (isSaCall) {
+    if (AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_DEBUG("sa call");
         return true;
     }
 
@@ -8787,7 +8786,7 @@ int32_t AbilityManagerService::RegisterAppDebugListener(const sptr<AppExecFwk::I
 {
     HILOG_DEBUG("Called.");
     if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
-        HILOG_ERROR("Permission verification failed.");
+        HILOG_ERROR("Not sa call");
         return CHECK_PERMISSION_FAILED;
     }
     return DelayedSingleton<AppScheduler>::GetInstance()->RegisterAppDebugListener(listener);
@@ -8797,7 +8796,7 @@ int32_t AbilityManagerService::UnregisterAppDebugListener(const sptr<AppExecFwk:
 {
     HILOG_DEBUG("Called.");
     if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
-        HILOG_ERROR("Permission verification failed.");
+        HILOG_ERROR("Not sa call");
         return CHECK_PERMISSION_FAILED;
     }
     return DelayedSingleton<AppScheduler>::GetInstance()->UnregisterAppDebugListener(listener);
@@ -8808,7 +8807,7 @@ int32_t AbilityManagerService::AttachAppDebug(const std::string &bundleName)
     HILOG_DEBUG("Called.");
     if (!AAFwk::PermissionVerification::GetInstance()->IsSACall() &&
         !AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
-        HILOG_ERROR("Permission verification failed.");
+        HILOG_ERROR("Not sa or shell call");
         return CHECK_PERMISSION_FAILED;
     }
 
@@ -8827,7 +8826,7 @@ int32_t AbilityManagerService::DetachAppDebug(const std::string &bundleName)
     HILOG_DEBUG("Called.");
     if (!AAFwk::PermissionVerification::GetInstance()->IsSACall() &&
         !AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
-        HILOG_ERROR("Permission verification failed.");
+        HILOG_ERROR("Not sa or shell call");
         return CHECK_PERMISSION_FAILED;
     }
 
