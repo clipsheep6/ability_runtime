@@ -259,7 +259,7 @@ private:
     bool isTerminating_ = false;
     int32_t missionId_ = -1;
     wptr<IRemoteObject> sessionToken_;
-
+    bool flag = false;
     static void RequestDialogResultJSThreadWorker(uv_work_t* work, int status);
     void OnAbilityResultInner(int requestCode, int resultCode, const AAFwk::Want &resultData);
 };

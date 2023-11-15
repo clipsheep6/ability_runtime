@@ -149,6 +149,11 @@ ErrCode AbilityContextImpl::StartAbilityAsCaller(const AAFwk::Want &want, int re
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("StartAbilityAsCaller");
+    if (!flag) {  //ql flag待确定
+        HILOG_ERROR("Not Support StartAbilityAsCaller");
+        return ERR_INVALID_VALUE;
+    }
+
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityAsCaller(want, token_, nullptr, requestCode);
     if (err != ERR_OK) {
         HILOG_ERROR("StartAbilityAsCaller. ret=%{public}d", err);
@@ -159,6 +164,10 @@ ErrCode AbilityContextImpl::StartAbilityAsCaller(const AAFwk::Want &want, int re
 ErrCode AbilityContextImpl::StartAbilityWithAccount(const AAFwk::Want& want, int accountId, int requestCode)
 {
     HILOG_DEBUG("StartAbilityWithAccount");
+    if (!flag) {  //ql flag待确定
+        HILOG_ERROR("Not Support StartAbilityWithAccount");
+        return ERR_INVALID_VALUE;
+    }
     (const_cast<Want &>(want)).SetParam(START_ABILITY_TYPE, true);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode, accountId);
     if (err != ERR_OK) {
@@ -184,6 +193,10 @@ ErrCode AbilityContextImpl::StartAbilityAsCaller(const AAFwk::Want &want, const 
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("StartAbilityAsCaller");
+    if (!flag) {  //ql flag待确定
+        HILOG_ERROR("Not Support StartAbilityAsCaller");
+        return ERR_INVALID_VALUE;
+    }
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityAsCaller(want,
         startOptions, token_, nullptr, requestCode);
     if (err != ERR_OK) {
@@ -197,6 +210,10 @@ ErrCode AbilityContextImpl::StartAbilityWithAccount(
 {
     HILOG_DEBUG("name:%{public}s %{public}s, accountId=%{public}d",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), accountId);
+    if (!flag) {  //ql flag待确定
+        HILOG_ERROR("Not Support StartAbilityWithAccount");
+        return ERR_INVALID_VALUE;
+    }
     (const_cast<Want &>(want)).SetParam(START_ABILITY_TYPE, true);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(
         want, startOptions, token_, requestCode, accountId);

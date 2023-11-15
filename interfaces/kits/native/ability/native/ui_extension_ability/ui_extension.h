@@ -65,6 +65,9 @@ public:
      * @return The ui extension instance.
      */
     static UIExtension* Create(const std::unique_ptr<Runtime>& runtime);
+    virtual td::shared_ptr<EmbeddableAbilityContext> GetEmbeddableContext();
+
+    std::shared_ptr<EmbeddableAbilityContext embeddableAbilityContext_ = nullptr;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

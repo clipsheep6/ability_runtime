@@ -61,5 +61,42 @@ std::shared_ptr<UIExtensionContext> UIExtension::CreateAndInitContext(
     }
     return context;
 }
+
+// void UIExtension::BuildEmbeddableContext(const std::shared_ptr<AbilityLocalRecord> &record,
+//     const std::shared_ptr<OHOSApplication> &application,
+//     std::shared_ptr<AbilityHandler> &handler,
+//     const sptr<IRemoteObject> &token)
+// {
+//     HILOG_INFO("begin init base");
+//     std::shared_ptr<AbilityContext> abilityContextIpml = std::make_shared<AbilityContext>(); //ql AbilityContextImpl
+//     abilityContextIpml->SetToken(token);
+//     auto appContext = Context::GetApplicationContext();
+//     if (appContext == nullptr) {
+//         HILOG_ERROR("ServiceExtension::CreateAndInitContext appContext is nullptr");
+//         return;
+//     }
+//     abilityContextIpml->SetApplicationInfo(appContext->GetApplicationInfo());
+//     abilityContextIpml->SetResourceManager(appContext->GetResourceManager());
+//     abilityContextIpml->SetParentContext(appContext);
+//     if (record == nullptr) {
+//         HILOG_ERROR("ServiceExtension::CreateAndInitContext record is nullptr");
+//         return;
+//     }
+//     HILOG_INFO("begin init abilityInfo");
+//     auto abilityInfo = record->GetAbilityInfo();
+//     abilityContextIpml->SetAbilityInfo(abilityInfo);
+//     abilityContextIpml->InitHapModuleInfo(abilityInfo);
+//     abilityContextIpml->SetConfiguration(appContext->GetConfiguration());
+//     if (abilityInfo->applicationInfo.multiProjects) {
+//         auto rm = abilityContextIpml->CreateModuleContext(abilityInfo->moduleName)->GetResourceManager();
+//         abilityContextIpml->SetResourceManager(rm);
+//     }
+//     embeddableAbilityContext_ = abilityContextIpml;
+// }
+
+// std::shared_ptr<EmbeddableAbilityContext> UIExtension::GetEmbeddableContext()
+// {
+//     return embeddableAbilityContext_;
+// }
 }
 }

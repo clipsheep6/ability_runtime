@@ -138,6 +138,8 @@ void JsUIExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
 {
     HILOG_DEBUG("JsUIExtension begin init");
     UIExtension::Init(record, application, handler, token);
+    //ql ui_extension.cpp中实现，创建embeddablecontext
+    //ql UIExtension::BuildEmbeddableContext(record, application, handler, token);
     if (Extension::abilityInfo_ == nullptr || Extension::abilityInfo_->srcEntrance.empty()) {
         HILOG_ERROR("JsUIExtension Init abilityInfo error");
         return;
@@ -166,10 +168,51 @@ void JsUIExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     }
 
     BindContext(env, obj);
-
+    //ql 绑定embeddablecontext
+    //ql BindEmbeddableContext(env, obj);
     SetExtensionCommon(
         JsExtensionCommon::Create(jsRuntime_, static_cast<NativeReference&>(*jsObj_), shellContextRef_));
 }
+//ql 绑定EmbeddableContext
+// void JsUIExtension::BindEmbeddableContext(napi_env env, napi_value obj)
+// {
+//     auto embeddableContext = GetEmbeddableContext();  //ql ui_extension.cpp中实现
+//     if (context == nullptr) {
+//         HILOG_ERROR("Failed to get embeddableContext");
+//         return;
+//     }
+//     HILOG_DEBUG("BindEmbeddableContext CreateJsEmbeddableAbilityContext.");
+//     napi_value contextObj = JsEmbeddableAbilityContext::CreateJsEmbeddableAbilityContext(env, embeddableContext);
+//     if (contextObj == nullptr) {
+//         HILOG_ERROR("Create js embeddable context error.");
+//         return;
+//     }
+
+//     shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(env, "application.EmbeddableAbilityContext",
+//         &contextObj, ARGC_ONE);
+//     if (shellContextRef_ == nullptr) {
+//         HILOG_ERROR("Failed to get LoadSystemModuleByEngine");
+//         return;
+//     }
+//     contextObj = shellContextRef_->GetNapiValue();
+//     if (!CheckTypeForNapiValue(env, contextObj, napi_object)) {
+//         HILOG_ERROR("Failed to get context native object");
+//         return;
+//     }
+//     auto workContext = new (std::nothrow) std::weak_ptr<EmbeddableAbilityContext>(embeddableContext);
+//     napi_coerce_to_native_binding_object(
+//         env, contextObj, DetachCallbackFunc, AttachUIExtensionContext, workContext, nullptr);
+//     embeddableContext->Bind(jsRuntime_, shellContextRef_.get());
+//     napi_set_named_property(env, obj, "context", contextObj);
+//     napi_wrap(env, contextObj, workContext,
+//         [](napi_env, void* data, void*) {
+//             HILOG_DEBUG("Finalizer for weak_ptr embeddableAbility context is called");
+//             delete static_cast<std::weak_ptr<EmbeddableAbilityContext>*>(data);
+//         },
+//         nullptr, nullptr);
+
+//     HILOG_DEBUG("Init end.");
+// }
 
 void JsUIExtension::BindContext(napi_env env, napi_value obj)
 {
