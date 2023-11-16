@@ -999,6 +999,9 @@ public:
      */
     void UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
         const std::shared_ptr<OHOS::Media::PixelMap> &pixelMap);
+
+    ErrCode GetDialogSessionInfo(const std::string &dialogSessionId, sptr<DialogSessionInfo> info);
+    ErrCode SendDialogResult(const Want &want, const std::string &dialogSessionId, bool isAllow);
 #endif
 
     /**

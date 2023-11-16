@@ -3020,5 +3020,12 @@ void AbilityRecord::SetAttachDebug(const bool isAttachDebug)
 {
     isAttachDebug_ = isAttachDebug;
 }
+
+int32_t AbilityRecord::CreateModalUIExtension(const Want &want)
+{
+    CHECK_POINTER_AND_RETURN(scheduler_, INNER_ERR);
+    HILOG_DEBUG("call");
+    return scheduler_->CreateModalUIExtension(want);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

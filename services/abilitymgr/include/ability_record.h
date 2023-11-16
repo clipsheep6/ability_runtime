@@ -895,6 +895,8 @@ public:
 
     void SetAttachDebug(const bool isAttachDebug);
 
+    int32_t CreateModalUIExtension(const Want &want);
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
 

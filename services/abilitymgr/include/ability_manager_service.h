@@ -37,12 +37,14 @@
 #include "app_mgr_interface.h"
 #include "app_scheduler.h"
 #include "auto_startup_info.h"
+#include "dialog_session_info.h"
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 #include "background_task_observer.h"
 #endif
 #include "bundle_constants.h"
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "data_ability_manager.h"
+#include "dialog_session_record.h"
 #include "event_report.h"
 #include "free_install_manager.h"
 #include "hilog_wrapper.h"
@@ -1353,6 +1355,16 @@ public:
      */
     int32_t DetachAppDebug(const std::string &bundleName) override;
 
+    virtual int GetDialogSessionInfo(const std::string &dialogSessionId, sptr<DialogSessionInfo> dialogSessionInfo) override;
+    
+    int GenerateDialogSessionRecord(AbilityRequest &abilityRequest, int32_t userId,
+        std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos);
+        
+    int CreateDialogByUIExtension(const Want &replaceWant, const sptr<IRemoteObject> &callerToken, std::string &dialogSessionId);
+    
+    virtual int SendDialogResult(const Want &want, const std::string &dialogSessionId, bool isAllowed) override;
+
+
     /**
      * @brief Execute intent.
      * @param key The key of intent executing client.
@@ -1874,6 +1886,8 @@ private:
     bool whiteListassociatedWakeUpFlag_ = true;
 
     std::shared_ptr<AbilityAutoStartupService> abilityAutoStartupService_;
+
+    std::shared_ptr<DialogSessionRecord> dialogSessionRecord_;
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     std::shared_ptr<BackgroundTaskObserver> bgtaskObserver_;

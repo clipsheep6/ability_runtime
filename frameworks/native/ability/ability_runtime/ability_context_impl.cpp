@@ -724,6 +724,24 @@ int AbilityContextImpl::GetCurrentWindowMode()
     return abilityCallback->GetCurrentWindowMode();
 }
 
+ErrCode AbilityContextImpl::CreateModalUIExtension(const AAFwk::Want &want)
+{
+    HILOG_DEBUG("call");
+    auto uiContent = GetUIContent();
+    if (uiContent == nullptr) {
+        HILOG_ERROR("uiContent is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    Ace::ModalUIExtensionCallbacks callback;
+    Ace::ModalUIExtensionConfig config;
+    int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
+    if (sessionId == 0) {
+        HILOG_ERROR("CreateModalUIExtension is failed");
+        return ERR_INVALID_VALUE;
+    }
+    return ERR_OK;
+}
+
 Ace::UIContent* AbilityContextImpl::GetUIContent()
 {
     HILOG_DEBUG("call");

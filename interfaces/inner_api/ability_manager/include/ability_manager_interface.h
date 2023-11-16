@@ -28,6 +28,7 @@
 #include "ability_state.h"
 #include "app_debug_listener_interface.h"
 #include "auto_startup_info.h"
+#include "dialog_session_info.h"
 #include "extension_running_info.h"
 #include "free_install_observer_interface.h"
 #include "iability_controller.h"
@@ -775,6 +776,16 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int PrepareTerminateAbility(const sptr<IRemoteObject> &token, sptr<IPrepareTerminateCallback> &callback)
+    {
+        return 0;
+    }
+
+    virtual int GetDialogSessionInfo(const std::string &dialogSessionId, sptr<DialogSessionInfo> dialogSessionInfo)
+    {
+        return 0;
+    }
+
+    virtual int SendDialogResult(const Want &want, const std::string &dialogSessionId, bool isAllow)
     {
         return 0;
     }

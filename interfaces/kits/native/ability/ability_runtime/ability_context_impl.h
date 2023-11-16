@@ -240,6 +240,12 @@ public:
     void GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t &height) override;
 
     /**
+     * @brief Create Modal UIExtension
+     * @param want The Want object.
+     */
+    ErrCode CreateModalUIExtension(const AAFwk::Want &want) override;
+
+    /**
      * @brief Get ui content object.
      *
      * @return UIContent object of ACE.
