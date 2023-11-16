@@ -414,6 +414,9 @@ void UIAbilityLifecycleManager::HandleForegroundFailed(const std::shared_ptr<Abi
         return;
     }
 
+    NotifySCBToHandleException(ability,
+        static_cast<int32_t>(ErrorLifecycleState::ABILITY_STATE_LOAD_TIMEOUT), "handleForegroundTimeout");
+
     EraseAbilityRecord(ability);
     // foreground failed, notify appMs force terminate the ability
     DelayedSingleton<AppScheduler>::GetInstance()->AttachTimeOut(ability->GetToken());
