@@ -17,6 +17,7 @@ group("innerkits_target") {
     "ability_manager:ability_manager",
     "ability_manager:ability_manager_c",
     "app_manager:app_manager",
+    "auto_fill_manager:auto_fill_manager",
     "child_process_manager:child_process_manager",
     "connectionobs_manager:connection_obs_manager",
     "dataobs_manager:dataobs_manager",

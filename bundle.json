@@ -394,6 +394,18 @@
               "header_files": []
             },
             "name": "//foundation/ability/ability_runtime/interfaces/inner_api/session_handler:session_handler"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/auto_fill_manager/include",
+              "header_files": [
+                "auto_fill_error.h",
+                "auto_fill_manager.h",
+                "fill_request_callback_interface.h",
+                "save_request_callback_interface.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/auto_fill_manager:auto_fill_manager"
           }
         ],
         "test": [
