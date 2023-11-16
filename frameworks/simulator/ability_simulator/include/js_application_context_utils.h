@@ -39,6 +39,7 @@ public:
     static napi_value SwitchArea(napi_env env, napi_callback_info info);
     static napi_value GetArea(napi_env env, napi_callback_info info);
     static napi_value CreateModuleContext(napi_env env, napi_callback_info info);
+    static napi_value CreateModuleResourceManager(napi_env env, napi_callback_info info);
     static napi_value GetCacheDir(napi_env env, napi_callback_info info);
     static napi_value GetTempDir(napi_env env, napi_callback_info info);
     static napi_value GetFilesDir(napi_env env, napi_callback_info info);

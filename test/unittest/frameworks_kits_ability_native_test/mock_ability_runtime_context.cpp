@@ -124,6 +124,12 @@ std::shared_ptr<Context> MockAbilityRuntimeContext::CreateModuleContext(
     return {};
 };
 
+std::shared_ptr<Global::Resource::ResourceManager> MockAbilityRuntimeContext::CreateModuleResourceManager(
+    const std::string &bundleName, const std::string &moduleName)
+{
+    return nullptr;
+}
+
 int MockAbilityRuntimeContext::GetArea()
 {
     return {};

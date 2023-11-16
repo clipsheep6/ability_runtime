@@ -204,6 +204,18 @@ public:
     std::shared_ptr<Context> CreateBundleContext(const std::string &bundleName) override;
 
     /**
+     * @brief Creates a ResourceManager object for a hap with the given hap name and app name.
+     *
+     * @param bundleName Indicates the app name of the application.
+     *
+     * @param moduleName Indicates the module name of the hap.
+     *
+     * @return Returns a ResourceManager object created for the specified hap and app.
+     */
+    std::shared_ptr<Global::Resource::ResourceManager> CreateModuleResourceManager(
+        const std::string &bundleName, const std::string &moduleName) override;
+
+    /**
     * @brief Obtains an IBundleMgr instance.
     * You can use this instance to obtain information about the application bundle.
     *
@@ -375,6 +387,12 @@ private:
     int32_t GetPreferencesDirWithCheck(bool checkExist, std::string &preferencesDir);
     int32_t GetGroupPreferencesDirWithCheck(const std::string &groupId, bool checkExist, std::string &preferencesDir);
     int32_t GetGroupDirWithCheck(const std::string &groupId, bool checkExist, std::string &groupDir);
+    std::shared_ptr<Global::Resource::ResourceManager> InitOthersResourceManagerInner(
+        const AppExecFwk::BundleInfo &bundleInfo, bool currentBundle, const std::string& moduleName);
+    std::shared_ptr<Global::Resource::ResourceManager> InitResourceManagerInner(
+        const AppExecFwk::BundleInfo &bundleInfo, bool currentBundle, const std::string& moduleName);
+    void UpdateResConfig(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager);
+    int32_t GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, bool &currentBundle);
 
     static Global::Resource::DeviceType deviceType_;
     std::shared_ptr<AppExecFwk::ApplicationInfo> applicationInfo_ = nullptr;
