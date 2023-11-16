@@ -18,6 +18,7 @@
 #define private public
 #include "extension_manager_client.h"
 #undef private
+#include "ability_connect_callback_stub.h"
 #include "ability_manager_client.h"
 #include "appexecfwk_errors.h"
 #include "hilog_wrapper.h"
@@ -27,7 +28,18 @@ using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace AAFwk {
-
+namespace {
+class AbilityConnectCallback : public AbilityConnectionStub {
+public:
+    AbilityConnectCallback() = default;
+    virtual ~AbilityConnectCallback() = default;
+    void OnAbilityConnectDone(
+        const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject, int resultCode) override
+    {}
+    void OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int resultCode) override
+    {}
+};
+}
 class ExtensionManagerClientTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -155,6 +167,64 @@ HWTEST_F(ExtensionManagerClientTest, ExtensionManagerClientTest_009, TestSize.Le
     sptr<IRemoteObject> connect;
     auto result = client->DisconnectAbility(connect);
     EXPECT_TRUE(result != ERR_OK);
+}
+
+/*
+ * Feature: ExtensionManagerClient
+ * Function: ConnectDataShareExtensionAbility
+ */
+HWTEST_F(ExtensionManagerClientTest, ExtensionManagerClientTest_010, TestSize.Level1)
+{
+    ExtensionManagerClient client;
+    Want want;
+    sptr<IRemoteObject> connect(new AbilityConnectCallback());
+    int32_t userId = 0;
+    auto result = client.ConnectDataShareExtensionAbility(want, connect, userId);
+    HILOG_INFO("ExtensionManagerClientTest_010: %{public}d", result);
+    EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
+}
+
+/*
+ * Feature: ExtensionManagerClient
+ * Function: StartExtensionAbility
+ */
+HWTEST_F(ExtensionManagerClientTest, ExtensionManagerClientTest_011, TestSize.Level1)
+{
+    ExtensionManagerClient client;
+    Want want;
+    int32_t userId = 0;
+    auto result = client.StartExtensionAbility(want, nullptr, userId,
+        AppExecFwk::ExtensionAbilityType::UNSPECIFIED);
+    HILOG_INFO("ExtensionManagerClientTest_011: %{public}d", result);
+    EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
+}
+
+/*
+ * Feature: ExtensionManagerClient
+ * Function: StopExtensionAbility
+ */
+HWTEST_F(ExtensionManagerClientTest, ExtensionManagerClientTest_012, TestSize.Level1)
+{
+    ExtensionManagerClient client;
+    Want want;
+    int32_t userId = 0;
+    auto result = client.StopExtensionAbility(want, nullptr, userId,
+        AppExecFwk::ExtensionAbilityType::UNSPECIFIED);
+    HILOG_INFO("ExtensionManagerClientTest_012: %{public}d", result);
+    EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
+}
+
+/*
+ * Feature: ExtensionManagerClient
+ * Function: StopServiceAbility
+ */
+HWTEST_F(ExtensionManagerClientTest, ExtensionManagerClientTest_013, TestSize.Level1)
+{
+    ExtensionManagerClient client;
+    Want want;
+    auto result = client.StopServiceAbility(want, nullptr);
+    HILOG_INFO("ExtensionManagerClientTest_013: %{public}d", result);
+    EXPECT_EQ(result, RESOLVE_ABILITY_ERR);
 }
 }
 }

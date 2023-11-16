@@ -34,14 +34,13 @@ public:
     virtual ~ExtensionManagerClient() = default;
     static ExtensionManagerClient& GetInstance();
 
-    ErrCode ConnectServiceExtensionAbility(const Want &want, const sptr<IRemoteObject> &connect, int32_t userId);
-
-    ErrCode ConnectServiceExtensionAbility(const Want &want, const sptr<IRemoteObject> &connect,
-        const sptr<IRemoteObject> &callerToken, int32_t userId);
-
+    ErrCode ConnectServiceExtensionAbility(const Want &want, sptr<IRemoteObject> connect, int32_t userId);
+    ErrCode ConnectServiceExtensionAbility(const Want &want, sptr<IRemoteObject> connect,
+        sptr<IRemoteObject> callerToken, int32_t userId);
     ErrCode ConnectEnterpriseAdminExtensionAbility(const Want &want,
-        const sptr<IRemoteObject> &connect, const sptr<IRemoteObject> &callerToken, int32_t userId);
-
+        sptr<IRemoteObject> connect, sptr<IRemoteObject> callerToken, int32_t userId);
+    ErrCode ConnectDataShareExtensionAbility(const Want &want,
+        sptr<IRemoteObject> connect, int32_t userId);
     /**
      * Connect extension ability.
      *
@@ -50,7 +49,7 @@ public:
      * @param userId the extension runs in.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode ConnectExtensionAbility(const Want &want, const sptr<IRemoteObject> &connect,
+    ErrCode ConnectExtensionAbility(const Want &want, sptr<IRemoteObject> connect,
         int32_t userId = DEFAULT_INVALID_USER_ID);
 
     /**
@@ -59,7 +58,44 @@ public:
      * @param connect Callback used to notify caller the result of disconnecting.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode DisconnectAbility(const sptr<IRemoteObject> &connect);
+    ErrCode DisconnectAbility(sptr<IRemoteObject> connect);
+
+    /**
+     * Start extension ability with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param callerToken, caller ability token.
+     * @param userId, Designation User ID.
+     * @param extensionType ExtensionAbilityType of which you want to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartExtensionAbility(const Want &want, sptr<IRemoteObject> callerToken, int32_t userId,
+        AppExecFwk::ExtensionAbilityType extensionType);
+
+    /**
+     * Stop extension ability with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to stop.
+     * @param callerToken, caller ability token.
+     * @param userId, Designation User ID.
+     * @param extensionType ExtensionAbilityType of which you want to stop.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StopExtensionAbility(const Want& want, sptr<IRemoteObject> callerToken, int32_t userId,
+        AppExecFwk::ExtensionAbilityType extensionType);
+
+    /**
+     * Destroys this Service ability by Want.
+     *
+     * @param want, Special want for service type's ability.
+     * @param token ability's token.
+     * @return Returns true if this Service ability will be destroyed; returns false otherwise.
+     */
+    ErrCode StopServiceAbility(const Want &want, sptr<IRemoteObject> token);
+private:
+    ErrCode ConnectAbilityCommon(const Want &want, sptr<IRemoteObject> connect,
+        sptr<IRemoteObject> callerToken, AppExecFwk::ExtensionAbilityType extensionType,
+        int32_t userId = DEFAULT_INVALID_USER_ID, bool isQuerryExtensionOnly = true);
 
 private:
     class ExtensionMgrDeathRecipient : public IRemoteObject::DeathRecipient {

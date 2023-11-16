@@ -92,68 +92,35 @@ void ExtensionManagerClient::ExtensionMgrDeathRecipient::OnRemoteDied(const wptr
 }
 
 ErrCode ExtensionManagerClient::ConnectServiceExtensionAbility(const Want &want,
-    const sptr<IRemoteObject> &connect, int32_t userId)
+    sptr<IRemoteObject> connect, int32_t userId)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    auto abms = GetExtensionManager();
-    if (abms == nullptr) {
-        HILOG_ERROR("Connect service failed, bundleName:%{public}s, abilityName:%{public}s.",
-            want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str());
-        return ABILITY_SERVICE_NOT_CONNECTED;
-    }
-    HILOG_INFO("name:%{public}s %{public}s, userId:%{public}d.",
-        want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
-    return abms->ConnectAbilityCommon(want, connect, nullptr, AppExecFwk::ExtensionAbilityType::SERVICE,
-        userId, true);
+    return ConnectAbilityCommon(want, connect, nullptr, AppExecFwk::ExtensionAbilityType::SERVICE, userId);
 }
 
 ErrCode ExtensionManagerClient::ConnectServiceExtensionAbility(const Want &want,
-    const sptr<IRemoteObject> &connect, const sptr<IRemoteObject> &callerToken, int32_t userId)
+    sptr<IRemoteObject> connect, sptr<IRemoteObject> callerToken, int32_t userId)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    auto abms = GetExtensionManager();
-    if (abms == nullptr) {
-        HILOG_ERROR("Connect service failed, bundleName:%{public}s, abilityName:%{public}s.",
-            want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str());
-        return ABILITY_SERVICE_NOT_CONNECTED;
-    }
-    HILOG_INFO("name:%{public}s %{public}s, userId:%{public}d.",
-        want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
-    return abms->ConnectAbilityCommon(want, connect, callerToken, AppExecFwk::ExtensionAbilityType::SERVICE, userId, true);
+    return ConnectAbilityCommon(want, connect, callerToken, AppExecFwk::ExtensionAbilityType::SERVICE, userId);
 }
 
 ErrCode ExtensionManagerClient::ConnectEnterpriseAdminExtensionAbility(const Want &want,
-    const sptr<IRemoteObject> &connect, const sptr<IRemoteObject> &callerToken, int32_t userId)
+    sptr<IRemoteObject> connect, sptr<IRemoteObject> callerToken, int32_t userId)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    auto abms = GetExtensionManager();
-    if (abms == nullptr) {
-        HILOG_ERROR("Connect service failed, bundleName:%{public}s, abilityName:%{public}s.",
-            want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str());
-        return ABILITY_SERVICE_NOT_CONNECTED;
-    }
-    HILOG_INFO("name:%{public}s %{public}s, userId:%{public}d.",
-        want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
-    return abms->ConnectAbilityCommon(want, connect, callerToken, AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN, userId, true);
+    return ConnectAbilityCommon(want, connect, callerToken, AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN, userId);
 }
 
-ErrCode ExtensionManagerClient::ConnectExtensionAbility(const Want &want, const sptr<IRemoteObject> &connect,
+ErrCode ExtensionManagerClient::ConnectDataShareExtensionAbility(const Want &want, sptr<IRemoteObject> connect,
     int32_t userId)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    auto abms = GetExtensionManager();
-    if (abms == nullptr) {
-        HILOG_ERROR("Connect failed, bundleName:%{public}s, abilityName:%{public}s",
-            want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str());
-        return ABILITY_SERVICE_NOT_CONNECTED;
-    }
-
-    HILOG_INFO("bundleName: %{public}s, abilityName: %{public}s, userId: %{public}d.",
-        want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
-    return abms->ConnectAbilityCommon(want, connect, nullptr, AppExecFwk::ExtensionAbilityType::UNSPECIFIED, userId);
+    return ConnectAbilityCommon(want, connect, nullptr, AppExecFwk::ExtensionAbilityType::DATASHARE, userId);
 }
 
-ErrCode ExtensionManagerClient::DisconnectAbility(const sptr<IRemoteObject> &connect)
+ErrCode ExtensionManagerClient::ConnectExtensionAbility(const Want &want, sptr<IRemoteObject> connect, int32_t userId)
+{
+    return ConnectAbilityCommon(want, connect, nullptr, AppExecFwk::ExtensionAbilityType::UNSPECIFIED, userId);
+}
+
+ErrCode ExtensionManagerClient::DisconnectAbility(sptr<IRemoteObject> connect)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetExtensionManager();
@@ -162,5 +129,45 @@ ErrCode ExtensionManagerClient::DisconnectAbility(const sptr<IRemoteObject> &con
     return abms->DisconnectAbility(connect);
 }
 
+ErrCode ExtensionManagerClient::StartExtensionAbility(const Want &want, sptr<IRemoteObject> callerToken,
+    int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
+{
+    auto abms = GetExtensionManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_INFO("name:%{public}s %{public}s, userId=%{public}d.",
+        want.GetElement().GetAbilityName().c_str(), want.GetElement().GetBundleName().c_str(), userId);
+    return abms->StartExtensionAbility(want, callerToken, userId, extensionType);
+}
+
+ErrCode ExtensionManagerClient::StopExtensionAbility(const Want &want, sptr<IRemoteObject> callerToken,
+    int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
+{
+    auto abms = GetExtensionManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_INFO("name:%{public}s %{public}s, userId=%{public}d.",
+        want.GetElement().GetAbilityName().c_str(), want.GetElement().GetBundleName().c_str(), userId);
+    return abms->StopExtensionAbility(want, callerToken, userId, extensionType);
+}
+
+ErrCode ExtensionManagerClient::StopServiceAbility(const Want &want, sptr<IRemoteObject> token)
+{
+    HILOG_INFO("call");
+    auto abms = GetExtensionManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->StopServiceAbility(want, DEFAULT_INVALID_USER_ID, token);
+}
+
+ErrCode ExtensionManagerClient::ConnectAbilityCommon(const Want &want, sptr<IRemoteObject> connect,
+    sptr<IRemoteObject> callerToken, AppExecFwk::ExtensionAbilityType extensionType,
+    int32_t userId, bool isQuerryExtensionOnly)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto abms = GetExtensionManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+
+    HILOG_INFO("bundleName: %{public}s, abilityName: %{public}s, userId: %{public}d.",
+        want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
+    return abms->ConnectAbilityCommon(want, connect, callerToken, extensionType, userId, isQuerryExtensionOnly);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
