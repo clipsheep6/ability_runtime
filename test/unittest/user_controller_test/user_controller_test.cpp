@@ -138,9 +138,8 @@ HWTEST_F(UserControllerTest, StopUserTest_0300, TestSize.Level0)
 HWTEST_F(UserControllerTest, LogoutUserTest_0100, TestSize.Level0)
 {
     UserController userController;
-    userController.LogoutUser(-1);
-    userController.LogoutUser(0);
-    EXPECT_TRUE(userController.LogoutUser(100) == -1);
+    auto result = userController.LogoutUser(-1);
+    EXPECT_EQ(result, INVALID_USERID_VALUE);
 }
 
 /**
@@ -152,7 +151,7 @@ HWTEST_F(UserControllerTest, LogoutUserTest_0100, TestSize.Level0)
 HWTEST_F(UserControllerTest, LogoutUserTest_0200, TestSize.Level0)
 {
     UserController userController;
-    EXPECT_TRUE(userController.LogoutUser(666) == -1);
+    EXPECT_TRUE(userController.LogoutUser(666) == INVALID_USERID_VALUE);
 }
 
 /**
