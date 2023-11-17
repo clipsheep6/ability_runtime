@@ -348,6 +348,8 @@ public:
         const AAFwk::ContinueState &state);
 
     int32_t MoveMissionToBackground(int32_t missionId);
+
+    bool IsAbilityStarted(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetRecord);
 #ifdef SUPPORT_GRAPHICS
 public:
     /**

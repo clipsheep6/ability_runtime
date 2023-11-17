@@ -195,7 +195,7 @@ void UIAbilityLifecycleManager::OnAbilityRequestDone(const sptr<IRemoteObject> &
     if (abilityState == AppAbilityState::ABILITY_STATE_FOREGROUND) {
         auto&& abilityRecord = Token::GetAbilityRecordByToken(token);
         CHECK_POINTER(abilityRecord);
-        std::string element = abilityRecord->GetWant().GetElement().GetURI();
+        std::string element = abilityRecord->GetElementName().GetURI();
         HILOG_DEBUG("Ability is %{public}s, start to foreground.", element.c_str());
         abilityRecord->ForegroundAbility();
     }
@@ -213,7 +213,7 @@ int UIAbilityLifecycleManager::AbilityTransactionDone(const sptr<IRemoteObject> 
     auto abilityRecord = GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
-    std::string element = abilityRecord->GetWant().GetElement().GetURI();
+    std::string element = abilityRecord->GetElementName().GetURI();
     HILOG_DEBUG("ability: %{public}s, state: %{public}s", element.c_str(), abilityState.c_str());
 
     if (targetState == AbilityState::BACKGROUND) {
@@ -375,7 +375,7 @@ void UIAbilityLifecycleManager::CompleteForegroundSuccess(const std::shared_ptr<
     CHECK_POINTER(abilityRecord);
     // ability do not save window mode
     abilityRecord->RemoveWindowMode();
-    std::string element = abilityRecord->GetWant().GetElement().GetURI();
+    std::string element = abilityRecord->GetElementName().GetURI();
     HILOG_DEBUG("ability: %{public}s", element.c_str());
     abilityRecord->SetAbilityState(AbilityState::FOREGROUND);
 
@@ -591,6 +591,24 @@ int UIAbilityLifecycleManager::ResolveLocked(const AbilityRequest &abilityReques
     return CallAbilityLocked(abilityRequest, userId);
 }
 
+bool UIAbilityLifecycleManager::IsAbilityStarted(AbilityRequest &abilityRequest,
+    std::shared_ptr<AbilityRecord> &targetRecord, const int32_t oriValidUserId)
+{
+    HILOG_DEBUG("Call.");
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    bool reuse = false;
+    auto persistentId = GetPersistentIdByAbilityRequest(abilityRequest, reuse, oriValidUserId);
+    if (persistentId == 0) {
+        return false;
+    }
+    targetRecord = sessionAbilityMap_.at(persistentId);
+    if (targetRecord) {
+        targetRecord->AddCallerRecord(abilityRequest.callerToken, abilityRequest.requestCode);
+        targetRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_CALL);
+    }
+    return true;
+}
+
 int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRequest, int32_t userId)
 {
     HILOG_DEBUG("Call.");
@@ -609,7 +627,6 @@ int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRe
     } else {
         uiAbilityRecord = sessionAbilityMap_.at(persistentId);
     }
-
     uiAbilityRecord->AddCallerRecord(abilityRequest.callerToken, abilityRequest.requestCode);
     uiAbilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_CALL);
     NotifyAbilityToken(uiAbilityRecord->GetToken(), abilityRequest);
@@ -887,7 +904,7 @@ int UIAbilityLifecycleManager::CloseUIAbility(const std::shared_ptr<AbilityRecor
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    std::string element = abilityRecord->GetWant().GetElement().GetURI();
+    std::string element = abilityRecord->GetElementName().GetURI();
     HILOG_INFO("call, from ability: %{public}s", element.c_str());
     if (abilityRecord->IsTerminating() && !abilityRecord->IsForeground()) {
         HILOG_INFO("ability is on terminating");

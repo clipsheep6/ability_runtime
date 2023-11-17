@@ -483,6 +483,17 @@ public:
         const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
         std::unique_ptr<InsightIntentExecutorAsyncCallback> callback);
 
+    /**
+     * @brief Execute insight intent when an ability didn't started, schedule it to background.
+     *
+     * @param want Want.
+     * @param executeParam insight intent execute param.
+     * @param callback insight intent async callback.
+     */
+    virtual void ExecuteInsightIntentBackground(const AAFwk::Want &want,
+        const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+        std::unique_ptr<InsightIntentExecutorAsyncCallback> callback);
+
 protected:
     class UIAbilityDisplayListener : public OHOS::Rosen::DisplayManager::IDisplayListener {
     public:

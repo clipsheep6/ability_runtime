@@ -264,6 +264,11 @@ void AbilityThread::CallRequest()
     HILOG_DEBUG("called");
 }
 
+void AbilityThread::OnExecuteIntent(const Want &want)
+{
+    HILOG_DEBUG("called");
+}
+
 std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> AbilityThread::ExecuteBatch(
     const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> &operations)
 {

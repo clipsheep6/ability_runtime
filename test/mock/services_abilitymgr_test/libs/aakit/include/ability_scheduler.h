@@ -108,6 +108,8 @@ public:
     {
         return;
     };
+    virtual void OnExecuteIntent(const Want &want) override
+    {};
 #ifdef ABILITY_COMMAND_FOR_TEST
     virtual int BlockAbility() override
     {

@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <unordered_set>
 
+#include "ability_background_connection.h"
 #include "ability_debug_deal.h"
 #include "ability_info.h"
 #include "ability_interceptor.h"
@@ -394,7 +395,7 @@ bool AbilityManagerService::Init()
     };
     taskHandler_->SubmitTask(startAutoStartupAppsTask, "StartAutoStartupApps");
     ResiterSuspendObserver();
-    
+
     auto initExtensionConfigTask = []() {
         DelayedSingleton<ExtensionConfig>::GetInstance()->LoadExtensionConfiguration();
     };
@@ -4839,8 +4840,7 @@ int AbilityManagerService::GenerateAbilityRequest(
     }
 
     if (abilityRecord != nullptr) {
-        auto isDebug = abilityRecord->GetWant().GetBoolParam(DEBUG_APP, false);
-        (const_cast<Want &>(want)).SetParam(DEBUG_APP, isDebug);
+        (const_cast<Want &>(want)).SetParam(DEBUG_APP, abilityRecord->IsDebugApp());
     }
 
     request.want = want;
@@ -6045,7 +6045,7 @@ void AbilityManagerService::UpdateFocusState(std::vector<AbilityRunningInfo> &in
 
     for (auto &item : info) {
         if (item.uid == abilityRecord->GetUid() && item.pid == abilityRecord->GetPid() &&
-            item.ability == abilityRecord->GetWant().GetElement()) {
+            item.ability == abilityRecord->GetElementName()) {
             item.abilityState = static_cast<int>(AbilityState::ACTIVE);
             break;
         }
@@ -6843,7 +6843,7 @@ int AbilityManagerService::DelegatorDoAbilityForeground(const sptr<IRemoteObject
         NotifyHandleAbilityStateChange(token, ABILITY_MOVE_TO_FOREGROUND_CODE);
         auto&& abilityRecord = Token::GetAbilityRecordByToken(token);
         CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-        auto&& want = abilityRecord->GetWant();
+        auto want = abilityRecord->GetWant();
         if (!IsAbilityControllerStart(want, want.GetBundle())) {
             HILOG_ERROR("SceneBoard IsAbilityControllerStart failed: %{public}s", want.GetBundle().c_str());
             return ERR_WOULD_BLOCK;
@@ -7172,7 +7172,7 @@ void AbilityManagerService::GetAbilityRunningInfo(std::vector<AbilityRunningInfo
     AbilityRunningInfo runningInfo;
     AppExecFwk::RunningProcessInfo processInfo;
 
-    runningInfo.ability = abilityRecord->GetWant().GetElement();
+    runningInfo.ability = abilityRecord->GetElementName();
     runningInfo.startTime = abilityRecord->GetStartTime();
     runningInfo.abilityState = static_cast<int>(abilityRecord->GetAbilityState());
 
@@ -7274,7 +7274,7 @@ AppExecFwk::ElementName AbilityManagerService::GetTopAbility(bool isNeedLocalDev
         HILOG_ERROR("%{public}s abilityRecord is null.", __func__);
         return elementName;
     }
-    elementName = abilityRecord->GetWant().GetElement();
+    elementName = abilityRecord->GetElementName();
     bool isDeviceEmpty = elementName.GetDeviceID().empty();
     std::string localDeviceId;
     if (isDeviceEmpty && isNeedLocalDeviceId && GetLocalDeviceId(localDeviceId)) {
@@ -7300,7 +7300,7 @@ AppExecFwk::ElementName AbilityManagerService::GetElementNameByToken(sptr<IRemot
         HILOG_ERROR("%{public}s abilityRecord is null.", __func__);
         return elementName;
     }
-    elementName = abilityRecord->GetWant().GetElement();
+    elementName = abilityRecord->GetElementName();
     bool isDeviceEmpty = elementName.GetDeviceID().empty();
     std::string localDeviceId;
     if (isDeviceEmpty && isNeedLocalDeviceId && GetLocalDeviceId(localDeviceId)) {
@@ -8865,8 +8865,8 @@ int32_t AbilityManagerService::ExecuteIntent(uint64_t key, const sptr<IRemoteObj
             ret = StartAbilityWithInsightIntent(want);
             break;
         case ExecuteMode::UI_ABILITY_BACKGROUND: {
-            HILOG_WARN("ExecuteMode UI_ABILITY_BACKGROUND not supported.");
-            ret = ERR_INVALID_OPERATION;
+            HILOG_DEBUG("ExecuteMode UI_ABILITY_BACKGROUND.");
+            ret = StartAbilityByCallWithInsightIntent(want, callerToken, param);
             break;
         }
         case ExecuteMode::UI_EXTENSION_ABILITY:
@@ -8894,6 +8894,36 @@ int32_t AbilityManagerService::ExecuteIntent(uint64_t key, const sptr<IRemoteObj
     return ret;
 }
 
+bool AbilityManagerService::IsAbilityStarted(AbilityRequest &abilityRequest,
+    std::shared_ptr<AbilityRecord> &targetRecord, const int32_t oriValidUserId)
+{
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        HILOG_INFO("scene board is enable");
+        if (uiAbilityLifecycleManager_ == nullptr) {
+            return false;
+        }
+        return uiAbilityLifecycleManager_->IsAbilityStarted(abilityRequest, targetRecord, oriValidUserId);
+    }
+
+    auto missionListMgr = GetListManagerByUserId(oriValidUserId);
+    if (missionListMgr == nullptr) {
+        return false;
+    }
+    return missionListMgr->IsAbilityStarted(abilityRequest, targetRecord);
+}
+
+int32_t AbilityManagerService::OnExecuteIntent(AbilityRequest &abilityRequest,
+    std::shared_ptr<AbilityRecord> &targetRecord)
+{
+    HILOG_INFO("OnExecuteIntent");
+    if (targetRecord == nullptr || targetRecord->GetScheduler() == nullptr) {
+        return ERR_INVALID_VALUE;
+    }
+    targetRecord->GetScheduler()->OnExecuteIntent(abilityRequest.want);
+
+    return ERR_OK;
+}
+
 int32_t AbilityManagerService::StartAbilityWithInsightIntent(const Want &want, int32_t userId, int requestCode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -8917,6 +8947,42 @@ int32_t AbilityManagerService::StartExtensionAbilityWithInsightIntent(const Want
 {
     HILOG_DEBUG("called.");
     return StartExtensionAbilityInner(want, nullptr, DEFAULT_INVAL_VALUE, extensionType, true);
+}
+
+int32_t AbilityManagerService::StartAbilityByCallWithInsightIntent(const Want &want,
+    const sptr<IRemoteObject> &callerToken, const InsightIntentExecuteParam &param)
+{
+    HILOG_INFO("call StartAbilityByCallWithInsightIntent.");
+    sptr<IAbilityConnection> connect = sptr<AbilityBackgroundConnection>::MakeSptr();
+    if (connect == nullptr) {
+        HILOG_ERROR("Invalid connect.");
+        return ERR_INVALID_VALUE;
+    }
+
+    AbilityRequest abilityRequest;
+    abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
+    abilityRequest.callerUid = IPCSkeleton::GetCallingUid();
+    abilityRequest.callerToken = callerToken;
+    abilityRequest.startSetting = nullptr;
+    abilityRequest.want = want;
+    abilityRequest.connect = connect;
+    int32_t result = GenerateAbilityRequest(want, -1, abilityRequest, callerToken, GetUserId());
+    if (result != ERR_OK) {
+        HILOG_ERROR("Generate ability request error.");
+        return result;
+    }
+    std::shared_ptr<AbilityRecord> targetRecord;
+    int32_t oriValidUserId = GetValidUserId(DEFAULT_INVAL_VALUE);
+    auto missionListMgr = GetListManagerByUserId(oriValidUserId);
+    if (IsAbilityStarted(abilityRequest, targetRecord, oriValidUserId)) {
+        HILOG_INFO("ability has already started");
+        result = OnExecuteIntent(abilityRequest, targetRecord);
+    }  else {
+        result = StartAbilityByCall(want, connect, callerToken);
+    }
+
+    HILOG_INFO("StartAbilityByCallWithInsightIntent %{public}d", result);
+    return result;
 }
 
 bool AbilityManagerService::IsAbilityControllerStart(const Want &want)

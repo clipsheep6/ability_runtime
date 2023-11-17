@@ -144,6 +144,7 @@ public:
     {
         return;
     };
+    virtual void OnExecuteIntent(const Want &want) {};
     virtual void ScheduleShareData(const int32_t &uniqueId) {};
     virtual bool SchedulePrepareTerminateAbility()
     {

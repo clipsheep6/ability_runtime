@@ -608,7 +608,7 @@ public:
      * get the want for start ability.
      *
      */
-    const Want &GetWant() const;
+    Want GetWant() const;
 
     /**
      * get request code of the ability to start.
@@ -895,6 +895,10 @@ public:
 
     void SetAttachDebug(const bool isAttachDebug);
 
+    AppExecFwk::ElementName GetElementName() const;
+    bool IsDebugApp() const;
+    bool IsDebug() const;
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
 
@@ -932,7 +936,6 @@ private:
     {
         callerAccessTokenId_ = callerAccessTokenId;
     }
-    bool IsDebug() const;
 
     bool GrantPermissionToShell(const std::vector<std::string> &uriVec, uint32_t flag, std::string targetPkg);
 
