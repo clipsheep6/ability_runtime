@@ -151,7 +151,7 @@ int MissionListManager::StartAbility(AbilityRequest &abilityRequest)
 
     auto currentTopAbility = GetCurrentTopAbilityLocked();
     if (currentTopAbility) {
-        std::string element = currentTopAbility->GetWant().GetElement().GetURI();
+        std::string element = currentTopAbility->GetElementName().GetURI();
         auto state = currentTopAbility->GetAbilityState();
         HILOG_DEBUG("current top: %{public}s, state: %{public}s",
             element.c_str(), AbilityRecord::ConvertAbilityState(state).c_str());
@@ -164,7 +164,7 @@ int MissionListManager::StartAbility(AbilityRequest &abilityRequest)
 
     auto callerAbility = GetAbilityRecordByTokenInner(abilityRequest.callerToken);
     if (callerAbility) {
-        std::string element = callerAbility->GetWant().GetElement().GetURI();
+        std::string element = callerAbility->GetElementName().GetURI();
         auto state = callerAbility->GetAbilityState();
         HILOG_DEBUG("callerAbility is: %{public}s, state: %{public}s",
             element.c_str(), AbilityRecord::ConvertAbilityState(state).c_str());
@@ -1047,7 +1047,7 @@ void MissionListManager::OnAbilityRequestDone(const sptr<IRemoteObject> &token, 
     if (abilityState == AppAbilityState::ABILITY_STATE_FOREGROUND) {
         auto abilityRecord = GetAliveAbilityRecordByToken(token);
         CHECK_POINTER(abilityRecord);
-        std::string element = abilityRecord->GetWant().GetElement().GetURI();
+        std::string element = abilityRecord->GetElementName().GetURI();
         HILOG_DEBUG("Ability is %{public}s, start to foreground.", element.c_str());
         abilityRecord->ForegroundAbility(abilityRecord->lifeCycleStateInfo_.sceneFlagBak);
     }
@@ -1188,7 +1188,7 @@ int MissionListManager::AbilityTransactionDone(const sptr<IRemoteObject> &token,
         CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     }
 
-    std::string element = abilityRecord->GetWant().GetElement().GetURI();
+    std::string element = abilityRecord->GetElementName().GetURI();
     HILOG_DEBUG("ability: %{public}s, state: %{public}s", element.c_str(), abilityState.c_str());
 
     if (targetState == AbilityState::BACKGROUND) {
@@ -1281,7 +1281,7 @@ void MissionListManager::CompleteForegroundSuccess(const std::shared_ptr<Ability
     CHECK_POINTER(abilityRecord);
     // ability do not save window mode
     abilityRecord->RemoveWindowMode();
-    std::string element = abilityRecord->GetWant().GetElement().GetURI();
+    std::string element = abilityRecord->GetElementName().GetURI();
     HILOG_DEBUG("ability: %{public}s", element.c_str());
 
     abilityRecord->SetAbilityState(AbilityState::FOREGROUND);
@@ -1512,7 +1512,7 @@ void MissionListManager::RemoveBackgroundingAbility(const std::shared_ptr<Abilit
         abilityRecord->SetNeedBackToOtherMissionStack(false);
     }
 
-    AppExecFwk::ElementName elementName = needTopAbility->GetWant().GetElement();
+    AppExecFwk::ElementName elementName = needTopAbility->GetElementName();
     HILOG_DEBUG("Next top ability is %{public}s, state is %{public}d, minimizeReason is %{public}d!",
         elementName.GetURI().c_str(), needTopAbility->GetAbilityState(), needTopAbility->IsMinimizeFromUser());
 
@@ -1542,7 +1542,7 @@ int MissionListManager::TerminateAbilityInner(const std::shared_ptr<AbilityRecor
     int resultCode, const Want *resultWant, bool flag)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::string element = abilityRecord->GetWant().GetElement().GetURI();
+    std::string element = abilityRecord->GetElementName().GetURI();
     HILOG_DEBUG("Terminate ability, ability is %{public}s.", element.c_str());
     if (abilityRecord->IsTerminating() && !abilityRecord->IsForeground()) {
         HILOG_ERROR("Ability is on terminating.");
@@ -1574,7 +1574,7 @@ int MissionListManager::TerminateAbilityInner(const std::shared_ptr<AbilityRecor
 
 int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord, bool flag)
 {
-    std::string element = abilityRecord->GetWant().GetElement().GetURI();
+    std::string element = abilityRecord->GetElementName().GetURI();
     HILOG_DEBUG("Terminate ability locked, ability is %{public}s.", element.c_str());
     // remove AbilityRecord out of list
     RemoveTerminatingAbility(abilityRecord, flag);
@@ -1627,7 +1627,7 @@ int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityReco
  */
 void MissionListManager::RemoveTerminatingAbility(const std::shared_ptr<AbilityRecord> &abilityRecord, bool flag)
 {
-    std::string element = abilityRecord->GetWant().GetElement().GetURI();
+    std::string element = abilityRecord->GetElementName().GetURI();
     HILOG_DEBUG("Remove terminating ability, ability is %{public}s.", element.c_str());
     if (GetAbilityFromTerminateListInner(abilityRecord->GetToken())) {
         abilityRecord->SetNextAbilityRecord(nullptr);
@@ -1681,7 +1681,7 @@ void MissionListManager::RemoveTerminatingAbility(const std::shared_ptr<AbilityR
         }
         abilityRecord->SetNeedBackToOtherMissionStack(false);
     }
-    AppExecFwk::ElementName elementName = needTopAbility->GetWant().GetElement();
+    AppExecFwk::ElementName elementName = needTopAbility->GetElementName();
     HILOG_DEBUG("Next top ability is %{public}s, state is %{public}d, minimizeReason is %{public}d.",
         elementName.GetURI().c_str(), needTopAbility->GetAbilityState(), needTopAbility->IsMinimizeFromUser());
 
@@ -2459,7 +2459,7 @@ void MissionListManager::OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRec
         HILOG_ERROR("OnAbilityDied come, abilityRecord is nullptr.");
         return;
     }
-    std::string element = abilityRecord->GetWant().GetElement().GetURI();
+    std::string element = abilityRecord->GetElementName().GetURI();
     HILOG_DEBUG("OnAbilityDied come, ability is %{public}s", element.c_str());
     if (abilityRecord->GetAbilityInfo().type != AbilityType::PAGE) {
         HILOG_ERROR("Ability type is not page.");
@@ -3171,7 +3171,7 @@ int MissionListManager::CallAbilityLocked(const AbilityRequest &abilityRequest)
     }
 
     // schedule target ability
-    std::string element = targetAbilityRecord->GetWant().GetElement().GetURI();
+    std::string element = targetAbilityRecord->GetElementName().GetURI();
     HILOG_DEBUG("load ability record: %{public}s", element.c_str());
 
     // flag the first ability.

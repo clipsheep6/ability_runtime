@@ -461,7 +461,7 @@ int AbilityConnectManager::AttachAbilityThreadLocked(
         eventHandler_->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG,
             abilityRecord->GetAbilityRecordId());
     }
-    std::string element = abilityRecord->GetWant().GetElement().GetURI();
+    std::string element = abilityRecord->GetElementName().GetURI();
     HILOG_DEBUG("Ability: %{public}s", element.c_str());
     abilityRecord->SetScheduler(scheduler);
     abilityRecord->Inactivate();
@@ -485,7 +485,7 @@ void AbilityConnectManager::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
             HILOG_WARN("abilityRecord is foregrounding.");
             return;
         }
-        std::string element = abilityRecord->GetWant().GetElement().GetURI();
+        std::string element = abilityRecord->GetElementName().GetURI();
         HILOG_DEBUG("Ability is %{public}s, start to foreground.", element.c_str());
         MoveToForeground(abilityRecord);
     }
@@ -526,7 +526,7 @@ int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &toke
         abilityRecord = nullptr;
     }
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    std::string element = abilityRecord->GetWant().GetElement().GetURI();
+    std::string element = abilityRecord->GetElementName().GetURI();
     HILOG_DEBUG("Ability: %{public}s, state: %{public}s", element.c_str(), abilityState.c_str());
 
     switch (targetState) {
@@ -596,7 +596,7 @@ int AbilityConnectManager::ScheduleConnectAbilityDoneLocked(
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
-    std::string element = abilityRecord->GetWant().GetElement().GetURI();
+    std::string element = abilityRecord->GetElementName().GetURI();
     HILOG_DEBUG("Connect ability done, ability: %{public}s.", element.c_str());
 
     if ((!abilityRecord->IsAbilityState(AbilityState::INACTIVE)) &&
@@ -650,7 +650,7 @@ int AbilityConnectManager::ScheduleDisconnectAbilityDoneLocked(const sptr<IRemot
             token, AppExecFwk::ExtensionState::EXTENSION_STATE_DISCONNECTED);
     }
 
-    std::string element = abilityRecord->GetWant().GetElement().GetURI();
+    std::string element = abilityRecord->GetElementName().GetURI();
     HILOG_DEBUG("Disconnect ability done, service:%{public}s.", element.c_str());
 
     // complete disconnect and remove record from conn map
@@ -672,7 +672,7 @@ int AbilityConnectManager::ScheduleCommandAbilityDoneLocked(const sptr<IRemoteOb
     CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    std::string element = abilityRecord->GetWant().GetElement().GetURI();
+    std::string element = abilityRecord->GetElementName().GetURI();
     HILOG_DEBUG("Ability: %{public}s", element.c_str());
 
     if ((!abilityRecord->IsAbilityState(AbilityState::INACTIVE)) &&
@@ -698,7 +698,7 @@ int AbilityConnectManager::ScheduleCommandAbilityWindowDone(
     CHECK_POINTER_AND_RETURN(sessionInfo, ERR_INVALID_VALUE);
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    std::string element = abilityRecord->GetWant().GetElement().GetURI();
+    std::string element = abilityRecord->GetElementName().GetURI();
     HILOG_DEBUG("Ability: %{public}s, persistentId: %{private}d, winCmd: %{public}d, abilityCmd: %{public}d",
         element.c_str(), sessionInfo->persistentId, winCmd, abilityCmd);
 
@@ -955,8 +955,7 @@ void AbilityConnectManager::LoadAbility(const std::shared_ptr<AbilityRecord> &ab
         RemoveServiceAbility(abilityRecord);
         return;
     }
-    bool isDebug = abilityRecord->GetWant().GetBoolParam(DEBUG_APP, false);
-    if (!isDebug) {
+    if (!abilityRecord->IsDebugApp()) {
         HILOG_DEBUG("IsDebug is false, here is not debug app");
         PostTimeOutTask(abilityRecord, AbilityManagerService::LOAD_TIMEOUT_MSG);
     }
@@ -1765,7 +1764,7 @@ void AbilityConnectManager::GetExtensionRunningInfo(std::shared_ptr<AbilityRecor
 {
     ExtensionRunningInfo extensionInfo;
     AppExecFwk::RunningProcessInfo processInfo;
-    extensionInfo.extension = abilityRecord->GetWant().GetElement();
+    extensionInfo.extension = abilityRecord->GetElementName();
     auto bms = AbilityUtil::GetBundleManager();
     CHECK_POINTER(bms);
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;

@@ -394,7 +394,7 @@ bool AbilityManagerService::Init()
     };
     taskHandler_->SubmitTask(startAutoStartupAppsTask, "StartAutoStartupApps");
     ResiterSuspendObserver();
-    
+
     auto initExtensionConfigTask = []() {
         DelayedSingleton<ExtensionConfig>::GetInstance()->LoadExtensionConfiguration();
     };
@@ -604,7 +604,7 @@ int AbilityManagerService::StartAbilityAsCaller(const Want &want, const sptr<IRe
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_CONTINUATION_FLAG;
     }
-    
+
     AAFwk::Want newWant = want;
     if (asCallerSoureToken != nullptr) {
         HILOG_DEBUG("Start as caller, UpdateCallerInfo");
@@ -4839,8 +4839,7 @@ int AbilityManagerService::GenerateAbilityRequest(
     }
 
     if (abilityRecord != nullptr) {
-        auto isDebug = abilityRecord->GetWant().GetBoolParam(DEBUG_APP, false);
-        (const_cast<Want &>(want)).SetParam(DEBUG_APP, isDebug);
+        (const_cast<Want &>(want)).SetParam(DEBUG_APP, abilityRecord->IsDebugApp());
     }
 
     request.want = want;
@@ -6045,7 +6044,7 @@ void AbilityManagerService::UpdateFocusState(std::vector<AbilityRunningInfo> &in
 
     for (auto &item : info) {
         if (item.uid == abilityRecord->GetUid() && item.pid == abilityRecord->GetPid() &&
-            item.ability == abilityRecord->GetWant().GetElement()) {
+            item.ability == abilityRecord->GetElementName()) {
             item.abilityState = static_cast<int>(AbilityState::ACTIVE);
             break;
         }
@@ -6843,7 +6842,7 @@ int AbilityManagerService::DelegatorDoAbilityForeground(const sptr<IRemoteObject
         NotifyHandleAbilityStateChange(token, ABILITY_MOVE_TO_FOREGROUND_CODE);
         auto&& abilityRecord = Token::GetAbilityRecordByToken(token);
         CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-        auto&& want = abilityRecord->GetWant();
+        auto want = abilityRecord->GetWant();
         if (!IsAbilityControllerStart(want, want.GetBundle())) {
             HILOG_ERROR("SceneBoard IsAbilityControllerStart failed: %{public}s", want.GetBundle().c_str());
             return ERR_WOULD_BLOCK;
@@ -7172,7 +7171,7 @@ void AbilityManagerService::GetAbilityRunningInfo(std::vector<AbilityRunningInfo
     AbilityRunningInfo runningInfo;
     AppExecFwk::RunningProcessInfo processInfo;
 
-    runningInfo.ability = abilityRecord->GetWant().GetElement();
+    runningInfo.ability = abilityRecord->GetElementName();
     runningInfo.startTime = abilityRecord->GetStartTime();
     runningInfo.abilityState = static_cast<int>(abilityRecord->GetAbilityState());
 
@@ -7274,7 +7273,7 @@ AppExecFwk::ElementName AbilityManagerService::GetTopAbility(bool isNeedLocalDev
         HILOG_ERROR("%{public}s abilityRecord is null.", __func__);
         return elementName;
     }
-    elementName = abilityRecord->GetWant().GetElement();
+    elementName = abilityRecord->GetElementName();
     bool isDeviceEmpty = elementName.GetDeviceID().empty();
     std::string localDeviceId;
     if (isDeviceEmpty && isNeedLocalDeviceId && GetLocalDeviceId(localDeviceId)) {
@@ -7300,7 +7299,7 @@ AppExecFwk::ElementName AbilityManagerService::GetElementNameByToken(sptr<IRemot
         HILOG_ERROR("%{public}s abilityRecord is null.", __func__);
         return elementName;
     }
-    elementName = abilityRecord->GetWant().GetElement();
+    elementName = abilityRecord->GetElementName();
     bool isDeviceEmpty = elementName.GetDeviceID().empty();
     std::string localDeviceId;
     if (isDeviceEmpty && isNeedLocalDeviceId && GetLocalDeviceId(localDeviceId)) {
