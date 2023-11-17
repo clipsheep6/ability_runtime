@@ -230,6 +230,9 @@ enum class AbilityManagerInterfaceCode {
     // execute insight intent done with result (73)
     EXECUTE_INSIGHT_INTENT_DONE = 73,
 
+    // ipc id for logout user (74)
+    LOGOUT_USER = 74,
+	
     // ipc id 1001-2000 for DMS
     // ipc id for starting ability (1001)
     START_ABILITY = 1001,
@@ -431,6 +434,7 @@ enum class AbilityManagerInterfaceCode {
     MOVE_MISSION_TO_BACKGROUND = 4052,
     TERMINATE_MISSION = 4053,
     IS_ABILITY_CONTROLLER_START = 4054,
+    OPEN_FILE = 4055,
 
     GET_ABILITY_TOKEN = 5001,
 

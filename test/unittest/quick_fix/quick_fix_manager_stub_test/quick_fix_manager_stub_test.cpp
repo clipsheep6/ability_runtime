@@ -74,8 +74,9 @@ HWTEST_F(QuickFixManagerStubTest, ApplyQuickFix_0100, TestSize.Level1)
     quickFixFiles.push_back("/data/storage/el2/base/entry1.hqf");
     quickFixFiles.push_back("/data/storage/el2/base/entry2.hqf");
     data.WriteStringVector(quickFixFiles);
-
-    EXPECT_CALL(*mockQuickFixMgrService_, ApplyQuickFix(_)).Times(1);
+    bool isDebug = false;
+    data.WriteBool(isDebug);
+    EXPECT_CALL(*mockQuickFixMgrService_, ApplyQuickFix(_, _)).Times(1);
 
     auto result = mockQuickFixMgrService_->OnRemoteRequest(
         IQuickFixManager::QuickFixMgrCmd::ON_APPLY_QUICK_FIX, data, reply, option);

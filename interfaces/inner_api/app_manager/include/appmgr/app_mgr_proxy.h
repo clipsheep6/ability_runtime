@@ -16,13 +16,11 @@
 #ifndef OHOS_ABILITY_RUNTIME_APP_MGR_PROXY_H
 #define OHOS_ABILITY_RUNTIME_APP_MGR_PROXY_H
 
-#include "iremote_proxy.h"
-#include "want.h"
-
-#include "app_running_status_listener_interface.h"
+#include "app_malloc_info.h"
 #include "app_mgr_interface.h"
 #include "bundle_info.h"
-#include "app_malloc_info.h"
+#include "iremote_proxy.h"
+#include "want.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -190,6 +188,20 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer) override;
+
+    /**
+     * Register application or process state observer.
+     * @param observer, Is ability foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer) override;
+
+    /**
+     * Unregister application or process state observer.
+     * @param observer, Is ability foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer) override;
 
     /**
      * Get foreground applications.
@@ -398,6 +410,20 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener) override;
+
+    /**
+     * Register application foreground state observer.
+     * @param observer, app Is app foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) override;
+
+    /**
+     * Unregister application foreground state observer.
+     * @param observer, app Is app foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) override;
 
 private:
     bool SendTransactCmd(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply);

@@ -54,7 +54,8 @@ namespace {
 const std::string PAGE_STACK_PROPERTY_NAME = "pageStack";
 const std::string SUPPORT_CONTINUE_PAGE_STACK_PROPERTY_NAME = "ohos.extra.param.key.supportContinuePageStack";
 #endif
-const int32_t BASE_DISPLAY_ID_NUM (10); // Numerical base (radix) that determines the valid characters and their interpretation.
+// Numerical base (radix) that determines the valid characters and their interpretation.
+const int32_t BASE_DISPLAY_ID_NUM (10);
 
 napi_value PromiseCallback(napi_env env, napi_callback_info info)
 {

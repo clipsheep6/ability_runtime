@@ -22,8 +22,8 @@ extern const char _binary_insight_intent_executor_abc_end[];
 
 static napi_module _module = {
     .nm_version = 0,
-    .nm_modname = "app.ability.InsightIntentExecutor",
     .nm_filename = "app/ability/insightintentexecutor_napi.so/insight_intent_executor.js",
+    .nm_modname = "app.ability.InsightIntentExecutor",
 };
 
 extern "C" __attribute__((constructor))

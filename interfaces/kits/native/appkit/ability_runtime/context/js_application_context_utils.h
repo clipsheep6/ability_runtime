@@ -56,6 +56,7 @@ public:
     static napi_value SwitchArea(napi_env env, napi_callback_info info);
     static napi_value GetArea(napi_env env, napi_callback_info info);
     static napi_value CreateModuleContext(napi_env env, napi_callback_info info);
+    static napi_value CreateModuleResourceManager(napi_env env, napi_callback_info info);
     static napi_value SetAutoStartup(napi_env env, napi_callback_info info);
     static napi_value CancelAutoStartup(napi_env env, napi_callback_info info);
     static napi_value IsAutoStartup(napi_env env, napi_callback_info info);
@@ -118,6 +119,7 @@ protected:
 
 private:
     napi_value OnCreateBundleContext(napi_env env, NapiCallbackInfo& info);
+    napi_value OnCreateModuleResourceManager(napi_env env, NapiCallbackInfo& info);
     napi_value OnSwitchArea(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetArea(napi_env env, NapiCallbackInfo& info);
     napi_value OnCreateModuleContext(napi_env env, NapiCallbackInfo& info);

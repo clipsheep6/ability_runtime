@@ -86,6 +86,8 @@ public:
     virtual void OnAbilityRequestDone(const sptr<IRemoteObject> &token, const int32_t state) = 0;
 
     virtual void OnAppStateChanged(const AppInfo &info) = 0;
+
+    virtual void NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId) {}
 };
 
 class StartSpecifiedAbilityResponse : public AppExecFwk::StartSpecifiedAbilityResponseStub {
@@ -410,6 +412,13 @@ protected:
      * @param appProcessData Process data
      */
     virtual void OnAppStateChanged(const AppExecFwk::AppProcessData &appData) override;
+
+    /**
+     * @brief Notify application update system environment changes.
+     * @param config System environment change parameters.
+     * @param userId userId Designation User ID.
+     */
+    virtual void NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId) override;
 
 private:
     std::mutex lock_;

@@ -347,6 +347,8 @@ public:
 
     void AddAbilityStageBySpecifiedAbility(const std::string &bundleName);
 
+    void AddAbilityStageBySpecifiedProcess(const std::string &bundleName);
+
     /**
      * AddAbilityStage Result returned.
      *
@@ -568,6 +570,9 @@ public:
 
     void SetProcessAndExtensionType(const std::shared_ptr<AbilityInfo> &abilityInfo);
     void SetSpecifiedAbilityFlagAndWant(const bool flag, const AAFwk::Want &want, const std::string &moduleName);
+    void SetScheduleNewProcessRequestState(const bool isNewProcessRequest, const AAFwk::Want &want,
+        const std::string &moduleName);
+    bool IsNewProcessRequest() const;
     bool IsStartSpecifiedAbility() const;
     void ScheduleAcceptWant(const std::string &moduleName);
     void ScheduleAcceptWantDone();
@@ -575,6 +580,7 @@ public:
     void ScheduleNewProcessRequestDone();
     void ApplicationTerminated();
     const AAFwk::Want &GetSpecifiedWant() const;
+    const AAFwk::Want &GetNewProcessRequestWant() const;
     void SetDebugApp(bool isDebugApp);
     bool IsDebugApp();
     void SetNativeDebug(bool isNativeDebug);
@@ -683,6 +689,8 @@ public:
     void SetApplicationPendingState(ApplicationPendingState pendingState);
     ApplicationPendingState GetApplicationPendingState() const;
 
+    void GetSplitModeAndFloatingMode(bool &isSplitScreenMode, bool &isFloatingWindowMode);
+
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -786,6 +794,8 @@ private:
     bool isSpecifiedAbility_ = false;
     AAFwk::Want SpecifiedWant_;
     std::string moduleName_;
+    bool isNewProcessRequest_;
+    AAFwk::Want newProcessRequestWant_;
     bool isDebugApp_ = false;
     bool isNativeDebug_ = false;
     bool isAttachDebug_ = false;

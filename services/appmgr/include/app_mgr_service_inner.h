@@ -24,10 +24,12 @@
 #include <vector>
 
 #include "ability_debug_response_interface.h"
+#include "ability_foreground_state_observer_interface.h"
 #include "ability_info.h"
 #include "app_death_recipient.h"
 #include "app_debug_listener_interface.h"
 #include "app_debug_manager.h"
+#include "app_foreground_state_observer_interface.h"
 #include "app_malloc_info.h"
 #include "app_mgr_constants.h"
 #include "app_process_manager.h"
@@ -499,7 +501,7 @@ public:
     void PrepareTerminate(const sptr<IRemoteObject> &token);
 
     void OnAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
-        bool needNotifyApp);
+        bool needNotifyApp, bool isFromWindowFocusChanged);
 
     void OnAppStarted(const std::shared_ptr<AppRunningRecord> &appRecord);
 
@@ -554,6 +556,20 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer);
+
+    /**
+     * Register application or process state observer.
+     * @param observer, Is ability foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer);
+
+    /**
+     * Unregister application or process state observer.
+     * @param observer, Is ability foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer);
 
     /**
      * Get Foreground Applications.
@@ -828,6 +844,20 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener);
+
+    /**
+     * Register application foreground state observer.
+     * @param observer Is app foreground statue observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer);
+
+    /**
+     * Unregister application foreground state observer.
+     * @param observer Is app foreground statue observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer);
 
 private:
 
@@ -1135,6 +1165,7 @@ private:
     void SendReStartProcessEvent(const AAFwk::EventInfo &eventInfo,
         const std::shared_ptr<AppRunningRecord> &appRecord);
     void SendAppLaunchEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void HandleConfigurationChange(const Configuration &config);
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
     std::vector<const sptr<IAppStateCallback>> appStateCallbacks_;
     std::shared_ptr<AppProcessManager> appProcessManager_;

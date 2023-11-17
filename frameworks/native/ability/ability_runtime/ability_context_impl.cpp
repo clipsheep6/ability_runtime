@@ -416,6 +416,12 @@ std::shared_ptr<Context> AbilityContextImpl::CreateModuleContext(const std::stri
     return stageContext_ ? stageContext_->CreateModuleContext(bundleName, moduleName) : nullptr;
 }
 
+std::shared_ptr<Global::Resource::ResourceManager> AbilityContextImpl::CreateModuleResourceManager(
+    const std::string &bundleName, const std::string &moduleName)
+{
+    return stageContext_ ? stageContext_->CreateModuleResourceManager(bundleName, moduleName) : nullptr;
+}
+
 void AbilityContextImpl::SetAbilityInfo(const std::shared_ptr<AppExecFwk::AbilityInfo>& abilityInfo)
 {
     abilityInfo_ = abilityInfo;

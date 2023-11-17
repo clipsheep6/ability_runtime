@@ -125,6 +125,10 @@ class ApplicationContext {
     return this.__context_impl__.createModuleContext(bundleName, moduleName);
   }
 
+  createModuleResourceManager(bundleName, moduleName) {
+    return this.__context_impl__.createModuleResourceManager(bundleName, moduleName);
+  }
+
   getGroupDir(groupId, callback) {
     return this.__context_impl__.getGroupDir(groupId, callback);
   }

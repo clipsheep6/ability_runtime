@@ -36,6 +36,8 @@ napi_value CreateJsAppStateData(napi_env env, const AppStateData &appStateData)
     napi_set_named_property(env, object, "bundleName", CreateJsValue(env, appStateData.bundleName));
     napi_set_named_property(env, object, "uid", CreateJsValue(env, appStateData.uid));
     napi_set_named_property(env, object, "state", CreateJsValue(env, appStateData.state));
+    napi_set_named_property(env, object, "isSplitScreenMode", CreateJsValue(env, appStateData.isSplitScreenMode));
+    napi_set_named_property(env, object, "isFloatingWindowMode", CreateJsValue(env, appStateData.isFloatingWindowMode));
     HILOG_DEBUG("end.");
     return object;
 }

@@ -20,25 +20,24 @@
 #include <string>
 #include <vector>
 
+#include "ability_info.h"
+#include "ability_running_record.h"
+#include "ams_mgr_scheduler.h"
+#include "app_malloc_info.h"
+#include "app_mgr_constants.h"
+#include "app_mgr_service_event_handler.h"
+#include "app_mgr_service_inner.h"
+#include "app_mgr_stub.h"
+#include "app_record_id.h"
+#include "app_running_record.h"
+#include "app_running_status_listener_interface.h"
+#include "app_scheduler_proxy.h"
+#include "appexecfwk_errors.h"
+#include "application_info.h"
 #include "if_system_ability_manager.h"
 #include "nocopyable.h"
 #include "system_ability.h"
 #include "task_handler_wrap.h"
-#include "ability_info.h"
-#include "ability_running_record.h"
-#include "appexecfwk_errors.h"
-#include "application_info.h"
-#include "app_mgr_constants.h"
-#include "app_mgr_stub.h"
-#include "app_mgr_service_event_handler.h"
-#include "app_mgr_service_inner.h"
-#include "app_record_id.h"
-#include "app_running_record.h"
-#include "app_scheduler_proxy.h"
-#include "ams_mgr_scheduler.h"
-#include "ams_mgr_scheduler.h"
-#include "app_malloc_info.h"
-#include "app_running_status_listener_interface.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -394,6 +393,20 @@ public:
      */
     int32_t UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener) override;
 
+    /**
+     * Register application foreground state observer.
+     * @param observer Is App Foreground Statue Observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) override;
+
+    /**
+     * Unregister application foreground state observer.
+     * @param observer Is App Foreground Statue Observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) override;
+
 private:
     /**
      * Init, Initialize application services.
@@ -455,6 +468,20 @@ private:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer) override;
+
+    /**
+     * Register application or process state observer.
+     * @param observer, Is ability foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer) override;
+
+    /**
+     * Unregister application or process state observer.
+     * @param observer, Is ability foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer) override;
 
     /**
      * Get foreground applications.

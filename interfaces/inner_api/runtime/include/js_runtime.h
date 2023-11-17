@@ -86,7 +86,7 @@ public:
     bool RunScript(const std::string& path, const std::string& hapPath, bool useCommonChunk = false);
 
     void PreloadSystemModule(const std::string& moduleName) override;
-    void StartDebugMode(bool needBreakPoint) override;
+    void StartDebugMode(bool needBreakPoint, bool isDebug = true) override;
     void StopDebugMode();
     bool LoadRepairPatch(const std::string& hqfFile, const std::string& hapPath) override;
     bool UnLoadRepairPatch(const std::string& hqfFile) override;
@@ -94,7 +94,7 @@ public:
     void RegisterUncaughtExceptionHandler(const JsEnv::UncaughtExceptionInfo& uncaughtExceptionInfo);
     bool LoadScript(const std::string& path, std::vector<uint8_t>* buffer = nullptr, bool isBundle = false);
     bool LoadScript(const std::string& path, uint8_t* buffer, size_t len, bool isBundle);
-    bool StartDebugger(bool needBreakPoint, uint32_t instanceId);
+    bool StartDebugger(bool needBreakPoint, uint32_t instanceId, bool isDebug = true);
     void StopDebugger();
 
     NativeEngine* GetNativeEnginePointer() const;
@@ -107,7 +107,7 @@ public:
     void InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorImpl);
     void FreeNativeReference(std::unique_ptr<NativeReference> reference);
     void FreeNativeReference(std::shared_ptr<NativeReference>&& reference);
-    void StartProfiler(const std::string &perfCmd) override;
+    void StartProfiler(const std::string &perfCmd, bool isDebug = true) override;
 
     void ReloadFormComponent(); // Reload ArkTS-Card component
     void DoCleanWorkAfterStageCleaned() override;
@@ -119,7 +119,7 @@ public:
         const std::string& hapPath, bool esmodule = false, bool useCommonChunk = false);
     std::unique_ptr<NativeReference> LoadSystemModule(
         const std::string& moduleName, const napi_value* argv = nullptr, size_t argc = 0);
-
+    void SetDeviceDisconnectCallback(const std::function<bool()> &cb) override;
 private:
     void FinishPreload() override;
 

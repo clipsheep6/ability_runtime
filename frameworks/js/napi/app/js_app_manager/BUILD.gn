@@ -23,6 +23,7 @@ ohos_shared_library("appmanager") {
 
   sources = [
     "app_manager_module.cpp",
+    "js_app_foreground_state_observer.cpp",
     "js_app_manager.cpp",
     "js_app_manager_utils.cpp",
     "js_app_state_observer.cpp",

@@ -162,7 +162,7 @@ bool JsEnvironment::LoadScript(const std::string& path, std::vector<uint8_t>* bu
     return engine_->RunScriptBuffer(path.c_str(), *buffer, isBundle) != nullptr;
 }
 
-bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId)
+bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId, bool isDebug)
 {
     if (vm_ == nullptr) {
         JSENV_LOG_E("Invalid vm.");
@@ -239,7 +239,7 @@ bool JsEnvironment::LoadScript(const std::string& path, uint8_t* buffer, size_t 
 }
 
 void JsEnvironment::StartProfiler(const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler,
-    int32_t interval)
+    int32_t interval, bool isDebug)
 {
     if (vm_ == nullptr) {
         JSENV_LOG_E("Invalid vm.");
@@ -287,6 +287,15 @@ void JsEnvironment::SetRequestAotCallback(const RequestAotCallback& cb)
     }
 
     panda::JSNApi::SetRequestAotCallback(vm_, cb);
+}
+
+void JsEnvironment::SetDeviceDisconnectCallback(const std::function<bool()> &cb)
+{
+    if (vm_ == nullptr) {
+        JSENV_LOG_E("Invalid vm.");
+        return;
+    }
+    panda::JSNApi::SetDeviceDisconnectCallback(vm_, std::move(cb));
 }
 } // namespace JsEnv
 } // namespace OHOS

@@ -133,6 +133,13 @@ public:
      */
     void CommandExtension(const Want &want, bool restart, int startId);
 
+    /**
+     * @brief Handle insight intent.
+     *
+     * @param want The Want object with insight intent to handle.
+     */
+    bool HandleInsightIntent(const Want &want);
+
     void CommandExtensionWindow(const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
         AAFwk::WindowCommand winCmd);
 
@@ -188,6 +195,7 @@ private:
     int lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
     sptr<IRemoteObject> token_;
     std::shared_ptr<Extension> extension_;
+    bool skipCommandExtensionWithIntent_ = false;
 
 class ExtensionWindowLifeCycleImpl : public Rosen::IWindowLifeCycle {
 public:

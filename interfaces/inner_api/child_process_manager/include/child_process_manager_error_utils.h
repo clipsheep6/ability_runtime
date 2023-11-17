@@ -28,6 +28,7 @@ enum class ChildProcessManagerErrorCode {
     ERR_ALREADY_IN_CHILD_PROCESS = 2,
     ERR_GET_HAP_INFO_FAILED = 3,
     ERR_FORK_FAILED = 4,
+    ERR_GET_APPLICATION_CONTEXT_FAILED = 5,
 };
 
 const std::map<ChildProcessManagerErrorCode, AbilityErrorCode> INTERNAL_ERR_CODE_MAP = {
@@ -38,6 +39,7 @@ const std::map<ChildProcessManagerErrorCode, AbilityErrorCode> INTERNAL_ERR_CODE
         AbilityErrorCode::ERROR_CODE_OPERATION_NOT_SUPPORTED },
     { ChildProcessManagerErrorCode::ERR_GET_HAP_INFO_FAILED, AbilityErrorCode::ERROR_CODE_INNER },
     { ChildProcessManagerErrorCode::ERR_FORK_FAILED, AbilityErrorCode::ERROR_CODE_INNER },
+    { ChildProcessManagerErrorCode::ERR_GET_APPLICATION_CONTEXT_FAILED, AbilityErrorCode::ERROR_CODE_INNER },
 };
 
 class ChildProcessManagerErrorUtil {

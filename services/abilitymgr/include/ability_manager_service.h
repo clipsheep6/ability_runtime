@@ -872,6 +872,8 @@ public:
 
     virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override;
 
+    virtual int LogoutUser(int32_t userId) override;
+
     /**
      * Called when client complete dump.
      *
@@ -1382,7 +1384,15 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t ExecuteInsightIntentDone(const sptr<IRemoteObject> &token, uint64_t intentId,
-        const InsightIntentExecuteResult &result) override;
+        const InsightIntentExecuteResult &result) override;	
+
+    /**
+     * @brief Open file by uri.
+     * @param uri The file uri.
+     * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
+     * @return int The file descriptor.
+     */
+    virtual int32_t OpenFile(const Uri& uri, uint32_t flag) override;
 
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
@@ -1445,6 +1455,8 @@ protected:
     int GetUidByBundleName(std::string bundleName);
 
     void OnAppStateChanged(const AppInfo &info) override;
+
+    void NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId) override;
 
 private:
     int TerminateAbilityWithFlag(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
@@ -1790,6 +1802,15 @@ private:
     void StopSwitchUserDialogInner(const Want &want, const int32_t stopUserId);
 
     void SetPickerElementName(const sptr<SessionInfo> &extensionSessionInfo);
+    
+    /**
+     * @brief Start extension ability with insight intent
+     * @param want, the want of the ability to start.
+     * @param extensionType If an ExtensionAbilityType is set, only extension of that type can be started.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t StartExtensionAbilityWithInsightIntent(const Want &want,
+        AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;

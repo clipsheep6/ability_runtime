@@ -141,10 +141,6 @@ void JsAutoFillExtensionUtil::UnwrapViewData(
             AbilityBase::PageNodeInfo node;
             UnwrapPageNodeInfo(env, jsNode, node);
             viewData.nodes.emplace_back(node);
-            HILOG_DEBUG("PageNodeInfo. %{public}d,  %{public}d,  %{public}d, "
-                        "%{public}s, %{public}s, %{public}s, %{public}s",
-                        node.id, node.depth, node.autoFillType, node.tag.c_str(), node.value.c_str(),
-                        node.passwordRules.c_str(), node.placeholder.c_str());
         }
     }
 }
@@ -185,7 +181,6 @@ napi_value JsAutoFillExtensionUtil::WrapFillRequest(const AAFwk::Want &want, con
 
     if (want.HasParameter(WANT_PARAMS_VIEW_DATA)) {
         std::string viewDataString = want.GetStringParam(WANT_PARAMS_VIEW_DATA);
-        HILOG_DEBUG("View data is : %{public}s", viewDataString.c_str());
         if (viewDataString.empty()) {
             HILOG_ERROR("View data is empty.");
             return jsObject;

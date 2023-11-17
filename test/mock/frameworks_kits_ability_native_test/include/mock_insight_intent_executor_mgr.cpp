@@ -13,10 +13,14 @@
  * limitations under the License.
  */
 
-let ViewData = requireNapi('application.ExtensionContext');
+#include "insight_intent_executor_mgr.h"
 
-export const AutoFillRequestClass = class AutoFillRequest {
-    constructor() {
-        this.viewData = new ViewData;
-    }
-};
+namespace OHOS {
+namespace AbilityRuntime {
+bool InsightIntentExecutorMgr::ExecuteInsightIntent(Runtime& runtime, const InsightIntentExecutorInfo& executeInfo,
+    std::unique_ptr<InsightIntentExecutorAsyncCallback> callback)
+{
+    return true;
+}
+} // namespace AbilityRuntime
+} // namespace OHOS

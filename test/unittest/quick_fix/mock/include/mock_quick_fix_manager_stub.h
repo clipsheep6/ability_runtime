@@ -24,7 +24,7 @@ namespace AAFwk {
 class MockQuickFixManagerStub : public QuickFixManagerStub {
 public:
     MOCK_METHOD4(SendRequest, int(uint32_t, MessageParcel&, MessageParcel&, MessageOption&));
-    MOCK_METHOD1(ApplyQuickFix, int32_t(const std::vector<std::string>&));
+    MOCK_METHOD2(ApplyQuickFix, int32_t(const std::vector<std::string>&, bool isDebug));
     MOCK_METHOD2(GetApplyedQuickFixInfo, int32_t(const std::string&, ApplicationQuickFixInfo&));
     MOCK_METHOD1(RevokeQuickFix, int32_t(const std::string &));
 

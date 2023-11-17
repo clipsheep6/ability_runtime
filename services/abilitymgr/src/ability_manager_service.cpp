@@ -42,6 +42,7 @@
 #include "connection_state_manager.h"
 #include "distributed_client.h"
 #include "dlp_utils.h"
+#include "extension_config.h"
 #include "errors.h"
 #include "freeze_util.h"
 #include "hilog_wrapper.h"
@@ -143,7 +144,6 @@ const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 const std::string DEBUG_APP = "debugApp";
 
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
-
 std::atomic<bool> g_isDmsAlive = false;
 
 bool CheckCallerIsDlpManager(const sptr<AppExecFwk::IBundleMgr> &bundleManager)
@@ -332,7 +332,7 @@ bool AbilityManagerService::Init()
     HILOG_INFO("ams config parse");
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
-        std::string deviceType = OHOS::system::GetParameter("const.product.devicetype", "unknown");
+        std::string deviceType = OHOS::system::GetDeviceType();
         uiAbilityLifecycleManager_->SetDevice(deviceType);
     } else {
         InitMissionListManager(MAIN_USER_ID, true);
@@ -394,6 +394,11 @@ bool AbilityManagerService::Init()
     };
     taskHandler_->SubmitTask(startAutoStartupAppsTask, "StartAutoStartupApps");
     ResiterSuspendObserver();
+    
+    auto initExtensionConfigTask = []() {
+        DelayedSingleton<ExtensionConfig>::GetInstance()->LoadExtensionConfiguration();
+    };
+    taskHandler_->SubmitTask(initExtensionConfigTask, "InitExtensionConfigTask");
     HILOG_INFO("Init success.");
     return true;
 }
@@ -715,6 +720,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         }
 
         if (AbilityUtil::HandleDlpApp(const_cast<Want &>(want))) {
+            InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
             return StartExtensionAbilityInner(want, callerToken, userId,
                 AppExecFwk::ExtensionAbilityType::SERVICE, false);
         }
@@ -899,6 +905,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         }
         HILOG_INFO("Start service or extension, name is %{public}s.", abilityInfo.name.c_str());
         ReportEventToSuspendManager(abilityInfo);
+        InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
         return connectManager->StartAbility(abilityRequest);
     }
 
@@ -1951,6 +1958,7 @@ void AbilityManagerService::ResiterSuspendObserver()
 int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
     int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
 {
+    InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
     return StartExtensionAbilityInner(want, callerToken, userId, extensionType, true);
 }
 
@@ -5937,6 +5945,21 @@ int AbilityManagerService::StopUser(int userId, const sptr<IStopUserCallback> &c
     return 0;
 }
 
+int AbilityManagerService::LogoutUser(int32_t userId)
+{
+    if (IPCSkeleton::GetCallingUid() != ACCOUNT_MGR_SERVICE_UID) {
+        HILOG_ERROR("Permission verification failed, not account process");
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    if (userController_) {
+        auto ret = userController_->LogoutUser(userId);
+        HILOG_DEBUG("logout user return = %{public}d", ret);
+        return ret;
+    }
+    return ERR_OK;
+}
+
 void AbilityManagerService::OnAcceptWantResponse(
     const AAFwk::Want &want, const std::string &flag)
 {
@@ -8850,6 +8873,10 @@ int32_t AbilityManagerService::ExecuteIntent(uint64_t key, const sptr<IRemoteObj
             HILOG_WARN("ExecuteMode UI_EXTENSION_ABILITY not supported.");
             ret = ERR_INVALID_OPERATION;
             break;
+        case ExecuteMode::SERVICE_EXTENSION_ABILITY:
+            HILOG_DEBUG("ExecuteMode SERVICE_EXTENSION_ABILITY.");
+            ret = StartExtensionAbilityWithInsightIntent(want, ExtensionAbilityType::SERVICE);
+            break;
         default:
             HILOG_ERROR("Invalid ExecuteMode.");
             ret = ERR_INVALID_OPERATION;
@@ -8883,6 +8910,13 @@ int32_t AbilityManagerService::StartAbilityWithInsightIntent(const Want &want, i
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
     }
     return ret;
+}
+
+int32_t AbilityManagerService::StartExtensionAbilityWithInsightIntent(const Want &want,
+    AppExecFwk::ExtensionAbilityType extensionType)
+{
+    HILOG_DEBUG("called.");
+    return StartExtensionAbilityInner(want, nullptr, DEFAULT_INVAL_VALUE, extensionType, true);
 }
 
 bool AbilityManagerService::IsAbilityControllerStart(const Want &want)
@@ -8924,6 +8958,7 @@ int32_t AbilityManagerService::ExecuteInsightIntentDone(const sptr<IRemoteObject
         intentId, result.innerErr, result);
 }
 
+
 void AbilityManagerService::HandleProcessFrozen(const std::vector<int32_t> &pidList, int32_t uid)
 {
     HILOG_INFO("HandleProcessFrozen: %{public}d", uid);
@@ -8935,6 +8970,31 @@ void AbilityManagerService::HandleProcessFrozen(const std::vector<int32_t> &pidL
         return;
     }
     connectManager->HandleProcessFrozen(pidSet, uid);
+}
+
+void AbilityManagerService::NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId)
+{
+    auto collaborator = GetCollaborator(CollaboratorType::RESERVE_TYPE);
+    if (collaborator == nullptr) {
+        HILOG_ERROR("collaborator GetCollaborator is nullptr.");
+        return;
+    }
+    collaborator->UpdateConfiguration(config, userId);
+}
+
+int32_t AbilityManagerService::OpenFile(const Uri& uri, uint32_t flag)
+{
+    auto accessTokenId = IPCSkeleton::GetCallingTokenID();
+    if (!AAFwk::UriPermissionManagerClient::GetInstance().VerifyUriPermission(uri, flag, accessTokenId)) {
+        HILOG_ERROR("premission check failed");
+        return -1;
+    }
+    auto collaborator = GetCollaborator(CollaboratorType::RESERVE_TYPE);
+    if (collaborator == nullptr) {
+        HILOG_ERROR("collaborator GetCollaborator is nullptr.");
+        return ERR_COLLABORATOR_NOT_REGISTER;
+    }
+    return collaborator->OpenFile(uri, flag);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

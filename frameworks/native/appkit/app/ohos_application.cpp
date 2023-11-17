@@ -739,15 +739,17 @@ void OHOSApplication::ScheduleNewProcessRequest(const AAFwk::Want &want, const s
 {
     HILOG_DEBUG("call.");
     if (abilityStages_.empty()) {
-        HILOG_ERROR("abilityStages_ is 0empty.");
+        HILOG_ERROR("abilityStages_ is empty.");
         return;
     }
     auto iter = abilityStages_.find(moduleName);
-    if (iter != abilityStages_.end()) {
-        auto abilityStage = iter->second;
-        if (abilityStage) {
-            flag = abilityStage->OnNewProcessRequest(want);
-        }
+    if (iter == abilityStages_.end()) {
+        HILOG_ERROR("%{public}s is not in abilityStage", moduleName.c_str());
+        return;
+    }
+    auto abilityStage = iter->second;
+    if (abilityStage) {
+        flag = abilityStage->OnNewProcessRequest(want);
     }
 }
 

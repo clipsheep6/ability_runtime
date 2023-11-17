@@ -70,6 +70,7 @@ graphic_2d_path = "//foundation/graphic/graphic_2d"
 srms_inner_api_path =
     "${ability_runtime_path}/service_router_framework/interfaces/inner_api"
 fuzz_test_output_path = "ability_runtime/ability_runtime"
+accessibility_path = "//foundation/barrierfree/accessibility"
 
 declare_args() {
   background_task_mgr_continuous_task_enable = true
@@ -146,5 +147,12 @@ declare_args() {
     ecologic_rule_enabled = true
   } else {
     ecologic_rule_enabled = false
+  }
+
+  if (!defined(global_parts_info) ||
+      defined(global_parts_info.hiviewdfx_hichecker)) {
+    hichecker_enabled = true
+  } else {
+    hichecker_enabled = false
   }
 }

@@ -21,6 +21,7 @@ ohos_unittest("ui_ability_lifecycle_manager_test") {
   module_out_path = module_output_path
 
   include_dirs = [
+    "${ability_runtime_services_path}/appdfr/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "mock/include",
   ]
@@ -31,6 +32,7 @@ ohos_unittest("ui_ability_lifecycle_manager_test") {
   sources = [
     "${ability_runtime_services_path}/abilitymgr/src/ability_auto_startup_data_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_auto_startup_service.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/extension_config.cpp",
     "ui_ability_lifecycle_manager_test.cpp",
   ]
 

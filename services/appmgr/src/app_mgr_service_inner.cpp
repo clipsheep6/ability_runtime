@@ -23,6 +23,7 @@
 #include <unistd.h>
 
 #include "ability_manager_errors.h"
+#include "ability_window_configuration.h"
 #include "accesstoken_kit.h"
 #include "app_mem_info.h"
 #include "app_mgr_service.h"
@@ -245,7 +246,16 @@ void AppMgrServiceInner::StartSpecifiedProcess(const AAFwk::Want &want, const Ap
         appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name, processName, appInfo->uid, bundleInfo);
     if (mainAppRecord != nullptr) {
         HILOG_DEBUG("main process exists.");
-        mainAppRecord->SetSpecifiedAbilityFlagAndWant(false, want, hapModuleInfo.moduleName);
+        mainAppRecord->SetScheduleNewProcessRequestState(true, want, hapModuleInfo.moduleName);
+        auto moduleRecord = mainAppRecord->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
+        if (!moduleRecord) {
+            HILOG_DEBUG("module record is nullptr, add modules");
+            std::vector<HapModuleInfo> hapModules = { hapModuleInfo };
+            mainAppRecord->AddModules(appInfo, hapModules);
+            mainAppRecord->AddAbilityStageBySpecifiedProcess(appInfo->bundleName);
+            return;
+        }
+        HILOG_DEBUG("schedule new process request.");
         mainAppRecord->ScheduleNewProcessRequest(want, hapModuleInfo.moduleName);
         return;
     }
@@ -292,12 +302,12 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
     std::shared_ptr<AppRunningRecord> appRecord;
     // for isolation process
     std::string specifiedProcessFlag = "";
-    bool isPcDevice = (deviceType_ == "tablet" || deviceType_ == "pc" || deviceType_ == "2ini1");
+    bool isPcDevice = (deviceType_ == "pc" || deviceType_ == "2in1");
     bool isUIAbility = (abilityInfo->type == AppExecFwk::AbilityType::PAGE && abilityInfo->isStageBasedModel);
     bool isSpecifiedProcess = abilityInfo->isolationProcess && isPcDevice && isUIAbility;
     if (isSpecifiedProcess) {
-        HILOG_DEBUG("specifiedProcessFlag = %{public}s", specifiedProcessFlag.c_str());
         specifiedProcessFlag = want->GetStringParam(PARAM_SPECIFIED_PROCESS_FLAG);
+        HILOG_INFO("specifiedProcessFlag = %{public}s", specifiedProcessFlag.c_str());
     }
     appRecord = appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name,
         processName, appInfo->uid, bundleInfo, specifiedProcessFlag);
@@ -314,7 +324,7 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
             HILOG_ERROR("CreateAppRunningRecord failed, appRecord is nullptr");
             return;
         }
-        if (isSpecifiedProcess) {
+        if (isSpecifiedProcess && !specifiedProcessFlag.empty()) {
             appRecord->SetSpecifiedProcessFlag(specifiedProcessFlag);
         }
         if (hapModuleInfo.isStageBasedModel && !IsMainProcess(appInfo, hapModuleInfo)) {
@@ -633,7 +643,7 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
     if (appState == ApplicationState::APP_STATE_READY || appState == ApplicationState::APP_STATE_BACKGROUND) {
         appRecord->SetState(ApplicationState::APP_STATE_FOREGROUND);
         bool needNotifyApp = appRunningManager_->IsApplicationFirstForeground(*appRecord);
-        OnAppStateChanged(appRecord, ApplicationState::APP_STATE_FOREGROUND, needNotifyApp);
+        OnAppStateChanged(appRecord, ApplicationState::APP_STATE_FOREGROUND, needNotifyApp, false);
         DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
     } else {
         HILOG_WARN("app name(%{public}s), app state(%{public}d)!",
@@ -680,7 +690,7 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
         bool needNotifyApp = !AAFwk::UIExtensionUtils::IsUIExtension(appRecord->GetExtensionType())
             && !AAFwk::UIExtensionUtils::IsWindowExtension(appRecord->GetExtensionType())
             && appRunningManager_->IsApplicationBackground(appRecord->GetBundleName());
-        OnAppStateChanged(appRecord, ApplicationState::APP_STATE_BACKGROUND, needNotifyApp);
+        OnAppStateChanged(appRecord, ApplicationState::APP_STATE_BACKGROUND, needNotifyApp, false);
         DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
     } else {
         HILOG_WARN("app name(%{public}s), app state(%{public}d)!",
@@ -734,7 +744,7 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
     appRecord->SetState(ApplicationState::APP_STATE_TERMINATED);
     appRecord->RemoveAppDeathRecipient();
     appRecord->SetProcessChangeReason(ProcessChangeReason::REASON_APP_TERMINATED);
-    OnAppStateChanged(appRecord, ApplicationState::APP_STATE_TERMINATED, false);
+    OnAppStateChanged(appRecord, ApplicationState::APP_STATE_TERMINATED, false, false);
     appRunningManager_->RemoveAppRunningRecordById(recordId);
     RemoveAppFromRecentListById(recordId);
     AAFwk::EventInfo eventInfo;
@@ -1765,7 +1775,10 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::GetAppRunningRecordByAppRe
 }
 
 void AppMgrServiceInner::OnAppStateChanged(
-    const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state, bool needNotifyApp)
+    const std::shared_ptr<AppRunningRecord> &appRecord,
+    const ApplicationState state,
+    bool needNotifyApp,
+    bool isFromWindowFocusChanged)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (!appRecord) {
@@ -1784,7 +1797,8 @@ void AppMgrServiceInner::OnAppStateChanged(
         }
     }
 
-    DelayedSingleton<AppStateObserverManager>::GetInstance()->OnAppStateChanged(appRecord, state, needNotifyApp);
+    DelayedSingleton<AppStateObserverManager>::GetInstance()->OnAppStateChanged(
+        appRecord, state, needNotifyApp, isFromWindowFocusChanged);
 }
 
 void AppMgrServiceInner::OnAppStarted(const std::shared_ptr<AppRunningRecord> &appRecord)
@@ -2103,7 +2117,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     appRecord->SetStartMsg(startMsg);
     appRecord->SetAppMgrServiceInner(weak_from_this());
     appRecord->SetSpawned();
-    OnAppStateChanged(appRecord, ApplicationState::APP_STATE_CREATE, false);
+    OnAppStateChanged(appRecord, ApplicationState::APP_STATE_CREATE, false, false);
     AddAppToRecentList(appName, appRecord->GetProcessName(), pid, appRecord->GetRecordId());
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessCreated(appRecord);
     if (!appExistFlag) {
@@ -2496,7 +2510,7 @@ void AppMgrServiceInner::TerminateApplication(const std::shared_ptr<AppRunningRe
     appRecord->SetState(ApplicationState::APP_STATE_TERMINATED);
     appRecord->RemoveAppDeathRecipient();
     appRecord->SetProcessChangeReason(ProcessChangeReason::REASON_APP_TERMINATED_TIMEOUT);
-    OnAppStateChanged(appRecord, ApplicationState::APP_STATE_TERMINATED, false);
+    OnAppStateChanged(appRecord, ApplicationState::APP_STATE_TERMINATED, false, false);
     pid_t pid = appRecord->GetPriorityObject()->GetPid();
     if (pid > 0) {
         auto timeoutTask = [pid, innerService = shared_from_this()]() {
@@ -2548,6 +2562,10 @@ void AppMgrServiceInner::HandleAddAbilityStageTimeOut(const int64_t eventId)
 
     if (appRecord->IsStartSpecifiedAbility() && startSpecifiedAbilityResponse_) {
         startSpecifiedAbilityResponse_->OnTimeoutResponse(appRecord->GetSpecifiedWant());
+    }
+
+    if (appRecord->IsNewProcessRequest() && startSpecifiedAbilityResponse_) {
+        startSpecifiedAbilityResponse_->OnNewProcessRequestTimeoutResponse(appRecord->GetNewProcessRequestWant());
     }
 
     KillApplicationByRecord(appRecord);
@@ -2786,6 +2804,32 @@ int32_t AppMgrServiceInner::UnregisterApplicationStateObserver(const sptr<IAppli
 {
     CHECK_CALLER_IS_SYSTEM_APP;
     return DelayedSingleton<AppStateObserverManager>::GetInstance()->UnregisterApplicationStateObserver(observer);
+}
+
+int32_t AppMgrServiceInner::RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer)
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
+    return DelayedSingleton<AppStateObserverManager>::GetInstance()->RegisterAppForegroundStateObserver(observer);
+}
+
+int32_t AppMgrServiceInner::UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer)
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
+    return DelayedSingleton<AppStateObserverManager>::GetInstance()->UnregisterAppForegroundStateObserver(observer);
+}
+
+int32_t AppMgrServiceInner::RegisterAbilityForegroundStateObserver(
+    const sptr<IAbilityForegroundStateObserver> &observer)
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
+    return DelayedSingleton<AppStateObserverManager>::GetInstance()->RegisterAbilityForegroundStateObserver(observer);
+}
+
+int32_t AppMgrServiceInner::UnregisterAbilityForegroundStateObserver(
+    const sptr<IAbilityForegroundStateObserver> &observer)
+{
+    CHECK_CALLER_IS_SYSTEM_APP;
+    return DelayedSingleton<AppStateObserverManager>::GetInstance()->UnregisterAbilityForegroundStateObserver(observer);
 }
 
 int32_t AppMgrServiceInner::GetForegroundApplications(std::vector<AppStateData> &list)
@@ -3189,7 +3233,7 @@ void AppMgrServiceInner::HandleStartSpecifiedProcessTimeout(const int64_t eventI
     }
 
     if (startSpecifiedAbilityResponse_) {
-        startSpecifiedAbilityResponse_->OnNewProcessRequestTimeoutResponse(appRecord->GetSpecifiedWant());
+        startSpecifiedAbilityResponse_->OnNewProcessRequestTimeoutResponse(appRecord->GetNewProcessRequestWant());
     }
 }
 
@@ -3216,6 +3260,7 @@ int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
     configuration_->Merge(changeKeyV, config);
     // all app
     int32_t result = appRunningManager_->UpdateConfiguration(config);
+    HandleConfigurationChange(config);
     if (result != ERR_OK) {
         HILOG_ERROR("update error, not notify");
         return result;
@@ -3228,6 +3273,16 @@ int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
         }
     }
     return result;
+}
+
+void AppMgrServiceInner::HandleConfigurationChange(const Configuration &config)
+{
+    std::lock_guard lock(appStateCallbacksLock_);
+    for (const auto &callback : appStateCallbacks_) {
+        if (callback != nullptr) {
+            callback->NotifyConfigurationChange(config, currentUserId_);
+        }
+    }
 }
 
 int32_t AppMgrServiceInner::RegisterConfigurationObserver(const sptr<IConfigurationObserver>& observer)
@@ -3948,7 +4003,7 @@ void AppMgrServiceInner::HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> 
     }
 
     bool needNotifyApp = appRunningManager_->IsApplicationFirstFocused(*appRecord);
-    OnAppStateChanged(appRecord, appRecord->GetState(), needNotifyApp);
+    OnAppStateChanged(appRecord, appRecord->GetState(), needNotifyApp, true);
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
 }
 
@@ -3977,7 +4032,7 @@ void AppMgrServiceInner::HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo
     }
 
     bool needNotifyApp = appRunningManager_->IsApplicationUnfocused(appRecord->GetBundleName());
-    OnAppStateChanged(appRecord, appRecord->GetState(), needNotifyApp);
+    OnAppStateChanged(appRecord, appRecord->GetState(), needNotifyApp, true);
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
 }
 
