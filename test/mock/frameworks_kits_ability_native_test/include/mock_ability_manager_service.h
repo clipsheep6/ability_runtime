@@ -92,7 +92,7 @@ public:
 
     MOCK_METHOD2(
         GetWantSender, sptr<IWantSender>(const WantSenderInfo& wantSenderInfo, const sptr<IRemoteObject>& callerToken));
-    MOCK_METHOD2(SendWantSender, int(const sptr<IWantSender>& target, const SenderInfo& senderInfo));
+    MOCK_METHOD2(SendWantSender, int(sptr<IWantSender> target, const SenderInfo& senderInfo));
     MOCK_METHOD1(CancelWantSender, void(const sptr<IWantSender>& sender));
     MOCK_METHOD1(GetPendingWantUid, int(const sptr<IWantSender>& target));
     MOCK_METHOD1(GetPendingWantUserId, int(const sptr<IWantSender>& target));

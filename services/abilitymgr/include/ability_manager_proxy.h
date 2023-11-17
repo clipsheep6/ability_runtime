@@ -509,7 +509,7 @@ public:
     virtual sptr<IWantSender> GetWantSender(
         const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken) override;
 
-    virtual int SendWantSender(const sptr<IWantSender> &target, const SenderInfo &senderInfo) override;
+    virtual int SendWantSender(sptr<IWantSender> target, const SenderInfo &senderInfo) override;
 
     virtual void CancelWantSender(const sptr<IWantSender> &sender) override;
 

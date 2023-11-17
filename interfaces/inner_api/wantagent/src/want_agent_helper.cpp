@@ -186,7 +186,7 @@ std::shared_ptr<WantAgent> WantAgentHelper::GetWantAgent(const WantAgentInfo &pa
     return agent;
 }
 
-WantAgentConstant::OperationType WantAgentHelper::GetType(const std::shared_ptr<WantAgent> &agent)
+WantAgentConstant::OperationType WantAgentHelper::GetType(std::shared_ptr<WantAgent> agent)
 {
     if ((agent == nullptr) || (agent->GetPendingWant() == nullptr)) {
         return WantAgentConstant::OperationType::UNKNOWN_TYPE;
@@ -195,7 +195,7 @@ WantAgentConstant::OperationType WantAgentHelper::GetType(const std::shared_ptr<
     return agent->GetPendingWant()->GetType(agent->GetPendingWant()->GetTarget());
 }
 
-ErrCode WantAgentHelper::TriggerWantAgent(const std::shared_ptr<WantAgent> &agent,
+ErrCode WantAgentHelper::TriggerWantAgent(std::shared_ptr<WantAgent> agent,
     const std::shared_ptr<CompletedCallback> &callback, const TriggerInfo &paramsInfo)
 {
     HILOG_INFO("call");

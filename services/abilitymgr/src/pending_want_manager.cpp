@@ -171,7 +171,7 @@ bool PendingWantManager::CheckPendingWantRecordByKey(
     return true;
 }
 
-int32_t PendingWantManager::SendWantSender(const sptr<IWantSender> &target, const SenderInfo &senderInfo)
+int32_t PendingWantManager::SendWantSender(sptr<IWantSender> target, const SenderInfo &senderInfo)
 {
     HILOG_INFO("begin");
 

@@ -1673,7 +1673,7 @@ sptr<IWantSender> AbilityManagerProxy::GetWantSender(
     return wantSender;
 }
 
-int AbilityManagerProxy::SendWantSender(const sptr<IWantSender> &target, const SenderInfo &senderInfo)
+int AbilityManagerProxy::SendWantSender(sptr<IWantSender> target, const SenderInfo &senderInfo)
 {
     MessageParcel data;
     MessageParcel reply;

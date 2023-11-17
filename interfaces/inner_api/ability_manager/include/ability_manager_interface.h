@@ -614,7 +614,7 @@ public:
     virtual sptr<IWantSender> GetWantSender(
         const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken) = 0;
 
-    virtual int SendWantSender(const sptr<IWantSender> &target, const SenderInfo &senderInfo) = 0;
+    virtual int SendWantSender(sptr<IWantSender> target, const SenderInfo &senderInfo) = 0;
 
     virtual void CancelWantSender(const sptr<IWantSender> &sender) = 0;
 

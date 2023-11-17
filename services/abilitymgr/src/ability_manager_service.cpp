@@ -3407,7 +3407,7 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
     return pendingWantManager_->GetWantSender(callerUid, appUid, isSystemApp, wantSenderInfo, callerToken);
 }
 
-int AbilityManagerService::SendWantSender(const sptr<IWantSender> &target, const SenderInfo &senderInfo)
+int AbilityManagerService::SendWantSender(sptr<IWantSender> target, const SenderInfo &senderInfo)
 {
     HILOG_INFO("Send want sender.");
     CHECK_POINTER_AND_RETURN(pendingWantManager_, ERR_INVALID_VALUE);
