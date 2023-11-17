@@ -26,6 +26,7 @@ config("appmgr_test_config") {
   defines = [ "AMS_LOG_TAG = \"AppMgrService\"" ]
 
   include_dirs = [
+    "${ability_runtime_services_path}/appdfr/include",
     "${ability_runtime_test_path}/mock/services_appmgr_test/include",
     "${distributeddatamgr_path}/kv_store/interfaces/innerkits/distributeddata/include",
     "${global_path}/i18n/frameworks/intl/include",
@@ -169,6 +170,7 @@ ohos_source_set("abilityms_test_source") {
   ]
 
   include_dirs = [
+    "${ability_runtime_services_path}/appdfr/include",
     "${ability_base_kits_path}/extractortool/include",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk",
@@ -244,7 +246,6 @@ ohos_source_set("abilityms_test_source") {
 
   if (ability_runtime_graphics) {
     sources += [
-      "${ability_runtime_services_path}/abilitymgr/src/application_anr_listener.cpp",
       "${ability_runtime_services_path}/abilitymgr/src/image_info.cpp",
       "${ability_runtime_services_path}/abilitymgr/src/implicit_start_processor.cpp",
       "${ability_runtime_services_path}/abilitymgr/src/inner_mission_info.cpp",
@@ -261,6 +262,7 @@ ohos_source_set("abilityms_test_source") {
       "${ability_runtime_services_path}/abilitymgr/src/remote_mission_listener_proxy.cpp",
       "${ability_runtime_services_path}/abilitymgr/src/remote_mission_listener_stub.cpp",
       "${ability_runtime_services_path}/abilitymgr/src/system_dialog_scheduler.cpp",
+      "${ability_runtime_services_path}/appdfr/src/application_anr_listener.cpp",
     ]
     deps += [
       "${ace_engine_path}/interfaces/inner_api/ui_service_manager:ui_service_mgr",
@@ -393,6 +395,7 @@ group("unittest") {
     "dataobs_mgr_service_dump_test:unittest",
     "dataobs_mgr_service_test:unittest",
     "dataobs_mgr_stub_test:unittest",
+    "dfr_test:unittest",
     "dlp_state_item_test:unittest",
     "dlp_utils_test:unittest",
     "dummy_values_bucket_test:unittest",

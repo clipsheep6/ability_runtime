@@ -66,6 +66,7 @@ HWTEST_F(AppfreezeInnerTest, AppfreezeInner__SetMainHandler_001, TestSize.Level1
 {
     GTEST_LOG_(INFO) << "AppfreezeInner__SetMainHandler_001 start";
     std::shared_ptr<EventHandler> eventHandler = std::make_shared<EventHandler>();
+    EXPECT_TRUE(eventHandler != nullptr);
     AppfreezeInner::SetMainHandler(eventHandler);
     GTEST_LOG_(INFO) << "AppfreezeInner__SetMainHandler_001 end";
 }
@@ -79,6 +80,7 @@ HWTEST_F(AppfreezeInnerTest, AppfreezeInner__SetApplicationInfo_001, TestSize.Le
 {
     GTEST_LOG_(INFO) << "AppfreezeInner__SetApplicationInfo_001 start";
     std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
+    EXPECT_TRUE(applicationInfo != nullptr);
     appfreezeInner->SetApplicationInfo(applicationInfo);
     GTEST_LOG_(INFO) << "AppfreezeInner__SetApplicationInfo_001 end";
 }
@@ -93,6 +95,7 @@ HWTEST_F(AppfreezeInnerTest, AppfreezeInner__ThreadBlock_001, TestSize.Level1)
     GTEST_LOG_(INFO) << "AppfreezeInner__ThreadBlock_001 start";
     std::atomic_bool isSixSecondEvent = false;
     appfreezeInner->ThreadBlock(isSixSecondEvent);
+    EXPECT_TRUE(isSixSecondEvent);
     GTEST_LOG_(INFO) << "AppfreezeInner__ThreadBlock_001 end";
 }
 
@@ -106,6 +109,7 @@ HWTEST_F(AppfreezeInnerTest, AppfreezeInner__ThreadBlock_002, TestSize.Level1)
     GTEST_LOG_(INFO) << "AppfreezeInner__ThreadBlock_002 start";
     std::atomic_bool isSixSecondEvent = true;
     appfreezeInner->ThreadBlock(isSixSecondEvent);
+    EXPECT_TRUE(isSixSecondEvent);
     GTEST_LOG_(INFO) << "AppfreezeInner__ThreadBlock_002 end";
 }
 
