@@ -110,7 +110,7 @@ const int BACKGROUND_TIMEOUT_MULTIPLE = 3;
 const int ACTIVE_TIMEOUT_MULTIPLE = 5;
 const int TERMINATE_TIMEOUT_MULTIPLE = 10;
 const int INACTIVE_TIMEOUT_MULTIPLE = 1;
-const int DUMP_TIMEOUT_MULTIPLE = 1;
+const int DUMP_TIMEOUT_MULTIPLE = 1000;
 const int SHAREDATA_TIMEOUT_MULTIPLE = 5;
 #endif
 const std::map<AbilityState, std::string> AbilityRecord::stateToStrMap = {
@@ -2648,8 +2648,7 @@ void AbilityRecord::DumpClientInfo(std::vector<std::string> &info, const std::ve
 
     HILOG_INFO("Dump begin wait.");
     isDumpTimeout_ = false;
-    int dumpTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * DUMP_TIMEOUT_MULTIPLE;
-    std::chrono::milliseconds timeout { dumpTimeout };
+    std::chrono::milliseconds timeout { DUMP_TIMEOUT_MULTIPLE };
     if (dumpCondition_.wait_for(lock, timeout) == ffrt::cv_status::timeout) {
         isDumpTimeout_ = true;
     }
