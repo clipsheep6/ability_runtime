@@ -103,6 +103,11 @@ void JsUIExtensionCallback::OnError(int32_t number)
     std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
     NapiAsyncTask::Schedule("JsUIExtensionCallback::OnError:",
         env_, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
+    if (uiContent_ == nullptr) {
+        HILOG_ERROR("uiContent_ null");
+        return;
+    }
+    uiContent_->CloseModalUIExtension(sessionId_);
 }
 
 void JsUIExtensionCallback::OnRelease(int32_t code)
