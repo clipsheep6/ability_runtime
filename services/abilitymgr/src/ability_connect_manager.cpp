@@ -719,6 +719,9 @@ int AbilityConnectManager::ScheduleCommandAbilityWindowDone(
                 || abilityRecord->IsAbilityState(AbilityState::BACKGROUND)
                 || abilityRecord->IsAbilityState(AbilityState::BACKGROUNDING)) {
                 HILOG_DEBUG("Foreground %{public}s", element.c_str());
+                if (UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
+                    abilityRecord->GrantUriPermission();
+                }
                 DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token);
             }
             break;
