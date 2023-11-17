@@ -108,8 +108,14 @@ constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib64/libformrender.z.so";
 constexpr int32_t DELIVERY_TIME = 200;
 constexpr int32_t DISTRIBUTE_TIME = 100;
 constexpr int32_t UNSPECIFIED_USERID = -2;
-constexpr int SIGNAL_JS_HEAP = 39;
-constexpr int SIGNAL_JS_HEAP_PRIV = 40;
+
+enum class SignalType {
+    SIGNAL_JSHEAP_OLD,
+    SIGNAL_JSHEAP,
+    SIGNAL_JSHEAP_PRIV,
+    SIGNAL_START_SAMPLE,
+    SIGNAL_STOP_SAMPLE,
+};
 
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_VERSION[] = "VERSION";
@@ -2073,17 +2079,34 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner)
     extensionConfigMgr_->Init();
 }
 
-void MainThread::HandleSignal(int signal)
+void MainThread::HandleSignal(int signal, [[maybe_unused]] siginfo_t *siginfo, void *context)
 {
-    switch (signal) {
-        case SIGNAL_JS_HEAP: {
+    if (signal != MUSL_SIGNAL_JSHEAP) {
+        HILOG_ERROR("HandleSignal failed, signal is %{public}d", signal);
+    }
+    HILOG_INFO("HandleSignal sival_int is %{public}d", siginfo->si_value.sival_int);
+    switch (static_cast<SignalType>(siginfo->si_value.sival_int)) {
+        case SignalType::SIGNAL_JSHEAP_OLD: {
             auto heapFunc = std::bind(&MainThread::HandleDumpHeap, false);
-            signalHandler_->PostTask(heapFunc, "MainThread::SIGNAL_JS_HEAP");
+            signalHandler_->PostTask(heapFunc, "MainThread::SIGNAL_JSHEAP_OLD");
             break;
         }
-        case SIGNAL_JS_HEAP_PRIV: {
+        case SignalType::SIGNAL_JSHEAP: {
+            auto heapFunc = std::bind(&MainThread::HandleDumpHeap, false);
+            signalHandler_->PostTask(heapFunc, "MainThread::SIGNAL_JSHEAP");
+            break;
+        }
+        case SignalType::SIGNAL_JSHEAP_PRIV: {
             auto privateHeapFunc = std::bind(&MainThread::HandleDumpHeap, true);
-            signalHandler_->PostTask(privateHeapFunc, "MainThread:SIGNAL_JS_HEAP_PRIV");
+            signalHandler_->PostTask(privateHeapFunc, "MainThread:SIGNAL_JSHEAP_PRIV");
+            break;
+        }
+        case SignalType::SIGNAL_START_SAMPLE: {
+            HILOG_ERROR("HandleSignal failed, SIGNAL_START_SAMPLE is retained");
+            break;
+        }
+        case SignalType::SIGNAL_STOP_SAMPLE: {
+            HILOG_ERROR("HandleSignal failed, SIGNAL_STOP_SAMPLE is retained");
             break;
         }
         default:
@@ -2127,11 +2150,10 @@ void MainThread::Start()
 
     struct sigaction sigAct;
     sigemptyset(&sigAct.sa_mask);
-    sigAct.sa_flags = 0;
-    sigAct.sa_handler = &MainThread::HandleSignal;
+    sigAct.sa_flags = SA_SIGINFO;
+    sigAct.sa_sigaction = &MainThread::HandleSignal;
     sigaction(SIGUSR1, &sigAct, NULL);
-    sigaction(SIGNAL_JS_HEAP, &sigAct, NULL);
-    sigaction(SIGNAL_JS_HEAP_PRIV, &sigAct, NULL);
+    sigaction(MUSL_SIGNAL_JSHEAP, &sigAct, NULL);
 
     thread->Init(runner);
 

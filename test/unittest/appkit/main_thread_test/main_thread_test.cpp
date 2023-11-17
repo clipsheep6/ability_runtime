@@ -1328,8 +1328,9 @@ HWTEST_F(MainThreadTest, HandleSignal_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
-    constexpr int SIGNAL_JS_HEAP = 39;
-    mainThread_->HandleSignal(SIGNAL_JS_HEAP);
+    siginfo_t siginfo;
+    siginfo.si_value.sival_int = 1;
+    mainThread_->HandleSignal(MUSL_SIGNAL_JSHEAP, &siginfo, nullptr);
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1343,8 +1344,9 @@ HWTEST_F(MainThreadTest, HandleSignal_0200, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
-    constexpr int SIGNAL_JS_HEAP_PRIV = 40;
-    mainThread_->HandleSignal(SIGNAL_JS_HEAP_PRIV);
+    siginfo_t siginfo;
+    siginfo.si_value.sival_int = 2;
+    mainThread_->HandleSignal(MUSL_SIGNAL_JSHEAP, &siginfo, nullptr);
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1358,7 +1360,9 @@ HWTEST_F(MainThreadTest, HandleSignal_0300, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
-    mainThread_->HandleSignal(-1);
+    siginfo_t siginfo;
+    siginfo.si_value.sival_int = 1;
+    mainThread_->HandleSignal(-1, &siginfo, nullptr);
     HILOG_INFO("%{public}s end.", __func__);
 }
 
