@@ -591,6 +591,24 @@ int UIAbilityLifecycleManager::ResolveLocked(const AbilityRequest &abilityReques
     return CallAbilityLocked(abilityRequest, userId);
 }
 
+bool UIAbilityLifecycleManager::IsAbilityStarted(AbilityRequest &abilityRequest,
+    std::shared_ptr<AbilityRecord> &targetRecord, const int32_t oriValidUserId)
+{
+    HILOG_DEBUG("Call.");
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    bool reuse = false;
+    auto persistentId = GetPersistentIdByAbilityRequest(abilityRequest, reuse, oriValidUserId);
+    if (persistentId == 0) {
+        return false;
+    }
+    targetRecord = sessionAbilityMap_.at(persistentId);
+    if (targetRecord) {
+        targetRecord->AddCallerRecord(abilityRequest.callerToken, abilityRequest.requestCode);
+        targetRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_CALL);
+    }
+    return true;
+}
+
 int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRequest, int32_t userId)
 {
     HILOG_DEBUG("Call.");
@@ -609,7 +627,6 @@ int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRe
     } else {
         uiAbilityRecord = sessionAbilityMap_.at(persistentId);
     }
-
     uiAbilityRecord->AddCallerRecord(abilityRequest.callerToken, abilityRequest.requestCode);
     uiAbilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_CALL);
     NotifyAbilityToken(uiAbilityRecord->GetToken(), abilityRequest);

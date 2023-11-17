@@ -990,6 +990,13 @@ void UIAbility::ExecuteInsightIntentMoveToForeground(const AAFwk::Want &want,
 {
     HILOG_DEBUG("called");
 }
+
+void UIAbility::ExecuteInsightIntentBackground(const AAFwk::Want &want,
+    const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+    std::unique_ptr<InsightIntentExecutorAsyncCallback> callback)
+{
+    HILOG_DEBUG("called");
+}
 #endif
 } // namespace AbilityRuntime
 } // namespace OHOS

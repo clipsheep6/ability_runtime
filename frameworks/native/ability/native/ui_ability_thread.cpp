@@ -644,6 +644,34 @@ void UIAbilityThread::CallRequest()
     HILOG_DEBUG("End.");
 }
 
+void UIAbilityThread::OnExecuteIntent(const Want &want)
+{
+    HILOG_DEBUG("Begin.");
+    if (abilityImpl_ == nullptr) {
+        HILOG_ERROR("abilityImpl_ is nullptr.");
+        return;
+    }
+
+    if (abilityHandler_ == nullptr) {
+        HILOG_ERROR("abilityHandler_ is nullptr.");
+        return;
+    }
+
+    wptr<UIAbilityThread> weak = this;
+    auto task = [weak, want]() {
+        auto abilityThread = weak.promote();
+        if (abilityThread == nullptr) {
+            HILOG_ERROR("AbilityThread is nullptr.");
+            return;
+        }
+        if (abilityThread->abilityImpl_ != nullptr) {
+            abilityThread->abilityImpl_->HandleExecuteInsightIntentBackground(want, true);
+            return;
+        }
+    };
+    abilityHandler_->PostTask(task, "UIAbilityThread:OnExecuteIntent");
+}
+
 void UIAbilityThread::HandlePrepareTermianteAbility()
 {
     std::unique_lock<std::mutex> lock(mutex_);

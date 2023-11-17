@@ -73,7 +73,11 @@ public:
     virtual void CallRequest()
     {
         return;
-    };
+    }
+    virtual void OnExecuteIntent(const Want &want)
+    {
+        return;
+    }
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

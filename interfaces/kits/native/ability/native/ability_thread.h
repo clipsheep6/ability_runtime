@@ -335,6 +335,8 @@ public:
      */
     void CallRequest() override;
 
+    void OnExecuteIntent(const Want &want) override;
+
     /**
      * @brief Execute Batch
      * @param operations Indicates the operations

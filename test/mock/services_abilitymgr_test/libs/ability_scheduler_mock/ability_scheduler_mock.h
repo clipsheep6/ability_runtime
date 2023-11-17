@@ -152,6 +152,10 @@ public:
         return;
     }
 
+    virtual void OnExecuteIntent(const Want &want)
+    {
+        return;
+    }
 #ifdef ABILITY_COMMAND_FOR_TEST
     virtual int BlockAbility()
     {

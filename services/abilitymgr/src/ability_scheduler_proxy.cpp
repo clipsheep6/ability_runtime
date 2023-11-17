@@ -1088,6 +1088,25 @@ void AbilitySchedulerProxy::CallRequest()
     HILOG_INFO("AbilitySchedulerProxy::CallRequest end");
 }
 
+void AbilitySchedulerProxy::OnExecuteIntent(const Want &want)
+{
+    HILOG_INFO("AbilitySchedulerProxy::OnExecuteIntent start");
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!WriteInterfaceToken(data)) {
+        return ;
+    }
+    data.WriteParcelable(&want);
+    int32_t err = SendTransactCmd(IAbilityScheduler::SCHEDULE_ONEXECUTE_INTENT, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("ScheduleAbilityTransaction fail to SendRequest. err: %{public}d", err);
+    }
+
+    HILOG_INFO("AbilitySchedulerProxy::OnExecuteIntent end");
+}
+
 #ifdef ABILITY_COMMAND_FOR_TEST
 int AbilitySchedulerProxy::BlockAbility()
 {
