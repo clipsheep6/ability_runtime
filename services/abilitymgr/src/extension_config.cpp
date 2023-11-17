@@ -29,7 +29,7 @@ const std::string EXTENSION_AUTO_DISCONNECT_TIME_NAME = "ams_extension_config";
 const std::string EXTENSION_TYPE_NAME = "extension_type_name";
 const std::string EXTENSION_AUTO_DISCONNECT_TIME = "auto_disconnect_time";
 
-const int32_t DEFAULT_EXTENSION_AUTO_DISCONNECT_TIME = 60000;
+const int32_t DEFAULT_EXTENSION_AUTO_DISCONNECT_TIME = -1;
 }
 
 void ExtensionConfig::LoadExtensionConfiguration()
