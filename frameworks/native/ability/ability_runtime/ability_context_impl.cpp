@@ -30,13 +30,15 @@
 #include "string_wrapper.h"
 #include "ui_content.h"
 #include "want_params_wrapper.h"
-
+#include "accesstoken_kit.h"
+#include "tokenid_kit.h"
+#include "ipc_skeleton.h"
 namespace OHOS {
 namespace AbilityRuntime {
 const size_t AbilityContext::CONTEXT_TYPE_ID(std::hash<const char*> {} ("AbilityContext"));
 const std::string START_ABILITY_TYPE = "ABILITY_INNER_START_WITH_ACCOUNT";
 const std::string UIEXTENSION_TARGET_TYPE_KEY = "ability.want.params.uiExtensionTargetType";
-
+constexpr const char* PERMISSION_VPN_EXTENSION = "ohos.permission.VPN_EXTENSION";
 struct RequestResult {
     int32_t resultCode {0};
     AAFwk::Want resultWant;
@@ -267,6 +269,36 @@ ErrCode AbilityContextImpl::StartServiceExtensionAbility(const AAFwk::Want& want
         want, token_, accountId, AppExecFwk::ExtensionAbilityType::SERVICE);
     if (err != ERR_OK) {
         HILOG_ERROR("StartServiceExtensionAbility is failed %{public}d", err);
+    }
+    return err;
+}
+
+ErrCode AbilityContextImpl::StartVpnExtensionAbility(const AAFwk::Want& want, int32_t accountId)
+{
+    HILOG_INFO("StartVpnExtensionAbility name:%{public}s %{public}s, accountId=%{public}d",
+        want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), accountId);
+    auto selfToken =  IPCSkeleton::GetCallingTokenID();
+    int ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(selfToken, PERMISSION_VPN_EXTENSION);
+    if (ret != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
+         HILOG_INFO("StartVpnExtensionAbility ERR_PERMISSION_DENIED");
+         return ERR_PERMISSION_DENIED;
+    }
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartExtensionAbility(
+        want, token_, accountId, AppExecFwk::ExtensionAbilityType::VPN);
+    if (err != ERR_OK) {
+        HILOG_ERROR("StartServiceExtensionAbility is failed %{public}d", err);
+    }
+    return err;
+}
+
+ErrCode AbilityContextImpl::StopVpnExtensionAbility(const AAFwk::Want& want, int32_t accountId)
+{
+    HILOG_INFO("StopVpnExtensionAbility name:%{public}s %{public}s, accountId=%{public}d",
+        want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), accountId);
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StopExtensionAbility(
+        want, token_, accountId, AppExecFwk::ExtensionAbilityType::VPN);
+    if (err != ERR_OK) {
+        HILOG_ERROR("StopServiceExtensionAbility is failed %{public}d", err);
     }
     return err;
 }
