@@ -28,6 +28,7 @@ namespace UIExtensionUtils {
 const std::unordered_set<AppExecFwk::ExtensionAbilityType> UI_EXTENSION_SET = {
     AppExecFwk::ExtensionAbilityType::SHARE,
     AppExecFwk::ExtensionAbilityType::ACTION,
+    AppExecFwk::ExtensionAbilityType::AUTO_FILL_PASSWORD,
     AppExecFwk::ExtensionAbilityType::UI,
     AppExecFwk::ExtensionAbilityType::SYSPICKER_MEDIACONTROL,
     AppExecFwk::ExtensionAbilityType::SYSDIALOG_USERAUTH,
