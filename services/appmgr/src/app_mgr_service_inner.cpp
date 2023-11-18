@@ -106,7 +106,7 @@ const std::string RENDER_PARAM = "invalidparam";
 const std::string COLD_START = "coldStart";
 const std::string PERF_CMD = "perfCmd";
 const std::string DEBUG_CMD = "debugCmd";
-const std::string ENTER_SANBOX = "sanboxApp";
+const std::string ENTER_SANDBOX = "sandboxApp";
 const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
 const std::string PERMISSION_INTERNET = "ohos.permission.INTERNET";
 const std::string PERMISSION_MANAGE_VPN = "ohos.permission.MANAGE_VPN";
@@ -343,8 +343,8 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
         StartProcess(abilityInfo->applicationName, processName, startFlags, appRecord,
             appInfo->uid, appInfo->bundleName, bundleIndex, appExistFlag);
         std::string perfCmd = (want == nullptr) ? "" : want->GetStringParam(PERF_CMD);
-        bool isSanboxApp = (want == nullptr) ? false : want->GetBoolParam(ENTER_SANBOX, false);
-        (void)StartPerfProcess(appRecord, perfCmd, "", isSanboxApp);
+        bool isSandboxApp = (want == nullptr) ? false : want->GetBoolParam(ENTER_SANDBOX, false);
+        (void)StartPerfProcess(appRecord, perfCmd, "", isSandboxApp);
     } else {
         HILOG_INFO("have apprecord");
         SendAppStartupTypeEvent(appRecord, abilityInfo, AppStartType::MULTI_INSTANCE);
@@ -1888,7 +1888,7 @@ void AppMgrServiceInner::StateChangedNotifyObserver(const AbilityStateData abili
 }
 
 int32_t AppMgrServiceInner::StartPerfProcess(const std::shared_ptr<AppRunningRecord> &appRecord,
-    const std::string& perfCmd, const std::string& debugCmd, bool isSanboxApp) const
+    const std::string& perfCmd, const std::string& debugCmd, bool isSandboxApp) const
 {
     if (!remoteClientManager_->GetSpawnClient() || !appRecord) {
         HILOG_ERROR("appSpawnClient or appRecord is null");
@@ -1899,14 +1899,26 @@ int32_t AppMgrServiceInner::StartPerfProcess(const std::shared_ptr<AppRunningRec
         return ERR_INVALID_OPERATION;
     }
 
-    AppSpawnStartMsg startMsg = appRecord->GetStartMsg();
+    auto&& startMsg = appRecord->GetStartMsg();
+    startMsg.code = static_cast<int32_t>(AppSpawn::ClientSocket::AppOperateCode::SPAWN_NATIVE_PROCESS);
+    if (!isSandboxApp) {
+        HILOG_DEBUG("debuggablePipe sandbox: false.");
+        startMsg.flags |= (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::NO_SANDBOX);
+    } else {
+        HILOG_INFO("debuggablePipe sandbox: true");
+    }
     if (!perfCmd.empty()) {
+        startMsg.renderParam = perfCmd;
         HILOG_INFO("debuggablePipe perfCmd:%{public}s", perfCmd.c_str());
     } else {
+        startMsg.renderParam = debugCmd;
         HILOG_INFO("debuggablePipe debugCmd:%{public}s", debugCmd.c_str());
     }
-    if (isSanboxApp) {
-        HILOG_INFO("debuggablePipe sandbox: true");
+    pid_t pid = 0;
+    auto errCode = remoteClientManager_->GetSpawnClient()->StartProcess(startMsg, pid);
+    if (FAILED(errCode)) {
+        HILOG_ERROR("failed to spawn new native process, errCode %{public}08x", errCode);
+        return errCode;
     }
     return ERR_OK;
 }
@@ -4438,12 +4450,9 @@ int32_t AppMgrServiceInner::StartNativeProcessForDebugger(const AAFwk::Want &wan
     HILOG_INFO("debuggablePipe moduleName:%{public}s", want.GetElement().GetModuleName().c_str());
     HILOG_INFO("debuggablePipe abilityName:%{public}s", want.GetElement().GetAbilityName().c_str());
 
-    auto abilityInfoFlag = (AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA);
     AbilityInfo abilityInfo;
     auto userId = GetCurrentAccountId();
-    IN_PROCESS_CALL_WITHOUT_RET(bundleMgr->QueryAbilityInfo(want, abilityInfoFlag, userId, abilityInfo));
+    IN_PROCESS_CALL_WITHOUT_RET(bundleMgr->QueryAbilityInfo(want, GetFlag(), userId, abilityInfo));
 
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
@@ -4464,14 +4473,29 @@ int32_t AppMgrServiceInner::StartNativeProcessForDebugger(const AAFwk::Want &wan
         return ERR_INVALID_OPERATION;
     }
 
-    bool isSanboxApp = want.GetBoolParam(ENTER_SANBOX, false);
+    bool isSandboxApp = want.GetBoolParam(ENTER_SANDBOX, false);
+    if (isSandboxApp) {
+        HILOG_INFO("debuggablePipe sandbox: true");
+    }
     auto&& cmd = want.GetStringParam(PERF_CMD);
     if (cmd.size() == 0) {
         cmd = want.GetStringParam(DEBUG_CMD);
-        return StartPerfProcess(appRecord, "", cmd, isSanboxApp);
+        HILOG_INFO("debuggablePipe debugCmd:%{public}s", cmd.c_str());
+        if (!appInfo->debug) {
+            HILOG_ERROR("The app is not debug mode.");
+            return ERR_INVALID_OPERATION;
+        }
+        return StartPerfProcess(appRecord, "", cmd, isSandboxApp);
     } else {
-        return StartPerfProcess(appRecord, cmd, "", isSanboxApp);
+        return StartPerfProcess(appRecord, cmd, "", isSandboxApp);
     }
+}
+
+int32_t AppMgrServiceInner::GetFlag() const
+{
+    return AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION |
+        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION |
+        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA;
 }
 
 int32_t AppMgrServiceInner::GetCurrentAccountId() const

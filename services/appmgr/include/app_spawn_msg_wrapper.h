@@ -42,7 +42,7 @@ struct AppSpawnStartMsg {
     std::string bundleName;
     std::string renderParam; // only nweb spawn need this param.
     int32_t pid;
-    int32_t code = 0; // 0: DEFAULT; 1: GET_RENDER_TERMINATION_STATUS;
+    int32_t code = 0; // 0: DEFAULT; 1: GET_RENDER_TERMINATION_STATUS; 2: SPAWN_NATIVE_PROCESS
     uint32_t flags;
     int32_t bundleIndex;   // when dlp launch another app used, default is 0
     uint8_t setAllowInternet;
@@ -65,6 +65,7 @@ struct StartFlags {
     static const int DEBUGGABLE = 3;
     static const int ASANENABLED = 4;
     static const int NATIVEDEBUG = 6;
+    static const int NO_SANDBOX = 7;
 };
 
 union AppSpawnPidMsg {

@@ -906,7 +906,7 @@ private:
         const HapModuleInfo &hapModuleInfo, const std::shared_ptr<AAFwk::Want> &want);
 
     int32_t StartPerfProcess(const std::shared_ptr<AppRunningRecord> &appRecord, const std::string& perfCmd,
-        const std::string& debugCmd, bool isSanboxApp) const;
+        const std::string& debugCmd, bool isSandboxApp) const;
 
     void StartProcessVerifyPermission(const BundleInfo &bundleInfo, bool &hasAccessBundleDirReq,
         uint8_t &setAllowInternet, uint8_t &allowInternet, std::vector<int32_t> &gids,
@@ -1132,6 +1132,7 @@ private:
     bool JudgeSelfCalledByToken(const sptr<IRemoteObject> &token, const PageStateData &pageStateData);
 
     void ParseServiceExtMultiProcessWhiteList();
+    int32_t GetFlag() const;
 
     /**
      * Notify the app running status.

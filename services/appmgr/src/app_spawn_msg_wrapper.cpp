@@ -83,8 +83,8 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
         return false;
     }
     msg_->code = static_cast<AppSpawn::ClientSocket::AppOperateCode>(startMsg.code);
-    if (msg_->code == AppSpawn::ClientSocket::AppOperateCode::DEFAULT) {
-        // || msg_->code == AppSpawn::ClientSocket::AppOperateCode::SPAWN_NATIVE_PROCESS) {
+    if (msg_->code == AppSpawn::ClientSocket::AppOperateCode::DEFAULT ||
+        msg_->code == AppSpawn::ClientSocket::AppOperateCode::SPAWN_NATIVE_PROCESS) {
         msg_->uid = startMsg.uid;
         msg_->gid = startMsg.gid;
         msg_->gidCount = startMsg.gids.size() + startMsg.dataGroupInfoList.size();
@@ -155,7 +155,8 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
 
 bool AppSpawnMsgWrapper::VerifyMsg(const AppSpawnStartMsg &startMsg) const
 {
-    if (startMsg.code == AppSpawn::ClientSocket::AppOperateCode::DEFAULT) {
+    if (startMsg.code == AppSpawn::ClientSocket::AppOperateCode::DEFAULT ||
+        startMsg.code == AppSpawn::ClientSocket::AppOperateCode::SPAWN_NATIVE_PROCESS) {
         if (startMsg.uid < 0) {
             HILOG_ERROR("invalid uid! [%{public}d]", startMsg.uid);
             return false;
