@@ -259,7 +259,9 @@ void JsServiceExtension::OnStart(const AAFwk::Want &want)
 
     auto context = GetContext();
     if (context != nullptr) {
-        int displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, Rosen::WindowScene::DEFAULT_DISPLAY_ID);
+        int displayId = Rosen::DisplayManager::GetInstance().GetDefaultDisplayId();
+        displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, displayId);
+        HILOG_INFO("JsServiceExtension::OnStart displayId %{public}d", displayId);
         auto configUtils = std::make_shared<ConfigurationUtils>();
         configUtils->InitDisplayConfig(displayId, context->GetConfiguration(), context->GetResourceManager());
     }

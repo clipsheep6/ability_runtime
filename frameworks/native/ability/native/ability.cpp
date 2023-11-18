@@ -171,7 +171,7 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     HILOG_INFO("AbilityName is %{public}s.", abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
-        int defualtDisplayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
+        int defualtDisplayId = Rosen::DisplayManager::GetInstance().GetDefaultDisplayId();
         int displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
         HILOG_DEBUG("abilityName:%{public}s, displayId:%{public}d", abilityInfo_->name.c_str(), displayId);
         if (!abilityInfo_->isStageBasedModel) {
