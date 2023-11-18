@@ -174,7 +174,7 @@ void AppScheduler::KillProcessByAbilityToken(const sptr<IRemoteObject> &token)
 
 void AppScheduler::KillProcessesByUserId(int32_t userId)
 {
-    HILOG_DEBUG("Kill process by user id.");
+    HILOG_INFO("User id: %{public}d.", userId);
     CHECK_POINTER(appMgrClient_);
     appMgrClient_->KillProcessesByUserId(userId);
 }

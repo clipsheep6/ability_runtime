@@ -1595,7 +1595,7 @@ private:
     void SwitchToUser(int32_t userId);
     void SwitchToUser(int32_t oldUserId, int32_t userId);
     void SwitchManagers(int32_t userId, bool switchUser = true);
-    void StartUserApps(int32_t userId, bool isBoot);
+    void StartUserApps();
     void PauseOldUser(int32_t userId);
     void PauseOldMissionListManager(int32_t userId);
     void PauseOldConnectManager(int32_t userId);
@@ -1769,7 +1769,7 @@ private:
     bool IsReleaseCallInterception(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element,
         int &result);
 
-    bool CheckCallingTokenId(const std::string &bundleName, int32_t userId);
+    bool CheckCallingTokenId(const std::string &bundleName);
 
     void ReleaseAbilityTokenMap(const sptr<IRemoteObject> &token);
 
