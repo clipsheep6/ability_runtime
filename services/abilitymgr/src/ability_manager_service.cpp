@@ -7836,6 +7836,9 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
     if (extensionType == AppExecFwk::ExtensionAbilityType::ADS_SERVICE) {
         return ERR_OK;
     }
+    if (extensionType == AppExecFwk::ExtensionAbilityType::VPN) {
+        return ERR_OK;
+    }
     if (AAFwk::UIExtensionUtils::IsUIExtension(extensionType)) {
         return ERR_OK;
     }
