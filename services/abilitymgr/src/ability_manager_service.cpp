@@ -39,6 +39,7 @@
 #include "accesstoken_kit.h"
 #include "app_exit_reason_data_manager.h"
 #include "application_util.h"
+#include "app_utils.h"
 #include "bundle_mgr_client.h"
 #include "connection_state_manager.h"
 #include "distributed_client.h"
@@ -121,7 +122,6 @@ const std::string NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI = "component.startup.newRul
 const std::string BACKGROUND_JUDGE_FLAG = "component.startup.backgroundJudge.flag";
 const std::string WHITE_LIST_ASS_WAKEUP_FLAG = "component.startup.whitelist.associatedWakeUp";
 // White list app
-const std::string BUNDLE_NAME_LAUNCHER = "com.ohos.launcher";
 const std::string BUNDLE_NAME_SETTINGSDATA = "com.ohos.settingsdata";
 const std::string BUNDLE_NAME_SCENEBOARD = "com.ohos.sceneboard";
 // Support prepare terminate
@@ -8020,7 +8020,7 @@ bool AbilityManagerService::IsAbilityVisible(const AbilityRequest &abilityReques
     if (callerAbility) {
         const std::string bundleName = callerAbility->GetApplicationInfo().bundleName;
         HILOG_DEBUG("caller bundleName is %{public}s.", bundleName.c_str());
-        if (newRuleExceptLauncherSystemUI_ && bundleName == BUNDLE_NAME_LAUNCHER) {
+        if (newRuleExceptLauncherSystemUI_ && AppUtils::GetInstance().IsLauncher(bundleName)) {
             return true;
         }
     }
