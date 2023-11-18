@@ -35,6 +35,7 @@ constexpr static char MEDIA_CONTROL_EXTENSION[] = "MediaControlExtensionAbility"
 constexpr static char USER_AUTH_EXTENSION[] = "UserAuthExtensionAbility";
 constexpr static char ACTION_EXTENSION[] = "ActionExtensionAbility";
 constexpr static char SHARE_EXTENSION[] = "ShareExtensionAbility";
+constexpr static char AUTO_FILL_EXTENSION[] = "AutoFillExtensionAbility";
 #endif
 constexpr static char BASE_SERVICE_EXTENSION[] = "ServiceExtension";
 constexpr static char BASE_DRIVER_EXTENSION[] = "DriverExtension";
@@ -96,6 +97,8 @@ std::string ExtensionAbilityThread::CreateAbilityName(
             abilityName = SHARE_EXTENSION;
         } else if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ACTION) {
             abilityName = ACTION_EXTENSION;
+        } else if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::AUTO_FILL_PASSWORD) {
+            abilityName = AUTO_FILL_EXTENSION;
         } else {
             abilityName = UI_EXTENSION;
         }
