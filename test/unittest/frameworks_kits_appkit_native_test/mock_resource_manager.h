@@ -320,6 +320,18 @@ RState GetResId(const std::string &resTypeName, uint32_t &resId)
 }
 
 void GetLocales(std::vector<std::string> &outValue, bool includeSystem = false) {}
+
+RState GetDrawableInfoById(uint32_t id, std::tuple<std::string, size_t, std::string> &drawableInfo,
+    std::unique_ptr<uint8_t[]> &outValue, uint32_t iconType, uint32_t density = 0)
+{
+    return SUCCESS;
+}
+
+RState GetDrawableInfoByName(const char *name, std::tuple<std::string, size_t, std::string> &drawableInfo,
+    std::unique_ptr<uint8_t[]> &outValue, uint32_t iconType, uint32_t density = 0)
+{
+    return SUCCESS;
+}
 };
 }  // namespace Resource
 }  // namespace Global

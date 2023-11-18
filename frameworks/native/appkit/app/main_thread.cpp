@@ -133,6 +133,9 @@ constexpr uint32_t CHECK_MAIN_THREAD_IS_ALIVE = 1;
 
 const std::string OVERLAY_STATE_CHANGED = "usual.event.OVERLAY_STATE_CHANGED";
 
+const int32_t TYPE_RESERVE = 1;
+const int32_t TYPE_OTHERS = 2;
+
 std::string GetLibPath(const std::string &hapPath, bool isPreInstallApp)
 {
     std::string libPath = LOCAL_CODE_PATH;
@@ -1416,7 +1419,30 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
 
     // init resourceManager.
     HILOG_DEBUG("MainThread handle launch application, CreateResourceManager Start.");
-    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
+
+    auto moduleName = entryHapModuleInfo.moduleName;
+    std::string loadPath =
+        entryHapModuleInfo.hapPath.empty() ? entryHapModuleInfo.resourcePath : entryHapModuleInfo.hapPath;
+    std::regex inner_pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + bundleInfo.name);
+    loadPath = std::regex_replace(loadPath, inner_pattern, LOCAL_CODE_PATH);
+    std::vector<OverlayModuleInfo> overlayModuleInfos;
+    auto res = GetOverlayModuleInfos(bundleInfo.name, moduleName, overlayModuleInfos);
+    std::vector<std::string> overlayPaths;
+    if (res == ERR_OK) {
+        overlayPaths = GetAddOverlayPaths(overlayModuleInfos);
+    }
+    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
+    int32_t appType;
+    if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_RESERVE)) {
+        appType = TYPE_RESERVE;
+    } else if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_OTHERS)) {
+        appType = TYPE_OTHERS;
+    } else {
+        appType = 0;
+    }
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager(
+        bundleInfo.name, moduleName, loadPath, overlayPaths, *resConfig, appType));
+
     if (resourceManager == nullptr) {
         HILOG_ERROR("MainThread::handleLaunchApplication create resourceManager failed");
         return;

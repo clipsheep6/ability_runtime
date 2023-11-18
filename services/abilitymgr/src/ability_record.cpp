@@ -112,6 +112,8 @@ const int TERMINATE_TIMEOUT_MULTIPLE = 10;
 const int INACTIVE_TIMEOUT_MULTIPLE = 1;
 const int DUMP_TIMEOUT_MULTIPLE = 1000;
 const int SHAREDATA_TIMEOUT_MULTIPLE = 5;
+const int32_t TYPE_RESERVE = 1;
+const int32_t TYPE_OTHERS = 2;
 #endif
 const std::map<AbilityState, std::string> AbilityRecord::stateToStrMap = {
     std::map<AbilityState, std::string>::value_type(INITIAL, "INITIAL"),
@@ -936,11 +938,10 @@ sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo(const Abi
 std::shared_ptr<Global::Resource::ResourceManager> AbilityRecord::CreateResourceManager() const
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     UErrorCode status = U_ZERO_ERROR;
     icu::Locale locale = icu::Locale::forLanguageTag(Global::I18n::LocaleConfig::GetSystemLanguage(), status);
+    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     resConfig->SetLocaleInfo(locale);
-
     AppExecFwk::Configuration cfg;
     if (DelayedSingleton<AbilityManagerService>::GetInstance()->GetConfiguration(cfg) == 0) {
         std::string colormode = cfg.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
@@ -1079,7 +1080,6 @@ void AbilityRecord::GetColdStartingWindowResource(std::shared_ptr<Media::PixelMa
     if (bg) {
         return;
     }
-
     auto resourceMgr = CreateResourceManager();
     if (!resourceMgr) {
         HILOG_WARN("Get resourceMgr failed.");
