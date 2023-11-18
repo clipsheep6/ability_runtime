@@ -74,6 +74,7 @@
 #include "string_wrapper.h"
 #include "system_ability_definition.h"
 #include "system_ability_token_callback.h"
+#include "ui_extension_ability_connect_manager.h"
 #include "ui_extension_utils.h"
 #include "uri_permission_manager_client.h"
 #include "xcollie/watchdog.h"
@@ -130,6 +131,7 @@ const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
 // UIExtension type
 const std::string UIEXTENSION_TYPE_KEY = "ability.want.params.uiExtensionType";
 const std::string UIEXTENSION_TARGET_TYPE_KEY = "ability.want.params.uiExtensionTargetType";
+const std::string UIEXTENSION_ABILITY_ID = "ability.want.params.uiExtensionAbilityId";
 // Share picker params
 constexpr char SHARE_PICKER_DIALOG_BUNDLE_NAME_KEY[] = "const.system.sharePicker.bundleName";
 constexpr char SHARE_PICKER_DIALOG_ABILITY_NAME_KEY[] = "const.system.sharePicker.abilityName";
@@ -2133,6 +2135,9 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
     CHECK_POINTER_AND_RETURN(extensionSessionInfo, ERR_INVALID_VALUE);
     SetPickerElementName(extensionSessionInfo);
     std::string extensionTypeStr = extensionSessionInfo->want.GetStringParam(UIEXTENSION_TYPE_KEY);
+    int32_t uiExtensionAbilityId = extensionSessionInfo->want.GetIntParam(
+        UIEXTENSION_ABILITY_ID, INVALID_UI_EXTENSION_ABILITY_ID);
+    extensionSessionInfo->uiExtensionAbilityId = uiExtensionAbilityId;
     AppExecFwk::ExtensionAbilityType extensionType = extensionTypeStr.empty() ?
         AppExecFwk::ExtensionAbilityType::UI : AppExecFwk::ConvertToExtensionAbilityType(extensionTypeStr);
     EventInfo eventInfo = BuildEventInfo(extensionSessionInfo->want, userId);
@@ -3086,12 +3091,22 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
         return ERR_STATIC_CFG_PERMISSION;
     }
 
+    AppExecFwk::ExtensionAbilityType targetExtensionType = abilityInfo.extensionAbilityType;
+    HILOG_DEBUG("extension type %{public}d.", targetExtensionType);
     if (AAFwk::UIExtensionUtils::IsUIExtension(extensionType)) {
-        AppExecFwk::ExtensionAbilityType targetExtensionType = abilityInfo.extensionAbilityType;
-        if (targetExtensionType != AppExecFwk::ExtensionAbilityType::UI
+        if (!AAFwk::UIExtensionUtils::IsUIExtension(targetExtensionType)
             && targetExtensionType != AppExecFwk::ExtensionAbilityType::WINDOW) {
             HILOG_ERROR("Try to connect UI extension, but target ability is not UI extension.");
             return ERR_WRONG_INTERFACE_CALL;
+        }
+
+        // Cause window has used this api, don't check it when type is window.
+        if (targetExtensionType != AppExecFwk::ExtensionAbilityType::WINDOW &&
+            !PermissionVerification::GetInstance()->VerifyCallingPermission(
+                PermissionConstants::PERMISSION_CONNECT_UI_EXTENSION_ABILITY)) {
+            HILOG_ERROR("Permission %{public}s verification failed.",
+                PermissionConstants::PERMISSION_CONNECT_UI_EXTENSION_ABILITY);
+            return ERR_PERMISSION_DENIED;
         }
     }
 

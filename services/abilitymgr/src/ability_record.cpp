@@ -3041,5 +3041,15 @@ void AbilityRecord::SetAttachDebug(const bool isAttachDebug)
 {
     isAttachDebug_ = isAttachDebug;
 }
+
+void AbilityRecord::SetUIExtensionAbilityId(int32_t uiExtensionAbilityId)
+{
+    uiExtensionAbilityId_ = uiExtensionAbilityId;
+}
+
+int32_t AbilityRecord::GetUIExtensionAbilityId()
+{
+    return uiExtensionAbilityId_;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

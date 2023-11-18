@@ -30,6 +30,7 @@
 #include "mock_session_manager_service.h"
 #include "parameter.h"
 #include "session/host/include/zidl/session_interface.h"
+#include "ui_extension_ability_record.h"
 #include "ui_extension_utils.h"
 
 namespace OHOS {
@@ -61,7 +62,9 @@ const std::unordered_map<std::string, std::string> trustMap = {
 }
 
 AbilityConnectManager::AbilityConnectManager(int userId) : userId_(userId)
-{}
+{
+    uiExtensionAbilityRecordMgr_ = std::make_unique<AbilityRuntime::UIExtensionAbilityConnectManager>(userId);
+}
 
 AbilityConnectManager::~AbilityConnectManager()
 {}
@@ -82,6 +85,10 @@ int AbilityConnectManager::TerminateAbility(const sptr<IRemoteObject> &token)
 int AbilityConnectManager::TerminateAbilityInner(const sptr<IRemoteObject> &token)
 {
     auto abilityRecord = GetExtensionFromServiceMapInner(token);
+    if (IsUIExtensionAbility(abilityRecord) && !CheckUIExtensionAbilityTerminable(abilityRecord)) {
+        HILOG_INFO("There exist connection, don't terminate.");
+        return ERR_OK;
+    }
     MoveToTerminatingMap(abilityRecord);
     return TerminateAbilityLocked(token);
 }
@@ -107,7 +114,7 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
 
     targetService->SetLaunchReason(LaunchReason::LAUNCHREASON_START_EXTENSION);
 
-    if (UIExtensionUtils::IsUIExtension(targetService->GetAbilityInfo().extensionAbilityType)
+    if (IsUIExtensionAbility(targetService)
         && abilityRequest.sessionInfo && abilityRequest.sessionInfo->sessionToken) {
         auto &remoteObj = abilityRequest.sessionInfo->sessionToken;
         uiExtensionMap_.emplace(remoteObj, UIExtWindowMapValType(targetService, abilityRequest.sessionInfo));
@@ -117,12 +124,13 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
     if (!isLoadedAbility) {
         HILOG_INFO("Target service has not been loaded.");
         LoadAbility(targetService);
-    } else if (targetService->IsAbilityState(AbilityState::ACTIVE)) {
+    } else if (targetService->IsAbilityState(AbilityState::ACTIVE) && !IsUIExtensionAbility(targetService)) {
         // It may have been started through connect
         targetService->SetWant(abilityRequest.want);
         CommandAbility(targetService);
-    } else if (UIExtensionUtils::IsUIExtension(targetService->GetAbilityInfo().extensionAbilityType)
-        && targetService->IsReady() && !targetService->IsAbilityState(AbilityState::INACTIVATING)) {
+    } else if (IsUIExtensionAbility(targetService)
+        && targetService->IsReady() && !targetService->IsAbilityState(AbilityState::INACTIVATING) &&
+        CheckUIExtensionAbilityLoaded(abilityRequest)) {
         targetService->SetWant(abilityRequest.want);
         CommandAbilityWindow(targetService, abilityRequest.sessionInfo, WIN_CMD_FOREGROUND);
     } else {
@@ -191,6 +199,7 @@ int AbilityConnectManager::TerminateAbilityLocked(const sptr<IRemoteObject> &tok
         connectManager->HandleStopTimeoutTask(abilityRecord);
     };
     abilityRecord->Terminate(timeoutTask);
+    RemoveUIExtensionAbilityRecord(abilityRecord);
 
     return ERR_OK;
 }
@@ -227,6 +236,7 @@ void AbilityConnectManager::GetOrCreateServiceRecord(const AbilityRequest &abili
     bool noReuse = UIExtensionUtils::IsWindowExtension(abilityRequest.abilityInfo.extensionAbilityType);
     AppExecFwk::ElementName element(abilityRequest.abilityInfo.deviceId, abilityRequest.abilityInfo.bundleName,
         abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName);
+    HILOG_DEBUG("Service map element is %{public}s.", element.GetURI().c_str());
     auto serviceMapIter = serviceMap_.find(element.GetURI());
     if (noReuse && serviceMapIter != serviceMap_.end()) {
         serviceMap_.erase(element.GetURI());
@@ -483,7 +493,7 @@ void AbilityConnectManager::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
     if (abilityState == AppAbilityState::ABILITY_STATE_FOREGROUND) {
         auto abilityRecord = GetExtensionFromServiceMapInner(token);
         CHECK_POINTER(abilityRecord);
-        if (!UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
+        if (!IsUIExtensionAbility(abilityRecord)) {
             HILOG_ERROR("Not ui extension.");
             return;
         }
@@ -663,8 +673,12 @@ int AbilityConnectManager::ScheduleDisconnectAbilityDoneLocked(const sptr<IRemot
     connect->ScheduleDisconnectAbilityDone();
     abilityRecord->RemoveConnectRecordFromList(connect);
     if (abilityRecord->IsConnectListEmpty() && abilityRecord->GetStartId() == 0) {
-        HILOG_INFO("Service ability has no any connection, and not started , need terminate.");
-        TerminateRecord(abilityRecord);
+        if (IsUIExtensionAbility(abilityRecord) && !CheckUIExtensionAbilityTerminable(abilityRecord)) {
+            HILOG_INFO("There exist ui extension component, don't terminate when disconnet.");
+        } else {
+            HILOG_INFO("Service ability has no any connection, and not started , need terminate.");
+            TerminateRecord(abilityRecord);
+        }
     }
     RemoveConnectionRecordFromMap(connect);
 
@@ -978,6 +992,21 @@ void AbilityConnectManager::LoadAbility(const std::shared_ptr<AbilityRecord> &ab
             }
         }
     }
+
+    auto sessionInfo = abilityRecord->GetSessionInfo();
+    if (sessionInfo != nullptr && uiExtensionAbilityRecordMgr_ != nullptr) {
+        auto uiExtensionAbilityId = uiExtensionAbilityRecordMgr_->GenerateUIExtensionAbilityId(
+            sessionInfo->uiExtensionAbilityId);
+        HILOG_DEBUG("Generated id is %{public}d.", uiExtensionAbilityId);
+        sessionInfo->uiExtensionAbilityId = uiExtensionAbilityId;
+        abilityRecord->SetUIExtensionAbilityId(uiExtensionAbilityId);
+        auto uiExtensionAbilityRecord = std::make_shared<UIExtensionAbilityRecord>();
+        uiExtensionAbilityRecord->abilityRecord_ = abilityRecord;
+        uiExtensionAbilityRecord->hostBundleName = sessionInfo->hostBundleName;
+        uiExtensionAbilityRecord->uiExtensionAbilityId_ = uiExtensionAbilityId;
+        uiExtensionAbilityRecordMgr_->AddUIExtensionAbilityRecord(uiExtensionAbilityId, uiExtensionAbilityRecord);
+    }
+
     DelayedSingleton<AppScheduler>::GetInstance()->LoadAbility(
         token, perToken, abilityRecord->GetAbilityInfo(), abilityRecord->GetApplicationInfo(),
         abilityRecord->GetWant());
@@ -1191,7 +1220,7 @@ int AbilityConnectManager::DispatchInactive(const std::shared_ptr<AbilityRecord>
     abilityRecord->SetAbilityState(AbilityState::INACTIVE);
     if (abilityRecord->IsCreateByConnect()) {
         ConnectAbility(abilityRecord);
-    } else if (UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
+    } else if (IsUIExtensionAbility(abilityRecord)) {
         CommandAbilityWindow(abilityRecord, abilityRecord->GetSessionInfo(), WIN_CMD_FOREGROUND);
     } else {
         CommandAbility(abilityRecord);
@@ -1579,7 +1608,7 @@ void AbilityConnectManager::HandleAbilityDiedTask(
         return;
     }
 
-    if (UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
+    if (IsUIExtensionAbility(abilityRecord)) {
         HandleUIExtensionDied(abilityRecord);
     }
 
@@ -2180,6 +2209,56 @@ void AbilityConnectManager::HandleExtensionDisconnectTask(const std::shared_ptr<
         connectRecord->CompleteDisconnect(ERR_OK, false);
         RemoveConnectionRecordFromMap(connectRecord);
     }
+}
+
+bool AbilityConnectManager::IsUIExtensionAbility(const std::shared_ptr<AbilityRecord> abilityRecord)
+{
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("Param invalid.");
+        return false;
+    }
+    return UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType);
+}
+
+bool AbilityConnectManager::CheckUIExtensionAbilityLoaded(const AbilityRequest &abilityRequest)
+{
+    if (uiExtensionAbilityRecordMgr_ == nullptr || abilityRequest.sessionInfo == nullptr) {
+        HILOG_ERROR("Param invalid.");
+        return false;
+    }
+
+    auto uiExtensionAbilityId = abilityRequest.sessionInfo->uiExtensionAbilityId;
+    if (uiExtensionAbilityId == INVALID_UI_EXTENSION_ABILITY_ID) {
+        HILOG_DEBUG("Didn't carry uiextension ability id when start.");
+        return true;
+    }
+
+    auto ret = uiExtensionAbilityRecordMgr_->CheckUIExtensionAbilityLoaded(
+        uiExtensionAbilityId, abilityRequest.abilityInfo.bundleName);
+    HILOG_DEBUG("UIExtensionAbility loaded status: %{public}s.", ret ? "true" : "false");
+    return ret;
+}
+
+bool AbilityConnectManager::CheckUIExtensionAbilityTerminable(const std::shared_ptr<AbilityRecord> abilityRecord)
+{
+    if (uiExtensionAbilityRecordMgr_ == nullptr || abilityRecord == nullptr) {
+        HILOG_ERROR("Param invalid.");
+        return false;
+    }
+
+    auto ret = uiExtensionAbilityRecordMgr_->CheckUIExtensionAbilityTerminable(abilityRecord->GetUIExtensionAbilityId());
+    HILOG_DEBUG("UIExtensionAbility terminable status: %{public}s.", ret ? "true" : "false");
+    return ret;
+}
+
+void AbilityConnectManager::RemoveUIExtensionAbilityRecord(const std::shared_ptr<AbilityRecord> abilityRecord)
+{
+    if (uiExtensionAbilityRecordMgr_ == nullptr || abilityRecord == nullptr) {
+        HILOG_ERROR("Param invalid.");
+        return;
+    }
+
+    uiExtensionAbilityRecordMgr_->RemoveUIExtensionAbilityRecord(abilityRecord->GetUIExtensionAbilityId());
 }
 }  // namespace AAFwk
 }  // namespace OHOS
