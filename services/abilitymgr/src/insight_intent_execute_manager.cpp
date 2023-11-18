@@ -253,7 +253,7 @@ int32_t InsightIntentExecuteManager::IsValidCall(const Want &want)
 
 int32_t InsightIntentExecuteManager::CheckCallerPermission()
 {
-    bool isSystemAppCall = PermissionVerification::GetInstance()->IsSystemAppCall();
+    bool isSystemAppCall = PermissionVerification::GetInstance()->JudgeCallerIsAllowedToUseSystemAPI();
     if (!isSystemAppCall) {
         HILOG_ERROR("The caller is not system-app, can not use system-api");
         return ERR_NOT_SYSTEM_APP;
