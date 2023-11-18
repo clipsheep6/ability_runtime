@@ -45,7 +45,6 @@
 #include "js_worker.h"
 #include "module_checker_delegate.h"
 #include "napi/native_api.h"
-#include "native_engine/impl/ark/ark_native_engine.h"
 #include "native_engine/native_engine.h"
 #include "ohos_js_env_logger.h"
 #include "ohos_js_environment_impl.h"
@@ -794,7 +793,7 @@ napi_value JsRuntime::LoadJsModule(const std::string& path, const std::string& h
 
     auto env = GetNapiEnv();
     CHECK_POINTER_AND_RETURN(env, nullptr);
-    return ArkNativeEngine::ArkValueToNapiValue(env, exportObj);
+    return NativeEngine::ArkValueToNapiValue(env, exportObj);
 }
 
 std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& moduleName, const std::string& modulePath,

@@ -17,7 +17,7 @@
 
 #include "js_env_logger.h"
 #include "js_environment_impl.h"
-#include "native_engine/impl/ark/ark_native_engine.h"
+#include "native_engine/native_engine.h"
 #include "uncaught_exception_callback.h"
 #include "commonlibrary/ets_utils/js_sys_module/console/console.h"
 
@@ -62,7 +62,7 @@ bool JsEnvironment::Initialize(const panda::RuntimeOption& pandaOption, void* js
         return false;
     }
 
-    engine_ = new ArkNativeEngine(vm_, jsEngine);
+    engine_ = new NativeEngine(vm_, jsEngine);
     return true;
 }
 

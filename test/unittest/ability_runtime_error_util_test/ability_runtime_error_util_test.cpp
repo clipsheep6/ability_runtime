@@ -19,7 +19,6 @@
 #include "ecmascript/napi/include/jsnapi.h"
 #include "errors.h"
 #include "hilog_wrapper.h"
-#include "native_engine/impl/ark/ark_native_engine.h"
 #include "native_engine/native_engine.h"
 
 using namespace testing;
@@ -53,7 +52,7 @@ void AbilityRuntimeErrorUtilTest::SetUp()
         return;
     }
 
-    env_ = reinterpret_cast<napi_env>(new ArkNativeEngine(vm_, nullptr));
+    env_ = reinterpret_cast<napi_env>(new NativeEngine(vm_, nullptr));
 }
 
 void AbilityRuntimeErrorUtilTest::TearDown()

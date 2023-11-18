@@ -41,7 +41,7 @@
 #include "js_window_stage.h"
 #include "json_serializer.h"
 #include "launch_param.h"
-#include "native_engine/impl/ark/ark_native_engine.h"
+#include "native_engine/native_engine.h"
 #include "resource_manager.h"
 #include "window_scene.h"
 
@@ -230,7 +230,7 @@ napi_value SimulatorImpl::LoadScript(const std::string &srcPath)
         return nullptr;
     }
 
-    auto obj = ArkNativeEngine::ArkValueToNapiValue(nativeEngine_, objRef);
+    auto obj = NativeEngine::ArkValueToNapiValue(nativeEngine_, objRef);
     napi_value instanceValue = nullptr;
     napi_new_instance(nativeEngine_, obj, 0, nullptr, &instanceValue);
     return instanceValue;
@@ -683,7 +683,7 @@ bool SimulatorImpl::OnInit()
     panda::JSNApi::StartDebugger(vm_, debugOption, 0,
         std::bind(&DebuggerTask::OnPostTask, &debuggerTask_, std::placeholders::_1));
 
-    auto nativeEngine = new (std::nothrow) ArkNativeEngine(vm_, nullptr);
+    auto nativeEngine = new (std::nothrow) NativeEngine(vm_, nullptr);
     if (nativeEngine == nullptr) {
         HILOG_ERROR("nativeEngine is nullptr");
         return false;
