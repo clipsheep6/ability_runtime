@@ -8115,6 +8115,11 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
     } else {
         auto callerPid = IPCSkeleton::GetCallingPid();
         DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByPid(callerPid, processInfo);
+        if (IsDelegatorCall(processInfo, abilityRequest)) {
+            HILOG_DEBUG("The call is from AbilityDelegator, allow background-call.");
+            isBackgroundCall = false;
+            return ERR_OK;
+        }
         if (processInfo.processName_.empty() && !AAFwk::PermissionVerification::GetInstance()->IsGatewayCall()) {
             HILOG_DEBUG("Can not find caller application by callerPid: %{private}d.", callerPid);
             if (AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
@@ -8126,12 +8131,6 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
             HILOG_ERROR("Caller does not have PERMISSION_START_ABILITIES_FROM_BACKGROUND, REJECT.");
             return ERR_INVALID_VALUE;
         }
-    }
-
-    if (IsDelegatorCall(processInfo, abilityRequest)) {
-        HILOG_DEBUG("The call is from AbilityDelegator, allow background-call.");
-        isBackgroundCall = false;
-        return ERR_OK;
     }
 
     if (backgroundJudgeFlag_) {
@@ -8172,10 +8171,21 @@ inline bool AbilityManagerService::IsDelegatorCall(
      *   1. The caller-process must be test-process
      *   2. The callerToken must be nullptr
      */
+    if (processInfo.isTestProcess) {
+        HILOG_INFO("xzh isTestProcess =============");
+    }
+    if (!abilityRequest.callerToken) {
+        HILOG_INFO("xzh callerToken ==========");
+    }
+    if (abilityRequest.want.GetBoolParam(IS_DELEGATOR_CALL, false)) {
+        HILOG_INFO("xzh GetBoolParam ============");
+    }
     if (processInfo.isTestProcess &&
         !abilityRequest.callerToken && abilityRequest.want.GetBoolParam(IS_DELEGATOR_CALL, false)) {
+        HILOG_INFO("xzh delegator call");
         return true;
     }
+    HILOG_INFO("xzh not delegator call");
     return false;
 }
 

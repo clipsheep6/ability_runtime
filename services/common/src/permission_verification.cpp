@@ -91,7 +91,7 @@ bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission() const
 {
     HILOG_DEBUG("PermissionVerification::CheckSpecifidSystemAbilityAccessToken is called.");
     if (!IsSACall()) {
-        HILOG_ERROR("caller tokenType is not native, verify failed.");
+        HILOG_ERROR("Not sa call.");
         return false;
     }
     auto callerToken = GetCallingTokenID();
@@ -106,10 +106,6 @@ bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission() const
 
 bool PermissionVerification::VerifyRunningInfoPerm() const
 {
-    if (IsSACall()) {
-        HILOG_DEBUG("%{public}s: the interface called by SA.", __func__);
-        return true;
-    }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_GET_RUNNING_INFO)) {
         HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
         return true;
@@ -120,10 +116,6 @@ bool PermissionVerification::VerifyRunningInfoPerm() const
 
 bool PermissionVerification::VerifyControllerPerm() const
 {
-    if (IsSACall()) {
-        HILOG_DEBUG("%{public}s: the interface called by SA.", __func__);
-        return true;
-    }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_SET_ABILITY_CONTROLLER)) {
         HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
         return true;
@@ -148,9 +140,6 @@ bool PermissionVerification::VerifyDlpPermission(Want &want) const
 
 int PermissionVerification::VerifyAccountPermission() const
 {
-    if (IsSACall()) {
-        return ERR_OK;
-    }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS)) {
         return ERR_OK;
     }
@@ -160,9 +149,6 @@ int PermissionVerification::VerifyAccountPermission() const
 
 bool PermissionVerification::VerifyMissionPermission() const
 {
-    if (IsSACall()) {
-        return true;
-    }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_MANAGE_MISSION)) {
         HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
         return true;
@@ -173,9 +159,6 @@ bool PermissionVerification::VerifyMissionPermission() const
 
 int PermissionVerification::VerifyAppStateObserverPermission() const
 {
-    if (IsSACall()) {
-        return ERR_OK;
-    }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_RUNNING_STATE_OBSERVER)) {
         HILOG_DEBUG("Permission verification succeeded.");
         return ERR_OK;
@@ -246,10 +229,6 @@ int PermissionVerification::CheckCallDataAbilityPermission(const VerificationInf
 
 int PermissionVerification::CheckCallServiceAbilityPermission(const VerificationInfo &verificationInfo) const
 {
-    if (IsSACall()) {
-        return ERR_OK;
-    }
-
     if ((verificationInfo.apiTargetVersion > API8 || IsShellCall()) &&
         !JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall, verificationInfo.withContinuousTask)) {
         HILOG_ERROR("Application can not start ServiceAbility from background after API8.");
@@ -363,9 +342,6 @@ bool PermissionVerification::JudgeAssociatedWakeUp(const uint32_t accessTokenId,
 
 int PermissionVerification::JudgeInvisibleAndBackground(const VerificationInfo &verificationInfo) const
 {
-    if (IsSACall()) {
-        return ERR_OK;
-    }
     if (!JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible)) {
         return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
     }
@@ -379,6 +355,7 @@ int PermissionVerification::JudgeInvisibleAndBackground(const VerificationInfo &
 bool PermissionVerification::JudgeCallerIsAllowedToUseSystemAPI() const
 {
     if (IsSACall() || IsShellCall()) {
+        HILOG_DEBUG("Allow sa or shell to use system API");
         return true;
     }
     auto callerToken = IPCSkeleton::GetCallingFullTokenID();
@@ -393,9 +370,6 @@ bool PermissionVerification::IsSystemAppCall() const
 
 bool PermissionVerification::VerifyPrepareTerminatePermission() const
 {
-    if (IsSACall()) {
-        return true;
-    }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_PREPARE_TERMINATE)) {
         HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
         return true;
