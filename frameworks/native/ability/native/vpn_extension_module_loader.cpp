@@ -30,7 +30,7 @@ std::map<std::string, std::string> VpnExtensionModuleLoader::GetParams()
 {
     std::map<std::string, std::string> params;
     // type means extension type in ExtensionAbilityType of extension_ability_info.h, 3 means vpn.
-    params.insert(std::pair<std::string, std::string>("type", "501"));
+    params.insert(std::pair<std::string, std::string>("type", "502"));
     // extension name
     params.insert(std::pair<std::string, std::string>("name", "VpnExtension"));
     return params;
