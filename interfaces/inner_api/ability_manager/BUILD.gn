@@ -231,7 +231,10 @@ ohos_shared_library("ability_connect_callback_stub") {
   ]
 
   cflags_cc = []
-  innerapi_tags = [ "platformsdk" ]
+  innerapi_tags = [
+    "platformsdk",
+    "sasdk",
+  ]
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
