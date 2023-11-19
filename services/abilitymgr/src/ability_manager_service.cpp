@@ -7840,6 +7840,9 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
         HILOG_ERROR("The application requesting the call is a non system application.");
         return CHECK_PERMISSION_FAILED;
     }
+    if (extensionType == AppExecFwk::ExtensionAbilityType::VPN) {
+        return ERR_OK;
+    }
     if (AAFwk::UIExtensionUtils::IsUIExtension(extensionType)) {
         return ERR_OK;
     }

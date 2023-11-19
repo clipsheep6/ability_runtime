@@ -111,6 +111,14 @@ class AbilityContext extends Context {
     return this.__context_impl__.startServiceExtensionAbility(want, callback);
   }
 
+  startVpnExtensionAbility(want, callback) {
+    return this.__context_impl__.startVpnExtensionAbility(want, callback);
+  }
+
+  stopVpnExtensionAbility(want, callback) {
+    return this.__context_impl__.stopVpnExtensionAbility(want, callback);
+  }
+
   startServiceExtensionAbilityWithAccount(want, accountId, callback) {
     return this.__context_impl__.startServiceExtensionAbilityWithAccount(want, accountId, callback);
   }
