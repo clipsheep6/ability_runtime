@@ -614,7 +614,7 @@ napi_value JsEmbeddableAbilityContext::OnStartAbilityWithAccount(napi_env env, N
     decltype(info.argc) unwrapArgc = 1;
     HILOG_INFO("StartAbilityWithAccount, ability:%{public}s", want.GetElement().GetAbilityName().c_str());
     int32_t accountId = 0;
-    if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(env, info.argv[1], accountId)) {
+    if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(env, info.argv[INDEX_ONE], accountId)) {
         HILOG_DEBUG("the second parameter is invalid.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
