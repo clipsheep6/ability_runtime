@@ -3931,6 +3931,12 @@ uint32_t AppMgrServiceInner::BuildStartFlags(const AAFwk::Want &want, const Abil
     if (want.GetBoolParam("nativeDebug", false)) {
         startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::NATIVEDEBUG);
     }
+    if (abilityInfo.applicationInfo.gwpAsanEnabled) {
+        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::GWP_ENABLED_FORCE);
+    }
+    if (abilityInfo.applicationInfo.isSystemApp) {
+        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::GWP_ENABLED_NORMAL);
+    }
 
     return startFlags;
 }

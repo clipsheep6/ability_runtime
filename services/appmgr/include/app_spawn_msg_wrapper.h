@@ -66,6 +66,8 @@ struct StartFlags {
     static const int ASANENABLED = 4;
     static const int NATIVEDEBUG = 6;
     static const int NO_SANDBOX = 7;
+    static const int GWP_ENABLED_FORCE = 10;
+    static const int GWP_ENABLED_NORMAL = 11;
 };
 
 union AppSpawnPidMsg {
