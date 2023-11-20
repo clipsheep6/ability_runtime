@@ -625,7 +625,7 @@ int AbilityConnectManager::ScheduleConnectAbilityDoneLocked(
     for (auto &connectRecord : connectRecordList) {
         connectRecord->ScheduleConnectAbilityDone();
         if (abilityRecord->GetAbilityInfo().type == AbilityType::EXTENSION &&
-            abilityRecord->GetAbilityInfo().extensionAbilityType != ExtensionAbilityType::SERVICE) {
+            abilityRecord->GetAbilityInfo().extensionAbilityType != AppExecFwk::ExtensionAbilityType::SERVICE) {
             PostExtensionDelayDisconnectTask(connectRecord);
         }
     }

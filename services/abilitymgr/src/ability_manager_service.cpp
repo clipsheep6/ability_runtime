@@ -2110,7 +2110,7 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
 
     if (InsightIntentExecuteParam::IsInsightIntentExecute(extensionSessionInfo->want)) {
         int32_t result = DelayedSingleton<InsightIntentExecuteManager>::GetInstance()->CheckAndUpdateWant(
-            extensionSessionInfo->want, ExecuteMode::UI_EXTENSION_ABILITY);
+            extensionSessionInfo->want, AppExecFwk::ExecuteMode::UI_EXTENSION_ABILITY);
         if (result != ERR_OK) {
             return result;
         }
@@ -8856,22 +8856,22 @@ int32_t AbilityManagerService::ExecuteIntent(uint64_t key, const sptr<IRemoteObj
     }
 
     switch (param.executeMode_) {
-        case ExecuteMode::UI_ABILITY_FOREGROUND:
+        case AppExecFwk::ExecuteMode::UI_ABILITY_FOREGROUND:
             HILOG_DEBUG("ExecuteMode UI_ABILITY_FOREGROUND.");
             ret = StartAbilityWithInsightIntent(want);
             break;
-        case ExecuteMode::UI_ABILITY_BACKGROUND: {
+        case AppExecFwk::ExecuteMode::UI_ABILITY_BACKGROUND: {
             HILOG_DEBUG("ExecuteMode UI_ABILITY_BACKGROUND.");
             ret = StartAbilityByCallWithInsightIntent(want, callerToken, param);
             break;
         }
-        case ExecuteMode::UI_EXTENSION_ABILITY:
+        case AppExecFwk::ExecuteMode::UI_EXTENSION_ABILITY:
             HILOG_WARN("ExecuteMode UI_EXTENSION_ABILITY not supported.");
             ret = ERR_INVALID_OPERATION;
             break;
-        case ExecuteMode::SERVICE_EXTENSION_ABILITY:
+        case AppExecFwk::ExecuteMode::SERVICE_EXTENSION_ABILITY:
             HILOG_DEBUG("ExecuteMode SERVICE_EXTENSION_ABILITY.");
-            ret = StartExtensionAbilityWithInsightIntent(want, ExtensionAbilityType::SERVICE);
+            ret = StartExtensionAbilityWithInsightIntent(want, AppExecFwk::ExtensionAbilityType::SERVICE);
             break;
         default:
             HILOG_ERROR("Invalid ExecuteMode.");
