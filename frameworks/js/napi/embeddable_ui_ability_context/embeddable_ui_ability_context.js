@@ -15,17 +15,17 @@
 
 let AbilityContext = requireNapi('application.AbilityContext');
 
-class EmbeddableAbilityContext extends AbilityContext {
-    constructor(obj) {
-        super(obj);
-        this.currentHapModuleInfo = obj.currentHapModuleInfo;
-        this.config = obj.config;
-        this.extensionAbilityInfo = obj.extensionAbilityInfo;
-      }
-    
-      onUpdateConfiguration(config) {
-        this.config = config;
-      }
+class EmbeddableUIAbilityContext extends AbilityContext {
+  constructor(obj) {
+    super(obj);
+    this.abilityInfo = obj.abilityInfo;
+    this.currentHapModuleInfo = obj.currentHapModuleInfo;
+    this.config = obj.config;
+  }
+
+  onUpdateConfiguration(config) {
+    this.config = config;
+  }
 }
 
-export default EmbeddableAbilityContext;
+export default EmbeddableUIAbilityContext;

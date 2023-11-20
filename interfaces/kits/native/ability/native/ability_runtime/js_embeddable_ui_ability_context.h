@@ -13,13 +13,12 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_JS_UI_EXTENSION_CONTEXT_H
-#define OHOS_ABILITY_RUNTIME_JS_UI_EXTENSION_CONTEXT_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_EMBEDDABLE_UI_ABILITY_CONTEXT_H
+#define OHOS_ABILITY_RUNTIME_JS_EMBEDDABLE_UI_ABILITY_CONTEXT_H
 
+#include <algorithm>
 #include <memory>
-
-#include "ui_extension_context.h"
-#include "native_engine/native_engine.h"
+#include <native_engine/native_value.h>
 
 #include "ability_connect_callback.h"
 #include "foundation/ability/ability_runtime/interfaces/kits/native/ability/ability_runtime/ability_context.h"
@@ -27,19 +26,19 @@
 #include "js_runtime.h"
 #include "event_handler.h"
 
+class NativeReference;
 namespace OHOS {
 namespace AbilityRuntime {
 struct NapiCallbackInfo;
-class JsEmbeddableAbilityContext final {
+class JsEmbeddableUIAbilityContext final {
 public:
-    explicit JsEmbeddableAbilityContext(const std::shared_ptr<EmbeddableAbilityContext>& context) : context_(context) {}
-    virtual ~JsEmbeddableAbilityContext() = default;
+    explicit JsEmbeddableUIAbilityContext(const std::shared_ptr<AbilityContext>& context) : context_(context) {}
+    virtual ~JsEmbeddableUIAbilityContext() = default;
     static void Finalizer(napi_env env, void* data, void* hint);
     static napi_value StartAbility(napi_env env, napi_callback_info info);
     static napi_value StartAbilityAsCaller(napi_env env, napi_callback_info info);
     static napi_value StartAbilityWithAccount(napi_env env, napi_callback_info info);
     static napi_value StartAbilityByCall(napi_env env, napi_callback_info info);
-    static napi_value StartAbilityByCallWithAccount(napi_env env, napi_callback_info info);
     static napi_value StartAbilityForResult(napi_env env, napi_callback_info info);
     static napi_value StartAbilityForResultWithAccount(napi_env env, napi_callback_info info);
     static napi_value StartServiceExtensionAbility(napi_env env, napi_callback_info info);
@@ -58,23 +57,22 @@ public:
     static napi_value ReportDrawnCompleted(napi_env env, napi_callback_info info);
     static napi_value SetMissionContinueState(napi_env env, napi_callback_info info);
     static napi_value StartAbilityByType(napi_env env, napi_callback_info info);
-    static napi_value SetMissionLabel(napi_env env, napi_callback_info info);
-    static napi_value SetMissionIcon(napi_env env, napi_callback_info info);
 
-    static napi_value CreateJsEmbeddableAbilityContext(napi_env env, std::shared_ptr<EmbeddableAbilityContext> context);
+    static napi_value CreateJsEmbeddableUIAbilityContext(napi_env env, std::shared_ptr<AbilityContext> context);
 
 protected:
+    static void ClearFailedCallConnection(
+        const std::weak_ptr<AbilityContext>& abilityContext, const std::shared_ptr<CallerCallBack> &callback);
     napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info, bool isStartRecent = false);
     napi_value OnStartAbilityAsCaller(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartAbilityWithAccount(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartAbilityByCall(napi_env env, NapiCallbackInfo& info);
-    napi_value OnStartAbilityByCallWithAccount(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartAbilityForResult(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartAbilityForResultWithAccount(napi_env env, NapiCallbackInfo& info);
-    napi_value OnStartServiceExtensionAbility(napi_env env, NapiCallbackInfo& info);
-    napi_value OnStartServiceExtensionAbilityWithAccount(napi_env env, NapiCallbackInfo& info);
-    napi_value OnStopServiceExtensionAbility(napi_env env, NapiCallbackInfo& info);
-    napi_value OnStopServiceExtensionAbilityWithAccount(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStartExtensionAbility(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStartExtensionAbilityWithAccount(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStopExtensionAbility(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStopExtensionAbilityWithAccount(napi_env env, NapiCallbackInfo& info);
     napi_value OnConnectAbility(napi_env env, NapiCallbackInfo& info);
     napi_value OnConnectAbilityWithAccount(napi_env env, NapiCallbackInfo& info);
     napi_value OnDisconnectAbility(napi_env env, NapiCallbackInfo& info);
@@ -87,9 +85,16 @@ protected:
     napi_value OnReportDrawnCompleted(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetMissionContinueState(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartAbilityByType(napi_env env, NapiCallbackInfo& info);
+
+#ifdef SUPPORT_GRAPHICS
+public:
+    static napi_value SetMissionLabel(napi_env env, napi_callback_info info);
+    static napi_value SetMissionIcon(napi_env env, napi_callback_info info);
+
+private:
     napi_value OnSetMissionLabel(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetMissionIcon(napi_env env, NapiCallbackInfo& info);
-
+#endif
 private:
     std::weak_ptr<AbilityContext> context_;
     sptr<JsFreeInstallObserver> freeInstallObserver_ = nullptr;
@@ -101,15 +106,16 @@ private:
 
     void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback,
         bool isAbilityResult = false);
-
+    static napi_value WrapRequestDialogResult(napi_env env, int32_t resultCode, const AAFwk::Want& want);
+};
 struct ConnectCallback {
     std::unique_ptr<NativeReference> jsConnectionObject_ = nullptr;
 };
 
-class JSEmbeddableAbilityConnection : public AbilityConnectCallback {
+class JSEmbeddableUIAbilityConnection : public AbilityConnectCallback {
 public:
-    explicit JSEmbeddableAbilityConnection(napi_env env);
-    ~JSEmbeddableAbilityConnection();
+    explicit JSEmbeddableUIAbilityConnection(napi_env env);
+    ~JSEmbeddableUIAbilityConnection();
     void OnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override;
@@ -141,4 +147,6 @@ struct KeyCompare {
         return false;
     }
 };
-};
+}  // namespace AbilityRuntime
+}  // namespace OHOS
+#endif  // OHOS_ABILITY_RUNTIME_JS_EMBEDDABLE_UI_ABILITY_CONTEXT_H

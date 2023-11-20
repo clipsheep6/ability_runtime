@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "ability_context_impl.h"
+#include "embeddable_ui_ability_context_impl.h"
 
 #include <native_engine/native_engine.h>
 
@@ -33,7 +33,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-const size_t AbilityContext::CONTEXT_TYPE_ID(std::hash<const char*> {} ("AbilityContext"));
+const size_t AbilityContext::CONTEXT_TYPE_ID(std::hash<const char*> {} ("AbilityContext")); //TODO: 没地方使用.
 const std::string START_ABILITY_TYPE = "ABILITY_INNER_START_WITH_ACCOUNT";
 const std::string UIEXTENSION_TARGET_TYPE_KEY = "ability.want.params.uiExtensionTargetType";
 
@@ -43,80 +43,80 @@ struct RequestResult {
     RequestDialogResultTask task;
 };
 
-Global::Resource::DeviceType AbilityContextImpl::GetDeviceType() const
+Global::Resource::DeviceType EmUIAbilityContextImpl::GetDeviceType() const
 {
     return (stageContext_ != nullptr) ? stageContext_->GetDeviceType() : Global::Resource::DeviceType::DEVICE_PHONE;
 }
 
-std::string AbilityContextImpl::GetBaseDir() const
+std::string EmUIAbilityContextImpl::GetBaseDir() const
 {
     return stageContext_ ? stageContext_->GetBaseDir() : "";
 }
 
-std::string AbilityContextImpl::GetBundleCodeDir()
+std::string EmUIAbilityContextImpl::GetBundleCodeDir()
 {
     return stageContext_ ? stageContext_->GetBundleCodeDir() : "";
 }
 
-std::string AbilityContextImpl::GetCacheDir()
+std::string EmUIAbilityContextImpl::GetCacheDir()
 {
     return stageContext_ ? stageContext_->GetCacheDir() : "";
 }
 
-std::string AbilityContextImpl::GetDatabaseDir()
+std::string EmUIAbilityContextImpl::GetDatabaseDir()
 {
     return stageContext_ ? stageContext_->GetDatabaseDir() : "";
 }
 
-int32_t AbilityContextImpl::GetSystemDatabaseDir(const std::string &groupId, bool checkExist, std::string &databaseDir)
+int32_t EmUIAbilityContextImpl::GetSystemDatabaseDir(const std::string &groupId, bool checkExist, std::string &databaseDir)
 {
     return stageContext_ ?
         stageContext_->GetSystemDatabaseDir(groupId, checkExist, databaseDir) : ERR_INVALID_VALUE;
 }
 
-std::string AbilityContextImpl::GetPreferencesDir()
+std::string EmUIAbilityContextImpl::GetPreferencesDir()
 {
     return stageContext_ ? stageContext_->GetPreferencesDir() : "";
 }
 
-int AbilityContextImpl::GetSystemPreferencesDir(const std::string &groupId, bool checkExist,
+int EmUIAbilityContextImpl::GetSystemPreferencesDir(const std::string &groupId, bool checkExist,
     std::string &preferencesDir)
 {
     return stageContext_ ?
         stageContext_->GetSystemPreferencesDir(groupId, checkExist, preferencesDir) : ERR_INVALID_VALUE;
 }
 
-std::string AbilityContextImpl::GetGroupDir(std::string groupId)
+std::string EmUIAbilityContextImpl::GetGroupDir(std::string groupId)
 {
     return stageContext_ ? stageContext_->GetGroupDir(groupId) : "";
 }
 
-std::string AbilityContextImpl::GetTempDir()
+std::string EmUIAbilityContextImpl::GetTempDir()
 {
     return stageContext_ ? stageContext_->GetTempDir() : "";
 }
 
-std::string AbilityContextImpl::GetFilesDir()
+std::string EmUIAbilityContextImpl::GetFilesDir()
 {
     return stageContext_ ? stageContext_->GetFilesDir() : "";
 }
 
-std::string AbilityContextImpl::GetDistributedFilesDir()
+std::string EmUIAbilityContextImpl::GetDistributedFilesDir()
 {
     return stageContext_ ? stageContext_->GetDistributedFilesDir() : "";
 }
 
-bool AbilityContextImpl::IsUpdatingConfigurations()
+bool EmUIAbilityContextImpl::IsUpdatingConfigurations()
 {
     return stageContext_ ? stageContext_->IsUpdatingConfigurations() : false;
 }
 
-bool AbilityContextImpl::PrintDrawnCompleted()
+bool EmUIAbilityContextImpl::PrintDrawnCompleted()
 {
     return stageContext_ ? stageContext_->PrintDrawnCompleted() : false;
 }
 
-void AbilityContextImpl::SwitchArea(int mode)
+void EmUIAbilityContextImpl::SwitchArea(int mode)
 {
     HILOG_INFO("mode:%{public}d.", mode);
     if (stageContext_ != nullptr) {
@@ -124,7 +124,7 @@ void AbilityContextImpl::SwitchArea(int mode)
     }
 }
 
-int AbilityContextImpl::GetArea()
+int EmUIAbilityContextImpl::GetArea()
 {
     HILOG_DEBUG("GetArea");
     if (stageContext_ == nullptr) {
@@ -134,7 +134,7 @@ int AbilityContextImpl::GetArea()
     return stageContext_->GetArea();
 }
 
-ErrCode AbilityContextImpl::StartAbility(const AAFwk::Want& want, int requestCode)
+ErrCode EmUIAbilityContextImpl::StartAbility(const AAFwk::Want& want, int requestCode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("StartAbility");
@@ -145,7 +145,7 @@ ErrCode AbilityContextImpl::StartAbility(const AAFwk::Want& want, int requestCod
     return err;
 }
 
-ErrCode AbilityContextImpl::StartAbilityAsCaller(const AAFwk::Want &want, int requestCode)
+ErrCode EmUIAbilityContextImpl::StartAbilityAsCaller(const AAFwk::Want &want, int requestCode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("StartAbilityAsCaller");
@@ -156,7 +156,7 @@ ErrCode AbilityContextImpl::StartAbilityAsCaller(const AAFwk::Want &want, int re
     return err;
 }
 
-ErrCode AbilityContextImpl::StartAbilityWithAccount(const AAFwk::Want& want, int accountId, int requestCode)
+ErrCode EmUIAbilityContextImpl::StartAbilityWithAccount(const AAFwk::Want& want, int accountId, int requestCode)
 {
     HILOG_DEBUG("StartAbilityWithAccount");
     (const_cast<Want &>(want)).SetParam(START_ABILITY_TYPE, true);
@@ -167,7 +167,7 @@ ErrCode AbilityContextImpl::StartAbilityWithAccount(const AAFwk::Want& want, int
     return err;
 }
 
-ErrCode AbilityContextImpl::StartAbility(const AAFwk::Want& want, const AAFwk::StartOptions& startOptions,
+ErrCode EmUIAbilityContextImpl::StartAbility(const AAFwk::Want& want, const AAFwk::StartOptions& startOptions,
     int requestCode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -179,7 +179,7 @@ ErrCode AbilityContextImpl::StartAbility(const AAFwk::Want& want, const AAFwk::S
     return err;
 }
 
-ErrCode AbilityContextImpl::StartAbilityAsCaller(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions,
+ErrCode EmUIAbilityContextImpl::StartAbilityAsCaller(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions,
     int requestCode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -192,7 +192,7 @@ ErrCode AbilityContextImpl::StartAbilityAsCaller(const AAFwk::Want &want, const 
     return err;
 }
 
-ErrCode AbilityContextImpl::StartAbilityWithAccount(
+ErrCode EmUIAbilityContextImpl::StartAbilityWithAccount(
     const AAFwk::Want& want, int accountId, const AAFwk::StartOptions& startOptions, int requestCode)
 {
     HILOG_DEBUG("name:%{public}s %{public}s, accountId=%{public}d",
@@ -206,7 +206,7 @@ ErrCode AbilityContextImpl::StartAbilityWithAccount(
     return err;
 }
 
-ErrCode AbilityContextImpl::StartAbilityForResult(const AAFwk::Want& want, int requestCode, RuntimeTask&& task)
+ErrCode EmUIAbilityContextImpl::StartAbilityForResult(const AAFwk::Want& want, int requestCode, RuntimeTask&& task)
 {
     HILOG_DEBUG("StartAbilityForResult");
     resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
@@ -218,7 +218,7 @@ ErrCode AbilityContextImpl::StartAbilityForResult(const AAFwk::Want& want, int r
     return err;
 }
 
-ErrCode AbilityContextImpl::StartAbilityForResultWithAccount(
+ErrCode EmUIAbilityContextImpl::StartAbilityForResultWithAccount(
     const AAFwk::Want& want, const int accountId, int requestCode, RuntimeTask&& task)
 {
     HILOG_DEBUG("accountId:%{private}d", accountId);
@@ -231,7 +231,7 @@ ErrCode AbilityContextImpl::StartAbilityForResultWithAccount(
     return err;
 }
 
-ErrCode AbilityContextImpl::StartAbilityForResult(const AAFwk::Want& want, const AAFwk::StartOptions& startOptions,
+ErrCode EmUIAbilityContextImpl::StartAbilityForResult(const AAFwk::Want& want, const AAFwk::StartOptions& startOptions,
     int requestCode, RuntimeTask&& task)
 {
     HILOG_DEBUG("StartAbilityForResult");
@@ -244,7 +244,7 @@ ErrCode AbilityContextImpl::StartAbilityForResult(const AAFwk::Want& want, const
     return err;
 }
 
-ErrCode AbilityContextImpl::StartAbilityForResultWithAccount(
+ErrCode EmUIAbilityContextImpl::StartAbilityForResultWithAccount(
     const AAFwk::Want& want, int accountId, const AAFwk::StartOptions& startOptions,
     int requestCode, RuntimeTask&& task)
 {
@@ -259,7 +259,7 @@ ErrCode AbilityContextImpl::StartAbilityForResultWithAccount(
     return err;
 }
 
-ErrCode AbilityContextImpl::StartServiceExtensionAbility(const AAFwk::Want& want, int32_t accountId)
+ErrCode EmUIAbilityContextImpl::StartServiceExtensionAbility(const AAFwk::Want& want, int32_t accountId)
 {
     HILOG_INFO("name:%{public}s %{public}s, accountId=%{public}d",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), accountId);
@@ -271,7 +271,7 @@ ErrCode AbilityContextImpl::StartServiceExtensionAbility(const AAFwk::Want& want
     return err;
 }
 
-ErrCode AbilityContextImpl::StopServiceExtensionAbility(const AAFwk::Want& want, int32_t accountId)
+ErrCode EmUIAbilityContextImpl::StopServiceExtensionAbility(const AAFwk::Want& want, int32_t accountId)
 {
     HILOG_INFO("name:%{public}s %{public}s, accountId=%{public}d",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), accountId);
@@ -283,7 +283,7 @@ ErrCode AbilityContextImpl::StopServiceExtensionAbility(const AAFwk::Want& want,
     return err;
 }
 
-ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want& want, int resultCode)
+ErrCode EmUIAbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want& want, int resultCode)
 {
     HILOG_DEBUG("TerminateAbilityWithResult");
     isTerminating_ = true;
@@ -307,13 +307,13 @@ ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want& want, 
     }
 }
 
-void AbilityContextImpl::SetWeakSessionToken(const wptr<IRemoteObject>& sessionToken)
+void EmUIAbilityContextImpl::SetWeakSessionToken(const wptr<IRemoteObject>& sessionToken)
 {
     HILOG_DEBUG("Start calling SetWeakSessionToken.");
     sessionToken_ = sessionToken;
 }
 
-void AbilityContextImpl::OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want& resultData)
+void EmUIAbilityContextImpl::OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want& resultData)
 {
     HILOG_DEBUG("Start calling OnAbilityResult.");
     auto callback = resultCallbacks_.find(requestCode);
@@ -326,7 +326,7 @@ void AbilityContextImpl::OnAbilityResult(int requestCode, int resultCode, const 
     HILOG_INFO("OnAbilityResult");
 }
 
-void AbilityContextImpl::OnAbilityResultInner(int requestCode, int resultCode, const AAFwk::Want& resultData)
+void EmUIAbilityContextImpl::OnAbilityResultInner(int requestCode, int resultCode, const AAFwk::Want& resultData)
 {
     HILOG_DEBUG("Start calling OnAbilityResult.");
     auto callback = resultCallbacks_.find(requestCode);
@@ -339,7 +339,7 @@ void AbilityContextImpl::OnAbilityResultInner(int requestCode, int resultCode, c
     HILOG_INFO("OnAbilityResult");
 }
 
-ErrCode AbilityContextImpl::ConnectAbility(const AAFwk::Want& want, const sptr<AbilityConnectCallback>& connectCallback)
+ErrCode EmUIAbilityContextImpl::ConnectAbility(const AAFwk::Want& want, const sptr<AbilityConnectCallback>& connectCallback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("ConnectAbility begin, name:%{public}s.", abilityInfo_ == nullptr ? "" : abilityInfo_->name.c_str());
@@ -350,7 +350,7 @@ ErrCode AbilityContextImpl::ConnectAbility(const AAFwk::Want& want, const sptr<A
     return ret;
 }
 
-ErrCode AbilityContextImpl::ConnectAbilityWithAccount(const AAFwk::Want& want, int accountId,
+ErrCode EmUIAbilityContextImpl::ConnectAbilityWithAccount(const AAFwk::Want& want, int accountId,
     const sptr<AbilityConnectCallback>& connectCallback)
 {
     HILOG_DEBUG("ConnectAbilityWithAccount");
@@ -362,7 +362,7 @@ ErrCode AbilityContextImpl::ConnectAbilityWithAccount(const AAFwk::Want& want, i
     return ret;
 }
 
-void AbilityContextImpl::DisconnectAbility(const AAFwk::Want& want,
+void EmUIAbilityContextImpl::DisconnectAbility(const AAFwk::Want& want,
     const sptr<AbilityConnectCallback>& connectCallback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -375,73 +375,79 @@ void AbilityContextImpl::DisconnectAbility(const AAFwk::Want& want,
     }
 }
 
-std::string AbilityContextImpl::GetBundleName() const
+std::string EmUIAbilityContextImpl::GetBundleName() const
 {
     return stageContext_ ? stageContext_->GetBundleName() : "";
 }
 
-std::shared_ptr<AppExecFwk::ApplicationInfo> AbilityContextImpl::GetApplicationInfo() const
+std::shared_ptr<AppExecFwk::ApplicationInfo> EmUIAbilityContextImpl::GetApplicationInfo() const
 {
     return stageContext_ ? stageContext_->GetApplicationInfo() : nullptr;
 }
 
-std::string AbilityContextImpl::GetBundleCodePath() const
+std::string EmUIAbilityContextImpl::GetBundleCodePath() const
 {
     return stageContext_ ? stageContext_->GetBundleCodePath() : "";
 }
 
-std::shared_ptr<AppExecFwk::HapModuleInfo> AbilityContextImpl::GetHapModuleInfo() const
+std::shared_ptr<AppExecFwk::HapModuleInfo> EmUIAbilityContextImpl::GetHapModuleInfo() const
 {
     return stageContext_ ? stageContext_->GetHapModuleInfo() : nullptr;
 }
 
-std::shared_ptr<Global::Resource::ResourceManager> AbilityContextImpl::GetResourceManager() const
+std::shared_ptr<Global::Resource::ResourceManager> EmUIAbilityContextImpl::GetResourceManager() const
 {
     return stageContext_ ? stageContext_->GetResourceManager() : nullptr;
 }
 
-std::shared_ptr<Context> AbilityContextImpl::CreateBundleContext(const std::string& bundleName)
+std::shared_ptr<Context> EmUIAbilityContextImpl::CreateBundleContext(const std::string& bundleName)
 {
     return stageContext_ ? stageContext_->CreateBundleContext(bundleName) : nullptr;
 }
 
-std::shared_ptr<Context> AbilityContextImpl::CreateModuleContext(const std::string& moduleName)
+std::shared_ptr<Context> EmUIAbilityContextImpl::CreateModuleContext(const std::string& moduleName)
 {
     return stageContext_ ? stageContext_->CreateModuleContext(moduleName) : nullptr;
 }
 
-std::shared_ptr<Context> AbilityContextImpl::CreateModuleContext(const std::string& bundleName,
+std::shared_ptr<Context> EmUIAbilityContextImpl::CreateModuleContext(const std::string& bundleName,
     const std::string& moduleName)
 {
     return stageContext_ ? stageContext_->CreateModuleContext(bundleName, moduleName) : nullptr;
 }
 
-void AbilityContextImpl::SetAbilityInfo(const std::shared_ptr<AppExecFwk::AbilityInfo>& abilityInfo)
+std::shared_ptr<Global::Resource::ResourceManager> EmUIAbilityContextImpl::CreateModuleResourceManager(
+    const std::string &bundleName, const std::string &moduleName)
+{
+    return stageContext_ ? stageContext_->CreateModuleResourceManager(bundleName, moduleName) : nullptr;
+}
+
+void EmUIAbilityContextImpl::SetAbilityInfo(const std::shared_ptr<AppExecFwk::AbilityInfo>& abilityInfo)
 {
     abilityInfo_ = abilityInfo;
 }
 
-std::shared_ptr<AppExecFwk::AbilityInfo> AbilityContextImpl::GetAbilityInfo() const
+std::shared_ptr<AppExecFwk::AbilityInfo> EmUIAbilityContextImpl::GetAbilityInfo() const
 {
     return abilityInfo_;
 }
 
-void AbilityContextImpl::SetStageContext(const std::shared_ptr<AbilityRuntime::Context>& stageContext)
+void EmUIAbilityContextImpl::SetStageContext(const std::shared_ptr<AbilityRuntime::Context>& stageContext)
 {
     stageContext_ = stageContext;
 }
 
-void AbilityContextImpl::SetConfiguration(const std::shared_ptr<AppExecFwk::Configuration>& config)
+void EmUIAbilityContextImpl::SetConfiguration(const std::shared_ptr<AppExecFwk::Configuration>& config)
 {
     config_ = config;
 }
 
-std::shared_ptr<AppExecFwk::Configuration> AbilityContextImpl::GetConfiguration() const
+std::shared_ptr<AppExecFwk::Configuration> EmUIAbilityContextImpl::GetConfiguration() const
 {
     return config_;
 }
 
-void AbilityContextImpl::MinimizeAbility(bool fromUser)
+void EmUIAbilityContextImpl::MinimizeAbility(bool fromUser)
 {
     HILOG_DEBUG("call");
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->MinimizeAbility(token_, fromUser);
@@ -450,7 +456,7 @@ void AbilityContextImpl::MinimizeAbility(bool fromUser)
     }
 }
 
-ErrCode AbilityContextImpl::OnBackPressedCallBack(bool &needMoveToBackground)
+ErrCode EmUIAbilityContextImpl::OnBackPressedCallBack(bool &needMoveToBackground)
 {
     HILOG_DEBUG("call");
     auto abilityCallback = abilityCallback_.lock();
@@ -462,7 +468,7 @@ ErrCode AbilityContextImpl::OnBackPressedCallBack(bool &needMoveToBackground)
     return ERR_OK;
 }
 
-ErrCode AbilityContextImpl::MoveAbilityToBackground()
+ErrCode EmUIAbilityContextImpl::MoveAbilityToBackground()
 {
     HILOG_DEBUG("call");
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->MoveAbilityToBackground(token_);
@@ -472,7 +478,7 @@ ErrCode AbilityContextImpl::MoveAbilityToBackground()
     return err;
 }
 
-ErrCode AbilityContextImpl::TerminateSelf()
+ErrCode EmUIAbilityContextImpl::TerminateSelf()
 {
     HILOG_DEBUG("TerminateSelf");
     isTerminating_ = true;
@@ -494,13 +500,13 @@ ErrCode AbilityContextImpl::TerminateSelf()
         AAFwk::Want resultWant;
         ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, -1, &resultWant);
         if (err != ERR_OK) {
-            HILOG_ERROR("AbilityContextImpl::TerminateSelf is failed %{public}d", err);
+            HILOG_ERROR("EmUIAbilityContextImpl::TerminateSelf is failed %{public}d", err);
         }
         return err;
     }
 }
 
-ErrCode AbilityContextImpl::CloseAbility()
+ErrCode EmUIAbilityContextImpl::CloseAbility()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("CloseAbility");
@@ -513,12 +519,12 @@ ErrCode AbilityContextImpl::CloseAbility()
     return err;
 }
 
-sptr<IRemoteObject> AbilityContextImpl::GetToken()
+sptr<IRemoteObject> EmUIAbilityContextImpl::GetToken()
 {
     return token_;
 }
 
-ErrCode AbilityContextImpl::RestoreWindowStage(napi_env env, napi_value contentStorage)
+ErrCode EmUIAbilityContextImpl::RestoreWindowStage(napi_env env, napi_value contentStorage)
 {
     HILOG_INFO("call");
     napi_ref value = nullptr;
@@ -527,7 +533,7 @@ ErrCode AbilityContextImpl::RestoreWindowStage(napi_env env, napi_value contentS
     return ERR_OK;
 }
 
-ErrCode AbilityContextImpl::StartAbilityByCall(
+ErrCode EmUIAbilityContextImpl::StartAbilityByCall(
     const AAFwk::Want& want, const std::shared_ptr<CallerCallBack>& callback, int32_t accountId)
 {
     if (localCallContainer_ == nullptr) {
@@ -540,7 +546,7 @@ ErrCode AbilityContextImpl::StartAbilityByCall(
     return localCallContainer_->StartAbilityByCallInner(want, callback, token_, accountId);
 }
 
-ErrCode AbilityContextImpl::ReleaseCall(const std::shared_ptr<CallerCallBack>& callback)
+ErrCode EmUIAbilityContextImpl::ReleaseCall(const std::shared_ptr<CallerCallBack>& callback)
 {
     HILOG_DEBUG("Release begin.");
     if (localCallContainer_ == nullptr) {
@@ -551,7 +557,7 @@ ErrCode AbilityContextImpl::ReleaseCall(const std::shared_ptr<CallerCallBack>& c
     return localCallContainer_->ReleaseCall(callback);
 }
 
-void AbilityContextImpl::ClearFailedCallConnection(const std::shared_ptr<CallerCallBack>& callback)
+void EmUIAbilityContextImpl::ClearFailedCallConnection(const std::shared_ptr<CallerCallBack>& callback)
 {
     HILOG_DEBUG("Clear begin.");
     if (localCallContainer_ == nullptr) {
@@ -562,13 +568,13 @@ void AbilityContextImpl::ClearFailedCallConnection(const std::shared_ptr<CallerC
     HILOG_DEBUG("Clear end.");
 }
 
-void AbilityContextImpl::RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback)
+void EmUIAbilityContextImpl::RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback)
 {
     HILOG_INFO("call");
     abilityCallback_ = abilityCallback;
 }
 
-ErrCode AbilityContextImpl::RequestDialogService(napi_env env, AAFwk::Want &want, RequestDialogResultTask &&task)
+ErrCode EmUIAbilityContextImpl::RequestDialogService(napi_env env, AAFwk::Want &want, RequestDialogResultTask &&task)
 {
     want.SetParam(RequestConstants::REQUEST_TOKEN_KEY, token_);
     int32_t left, top, width, height;
@@ -616,13 +622,13 @@ ErrCode AbilityContextImpl::RequestDialogService(napi_env env, AAFwk::Want &want
     return err;
 }
 
-ErrCode AbilityContextImpl::ReportDrawnCompleted()
+ErrCode EmUIAbilityContextImpl::ReportDrawnCompleted()
 {
     HILOG_DEBUG("called.");
     return AAFwk::AbilityManagerClient::GetInstance()->ReportDrawnCompleted(token_);
 }
 
-void AbilityContextImpl::RequestDialogResultJSThreadWorker(uv_work_t* work, int status)
+void EmUIAbilityContextImpl::RequestDialogResultJSThreadWorker(uv_work_t* work, int status)
 {
     HILOG_DEBUG("RequestDialogResultJSThreadWorker");
     if (work == nullptr) {
@@ -647,7 +653,7 @@ void AbilityContextImpl::RequestDialogResultJSThreadWorker(uv_work_t* work, int 
     work = nullptr;
 }
 
-ErrCode AbilityContextImpl::GetMissionId(int32_t &missionId)
+ErrCode EmUIAbilityContextImpl::GetMissionId(int32_t &missionId)
 {
     HILOG_DEBUG("GetMissionId");
     if (missionId_ != -1) {
@@ -665,7 +671,7 @@ ErrCode AbilityContextImpl::GetMissionId(int32_t &missionId)
     return err;
 }
 
-ErrCode AbilityContextImpl::SetMissionContinueState(const AAFwk::ContinueState &state)
+ErrCode EmUIAbilityContextImpl::SetMissionContinueState(const AAFwk::ContinueState &state)
 {
     HILOG_DEBUG("SetMissionContinueState: %{public}d", state);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->SetMissionContinueState(token_, state);
@@ -675,7 +681,7 @@ ErrCode AbilityContextImpl::SetMissionContinueState(const AAFwk::ContinueState &
     return err;
 }
 
-void AbilityContextImpl::GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t &height)
+void EmUIAbilityContextImpl::GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t &height)
 {
     HILOG_DEBUG("call");
     auto abilityCallback = abilityCallback_.lock();
@@ -684,8 +690,24 @@ void AbilityContextImpl::GetWindowRect(int32_t &left, int32_t &top, int32_t &wid
     }
 }
 
+void EmUIAbilityContextImpl::SetHalfScreenMode(const std::shared_ptr<AAFwk::Want> &want)
+{
+    if (want == nullptr) {
+        HILOG_ERROR("The want is null.")
+        return;
+    }
+    //TODO: get half screen flag in want
+    isHalfScreenMode_ = false; // temp
+}
+
+bool EmUIAbilityContextImpl::GetHalfScreenMode()
+{
+    HILOG_DEBUG("GetHalfScreenMode");
+    return isHalfScreenMode_;
+}
+
 #ifdef SUPPORT_GRAPHICS
-ErrCode AbilityContextImpl::SetMissionLabel(const std::string& label)
+ErrCode EmUIAbilityContextImpl::SetMissionLabel(const std::string& label)
 {
     HILOG_DEBUG("call label:%{public}s", label.c_str());
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->SetMissionLabel(token_, label);
@@ -700,7 +722,7 @@ ErrCode AbilityContextImpl::SetMissionLabel(const std::string& label)
     return err;
 }
 
-ErrCode AbilityContextImpl::SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap>& icon)
+ErrCode EmUIAbilityContextImpl::SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap>& icon)
 {
     HILOG_DEBUG("call");
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->SetMissionIcon(token_, icon);
@@ -715,7 +737,7 @@ ErrCode AbilityContextImpl::SetMissionIcon(const std::shared_ptr<OHOS::Media::Pi
     return err;
 }
 
-int AbilityContextImpl::GetCurrentWindowMode()
+int EmUIAbilityContextImpl::GetCurrentWindowMode()
 {
     auto abilityCallback = abilityCallback_.lock();
     if (abilityCallback == nullptr) {
@@ -724,7 +746,7 @@ int AbilityContextImpl::GetCurrentWindowMode()
     return abilityCallback->GetCurrentWindowMode();
 }
 
-Ace::UIContent* AbilityContextImpl::GetUIContent()
+Ace::UIContent* EmUIAbilityContextImpl::GetUIContent()
 {
     HILOG_DEBUG("call");
     auto abilityCallback = abilityCallback_.lock();
@@ -735,7 +757,7 @@ Ace::UIContent* AbilityContextImpl::GetUIContent()
     return abilityCallback->GetUIContent();
 }
 
-ErrCode AbilityContextImpl::StartAbilityByType(const std::string &type,
+ErrCode EmUIAbilityContextImpl::StartAbilityByType(const std::string &type,
     AAFwk::WantParams &wantParams, const std::shared_ptr<JsUIExtensionCallback> &uiExtensionCallbacks)
 {
     HILOG_DEBUG("call");
