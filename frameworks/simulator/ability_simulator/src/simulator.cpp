@@ -679,7 +679,8 @@ bool SimulatorImpl::OnInit()
             *buffSize = data->size();
             return true;
         });
-    panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, (options_.debugPort != 0), options_.debugPort};
+    bool isDebugMode = (options_.debugPort != 0);
+    panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, isDebugMode, isDebugMode, options_.debugPort};
     panda::JSNApi::StartDebugger(vm_, debugOption, 0,
         std::bind(&DebuggerTask::OnPostTask, &debuggerTask_, std::placeholders::_1));
 
