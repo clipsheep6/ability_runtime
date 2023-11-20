@@ -4455,7 +4455,7 @@ int32_t AbilityManagerProxy::RegisterAppDebugListener(const sptr<AppExecFwk::IAp
     }
 
     MessageParcel reply;
-    MessageOption option(MessageOption::TF_ASYNC);
+    MessageOption option(MessageOption::TF_SYNC);
     int32_t error = SendRequest(AbilityManagerInterfaceCode::REGISTER_APP_DEBUG_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request failed, err: %{public}d", error);
@@ -4479,7 +4479,7 @@ int32_t AbilityManagerProxy::UnregisterAppDebugListener(const sptr<AppExecFwk::I
     }
 
     MessageParcel reply;
-    MessageOption option(MessageOption::TF_ASYNC);
+    MessageOption option(MessageOption::TF_SYNC);
     int32_t error = SendRequest(AbilityManagerInterfaceCode::UNREGISTER_APP_DEBUG_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request failed, err: %{public}d", error);
