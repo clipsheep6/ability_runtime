@@ -125,7 +125,8 @@ public:
      *
      * @return
      */
-    void StateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility);
+    void StateChangedNotifyObserver(
+        const AbilityStateData abilityStateData, bool isAbility, bool isFromWindowFocusChanged);
 
     /**
      * RegisterAppStateCallback, register the callback.

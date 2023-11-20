@@ -1463,7 +1463,7 @@ void AppMgrServiceInner::UpdateAbilityState(const sptr<IRemoteObject> &token, co
         state == AbilityState::ABILITY_STATE_CONNECTED ||
         state == AbilityState::ABILITY_STATE_DISCONNECTED)) {
         HILOG_INFO("StateChangedNotifyObserver service type, state:%{public}d", static_cast<int32_t>(state));
-        appRecord->StateChangedNotifyObserver(abilityRecord, static_cast<int32_t>(state), true);
+        appRecord->StateChangedNotifyObserver(abilityRecord, static_cast<int32_t>(state), true, false);
         return;
     }
     if (state > AbilityState::ABILITY_STATE_BACKGROUND || state < AbilityState::ABILITY_STATE_FOREGROUND) {
@@ -1491,7 +1491,7 @@ void AppMgrServiceInner::UpdateExtensionState(const sptr<IRemoteObject> &token, 
         HILOG_ERROR("can not find ability record!");
         return;
     }
-    appRecord->StateChangedNotifyObserver(abilityRecord, static_cast<int32_t>(state), false);
+    appRecord->StateChangedNotifyObserver(abilityRecord, static_cast<int32_t>(state), false, false);
 }
 
 void AppMgrServiceInner::OnStop()
@@ -1882,9 +1882,11 @@ void AppMgrServiceInner::OnAbilityStateChanged(
     }
 }
 
-void AppMgrServiceInner::StateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility)
+void AppMgrServiceInner::StateChangedNotifyObserver(
+    const AbilityStateData abilityStateData, bool isAbility, bool isFromWindowFocusChanged)
 {
-    DelayedSingleton<AppStateObserverManager>::GetInstance()->StateChangedNotifyObserver(abilityStateData, isAbility);
+    DelayedSingleton<AppStateObserverManager>::GetInstance()->StateChangedNotifyObserver(
+        abilityStateData, isAbility, isFromWindowFocusChanged);
 }
 
 int32_t AppMgrServiceInner::StartPerfProcess(const std::shared_ptr<AppRunningRecord> &appRecord,
@@ -2380,7 +2382,7 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
     for (const auto &item : appRecord->GetAbilities()) {
         const auto &abilityRecord = item.second;
         appRecord->StateChangedNotifyObserver(abilityRecord,
-            static_cast<int32_t>(AbilityState::ABILITY_STATE_TERMINATED), true);
+            static_cast<int32_t>(AbilityState::ABILITY_STATE_TERMINATED), true, false);
     }
     RemoveAppFromRecentListById(appRecord->GetRecordId());
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessDied(appRecord);

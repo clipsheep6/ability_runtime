@@ -2694,7 +2694,7 @@ HWTEST_F(AmsAppRunningRecordTest, CanRestartResidentProc_003, TestSize.Level1)
     HILOG_INFO("AmsAppRunningRecordTest CanRestartResidentProc_003 start");
 
     auto record = GetTestAppRunningRecord();
-    record->StateChangedNotifyObserver(nullptr, 0, false);
+    record->StateChangedNotifyObserver(nullptr, 0, false, false);
 
     sptr<IRemoteObject> token = new MockAbilityToken();
     auto abilityInfo = std::make_shared<AbilityInfo>();
@@ -2708,10 +2708,10 @@ HWTEST_F(AmsAppRunningRecordTest, CanRestartResidentProc_003, TestSize.Level1)
     abilityInfo1->type = AbilityType::EXTENSION;
     std::shared_ptr<AbilityRunningRecord> abilityRunningRecord2 =
         std::make_shared<AbilityRunningRecord>(abilityInfo1, token);
-    record->StateChangedNotifyObserver(abilityRunningRecord, 0, false);
-    record->StateChangedNotifyObserver(abilityRunningRecord1, 0, true);
-    record->StateChangedNotifyObserver(abilityRunningRecord, 0, true);
-    record->StateChangedNotifyObserver(abilityRunningRecord2, 0, true);
+    record->StateChangedNotifyObserver(abilityRunningRecord, 0, false, false);
+    record->StateChangedNotifyObserver(abilityRunningRecord1, 0, true, false);
+    record->StateChangedNotifyObserver(abilityRunningRecord, 0, true, false);
+    record->StateChangedNotifyObserver(abilityRunningRecord2, 0, true, false);
 
     auto abilityInfo3 = std::make_shared<AbilityInfo>();
     abilityInfo3->name = GetTestAbilityName();

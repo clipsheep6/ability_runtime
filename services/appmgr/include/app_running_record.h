@@ -559,7 +559,10 @@ public:
      * @param state, ability or extension state.
      */
     void StateChangedNotifyObserver(
-        const std::shared_ptr<AbilityRunningRecord> &ability, int32_t state, bool isAbility);
+        const std::shared_ptr<AbilityRunningRecord> &ability,
+        int32_t state,
+        bool isAbility,
+        bool isFromWindowFocusChanged);
 
     void insertAbilityStageInfo(std::vector<HapModuleInfo> moduleInfos);
 

@@ -364,21 +364,22 @@ void AppStateObserverManager::OnRenderProcessCreated(const std::shared_ptr<Rende
     handler_->SubmitTask(task);
 }
 
-void AppStateObserverManager::StateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility)
+void AppStateObserverManager::StateChangedNotifyObserver(
+    const AbilityStateData abilityStateData, bool isAbility, bool isFromWindowFocusChanged)
 {
     if (handler_ == nullptr) {
         HILOG_ERROR("handler is nullptr, StateChangedNotifyObserver failed.");
         return;
     }
 
-    auto task = [weak = weak_from_this(), abilityStateData, isAbility]() {
+    auto task = [weak = weak_from_this(), abilityStateData, isAbility, isFromWindowFocusChanged]() {
         auto self = weak.lock();
         if (self == nullptr) {
             HILOG_ERROR("self is nullptr, StateChangedNotifyObserver failed.");
             return;
         }
         HILOG_DEBUG("StateChangedNotifyObserver come.");
-        self->HandleStateChangedNotifyObserver(abilityStateData, isAbility);
+        self->HandleStateChangedNotifyObserver(abilityStateData, isAbility, isFromWindowFocusChanged);
     };
     handler_->SubmitTask(task);
 }
@@ -474,7 +475,8 @@ void AppStateObserverManager::HandleAppStateChanged(const std::shared_ptr<AppRun
     }
 }
 
-void AppStateObserverManager::HandleStateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility)
+void AppStateObserverManager::HandleStateChangedNotifyObserver(
+    const AbilityStateData abilityStateData, bool isAbility, bool isFromWindowFocusChanged)
 {
     std::lock_guard<ffrt::mutex> lockNotify(observerLock_);
     HILOG_DEBUG("Handle state change, module:%{public}s, bundle:%{public}s, ability:%{public}s, state:%{public}d,"
@@ -498,7 +500,7 @@ void AppStateObserverManager::HandleStateChangedNotifyObserver(const AbilityStat
 
     if ((abilityStateData.abilityState == static_cast<int32_t>(AbilityState::ABILITY_STATE_FOREGROUND) ||
             abilityStateData.abilityState == static_cast<int32_t>(AbilityState::ABILITY_STATE_BACKGROUND)) &&
-        isAbility) {
+        isAbility && !isFromWindowFocusChanged) {
         std::lock_guard<ffrt::mutex> lockForeground(abilityforegroundObserverLock_);
         for (auto &it : abilityforegroundObserverSet_) {
             if (it != nullptr) {
