@@ -1730,8 +1730,6 @@ private:
 
     bool IsDelegatorCall(const AppExecFwk::RunningProcessInfo &processInfo, const AbilityRequest &abilityRequest);
 
-    bool IsAbilityVisible(const AbilityRequest &abilityRequest) const;
-
     bool CheckNewRuleSwitchState(const std::string &param);
 
     void UpdateFocusState(std::vector<AbilityRunningInfo> &info);

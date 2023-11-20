@@ -25,7 +25,7 @@ namespace AAFwk {
 class AppUtils {
 public:
     static AppUtils &GetInstance();
-    bool IsLauncher(std::string bundleName);
+    bool IsLauncher(const std::string &bundleName) const;
 
 private:
     AppUtils();

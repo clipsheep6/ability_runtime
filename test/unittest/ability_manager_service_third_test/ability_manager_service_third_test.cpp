@@ -873,22 +873,6 @@ HWTEST_F(AbilityManagerServiceThirdTest, StopUser_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
- * Function: IsAbilityVisible
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService IsAbilityVisible
- */
-HWTEST_F(AbilityManagerServiceThirdTest, IsAbilityVisible_001, TestSize.Level1)
-{
-    HILOG_INFO("AbilityManagerServiceThirdTest IsAbilityVisible_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    AbilityRequest abilityRequest;
-    abilityRequest.abilityInfo.visible = true;
-    EXPECT_TRUE(abilityMs_->IsAbilityVisible(abilityRequest));
-    HILOG_INFO("AbilityManagerServiceThirdTest IsAbilityVisible_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: GetStartUpNewRuleFlag
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService GetStartUpNewRuleFlag

@@ -38,7 +38,7 @@ AppUtils &AppUtils::GetInstance()
     return utils;
 }
 
-bool AppUtils::IsLauncher(std::string bundleName)
+bool AppUtils::IsLauncher(const std::string &bundleName) const
 {
     if (isSceneBoard_) {
         return bundleName == BUNDLE_NAME_SCENEBOARD;
