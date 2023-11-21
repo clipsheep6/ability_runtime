@@ -1577,6 +1577,8 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
         return ERR_INVALID_VALUE;
     }
     ReportAbilitStartInfoToRSS(abilityInfo);
+    ReportAbilitAssociatedStartInfoToRSS(abilityInfo, static_cast<int64_t>(
+        ResourceSchedule::ResType::AssociatedStartType::SCB_START_ABILITY));
     return uiAbilityLifecycleManager_->StartUIAbility(abilityRequest, sessionInfo);
 }
 
@@ -1931,6 +1933,24 @@ void AbilityManagerService::ReportAbilitStartInfoToRSS(const AppExecFwk::Ability
 #endif
 }
 
+void AbilityManagerService::ReportAbilitAssociatedStartInfoToRSS(
+    const AppExecFwk::AbilityInfo &abilityInfo, int64_t type)
+{
+#ifdef RESOURCE_SCHEDULE_SERVICE_ENABLE
+    int32_t callerUid = IPCSkeleton::GetCallingUid();
+    int32_t callerPid = IPCSkeleton::GetCallingPid();
+    std::unordered_map<std::string, std::string> eventParams {
+        { "name", "associated_start" },
+        { "caller_uid", std::to_string(callerUid) },
+        { "caller_pid", std::to_string(callerPid) },
+        { "callee_uid", std::to_string(abilityInfo.applicationInfo.uid) },
+        { "callee_bundle_name", abilityInfo.applicationInfo.bundleName }
+    };
+    ResourceSchedule::ResSchedClient::GetInstance().ReportData(
+        ResourceSchedule::ResType::RES_TYPE_APP_ASSOCIATED_START, type, eventParams);
+#endif
+}
+
 void AbilityManagerService::ReportEventToSuspendManager(const AppExecFwk::AbilityInfo &abilityInfo)
 {
 #ifdef EFFICIENCY_MANAGER_ENABLE
@@ -2061,6 +2081,8 @@ int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sp
     if (eventInfo.errCode != ERR_OK) {
         EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
     }
+    ReportAbilitAssociatedStartInfoToRSS(abilityRequest.abilityInfo, static_cast<int64_t>(
+        ResourceSchedule::ResType::AssociatedStartType::EXTENSION_START_ABILITY));
     return eventInfo.errCode;
 }
 
