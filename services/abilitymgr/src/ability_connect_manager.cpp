@@ -341,7 +341,7 @@ void AbilityConnectManager::HandleActiveAbility(std::shared_ptr<AbilityRecord> &
     if (targetService->GetConnectRecordList().size() > 1) {
         if (taskHandler_ != nullptr && targetService->GetConnRemoteObject()) {
             auto task = [connectRecord]() { connectRecord->CompleteConnect(ERR_OK); };
-            taskHandler_->SubmitTask(task);
+            taskHandler_->SubmitTask(task, TaskQoS::USER_INTERACTIVE);
         } else {
             HILOG_INFO("Target service is connecting, wait for callback");
         }
@@ -1213,7 +1213,7 @@ int AbilityConnectManager::DispatchForeground(const std::shared_ptr<AbilityRecor
 
     auto self(shared_from_this());
     auto task = [self, abilityRecord]() { self->CompleteForeground(abilityRecord); };
-    taskHandler_->SubmitTask(task);
+    taskHandler_->SubmitTask(task, TaskQoS::USER_INTERACTIVE);
 
     return ERR_OK;
 }
@@ -1227,7 +1227,7 @@ int AbilityConnectManager::DispatchBackground(const std::shared_ptr<AbilityRecor
 
     auto self(shared_from_this());
     auto task = [self, abilityRecord]() { self->CompleteBackground(abilityRecord); };
-    taskHandler_->SubmitTask(task);
+    taskHandler_->SubmitTask(task, TaskQoS::USER_INTERACTIVE);
 
     return ERR_OK;
 }

@@ -172,7 +172,10 @@ void AppMgrService::AttachApplication(const sptr<IRemoteObject> &app)
     AddAppDeathRecipient(pid);
     std::function<void()> attachApplicationFunc =
         std::bind(&AppMgrServiceInner::AttachApplication, appMgrServiceInner_, pid, iface_cast<IAppScheduler>(app));
-    taskHandler_->SubmitTask(attachApplicationFunc, TASK_ATTACH_APPLICATION);
+    taskHandler_->SubmitTask(attachApplicationFunc, AAFwk::TaskAttribute{
+        .taskName_ = TASK_ATTACH_APPLICATION,
+        .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
+    });
 }
 
 void AppMgrService::ApplicationForegrounded(const int32_t recordId)
@@ -185,7 +188,10 @@ void AppMgrService::ApplicationForegrounded(const int32_t recordId)
     }
     std::function<void()> applicationForegroundedFunc =
         std::bind(&AppMgrServiceInner::ApplicationForegrounded, appMgrServiceInner_, recordId);
-    taskHandler_->SubmitTask(applicationForegroundedFunc, TASK_APPLICATION_FOREGROUNDED);
+    taskHandler_->SubmitTask(applicationForegroundedFunc, AAFwk::TaskAttribute{
+        .taskName_ = TASK_APPLICATION_FOREGROUNDED,
+        .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
+    });
 }
 
 void AppMgrService::ApplicationBackgrounded(const int32_t recordId)
@@ -198,7 +204,10 @@ void AppMgrService::ApplicationBackgrounded(const int32_t recordId)
     }
     std::function<void()> applicationBackgroundedFunc =
         std::bind(&AppMgrServiceInner::ApplicationBackgrounded, appMgrServiceInner_, recordId);
-    taskHandler_->SubmitTask(applicationBackgroundedFunc, TASK_APPLICATION_BACKGROUNDED);
+    taskHandler_->SubmitTask(applicationBackgroundedFunc, AAFwk::TaskAttribute{
+        .taskName_ = TASK_APPLICATION_BACKGROUNDED,
+        .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
+    });
 }
 
 void AppMgrService::ApplicationTerminated(const int32_t recordId)
@@ -211,7 +220,10 @@ void AppMgrService::ApplicationTerminated(const int32_t recordId)
     }
     std::function<void()> applicationTerminatedFunc =
         std::bind(&AppMgrServiceInner::ApplicationTerminated, appMgrServiceInner_, recordId);
-    taskHandler_->SubmitTask(applicationTerminatedFunc, TASK_APPLICATION_TERMINATED);
+    taskHandler_->SubmitTask(applicationTerminatedFunc, AAFwk::TaskAttribute{
+        .taskName_ = TASK_APPLICATION_TERMINATED,
+        .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
+    });
 }
 
 void AppMgrService::AbilityCleaned(const sptr<IRemoteObject> &token)
@@ -229,7 +241,10 @@ void AppMgrService::AbilityCleaned(const sptr<IRemoteObject> &token)
 
     std::function<void()> abilityCleanedFunc =
         std::bind(&AppMgrServiceInner::AbilityTerminated, appMgrServiceInner_, token);
-    taskHandler_->SubmitTask(abilityCleanedFunc, TASK_ABILITY_CLEANED);
+    taskHandler_->SubmitTask(abilityCleanedFunc, AAFwk::TaskAttribute{
+        .taskName_ = TASK_ABILITY_CLEANED,
+        .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
+    });
 }
 
 bool AppMgrService::IsReady() const
@@ -269,7 +284,10 @@ void AppMgrService::StartupResidentProcess(const std::vector<AppExecFwk::BundleI
     HILOG_INFO("Notify start resident process");
     std::function <void()> startupResidentProcess =
         std::bind(&AppMgrServiceInner::LoadResidentProcess, appMgrServiceInner_, bundleInfos);
-    taskHandler_->SubmitTask(startupResidentProcess, TASK_STARTUP_RESIDENT_PROCESS);
+    taskHandler_->SubmitTask(startupResidentProcess, AAFwk::TaskAttribute{
+        .taskName_ = TASK_STARTUP_RESIDENT_PROCESS,
+        .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
+    });
 }
 
 sptr<IAmsMgr> AppMgrService::GetAmsMgr()
@@ -387,7 +405,10 @@ void AppMgrService::AddAbilityStageDone(const int32_t recordId)
     }
     std::function <void()> addAbilityStageDone =
         std::bind(&AppMgrServiceInner::AddAbilityStageDone, appMgrServiceInner_, recordId);
-    taskHandler_->SubmitTask(addAbilityStageDone, TASK_ADD_ABILITY_STAGE_DONE);
+    taskHandler_->SubmitTask(addAbilityStageDone, AAFwk::TaskAttribute{
+        .taskName_ = TASK_ADD_ABILITY_STAGE_DONE,
+        .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
+    });
 }
 
 int32_t AppMgrService::RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
@@ -553,7 +574,7 @@ void AppMgrService::ScheduleNewProcessRequestDone(const int32_t recordId, const 
         return;
     }
     auto task = [=]() { appMgrServiceInner_->ScheduleNewProcessRequestDone(recordId, want, flag); };
-    taskHandler_->SubmitTask(task);
+    taskHandler_->SubmitTask(task, AAFwk::TaskQoS::USER_INTERACTIVE);
 }
 
 int AppMgrService::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens)
@@ -604,7 +625,10 @@ void AppMgrService::AttachRenderProcess(const sptr<IRemoteObject> &scheduler)
     auto pid = IPCSkeleton::GetCallingPid();
     auto fun = std::bind(&AppMgrServiceInner::AttachRenderProcess,
         appMgrServiceInner_, pid, iface_cast<IRenderScheduler>(scheduler));
-    taskHandler_->SubmitTask(fun, TASK_ATTACH_RENDER_PROCESS);
+    taskHandler_->SubmitTask(fun, AAFwk::TaskAttribute{
+        .taskName_ = TASK_ATTACH_RENDER_PROCESS,
+        .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
+    });
 }
 
 int32_t AppMgrService::GetRenderProcessTerminationStatus(pid_t renderPid, int &status)
