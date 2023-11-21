@@ -588,6 +588,7 @@ napi_value JsAbilityContext::OnStartAbilityForResult(napi_env env, NapiCallbackI
     RuntimeTask task = [env, asyncTask, &observer = freeInstallObserver_](int resultCode, const AAFwk::Want& want,
         bool isInner) {
         HILOG_DEBUG("OnStartAbilityForResult async callback is begin");
+        HandleScope handleScope(env);
         napi_value abilityResult = AppExecFwk::WrapAbilityResult(env, resultCode, want);
         if (abilityResult == nullptr) {
             HILOG_WARN("wrap abilityResult error");
@@ -670,6 +671,7 @@ napi_value JsAbilityContext::OnStartAbilityForResultWithAccount(napi_env env, Na
     RuntimeTask task = [env, asyncTask, &observer = freeInstallObserver_](int resultCode, const AAFwk::Want& want,
         bool isInner) {
         HILOG_DEBUG("async callback is called");
+        HandleScope handleScope(env);
         napi_value abilityResult = AppExecFwk::WrapAbilityResult(env, resultCode, want);
         if (abilityResult == nullptr) {
             HILOG_WARN("wrap abilityResult failed");
@@ -1154,6 +1156,7 @@ napi_value JsAbilityContext::OnRequestDialogService(napi_env env, NapiCallbackIn
     std::shared_ptr<NapiAsyncTask> asyncTask = std::move(uasyncTask);
     RequestDialogResultTask task =
         [env, asyncTask](int32_t resultCode, const AAFwk::Want &resultWant) {
+        HandleScope handleScope(env);
         napi_value requestResult = JsAbilityContext::WrapRequestDialogResult(env, resultCode, resultWant);
         if (requestResult == nullptr) {
             HILOG_WARN("wrap requestResult failed");

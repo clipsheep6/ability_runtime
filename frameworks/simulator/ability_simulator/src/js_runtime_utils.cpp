@@ -138,7 +138,13 @@ NapiAsyncTask::NapiAsyncTask(napi_ref callbackRef, std::unique_ptr<NapiAsyncTask
     : callbackRef_(callbackRef), execute_(std::move(execute)), complete_(std::move(complete))
 {}
 
-NapiAsyncTask::~NapiAsyncTask() = default;
+NapiAsyncTask::~NapiAsyncTask()
+{
+    if (work_ && env_) {
+        napi_delete_async_work(env_, work_);
+        work_ = nullptr;
+    }
+}
 
 void NapiAsyncTask::Schedule(const std::string &name, napi_env env, std::unique_ptr<NapiAsyncTask> &&task)
 {
@@ -281,6 +287,7 @@ bool NapiAsyncTask::Start(const std::string &name, napi_env env)
     if (env == nullptr) {
         return false;
     }
+    env_ = env;
     NativeEngine* engine = reinterpret_cast<NativeEngine*>(env);
     work_ = reinterpret_cast<napi_async_work>(engine->CreateAsyncWork(name,
         reinterpret_cast<NativeAsyncExecuteCallback>(Execute),
