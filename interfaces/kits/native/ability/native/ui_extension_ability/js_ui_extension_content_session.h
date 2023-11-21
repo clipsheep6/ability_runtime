@@ -16,8 +16,6 @@
 #ifndef OHOS_ABILITY_RUNTIME_JS_UI_EXTENSION_CONTENT_SESSION_H
 #define OHOS_ABILITY_RUNTIME_JS_UI_EXTENSION_CONTENT_SESSION_H
 
-#include <mutex>
-
 #include "native_engine/native_engine.h"
 #include "js_free_install_observer.h"
 #include "js_runtime_utils.h"
@@ -101,7 +99,6 @@ protected:
 private:
     sptr<AAFwk::SessionInfo> sessionInfo_;
     sptr<Rosen::Window> uiWindow_;
-    std::mutex uiWindowLock_;
     std::weak_ptr<AbilityRuntime::Context> context_;
     std::shared_ptr<CallbackWrapper> receiveDataCallback_;
     bool isRegistered = false;
