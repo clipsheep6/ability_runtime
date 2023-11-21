@@ -169,7 +169,7 @@ bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, 
         return false;
     }
 
-    panda::JSNApi::DebugOption debugOption = {libraryPath, needBreakPoint};
+    panda::JSNApi::DebugOption debugOption = {libraryPath, isDebug && needBreakPoint};
     auto debuggerPostTask = [weak = weak_from_this()](std::function<void()>&& task) {
         auto jsEnv = weak.lock();
         if (jsEnv == nullptr) {
