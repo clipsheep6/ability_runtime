@@ -53,6 +53,7 @@ namespace {
 #ifdef SUPPORT_GRAPHICS
 const std::string PAGE_STACK_PROPERTY_NAME = "pageStack";
 const std::string SUPPORT_CONTINUE_PAGE_STACK_PROPERTY_NAME = "ohos.extra.param.key.supportContinuePageStack";
+const std::string METHOD_NAME = "WindowScene::GoForeground";
 #endif
 // Numerical base (radix) that determines the valid characters and their interpretation.
 const int32_t BASE_DISPLAY_ID_NUM (10);
@@ -673,6 +674,7 @@ void JsUIAbility::DoOnForeground(const Want &want)
     }
 
     HILOG_INFO("Move scene to foreground, sceneFlag_: %{public}d.", UIAbility::sceneFlag_);
+    AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, METHOD_NAME);
     scene_->GoForeground(UIAbility::sceneFlag_);
     HILOG_DEBUG("End.");
 }
@@ -733,10 +735,8 @@ void JsUIAbility::RequestFocus(const Want &want)
         window->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
         HILOG_DEBUG("Set window mode is %{public}d.", windowMode);
     }
-    std::string methodName = "RequestFocus";
-    AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
+    AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, METHOD_NAME);
     scene_->GoForeground(UIAbility::sceneFlag_);
-    AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
     HILOG_INFO("Lifecycle: end.");
 }
 

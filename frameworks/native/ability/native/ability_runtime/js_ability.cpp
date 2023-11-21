@@ -44,6 +44,9 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
+#ifdef SUPPORT_GRAPHICS
+const std::string METHOD_NAME = "WindowScene::GoForeground";
+#endif
 napi_value PromiseCallback(napi_env env, napi_callback_info info)
 {
     void *data = nullptr;
@@ -662,6 +665,7 @@ void JsAbility::DoOnForeground(const Want &want)
     }
 
     HILOG_INFO("Move scene to foreground, sceneFlag_:%{public}d.", Ability::sceneFlag_);
+    AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, METHOD_NAME);
     scene_->GoForeground(Ability::sceneFlag_);
     HILOG_DEBUG("%{public}s end scene_->GoForeground.", __func__);
 }
@@ -680,10 +684,8 @@ void JsAbility::RequestFocus(const Want &want)
         window->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
         HILOG_DEBUG("set window mode = %{public}d.", windowMode);
     }
-    std::string methodName = "RequestFocus";
-    AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
+    AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, METHOD_NAME);
     scene_->GoForeground(Ability::sceneFlag_);
-    AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
     HILOG_INFO("Lifecycle: end.");
 }
 
