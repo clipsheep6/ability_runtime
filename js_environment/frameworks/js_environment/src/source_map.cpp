@@ -165,7 +165,7 @@ std::string SourceMap::TranslateBySourceMap(const std::string& stackStr)
             sourceInfo = GetSourceInfo(line, column, *nonModularMap_, key + ".ts");
         }
         if (sourceInfo.empty()) {
-            break;
+            continue;
         }
         temp.replace(openBracePos, closeBracePos - openBracePos + 1, sourceInfo);
         replace(temp.begin(), temp.end(), '\\', '/');
