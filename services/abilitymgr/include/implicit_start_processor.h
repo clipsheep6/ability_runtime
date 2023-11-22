@@ -50,6 +50,8 @@ private:
         std::vector<DialogAppInfo> &dialogAppInfos, std::string &deviceType, bool isMoreHapList);
     std::string MatchTypeAndUri(const AAFwk::Want &want);
     sptr<AppExecFwk::IBundleMgr> GetBundleManager();
+    std::vector<std::string> splitStr(const std::string& str, char delimiter);
+    int queryBmsAppInfos(AbilityRequest &request, int32_t userId, std::vector<DialogAppInfo> &dialogAppInfos);
 
     using StartAbilityClosure = std::function<int32_t()>;
     int CallStartAbilityInner(int32_t userId, const Want &want, const StartAbilityClosure &callBack,
