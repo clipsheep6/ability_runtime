@@ -1874,7 +1874,6 @@ private:
 
     std::shared_ptr<AbilityAutoStartupService> abilityAutoStartupService_;
 
-
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     std::shared_ptr<BackgroundTaskObserver> bgtaskObserver_;
 #endif
