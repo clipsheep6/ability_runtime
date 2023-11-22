@@ -100,6 +100,8 @@ constexpr int KILL_PROCESS_DELAYTIME_MICRO_SECONDS = 200;
 // delay register focus listener to wms
 constexpr int REGISTER_FOCUS_DELAY = 5000;
 constexpr int REGISTER_VISIBILITY_DELAY = 5000;
+// Max render process number limitation for phone device.
+constexpr int PHONE_MAX_RENDER_PROCESS_NUM = 40;
 const std::string CLASS_NAME = "ohos.app.MainThread";
 const std::string FUNC_NAME = "main";
 const std::string RENDER_PARAM = "invalidparam";
@@ -134,7 +136,10 @@ constexpr int32_t MAX_RESTART_COUNT = 3;
 constexpr int32_t RESTART_INTERVAL_TIME = 120000;
 
 constexpr ErrCode APPMGR_ERR_OFFSET = ErrCodeOffset(SUBSYS_APPEXECFWK, 0x01);
-constexpr ErrCode ERR_ALREADY_EXIST_RENDER = APPMGR_ERR_OFFSET + 100; // error code for already exist render.
+ // Error code for already exist render.
+constexpr ErrCode ERR_ALREADY_EXIST_RENDER = APPMGR_ERR_OFFSET + 100;
+ // Error code for reaching render process number limitation.
+constexpr ErrCode ERR_REACHING_MAXIMUM_RENDER_PROCESS_LIMITATION = APPMGR_ERR_OFFSET + 101;
 constexpr char EVENT_KEY_UID[] = "UID";
 constexpr char EVENT_KEY_PID[] = "PID";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
@@ -198,6 +203,13 @@ bool VerifyPermission(const BundleInfo &bundleInfo, const std::string &permissio
 
     return true;
 }
+
+bool ShouldUseMultipleRenderProcess(std::string& deviceType) {
+    // The "default" device type means phone.
+    return deviceType == "tablet" || deviceType == "pc" || deviceType == "2in1" ||
+           deviceType == "default";
+}
+
 }  // namespace
 
 using OHOS::AppExecFwk::Constants::PERMISSION_GRANTED;
@@ -3715,8 +3727,7 @@ int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::strin
     }
 
     auto renderRecordMap = appRecord->GetRenderRecordMap();
-    if (!renderRecordMap.empty() && deviceType_.compare("tablet") != 0 && deviceType_.compare("pc") != 0 &&
-        deviceType_.compare("2in1") != 0) {
+    if (!renderRecordMap.empty() && !ShouldUseMultipleRenderProcess(deviceType_)) {
         for (auto iter : renderRecordMap) {
             if (iter.second != nullptr) {
                 renderPid = iter.second->GetPid();
@@ -3731,6 +3742,15 @@ int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::strin
                 }
             }
         }
+    }
+
+    // The phone device allows a maximum of 40 render processes to be created.
+    if (deviceType_ == "default" &&
+        renderRecordMap.size() >= PHONE_MAX_RENDER_PROCESS_NUM) {
+        HILOG_ERROR(
+            "Reaching the maximum render process limitation, hostPid:%{public}d",
+            hostPid);
+        return ERR_REACHING_MAXIMUM_RENDER_PROCESS_LIMITATION;
     }
 
     auto renderRecord = RenderRecord::CreateRenderRecord(hostPid, renderParam, ipcFd, sharedFd, crashFd, appRecord);
