@@ -614,7 +614,7 @@ void JsAbility::DoOnForeground(const Want &want)
             return;
         }
         scene_ = std::make_shared<Rosen::WindowScene>();
-        int32_t displayId = Rosen::DisplayManager::GetInstance().GetDefaultDisplayId();
+        int32_t displayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
         if (setting_ != nullptr) {
             std::string strDisplayId =
                 setting_->GetProperty(OHOS::AppExecFwk::AbilityStartSetting::WINDOW_DISPLAY_ID_KEY);
