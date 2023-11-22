@@ -198,94 +198,145 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
     bool withDefault = false;
     withDefault = request.want.GetBoolParam(SHOW_DEFAULT_PICKER_FLAG, withDefault) ? false : true;
-    IN_PROCESS_CALL_WITHOUT_RET(bms->ImplicitQueryInfos(
+
+    int callerUid;
+    callerUid = request.want.GetIntParam("PARAM_RESV_CALLER_UID", callerUid);
+    if (callerUid == 1027) {
+        HILOG_INFO("The NFCNeed caller source is NFC");
+        std::vector<AppExecFwk::AbilityInfo> bmsApps;
+
+        std::vector<std::string> queryTestNameList;
+        queryTestNameList.emplace_back("com.eg.android.AlipayGphone/com.alibaba.ariver.commonability.device.jsapi.nfc.service.TinyAppHostApduService");
+        request.want.SetParam("PARAM_ABILITY_APPINFOS", queryTestNameList);
+
+        std::vector<std::string> apps;
+        apps = request.want.GetStringArrayParam("PARAM_ABILITY_APPINFOS");    
+        for (std::string appInfoStr : apps) {
+            AppExecFwk::AbilityInfo abilityInfo;
+            std::vector<std::string> appInfos;
+            appInfos = ImplicitStartProcessor::splitStr(appInfoStr, '/');
+            std::string bundleName = appInfos[0];
+            std::string abilityName = appInfos[1];
+            request.want.SetElementName(bundleName, abilityName);
+
+            IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(request.want, abilityInfoFlag,
+                userId, abilityInfo));
+            
+            bmsApps.emplace_back(abilityInfo);
+        }
+
+        HILOG_INFO("The NFCNeed " + bmsApps[0].bundleName + " iconId is " + bmsApps[0].iconId);
+        HILOG_INFO("The NFCNeed " + bmsApps[0].abilityName + " labelId is " + bmsApps[0].labelId);
+
+        for (const auto &abilityInfo : bmsApps) {
+            DialogAppInfo dialogAppInfo;
+            dialogAppInfo.abilityName = info.name;
+            dialogAppInfo.bundleName = info.bundleName;
+            dialogAppInfo.moduleName = info.moduleName;
+            dialogAppInfo.iconId = info.iconId;
+            dialogAppInfo.labelId = info.labelId;
+            dialogAppInfos.emplace_back(dialogAppInfo);
+        }
+    } else {
+        IN_PROCESS_CALL_WITHOUT_RET(bms->ImplicitQueryInfos(
         request.want, abilityInfoFlag, userId, withDefault, abilityInfos, extensionInfos));
 
-    HILOG_INFO("ImplicitQueryInfos, abilityInfo size : %{public}zu, extensionInfos size: %{public}zu",
-        abilityInfos.size(), extensionInfos.size());
+        HILOG_INFO("ImplicitQueryInfos, abilityInfo size : %{public}zu, extensionInfos size: %{public}zu",
+            abilityInfos.size(), extensionInfos.size());
 
-    if (abilityInfos.size() + extensionInfos.size() > 1) {
-        HILOG_INFO("More than one target application, filter by erms");
-        bool ret = FilterAbilityList(request.want, abilityInfos, extensionInfos, userId);
-        if (!ret) {
-            HILOG_ERROR("FilterAbilityList failed");
-        }
-    }
-
-    auto isExtension = request.callType == AbilityCallType::START_EXTENSION_TYPE;
-
-    Want implicitwant;
-    std::string typeName = MatchTypeAndUri(request.want);
-
-    implicitwant.SetAction(request.want.GetAction());
-    implicitwant.SetType(TYPE_ONLY_MATCH_WILDCARD);
-    std::vector<AppExecFwk::AbilityInfo> implicitAbilityInfos;
-    std::vector<AppExecFwk::ExtensionAbilityInfo> implicitExtensionInfos;
-    std::vector<std::string> infoNames;
-    if (deviceType != STR_PHONE && deviceType != STR_DEFAULT) {
-        IN_PROCESS_CALL_WITHOUT_RET(bms->ImplicitQueryInfos(implicitwant, abilityInfoFlag, userId,
-            withDefault, implicitAbilityInfos, implicitExtensionInfos));
-        if (implicitAbilityInfos.size() != 0 && typeName != TYPE_ONLY_MATCH_WILDCARD) {
-            for (auto implicitAbilityInfo : implicitAbilityInfos) {
-                infoNames.emplace_back(implicitAbilityInfo.bundleName + "#" +
-                    implicitAbilityInfo.moduleName + "#" + implicitAbilityInfo.name);
+        if (abilityInfos.size() + extensionInfos.size() > 1) {
+            HILOG_INFO("More than one target application, filter by erms");
+            bool ret = FilterAbilityList(request.want, abilityInfos, extensionInfos, userId);
+            if (!ret) {
+                HILOG_ERROR("FilterAbilityList failed");
             }
         }
-    }
-    for (const auto &info : abilityInfos) {
-        if (isExtension && info.type != AbilityType::EXTENSION) {
-            continue;
-        }
+
+        auto isExtension = request.callType == AbilityCallType::START_EXTENSION_TYPE;
+
+        Want implicitwant;
+        std::string typeName = MatchTypeAndUri(request.want);
+
+        implicitwant.SetAction(request.want.GetAction());
+        implicitwant.SetType(TYPE_ONLY_MATCH_WILDCARD);
+        std::vector<AppExecFwk::AbilityInfo> implicitAbilityInfos;
+        std::vector<AppExecFwk::ExtensionAbilityInfo> implicitExtensionInfos;
+        std::vector<std::string> infoNames;
         if (deviceType != STR_PHONE && deviceType != STR_DEFAULT) {
-            auto isDefaultFlag = false;
-            if (withDefault) {
-                auto defaultMgr = GetDefaultAppProxy();
-                AppExecFwk::BundleInfo bundleInfo;
-                ErrCode ret =
-                    IN_PROCESS_CALL(defaultMgr->GetDefaultApplication(userId, typeName, bundleInfo));
-                if (ret == ERR_OK) {
-                    if (bundleInfo.abilityInfos.size() == 1) {
-                        HILOG_INFO("find default ability.");
-                        isDefaultFlag = true;
-                    } else if (bundleInfo.extensionInfos.size() == 1) {
-                        HILOG_INFO("find default extension.");
-                        isDefaultFlag = true;
-                    } else {
-                        HILOG_INFO("GetDefaultApplication failed.");
+            IN_PROCESS_CALL_WITHOUT_RET(bms->ImplicitQueryInfos(implicitwant, abilityInfoFlag, userId,
+                withDefault, implicitAbilityInfos, implicitExtensionInfos));
+            if (implicitAbilityInfos.size() != 0 && typeName != TYPE_ONLY_MATCH_WILDCARD) {
+                for (auto implicitAbilityInfo : implicitAbilityInfos) {
+                    infoNames.emplace_back(implicitAbilityInfo.bundleName + "#" +
+                        implicitAbilityInfo.moduleName + "#" + implicitAbilityInfo.name);
+                }
+            }
+        }
+        for (const auto &info : abilityInfos) {
+            if (isExtension && info.type != AbilityType::EXTENSION) {
+                continue;
+            }
+            if (deviceType != STR_PHONE && deviceType != STR_DEFAULT) {
+                auto isDefaultFlag = false;
+                if (withDefault) {
+                    auto defaultMgr = GetDefaultAppProxy();
+                    AppExecFwk::BundleInfo bundleInfo;
+                    ErrCode ret =
+                        IN_PROCESS_CALL(defaultMgr->GetDefaultApplication(userId, typeName, bundleInfo));
+                    if (ret == ERR_OK) {
+                        if (bundleInfo.abilityInfos.size() == 1) {
+                            HILOG_INFO("find default ability.");
+                            isDefaultFlag = true;
+                        } else if (bundleInfo.extensionInfos.size() == 1) {
+                            HILOG_INFO("find default extension.");
+                            isDefaultFlag = true;
+                        } else {
+                            HILOG_INFO("GetDefaultApplication failed.");
+                        }
+                    }
+                }
+                if (!isMoreHapList && !isDefaultFlag) {
+                    if (std::find(infoNames.begin(), infoNames.end(),
+                        (info.bundleName + "#" + info.moduleName + "#" + info.name)) != infoNames.end()) {
+                        continue;
                     }
                 }
             }
-            if (!isMoreHapList && !isDefaultFlag) {
-                if (std::find(infoNames.begin(), infoNames.end(),
-                    (info.bundleName + "#" + info.moduleName + "#" + info.name)) != infoNames.end()) {
-                    continue;
-                }
+
+            DialogAppInfo dialogAppInfo;
+            dialogAppInfo.abilityName = info.name;
+            dialogAppInfo.bundleName = info.bundleName;
+            dialogAppInfo.moduleName = info.moduleName;
+            dialogAppInfo.iconId = info.iconId;
+            dialogAppInfo.labelId = info.labelId;
+            dialogAppInfos.emplace_back(dialogAppInfo);
+        }
+
+        for (const auto &info : extensionInfos) {
+            if (!isExtension || !CheckImplicitStartExtensionIsValid(request, info)) {
+                continue;
             }
+            DialogAppInfo dialogAppInfo;
+            dialogAppInfo.abilityName = info.name;
+            dialogAppInfo.bundleName = info.bundleName;
+            dialogAppInfo.iconId = info.iconId;
+            dialogAppInfo.labelId = info.labelId;
+            dialogAppInfos.emplace_back(dialogAppInfo);
         }
-
-        DialogAppInfo dialogAppInfo;
-        dialogAppInfo.abilityName = info.name;
-        dialogAppInfo.bundleName = info.bundleName;
-        dialogAppInfo.moduleName = info.moduleName;
-        dialogAppInfo.iconId = info.iconId;
-        dialogAppInfo.labelId = info.labelId;
-        dialogAppInfos.emplace_back(dialogAppInfo);
     }
-
-    for (const auto &info : extensionInfos) {
-        if (!isExtension || !CheckImplicitStartExtensionIsValid(request, info)) {
-            continue;
-        }
-        DialogAppInfo dialogAppInfo;
-        dialogAppInfo.abilityName = info.name;
-        dialogAppInfo.bundleName = info.bundleName;
-        dialogAppInfo.iconId = info.iconId;
-        dialogAppInfo.labelId = info.labelId;
-        dialogAppInfos.emplace_back(dialogAppInfo);
-    }
-
     return ERR_OK;
 }
+
+std::vector<std::string> ImplicitStartProcessor::splitStr(const std::string& str, char delimiter) {
+    std::stringstream ss(str);  
+    std::vector<std::string> result;  
+    std::string s;  
+    while (std::getline(ss, s, delimiter)) {  
+        result.push_back(s);  
+    }  
+    return result;  
+}
+
 
 bool ImplicitStartProcessor::CheckImplicitStartExtensionIsValid(const AbilityRequest &request,
     const AppExecFwk::ExtensionAbilityInfo &extensionInfo)
