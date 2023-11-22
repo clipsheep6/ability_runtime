@@ -31,8 +31,8 @@ bool ExtensionManagerProxy::WriteInterfaceToken(MessageParcel &data)
     return true;
 }
 
-int ExtensionManagerProxy::ConnectAbilityCommon(const Want &want, const sptr<IRemoteObject> &connect,
-    const sptr<IRemoteObject> &callerToken, AppExecFwk::ExtensionAbilityType extensionType, int32_t userId,
+int ExtensionManagerProxy::ConnectAbilityCommon(const Want &want, sptr<IRemoteObject> connect,
+    sptr<IRemoteObject> callerToken, AppExecFwk::ExtensionAbilityType extensionType, int32_t userId,
     bool isQueryExtensionOnly)
 {
     if (connect == nullptr) {
@@ -86,7 +86,7 @@ int ExtensionManagerProxy::ConnectAbilityCommon(const Want &want, const sptr<IRe
     return reply.ReadInt32();
 }
 
-int ExtensionManagerProxy::DisconnectAbility(const sptr<IRemoteObject> &connect)
+int ExtensionManagerProxy::DisconnectAbility(sptr<IRemoteObject> connect)
 {
     if (connect == nullptr) {
         HILOG_ERROR("disconnect ability fail, connect is nullptr");
@@ -105,6 +105,122 @@ int ExtensionManagerProxy::DisconnectAbility(const sptr<IRemoteObject> &connect)
     MessageParcel reply;
     MessageOption option;
     auto error = SendRequest(AbilityManagerInterfaceCode::DISCONNECT_ABILITY, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int ExtensionManagerProxy::StartExtensionAbility(const Want &want, sptr<IRemoteObject> callerToken,
+    int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("want write failed.");
+        return INNER_ERR;
+    }
+    if (callerToken) {
+        if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
+            HILOG_ERROR("flag and callerToken write failed.");
+            return INNER_ERR;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return INNER_ERR;
+        }
+    }
+    if (!data.WriteInt32(userId)) {
+        HILOG_ERROR("StartExtensionAbility, userId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(static_cast<int32_t>(extensionType))) {
+        HILOG_ERROR("StartExtensionAbility, extensionType write failed.");
+        return INNER_ERR;
+    }
+    auto error = SendRequest(AbilityManagerInterfaceCode::START_EXTENSION_ABILITY, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("StartExtensionAbility, Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int ExtensionManagerProxy::StopExtensionAbility(const Want &want, sptr<IRemoteObject> callerToken,
+    int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("want write failed.");
+        return INNER_ERR;
+    }
+    if (callerToken) {
+        if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
+            HILOG_ERROR("flag and callerToken write failed.");
+            return INNER_ERR;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return INNER_ERR;
+        }
+    }
+    if (!data.WriteInt32(userId)) {
+        HILOG_ERROR("userId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(static_cast<int32_t>(extensionType))) {
+        HILOG_ERROR("extensionType write failed.");
+        return INNER_ERR;
+    }
+    auto error = SendRequest(AbilityManagerInterfaceCode::STOP_EXTENSION_ABILITY, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int ExtensionManagerProxy::StopServiceAbility(const Want &want, int32_t userId, sptr<IRemoteObject> token)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("want write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(userId)) {
+        HILOG_ERROR("userId write failed.");
+        return INNER_ERR;
+    }
+    if (token) {
+        if (!data.WriteBool(true) || !data.WriteRemoteObject(token)) {
+            HILOG_ERROR("Failed to write flag and token.");
+            return ERR_INVALID_VALUE;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("Failed to write flag.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+    auto error = SendRequest(AbilityManagerInterfaceCode::STOP_SERVICE_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
