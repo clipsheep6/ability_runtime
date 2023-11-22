@@ -3267,7 +3267,7 @@ int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
     std::vector<std::string> changeKeyV;
     configuration_->CompareDifferent(changeKeyV, config);
     HILOG_INFO("changeKeyV size :%{public}zu", changeKeyV.size());
-    if (changeKeyV.empty()) {
+    if (config.GetItem(AAFwk::GlobalConfigurationKey::THEME).empty() && changeKeyV.empty()) {
         HILOG_ERROR("changeKeyV is empty");
         return ERR_INVALID_VALUE;
     }
