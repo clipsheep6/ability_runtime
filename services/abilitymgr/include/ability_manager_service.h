@@ -1825,6 +1825,7 @@ private:
     std::shared_ptr<DataAbilityManager> systemDataAbilityManager_;
     std::unordered_map<int, std::shared_ptr<PendingWantManager>> pendingWantManagers_;
     std::shared_ptr<PendingWantManager> pendingWantManager_;
+    volatile bool isSceneBoard_ = false;
     const static std::map<std::string, AbilityManagerService::DumpKey> dumpMap;
     const static std::map<std::string, AbilityManagerService::DumpsysKey> dumpsysMap;
     const static std::map<int32_t, AppExecFwk::SupportWindowMode> windowModeMap;
@@ -1872,6 +1873,7 @@ private:
     bool whiteListassociatedWakeUpFlag_ = true;
 
     std::shared_ptr<AbilityAutoStartupService> abilityAutoStartupService_;
+
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     std::shared_ptr<BackgroundTaskObserver> bgtaskObserver_;
