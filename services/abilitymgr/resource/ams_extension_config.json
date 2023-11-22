@@ -1,0 +1,10 @@
+{
+    "ams_extension_config":
+    [
+        {
+            "name": "FormExtensionAbility",
+            "extension_type_name": "form",
+            "auto_disconnect_time": 60000
+        }
+    ]
+}
