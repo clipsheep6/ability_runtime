@@ -328,7 +328,10 @@ bool AbilityManagerService::Init()
 
     std::string deviceType = OHOS::system::GetDeviceType();
     DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(deviceType);
-    AmsConfigurationParameter::GetInstance().Parse();
+    auto configParseTask = []() {
+        AmsConfigurationParameter::GetInstance().Parse();
+    };
+    taskHandler_->SubmitTask(configParseTask, "ConfigParseTask");
     isSceneBoard_ = Rosen::SceneBoardJudgement::IsSceneBoardEnabled();
     if (isSceneBoard_) {
         uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
@@ -337,8 +340,6 @@ bool AbilityManagerService::Init()
         InitMissionListManager(MAIN_USER_ID, true);
     }
     SwitchManagers(U0_USER_ID, false);
-    int amsTimeOut = AmsConfigurationParameter::GetInstance().GetAMSTimeOutTime();
-    HILOG_INFO("amsTimeOut is %{public}d", amsTimeOut);
 #ifdef SUPPORT_GRAPHICS
     auto anrListenerTask = []() {
         auto anrListener = std::make_shared<ApplicationAnrListener>();
