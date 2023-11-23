@@ -649,6 +649,9 @@ HWTEST_F(ContextImplTest, AppExecFwk_AppContext_InitResourceManager_001, Functio
     std::shared_ptr<AbilityRuntime::ContextImpl> contextImpl_ = std::make_shared<AbilityRuntime::ContextImpl>();
     std::shared_ptr<AbilityRuntime::ContextImpl> appContext = std::make_shared<AbilityRuntime::ContextImpl>();
     AppExecFwk::BundleInfo bundleInfo;
+    bundleInfo.name = "com.test.module";
+    bundleInfo.isKeepAlive = true;
+    bundleInfo.applicationInfo.process = "com.test.module";
     bundleInfo.applicationInfo.multiProjects = true;
     contextImpl_->InitResourceManager(bundleInfo, appContext, true, "");
     EXPECT_TRUE(appContext->GetResourceManager() != nullptr);
@@ -680,6 +683,9 @@ HWTEST_F(ContextImplTest, AppExecFwk_AppContext_InitResourceManager_002, Functio
     std::shared_ptr<AbilityRuntime::ContextImpl> contextImpl_ = std::make_shared<AbilityRuntime::ContextImpl>();
     std::shared_ptr<AbilityRuntime::ContextImpl> appContext = std::make_shared<AbilityRuntime::ContextImpl>();
     AppExecFwk::BundleInfo bundleInfo;
+    bundleInfo.name = "com.ohos.contactsdataability";
+    bundleInfo.isKeepAlive = true;
+    bundleInfo.applicationInfo.process = "com.ohos.contactsdataability";
     bundleInfo.applicationInfo.multiProjects = true;
     HapModuleInfo info;
     info.name = "com.ohos.contactsdataability";
@@ -726,6 +732,9 @@ HWTEST_F(ContextImplTest, AppExecFwk_AppContext_InitResourceManager_003, Functio
     std::shared_ptr<AbilityRuntime::ContextImpl> contextImpl_ = std::make_shared<AbilityRuntime::ContextImpl>();
     std::shared_ptr<AbilityRuntime::ContextImpl> appContext = std::make_shared<AbilityRuntime::ContextImpl>();
     AppExecFwk::BundleInfo bundleInfo;
+    bundleInfo.name = "com.ohos.contactsdataability";
+    bundleInfo.isKeepAlive = true;
+    bundleInfo.applicationInfo.process = "com.ohos.contactsdataability";
     bundleInfo.applicationInfo.multiProjects = true;
     HapModuleInfo info;
     info.name = "com.ohos.contactsdataability";
@@ -769,6 +778,9 @@ HWTEST_F(ContextImplTest, AppExecFwk_AppContext_InitResourceManager_004, Functio
     std::shared_ptr<AbilityRuntime::ContextImpl> contextImpl_ = std::make_shared<AbilityRuntime::ContextImpl>();
     std::shared_ptr<AbilityRuntime::ContextImpl> appContext = std::make_shared<AbilityRuntime::ContextImpl>();
     AppExecFwk::BundleInfo bundleInfo;
+    bundleInfo.name = "com.ohos.contactsdataability";
+    bundleInfo.isKeepAlive = true;
+    bundleInfo.applicationInfo.process = "com.ohos.contactsdataability";
     bundleInfo.applicationInfo.multiProjects = true;
     HapModuleInfo info;
     info.name = "com.ohos.contactsdataability";

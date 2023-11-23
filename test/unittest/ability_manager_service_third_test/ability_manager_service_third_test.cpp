@@ -446,22 +446,24 @@ HWTEST_F(AbilityManagerServiceThirdTest, GetAbilityRunningInfos_001, TestSize.Le
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
     std::vector<AbilityRunningInfo> info;
-    EXPECT_NE(abilityMs_->GetAbilityRunningInfos(info), ERR_OK);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_NE(abilityMs_->GetAbilityRunningInfos(info), ERR_OK);
 
-    auto temp1 = abilityMs_->currentMissionListManager_;
-    abilityMs_->currentMissionListManager_.reset();
-    EXPECT_EQ(abilityMs_->GetAbilityRunningInfos(info), ERR_INVALID_VALUE);
-    abilityMs_->currentMissionListManager_ = temp1;
+        auto temp1 = abilityMs_->currentMissionListManager_;
+        abilityMs_->currentMissionListManager_.reset();
+        EXPECT_EQ(abilityMs_->GetAbilityRunningInfos(info), ERR_INVALID_VALUE);
+        abilityMs_->currentMissionListManager_ = temp1;
 
-    auto temp2 = abilityMs_->connectManager_;
-    abilityMs_->connectManager_.reset();
-    EXPECT_NE(abilityMs_->GetAbilityRunningInfos(info), ERR_OK);
-    abilityMs_->connectManager_ = temp2;
+        auto temp2 = abilityMs_->connectManager_;
+        abilityMs_->connectManager_.reset();
+        EXPECT_NE(abilityMs_->GetAbilityRunningInfos(info), ERR_OK);
+        abilityMs_->connectManager_ = temp2;
 
-    auto temp3 = abilityMs_->dataAbilityManager_;
-    abilityMs_->dataAbilityManager_.reset();
-    EXPECT_NE(abilityMs_->GetAbilityRunningInfos(info), ERR_OK);
-    abilityMs_->dataAbilityManager_ = temp3;
+        auto temp3 = abilityMs_->dataAbilityManager_;
+        abilityMs_->dataAbilityManager_.reset();
+        EXPECT_NE(abilityMs_->GetAbilityRunningInfos(info), ERR_OK);
+        abilityMs_->dataAbilityManager_ = temp3;
+    }
     HILOG_INFO("AbilityManagerServiceThirdTest GetAbilityRunningInfos_001 end");
 }
 

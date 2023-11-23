@@ -532,6 +532,9 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_InitResourceManager_0
 {
     std::shared_ptr<AppExecFwk::ContextDeal> appContext = std::make_shared<AppExecFwk::ContextDeal>(true);
     AppExecFwk::BundleInfo bundleInfo;
+    bundleInfo.name = "com.ohos.contactsdataability";
+    bundleInfo.isKeepAlive = true;
+    bundleInfo.applicationInfo.process = "com.ohos.contactsdataability";
     context_->InitResourceManager(bundleInfo, appContext);
     EXPECT_TRUE(appContext->GetResourceManager() != nullptr);
 
