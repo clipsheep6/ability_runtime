@@ -4027,12 +4027,14 @@ int MissionListManager::PrepareClearMissionLocked(int missionId, const std::shar
         }
     };
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    if (!handler) {
+        HILOG_ERROR("handler is nullptr");
+        return ClearMissionLocked(missionId, mission);
+    }
     int prepareTerminateTimeout =
         AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * PREPARE_TERMINATE_TIMEOUT_MULTIPLE;
-    if (handler) {
-        handler->SubmitTask(terminateTask, "PrepareTermiante_" + std::to_string(abilityRecord->GetAbilityRecordId()),
-            prepareTerminateTimeout);
-    }
+    handler->SubmitTask(terminateTask, "PrepareTermiante_" + std::to_string(abilityRecord->GetAbilityRecordId()),
+        prepareTerminateTimeout);
 
     bool res = abilityRecord->PrepareTerminateAbility();
     if (res) {

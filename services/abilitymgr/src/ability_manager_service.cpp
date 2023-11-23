@@ -7674,10 +7674,13 @@ int AbilityManagerService::PrepareTerminateAbility(const sptr<IRemoteObject> &to
     };
     int prepareTerminateTimeout =
         AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * PREPARE_TERMINATE_TIMEOUT_MULTIPLE;
-    if (taskHandler_) {
-        taskHandler_->SubmitTask(timeoutTask, "PrepareTermiante_" + std::to_string(abilityRecord->GetAbilityRecordId()),
-            prepareTerminateTimeout);
+    if (!taskHandler_) {
+        HILOG_ERROR("handler_ is nullptr");
+        callback->DoPrepareTerminate();
+        return ERR_INVALID_VALUE;
     }
+    taskHandler_->SubmitTask(timeoutTask, "PrepareTermiante_" + std::to_string(abilityRecord->GetAbilityRecordId()),
+        prepareTerminateTimeout);
 
     bool res = abilityRecord->PrepareTerminateAbility();
     if (!res) {
