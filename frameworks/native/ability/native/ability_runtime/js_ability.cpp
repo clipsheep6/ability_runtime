@@ -285,6 +285,7 @@ void JsAbility::OnStop()
         abilityContext_->SetTerminating(true);
     }
     Ability::OnStop();
+    HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onDestroy");
     OnStopCallback();
     HILOG_DEBUG("OnStop end.");
@@ -397,6 +398,7 @@ void JsAbility::OnSceneRestored()
 {
     Ability::OnSceneRestored();
     HILOG_DEBUG("OnSceneRestored");
+    HandleScope handleScope(jsRuntime_);
     auto jsAppWindowStage = CreateAppWindowStage();
     if (jsAppWindowStage == nullptr) {
         HILOG_ERROR("Failed to create jsAppWindowStage object by LoadSystemModule");
@@ -418,7 +420,7 @@ void JsAbility::onSceneDestroyed()
 {
     HILOG_DEBUG("onSceneDestroyed begin, ability is %{public}s.", GetAbilityName().c_str());
     Ability::onSceneDestroyed();
-
+    HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onWindowStageDestroy");
 
     if (scene_ != nullptr) {
@@ -494,6 +496,7 @@ void JsAbility::OnBackground()
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("OnBackground begin, ability is %{public}s.", GetAbilityName().c_str());
     std::string methodName = "OnBackground";
+    HandleScope handleScope(jsRuntime_);
     AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::BACKGROUND, methodName);
     CallObjectMethod("onBackground");
     AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState::BACKGROUND, methodName);
@@ -518,7 +521,7 @@ bool JsAbility::OnBackPress()
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("call, ability: %{public}s.", GetAbilityName().c_str());
     Ability::OnBackPress();
-
+    HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
     napi_value jsValue = CallObjectMethod("onBackPressed", nullptr, 0, true);
     bool ret = false;
@@ -535,7 +538,7 @@ bool JsAbility::OnPrepareTerminate()
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("call, ability: %{public}s.", GetAbilityName().c_str());
     Ability::OnPrepareTerminate();
-
+    HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
     napi_value jsValue = CallObjectMethod("onPrepareToTerminate", nullptr, 0, true);
     bool ret = false;

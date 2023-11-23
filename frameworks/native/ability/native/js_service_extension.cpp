@@ -358,6 +358,7 @@ sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want,
 void JsServiceExtension::OnDisconnect(const AAFwk::Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HandleScope handleScope(jsRuntime_);
     Extension::OnDisconnect(want);
     HILOG_DEBUG("%{public}s begin.", __func__);
     CallOnDisconnect(want, false);
@@ -368,6 +369,7 @@ void JsServiceExtension::OnDisconnect(const AAFwk::Want &want,
     AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HandleScope handleScope(jsRuntime_);
     Extension::OnDisconnect(want);
     HILOG_DEBUG("%{public}s start.", __func__);
     napi_value result = CallOnDisconnect(want, true);

@@ -364,6 +364,7 @@ void JsUIExtension::OnDisconnect(const AAFwk::Want &want)
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     Extension::OnDisconnect(want);
     HILOG_DEBUG("JsUIExtension OnDisconnect begin.");
+    HandleScope handleScope(jsRuntime_);
     CallOnDisconnect(want, false);
     HILOG_DEBUG("JsUIExtension OnDisconnect end.");
 }
