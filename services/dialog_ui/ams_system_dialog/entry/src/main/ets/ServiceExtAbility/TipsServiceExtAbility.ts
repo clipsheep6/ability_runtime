@@ -73,6 +73,7 @@ export default class TipsServiceExtensionAbility extends extension {
           globalThis.tipsExtensionContext.terminateSelf();
         }
       });
+      await win.hideNonSystemFloatingWindows(true);
       await win.moveTo(rect.left, rect.top);
       await win.resetSize(rect.width, rect.height);
       await win.loadContent('pages/tipsDialog');

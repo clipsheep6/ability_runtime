@@ -209,6 +209,7 @@ export default class SelectorServiceExtensionAbility extends extension {
           }
         });
       }
+      await win.hideNonSystemFloatingWindows(true);
       await win.moveTo(rect.left, rect.top);
       await win.resetSize(rect.width, rect.height);
       if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
