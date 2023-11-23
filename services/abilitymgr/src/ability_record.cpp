@@ -1918,6 +1918,14 @@ void AbilityRecord::GetAbilityTypeString(std::string &typeStr)
             typeStr = "DATA";
             break;
         }
+        case AppExecFwk::AbilityType::FORM: {
+            typeStr = "FORM";
+            break;
+        }
+        case AppExecFwk::AbilityType::EXTENSION: {
+            typeStr = "EXTENSION";
+            break;
+        }
         default: {
             typeStr = "UNKNOWN";
             break;
@@ -2084,7 +2092,10 @@ void AbilityRecord::DumpService(std::vector<std::string> &info, std::vector<std:
                       std::to_string(GetStartTime()) + "]");
     info.emplace_back("      main name [" + GetAbilityInfo().name + "]");
     info.emplace_back("      bundle name [" + GetAbilityInfo().bundleName + "]");
-    info.emplace_back("      ability type [SERVICE]");
+    std::string typeStr;
+    GetAbilityTypeString(typeStr);
+    info.emplace_back("      ability type [" + typeStr + "]");
+    info.emplace_back("      extension type [" + GetAbilityInfo().extensionTypeName + "]");
     info.emplace_back("      app state #" + AbilityRecord::ConvertAppState(appState_));
 
     std::string isKeepAlive = isKeepAlive_ ? "true" : "false";
