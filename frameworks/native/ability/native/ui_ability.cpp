@@ -54,14 +54,18 @@ UIAbility *UIAbility::Create(const std::unique_ptr<Runtime> &runtime)
     }
 }
 
-void UIAbility::Init(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
+void UIAbility::Init(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &record,
     const std::shared_ptr<AppExecFwk::OHOSApplication> application,
     std::shared_ptr<AppExecFwk::AbilityHandler> &handler, const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Begin.");
+    if (record == nullptr) {
+        HILOG_ERROR("AbilityLocalRecord is nullptr.");
+        return;
+    }
     application_ = application;
-    abilityInfo_ = abilityInfo;
+    abilityInfo_ = record->GetAbilityInfo();
     handler_ = handler;
     token_ = token;
 #ifdef SUPPORT_GRAPHICS
