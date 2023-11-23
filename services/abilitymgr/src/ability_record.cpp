@@ -1434,7 +1434,6 @@ void AbilityRecord::Activate()
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
     SetAbilityStateInner(AbilityState::ACTIVATING);
-    std::lock_guard guard(wantLock_);
     lifecycleDeal_->Activate(GetWant(), lifeCycleStateInfo_);
 
     // update ability state to appMgr service when restart
