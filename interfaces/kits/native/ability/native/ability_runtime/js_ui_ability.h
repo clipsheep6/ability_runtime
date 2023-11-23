@@ -18,6 +18,7 @@
 
 #include "ability_delegator_infos.h"
 #include "freeze_util.h"
+#include "js_embeddable_ui_ability_context.h"
 #include "ui_ability.h"
 
 class NativeReference;
@@ -55,7 +56,8 @@ public:
      * @param handler the UIability EventHandler object
      * @param token the remote token
      */
-    void Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<OHOSApplication> application,
+    void Init(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &record,
+        const std::shared_ptr<OHOSApplication> application,
         std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token) override;
 
     /**
@@ -296,8 +298,8 @@ private:
     std::unique_ptr<NativeReference> CreateAppWindowStage();
     std::shared_ptr<AppExecFwk::ADelegatorAbilityProperty> CreateADelegatorAbilityProperty();
     sptr<IRemoteObject> SetNewRuleFlagToCallee(napi_env env, napi_value remoteJsObj);
-    void SetAbilityContext(
-        const std::shared_ptr<AbilityInfo> &abilityInfo, const std::string &moduleName, const std::string &srcPath);
+    void SetAbilityContext(const std::shared_ptr<AbilityInfo> &abilityInfo,
+        const std::shared_ptr<AAFwk::Want> &want, const std::string &moduleName, const std::string &srcPath);
     void DoOnForegroundForSceneIsNull(const Want &want);
     void GetDumpInfo(
         napi_env env, napi_value dumpInfo, napi_value onDumpInfo, std::vector<std::string> &info);

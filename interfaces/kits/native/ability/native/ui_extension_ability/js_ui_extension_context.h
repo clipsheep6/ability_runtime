@@ -73,13 +73,13 @@ private:
     int64_t connectionId_ = -1;
 };
 
-struct ConnectionKey {
+struct ExtensionConnectionKey {
     AAFwk::Want want;
     int64_t id;
 };
 
 struct key_compare {
-    bool operator()(const ConnectionKey &key1, const ConnectionKey &key2) const
+    bool operator()(const ExtensionConnectionKey &key1, const ExtensionConnectionKey &key2) const
     {
         if (key1.id < key2.id) {
             return true;
