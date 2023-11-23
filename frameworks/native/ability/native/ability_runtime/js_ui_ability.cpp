@@ -250,10 +250,13 @@ void JsUIAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo
 
     napi_set_named_property(env, obj, "launchWant", jsWant);
     napi_set_named_property(env, obj, "lastRequestWant", jsWant);
-
+    auto launchParam = GetLaunchParam();
+    if (InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
+        launchParam.launchReason = AAFwk::LaunchReason::LAUNCHREASON_INSIGHT_INTENT;
+    }
     napi_value argv[] = {
         jsWant,
-        CreateJsLaunchParam(env, GetLaunchParam()),
+        CreateJsLaunchParam(env, launchParam),
     };
     std::string methodName = "OnStart";
     AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
@@ -1079,10 +1082,13 @@ void JsUIAbility::OnNewWant(const Want &want)
     }
 
     napi_set_named_property(env, obj, "lastRequestWant", jsWant);
-
+    auto launchParam = GetLaunchParam();
+    if (InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
+        launchParam.launchReason = AAFwk::LaunchReason::LAUNCHREASON_INSIGHT_INTENT;
+    }
     napi_value argv[] = {
         jsWant,
-        CreateJsLaunchParam(env, GetLaunchParam()),
+        CreateJsLaunchParam(env, launchParam),
     };
     std::string methodName = "OnNewWant";
     AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
