@@ -69,8 +69,8 @@ public:
     StartAbilityHandler(StartAbilityHandler &) = delete;
     void operator=(StartAbilityHandler &) = delete;
     virtual ~StartAbilityHandler() = default;
-    virtual bool MatchStartRequest(StartAbilityParams &params);
-    virtual int HandleStartRequest(StartAbilityParams &params);
+    virtual bool MatchStartRequest(StartAbilityParams &params) = 0;
+    virtual int HandleStartRequest(StartAbilityParams &params) = 0;
     virtual int GetPriority()
     {
         return 0;
