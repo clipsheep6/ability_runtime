@@ -68,8 +68,8 @@ public:
     virtual WMError SetWindowFlags(uint32_t flags) {return WMError::WM_OK;}
     virtual WMError SetSystemBarProperty(WindowType type, const SystemBarProperty& property) {return WMError::WM_OK;}
     virtual WMError GetAvoidAreaByType(AvoidAreaType type, AvoidArea& avoidArea) {return WMError::WM_OK;}
-    virtual WMError SetLayoutFullScreen(bool status) {return WMError::WM_OK;}
-    virtual WMError SetFullScreen(bool status) {return WMError::WM_OK;}
+    virtual WMError SetLayoutFullScreen(bool status, bool maximize = false) {return WMError::WM_OK;}
+    virtual WMError SetFullScreen(bool status, bool maximize = false) {return WMError::WM_OK;}
     virtual WMError Destroy() {return WMError::WM_OK;}
     virtual WMError Show(uint32_t reason = 0, bool withAnimation = false) {return WMError::WM_OK;}
     virtual WMError Hide(uint32_t reason = 0, bool withAnimation = false,
