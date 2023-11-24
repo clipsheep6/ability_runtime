@@ -66,7 +66,7 @@ const std::string ContextImpl::CONTEXT_DATABASE("database");
 const std::string ContextImpl::CONTEXT_TEMP("/temp");
 const std::string ContextImpl::CONTEXT_FILES("/files");
 const std::string ContextImpl::CONTEXT_HAPS("/haps");
-const std::string ContextImpl::CONTEXT_ELS[] = {"el1", "el2"};
+const std::string ContextImpl::CONTEXT_ELS[] = {"el1", "el2", "el3", "el4"};
 Global::Resource::DeviceType ContextImpl::deviceType_ = Global::Resource::DeviceType::DEVICE_NOT_SET;
 const std::string OVERLAY_STATE_CHANGED = "usual.event.OVERLAY_STATE_CHANGED";
 const int32_t TYPE_RESERVE = 1;
@@ -220,7 +220,7 @@ std::string ContextImpl::GetPreferencesDir()
 int32_t ContextImpl::GetGroupDirWithCheck(const std::string &groupId, bool checkExist, std::string &groupDir)
 {
     if (currArea_ == CONTEXT_ELS[0]) {
-        HILOG_ERROR("GroupDir currently only supports the el2 level");
+        HILOG_ERROR("GroupDir currently can't supports the el1 level");
         return ERR_INVALID_VALUE;
     }
     int errCode = GetBundleManager();
