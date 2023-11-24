@@ -306,7 +306,6 @@ void AbilityManagerService::OnStart()
     }
 
     SetParameter(BOOTEVENT_APPFWK_READY.c_str(), "true");
-    WatchParameter(BOOTEVENT_BOOT_COMPLETED.c_str(), AAFwk::ApplicationUtil::AppFwkBootEventCallback, nullptr);
     AddSystemAbilityListener(BACKGROUND_TASK_MANAGER_SERVICE_ID);
     AddSystemAbilityListener(DISTRIBUTED_SCHED_SA_ID);
     AddSystemAbilityListener(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
@@ -401,6 +400,15 @@ bool AbilityManagerService::Init()
         DelayedSingleton<ExtensionConfig>::GetInstance()->LoadExtensionConfiguration();
     };
     taskHandler_->SubmitTask(initExtensionConfigTask, "InitExtensionConfigTask");
+
+    auto bootCompletedTask = []() {
+        if (ApplicationUtil::IsBootCompleted()) {
+            ApplicationUtil::AppFwkBootEventCallback(BOOTEVENT_BOOT_COMPLETED.c_str(), "true", nullptr);
+        } else {
+            WatchParameter(BOOTEVENT_BOOT_COMPLETED.c_str(), ApplicationUtil::AppFwkBootEventCallback, nullptr);
+        }
+    };
+    taskHandler_->SubmitTask(bootCompletedTask, "BootCompletedTask");
     HILOG_INFO("Init success.");
     return true;
 }

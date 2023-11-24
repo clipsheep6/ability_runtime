@@ -19,12 +19,15 @@
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "hilog_wrapper.h"
+#include "parameters.h"
 #include "want.h"
 
 namespace OHOS {
 namespace AAFwk {
 namespace ApplicationUtil {
 using Want = OHOS::AAFwk::Want;
+const int32_t BOOT_COMPLETED_SIZE = 6;
+const char* BOOTEVENT_BOOT_COMPLETED = "bootevent.boot.completed";
 
 [[maybe_unused]] static void AppFwkBootEventCallback(const char *key, const char *value, void *context)
 {
@@ -36,6 +39,16 @@ using Want = OHOS::AAFwk::Want;
         EventFwk::CommonEventManager::PublishCommonEvent(commonData);
         HILOG_INFO("%{public}s BootEvent completed", __func__);
     }
+}
+
+bool IsBootCompleted()
+{
+    HILOG_DEBUG("call");
+    std::string ret = OHOS::system::GetParameter(BOOTEVENT_BOOT_COMPLETED, "false");
+    if (ret == "true") {
+        return true;
+    }
+    return false;
 }
 }  // namespace ApplicationlUtil
 }  // namespace AAFwk
