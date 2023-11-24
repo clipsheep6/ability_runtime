@@ -22,8 +22,12 @@
 #include "extension_context.h"
 #include "start_options.h"
 #include "want.h"
+#include "window.h"
 
 namespace OHOS {
+namespace Ace {
+class UIContent;
+}
 namespace AbilityRuntime {
 using RuntimeTask = std::function<void(int, const AAFwk::Want &, bool)>;
 /**
@@ -105,6 +109,12 @@ public:
 
     virtual int GenerateCurRequestCode();
 
+    void SetWindow(sptr<Rosen::Window> window);
+
+    sptr<Rosen::Window> GetWindow();
+
+    Ace::UIContent* GetUIContent();
+
     using SelfType = UIExtensionContext;
     static const size_t CONTEXT_TYPE_ID;
 
@@ -114,6 +124,7 @@ private:
 
     int curRequestCode_ = 0;
 
+    sptr<Rosen::Window> window_ = nullptr;
     /**
      * @brief Get Current Ability Type
      *

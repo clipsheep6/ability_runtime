@@ -151,5 +151,22 @@ int UIExtensionContext::GenerateCurRequestCode()
     curRequestCode_ = (curRequestCode_ == INT_MAX) ? 0 : (curRequestCode_ + 1);
     return curRequestCode_;
 }
+
+void UIExtensionContext::SetWindow(sptr<Rosen::Window> window)
+{
+    window_ = window;
+}
+sptr<Rosen::Window> UIExtensionContext::GetWindow()
+{
+    return window_;
+}
+Ace::UIContent* UIExtensionContext::GetUIContent()
+{
+    HILOG_INFO("called");
+    if (window_ == nullptr) {
+        return nullptr;
+    }
+    return window_->GetUIContent();
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS
