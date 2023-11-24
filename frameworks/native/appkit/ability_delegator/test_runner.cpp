@@ -15,6 +15,7 @@
 #include "test_runner.h"
 
 #include "hilog_wrapper.h"
+#include "bundle_mgr_helper.h"
 #include "bundle_mgr_interface.h"
 #include "runtime.h"
 #include "runner_runtime/js_test_runner.h"
@@ -30,16 +31,9 @@ std::unique_ptr<TestRunner> TestRunner::Create(const std::unique_ptr<AbilityRunt
         return std::make_unique<TestRunner>();
     }
 
-    auto bundleObj =
-        OHOS::DelayedSingleton<SysMrgClient>::GetInstance()->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    if (!bundleObj) {
+    auto bundleMgrHelper = DelayedSingleton<BundleMgrHelper>::GetInstance();
+    if (bundleMgrHelper == nullptr) {
         HILOG_ERROR("Failed to get bundle manager service");
-        return nullptr;
-    }
-
-    auto bms = iface_cast<IBundleMgr>(bundleObj);
-    if (!bms) {
-        HILOG_ERROR("Cannot convert to IBundleMgr");
         return nullptr;
     }
 
@@ -49,7 +43,7 @@ std::unique_ptr<TestRunner> TestRunner::Create(const std::unique_ptr<AbilityRunt
     }
 
     BundleInfo bundleInfo;
-    if (bms->GetBundleInfoForSelf(
+    if (bundleMgrHelper->GetBundleInfoForSelf(
         (static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY) +
         static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY) +
         static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) +
