@@ -60,9 +60,11 @@ void HdcRegisterTest::TearDown()
  */
 HWTEST_F(HdcRegisterTest, HdcRegisterTest_0100, TestSize.Level0)
 {
+    const std::string processName = "";
     const std::string bundleName = "";
+    bool debugApp = true;
     auto &pHdcRegister = AbilityRuntime::HdcRegister::Get();
-    pHdcRegister.StartHdcRegister(bundleName);
+    pHdcRegister.StartHdcRegister(bundleName, processName, debugApp);
 
     EXPECT_TRUE(true);
 }
@@ -88,9 +90,10 @@ HWTEST_F(HdcRegisterTest, HdcRegisterTest_0200, TestSize.Level0)
  */
 HWTEST_F(HdcRegisterTest, HdcRegisterTest_0300, TestSize.Level0)
 {
+    const std::string processName = "123";
     const std::string bundleName = "123";
     auto &pHdcRegister = AbilityRuntime::HdcRegister::Get();
-    pHdcRegister.StartHdcRegister(bundleName);
+    pHdcRegister.StartHdcRegister(bundleName, processName, debugApp);
     pHdcRegister.StopHdcRegister();
 
     EXPECT_TRUE(true);

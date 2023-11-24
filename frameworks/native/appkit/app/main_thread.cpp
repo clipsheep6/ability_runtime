@@ -1308,13 +1308,18 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             runtime->SetDeviceDisconnectCallback(cb);
         }
 
+        std::string processName = "";
+        if (processInfo_ != nullptr) {
+            processName = processIndo_->GetProcessName();
+            HILOG_DEBUG("MainThread::HandleLaunchApplication processName is %{public}s", processName.c_str());
+        }
         auto perfCmd = appLaunchData.GetPerfCmd();
         if (perfCmd.find(PERFCMD_PROFILE) != std::string::npos ||
             perfCmd.find(PERFCMD_DUMPHEAP) != std::string::npos) {
             HILOG_DEBUG("perfCmd is %{public}s", perfCmd.c_str());
-            runtime->StartProfiler(perfCmd, appInfo.debug);
+            runtime->StartProfiler(perfCmd, processName, appInfo.debug);
         } else {
-            runtime->StartDebugMode(appLaunchData.GetDebugApp(), appInfo.debug);
+            runtime->StartDebugMode(appLaunchData.GetDebugApp(), processName, appInfo.debug);
         }
 
         std::vector<HqfInfo> hqfInfos = appInfo.appQuickFix.deployedAppqfInfo.hqfInfos;
