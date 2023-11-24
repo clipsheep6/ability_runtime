@@ -395,7 +395,7 @@ bool AbilityManagerService::Init()
         obj->StartAutoStartupAppsInner();
     };
     taskHandler_->SubmitTask(startAutoStartupAppsTask, "StartAutoStartupApps");
-    ResiterSuspendObserver();
+    RegisterSuspendObserver();
 
     auto initExtensionConfigTask = []() {
         DelayedSingleton<ExtensionConfig>::GetInstance()->LoadExtensionConfiguration();
@@ -1972,7 +1972,7 @@ void AbilityManagerService::ReportEventToSuspendManager(const AppExecFwk::Abilit
 #endif // EFFICIENCY_MANAGER_ENABLE
 }
 
-void AbilityManagerService::ResiterSuspendObserver()
+void AbilityManagerService::RegisterSuspendObserver()
 {
 #ifdef EFFICIENCY_MANAGER_ENABLE
     if (!taskHandler_) {
@@ -1980,7 +1980,7 @@ void AbilityManagerService::ResiterSuspendObserver()
         return;
     }
     taskHandler_->SubmitTask([taskHandler = taskHandler_]() {
-            ProcessFrozenStateObserver::ResiterSuspendObserver(taskHandler);
+            ProcessFrozenStateObserver::RegisterSuspendObserver(taskHandler);
         });
 #endif // EFFICIENCY_MANAGER_ENABLE
 }
@@ -9045,15 +9045,13 @@ int32_t AbilityManagerService::ExecuteInsightIntentDone(const sptr<IRemoteObject
 
 void AbilityManagerService::HandleProcessFrozen(const std::vector<int32_t> &pidList, int32_t uid)
 {
-    HILOG_INFO("HandleProcessFrozen: %{public}d", uid);
-    std::unordered_set<int32_t> pidSet(pidList.begin(), pidList.end());
     auto userId = uid / BASE_USER_RANGE;
     auto connectManager = GetConnectManagerByUserId(userId);
     if (connectManager == nullptr) {
         HILOG_ERROR("can not find user connect manager");
         return;
     }
-    connectManager->HandleProcessFrozen(pidSet, uid);
+    connectManager->HandleProcessFrozen(pidList, uid);
 }
 
 void AbilityManagerService::NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId)

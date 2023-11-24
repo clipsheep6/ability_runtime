@@ -1393,7 +1393,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t ExecuteInsightIntentDone(const sptr<IRemoteObject> &token, uint64_t intentId,
-        const InsightIntentExecuteResult &result) override;	
+        const InsightIntentExecuteResult &result) override;
 
     /**
      * @brief Open file by uri.
@@ -1653,7 +1653,7 @@ private:
     void ReportAbilitAssociatedStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo, int64_t type);
 
     void ReportEventToSuspendManager(const AppExecFwk::AbilityInfo &abilityInfo);
-    void ResiterSuspendObserver();
+    void RegisterSuspendObserver();
 
     void ReportAppRecoverResult(const int32_t appId, const AppExecFwk::ApplicationInfo &appInfo,
         const std::string& abilityName, const std::string& result);
@@ -1810,7 +1810,7 @@ private:
     void StopSwitchUserDialogInner(const Want &want, const int32_t stopUserId);
 
     void SetPickerElementName(const sptr<SessionInfo> &extensionSessionInfo);
-    
+
     /**
      * @brief Start extension ability with insight intent
      * @param want, the want of the ability to start.

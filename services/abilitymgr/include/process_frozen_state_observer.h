@@ -27,13 +27,13 @@ namespace OHOS {
 namespace AAFwk {
 class ProcessFrozenStateObserver : public SuspendManager::SuspendStateObserverStub {
 public:
-    static void ResiterSuspendObserver(std::shared_ptr<TaskHandlerWrap> taskHandler);
+    static void RegisterSuspendObserver(std::shared_ptr<TaskHandlerWrap> taskHandler);
     void OnActive(const std::vector<int32_t> &pidList, const int32_t uid) override;
     void OnDoze(const int32_t uid) override;
     void OnFrozen(const std::vector<int32_t> &pidList, const int32_t uid) override;
 
 private:
-    static int g_regieterCount;
+    static int g_registerCount;
 };
 } // namespace AAFwk
 } // namespace OHOS
