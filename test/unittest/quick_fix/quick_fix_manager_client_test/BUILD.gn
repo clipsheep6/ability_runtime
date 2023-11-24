@@ -18,10 +18,16 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 ohos_unittest("quick_fix_manager_client_test") {
   module_out_path = "ability_runtime/quick_fix"
 
-  include_dirs =
-      [ "${ability_runtime_test_path}/unittest/quick_fix/mock/include" ]
+  include_dirs = [
+    "${ability_runtime_test_path}/unittest/quick_fix/mock/include",
+    "${ability_runtime_test_path}/mock/services_appmgr_test/include",
+  ]
 
-  sources = [ "quick_fix_manager_client_test.cpp" ]
+  sources = [
+    "${ability_runtime_test_path}/mock/services_appmgr_test/src/mock_bundle_manager.cpp",
+    "${ability_runtime_test_path}/unittest/quick_fix/mock/src/mock_quick_fix_util.cpp",
+    "quick_fix_manager_client_test.cpp",
+  ]
 
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
 
@@ -32,6 +38,7 @@ ohos_unittest("quick_fix_manager_client_test") {
   }
 
   deps = [
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
