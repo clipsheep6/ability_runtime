@@ -18,7 +18,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-namespace AutoFiil {
+namespace AutoFill {
 enum {
     AUTO_FILL_SUCCESS = 0,
     AUTO_FILL_FAILED,
@@ -28,7 +28,7 @@ enum {
     AUTO_FILL_OBJECT_IS_NULL,
     AUTO_FILL_CREATE_MODULE_UI_EXTENSION_FAILED,
 };
-} // namespace AutoFiil
+} // namespace AutoFill
 } // namespace AbilityRuntime
 } // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_AUTO_FILL_ERROR_H

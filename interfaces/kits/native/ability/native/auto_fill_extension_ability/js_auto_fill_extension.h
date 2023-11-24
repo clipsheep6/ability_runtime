@@ -119,10 +119,7 @@ private:
     void DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo);
 
     void OnCommandWindowDone(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd) override;
-    bool ForegroundWindowWithInsightIntent(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo);
     bool HandleAutoFillCreate(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo);
-    void OnInsightIntentExecuteDone(const sptr<AAFwk::SessionInfo> &sessionInfo,
-        const AppExecFwk::InsightIntentExecuteResult &result) override;
     void CallJsOnRequest(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
         const sptr<Rosen::Window> &uiWindow);
 

@@ -42,6 +42,14 @@ public:
         Ace::UIContent *uiContent,
         const AbilityBase::ViewData &viewdata,
         const std::shared_ptr<ISaveRequestCallback> &saveCallback);
+
+private:
+    int32_t HandleRequestExecuteInner(
+        const AbilityBase::AutoFillType &autoFillType,
+        Ace::UIContent *uiContent,
+        const AbilityBase::ViewData &viewdata,
+        const std::shared_ptr<IFillRequestCallback> &fillCallback,
+        const std::shared_ptr<ISaveRequestCallback> &saveCallback);
 };
 } // AbilityRuntime
 } // OHOS

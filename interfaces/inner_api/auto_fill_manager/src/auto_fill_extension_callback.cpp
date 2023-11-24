@@ -27,10 +27,10 @@ void AutoFillExtensionCallback::OnResult(int32_t errCode, const AAFwk::Want &wan
 {
     HILOG_DEBUG("Called, result code is %{public}d.", errCode);
     int32_t resultCode;
-    if (errCode == AutoFiil::AUTO_FILL_SUCCESS) {
+    if (errCode == AutoFill::AUTO_FILL_SUCCESS) {
         SendAutoFillSucess(want);
     } else {
-        resultCode = (errCode == AutoFiil::AUTO_FILL_CANCEL) ? AutoFiil::AUTO_FILL_CANCEL : AutoFiil::AUTO_FILL_FAILED;
+        resultCode = (errCode == AutoFill::AUTO_FILL_CANCEL) ? AutoFill::AUTO_FILL_CANCEL : AutoFill::AUTO_FILL_FAILED;
         SendAutoFillFailed(resultCode);
     }
 }
@@ -39,7 +39,7 @@ void AutoFillExtensionCallback::OnRelease(int32_t errCode)
 {
     HILOG_DEBUG("Called, result code is %{public}d.", errCode);
     if (errCode != 0) {
-        SendAutoFillFailed(AutoFiil::AUTO_FILL_RELEASE_FAILED);
+        SendAutoFillFailed(AutoFill::AUTO_FILL_RELEASE_FAILED);
     }
 
     if (uiContent_ == nullptr) {
@@ -54,7 +54,7 @@ void AutoFillExtensionCallback::OnError(int32_t errCode, const std::string &name
     HILOG_DEBUG("Called, errcode is %{public}d, name is %{public}s, message is %{public}s",
         errCode, name.c_str(), message.c_str());
     if (errCode != 0) {
-        SendAutoFillFailed(AutoFiil::AUTO_FILL_ON_ERROR);
+        SendAutoFillFailed(AutoFill::AUTO_FILL_ON_ERROR);
     }
 
     if (uiContent_ == nullptr) {
