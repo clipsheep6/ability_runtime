@@ -20,6 +20,7 @@ import drawableDescriptor from '@ohos.arkui.drawableDescriptor';
 import extension from '@ohos.app.ability.ServiceExtensionAbility';
 import type image from '@ohos.multimedia.image';
 import window from '@ohos.window';
+import PositionUtils from '../utils/PositionUtils';
 
 const TAG = 'SelectorDialog_Service';
 
@@ -136,18 +137,24 @@ export default class SelectorServiceExtensionAbility extends extension {
     globalThis.abilityWant = want;
     globalThis.params = JSON.parse(want.parameters.params);
     let displayClass = display.getDefaultDisplaySync();
-    if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
-      globalThis.landScapePosition = JSON.parse(want.parameters.landscapeScreen);
-      globalThis.verticalPosition = JSON.parse(want.parameters.position);
-      if (displayClass.orientation === display.Orientation.PORTRAIT || displayClass.orientation === display.Orientation.PORTRAIT_INVERTED) {
-        globalThis.position = globalThis.verticalPosition;
-        console.debug(TAG, 'screen position is vertical');
-      } else {
-        globalThis.position = globalThis.landScapePosition;
-        console.debug(TAG, 'screen position is landscape');
-      }
-    } else {
-      globalThis.position = JSON.parse(want.parameters.position);
+    let lineNums = 0;
+    if (globalThis.params && globalThis.params.hapList && globalThis.params.hapList.length) {
+      lineNums = globalThis.params.hapList.length;
+    }
+    globalThis.position = PositionUtils.getSelectorDialogPosition(lineNums);
+    try {
+      display.on('change', (data: number) => {
+        let position = PositionUtils.getSelectorDialogPosition(lineNums);
+        if (position.offsetX !== globalThis.position.offsetX || position.offsetY !== globalThis.position.offsetY) {
+          win.moveTo(position.offsetX, position.offsetY);
+        }
+        if (position.width !== globalThis.position.width || position.height !== globalThis.position.height) {
+          win.resetSize(position.width, position.height);
+        }
+        globalThis.position = position;
+      });
+    } catch (exception) {
+      console.error('Failed to register callback. Code: ' + JSON.stringify(exception));
     }
 
     console.debug(TAG, 'onRequest display is' + JSON.stringify(displayClass));
