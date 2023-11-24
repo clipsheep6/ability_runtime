@@ -74,7 +74,7 @@ protected:
 protected:
     std::shared_ptr<AppMgrServiceInner> serviceInner_ = nullptr;
     std::shared_ptr<AMSEventHandler> handler_ = nullptr;
-    sptr<BundleMgrService> mockBundleMgr_{ nullptr };
+    std::shared_ptr<BundleMgrHelper> mockBundleMgr_{ nullptr };
 };
 
 void AmsAppServiceFlowModuleTest::SetUpTestCase()
@@ -92,8 +92,8 @@ void AmsAppServiceFlowModuleTest::SetUp()
     handler_ = std::make_shared<AMSEventHandler>(taskHandler, serviceInner_);
     serviceInner_->SetTaskHandler(taskHandler);
     serviceInner_->SetEventHandler(handler_);
-    mockBundleMgr_ = new (std::nothrow) BundleMgrService();
-    serviceInner_->SetBundleManager(mockBundleMgr_);
+    mockBundleMgr_ = DelayedSingleton<BundleMgrHelper>::GetInstance();
+    serviceInner_->SetBundleManagerHelper(mockBundleMgr_);
 }
 
 void AmsAppServiceFlowModuleTest::TearDown()

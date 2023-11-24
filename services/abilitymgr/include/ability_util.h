@@ -24,6 +24,7 @@
 #include "ability_manager_client.h"
 #include "app_jump_control_rule.h"
 #include "bundlemgr/bundle_mgr_interface.h"
+#include "bundle_mgr_helper.h"
 #ifndef SUPPORT_ERMS
 #include "erms_mgr_interface.h"
 #endif
@@ -165,15 +166,9 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     return false;
 }
 
-[[maybe_unused]] static sptr<AppExecFwk::IBundleMgr> GetBundleManager()
+[[maybe_unused]] static std::shared_ptr<AppExecFwk::BundleMgrHelper> GetBundleManagerHelper()
 {
-    auto bundleObj =
-        OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    if (bundleObj == nullptr) {
-        HILOG_ERROR("failed to get bundle manager service");
-        return nullptr;
-    }
-    return iface_cast<AppExecFwk::IBundleMgr>(bundleObj);
+    return DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
 }
 
 #ifndef SUPPORT_ERMS
@@ -221,12 +216,12 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
         HILOG_ERROR("get invalid inputs");
         return false;
     }
-    auto bms = AbilityUtil::GetBundleManager();
-    if (!bms) {
-        HILOG_ERROR("GetBundleManager failed");
+    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    if (bundleMgrHelper == nullptr) {
+        HILOG_ERROR("Get bundle manager helper failed.");
         return false;
     }
-    auto appControlMgr = bms->GetAppControlProxy();
+    auto appControlMgr = bundleMgrHelper->GetAppControlProxy();
     if (appControlMgr == nullptr) {
         HILOG_ERROR("Get appControlMgr failed");
         return false;
@@ -258,15 +253,15 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
 
 [[maybe_unused]] static bool IsStartIncludeAtomicService(const Want &want, const int32_t userId)
 {
-    auto bms = GetBundleManager();
-    if (!bms) {
-        HILOG_ERROR("GetBundleManager failed");
+    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    if (bundleMgrHelper == nullptr) {
+        HILOG_ERROR("Get bundle manager helper failed.");
         return false;
     }
 
     std::string targetBundleName = want.GetBundle();
     AppExecFwk::ApplicationInfo targetAppInfo;
-    bool getTargetResult = IN_PROCESS_CALL(bms->GetApplicationInfo(targetBundleName,
+    bool getTargetResult = IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(targetBundleName,
         AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, targetAppInfo));
     if (!getTargetResult) {
         HILOG_ERROR("Get targetAppInfo failed in check atomic service.");
@@ -279,13 +274,13 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
 
     int callerUid = IPCSkeleton::GetCallingUid();
     std::string callerBundleName;
-    ErrCode err = IN_PROCESS_CALL(bms->GetNameForUid(callerUid, callerBundleName));
+    ErrCode err = IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callerUid, callerBundleName));
     if (err != ERR_OK) {
         HILOG_ERROR("Get bms failed in check atomic service.");
         return false;
     }
     AppExecFwk::ApplicationInfo callerAppInfo;
-    bool getCallerResult = IN_PROCESS_CALL(bms->GetApplicationInfo(callerBundleName,
+    bool getCallerResult = IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(callerBundleName,
         AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, callerAppInfo));
     if (!getCallerResult) {
         HILOG_ERROR("Get callerAppInfo failed in check atomic service.");

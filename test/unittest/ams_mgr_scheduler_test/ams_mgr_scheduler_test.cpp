@@ -782,9 +782,9 @@ HWTEST_F(AmsMgrSchedulerTest, GetRunningProcessInfoByPid_001, TestSize.Level0)
  */
 HWTEST_F(AmsMgrSchedulerTest, StartSpecifiedAbility_001, TestSize.Level0)
 {
-    auto mockBundleMgr = new (std::nothrow) BundleMgrService();
+    auto mockBundleMgr = DelayedSingleton<BundleMgrHelper>::GetInstance();
     auto remoteClientManager = std::make_shared<RemoteClientManager>();
-    remoteClientManager->SetBundleManager(mockBundleMgr);
+    remoteClientManager->SetBundleManagerHelper(mockBundleMgr);
     auto amsMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     amsMgrServiceInner->remoteClientManager_ = remoteClientManager;
     auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(amsMgrServiceInner, nullptr);

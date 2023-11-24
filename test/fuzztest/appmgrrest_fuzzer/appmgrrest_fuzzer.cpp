@@ -116,12 +116,12 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     appSpawnSocket.ReadMessage(reinterpret_cast<void*>(*data), len);
     appSpawnSocket.CloseAppSpawnConnection();
     RemoteClientManager remoteClientManager;
-    sptr<IBundleMgr> bundleManager = nullptr;
-    remoteClientManager.SetBundleManager(bundleManager);
+    std::shared_ptr<BundleMgrHelper> bundleManagerHelper = nullptr;
+    remoteClientManager.SetBundleManagerHelper(bundleManagerHelper);
     std::shared_ptr<AppSpawnClient> appSpawnClientptr;
     remoteClientManager.SetSpawnClient(appSpawnClientptr);
     remoteClientManager.GetSpawnClient();
-    remoteClientManager.GetBundleManager();
+    remoteClientManager.GetBundleManagerHelper();
     remoteClientManager.GetNWebSpawnClient();
     std::shared_ptr<AppMgrServiceInner> owner;
     WindowFocusChangedListener windowFocusChangedListener(owner, handler);

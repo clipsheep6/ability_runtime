@@ -41,6 +41,7 @@
 #include "background_task_observer.h"
 #endif
 #include "bundle_constants.h"
+#include "bundle_mgr_helper.h"
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "data_ability_manager.h"
 #include "event_report.h"
@@ -1503,7 +1504,7 @@ private:
      */
     void InitGlobalConfiguration();
 
-    sptr<AppExecFwk::IBundleMgr> GetBundleManager();
+    std::shared_ptr<AppExecFwk::BundleMgrHelper> GetBundleManager();
 
     sptr<OHOS::AppExecFwk::IAppMgr> GetAppMgr();
 
@@ -1832,6 +1833,7 @@ private:
     std::unordered_map<int, std::shared_ptr<AbilityConnectManager>> connectManagers_;
     std::shared_ptr<AbilityConnectManager> connectManager_;
     sptr<AppExecFwk::IBundleMgr> iBundleManager_;
+    std::shared_ptr<AppExecFwk::BundleMgrHelper> bundleMgrHelper_;
     sptr<OHOS::AppExecFwk::IAppMgr> appMgr_ { nullptr };
     std::unordered_map<int, std::shared_ptr<DataAbilityManager>> dataAbilityManagers_;
     std::shared_ptr<DataAbilityManager> dataAbilityManager_;

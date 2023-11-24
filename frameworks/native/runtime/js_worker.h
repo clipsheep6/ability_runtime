@@ -44,8 +44,6 @@ public:
 
     void operator()(const std::string& uri, std::vector<uint8_t>& content, std::string &ami);
 
-    sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
-
     bool ReadAmiData(const std::string& ami, std::vector<uint8_t>& content) const;
 
     bool ReadFilePathData(const std::string& filePath, std::vector<uint8_t>& content);
@@ -53,7 +51,6 @@ public:
     void GetAmi(std::string& ami, const std::string& filePath);
 private:
     std::shared_ptr<JsEnv::WorkerInfo> workerInfo_;
-    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy_ = nullptr;
 };
 
 } // namespace AbilityRuntime

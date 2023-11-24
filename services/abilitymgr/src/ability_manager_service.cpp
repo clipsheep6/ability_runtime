@@ -148,7 +148,7 @@ const std::string DEBUG_APP = "debugApp";
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
 std::atomic<bool> g_isDmsAlive = false;
 
-bool CheckCallerIsDlpManager(const sptr<AppExecFwk::IBundleMgr> &bundleManager)
+bool CheckCallerIsDlpManager(const std::shared_ptr<AppExecFwk::BundleMgrHelper> &bundleManager)
 {
     if (!bundleManager) {
         return false;
@@ -271,7 +271,7 @@ sptr<AbilityManagerService> AbilityManagerService::instance_;
 AbilityManagerService::AbilityManagerService()
     : SystemAbility(ABILITY_MGR_SERVICE_ID, true),
       state_(ServiceRunningState::STATE_NOT_START),
-      iBundleManager_(nullptr)
+      bundleMgrHelper_(nullptr)
 {
     DumpFuncInit();
     DumpSysFuncInit();
@@ -5232,12 +5232,12 @@ int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t u
     return ERR_OK;
 }
 
-sptr<AppExecFwk::IBundleMgr> AbilityManagerService::GetBundleManager()
+std::shared_ptr<AppExecFwk::BundleMgrHelper> AbilityManagerService::GetBundleManager()
 {
-    if (iBundleManager_ == nullptr) {
-        iBundleManager_ = AbilityUtil::GetBundleManager();
+    if (bundleMgrHelper_ == nullptr) {
+        bundleMgrHelper_ = AbilityUtil::GetBundleManagerHelper();
     }
-    return iBundleManager_;
+    return bundleMgrHelper_;
 }
 
 int AbilityManagerService::PreLoadAppDataAbilities(const std::string &bundleName, const int32_t userId)

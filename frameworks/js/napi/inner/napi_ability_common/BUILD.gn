@@ -38,6 +38,7 @@ ohos_shared_library("napi_ability_common") {
     "${ability_runtime_innerkits_path}/wantagent:wantagent_innerkits",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/appkit:appkit_manager_helper",
   ]
 
   external_deps = [

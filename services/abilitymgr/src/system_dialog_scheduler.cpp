@@ -590,10 +590,10 @@ void SystemDialogScheduler::GetAppNameFromResource(int32_t labelId,
     }
 
     AppExecFwk::BundleInfo bundleInfo;
-    auto bms = GetBundleManager();
-    CHECK_POINTER(bms);
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
+    CHECK_POINTER(bundleMgrHelper);
     if (!IN_PROCESS_CALL(
-        bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId))) {
+        bundleMgrHelper->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId))) {
         HILOG_ERROR("Failed to get bundle info.");
         return;
     }
@@ -623,14 +623,6 @@ void SystemDialogScheduler::GetAppNameFromResource(int32_t labelId,
     }
     resourceManager->GetStringById(static_cast<uint32_t>(labelId), appName);
     HILOG_DEBUG("Get app display info, labelId: %{public}d, appname: %{public}s", labelId, appName.c_str());
-}
-
-sptr<AppExecFwk::IBundleMgr> SystemDialogScheduler::GetBundleManager()
-{
-    if (iBundleManager_ == nullptr) {
-        iBundleManager_ = AbilityUtil::GetBundleManager();
-    }
-    return iBundleManager_;
 }
 
 Want SystemDialogScheduler::GetSwitchUserDialogWant()

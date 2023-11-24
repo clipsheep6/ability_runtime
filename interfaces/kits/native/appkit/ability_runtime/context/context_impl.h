@@ -24,6 +24,7 @@
 namespace OHOS {
 namespace AppExecFwk {
 struct RunningProcessInfo;
+class BundleMgrHelper;
 }
 namespace AbilityRuntime {
 class ContextImpl : public Context {
@@ -406,7 +407,7 @@ private:
     std::mutex checkedDirSetLock_;
 
     std::mutex bundleManagerMutex_;
-    sptr<AppExecFwk::IBundleMgr> bundleMgr_;
+    std::shared_ptr<AppExecFwk::BundleMgrHelper> bundleMgr_;
 
     // True: need to get a new fms remote object,
     // False: no need to get a new fms remote object.

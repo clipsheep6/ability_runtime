@@ -20,6 +20,7 @@
 #include <unordered_set>
 
 #include "ability_record.h"
+#include "bundle_mgr_helper.h"
 #include "bundle_mgr_interface.h"
 #include "system_dialog_scheduler.h"
 #ifdef SUPPORT_ERMS
@@ -49,7 +50,7 @@ private:
     int GenerateAbilityRequestByAction(int32_t userId, AbilityRequest &request,
         std::vector<DialogAppInfo> &dialogAppInfos, std::string &deviceType, bool isMoreHapList);
     std::string MatchTypeAndUri(const AAFwk::Want &want);
-    sptr<AppExecFwk::IBundleMgr> GetBundleManager();
+    std::shared_ptr<AppExecFwk::BundleMgrHelper> GetBundleManagerHelper();
     std::vector<std::string> splitStr(const std::string& str, char delimiter);
     int queryBmsAppInfos(AbilityRequest &request, int32_t userId, std::vector<DialogAppInfo> &dialogAppInfos);
 

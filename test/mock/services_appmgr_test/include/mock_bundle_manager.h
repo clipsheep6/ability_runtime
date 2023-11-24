@@ -87,6 +87,7 @@ public:
 
 class BundleMgrService : public BundleMgrStub {
 public:
+    MOCK_METHOD0(GetBundleInstaller, sptr<AppExecFwk::IBundleInstaller>());
     bool QueryAbilityInfo(const AAFwk::Want& want, AbilityInfo& abilityInfo) override;
     bool QueryAbilityInfoByUri(const std::string& uri, AbilityInfo& abilityInfo) override;
 

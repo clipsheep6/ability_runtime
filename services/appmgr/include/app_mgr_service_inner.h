@@ -43,6 +43,7 @@
 #include "app_task_info.h"
 #include "appexecfwk_errors.h"
 #include "bundle_info.h"
+#include "bundle_mgr_helper.h"
 #include "cpp/mutex.h"
 #include "event_report.h"
 #include "fault_data.h"
@@ -1032,7 +1033,7 @@ private:
     int64_t SystemTimeMillisecond();
 
     // Test add the bundle manager instance.
-    void SetBundleManager(sptr<IBundleMgr> bundleManager);
+    void SetBundleManagerHelper(const std::shared_ptr<BundleMgrHelper> &bundleMgrHelper);
 
     void HandleTerminateApplicationTimeOut(const int64_t eventId);
 

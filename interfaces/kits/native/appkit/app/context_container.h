@@ -20,6 +20,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+class BundleMgrHelper;
 class ContextContainer : public Context {
 public:
     ContextContainer() = default;
@@ -93,12 +94,12 @@ public:
     std::shared_ptr<Context> GetContext() override;
 
     /**
-     * @brief Obtains an IBundleMgr instance.
+     * @brief Obtains an BundleMgrHelper instance.
      * You can use this instance to obtain information about the application bundle.
      *
-     * @return Returns an IBundleMgr instance.
+     * @return Returns an BundleMgrHelper instance.
      */
-    sptr<IBundleMgr> GetBundleManager() const override;
+    std::shared_ptr<BundleMgrHelper> GetBundleManager() const override;
 
     /**
      * @brief Obtains a resource manager.
