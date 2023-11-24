@@ -147,6 +147,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleRegisterAbilityForegroundStateObserver;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_ABILITY_FOREGROUND_STATE_OBSERVER)] =
         &AppMgrStub::HandleUnregisterAbilityForegroundStateObserver;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::IS_APPLICATION_RUNNING)] =
+        &AppMgrStub::HandleIsApplicationRunning;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -936,6 +938,22 @@ int32_t AppMgrStub::HandleUnregisterAppForegroundStateObserver(MessageParcel &da
     int32_t result = UnregisterAppForegroundStateObserver(callback);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleIsApplicationRunning(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("Called.");
+    std::string bundleName = data.ReadString();
+    bool isRunning = false;
+    int32_t result = IsApplicationRunning(bundleName, isRunning);
+    if (!reply.WriteBool(isRunning)) {
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteInt32(result)) {
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

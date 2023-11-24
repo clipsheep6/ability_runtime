@@ -425,6 +425,15 @@ public:
      */
     int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) override;
 
+    /**
+     * Check whether the bundle is running.
+     * 
+     * @param bundleName Indicates the bundle name of the bundle.
+     * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
+     * @return Return ERR_OK if success, others fail.
+     */
+    int32_t IsApplicationRunning(const std::string &bundleName, bool &isRunning) override;
+
 private:
     bool SendTransactCmd(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply);
     bool WriteInterfaceToken(MessageParcel &data);

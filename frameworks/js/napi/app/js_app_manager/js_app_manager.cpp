@@ -137,6 +137,10 @@ public:
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnGetRunningProcessInfoByBundleName);
     }
 
+    static napi_value IsApplicationRunning(napi_env env, napi_callback_info info)
+    {
+        GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnIsApplicationRunning);
+    }
 private:
     sptr<OHOS::AppExecFwk::IAppMgr> appManager_ = nullptr;
     sptr<OHOS::AAFwk::IAbilityManager> abilityManager_ = nullptr;
@@ -791,6 +795,51 @@ private:
         return result;
     }
 
+    napi_value OnIsApplicationRunning(napi_env env, size_t argc, napi_value *argv) 
+    {
+        HILOG_DEBUG("Called.");
+        if (argc < ARGC_ONE) {
+            HILOG_ERROR("Params not match.");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+
+        std::string bundleName;
+        if (!ConvertFromJsValue(env, argv[0], bundleName)) {
+            HILOG_ERROR("Get bundle name wrong.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+
+        auto innerErrorCode = std::make_shared<int32_t>(ERR_OK);
+        auto isRunning = std::make_shared<bool>(false);
+        wptr<OHOS::AppExecFwk::IAppMgr> appManager = appManager_;
+        NapiAsyncTask::ExecuteCallback execute =
+            [bundleName, appManager, innerErrorCode, isRunning]() {
+            sptr<OHOS::AppExecFwk::IAppMgr> appMgr = appManager.promote();
+            if (appMgr == nullptr) {
+                HILOG_ERROR("App manager is nullptr.");
+                *innerErrorCode = static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER);
+                return;
+            }
+            *innerErrorCode = appMgr->IsApplicationRunning(bundleName, *isRunning);
+        };
+        NapiAsyncTask::CompleteCallback complete =
+            [innerErrorCode, isRunning](napi_env env, NapiAsyncTask &task, int32_t status) {
+            if (*innerErrorCode == ERR_OK) {
+                task.ResolveWithNoError(env, CreateJsValue(env, *isRunning));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
+            }
+        };
+
+        napi_value lastParam = (argc == ARGC_TWO) ? argv[INDEX_ONE] : nullptr;
+        napi_value result = nullptr;
+        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnIsApplicationRunning",
+            env, CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
+        return result;
+    }
+
     bool CheckOnOffType(napi_env env, size_t argc, napi_value* argv)
     {
         if (argc < ARGC_ONE) {
@@ -887,6 +936,8 @@ napi_value JsAppManagerInit(napi_env env, napi_value exportObj)
         JsAppManager::GetProcessMemoryByPid);
     BindNativeFunction(env, exportObj, "getRunningProcessInfoByBundleName", moduleName,
         JsAppManager::GetRunningProcessInfoByBundleName);
+    BindNativeFunction(env, exportObj, "isApplicationRunning", moduleName,
+        JsAppManager::IsApplicationRunning);
     HILOG_DEBUG("end");
     return CreateJsUndefined(env);
 }

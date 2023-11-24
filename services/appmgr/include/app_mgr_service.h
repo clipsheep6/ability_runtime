@@ -511,6 +511,15 @@ private:
      */
     virtual int32_t NotifyPageHide(const sptr<IRemoteObject> &token, const PageStateData &pageStateData) override;
 
+    /**
+     * Check whether the bundle is running.
+     * 
+     * @param bundleName Indicates the bundle name of the bundle.
+     * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
+     * @return Return ERR_OK if success, others fail.
+     */
+    int32_t IsApplicationRunning(const std::string &bundleName, bool &isRunning) override;
+
 private:
     std::shared_ptr<AppMgrServiceInner> appMgrServiceInner_;
     AppMgrServiceState appMgrServiceState_;

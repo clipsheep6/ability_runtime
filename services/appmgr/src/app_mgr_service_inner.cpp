@@ -4462,6 +4462,19 @@ bool AppMgrServiceInner::IsSharedBundleRunning(const std::string &bundleName, ui
     return false;
 }
 
+int32_t AppMgrServiceInner::IsApplicationRunning(const std::string &bundleName, bool &isRunning)
+{
+    HILOG_DEBUG("Called, bundleName: %{public}s", bundleName.c_str());
+    CHECK_CALLER_IS_SYSTEM_APP;
+    if (!CheckGetRunningInfoPermission()) {
+        HILOG_ERROR("Permission verification failed.");
+        return ERR_PERMISSION_DENIED;
+    }
+
+    isRunning = appRunningManager_->CheckAppRunningRecordIsExistByBundleName(bundleName);
+    return ERR_OK;
+}
+
 int32_t AppMgrServiceInner::StartNativeProcessForDebugger(const AAFwk::Want &want) const
 {
     auto&& bundleMgr = remoteClientManager_->GetBundleManager();

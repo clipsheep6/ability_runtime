@@ -966,5 +966,13 @@ int32_t AppMgrService::UnregisterAppForegroundStateObserver(const sptr<IAppForeg
     }
     return appMgrServiceInner_->UnregisterAppForegroundStateObserver(observer);
 }
+
+int32_t AppMgrService::IsApplicationRunning(const std::string &bundleName, bool &isRunning)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->IsApplicationRunning(bundleName, isRunning);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

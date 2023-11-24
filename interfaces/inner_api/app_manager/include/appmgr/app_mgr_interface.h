@@ -482,6 +482,15 @@ public:
      */
     virtual int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) = 0;
 
+    /**
+     * Check whether the bundle is running.
+     * 
+     * @param bundleName Indicates the bundle name of the bundle.
+     * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
+     * @return Return ERR_OK if success, others fail.
+     */
+    virtual int32_t IsApplicationRunning(const std::string &bundleName, bool &isRunning) = 0;
+
     // please add new message item to the bottom in order to prevent some unexpected BUG
     enum class Message {
         APP_ATTACH_APPLICATION = 0,
