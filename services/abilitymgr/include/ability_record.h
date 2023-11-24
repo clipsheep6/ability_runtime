@@ -1017,6 +1017,7 @@ private:
     bool isAbilityForegrounding_ = false;
 
     // service(ability) can be connected by multi-pages(abilites), so need to store this service's connections
+    mutable ffrt::mutex connRecordListMutex_;
     std::list<std::shared_ptr<ConnectionRecord>> connRecordList_ = {};
     // service(ability) onConnect() return proxy of service ability
     sptr<IRemoteObject> connRemoteObject_ = {};
