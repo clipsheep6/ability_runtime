@@ -578,6 +578,9 @@ bool JsUIExtension::HandleSessionCreate(const AAFwk::Want &want, const sptr<AAFw
         napi_value argv[] = {napiWant, nativeContentSession};
         CallObjectMethod("onSessionCreate", argv, ARGC_TWO);
         uiWindowMap_[obj] = uiWindow;
+        if (context->GetWindow() == nullptr) {
+            context->SetWindow(uiWindow);
+        }
     }
     return true;
 }
@@ -639,6 +642,14 @@ void JsUIExtension::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
         uiWindow->Destroy();
     }
     uiWindowMap_.erase(obj);
+    auto context = GetContext();
+    if (context != nullptr && context->GetWindow() == uiWindow) {
+        context->SetWindow(nullptr);
+        for (auto it : uiWindowMap_) {
+            context->SetWindow(it.second);
+            break;
+        }
+    }
     foregroundWindows_.erase(obj);
     contentSessions_.erase(obj);
     if (abilityResultListeners_) {

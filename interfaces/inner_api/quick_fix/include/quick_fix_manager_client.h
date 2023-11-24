@@ -20,8 +20,8 @@
 #include <functional>
 #include <vector>
 
+#include "iquick_fix_manager.h"
 #include "singleton.h"
-#include "quick_fix_manager_interface.h"
 #include "quick_fix_info.h"
 
 namespace OHOS {

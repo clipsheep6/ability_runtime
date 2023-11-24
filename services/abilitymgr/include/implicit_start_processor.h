@@ -15,6 +15,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_IMPLICIT_START_PROCESSOR_H
 #define OHOS_ABILITY_RUNTIME_IMPLICIT_START_PROCESSOR_H
 
+#include <list>
 #include <vector>
 #include <string>
 #include <unordered_set>
@@ -29,6 +30,12 @@
 
 namespace OHOS {
 namespace AAFwk {
+struct IdentityNode {
+    int32_t tokenId;
+    std::string identity;
+    IdentityNode(int tokenId, std::string identity) : tokenId(tokenId), identity(identity)
+    {}
+};
 #ifdef SUPPORT_ERMS
 using namespace OHOS::EcologicalRuleMgrService;
 using ErmsCallerInfo = OHOS::EcologicalRuleMgrService::CallerInfo;
@@ -45,6 +52,8 @@ public:
     static bool IsImplicitStartAction(const Want &want);
 
     int ImplicitStartAbility(AbilityRequest &request, int32_t userId);
+
+    void ResetCallingIdentityAsCaller(int32_t tokenId);
 
 private:
     int GenerateAbilityRequestByAction(int32_t userId, AbilityRequest &request,
@@ -71,10 +80,14 @@ private:
     void GetEcologicalCallerInfo(const Want &want, ErmsCallerInfo &callerInfo, int32_t userId);
 #endif
 
+    void AddIdentity(int32_t tokenId, std::string identity);
+
 private:
     const static std::vector<std::string> blackList;
     const static std::unordered_set<AppExecFwk::ExtensionAbilityType> extensionWhiteList;
     sptr<AppExecFwk::IBundleMgr> iBundleManager_;
+    ffrt::mutex identityListLock_;
+    std::list<IdentityNode> identityList_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
