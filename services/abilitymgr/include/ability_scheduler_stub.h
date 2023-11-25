@@ -67,6 +67,7 @@ private:
     int DumpAbilityInfoInner(MessageParcel& data, MessageParcel& reply);
     int CallRequestInner(MessageParcel &data, MessageParcel &reply);
     int OnExecuteIntentInner(MessageParcel &data, MessageParcel &reply);
+    int CreateModalUIExtensionInner(MessageParcel &data, MessageParcel &reply);
     #ifdef ABILITY_COMMAND_FOR_TEST
     int BlockAbilityInner(MessageParcel &data, MessageParcel &reply);
     #endif

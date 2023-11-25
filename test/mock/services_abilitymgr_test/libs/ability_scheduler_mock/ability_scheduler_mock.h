@@ -156,6 +156,10 @@ public:
     {
         return;
     }
+    int CreateModalUIExtension(const Want &want) override
+    {
+        return 0;
+    }
 #ifdef ABILITY_COMMAND_FOR_TEST
     virtual int BlockAbility()
     {

@@ -1499,6 +1499,16 @@ void FAAbilityThread::CallRequest()
     HILOG_DEBUG("end");
 }
 
+int FAAbilityThread::CreateModalUIExtension(const Want &want)
+{
+    HILOG_DEBUG("begin");
+    if (currentAbility_ == nullptr) {
+        HILOG_ERROR("current ability is nullptr");
+        return -1;
+    }
+    return currentAbility_->CreateModalUIExtension(want);
+}
+
 void FAAbilityThread::HandlePrepareTermianteAbility()
 {
     std::unique_lock<std::mutex> lock(mutex_);

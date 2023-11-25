@@ -61,6 +61,7 @@ AbilitySchedulerStub::AbilitySchedulerStub()
     requestFuncMap_[SCHEDULE_EXECUTEBATCH] = &AbilitySchedulerStub::ExecuteBatchInner;
     requestFuncMap_[NOTIFY_CONTINUATION_RESULT] = &AbilitySchedulerStub::NotifyContinuationResultInner;
     requestFuncMap_[REQUEST_CALL_REMOTE] = &AbilitySchedulerStub::CallRequestInner;
+    requestFuncMap_[CREATE_MODAL_UI_EXTENSION] = &AbilitySchedulerStub::CreateModalUIExtensionInner;
     requestFuncMap_[CONTINUE_ABILITY] = &AbilitySchedulerStub::ContinueAbilityInner;
     requestFuncMap_[DUMP_ABILITY_RUNNER_INNER] = &AbilitySchedulerStub::DumpAbilityInfoInner;
     requestFuncMap_[SCHEDULE_SHARE_DATA] = &AbilitySchedulerStub::ShareDataInner;
@@ -651,6 +652,16 @@ int AbilitySchedulerStub::OnExecuteIntentInner(MessageParcel &data, MessageParce
     }
     OnExecuteIntent(*want);
     return NO_ERROR;
+}
+
+int AbilitySchedulerStub::CreateModalUIExtensionInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::shared_ptr<Want> want(data.ReadParcelable<Want>());
+    if (want == nullptr) {
+        HILOG_ERROR("AbilitySchedulerStub want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    return CreateModalUIExtension(*want);
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST

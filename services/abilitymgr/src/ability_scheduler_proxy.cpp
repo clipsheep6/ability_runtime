@@ -1091,7 +1091,6 @@ void AbilitySchedulerProxy::CallRequest()
 void AbilitySchedulerProxy::OnExecuteIntent(const Want &want)
 {
     HILOG_INFO("AbilitySchedulerProxy::OnExecuteIntent start");
-
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
@@ -1105,6 +1104,30 @@ void AbilitySchedulerProxy::OnExecuteIntent(const Want &want)
     }
 
     HILOG_INFO("AbilitySchedulerProxy::OnExecuteIntent end");
+}
+
+int32_t AbilitySchedulerProxy::CreateModalUIExtension(const Want &want)
+{
+    HILOG_INFO("AbilitySchedulerProxy::CreateModalUIExtension start");
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface fail");
+        return -1;
+    }
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("Write wants fail");
+        return -1;
+    }
+    int32_t err = SendTransactCmd(IAbilityScheduler::CREATE_MODAL_UI_EXTENSION, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("CallRequest fail to SendRequest. err: %{public}d", err);
+        return -1;
+    }
+    HILOG_INFO("AbilitySchedulerProxy::CallRequest end");
+    return reply.ReadInt32();
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST

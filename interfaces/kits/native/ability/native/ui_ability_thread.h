@@ -140,6 +140,11 @@ public:
 
     void OnExecuteIntent(const Want &want) override;
 
+    int CreateModalUIExtension(const Want &want) override
+    {
+        return 0;
+    }
+
 private:
     void DumpAbilityInfoInner(const std::vector<std::string> &params, std::vector<std::string> &info);
     void DumpOtherInfo(std::vector<std::string> &info);

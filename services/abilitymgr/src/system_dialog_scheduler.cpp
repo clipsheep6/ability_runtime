@@ -30,6 +30,7 @@
 #include "locale_config.h"
 #include "parameters.h"
 #include "resource_manager.h"
+#include "scene_board_judgement.h"
 #include "ui_extension_utils.h"
 
 namespace OHOS {
@@ -349,8 +350,7 @@ Want SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInf
     DialogPosition landscapePosition;
     GetSelectorDialogPositionAndSize(portraitPosition, landscapePosition, static_cast<int>(dialogAppInfos.size()));
     std::string params = GetSelectorParams(dialogAppInfos);
-
-    targetWant.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_SELECTOR_DIALOG);
+   
     targetWant.SetParam(DIALOG_POSITION, GetDialogPositionParams(portraitPosition));
     targetWant.SetParam(VERTICAL_SCREEN_DIALOG_POSITION, GetDialogPositionParams(landscapePosition));
     targetWant.SetParam(DIALOG_PARAMS, params);
@@ -358,7 +358,20 @@ Want SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInf
         HILOG_DEBUG("set callertoken to targetWant");
         targetWant.SetParam(CALLER_TOKEN, callerToken);
     }
-
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto bms = GetBundleManager();
+        if (!bms) {
+            HILOG_ERROR("GetBundleManager failed");
+            return targetWant;
+        }
+        std::string bundleName;
+        auto ret = IN_PROCESS_CALL(bms->QueryAppGalleryBundleName(bundleName));
+        if (ret) {
+            targetWant.SetElementName(bundleName, ABILITY_NAME_SELECTOR_DIALOG);
+            return targetWant;
+        }
+    }
+    targetWant.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_SELECTOR_DIALOG);
     return targetWant;
 }
 
@@ -405,6 +418,20 @@ Want SystemDialogScheduler::GetPcSelectorDialogWant(const std::vector<DialogAppI
     } else {
         targetWant.SetParam(CALLER_TOKEN, callerToken);
     }
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto bms = GetBundleManager();
+        if (!bms) {
+            HILOG_ERROR("GetBundleManager failed");
+            return targetWant;
+        }
+        std::string bundleName;
+        auto ret = IN_PROCESS_CALL(bms->QueryAppGalleryBundleName(bundleName));
+        if (ret) {
+            targetWant.SetElementName(bundleName, ABILITY_NAME_SELECTOR_DIALOG);
+            return targetWant;
+        }
+    }
+    targetWant.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_SELECTOR_DIALOG);
     return targetWant;
 }
 

@@ -38,7 +38,7 @@ using ExperienceRule = OHOS::AppExecFwk::ErmsParams::ExperienceRule;
 
 class AbilityInterceptor {
 public:
-    virtual ~AbilityInterceptor();
+    virtual ~AbilityInterceptor() = default;
 
     /**
      * Excute interception processing.
@@ -49,8 +49,8 @@ public:
 // start ability interceptor
 class CrowdTestInterceptor : public AbilityInterceptor {
 public:
-    CrowdTestInterceptor();
-    ~CrowdTestInterceptor();
+    CrowdTestInterceptor() = default;
+    ~CrowdTestInterceptor() = default;
     ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
 private:
     bool CheckCrowdtest(const Want &want, int32_t userId);
@@ -58,8 +58,8 @@ private:
 
 class ControlInterceptor : public AbilityInterceptor {
 public:
-    ControlInterceptor();
-    ~ControlInterceptor();
+    ControlInterceptor() = default;
+    ~ControlInterceptor() = default;
     ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
 private:
     bool CheckControl(const Want &want, int32_t userId, AppExecFwk::AppRunningControlRuleResult &controlRule);
@@ -67,8 +67,8 @@ private:
 
 class DisposedRuleInterceptor : public AbilityInterceptor {
 public:
-    DisposedRuleInterceptor();
-    ~DisposedRuleInterceptor();
+    DisposedRuleInterceptor() = default;
+    ~DisposedRuleInterceptor() = default;
     ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
 private:
     bool CheckControl(const Want &want, int32_t userId, AppExecFwk::DisposedRule &disposedRule);
@@ -77,22 +77,19 @@ private:
 
 class EcologicalRuleInterceptor : public AbilityInterceptor {
 public:
-    EcologicalRuleInterceptor();
-    ~EcologicalRuleInterceptor();
+    EcologicalRuleInterceptor() = default;
+    ~EcologicalRuleInterceptor() = default;
     ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
 private:
-#ifdef SUPPORT_ERMS
     void GetEcologicalCallerInfo(const Want &want, ErmsCallerInfo &callerInfo, int32_t userId);
-#else
     bool CheckRule(const Want &want, ErmsCallerInfo &callerInfo, ExperienceRule &rule);
-#endif
 };
 
 // ability jump interceptor
 class AbilityJumpInterceptor : public AbilityInterceptor {
 public:
-    AbilityJumpInterceptor();
-    ~AbilityJumpInterceptor();
+    AbilityJumpInterceptor() = default;
+    ~AbilityJumpInterceptor() = default;
     ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
 
 private:
