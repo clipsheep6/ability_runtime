@@ -186,7 +186,7 @@ std::unique_ptr<JsRuntime> JsRuntime::Create(const Options& options)
     return instance;
 }
 
-void JsRuntime::StartDebugMode(bool needBreakPoint, bool isDebug)
+void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processName, bool isDebug)
 {
     if (debugMode_) {
         HILOG_INFO("Already in debug mode");
@@ -197,9 +197,14 @@ void JsRuntime::StartDebugMode(bool needBreakPoint, bool isDebug)
         instanceId_ = static_cast<uint32_t>(gettid());
     }
 
+    std::string inputProcessName = "";
+    if (bundleName_ != processName) {
+        inputProcessName = processName;
+    }
+
     HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
     StartDebuggerInWorkerModule();
-    HdcRegister::Get().StartHdcRegister(bundleName_);
+    HdcRegister::Get().StartHdcRegister(bundleName_, inputProcessName, isDebug);
     ConnectServerManager::Get().StartConnectServer(bundleName_);
     ConnectServerManager::Get().AddInstance(instanceId_);
     debugMode_ = StartDebugger(needBreakPoint, instanceId_, isDebug);
@@ -284,7 +289,7 @@ int32_t JsRuntime::JsperfProfilerCommandParse(const std::string &command, int32_
     return std::stoi(interval);
 }
 
-void JsRuntime::StartProfiler(const std::string &perfCmd, bool isDebug)
+void JsRuntime::StartProfiler(const std::string &perfCmd, const std::string &processName, bool isDebug)
 {
     CHECK_POINTER(jsEnv_);
     if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
@@ -292,7 +297,7 @@ void JsRuntime::StartProfiler(const std::string &perfCmd, bool isDebug)
     }
 
     StartDebuggerInWorkerModule();
-    HdcRegister::Get().StartHdcRegister(bundleName_);
+    HdcRegister::Get().StartHdcRegister(bundleName_, processName, isDebug);
     ConnectServerManager::Get().StartConnectServer(bundleName_);
     ConnectServerManager::Get().AddInstance(instanceId_);
     JsEnv::JsEnvironment::PROFILERTYPE profiler = JsEnv::JsEnvironment::PROFILERTYPE::PROFILERTYPE_HEAP;

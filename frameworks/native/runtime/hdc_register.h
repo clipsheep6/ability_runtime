@@ -23,7 +23,7 @@ namespace AbilityRuntime {
 class HdcRegister final {
 public:
     static HdcRegister& Get();
-    void StartHdcRegister(const std::string& bundleName);
+    void StartHdcRegister(const std::string& bundleName, const std::string &processName, bool isDebug);
 
 private:
     HdcRegister() = default;
