@@ -899,6 +899,9 @@ public:
     bool IsDebugApp() const;
     bool IsDebug() const;
 
+    void SetUIExtensionAbilityId(int32_t uiExtensionAbilityId);
+    int32_t GetUIExtensionAbilityId();
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
 
@@ -983,6 +986,7 @@ private:
 
     static int64_t abilityRecordId;
     int recordId_ = 0;                                // record id
+    int32_t uiExtensionAbilityId_ = 0;                // uiextension ability id
     AppExecFwk::AbilityInfo abilityInfo_ = {};             // the ability info get from BMS
     AppExecFwk::ApplicationInfo applicationInfo_ = {};     // the ability info get from BMS
     std::weak_ptr<AbilityRecord> preAbilityRecord_ = {};   // who starts this ability record
@@ -1069,7 +1073,6 @@ private:
 
     // scene session
     sptr<SessionInfo> sessionInfo_ = nullptr;
-    std::unordered_set<uint64_t> sessionIds_;
 
 #ifdef SUPPORT_GRAPHICS
     bool isStartingWindow_ = false;

@@ -31,6 +31,7 @@
 #include "extension_running_info.h"
 #include "connection_record.h"
 #include "element_name.h"
+#include "ui_extension_ability_connect_manager.h"
 #include "want.h"
 #include "iremote_object.h"
 #include "nocopyable.h"
@@ -486,6 +487,10 @@ private:
     bool IsLauncher(std::shared_ptr<AbilityRecord> serviceExtension) const;
     bool IsSceneBoard(std::shared_ptr<AbilityRecord> serviceExtension) const;
     void KillProcessesByUserId() const;
+    inline bool IsUIExtensionAbility(const std::shared_ptr<AbilityRecord> abilityRecord);
+    inline bool CheckUIExtensionAbilityLoaded(const AbilityRequest &abilityRequest);
+    inline bool CheckUIExtensionAbilityTerminable(const std::shared_ptr<AbilityRecord> abilityRecord);
+    inline void RemoveUIExtensionAbilityRecord(const std::shared_ptr<AbilityRecord> abilityRecord);
 
 private:
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
@@ -505,6 +510,7 @@ private:
     ffrt::mutex startServiceReqListLock_;
     UIExtensionMapType uiExtensionMap_;
     WindowExtensionMapType windowExtensionMap_;
+    std::unique_ptr<AbilityRuntime::UIExtensionAbilityConnectManager> uiExtensionAbilityRecordMgr_;
 
     DISALLOW_COPY_AND_MOVE(AbilityConnectManager);
 };
