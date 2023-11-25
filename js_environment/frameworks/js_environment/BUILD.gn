@@ -41,6 +41,7 @@ ohos_shared_library("js_environment") {
   public_configs = [ ":public_js_environment_config" ]
 
   external_deps = [
+    "ace_engine:ace_uicontent",
     "ets_runtime:libark_jsruntime",
     "ets_utils:console",
     "eventhandler:libeventhandler",
