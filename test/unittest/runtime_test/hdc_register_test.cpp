@@ -93,6 +93,7 @@ HWTEST_F(HdcRegisterTest, HdcRegisterTest_0300, TestSize.Level0)
     const std::string processName = "123";
     const std::string bundleName = "123";
     auto &pHdcRegister = AbilityRuntime::HdcRegister::Get();
+    bool debugApp = true;
     pHdcRegister.StartHdcRegister(bundleName, processName, debugApp);
     pHdcRegister.StopHdcRegister();
 
