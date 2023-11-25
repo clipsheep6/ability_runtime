@@ -122,24 +122,9 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
         HILOG_ERROR("abilityInfo is nullptr");
         return;
     }
-    std::string srcPath(abilityInfo->package);
-    if (!abilityInfo->isModuleJson) {
-        /* temporary compatibility api8 + config.json */
-        srcPath.append("/assets/js/");
-        if (!abilityInfo->srcPath.empty()) {
-            srcPath.append(abilityInfo->srcPath);
-        }
-        srcPath.append("/").append(abilityInfo->name).append(".abc");
-    } else {
-        if (abilityInfo->srcEntrance.empty()) {
-            HILOG_ERROR("abilityInfo srcEntrance is empty");
-            return;
-        }
-        srcPath.append("/");
-        srcPath.append(abilityInfo->srcEntrance);
-        srcPath.erase(srcPath.rfind("."));
-        srcPath.append(".abc");
-        HILOG_INFO("JsAbility srcPath is %{public}s", srcPath.c_str());
+    std::string srcPath = GetSrcPath(abilityInfo);
+    if (srcPath.empty()) {
+        return;
     }
 
     std::string moduleName(abilityInfo->moduleName);
@@ -160,7 +145,35 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
         HILOG_ERROR("Failed to check type");
         return;
     }
+    BindContext(env, obj);
+}
 
+std::string JsAbility::GetSrcPath(std::shared_ptr<AbilityInfo> abilityInfo) const
+{
+    std::string srcPath(abilityInfo->package);
+    if (!abilityInfo->isModuleJson) {
+        /* temporary compatibility api8 + config.json */
+        srcPath.append("/assets/js/");
+        if (!abilityInfo->srcPath.empty()) {
+            srcPath.append(abilityInfo->srcPath);
+        }
+        srcPath.append("/").append(abilityInfo->name).append(".abc");
+        return srcPath;
+    }
+    if (abilityInfo->srcEntrance.empty()) {
+        HILOG_ERROR("abilityInfo srcEntrance is empty");
+        return "";
+    }
+    srcPath.append("/");
+    srcPath.append(abilityInfo->srcEntrance);
+    srcPath.erase(srcPath.rfind("."));
+    srcPath.append(".abc");
+    HILOG_INFO("JsAbility srcPath is %{public}s", srcPath.c_str());
+    return srcPath;
+}
+
+void JsAbility::BindContext(napi_env env, napi_value obj)
+{
     auto context = GetAbilityContext();
     napi_value contextObj = CreateJsAbilityContext(env, context);
     shellContextRef_ = std::shared_ptr<NativeReference>(JsRuntime::LoadSystemModuleByEngine(
@@ -616,41 +629,9 @@ void JsAbility::DoOnForeground(const Want &want)
             HILOG_ERROR("Ability::OnForeground error. abilityContext_ or sceneListener_ is nullptr!");
             return;
         }
-        scene_ = std::make_shared<Rosen::WindowScene>();
-        int32_t displayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
-        if (setting_ != nullptr) {
-            std::string strDisplayId =
-                setting_->GetProperty(OHOS::AppExecFwk::AbilityStartSetting::WINDOW_DISPLAY_ID_KEY);
-            std::regex formatRegex("[0-9]{0,9}$");
-            std::smatch sm;
-            bool flag = std::regex_match(strDisplayId, sm, formatRegex);
-            if (flag && !strDisplayId.empty()) {
-                int base = 10; // Numerical base (radix) that determines the valid characters and their interpretation.
-                displayId = strtol(strDisplayId.c_str(), nullptr, base);
-                HILOG_DEBUG("%{public}s success. displayId is %{public}d", __func__, displayId);
-            } else {
-                HILOG_WARN("%{public}s failed to formatRegex:[%{public}s]", __func__, strDisplayId.c_str());
-            }
-        }
-        auto option = GetWindowOption(want);
-        Rosen::WMError ret = Rosen::WMError::WM_OK;
-        if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && sessionInfo_ != nullptr) {
-            abilityContext_->SetWeakSessionToken(sessionInfo_->sessionToken);
-            ret = scene_->Init(displayId, abilityContext_, sceneListener_, option, sessionInfo_->sessionToken);
-        } else {
-            ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);
-        }
-        if (ret != Rosen::WMError::WM_OK) {
-            HILOG_ERROR("%{public}s error. failed to init window scene!", __func__);
+        bool initialRet = InitWindowScene(want);
+        if (!initialRet) {
             return;
-        }
-
-        AbilityContinuationOrRecover(want);
-        auto window = scene_->GetMainWindow();
-        if (window) {
-            HILOG_DEBUG("Call RegisterDisplayMoveListener, windowId: %{public}d", window->GetWindowId());
-            abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weak_from_this());
-            window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
         }
     } else {
         auto window = scene_->GetMainWindow();
@@ -671,6 +652,46 @@ void JsAbility::DoOnForeground(const Want &want)
     AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, METHOD_NAME);
     scene_->GoForeground(Ability::sceneFlag_);
     HILOG_DEBUG("%{public}s end scene_->GoForeground.", __func__);
+}
+
+bool JsAbility::InitWindowScene(const Want &want)
+{
+    scene_ = std::make_shared<Rosen::WindowScene>();
+    int32_t displayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
+    if (setting_ != nullptr) {
+        auto strDisplayId = setting_->GetProperty(OHOS::AppExecFwk::AbilityStartSetting::WINDOW_DISPLAY_ID_KEY);
+        std::regex formatRegex("[0-9]{0,9}$");
+        std::smatch sm;
+        bool flag = std::regex_match(strDisplayId, sm, formatRegex);
+        if (flag && !strDisplayId.empty()) {
+            int base = 10; // Numerical base (radix) that determines the valid characters and their interpretation.
+            displayId = strtol(strDisplayId.c_str(), nullptr, base);
+            HILOG_DEBUG("%{public}s success. displayId is %{public}d", __func__, displayId);
+        } else {
+            HILOG_WARN("%{public}s failed to formatRegex:[%{public}s]", __func__, strDisplayId.c_str());
+        }
+    }
+    auto option = GetWindowOption(want);
+    Rosen::WMError ret = Rosen::WMError::WM_OK;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && sessionInfo_ != nullptr) {
+        abilityContext_->SetWeakSessionToken(sessionInfo_->sessionToken);
+        ret = scene_->Init(displayId, abilityContext_, sceneListener_, option, sessionInfo_->sessionToken);
+    } else {
+        ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);
+    }
+    if (ret != Rosen::WMError::WM_OK) {
+        HILOG_ERROR("%{public}s error. failed to init window scene!", __func__);
+        return false;
+    }
+
+    AbilityContinuationOrRecover(want);
+    auto window = scene_->GetMainWindow();
+    if (window) {
+        HILOG_DEBUG("Call RegisterDisplayMoveListener, windowId: %{public}d", window->GetWindowId());
+        abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weak_from_this());
+        window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
+    }
+    return true;
 }
 
 void JsAbility::RequestFocus(const Want &want)

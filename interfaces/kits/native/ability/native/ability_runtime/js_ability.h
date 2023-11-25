@@ -107,6 +107,9 @@ private:
     sptr<IRemoteObject> SetNewRuleFlagToCallee(napi_env env, napi_value remoteJsObj);
     void AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState state, const std::string &methodName) const;
     void AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState state, const std::string &methodName) const;
+    std::string GetSrcPath(std::shared_ptr<AbilityInfo> abilityInfo) const;
+    void BindContext(napi_env env, napi_value obj);
+    bool InitWindowScene(const Want &want);
 
     JsRuntime &jsRuntime_;
     std::shared_ptr<NativeReference> shellContextRef_;
