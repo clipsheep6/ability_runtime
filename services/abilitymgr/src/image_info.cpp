@@ -15,7 +15,7 @@
 
 #include "image_info.h"
 
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "nlohmann/json.hpp"
 #include "string_ex.h"
 

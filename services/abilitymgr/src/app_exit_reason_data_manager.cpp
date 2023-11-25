@@ -20,7 +20,7 @@
 #include <unistd.h>
 
 #include "errors.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "nlohmann/json.hpp"
 
 namespace OHOS {

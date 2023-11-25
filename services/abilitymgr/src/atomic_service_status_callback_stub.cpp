@@ -16,7 +16,7 @@
 #include "atomic_service_status_callback_stub.h"
 
 #include "ability_manager_interface.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "ipc_types.h"
 #include "message_parcel.h"
 

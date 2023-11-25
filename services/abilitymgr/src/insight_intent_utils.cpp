@@ -15,7 +15,7 @@
 
 #include "insight_intent_utils.h"
 
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "if_system_ability_manager.h"
 #include "in_process_call_wrapper.h"
 #include "insight_intent_profile.h"

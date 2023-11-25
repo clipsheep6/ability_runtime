@@ -16,7 +16,7 @@
 #include "window_focus_changed_listener.h"
 
 #include "ability_manager_service.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 
 namespace OHOS {
 namespace AAFwk {

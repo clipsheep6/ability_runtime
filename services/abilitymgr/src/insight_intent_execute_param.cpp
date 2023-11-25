@@ -14,7 +14,7 @@
  */
 
 #include "insight_intent_execute_param.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 
 namespace OHOS {
 namespace AppExecFwk {

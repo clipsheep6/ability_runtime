@@ -16,7 +16,7 @@
 #include "ability_connect_callback_stub.h"
 
 #include "ability_connect_callback_proxy.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "ipc_types.h"
 #include "message_parcel.h"
 #include "want.h"

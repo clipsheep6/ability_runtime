@@ -21,7 +21,7 @@
 #include "default_app_interface.h"
 #include "errors.h"
 #include "event_report.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "in_process_call_wrapper.h"
 #include "parameters.h"
 #include "want.h"

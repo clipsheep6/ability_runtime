@@ -17,7 +17,7 @@
 
 #include "ability_manager_service.h"
 #include "app_scheduler.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "ipc_skeleton.h"
 #include "os_account_manager_wrapper.h"
 #include "scene_board_judgement.h"

@@ -15,7 +15,7 @@
 
 #include "ability_manager_errors.h"
 #include "prepare_terminate_callback_proxy.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "iremote_object.h"
 #include "message_parcel.h"
 #include "peer_holder.h"

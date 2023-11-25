@@ -18,7 +18,7 @@
 #include <unistd.h>
 
 #include "extension_config.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 
 namespace OHOS {
 namespace AAFwk {

@@ -20,7 +20,7 @@
 #include "data_ability_operation.h"
 #include "data_ability_predicates.h"
 #include "data_ability_result.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "ipc_types.h"
 #include "ishared_result_set.h"
 #include "pac_map.h"

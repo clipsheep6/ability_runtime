@@ -17,7 +17,7 @@
 #include "mission_info_mgr.h"
 
 #include "ability_manager_service.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "hitrace_meter.h"
 #include "nlohmann/json.hpp"
 #ifdef SUPPORT_GRAPHICS

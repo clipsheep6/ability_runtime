@@ -25,7 +25,7 @@
 #include "appfreeze_manager.h"
 #include "extension_config.h"
 #include "hitrace_meter.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "in_process_call_wrapper.h"
 #include "mock_session_manager_service.h"
 #include "parameter.h"

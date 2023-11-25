@@ -17,7 +17,7 @@
 #include <cstdio>
 #include "directory_ex.h"
 #include "file_ex.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "image_source.h"
 #include "media_errors.h"
 #include "mission_info_mgr.h"

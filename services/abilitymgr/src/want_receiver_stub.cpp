@@ -15,7 +15,7 @@
 
 #include "want_receiver_stub.h"
 
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "ipc_types.h"
 
 #include "pac_map.h"

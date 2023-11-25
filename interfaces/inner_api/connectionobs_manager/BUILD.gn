@@ -15,6 +15,8 @@ import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 config("connection_obs_manager_public_config") {
+  defines = [ "AMS_LOG_TAG = \"Ability\"" ]
+  defines += [ "AMS_LOG_DOMAIN = 0xD001300" ]
   visibility = [ ":*" ]
   visibility +=
       [ "${ability_runtime_test_path}/unittest/connection_observer_test/*" ]

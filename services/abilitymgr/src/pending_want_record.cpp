@@ -15,7 +15,7 @@
 
 #include "pending_want_record.h"
 
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "iremote_object.h"
 #include "pending_want_manager.h"
 

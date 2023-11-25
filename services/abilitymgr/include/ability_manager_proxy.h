@@ -18,7 +18,7 @@
 
 #include "ability_manager_interface.h"
 #include "auto_startup_info.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "iremote_proxy.h"
 #include "mission_info.h"
 

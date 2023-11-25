@@ -16,7 +16,7 @@
 #include "ability_debug_deal.h"
 
 #include "ability_record.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 
 namespace OHOS {
 namespace AAFwk {

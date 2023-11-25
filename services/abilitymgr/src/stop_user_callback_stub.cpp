@@ -15,7 +15,7 @@
 
 #include "stop_user_callback_stub.h"
 
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "ipc_types.h"
 #include "message_parcel.h"
 

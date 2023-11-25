@@ -20,7 +20,7 @@
 #ifdef WITH_DLP
 #include "dlp_file_kits.h"
 #endif // WITH_DLP
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"

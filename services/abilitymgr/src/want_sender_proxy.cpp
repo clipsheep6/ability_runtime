@@ -15,7 +15,7 @@
 
 #include "want_sender_proxy.h"
 
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "ipc_types.h"
 
 namespace OHOS {

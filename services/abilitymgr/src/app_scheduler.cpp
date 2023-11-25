@@ -21,7 +21,7 @@
 #include "ability_util.h"
 #include "appmgr/app_mgr_constants.h"
 #include "hitrace_meter.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "in_process_call_wrapper.h"
 
 namespace OHOS {

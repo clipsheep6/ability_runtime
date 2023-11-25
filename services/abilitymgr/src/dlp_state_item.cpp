@@ -15,7 +15,7 @@
 
 #include "dlp_state_item.h"
 
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 
 namespace OHOS {
 namespace AAFwk {

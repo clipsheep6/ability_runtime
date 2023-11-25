@@ -19,7 +19,7 @@
 
 #include "app_mgr_interface.h"
 #include "connection_observer_errors.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"

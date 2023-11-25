@@ -14,7 +14,7 @@
  */
 
 #include "acquire_share_data_callback_stub.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "message_parcel.h"
 
 namespace OHOS {

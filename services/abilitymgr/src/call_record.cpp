@@ -15,7 +15,7 @@
 
 #include "call_record.h"
 
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "ability_util.h"
 #include "ability_manager_service.h"
 #include "ability_record.h"

@@ -45,7 +45,7 @@
 #include "data_ability_manager.h"
 #include "event_report.h"
 #include "free_install_manager.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "iacquire_share_data_callback_interface.h"
 #include "iremote_object.h"
 #include "mission_list_manager.h"

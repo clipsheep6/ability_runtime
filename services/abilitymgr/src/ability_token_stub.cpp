@@ -16,7 +16,7 @@
 #include "ability_token_stub.h"
 
 #include "ability_token_proxy.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 
 namespace OHOS {
 namespace AAFwk {

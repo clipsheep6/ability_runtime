@@ -37,7 +37,7 @@
 #include "in_process_call_wrapper.h"
 #include "errors.h"
 #include "event_report.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "os_account_manager_wrapper.h"
 #include "parameters.h"
 #include "scene_board_judgement.h"

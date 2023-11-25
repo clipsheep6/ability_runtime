@@ -14,7 +14,7 @@
  */
 
 #include "data_ability_caller_recipient.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 
 namespace OHOS {
 namespace AAFwk {

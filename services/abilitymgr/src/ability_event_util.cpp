@@ -15,7 +15,7 @@
 
 #include "ability_event_util.h"
 #include "app_scheduler.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 
 namespace OHOS {
 namespace AAFwk {

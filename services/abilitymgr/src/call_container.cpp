@@ -15,7 +15,7 @@
 
 #include "call_container.h"
 
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "ability_manager_errors.h"
 #include "ability_connect_callback_stub.h"
 #include "ability_util.h"

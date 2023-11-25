@@ -24,7 +24,7 @@
 #include "appfreeze_manager.h"
 #include "hitrace_meter.h"
 #include "errors.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "hisysevent.h"
 #include "mission_info_mgr.h"
 #include "in_process_call_wrapper.h"

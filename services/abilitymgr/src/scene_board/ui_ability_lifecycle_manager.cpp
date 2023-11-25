@@ -21,7 +21,7 @@
 #include "appfreeze_manager.h"
 #include "app_exit_reason_data_manager.h"
 #include "errors.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "hitrace_meter.h"
 #include "iability_info_callback.h"
 #include "mission_info.h"

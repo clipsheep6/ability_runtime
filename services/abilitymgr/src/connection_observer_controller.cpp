@@ -16,7 +16,7 @@
 #include "connection_observer_controller.h"
 
 #include "connection_observer_errors.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 
 namespace OHOS {
 namespace AAFwk {

@@ -20,7 +20,7 @@
 #ifdef WITH_DLP
 #include "dlp_permission_kit.h"
 #endif // WITH_DLP
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "iremote_object.h"
 #include "permission_verification.h"
 #include "want.h"

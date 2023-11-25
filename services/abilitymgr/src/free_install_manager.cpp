@@ -24,7 +24,7 @@
 #include "atomic_service_status_callback.h"
 #include "distributed_client.h"
 #include "free_install_observer_manager.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
 

@@ -46,7 +46,7 @@
 #include "extension_config.h"
 #include "errors.h"
 #include "freeze_util.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "hisysevent.h"
 #include "hitrace_meter.h"
 #include "if_system_ability_manager.h"

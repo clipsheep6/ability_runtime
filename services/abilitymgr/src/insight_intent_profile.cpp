@@ -15,7 +15,7 @@
 
 #include "insight_intent_profile.h"
 
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "json_util.h"
 #include "nlohmann/json.hpp"
 

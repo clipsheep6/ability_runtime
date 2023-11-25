@@ -18,7 +18,7 @@
 
 #include "common_event_manager.h"
 #include "common_event_support.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 #include "want.h"
 
 namespace OHOS {

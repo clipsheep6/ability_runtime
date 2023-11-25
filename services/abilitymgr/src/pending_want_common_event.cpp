@@ -14,7 +14,7 @@
  */
 
 #include "pending_want_common_event.h"
-#include "hilog_wrapper.h"
+#include "hilog_wrapper_service_service.h"
 
 namespace OHOS {
 namespace AAFwk {
