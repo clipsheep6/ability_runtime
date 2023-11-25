@@ -1310,7 +1310,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
 
         std::string processName = "";
         if (processInfo_ != nullptr) {
-            processName = processIndo_->GetProcessName();
+            processName = processInfo_->GetProcessName();
             HILOG_DEBUG("MainThread::HandleLaunchApplication processName is %{public}s", processName.c_str());
         }
         auto perfCmd = appLaunchData.GetPerfCmd();
