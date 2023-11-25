@@ -78,6 +78,10 @@ public:
     {
         return;
     }
+    virtual int CreateModalUIExtension(const Want &want) override
+    {
+        return 0;
+    }
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

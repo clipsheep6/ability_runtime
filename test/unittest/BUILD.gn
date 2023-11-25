@@ -112,7 +112,6 @@ ohos_source_set("abilityms_test_source") {
     "${ability_runtime_services_path}/abilitymgr/src/ability_debug_deal.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_event_handler.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_event_util.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_interceptor.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_interceptor_executer.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_collaborator_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_proxy.cpp",

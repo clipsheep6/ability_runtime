@@ -29,6 +29,7 @@
 #include "erms_mgr_param.h"
 #endif
 #include "hilog_wrapper.h"
+#include "iservice_registry.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
 #include "permission_constants.h"
@@ -56,6 +57,8 @@ const std::string JUMP_DIALOG_CALLER_MODULE_NAME = "interceptor_callerModuleName
 const std::string JUMP_DIALOG_CALLER_LABEL_ID = "interceptor_callerLabelId";
 const std::string JUMP_DIALOG_TARGET_MODULE_NAME = "interceptor_targetModuleName";
 const std::string JUMP_DIALOG_TARGET_LABEL_ID = "interceptor_targetLabelId";
+const std::string UNREGISTER_EVENT_TASK = "unregister event task";
+constexpr int KILL_PROCESS_DELAYTIME_MICRO_SECONDS = 5000;
 
 AbilityInterceptor::~AbilityInterceptor()
 {}
@@ -181,6 +184,7 @@ DisposedRuleInterceptor::~DisposedRuleInterceptor()
 
 ErrCode DisposedRuleInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground)
 {
+    HILOG_DEBUG("Call");
     AppExecFwk::DisposedRule disposedRule;
     if (CheckControl(want, userId, disposedRule)) {
         HILOG_INFO("The target ability is intercpted.");
@@ -200,6 +204,28 @@ ErrCode DisposedRuleInterceptor::DoProcess(const Want &want, int requestCode, in
             return ERR_EDM_APP_CONTROLLED;
         }
         return ERR_APP_CONTROLLED;
+    }
+    if (disposedRule.disposedType == AppExecFwk::DisposedType::NON_BLOCK) {
+        HILOG_INFO("not block");
+        auto disposedObserver = sptr<DisposedObserver>::MakeSptr(disposedRule);
+        if (!disposedObserver) {
+            HILOG_ERROR("disposedObserver is nullptr");
+            return ERR_INVALID_VALUE;
+        }
+        sptr<OHOS::AppExecFwk::IAppMgr> appManager = disposedObserver->GetAppMgr();
+        std::vector<std::string> bundleNameList;
+        bundleNameList.push_back(want.GetBundle());
+        int32_t ret = IN_PROCESS_CALL(appManager->RegisterApplicationStateObserver(disposedObserver, bundleNameList));
+        if (ret != 0) {
+            HILOG_ERROR("register to appmanager failed. err:%{public}d", ret);
+            disposedObserver = nullptr;
+            return ret;
+        }
+        auto unregisterTask = [appManager, disposedObserver] () {
+            HILOG_ERROR("unregister observer timeout, need unregister again");
+            IN_PROCESS_CALL(appManager->UnregisterApplicationStateObserver(disposedObserver));
+        };
+        taskHandler_->SubmitTask(unregisterTask, UNREGISTER_EVENT_TASK, KILL_PROCESS_DELAYTIME_MICRO_SECONDS);
     }
     return ERR_OK;
 }
@@ -236,11 +262,24 @@ bool DisposedRuleInterceptor::CheckControl(const Want &want, int32_t userId,
             return true;
         }
     }
+    int priority = -1;
+    for (auto &rule : disposedRuleList) {
+        if (rule.disposedType != AppExecFwk::DisposedType::NON_BLOCK) {
+            return false;
+        }
+        if (rule.priority > priority) {
+            priority = rule.priority;
+            disposedRule = rule;
+        }
+    }
     return false;
 }
 
 bool DisposedRuleInterceptor::CheckDisposedRule(const Want &want, AppExecFwk::DisposedRule &disposedRule)
 {
+    if (disposedRule.disposedType == AppExecFwk::DisposedType::NON_BLOCK) {
+        return false;
+    }
     bool isAllowed = disposedRule.controlType == AppExecFwk::ControlType::ALLOWED_LIST;
     if (disposedRule.disposedType == AppExecFwk::DisposedType::BLOCK_APPLICATION) {
         return !isAllowed;

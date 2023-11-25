@@ -997,6 +997,17 @@ void UIAbility::ExecuteInsightIntentBackground(const AAFwk::Want &want,
 {
     HILOG_DEBUG("called");
 }
+
+int UIAbility::CreateModalUIExtension(const AAFwk::Want &want)
+{
+    HILOG_DEBUG("call");
+    auto abilityContextImpl = GetAbilityContext();
+    if (abilityContextImpl == nullptr) {
+        HILOG_ERROR("abilityContext is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    return abilityContextImpl->CreateModalUIExtensionWithApp(want);
+}
 #endif
 } // namespace AbilityRuntime
 } // namespace OHOS

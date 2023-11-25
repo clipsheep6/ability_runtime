@@ -156,6 +156,12 @@ public:
     {
         return;
     }
+
+    virtual int CreateModalUIExtension(const Want &want)
+    {
+        return 0;
+    }
+
 #ifdef ABILITY_COMMAND_FOR_TEST
     virtual int BlockAbility()
     {

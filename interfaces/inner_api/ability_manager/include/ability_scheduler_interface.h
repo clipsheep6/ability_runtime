@@ -292,6 +292,7 @@ public:
     virtual void NotifyContinuationResult(int32_t result) = 0;
 
     virtual void DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info) = 0;
+    virtual int CreateModalUIExtension(const Want &want) = 0;
 
     virtual void OnExecuteIntent(const Want &want) = 0;
 
@@ -396,6 +397,8 @@ public:
         SCHEDULE_ABILITY_PREPARE_TERMINATE,
 
         SCHEDULE_ONEXECUTE_INTENT,
+
+        CREATE_MODAL_UI_EXTENSION
     };
 };
 }  // namespace AAFwk

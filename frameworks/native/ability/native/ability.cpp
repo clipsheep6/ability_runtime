@@ -2132,6 +2132,17 @@ void Ability::ContinuationRestore(const Want &want)
 {
     HILOG_DEBUG("called");
 }
+
+int Ability::CreateModalUIExtension(const Want &want)
+{
+    HILOG_DEBUG("call");
+    auto abilityContextImpl = GetAbilityContext();
+    if (abilityContextImpl == nullptr) {
+        HILOG_ERROR("abilitycontext is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    return abilityContextImpl->CreateModalUIExtensionWithApp(want);
+}
 #endif
 }  // namespace AppExecFwk
 }  // namespace OHOS

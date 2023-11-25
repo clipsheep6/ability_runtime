@@ -344,6 +344,12 @@ public:
     std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> ExecuteBatch(
         const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> &operations) override;
 
+    /**
+     * @brief Dump ability runner info.
+     * @param want Create modalUIExtension with want object.
+     */
+    int CreateModalUIExtension(const Want &want) override;
+
 #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * @brief Block ability.

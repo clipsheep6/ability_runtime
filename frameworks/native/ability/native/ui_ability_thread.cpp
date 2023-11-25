@@ -684,5 +684,15 @@ void UIAbilityThread::HandlePrepareTermianteAbility()
     isPrepareTerminateAbilityDone_.store(true);
     cv_.notify_all();
 }
+
+int UIAbilityThread::CreateModalUIExtension(const Want &want)
+{
+    HILOG_DEBUG("Call");
+    if (currentAbility_ == nullptr) {
+        HILOG_ERROR("current ability is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    return currentAbility_->CreateModalUIExtension(want);
+}
 } // namespace AbilityRuntime
 } // namespace OHOS

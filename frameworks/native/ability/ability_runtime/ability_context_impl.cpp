@@ -21,6 +21,7 @@
 #include "hitrace_meter.h"
 #include "connection_manager.h"
 #include "dialog_request_callback_impl.h"
+#include "dialog_ui_extension_callback.h"
 #include "hilog_wrapper.h"
 #include "remote_object_wrapper.h"
 #include "request_constants.h"
@@ -764,6 +765,29 @@ ErrCode AbilityContextImpl::StartAbilityByType(const std::string &type,
     }
     uiExtensionCallbacks->SetUIContent(uiContent);
     uiExtensionCallbacks->SetSessionId(sessionId);
+    return ERR_OK;
+}
+
+ErrCode AbilityContextImpl::CreateModalUIExtensionWithApp(const AAFwk::Want &want)
+{
+    HILOG_DEBUG("call");
+    auto uiContent = GetUIContent();
+    if (uiContent == nullptr) {
+        HILOG_ERROR("uiContent is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    auto disposedCallback = std::make_shared<DialogUIExtensionCallback>();
+    Ace::ModalUIExtensionCallbacks callback;
+    callback.onError = std::bind(&DialogUIExtensionCallback::OnError, disposedCallback);
+    callback.onRelease = std::bind(&DialogUIExtensionCallback::OnRelease, disposedCallback);
+    Ace::ModalUIExtensionConfig config;
+    int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
+    if (sessionId == 0) {
+        HILOG_ERROR("CreateModalUIExtension is failed");
+        return ERR_INVALID_VALUE;
+    }
+    disposedCallback->SetUIContent(uiContent);
+    disposedCallback->SetSessionId(sessionId);
     return ERR_OK;
 }
 #endif

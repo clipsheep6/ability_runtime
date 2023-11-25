@@ -23,7 +23,9 @@
 #include "erms_mgr_param.h"
 #include "erms_mgr_interface.h"
 #endif
+#include "disposed_observer.h"
 #include "in_process_call_wrapper.h"
+#include "task_handler_wrap.h"
 #include "want.h"
 
 namespace OHOS {
@@ -44,6 +46,7 @@ public:
      * Excute interception processing.
      */
     virtual ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) = 0;
+    virtual void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler) {};
 };
 
 // start ability interceptor
@@ -52,6 +55,10 @@ public:
     CrowdTestInterceptor();
     ~CrowdTestInterceptor();
     ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
+    virtual void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler) override
+    {
+        return;
+    };
 private:
     bool CheckCrowdtest(const Want &want, int32_t userId);
 };
@@ -61,6 +68,10 @@ public:
     ControlInterceptor();
     ~ControlInterceptor();
     ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
+    virtual void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler) override
+    {
+        return;
+    };
 private:
     bool CheckControl(const Want &want, int32_t userId, AppExecFwk::AppRunningControlRuleResult &controlRule);
 };
@@ -70,9 +81,15 @@ public:
     DisposedRuleInterceptor();
     ~DisposedRuleInterceptor();
     ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
+    void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler) override
+    {
+        taskHandler_ = taskHandler;
+    };
 private:
     bool CheckControl(const Want &want, int32_t userId, AppExecFwk::DisposedRule &disposedRule);
     bool CheckDisposedRule(const Want &want, AppExecFwk::DisposedRule &disposedRule);
+private:
+    std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;
 };
 
 class EcologicalRuleInterceptor : public AbilityInterceptor {
@@ -80,6 +97,10 @@ public:
     EcologicalRuleInterceptor();
     ~EcologicalRuleInterceptor();
     ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
+    virtual void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler) override
+    {
+        return;
+    };
 private:
 #ifdef SUPPORT_ERMS
     void GetEcologicalCallerInfo(const Want &want, ErmsCallerInfo &callerInfo, int32_t userId);
@@ -94,6 +115,10 @@ public:
     AbilityJumpInterceptor();
     ~AbilityJumpInterceptor();
     ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
+    virtual void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler) override
+    {
+        return;
+    };
 
 private:
     bool CheckControl(sptr<AppExecFwk::IBundleMgr> &bms, const Want &want, int32_t userId,

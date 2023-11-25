@@ -277,6 +277,12 @@ std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> AbilityThread::Execu
     return results;
 }
 
+int AbilityThread::CreateModalUIExtension(const Want &want)
+{
+    HILOG_DEBUG("called");
+    return ERR_INVALID_VALUE;
+}
+
 #ifdef ABILITY_COMMAND_FOR_TEST
 int AbilityThread::BlockAbility()
 {
